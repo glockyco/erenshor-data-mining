@@ -7,13 +7,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
 
-from erenshor.application.wiki_lua.ability_links import (
-    SkillDataRepository as AbilityLinkSkillRepository,
-)
-from erenshor.application.wiki_lua.ability_links import (
-    StanceDataRepository,
-    write_ability_links_module,
-)
 from erenshor.application.wiki_lua.characters import (
     CharacterDataRepository,
     CharacterLootRepository,
@@ -22,13 +15,23 @@ from erenshor.application.wiki_lua.characters import (
     write_characters_module,
 )
 from erenshor.application.wiki_lua.items import (
-    ItemDataRepository,
+    ItemDataRepository as ItemModuleDataRepository,
+)
+from erenshor.application.wiki_lua.items import (
     ItemProvenanceCharacterRepository,
     ItemProvenanceItemRepository,
     ItemProvenanceQuestRepository,
     ItemProvenanceZoneRepository,
     build_item_sources_by_item,
     write_items_modules,
+)
+from erenshor.application.wiki_lua.link_catalog import (
+    ClassDisplayNameService,
+    FactionDataRepository,
+    write_links_module,
+)
+from erenshor.application.wiki_lua.link_catalog import (
+    ItemDataRepository as LinkCatalogItemDataRepository,
 )
 from erenshor.application.wiki_lua.quests import QuestDataRepository, write_quests_module
 from erenshor.application.wiki_lua.skills import (
@@ -44,12 +47,17 @@ from erenshor.application.wiki_lua.spells import (
     SpellRelationshipItemRepository,
     write_spells_module,
 )
-from erenshor.application.wiki_lua.stances import write_stances_module
+from erenshor.application.wiki_lua.stances import StanceDataRepository, write_stances_module
 from erenshor.application.wiki_lua.validation import LuaValidationResult, validate_lua_module
 from erenshor.application.wiki_lua.zones import ZoneDataRepository, write_zones_module
 
 
-class WikiItemRepository(ItemDataRepository, ItemProvenanceItemRepository, Protocol):
+class WikiItemRepository(
+    ItemModuleDataRepository,
+    LinkCatalogItemDataRepository,
+    ItemProvenanceItemRepository,
+    Protocol,
+):
     """Item repository contract needed by full Lua data generation."""
 
 
@@ -83,11 +91,16 @@ class LuaDataModuleGenerationResult:
     validation_tools: dict[Path, str]
 
 
-class SkillGenerationRepository(AbilityLinkSkillRepository, SkillModuleRepository, Protocol):
+class SkillGenerationRepository(SkillModuleRepository, Protocol):
     """Skill repository methods needed by all generated Lua data modules."""
 
 
 LuaValidator = Callable[[Path], LuaValidationResult]
+
+
+class WikiFactionRepository(FactionDataRepository, Protocol):
+    """Faction repository contract needed for semantic link catalog generation."""
+
 
 _DATA_SUBDIR = ("Erenshor", "Data")
 
@@ -96,7 +109,7 @@ _DATA_SUBDIR = ("Erenshor", "Data")
 TOP_LEVEL_DATA_MODULES: tuple[str, ...] = (
     "Items.lua",
     "Characters.lua",
-    "AbilityLinks.lua",
+    "Links.lua",
     "Spells.lua",
     "Skills.lua",
     "Quests.lua",
@@ -155,16 +168,44 @@ def generate_lua_data_modules(
     quest_repo: WikiQuestRepository,
     zone_repo: WikiZoneRepository,
     output_root: Path,
+    faction_repo: WikiFactionRepository,
+    class_display: ClassDisplayNameService,
     validate: LuaValidator = validate_lua_module,
 ) -> LuaDataModuleGenerationResult:
     """Generate and validate all currently supported Lua data modules."""
     items = item_repo.get_items_for_wiki_generation()
     item_sources_by_item = build_item_sources_by_item(items, item_repo, character_repo, quest_repo, zone_repo)
+    class_display_names = {
+        internal_name: class_display.get_display_name(internal_name)
+        for internal_name in class_display.get_all_internal_names()
+    }
     written_paths = [
-        *write_items_modules(item_repo, output_root, sources_by_item=item_sources_by_item),
+        *write_items_modules(
+            item_repo,
+            output_root,
+            sources_by_item=item_sources_by_item,
+            class_display_names=class_display_names,
+        ),
         write_characters_module(character_repo, spawn_repo, loot_repo, spell_usage_repo, output_root),
-        write_ability_links_module(spell_repo, skill_repo, stance_repo, output_root),
-        write_spells_module(spell_repo, output_root, item_repo, character_repo),
+        write_links_module(
+            item_repo,
+            character_repo,
+            quest_repo,
+            zone_repo,
+            spell_repo,
+            skill_repo,
+            stance_repo,
+            faction_repo,
+            class_display,
+            output_root,
+        ),
+        write_spells_module(
+            spell_repo,
+            output_root,
+            item_repo,
+            character_repo,
+            class_display_names=class_display_names,
+        ),
         write_skills_module(skill_repo, output_root, item_repo),
         write_quests_module(quest_repo, output_root),
         write_zones_module(zone_repo, output_root),

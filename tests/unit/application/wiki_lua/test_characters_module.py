@@ -15,6 +15,7 @@ from erenshor.application.wiki_lua.characters import (
     generate_characters_module,
     write_characters_module,
 )
+from erenshor.domain.value_objects.faction import FactionModifier
 from erenshor.domain.value_objects.loot import LootDropInfo
 from erenshor.domain.value_objects.spawn import CharacterSpawnInfo, CharacterSpawnRow
 from erenshor.domain.value_objects.wiki_link import AbilityLink, CharacterAbilityUsage, ZoneLink
@@ -140,6 +141,92 @@ def test_builds_character_data_with_spawn_loot_and_spell_summaries() -> None:
             }
         },
     }
+
+
+def test_faction_without_stable_key_keeps_typed_fallback_reference() -> None:
+    character = make_character(
+        my_world_faction_stable_key=None,
+        my_world_faction_display_name="The Followers of Evil",
+        my_world_faction_wiki_page_name="The Followers of Evil",
+    )
+
+    data = build_characters_data(
+        [character],
+        spawn_infos_by_character={},
+        loot_by_character={},
+        spells_by_character={},
+        spawn_rows_by_character={},
+        ability_usages_by_character={},
+    )
+
+    assert data["characters"][character.stable_key]["faction"] == {
+        "kind": "faction",
+        "page": "The Followers of Evil",
+        "text": "The Followers of Evil",
+    }
+
+
+def test_excluded_world_faction_remains_plain_text() -> None:
+    character = make_character(
+        my_world_faction_stable_key="faction:excluded",
+        my_world_faction_display_name="Excluded Faction",
+        my_world_faction_wiki_page_name=None,
+    )
+
+    data = build_characters_data(
+        [character],
+        spawn_infos_by_character={},
+        loot_by_character={},
+        spells_by_character={},
+        spawn_rows_by_character={},
+        ability_usages_by_character={},
+    )
+
+    assert data["characters"][character.stable_key]["faction"] == "Excluded Faction"
+
+
+def test_faction_modifiers_keep_faction_kind_and_stable_key() -> None:
+    character = make_character(
+        faction_modifiers=[
+            FactionModifier(
+                faction_stable_key="faction:azureguard",
+                modifier_value=-5,
+                faction_display_name="The Azure Guard",
+                faction_wiki_page_name="The Azure Guard",
+            ),
+            FactionModifier(
+                faction_stable_key="faction:excluded",
+                modifier_value=2,
+                faction_display_name="Excluded Faction",
+                faction_wiki_page_name=None,
+            ),
+        ]
+    )
+
+    data = build_characters_data(
+        [character],
+        spawn_infos_by_character={},
+        loot_by_character={},
+        spells_by_character={},
+        spawn_rows_by_character={},
+        ability_usages_by_character={},
+    )
+
+    assert data["characters"][character.stable_key]["factionChange"] == [
+        {
+            "link": {"kind": "page", "page": "Excluded Faction", "text": "Excluded Faction"},
+            "modifier": 2,
+        },
+        {
+            "link": {
+                "kind": "faction",
+                "page": "The Azure Guard",
+                "text": "The Azure Guard",
+                "stablekey": "faction:azureguard",
+            },
+            "modifier": -5,
+        },
+    ]
 
 
 def test_dynamic_spawn_omits_chance_but_keeps_coordinate() -> None:

@@ -1,0 +1,2 @@
+__HIDDENCAT__
+This hidden maintenance category tracks pages containing Erenshor semantic links whose stable keys cannot be resolved.

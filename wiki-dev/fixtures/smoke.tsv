@@ -110,9 +110,31 @@ Missing Character Data	Missing character data: Missing Character Data
 Missing Character Data	Category:Pages_with_missing_Erenshor_character_data
 Lua AbilityLink Smoke	PASS Erenshor AbilityLink testcases
 Lua AbilityLink Smoke	Minor Lightning
-Lua AbilityLink Smoke	Aggressive Stance
+Lua AbilityLink Smoke	Stance: Aggressive
 Lua AbilityLink Smoke	Manual Ability Text
 Lua AbilityLink Smoke	Manual Ability Page
+Lua AbilityLink Smoke	data-erenshor-page="Minor Lightning"
+Lua AbilityLink Smoke	data-erenshor-key="spell:minor&#95;lightning"
+Lua AbilityLink Smoke	Minor_Lightning
+Lua AbilityLink Smoke	data-erenshor-page="Stance: Aggressive"
+Lua AbilityLink Smoke	data-erenshor-key="stance:aggressive"
+Lua AbilityLink Smoke	Stance:_Aggressive
+Lua AbilityLink Smoke	Manual_Ability_Page
+Lua AbilityLink Smoke	data-erenshor-page="Manual Ability Page"
+Lua AbilityLink Smoke	data-erenshor-key="spell:minor&#95;lightning"
+Lua AbilityLink Smoke	Unresolved Ability
+Lua AbilityLink Smoke	Unresolved_Ability_Target
+Lua AbilityLink Smoke	data-erenshor-page="Unresolved Ability Target"
+Lua AbilityLink Smoke	data-erenshor-key="spell:does-not-exist"
+Lua AbilityLink Smoke	Wrong Kind Ability
+Lua AbilityLink Smoke	Wrong_Kind_Ability_Target
+Lua AbilityLink Smoke	data-erenshor-page="Wrong Kind Ability Target"
+Lua AbilityLink Smoke	data-erenshor-key="item:chest - 38 - abyssal plate"
+Lua AbilityLink Smoke	Manual_Ability_Target
+Lua AbilityLink Smoke	Manual Ability
+Lua AbilityLink Smoke	data-erenshor-page="Manual Ability Target"
+Lua AbilityLink Smoke	Category:Pages_with_unresolved_Erenshor_links
+Lua AbilityLink Smoke	Category:Pages_with_mismatched_Erenshor_link_targets
 Lua Link Smoke	PASS Erenshor Link testcases
 Lua Link Smoke	erenshor-link--item
 Lua Link Smoke	erenshor-link--ability
@@ -121,6 +143,58 @@ Lua Link Smoke	erenshor-link--character
 Lua Link Smoke	erenshor-link--zone
 Lua Link Smoke	erenshor-link--faction
 Lua Link Smoke	erenshor-link--class
+Lua Link Smoke	Keyed Item
+Lua Link Smoke	Positional Item
+Lua Link Smoke	Abyssal_Plate
+Lua Link Smoke	data-erenshor-page="Abyssal Plate"
+Lua Link Smoke	data-erenshor-key="item:chest - 38 - abyssal plate"
+Lua Link Smoke	Keyed Ability
+Lua Link Smoke	Positional Ability
+Lua Link Smoke	Minor_Lightning
+Lua Link Smoke	data-erenshor-page="Minor Lightning"
+Lua Link Smoke	data-erenshor-key="spell:minor&#95;lightning"
+Lua Link Smoke	Keyed Quest
+Lua Link Smoke	Positional Quest
+Lua Link Smoke	A_Magical_Sword_in_Port_Azure
+Lua Link Smoke	data-erenshor-page="A Magical Sword in Port Azure"
+Lua Link Smoke	data-erenshor-key="quest:magical&#95;sword"
+Lua Link Smoke	Keyed Character
+Lua Link Smoke	Positional Character
+Lua Link Smoke	A_Grizzly_Bear
+Lua Link Smoke	data-erenshor-page="A Grizzly Bear"
+Lua Link Smoke	data-erenshor-key="character:a&#95;grizzly&#95;bear"
+Lua Link Smoke	Keyed Zone
+Lua Link Smoke	Positional Zone
+Lua Link Smoke	Blacksalt_Strand
+Lua Link Smoke	data-erenshor-page="Blacksalt Strand"
+Lua Link Smoke	data-erenshor-key="zone:saltedstrand"
+Lua Link Smoke	Keyed Faction
+Lua Link Smoke	Positional Faction
+Lua Link Smoke	The_Followers_of_Good
+Lua Link Smoke	data-erenshor-page="The Followers of Good"
+Lua Link Smoke	data-erenshor-key="faction:good"
+Lua Link Smoke	Keyed Class
+Lua Link Smoke	Positional Class
+Lua Link Smoke	Windblade
+Lua Link Smoke	data-erenshor-page="Windblade"
+Lua Link Smoke	data-erenshor-key="class:duelist"
+Lua Link Smoke	Priel_Note
+Lua Link Smoke	data-erenshor-page="Priel Note"
+Lua Link Smoke	Category:Pages_with_ambiguous_Erenshor_links
+Lua Link Smoke	Unresolved Ability
+Lua Link Smoke	Unresolved_Ability_Target
+Lua Link Smoke	data-erenshor-page="Unresolved Ability Target"
+Lua Link Smoke	data-erenshor-key="spell:does-not-exist"
+Lua Link Smoke	Wrong Kind Item
+Lua Link Smoke	Wrong_Kind_Item_Target
+Lua Link Smoke	data-erenshor-page="Wrong Kind Item Target"
+Lua Link Smoke	data-erenshor-key="spell:minor&#95;lightning"
+Lua Link Smoke	Manual Ability
+Lua Link Smoke	Manual_Ability_Target
+Lua Link Smoke	data-erenshor-page="Manual Ability Target"
+Lua Link Smoke	data-erenshor-key="spell:minor&#95;lightning"
+Lua Link Smoke	Category:Pages_with_unresolved_Erenshor_links
+Lua Link Smoke	Category:Pages_with_mismatched_Erenshor_link_targets
 Lua Quest Smoke	PASS Erenshor Quest testcases
 A Magical Sword in Port Azure	A Magical Sword in Port Azure
 A Magical Sword in Port Azure	450

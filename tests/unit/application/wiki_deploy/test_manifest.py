@@ -71,7 +71,11 @@ def test_select_repo_page_manifest_includes_templates_only_with_opt_in(tmp_path:
     write_page(tmp_path, "wiki/templates/Item.wiki", "{{Item}}\n")
     manifest = build_repo_page_manifest(tmp_path, variant="main", include_templates=True)
 
-    selected = select_repo_page_manifest(manifest, include_templates=True)
+    selected = select_repo_page_manifest(
+        manifest,
+        include_templates=True,
+        known_live_titles={"Module:Erenshor/Data/Links"},
+    )
 
     assert [entry.title for entry in selected.entries] == ["Module:Erenshor/Item", "Template:Item"]
 
@@ -140,18 +144,208 @@ def test_build_repo_page_manifest_orders_uploads_safely(tmp_path: Path) -> None:
     )
     write_page(tmp_path, "wiki/modules/Erenshor/Item.lua", "local p = {}\nreturn p\n")
     write_page(tmp_path, "variants/main/wiki/lua/Erenshor/Data/Items.lua", "return {}\n")
-
-    manifest = build_repo_page_manifest(tmp_path, variant="main", include_templates=True)
+    write_page(tmp_path, "wiki/content/Category/Links.wiki", "__HIDDENCAT__\n")
+    manifest = build_repo_page_manifest(
+        tmp_path,
+        variant="main",
+        include_templates=True,
+        include_generated_data=True,
+        include_content_pages=True,
+    )
 
     assert [entry.title for entry in manifest.entries] == [
+        "Module:Erenshor/Data/Items",
         "Module:Erenshor/Item",
         "Template:Item",
         "Template:WeaponTable",
+        "Category:Links",
     ]
     assert [entry.upload_stage for entry in manifest.entries] == [
+        "generated_data",
         "lua_module",
         "cargo_declaration",
         "template",
+        "content_page",
+    ]
+
+
+def test_build_repo_page_manifest_rejects_duplicate_titles_across_roots(tmp_path: Path) -> None:
+    """Content and module sources cannot target the same wiki title."""
+    write_page(tmp_path, "wiki/modules/Erenshor/Item.lua", "return {}\n")
+    write_page(tmp_path, "wiki/content/Module/Erenshor/Item.wiki", "Duplicate source\n")
+
+    with pytest.raises(ValueError) as error:
+        build_repo_page_manifest(tmp_path, variant="main", include_content_pages=True)
+
+    message = str(error.value)
+    assert "Duplicate wiki page title 'Module:Erenshor/Item'" in message
+    assert "wiki/modules/Erenshor/Item.lua (stage lua_module)" in message
+    assert "wiki/content/Module/Erenshor/Item.wiki (stage content_page)" in message
+
+
+def test_build_repo_page_manifest_includes_selected_variant_data_and_content_only_with_opt_in(tmp_path: Path) -> None:
+    write_page(tmp_path, "variants/main/wiki/lua/Erenshor/Data/Links.lua", "return {}\n")
+    write_page(tmp_path, "variants/playtest/wiki/lua/Erenshor/Data/Links.lua", "return 'playtest'\n")
+    write_page(tmp_path, "wiki/content/Category/Pages_with_unresolved_Erenshor_links.wiki", "__HIDDENCAT__\n")
+
+    default_manifest = build_repo_page_manifest(tmp_path, variant="main")
+    assert [entry.title for entry in default_manifest.entries] == []
+
+    manifest = build_repo_page_manifest(
+        tmp_path,
+        variant="main",
+        include_generated_data=True,
+        include_content_pages=True,
+    )
+    assert [entry.title for entry in manifest.entries] == [
+        "Module:Erenshor/Data/Links",
+        "Category:Pages_with_unresolved_Erenshor_links",
+    ]
+    assert manifest.entries[0].upload_stage == "generated_data"
+    assert manifest.entries[1].upload_stage == "content_page"
+    assert manifest.entries[0].source_path.startswith("variants/main/")
+
+
+def test_build_repo_page_manifest_discovers_requested_optional_titles_without_broadening_defaults(
+    tmp_path: Path,
+) -> None:
+    write_page(tmp_path, "variants/main/wiki/lua/Erenshor/Data/Links.lua", "return {}\n")
+    write_page(tmp_path, "wiki/templates/Item.wiki", "{{Item}}\n")
+    write_page(tmp_path, "wiki/content/Category/Links.wiki", "__HIDDENCAT__\n")
+
+    default_manifest = build_repo_page_manifest(tmp_path, variant="main")
+    assert [entry.title for entry in default_manifest.entries] == []
+
+    requested_titles = {"Module:Erenshor/Data/Links", "Template:Item", "Category:Links"}
+    discoverable_manifest = build_repo_page_manifest(
+        tmp_path,
+        variant="main",
+        requested_titles=requested_titles,
+    )
+    assert [entry.title for entry in discoverable_manifest.entries] == [
+        "Module:Erenshor/Data/Links",
+        "Template:Item",
+        "Category:Links",
+    ]
+
+    with pytest.raises(ValueError, match="Template pages require --include-templates: Template:Item"):
+        select_repo_page_manifest(discoverable_manifest, requested_titles=requested_titles)
+
+    with pytest.raises(ValueError, match="Generated data pages require explicit deployment opt-in"):
+        select_repo_page_manifest(
+            discoverable_manifest,
+            requested_titles={"Module:Erenshor/Data/Links"},
+        )
+
+    with pytest.raises(ValueError, match="Content pages require explicit deployment opt-in: Category:Links"):
+        select_repo_page_manifest(
+            discoverable_manifest,
+            requested_titles={"Category:Links"},
+        )
+
+    selected = select_repo_page_manifest(
+        discoverable_manifest,
+        requested_titles=requested_titles,
+        include_templates=True,
+        include_generated_data=True,
+        include_content_pages=True,
+    )
+    assert [entry.title for entry in selected.entries] == [
+        "Module:Erenshor/Data/Links",
+        "Template:Item",
+        "Category:Links",
+    ]
+
+
+def test_select_repo_page_manifest_enforces_independent_opt_ins(tmp_path: Path) -> None:
+    write_page(tmp_path, "variants/main/wiki/lua/Erenshor/Data/Links.lua", "return {}\n")
+    write_page(tmp_path, "wiki/content/Category/Links.wiki", "__HIDDENCAT__\n")
+    manifest = build_repo_page_manifest(
+        tmp_path,
+        variant="main",
+        include_generated_data=True,
+        include_content_pages=True,
+    )
+
+    with pytest.raises(ValueError, match="Generated data pages require explicit deployment opt-in"):
+        select_repo_page_manifest(manifest, requested_titles={"Module:Erenshor/Data/Links"})
+    with pytest.raises(ValueError, match="Content pages require explicit deployment opt-in"):
+        select_repo_page_manifest(manifest, requested_titles={"Category:Links"})
+
+    selected = select_repo_page_manifest(
+        manifest,
+        requested_titles={"Module:Erenshor/Data/Links", "Category:Links"},
+        include_generated_data=True,
+        include_content_pages=True,
+    )
+    assert [entry.title for entry in selected.entries] == [
+        "Module:Erenshor/Data/Links",
+        "Category:Links",
+    ]
+
+
+def test_resolver_selection_requires_data_links_dependency_or_known_live(tmp_path: Path) -> None:
+    write_page(tmp_path, "wiki/modules/Erenshor/Link.lua", "return {}\n")
+    write_page(tmp_path, "wiki/modules/Erenshor/AbilityLink.lua", "return {}\n")
+    default_manifest = build_repo_page_manifest(tmp_path, variant="main")
+    with pytest.raises(ValueError, match="Generated data pages require explicit deployment opt-in"):
+        select_repo_page_manifest(default_manifest, requested_titles={"Module:Erenshor/Data/Links"})
+
+    manifest = build_repo_page_manifest(tmp_path, variant="main")
+    with pytest.raises(ValueError, match="requires Module:Erenshor/Data/Links"):
+        select_repo_page_manifest(manifest, requested_titles={"Module:Erenshor/Link"})
+
+    selected = select_repo_page_manifest(
+        manifest,
+        requested_titles={"Module:Erenshor/Link", "Module:Erenshor/AbilityLink"},
+        known_live_titles={"Module:Erenshor/Data/Links"},
+    )
+    assert [entry.title for entry in selected.entries] == [
+        "Module:Erenshor/AbilityLink",
+        "Module:Erenshor/Link",
+    ]
+
+
+def test_item_selection_requires_data_links_dependency_or_known_live(tmp_path: Path) -> None:
+    write_page(tmp_path, "wiki/modules/Erenshor/Item.lua", "return {}\n")
+    manifest = build_repo_page_manifest(tmp_path, variant="main")
+
+    with pytest.raises(ValueError, match="requires Module:Erenshor/Data/Links"):
+        select_repo_page_manifest(manifest, requested_titles={"Module:Erenshor/Item"})
+
+    selected = select_repo_page_manifest(
+        manifest,
+        requested_titles={"Module:Erenshor/Item"},
+        known_live_titles={"Module:Erenshor/Data/Links"},
+    )
+    assert [entry.title for entry in selected.entries] == ["Module:Erenshor/Item"]
+
+
+def test_resolver_dependency_accepts_earlier_data_links_or_known_live(tmp_path: Path) -> None:
+    write_page(tmp_path, "variants/main/wiki/lua/Erenshor/Data/Links.lua", "return {}\n")
+    write_page(tmp_path, "wiki/modules/Erenshor/Link.lua", "return {}\n")
+    write_page(tmp_path, "wiki/modules/Erenshor/Link/Search.lua", "return {}\n")
+    manifest = build_repo_page_manifest(tmp_path, variant="main", include_generated_data=True)
+    selected = select_repo_page_manifest(
+        manifest,
+        requested_titles={"Module:Erenshor/Data/Links", "Module:Erenshor/Link", "Module:Erenshor/Link/Search"},
+        include_generated_data=True,
+    )
+    assert [entry.title for entry in selected.entries] == [
+        "Module:Erenshor/Data/Links",
+        "Module:Erenshor/Link",
+        "Module:Erenshor/Link/Search",
+    ]
+
+    live_manifest = build_repo_page_manifest(tmp_path, variant="main")
+    selected_live = select_repo_page_manifest(
+        live_manifest,
+        requested_titles={"Module:Erenshor/Link", "Module:Erenshor/Link/Search"},
+        known_live_titles={"Module:Erenshor/Data/Links"},
+    )
+    assert [entry.title for entry in selected_live.entries] == [
+        "Module:Erenshor/Link",
+        "Module:Erenshor/Link/Search",
     ]
 
 

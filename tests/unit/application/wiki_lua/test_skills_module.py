@@ -70,7 +70,14 @@ def test_builds_skill_data_with_raw_authoritative_fields() -> None:
                 "type": "Attack",
                 "cooldownSeconds": 9.0,
                 "classLevels": [
-                    {"className": "Duelist", "displayName": "Windblade", "level": 2},
+                    {
+                        "className": "Duelist",
+                        "displayName": "Windblade",
+                        "stablekey": "class:duelist",
+                        "page": "Windblade",
+                        "text": "Windblade",
+                        "level": 2,
+                    },
                 ],
                 "requireBehind": True,
                 "require2h": False,
@@ -106,7 +113,11 @@ def test_builds_skill_data_with_raw_authoritative_fields() -> None:
 
 def test_builds_skill_relationship_fields_from_repository_links() -> None:
     skill = make_skill(stable_key="skill:backstab")
-    teaching_item = ItemLink(page_title="Backstab Manual", display_name="Backstab Manual")
+    teaching_item = ItemLink(
+        page_title="Backstab Manual",
+        display_name="Backstab Manual",
+        stable_key="item:backstab_manual",
+    )
     effect_item = ItemLink(page_title="Assassin Charm", display_name="Assassin Charm")
 
     data = build_skills_data(
@@ -118,7 +129,14 @@ def test_builds_skill_relationship_fields_from_repository_links() -> None:
 
     skills = cast("dict[str, object]", data["skills"])
     record = cast("dict[str, object]", skills[skill.stable_key])
-    assert record["source"] == [{"kind": "item", "page": "Backstab Manual", "text": "Backstab Manual"}]
+    assert record["source"] == [
+        {
+            "kind": "item",
+            "page": "Backstab Manual",
+            "text": "Backstab Manual",
+            "stablekey": "item:backstab_manual",
+        }
+    ]
     assert record["itemsWithEffect"] == [{"kind": "item", "page": "Assassin Charm", "text": "Assassin Charm"}]
 
 
@@ -137,7 +155,16 @@ def test_builds_stance_skill_class_levels_without_hardcoding_display_names() -> 
     record = cast("dict[str, object]", skills["skill:stance - aggressive"])
 
     assert record["stanceStableKey"] == "stance:aggressive"
-    assert record["classLevels"] == [{"className": "Reaver", "displayName": "Reaver", "level": 1}]
+    assert record["classLevels"] == [
+        {
+            "className": "Reaver",
+            "displayName": "Reaver",
+            "stablekey": "class:reaver",
+            "page": "Reaver",
+            "text": "Reaver",
+            "level": 1,
+        }
+    ]
 
 
 def test_omits_unrenderable_skill_records_and_blank_optional_text() -> None:

@@ -8,13 +8,14 @@ assembly is handled by PageGenerator classes.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 from loguru import logger
 
 from erenshor.application.wiki.generators.formatting import format_description, safe_str
 from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
-from erenshor.domain.value_objects.wiki_link import AbilityLink, StandardLink
+from erenshor.domain.value_objects.wiki_link import ClassLink, WikiLink
 
 if TYPE_CHECKING:
     from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
@@ -71,23 +72,36 @@ class SpellSectionGenerator(SectionGeneratorBase):
         if spell.spell_duration_in_ticks:
             duration = self._format_duration(spell.spell_duration_in_ticks)
 
-        # Format class restrictions with level: [[DisplayName]] (level)
+        # Format class restrictions with level, preserving one line per class.
         classes_list = []
         if enriched.classes and spell.required_level and spell.required_level > 0:
-            display_names = self._class_display.map_class_list(enriched.classes)
-            for display_name in display_names:
-                classes_list.append(f"[[{display_name}]] ({spell.required_level})")
+            class_links = []
+            for internal_name in enriched.classes:
+                display_name = self._class_display.get_display_name(internal_name)
+                class_links.append(
+                    (
+                        display_name,
+                        str(
+                            ClassLink(
+                                page_title=display_name,
+                                display_name=display_name,
+                                stable_key=f"class:{internal_name.casefold()}",
+                            )
+                        ),
+                    )
+                )
+            class_links.sort(key=lambda item: item[0])
+            classes_list = [f"{link} ({spell.required_level})" for _, link in class_links]
         classes = "<br>".join(classes_list)
 
         cast_time_str = self._format_cast_time(spell.spell_charge_time)
 
         image = f"{spell.image_name}.png" if spell.image_name else ""
 
-        # Pre-built links on the Spell entity and enriched DTO.
-        # status_effect_link is StandardLink, convert to AbilityLink for the
-        # {{Ability}} page template. add_proc_link is already AbilityLink.
+        # status_effect_link deliberately remains a StandardLink: it is an
+        # ordinary status-effect page link rather than a generated ability link.
         pet_to_summon = str(enriched.pet_to_summon) if enriched.pet_to_summon else ""
-        status_effect = str(self._to_ability_link(spell.status_effect_link)) if spell.status_effect_link else ""
+        status_effect = str(spell.status_effect_link) if spell.status_effect_link else ""
         add_proc = str(spell.add_proc_link) if spell.add_proc_link else ""
 
         imagecaption = ""
@@ -202,7 +216,7 @@ class SpellSectionGenerator(SectionGeneratorBase):
 
         return f"{int(cooldown)} seconds"
 
-    def _format_wiki_links(self, links: list) -> str:  # type: ignore[type-arg]
+    def _format_wiki_links(self, links: Sequence[WikiLink]) -> str:
         """Format a list of WikiLink objects as wikitext separated by <br>.
 
         Filters out links with no page_title (excluded entities), sorts by display
@@ -211,14 +225,6 @@ class SpellSectionGenerator(SectionGeneratorBase):
         if not links:
             return ""
 
-        visible = [link for link in links if link.page_title is not None]
+        visible: list[WikiLink] = [link for link in links if link.page_title is not None]
         visible.sort()
         return "<br>".join(str(link) for link in visible)
-
-    @staticmethod
-    def _to_ability_link(link: StandardLink) -> AbilityLink:
-        """Convert a StandardLink to AbilityLink for the {{Ability}} template."""
-        return AbilityLink(
-            page_title=link.page_title,
-            display_name=link.display_name,
-        )

@@ -101,7 +101,7 @@ class SkillRepository(BaseRepository[Skill]):
             RepositoryError: If query execution fails.
         """
         query = """
-            SELECT display_name, wiki_page_name, image_name
+            SELECT stable_key, display_name, wiki_page_name, image_name
             FROM skills
             WHERE stance_to_use_stable_key = ?
             ORDER BY display_name COLLATE NOCASE
@@ -114,6 +114,7 @@ class SkillRepository(BaseRepository[Skill]):
                     page_title=str(row["wiki_page_name"]) if row["wiki_page_name"] else None,
                     display_name=str(row["display_name"]),
                     image_name=str(row["image_name"]) if row["image_name"] else None,
+                    stable_key=str(row["stable_key"]),
                 )
                 for row in rows
             ]

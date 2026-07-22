@@ -6,12 +6,12 @@ from collections.abc import Iterable, Mapping
 from pathlib import Path
 from typing import TYPE_CHECKING, Protocol
 
-from erenshor.application.wiki_lua.links import link_refs
+from erenshor.application.wiki_lua.links import link_refs, mapped_class_link_ref
 from erenshor.application.wiki_lua.lua_writer import module_text
 
 if TYPE_CHECKING:
     from erenshor.domain.entities.skill import Skill
-    from erenshor.domain.value_objects.wiki_link import ItemLink, WikiLink
+    from erenshor.domain.value_objects.wiki_link import ItemLink
 
 LuaData = dict[str, object]
 
@@ -153,8 +153,8 @@ def _skill_record(
         _put_bool(record, lua_key, getattr(skill, attr))
     if skill.cooldown is not None:
         _put_number(record, "cooldownSeconds", round(skill.cooldown / 60, 2))
-    _put_list(record, "source", _link_list(teaching_items, "item"))
-    _put_list(record, "itemsWithEffect", _link_list(items_with_effect, "item"))
+    _put_list(record, "source", link_refs(teaching_items, "item"))
+    _put_list(record, "itemsWithEffect", link_refs(items_with_effect, "item"))
     return record
 
 
@@ -163,10 +163,12 @@ def _class_levels(skill: Skill, class_display_names: Mapping[str, str]) -> list[
     for class_name, attr in _CLASS_LEVEL_FIELDS:
         level = getattr(skill, attr)
         if level is not None and level > 0:
+            class_reference = mapped_class_link_ref(class_name, class_display_names)
             levels.append(
                 {
                     "className": class_name,
-                    "displayName": class_display_names.get(class_name, class_name),
+                    "displayName": class_reference["text"],
+                    **class_reference,
                     "level": level,
                 }
             )
@@ -190,10 +192,6 @@ def _put_bool(row: LuaData, key: str, value: object) -> None:
 def _put_list(row: LuaData, key: str, value: list[LuaData]) -> None:
     if value:
         row[key] = value
-
-
-def _link_list(links: Iterable[WikiLink], kind: str | None = None) -> list[LuaData]:
-    return link_refs(links, kind)
 
 
 def _teaching_items_by_skill(

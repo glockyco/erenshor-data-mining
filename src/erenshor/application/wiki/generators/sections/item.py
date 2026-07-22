@@ -482,11 +482,14 @@ class ItemSectionGenerator(SectionGeneratorBase):
         spell_icon = f"{image_name}.png" if image_name else ""
 
         # Wiki link for spell name
-        wiki = spell.wiki_page_name
-        if wiki:
-            spell_name_link = f"[[{wiki}|{spell_display_name}]]" if spell_display_name != wiki else f"[[{wiki}]]"
-        else:
-            spell_name_link = spell_display_name
+        spell_name_link = str(
+            AbilityLink(
+                page_title=spell.wiki_page_name,
+                display_name=spell_display_name,
+                image_name=spell.image_name,
+                stable_key=spell.stable_key,
+            )
+        )
 
         return {
             f"{prefix}_spell_icon": spell_icon,
@@ -577,6 +580,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
                     page_title=sp.wiki_page_name,
                     display_name=sp.display_name or sp.spell_name or "",
                     image_name=sp.image_name,
+                    stable_key=sp.stable_key,
                 )
             )
 
@@ -589,6 +593,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
                     page_title=sk.wiki_page_name,
                     display_name=sk.display_name or sk.skill_name or "",
                     image_name=sk.image_name,
+                    stable_key=sk.stable_key,
                 )
             )
 

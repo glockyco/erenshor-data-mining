@@ -1,0 +1,2 @@
+__HIDDENCAT__
+This hidden maintenance category tracks pages whose Erenshor semantic link titles match more than one catalog entity.

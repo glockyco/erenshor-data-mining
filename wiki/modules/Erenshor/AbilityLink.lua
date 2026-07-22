@@ -1,8 +1,6 @@
 local Args = require("Module:Erenshor/Args")
 local Link = require("Module:Erenshor/Link")
 
-local Data = mw.loadData("Module:Erenshor/Data/AbilityLinks")
-
 local p = {}
 
 local function copyTable(value)
@@ -31,27 +29,7 @@ local function templateArgs(frame)
 end
 
 function p.resolve(args)
-	args = args or {}
-	local target = Args.resolve(args, 1, nil)
-	local stableKey = Args.resolve(args, "stablekey", nil)
-		or Args.resolve(args, "stableKey", nil)
-		or Args.resolve(args, "key", nil)
-	local ability = nil
-	if stableKey ~= nil then
-		ability = copyTable(Data.abilities[stableKey])
-	end
-	if ability == nil then
-		ability = {
-			name = target,
-			page = target,
-			image = target,
-		}
-	end
-
-	ability.page = Args.resolve(args, "link", ability.page)
-	ability.name = Args.resolve(args, "text", ability.name)
-	ability.image = Args.resolve(args, "image", ability.image)
-	return ability
+	return Link.resolve("ability", args or {})
 end
 
 function p.render(args)

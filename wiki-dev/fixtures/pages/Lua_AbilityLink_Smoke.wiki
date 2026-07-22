@@ -9,3 +9,9 @@ Manual page: {{AbilityLink|Minor Lightning}}
 Manual override: {{AbilityLink|stablekey=spell:minor_lightning|image=Manual Ability.png|link=Manual Ability Page|text=Manual Ability Text}}
 
 Image only: {{AbilityLink|stablekey=spell:minor_lightning|imageonly=1}}
+
+Unresolved keyed: {{AbilityLink|stablekey=spell:does-not-exist|link=Unresolved Ability Target|text=Unresolved Ability}}
+
+Wrong-kind keyed: {{AbilityLink|stablekey=item:chest - 38 - abyssal plate|link=Wrong Kind Ability Target|text=Wrong Kind Ability}}
+
+Mismatched keyed: {{AbilityLink|stablekey=spell:minor_lightning|link=Manual Ability Target|text=Manual Ability}}

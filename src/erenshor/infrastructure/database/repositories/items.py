@@ -1,5 +1,6 @@
 """Item repository for specialized item queries."""
 
+from collections.abc import Mapping
 from typing import cast
 
 from loguru import logger
@@ -8,7 +9,8 @@ from erenshor.domain.entities.item import Item
 from erenshor.domain.entities.item_stats import ItemStats
 from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
 from erenshor.domain.value_objects.source_info import ObtainedFromInfo, UsedInInfo
-from erenshor.domain.value_objects.wiki_link import ItemLink, StandardLink
+from erenshor.domain.value_objects.wiki_link import ItemLink
+from erenshor.infrastructure.database.connection import DatabaseConnection
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
 
 _SMITHING_FACT_ID = "smithing.upgrade_ids"
@@ -22,9 +24,9 @@ _SMITHING_SPECIAL_TARGET_IDS = {
 }
 
 
-def _item_link_from_row(row: object, prefix: str = "") -> ItemLink:
+def _item_link_from_row(row: Mapping[str, object], prefix: str = "") -> ItemLink:
     """Build an ItemLink from a row, with optional column prefix."""
-    d = dict(row)  # type: ignore[call-overload]
+    d: dict[str, object] = dict(row)
     pn = f"{prefix}display_name"
     pw = f"{prefix}wiki_page_name"
     pi = f"{prefix}image_name"
@@ -43,18 +45,14 @@ class ItemRepository(BaseRepository[Item]):
     All queries target the clean snake_case database written by ``extract build``.
     """
 
-    def get_items_for_wiki_generation(self) -> list[Item]:
-        """Get all items for wiki page generation.
+    def __init__(self, db: DatabaseConnection) -> None:
+        super().__init__(db)
+        self._smithing_special_item_maps_cache: tuple[dict[str, str], dict[str, str]] | None = None
 
-        The clean DB already excludes blank-named items.
-
-        Returns:
-            List of Item entities ordered by item_name.
-
-        Raises:
-            RepositoryError: If query execution fails.
-        """
-        query = """
+    def _get_items(self, *, include_blank_pages: bool) -> list[Item]:
+        page_filter = "wiki_page_name IS NOT NULL" if include_blank_pages else "COALESCE(wiki_page_name, '') != ''"
+        purpose = "link catalog generation" if include_blank_pages else "wiki generation"
+        query = f"""
             SELECT
                 stable_key,
                 item_name,
@@ -118,17 +116,25 @@ class ItemRepository(BaseRepository[Item]):
                 hide_hair_when_equipped,
                 hide_head_when_equipped
             FROM items
-            WHERE COALESCE(wiki_page_name, '') != ''
+            WHERE {page_filter}
             ORDER BY item_name COLLATE NOCASE
         """
 
         try:
             rows = self._execute_raw(query, ())
             items = [Item.model_validate(dict(row)) for row in rows]
-            logger.debug(f"Retrieved {len(items)} items for wiki generation")
+            logger.debug(f"Retrieved {len(items)} items for {purpose}")
             return items
         except Exception as e:
-            raise RepositoryError(f"Failed to retrieve items for wiki: {e}") from e
+            raise RepositoryError(f"Failed to retrieve items for {purpose}: {e}") from e
+
+    def get_items_for_wiki_generation(self) -> list[Item]:
+        """Get all items with nonblank wiki pages for article generation."""
+        return self._get_items(include_blank_pages=False)
+
+    def get_items_for_link_catalog(self) -> list[Item]:
+        """Get all items with non-null wiki pages for semantic identity validation."""
+        return self._get_items(include_blank_pages=True)
 
     def get_item_classes(self, stable_key: str) -> list[str]:
         """Get class restrictions for an item.
@@ -587,23 +593,23 @@ class ItemRepository(BaseRepository[Item]):
         except Exception as e:
             raise RepositoryError(f"Failed to get item drops for '{source_item_stable_key}': {e}") from e
 
-    def get_item_sources(self, item_stable_key: str) -> list[tuple[StandardLink, float]]:
+    def get_item_sources(self, item_stable_key: str) -> list[tuple[ItemLink, float]]:
         """Get items that can drop this item (e.g., fossils that produce this item).
 
-        Returns StandardLink objects (not ItemLink) because these appear in the
-        |source= field of the {{Item}} infobox where [[links]] are expected.
+        Returns ItemLink objects carrying each source item's stable key so shared wiki
+        pages remain identity-safe in downstream semantic links.
 
         Args:
             item_stable_key: Item stable key of the dropped item
 
         Returns:
-            List of (StandardLink, drop_probability) tuples sorted by probability descending.
+            List of (ItemLink, drop_probability) tuples sorted by probability descending.
 
         Raises:
             RepositoryError: If query execution fails
         """
         query = """
-            SELECT i.display_name, i.wiki_page_name, id.drop_probability
+            SELECT i.stable_key, i.display_name, i.wiki_page_name, id.drop_probability
             FROM item_drops id
             JOIN items i ON i.stable_key = id.source_item_stable_key
             WHERE id.dropped_item_stable_key = ?
@@ -614,10 +620,7 @@ class ItemRepository(BaseRepository[Item]):
             rows = self._execute_raw(query, (item_stable_key,))
             result = [
                 (
-                    StandardLink(
-                        page_title=str(row["wiki_page_name"]) if row["wiki_page_name"] else None,
-                        display_name=str(row["display_name"]),
-                    ),
+                    _item_link_from_row(row),
                     float(row["drop_probability"]),
                 )
                 for row in rows

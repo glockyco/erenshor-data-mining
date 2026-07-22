@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Protocol
 
 from erenshor.application.wiki_lua.links import link_ref, link_refs
 from erenshor.application.wiki_lua.lua_writer import module_text
-from erenshor.domain.value_objects.wiki_link import StandardLink
+from erenshor.domain.value_objects.wiki_link import FactionLink
 
 if TYPE_CHECKING:
     from erenshor.domain.entities.character import Character
@@ -231,25 +231,42 @@ def _format_faction(character: Character) -> LuaData | str:
     page_name = character.my_world_faction_wiki_page_name
     if not page_name:
         return display_name
-    ref = link_ref(StandardLink(page_title=page_name, display_name=display_name), "faction")
+    ref = link_ref(
+        FactionLink(
+            page_title=page_name,
+            display_name=display_name,
+            stable_key=character.my_world_faction_stable_key,
+        ),
+        "faction",
+    )
     if ref is None:
-        return ""
-    if character.my_world_faction_stable_key:
-        ref["stablekey"] = character.my_world_faction_stable_key
+        return display_name
     return ref
 
 
 def _format_faction_modifiers(faction_modifiers: list[FactionModifier]) -> list[LuaData]:
-    entries: list[tuple[str, LuaData]] = []
+    entries: list[tuple[tuple[str, str, int], LuaData]] = []
     for modifier in faction_modifiers:
         display = modifier.faction_display_name
         page = modifier.faction_wiki_page_name
         ref = None
         if page is not None:
-            ref = link_ref(StandardLink(page_title=page, display_name=display), "faction")
+            ref = link_ref(
+                FactionLink(
+                    page_title=page,
+                    display_name=display,
+                    stable_key=modifier.faction_stable_key,
+                ),
+                "faction",
+            )
         if ref is None:
             ref = {"kind": "page", "page": display, "text": display}
-        entries.append((display.lower(), {"link": ref, "modifier": modifier.modifier_value}))
+        entries.append(
+            (
+                (display.casefold(), modifier.faction_stable_key, modifier.modifier_value),
+                {"link": ref, "modifier": modifier.modifier_value},
+            )
+        )
     return [entry for _, entry in sorted(entries)]
 
 

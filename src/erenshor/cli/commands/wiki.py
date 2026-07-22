@@ -218,6 +218,16 @@ def _interface_assert_user(cli_ctx: CLIContext) -> str:
     return login_name.partition("@")[0]
 
 
+def _create_readonly_mediawiki_client(cli_ctx: CLIContext) -> MediaWikiClient:
+    """Create an anonymous client for read-only manifest dependency checks."""
+    wiki_config = cli_ctx.config.global_.mediawiki
+    return MediaWikiClient(
+        api_url=wiki_config.api_url,
+        bot_username=wiki_config.bot_username,
+        bot_password=wiki_config.bot_password,
+    )
+
+
 def _create_interface_mediawiki_client(cli_ctx: CLIContext) -> MediaWikiClient:
     """Create and log in the dedicated interface-admin MediaWiki client."""
     wiki_config = cli_ctx.config.global_.mediawiki
@@ -407,8 +417,10 @@ def _create_lua_repositories(
     StanceRepository,
     QuestRepository,
     ZoneRepository,
+    FactionRepository,
+    ClassDisplayNameService,
 ]:
-    """Create repositories for local Lua data generation."""
+    """Create repositories for local Lua data generation from one read-only connection."""
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
     db_path = variant_config.resolved_database(cli_ctx.repo_root)
     db_connection = DatabaseConnection(db_path, read_only=True)
@@ -422,6 +434,8 @@ def _create_lua_repositories(
         StanceRepository(db_connection),
         QuestRepository(db_connection),
         ZoneRepository(db_connection),
+        FactionRepository(db_connection),
+        ClassDisplayNameService(db_connection),
     )
 
 
@@ -558,9 +572,19 @@ def generate_lua(ctx: typer.Context) -> None:
         return
 
     try:
-        item_repo, character_repo, spawn_repo, loot_repo, spell_repo, skill_repo, stance_repo, quest_repo, zone_repo = (
-            _create_lua_repositories(cli_ctx)
-        )
+        (
+            item_repo,
+            character_repo,
+            spawn_repo,
+            loot_repo,
+            spell_repo,
+            skill_repo,
+            stance_repo,
+            quest_repo,
+            zone_repo,
+            faction_repo,
+            class_display,
+        ) = _create_lua_repositories(cli_ctx)
         result = generate_lua_data_modules(
             item_repo=item_repo,
             character_repo=character_repo,
@@ -572,6 +596,8 @@ def generate_lua(ctx: typer.Context) -> None:
             stance_repo=stance_repo,
             quest_repo=quest_repo,
             zone_repo=zone_repo,
+            faction_repo=faction_repo,
+            class_display=class_display,
             output_root=output_root,
         )
         for path in result.written_paths:
@@ -948,6 +974,47 @@ def rollback_interface_command(
             console.print(f"  {title}", markup=False)
 
 
+_DIRECT_DATA_LINK_CONSUMER_TITLES = frozenset(
+    {
+        "Module:Erenshor/Link",
+        "Module:Erenshor/AbilityLink",
+        "Module:Erenshor/Link/Search",
+        "Module:Erenshor/Item",
+    }
+)
+_DATA_LINKS_TITLE = "Module:Erenshor/Data/Links"
+
+
+def _manifest_requires_live_links(manifest: RepoWikiPageManifest) -> bool:
+    """Return whether a direct consumer lacks an earlier Links catalog page."""
+    earlier_titles: set[str] = set()
+    for entry in manifest.entries:
+        if entry.title in _DIRECT_DATA_LINK_CONSUMER_TITLES and _DATA_LINKS_TITLE not in earlier_titles:
+            return True
+        earlier_titles.add(entry.title)
+    return False
+
+
+def _candidate_repo_page_manifest(
+    manifest: RepoWikiPageManifest,
+    *,
+    requested_titles: set[str] | None,
+    include_templates: bool,
+    include_generated_data: bool,
+    include_content_pages: bool,
+) -> RepoWikiPageManifest:
+    """Apply CLI scope filters before the live catalog dependency check."""
+    entries = tuple(
+        entry
+        for entry in manifest.entries
+        if (include_templates or entry.upload_stage not in {"template", "cargo_declaration"})
+        and (include_generated_data or entry.upload_stage != "generated_data")
+        and (include_content_pages or entry.upload_stage != "content_page")
+        and (requested_titles is None or entry.title in requested_titles)
+    )
+    return RepoWikiPageManifest(entries=entries)
+
+
 @app.command("deploy-repo-pages")
 def deploy_repo_pages_command(
     ctx: typer.Context,
@@ -955,7 +1022,10 @@ def deploy_repo_pages_command(
         str | None,
         typer.Option(
             "--pages-file",
-            help="Deploy only repo-owned page titles listed in this file, or '-' for stdin.",
+            help=(
+                "Deploy only repo-owned page titles listed in this file, or '-' for stdin. "
+                "Required with --include-generated-data."
+            ),
         ),
     ] = None,
     summary: Annotated[
@@ -981,20 +1051,66 @@ def deploy_repo_pages_command(
             help="Explicitly include wiki templates. Disabled by default because template edits affect all pages.",
         ),
     ] = False,
+    include_generated_data: Annotated[
+        bool,
+        typer.Option(
+            "--include-generated-data",
+            help=(
+                "Explicitly include generated Lua data modules selected by --pages-file. "
+                "A page-title filter is required to avoid deploying the full generated tree."
+            ),
+        ),
+    ] = False,
+    include_content_pages: Annotated[
+        bool,
+        typer.Option(
+            "--include-content-pages",
+            help="Explicitly include maintained wiki content pages. Disabled by default.",
+        ),
+    ] = False,
 ) -> None:
-    """Deploy repo-owned Lua modules. Templates require explicit opt-in."""
+    """Deploy repo-owned wiki pages; generated data, content pages, and templates require opt-in."""
     cli_ctx: CLIContext = ctx.obj
-    manifest = build_repo_page_manifest(
-        cli_ctx.repo_root,
-        variant=cli_ctx.variant,
-        include_templates=include_templates,
-    )
+    if include_generated_data and not pages_file:
+        console.print("[red]--include-generated-data requires --pages-file with explicit page titles[/red]")
+        raise typer.Exit(1)
     requested_titles = set(_read_page_titles(pages_file)) if pages_file else None
-    manifest = select_repo_page_manifest(
-        manifest,
-        requested_titles=requested_titles,
-        include_templates=include_templates,
-    )
+    known_live_titles: set[str] = set()
+    try:
+        manifest = build_repo_page_manifest(
+            cli_ctx.repo_root,
+            variant=cli_ctx.variant,
+            include_templates=include_templates,
+            include_generated_data=include_generated_data,
+            include_content_pages=include_content_pages,
+            requested_titles=requested_titles,
+        )
+        candidate_manifest = _candidate_repo_page_manifest(
+            manifest,
+            requested_titles=requested_titles,
+            include_templates=include_templates,
+            include_generated_data=include_generated_data,
+            include_content_pages=include_content_pages,
+        )
+        if _manifest_requires_live_links(candidate_manifest):
+            readonly_client = _create_readonly_mediawiki_client(cli_ctx)
+            try:
+                if readonly_client.page_exists(_DATA_LINKS_TITLE):
+                    known_live_titles.add(_DATA_LINKS_TITLE)
+            finally:
+                readonly_client.close()
+        manifest = select_repo_page_manifest(
+            manifest,
+            requested_titles=requested_titles,
+            include_templates=include_templates,
+            include_generated_data=include_generated_data,
+            include_content_pages=include_content_pages,
+            known_live_titles=known_live_titles,
+        )
+    except Exception as e:
+        console.print(f"[red]Unable to select repo-owned wiki pages: {e}[/red]")
+        raise typer.Exit(1) from e
+
     if manifest_output is None:
         manifest_output = (
             cli_ctx.config.variants[cli_ctx.variant].resolved_wiki(cli_ctx.repo_root) / "deploy-manifest.json"
@@ -1024,6 +1140,9 @@ def deploy_repo_pages_command(
             rollback_root=manifest_output.parent / "rollback",
             checkpoint=checkpoint_manifest,
             include_templates=include_templates,
+            include_generated_data=include_generated_data,
+            include_content_pages=include_content_pages,
+            known_live_titles=known_live_titles,
         )
     finally:
         client.close()

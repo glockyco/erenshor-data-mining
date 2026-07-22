@@ -8,6 +8,7 @@ assembly is handled by PageGenerator classes.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 from loguru import logger
@@ -17,6 +18,7 @@ from erenshor.application.wiki.generators.sections.base import SectionGeneratorB
 
 if TYPE_CHECKING:
     from erenshor.domain.enriched_data.stance import EnrichedStanceData
+    from erenshor.domain.value_objects.wiki_link import WikiLink
 
 
 class StanceSectionGenerator(SectionGeneratorBase):
@@ -83,11 +85,11 @@ class StanceSectionGenerator(SectionGeneratorBase):
 
         return context
 
-    def _format_wiki_links(self, links: list) -> str:  # type: ignore[type-arg]
+    def _format_wiki_links(self, links: Sequence[WikiLink]) -> str:
         """Format a list of WikiLink objects as wikitext separated by <br>."""
         if not links:
             return ""
 
-        visible = [link for link in links if link.page_title is not None]
+        visible: list[WikiLink] = [link for link in links if link.page_title is not None]
         visible.sort()
         return "<br>".join(str(link) for link in visible)

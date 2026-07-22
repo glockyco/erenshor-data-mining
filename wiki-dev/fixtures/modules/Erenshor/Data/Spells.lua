@@ -154,7 +154,17 @@ return {
 			["charm"] = false,
 			["classes"] = {
 				"Druid",
+				"Duelist",
 				"Stormcaller",
+			},
+			["classLinks"] = {
+				{ ["stablekey"] = "class:druid", ["page"] = "Druid", ["text"] = "Druid" },
+				{ ["stablekey"] = "class:duelist", ["page"] = "Windblade", ["text"] = "Windblade" },
+				{
+					["stablekey"] = "class:stormcaller",
+					["page"] = "Stormcaller",
+					["text"] = "Stormcaller",
+				},
 			},
 			["cooldownSeconds"] = 8.0,
 			["crowdControl"] = false,

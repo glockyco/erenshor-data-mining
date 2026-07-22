@@ -191,7 +191,7 @@ def _authoritative_identity_for_page(
 ) -> tuple[dict[str, str] | None, str | None]:
     if article_identities is None:
         return None, None
-    stable_keys = tuple(article_identities.get(title, ()))
+    stable_keys = article_identities.get(title)
     if not stable_keys:
         return None, "no stable key mapped to page"
     if len(stable_keys) > 1:

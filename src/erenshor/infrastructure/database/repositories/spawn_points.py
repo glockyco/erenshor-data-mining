@@ -153,7 +153,11 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
                     str(row["zone_display_name"]) if row["zone_display_name"] else str(row["zone_stable_key"])
                 )
                 zone_wiki = str(row["zone_wiki_page_name"]) if row["zone_wiki_page_name"] else None
-                zone_link = ZoneLink(page_title=zone_wiki, display_name=zone_display)
+                zone_link = ZoneLink(
+                    page_title=zone_wiki,
+                    display_name=zone_display,
+                    stable_key=str(row["zone_stable_key"]),
+                )
                 spawn_infos.append(
                     CharacterSpawnInfo(
                         zone_link=zone_link,

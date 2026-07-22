@@ -8,9 +8,30 @@ return {
 			["description"] = "Increases damage dealt with one-handed swords.",
 			["simPlayersAutolearn"] = false,
 			["classLevels"] = {
-				{ ["className"] = "Paladin", ["displayName"] = "Paladin", ["level"] = 1 },
-				{ ["className"] = "Reaver", ["displayName"] = "Reaver", ["level"] = 1 },
-				{ ["className"] = "Duelist", ["displayName"] = "Windblade", ["level"] = 3 },
+				{
+					["className"] = "Paladin",
+					["displayName"] = "Paladin",
+					["stablekey"] = "class:paladin",
+					["page"] = "Paladin",
+					["text"] = "Paladin",
+					["level"] = 1,
+				},
+				{
+					["className"] = "Reaver",
+					["displayName"] = "Reaver",
+					["stablekey"] = "class:reaver",
+					["page"] = "Reaver",
+					["text"] = "Reaver",
+					["level"] = 1,
+				},
+				{
+					["className"] = "Duelist",
+					["displayName"] = "Windblade",
+					["stablekey"] = "class:duelist",
+					["page"] = "Windblade",
+					["text"] = "Windblade",
+					["level"] = 3,
+				},
 			},
 		},
 		["skill:backstab"] = {
@@ -22,6 +43,9 @@ return {
 				{
 					["className"] = "Duelist",
 					["displayName"] = "Windblade",
+					["stablekey"] = "class:duelist",
+					["page"] = "Windblade",
+					["text"] = "Windblade",
 					["level"] = 2,
 				},
 			},

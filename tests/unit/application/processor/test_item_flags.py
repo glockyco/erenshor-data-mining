@@ -1,6 +1,6 @@
 """Tests that item interaction/economy flags flow from raw to clean DB."""
 
-from erenshor.application.processor.entities import _rename_cols
+from erenshor.application.processor.entities import _apply_mapping, _rename_cols
 from erenshor.application.processor.writer import Writer
 
 
@@ -20,6 +20,27 @@ def _raw_row(**overrides: object) -> dict[str, object]:
     }
     base.update(overrides)
     return base
+
+
+def test_blank_default_item_name_excludes_wiki_page_but_override_stays_blank():
+    rows = [
+        {"StableKey": "item:unnamed", "ItemName": "   "},
+        {"StableKey": "item:mapped", "ItemName": "Raw Name"},
+    ]
+    mapping = {
+        "item:mapped": {
+            "display_name": "Mapped",
+            "wiki_page_name": "   ",
+            "image_name": "Mapped",
+            "is_wiki_generated": 1,
+            "is_map_visible": 1,
+        }
+    }
+
+    result = _apply_mapping(rows, "StableKey", "ItemName", mapping)
+
+    assert result[0]["wiki_page_name"] is None
+    assert result[1]["wiki_page_name"] == ""
 
 
 def test_item_flags_flow_to_clean(tmp_path):

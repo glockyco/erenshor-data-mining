@@ -87,7 +87,11 @@ def test_builds_spell_data_with_authoritative_raw_fields() -> None:
         status_effect_message_on_npc="is jolted by lightning.",
     )
 
-    data = build_spells_data([spell], {spell.stable_key: ["Stormcaller", "Druid"]})
+    data = build_spells_data(
+        [spell],
+        {spell.stable_key: ["Stormcaller", "Druid"]},
+        class_display_names={"Druid": "Druid", "Stormcaller": "Stormcaller"},
+    )
 
     assert data == {
         "spells": {
@@ -99,6 +103,10 @@ def test_builds_spell_data_with_authoritative_raw_fields() -> None:
                 "type": "AE",
                 "line": "Direct_Damage",
                 "classes": ["Druid", "Stormcaller"],
+                "classLinks": [
+                    {"stablekey": "class:druid", "page": "Druid", "text": "Druid"},
+                    {"stablekey": "class:stormcaller", "page": "Stormcaller", "text": "Stormcaller"},
+                ],
                 "requiredLevel": 6,
                 "manaCost": 30,
                 "simUsable": True,
@@ -174,10 +182,18 @@ def test_builds_spell_data_with_authoritative_raw_fields() -> None:
 
 def test_builds_spell_relationship_fields_from_repository_links() -> None:
     spell = make_spell(stable_key="spell:minor_lightning")
-    teaching_item = ItemLink(page_title="Scroll of Minor Lightning", display_name="Scroll of Minor Lightning")
+    teaching_item = ItemLink(
+        page_title="Scroll of Minor Lightning",
+        display_name="Scroll of Minor Lightning",
+        stable_key="item:scroll_of_minor_lightning",
+    )
     effect_item = ItemLink(page_title="Storm Wand", display_name="Storm Wand")
     hidden_effect_item = ItemLink(page_title=None, display_name="Hidden Debug Item")
-    caster = CharacterLink(page_title="Storm Caller", display_name="Storm Caller")
+    caster = CharacterLink(
+        page_title="Storm Caller",
+        display_name="Storm Caller",
+        stable_key="character:storm_caller",
+    )
 
     data = build_spells_data(
         [spell],
@@ -190,10 +206,22 @@ def test_builds_spell_relationship_fields_from_repository_links() -> None:
     spells = cast("dict[str, object]", data["spells"])
     record = cast("dict[str, object]", spells[spell.stable_key])
     assert record["source"] == [
-        {"kind": "item", "page": "Scroll of Minor Lightning", "text": "Scroll of Minor Lightning"}
+        {
+            "kind": "item",
+            "page": "Scroll of Minor Lightning",
+            "text": "Scroll of Minor Lightning",
+            "stablekey": "item:scroll_of_minor_lightning",
+        }
     ]
     assert record["itemsWithEffect"] == [{"kind": "item", "page": "Storm Wand", "text": "Storm Wand"}]
-    assert record["usedBy"] == [{"kind": "character", "page": "Storm Caller", "text": "Storm Caller"}]
+    assert record["usedBy"] == [
+        {
+            "kind": "character",
+            "page": "Storm Caller",
+            "text": "Storm Caller",
+            "stablekey": "character:storm_caller",
+        }
+    ]
 
 
 def test_omits_unrenderable_spell_records_and_blank_optional_text() -> None:
@@ -226,10 +254,14 @@ def test_omits_unrenderable_spell_records_and_blank_optional_text() -> None:
 
 
 def test_generates_spells_module_from_repository() -> None:
-    module = generate_spells_module(FakeSpellRepository([make_spell()], {"spell:minor_lightning": ["Druid"]}))
+    module = generate_spells_module(
+        FakeSpellRepository([make_spell()], {"spell:minor_lightning": ["Druid"]}),
+        class_display_names={"Druid": "Druid"},
+    )
 
     assert module.startswith("return {\n")
     assert '["spell:minor_lightning"]' in module
+    assert "class:druid" in module
     assert '"Druid"' in module
 
 

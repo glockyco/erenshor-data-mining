@@ -2,16 +2,38 @@
 
 {{#invoke:Erenshor/Link/testcases|run}}
 
-Item: {{ItemLink|Abyssal Plate}}
+Keyed item: {{ItemLink|stablekey=item:chest - 38 - abyssal plate|text=Keyed Item}}
 
-Ability: {{AbilityLink|stablekey=spell:minor_lightning}}
+Positional item: {{ItemLink|Abyssal Plate|text=Positional Item}}
 
-Quest: {{QuestLink|Reward Quest}}
+Keyed ability: {{AbilityLink|stablekey=spell:minor_lightning|text=Keyed Ability}}
 
-Character: {{CharacterLink|A Grizzly Bear}}
+Positional ability: {{AbilityLink|Minor Lightning|text=Positional Ability}}
 
-Zone: {{ZoneLink|Blacksalt Strand}}
+Keyed quest: {{QuestLink|stablekey=quest:magical_sword|text=Keyed Quest}}
 
-Faction: {{FactionLink|The Followers of Good}}
+Positional quest: {{QuestLink|A Magical Sword in Port Azure|text=Positional Quest}}
 
-Class: {{ClassLink|Duelist}}
+Keyed character: {{CharacterLink|stablekey=character:a_grizzly_bear|text=Keyed Character}}
+
+Positional character: {{CharacterLink|A Grizzly Bear|text=Positional Character}}
+
+Keyed zone: {{ZoneLink|stablekey=zone:saltedstrand|text=Keyed Zone}}
+
+Positional zone: {{ZoneLink|Blacksalt Strand|text=Positional Zone}}
+
+Keyed faction: {{FactionLink|stablekey=faction:good|text=Keyed Faction}}
+
+Positional faction: {{FactionLink|The Followers of Good|text=Positional Faction}}
+
+Keyed class: {{ClassLink|stablekey=class:duelist|text=Keyed Class}}
+
+Positional class: {{ClassLink|Windblade|text=Positional Class}}
+
+Ambiguous positional: {{ItemLink|Priel Note}}
+
+Unresolved keyed: {{AbilityLink|stablekey=spell:does-not-exist|link=Unresolved Ability Target|text=Unresolved Ability}}
+
+Wrong-kind keyed: {{ItemLink|stablekey=spell:minor_lightning|link=Wrong Kind Item Target|text=Wrong Kind Item}}
+
+Mismatched keyed: {{AbilityLink|stablekey=spell:minor_lightning|link=Manual Ability Target|text=Manual Ability}}

@@ -6,6 +6,7 @@ Handles multi-entity pages where multiple entities share the same wiki_page_name
 
 from __future__ import annotations
 
+import sqlite3
 from collections.abc import Iterator
 from typing import TYPE_CHECKING
 
@@ -239,6 +240,7 @@ class EntityPageGenerator(PageGenerator):
                 page_title=spell.wiki_page_name,
                 display_name=spell.display_name or spell.spell_name or "",
                 image_name=spell.image_name,
+                stable_key=spell.stable_key,
             )
             return ProcInfo(
                 proc_link=proc_link,
@@ -323,7 +325,7 @@ class EntityPageGenerator(PageGenerator):
             item_drops=self.context.item_repo.get_item_drops(item.stable_key),
         )
 
-    def _execute_raw_direct(self, query: str, params: tuple) -> list:  # type: ignore[type-arg]
+    def _execute_raw_direct(self, query: str, params: tuple[object, ...]) -> list[sqlite3.Row]:
         """Execute a raw query via the item repository's connection (convenience helper)."""
         return self.context.item_repo._execute_raw(query, params)
 
@@ -362,6 +364,7 @@ class EntityPageGenerator(PageGenerator):
                     page_title=stance.wiki_page_name,
                     display_name=stance.display_name or "",
                     image_name=stance.image_name,
+                    stable_key=stance.stable_key,
                 )
 
         effect_to_apply: AbilityLink | None = None
@@ -372,6 +375,7 @@ class EntityPageGenerator(PageGenerator):
                     page_title=spell.wiki_page_name,
                     display_name=spell.display_name or spell.spell_name or "",
                     image_name=spell.image_name,
+                    stable_key=spell.stable_key,
                 )
 
         cast_on_target: AbilityLink | None = None
@@ -382,6 +386,7 @@ class EntityPageGenerator(PageGenerator):
                     page_title=spell.wiki_page_name,
                     display_name=spell.display_name or spell.spell_name or "",
                     image_name=spell.image_name,
+                    stable_key=spell.stable_key,
                 )
 
         spawn_on_use = None

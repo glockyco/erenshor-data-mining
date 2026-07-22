@@ -52,7 +52,16 @@ function p.run()
 	assertContains(classes, "erenshor-link--class", "classes render semantic class links")
 	assertContains(classes, "Druid", "classes include Druid")
 	assertContains(classes, "Stormcaller", "classes include Stormcaller")
-	assertContains(classes, "(6)", "classes include required level")
+	assertContains(
+		classes,
+		'data-erenshor-key="class:duelist"',
+		"generated spell classes carry stable class identity"
+	)
+	assertContains(
+		classes,
+		'data-erenshor-page="Windblade"',
+		"generated spell classes use canonical class page"
+	)
 	assertEqual(Spell.fieldValue(minor, "Minor Lightning", "manacost"), "30", "mana formats")
 	assertEqual(
 		Spell.fieldValue(minor, "Minor Lightning", "casttime"),
@@ -203,7 +212,7 @@ function p.run()
 	assertEqual(cargo.GrantInvisibility, nil, "spell cargo row omits absent boolean flags")
 
 	local classRows = Spell.cargoClassRows({ args = { stablekey = "spell:minor_lightning" } })
-	assertEqual(#classRows, 2, "spell emits one AbilityClasses row per class")
+	assertEqual(#classRows, 3, "spell emits one AbilityClasses row per class")
 	assertEqual(
 		classRows[1].AbilityKey,
 		"spell:minor_lightning",
@@ -211,7 +220,8 @@ function p.run()
 	)
 	assertEqual(classRows[1].Class, "Druid", "first class row is Druid")
 	assertEqual(classRows[1].RequiredLevel, "6", "class row broadcasts the spell required level")
-	assertEqual(classRows[2].Class, "Stormcaller", "second class row is Stormcaller")
+	assertEqual(classRows[2].Class, "Duelist", "second class row is Duelist")
+	assertEqual(classRows[3].Class, "Stormcaller", "third class row is Stormcaller")
 
 	local noClassRows = Spell.cargoClassRows({ args = { stablekey = "spell:ancient_presence" } })
 	assertEqual(#noClassRows, 0, "a spell with no classes emits no AbilityClasses rows")

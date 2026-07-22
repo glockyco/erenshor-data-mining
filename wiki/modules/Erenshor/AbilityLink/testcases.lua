@@ -25,15 +25,30 @@ end
 
 function p.run()
 	local resolved = AbilityLink.resolve({ stablekey = "spell:minor_lightning" })
+	assertEqual(resolved.state, "resolved", "keyed ability resolves")
+	assertEqual(
+		resolved.requestedKey,
+		"spell:minor_lightning",
+		"ability resolver retains requested key"
+	)
+	assertEqual(
+		resolved.resolvedKey,
+		"spell:minor_lightning",
+		"ability resolver returns resolved key"
+	)
 	assertEqual(resolved.page, "Minor Lightning", "page defaults from generated spell data")
-	assertEqual(resolved.name, "Minor Lightning", "text defaults from generated spell data")
+	assertEqual(resolved.text, "Minor Lightning", "text defaults from generated spell data")
 	assertEqual(resolved.image, "Minor Lightning", "image defaults from generated spell data")
 
 	local manual = AbilityLink.resolve({ "Aggressive" })
+	assertEqual(manual.state, "manual", "positional ability remains manual")
 	assertEqual(manual.page, "Aggressive", "positional target is a page link, not entity lookup")
+	assertEqual(manual.text, "Aggressive", "positional target supplies manual text")
 
 	local stance = AbilityLink.resolve({ stablekey = "stance:aggressive" })
-	assertEqual(stance.page, "Aggressive Stance", "stable key can resolve generated stance page")
+	assertEqual(stance.state, "resolved", "stance key resolves through shared catalog")
+	assertEqual(stance.resolvedKey, "stance:aggressive", "stance key remains stable")
+	assertEqual(stance.page, "Stance: Aggressive", "stable key can resolve generated stance page")
 
 	local override = AbilityLink.resolve({
 		stablekey = "spell:minor_lightning",
@@ -42,12 +57,13 @@ function p.run()
 		text = "Manual Text",
 	})
 	assertEqual(override.page, "Manual Link", "link override wins")
-	assertEqual(override.name, "Manual Text", "text override wins")
+	assertEqual(override.text, "Manual Text", "text override wins")
 	assertEqual(override.image, "Manual.png", "image override wins")
 
 	local unknown = AbilityLink.resolve({ "Prototype Ability" })
+	assertEqual(unknown.state, "manual", "unknown positional target remains manual")
 	assertEqual(unknown.page, "Prototype Ability", "unknown target falls back to target page")
-	assertEqual(unknown.name, "Prototype Ability", "unknown target falls back to target text")
+	assertEqual(unknown.text, "Prototype Ability", "unknown target falls back to target text")
 
 	local rendered = AbilityLink.render({ stablekey = "spell:minor_lightning" })
 	assertContains(
@@ -58,7 +74,7 @@ function p.run()
 	assertContains(rendered, 'data-erenshor-kind="ability"', "rendered link has kind data")
 	assertContains(
 		rendered,
-		"[[File:Minor Lightning.png|30px|link=Minor Lightning]]",
+		"[[File:Minor Lightning.png|24x24px|link=Minor Lightning]]",
 		"rendered link contains image"
 	)
 	assertContains(rendered, "[[Minor Lightning]]", "rendered link contains page link")
@@ -67,7 +83,7 @@ function p.run()
 	assertContains(imageOnly, "erenshor-link--ability", "image-only link has semantic wrapper")
 	assertContains(
 		imageOnly,
-		"[[File:Minor Lightning.png|30px|link=Minor Lightning]]",
+		"[[File:Minor Lightning.png|24x24px|link=Minor Lightning]]",
 		"image-only link contains image"
 	)
 	assertNotContains(imageOnly, "[[Minor Lightning]]", "image-only link hides text")

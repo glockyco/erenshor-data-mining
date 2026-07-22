@@ -12,7 +12,12 @@ return {
 		weaponDelay = 2.5,
 		buyValue = 12500,
 		sellValue = 3125,
-		classes = { "Paladin", "Reaver" },
+		classes = { "Duelist", "Paladin", "Reaver" },
+		classLinks = {
+			{ stablekey = "class:duelist", page = "Windblade", text = "Windblade" },
+			{ stablekey = "class:paladin", page = "Paladin", text = "Paladin" },
+			{ stablekey = "class:reaver", page = "Reaver", text = "Reaver" },
+		},
 		relic = true,
 		weaponProc = "spell:ember_proc",
 		weaponProcChance = 20,

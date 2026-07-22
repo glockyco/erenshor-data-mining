@@ -33,6 +33,15 @@ function p.run()
 	assertEqual(override.name, "Manual Zone", "article title override wins")
 	assertEqual(override.connects, nil, "dash sentinel blanks supported fields")
 
+	local maplinkDashArgs = { stablekey = "zone:PortAzure", maplink = "-" }
+	local maplinkDash = Zone.resolve(maplinkDashArgs, "Port Azure Map Override")
+	assertEqual(maplinkDash.mapLink, "", "maplink dash stores an empty override")
+	assertEqual(
+		Zone.fieldValue(maplinkDashArgs, "Port Azure Map Override", "maplink"),
+		"",
+		"maplink dash suppresses generated fallback"
+	)
+
 	local zoneKey = { stablekey = "zone:PortAzure" }
 	assertEqual(Zone.fieldValue(zoneKey, "Port Azure", "name"), "Port Azure", "field name resolves")
 	assertEqual(

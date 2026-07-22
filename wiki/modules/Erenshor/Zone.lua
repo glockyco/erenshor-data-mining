@@ -121,7 +121,11 @@ local function applyRootOverrides(zone, args)
 	for _, publicName in ipairs(ROOT_PUBLIC_PARAMETERS) do
 		local fieldName = FIELD_OVERRIDES[publicName]
 		if fieldName ~= nil and Args.has(args, publicName) then
-			zone[fieldName] = Args.resolve(args, publicName, zone[fieldName])
+			if publicName == "maplink" and Args.trim(args[publicName]) == "-" then
+				zone[fieldName] = ""
+			else
+				zone[fieldName] = Args.resolve(args, publicName, zone[fieldName])
+			end
 		end
 	end
 end

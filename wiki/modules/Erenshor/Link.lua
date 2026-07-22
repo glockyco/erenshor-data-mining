@@ -2,14 +2,16 @@ local Args = require("Module:Erenshor/Args")
 local Format = require("Module:Erenshor/Format")
 local Quality = require("Module:Erenshor/Item/Quality")
 
-local AbilityData
+local LinkData
 local ItemIndex
-local CharacterData
-local QuestData
 
 local p = {}
 
 local ITEM_SHARDS = {}
+
+local UNRESOLVED_CATEGORY = "[[Category:Pages with unresolved Erenshor links]]"
+local MISMATCH_CATEGORY = "[[Category:Pages with mismatched Erenshor link targets]]"
+local AMBIGUOUS_CATEGORY = "[[Category:Pages with ambiguous Erenshor links]]"
 
 local function isBlank(value)
 	return value == nil or tostring(value):match("^%s*$") ~= nil
@@ -84,17 +86,129 @@ local function itemByStableKey(stableKey)
 	return shard[stableKey]
 end
 
-local function abilityByStableKey(stableKey)
-	if isBlank(stableKey) then
-		return nil
+local function loadLinkData()
+	if LinkData == nil then
+		LinkData = mw.loadData("Module:Erenshor/Data/Links")
 	end
-	if AbilityData == nil then
-		AbilityData = mw.loadData("Module:Erenshor/Data/AbilityLinks")
-	end
-	return AbilityData.abilities[stableKey]
+	return LinkData
 end
 
-local function spanAttributes(kind, args, page, quality)
+local function normalizePage(page)
+	if isBlank(page) then
+		return nil
+	end
+	local title = mw.title.new(tostring(page))
+	if title ~= nil and not isBlank(title.prefixedText) then
+		return title.prefixedText
+	end
+	return tostring(page)
+end
+
+local function nowiki(value)
+	if mw.text ~= nil and type(mw.text.nowiki) == "function" then
+		return mw.text.nowiki(tostring(value))
+	end
+	return tostring(value)
+end
+
+local function warnUnresolved(kind, stableKey)
+	if mw.addWarning ~= nil then
+		mw.addWarning("Unresolved Erenshor " .. nowiki(kind) .. " link key: " .. nowiki(stableKey))
+	end
+end
+
+local function warnMismatch(kind, stableKey, suppliedPage, canonicalPage)
+	if mw.addWarning ~= nil then
+		mw.addWarning(
+			"Mismatched Erenshor "
+				.. nowiki(kind)
+				.. " link target for key "
+				.. nowiki(stableKey)
+				.. ": "
+				.. nowiki(suppliedPage)
+				.. " (expected "
+				.. nowiki(canonicalPage)
+				.. ")"
+		)
+	end
+end
+
+local function kindMatches(kind, record)
+	if record == nil then
+		return false
+	end
+	if tostring(record.kind or ""):lower() ~= kind then
+		return false
+	end
+	if kind == "ability" then
+		local subtype = tostring(record.subtype or ""):lower()
+		return subtype == "spell" or subtype == "skill" or subtype == "stance"
+	end
+	return true
+end
+
+local function keyPrefixMatches(kind, stableKey)
+	local prefix = tostring(stableKey):match("^([^:]+):")
+	if prefix == nil then
+		return false
+	end
+	prefix = prefix:lower()
+	if kind == "ability" then
+		return prefix == "spell" or prefix == "skill" or prefix == "stance"
+	end
+	return prefix == kind
+end
+
+local function targetFor(kind, args)
+	if kind == "item" then
+		return Args.resolve(args, "item", nil)
+			or Args.resolve(args, "name", nil)
+			or Args.resolve(args, 1, nil)
+	end
+	return Args.resolve(args, 1, nil)
+end
+
+local function explicitPageFor(args)
+	return Args.resolve(args, "link", nil) or Args.resolve(args, "page", nil)
+end
+
+local function pageMatches(kind, page)
+	if isBlank(page) then
+		return {}
+	end
+	local data = loadLinkData()
+	local byPage = data.byPage or {}
+	local keys = byPage[normalizePage(page)] or {}
+	local matches = {}
+	for _, stableKey in ipairs(keys) do
+		local record = (data.byKey or {})[stableKey]
+		if kindMatches(kind, record) then
+			table.insert(matches, record)
+		end
+	end
+	return matches
+end
+
+local function resolveRecord(kind, requestedKey)
+	if isBlank(requestedKey) or not keyPrefixMatches(kind, requestedKey) then
+		return nil
+	end
+	local data = loadLinkData()
+	local record = (data.byKey or {})[requestedKey]
+	if kindMatches(kind, record) then
+		return record
+	end
+	return nil
+end
+
+local function appendCategory(output, category)
+	if isBlank(output) then
+		return category
+	end
+	return output .. category
+end
+
+local function spanAttributes(kind, args, page, quality, stableKey)
 	local attributes = {
 		'class="erenshor-link erenshor-link--' .. Format.escape(kind) .. '"',
 		'data-erenshor-kind="' .. Format.escape(kind) .. '"',
@@ -102,7 +216,6 @@ local function spanAttributes(kind, args, page, quality)
 	if not isBlank(page) then
 		table.insert(attributes, 'data-erenshor-page="' .. Format.escape(page) .. '"')
 	end
-	local stableKey = explicitStableKey(args)
 	if not isBlank(stableKey) then
 		table.insert(attributes, 'data-erenshor-key="' .. Format.escape(stableKey) .. '"')
 	end
@@ -112,22 +225,15 @@ local function spanAttributes(kind, args, page, quality)
 	return table.concat(attributes, " ")
 end
 
-local function wrap(kind, args, body, page, quality)
+local function wrap(kind, args, body, page, quality, stableKey)
 	if isBlank(body) then
 		return ""
 	end
-	return "<span " .. spanAttributes(kind, args or {}, page, quality) .. ">" .. body .. "</span>"
-end
-
-local function resolvedText(args, record, fallback)
-	return Args.resolve(args or {}, "text", nil) or (record and record.name) or fallback
-end
-
-local function resolvedPage(args, record, fallback)
-	return Args.resolve(args or {}, "link", nil)
-		or Args.resolve(args or {}, "page", nil)
-		or (record and record.page)
-		or fallback
+	return "<span "
+		.. spanAttributes(kind, args or {}, page, quality, stableKey)
+		.. ">"
+		.. body
+		.. "</span>"
 end
 
 local function resolveItemQuality(args)
@@ -142,74 +248,138 @@ local function resolveItemQuality(args)
 	return canonical
 end
 
-local function renderItem(args)
+-- Resolve identity and presentation in one place. The catalog is the only
+-- navigation source; item shards remain deliberately limited to itemRecord().
+function p.resolve(kind, args)
 	args = args or {}
-	local quality = resolveItemQuality(args)
-	local target = Args.resolve(args, "item", nil)
-		or Args.resolve(args, "name", nil)
-		or Args.resolve(args, 1, nil)
-	local item
-	if isBlank(target) then
-		item = itemByStableKey(explicitStableKey(args))
+	kind = tostring(kind or ""):lower()
+	local requestedKey = explicitStableKey(args)
+	local positionalPage = targetFor(kind, args)
+	local namedPage = explicitPageFor(args)
+	local suppliedPage = namedPage or positionalPage
+	local textOverride = Args.resolve(args, "text", nil)
+	local imageOverride = Args.resolve(args, "image", nil)
+	local record = nil
+	local state = "manual"
+	local resolvedKey = nil
+
+	if requestedKey ~= nil then
+		record = resolveRecord(kind, requestedKey)
+		if record ~= nil then
+			state = "resolved"
+			resolvedKey = requestedKey
+		else
+			state = "unresolved"
+			warnUnresolved(kind, requestedKey)
+		end
+	elseif not isBlank(suppliedPage) then
+		local matches = pageMatches(kind, suppliedPage)
+		if #matches == 1 then
+			state = "resolved"
+			record = matches[1]
+			resolvedKey = record.key
+		elseif #matches > 1 then
+			state = "ambiguous"
+		end
 	end
-	local page = resolvedPage(args, item, target)
-	local text = resolvedText(args, item, target or page)
-	local image = Args.resolve(args, "image", nil) or (item and item.image) or page or text
-	local imageLink = Format.fileLink(
-		ensureImageFile(image, page or text),
-		{ alt = text, size = "24x24px", link = page }
+
+	local page
+	if suppliedPage ~= nil then
+		page = suppliedPage
+	elseif record ~= nil then
+		page = record.page
+	end
+	local text = textOverride
+	if text == nil then
+		if requestedKey == nil and not isBlank(positionalPage) then
+			text = positionalPage
+		elseif record ~= nil then
+			text = record.name
+		else
+			text = positionalPage or suppliedPage or page
+		end
+	end
+	local image = imageOverride or (record and record.image)
+
+	if requestedKey ~= nil and record ~= nil and namedPage ~= nil then
+		local expected = normalizePage(record.page)
+		local actual = normalizePage(suppliedPage)
+		if actual ~= expected then
+			warnMismatch(kind, requestedKey, suppliedPage, record.page)
+			state = "resolved"
+		end
+	end
+
+	return {
+		state = state,
+		requestedKey = requestedKey,
+		resolvedKey = resolvedKey,
+		record = record,
+		page = page,
+		text = text,
+		image = image,
+	}
+end
+
+local function unresolvedBody(kind, requestedKey)
+	return '<span class="erenshor-link erenshor-link--unresolved">Unresolved '
+		.. Format.escape(kind)
+		.. " link: "
+		.. Format.escape(requestedKey)
+		.. "</span>"
+end
+
+local function renderResolved(kind, args, result)
+	local page = result.page
+	local text = result.text
+	if result.state == "unresolved" and isBlank(page) then
+		return unresolvedBody(kind, result.requestedKey)
+	end
+
+	if kind == "item" then
+		local quality = resolveItemQuality(args)
+		local image = result.image or page or text
+		local imageLink = Format.fileLink(
+			ensureImageFile(image, page or text),
+			{ alt = text, size = "24x24px", link = page }
+		)
+		local body
+		if Args.bool(args, "imageonly", false) then
+			body = imageLink
+		else
+			body = imageLink .. " " .. Format.pageLink(page, text)
+		end
+		return wrap(kind, args, body, page, quality, result.resolvedKey or result.requestedKey)
+	elseif kind == "ability" then
+		local image = result.image or text
+		local imageLink =
+			Format.fileLink(ensureImageFile(image, text), { size = "24x24px", link = page })
+		local body = '<span style="color:#fff;text-shadow:1px 1px 10px red, 1px 1px 10px orange;">'
+			.. imageLink
+		if Args.resolve(args, "imageonly", nil) ~= "1" then
+			body = body .. " " .. Format.pageLink(page, text)
+		end
+		body = body .. "</span>"
+		return wrap(kind, args, body, page, nil, result.resolvedKey or result.requestedKey)
+	elseif kind == "quest" then
+		local icon = Format.fileLink("questiconsmall.png", { link = page })
+		return wrap(
+			kind,
+			args,
+			icon .. Format.pageLink(page, text),
+			page,
+			nil,
+			result.resolvedKey or result.requestedKey
+		)
+	end
+	return wrap(
+		kind,
+		args,
+		Format.pageLink(page, text),
+		page,
+		nil,
+		result.resolvedKey or result.requestedKey
 	)
-	if Args.bool(args, "imageonly", false) then
-		return wrap("item", args, imageLink, page, quality)
-	end
-	return wrap("item", args, imageLink .. " " .. Format.pageLink(page, text), page, quality)
-end
-
-local function renderAbility(args)
-	args = args or {}
-	local target = Args.resolve(args, 1, nil)
-	local ability = abilityByStableKey(explicitStableKey(args))
-	local page = resolvedPage(args, ability, target)
-	local text = resolvedText(args, ability, target or page)
-	local image = Args.resolve(args, "image", nil) or (ability and ability.image) or text
-	local imageLink = Format.fileLink(ensureImageFile(image, text), { size = "30px", link = page })
-	local body = '<span style="color:#fff;text-shadow:1px 1px 10px red, 1px 1px 10px orange;">'
-		.. imageLink
-	if Args.resolve(args, "imageonly", nil) ~= "1" then
-		body = body .. " " .. Format.pageLink(page, text)
-	end
-	body = body .. "</span>"
-	return wrap("ability", args, body, page)
-end
-
-local function renderQuest(args)
-	args = args or {}
-	local target = Args.resolve(args, 1, nil)
-	local page = resolvedPage(args, nil, target)
-	local text = resolvedText(args, nil, target or page)
-	local icon = Format.fileLink("questiconsmall.png", { link = page })
-	return wrap("quest", args, icon .. Format.pageLink(page, text), page)
-end
-
-local function renderPlain(kind, args)
-	args = args or {}
-	local target = Args.resolve(args, 1, nil)
-	local stableKey = explicitStableKey(args)
-	local record
-	if kind == "character" and stableKey ~= nil then
-		if CharacterData == nil then
-			CharacterData = mw.loadData("Module:Erenshor/Data/Characters")
-		end
-		record = CharacterData.characters[stableKey]
-	elseif kind == "quest" and stableKey ~= nil then
-		if QuestData == nil then
-			QuestData = mw.loadData("Module:Erenshor/Data/Quests")
-		end
-		record = QuestData.quests[stableKey]
-	end
-	local page = resolvedPage(args, record, target)
-	local text = resolvedText(args, record, target or page)
-	return wrap(kind, args, Format.pageLink(page, text), page)
 end
 
 function p.render(args)
@@ -219,16 +389,24 @@ function p.render(args)
 		return ""
 	end
 	kind = tostring(kind):lower()
-	if kind == "item" then
-		return renderItem(args)
-	elseif kind == "ability" then
-		return renderAbility(args)
-	elseif kind == "quest" then
-		return renderQuest(args)
-	elseif kind == "character" or kind == "zone" or kind == "faction" or kind == "class" then
-		return renderPlain(kind, args)
+	local result = p.resolve(kind, args)
+	local output = renderResolved(kind, args, result)
+	if result.state == "unresolved" then
+		output = appendCategory(output, UNRESOLVED_CATEGORY)
+	elseif result.state == "ambiguous" then
+		output = appendCategory(output, AMBIGUOUS_CATEGORY)
 	end
-	return renderPlain(kind, args)
+	-- A mismatched valid key remains resolved for navigation but is tracked.
+	if result.state == "resolved" and result.requestedKey ~= nil and result.record ~= nil then
+		local suppliedPage = explicitPageFor(args)
+		if
+			suppliedPage ~= nil
+			and normalizePage(suppliedPage) ~= normalizePage(result.record.page)
+		then
+			output = appendCategory(output, MISMATCH_CATEGORY)
+		end
+	end
+	return output
 end
 
 function p.join(values, separator)

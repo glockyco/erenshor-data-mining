@@ -8,12 +8,14 @@ assembly is handled by PageGenerator classes.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 from loguru import logger
 
 from erenshor.application.wiki.generators.formatting import format_description, safe_str
 from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
+from erenshor.domain.value_objects.wiki_link import ClassLink, WikiLink
 
 if TYPE_CHECKING:
     from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
@@ -60,7 +62,7 @@ class SkillSectionGenerator(SectionGeneratorBase):
         def bool_str(value: int | None) -> str:
             return "True" if value else ""
 
-        # Format class restrictions with levels: [[DisplayName]] (level)
+        # Format class restrictions with semantic links and levels.
         class_level_pairs = []
         if skill.duelist_required_level and skill.duelist_required_level > 0:
             class_level_pairs.append(("Duelist", skill.duelist_required_level))
@@ -76,10 +78,24 @@ class SkillSectionGenerator(SectionGeneratorBase):
             class_level_pairs.append(("Reaver", skill.reaver_required_level))
 
         display_pairs = [
-            (self._class_display.get_display_name(class_name), level) for class_name, level in class_level_pairs
+            (
+                self._class_display.get_display_name(class_name),
+                class_name,
+                level,
+            )
+            for class_name, level in class_level_pairs
         ]
         display_pairs.sort(key=lambda x: x[0])
-        classes_list = [f"[[{class_name}]] ({level})" for class_name, level in display_pairs]
+        classes_list = [
+            f"{
+                ClassLink(
+                    page_title=display_name,
+                    display_name=display_name,
+                    stable_key=f'class:{internal_name.casefold()}',
+                )
+            } ({level})"
+            for display_name, internal_name, level in display_pairs
+        ]
         classes = "<br>".join(classes_list)
 
         # Build equipment requirements description
@@ -227,11 +243,11 @@ class SkillSectionGenerator(SectionGeneratorBase):
             return f"{secs} second{'s' if secs != 1 else ''}"
         return ""
 
-    def _format_wiki_links(self, links: list) -> str:  # type: ignore[type-arg]
+    def _format_wiki_links(self, links: Sequence[WikiLink]) -> str:
         """Format a list of WikiLink objects as wikitext separated by <br>."""
         if not links:
             return ""
 
-        visible = [link for link in links if link.page_title is not None]
+        visible: list[WikiLink] = [link for link in links if link.page_title is not None]
         visible.sort()
         return "<br>".join(str(link) for link in visible)

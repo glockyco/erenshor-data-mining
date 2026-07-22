@@ -2,8 +2,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
 from tests.unit.application.wiki_lua.fakes import (
     FakeCharacterRepository,
+    FakeClassDisplayService,
+    FakeFactionRepository,
     FakeItemRepository,
     FakeLootRepository,
     FakeQuestRepository,
@@ -54,6 +57,8 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
         stance_repo=FakeStanceRepository([stance]),
         quest_repo=FakeQuestRepository([quest]),
         zone_repo=FakeZoneRepository([zone], {}),
+        faction_repo=FakeFactionRepository(),
+        class_display=FakeClassDisplayService(),
         output_root=tmp_path,
         validate=record_validation,
     )
@@ -61,7 +66,7 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
     items_path = tmp_path / "Erenshor" / "Data" / "Items.lua"
     item_shard_path = tmp_path / "Erenshor" / "Data" / "Items" / "Weapons.lua"
     characters_path = tmp_path / "Erenshor" / "Data" / "Characters.lua"
-    ability_links_path = tmp_path / "Erenshor" / "Data" / "AbilityLinks.lua"
+    links_path = tmp_path / "Erenshor" / "Data" / "Links.lua"
     spells_path = tmp_path / "Erenshor" / "Data" / "Spells.lua"
     skills_path = tmp_path / "Erenshor" / "Data" / "Skills.lua"
     quests_path = tmp_path / "Erenshor" / "Data" / "Quests.lua"
@@ -71,7 +76,7 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
         items_path,
         item_shard_path,
         characters_path,
-        ability_links_path,
+        links_path,
         spells_path,
         skills_path,
         quests_path,
@@ -82,7 +87,7 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
         items_path: "stylua",
         item_shard_path: "stylua",
         characters_path: "stylua",
-        ability_links_path: "stylua",
+        links_path: "stylua",
         spells_path: "stylua",
         skills_path: "stylua",
         quests_path: "stylua",
@@ -93,7 +98,7 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
         items_path,
         item_shard_path,
         characters_path,
-        ability_links_path,
+        links_path,
         spells_path,
         skills_path,
         quests_path,
@@ -103,12 +108,54 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
     assert '"Weapons"' in items_path.read_text(encoding="utf-8")
     assert "item:sword_of_flames" in item_shard_path.read_text(encoding="utf-8")
     assert "return {" in characters_path.read_text(encoding="utf-8")
-    assert "return {" in ability_links_path.read_text(encoding="utf-8")
+    links_text = links_path.read_text(encoding="utf-8")
+    assert "return {" in links_text
+    for stable_key in (
+        "item:sword_of_flames",
+        "character:a_grizzly_bear",
+        "spell:minor_lightning",
+        "skill:double_attack",
+        "stance:aggressive",
+        "quest:magical_sword",
+        "zone:PortAzure",
+        "faction:the_followers_of_evil",
+        "class:windblade",
+    ):
+        assert stable_key in links_text
     assert "return {" in spells_path.read_text(encoding="utf-8")
     assert "return {" in skills_path.read_text(encoding="utf-8")
     assert "return {" in quests_path.read_text(encoding="utf-8")
     assert "return {" in zones_path.read_text(encoding="utf-8")
     assert "return {" in stances_path.read_text(encoding="utf-8")
+
+
+def test_generation_validates_nonnull_blank_item_catalog_pages(tmp_path: Path) -> None:
+    item = make_item()
+    malformed_catalog_item = make_item(stable_key="item:malformed", wiki_page_name="")
+    item_repo = FakeItemRepository(
+        items=[item],
+        catalog_items=[item, malformed_catalog_item],
+        stats={},
+        classes={},
+    )
+
+    with pytest.raises(ValueError, match="Blank link catalog page"):
+        generate_lua_data_modules(
+            item_repo=item_repo,
+            character_repo=FakeCharacterRepository([make_character()]),
+            spawn_repo=FakeSpawnRepository({}),
+            loot_repo=FakeLootRepository({}),
+            spell_usage_repo=FakeSpellUsageRepository({}),
+            spell_repo=FakeSpellRepository([make_spell()]),
+            skill_repo=FakeSkillRepository([make_skill()]),
+            stance_repo=FakeStanceRepository([make_stance()]),
+            quest_repo=FakeQuestRepository([make_quest()]),
+            zone_repo=FakeZoneRepository([make_zone()], {}),
+            faction_repo=FakeFactionRepository(),
+            class_display=FakeClassDisplayService(),
+            output_root=tmp_path,
+            validate=lambda path: LuaValidationResult(path=path, tool="stylua"),
+        )
 
 
 def test_generation_wires_item_provenance_repositories(tmp_path: Path) -> None:
@@ -145,6 +192,8 @@ def test_generation_wires_item_provenance_repositories(tmp_path: Path) -> None:
         stance_repo=FakeStanceRepository([make_stance()]),
         quest_repo=quest_repo,
         zone_repo=FakeZoneRepository([make_zone()], {}),
+        faction_repo=FakeFactionRepository(),
+        class_display=FakeClassDisplayService(),
         output_root=tmp_path,
         validate=lambda path: LuaValidationResult(path=path, tool="stylua"),
     )
@@ -169,9 +218,44 @@ def _run_generation(tmp_path: Path) -> object:
         stance_repo=FakeStanceRepository([make_stance()]),
         quest_repo=FakeQuestRepository([make_quest()]),
         zone_repo=FakeZoneRepository([make_zone()], {}),
+        faction_repo=FakeFactionRepository(),
+        class_display=FakeClassDisplayService(),
         output_root=tmp_path,
         validate=lambda path: LuaValidationResult(path=path, tool="stylua"),
     )
+
+
+def test_generated_modules_are_byte_for_byte_deterministic(tmp_path: Path) -> None:
+    first_root = tmp_path / "first"
+    second_root = tmp_path / "second"
+
+    first_result = _run_generation(first_root)
+    second_result = _run_generation(second_root)
+
+    first_modules = {path.relative_to(first_root): path.read_bytes() for path in first_result.written_paths}
+    second_modules = {path.relative_to(second_root): path.read_bytes() for path in second_result.written_paths}
+    assert first_modules == second_modules
+
+
+def test_generation_requires_faction_and_class_dependencies(tmp_path: Path) -> None:
+    with pytest.raises(TypeError) as error:
+        generate_lua_data_modules(
+            item_repo=FakeItemRepository(items=[make_item()], stats={}, classes={}),
+            character_repo=FakeCharacterRepository([make_character()]),
+            spawn_repo=FakeSpawnRepository({}),
+            loot_repo=FakeLootRepository({}),
+            spell_usage_repo=FakeSpellUsageRepository({}),
+            spell_repo=FakeSpellRepository([make_spell()]),
+            skill_repo=FakeSkillRepository([make_skill()]),
+            stance_repo=FakeStanceRepository([make_stance()]),
+            quest_repo=FakeQuestRepository([make_quest()]),
+            zone_repo=FakeZoneRepository([make_zone()], {}),
+            output_root=tmp_path,
+            validate=lambda path: LuaValidationResult(path=path, tool="stylua"),
+        )
+
+    assert "faction_repo" in str(error.value)
+    assert "class_display" in str(error.value)
 
 
 def test_top_level_written_paths_match_declared_plan(tmp_path: Path) -> None:
@@ -190,13 +274,16 @@ def test_generation_removes_stale_data_modules(tmp_path: Path) -> None:
     data_dir = tmp_path / "Erenshor" / "Data"
     stale_shard = data_dir / "Items" / "001.lua"
     stale_module = data_dir / "Obsolete.lua"
+    stale_legacy_module = data_dir / "AbilityLinks.lua"
     stale_shard.parent.mkdir(parents=True)
     stale_shard.write_text("return {}\n", encoding="utf-8")
     stale_module.write_text("return {}\n", encoding="utf-8")
+    stale_legacy_module.write_text("return {}\n", encoding="utf-8")
 
     result = _run_generation(tmp_path)
 
     assert not stale_shard.exists()
     assert not stale_module.exists()
+    assert not stale_legacy_module.exists()
     assert (data_dir / "Items.lua") in result.written_paths
     assert (data_dir / "Items.lua").exists()

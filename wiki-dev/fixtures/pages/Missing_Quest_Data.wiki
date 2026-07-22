@@ -1,1 +1,1 @@
-{{Quest}}
+{{Quest|stablekey=quest:missing}}

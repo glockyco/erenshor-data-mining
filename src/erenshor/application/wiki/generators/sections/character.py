@@ -21,7 +21,7 @@ from erenshor.domain.entities.character import Character
 from erenshor.domain.value_objects.faction import FactionModifier
 from erenshor.domain.value_objects.loot import LootDropDisplayInfo
 from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
-from erenshor.domain.value_objects.wiki_link import AbilityLink, FactionLink, StandardLink
+from erenshor.domain.value_objects.wiki_link import AbilityLink, FactionLink, ZoneLink
 
 WIKITEXT_LINE_SEPARATOR = "<br>"
 
@@ -117,14 +117,30 @@ class CharacterSectionGenerator(SectionGeneratorBase):
             # Use pre-populated display/wiki fields from the JOIN in the repository
             display = character.my_world_faction_display_name or character.my_world_faction_stable_key
             wiki = character.my_world_faction_wiki_page_name
-            link = FactionLink(page_title=wiki, display_name=display)
+            link = FactionLink(
+                page_title=wiki,
+                display_name=display,
+                stable_key=character.my_world_faction_stable_key,
+            )
             return str(link)
 
         if character.my_faction in ("Villager", "GoodHuman", "GoodGuard", "OtherGood", "PreyAnimal"):
-            return str(FactionLink(page_title="The Followers of Good", display_name="The Followers of Good"))
+            return str(
+                FactionLink(
+                    page_title="The Followers of Good",
+                    display_name="The Followers of Good",
+                    stable_key="faction:good",
+                )
+            )
 
         if character.my_faction and character.my_faction not in ("Player", "PC", "DEBUG"):
-            return str(FactionLink(page_title="The Followers of Evil", display_name="The Followers of Evil"))
+            return str(
+                FactionLink(
+                    page_title="The Followers of Evil",
+                    display_name="The Followers of Evil",
+                    stable_key="faction:evil",
+                )
+            )
 
         return ""
 
@@ -138,7 +154,11 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         for mod in nonzero_mods:
             display = mod.faction_display_name
             wiki = mod.faction_wiki_page_name
-            link = FactionLink(page_title=wiki, display_name=display)
+            link = FactionLink(
+                page_title=wiki,
+                display_name=display,
+                stable_key=mod.faction_stable_key,
+            )
             sign = "+" if mod.modifier_value > 0 else ""
             formatted = f"{sign}{mod.modifier_value} {link}"
             entries.append((display, formatted))
@@ -151,7 +171,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         if not spawn_infos:
             return ""
 
-        seen: dict[str, StandardLink] = {}
+        seen: dict[str, ZoneLink] = {}
         for info in spawn_infos:
             key = info.zone_link.display_name
             if key not in seen:

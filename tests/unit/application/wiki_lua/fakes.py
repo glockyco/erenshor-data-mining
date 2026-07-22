@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from types import SimpleNamespace
 from typing import TYPE_CHECKING
 
 from erenshor.domain.entities.character import Character
@@ -46,8 +47,10 @@ class FakeItemRepository:
         skill_teaching_items: dict[str, list[ItemLink]] | None = None,
         spell_effect_items: dict[str, list[ItemLink]] | None = None,
         skill_effect_items: dict[str, list[ItemLink]] | None = None,
+        catalog_items: list[Item] | None = None,
     ) -> None:
         self._items = items
+        self._catalog_items = items if catalog_items is None else catalog_items
         self._stats = stats
         self._classes = classes
         self._recipes = recipes or {}
@@ -66,6 +69,9 @@ class FakeItemRepository:
 
     def get_items_for_wiki_generation(self) -> list[Item]:
         return self._items
+
+    def get_items_for_link_catalog(self) -> list[Item]:
+        return self._catalog_items
 
     def get_item_stats(self, stable_key: str) -> list[ItemStats]:
         return self._stats.get(stable_key, [])
@@ -218,6 +224,25 @@ class FakeSkillRepository:
         return self._class_display_names
 
 
+class FakeFactionRepository:
+    def __init__(self, factions: list[object] | None = None) -> None:
+        self._factions = factions if factions is not None else [make_faction()]
+
+    def get_factions_for_wiki_generation(self) -> list[object]:
+        return self._factions
+
+
+class FakeClassDisplayService:
+    def __init__(self, mapping: dict[str, str] | None = None) -> None:
+        self._mapping = mapping if mapping is not None else {"Windblade": "Windblade"}
+
+    def get_all_internal_names(self) -> list[str]:
+        return list(self._mapping)
+
+    def get_display_name(self, class_name: str) -> str:
+        return self._mapping[class_name]
+
+
 class FakeStanceRepository:
     def __init__(self, stances: list[Stance]) -> None:
         self._stances = stances
@@ -291,6 +316,17 @@ class FakeZoneRepository:
 
     def get_item_bag_sources_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
         return self._item_bag_sources.get(item_stable_key, [])
+
+
+def make_faction(**overrides: object) -> object:
+    values: dict[str, object] = {
+        "stable_key": "faction:the_followers_of_evil",
+        "display_name": "The Followers of Evil",
+        "wiki_page_name": "The Followers of Evil",
+        "image_name": "The Followers of Evil",
+    }
+    values.update(overrides)
+    return SimpleNamespace(**values)
 
 
 def make_item(**overrides: object) -> Item:

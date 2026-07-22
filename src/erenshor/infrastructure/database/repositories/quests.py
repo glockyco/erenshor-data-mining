@@ -86,7 +86,7 @@ class QuestRepository(BaseRepository[Quest]):
             RepositoryError: If query execution fails
         """
         query = """
-            SELECT DISTINCT q.display_name, q.wiki_page_name
+            SELECT DISTINCT q.stable_key, q.display_name, q.wiki_page_name
             FROM quests q
             JOIN quest_variants qv ON q.stable_key = qv.quest_stable_key
             WHERE qv.item_on_complete_stable_key = ?
@@ -99,6 +99,7 @@ class QuestRepository(BaseRepository[Quest]):
                 QuestLink(
                     page_title=str(row["wiki_page_name"]) if row["wiki_page_name"] else None,
                     display_name=str(row["display_name"]),
+                    stable_key=str(row["stable_key"]),
                 )
                 for row in rows
             ]
@@ -122,7 +123,7 @@ class QuestRepository(BaseRepository[Quest]):
             RepositoryError: If query execution fails
         """
         query = """
-            SELECT DISTINCT q.display_name, q.wiki_page_name
+            SELECT DISTINCT q.stable_key, q.display_name, q.wiki_page_name
             FROM quests q
             JOIN quest_variants qv ON q.stable_key = qv.quest_stable_key
             JOIN quest_required_items qri ON qv.resource_name = qri.quest_variant_resource_name
@@ -136,6 +137,7 @@ class QuestRepository(BaseRepository[Quest]):
                 QuestLink(
                     page_title=str(row["wiki_page_name"]) if row["wiki_page_name"] else None,
                     display_name=str(row["display_name"]),
+                    stable_key=str(row["stable_key"]),
                 )
                 for row in rows
             ]

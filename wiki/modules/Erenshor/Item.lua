@@ -6,7 +6,7 @@ local Quality = require("Module:Erenshor/Item/Quality")
 local Cargo = require("Module:Erenshor/Cargo")
 
 local Index = mw.loadData("Module:Erenshor/Data/Items")
-local AbilityData = mw.loadData("Module:Erenshor/Data/AbilityLinks")
+local Links = mw.loadData("Module:Erenshor/Data/Links")
 local SkillData = mw.loadData("Module:Erenshor/Data/Skills")
 local SpellData = mw.loadData("Module:Erenshor/Data/Spells")
 
@@ -231,7 +231,26 @@ function p.resolve(args, pageTitle)
 	return item
 end
 
-local function classText(classes)
+local function classText(classes, classLinks)
+	if type(classLinks) == "table" then
+		local links = {}
+		for _, classLink in ipairs(classLinks) do
+			if type(classLink) == "table" and not isBlank(classLink.stablekey) then
+				table.insert(
+					links,
+					Link.render({
+						kind = "class",
+						stablekey = classLink.stablekey,
+						link = classLink.page,
+						text = classLink.text,
+					})
+				)
+			end
+		end
+		if #links > 0 then
+			return table.concat(links, " / ")
+		end
+	end
 	if classes == nil then
 		return ""
 	end
@@ -316,8 +335,8 @@ local function abilityPage(stableKey)
 	if isBlank(stableKey) then
 		return nil
 	end
-	local ability = AbilityData.abilities[stableKey]
-	if ability == nil or isBlank(ability.page) then
+	local ability = Links.byKey[stableKey]
+	if ability == nil or ability.kind ~= "ability" or isBlank(ability.page) then
 		return nil
 	end
 	return ability.page
@@ -471,7 +490,7 @@ local FIELD_ACCESSORS = {
 		return i.relic == true and "Yes" or ""
 	end,
 	classes = function(i)
-		return classText(i.classes)
+		return classText(i.classes, i.classLinks)
 	end,
 	effects = function(i)
 		return i.effects

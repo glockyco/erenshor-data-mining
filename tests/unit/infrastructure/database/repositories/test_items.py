@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from erenshor.domain.entities.item import Item
+from erenshor.domain.value_objects.wiki_link import ItemLink
 from erenshor.infrastructure.database.connection import DatabaseConnection, DatabaseConnectionError
 from erenshor.infrastructure.database.repositories.items import ItemRepository
 
@@ -31,6 +32,16 @@ def test_get_items_for_wiki_generation_returns_all_items(item_repo: ItemReposito
     assert all(isinstance(item, Item) for item in items)
     assert all(item.item_name for item in items), "All items should have item_name"
     assert all(item.stable_key for item in items), "All items should have stable_key"
+
+
+def test_get_items_for_link_catalog_includes_nonnull_blank_pages(item_repo: ItemRepository):
+    """Catalog stream retains blank pages so validation can reject them."""
+    catalog_items = item_repo.get_items_for_link_catalog()
+
+    assert all(item.wiki_page_name is not None for item in catalog_items)
+    assert {item.stable_key for item in item_repo.get_items_for_wiki_generation()} <= {
+        item.stable_key for item in catalog_items
+    }
 
 
 def test_get_items_for_wiki_generation_filters_blank_names(item_repo: ItemRepository):
@@ -175,17 +186,49 @@ def test_item_relationship_links_keep_stable_keys_for_shared_pages(tmp_path: Pat
         (
             "Alpha Mold",
             "item:mold-alpha",
-            "{{ItemLink|Shared Mold|image=Alpha Mold.png|text=Alpha Mold}}",
+            "{{ItemLink|stablekey=item:mold-alpha|link=Shared Mold|text=Alpha Mold|image=Alpha Mold.png}}",
         ),
         (
             "Beta Mold",
             "item:mold-beta",
-            "{{ItemLink|Shared Mold|image=Beta Mold.png|text=Beta Mold}}",
+            "{{ItemLink|stablekey=item:mold-beta|link=Shared Mold|text=Beta Mold|image=Beta Mold.png}}",
         ),
     ]
 
 
-def test_item_repository_handles_database_error(tmp_path: Path):
+def test_item_sources_keep_stable_keys_for_shared_pages(tmp_path: Path) -> None:
+    """Item source links retain identity when source items share a wiki page."""
+    db_path = tmp_path / "item-sources.sqlite"
+    with closing(sqlite3.connect(db_path)) as conn, conn:
+        conn.execute("CREATE TABLE items (stable_key TEXT, display_name TEXT, wiki_page_name TEXT)")
+        conn.execute(
+            "CREATE TABLE item_drops (source_item_stable_key TEXT, dropped_item_stable_key TEXT, drop_probability REAL)"
+        )
+        conn.executemany(
+            "INSERT INTO items VALUES (?, ?, ?)",
+            [
+                ("item:source-alpha", "Alpha Source", "Shared Source"),
+                ("item:source-beta", "Beta Source", "Shared Source"),
+                ("item:dropped", "Dropped Item", "Dropped Item"),
+            ],
+        )
+        conn.executemany(
+            "INSERT INTO item_drops VALUES (?, ?, ?)",
+            [
+                ("item:source-alpha", "item:dropped", 25.0),
+                ("item:source-beta", "item:dropped", 75.0),
+            ],
+        )
+
+    with DatabaseConnection(db_path, read_only=True) as db:
+        sources = ItemRepository(db).get_item_sources("item:dropped")
+
+    assert all(isinstance(link, ItemLink) for link, _ in sources)
+    assert [(link.stable_key, probability) for link, probability in sources] == [
+        ("item:source-beta", 75.0),
+        ("item:source-alpha", 25.0),
+    ]
+
     """Test that repository raises RepositoryError on database errors."""
     # Create a database path that doesn't exist
     nonexistent_db = tmp_path / "nonexistent.sqlite"

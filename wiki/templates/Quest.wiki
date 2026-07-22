@@ -1,4 +1,23 @@
-<includeonly><infobox type="Quest">
+<includeonly>{{#if:{{{stablekey|}}}|<infobox type="Quest">
+	<title><default>{{#invoke:Erenshor/Quest|field|name}}</default></title>
+	<image><default>{{#invoke:Erenshor/Quest|field|image}}</default><caption><default>{{#invoke:Erenshor/Quest|field|imagecaption}}</default></caption></image>
+	<data><label>Location:</label><default>{{#invoke:Erenshor/Quest|field|location}}</default></data>
+	<data><label>Repeatable:</label><default>{{#invoke:Erenshor/Quest|field|repeatable}}</default></data>
+    <header>Requirements</header>
+	<data><label>Prerequisite:</label><default>{{#invoke:Erenshor/Quest|field|prerequisite}}</default></data>
+	<data><label>Level:</label><default>{{#invoke:Erenshor/Quest|field|level}}</default></data>
+	<data><label>Item(s) Required:</label><default>{{#invoke:Erenshor/Quest|field|itemsrequired}}</default></data>
+	<header>Rewards</header>
+	<data><label>Experience:</label><default>{{#invoke:Erenshor/Quest|field|experience}}</default></data>
+	<data><label>Gold:</label><default>{{#invoke:Erenshor/Quest|field|gold}}</default></data>
+	<data><label>Faction Changes:</label><default>{{#invoke:Erenshor/Quest|field|factionchanges}}</default></data>
+	<data><label>Item(s):</label><default>{{#if:{{{items|}}}|{{#ifeq:{{{items|}}}|-||{{{items|}}}}}|{{QuestRewardsQuery|stablekey={{{stablekey|}}}}}}}</default></data>
+	<group layout="horizontal">
+		<header>Quest Progression</header>
+		<data><label>Previous:</label><default>{{#invoke:Erenshor/Quest|field|previous}}</default></data>
+		<data><label>Next:</label><default>{{#invoke:Erenshor/Quest|field|next}}</default></data>
+	</group>
+</infobox>{{#invoke:Erenshor/Quest|status}}{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Quests]]}}|<infobox type="Quest">
 	<title source="title"/>
 	<image source="image"><caption source="imagecaption"/></image>
 	    <data source="location"><label>Location:</label></data>
@@ -17,4 +36,6 @@
 		<data source="previous"><label>Previous:</label></data>
 		<data source="next"><label>Next:</label></data>
 	</group>
-</infobox>{{#ifeq: {{NAMESPACENUMBER}} | 0 | [[Category:Quests]]}}</includeonly><noinclude>{{Documentation}}</noinclude>
+</infobox>{{#ifeq: {{NAMESPACENUMBER}} | 0 | [[Category:Quests]]}}}}</includeonly><noinclude>{{Documentation}}
+Template parameters mirror the production Quest template. Article parameters override generated Lua data; use <code>-</code> to intentionally blank a supported generated field.
+</noinclude>

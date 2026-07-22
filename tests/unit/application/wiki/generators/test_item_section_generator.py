@@ -84,7 +84,10 @@ def test_weapon_tooltip_args_are_display_ready() -> None:
     assert "|image=Oldenbow.png" in result
     assert "|type=Primary - 2-Handed" in result
     assert "|range=25" in result
-    assert "|proc_spell_name=[[Ice Spear]]" in result
+    assert (
+        "|proc_spell_name={{AbilityLink|stablekey=spell:ice_spear|link=Ice Spear|text=Ice Spear|image=Ice Spear.png}}"
+        in result
+    )
     assert "|proc_spell_icon=Ice Spear.png" in result
     assert "|proc_cast_time=1.0" in result
     assert "|proc_target_damage=1100" in result

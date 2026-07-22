@@ -102,7 +102,38 @@ def test_deploy_repo_pages_rejects_templates_before_remote_reads(tmp_path: Path)
     assert client.safe_creates == []
 
 
-def test_deploy_repo_pages_empty_manifest_does_not_call_client(tmp_path: Path) -> None:
+def test_deploy_repo_pages_rejects_generated_data_without_opt_in(tmp_path: Path) -> None:
+    write_page(tmp_path, "variants/main/wiki/lua/Erenshor/Data/Links.lua", "return {}\n")
+    manifest = build_repo_page_manifest(tmp_path, variant="main", include_generated_data=True)
+    client = RecordingWikiClient({"Module:Erenshor/Data/Links": None})
+
+    with pytest.raises(ValueError, match="Generated data pages require explicit deployment opt-in"):
+        deploy_repo_pages(
+            manifest=manifest,
+            repo_root=tmp_path,
+            client=client,
+            summary="Deploy generated data",
+            assertion="bot",
+        )
+    assert client.snapshot_requests == []
+
+
+def test_deploy_repo_pages_accepts_content_opt_in(tmp_path: Path) -> None:
+    write_page(tmp_path, "wiki/content/Category/Links.wiki", "__HIDDENCAT__\n")
+    manifest = build_repo_page_manifest(tmp_path, variant="main", include_content_pages=True)
+    client = RecordingWikiClient({"Category:Links": None})
+
+    result = deploy_repo_pages(
+        manifest=manifest,
+        repo_root=tmp_path,
+        client=client,
+        summary="Deploy content page",
+        assertion="bot",
+        include_content_pages=True,
+    )
+    assert [entry.title for entry in result.entries] == ["Category:Links"]
+    assert client.safe_creates[0][0] == "Category:Links"
+
     client = RecordingWikiClient({})
 
     result = deploy_repo_pages(
@@ -153,6 +184,7 @@ def test_deploy_repo_pages_skips_unchanged_pages(tmp_path: Path) -> None:
         summary="Deploy repo-owned wiki pages",
         assertion="bot",
         assert_user="ErenshorBot",
+        known_live_titles={"Module:Erenshor/Data/Links"},
     )
 
     [entry] = result.entries
@@ -177,6 +209,7 @@ def test_deploy_repo_pages_treats_trailing_newline_difference_as_unchanged(tmp_p
         summary="Deploy repo-owned wiki pages",
         assertion="bot",
         assert_user="ErenshorBot",
+        known_live_titles={"Module:Erenshor/Data/Links"},
     )
     [entry] = result.entries
     assert entry.status == "unchanged"
@@ -198,6 +231,7 @@ def test_deploy_repo_pages_safe_edits_changed_pages(tmp_path: Path) -> None:
         summary="Deploy repo-owned wiki pages",
         assertion="bot",
         assert_user="ErenshorBot",
+        known_live_titles={"Module:Erenshor/Data/Links"},
         rollback_root=tmp_path / "rollback",
     )
 
@@ -233,6 +267,7 @@ def test_deploy_repo_pages_safe_creates_missing_pages(tmp_path: Path) -> None:
         summary="Deploy repo-owned wiki pages",
         assertion="bot",
         assert_user="ErenshorBot",
+        known_live_titles={"Module:Erenshor/Data/Links"},
     )
 
     [entry] = result.entries
@@ -267,6 +302,7 @@ def test_build_deployed_manifest_merges_deploy_results_into_entries(tmp_path: Pa
         client=client,
         summary="Deploy repo-owned wiki pages",
         assertion="bot",
+        known_live_titles={"Module:Erenshor/Data/Links"},
         rollback_root=tmp_path / "rollback",
     )
     deployed = build_deployed_manifest(manifest, result)
@@ -299,6 +335,7 @@ def test_deploy_repo_pages_aborts_on_stale_source_hash_before_writes(tmp_path: P
             client=client,
             summary="Deploy repo-owned wiki pages",
             assertion="bot",
+            known_live_titles={"Module:Erenshor/Data/Links"},
         )
     except ValueError as error:
         assert "Source hash mismatch" in str(error)

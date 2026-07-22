@@ -11,11 +11,12 @@ from typing import TYPE_CHECKING
 from loguru import logger
 
 from erenshor.application.wiki.generators.base import GeneratedPage, PageMetadata
+from erenshor.application.wiki.generators.formatting import format_ability_link
 from erenshor.application.wiki.generators.pages.overview_base import (
     OverviewPageGeneratorBase,
 )
 from erenshor.domain.entities.item_kind import classify_item_kind
-from erenshor.domain.value_objects.wiki_link import AbilityLink, ItemLink
+from erenshor.domain.value_objects.wiki_link import ItemLink
 
 if TYPE_CHECKING:
     from erenshor.domain.entities.item import Item
@@ -193,9 +194,8 @@ class ArmorOverviewPageGenerator(OverviewPageGeneratorBase):
         # Notes column (worn effects, click effects, bracer procs)
         notes = self._build_armor_notes(armor)
 
-        # Classes column - map to display names (already sorted by map_class_list)
-        display_class_names = self.context.class_display.map_class_list(class_names)
-        classes = ", ".join(f"[[{cls}]]" for cls in display_class_names) if display_class_names else ""
+        # Classes column - preserve internal identities while mapping display names.
+        classes = self._format_classes(class_names)
 
         # Add row
         rows.extend(
@@ -242,30 +242,26 @@ class ArmorOverviewPageGenerator(OverviewPageGeneratorBase):
 
         # Worn effect
         if armor.worn_effect_stable_key:
-            spell_link = self._ability_link(armor.worn_effect_stable_key)
+            spell_link = format_ability_link(
+                self.context.spell_repo.get_spell_by_stable_key(armor.worn_effect_stable_key),
+                armor.worn_effect_stable_key,
+            )
             notes_parts.append(f"Worn: {spell_link}")
 
         # Click effect
         if armor.item_effect_on_click_stable_key:
-            spell_link = self._ability_link(armor.item_effect_on_click_stable_key)
+            spell_link = format_ability_link(
+                self.context.spell_repo.get_spell_by_stable_key(armor.item_effect_on_click_stable_key),
+                armor.item_effect_on_click_stable_key,
+            )
             notes_parts.append(f"On click: {spell_link}")
 
         # Bracer proc
         if armor.required_slot == "Bracer" and armor.weapon_proc_on_hit_stable_key and armor.weapon_proc_chance:
-            spell_link = self._ability_link(armor.weapon_proc_on_hit_stable_key)
+            spell_link = format_ability_link(
+                self.context.spell_repo.get_spell_by_stable_key(armor.weapon_proc_on_hit_stable_key),
+                armor.weapon_proc_on_hit_stable_key,
+            )
             notes_parts.append(f"{spell_link}, {int(armor.weapon_proc_chance)}% on cast")
 
         return "<br>".join(notes_parts)
-
-    def _ability_link(self, stable_key: str) -> str:
-        """Build an AbilityLink string from a spell stable key."""
-        spell = self.context.spell_repo.get_spell_by_stable_key(stable_key)
-        if spell is None:
-            return stable_key
-        return str(
-            AbilityLink(
-                page_title=spell.wiki_page_name,
-                display_name=spell.display_name or spell.spell_name or "",
-                image_name=spell.image_name,
-            )
-        )

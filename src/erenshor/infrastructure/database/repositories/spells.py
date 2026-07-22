@@ -1,5 +1,7 @@
 """Spell repository for specialized spell queries."""
 
+from collections.abc import Mapping
+
 from loguru import logger
 
 from erenshor.domain.entities.spell import Spell
@@ -99,6 +101,7 @@ _SPELL_COLUMNS = """
     ap.display_name  AS add_proc_display_name,
     ap.wiki_page_name AS add_proc_wiki_page_name,
     ap.image_name    AS add_proc_image_name,
+    ap.stable_key    AS add_proc_link_stable_key,
     -- status_effect link columns (from self-JOIN)
     se.display_name  AS status_effect_display_name,
     se.wiki_page_name AS status_effect_wiki_page_name,
@@ -111,24 +114,26 @@ _SPELL_JOINS = """
 """
 
 
-def _spell_from_row(row: object) -> Spell:
+def _spell_from_row(row: Mapping[str, object]) -> Spell:
     """Build a Spell entity from a joined query row, populating pre-built link fields."""
-    d = dict(row)  # type: ignore[call-overload]
+    d: dict[str, object] = dict(row)
 
     # Extract and remove link columns from dict before Pydantic validation
     add_proc_display = d.pop("add_proc_display_name", None)
     add_proc_wiki = d.pop("add_proc_wiki_page_name", None)
-    d.pop("add_proc_image_name", None)
+    _ = d.pop("add_proc_image_name", None)
+    add_proc_stable_key = d.pop("add_proc_link_stable_key", None)
     se_display = d.pop("status_effect_display_name", None)
     se_wiki = d.pop("status_effect_wiki_page_name", None)
-    d.pop("status_effect_image_name", None)
+    _ = d.pop("status_effect_image_name", None)
 
     spell = Spell.model_validate(d)
 
-    if add_proc_display is not None:
+    if add_proc_display is not None and add_proc_stable_key is not None:
         spell.add_proc_link = AbilityLink(
             page_title=str(add_proc_wiki) if add_proc_wiki else None,
             display_name=str(add_proc_display),
+            stable_key=str(add_proc_stable_key),
         )
 
     if se_display is not None:
@@ -283,7 +288,7 @@ class SpellRepository(BaseRepository[Spell]):
             WITH grp AS (
                 SELECT group_key FROM character_deduplications WHERE member_stable_key = ? LIMIT 1
             )
-            SELECT DISTINCT s.display_name, s.wiki_page_name, s.image_name
+            SELECT DISTINCT s.stable_key, s.display_name, s.wiki_page_name, s.image_name
             FROM spells s
             WHERE s.stable_key IN (
                 SELECT spell_stable_key FROM character_attack_spells cas
@@ -320,6 +325,7 @@ class SpellRepository(BaseRepository[Spell]):
                     page_title=str(row["wiki_page_name"]) if row["wiki_page_name"] else None,
                     display_name=str(row["display_name"]),
                     image_name=str(row["image_name"]) if row["image_name"] else None,
+                    stable_key=str(row["stable_key"]),
                 )
                 for row in rows
             ]

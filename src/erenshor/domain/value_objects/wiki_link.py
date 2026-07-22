@@ -10,6 +10,7 @@ All link types support disambiguation where the display name differs from the pa
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import override
 
 
 @dataclass(frozen=True)
@@ -21,6 +22,7 @@ class WikiLink:
                     If None, entity is excluded from wiki (renders as plain text)
         display_name: Display text shown to user (e.g., "The Duskenlight Ritual")
         image_name: Optional image filename (without .png extension)
+        stable_key: Optional stable identity used by semantic link templates
 
     The display_name is used for sorting, while page_title is the actual wiki page.
 
@@ -31,7 +33,9 @@ class WikiLink:
     page_title: str | None
     display_name: str
     image_name: str | None = None
+    stable_key: str | None = None
 
+    @override
     def __str__(self) -> str:
         """Render as MediaWiki wikitext.
 
@@ -51,6 +55,22 @@ class WikiLink:
         if not isinstance(other, WikiLink):
             return NotImplemented
         return self.display_name < other.display_name
+
+
+def _render_keyed_link(link: WikiLink, kind: str) -> str | None:
+    """Render a keyed semantic link, or ``None`` for legacy rendering."""
+    if link.page_title is None or not link.stable_key:
+        return None
+
+    params = [
+        f"stablekey={link.stable_key}",
+        f"link={link.page_title}",
+        f"text={link.display_name}",
+    ]
+    if link.image_name:
+        image = link.image_name if link.image_name.endswith(".png") else f"{link.image_name}.png"
+        params.append(f"image={image}")
+    return f"{{{{{kind}Link|{'|'.join(params)}}}}}"
 
 
 @dataclass(frozen=True)
@@ -73,14 +93,16 @@ class ItemLink(WikiLink):
         'Excluded Item'
     """
 
-    stable_key: str | None = None
-
+    @override
     def __str__(self) -> str:
         """Render as {{ItemLink}} template wikitext, or plain text if excluded."""
         if self.page_title is None:
             return self.display_name
 
-        params = []
+        if keyed := _render_keyed_link(self, "Item"):
+            return keyed
+
+        params: list[str] = []
 
         # Add image param if different from page title
         if self.image_name and self.image_name != self.page_title:
@@ -124,13 +146,17 @@ class AbilityLink(WikiLink):
         'Excluded Spell'
     """
 
+    @override
     def __str__(self) -> str:
         """Render as {{AbilityLink}} template wikitext, or plain text if excluded."""
         # Excluded entity - return plain display name
         if self.page_title is None:
             return self.display_name
 
-        params = []
+        if keyed := _render_keyed_link(self, "Ability"):
+            return keyed
+
+        params: list[str] = []
 
         # Add image param if different from page title
         if self.image_name and self.image_name != self.page_title:
@@ -166,15 +192,28 @@ class QuestLink(WikiLink):
         'Excluded Quest'
     """
 
+    @override
     def __str__(self) -> str:
         """Render as {{QuestLink}} template wikitext, or plain text if excluded."""
         # Excluded entity - return plain display name
         if self.page_title is None:
             return self.display_name
 
+        if keyed := _render_keyed_link(self, "Quest"):
+            return keyed
+
         if self.display_name != self.page_title:
             return f"{{{{QuestLink|link={self.page_title}{{{{!}}}}{self.display_name}}}}}"
         return f"{{{{QuestLink|{self.page_title}}}}}"
+
+
+def _render_standard_link(link: WikiLink) -> str:
+    """Render a normal MediaWiki link or plain text for an excluded title."""
+    if link.page_title is None:
+        return link.display_name
+    if link.display_name != link.page_title:
+        return f"[[{link.page_title}|{link.display_name}]]"
+    return f"[[{link.page_title}]]"
 
 
 @dataclass(frozen=True)
@@ -197,18 +236,51 @@ class StandardLink(WikiLink):
         'Excluded Character'
     """
 
+    @override
     def __str__(self) -> str:
         """Render as [[Page]] or [[Page|Display]] wikitext, or plain text if excluded."""
-        # Excluded entity - return plain display name
-        if self.page_title is None:
-            return self.display_name
-
-        if self.display_name != self.page_title:
-            return f"[[{self.page_title}|{self.display_name}]]"
-        return f"[[{self.page_title}]]"
+        return _render_standard_link(self)
 
 
-# Type aliases for clarity
-CharacterLink = StandardLink
-FactionLink = StandardLink
-ZoneLink = StandardLink
+@dataclass(frozen=True)
+class CharacterLink(WikiLink):
+    """Semantic character link using {{CharacterLink}} when keyed."""
+
+    @override
+    def __str__(self) -> str:
+        if keyed := _render_keyed_link(self, "Character"):
+            return keyed
+        return _render_standard_link(self)
+
+
+@dataclass(frozen=True)
+class FactionLink(WikiLink):
+    """Semantic faction link using {{FactionLink}} when keyed."""
+
+    @override
+    def __str__(self) -> str:
+        if keyed := _render_keyed_link(self, "Faction"):
+            return keyed
+        return _render_standard_link(self)
+
+
+@dataclass(frozen=True)
+class ZoneLink(WikiLink):
+    """Semantic zone link using {{ZoneLink}} when keyed."""
+
+    @override
+    def __str__(self) -> str:
+        if keyed := _render_keyed_link(self, "Zone"):
+            return keyed
+        return _render_standard_link(self)
+
+
+@dataclass(frozen=True)
+class ClassLink(WikiLink):
+    """Semantic class link using {{ClassLink}} when keyed."""
+
+    @override
+    def __str__(self) -> str:
+        if keyed := _render_keyed_link(self, "Class"):
+            return keyed
+        return _render_standard_link(self)

@@ -285,15 +285,22 @@ local function classesText(spell)
 		return ""
 	end
 	local out = {}
-	for _, className in ipairs(spell.classes) do
+	local classLinks = spell.classLinks
+	for index, className in ipairs(spell.classes) do
 		if not isBlank(className) then
-			table.insert(
-				out,
-				Link.render({ kind = "class", page = className })
-					.. " ("
-					.. numberText(level)
-					.. ")"
-			)
+			local classLink = type(classLinks) == "table" and classLinks[index] or nil
+			local args
+			if type(classLink) == "table" and not isBlank(classLink.stablekey) then
+				args = {
+					kind = "class",
+					stablekey = classLink.stablekey,
+					link = classLink.page,
+					text = classLink.text,
+				}
+			else
+				args = { kind = "class", page = className }
+			end
+			table.insert(out, Link.render(args) .. " (" .. numberText(level) .. ")")
 		end
 	end
 	return table.concat(out, "<br>")

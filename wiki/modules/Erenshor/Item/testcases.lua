@@ -775,6 +775,16 @@ function p.run()
 		"12500",
 		"field buy renders the raw gold value"
 	)
+	assertContains(
+		Item.fieldValue(weaponKey, "Ember Longsword", "classes"),
+		'data-erenshor-key="class:duelist"',
+		"generated item classes carry stable class identity"
+	)
+	assertContains(
+		Item.fieldValue(weaponKey, "Ember Longsword", "classes"),
+		'data-erenshor-page="Windblade"',
+		"generated item classes use canonical class page"
+	)
 
 	local cargo = Item.cargoArgs({ args = { stablekey = "item:abyssal_plate" } })
 	assertEqual(cargo.Armor, "40", "cargo store contains armor overview AC")

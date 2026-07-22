@@ -30,6 +30,7 @@ def test_builds_item_index_and_sharded_records_with_tooltip_source_fields() -> N
         items=[item],
         stats_by_item={item.stable_key: stats},
         classes_by_item={item.stable_key: ["Knight", "Paladin"]},
+        class_display_names={"Knight": "Knight", "Paladin": "Paladin"},
     )
 
     assert data == {
@@ -53,6 +54,10 @@ def test_builds_item_index_and_sharded_records_with_tooltip_source_fields() -> N
                     "damage": 7,
                     "armor": 3,
                     "classes": ["Knight", "Paladin"],
+                    "classLinks": [
+                        {"stablekey": "class:knight", "page": "Knight", "text": "Knight"},
+                        {"stablekey": "class:paladin", "page": "Paladin", "text": "Paladin"},
+                    ],
                     "stats": [
                         {
                             "quality": "Standard",
@@ -456,12 +461,13 @@ def test_generates_items_modules_from_repository_data() -> None:
     item = make_item()
     repo = FakeItemRepository(items=[item], stats={}, classes={item.stable_key: ["Knight"]})
 
-    modules = generate_items_modules(repo)
+    modules = generate_items_modules(repo, class_display_names={"Knight": "Knight"})
 
     assert modules["Items.lua"].startswith("return {\n")
     assert '["item:sword_of_flames"] = "Weapons"' in modules["Items.lua"]
     assert '["item:sword_of_flames"]' in modules["Items/Weapons.lua"]
-    assert '["classes"] = {\n      "Knight",\n    },' in modules["Items/Weapons.lua"]
+    assert "class:knight" in modules["Items/Weapons.lua"]
+    assert '"Knight"' in modules["Items/Weapons.lua"]
 
 
 def test_writes_items_modules_to_data_module_paths(tmp_path: Path) -> None:

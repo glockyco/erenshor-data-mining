@@ -156,13 +156,18 @@ local function classLevelsText(skill)
 			and tonumber(entry.level) ~= nil
 			and tonumber(entry.level) > 0
 		then
-			table.insert(
-				out,
-				Link.render({ kind = "class", page = displayName })
-					.. " ("
-					.. numberText(entry.level)
-					.. ")"
-			)
+			local args
+			if not isBlank(entry.stablekey) then
+				args = {
+					kind = "class",
+					stablekey = entry.stablekey,
+					link = entry.page,
+					text = entry.text,
+				}
+			else
+				args = { kind = "class", page = displayName }
+			end
+			table.insert(out, Link.render(args) .. " (" .. numberText(entry.level) .. ")")
 		end
 	end
 	return table.concat(out, "<br>")

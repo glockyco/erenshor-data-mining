@@ -6,12 +6,12 @@ from collections.abc import Iterable, Mapping
 from pathlib import Path
 from typing import TYPE_CHECKING, Protocol
 
-from erenshor.application.wiki_lua.links import link_refs
+from erenshor.application.wiki_lua.links import class_link_refs, link_refs
 from erenshor.application.wiki_lua.lua_writer import module_text
 
 if TYPE_CHECKING:
     from erenshor.domain.entities.spell import Spell
-    from erenshor.domain.value_objects.wiki_link import CharacterLink, ItemLink, WikiLink
+    from erenshor.domain.value_objects.wiki_link import CharacterLink, ItemLink
 
 LuaData = dict[str, object]
 
@@ -125,6 +125,7 @@ def generate_spells_module(
     spell_repo: SpellDataRepository,
     item_repo: SpellRelationshipItemRepository | None = None,
     character_repo: SpellRelationshipCharacterRepository | None = None,
+    class_display_names: Mapping[str, str] | None = None,
 ) -> str:
     """Generate `Module:Erenshor/Data/Spells` from clean DB repositories."""
     spells = spell_repo.get_spells_for_wiki_generation()
@@ -136,6 +137,7 @@ def generate_spells_module(
             teaching_items_by_spell=_teaching_items_by_spell(spells, item_repo),
             items_with_effect_by_spell=_items_with_effect_by_spell(spells, item_repo),
             used_by_by_spell=_used_by_by_spell(spells, character_repo),
+            class_display_names=class_display_names,
         )
     )
 
@@ -145,11 +147,20 @@ def write_spells_module(
     output_root: Path,
     item_repo: SpellRelationshipItemRepository | None = None,
     character_repo: SpellRelationshipCharacterRepository | None = None,
+    class_display_names: Mapping[str, str] | None = None,
 ) -> Path:
     """Write the generated spell data module below an output root."""
     output_path = output_root / "Erenshor" / "Data" / "Spells.lua"
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(generate_spells_module(spell_repo, item_repo, character_repo), encoding="utf-8")
+    output_path.write_text(
+        generate_spells_module(
+            spell_repo,
+            item_repo,
+            character_repo,
+            class_display_names=class_display_names,
+        ),
+        encoding="utf-8",
+    )
     return output_path
 
 
@@ -159,6 +170,7 @@ def build_spells_data(
     teaching_items_by_spell: Mapping[str, Iterable[ItemLink]] | None = None,
     items_with_effect_by_spell: Mapping[str, Iterable[ItemLink]] | None = None,
     used_by_by_spell: Mapping[str, Iterable[CharacterLink]] | None = None,
+    class_display_names: Mapping[str, str] | None = None,
 ) -> LuaData:
     """Build the serializable spell data table for `mw.loadData()`."""
     rows: dict[str, LuaData] = {}
@@ -173,6 +185,7 @@ def build_spells_data(
                 items_with_effect_by_spell.get(spell.stable_key, ()) if items_with_effect_by_spell is not None else ()
             ),
             used_by=used_by_by_spell.get(spell.stable_key, ()) if used_by_by_spell is not None else (),
+            class_display_names=class_display_names,
         )
         if record is not None:
             rows[spell.stable_key] = record
@@ -185,13 +198,21 @@ def _spell_record(
     teaching_items: Iterable[ItemLink] = (),
     items_with_effect: Iterable[ItemLink] = (),
     used_by: Iterable[CharacterLink] = (),
+    class_display_names: Mapping[str, str] | None = None,
 ) -> LuaData | None:
     name = spell.display_name or spell.spell_name or spell.wiki_page_name
     page = spell.wiki_page_name or name
     if name is None or page is None:
         return None
 
-    record: LuaData = {"name": name, "page": page, "classes": sorted(classes, key=str.casefold)}
+    classes = sorted(classes, key=str.casefold)
+    record: LuaData = {
+        "name": name,
+        "page": page,
+        "classes": classes,
+    }
+    if classes:
+        record["classLinks"] = class_link_refs(classes, class_display_names or {})
     for lua_key, attr in _TEXT_FIELD_MAP:
         _put_text(record, lua_key, getattr(spell, attr))
     for lua_key, attr in _NUMBER_FIELD_MAP:
@@ -202,9 +223,9 @@ def _spell_record(
         _put_number(record, "castTimeSeconds", round(spell.spell_charge_time / 60, 2))
     if spell.spell_duration_in_ticks is not None:
         _put_number(record, "durationSeconds", spell.spell_duration_in_ticks * 3)
-    _put_list(record, "source", _link_list(teaching_items, "item"))
-    _put_list(record, "itemsWithEffect", _link_list(items_with_effect, "item"))
-    _put_list(record, "usedBy", _link_list(used_by, "character"))
+    _put_list(record, "source", link_refs(teaching_items, "item"))
+    _put_list(record, "itemsWithEffect", link_refs(items_with_effect, "item"))
+    _put_list(record, "usedBy", link_refs(used_by, "character"))
     return record
 
 
@@ -225,10 +246,6 @@ def _put_bool(row: LuaData, key: str, value: object) -> None:
 def _put_list(row: LuaData, key: str, value: list[LuaData]) -> None:
     if value:
         row[key] = value
-
-
-def _link_list(links: Iterable[WikiLink], kind: str | None = None) -> list[LuaData]:
-    return link_refs(links, kind)
 
 
 def _teaching_items_by_spell(

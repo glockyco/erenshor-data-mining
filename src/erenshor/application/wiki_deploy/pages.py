@@ -87,6 +87,9 @@ def deploy_repo_pages(
     rollback_root: Path | None = None,
     checkpoint: Callable[[RepoWikiPageManifest], None] | None = None,
     include_templates: bool = False,
+    include_generated_data: bool = False,
+    include_content_pages: bool = False,
+    known_live_titles: set[str] | None = None,
 ) -> RepoPageDeployResult:
     """Deploy changed manifest pages through the safe MediaWiki edit path.
 
@@ -94,7 +97,13 @@ def deploy_repo_pages(
     the first mutation. Every safe edit uses the revision returned alongside the
     source text it was compared with.
     """
-    validate_repo_page_manifest_for_deploy(manifest, include_templates=include_templates)
+    validate_repo_page_manifest_for_deploy(
+        manifest,
+        include_templates=include_templates,
+        include_generated_data=include_generated_data,
+        include_content_pages=include_content_pages,
+        known_live_titles=known_live_titles,
+    )
     if not manifest.entries:
         return RepoPageDeployResult(entries=())
     titles = [entry.title for entry in manifest.entries]

@@ -259,7 +259,7 @@ class CharacterRepository(BaseRepository[Character]):
                 WHERE d.group_key = (SELECT group_key FROM target_group)
                   AND d.is_wiki_generated = 1
             )
-            SELECT c.display_name, c.wiki_page_name
+            SELECT c.stable_key, c.display_name, c.wiki_page_name
             FROM characters c
             WHERE c.stable_key = (SELECT rep_stable_key FROM rep)
             LIMIT 1
@@ -273,6 +273,7 @@ class CharacterRepository(BaseRepository[Character]):
             return CharacterLink(
                 page_title=str(row["wiki_page_name"]) if row["wiki_page_name"] else None,
                 display_name=str(row["display_name"]),
+                stable_key=str(row["stable_key"]),
             )
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve character link for '{stable_key}': {e}") from e
@@ -364,7 +365,7 @@ class CharacterRepository(BaseRepository[Character]):
                 WHERE d.is_wiki_generated = 1
                 GROUP BY vg.group_key
             )
-            SELECT c.display_name, c.wiki_page_name
+            SELECT c.stable_key, c.display_name, c.wiki_page_name
             FROM reps r
             JOIN characters c ON c.stable_key = r.rep_stable_key
             ORDER BY c.display_name COLLATE NOCASE
@@ -376,6 +377,7 @@ class CharacterRepository(BaseRepository[Character]):
                 CharacterLink(
                     page_title=str(row["wiki_page_name"]) if row["wiki_page_name"] else None,
                     display_name=str(row["display_name"]),
+                    stable_key=str(row["stable_key"]),
                 )
                 for row in rows
             ]
@@ -415,7 +417,7 @@ class CharacterRepository(BaseRepository[Character]):
                 WHERE d.is_wiki_generated = 1
                 GROUP BY dg.group_key, dg.drop_probability
             )
-            SELECT c.display_name, c.wiki_page_name, r.drop_probability
+            SELECT c.stable_key, c.display_name, c.wiki_page_name, r.drop_probability
             FROM reps r
             JOIN characters c ON c.stable_key = r.rep_stable_key
             ORDER BY c.display_name COLLATE NOCASE
@@ -428,6 +430,7 @@ class CharacterRepository(BaseRepository[Character]):
                     CharacterLink(
                         page_title=str(row["wiki_page_name"]) if row["wiki_page_name"] else None,
                         display_name=str(row["display_name"]),
+                        stable_key=str(row["stable_key"]),
                     ),
                     float(row["drop_probability"]) if row["drop_probability"] is not None else 0.0,
                 )
@@ -477,7 +480,7 @@ class CharacterRepository(BaseRepository[Character]):
                 WHERE d.is_wiki_generated = 1
                 GROUP BY sg.group_key
             )
-            SELECT c.display_name, c.wiki_page_name
+            SELECT c.stable_key, c.display_name, c.wiki_page_name
             FROM reps r
             JOIN characters c ON c.stable_key = r.rep_stable_key
             ORDER BY c.display_name COLLATE NOCASE
@@ -489,6 +492,7 @@ class CharacterRepository(BaseRepository[Character]):
                 CharacterLink(
                     page_title=str(row["wiki_page_name"]) if row["wiki_page_name"] else None,
                     display_name=str(row["display_name"]),
+                    stable_key=str(row["stable_key"]),
                 )
                 for row in rows
             ]

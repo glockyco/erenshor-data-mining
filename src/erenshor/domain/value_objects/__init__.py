@@ -6,6 +6,7 @@ from .spawn import CharacterSpawnInfo
 from .wiki_link import (
     AbilityLink,
     CharacterLink,
+    ClassLink,
     FactionLink,
     ItemLink,
     QuestLink,
@@ -18,6 +19,7 @@ __all__ = [
     "AbilityLink",
     "CharacterLink",
     "CharacterSpawnInfo",
+    "ClassLink",
     "FactionLink",
     "FactionModifier",
     "ItemLink",

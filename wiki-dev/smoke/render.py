@@ -29,7 +29,8 @@ FORBIDDEN_HTML_MARKERS = (
     ("{{CharacterLink|", "forbidden parser output: raw cross-reference template"),
     ("{{Item/", "forbidden parser output: raw legacy item template"),
     ("{{FactionLink|", "forbidden parser output: raw cross-reference template"),
-    ("{{ClassLink|", "forbidden parser output: raw cross-reference template"),
+    ("{{#if:", "forbidden parser output: raw #if parser function"),
+    ("{{#ifeq:", "forbidden parser output: raw #ifeq parser function"),
 )
 
 FORBIDDEN_HTML_PATTERNS = (

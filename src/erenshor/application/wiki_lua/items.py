@@ -7,7 +7,7 @@ from collections.abc import Iterable, Mapping
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol, cast
 
-from erenshor.application.wiki_lua.links import link_ref
+from erenshor.application.wiki_lua.links import class_link_refs, link_ref
 from erenshor.application.wiki_lua.lua_writer import module_text
 from erenshor.domain.entities.item_kind import ItemKind, classify_item_kind
 from erenshor.domain.value_objects.source_info import ObtainedFromInfo, SourceInfo, UsedInInfo
@@ -175,6 +175,7 @@ _STAT_FIELD_MAP = (
 def generate_items_modules(
     item_repo: ItemDataRepository,
     sources_by_item: Mapping[str, SourceInfo] | None = None,
+    class_display_names: Mapping[str, str] | None = None,
 ) -> dict[str, str]:
     """Generate `Module:Erenshor/Data/Items` index and shard module content."""
 
@@ -188,6 +189,7 @@ def generate_items_modules(
         classes_by_item,
         recipes_by_item=recipes_by_item,
         sources_by_item=sources_by_item,
+        class_display_names=class_display_names,
     )
 
     modules = {"Items.lua": module_text(data["index"])}
@@ -201,11 +203,16 @@ def write_items_modules(
     item_repo: ItemDataRepository,
     output_root: Path,
     sources_by_item: Mapping[str, SourceInfo] | None = None,
+    class_display_names: Mapping[str, str] | None = None,
 ) -> list[Path]:
     """Write the generated item data index and shard modules below an output root."""
     output_dir = output_root / "Erenshor" / "Data"
     written_paths: list[Path] = []
-    for relative_path, module in generate_items_modules(item_repo, sources_by_item=sources_by_item).items():
+    for relative_path, module in generate_items_modules(
+        item_repo,
+        sources_by_item=sources_by_item,
+        class_display_names=class_display_names,
+    ).items():
         output_path = output_dir / relative_path
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(module, encoding="utf-8")
@@ -251,6 +258,7 @@ def build_items_data(
     classes_by_item: Mapping[str, list[str]],
     recipes_by_item: Mapping[str, CraftingRecipe | None] | None = None,
     sources_by_item: Mapping[str, SourceInfo] | None = None,
+    class_display_names: Mapping[str, str] | None = None,
 ) -> LuaData:
     """Build the serializable item index and semantic shard tables for `mw.loadData()`."""
 
@@ -267,6 +275,7 @@ def build_items_data(
             classes=classes_by_item.get(item.stable_key, []),
             recipe=recipes_by_item.get(item.stable_key) if recipes_by_item is not None else None,
             sources=sources_by_item.get(item.stable_key) if sources_by_item is not None else None,
+            class_display_names=class_display_names,
         )
         by_key[item.stable_key] = shard_name
 
@@ -297,6 +306,7 @@ def _item_record(
     classes: list[str],
     recipe: CraftingRecipe | None,
     sources: SourceInfo | None,
+    class_display_names: Mapping[str, str] | None,
 ) -> LuaData:
     row: LuaData = {}
     for lua_name, attr_name in _ITEM_FIELD_MAP:
@@ -315,7 +325,9 @@ def _item_record(
         _put(row, "damage", summary_stat.weapon_dmg)
         _put(row, "armor", summary_stat.ac)
     if classes:
-        row["classes"] = sorted(classes)
+        ordered_classes = sorted(classes)
+        row["classes"] = ordered_classes
+        row["classLinks"] = class_link_refs(ordered_classes, class_display_names or {})
 
     if sources is not None:
         _put(row, "usedIn", _format_used_in(sources))

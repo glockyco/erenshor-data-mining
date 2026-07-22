@@ -1,8 +1,17 @@
-<includeonly><infobox type="Zone">
+<includeonly>{{#if:{{{stablekey|}}}|<infobox type="Zone">
+    <title><default>{{#invoke:Erenshor/Zone|field|name}}</default></title>
+    <image><default>{{#invoke:Erenshor/Zone|field|image}}</default><caption><default>{{#invoke:Erenshor/Zone|field|imagecaption}}</default></caption></image>
+    <data><label>Type</label><default>{{#invoke:Erenshor/Zone|field|type}}</default></data>
+    <data><label>Level</label><default>{{#invoke:Erenshor/Zone|field|level}}</default></data>
+    <data><label>Map</label><default>{{#invoke:Erenshor/Zone|field|maplink}}</default></data>
+    <data><label>Connects to</label><default>{{#invoke:Erenshor/Zone|field|connects}}</default></data>
+</infobox>{{#invoke:Erenshor/Zone|status}}|<infobox type="Zone">
     <title source="title"/>
     <image source="image"><caption source="imagecaption"/></image>
     <data source="type"><label>Type</label></data>
     <data source="level"><label>Level</label></data>
     <data source="maplink"><label>Map</label></data>
     <data source="connects"><label>Connects to</label></data>
-</infobox>{{#ifeq: {{NAMESPACENUMBER}} | 0 | [[Category:Zones]]{{#ifeq: {{{type|}}} | Dungeon | [[Category:Dungeons]]}}}}</includeonly><noinclude>{{Documentation}}</noinclude>
+</infobox>{{#ifeq: {{NAMESPACENUMBER}} | 0 | [[Category:Zones]]{{#ifeq: {{{type|}}} | Dungeon | [[Category:Dungeons]]}}}}}}</includeonly><noinclude>{{Documentation}}
+Template parameters mirror the production Zone template. Article parameters override generated Lua data; use <code>-</code> to intentionally blank a supported generated field.
+</noinclude>

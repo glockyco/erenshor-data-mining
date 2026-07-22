@@ -85,9 +85,10 @@ def _apply_mapping(
             row["is_wiki_generated"] = int(override["is_wiki_generated"])
             row["is_map_visible"] = int(override["is_map_visible"])
         else:
-            row["display_name"] = default_name.strip()
-            row["wiki_page_name"] = default_name.strip()
-            row["image_name"] = default_name.strip()
+            normalized_default_name = default_name.strip()
+            row["display_name"] = normalized_default_name
+            row["wiki_page_name"] = normalized_default_name if normalized_default_name else None
+            row["image_name"] = normalized_default_name
             row["is_wiki_generated"] = 1
             row["is_map_visible"] = 1
         result.append(row)

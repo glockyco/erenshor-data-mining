@@ -44,7 +44,16 @@ function p.run()
 	local classes = Skill.fieldValue(backstab, "Backstab", "classes")
 	assertContains(classes, "erenshor-link--class", "class levels render semantic class links")
 	assertContains(classes, "Windblade", "class levels include display name")
-	assertContains(classes, "(2)", "class levels include level")
+	assertContains(
+		classes,
+		'data-erenshor-key="class:duelist"',
+		"generated skill classes carry stable class identity"
+	)
+	assertContains(
+		classes,
+		'data-erenshor-page="Windblade"',
+		"generated skill classes use canonical class page"
+	)
 	assertEqual(
 		Skill.fieldValue(backstab, "Backstab", "casttime"),
 		"Instant",

@@ -4,6 +4,15 @@ This module provides common formatting functions used across all page generators
 for consistent wiki output.
 """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from erenshor.domain.value_objects.wiki_link import AbilityLink
+
+if TYPE_CHECKING:
+    from erenshor.domain.entities.spell import Spell
+
 
 def format_description(text: str) -> str:
     """Format description text for wiki display.
@@ -91,3 +100,24 @@ def safe_str(value: object, zero_as_blank: bool = False) -> str:
     if isinstance(value, int):
         return str(value)
     return str(value)
+
+
+def format_ability_link(spell: Spell | None, fallback_stable_key: str) -> str:
+    """Render a spell reference as a stable-keyed ``AbilityLink``.
+
+    A missing referenced spell retains the existing plain stable-key fallback.
+    For a resolved spell, identity comes from the referenced entity rather than
+    from the field that pointed to it; the page title and display name remain
+    explicit fallbacks for the semantic template.
+    """
+    if spell is None:
+        return fallback_stable_key
+
+    return str(
+        AbilityLink(
+            page_title=spell.wiki_page_name,
+            display_name=spell.display_name or spell.spell_name or "",
+            image_name=spell.image_name,
+            stable_key=spell.stable_key,
+        )
+    )
