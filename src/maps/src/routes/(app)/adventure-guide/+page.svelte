@@ -1,10 +1,6 @@
 <script lang="ts">
     import Seo from '$lib/components/Seo.svelte';
     import { breadcrumbJsonLd } from '$lib/seo/jsonld';
-
-    // TODO: Replace this pinned Thunderstore URL with the generated local DLL link again.
-    const adventureGuideDownloadUrl =
-        'https://thunderstore.io/package/download/WoW_Much/AdventureGuide/2026.327.2/';
 </script>
 
 <Seo
@@ -30,20 +26,28 @@
         In-game quest companion for Erenshor. 170+ quests with step-by-step walkthroughs, GPS
         navigation, and floating world markers above every quest-relevant NPC.
     </p>
-    <a
-        href={adventureGuideDownloadUrl}
-        class="inline-block mt-6 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
-    >
-        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-            ></path>
-        </svg>
-        Download
-    </a>
+    <div class="flex flex-wrap justify-center gap-3 mt-6">
+        <a
+            href="https://github.com/MizukiBelhi/Lunaris/releases/latest"
+            class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+        >
+            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                ></path>
+            </svg>
+            Get Lunaris
+        </a>
+        <a
+            href="https://erenshorvault.app/mod/adventure-guide"
+            class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-slate-600 text-slate-200 hover:border-slate-500 hover:text-white font-semibold rounded-lg transition-colors duration-300"
+        >
+            View on Erenshor Vault
+        </a>
+    </div>
 </div>
 
 <div class="max-w-4xl mx-auto space-y-16">
@@ -115,54 +119,50 @@
         </div>
     </section>
 
-    <!-- Download & Install -->
+    <!-- Installation -->
     <section class="bg-slate-800 rounded-xl p-8 border border-slate-700">
         <h3 class="text-2xl font-bold text-white mb-6">Install</h3>
 
         <p class="text-slate-300 text-sm mb-6">
-            Requires <a
-                href="https://thunderstore.io/c/erenshor/p/BepInEx/BepInExPack/"
-                class="text-purple-400 hover:text-purple-300 underline">BepInEx 5</a
-            >.
+            Lunaris manages Adventure Guide installation and updates while the game runs.
         </p>
 
         <div class="space-y-6">
             <div>
-                <h4 class="text-lg font-semibold text-white mb-2">Thunderstore install</h4>
-                <p class="text-slate-300 text-sm">
-                    Install from the
-                    <a
-                        href="https://thunderstore.io/c/erenshor/p/WoW_Much/AdventureGuide/"
-                        class="text-purple-400 hover:text-purple-300 underline">Thunderstore page</a
-                    >
-                    with a mod manager.
-                </p>
+                <h4 class="text-lg font-semibold text-white mb-2">Install with Lunaris</h4>
+                <ol class="list-decimal list-inside text-slate-300 text-sm space-y-3">
+                    <li>
+                        Extract <code
+                            class="bg-slate-900 px-1.5 py-0.5 rounded text-xs text-slate-200">winhttp.dll</code
+                        > from the
+                        <a
+                            href="https://github.com/MizukiBelhi/Lunaris/releases/latest"
+                            class="text-purple-400 hover:text-purple-300 underline">latest Lunaris release</a
+                        > next to <code
+                            class="bg-slate-900 px-1.5 py-0.5 rounded text-xs text-slate-200">Erenshor.exe</code
+                        >.
+                    </li>
+                    <li>Launch the game.</li>
+                    <li>Open Lunaris from the icon on the main menu.</li>
+                    <li>
+                        Find and install <strong class="text-white">Adventure Guide</strong> from
+                        <a
+                            href="https://erenshorvault.app/mod/adventure-guide"
+                            class="text-purple-400 hover:text-purple-300 underline">Erenshor Vault</a
+                        >.
+                    </li>
+                </ol>
             </div>
 
             <div>
-                <h4 class="text-lg font-semibold text-white mb-2">Manual install</h4>
-                <div class="text-slate-300 text-sm space-y-2">
-                    <p>
-                        <a
-                            href={adventureGuideDownloadUrl}
-                            class="text-purple-400 hover:text-purple-300 underline">Download</a
-                        >
-                        <code class="bg-slate-900 px-1.5 py-0.5 rounded text-xs text-slate-200"
-                            >AdventureGuide.dll</code
-                        >
-                        and place it in
-                        <code class="bg-slate-900 px-1.5 py-0.5 rounded text-xs text-slate-200"
-                            >BepInEx/plugins/</code
-                        >.
-                    </p>
-                    <pre
-                        class="bg-slate-900 px-3 py-2 rounded text-xs text-slate-200 overflow-x-auto mt-2"><code
-                            >Erenshor/
-└── BepInEx/
-    └── plugins/
-        └── AdventureGuide.dll</code
-                        ></pre>
-                </div>
+                <h4 class="text-lg font-semibold text-white mb-2">Thunderstore (BepInEx)</h4>
+                <p class="text-slate-300 text-sm">
+                    Thunderstore is retained for BepInEx users.
+                    <a
+                        href="https://thunderstore.io/c/erenshor/p/WoW_Much/AdventureGuide/"
+                        class="text-purple-400 hover:text-purple-300 underline">View on Thunderstore</a
+                    >.
+                </p>
             </div>
         </div>
 
@@ -193,18 +193,10 @@
         <div class="mt-6 pt-6 border-t border-slate-700">
             <h4 class="text-lg font-semibold text-white mb-3">Configuration</h4>
             <p class="text-slate-300 text-sm mb-4">
-                Config file:
-                <code class="bg-slate-900 px-1.5 py-0.5 rounded text-xs text-slate-200"
-                    >BepInEx/config/wow-much.adventure-guide.cfg</code
-                >
-                (generated on first launch).<br />Or edit in-game with
-                <a
-                    href="https://github.com/BepInEx/BepInEx.ConfigurationManager"
-                    class="text-purple-400 hover:text-purple-300 underline">Configuration Manager</a
-                > (F1).
+                These settings control Adventure Guide behavior and are listed with their defaults below.
             </p>
             <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left">
+                <table class="w-full min-w-[600px] text-sm text-left">
                     <thead>
                         <tr class="text-slate-400 border-b border-slate-700">
                             <th class="py-2 pr-4">Setting</th>
