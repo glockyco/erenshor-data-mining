@@ -749,4 +749,16 @@ function p.tooltip(frame)
 	return p.renderTooltip(templateArgs(frame), currentTitleText())
 end
 
+function p.renderPageTooltip(args, pageTitle)
+	local spell = p.resolve(args, pageTitle)
+	if spell.missing then
+		return ""
+	end
+	return Tooltip.render(spell)
+end
+
+function p.pageTooltip(frame)
+	return p.renderPageTooltip(templateArgs(frame), currentTitleText())
+end
+
 return p

@@ -14,7 +14,7 @@ from rich.console import Console
 from rich.progress import track
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Mapping
+    from collections.abc import Callable, Mapping, Sequence
 
     import mwparserfromhell
     import mwparserfromhell.nodes
@@ -289,6 +289,14 @@ class WikiGenerateService:
                             template_names=["Item", "Character", "Ability"],
                         )
 
+                        # Ability tooltip companions are keyed, generated cards that
+                        # belong to their top-level Ability/Stance root. Reconcile them
+                        # before the item-specific migrations and final normalization.
+                        final_content = self._replace_ability_tooltip_templates(
+                            final_content,
+                            page_content,
+                        )
+
                         # Replace fancy tables (weapons, armor, charms)
                         final_content = self._replace_fancy_tables(final_content, page_content)
 
@@ -346,6 +354,186 @@ class WikiGenerateService:
             warnings=warnings,
             errors=errors,
         )
+
+    def _replace_ability_tooltip_templates(self, old_wikitext: str, new_wikitext: str) -> str:
+        """Reconcile generated ability tooltip companions by stable key.
+
+        Ability and stance roots are preserved by ``merge_templates`` because
+        their article prose is editor-owned. The keyed ``*Tooltip`` templates
+        generated beside those roots are instead reconciled structurally. Only
+        top-level templates participate. This keeps nested/manual templates and
+        all unrelated bytes untouched.
+        """
+        from mwparserfromhell import parse
+        from mwparserfromhell.nodes import Template, Text
+
+        companion_to_root = {
+            "SpellTooltip": ("Ability", "spell:"),
+            "SkillTooltip": ("Ability", "skill:"),
+            "StanceTooltip": ("Stance", "stance:"),
+        }
+        companion_names = frozenset(companion_to_root)
+        root_names = frozenset(root for root, _ in companion_to_root.values())
+
+        def template_name(node: object) -> str | None:
+            if isinstance(node, Template):
+                return str(node.name).strip()
+            return None
+
+        def direct_templates(code: object, names: frozenset[str]) -> list[Template]:
+            return [
+                node
+                for node in code.nodes  # type: ignore[attr-defined]
+                if isinstance(node, Template) and template_name(node) in names
+            ]
+
+        def previous_significant(nodes: Sequence[object], index: int) -> object | None:
+            cursor = index - 1
+            while cursor >= 0:
+                node = nodes[cursor]
+                if not (isinstance(node, Text) and not str(node).strip()):
+                    return node
+                cursor -= 1
+            return None
+
+        def parameter_value(template: Template, name: str) -> str | None:
+            if not template.has(name):
+                return None
+            value = str(template.get(name).value).strip()
+            return value or None
+
+        def identity_index(nodes: Sequence[object], target: object) -> int:
+            for index, node in enumerate(nodes):
+                if node is target:
+                    return index
+            raise ValueError("Ability tooltip reconciliation lost a parsed node")
+
+        def ordinal(nodes: Sequence[object], target: object, name: str) -> int:
+            target_index = identity_index(nodes, target)
+            return sum(1 for node in nodes[:target_index] if template_name(node) == name)
+
+        new_code = parse(new_wikitext)
+        new_nodes = list(new_code.nodes)
+        new_companions = direct_templates(new_code, companion_names)
+
+        # A generated page with no cards is intentionally a no-op. In particular,
+        # do not erase an existing page when Lua data is temporarily unavailable.
+        if not new_companions:
+            return old_wikitext
+
+        new_records: list[tuple[Template, Template, str, str, int]] = []
+        new_keys: set[str] = set()
+        for companion in new_companions:
+            name = template_name(companion)
+            assert name is not None
+            root_name, prefix = companion_to_root[name]
+            companion_index = identity_index(new_nodes, companion)
+            preceding = previous_significant(new_nodes, companion_index)
+            if not isinstance(preceding, Template) or template_name(preceding) != root_name:
+                raise ValueError(f"{name} must immediately follow a top-level {root_name} root")
+
+            key = parameter_value(companion, "stablekey")
+            if key is None or not key.startswith(prefix) or len(key) == len(prefix):
+                raise ValueError(f"{name} requires a stablekey with {prefix} prefix")
+            if key in new_keys:
+                raise ValueError(f"Duplicate generated ability tooltip key: {key}")
+            new_keys.add(key)
+            new_records.append(
+                (
+                    companion,
+                    preceding,
+                    name,
+                    key,
+                    ordinal(new_nodes, preceding, root_name),
+                )
+            )
+
+        old_code = parse(old_wikitext)
+        old_nodes = list(old_code.nodes)
+        old_roots: dict[str, list[Template]] = {
+            name: [node for node in old_nodes if isinstance(node, Template) and template_name(node) == name]
+            for name in root_names
+        }
+
+        # A keyed Stance root identifies the already-converted thin/Cargo page.
+        # Re-running the legacy generator against it is an invalid shape.
+        for stance_root in old_roots["Stance"]:
+            if isinstance(stance_root, Template) and parameter_value(stance_root, "stablekey"):
+                raise ValueError("Keyed old Stance roots cannot be reconciled")
+
+        old_companions = direct_templates(old_code, companion_names)
+        old_records: list[tuple[Template, str | None, Template | None, int | None]] = []
+        old_by_key: dict[str, tuple[Template, Template, int]] = {}
+        for companion in old_companions:
+            name = template_name(companion)
+            assert name is not None
+            key = parameter_value(companion, "stablekey")
+            if key is None:
+                old_records.append((companion, None, None, None))
+                continue
+
+            root_name, prefix = companion_to_root[name]
+            # Invalid old invocations are stale compatibility markup. They are
+            # removed rather than allowed to influence generated association.
+            if not key.startswith(prefix) or len(key) == len(prefix):
+                old_records.append((companion, key, None, None))
+                continue
+
+            companion_index = identity_index(old_nodes, companion)
+            preceding = previous_significant(old_nodes, companion_index)
+            if not isinstance(preceding, Template) or template_name(preceding) != root_name:
+                raise ValueError(f"Nonadjacent generated {name} companion for key {key}")
+            root = preceding
+            root_ordinal = ordinal(old_nodes, root, root_name)
+            if key in old_by_key:
+                raise ValueError(f"Duplicate old ability tooltip key: {key}")
+            old_by_key[key] = (companion, root, root_ordinal)
+            old_records.append((companion, key, root, root_ordinal))
+
+        # Resolve each generated companion against the old root ordinal. The
+        # ordinal is intentionally independent of stable keys because legacy
+        # roots are unkeyed and merge_templates preserves their order.
+        resolved_new: list[tuple[Template, Template, str, str, int, Template]] = []
+        for companion, _new_root, name, key, root_ordinal in new_records:
+            root_name, _ = companion_to_root[name]
+            roots = old_roots[root_name]
+            if root_ordinal >= len(roots):
+                raise ValueError(f"Missing old {root_name} root ordinal {root_ordinal} for {key}")
+            resolved_new.append((companion, _new_root, name, key, root_ordinal, roots[root_ordinal]))
+
+        # Remove stale/unkeyed companions first. Replacement keeps the old node
+        # in place, while relocation removes it and is inserted below.
+        insertions: list[tuple[Template, list[str]]] = []
+        for companion, old_key, _old_root, _old_root_ordinal in old_records:
+            if old_key is None or old_key not in new_keys:
+                old_code.replace(companion, "")
+
+        for _new_companion, _new_root, _name, key, _root_ordinal, old_root in resolved_new:
+            old_match = old_by_key.get(key)
+            if old_match is not None:
+                old_companion, old_companion_root, _old_ordinal = old_match
+                if old_companion_root is old_root:
+                    # Raw replacement preserves the generated formatting from
+                    # this run and all bytes around the old companion.
+                    old_code.replace(old_companion, str(_new_companion))
+                    continue
+                old_code.replace(old_companion, "")
+
+            for insertion_root, raw_list in insertions:
+                if insertion_root is old_root:
+                    raw_list.append(str(_new_companion))
+                    break
+            else:
+                insertions.append((old_root, [str(_new_companion)]))
+
+        # Insert from the end of each root's desired companion sequence so each
+        # insertion remains directly after its root and preserves generated order.
+        for root, raw_companions in insertions:
+            for raw in reversed(raw_companions):
+                current_index = identity_index(list(old_code.nodes), root)
+                old_code.insert(current_index + 1, f"\n{raw}")
+
+        return str(old_code)
 
     def _replace_overview_table(self, old_wikitext: str, new_wikitext: str) -> str:
         """Replace overview page wikitable while preserving intro text.

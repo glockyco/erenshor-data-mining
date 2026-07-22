@@ -179,6 +179,40 @@ def test_migration_injects_authoritative_identity_when_article_lacks_it() -> Non
     assert "source=Custom drop" in result.minimized_wikitext
 
 
+@pytest.mark.parametrize(
+    ("title", "stable_key"),
+    [
+        ("Minor Lightning", "spell:minor_lightning"),
+        ("Backstab", "skill:backstab"),
+        ("Aggressive", "stance:aggressive"),
+    ],
+)
+def test_thin_ability_migration_keys_root_without_emitting_companion(title: str, stable_key: str) -> None:
+    """Thin conversion injects only identity into the owned root.
+
+    The generated companion belongs to legacy Jinja output. A thin/Cargo
+    conversion must not synthesize or duplicate one while making the root
+    keyed for its presentation module.
+    """
+    resolver = FakeResolver({"title": title})
+    template_name = "Stance" if stable_key.startswith("stance:") else "Ability"
+
+    result = migrate_article_overrides(
+        title=title,
+        wikitext=f"{{{{{template_name}|title={title}}}}}",
+        template_names=[template_name],
+        identity_params=("stablekey",),
+        resolver=resolver,
+        authoritative_identity={"stablekey": stable_key},
+    )
+
+    assert f"stablekey={stable_key}" in result.minimized_wikitext
+    assert "{{SpellTooltip" not in result.minimized_wikitext
+    assert "{{SkillTooltip" not in result.minimized_wikitext
+    assert "{{StanceTooltip" not in result.minimized_wikitext
+    assert result.minimized_wikitext.count("stablekey=") == 1
+
+
 def test_migration_rejects_conflicting_article_identity() -> None:
     """A page stablekey that disagrees with the repo mapping is unsafe to minimize."""
     from erenshor.application.wiki_deploy.override_migration import ArticleIdentityConflictError

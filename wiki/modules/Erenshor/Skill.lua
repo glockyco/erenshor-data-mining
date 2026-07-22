@@ -506,4 +506,16 @@ function p.tooltip(frame)
 	return p.renderTooltip(templateArgs(frame), currentTitleText())
 end
 
+function p.renderPageTooltip(args, pageTitle)
+	local skill = p.resolve(args, pageTitle)
+	if skill.missing then
+		return ""
+	end
+	return Tooltip.render(skill)
+end
+
+function p.pageTooltip(frame)
+	return p.renderPageTooltip(templateArgs(frame), currentTitleText())
+end
+
 return p

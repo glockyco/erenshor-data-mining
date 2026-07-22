@@ -141,8 +141,14 @@ function p.run()
 	)
 	assertContains(
 		backstabTip,
-		"item-spell-details-standalone",
-		"standalone skill tooltip has a top border"
+		'class="erenshor-ability-tooltip item-spell-details item-spell-details-standalone"',
+		"skill tooltip root has exact classes"
+	)
+	assertContains(backstabTip, 'data-erenshor-kind="skill"', "skill tooltip default kind")
+	assertContains(
+		backstabTip,
+		'data-erenshor-key="skill:backstab"',
+		"skill tooltip default stable key"
 	)
 
 	local passiveTip = Skill.renderTooltip({ stablekey = "skill:sword_mastery" }, "Sword Mastery")
@@ -168,6 +174,11 @@ function p.run()
 		missingTip,
 		"Missing skill data: Unknown Skill",
 		"missing skill tooltip is visible"
+	)
+	assertEqual(
+		Skill.renderPageTooltip({}, "Unknown Skill"),
+		"",
+		"missing page skill tooltip is silent"
 	)
 
 	local cargo = Skill.cargoArgs({ args = { stablekey = "skill:backstab" } })

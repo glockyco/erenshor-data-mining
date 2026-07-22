@@ -117,6 +117,8 @@ class SpellSectionGenerator(SectionGeneratorBase):
 
         context: dict[str, str] = {
             "title": display_name,
+            "stable_key": spell.stable_key,
+            "tooltip_template": "SpellTooltip",
             "image": image,
             "imagecaption": imagecaption,
             "description": format_description(safe_str(spell.spell_desc)) if spell.spell_desc else "",

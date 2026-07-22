@@ -58,6 +58,26 @@ function Common.truthy(value)
 	return value ~= nil and value ~= false and value ~= 0 and value ~= "0" and value ~= ""
 end
 
+function Common.standaloneTooltipRoot(kind, stableKey)
+	if
+		Common.isBlank(kind)
+		or Common.isBlank(stableKey)
+		or (kind ~= "spell" and kind ~= "skill" and kind ~= "stance")
+	then
+		error(
+			"Standalone ability tooltip requires spell, skill, or stance kind and a stable key",
+			2
+		)
+	end
+	return mw.html
+		.create("div")
+		:addClass("erenshor-ability-tooltip")
+		:addClass("item-spell-details")
+		:addClass("item-spell-details-standalone")
+		:attr("data-erenshor-kind", kind)
+		:attr("data-erenshor-key", stableKey)
+end
+
 -- "+N" green / "-N" red, matching SpellbookSlot.FormatMod and Item/SpellDetails.
 function Common.signedMod(value, suffix)
 	local n = Common.num(value)

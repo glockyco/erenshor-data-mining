@@ -48,10 +48,7 @@ end
 function Tooltip.render(spell)
 	-- Standalone tooltips opt into a top border (the embedded item case inherits its
 	-- top edge from the item tooltip's divider). Styled by Gadget:erenshor.css.
-	local root = mw.html
-		.create("div")
-		:addClass("item-spell-details")
-		:addClass("item-spell-details-standalone")
+	local root = Common.standaloneTooltipRoot("spell", spell.stableKey)
 
 	local headerRow = root:tag("div"):addClass("item-spell-details-header-row")
 	local hasIcon = not Common.isBlank(spell.image)

@@ -1,6 +1,7 @@
 local AbilityLink = require("Module:Erenshor/AbilityLink")
 local Args = require("Module:Erenshor/Args")
 local Format = require("Module:Erenshor/Format")
+local SkillTooltip = require("Module:Erenshor/Skill/Tooltip")
 
 local Data = mw.loadData("Module:Erenshor/Data/Stances")
 local SkillData = mw.loadData("Module:Erenshor/Data/Skills")
@@ -363,6 +364,57 @@ function p.cargoStore(frame)
 		return ""
 	end
 	return Cargo.store("Stances", cargoFields(stance, pageTitle))
+end
+
+local function tooltipSkill(stance)
+	local skillKeys = skillsForStance(stance.stableKey)
+	local skill = nil
+	if #skillKeys > 0 then
+		local skillStableKey = skillKeys[1]
+		local source = SkillData.skills[skillStableKey]
+		if source ~= nil then
+			skill = copyTable(source)
+			skill.stableKey = skillStableKey
+		end
+	end
+	if skill == nil then
+		skill = {
+			name = stance.name,
+			type = "Utility",
+			stanceStableKey = stance.stableKey,
+		}
+	end
+	return skill
+end
+
+function p.renderTooltip(args, pageTitle)
+	local stance = p.resolve(args, pageTitle)
+	if stance.missing then
+		return missingOutput(stance)
+	end
+	return SkillTooltip.render(tooltipSkill(stance), {
+		kind = "stance",
+		stableKey = stance.stableKey,
+	})
+end
+
+function p.tooltip(frame)
+	return p.renderTooltip(templateArgs(frame), currentTitleText())
+end
+
+function p.renderPageTooltip(args, pageTitle)
+	local stance = p.resolve(args, pageTitle)
+	if stance.missing then
+		return ""
+	end
+	return SkillTooltip.render(tooltipSkill(stance), {
+		kind = "stance",
+		stableKey = stance.stableKey,
+	})
+end
+
+function p.pageTooltip(frame)
+	return p.renderPageTooltip(templateArgs(frame), currentTitleText())
 end
 
 return p

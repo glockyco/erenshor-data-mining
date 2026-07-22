@@ -28,7 +28,7 @@
           <header>Used By</header>
           <data><label>Characters</label><default>{{#invoke:Erenshor/Skill|field|used_by}}</default></data>
       </group>
-  </infobox>{{#invoke:Erenshor/Skill|cargoStore}}{{#invoke:Erenshor/Skill|status}}{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Abilities]]}}</includeonly><noinclude>{{#cargo_declare:_table=Skills
+  </infobox>{{SkillTooltip|stablekey={{{stablekey|}}}}}{{#invoke:Erenshor/Skill|cargoStore}}{{#invoke:Erenshor/Skill|status}}{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Abilities]]}}</includeonly><noinclude>{{#cargo_declare:_table=Skills
 |StableKey=String
 |Page=Page
 |Name=String

@@ -1,0 +1,1 @@
+<includeonly>{{#invoke:Erenshor/Stance|pageTooltip}}</includeonly><noinclude>In-game-style stance tooltip, driven by [[Module:Erenshor/Stance]]. Resolves the stance by its stable key: <code><nowiki>{{StanceTooltip|stablekey=stance:...}}</nowiki></code>.</noinclude>

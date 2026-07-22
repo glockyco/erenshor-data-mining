@@ -1,4 +1,5 @@
 local Spell = require("Module:Erenshor/Spell")
+local Common = require("Module:Erenshor/Ability/Common")
 
 local p = {}
 
@@ -18,6 +19,16 @@ local function assertContains(actual, expected, label)
 end
 
 function p.run()
+	local ok, err = pcall(Common.standaloneTooltipRoot, "item", "spell:bad")
+	assertEqual(ok, false, "unsupported standalone tooltip identity is rejected")
+	assertContains(
+		tostring(err),
+		"Standalone ability tooltip requires spell, skill, or stance kind and a stable key",
+		"invalid identity reports the contract"
+	)
+	local blankOk = pcall(Common.standaloneTooltipRoot, "spell", " ")
+	assertEqual(blankOk, false, "blank standalone tooltip key is rejected")
+
 	local spell = Spell.resolve({ stablekey = "spell:minor_lightning" }, "Anything")
 	assertEqual(spell.name, "Minor Lightning", "stable key resolves spell")
 	assertEqual(spell.targetDamage, 85, "numeric spell field resolves")
@@ -162,8 +173,14 @@ function p.run()
 	)
 	assertContains(
 		buffTip,
-		"item-spell-details-standalone",
-		"standalone spell tooltip has a top border"
+		'class="erenshor-ability-tooltip item-spell-details item-spell-details-standalone"',
+		"spell tooltip root has exact classes"
+	)
+	assertContains(buffTip, 'data-erenshor-kind="spell"', "spell tooltip root has kind")
+	assertContains(
+		buffTip,
+		'data-erenshor-key="spell:ancient_presence"',
+		"spell tooltip root has stable key"
 	)
 	assertContains(
 		buffTip,
@@ -188,6 +205,11 @@ function p.run()
 		missingTip,
 		"Missing spell data: Unknown Spell",
 		"missing spell tooltip is visible"
+	)
+	assertEqual(
+		Spell.renderPageTooltip({}, "Unknown Spell"),
+		"",
+		"missing page spell tooltip is silent"
 	)
 
 	local cargo = Spell.cargoArgs({ args = { stablekey = "spell:minor_lightning" } })

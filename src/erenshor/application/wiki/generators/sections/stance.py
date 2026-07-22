@@ -61,6 +61,7 @@ class StanceSectionGenerator(SectionGeneratorBase):
 
         context: dict[str, str] = {
             "title": display_name,
+            "stable_key": stance.stable_key,
             "image": image,
             "description": format_description(safe_str(stance.stance_desc)) if stance.stance_desc else "",
             "switch_message": safe_str(stance.switch_message),

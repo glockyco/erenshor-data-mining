@@ -24,24 +24,25 @@ local function detailRow(content, text, class)
 	return row
 end
 
--- Build the tooltip DOM for a resolved skill record.
-function Tooltip.render(skill)
+-- Build the tooltip DOM for a resolved skill record. Identity defaults to the
+-- skill's own stable key, while stance tooltips reuse this renderer with a stance
+-- identity so the card links to the stance entity.
+function Tooltip.render(skill, identity)
+	identity = identity or { kind = "skill", stableKey = skill.stableKey }
 	-- SkillbookSlot.cs:146 — Activatable unless the skill is Innate.
-	local kind = (skill.type ~= "Innate") and "Activatable" or "Passive"
+	local activation = (skill.type ~= "Innate") and "Activatable" or "Passive"
 
 	-- Standalone tooltips opt into a top border (the embedded item case inherits its
 	-- top edge from the item tooltip's divider). Styled by Gadget:erenshor.css.
-	local root = mw.html
-		.create("div")
-		:addClass("item-spell-details")
-		:addClass("item-spell-details-standalone")
+	-- Common validates both values and rejects unsupported identity kinds.
+	local root = Common.standaloneTooltipRoot(identity.kind, identity.stableKey)
 	root:tag("div")
 		:addClass("item-spell-details-header-row")
 		:tag("div")
 		:addClass("item-spell-details-name-cell")
 		:tag("div")
 		:addClass("item-spell-details-header")
-		:wikitext((skill.name or "Skill") .. " - " .. kind)
+		:wikitext((skill.name or "Skill") .. " - " .. activation)
 
 	local content = root:tag("div"):addClass("item-spell-details-content")
 

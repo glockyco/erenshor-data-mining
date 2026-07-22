@@ -70,6 +70,35 @@ function p.run()
 		"4% max HP",
 		"self-damage per attack formats"
 	)
+	local aggressiveTip = Stance.renderTooltip(aggressiveKey, "Aggressive")
+	assertContains(
+		aggressiveTip,
+		'class="erenshor-ability-tooltip item-spell-details item-spell-details-standalone"',
+		"stance tooltip root has exact classes"
+	)
+	assertContains(aggressiveTip, 'data-erenshor-kind="stance"', "stance tooltip root has kind")
+	assertContains(
+		aggressiveTip,
+		'data-erenshor-key="stance:aggressive"',
+		"stance tooltip root has stable key"
+	)
+	assertContains(
+		aggressiveTip,
+		"Change Stance",
+		"stance tooltip uses activating skill presentation"
+	)
+
+	local recklessTip = Stance.renderTooltip(recklessKey, "Reckless")
+	assertContains(
+		recklessTip,
+		'data-erenshor-key="stance:reckless"',
+		"fallback stance tooltip keeps stance identity"
+	)
+	assertContains(
+		recklessTip,
+		"Reckless - Activatable",
+		"fallback stance tooltip synthesizes skill"
+	)
 	assertEqual(
 		Stance.fieldValue(recklessKey, "Reckless", "stop_regen"),
 		"",
@@ -87,6 +116,16 @@ function p.run()
 		missing,
 		"[[Category:Pages with missing Erenshor stance data]]",
 		"missing stance is tracked"
+	)
+	assertContains(
+		Stance.renderTooltip({}, "Unknown Prototype"),
+		"Missing stance data: Unknown Prototype",
+		"missing direct stance tooltip is visible"
+	)
+	assertEqual(
+		Stance.renderPageTooltip({}, "Unknown Prototype"),
+		"",
+		"missing page stance tooltip is silent"
 	)
 
 	local cargo = Stance.cargoArgs({ args = { stablekey = "stance:aggressive" } })

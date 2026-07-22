@@ -150,6 +150,8 @@ class SkillSectionGenerator(SectionGeneratorBase):
 
         context: dict[str, str] = {
             "title": display_name,
+            "stable_key": skill.stable_key,
+            "tooltip_template": "SkillTooltip",
             "image": image,
             "imagecaption": "",
             "description": format_description(safe_str(skill.skill_desc)) if skill.skill_desc else "",
