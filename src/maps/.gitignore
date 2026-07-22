@@ -200,13 +200,8 @@ vite.config.ts.timestamp-*
 .idea
 
 static/db
-static/mods
 static/tiles
 static/items
-
-# Generated metadata (build artifacts)
-# Auto-generated from mods-config.yaml during build/deploy
-static/mods-metadata.json
 
 # Un-ignore our TypeScript source files in src/lib/
 !src/lib/

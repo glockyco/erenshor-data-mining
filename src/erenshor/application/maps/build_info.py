@@ -9,7 +9,7 @@ from collections.abc import Iterable
 from pathlib import Path
 
 BUILD_INFO_NAME = ".build-info.json"
-_INPUT_GROUPS = ("code", "data", "mods", "tiles")
+_INPUT_GROUPS = ("code", "data", "tiles")
 _CODE_EXTENSIONS = {".ts", ".js", ".svelte", ".css", ".html", ".json"}
 _CONFIG_FILES = (
     "package.json",
@@ -51,20 +51,6 @@ def _code_hash(maps_source_dir: Path) -> str:
     return _hash_files(paths, repo_root)
 
 
-def _mods_hash(maps_source_dir: Path) -> str:
-    static_dir = maps_source_dir / "static"
-    paths: list[Path] = []
-    mods_dir = static_dir / "mods"
-    if mods_dir.is_dir():
-        paths.extend(path for path in mods_dir.rglob("*.dll") if path.is_file())
-
-    metadata_path = static_dir / "mods-metadata.json"
-    if metadata_path.is_file():
-        paths.append(metadata_path)
-
-    return _hash_files(paths, maps_source_dir) if paths else ""
-
-
 def _tiles_hash(maps_source_dir: Path) -> str:
     tiles_dir = maps_source_dir / "static" / "tiles"
     if not tiles_dir.is_dir():
@@ -90,7 +76,6 @@ def compute_input_hashes(*, maps_source_dir: Path, database_path: Path) -> dict[
     return {
         "code": _code_hash(maps_source_dir),
         "data": _sha(database_path.read_bytes()) if database_path.is_file() else "",
-        "mods": _mods_hash(maps_source_dir),
         "tiles": _tiles_hash(maps_source_dir),
     }
 
@@ -122,6 +107,8 @@ def read_build_info(build_dir: Path) -> dict[str, str] | None:
 
     if not isinstance(data, dict):
         return None
-    if not all(isinstance(key, str) and isinstance(value, str) for key, value in data.items()):
+    if set(data) != set(_INPUT_GROUPS):
+        return None
+    if not all(isinstance(value, str) for value in data.values()):
         return None
     return data

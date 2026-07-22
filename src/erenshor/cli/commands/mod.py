@@ -4,9 +4,7 @@ This module provides commands for building and deploying companion mods:
 - Copying game DLLs for compilation
 - Building mods with dotnet
 - Deploying to BepInEx plugins folder
-- Publishing to website download directory
 - Publishing to Thunderstore
-- Generating mod metadata
 - Launching the game
 """
 
@@ -436,11 +434,6 @@ def _get_mod_output_dir(
     return _get_mod_dir(cli_ctx, mod_id) / "bin" / configuration / "netstandard2.1" / loader
 
 
-def _get_mod_publish_dir(cli_ctx: CLIContext) -> Path:
-    """Get the web publish directory for mod downloads."""
-    return cli_ctx.repo_root / "src" / "maps" / "static" / "mods"
-
-
 @dataclass(frozen=True)
 class DeployFile:
     source: Path
@@ -741,19 +734,6 @@ def _build_mods_internal(
     if failed:
         console.print(f"[red]Build failed for: {', '.join(failed)}[/red]")
         raise typer.Exit(1)
-
-    console.print("[bold]Generating mod metadata...[/bold]")
-    result = subprocess.run(
-        ["uv", "run", "python3", "scripts/generate-mods-metadata.py"],
-        cwd=cli_ctx.repo_root,
-        check=False,
-    )
-
-    if result.returncode != 0:
-        console.print("[red]Warning: Metadata generation failed[/red]")
-        console.print()
-    else:
-        console.print()
 
 
 @app.command()
@@ -1124,66 +1104,6 @@ def deploy(
     console.print(f"[green]{action}: {target_loader}[/green]")
     console.print("[green]Deploy complete![/green]")
     console.print("[dim]Restart the game before testing a newly selected loader.[/dim]")
-    console.print()
-
-
-@app.command()
-def publish(
-    ctx: typer.Context,
-    mod: str | None = typer.Option(None, "--mod", help="Publish specific mod (or all if not specified)"),
-) -> None:
-    """Stage configured default-loader builds for website download.
-
-    Builds each selected mod's configured default target and copies its output
-    DLL to the maps website's static directory. Run this before building or
-    deploying the maps website to include the latest downloadable versions.
-    """
-    cli_ctx: CLIContext = ctx.obj
-
-    console.print()
-    console.print(Panel.fit("[bold cyan]Mod Publish[/bold cyan]", border_style="cyan"))
-    console.print()
-
-    targets = _resolve_deploy_targets(mod, "default")
-    console.print("[bold]Building mods...[/bold]")
-    _build_mods_internal(cli_ctx, mod, loader="default")
-
-    publish_dir = _get_mod_publish_dir(cli_ctx)
-    publish_dir.mkdir(parents=True, exist_ok=True)
-
-    console.print()
-    console.print("[bold]Publishing to website...[/bold]")
-    console.print(f"[dim]Target: {publish_dir}[/dim]")
-    console.print()
-
-    for mod_id, target_loader in targets:
-        output_dir = _get_mod_output_dir(cli_ctx, mod_id, target_loader)
-        dll_name = MODS[mod_id]["dll_name"]
-        mod_dll = output_dir / dll_name
-        if not mod_dll.exists():
-            console.print(f"[red]Error: Mod DLL not found: {mod_dll}[/red]")
-            raise typer.Exit(1)
-
-        target = publish_dir / dll_name
-        shutil.copy2(mod_dll, target)
-
-        # Get file size for user feedback
-        size_bytes = mod_dll.stat().st_size
-        size_kb = size_bytes / 1024
-        console.print(f"  [green]✓[/green] {dll_name} ({size_kb:.1f} KB)")
-
-    # Verify metadata is present
-    metadata_file = cli_ctx.repo_root / "src" / "maps" / "static" / "mods-metadata.json"
-    if not metadata_file.exists():
-        console.print(f"[red]Error: Metadata file not found: {metadata_file}[/red]")
-        console.print("[dim]This should have been created by the build step.[/dim]")
-        raise typer.Exit(1)
-
-    console.print()
-    console.print(f"[green]✓[/green] Metadata synced: {metadata_file}")
-    console.print()
-    console.print("[green]Publish complete![/green]")
-    console.print(f"[dim]Ready for website deployment: DLLs and metadata in {publish_dir.parent}[/dim]")
     console.print()
 
 

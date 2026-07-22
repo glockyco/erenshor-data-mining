@@ -215,18 +215,6 @@ prints the artifact and manual-upload information. Upload the resulting DLL
 Vault website. The Vault write API is not automated. Keep this process manual.
 There is no GitHub Actions release workflow.
 
-## Website publication
-
-Website staging is separate from both public package registries:
-
-```bash
-uv run erenshor mod publish
-```
-
-It builds each mod's configured default loader and stages the resulting DLLs
-and generated metadata under `src/maps/static/`. This is not a Thunderstore or
-Vault upload.
-
 ## Troubleshooting
 
 - **Missing `lib/` references:** run `uv run erenshor mod setup` and verify the
@@ -251,8 +239,7 @@ Vault upload.
 ## Relevant files
 
 - `src/erenshor/cli/commands/mod.py` — setup, build, status, activation, deploy,
-  website publication, Thunderstore, and Vault command implementations
+  Thunderstore, and Vault command implementations
 - `src/mods/<ModName>/thunderstore.toml` — package manifest and declared build
   inputs/copy targets
 - `src/mods/<ModName>/vault/vault.toml` — Vault listing metadata
-- `src/mods/mods-config.yaml` — registry metadata and loader defaults

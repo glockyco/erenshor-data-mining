@@ -404,27 +404,6 @@ def test_deploy_rejects_scripts_for_default_lunaris_before_build(
         mod_command.deploy(ctx, mod="sprint", loader="default", scripts=True)
 
 
-def test_website_publish_uses_each_mod_default_loader(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    ctx = _ctx(tmp_path).obj
-    output = mod_command._get_mod_output_dir(ctx, "sprint", "lunaris")
-    output.mkdir(parents=True)
-    (output / "Sprint.dll").write_bytes(b"default")
-    metadata = tmp_path / "src/maps/static/mods-metadata.json"
-    metadata.parent.mkdir(parents=True)
-    metadata.write_text("{}\n")
-    calls: list[str] = []
-    monkeypatch.setattr(
-        mod_command,
-        "_build_mods_internal",
-        lambda _ctx, mod=None, **kwargs: calls.append(kwargs["loader"]),
-    )
-
-    mod_command.publish(SimpleNamespace(obj=ctx), mod="sprint")
-
-    assert calls == ["default"]
-    assert (tmp_path / "src/maps/static/mods/Sprint.dll").read_bytes() == b"default"
-
-
 PUBLIC_THUNDERSTORE_IDS = {
     "adventure-guide": "WoW_Much/AdventureGuide",
     "interactive-map-companion": "WoW_Much/InteractiveMapCompanion",

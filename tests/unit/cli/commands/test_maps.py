@@ -77,7 +77,6 @@ def test_build_copies_database_runs_verify_prebuild_then_build_and_writes_sideca
         ["pnpm", "run", "lint"],
         ["pnpm", "run", "check"],
         ["pnpm", "run", "test"],
-        ["uv", "run", "erenshor", "-V", "main", "mod", "publish"],
         ["node", "scripts/generate-tiles-manifest.js"],
         ["node", "scripts/generate-og-image.mjs"],
         ["node", "scripts/generate-item-icons.mjs", "main"],

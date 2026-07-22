@@ -54,8 +54,6 @@ dependencies = [
     "python-dotenv>=1.0.0",
     # WebSocket client (capture pipeline)
     "websockets>=13.0",
-    # YAML parsing for mod metadata generation
-    "PyYAML>=6.0.0",
 ]
 
 [project.urls]

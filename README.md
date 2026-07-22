@@ -208,7 +208,6 @@ uv run erenshor -V playtest mod status
 uv run erenshor -V playtest mod deploy --loader lunaris
 uv run erenshor -V playtest mod deploy --loader bepinex
 uv run erenshor mod thunderstore --dry-run
-uv run erenshor mod publish
 ```
 
 Use `mod deploy --mod <id> --loader <bepinex|lunaris>` for one mod and
