@@ -1,49 +1,289 @@
 <includeonly><infobox type="Stances">
-    <title><default>{{#invoke:Erenshor/Stance|field|title}}</default></title>
-    <image><default>{{#invoke:Erenshor/Stance|field|image}}</default><caption><default>{{#invoke:Erenshor/Stance|field|imagecaption}}</default></caption></image>
+    <title source="title"/>
+    <image source="image"><caption source="imagecaption"/></image>
 
-    <data><label>Description</label><default>{{#invoke:Erenshor/Stance|field|description}}</default></data>
-    <data><label>Switch Message</label><default>{{#invoke:Erenshor/Stance|field|switch_message}}</default></data>
+    <data source="description"><label>Description</label></data>
+    <data source="switch_message"><label>Switch Message</label></data>
 
     <group collapse="open">
         <header>Combat Modifiers</header>
-        <data><label>Physical Damage</label><default>{{#invoke:Erenshor/Stance|field|damage_mod}}</default></data>
-        <data><label>Spell Damage</label><default>{{#invoke:Erenshor/Stance|field|spell_damage_mod}}</default></data>
-        <data><label>Damage Taken</label><default>{{#invoke:Erenshor/Stance|field|damage_taken_mod}}</default></data>
-        <data><label>Max HP</label><default>{{#invoke:Erenshor/Stance|field|max_hp_mod}}</default></data>
-        <data><label>Proc Rate</label><default>{{#invoke:Erenshor/Stance|field|proc_rate_mod}}</default></data>
-        <data><label>Aggro Generation</label><default>{{#invoke:Erenshor/Stance|field|aggro_gen_mod}}</default></data>
+        <data source="damage_mod"><label>Physical Damage</label><format>{{#ifexpr: {{{damage_mod|1}}} = 1 | — |{{#ifexpr: {{{damage_mod|1}}} > 1 |+}}{{#expr: ({{{damage_mod|1}}} - 1) * 100 round 0}}%}}</format></data>
+        <data source="spell_damage_mod"><label>Spell Damage</label><format>{{#ifexpr: {{{spell_damage_mod|1}}} = 1 | — |{{#ifexpr: {{{spell_damage_mod|1}}} > 1 |+}}{{#expr: ({{{spell_damage_mod|1}}} - 1) * 100 round 0}}%}}</format></data>
+        <data source="damage_taken_mod"><label>Damage Taken</label><format>{{#ifexpr: {{{damage_taken_mod|1}}} = 1 | — |{{#ifexpr: {{{damage_taken_mod|1}}} > 1 |+}}{{#expr: ({{{damage_taken_mod|1}}} - 1) * 100 round 0}}%}}</format></data>
+        <data source="max_hp_mod"><label>Max HP</label><format>{{#ifexpr: {{{max_hp_mod|1}}} = 1 | — |{{#ifexpr: {{{max_hp_mod|1}}} > 1 |+}}{{#expr: ({{{max_hp_mod|1}}} - 1) * 100 round 0}}%}}</format></data>
+        <data source="proc_rate_mod"><label>Proc Rate</label><format>{{#ifexpr: {{{proc_rate_mod|1}}} = 1 | — |{{#ifexpr: {{{proc_rate_mod|1}}} > 1 |+}}{{#expr: ({{{proc_rate_mod|1}}} - 1) * 100 round 0}}%}}</format></data>
+        <data source="aggro_gen_mod"><label>Aggro Generation</label><format>{{#ifexpr: {{{aggro_gen_mod|1}}} = 1 | — |{{#ifexpr: {{{aggro_gen_mod|1}}} > 1 |+}}{{#expr: ({{{aggro_gen_mod|1}}} - 1) * 100 round 0}}%}}</format></data>
     </group>
 
     <group collapse="open">
         <header>Special Effects</header>
-        <data><label>Self Damage per Attack</label><default>{{#invoke:Erenshor/Stance|field|self_damage_per_attack}}</default></data>
-        <data><label>Self Damage per Cast</label><default>{{#invoke:Erenshor/Stance|field|self_damage_per_cast}}</default></data>
-        <data><label>Lifesteal</label><default>{{#invoke:Erenshor/Stance|field|lifesteal_amount}}</default></data>
-        <data><label>Resonance</label><default>{{#invoke:Erenshor/Stance|field|resonance_amount}}</default></data>
-        <data><label>Stops Regeneration</label><default>{{#invoke:Erenshor/Stance|field|stop_regen}}</default></data>
+        <data source="self_damage_per_attack"><label>Self Damage per Attack</label><format>{{{self_damage_per_attack|}}}% max HP</format></data>
+        <data source="self_damage_per_cast"><label>Self Damage per Cast</label><format>{{{self_damage_per_cast|}}}</format></data>
+        <data source="lifesteal_amount"><label>Lifesteal</label><format>{{{lifesteal_amount|}}}%</format></data>
+        <data source="resonance_amount"><label>Resonance</label><format>{{#ifexpr: {{{resonance_amount|1}}} = 1 | — |{{#ifexpr: {{{resonance_amount|1}}} > 1 |+}}{{#expr: ({{{resonance_amount|1}}} - 1) * 100 round 0}}%}}</format></data>
+        <data source="stop_regen"><label>Stops Regeneration</label><format>{{#ifeq:{{{stop_regen|}}}|1|Yes}}</format></data>
     </group>
 
     <group collapse="open">
         <header>Acquisition</header>
-        <data><label>Activated by</label><default>{{#invoke:Erenshor/Stance|field|activated_by}}</default></data>
+        <data source="activated_by"><label>Activated by</label></data>
     </group>
-</infobox>{{#invoke:Erenshor/Stance|cargoStore}}{{#invoke:Erenshor/Stance|status}}{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Stances]]}}</includeonly><noinclude>{{#cargo_declare:_table=Stances
-|StableKey=String
-|Page=Page
-|Name=String
-|Image=File
-|MaxHpMod=Float
-|DamageMod=Float
-|ProcRateMod=Float
-|DamageTakenMod=Float
-|SelfDamagePerAttack=Float
-|AggroGenMod=Float
-|SpellDamageMod=Float
-|SelfDamagePerCast=Float
-|LifestealAmount=Float
-|ResonanceAmount=Float
-|StopRegen=Boolean
+</infobox>{{#ifeq: {{NAMESPACENUMBER}} | 0 | [[Category:Stances]]}}</includeonly><noinclude>
+== Template:Stance ==
+
+Infobox template for displaying combat stance information. Stances are toggleable
+combat modes that modify a character's stats. They are activated by specific skills.
+
+Modifier values are stored as raw multipliers where 1.0 means no change (100%).
+The template converts these to human-readable percentages: a value of 1.4 displays
+as "+40%", 0.66 as "-34%", and 2.0 as "+100%". Fields at the 1.0 baseline show
+an em dash (—) to indicate no change.
+
+=== Parameters ===
+
+{| class="wikitable"
+! Parameter !! Required !! Type !! Description
+|-
+| '''title''' || Yes || string || Stance name (displayed as infobox title)
+|-
+| '''image''' || Yes || wikitext || Stance icon: <code><nowiki>[[File:Stance Name.png|thumb]]</nowiki></code>
+|-
+| '''imagecaption''' || No || string || Caption for the image
+|-
+| '''description''' || No || string || Stance description / flavor text
+|-
+| '''switch_message''' || No || string || Message shown when the stance is activated
+|-
+! colspan="4" | Combat Modifiers ''(multipliers: 1.0 = no change, >1.0 = increase, <1.0 = decrease)''
+|-
+| '''damage_mod''' || No || float || Physical damage multiplier. 1.4 → "+40%"
+|-
+| '''spell_damage_mod''' || No || float || Spell damage multiplier. 1.0 → "—"
+|-
+| '''damage_taken_mod''' || No || float || Incoming damage multiplier. 0.8 → "-20%"
+|-
+| '''max_hp_mod''' || No || float || Maximum HP multiplier
+|-
+| '''proc_rate_mod''' || No || float || Proc rate multiplier
+|-
+| '''aggro_gen_mod''' || No || float || Aggro generation multiplier. 10.0 → "+900%"
+|-
+! colspan="4" | Special Effects
+|-
+| '''self_damage_per_attack''' || No || float || % of max HP lost per melee attack. 4.0 → "4% max HP"
+|-
+| '''self_damage_per_cast''' || No || float || HP lost per spell cast
+|-
+| '''lifesteal_amount''' || No || float || Lifesteal percentage per hit
+|-
+| '''resonance_amount''' || No || float || Resonance multiplier (same format as combat modifiers)
+|-
+| '''stop_regen''' || No || integer || Disables HP/mana regeneration. 1 → "Yes", 0 or blank → hidden
+|-
+! colspan="4" | Acquisition
+|-
+| '''activated_by''' || No || wikitext || Skills that activate this stance (e.g. <code><nowiki>{{AbilityLink|Stance: Aggressive}}</nowiki></code>)
+|}
+
+=== Examples ===
+
+==== Normal Stance (all defaults) ====
+
+'''Code:'''
+<pre>
+{{Stance
+|title=Normal
+|image=[[File:Stance: Normal.png|thumb]]
+|description=A normal combat stance with no penalties or bonuses.
+|switch_message=shifts into a normal combat stance
+|max_hp_mod=1.0
+|damage_mod=1.0
+|damage_taken_mod=1.0
+|proc_rate_mod=1.0
+|aggro_gen_mod=1.0
+|spell_damage_mod=1.0
+|resonance_amount=1.0
+|activated_by=
 }}
-Template parameters mirror the production Stance template. Article parameters override generated Lua data; use <code>-</code> to intentionally blank a supported generated field.
+</pre>
+
+'''Result:'''
+
+{{Stance
+|title=Normal
+|image=[[File:Stance: Normal.png|thumb]]
+|description=A normal combat stance with no penalties or bonuses.
+|switch_message=shifts into a normal combat stance
+|max_hp_mod=1.0
+|damage_mod=1.0
+|damage_taken_mod=1.0
+|proc_rate_mod=1.0
+|aggro_gen_mod=1.0
+|spell_damage_mod=1.0
+|resonance_amount=1.0
+|activated_by=
+}}
+
+----
+
+==== Aggressive Stance (mixed bonuses and penalties) ====
+
+'''Code:'''
+<pre>
+{{Stance
+|title=Aggressive
+|image=[[File:Stance: Aggressive.png|thumb]]
+|description=Gain a 40% increase to physical damage dealt, but take 40% more incoming damage from all sources. Your focus on offense stops all natural health regeneration.
+|switch_message=shifts into an aggressive combat stance
+|max_hp_mod=1.0
+|damage_mod=1.4
+|damage_taken_mod=1.4
+|proc_rate_mod=1.0
+|aggro_gen_mod=1.0
+|spell_damage_mod=1.0
+|resonance_amount=1.0
+|stop_regen=1
+|activated_by={{AbilityLink|Stance: Aggressive}}
+}}
+</pre>
+
+'''Result:'''
+
+{{Stance
+|title=Aggressive
+|image=[[File:Stance: Aggressive.png|thumb]]
+|description=Gain a 40% increase to physical damage dealt, but take 40% more incoming damage from all sources. Your focus on offense stops all natural health regeneration.
+|switch_message=shifts into an aggressive combat stance
+|max_hp_mod=1.0
+|damage_mod=1.4
+|damage_taken_mod=1.4
+|proc_rate_mod=1.0
+|aggro_gen_mod=1.0
+|spell_damage_mod=1.0
+|resonance_amount=1.0
+|stop_regen=1
+|activated_by={{AbilityLink|Stance: Aggressive}}
+}}
+
+----
+
+==== Reckless Stance (extreme modifiers with self-damage) ====
+
+'''Code:'''
+<pre>
+{{Stance
+|title=Reckless
+|image=[[File:Stance: Reckless.png|thumb]]
+|description=Deal 100% more melee and spell damage, but take 100% more damage from all incoming sources. This stance does 4% of your max HP in damage to you each time you swing your sword.
+|switch_message=shifts into a reckless combat stance
+|max_hp_mod=1.0
+|damage_mod=2.0
+|damage_taken_mod=2.0
+|proc_rate_mod=1.0
+|aggro_gen_mod=1.0
+|spell_damage_mod=1.0
+|self_damage_per_attack=4.0
+|resonance_amount=1.0
+|activated_by={{AbilityLink|Stance: Reckless}}
+}}
+</pre>
+
+'''Result:'''
+
+{{Stance
+|title=Reckless
+|image=[[File:Stance: Reckless.png|thumb]]
+|description=Deal 100% more melee and spell damage, but take 100% more damage from all incoming sources. This stance does 4% of your max HP in damage to you each time you swing your sword.
+|switch_message=shifts into a reckless combat stance
+|max_hp_mod=1.0
+|damage_mod=2.0
+|damage_taken_mod=2.0
+|proc_rate_mod=1.0
+|aggro_gen_mod=1.0
+|spell_damage_mod=1.0
+|self_damage_per_attack=4.0
+|resonance_amount=1.0
+|activated_by={{AbilityLink|Stance: Reckless}}
+}}
+
+----
+
+==== Taunting Stance (aggro-focused) ====
+
+'''Code:'''
+<pre>
+{{Stance
+|title=Taunting
+|image=[[File:Stance: Taunting.png|thumb]]
+|description=All of your actions generate substantially more aggro. Natural health regen is paused while in this stance.
+|switch_message=shifts into a taunting combat stance
+|max_hp_mod=1.0
+|damage_mod=1.0
+|damage_taken_mod=1.0
+|proc_rate_mod=1.0
+|aggro_gen_mod=10.0
+|spell_damage_mod=1.0
+|resonance_amount=1.0
+|stop_regen=1
+|activated_by={{AbilityLink|Stance: Taunting}}
+}}
+</pre>
+
+'''Result:'''
+
+{{Stance
+|title=Taunting
+|image=[[File:Stance: Taunting.png|thumb]]
+|description=All of your actions generate substantially more aggro. Natural health regen is paused while in this stance.
+|switch_message=shifts into a taunting combat stance
+|max_hp_mod=1.0
+|damage_mod=1.0
+|damage_taken_mod=1.0
+|proc_rate_mod=1.0
+|aggro_gen_mod=10.0
+|spell_damage_mod=1.0
+|resonance_amount=1.0
+|stop_regen=1
+|activated_by={{AbilityLink|Stance: Taunting}}
+}}
+
+----
+
+=== Formatting Details ===
+
+==== Multiplier Conversion ====
+
+Combat modifier values are raw multipliers from the game data where 1.0 = no change:
+
+{| class="wikitable"
+! Raw Value !! Displayed As !! Meaning
+|-
+| 1.0 || — || No change from baseline
+|-
+| 1.4 || +40% || 40% increase
+|-
+| 0.66 || -34% || 34% decrease
+|-
+| 2.0 || +100% || Doubled
+|-
+| 10.0 || +900% || 10x multiplier
+|}
+
+Percentages are rounded to the nearest integer.
+
+==== Special Effects ====
+
+* '''Self Damage per Attack''': Displayed as "X% max HP" (value is already in percentage points)
+* '''Self Damage per Cast''': Displayed as raw value (flat HP cost)
+* '''Lifesteal''': Displayed as "X%"
+* '''Resonance''': Multiplier, same conversion as combat modifiers
+* '''Stops Regeneration''': Shows "Yes" when value is 1, hidden when 0 or blank
+
+=== See Also ===
+
+* [[Template:Ability]] - Ability/spell infobox (stances are activated by abilities)
+* [[Template:Item]] - Item infobox (skill books teach stance abilities)
+* [[:Category:Stances]] - All stances
+
+[[Category:Stances]]
 </noinclude>
