@@ -59,7 +59,7 @@
 <Seo
     path="/mod"
     title="Erenshor Mods – Lunaris, Erenshor Vault, and Thunderstore"
-    description="Install Adventure Guide, Interactive Map Companion, Sprint, and Justice for F7 through Lunaris and Erenshor Vault, or use Thunderstore with BepInEx."
+    description="Install Adventure Guide, Interactive Map Companion, Sprint, and Justice for F7 in-game with Lunaris, browse their Erenshor Vault listings, or use Thunderstore with BepInEx."
     jsonLd={breadcrumbJsonLd([
         { name: 'Home', path: '/' },
         { name: 'Mods', path: '/mod' }
@@ -210,10 +210,11 @@
                         <h3 class="text-xl font-bold text-white text-balance">{mod.name}</h3>
                         <p class="mt-3 text-sm leading-relaxed text-slate-300">{mod.description}</p>
 
-                        <div class="mt-auto grid gap-4 border-t border-slate-700 pt-5 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
+                        <div class="mt-auto pt-6">
+                            <div class="grid gap-4 border-t border-slate-700 pt-5 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
                             <div class="min-w-0">
                                 <p class="mb-2 text-sm font-medium leading-5 text-slate-400">
-                                    Recommended: Lunaris + Erenshor Vault
+                                    Mod listing: Erenshor Vault
                                 </p>
                                 <a
                                     href={mod.vaultUrl}
@@ -226,7 +227,7 @@
 
                             <div class="min-w-0">
                                 <p class="mb-2 text-sm font-medium leading-5 text-slate-400">
-                                    Alternative: BepInEx + Thunderstore
+                                    BepInEx download: Thunderstore
                                 </p>
                                 <a
                                     href={mod.thunderstoreUrl}
@@ -235,6 +236,7 @@
                                     Thunderstore
                                     <span class="ml-1.5" aria-hidden="true">↗</span>
                                 </a>
+                            </div>
                             </div>
                         </div>
                     </div>

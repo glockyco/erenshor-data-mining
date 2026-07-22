@@ -43,8 +43,6 @@
         </a>
         <a
             href="https://thunderstore.io/c/erenshor/p/WoW_Much/AdventureGuide/"
-            target="_blank"
-            rel="noreferrer"
             class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-slate-600 text-slate-200 hover:border-slate-500 hover:text-white font-semibold rounded-lg transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
         >
             Thunderstore (BepInEx)
@@ -150,11 +148,8 @@
                     <li>Launch the game.</li>
                     <li>Open Lunaris from the icon on the main menu.</li>
                     <li>
-                        Find and install <strong class="text-white">Adventure Guide</strong> from
-                        <a
-                            href="https://erenshorvault.app/mod/adventure-guide"
-                            class="text-purple-400 hover:text-purple-300 underline">Erenshor Vault</a
-                        >.
+                        Find <strong class="text-white">Adventure Guide</strong> in Lunaris, then
+                        select <strong class="text-white">Install</strong>.
                     </li>
                 </ol>
             </div>
