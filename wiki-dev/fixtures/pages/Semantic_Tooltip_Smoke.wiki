@@ -1,0 +1,5 @@
+= Semantic Tooltip Smoke =
+Keyed exact: {{AbilityLink|stablekey=spell:minor_lightning|link=Ability Tooltip Fixture|text=Keyed exact ability}}
+Unique positional: {{AbilityLink|Unique Ability Tooltip Fixture|text=Unique positional ability}}
+Ambiguous positional: {{AbilityLink|Ability Tooltip Fixture|text=Ambiguous positional ability}}
+Item regression: {{ItemLink|Abyssal Plate}}

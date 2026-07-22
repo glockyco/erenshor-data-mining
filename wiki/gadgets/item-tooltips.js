@@ -1,8 +1,8 @@
 ( function () {
 	'use strict';
 
-	const ITEM_LINK_SELECTOR = '.erenshor-link--item[data-erenshor-page]';
-	const TOOLTIP_ID = 'erenshor-item-tooltip';
+	const SEMANTIC_LINK_SELECTOR = '.erenshor-link--item[data-erenshor-page], .erenshor-link--ability[data-erenshor-page]';
+	const TOOLTIP_ID = 'erenshor-tooltip';
 	const HOVER_INTENT_DELAY = 300;
 	const COARSE_POINTER_QUERY = '(pointer: coarse)';
 	const KNOWN_MISSING_CODES = new Set( [ 'invalidtitle', 'missingtitle', 'nosuchpageid' ] );
@@ -91,7 +91,7 @@
 				return;
 			}
 
-			const target = itemLinkFromEvent( event );
+			const target = semanticLinkFromEvent( event );
 			if ( !target || containsNode( target, event.relatedTarget ) ||
 				( activeTarget === target && containsNode( overlay, event.relatedTarget ) ) ) {
 				return;
@@ -128,7 +128,7 @@
 				return;
 			}
 
-			const target = itemLinkFromEvent( event );
+			const target = semanticLinkFromEvent( event );
 			if ( !target || containsNode( target, event.relatedTarget ) ||
 				containsNode( overlay, event.relatedTarget ) ) {
 				return;
@@ -144,7 +144,7 @@
 		}
 
 		function onFocusIn( event ) {
-			const target = itemLinkFromEvent( event );
+			const target = semanticLinkFromEvent( event );
 			if ( !target ) {
 				return;
 			}
@@ -156,7 +156,7 @@
 		}
 
 		function onFocusOut( event ) {
-			const target = itemLinkFromEvent( event );
+			const target = semanticLinkFromEvent( event );
 			if ( !target || containsNode( target, event.relatedTarget ) ) {
 				return;
 			}
@@ -276,19 +276,36 @@
 				( typeof window.matchMedia === 'function' && window.matchMedia( COARSE_POINTER_QUERY ).matches );
 		}
 		function requestSpec( target ) {
-			// Stable-key resolution stays disabled until generated item data has a production-safe deploy path.
 			const title = normalizeTitle( target.dataset.erenshorPage );
+			if ( !title ) {
+				return null;
+			}
+
+			if ( target.classList.contains( 'erenshor-link--ability' ) ) {
+				const stableKey = normalizedStableKey( target.dataset.erenshorKey );
+				return {
+					kind: 'ability',
+					title: title,
+					stableKey: stableKey,
+					cacheKey: JSON.stringify( [ 'ability', title, stableKey ] )
+				};
+			}
+
+			if ( !target.classList.contains( 'erenshor-link--item' ) ) {
+				return null;
+			}
 			const hasQuality = target.hasAttribute( 'data-erenshor-quality' );
 			const quality = hasQuality ?
 				canonicalQuality( target.getAttribute( 'data-erenshor-quality' ) ) : 'Standard';
-			if ( !title || ( hasQuality && !quality ) ) {
+			if ( hasQuality && !quality ) {
 				return null;
 			}
 
 			return {
+				kind: 'item',
 				title: title,
 				quality: quality,
-				cacheKey: JSON.stringify( [ title, quality ] )
+				cacheKey: JSON.stringify( [ 'item', title, quality ] )
 			};
 		}
 
@@ -319,7 +336,7 @@
 					if ( KNOWN_MISSING_CODES.has( code ) ) {
 						resolve( null );
 					} else {
-						reject( new Error( 'Unable to load item tooltip.' ) );
+						reject( new Error( 'Unable to load semantic tooltip.' ) );
 					}
 				} );
 			} );
@@ -335,13 +352,17 @@
 
 		function extractTooltip( response, spec ) {
 			if ( !response || !response.parse || typeof response.parse.text !== 'string' ) {
-				throw new Error( 'Item page response did not contain parsed text.' );
+				throw new Error( 'Semantic page response did not contain parsed text.' );
 			}
 
 			const parsedDocument = new DOMParser().parseFromString(
 				response.parse.text,
 				'text/html'
 			);
+			if ( spec.kind === 'ability' ) {
+				return extractAbilityTooltip( parsedDocument, spec.stableKey );
+			}
+
 			const cards = Array.from( parsedDocument.querySelectorAll( '.item-tooltip' ) );
 			const presentation = selectPresentation( parsedDocument, cards, spec );
 			if ( !presentation ) {
@@ -352,6 +373,29 @@
 			stripLinks( detachedPresentation );
 			normalizeInlineWidths( detachedPresentation );
 			return detachedPresentation;
+		}
+
+		function extractAbilityTooltip( parsedDocument, stableKey ) {
+			const cards = Array.from(
+				parsedDocument.querySelectorAll( '.erenshor-ability-tooltip[data-erenshor-key]' )
+			);
+			let card = null;
+			if ( stableKey ) {
+				const matches = cards.filter( function ( candidate ) {
+					return candidate.getAttribute( 'data-erenshor-key' ) === stableKey;
+				} );
+				card = matches.length === 1 ? matches[ 0 ] : null;
+			} else {
+				card = cards.length === 1 ? cards[ 0 ] : null;
+			}
+			if ( !card ) {
+				return null;
+			}
+
+			const detachedCard = card.cloneNode( true );
+			stripLinks( detachedCard );
+			normalizeInlineWidths( detachedCard );
+			return detachedCard;
 		}
 
 		function selectPresentation( parsedDocument, cards, spec ) {
@@ -432,7 +476,7 @@
 
 
 		function normalizeInlineWidths( root ) {
-			const widthSelectors = '.item-tooltip-quality, .item-tooltip, .item-spell-details';
+			const widthSelectors = '.item-tooltip-quality, .item-tooltip, .item-spell-details, .erenshor-ability-tooltip';
 			const elements = [];
 			if ( root.nodeType === 1 && root.matches( widthSelectors ) ) {
 				elements.push( root );
@@ -621,7 +665,7 @@
 	function createOverlay() {
 		const overlay = document.createElement( 'div' );
 		overlay.id = TOOLTIP_ID;
-		overlay.className = 'erenshor-item-tooltip-overlay';
+		overlay.className = 'erenshor-tooltip-overlay';
 		overlay.setAttribute( 'role', 'tooltip' );
 		overlay.hidden = true;
 		return overlay;
@@ -629,22 +673,30 @@
 
 	function createLoadingShell() {
 		const shell = document.createElement( 'div' );
-		shell.className = 'item-tooltip erenshor-item-tooltip-loading';
-		shell.textContent = 'Loading item…';
+		shell.className = 'item-tooltip erenshor-tooltip-loading';
+		shell.textContent = 'Loading preview…';
 		return shell;
 	}
 
 	function createUnavailableShell() {
 		const shell = document.createElement( 'div' );
-		shell.className = 'item-tooltip erenshor-item-tooltip-unavailable';
-		shell.textContent = 'Item tooltip unavailable.';
+		shell.className = 'item-tooltip erenshor-tooltip-unavailable';
+		shell.textContent = 'Preview unavailable.';
 		return shell;
 	}
 
-	function itemLinkFromEvent( event ) {
+	function semanticLinkFromEvent( event ) {
 		const eventTarget = event.target instanceof Element ?
 			event.target : event.target && event.target.parentElement;
-		return eventTarget ? eventTarget.closest( ITEM_LINK_SELECTOR ) : null;
+		return eventTarget ? eventTarget.closest( SEMANTIC_LINK_SELECTOR ) : null;
+	}
+
+	function normalizedStableKey( value ) {
+		if ( typeof value !== 'string' ) {
+			return null;
+		}
+		const stableKey = value.trim();
+		return stableKey || null;
 	}
 
 	function containsNode( target, node ) {

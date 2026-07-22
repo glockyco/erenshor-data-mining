@@ -1,0 +1,5 @@
+= Ability Tooltip Fixture =
+{{Spell|stablekey=spell:minor_lightning}}
+{{SpellTooltip|stablekey=spell:minor_lightning}}
+{{Skill|stablekey=skill:backstab}}
+{{SkillTooltip|stablekey=skill:backstab}}
