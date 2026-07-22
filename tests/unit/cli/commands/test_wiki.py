@@ -314,8 +314,8 @@ class TestWikiDeployRepoCommand:
         client = FakeDeployClient()
         calls = []
 
-        def fake_build_manifest(repo_root, variant):
-            calls.append(("build", repo_root, variant))
+        def fake_build_manifest(repo_root, variant, **kwargs):
+            calls.append(("build", repo_root, variant, kwargs))
             return manifest
 
         def fake_create_client(cli_ctx):
@@ -402,12 +402,21 @@ class TestWikiDeployRepoCommand:
                 )
             )
 
-        monkeypatch.setattr(wiki_command, "build_repo_page_manifest", lambda repo_root, variant: manifest)
+        monkeypatch.setattr(wiki_command, "build_repo_page_manifest", lambda repo_root, variant, **kwargs: manifest)
         monkeypatch.setattr(wiki_command, "_create_mediawiki_client", lambda cli_ctx: FakeDeployClient())
         monkeypatch.setattr(wiki_command, "deploy_repo_pages", fake_deploy_repo_pages)
         monkeypatch.setattr(wiki_command, "write_repo_page_manifest", lambda deployed_manifest, path: None)
 
-        result = runner.invoke(app, ["wiki", "deploy-repo-pages", "--manifest-output", str(tmp_path / "m.json")])
+        result = runner.invoke(
+            app,
+            [
+                "wiki",
+                "deploy-repo-pages",
+                "--include-templates",
+                "--manifest-output",
+                str(tmp_path / "m.json"),
+            ],
+        )
 
         assert result.exit_code == 0
         assert "Cargo" in result.output

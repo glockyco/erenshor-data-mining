@@ -83,6 +83,40 @@ class RecordingWikiClient:
         return 301
 
 
+def test_deploy_repo_pages_rejects_templates_before_remote_reads(tmp_path: Path) -> None:
+    write_page(tmp_path, "wiki/templates/Item.wiki", "{{Item}}\n")
+    manifest = build_repo_page_manifest(tmp_path, variant="main", include_templates=True)
+    client = RecordingWikiClient({"Template:Item": "old source\n"})
+
+    with pytest.raises(ValueError, match="Template pages require explicit deployment opt-in"):
+        deploy_repo_pages(
+            manifest=manifest,
+            repo_root=tmp_path,
+            client=client,
+            summary="Deploy repo-owned wiki pages",
+            assertion="bot",
+        )
+
+    assert client.snapshot_requests == []
+    assert client.safe_edits == []
+    assert client.safe_creates == []
+
+
+def test_deploy_repo_pages_empty_manifest_does_not_call_client(tmp_path: Path) -> None:
+    client = RecordingWikiClient({})
+
+    result = deploy_repo_pages(
+        manifest=RepoWikiPageManifest(entries=()),
+        repo_root=tmp_path,
+        client=client,
+        summary="Deploy repo-owned wiki pages",
+        assertion="bot",
+    )
+
+    assert result.entries == ()
+    assert client.snapshot_requests == []
+
+
 def test_repo_page_manifest_rejects_mediawiki_interface_titles(tmp_path: Path) -> None:
     """A content-bot manifest rejects every case and whitespace spelling of the interface namespace."""
     write_page(tmp_path, "wiki/modules/Erenshor/Item.lua", "return {}\n")

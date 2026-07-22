@@ -70,22 +70,69 @@ def _is_mediawiki_interface_title(title: str) -> bool:
     return bool(separator) and namespace.casefold() == "mediawiki"
 
 
-def build_repo_page_manifest(repo_root: Path, variant: str) -> RepoWikiPageManifest:
-    """Build a deterministic manifest for repo-owned modules and templates.
+def build_repo_page_manifest(
+    repo_root: Path,
+    variant: str,
+    *,
+    include_templates: bool = False,
+) -> RepoWikiPageManifest:
+    """Build a deterministic manifest for the safe default deployment surface.
 
     Generated Lua data under ``variants/*/wiki/lua`` is intentionally local-only
     until that deployment surface is production-ready. Keep ``generated_data``
     manifest parsing for historical rollback artifacts, but never export new
-    generated-data entries through this builder.
+    generated-data entries through this builder. Templates are opt-in because
+    changing them affects every generated wiki page.
     """
     root = repo_root.resolve()
     entries: list[RepoWikiPageManifestEntry] = []
 
     entries.extend(_module_entries(root, root / "wiki" / "modules", "lua_module"))
-    entries.extend(_template_entries(root, root / "wiki" / "templates"))
+    if include_templates:
+        entries.extend(_template_entries(root, root / "wiki" / "templates"))
 
     entries.sort(key=lambda entry: (_STAGE_ORDER[entry.upload_stage], entry.title))
     return RepoWikiPageManifest(entries=tuple(entries))
+
+
+def select_repo_page_manifest(
+    manifest: RepoWikiPageManifest,
+    *,
+    requested_titles: set[str] | None = None,
+    include_templates: bool = False,
+) -> RepoWikiPageManifest:
+    """Filter a manifest while enforcing the template deployment safety gate."""
+    requested_template_titles = {title for title in requested_titles or () if _is_template_title(title)}
+    if requested_template_titles and not include_templates:
+        titles = ", ".join(sorted(requested_template_titles))
+        raise ValueError(f"Template pages require --include-templates: {titles}")
+
+    if include_templates:
+        selected_entries = manifest.entries
+    else:
+        selected_entries = tuple(entry for entry in manifest.entries if entry.upload_stage != "template")
+
+    if requested_titles is not None:
+        selected_entries = tuple(entry for entry in selected_entries if entry.title in requested_titles)
+    return RepoWikiPageManifest(entries=selected_entries)
+
+
+def validate_repo_page_manifest_for_deploy(
+    manifest: RepoWikiPageManifest,
+    *,
+    include_templates: bool = False,
+) -> None:
+    """Reject template entries unless deployment explicitly opts into them."""
+    if include_templates:
+        return
+    template_titles = [entry.title for entry in manifest.entries if entry.upload_stage == "template"]
+    if template_titles:
+        raise ValueError("Template pages require explicit deployment opt-in: " + ", ".join(sorted(template_titles)))
+
+
+def _is_template_title(title: str) -> bool:
+    namespace, separator, _ = title.strip().partition(":")
+    return bool(separator) and namespace.casefold() == "template"
 
 
 def write_repo_page_manifest(manifest: RepoWikiPageManifest, path: Path) -> None:

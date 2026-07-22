@@ -38,6 +38,7 @@ from erenshor.application.wiki_deploy.manifest import (
     RepoWikiPageManifest,
     build_repo_page_manifest,
     read_repo_page_manifest,
+    select_repo_page_manifest,
     write_repo_page_manifest,
 )
 from erenshor.application.wiki_deploy.override_migration import (
@@ -973,19 +974,35 @@ def deploy_repo_pages_command(
         Path | None,
         typer.Option("--manifest-output", help="Path for the deployment manifest JSON."),
     ] = None,
+    include_templates: Annotated[
+        bool,
+        typer.Option(
+            "--include-templates",
+            help="Explicitly include wiki templates. Disabled by default because template edits affect all pages.",
+        ),
+    ] = False,
 ) -> None:
-    """Deploy repo-owned Lua modules and templates; generated data stays local-only."""
+    """Deploy repo-owned Lua modules. Templates require explicit opt-in."""
     cli_ctx: CLIContext = ctx.obj
-    manifest = build_repo_page_manifest(cli_ctx.repo_root, variant=cli_ctx.variant)
-    if pages_file:
-        requested_titles = set(_read_page_titles(pages_file))
-        manifest = RepoWikiPageManifest(
-            entries=tuple(entry for entry in manifest.entries if entry.title in requested_titles)
-        )
+    manifest = build_repo_page_manifest(
+        cli_ctx.repo_root,
+        variant=cli_ctx.variant,
+        include_templates=include_templates,
+    )
+    requested_titles = set(_read_page_titles(pages_file)) if pages_file else None
+    manifest = select_repo_page_manifest(
+        manifest,
+        requested_titles=requested_titles,
+        include_templates=include_templates,
+    )
     if manifest_output is None:
         manifest_output = (
             cli_ctx.config.variants[cli_ctx.variant].resolved_wiki(cli_ctx.repo_root) / "deploy-manifest.json"
         )
+
+    if not manifest.entries:
+        console.print("[yellow]No repo-owned wiki pages selected; no remote edits made[/yellow]")
+        return
 
     if cli_ctx.dry_run:
         scope = f" filtered by {pages_file}" if pages_file else ""
@@ -1006,6 +1023,7 @@ def deploy_repo_pages_command(
             assert_user=assert_user,
             rollback_root=manifest_output.parent / "rollback",
             checkpoint=checkpoint_manifest,
+            include_templates=include_templates,
         )
     finally:
         client.close()

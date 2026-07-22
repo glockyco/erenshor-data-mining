@@ -6,10 +6,13 @@ import hashlib
 from dataclasses import replace
 from pathlib import Path
 
+import pytest
+
 from erenshor.application.wiki_deploy.manifest import (
     RepoWikiPageManifest,
     build_repo_page_manifest,
     read_repo_page_manifest,
+    select_repo_page_manifest,
     write_repo_page_manifest,
 )
 
@@ -39,14 +42,38 @@ def test_build_repo_page_manifest_maps_only_maintained_sources_to_wiki_titles(tm
     assert set(entries) == {
         "Module:Erenshor/Item",
         "Module:Erenshor/Item/Tooltip",
-        "Template:ArmorTable/Row",
-        "Template:Item",
     }
     assert entries["Module:Erenshor/Item"].source_path == "wiki/modules/Erenshor/Item.lua"
     assert entries["Module:Erenshor/Item"].content_model == "Scribunto"
-    assert entries["Template:ArmorTable/Row"].source_path == "wiki/templates/ArmorTable/Row.wiki"
-    assert entries["Template:ArmorTable/Row"].content_model == "wikitext"
     assert all(not entry.source_path.startswith("variants/") for entry in manifest.entries)
+
+    template_manifest = build_repo_page_manifest(tmp_path, variant="main", include_templates=True)
+    template_entries = {entry.title: entry for entry in template_manifest.entries}
+    assert {"Template:ArmorTable/Row", "Template:Item"} <= set(template_entries)
+    assert template_entries["Template:ArmorTable/Row"].source_path == "wiki/templates/ArmorTable/Row.wiki"
+    assert template_entries["Template:ArmorTable/Row"].content_model == "wikitext"
+
+
+def test_select_repo_page_manifest_rejects_explicit_templates_without_opt_in(tmp_path: Path) -> None:
+    write_page(tmp_path, "wiki/modules/Erenshor/Item.lua", "return {}\n")
+    write_page(tmp_path, "wiki/templates/Item.wiki", "{{Item}}\n")
+    manifest = build_repo_page_manifest(tmp_path, variant="main", include_templates=True)
+
+    with pytest.raises(ValueError, match="Template pages require --include-templates: Template:Item"):
+        select_repo_page_manifest(
+            manifest,
+            requested_titles={"Module:Erenshor/Item", "Template:Item"},
+        )
+
+
+def test_select_repo_page_manifest_includes_templates_only_with_opt_in(tmp_path: Path) -> None:
+    write_page(tmp_path, "wiki/modules/Erenshor/Item.lua", "return {}\n")
+    write_page(tmp_path, "wiki/templates/Item.wiki", "{{Item}}\n")
+    manifest = build_repo_page_manifest(tmp_path, variant="main", include_templates=True)
+
+    selected = select_repo_page_manifest(manifest, include_templates=True)
+
+    assert [entry.title for entry in selected.entries] == ["Module:Erenshor/Item", "Template:Item"]
 
 
 def test_build_repo_page_manifest_excludes_interface_sources(tmp_path: Path) -> None:
@@ -61,7 +88,6 @@ def test_build_repo_page_manifest_excludes_interface_sources(tmp_path: Path) -> 
 
     assert [entry.title for entry in manifest.entries] == [
         "Module:Erenshor/Item",
-        "Template:Item",
     ]
     assert all(not entry.title.startswith("MediaWiki:Gadget-") for entry in manifest.entries)
     assert all(not entry.source_path.startswith("wiki/gadgets/") for entry in manifest.entries)
@@ -72,7 +98,7 @@ def test_build_repo_page_manifest_hashes_source_bytes(tmp_path: Path) -> None:
     content = "<includeonly>{{ItemTooltip}}</includeonly>\n"
     write_page(tmp_path, "wiki/templates/ItemTooltip.wiki", content)
 
-    manifest = build_repo_page_manifest(tmp_path, variant="main")
+    manifest = build_repo_page_manifest(tmp_path, variant="main", include_templates=True)
 
     [entry] = manifest.entries
     assert entry.title == "Template:ItemTooltip"
@@ -93,7 +119,7 @@ def test_build_repo_page_manifest_marks_real_cargo_declarations_only(tmp_path: P
         "<noinclude><pre>{{#cargo_declare:\n_table=Items\n|Page=Page\n}}</pre></noinclude>\n",
     )
 
-    manifest = build_repo_page_manifest(tmp_path, variant="main")
+    manifest = build_repo_page_manifest(tmp_path, variant="main", include_templates=True)
 
     entries = {entry.title: entry for entry in manifest.entries}
     assert entries["Template:Item"].declares_cargo_table is True
@@ -115,7 +141,7 @@ def test_build_repo_page_manifest_orders_uploads_safely(tmp_path: Path) -> None:
     write_page(tmp_path, "wiki/modules/Erenshor/Item.lua", "local p = {}\nreturn p\n")
     write_page(tmp_path, "variants/main/wiki/lua/Erenshor/Data/Items.lua", "return {}\n")
 
-    manifest = build_repo_page_manifest(tmp_path, variant="main")
+    manifest = build_repo_page_manifest(tmp_path, variant="main", include_templates=True)
 
     assert [entry.title for entry in manifest.entries] == [
         "Module:Erenshor/Item",
@@ -132,7 +158,7 @@ def test_build_repo_page_manifest_orders_uploads_safely(tmp_path: Path) -> None:
 def test_repo_page_manifest_round_trips_deployment_metadata(tmp_path: Path) -> None:
     """Persisted manifests preserve deployment metadata needed for rollback."""
     write_page(tmp_path, "wiki/templates/Item.wiki", "{{#cargo_declare:_table=Items}}\n")
-    manifest = build_repo_page_manifest(tmp_path, variant="main")
+    manifest = build_repo_page_manifest(tmp_path, variant="main", include_templates=True)
     [entry] = manifest.entries
     deployed_manifest = RepoWikiPageManifest(
         entries=(

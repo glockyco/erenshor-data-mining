@@ -9,7 +9,11 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Literal, Protocol
 from urllib.parse import quote
 
-from erenshor.application.wiki_deploy.manifest import DeployAction, RepoWikiPageManifest
+from erenshor.application.wiki_deploy.manifest import (
+    DeployAction,
+    RepoWikiPageManifest,
+    validate_repo_page_manifest_for_deploy,
+)
 from erenshor.infrastructure.wiki.content import normalize_saved_text
 
 if TYPE_CHECKING:
@@ -82,6 +86,7 @@ def deploy_repo_pages(
     assert_user: str | None = None,
     rollback_root: Path | None = None,
     checkpoint: Callable[[RepoWikiPageManifest], None] | None = None,
+    include_templates: bool = False,
 ) -> RepoPageDeployResult:
     """Deploy changed manifest pages through the safe MediaWiki edit path.
 
@@ -89,6 +94,9 @@ def deploy_repo_pages(
     the first mutation. Every safe edit uses the revision returned alongside the
     source text it was compared with.
     """
+    validate_repo_page_manifest_for_deploy(manifest, include_templates=include_templates)
+    if not manifest.entries:
+        return RepoPageDeployResult(entries=())
     titles = [entry.title for entry in manifest.entries]
     source_texts: dict[str, str] = {}
     for entry in manifest.entries:
