@@ -1,0 +1,97 @@
+<code><nowiki>{{AbilityLink}}</nowiki></code> renders an ability icon and page link. An ability may be a spell, skill, or stance. The ordinary positional page-title form is the supported first-class form:
+
+<pre>{{AbilityLink|Minor Lightning}}</pre>
+
+The positional value is used as both the destination page and the visible display text. Use <code>link</code>, <code>text</code>, or <code>image</code> when presentation needs to differ:
+
+<pre>{{AbilityLink
+ |Minor Lightning
+ |link=Minor Lightning
+ |text=Lightning
+ |image=Minor Lightning.png
+}}</pre>
+
+The link picker may supply <code>stablekey</code>. This is the exact advanced identity selected for the ability by the picker. Spell, skill, and stance records use their own stable identity, so a stable key distinguishes records even when names or pages overlap. Editors normally do not need to memorize or type it. The picker writes the stable key together with explicit link, text, and nonempty image fallbacks. A stable-key-only form is supported for generated links:
+
+<pre>{{AbilityLink|stablekey=spell:dru - minor lightning}}</pre>
+
+For a skill or stance, the corresponding identity has a <code>skill:</code> or <code>stance:</code> prefix. The identity is not the visible page title.
+
+== Page-based hover previews ==
+
+AbilityLink keeps the destination as an ordinary page link. The planned generalized tooltip gadget will use that linked page as its preview source, in the same page-based pattern as ItemLink. It can use the spell, skill, or stance page to select the rendered ability preview rather than requiring a separate tooltip payload in the link. If the gadget is unavailable or JavaScript is disabled, the link remains a normal page link.
+
+== Parameters ==
+
+{| class="wikitable"
+! Parameter
+! Description
+|-
+| <code>1</code>
+| Ability page and default display text. The first positional page-title parameter is the usual form.
+|-
+| <code>stablekey</code>
+| Exact advanced spell, skill, or stance identity selected automatically by the Erenshor link picker. Usually leave this to generated links.
+|-
+| <code>link</code> or <code>page</code>
+| Explicit destination page. The generalized tooltip gadget will use this page for a hover preview.
+|-
+| <code>text</code>
+| Visible link text.
+|-
+| <code>image</code>
+| Ability image filename. <code>.png</code> is added when no supported image extension is supplied.
+|-
+| <code>imageonly</code>
+| When set to <code>1</code>, render only the linked ability image.
+|}
+
+<templatedata>
+{
+  "description": "Renders a spell, skill, or stance icon and page link.",
+  "params": {
+    "1": {
+      "label": "Ability",
+      "description": "Ability page and default display text. The usual first-class input is the positional page title.",
+      "type": "wiki-page-name",
+      "suggested": true
+    },
+    "stablekey": {
+      "label": "Stable key",
+      "description": "Exact advanced spell, skill, or stance identity selected automatically by the Erenshor link picker. Usually leave this to generated links.",
+      "type": "string"
+    },
+    "link": {
+      "label": "Destination page",
+      "description": "Explicit page used for the link and the planned page-based ability hover preview.",
+      "type": "wiki-page-name"
+    },
+    "text": {
+      "label": "Display text",
+      "description": "Visible text shown beside the ability icon.",
+      "type": "string"
+    },
+    "image": {
+      "label": "Image",
+      "description": "Ability image filename.",
+      "type": "wiki-file-name"
+    },
+    "imageonly": {
+      "label": "Image only",
+      "description": "When set to 1, render only the linked ability image.",
+      "type": "boolean"
+    }
+  },
+  "paramOrder": [
+    "1",
+    "stablekey",
+    "link",
+    "text",
+    "image",
+    "imageonly"
+  ],
+  "format": "block"
+}
+</templatedata>
+
+[[Category:Template documentation]]

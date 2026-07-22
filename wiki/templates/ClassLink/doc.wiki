@@ -1,0 +1,72 @@
+<code><nowiki>{{ClassLink}}</nowiki></code> renders a link to a class page. The ordinary positional page-title form is the supported first-class form:
+
+<pre>{{ClassLink|Windblade}}</pre>
+
+The positional page title supplies the destination and the visible text. Use explicit presentation fields when they differ:
+
+<pre>{{ClassLink
+ |Windblade
+ |link=Windblade
+ |text=the Windblade class
+}}</pre>
+
+The link picker may supply <code>stablekey</code>. This is the exact advanced class identity selected by the picker. It distinguishes a class record from its display name. Editors normally do not need to memorize or type it. A stable-key-only form is intended for generated links:
+
+<pre>{{ClassLink|stablekey=class:duelist}}</pre>
+
+== Parameters ==
+
+{| class="wikitable"
+! Parameter
+! Description
+|-
+| <code>1</code>
+| Class page and default display text. The first positional page-title parameter is the usual form.
+|-
+| <code>stablekey</code>
+| Exact advanced class identity selected automatically by the Erenshor link picker. Usually leave this to generated links.
+|-
+| <code>link</code> or <code>page</code>
+| Explicit destination page.
+|-
+| <code>text</code>
+| Visible link text.
+|}
+
+<templatedata>
+{
+  "description": "Renders a semantic class page link.",
+  "params": {
+    "1": {
+      "label": "Class",
+      "description": "Class page and default display text. The usual first-class input is the positional page title.",
+      "type": "wiki-page-name",
+      "suggested": true
+    },
+    "stablekey": {
+      "label": "Stable key",
+      "description": "Exact advanced class identity selected automatically by the Erenshor link picker. Usually leave this to generated links.",
+      "type": "string"
+    },
+    "link": {
+      "label": "Destination page",
+      "description": "Explicit class page used for the link.",
+      "type": "wiki-page-name"
+    },
+    "text": {
+      "label": "Display text",
+      "description": "Visible text shown for the class link.",
+      "type": "string"
+    }
+  },
+  "paramOrder": [
+    "1",
+    "stablekey",
+    "link",
+    "text"
+  ],
+  "format": "block"
+}
+</templatedata>
+
+[[Category:Template documentation]]

@@ -361,16 +361,6 @@ local function renderResolved(kind, args, result)
 		end
 		body = body .. "</span>"
 		return wrap(kind, args, body, page, nil, result.resolvedKey or result.requestedKey)
-	elseif kind == "quest" then
-		local icon = Format.fileLink("questiconsmall.png", { link = page })
-		return wrap(
-			kind,
-			args,
-			icon .. Format.pageLink(page, text),
-			page,
-			nil,
-			result.resolvedKey or result.requestedKey
-		)
 	end
 	return wrap(
 		kind,

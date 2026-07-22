@@ -10,6 +10,10 @@ wfLoadExtension( 'TemplateSandbox' );
 wfLoadExtension( 'Cargo' );
 wfLoadExtension( 'Gadgets' );
 wfLoadExtension( 'PortableInfobox' );
+wfLoadExtension( 'WikiEditor' );
+wfLoadExtension( 'CodeMirror' );
+wfLoadExtension( 'TemplateData' );
+wfLoadExtension( 'VisualEditor' );
 
 
 $wgScribuntoDefaultEngine = 'luastandalone';

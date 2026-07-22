@@ -324,3 +324,7 @@ Flame Bolt	Flame Bolt
 Flame Bolt	Druid
 Flame Bolt	Arcanist
 Flame Bolt	Category:Abilities
+Lua Link Search Smoke	PASS Erenshor Link/Search testcases
+Lua Link Search Smoke	spell:flame_bolt
+Lua Link Search Smoke	Flame Bolt
+Lua Link Search Smoke	ability

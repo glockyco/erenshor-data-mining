@@ -30,7 +30,7 @@ def write_spec(root: Path, text: str, *sources: str) -> None:
 def test_load_and_render_repository_gadget_spec() -> None:
     spec = load_gadget_spec(Path.cwd())
 
-    assert spec.owned_names == ("erenshor", "item-tooltips")
+    assert spec.owned_names == ("erenshor", "item-tooltips", "semantic-link-picker")
     assert spec.gadgets == (
         GadgetDefinition(
             name="erenshor",
@@ -42,10 +42,16 @@ def test_load_and_render_repository_gadget_spec() -> None:
             options=("ResourceLoader", "default", "hidden"),
             sources=("item-tooltips.js",),
         ),
+        GadgetDefinition(
+            name="semantic-link-picker",
+            options=("ResourceLoader", "default", "rights=edit"),
+            sources=("semantic-link-picker.js", "semantic-link-picker.css"),
+        ),
     )
     assert render_definition_lines(spec) == (
         "* erenshor[ResourceLoader|default|hidden|type=styles]|erenshor.css",
         "* item-tooltips[ResourceLoader|default|hidden]|item-tooltips.js",
+        "* semantic-link-picker[ResourceLoader|default|rights=edit]|semantic-link-picker.js|semantic-link-picker.css",
     )
     with pytest.raises(FrozenInstanceError):
         spec.gadgets = ()  # type: ignore[misc]

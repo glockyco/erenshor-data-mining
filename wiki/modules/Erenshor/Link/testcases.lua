@@ -374,7 +374,7 @@ function p.run()
 
 	local quest = Link.render({ kind = "quest", page = "Reward Quest" })
 	assertContains(quest, "erenshor-link erenshor-link--quest", "quest link has semantic class")
-	assertContains(quest, "[[File:questiconsmall.png|link=Reward Quest]]", "quest link has icon")
+	assertNotContains(quest, "[[File:", "quest link has no synthetic icon")
 	assertContains(quest, "[[Reward Quest]]", "quest link has page link")
 
 	local character = Link.render({ kind = "character", page = "A Grizzly Bear" })

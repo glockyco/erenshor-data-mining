@@ -1,0 +1,5 @@
+= Link Search Smoke =
+
+{{#invoke:Erenshor/Link/Search/testcases|run}}
+
+{{#invoke:Erenshor/Link/Search|query|q=Flame%20Bolt|kind=abilit%79}}

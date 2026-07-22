@@ -733,6 +733,33 @@ def test_local_mediawiki_matches_live_skin_gadget_and_article_size_surface() -> 
     assert "wfLoadExtension( 'PortableInfobox' );" in settings
 
 
+def test_local_mediawiki_provisions_rel1_43_editor_extensions() -> None:
+    dockerfile = Path("wiki-dev/Dockerfile").read_text(encoding="utf-8")
+    settings = Path("wiki-dev/LocalSettings.extra.php").read_text(encoding="utf-8")
+    clone_lines = [line.strip() for line in dockerfile.splitlines() if "git clone" in line]
+
+    for extension in ("WikiEditor", "CodeMirror", "TemplateData", "VisualEditor"):
+        matches = [line for line in clone_lines if f"/extensions/{extension}" in line]
+        assert len(matches) == 1
+        clone = matches[0]
+        assert "--branch REL1_43" in clone
+        assert f"https://gerrit.wikimedia.org/r/mediawiki/extensions/{extension}" in clone
+        assert f"/var/www/html/extensions/{extension}" in clone
+
+    visual_editor_clone = next(line for line in clone_lines if "/extensions/VisualEditor" in line)
+    assert "--recurse-submodules" in visual_editor_clone
+
+    load_order = [line.strip() for line in settings.splitlines() if line.strip().startswith("wfLoadExtension(")]
+    editor_loads = [
+        f"wfLoadExtension( '{extension}' );"
+        for extension in ("WikiEditor", "CodeMirror", "TemplateData", "VisualEditor")
+    ]
+    assert all(load in load_order for load in editor_loads)
+    load_positions = [load_order.index(load) for load in editor_loads]
+    assert load_positions == sorted(load_positions)
+    assert "$wgVirtualRestConfig['modules']['parsoid']" not in settings
+
+
 def test_local_theme_shims_define_live_platform_variables() -> None:
     theme_css = Path("wiki-dev/interface/theme-shim.css").read_text(encoding="utf-8")
     theme_js = Path("wiki-dev/interface/theme-shim.js").read_text(encoding="utf-8")

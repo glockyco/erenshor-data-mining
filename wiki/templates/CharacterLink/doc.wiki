@@ -1,0 +1,83 @@
+<code><nowiki>{{CharacterLink}}</nowiki></code> renders a link to a character page. The ordinary positional page-title form is the supported first-class form:
+
+<pre>{{CharacterLink|A Grizzly Bear}}</pre>
+
+The positional page title supplies the destination and the visible text. Use explicit presentation fields when they differ:
+
+<pre>{{CharacterLink
+ |A Grizzly Bear
+ |link=A Grizzly Bear
+ |text=Grizzly Bear
+}}</pre>
+
+The link picker may supply <code>stablekey</code>. This is the exact advanced character identity selected by the picker. It distinguishes records that might otherwise have similar display names or pages. Editors normally do not need to memorize or type it. A stable-key-only form is intended for generated links:
+
+<pre>{{CharacterLink|stablekey=character:a grizzly bear}}</pre>
+
+Generated picker output may also carry an <code>image</code> fallback. CharacterLink currently renders a text link, so this metadata does not add a visible image and should normally be left unchanged.
+
+== Parameters ==
+
+{| class="wikitable"
+! Parameter
+! Description
+|-
+| <code>1</code>
+| Character page and default display text. The first positional page-title parameter is the usual form.
+|-
+| <code>stablekey</code>
+| Exact advanced character identity selected automatically by the Erenshor link picker. Usually leave this to generated links.
+|-
+| <code>link</code> or <code>page</code>
+| Explicit destination page.
+|-
+| <code>text</code>
+| Visible link text.
+|-
+| <code>image</code>
+| Picker-owned fallback image metadata. CharacterLink currently renders no image.
+|}
+
+<templatedata>
+{
+  "description": "Renders a semantic character page link.",
+  "params": {
+    "1": {
+      "label": "Character",
+      "description": "Character page and default display text. The usual first-class input is the positional page title.",
+      "type": "wiki-page-name",
+      "suggested": true
+    },
+    "stablekey": {
+      "label": "Stable key",
+      "description": "Exact advanced character identity selected automatically by the Erenshor link picker. Usually leave this to generated links.",
+      "type": "string"
+    },
+    "link": {
+      "label": "Destination page",
+      "description": "Explicit character page used for the link.",
+      "type": "wiki-page-name"
+    },
+    "text": {
+      "label": "Display text",
+      "description": "Visible text shown for the character link.",
+      "type": "string"
+    },
+    "image": {
+      "label": "Image fallback",
+      "description": "Picker-owned fallback image metadata. CharacterLink currently renders no image.",
+      "type": "wiki-file-name"
+    }
+  },
+  "paramOrder": [
+    "1",
+    "stablekey",
+    "link",
+    "text",
+    "image"
+  ],
+  "format": "block"
+}
+</templatedata>
+
+[[Category:Template documentation]]

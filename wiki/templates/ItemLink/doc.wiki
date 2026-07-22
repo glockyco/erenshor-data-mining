@@ -15,6 +15,10 @@ Use explicit display fields when the visible name, image, or destination differs
  |image=Cometshard Shield.png
 }}</pre>
 
+The link picker may also supply <code>stablekey</code>. This is the exact advanced identity selected for the item by the picker. It distinguishes records that can share a page or display name. Editors normally do not need to memorize or type it. Generated picker output carries the stable key together with explicit <code>link</code>, <code>text</code>, and a nonempty <code>image</code> fallback. When a stable key is supplied, the catalog provides the canonical page, name, and image, while explicit <code>link</code>, <code>text</code>, or <code>image</code> values remain presentation overrides:
+
+<pre>{{ItemLink|stablekey=item:chest - 38 - abyssal plate}}</pre>
+
 To request a released quality variant:
 
 <pre>{{ItemLink|Cometshard Shield|quality=Blessed}}</pre>
@@ -70,6 +74,9 @@ If the gadget is disabled or JavaScript is unavailable, <code>ItemLink</code> st
 | <code>1</code>, <code>item</code>, or <code>name</code>
 | Item page and default display text. The first positional parameter is the usual form.
 |-
+| <code>stablekey</code>
+| Exact advanced item identity selected by the Erenshor link picker. It is intended for generated or identity-sensitive links, not for values users need to memorize.
+|-
 | <code>link</code> or <code>page</code>
 | Explicit destination page. This is also the page parsed for the hover tooltip.
 |-
@@ -79,11 +86,11 @@ If the gadget is disabled or JavaScript is unavailable, <code>ItemLink</code> st
 | <code>image</code>
 | Item image filename. <code>.png</code> is added when no supported image extension is supplied.
 |-
-| <code>imageonly</code>
-| When true, render only the linked image.
-|-
 | <code>quality</code>
 | Select one of the quality variants listed above. Invalid values produce a template error instead of silently selecting another quality.
+|-
+| <code>imageonly</code>
+| When true, render only the linked image.
 |}
 
 == Hover tooltip requirements ==
@@ -102,8 +109,12 @@ If the gadget is disabled or JavaScript is unavailable, <code>ItemLink</code> st
       "label": "Item",
       "description": "Item page and default display text.",
       "type": "wiki-page-name",
-      "required": true,
       "suggested": true
+    },
+    "stablekey": {
+      "label": "Stable key",
+      "description": "Exact advanced item identity selected automatically by the Erenshor link picker. Usually leave this to generated links.",
+      "type": "string"
     },
     "link": {
       "label": "Destination page",
@@ -143,6 +154,7 @@ If the gadget is disabled or JavaScript is unavailable, <code>ItemLink</code> st
   },
   "paramOrder": [
     "1",
+    "stablekey",
     "link",
     "text",
     "image",

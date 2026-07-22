@@ -1,0 +1,74 @@
+<code><nowiki>{{QuestLink}}</nowiki></code> renders a quest page link. The ordinary positional page-title form is the supported first-class form:
+
+<pre>{{QuestLink|A Magical Sword in Port Azure}}</pre>
+
+The positional page title supplies the destination and the visible text. Use explicit presentation fields when the destination or displayed text differs:
+
+<pre>{{QuestLink
+ |A Magical Sword in Port Azure
+ |link=A Magical Sword in Port Azure
+ |text=Magical Sword quest
+}}</pre>
+
+The link picker may supply <code>stablekey</code>. This is the exact advanced quest identity selected by the picker. It distinguishes quest records independently of their display text. Editors normally do not need to memorize or type it. A stable-key-only form is intended for generated links:
+
+<pre>{{QuestLink|stablekey=quest:a magical sword in port azure}}</pre>
+
+QuestLink renders text only. It has no image or image-only mode.
+
+== Parameters ==
+
+{| class="wikitable"
+! Parameter
+! Description
+|-
+| <code>1</code>
+| Quest page and default display text. The first positional page-title parameter is the usual form.
+|-
+| <code>stablekey</code>
+| Exact advanced quest identity selected automatically by the Erenshor link picker. Usually leave this to generated links.
+|-
+| <code>link</code> or <code>page</code>
+| Explicit destination page.
+|-
+| <code>text</code>
+| Visible link text.
+|}
+
+<templatedata>
+{
+  "description": "Renders a semantic quest page link.",
+  "params": {
+    "1": {
+      "label": "Quest",
+      "description": "Quest page and default display text. The usual first-class input is the positional page title.",
+      "type": "wiki-page-name",
+      "suggested": true
+    },
+    "stablekey": {
+      "label": "Stable key",
+      "description": "Exact advanced quest identity selected automatically by the Erenshor link picker. Usually leave this to generated links.",
+      "type": "string"
+    },
+    "link": {
+      "label": "Destination page",
+      "description": "Explicit quest page used for the link.",
+      "type": "wiki-page-name"
+    },
+    "text": {
+      "label": "Display text",
+      "description": "Visible text shown for the quest link.",
+      "type": "string"
+    }
+  },
+  "paramOrder": [
+    "1",
+    "stablekey",
+    "link",
+    "text"
+  ],
+  "format": "block"
+}
+</templatedata>
+
+[[Category:Template documentation]]
