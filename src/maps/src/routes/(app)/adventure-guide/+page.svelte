@@ -28,26 +28,31 @@
     </p>
     <div class="flex flex-wrap justify-center gap-3 mt-6">
         <a
-            href="https://github.com/MizukiBelhi/Lunaris/releases/latest"
-            class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+            href="#install"
+            class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold rounded-lg transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
         >
-            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     stroke-width="2"
-                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                    d="M19 9l-7 7-7-7"
                 ></path>
             </svg>
-            Get Lunaris
+            Install Adventure Guide
         </a>
         <a
-            href="https://erenshorvault.app/mod/adventure-guide"
-            class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-slate-600 text-slate-200 hover:border-slate-500 hover:text-white font-semibold rounded-lg transition-colors duration-300"
+            href="https://thunderstore.io/c/erenshor/p/WoW_Much/AdventureGuide/"
+            target="_blank"
+            rel="noreferrer"
+            class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-slate-600 text-slate-200 hover:border-slate-500 hover:text-white font-semibold rounded-lg transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
         >
-            View on Erenshor Vault
+            Thunderstore (BepInEx)
         </a>
     </div>
+    <p class="mt-3 text-sm text-slate-500">
+        Step-by-step Lunaris setup and in-game installation below.
+    </p>
 </div>
 
 <div class="max-w-4xl mx-auto space-y-16">
@@ -120,8 +125,8 @@
     </section>
 
     <!-- Installation -->
-    <section class="bg-slate-800 rounded-xl p-8 border border-slate-700">
-        <h3 class="text-2xl font-bold text-white mb-6">Install</h3>
+    <section id="install" class="scroll-mt-24 bg-slate-800 rounded-xl p-8 border border-slate-700">
+        <h3 class="text-2xl font-bold text-white mb-6">Install Adventure Guide</h3>
 
         <p class="text-slate-300 text-sm mb-6">
             Lunaris manages Adventure Guide installation and updates while the game runs.
