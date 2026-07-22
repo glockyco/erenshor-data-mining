@@ -35,6 +35,59 @@
 |spells={{AbilityLink|Minor Healing}}
 }}
 
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+!Unlock condition
+|-
+|{{ItemLink|Vithean Brew|stablekey=item:cons - vithean brew}}
+|[[Consumables|Consumable]]
+|11
+|
+|-
+|{{ItemLink|Vithean Arena Fee (1)|stablekey=item:quest - vithean arena token 1}}
+|[[Quest Items|Quest Item]]
+|250000
+|Complete [[Vitheo's Arena I]]
+|-
+|{{ItemLink|Vithean Arena Fee (2)|stablekey=item:quest - vithean arena token 2}}
+|[[Quest Items|Quest Item]]
+|500000
+|Complete [[Vitheo's Arena II]]
+|-
+|{{ItemLink|Vithean Arena Fee (3)|stablekey=item:quest - vithean arena token 3}}
+|[[Quest Items|Quest Item]]
+|750000
+|Complete [[Vitheo's Arena III]]
+|-
+|{{ItemLink|Vithean Arena Fee (4)|stablekey=item:quest - vithean arena token 4}}
+|[[Quest Items|Quest Item]]
+|1000000
+|Complete [[Vitheo's Arena IV]]
+|-
+|{{ItemLink|Vithean Arena Fee (5)|stablekey=item:quest - vithean arena token 5}}
+|[[Quest Items|Quest Item]]
+|1250000
+|Complete [[Vitheo's Arena V]]
+|-
+|{{ItemLink|Vithean Arena Fee (6)|stablekey=item:quest - vithean arena token 6}}
+|[[Quest Items|Quest Item]]
+|1500000
+|Complete [[Vitheo's Arena VI]]
+|-
+|{{ItemLink|Vithean Arena Fee (7)|stablekey=item:quest - vithean arena token 7}}
+|[[Quest Items|Quest Item]]
+|2000000
+|Complete [[Vitheo's Arena VII]]
+|-
+|{{ItemLink|Vithean Arena Fee (8)|stablekey=item:quest - vithean arena token 8}}
+|[[Quest Items|Quest Item]]
+|4000000
+|Complete [[Vitheo's Arena VIII]]
+|}
+
 [[Category:Characters]]
 [[Category:Vendors]]
 [[Category:Vitheo's Plane of Valor]]

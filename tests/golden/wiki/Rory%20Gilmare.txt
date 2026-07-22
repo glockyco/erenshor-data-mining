@@ -53,18 +53,17 @@ Prompts:
 !Item type
 !Price
 |-
-|{{ItemLink|The Fall of Rockshade Hold}}
+|{{ItemLink|Strange Beasts of Erenshor|stablekey=item:book - strange beasts of erenshor}}
 |[[Lore Items|Lore]]
 |355
 |-
-|{{ItemLink|Strange Beasts of Erenshor}}
+|{{ItemLink|The Birth of Port Azure|stablekey=item:book - the construction of port azure}}
 |[[Lore Items|Lore]]
 |355
 |-
-|{{ItemLink|The Birth of Port Azure}}
+|{{ItemLink|The Fall of Rockshade Hold|stablekey=item:book - fall of rockshade}}
 |[[Lore Items|Lore]]
 |355
-|-
 |}
 
 [[Category:Characters]]

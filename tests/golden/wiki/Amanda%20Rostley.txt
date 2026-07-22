@@ -54,25 +54,29 @@ Prompts:
 !Item type
 !Price
 |-
-|{{ItemLink|Spark of Light}}
+|{{ItemLink|Dawn's Light|stablekey=item:aura - soluna 1}}
 |[[Auras|Aura]]
-|6
+|5
 |-
-|{{ItemLink|Sprout}}
+|{{ItemLink|Falling Shadow|stablekey=item:aura - reaver 1}}
 |[[Auras|Aura]]
-|6
+|5
 |-
-|{{ItemLink|Dawn's Light}}
+|{{ItemLink|Rolling Clouds|stablekey=item:aura - storm 1}}
 |[[Auras|Aura]]
-|6
+|5
 |-
-|{{ItemLink|Scent of the Sea}}
+|{{ItemLink|Scent of the Sea|stablekey=item:aura - vitheo 1}}
 |[[Auras|Aura]]
-|6
+|5
 |-
-|{{ItemLink|Rolling Clouds}}
+|{{ItemLink|Spark of Light|stablekey=item:aura - brax 1}}
 |[[Auras|Aura]]
-|6
+|5
+|-
+|{{ItemLink|Sprout|stablekey=item:aura - fernalla 1}}
+|[[Auras|Aura]]
+|5
 |}
 
 [[Category:Characters]]

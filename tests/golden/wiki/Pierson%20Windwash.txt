@@ -47,37 +47,41 @@ Greeting message if you are a Duelist:
 !Item type
 !Price
 |-
-|{{ItemLink|Copper Sword}}
-|[[Weapons#Swords|Sword]]
-|125
-|-
-|{{ItemLink|Molorai Axe}}
-|[[Weapons#Axes|Axe]]
-|400
-|-
-|{{ItemLink|Steel Long Sword}}
-|[[Weapons#Swords|Sword]]
-|55
-|-
-|{{ItemLink|Dusty Chain Leggings}}
-|[[Armor#Leg|Leg Armor]]
+|{{ItemLink|Dusty Chain Leggings|stablekey=item:leg - 6 - dusty chain legs}}
+|[[Armor]]
 |35
 |-
-|{{ItemLink|Force of the Sea}}
+|{{ItemLink|Force of the Sea|stablekey=item:aura - vitheo 2}}
 |[[Auras|Aura]]
-|1000
+|1500
 |-
-|{{ItemLink|Spell Scroll: Weight of the Sea}}
-||[[Ability Books|Spell Scroll]]
-|10000
+|{{ItemLink|Spell Scroll: Vithean Breeze|stablekey=item:spell scroll - vithean breeze}}
+|[[Ability Books|Spell Scroll]]
+|100
 |-
-|{{ItemLink|Spell Scroll: Vithean Wind}}
-||[[Ability Books|Spell Scroll]]
+|{{ItemLink|Spell Scroll: Vithean Wind|stablekey=item:spell scroll - vithean wind}}
+|[[Ability Books|Spell Scroll]]
 |4800
 |-
-|{{ItemLink|Spell Scroll: Vithean Breeze}}
-||[[Ability Books|Spell Scroll]]
-|100
+|{{ItemLink|Spell Scroll: Vitheo's Sight II|stablekey=item:spell scroll - vitheo's sight ii}}
+|[[Ability Books|Spell Scroll]]
+|10000
+|-
+|{{ItemLink|Spell Scroll: Weight of the Sea|stablekey=item:spell scroll - weight of the sea}}
+|[[Ability Books|Spell Scroll]]
+|10000
+|-
+|{{ItemLink|Steel Long Sword|stablekey=item:weap - 4 - steel long sword}}
+|[[Weapons|Weapon]]
+|55
+|-
+|{{ItemLink|Copper Sword|stablekey=item:weap - bronze short sword}}
+|[[Weapons|Weapon]]
+|56
+|-
+|{{ItemLink|Molorai Axe|stablekey=item:weap - 7 - molora axe}}
+|[[Weapons|Weapon]]
+|400
 |}
 
 [[Category:Characters]]

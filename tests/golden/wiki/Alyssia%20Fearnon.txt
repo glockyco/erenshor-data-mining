@@ -59,37 +59,33 @@ If you give her a [[Skeleton Eye]] for {{QuestLink | link=A Skeleton Eye for Aly
 !Item type
 !Price
 |-
-|{{ItemLink|Spell Scroll: Brax's Touch}}
+|{{ItemLink|Light Plate Breastplate|stablekey=item:chest - 4 - light plate armor}}
+|[[Armor]]
+|75
+|-
+|{{ItemLink|Spell Scroll: Weak Poison|stablekey=item:spell scroll - weak poison}}
 |[[Ability Books|Spell Scroll]]
 |50
 |-
-|{{ItemLink|Spell Scroll: Biting Vines}}
-|[[Ability Books|Spell Scroll]]
-|66
-|-
-|{{ItemLink|Spell Scroll: Minor Lightning}}
+|{{ItemLink|Spell Scroll: Minor Lightning|stablekey=item:spell scroll - minor lightning}}
 |[[Ability Books|Spell Scroll]]
 |60
 |-
-|{{ItemLink|Spell Scroll: Summon Decayed Fawn}}
+|{{ItemLink|Spell Scroll: Biting Vines|stablekey=item:spell scroll - biting vines}}
+|[[Ability Books|Spell Scroll]]
+|66
+|-
+|{{ItemLink|Spell Scroll: Summon Decayed Fawn|stablekey=item:spell scroll - summon decayed fawn}}
 |[[Ability Books|Spell Scroll]]
 |100
 |-
-|{{ItemLink|Spell Scroll: Weak Poison}}
-|[[Ability Books|Spell Scroll]]
-|50
-|-
-|{{ItemLink|Spell Scroll: Theft of Life}}
+|{{ItemLink|Spell Scroll: Theft of Life|stablekey=item:spell scroll - theft of life}}
 |[[Ability Books|Spell Scroll]]
 |100
 |-
-|{{ItemLink|Spell Scroll: Blast of Thorns}}
+|{{ItemLink|Spell Scroll: Blast of Thorns|stablekey=item:spell scroll - drudd blast of thorns}}
 |[[Ability Books|Spell Scroll]]
 |750
-|-
-|{{ItemLink|Light Plate Breastplate}}
-|[[Armor#Chest|Chest armor]]
-|75
 |}
 
 [[Category:Characters]]

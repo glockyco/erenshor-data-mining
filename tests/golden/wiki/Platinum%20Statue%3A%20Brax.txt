@@ -3,7 +3,7 @@
 |stablekey=item:furniture - stone statue platinum brax
 |type=
 |vendorsource=
-|source=
+|source=[[Brax, God of Elements]] (11.0%)
 |othersource=
 |questsource=
 |relatedquest=

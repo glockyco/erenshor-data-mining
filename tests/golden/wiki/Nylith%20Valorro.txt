@@ -58,49 +58,53 @@ If you give him a {{ItemLink|Bag of Faerie Dust}} for the quest {{QuestLink |que
 !Item type
 !Price
 |-
-|{{ItemLink|Spell Scroll: Brax's Touch}}
-|[[:Category:Ability Books|Spell Book]]
-|50
-|-
-|{{ItemLink|Spell Scroll: Invasive Thoughts}}
-|[[:Category:Ability Books|Spell Book]]
-|95
-|-
-|{{ItemLink|Spell Scroll: Ethereal Rending}}
-|[[:Category:Ability Books|Spell Book]]
-|175
-|-
-|{{ItemLink|Spell Scroll: Dazzle}}
-|[[:Category:Ability Books|Spell Book]]
-|50
-|-
-|{{ItemLink|Spell Scroll: Hardened Skin}}
-|[[:Category:Ability Books|Spell Book]]
-|55
-|-
-|{{ItemLink|Spell Scroll: Burning Chains}}
-|[[:Category:Ability Books|Spell Book]]
-|150
-|-
-|{{ItemLink|Spell Scroll: Ice Bolt}}
-|[[:Category:Ability Books|Spell Book]]
-|50
-|-
-|{{ItemLink|Cloth Shirt}}
-|[[Armor#Chest_Armor|Chest Armor]]
-|3
-|-
-|{{ItemLink|Cloth Pants}}
-|[[Armor#Leg_Armor|Leg Armor]]
-|3
-|-
-|{{ItemLink|Cloth Shoes}}
-|[[Armor#Foot_Armor|Foot Armor]]
+|{{ItemLink|Cloth Shoes|stablekey=item:foot - 1 - cloth shoes}}
+|[[Armor]]
 |2
 |-
-|{{ItemLink|Skill Book: Control Chant}}
-|[[:Category:Ability Books|Skill Book]]
+|{{ItemLink|Cloth Pants|stablekey=item:leg - 1 - cloth pants}}
+|[[Armor]]
+|3
+|-
+|{{ItemLink|Cloth Shirt|stablekey=item:chest - 1 - cloth shirt}}
+|[[Armor]]
+|3
+|-
+|{{ItemLink|Skill Book: Control Chant|stablekey=item:skillbook - end channel}}
+|[[Ability Books|Skill Book]]
 |185
+|-
+|{{ItemLink|Spell Scroll: Brax's Touch|stablekey=item:spell scroll - brax's touch}}
+|[[Ability Books|Spell Scroll]]
+|50
+|-
+|{{ItemLink|Spell Scroll: Dazzle|stablekey=item:spell scroll - dazzle}}
+|[[Ability Books|Spell Scroll]]
+|50
+|-
+|{{ItemLink|Spell Scroll: Hardened Skin|stablekey=item:spell scroll - hardened flesh}}
+|[[Ability Books|Spell Scroll]]
+|55
+|-
+|{{ItemLink|Spell Scroll: Invasive Thoughts|stablekey=item:spell scroll - invasive thoughts}}
+|[[Ability Books|Spell Scroll]]
+|95
+|-
+|{{ItemLink|Spell Scroll: Ice Bolt|stablekey=item:spell scroll - ice bolt}}
+|[[Ability Books|Spell Scroll]]
+|100
+|-
+|{{ItemLink|Spell Scroll: Burning Chains|stablekey=item:spell scroll - burning chains}}
+|[[Ability Books|Spell Scroll]]
+|150
+|-
+|{{ItemLink|Spell Scroll: Ethereal Rending|stablekey=item:spell scroll - ethereal rend}}
+|[[Ability Books|Spell Scroll]]
+|255
+|-
+|{{ItemLink|Spell Scroll: Invisibility|stablekey=item:spell scroll - invisibility}}
+|[[Ability Books|Spell Scroll]]
+|1000
 |}
 
 [[Category:Characters]]

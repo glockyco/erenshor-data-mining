@@ -42,7 +42,7 @@
 |poison=0
 |elemental=0
 |void=5
-|description=It trembles against your skin, as though it's fearing unseen something nearby
+|description=It trembles against your skin, as though it's fearing something unseen nearby
 |arcanist=True
 |duelist=True
 |druid=True

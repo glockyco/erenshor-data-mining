@@ -47,53 +47,61 @@ Greeting message only for Druids:
 !Item type
 !Price
 |-
-|{{ItemLink|Spell Scroll: Biting Vines}}
-|[[Ability Books|Spell Scroll]]
-|66
-|-
-|{{ItemLink|Living Chainmail Leggings}}
-|[[Armor#Leg|Leg Armor]]
-|855
-|-
-|{{ItemLink|Spell Scroll: Summon Cursed Fawn}}
-|[[Ability Books|Spell Scroll]]
-|300
-|-
-|{{ItemLink|Spell Scroll: Tangle}}
-|[[Ability Books|Spell Scroll]]
+|{{ItemLink|Vinewrapped Vambracers|stablekey=item:arm - 9 - vinewrapped vambracer}}
+|[[Armor]]
 |200
 |-
-|{{ItemLink|Bloom}}
+|{{ItemLink|Living Chainmail Leggings|stablekey=item:leg - 11 - living chainmail greaves}}
+|[[Armor]]
+|855
+|-
+|{{ItemLink|Living Chainmail Jacket|stablekey=item:chest - 12 - living chainmail jacket}}
+|[[Armor]]
+|1200
+|-
+|{{ItemLink|Bloom|stablekey=item:aura - fernalla 2}}
 |[[Auras|Aura]]
 |1500
 |-
-|{{ItemLink|Spell Scroll: Toxicity}}
-|[[Ability Books|Spell Scroll]]
-|850
-|-
-|{{ItemLink|Spell Scroll: Summon Forest Spirit}}
-|[[Ability Books|Spell Scroll]]
-|1125
-|-
-|{{ItemLink|Skill Book: Arcane Recovery}}
+|{{ItemLink|Skill Book: Arcane Recovery|stablekey=item:skillbook - arcane recovery}}
 |[[Ability Books|Skill Book]]
 |2355
 |-
-|{{ItemLink|Spell Scroll: The Wild's Grasp}}
+|{{ItemLink|Spell Scroll: Biting Vines|stablekey=item:spell scroll - biting vines}}
 |[[Ability Books|Spell Scroll]]
-|10000
+|66
 |-
-|{{ItemLink|Spell Scroll: Forest's Reckoning}}
+|{{ItemLink|Spell Scroll: Tangle|stablekey=item:spell scroll - tangle}}
 |[[Ability Books|Spell Scroll]]
-|3500
+|200
 |-
-|{{ItemLink|Spell Scroll: Light Healing}}
+|{{ItemLink|Spell Scroll: Summon Cursed Fawn|stablekey=item:spell scroll - summon cursed fawn}}
+|[[Ability Books|Spell Scroll]]
+|300
+|-
+|{{ItemLink|Spell Scroll: Toxicity|stablekey=item:spell scroll - toxicity}}
+|[[Ability Books|Spell Scroll]]
+|850
+|-
+|{{ItemLink|Spell Scroll: Light Healing|stablekey=item:spell scroll - light healing}}
 |[[Ability Books|Spell Scroll]]
 |1000
 |-
-|{{ItemLink|Spell Scroll: Meditative Trance}}
-|[[Ability Books|Spell Book]]
+|{{ItemLink|Spell Scroll: Meditative Trance|text=Spell Scroll: Meditative Trance (2)|stablekey=item:spell scroll - meditate dru}}
+|[[Ability Books|Spell Scroll]]
 |1100
+|-
+|{{ItemLink|Spell Scroll: Summon Forest Spirit|stablekey=item:spell scroll - summon forest spirit}}
+|[[Ability Books|Spell Scroll]]
+|1125
+|-
+|{{ItemLink|Spell Scroll: The Wild's Grasp|stablekey=item:spell scroll - drudd the wild's grasp}}
+|[[Ability Books|Spell Scroll]]
+|10000
+|-
+|{{ItemLink|Spell Scroll: Forest's Reckoning|stablekey=item:spell scroll - drudd forest's reckoning}}
+|[[Ability Books|Spell Scroll]]
+|35000
 |}
 
 [[Category:Characters]]

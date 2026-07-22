@@ -38,89 +38,116 @@
 Breena Carpenter is the furniture vendor in [[Port Azure]]. She sells a selection of wood furniture for the [[Reliquary Hall]] at baseline, and can be given [[blueprints]] in order to expand her inventory to sell more furniture items.
 
 {| class="wikitable"
-|+Default Store Inventory
+|+Store inventory
 !Item name
 !Item type
 !Price
+!Unlock condition
 |-
-|{{ItemLink|Wood Auction Set}}
-|[[Furniture]]
-|125000
-|-
-|{{ItemLink|Wood Bank Set}}
-|[[Furniture]]
-|125000
-|-
-|{{ItemLink|Wood Dining Set}}
+|{{ItemLink|Wood Dining Set|stablekey=item:furniture - wood dining}}
 |[[Furniture]]
 |1000
+|
 |-
-|{{ItemLink|Wood Livingroom Set}}
+|{{ItemLink|Wood Livingroom Set|stablekey=item:furniture - wood living}}
 |[[Furniture]]
 |1000
+|
 |-
-|{{ItemLink|Wood Training Set}}
+|{{ItemLink|Enchanted Smithy|stablekey=item:furniture - enchanted smithy}}
+|[[Furniture]]
+|3500
+|Complete [[Crafting: Enchanted Smithy]]
+|-
+|{{ItemLink|Smithy|stablekey=item:furniture - generic smithy}}
+|[[Furniture]]
+|3500
+|
+|-
+|{{ItemLink|Stone Dining Set|stablekey=item:furniture - stone dining}}
+|[[Furniture]]
+|3500
+|Complete [[Crafting: Stone Dining Room]]
+|-
+|{{ItemLink|Stone Fountain Set|stablekey=item:furniture - stone fountain}}
+|[[Furniture]]
+|3500
+|Complete [[Crafting: Stone Fountain]]
+|-
+|{{ItemLink|Wood Training Set|stablekey=item:furniture - wood training}}
 |[[Furniture]]
 |10000
+|
 |-
-|{{ItemLink|Wood Vendor Set}}
-|[[Furniture]]
-|55000
-|}
-
-{| class="wikitable"
-|+Unlocked by Blueprint
-!Item name
-!Item type
-!Price
-|-
-|{{ItemLink|Azynthian Dining Set}}
+|{{ItemLink|Azynthian Dining Set|stablekey=item:furniture - azynthi dining}}
 |[[Furniture]]
 |25000
+|Complete [[Crafting: Azynthian Dining Room]]
 |-
-|{{ItemLink|Azynthian Livingroom Set}}
+|{{ItemLink|Azynthian Livingroom Set|stablekey=item:furniture - azynthi living}}
 |[[Furniture]]
 |25000
+|Complete [[Crafting: Azynthian Living Room]]
 |-
-|{{ItemLink|Azynthian Resting place}}
+|{{ItemLink|Loomingwood Shrine Set|stablekey=item:furniture - loomingwood shrine}}
 |[[Furniture]]
-|85000
+|25000
+|Complete [[Crafting: Loomingwood Shrine]]
 |-
-|{{ItemLink|Game Room}}
+|{{ItemLink|Game Room|stablekey=item:furniture - game r oom}}
 |[[Furniture]]
 |45000
+|Complete [[Crafting: Game Room]]
 |-
-|{{ItemLink|Loomingwood Market Set}}
+|{{ItemLink|Wood Vendor Set|stablekey=item:furniture - wood vendor}}
 |[[Furniture]]
-|850000
+|55000
+|
 |-
-|{{ItemLink|Loomingwood Shrine Set}}
+|{{ItemLink|Azynthian Resting place|stablekey=item:furniture - azynthi coffin}}
 |[[Furniture]]
-|25000
+|85000
+|Complete [[Crafting: Azynthian Resting Place]]
 |-
-|{{ItemLink|Stone Auction Set}}
-|[[Furniture]]
-|245000
-|-
-|{{ItemLink|Stone Bank Set}}
-|[[Furniture]]
-|245000
-|-
-|{{ItemLink|Stone Dining Set}}
-|[[Furniture]]
-|3500
-|-
-|{{ItemLink|Stone Fountain Set}}
-|[[Furniture]]
-|3500
-|-
-|{{ItemLink|Stone Training Set}}
+|{{ItemLink|Stone Training Set|stablekey=item:furniture - stone training}}
 |[[Furniture]]
 |100000
+|Complete [[Crafting: Stone Training Room]]
 |-
-|{{ItemLink|Stone Vendor Set}}
+|{{ItemLink|Wood Auction Set|stablekey=item:furniture - wood auction}}
+|[[Furniture]]
+|125000
+|
+|-
+|{{ItemLink|Wood Bank Set|stablekey=item:furniture - wood bank}}
+|[[Furniture]]
+|125000
+|
+|-
+|{{ItemLink|Stone Vendor Set|stablekey=item:furniture - stone vendor}}
 |[[Furniture]]
 |200000
+|Complete [[Crafting: Stone Vendor]]
+|-
+|{{ItemLink|Stone Auction Set|stablekey=item:furniture - stone auction}}
+|[[Furniture]]
+|245000
+|Complete [[Crafting: Stone Auctions]]
+|-
+|{{ItemLink|Stone Bank Set|stablekey=item:furniture - stone bank}}
+|[[Furniture]]
+|245000
+|Complete [[Crafting: Stone Bank]]
+|-
+|{{ItemLink|Loomingwood Market Set|stablekey=item:furniture - loomingwood marketplace}}
+|[[Furniture]]
+|850000
+|Complete [[Crafting: Loomingwood Market]]
+|-
+|{{ItemLink|Expert Training Set|stablekey=item:furniture - expert training}}
+|[[Furniture]]
+|1000000
+|Complete [[Crafting: Expert Training Room]]
 |}
 
 [[Category:Characters]]

@@ -53,45 +53,45 @@ We hunt for lost treasures. Armors. Weapons. You name it. We follow clues and we
 !Item type
 !Price
 |-
-|{{ItemLink|Skill Book: Blood Feast}}
+|{{ItemLink|Light Plate Greaves|stablekey=item:leg - 3 - light plate greaves}}
+|[[Armor]]
+|55
+|-
+|{{ItemLink|Light Plate Breastplate|stablekey=item:chest - 4 - light plate armor}}
+|[[Armor]]
+|75
+|-
+|{{ItemLink|Skill Book: Blood Feast|stablekey=item:skillbook - blood feast}}
 |[[Ability Books|Skill Book]]
 |55
 |-
-|{{ItemLink|Skill Book: Dodge}}
+|{{ItemLink|Skill Book: Dodge|stablekey=item:skillbook - dodge 1}}
 |[[Ability Books|Skill Book]]
 |55
 |-
-|{{ItemLink|Skill Book: Dual Wield}}
-|[[Ability Books|Skill Book]]
-|100
-|-
-|{{ItemLink|Skill Book: Double Attack}}
-|[[Ability Books|Skill Book]]
-|100
-|-
-|{{ItemLink|Skill Book: Kick}}
+|{{ItemLink|Skill Book: Kick|stablekey=item:skillbook - kick}}
 |[[Ability Books|Skill Book]]
 |75
 |-
-|{{ItemLink|Skill Book: Melee Proficiency}}
+|{{ItemLink|Skill Book: Double Attack|stablekey=item:skillbook - double attack}}
+|[[Ability Books|Skill Book]]
+|100
+|-
+|{{ItemLink|Skill Book: Dual Wield|stablekey=item:skillbook - dual wield}}
+|[[Ability Books|Skill Book]]
+|100
+|-
+|{{ItemLink|Skill Book: Melee Proficiency|stablekey=item:skillbook - combat proficiency}}
 |[[Ability Books|Skill Book]]
 |225
 |-
-|{{ItemLink|Spell Scroll: Death's Embrace}}
+|{{ItemLink|Spell Scroll: Death's Embrace|stablekey=item:spell scroll - death's embrace}}
 |[[Ability Books|Spell Scroll]]
 |200
 |-
-|{{ItemLink|Polished Longsword}}
-|[[Weapons|Sword]]
+|{{ItemLink|Polished Longsword|stablekey=item:weap - 6 - polished longsword}}
+|[[Weapons|Weapon]]
 |25
-|-
-|{{ItemLink|Light Plate Breastplate}}
-|[[Armor#Chest|Chest Armor]]
-|75
-|-
-|{{ItemLink|Light Plate Greaves}}
-|[[Armor#Leg|Leg Armor]]
-|55
 |}
 
 [[Category:Characters]]

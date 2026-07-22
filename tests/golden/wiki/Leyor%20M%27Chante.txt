@@ -60,41 +60,41 @@ Prompts:
 !Item type
 !Price
 |-
-|{{ItemLink|Spell Scroll: Sunburst}}
-|[[Ability Books|Spell Scroll]]
-|1255
-|-
-|{{ItemLink|Spell Scroll: Moonburst}}
-|[[Ability Books|Spell Scroll]]
-|1655
-|-
-|{{ItemLink|Spell Scroll: Theft of Vigor}}
-|[[Ability Books|Spell Scroll]]
-|3250
-|-
-|{{ItemLink|Spell Scroll: Glimpse of Truth}}
-|[[Ability Books|Spell Scroll]]
-|2500
-|-
-|{{ItemLink|Spell Scroll: Glare of Soluna}}
+|{{ItemLink|Spell Scroll: Glare of Soluna|stablekey=item:spell scroll - glare of soluna}}
 |[[Ability Books|Spell Scroll]]
 |155
 |-
-|{{ItemLink|Spell Scroll: Spectrum}}
+|{{ItemLink|Spell Scroll: Sunburst|stablekey=item:spell scroll - sunburst}}
+|[[Ability Books|Spell Scroll]]
+|1255
+|-
+|{{ItemLink|Spell Scroll: Moonburst|stablekey=item:spell scroll - moonburst}}
+|[[Ability Books|Spell Scroll]]
+|1655
+|-
+|{{ItemLink|Spell Scroll: Glimpse of Truth|stablekey=item:spell scroll - glimpse of demise}}
+|[[Ability Books|Spell Scroll]]
+|2500
+|-
+|{{ItemLink|Spell Scroll: Theft of Vigor|stablekey=item:spell scroll - stolen vigor}}
+|[[Ability Books|Spell Scroll]]
+|3250
+|-
+|{{ItemLink|Spell Scroll: Moon Bolt II|stablekey=item:spell scroll - moon bolt ii}}
+|[[Ability Books|Spell Scroll]]
+|3500
+|-
+|{{ItemLink|Spell Scroll: Spectrum|stablekey=item:spell scroll - spectrum}}
 |[[Ability Books|Spell Scroll]]
 |8550
 |-
-|{{ItemLink|Spell Scroll: Celestial Pull}}
+|{{ItemLink|Spell Scroll: Celestial Pull II|stablekey=item:spell scroll - celestial pull ii}}
 |[[Ability Books|Spell Scroll]]
 |16500
 |-
-|{{ItemLink|Spell Scroll: Impending Doom}}
+|{{ItemLink|Spell Scroll: Impending Doom|stablekey=item:spell scroll - impending doom}}
 |[[Ability Books|Spell Scroll]]
 |16500
-|-
-|{{ItemLink|Spell Scroll: Moon Bolt II}}
-|[[Ability Books|Spell Scroll]]
-|3500
 |}
 
 [[Category:Characters]]

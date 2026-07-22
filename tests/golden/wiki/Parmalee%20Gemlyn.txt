@@ -66,37 +66,37 @@ If you give her a second lot of ingredients to make the [[Tempestalia, Ring of S
 !Item type
 !Price
 |-
-|{{ItemLink|Green Emerald Ring}}
-|[[Armor#Rings|Ring]]
+|{{ItemLink|Clouded Diamond Ring|stablekey=item:ring - 7 - clouded diamond ring}}
+|[[Armor]]
 |45
 |-
-|{{ItemLink|Fiery Sapphire Ring}}
-|[[Armor#Rings|Ring]]
+|{{ItemLink|Fiery Sapphire Ring|stablekey=item:ring - 6 - fiery sapphire ring}}
+|[[Armor]]
 |45
 |-
-|{{ItemLink|Golden Luminstone Ring}}
-|[[Armor#Rings|Ring]]
+|{{ItemLink|Golden Luminstone Ring|stablekey=item:ring - 3 - golden luminstone ring}}
+|[[Armor]]
 |45
 |-
-|{{ItemLink|Clouded Diamond Ring}}
-|[[Armor#Rings|Ring]]
+|{{ItemLink|Green Emerald Ring|stablekey=item:ring - 6 - emerald ring}}
+|[[Armor]]
 |45
 |-
-|{{ItemLink|Fluorite Amulet}}
-|[[Armor#Necklaces|Necklace]]
+|{{ItemLink|Fluorite Amulet|stablekey=item:neck - 5 - fluorite amulet}}
+|[[Armor]]
 |650
 |-
-|{{ItemLink|Elderstone Shard}}
-|[[Crafting]], [[Quest Items]]
-|500
+|{{ItemLink|Belt Lamp|stablekey=item:gen - belt lamp}}
+|[[:Category:Cosmetic Items|Cosmetic]]
+|225
 |-
-|{{ItemLink|Diamond}}
+|{{ItemLink|Diamond|stablekey=item:gen - diamond}}
 |[[Crafting]]
 |1000
 |-
-|{{ItemLink|Belt Lamp}}
-|[[:Category:Cosmetic Items|Cosmetic]]
-|225
+|{{ItemLink|Elderstone Shard|stablekey=item:gen - elderstone shard}}
+|[[:Category:Items|General Item]]
+|500
 |}
 
 [[Category:Characters]]

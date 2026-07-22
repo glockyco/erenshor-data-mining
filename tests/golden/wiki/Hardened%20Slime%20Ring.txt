@@ -42,7 +42,7 @@
 |poison=4
 |elemental=0
 |void=4
-|description=The stone is still slimey.
+|description=The stone is still slimy.
 |arcanist=True
 |duelist=True
 |druid=True

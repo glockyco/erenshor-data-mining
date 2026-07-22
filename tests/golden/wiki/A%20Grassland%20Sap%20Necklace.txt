@@ -3,7 +3,7 @@
 |stablekey=item:neck - 9 - ogre tooth necklace
 |type=
 |vendorsource=
-|source=[[A Grassland Ogre Chieftan]] (9.0%)
+|source=[[A Grassland Ogre Chieftain]] (9.0%)
 |othersource=
 |questsource=
 |relatedquest=

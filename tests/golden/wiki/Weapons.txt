@@ -818,7 +818,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |5
-|{{AbilityLink|Ice Shock}}, 99% on attack
+|{{AbilityLink|Ice Bite}}, 99% on attack
 |[[Stormcaller]]
 |-
 |style="text-align: left;"|{{ItemLink|Imperium}}

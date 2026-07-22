@@ -62,17 +62,17 @@ After giving her 5x [[Nagalok Claw]] to complete {{QuestLink | link=Annaleigh's 
 !Item type
 !Price
 |-
-|{{ItemLink|Seafruit}}
-|[[Status_Effects|Consumable]]
-|120
+|{{ItemLink|Water|stablekey=item:cons - water}}
+|[[Consumables|Consumable]]
+|1
 |-
-|{{ItemLink|Bread}}
-|[[Status Effects|Food]]
+|{{ItemLink|Bread|stablekey=item:cons - bread}}
+|[[Consumables|Consumable]]
 |2
 |-
-|{{ItemLink|Water}}
-|[[Consumables|Drink]]
-|1
+|{{ItemLink|Seafruit|stablekey=item:cons - seafruit}}
+|[[Consumables|Consumable]]
+|120
 |}
 
 [[Category:Blacksalt Strand]]

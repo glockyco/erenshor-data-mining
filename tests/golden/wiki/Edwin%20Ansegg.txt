@@ -47,49 +47,57 @@ Greeting message only for Arcanists:
 !Item type
 !Price
 |-
-|{{ItemLink|Spell Scroll: Jolt}}
-|[[Ability Books|Spell Book]]
-|225
-|-
-|{{ItemLink|Spell Scroll: Ethereal Rending}}
-|[[Ability Books|Spell Book]]
-|175
-|-
-|{{ItemLink|Spell Scroll: Brax's Rage}}
-|[[Ability Books|Spell Book]]
-|600
-|-
-|{{ItemLink|Wizarding Mitts}}
-|[[Armor#Hand|Hand Armor]]
+|{{ItemLink|Wizarding Mitts|stablekey=item:glove - 7 - wizarding mitts}}
+|[[Armor]]
 |350
 |-
-|{{ItemLink|Spidersilk Shirt}}
-|[[Armor#Chest|Chest Armor]]
+|{{ItemLink|Spidersilk Shirt|stablekey=item:chest - 13 - spidersilk shirt}}
+|[[Armor]]
 |1000
 |-
-|{{ItemLink|Essence of Flame}}
+|{{ItemLink|Essence of Flame|stablekey=item:aura - brax 2}}
 |[[Auras|Aura]]
 |1500
 |-
-|{{ItemLink|Skill Book: Arcane Proficiency}}
+|{{ItemLink|Skill Book: Arcane Proficiency|stablekey=item:skillbook - arcane proficiency}}
 |[[Ability Books|Skill Book]]
 |650
 |-
-|{{ItemLink|Spell Scroll: Ice Spear}}
-|[[Ability Books|Spell Book]]
-|3000
-|-
-|{{ItemLink|Spell Scroll: Brax's Fury}}
-|[[Ability Books|Spell Book]]
-|4100
-|-
-|{{ItemLink|Spell Scroll: Aetherstorm}}
-|[[Ability Books|Spell Book]]
-|8500
-|-
-|{{ItemLink|Skill Book: Arcane Recovery}}
+|{{ItemLink|Skill Book: Arcane Recovery|stablekey=item:skillbook - arcane recovery}}
 |[[Ability Books|Skill Book]]
 |2355
+|-
+|{{ItemLink|Spell Scroll: Jolt|stablekey=item:spell scroll - jolt}}
+|[[Ability Books|Spell Scroll]]
+|225
+|-
+|{{ItemLink|Spell Scroll: Ethereal Rending|stablekey=item:spell scroll - ethereal rend}}
+|[[Ability Books|Spell Scroll]]
+|255
+|-
+|{{ItemLink|Spell Scroll: Brax's Rage|stablekey=item:spell scroll - brax's rage}}
+|[[Ability Books|Spell Scroll]]
+|900
+|-
+|{{ItemLink|Spell Scroll: Invisibility|stablekey=item:spell scroll - invisibility}}
+|[[Ability Books|Spell Scroll]]
+|1000
+|-
+|{{ItemLink|Spell Scroll: Ice Spear|stablekey=item:spell scroll - ice spear}}
+|[[Ability Books|Spell Scroll]]
+|3000
+|-
+|{{ItemLink|Spell Scroll: Brax's Fury|stablekey=item:spell scroll - brax's fury}}
+|[[Ability Books|Spell Scroll]]
+|4100
+|-
+|{{ItemLink|Spell Scroll: Vithean Wind|stablekey=item:spell scroll - vithean wind}}
+|[[Ability Books|Spell Scroll]]
+|4800
+|-
+|{{ItemLink|Spell Scroll: Aetherstorm|stablekey=item:spell scroll - aetherblast}}
+|[[Ability Books|Spell Scroll]]
+|8500
 |}
 
 [[Category:Characters]]

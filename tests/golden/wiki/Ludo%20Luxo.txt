@@ -58,53 +58,53 @@ After giving him the [[Sivakayan Horn]] for {{QuestLink | link=A Sivakayan Horn 
 !Item type
 !Price
 |-
-|{{ItemLink|Skill Book: Blood Feast|image=SkillBookPurple.png}}
-|[[Ability Books|Skill Book]]
+|{{ItemLink|Light Plate Greaves|stablekey=item:leg - 3 - light plate greaves}}
+|[[Armor]]
 |55
 |-
-|{{ItemLink|Skill Book: Dodge|image=SkillBookPurple.png}}
-|[[Ability Books|Skill Book]]
-|55
-|-
-|{{ItemLink|Skill Book: Dual Wield|image=SkillBookSword.png}}
-|[[Ability Books|Skill Book]]
-|100
-|-
-|{{ItemLink|Skill Book: Double Attack|image=SkillBookSword.png}}
-|[[Ability Books|Skill Book]]
-|100
-|-
-|{{ItemLink|Skill Book: Kick|image=SkillBookPurple.png}}
-|[[Ability Books|Skill Book]]
+|{{ItemLink|Light Plate Breastplate|stablekey=item:chest - 4 - light plate armor}}
+|[[Armor]]
 |75
 |-
-|{{ItemLink|Skill Book: Victor's Pride|image=SkillBookPurple.png}}
+|{{ItemLink|Skill Book: Victor's Pride|stablekey=item:skillbook - pride}}
 |[[Ability Books|Skill Book]]
 |25
 |-
-|{{ItemLink|Skill Book: Backstab}}
+|{{ItemLink|Skill Book: Blood Feast|stablekey=item:skillbook - blood feast}}
 |[[Ability Books|Skill Book]]
-|1000
-|-
-|{{ItemLink|Polished Longsword}}
-|[[Weapons#|Sword]]
-|25
-|-
-|{{ItemLink|Light Plate Breastplate}}
-|[[Armor#Chest|Chest Armor]]
-|75
-|-
-|{{ItemLink|Light Plate Greaves}}
-|[[Armor#Leg|Leg Armor]]
 |55
 |-
-|{{ItemLink|Spell Scroll: Ocean's Lull}}
-||[[Ability Books|Spell Scroll]]
+|{{ItemLink|Skill Book: Dodge|stablekey=item:skillbook - dodge 1}}
+|[[Ability Books|Skill Book]]
+|55
+|-
+|{{ItemLink|Skill Book: Kick|stablekey=item:skillbook - kick}}
+|[[Ability Books|Skill Book]]
+|75
+|-
+|{{ItemLink|Skill Book: Double Attack|stablekey=item:skillbook - double attack}}
+|[[Ability Books|Skill Book]]
+|100
+|-
+|{{ItemLink|Skill Book: Dual Wield|stablekey=item:skillbook - dual wield}}
+|[[Ability Books|Skill Book]]
+|100
+|-
+|{{ItemLink|Skill Book: Backstab|stablekey=item:skillbook - backstab}}
+|[[Ability Books|Skill Book]]
+|150
+|-
+|{{ItemLink|Spell Scroll: Vithean Breeze|stablekey=item:spell scroll - vithean breeze}}
+|[[Ability Books|Spell Scroll]]
+|100
+|-
+|{{ItemLink|Spell Scroll: Vitheo's Sight|stablekey=item:spell scroll - vitheo's sight i}}
+|[[Ability Books|Spell Scroll]]
+|255
+|-
+|{{ItemLink|Spell Scroll: Ocean's Lull|stablekey=item:spell scroll - ocean's lull}}
+|[[Ability Books|Spell Scroll]]
 |1400
-|-
-|{{ItemLink|Spell Scroll: Vithean Breeze}}
-||[[Ability Books|Spell Scroll]]
-|100
 |}
 
 [[Category:Characters]]

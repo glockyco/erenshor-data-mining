@@ -48,52 +48,52 @@ Greeting message:
 !Item type
 !Price
 |-
-|{{ItemLink|Spell Scroll: Mutual Ache}}
-|[[:Category:Ability Books|Spell Book]]
-|220
-|-
-|{{ItemLink|Spell Scroll: Void Bolt}}
-|[[:Category:Ability Books|Spell Book]]
-|100
-|-
-|{{ItemLink|Spell Scroll: Affinity for Suffering}}
-|[[:Category:Ability Books|Spell Book]]
-|100
-|-
-|{{ItemLink|Spell Scroll: Theft of Life}}
-|[[:Category:Ability Books|Spell Book]]
-|225
-|-
-|{{ItemLink|Skill Book: Kick}}
-|[[:Category:Ability Books|Skill Book]]
+|{{ItemLink|Skill Book: Kick|stablekey=item:skillbook - kick}}
+|[[Ability Books|Skill Book]]
 |75
 |-
-|{{ItemLink|Skill Book: Counter-Attack}}
-|[[:Category:Ability Books|Skill Book]]
-|1350
+|{{ItemLink|Skill Book: Aggressive Stance|stablekey=item:skillbook - stance - aggressive}}
+|[[Ability Books|Skill Book]]
+|100
 |-
-|{{ItemLink|Skill Book: Cleave}}
-|[[:Category:Ability Books|Skill Book]]
+|{{ItemLink|Skill Book: Taunting Stance|stablekey=item:skillbook - stance - taunting}}
+|[[Ability Books|Skill Book]]
+|100
+|-
+|{{ItemLink|Skill Book: Stunning Strike|stablekey=item:skillbook - stun strike}}
+|[[Ability Books|Skill Book]]
+|225
+|-
+|{{ItemLink|Skill Book: Cleave|stablekey=item:skillbook - cleave}}
+|[[Ability Books|Skill Book]]
 |1100
 |-
-|{{ItemLink|Skill Book: Aggressive Stance}}
-|[[:Category:Ability Books|Skill Book]]
+|{{ItemLink|Skill Book: Counter-Attack|stablekey=item:skillbook - counter-attack}}
+|[[Ability Books|Skill Book]]
+|1350
+|-
+|{{ItemLink|Spell Scroll: Affinity for Suffering|stablekey=item:spell scroll - affinity for suffering}}
+|[[Ability Books|Spell Scroll]]
 |100
 |-
-|{{ItemLink|Skill Book: Taunting Stance}}
-|[[:Category:Ability Books|Skill Book]]
+|{{ItemLink|Spell Scroll: Theft of Life|stablekey=item:spell scroll - theft of life}}
+|[[Ability Books|Spell Scroll]]
 |100
 |-
-|{{ItemLink|Skill Book: Stunning Strike}}
-|[[:Category:Ability Books|Skill Book]]
+|{{ItemLink|Spell Scroll: Void Bolt|stablekey=item:spell scroll - void bolt}}
+|[[Ability Books|Spell Scroll]]
+|100
+|-
+|{{ItemLink|Spell Scroll: Mutual Ache|stablekey=item:spell scroll - mutual ache}}
+|[[Ability Books|Spell Scroll]]
+|220
+|-
+|{{ItemLink|Spell Scroll: Waste|stablekey=item:spell scroll - waste}}
+|[[Ability Books|Spell Scroll]]
 |225
 |-
-|{{ItemLink|Spell Scroll: Waste}}
-|[[:Category:Ability Books|Spell Book]]
-|225
-|-
-|{{ItemLink|Old Halberd}}
-|[[Weapons|2-Handed Weapon]]
+|{{ItemLink|Old Halberd|stablekey=item:weap - 6 - old halberd}}
+|[[Weapons|Weapon]]
 |500
 |}
 

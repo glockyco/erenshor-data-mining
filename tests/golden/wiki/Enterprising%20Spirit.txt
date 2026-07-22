@@ -43,36 +43,36 @@ Enterprising Spirit can be located in the [[Shivering Step]] where the Aura merc
 !Item type
 !Price
 |-
-|{{ItemLink|Coral}}
-|[[Crafting]]
-|15
-|-
-|{{ItemLink|Eternal Ice}}
-|[[Quest Items]]
-|5
-|-
-|{{ItemLink|Ghoul Scab}}
+|{{ItemLink|Ghoul Scab|stablekey=item:gen - ghoul scab}}
 |[[Crafting]]
 |1
 |-
-|{{ItemLink|Rotting Meat}}
+|{{ItemLink|Rotting Meat|stablekey=item:gen - rotting meat}}
 |[[Crafting]]
 |5
 |-
-|{{ItemLink|Ancient Bone}}
+|{{ItemLink|Ancient Bone|stablekey=item:gen - an ancient bone}}
 |[[Crafting]]
 |6
 |-
-|{{ItemLink|Sea Glass}}
+|{{ItemLink|Coral|stablekey=item:gen - a coral}}
 |[[Crafting]]
-|35
+|15
 |-
-|{{ItemLink|Serpentine Blood}}
+|{{ItemLink|Serpentine Blood|stablekey=item:gen - serpentine blood}}
 |[[Crafting]]
 |33
 |-
-|{{ItemLink|Fishing Pole}}
-|[[Fishing Pole]]
+|{{ItemLink|Sea Glass|stablekey=item:gen - seaglass}}
+|[[Crafting]]
+|35
+|-
+|{{ItemLink|Eternal Ice|stablekey=item:gen - eternal ice}}
+|[[:Category:Items|General Item]]
+|5
+|-
+|{{ItemLink|Fishing Pole|stablekey=item:weap - 1 - fishing pole}}
+|[[Weapons|Weapon]]
 |5
 |}
 

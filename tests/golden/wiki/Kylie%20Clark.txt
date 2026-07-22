@@ -53,17 +53,17 @@ It's one of the rare places two Gods have touched. Fernalla's willow, and Sivaka
 !Item type
 !Price
 |-
-|{{ItemLink|Seafruit}}
-|[[Consumables]]
-|120
+|{{ItemLink|Water|stablekey=item:cons - water}}
+|[[Consumables|Consumable]]
+|1
 |-
-|{{ItemLink|Bread}}
-|[[Consumables]]
+|{{ItemLink|Bread|stablekey=item:cons - bread}}
+|[[Consumables|Consumable]]
 |2
 |-
-|{{ItemLink|Water}}
-|[[Consumables]]
-|1
+|{{ItemLink|Seafruit|stablekey=item:cons - seafruit}}
+|[[Consumables|Consumable]]
+|120
 |}
 
 [[Category:Characters]]

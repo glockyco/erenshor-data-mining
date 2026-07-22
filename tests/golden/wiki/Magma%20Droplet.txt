@@ -3,7 +3,7 @@
 |stablekey=item:neck - 42 - magma droplet
 |type=
 |vendorsource=
-|source=[[Brax, God of Elements]] (37.6%)<br>[[Braxonian Chest]] (35.5%)
+|source=[[Braxonian Chest]] (35.5%)<br>[[Brax, God of Elements]] (30.7%)
 |othersource=
 |questsource=
 |relatedquest=

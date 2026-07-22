@@ -61,32 +61,32 @@ If you give her {{ItemLink|Aetheria}}:
 !Item type
 !Price
 |-
-|{{ItemLink|Seaspice}}
-|[[Consumables]]
-|500
-|-
-|{{ItemLink|Sailor's Work Gloves}}
-|[[Armor#Hand|Hand Armor]]
+|{{ItemLink|Sailor's Work Gloves|stablekey=item:glove - 7 - sailor's work gloves}}
+|[[Armor]]
 |245
 |-
-|{{ItemLink|Sailor's Belt}}
-|[[Armor#Waist|Waist Armor]]
+|{{ItemLink|Sailor's Belt|stablekey=item:belt - 9 - sailor's belt}}
+|[[Armor]]
 |700
 |-
-|{{ItemLink|Brackfruit Juice}}
-|[[Consumables]]
-|5
-|-
-|{{ItemLink|Bread}}
-|[[Consumables]]
-|2
-|-
-|{{ItemLink|Water}}
-|[[Consumables]]
+|{{ItemLink|Water|stablekey=item:cons - water}}
+|[[Consumables|Consumable]]
 |1
 |-
-|{{ItemLink|Basic Pick}}
-|[[Weapons#Primary or Secondary|Primary or Secondary]]
+|{{ItemLink|Bread|stablekey=item:cons - bread}}
+|[[Consumables|Consumable]]
+|2
+|-
+|{{ItemLink|Brackfruit Juice|stablekey=item:cons - brackfruit juice}}
+|[[Consumables|Consumable]]
+|5
+|-
+|{{ItemLink|Seaspice|stablekey=item:cons - seaspice}}
+|[[Consumables|Consumable]]
+|500
+|-
+|{{ItemLink|Basic Pick|stablekey=item:weap - 2 - basic pick}}
+|[[Weapons|Weapon]]
 |100
 |}
 

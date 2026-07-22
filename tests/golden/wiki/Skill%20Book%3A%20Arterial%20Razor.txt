@@ -12,7 +12,7 @@
 |buy=26550
 |sell=17258
 |taughtspell=
-|taughtskill={{AbilityLink|Razor Tipped Arrow}}
+|taughtskill={{AbilityLink|Arterial Razor}}
 |guaranteeddrops=
 |droprates=
 }}

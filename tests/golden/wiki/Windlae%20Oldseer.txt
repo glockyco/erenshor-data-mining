@@ -61,44 +61,40 @@ If you give her [[Weathered Chain]] for the quest {{QuestLink|Grizzlepaw's Chain
 !Item type
 !Price
 |-
-|{{ItemLink|Spell Scroll: Ball Lightning}}
-|[[:Category:Ability Books|Spell Book]]
-|1800
-|-
-|{{ItemLink|Spell Scroll: Focus Target}}
-|[[:Category:Ability Books|Spell Book]]
-|1400
-|-
-|{{ItemLink|Spell Scroll: Static Invocation}}
-|[[:Category:Ability Books|Spell Book]]
-|125
-|-
-|{{ItemLink|Spell Scroll: Targeted Gust}}
-|[[:Category:Ability Books|Spell Book]]
-|325
-|-
-|{{ItemLink|Skill Book: Precision}}
-|[[:Category:Ability Books|Skill Book]]
-|2500
-|-
-|{{ItemLink|Skill Book: Flaming Arrow}}
-|[[:Category:Ability Books|Skill Book]]
-|1100
-|-
-|{{ItemLink|Skill Book: Execute}}
-|[[:Category:Ability Books|Skill Book]]
-|1100
-|-
-|{{ItemLink|Skill Book: Blunted Arrow}}
-|[[:Category:Ability Books|Skill Book]]
+|{{ItemLink|Skill Book: Blunted Arrow|stablekey=item:skillbook - blunted arrow}}
+|[[Ability Books|Skill Book]]
 |225
 |-
-|{{ItemLink|Skill Book: Execute}}
-|[[:Category:Ability Books|Skill Book]]
+|{{ItemLink|Skill Book: Execute|stablekey=item:skillbook - execute}}
+|[[Ability Books|Skill Book]]
 |1100
 |-
-|{{ItemLink|Rotwood Bow}}
-||[[Weapons#|Bow]]
+|{{ItemLink|Skill Book: Flaming Arrow|stablekey=item:skillbook - flaming arrow}}
+|[[Ability Books|Skill Book]]
+|1100
+|-
+|{{ItemLink|Skill Book: Precision|stablekey=item:skillbook - precision}}
+|[[Ability Books|Skill Book]]
+|2500
+|-
+|{{ItemLink|Spell Scroll: Static Invocation|stablekey=item:spell scroll - static invocation}}
+|[[Ability Books|Spell Scroll]]
+|125
+|-
+|{{ItemLink|Spell Scroll: Targeted Gust|stablekey=item:spell scroll - targeted gust}}
+|[[Ability Books|Spell Scroll]]
+|325
+|-
+|{{ItemLink|Spell Scroll: Focus Target|stablekey=item:spell scroll - focus target}}
+|[[Ability Books|Spell Scroll]]
+|1400
+|-
+|{{ItemLink|Spell Scroll: Ball Lightning|stablekey=item:spell scroll - ball lightning}}
+|[[Ability Books|Spell Scroll]]
+|1800
+|-
+|{{ItemLink|Rotwood Bow|stablekey=item:bow - 6 - rotwood bow}}
+|[[Weapons|Weapon]]
 |225
 |}
 

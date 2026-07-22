@@ -28,7 +28,7 @@
 |reaver_level=12
 |mana_cost=150
 |spell_type=Damage
-|spell_desc=Deals 300 void damage to your target and increase aggro by 150
+|spell_desc=Deals 300 void damage to your target and increase aggro by 350
 }}
 
 [[Category:Ability Books]]

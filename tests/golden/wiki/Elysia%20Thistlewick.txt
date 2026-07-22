@@ -52,37 +52,41 @@ Greeting message:
 !Item type
 !Price
 |-
-|{{ItemLink|Elixir of Enlightenment I}}
-|[[Consumables|Potion]]
-|100000
+|{{ItemLink|Wyrm's Bane|stablekey=item:gen - wyrm's bane}}
+|[[Consumables|Consumable]]
+|25000
 |-
-|{{ItemLink|Elixir of Enlightenment II}}
+|{{ItemLink|A Magical Bag|stablekey=item:gen - magical bag}}
+|[[Consumables|Consumable]]
+|950000
+|-
+|{{ItemLink|Merging Vessel|stablekey=item:template - merging vessel}}
+|[[:Category:Items|General Item]]
+|500
+|-
+|{{ItemLink|Monarch of Flame (Game Piece)|text=Monarch of Flame|stablekey=item:quest - game piece monarch of flame}}
+|[[:Category:Items|General Item]]
+|135000
+|-
+|{{ItemLink|Mold: An Otherwordly Box|stablekey=item:template - an otherwordly mold}}
+|[[Crafting|Mold]]
+|750000
+|-
+|{{ItemLink|Elixir of Enlightenment I|stablekey=item:cons - enlightening potion i}}
+|[[Consumables|Potion]]
+|25000
+|-
+|{{ItemLink|Elixir of Enlightenment II|stablekey=item:cons - enlightening potion ii}}
+|[[Consumables|Potion]]
+|75000
+|-
+|{{ItemLink|Elixir of Enlightenment III|stablekey=item:cons - enlightening potion iii}}
 |[[Consumables|Potion]]
 |200000
 |-
-|{{ItemLink|Elixir of Enlightenment III}}
+|{{ItemLink|Elixir of Enlightenment IV|stablekey=item:cons - enlightening potion iv}}
 |[[Consumables|Potion]]
-|500000
-|-
-|{{ItemLink|Elixir of Enlightenment IV}}
-|[[Consumables|Potion]]
-|1000000
-|-
-|{{ItemLink|A Magical Bag}}
-|[[Consumables|Items]]
-|950000
-|-
-|{{ItemLink|Mold: An Otherworldly Box}}
-|[[Crafting]]
-|750000
-|-
-|{{ItemLink|Monarch of Flame (Game Piece)|Monarch of Flame|text=Monarch of the Flame}}
-|[[:Category:Items|Summoning]]
-|135000
-|-
-|{{ItemLink|Wyrm's Bane}}
-|[[Consumables|Items]]
-|25000
+|400000
 |}
 
 [[Category:Characters]]

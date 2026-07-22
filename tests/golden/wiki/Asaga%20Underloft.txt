@@ -54,30 +54,29 @@ Upon giving Asaga the [[Small Engraved Compass]] to complete {{QuestLink|link=Un
 !Item type
 !Price
 |-
-|{{ItemLink|Cold Steel Helm}}
-|[[Armor|Head]]
-|30
-|-
-|{{ItemLink|Shivering Leather Skullcap}}
-|[[Armor|Head]]
+|{{ItemLink|Shivering Leather Skullcap|stablekey=item:head - 5 - shivering leather skullcap}}
+|[[Armor]]
 |3
 |-
-|{{ItemLink|Gourd Carver}}
-|[[Weapons|Primary or Secondary]]
-|55
+|{{ItemLink|Cold Steel Helm|stablekey=item:head - 6 - cold steel helm}}
+|[[Armor]]
+|30
 |-
-|{{ItemLink|Rottenfoot Ring}}
-|[[Armor|Ring]]
-|150
-|-
-|{{ItemLink|Charred Boots}}
-|[[Armor|Foot]]
-|125
-|-
-|{{ItemLink|Mummy Wraps}}
-|[[Armor|Hands]]
+|{{ItemLink|Mummy Wraps|stablekey=item:glove - 5 - mummy wraps}}
+|[[Armor]]
 |45
 |-
+|{{ItemLink|Charred Boots|stablekey=item:foot - 5 - charred boots}}
+|[[Armor]]
+|125
+|-
+|{{ItemLink|Rottenfoot Ring|stablekey=item:ring - 13 - rottenfoot ring}}
+|[[Armor]]
+|150
+|-
+|{{ItemLink|Gourd Carver|stablekey=item:weap - 6 - gourd carver}}
+|[[Weapons|Weapon]]
+|55
 |}
 
 [[Category:Characters]]

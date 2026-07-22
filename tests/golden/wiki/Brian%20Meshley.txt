@@ -48,29 +48,29 @@ Greeting message:
 !Item type
 !Price
 |-
-|{{ItemLink|Standard Halberd}}
-|[[Weapons#Axes|Axe]]
-|400
+|{{ItemLink|Mold: Copper Sword|stablekey=item:template - bronze sword}}
+|[[Crafting|Mold]]
+|0
 |-
-|{{ItemLink|Bear Bone Club}}
-|[[Weapons#Clubs|Club]]
-|200
-|-
-|{{ItemLink|Copper Sword}}
-|[[Weapons#Swords|Sword]]
-|125
-|-
-|{{ItemLink|Rusty Dagger}}
-|[[Weapons#Dagger|Dagger]]
+|{{ItemLink|Rusty Dagger|stablekey=item:weap - 1 - rustydagger}}
+|[[Weapons|Weapon]]
 |7
 |-
-|{{ItemLink|Basic Pick}}
-|[[Weapons#Primary or Secondary|Primary or Secondary]]
+|{{ItemLink|Copper Sword|stablekey=item:weap - bronze short sword}}
+|[[Weapons|Weapon]]
+|56
+|-
+|{{ItemLink|Basic Pick|stablekey=item:weap - 2 - basic pick}}
+|[[Weapons|Weapon]]
 |100
 |-
-|{{ItemLink|Mold: Copper Sword}}
-|[[Crafting]]
-|0
+|{{ItemLink|Bear Bone Club|stablekey=item:weap - 6 - bearbone club}}
+|[[Weapons|Weapon]]
+|200
+|-
+|{{ItemLink|Standard Halberd|stablekey=item:weap - 6 - standard halberd}}
+|[[Weapons|Weapon]]
+|400
 |}
 
 [[Category:Characters]]

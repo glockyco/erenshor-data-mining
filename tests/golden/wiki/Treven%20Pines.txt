@@ -53,49 +53,53 @@ There's no tellin' what it's for. We stopped askin' and they do their thing and 
 !Item type
 !Price
 |-
-|{{ItemLink|Cloth Shirt}}
+|{{ItemLink|Cloth Shirt|stablekey=item:chest - 1 - cloth shirt}}
 |[[Armor]]
-|4
+|3
 |-
-|{{ItemLink|Rusty Shortsword}}
-|[[Weapons|Sword]]
-|12
+|{{ItemLink|Tattered Leather Tunic|stablekey=item:chest - 1 - tattered leather tunic}}
+|[[Armor]]
+|5
 |-
-|{{ItemLink|Rusty Greatsword}}
-|[[Weapons|Sword]]
-|66
+|{{ItemLink|Old Buckler|stablekey=item:secondary - 1 - old buckler}}
+|[[Armor]]
+|27
 |-
-|{{ItemLink|Old Buckler}}
-|[[Armor|Shield]]
-|32
-|-
-|{{ItemLink|Bread}}
-|[[Consumables|Food]]
-|2
-|-
-|{{ItemLink|Water}}
-|[[Status Effects|Drink]]
+|{{ItemLink|Water|stablekey=item:cons - water}}
+|[[Consumables|Consumable]]
 |1
 |-
-|{{ItemLink|Spell Scroll: Brax's Touch}}
-|[[Ability Books|Spell Scroll]]
-|60
+|{{ItemLink|Bread|stablekey=item:cons - bread}}
+|[[Consumables|Consumable]]
+|2
 |-
-|{{ItemLink|Tattered Leather Tunic}}
-|[[Armor]]
-|6
-|-
-|{{ItemLink|Spell Scroll: Lunar Madness}}
-|[[ability Books|Spell Scroll]]
-|100
-|-
-|{{ItemLink|Belt Lamp}}
+|{{ItemLink|Belt Lamp|stablekey=item:gen - belt lamp}}
 |[[:Category:Cosmetic Items|Cosmetic]]
 |225
 |-
-|{{ItemLink|Spell Scroll: Storm Bolt}}
-|[[ability Books|Spell Scroll]]
+|{{ItemLink|Spell Scroll: Brax's Touch|stablekey=item:spell scroll - brax's touch}}
+|[[Ability Books|Spell Scroll]]
 |50
+|-
+|{{ItemLink|Spell Scroll: Storm Bolt|stablekey=item:spell scroll - storm bolt}}
+|[[Ability Books|Spell Scroll]]
+|50
+|-
+|{{ItemLink|Spell Scroll: Lunar Madness|stablekey=item:spell scroll - lunar madness}}
+|[[Ability Books|Spell Scroll]]
+|100
+|-
+|{{ItemLink|Rusty Shortsword|stablekey=item:weap - 1 - rusty sword}}
+|[[Weapons|Weapon]]
+|10
+|-
+|{{ItemLink|Rusty Greatsword|stablekey=item:weap - 3 - rusty greatword}}
+|[[Weapons|Weapon]]
+|55
+|-
+|{{ItemLink|Carved Bow|stablekey=item:bow - 4 - carved bow}}
+|[[Weapons|Weapon]]
+|75
 |}
 
 [[Category:Characters]]

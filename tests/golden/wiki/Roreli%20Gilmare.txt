@@ -53,45 +53,45 @@ Prompts:
 !Item type
 !Price
 |-
-|{{ItemLink|Skill Book: Dodge II}}
+|{{ItemLink|Skill Book: Backstab|stablekey=item:skillbook - backstab}}
+|[[Ability Books|Skill Book]]
+|150
+|-
+|{{ItemLink|Skill Book: Melee Proficiency|stablekey=item:skillbook - combat proficiency}}
+|[[Ability Books|Skill Book]]
+|225
+|-
+|{{ItemLink|Skill Book: Dodge II|stablekey=item:skillbook - dodge 2}}
 |[[Ability Books|Skill Book]]
 |1100
 |-
-|{{ItemLink|Skill Book: Dodge III}}
-|[[Ability Books|Skill Book]]
-|3500
-|-
-|{{ItemLink|Skill Book: Dodge IV}}
-|[[Ability Books|Skill Book]]
-|10000
-|-
-|{{ItemLink|Skill Book: Block II}}
+|{{ItemLink|Skill Book: Block II|stablekey=item:skillbook - block 2}}
 |[[Ability Books|Skill Book]]
 |1255
 |-
-|{{ItemLink|Skill Book: Block III}}
-|[[Ability Books|Skill Book]]
-|3500
-|-
-|{{ItemLink|Skill Book: Block IV}}
-|[[Ability Books|Skill Book]]
-|12500
-|-
-|{{ItemLink|Skill Book: Backstab}}
-|[[Ability Books|Skill Book]]
-|500
-|-
-|{{ItemLink|Skill Book: Priel Strike}}
-|[[Ability Books|Skill Book]]
-|7500
-|-
-|{{ItemLink|Skill Book: Arcane Recovery}}
+|{{ItemLink|Skill Book: Arcane Recovery|stablekey=item:skillbook - arcane recovery}}
 |[[Ability Books|Skill Book]]
 |2355
 |-
-|{{ItemLink|Skill Book: Melee Proficiency}}
+|{{ItemLink|Skill Book: Block III|stablekey=item:skillbook - block 3}}
 |[[Ability Books|Skill Book]]
-|225
+|3500
+|-
+|{{ItemLink|Skill Book: Dodge III|stablekey=item:skillbook - dodge 3}}
+|[[Ability Books|Skill Book]]
+|3500
+|-
+|{{ItemLink|Skill Book: Priel Strike|stablekey=item:skillbook - priel strike}}
+|[[Ability Books|Skill Book]]
+|7500
+|-
+|{{ItemLink|Skill Book: Dodge IV|stablekey=item:skillbook - dodge 4}}
+|[[Ability Books|Skill Book]]
+|10000
+|-
+|{{ItemLink|Skill Book: Block IV|stablekey=item:skillbook - block 4}}
+|[[Ability Books|Skill Book]]
+|12500
 |}
 
 [[Category:Characters]]

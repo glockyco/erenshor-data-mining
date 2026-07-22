@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect={{ItemLink|Cord of Concentration}}<br>{{ItemLink|Gem Encrusted Sash}}<br>{{ItemLink|Helmet of Clarity}}
-|source=
+|source={{ItemLink|Spell Scroll: Meditative Trance|text=Spell Scroll: Meditative Trance (1)}}<br>{{ItemLink|Spell Scroll: Meditative Trance|text=Spell Scroll: Meditative Trance (2)}}
 |used_by=
 }}

@@ -62,45 +62,53 @@ When you give him [[Graveweed Leaf]] for {{QuestLink | link=Graveweed Leaf for B
 !Item type
 !Price
 |-
-|{{ItemLink|Skill Book: Shield Bash}}
-|[[Ability Books|Skill Book]]
-|100
+|{{ItemLink|Old Buckler|stablekey=item:secondary - 1 - old buckler}}
+|[[Armor]]
+|27
 |-
-|{{ItemLink|Skill Book: Double Attack}}
-|[[Ability Books|Skill Book]]
-|100
+|{{ItemLink|Light Plate Breastplate|stablekey=item:chest - 4 - light plate armor}}
+|[[Armor]]
+|75
 |-
-|{{ItemLink|Skill Book: Dodge}}
+|{{ItemLink|Skill Book: Dodge|stablekey=item:skillbook - dodge 1}}
 |[[Ability Books|Skill Book]]
 |55
 |-
-|{{ItemLink|Skill Book: Kick}}
+|{{ItemLink|Skill Book: Kick|stablekey=item:skillbook - kick}}
 |[[Ability Books|Skill Book]]
 |75
 |-
-|{{ItemLink|Spell Scroll: Minor Healing}}
+|{{ItemLink|Skill Book: Double Attack|stablekey=item:skillbook - double attack}}
+|[[Ability Books|Skill Book]]
+|100
+|-
+|{{ItemLink|Skill Book: Shield Bash|stablekey=item:skillbook - bash}}
+|[[Ability Books|Skill Book]]
+|100
+|-
+|{{ItemLink|Skill Book: Celestial Smite|stablekey=item:skillbook - celestial smite i}}
+|[[Ability Books|Skill Book]]
+|225
+|-
+|{{ItemLink|Skill Book: Stunning Strike|stablekey=item:skillbook - stun strike}}
+|[[Ability Books|Skill Book]]
+|225
+|-
+|{{ItemLink|Spell Scroll: Minor Healing|stablekey=item:spell scroll - minor healing}}
 |[[Ability Books|Spell Scroll]]
 |60
 |-
-|{{ItemLink|Spell Scroll: Lunar Madness}}
+|{{ItemLink|Spell Scroll: Lunar Madness|stablekey=item:spell scroll - lunar madness}}
 |[[Ability Books|Spell Scroll]]
-|600
+|100
 |-
-|{{ItemLink|Rusty Greatsword}}
-|[[Weapons#|Sword]]
-|55
-|-
-|{{ItemLink|Polished Longsword}}
-|[[Weapons|Sword]]
+|{{ItemLink|Polished Longsword|stablekey=item:weap - 6 - polished longsword}}
+|[[Weapons|Weapon]]
 |25
 |-
-|{{ItemLink|Old Buckler}}
-|[[Weapons|Shield]]
-|27
-|-
-|{{ItemLink|Light Plate Breastplate}}
-|[[Armor|Chest Armor]]
-|75
+|{{ItemLink|Rusty Greatsword|stablekey=item:weap - 3 - rusty greatword}}
+|[[Weapons|Weapon]]
+|55
 |}
 
 [[Category:Characters]]

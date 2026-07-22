@@ -54,53 +54,53 @@ Prompts:
 !Item type
 !Price
 |-
-|{{ItemLink|Spell Scroll: Dazzle}}
-|[[:Category:Ability Books|Spell Book]]
+|{{ItemLink|Skill Book: Execute|stablekey=item:skillbook - execute}}
+|[[Ability Books|Skill Book]]
+|1100
+|-
+|{{ItemLink|Spell Scroll: Dazzle|stablekey=item:spell scroll - dazzle}}
+|[[Ability Books|Spell Scroll]]
 |50
 |-
-|{{ItemLink|Spell Scroll: Invasive Thoughts}}
-|[[:Category:Ability Books|Spell Book]]
-|95
-|-
-|{{ItemLink|Spell Scroll: Burning Chains}}
-|[[:Category:Ability Books|Spell Book]]
-|150
-|-
-|{{ItemLink|Spell Scroll: Jolt}}
-|[[:Category:Ability Books|Spell Book]]
-|225
-|-
-|{{ItemLink|Spell Scroll: Summon Decayed Fawn}}
-|[[:Category:Ability Books|Spell Book]]
-|100
-|-
-|{{ItemLink|Spell Scroll: Biting Vines}}
-|[[:Category:Ability Books|Spell Book]]
+|{{ItemLink|Spell Scroll: Biting Vines|stablekey=item:spell scroll - biting vines}}
+|[[Ability Books|Spell Scroll]]
 |66
 |-
-|{{ItemLink|Spell Scroll: Tangle}}
-|[[:Category:Ability Books|Spell Book]]
-|1100
+|{{ItemLink|Spell Scroll: Invasive Thoughts|stablekey=item:spell scroll - invasive thoughts}}
+|[[Ability Books|Spell Scroll]]
+|95
 |-
-|{{ItemLink|Spell Scroll: Death's Embrace}}
-|[[:Category:Ability Books|Spell Book]]
+|{{ItemLink|Spell Scroll: Ice Bolt|stablekey=item:spell scroll - ice bolt}}
+|[[Ability Books|Spell Scroll]]
+|100
+|-
+|{{ItemLink|Spell Scroll: Summon Decayed Fawn|stablekey=item:spell scroll - summon decayed fawn}}
+|[[Ability Books|Spell Scroll]]
+|100
+|-
+|{{ItemLink|Spell Scroll: Vithean Breeze|stablekey=item:spell scroll - vithean breeze}}
+|[[Ability Books|Spell Scroll]]
+|100
+|-
+|{{ItemLink|Spell Scroll: Static Invocation|stablekey=item:spell scroll - static invocation}}
+|[[Ability Books|Spell Scroll]]
+|125
+|-
+|{{ItemLink|Spell Scroll: Burning Chains|stablekey=item:spell scroll - burning chains}}
+|[[Ability Books|Spell Scroll]]
+|150
+|-
+|{{ItemLink|Spell Scroll: Death's Embrace|stablekey=item:spell scroll - death's embrace}}
+|[[Ability Books|Spell Scroll]]
 |200
 |-
-|{{ItemLink|Spell Scroll: Vithean Breeze}}
-|[[:Category:Ability Books|Spell Book]]
-|100
+|{{ItemLink|Spell Scroll: Tangle|stablekey=item:spell scroll - tangle}}
+|[[Ability Books|Spell Scroll]]
+|200
 |-
-|{{ItemLink|Spell Scroll: Ice Bolt}}
-|[[:Category:Ability Books|Spell Book]]
-|100
-|-
-|{{ItemLink|Skill Book: Execute}}
-|[[:Category:Ability Books|Skill Book]]
-|1100
-|-
-|{{ItemLink| Spell Scroll: Static Invocation}}
-|[[:Category:Ability Books|Spell Book]]
-|125
+|{{ItemLink|Spell Scroll: Jolt|stablekey=item:spell scroll - jolt}}
+|[[Ability Books|Spell Scroll]]
+|225
 |}
 
 [[Category:Characters]]

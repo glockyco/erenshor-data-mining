@@ -52,53 +52,53 @@ Prompts:
 !Item type
 !Price
 |-
-|{{ItemLink|Spell Scroll: Dazzle}}
-|[[Ability Books|Spell Book]]
-|50
-|-
-|{{ItemLink|Spell Scroll: Invasive Thoughts}}
-|[[Ability Books|Spell Book]]
-|95
-|-
-|{{ItemLink|Spell Scroll: Burning Chains}}
-|[[Ability Books|Spell Book]]
-|150
-|-
-|{{ItemLink|Spell Scroll: Jolt}}
-|[[Ability Books|Spell Book]]
-|250
-|-
-|{{ItemLink|Spell Scroll: Summon Decayed Fawn}}
-|[[Ability Books|Spell Book]]
-|100
-|-
-|{{ItemLink|Spell Scroll: Biting Vines}}
-|[[Ability Books|Spell Book]]
-|66
-|-
-|{{ItemLink|Spell Scroll: Tangle}}
-|[[Ability Books|Spell Book]]
-|200
-|-
-|{{ItemLink|Spell Scroll: Death's Embrace}}
-|[[Ability Books|Spell Book]]
-|200
-|-
-|{{ItemLink|Spell Scroll: Vithean Breeze}}
-|[[Ability Books|Spell Book]]
-|100
-|-
-|{{ItemLink|Spell Scroll: Ice Bolt}}
-|[[Ability Books|Spell Book]]
-|100
-|-
-|{{ItemLink|Skill Book: Execute}}
+|{{ItemLink|Skill Book: Execute|stablekey=item:skillbook - execute}}
 |[[Ability Books|Skill Book]]
 |1100
 |-
-|{{ItemLink|Spell Scroll: Static Invocation}}
-|[[Ability Books|Spell Book]]
+|{{ItemLink|Spell Scroll: Dazzle|stablekey=item:spell scroll - dazzle}}
+|[[Ability Books|Spell Scroll]]
+|50
+|-
+|{{ItemLink|Spell Scroll: Biting Vines|stablekey=item:spell scroll - biting vines}}
+|[[Ability Books|Spell Scroll]]
+|66
+|-
+|{{ItemLink|Spell Scroll: Invasive Thoughts|stablekey=item:spell scroll - invasive thoughts}}
+|[[Ability Books|Spell Scroll]]
+|95
+|-
+|{{ItemLink|Spell Scroll: Ice Bolt|stablekey=item:spell scroll - ice bolt}}
+|[[Ability Books|Spell Scroll]]
+|100
+|-
+|{{ItemLink|Spell Scroll: Summon Decayed Fawn|stablekey=item:spell scroll - summon decayed fawn}}
+|[[Ability Books|Spell Scroll]]
+|100
+|-
+|{{ItemLink|Spell Scroll: Vithean Breeze|stablekey=item:spell scroll - vithean breeze}}
+|[[Ability Books|Spell Scroll]]
+|100
+|-
+|{{ItemLink|Spell Scroll: Static Invocation|stablekey=item:spell scroll - static invocation}}
+|[[Ability Books|Spell Scroll]]
 |125
+|-
+|{{ItemLink|Spell Scroll: Burning Chains|stablekey=item:spell scroll - burning chains}}
+|[[Ability Books|Spell Scroll]]
+|150
+|-
+|{{ItemLink|Spell Scroll: Death's Embrace|stablekey=item:spell scroll - death's embrace}}
+|[[Ability Books|Spell Scroll]]
+|200
+|-
+|{{ItemLink|Spell Scroll: Tangle|stablekey=item:spell scroll - tangle}}
+|[[Ability Books|Spell Scroll]]
+|200
+|-
+|{{ItemLink|Spell Scroll: Jolt|stablekey=item:spell scroll - jolt}}
+|[[Ability Books|Spell Scroll]]
+|225
 |}
 
 [[Category:Characters]]

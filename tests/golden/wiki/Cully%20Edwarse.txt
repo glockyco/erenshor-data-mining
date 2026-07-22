@@ -48,24 +48,24 @@ Greeting message:
 !Item type
 !Price
 |-
-|{{ItemLink|Brackfruit Juice}}
-|[[Status_Effects#Buffs|Consumable]]
-|5
-|-
-|{{ItemLink|Bread}}
-|[[Status Effects|Food]]
-|2
-|-
-|{{ItemLink|Seafruit}}
-|[[Status_Effects|Consumable]]
-|120
-|-
-|{{ItemLink|Water}}
-|[[Consumables|Drink]]
+|{{ItemLink|Water|stablekey=item:cons - water}}
+|[[Consumables|Consumable]]
 |1
 |-
-|{{ItemLink|Seaspice}}
-|[[Status_Effects#Buffs|Consumable]]
+|{{ItemLink|Bread|stablekey=item:cons - bread}}
+|[[Consumables|Consumable]]
+|2
+|-
+|{{ItemLink|Brackfruit Juice|stablekey=item:cons - brackfruit juice}}
+|[[Consumables|Consumable]]
+|5
+|-
+|{{ItemLink|Seafruit|stablekey=item:cons - seafruit}}
+|[[Consumables|Consumable]]
+|120
+|-
+|{{ItemLink|Seaspice|stablekey=item:cons - seaspice}}
+|[[Consumables|Consumable]]
 |500
 |}
 

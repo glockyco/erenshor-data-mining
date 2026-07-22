@@ -66,28 +66,28 @@ Port Azure pulled back all its soldiers. Every last one of 'em. Lots of settlers
 !Item type
 !Price
 |-
-|{{ItemLink|Bread}}
-|[[Status Effects|Food]]
-|2
-|-
-|{{ItemLink|Water}}
-|[[Consumables|Drink]]
+|{{ItemLink|Water|stablekey=item:cons - water}}
+|[[Consumables|Consumable]]
 |1
 |-
-|{{ItemLink|Azure Mead}}
-|[[Consumables|Drink]]
-|12
+|{{ItemLink|Bread|stablekey=item:cons - bread}}
+|[[Consumables|Consumable]]
+|2
 |-
-|{{ItemLink|Brackfruit Juice}}
-|[[Status Effects|Consumable]]
+|{{ItemLink|Brackfruit Juice|stablekey=item:cons - brackfruit juice}}
+|[[Consumables|Consumable]]
 |5
 |-
-|{{ItemLink|Vithean Brew}}
-|[[Consumables|Drink]]
+|{{ItemLink|Vithean Brew|stablekey=item:cons - vithean brew}}
+|[[Consumables|Consumable]]
 |11
 |-
-|{{ItemLink|Seafruit}}
-|[[Status Effects|Consumable]]
+|{{ItemLink|Azure Mead|stablekey=item:cons - azure mead}}
+|[[Consumables|Consumable]]
+|12
+|-
+|{{ItemLink|Seafruit|stablekey=item:cons - seafruit}}
+|[[Consumables|Consumable]]
 |120
 |}
 

@@ -34,7 +34,7 @@
 |res=7
 |damage=30
 |delay=2.0
-|range=40
+|range=25
 |health=440
 |mana=300
 |armor=45

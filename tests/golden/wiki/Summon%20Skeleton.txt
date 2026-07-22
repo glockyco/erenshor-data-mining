@@ -6,7 +6,7 @@
 |type=Pet
 |line=Generic
 |classes=
-|required_level=34
+|required_level=33
 |manacost=1800
 |aggro=
 |is_taunt=

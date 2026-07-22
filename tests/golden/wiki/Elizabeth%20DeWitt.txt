@@ -48,33 +48,33 @@ Greeting message:
 !Item type
 !Price
 |-
-|{{ItemLink|Spell Scroll: Arcstorm}}
-|[[:Category:Ability Books|Spell Book]]
-|3000
+|{{ItemLink|Falling Rain|stablekey=item:aura - storm 2}}
+|[[Auras|Aura]]
+|1500
 |-
-|{{ItemLink|Spell Scroll: Ball Lightning}}
-|[[:Category:Ability Books|Spell Book]]
-|1800
-|-
-|{{ItemLink|Spell Scroll: Ionize}}
-|[[:Category:Ability Books|Spell Book]]
-|5000
-|-
-|{{ItemLink|Spell Scroll: Targeted Windstorm}}
-|[[:Category:Ability Books|Spell Book]]
-|6000
-|-
-|{{ItemLink|Spell Scroll: Vitheo's Wrath}}
-|[[:Category:Ability Books|Spell Book]]
-|27000
-|-
-|{{ItemLink|Skill Book: Skycaller Arrow}}
-|[[:Category:Ability Books|Skill Book]]
+|{{ItemLink|Skill Book: Skycaller Arrow|stablekey=item:skillbook - skycaller arrow}}
+|[[Ability Books|Skill Book]]
 |1350
 |-
-|{{ItemLink|Falling Rain}}
-||[[Auras]]
-|1500
+|{{ItemLink|Spell Scroll: Ball Lightning|stablekey=item:spell scroll - ball lightning}}
+|[[Ability Books|Spell Scroll]]
+|1800
+|-
+|{{ItemLink|Spell Scroll: Arcstorm|stablekey=item:spell scroll - arcstorm}}
+|[[Ability Books|Spell Scroll]]
+|3000
+|-
+|{{ItemLink|Spell Scroll: Ionize|stablekey=item:spell scroll - ionize}}
+|[[Ability Books|Spell Scroll]]
+|5000
+|-
+|{{ItemLink|Spell Scroll: Targeted Windstorm|stablekey=item:spell scroll - targeted windstorm}}
+|[[Ability Books|Spell Scroll]]
+|6000
+|-
+|{{ItemLink|Spell Scroll: Vitheo's Wrath|stablekey=item:spell scroll - vitheo's wrath}}
+|[[Ability Books|Spell Scroll]]
+|27000
 |}
 
 [[Category:Characters]]

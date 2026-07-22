@@ -11,7 +11,7 @@
 |spawntype=
 |respawn=30 minutes
 |guaranteeddrops={{ItemLink|Allbond}}<br>{{ItemLink|Cleansing Incineration}}<br>{{ItemLink|Mana Strand Bracer}}<br>{{ItemLink|Mana Strand Tunic}}<br>{{ItemLink|Shard of Infinity}}<br>{{ItemLink|Tenet of Braxonia}}
-|droprates={{ItemLink|Sivakrux}} (62.9%)<br>{{ItemLink|Blizzard Bane}} (37.6%)<br>{{ItemLink|Frostbite}} (37.6%)<br>{{ItemLink|Glacier Belt}} (37.6%)<br>{{ItemLink|Magma Droplet}} (37.6%)<br>{{ItemLink|Warder's Staff}} (37.6%)<br>{{ItemLink|Allbond}} (33.3%)<br>{{ItemLink|Cleansing Incineration}} (33.3%)<br>{{ItemLink|Mana Strand Bracer}} (33.3%)<br>{{ItemLink|Mana Strand Tunic}} (33.3%)<br>{{ItemLink|Shard of Infinity}} (33.3%)<br>{{ItemLink|Tenet of Braxonia}} (33.3%)
+|droprates={{ItemLink|Sivakrux}} (53.4%)<br>{{ItemLink|Allbond}} (38.5%)<br>{{ItemLink|Cleansing Incineration}} (38.5%)<br>{{ItemLink|Mana Strand Bracer}} (38.5%)<br>{{ItemLink|Mana Strand Tunic}} (38.5%)<br>{{ItemLink|Shard of Infinity}} (38.5%)<br>{{ItemLink|Tenet of Braxonia}} (35.9%)<br>{{ItemLink|Blizzard Bane}} (30.7%)<br>{{ItemLink|Frostbite}} (30.7%)<br>{{ItemLink|Glacier Belt}} (30.7%)<br>{{ItemLink|Magma Droplet}} (30.7%)<br>{{ItemLink|Warder's Staff}} (30.7%)<br>{{ItemLink|Planar Stone}} (18.5%)<br>{{ItemLink|Platinum Statue: Brax}} (11.0%)
 |level=43
 |levelmodmin=0
 |levelmodmax=0
@@ -50,7 +50,7 @@
 |spawntype=
 |respawn=
 |guaranteeddrops={{ItemLink|Allbond}}<br>{{ItemLink|Cleansing Incineration}}<br>{{ItemLink|Mana Strand Bracer}}<br>{{ItemLink|Mana Strand Tunic}}<br>{{ItemLink|Shard of Infinity}}<br>{{ItemLink|Tenet of Braxonia}}
-|droprates={{ItemLink|Sivakrux}} (62.9%)<br>{{ItemLink|Blizzard Bane}} (37.6%)<br>{{ItemLink|Frostbite}} (37.6%)<br>{{ItemLink|Glacier Belt}} (37.6%)<br>{{ItemLink|Magma Droplet}} (37.6%)<br>{{ItemLink|Warder's Staff}} (37.6%)<br>{{ItemLink|Allbond}} (33.3%)<br>{{ItemLink|Cleansing Incineration}} (33.3%)<br>{{ItemLink|Mana Strand Bracer}} (33.3%)<br>{{ItemLink|Mana Strand Tunic}} (33.3%)<br>{{ItemLink|Shard of Infinity}} (33.3%)<br>{{ItemLink|Tenet of Braxonia}} (33.3%)
+|droprates={{ItemLink|Sivakrux}} (53.4%)<br>{{ItemLink|Allbond}} (38.5%)<br>{{ItemLink|Cleansing Incineration}} (38.5%)<br>{{ItemLink|Mana Strand Bracer}} (38.5%)<br>{{ItemLink|Mana Strand Tunic}} (38.5%)<br>{{ItemLink|Shard of Infinity}} (38.5%)<br>{{ItemLink|Tenet of Braxonia}} (35.9%)<br>{{ItemLink|Blizzard Bane}} (30.7%)<br>{{ItemLink|Frostbite}} (30.7%)<br>{{ItemLink|Glacier Belt}} (30.7%)<br>{{ItemLink|Magma Droplet}} (30.7%)<br>{{ItemLink|Warder's Staff}} (30.7%)<br>{{ItemLink|Planar Stone}} (18.5%)<br>{{ItemLink|Platinum Statue: Brax}} (11.0%)
 |level=43
 |levelmodmin=0
 |levelmodmax=0

@@ -61,12 +61,8 @@ Prompts:
 !Item type
 !Price
 |-
-|{{ItemLink|Resolving Fluid}}
-|[[Crafting]]
-|7000
-|-
-|{{ItemLink|Resolving Fluid}}
-|[[Crafting]]
+|{{ItemLink|Resolving Fluid|stablekey=item:template - resolving fluid}}
+|[[Crafting|Mold]]
 |7000
 |}
 

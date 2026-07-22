@@ -35,7 +35,44 @@
 |spells=
 }}
 
-Part of a two-boss fight with [[Frost]] ; loot is listed in [[Braxonian Chest]].
+Part of a two-boss fight with [[Frost]] ; loot drops in the [[Braxonian Chest]]. See sidebar further below for full details on loot.
+
+{{Character
+|name=Braxonian Chest
+|image=[[File:Braxonian Chest.png|thumb]]
+|imagecaption=
+|type=Enemy
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Brax's Plane of Elements]]
+|coordinates=1251.3 x 35.1 x 460.3
+|spawnchance=
+|spawntype=Dynamic event spawn
+|respawn=
+|guaranteeddrops={{ItemLink|Blizzard Bane}}<br>{{ItemLink|Cleansing Brace}}<br>{{ItemLink|Frostbite}}<br>{{ItemLink|Frozen Grip}}<br>{{ItemLink|Magma Droplet}}<br>{{ItemLink|Obsidian Edge}}
+|droprates={{ItemLink|Sivakrux}} (98.3%)<br>{{ItemLink|Blizzard Bane}} (35.5%)<br>{{ItemLink|Cleansing Brace}} (35.5%)<br>{{ItemLink|Frostbite}} (35.5%)<br>{{ItemLink|Frozen Grip}} (35.5%)<br>{{ItemLink|Magma Droplet}} (35.5%)<br>{{ItemLink|Obsidian Edge}} (35.5%)<br>{{ItemLink|Planar Stone Shards}} (24.9%)<br>{{ItemLink|Planar Stone}} (17.9%)
+|level=1
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1
+|mana=0
+|ac=15
+|strength=3
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=0-1
+|poison=0-1
+|elemental=0-1
+|void=0-1
+|spells=
+}}
 
 [[Category:Bosses]]
 [[Category:Brax's Plane of Elements]]

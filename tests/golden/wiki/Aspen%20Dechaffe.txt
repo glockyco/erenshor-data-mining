@@ -57,29 +57,33 @@ Brax burned this desert into the land to stop the blight. This is the place wher
 !Item type
 !Price
 |-
-|[[Spell Scroll: Arterial Collapse]]
-|[[Ability Books|Spell Scroll]]
-|3500
-|-
-|[[Spell Scroll: Concuss]]
+|{{ItemLink|Spell Scroll: Concuss|stablekey=item:spell scroll - concuss}}
 |[[Ability Books|Spell Scroll]]
 |1225
 |-
-|[[Spell Scroll: Major Healing]]
+|{{ItemLink|Spell Scroll: Group Healing|stablekey=item:spell scroll - group healing}}
+|[[Ability Books|Spell Scroll]]
+|1255
+|-
+|{{ItemLink|Spell Scroll: Greater Regrowth|stablekey=item:spell scroll - greater regrowth}}
 |[[Ability Books|Spell Scroll]]
 |1600
 |-
-|[[Spell Scroll: Greater Regrowth]]
+|{{ItemLink|Spell Scroll: Major Healing|stablekey=item:spell scroll - major healing}}
 |[[Ability Books|Spell Scroll]]
 |1600
 |-
-|[[Spell Scroll: Morbidity's Grasp]]
+|{{ItemLink|Spell Scroll: Cull the Unfit|stablekey=item:spell scroll - drudd cull the unfit}}
+|[[Ability Books|Spell Scroll]]
+|2000
+|-
+|{{ItemLink|Spell Scroll: Morbidity's Grasp|stablekey=item:spell scroll - morbidity's grasp}}
 |[[Ability Books|Spell Scroll]]
 |2500
 |-
-|[[Spell Scroll: Group Healing]]
+|{{ItemLink|Spell Scroll: Arterial Collapse|stablekey=item:spell scroll - arterial collapse}}
 |[[Ability Books|Spell Scroll]]
-|60
+|3500
 |}
 
 [[Category:Braxonian Desert]]

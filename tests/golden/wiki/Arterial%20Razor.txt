@@ -1,6 +1,6 @@
 {{Ability
-|title=Razor Tipped Arrow
-|image=[[File:Razor Tipped Arrow.png|thumb]]
+|title=Arterial Razor
+|image=[[File:Arterial Razor.png|thumb]]
 |imagecaption=
 |description=Fires an arrow that causes an enemy to BLEED - (Bleed deals 3% of CURRENT LIFE per tick in damage)
 |type=Ranged

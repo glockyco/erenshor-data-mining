@@ -1,7 +1,7 @@
 {{Ability
 |title=Stoneburst
 |image=[[File:Stoneburst.png|thumb]]
-|imagecaption=You are blased by earth!
+|imagecaption=You are blasted by earth!
 |description=NPC Spell
 |type=PBAE
 |line=Direct_Damage

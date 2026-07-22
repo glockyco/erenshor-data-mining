@@ -20,7 +20,7 @@
 {{Item/General
 |image=Ancient Golem Stone.png
 |name=Ancient Golem Stone
-|description=A slab from of one of the ancient guardians - its covered in old runes.
+|description=A slab from of one of the ancient guardians - it's covered in old runes.
 |value=1000
 |stack_size=
 |disposable=

@@ -28,7 +28,7 @@
 |reaver_level=
 |mana_cost=800
 |spell_type=Heal
-|spell_desc=Apply Regrowth to your group (Heal base 45 per tick)
+|spell_desc=Apply Regrowth to your group (Heal base 60 per tick)
 }}
 
 [[Category:Ability Books]]

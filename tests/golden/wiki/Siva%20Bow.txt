@@ -42,7 +42,7 @@
 |poison=0
 |elemental=0
 |void=5
-|description=You can't feel it in your hands and ts pull has no weight - it's like you're playing pretend
+|description=You can't feel it in your hands and its pull has no weight - it's like you're playing pretend
 |arcanist=
 |duelist=
 |druid=

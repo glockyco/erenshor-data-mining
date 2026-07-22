@@ -54,37 +54,41 @@ Prompts:
 !Item type
 !Price
 |-
-|{{ItemLink|Spell Scroll: Dark Ritual}}
-|[[:Category:Ability Books|Spell Book]]
-|1200
-|-
-|{{ItemLink|Spell Scroll: Dark Pact}}
-|[[:Category:Ability Books|Spell Book]]
-|18500
-|-
-|{{ItemLink|Spell Scroll: Atonic Howl}}
-|[[:Category:Ability Books|Spell Book]]
-|1800
-|-
-|{{ItemLink|Reaver Plate}}
-|[[Armor|Chest Armor]]
-|1000
-|-
-|{{ItemLink|Tarnished Halberd}}
-|[[Weapons|2-Handed Weapon]]
-|750
-|-
-|{{ItemLink|Seaspice}}
-|[[Consumables|Consumable]]
-|5000
-|-
-|{{ItemLink|Cold Steel Greaves}}
-|[[Armor|Leg Armor]]
+|{{ItemLink|Cold Steel Greaves|stablekey=item:leg - 6 - cold steel greaves}}
+|[[Armor]]
 |65
 |-
-|{{ItemLink|Looming Void}}
+|{{ItemLink|Reaver Plate|stablekey=item:chest - 10 - reaver plate}}
+|[[Armor]]
+|1000
+|-
+|{{ItemLink|Looming Void|stablekey=item:aura - reaver 2}}
 |[[Auras|Aura]]
 |1500
+|-
+|{{ItemLink|Seaspice|stablekey=item:cons - seaspice}}
+|[[Consumables|Consumable]]
+|500
+|-
+|{{ItemLink|Spell Scroll: Dark Ritual|stablekey=item:spell scroll - dark ritual}}
+|[[Ability Books|Spell Scroll]]
+|1200
+|-
+|{{ItemLink|Spell Scroll: Atonic Howl|stablekey=item:spell scroll - atonic howl}}
+|[[Ability Books|Spell Scroll]]
+|1800
+|-
+|{{ItemLink|Spell Scroll: Sivakaya's Dismay|stablekey=item:spell scroll - sivakaya's dismay}}
+|[[Ability Books|Spell Scroll]]
+|13200
+|-
+|{{ItemLink|Spell Scroll: Dark Pact|stablekey=item:spell scroll - dark pact}}
+|[[Ability Books|Spell Scroll]]
+|18500
+|-
+|{{ItemLink|Tarnished Halberd|stablekey=item:weap - 17 - tarnished halberd}}
+|[[Weapons|Weapon]]
+|750
 |}
 
 [[Category:Characters]]

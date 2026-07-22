@@ -57,53 +57,53 @@ Prompts:
 !Item type
 !Price
 |-
-|{{ItemLink|Spell Scroll: Mutual Ache}}
-|[[:Category:Ability Books|Spell Book]]
-|220
-|-
-|{{ItemLink|Spell Scroll: Void Bolt}}
-|[[:Category:Ability Books|Spell Book]]
+|{{ItemLink|Skill Book: Aggressive Stance|stablekey=item:skillbook - stance - aggressive}}
+|[[Ability Books|Skill Book]]
 |100
 |-
-|{{ItemLink|Skill Book: Counter-Attack}}
-|[[:Category:Ability Books|Skill Book]]
-|1350
+|{{ItemLink|Skill Book: Defensive Stance|stablekey=item:skillbook - stance - defensive}}
+|[[Ability Books|Skill Book]]
+|100
 |-
-|{{ItemLink|Old Halberd}}
-|[[Weapons|2-Handed Weapon]]
-|500
+|{{ItemLink|Skill Book: Taunting Stance|stablekey=item:skillbook - stance - taunting}}
+|[[Ability Books|Skill Book]]
+|100
 |-
-|{{ItemLink|Skill Book: Cleave}}
-|[[:Category:Ability Books|Skill Book]]
+|{{ItemLink|Skill Book: Cleave|stablekey=item:skillbook - cleave}}
+|[[Ability Books|Skill Book]]
 |1100
 |-
-|{{ItemLink|Spell Scroll: Affinity for Suffering}}
-|[[:Category:Ability Books|Spell Book]]
+|{{ItemLink|Skill Book: Counter-Attack|stablekey=item:skillbook - counter-attack}}
+|[[Ability Books|Skill Book]]
+|1350
+|-
+|{{ItemLink|Spell Scroll: Affinity for Suffering|stablekey=item:spell scroll - affinity for suffering}}
+|[[Ability Books|Spell Scroll]]
 |100
 |-
-|{{ItemLink|Skill Book: Aggressive Stance}}
-|[[:Category:Ability Books|Skill Book]]
+|{{ItemLink|Spell Scroll: Void Bolt|stablekey=item:spell scroll - void bolt}}
+|[[Ability Books|Spell Scroll]]
 |100
 |-
-|{{ItemLink|Skill Book: Defensive Stance}}
-|[[:Category:Ability Books|Skill Book]]
-|100
+|{{ItemLink|Spell Scroll: Mutual Ache|stablekey=item:spell scroll - mutual ache}}
+|[[Ability Books|Spell Scroll]]
+|220
 |-
-|{{ItemLink|Spell Scroll: Atrophy}}
-|[[:Category:Ability Books|Spell Book]]
+|{{ItemLink|Spell Scroll: Waste|stablekey=item:spell scroll - waste}}
+|[[Ability Books|Spell Scroll]]
+|225
+|-
+|{{ItemLink|Spell Scroll: Atrophy|stablekey=item:spell scroll - atrophy}}
+|[[Ability Books|Spell Scroll]]
 |300
 |-
-|{{ItemLink|Skill Book: Taunting Stance}}
-|[[:Category:Ability Books|Skill Book]]
-|100
-|-
-|{{ItemLink|Spell Scroll: Instill Fear}}
-|[[:Category:Ability Books|Spell Book]]
+|{{ItemLink|Spell Scroll: Instill Fear|stablekey=item:spell scroll - instill fear}}
+|[[Ability Books|Spell Scroll]]
 |850
 |-
-|{{ItemLink|Spell Scroll: Waste}}
-|[[:Category:Ability Books|Spell Book]]
-|225
+|{{ItemLink|Old Halberd|stablekey=item:weap - 6 - old halberd}}
+|[[Weapons|Weapon]]
+|500
 |}
 
 [[Category:Characters]]

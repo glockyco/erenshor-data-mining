@@ -42,7 +42,7 @@
 |poison=3
 |elemental=3
 |void=6
-|description=Physical blows are seemingly lost this metal, absorbed into nothingness
+|description=Physical blows are seemingly lost upon this metal, absorbed into nothingness
 |arcanist=
 |duelist=True
 |druid=

@@ -60,25 +60,45 @@ Prompts:
 !Item type
 !Price
 |-
-|{{ItemLink|Light Plate Breastplate}}
-|[[Armor#Chest_Armor|Chest Armor]]
-|75
-|-
-|{{ItemLink|Rusty Shortsword}}
-|[[Weapons|Sword]]
-|10
-|-
-|{{ItemLink|Rusty Hatchet}}
-|[[Weapons|Axe]]
-|8
-|-
-|{{ItemLink|Ring of Magic Bolt}}
-|[[Armor#Rings|Ring]]
+|{{ItemLink|Ring of Magic Bolt|stablekey=item:ring - 5 - ring of magic bolt}}
+|[[Armor]]
 |20
 |-
-|{{ItemLink|Spell Scroll: Vithean Breeze|image=SpellScrollPurple.png}}
-|[[:Category:Ability Books|Spell Book]]
+|{{ItemLink|Light Plate Breastplate|stablekey=item:chest - 4 - light plate armor}}
+|[[Armor]]
+|75
+|-
+|{{ItemLink|Belt Lamp|stablekey=item:gen - belt lamp}}
+|[[:Category:Cosmetic Items|Cosmetic]]
+|225
+|-
+|{{ItemLink|Skill Book: Blunted Arrow|stablekey=item:skillbook - blunted arrow}}
+|[[Ability Books|Skill Book]]
+|225
+|-
+|{{ItemLink|Skill Book: Flaming Arrow|stablekey=item:skillbook - flaming arrow}}
+|[[Ability Books|Skill Book]]
+|1100
+|-
+|{{ItemLink|Spell Scroll: Minor Protection|stablekey=item:spell scroll - minor protection}}
+|[[Ability Books|Spell Scroll]]
+|25
+|-
+|{{ItemLink|Spell Scroll: Vithean Breeze|stablekey=item:spell scroll - vithean breeze}}
+|[[Ability Books|Spell Scroll]]
 |100
+|-
+|{{ItemLink|Spell Scroll: Static Invocation|stablekey=item:spell scroll - static invocation}}
+|[[Ability Books|Spell Scroll]]
+|125
+|-
+|{{ItemLink|Rusty Hatchet|stablekey=item:weap - 1 - rusty hatchet}}
+|[[Weapons|Weapon]]
+|8
+|-
+|{{ItemLink|Rusty Shortsword|stablekey=item:weap - 1 - rusty sword}}
+|[[Weapons|Weapon]]
+|10
 |}
 
 [[Category:Characters]]

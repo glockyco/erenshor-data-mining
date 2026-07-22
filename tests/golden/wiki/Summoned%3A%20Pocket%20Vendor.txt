@@ -35,6 +35,37 @@
 |spells=
 }}
 
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Water|stablekey=item:cons - water}}
+|[[Consumables|Consumable]]
+|1
+|-
+|{{ItemLink|Bread|stablekey=item:cons - bread}}
+|[[Consumables|Consumable]]
+|2
+|-
+|{{ItemLink|Brackfruit Juice|stablekey=item:cons - brackfruit juice}}
+|[[Consumables|Consumable]]
+|5
+|-
+|{{ItemLink|Seafruit|stablekey=item:cons - seafruit}}
+|[[Consumables|Consumable]]
+|120
+|-
+|{{ItemLink|Seaspice|stablekey=item:cons - seaspice}}
+|[[Consumables|Consumable]]
+|500
+|-
+|{{ItemLink|Elixir of Enlightenment I|stablekey=item:cons - enlightening potion i}}
+|[[Consumables|Potion]]
+|25000
+|}
+
 [[Category:Characters]]
 [[Category:Reliquary Hall]]
 [[Category:Vendors]]

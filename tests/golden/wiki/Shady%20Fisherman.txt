@@ -35,6 +35,25 @@
 |spells=
 }}
 
+{| class="wikitable"
+|+Store inventory
+!Item name
+!Item type
+!Price
+|-
+|{{ItemLink|Water|stablekey=item:cons - water}}
+|[[Consumables|Consumable]]
+|1
+|-
+|{{ItemLink|Azure Mead|stablekey=item:cons - azure mead}}
+|[[Consumables|Consumable]]
+|12
+|-
+|{{ItemLink|Fishing Pole|stablekey=item:weap - 1 - fishing pole}}
+|[[Weapons|Weapon]]
+|5
+|}
+
 [[Category:Bellwain Island]]
 [[Category:Characters]]
 [[Category:Port Azure]]

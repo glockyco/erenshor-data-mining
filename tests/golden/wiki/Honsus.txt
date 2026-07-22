@@ -35,5 +35,44 @@
 |spells=
 }}
 
+Most of Tojokom's loot drops in [[Vithean Chest]] (Round 7); see the box on the sidebar further below.
+
+{{Character
+|name=Vithean Chest (Round 7)
+|image=[[File:Vithean Chest.png|thumb]]
+|imagecaption=
+|type=Boss
+|faction=[[The Followers of Evil]]
+|factionChange=
+|zones=[[Vitheo's Plane of Valor]]
+|coordinates=521.9 x 25.2 x 485.6
+|spawnchance=
+|spawntype=Dynamic event spawn
+|respawn=
+|guaranteeddrops={{ItemLink|Honsus' Bow}}<br>{{ItemLink|Oceanic Charm}}<br>{{ItemLink|Sibling's Locket}}
+|droprates={{ItemLink|Vithean Arena Fee (8)}} (100.0%)<br>{{ItemLink|Sivakrux}} (98.3%)<br>{{ItemLink|Honsus' Bow}} (66.7%)<br>{{ItemLink|Oceanic Charm}} (66.7%)<br>{{ItemLink|Sibling's Locket}} (66.7%)<br>{{ItemLink|Planar Stone Shards}} (14.4%)<br>{{ItemLink|Planar Stone}} (14.3%)<br>{{ItemLink|Cyclone Steel Boots}} (2.4%)<br>{{ItemLink|Cyclone Steel Bracer}} (2.4%)<br>{{ItemLink|Cyclone Steel Gloves}} (2.4%)<br>{{ItemLink|Cyclone Steel Greaves}} (2.4%)<br>{{ItemLink|Cyclone Steel Helm}} (2.4%)<br>{{ItemLink|Cyclone Steel Plate}} (2.4%)<br>{{ItemLink|Cyclone Steel Sleeves}} (2.4%)<br>{{ItemLink|Skyseared Boots}} (2.4%)<br>{{ItemLink|Skyseared Brace}} (2.4%)<br>{{ItemLink|Skyseared Gloves}} (2.4%)<br>{{ItemLink|Skyseared Hood}} (2.4%)<br>{{ItemLink|Skyseared Leggings}} (2.4%)<br>{{ItemLink|Skyseared Sleeves}} (2.4%)<br>{{ItemLink|Skyseared Tunic}} (2.4%)
+|level=1
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=1
+|mana=0
+|ac=15
+|strength=3
+|endurance=3
+|dexterity=3
+|agility=3
+|intelligence=3
+|wisdom=3
+|charisma=3
+|magic=0-1
+|poison=0-1
+|elemental=0-1
+|void=0-1
+|spells=
+}}
+
 [[Category:Enemies]]
 [[Category:Vitheo's Plane of Valor]]

@@ -54,49 +54,53 @@ Prompts:
 !Item type
 !Price
 |-
-|{{ItemLink|Bronzed Solunian Greaves}}
-|[[Armor#Leg|Leg Armor]]
-|800
-|-
-|{{ItemLink|Bronzed Solunian Plate}}
-|[[Armor#Chest|Chest armor]]
-|1000
-|-
-|{{ItemLink|Bronzed Solunian Bracer}}
-|[[Armor#Wrist|Wrist armor]]
+|{{ItemLink|Bronzed Solunarian Bracer|stablekey=item:wrist - 8 - bronzed solunian bracer}}
+|[[Armor]]
 |355
 |-
-|{{ItemLink|Skill Book: Stunning Strike}}
-|[[Ability Books|Skill Book]]
-|225
+|{{ItemLink|Bronzed Solunarian Greaves|stablekey=item:leg - 8 - bronzed solunian greaves}}
+|[[Armor]]
+|800
 |-
-|{{ItemLink|Steel Long Sword}}
-|[[Weapons#Swords|Sword]]
-|55
+|{{ItemLink|Bronzed Solunarian Plate|stablekey=item:chest - 10 - bronzed solunian plate}}
+|[[Armor]]
+|1000
 |-
-|{{ItemLink|Heavy Bladed Mace}}
-|[[Weapons#Maces|Mace]]
-|300
-|-
-|{{ItemLink|Spell Scroll: Glare of Soluna}}
-|[[Ability Books|Spell Scroll]]
-|155
-|-
-|{{ItemLink|Skill Book: Block}}
-|[[Ability Books|Skill Book]]
-|555
-|-
-|{{ItemLink|Morning Glow}}
+|{{ItemLink|Morning Glow|stablekey=item:aura - soluna 2}}
 |[[Auras|Aura]]
 |1500
 |-
-|{{ItemLink|Skill Book: Cleave}}
+|{{ItemLink|Skill Book: Stunning Strike|stablekey=item:skillbook - stun strike}}
+|[[Ability Books|Skill Book]]
+|225
+|-
+|{{ItemLink|Skill Book: Block|stablekey=item:skillbook - block 1}}
+|[[Ability Books|Skill Book]]
+|555
+|-
+|{{ItemLink|Skill Book: Cleave|stablekey=item:skillbook - cleave}}
 |[[Ability Books|Skill Book]]
 |1100
 |-
-|{{ItemLink|Skill Book: Celestial Smite}}
+|{{ItemLink|Skill Book: Celestial Smite II|stablekey=item:skillbook - celestial smite ii}}
 |[[Ability Books|Skill Book]]
 |18500
+|-
+|{{ItemLink|Spell Scroll: Glare of Soluna|stablekey=item:spell scroll - glare of soluna}}
+|[[Ability Books|Spell Scroll]]
+|155
+|-
+|{{ItemLink|Spell Scroll: Celestial Pull|stablekey=item:spell scroll - celestial pull}}
+|[[Ability Books|Spell Scroll]]
+|6500
+|-
+|{{ItemLink|Steel Long Sword|stablekey=item:weap - 4 - steel long sword}}
+|[[Weapons|Weapon]]
+|55
+|-
+|{{ItemLink|Heavy Bladed Mace|stablekey=item:weap - 8 - heavy mace}}
+|[[Weapons|Weapon]]
+|300
 |}
 
 [[Category:Characters]]

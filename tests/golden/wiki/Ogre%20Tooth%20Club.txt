@@ -3,7 +3,7 @@
 |stablekey=item:weap - 9 - ogre tooth club
 |type=
 |vendorsource=
-|source=[[A Grassland Ogre Chieftan]] (9.0%)<br>[[A Grassland Ogre Elder]] (8.9%)
+|source=[[A Grassland Ogre Chieftain]] (9.0%)<br>[[A Grassland Ogre Elder]] (8.9%)
 |othersource=
 |questsource=
 |relatedquest=

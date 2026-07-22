@@ -45,25 +45,12 @@ Greeting message:
 {| class="wikitable"
 |+Store inventory
 !Item name
+!Item type
 !Price
 |-
-|{{ItemLink|Braxonian Fossil}}
-|1,000,000
-|-
-|{{ItemLink|Braxonian Fossil}}
-|1,000,000
-|-
-|{{ItemLink|Braxonian Fossil}}
-|1,000,000
-|-
-|{{ItemLink|Braxonian Fossil}}
-|1,000,000
-|-
-|{{ItemLink|Braxonian Fossil}}
-|1,000,000
-|-
-|{{ItemLink|Braxonian Fossil}}
-|1,000,000
+|{{ItemLink|Braxonian Fossil|stablekey=item:gen - braxonian fossil}}
+|[[Consumables|Consumable]]
+|1000000
 |}
 
 [[Category:Braxonian Desert]]

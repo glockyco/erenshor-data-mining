@@ -57,20 +57,20 @@ Prompts:
 !Item type
 !Price
 |-
-|{{ItemLink|Skill Book: Arterial Razor}}
-|[[:Category:Ability Books|Skill Book]]
-|26550
-|-
-|{{ItemLink|Skill Book: Envenomed Arrow}}
-|[[:Category:Ability Books|Skill Book]]
+|{{ItemLink|Skill Book: Envenomed Arrow|stablekey=item:skillbook - envenomed arrow}}
+|[[Ability Books|Skill Book]]
 |20000
 |-
-|{{ItemLink|Spell Scroll: Targeted Windstorm}}
-|[[:Category:Ability Books|Spell Book]]
+|{{ItemLink|Skill Book: Arterial Razor|stablekey=item:skillbook - arterial razor}}
+|[[Ability Books|Skill Book]]
+|26550
+|-
+|{{ItemLink|Spell Scroll: Targeted Windstorm|stablekey=item:spell scroll - targeted windstorm}}
+|[[Ability Books|Spell Scroll]]
 |6000
 |-
-|{{ItemLink|Executioner's Bow}}
-||[[Weapons#|Bow]]
+|{{ItemLink|Executioner's Bow|stablekey=item:bow - 8 - executioner's string}}
+|[[Weapons|Weapon]]
 |300
 |}
 

@@ -47,25 +47,25 @@ Greeting message:
 !Item type
 !Price
 |-
-|{{ItemLink|Azure Plate Vambraces}}
-|[[Armor#Wrist|Arm Armor]]
+|{{ItemLink|Azure Plate Bracer|stablekey=item:wrist - 7 - azure plate bracer}}
+|[[Armor]]
+|75
+|-
+|{{ItemLink|Azure Plate Chestguard|stablekey=item:chest - 7 - azure plate chestguard}}
+|[[Armor]]
 |100
 |-
-|{{ItemLink|Azure Plate Chestguard}}
-|[[Armor#Chest|Chest armor]]
+|{{ItemLink|Azure Plate Vambraces|stablekey=item:arm - 6 - azure plate vamebraces}}
+|[[Armor]]
 |100
 |-
-|{{ItemLink|Azure Plate Boots}}
-|[[Armor#Foot|Foot Armor]]
+|{{ItemLink|Azure Plate Boots|stablekey=item:foot - 6 - azure plate boots}}
+|[[Armor]]
 |125
 |-
-|{{ItemLink|Azure Plate Greaves}}
-|[[Armor#Leg|Leg Armor]]
+|{{ItemLink|Azure Plate Greaves|stablekey=item:leg - 7 - azure plate greaves}}
+|[[Armor]]
 |135
-|-
-|{{ItemLink|Azure Plate Bracer}}
-|[[Armor#Wrist|Wrist Armor]]
-|75
 |}
 
 [[Category:Characters]]

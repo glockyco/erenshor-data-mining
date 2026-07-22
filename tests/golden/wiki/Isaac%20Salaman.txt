@@ -46,33 +46,33 @@ Greeting message:
 !Item type
 !Price
 |-
-|{{ItemLink|Fishing Pole}}
-|[[Fishing Pole]]
+|{{ItemLink|Brackfruit Juice|stablekey=item:cons - brackfruit juice}}
+|[[Consumables|Consumable]]
 |5
 |-
-|{{ItemLink|A Burgundy Skipper}}
-|[[Status Effects|Food]]
-|55
-|-
-|{{ItemLink|A Fanged Caveskimmer}}
-|[[Status Effects|Food]]
+|{{ItemLink|A Fanged Caveskimmer|stablekey=item:fish - a fanged caveskimmer}}
+|[[Consumables|Consumable]]
 |10
 |-
-|{{ItemLink|A Frowny Clowny}}
-|[[Status Effects|Food]]
+|{{ItemLink|Azure Mead|stablekey=item:cons - azure mead}}
+|[[Consumables|Consumable]]
+|12
+|-
+|{{ItemLink|A Frowny Clowny|stablekey=item:fish - a frowny clowny}}
+|[[Consumables|Consumable]]
 |25
 |-
-|{{ItemLink|Brackfruit Juice}}
-|[[Status Effects|Consumable]]
-|5
+|{{ItemLink|A Burgundy Skipper|stablekey=item:fish - a burgundy skipper}}
+|[[Consumables|Consumable]]
+|55
 |-
-|{{ItemLink|Seafruit}}
-|[[Status Effects|Consumable]]
+|{{ItemLink|Seafruit|stablekey=item:cons - seafruit}}
+|[[Consumables|Consumable]]
 |120
 |-
-|{{ItemLink|Azure Mead}}
-|[[Consumables|Drink]]
-|12
+|{{ItemLink|Fishing Pole|stablekey=item:weap - 1 - fishing pole}}
+|[[Weapons|Weapon]]
+|5
 |}
 
 [[Category:Characters]]

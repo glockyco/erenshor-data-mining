@@ -2,7 +2,7 @@
 |title=Group Regrowth
 |image=[[File:Group Regrowth.png|thumb]]
 |imagecaption=You feel your wounds begin to close.
-|description=Apply Regrowth to your group (Heal base 45 per tick)
+|description=Apply Regrowth to your group (Heal base 60 per tick)
 |type=Heal
 |line=Healing
 |classes=[[Druid]] (35)
@@ -40,7 +40,7 @@
 |percent_mana_restoration=
 |bleed_damage_percent=
 |special_descriptor=
-|hp=65
+|hp=60
 |ac=
 |mana=
 |str=
