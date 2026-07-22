@@ -613,7 +613,8 @@ public class CharacterListener : IAssetScanListener<Character>
             record.BaseArmorPenPercentage = stats.BaseArmorPenPercentage;
             record.BaseAttackRollModifier = stats.BaseAttackRollModifier;
             record.CannotBeSnared = stats.CannotBeSnared;
-            record.BaseXpMin = stats.Level * 4;
+            // code-fact: character.base_xp_per_level
+            record.BaseXpMin = stats.Level * 6;
             record.BaseXpMax = record.BaseXpMin + stats.Level * 5;
             record.BossXpMultiplier = character.BossXp;
 

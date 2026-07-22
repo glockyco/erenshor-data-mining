@@ -377,6 +377,21 @@
       "note": "Pins inclusive DEX opportunities plus ordinary, Duelist/Windblade, and Stormcaller trial branches."
     },
     {
+      "id": "character.base_xp_per_level",
+      "mode": "assert",
+      "variants": [
+        "main",
+        "playtest"
+      ],
+      "type": "Character",
+      "method": "Start",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "xp = MyStats.Level * 6;"
+      },
+      "note": "Pins the base XP-per-level value exported as BaseXpMin. The separate BaseXpMax range remains the authored level-based bonus range."
+    },
+    {
       "id": "critical.final_roll",
       "mode": "assert",
       "variants": [

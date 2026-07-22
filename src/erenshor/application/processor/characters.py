@@ -824,6 +824,7 @@ def process_characters(
             "shout_trigger_keyword": r.get("ShoutTriggerKeyword"),
             "destroy_on_death": r.get("DestroyOnDeath"),
             "level": r.get("Level"),
+            # code-fact: character.base_xp_per_level
             "base_xp_min": r.get("BaseXpMin"),
             "base_xp_max": r.get("BaseXpMax"),
             "boss_xp_multiplier": r.get("BossXpMultiplier"),
