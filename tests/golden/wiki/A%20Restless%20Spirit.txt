@@ -3,15 +3,15 @@
 |image=[[File:A Restless Spirit.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
-|factionChange=+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Stowaway's Step]]
-|zones=[[Island Tomb]]<br>[[Willowwatch Ridge]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|factionChange=+2 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+2 {{FactionLink|stablekey=faction:stowaway|link=The Citizens of Stowaway's Step|text=The Citizens of Stowaway's Step}}
+|zones={{ZoneLink|stablekey=zone:tutorial|link=Island Tomb|text=Island Tomb}}<br>{{ZoneLink|stablekey=zone:willowwatch|link=Willowwatch Ridge|text=Willowwatch Ridge}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes (Island Tomb)<br>6 minutes (Willowwatch Ridge)
 |guaranteeddrops=
-|droprates={{ItemLink|Aetheria}} (11.2%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Bone}} (7.6%)<br>{{ItemLink|Golden Luminstone Ring}} (7.6%)<br>{{ItemLink|Luminstone}} (7.6%)<br>{{ItemLink|Star Stone}} (7.6%)<br>{{ItemLink|Cloth Gloves}} (2.6%)<br>{{ItemLink|Cloth Hood}} (2.6%)<br>{{ItemLink|Cloth Pants}} (2.6%)<br>{{ItemLink|Cloth Shirt}} (2.6%)<br>{{ItemLink|Cloth Shoes}} (2.6%)<br>{{ItemLink|Cloth Sleeves}} (2.6%)
+|droprates={{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} (11.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - an ancient bone|link=Ancient Bone|text=Ancient Bone|image=Ancient Bone.png}} (7.6%)<br>{{ItemLink|stablekey=item:ring - 3 - golden luminstone ring|link=Golden Luminstone Ring|text=Golden Luminstone Ring|image=Golden Luminstone Ring.png}} (7.6%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (7.6%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (7.6%)<br>{{ItemLink|stablekey=item:glove - 1 - cloth gloves|link=Cloth Gloves|text=Cloth Gloves|image=Cloth Gloves.png}} (2.6%)<br>{{ItemLink|stablekey=item:head - 1 - cloth hood|link=Cloth Hood|text=Cloth Hood|image=Cloth Hood.png}} (2.6%)<br>{{ItemLink|stablekey=item:leg - 1 - cloth pants|link=Cloth Pants|text=Cloth Pants|image=Cloth Pants.png}} (2.6%)<br>{{ItemLink|stablekey=item:chest - 1 - cloth shirt|link=Cloth Shirt|text=Cloth Shirt|image=Cloth Shirt.png}} (2.6%)<br>{{ItemLink|stablekey=item:foot - 1 - cloth shoes|link=Cloth Shoes|text=Cloth Shoes|image=Cloth Shoes.png}} (2.6%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves|link=Cloth Sleeves|text=Cloth Sleeves|image=Cloth Sleeves.png}} (2.6%)
 |level=3
 |levelmodmin=0
 |levelmodmax=0

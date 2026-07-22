@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Bastion}}
+|itemswitheffect={{ItemLink|stablekey=item:secondary - 38 - bastion|link=Bastion|text=Bastion|image=Bastion.png}}
 |source=
-|used_by=[[Ancient Spectre]]<br>[[Sentinel]]
+|used_by={{CharacterLink|stablekey=character:spectre ancient|link=Ancient Spectre|text=Ancient Spectre}}<br>{{CharacterLink|stablekey=character:sentinel|link=Sentinel|text=Sentinel}}
 }}

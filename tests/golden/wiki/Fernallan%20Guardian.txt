@@ -3,15 +3,15 @@
 |image=[[File:Fernallan Guardian.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Blooming Sepulcher]]
+|zones={{ZoneLink|stablekey=zone:bloomingsepulcher|link=Blooming Sepulcher|text=Blooming Sepulcher}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Essence of Nature}} (23.5%)<br>{{ItemLink|Decayed Druid Beads}} (3.0%)<br>{{ItemLink|Nature's Promise}} (0.6%)<br>{{ItemLink|Wisp Garden}} (0.6%)
+|droprates={{ItemLink|stablekey=item:gen - essence of nature|link=Essence of Nature|text=Essence of Nature|image=Essence of Nature.png}} (23.5%)<br>{{ItemLink|stablekey=item:gen - decayed druid beads|link=Decayed Druid Beads|text=Decayed Druid Beads|image=Decayed Druid Beads.png}} (3.0%)<br>{{ItemLink|stablekey=item:neck - 31 - nature's promise|link=Nature's Promise|text=Nature's Promise|image=Nature's Promise.png}} (0.6%)<br>{{ItemLink|stablekey=item:furniture - wisp garden|link=Wisp Garden|text=Wisp Garden|image=Wisp Garden.png}} (0.6%)
 |level=29
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=14-35
 |elemental=14-35
 |void=14-35
-|spells={{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Weak Poison}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's touch|link=Brax's Touch|text=Brax's Touch|image=Brax's Touch.png}}<br>{{AbilityLink|stablekey=spell:dru - weak poison|link=Weak Poison|text=Weak Poison|image=Weak Poison.png}}
 }}
 
 [[Category:Blooming Sepulcher]]

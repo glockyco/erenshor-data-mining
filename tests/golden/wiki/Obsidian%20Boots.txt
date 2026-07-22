@@ -3,7 +3,7 @@
 |stablekey=item:foot - 23 - obsidian boots
 |type=
 |vendorsource=
-|source=[[Nightmare]] (50.0%)
+|source={{CharacterLink|stablekey=character:nightmare|link=Nightmare|text=Nightmare}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

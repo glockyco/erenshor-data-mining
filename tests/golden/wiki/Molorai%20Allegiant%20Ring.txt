@@ -3,7 +3,7 @@
 |stablekey=item:ring - 33 - molorai allegiant ring
 |type=
 |vendorsource=
-|source=[[Molorai Eldermistress]] (66.7%)<br>[[Cerynth Duskveil]] (55.6%)<br>[[Myrre Morrigane]] (55.6%)<br>[[Rose Crystalshade]] (55.6%)
+|source={{CharacterLink|stablekey=character:molorai eldermistress|link=Molorai Eldermistress|text=Molorai Eldermistress}} (66.7%)<br>{{CharacterLink|stablekey=character:cerynth duskveil|link=Cerynth Duskveil|text=Cerynth Duskveil}} (55.6%)<br>{{CharacterLink|stablekey=character:myrre morrigane|link=Myrre Morrigane|text=Myrre Morrigane}} (55.6%)<br>{{CharacterLink|stablekey=character:rose darkcrystal|link=Rose Crystalshade|text=Rose Crystalshade}} (55.6%)
 |othersource=
 |questsource=
 |relatedquest=

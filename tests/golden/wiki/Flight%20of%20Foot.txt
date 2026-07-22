@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Aether's Blessing}}<br>{{ItemLink|Dancer's Ring}}<br>{{ItemLink|Statuesque Greaves}}<br>{{ItemLink|Windblown Boots}}
+|itemswitheffect={{ItemLink|stablekey=item:neck - 19 - aether's blessing|link=Aether's Blessing|text=Aether's Blessing|image=Aether's Blessing.png}}<br>{{ItemLink|stablekey=item:ring - 34 - dancer's ring|link=Dancer's Ring|text=Dancer's Ring|image=Dancer's Ring.png}}<br>{{ItemLink|stablekey=item:leg - 38 - statuesque greaves|link=Statuesque Greaves|text=Statuesque Greaves|image=Statuesque Greaves.png}}<br>{{ItemLink|stablekey=item:foot - 23 - windblown boots|link=Windblown Boots|text=Windblown Boots|image=Windblown Boots.png}}
 |source=
-|used_by=[[A Faerie Drone]]<br>[[A Grassland Ogre Chieftain]]<br>[[Charlotte Darmask]]<br>[[Tinkles]]
+|used_by={{CharacterLink|stablekey=character:faerie drone|link=A Faerie Drone|text=A Faerie Drone}}<br>{{CharacterLink|stablekey=character:grassland ogre chieftan|link=A Grassland Ogre Chieftain|text=A Grassland Ogre Chieftain}}<br>{{CharacterLink|stablekey=character:charlotte darmask|link=Charlotte Darmask|text=Charlotte Darmask}}<br>{{CharacterLink|stablekey=character:tinkles|link=Tinkles|text=Tinkles}}
 }}

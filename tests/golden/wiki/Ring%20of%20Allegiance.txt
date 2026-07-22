@@ -3,7 +3,7 @@
 |stablekey=item:ring - 42 - ring of allegiance
 |type=
 |vendorsource=
-|source=[[Solunarian Sunbringer]] (6.7%)
+|source={{CharacterLink|stablekey=character:solunarian sunbringer|link=Solunarian Sunbringer|text=Solunarian Sunbringer}} (6.7%)
 |othersource=
 |questsource=
 |relatedquest=

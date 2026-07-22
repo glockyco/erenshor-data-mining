@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 42 - the allbond
 |type=
 |vendorsource=
-|source=[[Brax, God of Elements]] (38.5%)
+|source={{CharacterLink|stablekey=character:god brax|link=Brax, God of Elements|text=Brax, God of Elements}} (38.5%)<br>{{CharacterLink|stablekey=character:god brax restored:planeofbrax:2543.61:75.50:404.12|link=Brax, God of Elements|text=Brax, God of Elements}} (38.5%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Cast
 |proc_chance=5
 |proc_spell_icon=Elemental Form.png
-|proc_spell_name=[[Elemental Form]]
+|proc_spell_name={{AbilityLink|stablekey=spell:none - elementalform|link=Elemental Form|text=Elemental Form|image=Elemental Form.png}}
 |proc_spell_level=35
 |proc_spell_duration_ticks=2
 |proc_spell_type=Beneficial
@@ -92,7 +92,7 @@
 |proc_percent_lifesteal=
 |proc_atk_roll_modifier=3
 |proc_resonate_chance=
-|proc_add_proc_name={{AbilityLink|Brax's Fury}}
+|proc_add_proc_name={{AbilityLink|stablekey=spell:arc - brax's fury|link=Brax's Fury|text=Brax's Fury}}
 |proc_add_proc_chance=33
 |proc_special_descriptor=
 |proc_xp_bonus=

@@ -5,7 +5,7 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|Serra Stile's Shovel}}
+|questsource={{QuestLink|Serra Stile's Shovel}}<br>{{QuestLink|stablekey=quest:stilesshovel|link=Serra Stile's Shovel|text=Serra Stile's Shovel}}
 |relatedquest=
 |craftsource=
 |componentfor=

@@ -5,7 +5,7 @@
 |description=Lower all target's resists by 20
 |type=StatusEffect
 |line=Global_Magic_Debuff
-|classes=[[Paladin]] (35)
+|classes={{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}} (35)
 |required_level=35
 |manacost=400
 |aggro=1700
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Solar Winds}}
+|source={{ItemLink|stablekey=item:spell scroll - solar winds|link=Spell Scroll: Solar Winds|text=Spell Scroll: Solar Winds|image=Spell Scroll: Solar Winds.png}}
 |used_by=
 }}

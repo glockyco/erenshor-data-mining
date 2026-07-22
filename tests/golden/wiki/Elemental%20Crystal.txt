@@ -3,9 +3,9 @@
 |image=[[File:Elemental Crystal.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Brax's Plane of Elements]]
+|zones={{ZoneLink|stablekey=zone:planeofbrax|link=Brax's Plane of Elements|text=Brax's Plane of Elements}}
 |coordinates=
 |spawnchance=
 |spawntype=

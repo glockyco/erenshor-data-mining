@@ -3,7 +3,7 @@
 |stablekey=item:ring - 24 - living sapphire ring
 |type=
 |vendorsource=
-|source=[[Sapphire Fiend]] (9.0%)
+|source={{CharacterLink|stablekey=character:sapphire fiend|link=Sapphire Fiend|text=Sapphire Fiend}} (9.0%)
 |othersource=
 |questsource=
 |relatedquest=

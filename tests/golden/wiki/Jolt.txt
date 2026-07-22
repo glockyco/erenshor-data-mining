@@ -5,7 +5,7 @@
 |description=Deal 255 magic damage and leave a target momentarily stunned.
 |type=Damage
 |line=Direct_Damage
-|classes=[[Arcanist]] (9)<br>[[Druid]] (9)<br>[[Stormcaller]] (9)
+|classes={{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}} (9)<br>{{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (9)<br>{{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}} (9)
 |required_level=9
 |manacost=160
 |aggro=400
@@ -31,7 +31,7 @@
 |caster_healing=
 |shield_amount=
 |pet_to_summon=
-|status_effect={{AbilityLink|Stun}}
+|status_effect=[[Stun]]
 |add_proc=
 |add_proc_chance=
 |has_lifetap=
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Spectral Bow}}
-|source={{ItemLink|Spell Scroll: Jolt}}
-|used_by=[[A Deepling Orator]]<br>[[A Golden Spirit]]<br>[[A Grassland Ogre Sorcerer]]<br>[[A Grassland Ogre Thaumaturge]]<br>[[Arabetha Songshade]]<br>[[Cerynth Duskveil]]<br>[[Charlotte Darmask]]<br>[[Ecclesiarch]]<br>[[Elizah Vernor]]<br>[[Gasper]]<br>[[Molorai Archmage]]<br>[[Molorai Brewmistress]]<br>[[Myrre Morrigane]]<br>[[Ravager, The First Infected]]<br>[[Rose Crystalshade]]<br>[[Rottenfoot Swampwalker]]<br>[[Thella Steepleton]]
+|itemswitheffect={{ItemLink|stablekey=item:bow - 24 - spectral bow|link=Spectral Bow|text=Spectral Bow|image=Spectral Bow.png}}
+|source={{ItemLink|stablekey=item:spell scroll - jolt|link=Spell Scroll: Jolt|text=Spell Scroll: Jolt|image=Spell Scroll: Jolt.png}}
+|used_by={{CharacterLink|stablekey=character:a deepling orator|link=A Deepling Orator|text=A Deepling Orator}}<br>{{CharacterLink|stablekey=character:golden spirit|link=A Golden Spirit|text=A Golden Spirit}}<br>{{CharacterLink|stablekey=character:grassland ogre sorcerer|link=A Grassland Ogre Sorcerer|text=A Grassland Ogre Sorcerer}}<br>{{CharacterLink|stablekey=character:grassland ogre thaumaturge|link=A Grassland Ogre Thaumaturge|text=A Grassland Ogre Thaumaturge}}<br>{{CharacterLink|stablekey=character:arabetha songshade|link=Arabetha Songshade|text=Arabetha Songshade}}<br>{{CharacterLink|stablekey=character:cerynth duskveil|link=Cerynth Duskveil|text=Cerynth Duskveil}}<br>{{CharacterLink|stablekey=character:charlotte darmask|link=Charlotte Darmask|text=Charlotte Darmask}}<br>{{CharacterLink|stablekey=character:ecclesiarch|link=Ecclesiarch|text=Ecclesiarch}}<br>{{CharacterLink|stablekey=character:elizah vernor|link=Elizah Vernor|text=Elizah Vernor}}<br>{{CharacterLink|stablekey=character:gasper|link=Gasper|text=Gasper}}<br>{{CharacterLink|stablekey=character:molorai archivist|link=Molorai Archmage|text=Molorai Archmage}}<br>{{CharacterLink|stablekey=character:molorai brewmistress|link=Molorai Brewmistress|text=Molorai Brewmistress}}<br>{{CharacterLink|stablekey=character:myrre morrigane|link=Myrre Morrigane|text=Myrre Morrigane}}<br>{{CharacterLink|stablekey=character:corrupted golem|link=Ravager, The First Infected|text=Ravager, The First Infected}}<br>{{CharacterLink|stablekey=character:rose darkcrystal|link=Rose Crystalshade|text=Rose Crystalshade}}<br>{{CharacterLink|stablekey=character:a rottenfoot goblin female|link=Rottenfoot Swampwalker|text=Rottenfoot Swampwalker}}<br>{{CharacterLink|stablekey=character:thella steepleton|link=Thella Steepleton|text=Thella Steepleton}}
 }}

@@ -3,7 +3,7 @@
 |stablekey=item:chest - 4 - funeral garb
 |type=
 |vendorsource=
-|source=[[Mourning]] (10.1%)
+|source={{CharacterLink|stablekey=character:mourning|link=Mourning|text=Mourning}} (10.1%)
 |othersource=
 |questsource=
 |relatedquest=

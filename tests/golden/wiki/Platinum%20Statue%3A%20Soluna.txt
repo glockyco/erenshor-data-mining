@@ -3,7 +3,7 @@
 |stablekey=item:furniture - stone statue platinum soluna
 |type=
 |vendorsource=
-|source=[[Soluna]] (16.6%)<br>[[Soluna]] (13.0%)
+|source={{CharacterLink|stablekey=character:soluna|link=Soluna|text=Soluna}} (16.6%)<br>{{CharacterLink|stablekey=character:soluna restored:planeofsoluna:239.49:415.91:995.65|link=Soluna|text=Soluna}} (13.0%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -3,15 +3,15 @@
 |image=[[File:Molorai Nightmistress.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
-|factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
-|zones=[[Azynthi's Garden]]
+|faction={{FactionLink|stablekey=faction:molarai|link=Eldoth Molorai (Faction)|text=Eldoth Molorai}}
+|factionChange=-2 {{FactionLink|stablekey=faction:molarai|link=Eldoth Molorai (Faction)|text=Eldoth Molorai}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+2 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
+|zones={{ZoneLink|stablekey=zone:azynthiclear|link=Azynthi's Garden|text=Azynthi's Garden}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Citrine Stone}} (57.4%)<br>{{ItemLink|Water}} (57.4%)<br>{{ItemLink|Vampire Fang}} (6.8%)<br>{{ItemLink|Ancient Pottery Shard}} (5.2%)<br>{{ItemLink|Diamond}} (5.2%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Battle Chain}} (5.2%)<br>{{ItemLink|Spell Scroll: Extinction Bloom}} (5.2%)<br>{{ItemLink|Azynthian Scripture 1}} (3.0%)<ref>If the player is already holding {{ItemLink|Azynthian Scripture 1}} in their inventory, another will not drop.</ref><br>{{ItemLink|Azynthian Scripture 2}} (3.0%)<ref>If the player is already holding {{ItemLink|Azynthian Scripture 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Azynthian Scripture 3}} (3.0%)<ref>If the player is already holding {{ItemLink|Azynthian Scripture 3}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Sigil}} (1.3%)<br>{{ItemLink|Blueprint: Azynthian Dining}} (0.3%)<br>{{ItemLink|Blueprint: Azynthian Livingroom}} (0.3%)<br>{{ItemLink|Blueprint: Azynthian Rest}} (0.3%)
+|droprates={{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (57.4%)<br>{{ItemLink|stablekey=item:cons - water|link=Water|text=Water|image=Water.png}} (57.4%)<br>{{ItemLink|stablekey=item:gen - vampire fang|link=Vampire Fang|text=Vampire Fang|image=Vampire Fang.png}} (6.8%)<br>{{ItemLink|stablekey=item:gen - ancient pottery shard|link=Ancient Pottery Shard|text=Ancient Pottery Shard|image=Ancient Pottery Shard.png}} (5.2%)<br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (5.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:chest - 18 - molarai battle chain|link=Molorai Battle Chain|text=Molorai Battle Chain|image=Molorai Battle Chain.png}} (5.2%)<br>{{ItemLink|stablekey=item:spell scroll - drudd extinction bloom|link=Spell Scroll: Extinction Bloom|text=Spell Scroll: Extinction Bloom|image=Spell Scroll: Extinction Bloom.png}} (5.2%)<br>{{ItemLink|stablekey=item:gen - azynthian scripture|link=Azynthian Scripture 1|text=Azynthian Scripture 1|image=Azynthian Scripture 1.png}} (3.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - azynthian scripture|link=Azynthian Scripture 1|text=Azynthian Scripture 1|image=Azynthian Scripture 1.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - azynthian scripture 1|link=Azynthian Scripture 2|text=Azynthian Scripture 2|image=Azynthian Scripture 2.png}} (3.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - azynthian scripture 1|link=Azynthian Scripture 2|text=Azynthian Scripture 2|image=Azynthian Scripture 2.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - azynthian scripture 2|link=Azynthian Scripture 3|text=Azynthian Scripture 3|image=Azynthian Scripture 3.png}} (3.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - azynthian scripture 2|link=Azynthian Scripture 3|text=Azynthian Scripture 3|image=Azynthian Scripture 3.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:neck - 34 - molorai sigil|link=Molorai Sigil|text=Molorai Sigil|image=Molorai Sigil.png}} (1.3%)<br>{{ItemLink|stablekey=item:furniture - azynthi dining blueprint|link=Blueprint: Azynthian Dining|text=Blueprint: Azynthian Dining|image=Blueprint: Azynthian Dining.png}} (0.3%)<br>{{ItemLink|stablekey=item:furniture - azynthi living blueprint|link=Blueprint: Azynthian Livingroom|text=Blueprint: Azynthian Livingroom|image=Blueprint: Azynthian Livingroom.png}} (0.3%)<br>{{ItemLink|stablekey=item:furniture - azynthi coffin blueprint|link=Blueprint: Azynthian Rest|text=Blueprint: Azynthian Rest|image=Blueprint: Azynthian Rest.png}} (0.3%)
 |level=30
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=15-36
 |elemental=15-36
 |void=15-36
-|spells={{AbilityLink|Arterial Decay}}<br>{{AbilityLink|Funeral Pyre}}<br>{{AbilityLink|Melting Bones}}
+|spells={{AbilityLink|stablekey=spell:dru - arterial decay|link=Arterial Decay|text=Arterial Decay|image=Arterial Decay.png}}<br>{{AbilityLink|stablekey=spell:arc - pyre|link=Funeral Pyre|text=Funeral Pyre|image=Funeral Pyre.png}}<br>{{AbilityLink|stablekey=spell:dru - melting bones|link=Melting Bones|text=Melting Bones|image=Melting Bones.png}}
 }}
 
 {{Character

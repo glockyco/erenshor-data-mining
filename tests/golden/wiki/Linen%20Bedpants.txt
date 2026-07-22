@@ -3,7 +3,7 @@
 |stablekey=item:leg - 24 - linen bedpants
 |type=
 |vendorsource=
-|source=[[Invader of Dreams]] (25.0%)
+|source={{CharacterLink|stablekey=character:dream invader:fernallaportal:343.45:0.52:405.94|link=Invader of Dreams|text=Invader of Dreams}} (25.0%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - planar healing
 |type=
 |vendorsource=
-|source=[[Fernallan High Priest]] (100.0%)
+|source={{CharacterLink|stablekey=character:fernallan high priest|link=Fernallan High Priest|text=Fernallan High Priest}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=
 |sell=
-|taughtspell={{AbilityLink|Planar Healing}}
+|taughtspell={{AbilityLink|stablekey=spell:dru  - planar healing|link=Planar Healing|text=Planar Healing|image=Planar Healing.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

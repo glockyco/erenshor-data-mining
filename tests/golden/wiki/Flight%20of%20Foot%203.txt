@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Meteor Metal Boots}}<br>{{ItemLink|Skittering Boots}}<br>{{ItemLink|Trickster's Tunic}}<br>{{ItemLink|Twinkling Boots}}
+|itemswitheffect={{ItemLink|stablekey=item:foot - 42 - meteor metal boots|link=Meteor Metal Boots|text=Meteor Metal Boots|image=Meteor Metal Boots.png}}<br>{{ItemLink|stablekey=item:foot - 42 - skittering boots|link=Skittering Boots|text=Skittering Boots|image=Skittering Boots.png}}<br>{{ItemLink|stablekey=item:chest - 42 - trickster's tunic|link=Trickster's Tunic|text=Trickster's Tunic|image=Trickster's Tunic.png}}<br>{{ItemLink|stablekey=item:foot - 42 - twinkling slippers|link=Twinkling Boots|text=Twinkling Boots|image=Twinkling Boots.png}}
 |source=
 |used_by=
 }}

@@ -3,15 +3,15 @@
 |image=[[File:Rotting Royal Hound.png|thumb]]
 |imagecaption=He's having a ruff day.
 |type=Enemy
-|faction=[[The Followers of Evil]]
-|factionChange=+2 [[Fernalla's Children]]<br>+2 [[The Torchbearers of Brax]]
-|zones=[[Lost Cellar]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|factionChange=+2 {{FactionLink|stablekey=faction:fernalla|link=Fernalla's Children|text=Fernalla's Children}}<br>+2 {{FactionLink|stablekey=faction:brax|link=The Torchbearers of Brax|text=The Torchbearers of Brax}}
+|zones={{ZoneLink|stablekey=zone:undercity|link=Lost Cellar|text=Lost Cellar}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Aged Plate}} (0.9%)<br>{{ItemLink|Aged Plate Boots}} (0.9%)<br>{{ItemLink|Aged Plate Bracer}} (0.9%)<br>{{ItemLink|Aged Plate Greaves}} (0.9%)<br>{{ItemLink|Aged Plate Sleeves}} (0.9%)
+|droprates={{ItemLink|stablekey=item:chest - 18 - aged plate|link=Aged Plate|text=Aged Plate|image=Aged Plate.png}} (0.9%)<br>{{ItemLink|stablekey=item:foot - 18 - aged plate boots|link=Aged Plate Boots|text=Aged Plate Boots|image=Aged Plate Boots.png}} (0.9%)<br>{{ItemLink|stablekey=item:wrist - 7 - aged plate bracer|link=Aged Plate Bracer|text=Aged Plate Bracer|image=Aged Plate Bracer.png}} (0.9%)<br>{{ItemLink|stablekey=item:leg - 18 -  aged plate greaves|link=Aged Plate Greaves|text=Aged Plate Greaves|image=Aged Plate Greaves.png}} (0.9%)<br>{{ItemLink|stablekey=item:arm - 6 - aged plate  sleeves|link=Aged Plate Sleeves|text=Aged Plate Sleeves|image=Aged Plate Sleeves.png}} (0.9%)
 |level=14
 |levelmodmin=0
 |levelmodmax=0

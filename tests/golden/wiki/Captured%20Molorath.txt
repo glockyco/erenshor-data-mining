@@ -3,15 +3,15 @@
 |image=[[File:Captured Molorath.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Followers of Good]]
+|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
 |factionChange=
-|zones=[[Malaroth's Nesting Grounds]]
+|zones={{ZoneLink|stablekey=zone:malaroth|link=Malaroth's Nesting Grounds|text=Malaroth's Nesting Grounds}}
 |coordinates=971.4 x 56.9 x 365.2
 |spawnchance=
 |spawntype=
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|Malaroth Hide}} (22.1%)<br>{{ItemLink|Ivory Tusk}} (19.5%)
+|droprates={{ItemLink|stablekey=item:gen - malaroth hide|link=Malaroth Hide|text=Malaroth Hide|image=Malaroth Hide.png}} (22.1%)<br>{{ItemLink|stablekey=item:gen - ivory tusk|link=Ivory Tusk|text=Ivory Tusk|image=Ivory Tusk.png}} (19.5%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0

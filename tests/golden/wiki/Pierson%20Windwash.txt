@@ -3,9 +3,9 @@
 |image=[[File:Pierson Windwash.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Blades of Vitheo]]
-|factionChange=+2 [[The Agents of The Wisp]]<br>-20 [[The Blades of Vitheo]]<br>+2 [[The Children of Sivakaya]]<br>-20 [[The Citizens of Port Azure]]
-|zones=[[Port Azure]]
+|faction={{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}
+|factionChange=+2 {{FactionLink|stablekey=faction:wispagent|link=The Agents of The Wisp|text=The Agents of The Wisp}}<br>-20 {{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}<br>+2 {{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}<br>-20 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|zones={{ZoneLink|stablekey=zone:azure|link=Port Azure|text=Port Azure}}
 |coordinates=289.0 x 13.5 x 330.9
 |spawnchance=
 |spawntype=

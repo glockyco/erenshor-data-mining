@@ -5,7 +5,7 @@
 |description=Passive Skill: You have a higher chance of scoring a critical hit and less chance to miss completely.
 |type=Innate
 |line=
-|classes=[[Windblade]] (8)
+|classes={{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}} (8)
 |required_level=
 |manacost=
 |aggro=
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Skill Book: Melee Proficiency}}
+|source={{ItemLink|stablekey=item:skillbook - combat proficiency|link=Skill Book: Melee Proficiency|text=Skill Book: Melee Proficiency|image=Skill Book: Melee Proficiency.png}}
 |used_by=
 }}

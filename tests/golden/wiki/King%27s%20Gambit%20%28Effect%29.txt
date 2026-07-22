@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|King's Gambit}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 42 - king's gambit|link=King's Gambit|text=King's Gambit|image=King's Gambit.png}}
 |source=
 |used_by=
 }}

@@ -3,9 +3,9 @@
 |image=[[File:Illian Asboth.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[Fernalla's Children]]
-|factionChange=-2 [[The Agents of The Wisp]]<br>-2 [[The Solunarian Brotherhood]]
-|zones=[[Soluna's Landing]]
+|faction={{FactionLink|stablekey=faction:fernalla|link=Fernalla's Children|text=Fernalla's Children}}
+|factionChange=-2 {{FactionLink|stablekey=faction:wispagent|link=The Agents of The Wisp|text=The Agents of The Wisp}}<br>-2 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
+|zones={{ZoneLink|stablekey=zone:soluna|link=Soluna's Landing|text=Soluna's Landing}}
 |coordinates=217.5 x 74.4 x 251.3
 |spawnchance=
 |spawntype=

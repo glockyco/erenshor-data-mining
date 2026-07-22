@@ -3,12 +3,12 @@
 |stablekey=item:gen - stone giants blood
 |type=[[Crafting]]
 |vendorsource=
-|source=[[Granitus]] (100.0%)<br>[[Gruhglor]] (87.1%)
+|source={{CharacterLink|stablekey=character:granitus|link=Granitus|text=Granitus}} (100.0%)<br>{{CharacterLink|stablekey=character:gruhglor|link=Gruhglor|text=Gruhglor}} (87.1%)
 |othersource=
 |questsource=
 |relatedquest=
 |craftsource=
-|componentfor={{ItemLink|Mold: Nighthollow Wax}}
+|componentfor={{ItemLink|stablekey=item:template - nighthollow wax mold|link=Mold: Nighthollow Wax|text=Mold: Nighthollow Wax|image=Mold: Nighthollow Wax.png}}
 |buy=8
 |sell=5
 |taughtspell=

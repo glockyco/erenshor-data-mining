@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Braxonian Fossil}}
+|itemswitheffect={{ItemLink|stablekey=item:gen - braxonian fossil|link=Braxonian Fossil|text=Braxonian Fossil|image=Braxonian Fossil.png}}
 |source=
 |used_by=
 }}

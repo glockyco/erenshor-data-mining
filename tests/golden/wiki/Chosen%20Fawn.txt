@@ -3,15 +3,15 @@
 |image=[[File:Chosen Fawn.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Plane of the Willow]]
+|zones={{ZoneLink|stablekey=zone:planeoffernalla|link=Plane of the Willow|text=Plane of the Willow}}
 |coordinates=1656.3 x 177.1 x 1607.7<br>1662.8 x 177.1 x 1588.7<br>1677.5 x 177.1 x 1619.2<br>1688.2 x 177.1 x 1586.5<br>1695.9 x 177.1 x 1603.0
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|Decayed Druid Beads}} (13.8%)<br>{{ItemLink|Ruby}} (13.8%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Cloth Hood}} (3.9%)<br>{{ItemLink|Cloth Pants}} (3.9%)<br>{{ItemLink|Cloth Shirt}} (3.9%)<br>{{ItemLink|Cloth Sleeves}} (3.9%)
+|droprates={{ItemLink|stablekey=item:gen - decayed druid beads|link=Decayed Druid Beads|text=Decayed Druid Beads|image=Decayed Druid Beads.png}} (13.8%)<br>{{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} (13.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:head - 1 - cloth hood|link=Cloth Hood|text=Cloth Hood|image=Cloth Hood.png}} (3.9%)<br>{{ItemLink|stablekey=item:leg - 1 - cloth pants|link=Cloth Pants|text=Cloth Pants|image=Cloth Pants.png}} (3.9%)<br>{{ItemLink|stablekey=item:chest - 1 - cloth shirt|link=Cloth Shirt|text=Cloth Shirt|image=Cloth Shirt.png}} (3.9%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves|link=Cloth Sleeves|text=Cloth Sleeves|image=Cloth Sleeves.png}} (3.9%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

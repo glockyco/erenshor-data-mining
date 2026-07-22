@@ -3,7 +3,7 @@
 |stablekey=item:weap - 30 - diamond edged sword
 |type=
 |vendorsource=
-|source=[[Sivakayan Shadow]] (4.3%)
+|source={{CharacterLink|stablekey=character:24 - sivakayan spectre|link=Sivakayan Shadow|text=Sivakayan Shadow}} (4.3%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=5
 |proc_spell_icon=Diamond Burst.png
-|proc_spell_name=[[Diamond Burst]]
+|proc_spell_name={{AbilityLink|stablekey=spell:none - diamond burst|link=Diamond Burst|text=Diamond Burst|image=Diamond Burst.png}}
 |proc_spell_level=14
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

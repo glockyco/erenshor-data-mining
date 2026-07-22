@@ -2,7 +2,7 @@
 |title=Spell Scroll: Mutual Pain
 |stablekey=item:spell scroll - mutual pain
 |type=
-|vendorsource=[[Grant Haxoway]]
+|vendorsource={{CharacterLink|stablekey=character:grant haxoway|link=Grant Haxoway|text=Grant Haxoway}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=1200
 |sell=780
-|taughtspell={{AbilityLink|Mutual Pain}}
+|taughtspell={{AbilityLink|stablekey=spell:reav - mutual pain|link=Mutual Pain|text=Mutual Pain|image=Mutual Pain.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

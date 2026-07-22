@@ -3,12 +3,12 @@
 |stablekey=item:ring - 15 - bog hoop
 |type=[[Crafting]]
 |vendorsource=
-|source=[[Nipper Lashfist]] (4.5%)<br>[[Nipper Manatooth]] (4.5%)
+|source={{CharacterLink|stablekey=character:nipper lashfist|link=Nipper Lashfist|text=Nipper Lashfist}} (4.5%)<br>{{CharacterLink|stablekey=character:nipper venomtooth|link=Nipper Manatooth|text=Nipper Manatooth}} (4.5%)
 |othersource=
 |questsource=
 |relatedquest=
 |craftsource=
-|componentfor={{ItemLink|Mold: Druid's Charm}}
+|componentfor={{ItemLink|stablekey=item:template - druid's charm|link=Mold: Druid's Charm|text=Mold: Druid's Charm|image=Mold: Druid's Charm.png}}
 |buy=1000
 |sell=650
 |taughtspell=

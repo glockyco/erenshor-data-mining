@@ -3,7 +3,7 @@
 |stablekey=item:charm - 42 - ursine charm
 |type=
 |vendorsource=
-|source=[[Vithean Chest|Vithean Chest (Round 5)]] (66.8%)
+|source={{CharacterLink|stablekey=character:arenachest 5|link=Vithean Chest|text=Vithean Chest (Round 5)}} (66.8%)
 |othersource=
 |questsource=
 |relatedquest=

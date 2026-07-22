@@ -3,9 +3,9 @@
 |image=[[File:Mason Nichols.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Citizens of Port Azure]]
-|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
-|zones=[[The Elderstone Mines]]
+|faction={{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|factionChange=-20 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>-20 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|zones={{ZoneLink|stablekey=zone:elderstone|link=The Elderstone Mines|text=The Elderstone Mines}}
 |coordinates=117.4 x 0.6 x 656.4
 |spawnchance=
 |spawntype=

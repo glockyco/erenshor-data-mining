@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 39 - resonating brace
 |type=
 |vendorsource=
-|source=[[Assassin of Sivakaya]] (6.5%)<br>[[Grand Arcanist of Sivakaya]] (6.5%)<br>[[High Paladin of Sivakaya]] (6.5%)<br>[[High Priestess of Sivakaya]] (6.5%)<br>[[Bowmistress of Sivakaya]] (5.5%)
+|source={{CharacterLink|stablekey=character:duelist of sivakaya|link=Assassin of Sivakaya|text=Assassin of Sivakaya}} (6.5%)<br>{{CharacterLink|stablekey=character:arcanist of sivakaya|link=Grand Arcanist of Sivakaya|text=Grand Arcanist of Sivakaya}} (6.5%)<br>{{CharacterLink|stablekey=character:warrior of sivakaya|link=High Paladin of Sivakaya|text=High Paladin of Sivakaya}} (6.5%)<br>{{CharacterLink|stablekey=character:druid of sivakaya|link=High Priestess of Sivakaya|text=High Priestess of Sivakaya}} (6.5%)<br>{{CharacterLink|stablekey=character:bowmistress of sivakaya|link=Bowmistress of Sivakaya|text=Bowmistress of Sivakaya}} (5.5%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Cast
 |proc_chance=10
 |proc_spell_icon=Focus.png
-|proc_spell_name=[[Focus]]
+|proc_spell_name={{AbilityLink|stablekey=spell:arc - focus|link=Focus|text=Focus|image=Focus.png}}
 |proc_spell_level=-1
 |proc_spell_duration_ticks=5
 |proc_spell_type=Beneficial

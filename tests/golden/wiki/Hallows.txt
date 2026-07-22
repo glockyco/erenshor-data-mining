@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Hallows Eve}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - hallows|link=Hallows Eve|text=Hallows Eve|image=Hallows Eve.png}}
 |source=
 |used_by=
 }}

@@ -3,9 +3,9 @@
 |image=[[File:Foreman Hauck.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Solunarian Brotherhood]]
-|factionChange=-25 [[The Citizens of Port Azure]]<br>-25 [[The Solunarian Brotherhood]]
-|zones=[[Port Azure]]
+|faction={{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
+|factionChange=-25 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>-25 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
+|zones={{ZoneLink|stablekey=zone:azure|link=Port Azure|text=Port Azure}}
 |coordinates=307.0 x 21.4 x 394.4
 |spawnchance=
 |spawntype=
@@ -32,7 +32,7 @@
 |poison=12-30
 |elemental=12-30
 |void=12-30
-|spells={{AbilityLink|Minor Healing}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Soluna's Solar Blessing}}<br>{{AbilityLink|Soluna's Solar Invigoration}}
+|spells={{AbilityLink|stablekey=spell:dru pal - minor healing|link=Minor Healing|text=Minor Healing|image=Minor Healing.png}}<br>{{AbilityLink|stablekey=spell:dru duel - minor regen|link=Minor Regeneration|text=Minor Regeneration|image=Minor Regeneration.png}}<br>{{AbilityLink|stablekey=spell:pal - soluna's blessing|link=Soluna's Solar Blessing|text=Soluna's Solar Blessing|image=Soluna's Solar Blessing.png}}<br>{{AbilityLink|stablekey=spell:pal - soluna's invigoration|link=Soluna's Solar Invigoration|text=Soluna's Solar Invigoration|image=Soluna's Solar Invigoration.png}}
 }}
 Located under a tent next to the mines outside the Port Azure gates. He is the questgiver for {{QuestLink|link=Intel from the Lost Cellar}}).
 

@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Amulet of Birdsong}}
+|itemswitheffect={{ItemLink|stablekey=item:neck - 28 - amulet of birdsong|link=Amulet of Birdsong|text=Amulet of Birdsong|image=Amulet of Birdsong.png}}
 |source=
 |used_by=
 }}

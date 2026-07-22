@@ -5,7 +5,7 @@
 |description=(Taunt) Target becomes furious with the caster of this spell.
 |type=Damage
 |line=Pal_Other_Debuff
-|classes=[[Paladin]] (15)
+|classes={{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}} (15)
 |required_level=15
 |manacost=45
 |aggro=3200
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Provoker}}
-|source={{ItemLink|Spell Scroll: Glimpse of Truth}}
+|itemswitheffect={{ItemLink|stablekey=item:secondary - 26 - provoker|link=Provoker|text=Provoker|image=Provoker.png}}
+|source={{ItemLink|stablekey=item:spell scroll - glimpse of demise|link=Spell Scroll: Glimpse of Truth|text=Spell Scroll: Glimpse of Truth|image=Spell Scroll: Glimpse of Truth.png}}
 |used_by=
 }}

@@ -2,8 +2,8 @@
 |title=Ring of Magic Bolt
 |stablekey=item:ring - 5 - ring of magic bolt
 |type=
-|vendorsource=[[Samuel Thatcher]]<br>[[Yale Harvey]]
-|source=[[Ghost of Wyland Sercher]] (100.0%)<br>[[Sylvan Giant Runt]] (23.5%)
+|vendorsource={{CharacterLink|stablekey=character:shopkeeper samuel|link=Samuel Thatcher|text=Samuel Thatcher}}<br>{{CharacterLink|stablekey=character:yale harvey|link=Yale Harvey|text=Yale Harvey}}
+|source={{CharacterLink|stablekey=character:ghost of wylan sercher|link=Ghost of Wyland Sercher|text=Ghost of Wyland Sercher}} (100.0%)<br>{{CharacterLink|stablekey=character:sylvan giant runt|link=Sylvan Giant Runt|text=Sylvan Giant Runt}} (23.5%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Activatable
 |proc_chance=
 |proc_spell_icon=Magic Bolt.png
-|proc_spell_name=[[Magic Bolt]]
+|proc_spell_name={{AbilityLink|stablekey=spell:dru arc stc - magic bolt|link=Magic Bolt|text=Magic Bolt|image=Magic Bolt.png}}
 |proc_spell_level=1
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

@@ -2,7 +2,7 @@
 |title=Spell Scroll: Void Bolt
 |stablekey=item:spell scroll - void bolt
 |type=
-|vendorsource=[[Aillee Desten]]<br>[[Xander Zaxtrough]]<br>[[Zane Theavale]]
+|vendorsource={{CharacterLink|stablekey=character:aillee desten|link=Aillee Desten|text=Aillee Desten}}<br>{{CharacterLink|stablekey=character:xander zaxtrough|link=Xander Zaxtrough|text=Xander Zaxtrough}}<br>{{CharacterLink|stablekey=character:zane theavale|link=Zane Theavale|text=Zane Theavale}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=100
 |sell=65
-|taughtspell={{AbilityLink|Void Bolt}}
+|taughtspell={{AbilityLink|stablekey=spell:reav - void bolt|link=Void Bolt|text=Void Bolt|image=Void Bolt.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

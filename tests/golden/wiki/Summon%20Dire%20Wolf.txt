@@ -5,7 +5,7 @@
 |description=Summon a magical companion to fight along side you.
 |type=Pet
 |line=Generic
-|classes=[[Druid]] (26)
+|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (26)
 |required_level=26
 |manacost=500
 |aggro=
@@ -30,7 +30,7 @@
 |target_healing=
 |caster_healing=
 |shield_amount=
-|pet_to_summon=[[Summoned Dire Wolf]]
+|pet_to_summon={{CharacterLink|stablekey=character:summoned dire wolf|link=Summoned Dire Wolf|text=Summoned Dire Wolf}}
 |status_effect=
 |add_proc=
 |add_proc_chance=
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Summon Dire Wolf}}
+|source={{ItemLink|stablekey=item:spell scroll - summon dire wolf|link=Spell Scroll: Summon Dire Wolf|text=Spell Scroll: Summon Dire Wolf|image=Spell Scroll: Summon Dire Wolf.png}}
 |used_by=
 }}

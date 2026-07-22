@@ -3,7 +3,7 @@
 |stablekey=item:key - sableheart's key
 |type=[[Keys|Key]]
 |vendorsource=
-|source=[[Vessel Siraethe]] (100.0%)
+|source={{CharacterLink|stablekey=character:siraethe|link=Vessel Siraethe|text=Vessel Siraethe}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Skill Book: Envenomed Arrow
 |stablekey=item:skillbook - envenomed arrow
 |type=[[Ability Books|Skill Book]]
-|vendorsource=[[Torado Zortia]]
+|vendorsource={{CharacterLink|stablekey=character:torado  zortia|link=Torado Zortia|text=Torado Zortia}}
 |source=
 |othersource=
 |questsource=
@@ -12,7 +12,7 @@
 |buy=20000
 |sell=13000
 |taughtspell=
-|taughtskill={{AbilityLink|Envenomed Arrow}}
+|taughtskill={{AbilityLink|stablekey=skill:archery - envenomed arrow|link=Envenomed Arrow|text=Envenomed Arrow|image=Envenomed Arrow.png}}
 |guaranteeddrops=
 |droprates=
 }}

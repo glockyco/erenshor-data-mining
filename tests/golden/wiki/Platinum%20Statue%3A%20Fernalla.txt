@@ -3,7 +3,7 @@
 |stablekey=item:furniture - stone statue platinum fernalla
 |type=
 |vendorsource=
-|source=[[Fernalla, Goddess of Nature]] (14.8%)<br>[[Fernalla, Goddess of Nature]] (11.2%)
+|source={{CharacterLink|stablekey=character:goddess fernalla|link=Fernalla, Goddess of Nature|text=Fernalla, Goddess of Nature}} (14.8%)<br>{{CharacterLink|stablekey=character:restored fernalla:planeoffernalla:1631.02:177.00:1537.14|link=Fernalla, Goddess of Nature|text=Fernalla, Goddess of Nature}} (11.2%)
 |othersource=
 |questsource=
 |relatedquest=

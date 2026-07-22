@@ -3,15 +3,15 @@
 |image=[[File:Bommer Olvaro.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Followers of Good]]
-|factionChange=-55 [[The Citizens of Erenshor]]
-|zones=[[Windwashed Pass]]
+|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|factionChange=-55 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}
+|zones={{ZoneLink|stablekey=zone:windwashed|link=Windwashed Pass|text=Windwashed Pass}}
 |coordinates=349.7 x 32.4 x 255.5
 |spawnchance=
 |spawntype=
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|Notes of a Hermit}} (100.0%)
+|droprates={{ItemLink|stablekey=item:gen - notes of a hermit|link=Notes of a Hermit|text=Notes of a Hermit|image=Notes of a Hermit.png}} (100.0%)
 |level=8
 |levelmodmin=0
 |levelmodmax=0

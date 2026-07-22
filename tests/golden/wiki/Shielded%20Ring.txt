@@ -3,7 +3,7 @@
 |stablekey=item:ring - 17 - shielded ring
 |type=
 |vendorsource=
-|source=[[Acolyte]] (5.8%)
+|source={{CharacterLink|stablekey=character:acolyte|link=Acolyte|text=Acolyte}} (5.8%)
 |othersource=
 |questsource=
 |relatedquest=

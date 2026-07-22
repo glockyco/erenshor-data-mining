@@ -3,7 +3,7 @@
 |stablekey=item:chest - 24 - hardened scale jacket
 |type=
 |vendorsource=
-|source=[[Shivunax]] (33.3%)
+|source={{CharacterLink|stablekey=character:shivunax|link=Shivunax|text=Shivunax}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

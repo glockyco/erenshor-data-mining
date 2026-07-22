@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Crested Shield}}<br>{{ItemLink|Mudmold Shield}}<br>{{ItemLink|Old Buckler}}<br>{{ItemLink|Rotting Metal Shield}}<br>{{ItemLink|Stinging Bracer}}
+|itemswitheffect={{ItemLink|stablekey=item:secondary - 14 - crested shield|link=Crested Shield|text=Crested Shield|image=Crested Shield.png}}<br>{{ItemLink|stablekey=item:secondary - 14 - mudmold shield|link=Mudmold Shield|text=Mudmold Shield|image=Mudmold Shield.png}}<br>{{ItemLink|stablekey=item:secondary - 1 - old buckler|link=Old Buckler|text=Old Buckler|image=Old Buckler.png}}<br>{{ItemLink|stablekey=item:secondary - 7 - rotting metal shield|link=Rotting Metal Shield|text=Rotting Metal Shield|image=Rotting Metal Shield.png}}<br>{{ItemLink|stablekey=item:wrist - 16 - stinging bracer|link=Stinging Bracer|text=Stinging Bracer|image=Stinging Bracer.png}}
 |source=
 |used_by=
 }}

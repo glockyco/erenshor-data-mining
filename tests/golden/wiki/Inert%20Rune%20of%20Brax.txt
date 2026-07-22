@@ -5,8 +5,8 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|A Lost Portal}}
-|relatedquest={{QuestLink|A Lost Portal Pt. 2}}
+|questsource={{QuestLink|A Lost Portal}}<br>{{QuestLink|stablekey=quest:braxrune|link=A Lost Portal|text=A Lost Portal}}
+|relatedquest={{QuestLink|A Lost Portal Pt. 2}}<br>{{QuestLink|stablekey=quest:braxrune2|link=A Lost Portal Pt. 2|text=A Lost Portal Pt. 2}}
 |craftsource=
 |componentfor=
 |buy=

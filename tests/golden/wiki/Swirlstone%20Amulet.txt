@@ -3,12 +3,12 @@
 |stablekey=item:neck - 12 - swirlstone amulet
 |type=[[Crafting]]
 |vendorsource=
-|source=[[Molorai Brewmistress]] (10.9%)<br>[[Elizah Vernor]] (8.2%)<br>[[Thella Steepleton]] (8.2%)
+|source={{CharacterLink|stablekey=character:molorai brewmistress|link=Molorai Brewmistress|text=Molorai Brewmistress}} (10.9%)<br>{{CharacterLink|stablekey=character:elizah vernor|link=Elizah Vernor|text=Elizah Vernor}} (8.2%)<br>{{CharacterLink|stablekey=character:thella steepleton|link=Thella Steepleton|text=Thella Steepleton}} (8.2%)
 |othersource=
 |questsource=
 |relatedquest=
 |craftsource=
-|componentfor={{ItemLink|Mold: Charm of Vanity}}
+|componentfor={{ItemLink|stablekey=item:template - charm of vanity|link=Mold: Charm of Vanity|text=Mold: Charm of Vanity|image=Mold: Charm of Vanity.png}}
 |buy=700
 |sell=455
 |taughtspell=

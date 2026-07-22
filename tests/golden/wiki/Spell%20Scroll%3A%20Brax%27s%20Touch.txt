@@ -2,8 +2,8 @@
 |title=Spell Scroll: Brax's Touch
 |stablekey=item:spell scroll - brax's touch
 |type=[[Ability Books|Spell Scroll]]
-|vendorsource=[[Gus Highrest]]<br>[[Nylith Valorro]]<br>[[Treven Pines]]
-|source=[[Vevillo Polter]] (3.7%)<br>[[Aranuil Olaseo]] (3.2%)<br>[[Odyss Repman]] (3.2%)<br>[[A Sorrowful Spirit]] (2.8%)<br>[[An Enraged Spirit]] (2.8%)<br>[[Islander Bandit]] (1.1%)
+|vendorsource={{CharacterLink|stablekey=character:innkeeper gus|link=Gus Highrest|text=Gus Highrest}}<br>{{CharacterLink|stablekey=character:nylith valorro|link=Nylith Valorro|text=Nylith Valorro}}<br>{{CharacterLink|stablekey=character:shopkeeper treven:stowaway:384.76:58.46:394.49|link=Treven Pines|text=Treven Pines}}
+|source={{CharacterLink|stablekey=character:vevillo polter|link=Vevillo Polter|text=Vevillo Polter}} (3.7%)<br>{{CharacterLink|stablekey=character:aranuil olaseo|link=Aranuil Olaseo|text=Aranuil Olaseo}} (3.2%)<br>{{CharacterLink|stablekey=character:odyss repman:duskenlight:1312.16:70.01:695.11|link=Odyss Repman|text=Odyss Repman}} (3.2%)<br>{{CharacterLink|stablekey=character:a sorrowful spirit|link=A Sorrowful Spirit|text=A Sorrowful Spirit}} (2.8%)<br>{{CharacterLink|stablekey=character:enraged spirit|link=An Enraged Spirit|text=An Enraged Spirit}} (2.8%)<br>{{CharacterLink|stablekey=character:islander bandit|link=Islander Bandit|text=Islander Bandit}} (1.1%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=50
 |sell=32
-|taughtspell={{AbilityLink|Brax's Touch}}
+|taughtspell={{AbilityLink|stablekey=spell:arc - brax's touch|link=Brax's Touch|text=Brax's Touch|image=Brax's Touch.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

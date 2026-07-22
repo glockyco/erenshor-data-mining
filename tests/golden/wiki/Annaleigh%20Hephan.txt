@@ -3,9 +3,9 @@
 |image=[[File:Annaleigh Hephan.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[Fernalla's Children]]
-|factionChange=-20 [[Fernalla's Children]]
-|zones=[[Blacksalt Strand]]
+|faction={{FactionLink|stablekey=faction:fernalla|link=Fernalla's Children|text=Fernalla's Children}}
+|factionChange=-20 {{FactionLink|stablekey=faction:fernalla|link=Fernalla's Children|text=Fernalla's Children}}
+|zones={{ZoneLink|stablekey=zone:saltedstrand|link=Blacksalt Strand|text=Blacksalt Strand}}
 |coordinates=279.7 x 57.6 x 181.6
 |spawnchance=
 |spawntype=
@@ -32,7 +32,7 @@
 |poison=8-18
 |elemental=8-18
 |void=8-18
-|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Theft of Life}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's rage|link=Brax's Rage|text=Brax's Rage|image=Brax's Rage.png}}<br>{{AbilityLink|stablekey=spell:dru reav - theft of life|link=Theft of Life|text=Theft of Life|image=Theft of Life.png}}
 }}
 
 Annaleigh lives in [[Blacksalt Strand]] by a windmill on the hill. She is the quest giver for {{QuestLink | link=Annaleigh's Nagalok Claws}}.

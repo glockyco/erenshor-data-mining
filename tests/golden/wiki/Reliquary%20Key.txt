@@ -3,7 +3,7 @@
 |stablekey=item:key - reliquary key
 |type=
 |vendorsource=
-|source=[[Reliquary Guard]] (100.0%)
+|source={{CharacterLink|stablekey=character:reliquary guard|link=Reliquary Guard|text=Reliquary Guard}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=

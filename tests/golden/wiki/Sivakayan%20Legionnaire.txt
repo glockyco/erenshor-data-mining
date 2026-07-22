@@ -3,15 +3,15 @@
 |image=[[File:Sivakayan Legionnaire.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Children of Sivakaya]]
-|factionChange=-2 [[The Children of Sivakaya]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
-|zones=[[Abyssal Lake]]
+|faction={{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}
+|factionChange=-2 {{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+1 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
+|zones={{ZoneLink|stablekey=zone:abyssal|link=Abyssal Lake|text=Abyssal Lake}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Sivakayan Ore}} (12.1%)<br>{{ItemLink|Sea Glass}} (10.3%)<br>{{ItemLink|Star Stone}} (10.3%)<br>{{ItemLink|Sivakayan Axe}} (1.2%)<ref>If Sivakayan Legionnaire has {{ItemLink|Sivakayan Axe}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sivakayan Bracer}} (1.2%)<br>{{ItemLink|Sivakayan Legplate}} (1.2%)<br>{{ItemLink|Sivakayan Plate}} (1.2%)<br>{{ItemLink|Sivakayan Straightsword}} (1.2%)<ref>If Sivakayan Legionnaire has {{ItemLink|Sivakayan Straightsword}} equipped, it is guaranteed to drop.</ref>
+|droprates={{ItemLink|stablekey=item:ore - sivakayan ore|link=Sivakayan Ore|text=Sivakayan Ore|image=Sivakayan Ore.png}} (12.1%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (10.3%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (10.3%)<br>{{ItemLink|stablekey=item:weap - 24 - sivakayan axe|link=Sivakayan Axe|text=Sivakayan Axe|image=Sivakayan Axe.png}} (1.2%)<ref>If Sivakayan Legionnaire has {{ItemLink|stablekey=item:weap - 24 - sivakayan axe|link=Sivakayan Axe|text=Sivakayan Axe|image=Sivakayan Axe.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:wrist - 21 - sivakayan bracer|link=Sivakayan Bracer|text=Sivakayan Bracer|image=Sivakayan Bracer.png}} (1.2%)<br>{{ItemLink|stablekey=item:leg - 24 - sivakayan legplate|link=Sivakayan Legplate|text=Sivakayan Legplate|image=Sivakayan Legplate.png}} (1.2%)<br>{{ItemLink|stablekey=item:chest - 25 - sivakayan plate|link=Sivakayan Plate|text=Sivakayan Plate|image=Sivakayan Plate.png}} (1.2%)<br>{{ItemLink|stablekey=item:weap - 24 - sivakayan straightsword|link=Sivakayan Straightsword|text=Sivakayan Straightsword|image=Sivakayan Straightsword.png}} (1.2%)<ref>If Sivakayan Legionnaire has {{ItemLink|stablekey=item:weap - 24 - sivakayan straightsword|link=Sivakayan Straightsword|text=Sivakayan Straightsword|image=Sivakayan Straightsword.png}} equipped, it is guaranteed to drop.</ref>
 |level=27
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=14-32
 |elemental=14-32
 |void=14-32
-|spells={{AbilityLink|Moonburst}}<br>{{AbilityLink|Theft of Life}}
+|spells={{AbilityLink|stablekey=spell:pal - moonburst|link=Moonburst|text=Moonburst|image=Moonburst.png}}<br>{{AbilityLink|stablekey=spell:dru reav - theft of life|link=Theft of Life|text=Theft of Life|image=Theft of Life.png}}
 }}
 
 [[Category:Abyssal Lake]]

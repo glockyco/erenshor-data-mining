@@ -2,7 +2,7 @@
 |title=Skill Book: Celestial Smite
 |stablekey=item:skillbook - celestial smite i
 |type=[[Ability Books|Skill Book]]
-|vendorsource=[[Benson Gamble]]
+|vendorsource={{CharacterLink|stablekey=character:benson gamble|link=Benson Gamble|text=Benson Gamble}}
 |source=
 |othersource=
 |questsource=
@@ -12,7 +12,7 @@
 |buy=225
 |sell=146
 |taughtspell=
-|taughtskill={{AbilityLink|Celestial Smite}}
+|taughtskill={{AbilityLink|stablekey=skill:celestial smite i|link=Celestial Smite|text=Celestial Smite|image=Celestial Smite.png}}
 |guaranteeddrops=
 |droprates=
 }}

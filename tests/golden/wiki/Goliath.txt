@@ -3,15 +3,15 @@
 |image=[[File:Goliath.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Blacksalt Strand]]
+|zones={{ZoneLink|stablekey=zone:saltedstrand|link=Blacksalt Strand|text=Blacksalt Strand}}
 |coordinates=436.8 x 69.8 x 446.9
 |spawnchance=
 |spawntype=
 |respawn=11 minutes
-|guaranteeddrops={{ItemLink|Battleworn Plate}}<br>{{ItemLink|Brute's Chain Collar}}<br>{{ItemLink|Crested Shield}}<br>{{ItemLink|Explorer's Cap}}<br>{{ItemLink|Layer Cape}}
-|droprates={{ItemLink|Battleworn Plate}} (20.0%)<br>{{ItemLink|Brute's Chain Collar}} (20.0%)<br>{{ItemLink|Crested Shield}} (20.0%)<br>{{ItemLink|Explorer's Cap}} (20.0%)<br>{{ItemLink|Layer Cape}} (20.0%)<br>{{ItemLink|Distant Thunder}} (3.3%)<br>{{ItemLink|End of Life}} (3.3%)<br>{{ItemLink|Freedom of the Sky}} (3.3%)<br>{{ItemLink|Glow of Eternity}} (3.3%)<br>{{ItemLink|Rising Moon}} (3.3%)<br>{{ItemLink|Wilt}} (3.3%)
+|guaranteeddrops={{ItemLink|stablekey=item:chest - 20 - battleworn plate|link=Battleworn Plate|text=Battleworn Plate|image=Battleworn Plate.png}}<br>{{ItemLink|stablekey=item:neck - 18 - brute's collar|link=Brute's Chain Collar|text=Brute's Chain Collar|image=Brute's Chain Collar.png}}<br>{{ItemLink|stablekey=item:secondary - 14 - crested shield|link=Crested Shield|text=Crested Shield|image=Crested Shield.png}}<br>{{ItemLink|stablekey=item:head - 15 - explorers cap|link=Explorer's Cap|text=Explorer's Cap|image=Explorer's Cap.png}}<br>{{ItemLink|stablekey=item:back - 19 - layered cape|link=Layer Cape|text=Layer Cape|image=Layer Cape.png}}
+|droprates={{ItemLink|stablekey=item:chest - 20 - battleworn plate|link=Battleworn Plate|text=Battleworn Plate|image=Battleworn Plate.png}} (20.0%)<br>{{ItemLink|stablekey=item:neck - 18 - brute's collar|link=Brute's Chain Collar|text=Brute's Chain Collar|image=Brute's Chain Collar.png}} (20.0%)<br>{{ItemLink|stablekey=item:secondary - 14 - crested shield|link=Crested Shield|text=Crested Shield|image=Crested Shield.png}} (20.0%)<br>{{ItemLink|stablekey=item:head - 15 - explorers cap|link=Explorer's Cap|text=Explorer's Cap|image=Explorer's Cap.png}} (20.0%)<br>{{ItemLink|stablekey=item:back - 19 - layered cape|link=Layer Cape|text=Layer Cape|image=Layer Cape.png}} (20.0%)<br>{{ItemLink|stablekey=item:aura - storm 3|link=Distant Thunder|text=Distant Thunder|image=Distant Thunder.png}} (3.3%)<br>{{ItemLink|stablekey=item:aura - reaver 3|link=End of Life|text=End of Life|image=End of Life.png}} (3.3%)<br>{{ItemLink|stablekey=item:aura - vitheo 3|link=Freedom of the Sky|text=Freedom of the Sky|image=Freedom of the Sky.png}} (3.3%)<br>{{ItemLink|stablekey=item:aura - brax 3|link=Glow of Eternity|text=Glow of Eternity|image=Glow of Eternity.png}} (3.3%)<br>{{ItemLink|stablekey=item:aura - soluna 3|link=Rising Moon|text=Rising Moon|image=Rising Moon.png}} (3.3%)<br>{{ItemLink|stablekey=item:aura - fernalla 3|link=Wilt|text=Wilt|image=Wilt.png}} (3.3%)
 |level=20
 |levelmodmin=1
 |levelmodmax=1

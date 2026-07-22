@@ -3,7 +3,7 @@
 |stablekey=item:glove - 7 - channeling gloves
 |type=
 |vendorsource=
-|source=[[Ughl of the Skies]] (50.0%)
+|source={{CharacterLink|stablekey=character:ughl of the sky|link=Ughl of the Skies|text=Ughl of the Skies}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

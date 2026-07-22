@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - vitheo's sight iv
 |type=
 |vendorsource=
-|source=[[Vithean Chest|Vithean Chest (Round 2)]] (19.5%)
+|source={{CharacterLink|stablekey=character:arenachest 2|link=Vithean Chest|text=Vithean Chest (Round 2)}} (19.5%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=
 |sell=
-|taughtspell={{AbilityLink|Vitheo's Sight IV}}
+|taughtspell={{AbilityLink|stablekey=spell:duel - vitheo's sight iv|link=Vitheo's Sight IV|text=Vitheo's Sight IV|image=Vitheo's Sight IV.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

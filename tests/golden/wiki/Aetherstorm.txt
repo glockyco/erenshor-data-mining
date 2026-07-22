@@ -5,7 +5,7 @@
 |description=Deals 2000 magic damage to your target.
 |type=Damage
 |line=Direct_Damage
-|classes=[[Arcanist]] (28)
+|classes={{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}} (28)
 |required_level=28
 |manacost=675
 |aggro=225
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Esen}}<br>{{ItemLink|Singularity, Vessel of Creation}}<br>{{ItemLink|Slab of Meteorite}}
-|source={{ItemLink|Spell Scroll: Aetherstorm}}
-|used_by=[[A Faerie Enchantress]]<br>[[Cloaked Shadow]]<br>[[Diva]]<br>[[Grand Arcanist of Sivakaya]]<br>[[Karsith]]<br>[[Molorai Outrider]]<br>[[Molorai Truthseeker]]<br>[[Shrouded Sivakayan]]<br>[[Sivakayan Faithbound]]<br>[[Sivakayan High Shadow]]<br>[[Sivakayan Shadow]]<br>[[Vos Ashlyn]]<br>[[Winkles]]
+|itemswitheffect={{ItemLink|stablekey=item:weap - 29 - esen|link=Esen|text=Esen|image=Esen.png}}<br>{{ItemLink|stablekey=item:wand - 40 - singularity, vessel of creation|link=Singularity, Vessel of Creation|text=Singularity, Vessel of Creation|image=Singularity, Vessel of Creation.png}}<br>{{ItemLink|stablekey=item:secondary - 26 - slab of meteorite|link=Slab of Meteorite|text=Slab of Meteorite|image=Slab of Meteorite.png}}
+|source={{ItemLink|stablekey=item:spell scroll - aetherblast|link=Spell Scroll: Aetherstorm|text=Spell Scroll: Aetherstorm|image=Spell Scroll: Aetherstorm.png}}
+|used_by={{CharacterLink|stablekey=character:faerie enchantress|link=A Faerie Enchantress|text=A Faerie Enchantress}}<br>{{CharacterLink|stablekey=character:cloaked shadow|link=Cloaked Shadow|text=Cloaked Shadow}}<br>{{CharacterLink|stablekey=character:diva|link=Diva|text=Diva}}<br>{{CharacterLink|stablekey=character:arcanist of sivakaya|link=Grand Arcanist of Sivakaya|text=Grand Arcanist of Sivakaya}}<br>{{CharacterLink|stablekey=character:karsith|link=Karsith|text=Karsith}}<br>{{CharacterLink|stablekey=character:molorai enlightened|link=Molorai Outrider|text=Molorai Outrider}}<br>{{CharacterLink|stablekey=character:molorai enllightened m|link=Molorai Truthseeker|text=Molorai Truthseeker}}<br>{{CharacterLink|stablekey=character:28 - sivakayan spectre|link=Shrouded Sivakayan|text=Shrouded Sivakayan}}<br>{{CharacterLink|stablekey=character:sivakayan faithbound|link=Sivakayan Faithbound|text=Sivakayan Faithbound}}<br>{{CharacterLink|stablekey=character:32 - sivakayan spectre|link=Sivakayan High Shadow|text=Sivakayan High Shadow}}<br>{{CharacterLink|stablekey=character:24 - sivakayan spectre|link=Sivakayan Shadow|text=Sivakayan Shadow}}<br>{{CharacterLink|stablekey=character:vos ashlyn|link=Vos Ashlyn|text=Vos Ashlyn}}<br>{{CharacterLink|stablekey=character:winkles|link=Winkles|text=Winkles}}
 }}

@@ -3,15 +3,15 @@
 |image=[[File:A Rock Minion.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Fernalla's Revival Plains]]
+|zones={{ZoneLink|stablekey=zone:fernallafield|link=Fernalla's Revival Plains|text=Fernalla's Revival Plains}}
 |coordinates=804.7 x 27.0 x 1058.9
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|Rock}} (94.9%)
+|droprates={{ItemLink|stablekey=item:ore - rock|link=Rock|text=Rock|image=Rock.png}} (94.9%)
 |level=17
 |levelmodmin=0
 |levelmodmax=0

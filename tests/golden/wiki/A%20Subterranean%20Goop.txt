@@ -3,15 +3,15 @@
 |image=[[File:A Subterranean Goop.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[The Elderstone Mines]]
+|zones={{ZoneLink|stablekey=zone:elderstone|link=The Elderstone Mines|text=The Elderstone Mines}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Fungal Spore}} (22.1%)<br>{{ItemLink|Slime Coated Helm}} (6.7%)<br>{{ItemLink|Hardened Slime Ring}} (1.6%)<br>{{ItemLink|Spell Scroll: Antidote}} (1.6%)<br>{{ItemLink|Spell Scroll: Biting Vines}} (1.6%)<br>{{ItemLink|Spell Scroll: Brax's Rage}} (1.6%)<br>{{ItemLink|Spell Scroll: Burning Chains}} (1.6%)<br>{{ItemLink|Spell Scroll: Moonburst}} (1.6%)<br>{{ItemLink|Spell Scroll: Summon Cursed Fawn}} (1.6%)<br>{{ItemLink|Spell Scroll: Toxicity}} (1.6%)<br>{{ItemLink|Worn Shovel}} (1.6%)<ref>If the player is already holding {{ItemLink|Worn Shovel}} in their inventory, another will not drop.</ref>
+|droprates={{ItemLink|stablekey=item:gen - fungal spore|link=Fungal Spore|text=Fungal Spore|image=Fungal Spore.png}} (22.1%)<br>{{ItemLink|stablekey=item:head - 19 - slime coated helm|link=Slime Coated Helm|text=Slime Coated Helm|image=Slime Coated Helm.png}} (6.7%)<br>{{ItemLink|stablekey=item:ring - 16 - hardened slime ring|link=Hardened Slime Ring|text=Hardened Slime Ring|image=Hardened Slime Ring.png}} (1.6%)<br>{{ItemLink|stablekey=item:spell scroll - antidote|link=Spell Scroll: Antidote|text=Spell Scroll: Antidote|image=Spell Scroll: Antidote.png}} (1.6%)<br>{{ItemLink|stablekey=item:spell scroll - biting vines|link=Spell Scroll: Biting Vines|text=Spell Scroll: Biting Vines|image=Spell Scroll: Biting Vines.png}} (1.6%)<br>{{ItemLink|stablekey=item:spell scroll - brax's rage|link=Spell Scroll: Brax's Rage|text=Spell Scroll: Brax's Rage|image=Spell Scroll: Brax's Rage.png}} (1.6%)<br>{{ItemLink|stablekey=item:spell scroll - burning chains|link=Spell Scroll: Burning Chains|text=Spell Scroll: Burning Chains|image=Spell Scroll: Burning Chains.png}} (1.6%)<br>{{ItemLink|stablekey=item:spell scroll - moonburst|link=Spell Scroll: Moonburst|text=Spell Scroll: Moonburst|image=Spell Scroll: Moonburst.png}} (1.6%)<br>{{ItemLink|stablekey=item:spell scroll - summon cursed fawn|link=Spell Scroll: Summon Cursed Fawn|text=Spell Scroll: Summon Cursed Fawn|image=Spell Scroll: Summon Cursed Fawn.png}} (1.6%)<br>{{ItemLink|stablekey=item:spell scroll - toxicity|link=Spell Scroll: Toxicity|text=Spell Scroll: Toxicity|image=Spell Scroll: Toxicity.png}} (1.6%)<br>{{ItemLink|stablekey=item:gen - a worn shovel|link=Worn Shovel|text=Worn Shovel|image=Worn Shovel.png}} (1.6%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - a worn shovel|link=Worn Shovel|text=Worn Shovel|image=Worn Shovel.png}} in their inventory, another will not drop.</ref>
 |level=17
 |levelmodmin=0
 |levelmodmax=0

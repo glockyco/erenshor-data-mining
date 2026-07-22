@@ -2,7 +2,7 @@
 |title=Skill Book: Backstab
 |stablekey=item:skillbook - backstab
 |type=[[Ability Books|Skill Book]]
-|vendorsource=[[Amethi Plazzo]]<br>[[Javo Follay]]<br>[[Ludo Luxo]]<br>[[Roreli Gilmare]]
+|vendorsource={{CharacterLink|stablekey=character:amethi plazzo:stowaway:575.36:73.04:549.85|link=Amethi Plazzo|text=Amethi Plazzo}}<br>{{CharacterLink|stablekey=character:javo follay|link=Javo Follay|text=Javo Follay}}<br>{{CharacterLink|stablekey=character:ludo luxo|link=Ludo Luxo|text=Ludo Luxo}}<br>{{CharacterLink|stablekey=character:roreli gilmare:azure:143.76:26.28:342.76|link=Roreli Gilmare|text=Roreli Gilmare}}
 |source=
 |othersource=
 |questsource=
@@ -12,7 +12,7 @@
 |buy=150
 |sell=98
 |taughtspell=
-|taughtskill={{AbilityLink|Backstab}}
+|taughtskill={{AbilityLink|stablekey=skill:backstab|link=Backstab|text=Backstab|image=Backstab.png}}
 |guaranteeddrops=
 |droprates=
 }}

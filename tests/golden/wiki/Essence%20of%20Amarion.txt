@@ -6,7 +6,7 @@
 |source=
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Essence of Amarion}}
+|relatedquest={{QuestLink|Essence of Amarion}}<br>{{QuestLink|stablekey=quest:essenceofamarionforbanker|link=Essence of Amarion|text=Essence of Amarion}}
 |craftsource=
 |componentfor=
 |buy=5

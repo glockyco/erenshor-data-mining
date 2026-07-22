@@ -3,15 +3,15 @@
 |image=[[File:Braxonian Chest.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Brax's Plane of Elements]]
+|zones={{ZoneLink|stablekey=zone:planeofbrax|link=Brax's Plane of Elements|text=Brax's Plane of Elements}}
 |coordinates=1251.3 x 35.1 x 460.3
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
-|guaranteeddrops={{ItemLink|Blizzard Bane}}<br>{{ItemLink|Cleansing Brace}}<br>{{ItemLink|Frostbite}}<br>{{ItemLink|Frozen Grip}}<br>{{ItemLink|Magma Droplet}}<br>{{ItemLink|Obsidian Edge}}
-|droprates={{ItemLink|Sivakrux}} (98.3%)<br>{{ItemLink|Blizzard Bane}} (35.5%)<br>{{ItemLink|Cleansing Brace}} (35.5%)<br>{{ItemLink|Frostbite}} (35.5%)<br>{{ItemLink|Frozen Grip}} (35.5%)<br>{{ItemLink|Magma Droplet}} (35.5%)<br>{{ItemLink|Obsidian Edge}} (35.5%)<br>{{ItemLink|Planar Stone Shards}} (24.9%)<br>{{ItemLink|Planar Stone}} (17.9%)
+|guaranteeddrops={{ItemLink|stablekey=item:back - 42 - blizzardbane|link=Blizzard Bane|text=Blizzard Bane|image=Blizzard Bane.png}}<br>{{ItemLink|stablekey=item:wrist - 42 - cleansing brace|link=Cleansing Brace|text=Cleansing Brace|image=Cleansing Brace.png}}<br>{{ItemLink|stablekey=item:bow - 42 - frostbite|link=Frostbite|text=Frostbite|image=Frostbite.png}}<br>{{ItemLink|stablekey=item:wrist - 42 - frozen grip|link=Frozen Grip|text=Frozen Grip|image=Frozen Grip.png}}<br>{{ItemLink|stablekey=item:neck - 42 - magma droplet|link=Magma Droplet|text=Magma Droplet|image=Magma Droplet.png}}<br>{{ItemLink|stablekey=item:weap - 42 - obsidian edge|link=Obsidian Edge|text=Obsidian Edge|image=Obsidian Edge.png}}
+|droprates={{ItemLink|stablekey=item:gen - sivak|link=Sivakrux|text=Sivakrux|image=Sivakrux.png}} (98.3%)<br>{{ItemLink|stablekey=item:back - 42 - blizzardbane|link=Blizzard Bane|text=Blizzard Bane|image=Blizzard Bane.png}} (35.5%)<br>{{ItemLink|stablekey=item:wrist - 42 - cleansing brace|link=Cleansing Brace|text=Cleansing Brace|image=Cleansing Brace.png}} (35.5%)<br>{{ItemLink|stablekey=item:bow - 42 - frostbite|link=Frostbite|text=Frostbite|image=Frostbite.png}} (35.5%)<br>{{ItemLink|stablekey=item:wrist - 42 - frozen grip|link=Frozen Grip|text=Frozen Grip|image=Frozen Grip.png}} (35.5%)<br>{{ItemLink|stablekey=item:neck - 42 - magma droplet|link=Magma Droplet|text=Magma Droplet|image=Magma Droplet.png}} (35.5%)<br>{{ItemLink|stablekey=item:weap - 42 - obsidian edge|link=Obsidian Edge|text=Obsidian Edge|image=Obsidian Edge.png}} (35.5%)<br>{{ItemLink|stablekey=item:ore - planar shard|link=Planar Stone Shards|text=Planar Stone Shards|image=Planar Stone Shards.png}} (24.9%)<br>{{ItemLink|stablekey=item:ore - planar stone|link=Planar Stone|text=Planar Stone|image=Planar Stone.png}} (17.9%)
 |level=1
 |levelmodmin=0
 |levelmodmax=0

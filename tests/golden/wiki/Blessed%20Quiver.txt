@@ -5,7 +5,7 @@
 |description=Gives a 25% chance to proc spell: Arcstorm (650 dmg) on each arrow
 |type=Beneficial
 |line=Generic
-|classes=[[Stormcaller]] (34)
+|classes={{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}} (34)
 |required_level=34
 |manacost=1800
 |aggro=500
@@ -32,7 +32,7 @@
 |shield_amount=
 |pet_to_summon=
 |status_effect=
-|add_proc={{AbilityLink|Arcstorm}}
+|add_proc={{AbilityLink|stablekey=spell:stc - arcstorm|link=Arcstorm|text=Arcstorm}}
 |add_proc_chance=25
 |has_lifetap=
 |lifesteal=
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Blessed Quiver}}
+|source={{ItemLink|stablekey=item:spell scroll - blessed quiver|link=Spell Scroll: Blessed Quiver|text=Spell Scroll: Blessed Quiver|image=Spell Scroll: Blessed Quiver.png}}
 |used_by=
 }}

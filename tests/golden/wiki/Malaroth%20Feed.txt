@@ -2,10 +2,10 @@
 |title=Malaroth Feed
 |stablekey=item:gen - malaroth feed
 |type=[[Quest Items|Quest Item]], [[:Category:Items|Summoning Item]]
-|vendorsource=[[Summoned: Pocket Vendor]]
-|source=[[Priel Tamer]] (90.3%)
+|vendorsource={{CharacterLink|stablekey=character:a rift vendor:reliquary:268.28:1.44:349.00|link=Summoned: Pocket Vendor|text=Summoned: Pocket Vendor}}
+|source={{CharacterLink|stablekey=character:priel tamer|link=Priel Tamer|text=Priel Tamer}} (90.3%)
 |othersource=[[Baking Oven]]
-|questsource={{QuestLink|Malaroth Food}}
+|questsource={{QuestLink|Malaroth Food}}<br>{{QuestLink|stablekey=quest:malarothfeedmade|link=Malaroth Food|text=Malaroth Food}}
 |relatedquest=
 |craftsource=
 |componentfor=

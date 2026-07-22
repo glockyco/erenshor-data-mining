@@ -3,7 +3,7 @@
 |stablekey=item:skillbook - stance - hateful
 |type=
 |vendorsource=
-|source=[[Darkwarden Ealdred]] (32.7%)
+|source={{CharacterLink|stablekey=character:darkwarden ealdred|link=Darkwarden Ealdred|text=Darkwarden Ealdred}} (32.7%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -12,7 +12,7 @@
 |buy=
 |sell=
 |taughtspell=
-|taughtskill={{AbilityLink|Stance: Hateful}}
+|taughtskill={{AbilityLink|stablekey=skill:stance - hateful|link=Stance: Hateful|text=Stance: Hateful|image=Stance: Hateful.png}}
 |guaranteeddrops=
 |droprates=
 }}

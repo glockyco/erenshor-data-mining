@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Rune of Soluna's Landing}}
+|itemswitheffect={{ItemLink|stablekey=item:gen - rune of soluna's landing|link=Rune of Soluna's Landing|text=Rune of Soluna's Landing|image=Rune of Soluna's Landing.png}}
 |source=
 |used_by=
 }}

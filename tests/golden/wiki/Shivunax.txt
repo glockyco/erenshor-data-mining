@@ -3,15 +3,15 @@
 |image=[[File:Shivunax.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Malaroth's Nesting Grounds]]
+|zones={{ZoneLink|stablekey=zone:malaroth|link=Malaroth's Nesting Grounds|text=Malaroth's Nesting Grounds}}
 |coordinates=428.4 x 28.4 x 642.2
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
-|guaranteeddrops={{ItemLink|Hardened Scale Jacket}}<br>{{ItemLink|Malaroth Sinew Cord}}
-|droprates={{ItemLink|Malaroth Sinew Cord}} (66.7%)<br>{{ItemLink|Hardened Scale Jacket}} (33.3%)<br>{{ItemLink|Malaroth Hide}} (22.1%)<br>{{ItemLink|Ivory Tusk}} (19.5%)
+|guaranteeddrops={{ItemLink|stablekey=item:chest - 24 - hardened scale jacket|link=Hardened Scale Jacket|text=Hardened Scale Jacket|image=Hardened Scale Jacket.png}}<br>{{ItemLink|stablekey=item:belt - 23 - malaroth sinew cord|link=Malaroth Sinew Cord|text=Malaroth Sinew Cord|image=Malaroth Sinew Cord.png}}
+|droprates={{ItemLink|stablekey=item:belt - 23 - malaroth sinew cord|link=Malaroth Sinew Cord|text=Malaroth Sinew Cord|image=Malaroth Sinew Cord.png}} (66.7%)<br>{{ItemLink|stablekey=item:chest - 24 - hardened scale jacket|link=Hardened Scale Jacket|text=Hardened Scale Jacket|image=Hardened Scale Jacket.png}} (33.3%)<br>{{ItemLink|stablekey=item:gen - malaroth hide|link=Malaroth Hide|text=Malaroth Hide|image=Malaroth Hide.png}} (22.1%)<br>{{ItemLink|stablekey=item:gen - ivory tusk|link=Ivory Tusk|text=Ivory Tusk|image=Ivory Tusk.png}} (19.5%)
 |level=26
 |levelmodmin=0
 |levelmodmax=0

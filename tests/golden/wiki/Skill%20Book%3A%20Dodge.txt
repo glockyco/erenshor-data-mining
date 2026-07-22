@@ -2,8 +2,8 @@
 |title=Skill Book: Dodge
 |stablekey=item:skillbook - dodge 1
 |type=[[Ability Books|Skill Book]]
-|vendorsource=[[Amethi Plazzo]]<br>[[Benson Gamble]]<br>[[Javo Follay]]<br>[[Ludo Luxo]]<br>[[Sven Feartines]]
-|source=[[Islander Bandit]] (1.1%)
+|vendorsource={{CharacterLink|stablekey=character:amethi plazzo:stowaway:575.36:73.04:549.85|link=Amethi Plazzo|text=Amethi Plazzo}}<br>{{CharacterLink|stablekey=character:benson gamble|link=Benson Gamble|text=Benson Gamble}}<br>{{CharacterLink|stablekey=character:javo follay|link=Javo Follay|text=Javo Follay}}<br>{{CharacterLink|stablekey=character:ludo luxo|link=Ludo Luxo|text=Ludo Luxo}}<br>{{CharacterLink|stablekey=character:sven feartines|link=Sven Feartines|text=Sven Feartines}}
+|source={{CharacterLink|stablekey=character:islander bandit|link=Islander Bandit|text=Islander Bandit}} (1.1%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -12,7 +12,7 @@
 |buy=55
 |sell=36
 |taughtspell=
-|taughtskill={{AbilityLink|Dodge}}
+|taughtskill={{AbilityLink|stablekey=skill:dodge 1|link=Dodge|text=Dodge|image=Dodge.png}}
 |guaranteeddrops=
 |droprates=
 }}

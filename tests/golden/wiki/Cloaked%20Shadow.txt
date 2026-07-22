@@ -3,15 +3,15 @@
 |image=[[File:Cloaked Shadow.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Mysterious Portal|Mysterious Portal (3)]]
+|zones={{ZoneLink|stablekey=zone:ripperportal|link=Mysterious Portal|text=Mysterious Portal (3)}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=1 minute
 |guaranteeddrops=
-|droprates={{ItemLink|Cloth Gloves}} (36.8%)<br>{{ItemLink|Cloth Hood}} (36.8%)<br>{{ItemLink|Cloth Shoes}} (36.8%)<br>{{ItemLink|Cloth Sleeves}} (36.8%)<br>{{ItemLink|Brackfruit Juice}} (13.4%)<br>{{ItemLink|Stirrer of Sleep}} (4.5%)<ref>If Cloaked Shadow has {{ItemLink|Stirrer of Sleep}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Elixir of Enlightenment I}} (2.3%)
+|droprates={{ItemLink|stablekey=item:glove - 1 - cloth gloves|link=Cloth Gloves|text=Cloth Gloves|image=Cloth Gloves.png}} (36.8%)<br>{{ItemLink|stablekey=item:head - 1 - cloth hood|link=Cloth Hood|text=Cloth Hood|image=Cloth Hood.png}} (36.8%)<br>{{ItemLink|stablekey=item:foot - 1 - cloth shoes|link=Cloth Shoes|text=Cloth Shoes|image=Cloth Shoes.png}} (36.8%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves|link=Cloth Sleeves|text=Cloth Sleeves|image=Cloth Sleeves.png}} (36.8%)<br>{{ItemLink|stablekey=item:cons - brackfruit juice|link=Brackfruit Juice|text=Brackfruit Juice|image=Brackfruit Juice.png}} (13.4%)<br>{{ItemLink|stablekey=item:weap - 28 - stirrer of sleep|link=Stirrer of Sleep|text=Stirrer of Sleep|image=Stirrer of Sleep.png}} (4.5%)<ref>If Cloaked Shadow has {{ItemLink|stablekey=item:weap - 28 - stirrer of sleep|link=Stirrer of Sleep|text=Stirrer of Sleep|image=Stirrer of Sleep.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:cons - enlightening potion i|link=Elixir of Enlightenment I|text=Elixir of Enlightenment I|image=Elixir of Enlightenment I.png}} (2.3%)
 |level=32
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=16-38
 |elemental=16-38
 |void=16-38
-|spells={{AbilityLink|Aetherstorm}}<br>{{AbilityLink|Devour}}<br>{{AbilityLink|Minor Protection}}
+|spells={{AbilityLink|stablekey=spell:arc - aetherstorm|link=Aetherstorm|text=Aetherstorm|image=Aetherstorm.png}}<br>{{AbilityLink|stablekey=spell:dru reav - devour|link=Devour|text=Devour|image=Devour.png}}<br>{{AbilityLink|stablekey=spell:all - minor protection|link=Minor Protection|text=Minor Protection|image=Minor Protection.png}}
 }}
 
 [[Category:Enemies]]

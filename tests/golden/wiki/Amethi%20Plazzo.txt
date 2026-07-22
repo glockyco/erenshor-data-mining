@@ -3,9 +3,9 @@
 |image=[[File:Amethi Plazzo.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Citizens of Stowaway's Step]]
-|factionChange=+2 [[The Agents of The Wisp]]<br>+2 [[The Children of Sivakaya]]
-|zones=[[Stowaway's Step]]
+|faction={{FactionLink|stablekey=faction:stowaway|link=The Citizens of Stowaway's Step|text=The Citizens of Stowaway's Step}}
+|factionChange=+2 {{FactionLink|stablekey=faction:wispagent|link=The Agents of The Wisp|text=The Agents of The Wisp}}<br>+2 {{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}
+|zones={{ZoneLink|stablekey=zone:stowaway|link=Stowaway's Step|text=Stowaway's Step}}
 |coordinates=575.4 x 73.0 x 549.9
 |spawnchance=
 |spawntype=

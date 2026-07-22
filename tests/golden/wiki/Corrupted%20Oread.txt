@@ -3,15 +3,15 @@
 |image=[[File:Corrupted Oread.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Willowwatch Ridge]]
+|zones={{ZoneLink|stablekey=zone:willowwatch|link=Willowwatch Ridge|text=Willowwatch Ridge}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Essence of Nature}} (27.8%)
+|droprates={{ItemLink|stablekey=item:gen - essence of nature|link=Essence of Nature|text=Essence of Nature|image=Essence of Nature.png}} (27.8%)
 |level=7
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=4-8
 |elemental=4-8
 |void=4-8
-|spells={{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Weak Poison}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's touch|link=Brax's Touch|text=Brax's Touch|image=Brax's Touch.png}}<br>{{AbilityLink|stablekey=spell:dru - weak poison|link=Weak Poison|text=Weak Poison|image=Weak Poison.png}}
 }}
 
 [[Category:Enemies]]

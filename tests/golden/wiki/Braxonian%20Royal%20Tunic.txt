@@ -3,7 +3,7 @@
 |stablekey=item:chest - 32 - braxonian royal garb
 |type=
 |vendorsource=
-|source=[[Statue of Brax]] (12.6%)<br>[[Braxonian Planar Guard (Fire)]] (1.1%)<br>[[Braxonian Planar Guard (Ice)]] (1.1%)<br>[[Braxon Prospect]] (0.4%)<br>[[Braxonian Ascended]] (0.4%)<br>[[Braxonian Tempest]] (0.4%)
+|source={{CharacterLink|stablekey=character:statue of brax|link=Statue of Brax|text=Statue of Brax}} (12.6%)<br>{{CharacterLink|stablekey=character:braxonian planar guardian fire|link=Braxonian Planar Guard (Fire)|text=Braxonian Planar Guard (Fire)}} (1.1%)<br>{{CharacterLink|stablekey=character:braxonian planar guardian ice|link=Braxonian Planar Guard (Ice)|text=Braxonian Planar Guard (Ice)}} (1.1%)<br>{{CharacterLink|stablekey=character:braxonian prospect|link=Braxon Prospect|text=Braxon Prospect}} (0.4%)<br>{{CharacterLink|stablekey=character:braxonian ascended|link=Braxonian Ascended|text=Braxonian Ascended}} (0.4%)<br>{{CharacterLink|stablekey=character:braxonian tempest|link=Braxonian Tempest|text=Braxonian Tempest}} (0.4%)
 |othersource=
 |questsource=
 |relatedquest=

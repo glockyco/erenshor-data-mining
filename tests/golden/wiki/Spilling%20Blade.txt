@@ -3,7 +3,7 @@
 |stablekey=item:weap - 42 - spilling blade
 |type=
 |vendorsource=
-|source=[[Fernallan High Guard]] (6.7%)
+|source={{CharacterLink|stablekey=character:fernallan high planar guard|link=Fernallan High Guard|text=Fernallan High Guard}} (6.7%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=5
 |proc_spell_icon=Forest's Reckoning.png
-|proc_spell_name=[[Forest's Reckoning]]
+|proc_spell_name={{AbilityLink|stablekey=spell:dru - forest's reckoning|link=Forest's Reckoning|text=Forest's Reckoning|image=Forest's Reckoning.png}}
 |proc_spell_level=20
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

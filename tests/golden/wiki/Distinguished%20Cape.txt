@@ -3,7 +3,7 @@
 |stablekey=item:back - 19 - distinguishedcape
 |type=
 |vendorsource=
-|source=[[Spectral Torturer]] (33.3%)
+|source={{CharacterLink|stablekey=character:torturer|link=Spectral Torturer|text=Spectral Torturer}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

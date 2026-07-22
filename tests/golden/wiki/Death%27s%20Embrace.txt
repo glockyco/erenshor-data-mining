@@ -5,7 +5,7 @@
 |description=Steal some of your target's strength and attack speed and give it to yourself briefly
 |type=StatusEffect
 |line=Duel_Void_DOT
-|classes=[[Windblade]] (6)
+|classes={{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}} (6)
 |required_level=6
 |manacost=75
 |aggro=200
@@ -31,7 +31,7 @@
 |caster_healing=
 |shield_amount=
 |pet_to_summon=
-|status_effect={{AbilityLink|Death's Embrace|text=Death's Embrace (Caster)}}
+|status_effect=[[Death's Embrace|Death's Embrace (Caster)]]
 |add_proc=
 |add_proc_chance=
 |has_lifetap=
@@ -65,9 +65,9 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Ebonshade}}
-|source={{ItemLink|Spell Scroll: Death's Embrace}}
-|used_by=[[A Grassland Ogre Chieftain]]<br>[[A Rottenfoot Warrior]]<br>[[A Rottenfoot Witchdoctor]]<br>[[A Seafiend]]<br>[[Aragath Swellsteer]]<br>[[Bassle Wavebreaker]]<br>[[Cagnus Marlsen]]<br>[[Chazza Priel]]<br>[[Elysia Thistlewick]]<br>[[Molorai Acquirer]]<br>[[Molorai Ancille]]<br>[[Molorai Anointed]]<br>[[Molorai Bloodwarden]]<br>[[Molorai Curator]]<br>[[Molorai Dockmaster]]<br>[[Molorai Mason]]<br>[[Molorai Outrider]]<br>[[Molorai Outrider]]<br>[[Molorai Specialist]]<br>[[Molorai Specialist]]<br>[[Molorai Truthseeker]]<br>[[Overseer Orlok]]<br>[[Priel Deceiver]]<br>[[Rottenfoot Mauler]]<br>[[Rottenfoot Swampwalker]]<br>[[Rottenfoot Witchdoctor]]<br>[[Scorched Skeleton]]<br>[[Sprig Laisey]]<br>[[Tiallia Priel]]
+|itemswitheffect={{ItemLink|stablekey=item:weap - 19 - ebonshade|link=Ebonshade|text=Ebonshade|image=Ebonshade.png}}
+|source={{ItemLink|stablekey=item:spell scroll - death's embrace|link=Spell Scroll: Death's Embrace|text=Spell Scroll: Death's Embrace|image=Spell Scroll: Death's Embrace.png}}
+|used_by={{CharacterLink|stablekey=character:grassland ogre chieftan|link=A Grassland Ogre Chieftain|text=A Grassland Ogre Chieftain}}<br>{{CharacterLink|stablekey=character:a rottenfoot goblin warrior|link=A Rottenfoot Warrior|text=A Rottenfoot Warrior}}<br>{{CharacterLink|stablekey=character:a rottenfoot goblin witchdoctor|link=A Rottenfoot Witchdoctor|text=A Rottenfoot Witchdoctor}}<br>{{CharacterLink|stablekey=character:a seafiend spirtist|link=A Seafiend|text=A Seafiend}}<br>{{CharacterLink|stablekey=character:aragath swellsteer|link=Aragath Swellsteer|text=Aragath Swellsteer}}<br>{{CharacterLink|stablekey=character:bassle wavebreak|link=Bassle Wavebreaker|text=Bassle Wavebreaker}}<br>{{CharacterLink|stablekey=character:cagnus marlsen|link=Cagnus Marlsen|text=Cagnus Marlsen}}<br>{{CharacterLink|stablekey=character:chazza priel|link=Chazza Priel|text=Chazza Priel}}<br>{{CharacterLink|stablekey=character:shady merchant|link=Elysia Thistlewick|text=Elysia Thistlewick}}<br>{{CharacterLink|stablekey=character:molorai acquirer|link=Molorai Acquirer|text=Molorai Acquirer}}<br>{{CharacterLink|stablekey=character:molorai ancille|link=Molorai Ancille|text=Molorai Ancille}}<br>{{CharacterLink|stablekey=character:molorai anointed|link=Molorai Anointed|text=Molorai Anointed}}<br>{{CharacterLink|stablekey=character:molorai bloodwarden|link=Molorai Bloodwarden|text=Molorai Bloodwarden}}<br>{{CharacterLink|stablekey=character:molorai curator|link=Molorai Curator|text=Molorai Curator}}<br>{{CharacterLink|stablekey=character:molorai dockmaster|link=Molorai Dockmaster|text=Molorai Dockmaster}}<br>{{CharacterLink|stablekey=character:molorai mason|link=Molorai Mason|text=Molorai Mason}}<br>{{CharacterLink|stablekey=character:molorai outrider|link=Molorai Outrider|text=Molorai Outrider}}<br>{{CharacterLink|stablekey=character:molorai outrider 1|link=Molorai Outrider|text=Molorai Outrider}}<br>{{CharacterLink|stablekey=character:molorai specialist|link=Molorai Specialist|text=Molorai Specialist}}<br>{{CharacterLink|stablekey=character:molorai specialist 1|link=Molorai Specialist|text=Molorai Specialist}}<br>{{CharacterLink|stablekey=character:molorai truthseeker|link=Molorai Truthseeker|text=Molorai Truthseeker}}<br>{{CharacterLink|stablekey=character:overseer orlok|link=Overseer Orlok|text=Overseer Orlok}}<br>{{CharacterLink|stablekey=character:priel deceiver|link=Priel Deceiver|text=Priel Deceiver}}<br>{{CharacterLink|stablekey=character:a rottenfoot mauler|link=Rottenfoot Mauler|text=Rottenfoot Mauler}}<br>{{CharacterLink|stablekey=character:a rottenfoot goblin female|link=Rottenfoot Swampwalker|text=Rottenfoot Swampwalker}}<br>{{CharacterLink|stablekey=character:a rottenfoot goblin spiritcaller|link=Rottenfoot Witchdoctor|text=Rottenfoot Witchdoctor}}<br>{{CharacterLink|stablekey=character:scorched skeleton|link=Scorched Skeleton|text=Scorched Skeleton}}<br>{{CharacterLink|stablekey=character:sprig laisey:duskenlight:1509.79:64.02:682.66|link=Sprig Laisey|text=Sprig Laisey}}<br>{{CharacterLink|stablekey=character:tiallia priel|link=Tiallia Priel|text=Tiallia Priel}}
 }}
 
 {{Ability
@@ -103,7 +103,7 @@
 |caster_healing=
 |shield_amount=
 |pet_to_summon=
-|status_effect={{AbilityLink|Death's Embrace|text=Death's Embrace (Caster)}}
+|status_effect=[[Death's Embrace|Death's Embrace (Caster)]]
 |add_proc=
 |add_proc_chance=
 |has_lifetap=

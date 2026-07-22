@@ -3,15 +3,15 @@
 |image=[[File:Gargoth.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
-|factionChange=+2 [[Fernalla's Children]]<br>+2 [[The Torchbearers of Brax]]
-|zones=[[Azynthi's Garden|Azynthi's Garden (Dimensional Rift)]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|factionChange=+2 {{FactionLink|stablekey=faction:fernalla|link=Fernalla's Children|text=Fernalla's Children}}<br>+2 {{FactionLink|stablekey=faction:brax|link=The Torchbearers of Brax|text=The Torchbearers of Brax}}
+|zones={{ZoneLink|stablekey=zone:azynthi|link=Azynthi's Garden|text=Azynthi's Garden (Dimensional Rift)}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Diamond}} (13.5%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref>
+|droprates={{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (13.5%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref>
 |level=35
 |levelmodmin=0
 |levelmodmax=0

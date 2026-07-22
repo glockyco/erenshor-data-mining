@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Decay}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - fernalla 4|link=Decay|text=Decay|image=Decay.png}}
 |source=
 |used_by=
 }}

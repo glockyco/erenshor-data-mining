@@ -3,15 +3,15 @@
 |image=[[File:Brax, God of Elements.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Brax's Plane of Elements]]
+|zones={{ZoneLink|stablekey=zone:planeofbrax|link=Brax's Plane of Elements|text=Brax's Plane of Elements}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=30 minutes
-|guaranteeddrops={{ItemLink|Allbond}}<br>{{ItemLink|Cleansing Incineration}}<br>{{ItemLink|Mana Strand Bracer}}<br>{{ItemLink|Mana Strand Tunic}}<br>{{ItemLink|Shard of Infinity}}<br>{{ItemLink|Tenet of Braxonia}}
-|droprates={{ItemLink|Sivakrux}} (53.4%)<br>{{ItemLink|Allbond}} (38.5%)<br>{{ItemLink|Cleansing Incineration}} (38.5%)<br>{{ItemLink|Mana Strand Bracer}} (38.5%)<br>{{ItemLink|Mana Strand Tunic}} (38.5%)<br>{{ItemLink|Shard of Infinity}} (38.5%)<br>{{ItemLink|Tenet of Braxonia}} (35.9%)<br>{{ItemLink|Blizzard Bane}} (30.7%)<br>{{ItemLink|Frostbite}} (30.7%)<br>{{ItemLink|Glacier Belt}} (30.7%)<br>{{ItemLink|Magma Droplet}} (30.7%)<br>{{ItemLink|Warder's Staff}} (30.7%)<br>{{ItemLink|Planar Stone}} (18.5%)<br>{{ItemLink|Platinum Statue: Brax}} (11.0%)
+|guaranteeddrops={{ItemLink|stablekey=item:wrist - 42 - the allbond|link=Allbond|text=Allbond|image=Allbond.png}}<br>{{ItemLink|stablekey=item:aura - brax 5|link=Cleansing Incineration|text=Cleansing Incineration|image=Cleansing Incineration.png}}<br>{{ItemLink|stablekey=item:wrist - 42 - mana strand bracer|link=Mana Strand Bracer|text=Mana Strand Bracer|image=Mana Strand Bracer.png}}<br>{{ItemLink|stablekey=item:chest - 42 - mana strand tunic|link=Mana Strand Tunic|text=Mana Strand Tunic|image=Mana Strand Tunic.png}}<br>{{ItemLink|stablekey=item:secondary - 42 - shard of infinity|link=Shard of Infinity|text=Shard of Infinity|image=Shard of Infinity.png}}<br>{{ItemLink|stablekey=item:neck - 42 - tenet of braxonia|link=Tenet of Braxonia|text=Tenet of Braxonia|image=Tenet of Braxonia.png}}
+|droprates={{ItemLink|stablekey=item:gen - sivak|link=Sivakrux|text=Sivakrux|image=Sivakrux.png}} (53.4%)<br>{{ItemLink|stablekey=item:wrist - 42 - the allbond|link=Allbond|text=Allbond|image=Allbond.png}} (38.5%)<br>{{ItemLink|stablekey=item:aura - brax 5|link=Cleansing Incineration|text=Cleansing Incineration|image=Cleansing Incineration.png}} (38.5%)<br>{{ItemLink|stablekey=item:wrist - 42 - mana strand bracer|link=Mana Strand Bracer|text=Mana Strand Bracer|image=Mana Strand Bracer.png}} (38.5%)<br>{{ItemLink|stablekey=item:chest - 42 - mana strand tunic|link=Mana Strand Tunic|text=Mana Strand Tunic|image=Mana Strand Tunic.png}} (38.5%)<br>{{ItemLink|stablekey=item:secondary - 42 - shard of infinity|link=Shard of Infinity|text=Shard of Infinity|image=Shard of Infinity.png}} (38.5%)<br>{{ItemLink|stablekey=item:neck - 42 - tenet of braxonia|link=Tenet of Braxonia|text=Tenet of Braxonia|image=Tenet of Braxonia.png}} (35.9%)<br>{{ItemLink|stablekey=item:back - 42 - blizzardbane|link=Blizzard Bane|text=Blizzard Bane|image=Blizzard Bane.png}} (30.7%)<br>{{ItemLink|stablekey=item:bow - 42 - frostbite|link=Frostbite|text=Frostbite|image=Frostbite.png}} (30.7%)<br>{{ItemLink|stablekey=item:belt - 42 - glacier belt|link=Glacier Belt|text=Glacier Belt|image=Glacier Belt.png}} (30.7%)<br>{{ItemLink|stablekey=item:neck - 42 - magma droplet|link=Magma Droplet|text=Magma Droplet|image=Magma Droplet.png}} (30.7%)<br>{{ItemLink|stablekey=item:wand - 42 - staff of the warder|link=Warder's Staff|text=Warder's Staff|image=Warder's Staff.png}} (30.7%)<br>{{ItemLink|stablekey=item:ore - planar stone|link=Planar Stone|text=Planar Stone|image=Planar Stone.png}} (18.5%)<br>{{ItemLink|stablekey=item:furniture - stone statue platinum brax|link=Platinum Statue: Brax|text=Platinum Statue: Brax|image=Platinum Statue: Brax.png}} (11.0%)
 |level=43
 |levelmodmin=0
 |levelmodmax=0
@@ -42,15 +42,15 @@
 |image=[[File:Brax, God of Elements.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Followers of Good]]
+|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
 |factionChange=
-|zones=[[Brax's Plane of Elements]]
+|zones={{ZoneLink|stablekey=zone:planeofbrax|link=Brax's Plane of Elements|text=Brax's Plane of Elements}}
 |coordinates=2543.6 x 75.5 x 404.1
 |spawnchance=
 |spawntype=
 |respawn=
-|guaranteeddrops={{ItemLink|Allbond}}<br>{{ItemLink|Cleansing Incineration}}<br>{{ItemLink|Mana Strand Bracer}}<br>{{ItemLink|Mana Strand Tunic}}<br>{{ItemLink|Shard of Infinity}}<br>{{ItemLink|Tenet of Braxonia}}
-|droprates={{ItemLink|Sivakrux}} (53.4%)<br>{{ItemLink|Allbond}} (38.5%)<br>{{ItemLink|Cleansing Incineration}} (38.5%)<br>{{ItemLink|Mana Strand Bracer}} (38.5%)<br>{{ItemLink|Mana Strand Tunic}} (38.5%)<br>{{ItemLink|Shard of Infinity}} (38.5%)<br>{{ItemLink|Tenet of Braxonia}} (35.9%)<br>{{ItemLink|Blizzard Bane}} (30.7%)<br>{{ItemLink|Frostbite}} (30.7%)<br>{{ItemLink|Glacier Belt}} (30.7%)<br>{{ItemLink|Magma Droplet}} (30.7%)<br>{{ItemLink|Warder's Staff}} (30.7%)<br>{{ItemLink|Planar Stone}} (18.5%)<br>{{ItemLink|Platinum Statue: Brax}} (11.0%)
+|guaranteeddrops={{ItemLink|stablekey=item:wrist - 42 - the allbond|link=Allbond|text=Allbond|image=Allbond.png}}<br>{{ItemLink|stablekey=item:aura - brax 5|link=Cleansing Incineration|text=Cleansing Incineration|image=Cleansing Incineration.png}}<br>{{ItemLink|stablekey=item:wrist - 42 - mana strand bracer|link=Mana Strand Bracer|text=Mana Strand Bracer|image=Mana Strand Bracer.png}}<br>{{ItemLink|stablekey=item:chest - 42 - mana strand tunic|link=Mana Strand Tunic|text=Mana Strand Tunic|image=Mana Strand Tunic.png}}<br>{{ItemLink|stablekey=item:secondary - 42 - shard of infinity|link=Shard of Infinity|text=Shard of Infinity|image=Shard of Infinity.png}}<br>{{ItemLink|stablekey=item:neck - 42 - tenet of braxonia|link=Tenet of Braxonia|text=Tenet of Braxonia|image=Tenet of Braxonia.png}}
+|droprates={{ItemLink|stablekey=item:gen - sivak|link=Sivakrux|text=Sivakrux|image=Sivakrux.png}} (53.4%)<br>{{ItemLink|stablekey=item:wrist - 42 - the allbond|link=Allbond|text=Allbond|image=Allbond.png}} (38.5%)<br>{{ItemLink|stablekey=item:aura - brax 5|link=Cleansing Incineration|text=Cleansing Incineration|image=Cleansing Incineration.png}} (38.5%)<br>{{ItemLink|stablekey=item:wrist - 42 - mana strand bracer|link=Mana Strand Bracer|text=Mana Strand Bracer|image=Mana Strand Bracer.png}} (38.5%)<br>{{ItemLink|stablekey=item:chest - 42 - mana strand tunic|link=Mana Strand Tunic|text=Mana Strand Tunic|image=Mana Strand Tunic.png}} (38.5%)<br>{{ItemLink|stablekey=item:secondary - 42 - shard of infinity|link=Shard of Infinity|text=Shard of Infinity|image=Shard of Infinity.png}} (38.5%)<br>{{ItemLink|stablekey=item:neck - 42 - tenet of braxonia|link=Tenet of Braxonia|text=Tenet of Braxonia|image=Tenet of Braxonia.png}} (35.9%)<br>{{ItemLink|stablekey=item:back - 42 - blizzardbane|link=Blizzard Bane|text=Blizzard Bane|image=Blizzard Bane.png}} (30.7%)<br>{{ItemLink|stablekey=item:bow - 42 - frostbite|link=Frostbite|text=Frostbite|image=Frostbite.png}} (30.7%)<br>{{ItemLink|stablekey=item:belt - 42 - glacier belt|link=Glacier Belt|text=Glacier Belt|image=Glacier Belt.png}} (30.7%)<br>{{ItemLink|stablekey=item:neck - 42 - magma droplet|link=Magma Droplet|text=Magma Droplet|image=Magma Droplet.png}} (30.7%)<br>{{ItemLink|stablekey=item:wand - 42 - staff of the warder|link=Warder's Staff|text=Warder's Staff|image=Warder's Staff.png}} (30.7%)<br>{{ItemLink|stablekey=item:ore - planar stone|link=Planar Stone|text=Planar Stone|image=Planar Stone.png}} (18.5%)<br>{{ItemLink|stablekey=item:furniture - stone statue platinum brax|link=Platinum Statue: Brax|text=Platinum Statue: Brax|image=Platinum Statue: Brax.png}} (11.0%)
 |level=43
 |levelmodmin=0
 |levelmodmax=0

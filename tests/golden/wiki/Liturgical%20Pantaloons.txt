@@ -3,7 +3,7 @@
 |stablekey=item:leg - 16 - liturgical pantaloons
 |type=
 |vendorsource=
-|source=[[Lazalith, Soldier of Sivakaya]] (33.3%)
+|source={{CharacterLink|stablekey=character:soldier of sivakaya|link=Lazalith, Soldier of Sivakaya|text=Lazalith, Soldier of Sivakaya}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

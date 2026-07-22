@@ -3,7 +3,7 @@
 |stablekey=item:skillbook - void slice
 |type=
 |vendorsource=
-|source=[[Reaver of Sivakaya]] (100.0%)
+|source={{CharacterLink|stablekey=character:reaver of sivakaya bkp|link=Reaver of Sivakaya|text=Reaver of Sivakaya}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -12,7 +12,7 @@
 |buy=55000
 |sell=35750
 |taughtspell=
-|taughtskill={{AbilityLink|Void Slice}}
+|taughtskill={{AbilityLink|stablekey=skill:void slice|link=Void Slice|text=Void Slice|image=Void Slice.png}}
 |guaranteeddrops=
 |droprates=
 }}

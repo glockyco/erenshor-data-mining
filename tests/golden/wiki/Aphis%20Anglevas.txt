@@ -3,9 +3,9 @@
 |image=[[File:Aphis Anglevas.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Followers of Good]]
+|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
 |factionChange=
-|zones=[[Port Azure]]
+|zones={{ZoneLink|stablekey=zone:azure|link=Port Azure|text=Port Azure}}
 |coordinates=339.2 x 26.7 x 96.8
 |spawnchance=
 |spawntype=

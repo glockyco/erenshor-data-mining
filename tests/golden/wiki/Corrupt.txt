@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Corruptor}}
+|itemswitheffect={{ItemLink|stablekey=item:wand - 40 - corruptor|link=Corruptor|text=Corruptor|image=Corruptor.png}}
 |source=
 |used_by=
 }}

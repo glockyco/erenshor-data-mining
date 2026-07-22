@@ -3,10 +3,10 @@
 |stablekey=item:gen - marching orders
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Gherist Morthario]] (100.0%)
+|source={{CharacterLink|stablekey=character:gherist morthario|link=Gherist Morthario|text=Gherist Morthario}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Sivakayan Intel for Kilkay}}<br>{{QuestLink|link=Sivakayan Intel for Kilkay{{!}}Sivakayan Intel for Kilkay (2)}}
+|relatedquest={{QuestLink|Sivakayan Intel for Kilkay}}<br>{{QuestLink|link=Sivakayan Intel for Kilkay{{!}}Sivakayan Intel for Kilkay (2)}}<br>{{QuestLink|stablekey=quest:inteltokilkay2|link=Sivakayan Intel for Kilkay|text=Sivakayan Intel for Kilkay (2)}}
 |craftsource=
 |componentfor=
 |buy=

@@ -3,7 +3,7 @@
 |stablekey=item:charm - 42 - creator's charm
 |type=
 |vendorsource=
-|source=[[Warder of Flame]] (69.7%)
+|source={{CharacterLink|stablekey=character:warder of flame|link=Warder of Flame|text=Warder of Flame}} (69.7%)
 |othersource=
 |questsource=
 |relatedquest=

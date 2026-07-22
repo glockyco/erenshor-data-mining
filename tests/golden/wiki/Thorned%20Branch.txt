@@ -3,7 +3,7 @@
 |stablekey=item:weap - 19 - thorned branch
 |type=
 |vendorsource=
-|source=[[Elder Guardian]] (1.4%)
+|source={{CharacterLink|stablekey=character:elder guardian|link=Elder Guardian|text=Elder Guardian}} (1.4%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=10
 |proc_spell_icon=Blast of Thorns.png
-|proc_spell_name=[[Blast of Thorns]]
+|proc_spell_name={{AbilityLink|stablekey=spell:dru - blast of thorns|link=Blast of Thorns|text=Blast of Thorns|image=Blast of Thorns.png}}
 |proc_spell_level=8
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

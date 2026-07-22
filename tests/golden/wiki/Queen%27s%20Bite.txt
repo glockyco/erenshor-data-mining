@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Queen's Fang}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 19 - queen's fang|link=Queen's Fang|text=Queen's Fang|image=Queen's Fang.png}}
 |source=
 |used_by=
 }}

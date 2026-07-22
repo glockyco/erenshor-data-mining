@@ -2,7 +2,7 @@
 |title=Spell Scroll: Dooming Undertow
 |stablekey=item:spell scroll - dooming undertow
 |type=[[Ability Books]]
-|vendorsource=[[Juctin Mysia]]
+|vendorsource={{CharacterLink|stablekey=character:juctin mysia|link=Juctin Mysia|text=Juctin Mysia}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=19000
 |sell=12350
-|taughtspell={{AbilityLink|Dooming Undertow}}
+|taughtspell={{AbilityLink|stablekey=spell:duel - slow dooming undertow|link=Dooming Undertow|text=Dooming Undertow|image=Dooming Undertow.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

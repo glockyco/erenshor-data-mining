@@ -3,7 +3,7 @@
 |stablekey=item:head - 12 - rottenfoot cap
 |type=
 |vendorsource=
-|source=[[Rottenfoot Mauler]] (4.6%)
+|source={{CharacterLink|stablekey=character:a rottenfoot mauler|link=Rottenfoot Mauler|text=Rottenfoot Mauler}} (4.6%)
 |othersource=
 |questsource=
 |relatedquest=

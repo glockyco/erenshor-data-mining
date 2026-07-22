@@ -5,7 +5,7 @@
 |description=Allows 1-handed weapons that are equipped in Secondary Hand to have a chance to swing during combat.
 |type=Innate
 |line=
-|classes=[[Windblade]] (2)
+|classes={{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}} (2)
 |required_level=
 |manacost=
 |aggro=
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Skill Book: Dual Wield}}
+|source={{ItemLink|stablekey=item:skillbook - dual wield|link=Skill Book: Dual Wield|text=Skill Book: Dual Wield|image=Skill Book: Dual Wield.png}}
 |used_by=
 }}

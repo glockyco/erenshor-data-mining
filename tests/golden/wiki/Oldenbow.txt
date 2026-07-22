@@ -3,7 +3,7 @@
 |stablekey=item:bow - 34 - oldenbow
 |type=
 |vendorsource=
-|source=[[Balthom, Soldier of Sivakaya]] (33.3%)
+|source={{CharacterLink|stablekey=character:balthom|link=Balthom, Soldier of Sivakaya|text=Balthom, Soldier of Sivakaya}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=8
 |proc_spell_icon=Ice Spear.png
-|proc_spell_name=[[Ice Spear]]
+|proc_spell_name={{AbilityLink|stablekey=spell:arc - ice spear|link=Ice Spear|text=Ice Spear|image=Ice Spear.png}}
 |proc_spell_level=21
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

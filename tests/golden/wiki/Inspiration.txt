@@ -3,7 +3,7 @@
 |stablekey=item:ring - 17 - inspiration
 |type=
 |vendorsource=
-|source=[[Lazalith, Soldier of Sivakaya]] (13.5%)
+|source={{CharacterLink|stablekey=character:soldier of sivakaya|link=Lazalith, Soldier of Sivakaya|text=Lazalith, Soldier of Sivakaya}} (13.5%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Worn
 |proc_chance=
 |proc_spell_icon=Mana Charge.png
-|proc_spell_name=[[Mana Charge]]
+|proc_spell_name={{AbilityLink|stablekey=spell:arc - mana charge|link=Mana Charge|text=Mana Charge|image=Mana Charge.png}}
 |proc_spell_level=-1
 |proc_spell_duration_ticks=3
 |proc_spell_type=Beneficial

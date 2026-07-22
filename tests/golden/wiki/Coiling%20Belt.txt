@@ -3,7 +3,7 @@
 |stablekey=item:belt - 28 - coiled belt
 |type=
 |vendorsource=
-|source=[[Coiling Dusker]] (6.7%)
+|source={{CharacterLink|stablekey=character:coiling duskbringer|link=Coiling Dusker|text=Coiling Dusker}} (6.7%)
 |othersource=
 |questsource=
 |relatedquest=

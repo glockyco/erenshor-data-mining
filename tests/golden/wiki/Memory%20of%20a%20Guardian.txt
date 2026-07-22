@@ -3,10 +3,10 @@
 |stablekey=item:gen - memory of the guardian
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[The Crypt Guardian]] (100.0%)
+|source={{CharacterLink|stablekey=character:crypt guardian|link=The Crypt Guardian|text=The Crypt Guardian}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|A Dying Wish, Part 1}}
+|relatedquest={{QuestLink|A Dying Wish, Part 1}}, {{QuestLink|stablekey=quest:sepulcher1|link=A Dying Wish, Part 1|text=A Dying Wish
 |craftsource=
 |componentfor=
 |buy=

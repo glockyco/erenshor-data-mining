@@ -3,7 +3,7 @@
 |stablekey=item:head - 9 - sivakayan metal helm
 |type=
 |vendorsource=
-|source=[[An Apparition of Sivakaya]] (25.0%)
+|source={{CharacterLink|stablekey=character:an apparation of sivakaya|link=An Apparition of Sivakaya|text=An Apparition of Sivakaya}} (25.0%)
 |othersource=
 |questsource=
 |relatedquest=

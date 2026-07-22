@@ -3,7 +3,7 @@
 |stablekey=item:ring - 11 - ring of clarity
 |type=
 |vendorsource=
-|source=[[Tinkles]] (84.7%)<br>[[Molorai Archmage]] (7.8%)<br>[[Molorai Archmage]] (7.6%)
+|source={{CharacterLink|stablekey=character:tinkles|link=Tinkles|text=Tinkles}} (84.7%)<br>{{CharacterLink|stablekey=character:molorai archmage|link=Molorai Archmage|text=Molorai Archmage}} (7.8%)<br>{{CharacterLink|stablekey=character:molorai archivist|link=Molorai Archmage|text=Molorai Archmage}} (7.6%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Worn
 |proc_chance=
 |proc_spell_icon=Mana Charge.png
-|proc_spell_name=[[Mana Charge]]
+|proc_spell_name={{AbilityLink|stablekey=spell:arc - mana charge|link=Mana Charge|text=Mana Charge|image=Mana Charge.png}}
 |proc_spell_level=-1
 |proc_spell_duration_ticks=3
 |proc_spell_type=Beneficial

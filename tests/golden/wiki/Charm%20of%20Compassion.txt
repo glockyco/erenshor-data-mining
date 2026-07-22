@@ -7,7 +7,7 @@
 |othersource=
 |questsource=
 |relatedquest=
-|craftsource=1x {{ItemLink|Mold: Charm of Compassion}}<br>1x {{ItemLink|Chunk of Copper Ore}}<br>1x {{ItemLink|Chunk of Living Ruby}}<br>1x {{ItemLink|Chunk of Living Sapphire}}<br>1x {{ItemLink|Chunk of Citrine Sandsilver}}
+|craftsource=1x {{ItemLink|stablekey=item:template - charm of compassion|link=Mold: Charm of Compassion|text=Mold: Charm of Compassion|image=Mold: Charm of Compassion.png}}<br>1x {{ItemLink|stablekey=item:ore - bronze ore|link=Chunk of Copper Ore|text=Chunk of Copper Ore|image=Chunk of Copper Ore.png}}<br>1x {{ItemLink|stablekey=item:gen - chunk of living ruby|link=Chunk of Living Ruby|text=Chunk of Living Ruby|image=Chunk of Living Ruby.png}}<br>1x {{ItemLink|stablekey=item:gen - chunk of living sapphire|link=Chunk of Living Sapphire|text=Chunk of Living Sapphire|image=Chunk of Living Sapphire.png}}<br>1x {{ItemLink|stablekey=item:ore - citrine sandsilver|link=Chunk of Citrine Sandsilver|text=Chunk of Citrine Sandsilver|image=Chunk of Citrine Sandsilver.png}}
 |componentfor=
 |buy=25000
 |sell=16250

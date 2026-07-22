@@ -2,7 +2,7 @@
 |title=Spidersilk Shirt
 |stablekey=item:chest - 13 - spidersilk shirt
 |type=
-|vendorsource=[[Edwin Ansegg]]
+|vendorsource={{CharacterLink|stablekey=character:edwin ansegg|link=Edwin Ansegg|text=Edwin Ansegg}}
 |source=
 |othersource=
 |questsource=

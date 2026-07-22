@@ -2,7 +2,7 @@
 |title=Spell Scroll: Minor Protection
 |stablekey=item:spell scroll - minor protection
 |type=
-|vendorsource=[[Samuel Thatcher]]
+|vendorsource={{CharacterLink|stablekey=character:shopkeeper samuel|link=Samuel Thatcher|text=Samuel Thatcher}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=25
 |sell=16
-|taughtspell={{AbilityLink|Minor Protection}}
+|taughtspell={{AbilityLink|stablekey=spell:all - minor protection|link=Minor Protection|text=Minor Protection|image=Minor Protection.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

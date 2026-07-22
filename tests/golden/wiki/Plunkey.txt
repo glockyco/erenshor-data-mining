@@ -3,15 +3,15 @@
 |image=[[File:Plunkey.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Rottenfoot]]
+|zones={{ZoneLink|stablekey=zone:rottenfoot|link=Rottenfoot|text=Rottenfoot}}
 |coordinates=81.1 x 24.1 x 97.6
 |spawnchance=85%
 |spawntype=
 |respawn=4 minutes
-|guaranteeddrops={{ItemLink|Aged Prism}}<br>{{ItemLink|Reed Trousers}}
-|droprates={{ItemLink|Reed Trousers}} (66.7%)<br>{{ItemLink|Aged Prism}} (33.3%)
+|guaranteeddrops={{ItemLink|stablekey=item:aura - aged prism|link=Aged Prism|text=Aged Prism|image=Aged Prism.png}}<br>{{ItemLink|stablekey=item:leg - 18 - reed trousers|link=Reed Trousers|text=Reed Trousers|image=Reed Trousers.png}}
+|droprates={{ItemLink|stablekey=item:leg - 18 - reed trousers|link=Reed Trousers|text=Reed Trousers|image=Reed Trousers.png}} (66.7%)<br>{{ItemLink|stablekey=item:aura - aged prism|link=Aged Prism|text=Aged Prism|image=Aged Prism.png}} (33.3%)
 |level=16
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=8-19
 |elemental=8-19
 |void=8-19
-|spells={{AbilityLink|Biting Vines}}<br>{{AbilityLink|Soul Tap}}<br>{{AbilityLink|Tangle}}
+|spells={{AbilityLink|stablekey=spell:dru - biting vines|link=Biting Vines|text=Biting Vines|image=Biting Vines.png}}<br>{{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}<br>{{AbilityLink|stablekey=spell:dru - tangle|link=Tangle|text=Tangle|image=Tangle.png}}
 }}
 
 [[Category:Bosses]]

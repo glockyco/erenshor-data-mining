@@ -3,7 +3,7 @@
 |stablekey=item:gen - eldoth writings page 5
 |type=[[Lore Items|Lore]]
 |vendorsource=
-|source=[[Overseer Orlok]] (4.5%)<br>[[Molorai Captain Sigrid]] (2.6%)<br>[[Molorai Brewmistress]] (2.2%)<br>[[Molorai Veteran]] (1.7%)<br>[[Molorai Chef]] (1.4%)
+|source={{CharacterLink|stablekey=character:overseer orlok|link=Overseer Orlok|text=Overseer Orlok}} (4.5%)<br>{{CharacterLink|stablekey=character:molorai captain sigrid|link=Molorai Captain Sigrid|text=Molorai Captain Sigrid}} (2.6%)<br>{{CharacterLink|stablekey=character:molorai brewmistress|link=Molorai Brewmistress|text=Molorai Brewmistress}} (2.2%)<br>{{CharacterLink|stablekey=character:molorai veteran|link=Molorai Veteran|text=Molorai Veteran}} (1.7%)<br>{{CharacterLink|stablekey=character:molorai chef|link=Molorai Chef|text=Molorai Chef}} (1.4%)
 |othersource=
 |questsource=
 |relatedquest=

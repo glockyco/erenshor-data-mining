@@ -5,7 +5,7 @@
 |description=Deals 650 magic damage to your target
 |type=Damage
 |line=Generic
-|classes=[[Stormcaller]] (19)
+|classes={{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}} (19)
 |required_level=19
 |manacost=225
 |aggro=25
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Arcstorm}}
+|source={{ItemLink|stablekey=item:spell scroll - arcstorm|link=Spell Scroll: Arcstorm|text=Spell Scroll: Arcstorm|image=Spell Scroll: Arcstorm.png}}
 |used_by=
 }}

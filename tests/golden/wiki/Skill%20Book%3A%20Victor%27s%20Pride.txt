@@ -2,7 +2,7 @@
 |title=Skill Book: Victor's Pride
 |stablekey=item:skillbook - pride
 |type=[[Ability Books|Skill Book]]
-|vendorsource=[[Ludo Luxo]]
+|vendorsource={{CharacterLink|stablekey=character:ludo luxo|link=Ludo Luxo|text=Ludo Luxo}}
 |source=
 |othersource=[[Duelist]] starting gear
 |questsource=
@@ -12,7 +12,7 @@
 |buy=25
 |sell=16
 |taughtspell=
-|taughtskill={{AbilityLink|Victor's Pride}}
+|taughtskill={{AbilityLink|stablekey=skill:pride|link=Victor's Pride|text=Victor's Pride|image=Victor's Pride.png}}
 |guaranteeddrops=
 |droprates=
 }}

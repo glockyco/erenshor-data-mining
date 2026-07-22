@@ -3,10 +3,10 @@
 |stablekey=item:wand - 24 - sivakayan sceptre
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Assassin of Sivakaya]] (1.2%)<br>[[Grand Arcanist of Sivakaya]] (1.2%)<br>[[High Paladin of Sivakaya]] (1.2%)<br>[[High Priestess of Sivakaya]] (1.2%)<br>[[Sivakayan Bodyguard]] (1.2%)<br>[[Sivakayan Cleric]] (1.2%)<br>[[Sivakayan Templar]] (1.2%)
+|source={{CharacterLink|stablekey=character:duelist of sivakaya|link=Assassin of Sivakaya|text=Assassin of Sivakaya}} (1.2%)<br>{{CharacterLink|stablekey=character:arcanist of sivakaya|link=Grand Arcanist of Sivakaya|text=Grand Arcanist of Sivakaya}} (1.2%)<br>{{CharacterLink|stablekey=character:warrior of sivakaya|link=High Paladin of Sivakaya|text=High Paladin of Sivakaya}} (1.2%)<br>{{CharacterLink|stablekey=character:druid of sivakaya|link=High Priestess of Sivakaya|text=High Priestess of Sivakaya}} (1.2%)<br>{{CharacterLink|stablekey=character:sivakayan bodyguard|link=Sivakayan Bodyguard|text=Sivakayan Bodyguard}} (1.2%)<br>{{CharacterLink|stablekey=character:sivakayan cleric|link=Sivakayan Cleric|text=Sivakayan Cleric}} (1.2%)<br>{{CharacterLink|stablekey=character:sivakayan cleric:1|link=Sivakayan Cleric|text=Sivakayan Cleric}} (1.2%)<br>{{CharacterLink|stablekey=character:sivakayan templar|link=Sivakayan Templar|text=Sivakayan Templar}} (1.2%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Disarming the Sivakayans}}
+|relatedquest={{QuestLink|Disarming the Sivakayans}}<br>{{QuestLink|stablekey=quest:disarmsivakayans|link=Disarming the Sivakayans|text=Disarming the Sivakayans}}
 |craftsource=
 |componentfor=
 |buy=2515

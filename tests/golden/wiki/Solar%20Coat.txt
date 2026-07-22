@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Radiant Chestguard}}
+|itemswitheffect={{ItemLink|stablekey=item:chest - 42 - radiant chestguard|link=Radiant Chestguard|text=Radiant Chestguard|image=Radiant Chestguard.png}}
 |source=
 |used_by=
 }}

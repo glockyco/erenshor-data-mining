@@ -3,15 +3,15 @@
 |image=[[File:Molorai Attack Dog.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
-|factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Azure Guard]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
-|zones=[[Old Krakengard]]
+|faction={{FactionLink|stablekey=faction:molarai|link=Eldoth Molorai (Faction)|text=Eldoth Molorai}}
+|factionChange=-2 {{FactionLink|stablekey=faction:molarai|link=Eldoth Molorai (Faction)|text=Eldoth Molorai}}<br>+2 {{FactionLink|stablekey=faction:azureguard|link=The Azure Guard|text=The Azure Guard}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+2 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
+|zones={{ZoneLink|stablekey=zone:krakengard|link=Old Krakengard|text=Old Krakengard}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=8 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Wolf Meat}} (94.9%)
+|droprates={{ItemLink|stablekey=item:gen - wolf meat|link=Wolf Meat|text=Wolf Meat|image=Wolf Meat.png}} (94.9%)
 |level=10
 |levelmodmin=2
 |levelmodmax=2

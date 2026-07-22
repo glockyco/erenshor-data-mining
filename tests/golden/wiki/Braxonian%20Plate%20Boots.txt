@@ -3,7 +3,7 @@
 |stablekey=item:foot - 31 - braxonian boots
 |type=
 |vendorsource=
-|source=[[Braxonian Weapon Master]] (1.4%)<br>[[Braxonian Honor Guard]] (1.2%)<br>[[Braxonian Planar Guard (Fire)]] (1.1%)<br>[[Braxonian Planar Guard (Ice)]] (1.1%)<br>[[Braxonian High Guard]] (1.1%)
+|source={{CharacterLink|stablekey=character:braxonian weapon master|link=Braxonian Weapon Master|text=Braxonian Weapon Master}} (1.4%)<br>{{CharacterLink|stablekey=character:braxonian honor guard|link=Braxonian Honor Guard|text=Braxonian Honor Guard}} (1.2%)<br>{{CharacterLink|stablekey=character:braxonian planar guardian fire|link=Braxonian Planar Guard (Fire)|text=Braxonian Planar Guard (Fire)}} (1.1%)<br>{{CharacterLink|stablekey=character:braxonian planar guardian ice|link=Braxonian Planar Guard (Ice)|text=Braxonian Planar Guard (Ice)}} (1.1%)<br>{{CharacterLink|stablekey=character:braxonian high guard|link=Braxonian High Guard|text=Braxonian High Guard}} (1.1%)
 |othersource=
 |questsource=
 |relatedquest=

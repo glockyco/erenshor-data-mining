@@ -3,15 +3,15 @@
 |image=[[File:Ember Acolyte.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Braxonian Desert]]
+|zones={{ZoneLink|stablekey=zone:braxonian|link=Braxonian Desert|text=Braxonian Desert}}
 |coordinates=725.8 x 28.5 x 1191.1
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
-|guaranteeddrops={{ItemLink|Flamelicked Gorget}}<br>{{ItemLink|Flamesoles}}<br>{{ItemLink|Prismatic Warcord}}
-|droprates={{ItemLink|Flamelicked Gorget}} (33.3%)<br>{{ItemLink|Flamesoles}} (33.3%)<br>{{ItemLink|Prismatic Warcord}} (33.3%)
+|guaranteeddrops={{ItemLink|stablekey=item:neck - 18 - flamelicked gorget|link=Flamelicked Gorget|text=Flamelicked Gorget|image=Flamelicked Gorget.png}}<br>{{ItemLink|stablekey=item:foot - 21 - flamesoles|link=Flamesoles|text=Flamesoles|image=Flamesoles.png}}<br>{{ItemLink|stablekey=item:belt - 20 - prismatic warcord|link=Prismatic Warcord|text=Prismatic Warcord|image=Prismatic Warcord.png}}
+|droprates={{ItemLink|stablekey=item:neck - 18 - flamelicked gorget|link=Flamelicked Gorget|text=Flamelicked Gorget|image=Flamelicked Gorget.png}} (33.3%)<br>{{ItemLink|stablekey=item:foot - 21 - flamesoles|link=Flamesoles|text=Flamesoles|image=Flamesoles.png}} (33.3%)<br>{{ItemLink|stablekey=item:belt - 20 - prismatic warcord|link=Prismatic Warcord|text=Prismatic Warcord|image=Prismatic Warcord.png}} (33.3%)
 |level=21
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=10-25
 |elemental=10-25
 |void=10-25
-|spells={{AbilityLink|Winter's Bite}}
+|spells={{AbilityLink|stablekey=spell:arc - winter's bite|link=Winter's Bite|text=Winter's Bite|image=Winter's Bite.png}}
 }}
 
 Summoned by bringing [[Ember Acolyte (Game Piece)]] to the [[Braxonian Game Board]].

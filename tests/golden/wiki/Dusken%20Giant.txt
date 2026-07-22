@@ -3,15 +3,15 @@
 |image=[[File:Dusken Giant.png|thumb]]
 |imagecaption=
 |type=Rare
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[The Duskenlight Coast]]
+|zones={{ZoneLink|stablekey=zone:duskenlight|link=The Duskenlight Coast|text=The Duskenlight Coast}}
 |coordinates=
 |spawnchance=1%
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Dusken Shield}}<br>{{ItemLink|Dusken Staff}}
-|droprates={{ItemLink|Dusken Giant's Blood}} (86.3%)<br>{{ItemLink|Dusken Shield}} (66.7%)<br>{{ItemLink|Dusken Staff}} (33.3%)
+|guaranteeddrops={{ItemLink|stablekey=item:secondary - 18 - dusken shield|link=Dusken Shield|text=Dusken Shield|image=Dusken Shield.png}}<br>{{ItemLink|stablekey=item:weap - 22 - dusken staff|link=Dusken Staff|text=Dusken Staff|image=Dusken Staff.png}}
+|droprates={{ItemLink|stablekey=item:gen - dusken giants blood|link=Dusken Giant's Blood|text=Dusken Giant's Blood|image=Dusken Giant's Blood.png}} (86.3%)<br>{{ItemLink|stablekey=item:secondary - 18 - dusken shield|link=Dusken Shield|text=Dusken Shield|image=Dusken Shield.png}} (66.7%)<br>{{ItemLink|stablekey=item:weap - 22 - dusken staff|link=Dusken Staff|text=Dusken Staff|image=Dusken Staff.png}} (33.3%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=11-26
 |elemental=11-26
 |void=11-26
-|spells={{AbilityLink|Biting Vines}}<br>{{AbilityLink|Tangle}}
+|spells={{AbilityLink|stablekey=spell:dru - biting vines|link=Biting Vines|text=Biting Vines|image=Biting Vines.png}}<br>{{AbilityLink|stablekey=spell:dru - tangle|link=Tangle|text=Tangle|image=Tangle.png}}
 }}
 ''{{Main|Enemies}}''
 =Location=

@@ -3,9 +3,9 @@
 |image=[[File:Varran Juctor.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Blades of Vitheo]]
-|factionChange=-15 [[The Blades of Vitheo]]<br>-15 [[The Citizens of Erenshor]]<br>-15 [[The Citizens of Port Azure]]
-|zones=[[Fernalla's Revival Plains]]
+|faction={{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}
+|factionChange=-15 {{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}<br>-15 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>-15 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|zones={{ZoneLink|stablekey=zone:fernallafield|link=Fernalla's Revival Plains|text=Fernalla's Revival Plains}}
 |coordinates=371.3 x 41.1 x 538.1
 |spawnchance=
 |spawntype=

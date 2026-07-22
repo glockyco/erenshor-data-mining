@@ -3,15 +3,15 @@
 |image=[[File:Demented Malaroth.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Malaroth's Nesting Grounds]]
+|zones={{ZoneLink|stablekey=zone:malaroth|link=Malaroth's Nesting Grounds|text=Malaroth's Nesting Grounds}}
 |coordinates=428.4 x 28.4 x 642.2
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
-|guaranteeddrops={{ItemLink|Cursed Hide Shield}}<br>{{ItemLink|Molten Axe}}
-|droprates={{ItemLink|Demented Brain}} (100.0%)<ref>If the player is already holding {{ItemLink|Demented Brain}} in their inventory, another will not drop.</ref><br>{{ItemLink|Cursed Hide Shield}} (50.0%)<br>{{ItemLink|Molten Axe}} (50.0%)<br>{{ItemLink|Malaroth Hide}} (22.1%)<br>{{ItemLink|Ivory Tusk}} (19.5%)
+|guaranteeddrops={{ItemLink|stablekey=item:secondary - 38 - cursed hide shield|link=Cursed Hide Shield|text=Cursed Hide Shield|image=Cursed Hide Shield.png}}<br>{{ItemLink|stablekey=item:weap - 39 - molten axe|link=Molten Axe|text=Molten Axe|image=Molten Axe.png}}
+|droprates={{ItemLink|stablekey=item:gen - demented brain|link=Demented Brain|text=Demented Brain|image=Demented Brain.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - demented brain|link=Demented Brain|text=Demented Brain|image=Demented Brain.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:secondary - 38 - cursed hide shield|link=Cursed Hide Shield|text=Cursed Hide Shield|image=Cursed Hide Shield.png}} (50.0%)<br>{{ItemLink|stablekey=item:weap - 39 - molten axe|link=Molten Axe|text=Molten Axe|image=Molten Axe.png}} (50.0%)<br>{{ItemLink|stablekey=item:gen - malaroth hide|link=Malaroth Hide|text=Malaroth Hide|image=Malaroth Hide.png}} (22.1%)<br>{{ItemLink|stablekey=item:gen - ivory tusk|link=Ivory Tusk|text=Ivory Tusk|image=Ivory Tusk.png}} (19.5%)
 |level=40
 |levelmodmin=0
 |levelmodmax=0

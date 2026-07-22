@@ -3,12 +3,12 @@
 |stablekey=item:ore - braxonian ore
 |type=[[Crafting]]
 |vendorsource=
-|source=[[Statue of Brax]] (100.0%)
+|source={{CharacterLink|stablekey=character:statue of brax|link=Statue of Brax|text=Statue of Brax}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=
 |craftsource=
-|componentfor={{ItemLink|Mold: A Strange Figurine}}<br>{{ItemLink|Mold: Arcanist's Charm}}
+|componentfor={{ItemLink|stablekey=item:template - a strange figurine|link=Mold: A Strange Figurine|text=Mold: A Strange Figurine|image=Mold: A Strange Figurine.png}}<br>{{ItemLink|stablekey=item:template - arcanist's charm|link=Mold: Arcanist's Charm|text=Mold: Arcanist's Charm|image=Mold: Arcanist's Charm.png}}
 |buy=
 |sell=
 |taughtspell=

@@ -3,7 +3,7 @@
 |stablekey=item:ring - 17 - lifeloop
 |type=
 |vendorsource=
-|source=[[A Protected Memory]] (25.0%)
+|source={{CharacterLink|stablekey=character:1 - memory of defeat|link=A Protected Memory|text=A Protected Memory}} (25.0%)
 |othersource=
 |questsource=
 |relatedquest=

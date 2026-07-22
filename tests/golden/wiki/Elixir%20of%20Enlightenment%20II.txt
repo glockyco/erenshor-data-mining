@@ -2,11 +2,11 @@
 |title=Elixir of Enlightenment II
 |stablekey=item:cons - enlightening potion ii
 |type=[[Consumables|Consumable]], [[Quest Items|Quest Item]]
-|vendorsource=[[Elysia Thistlewick]]
-|source=[[Lost Treasure (10-20)]] (24.9%)<br>[[Lost Treasure (1-10)]] (16.7%)
+|vendorsource={{CharacterLink|stablekey=character:shady merchant|link=Elysia Thistlewick|text=Elysia Thistlewick}}
+|source={{CharacterLink|stablekey=character:treasurechest 10-20 1|link=Lost Treasure (10-20)|text=Lost Treasure (10-20)}} (24.9%)<br>{{CharacterLink|stablekey=character:treasurechest 0-10 1|link=Lost Treasure (1-10)|text=Lost Treasure (1-10)}} (16.7%)
 |othersource=
-|questsource={{QuestLink|Albixt's Engagement Ring}}
-|relatedquest={{QuestLink|Maps for Prichard}}
+|questsource={{QuestLink|Albixt's Engagement Ring}}<br>{{QuestLink|stablekey=quest:albixtsring|link=Albixt's Engagement Ring|text=Albixt's Engagement Ring}}
+|relatedquest={{QuestLink|Maps for Prichard}}<br>{{QuestLink|stablekey=quest:mapforprichard|link=Maps for Prichard|text=Maps for Prichard}}
 |craftsource=
 |componentfor=
 |buy=75000
@@ -23,7 +23,7 @@
 |description=
 |disposable=True
 |effect_spell_icon=Enlightened Path II.png
-|effect_spell_name=[[Enlightened Path II]]
+|effect_spell_name={{AbilityLink|stablekey=spell:none - blessing of xp 2|link=Enlightened Path II|text=Enlightened Path II|image=Enlightened Path II.png}}
 |effect_spell_level=15
 |effect_spell_duration_ticks=1000
 |effect_spell_type=Beneficial

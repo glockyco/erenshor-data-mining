@@ -3,7 +3,7 @@
 |stablekey=item:skillbook - stance - expert
 |type=
 |vendorsource=
-|source=[[Solunarian Paladin]] (1.1%)
+|source={{CharacterLink|stablekey=character:solunarian paladin combined|link=Solunarian Paladin|text=Solunarian Paladin}} (1.1%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -12,7 +12,7 @@
 |buy=
 |sell=
 |taughtspell=
-|taughtskill={{AbilityLink|Stance: Expert}}
+|taughtskill={{AbilityLink|stablekey=skill:stance - expert|link=Stance: Expert|text=Stance: Expert|image=Stance: Expert.png}}
 |guaranteeddrops=
 |droprates=
 }}

@@ -3,7 +3,7 @@
 |stablekey=item:back - 6 - priel standard
 |type=
 |vendorsource=
-|source=[[Tiallia Priel]] (5.9%)<br>[[Priel Lieutenant Bovo]] (4.3%)<br>[[Priel Lieutenant Laflin]] (4.3%)<br>[[Priel Lieutenant Lance]] (4.3%)<br>[[Addison Priel]] (4.2%)<br>[[Chazza Priel]] (4.2%)<br>[[Julianna Priel]] (4.2%)<br>[[Fallen Fernalla (NPC)|Fallen Fernalla]] (3.6%)
+|source={{CharacterLink|stablekey=character:tiallia priel|link=Tiallia Priel|text=Tiallia Priel}} (5.9%)<br>{{CharacterLink|stablekey=character:priel lieutenant|link=Priel Lieutenant Bovo|text=Priel Lieutenant Bovo}} (4.3%)<br>{{CharacterLink|stablekey=character:priel lieutenant 2|link=Priel Lieutenant Laflin|text=Priel Lieutenant Laflin}} (4.3%)<br>{{CharacterLink|stablekey=character:priel lieutenant 1|link=Priel Lieutenant Lance|text=Priel Lieutenant Lance}} (4.3%)<br>{{CharacterLink|stablekey=character:addison priel|link=Addison Priel|text=Addison Priel}} (4.2%)<br>{{CharacterLink|stablekey=character:chazza priel|link=Chazza Priel|text=Chazza Priel}} (4.2%)<br>{{CharacterLink|stablekey=character:julianna priel 1|link=Julianna Priel|text=Julianna Priel}} (4.2%)<br>{{CharacterLink|stablekey=character:fallen fernalla 1|link=Fallen Fernalla (NPC)|text=Fallen Fernalla}} (3.6%)
 |othersource=
 |questsource=
 |relatedquest=

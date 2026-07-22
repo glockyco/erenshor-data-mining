@@ -3,7 +3,7 @@
 |stablekey=item:glove - 26 - thorned kuckle gloves
 |type=
 |vendorsource=
-|source=[[Thorn (Enemy)|Thorn]] (50.0%)
+|source={{CharacterLink|stablekey=character:snappy|link=Thorn (Enemy)|text=Thorn}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

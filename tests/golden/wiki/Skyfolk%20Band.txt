@@ -3,7 +3,7 @@
 |stablekey=item:ring - 33 - skyfolk band
 |type=
 |vendorsource=
-|source=[[Winkles]] (50.9%)<br>[[A Faerie Enchantress]] (1.8%)<br>[[A Faerie Foliagian]] (1.8%)<br>[[A Faerie Windchild]] (1.8%)
+|source={{CharacterLink|stablekey=character:winkles|link=Winkles|text=Winkles}} (50.9%)<br>{{CharacterLink|stablekey=character:faerie enchantress|link=A Faerie Enchantress|text=A Faerie Enchantress}} (1.8%)<br>{{CharacterLink|stablekey=character:faerie foliagian|link=A Faerie Foliagian|text=A Faerie Foliagian}} (1.8%)<br>{{CharacterLink|stablekey=character:faerie windchild|link=A Faerie Windchild|text=A Faerie Windchild}} (1.8%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -3,15 +3,15 @@
 |image=[[File:Captain Kilkay.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Azure Guard]]
-|factionChange=+10 [[Ripper DeMerth]]<br>-500 [[The Azure Guard]]
-|zones=[[Port Azure]]
+|faction={{FactionLink|stablekey=faction:azureguard|link=The Azure Guard|text=The Azure Guard}}
+|factionChange=+10 {{FactionLink|stablekey=faction:ripper|link=Ripper DeMerth|text=Ripper DeMerth}}<br>-500 {{FactionLink|stablekey=faction:azureguard|link=The Azure Guard|text=The Azure Guard}}
+|zones={{ZoneLink|stablekey=zone:azure|link=Port Azure|text=Port Azure}}
 |coordinates=230.4 x 31.6 x 245.3
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Ear of Kilkay}} (100.0%)<ref>If the player is already holding {{ItemLink|Ear of Kilkay}} in their inventory, another will not drop.</ref><br>{{ItemLink|Executioner of Azure}} (100.0%)<br>{{ItemLink|Spell Scroll: Vithean Frenzy}} (63.0%)
+|droprates={{ItemLink|stablekey=item:gen - ear of kilkay|link=Ear of Kilkay|text=Ear of Kilkay|image=Ear of Kilkay.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ear of kilkay|link=Ear of Kilkay|text=Ear of Kilkay|image=Ear of Kilkay.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:weap - 36 - executioner of azure|link=Executioner of Azure|text=Executioner of Azure|image=Executioner of Azure.png}} (100.0%)<br>{{ItemLink|stablekey=item:spell scroll - vithean frenzy|link=Spell Scroll: Vithean Frenzy|text=Spell Scroll: Vithean Frenzy|image=Spell Scroll: Vithean Frenzy.png}} (63.0%)
 |level=38
 |levelmodmin=0
 |levelmodmax=0

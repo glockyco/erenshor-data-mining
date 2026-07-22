@@ -3,15 +3,15 @@
 |image=[[File:A Deepling Lunarite.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[The Elderstone Mines]]
+|zones={{ZoneLink|stablekey=zone:elderstone|link=The Elderstone Mines|text=The Elderstone Mines}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Reptilian Scales}} (12.1%)<br>{{ItemLink|Serpentine Blood}} (12.1%)<br>{{ItemLink|Star Stone}} (12.1%)<br>{{ItemLink|Elderstone Shard}} (2.3%)<ref>If the player is already holding {{ItemLink|Elderstone Shard}} in their inventory, another will not drop.</ref><br>{{ItemLink|Fungus Covered Armband}} (2.3%)<br>{{ItemLink|Runed Gloves}} (2.3%)
+|droprates={{ItemLink|stablekey=item:gen - scaled skin|link=Reptilian Scales|text=Reptilian Scales|image=Reptilian Scales.png}} (12.1%)<br>{{ItemLink|stablekey=item:gen - serpentine blood|link=Serpentine Blood|text=Serpentine Blood|image=Serpentine Blood.png}} (12.1%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (12.1%)<br>{{ItemLink|stablekey=item:gen - elderstone shard|link=Elderstone Shard|text=Elderstone Shard|image=Elderstone Shard.png}} (2.3%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - elderstone shard|link=Elderstone Shard|text=Elderstone Shard|image=Elderstone Shard.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:arm - 17 - fungus covered armband|link=Fungus Covered Armband|text=Fungus Covered Armband|image=Fungus Covered Armband.png}} (2.3%)<br>{{ItemLink|stablekey=item:glove - 18 - runed mitts|link=Runed Gloves|text=Runed Gloves|image=Runed Gloves.png}} (2.3%)
 |level=17
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=8-20
 |elemental=8-20
 |void=8-20
-|spells={{AbilityLink|Ethereal Rending}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Moonburst}}
+|spells={{AbilityLink|stablekey=spell:arc - ethereal rend|link=Ethereal Rending|text=Ethereal Rending|image=Ethereal Rending.png}}<br>{{AbilityLink|stablekey=spell:dru duel - minor regen|link=Minor Regeneration|text=Minor Regeneration|image=Minor Regeneration.png}}<br>{{AbilityLink|stablekey=spell:pal - moonburst|link=Moonburst|text=Moonburst|image=Moonburst.png}}
 }}
 ''{{main|Enemies}}''
 

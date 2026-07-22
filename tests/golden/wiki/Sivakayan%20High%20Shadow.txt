@@ -3,7 +3,7 @@
 |image=[[File:Sivakayan High Shadow.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
 |zones=
 |coordinates=
@@ -11,7 +11,7 @@
 |spawntype=
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|Sivakayan Codex 3 of 4}} (100.0%)<ref>If the player is already holding {{ItemLink|Sivakayan Codex 3 of 4}} in their inventory, another will not drop.</ref><br>{{ItemLink|Wyrm Stompers}} (8.6%)<br>{{ItemLink|Ruby}} (4.9%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Dancer's Ring}} (4.3%)<br>{{ItemLink|Citrine Stone}} (2.5%)<br>{{ItemLink|Diamond}} (2.5%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Sea Glass}} (2.5%)<br>{{ItemLink|Sivakayan Wand}} (2.5%)
+|droprates={{ItemLink|stablekey=item:gen - sivakayan codex shard 3|link=Sivakayan Codex 3 of 4|text=Sivakayan Codex 3 of 4|image=Sivakayan Codex 3 of 4.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - sivakayan codex shard 3|link=Sivakayan Codex 3 of 4|text=Sivakayan Codex 3 of 4|image=Sivakayan Codex 3 of 4.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:foot - 36 - wyrm stompers|link=Wyrm Stompers|text=Wyrm Stompers|image=Wyrm Stompers.png}} (8.6%)<br>{{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} (4.9%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:ring - 34 - dancer's ring|link=Dancer's Ring|text=Dancer's Ring|image=Dancer's Ring.png}} (4.3%)<br>{{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (2.5%)<br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (2.5%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (2.5%)<br>{{ItemLink|stablekey=item:wand - 25 - sivakayan wand|link=Sivakayan Wand|text=Sivakayan Wand|image=Sivakayan Wand.png}} (2.5%)
 |level=33
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=16-40
 |elemental=16-40
 |void=16-40
-|spells={{AbilityLink|Aetherstorm}}<br>{{AbilityLink|Winter's Bite}}
+|spells={{AbilityLink|stablekey=spell:arc - aetherstorm|link=Aetherstorm|text=Aetherstorm|image=Aetherstorm.png}}<br>{{AbilityLink|stablekey=spell:arc - winter's bite|link=Winter's Bite|text=Winter's Bite|image=Winter's Bite.png}}
 }}
 
 The {{PAGENAME}} is one of five Sivakayan Spectres that can randomly spawn in a zone when the {{ItemLink|Watcher's Lens}} is equipped in a [[Cosmetic Items|cosmetic item]] slot.

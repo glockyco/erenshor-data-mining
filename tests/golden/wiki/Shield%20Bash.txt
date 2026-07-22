@@ -5,7 +5,7 @@
 |description=Bashes your enemy with a shield. Can proc shield ability. (Shield required in secondary slot).
 |type=Attack
 |line=
-|classes=[[Paladin]] (6)<br>[[Reaver]] (6)
+|classes={{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}} (6)<br>{{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}} (6)
 |required_level=
 |manacost=
 |aggro=
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Skill Book: Shield Bash}}
+|source={{ItemLink|stablekey=item:skillbook - bash|link=Skill Book: Shield Bash|text=Skill Book: Shield Bash|image=Skill Book: Shield Bash.png}}
 |used_by=
 }}

@@ -3,15 +3,15 @@
 |image=[[File:Nightmare.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Shivering Step]]
+|zones={{ZoneLink|stablekey=zone:shiveringstep|link=Shivering Step|text=Shivering Step}}
 |coordinates=208.7 x 53.4 x 355.8
 |spawnchance=
 |spawntype=
 |respawn=7 minutes
-|guaranteeddrops={{ItemLink|Demon Claw}}<br>{{ItemLink|Mooncutter}}<br>{{ItemLink|Obsidian Boots}}
-|droprates={{ItemLink|Demonic Statue}} (100.0%)<ref>If the player is already holding {{ItemLink|Demonic Statue}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Bone}} (61.0%)<br>{{ItemLink|Luminstone}} (61.0%)<br>{{ItemLink|Sea Glass}} (61.0%)<br>{{ItemLink|Obsidian Boots}} (50.0%)<br>{{ItemLink|Demon Claw}} (25.0%)<br>{{ItemLink|Mooncutter}} (25.0%)<ref>If Nightmare has {{ItemLink|Mooncutter}} equipped, it is guaranteed to drop.</ref>
+|guaranteeddrops={{ItemLink|stablekey=item:weap - 25 - demonclaw|link=Demon Claw|text=Demon Claw|image=Demon Claw.png}}<br>{{ItemLink|stablekey=item:weap - 22 - mooncutter|link=Mooncutter|text=Mooncutter|image=Mooncutter.png}}<br>{{ItemLink|stablekey=item:foot - 23 - obsidian boots|link=Obsidian Boots|text=Obsidian Boots|image=Obsidian Boots.png}}
+|droprates={{ItemLink|stablekey=item:gen - demonic statue|link=Demonic Statue|text=Demonic Statue|image=Demonic Statue.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - demonic statue|link=Demonic Statue|text=Demonic Statue|image=Demonic Statue.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - an ancient bone|link=Ancient Bone|text=Ancient Bone|image=Ancient Bone.png}} (61.0%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (61.0%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (61.0%)<br>{{ItemLink|stablekey=item:foot - 23 - obsidian boots|link=Obsidian Boots|text=Obsidian Boots|image=Obsidian Boots.png}} (50.0%)<br>{{ItemLink|stablekey=item:weap - 25 - demonclaw|link=Demon Claw|text=Demon Claw|image=Demon Claw.png}} (25.0%)<br>{{ItemLink|stablekey=item:weap - 22 - mooncutter|link=Mooncutter|text=Mooncutter|image=Mooncutter.png}} (25.0%)<ref>If Nightmare has {{ItemLink|stablekey=item:weap - 22 - mooncutter|link=Mooncutter|text=Mooncutter|image=Mooncutter.png}} equipped, it is guaranteed to drop.</ref>
 |level=23
 |levelmodmin=0
 |levelmodmax=0

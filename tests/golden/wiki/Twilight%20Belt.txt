@@ -3,7 +3,7 @@
 |stablekey=item:belt - 15 - twilight belt
 |type=
 |vendorsource=
-|source=[[Restless Thoughts]] (33.3%)
+|source={{CharacterLink|stablekey=character:portal lord|link=Restless Thoughts|text=Restless Thoughts}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -5,7 +5,7 @@
 |description=Damages the caster for 25% of their life, and restores 600 mana to their party.
 |type=Heal
 |line=Generic
-|classes=[[Reaver]] (35)
+|classes={{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}} (35)
 |required_level=35
 |manacost=5
 |aggro=
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=True
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Emit Vitae}}
+|source={{ItemLink|stablekey=item:spell scroll - emit vitae|link=Spell Scroll: Emit Vitae|text=Spell Scroll: Emit Vitae|image=Spell Scroll: Emit Vitae.png}}
 |used_by=
 }}

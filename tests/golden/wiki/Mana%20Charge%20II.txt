@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Ring of Echoes}}<br>{{ItemLink|Siraethe's Prayercrest}}<br>{{ItemLink|Soul Echo}}<br>{{ItemLink|Verdant Embrace}}
+|itemswitheffect={{ItemLink|stablekey=item:ring - 35 - ring of echoes|link=Ring of Echoes|text=Ring of Echoes|image=Ring of Echoes.png}}<br>{{ItemLink|stablekey=item:head - 39 - siraethe's prayercrest|link=Siraethe's Prayercrest|text=Siraethe's Prayercrest|image=Siraethe's Prayercrest.png}}<br>{{ItemLink|stablekey=item:neck - 28 - soul echo|link=Soul Echo|text=Soul Echo|image=Soul Echo.png}}<br>{{ItemLink|stablekey=item:back - 40 - verdant embrace|link=Verdant Embrace|text=Verdant Embrace|image=Verdant Embrace.png}}
 |source=
 |used_by=
 }}

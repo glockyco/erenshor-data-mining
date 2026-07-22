@@ -3,15 +3,15 @@
 |image=[[File:Acolyte.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Blacksalt Strand]]
+|zones={{ZoneLink|stablekey=zone:saltedstrand|link=Blacksalt Strand|text=Blacksalt Strand}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Bread}} (58.4%)<br>{{ItemLink|Luminstone}} (58.4%)<br>{{ItemLink|Chapters of Descent, Passage 1}} (6.0%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 1}} in their inventory, another will not drop.</ref><br>{{ItemLink|Chapters of Descent, Passage 2}} (6.0%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Shielded Ring}} (5.8%)<br>{{ItemLink|Cloth Gloves}} (1.7%)<br>{{ItemLink|Cloth Pants}} (1.7%)<br>{{ItemLink|Cloth Shirt}} (1.7%)<br>{{ItemLink|Cloth Shoes}} (1.7%)<br>{{ItemLink|Cloth Sleeves}} (1.7%)<br>{{ItemLink|Spell Scroll: Healing}} (1.7%)<br>{{ItemLink|Spell Scroll: Magical Skin}} (1.7%)<br>{{ItemLink|Spell Scroll: Soul Tap}} (1.7%)<br>{{ItemLink|Star Stone}} (1.7%)<br>{{ItemLink|Water}} (1.7%)
+|droprates={{ItemLink|stablekey=item:cons - bread|link=Bread|text=Bread|image=Bread.png}} (58.4%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (58.4%)<br>{{ItemLink|stablekey=item:gen - cod - pg 1|link=Chapters of Descent, Passage 1|text=Chapters of Descent, Passage 1|image=Chapters of Descent, Passage 1.png}} (6.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - cod - pg 1|link=Chapters of Descent, Passage 1|text=Chapters of Descent, Passage 1|image=Chapters of Descent, Passage 1.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - cod - pg 2|link=Chapters of Descent, Passage 2|text=Chapters of Descent, Passage 2|image=Chapters of Descent, Passage 2.png}} (6.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - cod - pg 2|link=Chapters of Descent, Passage 2|text=Chapters of Descent, Passage 2|image=Chapters of Descent, Passage 2.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:ring - 17 - shielded ring|link=Shielded Ring|text=Shielded Ring|image=Shielded Ring.png}} (5.8%)<br>{{ItemLink|stablekey=item:glove - 1 - cloth gloves|link=Cloth Gloves|text=Cloth Gloves|image=Cloth Gloves.png}} (1.7%)<br>{{ItemLink|stablekey=item:leg - 1 - cloth pants|link=Cloth Pants|text=Cloth Pants|image=Cloth Pants.png}} (1.7%)<br>{{ItemLink|stablekey=item:chest - 1 - cloth shirt|link=Cloth Shirt|text=Cloth Shirt|image=Cloth Shirt.png}} (1.7%)<br>{{ItemLink|stablekey=item:foot - 1 - cloth shoes|link=Cloth Shoes|text=Cloth Shoes|image=Cloth Shoes.png}} (1.7%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves|link=Cloth Sleeves|text=Cloth Sleeves|image=Cloth Sleeves.png}} (1.7%)<br>{{ItemLink|stablekey=item:spell scroll - healing|link=Spell Scroll: Healing|text=Spell Scroll: Healing|image=Spell Scroll: Healing.png}} (1.7%)<br>{{ItemLink|stablekey=item:spell scroll - magic skin|link=Spell Scroll: Magical Skin|text=Spell Scroll: Magical Skin|image=Spell Scroll: Magical Skin.png}} (1.7%)<br>{{ItemLink|stablekey=item:spell scroll - soul tap|link=Spell Scroll: Soul Tap|text=Spell Scroll: Soul Tap|image=Spell Scroll: Soul Tap.png}} (1.7%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (1.7%)<br>{{ItemLink|stablekey=item:cons - water|link=Water|text=Water|image=Water.png}} (1.7%)
 |level=16
 |levelmodmin=0
 |levelmodmax=0

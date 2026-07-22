@@ -3,9 +3,9 @@
 |image=[[File:Ta'Dah, Sorcerer of Ripper.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[Ripper DeMerth]]
+|faction={{FactionLink|stablekey=faction:ripper|link=Ripper DeMerth|text=Ripper DeMerth}}
 |factionChange=
-|zones=[[Ripper's Keep]]
+|zones={{ZoneLink|stablekey=zone:ripper|link=Ripper's Keep|text=Ripper's Keep}}
 |coordinates=525.5 x 108.9 x 596.6
 |spawnchance=
 |spawntype=
@@ -32,7 +32,7 @@
 |poison=20-48
 |elemental=20-48
 |void=20-48
-|spells={{AbilityLink|Devour}}<br>{{AbilityLink|Extinction Bloom}}<br>{{AbilityLink|Tenebris}}
+|spells={{AbilityLink|stablekey=spell:dru reav - devour|link=Devour|text=Devour|image=Devour.png}}<br>{{AbilityLink|stablekey=spell:dru - extinction bloom|link=Extinction Bloom|text=Extinction Bloom|image=Extinction Bloom.png}}<br>{{AbilityLink|stablekey=spell:arc - tenebris|link=Tenebris|text=Tenebris|image=Tenebris.png}}
 }}
 
 [[Category:Characters]]

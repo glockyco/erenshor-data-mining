@@ -3,7 +3,7 @@
 |stablekey=item:belt - 33 - centering cord
 |type=
 |vendorsource=
-|source=[[Corrupted Fungal Bear]] (66.7%)
+|source={{CharacterLink|stablekey=character:corrupted fungal bear|link=Corrupted Fungal Bear|text=Corrupted Fungal Bear}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -3,9 +3,9 @@
 |image=[[File:Benson Gamble.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Solunarian Brotherhood]]
-|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]<br>-20 [[The Solunarian Brotherhood]]
-|zones=[[Hidden Hills]]
+|faction={{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
+|factionChange=-20 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>-20 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>-20 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
+|zones={{ZoneLink|stablekey=zone:hidden|link=Hidden Hills|text=Hidden Hills}}
 |coordinates=13.9 x -2.9 x -30.7
 |spawnchance=
 |spawntype=

@@ -3,10 +3,10 @@
 |stablekey=item:gen - sivakayan intel
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Sivakayan Spymaster]] (100.0%)
+|source={{CharacterLink|stablekey=character:sivakayan spymaster|link=Sivakayan Spymaster|text=Sivakayan Spymaster}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Sivakayan Intel for Kilkay}}<br>{{QuestLink|Sivakayan Intel for Ripper}}<br>{{QuestLink|link=Sivakayan Intel for Kilkay{{!}}Sivakayan Intel for Kilkay (1)}}
+|relatedquest={{QuestLink|Sivakayan Intel for Kilkay}}<br>{{QuestLink|Sivakayan Intel for Ripper}}<br>{{QuestLink|link=Sivakayan Intel for Kilkay{{!}}Sivakayan Intel for Kilkay (1)}}<br>{{QuestLink|stablekey=quest:inteltokilkay|link=Sivakayan Intel for Kilkay|text=Sivakayan Intel for Kilkay (1)}}<br>{{QuestLink|stablekey=quest:inteltoripper|link=Sivakayan Intel for Ripper|text=Sivakayan Intel for Ripper}}
 |craftsource=
 |componentfor=
 |buy=

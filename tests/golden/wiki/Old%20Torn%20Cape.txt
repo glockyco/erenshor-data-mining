@@ -3,7 +3,7 @@
 |stablekey=item:back - 4 - torn cape
 |type=
 |vendorsource=
-|source=[[An Apparition of Sivakaya]] (25.2%)<br>[[Sylvan Giant Runt]] (23.5%)<br>[[A Lesser Avatar of Sivakaya]] (9.0%)<br>[[Plaxitheris]] (8.7%)
+|source={{CharacterLink|stablekey=character:an apparation of sivakaya|link=An Apparition of Sivakaya|text=An Apparition of Sivakaya}} (25.2%)<br>{{CharacterLink|stablekey=character:sylvan giant runt|link=Sylvan Giant Runt|text=Sylvan Giant Runt}} (23.5%)<br>{{CharacterLink|stablekey=character:a lesser avatar of sivakaya|link=A Lesser Avatar of Sivakaya|text=A Lesser Avatar of Sivakaya}} (9.0%)<br>{{CharacterLink|stablekey=character:plaxitheris|link=Plaxitheris|text=Plaxitheris}} (8.7%)
 |othersource=
 |questsource=
 |relatedquest=

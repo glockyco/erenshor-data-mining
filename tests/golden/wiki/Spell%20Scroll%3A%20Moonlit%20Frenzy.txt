@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - moonlit frenzy
 |type=[[Ability Books]]
 |vendorsource=
-|source=[[Raval, The First Paladin]] (100.0%)
+|source={{CharacterLink|stablekey=character:raval|link=Raval, The First Paladin|text=Raval, The First Paladin}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=24000
 |sell=15600
-|taughtspell={{AbilityLink|Moonlit Frenzy}}
+|taughtspell={{AbilityLink|stablekey=spell:pal - taunt moonlit frenzy|link=Moonlit Frenzy|text=Moonlit Frenzy|image=Moonlit Frenzy.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

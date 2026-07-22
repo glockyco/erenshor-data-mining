@@ -6,7 +6,7 @@
 |source=
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Mavik's Note}}
+|relatedquest={{QuestLink|Mavik's Note}}<br>{{QuestLink|stablekey=quest:rippersnote1|link=Mavik's Note|text=Mavik's Note}}
 |craftsource=
 |componentfor=
 |buy=

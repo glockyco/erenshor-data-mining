@@ -3,12 +3,12 @@
 |stablekey=item:hand - 5 - idol of sivakaya
 |type=[[Crafting]]
 |vendorsource=
-|source=[[Neophyte Necromancer]] (3.4%)<br>[[Woe]] (2.3%)<br>[[Boatman]] (1.1%)
+|source={{CharacterLink|stablekey=character:neophyte necromancer|link=Neophyte Necromancer|text=Neophyte Necromancer}} (3.4%)<br>{{CharacterLink|stablekey=character:woe|link=Woe|text=Woe}} (2.3%)<br>{{CharacterLink|stablekey=character:boatman|link=Boatman|text=Boatman}} (1.1%)
 |othersource=
 |questsource=
 |relatedquest=
 |craftsource=
-|componentfor={{ItemLink|Mold: Duelist's Charm}}
+|componentfor={{ItemLink|stablekey=item:template - duelist's charm|link=Mold: Duelist's Charm|text=Mold: Duelist's Charm|image=Mold: Duelist's Charm.png}}
 |buy=200
 |sell=130
 |taughtspell=

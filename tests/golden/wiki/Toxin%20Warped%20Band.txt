@@ -3,7 +3,7 @@
 |stablekey=item:ring - 15 - toxin warped band
 |type=
 |vendorsource=
-|source=[[King Cobra]] (15.0%)
+|source={{CharacterLink|stablekey=character:king cobra|link=King Cobra|text=King Cobra}} (15.0%)
 |othersource=
 |questsource=
 |relatedquest=

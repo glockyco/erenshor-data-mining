@@ -3,15 +3,15 @@
 |image=[[File:Priel Gifted.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[Savannah Priel]]
-|factionChange=-2 [[Savannah Priel]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
-|zones=[[Prielian Cascade]]
+|faction={{FactionLink|stablekey=faction:priel|link=Savannah Priel|text=Savannah Priel}}
+|factionChange=-2 {{FactionLink|stablekey=faction:priel|link=Savannah Priel|text=Savannah Priel}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+1 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
+|zones={{ZoneLink|stablekey=zone:prielplateau|link=Prielian Cascade|text=Prielian Cascade}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Sea Glass}} (7.4%)<br>{{ItemLink|Star Stone}} (7.4%)<br>{{ItemLink|Seaspice}} (4.3%)<br>{{ItemLink|Water}} (4.3%)<br>{{ItemLink|Priel Officer's Ring}} (2.1%)<br>{{ItemLink|Spell Scroll: Major Lightning}} (2.1%)
+|droprates={{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (7.4%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (7.4%)<br>{{ItemLink|stablekey=item:cons - seaspice|link=Seaspice|text=Seaspice|image=Seaspice.png}} (4.3%)<br>{{ItemLink|stablekey=item:cons - water|link=Water|text=Water|image=Water.png}} (4.3%)<br>{{ItemLink|stablekey=item:ring - 18 - priel officer's ring|link=Priel Officer's Ring|text=Priel Officer's Ring|image=Priel Officer's Ring.png}} (2.1%)<br>{{ItemLink|stablekey=item:spell scroll - major lightning|link=Spell Scroll: Major Lightning|text=Spell Scroll: Major Lightning|image=Spell Scroll: Major Lightning.png}} (2.1%)
 |level=33
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=16-40
 |elemental=16-40
 |void=16-40
-|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Lightning}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's rage|link=Brax's Rage|text=Brax's Rage|image=Brax's Rage.png}}<br>{{AbilityLink|stablekey=spell:dru - lightning|link=Lightning|text=Lightning|image=Lightning.png}}
 }}
 
 [[Category:Enemies]]

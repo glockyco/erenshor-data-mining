@@ -3,15 +3,15 @@
 |image=[[File:Oracle Miress.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Azynthi's Garden|Azynthi's Garden (Dimensional Rift)]]
+|zones={{ZoneLink|stablekey=zone:azynthi|link=Azynthi's Garden|text=Azynthi's Garden (Dimensional Rift)}}
 |coordinates=590.5 x 103.8 x 467.7
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Azynthian Cape}}<br>{{ItemLink|Azynthian Dagger}}<br>{{ItemLink|Spell Scroll: Infernis}}
-|droprates={{ItemLink|Riftsnare Gem}} (100.0%)<br>{{ItemLink|Azynthian Cape}} (33.3%)<br>{{ItemLink|Azynthian Dagger}} (33.3%)<ref>If Oracle Miress has {{ItemLink|Azynthian Dagger}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Spell Scroll: Infernis}} (33.3%)<br>{{ItemLink|Vampire Fang}} (19.5%)<br>{{ItemLink|Bread}} (2.6%)<br>{{ItemLink|Cloth Gloves}} (2.6%)<br>{{ItemLink|Cloth Pants}} (2.6%)<br>{{ItemLink|Cloth Shirt}} (2.6%)<br>{{ItemLink|Cloth Shoes}} (2.6%)<br>{{ItemLink|Cloth Sleeves}} (2.6%)<br>{{ItemLink|Luminstone}} (2.6%)<br>{{ItemLink|Star Stone}} (2.6%)<br>{{ItemLink|Water}} (2.6%)
+|guaranteeddrops={{ItemLink|stablekey=item:back - 35 - azynthian cape|link=Azynthian Cape|text=Azynthian Cape|image=Azynthian Cape.png}}<br>{{ItemLink|stablekey=item:weap - 35 - azynthiandagger|link=Azynthian Dagger|text=Azynthian Dagger|image=Azynthian Dagger.png}}<br>{{ItemLink|stablekey=item:spell scroll - infernis|link=Spell Scroll: Infernis|text=Spell Scroll: Infernis|image=Spell Scroll: Infernis.png}}
+|droprates={{ItemLink|stablekey=item:gen -  riftsnare gem|link=Riftsnare Gem|text=Riftsnare Gem|image=Riftsnare Gem.png}} (100.0%)<br>{{ItemLink|stablekey=item:back - 35 - azynthian cape|link=Azynthian Cape|text=Azynthian Cape|image=Azynthian Cape.png}} (33.3%)<br>{{ItemLink|stablekey=item:weap - 35 - azynthiandagger|link=Azynthian Dagger|text=Azynthian Dagger|image=Azynthian Dagger.png}} (33.3%)<ref>If Oracle Miress has {{ItemLink|stablekey=item:weap - 35 - azynthiandagger|link=Azynthian Dagger|text=Azynthian Dagger|image=Azynthian Dagger.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:spell scroll - infernis|link=Spell Scroll: Infernis|text=Spell Scroll: Infernis|image=Spell Scroll: Infernis.png}} (33.3%)<br>{{ItemLink|stablekey=item:gen - vampire fang|link=Vampire Fang|text=Vampire Fang|image=Vampire Fang.png}} (19.5%)<br>{{ItemLink|stablekey=item:cons - bread|link=Bread|text=Bread|image=Bread.png}} (2.6%)<br>{{ItemLink|stablekey=item:glove - 1 - cloth gloves|link=Cloth Gloves|text=Cloth Gloves|image=Cloth Gloves.png}} (2.6%)<br>{{ItemLink|stablekey=item:leg - 1 - cloth pants|link=Cloth Pants|text=Cloth Pants|image=Cloth Pants.png}} (2.6%)<br>{{ItemLink|stablekey=item:chest - 1 - cloth shirt|link=Cloth Shirt|text=Cloth Shirt|image=Cloth Shirt.png}} (2.6%)<br>{{ItemLink|stablekey=item:foot - 1 - cloth shoes|link=Cloth Shoes|text=Cloth Shoes|image=Cloth Shoes.png}} (2.6%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves|link=Cloth Sleeves|text=Cloth Sleeves|image=Cloth Sleeves.png}} (2.6%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (2.6%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (2.6%)<br>{{ItemLink|stablekey=item:cons - water|link=Water|text=Water|image=Water.png}} (2.6%)
 |level=38
 |levelmodmin=0
 |levelmodmax=0

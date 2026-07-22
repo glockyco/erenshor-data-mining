@@ -3,9 +3,9 @@
 |image=[[File:Comstock Retalio.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[Ripper DeMerth]]
-|factionChange=-20 [[Ripper DeMerth]]
-|zones=[[Ripper's Keep]]
+|faction={{FactionLink|stablekey=faction:ripper|link=Ripper DeMerth|text=Ripper DeMerth}}
+|factionChange=-20 {{FactionLink|stablekey=faction:ripper|link=Ripper DeMerth|text=Ripper DeMerth}}
+|zones={{ZoneLink|stablekey=zone:ripper|link=Ripper's Keep|text=Ripper's Keep}}
 |coordinates=743.2 x 43.6 x 203.1
 |spawnchance=
 |spawntype=

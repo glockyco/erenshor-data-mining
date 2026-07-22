@@ -2,8 +2,8 @@
 |title=Golden Luminstone Ring
 |stablekey=item:ring - 3 - golden luminstone ring
 |type=
-|vendorsource=[[Parmalee Gemlyn]]
-|source=[[A Protected Memory]] (7.6%)<br>[[A Restless Spirit]] (7.6%)<br>[[A Sorrowful Spirit]] (5.6%)<br>[[An Enraged Spirit]] (5.6%)
+|vendorsource={{CharacterLink|stablekey=character:parmalee gemlyn|link=Parmalee Gemlyn|text=Parmalee Gemlyn}}
+|source={{CharacterLink|stablekey=character:1 - memory of defeat|link=A Protected Memory|text=A Protected Memory}} (7.6%)<br>{{CharacterLink|stablekey=character:2 - memory of the order|link=A Protected Memory|text=A Protected Memory}} (7.6%)<br>{{CharacterLink|stablekey=character:3 - memory of the gift|link=A Protected Memory|text=A Protected Memory}} (7.6%)<br>{{CharacterLink|stablekey=character:restless spirit|link=A Restless Spirit|text=A Restless Spirit}} (7.6%)<br>{{CharacterLink|stablekey=character:a sorrowful spirit|link=A Sorrowful Spirit|text=A Sorrowful Spirit}} (5.6%)<br>{{CharacterLink|stablekey=character:enraged spirit|link=An Enraged Spirit|text=An Enraged Spirit}} (5.6%)
 |othersource=
 |questsource=
 |relatedquest=

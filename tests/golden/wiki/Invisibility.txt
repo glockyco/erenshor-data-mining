@@ -5,7 +5,7 @@
 |description=Your target or group becomes invisible, able to freely move without detection around most beings. Beware - some will see through the guise! (Use (c)onsider to gauge threat)
 |type=Beneficial
 |line=Generic
-|classes=[[Arcanist]] (9)
+|classes={{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}} (9)
 |required_level=9
 |manacost=10
 |aggro=35
@@ -65,7 +65,7 @@
 |is_broken_on_damage=True
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Globe of Shadows}}
-|source={{ItemLink|Spell Scroll: Invisibility}}
+|itemswitheffect={{ItemLink|stablekey=item:gen - globe of shadows|link=Globe of Shadows|text=Globe of Shadows|image=Globe of Shadows.png}}
+|source={{ItemLink|stablekey=item:spell scroll - invisibility|link=Spell Scroll: Invisibility|text=Spell Scroll: Invisibility|image=Spell Scroll: Invisibility.png}}
 |used_by=
 }}

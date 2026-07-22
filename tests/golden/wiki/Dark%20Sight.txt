@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Eventide Helm}}
+|itemswitheffect={{ItemLink|stablekey=item:head - 42 - eventide helm|link=Eventide Helm|text=Eventide Helm|image=Eventide Helm.png}}
 |source=
 |used_by=
 }}

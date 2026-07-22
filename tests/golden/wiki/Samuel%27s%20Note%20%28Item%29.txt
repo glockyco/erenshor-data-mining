@@ -7,7 +7,7 @@
 |source=
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Samuel's Note}}
+|relatedquest={{QuestLink|Samuel's Note}}<br>{{QuestLink|stablekey=quest:samuelsnote|link=Samuel's Note|text=Samuel's Note}}
 |craftsource=
 |componentfor=
 |buy=

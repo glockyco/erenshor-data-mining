@@ -3,15 +3,15 @@
 |image=[[File:Corrupted Fungal Bear.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Blooming Sepulcher]]
+|zones={{ZoneLink|stablekey=zone:bloomingsepulcher|link=Blooming Sepulcher|text=Blooming Sepulcher}}
 |coordinates=
 |spawnchance=2-33%
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Centering Cord}}<br>{{ItemLink|Naturewalker's Breeches}}
-|droprates={{ItemLink|Centering Cord}} (66.7%)<br>{{ItemLink|Naturewalker's Breeches}} (33.3%)<br>{{ItemLink|Wisp Garden}} (1.0%)
+|guaranteeddrops={{ItemLink|stablekey=item:belt - 33 - centering cord|link=Centering Cord|text=Centering Cord|image=Centering Cord.png}}<br>{{ItemLink|stablekey=item:leg - 33 - naturewalker's breeches|link=Naturewalker's Breeches|text=Naturewalker's Breeches|image=Naturewalker's Breeches.png}}
+|droprates={{ItemLink|stablekey=item:belt - 33 - centering cord|link=Centering Cord|text=Centering Cord|image=Centering Cord.png}} (66.7%)<br>{{ItemLink|stablekey=item:leg - 33 - naturewalker's breeches|link=Naturewalker's Breeches|text=Naturewalker's Breeches|image=Naturewalker's Breeches.png}} (33.3%)<br>{{ItemLink|stablekey=item:furniture - wisp garden|link=Wisp Garden|text=Wisp Garden|image=Wisp Garden.png}} (1.0%)
 |level=34
 |levelmodmin=0
 |levelmodmax=0

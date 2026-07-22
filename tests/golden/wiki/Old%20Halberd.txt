@@ -2,8 +2,8 @@
 |title=Old Halberd
 |stablekey=item:weap - 6 - old halberd
 |type=
-|vendorsource=[[Aillee Desten]]<br>[[Xander Zaxtrough]]<br>[[Zane Theavale]]
-|source=[[Sylvan Giant Runt]] (25.0%)
+|vendorsource={{CharacterLink|stablekey=character:aillee desten|link=Aillee Desten|text=Aillee Desten}}<br>{{CharacterLink|stablekey=character:xander zaxtrough|link=Xander Zaxtrough|text=Xander Zaxtrough}}<br>{{CharacterLink|stablekey=character:zane theavale|link=Zane Theavale|text=Zane Theavale}}
+|source={{CharacterLink|stablekey=character:sylvan giant runt|link=Sylvan Giant Runt|text=Sylvan Giant Runt}} (25.0%)
 |othersource=
 |questsource=
 |relatedquest=

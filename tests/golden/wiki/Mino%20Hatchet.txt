@@ -3,7 +3,7 @@
 |stablekey=item:weap - 24 - mino hatchet
 |type=
 |vendorsource=
-|source=[[Loomingwood Minotaur Legionnaire]] (12.9%)<br>[[Loomingwood Minotaur Soldier]] (12.9%)
+|source={{CharacterLink|stablekey=character:forest minotaur  lego|link=Loomingwood Minotaur Legionnaire|text=Loomingwood Minotaur Legionnaire}} (12.9%)<br>{{CharacterLink|stablekey=character:forest minotaur|link=Loomingwood Minotaur Soldier|text=Loomingwood Minotaur Soldier}} (12.9%)
 |othersource=
 |questsource=
 |relatedquest=

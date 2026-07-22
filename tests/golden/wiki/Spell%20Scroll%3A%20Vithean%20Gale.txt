@@ -2,7 +2,7 @@
 |title=Spell Scroll: Vithean Gale
 |stablekey=item:spell scroll - vithean gale
 |type=[[Ability Books]]
-|vendorsource=[[Juctin Mysia]]
+|vendorsource={{CharacterLink|stablekey=character:juctin mysia|link=Juctin Mysia|text=Juctin Mysia}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=72500
 |sell=47125
-|taughtspell={{AbilityLink|Vithean Gale}}
+|taughtspell={{AbilityLink|stablekey=spell:duel - vithean gale|link=Vithean Gale|text=Vithean Gale|image=Vithean Gale.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

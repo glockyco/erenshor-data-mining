@@ -3,15 +3,15 @@
 |image=[[File:Chazz Pillot.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Citizens of Port Azure]]
-|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
-|zones=[[Port Azure]]
+|faction={{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|factionChange=-20 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>-20 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|zones={{ZoneLink|stablekey=zone:azure|link=Port Azure|text=Port Azure}}
 |coordinates=203.5 x 26.0 x 213.2
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Mold: A Strange Figurine}} (100.0%)
+|droprates={{ItemLink|stablekey=item:template - a strange figurine|link=Mold: A Strange Figurine|text=Mold: A Strange Figurine|image=Mold: A Strange Figurine.png}} (100.0%)
 |level=8
 |levelmodmin=0
 |levelmodmax=0

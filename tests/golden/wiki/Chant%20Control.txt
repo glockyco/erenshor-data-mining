@@ -5,7 +5,7 @@
 |description=Activate any time during the channeling of a DAMAGE SPELL to control your chant. Activate again to immediately end the spell. Damage is scaled by how far along the channel was. Going over 100% increases damage further, but adds a cooldown penalty.
 |type=Other
 |line=
-|classes=[[Arcanist]] (1)
+|classes={{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}} (1)
 |required_level=
 |manacost=
 |aggro=
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Skill Book: Control Chant}}
+|source={{ItemLink|stablekey=item:skillbook - end channel|link=Skill Book: Control Chant|text=Skill Book: Control Chant|image=Skill Book: Control Chant.png}}
 |used_by=
 }}

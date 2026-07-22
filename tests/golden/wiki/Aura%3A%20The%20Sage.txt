@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Sage's Trinket}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - the sage|link=Sage's Trinket|text=Sage's Trinket|image=Sage's Trinket.png}}
 |source=
 |used_by=
 }}

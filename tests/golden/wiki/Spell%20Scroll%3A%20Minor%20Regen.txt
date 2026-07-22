@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - minor regen
 |type=
 |vendorsource=
-|source=[[Aranuil Olaseo]] (3.2%)<br>[[Odyss Repman]] (3.2%)
+|source={{CharacterLink|stablekey=character:aranuil olaseo|link=Aranuil Olaseo|text=Aranuil Olaseo}} (3.2%)<br>{{CharacterLink|stablekey=character:odyss repman:duskenlight:1312.16:70.01:695.11|link=Odyss Repman|text=Odyss Repman}} (3.2%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=20
 |sell=13
-|taughtspell={{AbilityLink|Minor Regeneration}}
+|taughtspell={{AbilityLink|stablekey=spell:dru duel - minor regen|link=Minor Regeneration|text=Minor Regeneration|image=Minor Regeneration.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

@@ -3,7 +3,7 @@
 |stablekey=item:gen - malaroth hide
 |type=[[:Category:Items|General]]
 |vendorsource=
-|source=[[Brood Mother]] (22.1%)<br>[[Captured Molorath]] (22.1%)<br>[[Demented Malaroth]] (22.1%)<br>[[Failed Experiment]] (22.1%)<br>[[Lacy]] (22.1%)<br>[[Malaroth Cub]] (22.1%)<br>[[Mature Malaroth]] (22.1%)<br>[[Shivunax]] (22.1%)<br>[[Tamed Malaroth]] (22.1%)<br>[[Vizijivi]] (22.1%)<br>[[Xasxi]] (22.1%)
+|source={{CharacterLink|stablekey=character:broodmother|link=Brood Mother|text=Brood Mother}} (22.1%)<br>{{CharacterLink|stablekey=character:mature molorath 2:malaroth:971.40:56.93:365.25|link=Captured Molorath|text=Captured Molorath}} (22.1%)<br>{{CharacterLink|stablekey=character:demented malaroth|link=Demented Malaroth|text=Demented Malaroth}} (22.1%)<br>{{CharacterLink|stablekey=character:failed experiment|link=Failed Experiment|text=Failed Experiment}} (22.1%)<br>{{CharacterLink|stablekey=character:lacy|link=Lacy|text=Lacy}} (22.1%)<br>{{CharacterLink|stablekey=character:molorath cub|link=Malaroth Cub|text=Malaroth Cub}} (22.1%)<br>{{CharacterLink|stablekey=character:mature molorath|link=Mature Malaroth|text=Mature Malaroth}} (22.1%)<br>{{CharacterLink|stablekey=character:shivunax|link=Shivunax|text=Shivunax}} (22.1%)<br>{{CharacterLink|stablekey=character:tamed malaroth|link=Tamed Malaroth|text=Tamed Malaroth}} (22.1%)<br>{{CharacterLink|stablekey=character:vizijivi|link=Vizijivi|text=Vizijivi}} (22.1%)<br>{{CharacterLink|stablekey=character:xasxi|link=Xasxi|text=Xasxi}} (22.1%)
 |othersource=
 |questsource=
 |relatedquest=

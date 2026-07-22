@@ -3,7 +3,7 @@
 |stablekey=item:back - 20 - lost cape
 |type=
 |vendorsource=
-|source=[[Lost Treasure (10-20)]] (20.0%)<br>[[Lost Treasure (1-10)]] (16.7%)
+|source={{CharacterLink|stablekey=character:treasurechest 10-20 1|link=Lost Treasure (10-20)|text=Lost Treasure (10-20)}} (20.0%)<br>{{CharacterLink|stablekey=character:treasurechest 0-10 1|link=Lost Treasure (1-10)|text=Lost Treasure (1-10)}} (16.7%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Worn
 |proc_chance=
 |proc_spell_icon=Minor Protection.png
-|proc_spell_name=[[Minor Protection]]
+|proc_spell_name={{AbilityLink|stablekey=spell:all - minor protection|link=Minor Protection|text=Minor Protection|image=Minor Protection.png}}
 |proc_spell_level=1
 |proc_spell_duration_ticks=300
 |proc_spell_type=Beneficial

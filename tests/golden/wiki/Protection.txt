@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Exalted Belt}}<br>{{ItemLink|Ocean Aged Ring}}
+|itemswitheffect={{ItemLink|stablekey=item:belt - 34 - exhalted belt|link=Exalted Belt|text=Exalted Belt|image=Exalted Belt.png}}<br>{{ItemLink|stablekey=item:ring - 24 - seawashed ring|link=Ocean Aged Ring|text=Ocean Aged Ring|image=Ocean Aged Ring.png}}
 |source=
 |used_by=
 }}
@@ -137,7 +137,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Charmed Belt}}
+|itemswitheffect={{ItemLink|stablekey=item:belt - 31 - charmed belt|link=Charmed Belt|text=Charmed Belt|image=Charmed Belt.png}}
 |source=
 |used_by=
 }}

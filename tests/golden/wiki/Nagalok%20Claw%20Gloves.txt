@@ -5,7 +5,7 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|Annaleigh's Nagalok Claws}}
+|questsource={{QuestLink|Annaleigh's Nagalok Claws}}<br>{{QuestLink|stablekey=quest:nagalokclaws|link=Annaleigh's Nagalok Claws|text=Annaleigh's Nagalok Claws}}
 |relatedquest=
 |craftsource=
 |componentfor=

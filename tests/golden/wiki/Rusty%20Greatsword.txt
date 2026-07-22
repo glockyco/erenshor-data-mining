@@ -2,7 +2,7 @@
 |title=Rusty Greatsword
 |stablekey=item:weap - 3 - rusty greatword
 |type=
-|vendorsource=[[Benson Gamble]]<br>[[Treven Pines]]
+|vendorsource={{CharacterLink|stablekey=character:benson gamble|link=Benson Gamble|text=Benson Gamble}}<br>{{CharacterLink|stablekey=character:shopkeeper treven:stowaway:384.76:58.46:394.49|link=Treven Pines|text=Treven Pines}}
 |source=
 |othersource=
 |questsource=

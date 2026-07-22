@@ -3,7 +3,7 @@
 |stablekey=item:skillbook - reap and renew
 |type=[[Ability Books]]
 |vendorsource=
-|source=[[High Priestess of Sivakaya]] (100.0%)
+|source={{CharacterLink|stablekey=character:druid of sivakaya|link=High Priestess of Sivakaya|text=High Priestess of Sivakaya}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -12,7 +12,7 @@
 |buy=55000
 |sell=35750
 |taughtspell=
-|taughtskill={{AbilityLink|Reap and Renew}}
+|taughtskill={{AbilityLink|stablekey=skill:reap and renew|link=Reap and Renew|text=Reap and Renew|image=Reap and Renew.png}}
 |guaranteeddrops=
 |droprates=
 }}

@@ -3,7 +3,7 @@
 |stablekey=item:ring - 31 - ring of repeated thoughts
 |type=
 |vendorsource=
-|source=[[Lost Treasure (30+)]] (12.8%)
+|source={{CharacterLink|stablekey=character:treasurechest 30-35|link=Lost Treasure (30+)|text=Lost Treasure (30+)}} (12.8%)
 |othersource=
 |questsource=
 |relatedquest=

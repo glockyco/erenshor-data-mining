@@ -3,15 +3,15 @@
 |image=[[File:A Lesser Avatar of Sivakaya.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
-|factionChange=+2 [[The Azure Guard]]<br>-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
-|zones=[[The Bonepits]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|factionChange=+2 {{FactionLink|stablekey=faction:azureguard|link=The Azure Guard|text=The Azure Guard}}<br>-10 {{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|zones={{ZoneLink|stablekey=zone:bonepits|link=The Bonepits|text=The Bonepits}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=3 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Citrine Stone}} (57.4%)<br>{{ItemLink|Star Stone}} (57.4%)<br>{{ItemLink|Steel Long Sword}} (20.6%)<br>{{ItemLink|Old Torn Cape}} (9.0%)<br>{{ItemLink|Sivakayan Horn}} (9.0%)<ref>If the player is already holding {{ItemLink|Sivakayan Horn}} in their inventory, another will not drop.</ref>
+|droprates={{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (57.4%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (57.4%)<br>{{ItemLink|stablekey=item:weap - 4 - steel long sword|link=Steel Long Sword|text=Steel Long Sword|image=Steel Long Sword.png}} (20.6%)<br>{{ItemLink|stablekey=item:back - 4 - torn cape|link=Old Torn Cape|text=Old Torn Cape|image=Old Torn Cape.png}} (9.0%)<br>{{ItemLink|stablekey=item:gen - sivakayan horn|link=Sivakayan Horn|text=Sivakayan Horn|image=Sivakayan Horn.png}} (9.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - sivakayan horn|link=Sivakayan Horn|text=Sivakayan Horn|image=Sivakayan Horn.png}} in their inventory, another will not drop.</ref>
 |level=8
 |levelmodmin=0
 |levelmodmax=0

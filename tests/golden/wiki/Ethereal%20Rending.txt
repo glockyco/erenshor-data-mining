@@ -5,7 +5,7 @@
 |description=Deal 280 damage to a single target.
 |type=Damage
 |line=Direct_Damage
-|classes=[[Arcanist]] (6)
+|classes={{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}} (6)
 |required_level=6
 |manacost=50
 |aggro=150
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Hardened Sceptre}}<br>{{ItemLink|Lamplighter's Spark}}<br>{{ItemLink|Magus Shield}}
-|source={{ItemLink|Spell Scroll: Ethereal Rending}}
-|used_by=[[A Deepling Lunarite]]<br>[[A Grassland Ogre Chieftain]]<br>[[A Rottenfoot Witchdoctor]]<br>[[Alexander Farland]]<br>[[Boshi Polok]]<br>[[Diva]]<br>[[Ecclesiarch]]<br>[[Garrey Ambrose]]<br>[[Molorai Archaeologist]]<br>[[Molorai Archaeologist]]<br>[[Molorai Archaeologist]]<br>[[Molorai Archaeologist]]<br>[[Molorai Archmage]]<br>[[Molorai Archmage]]<br>[[Overseer Laseal]]<br>[[Overseer Orlok]]<br>[[Prioress]]<br>[[Rook Allshade]]<br>[[Sagan Ilth]]<br>[[The Corpse of Cyndreela Mathers]]
+|itemswitheffect={{ItemLink|stablekey=item:wand - 13 - hardened bronze sceptre|link=Hardened Sceptre|text=Hardened Sceptre|image=Hardened Sceptre.png}}<br>{{ItemLink|stablekey=item:hand - 6 - lamplighter's spark|link=Lamplighter's Spark|text=Lamplighter's Spark|image=Lamplighter's Spark.png}}<br>{{ItemLink|stablekey=item:secondary - 11 - magus shield|link=Magus Shield|text=Magus Shield|image=Magus Shield.png}}
+|source={{ItemLink|stablekey=item:spell scroll - ethereal rend|link=Spell Scroll: Ethereal Rending|text=Spell Scroll: Ethereal Rending|image=Spell Scroll: Ethereal Rending.png}}
+|used_by={{CharacterLink|stablekey=character:a deepling lunarite|link=A Deepling Lunarite|text=A Deepling Lunarite}}<br>{{CharacterLink|stablekey=character:grassland ogre chieftan|link=A Grassland Ogre Chieftain|text=A Grassland Ogre Chieftain}}<br>{{CharacterLink|stablekey=character:a rottenfoot goblin witchdoctor|link=A Rottenfoot Witchdoctor|text=A Rottenfoot Witchdoctor}}<br>{{CharacterLink|stablekey=character:alexander farland|link=Alexander Farland|text=Alexander Farland}}<br>{{CharacterLink|stablekey=character:boshi polok:duskenlight:710.27:72.43:629.92|link=Boshi Polok|text=Boshi Polok}}<br>{{CharacterLink|stablekey=character:diva|link=Diva|text=Diva}}<br>{{CharacterLink|stablekey=character:ecclesiarch|link=Ecclesiarch|text=Ecclesiarch}}<br>{{CharacterLink|stablekey=character:garrey ambrose:stowaway:729.68:21.42:507.99|link=Garrey Ambrose|text=Garrey Ambrose}}<br>{{CharacterLink|stablekey=character:molorai archaelogist|link=Molorai Archaeologist|text=Molorai Archaeologist}}<br>{{CharacterLink|stablekey=character:molorai archaelogist 1|link=Molorai Archaeologist|text=Molorai Archaeologist}}<br>{{CharacterLink|stablekey=character:molorai archaelogist 2|link=Molorai Archaeologist|text=Molorai Archaeologist}}<br>{{CharacterLink|stablekey=character:molorai high archaelogist 3|link=Molorai Archaeologist|text=Molorai Archaeologist}}<br>{{CharacterLink|stablekey=character:molorai archivist|link=Molorai Archmage|text=Molorai Archmage}}<br>{{CharacterLink|stablekey=character:molorai archmage|link=Molorai Archmage|text=Molorai Archmage}}<br>{{CharacterLink|stablekey=character:overseer lasael|link=Overseer Laseal|text=Overseer Laseal}}<br>{{CharacterLink|stablekey=character:overseer orlok|link=Overseer Orlok|text=Overseer Orlok}}<br>{{CharacterLink|stablekey=character:prioress|link=Prioress|text=Prioress}}<br>{{CharacterLink|stablekey=character:rook allshade|link=Rook Allshade|text=Rook Allshade}}<br>{{CharacterLink|stablekey=character:sagan ilth|link=Sagan Ilth|text=Sagan Ilth}}<br>{{CharacterLink|stablekey=character:the corpse of cyndreela mathers|link=The Corpse of Cyndreela Mathers|text=The Corpse of Cyndreela Mathers}}
 }}

@@ -5,7 +5,7 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|A Fernallan Rune}}
+|questsource={{QuestLink|A Fernallan Rune}}<br>{{QuestLink|stablekey=quest:fernallaraidrune|link=A Fernallan Rune|text=A Fernallan Rune}}
 |relatedquest=
 |craftsource=
 |componentfor=

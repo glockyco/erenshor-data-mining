@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Chthonic Handwraps}}<br>{{ItemLink|Eldoth's Finery}}<br>{{ItemLink|Fiery Revival}}<br>{{ItemLink|Lichencoat}}
+|itemswitheffect={{ItemLink|stablekey=item:glove - 42 - chthonic gloves|link=Chthonic Handwraps|text=Chthonic Handwraps|image=Chthonic Handwraps.png}}<br>{{ItemLink|stablekey=item:chest - 38 - eldoth's finery|link=Eldoth's Finery|text=Eldoth's Finery|image=Eldoth's Finery.png}}<br>{{ItemLink|stablekey=item:neck - 25 - firey revival|link=Fiery Revival|text=Fiery Revival|image=Fiery Revival.png}}<br>{{ItemLink|stablekey=item:chest - 30 - lichencoat|link=Lichencoat|text=Lichencoat|image=Lichencoat.png}}
 |source=
 |used_by=
 }}

@@ -3,15 +3,15 @@
 |image=[[File:Neophyte Necromancer.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
-|factionChange=-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
-|zones=[[The Bonepits]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|factionChange=-10 {{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|zones={{ZoneLink|stablekey=zone:bonepits|link=The Bonepits|text=The Bonepits}}
 |coordinates=
 |spawnchance=20-100%
 |spawntype=
 |respawn=3 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Cloth Gloves}} (32.7%)<br>{{ItemLink|Cloth Hood}} (32.7%)<br>{{ItemLink|Cloth Shoes}} (32.7%)<br>{{ItemLink|Cloth Sleeves}} (32.7%)<br>{{ItemLink|Graveweed Leaf}} (10.1%)<ref>If the player is already holding {{ItemLink|Graveweed Leaf}} in their inventory, another will not drop.</ref><br>{{ItemLink|Adept Wand}} (5.8%)<br>{{ItemLink|Cloth Pants}} (5.8%)<br>{{ItemLink|Cloth Shirt}} (5.8%)<br>{{ItemLink|Neophyte Necklace}} (5.8%)<br>{{ItemLink|Ancient Bone}} (3.5%)<br>{{ItemLink|Necromancer's Ritual Book}} (3.5%)<ref>If the player is already holding {{ItemLink|Necromancer's Ritual Book}} in their inventory, another will not drop.</ref><br>{{ItemLink|Idol of Sivakaya}} (3.4%)<ref>If Neophyte Necromancer has {{ItemLink|Idol of Sivakaya}} equipped, it is guaranteed to drop.</ref>
+|droprates={{ItemLink|stablekey=item:glove - 1 - cloth gloves|link=Cloth Gloves|text=Cloth Gloves|image=Cloth Gloves.png}} (32.7%)<br>{{ItemLink|stablekey=item:head - 1 - cloth hood|link=Cloth Hood|text=Cloth Hood|image=Cloth Hood.png}} (32.7%)<br>{{ItemLink|stablekey=item:foot - 1 - cloth shoes|link=Cloth Shoes|text=Cloth Shoes|image=Cloth Shoes.png}} (32.7%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves|link=Cloth Sleeves|text=Cloth Sleeves|image=Cloth Sleeves.png}} (32.7%)<br>{{ItemLink|stablekey=item:gen - graveweed leaf|link=Graveweed Leaf|text=Graveweed Leaf|image=Graveweed Leaf.png}} (10.1%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - graveweed leaf|link=Graveweed Leaf|text=Graveweed Leaf|image=Graveweed Leaf.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:wand - 8 - adept wand|link=Adept Wand|text=Adept Wand|image=Adept Wand.png}} (5.8%)<br>{{ItemLink|stablekey=item:leg - 1 - cloth pants|link=Cloth Pants|text=Cloth Pants|image=Cloth Pants.png}} (5.8%)<br>{{ItemLink|stablekey=item:chest - 1 - cloth shirt|link=Cloth Shirt|text=Cloth Shirt|image=Cloth Shirt.png}} (5.8%)<br>{{ItemLink|stablekey=item:neck - 3 - neophyte necklace|link=Neophyte Necklace|text=Neophyte Necklace|image=Neophyte Necklace.png}} (5.8%)<br>{{ItemLink|stablekey=item:gen - an ancient bone|link=Ancient Bone|text=Ancient Bone|image=Ancient Bone.png}} (3.5%)<br>{{ItemLink|stablekey=item:gen - ritual book|link=Necromancer's Ritual Book|text=Necromancer's Ritual Book|image=Necromancer's Ritual Book.png}} (3.5%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ritual book|link=Necromancer's Ritual Book|text=Necromancer's Ritual Book|image=Necromancer's Ritual Book.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:hand - 5 - idol of sivakaya|link=Idol of Sivakaya|text=Idol of Sivakaya|image=Idol of Sivakaya.png}} (3.4%)<ref>If Neophyte Necromancer has {{ItemLink|stablekey=item:hand - 5 - idol of sivakaya|link=Idol of Sivakaya|text=Idol of Sivakaya|image=Idol of Sivakaya.png}} equipped, it is guaranteed to drop.</ref>
 |level=7
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=4-8
 |elemental=4-8
 |void=4-8
-|spells={{AbilityLink|Minor Protection}}<br>{{AbilityLink|Weak Poison}}
+|spells={{AbilityLink|stablekey=spell:all - minor protection|link=Minor Protection|text=Minor Protection|image=Minor Protection.png}}<br>{{AbilityLink|stablekey=spell:dru - weak poison|link=Weak Poison|text=Weak Poison|image=Weak Poison.png}}
 }}
 
 [[Category:Enemies]]

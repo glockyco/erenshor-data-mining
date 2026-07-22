@@ -3,15 +3,15 @@
 |image=[[File:The Crypt Guardian.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Vitheo's Rest]]
+|zones={{ZoneLink|stablekey=zone:vitheosend|link=Vitheo's Rest|text=Vitheo's Rest}}
 |coordinates=255.9 x 10.6 x 322.7
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Memory of a Guardian}} (100.0%)<ref>If the player is already holding {{ItemLink|Memory of a Guardian}} in their inventory, another will not drop.</ref><br>{{ItemLink|Spectral Dagger}} (14.8%)<ref>If The Crypt Guardian has {{ItemLink|Spectral Dagger}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Spectral Bow}} (8.7%)<br>{{ItemLink|Spectral Sword}} (4.3%)<ref>If The Crypt Guardian has {{ItemLink|Spectral Sword}} equipped, it is guaranteed to drop.</ref>
+|droprates={{ItemLink|stablekey=item:gen - memory of the guardian|link=Memory of a Guardian|text=Memory of a Guardian|image=Memory of a Guardian.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - memory of the guardian|link=Memory of a Guardian|text=Memory of a Guardian|image=Memory of a Guardian.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:weap - 15 - spectraldagger|link=Spectral Dagger|text=Spectral Dagger|image=Spectral Dagger.png}} (14.8%)<ref>If The Crypt Guardian has {{ItemLink|stablekey=item:weap - 15 - spectraldagger|link=Spectral Dagger|text=Spectral Dagger|image=Spectral Dagger.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:bow - 24 - spectral bow|link=Spectral Bow|text=Spectral Bow|image=Spectral Bow.png}} (8.7%)<br>{{ItemLink|stablekey=item:weap - 22 - spectralsword|link=Spectral Sword|text=Spectral Sword|image=Spectral Sword.png}} (4.3%)<ref>If The Crypt Guardian has {{ItemLink|stablekey=item:weap - 22 - spectralsword|link=Spectral Sword|text=Spectral Sword|image=Spectral Sword.png}} equipped, it is guaranteed to drop.</ref>
 |level=23
 |levelmodmin=0
 |levelmodmax=0

@@ -3,9 +3,9 @@
 |image=[[File:Ophelia Luminee.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Citizens of Stowaway's Step]]
-|factionChange=-20 [[The Citizens of Stowaway's Step]]
-|zones=[[Willowwatch Ridge]]
+|faction={{FactionLink|stablekey=faction:stowaway|link=The Citizens of Stowaway's Step|text=The Citizens of Stowaway's Step}}
+|factionChange=-20 {{FactionLink|stablekey=faction:stowaway|link=The Citizens of Stowaway's Step|text=The Citizens of Stowaway's Step}}
+|zones={{ZoneLink|stablekey=zone:willowwatch|link=Willowwatch Ridge|text=Willowwatch Ridge}}
 |coordinates=578.9 x 50.0 x 351.4
 |spawnchance=
 |spawntype=

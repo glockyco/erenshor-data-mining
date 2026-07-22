@@ -3,15 +3,15 @@
 |image=[[File:Living Meteorite.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Soluna's Landing]]
+|zones={{ZoneLink|stablekey=zone:soluna|link=Soluna's Landing|text=Soluna's Landing}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Rock}} (99.5%)<br>{{ItemLink|Meteorite Gauntlets}} (13.1%)<br>{{ItemLink|Slab of Meteorite}} (12.8%)
+|droprates={{ItemLink|stablekey=item:ore - rock|link=Rock|text=Rock|image=Rock.png}} (99.5%)<br>{{ItemLink|stablekey=item:glove - 24 - meteorite gauntlets|link=Meteorite Gauntlets|text=Meteorite Gauntlets|image=Meteorite Gauntlets.png}} (13.1%)<br>{{ItemLink|stablekey=item:secondary - 26 - slab of meteorite|link=Slab of Meteorite|text=Slab of Meteorite|image=Slab of Meteorite.png}} (12.8%)
 |level=26
 |levelmodmin=0
 |levelmodmax=0

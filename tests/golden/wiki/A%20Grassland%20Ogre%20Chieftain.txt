@@ -3,15 +3,15 @@
 |image=[[File:A Grassland Ogre Chieftain.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
-|factionChange=+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Port Azure]]
-|zones=[[Fernalla's Revival Plains]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|factionChange=+3 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+3 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|zones={{ZoneLink|stablekey=zone:fernallafield|link=Fernalla's Revival Plains|text=Fernalla's Revival Plains}}
 |coordinates=
 |spawnchance=15-100%
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|A Grassland Sap Necklace}} (9.0%)<br>{{ItemLink|Ogre Tooth Club}} (9.0%)<ref>If A Grassland Ogre Chieftain has {{ItemLink|Ogre Tooth Club}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Bread}} (6.9%)<br>{{ItemLink|Citrine Stone}} (6.9%)<br>{{ItemLink|Water}} (6.9%)
+|droprates={{ItemLink|stablekey=item:neck - 9 - ogre tooth necklace|link=A Grassland Sap Necklace|text=A Grassland Sap Necklace|image=A Grassland Sap Necklace.png}} (9.0%)<br>{{ItemLink|stablekey=item:weap - 9 - ogre tooth club|link=Ogre Tooth Club|text=Ogre Tooth Club|image=Ogre Tooth Club.png}} (9.0%)<ref>If A Grassland Ogre Chieftain has {{ItemLink|stablekey=item:weap - 9 - ogre tooth club|link=Ogre Tooth Club|text=Ogre Tooth Club|image=Ogre Tooth Club.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:cons - bread|link=Bread|text=Bread|image=Bread.png}} (6.9%)<br>{{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (6.9%)<br>{{ItemLink|stablekey=item:cons - water|link=Water|text=Water|image=Water.png}} (6.9%)
 |level=10
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=5-12
 |elemental=5-12
 |void=5-12
-|spells={{AbilityLink|Biting Vines}}<br>{{AbilityLink|Death's Embrace}}<br>{{AbilityLink|Ethereal Rending}}<br>{{AbilityLink|Flight of Foot}}<br>{{AbilityLink|Hardened Skin}}
+|spells={{AbilityLink|stablekey=spell:dru - biting vines|link=Biting Vines|text=Biting Vines|image=Biting Vines.png}}<br>{{AbilityLink|stablekey=spell:duel - deathly embrace|link=Death's Embrace|text=Death's Embrace|image=Death's Embrace.png}}<br>{{AbilityLink|stablekey=spell:arc - ethereal rend|link=Ethereal Rending|text=Ethereal Rending|image=Ethereal Rending.png}}<br>{{AbilityLink|stablekey=spell:dru - flight of foot|link=Flight of Foot|text=Flight of Foot|image=Flight of Foot.png}}<br>{{AbilityLink|stablekey=spell:arc - hardened skin|link=Hardened Skin|text=Hardened Skin|image=Hardened Skin.png}}
 }}
 
 [[Category:Enemies]]

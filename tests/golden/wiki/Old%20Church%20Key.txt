@@ -5,7 +5,7 @@
 |vendorsource=
 |source=
 |othersource=[[The Mathers' Demise]]
-|questsource={{QuestLink|The Mathers' Demise}}
+|questsource={{QuestLink|The Mathers' Demise}}<br>{{QuestLink|stablekey=quest:mathersdemise|link=The Mathers' Demise|text=The Mathers' Demise}}
 |relatedquest=
 |craftsource=
 |componentfor=

@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Stone of Arcanism}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - arcanism|link=Stone of Arcanism|text=Stone of Arcanism|image=Stone of Arcanism.png}}
 |source=
 |used_by=
 }}

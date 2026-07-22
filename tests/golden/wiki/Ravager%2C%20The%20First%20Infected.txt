@@ -3,15 +3,15 @@
 |image=[[File:Ravager, The First Infected.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[The Elderstone Mines]]
+|zones={{ZoneLink|stablekey=zone:elderstone|link=The Elderstone Mines|text=The Elderstone Mines}}
 |coordinates=-773.2 x -52.0 x 377.6
 |spawnchance=
 |spawntype=
 |respawn=9 minutes
-|guaranteeddrops={{ItemLink|Fungal Bouquet}}<br>{{ItemLink|Fungal Edge}}<br>{{ItemLink|Fungal Spore}}<br>{{ItemLink|Fungus Covered Armband}}<br>{{ItemLink|Silver Plated Leggings}}
-|droprates={{ItemLink|Pg. 5: Faded Entry}} (100.0%)<ref>If the player is already holding {{ItemLink|Pg. 5: Faded Entry}} in their inventory, another will not drop.</ref><br>{{ItemLink|Fungal Bouquet}} (45.8%)<br>{{ItemLink|Fungal Edge}} (45.8%)<br>{{ItemLink|Fungal Spore}} (45.8%)<br>{{ItemLink|Fungus Covered Armband}} (45.8%)<br>{{ItemLink|Silver Plated Leggings}} (45.8%)<br>{{ItemLink|Elderstone Shard}} (6.7%)<ref>If the player is already holding {{ItemLink|Elderstone Shard}} in their inventory, another will not drop.</ref>
+|guaranteeddrops={{ItemLink|stablekey=item:wand - 18 - fungal wand|link=Fungal Bouquet|text=Fungal Bouquet|image=Fungal Bouquet.png}}<br>{{ItemLink|stablekey=item:weap - 20 - rotten edge|link=Fungal Edge|text=Fungal Edge|image=Fungal Edge.png}}<br>{{ItemLink|stablekey=item:gen - fungal spore|link=Fungal Spore|text=Fungal Spore|image=Fungal Spore.png}}<br>{{ItemLink|stablekey=item:arm - 17 - fungus covered armband|link=Fungus Covered Armband|text=Fungus Covered Armband|image=Fungus Covered Armband.png}}<br>{{ItemLink|stablekey=item:leg - 18 - silver plated leggings|link=Silver Plated Leggings|text=Silver Plated Leggings|image=Silver Plated Leggings.png}}
+|droprates={{ItemLink|stablekey=item:gen - treasure hunter pg 5 (elderstone)|link=Pg. 5: Faded Entry|text=Pg. 5: Faded Entry|image=Pg. 5: Faded Entry.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - treasure hunter pg 5 (elderstone)|link=Pg. 5: Faded Entry|text=Pg. 5: Faded Entry|image=Pg. 5: Faded Entry.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:wand - 18 - fungal wand|link=Fungal Bouquet|text=Fungal Bouquet|image=Fungal Bouquet.png}} (45.8%)<br>{{ItemLink|stablekey=item:weap - 20 - rotten edge|link=Fungal Edge|text=Fungal Edge|image=Fungal Edge.png}} (45.8%)<br>{{ItemLink|stablekey=item:gen - fungal spore|link=Fungal Spore|text=Fungal Spore|image=Fungal Spore.png}} (45.8%)<br>{{ItemLink|stablekey=item:arm - 17 - fungus covered armband|link=Fungus Covered Armband|text=Fungus Covered Armband|image=Fungus Covered Armband.png}} (45.8%)<br>{{ItemLink|stablekey=item:leg - 18 - silver plated leggings|link=Silver Plated Leggings|text=Silver Plated Leggings|image=Silver Plated Leggings.png}} (45.8%)<br>{{ItemLink|stablekey=item:gen - elderstone shard|link=Elderstone Shard|text=Elderstone Shard|image=Elderstone Shard.png}} (6.7%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - elderstone shard|link=Elderstone Shard|text=Elderstone Shard|image=Elderstone Shard.png}} in their inventory, another will not drop.</ref>
 |level=21
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=10-25
 |elemental=10-25
 |void=10-25
-|spells={{AbilityLink|Hardened Skin}}<br>{{AbilityLink|Jolt}}<br>{{AbilityLink|Minor Lightning}}
+|spells={{AbilityLink|stablekey=spell:arc - hardened skin|link=Hardened Skin|text=Hardened Skin|image=Hardened Skin.png}}<br>{{AbilityLink|stablekey=spell:dru arc - jolt|link=Jolt|text=Jolt|image=Jolt.png}}<br>{{AbilityLink|stablekey=spell:dru - minor lightning|link=Minor Lightning|text=Minor Lightning|image=Minor Lightning.png}}
 }}
 ''{{main|Enemies}}''
 

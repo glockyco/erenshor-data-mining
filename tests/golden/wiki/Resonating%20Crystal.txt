@@ -3,7 +3,7 @@
 |stablekey=item:hand - 28 - resonating crystal
 |type=
 |vendorsource=
-|source=[[Granitus]] (20.0%)
+|source={{CharacterLink|stablekey=character:granitus|link=Granitus|text=Granitus}} (20.0%)
 |othersource=
 |questsource=
 |relatedquest=

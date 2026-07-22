@@ -3,15 +3,15 @@
 |image=[[File:Fungal Wolf.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Blooming Sepulcher]]
+|zones={{ZoneLink|stablekey=zone:bloomingsepulcher|link=Blooming Sepulcher|text=Blooming Sepulcher}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Wolf Meat}} (94.8%)<br>{{ItemLink|Wisp Garden}} (1.0%)
+|droprates={{ItemLink|stablekey=item:gen - wolf meat|link=Wolf Meat|text=Wolf Meat|image=Wolf Meat.png}} (94.8%)<br>{{ItemLink|stablekey=item:furniture - wisp garden|link=Wisp Garden|text=Wisp Garden|image=Wisp Garden.png}} (1.0%)
 |level=27
 |levelmodmin=0
 |levelmodmax=0

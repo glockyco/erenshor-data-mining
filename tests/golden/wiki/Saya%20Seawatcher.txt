@@ -3,9 +3,9 @@
 |image=[[File:Saya Seawatcher.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Citizens of Erenshor]]
-|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
-|zones=[[Vitheo's Watch]]
+|faction={{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}
+|factionChange=-20 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>-20 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|zones={{ZoneLink|stablekey=zone:vitheo|link=Vitheo's Watch|text=Vitheo's Watch}}
 |coordinates=250.3 x 36.7 x 314.5
 |spawnchance=
 |spawntype=

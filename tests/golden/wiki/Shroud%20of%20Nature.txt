@@ -3,7 +3,7 @@
 |stablekey=item:back - 42 - shroud of nature
 |type=
 |vendorsource=
-|source=[[Fernalla, Goddess of Nature]] (36.0%)
+|source={{CharacterLink|stablekey=character:goddess fernalla|link=Fernalla, Goddess of Nature|text=Fernalla, Goddess of Nature}} (36.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Worn
 |proc_chance=
 |proc_spell_icon=Mana Charge IV.png
-|proc_spell_name=[[Mana Charge IV]]
+|proc_spell_name={{AbilityLink|stablekey=spell:arc - mana charge iv|link=Mana Charge IV|text=Mana Charge IV|image=Mana Charge IV.png}}
 |proc_spell_level=36
 |proc_spell_duration_ticks=3
 |proc_spell_type=Beneficial

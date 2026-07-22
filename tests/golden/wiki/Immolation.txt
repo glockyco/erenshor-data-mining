@@ -5,7 +5,7 @@
 |description=Slow targets movement and cause (450 / tick) damage over time.
 |type=StatusEffect
 |line=Arc_Element_DOT
-|classes=[[Arcanist]] (19)
+|classes={{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}} (19)
 |required_level=19
 |manacost=300
 |aggro=300
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Immolation}}
-|used_by=[[Blazefiend]]<br>[[Blighted Priest]]<br>[[Braxonian Tempest]]<br>[[Evadne the Corrupted]]<br>[[Fenton the Blighted]]<br>[[Juctin Mysia]]<br>[[Katia Marado]]<br>[[Larviso Poltir]]<br>[[Nashen Glazier]]<br>[[Neia Tarmath]]<br>[[Torado Zortia]]<br>[[Warded Shadow]]<br>[[Wardkeeper Rossi]]
+|source={{ItemLink|stablekey=item:spell scroll - immolation|link=Spell Scroll: Immolation|text=Spell Scroll: Immolation|image=Spell Scroll: Immolation.png}}
+|used_by={{CharacterLink|stablekey=character:blazefiend|link=Blazefiend|text=Blazefiend}}<br>{{CharacterLink|stablekey=character:blight priest|link=Blighted Priest|text=Blighted Priest}}<br>{{CharacterLink|stablekey=character:braxonian tempest|link=Braxonian Tempest|text=Braxonian Tempest}}<br>{{CharacterLink|stablekey=character:evadne|link=Evadne the Corrupted|text=Evadne the Corrupted}}<br>{{CharacterLink|stablekey=character:fenton the blighted|link=Fenton the Blighted|text=Fenton the Blighted}}<br>{{CharacterLink|stablekey=character:juctin mysia|link=Juctin Mysia|text=Juctin Mysia}}<br>{{CharacterLink|stablekey=character:katia marado:loomingwood:371.12:26.99:417.73|link=Katia Marado|text=Katia Marado}}<br>{{CharacterLink|stablekey=character:larviso poltir:loomingwood:323.78:29.25:429.23|link=Larviso Poltir|text=Larviso Poltir}}<br>{{CharacterLink|stablekey=character:nashen glazier|link=Nashen Glazier|text=Nashen Glazier}}<br>{{CharacterLink|stablekey=character:katia marado (1)|link=Neia Tarmath|text=Neia Tarmath}}<br>{{CharacterLink|stablekey=character:torado  zortia|link=Torado Zortia|text=Torado Zortia}}<br>{{CharacterLink|stablekey=character:warded phantom:shiveringtomb2:-76.96:-68.40:284.89|link=Warded Shadow|text=Warded Shadow}}<br>{{CharacterLink|stablekey=character:wardkeeper rossi:loomingwood:507.37:26.99:875.46|link=Wardkeeper Rossi|text=Wardkeeper Rossi}}
 }}

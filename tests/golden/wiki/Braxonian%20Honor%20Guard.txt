@@ -3,15 +3,15 @@
 |image=[[File:Braxonian Honor Guard.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Fallen Braxonia]]
+|zones={{ZoneLink|stablekey=zone:braxonia|link=Fallen Braxonia|text=Fallen Braxonia}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=8 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Luminstone}} (6.9%)<br>{{ItemLink|Braxonian Mace}} (2.3%)<ref>If Braxonian Honor Guard has {{ItemLink|Braxonian Mace}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Diamond}} (2.3%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Polished Steel Belt}} (2.3%)<br>{{ItemLink|Braxonian Bracer}} (1.9%)<br>{{ItemLink|Braxonian Gauntlets}} (1.2%)<br>{{ItemLink|Braxonian Plate Boots}} (1.2%)<br>{{ItemLink|Braxonian Greaves}} (0.6%)<br>{{ItemLink|Braxonian Plate}} (0.6%)<br>{{ItemLink|Braxonian Spaulders}} (0.6%)<br>{{ItemLink|Stone Statue: Brax}} (0.6%)
+|droprates={{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (6.9%)<br>{{ItemLink|stablekey=item:weap - 30 - braxonian mace|link=Braxonian Mace|text=Braxonian Mace|image=Braxonian Mace.png}} (2.3%)<ref>If Braxonian Honor Guard has {{ItemLink|stablekey=item:weap - 30 - braxonian mace|link=Braxonian Mace|text=Braxonian Mace|image=Braxonian Mace.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (2.3%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:belt - 31 - polished steel belt|link=Polished Steel Belt|text=Polished Steel Belt|image=Polished Steel Belt.png}} (2.3%)<br>{{ItemLink|stablekey=item:wrist - 30 - braxonian bracer|link=Braxonian Bracer|text=Braxonian Bracer|image=Braxonian Bracer.png}} (1.9%)<br>{{ItemLink|stablekey=item:glove - 30 - braxonian gauntlets|link=Braxonian Gauntlets|text=Braxonian Gauntlets|image=Braxonian Gauntlets.png}} (1.2%)<br>{{ItemLink|stablekey=item:foot - 31 - braxonian boots|link=Braxonian Plate Boots|text=Braxonian Plate Boots|image=Braxonian Plate Boots.png}} (1.2%)<br>{{ItemLink|stablekey=item:leg - 31 - braxonian greaves|link=Braxonian Greaves|text=Braxonian Greaves|image=Braxonian Greaves.png}} (0.6%)<br>{{ItemLink|stablekey=item:chest - 32 - braxonian plate|link=Braxonian Plate|text=Braxonian Plate|image=Braxonian Plate.png}} (0.6%)<br>{{ItemLink|stablekey=item:arm - 31 - braxonian vambraces|link=Braxonian Spaulders|text=Braxonian Spaulders|image=Braxonian Spaulders.png}} (0.6%)<br>{{ItemLink|stablekey=item:furniture - stone statue brax|link=Stone Statue: Brax|text=Stone Statue: Brax|image=Stone Statue: Brax.png}} (0.6%)
 |level=30
 |levelmodmin=0
 |levelmodmax=0

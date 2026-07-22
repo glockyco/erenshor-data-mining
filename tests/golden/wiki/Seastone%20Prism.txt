@@ -3,7 +3,7 @@
 |stablekey=item:neck - 18 - seastone prism
 |type=
 |vendorsource=
-|source=[[Algaeth Bilgeback]] (85.7%)
+|source={{CharacterLink|stablekey=character:algaeth bilgeflow 1|link=Algaeth Bilgeback|text=Algaeth Bilgeback}} (85.7%)
 |othersource=
 |questsource=
 |relatedquest=

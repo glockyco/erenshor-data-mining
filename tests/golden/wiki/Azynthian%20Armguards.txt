@@ -3,7 +3,7 @@
 |stablekey=item:arm - 30 - azynthian armguards
 |type=
 |vendorsource=
-|source=[[Oracle Tretha]] (33.3%)
+|source={{CharacterLink|stablekey=character:oracle tretha|link=Oracle Tretha|text=Oracle Tretha}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -3,15 +3,15 @@
 |image=[[File:Elizah Vernor.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Citizens of Port Azure]]
-|factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
-|zones=[[Faerie's Brake]]
+|faction={{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|factionChange=-2 {{FactionLink|stablekey=faction:molarai|link=Eldoth Molorai (Faction)|text=Eldoth Molorai}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+2 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
+|zones={{ZoneLink|stablekey=zone:brake|link=Faerie's Brake|text=Faerie's Brake}}
 |coordinates=303.0 x 20.9 x 315.7
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Citrine Stone}} (59.4%)<br>{{ItemLink|Seafruit}} (59.4%)<br>{{ItemLink|Seaspice}} (59.4%)<br>{{ItemLink|Luminstone}} (12.3%)<br>{{ItemLink|Ruby}} (12.3%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Star Stone}} (12.3%)<br>{{ItemLink|Argo's Grimoire}} (8.2%)<br>{{ItemLink|Pathfinder's Staff}} (8.2%)<ref>If Elizah Vernor has {{ItemLink|Pathfinder's Staff}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Swirlstone Amulet}} (8.2%)<br>{{ItemLink|Vinewrapped Vambracers}} (8.2%)
+|droprates={{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (59.4%)<br>{{ItemLink|stablekey=item:cons - seafruit|link=Seafruit|text=Seafruit|image=Seafruit.png}} (59.4%)<br>{{ItemLink|stablekey=item:cons - seaspice|link=Seaspice|text=Seaspice|image=Seaspice.png}} (59.4%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (12.3%)<br>{{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} (12.3%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (12.3%)<br>{{ItemLink|stablekey=item:hand - 10 - argo's grimmiore|link=Argo's Grimoire|text=Argo's Grimoire|image=Argo's Grimoire.png}} (8.2%)<br>{{ItemLink|stablekey=item:weap - 9 - pathfinder's staff|link=Pathfinder's Staff|text=Pathfinder's Staff|image=Pathfinder's Staff.png}} (8.2%)<ref>If Elizah Vernor has {{ItemLink|stablekey=item:weap - 9 - pathfinder's staff|link=Pathfinder's Staff|text=Pathfinder's Staff|image=Pathfinder's Staff.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:neck - 12 - swirlstone amulet|link=Swirlstone Amulet|text=Swirlstone Amulet|image=Swirlstone Amulet.png}} (8.2%)<br>{{ItemLink|stablekey=item:arm - 9 - vinewrapped vambracer|link=Vinewrapped Vambracers|text=Vinewrapped Vambracers|image=Vinewrapped Vambracers.png}} (8.2%)
 |level=10
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=5-12
 |elemental=5-12
 |void=5-12
-|spells={{AbilityLink|Biting Vines}}<br>{{AbilityLink|Jolt}}<br>{{AbilityLink|Magic Bolt}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Theft of Life}}<br>{{AbilityLink|Weak Poison}}
+|spells={{AbilityLink|stablekey=spell:dru - biting vines|link=Biting Vines|text=Biting Vines|image=Biting Vines.png}}<br>{{AbilityLink|stablekey=spell:dru arc - jolt|link=Jolt|text=Jolt|image=Jolt.png}}<br>{{AbilityLink|stablekey=spell:dru arc stc - magic bolt|link=Magic Bolt|text=Magic Bolt|image=Magic Bolt.png}}<br>{{AbilityLink|stablekey=spell:all - minor protection|link=Minor Protection|text=Minor Protection|image=Minor Protection.png}}<br>{{AbilityLink|stablekey=spell:dru duel - minor regen|link=Minor Regeneration|text=Minor Regeneration|image=Minor Regeneration.png}}<br>{{AbilityLink|stablekey=spell:dru reav - theft of life|link=Theft of Life|text=Theft of Life|image=Theft of Life.png}}<br>{{AbilityLink|stablekey=spell:dru - weak poison|link=Weak Poison|text=Weak Poison|image=Weak Poison.png}}
 }}
 Elizah is an NPC in [[Faerie's Brake]].
 

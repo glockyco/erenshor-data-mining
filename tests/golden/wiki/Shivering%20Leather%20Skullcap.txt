@@ -2,8 +2,8 @@
 |title=Shivering Leather Skullcap
 |stablekey=item:head - 5 - shivering leather skullcap
 |type=
-|vendorsource=[[Asaga Underloft]]
-|source=[[Crypt Keeper]] (6.5%)<br>[[Molorai Militia Druid]] (3.0%)
+|vendorsource={{CharacterLink|stablekey=character:asaga underloft|link=Asaga Underloft|text=Asaga Underloft}}
+|source={{CharacterLink|stablekey=character:crypt keeper|link=Crypt Keeper|text=Crypt Keeper}} (6.5%)<br>{{CharacterLink|stablekey=character:molorai druid|link=Molorai Militia Druid|text=Molorai Militia Druid}} (3.0%)
 |othersource=
 |questsource=
 |relatedquest=

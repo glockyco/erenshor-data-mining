@@ -3,10 +3,10 @@
 |stablekey=item:weap - 24 - sivakayan straightsword
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Gherist Morthario]] (28.2%)<br>[[Sivakayan Raider]] (2.4%)<br>[[Darkwarden Awxa]] (1.2%)<br>[[Darkwarden Ealdred]] (1.2%)<br>[[Darkwarden Ilyth]] (1.2%)<br>[[Sivakayan Legionnaire]] (1.2%)<br>[[Sivakayan Reaver]] (1.2%)<br>[[Sivakayan Spymaster]] (1.2%)<br>[[Sivakayan Unhallowed]] (1.2%)
+|source={{CharacterLink|stablekey=character:gherist morthario|link=Gherist Morthario|text=Gherist Morthario}} (28.2%)<br>{{CharacterLink|stablekey=character:sivakayan raider|link=Sivakayan Raider|text=Sivakayan Raider}} (2.4%)<br>{{CharacterLink|stablekey=character:sivakayan raider:1|link=Sivakayan Raider|text=Sivakayan Raider}} (2.4%)<br>{{CharacterLink|stablekey=character:darkwarden awxa|link=Darkwarden Awxa|text=Darkwarden Awxa}} (1.2%)<br>{{CharacterLink|stablekey=character:darkwarden ealdred|link=Darkwarden Ealdred|text=Darkwarden Ealdred}} (1.2%)<br>{{CharacterLink|stablekey=character:darkwarden ilyth|link=Darkwarden Ilyth|text=Darkwarden Ilyth}} (1.2%)<br>{{CharacterLink|stablekey=character:sivakayan legionairre|link=Sivakayan Legionnaire|text=Sivakayan Legionnaire}} (1.2%)<br>{{CharacterLink|stablekey=character:sivakayan reaver|link=Sivakayan Reaver|text=Sivakayan Reaver}} (1.2%)<br>{{CharacterLink|stablekey=character:sivakayan reaver:1|link=Sivakayan Reaver|text=Sivakayan Reaver}} (1.2%)<br>{{CharacterLink|stablekey=character:sivakayan spymaster|link=Sivakayan Spymaster|text=Sivakayan Spymaster}} (1.2%)<br>{{CharacterLink|stablekey=character:sivakayan unhallowed|link=Sivakayan Unhallowed|text=Sivakayan Unhallowed}} (1.2%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Disarming the Sivakayans}}
+|relatedquest={{QuestLink|Disarming the Sivakayans}}<br>{{QuestLink|stablekey=quest:disarmsivakayans|link=Disarming the Sivakayans|text=Disarming the Sivakayans}}
 |craftsource=
 |componentfor=
 |buy=2000
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=20
 |proc_spell_icon=Theft of Life.png
-|proc_spell_name=[[Theft of Life]]
+|proc_spell_name={{AbilityLink|stablekey=spell:dru reav - theft of life|link=Theft of Life|text=Theft of Life|image=Theft of Life.png}}
 |proc_spell_level=2
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

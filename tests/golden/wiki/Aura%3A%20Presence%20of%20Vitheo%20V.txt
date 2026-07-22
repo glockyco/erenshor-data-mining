@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Ripcurrent}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - vitheo 5|link=Ripcurrent|text=Ripcurrent|image=Ripcurrent.png}}
 |source=
 |used_by=
 }}

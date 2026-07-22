@@ -3,15 +3,15 @@
 |image=[[File:Granitus.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Windwashed Pass]]
+|zones={{ZoneLink|stablekey=zone:windwashed|link=Windwashed Pass|text=Windwashed Pass}}
 |coordinates=960.4 x 55.5 x 396.9
 |spawnchance=
 |spawntype=
 |respawn=7 minutes
-|guaranteeddrops={{ItemLink|Cratermakers}}<br>{{ItemLink|Gem of Echoes}}<br>{{ItemLink|Granite Belt}}<br>{{ItemLink|Resonating Crystal}}<br>{{ItemLink|Stone Sword}}
-|droprates={{ItemLink|Stone Giant's Blood}} (100.0%)<br>{{ItemLink|Rock}} (84.9%)<br>{{ItemLink|Cratermakers}} (20.0%)<br>{{ItemLink|Gem of Echoes}} (20.0%)<br>{{ItemLink|Granite Belt}} (20.0%)<br>{{ItemLink|Resonating Crystal}} (20.0%)<br>{{ItemLink|Stone Sword}} (20.0%)
+|guaranteeddrops={{ItemLink|stablekey=item:foot - 28 - cratermakers|link=Cratermakers|text=Cratermakers|image=Cratermakers.png}}<br>{{ItemLink|stablekey=item:aura - gem of echoes|link=Gem of Echoes|text=Gem of Echoes|image=Gem of Echoes.png}}<br>{{ItemLink|stablekey=item:belt - 28 - granite girdle|link=Granite Belt|text=Granite Belt|image=Granite Belt.png}}<br>{{ItemLink|stablekey=item:hand - 28 - resonating crystal|link=Resonating Crystal|text=Resonating Crystal|image=Resonating Crystal.png}}<br>{{ItemLink|stablekey=item:weap - 26 - stone sword|link=Stone Sword|text=Stone Sword|image=Stone Sword.png}}
+|droprates={{ItemLink|stablekey=item:gen - stone giants blood|link=Stone Giant's Blood|text=Stone Giant's Blood|image=Stone Giant's Blood.png}} (100.0%)<br>{{ItemLink|stablekey=item:ore - rock|link=Rock|text=Rock|image=Rock.png}} (84.9%)<br>{{ItemLink|stablekey=item:foot - 28 - cratermakers|link=Cratermakers|text=Cratermakers|image=Cratermakers.png}} (20.0%)<br>{{ItemLink|stablekey=item:aura - gem of echoes|link=Gem of Echoes|text=Gem of Echoes|image=Gem of Echoes.png}} (20.0%)<br>{{ItemLink|stablekey=item:belt - 28 - granite girdle|link=Granite Belt|text=Granite Belt|image=Granite Belt.png}} (20.0%)<br>{{ItemLink|stablekey=item:hand - 28 - resonating crystal|link=Resonating Crystal|text=Resonating Crystal|image=Resonating Crystal.png}} (20.0%)<br>{{ItemLink|stablekey=item:weap - 26 - stone sword|link=Stone Sword|text=Stone Sword|image=Stone Sword.png}} (20.0%)
 |level=30
 |levelmodmin=0
 |levelmodmax=0

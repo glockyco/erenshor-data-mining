@@ -3,15 +3,15 @@
 |image=[[File:A Brown Bear Cub.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Faerie's Brake]]<br>[[Fernalla's Revival Plains]]<br>[[Island Tomb]]<br>[[Stowaway's Step]]<br>[[The Duskenlight Coast]]
+|zones={{ZoneLink|stablekey=zone:brake|link=Faerie's Brake|text=Faerie's Brake}}<br>{{ZoneLink|stablekey=zone:fernallafield|link=Fernalla's Revival Plains|text=Fernalla's Revival Plains}}<br>{{ZoneLink|stablekey=zone:tutorial|link=Island Tomb|text=Island Tomb}}<br>{{ZoneLink|stablekey=zone:stowaway|link=Stowaway's Step|text=Stowaway's Step}}<br>{{ZoneLink|stablekey=zone:duskenlight|link=The Duskenlight Coast|text=The Duskenlight Coast}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=2-4 minutes (Faerie's Brake)<br>5 minutes (Fernalla's Revival Plains)<br>6 minutes (Island Tomb)<br>4 minutes (Stowaway's Step)<br>5 minutes (The Duskenlight Coast)
 |guaranteeddrops=
-|droprates={{ItemLink|Bear Meat}} (38.6%)
+|droprates={{ItemLink|stablekey=item:gen - bear meat|link=Bear Meat|text=Bear Meat|image=Bear Meat.png}} (38.6%)
 |level=4
 |levelmodmin=0
 |levelmodmax=0

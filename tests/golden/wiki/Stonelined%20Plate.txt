@@ -3,7 +3,7 @@
 |stablekey=item:chest - 28 - stonelined plate
 |type=
 |vendorsource=
-|source=[[Loomingwood Minotaur Hero]] (25.0%)
+|source={{CharacterLink|stablekey=character:forest minotaur hero|link=Loomingwood Minotaur Hero|text=Loomingwood Minotaur Hero}} (25.0%)
 |othersource=
 |questsource=
 |relatedquest=

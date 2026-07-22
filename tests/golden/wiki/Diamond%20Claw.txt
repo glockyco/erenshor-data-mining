@@ -3,7 +3,7 @@
 |stablekey=item:weap - 25 - diamondclaw
 |type=
 |vendorsource=
-|source=[[Diamond Hound]] (6.9%)
+|source={{CharacterLink|stablekey=character:diamond hound|link=Diamond Hound|text=Diamond Hound}} (6.9%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=4
 |proc_spell_icon=Diamond Burst.png
-|proc_spell_name=[[Diamond Burst]]
+|proc_spell_name={{AbilityLink|stablekey=spell:none - diamond burst|link=Diamond Burst|text=Diamond Burst|image=Diamond Burst.png}}
 |proc_spell_level=14
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

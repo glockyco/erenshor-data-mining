@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Box of Portals}}
+|itemswitheffect={{ItemLink|stablekey=item:gen - box of portals|link=Box of Portals|text=Box of Portals|image=Box of Portals.png}}
 |source=
 |used_by=
 }}

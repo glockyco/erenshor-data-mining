@@ -2,7 +2,7 @@
 |title=Spell Scroll: Ethereal Rending
 |stablekey=item:spell scroll - ethereal rend
 |type=[[Ability Books|Spell Scroll]]
-|vendorsource=[[Edwin Ansegg]]<br>[[Nylith Valorro]]
+|vendorsource={{CharacterLink|stablekey=character:edwin ansegg|link=Edwin Ansegg|text=Edwin Ansegg}}<br>{{CharacterLink|stablekey=character:nylith valorro|link=Nylith Valorro|text=Nylith Valorro}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=255
 |sell=166
-|taughtspell={{AbilityLink|Ethereal Rending}}
+|taughtspell={{AbilityLink|stablekey=spell:arc - ethereal rend|link=Ethereal Rending|text=Ethereal Rending|image=Ethereal Rending.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

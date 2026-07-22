@@ -3,12 +3,12 @@
 |stablekey=item:gen - nagalok claw
 |type=[[Quest Items|Quest Item]], [[Crafting]]
 |vendorsource=
-|source=[[An Immature Nagalok]] (10.1%)<br>[[Occuphage, Eater of Eyes]] (10.1%)<br>[[Spike]] (10.1%)<br>[[A Nagalok]] (6.8%)
+|source={{CharacterLink|stablekey=character:immature nagalok|link=An Immature Nagalok|text=An Immature Nagalok}} (10.1%)<br>{{CharacterLink|stablekey=character:immature nagalok 1|link=An Immature Nagalok|text=An Immature Nagalok}} (10.1%)<br>{{CharacterLink|stablekey=character:lighthouse demon:tutorial:-64.96:22.26:149.12|link=Occuphage, Eater of Eyes|text=Occuphage, Eater of Eyes}} (10.1%)<br>{{CharacterLink|stablekey=character:spike|link=Spike|text=Spike}} (10.1%)<br>{{CharacterLink|stablekey=character:nagalok|link=A Nagalok|text=A Nagalok}} (6.8%)<br>{{CharacterLink|stablekey=character:nagalok 1|link=A Nagalok|text=A Nagalok}} (6.8%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Annaleigh's Nagalok Claws}}
+|relatedquest={{QuestLink|Annaleigh's Nagalok Claws}}<br>{{QuestLink|stablekey=quest:nagalokclaws|link=Annaleigh's Nagalok Claws|text=Annaleigh's Nagalok Claws}}
 |craftsource=
-|componentfor={{ItemLink|Mold: Charm of Rage}}
+|componentfor={{ItemLink|stablekey=item:template - charm of rage|link=Mold: Charm of Rage|text=Mold: Charm of Rage|image=Mold: Charm of Rage.png}}
 |buy=15
 |sell=10
 |taughtspell=

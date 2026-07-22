@@ -3,9 +3,9 @@
 |image=[[File:Braxon Picalo.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Citizens of Port Azure]]
-|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]<br>-20 [[The Torchbearers of Brax]]
-|zones=[[Braxonian Desert]]
+|faction={{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|factionChange=-20 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>-20 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>-20 {{FactionLink|stablekey=faction:brax|link=The Torchbearers of Brax|text=The Torchbearers of Brax}}
+|zones={{ZoneLink|stablekey=zone:braxonian|link=Braxonian Desert|text=Braxonian Desert}}
 |coordinates=274.4 x 43.4 x 814.7
 |spawnchance=
 |spawntype=

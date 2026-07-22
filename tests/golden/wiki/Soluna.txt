@@ -3,15 +3,15 @@
 |image=[[File:Soluna.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Soluna's Celestial Plane]]
+|zones={{ZoneLink|stablekey=zone:planeofsoluna|link=Soluna's Celestial Plane|text=Soluna's Celestial Plane}}
 |coordinates=206.7 x 415.8 x 995.8
 |spawnchance=
 |spawntype=
 |respawn=33 minutes
-|guaranteeddrops={{ItemLink|Aevum}}<br>{{ItemLink|Astral March}}<br>{{ItemLink|Imperium}}<br>{{ItemLink|Moonlit Mask}}<br>{{ItemLink|Nova}}<br>{{ItemLink|Shifted Fate}}
-|droprates={{ItemLink|Planar Stone}} (98.3%)<br>{{ItemLink|Aevum}} (36.0%)<br>{{ItemLink|Astral March}} (36.0%)<br>{{ItemLink|Imperium}} (36.0%)<br>{{ItemLink|Moonlit Mask}} (36.0%)<br>{{ItemLink|Nova}} (36.0%)<br>{{ItemLink|Shifted Fate}} (36.0%)<br>{{ItemLink|Platinum Statue: Soluna}} (16.6%)<br>{{ItemLink|Advisor's Sword}} (5.8%)<br>{{ItemLink|Blade of Grace}} (5.8%)<br>{{ItemLink|Cosmic Barrier}} (5.8%)<br>{{ItemLink|Ellipse Cord}} (5.8%)<br>{{ItemLink|Halo of Twin Skies}} (5.8%)<br>{{ItemLink|Interstellar Charm}} (5.8%)<br>{{ItemLink|Meteor Metal Boots}} (5.8%)<br>{{ItemLink|Orbital Loop}} (5.8%)
+|guaranteeddrops={{ItemLink|stablekey=item:neck - 42 - aevum|link=Aevum|text=Aevum|image=Aevum.png}}<br>{{ItemLink|stablekey=item:leg - 42 - astral march|link=Astral March|text=Astral March|image=Astral March.png}}<br>{{ItemLink|stablekey=item:bow - 42 - imperium|link=Imperium|text=Imperium|image=Imperium.png}}<br>{{ItemLink|stablekey=item:head - 42 - moonlit mask|link=Moonlit Mask|text=Moonlit Mask|image=Moonlit Mask.png}}<br>{{ItemLink|stablekey=item:aura - soluna 5|link=Nova|text=Nova|image=Nova.png}}<br>{{ItemLink|stablekey=item:weap - 42 - sword of shifted fate|link=Shifted Fate|text=Shifted Fate|image=Shifted Fate.png}}
+|droprates={{ItemLink|stablekey=item:ore - planar stone|link=Planar Stone|text=Planar Stone|image=Planar Stone.png}} (98.3%)<br>{{ItemLink|stablekey=item:neck - 42 - aevum|link=Aevum|text=Aevum|image=Aevum.png}} (36.0%)<br>{{ItemLink|stablekey=item:leg - 42 - astral march|link=Astral March|text=Astral March|image=Astral March.png}} (36.0%)<br>{{ItemLink|stablekey=item:bow - 42 - imperium|link=Imperium|text=Imperium|image=Imperium.png}} (36.0%)<br>{{ItemLink|stablekey=item:head - 42 - moonlit mask|link=Moonlit Mask|text=Moonlit Mask|image=Moonlit Mask.png}} (36.0%)<br>{{ItemLink|stablekey=item:aura - soluna 5|link=Nova|text=Nova|image=Nova.png}} (36.0%)<br>{{ItemLink|stablekey=item:weap - 42 - sword of shifted fate|link=Shifted Fate|text=Shifted Fate|image=Shifted Fate.png}} (36.0%)<br>{{ItemLink|stablekey=item:furniture - stone statue platinum soluna|link=Platinum Statue: Soluna|text=Platinum Statue: Soluna|image=Platinum Statue: Soluna.png}} (16.6%)<br>{{ItemLink|stablekey=item:weap - 42 - advisor's sword|link=Advisor's Sword|text=Advisor's Sword|image=Advisor's Sword.png}} (5.8%)<br>{{ItemLink|stablekey=item:weap - 42 - blade of grace|link=Blade of Grace|text=Blade of Grace|image=Blade of Grace.png}} (5.8%)<br>{{ItemLink|stablekey=item:neck - 42 - cosmic barrier|link=Cosmic Barrier|text=Cosmic Barrier|image=Cosmic Barrier.png}} (5.8%)<br>{{ItemLink|stablekey=item:belt - 42 - ellipse cord|link=Ellipse Cord|text=Ellipse Cord|image=Ellipse Cord.png}} (5.8%)<br>{{ItemLink|stablekey=item:ring - 42 - halo of twin skies|link=Halo of Twin Skies|text=Halo of Twin Skies|image=Halo of Twin Skies.png}} (5.8%)<br>{{ItemLink|stablekey=item:charm - 42 - interstellar charm|link=Interstellar Charm|text=Interstellar Charm|image=Interstellar Charm.png}} (5.8%)<br>{{ItemLink|stablekey=item:foot - 42 - meteor metal boots|link=Meteor Metal Boots|text=Meteor Metal Boots|image=Meteor Metal Boots.png}} (5.8%)<br>{{ItemLink|stablekey=item:ring - 42 - orbital loop|link=Orbital Loop|text=Orbital Loop|image=Orbital Loop.png}} (5.8%)
 |level=43
 |levelmodmin=0
 |levelmodmax=0
@@ -40,15 +40,15 @@
 |image=[[File:Soluna.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Followers of Good]]
+|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
 |factionChange=
-|zones=[[Soluna's Celestial Plane]]
+|zones={{ZoneLink|stablekey=zone:planeofsoluna|link=Soluna's Celestial Plane|text=Soluna's Celestial Plane}}
 |coordinates=239.5 x 415.9 x 995.7
 |spawnchance=
 |spawntype=
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|Platinum Statue: Soluna}} (13.0%)
+|droprates={{ItemLink|stablekey=item:furniture - stone statue platinum soluna|link=Platinum Statue: Soluna|text=Platinum Statue: Soluna|image=Platinum Statue: Soluna.png}} (13.0%)
 |level=43
 |levelmodmin=0
 |levelmodmax=0

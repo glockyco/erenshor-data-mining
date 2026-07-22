@@ -3,9 +3,9 @@
 |image=[[File:Town Crier.png|thumb]]
 |imagecaption=The town crier in Wickliff, Stowaway's Step
 |type=NPC
-|faction=[[The Citizens of Port Azure]]
-|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
-|zones=[[Port Azure]]<br>[[Stowaway's Step]]
+|faction={{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|factionChange=-20 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>-20 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|zones={{ZoneLink|stablekey=zone:azure|link=Port Azure|text=Port Azure}}<br>{{ZoneLink|stablekey=zone:stowaway|link=Stowaway's Step|text=Stowaway's Step}}
 |coordinates=
 |spawnchance=
 |spawntype=

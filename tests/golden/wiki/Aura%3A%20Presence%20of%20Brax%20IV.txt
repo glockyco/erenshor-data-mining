@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Flame of the Redemption}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - brax 4|link=Flame of the Redemption|text=Flame of the Redemption|image=Flame of the Redemption.png}}
 |source=
 |used_by=
 }}

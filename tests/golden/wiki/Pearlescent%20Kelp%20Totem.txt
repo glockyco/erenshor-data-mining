@@ -3,7 +3,7 @@
 |stablekey=item:hand - 17 - pearlescent depth totem
 |type=
 |vendorsource=
-|source=[[Algaeth Bilgeback]] (14.3%)
+|source={{CharacterLink|stablekey=character:algaeth bilgeflow 1|link=Algaeth Bilgeback|text=Algaeth Bilgeback}} (14.3%)
 |othersource=
 |questsource=
 |relatedquest=

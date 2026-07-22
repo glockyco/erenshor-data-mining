@@ -3,9 +3,9 @@
 |image=[[File:Valao the Holy.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Followers of Good]]
-|factionChange=-15 [[The Solunarian Brotherhood]]
-|zones=[[Soluna's Landing]]
+|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|factionChange=-15 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
+|zones={{ZoneLink|stablekey=zone:soluna|link=Soluna's Landing|text=Soluna's Landing}}
 |coordinates=154.0 x 101.5 x 656.0
 |spawnchance=
 |spawntype=

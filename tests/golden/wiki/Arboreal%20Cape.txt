@@ -3,7 +3,7 @@
 |stablekey=item:back - 30 - arboreal cape
 |type=
 |vendorsource=
-|source=[[Sylvan Giant]] (50.0%)
+|source={{CharacterLink|stablekey=character:sylvan giant|link=Sylvan Giant|text=Sylvan Giant}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

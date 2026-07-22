@@ -3,7 +3,7 @@
 |stablekey=item:head - 12 - shroud of barriers
 |type=
 |vendorsource=
-|source=[[Braxon Fanatic]] (1.7%)
+|source={{CharacterLink|stablekey=character:braxonian fanatic|link=Braxon Fanatic|text=Braxon Fanatic}} (1.7%)
 |othersource=
 |questsource=
 |relatedquest=

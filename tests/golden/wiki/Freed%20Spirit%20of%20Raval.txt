@@ -3,9 +3,9 @@
 |image=[[File:Freed Spirit of Raval.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Followers of Good]]
+|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
 |factionChange=
-|zones=[[Soluna's Landing]]
+|zones={{ZoneLink|stablekey=zone:soluna|link=Soluna's Landing|text=Soluna's Landing}}
 |coordinates=669.2 x 126.8 x 879.7
 |spawnchance=
 |spawntype=Dynamic event spawn
@@ -32,7 +32,7 @@
 |poison=22-54
 |elemental=22-54
 |void=22-54
-|spells={{AbilityLink|Minor Protection}}
+|spells={{AbilityLink|stablekey=spell:all - minor protection|link=Minor Protection|text=Minor Protection|image=Minor Protection.png}}
 }}
 Freed Spirit of Raval will appear in the graveyard behind the big building in the canyon once you defeat [[Raval, The First Paladin]]
 

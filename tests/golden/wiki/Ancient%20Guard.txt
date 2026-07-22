@@ -3,15 +3,15 @@
 |image=[[File:Ancient Guard.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Soluna's Landing]]
+|zones={{ZoneLink|stablekey=zone:soluna|link=Soluna's Landing|text=Soluna's Landing}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Ancient Bone}} (87.1%)<br>{{ItemLink|Lost Faith}} (22.1%)<br>{{ItemLink|Aetheria}} (13.4%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Moonglow Amulet}} (3.5%)<br>{{ItemLink|Stone Statue: Soluna}} (1.2%)<br>{{ItemLink|Wardens of the North}} (1.2%)<br>{{ItemLink|Diamond}} (0.2%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Golden Statue: Soluna}} (0.2%)<br>{{ItemLink|Ruby}} (0.2%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Star Stone}} (0.2%)
+|droprates={{ItemLink|stablekey=item:gen - an ancient bone|link=Ancient Bone|text=Ancient Bone|image=Ancient Bone.png}} (87.1%)<br>{{ItemLink|stablekey=item:gen - lost faith|link=Lost Faith|text=Lost Faith|image=Lost Faith.png}} (22.1%)<br>{{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} (13.4%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:neck - 26 - moonglow amulet|link=Moonglow Amulet|text=Moonglow Amulet|image=Moonglow Amulet.png}} (3.5%)<br>{{ItemLink|stablekey=item:furniture - stone statue soluna|link=Stone Statue: Soluna|text=Stone Statue: Soluna|image=Stone Statue: Soluna.png}} (1.2%)<br>{{ItemLink|stablekey=item:book - wardens of the north|link=Wardens of the North|text=Wardens of the North|image=Wardens of the North.png}} (1.2%)<br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (0.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:furniture - gold statue soluna|link=Golden Statue: Soluna|text=Golden Statue: Soluna|image=Golden Statue: Soluna.png}} (0.2%)<br>{{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} (0.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (0.2%)
 |level=26
 |levelmodmin=0
 |levelmodmax=0

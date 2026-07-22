@@ -3,15 +3,15 @@
 |image=[[File:A Protected Memory.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
-|factionChange=+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Stowaway's Step]]
-|zones=[[Blooming Sepulcher]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|factionChange=+2 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+2 {{FactionLink|stablekey=faction:stowaway|link=The Citizens of Stowaway's Step|text=The Citizens of Stowaway's Step}}
+|zones={{ZoneLink|stablekey=zone:bloomingsepulcher|link=Blooming Sepulcher|text=Blooming Sepulcher}}
 |coordinates=785.2 x 319.5 x 378.5
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Deathgiver}}<br>{{ItemLink|Lifewind}}<br>{{ItemLink|Treewoven Leggings}}
-|droprates={{ItemLink|Lifewind}} (50.0%)<br>{{ItemLink|Deathgiver}} (25.0%)<br>{{ItemLink|Treewoven Leggings}} (25.0%)<br>{{ItemLink|Aetheria}} (11.2%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Bone}} (7.6%)<br>{{ItemLink|Golden Luminstone Ring}} (7.6%)<br>{{ItemLink|Luminstone}} (7.6%)<br>{{ItemLink|Star Stone}} (7.6%)<br>{{ItemLink|Cloth Gloves}} (2.6%)<br>{{ItemLink|Cloth Hood}} (2.6%)<br>{{ItemLink|Cloth Pants}} (2.6%)<br>{{ItemLink|Cloth Shirt}} (2.6%)<br>{{ItemLink|Cloth Shoes}} (2.6%)<br>{{ItemLink|Cloth Sleeves}} (2.6%)
+|guaranteeddrops={{ItemLink|stablekey=item:bow - 30 - deathgiver|link=Deathgiver|text=Deathgiver|image=Deathgiver.png}}<br>{{ItemLink|stablekey=item:back - 30 - lifewind|link=Lifewind|text=Lifewind|image=Lifewind.png}}<br>{{ItemLink|stablekey=item:leg - 30 - treewoven leggings|link=Treewoven Leggings|text=Treewoven Leggings|image=Treewoven Leggings.png}}
+|droprates={{ItemLink|stablekey=item:back - 30 - lifewind|link=Lifewind|text=Lifewind|image=Lifewind.png}} (50.0%)<br>{{ItemLink|stablekey=item:bow - 30 - deathgiver|link=Deathgiver|text=Deathgiver|image=Deathgiver.png}} (25.0%)<br>{{ItemLink|stablekey=item:leg - 30 - treewoven leggings|link=Treewoven Leggings|text=Treewoven Leggings|image=Treewoven Leggings.png}} (25.0%)<br>{{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} (11.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - an ancient bone|link=Ancient Bone|text=Ancient Bone|image=Ancient Bone.png}} (7.6%)<br>{{ItemLink|stablekey=item:ring - 3 - golden luminstone ring|link=Golden Luminstone Ring|text=Golden Luminstone Ring|image=Golden Luminstone Ring.png}} (7.6%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (7.6%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (7.6%)<br>{{ItemLink|stablekey=item:glove - 1 - cloth gloves|link=Cloth Gloves|text=Cloth Gloves|image=Cloth Gloves.png}} (2.6%)<br>{{ItemLink|stablekey=item:head - 1 - cloth hood|link=Cloth Hood|text=Cloth Hood|image=Cloth Hood.png}} (2.6%)<br>{{ItemLink|stablekey=item:leg - 1 - cloth pants|link=Cloth Pants|text=Cloth Pants|image=Cloth Pants.png}} (2.6%)<br>{{ItemLink|stablekey=item:chest - 1 - cloth shirt|link=Cloth Shirt|text=Cloth Shirt|image=Cloth Shirt.png}} (2.6%)<br>{{ItemLink|stablekey=item:foot - 1 - cloth shoes|link=Cloth Shoes|text=Cloth Shoes|image=Cloth Shoes.png}} (2.6%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves|link=Cloth Sleeves|text=Cloth Sleeves|image=Cloth Sleeves.png}} (2.6%)
 |level=30
 |levelmodmin=0
 |levelmodmax=0
@@ -40,15 +40,15 @@
 |image=[[File:A Protected Memory.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
-|factionChange=+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Stowaway's Step]]
-|zones=[[Blooming Sepulcher]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|factionChange=+2 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+2 {{FactionLink|stablekey=faction:stowaway|link=The Citizens of Stowaway's Step|text=The Citizens of Stowaway's Step}}
+|zones={{ZoneLink|stablekey=zone:bloomingsepulcher|link=Blooming Sepulcher|text=Blooming Sepulcher}}
 |coordinates=533.6 x 355.4 x 764.1
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Battlemage Sleeves}}<br>{{ItemLink|Belt of Ages}}<br>{{ItemLink|Windblown Boots}}
-|droprates={{ItemLink|Battlemage Sleeves}} (50.0%)<br>{{ItemLink|Belt of Ages}} (25.0%)<br>{{ItemLink|Windblown Boots}} (25.0%)<br>{{ItemLink|Aetheria}} (11.2%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Bone}} (7.6%)<br>{{ItemLink|Golden Luminstone Ring}} (7.6%)<br>{{ItemLink|Luminstone}} (7.6%)<br>{{ItemLink|Star Stone}} (7.6%)<br>{{ItemLink|Cloth Gloves}} (2.6%)<br>{{ItemLink|Cloth Hood}} (2.6%)<br>{{ItemLink|Cloth Pants}} (2.6%)<br>{{ItemLink|Cloth Shirt}} (2.6%)<br>{{ItemLink|Cloth Shoes}} (2.6%)<br>{{ItemLink|Cloth Sleeves}} (2.6%)
+|guaranteeddrops={{ItemLink|stablekey=item:arm - 22 - battlemage sleeves|link=Battlemage Sleeves|text=Battlemage Sleeves|image=Battlemage Sleeves.png}}<br>{{ItemLink|stablekey=item:belt - 25 - belt of ages|link=Belt of Ages|text=Belt of Ages|image=Belt of Ages.png}}<br>{{ItemLink|stablekey=item:foot - 23 - windblown boots|link=Windblown Boots|text=Windblown Boots|image=Windblown Boots.png}}
+|droprates={{ItemLink|stablekey=item:arm - 22 - battlemage sleeves|link=Battlemage Sleeves|text=Battlemage Sleeves|image=Battlemage Sleeves.png}} (50.0%)<br>{{ItemLink|stablekey=item:belt - 25 - belt of ages|link=Belt of Ages|text=Belt of Ages|image=Belt of Ages.png}} (25.0%)<br>{{ItemLink|stablekey=item:foot - 23 - windblown boots|link=Windblown Boots|text=Windblown Boots|image=Windblown Boots.png}} (25.0%)<br>{{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} (11.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - an ancient bone|link=Ancient Bone|text=Ancient Bone|image=Ancient Bone.png}} (7.6%)<br>{{ItemLink|stablekey=item:ring - 3 - golden luminstone ring|link=Golden Luminstone Ring|text=Golden Luminstone Ring|image=Golden Luminstone Ring.png}} (7.6%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (7.6%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (7.6%)<br>{{ItemLink|stablekey=item:glove - 1 - cloth gloves|link=Cloth Gloves|text=Cloth Gloves|image=Cloth Gloves.png}} (2.6%)<br>{{ItemLink|stablekey=item:head - 1 - cloth hood|link=Cloth Hood|text=Cloth Hood|image=Cloth Hood.png}} (2.6%)<br>{{ItemLink|stablekey=item:leg - 1 - cloth pants|link=Cloth Pants|text=Cloth Pants|image=Cloth Pants.png}} (2.6%)<br>{{ItemLink|stablekey=item:chest - 1 - cloth shirt|link=Cloth Shirt|text=Cloth Shirt|image=Cloth Shirt.png}} (2.6%)<br>{{ItemLink|stablekey=item:foot - 1 - cloth shoes|link=Cloth Shoes|text=Cloth Shoes|image=Cloth Shoes.png}} (2.6%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves|link=Cloth Sleeves|text=Cloth Sleeves|image=Cloth Sleeves.png}} (2.6%)
 |level=24
 |levelmodmin=0
 |levelmodmax=0
@@ -77,15 +77,15 @@
 |image=[[File:A Protected Memory.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
-|factionChange=+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Stowaway's Step]]
-|zones=[[Blooming Sepulcher]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|factionChange=+2 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+2 {{FactionLink|stablekey=faction:stowaway|link=The Citizens of Stowaway's Step|text=The Citizens of Stowaway's Step}}
+|zones={{ZoneLink|stablekey=zone:bloomingsepulcher|link=Blooming Sepulcher|text=Blooming Sepulcher}}
 |coordinates=179.5 x 371.2 x 613.3
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Bark Shield}}<br>{{ItemLink|Leaf Bracelet}}<br>{{ItemLink|Lifeloop}}
-|droprates={{ItemLink|Leaf Bracelet}} (50.0%)<br>{{ItemLink|Bark Shield}} (25.0%)<br>{{ItemLink|Lifeloop}} (25.0%)<br>{{ItemLink|Aetheria}} (11.2%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Bone}} (7.6%)<br>{{ItemLink|Golden Luminstone Ring}} (7.6%)<br>{{ItemLink|Luminstone}} (7.6%)<br>{{ItemLink|Star Stone}} (7.6%)<br>{{ItemLink|Cloth Gloves}} (2.6%)<br>{{ItemLink|Cloth Hood}} (2.6%)<br>{{ItemLink|Cloth Pants}} (2.6%)<br>{{ItemLink|Cloth Shirt}} (2.6%)<br>{{ItemLink|Cloth Shoes}} (2.6%)<br>{{ItemLink|Cloth Sleeves}} (2.6%)
+|guaranteeddrops={{ItemLink|stablekey=item:secondary - 19 - bark shield|link=Bark Shield|text=Bark Shield|image=Bark Shield.png}}<br>{{ItemLink|stablekey=item:wrist - 19 - leaf bracelet|link=Leaf Bracelet|text=Leaf Bracelet|image=Leaf Bracelet.png}}<br>{{ItemLink|stablekey=item:ring - 17 - lifeloop|link=Lifeloop|text=Lifeloop|image=Lifeloop.png}}
+|droprates={{ItemLink|stablekey=item:wrist - 19 - leaf bracelet|link=Leaf Bracelet|text=Leaf Bracelet|image=Leaf Bracelet.png}} (50.0%)<br>{{ItemLink|stablekey=item:secondary - 19 - bark shield|link=Bark Shield|text=Bark Shield|image=Bark Shield.png}} (25.0%)<br>{{ItemLink|stablekey=item:ring - 17 - lifeloop|link=Lifeloop|text=Lifeloop|image=Lifeloop.png}} (25.0%)<br>{{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} (11.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - an ancient bone|link=Ancient Bone|text=Ancient Bone|image=Ancient Bone.png}} (7.6%)<br>{{ItemLink|stablekey=item:ring - 3 - golden luminstone ring|link=Golden Luminstone Ring|text=Golden Luminstone Ring|image=Golden Luminstone Ring.png}} (7.6%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (7.6%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (7.6%)<br>{{ItemLink|stablekey=item:glove - 1 - cloth gloves|link=Cloth Gloves|text=Cloth Gloves|image=Cloth Gloves.png}} (2.6%)<br>{{ItemLink|stablekey=item:head - 1 - cloth hood|link=Cloth Hood|text=Cloth Hood|image=Cloth Hood.png}} (2.6%)<br>{{ItemLink|stablekey=item:leg - 1 - cloth pants|link=Cloth Pants|text=Cloth Pants|image=Cloth Pants.png}} (2.6%)<br>{{ItemLink|stablekey=item:chest - 1 - cloth shirt|link=Cloth Shirt|text=Cloth Shirt|image=Cloth Shirt.png}} (2.6%)<br>{{ItemLink|stablekey=item:foot - 1 - cloth shoes|link=Cloth Shoes|text=Cloth Shoes|image=Cloth Shoes.png}} (2.6%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves|link=Cloth Sleeves|text=Cloth Sleeves|image=Cloth Sleeves.png}} (2.6%)
 |level=21
 |levelmodmin=0
 |levelmodmax=0
@@ -106,7 +106,7 @@
 |poison=10-25
 |elemental=10-25
 |void=10-25
-|spells={{AbilityLink|Lesser Lightning}}
+|spells={{AbilityLink|stablekey=spell:none - lightning 1|link=Lesser Lightning|text=Lesser Lightning|image=Lesser Lightning.png}}
 }}
 
 [[Category:Blooming Sepulcher]]

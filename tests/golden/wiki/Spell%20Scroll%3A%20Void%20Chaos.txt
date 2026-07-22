@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - void chaos
 |type=
 |vendorsource=
-|source=[[Solunarian Paladin]] (1.1%)
+|source={{CharacterLink|stablekey=character:solunarian paladin combined|link=Solunarian Paladin|text=Solunarian Paladin}} (1.1%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=
 |sell=
-|taughtspell={{AbilityLink|Void Chaos}}
+|taughtspell={{AbilityLink|stablekey=spell:reav - void chaos|link=Void Chaos|text=Void Chaos|image=Void Chaos.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

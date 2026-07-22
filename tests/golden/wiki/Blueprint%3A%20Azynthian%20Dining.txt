@@ -3,10 +3,10 @@
 |stablekey=item:furniture - azynthi dining blueprint
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Molorai Dockmaster]] (0.8%)<br>[[Molorai Acquirer]] (0.3%)<br>[[Molorai Ancille]] (0.3%)<br>[[Molorai Anointed]] (0.3%)<br>[[Molorai Bloodwarden]] (0.3%)<br>[[Molorai Eldermistress]] (0.3%)<br>[[Molorai Nightmistress]] (0.3%)<br>[[Molorai Outrider]] (0.3%)<br>[[Molorai Truthseeker]] (0.3%)
+|source={{CharacterLink|stablekey=character:molorai dockmaster|link=Molorai Dockmaster|text=Molorai Dockmaster}} (0.8%)<br>{{CharacterLink|stablekey=character:molorai acquirer|link=Molorai Acquirer|text=Molorai Acquirer}} (0.3%)<br>{{CharacterLink|stablekey=character:molorai ancille|link=Molorai Ancille|text=Molorai Ancille}} (0.3%)<br>{{CharacterLink|stablekey=character:molorai anointed|link=Molorai Anointed|text=Molorai Anointed}} (0.3%)<br>{{CharacterLink|stablekey=character:molorai bloodwarden|link=Molorai Bloodwarden|text=Molorai Bloodwarden}} (0.3%)<br>{{CharacterLink|stablekey=character:molorai eldermistress|link=Molorai Eldermistress|text=Molorai Eldermistress}} (0.3%)<br>{{CharacterLink|stablekey=character:molorai nightmistress|link=Molorai Nightmistress|text=Molorai Nightmistress}} (0.3%)<br>{{CharacterLink|stablekey=character:molorai enlightened|link=Molorai Outrider|text=Molorai Outrider}} (0.3%)<br>{{CharacterLink|stablekey=character:molorai enllightened m|link=Molorai Truthseeker|text=Molorai Truthseeker}} (0.3%)<br>{{CharacterLink|stablekey=character:molorai truthseeker|link=Molorai Truthseeker|text=Molorai Truthseeker}} (0.3%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Crafting: Azynthian Dining Room}}
+|relatedquest={{QuestLink|Crafting: Azynthian Dining Room}}<br>{{QuestLink|stablekey=quest:furniture-azynth-dining|link=Crafting: Azynthian Dining Room|text=Crafting: Azynthian Dining Room}}
 |craftsource=
 |componentfor=
 |buy=3500

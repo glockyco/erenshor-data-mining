@@ -3,9 +3,9 @@
 |image=[[File:Braxon Ulrich.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Citizens of Port Azure]]
-|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]<br>-20 [[The Torchbearers of Brax]]
-|zones=[[Port Azure]]
+|faction={{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|factionChange=-20 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>-20 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>-20 {{FactionLink|stablekey=faction:brax|link=The Torchbearers of Brax|text=The Torchbearers of Brax}}
+|zones={{ZoneLink|stablekey=zone:azure|link=Port Azure|text=Port Azure}}
 |coordinates=120.9 x 26.3 x 305.1
 |spawnchance=
 |spawntype=

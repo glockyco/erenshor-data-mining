@@ -3,10 +3,10 @@
 |stablekey=item:gen - pink pteriaped feather
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Pteriaped Chick]] (1.9%)<br>[[Pteriaped Matron]] (1.9%)
+|source={{CharacterLink|stablekey=character:pteriaped chick|link=Pteriaped Chick|text=Pteriaped Chick}} (1.9%)<br>{{CharacterLink|stablekey=character:pteriaped elder|link=Pteriaped Matron|text=Pteriaped Matron}} (1.9%)<br>{{CharacterLink|stablekey=character:pteriaped matron|link=Pteriaped Matron|text=Pteriaped Matron}} (1.9%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Ritual Components}}
+|relatedquest={{QuestLink|Ritual Components}}<br>{{QuestLink|stablekey=quest:ritualcomponents|link=Ritual Components|text=Ritual Components}}
 |craftsource=
 |componentfor=
 |buy=15

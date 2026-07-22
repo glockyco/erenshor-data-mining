@@ -23,7 +23,7 @@
 |is_self_only=
 |is_group_effect=
 |is_applied_to_caster=
-|effects={{AbilityLink|Normal|image=Stance: Normal.png}}
+|effects={{AbilityLink|stablekey=stance:normal|link=Normal|text=Normal|image=Stance: Normal.png}}
 |damage_type=
 |resist_modifier=
 |target_damage=

@@ -5,7 +5,7 @@
 |description=Slow target's attack speed by 110%
 |type=StatusEffect
 |line=Attack_Speed_Debuff
-|classes=[[Windblade]] (35)
+|classes={{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}} (35)
 |required_level=35
 |manacost=1000
 |aggro=55
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Thalassic Paralysis}}
+|source={{ItemLink|stablekey=item:spell scroll - thalassic paralysis|link=Spell Scroll: Thalassic Paralysis|text=Spell Scroll: Thalassic Paralysis|image=Spell Scroll: Thalassic Paralysis.png}}
 |used_by=
 }}

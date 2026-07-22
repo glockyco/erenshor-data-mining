@@ -3,7 +3,7 @@
 |stablekey=item:belt - 28 - flowing blightsilk sash
 |type=
 |vendorsource=
-|source=[[Parzgil]] (33.3%)
+|source={{CharacterLink|stablekey=character:parzgil|link=Parzgil|text=Parzgil}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Worn
 |proc_chance=
 |proc_spell_icon=Flow.png
-|proc_spell_name=[[Flow]]
+|proc_spell_name={{AbilityLink|stablekey=spell:none - flow|link=Flow|text=Flow|image=Flow.png}}
 |proc_spell_level=25
 |proc_spell_duration_ticks=5
 |proc_spell_type=Beneficial

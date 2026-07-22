@@ -2,8 +2,8 @@
 |title=Spell Scroll: Healing
 |stablekey=item:spell scroll - healing
 |type=[[Ability Books|Spell Scroll]]
-|vendorsource=[[Alexander Farland]]
-|source=[[Acceptor]] (3.1%)<br>[[Gasper]] (2.1%)<br>[[Ecclesiarch]] (2.0%)<br>[[Prioress]] (2.0%)<br>[[Acolyte]] (1.7%)
+|vendorsource={{CharacterLink|stablekey=character:alexander farland|link=Alexander Farland|text=Alexander Farland}}
+|source={{CharacterLink|stablekey=character:acceptor|link=Acceptor|text=Acceptor}} (3.1%)<br>{{CharacterLink|stablekey=character:gasper|link=Gasper|text=Gasper}} (2.1%)<br>{{CharacterLink|stablekey=character:ecclesiarch|link=Ecclesiarch|text=Ecclesiarch}} (2.0%)<br>{{CharacterLink|stablekey=character:prioress|link=Prioress|text=Prioress}} (2.0%)<br>{{CharacterLink|stablekey=character:acolyte|link=Acolyte|text=Acolyte}} (1.7%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=1225
 |sell=796
-|taughtspell={{AbilityLink|Healing}}
+|taughtspell={{AbilityLink|stablekey=spell:dru pal - healing|link=Healing|text=Healing|image=Healing.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

@@ -3,15 +3,15 @@
 |image=[[File:Vithean Remains.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
-|factionChange=+2 [[The Blades of Vitheo]]
-|zones=[[Vitheo's Rest]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|factionChange=+2 {{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}
+|zones={{ZoneLink|stablekey=zone:vitheosend|link=Vitheo's Rest|text=Vitheo's Rest}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Vithean Brick}} (6.7%)<ref>If the player is already holding {{ItemLink|Vithean Brick}} in their inventory, another will not drop.</ref>
+|droprates={{ItemLink|stablekey=item:quest - vithean stones|link=Vithean Brick|text=Vithean Brick|image=Vithean Brick.png}} (6.7%)<ref>If the player is already holding {{ItemLink|stablekey=item:quest - vithean stones|link=Vithean Brick|text=Vithean Brick|image=Vithean Brick.png}} in their inventory, another will not drop.</ref>
 |level=21
 |levelmodmin=0
 |levelmodmax=0

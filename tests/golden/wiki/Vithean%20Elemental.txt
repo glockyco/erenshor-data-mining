@@ -3,15 +3,15 @@
 |image=[[File:Vithean Elemental.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Malaroth's Nesting Grounds]]<br>[[The Duskenlight Coast]]
+|zones={{ZoneLink|stablekey=zone:malaroth|link=Malaroth's Nesting Grounds|text=Malaroth's Nesting Grounds}}<br>{{ZoneLink|stablekey=zone:duskenlight|link=The Duskenlight Coast|text=The Duskenlight Coast}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Vithean Ore}} (19.6%)
+|droprates={{ItemLink|stablekey=item:ore - vithean ore|link=Vithean Ore|text=Vithean Ore|image=Vithean Ore.png}} (19.6%)
 |level=8
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=4-10
 |elemental=4-10
 |void=4-10
-|spells={{AbilityLink|Expose Weakness}}
+|spells={{AbilityLink|stablekey=spell:duel - expose weakness|link=Expose Weakness|text=Expose Weakness|image=Expose Weakness.png}}
 }}
 ''{{Main|Enemies}}''
 =Location=

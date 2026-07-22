@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Mana Strand Tunic}}<br>{{ItemLink|Moonlit Mask}}<br>{{ItemLink|Shroud of Nature}}
+|itemswitheffect={{ItemLink|stablekey=item:chest - 42 - mana strand tunic|link=Mana Strand Tunic|text=Mana Strand Tunic|image=Mana Strand Tunic.png}}<br>{{ItemLink|stablekey=item:head - 42 - moonlit mask|link=Moonlit Mask|text=Moonlit Mask|image=Moonlit Mask.png}}<br>{{ItemLink|stablekey=item:back - 42 - shroud of nature|link=Shroud of Nature|text=Shroud of Nature|image=Shroud of Nature.png}}
 |source=
 |used_by=
 }}

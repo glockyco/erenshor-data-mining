@@ -3,7 +3,7 @@
 |stablekey=item:leg - 24 - sivakayan breeches
 |type=
 |vendorsource=
-|source=[[Sivakayan Voidweaver]] (7.4%)<br>[[Sivakayan Devoted]] (4.2%)<br>[[Sivakayan Faithbound]] (2.1%)
+|source={{CharacterLink|stablekey=character:sivakayan voidweaver|link=Sivakayan Voidweaver|text=Sivakayan Voidweaver}} (7.4%)<br>{{CharacterLink|stablekey=character:sivakayan devoted|link=Sivakayan Devoted|text=Sivakayan Devoted}} (4.2%)<br>{{CharacterLink|stablekey=character:sivakayan faithbound|link=Sivakayan Faithbound|text=Sivakayan Faithbound}} (2.1%)
 |othersource=
 |questsource=
 |relatedquest=

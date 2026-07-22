@@ -32,7 +32,7 @@
 |shield_amount=
 |pet_to_summon=
 |status_effect=
-|add_proc={{AbilityLink|Devour}}
+|add_proc={{AbilityLink|stablekey=spell:dru reav - devour|link=Devour|text=Devour}}
 |add_proc_chance=1
 |has_lifetap=
 |lifesteal=1.0
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Tenet of Braxonia}}
+|itemswitheffect={{ItemLink|stablekey=item:neck - 42 - tenet of braxonia|link=Tenet of Braxonia|text=Tenet of Braxonia|image=Tenet of Braxonia.png}}
 |source=
 |used_by=
 }}

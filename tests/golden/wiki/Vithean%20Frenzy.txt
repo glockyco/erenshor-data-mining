@@ -5,7 +5,7 @@
 |description=A large stat buff and bonus chance to hit
 |type=Beneficial
 |line=Vithean_Buff
-|classes=[[Windblade]] (25)
+|classes={{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}} (25)
 |required_level=25
 |manacost=300
 |aggro=
@@ -31,7 +31,7 @@
 |caster_healing=
 |shield_amount=
 |pet_to_summon=
-|status_effect={{AbilityLink|Vithean Frenzy}}
+|status_effect=[[Vithean Frenzy]]
 |add_proc=
 |add_proc_chance=
 |has_lifetap=
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Vithean Quiver}}
-|source={{ItemLink|Spell Scroll: Vithean Frenzy}}
+|itemswitheffect={{ItemLink|stablekey=item:back - 42 - vithean quiver|link=Vithean Quiver|text=Vithean Quiver|image=Vithean Quiver.png}}
+|source={{ItemLink|stablekey=item:spell scroll - vithean frenzy|link=Spell Scroll: Vithean Frenzy|text=Spell Scroll: Vithean Frenzy|image=Spell Scroll: Vithean Frenzy.png}}
 |used_by=
 }}

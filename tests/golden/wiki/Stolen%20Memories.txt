@@ -3,10 +3,10 @@
 |stablekey=item:gen - stolen memories
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Acolyte of Azynthi]] (100.0%)
+|source={{CharacterLink|stablekey=character:acolyte of azynthi|link=Acolyte of Azynthi|text=Acolyte of Azynthi}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|link=Soluna's Celestial Blade{{!}}Soluna's Celestial Blade - Part 2}}
+|relatedquest={{QuestLink|link=Soluna's Celestial Blade{{!}}Soluna's Celestial Blade - Part 2}}<br>{{QuestLink|stablekey=quest:solunascelestialblade1|link=Soluna's Celestial Blade|text=Soluna's Celestial Blade - Part 2}}
 |craftsource=
 |componentfor=
 |buy=

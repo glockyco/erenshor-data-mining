@@ -3,7 +3,7 @@
 |stablekey=item:ring - 29 - ring of visions
 |type=
 |vendorsource=
-|source=[[Spectre]] (2.3%)
+|source={{CharacterLink|stablekey=character:spectre caster|link=Spectre|text=Spectre}} (2.3%)<br>{{CharacterLink|stablekey=character:spectre warrior|link=Spectre|text=Spectre}} (2.3%)
 |othersource=
 |questsource=
 |relatedquest=

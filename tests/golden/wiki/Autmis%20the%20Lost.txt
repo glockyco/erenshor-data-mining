@@ -3,15 +3,15 @@
 |image=[[File:Autmis the Lost.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Willowwatch Ridge]]
+|zones={{ZoneLink|stablekey=zone:willowwatch|link=Willowwatch Ridge|text=Willowwatch Ridge}}
 |coordinates=571.6 x 130.6 x 686.1
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Hilltop Ring}}<br>{{ItemLink|Oread Tunic}}
-|droprates={{ItemLink|Autmis' Note}} (100.0%)<ref>If the player is already holding {{ItemLink|Autmis' Note}} in their inventory, another will not drop.</ref><br>{{ItemLink|Hilltop Ring}} (53.7%)<br>{{ItemLink|Oread Tunic}} (53.7%)<br>{{ItemLink|Bread}} (43.4%)<br>{{ItemLink|Luminstone}} (43.4%)<br>{{ItemLink|Ruby}} (12.9%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref>
+|guaranteeddrops={{ItemLink|stablekey=item:ring - 6 - hilltop ring|link=Hilltop Ring|text=Hilltop Ring|image=Hilltop Ring.png}}<br>{{ItemLink|stablekey=item:chest - 7 - oread tunic|link=Oread Tunic|text=Oread Tunic|image=Oread Tunic.png}}
+|droprates={{ItemLink|stablekey=item:gen - oread note|link=Autmis' Note|text=Autmis' Note|image=Autmis' Note.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - oread note|link=Autmis' Note|text=Autmis' Note|image=Autmis' Note.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:ring - 6 - hilltop ring|link=Hilltop Ring|text=Hilltop Ring|image=Hilltop Ring.png}} (53.7%)<br>{{ItemLink|stablekey=item:chest - 7 - oread tunic|link=Oread Tunic|text=Oread Tunic|image=Oread Tunic.png}} (53.7%)<br>{{ItemLink|stablekey=item:cons - bread|link=Bread|text=Bread|image=Bread.png}} (43.4%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (43.4%)<br>{{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} (12.9%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} in their inventory, another will not drop.</ref>
 |level=7
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=4-8
 |elemental=4-8
 |void=4-8
-|spells={{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Weak Poison}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's touch|link=Brax's Touch|text=Brax's Touch|image=Brax's Touch.png}}<br>{{AbilityLink|stablekey=spell:dru - weak poison|link=Weak Poison|text=Weak Poison|image=Weak Poison.png}}
 }}
 
 [[Category:Bosses]]

@@ -3,7 +3,7 @@
 |stablekey=item:chest - 10 - linked chain
 |type=
 |vendorsource=
-|source=[[Molorai Captain Sigrid]] (10.9%)<br>[[Molorai Veteran]] (1.7%)<br>[[Molorai Militia Warrior]] (1.0%)
+|source={{CharacterLink|stablekey=character:molorai captain sigrid|link=Molorai Captain Sigrid|text=Molorai Captain Sigrid}} (10.9%)<br>{{CharacterLink|stablekey=character:molorai veteran|link=Molorai Veteran|text=Molorai Veteran}} (1.7%)<br>{{CharacterLink|stablekey=character:molorai warrior|link=Molorai Militia Warrior|text=Molorai Militia Warrior}} (1.0%)
 |othersource=
 |questsource=
 |relatedquest=

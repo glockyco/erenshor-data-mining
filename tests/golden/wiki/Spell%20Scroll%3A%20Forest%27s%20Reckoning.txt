@@ -2,7 +2,7 @@
 |title=Spell Scroll: Forest's Reckoning
 |stablekey=item:spell scroll - drudd forest's reckoning
 |type=[[:Category:Ability Books|Spell Scroll]]
-|vendorsource=[[Tiver Banes]]
+|vendorsource={{CharacterLink|stablekey=character:tiver banes|link=Tiver Banes|text=Tiver Banes}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=35000
 |sell=22750
-|taughtspell={{AbilityLink|Forest's Reckoning}}
+|taughtspell={{AbilityLink|stablekey=spell:dru - forest's reckoning|link=Forest's Reckoning|text=Forest's Reckoning|image=Forest's Reckoning.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

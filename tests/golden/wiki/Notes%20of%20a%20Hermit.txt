@@ -3,10 +3,10 @@
 |stablekey=item:gen - notes of a hermit
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[A Hermit]] (100.0%)<br>[[Bommer Olvaro]] (100.0%)<br>[[Liam Olvaro]] (100.0%)
+|source={{CharacterLink|stablekey=character:a hermit|link=A Hermit|text=A Hermit}} (100.0%)<br>{{CharacterLink|stablekey=character:bommer olvaro:windwashed:349.66:32.38:255.53|link=Bommer Olvaro|text=Bommer Olvaro}} (100.0%)<br>{{CharacterLink|stablekey=character:liam olvaro:windwashed:349.73:32.38:251.40|link=Liam Olvaro|text=Liam Olvaro}} (100.0%)
 |othersource=
-|questsource={{QuestLink|A Hermit's Request}}
-|relatedquest={{QuestLink|A Note for C. Pillot}}
+|questsource={{QuestLink|A Hermit's Request}}<br>{{QuestLink|stablekey=quest:a hermit's request|link=A Hermit's Request|text=A Hermit's Request}}
+|relatedquest={{QuestLink|A Note for C. Pillot}}<br>{{QuestLink|stablekey=quest:cpillotmsg|link=A Note for C. Pillot|text=A Note for C. Pillot}}
 |craftsource=
 |componentfor=
 |buy=

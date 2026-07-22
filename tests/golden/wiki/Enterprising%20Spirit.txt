@@ -3,9 +3,9 @@
 |image=[[File:Enterprising Spirit.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Followers of Good]]
+|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
 |factionChange=
-|zones=[[Shivering Step]]
+|zones={{ZoneLink|stablekey=zone:shiveringstep|link=Shivering Step|text=Shivering Step}}
 |coordinates=701.4 x 24.8 x 440.0
 |spawnchance=
 |spawntype=

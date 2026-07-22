@@ -3,7 +3,7 @@
 |stablekey=item:bow - 42 - imperium
 |type=
 |vendorsource=
-|source=[[Soluna]] (36.0%)
+|source={{CharacterLink|stablekey=character:soluna|link=Soluna|text=Soluna}} (36.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=90
 |proc_spell_icon=Impact.png
-|proc_spell_name=[[Impact]]
+|proc_spell_name={{AbilityLink|stablekey=spell:none - impact|link=Impact|text=Impact|image=Impact.png}}
 |proc_spell_level=4
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage
@@ -92,7 +92,7 @@
 |proc_percent_lifesteal=
 |proc_atk_roll_modifier=
 |proc_resonate_chance=
-|proc_add_proc_name={{AbilityLink|Impact}}
+|proc_add_proc_name={{AbilityLink|stablekey=spell:none - impact|link=Impact|text=Impact}}
 |proc_add_proc_chance=90
 |proc_special_descriptor=
 |proc_xp_bonus=

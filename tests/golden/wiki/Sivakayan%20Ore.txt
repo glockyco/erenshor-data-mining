@@ -3,12 +3,12 @@
 |stablekey=item:ore - sivakayan ore
 |type=[[Quest Items|Quest Item]], [[Crafting]]
 |vendorsource=
-|source=[[Candlekeeper]] (40.2%)<br>[[Darkwarden Awxa]] (12.1%)<br>[[Darkwarden Ealdred]] (12.1%)<br>[[Darkwarden Ilyth]] (12.1%)<br>[[Sivakayan Bodyguard]] (12.1%)<br>[[Sivakayan Cleric]] (12.1%)<br>[[Sivakayan Legionnaire]] (12.1%)<br>[[Sivakayan Raider]] (12.1%)<br>[[Sivakayan Spymaster]] (12.1%)<br>[[Sivakayan Templar]] (12.1%)<br>[[Sivakayan Unhallowed]] (12.1%)<br>[[Sivakayan Reaver]] (3.0%)
+|source={{CharacterLink|stablekey=character:candlekeeper|link=Candlekeeper|text=Candlekeeper}} (40.2%)<br>{{CharacterLink|stablekey=character:darkwarden awxa|link=Darkwarden Awxa|text=Darkwarden Awxa}} (12.1%)<br>{{CharacterLink|stablekey=character:darkwarden ealdred|link=Darkwarden Ealdred|text=Darkwarden Ealdred}} (12.1%)<br>{{CharacterLink|stablekey=character:darkwarden ilyth|link=Darkwarden Ilyth|text=Darkwarden Ilyth}} (12.1%)<br>{{CharacterLink|stablekey=character:sivakayan bodyguard|link=Sivakayan Bodyguard|text=Sivakayan Bodyguard}} (12.1%)<br>{{CharacterLink|stablekey=character:sivakayan cleric|link=Sivakayan Cleric|text=Sivakayan Cleric}} (12.1%)<br>{{CharacterLink|stablekey=character:sivakayan cleric:1|link=Sivakayan Cleric|text=Sivakayan Cleric}} (12.1%)<br>{{CharacterLink|stablekey=character:sivakayan legionairre|link=Sivakayan Legionnaire|text=Sivakayan Legionnaire}} (12.1%)<br>{{CharacterLink|stablekey=character:sivakayan raider|link=Sivakayan Raider|text=Sivakayan Raider}} (12.1%)<br>{{CharacterLink|stablekey=character:sivakayan raider:1|link=Sivakayan Raider|text=Sivakayan Raider}} (12.1%)<br>{{CharacterLink|stablekey=character:sivakayan spymaster|link=Sivakayan Spymaster|text=Sivakayan Spymaster}} (12.1%)<br>{{CharacterLink|stablekey=character:sivakayan templar|link=Sivakayan Templar|text=Sivakayan Templar}} (12.1%)<br>{{CharacterLink|stablekey=character:sivakayan unhallowed|link=Sivakayan Unhallowed|text=Sivakayan Unhallowed}} (12.1%)<br>{{CharacterLink|stablekey=character:sivakayan reaver|link=Sivakayan Reaver|text=Sivakayan Reaver}} (3.0%)<br>{{CharacterLink|stablekey=character:sivakayan reaver:1|link=Sivakayan Reaver|text=Sivakayan Reaver}} (3.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Sivakayan Ore for Tipp}}
+|relatedquest={{QuestLink|Sivakayan Ore for Tipp}}<br>{{QuestLink|stablekey=quest:sivakayanore|link=Sivakayan Ore for Tipp|text=Sivakayan Ore for Tipp}}
 |craftsource=
-|componentfor={{ItemLink|Mold: A Strange Figurine}}<br>{{ItemLink|Mold: Charm of Rage}}
+|componentfor={{ItemLink|stablekey=item:template - a strange figurine|link=Mold: A Strange Figurine|text=Mold: A Strange Figurine|image=Mold: A Strange Figurine.png}}<br>{{ItemLink|stablekey=item:template - charm of rage|link=Mold: Charm of Rage|text=Mold: Charm of Rage|image=Mold: Charm of Rage.png}}
 |buy=150
 |sell=98
 |taughtspell=

@@ -2,7 +2,7 @@
 |title=Skill Book: Defensive Stance
 |stablekey=item:skillbook - stance - defensive
 |type=
-|vendorsource=[[Xander Zaxtrough]]<br>[[Zane Theavale]]
+|vendorsource={{CharacterLink|stablekey=character:xander zaxtrough|link=Xander Zaxtrough|text=Xander Zaxtrough}}<br>{{CharacterLink|stablekey=character:zane theavale|link=Zane Theavale|text=Zane Theavale}}
 |source=
 |othersource=
 |questsource=
@@ -12,7 +12,7 @@
 |buy=100
 |sell=65
 |taughtspell=
-|taughtskill={{AbilityLink|Stance: Defensive}}
+|taughtskill={{AbilityLink|stablekey=skill:stance - defensive|link=Stance: Defensive|text=Stance: Defensive|image=Stance: Defensive.png}}
 |guaranteeddrops=
 |droprates=
 }}

@@ -5,7 +5,7 @@
 |description=Immobilize a target for a short time.
 |type=StatusEffect
 |line=Global_Root
-|classes=[[Druid]] (8)
+|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (8)
 |required_level=8
 |manacost=50
 |aggro=100
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|A Grassland Sap Necklace}}<br>{{ItemLink|Bramblecull}}<br>{{ItemLink|Ring of the Sky}}
-|source={{ItemLink|Spell Scroll: Tangle}}
-|used_by=[[A Grassland Ogre Mystic]]<br>[[A Grassland Ogre Shaman]]<br>[[Agsha of the Soil]]<br>[[Aquilamar Blade]]<br>[[Aquilamar Duelist]]<br>[[Aquilamar Protector]]<br>[[Aquilamar Rake]]<br>[[Bloom Preserver]]<br>[[Botanist]]<br>[[Dusken Giant]]<br>[[Ghost of Wyland Sercher]]<br>[[Greater Fawn]]<br>[[Lost Soul]]<br>[[Massia the Fallen]]<br>[[Plunkey]]<br>[[Risen Druid]]<br>[[Sylvan Giant]]<br>[[Sylvan Giant Runt]]<br>[[The Gardener of Loomingwood]]<br>[[Undertoes]]<br>[[Wiggleribs]]<br>[[Wild Ogre]]
+|itemswitheffect={{ItemLink|stablekey=item:neck - 9 - ogre tooth necklace|link=A Grassland Sap Necklace|text=A Grassland Sap Necklace|image=A Grassland Sap Necklace.png}}<br>{{ItemLink|stablekey=item:weap - 38 - bramblecull|link=Bramblecull|text=Bramblecull|image=Bramblecull.png}}<br>{{ItemLink|stablekey=item:ring - 7 - ring of the sky|link=Ring of the Sky|text=Ring of the Sky|image=Ring of the Sky.png}}
+|source={{ItemLink|stablekey=item:spell scroll - tangle|link=Spell Scroll: Tangle|text=Spell Scroll: Tangle|image=Spell Scroll: Tangle.png}}
+|used_by={{CharacterLink|stablekey=character:grassland ogre elder shaman|link=A Grassland Ogre Mystic|text=A Grassland Ogre Mystic}}<br>{{CharacterLink|stablekey=character:grassland ogre shaman|link=A Grassland Ogre Shaman|text=A Grassland Ogre Shaman}}<br>{{CharacterLink|stablekey=character:agsha of the soil|link=Agsha of the Soil|text=Agsha of the Soil}}<br>{{CharacterLink|stablekey=character:aqualimar blade|link=Aquilamar Blade|text=Aquilamar Blade}}<br>{{CharacterLink|stablekey=character:aquilamar duelist|link=Aquilamar Duelist|text=Aquilamar Duelist}}<br>{{CharacterLink|stablekey=character:aqualimar protector|link=Aquilamar Protector|text=Aquilamar Protector}}<br>{{CharacterLink|stablekey=character:aquilamar rake|link=Aquilamar Rake|text=Aquilamar Rake}}<br>{{CharacterLink|stablekey=character:bloom preserver|link=Bloom Preserver|text=Bloom Preserver}}<br>{{CharacterLink|stablekey=character:botanist|link=Botanist|text=Botanist}}<br>{{CharacterLink|stablekey=character:dusken giant|link=Dusken Giant|text=Dusken Giant}}<br>{{CharacterLink|stablekey=character:ghost of wylan sercher|link=Ghost of Wyland Sercher|text=Ghost of Wyland Sercher}}<br>{{CharacterLink|stablekey=character:greater fawn|link=Greater Fawn|text=Greater Fawn}}<br>{{CharacterLink|stablekey=character:lost soul|link=Lost Soul|text=Lost Soul}}<br>{{CharacterLink|stablekey=character:massia the felled|link=Massia the Fallen|text=Massia the Fallen}}<br>{{CharacterLink|stablekey=character:plunkey|link=Plunkey|text=Plunkey}}<br>{{CharacterLink|stablekey=character:risen druid|link=Risen Druid|text=Risen Druid}}<br>{{CharacterLink|stablekey=character:sylvan giant|link=Sylvan Giant|text=Sylvan Giant}}<br>{{CharacterLink|stablekey=character:sylvan giant runt|link=Sylvan Giant Runt|text=Sylvan Giant Runt}}<br>{{CharacterLink|stablekey=character:gardener|link=The Gardener of Loomingwood|text=The Gardener of Loomingwood}}<br>{{CharacterLink|stablekey=character:undertow|link=Undertoes|text=Undertoes}}<br>{{CharacterLink|stablekey=character:wiggleribs|link=Wiggleribs|text=Wiggleribs}}<br>{{CharacterLink|stablekey=character:wild ogre|link=Wild Ogre|text=Wild Ogre}}
 }}

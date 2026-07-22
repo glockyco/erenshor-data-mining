@@ -3,7 +3,7 @@
 |stablekey=item:foot - 27 - shadowstep shoes
 |type=
 |vendorsource=
-|source=[[Noctua]] (66.7%)
+|source={{CharacterLink|stablekey=character:noctua|link=Noctua|text=Noctua}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=

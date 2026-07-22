@@ -2,8 +2,8 @@
 |title=Monarch of Flame
 |stablekey=item:quest - game piece monarch of flame
 |type=[[:Category:Items|Summoning Item]]
-|vendorsource=[[Elysia Thistlewick]]
-|source=[[Hand of the King]] (4.4%)
+|vendorsource={{CharacterLink|stablekey=character:shady merchant|link=Elysia Thistlewick|text=Elysia Thistlewick}}
+|source={{CharacterLink|stablekey=character:kingsman 1|link=Hand of the King|text=Hand of the King}} (4.4%)
 |othersource=
 |questsource=
 |relatedquest=

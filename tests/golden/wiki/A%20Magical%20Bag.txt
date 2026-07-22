@@ -2,7 +2,7 @@
 |title=A Magical Bag
 |stablekey=item:gen - magical bag
 |type=Activatable
-|vendorsource=[[Elysia Thistlewick]]
+|vendorsource={{CharacterLink|stablekey=character:shady merchant|link=Elysia Thistlewick|text=Elysia Thistlewick}}
 |source=
 |othersource=
 |questsource=
@@ -28,7 +28,7 @@ Allows access to the [[Bank]] when used. It has unlimited uses.
 |disposable=
 |effect_style=Activatable
 |effect_spell_icon=Access Bank.png
-|effect_spell_name=[[Access Bank]]
+|effect_spell_name={{AbilityLink|stablekey=spell:none - summon butler|link=Access Bank|text=Access Bank|image=Access Bank.png}}
 |effect_spell_level=35
 |effect_spell_duration_ticks=
 |effect_spell_type=Misc

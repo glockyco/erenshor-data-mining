@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Cryptid Claws}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 36 - cryptid claws|link=Cryptid Claws|text=Cryptid Claws|image=Cryptid Claws.png}}
 |source=
 |used_by=
 }}

@@ -3,9 +3,9 @@
 |image=[[File:Beth Constantine.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Citizens of Erenshor]]
-|factionChange=-15 [[The Citizens of Erenshor]]
-|zones=[[Soluna's Landing]]
+|faction={{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}
+|factionChange=-15 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}
+|zones={{ZoneLink|stablekey=zone:soluna|link=Soluna's Landing|text=Soluna's Landing}}
 |coordinates=243.1 x 100.0 x 421.1
 |spawnchance=
 |spawntype=

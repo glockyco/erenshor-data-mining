@@ -5,7 +5,7 @@
 |description=Heal 45 damage per tick, over time
 |type=Heal
 |line=Healing
-|classes=[[Druid]] (11)
+|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (11)
 |required_level=11
 |manacost=150
 |aggro=
@@ -31,7 +31,7 @@
 |caster_healing=
 |shield_amount=
 |pet_to_summon=
-|status_effect={{AbilityLink|Regrowth}}
+|status_effect=[[Regrowth]]
 |add_proc=
 |add_proc_chance=
 |has_lifetap=
@@ -66,8 +66,8 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Regrowth}}
-|used_by=[[Blighted Priest]]<br>[[Braxon Fanatic]]<br>[[Braxon Prospect]]<br>[[Fenton the Blighted]]
+|source={{ItemLink|stablekey=item:spell scroll - regrowth|link=Spell Scroll: Regrowth|text=Spell Scroll: Regrowth|image=Spell Scroll: Regrowth.png}}
+|used_by={{CharacterLink|stablekey=character:blight priest|link=Blighted Priest|text=Blighted Priest}}<br>{{CharacterLink|stablekey=character:braxonian fanatic|link=Braxon Fanatic|text=Braxon Fanatic}}<br>{{CharacterLink|stablekey=character:braxonian prospect|link=Braxon Prospect|text=Braxon Prospect}}<br>{{CharacterLink|stablekey=character:fenton the blighted|link=Fenton the Blighted|text=Fenton the Blighted}}
 }}
 
 {{Ability
@@ -137,7 +137,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Arachnid Carapace}}<br>{{ItemLink|Shard of Infinity}}
+|itemswitheffect={{ItemLink|stablekey=item:chest - 42 - arachnid carapace|link=Arachnid Carapace|text=Arachnid Carapace|image=Arachnid Carapace.png}}<br>{{ItemLink|stablekey=item:secondary - 42 - shard of infinity|link=Shard of Infinity|text=Shard of Infinity|image=Shard of Infinity.png}}
 |source=
 |used_by=
 }}

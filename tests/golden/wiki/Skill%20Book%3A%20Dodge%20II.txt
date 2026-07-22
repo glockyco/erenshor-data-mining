@@ -2,7 +2,7 @@
 |title=Skill Book: Dodge II
 |stablekey=item:skillbook - dodge 2
 |type=[[Ability Books|Skill Book]]
-|vendorsource=[[Roreli Gilmare]]
+|vendorsource={{CharacterLink|stablekey=character:roreli gilmare:azure:143.76:26.28:342.76|link=Roreli Gilmare|text=Roreli Gilmare}}
 |source=
 |othersource=
 |questsource=
@@ -12,7 +12,7 @@
 |buy=1100
 |sell=715
 |taughtspell=
-|taughtskill={{AbilityLink|Dodge II}}
+|taughtskill={{AbilityLink|stablekey=skill:dodge 2|link=Dodge II|text=Dodge II|image=Dodge II.png}}
 |guaranteeddrops=
 |droprates=
 }}

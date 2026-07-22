@@ -3,10 +3,10 @@
 |stablekey=item:gen - heart of astra
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Astra, Rogue of the Stars]] (100.0%)
+|source={{CharacterLink|stablekey=character:astral_ guardian of stars|link=Astra, Rogue of the Stars|text=Astra, Rogue of the Stars}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Raval's Last Wish}}
+|relatedquest={{QuestLink|Raval's Last Wish}}<br>{{QuestLink|stablekey=quest:ravalwish|link=Raval's Last Wish|text=Raval's Last Wish}}
 |craftsource=
 |componentfor=
 |buy=

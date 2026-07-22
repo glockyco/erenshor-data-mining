@@ -3,7 +3,7 @@
 |stablekey=item:neck - 7 - decayed amulet
 |type=
 |vendorsource=
-|source=[[An Apparition of Sivakaya]] (25.0%)<br>[[Risen Druid]] (2.9%)
+|source={{CharacterLink|stablekey=character:an apparation of sivakaya|link=An Apparition of Sivakaya|text=An Apparition of Sivakaya}} (25.0%)<br>{{CharacterLink|stablekey=character:risen druid|link=Risen Druid|text=Risen Druid}} (2.9%)
 |othersource=
 |questsource=
 |relatedquest=

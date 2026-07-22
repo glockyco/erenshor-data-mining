@@ -3,7 +3,7 @@
 |stablekey=item:head - 27 - jackal hood
 |type=
 |vendorsource=
-|source=[[Lupine Horror]] (66.7%)
+|source={{CharacterLink|stablekey=character:james|link=Lupine Horror|text=Lupine Horror}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=

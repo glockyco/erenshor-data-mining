@@ -3,7 +3,7 @@
 |stablekey=item:head - 17 - chewed helmet
 |type=
 |vendorsource=
-|source=[[Lurk]] (33.3%)
+|source={{CharacterLink|stablekey=character:lurk|link=Lurk|text=Lurk}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

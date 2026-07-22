@@ -3,7 +3,7 @@
 |stablekey=item:ring - 28 - ring of the old faith
 |type=
 |vendorsource=
-|source=[[Darkwarden Awxa]] (66.7%)
+|source={{CharacterLink|stablekey=character:darkwarden awxa|link=Darkwarden Awxa|text=Darkwarden Awxa}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=

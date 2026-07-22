@@ -3,7 +3,7 @@
 |stablekey=item:neck - 18 - brute's collar
 |type=
 |vendorsource=
-|source=[[Goliath]] (20.0%)
+|source={{CharacterLink|stablekey=character:goliath|link=Goliath|text=Goliath}} (20.0%)
 |othersource=
 |questsource=
 |relatedquest=

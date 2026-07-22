@@ -5,7 +5,7 @@
 |description=Kick an enemy. Interrupts target's spells.
 |type=Attack
 |line=
-|classes=[[Paladin]] (1)<br>[[Reaver]] (2)<br>[[Stormcaller]] (5)<br>[[Windblade]] (3)
+|classes={{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}} (1)<br>{{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}} (2)<br>{{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}} (5)<br>{{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}} (3)
 |required_level=
 |manacost=
 |aggro=
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Skill Book: Kick}}
+|source={{ItemLink|stablekey=item:skillbook - kick|link=Skill Book: Kick|text=Skill Book: Kick|image=Skill Book: Kick.png}}
 |used_by=
 }}

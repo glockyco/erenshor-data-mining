@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - expose weakness
 |type=[[Ability Books]]
 |vendorsource=
-|source=[[Rottenfoot Swampwalker]] (4.6%)<br>[[Rottenfoot Swampwalker]] (3.5%)<br>[[Rottenfoot Witchdoctor]] (3.5%)<br>[[Tek-Nu Dah]] (3.5%)
+|source={{CharacterLink|stablekey=character:a rottenfoot goblin female|link=Rottenfoot Swampwalker|text=Rottenfoot Swampwalker}} (4.6%)<br>{{CharacterLink|stablekey=character:a rottenfoot goblin male|link=Rottenfoot Swampwalker|text=Rottenfoot Swampwalker}} (3.5%)<br>{{CharacterLink|stablekey=character:a rottenfoot goblin spiritcaller|link=Rottenfoot Witchdoctor|text=Rottenfoot Witchdoctor}} (3.5%)<br>{{CharacterLink|stablekey=character:tal-nah lo|link=Tek-Nu Dah|text=Tek-Nu Dah}} (3.5%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=200
 |sell=130
-|taughtspell={{AbilityLink|Expose Weakness}}
+|taughtspell={{AbilityLink|stablekey=spell:duel - expose weakness|link=Expose Weakness|text=Expose Weakness|image=Expose Weakness.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

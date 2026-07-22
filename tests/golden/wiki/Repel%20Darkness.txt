@@ -66,7 +66,7 @@ Clears the fog in [[The Blight]].
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Voidblessed Compass}}
+|itemswitheffect={{ItemLink|stablekey=item:gen - voidbound compass|link=Voidblessed Compass|text=Voidblessed Compass|image=Voidblessed Compass.png}}
 |source=
 |used_by=
 }}

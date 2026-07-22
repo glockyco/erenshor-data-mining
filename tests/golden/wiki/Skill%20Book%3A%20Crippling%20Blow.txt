@@ -3,7 +3,7 @@
 |stablekey=item:skillbook - crippling blow
 |type=[[Ability Books|Skill Book]]
 |vendorsource=
-|source=[[Assassin of Sivakaya]] (100.0%)
+|source={{CharacterLink|stablekey=character:duelist of sivakaya|link=Assassin of Sivakaya|text=Assassin of Sivakaya}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -12,7 +12,7 @@
 |buy=55000
 |sell=35750
 |taughtspell=
-|taughtskill={{AbilityLink|Crippling Blow}}
+|taughtskill={{AbilityLink|stablekey=skill:crippling blow|link=Crippling Blow|text=Crippling Blow|image=Crippling Blow.png}}
 |guaranteeddrops=
 |droprates=
 }}

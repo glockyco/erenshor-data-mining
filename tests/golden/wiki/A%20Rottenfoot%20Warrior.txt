@@ -3,15 +3,15 @@
 |image=[[File:A Rottenfoot Warrior.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
-|factionChange=+1 [[The Blades of Vitheo]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]
-|zones=[[Fernalla's Revival Plains]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|factionChange=+1 {{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|zones={{ZoneLink|stablekey=zone:fernallafield|link=Fernalla's Revival Plains|text=Fernalla's Revival Plains}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=4-5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Coral}} (51.4%)<br>{{ItemLink|Sea Glass}} (51.4%)<br>{{ItemLink|Seaweed}} (51.4%)<br>{{ItemLink|A Husselfish}} (15.7%)<br>{{ItemLink|A Worm Eel}} (15.7%)<br>{{ItemLink|Rottenfoot Sash}} (15.7%)<br>{{ItemLink|Petrified Club}} (4.4%)<ref>If A Rottenfoot Warrior has {{ItemLink|Petrified Club}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Runewoven Bracer}} (4.4%)
+|droprates={{ItemLink|stablekey=item:gen - a coral|link=Coral|text=Coral|image=Coral.png}} (51.4%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (51.4%)<br>{{ItemLink|stablekey=item:gen - seaweed|link=Seaweed|text=Seaweed|image=Seaweed.png}} (51.4%)<br>{{ItemLink|stablekey=item:fish - husselfish|link=A Husselfish|text=A Husselfish|image=A Husselfish.png}} (15.7%)<br>{{ItemLink|stablekey=item:fish - a worm eel|link=A Worm Eel|text=A Worm Eel|image=A Worm Eel.png}} (15.7%)<br>{{ItemLink|stablekey=item:belt - 10 - rottenfoot sash|link=Rottenfoot Sash|text=Rottenfoot Sash|image=Rottenfoot Sash.png}} (15.7%)<br>{{ItemLink|stablekey=item:weap - 9 - a petrified club|link=Petrified Club|text=Petrified Club|image=Petrified Club.png}} (4.4%)<ref>If A Rottenfoot Warrior has {{ItemLink|stablekey=item:weap - 9 - a petrified club|link=Petrified Club|text=Petrified Club|image=Petrified Club.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:wrist - 8 - runewoven bracer|link=Runewoven Bracer|text=Runewoven Bracer|image=Runewoven Bracer.png}} (4.4%)
 |level=10
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=5-12
 |elemental=5-12
 |void=5-12
-|spells={{AbilityLink|Death's Embrace}}<br>{{AbilityLink|Minor Healing}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Theft of Life}}<br>{{AbilityLink|Vitheo's Blessing of the Sea}}
+|spells={{AbilityLink|stablekey=spell:duel - deathly embrace|link=Death's Embrace|text=Death's Embrace|image=Death's Embrace.png}}<br>{{AbilityLink|stablekey=spell:dru pal - minor healing|link=Minor Healing|text=Minor Healing|image=Minor Healing.png}}<br>{{AbilityLink|stablekey=spell:all - minor protection|link=Minor Protection|text=Minor Protection|image=Minor Protection.png}}<br>{{AbilityLink|stablekey=spell:dru duel - minor regen|link=Minor Regeneration|text=Minor Regeneration|image=Minor Regeneration.png}}<br>{{AbilityLink|stablekey=spell:dru reav - theft of life|link=Theft of Life|text=Theft of Life|image=Theft of Life.png}}<br>{{AbilityLink|stablekey=spell:duel - vitheo's blessing of the sea|link=Vitheo's Blessing of the Sea|text=Vitheo's Blessing of the Sea|image=Vitheo's Blessing of the Sea.png}}
 }}
 
 [[Category:Enemies]]

@@ -11,7 +11,7 @@
 |componentfor=
 |buy=1225
 |sell=796
-|taughtspell={{AbilityLink|Protection}}
+|taughtspell={{AbilityLink|stablekey=spell:all - protection|link=Protection|text=Protection|image=Protection.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

@@ -3,7 +3,7 @@
 |stablekey=item:bow - 13 - seastring
 |type=
 |vendorsource=
-|source=[[Greater Vithean Elemental]] (33.3%)
+|source={{CharacterLink|stablekey=character:greater vithean elemental|link=Greater Vithean Elemental|text=Greater Vithean Elemental}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

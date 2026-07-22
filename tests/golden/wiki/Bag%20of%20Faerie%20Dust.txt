@@ -3,12 +3,12 @@
 |stablekey=item:gen - faerie dust
 |type=[[Crafting]], [[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[A Faerie Drone]] (7.7%)<br>[[A Faerie Enchantress]] (4.5%)<br>[[A Faerie Foliagian]] (4.5%)<br>[[A Faerie Windchild]] (4.5%)<br>[[Tinkles]] (4.0%)<br>[[Winkles]] (1.8%)
+|source={{CharacterLink|stablekey=character:faerie drone|link=A Faerie Drone|text=A Faerie Drone}} (7.7%)<br>{{CharacterLink|stablekey=character:faerie enchantress|link=A Faerie Enchantress|text=A Faerie Enchantress}} (4.5%)<br>{{CharacterLink|stablekey=character:faerie foliagian|link=A Faerie Foliagian|text=A Faerie Foliagian}} (4.5%)<br>{{CharacterLink|stablekey=character:faerie windchild|link=A Faerie Windchild|text=A Faerie Windchild}} (4.5%)<br>{{CharacterLink|stablekey=character:tinkles|link=Tinkles|text=Tinkles}} (4.0%)<br>{{CharacterLink|stablekey=character:winkles|link=Winkles|text=Winkles}} (1.8%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Faerie Dust for Nylith Valorro}}<br>{{QuestLink|The Revival Plains Ritual}}
+|relatedquest={{QuestLink|Faerie Dust for Nylith Valorro}}<br>{{QuestLink|The Revival Plains Ritual}}<br>{{QuestLink|stablekey=quest:faerie dust for nylith valarro|link=Faerie Dust for Nylith Valorro|text=Faerie Dust for Nylith Valorro}}<br>{{QuestLink|stablekey=quest:therevivalritual|link=The Revival Plains Ritual|text=The Revival Plains Ritual}}
 |craftsource=
-|componentfor={{ItemLink|Mold: Charm of the Jester}}
+|componentfor={{ItemLink|stablekey=item:template - charm of the jester|link=Mold: Charm of the Jester|text=Mold: Charm of the Jester|image=Mold: Charm of the Jester.png}}
 |buy=65
 |sell=42
 |taughtspell=

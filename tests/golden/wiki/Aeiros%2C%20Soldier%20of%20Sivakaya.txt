@@ -3,15 +3,15 @@
 |image=[[File:Aeiros, Soldier of Sivakaya.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Jaws of Sivakaya]]
+|zones={{ZoneLink|stablekey=zone:jaws|link=Jaws of Sivakaya|text=Jaws of Sivakaya}}
 |coordinates=1443.3 x -19.5 x 110.1
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Creationist's Legwrap}}<br>{{ItemLink|Horn of Aeiros}}
-|droprates={{ItemLink|Creationist's Legwrap}} (50.0%)<br>{{ItemLink|Horn of Aeiros}} (50.0%)<br>{{ItemLink|Chapters of Descent, Passage 5}} (2.7%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 5}} in their inventory, another will not drop.</ref><br>{{ItemLink|Chapters of Descent, Passage 6}} (2.7%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 6}} in their inventory, another will not drop.</ref><br>{{ItemLink|Chapters of Descent, Passage 7}} (2.7%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 7}} in their inventory, another will not drop.</ref><br>{{ItemLink|Chapters of Descent, Passage 8}} (2.7%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 8}} in their inventory, another will not drop.</ref><br>{{ItemLink|The Faceless}} (2.7%)
+|guaranteeddrops={{ItemLink|stablekey=item:leg - 38 - creationist's wrap|link=Creationist's Legwrap|text=Creationist's Legwrap|image=Creationist's Legwrap.png}}<br>{{ItemLink|stablekey=item:weap - 39 - horn of aeiros|link=Horn of Aeiros|text=Horn of Aeiros|image=Horn of Aeiros.png}}
+|droprates={{ItemLink|stablekey=item:leg - 38 - creationist's wrap|link=Creationist's Legwrap|text=Creationist's Legwrap|image=Creationist's Legwrap.png}} (50.0%)<br>{{ItemLink|stablekey=item:weap - 39 - horn of aeiros|link=Horn of Aeiros|text=Horn of Aeiros|image=Horn of Aeiros.png}} (50.0%)<br>{{ItemLink|stablekey=item:gen - cod - pg 5|link=Chapters of Descent, Passage 5|text=Chapters of Descent, Passage 5|image=Chapters of Descent, Passage 5.png}} (2.7%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - cod - pg 5|link=Chapters of Descent, Passage 5|text=Chapters of Descent, Passage 5|image=Chapters of Descent, Passage 5.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - cod - pg 6|link=Chapters of Descent, Passage 6|text=Chapters of Descent, Passage 6|image=Chapters of Descent, Passage 6.png}} (2.7%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - cod - pg 6|link=Chapters of Descent, Passage 6|text=Chapters of Descent, Passage 6|image=Chapters of Descent, Passage 6.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - cod - pg 7|link=Chapters of Descent, Passage 7|text=Chapters of Descent, Passage 7|image=Chapters of Descent, Passage 7.png}} (2.7%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - cod - pg 7|link=Chapters of Descent, Passage 7|text=Chapters of Descent, Passage 7|image=Chapters of Descent, Passage 7.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - cod - pg 8|link=Chapters of Descent, Passage 8|text=Chapters of Descent, Passage 8|image=Chapters of Descent, Passage 8.png}} (2.7%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - cod - pg 8|link=Chapters of Descent, Passage 8|text=Chapters of Descent, Passage 8|image=Chapters of Descent, Passage 8.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:quest - game piece the faceless sivakayan|link=The Faceless|text=The Faceless|image=The Faceless.png}} (2.7%)
 |level=39
 |levelmodmin=0
 |levelmodmax=0

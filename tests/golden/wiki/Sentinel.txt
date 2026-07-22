@@ -3,15 +3,15 @@
 |image=[[File:Sentinel.png|thumb]]
 |imagecaption=Eye see you..
 |type=Enemy
-|faction=[[The Followers of Evil]]
-|factionChange=+2 [[Fernalla's Children]]<br>+2 [[The Torchbearers of Brax]]
-|zones=[[The Blight]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|factionChange=+2 {{FactionLink|stablekey=faction:fernalla|link=Fernalla's Children|text=Fernalla's Children}}<br>+2 {{FactionLink|stablekey=faction:brax|link=The Torchbearers of Brax|text=The Torchbearers of Brax}}
+|zones={{ZoneLink|stablekey=zone:blight|link=The Blight|text=The Blight}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Ancient Pottery Shard}} (13.9%)<br>{{ItemLink|Blight Crystals}} (13.9%)
+|droprates={{ItemLink|stablekey=item:gen - ancient pottery shard|link=Ancient Pottery Shard|text=Ancient Pottery Shard|image=Ancient Pottery Shard.png}} (13.9%)<br>{{ItemLink|stablekey=item:gen - blightsand|link=Blight Crystals|text=Blight Crystals|image=Blight Crystals.png}} (13.9%)
 |level=25
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=12-30
 |elemental=12-30
 |void=12-30
-|spells={{AbilityLink|Death Stare}}<br>{{AbilityLink|Morbidity's Grasp}}
+|spells={{AbilityLink|stablekey=spell:none - deathstare|link=Death Stare|text=Death Stare|image=Death Stare.png}}<br>{{AbilityLink|stablekey=spell:dru - morbidity's grasp|link=Morbidity's Grasp|text=Morbidity's Grasp|image=Morbidity's Grasp.png}}
 }}
 
 [[Category:Enemies]]

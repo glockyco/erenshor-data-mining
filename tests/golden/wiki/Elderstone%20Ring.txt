@@ -3,7 +3,7 @@
 |stablekey=item:ring - 17 - elderstone ring
 |type=
 |vendorsource=
-|source=[[Slumbering Queen]] (52.2%)
+|source={{CharacterLink|stablekey=character:fungal queen|link=Slumbering Queen|text=Slumbering Queen}} (52.2%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,8 +2,8 @@
 |title=Spell Scroll: Sleep
 |stablekey=item:spell scroll - sleep
 |type=[[Ability Books]]
-|vendorsource=[[Cerbantias Flameward]]
-|source=[[A Deepling Crimsonite]] (2.8%)<br>[[Braxon Fanatic]] (2.8%)<br>[[A Deepling Orator]] (1.9%)
+|vendorsource={{CharacterLink|stablekey=character:cerbantias flameward|link=Cerbantias Flameward|text=Cerbantias Flameward}}
+|source={{CharacterLink|stablekey=character:a deepling crimsonite|link=A Deepling Crimsonite|text=A Deepling Crimsonite}} (2.8%)<br>{{CharacterLink|stablekey=character:braxonian fanatic|link=Braxon Fanatic|text=Braxon Fanatic}} (2.8%)<br>{{CharacterLink|stablekey=character:a deepling orator|link=A Deepling Orator|text=A Deepling Orator}} (1.9%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=2000
 |sell=1300
-|taughtspell={{AbilityLink|Sleep}}
+|taughtspell={{AbilityLink|stablekey=spell:arc - sleep|link=Sleep|text=Sleep|image=Sleep.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

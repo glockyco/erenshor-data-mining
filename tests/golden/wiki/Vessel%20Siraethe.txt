@@ -3,15 +3,15 @@
 |image=[[File:Vessel Siraethe.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Jaws of Sivakaya]]
+|zones={{ZoneLink|stablekey=zone:jaws|link=Jaws of Sivakaya|text=Jaws of Sivakaya}}
 |coordinates=1581.6 x -19.8 x 109.6
 |spawnchance=
 |spawntype=
 |respawn=13 minutes
-|guaranteeddrops={{ItemLink|Ascended Remains}}<br>{{ItemLink|Bracelet of the Vessel}}<br>{{ItemLink|Siraethe's Prayercrest}}<br>{{ItemLink|Thryne, Sledge of Creation}}<br>{{ItemLink|Vessel's Band}}
-|droprates={{ItemLink|A Remnant of Sivakaya}} (100.0%)<ref>If the player is already holding {{ItemLink|A Remnant of Sivakaya}} in their inventory, another will not drop.</ref><br>{{ItemLink|Sableheart's Key}} (100.0%)<ref>If the player is already holding {{ItemLink|Sableheart's Key}} in their inventory, another will not drop.</ref><br>{{ItemLink|The Faceless}} (87.1%)<br>{{ItemLink|Ascended Remains}} (28.6%)<br>{{ItemLink|Bracelet of the Vessel}} (28.6%)<br>{{ItemLink|Thryne, Sledge of Creation}} (28.6%)<br>{{ItemLink|Vessel's Band}} (28.6%)<br>{{ItemLink|Siraethe's Prayercrest}} (20.0%)
+|guaranteeddrops={{ItemLink|stablekey=item:hand - 37 - ascended remains|link=Ascended Remains|text=Ascended Remains|image=Ascended Remains.png}}<br>{{ItemLink|stablekey=item:wrist - 39 - vessel bracelet|link=Bracelet of the Vessel|text=Bracelet of the Vessel|image=Bracelet of the Vessel.png}}<br>{{ItemLink|stablekey=item:head - 39 - siraethe's prayercrest|link=Siraethe's Prayercrest|text=Siraethe's Prayercrest|image=Siraethe's Prayercrest.png}}<br>{{ItemLink|stablekey=item:weap - 39 - thryne|link=Thryne, Sledge of Creation|text=Thryne, Sledge of Creation|image=Thryne, Sledge of Creation.png}}<br>{{ItemLink|stablekey=item:ring - 39 - vessel's band|link=Vessel's Band|text=Vessel's Band|image=Vessel's Band.png}}
+|droprates={{ItemLink|stablekey=item:gen - a remnant of sivakya|link=A Remnant of Sivakaya|text=A Remnant of Sivakaya|image=A Remnant of Sivakaya.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - a remnant of sivakya|link=A Remnant of Sivakaya|text=A Remnant of Sivakaya|image=A Remnant of Sivakaya.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:key - sableheart's key|link=Sableheart's Key|text=Sableheart's Key|image=Sableheart's Key.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:key - sableheart's key|link=Sableheart's Key|text=Sableheart's Key|image=Sableheart's Key.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:quest - game piece the faceless sivakayan|link=The Faceless|text=The Faceless|image=The Faceless.png}} (87.1%)<br>{{ItemLink|stablekey=item:hand - 37 - ascended remains|link=Ascended Remains|text=Ascended Remains|image=Ascended Remains.png}} (28.6%)<br>{{ItemLink|stablekey=item:wrist - 39 - vessel bracelet|link=Bracelet of the Vessel|text=Bracelet of the Vessel|image=Bracelet of the Vessel.png}} (28.6%)<br>{{ItemLink|stablekey=item:weap - 39 - thryne|link=Thryne, Sledge of Creation|text=Thryne, Sledge of Creation|image=Thryne, Sledge of Creation.png}} (28.6%)<br>{{ItemLink|stablekey=item:ring - 39 - vessel's band|link=Vessel's Band|text=Vessel's Band|image=Vessel's Band.png}} (28.6%)<br>{{ItemLink|stablekey=item:head - 39 - siraethe's prayercrest|link=Siraethe's Prayercrest|text=Siraethe's Prayercrest|image=Siraethe's Prayercrest.png}} (20.0%)
 |level=40
 |levelmodmin=0
 |levelmodmax=0

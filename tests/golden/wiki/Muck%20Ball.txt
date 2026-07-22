@@ -3,7 +3,7 @@
 |stablekey=item:cons - swampbomb
 |type=[[Consumables|Consumable]]
 |vendorsource=
-|source=[[Lurk]] (19.6%)<br>[[Rotbelly Croc]] (12.9%)<br>[[Rottenfoot Swampwalker]] (7.8%)<br>[[Rottenfoot Mauler]] (4.6%)<br>[[Rottenfoot Swampwalker]] (3.5%)<br>[[Rottenfoot Witchdoctor]] (3.5%)<br>[[Tek-Nu Dah]] (3.5%)
+|source={{CharacterLink|stablekey=character:lurk|link=Lurk|text=Lurk}} (19.6%)<br>{{CharacterLink|stablekey=character:redbelly croc|link=Rotbelly Croc|text=Rotbelly Croc}} (12.9%)<br>{{CharacterLink|stablekey=character:a rottenfoot goblin female|link=Rottenfoot Swampwalker|text=Rottenfoot Swampwalker}} (7.8%)<br>{{CharacterLink|stablekey=character:a rottenfoot mauler|link=Rottenfoot Mauler|text=Rottenfoot Mauler}} (4.6%)<br>{{CharacterLink|stablekey=character:a rottenfoot goblin male|link=Rottenfoot Swampwalker|text=Rottenfoot Swampwalker}} (3.5%)<br>{{CharacterLink|stablekey=character:a rottenfoot goblin spiritcaller|link=Rottenfoot Witchdoctor|text=Rottenfoot Witchdoctor}} (3.5%)<br>{{CharacterLink|stablekey=character:tal-nah lo|link=Tek-Nu Dah|text=Tek-Nu Dah}} (3.5%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -23,7 +23,7 @@
 |description=Favored by the Nippers of Rottenfoot
 |disposable=True
 |effect_spell_icon=Marsh Rot.png
-|effect_spell_name=[[Marsh Rot]]
+|effect_spell_name={{AbilityLink|stablekey=spell:all - marsh rot|link=Marsh Rot|text=Marsh Rot|image=Marsh Rot.png}}
 |effect_spell_level=9
 |effect_spell_duration_ticks=9
 |effect_spell_type=StatusEffect

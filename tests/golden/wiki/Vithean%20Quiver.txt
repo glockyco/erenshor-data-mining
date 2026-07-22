@@ -3,7 +3,7 @@
 |stablekey=item:back - 42 - vithean quiver
 |type=
 |vendorsource=
-|source=[[Vithean Chest|Vithean Chest (Round 5)]] (66.8%)<br>[[Vithean Chest|Vithean Chest (Round 8)]] (4.3%)
+|source={{CharacterLink|stablekey=character:arenachest 5|link=Vithean Chest|text=Vithean Chest (Round 5)}} (66.8%)<br>{{CharacterLink|stablekey=character:arenachest 8|link=Vithean Chest|text=Vithean Chest (Round 8)}} (4.3%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Worn
 |proc_chance=
 |proc_spell_icon=Vithean Frenzy.png
-|proc_spell_name=[[Vithean Frenzy]]
+|proc_spell_name={{AbilityLink|stablekey=spell:duel - vithean frenzy|link=Vithean Frenzy|text=Vithean Frenzy|image=Vithean Frenzy.png}}
 |proc_spell_level=25
 |proc_spell_duration_ticks=3
 |proc_spell_type=Beneficial

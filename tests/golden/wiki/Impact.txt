@@ -32,7 +32,7 @@
 |shield_amount=
 |pet_to_summon=
 |status_effect=
-|add_proc={{AbilityLink|Impact}}
+|add_proc={{AbilityLink|stablekey=spell:none - impact|link=Impact|text=Impact}}
 |add_proc_chance=90
 |has_lifetap=
 |lifesteal=
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Imperium}}
+|itemswitheffect={{ItemLink|stablekey=item:bow - 42 - imperium|link=Imperium|text=Imperium|image=Imperium.png}}
 |source=
 |used_by=
 }}

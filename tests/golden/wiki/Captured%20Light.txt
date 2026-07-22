@@ -3,10 +3,10 @@
 |stablekey=item:gen - shard of light
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Warded Shadow]] (100.0%)
+|source={{CharacterLink|stablekey=character:warded phantom:shiveringtomb2:-76.96:-68.40:284.89|link=Warded Shadow|text=Warded Shadow}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Delivering the Light}}<br>{{QuestLink|link=Shivering Step (Quest){{!}}Shivering Step}}
+|relatedquest={{QuestLink|Delivering the Light}}<br>{{QuestLink|link=Shivering Step (Quest){{!}}Shivering Step}}<br>{{QuestLink|stablekey=quest:kgti|link=Delivering the Light|text=Delivering the Light}}<br>{{QuestLink|stablekey=quest:shiver-ending|link=Shivering Step (Quest)|text=Shivering Step}}
 |craftsource=
 |componentfor=
 |buy=5

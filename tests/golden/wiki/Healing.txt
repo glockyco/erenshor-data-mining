@@ -5,7 +5,7 @@
 |description=Heals base 300 damage
 |type=Heal
 |line=Healing
-|classes=[[Druid]] (16)<br>[[Paladin]] (16)
+|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (16)<br>{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}} (16)
 |required_level=16
 |manacost=110
 |aggro=
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Ring of The Mystics}}
-|source={{ItemLink|Spell Scroll: Healing}}
-|used_by=[[Assassin of Sivakaya]]<br>[[Bowmistress of Sivakaya]]<br>[[Grand Arcanist of Sivakaya]]<br>[[Grant Haxoway]]<br>[[Jazmyn Challa]]<br>[[Shantee Swingblade]]<br>[[Sivakayan Bodyguard]]<br>[[Sivakayan Cleric]]<br>[[Sivakayan Cleric]]<br>[[Zane Theavale]]
+|itemswitheffect={{ItemLink|stablekey=item:ring - 14 - ring of the mystics|link=Ring of The Mystics|text=Ring of The Mystics|image=Ring of The Mystics.png}}
+|source={{ItemLink|stablekey=item:spell scroll - healing|link=Spell Scroll: Healing|text=Spell Scroll: Healing|image=Spell Scroll: Healing.png}}
+|used_by={{CharacterLink|stablekey=character:duelist of sivakaya|link=Assassin of Sivakaya|text=Assassin of Sivakaya}}<br>{{CharacterLink|stablekey=character:bowmistress of sivakaya|link=Bowmistress of Sivakaya|text=Bowmistress of Sivakaya}}<br>{{CharacterLink|stablekey=character:arcanist of sivakaya|link=Grand Arcanist of Sivakaya|text=Grand Arcanist of Sivakaya}}<br>{{CharacterLink|stablekey=character:grant haxoway|link=Grant Haxoway|text=Grant Haxoway}}<br>{{CharacterLink|stablekey=character:jazmyn challa|link=Jazmyn Challa|text=Jazmyn Challa}}<br>{{CharacterLink|stablekey=character:shanty swingblade|link=Shantee Swingblade|text=Shantee Swingblade}}<br>{{CharacterLink|stablekey=character:sivakayan bodyguard|link=Sivakayan Bodyguard|text=Sivakayan Bodyguard}}<br>{{CharacterLink|stablekey=character:sivakayan cleric|link=Sivakayan Cleric|text=Sivakayan Cleric}}<br>{{CharacterLink|stablekey=character:sivakayan cleric:1|link=Sivakayan Cleric|text=Sivakayan Cleric}}<br>{{CharacterLink|stablekey=character:zane theavale|link=Zane Theavale|text=Zane Theavale}}
 }}

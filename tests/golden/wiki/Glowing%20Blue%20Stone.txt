@@ -3,7 +3,7 @@
 |stablekey=item:hand - 31 - glowing blue stone
 |type=
 |vendorsource=
-|source=[[Ancient Spectre]] (7.0%)
+|source={{CharacterLink|stablekey=character:spectre ancient|link=Ancient Spectre|text=Ancient Spectre}} (7.0%)
 |othersource=
 |questsource=
 |relatedquest=

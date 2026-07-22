@@ -3,7 +3,7 @@
 |stablekey=item:ring - 42 - orbital loop
 |type=
 |vendorsource=
-|source=[[Khorso, Soluna's Advisor]] (70.0%)<br>[[Soluna]] (5.8%)
+|source={{CharacterLink|stablekey=character:khorso|link=Khorso, Soluna's Advisor|text=Khorso, Soluna's Advisor}} (70.0%)<br>{{CharacterLink|stablekey=character:soluna|link=Soluna|text=Soluna}} (5.8%)
 |othersource=
 |questsource=
 |relatedquest=

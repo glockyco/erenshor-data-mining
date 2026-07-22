@@ -5,7 +5,7 @@
 |description=Gain a 50% increase to physical damage dealt, but take 50% more incoming damage from all sources.  Your focus on offense stops all natural health regeneration.
 |type=Utility
 |line=
-|classes=[[Reaver]] (1)
+|classes={{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}} (1)
 |required_level=
 |manacost=
 |aggro=
@@ -23,7 +23,7 @@
 |is_self_only=
 |is_group_effect=
 |is_applied_to_caster=
-|effects={{AbilityLink|Aggressive|image=Stance: Aggressive.png}}
+|effects={{AbilityLink|stablekey=stance:aggressive|link=Aggressive|text=Aggressive|image=Stance: Aggressive.png}}
 |damage_type=
 |resist_modifier=
 |target_damage=
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Skill Book: Aggressive Stance}}
+|source={{ItemLink|stablekey=item:skillbook - stance - aggressive|link=Skill Book: Aggressive Stance|text=Skill Book: Aggressive Stance|image=Skill Book: Aggressive Stance.png}}
 |used_by=
 }}

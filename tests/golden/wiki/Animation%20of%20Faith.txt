@@ -3,15 +3,15 @@
 |image=[[File:Animation of Faith.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Soluna's Celestial Plane]]
+|zones={{ZoneLink|stablekey=zone:planeofsoluna|link=Soluna's Celestial Plane|text=Soluna's Celestial Plane}}
 |coordinates=318.1 x 327.1 x 1346.7
 |spawnchance=
 |spawntype=
 |respawn=33 minutes
-|guaranteeddrops={{ItemLink|Bracer of the Blessed}}<br>{{ItemLink|Cosmic Barrier}}<br>{{ItemLink|Helmet of Clarity}}
-|droprates={{ItemLink|Planar Stone Shards}} (75.1%)<br>{{ItemLink|Bracer of the Blessed}} (68.2%)<br>{{ItemLink|Cosmic Barrier}} (68.2%)<br>{{ItemLink|Helmet of Clarity}} (68.2%)<br>{{ItemLink|Planar Stone}} (32.7%)<br>{{ItemLink|Interstellar Charm}} (25.1%)
+|guaranteeddrops={{ItemLink|stablekey=item:wrist - 42 - bracer of the blessed|link=Bracer of the Blessed|text=Bracer of the Blessed|image=Bracer of the Blessed.png}}<br>{{ItemLink|stablekey=item:neck - 42 - cosmic barrier|link=Cosmic Barrier|text=Cosmic Barrier|image=Cosmic Barrier.png}}<br>{{ItemLink|stablekey=item:head - 42 - helm of clarity|link=Helmet of Clarity|text=Helmet of Clarity|image=Helmet of Clarity.png}}
+|droprates={{ItemLink|stablekey=item:ore - planar shard|link=Planar Stone Shards|text=Planar Stone Shards|image=Planar Stone Shards.png}} (75.1%)<br>{{ItemLink|stablekey=item:wrist - 42 - bracer of the blessed|link=Bracer of the Blessed|text=Bracer of the Blessed|image=Bracer of the Blessed.png}} (68.2%)<br>{{ItemLink|stablekey=item:neck - 42 - cosmic barrier|link=Cosmic Barrier|text=Cosmic Barrier|image=Cosmic Barrier.png}} (68.2%)<br>{{ItemLink|stablekey=item:head - 42 - helm of clarity|link=Helmet of Clarity|text=Helmet of Clarity|image=Helmet of Clarity.png}} (68.2%)<br>{{ItemLink|stablekey=item:ore - planar stone|link=Planar Stone|text=Planar Stone|image=Planar Stone.png}} (32.7%)<br>{{ItemLink|stablekey=item:charm - 42 - interstellar charm|link=Interstellar Charm|text=Interstellar Charm|image=Interstellar Charm.png}} (25.1%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

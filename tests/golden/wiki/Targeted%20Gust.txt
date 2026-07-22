@@ -5,7 +5,7 @@
 |description=Slow a target's movement speed
 |type=StatusEffect
 |line=Stormcaller_Move_Debuff
-|classes=[[Stormcaller]] (7)
+|classes={{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}} (7)
 |required_level=7
 |manacost=100
 |aggro=500
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Targeted Gust}}
+|source={{ItemLink|stablekey=item:spell scroll - targeted gust|link=Spell Scroll: Targeted Gust|text=Spell Scroll: Targeted Gust|image=Spell Scroll: Targeted Gust.png}}
 |used_by=
 }}

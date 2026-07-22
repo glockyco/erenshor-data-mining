@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect=
 |source=
-|used_by=[[Diamond Colossus]]
+|used_by={{CharacterLink|stablekey=character:stoneman colossus 1|link=Diamond Colossus|text=Diamond Colossus}}
 }}

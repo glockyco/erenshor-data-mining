@@ -3,15 +3,15 @@
 |image=[[File:Nipper Tad.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Willowwatch Ridge]]
+|zones={{ZoneLink|stablekey=zone:willowwatch|link=Willowwatch Ridge|text=Willowwatch Ridge}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Seaweed}} (74.5%)<br>{{ItemLink|Cloth Gloves}} (4.6%)<br>{{ItemLink|Cloth Hood}} (4.6%)<br>{{ItemLink|Cloth Pants}} (4.6%)<br>{{ItemLink|Cloth Shirt}} (4.6%)<br>{{ItemLink|Cloth Shoes}} (4.6%)<br>{{ItemLink|Cloth Sleeves}} (4.6%)
+|droprates={{ItemLink|stablekey=item:gen - seaweed|link=Seaweed|text=Seaweed|image=Seaweed.png}} (74.5%)<br>{{ItemLink|stablekey=item:glove - 1 - cloth gloves|link=Cloth Gloves|text=Cloth Gloves|image=Cloth Gloves.png}} (4.6%)<br>{{ItemLink|stablekey=item:head - 1 - cloth hood|link=Cloth Hood|text=Cloth Hood|image=Cloth Hood.png}} (4.6%)<br>{{ItemLink|stablekey=item:leg - 1 - cloth pants|link=Cloth Pants|text=Cloth Pants|image=Cloth Pants.png}} (4.6%)<br>{{ItemLink|stablekey=item:chest - 1 - cloth shirt|link=Cloth Shirt|text=Cloth Shirt|image=Cloth Shirt.png}} (4.6%)<br>{{ItemLink|stablekey=item:foot - 1 - cloth shoes|link=Cloth Shoes|text=Cloth Shoes|image=Cloth Shoes.png}} (4.6%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves|link=Cloth Sleeves|text=Cloth Sleeves|image=Cloth Sleeves.png}} (4.6%)
 |level=4
 |levelmodmin=0
 |levelmodmax=0

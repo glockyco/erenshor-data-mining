@@ -3,7 +3,7 @@
 |stablekey=item:weap - 13 - razor waveblade
 |type=
 |vendorsource=
-|source=[[Molorai Bodyguard]] (5.1%)
+|source={{CharacterLink|stablekey=character:molorai bodyguard|link=Molorai Bodyguard|text=Molorai Bodyguard}} (5.1%)
 |othersource=
 |questsource=
 |relatedquest=

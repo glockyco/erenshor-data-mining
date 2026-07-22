@@ -3,15 +3,15 @@
 |image=[[File:A Grassland Ogre Bruiser.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
-|factionChange=+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Port Azure]]
-|zones=[[Underspine Hollow]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|factionChange=+3 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+3 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|zones={{ZoneLink|stablekey=zone:underspine|link=Underspine Hollow|text=Underspine Hollow}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Ogrespice Leaf}} (19.3%)<br>{{ItemLink|Seaweed}} (16.3%)<br>{{ItemLink|Spidersmasher}} (3.0%)<ref>If A Grassland Ogre Bruiser has {{ItemLink|Spidersmasher}} equipped, it is guaranteed to drop.</ref>
+|droprates={{ItemLink|stablekey=item:gen - ogrespice leaf|link=Ogrespice Leaf|text=Ogrespice Leaf|image=Ogrespice Leaf.png}} (19.3%)<br>{{ItemLink|stablekey=item:gen - seaweed|link=Seaweed|text=Seaweed|image=Seaweed.png}} (16.3%)<br>{{ItemLink|stablekey=item:weap - 13 - spidersmasher|link=Spidersmasher|text=Spidersmasher|image=Spidersmasher.png}} (3.0%)<ref>If A Grassland Ogre Bruiser has {{ItemLink|stablekey=item:weap - 13 - spidersmasher|link=Spidersmasher|text=Spidersmasher|image=Spidersmasher.png}} equipped, it is guaranteed to drop.</ref>
 |level=13
 |levelmodmin=0
 |levelmodmax=0

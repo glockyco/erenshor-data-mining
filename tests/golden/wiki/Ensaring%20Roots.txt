@@ -5,7 +5,7 @@
 |description=Wrap your target in venomous vines that slow movement and deal damage (200 / tick) over time.
 |type=StatusEffect
 |line=Arc_Other_Debuff
-|classes=[[Druid]] (21)
+|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (21)
 |required_level=21
 |manacost=255
 |aggro=300
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Ensaring Roots}}
+|source={{ItemLink|stablekey=item:spell scroll - ensaring roots|link=Spell Scroll: Ensaring Roots|text=Spell Scroll: Ensaring Roots|image=Spell Scroll: Ensaring Roots.png}}
 |used_by=
 }}

@@ -5,7 +5,7 @@
 |description=Heals base 1100 damage
 |type=Heal
 |line=Healing
-|classes=[[Druid]] (27)<br>[[Paladin]] (27)
+|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (27)<br>{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}} (27)
 |required_level=27
 |manacost=550
 |aggro=
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Supreme Healing}}
-|used_by=[[Ancient Celestarian]]<br>[[Ancient Knight]]<br>[[Headless]]<br>[[High Paladin of Sivakaya]]<br>[[Sivakayan Templar]]<br>[[Summoned: Protector]]
+|source={{ItemLink|stablekey=item:spell scroll - supreme healing|link=Spell Scroll: Supreme Healing|text=Spell Scroll: Supreme Healing|image=Spell Scroll: Supreme Healing.png}}
+|used_by={{CharacterLink|stablekey=character:ancient celestarian|link=Ancient Celestarian|text=Ancient Celestarian}}<br>{{CharacterLink|stablekey=character:ancient guard captain|link=Ancient Knight|text=Ancient Knight}}<br>{{CharacterLink|stablekey=character:headless|link=Headless|text=Headless}}<br>{{CharacterLink|stablekey=character:warrior of sivakaya|link=High Paladin of Sivakaya|text=High Paladin of Sivakaya}}<br>{{CharacterLink|stablekey=character:sivakayan templar|link=Sivakayan Templar|text=Sivakayan Templar}}<br>{{CharacterLink|stablekey=character:summoned protector|link=Summoned: Protector|text=Summoned: Protector}}
 }}

@@ -2,7 +2,7 @@
 |title=Skill Book: Double Attack
 |stablekey=item:skillbook - double attack
 |type=[[Ability Books|Skill Book]]
-|vendorsource=[[Benson Gamble]]<br>[[Ludo Luxo]]<br>[[Sven Feartines]]
+|vendorsource={{CharacterLink|stablekey=character:benson gamble|link=Benson Gamble|text=Benson Gamble}}<br>{{CharacterLink|stablekey=character:ludo luxo|link=Ludo Luxo|text=Ludo Luxo}}<br>{{CharacterLink|stablekey=character:sven feartines|link=Sven Feartines|text=Sven Feartines}}
 |source=
 |othersource=
 |questsource=
@@ -12,7 +12,7 @@
 |buy=100
 |sell=65
 |taughtspell=
-|taughtskill={{AbilityLink|Double Attack}}
+|taughtskill={{AbilityLink|stablekey=skill:double attack|link=Double Attack|text=Double Attack|image=Double Attack.png}}
 |guaranteeddrops=
 |droprates=
 }}

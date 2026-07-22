@@ -3,15 +3,15 @@
 |image=[[File:Tek-Nu Dah.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
-|factionChange=+1 [[The Blades of Vitheo]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]
-|zones=[[Rottenfoot]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|factionChange=+1 {{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|zones={{ZoneLink|stablekey=zone:rottenfoot|link=Rottenfoot|text=Rottenfoot}}
 |coordinates=580.2 x 65.3 x 456.5
 |spawnchance=75%
 |spawntype=
 |respawn=4 minutes
-|guaranteeddrops={{ItemLink|Petrified Club}}<br>{{ItemLink|Runewoven Bracer}}
-|droprates={{ItemLink|Petrified Club}} (51.7%)<ref>If Tek-Nu Dah has {{ItemLink|Petrified Club}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Runewoven Bracer}} (51.7%)<br>{{ItemLink|Coral}} (41.8%)<br>{{ItemLink|Sea Glass}} (41.8%)<br>{{ItemLink|Seaweed}} (41.8%)<br>{{ItemLink|A Husselfish}} (15.1%)<br>{{ItemLink|A Worm Eel}} (7.8%)<br>{{ItemLink|Muck Ball}} (3.5%)<br>{{ItemLink|Spell Scroll: Expose Weakness}} (3.5%)<br>{{ItemLink|Spell Scroll: Winter's Bite}} (3.5%)<br>{{ItemLink|Swampy Loincloth}} (3.5%)
+|guaranteeddrops={{ItemLink|stablekey=item:weap - 9 - a petrified club|link=Petrified Club|text=Petrified Club|image=Petrified Club.png}}<br>{{ItemLink|stablekey=item:wrist - 8 - runewoven bracer|link=Runewoven Bracer|text=Runewoven Bracer|image=Runewoven Bracer.png}}
+|droprates={{ItemLink|stablekey=item:weap - 9 - a petrified club|link=Petrified Club|text=Petrified Club|image=Petrified Club.png}} (51.7%)<ref>If Tek-Nu Dah has {{ItemLink|stablekey=item:weap - 9 - a petrified club|link=Petrified Club|text=Petrified Club|image=Petrified Club.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:wrist - 8 - runewoven bracer|link=Runewoven Bracer|text=Runewoven Bracer|image=Runewoven Bracer.png}} (51.7%)<br>{{ItemLink|stablekey=item:gen - a coral|link=Coral|text=Coral|image=Coral.png}} (41.8%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (41.8%)<br>{{ItemLink|stablekey=item:gen - seaweed|link=Seaweed|text=Seaweed|image=Seaweed.png}} (41.8%)<br>{{ItemLink|stablekey=item:fish - husselfish|link=A Husselfish|text=A Husselfish|image=A Husselfish.png}} (15.1%)<br>{{ItemLink|stablekey=item:fish - a worm eel|link=A Worm Eel|text=A Worm Eel|image=A Worm Eel.png}} (7.8%)<br>{{ItemLink|stablekey=item:cons - swampbomb|link=Muck Ball|text=Muck Ball|image=Muck Ball.png}} (3.5%)<br>{{ItemLink|stablekey=item:spell scroll - expose weakness|link=Spell Scroll: Expose Weakness|text=Spell Scroll: Expose Weakness|image=Spell Scroll: Expose Weakness.png}} (3.5%)<br>{{ItemLink|stablekey=item:spell scroll - winter's bite|link=Spell Scroll: Winter's Bite|text=Spell Scroll: Winter's Bite|image=Spell Scroll: Winter's Bite.png}} (3.5%)<br>{{ItemLink|stablekey=item:belt - 35 - swampy loincloth|link=Swampy Loincloth|text=Swampy Loincloth|image=Swampy Loincloth.png}} (3.5%)
 |level=15
 |levelmodmin=0
 |levelmodmax=0

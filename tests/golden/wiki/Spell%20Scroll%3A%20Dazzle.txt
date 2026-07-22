@@ -2,8 +2,8 @@
 |title=Spell Scroll: Dazzle
 |stablekey=item:spell scroll - dazzle
 |type=[[Ability Books|Spell Scroll]]
-|vendorsource=[[Aldoa Manday]]<br>[[Nylith Valorro]]<br>[[Ophelia Luminee]]
-|source=[[Plaxitheris]] (8.7%)
+|vendorsource={{CharacterLink|stablekey=character:addelia zurin:stowaway:508.78:67.80:537.95|link=Aldoa Manday|text=Aldoa Manday}}<br>{{CharacterLink|stablekey=character:nylith valorro|link=Nylith Valorro|text=Nylith Valorro}}<br>{{CharacterLink|stablekey=character:ophelia instrumento|link=Ophelia Luminee|text=Ophelia Luminee}}
+|source={{CharacterLink|stablekey=character:plaxitheris|link=Plaxitheris|text=Plaxitheris}} (8.7%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=50
 |sell=32
-|taughtspell={{AbilityLink|Dazzle}}
+|taughtspell={{AbilityLink|stablekey=spell:arc - dazzle|link=Dazzle|text=Dazzle|image=Dazzle.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

@@ -3,12 +3,12 @@
 |stablekey=item:gen - chunk of living sapphire
 |type=[[Crafting]]
 |vendorsource=
-|source=[[Sapphire Fiend]] (17.4%)
+|source={{CharacterLink|stablekey=character:sapphire fiend|link=Sapphire Fiend|text=Sapphire Fiend}} (17.4%)
 |othersource=
 |questsource=
 |relatedquest=
 |craftsource=
-|componentfor={{ItemLink|Mold: Charm of Compassion}}<br>{{ItemLink|Mold: Charm of Vanity}}
+|componentfor={{ItemLink|stablekey=item:template - charm of compassion|link=Mold: Charm of Compassion|text=Mold: Charm of Compassion|image=Mold: Charm of Compassion.png}}<br>{{ItemLink|stablekey=item:template - charm of vanity|link=Mold: Charm of Vanity|text=Mold: Charm of Vanity|image=Mold: Charm of Vanity.png}}
 |buy=50
 |sell=32
 |taughtspell=

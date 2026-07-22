@@ -3,7 +3,7 @@
 |stablekey=item:chest - 8 - sivakayan tunic
 |type=
 |vendorsource=
-|source=[[Acceptor]] (3.4%)
+|source={{CharacterLink|stablekey=character:acceptor|link=Acceptor|text=Acceptor}} (3.4%)
 |othersource=
 |questsource=
 |relatedquest=

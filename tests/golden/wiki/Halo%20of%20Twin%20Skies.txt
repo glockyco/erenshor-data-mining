@@ -3,7 +3,7 @@
 |stablekey=item:ring - 42 - halo of twin skies
 |type=
 |vendorsource=
-|source=[[Animation of Grace]] (68.9%)<br>[[Soluna]] (5.8%)
+|source={{CharacterLink|stablekey=character:animation of grace|link=Animation of Grace|text=Animation of Grace}} (68.9%)<br>{{CharacterLink|stablekey=character:soluna|link=Soluna|text=Soluna}} (5.8%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Worn
 |proc_chance=
 |proc_spell_icon=Connection.png
-|proc_spell_name=[[Connection]]
+|proc_spell_name={{AbilityLink|stablekey=spell:none - connection|link=Connection|text=Connection|image=Connection.png}}
 |proc_spell_level=42
 |proc_spell_duration_ticks=2
 |proc_spell_type=Beneficial
@@ -92,7 +92,7 @@
 |proc_percent_lifesteal=
 |proc_atk_roll_modifier=
 |proc_resonate_chance=
-|proc_add_proc_name={{AbilityLink|Peerless Grace}}
+|proc_add_proc_name={{AbilityLink|stablekey=spell:none - peerless grace|link=Peerless Grace|text=Peerless Grace}}
 |proc_add_proc_chance=3
 |proc_special_descriptor=Peerless Grace: 35% haste, +2 Atk Roll Modifier
 |proc_xp_bonus=

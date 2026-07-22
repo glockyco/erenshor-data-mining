@@ -2,7 +2,7 @@
 |title=Spell Scroll: Supreme Healing
 |stablekey=item:spell scroll - supreme healing
 |type=[[Ability Books|Spell Scroll]]
-|vendorsource=[[Juctin Mysia]]
+|vendorsource={{CharacterLink|stablekey=character:juctin mysia|link=Juctin Mysia|text=Juctin Mysia}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=4500
 |sell=2925
-|taughtspell={{AbilityLink|Supreme Healing}}
+|taughtspell={{AbilityLink|stablekey=spell:dru pal - supreme healing|link=Supreme Healing|text=Supreme Healing|image=Supreme Healing.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

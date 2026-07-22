@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Scent of the Sea}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - vitheo 1|link=Scent of the Sea|text=Scent of the Sea|image=Scent of the Sea.png}}
 |source=
 |used_by=
 }}

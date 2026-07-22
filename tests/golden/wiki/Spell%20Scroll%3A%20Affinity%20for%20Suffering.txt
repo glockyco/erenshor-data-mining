@@ -2,7 +2,7 @@
 |title=Spell Scroll: Affinity for Suffering
 |stablekey=item:spell scroll - affinity for suffering
 |type=
-|vendorsource=[[Aillee Desten]]<br>[[Xander Zaxtrough]]<br>[[Zane Theavale]]
+|vendorsource={{CharacterLink|stablekey=character:aillee desten|link=Aillee Desten|text=Aillee Desten}}<br>{{CharacterLink|stablekey=character:xander zaxtrough|link=Xander Zaxtrough|text=Xander Zaxtrough}}<br>{{CharacterLink|stablekey=character:zane theavale|link=Zane Theavale|text=Zane Theavale}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=100
 |sell=65
-|taughtspell={{AbilityLink|Affinity for Suffering}}
+|taughtspell={{AbilityLink|stablekey=spell:reav - affinity for suffering|link=Affinity for Suffering|text=Affinity for Suffering|image=Affinity for Suffering.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

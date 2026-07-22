@@ -3,7 +3,7 @@
 |stablekey=item:chest - 35 - wyrmskin protector
 |type=
 |vendorsource=
-|source=[[Swamp Wyrm]] (25.0%)
+|source={{CharacterLink|stablekey=character:wyrm whelp|link=Swamp Wyrm|text=Swamp Wyrm}} (25.0%)
 |othersource=
 |questsource=
 |relatedquest=

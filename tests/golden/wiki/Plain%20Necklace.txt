@@ -3,10 +3,10 @@
 |stablekey=item:neck - 1 - plain necklace
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[A Brackish Croc Whelp]] (100.0%)
+|source={{CharacterLink|stablekey=character:brackish crocodile whelp:1|link=A Brackish Croc Whelp|text=A Brackish Croc Whelp}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Alice Hewer's Necklace}}
+|relatedquest={{QuestLink|Alice Hewer's Necklace}}<br>{{QuestLink|stablekey=quest:alice hewer's necklace|link=Alice Hewer's Necklace|text=Alice Hewer's Necklace}}
 |craftsource=
 |componentfor=
 |buy=5

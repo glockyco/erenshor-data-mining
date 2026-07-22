@@ -2,8 +2,8 @@
 |title=Vinewrapped Vambracers
 |stablekey=item:arm - 9 - vinewrapped vambracer
 |type=
-|vendorsource=[[Tiver Banes]]
-|source=[[Elizah Vernor]] (8.2%)<br>[[Thella Steepleton]] (8.2%)<br>[[Molorai Militia Druid]] (3.0%)
+|vendorsource={{CharacterLink|stablekey=character:tiver banes|link=Tiver Banes|text=Tiver Banes}}
+|source={{CharacterLink|stablekey=character:elizah vernor|link=Elizah Vernor|text=Elizah Vernor}} (8.2%)<br>{{CharacterLink|stablekey=character:thella steepleton|link=Thella Steepleton|text=Thella Steepleton}} (8.2%)<br>{{CharacterLink|stablekey=character:molorai druid|link=Molorai Militia Druid|text=Molorai Militia Druid}} (3.0%)
 |othersource=
 |questsource=
 |relatedquest=

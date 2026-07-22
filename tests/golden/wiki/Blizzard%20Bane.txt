@@ -3,7 +3,7 @@
 |stablekey=item:back - 42 - blizzardbane
 |type=
 |vendorsource=
-|source=[[Braxonian Chest]] (35.5%)<br>[[Brax, God of Elements]] (30.7%)
+|source={{CharacterLink|stablekey=character:braxbridgechest|link=Braxonian Chest|text=Braxonian Chest}} (35.5%)<br>{{CharacterLink|stablekey=character:god brax|link=Brax, God of Elements|text=Brax, God of Elements}} (30.7%)<br>{{CharacterLink|stablekey=character:god brax restored:planeofbrax:2543.61:75.50:404.12|link=Brax, God of Elements|text=Brax, God of Elements}} (30.7%)
 |othersource=
 |questsource=
 |relatedquest=

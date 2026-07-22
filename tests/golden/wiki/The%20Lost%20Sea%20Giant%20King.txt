@@ -3,15 +3,15 @@
 |image=[[File:The Lost Sea Giant King.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Vitheo's Watch]]
+|zones={{ZoneLink|stablekey=zone:vitheo|link=Vitheo's Watch|text=Vitheo's Watch}}
 |coordinates=423.2 x 16.9 x 410.8
 |spawnchance=80%
 |spawntype=
 |respawn=4 minutes
-|guaranteeddrops={{ItemLink|Ring of the Sea Giant King}}<br>{{ItemLink|Sailor's Belt}}<br>{{ItemLink|Sailor's Work Gloves}}<br>{{ItemLink|Sea Giant's Cutlass}}
-|droprates={{ItemLink|Ghostly Giant's Blood}} (66.1%)<br>{{ItemLink|Seafruit}} (66.1%)<br>{{ItemLink|Seaspice}} (66.1%)<br>{{ItemLink|Sea Glass}} (39.3%)<br>{{ItemLink|Ring of the Sea Giant King}} (30.1%)<br>{{ItemLink|Sailor's Belt}} (30.1%)<br>{{ItemLink|Sailor's Work Gloves}} (30.1%)<br>{{ItemLink|Sea Giant's Cutlass}} (30.1%)<ref>If The Lost Sea Giant King has {{ItemLink|Sea Giant's Cutlass}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Aetheria}} (13.0%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref>
+|guaranteeddrops={{ItemLink|stablekey=item:head - 8 - ring of the sea giant king|link=Ring of the Sea Giant King|text=Ring of the Sea Giant King|image=Ring of the Sea Giant King.png}}<br>{{ItemLink|stablekey=item:belt - 9 - sailor's belt|link=Sailor's Belt|text=Sailor's Belt|image=Sailor's Belt.png}}<br>{{ItemLink|stablekey=item:glove - 7 - sailor's work gloves|link=Sailor's Work Gloves|text=Sailor's Work Gloves|image=Sailor's Work Gloves.png}}<br>{{ItemLink|stablekey=item:weap - 8 - sea giant's cutlass|link=Sea Giant's Cutlass|text=Sea Giant's Cutlass|image=Sea Giant's Cutlass.png}}
+|droprates={{ItemLink|stablekey=item:gen - ghostly giant's blood|link=Ghostly Giant's Blood|text=Ghostly Giant's Blood|image=Ghostly Giant's Blood.png}} (66.1%)<br>{{ItemLink|stablekey=item:cons - seafruit|link=Seafruit|text=Seafruit|image=Seafruit.png}} (66.1%)<br>{{ItemLink|stablekey=item:cons - seaspice|link=Seaspice|text=Seaspice|image=Seaspice.png}} (66.1%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (39.3%)<br>{{ItemLink|stablekey=item:head - 8 - ring of the sea giant king|link=Ring of the Sea Giant King|text=Ring of the Sea Giant King|image=Ring of the Sea Giant King.png}} (30.1%)<br>{{ItemLink|stablekey=item:belt - 9 - sailor's belt|link=Sailor's Belt|text=Sailor's Belt|image=Sailor's Belt.png}} (30.1%)<br>{{ItemLink|stablekey=item:glove - 7 - sailor's work gloves|link=Sailor's Work Gloves|text=Sailor's Work Gloves|image=Sailor's Work Gloves.png}} (30.1%)<br>{{ItemLink|stablekey=item:weap - 8 - sea giant's cutlass|link=Sea Giant's Cutlass|text=Sea Giant's Cutlass|image=Sea Giant's Cutlass.png}} (30.1%)<ref>If The Lost Sea Giant King has {{ItemLink|stablekey=item:weap - 8 - sea giant's cutlass|link=Sea Giant's Cutlass|text=Sea Giant's Cutlass|image=Sea Giant's Cutlass.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} (13.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} in their inventory, another will not drop.</ref>
 |level=12
 |levelmodmin=0
 |levelmodmax=0

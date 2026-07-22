@@ -3,15 +3,15 @@
 |image=[[File:Druo the Reborn.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
-|factionChange=+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Port Azure]]
-|zones=[[Underspine Hollow]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|factionChange=+3 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+3 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|zones={{ZoneLink|stablekey=zone:underspine|link=Underspine Hollow|text=Underspine Hollow}}
 |coordinates=252.5 x 63.2 x 669.9
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Muddy Jerkin}}<br>{{ItemLink|Ogrespice Bundle}}<br>{{ItemLink|Tarnished Greaves}}<br>{{ItemLink|Tarnished Plate Armor}}
-|droprates={{ItemLink|Pg. 3: Faded Entry}} (100.0%)<ref>If the player is already holding {{ItemLink|Pg. 3: Faded Entry}} in their inventory, another will not drop.</ref><br>{{ItemLink|Earthen Bracer}} (43.4%)<br>{{ItemLink|Fungal Spore}} (43.4%)<br>{{ItemLink|Muddy Jerkin}} (27.4%)<br>{{ItemLink|Ogrespice Bundle}} (27.4%)<br>{{ItemLink|Tarnished Greaves}} (27.4%)<br>{{ItemLink|Tarnished Plate Armor}} (27.4%)<br>{{ItemLink|Fungal Scab Cape}} (14.8%)
+|guaranteeddrops={{ItemLink|stablekey=item:chest - 14 - muddy leather jerkin|link=Muddy Jerkin|text=Muddy Jerkin|image=Muddy Jerkin.png}}<br>{{ItemLink|stablekey=item:wand - 14 - ogrespice bundle|link=Ogrespice Bundle|text=Ogrespice Bundle|image=Ogrespice Bundle.png}}<br>{{ItemLink|stablekey=item:leg - 7 - tarnished greaves|link=Tarnished Greaves|text=Tarnished Greaves|image=Tarnished Greaves.png}}<br>{{ItemLink|stablekey=item:chest - 13 - tarnished plate armor|link=Tarnished Plate Armor|text=Tarnished Plate Armor|image=Tarnished Plate Armor.png}}
+|droprates={{ItemLink|stablekey=item:gen - treasure hunter pg 3 (underspine)|link=Pg. 3: Faded Entry|text=Pg. 3: Faded Entry|image=Pg. 3: Faded Entry.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - treasure hunter pg 3 (underspine)|link=Pg. 3: Faded Entry|text=Pg. 3: Faded Entry|image=Pg. 3: Faded Entry.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:wrist - 7 - earthen bracer|link=Earthen Bracer|text=Earthen Bracer|image=Earthen Bracer.png}} (43.4%)<br>{{ItemLink|stablekey=item:gen - fungal spore|link=Fungal Spore|text=Fungal Spore|image=Fungal Spore.png}} (43.4%)<br>{{ItemLink|stablekey=item:chest - 14 - muddy leather jerkin|link=Muddy Jerkin|text=Muddy Jerkin|image=Muddy Jerkin.png}} (27.4%)<br>{{ItemLink|stablekey=item:wand - 14 - ogrespice bundle|link=Ogrespice Bundle|text=Ogrespice Bundle|image=Ogrespice Bundle.png}} (27.4%)<br>{{ItemLink|stablekey=item:leg - 7 - tarnished greaves|link=Tarnished Greaves|text=Tarnished Greaves|image=Tarnished Greaves.png}} (27.4%)<br>{{ItemLink|stablekey=item:chest - 13 - tarnished plate armor|link=Tarnished Plate Armor|text=Tarnished Plate Armor|image=Tarnished Plate Armor.png}} (27.4%)<br>{{ItemLink|stablekey=item:back - 15 - fungal scab cape|link=Fungal Scab Cape|text=Fungal Scab Cape|image=Fungal Scab Cape.png}} (14.8%)
 |level=15
 |levelmodmin=0
 |levelmodmax=0

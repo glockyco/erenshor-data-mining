@@ -3,15 +3,15 @@
 |image=[[File:Rook Allshade.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Followers of Good]]
-|factionChange=-15 [[The Citizens of Erenshor]]<br>-15 [[The Citizens of Port Azure]]<br>-15 [[The Solunarian Brotherhood]]
-|zones=[[Braxonian Desert]]
+|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|factionChange=-15 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>-15 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>-15 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
+|zones={{ZoneLink|stablekey=zone:braxonian|link=Braxonian Desert|text=Braxonian Desert}}
 |coordinates=369.2 x 5.5 x 1287.9
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Luminstone}} (19.3%)<br>{{ItemLink|Star Stone}} (19.3%)
+|droprates={{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (87.1%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (19.3%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (19.3%)
 |level=16
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=8-19
 |elemental=8-19
 |void=8-19
-|spells={{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Burning Chains}}<br>{{AbilityLink|Ethereal Rending}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's touch|link=Brax's Touch|text=Brax's Touch|image=Brax's Touch.png}}<br>{{AbilityLink|stablekey=spell:arc - burning chains|link=Burning Chains|text=Burning Chains|image=Burning Chains.png}}<br>{{AbilityLink|stablekey=spell:arc - ethereal rend|link=Ethereal Rending|text=Ethereal Rending|image=Ethereal Rending.png}}
 }}
 
 Rook Allshade is a [[Vendors|vendor]] selling [[Braxonian Fossil|fossils]] near the willow tree by the [[Silkengrass Meadowlands]] entrance in the [[Braxonian Desert]].

@@ -2,7 +2,7 @@
 |title=Stone Dining Set
 |stablekey=item:furniture - stone dining
 |type=
-|vendorsource=[[Breena Carpenter]]
+|vendorsource={{CharacterLink|stablekey=character:breena carpenter|link=Breena Carpenter|text=Breena Carpenter}}
 |source=
 |othersource=
 |questsource=

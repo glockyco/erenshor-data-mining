@@ -2,7 +2,7 @@
 |title=Braxonian Fossil
 |stablekey=item:gen - braxonian fossil
 |type=[[Consumables|Consumable]]
-|vendorsource=[[Rook Allshade]]
+|vendorsource={{CharacterLink|stablekey=character:rook allshade|link=Rook Allshade|text=Rook Allshade}}
 |source=
 |othersource=
 |questsource=
@@ -13,8 +13,8 @@
 |sell=650000
 |taughtspell=
 |taughtskill=
-|guaranteeddrops={{ItemLink|Crystallized Balance}}<br>{{ItemLink|Elixir of Enlightenment IV}}<br>{{ItemLink|Healer's Charm}}<br>{{ItemLink|Planar Stone Shards}}<br>{{ItemLink|Precisionist's Charm}}<br>{{ItemLink|Protector's Charm}}<br>{{ItemLink|Sivakrux}}<br>{{ItemLink|Sorcerer's Charm}}<br>{{ItemLink|Time Stone}}<br>{{ItemLink|Treasure Map}}<br>{{ItemLink|Warlord's Charm}}
-|droprates={{ItemLink|Sivakrux}} (21%)<br>{{ItemLink|Time Stone}} (16%)<br>{{ItemLink|Crystallized Balance}} (11%)<br>{{ItemLink|Elixir of Enlightenment IV}} (11%)<br>{{ItemLink|Treasure Map}} (11%)<br>{{ItemLink|Healer's Charm}} (5%)<br>{{ItemLink|Planar Stone Shards}} (5%)<br>{{ItemLink|Precisionist's Charm}} (5%)<br>{{ItemLink|Protector's Charm}} (5%)<br>{{ItemLink|Sorcerer's Charm}} (5%)<br>{{ItemLink|Warlord's Charm}} (5%)
+|guaranteeddrops={{ItemLink|stablekey=item:gen - crystallized balance|link=Crystallized Balance|text=Crystallized Balance|image=Crystallized Balance.png}}<br>{{ItemLink|stablekey=item:cons - enlightening potion iv|link=Elixir of Enlightenment IV|text=Elixir of Enlightenment IV|image=Elixir of Enlightenment IV.png}}<br>{{ItemLink|stablekey=item:charm - 35 - healer's charm|link=Healer's Charm|text=Healer's Charm|image=Healer's Charm.png}}<br>{{ItemLink|stablekey=item:ore - planar shard|link=Planar Stone Shards|text=Planar Stone Shards|image=Planar Stone Shards.png}}<br>{{ItemLink|stablekey=item:charm - 35 - precisionist's charm|link=Precisionist's Charm|text=Precisionist's Charm|image=Precisionist's Charm.png}}<br>{{ItemLink|stablekey=item:charm - 35 - protector's charm|link=Protector's Charm|text=Protector's Charm|image=Protector's Charm.png}}<br>{{ItemLink|stablekey=item:gen - sivak|link=Sivakrux|text=Sivakrux|image=Sivakrux.png}}<br>{{ItemLink|stablekey=item:charm - 35 - sorcerer's charm|link=Sorcerer's Charm|text=Sorcerer's Charm|image=Sorcerer's Charm.png}}<br>{{ItemLink|stablekey=item:gen - time stone|link=Time Stone|text=Time Stone|image=Time Stone.png}}<br>{{ItemLink|stablekey=item:gen - treasure map|link=Treasure Map|text=Treasure Map|image=Treasure Map.png}}<br>{{ItemLink|stablekey=item:charm - 35 - warlord's charm|link=Warlord's Charm|text=Warlord's Charm|image=Warlord's Charm.png}}
+|droprates={{ItemLink|stablekey=item:gen - sivak|link=Sivakrux|text=Sivakrux|image=Sivakrux.png}} (21%)<br>{{ItemLink|stablekey=item:gen - time stone|link=Time Stone|text=Time Stone|image=Time Stone.png}} (16%)<br>{{ItemLink|stablekey=item:gen - crystallized balance|link=Crystallized Balance|text=Crystallized Balance|image=Crystallized Balance.png}} (11%)<br>{{ItemLink|stablekey=item:cons - enlightening potion iv|link=Elixir of Enlightenment IV|text=Elixir of Enlightenment IV|image=Elixir of Enlightenment IV.png}} (11%)<br>{{ItemLink|stablekey=item:gen - treasure map|link=Treasure Map|text=Treasure Map|image=Treasure Map.png}} (11%)<br>{{ItemLink|stablekey=item:charm - 35 - healer's charm|link=Healer's Charm|text=Healer's Charm|image=Healer's Charm.png}} (5%)<br>{{ItemLink|stablekey=item:ore - planar shard|link=Planar Stone Shards|text=Planar Stone Shards|image=Planar Stone Shards.png}} (5%)<br>{{ItemLink|stablekey=item:charm - 35 - precisionist's charm|link=Precisionist's Charm|text=Precisionist's Charm|image=Precisionist's Charm.png}} (5%)<br>{{ItemLink|stablekey=item:charm - 35 - protector's charm|link=Protector's Charm|text=Protector's Charm|image=Protector's Charm.png}} (5%)<br>{{ItemLink|stablekey=item:charm - 35 - sorcerer's charm|link=Sorcerer's Charm|text=Sorcerer's Charm|image=Sorcerer's Charm.png}} (5%)<br>{{ItemLink|stablekey=item:charm - 35 - warlord's charm|link=Warlord's Charm|text=Warlord's Charm|image=Warlord's Charm.png}} (5%)
 }}
 
 Obtained for 1,000,000 gold from [[Rook Allshade]] in the [[Braxonian Desert]]
@@ -25,7 +25,7 @@ Obtained for 1,000,000 gold from [[Rook Allshade]] in the [[Braxonian Desert]]
 |description=A fossil pulled from the Braxonian Desert dig sites - break it open to see what's inside.
 |disposable=True
 |effect_spell_icon=Break Fossil.png
-|effect_spell_name=[[Break Fossil]]
+|effect_spell_name={{AbilityLink|stablekey=spell:none - break fossil|link=Break Fossil|text=Break Fossil|image=Break Fossil.png}}
 |effect_spell_level=30
 |effect_spell_duration_ticks=
 |effect_spell_type=Misc

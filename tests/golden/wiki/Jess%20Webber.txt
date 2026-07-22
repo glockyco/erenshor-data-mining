@@ -3,9 +3,9 @@
 |image=[[File:Jess Webber.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Followers of Good]]
-|factionChange=-10 [[The Citizens of Erenshor]]<br>-10 [[The Citizens of Port Azure]]
-|zones=[[Fernalla's Revival Plains]]
+|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|factionChange=-10 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>-10 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|zones={{ZoneLink|stablekey=zone:fernallafield|link=Fernalla's Revival Plains|text=Fernalla's Revival Plains}}
 |coordinates=172.4 x 37.8 x 578.1
 |spawnchance=
 |spawntype=

@@ -31,7 +31,7 @@
 |caster_healing=
 |shield_amount=
 |pet_to_summon=
-|status_effect={{AbilityLink|Healing Bloom}}
+|status_effect=[[Healing Bloom]]
 |add_proc=
 |add_proc_chance=
 |has_lifetap=
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Eternox, Remnant of the Void}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 40 - eternox, remnant of the void|link=Eternox, Remnant of the Void|text=Eternox, Remnant of the Void|image=Eternox, Remnant of the Void.png}}
 |source=
 |used_by=
 }}

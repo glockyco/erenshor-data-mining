@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect=
 |source=
-|used_by=[[Greater Fawn]]<br>[[Headless]]<br>[[Priel Gifted]]<br>[[Vinx]]<br>[[Worn Ancient Guardian]]
+|used_by={{CharacterLink|stablekey=character:greater fawn|link=Greater Fawn|text=Greater Fawn}}<br>{{CharacterLink|stablekey=character:headless|link=Headless|text=Headless}}<br>{{CharacterLink|stablekey=character:priel gifted|link=Priel Gifted|text=Priel Gifted}}<br>{{CharacterLink|stablekey=character:vinx|link=Vinx|text=Vinx}}<br>{{CharacterLink|stablekey=character:worn ancient guardian 1|link=Worn Ancient Guardian|text=Worn Ancient Guardian}}
 }}

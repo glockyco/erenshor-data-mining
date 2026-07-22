@@ -2,13 +2,13 @@
 |title=Seaspice
 |stablekey=item:cons - seaspice
 |type=[[Consumables|Consumable]], [[Crafting]], [[Quest Items|Quest Item]]
-|vendorsource=[[Cully Edwarse]]<br>[[Saya Seawatcher]]<br>[[Shantee Swingblade]]<br>[[Summoned: Pocket Vendor]]
-|source=[[Ghost of Wyland Sercher]] (100.0%)<br>[[Lost Soul]] (100.0%)<br>[[Sylvan Giant Runt]] (86.3%)<br>[[The Lost Sea Giant King]] (66.1%)<br>[[Cerynth Duskveil]] (59.4%)<br>[[Elizah Vernor]] (59.4%)<br>[[Molorai Brewmistress]] (59.4%)<br>[[Myrre Morrigane]] (59.4%)<br>[[Rose Crystalshade]] (59.4%)<br>[[Thella Steepleton]] (59.4%)<br>[[Plaxitheris]] (19.4%)<br>[[Priel Consort]] (4.3%)<br>[[Priel Deceiver]] (4.3%)<br>[[Priel Enforcer]] (4.3%)<br>[[Priel Gifted]] (4.3%)<br>[[Priel Grimwatch]] (4.3%)<br>[[Priel Purist]] (4.3%)<br>[[Priel Swiftblade]] (4.3%)<br>[[A Lost Sea Giant]] (4.0%)
+|vendorsource={{CharacterLink|stablekey=character:cully edwarse|link=Cully Edwarse|text=Cully Edwarse}}<br>{{CharacterLink|stablekey=character:saya seawatcher|link=Saya Seawatcher|text=Saya Seawatcher}}<br>{{CharacterLink|stablekey=character:shanty swingblade|link=Shantee Swingblade|text=Shantee Swingblade}}<br>{{CharacterLink|stablekey=character:a rift vendor:reliquary:268.28:1.44:349.00|link=Summoned: Pocket Vendor|text=Summoned: Pocket Vendor}}
+|source={{CharacterLink|stablekey=character:ghost of wylan sercher|link=Ghost of Wyland Sercher|text=Ghost of Wyland Sercher}} (100.0%)<br>{{CharacterLink|stablekey=character:lost soul|link=Lost Soul|text=Lost Soul}} (100.0%)<br>{{CharacterLink|stablekey=character:sylvan giant runt|link=Sylvan Giant Runt|text=Sylvan Giant Runt}} (86.3%)<br>{{CharacterLink|stablekey=character:lost sea giant king|link=The Lost Sea Giant King|text=The Lost Sea Giant King}} (66.1%)<br>{{CharacterLink|stablekey=character:cerynth duskveil|link=Cerynth Duskveil|text=Cerynth Duskveil}} (59.4%)<br>{{CharacterLink|stablekey=character:elizah vernor|link=Elizah Vernor|text=Elizah Vernor}} (59.4%)<br>{{CharacterLink|stablekey=character:molorai brewmistress|link=Molorai Brewmistress|text=Molorai Brewmistress}} (59.4%)<br>{{CharacterLink|stablekey=character:myrre morrigane|link=Myrre Morrigane|text=Myrre Morrigane}} (59.4%)<br>{{CharacterLink|stablekey=character:rose darkcrystal|link=Rose Crystalshade|text=Rose Crystalshade}} (59.4%)<br>{{CharacterLink|stablekey=character:thella steepleton|link=Thella Steepleton|text=Thella Steepleton}} (59.4%)<br>{{CharacterLink|stablekey=character:plaxitheris|link=Plaxitheris|text=Plaxitheris}} (19.4%)<br>{{CharacterLink|stablekey=character:priel consort|link=Priel Consort|text=Priel Consort}} (4.3%)<br>{{CharacterLink|stablekey=character:priel deceiver|link=Priel Deceiver|text=Priel Deceiver}} (4.3%)<br>{{CharacterLink|stablekey=character:priel enforcer|link=Priel Enforcer|text=Priel Enforcer}} (4.3%)<br>{{CharacterLink|stablekey=character:priel naturalist|link=Priel Enforcer|text=Priel Enforcer}} (4.3%)<br>{{CharacterLink|stablekey=character:priel gifted|link=Priel Gifted|text=Priel Gifted}} (4.3%)<br>{{CharacterLink|stablekey=character:priel grimwatch|link=Priel Grimwatch|text=Priel Grimwatch}} (4.3%)<br>{{CharacterLink|stablekey=character:priel purist|link=Priel Purist|text=Priel Purist}} (4.3%)<br>{{CharacterLink|stablekey=character:priel swiftblade|link=Priel Swiftblade|text=Priel Swiftblade}} (4.3%)<br>{{CharacterLink|stablekey=character:lost sea giant female|link=A Lost Sea Giant|text=A Lost Sea Giant}} (4.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|A Magical Sword in Port Azure}}<br>{{QuestLink|A Trade in Ripper's Keep}}<br>{{QuestLink|Percy's Seaspice}}
+|relatedquest={{QuestLink|A Magical Sword in Port Azure}}<br>{{QuestLink|A Trade in Ripper's Keep}}<br>{{QuestLink|Percy's Seaspice}}<br>{{QuestLink|stablekey=quest:a magical sword in port azure|link=A Magical Sword in Port Azure|text=A Magical Sword in Port Azure}}<br>{{QuestLink|stablekey=quest:ripperrune|link=A Trade in Ripper's Keep|text=A Trade in Ripper's Keep}}<br>{{QuestLink|stablekey=quest:percy's seaspice|link=Percy's Seaspice|text=Percy's Seaspice}}
 |craftsource=
-|componentfor={{ItemLink|Mold: Charm of the Jester}}
+|componentfor={{ItemLink|stablekey=item:template - charm of the jester|link=Mold: Charm of the Jester|text=Mold: Charm of the Jester|image=Mold: Charm of the Jester.png}}
 |buy=500
 |sell=325
 |taughtspell=
@@ -23,7 +23,7 @@
 |description=Just the smell alone is invigorating.
 |disposable=True
 |effect_spell_icon=Spiced Fury.png
-|effect_spell_name=[[Spiced Fury]]
+|effect_spell_name={{AbilityLink|stablekey=spell:all - spiced fury|link=Spiced Fury|text=Spiced Fury|image=Spiced Fury.png}}
 |effect_spell_level=1
 |effect_spell_duration_ticks=30
 |effect_spell_type=Beneficial

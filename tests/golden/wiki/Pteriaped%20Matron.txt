@@ -3,15 +3,15 @@
 |image=[[File:Pteriaped Matron.png|thumb]]
 |imagecaption=
 |type=Rare
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Loomingwood Forest]]
+|zones={{ZoneLink|stablekey=zone:loomingwood|link=Loomingwood Forest|text=Loomingwood Forest}}
 |coordinates=
 |spawnchance=2-40%
 |spawntype=
 |respawn=5-6 minutes
-|guaranteeddrops={{ItemLink|Birdbone Band}}<br>{{ItemLink|Pteriaped Claw Necklace}}
-|droprates={{ItemLink|Birdbone Band}} (66.7%)<br>{{ItemLink|Green Pteriaped Feather}} (35.0%)<br>{{ItemLink|Pteriaped Claw Necklace}} (33.3%)<br>{{ItemLink|Luminstone}} (1.9%)<br>{{ItemLink|Pink Pteriaped Feather}} (1.9%)<br>{{ItemLink|Blueprint: Loomingwood Market}} (0.5%)<br>{{ItemLink|Blueprint: Loomingwood Shrine}} (0.5%)
+|guaranteeddrops={{ItemLink|stablekey=item:ring - 22 - birdbone band|link=Birdbone Band|text=Birdbone Band|image=Birdbone Band.png}}<br>{{ItemLink|stablekey=item:neck - 22 - pteriaped claw necklace|link=Pteriaped Claw Necklace|text=Pteriaped Claw Necklace|image=Pteriaped Claw Necklace.png}}
+|droprates={{ItemLink|stablekey=item:ring - 22 - birdbone band|link=Birdbone Band|text=Birdbone Band|image=Birdbone Band.png}} (66.7%)<br>{{ItemLink|stablekey=item:gen - blue pteriaped feather|link=Green Pteriaped Feather|text=Green Pteriaped Feather|image=Green Pteriaped Feather.png}} (35.0%)<br>{{ItemLink|stablekey=item:neck - 22 - pteriaped claw necklace|link=Pteriaped Claw Necklace|text=Pteriaped Claw Necklace|image=Pteriaped Claw Necklace.png}} (33.3%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (1.9%)<br>{{ItemLink|stablekey=item:gen - pink pteriaped feather|link=Pink Pteriaped Feather|text=Pink Pteriaped Feather|image=Pink Pteriaped Feather.png}} (1.9%)<br>{{ItemLink|stablekey=item:furniture - loomingwood marketplace blueprint|link=Blueprint: Loomingwood Market|text=Blueprint: Loomingwood Market|image=Blueprint: Loomingwood Market.png}} (0.5%)<br>{{ItemLink|stablekey=item:furniture - loomingwood shrine blueprint|link=Blueprint: Loomingwood Shrine|text=Blueprint: Loomingwood Shrine|image=Blueprint: Loomingwood Shrine.png}} (0.5%)
 |level=25
 |levelmodmin=0
 |levelmodmax=0
@@ -39,15 +39,15 @@
 |image=[[File:Pteriaped Matron.png|thumb]]
 |imagecaption=
 |type=Rare
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Loomingwood Forest]]
+|zones={{ZoneLink|stablekey=zone:loomingwood|link=Loomingwood Forest|text=Loomingwood Forest}}
 |coordinates=
 |spawnchance=2-40%
 |spawntype=
 |respawn=5-6 minutes
-|guaranteeddrops={{ItemLink|Feathered Booties}}<br>{{ItemLink|Feathered Cape}}
-|droprates={{ItemLink|Feathered Booties}} (66.7%)<br>{{ItemLink|Green Pteriaped Feather}} (35.0%)<br>{{ItemLink|Feathered Cape}} (33.3%)<br>{{ItemLink|Luminstone}} (1.9%)<br>{{ItemLink|Pink Pteriaped Feather}} (1.9%)<br>{{ItemLink|Blueprint: Loomingwood Market}} (0.5%)<br>{{ItemLink|Blueprint: Loomingwood Shrine}} (0.5%)
+|guaranteeddrops={{ItemLink|stablekey=item:foot - 19 - feathered booties|link=Feathered Booties|text=Feathered Booties|image=Feathered Booties.png}}<br>{{ItemLink|stablekey=item:back - 26 - feathered cape|link=Feathered Cape|text=Feathered Cape|image=Feathered Cape.png}}
+|droprates={{ItemLink|stablekey=item:foot - 19 - feathered booties|link=Feathered Booties|text=Feathered Booties|image=Feathered Booties.png}} (66.7%)<br>{{ItemLink|stablekey=item:gen - blue pteriaped feather|link=Green Pteriaped Feather|text=Green Pteriaped Feather|image=Green Pteriaped Feather.png}} (35.0%)<br>{{ItemLink|stablekey=item:back - 26 - feathered cape|link=Feathered Cape|text=Feathered Cape|image=Feathered Cape.png}} (33.3%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (1.9%)<br>{{ItemLink|stablekey=item:gen - pink pteriaped feather|link=Pink Pteriaped Feather|text=Pink Pteriaped Feather|image=Pink Pteriaped Feather.png}} (1.9%)<br>{{ItemLink|stablekey=item:furniture - loomingwood marketplace blueprint|link=Blueprint: Loomingwood Market|text=Blueprint: Loomingwood Market|image=Blueprint: Loomingwood Market.png}} (0.5%)<br>{{ItemLink|stablekey=item:furniture - loomingwood shrine blueprint|link=Blueprint: Loomingwood Shrine|text=Blueprint: Loomingwood Shrine|image=Blueprint: Loomingwood Shrine.png}} (0.5%)
 |level=24
 |levelmodmin=0
 |levelmodmax=0

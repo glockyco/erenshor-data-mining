@@ -3,15 +3,15 @@
 |image=[[File:Jinx.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Plane of the Willow]]
+|zones={{ZoneLink|stablekey=zone:planeoffernalla|link=Plane of the Willow|text=Plane of the Willow}}
 |coordinates=521.5 x 30.1 x 608.1
 |spawnchance=
 |spawntype=
 |respawn=33 minutes
-|guaranteeddrops={{ItemLink|Abominable Ribcage}}<br>{{ItemLink|Creeping Waistband}}<br>{{ItemLink|Fernalla's Paintbrush}}
-|droprates={{ItemLink|Planar Stone Shards}} (81.0%)<br>{{ItemLink|Abominable Ribcage}} (68.9%)<br>{{ItemLink|Creeping Waistband}} (68.9%)<br>{{ItemLink|Fernalla's Paintbrush}} (68.9%)<br>{{ItemLink|Planar Stone}} (36.8%)
+|guaranteeddrops={{ItemLink|stablekey=item:back - 42 - ribcage|link=Abominable Ribcage|text=Abominable Ribcage|image=Abominable Ribcage.png}}<br>{{ItemLink|stablekey=item:belt - 42 - creeping waistband|link=Creeping Waistband|text=Creeping Waistband|image=Creeping Waistband.png}}<br>{{ItemLink|stablekey=item:wand - 42 - fernalla's paintbrush|link=Fernalla's Paintbrush|text=Fernalla's Paintbrush|image=Fernalla's Paintbrush.png}}
+|droprates={{ItemLink|stablekey=item:ore - planar shard|link=Planar Stone Shards|text=Planar Stone Shards|image=Planar Stone Shards.png}} (81.0%)<br>{{ItemLink|stablekey=item:back - 42 - ribcage|link=Abominable Ribcage|text=Abominable Ribcage|image=Abominable Ribcage.png}} (68.9%)<br>{{ItemLink|stablekey=item:belt - 42 - creeping waistband|link=Creeping Waistband|text=Creeping Waistband|image=Creeping Waistband.png}} (68.9%)<br>{{ItemLink|stablekey=item:wand - 42 - fernalla's paintbrush|link=Fernalla's Paintbrush|text=Fernalla's Paintbrush|image=Fernalla's Paintbrush.png}} (68.9%)<br>{{ItemLink|stablekey=item:ore - planar stone|link=Planar Stone|text=Planar Stone|image=Planar Stone.png}} (36.8%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

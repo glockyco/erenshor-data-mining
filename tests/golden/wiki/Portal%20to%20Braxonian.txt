@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Rune of Sands}}
+|itemswitheffect={{ItemLink|stablekey=item:gen - rune of sands|link=Rune of Sands|text=Rune of Sands|image=Rune of Sands.png}}
 |source=
 |used_by=
 }}

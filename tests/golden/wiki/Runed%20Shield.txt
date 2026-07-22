@@ -3,7 +3,7 @@
 |stablekey=item:secondary - 28 - runed shield
 |type=
 |vendorsource=
-|source=[[Undertoes]] (33.3%)
+|source={{CharacterLink|stablekey=character:undertow|link=Undertoes|text=Undertoes}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

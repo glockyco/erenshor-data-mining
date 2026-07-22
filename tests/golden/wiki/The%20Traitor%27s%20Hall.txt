@@ -3,7 +3,7 @@
 |stablekey=item:gen - the traitors
 |type=[[Lore Items|Lore]]
 |vendorsource=
-|source=[[Balaste the Fallen]] (100.0%)
+|source={{CharacterLink|stablekey=character:balaste the cursed|link=Balaste the Fallen|text=Balaste the Fallen}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -3,7 +3,7 @@
 |stablekey=item:belt - 23 - ghostly sash
 |type=
 |vendorsource=
-|source=[[Ghost of Plaxitheris]] (50.0%)
+|source={{CharacterLink|stablekey=character:ghost of plaxitheris|link=Ghost of Plaxitheris|text=Ghost of Plaxitheris}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

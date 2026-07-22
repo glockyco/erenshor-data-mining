@@ -3,15 +3,15 @@
 |image=[[File:Zenith.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Soluna's Celestial Plane]]
+|zones={{ZoneLink|stablekey=zone:planeofsoluna|link=Soluna's Celestial Plane|text=Soluna's Celestial Plane}}
 |coordinates=94.5 x 338.1 x 920.4
 |spawnchance=
 |spawntype=
 |respawn=33 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Planar Stone}} (20.3%)<br>{{ItemLink|Planar Stone Shards}} (10.1%)
+|droprates={{ItemLink|stablekey=item:ore - planar stone|link=Planar Stone|text=Planar Stone|image=Planar Stone.png}} (20.3%)<br>{{ItemLink|stablekey=item:ore - planar shard|link=Planar Stone Shards|text=Planar Stone Shards|image=Planar Stone Shards.png}} (10.1%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

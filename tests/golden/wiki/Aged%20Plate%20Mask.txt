@@ -3,7 +3,7 @@
 |stablekey=item:head - 17 - aged plate mask
 |type=
 |vendorsource=
-|source=[[Spectral King's Guard]] (25.0%)<br>[[Spectral Castle Guard]] (1.7%)
+|source={{CharacterLink|stablekey=character:lost king's guard|link=Spectral King's Guard|text=Spectral King's Guard}} (25.0%)<br>{{CharacterLink|stablekey=character:lost royal bodyguards|link=Spectral Castle Guard|text=Spectral Castle Guard}} (1.7%)
 |othersource=
 |questsource=
 |relatedquest=

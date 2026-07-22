@@ -2,7 +2,7 @@
 |title=Spell Scroll: Impending Doom
 |stablekey=item:spell scroll - impending doom
 |type=[[Ability Books]]
-|vendorsource=[[Leyor M'Chante]]
+|vendorsource={{CharacterLink|stablekey=character:leyor m'chante|link=Leyor M'Chante|text=Leyor M'Chante}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=16500
 |sell=10725
-|taughtspell={{AbilityLink|Impending Doom}}
+|taughtspell={{AbilityLink|stablekey=spell:pal - taunt impending doom|link=Impending Doom|text=Impending Doom|image=Impending Doom.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

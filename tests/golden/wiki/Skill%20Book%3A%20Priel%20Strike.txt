@@ -2,8 +2,8 @@
 |title=Skill Book: Priel Strike
 |stablekey=item:skillbook - priel strike
 |type=[[Ability Books|Skill Book]]
-|vendorsource=[[Roreli Gilmare]]
-|source=[[Priel Soldier]] (3.4%)<br>[[Priel Swiftblade]] (2.1%)<br>[[Priel Consort]] (1.4%)
+|vendorsource={{CharacterLink|stablekey=character:roreli gilmare:azure:143.76:26.28:342.76|link=Roreli Gilmare|text=Roreli Gilmare}}
+|source={{CharacterLink|stablekey=character:priel soldier2|link=Priel Soldier|text=Priel Soldier}} (3.4%)<br>{{CharacterLink|stablekey=character:priel swiftblade|link=Priel Swiftblade|text=Priel Swiftblade}} (2.1%)<br>{{CharacterLink|stablekey=character:priel consort|link=Priel Consort|text=Priel Consort}} (1.4%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -12,7 +12,7 @@
 |buy=7500
 |sell=4875
 |taughtspell=
-|taughtskill={{AbilityLink|Priel Strike}}
+|taughtskill={{AbilityLink|stablekey=skill:priel strike|link=Priel Strike|text=Priel Strike|image=Priel Strike.png}}
 |guaranteeddrops=
 |droprates=
 }}

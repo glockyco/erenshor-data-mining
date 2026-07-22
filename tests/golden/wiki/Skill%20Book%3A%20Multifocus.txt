@@ -3,7 +3,7 @@
 |stablekey=item:skillbook - multifocus
 |type=
 |vendorsource=
-|source=[[Fire Elemental]] (2.6%)<br>[[Ice Elemental]] (2.2%)<br>[[Greater Fire Elemental]] (1.0%)<br>[[Greater Ice Elemental]] (1.0%)<br>[[Large Fire Elemental]] (1.0%)<br>[[Large Ice Elemental]] (1.0%)
+|source={{CharacterLink|stablekey=character:fire elemental|link=Fire Elemental|text=Fire Elemental}} (2.6%)<br>{{CharacterLink|stablekey=character:ice elemental|link=Ice Elemental|text=Ice Elemental}} (2.2%)<br>{{CharacterLink|stablekey=character:greater fire elemental|link=Greater Fire Elemental|text=Greater Fire Elemental}} (1.0%)<br>{{CharacterLink|stablekey=character:greater ice elemental|link=Greater Ice Elemental|text=Greater Ice Elemental}} (1.0%)<br>{{CharacterLink|stablekey=character:large fire elemental|link=Large Fire Elemental|text=Large Fire Elemental}} (1.0%)<br>{{CharacterLink|stablekey=character:large ice elemental|link=Large Ice Elemental|text=Large Ice Elemental}} (1.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -12,7 +12,7 @@
 |buy=
 |sell=
 |taughtspell=
-|taughtskill={{AbilityLink|Multifocus}}
+|taughtskill={{AbilityLink|stablekey=skill:multifocus|link=Multifocus|text=Multifocus|image=Multifocus.png}}
 |guaranteeddrops=
 |droprates=
 }}

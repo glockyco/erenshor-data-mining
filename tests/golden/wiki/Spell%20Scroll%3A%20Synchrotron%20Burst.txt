@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - synchrotron burst
 |type=
 |vendorsource=
-|source=[[Wandering Gladiator]] (1.6%)<br>[[Expert Gladiator]] (1.0%)<br>[[Wandering Gladiator]] (1.0%)
+|source={{CharacterLink|stablekey=character:fallen gladiator 1|link=Wandering Gladiator|text=Wandering Gladiator}} (1.6%)<br>{{CharacterLink|stablekey=character:wandering champion|link=Expert Gladiator|text=Expert Gladiator}} (1.0%)<br>{{CharacterLink|stablekey=character:fallen gladiator|link=Wandering Gladiator|text=Wandering Gladiator}} (1.0%)<br>{{CharacterLink|stablekey=character:fallen gladiator 2|link=Wandering Gladiator|text=Wandering Gladiator}} (1.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=
 |sell=
-|taughtspell={{AbilityLink|Synchrotron Burst}}
+|taughtspell={{AbilityLink|stablekey=spell:stc - synchrotron burst|link=Synchrotron Burst|text=Synchrotron Burst|image=Synchrotron Burst.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

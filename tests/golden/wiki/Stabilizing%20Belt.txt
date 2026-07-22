@@ -3,7 +3,7 @@
 |stablekey=item:belt - 24 - stabilizing belt
 |type=
 |vendorsource=
-|source=[[Oarik the Failure]] (66.7%)
+|source={{CharacterLink|stablekey=character:oarik the cursed|link=Oarik the Failure|text=Oarik the Failure}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=

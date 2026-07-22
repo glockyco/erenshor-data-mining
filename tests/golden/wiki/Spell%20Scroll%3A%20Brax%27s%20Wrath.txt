@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - brax's wrath
 |type=
 |vendorsource=
-|source=[[Fire Elemental]] (2.6%)<br>[[Greater Fire Elemental]] (1.0%)<br>[[Large Fire Elemental]] (1.0%)
+|source={{CharacterLink|stablekey=character:fire elemental|link=Fire Elemental|text=Fire Elemental}} (2.6%)<br>{{CharacterLink|stablekey=character:greater fire elemental|link=Greater Fire Elemental|text=Greater Fire Elemental}} (1.0%)<br>{{CharacterLink|stablekey=character:large fire elemental|link=Large Fire Elemental|text=Large Fire Elemental}} (1.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=
 |sell=
-|taughtspell={{AbilityLink|Brax's Wrath}}
+|taughtspell={{AbilityLink|stablekey=spell:arc - brax's wrath|link=Brax's Wrath|text=Brax's Wrath|image=Brax's Wrath.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

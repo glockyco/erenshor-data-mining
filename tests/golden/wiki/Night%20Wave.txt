@@ -3,7 +3,7 @@
 |stablekey=item:back - 30 - nightwave
 |type=
 |vendorsource=
-|source=[[Noctua]] (33.3%)
+|source={{CharacterLink|stablekey=character:noctua|link=Noctua|text=Noctua}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

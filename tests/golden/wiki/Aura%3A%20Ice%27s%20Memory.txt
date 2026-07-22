@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Primal Ice Shard}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - primal ice shard|link=Primal Ice Shard|text=Primal Ice Shard|image=Primal Ice Shard.png}}
 |source=
 |used_by=
 }}

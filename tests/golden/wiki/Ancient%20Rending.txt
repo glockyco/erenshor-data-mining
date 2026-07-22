@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Treant Eye Shield}}
+|itemswitheffect={{ItemLink|stablekey=item:secondary - 42 - treant eye shield|link=Treant Eye Shield|text=Treant Eye Shield|image=Treant Eye Shield.png}}
 |source=
 |used_by=
 }}

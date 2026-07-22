@@ -3,15 +3,15 @@
 |image=[[File:A Grassland Ogre Mystic.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
-|factionChange=+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Port Azure]]
-|zones=[[Underspine Hollow]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|factionChange=+3 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+3 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|zones={{ZoneLink|stablekey=zone:underspine|link=Underspine Hollow|text=Underspine Hollow}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Ogrespice Leaf}} (13.9%)<br>{{ItemLink|Star Stone}} (11.8%)<br>{{ItemLink|Ogrespice Bundle}} (2.1%)
+|droprates={{ItemLink|stablekey=item:gen - ogrespice leaf|link=Ogrespice Leaf|text=Ogrespice Leaf|image=Ogrespice Leaf.png}} (13.9%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (11.8%)<br>{{ItemLink|stablekey=item:wand - 14 - ogrespice bundle|link=Ogrespice Bundle|text=Ogrespice Bundle|image=Ogrespice Bundle.png}} (2.1%)
 |level=13
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=6-16
 |elemental=6-16
 |void=6-16
-|spells={{AbilityLink|Biting Vines}}<br>{{AbilityLink|Minor Lightning}}<br>{{AbilityLink|Tangle}}<br>{{AbilityLink|Toxicity}}
+|spells={{AbilityLink|stablekey=spell:dru - biting vines|link=Biting Vines|text=Biting Vines|image=Biting Vines.png}}<br>{{AbilityLink|stablekey=spell:dru - minor lightning|link=Minor Lightning|text=Minor Lightning|image=Minor Lightning.png}}<br>{{AbilityLink|stablekey=spell:dru - tangle|link=Tangle|text=Tangle|image=Tangle.png}}<br>{{AbilityLink|stablekey=spell:dru - toxicity|link=Toxicity|text=Toxicity|image=Toxicity.png}}
 }}
 
 [[Category:Enemies]]

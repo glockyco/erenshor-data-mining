@@ -3,7 +3,7 @@
 |stablekey=item:chest - 35 - ilyth's coat
 |type=
 |vendorsource=
-|source=[[Darkwarden Ilyth]] (50.0%)
+|source={{CharacterLink|stablekey=character:darkwarden ilyth|link=Darkwarden Ilyth|text=Darkwarden Ilyth}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

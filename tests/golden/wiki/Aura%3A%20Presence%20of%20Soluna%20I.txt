@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Dawn's Light}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - soluna 1|link=Dawn's Light|text=Dawn's Light|image=Dawn's Light.png}}
 |source=
 |used_by=
 }}

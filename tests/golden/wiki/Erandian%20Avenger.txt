@@ -3,7 +3,7 @@
 |stablekey=item:secondary - 29 - erandian avenger
 |type=
 |vendorsource=
-|source=[[Raval, The First Paladin]] (20.0%)
+|source={{CharacterLink|stablekey=character:raval|link=Raval, The First Paladin|text=Raval, The First Paladin}} (20.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Bash
 |proc_chance=75
 |proc_spell_icon=Impending Doom.png
-|proc_spell_name=[[Impending Doom]]
+|proc_spell_name={{AbilityLink|stablekey=spell:pal - taunt impending doom|link=Impending Doom|text=Impending Doom|image=Impending Doom.png}}
 |proc_spell_level=25
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

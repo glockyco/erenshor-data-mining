@@ -11,7 +11,7 @@
 |componentfor=
 |buy=75
 |sell=49
-|taughtspell={{AbilityLink|Soluna's Solar Invigoration}}
+|taughtspell={{AbilityLink|stablekey=spell:pal - soluna's invigoration|link=Soluna's Solar Invigoration|text=Soluna's Solar Invigoration|image=Soluna's Solar Invigoration.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

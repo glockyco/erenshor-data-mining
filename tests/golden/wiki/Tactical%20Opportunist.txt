@@ -5,7 +5,7 @@
 |description=Passive Skill: Any time you hit your target from behind, gain a 2% chance for that strike to land as a Backstab.
 |type=Innate
 |line=
-|classes=[[Windblade]] (35)
+|classes={{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}} (35)
 |required_level=
 |manacost=
 |aggro=
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Skill Book: Tactical Opportunist}}
+|source={{ItemLink|stablekey=item:skillbook - tactical opportunist|link=Skill Book: Tactical Opportunist|text=Skill Book: Tactical Opportunist|image=Skill Book: Tactical Opportunist.png}}
 |used_by=
 }}

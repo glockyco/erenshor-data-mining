@@ -3,7 +3,7 @@
 |stablekey=item:head - 19 - pirate's hair tie
 |type=
 |vendorsource=
-|source=[[Drowned Corpse]] (5.2%)
+|source={{CharacterLink|stablekey=character:drowned pirate|link=Drowned Corpse|text=Drowned Corpse}} (5.2%)
 |othersource=
 |questsource=
 |relatedquest=

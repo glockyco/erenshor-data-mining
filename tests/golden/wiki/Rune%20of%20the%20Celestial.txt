@@ -5,7 +5,7 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|A Solunarian Rune}}
+|questsource={{QuestLink|A Solunarian Rune}}<br>{{QuestLink|stablekey=quest:solunasraidrune|link=A Solunarian Rune|text=A Solunarian Rune}}
 |relatedquest=
 |craftsource=
 |componentfor=

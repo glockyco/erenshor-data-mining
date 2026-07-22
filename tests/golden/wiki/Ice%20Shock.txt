@@ -5,7 +5,7 @@
 |description=Deals 700 elemental based damage to a target.
 |type=Damage
 |line=Direct_Damage
-|classes=[[Arcanist]] (16)
+|classes={{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}} (16)
 |required_level=16
 |manacost=150
 |aggro=200
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Planar Spear}}
-|source={{ItemLink|Spell Scroll: Ice Shock}}
-|used_by=[[Stoneman]]<br>[[Stoneman Magi]]
+|itemswitheffect={{ItemLink|stablekey=item:weap - 42 - planar ice lance|link=Planar Spear|text=Planar Spear|image=Planar Spear.png}}
+|source={{ItemLink|stablekey=item:spell scroll - ice shock|link=Spell Scroll: Ice Shock|text=Spell Scroll: Ice Shock|image=Spell Scroll: Ice Shock.png}}
+|used_by={{CharacterLink|stablekey=character:stoneman arcanist|link=Stoneman|text=Stoneman}}<br>{{CharacterLink|stablekey=character:stoneman magi|link=Stoneman Magi|text=Stoneman Magi}}
 }}

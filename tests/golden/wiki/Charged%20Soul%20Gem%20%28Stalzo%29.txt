@@ -6,7 +6,7 @@
 |source=
 |othersource=Using {{ItemLink|Stalzo's Soul Gem}} on Stalzo's Watchlight.
 |questsource=
-|relatedquest={{QuestLink|Aragath's Imprisonment}}
+|relatedquest={{QuestLink|Aragath's Imprisonment}}<br>{{QuestLink|stablekey=quest:aragath|link=Aragath's Imprisonment|text=Aragath's Imprisonment}}
 |craftsource=
 |componentfor=
 |buy=1

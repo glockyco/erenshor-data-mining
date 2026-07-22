@@ -3,7 +3,7 @@
 |stablekey=item:weap - 36 - executioner of azure
 |type=
 |vendorsource=
-|source=[[Captain Kilkay]] (100.0%)
+|source={{CharacterLink|stablekey=character:guard captain azure|link=Captain Kilkay|text=Captain Kilkay}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=10
 |proc_spell_icon=Theft of Vigor.png
-|proc_spell_name=[[Theft of Vigor]]
+|proc_spell_name={{AbilityLink|stablekey=spell:pal - sap vitality|link=Theft of Vigor|text=Theft of Vigor|image=Theft of Vigor.png}}
 |proc_spell_level=15
 |proc_spell_duration_ticks=5
 |proc_spell_type=StatusEffect

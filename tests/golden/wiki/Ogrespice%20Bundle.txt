@@ -3,7 +3,7 @@
 |stablekey=item:wand - 14 - ogrespice bundle
 |type=
 |vendorsource=
-|source=[[Agsha of the Soil]] (66.7%)<br>[[Druo the Reborn]] (27.4%)<br>[[A Grassland Ogre Mystic]] (2.1%)<br>[[A Grassland Ogre Shaman]] (2.1%)
+|source={{CharacterLink|stablekey=character:agsha of the soil|link=Agsha of the Soil|text=Agsha of the Soil}} (66.7%)<br>{{CharacterLink|stablekey=character:druo the reborn|link=Druo the Reborn|text=Druo the Reborn}} (27.4%)<br>{{CharacterLink|stablekey=character:grassland ogre elder shaman|link=A Grassland Ogre Mystic|text=A Grassland Ogre Mystic}} (2.1%)<br>{{CharacterLink|stablekey=character:grassland ogre shaman|link=A Grassland Ogre Shaman|text=A Grassland Ogre Shaman}} (2.1%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=75
 |proc_spell_icon=Sleep.png
-|proc_spell_name=[[Sleep]]
+|proc_spell_name={{AbilityLink|stablekey=spell:arc - sleep|link=Sleep|text=Sleep|image=Sleep.png}}
 |proc_spell_level=17
 |proc_spell_duration_ticks=9
 |proc_spell_type=StatusEffect

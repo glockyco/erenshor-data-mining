@@ -3,15 +3,15 @@
 |image=[[File:Wardwarped Alpha.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Loomingwood Forest]]
+|zones={{ZoneLink|stablekey=zone:loomingwood|link=Loomingwood Forest|text=Loomingwood Forest}}
 |coordinates=827.2 x 51.0 x 246.6
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Fury Helm}}<br>{{ItemLink|Warded Brace}}<br>{{ItemLink|Wardwarped Cape}}
-|droprates={{ItemLink|Fury Helm}} (33.3%)<br>{{ItemLink|Warded Brace}} (33.3%)<br>{{ItemLink|Wardwarped Cape}} (33.3%)<br>{{ItemLink|A Moongill}} (20.8%)<br>{{ItemLink|A Sleepyhead}} (20.8%)
+|guaranteeddrops={{ItemLink|stablekey=item:head - 35 - fury helm|link=Fury Helm|text=Fury Helm|image=Fury Helm.png}}<br>{{ItemLink|stablekey=item:wrist - 35 - warded brace|link=Warded Brace|text=Warded Brace|image=Warded Brace.png}}<br>{{ItemLink|stablekey=item:back - 37 - wardwarped cape|link=Wardwarped Cape|text=Wardwarped Cape|image=Wardwarped Cape.png}}
+|droprates={{ItemLink|stablekey=item:head - 35 - fury helm|link=Fury Helm|text=Fury Helm|image=Fury Helm.png}} (33.3%)<br>{{ItemLink|stablekey=item:wrist - 35 - warded brace|link=Warded Brace|text=Warded Brace|image=Warded Brace.png}} (33.3%)<br>{{ItemLink|stablekey=item:back - 37 - wardwarped cape|link=Wardwarped Cape|text=Wardwarped Cape|image=Wardwarped Cape.png}} (33.3%)<br>{{ItemLink|stablekey=item:fish - moongill|link=A Moongill|text=A Moongill|image=A Moongill.png}} (20.8%)<br>{{ItemLink|stablekey=item:fish - sleepyhead|link=A Sleepyhead|text=A Sleepyhead|image=A Sleepyhead.png}} (20.8%)
 |level=37
 |levelmodmin=0
 |levelmodmax=0

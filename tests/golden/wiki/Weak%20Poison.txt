@@ -5,7 +5,7 @@
 |description=Deal (8 / tick) poison damage over time
 |type=StatusEffect
 |line=Dru_Poison_DOT
-|classes=[[Druid]] (1)
+|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (1)
 |required_level=1
 |manacost=15
 |aggro=50
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|A Worm Eel}}
-|source={{ItemLink|Spell Scroll: Weak Poison}}
-|used_by=[[A Faerie Drone]]<br>[[A Sorrowful Spirit]]<br>[[Arabetha Songshade]]<br>[[Autmis the Lost]]<br>[[Boatman]]<br>[[Cerynth Duskveil]]<br>[[Corrupted Oread]]<br>[[Dryad Spirit]]<br>[[Elizah Vernor]]<br>[[Fernallan Guardian]]<br>[[Molorai Brewmistress]]<br>[[Molorai Chef]]<br>[[Molorai Militia Druid]]<br>[[Myrre Morrigane]]<br>[[Neophyte Necromancer]]<br>[[Posta]]<br>[[Rose Crystalshade]]<br>[[Thella Steepleton]]<br>[[Woe]]<br>[[Zashlyn Bloodbane]]
+|itemswitheffect={{ItemLink|stablekey=item:fish - a worm eel|link=A Worm Eel|text=A Worm Eel|image=A Worm Eel.png}}
+|source={{ItemLink|stablekey=item:spell scroll - weak poison|link=Spell Scroll: Weak Poison|text=Spell Scroll: Weak Poison|image=Spell Scroll: Weak Poison.png}}
+|used_by={{CharacterLink|stablekey=character:faerie drone|link=A Faerie Drone|text=A Faerie Drone}}<br>{{CharacterLink|stablekey=character:a sorrowful spirit|link=A Sorrowful Spirit|text=A Sorrowful Spirit}}<br>{{CharacterLink|stablekey=character:arabetha songshade|link=Arabetha Songshade|text=Arabetha Songshade}}<br>{{CharacterLink|stablekey=character:autmis the lost|link=Autmis the Lost|text=Autmis the Lost}}<br>{{CharacterLink|stablekey=character:boatman|link=Boatman|text=Boatman}}<br>{{CharacterLink|stablekey=character:cerynth duskveil|link=Cerynth Duskveil|text=Cerynth Duskveil}}<br>{{CharacterLink|stablekey=character:corrupted oread|link=Corrupted Oread|text=Corrupted Oread}}<br>{{CharacterLink|stablekey=character:dryad spirit|link=Dryad Spirit|text=Dryad Spirit}}<br>{{CharacterLink|stablekey=character:elizah vernor|link=Elizah Vernor|text=Elizah Vernor}}<br>{{CharacterLink|stablekey=character:fernallan guardian|link=Fernallan Guardian|text=Fernallan Guardian}}<br>{{CharacterLink|stablekey=character:molorai brewmistress|link=Molorai Brewmistress|text=Molorai Brewmistress}}<br>{{CharacterLink|stablekey=character:molorai chef|link=Molorai Chef|text=Molorai Chef}}<br>{{CharacterLink|stablekey=character:molorai druid|link=Molorai Militia Druid|text=Molorai Militia Druid}}<br>{{CharacterLink|stablekey=character:myrre morrigane|link=Myrre Morrigane|text=Myrre Morrigane}}<br>{{CharacterLink|stablekey=character:neophyte necromancer|link=Neophyte Necromancer|text=Neophyte Necromancer}}<br>{{CharacterLink|stablekey=character:posta|link=Posta|text=Posta}}<br>{{CharacterLink|stablekey=character:rose darkcrystal|link=Rose Crystalshade|text=Rose Crystalshade}}<br>{{CharacterLink|stablekey=character:thella steepleton|link=Thella Steepleton|text=Thella Steepleton}}<br>{{CharacterLink|stablekey=character:woe|link=Woe|text=Woe}}<br>{{CharacterLink|stablekey=character:zashlyn bloodbane|link=Zashlyn Bloodbane|text=Zashlyn Bloodbane}}
 }}

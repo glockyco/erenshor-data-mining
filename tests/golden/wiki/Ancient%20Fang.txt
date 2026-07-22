@@ -3,10 +3,10 @@
 |stablekey=item:gen - ancient fang
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Dream]] (100.0%)
+|source={{CharacterLink|stablekey=character:dreambear|link=Dream|text=Dream}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Warming the Isle}}
+|relatedquest={{QuestLink|Warming the Isle}}<br>{{QuestLink|stablekey=quest:shiver-flamelit|link=Warming the Isle|text=Warming the Isle}}
 |craftsource=
 |componentfor=
 |buy=5

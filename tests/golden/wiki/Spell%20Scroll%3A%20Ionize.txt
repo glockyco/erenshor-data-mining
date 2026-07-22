@@ -2,7 +2,7 @@
 |title=Spell Scroll: Ionize
 |stablekey=item:spell scroll - ionize
 |type=[[Ability Books|Spell Scroll]]
-|vendorsource=[[Elizabeth DeWitt]]
+|vendorsource={{CharacterLink|stablekey=character:elizabeth dewitt|link=Elizabeth DeWitt|text=Elizabeth DeWitt}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=5000
 |sell=3250
-|taughtspell={{AbilityLink|Ionize}}
+|taughtspell={{AbilityLink|stablekey=spell:stc - ionize|link=Ionize|text=Ionize|image=Ionize.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

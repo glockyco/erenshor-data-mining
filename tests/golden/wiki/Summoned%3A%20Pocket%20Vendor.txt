@@ -3,9 +3,9 @@
 |image=[[File:Summoned: Pocket Vendor.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Followers of Good]]
+|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
 |factionChange=
-|zones=[[Reliquary Hall]]
+|zones={{ZoneLink|stablekey=zone:reliquary|link=Reliquary Hall|text=Reliquary Hall}}
 |coordinates=268.3 x 1.4 x 349.0
 |spawnchance=
 |spawntype=

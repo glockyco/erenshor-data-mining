@@ -2,7 +2,7 @@
 |title=Spell Scroll: Static Invocation
 |stablekey=item:spell scroll - static invocation
 |type=[[Ability Books|Spell Scroll]]
-|vendorsource=[[Aldoa Manday]]<br>[[Ophelia Luminee]]<br>[[Samuel Thatcher]]<br>[[Windlae Oldseer]]
+|vendorsource={{CharacterLink|stablekey=character:addelia zurin:stowaway:508.78:67.80:537.95|link=Aldoa Manday|text=Aldoa Manday}}<br>{{CharacterLink|stablekey=character:ophelia instrumento|link=Ophelia Luminee|text=Ophelia Luminee}}<br>{{CharacterLink|stablekey=character:shopkeeper samuel|link=Samuel Thatcher|text=Samuel Thatcher}}<br>{{CharacterLink|stablekey=character:windlae oldseer|link=Windlae Oldseer|text=Windlae Oldseer}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=125
 |sell=81
-|taughtspell={{AbilityLink|Static Invocation}}
+|taughtspell={{AbilityLink|stablekey=spell:stc - static invocation|link=Static Invocation|text=Static Invocation|image=Static Invocation.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

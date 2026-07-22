@@ -3,15 +3,15 @@
 |image=[[File:Bridgekeeper.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Followers of Good]]
+|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
 |factionChange=
-|zones=[[Shivering Step]]
+|zones={{ZoneLink|stablekey=zone:shiveringstep|link=Shivering Step|text=Shivering Step}}
 |coordinates=509.0 x 68.5 x 659.7
 |spawnchance=
 |spawntype=
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|Cloth Gloves}} (15.8%)<br>{{ItemLink|Cloth Hood}} (15.8%)<br>{{ItemLink|Cloth Shoes}} (15.8%)<br>{{ItemLink|Cloth Sleeves}} (15.8%)
+|droprates={{ItemLink|stablekey=item:glove - 1 - cloth gloves|link=Cloth Gloves|text=Cloth Gloves|image=Cloth Gloves.png}} (15.8%)<br>{{ItemLink|stablekey=item:head - 1 - cloth hood|link=Cloth Hood|text=Cloth Hood|image=Cloth Hood.png}} (15.8%)<br>{{ItemLink|stablekey=item:foot - 1 - cloth shoes|link=Cloth Shoes|text=Cloth Shoes|image=Cloth Shoes.png}} (15.8%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves|link=Cloth Sleeves|text=Cloth Sleeves|image=Cloth Sleeves.png}} (15.8%)
 |level=1
 |levelmodmin=0
 |levelmodmax=0

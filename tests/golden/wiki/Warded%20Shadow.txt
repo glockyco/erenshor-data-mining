@@ -3,15 +3,15 @@
 |image=[[File:Warded Shadow.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Shivering Tomb|Shivering Tomb (2)]]
+|zones={{ZoneLink|stablekey=zone:shiveringtomb2|link=Shivering Tomb|text=Shivering Tomb (2)}}
 |coordinates=-77.0 x -68.4 x 284.9
 |spawnchance=
 |spawntype=
 |respawn=
-|guaranteeddrops={{ItemLink|Protector's Bracer}}<br>{{ItemLink|Shadow Helm}}<br>{{ItemLink|Trembling Chain}}
-|droprates={{ItemLink|Captured Light}} (100.0%)<ref>If the player is already holding {{ItemLink|Captured Light}} in their inventory, another will not drop.</ref><br>{{ItemLink|Thief of Breath}} (53.8%)<ref>If the player is already holding {{ItemLink|Thief of Breath}} in their inventory, another will not drop.</ref><br>{{ItemLink|Protector's Bracer}} (37.9%)<br>{{ItemLink|Shadow Helm}} (37.9%)<br>{{ItemLink|Trembling Chain}} (37.9%)<br>{{ItemLink|Bread}} (30.3%)<br>{{ItemLink|Death's Decay}} (30.3%)<ref>If the player is already holding {{ItemLink|Death's Decay}} in their inventory, another will not drop.</ref><br>{{ItemLink|Diamond}} (30.3%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref>
+|guaranteeddrops={{ItemLink|stablekey=item:wrist - 25 - protector's bracer|link=Protector's Bracer|text=Protector's Bracer|image=Protector's Bracer.png}}<br>{{ItemLink|stablekey=item:head - 26 - shadow's helm|link=Shadow Helm|text=Shadow Helm|image=Shadow Helm.png}}<br>{{ItemLink|stablekey=item:neck - 25 - trembling chain|link=Trembling Chain|text=Trembling Chain|image=Trembling Chain.png}}
+|droprates={{ItemLink|stablekey=item:gen - shard of light|link=Captured Light|text=Captured Light|image=Captured Light.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - shard of light|link=Captured Light|text=Captured Light|image=Captured Light.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - thief of breath|link=Thief of Breath|text=Thief of Breath|image=Thief of Breath.png}} (53.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - thief of breath|link=Thief of Breath|text=Thief of Breath|image=Thief of Breath.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:wrist - 25 - protector's bracer|link=Protector's Bracer|text=Protector's Bracer|image=Protector's Bracer.png}} (37.9%)<br>{{ItemLink|stablekey=item:head - 26 - shadow's helm|link=Shadow Helm|text=Shadow Helm|image=Shadow Helm.png}} (37.9%)<br>{{ItemLink|stablekey=item:neck - 25 - trembling chain|link=Trembling Chain|text=Trembling Chain|image=Trembling Chain.png}} (37.9%)<br>{{ItemLink|stablekey=item:cons - bread|link=Bread|text=Bread|image=Bread.png}} (30.3%)<br>{{ItemLink|stablekey=item:gen - death's decay|link=Death's Decay|text=Death's Decay|image=Death's Decay.png}} (30.3%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - death's decay|link=Death's Decay|text=Death's Decay|image=Death's Decay.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (30.3%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref>
 |level=26
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=13-31
 |elemental=13-31
 |void=13-31
-|spells={{AbilityLink|Immolation}}
+|spells={{AbilityLink|stablekey=spell:arc - immolation|link=Immolation|text=Immolation|image=Immolation.png}}
 }}
 To defeat the Warded Shadow, first defeat the two Phantom's Ward on either side of it.  While attacking the Phantom's Ward, one of the purple blobs that spawn will have particles above it, defeat those to continue attacking the Phantom's Wards.  Once both are down, the Warded Shadow can be defeated.
 

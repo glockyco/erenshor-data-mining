@@ -3,7 +3,7 @@
 |stablekey=item:weap - 14 - whipsword
 |type=
 |vendorsource=
-|source=[[Overseer Orlok]] (25.0%)
+|source={{CharacterLink|stablekey=character:overseer orlok|link=Overseer Orlok|text=Overseer Orlok}} (25.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=1
 |proc_spell_icon=Concuss.png
-|proc_spell_name=[[Concuss]]
+|proc_spell_name={{AbilityLink|stablekey=spell:dru arc - concuss|link=Concuss|text=Concuss|image=Concuss.png}}
 |proc_spell_level=17
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

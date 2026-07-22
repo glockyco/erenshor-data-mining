@@ -3,15 +3,15 @@
 |image=[[File:Elysia Thistlewick.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Followers of Good]]
-|factionChange=-25 [[The Citizens of Erenshor]]<br>-25 [[The Citizens of Port Azure]]<br>-25 [[The Solunarian Brotherhood]]
-|zones=[[Port Azure]]
+|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|factionChange=-25 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>-25 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>-25 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
+|zones={{ZoneLink|stablekey=zone:azure|link=Port Azure|text=Port Azure}}
 |coordinates=162.9 x 26.3 x 334.2
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Bear Bone Club}} (12.9%)<ref>If Elysia Thistlewick has {{ItemLink|Bear Bone Club}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sea Glass}} (7.4%)<br>{{ItemLink|Star Stone}} (7.4%)
+|droprates={{ItemLink|stablekey=item:weap - 6 - bearbone club|link=Bear Bone Club|text=Bear Bone Club|image=Bear Bone Club.png}} (12.9%)<ref>If Elysia Thistlewick has {{ItemLink|stablekey=item:weap - 6 - bearbone club|link=Bear Bone Club|text=Bear Bone Club|image=Bear Bone Club.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (7.4%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (7.4%)
 |level=20
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=10-24
 |elemental=10-24
 |void=10-24
-|spells={{AbilityLink|Death's Embrace}}<br>{{AbilityLink|Expose Weakness}}
+|spells={{AbilityLink|stablekey=spell:duel - deathly embrace|link=Death's Embrace|text=Death's Embrace|image=Death's Embrace.png}}<br>{{AbilityLink|stablekey=spell:duel - expose weakness|link=Expose Weakness|text=Expose Weakness|image=Expose Weakness.png}}
 }}
 Elysia is located in a small market to the west just past the [[Port Azure]] gates.
 

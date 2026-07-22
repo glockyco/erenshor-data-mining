@@ -3,7 +3,7 @@
 |stablekey=item:furniture - brax well
 |type=
 |vendorsource=
-|source=[[Braxonian Planar Guard (Fire)]] (5.9%)<br>[[Braxonian Planar Guard (Ice)]] (5.9%)<br>[[Prince Oslind]] (1.4%)<br>[[Prince Ardant]] (1.4%)
+|source={{CharacterLink|stablekey=character:braxonian planar guardian fire|link=Braxonian Planar Guard (Fire)|text=Braxonian Planar Guard (Fire)}} (5.9%)<br>{{CharacterLink|stablekey=character:braxonian planar guardian ice|link=Braxonian Planar Guard (Ice)|text=Braxonian Planar Guard (Ice)}} (5.9%)<br>{{CharacterLink|stablekey=character:braxonian prince oslind|link=Prince Oslind|text=Prince Oslind}} (1.4%)<br>{{CharacterLink|stablekey=character:braxonian prince ardant|link=Prince Ardant|text=Prince Ardant}} (1.4%)
 |othersource=
 |questsource=
 |relatedquest=

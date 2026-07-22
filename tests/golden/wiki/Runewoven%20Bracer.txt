@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 8 - runewoven bracer
 |type=
 |vendorsource=
-|source=[[Tek-Nu Dah]] (51.7%)<br>[[A Rottenfoot Warrior]] (4.4%)<br>[[A Rottenfoot Witchdoctor]] (4.4%)<br>[[Rottenfoot Mauler]] (3.4%)<br>[[Rottenfoot Swampwalker]] (3.4%)<br>[[Rottenfoot Witchdoctor]] (3.4%)
+|source={{CharacterLink|stablekey=character:tal-nah lo|link=Tek-Nu Dah|text=Tek-Nu Dah}} (51.7%)<br>{{CharacterLink|stablekey=character:a rottenfoot goblin warrior|link=A Rottenfoot Warrior|text=A Rottenfoot Warrior}} (4.4%)<br>{{CharacterLink|stablekey=character:a rottenfoot goblin witchdoctor|link=A Rottenfoot Witchdoctor|text=A Rottenfoot Witchdoctor}} (4.4%)<br>{{CharacterLink|stablekey=character:a rottenfoot mauler|link=Rottenfoot Mauler|text=Rottenfoot Mauler}} (3.4%)<br>{{CharacterLink|stablekey=character:a rottenfoot goblin female|link=Rottenfoot Swampwalker|text=Rottenfoot Swampwalker}} (3.4%)<br>{{CharacterLink|stablekey=character:a rottenfoot goblin male|link=Rottenfoot Swampwalker|text=Rottenfoot Swampwalker}} (3.4%)<br>{{CharacterLink|stablekey=character:a rottenfoot goblin spiritcaller|link=Rottenfoot Witchdoctor|text=Rottenfoot Witchdoctor}} (3.4%)
 |othersource=
 |questsource=
 |relatedquest=

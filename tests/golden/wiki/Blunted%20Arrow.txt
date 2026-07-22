@@ -5,7 +5,7 @@
 |description=This arrow has a heavy, blunt tip that will stun an opponent and interrupt spell casts
 |type=Ranged
 |line=
-|classes=[[Stormcaller]] (3)
+|classes={{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}} (3)
 |required_level=
 |manacost=
 |aggro=
@@ -23,7 +23,7 @@
 |is_self_only=
 |is_group_effect=
 |is_applied_to_caster=
-|effects={{AbilityLink|Stun}}
+|effects={{AbilityLink|stablekey=spell:gen - stun|link=Stun|text=Stun|image=Stun.png}}<br>{{AbilityLink|stablekey=spell:gen - stun short|link=Stun|text=Stun|image=Stun.png}}
 |damage_type=
 |resist_modifier=
 |target_damage=3
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Skill Book: Blunted Arrow}}
+|source={{ItemLink|stablekey=item:skillbook - blunted arrow|link=Skill Book: Blunted Arrow|text=Skill Book: Blunted Arrow|image=Skill Book: Blunted Arrow.png}}
 |used_by=
 }}

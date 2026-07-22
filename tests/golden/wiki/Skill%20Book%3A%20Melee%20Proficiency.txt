@@ -2,7 +2,7 @@
 |title=Skill Book: Melee Proficiency
 |stablekey=item:skillbook - combat proficiency
 |type=
-|vendorsource=[[Roreli Gilmare]]<br>[[Sven Feartines]]
+|vendorsource={{CharacterLink|stablekey=character:roreli gilmare:azure:143.76:26.28:342.76|link=Roreli Gilmare|text=Roreli Gilmare}}<br>{{CharacterLink|stablekey=character:sven feartines|link=Sven Feartines|text=Sven Feartines}}
 |source=
 |othersource=
 |questsource=
@@ -12,7 +12,7 @@
 |buy=225
 |sell=146
 |taughtspell=
-|taughtskill={{AbilityLink|Melee Proficiency}}
+|taughtskill={{AbilityLink|stablekey=skill:melee proficiency|link=Melee Proficiency|text=Melee Proficiency|image=Melee Proficiency.png}}
 |guaranteeddrops=
 |droprates=
 }}

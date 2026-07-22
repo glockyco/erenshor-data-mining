@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - mutual torment
 |type=
 |vendorsource=
-|source=[[Sivakayan Reaver]] (3.0%)
+|source={{CharacterLink|stablekey=character:sivakayan reaver|link=Sivakayan Reaver|text=Sivakayan Reaver}} (3.0%)<br>{{CharacterLink|stablekey=character:sivakayan reaver:1|link=Sivakayan Reaver|text=Sivakayan Reaver}} (3.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=25000
 |sell=16250
-|taughtspell={{AbilityLink|Mutual Torment}}
+|taughtspell={{AbilityLink|stablekey=spell:reav - mutual torment|link=Mutual Torment|text=Mutual Torment|image=Mutual Torment.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

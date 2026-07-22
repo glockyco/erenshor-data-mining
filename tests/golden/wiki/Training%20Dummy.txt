@@ -5,7 +5,7 @@
 |type=NPC
 |faction=
 |factionChange=
-|zones=[[Port Azure]]<br>[[Reliquary Hall]]
+|zones={{ZoneLink|stablekey=zone:azure|link=Port Azure|text=Port Azure}}<br>{{ZoneLink|stablekey=zone:reliquary|link=Reliquary Hall|text=Reliquary Hall}}
 |coordinates=168.9 x 41.8 x 309.3
 |spawnchance=
 |spawntype=
@@ -44,7 +44,7 @@ The training dummy is located on the top floor of the [[Solunarian Brotherhood]]
 |type=NPC
 |faction=
 |factionChange=
-|zones=[[Reliquary Hall]]
+|zones={{ZoneLink|stablekey=zone:reliquary|link=Reliquary Hall|text=Reliquary Hall}}
 |coordinates=269.1 x 0.2 x 329.2
 |spawnchance=
 |spawntype=
@@ -81,7 +81,7 @@ The training dummy is located on the top floor of the [[Solunarian Brotherhood]]
 |type=NPC
 |faction=
 |factionChange=
-|zones=[[Reliquary Hall]]
+|zones={{ZoneLink|stablekey=zone:reliquary|link=Reliquary Hall|text=Reliquary Hall}}
 |coordinates=269.1 x 0.2 x 329.2
 |spawnchance=
 |spawntype=
@@ -118,7 +118,7 @@ The training dummy is located on the top floor of the [[Solunarian Brotherhood]]
 |type=NPC
 |faction=
 |factionChange=
-|zones=[[Reliquary Hall]]
+|zones={{ZoneLink|stablekey=zone:reliquary|link=Reliquary Hall|text=Reliquary Hall}}
 |coordinates=268.5 x 0.2 x 358.1
 |spawnchance=
 |spawntype=

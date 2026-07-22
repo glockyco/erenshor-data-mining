@@ -3,15 +3,15 @@
 |image=[[File:Invader of Dreams.png|thumb]]
 |imagecaption="Do not seek us, or else we will seek you."
 |type=Boss
-|faction=[[The Nightmare Collective]]
+|faction={{FactionLink|stablekey=faction:nightmarecollective|link=The Nightmare Collective|text=The Nightmare Collective}}
 |factionChange=
-|zones=[[Mysterious Portal|Mysterious Portal (2)]]
+|zones={{ZoneLink|stablekey=zone:fernallaportal|link=Mysterious Portal|text=Mysterious Portal (2)}}
 |coordinates=343.5 x 0.5 x 405.9
 |spawnchance=
 |spawntype=
 |respawn=Instanced
-|guaranteeddrops={{ItemLink|Dreamborn Gloves}}<br>{{ItemLink|Linen Bedpants}}<br>{{ItemLink|Memories of Snow}}<br>{{ItemLink|Vaporous Armguard}}
-|droprates={{ItemLink|Unborn Phobia}} (100.0%)<ref>If the player is already holding {{ItemLink|Unborn Phobia}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Bone}} (51.4%)<br>{{ItemLink|Luminstone}} (51.4%)<br>{{ItemLink|Sea Glass}} (51.4%)<br>{{ItemLink|Remnants of a Daydream}} (26.8%)<br>{{ItemLink|Remnants of a Nightmare}} (26.8%)<br>{{ItemLink|Dreamborn Gloves}} (25.0%)<br>{{ItemLink|Linen Bedpants}} (25.0%)<br>{{ItemLink|Memories of Snow}} (25.0%)<br>{{ItemLink|Vaporous Armguard}} (25.0%)
+|guaranteeddrops={{ItemLink|stablekey=item:glove - 22 - dreamborn gloves|link=Dreamborn Gloves|text=Dreamborn Gloves|image=Dreamborn Gloves.png}}<br>{{ItemLink|stablekey=item:leg - 24 - linen bedpants|link=Linen Bedpants|text=Linen Bedpants|image=Linen Bedpants.png}}<br>{{ItemLink|stablekey=item:hand - 25 - memories of snow|link=Memories of Snow|text=Memories of Snow|image=Memories of Snow.png}}<br>{{ItemLink|stablekey=item:arm - 24 - vaporous armguard|link=Vaporous Armguard|text=Vaporous Armguard|image=Vaporous Armguard.png}}
+|droprates={{ItemLink|stablekey=item:gen - unborn phobia|link=Unborn Phobia|text=Unborn Phobia|image=Unborn Phobia.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - unborn phobia|link=Unborn Phobia|text=Unborn Phobia|image=Unborn Phobia.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - an ancient bone|link=Ancient Bone|text=Ancient Bone|image=Ancient Bone.png}} (51.4%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (51.4%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (51.4%)<br>{{ItemLink|stablekey=item:gen - remnants of a daydream|link=Remnants of a Daydream|text=Remnants of a Daydream|image=Remnants of a Daydream.png}} (26.8%)<br>{{ItemLink|stablekey=item:gen - remnants of a nightmare|link=Remnants of a Nightmare|text=Remnants of a Nightmare|image=Remnants of a Nightmare.png}} (26.8%)<br>{{ItemLink|stablekey=item:glove - 22 - dreamborn gloves|link=Dreamborn Gloves|text=Dreamborn Gloves|image=Dreamborn Gloves.png}} (25.0%)<br>{{ItemLink|stablekey=item:leg - 24 - linen bedpants|link=Linen Bedpants|text=Linen Bedpants|image=Linen Bedpants.png}} (25.0%)<br>{{ItemLink|stablekey=item:hand - 25 - memories of snow|link=Memories of Snow|text=Memories of Snow|image=Memories of Snow.png}} (25.0%)<br>{{ItemLink|stablekey=item:arm - 24 - vaporous armguard|link=Vaporous Armguard|text=Vaporous Armguard|image=Vaporous Armguard.png}} (25.0%)
 |level=24
 |levelmodmin=0
 |levelmodmax=0

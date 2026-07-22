@@ -3,15 +3,15 @@
 |image=[[File:Elder Guardian.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Blooming Sepulcher]]
+|zones={{ZoneLink|stablekey=zone:bloomingsepulcher|link=Blooming Sepulcher|text=Blooming Sepulcher}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Decayed Druid Beads}} (32.3%)<br>{{ItemLink|Ruby}} (6.8%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Thorned Branch}} (1.4%)<ref>If Elder Guardian has {{ItemLink|Thorned Branch}} equipped, it is guaranteed to drop.</ref>
+|droprates={{ItemLink|stablekey=item:gen - decayed druid beads|link=Decayed Druid Beads|text=Decayed Druid Beads|image=Decayed Druid Beads.png}} (32.3%)<br>{{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} (6.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:weap - 19 - thorned branch|link=Thorned Branch|text=Thorned Branch|image=Thorned Branch.png}} (1.4%)<ref>If Elder Guardian has {{ItemLink|stablekey=item:weap - 19 - thorned branch|link=Thorned Branch|text=Thorned Branch|image=Thorned Branch.png}} equipped, it is guaranteed to drop.</ref>
 |level=22
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=11-26
 |elemental=11-26
 |void=11-26
-|spells={{AbilityLink|Blast of Thorns}}<br>{{AbilityLink|Lesser Lightning}}
+|spells={{AbilityLink|stablekey=spell:dru - blast of thorns|link=Blast of Thorns|text=Blast of Thorns|image=Blast of Thorns.png}}<br>{{AbilityLink|stablekey=spell:none - lightning 1|link=Lesser Lightning|text=Lesser Lightning|image=Lesser Lightning.png}}
 }}
 
 [[Category:Blooming Sepulcher]]

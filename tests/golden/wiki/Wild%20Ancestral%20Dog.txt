@@ -3,15 +3,15 @@
 |image=[[File:Wild Ancestral Dog.png|thumb]]
 |imagecaption=A bit ruff around the edges
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Azynthi's Garden]]
+|zones={{ZoneLink|stablekey=zone:azynthiclear|link=Azynthi's Garden|text=Azynthi's Garden}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Spell Scroll: Gift of Vitae}}<br>{{ItemLink|Warhound Collar}}
-|droprates={{ItemLink|Wolf Meat}} (94.9%)<br>{{ItemLink|Spell Scroll: Gift of Vitae}} (50.0%)<br>{{ItemLink|Warhound Collar}} (50.0%)
+|guaranteeddrops={{ItemLink|stablekey=item:spell scroll - gift of vitae|link=Spell Scroll: Gift of Vitae|text=Spell Scroll: Gift of Vitae|image=Spell Scroll: Gift of Vitae.png}}<br>{{ItemLink|stablekey=item:gen - azynthian collar|link=Warhound Collar|text=Warhound Collar|image=Warhound Collar.png}}
+|droprates={{ItemLink|stablekey=item:gen - wolf meat|link=Wolf Meat|text=Wolf Meat|image=Wolf Meat.png}} (94.9%)<br>{{ItemLink|stablekey=item:spell scroll - gift of vitae|link=Spell Scroll: Gift of Vitae|text=Spell Scroll: Gift of Vitae|image=Spell Scroll: Gift of Vitae.png}} (50.0%)<br>{{ItemLink|stablekey=item:gen - azynthian collar|link=Warhound Collar|text=Warhound Collar|image=Warhound Collar.png}} (50.0%)
 |level=32
 |levelmodmin=0
 |levelmodmax=0

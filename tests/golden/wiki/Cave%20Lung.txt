@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Fungal Staff}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 29 - fungal staff|link=Fungal Staff|text=Fungal Staff|image=Fungal Staff.png}}
 |source=
 |used_by=
 }}

@@ -3,10 +3,10 @@
 |stablekey=item:gen - rune of silkengrass
 |type=[[Teleportation]]<br>[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Shadow Man]] (5.9%)<br>[[Aetherfiend]] (5.1%)
+|source={{CharacterLink|stablekey=character:shadow man|link=Shadow Man|text=Shadow Man}} (5.9%)<br>{{CharacterLink|stablekey=character:aetherfiend|link=Aetherfiend|text=Aetherfiend}} (5.1%)
 |othersource=
-|questsource={{QuestLink|Portal of Silkengrass}}
-|relatedquest={{QuestLink|Portal of Silkengrass}}
+|questsource={{QuestLink|Portal of Silkengrass}}<br>{{QuestLink|stablekey=quest:reliq-silkengrass|link=Portal of Silkengrass|text=Portal of Silkengrass}}
+|relatedquest={{QuestLink|Portal of Silkengrass}}<br>{{QuestLink|stablekey=quest:reliq-silkengrass|link=Portal of Silkengrass|text=Portal of Silkengrass}}
 |craftsource=
 |componentfor=
 |buy=5000
@@ -26,7 +26,7 @@
 |disposable=
 |effect_style=Activatable
 |effect_spell_icon=Portal to Silkengrass.png
-|effect_spell_name=[[Portal to Silkengrass]]
+|effect_spell_name={{AbilityLink|stablekey=spell:arc - portal to silkengrass|link=Portal to Silkengrass|text=Portal to Silkengrass|image=Portal to Silkengrass.png}}
 |effect_spell_level=25
 |effect_spell_duration_ticks=
 |effect_spell_type=Misc

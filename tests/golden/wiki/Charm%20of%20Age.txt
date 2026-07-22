@@ -7,7 +7,7 @@
 |othersource=
 |questsource=
 |relatedquest=
-|craftsource=1x {{ItemLink|Mold: Charm of Age}}<br>1x {{ItemLink|Chunk of Citrine Sandsilver}}<br>1x {{ItemLink|Polished Stone}}<br>1x {{ItemLink|Coral}}<br>1x {{ItemLink|Diamond}}
+|craftsource=1x {{ItemLink|stablekey=item:template - charm of age|link=Mold: Charm of Age|text=Mold: Charm of Age|image=Mold: Charm of Age.png}}<br>1x {{ItemLink|stablekey=item:ore - citrine sandsilver|link=Chunk of Citrine Sandsilver|text=Chunk of Citrine Sandsilver|image=Chunk of Citrine Sandsilver.png}}<br>1x {{ItemLink|stablekey=item:gen - polished stone|link=Polished Stone|text=Polished Stone|image=Polished Stone.png}}<br>1x {{ItemLink|stablekey=item:gen - a coral|link=Coral|text=Coral|image=Coral.png}}<br>1x {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}}
 |componentfor=
 |buy=25000
 |sell=16250

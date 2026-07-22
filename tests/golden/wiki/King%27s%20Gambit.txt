@@ -3,7 +3,7 @@
 |stablekey=item:weap - 42 - king's gambit
 |type=
 |vendorsource=
-|source=[[Chunk of Amarion]] (40.8%)
+|source={{CharacterLink|stablekey=character:chunk of amarion|link=Chunk of Amarion|text=Chunk of Amarion}} (40.8%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=15
 |proc_spell_icon=King's Gambit (Effect).png
-|proc_spell_name=[[King's Gambit (Effect)|King's Gambit]]
+|proc_spell_name={{AbilityLink|stablekey=spell:none - king's gambit|link=King's Gambit (Effect)|text=King's Gambit|image=King's Gambit (Effect).png}}
 |proc_spell_level=24
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

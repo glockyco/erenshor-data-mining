@@ -3,7 +3,7 @@
 |stablekey=item:arm - 8 - archer's vambrace
 |type=
 |vendorsource=
-|source=[[Sylvan Giant Runt]] (25.0%)
+|source={{CharacterLink|stablekey=character:sylvan giant runt|link=Sylvan Giant Runt|text=Sylvan Giant Runt}} (25.0%)
 |othersource=
 |questsource=
 |relatedquest=

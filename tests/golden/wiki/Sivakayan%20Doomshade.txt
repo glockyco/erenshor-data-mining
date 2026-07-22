@@ -3,7 +3,7 @@
 |image=[[File:Sivakayan Doomshade.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
 |zones=
 |coordinates=
@@ -11,7 +11,7 @@
 |spawntype=
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|Sivakayan Codex 4 of 4}} (100.0%)<ref>If the player is already holding {{ItemLink|Sivakayan Codex 4 of 4}} in their inventory, another will not drop.</ref><br>{{ItemLink|Hopewarden}} (8.6%)<br>{{ItemLink|Ruby}} (4.9%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Icy Bow}} (4.3%)<br>{{ItemLink|Citrine Stone}} (2.5%)<br>{{ItemLink|Diamond}} (2.5%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Sea Glass}} (2.5%)<br>{{ItemLink|Sivakayan Wand}} (2.5%)
+|droprates={{ItemLink|stablekey=item:gen - sivakayan codex shard 4|link=Sivakayan Codex 4 of 4|text=Sivakayan Codex 4 of 4|image=Sivakayan Codex 4 of 4.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - sivakayan codex shard 4|link=Sivakayan Codex 4 of 4|text=Sivakayan Codex 4 of 4|image=Sivakayan Codex 4 of 4.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:secondary - 38 - hopewarden|link=Hopewarden|text=Hopewarden|image=Hopewarden.png}} (8.6%)<br>{{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} (4.9%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:bow - 38 - icy bow|link=Icy Bow|text=Icy Bow|image=Icy Bow.png}} (4.3%)<br>{{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (2.5%)<br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (2.5%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (2.5%)<br>{{ItemLink|stablekey=item:wand - 25 - sivakayan wand|link=Sivakayan Wand|text=Sivakayan Wand|image=Sivakayan Wand.png}} (2.5%)
 |level=36
 |levelmodmin=0
 |levelmodmax=0

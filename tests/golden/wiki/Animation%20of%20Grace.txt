@@ -3,15 +3,15 @@
 |image=[[File:Animation of Grace.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Soluna's Celestial Plane]]
+|zones={{ZoneLink|stablekey=zone:planeofsoluna|link=Soluna's Celestial Plane|text=Soluna's Celestial Plane}}
 |coordinates=319.0 x 327.1 x 646.7
 |spawnchance=
 |spawntype=
 |respawn=33 minutes
-|guaranteeddrops={{ItemLink|Blade of Grace}}<br>{{ItemLink|Cord of Concentration}}<br>{{ItemLink|Halo of Twin Skies}}
-|droprates={{ItemLink|Planar Stone Shards}} (81.0%)<br>{{ItemLink|Blade of Grace}} (68.9%)<br>{{ItemLink|Cord of Concentration}} (68.9%)<br>{{ItemLink|Halo of Twin Skies}} (68.9%)<br>{{ItemLink|Planar Stone}} (36.8%)
+|guaranteeddrops={{ItemLink|stablekey=item:weap - 42 - blade of grace|link=Blade of Grace|text=Blade of Grace|image=Blade of Grace.png}}<br>{{ItemLink|stablekey=item:belt - 42 - cord of concentration|link=Cord of Concentration|text=Cord of Concentration|image=Cord of Concentration.png}}<br>{{ItemLink|stablekey=item:ring - 42 - halo of twin skies|link=Halo of Twin Skies|text=Halo of Twin Skies|image=Halo of Twin Skies.png}}
+|droprates={{ItemLink|stablekey=item:ore - planar shard|link=Planar Stone Shards|text=Planar Stone Shards|image=Planar Stone Shards.png}} (81.0%)<br>{{ItemLink|stablekey=item:weap - 42 - blade of grace|link=Blade of Grace|text=Blade of Grace|image=Blade of Grace.png}} (68.9%)<br>{{ItemLink|stablekey=item:belt - 42 - cord of concentration|link=Cord of Concentration|text=Cord of Concentration|image=Cord of Concentration.png}} (68.9%)<br>{{ItemLink|stablekey=item:ring - 42 - halo of twin skies|link=Halo of Twin Skies|text=Halo of Twin Skies|image=Halo of Twin Skies.png}} (68.9%)<br>{{ItemLink|stablekey=item:ore - planar stone|link=Planar Stone|text=Planar Stone|image=Planar Stone.png}} (36.8%)
 |level=40
 |levelmodmin=0
 |levelmodmax=0

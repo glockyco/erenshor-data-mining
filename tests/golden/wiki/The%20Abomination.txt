@@ -3,15 +3,15 @@
 |image=[[File:The Abomination.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
-|factionChange=+15 [[The Blades of Vitheo]]
-|zones=[[Vitheo's Rest]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|factionChange=+15 {{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}
+|zones={{ZoneLink|stablekey=zone:vitheosend|link=Vitheo's Rest|text=Vitheo's Rest}}
 |coordinates=286.5 x 0.6 x 175.7
 |spawnchance=
 |spawntype=
 |respawn=
-|guaranteeddrops={{ItemLink|Bloodstained Plate}}<br>{{ItemLink|Steadfast Girdle}}
-|droprates={{ItemLink|Key to Vitheo's Tomb}} (100.0%)<ref>If the player is already holding {{ItemLink|Key to Vitheo's Tomb}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Bone}} (94.9%)<br>{{ItemLink|Bloodstained Plate}} (50.0%)<br>{{ItemLink|Steadfast Girdle}} (50.0%)
+|guaranteeddrops={{ItemLink|stablekey=item:chest - 30 - bloodstained plate|link=Bloodstained Plate|text=Bloodstained Plate|image=Bloodstained Plate.png}}<br>{{ItemLink|stablekey=item:belt - 31 - steadfast girdle|link=Steadfast Girdle|text=Steadfast Girdle|image=Steadfast Girdle.png}}
+|droprates={{ItemLink|stablekey=item:key - key to vitheo's tomb|link=Key to Vitheo's Tomb|text=Key to Vitheo's Tomb|image=Key to Vitheo's Tomb.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:key - key to vitheo's tomb|link=Key to Vitheo's Tomb|text=Key to Vitheo's Tomb|image=Key to Vitheo's Tomb.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - an ancient bone|link=Ancient Bone|text=Ancient Bone|image=Ancient Bone.png}} (94.9%)<br>{{ItemLink|stablekey=item:chest - 30 - bloodstained plate|link=Bloodstained Plate|text=Bloodstained Plate|image=Bloodstained Plate.png}} (50.0%)<br>{{ItemLink|stablekey=item:belt - 31 - steadfast girdle|link=Steadfast Girdle|text=Steadfast Girdle|image=Steadfast Girdle.png}} (50.0%)
 |level=38
 |levelmodmin=0
 |levelmodmax=0

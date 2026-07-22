@@ -3,15 +3,15 @@
 |image=[[File:A Deepling Orator.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[The Elderstone Mines]]
+|zones={{ZoneLink|stablekey=zone:elderstone|link=The Elderstone Mines|text=The Elderstone Mines}}
 |coordinates=-259.4 x -57.6 x 245.3
 |spawnchance=95%
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Honor Strip}} (43.4%)<br>{{ItemLink|The Gift of Eloquence}} (43.4%)<br>{{ItemLink|Reptilian Scales}} (5.3%)<br>{{ItemLink|Serpentine Blood}} (5.3%)<br>{{ItemLink|Star Stone}} (5.3%)<br>{{ItemLink|Spell Scroll: Call of the Void}} (1.9%)<br>{{ItemLink|Spell Scroll: Concuss}} (1.9%)<br>{{ItemLink|Spell Scroll: Ice Spear}} (1.9%)<br>{{ItemLink|Spell Scroll: Immolation}} (1.9%)<br>{{ItemLink|Spell Scroll: Sleep}} (1.9%)<br>{{ItemLink|Elderstone Shard}} (1.5%)<ref>If the player is already holding {{ItemLink|Elderstone Shard}} in their inventory, another will not drop.</ref><br>{{ItemLink|Fungus Covered Armband}} (1.5%)<br>{{ItemLink|Runed Gloves}} (1.5%)
+|droprates={{ItemLink|stablekey=item:back - 19 - honor strip|link=Honor Strip|text=Honor Strip|image=Honor Strip.png}} (43.4%)<br>{{ItemLink|stablekey=item:neck - 19 - the gift of thought|link=The Gift of Eloquence|text=The Gift of Eloquence|image=The Gift of Eloquence.png}} (43.4%)<br>{{ItemLink|stablekey=item:gen - scaled skin|link=Reptilian Scales|text=Reptilian Scales|image=Reptilian Scales.png}} (5.3%)<br>{{ItemLink|stablekey=item:gen - serpentine blood|link=Serpentine Blood|text=Serpentine Blood|image=Serpentine Blood.png}} (5.3%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (5.3%)<br>{{ItemLink|stablekey=item:spell scroll - call of the void|link=Spell Scroll: Call of the Void|text=Spell Scroll: Call of the Void|image=Spell Scroll: Call of the Void.png}} (1.9%)<br>{{ItemLink|stablekey=item:spell scroll - concuss|link=Spell Scroll: Concuss|text=Spell Scroll: Concuss|image=Spell Scroll: Concuss.png}} (1.9%)<br>{{ItemLink|stablekey=item:spell scroll - ice spear|link=Spell Scroll: Ice Spear|text=Spell Scroll: Ice Spear|image=Spell Scroll: Ice Spear.png}} (1.9%)<br>{{ItemLink|stablekey=item:spell scroll - immolation|link=Spell Scroll: Immolation|text=Spell Scroll: Immolation|image=Spell Scroll: Immolation.png}} (1.9%)<br>{{ItemLink|stablekey=item:spell scroll - sleep|link=Spell Scroll: Sleep|text=Spell Scroll: Sleep|image=Spell Scroll: Sleep.png}} (1.9%)<br>{{ItemLink|stablekey=item:gen - elderstone shard|link=Elderstone Shard|text=Elderstone Shard|image=Elderstone Shard.png}} (1.5%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - elderstone shard|link=Elderstone Shard|text=Elderstone Shard|image=Elderstone Shard.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:arm - 17 - fungus covered armband|link=Fungus Covered Armband|text=Fungus Covered Armband|image=Fungus Covered Armband.png}} (1.5%)<br>{{ItemLink|stablekey=item:glove - 18 - runed mitts|link=Runed Gloves|text=Runed Gloves|image=Runed Gloves.png}} (1.5%)
 |level=18
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=9-22
 |elemental=9-22
 |void=9-22
-|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Jolt}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Moonburst}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's rage|link=Brax's Rage|text=Brax's Rage|image=Brax's Rage.png}}<br>{{AbilityLink|stablekey=spell:dru arc - jolt|link=Jolt|text=Jolt|image=Jolt.png}}<br>{{AbilityLink|stablekey=spell:dru duel - minor regen|link=Minor Regeneration|text=Minor Regeneration|image=Minor Regeneration.png}}<br>{{AbilityLink|stablekey=spell:pal - moonburst|link=Moonburst|text=Moonburst|image=Moonburst.png}}
 }}
 
 ''{{main|Enemies}}''

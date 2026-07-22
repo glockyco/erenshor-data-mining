@@ -11,7 +11,7 @@
 |componentfor=
 |buy=35
 |sell=23
-|taughtspell={{AbilityLink|Vitheo's Blessing of the Sea}}
+|taughtspell={{AbilityLink|stablekey=spell:duel - vitheo's blessing of the sea|link=Vitheo's Blessing of the Sea|text=Vitheo's Blessing of the Sea|image=Vitheo's Blessing of the Sea.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

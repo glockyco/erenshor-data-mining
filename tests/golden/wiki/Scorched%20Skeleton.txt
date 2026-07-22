@@ -3,15 +3,15 @@
 |image=[[File:Scorched Skeleton.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Braxonian Desert]]
+|zones={{ZoneLink|stablekey=zone:braxonian|link=Braxonian Desert|text=Braxonian Desert}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Luminstone}} (46.7%)<br>{{ItemLink|Polished Stone}} (46.7%)<br>{{ItemLink|Sea Glass}} (46.7%)<br>{{ItemLink|Fiery Sapphire Ring}} (9.1%)<br>{{ItemLink|Rune of Sands}} (4.6%)<ref>If the player is already holding {{ItemLink|Rune of Sands}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ember Acolyte (Game Piece)|text=Ember Acolyte}} (3.4%)<ref>If the player is already holding {{ItemLink|Ember Acolyte (Game Piece)|text=Ember Acolyte}} in their inventory, another will not drop.</ref><br>{{ItemLink|Peon (Game Piece)|text=Peon}} (3.4%)<ref>If the player is already holding {{ItemLink|Peon (Game Piece)|text=Peon}} in their inventory, another will not drop.</ref>
+|droprates={{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (46.7%)<br>{{ItemLink|stablekey=item:gen - polished stone|link=Polished Stone|text=Polished Stone|image=Polished Stone.png}} (46.7%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (46.7%)<br>{{ItemLink|stablekey=item:ring - 6 - fiery sapphire ring|link=Fiery Sapphire Ring|text=Fiery Sapphire Ring|image=Fiery Sapphire Ring.png}} (9.1%)<br>{{ItemLink|stablekey=item:gen - rune of sands|link=Rune of Sands|text=Rune of Sands|image=Rune of Sands.png}} (4.6%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - rune of sands|link=Rune of Sands|text=Rune of Sands|image=Rune of Sands.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:quest - game piece ember|link=Ember Acolyte (Game Piece)|text=Ember Acolyte|image=Ember Acolyte (Game Piece).png}} (3.4%)<ref>If the player is already holding {{ItemLink|stablekey=item:quest - game piece ember|link=Ember Acolyte (Game Piece)|text=Ember Acolyte|image=Ember Acolyte (Game Piece).png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:quest - game piece peon|link=Peon (Game Piece)|text=Peon|image=Peon (Game Piece).png}} (3.4%)<ref>If the player is already holding {{ItemLink|stablekey=item:quest - game piece peon|link=Peon (Game Piece)|text=Peon|image=Peon (Game Piece).png}} in their inventory, another will not drop.</ref>
 |level=18
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=9-22
 |elemental=9-22
 |void=9-22
-|spells={{AbilityLink|Death's Embrace}}
+|spells={{AbilityLink|stablekey=spell:duel - deathly embrace|link=Death's Embrace|text=Death's Embrace|image=Death's Embrace.png}}
 }}
 
 [[Category:Braxonian Desert]]

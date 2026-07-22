@@ -3,15 +3,15 @@
 |image=[[File:Prince Oslind.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Fallen Braxonia]]
+|zones={{ZoneLink|stablekey=zone:braxonia|link=Fallen Braxonia|text=Fallen Braxonia}}
 |coordinates=145.4 x 59.5 x 593.7
 |spawnchance=66%
 |spawntype=
 |respawn=8 minutes
-|guaranteeddrops={{ItemLink|Crest of Braxonia}}<br>{{ItemLink|Oslind's Eviscerator}}
-|droprates={{ItemLink|Crest of Braxonia}} (66.7%)<br>{{ItemLink|Braxonian Scripture|text=Braxonian Scripture (1)}} (63.2%)<ref>If the player is already holding {{ItemLink|Braxonian Scripture|text=Braxonian Scripture (1)}} in their inventory, another will not drop.</ref><br>{{ItemLink|Braxonian Scripture|text=Braxonian Scripture (2)}} (63.2%)<ref>If the player is already holding {{ItemLink|Braxonian Scripture|text=Braxonian Scripture (2)}} in their inventory, another will not drop.</ref><br>{{ItemLink|Oslind's Eviscerator}} (33.3%)<ref>If Prince Oslind has {{ItemLink|Oslind's Eviscerator}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Kingsman (Game Piece)|text=Kingsman}} (17.1%)<ref>If the player is already holding {{ItemLink|Kingsman (Game Piece)|text=Kingsman}} in their inventory, another will not drop.</ref><br>{{ItemLink|Flame Well Seed}} (1.4%)<br>{{ItemLink|Stone Statue: Brax}} (1.4%)
+|guaranteeddrops={{ItemLink|stablekey=item:neck - 31 - crest of braxonia|link=Crest of Braxonia|text=Crest of Braxonia|image=Crest of Braxonia.png}}<br>{{ItemLink|stablekey=item:weap - 31 - oslind's eviscerator|link=Oslind's Eviscerator|text=Oslind's Eviscerator|image=Oslind's Eviscerator.png}}
+|droprates={{ItemLink|stablekey=item:neck - 31 - crest of braxonia|link=Crest of Braxonia|text=Crest of Braxonia|image=Crest of Braxonia.png}} (66.7%)<br>{{ItemLink|stablekey=item:gen - braxonian scripture 1|link=Braxonian Scripture|text=Braxonian Scripture (1)|image=Braxonian Scripture.png}} (63.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - braxonian scripture 1|link=Braxonian Scripture|text=Braxonian Scripture (1)|image=Braxonian Scripture.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - braxonian scripture|link=Braxonian Scripture|text=Braxonian Scripture (2)|image=Braxonian Scripture.png}} (63.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - braxonian scripture|link=Braxonian Scripture|text=Braxonian Scripture (2)|image=Braxonian Scripture.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:weap - 31 - oslind's eviscerator|link=Oslind's Eviscerator|text=Oslind's Eviscerator|image=Oslind's Eviscerator.png}} (33.3%)<ref>If Prince Oslind has {{ItemLink|stablekey=item:weap - 31 - oslind's eviscerator|link=Oslind's Eviscerator|text=Oslind's Eviscerator|image=Oslind's Eviscerator.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:quest - game piece kingsman|link=Kingsman (Game Piece)|text=Kingsman|image=Kingsman (Game Piece).png}} (17.1%)<ref>If the player is already holding {{ItemLink|stablekey=item:quest - game piece kingsman|link=Kingsman (Game Piece)|text=Kingsman|image=Kingsman (Game Piece).png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:furniture - brax well|link=Flame Well Seed|text=Flame Well Seed|image=Flame Well Seed.png}} (1.4%)<br>{{ItemLink|stablekey=item:furniture - stone statue brax|link=Stone Statue: Brax|text=Stone Statue: Brax|image=Stone Statue: Brax.png}} (1.4%)
 |level=32
 |levelmodmin=0
 |levelmodmax=0

@@ -3,15 +3,15 @@
 |image=[[File:Undertoes.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Abyssal Lake]]
+|zones={{ZoneLink|stablekey=zone:abyssal|link=Abyssal Lake|text=Abyssal Lake}}
 |coordinates=161.5 x 66.6 x 270.9
 |spawnchance=50%
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Abyssal Shell}}<br>{{ItemLink|Runed Shield}}
-|droprates={{ItemLink|Abyssal Shell}} (66.7%)<br>{{ItemLink|Runed Shield}} (33.3%)
+|guaranteeddrops={{ItemLink|stablekey=item:back - 28 - abyssal shell|link=Abyssal Shell|text=Abyssal Shell|image=Abyssal Shell.png}}<br>{{ItemLink|stablekey=item:secondary - 28 - runed shield|link=Runed Shield|text=Runed Shield|image=Runed Shield.png}}
+|droprates={{ItemLink|stablekey=item:back - 28 - abyssal shell|link=Abyssal Shell|text=Abyssal Shell|image=Abyssal Shell.png}} (66.7%)<br>{{ItemLink|stablekey=item:secondary - 28 - runed shield|link=Runed Shield|text=Runed Shield|image=Runed Shield.png}} (33.3%)
 |level=31
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=16-37
 |elemental=16-37
 |void=16-37
-|spells={{AbilityLink|Arterial Decay}}<br>{{AbilityLink|Tangle}}
+|spells={{AbilityLink|stablekey=spell:dru - arterial decay|link=Arterial Decay|text=Arterial Decay|image=Arterial Decay.png}}<br>{{AbilityLink|stablekey=spell:dru - tangle|link=Tangle|text=Tangle|image=Tangle.png}}
 }}
 
 [[Category:Abyssal Lake]]

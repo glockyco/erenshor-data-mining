@@ -3,15 +3,15 @@
 |image=[[File:Spectral Torturer.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Lost Cellar]]
+|zones={{ZoneLink|stablekey=zone:undercity|link=Lost Cellar|text=Lost Cellar}}
 |coordinates=269.5 x 133.0 x 271.1
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Distinguished Cape}}<br>{{ItemLink|Songmaker}}<br>{{ItemLink|Workworn Bracer}}
-|droprates={{ItemLink|Pg. 4: Faded Entry}} (100.0%)<ref>If the player is already holding {{ItemLink|Pg. 4: Faded Entry}} in their inventory, another will not drop.</ref><br>{{ItemLink|Distinguished Cape}} (33.3%)<br>{{ItemLink|Songmaker}} (33.3%)<ref>If Spectral Torturer has {{ItemLink|Songmaker}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Workworn Bracer}} (33.3%)
+|guaranteeddrops={{ItemLink|stablekey=item:back - 19 - distinguishedcape|link=Distinguished Cape|text=Distinguished Cape|image=Distinguished Cape.png}}<br>{{ItemLink|stablekey=item:weap - 18 - torturer's dagger|link=Songmaker|text=Songmaker|image=Songmaker.png}}<br>{{ItemLink|stablekey=item:wrist - 20 - workworn bracer|link=Workworn Bracer|text=Workworn Bracer|image=Workworn Bracer.png}}
+|droprates={{ItemLink|stablekey=item:gen - treasure hunter pg 4 (undercity)|link=Pg. 4: Faded Entry|text=Pg. 4: Faded Entry|image=Pg. 4: Faded Entry.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - treasure hunter pg 4 (undercity)|link=Pg. 4: Faded Entry|text=Pg. 4: Faded Entry|image=Pg. 4: Faded Entry.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:back - 19 - distinguishedcape|link=Distinguished Cape|text=Distinguished Cape|image=Distinguished Cape.png}} (33.3%)<br>{{ItemLink|stablekey=item:weap - 18 - torturer's dagger|link=Songmaker|text=Songmaker|image=Songmaker.png}} (33.3%)<ref>If Spectral Torturer has {{ItemLink|stablekey=item:weap - 18 - torturer's dagger|link=Songmaker|text=Songmaker|image=Songmaker.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:wrist - 20 - workworn bracer|link=Workworn Bracer|text=Workworn Bracer|image=Workworn Bracer.png}} (33.3%)
 |level=18
 |levelmodmin=0
 |levelmodmax=0

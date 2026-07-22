@@ -5,7 +5,7 @@
 |description=Passive Skill: If a spell is a critical hit, it also applies a high damage DOT effect
 |type=Innate
 |line=
-|classes=[[Arcanist]] (35)
+|classes={{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}} (35)
 |required_level=
 |manacost=
 |aggro=
@@ -66,7 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Skill Book: Lingering Inferno}}
+|source={{ItemLink|stablekey=item:skillbook - lingering inferno|link=Skill Book: Lingering Inferno|text=Skill Book: Lingering Inferno|image=Skill Book: Lingering Inferno.png}}
 |used_by=
 }}
 

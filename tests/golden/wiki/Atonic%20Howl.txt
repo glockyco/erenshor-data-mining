@@ -5,7 +5,7 @@
 |description=Massively slows all targets attack speed in a small radius of the caster. Any damage to the target will remove the effect.
 |type=PBAE
 |line=Generic
-|classes=[[Reaver]] (15)
+|classes={{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}} (15)
 |required_level=15
 |manacost=130
 |aggro=500
@@ -31,7 +31,7 @@
 |caster_healing=
 |shield_amount=
 |pet_to_summon=
-|status_effect={{AbilityLink|Atonia}}
+|status_effect=[[Atonia]]
 |add_proc=
 |add_proc_chance=
 |has_lifetap=
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Atonic Howl}}
+|source={{ItemLink|stablekey=item:spell scroll - atonic howl|link=Spell Scroll: Atonic Howl|text=Spell Scroll: Atonic Howl|image=Spell Scroll: Atonic Howl.png}}
 |used_by=
 }}

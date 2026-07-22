@@ -3,10 +3,10 @@
 |stablekey=item:gen - soul of a ghostly beast
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Ghost of Plaxitheris]] (100.0%)
+|source={{CharacterLink|stablekey=character:ghost of plaxitheris|link=Ghost of Plaxitheris|text=Ghost of Plaxitheris}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Warming the Isle}}
+|relatedquest={{QuestLink|Warming the Isle}}<br>{{QuestLink|stablekey=quest:shiver-flamelit|link=Warming the Isle|text=Warming the Isle}}
 |craftsource=
 |componentfor=
 |buy=9

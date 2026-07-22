@@ -2,8 +2,8 @@
 |title=Spell Scroll: Brax's Rage
 |stablekey=item:spell scroll - brax's rage
 |type=[[Ability Books]]
-|vendorsource=[[Edwin Ansegg]]
-|source=[[Gloopa|Gloopa (Quarter)]] (1.7%)<br>[[A Subterranean Goop]] (1.6%)<br>[[A Subterranean Magmite]] (1.6%)
+|vendorsource={{CharacterLink|stablekey=character:edwin ansegg|link=Edwin Ansegg|text=Edwin Ansegg}}
+|source={{CharacterLink|stablekey=character:gloopa quarter|link=Gloopa|text=Gloopa (Quarter)}} (1.7%)<br>{{CharacterLink|stablekey=character:subterranean gel|link=A Subterranean Goop|text=A Subterranean Goop}} (1.6%)<br>{{CharacterLink|stablekey=character:subterranean magmite|link=A Subterranean Magmite|text=A Subterranean Magmite}} (1.6%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=900
 |sell=585
-|taughtspell={{AbilityLink|Brax's Rage}}
+|taughtspell={{AbilityLink|stablekey=spell:arc - brax's rage|link=Brax's Rage|text=Brax's Rage|image=Brax's Rage.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

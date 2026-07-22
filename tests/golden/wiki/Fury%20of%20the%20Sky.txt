@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Arc, Crescent of the Void}}
+|itemswitheffect={{ItemLink|stablekey=item:bow - 40 - arco, crescent of the void|link=Arc, Crescent of the Void|text=Arc, Crescent of the Void|image=Arc, Crescent of the Void.png}}
 |source=
 |used_by=
 }}

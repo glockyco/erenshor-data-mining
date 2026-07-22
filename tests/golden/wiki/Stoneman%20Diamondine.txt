@@ -3,15 +3,15 @@
 |image=[[File:Stoneman Diamondine.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Windwashed Pass]]
+|zones={{ZoneLink|stablekey=zone:windwashed|link=Windwashed Pass|text=Windwashed Pass}}
 |coordinates=944.5 x 71.5 x 590.1
 |spawnchance=33%
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Diamondine Shield}}<br>{{ItemLink|Mirror Polished Plate}}
-|droprates={{ItemLink|Star Stone}} (84.7%)<br>{{ItemLink|Diamondine Shield}} (66.7%)<ref>If Stoneman Diamondine has {{ItemLink|Diamondine Shield}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Mirror Polished Plate}} (33.3%)<br>{{ItemLink|Diamondine Mace}} (4.5%)<ref>If Stoneman Diamondine has {{ItemLink|Diamondine Mace}} equipped, it is guaranteed to drop.</ref>
+|guaranteeddrops={{ItemLink|stablekey=item:secondary - 18 - diamondine shield|link=Diamondine Shield|text=Diamondine Shield|image=Diamondine Shield.png}}<br>{{ItemLink|stablekey=item:chest - 21 - mirror polished plate|link=Mirror Polished Plate|text=Mirror Polished Plate|image=Mirror Polished Plate.png}}
+|droprates={{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (84.7%)<br>{{ItemLink|stablekey=item:secondary - 18 - diamondine shield|link=Diamondine Shield|text=Diamondine Shield|image=Diamondine Shield.png}} (66.7%)<ref>If Stoneman Diamondine has {{ItemLink|stablekey=item:secondary - 18 - diamondine shield|link=Diamondine Shield|text=Diamondine Shield|image=Diamondine Shield.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:chest - 21 - mirror polished plate|link=Mirror Polished Plate|text=Mirror Polished Plate|image=Mirror Polished Plate.png}} (33.3%)<br>{{ItemLink|stablekey=item:weap - 18 - diamondine mace|link=Diamondine Mace|text=Diamondine Mace|image=Diamondine Mace.png}} (4.5%)<ref>If Stoneman Diamondine has {{ItemLink|stablekey=item:weap - 18 - diamondine mace|link=Diamondine Mace|text=Diamondine Mace|image=Diamondine Mace.png}} equipped, it is guaranteed to drop.</ref>
 |level=19
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=10-23
 |elemental=10-23
 |void=10-23
-|spells={{AbilityLink|Diamond Burst}}<br>{{AbilityLink|Winter's Bite}}
+|spells={{AbilityLink|stablekey=spell:none - diamond burst|link=Diamond Burst|text=Diamond Burst|image=Diamond Burst.png}}<br>{{AbilityLink|stablekey=spell:arc - winter's bite|link=Winter's Bite|text=Winter's Bite|image=Winter's Bite.png}}
 }}
 He can be found on the Northern end of the zone between two large tusks protruding from the ground.
 

@@ -5,7 +5,7 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|Lighting the Nighthollow Candle}}
+|questsource={{QuestLink|Lighting the Nighthollow Candle}}<br>{{QuestLink|stablekey=quest:ignitingnighthollow|link=Lighting the Nighthollow Candle|text=Lighting the Nighthollow Candle}}
 |relatedquest=
 |craftsource=
 |componentfor=

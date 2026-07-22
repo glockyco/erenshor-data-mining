@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 24 - wrathwrap
 |type=
 |vendorsource=
-|source=[[Frenzy]] (33.3%)
+|source={{CharacterLink|stablekey=character:frenzy|link=Frenzy|text=Frenzy}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

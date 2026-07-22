@@ -3,7 +3,7 @@
 |stablekey=item:gen - lost text 1
 |type=[[Lore Items|Lore]]
 |vendorsource=
-|source=[[Stoneman Obsidian]] (2.0%)<br>[[Stoneman Knight]] (1.1%)<br>[[Stoneman Magi]] (1.1%)
+|source={{CharacterLink|stablekey=character:stoneman obsidian|link=Stoneman Obsidian|text=Stoneman Obsidian}} (2.0%)<br>{{CharacterLink|stablekey=character:stoneman knight|link=Stoneman Knight|text=Stoneman Knight}} (1.1%)<br>{{CharacterLink|stablekey=character:stoneman magi|link=Stoneman Magi|text=Stoneman Magi}} (1.1%)
 |othersource=
 |questsource=
 |relatedquest=

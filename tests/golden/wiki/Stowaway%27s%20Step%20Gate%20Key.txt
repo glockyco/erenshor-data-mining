@@ -5,7 +5,7 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|Kio's Papers}}
+|questsource={{QuestLink|Kio's Papers}}<br>{{QuestLink|stablekey=quest:kio's papers|link=Kio's Papers|text=Kio's Papers}}
 |relatedquest=
 |craftsource=
 |componentfor=

@@ -3,7 +3,7 @@
 |stablekey=item:gen - blue pteriaped feather
 |type=[[:Category:Items|General]]
 |vendorsource=
-|source=[[Pteriaped Chick]] (35.0%)<br>[[Pteriaped Matron]] (35.0%)
+|source={{CharacterLink|stablekey=character:pteriaped chick|link=Pteriaped Chick|text=Pteriaped Chick}} (35.0%)<br>{{CharacterLink|stablekey=character:pteriaped elder|link=Pteriaped Matron|text=Pteriaped Matron}} (35.0%)<br>{{CharacterLink|stablekey=character:pteriaped matron|link=Pteriaped Matron|text=Pteriaped Matron}} (35.0%)
 |othersource=
 |questsource=
 |relatedquest=

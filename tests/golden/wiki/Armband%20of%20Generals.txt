@@ -3,7 +3,7 @@
 |stablekey=item:arm - 37 - armband of generals
 |type=
 |vendorsource=
-|source=[[Reaver of Sivakaya]] (10.9%)<br>[[Assassin of Sivakaya]] (6.5%)<br>[[Grand Arcanist of Sivakaya]] (6.5%)<br>[[High Paladin of Sivakaya]] (6.5%)<br>[[High Priestess of Sivakaya]] (6.5%)<br>[[Bowmistress of Sivakaya]] (5.5%)
+|source={{CharacterLink|stablekey=character:reaver of sivakaya bkp|link=Reaver of Sivakaya|text=Reaver of Sivakaya}} (10.9%)<br>{{CharacterLink|stablekey=character:duelist of sivakaya|link=Assassin of Sivakaya|text=Assassin of Sivakaya}} (6.5%)<br>{{CharacterLink|stablekey=character:arcanist of sivakaya|link=Grand Arcanist of Sivakaya|text=Grand Arcanist of Sivakaya}} (6.5%)<br>{{CharacterLink|stablekey=character:warrior of sivakaya|link=High Paladin of Sivakaya|text=High Paladin of Sivakaya}} (6.5%)<br>{{CharacterLink|stablekey=character:druid of sivakaya|link=High Priestess of Sivakaya|text=High Priestess of Sivakaya}} (6.5%)<br>{{CharacterLink|stablekey=character:bowmistress of sivakaya|link=Bowmistress of Sivakaya|text=Bowmistress of Sivakaya}} (5.5%)
 |othersource=
 |questsource=
 |relatedquest=

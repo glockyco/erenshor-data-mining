@@ -3,15 +3,15 @@
 |image=[[File:Priel Malarist.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[Savannah Priel]]
-|factionChange=-2 [[Savannah Priel]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
-|zones=[[Prielian Cascade]]
+|faction={{FactionLink|stablekey=faction:priel|link=Savannah Priel|text=Savannah Priel}}
+|factionChange=-2 {{FactionLink|stablekey=faction:priel|link=Savannah Priel|text=Savannah Priel}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+1 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
+|zones={{ZoneLink|stablekey=zone:prielplateau|link=Prielian Cascade|text=Prielian Cascade}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|The Malaroth Process}} (13.1%)<ref>If the player is already holding {{ItemLink|The Malaroth Process}} in their inventory, another will not drop.</ref><br>{{ItemLink|Azure Mead}} (8.5%)<br>{{ItemLink|Sea Glass}} (5.8%)<br>{{ItemLink|Star Stone}} (5.8%)<br>{{ItemLink|Priel Officer's Ring}} (3.4%)<br>{{ItemLink|Spell Scroll: Major Group Healing}} (3.4%)<br>{{ItemLink|A Frowny Clowny}} (1.7%)<br>{{ItemLink|An Octorunner}} (1.7%)
+|droprates={{ItemLink|stablekey=item:gen - the malaroth process|link=The Malaroth Process|text=The Malaroth Process|image=The Malaroth Process.png}} (13.1%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - the malaroth process|link=The Malaroth Process|text=The Malaroth Process|image=The Malaroth Process.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:cons - azure mead|link=Azure Mead|text=Azure Mead|image=Azure Mead.png}} (8.5%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (5.8%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (5.8%)<br>{{ItemLink|stablekey=item:ring - 18 - priel officer's ring|link=Priel Officer's Ring|text=Priel Officer's Ring|image=Priel Officer's Ring.png}} (3.4%)<br>{{ItemLink|stablekey=item:spell scroll - group healing major|link=Spell Scroll: Major Group Healing|text=Spell Scroll: Major Group Healing|image=Spell Scroll: Major Group Healing.png}} (3.4%)<br>{{ItemLink|stablekey=item:fish - a frowny clowny|link=A Frowny Clowny|text=A Frowny Clowny|image=A Frowny Clowny.png}} (1.7%)<br>{{ItemLink|stablekey=item:fish - octorunner|link=An Octorunner|text=An Octorunner|image=An Octorunner.png}} (1.7%)
 |level=30
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=15-36
 |elemental=15-36
 |void=15-36
-|spells={{AbilityLink|Arterial Decay}}<br>{{AbilityLink|Morbidity's Grasp}}<br>{{AbilityLink|Soul Tap}}
+|spells={{AbilityLink|stablekey=spell:dru - arterial decay|link=Arterial Decay|text=Arterial Decay|image=Arterial Decay.png}}<br>{{AbilityLink|stablekey=spell:dru - morbidity's grasp|link=Morbidity's Grasp|text=Morbidity's Grasp|image=Morbidity's Grasp.png}}<br>{{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}
 }}
 
 [[Category:Enemies]]

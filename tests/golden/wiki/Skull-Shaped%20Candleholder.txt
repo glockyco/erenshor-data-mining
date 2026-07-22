@@ -3,10 +3,10 @@
 |stablekey=item:gen - nighthollow base
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Eldoth Molorai]] (100.0%)
+|source={{CharacterLink|stablekey=character:eldoth molorai|link=Eldoth Molorai|text=Eldoth Molorai}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Recovering the Nighthollow Candle}}
+|relatedquest={{QuestLink|Recovering the Nighthollow Candle}}<br>{{QuestLink|stablekey=quest:recoveringnighthollow|link=Recovering the Nighthollow Candle|text=Recovering the Nighthollow Candle}}
 |craftsource=
 |componentfor=
 |buy=

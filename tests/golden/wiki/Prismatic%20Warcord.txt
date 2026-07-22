@@ -3,7 +3,7 @@
 |stablekey=item:belt - 20 - prismatic warcord
 |type=
 |vendorsource=
-|source=[[Ember Acolyte]] (33.3%)
+|source={{CharacterLink|stablekey=character:ember acolyte|link=Ember Acolyte|text=Ember Acolyte}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

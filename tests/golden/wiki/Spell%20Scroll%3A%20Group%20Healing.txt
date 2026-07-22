@@ -2,8 +2,8 @@
 |title=Spell Scroll: Group Healing
 |stablekey=item:spell scroll - group healing
 |type=
-|vendorsource=[[Alexander Farland]]<br>[[Aspen Dechaffe]]
-|source=[[Molorai Spiritist]] (100.0%)
+|vendorsource={{CharacterLink|stablekey=character:alexander farland|link=Alexander Farland|text=Alexander Farland}}<br>{{CharacterLink|stablekey=character:aspen dechaffe|link=Aspen Dechaffe|text=Aspen Dechaffe}}
+|source={{CharacterLink|stablekey=character:molorai spiritist|link=Molorai Spiritist|text=Molorai Spiritist}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=1255
 |sell=816
-|taughtspell={{AbilityLink|Group Heal}}
+|taughtspell={{AbilityLink|stablekey=spell:dru - group heal|link=Group Heal|text=Group Heal|image=Group Heal.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

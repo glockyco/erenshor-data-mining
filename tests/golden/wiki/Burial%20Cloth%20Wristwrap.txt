@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 4 - burial cloth wristwrap
 |type=
 |vendorsource=
-|source=[[Woe]] (4.7%)
+|source={{CharacterLink|stablekey=character:woe|link=Woe|text=Woe}} (4.7%)
 |othersource=
 |questsource=
 |relatedquest=

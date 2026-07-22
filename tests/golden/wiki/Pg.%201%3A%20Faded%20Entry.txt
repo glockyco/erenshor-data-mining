@@ -3,10 +3,10 @@
 |stablekey=item:gen - treasure hunter pg 1 (bonepits)
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[A Skeleton Captain]] (100.0%)
+|source={{CharacterLink|stablekey=character:skeleton captain|link=A Skeleton Captain|text=A Skeleton Captain}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|link=The Lost Soul{{!}}The Lost Soul Pt. 1}}
+|relatedquest={{QuestLink|link=The Lost Soul{{!}}The Lost Soul Pt. 1}}<br>{{QuestLink|stablekey=quest:thelostsoul|link=The Lost Soul|text=The Lost Soul Pt. 1}}
 |craftsource=
 |componentfor=
 |buy=

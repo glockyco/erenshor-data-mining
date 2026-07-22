@@ -5,7 +5,7 @@
 |description=Fires a flaming arrow that will poison your target and debuff its attack power
 |type=Ranged
 |line=
-|classes=[[Stormcaller]] (28)
+|classes={{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}} (28)
 |required_level=
 |manacost=
 |aggro=
@@ -23,7 +23,7 @@
 |is_self_only=
 |is_group_effect=
 |is_applied_to_caster=
-|effects={{AbilityLink|Envenomed Arrow}}
+|effects={{AbilityLink|stablekey=spell:none - envenomed arrow|link=Envenomed Arrow|text=Envenomed Arrow|image=Envenomed Arrow.png}}
 |damage_type=
 |resist_modifier=
 |target_damage=6
@@ -66,7 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Skill Book: Envenomed Arrow}}
+|source={{ItemLink|stablekey=item:skillbook - envenomed arrow|link=Skill Book: Envenomed Arrow|text=Skill Book: Envenomed Arrow|image=Skill Book: Envenomed Arrow.png}}
 |used_by=
 }}
 

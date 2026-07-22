@@ -5,7 +5,7 @@
 |description=Stuns all enemies in immediate vicinity.
 |type=PBAE
 |line=Generic
-|classes=[[Paladin]] (11)
+|classes={{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}} (11)
 |required_level=11
 |manacost=120
 |aggro=800
@@ -31,7 +31,7 @@
 |caster_healing=
 |shield_amount=
 |pet_to_summon=
-|status_effect={{AbilityLink|Dazzle}}
+|status_effect=[[Dazzle]]
 |add_proc=
 |add_proc_chance=
 |has_lifetap=
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Sunburst}}
+|source={{ItemLink|stablekey=item:spell scroll - sunburst|link=Spell Scroll: Sunburst|text=Spell Scroll: Sunburst|image=Spell Scroll: Sunburst.png}}
 |used_by=
 }}

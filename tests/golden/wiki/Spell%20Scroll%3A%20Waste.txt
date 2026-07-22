@@ -2,7 +2,7 @@
 |title=Spell Scroll: Waste
 |stablekey=item:spell scroll - waste
 |type=
-|vendorsource=[[Aillee Desten]]<br>[[Xander Zaxtrough]]<br>[[Zane Theavale]]
+|vendorsource={{CharacterLink|stablekey=character:aillee desten|link=Aillee Desten|text=Aillee Desten}}<br>{{CharacterLink|stablekey=character:xander zaxtrough|link=Xander Zaxtrough|text=Xander Zaxtrough}}<br>{{CharacterLink|stablekey=character:zane theavale|link=Zane Theavale|text=Zane Theavale}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=225
 |sell=146
-|taughtspell={{AbilityLink|Waste}}
+|taughtspell={{AbilityLink|stablekey=spell:reav - wasting|link=Waste|text=Waste|image=Waste.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

@@ -3,15 +3,15 @@
 |image=[[File:Planar Crawler.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Plane of the Willow]]
+|zones={{ZoneLink|stablekey=zone:planeoffernalla|link=Plane of the Willow|text=Plane of the Willow}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=33 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Planar Stone Shards}} (17.3%)<br>{{ItemLink|Planar Stone}} (5.5%)<br>{{ItemLink|Chthonic Armwraps}} (3.7%)<br>{{ItemLink|Chthonic Handwraps}} (3.7%)<br>{{ItemLink|Chthonic Hood}} (3.7%)<br>{{ItemLink|Chthonic Pants}} (3.7%)<br>{{ItemLink|Chthonic Sandals}} (3.7%)<br>{{ItemLink|Chthonic Tunic}} (3.7%)<br>{{ItemLink|Chthonic Wristlet}} (3.7%)<br>{{ItemLink|Spell Scroll: Group Regrowth}} (3.1%)<br>{{ItemLink|Spell Scroll: Necrotizing Bloom}} (3.1%)<br>{{ItemLink|Spell Scroll: Vibrant Regrowth}} (3.1%)
+|droprates={{ItemLink|stablekey=item:ore - planar shard|link=Planar Stone Shards|text=Planar Stone Shards|image=Planar Stone Shards.png}} (17.3%)<br>{{ItemLink|stablekey=item:ore - planar stone|link=Planar Stone|text=Planar Stone|image=Planar Stone.png}} (5.5%)<br>{{ItemLink|stablekey=item:arm - 42 - chthonic armwraps|link=Chthonic Armwraps|text=Chthonic Armwraps|image=Chthonic Armwraps.png}} (3.7%)<br>{{ItemLink|stablekey=item:glove - 42 - chthonic gloves|link=Chthonic Handwraps|text=Chthonic Handwraps|image=Chthonic Handwraps.png}} (3.7%)<br>{{ItemLink|stablekey=item:head - 42 - chthonic hood|link=Chthonic Hood|text=Chthonic Hood|image=Chthonic Hood.png}} (3.7%)<br>{{ItemLink|stablekey=item:leg - 42 - chthonic pants|link=Chthonic Pants|text=Chthonic Pants|image=Chthonic Pants.png}} (3.7%)<br>{{ItemLink|stablekey=item:foot - 42 - chthonic sandals|link=Chthonic Sandals|text=Chthonic Sandals|image=Chthonic Sandals.png}} (3.7%)<br>{{ItemLink|stablekey=item:chest - 42 - chthonic tunic|link=Chthonic Tunic|text=Chthonic Tunic|image=Chthonic Tunic.png}} (3.7%)<br>{{ItemLink|stablekey=item:wrist - 42 - chthonic bracer|link=Chthonic Wristlet|text=Chthonic Wristlet|image=Chthonic Wristlet.png}} (3.7%)<br>{{ItemLink|stablekey=item:spell scroll - group regrowth|link=Spell Scroll: Group Regrowth|text=Spell Scroll: Group Regrowth|image=Spell Scroll: Group Regrowth.png}} (3.1%)<br>{{ItemLink|stablekey=item:spell scroll - necrotizing bloom|link=Spell Scroll: Necrotizing Bloom|text=Spell Scroll: Necrotizing Bloom|image=Spell Scroll: Necrotizing Bloom.png}} (3.1%)<br>{{ItemLink|stablekey=item:spell scroll - vibrant regrowth|link=Spell Scroll: Vibrant Regrowth|text=Spell Scroll: Vibrant Regrowth|image=Spell Scroll: Vibrant Regrowth.png}} (3.1%)
 |level=40
 |levelmodmin=0
 |levelmodmax=0

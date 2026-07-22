@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Elixir of Enlightenment II}}
+|itemswitheffect={{ItemLink|stablekey=item:cons - enlightening potion ii|link=Elixir of Enlightenment II|text=Elixir of Enlightenment II|image=Elixir of Enlightenment II.png}}
 |source=
 |used_by=
 }}

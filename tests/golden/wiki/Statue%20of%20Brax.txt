@@ -3,15 +3,15 @@
 |image=[[File:Statue of Brax.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Fallen Braxonia]]
+|zones={{ZoneLink|stablekey=zone:braxonia|link=Fallen Braxonia|text=Fallen Braxonia}}
 |coordinates=659.8 x 2.4 x 487.8
 |spawnchance=
 |spawntype=
 |respawn=12 minutes
-|guaranteeddrops={{ItemLink|Perfect Links}}<br>{{ItemLink|Petrified Wood Cane}}
-|droprates={{ItemLink|Braxonian Ore}} (100.0%)<br>{{ItemLink|Perfect Links}} (50.0%)<br>{{ItemLink|Petrified Wood Cane}} (50.0%)<br>{{ItemLink|Ancient Coal}} (34.1%)<br>{{ItemLink|Braxonian Bracelet}} (23.9%)<br>{{ItemLink|Braxonian Gloves}} (23.9%)<br>{{ItemLink|Braxonian Mitts}} (23.9%)<br>{{ItemLink|Braxonian Wristlet}} (23.9%)<br>{{ItemLink|Braxonian Breeches}} (12.6%)<br>{{ItemLink|Braxonian Leather Boots}} (12.6%)<br>{{ItemLink|Braxonian Leather Sleeves}} (12.6%)<br>{{ItemLink|Braxonian Leather Tunic}} (12.6%)<br>{{ItemLink|Braxonian Linens}} (12.6%)<br>{{ItemLink|Braxonian Royal Armband}} (12.6%)<br>{{ItemLink|Braxonian Royal Shoes}} (12.6%)<br>{{ItemLink|Braxonian Royal Tunic}} (12.6%)<br>{{ItemLink|Golden Statue: Brax}} (1.3%)
+|guaranteeddrops={{ItemLink|stablekey=item:wrist - 30 - perfect links|link=Perfect Links|text=Perfect Links|image=Perfect Links.png}}<br>{{ItemLink|stablekey=item:weap - 33 - petrified walking stick|link=Petrified Wood Cane|text=Petrified Wood Cane|image=Petrified Wood Cane.png}}
+|droprates={{ItemLink|stablekey=item:ore - braxonian ore|link=Braxonian Ore|text=Braxonian Ore|image=Braxonian Ore.png}} (100.0%)<br>{{ItemLink|stablekey=item:wrist - 30 - perfect links|link=Perfect Links|text=Perfect Links|image=Perfect Links.png}} (50.0%)<br>{{ItemLink|stablekey=item:weap - 33 - petrified walking stick|link=Petrified Wood Cane|text=Petrified Wood Cane|image=Petrified Wood Cane.png}} (50.0%)<br>{{ItemLink|stablekey=item:ore - ancient coal|link=Ancient Coal|text=Ancient Coal|image=Ancient Coal.png}} (34.1%)<br>{{ItemLink|stablekey=item:wrist - 30 - braxonian bracelet|link=Braxonian Bracelet|text=Braxonian Bracelet|image=Braxonian Bracelet.png}} (23.9%)<br>{{ItemLink|stablekey=item:glove - 30 - braxonian gloves|link=Braxonian Gloves|text=Braxonian Gloves|image=Braxonian Gloves.png}} (23.9%)<br>{{ItemLink|stablekey=item:glove - 30 - braxonian mitts|link=Braxonian Mitts|text=Braxonian Mitts|image=Braxonian Mitts.png}} (23.9%)<br>{{ItemLink|stablekey=item:wrist - 30 - braxonian wristlet|link=Braxonian Wristlet|text=Braxonian Wristlet|image=Braxonian Wristlet.png}} (23.9%)<br>{{ItemLink|stablekey=item:leg - 31 - braxonian breeches|link=Braxonian Breeches|text=Braxonian Breeches|image=Braxonian Breeches.png}} (12.6%)<br>{{ItemLink|stablekey=item:foot - 31 - braxonian leather boots|link=Braxonian Leather Boots|text=Braxonian Leather Boots|image=Braxonian Leather Boots.png}} (12.6%)<br>{{ItemLink|stablekey=item:arm - 31 - braxonian leather sleeves|link=Braxonian Leather Sleeves|text=Braxonian Leather Sleeves|image=Braxonian Leather Sleeves.png}} (12.6%)<br>{{ItemLink|stablekey=item:chest - 32 - braxonian leather tunic|link=Braxonian Leather Tunic|text=Braxonian Leather Tunic|image=Braxonian Leather Tunic.png}} (12.6%)<br>{{ItemLink|stablekey=item:leg - 31 - braxonian linens|link=Braxonian Linens|text=Braxonian Linens|image=Braxonian Linens.png}} (12.6%)<br>{{ItemLink|stablekey=item:arm - 31 - braxonian royal armband|link=Braxonian Royal Armband|text=Braxonian Royal Armband|image=Braxonian Royal Armband.png}} (12.6%)<br>{{ItemLink|stablekey=item:foot - 31 - braxonian royal shoes|link=Braxonian Royal Shoes|text=Braxonian Royal Shoes|image=Braxonian Royal Shoes.png}} (12.6%)<br>{{ItemLink|stablekey=item:chest - 32 - braxonian royal garb|link=Braxonian Royal Tunic|text=Braxonian Royal Tunic|image=Braxonian Royal Tunic.png}} (12.6%)<br>{{ItemLink|stablekey=item:furniture - gold statue brax|link=Golden Statue: Brax|text=Golden Statue: Brax|image=Golden Statue: Brax.png}} (1.3%)
 |level=36
 |levelmodmin=2
 |levelmodmax=2
@@ -32,7 +32,7 @@
 |poison=18-43
 |elemental=18-43
 |void=18-43
-|spells={{AbilityLink|Brax's Fury}}<br>{{AbilityLink|Funeral Pyre}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's fury|link=Brax's Fury|text=Brax's Fury|image=Brax's Fury.png}}<br>{{AbilityLink|stablekey=spell:arc - pyre|link=Funeral Pyre|text=Funeral Pyre|image=Funeral Pyre.png}}
 }}
 ''{{Main|Enemies}}''
 =Location=

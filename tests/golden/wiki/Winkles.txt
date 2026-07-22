@@ -3,15 +3,15 @@
 |image=[[File:Winkles.png|thumb]]
 |imagecaption=
 |type=Rare
-|faction=[[The Skyfolk]]
-|factionChange=-5 [[The Skyfolk]]
-|zones=[[Ripper's Keep]]
+|faction={{FactionLink|stablekey=faction:skyfolk|link=The Skyfolk|text=The Skyfolk}}
+|factionChange=-5 {{FactionLink|stablekey=faction:skyfolk|link=The Skyfolk|text=The Skyfolk}}
+|zones={{ZoneLink|stablekey=zone:ripper|link=Ripper's Keep|text=Ripper's Keep}}
 |coordinates=
 |spawnchance=3%
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Charmed Belt}}<br>{{ItemLink|Skyfolk Band}}<br>{{ItemLink|Twinkling Pendant}}<br>{{ItemLink|Wingwoven Cape}}
-|droprates={{ItemLink|Skyfolk Band}} (50.9%)<br>{{ItemLink|Charmed Belt}} (18.2%)<br>{{ItemLink|Twinkling Pendant}} (18.2%)<br>{{ItemLink|Wingwoven Cape}} (18.2%)<br>{{ItemLink|Citrine Stone}} (15.7%)<br>{{ItemLink|Luminstone}} (15.7%)<br>{{ItemLink|Seafruit}} (15.7%)<br>{{ItemLink|Bag of Faerie Dust}} (1.8%)<ref>If the player is already holding {{ItemLink|Bag of Faerie Dust}} in their inventory, another will not drop.</ref>
+|guaranteeddrops={{ItemLink|stablekey=item:belt - 31 - charmed belt|link=Charmed Belt|text=Charmed Belt|image=Charmed Belt.png}}<br>{{ItemLink|stablekey=item:ring - 33 - skyfolk band|link=Skyfolk Band|text=Skyfolk Band|image=Skyfolk Band.png}}<br>{{ItemLink|stablekey=item:neck - 31 - twinkling pendant|link=Twinkling Pendant|text=Twinkling Pendant|image=Twinkling Pendant.png}}<br>{{ItemLink|stablekey=item:back - 33 - wingwoven cape|link=Wingwoven Cape|text=Wingwoven Cape|image=Wingwoven Cape.png}}
+|droprates={{ItemLink|stablekey=item:ring - 33 - skyfolk band|link=Skyfolk Band|text=Skyfolk Band|image=Skyfolk Band.png}} (50.9%)<br>{{ItemLink|stablekey=item:belt - 31 - charmed belt|link=Charmed Belt|text=Charmed Belt|image=Charmed Belt.png}} (18.2%)<br>{{ItemLink|stablekey=item:neck - 31 - twinkling pendant|link=Twinkling Pendant|text=Twinkling Pendant|image=Twinkling Pendant.png}} (18.2%)<br>{{ItemLink|stablekey=item:back - 33 - wingwoven cape|link=Wingwoven Cape|text=Wingwoven Cape|image=Wingwoven Cape.png}} (18.2%)<br>{{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (15.7%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (15.7%)<br>{{ItemLink|stablekey=item:cons - seafruit|link=Seafruit|text=Seafruit|image=Seafruit.png}} (15.7%)<br>{{ItemLink|stablekey=item:gen - faerie dust|link=Bag of Faerie Dust|text=Bag of Faerie Dust|image=Bag of Faerie Dust.png}} (1.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - faerie dust|link=Bag of Faerie Dust|text=Bag of Faerie Dust|image=Bag of Faerie Dust.png}} in their inventory, another will not drop.</ref>
 |level=33
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=16-40
 |elemental=16-40
 |void=16-40
-|spells={{AbilityLink|Aetherstorm}}<br>{{AbilityLink|Arterial Decay}}<br>{{AbilityLink|Soul Tap}}<br>{{AbilityLink|Sunburst (Lux)|text=Sunburst}}<br>{{AbilityLink|Winter's Bite}}
+|spells={{AbilityLink|stablekey=spell:arc - aetherstorm|link=Aetherstorm|text=Aetherstorm|image=Aetherstorm.png}}<br>{{AbilityLink|stablekey=spell:dru - arterial decay|link=Arterial Decay|text=Arterial Decay|image=Arterial Decay.png}}<br>{{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}<br>{{AbilityLink|stablekey=spell:arc - sunburst|link=Sunburst (Lux)|text=Sunburst|image=Sunburst (Lux).png}}<br>{{AbilityLink|stablekey=spell:arc - winter's bite|link=Winter's Bite|text=Winter's Bite|image=Winter's Bite.png}}
 }}
 
 {{PAGENAME}} is a rare spawn in the western part of Rippers Keep. Look for the faerie camps around the pond. Winkles may replace a faerie in one of these camps; therefore, the best practice to get Winkles to spawn is to kill all the faeries, freeing up the spawn points for a chance for Winkles to spawn.

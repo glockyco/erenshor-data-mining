@@ -7,7 +7,7 @@
 |othersource=
 |questsource=
 |relatedquest=
-|craftsource=1x {{ItemLink|Mold: Charm of Brilliance}}<br>1x {{ItemLink|Chunk of Citrine Sandsilver}}<br>1x {{ItemLink|Flint Carapace}}<br>1x {{ItemLink|Droplet of Lava}}<br>1x {{ItemLink|Luminstone}}
+|craftsource=1x {{ItemLink|stablekey=item:template - charm of brilliance|link=Mold: Charm of Brilliance|text=Mold: Charm of Brilliance|image=Mold: Charm of Brilliance.png}}<br>1x {{ItemLink|stablekey=item:ore - citrine sandsilver|link=Chunk of Citrine Sandsilver|text=Chunk of Citrine Sandsilver|image=Chunk of Citrine Sandsilver.png}}<br>1x {{ItemLink|stablekey=item:gen - flint carapace|link=Flint Carapace|text=Flint Carapace|image=Flint Carapace.png}}<br>1x {{ItemLink|stablekey=item:cons - lava droplet|link=Droplet of Lava|text=Droplet of Lava|image=Droplet of Lava.png}}<br>1x {{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}}
 |componentfor=
 |buy=25000
 |sell=16250

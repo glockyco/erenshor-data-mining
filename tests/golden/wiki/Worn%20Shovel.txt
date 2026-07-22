@@ -3,10 +3,10 @@
 |stablekey=item:gen - a worn shovel
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[A Subterranean Goop]] (1.6%)<br>[[A Subterranean Magmite]] (1.6%)
+|source={{CharacterLink|stablekey=character:subterranean gel|link=A Subterranean Goop|text=A Subterranean Goop}} (1.6%)<br>{{CharacterLink|stablekey=character:subterranean magmite|link=A Subterranean Magmite|text=A Subterranean Magmite}} (1.6%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Serra Stile's Shovel}}
+|relatedquest={{QuestLink|Serra Stile's Shovel}}<br>{{QuestLink|stablekey=quest:stilesshovel|link=Serra Stile's Shovel|text=Serra Stile's Shovel}}
 |craftsource=
 |componentfor=
 |buy=5

@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - necrosis
 |type=
 |vendorsource=
-|source=[[Azynthian Firebone]] (2.3%)<br>[[Azynthian Icebone]] (2.3%)<br>[[Greater Azynthian Firebone]] (2.3%)<br>[[Greater Azynthian Icebone]] (2.3%)
+|source={{CharacterLink|stablekey=character:azynthian firebone|link=Azynthian Firebone|text=Azynthian Firebone}} (2.3%)<br>{{CharacterLink|stablekey=character:azynthian icebone|link=Azynthian Icebone|text=Azynthian Icebone}} (2.3%)<br>{{CharacterLink|stablekey=character:greater azynthian firebone 1|link=Greater Azynthian Firebone|text=Greater Azynthian Firebone}} (2.3%)<br>{{CharacterLink|stablekey=character:greater azynthian icebone 1|link=Greater Azynthian Icebone|text=Greater Azynthian Icebone}} (2.3%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=25000
 |sell=16250
-|taughtspell={{AbilityLink|Necrosis}}
+|taughtspell={{AbilityLink|stablekey=spell:reav - necrosis|link=Necrosis|text=Necrosis|image=Necrosis.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

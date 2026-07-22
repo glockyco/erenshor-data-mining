@@ -3,7 +3,7 @@
 |stablekey=item:gen - crystallized balance
 |type=[[Consumables|Consumable]]
 |vendorsource=
-|source=[[Braxonian Fossil]] (10.5%)
+|source={{ItemLink|stablekey=item:gen - braxonian fossil|link=Braxonian Fossil|text=Braxonian Fossil}} (10.5%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -23,7 +23,7 @@
 |description=The spirits of Erenshor enjoy balance, and releasing this energy into the air may cause them to revisit their opinions of the guilds of Erenshor.
 |disposable=True
 |effect_spell_icon=Restore Balance.png
-|effect_spell_name=[[Restore Balance]]
+|effect_spell_name={{AbilityLink|stablekey=spell:none - restore balance|link=Restore Balance|text=Restore Balance|image=Restore Balance.png}}
 |effect_spell_level=30
 |effect_spell_duration_ticks=
 |effect_spell_type=Misc

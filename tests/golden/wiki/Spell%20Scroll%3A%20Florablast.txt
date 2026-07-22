@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - florablast
 |type=
 |vendorsource=
-|source=[[Astorim]] (1.7%)<br>[[Karsith]] (1.7%)<br>[[Orinthar]] (1.5%)<br>[[Vextral]] (1.5%)
+|source={{CharacterLink|stablekey=character:astorim|link=Astorim|text=Astorim}} (1.7%)<br>{{CharacterLink|stablekey=character:karsith|link=Karsith|text=Karsith}} (1.7%)<br>{{CharacterLink|stablekey=character:orinthar|link=Orinthar|text=Orinthar}} (1.5%)<br>{{CharacterLink|stablekey=character:vextral|link=Vextral|text=Vextral}} (1.5%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=28000
 |sell=18200
-|taughtspell={{AbilityLink|Florablast}}
+|taughtspell={{AbilityLink|stablekey=spell:dru  - florablast|link=Florablast|text=Florablast|image=Florablast.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

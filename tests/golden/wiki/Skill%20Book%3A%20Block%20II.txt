@@ -2,7 +2,7 @@
 |title=Skill Book: Block II
 |stablekey=item:skillbook - block 2
 |type=[[Ability Books|Skill Book]]
-|vendorsource=[[Roreli Gilmare]]
+|vendorsource={{CharacterLink|stablekey=character:roreli gilmare:azure:143.76:26.28:342.76|link=Roreli Gilmare|text=Roreli Gilmare}}
 |source=
 |othersource=
 |questsource=
@@ -12,7 +12,7 @@
 |buy=1255
 |sell=816
 |taughtspell=
-|taughtskill={{AbilityLink|Block II}}
+|taughtskill={{AbilityLink|stablekey=skill:block 2|link=Block II|text=Block II|image=Block II.png}}
 |guaranteeddrops=
 |droprates=
 }}

@@ -3,10 +3,10 @@
 |stablekey=item:gen - ear of ripper
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Ripper DeMerth (Character)|Ripper DeMerth]] (100.0%)
+|source={{CharacterLink|stablekey=character:ripper demerth|link=Ripper DeMerth (Character)|text=Ripper DeMerth}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|A Bounty on Ripper DeMerth}}
+|relatedquest={{QuestLink|A Bounty on Ripper DeMerth}}<br>{{QuestLink|stablekey=quest:rippersbounty|link=A Bounty on Ripper DeMerth|text=A Bounty on Ripper DeMerth}}
 |craftsource=
 |componentfor=
 |buy=

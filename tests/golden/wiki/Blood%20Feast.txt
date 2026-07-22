@@ -5,7 +5,7 @@
 |description=Gain lifesteal on-hit for a brief time.
 |type=Utility
 |line=
-|classes=[[Windblade]] (3)
+|classes={{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}} (3)
 |required_level=
 |manacost=
 |aggro=
@@ -23,7 +23,7 @@
 |is_self_only=
 |is_group_effect=
 |is_applied_to_caster=
-|effects={{AbilityLink|Vampiric Touch}}
+|effects={{AbilityLink|stablekey=spell:duel - vampiric touch|link=Vampiric Touch|text=Vampiric Touch|image=Vampiric Touch.png}}
 |damage_type=
 |resist_modifier=
 |target_damage=
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Skill Book: Blood Feast}}
+|source={{ItemLink|stablekey=item:skillbook - blood feast|link=Skill Book: Blood Feast|text=Skill Book: Blood Feast|image=Skill Book: Blood Feast.png}}
 |used_by=
 }}

@@ -3,10 +3,10 @@
 |stablekey=item:belt - 10 - rottenfoot sash
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Rottenfoot Mauler]] (32.7%)<br>[[A Rottenfoot Warrior]] (15.7%)<br>[[Rottenfoot Witchdoctor]] (7.8%)
+|source={{CharacterLink|stablekey=character:a rottenfoot mauler|link=Rottenfoot Mauler|text=Rottenfoot Mauler}} (32.7%)<br>{{CharacterLink|stablekey=character:a rottenfoot goblin warrior|link=A Rottenfoot Warrior|text=A Rottenfoot Warrior}} (15.7%)<br>{{CharacterLink|stablekey=character:a rottenfoot goblin spiritcaller|link=Rottenfoot Witchdoctor|text=Rottenfoot Witchdoctor}} (7.8%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Rottenfoot Sashes for Alitho Echeswer}}
+|relatedquest={{QuestLink|Rottenfoot Sashes for Alitho Echeswer}}<br>{{QuestLink|stablekey=quest:rottenfootsash|link=Rottenfoot Sashes for Alitho Echeswer|text=Rottenfoot Sashes for Alitho Echeswer}}
 |craftsource=
 |componentfor=
 |buy=5

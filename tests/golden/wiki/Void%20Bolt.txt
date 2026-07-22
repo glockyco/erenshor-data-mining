@@ -5,7 +5,7 @@
 |description=Deals 25 void damage to your target and increase aggro by 225
 |type=Damage
 |line=Direct_Damage
-|classes=[[Reaver]] (2)
+|classes={{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}} (2)
 |required_level=2
 |manacost=25
 |aggro=225
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Void Bolt}}
+|source={{ItemLink|stablekey=item:spell scroll - void bolt|link=Spell Scroll: Void Bolt|text=Spell Scroll: Void Bolt|image=Spell Scroll: Void Bolt.png}}
 |used_by=
 }}

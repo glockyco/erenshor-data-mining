@@ -2,8 +2,8 @@
 |title=Spell Scroll: Immolation
 |stablekey=item:spell scroll - immolation
 |type=[[Ability Books|Spell Scroll]]
-|vendorsource=[[Cerbantias Flameward]]<br>[[Juctin Mysia]]
-|source=[[Blight Eater]] (4.6%)<br>[[Apha, Priest of Brax]] (3.7%)<br>[[Upha, Priest of Brax]] (3.7%)<br>[[A Deepling Crimsonite]] (2.8%)<br>[[Braxon Fanatic]] (2.8%)<br>[[A Deepling Orator]] (1.9%)
+|vendorsource={{CharacterLink|stablekey=character:cerbantias flameward|link=Cerbantias Flameward|text=Cerbantias Flameward}}<br>{{CharacterLink|stablekey=character:juctin mysia|link=Juctin Mysia|text=Juctin Mysia}}
+|source={{CharacterLink|stablekey=character:blight eater|link=Blight Eater|text=Blight Eater}} (4.6%)<br>{{CharacterLink|stablekey=character:priest of brax 1|link=Apha, Priest of Brax|text=Apha, Priest of Brax}} (3.7%)<br>{{CharacterLink|stablekey=character:priest of brax|link=Upha, Priest of Brax|text=Upha, Priest of Brax}} (3.7%)<br>{{CharacterLink|stablekey=character:a deepling crimsonite|link=A Deepling Crimsonite|text=A Deepling Crimsonite}} (2.8%)<br>{{CharacterLink|stablekey=character:braxonian fanatic|link=Braxon Fanatic|text=Braxon Fanatic}} (2.8%)<br>{{CharacterLink|stablekey=character:a deepling orator|link=A Deepling Orator|text=A Deepling Orator}} (1.9%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=2100
 |sell=1365
-|taughtspell={{AbilityLink|Immolation}}
+|taughtspell={{AbilityLink|stablekey=spell:arc - immolation|link=Immolation|text=Immolation|image=Immolation.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

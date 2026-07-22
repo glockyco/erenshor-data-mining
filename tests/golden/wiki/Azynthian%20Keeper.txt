@@ -3,15 +3,15 @@
 |image=[[File:Azynthian Keeper.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Secluded Sanctuary]]
+|zones={{ZoneLink|stablekey=zone:stowawayportal|link=Secluded Sanctuary|text=Secluded Sanctuary}}
 |coordinates=-86.0 x 1.5 x -116.2
 |spawnchance=
 |spawntype=
 |respawn=116 minutes
-|guaranteeddrops={{ItemLink|Armguards of Presence}}<br>{{ItemLink|Azynthian Mask}}<br>{{ItemLink|Corruptor}}
-|droprates={{ItemLink|Eldrich Crystal}} (100.0%)<br>{{ItemLink|Secrets of Creation}} (100.0%)<ref>If the player is already holding {{ItemLink|Secrets of Creation}} in their inventory, another will not drop.</ref><br>{{ItemLink|Armguards of Presence}} (40.8%)<br>{{ItemLink|Azynthian Mask}} (40.8%)<br>{{ItemLink|Corruptor}} (33.3%)
+|guaranteeddrops={{ItemLink|stablekey=item:arm - 41 - armguards of presence|link=Armguards of Presence|text=Armguards of Presence|image=Armguards of Presence.png}}<br>{{ItemLink|stablekey=item:head - 41 - azynthian cowl|link=Azynthian Mask|text=Azynthian Mask|image=Azynthian Mask.png}}<br>{{ItemLink|stablekey=item:wand - 40 - corruptor|link=Corruptor|text=Corruptor|image=Corruptor.png}}
+|droprates={{ItemLink|stablekey=item:gen - eldrich crystal|link=Eldrich Crystal|text=Eldrich Crystal|image=Eldrich Crystal.png}} (100.0%)<br>{{ItemLink|stablekey=item:gen - cube of creation|link=Secrets of Creation|text=Secrets of Creation|image=Secrets of Creation.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - cube of creation|link=Secrets of Creation|text=Secrets of Creation|image=Secrets of Creation.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:arm - 41 - armguards of presence|link=Armguards of Presence|text=Armguards of Presence|image=Armguards of Presence.png}} (40.8%)<br>{{ItemLink|stablekey=item:head - 41 - azynthian cowl|link=Azynthian Mask|text=Azynthian Mask|image=Azynthian Mask.png}} (40.8%)<br>{{ItemLink|stablekey=item:wand - 40 - corruptor|link=Corruptor|text=Corruptor|image=Corruptor.png}} (33.3%)
 |level=41
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=20-49
 |elemental=20-49
 |void=20-49
-|spells={{AbilityLink|Annihilate}}<br>{{AbilityLink|Grip of Azynthi}}<br>{{AbilityLink|Tenebris}}
+|spells={{AbilityLink|stablekey=spell:dru - annihilate|link=Annihilate|text=Annihilate|image=Annihilate.png}}<br>{{AbilityLink|stablekey=spell:none - grip of azynthi|link=Grip of Azynthi|text=Grip of Azynthi|image=Grip of Azynthi.png}}<br>{{AbilityLink|stablekey=spell:arc - tenebris|link=Tenebris|text=Tenebris|image=Tenebris.png}}
 }}
 
 [[Category:Bosses]]

@@ -3,9 +3,9 @@
 |image=[[File:Valrae Cleary.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Blades of Vitheo]]
-|factionChange=-10 [[The Blades of Vitheo]]<br>-10 [[The Citizens of Erenshor]]
-|zones=[[Faerie's Brake]]
+|faction={{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}
+|factionChange=-10 {{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}<br>-10 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}
+|zones={{ZoneLink|stablekey=zone:brake|link=Faerie's Brake|text=Faerie's Brake}}
 |coordinates=98.5 x 16.3 x 187.5
 |spawnchance=
 |spawntype=

@@ -3,7 +3,7 @@
 |stablekey=item:glove - 11 - sticky gloves
 |type=
 |vendorsource=
-|source=[[A Highwayman Marauder]] (3.0%)<br>[[A Highwayman Raider]] (3.0%)
+|source={{CharacterLink|stablekey=character:a highwayman marauder|link=A Highwayman Marauder|text=A Highwayman Marauder}} (3.0%)<br>{{CharacterLink|stablekey=character:a highwayman raider|link=A Highwayman Raider|text=A Highwayman Raider}} (3.0%)<br>{{CharacterLink|stablekey=character:a highwayman raider (1)|link=A Highwayman Raider|text=A Highwayman Raider}} (3.0%)<br>{{CharacterLink|stablekey=character:a highwayman raider (2)|link=A Highwayman Raider|text=A Highwayman Raider}} (3.0%)
 |othersource=
 |questsource=
 |relatedquest=

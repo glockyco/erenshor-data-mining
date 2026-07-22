@@ -2,7 +2,7 @@
 |title=Spell Scroll: Ice Bolt
 |stablekey=item:spell scroll - ice bolt
 |type=[[Ability Books|Spell Scroll]]
-|vendorsource=[[Aldoa Manday]]<br>[[Nylith Valorro]]<br>[[Ophelia Luminee]]
+|vendorsource={{CharacterLink|stablekey=character:addelia zurin:stowaway:508.78:67.80:537.95|link=Aldoa Manday|text=Aldoa Manday}}<br>{{CharacterLink|stablekey=character:nylith valorro|link=Nylith Valorro|text=Nylith Valorro}}<br>{{CharacterLink|stablekey=character:ophelia instrumento|link=Ophelia Luminee|text=Ophelia Luminee}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=100
 |sell=65
-|taughtspell={{AbilityLink|Ice Bolt}}
+|taughtspell={{AbilityLink|stablekey=spell:arc - ice bolt|link=Ice Bolt|text=Ice Bolt|image=Ice Bolt.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

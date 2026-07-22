@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 13 - obsidian bracer
 |type=
 |vendorsource=
-|source=[[Molorai Captain Sigrid]] (55.4%)
+|source={{CharacterLink|stablekey=character:molorai captain sigrid|link=Molorai Captain Sigrid|text=Molorai Captain Sigrid}} (55.4%)
 |othersource=
 |questsource=
 |relatedquest=

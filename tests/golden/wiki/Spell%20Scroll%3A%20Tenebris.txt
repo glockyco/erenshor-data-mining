@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - tenebris
 |type=[[Ability Books]]
 |vendorsource=
-|source=[[Vos Ashlyn]] (50.0%)
+|source={{CharacterLink|stablekey=character:vos ashlyn|link=Vos Ashlyn|text=Vos Ashlyn}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=20000
 |sell=13000
-|taughtspell={{AbilityLink|Tenebris}}
+|taughtspell={{AbilityLink|stablekey=spell:arc - tenebris|link=Tenebris|text=Tenebris|image=Tenebris.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

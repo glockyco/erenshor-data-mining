@@ -3,15 +3,15 @@
 |image=[[File:Priel Soldier.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[Savannah Priel]]
-|factionChange=-2 [[Savannah Priel]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
-|zones=[[Prielian Cascade]]
+|faction={{FactionLink|stablekey=faction:priel|link=Savannah Priel|text=Savannah Priel}}
+|factionChange=-2 {{FactionLink|stablekey=faction:priel|link=Savannah Priel|text=Savannah Priel}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+1 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
+|zones={{ZoneLink|stablekey=zone:prielplateau|link=Prielian Cascade|text=Prielian Cascade}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Sea Glass}} (17.8%)<br>{{ItemLink|Star Stone}} (17.8%)<br>{{ItemLink|Priel Officer's Ring}} (3.4%)<br>{{ItemLink|Skill Book: Priel Strike}} (3.4%)
+|droprates={{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (17.8%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (17.8%)<br>{{ItemLink|stablekey=item:ring - 18 - priel officer's ring|link=Priel Officer's Ring|text=Priel Officer's Ring|image=Priel Officer's Ring.png}} (3.4%)<br>{{ItemLink|stablekey=item:skillbook - priel strike|link=Skill Book: Priel Strike|text=Skill Book: Priel Strike|image=Skill Book: Priel Strike.png}} (3.4%)
 |level=32
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=16-38
 |elemental=16-38
 |void=16-38
-|spells={{AbilityLink|Arterial Decay}}<br>{{AbilityLink|Morbidity's Grasp}}<br>{{AbilityLink|Soul Tap}}
+|spells={{AbilityLink|stablekey=spell:dru - arterial decay|link=Arterial Decay|text=Arterial Decay|image=Arterial Decay.png}}<br>{{AbilityLink|stablekey=spell:dru - morbidity's grasp|link=Morbidity's Grasp|text=Morbidity's Grasp|image=Morbidity's Grasp.png}}<br>{{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}
 }}
 
 {{Character

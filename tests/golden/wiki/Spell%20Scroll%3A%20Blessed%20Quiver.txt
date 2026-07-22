@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - blessed quiver
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=
-|source=[[Elwio the Traitor]] (63.0%)
+|source={{CharacterLink|stablekey=character:elwio the traitor|link=Elwio the Traitor|text=Elwio the Traitor}} (63.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=30000
 |sell=19500
-|taughtspell={{AbilityLink|Blessed Quiver}}
+|taughtspell={{AbilityLink|stablekey=spell:stc - blessed quiver|link=Blessed Quiver|text=Blessed Quiver|image=Blessed Quiver.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

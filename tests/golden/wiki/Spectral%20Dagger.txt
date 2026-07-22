@@ -3,7 +3,7 @@
 |stablekey=item:weap - 15 - spectraldagger
 |type=
 |vendorsource=
-|source=[[The Crypt Guardian]] (14.8%)<br>[[Vithean Blademaster]] (13.1%)<br>[[Vithean Betrayer]] (5.1%)<br>[[Vithean Immortal]] (3.0%)
+|source={{CharacterLink|stablekey=character:crypt guardian|link=The Crypt Guardian|text=The Crypt Guardian}} (14.8%)<br>{{CharacterLink|stablekey=character:vithean blademaster|link=Vithean Blademaster|text=Vithean Blademaster}} (13.1%)<br>{{CharacterLink|stablekey=character:vithean windblade|link=Vithean Betrayer|text=Vithean Betrayer}} (5.1%)<br>{{CharacterLink|stablekey=character:vithean immortal:1|link=Vithean Immortal|text=Vithean Immortal}} (3.0%)
 |othersource=
 |questsource=
 |relatedquest=

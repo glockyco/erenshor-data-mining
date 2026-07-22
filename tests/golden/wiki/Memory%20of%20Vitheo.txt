@@ -3,10 +3,10 @@
 |stablekey=item:gen - memory of vitheo
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Apparition of Vitheo]] (100.0%)
+|source={{CharacterLink|stablekey=character:remains of vitheo|link=Apparition of Vitheo|text=Apparition of Vitheo}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|A Dying Wish, Part 4}}
+|relatedquest={{QuestLink|A Dying Wish, Part 4}}, {{QuestLink|stablekey=quest:sepulcher4|link=A Dying Wish, Part 4|text=A Dying Wish
 |craftsource=
 |componentfor=
 |buy=

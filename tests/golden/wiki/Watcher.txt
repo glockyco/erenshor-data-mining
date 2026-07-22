@@ -3,9 +3,9 @@
 |image=[[File:Watcher.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Followers of Good]]
+|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
 |factionChange=
-|zones=[[Willowwatch Ridge]]
+|zones={{ZoneLink|stablekey=zone:willowwatch|link=Willowwatch Ridge|text=Willowwatch Ridge}}
 |coordinates=410.3 x 116.2 x 551.4
 |spawnchance=
 |spawntype=

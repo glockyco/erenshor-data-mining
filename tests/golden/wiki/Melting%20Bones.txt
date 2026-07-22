@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Boneweaver's Leg}}<br>{{ItemLink|Traitor's Steel}}
+|itemswitheffect={{ItemLink|stablekey=item:wand - 19 - boneweaver's leg|link=Boneweaver's Leg|text=Boneweaver's Leg|image=Boneweaver's Leg.png}}<br>{{ItemLink|stablekey=item:weap - 33 - traitor's steel|link=Traitor's Steel|text=Traitor's Steel|image=Traitor's Steel.png}}
 |source=
-|used_by=[[A Faerie Foliagian]]<br>[[Addison Priel]]<br>[[Ancient Spectre]]<br>[[Candlekeeper]]<br>[[Julianna Priel]]<br>[[Molorai Nightmistress]]<br>[[Sivakayan Devoted]]<br>[[Sivakayan Emissary]]<br>[[Spectre]]
+|used_by={{CharacterLink|stablekey=character:faerie foliagian|link=A Faerie Foliagian|text=A Faerie Foliagian}}<br>{{CharacterLink|stablekey=character:addison priel|link=Addison Priel|text=Addison Priel}}<br>{{CharacterLink|stablekey=character:spectre ancient|link=Ancient Spectre|text=Ancient Spectre}}<br>{{CharacterLink|stablekey=character:candlekeeper|link=Candlekeeper|text=Candlekeeper}}<br>{{CharacterLink|stablekey=character:julianna priel 1|link=Julianna Priel|text=Julianna Priel}}<br>{{CharacterLink|stablekey=character:molorai nightmistress|link=Molorai Nightmistress|text=Molorai Nightmistress}}<br>{{CharacterLink|stablekey=character:sivakayan devoted|link=Sivakayan Devoted|text=Sivakayan Devoted}}<br>{{CharacterLink|stablekey=character:sivakayan emissary|link=Sivakayan Emissary|text=Sivakayan Emissary}}<br>{{CharacterLink|stablekey=character:spectre caster|link=Spectre|text=Spectre}}
 }}

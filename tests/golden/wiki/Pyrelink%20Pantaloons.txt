@@ -3,7 +3,7 @@
 |stablekey=item:leg - 21 - pyrelink pantaloons
 |type=
 |vendorsource=
-|source=[[Evadne the Corrupted]] (29.1%)
+|source={{CharacterLink|stablekey=character:evadne|link=Evadne the Corrupted|text=Evadne the Corrupted}} (29.1%)
 |othersource=
 |questsource=
 |relatedquest=

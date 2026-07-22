@@ -3,15 +3,15 @@
 |image=[[File:Lesser Shadowman.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
-|factionChange=-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
-|zones=[[Silkengrass Meadowlands]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|factionChange=-10 {{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|zones={{ZoneLink|stablekey=zone:silkengrass|link=Silkengrass Meadowlands|text=Silkengrass Meadowlands}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Citrine Stone}} (67.9%)<br>{{ItemLink|Star Stone}} (67.9%)
+|droprates={{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (67.9%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (67.9%)
 |level=17
 |levelmodmin=0
 |levelmodmax=0

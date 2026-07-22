@@ -3,7 +3,7 @@
 |stablekey=item:neck - 42 - aevum
 |type=
 |vendorsource=
-|source=[[Soluna]] (36.0%)
+|source={{CharacterLink|stablekey=character:soluna|link=Soluna|text=Soluna}} (36.0%)
 |othersource=
 |questsource=
 |relatedquest=

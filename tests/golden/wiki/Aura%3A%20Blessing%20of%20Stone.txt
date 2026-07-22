@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Chunk of Living Stone}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - living stone|link=Chunk of Living Stone|text=Chunk of Living Stone|image=Chunk of Living Stone.png}}
 |source=
 |used_by=
 }}

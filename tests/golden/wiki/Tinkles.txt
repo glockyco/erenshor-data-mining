@@ -3,15 +3,15 @@
 |image=[[File:Tinkles.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Skyfolk]]
-|factionChange=-5 [[The Skyfolk]]
-|zones=[[Faerie's Brake]]
+|faction={{FactionLink|stablekey=faction:skyfolk|link=The Skyfolk|text=The Skyfolk}}
+|factionChange=-5 {{FactionLink|stablekey=faction:skyfolk|link=The Skyfolk|text=The Skyfolk}}
+|zones={{ZoneLink|stablekey=zone:brake|link=Faerie's Brake|text=Faerie's Brake}}
 |coordinates=408.1 x 21.1 x 383.4
 |spawnchance=33%
 |spawntype=
 |respawn=2 minutes
-|guaranteeddrops={{ItemLink|Argo's Grimoire}}<br>{{ItemLink|Bronzed Solunarian Plate}}<br>{{ItemLink|Living Chainmail Jacket}}<br>{{ItemLink|Ring of Clarity}}
-|droprates={{ItemLink|Ring of Clarity}} (84.7%)<br>{{ItemLink|Argo's Grimoire}} (23.7%)<br>{{ItemLink|Bronzed Solunarian Plate}} (23.7%)<br>{{ItemLink|Living Chainmail Jacket}} (23.7%)<br>{{ItemLink|Bag of Faerie Dust}} (4.0%)<ref>If the player is already holding {{ItemLink|Bag of Faerie Dust}} in their inventory, another will not drop.</ref><br>{{ItemLink|Faerie Sleeves}} (4.0%)<br>{{ItemLink|Ring of the Sky}} (4.0%)<br>{{ItemLink|Ruby}} (4.0%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref>
+|guaranteeddrops={{ItemLink|stablekey=item:hand - 10 - argo's grimmiore|link=Argo's Grimoire|text=Argo's Grimoire|image=Argo's Grimoire.png}}<br>{{ItemLink|stablekey=item:chest - 10 - bronzed solunian plate|link=Bronzed Solunarian Plate|text=Bronzed Solunarian Plate|image=Bronzed Solunarian Plate.png}}<br>{{ItemLink|stablekey=item:chest - 12 - living chainmail jacket|link=Living Chainmail Jacket|text=Living Chainmail Jacket|image=Living Chainmail Jacket.png}}<br>{{ItemLink|stablekey=item:ring - 11 - ring of clarity|link=Ring of Clarity|text=Ring of Clarity|image=Ring of Clarity.png}}
+|droprates={{ItemLink|stablekey=item:ring - 11 - ring of clarity|link=Ring of Clarity|text=Ring of Clarity|image=Ring of Clarity.png}} (84.7%)<br>{{ItemLink|stablekey=item:hand - 10 - argo's grimmiore|link=Argo's Grimoire|text=Argo's Grimoire|image=Argo's Grimoire.png}} (23.7%)<br>{{ItemLink|stablekey=item:chest - 10 - bronzed solunian plate|link=Bronzed Solunarian Plate|text=Bronzed Solunarian Plate|image=Bronzed Solunarian Plate.png}} (23.7%)<br>{{ItemLink|stablekey=item:chest - 12 - living chainmail jacket|link=Living Chainmail Jacket|text=Living Chainmail Jacket|image=Living Chainmail Jacket.png}} (23.7%)<br>{{ItemLink|stablekey=item:gen - faerie dust|link=Bag of Faerie Dust|text=Bag of Faerie Dust|image=Bag of Faerie Dust.png}} (4.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - faerie dust|link=Bag of Faerie Dust|text=Bag of Faerie Dust|image=Bag of Faerie Dust.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:arm - 8 - faerie sleeves|link=Faerie Sleeves|text=Faerie Sleeves|image=Faerie Sleeves.png}} (4.0%)<br>{{ItemLink|stablekey=item:ring - 7 - ring of the sky|link=Ring of the Sky|text=Ring of the Sky|image=Ring of the Sky.png}} (4.0%)<br>{{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} (4.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} in their inventory, another will not drop.</ref>
 |level=11
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=6-13
 |elemental=6-13
 |void=6-13
-|spells={{AbilityLink|Biting Vines}}<br>{{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Burning Chains}}<br>{{AbilityLink|Flight of Foot}}<br>{{AbilityLink|Vampiric Touch}}
+|spells={{AbilityLink|stablekey=spell:dru - biting vines|link=Biting Vines|text=Biting Vines|image=Biting Vines.png}}<br>{{AbilityLink|stablekey=spell:arc - brax's touch|link=Brax's Touch|text=Brax's Touch|image=Brax's Touch.png}}<br>{{AbilityLink|stablekey=spell:arc - burning chains|link=Burning Chains|text=Burning Chains|image=Burning Chains.png}}<br>{{AbilityLink|stablekey=spell:dru - flight of foot|link=Flight of Foot|text=Flight of Foot|image=Flight of Foot.png}}<br>{{AbilityLink|stablekey=spell:duel - vampiric touch|link=Vampiric Touch|text=Vampiric Touch|image=Vampiric Touch.png}}
 }}
 
 ''{{main|Enemies}}''

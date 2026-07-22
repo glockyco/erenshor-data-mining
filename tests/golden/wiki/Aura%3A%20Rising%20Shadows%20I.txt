@@ -32,7 +32,7 @@
 |shield_amount=
 |pet_to_summon=
 |status_effect=
-|add_proc={{AbilityLink|Void Bolt}}
+|add_proc={{AbilityLink|stablekey=spell:reav - void bolt|link=Void Bolt|text=Void Bolt}}
 |add_proc_chance=3
 |has_lifetap=
 |lifesteal=
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Falling Shadow}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - reaver 1|link=Falling Shadow|text=Falling Shadow|image=Falling Shadow.png}}
 |source=
 |used_by=
 }}

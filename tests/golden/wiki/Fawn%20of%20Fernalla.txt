@@ -3,15 +3,15 @@
 |image=[[File:Fawn of Fernalla.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Blooming Sepulcher]]
+|zones={{ZoneLink|stablekey=zone:bloomingsepulcher|link=Blooming Sepulcher|text=Blooming Sepulcher}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Decayed Druid Beads}} (13.8%)<br>{{ItemLink|Ruby}} (13.8%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Cloth Hood}} (3.9%)<br>{{ItemLink|Cloth Pants}} (3.9%)<br>{{ItemLink|Cloth Shirt}} (3.9%)<br>{{ItemLink|Cloth Sleeves}} (3.9%)
+|droprates={{ItemLink|stablekey=item:gen - decayed druid beads|link=Decayed Druid Beads|text=Decayed Druid Beads|image=Decayed Druid Beads.png}} (13.8%)<br>{{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} (13.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:head - 1 - cloth hood|link=Cloth Hood|text=Cloth Hood|image=Cloth Hood.png}} (3.9%)<br>{{ItemLink|stablekey=item:leg - 1 - cloth pants|link=Cloth Pants|text=Cloth Pants|image=Cloth Pants.png}} (3.9%)<br>{{ItemLink|stablekey=item:chest - 1 - cloth shirt|link=Cloth Shirt|text=Cloth Shirt|image=Cloth Shirt.png}} (3.9%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves|link=Cloth Sleeves|text=Cloth Sleeves|image=Cloth Sleeves.png}} (3.9%)
 |level=35
 |levelmodmin=0
 |levelmodmax=0

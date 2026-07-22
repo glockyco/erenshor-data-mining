@@ -5,7 +5,7 @@
 |description=Deals 2300 magic damage to your target.
 |type=Damage
 |line=Direct_Damage
-|classes=[[Stormcaller]] (35)
+|classes={{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}} (35)
 |required_level=35
 |manacost=1400
 |aggro=25
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Tempest}}
+|source={{ItemLink|stablekey=item:spell scroll - tempest|link=Spell Scroll: Tempest|text=Spell Scroll: Tempest|image=Spell Scroll: Tempest.png}}
 |used_by=
 }}

@@ -3,7 +3,7 @@
 |stablekey=item:weap - 4 - priel knife
 |type=
 |vendorsource=
-|source=[[A Priel Bandit Recruit]] (12.9%)<br>[[Islander Bandit]] (1.1%)
+|source={{CharacterLink|stablekey=character:priel recruit|link=A Priel Bandit Recruit|text=A Priel Bandit Recruit}} (12.9%)<br>{{CharacterLink|stablekey=character:islander bandit|link=Islander Bandit|text=Islander Bandit}} (1.1%)
 |othersource=
 |questsource=
 |relatedquest=

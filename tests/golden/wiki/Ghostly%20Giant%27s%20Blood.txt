@@ -3,12 +3,12 @@
 |stablekey=item:gen - ghostly giant's blood
 |type=[[Crafting]], [[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[A Lost Sea Giant]] (93.5%)<br>[[A Lost Sea Giant]] (87.1%)<br>[[The Lost Sea Giant King]] (66.1%)
+|source={{CharacterLink|stablekey=character:lost sea giant|link=A Lost Sea Giant|text=A Lost Sea Giant}} (93.5%)<br>{{CharacterLink|stablekey=character:lost sea giant female|link=A Lost Sea Giant|text=A Lost Sea Giant}} (87.1%)<br>{{CharacterLink|stablekey=character:lost sea giant king|link=The Lost Sea Giant King|text=The Lost Sea Giant King}} (66.1%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|The Ripper Ritual}}
+|relatedquest={{QuestLink|The Ripper Ritual}}<br>{{QuestLink|stablekey=quest:theripperritual|link=The Ripper Ritual|text=The Ripper Ritual}}
 |craftsource=
-|componentfor={{ItemLink|Mold: Nighthollow Wax}}
+|componentfor={{ItemLink|stablekey=item:template - nighthollow wax mold|link=Mold: Nighthollow Wax|text=Mold: Nighthollow Wax|image=Mold: Nighthollow Wax.png}}
 |buy=8
 |sell=5
 |taughtspell=

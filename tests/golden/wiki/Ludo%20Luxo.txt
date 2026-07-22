@@ -3,9 +3,9 @@
 |image=[[File:Ludo Luxo.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Blades of Vitheo]]
-|factionChange=-15 [[The Blades of Vitheo]]<br>-15 [[The Citizens of Erenshor]]<br>-15 [[The Citizens of Port Azure]]
-|zones=[[Hidden Hills]]
+|faction={{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}
+|factionChange=-15 {{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}<br>-15 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>-15 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|zones={{ZoneLink|stablekey=zone:hidden|link=Hidden Hills|text=Hidden Hills}}
 |coordinates=7.9 x -2.9 x -35.9
 |spawnchance=
 |spawntype=

@@ -2,7 +2,7 @@
 |title=Wood Vendor Set
 |stablekey=item:furniture - wood vendor
 |type=
-|vendorsource=[[Breena Carpenter]]
+|vendorsource={{CharacterLink|stablekey=character:breena carpenter|link=Breena Carpenter|text=Breena Carpenter}}
 |source=
 |othersource=
 |questsource=

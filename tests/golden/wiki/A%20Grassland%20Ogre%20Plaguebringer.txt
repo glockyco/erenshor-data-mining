@@ -3,15 +3,15 @@
 |image=[[File:A Grassland Ogre Plaguebringer.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
-|factionChange=+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Port Azure]]
-|zones=[[Underspine Hollow]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|factionChange=+3 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+3 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|zones={{ZoneLink|stablekey=zone:underspine|link=Underspine Hollow|text=Underspine Hollow}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Fungal Spore}} (84.7%)<br>{{ItemLink|Muddy Jerkin}} (1.1%)<br>{{ItemLink|Pendant of Petrified Wood}} (1.1%)<br>{{ItemLink|Tarnished Greaves}} (1.1%)<br>{{ItemLink|Tarnished Plate Armor}} (1.1%)
+|droprates={{ItemLink|stablekey=item:gen - fungal spore|link=Fungal Spore|text=Fungal Spore|image=Fungal Spore.png}} (84.7%)<br>{{ItemLink|stablekey=item:chest - 14 - muddy leather jerkin|link=Muddy Jerkin|text=Muddy Jerkin|image=Muddy Jerkin.png}} (1.1%)<br>{{ItemLink|stablekey=item:neck - 13 - petrified wood pendant|link=Pendant of Petrified Wood|text=Pendant of Petrified Wood|image=Pendant of Petrified Wood.png}} (1.1%)<br>{{ItemLink|stablekey=item:leg - 7 - tarnished greaves|link=Tarnished Greaves|text=Tarnished Greaves|image=Tarnished Greaves.png}} (1.1%)<br>{{ItemLink|stablekey=item:chest - 13 - tarnished plate armor|link=Tarnished Plate Armor|text=Tarnished Plate Armor|image=Tarnished Plate Armor.png}} (1.1%)
 |level=14
 |levelmodmin=0
 |levelmodmax=0

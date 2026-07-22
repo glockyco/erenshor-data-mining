@@ -2,13 +2,13 @@
 |title=Coral
 |stablekey=item:gen - a coral
 |type=[[Crafting]]
-|vendorsource=[[Enterprising Spirit]]
-|source=[[A Rottenfoot Warrior]] (51.4%)<br>[[A Rottenfoot Witchdoctor]] (51.4%)<br>[[A Seafiend]] (51.4%)<br>[[A Seafiend Manalord]] (51.4%)<br>[[A Seafiend Manathite]] (51.4%)<br>[[A Seafiend Worker]] (51.4%)<br>[[Algaeth Bilgeback]] (51.4%)<br>[[Rottenfoot Swampwalker]] (41.8%)<br>[[Tek-Nu Dah]] (41.8%)<br>[[Rottenfoot Mauler]] (32.7%)<br>[[Rottenfoot Witchdoctor]] (32.7%)<br>[[Nipper King]] (6.5%)<br>[[Nipper Diremaw]] (3.4%)<br>[[Nipper Farseer]] (3.4%)<br>[[Nipper Whiptail]] (3.4%)
+|vendorsource={{CharacterLink|stablekey=character:ghostly figure:shiveringstep:701.36:24.78:439.97|link=Enterprising Spirit|text=Enterprising Spirit}}
+|source={{CharacterLink|stablekey=character:a rottenfoot goblin warrior|link=A Rottenfoot Warrior|text=A Rottenfoot Warrior}} (51.4%)<br>{{CharacterLink|stablekey=character:a rottenfoot goblin witchdoctor|link=A Rottenfoot Witchdoctor|text=A Rottenfoot Witchdoctor}} (51.4%)<br>{{CharacterLink|stablekey=character:a seafiend|link=A Seafiend|text=A Seafiend}} (51.4%)<br>{{CharacterLink|stablekey=character:a seafiend spirtist|link=A Seafiend|text=A Seafiend}} (51.4%)<br>{{CharacterLink|stablekey=character:a seafiend tidal lord|link=A Seafiend Manalord|text=A Seafiend Manalord}} (51.4%)<br>{{CharacterLink|stablekey=character:a seafiend manalord|link=A Seafiend Manathite|text=A Seafiend Manathite}} (51.4%)<br>{{CharacterLink|stablekey=character:a seafiend soldier|link=A Seafiend Worker|text=A Seafiend Worker}} (51.4%)<br>{{CharacterLink|stablekey=character:algaeth bilgeflow 1|link=Algaeth Bilgeback|text=Algaeth Bilgeback}} (51.4%)<br>{{CharacterLink|stablekey=character:a rottenfoot goblin female|link=Rottenfoot Swampwalker|text=Rottenfoot Swampwalker}} (41.8%)<br>{{CharacterLink|stablekey=character:a rottenfoot goblin male|link=Rottenfoot Swampwalker|text=Rottenfoot Swampwalker}} (41.8%)<br>{{CharacterLink|stablekey=character:tal-nah lo|link=Tek-Nu Dah|text=Tek-Nu Dah}} (41.8%)<br>{{CharacterLink|stablekey=character:a rottenfoot mauler|link=Rottenfoot Mauler|text=Rottenfoot Mauler}} (32.7%)<br>{{CharacterLink|stablekey=character:a rottenfoot goblin spiritcaller|link=Rottenfoot Witchdoctor|text=Rottenfoot Witchdoctor}} (32.7%)<br>{{CharacterLink|stablekey=character:nipper king|link=Nipper King|text=Nipper King}} (6.5%)<br>{{CharacterLink|stablekey=character:nipper diremaw|link=Nipper Diremaw|text=Nipper Diremaw}} (3.4%)<br>{{CharacterLink|stablekey=character:nipper farseer|link=Nipper Farseer|text=Nipper Farseer}} (3.4%)<br>{{CharacterLink|stablekey=character:nipper whiptail|link=Nipper Whiptail|text=Nipper Whiptail}} (3.4%)
 |othersource=
 |questsource=
 |relatedquest=
 |craftsource=
-|componentfor={{ItemLink|Mold: Charm of Age}}
+|componentfor={{ItemLink|stablekey=item:template - charm of age|link=Mold: Charm of Age|text=Mold: Charm of Age|image=Mold: Charm of Age.png}}
 |buy=15
 |sell=10
 |taughtspell=

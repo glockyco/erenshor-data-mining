@@ -3,7 +3,7 @@
 |stablekey=item:back - 33 - assassin's bane
 |type=
 |vendorsource=
-|source=[[Molorai Acquirer]] (33.3%)
+|source={{CharacterLink|stablekey=character:molorai acquirer|link=Molorai Acquirer|text=Molorai Acquirer}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

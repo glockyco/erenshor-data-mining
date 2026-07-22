@@ -3,15 +3,15 @@
 |image=[[File:Desert Jackal.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Braxonian Desert]]
+|zones={{ZoneLink|stablekey=zone:braxonian|link=Braxonian Desert|text=Braxonian Desert}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Jackal Meat}} (86.3%)
+|droprates={{ItemLink|stablekey=item:gen - jackal meat|link=Jackal Meat|text=Jackal Meat|image=Jackal Meat.png}} (86.3%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0

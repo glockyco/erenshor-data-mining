@@ -3,15 +3,15 @@
 |image=[[File:Tortured Prisoner.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Lost Cellar]]
+|zones={{ZoneLink|stablekey=zone:undercity|link=Lost Cellar|text=Lost Cellar}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Ancient Bone}} (48.7%)<br>{{ItemLink|Water}} (48.7%)<br>{{ItemLink|Aged Interrogation Note}} (13.5%)<ref>If the player is already holding {{ItemLink|Aged Interrogation Note}} in their inventory, another will not drop.</ref>
+|droprates={{ItemLink|stablekey=item:gen - an ancient bone|link=Ancient Bone|text=Ancient Bone|image=Ancient Bone.png}} (48.7%)<br>{{ItemLink|stablekey=item:cons - water|link=Water|text=Water|image=Water.png}} (48.7%)<br>{{ItemLink|stablekey=item:gen - aged interrogation note|link=Aged Interrogation Note|text=Aged Interrogation Note|image=Aged Interrogation Note.png}} (13.5%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - aged interrogation note|link=Aged Interrogation Note|text=Aged Interrogation Note|image=Aged Interrogation Note.png}} in their inventory, another will not drop.</ref>
 |level=17
 |levelmodmin=0
 |levelmodmax=0

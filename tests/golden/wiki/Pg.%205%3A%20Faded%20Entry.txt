@@ -3,10 +3,10 @@
 |stablekey=item:gen - treasure hunter pg 5 (elderstone)
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Ravager, The First Infected]] (100.0%)
+|source={{CharacterLink|stablekey=character:corrupted golem|link=Ravager, The First Infected|text=Ravager, The First Infected}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|link=The Lost Soul{{!}}The Lost Soul Pt. 1}}
+|relatedquest={{QuestLink|link=The Lost Soul{{!}}The Lost Soul Pt. 1}}<br>{{QuestLink|stablekey=quest:thelostsoul|link=The Lost Soul|text=The Lost Soul Pt. 1}}
 |craftsource=
 |componentfor=
 |buy=

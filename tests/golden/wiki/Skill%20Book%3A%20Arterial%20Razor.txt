@@ -2,7 +2,7 @@
 |title=Skill Book: Arterial Razor
 |stablekey=item:skillbook - arterial razor
 |type=[[Ability Books|Skill Book]]
-|vendorsource=[[Torado Zortia]]
+|vendorsource={{CharacterLink|stablekey=character:torado  zortia|link=Torado Zortia|text=Torado Zortia}}
 |source=
 |othersource=
 |questsource=
@@ -12,7 +12,7 @@
 |buy=26550
 |sell=17258
 |taughtspell=
-|taughtskill={{AbilityLink|Arterial Razor}}
+|taughtskill={{AbilityLink|stablekey=skill:archery - arterial razor|link=Arterial Razor|text=Arterial Razor|image=Arterial Razor.png}}
 |guaranteeddrops=
 |droprates=
 }}

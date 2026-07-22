@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Keeper's Lantern}}
+|itemswitheffect={{ItemLink|stablekey=item:gen - keeper's lantern|link=Keeper's Lantern|text=Keeper's Lantern|image=Keeper's Lantern.png}}
 |source=
 |used_by=
 }}

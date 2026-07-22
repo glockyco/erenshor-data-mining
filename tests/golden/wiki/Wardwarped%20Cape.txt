@@ -3,7 +3,7 @@
 |stablekey=item:back - 37 - wardwarped cape
 |type=
 |vendorsource=
-|source=[[Wardwarped Alpha]] (33.3%)
+|source={{CharacterLink|stablekey=character:wardwarped alpha|link=Wardwarped Alpha|text=Wardwarped Alpha}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -5,15 +5,15 @@
 |image=[[File:Eldoth Molorai.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Azynthi's Garden]]
+|zones={{ZoneLink|stablekey=zone:azynthiclear|link=Azynthi's Garden|text=Azynthi's Garden}}
 |coordinates=623.1 x 109.4 x 496.8
 |spawnchance=
 |spawntype=
 |respawn=42 minutes
-|guaranteeddrops={{ItemLink|Eldoth's Finery}}<br>{{ItemLink|Eldoth's Heirloom Ring}}<br>{{ItemLink|Sivakaya's Touch}}
-|droprates={{ItemLink|Eldoth's Journal Entry}} (100.0%)<ref>If the player is already holding {{ItemLink|Eldoth's Journal Entry}} in their inventory, another will not drop.</ref><br>{{ItemLink|Skull-Shaped Candleholder}} (100.0%)<br>{{ItemLink|Evacuate Soul}} (94.0%)<br>{{ItemLink|Eldoth's Heirloom Ring}} (50.0%)<br>{{ItemLink|Eldoth's Finery}} (25.0%)<br>{{ItemLink|Sivakaya's Touch}} (25.0%)<br>{{ItemLink|Temporal Shard}} (6.7%)
+|guaranteeddrops={{ItemLink|stablekey=item:chest - 38 - eldoth's finery|link=Eldoth's Finery|text=Eldoth's Finery|image=Eldoth's Finery.png}}<br>{{ItemLink|stablekey=item:ring - 40 - molorai heirloom ring|link=Eldoth's Heirloom Ring|text=Eldoth's Heirloom Ring|image=Eldoth's Heirloom Ring.png}}<br>{{ItemLink|stablekey=item:ring - 39 - sivakaya's touch|link=Sivakaya's Touch|text=Sivakaya's Touch|image=Sivakaya's Touch.png}}
+|droprates={{ItemLink|stablekey=item:gen - eldoth writings page 6|link=Eldoth's Journal Entry|text=Eldoth's Journal Entry|image=Eldoth's Journal Entry.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - eldoth writings page 6|link=Eldoth's Journal Entry|text=Eldoth's Journal Entry|image=Eldoth's Journal Entry.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - nighthollow base|link=Skull-Shaped Candleholder|text=Skull-Shaped Candleholder|image=Skull-Shaped Candleholder.png}} (100.0%)<br>{{ItemLink|stablekey=item:aura - reaver 4|link=Evacuate Soul|text=Evacuate Soul|image=Evacuate Soul.png}} (94.0%)<br>{{ItemLink|stablekey=item:ring - 40 - molorai heirloom ring|link=Eldoth's Heirloom Ring|text=Eldoth's Heirloom Ring|image=Eldoth's Heirloom Ring.png}} (50.0%)<br>{{ItemLink|stablekey=item:chest - 38 - eldoth's finery|link=Eldoth's Finery|text=Eldoth's Finery|image=Eldoth's Finery.png}} (25.0%)<br>{{ItemLink|stablekey=item:ring - 39 - sivakaya's touch|link=Sivakaya's Touch|text=Sivakaya's Touch|image=Sivakaya's Touch.png}} (25.0%)<br>{{ItemLink|stablekey=item:neck - 38 - temporal relic|link=Temporal Shard|text=Temporal Shard|image=Temporal Shard.png}} (6.7%)
 |level=43
 |levelmodmin=0
 |levelmodmax=0

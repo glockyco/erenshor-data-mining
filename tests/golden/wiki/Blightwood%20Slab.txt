@@ -3,10 +3,10 @@
 |stablekey=item:gen - blightwood
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Parzgil]] (100.0%)<br>[[Blighted Jackal]] (14.2%)<br>[[Lupine Horror]] (11.5%)
+|source={{CharacterLink|stablekey=character:parzgil|link=Parzgil|text=Parzgil}} (100.0%)<br>{{CharacterLink|stablekey=character:blighted jackal|link=Blighted Jackal|text=Blighted Jackal}} (14.2%)<br>{{CharacterLink|stablekey=character:james|link=Lupine Horror|text=Lupine Horror}} (11.5%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|The Dark Flame}}
+|relatedquest={{QuestLink|The Dark Flame}}<br>{{QuestLink|stablekey=quest:thedarkflame|link=The Dark Flame|text=The Dark Flame}}
 |craftsource=
 |componentfor=
 |buy=15

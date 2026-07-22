@@ -3,7 +3,7 @@
 |stablekey=item:glove - 24 - meteorite gauntlets
 |type=
 |vendorsource=
-|source=[[Living Meteorite]] (13.1%)
+|source={{CharacterLink|stablekey=character:living meteorite|link=Living Meteorite|text=Living Meteorite}} (13.1%)
 |othersource=
 |questsource=
 |relatedquest=

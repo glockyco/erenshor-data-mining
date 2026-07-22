@@ -3,15 +3,15 @@
 |image=[[File:Warder of Ice.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Brax's Plane of Elements]]
+|zones={{ZoneLink|stablekey=zone:planeofbrax|link=Brax's Plane of Elements|text=Brax's Plane of Elements}}
 |coordinates=295.0 x 59.7 x 775.6
 |spawnchance=
 |spawntype=
 |respawn=30 minutes
-|guaranteeddrops={{ItemLink|Planar Spear}}<br>{{ItemLink|Primal Ice Shard}}<br>{{ItemLink|Warder's Staff}}
-|droprates={{ItemLink|Planar Stone Shards}} (91.1%)<br>{{ItemLink|Planar Spear}} (69.7%)<br>{{ItemLink|Primal Ice Shard}} (69.7%)<br>{{ItemLink|Warder's Staff}} (69.7%)<br>{{ItemLink|Planar Stone}} (38.2%)
+|guaranteeddrops={{ItemLink|stablekey=item:weap - 42 - planar ice lance|link=Planar Spear|text=Planar Spear|image=Planar Spear.png}}<br>{{ItemLink|stablekey=item:aura - primal ice shard|link=Primal Ice Shard|text=Primal Ice Shard|image=Primal Ice Shard.png}}<br>{{ItemLink|stablekey=item:wand - 42 - staff of the warder|link=Warder's Staff|text=Warder's Staff|image=Warder's Staff.png}}
+|droprates={{ItemLink|stablekey=item:ore - planar shard|link=Planar Stone Shards|text=Planar Stone Shards|image=Planar Stone Shards.png}} (91.1%)<br>{{ItemLink|stablekey=item:weap - 42 - planar ice lance|link=Planar Spear|text=Planar Spear|image=Planar Spear.png}} (69.7%)<br>{{ItemLink|stablekey=item:aura - primal ice shard|link=Primal Ice Shard|text=Primal Ice Shard|image=Primal Ice Shard.png}} (69.7%)<br>{{ItemLink|stablekey=item:wand - 42 - staff of the warder|link=Warder's Staff|text=Warder's Staff|image=Warder's Staff.png}} (69.7%)<br>{{ItemLink|stablekey=item:ore - planar stone|link=Planar Stone|text=Planar Stone|image=Planar Stone.png}} (38.2%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

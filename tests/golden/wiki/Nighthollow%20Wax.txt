@@ -6,8 +6,8 @@
 |source=
 |othersource=[[Mold: Nighthollow Wax]]
 |questsource=
-|relatedquest={{QuestLink|Recovering the Nighthollow Candle}}
-|craftsource=1x {{ItemLink|Mold: Nighthollow Wax}}<br>1x {{ItemLink|Dusken Giant's Blood}}<br>1x {{ItemLink|Ghostly Giant's Blood}}<br>1x {{ItemLink|Sylvan Giant's Blood}}<br>1x {{ItemLink|Stone Giant's Blood}}<br>1x {{ItemLink|Vampire Fang}}
+|relatedquest={{QuestLink|Recovering the Nighthollow Candle}}<br>{{QuestLink|stablekey=quest:recoveringnighthollow|link=Recovering the Nighthollow Candle|text=Recovering the Nighthollow Candle}}
+|craftsource=1x {{ItemLink|stablekey=item:template - nighthollow wax mold|link=Mold: Nighthollow Wax|text=Mold: Nighthollow Wax|image=Mold: Nighthollow Wax.png}}<br>1x {{ItemLink|stablekey=item:gen - dusken giants blood|link=Dusken Giant's Blood|text=Dusken Giant's Blood|image=Dusken Giant's Blood.png}}<br>1x {{ItemLink|stablekey=item:gen - ghostly giant's blood|link=Ghostly Giant's Blood|text=Ghostly Giant's Blood|image=Ghostly Giant's Blood.png}}<br>1x {{ItemLink|stablekey=item:gen - sylvan giants blood|link=Sylvan Giant's Blood|text=Sylvan Giant's Blood|image=Sylvan Giant's Blood.png}}<br>1x {{ItemLink|stablekey=item:gen - stone giants blood|link=Stone Giant's Blood|text=Stone Giant's Blood|image=Stone Giant's Blood.png}}<br>1x {{ItemLink|stablekey=item:gen - vampire fang|link=Vampire Fang|text=Vampire Fang|image=Vampire Fang.png}}
 |componentfor=
 |buy=
 |sell=

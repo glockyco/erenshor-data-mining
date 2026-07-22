@@ -3,9 +3,9 @@
 |image=[[File:Vitheo the Tactician.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Vitheo's Plane of Valor]]
+|zones={{ZoneLink|stablekey=zone:planeofvitheo|link=Vitheo's Plane of Valor|text=Vitheo's Plane of Valor}}
 |coordinates=478.9 x 25.2 x 441.6
 |spawnchance=
 |spawntype=Dynamic event spawn
@@ -42,9 +42,9 @@
 |image=[[File:Vitheo the Tactician.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Vitheo's Plane of Valor]]
+|zones={{ZoneLink|stablekey=zone:planeofvitheo|link=Vitheo's Plane of Valor|text=Vitheo's Plane of Valor}}
 |coordinates=569.4 x 51.3 x 536.7
 |spawnchance=
 |spawntype=
@@ -89,9 +89,9 @@ There are many statues of Vitheo around Erenshor, almost always holding his fabl
 |image=[[File:Vitheo the Tactician.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Followers of Good]]
+|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
 |factionChange=
-|zones=[[Vitheo's Plane of Valor]]
+|zones={{ZoneLink|stablekey=zone:planeofvitheo|link=Vitheo's Plane of Valor|text=Vitheo's Plane of Valor}}
 |coordinates=479.1 x 25.2 x 441.6
 |spawnchance=
 |spawntype=

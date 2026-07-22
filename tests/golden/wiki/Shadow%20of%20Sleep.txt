@@ -3,15 +3,15 @@
 |image=[[File:Shadow of Sleep.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Shivering Step]]
+|zones={{ZoneLink|stablekey=zone:shiveringstep|link=Shivering Step|text=Shivering Step}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Luminstone}} (52.4%)<br>{{ItemLink|Ancient Bone}} (51.4%)<br>{{ItemLink|Ghoul Scab}} (51.4%)<br>{{ItemLink|Death's Decay}} (14.1%)<ref>If the player is already holding {{ItemLink|Death's Decay}} in their inventory, another will not drop.</ref><br>{{ItemLink|Thief of Breath}} (14.1%)<ref>If the player is already holding {{ItemLink|Thief of Breath}} in their inventory, another will not drop.</ref><br>{{ItemLink|Shivering Ring}} (8.2%)<br>{{ItemLink|Diamond}} (3.4%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Citrine Stone}} (1.7%)<br>{{ItemLink|Concentration Band}} (1.7%)<br>{{ItemLink|Demon Claw}} (1.7%)<br>{{ItemLink|Freeing Stone}} (1.7%)<br>{{ItemLink|Polished Stone}} (1.7%)<br>{{ItemLink|Ruby}} (1.7%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Shadowmaker}} (1.7%)
+|droprates={{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (52.4%)<br>{{ItemLink|stablekey=item:gen - an ancient bone|link=Ancient Bone|text=Ancient Bone|image=Ancient Bone.png}} (51.4%)<br>{{ItemLink|stablekey=item:gen - ghoul scab|link=Ghoul Scab|text=Ghoul Scab|image=Ghoul Scab.png}} (51.4%)<br>{{ItemLink|stablekey=item:gen - death's decay|link=Death's Decay|text=Death's Decay|image=Death's Decay.png}} (14.1%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - death's decay|link=Death's Decay|text=Death's Decay|image=Death's Decay.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - thief of breath|link=Thief of Breath|text=Thief of Breath|image=Thief of Breath.png}} (14.1%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - thief of breath|link=Thief of Breath|text=Thief of Breath|image=Thief of Breath.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:ring - 19 - shivering ring|link=Shivering Ring|text=Shivering Ring|image=Shivering Ring.png}} (8.2%)<br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (3.4%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (1.7%)<br>{{ItemLink|stablekey=item:ring - 20 - ring of concentration|link=Concentration Band|text=Concentration Band|image=Concentration Band.png}} (1.7%)<br>{{ItemLink|stablekey=item:weap - 25 - demonclaw|link=Demon Claw|text=Demon Claw|image=Demon Claw.png}} (1.7%)<br>{{ItemLink|stablekey=item:ring - 24 - freeing stone|link=Freeing Stone|text=Freeing Stone|image=Freeing Stone.png}} (1.7%)<br>{{ItemLink|stablekey=item:gen - polished stone|link=Polished Stone|text=Polished Stone|image=Polished Stone.png}} (1.7%)<br>{{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} (1.7%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:wrist - 19 - shadowmaker|link=Shadowmaker|text=Shadowmaker|image=Shadowmaker.png}} (1.7%)
 |level=19
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=10-23
 |elemental=10-23
 |void=10-23
-|spells={{AbilityLink|Soul Tap}}
+|spells={{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}
 }}
 
 [[Category:Enemies]]

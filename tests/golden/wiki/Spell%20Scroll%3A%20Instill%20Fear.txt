@@ -2,7 +2,7 @@
 |title=Spell Scroll: Instill Fear
 |stablekey=item:spell scroll - instill fear
 |type=
-|vendorsource=[[Xander Zaxtrough]]
+|vendorsource={{CharacterLink|stablekey=character:xander zaxtrough|link=Xander Zaxtrough|text=Xander Zaxtrough}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=850
 |sell=552
-|taughtspell={{AbilityLink|Instill Fear}}
+|taughtspell={{AbilityLink|stablekey=spell:reav - instill fear|link=Instill Fear|text=Instill Fear|image=Instill Fear.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

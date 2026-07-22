@@ -3,9 +3,9 @@
 |image=[[File:Kio the Light Keeper.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Citizens of Stowaway's Step]]
-|factionChange=-25 [[The Citizens of Stowaway's Step]]
-|zones=[[Stowaway's Step]]
+|faction={{FactionLink|stablekey=faction:stowaway|link=The Citizens of Stowaway's Step|text=The Citizens of Stowaway's Step}}
+|factionChange=-25 {{FactionLink|stablekey=faction:stowaway|link=The Citizens of Stowaway's Step|text=The Citizens of Stowaway's Step}}
+|zones={{ZoneLink|stablekey=zone:stowaway|link=Stowaway's Step|text=Stowaway's Step}}
 |coordinates=799.3 x 20.1 x 585.9
 |spawnchance=
 |spawntype=
@@ -78,9 +78,9 @@ Greeting message:
 |image=[[File:Kio the Light Keeper.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Citizens of Stowaway's Step]]
+|faction={{FactionLink|stablekey=faction:stowaway|link=The Citizens of Stowaway's Step|text=The Citizens of Stowaway's Step}}
 |factionChange=
-|zones=[[Shivering Step]]
+|zones={{ZoneLink|stablekey=zone:shiveringstep|link=Shivering Step|text=Shivering Step}}
 |coordinates=799.3 x 20.1 x 585.9
 |spawnchance=
 |spawntype=

@@ -3,10 +3,10 @@
 |stablekey=item:gen - cod - pg 2
 |type=[[Lore Items|Lore]], [[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Prioress]] (6.8%)<br>[[Acolyte]] (6.0%)
+|source={{CharacterLink|stablekey=character:prioress|link=Prioress|text=Prioress}} (6.8%)<br>{{CharacterLink|stablekey=character:acolyte|link=Acolyte|text=Acolyte}} (6.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|link=The Mathers' Demise{{!}}The Mather's Demise, Part 2}}<br>{{QuestLink|The Mathers' Demise}}
+|relatedquest={{QuestLink|link=The Mathers' Demise{{!}}The Mather's Demise, Part 2}}<br>{{QuestLink|The Mathers' Demise}}<br>{{QuestLink|stablekey=quest:mathersdemise2|link=The Mathers' Demise|text=The Mathers' Demise}}
 |craftsource=
 |componentfor=
 |buy=

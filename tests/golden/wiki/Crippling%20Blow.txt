@@ -5,7 +5,7 @@
 |description=Passive Skill: Small chance on Critical Hits to deal 2x damage.
 |type=Innate
 |line=
-|classes=[[Windblade]] (35)
+|classes={{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}} (35)
 |required_level=
 |manacost=
 |aggro=
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Skill Book: Crippling Blow}}
+|source={{ItemLink|stablekey=item:skillbook - crippling blow|link=Skill Book: Crippling Blow|text=Skill Book: Crippling Blow|image=Skill Book: Crippling Blow.png}}
 |used_by=
 }}

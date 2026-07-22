@@ -3,7 +3,7 @@
 |stablekey=item:gen - sivakayan diplomacy
 |type=[[Lore Items|Lore]]
 |vendorsource=
-|source=[[Sivakayan Emissary]] (100.0%)
+|source={{CharacterLink|stablekey=character:sivakayan emissary|link=Sivakayan Emissary|text=Sivakayan Emissary}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=

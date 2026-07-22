@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Essence of Flame}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - brax 2|link=Essence of Flame|text=Essence of Flame|image=Essence of Flame.png}}
 |source=
 |used_by=
 }}

@@ -3,9 +3,9 @@
 |image=[[File:Wally Waldorf.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Citizens of Stowaway's Step]]
+|faction={{FactionLink|stablekey=faction:stowaway|link=The Citizens of Stowaway's Step|text=The Citizens of Stowaway's Step}}
 |factionChange=
-|zones=[[Stowaway's Step]]
+|zones={{ZoneLink|stablekey=zone:stowaway|link=Stowaway's Step|text=Stowaway's Step}}
 |coordinates=573.5 x 70.5 x 545.1
 |spawnchance=
 |spawntype=

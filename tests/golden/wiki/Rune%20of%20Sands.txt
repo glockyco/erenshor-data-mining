@@ -3,10 +3,10 @@
 |stablekey=item:gen - rune of sands
 |type=[[Teleportation]]<br>[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Sand Mummy]] (4.6%)<br>[[Scorched Skeleton]] (4.6%)
+|source={{CharacterLink|stablekey=character:desert mummy|link=Sand Mummy|text=Sand Mummy}} (4.6%)<br>{{CharacterLink|stablekey=character:scorched skeleton|link=Scorched Skeleton|text=Scorched Skeleton}} (4.6%)
 |othersource=
-|questsource={{QuestLink|Portal of Sands}}
-|relatedquest={{QuestLink|Portal of Sands}}
+|questsource={{QuestLink|Portal of Sands}}<br>{{QuestLink|stablekey=quest:reliq-sands|link=Portal of Sands|text=Portal of Sands}}
+|relatedquest={{QuestLink|Portal of Sands}}<br>{{QuestLink|stablekey=quest:reliq-sands|link=Portal of Sands|text=Portal of Sands}}
 |craftsource=
 |componentfor=
 |buy=5000
@@ -26,7 +26,7 @@
 |disposable=
 |effect_style=Activatable
 |effect_spell_icon=Portal to Braxonian.png
-|effect_spell_name=[[Portal to Braxonian]]
+|effect_spell_name={{AbilityLink|stablekey=spell:arc - portal to braxonian|link=Portal to Braxonian|text=Portal to Braxonian|image=Portal to Braxonian.png}}
 |effect_spell_level=25
 |effect_spell_duration_ticks=
 |effect_spell_type=Misc

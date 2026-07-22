@@ -5,7 +5,7 @@
 |description=Deals 1550 elemental based damage to a target.
 |type=Damage
 |line=Direct_Damage
-|classes=[[Arcanist]] (24)
+|classes={{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}} (24)
 |required_level=24
 |manacost=300
 |aggro=200
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Cleansing Brace}}<br>{{ItemLink|Droplet of Lava}}<br>{{ItemLink|Monarch's Blade}}<br>{{ItemLink|Obsidian Edge}}<br>{{ItemLink|Volcanic Shield}}
-|source={{ItemLink|Spell Scroll: Brax's Fury}}
-|used_by=[[Arcane Headmaster]]<br>[[Arcane Pupil]]<br>[[Braxonian Tempest]]<br>[[Fenton the Blighted]]<br>[[Fire Elemental]]<br>[[Greater Fire Elemental]]<br>[[Historian of Braxonia]]<br>[[Juctin Mysia]]<br>[[Katia Marado]]<br>[[Large Fire Elemental]]<br>[[Larviso Poltir]]<br>[[Nashen Glazier]]<br>[[Neia Tarmath]]<br>[[Statue of Brax]]<br>[[Stoneman Seeker]]<br>[[Torado Zortia]]<br>[[Wardkeeper Rossi]]<br>[[Wishlan the Savior]]
+|itemswitheffect={{ItemLink|stablekey=item:wrist - 42 - cleansing brace|link=Cleansing Brace|text=Cleansing Brace|image=Cleansing Brace.png}}<br>{{ItemLink|stablekey=item:cons - lava droplet|link=Droplet of Lava|text=Droplet of Lava|image=Droplet of Lava.png}}<br>{{ItemLink|stablekey=item:weap - 39 - monarch's blade|link=Monarch's Blade|text=Monarch's Blade|image=Monarch's Blade.png}}<br>{{ItemLink|stablekey=item:weap - 42 - obsidian edge|link=Obsidian Edge|text=Obsidian Edge|image=Obsidian Edge.png}}<br>{{ItemLink|stablekey=item:secondary - 26 - volcanic shield|link=Volcanic Shield|text=Volcanic Shield|image=Volcanic Shield.png}}
+|source={{ItemLink|stablekey=item:spell scroll - brax's fury|link=Spell Scroll: Brax's Fury|text=Spell Scroll: Brax's Fury|image=Spell Scroll: Brax's Fury.png}}
+|used_by={{CharacterLink|stablekey=character:arcane headmaster|link=Arcane Headmaster|text=Arcane Headmaster}}<br>{{CharacterLink|stablekey=character:arcane pupil|link=Arcane Pupil|text=Arcane Pupil}}<br>{{CharacterLink|stablekey=character:braxonian tempest|link=Braxonian Tempest|text=Braxonian Tempest}}<br>{{CharacterLink|stablekey=character:fenton the blighted|link=Fenton the Blighted|text=Fenton the Blighted}}<br>{{CharacterLink|stablekey=character:fire elemental|link=Fire Elemental|text=Fire Elemental}}<br>{{CharacterLink|stablekey=character:greater fire elemental|link=Greater Fire Elemental|text=Greater Fire Elemental}}<br>{{CharacterLink|stablekey=character:braxonian historian|link=Historian of Braxonia|text=Historian of Braxonia}}<br>{{CharacterLink|stablekey=character:juctin mysia|link=Juctin Mysia|text=Juctin Mysia}}<br>{{CharacterLink|stablekey=character:katia marado:loomingwood:371.12:26.99:417.73|link=Katia Marado|text=Katia Marado}}<br>{{CharacterLink|stablekey=character:large fire elemental|link=Large Fire Elemental|text=Large Fire Elemental}}<br>{{CharacterLink|stablekey=character:larviso poltir:loomingwood:323.78:29.25:429.23|link=Larviso Poltir|text=Larviso Poltir}}<br>{{CharacterLink|stablekey=character:nashen glazier|link=Nashen Glazier|text=Nashen Glazier}}<br>{{CharacterLink|stablekey=character:katia marado (1)|link=Neia Tarmath|text=Neia Tarmath}}<br>{{CharacterLink|stablekey=character:statue of brax|link=Statue of Brax|text=Statue of Brax}}<br>{{CharacterLink|stablekey=character:stoneman seeker (1):blight:438.18:43.30:180.65|link=Stoneman Seeker|text=Stoneman Seeker}}<br>{{CharacterLink|stablekey=character:torado  zortia|link=Torado Zortia|text=Torado Zortia}}<br>{{CharacterLink|stablekey=character:wardkeeper rossi:loomingwood:507.37:26.99:875.46|link=Wardkeeper Rossi|text=Wardkeeper Rossi}}<br>{{CharacterLink|stablekey=character:wishlan|link=Wishlan the Savior|text=Wishlan the Savior}}
 }}

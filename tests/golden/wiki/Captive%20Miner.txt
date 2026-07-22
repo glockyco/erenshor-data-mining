@@ -3,9 +3,9 @@
 |image=[[File:Captive Miner.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Citizens of Port Azure]]
-|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
-|zones=[[Prielian Cascade]]
+|faction={{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|factionChange=-20 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>-20 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|zones={{ZoneLink|stablekey=zone:prielplateau|link=Prielian Cascade|text=Prielian Cascade}}
 |coordinates=
 |spawnchance=
 |spawntype=
@@ -40,15 +40,15 @@
 |image=[[File:Captive Miner.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Citizens of Port Azure]]
-|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
-|zones=[[Prielian Cascade]]
+|faction={{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|factionChange=-20 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>-20 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|zones={{ZoneLink|stablekey=zone:prielplateau|link=Prielian Cascade|text=Prielian Cascade}}
 |coordinates=73.6 x 0.0 x 343.4
 |spawnchance=
 |spawntype=
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|Bread}} (31.5%)<br>{{ItemLink|Water}} (31.5%)
+|droprates={{ItemLink|stablekey=item:cons - bread|link=Bread|text=Bread|image=Bread.png}} (31.5%)<br>{{ItemLink|stablekey=item:cons - water|link=Water|text=Water|image=Water.png}} (31.5%)
 |level=8
 |levelmodmin=0
 |levelmodmax=0

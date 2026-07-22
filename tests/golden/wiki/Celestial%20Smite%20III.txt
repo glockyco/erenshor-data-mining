@@ -5,7 +5,7 @@
 |description=Channel the power of Soluna into your attack
 |type=Attack
 |line=
-|classes=[[Paladin]] (35)
+|classes={{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}} (35)
 |required_level=
 |manacost=
 |aggro=
@@ -23,7 +23,7 @@
 |is_self_only=
 |is_group_effect=
 |is_applied_to_caster=
-|effects={{AbilityLink|Smite III}}
+|effects={{AbilityLink|stablekey=spell:none - soluna's smite iii|link=Smite III|text=Smite III|image=Smite III.png}}
 |damage_type=Physical
 |resist_modifier=
 |target_damage=4
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Skill Book: Celestial Smite III}}
+|source={{ItemLink|stablekey=item:skillbook - celestial smite iii|link=Skill Book: Celestial Smite III|text=Skill Book: Celestial Smite III|image=Skill Book: Celestial Smite III.png}}
 |used_by=
 }}

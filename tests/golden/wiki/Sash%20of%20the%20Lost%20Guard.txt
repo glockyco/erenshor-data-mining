@@ -3,7 +3,7 @@
 |stablekey=item:belt - 19 - sash of the lost guard
 |type=
 |vendorsource=
-|source=[[Spectral King's Guard]] (25.0%)
+|source={{CharacterLink|stablekey=character:lost king's guard|link=Spectral King's Guard|text=Spectral King's Guard}} (25.0%)
 |othersource=
 |questsource=
 |relatedquest=

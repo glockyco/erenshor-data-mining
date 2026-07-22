@@ -3,12 +3,12 @@
 |stablekey=item:ore - vithean ore
 |type=[[Crafting]]
 |vendorsource=
-|source=[[Vithean Elemental]] (19.6%)
+|source={{CharacterLink|stablekey=character:vithean elemental|link=Vithean Elemental|text=Vithean Elemental}} (19.6%)
 |othersource=
 |questsource=
 |relatedquest=
 |craftsource=
-|componentfor={{ItemLink|Mold: Angler's Ring}}
+|componentfor={{ItemLink|stablekey=item:template - anglers ring|link=Mold: Angler's Ring|text=Mold: Angler's Ring|image=Mold: Angler's Ring.png}}
 |buy=150
 |sell=98
 |taughtspell=

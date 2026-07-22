@@ -5,7 +5,7 @@
 |description=Deals 1500 damage / tick, adds -1 hit penalty
 |type=StatusEffect
 |line=Stormcaller_Magic_DOT
-|classes=[[Stormcaller]] (35)
+|classes={{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}} (35)
 |required_level=35
 |manacost=1200
 |aggro=500
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Synchrotron Burst}}
+|source={{ItemLink|stablekey=item:spell scroll - synchrotron burst|link=Spell Scroll: Synchrotron Burst|text=Spell Scroll: Synchrotron Burst|image=Spell Scroll: Synchrotron Burst.png}}
 |used_by=
 }}

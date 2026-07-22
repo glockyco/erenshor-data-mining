@@ -2,13 +2,13 @@
 |title=Ghoul Scab
 |stablekey=item:gen - ghoul scab
 |type=[[Crafting]]
-|vendorsource=[[Enterprising Spirit]]
-|source=[[Ghoul]] (87.1%)<br>[[Shambler]] (87.1%)<br>[[Shadow of Sleep]] (51.4%)
+|vendorsource={{CharacterLink|stablekey=character:ghostly figure:shiveringstep:701.36:24.78:439.97|link=Enterprising Spirit|text=Enterprising Spirit}}
+|source={{CharacterLink|stablekey=character:azynthian ghoul|link=Ghoul|text=Ghoul}} (87.1%)<br>{{CharacterLink|stablekey=character:shambler|link=Shambler|text=Shambler}} (87.1%)<br>{{CharacterLink|stablekey=character:boogeyman|link=Shadow of Sleep|text=Shadow of Sleep}} (51.4%)
 |othersource=
 |questsource=
 |relatedquest=
 |craftsource=
-|componentfor={{ItemLink|Mold: Soldier's Charm}}
+|componentfor={{ItemLink|stablekey=item:template - soldier's charm|link=Mold: Soldier's Charm|text=Mold: Soldier's Charm|image=Mold: Soldier's Charm.png}}
 |buy=1
 |sell=1
 |taughtspell=

@@ -3,10 +3,10 @@
 |stablekey=item:gen - blightsand
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Blight Demon]] (20.8%)<br>[[Blighted Jackal]] (14.2%)<br>[[Sentinel]] (13.9%)<br>[[Shiverman]] (12.9%)<br>[[Blighted Priest]] (11.5%)<br>[[Doomwalker]] (11.5%)<br>[[Fenton the Blighted]] (11.5%)<br>[[Harbinger of Corruption]] (11.5%)<br>[[Lurker]] (11.5%)<br>[[Noctua]] (11.5%)<br>[[Obsidian Horror]] (11.5%)<br>[[Parzgil]] (11.5%)
+|source={{CharacterLink|stablekey=character:blight demon|link=Blight Demon|text=Blight Demon}} (20.8%)<br>{{CharacterLink|stablekey=character:blighted jackal|link=Blighted Jackal|text=Blighted Jackal}} (14.2%)<br>{{CharacterLink|stablekey=character:sentinel|link=Sentinel|text=Sentinel}} (13.9%)<br>{{CharacterLink|stablekey=character:shiverman|link=Shiverman|text=Shiverman}} (12.9%)<br>{{CharacterLink|stablekey=character:blight priest|link=Blighted Priest|text=Blighted Priest}} (11.5%)<br>{{CharacterLink|stablekey=character:doomwalker|link=Doomwalker|text=Doomwalker}} (11.5%)<br>{{CharacterLink|stablekey=character:fenton the blighted|link=Fenton the Blighted|text=Fenton the Blighted}} (11.5%)<br>{{CharacterLink|stablekey=character:harbinger of corruption|link=Harbinger of Corruption|text=Harbinger of Corruption}} (11.5%)<br>{{CharacterLink|stablekey=character:lurker|link=Lurker|text=Lurker}} (11.5%)<br>{{CharacterLink|stablekey=character:noctua|link=Noctua|text=Noctua}} (11.5%)<br>{{CharacterLink|stablekey=character:obsidian horror|link=Obsidian Horror|text=Obsidian Horror}} (11.5%)<br>{{CharacterLink|stablekey=character:parzgil|link=Parzgil|text=Parzgil}} (11.5%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|The Dark Flame}}
+|relatedquest={{QuestLink|The Dark Flame}}<br>{{QuestLink|stablekey=quest:thedarkflame|link=The Dark Flame|text=The Dark Flame}}
 |craftsource=
 |componentfor=
 |buy=1

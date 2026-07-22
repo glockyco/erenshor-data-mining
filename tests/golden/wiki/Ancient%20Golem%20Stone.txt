@@ -3,7 +3,7 @@
 |stablekey=item:gen - ancient golem stone
 |type=[[Crafting]]
 |vendorsource=
-|source=[[Worn Ancient Guardian]] (5.7%)
+|source={{CharacterLink|stablekey=character:worn ancient guardian 1|link=Worn Ancient Guardian|text=Worn Ancient Guardian}} (5.7%)
 |othersource=
 |questsource=
 |relatedquest=

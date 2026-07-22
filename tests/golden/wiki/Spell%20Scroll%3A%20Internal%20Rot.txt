@@ -2,7 +2,7 @@
 |title=Spell Scroll: Internal Rot
 |stablekey=item:spell scroll - internal rot
 |type=[[:Category:Ability Books|Spell Scroll]]
-|vendorsource=[[Juctin Mysia]]
+|vendorsource={{CharacterLink|stablekey=character:juctin mysia|link=Juctin Mysia|text=Juctin Mysia}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=22500
 |sell=14625
-|taughtspell={{AbilityLink|Internal Rot}}
+|taughtspell={{AbilityLink|stablekey=spell:dru - internal rot|link=Internal Rot|text=Internal Rot|image=Internal Rot.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

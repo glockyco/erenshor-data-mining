@@ -3,7 +3,7 @@
 |stablekey=item:neck - 31 - crest of braxonia
 |type=
 |vendorsource=
-|source=[[Prince Oslind]] (66.7%)
+|source={{CharacterLink|stablekey=character:braxonian prince oslind|link=Prince Oslind|text=Prince Oslind}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=

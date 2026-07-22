@@ -3,15 +3,15 @@
 |image=[[File:Headless.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Children of Sivakaya]]
-|factionChange=-2 [[The Children of Sivakaya]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
-|zones=[[Shivering Tomb|Shivering Tomb (2)]]
+|faction={{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}
+|factionChange=-2 {{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+1 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
+|zones={{ZoneLink|stablekey=zone:shiveringtomb2|link=Shivering Tomb|text=Shivering Tomb (2)}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Bread}} (87.1%)<br>{{ItemLink|Ruby}} (20.6%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Aetheria}} (12.1%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Unholy Bonesaw}} (5.9%)<ref>If Headless has {{ItemLink|Unholy Bonesaw}} equipped, it is guaranteed to drop.</ref>
+|droprates={{ItemLink|stablekey=item:cons - bread|link=Bread|text=Bread|image=Bread.png}} (87.1%)<br>{{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} (20.6%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} (12.1%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:weap - 24 - bonesaw|link=Unholy Bonesaw|text=Unholy Bonesaw|image=Unholy Bonesaw.png}} (5.9%)<ref>If Headless has {{ItemLink|stablekey=item:weap - 24 - bonesaw|link=Unholy Bonesaw|text=Unholy Bonesaw|image=Unholy Bonesaw.png}} equipped, it is guaranteed to drop.</ref>
 |level=24
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=12-29
 |elemental=12-29
 |void=12-29
-|spells={{AbilityLink|Death's Embrace II}}<br>{{AbilityLink|Lightning}}<br>{{AbilityLink|Supreme Healing}}
+|spells={{AbilityLink|stablekey=spell:duel - deathly embrace ii|link=Death's Embrace II|text=Death's Embrace II|image=Death's Embrace II.png}}<br>{{AbilityLink|stablekey=spell:dru - lightning|link=Lightning|text=Lightning|image=Lightning.png}}<br>{{AbilityLink|stablekey=spell:dru pal - supreme healing|link=Supreme Healing|text=Supreme Healing|image=Supreme Healing.png}}
 }}
 
 [[Category:Enemies]]

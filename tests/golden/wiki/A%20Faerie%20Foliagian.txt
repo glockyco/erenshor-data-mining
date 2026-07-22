@@ -3,15 +3,15 @@
 |image=[[File:A Faerie Foliagian.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Skyfolk]]
-|factionChange=-5 [[The Skyfolk]]
-|zones=[[Ripper's Keep]]
+|faction={{FactionLink|stablekey=faction:skyfolk|link=The Skyfolk|text=The Skyfolk}}
+|factionChange=-5 {{FactionLink|stablekey=faction:skyfolk|link=The Skyfolk|text=The Skyfolk}}
+|zones={{ZoneLink|stablekey=zone:ripper|link=Ripper's Keep|text=Ripper's Keep}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Citrine Stone}} (14.3%)<br>{{ItemLink|Luminstone}} (14.3%)<br>{{ItemLink|Seafruit}} (10.1%)<br>{{ItemLink|Bag of Faerie Dust}} (4.5%)<ref>If the player is already holding {{ItemLink|Bag of Faerie Dust}} in their inventory, another will not drop.</ref><br>{{ItemLink|Diamond}} (4.5%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Charmed Belt}} (1.8%)<br>{{ItemLink|Intact Faerie Wing}} (1.8%)<br>{{ItemLink|Skyfolk Band}} (1.8%)<br>{{ItemLink|Twinkling Pendant}} (1.8%)<br>{{ItemLink|Wingwoven Cape}} (1.8%)
+|droprates={{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (14.3%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (14.3%)<br>{{ItemLink|stablekey=item:cons - seafruit|link=Seafruit|text=Seafruit|image=Seafruit.png}} (10.1%)<br>{{ItemLink|stablekey=item:gen - faerie dust|link=Bag of Faerie Dust|text=Bag of Faerie Dust|image=Bag of Faerie Dust.png}} (4.5%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - faerie dust|link=Bag of Faerie Dust|text=Bag of Faerie Dust|image=Bag of Faerie Dust.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (4.5%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:belt - 31 - charmed belt|link=Charmed Belt|text=Charmed Belt|image=Charmed Belt.png}} (1.8%)<br>{{ItemLink|stablekey=item:gen - faerie wing|link=Intact Faerie Wing|text=Intact Faerie Wing|image=Intact Faerie Wing.png}} (1.8%)<br>{{ItemLink|stablekey=item:ring - 33 - skyfolk band|link=Skyfolk Band|text=Skyfolk Band|image=Skyfolk Band.png}} (1.8%)<br>{{ItemLink|stablekey=item:neck - 31 - twinkling pendant|link=Twinkling Pendant|text=Twinkling Pendant|image=Twinkling Pendant.png}} (1.8%)<br>{{ItemLink|stablekey=item:back - 33 - wingwoven cape|link=Wingwoven Cape|text=Wingwoven Cape|image=Wingwoven Cape.png}} (1.8%)
 |level=28
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=14-34
 |elemental=14-34
 |void=14-34
-|spells={{AbilityLink|Ice Spear}}<br>{{AbilityLink|Melting Bones}}<br>{{AbilityLink|Soul Tap}}
+|spells={{AbilityLink|stablekey=spell:arc - ice spear|link=Ice Spear|text=Ice Spear|image=Ice Spear.png}}<br>{{AbilityLink|stablekey=spell:dru - melting bones|link=Melting Bones|text=Melting Bones|image=Melting Bones.png}}<br>{{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}
 }}
 
 [[Category:Enemies]]

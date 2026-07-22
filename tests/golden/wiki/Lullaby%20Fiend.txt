@@ -3,15 +3,15 @@
 |image=[[File:Lullaby Fiend.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
-|factionChange=-2 [[The Nightmare Collective]]
-|zones=[[Mysterious Portal|Mysterious Portal (1)]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|factionChange=-2 {{FactionLink|stablekey=faction:nightmarecollective|link=The Nightmare Collective|text=The Nightmare Collective}}
+|zones={{ZoneLink|stablekey=zone:duskenportal|link=Mysterious Portal|text=Mysterious Portal (1)}}
 |coordinates=120.4 x 1.2 x 102.9<br>122.0 x 6.2 x 308.2<br>149.9 x 6.2 x 327.7<br>166.6 x 6.2 x 329.5<br>183.9 x 4.2 x 113.6<br>240.5 x 3.3 x 135.8<br>241.4 x 6.2 x 329.7<br>257.8 x 6.2 x 319.3<br>266.7 x 0.9 x 157.5<br>279.5 x 5.9 x 244.3<br>281.1 x 8.5 x 212.1
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|Ancient Bone}} (59.7%)<br>{{ItemLink|Luminstone}} (59.7%)<br>{{ItemLink|Sea Glass}} (59.7%)<br>{{ItemLink|Remnants of a Daydream}} (4.5%)<br>{{ItemLink|Remnants of a Nightmare}} (4.5%)
+|droprates={{ItemLink|stablekey=item:gen - an ancient bone|link=Ancient Bone|text=Ancient Bone|image=Ancient Bone.png}} (59.7%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (59.7%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (59.7%)<br>{{ItemLink|stablekey=item:gen - remnants of a daydream|link=Remnants of a Daydream|text=Remnants of a Daydream|image=Remnants of a Daydream.png}} (4.5%)<br>{{ItemLink|stablekey=item:gen - remnants of a nightmare|link=Remnants of a Nightmare|text=Remnants of a Nightmare|image=Remnants of a Nightmare.png}} (4.5%)
 |level=15
 |levelmodmin=0
 |levelmodmax=0

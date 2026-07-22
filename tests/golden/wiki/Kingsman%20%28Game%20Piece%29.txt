@@ -3,7 +3,7 @@
 |stablekey=item:quest - game piece kingsman
 |type=[[:Category:Items|Summoning Item]]
 |vendorsource=
-|source=[[Prince Oslind]] (17.1%)<br>[[Prince Ardant]] (17.1%)<br>[[Braxonian Planar Guard (Fire)]] (12.1%)<br>[[Braxonian Planar Guard (Ice)]] (12.1%)<br>[[Braxonian High Guard]] (4.6%)
+|source={{CharacterLink|stablekey=character:braxonian prince oslind|link=Prince Oslind|text=Prince Oslind}} (17.1%)<br>{{CharacterLink|stablekey=character:braxonian prince ardant|link=Prince Ardant|text=Prince Ardant}} (17.1%)<br>{{CharacterLink|stablekey=character:braxonian planar guardian fire|link=Braxonian Planar Guard (Fire)|text=Braxonian Planar Guard (Fire)}} (12.1%)<br>{{CharacterLink|stablekey=character:braxonian planar guardian ice|link=Braxonian Planar Guard (Ice)|text=Braxonian Planar Guard (Ice)}} (12.1%)<br>{{CharacterLink|stablekey=character:braxonian high guard|link=Braxonian High Guard|text=Braxonian High Guard}} (4.6%)
 |othersource=
 |questsource=
 |relatedquest=

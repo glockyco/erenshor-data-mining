@@ -32,7 +32,7 @@
 |shield_amount=
 |pet_to_summon=
 |status_effect=
-|add_proc={{AbilityLink|Focus Target}}
+|add_proc={{AbilityLink|stablekey=spell:stc - focus target|link=Focus Target|text=Focus Target}}
 |add_proc_chance=7
 |has_lifetap=
 |lifesteal=
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Hunting Coat}}
+|itemswitheffect={{ItemLink|stablekey=item:chest - 42 - hunting coat|link=Hunting Coat|text=Hunting Coat|image=Hunting Coat.png}}
 |source=
 |used_by=
 }}

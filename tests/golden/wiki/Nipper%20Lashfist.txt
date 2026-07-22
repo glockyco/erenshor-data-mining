@@ -3,15 +3,15 @@
 |image=[[File:Nipper Lashfist.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Rottenfoot]]
+|zones={{ZoneLink|stablekey=zone:rottenfoot|link=Rottenfoot|text=Rottenfoot}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Bog Hoop}} (4.5%)<br>{{ItemLink|Scarab Necklace}} (4.5%)<br>{{ItemLink|Amber's Gift}} (4.4%)
+|droprates={{ItemLink|stablekey=item:ring - 15 - bog hoop|link=Bog Hoop|text=Bog Hoop|image=Bog Hoop.png}} (4.5%)<br>{{ItemLink|stablekey=item:neck - 14 - scarab necklace|link=Scarab Necklace|text=Scarab Necklace|image=Scarab Necklace.png}} (4.5%)<br>{{ItemLink|stablekey=item:aura - mosquito|link=Amber's Gift|text=Amber's Gift|image=Amber's Gift.png}} (4.4%)
 |level=16
 |levelmodmin=0
 |levelmodmax=0

@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - mutual doom
 |type=
 |vendorsource=
-|source=[[Raval, The First Paladin]] (100.0%)
+|source={{CharacterLink|stablekey=character:raval|link=Raval, The First Paladin|text=Raval, The First Paladin}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=25000
 |sell=16250
-|taughtspell={{AbilityLink|Mutual Doom}}
+|taughtspell={{AbilityLink|stablekey=spell:reav - mutual doom|link=Mutual Doom|text=Mutual Doom|image=Mutual Doom.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

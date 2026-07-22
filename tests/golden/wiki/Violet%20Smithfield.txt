@@ -3,9 +3,9 @@
 |image=[[File:Violet Smithfield.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Citizens of Port Azure]]
-|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
-|zones=[[Port Azure]]
+|faction={{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|factionChange=-20 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>-20 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|zones={{ZoneLink|stablekey=zone:azure|link=Port Azure|text=Port Azure}}
 |coordinates=255.8 x 26.0 x 210.8
 |spawnchance=
 |spawntype=
@@ -32,7 +32,7 @@
 |poison=8-18
 |elemental=8-18
 |void=8-18
-|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Theft of Life}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's rage|link=Brax's Rage|text=Brax's Rage|image=Brax's Rage.png}}<br>{{AbilityLink|stablekey=spell:dru reav - theft of life|link=Theft of Life|text=Theft of Life|image=Theft of Life.png}}
 }}
 Violet is located in the [[Port Azure]] market.
 

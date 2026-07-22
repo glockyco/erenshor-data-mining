@@ -3,15 +3,15 @@
 |image=[[File:Sivakayan Voidweaver.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Children of Sivakaya]]
+|faction={{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}
 |factionChange=
-|zones=[[Silkengrass Meadowlands]]
+|zones={{ZoneLink|stablekey=zone:silkengrass|link=Silkengrass Meadowlands|text=Silkengrass Meadowlands}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Sivakayan Ceremonial Garb}} (12.9%)<br>{{ItemLink|Sivakayan Breeches}} (7.4%)<br>{{ItemLink|Sivakayan Cloth Band}} (7.4%)
+|droprates={{ItemLink|stablekey=item:chest - 25 - sivakayan ceremonial garb|link=Sivakayan Ceremonial Garb|text=Sivakayan Ceremonial Garb|image=Sivakayan Ceremonial Garb.png}} (12.9%)<br>{{ItemLink|stablekey=item:leg - 24 - sivakayan breeches|link=Sivakayan Breeches|text=Sivakayan Breeches|image=Sivakayan Breeches.png}} (7.4%)<br>{{ItemLink|stablekey=item:head - 21 - sivakayan cloth band|link=Sivakayan Cloth Band|text=Sivakayan Cloth Band|image=Sivakayan Cloth Band.png}} (7.4%)
 |level=27
 |levelmodmin=0
 |levelmodmax=0

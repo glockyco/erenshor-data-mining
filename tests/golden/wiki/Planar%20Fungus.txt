@@ -3,15 +3,15 @@
 |image=[[File:Planar Fungus.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Plane of the Willow]]
+|zones={{ZoneLink|stablekey=zone:planeoffernalla|link=Plane of the Willow|text=Plane of the Willow}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=33 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Fungal Spore}} (74.5%)<br>{{ItemLink|Chthonic Armwraps}} (3.4%)<br>{{ItemLink|Chthonic Handwraps}} (3.4%)<br>{{ItemLink|Chthonic Hood}} (3.4%)<br>{{ItemLink|Chthonic Pants}} (3.4%)<br>{{ItemLink|Chthonic Sandals}} (3.4%)<br>{{ItemLink|Chthonic Tunic}} (3.4%)<br>{{ItemLink|Chthonic Wristlet}} (3.4%)<br>{{ItemLink|Star Stone}} (2.1%)<br>{{ItemLink|Diamond}} (1.1%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Luminstone}} (1.1%)
+|droprates={{ItemLink|stablekey=item:gen - fungal spore|link=Fungal Spore|text=Fungal Spore|image=Fungal Spore.png}} (74.5%)<br>{{ItemLink|stablekey=item:arm - 42 - chthonic armwraps|link=Chthonic Armwraps|text=Chthonic Armwraps|image=Chthonic Armwraps.png}} (3.4%)<br>{{ItemLink|stablekey=item:glove - 42 - chthonic gloves|link=Chthonic Handwraps|text=Chthonic Handwraps|image=Chthonic Handwraps.png}} (3.4%)<br>{{ItemLink|stablekey=item:head - 42 - chthonic hood|link=Chthonic Hood|text=Chthonic Hood|image=Chthonic Hood.png}} (3.4%)<br>{{ItemLink|stablekey=item:leg - 42 - chthonic pants|link=Chthonic Pants|text=Chthonic Pants|image=Chthonic Pants.png}} (3.4%)<br>{{ItemLink|stablekey=item:foot - 42 - chthonic sandals|link=Chthonic Sandals|text=Chthonic Sandals|image=Chthonic Sandals.png}} (3.4%)<br>{{ItemLink|stablekey=item:chest - 42 - chthonic tunic|link=Chthonic Tunic|text=Chthonic Tunic|image=Chthonic Tunic.png}} (3.4%)<br>{{ItemLink|stablekey=item:wrist - 42 - chthonic bracer|link=Chthonic Wristlet|text=Chthonic Wristlet|image=Chthonic Wristlet.png}} (3.4%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (2.1%)<br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (1.1%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (1.1%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

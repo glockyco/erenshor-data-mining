@@ -3,10 +3,10 @@
 |stablekey=item:furniture - stone vendor blueprint
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Diamond Colossus]] (0.5%)<br>[[Stoneman Colossus]] (0.5%)<br>[[Stoneman Obsidian]] (0.5%)<br>[[Stoneman]] (0.2%)<br>[[Stoneman Knight]] (0.2%)<br>[[Stoneman Magi]] (0.2%)<br>[[Stoneman]] (0.2%)
+|source={{CharacterLink|stablekey=character:stoneman colossus 1|link=Diamond Colossus|text=Diamond Colossus}} (0.5%)<br>{{CharacterLink|stablekey=character:stoneman colossus|link=Stoneman Colossus|text=Stoneman Colossus}} (0.5%)<br>{{CharacterLink|stablekey=character:stoneman obsidian|link=Stoneman Obsidian|text=Stoneman Obsidian}} (0.5%)<br>{{CharacterLink|stablekey=character:stoneman arcanist|link=Stoneman|text=Stoneman}} (0.2%)<br>{{CharacterLink|stablekey=character:stoneman knight|link=Stoneman Knight|text=Stoneman Knight}} (0.2%)<br>{{CharacterLink|stablekey=character:stoneman magi|link=Stoneman Magi|text=Stoneman Magi}} (0.2%)<br>{{CharacterLink|stablekey=character:stoneman warrior|link=Stoneman|text=Stoneman}} (0.2%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Crafting: Stone Vendor}}
+|relatedquest={{QuestLink|Crafting: Stone Vendor}}<br>{{QuestLink|stablekey=quest:furniture-stone-vendor|link=Crafting: Stone Vendor|text=Crafting: Stone Vendor}}
 |craftsource=
 |componentfor=
 |buy=

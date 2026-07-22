@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Ethereal Shell}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - ethereal shell (item)|link=Ethereal Shell|text=Ethereal Shell|image=Ethereal Shell.png}}
 |source=
 |used_by=
 }}

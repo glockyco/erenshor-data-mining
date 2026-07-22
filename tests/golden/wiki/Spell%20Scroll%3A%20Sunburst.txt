@@ -2,8 +2,8 @@
 |title=Spell Scroll: Sunburst
 |stablekey=item:spell scroll - sunburst
 |type=[[Ability Books]]
-|vendorsource=[[Leyor M'Chante]]
-|source=[[Molorai Captain Sigrid]] (12.7%)
+|vendorsource={{CharacterLink|stablekey=character:leyor m'chante|link=Leyor M'Chante|text=Leyor M'Chante}}
+|source={{CharacterLink|stablekey=character:molorai captain sigrid|link=Molorai Captain Sigrid|text=Molorai Captain Sigrid}} (12.7%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=1255
 |sell=816
-|taughtspell={{AbilityLink|Sunburst}}
+|taughtspell={{AbilityLink|stablekey=spell:pal - sunburst|link=Sunburst|text=Sunburst|image=Sunburst.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

@@ -3,15 +3,15 @@
 |image=[[File:Dire Wolf.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Silkengrass Meadowlands]]
+|zones={{ZoneLink|stablekey=zone:silkengrass|link=Silkengrass Meadowlands|text=Silkengrass Meadowlands}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Wolf Meat}} (86.3%)
+|droprates={{ItemLink|stablekey=item:gen - wolf meat|link=Wolf Meat|text=Wolf Meat|image=Wolf Meat.png}} (86.3%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0

@@ -3,15 +3,15 @@
 |image=[[File:Greater Ice Elemental.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Brax's Plane of Elements]]
+|zones={{ZoneLink|stablekey=zone:planeofbrax|link=Brax's Plane of Elements|text=Brax's Plane of Elements}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=30 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Planar Stone Shards}} (5.3%)<br>{{ItemLink|Cloak of Frost}} (4.3%)<br>{{ItemLink|Planar Stone}} (2.1%)<br>{{ItemLink|Thaumic Boots}} (2.0%)<br>{{ItemLink|Thaumic Handwraps}} (2.0%)<br>{{ItemLink|Thaumic Hood}} (2.0%)<br>{{ItemLink|Thaumic Sleeves}} (2.0%)<br>{{ItemLink|Thaumic Trousers}} (2.0%)<br>{{ItemLink|Thaumic Vestiment}} (2.0%)<br>{{ItemLink|Thaumic Wraps}} (2.0%)<br>{{ItemLink|Skill Book: Multifocus}} (1.0%)<br>{{ItemLink|Spell Scroll: Ice Meteor}} (1.0%)
+|droprates={{ItemLink|stablekey=item:ore - planar shard|link=Planar Stone Shards|text=Planar Stone Shards|image=Planar Stone Shards.png}} (5.3%)<br>{{ItemLink|stablekey=item:back - 42 - cloak of frost|link=Cloak of Frost|text=Cloak of Frost|image=Cloak of Frost.png}} (4.3%)<br>{{ItemLink|stablekey=item:ore - planar stone|link=Planar Stone|text=Planar Stone|image=Planar Stone.png}} (2.1%)<br>{{ItemLink|stablekey=item:foot - 42 - thaumic slippers|link=Thaumic Boots|text=Thaumic Boots|image=Thaumic Boots.png}} (2.0%)<br>{{ItemLink|stablekey=item:glove - 42 - thaumic handwraps|link=Thaumic Handwraps|text=Thaumic Handwraps|image=Thaumic Handwraps.png}} (2.0%)<br>{{ItemLink|stablekey=item:head - 42 - thaumic hood|link=Thaumic Hood|text=Thaumic Hood|image=Thaumic Hood.png}} (2.0%)<br>{{ItemLink|stablekey=item:arm - 42 - thaumic sleeves|link=Thaumic Sleeves|text=Thaumic Sleeves|image=Thaumic Sleeves.png}} (2.0%)<br>{{ItemLink|stablekey=item:leg - 42 - thaumic trousers|link=Thaumic Trousers|text=Thaumic Trousers|image=Thaumic Trousers.png}} (2.0%)<br>{{ItemLink|stablekey=item:chest - 42 - thaumic vestiment|link=Thaumic Vestiment|text=Thaumic Vestiment|image=Thaumic Vestiment.png}} (2.0%)<br>{{ItemLink|stablekey=item:wrist - 42 - thaumic wraps|link=Thaumic Wraps|text=Thaumic Wraps|image=Thaumic Wraps.png}} (2.0%)<br>{{ItemLink|stablekey=item:skillbook - multifocus|link=Skill Book: Multifocus|text=Skill Book: Multifocus|image=Skill Book: Multifocus.png}} (1.0%)<br>{{ItemLink|stablekey=item:spell scroll - ice meteor|link=Spell Scroll: Ice Meteor|text=Spell Scroll: Ice Meteor|image=Spell Scroll: Ice Meteor.png}} (1.0%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=21-50
 |elemental=21-50
 |void=21-50
-|spells={{AbilityLink|Ice Meteor}}
+|spells={{AbilityLink|stablekey=spell:arc - ice meteor|link=Ice Meteor|text=Ice Meteor|image=Ice Meteor.png}}
 }}
 
 [[Category:Brax's Plane of Elements]]

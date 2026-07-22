@@ -3,9 +3,9 @@
 |image=[[File:Wealthen Giallara.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Citizens of Erenshor]]
-|factionChange=-15 [[The Blades of Vitheo]]<br>-15 [[The Citizens of Erenshor]]<br>-15 [[The Citizens of Port Azure]]
-|zones=[[Willowwatch Ridge]]
+|faction={{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}
+|factionChange=-15 {{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}<br>-15 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>-15 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|zones={{ZoneLink|stablekey=zone:willowwatch|link=Willowwatch Ridge|text=Willowwatch Ridge}}
 |coordinates=569.0 x 49.5 x 336.6
 |spawnchance=
 |spawntype=

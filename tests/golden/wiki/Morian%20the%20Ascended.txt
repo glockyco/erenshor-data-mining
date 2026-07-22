@@ -3,15 +3,15 @@
 |image=[[File:Morian the Ascended.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Children of Sivakaya]]
+|faction={{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}
 |factionChange=
-|zones=[[Silkengrass Meadowlands]]
+|zones={{ZoneLink|stablekey=zone:silkengrass|link=Silkengrass Meadowlands|text=Silkengrass Meadowlands}}
 |coordinates=636.8 x 90.3 x 639.5
 |spawnchance=50%
 |spawntype=
 |respawn=4 minutes
-|guaranteeddrops={{ItemLink|Ephermalia, Blade of Waning}}<br>{{ItemLink|Shackle of Bidding}}
-|droprates={{ItemLink|Brackfruit Juice}} (100.0%)<br>{{ItemLink|Shackle of Bidding}} (66.7%)<br>{{ItemLink|Ephermalia, Blade of Waning}} (33.3%)
+|guaranteeddrops={{ItemLink|stablekey=item:weap - 28 - ephermalia|link=Ephermalia, Blade of Waning|text=Ephermalia, Blade of Waning|image=Ephermalia, Blade of Waning.png}}<br>{{ItemLink|stablekey=item:wrist - 25 - shackle of bidding|link=Shackle of Bidding|text=Shackle of Bidding|image=Shackle of Bidding.png}}
+|droprates={{ItemLink|stablekey=item:cons - brackfruit juice|link=Brackfruit Juice|text=Brackfruit Juice|image=Brackfruit Juice.png}} (100.0%)<br>{{ItemLink|stablekey=item:wrist - 25 - shackle of bidding|link=Shackle of Bidding|text=Shackle of Bidding|image=Shackle of Bidding.png}} (66.7%)<br>{{ItemLink|stablekey=item:weap - 28 - ephermalia|link=Ephermalia, Blade of Waning|text=Ephermalia, Blade of Waning|image=Ephermalia, Blade of Waning.png}} (33.3%)
 |level=28
 |levelmodmin=0
 |levelmodmax=0

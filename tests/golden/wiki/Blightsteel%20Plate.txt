@@ -3,7 +3,7 @@
 |stablekey=item:chest - 28 - blightsteel plate
 |type=
 |vendorsource=
-|source=[[Harbinger of Corruption]] (33.3%)
+|source={{CharacterLink|stablekey=character:harbinger of corruption|link=Harbinger of Corruption|text=Harbinger of Corruption}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

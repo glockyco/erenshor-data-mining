@@ -2,7 +2,7 @@
 |title=Rusty Hatchet
 |stablekey=item:weap - 1 - rusty hatchet
 |type=
-|vendorsource=[[Innkeeper Ryvan]]<br>[[Samuel Thatcher]]<br>[[Yale Harvey]]
+|vendorsource={{CharacterLink|stablekey=character:innkeeper ryvan:azure:167.71:26.82:247.81|link=Innkeeper Ryvan|text=Innkeeper Ryvan}}<br>{{CharacterLink|stablekey=character:shopkeeper samuel|link=Samuel Thatcher|text=Samuel Thatcher}}<br>{{CharacterLink|stablekey=character:yale harvey|link=Yale Harvey|text=Yale Harvey}}
 |source=
 |othersource=
 |questsource=

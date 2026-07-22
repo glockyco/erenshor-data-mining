@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Mana Strand Bracer}}
+|itemswitheffect={{ItemLink|stablekey=item:wrist - 42 - mana strand bracer|link=Mana Strand Bracer|text=Mana Strand Bracer|image=Mana Strand Bracer.png}}
 |source=
 |used_by=
 }}

@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Wisp's Presence}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - wisps's presence|link=Wisp's Presence|text=Wisp's Presence|image=Wisp's Presence.png}}
 |source=
 |used_by=
 }}

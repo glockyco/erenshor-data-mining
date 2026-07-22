@@ -2,7 +2,7 @@
 |title=Skill Book: Cleave
 |stablekey=item:skillbook - cleave
 |type=[[Ability Books|Skill Book]]
-|vendorsource=[[Aillee Desten]]<br>[[Akaran Black]]<br>[[Xander Zaxtrough]]<br>[[Zane Theavale]]
+|vendorsource={{CharacterLink|stablekey=character:aillee desten|link=Aillee Desten|text=Aillee Desten}}<br>{{CharacterLink|stablekey=character:akaran black|link=Akaran Black|text=Akaran Black}}<br>{{CharacterLink|stablekey=character:xander zaxtrough|link=Xander Zaxtrough|text=Xander Zaxtrough}}<br>{{CharacterLink|stablekey=character:zane theavale|link=Zane Theavale|text=Zane Theavale}}
 |source=
 |othersource=
 |questsource=
@@ -12,7 +12,7 @@
 |buy=1100
 |sell=715
 |taughtspell=
-|taughtskill={{AbilityLink|Cleave}}
+|taughtskill={{AbilityLink|stablekey=skill:cleave|link=Cleave|text=Cleave|image=Cleave.png}}
 |guaranteeddrops=
 |droprates=
 }}

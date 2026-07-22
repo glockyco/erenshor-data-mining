@@ -3,7 +3,7 @@
 |stablekey=item:head - 13 - jelly crown
 |type=
 |vendorsource=
-|source=[[Ragewhip]] (50.0%)
+|source={{CharacterLink|stablekey=character:ragewhip|link=Ragewhip|text=Ragewhip}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

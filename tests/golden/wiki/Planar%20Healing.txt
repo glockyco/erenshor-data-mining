@@ -5,7 +5,7 @@
 |description=Heal base 3100 damage.
 |type=Heal
 |line=Healing
-|classes=[[Druid]] (35)
+|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (35)
 |required_level=35
 |manacost=1800
 |aggro=
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Planar Healing}}
+|source={{ItemLink|stablekey=item:spell scroll - planar healing|link=Spell Scroll: Planar Healing|text=Spell Scroll: Planar Healing|image=Spell Scroll: Planar Healing.png}}
 |used_by=
 }}

@@ -3,15 +3,15 @@
 |image=[[File:Obba of the Warkind.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
-|factionChange=+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Port Azure]]
-|zones=[[Underspine Hollow]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|factionChange=+3 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+3 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|zones={{ZoneLink|stablekey=zone:underspine|link=Underspine Hollow|text=Underspine Hollow}}
 |coordinates=110.4 x 85.5 x 149.3
 |spawnchance=66%
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Etched Armlet}}<br>{{ItemLink|Wolfhide Boots}}
-|droprates={{ItemLink|Etched Armlet}} (66.7%)<br>{{ItemLink|Wolfhide Boots}} (33.3%)<br>{{ItemLink|Ogrespice Leaf}} (3.4%)<br>{{ItemLink|Spidersmasher}} (3.4%)<ref>If Obba of the Warkind has {{ItemLink|Spidersmasher}} equipped, it is guaranteed to drop.</ref>
+|guaranteeddrops={{ItemLink|stablekey=item:arm - 8 - etched armlet|link=Etched Armlet|text=Etched Armlet|image=Etched Armlet.png}}<br>{{ItemLink|stablekey=item:foot - 12 - wolfhide boots|link=Wolfhide Boots|text=Wolfhide Boots|image=Wolfhide Boots.png}}
+|droprates={{ItemLink|stablekey=item:arm - 8 - etched armlet|link=Etched Armlet|text=Etched Armlet|image=Etched Armlet.png}} (66.7%)<br>{{ItemLink|stablekey=item:foot - 12 - wolfhide boots|link=Wolfhide Boots|text=Wolfhide Boots|image=Wolfhide Boots.png}} (33.3%)<br>{{ItemLink|stablekey=item:gen - ogrespice leaf|link=Ogrespice Leaf|text=Ogrespice Leaf|image=Ogrespice Leaf.png}} (3.4%)<br>{{ItemLink|stablekey=item:weap - 13 - spidersmasher|link=Spidersmasher|text=Spidersmasher|image=Spidersmasher.png}} (3.4%)<ref>If Obba of the Warkind has {{ItemLink|stablekey=item:weap - 13 - spidersmasher|link=Spidersmasher|text=Spidersmasher|image=Spidersmasher.png}} equipped, it is guaranteed to drop.</ref>
 |level=15
 |levelmodmin=0
 |levelmodmax=0

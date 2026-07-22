@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - annihilate
 |type=[[:Category:Ability Books|Spell Scroll]]
 |vendorsource=
-|source=[[Vos Ashlyn]] (50.0%)
+|source={{CharacterLink|stablekey=character:vos ashlyn|link=Vos Ashlyn|text=Vos Ashlyn}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=25000
 |sell=16250
-|taughtspell={{AbilityLink|Annihilate}}
+|taughtspell={{AbilityLink|stablekey=spell:dru - annihilate|link=Annihilate|text=Annihilate|image=Annihilate.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

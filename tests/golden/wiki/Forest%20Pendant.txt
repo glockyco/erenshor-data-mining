@@ -5,7 +5,7 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|Ogre Spice for Valrae}}
+|questsource={{QuestLink|Ogre Spice for Valrae}}<br>{{QuestLink|stablekey=quest:valraesogrespice|link=Ogre Spice for Valrae|text=Ogre Spice for Valrae}}
 |relatedquest=
 |craftsource=
 |componentfor=

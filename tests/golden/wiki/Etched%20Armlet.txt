@@ -3,7 +3,7 @@
 |stablekey=item:arm - 8 - etched armlet
 |type=
 |vendorsource=
-|source=[[Obba of the Warkind]] (66.7%)
+|source={{CharacterLink|stablekey=character:obba of the warkind|link=Obba of the Warkind|text=Obba of the Warkind}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=

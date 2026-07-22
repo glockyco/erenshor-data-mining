@@ -5,7 +5,7 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|link=Shivering Step (Quest){{!}}Shivering Step}}
+|questsource={{QuestLink|link=Shivering Step (Quest){{!}}Shivering Step}}<br>{{QuestLink|stablekey=quest:shiver-ending|link=Shivering Step (Quest)|text=Shivering Step}}
 |relatedquest=
 |craftsource=
 |componentfor=
@@ -52,7 +52,7 @@
 |proc_style=Activatable
 |proc_chance=
 |proc_spell_icon=Sleep.png
-|proc_spell_name=[[Sleep]]
+|proc_spell_name={{AbilityLink|stablekey=spell:arc - sleep|link=Sleep|text=Sleep|image=Sleep.png}}
 |proc_spell_level=17
 |proc_spell_duration_ticks=9
 |proc_spell_type=StatusEffect

@@ -5,7 +5,7 @@
 |description=Summon a magical companion to fight along side you.
 |type=Pet
 |line=Generic
-|classes=[[Druid]] (35)
+|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (35)
 |required_level=35
 |manacost=2200
 |aggro=
@@ -30,7 +30,7 @@
 |target_healing=
 |caster_healing=
 |shield_amount=
-|pet_to_summon=[[Summoned: Treant]]
+|pet_to_summon={{CharacterLink|stablekey=character:summoned treant|link=Summoned: Treant|text=Summoned: Treant}}
 |status_effect=
 |add_proc=
 |add_proc_chance=
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Summon Treant}}
+|source={{ItemLink|stablekey=item:spell scroll - summon treant|link=Spell Scroll: Summon Treant|text=Spell Scroll: Summon Treant|image=Spell Scroll: Summon Treant.png}}
 |used_by=
 }}

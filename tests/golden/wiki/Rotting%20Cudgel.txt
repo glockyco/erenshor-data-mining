@@ -3,7 +3,7 @@
 |stablekey=item:weap - 6 - rotting cudgel
 |type=
 |vendorsource=
-|source=[[A Skeleton Soldier]] (3.5%)
+|source={{CharacterLink|stablekey=character:skeleton soldier|link=A Skeleton Soldier|text=A Skeleton Soldier}} (3.5%)
 |othersource=
 |questsource=
 |relatedquest=

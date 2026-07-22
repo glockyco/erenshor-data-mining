@@ -3,15 +3,15 @@
 |image=[[File:Grappler.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Blooming Sepulcher]]
+|zones={{ZoneLink|stablekey=zone:bloomingsepulcher|link=Blooming Sepulcher|text=Blooming Sepulcher}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|A Moongill}} (17.8%)<br>{{ItemLink|A Sleepyhead}} (17.8%)<br>{{ItemLink|Decayed Druid Beads}} (4.8%)<br>{{ItemLink|Wisp Garden}} (1.0%)<br>{{ItemLink|Nature's Promise}} (1.0%)
+|droprates={{ItemLink|stablekey=item:fish - moongill|link=A Moongill|text=A Moongill|image=A Moongill.png}} (17.8%)<br>{{ItemLink|stablekey=item:fish - sleepyhead|link=A Sleepyhead|text=A Sleepyhead|image=A Sleepyhead.png}} (17.8%)<br>{{ItemLink|stablekey=item:gen - decayed druid beads|link=Decayed Druid Beads|text=Decayed Druid Beads|image=Decayed Druid Beads.png}} (4.8%)<br>{{ItemLink|stablekey=item:furniture - wisp garden|link=Wisp Garden|text=Wisp Garden|image=Wisp Garden.png}} (1.0%)<br>{{ItemLink|stablekey=item:neck - 31 - nature's promise|link=Nature's Promise|text=Nature's Promise|image=Nature's Promise.png}} (1.0%)
 |level=19
 |levelmodmin=0
 |levelmodmax=0

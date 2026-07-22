@@ -5,7 +5,7 @@
 |description=A high damage (1100 / tick), short duration void-based spell.
 |type=StatusEffect
 |line=Arc_Poison_DOT
-|classes=[[Druid]] (30)
+|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (30)
 |required_level=30
 |manacost=600
 |aggro=60
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Annihilate}}
-|used_by=[[Acolyte of Azynthi]]<br>[[Azynthian Corruptor]]<br>[[Azynthian Keeper]]<br>[[Azynthian Sacrifice]]<br>[[High Priestess of Sivakaya]]<br>[[Oracle Tretha]]<br>[[Rotting Guardian]]
+|source={{ItemLink|stablekey=item:spell scroll - annihilate|link=Spell Scroll: Annihilate|text=Spell Scroll: Annihilate|image=Spell Scroll: Annihilate.png}}
+|used_by={{CharacterLink|stablekey=character:acolyte of azynthi|link=Acolyte of Azynthi|text=Acolyte of Azynthi}}<br>{{CharacterLink|stablekey=character:soluna azynthian corruptor|link=Azynthian Corruptor|text=Azynthian Corruptor}}<br>{{CharacterLink|stablekey=character:azynthian corruptor|link=Azynthian Keeper|text=Azynthian Keeper}}<br>{{CharacterLink|stablekey=character:azynthian sacrifice|link=Azynthian Sacrifice|text=Azynthian Sacrifice}}<br>{{CharacterLink|stablekey=character:druid of sivakaya|link=High Priestess of Sivakaya|text=High Priestess of Sivakaya}}<br>{{CharacterLink|stablekey=character:oracle tretha|link=Oracle Tretha|text=Oracle Tretha}}<br>{{CharacterLink|stablekey=character:rotting guardian|link=Rotting Guardian|text=Rotting Guardian}}
 }}

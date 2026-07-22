@@ -2,7 +2,7 @@
 |title=Spell Scroll: Ice Shock
 |stablekey=item:spell scroll - ice shock
 |type=[[Ability Books|Spell Scroll]]
-|vendorsource=[[Cerbantias Flameward]]
+|vendorsource={{CharacterLink|stablekey=character:cerbantias flameward|link=Cerbantias Flameward|text=Cerbantias Flameward}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=1850
 |sell=1202
-|taughtspell={{AbilityLink|Ice Shock}}
+|taughtspell={{AbilityLink|stablekey=spell:arc - ice shock|link=Ice Shock|text=Ice Shock|image=Ice Shock.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

@@ -5,7 +5,7 @@
 |description=Passive Skill: Offensive stances gain a chance to proc Void Surge. Defensive stances gain a chance to proc
 |type=Innate
 |line=
-|classes=[[Windblade]] (35)
+|classes={{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}} (35)
 |required_level=
 |manacost=
 |aggro=

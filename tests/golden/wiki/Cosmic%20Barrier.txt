@@ -3,7 +3,7 @@
 |stablekey=item:neck - 42 - cosmic barrier
 |type=
 |vendorsource=
-|source=[[Animation of Faith]] (68.2%)<br>[[Soluna]] (5.8%)
+|source={{CharacterLink|stablekey=character:animation of faith|link=Animation of Faith|text=Animation of Faith}} (68.2%)<br>{{CharacterLink|stablekey=character:soluna|link=Soluna|text=Soluna}} (5.8%)
 |othersource=
 |questsource=
 |relatedquest=

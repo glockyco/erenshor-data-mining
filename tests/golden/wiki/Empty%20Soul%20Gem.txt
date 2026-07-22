@@ -6,7 +6,7 @@
 |source=
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Destroying Aragath}}
+|relatedquest={{QuestLink|Destroying Aragath}}<br>{{QuestLink|stablekey=quest:aragath2|link=Destroying Aragath|text=Destroying Aragath}}
 |craftsource=
 |componentfor=
 |buy=

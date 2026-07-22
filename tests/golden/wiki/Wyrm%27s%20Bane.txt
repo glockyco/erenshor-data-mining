@@ -2,7 +2,7 @@
 |title=Wyrm's Bane
 |stablekey=item:gen - wyrm's bane
 |type=[[Consumables|Consumable]]
-|vendorsource=[[Elysia Thistlewick]]
+|vendorsource={{CharacterLink|stablekey=character:shady merchant|link=Elysia Thistlewick|text=Elysia Thistlewick}}
 |source=
 |othersource=
 |questsource=
@@ -23,7 +23,7 @@
 |description=These leaves will instantly destroy a Wyrm, along with any items it might be carrying. The Wyrm will not award xp under these conditions.
 |disposable=True
 |effect_spell_icon=Wyrm's Bane (Effect).png
-|effect_spell_name=[[Wyrm's Bane (Effect)|Wyrm's Bane]]
+|effect_spell_name={{AbilityLink|stablekey=spell:none - wyrm's bane|link=Wyrm's Bane (Effect)|text=Wyrm's Bane|image=Wyrm's Bane (Effect).png}}
 |effect_spell_level=25
 |effect_spell_duration_ticks=
 |effect_spell_type=Misc

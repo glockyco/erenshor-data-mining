@@ -2,16 +2,16 @@
 |title=Spell Scroll: Death's Embrace
 |stablekey=item:spell scroll - death's embrace
 |type=[[Ability Books]]<br>[[Crafting]]
-|vendorsource=[[Aldoa Manday]]<br>[[Ophelia Luminee]]<br>[[Sven Feartines]]
+|vendorsource={{CharacterLink|stablekey=character:addelia zurin:stowaway:508.78:67.80:537.95|link=Aldoa Manday|text=Aldoa Manday}}<br>{{CharacterLink|stablekey=character:ophelia instrumento|link=Ophelia Luminee|text=Ophelia Luminee}}<br>{{CharacterLink|stablekey=character:sven feartines|link=Sven Feartines|text=Sven Feartines}}
 |source=
 |othersource=
 |questsource=
 |relatedquest=
 |craftsource=
-|componentfor={{ItemLink|Mold: Soldier's Charm}}
+|componentfor={{ItemLink|stablekey=item:template - soldier's charm|link=Mold: Soldier's Charm|text=Mold: Soldier's Charm|image=Mold: Soldier's Charm.png}}
 |buy=200
 |sell=130
-|taughtspell={{AbilityLink|Death's Embrace}}
+|taughtspell={{AbilityLink|stablekey=spell:duel - deathly embrace|link=Death's Embrace|text=Death's Embrace|image=Death's Embrace.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

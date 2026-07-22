@@ -3,10 +3,10 @@
 |stablekey=item:ring - 24 - simple engagement ring
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Risen Pilgrim]] (1.7%)
+|source={{CharacterLink|stablekey=character:risen pilgrim|link=Risen Pilgrim|text=Risen Pilgrim}} (1.7%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Albixt's Engagement Ring}}
+|relatedquest={{QuestLink|Albixt's Engagement Ring}}<br>{{QuestLink|stablekey=quest:albixtsring|link=Albixt's Engagement Ring|text=Albixt's Engagement Ring}}
 |craftsource=
 |componentfor=
 |buy=5

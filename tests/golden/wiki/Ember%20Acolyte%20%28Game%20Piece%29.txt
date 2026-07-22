@@ -3,7 +3,7 @@
 |stablekey=item:quest - game piece ember
 |type=[[:Category:Items|Summoning Item]]
 |vendorsource=
-|source=[[Apha, Priest of Brax]] (3.7%)<br>[[Upha, Priest of Brax]] (3.7%)<br>[[Sand Mummy]] (3.4%)<br>[[Scorched Skeleton]] (3.4%)<br>[[Blight Eater]] (3.0%)<br>[[Blighted Priest]] (2.3%)<br>[[Braxon Fanatic]] (1.7%)
+|source={{CharacterLink|stablekey=character:priest of brax 1|link=Apha, Priest of Brax|text=Apha, Priest of Brax}} (3.7%)<br>{{CharacterLink|stablekey=character:priest of brax|link=Upha, Priest of Brax|text=Upha, Priest of Brax}} (3.7%)<br>{{CharacterLink|stablekey=character:desert mummy|link=Sand Mummy|text=Sand Mummy}} (3.4%)<br>{{CharacterLink|stablekey=character:scorched skeleton|link=Scorched Skeleton|text=Scorched Skeleton}} (3.4%)<br>{{CharacterLink|stablekey=character:blight eater|link=Blight Eater|text=Blight Eater}} (3.0%)<br>{{CharacterLink|stablekey=character:blight priest|link=Blighted Priest|text=Blighted Priest}} (2.3%)<br>{{CharacterLink|stablekey=character:braxonian fanatic|link=Braxon Fanatic|text=Braxon Fanatic}} (1.7%)
 |othersource=
 |questsource=
 |relatedquest=

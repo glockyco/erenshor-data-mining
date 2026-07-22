@@ -30,7 +30,7 @@
 |target_healing=
 |caster_healing=
 |shield_amount=
-|pet_to_summon=[[Summoned Skeleton]]
+|pet_to_summon={{CharacterLink|stablekey=character:summoned skeleton|link=Summoned Skeleton|text=Summoned Skeleton}}
 |status_effect=
 |add_proc=
 |add_proc_chance=
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Tome of Necromancy}}
+|itemswitheffect={{ItemLink|stablekey=item:hand - 36 - tome of necromancy|link=Tome of Necromancy|text=Tome of Necromancy|image=Tome of Necromancy.png}}
 |source=
 |used_by=
 }}

@@ -3,7 +3,7 @@
 |stablekey=item:back - 15 - fungal scab cape
 |type=
 |vendorsource=
-|source=[[Druo the Reborn]] (14.8%)
+|source={{CharacterLink|stablekey=character:druo the reborn|link=Druo the Reborn|text=Druo the Reborn}} (14.8%)
 |othersource=
 |questsource=
 |relatedquest=

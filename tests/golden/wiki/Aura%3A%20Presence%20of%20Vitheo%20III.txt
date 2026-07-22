@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Freedom of the Sky}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - vitheo 3|link=Freedom of the Sky|text=Freedom of the Sky|image=Freedom of the Sky.png}}
 |source=
 |used_by=
 }}

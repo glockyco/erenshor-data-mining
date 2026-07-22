@@ -32,7 +32,7 @@
 |shield_amount=
 |pet_to_summon=
 |status_effect=
-|add_proc={{AbilityLink|Theft of Life}}
+|add_proc={{AbilityLink|stablekey=spell:dru reav - theft of life|link=Theft of Life|text=Theft of Life}}
 |add_proc_chance=3
 |has_lifetap=
 |lifesteal=
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Looming Void}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - reaver 2|link=Looming Void|text=Looming Void|image=Looming Void.png}}
 |source=
 |used_by=
 }}

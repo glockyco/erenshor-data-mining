@@ -3,15 +3,15 @@
 |image=[[File:Gruhglor.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Fernalla's Revival Plains]]
+|zones={{ZoneLink|stablekey=zone:fernallafield|link=Fernalla's Revival Plains|text=Fernalla's Revival Plains}}
 |coordinates=804.7 x 27.0 x 1058.9
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Blackened Iron Amulet}}<br>{{ItemLink|Crafted Bracer}}<br>{{ItemLink|Knight's Helm}}<br>{{ItemLink|Ogreskin Cord}}<br>{{ItemLink|Rotten Chain Tunic}}<br>{{ItemLink|Woebringer - Halberd of Stone}}
-|droprates={{ItemLink|Stone Giant's Blood}} (87.1%)<br>{{ItemLink|Blackened Iron Amulet}} (19.5%)<br>{{ItemLink|Crafted Bracer}} (19.5%)<br>{{ItemLink|Knight's Helm}} (19.5%)<br>{{ItemLink|Ogreskin Cord}} (19.5%)<br>{{ItemLink|Rotten Chain Tunic}} (19.5%)<br>{{ItemLink|Woebringer - Halberd of Stone}} (19.5%)<br>{{ItemLink|Distant Thunder}} (3.0%)<br>{{ItemLink|End of Life}} (3.0%)<br>{{ItemLink|Freedom of the Sky}} (3.0%)<br>{{ItemLink|Glow of Eternity}} (3.0%)<br>{{ItemLink|Rising Moon}} (3.0%)<br>{{ItemLink|Wilt}} (3.0%)
+|guaranteeddrops={{ItemLink|stablekey=item:neck - 11 - blackened iron amulet|link=Blackened Iron Amulet|text=Blackened Iron Amulet|image=Blackened Iron Amulet.png}}<br>{{ItemLink|stablekey=item:wrist - 16 - crafted bracer|link=Crafted Bracer|text=Crafted Bracer|image=Crafted Bracer.png}}<br>{{ItemLink|stablekey=item:head - 17 - knight's helm|link=Knight's Helm|text=Knight's Helm|image=Knight's Helm.png}}<br>{{ItemLink|stablekey=item:belt - 11 - ogreskin cord|link=Ogreskin Cord|text=Ogreskin Cord|image=Ogreskin Cord.png}}<br>{{ItemLink|stablekey=item:chest - 16 - rotten chain tunic|link=Rotten Chain Tunic|text=Rotten Chain Tunic|image=Rotten Chain Tunic.png}}<br>{{ItemLink|stablekey=item:weap - 17 - woebringer - halberd of stone|link=Woebringer - Halberd of Stone|text=Woebringer - Halberd of Stone|image=Woebringer - Halberd of Stone.png}}
+|droprates={{ItemLink|stablekey=item:gen - stone giants blood|link=Stone Giant's Blood|text=Stone Giant's Blood|image=Stone Giant's Blood.png}} (87.1%)<br>{{ItemLink|stablekey=item:neck - 11 - blackened iron amulet|link=Blackened Iron Amulet|text=Blackened Iron Amulet|image=Blackened Iron Amulet.png}} (19.5%)<br>{{ItemLink|stablekey=item:wrist - 16 - crafted bracer|link=Crafted Bracer|text=Crafted Bracer|image=Crafted Bracer.png}} (19.5%)<br>{{ItemLink|stablekey=item:head - 17 - knight's helm|link=Knight's Helm|text=Knight's Helm|image=Knight's Helm.png}} (19.5%)<br>{{ItemLink|stablekey=item:belt - 11 - ogreskin cord|link=Ogreskin Cord|text=Ogreskin Cord|image=Ogreskin Cord.png}} (19.5%)<br>{{ItemLink|stablekey=item:chest - 16 - rotten chain tunic|link=Rotten Chain Tunic|text=Rotten Chain Tunic|image=Rotten Chain Tunic.png}} (19.5%)<br>{{ItemLink|stablekey=item:weap - 17 - woebringer - halberd of stone|link=Woebringer - Halberd of Stone|text=Woebringer - Halberd of Stone|image=Woebringer - Halberd of Stone.png}} (19.5%)<br>{{ItemLink|stablekey=item:aura - storm 3|link=Distant Thunder|text=Distant Thunder|image=Distant Thunder.png}} (3.0%)<br>{{ItemLink|stablekey=item:aura - reaver 3|link=End of Life|text=End of Life|image=End of Life.png}} (3.0%)<br>{{ItemLink|stablekey=item:aura - vitheo 3|link=Freedom of the Sky|text=Freedom of the Sky|image=Freedom of the Sky.png}} (3.0%)<br>{{ItemLink|stablekey=item:aura - brax 3|link=Glow of Eternity|text=Glow of Eternity|image=Glow of Eternity.png}} (3.0%)<br>{{ItemLink|stablekey=item:aura - soluna 3|link=Rising Moon|text=Rising Moon|image=Rising Moon.png}} (3.0%)<br>{{ItemLink|stablekey=item:aura - fernalla 3|link=Wilt|text=Wilt|image=Wilt.png}} (3.0%)
 |level=17
 |levelmodmin=0
 |levelmodmax=0

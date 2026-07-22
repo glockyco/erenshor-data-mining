@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Shadowmaker}}
+|itemswitheffect={{ItemLink|stablekey=item:wrist - 19 - shadowmaker|link=Shadowmaker|text=Shadowmaker|image=Shadowmaker.png}}
 |source=
 |used_by=
 }}

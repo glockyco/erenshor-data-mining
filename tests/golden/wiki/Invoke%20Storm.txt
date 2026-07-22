@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Tempestalia, Ring of Storms}}
+|itemswitheffect={{ItemLink|stablekey=item:ring - 20 - tempestalia|link=Tempestalia, Ring of Storms|text=Tempestalia, Ring of Storms|image=Tempestalia, Ring of Storms.png}}
 |source=
 |used_by=
 }}

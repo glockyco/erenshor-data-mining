@@ -3,12 +3,12 @@
 |stablekey=item:weap - 19 - queen's fang
 |type=[[Crafting]]
 |vendorsource=
-|source=[[Slumbering Queen]] (52.2%)
+|source={{CharacterLink|stablekey=character:fungal queen|link=Slumbering Queen|text=Slumbering Queen}} (52.2%)
 |othersource=
 |questsource=
 |relatedquest=
 |craftsource=
-|componentfor={{ItemLink|Mold: Charm of Rage}}
+|componentfor={{ItemLink|stablekey=item:template - charm of rage|link=Mold: Charm of Rage|text=Mold: Charm of Rage|image=Mold: Charm of Rage.png}}
 |buy=2100
 |sell=1365
 |taughtspell=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=10
 |proc_spell_icon=Queen's Bite.png
-|proc_spell_name=[[Queen's Bite]]
+|proc_spell_name={{AbilityLink|stablekey=spell:none - queen's bite|link=Queen's Bite|text=Queen's Bite|image=Queen's Bite.png}}
 |proc_spell_level=9
 |proc_spell_duration_ticks=10
 |proc_spell_type=StatusEffect

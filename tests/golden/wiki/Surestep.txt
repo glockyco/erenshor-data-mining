@@ -3,7 +3,7 @@
 |stablekey=item:foot - 23 - surestep
 |type=
 |vendorsource=
-|source=[[Mosscovered Stoneman]] (27.8%)
+|source={{CharacterLink|stablekey=character:mosscovered stoneman|link=Mosscovered Stoneman|text=Mosscovered Stoneman}} (27.8%)
 |othersource=
 |questsource=
 |relatedquest=

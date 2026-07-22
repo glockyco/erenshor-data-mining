@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=2
 |proc_spell_icon=Ethereal Rending.png
-|proc_spell_name=[[Ethereal Rending]]
+|proc_spell_name={{AbilityLink|stablekey=spell:arc - ethereal rend|link=Ethereal Rending|text=Ethereal Rending|image=Ethereal Rending.png}}
 |proc_spell_level=6
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

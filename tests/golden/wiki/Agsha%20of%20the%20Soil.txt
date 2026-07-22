@@ -3,15 +3,15 @@
 |image=[[File:Agsha of the Soil.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
-|factionChange=+3 [[The Citizens of Erenshor]]<br>+3 [[The Citizens of Port Azure]]
-|zones=[[Underspine Hollow]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|factionChange=+3 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+3 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|zones={{ZoneLink|stablekey=zone:underspine|link=Underspine Hollow|text=Underspine Hollow}}
 |coordinates=158.4 x 86.5 x 307.9
 |spawnchance=66%
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Ogrespice Bundle}}<br>{{ItemLink|Ring of The Mystics}}
-|droprates={{ItemLink|Ogrespice Bundle}} (66.7%)<br>{{ItemLink|Ring of The Mystics}} (33.3%)
+|guaranteeddrops={{ItemLink|stablekey=item:wand - 14 - ogrespice bundle|link=Ogrespice Bundle|text=Ogrespice Bundle|image=Ogrespice Bundle.png}}<br>{{ItemLink|stablekey=item:ring - 14 - ring of the mystics|link=Ring of The Mystics|text=Ring of The Mystics|image=Ring of The Mystics.png}}
+|droprates={{ItemLink|stablekey=item:wand - 14 - ogrespice bundle|link=Ogrespice Bundle|text=Ogrespice Bundle|image=Ogrespice Bundle.png}} (66.7%)<br>{{ItemLink|stablekey=item:ring - 14 - ring of the mystics|link=Ring of The Mystics|text=Ring of The Mystics|image=Ring of The Mystics.png}} (33.3%)
 |level=15
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=8-18
 |elemental=8-18
 |void=8-18
-|spells={{AbilityLink|Biting Vines}}<br>{{AbilityLink|Soul Tap}}<br>{{AbilityLink|Tangle}}<br>{{AbilityLink|Toxicity}}
+|spells={{AbilityLink|stablekey=spell:dru - biting vines|link=Biting Vines|text=Biting Vines|image=Biting Vines.png}}<br>{{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}<br>{{AbilityLink|stablekey=spell:dru - tangle|link=Tangle|text=Tangle|image=Tangle.png}}<br>{{AbilityLink|stablekey=spell:dru - toxicity|link=Toxicity|text=Toxicity|image=Toxicity.png}}
 }}
 
 [[Category:Bosses]]

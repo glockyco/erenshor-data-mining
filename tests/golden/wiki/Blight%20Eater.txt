@@ -3,15 +3,15 @@
 |image=[[File:Blight Eater.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Braxonian Desert]]
+|zones={{ZoneLink|stablekey=zone:braxonian|link=Braxonian Desert|text=Braxonian Desert}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Luminstone}} (56.7%)<br>{{ItemLink|Polished Stone}} (56.7%)<br>{{ItemLink|Star Stone}} (56.7%)<br>{{ItemLink|Spell Scroll: Call of the Void}} (4.6%)<br>{{ItemLink|Spell Scroll: Concuss}} (4.6%)<br>{{ItemLink|Spell Scroll: Ice Spear}} (4.6%)<br>{{ItemLink|Spell Scroll: Immolation}} (4.6%)<br>{{ItemLink|Aetheria}} (3.0%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ember Acolyte (Game Piece)|text=Ember Acolyte}} (3.0%)<ref>If the player is already holding {{ItemLink|Ember Acolyte (Game Piece)|text=Ember Acolyte}} in their inventory, another will not drop.</ref><br>{{ItemLink|Peon (Game Piece)|text=Peon}} (3.0%)<ref>If the player is already holding {{ItemLink|Peon (Game Piece)|text=Peon}} in their inventory, another will not drop.</ref>
+|droprates={{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (56.7%)<br>{{ItemLink|stablekey=item:gen - polished stone|link=Polished Stone|text=Polished Stone|image=Polished Stone.png}} (56.7%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (56.7%)<br>{{ItemLink|stablekey=item:spell scroll - call of the void|link=Spell Scroll: Call of the Void|text=Spell Scroll: Call of the Void|image=Spell Scroll: Call of the Void.png}} (4.6%)<br>{{ItemLink|stablekey=item:spell scroll - concuss|link=Spell Scroll: Concuss|text=Spell Scroll: Concuss|image=Spell Scroll: Concuss.png}} (4.6%)<br>{{ItemLink|stablekey=item:spell scroll - ice spear|link=Spell Scroll: Ice Spear|text=Spell Scroll: Ice Spear|image=Spell Scroll: Ice Spear.png}} (4.6%)<br>{{ItemLink|stablekey=item:spell scroll - immolation|link=Spell Scroll: Immolation|text=Spell Scroll: Immolation|image=Spell Scroll: Immolation.png}} (4.6%)<br>{{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} (3.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:quest - game piece ember|link=Ember Acolyte (Game Piece)|text=Ember Acolyte|image=Ember Acolyte (Game Piece).png}} (3.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:quest - game piece ember|link=Ember Acolyte (Game Piece)|text=Ember Acolyte|image=Ember Acolyte (Game Piece).png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:quest - game piece peon|link=Peon (Game Piece)|text=Peon|image=Peon (Game Piece).png}} (3.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:quest - game piece peon|link=Peon (Game Piece)|text=Peon|image=Peon (Game Piece).png}} in their inventory, another will not drop.</ref>
 |level=19
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=10-23
 |elemental=10-23
 |void=10-23
-|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Soul Tap}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's rage|link=Brax's Rage|text=Brax's Rage|image=Brax's Rage.png}}<br>{{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}
 }}
 
 [[Category:Braxonian Desert]]

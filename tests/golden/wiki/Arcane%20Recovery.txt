@@ -5,7 +5,7 @@
 |description=Passive Skill: Spells that resonate will return their mana cost.
 |type=Innate
 |line=
-|classes=[[Arcanist]] (12)<br>[[Druid]] (20)<br>[[Stormcaller]] (20)
+|classes={{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}} (12)<br>{{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (20)<br>{{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}} (20)
 |required_level=
 |manacost=
 |aggro=
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Skill Book: Arcane Recovery}}
+|source={{ItemLink|stablekey=item:skillbook - arcane recovery|link=Skill Book: Arcane Recovery|text=Skill Book: Arcane Recovery|image=Skill Book: Arcane Recovery.png}}
 |used_by=
 }}

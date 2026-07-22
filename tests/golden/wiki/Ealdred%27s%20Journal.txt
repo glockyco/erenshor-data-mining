@@ -3,10 +3,10 @@
 |stablekey=item:gen - ealdred's journal
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Darkwarden Ealdred]] (100.0%)
+|source={{CharacterLink|stablekey=character:darkwarden ealdred|link=Darkwarden Ealdred|text=Darkwarden Ealdred}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Secure Port Azure}}<br>{{QuestLink|Sivakayan Intel for Kilkay}}<br>{{QuestLink|link=Sivakayan Intel for Kilkay{{!}}Sivakayan Intel for Kilkay (3)}}
+|relatedquest={{QuestLink|Secure Port Azure}}<br>{{QuestLink|Sivakayan Intel for Kilkay}}<br>{{QuestLink|link=Sivakayan Intel for Kilkay{{!}}Sivakayan Intel for Kilkay (3)}}<br>{{QuestLink|stablekey=quest:findazynthi|link=Secure Port Azure|text=Secure Port Azure}}<br>{{QuestLink|stablekey=quest:inteltokilkay3|link=Sivakayan Intel for Kilkay|text=Sivakayan Intel for Kilkay (3)}}
 |craftsource=
 |componentfor=
 |buy=

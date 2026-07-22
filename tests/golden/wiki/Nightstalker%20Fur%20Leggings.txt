@@ -3,7 +3,7 @@
 |stablekey=item:leg - 24 - nightstalker fur leggings
 |type=
 |vendorsource=
-|source=[[Tiallia Priel]] (75.0%)
+|source={{CharacterLink|stablekey=character:tiallia priel|link=Tiallia Priel|text=Tiallia Priel}} (75.0%)
 |othersource=
 |questsource=
 |relatedquest=

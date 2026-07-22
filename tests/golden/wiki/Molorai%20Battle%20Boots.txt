@@ -3,7 +3,7 @@
 |stablekey=item:foot - 9 - molorai battle boots
 |type=
 |vendorsource=
-|source=[[Molorai Bodyguard]] (7.8%)<br>[[Molorai Veteran]] (7.8%)
+|source={{CharacterLink|stablekey=character:molorai bodyguard|link=Molorai Bodyguard|text=Molorai Bodyguard}} (7.8%)<br>{{CharacterLink|stablekey=character:molorai veteran|link=Molorai Veteran|text=Molorai Veteran}} (7.8%)
 |othersource=
 |questsource=
 |relatedquest=

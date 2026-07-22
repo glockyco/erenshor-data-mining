@@ -3,15 +3,15 @@
 |image=[[File:Sprinkles.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
-|factionChange=-5 [[The Skyfolk]]
-|zones=[[Plane of the Willow]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|factionChange=-5 {{FactionLink|stablekey=faction:skyfolk|link=The Skyfolk|text=The Skyfolk}}
+|zones={{ZoneLink|stablekey=zone:planeoffernalla|link=Plane of the Willow|text=Plane of the Willow}}
 |coordinates=1123.2 x 27.7 x 1151.8
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Gem Encrusted Sash}}<br>{{ItemLink|Repellant Ring}}<br>{{ItemLink|Trickster's Tunic}}
-|droprates={{ItemLink|Gem Encrusted Sash}} (69.6%)<br>{{ItemLink|Repellant Ring}} (69.6%)<br>{{ItemLink|Trickster's Tunic}} (69.6%)<br>{{ItemLink|Planar Stone Shards}} (14.9%)<br>{{ItemLink|Citrine Stone}} (5.1%)<br>{{ItemLink|Luminstone}} (5.1%)<br>{{ItemLink|Planar Stone}} (5.1%)
+|guaranteeddrops={{ItemLink|stablekey=item:belt - 42 - gem encrusted girdle|link=Gem Encrusted Sash|text=Gem Encrusted Sash|image=Gem Encrusted Sash.png}}<br>{{ItemLink|stablekey=item:ring - 42 - repellant ring|link=Repellant Ring|text=Repellant Ring|image=Repellant Ring.png}}<br>{{ItemLink|stablekey=item:chest - 42 - trickster's tunic|link=Trickster's Tunic|text=Trickster's Tunic|image=Trickster's Tunic.png}}
+|droprates={{ItemLink|stablekey=item:belt - 42 - gem encrusted girdle|link=Gem Encrusted Sash|text=Gem Encrusted Sash|image=Gem Encrusted Sash.png}} (69.6%)<br>{{ItemLink|stablekey=item:ring - 42 - repellant ring|link=Repellant Ring|text=Repellant Ring|image=Repellant Ring.png}} (69.6%)<br>{{ItemLink|stablekey=item:chest - 42 - trickster's tunic|link=Trickster's Tunic|text=Trickster's Tunic|image=Trickster's Tunic.png}} (69.6%)<br>{{ItemLink|stablekey=item:ore - planar shard|link=Planar Stone Shards|text=Planar Stone Shards|image=Planar Stone Shards.png}} (14.9%)<br>{{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (5.1%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (5.1%)<br>{{ItemLink|stablekey=item:ore - planar stone|link=Planar Stone|text=Planar Stone|image=Planar Stone.png}} (5.1%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

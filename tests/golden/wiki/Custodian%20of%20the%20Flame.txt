@@ -3,7 +3,7 @@
 |stablekey=item:gen - candlekeeper note
 |type=[[Lore Items|Lore]]
 |vendorsource=
-|source=[[Candlekeeper]] (100.0%)
+|source={{CharacterLink|stablekey=character:candlekeeper|link=Candlekeeper|text=Candlekeeper}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=

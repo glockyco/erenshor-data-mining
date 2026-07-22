@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Demon Claw}}<br>{{ItemLink|Griefwarden}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 25 - demonclaw|link=Demon Claw|text=Demon Claw|image=Demon Claw.png}}<br>{{ItemLink|stablekey=item:secondary - 38 - griefwarden|link=Griefwarden|text=Griefwarden|image=Griefwarden.png}}
 |source=
 |used_by=
 }}

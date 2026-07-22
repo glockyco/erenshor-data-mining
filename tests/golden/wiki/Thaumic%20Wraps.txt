@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 42 - thaumic wraps
 |type=
 |vendorsource=
-|source=[[Greater Fire Elemental]] (2.0%)<br>[[Greater Ice Elemental]] (2.0%)<br>[[Large Fire Elemental]] (2.0%)<br>[[Large Ice Elemental]] (2.0%)<br>[[Lava Fiend]] (1.9%)<br>[[Fire Elemental]] (1.7%)<br>[[Ice Elemental]] (1.7%)<br>[[Tundra Walker]] (1.2%)
+|source={{CharacterLink|stablekey=character:greater fire elemental|link=Greater Fire Elemental|text=Greater Fire Elemental}} (2.0%)<br>{{CharacterLink|stablekey=character:greater ice elemental|link=Greater Ice Elemental|text=Greater Ice Elemental}} (2.0%)<br>{{CharacterLink|stablekey=character:large fire elemental|link=Large Fire Elemental|text=Large Fire Elemental}} (2.0%)<br>{{CharacterLink|stablekey=character:large ice elemental|link=Large Ice Elemental|text=Large Ice Elemental}} (2.0%)<br>{{CharacterLink|stablekey=character:lava fiend|link=Lava Fiend|text=Lava Fiend}} (1.9%)<br>{{CharacterLink|stablekey=character:fire elemental|link=Fire Elemental|text=Fire Elemental}} (1.7%)<br>{{CharacterLink|stablekey=character:ice elemental|link=Ice Elemental|text=Ice Elemental}} (1.7%)<br>{{CharacterLink|stablekey=character:tundra skeleton|link=Tundra Walker|text=Tundra Walker}} (1.2%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Cast
 |proc_chance=5
 |proc_spell_icon=Tenebris.png
-|proc_spell_name=[[Tenebris]]
+|proc_spell_name={{AbilityLink|stablekey=spell:arc - tenebris|link=Tenebris|text=Tenebris|image=Tenebris.png}}
 |proc_spell_level=32
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

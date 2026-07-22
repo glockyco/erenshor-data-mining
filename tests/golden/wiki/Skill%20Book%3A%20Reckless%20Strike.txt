@@ -2,7 +2,7 @@
 |title=Skill Book: Reckless Strike
 |stablekey=item:skillbook - stance - reckless
 |type=
-|vendorsource=[[Grant Haxoway]]
+|vendorsource={{CharacterLink|stablekey=character:grant haxoway|link=Grant Haxoway|text=Grant Haxoway}}
 |source=
 |othersource=
 |questsource=
@@ -12,7 +12,7 @@
 |buy=8500
 |sell=5525
 |taughtspell=
-|taughtskill={{AbilityLink|Reckless Strike}}
+|taughtskill={{AbilityLink|stablekey=skill:reckless strike|link=Reckless Strike|text=Reckless Strike|image=Reckless Strike.png}}
 |guaranteeddrops=
 |droprates=
 }}

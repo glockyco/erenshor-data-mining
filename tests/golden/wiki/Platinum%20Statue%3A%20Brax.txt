@@ -3,7 +3,7 @@
 |stablekey=item:furniture - stone statue platinum brax
 |type=
 |vendorsource=
-|source=[[Brax, God of Elements]] (11.0%)
+|source={{CharacterLink|stablekey=character:god brax|link=Brax, God of Elements|text=Brax, God of Elements}} (11.0%)<br>{{CharacterLink|stablekey=character:god brax restored:planeofbrax:2543.61:75.50:404.12|link=Brax, God of Elements|text=Brax, God of Elements}} (11.0%)
 |othersource=
 |questsource=
 |relatedquest=

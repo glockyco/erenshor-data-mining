@@ -2,7 +2,7 @@
 |title=Spell Scroll: Regrowth
 |stablekey=item:spell scroll - regrowth
 |type=[[Ability Books]]
-|vendorsource=[[Alexander Farland]]
+|vendorsource={{CharacterLink|stablekey=character:alexander farland|link=Alexander Farland|text=Alexander Farland}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=800
 |sell=520
-|taughtspell={{AbilityLink|Regrowth}}
+|taughtspell={{AbilityLink|stablekey=spell:dru - regrowth (cast)|link=Regrowth|text=Regrowth|image=Regrowth.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

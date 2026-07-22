@@ -3,7 +3,7 @@
 |stablekey=item:secondary - 18 - dusken shield
 |type=
 |vendorsource=
-|source=[[Dusken Giant]] (66.7%)
+|source={{CharacterLink|stablekey=character:dusken giant|link=Dusken Giant|text=Dusken Giant}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=

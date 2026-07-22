@@ -3,7 +3,7 @@
 |stablekey=item:weap - 19 - ebonshade
 |type=
 |vendorsource=
-|source=[[Seed of Blight]] (15.0%)
+|source={{CharacterLink|stablekey=character:seed of blight|link=Seed of Blight|text=Seed of Blight}} (15.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=10
 |proc_spell_icon=Death's Embrace.png
-|proc_spell_name=[[Death's Embrace]]
+|proc_spell_name={{AbilityLink|stablekey=spell:duel - deathly embrace|link=Death's Embrace|text=Death's Embrace|image=Death's Embrace.png}}
 |proc_spell_level=6
 |proc_spell_duration_ticks=7
 |proc_spell_type=StatusEffect

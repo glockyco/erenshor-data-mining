@@ -31,7 +31,7 @@
 |caster_healing=
 |shield_amount=
 |pet_to_summon=
-|status_effect={{AbilityLink|Frozen Breath}}
+|status_effect=[[Frozen Breath]]
 |add_proc=
 |add_proc_chance=
 |has_lifetap=

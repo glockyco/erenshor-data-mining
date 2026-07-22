@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Bag of Offering Stones}}
+|itemswitheffect={{ItemLink|stablekey=item:gen - bag of offering stones|link=Bag of Offering Stones|text=Bag of Offering Stones|image=Bag of Offering Stones.png}}
 |source=
 |used_by=
 }}

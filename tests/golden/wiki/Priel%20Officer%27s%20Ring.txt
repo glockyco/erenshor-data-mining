@@ -3,12 +3,12 @@
 |stablekey=item:ring - 18 - priel officer's ring
 |type=[[Crafting]]
 |vendorsource=
-|source=[[Priel Deceiver]] (4.3%)<br>[[Priel Enforcer]] (4.3%)<br>[[Priel Malarist]] (3.4%)<br>[[Priel Soldier]] (3.4%)<br>[[Priel Tamer]] (3.0%)<br>[[Priel Gifted]] (2.1%)<br>[[Priel Grimwatch]] (2.1%)<br>[[Priel Purist]] (2.1%)<br>[[Priel Swiftblade]] (2.1%)<br>[[Priel Consort]] (1.4%)
+|source={{CharacterLink|stablekey=character:priel deceiver|link=Priel Deceiver|text=Priel Deceiver}} (4.3%)<br>{{CharacterLink|stablekey=character:priel enforcer|link=Priel Enforcer|text=Priel Enforcer}} (4.3%)<br>{{CharacterLink|stablekey=character:priel naturalist|link=Priel Enforcer|text=Priel Enforcer}} (4.3%)<br>{{CharacterLink|stablekey=character:priel molarist|link=Priel Malarist|text=Priel Malarist}} (3.4%)<br>{{CharacterLink|stablekey=character:priel soldier2|link=Priel Soldier|text=Priel Soldier}} (3.4%)<br>{{CharacterLink|stablekey=character:priel tamer|link=Priel Tamer|text=Priel Tamer}} (3.0%)<br>{{CharacterLink|stablekey=character:priel gifted|link=Priel Gifted|text=Priel Gifted}} (2.1%)<br>{{CharacterLink|stablekey=character:priel grimwatch|link=Priel Grimwatch|text=Priel Grimwatch}} (2.1%)<br>{{CharacterLink|stablekey=character:priel purist|link=Priel Purist|text=Priel Purist}} (2.1%)<br>{{CharacterLink|stablekey=character:priel swiftblade|link=Priel Swiftblade|text=Priel Swiftblade}} (2.1%)<br>{{CharacterLink|stablekey=character:priel consort|link=Priel Consort|text=Priel Consort}} (1.4%)
 |othersource=
 |questsource=
 |relatedquest=
 |craftsource=
-|componentfor={{ItemLink|Mold: Charm of the Jester}}
+|componentfor={{ItemLink|stablekey=item:template - charm of the jester|link=Mold: Charm of the Jester|text=Mold: Charm of the Jester|image=Mold: Charm of the Jester.png}}
 |buy=1855
 |sell=1206
 |taughtspell=

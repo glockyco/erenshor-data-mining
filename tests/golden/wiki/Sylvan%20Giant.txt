@@ -3,15 +3,15 @@
 |image=[[File:Sylvan Giant.png|thumb]]
 |imagecaption=
 |type=Rare
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Fernalla's Revival Plains]]<br>[[Silkengrass Meadowlands]]
+|zones={{ZoneLink|stablekey=zone:fernallafield|link=Fernalla's Revival Plains|text=Fernalla's Revival Plains}}<br>{{ZoneLink|stablekey=zone:silkengrass|link=Silkengrass Meadowlands|text=Silkengrass Meadowlands}}
 |coordinates=
 |spawnchance=1% (Fernalla's Revival Plains)<br>25% (Silkengrass Meadowlands)
 |spawntype=
 |respawn=5 minutes (Fernalla's Revival Plains)<br>4 minutes (Silkengrass Meadowlands)
-|guaranteeddrops={{ItemLink|Arboreal Cape}}<br>{{ItemLink|Woodland Gauntlets}}
-|droprates={{ItemLink|Sylvan Giant's Blood}} (86.3%)<br>{{ItemLink|Arboreal Cape}} (50.0%)<br>{{ItemLink|Woodland Gauntlets}} (50.0%)
+|guaranteeddrops={{ItemLink|stablekey=item:back - 30 - arboreal cape|link=Arboreal Cape|text=Arboreal Cape|image=Arboreal Cape.png}}<br>{{ItemLink|stablekey=item:glove - 30 - woodland gauntlets|link=Woodland Gauntlets|text=Woodland Gauntlets|image=Woodland Gauntlets.png}}
+|droprates={{ItemLink|stablekey=item:gen - sylvan giants blood|link=Sylvan Giant's Blood|text=Sylvan Giant's Blood|image=Sylvan Giant's Blood.png}} (86.3%)<br>{{ItemLink|stablekey=item:back - 30 - arboreal cape|link=Arboreal Cape|text=Arboreal Cape|image=Arboreal Cape.png}} (50.0%)<br>{{ItemLink|stablekey=item:glove - 30 - woodland gauntlets|link=Woodland Gauntlets|text=Woodland Gauntlets|image=Woodland Gauntlets.png}} (50.0%)
 |level=32
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=16-38
 |elemental=16-38
 |void=16-38
-|spells={{AbilityLink|Biting Vines}}<br>{{AbilityLink|Tangle}}
+|spells={{AbilityLink|stablekey=spell:dru - biting vines|link=Biting Vines|text=Biting Vines|image=Biting Vines.png}}<br>{{AbilityLink|stablekey=spell:dru - tangle|link=Tangle|text=Tangle|image=Tangle.png}}
 }}
 ''{{Main|Enemies}}''
 =Location=

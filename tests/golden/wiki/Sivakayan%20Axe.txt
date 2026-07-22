@@ -3,10 +3,10 @@
 |stablekey=item:weap - 24 - sivakayan axe
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Darkwarden Awxa]] (1.2%)<br>[[Darkwarden Ealdred]] (1.2%)<br>[[Darkwarden Ilyth]] (1.2%)<br>[[Sivakayan Legionnaire]] (1.2%)<br>[[Sivakayan Reaver]] (1.2%)<br>[[Sivakayan Spymaster]] (1.2%)<br>[[Sivakayan Unhallowed]] (1.2%)
+|source={{CharacterLink|stablekey=character:darkwarden awxa|link=Darkwarden Awxa|text=Darkwarden Awxa}} (1.2%)<br>{{CharacterLink|stablekey=character:darkwarden ealdred|link=Darkwarden Ealdred|text=Darkwarden Ealdred}} (1.2%)<br>{{CharacterLink|stablekey=character:darkwarden ilyth|link=Darkwarden Ilyth|text=Darkwarden Ilyth}} (1.2%)<br>{{CharacterLink|stablekey=character:sivakayan legionairre|link=Sivakayan Legionnaire|text=Sivakayan Legionnaire}} (1.2%)<br>{{CharacterLink|stablekey=character:sivakayan reaver|link=Sivakayan Reaver|text=Sivakayan Reaver}} (1.2%)<br>{{CharacterLink|stablekey=character:sivakayan reaver:1|link=Sivakayan Reaver|text=Sivakayan Reaver}} (1.2%)<br>{{CharacterLink|stablekey=character:sivakayan spymaster|link=Sivakayan Spymaster|text=Sivakayan Spymaster}} (1.2%)<br>{{CharacterLink|stablekey=character:sivakayan unhallowed|link=Sivakayan Unhallowed|text=Sivakayan Unhallowed}} (1.2%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Disarming the Sivakayans}}
+|relatedquest={{QuestLink|Disarming the Sivakayans}}<br>{{QuestLink|stablekey=quest:disarmsivakayans|link=Disarming the Sivakayans|text=Disarming the Sivakayans}}
 |craftsource=
 |componentfor=
 |buy=2975
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=5
 |proc_spell_icon=Soul Tap.png
-|proc_spell_name=[[Soul Tap]]
+|proc_spell_name={{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}
 |proc_spell_level=15
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

@@ -2,8 +2,8 @@
 |title=Spell Scroll: Hardened Skin
 |stablekey=item:spell scroll - hardened flesh
 |type=[[Ability Books]]
-|vendorsource=[[Nylith Valorro]]
-|source=[[A Sorrowful Spirit]] (2.8%)
+|vendorsource={{CharacterLink|stablekey=character:nylith valorro|link=Nylith Valorro|text=Nylith Valorro}}
+|source={{CharacterLink|stablekey=character:a sorrowful spirit|link=A Sorrowful Spirit|text=A Sorrowful Spirit}} (2.8%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=55
 |sell=36
-|taughtspell={{AbilityLink|Hardened Skin}}
+|taughtspell={{AbilityLink|stablekey=spell:arc - hardened skin|link=Hardened Skin|text=Hardened Skin|image=Hardened Skin.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

@@ -13,7 +13,7 @@ Currently <span style="color: #FFFF00;">unobtainable</span>
 |componentfor=
 |buy=450
 |sell=292
-|taughtspell={{AbilityLink|Focus}}
+|taughtspell={{AbilityLink|stablekey=spell:arc - focus|link=Focus|text=Focus|image=Focus.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

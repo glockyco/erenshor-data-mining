@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Rebirth}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - fernalla 5|link=Rebirth|text=Rebirth|image=Rebirth.png}}
 |source=
 |used_by=
 }}

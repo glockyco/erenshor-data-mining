@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - twisting mind
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=
-|source=[[Sivakayan Faithbound]] (2.1%)
+|source={{CharacterLink|stablekey=character:sivakayan faithbound|link=Sivakayan Faithbound|text=Sivakayan Faithbound}} (2.1%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=18000
 |sell=11700
-|taughtspell={{AbilityLink|Twisting Mind}}
+|taughtspell={{AbilityLink|stablekey=spell:arc - twisting mind|link=Twisting Mind|text=Twisting Mind|image=Twisting Mind.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Chthonic Tunic}}
+|itemswitheffect={{ItemLink|stablekey=item:chest - 42 - chthonic tunic|link=Chthonic Tunic|text=Chthonic Tunic|image=Chthonic Tunic.png}}
 |source=
 |used_by=
 }}

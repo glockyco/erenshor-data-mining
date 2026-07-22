@@ -3,7 +3,7 @@
 |stablekey=item:back - 32 - braxonian cape
 |type=
 |vendorsource=
-|source=[[Braxonian Weapon Master]] (66.7%)
+|source={{CharacterLink|stablekey=character:braxonian weapon master|link=Braxonian Weapon Master|text=Braxonian Weapon Master}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=

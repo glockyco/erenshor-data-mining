@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Seaspice}}
+|itemswitheffect={{ItemLink|stablekey=item:cons - seaspice|link=Seaspice|text=Seaspice|image=Seaspice.png}}
 |source=
 |used_by=
 }}

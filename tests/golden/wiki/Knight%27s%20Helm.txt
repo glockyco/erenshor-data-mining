@@ -3,7 +3,7 @@
 |stablekey=item:head - 17 - knight's helm
 |type=
 |vendorsource=
-|source=[[Gruhglor]] (19.5%)
+|source={{CharacterLink|stablekey=character:gruhglor|link=Gruhglor|text=Gruhglor}} (19.5%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -5,7 +5,7 @@
 |description=Increase armor penetration on all stikes by 35% and attack roll by 2 / 20.
 |type=Beneficial
 |line=Duelist_Armor_Pen
-|classes=[[Windblade]] (33)
+|classes={{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}} (33)
 |required_level=33
 |manacost=600
 |aggro=
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Vitheo's Sight III}}
+|source={{ItemLink|stablekey=item:spell scroll - vitheo's sight iii|link=Spell Scroll: Vitheo's Sight III|text=Spell Scroll: Vitheo's Sight III|image=Spell Scroll: Vitheo's Sight III.png}}
 |used_by=
 }}

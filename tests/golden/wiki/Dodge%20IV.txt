@@ -5,7 +5,7 @@
 |description=You gain a small innate chance to dodge incoming attacks.
 |type=Innate
 |line=
-|classes=[[Windblade]] (32)
+|classes={{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}} (32)
 |required_level=
 |manacost=
 |aggro=
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Skill Book: Dodge IV}}
+|source={{ItemLink|stablekey=item:skillbook - dodge 4|link=Skill Book: Dodge IV|text=Skill Book: Dodge IV|image=Skill Book: Dodge IV.png}}
 |used_by=
 }}

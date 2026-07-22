@@ -3,15 +3,15 @@
 |image=[[File:A Fungal Drone.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Rottenfoot]]<br>[[The Elderstone Mines]]
+|zones={{ZoneLink|stablekey=zone:rottenfoot|link=Rottenfoot|text=Rottenfoot}}<br>{{ZoneLink|stablekey=zone:elderstone|link=The Elderstone Mines|text=The Elderstone Mines}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=12 minutes (Rottenfoot)<br>4-12 minutes (The Elderstone Mines)
 |guaranteeddrops=
-|droprates={{ItemLink|Luminstone}} (87.1%)<br>{{ItemLink|A Twisted Spider Leg}} (19.6%)<br>{{ItemLink|A Fanged Caveskimmer}} (11.5%)<br>{{ItemLink|Fungal Spore}} (11.5%)
+|droprates={{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (87.1%)<br>{{ItemLink|stablekey=item:wrist - 16 - twisted spider leg|link=A Twisted Spider Leg|text=A Twisted Spider Leg|image=A Twisted Spider Leg.png}} (19.6%)<br>{{ItemLink|stablekey=item:fish - a fanged caveskimmer|link=A Fanged Caveskimmer|text=A Fanged Caveskimmer|image=A Fanged Caveskimmer.png}} (11.5%)<br>{{ItemLink|stablekey=item:gen - fungal spore|link=Fungal Spore|text=Fungal Spore|image=Fungal Spore.png}} (11.5%)
 |level=17
 |levelmodmin=0
 |levelmodmax=0

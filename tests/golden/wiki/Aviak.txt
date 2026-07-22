@@ -3,15 +3,15 @@
 |image=[[File:Aviak.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Loomingwood Forest]]
+|zones={{ZoneLink|stablekey=zone:loomingwood|link=Loomingwood Forest|text=Loomingwood Forest}}
 |coordinates=738.8 x 64.7 x 870.2
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Feathery Vambraces}}<br>{{ItemLink|Plumage}}
-|droprates={{ItemLink|Brackfruit Juice}} (91.9%)<br>{{ItemLink|Feathery Vambraces}} (50.0%)<br>{{ItemLink|Plumage}} (50.0%)<br>{{ItemLink|Diamond}} (9.7%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Loomingwood Branch}} (9.7%)<br>{{ItemLink|Blueprint: Loomingwood Market}} (0.5%)<br>{{ItemLink|Blueprint: Loomingwood Shrine}} (0.5%)
+|guaranteeddrops={{ItemLink|stablekey=item:arm - 31 - feathery vambraces|link=Feathery Vambraces|text=Feathery Vambraces|image=Feathery Vambraces.png}}<br>{{ItemLink|stablekey=item:chest - 28 - plumage|link=Plumage|text=Plumage|image=Plumage.png}}
+|droprates={{ItemLink|stablekey=item:cons - brackfruit juice|link=Brackfruit Juice|text=Brackfruit Juice|image=Brackfruit Juice.png}} (91.9%)<br>{{ItemLink|stablekey=item:arm - 31 - feathery vambraces|link=Feathery Vambraces|text=Feathery Vambraces|image=Feathery Vambraces.png}} (50.0%)<br>{{ItemLink|stablekey=item:chest - 28 - plumage|link=Plumage|text=Plumage|image=Plumage.png}} (50.0%)<br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (9.7%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - loomingwood branch|link=Loomingwood Branch|text=Loomingwood Branch|image=Loomingwood Branch.png}} (9.7%)<br>{{ItemLink|stablekey=item:furniture - loomingwood marketplace blueprint|link=Blueprint: Loomingwood Market|text=Blueprint: Loomingwood Market|image=Blueprint: Loomingwood Market.png}} (0.5%)<br>{{ItemLink|stablekey=item:furniture - loomingwood shrine blueprint|link=Blueprint: Loomingwood Shrine|text=Blueprint: Loomingwood Shrine|image=Blueprint: Loomingwood Shrine.png}} (0.5%)
 |level=28
 |levelmodmin=0
 |levelmodmax=0

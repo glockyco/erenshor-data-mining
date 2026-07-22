@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Planetary Shard}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - planetary shard|link=Planetary Shard|text=Planetary Shard|image=Planetary Shard.png}}
 |source=
 |used_by=
 }}

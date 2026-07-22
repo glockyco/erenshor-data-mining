@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Gem of Echoes}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - gem of echoes|link=Gem of Echoes|text=Gem of Echoes|image=Gem of Echoes.png}}
 |source=
 |used_by=
 }}

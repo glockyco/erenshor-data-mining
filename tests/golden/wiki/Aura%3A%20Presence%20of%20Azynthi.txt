@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Gift of Azynthi}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - azynthi|link=Gift of Azynthi|text=Gift of Azynthi|image=Gift of Azynthi.png}}
 |source=
 |used_by=
 }}

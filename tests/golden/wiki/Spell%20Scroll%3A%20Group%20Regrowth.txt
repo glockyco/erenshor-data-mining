@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - group regrowth
 |type=
 |vendorsource=
-|source=[[Planar Crawler]] (3.1%)<br>[[Faerie Trickster]] (2.3%)<br>[[Planar Faerie]] (2.3%)<br>[[Pack Mother]] (1.4%)<br>[[Planar Cobra]] (1.4%)<br>[[Planar Grizzly]] (1.4%)<br>[[Planar Minotaur]] (1.4%)<br>[[Planar Wolf]] (1.4%)
+|source={{CharacterLink|stablekey=character:planar crawler|link=Planar Crawler|text=Planar Crawler}} (3.1%)<br>{{CharacterLink|stablekey=character:faerie trickster|link=Faerie Trickster|text=Faerie Trickster}} (2.3%)<br>{{CharacterLink|stablekey=character:planar faerie|link=Planar Faerie|text=Planar Faerie}} (2.3%)<br>{{CharacterLink|stablekey=character:pack mother|link=Pack Mother|text=Pack Mother}} (1.4%)<br>{{CharacterLink|stablekey=character:planar snake|link=Planar Cobra|text=Planar Cobra}} (1.4%)<br>{{CharacterLink|stablekey=character:planar grizzly|link=Planar Grizzly|text=Planar Grizzly}} (1.4%)<br>{{CharacterLink|stablekey=character:planar mino|link=Planar Minotaur|text=Planar Minotaur}} (1.4%)<br>{{CharacterLink|stablekey=character:planar wolf|link=Planar Wolf|text=Planar Wolf}} (1.4%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=
 |sell=
-|taughtspell={{AbilityLink|Group Regrowth}}
+|taughtspell={{AbilityLink|stablekey=spell:dru - group regrowth (cast)|link=Group Regrowth|text=Group Regrowth|image=Group Regrowth.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 25 - moonstone bangle
 |type=
 |vendorsource=
-|source=[[Celestial Matter]] (6.7%)
+|source={{CharacterLink|stablekey=character:celestial matter|link=Celestial Matter|text=Celestial Matter}} (6.7%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -3,15 +3,15 @@
 |image=[[File:Faerie Trickster.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Skyfolk]]
-|factionChange=-5 [[The Skyfolk]]
-|zones=[[Plane of the Willow]]
+|faction={{FactionLink|stablekey=faction:skyfolk|link=The Skyfolk|text=The Skyfolk}}
+|factionChange=-5 {{FactionLink|stablekey=faction:skyfolk|link=The Skyfolk|text=The Skyfolk}}
+|zones={{ZoneLink|stablekey=zone:planeoffernalla|link=Plane of the Willow|text=Plane of the Willow}}
 |coordinates=1121.8 x 27.7 x 1144.5<br>1130.6 x 27.7 x 1151.1
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|Planar Stone Shards}} (12.6%)<br>{{ItemLink|Twinkling Boots}} (6.7%)<br>{{ItemLink|Planar Stone}} (5.6%)<br>{{ItemLink|Spell Scroll: Group Regrowth}} (2.3%)<br>{{ItemLink|Spell Scroll: Necrotizing Bloom}} (2.3%)<br>{{ItemLink|Spell Scroll: Vibrant Regrowth}} (2.3%)<br>{{ItemLink|Chthonic Armwraps}} (1.7%)<br>{{ItemLink|Chthonic Handwraps}} (1.7%)<br>{{ItemLink|Chthonic Hood}} (1.7%)<br>{{ItemLink|Chthonic Pants}} (1.7%)<br>{{ItemLink|Chthonic Sandals}} (1.7%)<br>{{ItemLink|Chthonic Tunic}} (1.7%)<br>{{ItemLink|Chthonic Wristlet}} (1.7%)
+|droprates={{ItemLink|stablekey=item:ore - planar shard|link=Planar Stone Shards|text=Planar Stone Shards|image=Planar Stone Shards.png}} (12.6%)<br>{{ItemLink|stablekey=item:foot - 42 - twinkling slippers|link=Twinkling Boots|text=Twinkling Boots|image=Twinkling Boots.png}} (6.7%)<br>{{ItemLink|stablekey=item:ore - planar stone|link=Planar Stone|text=Planar Stone|image=Planar Stone.png}} (5.6%)<br>{{ItemLink|stablekey=item:spell scroll - group regrowth|link=Spell Scroll: Group Regrowth|text=Spell Scroll: Group Regrowth|image=Spell Scroll: Group Regrowth.png}} (2.3%)<br>{{ItemLink|stablekey=item:spell scroll - necrotizing bloom|link=Spell Scroll: Necrotizing Bloom|text=Spell Scroll: Necrotizing Bloom|image=Spell Scroll: Necrotizing Bloom.png}} (2.3%)<br>{{ItemLink|stablekey=item:spell scroll - vibrant regrowth|link=Spell Scroll: Vibrant Regrowth|text=Spell Scroll: Vibrant Regrowth|image=Spell Scroll: Vibrant Regrowth.png}} (2.3%)<br>{{ItemLink|stablekey=item:arm - 42 - chthonic armwraps|link=Chthonic Armwraps|text=Chthonic Armwraps|image=Chthonic Armwraps.png}} (1.7%)<br>{{ItemLink|stablekey=item:glove - 42 - chthonic gloves|link=Chthonic Handwraps|text=Chthonic Handwraps|image=Chthonic Handwraps.png}} (1.7%)<br>{{ItemLink|stablekey=item:head - 42 - chthonic hood|link=Chthonic Hood|text=Chthonic Hood|image=Chthonic Hood.png}} (1.7%)<br>{{ItemLink|stablekey=item:leg - 42 - chthonic pants|link=Chthonic Pants|text=Chthonic Pants|image=Chthonic Pants.png}} (1.7%)<br>{{ItemLink|stablekey=item:foot - 42 - chthonic sandals|link=Chthonic Sandals|text=Chthonic Sandals|image=Chthonic Sandals.png}} (1.7%)<br>{{ItemLink|stablekey=item:chest - 42 - chthonic tunic|link=Chthonic Tunic|text=Chthonic Tunic|image=Chthonic Tunic.png}} (1.7%)<br>{{ItemLink|stablekey=item:wrist - 42 - chthonic bracer|link=Chthonic Wristlet|text=Chthonic Wristlet|image=Chthonic Wristlet.png}} (1.7%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

@@ -3,15 +3,15 @@
 |image=[[File:Coiling Dusker.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Mysterious Portal|Mysterious Portal (3)]]
+|zones={{ZoneLink|stablekey=zone:ripperportal|link=Mysterious Portal|text=Mysterious Portal (3)}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=1 minute
 |guaranteeddrops=
-|droprates={{ItemLink|Reptilian Scales}} (33.5%)<br>{{ItemLink|Coiling Belt}} (6.7%)
+|droprates={{ItemLink|stablekey=item:gen - scaled skin|link=Reptilian Scales|text=Reptilian Scales|image=Reptilian Scales.png}} (33.5%)<br>{{ItemLink|stablekey=item:belt - 28 - coiled belt|link=Coiling Belt|text=Coiling Belt|image=Coiling Belt.png}} (6.7%)
 |level=32
 |levelmodmin=0
 |levelmodmax=0

@@ -5,7 +5,7 @@
 |description=(Taunt) PBAE Taunt Spell
 |type=PBAE
 |line=Pal_Other_Debuff
-|classes=[[Paladin]] (33)
+|classes={{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}} (33)
 |required_level=33
 |manacost=500
 |aggro=4000
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Celestial Pull II}}
+|source={{ItemLink|stablekey=item:spell scroll - celestial pull ii|link=Spell Scroll: Celestial Pull II|text=Spell Scroll: Celestial Pull II|image=Spell Scroll: Celestial Pull II.png}}
 |used_by=
 }}

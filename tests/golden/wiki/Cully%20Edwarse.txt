@@ -3,9 +3,9 @@
 |image=[[File:Cully Edwarse.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Citizens of Erenshor]]
-|factionChange=+1 [[The Children of Sivakaya]]<br>-20 [[The Citizens of Erenshor]]
-|zones=[[Port Azure]]
+|faction={{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}
+|factionChange=+1 {{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}<br>-20 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}
+|zones={{ZoneLink|stablekey=zone:azure|link=Port Azure|text=Port Azure}}
 |coordinates=232.3 x 26.1 x 218.4
 |spawnchance=
 |spawntype=

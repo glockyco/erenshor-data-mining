@@ -3,7 +3,7 @@
 |stablekey=item:belt - 34 - exhalted belt
 |type=
 |vendorsource=
-|source=[[Exalted Firebone]] (66.7%)
+|source={{CharacterLink|stablekey=character:exalted skeleton|link=Exalted Firebone|text=Exalted Firebone}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Worn
 |proc_chance=
 |proc_spell_icon=Protection.png
-|proc_spell_name=[[Protection]]
+|proc_spell_name={{AbilityLink|stablekey=spell:all - protection|link=Protection|text=Protection|image=Protection.png}}
 |proc_spell_level=10
 |proc_spell_duration_ticks=300
 |proc_spell_type=Beneficial

@@ -5,7 +5,7 @@
 |description=Summon a companion to fight alongside you.
 |type=Pet
 |line=Generic
-|classes=[[Druid]] (4)
+|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (4)
 |required_level=4
 |manacost=60
 |aggro=
@@ -30,7 +30,7 @@
 |target_healing=
 |caster_healing=
 |shield_amount=
-|pet_to_summon=[[Summoned: Decayed Fawn]]
+|pet_to_summon={{CharacterLink|stablekey=character:summoned decayed fawn|link=Summoned: Decayed Fawn|text=Summoned: Decayed Fawn}}
 |status_effect=
 |add_proc=
 |add_proc_chance=
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Summon Decayed Fawn}}
+|source={{ItemLink|stablekey=item:spell scroll - summon decayed fawn|link=Spell Scroll: Summon Decayed Fawn|text=Spell Scroll: Summon Decayed Fawn|image=Spell Scroll: Summon Decayed Fawn.png}}
 |used_by=
 }}

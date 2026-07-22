@@ -2,7 +2,7 @@
 |title=The Birth of Port Azure
 |stablekey=item:book - the construction of port azure
 |type=[[Lore Items|Lore]]
-|vendorsource=[[Rory Gilmare]]
+|vendorsource={{CharacterLink|stablekey=character:rory gilmare:azure:145.35:26.28:341.61|link=Rory Gilmare|text=Rory Gilmare}}
 |source=
 |othersource=
 |questsource=

@@ -3,10 +3,10 @@
 |stablekey=item:gen - bear meat
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Fungal Bear]] (95.3%)<br>[[Grizzlepaw]] (91.6%)<br>[[Planar Grizzly]] (74.5%)<br>[[A Brown Bear]] (38.6%)<br>[[A Brown Bear Cub]] (38.6%)<br>[[A Grizzly Bear]] (27.8%)<br>[[Dream]] (27.8%)<br>[[Kodiak]] (27.8%)<br>[[Albino Kodiak]] (14.8%)
+|source={{CharacterLink|stablekey=character:fungal bear|link=Fungal Bear|text=Fungal Bear}} (95.3%)<br>{{CharacterLink|stablekey=character:grizzlepaw|link=Grizzlepaw|text=Grizzlepaw}} (91.6%)<br>{{CharacterLink|stablekey=character:planar grizzly|link=Planar Grizzly|text=Planar Grizzly}} (74.5%)<br>{{CharacterLink|stablekey=character:brown bear|link=A Brown Bear|text=A Brown Bear}} (38.6%)<br>{{CharacterLink|stablekey=character:brown bear cub|link=A Brown Bear Cub|text=A Brown Bear Cub}} (38.6%)<br>{{CharacterLink|stablekey=character:a grizzly bear|link=A Grizzly Bear|text=A Grizzly Bear}} (27.8%)<br>{{CharacterLink|stablekey=character:dreambear|link=Dream|text=Dream}} (27.8%)<br>{{CharacterLink|stablekey=character:kodiak|link=Kodiak|text=Kodiak}} (27.8%)<br>{{CharacterLink|stablekey=character:albino kodiak|link=Albino Kodiak|text=Albino Kodiak}} (14.8%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Bear Meat for Fredrick}}
+|relatedquest={{QuestLink|Bear Meat for Fredrick}}<br>{{QuestLink|stablekey=quest:bearmeat|link=Bear Meat for Fredrick|text=Bear Meat for Fredrick}}
 |craftsource=
 |componentfor=
 |buy=8

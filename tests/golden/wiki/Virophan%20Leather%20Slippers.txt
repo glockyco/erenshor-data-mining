@@ -3,7 +3,7 @@
 |stablekey=item:foot - 21 - virophan leather slippers
 |type=
 |vendorsource=
-|source=[[Balaste the Fallen]] (33.3%)
+|source={{CharacterLink|stablekey=character:balaste the cursed|link=Balaste the Fallen|text=Balaste the Fallen}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

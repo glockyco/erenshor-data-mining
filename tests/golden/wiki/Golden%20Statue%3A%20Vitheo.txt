@@ -3,7 +3,7 @@
 |stablekey=item:furniture - gold statue vitheo
 |type=
 |vendorsource=
-|source=[[Vithean Immortal]] (0.2%)
+|source={{CharacterLink|stablekey=character:vithean immortal:1|link=Vithean Immortal|text=Vithean Immortal}} (0.2%)
 |othersource=
 |questsource=
 |relatedquest=

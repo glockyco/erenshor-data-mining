@@ -3,7 +3,7 @@
 |stablekey=item:back - 35 - azynthian cape
 |type=
 |vendorsource=
-|source=[[Oracle Miress]] (33.3%)
+|source={{CharacterLink|stablekey=character:oracle miress|link=Oracle Miress|text=Oracle Miress}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Wood Dining Set
 |stablekey=item:furniture - wood dining
 |type=
-|vendorsource=[[Breena Carpenter]]
+|vendorsource={{CharacterLink|stablekey=character:breena carpenter|link=Breena Carpenter|text=Breena Carpenter}}
 |source=
 |othersource=
 |questsource=

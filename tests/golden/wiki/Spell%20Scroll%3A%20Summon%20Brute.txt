@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - summon brute
 |type=[[:Category:Ability Books|Spell Scroll]]
 |vendorsource=
-|source=[[Wardwarped Gorilla]] (14.2%)
+|source={{CharacterLink|stablekey=character:wardwarped gorilla|link=Wardwarped Gorilla|text=Wardwarped Gorilla}} (14.2%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=22500
 |sell=14625
-|taughtspell={{AbilityLink|Summon Brute}}
+|taughtspell={{AbilityLink|stablekey=spell:dru - summon brute|link=Summon Brute|text=Summon Brute|image=Summon Brute.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

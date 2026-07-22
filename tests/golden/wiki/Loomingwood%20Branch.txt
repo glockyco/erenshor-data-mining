@@ -3,10 +3,10 @@
 |stablekey=item:gen - loomingwood branch
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[The Gardener of Loomingwood]] (100.0%)<br>[[Thorn (Enemy)|Thorn]] (12.9%)<br>[[Aviak]] (9.7%)<br>[[Diva]] (9.1%)<br>[[Devoratrix]] (6.9%)<br>[[Planar Flora]] (6.9%)
+|source={{CharacterLink|stablekey=character:gardener|link=The Gardener of Loomingwood|text=The Gardener of Loomingwood}} (100.0%)<br>{{CharacterLink|stablekey=character:snappy|link=Thorn (Enemy)|text=Thorn}} (12.9%)<br>{{CharacterLink|stablekey=character:aviak|link=Aviak|text=Aviak}} (9.7%)<br>{{CharacterLink|stablekey=character:diva|link=Diva|text=Diva}} (9.1%)<br>{{CharacterLink|stablekey=character:devoratrix|link=Devoratrix|text=Devoratrix}} (6.9%)<br>{{CharacterLink|stablekey=character:planar snap|link=Planar Flora|text=Planar Flora}} (6.9%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|The Life Flame}}
+|relatedquest={{QuestLink|The Life Flame}}<br>{{QuestLink|stablekey=quest:thelifeflame|link=The Life Flame|text=The Life Flame}}
 |craftsource=
 |componentfor=
 |buy=15

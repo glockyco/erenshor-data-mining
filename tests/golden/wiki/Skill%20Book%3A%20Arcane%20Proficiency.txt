@@ -2,7 +2,7 @@
 |title=Skill Book: Arcane Proficiency
 |stablekey=item:skillbook - arcane proficiency
 |type=[[Ability Books]]
-|vendorsource=[[Edwin Ansegg]]
+|vendorsource={{CharacterLink|stablekey=character:edwin ansegg|link=Edwin Ansegg|text=Edwin Ansegg}}
 |source=
 |othersource=
 |questsource=
@@ -12,7 +12,7 @@
 |buy=650
 |sell=422
 |taughtspell=
-|taughtskill={{AbilityLink|Arcane Proficiency}}
+|taughtskill={{AbilityLink|stablekey=skill:arcane proficiency|link=Arcane Proficiency|text=Arcane Proficiency|image=Arcane Proficiency.png}}
 |guaranteeddrops=
 |droprates=
 }}

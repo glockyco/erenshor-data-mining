@@ -2,7 +2,7 @@
 |title=Spell Scroll: Targeted Gust
 |stablekey=item:spell scroll - targeted gust
 |type=[[Ability Books|Spell Scroll]]
-|vendorsource=[[Windlae Oldseer]]
+|vendorsource={{CharacterLink|stablekey=character:windlae oldseer|link=Windlae Oldseer|text=Windlae Oldseer}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=325
 |sell=211
-|taughtspell={{AbilityLink|Targeted Gust}}
+|taughtspell={{AbilityLink|stablekey=spell:stc - targeted gust|link=Targeted Gust|text=Targeted Gust|image=Targeted Gust.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

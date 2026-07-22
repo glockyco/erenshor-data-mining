@@ -3,10 +3,10 @@
 |stablekey=item:gen - pristine grass spider carapace
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[A Mature Grass Spider]] (12.9%)<br>[[A Grass Spider]] (2.8%)
+|source={{CharacterLink|stablekey=character:mature grass spider|link=A Mature Grass Spider|text=A Mature Grass Spider}} (12.9%)<br>{{CharacterLink|stablekey=character:grass spider|link=A Grass Spider|text=A Grass Spider}} (2.8%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|link=The Duskenlight Ritual (Quest){{!}}The Duskenlight Ritual}}
+|relatedquest={{QuestLink|link=The Duskenlight Ritual (Quest){{!}}The Duskenlight Ritual}}<br>{{QuestLink|stablekey=quest:theduskenlightritual|link=The Duskenlight Ritual (Quest)|text=The Duskenlight Ritual}}
 |craftsource=
 |componentfor=
 |buy=100

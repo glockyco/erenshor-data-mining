@@ -2,7 +2,7 @@
 |title=Spell Scroll: Mutual Ache
 |stablekey=item:spell scroll - mutual ache
 |type=
-|vendorsource=[[Aillee Desten]]<br>[[Xander Zaxtrough]]<br>[[Zane Theavale]]
+|vendorsource={{CharacterLink|stablekey=character:aillee desten|link=Aillee Desten|text=Aillee Desten}}<br>{{CharacterLink|stablekey=character:xander zaxtrough|link=Xander Zaxtrough|text=Xander Zaxtrough}}<br>{{CharacterLink|stablekey=character:zane theavale|link=Zane Theavale|text=Zane Theavale}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=220
 |sell=143
-|taughtspell={{AbilityLink|Mutual Ache}}
+|taughtspell={{AbilityLink|stablekey=spell:reav - mutual ache|link=Mutual Ache|text=Mutual Ache|image=Mutual Ache.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

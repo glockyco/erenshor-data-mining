@@ -3,15 +3,15 @@
 |image=[[File:Solunarian Chest.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Soluna's Celestial Plane]]
+|zones={{ZoneLink|stablekey=zone:planeofsoluna|link=Soluna's Celestial Plane|text=Soluna's Celestial Plane}}
 |coordinates=90.8 x 338.1 x 990.3
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
-|guaranteeddrops={{ItemLink|Cometshard Shield}}<br>{{ItemLink|Ellipse Cord}}<br>{{ItemLink|End Times}}<br>{{ItemLink|Lunar Bangle}}<br>{{ItemLink|Meteor Metal Boots}}<br>{{ItemLink|Ring of Tidal Winds}}
-|droprates={{ItemLink|Sivakrux}} (98.3%)<br>{{ItemLink|Cometshard Shield}} (40.4%)<br>{{ItemLink|Ellipse Cord}} (40.4%)<br>{{ItemLink|End Times}} (40.4%)<br>{{ItemLink|Lunar Bangle}} (40.4%)<br>{{ItemLink|Meteor Metal Boots}} (40.4%)<br>{{ItemLink|Ring of Tidal Winds}} (33.3%)<br>{{ItemLink|Planar Stone}} (9.6%)
+|guaranteeddrops={{ItemLink|stablekey=item:secondary - 42 - cometshard shield|link=Cometshard Shield|text=Cometshard Shield|image=Cometshard Shield.png}}<br>{{ItemLink|stablekey=item:belt - 42 - ellipse cord|link=Ellipse Cord|text=Ellipse Cord|image=Ellipse Cord.png}}<br>{{ItemLink|stablekey=item:aura - end times|link=End Times|text=End Times|image=End Times.png}}<br>{{ItemLink|stablekey=item:arm - 42 - lunar bangle|link=Lunar Bangle|text=Lunar Bangle|image=Lunar Bangle.png}}<br>{{ItemLink|stablekey=item:foot - 42 - meteor metal boots|link=Meteor Metal Boots|text=Meteor Metal Boots|image=Meteor Metal Boots.png}}<br>{{ItemLink|stablekey=item:ring - 42 - ring of tidal winds|link=Ring of Tidal Winds|text=Ring of Tidal Winds|image=Ring of Tidal Winds.png}}
+|droprates={{ItemLink|stablekey=item:gen - sivak|link=Sivakrux|text=Sivakrux|image=Sivakrux.png}} (98.3%)<br>{{ItemLink|stablekey=item:secondary - 42 - cometshard shield|link=Cometshard Shield|text=Cometshard Shield|image=Cometshard Shield.png}} (40.4%)<br>{{ItemLink|stablekey=item:belt - 42 - ellipse cord|link=Ellipse Cord|text=Ellipse Cord|image=Ellipse Cord.png}} (40.4%)<br>{{ItemLink|stablekey=item:aura - end times|link=End Times|text=End Times|image=End Times.png}} (40.4%)<br>{{ItemLink|stablekey=item:arm - 42 - lunar bangle|link=Lunar Bangle|text=Lunar Bangle|image=Lunar Bangle.png}} (40.4%)<br>{{ItemLink|stablekey=item:foot - 42 - meteor metal boots|link=Meteor Metal Boots|text=Meteor Metal Boots|image=Meteor Metal Boots.png}} (40.4%)<br>{{ItemLink|stablekey=item:ring - 42 - ring of tidal winds|link=Ring of Tidal Winds|text=Ring of Tidal Winds|image=Ring of Tidal Winds.png}} (33.3%)<br>{{ItemLink|stablekey=item:ore - planar stone|link=Planar Stone|text=Planar Stone|image=Planar Stone.png}} (9.6%)
 |level=1
 |levelmodmin=0
 |levelmodmax=0

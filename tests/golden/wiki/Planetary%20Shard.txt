@@ -3,7 +3,7 @@
 |stablekey=item:aura - planetary shard
 |type=
 |vendorsource=
-|source=[[Khorso, Soluna's Advisor]] (70.0%)
+|source={{CharacterLink|stablekey=character:khorso|link=Khorso, Soluna's Advisor|text=Khorso, Soluna's Advisor}} (70.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -22,7 +22,7 @@
 |name=Planetary Shard
 |description=
 |aura_spell_icon=Universe's Will.png
-|aura_spell_name=[[Universe's Will]]
+|aura_spell_name={{AbilityLink|stablekey=spell:aura - universe's will|link=Universe's Will|text=Universe's Will|image=Universe's Will.png}}
 |aura_spell_level=25
 |aura_spell_duration_ticks=2
 |aura_spell_type=Beneficial

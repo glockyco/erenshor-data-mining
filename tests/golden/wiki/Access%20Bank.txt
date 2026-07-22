@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|A Magical Bag}}<br>{{ItemLink|Ethereal Vault}}
+|itemswitheffect={{ItemLink|stablekey=item:gen - magical bag|link=A Magical Bag|text=A Magical Bag|image=A Magical Bag.png}}<br>{{ItemLink|stablekey=item:cons - ethereal vault|link=Ethereal Vault|text=Ethereal Vault|image=Ethereal Vault.png}}
 |source=
 |used_by=
 }}

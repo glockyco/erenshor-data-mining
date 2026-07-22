@@ -3,7 +3,7 @@
 |stablekey=item:arm - 25 - gifted sleeves
 |type=
 |vendorsource=
-|source=[[Julianna Priel]] (50.0%)
+|source={{CharacterLink|stablekey=character:julianna priel 1|link=Julianna Priel|text=Julianna Priel}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

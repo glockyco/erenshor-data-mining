@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Azure Mead}}<br>{{ItemLink|Seaslimed Bracelet}}<br>{{ItemLink|Vithean Brew}}<br>{{ItemLink|Water}}
+|itemswitheffect={{ItemLink|stablekey=item:cons - azure mead|link=Azure Mead|text=Azure Mead|image=Azure Mead.png}}<br>{{ItemLink|stablekey=item:wrist - 6 - seaslimed bracelet|link=Seaslimed Bracelet|text=Seaslimed Bracelet|image=Seaslimed Bracelet.png}}<br>{{ItemLink|stablekey=item:cons - vithean brew|link=Vithean Brew|text=Vithean Brew|image=Vithean Brew.png}}<br>{{ItemLink|stablekey=item:cons - water|link=Water|text=Water|image=Water.png}}
 |source=
 |used_by=
 }}

@@ -3,7 +3,7 @@
 |stablekey=item:bow - 30 - deathgiver
 |type=
 |vendorsource=
-|source=[[A Protected Memory]] (25.0%)
+|source={{CharacterLink|stablekey=character:3 - memory of the gift|link=A Protected Memory|text=A Protected Memory}} (25.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=4
 |proc_spell_icon=Cull the Unfit.png
-|proc_spell_name=[[Cull the Unfit]]
+|proc_spell_name={{AbilityLink|stablekey=spell:dru - cull the unfit|link=Cull the Unfit|text=Cull the Unfit|image=Cull the Unfit.png}}
 |proc_spell_level=28
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

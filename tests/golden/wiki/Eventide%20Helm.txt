@@ -3,7 +3,7 @@
 |stablekey=item:head - 42 - eventide helm
 |type=
 |vendorsource=
-|source=[[Solunarian Sunbringer]] (1.7%)<br>[[Solunarian Moonkeeper]] (1.1%)<br>[[Solunarian Paladin]] (1.0%)
+|source={{CharacterLink|stablekey=character:solunarian sunbringer|link=Solunarian Sunbringer|text=Solunarian Sunbringer}} (1.7%)<br>{{CharacterLink|stablekey=character:solunarian moonkeeper|link=Solunarian Moonkeeper|text=Solunarian Moonkeeper}} (1.1%)<br>{{CharacterLink|stablekey=character:solunarian paladin combined|link=Solunarian Paladin|text=Solunarian Paladin}} (1.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Worn
 |proc_chance=
 |proc_spell_icon=Dark Sight.png
-|proc_spell_name=[[Dark Sight]]
+|proc_spell_name={{AbilityLink|stablekey=spell:none - dark sight|link=Dark Sight|text=Dark Sight|image=Dark Sight.png}}
 |proc_spell_level=41
 |proc_spell_duration_ticks=2
 |proc_spell_type=Beneficial

@@ -3,7 +3,7 @@
 |stablekey=item:arm - 37 - age-old armlet
 |type=
 |vendorsource=
-|source=[[Ripper DeMerth (Character)|Ripper DeMerth]] (33.3%)
+|source={{CharacterLink|stablekey=character:ripper demerth|link=Ripper DeMerth (Character)|text=Ripper DeMerth}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

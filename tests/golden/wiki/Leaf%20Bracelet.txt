@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 19 - leaf bracelet
 |type=
 |vendorsource=
-|source=[[A Protected Memory]] (50.0%)
+|source={{CharacterLink|stablekey=character:1 - memory of defeat|link=A Protected Memory|text=A Protected Memory}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

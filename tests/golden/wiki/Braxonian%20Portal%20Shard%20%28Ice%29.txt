@@ -3,10 +3,10 @@
 |stablekey=item:gen - braxonian portal shard - ice
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Braxonian Planar Guard (Ice)]] (100.0%)
+|source={{CharacterLink|stablekey=character:braxonian planar guardian ice|link=Braxonian Planar Guard (Ice)|text=Braxonian Planar Guard (Ice)}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|A Lost Portal}}
+|relatedquest={{QuestLink|A Lost Portal}}<br>{{QuestLink|stablekey=quest:braxrune|link=A Lost Portal|text=A Lost Portal}}
 |craftsource=
 |componentfor=
 |buy=

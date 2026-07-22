@@ -3,9 +3,9 @@
 |stablekey=item:neck - 8 - seafarer's pendant
 |type=
 |vendorsource=
-|source=[[Aragath Swellsteer]] (100.0%)
+|source={{CharacterLink|stablekey=character:aragath swellsteer|link=Aragath Swellsteer|text=Aragath Swellsteer}} (100.0%)
 |othersource=
-|questsource={{QuestLink|Aragath's Imprisonment}}
+|questsource={{QuestLink|Aragath's Imprisonment}}<br>{{QuestLink|stablekey=quest:aragath|link=Aragath's Imprisonment|text=Aragath's Imprisonment}}
 |relatedquest=
 |craftsource=
 |componentfor=

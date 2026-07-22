@@ -2,7 +2,7 @@
 |title=Skill Book: Flaming Arrow
 |stablekey=item:skillbook - flaming arrow
 |type=[[Ability Books|Skill Book]]
-|vendorsource=[[Samuel Thatcher]]<br>[[Windlae Oldseer]]
+|vendorsource={{CharacterLink|stablekey=character:shopkeeper samuel|link=Samuel Thatcher|text=Samuel Thatcher}}<br>{{CharacterLink|stablekey=character:windlae oldseer|link=Windlae Oldseer|text=Windlae Oldseer}}
 |source=
 |othersource=
 |questsource=
@@ -12,7 +12,7 @@
 |buy=1100
 |sell=715
 |taughtspell=
-|taughtskill={{AbilityLink|Flaming Arrow}}
+|taughtskill={{AbilityLink|stablekey=skill:archery - flaming arrow|link=Flaming Arrow|text=Flaming Arrow|image=Flaming Arrow.png}}
 |guaranteeddrops=
 |droprates=
 }}

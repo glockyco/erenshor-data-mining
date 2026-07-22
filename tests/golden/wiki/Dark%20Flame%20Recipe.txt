@@ -3,7 +3,7 @@
 |stablekey=item:gen - rekindling the flame 2
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Cursed Vithean Conspirer]] (6.8%)<br>[[Cursed Vithean Traitor]] (6.8%)<br>[[Vithean Betrayer]] (4.6%)
+|source={{CharacterLink|stablekey=character:vithean master|link=Cursed Vithean Conspirer|text=Cursed Vithean Conspirer}} (6.8%)<br>{{CharacterLink|stablekey=character:vithean hydromancer|link=Cursed Vithean Traitor|text=Cursed Vithean Traitor}} (6.8%)<br>{{CharacterLink|stablekey=character:vithean windblade|link=Vithean Betrayer|text=Vithean Betrayer}} (4.6%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|link=The Dark Flame}}

@@ -3,15 +3,15 @@
 |image=[[File:Elementalist Mizuki.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Brax's Plane of Elements]]
+|zones={{ZoneLink|stablekey=zone:planeofbrax|link=Brax's Plane of Elements|text=Brax's Plane of Elements}}
 |coordinates=2174.7 x 55.1 x 402.5
 |spawnchance=
 |spawntype=
 |respawn=30 minutes
-|guaranteeddrops={{ItemLink|Elemental Fourblade}}<br>{{ItemLink|Fiery Thoughts}}<br>{{ItemLink|Glacier Belt}}
-|droprates={{ItemLink|Planar Stone Shards}} (75.9%)<br>{{ItemLink|Elemental Fourblade}} (68.9%)<br>{{ItemLink|Fiery Thoughts}} (68.9%)<br>{{ItemLink|Glacier Belt}} (68.9%)<br>{{ItemLink|Planar Stone}} (46.7%)
+|guaranteeddrops={{ItemLink|stablekey=item:weap - 42 - elemental four-blade|link=Elemental Fourblade|text=Elemental Fourblade|image=Elemental Fourblade.png}}<br>{{ItemLink|stablekey=item:head - 42 - fiery thoughts|link=Fiery Thoughts|text=Fiery Thoughts|image=Fiery Thoughts.png}}<br>{{ItemLink|stablekey=item:belt - 42 - glacier belt|link=Glacier Belt|text=Glacier Belt|image=Glacier Belt.png}}
+|droprates={{ItemLink|stablekey=item:ore - planar shard|link=Planar Stone Shards|text=Planar Stone Shards|image=Planar Stone Shards.png}} (75.9%)<br>{{ItemLink|stablekey=item:weap - 42 - elemental four-blade|link=Elemental Fourblade|text=Elemental Fourblade|image=Elemental Fourblade.png}} (68.9%)<br>{{ItemLink|stablekey=item:head - 42 - fiery thoughts|link=Fiery Thoughts|text=Fiery Thoughts|image=Fiery Thoughts.png}} (68.9%)<br>{{ItemLink|stablekey=item:belt - 42 - glacier belt|link=Glacier Belt|text=Glacier Belt|image=Glacier Belt.png}} (68.9%)<br>{{ItemLink|stablekey=item:ore - planar stone|link=Planar Stone|text=Planar Stone|image=Planar Stone.png}} (46.7%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

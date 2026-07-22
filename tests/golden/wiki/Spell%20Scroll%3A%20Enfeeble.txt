@@ -2,8 +2,8 @@
 |title=Spell Scroll: Enfeeble
 |stablekey=item:spell scroll - enfeeble
 |type=
-|vendorsource=[[Grant Haxoway]]
-|source=[[Sivakayan Reaver]] (3.0%)
+|vendorsource={{CharacterLink|stablekey=character:grant haxoway|link=Grant Haxoway|text=Grant Haxoway}}
+|source={{CharacterLink|stablekey=character:sivakayan reaver|link=Sivakayan Reaver|text=Sivakayan Reaver}} (3.0%)<br>{{CharacterLink|stablekey=character:sivakayan reaver:1|link=Sivakayan Reaver|text=Sivakayan Reaver}} (3.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=26500
 |sell=17225
-|taughtspell={{AbilityLink|Enfeeble}}
+|taughtspell={{AbilityLink|stablekey=spell:reav - enfeeble|link=Enfeeble|text=Enfeeble|image=Enfeeble.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

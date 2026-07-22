@@ -3,10 +3,10 @@
 |stablekey=item:gen - inert rune of vitheo
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Apparition of Vitheo]] (100.0%)
+|source={{CharacterLink|stablekey=character:remains of vitheo|link=Apparition of Vitheo|text=Apparition of Vitheo}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|A Vithean Rune}}
+|relatedquest={{QuestLink|A Vithean Rune}}<br>{{QuestLink|stablekey=quest:vitheosraidrune|link=A Vithean Rune|text=A Vithean Rune}}
 |craftsource=
 |componentfor=
 |buy=

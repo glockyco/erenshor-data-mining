@@ -3,10 +3,10 @@
 |stablekey=item:furniture - enchanted smithy blueprint
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Stoneman]] (6.4%)<br>[[Stoneman Obsidian]] (2.0%)<br>[[Stoneman Knight]] (1.1%)
+|source={{CharacterLink|stablekey=character:stoneman warrior|link=Stoneman|text=Stoneman}} (6.4%)<br>{{CharacterLink|stablekey=character:stoneman obsidian|link=Stoneman Obsidian|text=Stoneman Obsidian}} (2.0%)<br>{{CharacterLink|stablekey=character:stoneman knight|link=Stoneman Knight|text=Stoneman Knight}} (1.1%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Crafting: Enchanted Smithy}}
+|relatedquest={{QuestLink|Crafting: Enchanted Smithy}}<br>{{QuestLink|stablekey=quest:furniture-smithy|link=Crafting: Enchanted Smithy|text=Crafting: Enchanted Smithy}}
 |craftsource=
 |componentfor=
 |buy=

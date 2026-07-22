@@ -3,15 +3,15 @@
 |image=[[File:Stoneman Colossus.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Rockshade Hold]]
+|zones={{ZoneLink|stablekey=zone:rockshade|link=Rockshade Hold|text=Rockshade Hold}}
 |coordinates=872.7 x 100.8 x 681.6
 |spawnchance=80%
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Charred Sleeves}}<br>{{ItemLink|Diamond Claymore}}
-|droprates={{ItemLink|Polished Stone}} (94.6%)<br>{{ItemLink|Charred Sleeves}} (66.7%)<br>{{ItemLink|Diamond Claymore}} (33.3%)<br>{{ItemLink|Blueprint: Stone Auction}} (0.5%)<br>{{ItemLink|Blueprint: Stone Bank}} (0.5%)<br>{{ItemLink|Blueprint: Stone Dining}} (0.5%)<br>{{ItemLink|Blueprint: Stone Fountain}} (0.5%)<br>{{ItemLink|Blueprint: Stone Training Room}} (0.5%)<br>{{ItemLink|Blueprint: Stone Vendor}} (0.5%)
+|guaranteeddrops={{ItemLink|stablekey=item:arm - 25 - charred epaulets|link=Charred Sleeves|text=Charred Sleeves|image=Charred Sleeves.png}}<br>{{ItemLink|stablekey=item:weap - 25 - diamond claymore|link=Diamond Claymore|text=Diamond Claymore|image=Diamond Claymore.png}}
+|droprates={{ItemLink|stablekey=item:gen - polished stone|link=Polished Stone|text=Polished Stone|image=Polished Stone.png}} (94.6%)<br>{{ItemLink|stablekey=item:arm - 25 - charred epaulets|link=Charred Sleeves|text=Charred Sleeves|image=Charred Sleeves.png}} (66.7%)<br>{{ItemLink|stablekey=item:weap - 25 - diamond claymore|link=Diamond Claymore|text=Diamond Claymore|image=Diamond Claymore.png}} (33.3%)<br>{{ItemLink|stablekey=item:furniture - stone auction blueprint|link=Blueprint: Stone Auction|text=Blueprint: Stone Auction|image=Blueprint: Stone Auction.png}} (0.5%)<br>{{ItemLink|stablekey=item:furniture - stone bank blueprint|link=Blueprint: Stone Bank|text=Blueprint: Stone Bank|image=Blueprint: Stone Bank.png}} (0.5%)<br>{{ItemLink|stablekey=item:furniture - stone dining blueprint|link=Blueprint: Stone Dining|text=Blueprint: Stone Dining|image=Blueprint: Stone Dining.png}} (0.5%)<br>{{ItemLink|stablekey=item:furniture - stone fountain blueprint|link=Blueprint: Stone Fountain|text=Blueprint: Stone Fountain|image=Blueprint: Stone Fountain.png}} (0.5%)<br>{{ItemLink|stablekey=item:furniture - stone training blueprint|link=Blueprint: Stone Training Room|text=Blueprint: Stone Training Room|image=Blueprint: Stone Training Room.png}} (0.5%)<br>{{ItemLink|stablekey=item:furniture - stone vendor blueprint|link=Blueprint: Stone Vendor|text=Blueprint: Stone Vendor|image=Blueprint: Stone Vendor.png}} (0.5%)
 |level=27
 |levelmodmin=0
 |levelmodmax=0

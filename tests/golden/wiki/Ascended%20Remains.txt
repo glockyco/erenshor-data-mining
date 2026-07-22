@@ -3,7 +3,7 @@
 |stablekey=item:hand - 37 - ascended remains
 |type=
 |vendorsource=
-|source=[[Vessel Siraethe]] (28.6%)
+|source={{CharacterLink|stablekey=character:siraethe|link=Vessel Siraethe|text=Vessel Siraethe}} (28.6%)
 |othersource=
 |questsource=
 |relatedquest=

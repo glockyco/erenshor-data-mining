@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Sivakayan Hookblade}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 18 - sivakayan hookblade|link=Sivakayan Hookblade|text=Sivakayan Hookblade|image=Sivakayan Hookblade.png}}
 |source=
 |used_by=
 }}

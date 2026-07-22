@@ -5,7 +5,7 @@
 |description=Lower a target's AC by 100.
 |type=StatusEffect
 |line=Duel_Other_Debuff
-|classes=[[Windblade]] (12)
+|classes={{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}} (12)
 |required_level=12
 |manacost=100
 |aggro=300
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Expose Weakness}}
-|used_by=[[Bassle Wavebreaker]]<br>[[Cagnus Marlsen]]<br>[[Chazza Priel]]<br>[[Elysia Thistlewick]]<br>[[Greater Vithean Elemental]]<br>[[Molorai Acquirer]]<br>[[Molorai Ancille]]<br>[[Molorai Anointed]]<br>[[Molorai Bloodwarden]]<br>[[Molorai Curator]]<br>[[Molorai Dockmaster]]<br>[[Molorai Mason]]<br>[[Molorai Outrider]]<br>[[Molorai Outrider]]<br>[[Molorai Specialist]]<br>[[Molorai Specialist]]<br>[[Molorai Truthseeker]]<br>[[Priel Deceiver]]<br>[[Sprig Laisey]]<br>[[Tiallia Priel]]<br>[[Vithean Elemental]]
+|source={{ItemLink|stablekey=item:spell scroll - expose weakness|link=Spell Scroll: Expose Weakness|text=Spell Scroll: Expose Weakness|image=Spell Scroll: Expose Weakness.png}}
+|used_by={{CharacterLink|stablekey=character:bassle wavebreak|link=Bassle Wavebreaker|text=Bassle Wavebreaker}}<br>{{CharacterLink|stablekey=character:cagnus marlsen|link=Cagnus Marlsen|text=Cagnus Marlsen}}<br>{{CharacterLink|stablekey=character:chazza priel|link=Chazza Priel|text=Chazza Priel}}<br>{{CharacterLink|stablekey=character:shady merchant|link=Elysia Thistlewick|text=Elysia Thistlewick}}<br>{{CharacterLink|stablekey=character:greater vithean elemental|link=Greater Vithean Elemental|text=Greater Vithean Elemental}}<br>{{CharacterLink|stablekey=character:molorai acquirer|link=Molorai Acquirer|text=Molorai Acquirer}}<br>{{CharacterLink|stablekey=character:molorai ancille|link=Molorai Ancille|text=Molorai Ancille}}<br>{{CharacterLink|stablekey=character:molorai anointed|link=Molorai Anointed|text=Molorai Anointed}}<br>{{CharacterLink|stablekey=character:molorai bloodwarden|link=Molorai Bloodwarden|text=Molorai Bloodwarden}}<br>{{CharacterLink|stablekey=character:molorai curator|link=Molorai Curator|text=Molorai Curator}}<br>{{CharacterLink|stablekey=character:molorai dockmaster|link=Molorai Dockmaster|text=Molorai Dockmaster}}<br>{{CharacterLink|stablekey=character:molorai mason|link=Molorai Mason|text=Molorai Mason}}<br>{{CharacterLink|stablekey=character:molorai outrider|link=Molorai Outrider|text=Molorai Outrider}}<br>{{CharacterLink|stablekey=character:molorai outrider 1|link=Molorai Outrider|text=Molorai Outrider}}<br>{{CharacterLink|stablekey=character:molorai specialist|link=Molorai Specialist|text=Molorai Specialist}}<br>{{CharacterLink|stablekey=character:molorai specialist 1|link=Molorai Specialist|text=Molorai Specialist}}<br>{{CharacterLink|stablekey=character:molorai truthseeker|link=Molorai Truthseeker|text=Molorai Truthseeker}}<br>{{CharacterLink|stablekey=character:priel deceiver|link=Priel Deceiver|text=Priel Deceiver}}<br>{{CharacterLink|stablekey=character:sprig laisey:duskenlight:1509.79:64.02:682.66|link=Sprig Laisey|text=Sprig Laisey}}<br>{{CharacterLink|stablekey=character:tiallia priel|link=Tiallia Priel|text=Tiallia Priel}}<br>{{CharacterLink|stablekey=character:vithean elemental|link=Vithean Elemental|text=Vithean Elemental}}
 }}

@@ -3,7 +3,7 @@
 |stablekey=item:weap - 0 - mason's pick
 |type=
 |vendorsource=
-|source=[[Molorai Mason]] (33.3%)
+|source={{CharacterLink|stablekey=character:molorai mason|link=Molorai Mason|text=Molorai Mason}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

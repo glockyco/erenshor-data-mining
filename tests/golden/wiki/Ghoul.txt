@@ -3,15 +3,15 @@
 |image=[[File:Ghoul.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Azynthi's Garden|Azynthi's Garden (Dimensional Rift)]]
+|zones={{ZoneLink|stablekey=zone:azynthi|link=Azynthi's Garden|text=Azynthi's Garden (Dimensional Rift)}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Ghoul Scab}} (87.1%)<br>{{ItemLink|Bread}} (4.9%)<br>{{ItemLink|Cloth Gloves}} (4.9%)<br>{{ItemLink|Cloth Pants}} (4.9%)<br>{{ItemLink|Cloth Shirt}} (4.9%)<br>{{ItemLink|Cloth Shoes}} (4.9%)<br>{{ItemLink|Cloth Sleeves}} (4.9%)<br>{{ItemLink|Luminstone}} (4.9%)<br>{{ItemLink|Star Stone}} (4.9%)<br>{{ItemLink|Water}} (4.9%)
+|droprates={{ItemLink|stablekey=item:gen - ghoul scab|link=Ghoul Scab|text=Ghoul Scab|image=Ghoul Scab.png}} (87.1%)<br>{{ItemLink|stablekey=item:cons - bread|link=Bread|text=Bread|image=Bread.png}} (4.9%)<br>{{ItemLink|stablekey=item:glove - 1 - cloth gloves|link=Cloth Gloves|text=Cloth Gloves|image=Cloth Gloves.png}} (4.9%)<br>{{ItemLink|stablekey=item:leg - 1 - cloth pants|link=Cloth Pants|text=Cloth Pants|image=Cloth Pants.png}} (4.9%)<br>{{ItemLink|stablekey=item:chest - 1 - cloth shirt|link=Cloth Shirt|text=Cloth Shirt|image=Cloth Shirt.png}} (4.9%)<br>{{ItemLink|stablekey=item:foot - 1 - cloth shoes|link=Cloth Shoes|text=Cloth Shoes|image=Cloth Shoes.png}} (4.9%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves|link=Cloth Sleeves|text=Cloth Sleeves|image=Cloth Sleeves.png}} (4.9%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (4.9%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (4.9%)<br>{{ItemLink|stablekey=item:cons - water|link=Water|text=Water|image=Water.png}} (4.9%)
 |level=35
 |levelmodmin=0
 |levelmodmax=0

@@ -3,15 +3,15 @@
 |image=[[File:Ancient Educator.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Ancients]]
+|faction={{FactionLink|stablekey=faction:ancientschool|link=The Ancients|text=The Ancients}}
 |factionChange=
-|zones=[[The Duskenlight Coast]]
+|zones={{ZoneLink|stablekey=zone:duskenlight|link=The Duskenlight Coast|text=The Duskenlight Coast}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Aetheria}} (19.5%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Siva-Braxon Teachings (1)}} (7.8%)<ref>If the player is already holding {{ItemLink|Siva-Braxon Teachings (1)}} in their inventory, another will not drop.</ref><br>{{ItemLink|Siva-Braxon Teachings (2)}} (7.8%)<ref>If the player is already holding {{ItemLink|Siva-Braxon Teachings (2)}} in their inventory, another will not drop.</ref><br>{{ItemLink|Siva-Braxon Teachings (3)}} (7.8%)<ref>If the player is already holding {{ItemLink|Siva-Braxon Teachings (3)}} in their inventory, another will not drop.</ref>
+|droprates={{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} (19.5%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - siva-braxon teachings|link=Siva-Braxon Teachings (1)|text=Siva-Braxon Teachings (1)|image=Siva-Braxon Teachings (1).png}} (7.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - siva-braxon teachings|link=Siva-Braxon Teachings (1)|text=Siva-Braxon Teachings (1)|image=Siva-Braxon Teachings (1).png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - siva-braxon teachings 1|link=Siva-Braxon Teachings (2)|text=Siva-Braxon Teachings (2)|image=Siva-Braxon Teachings (2).png}} (7.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - siva-braxon teachings 1|link=Siva-Braxon Teachings (2)|text=Siva-Braxon Teachings (2)|image=Siva-Braxon Teachings (2).png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - siva-braxon teachings 2|link=Siva-Braxon Teachings (3)|text=Siva-Braxon Teachings (3)|image=Siva-Braxon Teachings (3).png}} (7.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - siva-braxon teachings 2|link=Siva-Braxon Teachings (3)|text=Siva-Braxon Teachings (3)|image=Siva-Braxon Teachings (3).png}} in their inventory, another will not drop.</ref>
 |level=33
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=16-40
 |elemental=16-40
 |void=16-40
-|spells={{AbilityLink|Tenebris}}<br>{{AbilityLink|Winter's Bite}}
+|spells={{AbilityLink|stablekey=spell:arc - tenebris|link=Tenebris|text=Tenebris|image=Tenebris.png}}<br>{{AbilityLink|stablekey=spell:arc - winter's bite|link=Winter's Bite|text=Winter's Bite|image=Winter's Bite.png}}
 }}
 This enemy only appears at night and is aggressive unless you are wearing a [[Pupil's Pin]].
 

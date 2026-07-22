@@ -33,7 +33,7 @@
 |disposable=
 |effect_style=Activatable
 |effect_spell_icon=Returning Wish.png
-|effect_spell_name=[[Returning Wish]]
+|effect_spell_name={{AbilityLink|stablekey=spell:arc - returning wish|link=Returning Wish|text=Returning Wish|image=Returning Wish.png}}
 |effect_spell_level=25
 |effect_spell_duration_ticks=
 |effect_spell_type=Misc

@@ -31,7 +31,7 @@
 |caster_healing=
 |shield_amount=
 |pet_to_summon=
-|status_effect={{AbilityLink|Vithean Revenge}}
+|status_effect=[[Vithean Revenge]]
 |add_proc=
 |add_proc_chance=
 |has_lifetap=
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Apotheosis}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 38 - apotheosis|link=Apotheosis|text=Apotheosis|image=Apotheosis.png}}
 |source=
 |used_by=
 }}

@@ -3,7 +3,7 @@
 |stablekey=item:head - 28 - seafarer's hood
 |type=
 |vendorsource=
-|source=[[Molorai Dockmaster]] (66.7%)
+|source={{CharacterLink|stablekey=character:molorai dockmaster|link=Molorai Dockmaster|text=Molorai Dockmaster}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=

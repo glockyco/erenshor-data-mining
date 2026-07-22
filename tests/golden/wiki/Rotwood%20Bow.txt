@@ -2,8 +2,8 @@
 |title=Rotwood Bow
 |stablekey=item:bow - 6 - rotwood bow
 |type=
-|vendorsource=[[Windlae Oldseer]]
-|source=[[Wiggleribs]] (12.1%)<br>[[A Skeleton Soldier]] (3.5%)<br>[[A Sturdy Skeleton]] (3.4%)
+|vendorsource={{CharacterLink|stablekey=character:windlae oldseer|link=Windlae Oldseer|text=Windlae Oldseer}}
+|source={{CharacterLink|stablekey=character:wiggleribs|link=Wiggleribs|text=Wiggleribs}} (12.1%)<br>{{CharacterLink|stablekey=character:skeleton soldier|link=A Skeleton Soldier|text=A Skeleton Soldier}} (3.5%)<br>{{CharacterLink|stablekey=character:sturdy skeleton|link=A Sturdy Skeleton|text=A Sturdy Skeleton}} (3.4%)
 |othersource=
 |questsource=
 |relatedquest=

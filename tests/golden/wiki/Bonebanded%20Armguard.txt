@@ -3,7 +3,7 @@
 |stablekey=item:arm - 39 - bonebanded armguard
 |type=
 |vendorsource=
-|source=[[Balthom, Soldier of Sivakaya]] (33.3%)
+|source={{CharacterLink|stablekey=character:balthom|link=Balthom, Soldier of Sivakaya|text=Balthom, Soldier of Sivakaya}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -5,7 +5,7 @@
 |description=Deals 460 damage / tick
 |type=StatusEffect
 |line=Stormcaller_Magic_DOT
-|classes=[[Stormcaller]] (24)
+|classes={{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}} (24)
 |required_level=24
 |manacost=850
 |aggro=500
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Ionize}}
+|source={{ItemLink|stablekey=item:spell scroll - ionize|link=Spell Scroll: Ionize|text=Spell Scroll: Ionize|image=Spell Scroll: Ionize.png}}
 |used_by=
 }}

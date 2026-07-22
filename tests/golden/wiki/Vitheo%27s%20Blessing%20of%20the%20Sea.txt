@@ -65,9 +65,9 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Blade of the Sea}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 12 - blade of the sea|link=Blade of the Sea|text=Blade of the Sea|image=Blade of the Sea.png}}
 |source=
-|used_by=[[A Rottenfoot Warrior]]<br>[[A Rottenfoot Witchdoctor]]<br>[[A Seafiend]]<br>[[Aragath Swellsteer]]<br>[[Grayleigh Hawke]]<br>[[Rottenfoot Mauler]]<br>[[Rottenfoot Swampwalker]]<br>[[Rottenfoot Witchdoctor]]
+|used_by={{CharacterLink|stablekey=character:a rottenfoot goblin warrior|link=A Rottenfoot Warrior|text=A Rottenfoot Warrior}}<br>{{CharacterLink|stablekey=character:a rottenfoot goblin witchdoctor|link=A Rottenfoot Witchdoctor|text=A Rottenfoot Witchdoctor}}<br>{{CharacterLink|stablekey=character:a seafiend spirtist|link=A Seafiend|text=A Seafiend}}<br>{{CharacterLink|stablekey=character:aragath swellsteer|link=Aragath Swellsteer|text=Aragath Swellsteer}}<br>{{CharacterLink|stablekey=character:amethi plazzo|link=Grayleigh Hawke|text=Grayleigh Hawke}}<br>{{CharacterLink|stablekey=character:a rottenfoot mauler|link=Rottenfoot Mauler|text=Rottenfoot Mauler}}<br>{{CharacterLink|stablekey=character:a rottenfoot goblin female|link=Rottenfoot Swampwalker|text=Rottenfoot Swampwalker}}<br>{{CharacterLink|stablekey=character:a rottenfoot goblin spiritcaller|link=Rottenfoot Witchdoctor|text=Rottenfoot Witchdoctor}}
 }}
 
 {{Ability
@@ -137,7 +137,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Seafruit}}
+|itemswitheffect={{ItemLink|stablekey=item:cons - seafruit|link=Seafruit|text=Seafruit|image=Seafruit.png}}
 |source=
 |used_by=
 }}

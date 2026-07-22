@@ -3,7 +3,7 @@
 |stablekey=item:gen - eldoth - the jaws
 |type=[[Lore Items|Lore]]
 |vendorsource=
-|source=[[Overseer Laseal]] (100.0%)
+|source={{CharacterLink|stablekey=character:overseer lasael|link=Overseer Laseal|text=Overseer Laseal}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=

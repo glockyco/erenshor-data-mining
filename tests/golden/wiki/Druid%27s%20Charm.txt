@@ -7,7 +7,7 @@
 |othersource=
 |questsource=
 |relatedquest=
-|craftsource=1x {{ItemLink|Mold: Druid's Charm}}<br>1x {{ItemLink|Bloom}}<br>1x {{ItemLink|Chunk of Copper Ore}}<br>1x {{ItemLink|Bog Hoop}}<br>1x {{ItemLink|Citrine Stone}}
+|craftsource=1x {{ItemLink|stablekey=item:template - druid's charm|link=Mold: Druid's Charm|text=Mold: Druid's Charm|image=Mold: Druid's Charm.png}}<br>1x {{ItemLink|stablekey=item:aura - fernalla 2|link=Bloom|text=Bloom|image=Bloom.png}}<br>1x {{ItemLink|stablekey=item:ore - bronze ore|link=Chunk of Copper Ore|text=Chunk of Copper Ore|image=Chunk of Copper Ore.png}}<br>1x {{ItemLink|stablekey=item:ring - 15 - bog hoop|link=Bog Hoop|text=Bog Hoop|image=Bog Hoop.png}}<br>1x {{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}}
 |componentfor=
 |buy=6000
 |sell=3900

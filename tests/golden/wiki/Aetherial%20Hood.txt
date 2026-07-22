@@ -3,7 +3,7 @@
 |stablekey=item:head - 21 - aetherial helm
 |type=
 |vendorsource=
-|source=[[Aetherfiend]] (12.1%)<br>[[Shadow Man]] (12.1%)
+|source={{CharacterLink|stablekey=character:aetherfiend|link=Aetherfiend|text=Aetherfiend}} (12.1%)<br>{{CharacterLink|stablekey=character:shadow man|link=Shadow Man|text=Shadow Man}} (12.1%)
 |othersource=
 |questsource=
 |relatedquest=

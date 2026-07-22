@@ -3,7 +3,7 @@
 |stablekey=item:leg - 28 - blightsteel greaves
 |type=
 |vendorsource=
-|source=[[Harbinger of Corruption]] (66.7%)
+|source={{CharacterLink|stablekey=character:harbinger of corruption|link=Harbinger of Corruption|text=Harbinger of Corruption}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=

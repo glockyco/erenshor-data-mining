@@ -3,7 +3,7 @@
 |stablekey=item:ring - 14 - ring of the mystics
 |type=
 |vendorsource=
-|source=[[Rosle of the Spirits]] (66.7%)<br>[[Agsha of the Soil]] (33.3%)
+|source={{CharacterLink|stablekey=character:rosle of the spirits|link=Rosle of the Spirits|text=Rosle of the Spirits}} (66.7%)<br>{{CharacterLink|stablekey=character:agsha of the soil|link=Agsha of the Soil|text=Agsha of the Soil}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Activatable
 |proc_chance=
 |proc_spell_icon=Healing.png
-|proc_spell_name=[[Healing]]
+|proc_spell_name={{AbilityLink|stablekey=spell:dru pal - healing|link=Healing|text=Healing|image=Healing.png}}
 |proc_spell_level=16
 |proc_spell_duration_ticks=
 |proc_spell_type=Heal

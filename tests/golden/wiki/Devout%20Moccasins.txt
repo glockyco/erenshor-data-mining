@@ -3,7 +3,7 @@
 |stablekey=item:foot - 16  - devout moccasins
 |type=
 |vendorsource=
-|source=[[Ecclesiarch]] (9.1%)
+|source={{CharacterLink|stablekey=character:ecclesiarch|link=Ecclesiarch|text=Ecclesiarch}} (9.1%)
 |othersource=
 |questsource=
 |relatedquest=

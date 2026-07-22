@@ -2,7 +2,7 @@
 |title=Clouded Diamond Ring
 |stablekey=item:ring - 7 - clouded diamond ring
 |type=
-|vendorsource=[[Parmalee Gemlyn]]
+|vendorsource={{CharacterLink|stablekey=character:parmalee gemlyn|link=Parmalee Gemlyn|text=Parmalee Gemlyn}}
 |source=
 |othersource=
 |questsource=

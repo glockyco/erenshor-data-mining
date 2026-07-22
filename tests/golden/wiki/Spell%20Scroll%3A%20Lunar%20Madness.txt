@@ -2,8 +2,8 @@
 |title=Spell Scroll: Lunar Madness
 |stablekey=item:spell scroll - lunar madness
 |type=[[Ability Books]]
-|vendorsource=[[Benson Gamble]]<br>[[Gus Highrest]]<br>[[Treven Pines]]
-|source=[[An Enraged Spirit]] (2.8%)<br>[[Islander Bandit]] (1.1%)
+|vendorsource={{CharacterLink|stablekey=character:benson gamble|link=Benson Gamble|text=Benson Gamble}}<br>{{CharacterLink|stablekey=character:innkeeper gus|link=Gus Highrest|text=Gus Highrest}}<br>{{CharacterLink|stablekey=character:shopkeeper treven:stowaway:384.76:58.46:394.49|link=Treven Pines|text=Treven Pines}}
+|source={{CharacterLink|stablekey=character:enraged spirit|link=An Enraged Spirit|text=An Enraged Spirit}} (2.8%)<br>{{CharacterLink|stablekey=character:islander bandit|link=Islander Bandit|text=Islander Bandit}} (1.1%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=100
 |sell=65
-|taughtspell={{AbilityLink|Lunar Madness}}
+|taughtspell={{AbilityLink|stablekey=spell:pal - taunt lunar madness|link=Lunar Madness|text=Lunar Madness|image=Lunar Madness.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

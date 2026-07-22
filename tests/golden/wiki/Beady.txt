@@ -3,15 +3,15 @@
 |image=[[File:Beady.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Rottenfoot]]
+|zones={{ZoneLink|stablekey=zone:rottenfoot|link=Rottenfoot|text=Rottenfoot}}
 |coordinates=787.1 x 24.9 x 771.9
 |spawnchance=75%
 |spawntype=
 |respawn=4 minutes
-|guaranteeddrops={{ItemLink|Amber's Gift}}<br>{{ItemLink|Bloom}}<br>{{ItemLink|Cinder of Birth}}<br>{{ItemLink|Morning Glow}}
-|droprates={{ItemLink|Amber's Gift}} (25.0%)<br>{{ItemLink|Bloom}} (25.0%)<br>{{ItemLink|Cinder of Birth}} (25.0%)<br>{{ItemLink|Morning Glow}} (25.0%)
+|guaranteeddrops={{ItemLink|stablekey=item:aura - mosquito|link=Amber's Gift|text=Amber's Gift|image=Amber's Gift.png}}<br>{{ItemLink|stablekey=item:aura - fernalla 2|link=Bloom|text=Bloom|image=Bloom.png}}<br>{{ItemLink|stablekey=item:hand - 20 - cinder of birth|link=Cinder of Birth|text=Cinder of Birth|image=Cinder of Birth.png}}<br>{{ItemLink|stablekey=item:aura - soluna 2|link=Morning Glow|text=Morning Glow|image=Morning Glow.png}}
+|droprates={{ItemLink|stablekey=item:aura - mosquito|link=Amber's Gift|text=Amber's Gift|image=Amber's Gift.png}} (25.0%)<br>{{ItemLink|stablekey=item:aura - fernalla 2|link=Bloom|text=Bloom|image=Bloom.png}} (25.0%)<br>{{ItemLink|stablekey=item:hand - 20 - cinder of birth|link=Cinder of Birth|text=Cinder of Birth|image=Cinder of Birth.png}} (25.0%)<br>{{ItemLink|stablekey=item:aura - soluna 2|link=Morning Glow|text=Morning Glow|image=Morning Glow.png}} (25.0%)
 |level=16
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=8-19
 |elemental=8-19
 |void=8-19
-|spells={{AbilityLink|Morbidity's Grasp}}<br>{{AbilityLink|Soul Tap}}
+|spells={{AbilityLink|stablekey=spell:dru - morbidity's grasp|link=Morbidity's Grasp|text=Morbidity's Grasp|image=Morbidity's Grasp.png}}<br>{{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}
 }}
 
 [[Category:Bosses]]

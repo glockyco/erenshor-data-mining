@@ -3,7 +3,7 @@
 |stablekey=item:secondary - 26 - provoker
 |type=
 |vendorsource=
-|source=[[Mephallo]] (66.7%)
+|source={{CharacterLink|stablekey=character:phantasmal demon|link=Mephallo|text=Mephallo}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Bash
 |proc_chance=75
 |proc_spell_icon=Glimpse of Truth.png
-|proc_spell_name=[[Glimpse of Truth]]
+|proc_spell_name={{AbilityLink|stablekey=spell:pal - taunt glimpse of truth|link=Glimpse of Truth|text=Glimpse of Truth|image=Glimpse of Truth.png}}
 |proc_spell_level=15
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

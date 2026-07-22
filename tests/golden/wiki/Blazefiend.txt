@@ -3,15 +3,15 @@
 |image=[[File:Blazefiend.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Braxonian Desert]]
+|zones={{ZoneLink|stablekey=zone:braxonian|link=Braxonian Desert|text=Braxonian Desert}}
 |coordinates=725.8 x 28.5 x 1191.1
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
-|guaranteeddrops={{ItemLink|Fire Emerald Band}}<br>{{ItemLink|Flame of the Redemption}}<br>{{ItemLink|Smoldering Blade}}<br>{{ItemLink|Spirit of the Steed}}
-|droprates={{ItemLink|Fire Emerald Band}} (25.0%)<br>{{ItemLink|Flame of the Redemption}} (25.0%)<br>{{ItemLink|Smoldering Blade}} (25.0%)<br>{{ItemLink|Spirit of the Steed}} (25.0%)
+|guaranteeddrops={{ItemLink|stablekey=item:ring - 16 - fire emerald band|link=Fire Emerald Band|text=Fire Emerald Band|image=Fire Emerald Band.png}}<br>{{ItemLink|stablekey=item:aura - brax 4|link=Flame of the Redemption|text=Flame of the Redemption|image=Flame of the Redemption.png}}<br>{{ItemLink|stablekey=item:weap - 25 - smoldering blade|link=Smoldering Blade|text=Smoldering Blade|image=Smoldering Blade.png}}<br>{{ItemLink|stablekey=item:aura - steed|link=Spirit of the Steed|text=Spirit of the Steed|image=Spirit of the Steed.png}}
+|droprates={{ItemLink|stablekey=item:ring - 16 - fire emerald band|link=Fire Emerald Band|text=Fire Emerald Band|image=Fire Emerald Band.png}} (25.0%)<br>{{ItemLink|stablekey=item:aura - brax 4|link=Flame of the Redemption|text=Flame of the Redemption|image=Flame of the Redemption.png}} (25.0%)<br>{{ItemLink|stablekey=item:weap - 25 - smoldering blade|link=Smoldering Blade|text=Smoldering Blade|image=Smoldering Blade.png}} (25.0%)<br>{{ItemLink|stablekey=item:aura - steed|link=Spirit of the Steed|text=Spirit of the Steed|image=Spirit of the Steed.png}} (25.0%)
 |level=24
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=12-29
 |elemental=12-29
 |void=12-29
-|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Immolation}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's rage|link=Brax's Rage|text=Brax's Rage|image=Brax's Rage.png}}<br>{{AbilityLink|stablekey=spell:arc - immolation|link=Immolation|text=Immolation|image=Immolation.png}}
 }}
 
 Summoned by bringing [[Blaze Fiend (Game Piece)]] to the [[Braxonian Game Board]].

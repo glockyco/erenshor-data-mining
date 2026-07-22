@@ -3,10 +3,10 @@
 |stablekey=item:gen -  riftsnare gem
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Grounds Keeper]] (100.0%)<br>[[Oracle Miress]] (100.0%)<br>[[Oracle Tretha]] (100.0%)<br>[[Vos Ashlyn]] (100.0%)<br>[[Exalted Firebone]] (13.5%)
+|source={{CharacterLink|stablekey=character:curator|link=Grounds Keeper|text=Grounds Keeper}} (100.0%)<br>{{CharacterLink|stablekey=character:oracle miress|link=Oracle Miress|text=Oracle Miress}} (100.0%)<br>{{CharacterLink|stablekey=character:oracle tretha|link=Oracle Tretha|text=Oracle Tretha}} (100.0%)<br>{{CharacterLink|stablekey=character:vos ashlyn|link=Vos Ashlyn|text=Vos Ashlyn}} (100.0%)<br>{{CharacterLink|stablekey=character:exalted skeleton|link=Exalted Firebone|text=Exalted Firebone}} (13.5%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Flickering Souls}}
+|relatedquest={{QuestLink|Flickering Souls}}<br>{{QuestLink|stablekey=quest:flickeringsouls|link=Flickering Souls|text=Flickering Souls}}
 |craftsource=
 |componentfor=
 |buy=

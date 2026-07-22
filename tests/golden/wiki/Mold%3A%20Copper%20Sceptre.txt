@@ -2,7 +2,7 @@
 |title=Mold: Copper Sceptre
 |stablekey=item:template - bronze sceptre
 |type=[[Crafting|Mold]]
-|vendorsource=[[Amethi Plazzo]]<br>[[Javo Follay]]
+|vendorsource={{CharacterLink|stablekey=character:amethi plazzo:stowaway:575.36:73.04:549.85|link=Amethi Plazzo|text=Amethi Plazzo}}<br>{{CharacterLink|stablekey=character:javo follay|link=Javo Follay|text=Javo Follay}}
 |source=
 |othersource=
 |questsource=
@@ -21,8 +21,8 @@
 |image=Mold: Copper Sceptre.png
 |name=Mold: Copper Sceptre
 |description=Recipes must be exact - use CNTRL + CLICK to separate stacks.<br><br>One-time usable in a forge.
-|ingredients=1x {{ItemLink|Chunk of Copper Ore}}<br>2x {{ItemLink|Chunk of Iron Ore}}<br>1x {{ItemLink|Aetheria}}
-|rewards={{ItemLink|Copper Sceptre}}
+|ingredients=1x {{ItemLink|stablekey=item:ore - bronze ore|link=Chunk of Copper Ore|text=Chunk of Copper Ore|image=Chunk of Copper Ore.png}}<br>2x {{ItemLink|stablekey=item:ore - iron ore|link=Chunk of Iron Ore|text=Chunk of Iron Ore|image=Chunk of Iron Ore.png}}<br>1x {{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}}
+|rewards={{ItemLink|stablekey=item:wand - bronzesceptre|link=Copper Sceptre|text=Copper Sceptre|image=Copper Sceptre.png}}
 |station=
 }}
 

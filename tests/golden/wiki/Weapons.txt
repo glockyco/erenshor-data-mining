@@ -29,7 +29,7 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 !Notes
 ![[Classes]]
 |-
-|style="text-align: left;"|{{ItemLink|Planar Spear}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 42 - planar ice lance|link=Planar Spear|text=Planar Spear|image=Planar Spear.png}}
 |Primary
 |1H Dagger
 |42
@@ -50,10 +50,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Ice Shock}}, 95% on attack
-|[[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:arc - ice shock|link=Ice Shock|text=Ice Shock|image=Ice Shock.png}}, 95% on attack
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Advisor's Sword}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 42 - advisor's sword|link=Advisor's Sword|text=Advisor's Sword|image=Advisor's Sword.png}}
 |Primary
 |1H Melee
 |42
@@ -74,10 +74,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |5
 |3
-|{{AbilityLink|Group Major Heal}}, 4% on attack
-|[[Paladin]]
+|{{AbilityLink|stablekey=spell:none - group major heal|link=Group Major Heal|text=Group Major Heal|image=Group Major Heal.png}}, 4% on attack
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}
 |-
-|style="text-align: left;"|{{ItemLink|Anointed Sword}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 14 - anointed sword|link=Anointed Sword|text=Anointed Sword|image=Anointed Sword.png}}
 |Primary
 |1H Melee
 |14
@@ -98,10 +98,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Glare of Soluna}}, 8% on attack
-|[[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:pal - glare of soluna|link=Glare of Soluna|text=Glare of Soluna|image=Glare of Soluna.png}}, 8% on attack
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Azynthian Blade}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 33 - azynthian blade|link=Azynthian Blade|text=Azynthian Blade|image=Azynthian Blade.png}}
 |Primary
 |1H Melee
 |33
@@ -122,10 +122,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Soul Tap}}, 75% on attack
-|[[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}, 75% on attack
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Blackbone Axe}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 38 - blackened bone axe|link=Blackbone Axe|text=Blackbone Axe|image=Blackbone Axe.png}}
 |Primary
 |1H Melee
 |38
@@ -146,10 +146,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |1
-|{{AbilityLink|Focus Pain}}, 33% on attack
-|[[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:none - fracture|link=Focus Pain|text=Focus Pain|image=Focus Pain.png}}, 33% on attack
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Bramblecull}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 38 - bramblecull|link=Bramblecull|text=Bramblecull|image=Bramblecull.png}}
 |Primary
 |1H Melee
 |38
@@ -170,10 +170,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Tangle}}, 10% on attack
-|[[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:dru - tangle|link=Tangle|text=Tangle|image=Tangle.png}}, 10% on attack
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Cycle's Edge}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 42 - cycle's edge|link=Cycle's Edge|text=Cycle's Edge|image=Cycle's Edge.png}}
 |Primary
 |1H Melee
 |42
@@ -194,10 +194,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |5
 |6
 |10
-|{{AbilityLink|Extinction Bloom}}, 15% on attack
-|[[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:dru - extinction bloom|link=Extinction Bloom|text=Extinction Bloom|image=Extinction Bloom.png}}, 15% on attack
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Diamondine Mace}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 18 - diamondine mace|link=Diamondine Mace|text=Diamondine Mace|image=Diamondine Mace.png}}
 |Primary
 |1H Melee
 |18
@@ -218,10 +218,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Ice Spear}}, 90% on attack
-|[[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:arc - ice spear|link=Ice Spear|text=Ice Spear|image=Ice Spear.png}}, 90% on attack
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Dreamslayer}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 22 - dreamslayer|link=Dreamslayer|text=Dreamslayer|image=Dreamslayer.png}}
 |Primary
 |1H Melee
 |22
@@ -242,10 +242,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |2
-|{{AbilityLink|Vampirism}}, 4% on attack
-|[[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:none - vampirism|link=Vampirism|text=Vampirism|image=Vampirism.png}}, 4% on attack
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Dusken Staff}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 22 - dusken staff|link=Dusken Staff|text=Dusken Staff|image=Dusken Staff.png}}
 |Primary
 |1H Melee
 |22
@@ -267,9 +267,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Arcanist]], [[Paladin]], [[Reaver]], [[Stormcaller]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Eon, Blade of Time}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 40 - eon|link=Eon, Blade of Time|text=Eon, Blade of Time|image=Eon, Blade of Time.png}}
 |Primary
 |1H Melee
 |40
@@ -290,10 +290,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |2
 |6
-|{{AbilityLink|Group Heal}}, 3% on attack
-|[[Paladin]]
+|{{AbilityLink|stablekey=spell:dru - group heal|link=Group Heal|text=Group Heal|image=Group Heal.png}}, 3% on attack
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}
 |-
-|style="text-align: left;"|{{ItemLink|Executioner of Azure}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 36 - executioner of azure|link=Executioner of Azure|text=Executioner of Azure|image=Executioner of Azure.png}}
 |Primary
 |1H Melee
 |36
@@ -314,10 +314,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |6
-|{{AbilityLink|Theft of Vigor}}, 10% on attack
-|[[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:pal - sap vitality|link=Theft of Vigor|text=Theft of Vigor|image=Theft of Vigor.png}}, 10% on attack
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Fishing Pole}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 1 - fishing pole|link=Fishing Pole|text=Fishing Pole|image=Fishing Pole.png}}
 |Primary
 |1H Melee
 |
@@ -339,9 +339,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Frostmaker}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 33 - frostmaker|link=Frostmaker|text=Frostmaker|image=Frostmaker.png}}
 |Primary
 |1H Melee
 |33
@@ -362,10 +362,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Winter's Bite}}, 65% on attack
-|[[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:arc - winter's bite|link=Winter's Bite|text=Winter's Bite|image=Winter's Bite.png}}, 65% on attack
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Fungal Edge}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 20 - rotten edge|link=Fungal Edge|text=Fungal Edge|image=Fungal Edge.png}}
 |Primary
 |1H Melee
 |20
@@ -387,9 +387,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Paladin]], [[Reaver]]
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Gladiator's Axe}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 42 - gladiator's axe|link=Gladiator's Axe|text=Gladiator's Axe|image=Gladiator's Axe.png}}
 |Primary
 |1H Melee
 |42
@@ -410,10 +410,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |4
 |
-|{{AbilityLink|Vithean Judgement}}, 20% on attack
-|[[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:none - vithean judgement|link=Vithean Judgement|text=Vithean Judgement|image=Vithean Judgement.png}}, 20% on attack
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Lamentation}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 28 - lamentation|link=Lamentation|text=Lamentation|image=Lamentation.png}}
 |Primary
 |1H Melee
 |28
@@ -435,9 +435,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Paladin]], [[Reaver]]
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Mino Hatchet}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 24 - mino hatchet|link=Mino Hatchet|text=Mino Hatchet|image=Mino Hatchet.png}}
 |Primary
 |1H Melee
 |24
@@ -459,9 +459,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Paladin]], [[Reaver]], [[Windblade]]
+|{{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Minoaxe}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 20 - minoaxe|link=Minoaxe|text=Minoaxe|image=Minoaxe.png}}
 |Primary
 |1H Melee
 |20
@@ -483,9 +483,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Paladin]], [[Reaver]]
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Ogre Tooth Club}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 9 - ogre tooth club|link=Ogre Tooth Club|text=Ogre Tooth Club|image=Ogre Tooth Club.png}}
 |Primary
 |1H Melee
 |9
@@ -506,10 +506,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |2
 |
 |4
-|{{AbilityLink|Dazzle}}, 15% on attack
-|[[Arcanist]], [[Druid]]
+|{{AbilityLink|stablekey=spell:arc - dazzle|link=Dazzle|text=Dazzle|image=Dazzle.png}}, 15% on attack
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Ripparian Axe}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 36 - ripparian axe|link=Ripparian Axe|text=Ripparian Axe|image=Ripparian Axe.png}}
 |Primary
 |1H Melee
 |36
@@ -531,9 +531,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Paladin]], [[Reaver]]
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Sivakayan Axe}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 24 - sivakayan axe|link=Sivakayan Axe|text=Sivakayan Axe|image=Sivakayan Axe.png}}
 |Primary
 |1H Melee
 |24
@@ -554,10 +554,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |5
 |
 |
-|{{AbilityLink|Soul Tap}}, 5% on attack
-|[[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}, 5% on attack
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Unholy Bonesaw}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 24 - bonesaw|link=Unholy Bonesaw|text=Unholy Bonesaw|image=Unholy Bonesaw.png}}
 |Primary
 |1H Melee
 |24
@@ -578,10 +578,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |5
-|{{AbilityLink|Focus Pain}}, 5% on attack
-|[[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:none - fracture|link=Focus Pain|text=Focus Pain|image=Focus Pain.png}}, 5% on attack
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|World Builder}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 28 - world builder|link=World Builder|text=World Builder|image=World Builder.png}}
 |Primary
 |1H Melee
 |28
@@ -602,10 +602,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Focus Pain}}, 15% on attack
-|[[Druid]], [[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:none - fracture|link=Focus Pain|text=Focus Pain|image=Focus Pain.png}}, 15% on attack
+|{{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Arc, Crescent of the Void}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:bow - 40 - arco, crescent of the void|link=Arc, Crescent of the Void|text=Arc, Crescent of the Void|image=Arc, Crescent of the Void.png}}
 |Primary
 |Bow
 |40
@@ -626,10 +626,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Fury of the Sky}}, 10% on attack
-|[[Stormcaller]]
+|{{AbilityLink|stablekey=spell:none - sky's fury|link=Fury of the Sky|text=Fury of the Sky|image=Fury of the Sky.png}}, 10% on attack
+|{{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Braxonian Bow}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:bow - 28 - braxonian bow|link=Braxonian Bow|text=Braxonian Bow|image=Braxonian Bow.png}}
 |Primary
 |Bow
 |28
@@ -650,10 +650,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |3
 |
-|{{AbilityLink|Brax's Touch}}, 12% on attack
-|[[Stormcaller]]
+|{{AbilityLink|stablekey=spell:arc - brax's touch|link=Brax's Touch|text=Brax's Touch|image=Brax's Touch.png}}, 12% on attack
+|{{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Carved Bow}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:bow - 4 - carved bow|link=Carved Bow|text=Carved Bow|image=Carved Bow.png}}
 |Primary
 |Bow
 |4
@@ -675,9 +675,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Stormcaller]]
+|{{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Deathgiver}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:bow - 30 - deathgiver|link=Deathgiver|text=Deathgiver|image=Deathgiver.png}}
 |Primary
 |Bow
 |30
@@ -698,10 +698,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |3
-|{{AbilityLink|Cull the Unfit}}, 4% on attack
-|[[Stormcaller]]
+|{{AbilityLink|stablekey=spell:dru - cull the unfit|link=Cull the Unfit|text=Cull the Unfit|image=Cull the Unfit.png}}, 4% on attack
+|{{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Executioner's Bow}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:bow - 8 - executioner's string|link=Executioner's Bow|text=Executioner's Bow|image=Executioner's Bow.png}}
 |Primary
 |Bow
 |8
@@ -723,9 +723,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Stormcaller]]
+|{{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Frostbite}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:bow - 42 - frostbite|link=Frostbite|text=Frostbite|image=Frostbite.png}}
 |Primary
 |Bow
 |42
@@ -746,10 +746,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |5
 |
-|{{AbilityLink|Ice Meteor}}, 6% on attack
-|[[Stormcaller]]
+|{{AbilityLink|stablekey=spell:arc - ice meteor|link=Ice Meteor|text=Ice Meteor|image=Ice Meteor.png}}, 6% on attack
+|{{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Honsus' Bow}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:bow - 42 - honsus' bow|link=Honsus' Bow|text=Honsus' Bow|image=Honsus' Bow.png}}
 |Primary
 |Bow
 |42
@@ -770,10 +770,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |5
-|{{AbilityLink|Extinction Bloom}}, 2% on attack
-|[[Stormcaller]]
+|{{AbilityLink|stablekey=spell:dru - extinction bloom|link=Extinction Bloom|text=Extinction Bloom|image=Extinction Bloom.png}}, 2% on attack
+|{{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Humanbone}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:bow - 17 - humanbone bow|link=Humanbone|text=Humanbone|image=Humanbone.png}}
 |Primary
 |Bow
 |14
@@ -794,10 +794,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |3
 |
 |
-|{{AbilityLink|Theft of Life}}, 5% on attack
-|[[Stormcaller]]
+|{{AbilityLink|stablekey=spell:dru reav - theft of life|link=Theft of Life|text=Theft of Life|image=Theft of Life.png}}, 5% on attack
+|{{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Icy Bow}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:bow - 38 - icy bow|link=Icy Bow|text=Icy Bow|image=Icy Bow.png}}
 |Primary
 |Bow
 |35
@@ -818,10 +818,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |5
-|{{AbilityLink|Ice Bite}}, 99% on attack
-|[[Stormcaller]]
+|{{AbilityLink|stablekey=spell:none - ice bite|link=Ice Bite|text=Ice Bite|image=Ice Bite.png}}, 99% on attack
+|{{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Imperium}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:bow - 42 - imperium|link=Imperium|text=Imperium|image=Imperium.png}}
 |Primary
 |Bow
 |42
@@ -842,10 +842,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |5
-|{{AbilityLink|Impact}}, 90% on attack
-|[[Stormcaller]]
+|{{AbilityLink|stablekey=spell:none - impact|link=Impact|text=Impact|image=Impact.png}}, 90% on attack
+|{{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Merosavillian Bow}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:bow - 21 - merosavillian bow|link=Merosavillian Bow|text=Merosavillian Bow|image=Merosavillian Bow.png}}
 |Primary
 |Bow
 |21
@@ -866,10 +866,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Vithean Breeze}}, 5% on attack
-|[[Stormcaller]]
+|{{AbilityLink|stablekey=spell:duel - vithean breeze|link=Vithean Breeze|text=Vithean Breeze|image=Vithean Breeze.png}}, 5% on attack
+|{{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Molorai Bow}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:bow - 10 - molorai bow|link=Molorai Bow|text=Molorai Bow|image=Molorai Bow.png}}
 |Primary
 |Bow
 |14
@@ -891,9 +891,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Stormcaller]]
+|{{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Necromantic Bow}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:bow - 31 - bow of necromancy|link=Necromantic Bow|text=Necromantic Bow|image=Necromantic Bow.png}}
 |Primary
 |Bow
 |31
@@ -914,10 +914,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |3
-|{{AbilityLink|Devour}}, 9% on attack
-|[[Stormcaller]]
+|{{AbilityLink|stablekey=spell:dru reav - devour|link=Devour|text=Devour|image=Devour.png}}, 9% on attack
+|{{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Oldenbow}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:bow - 34 - oldenbow|link=Oldenbow|text=Oldenbow|image=Oldenbow.png}}
 |Primary
 |Bow
 |34
@@ -938,10 +938,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Ice Spear}}, 8% on attack
-|[[Stormcaller]]
+|{{AbilityLink|stablekey=spell:arc - ice spear|link=Ice Spear|text=Ice Spear|image=Ice Spear.png}}, 8% on attack
+|{{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Recurve Bow}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:bow - 11 - recurve bow|link=Recurve Bow|text=Recurve Bow|image=Recurve Bow.png}}
 |Primary
 |Bow
 |11
@@ -963,9 +963,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Stormcaller]]
+|{{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Rotwood Bow}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:bow - 6 - rotwood bow|link=Rotwood Bow|text=Rotwood Bow|image=Rotwood Bow.png}}
 |Primary
 |Bow
 |6
@@ -987,9 +987,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Stormcaller]]
+|{{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Seastring}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:bow - 13 - seastring|link=Seastring|text=Seastring|image=Seastring.png}}
 |Primary
 |Bow
 |14
@@ -1011,9 +1011,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |3
 |
 |
-|[[Stormcaller]]
+|{{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Siva Bow}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:bow - 38 - sivakayan bow|link=Siva Bow|text=Siva Bow|image=Siva Bow.png}}
 |Primary
 |Bow
 |34
@@ -1034,10 +1034,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |5
-|{{AbilityLink|Devour}}, 3% on attack
-|[[Stormcaller]]
+|{{AbilityLink|stablekey=spell:dru reav - devour|link=Devour|text=Devour|image=Devour.png}}, 3% on attack
+|{{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Spectral Bow}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:bow - 24 - spectral bow|link=Spectral Bow|text=Spectral Bow|image=Spectral Bow.png}}
 |Primary
 |Bow
 |24
@@ -1058,10 +1058,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Jolt}}, 5% on attack
-|[[Stormcaller]]
+|{{AbilityLink|stablekey=spell:dru arc - jolt|link=Jolt|text=Jolt|image=Jolt.png}}, 5% on attack
+|{{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Traveler's Bow}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:bow - 2 - traveller's bow|link=Traveler's Bow|text=Traveler's Bow|image=Traveler's Bow.png}}
 |Primary
 |Bow
 |2
@@ -1083,9 +1083,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Stormcaller]]
+|{{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Whitewood}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:bow - 7 - whitewood bow|link=Whitewood|text=Whitewood|image=Whitewood.png}}
 |Primary
 |Bow
 |7
@@ -1107,9 +1107,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Stormcaller]]
+|{{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Awaken}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 16 - awaken|link=Awaken|text=Awaken|image=Awaken.png}}
 |Primary - 2-Handed
 |2H Melee
 |16
@@ -1130,10 +1130,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Soul Tap}}, 15% on attack
-|[[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}, 15% on attack
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Diamond Claymore}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 25 - diamond claymore|link=Diamond Claymore|text=Diamond Claymore|image=Diamond Claymore.png}}
 |Primary - 2-Handed
 |2H Melee
 |25
@@ -1154,10 +1154,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Diamond Burst}}, 25% on attack
-|[[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:none - diamond burst|link=Diamond Burst|text=Diamond Burst|image=Diamond Burst.png}}, 25% on attack
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Fungal Greatsword}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 30 - fungal greatsword|link=Fungal Greatsword|text=Fungal Greatsword|image=Fungal Greatsword.png}}
 |Primary - 2-Handed
 |2H Melee
 |30
@@ -1178,10 +1178,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |6
 |
 |
-|{{AbilityLink|Forest's Reckoning}}, 25% on attack
-|[[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:dru - forest's reckoning|link=Forest's Reckoning|text=Forest's Reckoning|image=Forest's Reckoning.png}}, 25% on attack
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Fungal Staff}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 29 - fungal staff|link=Fungal Staff|text=Fungal Staff|image=Fungal Staff.png}}
 |Primary - 2-Handed
 |2H Melee
 |29
@@ -1202,10 +1202,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Cave Lung}}, 20% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:none - cave lung|link=Cave Lung|text=Cave Lung|image=Cave Lung.png}}, 20% on attack
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Heavy Bladed Mace}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 8 - heavy mace|link=Heavy Bladed Mace|text=Heavy Bladed Mace|image=Heavy Bladed Mace.png}}
 |Primary - 2-Handed
 |2H Melee
 |8
@@ -1227,9 +1227,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Paladin]], [[Reaver]]
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Lamplighter's Pole}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 25 - lamplighter's pole|link=Lamplighter's Pole|text=Lamplighter's Pole|image=Lamplighter's Pole.png}}
 |Primary - 2-Handed
 |2H Melee
 |25
@@ -1250,10 +1250,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Brax's Rage}}, 20% on attack
-|[[Arcanist]], [[Druid]]
+|{{AbilityLink|stablekey=spell:arc - brax's rage|link=Brax's Rage|text=Brax's Rage|image=Brax's Rage.png}}, 20% on attack
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Molten Axe}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 39 - molten axe|link=Molten Axe|text=Molten Axe|image=Molten Axe.png}}
 |Primary - 2-Handed
 |2H Melee
 |39
@@ -1274,10 +1274,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |10
 |
-|{{AbilityLink|Magma Coat}}, 8% on attack
-|[[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:none - magma coat|link=Magma Coat|text=Magma Coat|image=Magma Coat.png}}, 8% on attack
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Monarch's Blade}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 39 - monarch's blade|link=Monarch's Blade|text=Monarch's Blade|image=Monarch's Blade.png}}
 |Primary - 2-Handed
 |2H Melee
 |39
@@ -1298,10 +1298,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |6
 |
-|{{AbilityLink|Brax's Fury}}, 10% on attack
-|[[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:arc - brax's fury|link=Brax's Fury|text=Brax's Fury|image=Brax's Fury.png}}, 10% on attack
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Mooncutter}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 22 - mooncutter|link=Mooncutter|text=Mooncutter|image=Mooncutter.png}}
 |Primary - 2-Handed
 |2H Melee
 |24
@@ -1322,10 +1322,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Concuss}}, 4% on attack
-|[[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:dru arc - concuss|link=Concuss|text=Concuss|image=Concuss.png}}, 4% on attack
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Moonmaker}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 42 - moonmaker|link=Moonmaker|text=Moonmaker|image=Moonmaker.png}}
 |Primary - 2-Handed
 |2H Melee
 |42
@@ -1346,10 +1346,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |5
 |7
-|{{AbilityLink|Focus Pain}}, 8% on attack
-|[[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:none - fracture|link=Focus Pain|text=Focus Pain|image=Focus Pain.png}}, 8% on attack
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Nightfall}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 6 - nightfall|link=Nightfall|text=Nightfall|image=Nightfall.png}}
 |Primary - 2-Handed
 |2H Melee
 |6
@@ -1370,10 +1370,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Theft of Life}}, 3% on attack
-|[[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:dru reav - theft of life|link=Theft of Life|text=Theft of Life|image=Theft of Life.png}}, 3% on attack
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Old Halberd}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 6 - old halberd|link=Old Halberd|text=Old Halberd|image=Old Halberd.png}}
 |Primary - 2-Handed
 |2H Melee
 |6
@@ -1395,9 +1395,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Paladin]], [[Reaver]]
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Parallax, Key to the Void}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 40 - parallax, key to the void|link=Parallax, Key to the Void|text=Parallax, Key to the Void|image=Parallax, Key to the Void.png}}
 |Primary - 2-Handed
 |2H Melee
 |40
@@ -1418,10 +1418,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |5
 |10
-|{{AbilityLink|Sever}}, 10% on attack
-|[[Reaver]]
+|{{AbilityLink|stablekey=spell:reav - sever|link=Sever|text=Sever|image=Sever.png}}, 10% on attack
+|{{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Reaver's Steel}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 39 - reaver's steel|link=Reaver's Steel|text=Reaver's Steel|image=Reaver's Steel.png}}
 |Primary - 2-Handed
 |2H Melee
 |39
@@ -1442,10 +1442,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |2
 |6
-|{{AbilityLink|Void Surge}}, 33% on attack
-|[[Reaver]]
+|{{AbilityLink|stablekey=spell:reav - void surge|link=Void Surge|text=Void Surge|image=Void Surge.png}}, 33% on attack
+|{{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Rusty Greatsword}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 3 - rusty greatword|link=Rusty Greatsword|text=Rusty Greatsword|image=Rusty Greatsword.png}}
 |Primary - 2-Handed
 |2H Melee
 |3
@@ -1467,9 +1467,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Paladin]], [[Reaver]]
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Sea Giant's Cutlass}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 8 - sea giant's cutlass|link=Sea Giant's Cutlass|text=Sea Giant's Cutlass|image=Sea Giant's Cutlass.png}}
 |Primary - 2-Handed
 |2H Melee
 |8
@@ -1491,9 +1491,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |5
 |
 |
-|[[Paladin]], [[Reaver]]
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Shifted Fate}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 42 - sword of shifted fate|link=Shifted Fate|text=Shifted Fate|image=Shifted Fate.png}}
 |Primary - 2-Handed
 |2H Melee
 |42
@@ -1514,10 +1514,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |8
 |8
 |12
-|{{AbilityLink|Smite III}}, 5% on attack
-|[[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:none - soluna's smite iii|link=Smite III|text=Smite III|image=Smite III.png}}, 5% on attack
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Smoldering Blade}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 25 - smoldering blade|link=Smoldering Blade|text=Smoldering Blade|image=Smoldering Blade.png}}
 |Primary - 2-Handed
 |2H Melee
 |25
@@ -1538,10 +1538,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Brax's Rage}}, 33% on attack
-|[[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:arc - brax's rage|link=Brax's Rage|text=Brax's Rage|image=Brax's Rage.png}}, 33% on attack
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Soulshiver}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 31 - soulshiver|link=Soulshiver|text=Soulshiver|image=Soulshiver.png}}
 |Primary - 2-Handed
 |2H Melee
 |31
@@ -1562,10 +1562,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |6
 |
-|{{AbilityLink|Winter's Bite}}, 20% on attack
-|[[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:arc - winter's bite|link=Winter's Bite|text=Winter's Bite|image=Winter's Bite.png}}, 20% on attack
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Spidersmasher}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 13 - spidersmasher|link=Spidersmasher|text=Spidersmasher|image=Spidersmasher.png}}
 |Primary - 2-Handed
 |2H Melee
 |13
@@ -1587,9 +1587,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |5
 |
 |
-|[[Paladin]], [[Reaver]]
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Standard Halberd}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 6 - standard halberd|link=Standard Halberd|text=Standard Halberd|image=Standard Halberd.png}}
 |Primary - 2-Handed
 |2H Melee
 |6
@@ -1611,9 +1611,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Paladin]], [[Reaver]]
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Tarnished Halberd}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 17 - tarnished halberd|link=Tarnished Halberd|text=Tarnished Halberd|image=Tarnished Halberd.png}}
 |Primary - 2-Handed
 |2H Melee
 |17
@@ -1634,10 +1634,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Concuss}}, 10% on attack
-|[[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:dru arc - concuss|link=Concuss|text=Concuss|image=Concuss.png}}, 10% on attack
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Thryne, Sledge of Creation}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 39 - thryne|link=Thryne, Sledge of Creation|text=Thryne, Sledge of Creation|image=Thryne, Sledge of Creation.png}}
 |Primary - 2-Handed
 |2H Melee
 |39
@@ -1658,10 +1658,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |10
 |
-|{{AbilityLink|Magical Skin II}}, 3% on attack
-|[[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:arc - magical skin ii|link=Magical Skin II|text=Magical Skin II|image=Magical Skin II.png}}, 3% on attack
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Willowcutter}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 42 - willowcutter|link=Willowcutter|text=Willowcutter|image=Willowcutter.png}}
 |Primary - 2-Handed
 |2H Melee
 |42
@@ -1682,10 +1682,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |9
 |9
-|{{AbilityLink|The Wild's Fang}}, 10% on attack
-|[[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:dru - the wild's grasp|link=The Wild's Fang|text=The Wild's Fang|image=The Wild's Fang.png}}, 10% on attack
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Woebringer - Halberd of Stone}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 17 - woebringer - halberd of stone|link=Woebringer - Halberd of Stone|text=Woebringer - Halberd of Stone|image=Woebringer - Halberd of Stone.png}}
 |Primary - 2-Handed
 |2H Melee
 |17
@@ -1707,9 +1707,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |4
 |
 |
-|[[Paladin]], [[Reaver]]
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Pathfinder's Staff}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 9 - pathfinder's staff|link=Pathfinder's Staff|text=Pathfinder's Staff|image=Pathfinder's Staff.png}}
 |Primary - 2-Handed
 |2H Staff
 |9
@@ -1731,9 +1731,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |5
 |5
 |
-|[[Druid]]
+|{{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Stirrer of Sleep}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 28 - stirrer of sleep|link=Stirrer of Sleep|text=Stirrer of Sleep|image=Stirrer of Sleep.png}}
 |Primary - 2-Handed
 |2H Staff
 |28
@@ -1754,10 +1754,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Tenebris}}, 3% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:arc - tenebris|link=Tenebris|text=Tenebris|image=Tenebris.png}}, 3% on attack
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Argo's Grimoire}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:hand - 10 - argo's grimmiore|link=Argo's Grimoire|text=Argo's Grimoire|image=Argo's Grimoire.png}}
 |Primary or Secondary
 |
 |10
@@ -1779,9 +1779,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Ascended Remains}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:hand - 37 - ascended remains|link=Ascended Remains|text=Ascended Remains|image=Ascended Remains.png}}
 |Primary or Secondary
 |
 |37
@@ -1803,9 +1803,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |8
 |
-|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Braxonian Testament}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:hand - 31 - braxonian scripture|link=Braxonian Testament|text=Braxonian Testament|image=Braxonian Testament.png}}
 |Primary or Secondary
 |
 |31
@@ -1827,9 +1827,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Celestial Spike}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:hand - 25 - celestial spike|link=Celestial Spike|text=Celestial Spike|image=Celestial Spike.png}}
 |Primary or Secondary
 |
 |25
@@ -1851,9 +1851,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |3
 |
-|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Idol of Sivakaya}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:hand - 5 - idol of sivakaya|link=Idol of Sivakaya|text=Idol of Sivakaya|image=Idol of Sivakaya.png}}
 |Primary or Secondary
 |
 |5
@@ -1875,9 +1875,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Letters and Words}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:hand - 42 - letters and words (common)|link=Letters and Words|text=Letters and Words|image=Letters and Words.png}}
 |Primary or Secondary
 |
 |42
@@ -1899,9 +1899,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |8
 |10
 |
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Letters and Words}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:hand - 42 - letters and words (rare)|link=Letters and Words|text=Letters and Words|image=Letters and Words.png}}
 |Primary or Secondary
 |
 |42
@@ -1922,10 +1922,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |8
 |8
 |10
-|On click: {{AbilityLink|Enlightened Path IV}}
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|On click: {{AbilityLink|stablekey=spell:none - blessing of xp 4|link=Enlightened Path IV|text=Enlightened Path IV|image=Enlightened Path IV.png}}
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Pearlescent Kelp Totem}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:hand - 17 - pearlescent depth totem|link=Pearlescent Kelp Totem|text=Pearlescent Kelp Totem|image=Pearlescent Kelp Totem.png}}
 |Primary or Secondary
 |
 |17
@@ -1947,9 +1947,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |4
 |
 |
-|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Priest's Stein}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:hand - 18 - priest's stein|link=Priest's Stein|text=Priest's Stein|image=Priest's Stein.png}}
 |Primary or Secondary
 |
 |18
@@ -1970,10 +1970,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Group Heal}}, 4% on attack
-|[[Druid]]
+|{{AbilityLink|stablekey=spell:dru - group heal|link=Group Heal|text=Group Heal|image=Group Heal.png}}, 4% on attack
+|{{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Siva-Braxonian Teachings}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:hand - 32 - siva-braxonian teachings|link=Siva-Braxonian Teachings|text=Siva-Braxonian Teachings|image=Siva-Braxonian Teachings.png}}
 |Primary or Secondary
 |
 |32
@@ -1995,9 +1995,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |5
 |5
 |
-|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Tome of Necromancy}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:hand - 36 - tome of necromancy|link=Tome of Necromancy|text=Tome of Necromancy|image=Tome of Necromancy.png}}
 |Primary or Secondary
 |
 |39
@@ -2018,10 +2018,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |12
-|On click: {{AbilityLink|Summon Skeleton}}
-|[[Arcanist]]
+|On click: {{AbilityLink|stablekey=spell:none - summon skeleton|link=Summon Skeleton|text=Summon Skeleton|image=Summon Skeleton.png}}
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}
 |-
-|style="text-align: left;"|{{ItemLink|Ulor's Encyclopedia}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:hand - 36 - ulor's encylopedia|link=Ulor's Encyclopedia|text=Ulor's Encyclopedia|image=Ulor's Encyclopedia.png}}
 |Primary or Secondary
 |
 |36
@@ -2042,10 +2042,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |4
 |4
 |4
-|On click: {{AbilityLink|Sleep}}
-|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|On click: {{AbilityLink|stablekey=spell:arc - sleep|link=Sleep|text=Sleep|image=Sleep.png}}
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Apotheosis}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 38 - apotheosis|link=Apotheosis|text=Apotheosis|image=Apotheosis.png}}
 |Primary or Secondary
 |1H Dagger
 |38
@@ -2066,10 +2066,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Vithean Revenge}}, 2% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:duel - vithean revenge|link=Vithean Revenge|text=Vithean Revenge|image=Vithean Revenge.png}}, 2% on attack
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Asp's Fang}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 29 - asp's fang|link=Asp's Fang|text=Asp's Fang|image=Asp's Fang.png}}
 |Primary or Secondary
 |1H Dagger
 |29
@@ -2090,10 +2090,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Venom of the Asp}}, 10% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:none - venom of the asp|link=Venom of the Asp|text=Venom of the Asp|image=Venom of the Asp.png}}, 10% on attack
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Azynthian Dagger}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 35 - azynthiandagger|link=Azynthian Dagger|text=Azynthian Dagger|image=Azynthian Dagger.png}}
 |Primary or Secondary
 |1H Dagger
 |35
@@ -2114,10 +2114,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Soul Tap}}, 4% on attack
-|[[Arcanist]], [[Druid]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}, 4% on attack
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}
 |-
-|style="text-align: left;"|{{ItemLink|Ebonshade}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 19 - ebonshade|link=Ebonshade|text=Ebonshade|image=Ebonshade.png}}
 |Primary or Secondary
 |1H Dagger
 |19
@@ -2138,10 +2138,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Death's Embrace}}, 10% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:duel - deathly embrace|link=Death's Embrace|text=Death's Embrace|image=Death's Embrace.png}}, 10% on attack
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Elemental Fourblade}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 42 - elemental four-blade|link=Elemental Fourblade|text=Elemental Fourblade|image=Elemental Fourblade.png}}
 |Primary or Secondary
 |1H Dagger
 |42
@@ -2162,10 +2162,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |4
 |
-|{{AbilityLink|Elemental Conflict}}, 20% on attack
-|[[Arcanist]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:none - elemental conflict|link=Elemental Conflict|text=Elemental Conflict|image=Elemental Conflict.png}}, 20% on attack
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}
 |-
-|style="text-align: left;"|{{ItemLink|Ephermalia, Blade of Waning}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 28 - ephermalia|link=Ephermalia, Blade of Waning|text=Ephermalia, Blade of Waning|image=Ephermalia, Blade of Waning.png}}
 |Primary or Secondary
 |1H Dagger
 |28
@@ -2186,10 +2186,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |3
-|{{AbilityLink|Dark Haste}}, 10% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:none - dark haste|link=Dark Haste|text=Dark Haste|image=Dark Haste.png}}, 10% on attack
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Horn of Aeiros}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 39 - horn of aeiros|link=Horn of Aeiros|text=Horn of Aeiros|image=Horn of Aeiros.png}}
 |Primary or Secondary
 |1H Dagger
 |39
@@ -2210,10 +2210,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Devour}}, 3% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:dru reav - devour|link=Devour|text=Devour|image=Devour.png}}, 3% on attack
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|King's Gambit}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 42 - king's gambit|link=King's Gambit|text=King's Gambit|image=King's Gambit.png}}
 |Primary or Secondary
 |1H Dagger
 |42
@@ -2234,10 +2234,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |5
 |3
-|{{AbilityLink|King's Gambit (Effect)|text=King's Gambit}}, 15% on attack
-|[[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:none - king's gambit|link=King's Gambit (Effect)|text=King's Gambit|image=King's Gambit (Effect).png}}, 15% on attack
+|{{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Lux, Carver of Stars}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 40 - lux, carver of stars|link=Lux, Carver of Stars|text=Lux, Carver of Stars|image=Lux, Carver of Stars.png}}
 |Primary or Secondary
 |1H Dagger
 |40
@@ -2258,10 +2258,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |6
 |
 |
-|{{AbilityLink|Sunburst (Lux)|text=Sunburst}}, 8% on attack
-|[[Windblade]]
+|{{AbilityLink|stablekey=spell:arc - sunburst|link=Sunburst (Lux)|text=Sunburst|image=Sunburst (Lux).png}}, 8% on attack
+|{{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}
 |-
-|style="text-align: left;"|{{ItemLink|Messenger}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 35 - messenger|link=Messenger|text=Messenger|image=Messenger.png}}
 |Primary or Secondary
 |1H Dagger
 |36
@@ -2282,10 +2282,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Brax's Touch}}, 70% on attack
-|[[Arcanist]], [[Druid]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:arc - brax's touch|link=Brax's Touch|text=Brax's Touch|image=Brax's Touch.png}}, 70% on attack
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}
 |-
-|style="text-align: left;"|{{ItemLink|Obsidian Edge}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 42 - obsidian edge|link=Obsidian Edge|text=Obsidian Edge|image=Obsidian Edge.png}}
 |Primary or Secondary
 |1H Dagger
 |42
@@ -2306,10 +2306,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |4
 |4
-|{{AbilityLink|Brax's Fury}}, 10% on attack
-|[[Arcanist]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:arc - brax's fury|link=Brax's Fury|text=Brax's Fury|image=Brax's Fury.png}}, 10% on attack
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Oslind's Eviscerator}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 31 - oslind's eviscerator|link=Oslind's Eviscerator|text=Oslind's Eviscerator|image=Oslind's Eviscerator.png}}
 |Primary or Secondary
 |1H Dagger
 |31
@@ -2330,10 +2330,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |3
 |3
-|{{AbilityLink|Soul Tap}}, 10% on attack
-|[[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}, 10% on attack
+|{{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Priel Knife}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 4 - priel knife|link=Priel Knife|text=Priel Knife|image=Priel Knife.png}}
 |Primary or Secondary
 |1H Dagger
 |4
@@ -2355,9 +2355,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Queen's Fang}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 19 - queen's fang|link=Queen's Fang|text=Queen's Fang|image=Queen's Fang.png}}
 |Primary or Secondary
 |1H Dagger
 |19
@@ -2378,10 +2378,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Queen's Bite}}, 10% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:none - queen's bite|link=Queen's Bite|text=Queen's Bite|image=Queen's Bite.png}}, 10% on attack
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Rusty Dagger}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 1 - rustydagger|link=Rusty Dagger|text=Rusty Dagger|image=Rusty Dagger.png}}
 |Primary or Secondary
 |1H Dagger
 |1
@@ -2403,9 +2403,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|The Interrogator}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 12 - the interrogator|link=The Interrogator|text=The Interrogator|image=The Interrogator.png}}
 |Primary or Secondary
 |1H Dagger
 |12
@@ -2426,10 +2426,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Magic Bolt}}, 35% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:dru arc stc - magic bolt|link=Magic Bolt|text=Magic Bolt|image=Magic Bolt.png}}, 35% on attack
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Thorned Branch}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 19 - thorned branch|link=Thorned Branch|text=Thorned Branch|image=Thorned Branch.png}}
 |Primary or Secondary
 |1H Dagger
 |19
@@ -2450,10 +2450,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Blast of Thorns}}, 10% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:dru - blast of thorns|link=Blast of Thorns|text=Blast of Thorns|image=Blast of Thorns.png}}, 10% on attack
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Acolyte's Cudgel}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 18 - acolyte's cudgel|link=Acolyte's Cudgel|text=Acolyte's Cudgel|image=Acolyte's Cudgel.png}}
 |Primary or Secondary
 |1H Melee
 |18
@@ -2474,10 +2474,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |3
-|{{AbilityLink|Dark Haste}}, 5% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:none - dark haste|link=Dark Haste|text=Dark Haste|image=Dark Haste.png}}, 5% on attack
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Basic Pick}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 2 - basic pick|link=Basic Pick|text=Basic Pick|image=Basic Pick.png}}
 |Primary or Secondary
 |1H Melee
 |2
@@ -2499,9 +2499,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Bear Bone Club}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 6 - bearbone club|link=Bear Bone Club|text=Bear Bone Club|image=Bear Bone Club.png}}
 |Primary or Secondary
 |1H Melee
 |6
@@ -2523,9 +2523,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Blackflame Torch}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 18 - blackflame torch|link=Blackflame Torch|text=Blackflame Torch|image=Blackflame Torch.png}}
 |Primary or Secondary
 |1H Melee
 |18
@@ -2547,9 +2547,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |3
 |3
 |
-|[[Arcanist]], [[Stormcaller]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Blade of Grace}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 42 - blade of grace|link=Blade of Grace|text=Blade of Grace|image=Blade of Grace.png}}
 |Primary or Secondary
 |1H Melee
 |42
@@ -2570,10 +2570,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |5
-|{{AbilityLink|Focus Pain}}, 10% on attack
-|[[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:none - fracture|link=Focus Pain|text=Focus Pain|image=Focus Pain.png}}, 10% on attack
+|{{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Blade of the Sea}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 12 - blade of the sea|link=Blade of the Sea|text=Blade of the Sea|image=Blade of the Sea.png}}
 |Primary or Secondary
 |1H Melee
 |12
@@ -2594,10 +2594,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Vitheo's Blessing of the Sea}}, 5% on attack
-|[[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:duel - vitheo's blessing of the sea|link=Vitheo's Blessing of the Sea|text=Vitheo's Blessing of the Sea|image=Vitheo's Blessing of the Sea.png}}, 5% on attack
+|{{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Bloodletter}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 13 - bloodletter|link=Bloodletter|text=Bloodletter|image=Bloodletter.png}}
 |Primary or Secondary
 |1H Melee
 |13
@@ -2619,9 +2619,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Brackwood Mace}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 3 - brackwood mace|link=Brackwood Mace|text=Brackwood Mace|image=Brackwood Mace.png}}
 |Primary or Secondary
 |1H Melee
 |3
@@ -2643,9 +2643,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Braxonian Mace}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 30 - braxonian mace|link=Braxonian Mace|text=Braxonian Mace|image=Braxonian Mace.png}}
 |Primary or Secondary
 |1H Melee
 |30
@@ -2666,10 +2666,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |9
-|{{AbilityLink|Brax's Rage}}, 8% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:arc - brax's rage|link=Brax's Rage|text=Brax's Rage|image=Brax's Rage.png}}, 8% on attack
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Ceto}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 29 - ceto|link=Ceto|text=Ceto|image=Ceto.png}}
 |Primary or Secondary
 |1H Melee
 |29
@@ -2690,10 +2690,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |6
 |
-|Worn: {{AbilityLink|Ocean's Kiss}}
-|[[Paladin]], [[Reaver]], [[Windblade]]
+|Worn: {{AbilityLink|stablekey=spell:none - sea's kiss|link=Ocean's Kiss|text=Ocean's Kiss|image=Ocean's Kiss.png}}
+|{{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Charged Sword}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 35 - charged sword|link=Charged Sword|text=Charged Sword|image=Charged Sword.png}}
 |Primary or Secondary
 |1H Melee
 |35
@@ -2714,10 +2714,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Major Lightning}}, 7% on attack
-|[[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:dru - major lightning|link=Major Lightning|text=Major Lightning|image=Major Lightning.png}}, 7% on attack
+|{{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Cinder of Birth}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:hand - 20 - cinder of birth|link=Cinder of Birth|text=Cinder of Birth|image=Cinder of Birth.png}}
 |Primary or Secondary
 |1H Melee
 |20
@@ -2738,10 +2738,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |2
 |
-|{{AbilityLink|Brax's Rage}}, 10% on attack
-|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|{{AbilityLink|stablekey=spell:arc - brax's rage|link=Brax's Rage|text=Brax's Rage|image=Brax's Rage.png}}, 10% on attack
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Copper Sword}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - bronze short sword|link=Copper Sword|text=Copper Sword|image=Copper Sword.png}}
 |Primary or Secondary
 |1H Melee
 |1
@@ -2763,9 +2763,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Paladin]], [[Reaver]], [[Windblade]]
+|{{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Cryptid Claws}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 36 - cryptid claws|link=Cryptid Claws|text=Cryptid Claws|image=Cryptid Claws.png}}
 |Primary or Secondary
 |1H Melee
 |36
@@ -2786,10 +2786,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Beast's Clutch}}, 5% on attack
-|[[Druid]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:none - beast's clutch|link=Beast's Clutch|text=Beast's Clutch|image=Beast's Clutch.png}}, 5% on attack
+|{{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}
 |-
-|style="text-align: left;"|{{ItemLink|Crystallized Tactics}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:hand - 24 - crystalized tactics|link=Crystallized Tactics|text=Crystallized Tactics|image=Crystallized Tactics.png}}
 |Primary or Secondary
 |1H Melee
 |24
@@ -2811,9 +2811,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Deciding Blade}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:gm - weap - 35 - deciding blade|link=Deciding Blade|text=Deciding Blade|image=Deciding Blade.png}}
 |Primary or Secondary
 |1H Melee
 |99
@@ -2835,9 +2835,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |5
 |
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Demon Claw}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 25 - demonclaw|link=Demon Claw|text=Demon Claw|image=Demon Claw.png}}
 |Primary or Secondary
 |1H Melee
 |25
@@ -2858,10 +2858,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Grip of Grief}}, 2% on attack
-|[[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:none - grip of grief|link=Grip of Grief|text=Grip of Grief|image=Grip of Grief.png}}, 2% on attack
+|{{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Diamond Claw}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 25 - diamondclaw|link=Diamond Claw|text=Diamond Claw|image=Diamond Claw.png}}
 |Primary or Secondary
 |1H Melee
 |25
@@ -2882,10 +2882,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Diamond Burst}}, 4% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:none - diamond burst|link=Diamond Burst|text=Diamond Burst|image=Diamond Burst.png}}, 4% on attack
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Diamond Edged Sword}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 30 - diamond edged sword|link=Diamond Edged Sword|text=Diamond Edged Sword|image=Diamond Edged Sword.png}}
 |Primary or Secondary
 |1H Melee
 |30
@@ -2906,10 +2906,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Diamond Burst}}, 5% on attack
-|[[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:none - diamond burst|link=Diamond Burst|text=Diamond Burst|image=Diamond Burst.png}}, 5% on attack
+|{{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|End's Bane}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 24 - end's call|link=End's Bane|text=End's Bane|image=End's Bane.png}}
 |Primary or Secondary
 |1H Melee
 |24
@@ -2930,10 +2930,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |4
-|{{AbilityLink|Group Heal}}, 5% on attack
-|[[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:dru - group heal|link=Group Heal|text=Group Heal|image=Group Heal.png}}, 5% on attack
+|{{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Esen}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 29 - esen|link=Esen|text=Esen|image=Esen.png}}
 |Primary or Secondary
 |1H Melee
 |37
@@ -2954,10 +2954,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Aetherstorm}}, 5% on attack
-|[[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:arc - aetherstorm|link=Aetherstorm|text=Aetherstorm|image=Aetherstorm.png}}, 5% on attack
+|{{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Fungal Longsword}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 30 - fungal longsword|link=Fungal Longsword|text=Fungal Longsword|image=Fungal Longsword.png}}
 |Primary or Secondary
 |1H Melee
 |30
@@ -2978,10 +2978,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |6
 |
 |
-|{{AbilityLink|Blast of Thorns}}, 10% on attack
-|[[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:dru - blast of thorns|link=Blast of Thorns|text=Blast of Thorns|image=Blast of Thorns.png}}, 10% on attack
+|{{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Glowing Blue Stone}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:hand - 31 - glowing blue stone|link=Glowing Blue Stone|text=Glowing Blue Stone|image=Glowing Blue Stone.png}}
 |Primary or Secondary
 |1H Melee
 |31
@@ -3003,9 +3003,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Gourd Carver}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 6 - gourd carver|link=Gourd Carver|text=Gourd Carver|image=Gourd Carver.png}}
 |Primary or Secondary
 |1H Melee
 |6
@@ -3026,10 +3026,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |1
-|{{AbilityLink|Magic Bolt}}, 8% on attack
-|[[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:dru arc stc - magic bolt|link=Magic Bolt|text=Magic Bolt|image=Magic Bolt.png}}, 8% on attack
+|{{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Hardened Copper Sword}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - bronze short sword +1|link=Hardened Copper Sword|text=Hardened Copper Sword|image=Hardened Copper Sword.png}}
 |Primary or Secondary
 |1H Melee
 |1
@@ -3051,9 +3051,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Paladin]], [[Reaver]], [[Windblade]]
+|{{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Jellystick}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 14 - jellywhip|link=Jellystick|text=Jellystick|image=Jellystick.png}}
 |Primary or Secondary
 |1H Melee
 |14
@@ -3074,10 +3074,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Marsh Rot}}, 10% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:all - marsh rot|link=Marsh Rot|text=Marsh Rot|image=Marsh Rot.png}}, 10% on attack
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Journeyman's Pick}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 0 - journeyman's pick|link=Journeyman's Pick|text=Journeyman's Pick|image=Journeyman's Pick.png}}
 |Primary or Secondary
 |1H Melee
 |
@@ -3099,9 +3099,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Lamplighter's Spark}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:hand - 6 - lamplighter's spark|link=Lamplighter's Spark|text=Lamplighter's Spark|image=Lamplighter's Spark.png}}
 |Primary or Secondary
 |1H Melee
 |6
@@ -3122,10 +3122,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |1
 |
-|{{AbilityLink|Ethereal Rending}}, 2% on attack
-|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|{{AbilityLink|stablekey=spell:arc - ethereal rend|link=Ethereal Rending|text=Ethereal Rending|image=Ethereal Rending.png}}, 2% on attack
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Looming Reaper}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 30 - looming reaper|link=Looming Reaper|text=Looming Reaper|image=Looming Reaper.png}}
 |Primary or Secondary
 |1H Melee
 |30
@@ -3147,9 +3147,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |3
 |
 |
-|[[Druid]]
+|{{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Mason's Pick}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 0 - mason's pick|link=Mason's Pick|text=Mason's Pick|image=Mason's Pick.png}}
 |Primary or Secondary
 |1H Melee
 |
@@ -3171,9 +3171,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Memories of Snow}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:hand - 25 - memories of snow|link=Memories of Snow|text=Memories of Snow|image=Memories of Snow.png}}
 |Primary or Secondary
 |1H Melee
 |25
@@ -3194,10 +3194,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Ice Spear}}, 20% on attack
-|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|{{AbilityLink|stablekey=spell:arc - ice spear|link=Ice Spear|text=Ice Spear|image=Ice Spear.png}}, 20% on attack
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Mithril Short Sword}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 30 - mithril short sword|link=Mithril Short Sword|text=Mithril Short Sword|image=Mithril Short Sword.png}}
 |Primary or Secondary
 |1H Melee
 |30
@@ -3218,10 +3218,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |5
-|{{AbilityLink|Mithril Shards}}, 5% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:none - mithril shards|link=Mithril Shards|text=Mithril Shards|image=Mithril Shards.png}}, 5% on attack
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Molorai Axe}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 7 - molora axe|link=Molorai Axe|text=Molorai Axe|image=Molorai Axe.png}}
 |Primary or Secondary
 |1H Melee
 |7
@@ -3243,9 +3243,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Molorai Broadsword}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 16 - molorai broadsword|link=Molorai Broadsword|text=Molorai Broadsword|image=Molorai Broadsword.png}}
 |Primary or Secondary
 |1H Melee
 |16
@@ -3267,9 +3267,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Paladin]], [[Reaver]], [[Windblade]]
+|{{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Nighthollow Candle}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:hand - 100 - the nighthollow candle|link=Nighthollow Candle|text=Nighthollow Candle|image=Nighthollow Candle.png}}
 |Primary or Secondary
 |1H Melee
 |100
@@ -3291,9 +3291,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Petrified Club}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 9 - a petrified club|link=Petrified Club|text=Petrified Club|image=Petrified Club.png}}
 |Primary or Secondary
 |1H Melee
 |9
@@ -3314,10 +3314,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Magic Bolt}}, 15% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:dru arc stc - magic bolt|link=Magic Bolt|text=Magic Bolt|image=Magic Bolt.png}}, 15% on attack
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Petrified Wood Cane}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 33 - petrified walking stick|link=Petrified Wood Cane|text=Petrified Wood Cane|image=Petrified Wood Cane.png}}
 |Primary or Secondary
 |1H Melee
 |33
@@ -3339,9 +3339,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Arcanist]], [[Druid]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Polished Longsword}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 6 - polished longsword|link=Polished Longsword|text=Polished Longsword|image=Polished Longsword.png}}
 |Primary or Secondary
 |1H Melee
 |6
@@ -3363,9 +3363,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Paladin]], [[Reaver]], [[Windblade]]
+|{{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Razor Waveblade}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 13 - razor waveblade|link=Razor Waveblade|text=Razor Waveblade|image=Razor Waveblade.png}}
 |Primary or Secondary
 |1H Melee
 |13
@@ -3387,9 +3387,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Paladin]], [[Reaver]], [[Windblade]]
+|{{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Reaper of Regrowth}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 40 - reaper of regrowth|link=Reaper of Regrowth|text=Reaper of Regrowth|image=Reaper of Regrowth.png}}
 |Primary or Secondary
 |1H Melee
 |40
@@ -3410,10 +3410,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Time Stone (Effect)|text=Time Stone}}, 1% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:none - time stone|link=Time Stone (Effect)|text=Time Stone|image=Time Stone (Effect).png}}, 1% on attack
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Resonating Crystal}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:hand - 28 - resonating crystal|link=Resonating Crystal|text=Resonating Crystal|image=Resonating Crystal.png}}
 |Primary or Secondary
 |1H Melee
 |28
@@ -3435,9 +3435,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |10
 |
-|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Rotting Cudgel}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 6 - rotting cudgel|link=Rotting Cudgel|text=Rotting Cudgel|image=Rotting Cudgel.png}}
 |Primary or Secondary
 |1H Melee
 |6
@@ -3459,9 +3459,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |9
 |
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Runed Molorai Axe}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 11 - runed molora axe 1|link=Runed Molorai Axe|text=Runed Molorai Axe|image=Runed Molorai Axe.png}}
 |Primary or Secondary
 |1H Melee
 |7
@@ -3482,10 +3482,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Magic Bolt}}, 15% on attack
-|[[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:dru arc stc - magic bolt|link=Magic Bolt|text=Magic Bolt|image=Magic Bolt.png}}, 15% on attack
+|{{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Rusty Hatchet}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 1 - rusty hatchet|link=Rusty Hatchet|text=Rusty Hatchet|image=Rusty Hatchet.png}}
 |Primary or Secondary
 |1H Melee
 |1
@@ -3507,9 +3507,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Paladin]], [[Reaver]], [[Windblade]]
+|{{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Rusty Shortsword}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 1 - rusty sword|link=Rusty Shortsword|text=Rusty Shortsword|image=Rusty Shortsword.png}}
 |Primary or Secondary
 |1H Melee
 |1
@@ -3531,9 +3531,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Scorched Walking Stick}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 18 - scorched walking stick|link=Scorched Walking Stick|text=Scorched Walking Stick|image=Scorched Walking Stick.png}}
 |Primary or Secondary
 |1H Melee
 |18
@@ -3555,9 +3555,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |3
 |
 |
-|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Short Sword of Viropha}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 12 - short sword of viropha|link=Short Sword of Viropha|text=Short Sword of Viropha|image=Short Sword of Viropha.png}}
 |Primary or Secondary
 |1H Melee
 |12
@@ -3578,10 +3578,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |4
-|{{AbilityLink|Theft of Life}}, 5% on attack
-|[[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:dru reav - theft of life|link=Theft of Life|text=Theft of Life|image=Theft of Life.png}}, 5% on attack
+|{{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Sivakayan Hookblade}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 18 - sivakayan hookblade|link=Sivakayan Hookblade|text=Sivakayan Hookblade|image=Sivakayan Hookblade.png}}
 |Primary or Secondary
 |1H Melee
 |18
@@ -3602,10 +3602,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |6
-|{{AbilityLink|Void Touch}}, 5% on attack
-|[[Windblade]]
+|{{AbilityLink|stablekey=spell:dru arc - void touch|link=Void Touch|text=Void Touch|image=Void Touch.png}}, 5% on attack
+|{{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}
 |-
-|style="text-align: left;"|{{ItemLink|Sivakayan Straightsword}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 24 - sivakayan straightsword|link=Sivakayan Straightsword|text=Sivakayan Straightsword|image=Sivakayan Straightsword.png}}
 |Primary or Secondary
 |1H Melee
 |24
@@ -3626,10 +3626,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |4
-|{{AbilityLink|Theft of Life}}, 20% on attack
-|[[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:dru reav - theft of life|link=Theft of Life|text=Theft of Life|image=Theft of Life.png}}, 20% on attack
+|{{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Sleeper's Pin}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 21 - pin|link=Sleeper's Pin|text=Sleeper's Pin|image=Sleeper's Pin.png}}
 |Primary or Secondary
 |1H Melee
 |21
@@ -3650,10 +3650,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Predator's Grace}}, 4% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:dru - predator's grace|link=Predator's Grace|text=Predator's Grace|image=Predator's Grace.png}}, 4% on attack
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Songmaker}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 18 - torturer's dagger|link=Songmaker|text=Songmaker|image=Songmaker.png}}
 |Primary or Secondary
 |1H Melee
 |18
@@ -3674,10 +3674,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |9
-|{{AbilityLink|Theft of Life}}, 15% on attack
-|[[Arcanist]], [[Druid]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:dru reav - theft of life|link=Theft of Life|text=Theft of Life|image=Theft of Life.png}}, 15% on attack
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}
 |-
-|style="text-align: left;"|{{ItemLink|Spear of True North}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 42 - spear of true north|link=Spear of True North|text=Spear of True North|image=Spear of True North.png}}
 |Primary or Secondary
 |1H Melee
 |42
@@ -3698,10 +3698,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |8
 |8
 |12
-|{{AbilityLink|Vithean Judgement}}, 14% on attack
-|[[Windblade]]
+|{{AbilityLink|stablekey=spell:none - vithean judgement|link=Vithean Judgement|text=Vithean Judgement|image=Vithean Judgement.png}}, 14% on attack
+|{{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}
 |-
-|style="text-align: left;"|{{ItemLink|Spectral Dagger}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 15 - spectraldagger|link=Spectral Dagger|text=Spectral Dagger|image=Spectral Dagger.png}}
 |Primary or Secondary
 |1H Melee
 |15
@@ -3723,9 +3723,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Arcanist]], [[Druid]], [[Stormcaller]], [[Windblade]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Spectral Sword}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 22 - spectralsword|link=Spectral Sword|text=Spectral Sword|image=Spectral Sword.png}}
 |Primary or Secondary
 |1H Melee
 |22
@@ -3747,9 +3747,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Spilling Blade}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 42 - spilling blade|link=Spilling Blade|text=Spilling Blade|image=Spilling Blade.png}}
 |Primary or Secondary
 |1H Melee
 |42
@@ -3770,10 +3770,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |5
 |
 |5
-|{{AbilityLink|Forest's Reckoning}}, 5% on attack
-|[[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:dru - forest's reckoning|link=Forest's Reckoning|text=Forest's Reckoning|image=Forest's Reckoning.png}}, 5% on attack
+|{{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Steel Long Sword}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 4 - steel long sword|link=Steel Long Sword|text=Steel Long Sword|image=Steel Long Sword.png}}
 |Primary or Secondary
 |1H Melee
 |4
@@ -3795,9 +3795,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Paladin]], [[Reaver]], [[Windblade]]
+|{{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Stone Sword}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 26 - stone sword|link=Stone Sword|text=Stone Sword|image=Stone Sword.png}}
 |Primary or Secondary
 |1H Melee
 |26
@@ -3819,9 +3819,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |4
 |
-|[[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Thorn}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 10 - thorn|link=Thorn|text=Thorn|image=Thorn.png}}
 |Primary or Secondary
 |1H Melee
 |10
@@ -3842,10 +3842,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |2
 |2
 |1
-|{{AbilityLink|Biting Vines}}, 15% on attack
-|[[Druid]]
+|{{AbilityLink|stablekey=spell:dru - biting vines|link=Biting Vines|text=Biting Vines|image=Biting Vines.png}}, 15% on attack
+|{{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Traitor's Steel}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 33 - traitor's steel|link=Traitor's Steel|text=Traitor's Steel|image=Traitor's Steel.png}}
 |Primary or Secondary
 |1H Melee
 |33
@@ -3866,10 +3866,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |9
-|{{AbilityLink|Melting Bones}}, 10% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:dru - melting bones|link=Melting Bones|text=Melting Bones|image=Melting Bones.png}}, 10% on attack
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Twisted Branch}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 33 - twisted branch|link=Twisted Branch|text=Twisted Branch|image=Twisted Branch.png}}
 |Primary or Secondary
 |1H Melee
 |33
@@ -3890,10 +3890,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Blight}}, 20% on attack
-|[[Druid]]
+|{{AbilityLink|stablekey=spell:none - blight|link=Blight|text=Blight|image=Blight.png}}, 20% on attack
+|{{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Whipsword}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 14 - whipsword|link=Whipsword|text=Whipsword|image=Whipsword.png}}
 |Primary or Secondary
 |1H Melee
 |14
@@ -3914,10 +3914,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Concuss}}, 1% on attack
-|[[Windblade]]
+|{{AbilityLink|stablekey=spell:dru arc - concuss|link=Concuss|text=Concuss|image=Concuss.png}}, 1% on attack
+|{{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}
 |-
-|style="text-align: left;"|{{ItemLink|Wyrm Bone}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 35 - wyrmbone|link=Wyrm Bone|text=Wyrm Bone|image=Wyrm Bone.png}}
 |Primary or Secondary
 |1H Melee
 |27
@@ -3938,10 +3938,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Concuss}}, 3% on attack
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:dru arc - concuss|link=Concuss|text=Concuss|image=Concuss.png}}, 3% on attack
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Adept Wand}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:wand - 8 - adept wand|link=Adept Wand|text=Adept Wand|image=Adept Wand.png}}
 |Primary or Secondary
 |Wand
 |8
@@ -3962,10 +3962,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Brax's Touch}}, 5% on cast
-|[[Arcanist]], [[Druid]]
+|{{AbilityLink|stablekey=spell:arc - brax's touch|link=Brax's Touch|text=Brax's Touch|image=Brax's Touch.png}}, 5% on cast
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Bombastic Wand}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:wand - 29 - bombastic wand|link=Bombastic Wand|text=Bombastic Wand|image=Bombastic Wand.png}}
 |Primary or Secondary
 |Wand
 |30
@@ -3986,10 +3986,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|The Wild's Fang}}, 25% on cast
-|[[Arcanist]], [[Druid]]
+|{{AbilityLink|stablekey=spell:dru - the wild's grasp|link=The Wild's Fang|text=The Wild's Fang|image=The Wild's Fang.png}}, 25% on cast
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Boneweaver's Leg}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:wand - 19 - boneweaver's leg|link=Boneweaver's Leg|text=Boneweaver's Leg|image=Boneweaver's Leg.png}}
 |Primary or Secondary
 |Wand
 |19
@@ -4010,10 +4010,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |2
 |
 |
-|{{AbilityLink|Melting Bones}}, 12% on cast
-|[[Arcanist]], [[Druid]]
+|{{AbilityLink|stablekey=spell:dru - melting bones|link=Melting Bones|text=Melting Bones|image=Melting Bones.png}}, 12% on cast
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Brax's Candle}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:wand - 29 - brax's candle|link=Brax's Candle|text=Brax's Candle|image=Brax's Candle.png}}
 |Primary or Secondary
 |Wand
 |29
@@ -4034,10 +4034,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Brax's Rage}}, 10% on cast
-|[[Arcanist]]
+|{{AbilityLink|stablekey=spell:arc - brax's rage|link=Brax's Rage|text=Brax's Rage|image=Brax's Rage.png}}, 10% on cast
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}
 |-
-|style="text-align: left;"|{{ItemLink|Copper Sceptre}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:wand - bronzesceptre|link=Copper Sceptre|text=Copper Sceptre|image=Copper Sceptre.png}}
 |Primary or Secondary
 |Wand
 |
@@ -4059,9 +4059,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Arcanist]], [[Druid]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Corruptor}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:wand - 40 - corruptor|link=Corruptor|text=Corruptor|image=Corruptor.png}}
 |Primary or Secondary
 |Wand
 |40
@@ -4082,10 +4082,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Corrupt}}, 20% on cast
-|[[Arcanist]], [[Druid]]
+|{{AbilityLink|stablekey=spell:none - corrupt|link=Corrupt|text=Corrupt|image=Corrupt.png}}, 20% on cast
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Dreamy Wand}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:wand - 21 - dreamy wand|link=Dreamy Wand|text=Dreamy Wand|image=Dreamy Wand.png}}
 |Primary or Secondary
 |Wand
 |22
@@ -4106,10 +4106,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |4
-|{{AbilityLink|Mithril Shards}}, 5% on cast
-|[[Arcanist]], [[Druid]]
+|{{AbilityLink|stablekey=spell:none - mithril shards|link=Mithril Shards|text=Mithril Shards|image=Mithril Shards.png}}, 5% on cast
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Eternox, Remnant of the Void}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 40 - eternox, remnant of the void|link=Eternox, Remnant of the Void|text=Eternox, Remnant of the Void|image=Eternox, Remnant of the Void.png}}
 |Primary or Secondary
 |Wand
 |40
@@ -4130,10 +4130,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |6
 |
-|On click: {{AbilityLink|Healing Bloom}}
-|[[Druid]]
+|On click: {{AbilityLink|stablekey=spell:dru - healing bloom (cast)|link=Healing Bloom|text=Healing Bloom|image=Healing Bloom.png}}
+|{{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Eyestalk Wand}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:wand - 12 - eyestalk wand|link=Eyestalk Wand|text=Eyestalk Wand|image=Eyestalk Wand.png}}
 |Primary or Secondary
 |Wand
 |12
@@ -4154,10 +4154,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |2
-|{{AbilityLink|Theft of Life}}, 10% on cast
-|[[Arcanist]], [[Druid]]
+|{{AbilityLink|stablekey=spell:dru reav - theft of life|link=Theft of Life|text=Theft of Life|image=Theft of Life.png}}, 10% on cast
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Fernalla's Paintbrush}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:wand - 42 - fernalla's paintbrush|link=Fernalla's Paintbrush|text=Fernalla's Paintbrush|image=Fernalla's Paintbrush.png}}
 |Primary or Secondary
 |Wand
 |42
@@ -4178,10 +4178,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|The Wild's Fang}}, 30% on cast
-|[[Druid]]
+|{{AbilityLink|stablekey=spell:dru - the wild's grasp|link=The Wild's Fang|text=The Wild's Fang|image=The Wild's Fang.png}}, 30% on cast
+|{{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Fernallan Sceptre}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:wand - 24 - fernallan sceptre|link=Fernallan Sceptre|text=Fernallan Sceptre|image=Fernallan Sceptre.png}}
 |Primary or Secondary
 |Wand
 |24
@@ -4202,10 +4202,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Biting Vines}}, 5% on cast
-|[[Arcanist]], [[Druid]]
+|{{AbilityLink|stablekey=spell:dru - biting vines|link=Biting Vines|text=Biting Vines|image=Biting Vines.png}}, 5% on cast
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Flaming Staff}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:wand - 42 - flaming staff|link=Flaming Staff|text=Flaming Staff|image=Flaming Staff.png}}
 |Primary or Secondary
 |Wand
 |42
@@ -4226,10 +4226,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |8
 |
-|{{AbilityLink|Brax's Touch}}, 6% on cast
-|[[Arcanist]], [[Druid]]
+|{{AbilityLink|stablekey=spell:arc - brax's touch|link=Brax's Touch|text=Brax's Touch|image=Brax's Touch.png}}, 6% on cast
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Fungal Bouquet}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:wand - 18 - fungal wand|link=Fungal Bouquet|text=Fungal Bouquet|image=Fungal Bouquet.png}}
 |Primary or Secondary
 |Wand
 |18
@@ -4250,10 +4250,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |2
 |
 |
-|{{AbilityLink|Toxicity}}, 15% on cast
-|[[Arcanist]], [[Druid]]
+|{{AbilityLink|stablekey=spell:dru - toxicity|link=Toxicity|text=Toxicity|image=Toxicity.png}}, 15% on cast
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Garg Wand}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:wand - 33 - garg wand|link=Garg Wand|text=Garg Wand|image=Garg Wand.png}}
 |Primary or Secondary
 |Wand
 |33
@@ -4274,10 +4274,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Magic Bolt}}, 55% on cast
-|[[Arcanist]], [[Druid]]
+|{{AbilityLink|stablekey=spell:dru arc stc - magic bolt|link=Magic Bolt|text=Magic Bolt|image=Magic Bolt.png}}, 55% on cast
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Hardened Sceptre}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:wand - 13 - hardened bronze sceptre|link=Hardened Sceptre|text=Hardened Sceptre|image=Hardened Sceptre.png}}
 |Primary or Secondary
 |Wand
 |13
@@ -4298,10 +4298,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |5
 |4
-|{{AbilityLink|Ethereal Rending}}, 2% on cast
-|[[Arcanist]], [[Druid]]
+|{{AbilityLink|stablekey=spell:arc - ethereal rend|link=Ethereal Rending|text=Ethereal Rending|image=Ethereal Rending.png}}, 2% on cast
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Ogrespice Bundle}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:wand - 14 - ogrespice bundle|link=Ogrespice Bundle|text=Ogrespice Bundle|image=Ogrespice Bundle.png}}
 |Primary or Secondary
 |Wand
 |14
@@ -4322,10 +4322,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |3
-|{{AbilityLink|Sleep}}, 75% on cast
-|[[Arcanist]], [[Druid]]
+|{{AbilityLink|stablekey=spell:arc - sleep|link=Sleep|text=Sleep|image=Sleep.png}}, 75% on cast
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Singularity, Vessel of Creation}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:wand - 40 - singularity, vessel of creation|link=Singularity, Vessel of Creation|text=Singularity, Vessel of Creation|image=Singularity, Vessel of Creation.png}}
 |Primary or Secondary
 |Wand
 |40
@@ -4346,10 +4346,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |6
 |
-|{{AbilityLink|Aetherstorm}}, 33% on cast
-|[[Arcanist]]
+|{{AbilityLink|stablekey=spell:arc - aetherstorm|link=Aetherstorm|text=Aetherstorm|image=Aetherstorm.png}}, 33% on cast
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}
 |-
-|style="text-align: left;"|{{ItemLink|Sivakayan Sceptre}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:wand - 24 - sivakayan sceptre|link=Sivakayan Sceptre|text=Sivakayan Sceptre|image=Sivakayan Sceptre.png}}
 |Primary or Secondary
 |Wand
 |24
@@ -4371,9 +4371,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Arcanist]], [[Druid]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Sivakayan Wand}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:wand - 25 - sivakayan wand|link=Sivakayan Wand|text=Sivakayan Wand|image=Sivakayan Wand.png}}
 |Primary or Secondary
 |Wand
 |25
@@ -4394,10 +4394,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |5
 |3
-|{{AbilityLink|Focus Pain}}, 1% on cast
-|[[Arcanist]], [[Druid]]
+|{{AbilityLink|stablekey=spell:none - fracture|link=Focus Pain|text=Focus Pain|image=Focus Pain.png}}, 1% on cast
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Spectral Sceptre}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:wand - 15 - spectralsceptre|link=Spectral Sceptre|text=Spectral Sceptre|image=Spectral Sceptre.png}}
 |Primary or Secondary
 |Wand
 |15
@@ -4419,9 +4419,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Arcanist]], [[Druid]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Unusual Copper Sceptre}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:wand - bronzesceptre 1|link=Unusual Copper Sceptre|text=Unusual Copper Sceptre|image=Unusual Copper Sceptre.png}}
 |Primary or Secondary
 |Wand
 |
@@ -4443,9 +4443,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Arcanist]], [[Druid]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Volcanic Sceptre}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:wand - 26 - volcanic sceptre|link=Volcanic Sceptre|text=Volcanic Sceptre|image=Volcanic Sceptre.png}}
 |Primary or Secondary
 |Wand
 |26
@@ -4466,10 +4466,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |15
 |
-|{{AbilityLink|Brax's Rage}}, 12% on cast
-|[[Arcanist]], [[Druid]]
+|{{AbilityLink|stablekey=spell:arc - brax's rage|link=Brax's Rage|text=Brax's Rage|image=Brax's Rage.png}}, 12% on cast
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Wand of Air}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:wand - 12 - wand of air|link=Wand of Air|text=Wand of Air|image=Wand of Air.png}}
 |Primary or Secondary
 |Wand
 |12
@@ -4490,10 +4490,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Magic Bolt}}, 25% on cast
-|[[Arcanist]], [[Druid]]
+|{{AbilityLink|stablekey=spell:dru arc stc - magic bolt|link=Magic Bolt|text=Magic Bolt|image=Magic Bolt.png}}, 25% on cast
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Warder's Staff}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:wand - 42 - staff of the warder|link=Warder's Staff|text=Warder's Staff|image=Warder's Staff.png}}
 |Primary or Secondary
 |Wand
 |42
@@ -4514,10 +4514,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Brax's Touch}}, 99% on cast
-|[[Arcanist]], [[Druid]]
+|{{AbilityLink|stablekey=spell:arc - brax's touch|link=Brax's Touch|text=Brax's Touch|image=Brax's Touch.png}}, 99% on cast
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Weak Wand}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:wand - 3 - weak wand|link=Weak Wand|text=Weak Wand|image=Weak Wand.png}}
 |Primary or Secondary
 |Wand
 |3
@@ -4538,10 +4538,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Magic Bolt}}, 5% on cast
-|[[Arcanist]], [[Druid]]
+|{{AbilityLink|stablekey=spell:dru arc stc - magic bolt|link=Magic Bolt|text=Magic Bolt|image=Magic Bolt.png}}, 5% on cast
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Molorai Parrying Dagger}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:weap - 18 - molorai parrying dagger|link=Molorai Parrying Dagger|text=Molorai Parrying Dagger|image=Molorai Parrying Dagger.png}}
 |Secondary
 |1H Melee
 |18
@@ -4563,9 +4563,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |4
 |
-|[[Windblade]]
+|{{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}
 |-
-|style="text-align: left;"|{{ItemLink|Shivering Torch}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:secondary - 50 - shivering torch|link=Shivering Torch|text=Shivering Torch|image=Shivering Torch.png}}
 |Secondary
 |1H Melee
 |50
@@ -4587,9 +4587,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Bark Shield}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:secondary - 19 - bark shield|link=Bark Shield|text=Bark Shield|image=Bark Shield.png}}
 |Secondary
 |Shield
 |19
@@ -4610,10 +4610,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |2
 |
 |
-|{{AbilityLink|Blast of Thorns}}, 75% on bash
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:dru - blast of thorns|link=Blast of Thorns|text=Blast of Thorns|image=Blast of Thorns.png}}, 75% on bash
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Bastion}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:secondary - 38 - bastion|link=Bastion|text=Bastion|image=Bastion.png}}
 |Secondary
 |Shield
 |36
@@ -4634,10 +4634,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |3
 |
-|{{AbilityLink|Death Stare}}, 99% on bash
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]]
+|{{AbilityLink|stablekey=spell:none - deathstare|link=Death Stare|text=Death Stare|image=Death Stare.png}}, 99% on bash
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Braxonian Shield}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:secondary - 18 - braxonian shield|link=Braxonian Shield|text=Braxonian Shield|image=Braxonian Shield.png}}
 |Secondary
 |Shield
 |18
@@ -4658,10 +4658,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |2
 |
-|{{AbilityLink|Brax's Rage}}, 75% on bash
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]]
+|{{AbilityLink|stablekey=spell:arc - brax's rage|link=Brax's Rage|text=Brax's Rage|image=Brax's Rage.png}}, 75% on bash
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Cometshard Shield}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:secondary - 42 - cometshard shield|link=Cometshard Shield|text=Cometshard Shield|image=Cometshard Shield.png}}
 |Secondary
 |Shield
 |42
@@ -4682,10 +4682,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |5
 |
 |10
-|{{AbilityLink|Moonlit Frenzy}}, 90% on bash
-|[[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:pal - taunt moonlit frenzy|link=Moonlit Frenzy|text=Moonlit Frenzy|image=Moonlit Frenzy.png}}, 90% on bash
+|{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Crested Shield}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:secondary - 14 - crested shield|link=Crested Shield|text=Crested Shield|image=Crested Shield.png}}
 |Secondary
 |Shield
 |14
@@ -4706,10 +4706,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |2
-|{{AbilityLink|Stun}}, 75% on bash
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:gen - stun|link=Stun|text=Stun|image=Stun.png}}, 75% on bash
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Cursed Hide Shield}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:secondary - 38 - cursed hide shield|link=Cursed Hide Shield|text=Cursed Hide Shield|image=Cursed Hide Shield.png}}
 |Secondary
 |Shield
 |38
@@ -4730,10 +4730,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |2
 |4
-|{{AbilityLink|Devour}}, 99% on bash
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]]
+|{{AbilityLink|stablekey=spell:dru reav - devour|link=Devour|text=Devour|image=Devour.png}}, 99% on bash
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Diamondine Shield}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:secondary - 18 - diamondine shield|link=Diamondine Shield|text=Diamondine Shield|image=Diamondine Shield.png}}
 |Secondary
 |Shield
 |18
@@ -4754,10 +4754,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |1
 |2
 |1
-|{{AbilityLink|Diamond Burst}}, 75% on bash
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]]
+|{{AbilityLink|stablekey=spell:none - diamond burst|link=Diamond Burst|text=Diamond Burst|image=Diamond Burst.png}}, 75% on bash
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Dusken Shield}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:secondary - 18 - dusken shield|link=Dusken Shield|text=Dusken Shield|image=Dusken Shield.png}}
 |Secondary
 |Shield
 |18
@@ -4779,9 +4779,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |1
 |
 |
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Erandian Avenger}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:secondary - 29 - erandian avenger|link=Erandian Avenger|text=Erandian Avenger|image=Erandian Avenger.png}}
 |Secondary
 |Shield
 |29
@@ -4802,10 +4802,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |2
-|{{AbilityLink|Impending Doom}}, 75% on bash
-|[[Druid]], [[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:pal - taunt impending doom|link=Impending Doom|text=Impending Doom|image=Impending Doom.png}}, 75% on bash
+|{{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Griefwarden}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:secondary - 38 - griefwarden|link=Griefwarden|text=Griefwarden|image=Griefwarden.png}}
 |Secondary
 |Shield
 |38
@@ -4826,10 +4826,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |2
 |3
-|{{AbilityLink|Grip of Grief}}, 66% on bash
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]]
+|{{AbilityLink|stablekey=spell:none - grip of grief|link=Grip of Grief|text=Grip of Grief|image=Grip of Grief.png}}, 66% on bash
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Hopewarden}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:secondary - 38 - hopewarden|link=Hopewarden|text=Hopewarden|image=Hopewarden.png}}
 |Secondary
 |Shield
 |35
@@ -4850,10 +4850,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |2
 |3
-|{{AbilityLink|Group Revitalize}}, 66% on bash
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]]
+|{{AbilityLink|stablekey=spell:dru - group revitalize|link=Group Revitalize|text=Group Revitalize|image=Group Revitalize.png}}, 66% on bash
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Magus Shield}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:secondary - 11 - magus shield|link=Magus Shield|text=Magus Shield|image=Magus Shield.png}}
 |Secondary
 |Shield
 |11
@@ -4874,10 +4874,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |3
 |3
 |3
-|{{AbilityLink|Ethereal Rending}}, 75% on bash
-|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|{{AbilityLink|stablekey=spell:arc - ethereal rend|link=Ethereal Rending|text=Ethereal Rending|image=Ethereal Rending.png}}, 75% on bash
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Mudmold Shield}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:secondary - 14 - mudmold shield|link=Mudmold Shield|text=Mudmold Shield|image=Mudmold Shield.png}}
 |Secondary
 |Shield
 |14
@@ -4898,10 +4898,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |5
 |3
 |
-|{{AbilityLink|Stun}}, 75% on bash
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]]
+|{{AbilityLink|stablekey=spell:gen - stun|link=Stun|text=Stun|image=Stun.png}}, 75% on bash
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Nature's Will}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:secondary - 40 - nature's will|link=Nature's Will|text=Nature's Will|image=Nature's Will.png}}
 |Secondary
 |Shield
 |41
@@ -4922,10 +4922,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |2
 |3
-|{{AbilityLink|Extinction Bloom}}, 50% on bash
-|[[Druid]]
+|{{AbilityLink|stablekey=spell:dru - extinction bloom|link=Extinction Bloom|text=Extinction Bloom|image=Extinction Bloom.png}}, 50% on bash
+|{{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Old Buckler}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:secondary - 1 - old buckler|link=Old Buckler|text=Old Buckler|image=Old Buckler.png}}
 |Secondary
 |Shield
 |2
@@ -4946,10 +4946,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Stun}}, 75% on bash
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:gen - stun|link=Stun|text=Stun|image=Stun.png}}, 75% on bash
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Provoker}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:secondary - 26 - provoker|link=Provoker|text=Provoker|image=Provoker.png}}
 |Secondary
 |Shield
 |26
@@ -4970,10 +4970,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |8
-|{{AbilityLink|Glimpse of Truth}}, 75% on bash
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:pal - taunt glimpse of truth|link=Glimpse of Truth|text=Glimpse of Truth|image=Glimpse of Truth.png}}, 75% on bash
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Rotting Metal Shield}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:secondary - 7 - rotting metal shield|link=Rotting Metal Shield|text=Rotting Metal Shield|image=Rotting Metal Shield.png}}
 |Secondary
 |Shield
 |7
@@ -4994,10 +4994,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |1
-|{{AbilityLink|Stun}}, 75% on bash
-|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:gen - stun|link=Stun|text=Stun|image=Stun.png}}, 75% on bash
+|{{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Royal Carapace}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:secondary - 18 - royal carapace|link=Royal Carapace|text=Royal Carapace|image=Royal Carapace.png}}
 |Secondary
 |Shield
 |18
@@ -5018,10 +5018,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |1
 |2
 |
-|{{AbilityLink|Concuss}}, 75% on bash
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]]
+|{{AbilityLink|stablekey=spell:dru arc - concuss|link=Concuss|text=Concuss|image=Concuss.png}}, 75% on bash
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Runed Shield}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:secondary - 28 - runed shield|link=Runed Shield|text=Runed Shield|image=Runed Shield.png}}
 |Secondary
 |Shield
 |28
@@ -5043,9 +5043,9 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |5
 |
 |
-|[[Arcanist]], [[Druid]], [[Stormcaller]]
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Sea Wind Shield}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:secondary - 42 - sea wind shield|link=Sea Wind Shield|text=Sea Wind Shield|image=Sea Wind Shield.png}}
 |Secondary
 |Shield
 |42
@@ -5066,10 +5066,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |10
 |
-|Worn: {{AbilityLink|Vitheo's Blessing of the Wind}}
-|[[Arcanist]], [[Druid]]
+|Worn: {{AbilityLink|stablekey=spell:duel - vitheo's blessing of the wind|link=Vitheo's Blessing of the Wind|text=Vitheo's Blessing of the Wind|image=Vitheo's Blessing of the Wind.png}}
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Shard of Infinity}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:secondary - 42 - shard of infinity|link=Shard of Infinity|text=Shard of Infinity|image=Shard of Infinity.png}}
 |Secondary
 |Shield
 |42
@@ -5090,10 +5090,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |4
 |4
 |12
-|Worn: {{AbilityLink|Regrowth}}
-|[[Arcanist]], [[Druid]]
+|Worn: {{AbilityLink|stablekey=spell:dru - regrowth (effect)|link=Regrowth|text=Regrowth|image=Regrowth.png}}
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}
 |-
-|style="text-align: left;"|{{ItemLink|Sivakayan Shield}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:secondary - 24 - sivakayan shield|link=Sivakayan Shield|text=Sivakayan Shield|image=Sivakayan Shield.png}}
 |Secondary
 |Shield
 |24
@@ -5114,10 +5114,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Devour}}, 75% on bash
-|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:dru reav - devour|link=Devour|text=Devour|image=Devour.png}}, 75% on bash
+|{{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Slab of Meteorite}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:secondary - 26 - slab of meteorite|link=Slab of Meteorite|text=Slab of Meteorite|image=Slab of Meteorite.png}}
 |Secondary
 |Shield
 |26
@@ -5138,10 +5138,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |4
 |
-|{{AbilityLink|Aetherstorm}}, 75% on bash
-|[[Druid]], [[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:arc - aetherstorm|link=Aetherstorm|text=Aetherstorm|image=Aetherstorm.png}}, 75% on bash
+|{{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Treant Eye Shield}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:secondary - 42 - treant eye shield|link=Treant Eye Shield|text=Treant Eye Shield|image=Treant Eye Shield.png}}
 |Secondary
 |Shield
 |42
@@ -5162,10 +5162,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |8
 |4
 |8
-|{{AbilityLink|Ancient Rending}}, 5% on bash
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]]
+|{{AbilityLink|stablekey=spell:none - ancient rending|link=Ancient Rending|text=Ancient Rending|image=Ancient Rending.png}}, 5% on bash
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}
 |-
-|style="text-align: left;"|{{ItemLink|Twilight Shield}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:secondary - 7 - twilight shield|link=Twilight Shield|text=Twilight Shield|image=Twilight Shield.png}}
 |Secondary
 |Shield
 |7
@@ -5186,10 +5186,10 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |
 |
 |
-|{{AbilityLink|Theft of Life}}, 45% on bash
-|[[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]], [[Windblade]]
+|{{AbilityLink|stablekey=spell:dru reav - theft of life|link=Theft of Life|text=Theft of Life|image=Theft of Life.png}}, 45% on bash
+|{{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |-
-|style="text-align: left;"|{{ItemLink|Volcanic Shield}}
+|style="text-align: left;"|{{ItemLink|stablekey=item:secondary - 26 - volcanic shield|link=Volcanic Shield|text=Volcanic Shield|image=Volcanic Shield.png}}
 |Secondary
 |Shield
 |26
@@ -5210,6 +5210,6 @@ Weapons divide into four main categories - Primary which are equipped in the Mai
 |2
 |3
 |
-|{{AbilityLink|Brax's Fury}}, 20% on bash
-|[[Arcanist]], [[Druid]], [[Paladin]], [[Reaver]], [[Stormcaller]]
+|{{AbilityLink|stablekey=spell:arc - brax's fury|link=Brax's Fury|text=Brax's Fury|image=Brax's Fury.png}}, 20% on bash
+|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}, {{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}}, {{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}}, {{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}}
 |}

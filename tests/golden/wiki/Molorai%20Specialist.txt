@@ -3,15 +3,15 @@
 |image=[[File:Molorai Specialist.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
-|factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
-|zones=[[The Duskenlight Coast]]
+|faction={{FactionLink|stablekey=faction:molarai|link=Eldoth Molorai (Faction)|text=Eldoth Molorai}}
+|factionChange=-2 {{FactionLink|stablekey=faction:molarai|link=Eldoth Molorai (Faction)|text=Eldoth Molorai}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+2 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
+|zones={{ZoneLink|stablekey=zone:duskenlight|link=The Duskenlight Coast|text=The Duskenlight Coast}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Hardened Copper Sword}} (57.4%)<br>{{ItemLink|Citrine Stone}} (32.7%)<br>{{ItemLink|Water}} (32.7%)<br>{{ItemLink|Luminstone}} (6.9%)<br>{{ItemLink|Molorai Battle Chain}} (6.9%)<br>{{ItemLink|Star Stone}} (6.9%)<br>{{ItemLink|Eldoth Writings: The Braxonian}} (6.0%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Braxonian}} in their inventory, another will not drop.</ref><br>{{ItemLink|Eldoth Writings: The Braxonian Pt 2}} (6.0%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Braxonian Pt 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|Eldoth Writings: The Wisp}} (6.0%)<ref>If the player is already holding {{ItemLink|Eldoth Writings: The Wisp}} in their inventory, another will not drop.</ref>
+|droprates={{ItemLink|stablekey=item:weap - bronze short sword +1|link=Hardened Copper Sword|text=Hardened Copper Sword|image=Hardened Copper Sword.png}} (57.4%)<br>{{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (32.7%)<br>{{ItemLink|stablekey=item:cons - water|link=Water|text=Water|image=Water.png}} (32.7%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (6.9%)<br>{{ItemLink|stablekey=item:chest - 18 - molarai battle chain|link=Molorai Battle Chain|text=Molorai Battle Chain|image=Molorai Battle Chain.png}} (6.9%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (6.9%)<br>{{ItemLink|stablekey=item:gen - eldoth - on braxonian|link=Eldoth Writings: The Braxonian|text=Eldoth Writings: The Braxonian|image=Eldoth Writings: The Braxonian.png}} (6.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - eldoth - on braxonian|link=Eldoth Writings: The Braxonian|text=Eldoth Writings: The Braxonian|image=Eldoth Writings: The Braxonian.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - eldoth - on braxonian 1|link=Eldoth Writings: The Braxonian Pt 2|text=Eldoth Writings: The Braxonian Pt 2|image=Eldoth Writings: The Braxonian Pt 2.png}} (6.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - eldoth - on braxonian 1|link=Eldoth Writings: The Braxonian Pt 2|text=Eldoth Writings: The Braxonian Pt 2|image=Eldoth Writings: The Braxonian Pt 2.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - eldoth - on braxonian 2|link=Eldoth Writings: The Wisp|text=Eldoth Writings: The Wisp|image=Eldoth Writings: The Wisp.png}} (6.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - eldoth - on braxonian 2|link=Eldoth Writings: The Wisp|text=Eldoth Writings: The Wisp|image=Eldoth Writings: The Wisp.png}} in their inventory, another will not drop.</ref>
 |level=22
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=11-26
 |elemental=11-26
 |void=11-26
-|spells={{AbilityLink|Death's Embrace}}<br>{{AbilityLink|Expose Weakness}}
+|spells={{AbilityLink|stablekey=spell:duel - deathly embrace|link=Death's Embrace|text=Death's Embrace|image=Death's Embrace.png}}<br>{{AbilityLink|stablekey=spell:duel - expose weakness|link=Expose Weakness|text=Expose Weakness|image=Expose Weakness.png}}
 }}
 
 {{Character
@@ -40,15 +40,15 @@
 |image=[[File:Molorai Specialist.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
-|factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
-|zones=[[The Duskenlight Coast]]
+|faction={{FactionLink|stablekey=faction:molarai|link=Eldoth Molorai (Faction)|text=Eldoth Molorai}}
+|factionChange=-2 {{FactionLink|stablekey=faction:molarai|link=Eldoth Molorai (Faction)|text=Eldoth Molorai}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+2 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
+|zones={{ZoneLink|stablekey=zone:duskenlight|link=The Duskenlight Coast|text=The Duskenlight Coast}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Hardened Copper Sword}} (57.4%)<br>{{ItemLink|Citrine Stone}} (32.7%)<br>{{ItemLink|Water}} (32.7%)<br>{{ItemLink|Ancient Pottery Shard}} (12.9%)<br>{{ItemLink|Diamond}} (12.9%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Molorai Battle Chain}} (12.9%)
+|droprates={{ItemLink|stablekey=item:weap - bronze short sword +1|link=Hardened Copper Sword|text=Hardened Copper Sword|image=Hardened Copper Sword.png}} (57.4%)<br>{{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (32.7%)<br>{{ItemLink|stablekey=item:cons - water|link=Water|text=Water|image=Water.png}} (32.7%)<br>{{ItemLink|stablekey=item:gen - ancient pottery shard|link=Ancient Pottery Shard|text=Ancient Pottery Shard|image=Ancient Pottery Shard.png}} (12.9%)<br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (12.9%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:chest - 18 - molarai battle chain|link=Molorai Battle Chain|text=Molorai Battle Chain|image=Molorai Battle Chain.png}} (12.9%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0
@@ -69,7 +69,7 @@
 |poison=11-26
 |elemental=11-26
 |void=11-26
-|spells={{AbilityLink|Death's Embrace}}<br>{{AbilityLink|Expose Weakness}}
+|spells={{AbilityLink|stablekey=spell:duel - deathly embrace|link=Death's Embrace|text=Death's Embrace|image=Death's Embrace.png}}<br>{{AbilityLink|stablekey=spell:duel - expose weakness|link=Expose Weakness|text=Expose Weakness|image=Expose Weakness.png}}
 }}
 
 [[Category:Braxonian Desert]]

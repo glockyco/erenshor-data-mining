@@ -5,7 +5,7 @@
 |description=Heals base 750 damage
 |type=Heal
 |line=Healing
-|classes=[[Druid]] (21)<br>[[Paladin]] (21)
+|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (21)<br>{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}} (21)
 |required_level=21
 |manacost=250
 |aggro=
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Phoenix Loop}}
-|source={{ItemLink|Spell Scroll: Major Healing}}
+|itemswitheffect={{ItemLink|stablekey=item:ring - 24 - phoenix band|link=Phoenix Loop|text=Phoenix Loop|image=Phoenix Loop.png}}
+|source={{ItemLink|stablekey=item:spell scroll - major healing|link=Spell Scroll: Major Healing|text=Spell Scroll: Major Healing|image=Spell Scroll: Major Healing.png}}
 |used_by=
 }}

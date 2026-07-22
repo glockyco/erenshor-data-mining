@@ -22,8 +22,8 @@
 |image=Mold: Charm of the Jester.png
 |name=Mold: Charm of the Jester
 |description=Recipes must be exact - use CNTRL + CLICK to separate stacks.<br><br>One-time usable in a forge. <br><br>*Fuel quality does not affect the outcome of this recipe
-|ingredients=1x {{ItemLink|Seaspice}}<br>1x {{ItemLink|Force of the Sea}}<br>1x {{ItemLink|Bag of Faerie Dust}}<br>1x {{ItemLink|Priel Officer's Ring}}
-|rewards={{ItemLink|Charm of the Jester}}
+|ingredients=1x {{ItemLink|stablekey=item:cons - seaspice|link=Seaspice|text=Seaspice|image=Seaspice.png}}<br>1x {{ItemLink|stablekey=item:aura - vitheo 2|link=Force of the Sea|text=Force of the Sea|image=Force of the Sea.png}}<br>1x {{ItemLink|stablekey=item:gen - faerie dust|link=Bag of Faerie Dust|text=Bag of Faerie Dust|image=Bag of Faerie Dust.png}}<br>1x {{ItemLink|stablekey=item:ring - 18 - priel officer's ring|link=Priel Officer's Ring|text=Priel Officer's Ring|image=Priel Officer's Ring.png}}
+|rewards={{ItemLink|stablekey=item:charm - 22 - charm of the jester|link=Charm of the Jester|text=Charm of the Jester|image=Charm of the Jester.png}}
 |station=
 }}
 

@@ -4,10 +4,10 @@ Give to [[The Conductor]] to obtain a {{ItemLink|Nightmare Crystal}}.
 |stablekey=item:gen - a small cat statue
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Hypnic]] (100.0%)
+|source={{CharacterLink|stablekey=character:nightmare:ripperportal:663.80:9.40:313.60|link=Hypnic|text=Hypnic}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|A Cat for a Deer}}
+|relatedquest={{QuestLink|A Cat for a Deer}}<br>{{QuestLink|stablekey=quest:catfordeer|link=A Cat for a Deer|text=A Cat for a Deer}}
 |craftsource=
 |componentfor=
 |buy=

@@ -3,7 +3,7 @@
 |stablekey=item:skillbook - trick shot
 |type=[[Ability Books|Skill Book]]
 |vendorsource=
-|source=[[Bowmistress of Sivakaya]] (100.0%)
+|source={{CharacterLink|stablekey=character:bowmistress of sivakaya|link=Bowmistress of Sivakaya|text=Bowmistress of Sivakaya}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -12,7 +12,7 @@
 |buy=55000
 |sell=35750
 |taughtspell=
-|taughtskill={{AbilityLink|Trick Shot}}
+|taughtskill={{AbilityLink|stablekey=skill:trick shot|link=Trick Shot|text=Trick Shot|image=Trick Shot.png}}
 |guaranteeddrops=
 |droprates=
 }}

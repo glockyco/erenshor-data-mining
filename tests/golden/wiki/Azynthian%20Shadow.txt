@@ -3,9 +3,9 @@
 |image=[[File:Azynthian Shadow.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Soluna's Celestial Plane]]
+|zones={{ZoneLink|stablekey=zone:planeofsoluna|link=Soluna's Celestial Plane|text=Soluna's Celestial Plane}}
 |coordinates=176.1 x 415.8 x 1036.1<br>176.2 x 415.8 x 955.1<br>230.0 x 415.8 x 1035.7<br>230.1 x 415.8 x 954.7
 |spawnchance=
 |spawntype=Dynamic event spawn
@@ -32,7 +32,7 @@
 |poison=20-48
 |elemental=20-48
 |void=20-48
-|spells={{AbilityLink|Soul Tap}}
+|spells={{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}
 }}
 
 [[Category:Enemies]]

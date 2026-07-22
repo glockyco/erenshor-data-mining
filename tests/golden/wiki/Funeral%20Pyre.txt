@@ -5,7 +5,7 @@
 |description=Slow targets movement and cause (600 / tick) damage over time.
 |type=StatusEffect
 |line=Dru_Element_DOT
-|classes=[[Arcanist]] (26)
+|classes={{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}} (26)
 |required_level=26
 |manacost=750
 |aggro=600
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Funeral Pyre}}
-|used_by=[[Grand Arcanist of Sivakaya]]<br>[[Molorai Nightmistress]]<br>[[Statue of Brax]]
+|source={{ItemLink|stablekey=item:spell scroll - funeral pyre|link=Spell Scroll: Funeral Pyre|text=Spell Scroll: Funeral Pyre|image=Spell Scroll: Funeral Pyre.png}}
+|used_by={{CharacterLink|stablekey=character:arcanist of sivakaya|link=Grand Arcanist of Sivakaya|text=Grand Arcanist of Sivakaya}}<br>{{CharacterLink|stablekey=character:molorai nightmistress|link=Molorai Nightmistress|text=Molorai Nightmistress}}<br>{{CharacterLink|stablekey=character:statue of brax|link=Statue of Brax|text=Statue of Brax}}
 }}

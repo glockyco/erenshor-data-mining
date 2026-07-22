@@ -3,15 +3,15 @@
 |image=[[File:Rattlewrists.png|thumb]]
 |imagecaption="Rattlewrists rattles towards you!"
 |type=Enemy
-|faction=[[The Children of Sivakaya]]
-|factionChange=-5 [[The Children of Sivakaya]]<br>+5 [[The Citizens of Stowaway's Step]]
-|zones=[[Stowaway's Step]]
+|faction={{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}
+|factionChange=-5 {{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}<br>+5 {{FactionLink|stablekey=faction:stowaway|link=The Citizens of Stowaway's Step|text=The Citizens of Stowaway's Step}}
+|zones={{ZoneLink|stablekey=zone:stowaway|link=Stowaway's Step|text=Stowaway's Step}}
 |coordinates=570.2 x 41.3 x 356.6
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Ancient Bone}} (100.0%)<br>{{ItemLink|Tattered Leather Boots}} (100.0%)<br>{{ItemLink|Water}} (100.0%)
+|droprates={{ItemLink|stablekey=item:gen - an ancient bone|link=Ancient Bone|text=Ancient Bone|image=Ancient Bone.png}} (100.0%)<br>{{ItemLink|stablekey=item:foot - 1 - tattered leather boots|link=Tattered Leather Boots|text=Tattered Leather Boots|image=Tattered Leather Boots.png}} (100.0%)<br>{{ItemLink|stablekey=item:cons - water|link=Water|text=Water|image=Water.png}} (100.0%)
 |level=1
 |levelmodmin=0
 |levelmodmax=0

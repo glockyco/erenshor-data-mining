@@ -3,15 +3,15 @@
 |image=[[File:A Hermit.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Followers of Good]]
-|factionChange=-55 [[The Citizens of Erenshor]]
-|zones=[[Fernalla's Revival Plains]]
+|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|factionChange=-55 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}
+|zones={{ZoneLink|stablekey=zone:fernallafield|link=Fernalla's Revival Plains|text=Fernalla's Revival Plains}}
 |coordinates=621.0 x 28.8 x 149.2
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Notes of a Hermit}} (100.0%)
+|droprates={{ItemLink|stablekey=item:gen - notes of a hermit|link=Notes of a Hermit|text=Notes of a Hermit|image=Notes of a Hermit.png}} (100.0%)
 |level=8
 |levelmodmin=0
 |levelmodmax=0

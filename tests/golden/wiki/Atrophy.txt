@@ -5,7 +5,7 @@
 |description=Slow your target's movement speed by weakening their muscles
 |type=StatusEffect
 |line=Reav_Movespeed
-|classes=[[Reaver]] (8)
+|classes={{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}} (8)
 |required_level=8
 |manacost=155
 |aggro=155
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Atrophy}}
+|source={{ItemLink|stablekey=item:spell scroll - atrophy|link=Spell Scroll: Atrophy|text=Spell Scroll: Atrophy|image=Spell Scroll: Atrophy.png}}
 |used_by=
 }}

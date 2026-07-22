@@ -3,7 +3,7 @@
 |stablekey=item:chest - 5 - seaweed soaked shirt
 |type=
 |vendorsource=
-|source=[[Blunga]] (83.3%)
+|source={{CharacterLink|stablekey=character:blunga|link=Blunga|text=Blunga}} (83.3%)
 |othersource=
 |questsource=
 |relatedquest=

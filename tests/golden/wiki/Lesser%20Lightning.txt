@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect=
 |source=
-|used_by=[[A Protected Memory]]<br>[[Elder Guardian]]<br>[[Maple]]
+|used_by={{CharacterLink|stablekey=character:1 - memory of defeat|link=A Protected Memory|text=A Protected Memory}}<br>{{CharacterLink|stablekey=character:elder guardian|link=Elder Guardian|text=Elder Guardian}}<br>{{CharacterLink|stablekey=character:maple|link=Maple|text=Maple}}
 }}

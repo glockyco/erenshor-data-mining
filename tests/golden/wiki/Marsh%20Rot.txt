@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Jellystick}}<br>{{ItemLink|Muck Ball}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 14 - jellywhip|link=Jellystick|text=Jellystick|image=Jellystick.png}}<br>{{ItemLink|stablekey=item:cons - swampbomb|link=Muck Ball|text=Muck Ball|image=Muck Ball.png}}
 |source=
 |used_by=
 }}

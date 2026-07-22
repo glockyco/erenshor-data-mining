@@ -5,7 +5,7 @@
 |description=Apply Regrowth to your group (Heal base 60 per tick)
 |type=Heal
 |line=Healing
-|classes=[[Druid]] (35)
+|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (35)
 |required_level=35
 |manacost=800
 |aggro=
@@ -31,7 +31,7 @@
 |caster_healing=
 |shield_amount=
 |pet_to_summon=
-|status_effect={{AbilityLink|Group Regrowth}}
+|status_effect=[[Group Regrowth]]
 |add_proc=
 |add_proc_chance=
 |has_lifetap=
@@ -66,7 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Group Regrowth}}
+|source={{ItemLink|stablekey=item:spell scroll - group regrowth|link=Spell Scroll: Group Regrowth|text=Spell Scroll: Group Regrowth|image=Spell Scroll: Group Regrowth.png}}
 |used_by=
 }}
 

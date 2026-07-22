@@ -2,7 +2,7 @@
 |title=Skill Book: Control Chant
 |stablekey=item:skillbook - end channel
 |type=[[Ability Books|Skill Book]]
-|vendorsource=[[Nylith Valorro]]
+|vendorsource={{CharacterLink|stablekey=character:nylith valorro|link=Nylith Valorro|text=Nylith Valorro}}
 |source=
 |othersource=[[Arcanist]] starting gear
 |questsource=
@@ -12,7 +12,7 @@
 |buy=185
 |sell=120
 |taughtspell=
-|taughtskill={{AbilityLink|Chant Control}}
+|taughtskill={{AbilityLink|stablekey=skill:end chant|link=Chant Control|text=Chant Control|image=Chant Control.png}}
 |guaranteeddrops=
 |droprates=
 }}

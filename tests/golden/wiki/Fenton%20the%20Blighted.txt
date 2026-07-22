@@ -3,15 +3,15 @@
 |image=[[File:Fenton the Blighted.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
-|factionChange=+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Torchbearers of Brax]]
-|zones=[[The Blight]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|factionChange=+1 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+1 {{FactionLink|stablekey=faction:brax|link=The Torchbearers of Brax|text=The Torchbearers of Brax}}
+|zones={{ZoneLink|stablekey=zone:blight|link=The Blight|text=The Blight}}
 |coordinates=114.7 x 56.3 x 584.0
 |spawnchance=50%
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Blighted Silk Wraps}}<br>{{ItemLink|Soul Echo}}
-|droprates={{ItemLink|Scribbles of a Mad Priest}} (100.0%)<ref>If the player is already holding {{ItemLink|Scribbles of a Mad Priest}} in their inventory, another will not drop.</ref><br>{{ItemLink|Blighted Silk Wraps}} (75.0%)<br>{{ItemLink|Soul Echo}} (25.0%)<br>{{ItemLink|Diamond}} (19.5%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Pottery Shard}} (11.5%)<br>{{ItemLink|Blight Crystals}} (11.5%)
+|guaranteeddrops={{ItemLink|stablekey=item:wrist - 28 - blighted silk wraps|link=Blighted Silk Wraps|text=Blighted Silk Wraps|image=Blighted Silk Wraps.png}}<br>{{ItemLink|stablekey=item:neck - 28 - soul echo|link=Soul Echo|text=Soul Echo|image=Soul Echo.png}}
+|droprates={{ItemLink|stablekey=item:gen - scribbles of a mad priest 4|link=Scribbles of a Mad Priest|text=Scribbles of a Mad Priest|image=Scribbles of a Mad Priest.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - scribbles of a mad priest 4|link=Scribbles of a Mad Priest|text=Scribbles of a Mad Priest|image=Scribbles of a Mad Priest.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:wrist - 28 - blighted silk wraps|link=Blighted Silk Wraps|text=Blighted Silk Wraps|image=Blighted Silk Wraps.png}} (75.0%)<br>{{ItemLink|stablekey=item:neck - 28 - soul echo|link=Soul Echo|text=Soul Echo|image=Soul Echo.png}} (25.0%)<br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (19.5%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - ancient pottery shard|link=Ancient Pottery Shard|text=Ancient Pottery Shard|image=Ancient Pottery Shard.png}} (11.5%)<br>{{ItemLink|stablekey=item:gen - blightsand|link=Blight Crystals|text=Blight Crystals|image=Blight Crystals.png}} (11.5%)
 |level=31
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=16-37
 |elemental=16-37
 |void=16-37
-|spells={{AbilityLink|Brax's Fury}}<br>{{AbilityLink|Ice Spear}}<br>{{AbilityLink|Immolation}}<br>{{AbilityLink|Regrowth}}<br>{{AbilityLink|Winter's Bite}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's fury|link=Brax's Fury|text=Brax's Fury|image=Brax's Fury.png}}<br>{{AbilityLink|stablekey=spell:arc - ice spear|link=Ice Spear|text=Ice Spear|image=Ice Spear.png}}<br>{{AbilityLink|stablekey=spell:arc - immolation|link=Immolation|text=Immolation|image=Immolation.png}}<br>{{AbilityLink|stablekey=spell:dru - regrowth (cast)|link=Regrowth|text=Regrowth|image=Regrowth.png}}<br>{{AbilityLink|stablekey=spell:arc - winter's bite|link=Winter's Bite|text=Winter's Bite|image=Winter's Bite.png}}
 }}
 Fenton the Blighted is an occasional spawn that can be found in [[The Blight]] at a shrine surrounded by his [[Blighted Priest]]'s and [[Braxon Fanatic]]'s, where a [[Blighted Priest]] may spawn instead.
 =Notes=

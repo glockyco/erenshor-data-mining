@@ -3,7 +3,7 @@
 |stablekey=item:arm - 18 - exoskeleton spaulders
 |type=
 |vendorsource=
-|source=[[Spark Royal]] (50.0%)
+|source={{CharacterLink|stablekey=character:spark royal|link=Spark Royal|text=Spark Royal}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

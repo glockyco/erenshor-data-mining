@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - solar winds
 |type=
 |vendorsource=
-|source=[[Solunarian Moonkeeper]] (2.8%)<br>[[Solunarian Sunbringer]] (2.8%)<br>[[Solunarian Paladin]] (1.1%)
+|source={{CharacterLink|stablekey=character:solunarian moonkeeper|link=Solunarian Moonkeeper|text=Solunarian Moonkeeper}} (2.8%)<br>{{CharacterLink|stablekey=character:solunarian sunbringer|link=Solunarian Sunbringer|text=Solunarian Sunbringer}} (2.8%)<br>{{CharacterLink|stablekey=character:solunarian paladin combined|link=Solunarian Paladin|text=Solunarian Paladin}} (1.1%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=
 |sell=
-|taughtspell={{AbilityLink|Solar Winds}}
+|taughtspell={{AbilityLink|stablekey=spell:pal - solar winds|link=Solar Winds|text=Solar Winds|image=Solar Winds.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

@@ -2,7 +2,7 @@
 |title=Azure Plate Chestguard
 |stablekey=item:chest - 7 - azure plate chestguard
 |type=
-|vendorsource=[[Violet Smithfield]]
+|vendorsource={{CharacterLink|stablekey=character:violetta smithfield|link=Violet Smithfield|text=Violet Smithfield}}
 |source=
 |othersource=
 |questsource=

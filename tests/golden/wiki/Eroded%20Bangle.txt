@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 28 - eroded bangle
 |type=
 |vendorsource=
-|source=[[Savannah Priel (Character)|Savannah Priel]] (50.0%)
+|source={{CharacterLink|stablekey=character:savannah priel|link=Savannah Priel (Character)|text=Savannah Priel}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Cast
 |proc_chance=3
 |proc_spell_icon=Tenebris.png
-|proc_spell_name=[[Tenebris]]
+|proc_spell_name={{AbilityLink|stablekey=spell:arc - tenebris|link=Tenebris|text=Tenebris|image=Tenebris.png}}
 |proc_spell_level=32
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

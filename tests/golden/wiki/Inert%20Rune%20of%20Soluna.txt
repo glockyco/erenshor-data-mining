@@ -5,8 +5,8 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|Raval's Last Wish}}
-|relatedquest={{QuestLink|A Solunarian Rune}}
+|questsource={{QuestLink|Raval's Last Wish}}<br>{{QuestLink|stablekey=quest:ravalwish|link=Raval's Last Wish|text=Raval's Last Wish}}
+|relatedquest={{QuestLink|A Solunarian Rune}}<br>{{QuestLink|stablekey=quest:solunasraidrune|link=A Solunarian Rune|text=A Solunarian Rune}}
 |craftsource=
 |componentfor=
 |buy=

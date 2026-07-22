@@ -3,12 +3,12 @@
 |stablekey=item:ore - citrine sandsilver
 |type=[[Crafting]], [[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Candlekeeper]] (40.2%)<br>[[Evadne the Corrupted]] (29.1%)
+|source={{CharacterLink|stablekey=character:candlekeeper|link=Candlekeeper|text=Candlekeeper}} (40.2%)<br>{{CharacterLink|stablekey=character:evadne|link=Evadne the Corrupted|text=Evadne the Corrupted}} (29.1%)
 |othersource=[[Mining]] in [[Braxonian Desert]] (21%)
 |questsource=
-|relatedquest={{QuestLink|Repairing Orion's Ring, Part 2}}
+|relatedquest={{QuestLink|Repairing Orion's Ring, Part 2}}, {{QuestLink|stablekey=quest:tempeststone3|link=Repairing Orion's Ring, Part 2|text=Repairing Orion's Ring
 |craftsource=
-|componentfor={{ItemLink|Mold: Arcanist's Charm}}<br>{{ItemLink|Mold: Charm of Age}}<br>{{ItemLink|Mold: Charm of Brilliance}}<br>{{ItemLink|Mold: Charm of Compassion}}<br>{{ItemLink|Mold: Duelist's Charm}}
+|componentfor={{ItemLink|stablekey=item:template - arcanist's charm|link=Mold: Arcanist's Charm|text=Mold: Arcanist's Charm|image=Mold: Arcanist's Charm.png}}<br>{{ItemLink|stablekey=item:template - charm of age|link=Mold: Charm of Age|text=Mold: Charm of Age|image=Mold: Charm of Age.png}}<br>{{ItemLink|stablekey=item:template - charm of brilliance|link=Mold: Charm of Brilliance|text=Mold: Charm of Brilliance|image=Mold: Charm of Brilliance.png}}<br>{{ItemLink|stablekey=item:template - charm of compassion|link=Mold: Charm of Compassion|text=Mold: Charm of Compassion|image=Mold: Charm of Compassion.png}}<br>{{ItemLink|stablekey=item:template - duelist's charm|link=Mold: Duelist's Charm|text=Mold: Duelist's Charm|image=Mold: Duelist's Charm.png}}
 |buy=5
 |sell=3
 |taughtspell=

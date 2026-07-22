@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - dark sacrifice
 |type=
 |vendorsource=
-|source=[[Orinthar]] (1.0%)<br>[[Vextral]] (1.0%)
+|source={{CharacterLink|stablekey=character:orinthar|link=Orinthar|text=Orinthar}} (1.0%)<br>{{CharacterLink|stablekey=character:vextral|link=Vextral|text=Vextral}} (1.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=15000
 |sell=9750
-|taughtspell={{AbilityLink|Dark Sacrifice}}
+|taughtspell={{AbilityLink|stablekey=spell:reav - dark sacrifice|link=Dark Sacrifice|text=Dark Sacrifice|image=Dark Sacrifice.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

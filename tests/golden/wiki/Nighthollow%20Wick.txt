@@ -3,10 +3,10 @@
 |stablekey=item:gen - nighthollow wick
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Darkwarden Awxa]] (100.0%)
+|source={{CharacterLink|stablekey=character:darkwarden awxa|link=Darkwarden Awxa|text=Darkwarden Awxa}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Recovering the Nighthollow Candle}}
+|relatedquest={{QuestLink|Recovering the Nighthollow Candle}}<br>{{QuestLink|stablekey=quest:recoveringnighthollow|link=Recovering the Nighthollow Candle|text=Recovering the Nighthollow Candle}}
 |craftsource=
 |componentfor=
 |buy=

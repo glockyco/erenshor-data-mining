@@ -3,10 +3,10 @@
 |stablekey=item:gen - catnip
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Catnip (Enemy)]] (100.0%)
+|source={{CharacterLink|stablekey=character:catnip (1):ripperportal:339.55:0.17:757.54|link=Catnip (Enemy)|text=Catnip (Enemy)}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Catnip for a statue}}
+|relatedquest={{QuestLink|Catnip for a statue}}<br>{{QuestLink|stablekey=quest:catnip|link=Catnip for a statue|text=Catnip for a statue}}
 |craftsource=
 |componentfor=
 |buy=12

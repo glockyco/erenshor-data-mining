@@ -5,7 +5,7 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|Ripper's Questline}}<br>{{QuestLink|Sivakayans in Port Azure Pt. 2}}<br>{{QuestLink|link=Ripper's Questline{{!}}Ripper's Questline (2)}}
+|questsource={{QuestLink|Ripper's Questline}}<br>{{QuestLink|Sivakayans in Port Azure Pt. 2}}<br>{{QuestLink|link=Ripper's Questline{{!}}Ripper's Questline (2)}}<br>{{QuestLink|stablekey=quest:ripperquestline2|link=Ripper's Questline|text=Ripper's Questline (2)}}<br>{{QuestLink|stablekey=quest:sivakayansinazure2|link=Sivakayans in Port Azure Pt. 2|text=Sivakayans in Port Azure Pt. 2}}
 |relatedquest=
 |craftsource=
 |componentfor=

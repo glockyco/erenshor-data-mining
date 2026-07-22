@@ -3,15 +3,15 @@
 |image=[[File:Spectre.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Fernalla's Revival Plains]]
+|zones={{ZoneLink|stablekey=zone:fernallafield|link=Fernalla's Revival Plains|text=Fernalla's Revival Plains}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=3 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Aetheria}} (4.7%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Fading Memory}} (4.0%)<br>{{ItemLink|Luminstone}} (4.0%)<br>{{ItemLink|Ring of Visions}} (2.3%)
+|droprates={{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} (4.7%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - fading memory|link=Fading Memory|text=Fading Memory|image=Fading Memory.png}} (4.0%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (4.0%)<br>{{ItemLink|stablekey=item:ring - 29 - ring of visions|link=Ring of Visions|text=Ring of Visions|image=Ring of Visions.png}} (2.3%)
 |level=29
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=14-35
 |elemental=14-35
 |void=14-35
-|spells={{AbilityLink|Arterial Decay}}<br>{{AbilityLink|Devour}}<br>{{AbilityLink|Melting Bones}}
+|spells={{AbilityLink|stablekey=spell:dru - arterial decay|link=Arterial Decay|text=Arterial Decay|image=Arterial Decay.png}}<br>{{AbilityLink|stablekey=spell:dru reav - devour|link=Devour|text=Devour|image=Devour.png}}<br>{{AbilityLink|stablekey=spell:dru - melting bones|link=Melting Bones|text=Melting Bones|image=Melting Bones.png}}
 }}
 
 If a spectre is holding a sword, it will drop a [[Spectral Sword]]
@@ -42,15 +42,15 @@ If a spectre is holding a sword, it will drop a [[Spectral Sword]]
 |image=[[File:Spectre.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Fernalla's Revival Plains]]
+|zones={{ZoneLink|stablekey=zone:fernallafield|link=Fernalla's Revival Plains|text=Fernalla's Revival Plains}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=3 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Aetheria}} (4.7%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Fading Memory}} (4.0%)<br>{{ItemLink|Spectral Sword}} (4.0%)<ref>If Spectre has {{ItemLink|Spectral Sword}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Ring of Visions}} (2.3%)
+|droprates={{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} (4.7%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - fading memory|link=Fading Memory|text=Fading Memory|image=Fading Memory.png}} (4.0%)<br>{{ItemLink|stablekey=item:weap - 22 - spectralsword|link=Spectral Sword|text=Spectral Sword|image=Spectral Sword.png}} (4.0%)<ref>If Spectre has {{ItemLink|stablekey=item:weap - 22 - spectralsword|link=Spectral Sword|text=Spectral Sword|image=Spectral Sword.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:ring - 29 - ring of visions|link=Ring of Visions|text=Ring of Visions|image=Ring of Visions.png}} (2.3%)
 |level=29
 |levelmodmin=0
 |levelmodmax=0

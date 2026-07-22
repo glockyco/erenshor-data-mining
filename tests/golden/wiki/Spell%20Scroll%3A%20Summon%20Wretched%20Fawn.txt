@@ -2,7 +2,7 @@
 |title=Spell Scroll: Summon Wretched Fawn
 |stablekey=item:spell scroll - summon wretched fawn
 |type=[[:Category:Ability Books|Spell Scroll]]
-|vendorsource=[[Alexander Farland]]
+|vendorsource={{CharacterLink|stablekey=character:alexander farland|link=Alexander Farland|text=Alexander Farland}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=2500
 |sell=1625
-|taughtspell={{AbilityLink|Summon Wretched Fawn}}
+|taughtspell={{AbilityLink|stablekey=spell:dru - summon wretched fawn|link=Summon Wretched Fawn|text=Summon Wretched Fawn|image=Summon Wretched Fawn.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

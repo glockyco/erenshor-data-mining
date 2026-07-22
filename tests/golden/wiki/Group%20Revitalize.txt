@@ -5,7 +5,7 @@
 |description=Heal nearby group members for base 575 damage.
 |type=Heal
 |line=Healing
-|classes=[[Druid]] (22)
+|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (22)
 |required_level=22
 |manacost=900
 |aggro=
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Hopewarden}}
-|source={{ItemLink|Spell Scroll: Group Revitalize}}
-|used_by=[[Addison Priel]]<br>[[Fallen Fernalla (NPC)|Fallen Fernalla]]<br>[[Fallen Fernalla]]<br>[[Fernalla, Goddess of Nature]]<br>[[Fernalla, Goddess of Nature]]<br>[[Julianna Priel]]
+|itemswitheffect={{ItemLink|stablekey=item:secondary - 38 - hopewarden|link=Hopewarden|text=Hopewarden|image=Hopewarden.png}}
+|source={{ItemLink|stablekey=item:spell scroll - group revitalize|link=Spell Scroll: Group Revitalize|text=Spell Scroll: Group Revitalize|image=Spell Scroll: Group Revitalize.png}}
+|used_by={{CharacterLink|stablekey=character:addison priel|link=Addison Priel|text=Addison Priel}}<br>{{CharacterLink|stablekey=character:fallen fernalla 1|link=Fallen Fernalla (NPC)|text=Fallen Fernalla}}<br>{{CharacterLink|stablekey=character:twisted fernalla|link=Fallen Fernalla|text=Fallen Fernalla}}<br>{{CharacterLink|stablekey=character:goddess fernalla|link=Fernalla, Goddess of Nature|text=Fernalla, Goddess of Nature}}<br>{{CharacterLink|stablekey=character:restored fernalla:planeoffernalla:1631.02:177.00:1537.14|link=Fernalla, Goddess of Nature|text=Fernalla, Goddess of Nature}}<br>{{CharacterLink|stablekey=character:julianna priel 1|link=Julianna Priel|text=Julianna Priel}}
 }}

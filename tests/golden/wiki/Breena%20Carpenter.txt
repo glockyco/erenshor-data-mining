@@ -3,9 +3,9 @@
 |image=[[File:Breena Carpenter.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Citizens of Port Azure]]
-|factionChange=-20 [[The Citizens of Erenshor]]<br>-20 [[The Citizens of Port Azure]]
-|zones=[[Port Azure]]
+|faction={{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|factionChange=-20 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>-20 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|zones={{ZoneLink|stablekey=zone:azure|link=Port Azure|text=Port Azure}}
 |coordinates=275.5 x 26.0 x 210.0
 |spawnchance=
 |spawntype=
@@ -32,7 +32,7 @@
 |poison=8-18
 |elemental=8-18
 |void=8-18
-|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Theft of Life}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's rage|link=Brax's Rage|text=Brax's Rage|image=Brax's Rage.png}}<br>{{AbilityLink|stablekey=spell:dru reav - theft of life|link=Theft of Life|text=Theft of Life|image=Theft of Life.png}}
 }}
 
 Breena Carpenter is the furniture vendor in [[Port Azure]]. She sells a selection of wood furniture for the [[Reliquary Hall]] at baseline, and can be given [[blueprints]] in order to expand her inventory to sell more furniture items.

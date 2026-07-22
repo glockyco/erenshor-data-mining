@@ -3,7 +3,7 @@
 |stablekey=item:secondary - 38 - hopewarden
 |type=
 |vendorsource=
-|source=[[Sivakayan Doomshade]] (8.6%)
+|source={{CharacterLink|stablekey=character:36 - sivakayan spectre|link=Sivakayan Doomshade|text=Sivakayan Doomshade}} (8.6%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Bash
 |proc_chance=66
 |proc_spell_icon=Group Revitalize.png
-|proc_spell_name=[[Group Revitalize]]
+|proc_spell_name={{AbilityLink|stablekey=spell:dru - group revitalize|link=Group Revitalize|text=Group Revitalize|image=Group Revitalize.png}}
 |proc_spell_level=22
 |proc_spell_duration_ticks=
 |proc_spell_type=Heal

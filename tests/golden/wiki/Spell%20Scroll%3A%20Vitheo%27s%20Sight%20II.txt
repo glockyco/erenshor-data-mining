@@ -2,7 +2,7 @@
 |title=Spell Scroll: Vitheo's Sight II
 |stablekey=item:spell scroll - vitheo's sight ii
 |type=
-|vendorsource=[[Pierson Windwash]]
+|vendorsource={{CharacterLink|stablekey=character:pierson windwash|link=Pierson Windwash|text=Pierson Windwash}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=10000
 |sell=6500
-|taughtspell={{AbilityLink|Vitheo's Sight II}}
+|taughtspell={{AbilityLink|stablekey=spell:duel - vitheo's sight ii|link=Vitheo's Sight II|text=Vitheo's Sight II|image=Vitheo's Sight II.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

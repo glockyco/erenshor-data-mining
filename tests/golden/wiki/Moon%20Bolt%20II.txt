@@ -5,7 +5,7 @@
 |description=Deals 700 magic damage and interrupts your target's casts
 |type=Damage
 |line=Direct_Damage
-|classes=[[Paladin]] (19)
+|classes={{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}} (19)
 |required_level=19
 |manacost=120
 |aggro=50
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Moon Bolt II}}
+|source={{ItemLink|stablekey=item:spell scroll - moon bolt ii|link=Spell Scroll: Moon Bolt II|text=Spell Scroll: Moon Bolt II|image=Spell Scroll: Moon Bolt II.png}}
 |used_by=
 }}

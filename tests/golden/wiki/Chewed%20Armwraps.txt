@@ -3,7 +3,7 @@
 |stablekey=item:arm - 22 - chewed armwraps
 |type=
 |vendorsource=
-|source=[[Dream]] (50.0%)
+|source={{CharacterLink|stablekey=character:dreambear|link=Dream|text=Dream}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

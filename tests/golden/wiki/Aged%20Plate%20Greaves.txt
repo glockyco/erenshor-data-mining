@@ -3,7 +3,7 @@
 |stablekey=item:leg - 18 -  aged plate greaves
 |type=
 |vendorsource=
-|source=[[Spectral Castle Guard]] (1.7%)<br>[[Spectral King's Guard]] (1.0%)<br>[[Rotting Royal Hound]] (0.9%)
+|source={{CharacterLink|stablekey=character:lost royal bodyguards|link=Spectral Castle Guard|text=Spectral Castle Guard}} (1.7%)<br>{{CharacterLink|stablekey=character:lost king's guard|link=Spectral King's Guard|text=Spectral King's Guard}} (1.0%)<br>{{CharacterLink|stablekey=character:rotting royal hound|link=Rotting Royal Hound|text=Rotting Royal Hound}} (0.9%)
 |othersource=
 |questsource=
 |relatedquest=

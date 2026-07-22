@@ -3,9 +3,9 @@
 |image=[[File:Ward of the Forest.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Plane of the Willow]]
+|zones={{ZoneLink|stablekey=zone:planeoffernalla|link=Plane of the Willow|text=Plane of the Willow}}
 |coordinates=1035.7 x 29.6 x 1083.6<br>1062.3 x 30.5 x 1235.8<br>1189.9 x 30.6 x 1062.3<br>1214.5 x 29.8 x 1217.7
 |spawnchance=
 |spawntype=Dynamic event spawn

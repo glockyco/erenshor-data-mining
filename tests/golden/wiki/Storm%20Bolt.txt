@@ -5,7 +5,7 @@
 |description=Deals 25 magic damage to your target.
 |type=Damage
 |line=Direct_Damage
-|classes=[[Stormcaller]] (1)
+|classes={{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}} (1)
 |required_level=1
 |manacost=33
 |aggro=25
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Storm Bolt}}
+|source={{ItemLink|stablekey=item:spell scroll - storm bolt|link=Spell Scroll: Storm Bolt|text=Spell Scroll: Storm Bolt|image=Spell Scroll: Storm Bolt.png}}
 |used_by=
 }}

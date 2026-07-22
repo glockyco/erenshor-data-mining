@@ -11,7 +11,7 @@
 |componentfor=
 |buy=35
 |sell=23
-|taughtspell={{AbilityLink|Invoke Storm}}
+|taughtspell={{AbilityLink|stablekey=spell:dru - invoke storm|link=Invoke Storm|text=Invoke Storm|image=Invoke Storm.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

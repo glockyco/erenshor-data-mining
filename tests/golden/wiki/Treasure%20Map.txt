@@ -3,10 +3,10 @@
 |stablekey=item:gen - treasure map
 |type=[[Consumables|Consumable]], [[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Braxonian Fossil]] (10.5%)
+|source={{ItemLink|stablekey=item:gen - braxonian fossil|link=Braxonian Fossil|text=Braxonian Fossil}} (10.5%)
 |othersource=
-|questsource={{QuestLink|Repairing Treasure Maps}}
-|relatedquest={{QuestLink|Maps for Prichard}}
+|questsource={{QuestLink|Repairing Treasure Maps}}<br>{{QuestLink|stablekey=quest:treasuremap|link=Repairing Treasure Maps|text=Repairing Treasure Maps}}
+|relatedquest={{QuestLink|Maps for Prichard}}<br>{{QuestLink|stablekey=quest:mapforprichard|link=Maps for Prichard|text=Maps for Prichard}}
 |craftsource=
 |componentfor=
 |buy=
@@ -25,7 +25,7 @@ See [[Treasure Hunting]] for more information about this item.
 |description=A Treasure Map. <br><br>It indicates that this treasure is guarded by horrifying beings. Proceed with great caution.<br><br>Right Click to Reveal Treasure Zone. Only one map can be active at a time. Reading a new map will overwrite the first. <br><br>(Failing the event will lose the treasure)
 |disposable=True
 |effect_spell_icon=Read Map.png
-|effect_spell_name=[[Read Map]]
+|effect_spell_name={{AbilityLink|stablekey=spell:none - read map|link=Read Map|text=Read Map|image=Read Map.png}}
 |effect_spell_level=1
 |effect_spell_duration_ticks=5
 |effect_spell_type=Misc

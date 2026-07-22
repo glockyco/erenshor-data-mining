@@ -3,15 +3,15 @@
 |image=[[File:A Mature Grass Spider.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Azynthi's Garden]]<br>[[Blacksalt Strand]]<br>[[Fernalla's Revival Plains]]<br>[[Malaroth's Nesting Grounds]]<br>[[Ripper's Keep]]<br>[[Vitheo's Watch]]
+|zones={{ZoneLink|stablekey=zone:azynthiclear|link=Azynthi's Garden|text=Azynthi's Garden}}<br>{{ZoneLink|stablekey=zone:saltedstrand|link=Blacksalt Strand|text=Blacksalt Strand}}<br>{{ZoneLink|stablekey=zone:fernallafield|link=Fernalla's Revival Plains|text=Fernalla's Revival Plains}}<br>{{ZoneLink|stablekey=zone:malaroth|link=Malaroth's Nesting Grounds|text=Malaroth's Nesting Grounds}}<br>{{ZoneLink|stablekey=zone:ripper|link=Ripper's Keep|text=Ripper's Keep}}<br>{{ZoneLink|stablekey=zone:vitheo|link=Vitheo's Watch|text=Vitheo's Watch}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=6 minutes (Azynthi's Garden)<br>2 minutes (Blacksalt Strand)<br>5 minutes (Fernalla's Revival Plains)<br>5 minutes (Malaroth's Nesting Grounds)<br>5 minutes (Ripper's Keep)<br>4 minutes (Vitheo's Watch)
 |guaranteeddrops=
-|droprates={{ItemLink|Ruined Grass Spider Carapace}} (14.8%)<br>{{ItemLink|Pristine Grass Spider Carapace}} (12.9%)
+|droprates={{ItemLink|stablekey=item:gen - ruined grass spider carapace|link=Ruined Grass Spider Carapace|text=Ruined Grass Spider Carapace|image=Ruined Grass Spider Carapace.png}} (14.8%)<br>{{ItemLink|stablekey=item:gen - pristine grass spider carapace|link=Pristine Grass Spider Carapace|text=Pristine Grass Spider Carapace|image=Pristine Grass Spider Carapace.png}} (12.9%)
 |level=4
 |levelmodmin=0
 |levelmodmax=1

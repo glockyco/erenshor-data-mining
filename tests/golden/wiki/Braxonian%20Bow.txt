@@ -3,7 +3,7 @@
 |stablekey=item:bow - 28 - braxonian bow
 |type=
 |vendorsource=
-|source=[[Braxonian High Guard]] (4.6%)
+|source={{CharacterLink|stablekey=character:braxonian high guard|link=Braxonian High Guard|text=Braxonian High Guard}} (4.6%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=12
 |proc_spell_icon=Brax's Touch.png
-|proc_spell_name=[[Brax's Touch]]
+|proc_spell_name={{AbilityLink|stablekey=spell:arc - brax's touch|link=Brax's Touch|text=Brax's Touch|image=Brax's Touch.png}}
 |proc_spell_level=4
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

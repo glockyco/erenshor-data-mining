@@ -3,15 +3,15 @@
 |image=[[File:Boshi Polok.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Followers of Good]]
-|factionChange=-10 [[Fernalla's Children]]<br>-10 [[The Citizens of Erenshor]]
-|zones=[[The Duskenlight Coast]]
+|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|factionChange=-10 {{FactionLink|stablekey=faction:fernalla|link=Fernalla's Children|text=Fernalla's Children}}<br>-10 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}
+|zones={{ZoneLink|stablekey=zone:duskenlight|link=The Duskenlight Coast|text=The Duskenlight Coast}}
 |coordinates=710.3 x 72.4 x 629.9
 |spawnchance=
 |spawntype=
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Luminstone}} (20.8%)<br>{{ItemLink|Star Stone}} (20.8%)
+|droprates={{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (87.1%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (20.8%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (20.8%)
 |level=6
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=3-7
 |elemental=3-7
 |void=3-7
-|spells={{AbilityLink|Brax's Rage}}<br>{{AbilityLink|Ethereal Rending}}<br>{{AbilityLink|Hardened Skin}}<br>{{AbilityLink|Minor Lightning}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Minor Regeneration}}<br>{{AbilityLink|Theft of Life}}<br>{{AbilityLink|Vampiric Touch}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's rage|link=Brax's Rage|text=Brax's Rage|image=Brax's Rage.png}}<br>{{AbilityLink|stablekey=spell:arc - ethereal rend|link=Ethereal Rending|text=Ethereal Rending|image=Ethereal Rending.png}}<br>{{AbilityLink|stablekey=spell:arc - hardened skin|link=Hardened Skin|text=Hardened Skin|image=Hardened Skin.png}}<br>{{AbilityLink|stablekey=spell:dru - minor lightning|link=Minor Lightning|text=Minor Lightning|image=Minor Lightning.png}}<br>{{AbilityLink|stablekey=spell:all - minor protection|link=Minor Protection|text=Minor Protection|image=Minor Protection.png}}<br>{{AbilityLink|stablekey=spell:dru duel - minor regen|link=Minor Regeneration|text=Minor Regeneration|image=Minor Regeneration.png}}<br>{{AbilityLink|stablekey=spell:dru reav - theft of life|link=Theft of Life|text=Theft of Life|image=Theft of Life.png}}<br>{{AbilityLink|stablekey=spell:duel - vampiric touch|link=Vampiric Touch|text=Vampiric Touch|image=Vampiric Touch.png}}
 }}
 
 Liam is located near the small campsite alongside [[Kylie Clark]] in the [[Duskenlight Coast]]

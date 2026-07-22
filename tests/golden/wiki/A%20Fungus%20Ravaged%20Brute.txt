@@ -3,15 +3,15 @@
 |image=[[File:A Fungus Ravaged Brute.png|thumb]]
 |imagecaption=
 |type=Rare
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[The Elderstone Mines]]
+|zones={{ZoneLink|stablekey=zone:elderstone|link=The Elderstone Mines|text=The Elderstone Mines}}
 |coordinates=
 |spawnchance=25%
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Spelunker's Brace}} (13.4%)<br>{{ItemLink|Elderstone Shard}} (6.7%)<ref>If the player is already holding {{ItemLink|Elderstone Shard}} in their inventory, another will not drop.</ref>
+|droprates={{ItemLink|stablekey=item:wrist - 17 - spelunker's brace|link=Spelunker's Brace|text=Spelunker's Brace|image=Spelunker's Brace.png}} (13.4%)<br>{{ItemLink|stablekey=item:gen - elderstone shard|link=Elderstone Shard|text=Elderstone Shard|image=Elderstone Shard.png}} (6.7%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - elderstone shard|link=Elderstone Shard|text=Elderstone Shard|image=Elderstone Shard.png}} in their inventory, another will not drop.</ref>
 |level=19
 |levelmodmin=0
 |levelmodmax=0

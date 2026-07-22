@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 16 - twisted spider leg
 |type=
 |vendorsource=
-|source=[[Slumbering Queen]] (28.3%)<br>[[A Fungal Sentinel]] (25.2%)<br>[[A Fungal Drone]] (19.6%)
+|source={{CharacterLink|stablekey=character:fungal queen|link=Slumbering Queen|text=Slumbering Queen}} (28.3%)<br>{{CharacterLink|stablekey=character:fungal sentinel|link=A Fungal Sentinel|text=A Fungal Sentinel}} (25.2%)<br>{{CharacterLink|stablekey=character:fungal crawler|link=A Fungal Drone|text=A Fungal Drone}} (19.6%)
 |othersource=
 |questsource=
 |relatedquest=

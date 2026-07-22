@@ -11,7 +11,7 @@
 |componentfor=
 |buy=150
 |sell=98
-|taughtspell={{AbilityLink|Mana Charge}}
+|taughtspell={{AbilityLink|stablekey=spell:arc - mana charge|link=Mana Charge|text=Mana Charge|image=Mana Charge.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

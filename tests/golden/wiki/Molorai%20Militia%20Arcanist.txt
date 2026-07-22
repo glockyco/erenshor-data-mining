@@ -3,15 +3,15 @@
 |image=[[File:Molorai Militia Arcanist.png|thumb]]
 |imagecaption=A {{PAGENAME}} wearing the Arcanist Cap.
 |type=Enemy
-|faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
-|factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Azure Guard]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
-|zones=[[Old Krakengard]]<br>[[Vitheo's Watch]]
+|faction={{FactionLink|stablekey=faction:molarai|link=Eldoth Molorai (Faction)|text=Eldoth Molorai}}
+|factionChange=-2 {{FactionLink|stablekey=faction:molarai|link=Eldoth Molorai (Faction)|text=Eldoth Molorai}}<br>+2 {{FactionLink|stablekey=faction:azureguard|link=The Azure Guard|text=The Azure Guard}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+2 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
+|zones={{ZoneLink|stablekey=zone:krakengard|link=Old Krakengard|text=Old Krakengard}}<br>{{ZoneLink|stablekey=zone:vitheo|link=Vitheo's Watch|text=Vitheo's Watch}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=8 minutes (Old Krakengard)<br>4 minutes (Vitheo's Watch)
 |guaranteeddrops=
-|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Arcanist Cap}} (19.5%)<ref>If Molorai Militia Arcanist has {{ItemLink|Arcanist Cap}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Luminstone}} (11.5%)<br>{{ItemLink|Star Stone}} (11.5%)
+|droprates={{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (87.1%)<br>{{ItemLink|stablekey=item:head - 7 - arcanist cap|link=Arcanist Cap|text=Arcanist Cap|image=Arcanist Cap.png}} (19.5%)<ref>If Molorai Militia Arcanist has {{ItemLink|stablekey=item:head - 7 - arcanist cap|link=Arcanist Cap|text=Arcanist Cap|image=Arcanist Cap.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (11.5%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (11.5%)
 |level=9
 |levelmodmin=0
 |levelmodmax=2
@@ -32,7 +32,7 @@
 |poison=4-11
 |elemental=4-11
 |void=4-11
-|spells={{AbilityLink|Brax's Touch}}<br>{{AbilityLink|Ice Bolt}}<br>{{AbilityLink|Minor Lightning}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's touch|link=Brax's Touch|text=Brax's Touch|image=Brax's Touch.png}}<br>{{AbilityLink|stablekey=spell:arc - ice bolt|link=Ice Bolt|text=Ice Bolt|image=Ice Bolt.png}}<br>{{AbilityLink|stablekey=spell:dru - minor lightning|link=Minor Lightning|text=Minor Lightning|image=Minor Lightning.png}}
 }}
 
 ''{{main|Enemies}}''

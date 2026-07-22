@@ -5,7 +5,7 @@
 |description=A high damage (300 / tick), short duration void spell.
 |type=StatusEffect
 |line=Dru_Void_DOT
-|classes=[[Druid]] (16)
+|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (16)
 |required_level=16
 |manacost=250
 |aggro=60
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Morbidity's Grasp}}
-|used_by=[[Beady]]<br>[[Botanist]]<br>[[Devoratrix]]<br>[[Mosscovered Stoneman]]<br>[[Planar Flora]]<br>[[Priel Enforcer]]<br>[[Priel Malarist]]<br>[[Priel Soldier]]<br>[[Priel Tamer]]<br>[[Rosle of the Spirits]]<br>[[Sentinel]]<br>[[The Gardener of Loomingwood]]<br>[[Thorn (Enemy)|Thorn]]
+|source={{ItemLink|stablekey=item:spell scroll - morbidity's grasp|link=Spell Scroll: Morbidity's Grasp|text=Spell Scroll: Morbidity's Grasp|image=Spell Scroll: Morbidity's Grasp.png}}
+|used_by={{CharacterLink|stablekey=character:beady|link=Beady|text=Beady}}<br>{{CharacterLink|stablekey=character:botanist|link=Botanist|text=Botanist}}<br>{{CharacterLink|stablekey=character:devoratrix|link=Devoratrix|text=Devoratrix}}<br>{{CharacterLink|stablekey=character:mosscovered stoneman|link=Mosscovered Stoneman|text=Mosscovered Stoneman}}<br>{{CharacterLink|stablekey=character:planar snap|link=Planar Flora|text=Planar Flora}}<br>{{CharacterLink|stablekey=character:priel naturalist|link=Priel Enforcer|text=Priel Enforcer}}<br>{{CharacterLink|stablekey=character:priel molarist|link=Priel Malarist|text=Priel Malarist}}<br>{{CharacterLink|stablekey=character:priel soldier2|link=Priel Soldier|text=Priel Soldier}}<br>{{CharacterLink|stablekey=character:priel tamer|link=Priel Tamer|text=Priel Tamer}}<br>{{CharacterLink|stablekey=character:rosle of the spirits|link=Rosle of the Spirits|text=Rosle of the Spirits}}<br>{{CharacterLink|stablekey=character:sentinel|link=Sentinel|text=Sentinel}}<br>{{CharacterLink|stablekey=character:gardener|link=The Gardener of Loomingwood|text=The Gardener of Loomingwood}}<br>{{CharacterLink|stablekey=character:snappy|link=Thorn (Enemy)|text=Thorn}}
 }}

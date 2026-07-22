@@ -5,7 +5,7 @@
 |description=Heal 110 damage per tick, over time
 |type=Heal
 |line=Healing
-|classes=[[Druid]] (18)
+|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (18)
 |required_level=18
 |manacost=300
 |aggro=
@@ -31,7 +31,7 @@
 |caster_healing=
 |shield_amount=
 |pet_to_summon=
-|status_effect={{AbilityLink|Greater Regrowth}}
+|status_effect=[[Greater Regrowth]]
 |add_proc=
 |add_proc_chance=
 |has_lifetap=
@@ -66,7 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Greater Regrowth}}
+|source={{ItemLink|stablekey=item:spell scroll - greater regrowth|link=Spell Scroll: Greater Regrowth|text=Spell Scroll: Greater Regrowth|image=Spell Scroll: Greater Regrowth.png}}
 |used_by=
 }}
 

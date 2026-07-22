@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Chthonic Armwraps}}<br>{{ItemLink|Cyclone Steel Sleeves}}<br>{{ItemLink|Dreamslayer}}<br>{{ItemLink|Famish}}<br>{{ItemLink|Plaguewind}}<br>{{ItemLink|Skyseared Sleeves}}<br>{{ItemLink|Thaumic Sleeves}}
+|itemswitheffect={{ItemLink|stablekey=item:arm - 42 - chthonic armwraps|link=Chthonic Armwraps|text=Chthonic Armwraps|image=Chthonic Armwraps.png}}<br>{{ItemLink|stablekey=item:arm - 42 - cyclone steel sleeves|link=Cyclone Steel Sleeves|text=Cyclone Steel Sleeves|image=Cyclone Steel Sleeves.png}}<br>{{ItemLink|stablekey=item:weap - 22 - dreamslayer|link=Dreamslayer|text=Dreamslayer|image=Dreamslayer.png}}<br>{{ItemLink|stablekey=item:belt - 30 - famish|link=Famish|text=Famish|image=Famish.png}}<br>{{ItemLink|stablekey=item:back - 38 - plaguewind|link=Plaguewind|text=Plaguewind|image=Plaguewind.png}}<br>{{ItemLink|stablekey=item:arm - 42 - skyseared sleeves|link=Skyseared Sleeves|text=Skyseared Sleeves|image=Skyseared Sleeves.png}}<br>{{ItemLink|stablekey=item:arm - 42 - thaumic sleeves|link=Thaumic Sleeves|text=Thaumic Sleeves|image=Thaumic Sleeves.png}}
 |source=
 |used_by=
 }}

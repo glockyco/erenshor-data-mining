@@ -5,7 +5,7 @@
 |type=NPC
 |faction=
 |factionChange=
-|zones=[[Fernalla's Revival Plains]]<br>[[Soluna's Landing]]<br>[[Vitheo's Rest]]
+|zones={{ZoneLink|stablekey=zone:fernallafield|link=Fernalla's Revival Plains|text=Fernalla's Revival Plains}}<br>{{ZoneLink|stablekey=zone:soluna|link=Soluna's Landing|text=Soluna's Landing}}<br>{{ZoneLink|stablekey=zone:vitheosend|link=Vitheo's Rest|text=Vitheo's Rest}}
 |coordinates=
 |spawnchance=
 |spawntype=

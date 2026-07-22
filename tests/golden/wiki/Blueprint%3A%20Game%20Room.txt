@@ -3,10 +3,10 @@
 |stablekey=item:furniture - molorai game room blueprint
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Molorai Archaeologist]] (1.0%)<br>[[Molorai Archaeologist]] (0.8%)<br>[[Molorai Outrider]] (0.8%)
+|source={{CharacterLink|stablekey=character:molorai archaelogist|link=Molorai Archaeologist|text=Molorai Archaeologist}} (1.0%)<br>{{CharacterLink|stablekey=character:molorai archaelogist 1|link=Molorai Archaeologist|text=Molorai Archaeologist}} (0.8%)<br>{{CharacterLink|stablekey=character:molorai archaelogist 2|link=Molorai Archaeologist|text=Molorai Archaeologist}} (0.8%)<br>{{CharacterLink|stablekey=character:molorai outrider|link=Molorai Outrider|text=Molorai Outrider}} (0.8%)<br>{{CharacterLink|stablekey=character:molorai outrider 1|link=Molorai Outrider|text=Molorai Outrider}} (0.8%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Crafting: Game Room}}
+|relatedquest={{QuestLink|Crafting: Game Room}}<br>{{QuestLink|stablekey=quest:furniture-game-room|link=Crafting: Game Room|text=Crafting: Game Room}}
 |craftsource=
 |componentfor=
 |buy=3500

@@ -5,8 +5,8 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|The Loss Stone}}
-|relatedquest={{QuestLink|Completing the Ritual}}<br>{{QuestLink|The Loss Stone}}<br>{{QuestLink|The Loss Stone Pt. 2}}
+|questsource={{QuestLink|The Loss Stone}}<br>{{QuestLink|stablekey=quest:thelossstone|link=The Loss Stone|text=The Loss Stone}}
+|relatedquest={{QuestLink|Completing the Ritual}}<br>{{QuestLink|The Loss Stone}}<br>{{QuestLink|The Loss Stone Pt. 2}}<br>{{QuestLink|stablekey=quest:stowawayritualcomplete|link=Completing the Ritual|text=Completing the Ritual}}<br>{{QuestLink|stablekey=quest:thelossstone|link=The Loss Stone|text=The Loss Stone}}<br>{{QuestLink|stablekey=quest:lossstoneritual|link=The Loss Stone Pt. 2|text=The Loss Stone Pt. 2}}
 |craftsource=
 |componentfor=
 |buy=

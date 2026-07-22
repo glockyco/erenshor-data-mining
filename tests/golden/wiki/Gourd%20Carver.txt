@@ -2,8 +2,8 @@
 |title=Gourd Carver
 |stablekey=item:weap - 6 - gourd carver
 |type=
-|vendorsource=[[Asaga Underloft]]
-|source=[[Battlefist]] (33.3%)
+|vendorsource={{CharacterLink|stablekey=character:asaga underloft|link=Asaga Underloft|text=Asaga Underloft}}
+|source={{CharacterLink|stablekey=character:battlefist|link=Battlefist|text=Battlefist}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=8
 |proc_spell_icon=Magic Bolt.png
-|proc_spell_name=[[Magic Bolt]]
+|proc_spell_name={{AbilityLink|stablekey=spell:dru arc stc - magic bolt|link=Magic Bolt|text=Magic Bolt|image=Magic Bolt.png}}
 |proc_spell_level=1
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

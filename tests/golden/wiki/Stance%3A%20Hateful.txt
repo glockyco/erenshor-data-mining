@@ -5,7 +5,7 @@
 |description=Take and deal 20% less physical damage, while generating substantially more aggro. Gain a 4% bonus to all proc rates. Your focus on this stance prevents natural health regeneration.
 |type=Utility
 |line=
-|classes=[[Reaver]] (30)
+|classes={{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}} (30)
 |required_level=
 |manacost=
 |aggro=
@@ -23,7 +23,7 @@
 |is_self_only=
 |is_group_effect=
 |is_applied_to_caster=
-|effects={{AbilityLink|Hateful}}
+|effects={{AbilityLink|stablekey=stance:hateful|link=Hateful|text=Hateful|image=Hateful.png}}
 |damage_type=
 |resist_modifier=
 |target_damage=
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Skill Book: Hateful Stance}}
+|source={{ItemLink|stablekey=item:skillbook - stance - hateful|link=Skill Book: Hateful Stance|text=Skill Book: Hateful Stance|image=Skill Book: Hateful Stance.png}}
 |used_by=
 }}

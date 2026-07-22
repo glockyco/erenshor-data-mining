@@ -3,7 +3,7 @@
 |stablekey=item:gen - priel note
 |type=
 |vendorsource=
-|source=[[Chazza Priel]] (100.0%)
+|source={{CharacterLink|stablekey=character:chazza priel|link=Chazza Priel|text=Chazza Priel}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -77,7 +77,7 @@
 |stablekey=item:gen - priel note 1
 |type=
 |vendorsource=
-|source=[[Tiallia Priel]] (100.0%)
+|source={{CharacterLink|stablekey=character:tiallia priel|link=Tiallia Priel|text=Tiallia Priel}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -3,9 +3,9 @@
 |image=[[File:Silkengrass Receptacle.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Followers of Good]]
+|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
 |factionChange=
-|zones=[[Reliquary Hall]]
+|zones={{ZoneLink|stablekey=zone:reliquary|link=Reliquary Hall|text=Reliquary Hall}}
 |coordinates=291.1 x 1.1 x 348.4
 |spawnchance=
 |spawntype=

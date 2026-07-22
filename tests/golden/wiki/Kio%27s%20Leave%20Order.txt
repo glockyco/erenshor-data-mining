@@ -6,7 +6,7 @@
 |source=
 |othersource=[[Corporal Slate]]
 |questsource=
-|relatedquest={{QuestLink|Kio's Papers}}
+|relatedquest={{QuestLink|Kio's Papers}}<br>{{QuestLink|stablekey=quest:kio's papers|link=Kio's Papers|text=Kio's Papers}}
 |craftsource=
 |componentfor=
 |buy=

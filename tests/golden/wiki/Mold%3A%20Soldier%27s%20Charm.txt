@@ -22,8 +22,8 @@
 |image=Mold: Soldier's Charm.png
 |name=Mold: Soldier's Charm
 |description=Recipes must be exact - use CNTRL + CLICK to separate stacks.<br><br>One-time usable in a forge. <br><br>*Fuel quality does not affect the outcome of this recipe
-|ingredients=1x {{ItemLink|Ghoul Scab}}<br>1x {{ItemLink|Spell Scroll: Death's Embrace}}<br>1x {{ItemLink|Pendant of Petrified Wood}}<br>1x {{ItemLink|Spell Scroll: Theft of Life}}
-|rewards={{ItemLink|Soldier's Charm}}
+|ingredients=1x {{ItemLink|stablekey=item:gen - ghoul scab|link=Ghoul Scab|text=Ghoul Scab|image=Ghoul Scab.png}}<br>1x {{ItemLink|stablekey=item:spell scroll - death's embrace|link=Spell Scroll: Death's Embrace|text=Spell Scroll: Death's Embrace|image=Spell Scroll: Death's Embrace.png}}<br>1x {{ItemLink|stablekey=item:neck - 13 - petrified wood pendant|link=Pendant of Petrified Wood|text=Pendant of Petrified Wood|image=Pendant of Petrified Wood.png}}<br>1x {{ItemLink|stablekey=item:spell scroll - theft of life|link=Spell Scroll: Theft of Life|text=Spell Scroll: Theft of Life|image=Spell Scroll: Theft of Life.png}}
+|rewards={{ItemLink|stablekey=item:charm - 30 - soldier's charm|link=Soldier's Charm|text=Soldier's Charm|image=Soldier's Charm.png}}
 |station=
 }}
 

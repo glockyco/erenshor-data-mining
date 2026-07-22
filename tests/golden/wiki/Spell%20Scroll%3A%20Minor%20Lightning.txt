@@ -2,8 +2,8 @@
 |title=Spell Scroll: Minor Lightning
 |stablekey=item:spell scroll - minor lightning
 |type=[[Ability Books|Spell Scroll]]
-|vendorsource=[[Alyssia Fearnon]]
-|source=[[Plaxitheris]] (8.7%)<br>[[Vevillo Polter]] (3.7%)<br>[[Aranuil Olaseo]] (3.2%)<br>[[Odyss Repman]] (3.2%)<br>[[Islander Bandit]] (1.1%)
+|vendorsource={{CharacterLink|stablekey=character:alyssa fearnon|link=Alyssia Fearnon|text=Alyssia Fearnon}}
+|source={{CharacterLink|stablekey=character:plaxitheris|link=Plaxitheris|text=Plaxitheris}} (8.7%)<br>{{CharacterLink|stablekey=character:vevillo polter|link=Vevillo Polter|text=Vevillo Polter}} (3.7%)<br>{{CharacterLink|stablekey=character:aranuil olaseo|link=Aranuil Olaseo|text=Aranuil Olaseo}} (3.2%)<br>{{CharacterLink|stablekey=character:odyss repman:duskenlight:1312.16:70.01:695.11|link=Odyss Repman|text=Odyss Repman}} (3.2%)<br>{{CharacterLink|stablekey=character:islander bandit|link=Islander Bandit|text=Islander Bandit}} (1.1%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=60
 |sell=39
-|taughtspell={{AbilityLink|Minor Lightning}}
+|taughtspell={{AbilityLink|stablekey=spell:dru - minor lightning|link=Minor Lightning|text=Minor Lightning|image=Minor Lightning.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

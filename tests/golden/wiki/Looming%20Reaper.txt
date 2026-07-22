@@ -3,7 +3,7 @@
 |stablekey=item:weap - 30 - looming reaper
 |type=
 |vendorsource=
-|source=[[The Gardener of Loomingwood]] (25.0%)
+|source={{CharacterLink|stablekey=character:gardener|link=The Gardener of Loomingwood|text=The Gardener of Loomingwood}} (25.0%)
 |othersource=
 |questsource=
 |relatedquest=

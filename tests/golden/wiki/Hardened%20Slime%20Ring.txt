@@ -3,7 +3,7 @@
 |stablekey=item:ring - 16 - hardened slime ring
 |type=
 |vendorsource=
-|source=[[Gloopa|Gloopa (Quarter)]] (38.5%)<br>[[Gloopa|Gloopa (Quarter)]] (1.7%)<br>[[A Subterranean Goop]] (1.6%)<br>[[A Subterranean Magmite]] (1.6%)
+|source={{CharacterLink|stablekey=character:gloopa quarter loot|link=Gloopa|text=Gloopa (Quarter)}} (38.5%)<br>{{CharacterLink|stablekey=character:gloopa quarter|link=Gloopa|text=Gloopa (Quarter)}} (1.7%)<br>{{CharacterLink|stablekey=character:subterranean gel|link=A Subterranean Goop|text=A Subterranean Goop}} (1.6%)<br>{{CharacterLink|stablekey=character:subterranean magmite|link=A Subterranean Magmite|text=A Subterranean Magmite}} (1.6%)
 |othersource=
 |questsource=
 |relatedquest=

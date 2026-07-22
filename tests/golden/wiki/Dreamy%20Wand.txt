@@ -3,7 +3,7 @@
 |stablekey=item:wand - 21 - dreamy wand
 |type=
 |vendorsource=
-|source=[[Dream]] (50.0%)
+|source={{CharacterLink|stablekey=character:dreambear|link=Dream|text=Dream}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=5
 |proc_spell_icon=Mithril Shards.png
-|proc_spell_name=[[Mithril Shards]]
+|proc_spell_name={{AbilityLink|stablekey=spell:none - mithril shards|link=Mithril Shards|text=Mithril Shards|image=Mithril Shards.png}}
 |proc_spell_level=14
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

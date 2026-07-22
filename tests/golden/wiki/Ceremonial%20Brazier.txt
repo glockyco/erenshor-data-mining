@@ -5,7 +5,7 @@
 |type=NPC
 |faction=
 |factionChange=
-|zones=[[Fernalla's Revival Plains]]<br>[[Ripper's Keep]]<br>[[The Duskenlight Coast]]
+|zones={{ZoneLink|stablekey=zone:fernallafield|link=Fernalla's Revival Plains|text=Fernalla's Revival Plains}}<br>{{ZoneLink|stablekey=zone:ripper|link=Ripper's Keep|text=Ripper's Keep}}<br>{{ZoneLink|stablekey=zone:duskenlight|link=The Duskenlight Coast|text=The Duskenlight Coast}}
 |coordinates=
 |spawnchance=
 |spawntype=

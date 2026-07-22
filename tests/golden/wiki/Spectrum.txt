@@ -5,7 +5,7 @@
 |description=Lower all target's resists by 10
 |type=StatusEffect
 |line=Global_Magic_Debuff
-|classes=[[Paladin]] (22)
+|classes={{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}} (22)
 |required_level=22
 |manacost=80
 |aggro=1200
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Spectrum}}
-|used_by=[[Ancient Celestarian]]<br>[[Ancient Knight]]<br>[[Aquilamar Blade]]<br>[[Aquilamar Duelist]]<br>[[Aquilamar Protector]]<br>[[Aquilamar Rake]]<br>[[High Paladin of Sivakaya]]
+|source={{ItemLink|stablekey=item:spell scroll - spectrum|link=Spell Scroll: Spectrum|text=Spell Scroll: Spectrum|image=Spell Scroll: Spectrum.png}}
+|used_by={{CharacterLink|stablekey=character:ancient celestarian|link=Ancient Celestarian|text=Ancient Celestarian}}<br>{{CharacterLink|stablekey=character:ancient guard captain|link=Ancient Knight|text=Ancient Knight}}<br>{{CharacterLink|stablekey=character:aqualimar blade|link=Aquilamar Blade|text=Aquilamar Blade}}<br>{{CharacterLink|stablekey=character:aquilamar duelist|link=Aquilamar Duelist|text=Aquilamar Duelist}}<br>{{CharacterLink|stablekey=character:aqualimar protector|link=Aquilamar Protector|text=Aquilamar Protector}}<br>{{CharacterLink|stablekey=character:aquilamar rake|link=Aquilamar Rake|text=Aquilamar Rake}}<br>{{CharacterLink|stablekey=character:warrior of sivakaya|link=High Paladin of Sivakaya|text=High Paladin of Sivakaya}}
 }}

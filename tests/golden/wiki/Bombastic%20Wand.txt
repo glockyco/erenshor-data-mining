@@ -3,7 +3,7 @@
 |stablekey=item:wand - 29 - bombastic wand
 |type=
 |vendorsource=
-|source=[[Vinx]] (25.0%)
+|source={{CharacterLink|stablekey=character:vinx|link=Vinx|text=Vinx}} (25.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=25
 |proc_spell_icon=The Wild's Fang.png
-|proc_spell_name=[[The Wild's Fang]]
+|proc_spell_name={{AbilityLink|stablekey=spell:dru - the wild's grasp|link=The Wild's Fang|text=The Wild's Fang|image=The Wild's Fang.png}}
 |proc_spell_level=16
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

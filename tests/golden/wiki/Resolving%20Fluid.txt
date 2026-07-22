@@ -2,7 +2,7 @@
 |title=Resolving Fluid
 |stablekey=item:template - resolving fluid
 |type=[[Crafting|Mold]]
-|vendorsource=[[Braxon Lolo]]
+|vendorsource={{CharacterLink|stablekey=character:braxon lolo:azure:13.38:27.32:327.68|link=Braxon Lolo|text=Braxon Lolo}}
 |source=
 |othersource=
 |questsource=
@@ -23,8 +23,8 @@
 |image=Resolving Fluid.png
 |name=Resolving Fluid
 |description=A bubbling vial of fluid that evaporates upon touch
-|ingredients=8x {{ItemLink|Planar Stone Shards}}
-|rewards={{ItemLink|Planar Stone}}
+|ingredients=8x {{ItemLink|stablekey=item:ore - planar shard|link=Planar Stone Shards|text=Planar Stone Shards|image=Planar Stone Shards.png}}
+|rewards={{ItemLink|stablekey=item:ore - planar stone|link=Planar Stone|text=Planar Stone|image=Planar Stone.png}}
 |station=
 }}
 

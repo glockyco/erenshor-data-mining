@@ -5,7 +5,7 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|link=Braxonian Scripture (Quest){{!}}Braxonian Scripture}}
+|questsource={{QuestLink|link=Braxonian Scripture (Quest){{!}}Braxonian Scripture}}<br>{{QuestLink|stablekey=quest:braxscript|link=Braxonian Scripture (Quest)|text=Braxonian Scripture}}
 |relatedquest=
 |craftsource=
 |componentfor=

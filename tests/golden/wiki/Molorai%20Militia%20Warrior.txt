@@ -3,15 +3,15 @@
 |image=[[File:Molorai Militia Warrior.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[Eldoth Molorai (Faction)|Eldoth Molorai]]
-|factionChange=-2 [[Eldoth Molorai (Faction)|Eldoth Molorai]]<br>+2 [[The Azure Guard]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
-|zones=[[Old Krakengard]]<br>[[Vitheo's Watch]]
+|faction={{FactionLink|stablekey=faction:molarai|link=Eldoth Molorai (Faction)|text=Eldoth Molorai}}
+|factionChange=-2 {{FactionLink|stablekey=faction:molarai|link=Eldoth Molorai (Faction)|text=Eldoth Molorai}}<br>+2 {{FactionLink|stablekey=faction:azureguard|link=The Azure Guard|text=The Azure Guard}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+2 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
+|zones={{ZoneLink|stablekey=zone:krakengard|link=Old Krakengard|text=Old Krakengard}}<br>{{ZoneLink|stablekey=zone:vitheo|link=Vitheo's Watch|text=Vitheo's Watch}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=8 minutes (Old Krakengard)<br>4 minutes (Vitheo's Watch)
 |guaranteeddrops=
-|droprates={{ItemLink|Citrine Stone}} (87.1%)<br>{{ItemLink|Luminstone}} (11.5%)<br>{{ItemLink|Star Stone}} (11.5%)<br>{{ItemLink|Cold Steel Greaves}} (4.9%)<br>{{ItemLink|Cold Steel Helm}} (4.9%)<br>{{ItemLink|Molorai Axe}} (4.9%)<ref>If Molorai Militia Warrior has {{ItemLink|Molorai Axe}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Molorai Bow}} (4.9%)<br>{{ItemLink|Linked Chain Shirt}} (1.0%)
+|droprates={{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (87.1%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (11.5%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (11.5%)<br>{{ItemLink|stablekey=item:leg - 6 - cold steel greaves|link=Cold Steel Greaves|text=Cold Steel Greaves|image=Cold Steel Greaves.png}} (4.9%)<br>{{ItemLink|stablekey=item:head - 6 - cold steel helm|link=Cold Steel Helm|text=Cold Steel Helm|image=Cold Steel Helm.png}} (4.9%)<br>{{ItemLink|stablekey=item:weap - 7 - molora axe|link=Molorai Axe|text=Molorai Axe|image=Molorai Axe.png}} (4.9%)<ref>If Molorai Militia Warrior has {{ItemLink|stablekey=item:weap - 7 - molora axe|link=Molorai Axe|text=Molorai Axe|image=Molorai Axe.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:bow - 10 - molorai bow|link=Molorai Bow|text=Molorai Bow|image=Molorai Bow.png}} (4.9%)<br>{{ItemLink|stablekey=item:chest - 10 - linked chain|link=Linked Chain Shirt|text=Linked Chain Shirt|image=Linked Chain Shirt.png}} (1.0%)
 |level=9
 |levelmodmin=0
 |levelmodmax=2

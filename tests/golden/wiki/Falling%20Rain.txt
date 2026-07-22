@@ -2,7 +2,7 @@
 |title=Falling Rain
 |stablekey=item:aura - storm 2
 |type=[[Auras|Aura]]
-|vendorsource=[[Elizabeth DeWitt]]
+|vendorsource={{CharacterLink|stablekey=character:elizabeth dewitt|link=Elizabeth DeWitt|text=Elizabeth DeWitt}}
 |source=
 |othersource=
 |questsource=
@@ -22,7 +22,7 @@
 |name=Falling Rain
 |description=
 |aura_spell_icon=Aura: Presence of Storms II.png
-|aura_spell_name=[[Aura: Presence of Storms II]]
+|aura_spell_name={{AbilityLink|stablekey=spell:aura - storm 2|link=Aura: Presence of Storms II|text=Aura: Presence of Storms II|image=Aura: Presence of Storms II.png}}
 |aura_spell_level=1
 |aura_spell_duration_ticks=2
 |aura_spell_type=Beneficial

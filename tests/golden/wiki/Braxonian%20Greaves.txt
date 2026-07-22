@@ -3,7 +3,7 @@
 |stablekey=item:leg - 31 - braxonian greaves
 |type=
 |vendorsource=
-|source=[[Braxonian Planar Guard (Fire)]] (1.1%)<br>[[Braxonian Planar Guard (Ice)]] (1.1%)<br>[[Braxonian Weapon Master]] (0.7%)<br>[[Braxonian Honor Guard]] (0.6%)<br>[[Braxonian High Guard]] (0.5%)
+|source={{CharacterLink|stablekey=character:braxonian planar guardian fire|link=Braxonian Planar Guard (Fire)|text=Braxonian Planar Guard (Fire)}} (1.1%)<br>{{CharacterLink|stablekey=character:braxonian planar guardian ice|link=Braxonian Planar Guard (Ice)|text=Braxonian Planar Guard (Ice)}} (1.1%)<br>{{CharacterLink|stablekey=character:braxonian weapon master|link=Braxonian Weapon Master|text=Braxonian Weapon Master}} (0.7%)<br>{{CharacterLink|stablekey=character:braxonian honor guard|link=Braxonian Honor Guard|text=Braxonian Honor Guard}} (0.6%)<br>{{CharacterLink|stablekey=character:braxonian high guard|link=Braxonian High Guard|text=Braxonian High Guard}} (0.5%)
 |othersource=
 |questsource=
 |relatedquest=

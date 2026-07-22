@@ -3,7 +3,7 @@
 |stablekey=item:foot - 12 - wolfhide boots
 |type=
 |vendorsource=
-|source=[[Obba of the Warkind]] (33.3%)
+|source={{CharacterLink|stablekey=character:obba of the warkind|link=Obba of the Warkind|text=Obba of the Warkind}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

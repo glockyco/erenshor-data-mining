@@ -5,7 +5,7 @@
 |description=Fires a flaming arrow that will explode and do extra damage upon impact
 |type=Ranged
 |line=
-|classes=[[Stormcaller]] (8)
+|classes={{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}} (8)
 |required_level=
 |manacost=
 |aggro=
@@ -23,7 +23,7 @@
 |is_self_only=
 |is_group_effect=
 |is_applied_to_caster=
-|effects={{AbilityLink|Exploding Arrow}}
+|effects={{AbilityLink|stablekey=spell:none - exploding arrow|link=Exploding Arrow|text=Exploding Arrow|image=Exploding Arrow.png}}
 |damage_type=
 |resist_modifier=
 |target_damage=3
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Skill Book: Flaming Arrow}}
+|source={{ItemLink|stablekey=item:skillbook - flaming arrow|link=Skill Book: Flaming Arrow|text=Skill Book: Flaming Arrow|image=Skill Book: Flaming Arrow.png}}
 |used_by=
 }}

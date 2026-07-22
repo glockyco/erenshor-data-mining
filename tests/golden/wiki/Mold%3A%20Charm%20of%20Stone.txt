@@ -22,8 +22,8 @@
 |image=Mold: Charm of Stone.png
 |name=Mold: Charm of Stone
 |description=Recipes must be exact - use CNTRL + CLICK to separate stacks.<br><br>One-time usable in a forge. <br><br>*Fuel quality does not affect the outcome of this recipe
-|ingredients=1x {{ItemLink|Pulsating Stone}}<br>1x {{ItemLink|Polished Stone}}<br>1x {{ItemLink|Ruby}}<br>1x {{ItemLink|Chunk of Obsidian}}
-|rewards={{ItemLink|Charm of the Stone}}
+|ingredients=1x {{ItemLink|stablekey=item:gen - pulsating stone|link=Pulsating Stone|text=Pulsating Stone|image=Pulsating Stone.png}}<br>1x {{ItemLink|stablekey=item:gen - polished stone|link=Polished Stone|text=Polished Stone|image=Polished Stone.png}}<br>1x {{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}}<br>1x {{ItemLink|stablekey=item:ore - obsidian|link=Chunk of Obsidian|text=Chunk of Obsidian|image=Chunk of Obsidian.png}}
+|rewards={{ItemLink|stablekey=item:charm - 22-  charm of stone|link=Charm of the Stone|text=Charm of the Stone|image=Charm of the Stone.png}}
 |station=
 }}
 

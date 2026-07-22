@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Spark of Light}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - brax 1|link=Spark of Light|text=Spark of Light|image=Spark of Light.png}}
 |source=
 |used_by=
 }}

@@ -32,7 +32,7 @@
 |shield_amount=
 |pet_to_summon=
 |status_effect=
-|add_proc={{AbilityLink|Void Form}}
+|add_proc={{AbilityLink|stablekey=spell:none - void form|link=Void Form|text=Void Form}}
 |add_proc_chance=2
 |has_lifetap=
 |lifesteal=
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Eventide Chestguard}}
+|itemswitheffect={{ItemLink|stablekey=item:chest - 42 - eventide breastplate|link=Eventide Chestguard|text=Eventide Chestguard|image=Eventide Chestguard.png}}
 |source=
 |used_by=
 }}

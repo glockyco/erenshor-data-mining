@@ -3,7 +3,7 @@
 |stablekey=item:neck - 35 - malaroth lead
 |type=
 |vendorsource=
-|source=[[Lacy]] (100.0%)
+|source={{CharacterLink|stablekey=character:lacy|link=Lacy|text=Lacy}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Activatable
 |proc_chance=
 |proc_spell_icon=Summon Loyal Malaroth.png
-|proc_spell_name=[[Summon Loyal Malaroth]]
+|proc_spell_name={{AbilityLink|stablekey=spell:none - summon loyal malaroth|link=Summon Loyal Malaroth|text=Summon Loyal Malaroth|image=Summon Loyal Malaroth.png}}
 |proc_spell_level=33
 |proc_spell_duration_ticks=
 |proc_spell_type=Pet

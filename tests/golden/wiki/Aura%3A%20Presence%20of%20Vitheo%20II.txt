@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Force of the Sea}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - vitheo 2|link=Force of the Sea|text=Force of the Sea|image=Force of the Sea.png}}
 |source=
 |used_by=
 }}

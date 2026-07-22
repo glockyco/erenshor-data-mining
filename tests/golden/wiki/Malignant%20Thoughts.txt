@@ -3,9 +3,9 @@
 |image=[[File:Malignant Thoughts.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Mysterious Portal|Mysterious Portal (2)]]
+|zones={{ZoneLink|stablekey=zone:fernallaportal|link=Mysterious Portal|text=Mysterious Portal (2)}}
 |coordinates=
 |spawnchance=
 |spawntype=
@@ -55,9 +55,9 @@
 |image=[[File:Malignant Thoughts.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Mysterious Portal|Mysterious Portal (2)]]
+|zones={{ZoneLink|stablekey=zone:fernallaportal|link=Mysterious Portal|text=Mysterious Portal (2)}}
 |coordinates=326.8 x 1.9 x 530.4
 |spawnchance=
 |spawntype=

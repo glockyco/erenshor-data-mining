@@ -2,11 +2,11 @@
 |title=Coal
 |stablekey=item:ore - coal
 |type=[[Crafting]]<br>[[Quest Items|Quest Item]]
-|vendorsource=[[Oscar VanEllis]]
-|source=[[Failed Cremation]] (100.0%)
+|vendorsource={{CharacterLink|stablekey=character:oscar vanellis:ripper:755.35:43.64:193.63|link=Oscar VanEllis|text=Oscar VanEllis}}
+|source={{CharacterLink|stablekey=character:failed cremation|link=Failed Cremation|text=Failed Cremation}} (100.0%)
 |othersource=[[Mining]]
 |questsource=
-|relatedquest={{QuestLink|The Mystery of Bellwain Island}}
+|relatedquest={{QuestLink|The Mystery of Bellwain Island}}<br>{{QuestLink|stablekey=quest:breadedislandfinmade|link=The Mystery of Bellwain Island|text=The Mystery of Bellwain Island}}
 |craftsource=
 |componentfor=
 |buy=

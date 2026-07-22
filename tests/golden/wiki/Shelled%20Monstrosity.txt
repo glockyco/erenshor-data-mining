@@ -3,15 +3,15 @@
 |image=[[File:Shelled Monstrosity.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Rockshade Hold]]
+|zones={{ZoneLink|stablekey=zone:rockshade|link=Rockshade Hold|text=Rockshade Hold}}
 |coordinates=418.4 x 86.1 x 870.1
 |spawnchance=80%
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Chitin Bracer}}<br>{{ItemLink|Chitin Protector}}
-|droprates={{ItemLink|Chitin Bracer}} (66.7%)<br>{{ItemLink|Chitin Protector}} (33.3%)<br>{{ItemLink|Droplet of Lava}} (4.5%)
+|guaranteeddrops={{ItemLink|stablekey=item:wrist - 22 - chitin bracer|link=Chitin Bracer|text=Chitin Bracer|image=Chitin Bracer.png}}<br>{{ItemLink|stablekey=item:chest - 25 - chitin protector|link=Chitin Protector|text=Chitin Protector|image=Chitin Protector.png}}
+|droprates={{ItemLink|stablekey=item:wrist - 22 - chitin bracer|link=Chitin Bracer|text=Chitin Bracer|image=Chitin Bracer.png}} (66.7%)<br>{{ItemLink|stablekey=item:chest - 25 - chitin protector|link=Chitin Protector|text=Chitin Protector|image=Chitin Protector.png}} (33.3%)<br>{{ItemLink|stablekey=item:cons - lava droplet|link=Droplet of Lava|text=Droplet of Lava|image=Droplet of Lava.png}} (4.5%)
 |level=24
 |levelmodmin=0
 |levelmodmax=0

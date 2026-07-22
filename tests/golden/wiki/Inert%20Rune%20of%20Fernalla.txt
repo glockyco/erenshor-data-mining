@@ -3,10 +3,10 @@
 |stablekey=item:gen - inert rune of fernalla
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Fallen Fernalla]] (100.0%)
+|source={{CharacterLink|stablekey=character:final fernalla 1|link=Fallen Fernalla|text=Fallen Fernalla}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|A Fernallan Rune}}
+|relatedquest={{QuestLink|A Fernallan Rune}}<br>{{QuestLink|stablekey=quest:fernallaraidrune|link=A Fernallan Rune|text=A Fernallan Rune}}
 |craftsource=
 |componentfor=
 |buy=

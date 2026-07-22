@@ -3,7 +3,7 @@
 |stablekey=item:key - shadowed key
 |type=
 |vendorsource=
-|source=[[Soul Linked Spider]] (100.0%)
+|source={{CharacterLink|stablekey=character:linkedspider1 (1):shiveringtomb2:-63.47:-68.65:93.79|link=Soul Linked Spider|text=Soul Linked Spider}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=

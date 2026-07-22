@@ -3,9 +3,9 @@
 |image=[[File:Controller Wendyl.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Citizens of Stowaway's Step]]
+|faction={{FactionLink|stablekey=faction:stowaway|link=The Citizens of Stowaway's Step|text=The Citizens of Stowaway's Step}}
 |factionChange=
-|zones=[[Stowaway's Step]]
+|zones={{ZoneLink|stablekey=zone:stowaway|link=Stowaway's Step|text=Stowaway's Step}}
 |coordinates=705.3 x 21.3 x 506.2
 |spawnchance=
 |spawntype=

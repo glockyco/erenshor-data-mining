@@ -2,11 +2,11 @@
 |title=Eternal Ice
 |stablekey=item:gen - eternal ice
 |type=[[Quest Items|Quest Item]]
-|vendorsource=[[Enterprising Spirit]]
-|source=[[Shiverman]] (3.0%)
+|vendorsource={{CharacterLink|stablekey=character:ghostly figure:shiveringstep:701.36:24.78:439.97|link=Enterprising Spirit|text=Enterprising Spirit}}
+|source={{CharacterLink|stablekey=character:shiverman|link=Shiverman|text=Shiverman}} (3.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Warming the Isle}}
+|relatedquest={{QuestLink|Warming the Isle}}<br>{{QuestLink|stablekey=quest:shiver-flamelit|link=Warming the Isle|text=Warming the Isle}}
 |craftsource=
 |componentfor=
 |buy=5

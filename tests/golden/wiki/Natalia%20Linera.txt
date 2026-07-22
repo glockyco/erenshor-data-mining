@@ -5,7 +5,7 @@
 |type=NPC
 |faction=
 |factionChange=
-|zones=[[Soluna's Landing]]
+|zones={{ZoneLink|stablekey=zone:soluna|link=Soluna's Landing|text=Soluna's Landing}}
 |coordinates=392.8 x 126.3 x 739.9
 |spawnchance=
 |spawntype=

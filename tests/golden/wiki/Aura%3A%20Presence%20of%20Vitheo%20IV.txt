@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Whispers of Wind}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - vitheo 4|link=Whispers of Wind|text=Whispers of Wind|image=Whispers of Wind.png}}
 |source=
 |used_by=
 }}

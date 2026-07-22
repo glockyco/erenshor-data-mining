@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Rune of Silkengrass}}
+|itemswitheffect={{ItemLink|stablekey=item:gen - rune of silkengrass|link=Rune of Silkengrass|text=Rune of Silkengrass|image=Rune of Silkengrass.png}}
 |source=
 |used_by=
 }}

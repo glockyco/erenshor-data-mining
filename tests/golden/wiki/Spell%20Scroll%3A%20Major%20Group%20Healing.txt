@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - group healing major
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=
-|source=[[Priel Malarist]] (3.4%)<br>[[Priel Purist]] (2.1%)<br>[[Priel Consort]] (1.4%)
+|source={{CharacterLink|stablekey=character:priel molarist|link=Priel Malarist|text=Priel Malarist}} (3.4%)<br>{{CharacterLink|stablekey=character:priel purist|link=Priel Purist|text=Priel Purist}} (2.1%)<br>{{CharacterLink|stablekey=character:priel consort|link=Priel Consort|text=Priel Consort}} (1.4%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=12550
 |sell=8157
-|taughtspell={{AbilityLink|Major Group Heal}}
+|taughtspell={{AbilityLink|stablekey=spell:dru - major group healing|link=Major Group Heal|text=Major Group Heal|image=Major Group Heal.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

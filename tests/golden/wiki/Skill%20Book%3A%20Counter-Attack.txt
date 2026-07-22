@@ -2,7 +2,7 @@
 |title=Skill Book: Counter-Attack
 |stablekey=item:skillbook - counter-attack
 |type=
-|vendorsource=[[Aillee Desten]]<br>[[Grant Haxoway]]<br>[[Xander Zaxtrough]]<br>[[Zane Theavale]]
+|vendorsource={{CharacterLink|stablekey=character:aillee desten|link=Aillee Desten|text=Aillee Desten}}<br>{{CharacterLink|stablekey=character:grant haxoway|link=Grant Haxoway|text=Grant Haxoway}}<br>{{CharacterLink|stablekey=character:xander zaxtrough|link=Xander Zaxtrough|text=Xander Zaxtrough}}<br>{{CharacterLink|stablekey=character:zane theavale|link=Zane Theavale|text=Zane Theavale}}
 |source=
 |othersource=
 |questsource=
@@ -12,7 +12,7 @@
 |buy=1350
 |sell=877
 |taughtspell=
-|taughtskill={{AbilityLink|Counter-Attack}}
+|taughtskill={{AbilityLink|stablekey=skill:counterattack|link=Counter-Attack|text=Counter-Attack|image=Counter-Attack.png}}
 |guaranteeddrops=
 |droprates=
 }}

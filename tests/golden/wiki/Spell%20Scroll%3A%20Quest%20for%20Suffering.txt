@@ -2,7 +2,7 @@
 |title=Spell Scroll: Quest for Suffering
 |stablekey=item:spell scroll - quest for suffering
 |type=
-|vendorsource=[[Grant Haxoway]]
+|vendorsource={{CharacterLink|stablekey=character:grant haxoway|link=Grant Haxoway|text=Grant Haxoway}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=8500
 |sell=5525
-|taughtspell={{AbilityLink|Quest for Suffering}}
+|taughtspell={{AbilityLink|stablekey=spell:reav - quest for suffering|link=Quest for Suffering|text=Quest for Suffering|image=Quest for Suffering.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

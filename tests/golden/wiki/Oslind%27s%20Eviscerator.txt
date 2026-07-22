@@ -3,7 +3,7 @@
 |stablekey=item:weap - 31 - oslind's eviscerator
 |type=
 |vendorsource=
-|source=[[Prince Oslind]] (33.3%)
+|source={{CharacterLink|stablekey=character:braxonian prince oslind|link=Prince Oslind|text=Prince Oslind}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=10
 |proc_spell_icon=Soul Tap.png
-|proc_spell_name=[[Soul Tap]]
+|proc_spell_name={{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}
 |proc_spell_level=15
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

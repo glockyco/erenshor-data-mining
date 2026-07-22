@@ -26,8 +26,8 @@ Note: Using the prompt <span style="color: #15e300;">[help]</span> will give you
 |image=Mold: Angler's Ring.png
 |name=Mold: Angler's Ring
 |description=Recipes must be exact - use CNTRL + CLICK to separate stacks.<br><br>One-time usable in a forge. <br><br>*Fuel quality does not affect the outcome of this recipe
-|ingredients=1x {{ItemLink|Luminstone}}<br>1x {{ItemLink|Vithean Ore}}<br>1x {{ItemLink|Sea Glass}}<br>1x {{ItemLink|Whispers of the Sea}}
-|rewards={{ItemLink|Angler's Ring}}
+|ingredients=1x {{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}}<br>1x {{ItemLink|stablekey=item:ore - vithean ore|link=Vithean Ore|text=Vithean Ore|image=Vithean Ore.png}}<br>1x {{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}}<br>1x {{ItemLink|stablekey=item:gen - whispers of the sea|link=Whispers of the Sea|text=Whispers of the Sea|image=Whispers of the Sea.png}}
+|rewards={{ItemLink|stablekey=item:ring - 6 - angler's ring|link=Angler's Ring|text=Angler's Ring|image=Angler's Ring.png}}
 |station=
 }}
 

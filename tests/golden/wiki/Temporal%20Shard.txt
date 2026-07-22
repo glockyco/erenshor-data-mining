@@ -3,7 +3,7 @@
 |stablekey=item:neck - 38 - temporal relic
 |type=
 |vendorsource=
-|source=[[Eldoth Molorai]] (6.7%)
+|source={{CharacterLink|stablekey=character:eldoth molorai|link=Eldoth Molorai|text=Eldoth Molorai}} (6.7%)
 |othersource=
 |questsource=
 |relatedquest=

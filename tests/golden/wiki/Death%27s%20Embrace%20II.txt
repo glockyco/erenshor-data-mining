@@ -5,7 +5,7 @@
 |description=Steal some of your target's strength and attack speed and give it to yourself briefly
 |type=StatusEffect
 |line=Duel_Void_DOT
-|classes=[[Windblade]] (28)
+|classes={{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}} (28)
 |required_level=28
 |manacost=400
 |aggro=200
@@ -31,7 +31,7 @@
 |caster_healing=
 |shield_amount=
 |pet_to_summon=
-|status_effect={{AbilityLink|Death's Embrace II|text=Death's Embrace II (Caster)}}
+|status_effect=[[Death's Embrace II|Death's Embrace II (Caster)]]
 |add_proc=
 |add_proc_chance=
 |has_lifetap=
@@ -66,8 +66,8 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Death's Embrace II}}
-|used_by=[[A Seafiend Manalord]]<br>[[Algaeth Bilgeback]]<br>[[Aquilamar Blade]]<br>[[Aquilamar Duelist]]<br>[[Aquilamar Protector]]<br>[[Aquilamar Rake]]<br>[[Headless]]<br>[[Summoned: Protector]]
+|source={{ItemLink|stablekey=item:spell scroll - death's embrace ii|link=Spell Scroll: Death's Embrace II|text=Spell Scroll: Death's Embrace II|image=Spell Scroll: Death's Embrace II.png}}
+|used_by={{CharacterLink|stablekey=character:a seafiend tidal lord|link=A Seafiend Manalord|text=A Seafiend Manalord}}<br>{{CharacterLink|stablekey=character:algaeth bilgeflow 1|link=Algaeth Bilgeback|text=Algaeth Bilgeback}}<br>{{CharacterLink|stablekey=character:aqualimar blade|link=Aquilamar Blade|text=Aquilamar Blade}}<br>{{CharacterLink|stablekey=character:aquilamar duelist|link=Aquilamar Duelist|text=Aquilamar Duelist}}<br>{{CharacterLink|stablekey=character:aqualimar protector|link=Aquilamar Protector|text=Aquilamar Protector}}<br>{{CharacterLink|stablekey=character:aquilamar rake|link=Aquilamar Rake|text=Aquilamar Rake}}<br>{{CharacterLink|stablekey=character:headless|link=Headless|text=Headless}}<br>{{CharacterLink|stablekey=character:summoned protector|link=Summoned: Protector|text=Summoned: Protector}}
 }}
 
 {{Ability
@@ -103,7 +103,7 @@
 |caster_healing=
 |shield_amount=
 |pet_to_summon=
-|status_effect={{AbilityLink|Death's Embrace II|text=Death's Embrace II (Caster)}}
+|status_effect=[[Death's Embrace II|Death's Embrace II (Caster)]]
 |add_proc=
 |add_proc_chance=
 |has_lifetap=

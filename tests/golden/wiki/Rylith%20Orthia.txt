@@ -3,9 +3,9 @@
 |image=[[File:Rylith Orthia.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Citizens of Erenshor]]
-|factionChange=-15 [[The Blades of Vitheo]]<br>-15 [[The Citizens of Erenshor]]<br>-15 [[The Citizens of Port Azure]]
-|zones=[[The Duskenlight Coast]]
+|faction={{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}
+|factionChange=-15 {{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}<br>-15 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>-15 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|zones={{ZoneLink|stablekey=zone:duskenlight|link=The Duskenlight Coast|text=The Duskenlight Coast}}
 |coordinates=1118.9 x 70.0 x 592.3
 |spawnchance=
 |spawntype=

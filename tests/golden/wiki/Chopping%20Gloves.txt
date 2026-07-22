@@ -3,7 +3,7 @@
 |stablekey=item:glove - 11 - chain gloves
 |type=
 |vendorsource=
-|source=[[Molorai Chef]] (13.4%)
+|source={{CharacterLink|stablekey=character:molorai chef|link=Molorai Chef|text=Molorai Chef}} (13.4%)
 |othersource=
 |questsource=
 |relatedquest=

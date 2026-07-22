@@ -3,7 +3,7 @@
 |stablekey=item:gen - celestial goop
 |type=[[:Category:Items|General]]
 |vendorsource=
-|source=[[Celestial Matter]] (13.4%)
+|source={{CharacterLink|stablekey=character:celestial matter|link=Celestial Matter|text=Celestial Matter}} (13.4%)
 |othersource=
 |questsource=
 |relatedquest=

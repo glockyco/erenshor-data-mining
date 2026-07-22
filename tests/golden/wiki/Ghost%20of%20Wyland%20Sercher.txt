@@ -3,15 +3,15 @@
 |image=[[File:Ghost of Wyland Sercher.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Children of Sivakaya]]
-|factionChange=+1 [[The Agents of The Wisp]]
-|zones=[[Island Tomb]]
+|faction={{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}
+|factionChange=+1 {{FactionLink|stablekey=faction:wispagent|link=The Agents of The Wisp|text=The Agents of The Wisp}}
+|zones={{ZoneLink|stablekey=zone:tutorial|link=Island Tomb|text=Island Tomb}}
 |coordinates=138.6 x -2.9 x -20.5
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Ring of Magic Bolt}} (100.0%)<br>{{ItemLink|Seaspice}} (100.0%)<br>{{ItemLink|Torn Note}} (100.0%)<ref>If the player is already holding {{ItemLink|Torn Note}} in their inventory, another will not drop.</ref><br>{{ItemLink|Bread}} (71.7%)<br>{{ItemLink|Citrine Stone}} (71.7%)<br>{{ItemLink|Water}} (71.7%)<br>{{ItemLink|Luminstone}} (41.1%)<br>{{ItemLink|Star Stone}} (41.1%)
+|droprates={{ItemLink|stablekey=item:ring - 5 - ring of magic bolt|link=Ring of Magic Bolt|text=Ring of Magic Bolt|image=Ring of Magic Bolt.png}} (100.0%)<br>{{ItemLink|stablekey=item:cons - seaspice|link=Seaspice|text=Seaspice|image=Seaspice.png}} (100.0%)<br>{{ItemLink|stablekey=item:gen - a torn note|link=Torn Note|text=Torn Note|image=Torn Note.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - a torn note|link=Torn Note|text=Torn Note|image=Torn Note.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:cons - bread|link=Bread|text=Bread|image=Bread.png}} (71.7%)<br>{{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (71.7%)<br>{{ItemLink|stablekey=item:cons - water|link=Water|text=Water|image=Water.png}} (71.7%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (41.1%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (41.1%)
 |level=7
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=4-8
 |elemental=4-8
 |void=4-8
-|spells={{AbilityLink|Magic Bolt}}<br>{{AbilityLink|Minor Lightning}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Tangle}}
+|spells={{AbilityLink|stablekey=spell:dru arc stc - magic bolt|link=Magic Bolt|text=Magic Bolt|image=Magic Bolt.png}}<br>{{AbilityLink|stablekey=spell:dru - minor lightning|link=Minor Lightning|text=Minor Lightning|image=Minor Lightning.png}}<br>{{AbilityLink|stablekey=spell:all - minor protection|link=Minor Protection|text=Minor Protection|image=Minor Protection.png}}<br>{{AbilityLink|stablekey=spell:dru - tangle|link=Tangle|text=Tangle|image=Tangle.png}}
 }}
 
 ''{{main|Enemies}}''

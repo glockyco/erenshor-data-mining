@@ -2,8 +2,8 @@
 |title=Spell Scroll: Winter's Bite
 |stablekey=item:spell scroll - winter's bite
 |type=[[Ability Books]]
-|vendorsource=[[Juctin Mysia]]
-|source=[[Rottenfoot Swampwalker]] (4.6%)<br>[[Apha, Priest of Brax]] (3.7%)<br>[[Upha, Priest of Brax]] (3.7%)<br>[[Rottenfoot Swampwalker]] (3.5%)<br>[[Rottenfoot Witchdoctor]] (3.5%)<br>[[Tek-Nu Dah]] (3.5%)<br>[[Braxon Fanatic]] (2.8%)
+|vendorsource={{CharacterLink|stablekey=character:juctin mysia|link=Juctin Mysia|text=Juctin Mysia}}
+|source={{CharacterLink|stablekey=character:a rottenfoot goblin female|link=Rottenfoot Swampwalker|text=Rottenfoot Swampwalker}} (4.6%)<br>{{CharacterLink|stablekey=character:priest of brax 1|link=Apha, Priest of Brax|text=Apha, Priest of Brax}} (3.7%)<br>{{CharacterLink|stablekey=character:priest of brax|link=Upha, Priest of Brax|text=Upha, Priest of Brax}} (3.7%)<br>{{CharacterLink|stablekey=character:a rottenfoot goblin male|link=Rottenfoot Swampwalker|text=Rottenfoot Swampwalker}} (3.5%)<br>{{CharacterLink|stablekey=character:a rottenfoot goblin spiritcaller|link=Rottenfoot Witchdoctor|text=Rottenfoot Witchdoctor}} (3.5%)<br>{{CharacterLink|stablekey=character:tal-nah lo|link=Tek-Nu Dah|text=Tek-Nu Dah}} (3.5%)<br>{{CharacterLink|stablekey=character:braxonian fanatic|link=Braxon Fanatic|text=Braxon Fanatic}} (2.8%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=4550
 |sell=2958
-|taughtspell={{AbilityLink|Winter's Bite}}
+|taughtspell={{AbilityLink|stablekey=spell:arc - winter's bite|link=Winter's Bite|text=Winter's Bite|image=Winter's Bite.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

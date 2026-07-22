@@ -3,7 +3,7 @@
 |stablekey=item:arm - 24 - fine silk sleeves
 |type=
 |vendorsource=
-|source=[[Balaste the Fallen]] (66.7%)
+|source={{CharacterLink|stablekey=character:balaste the cursed|link=Balaste the Fallen|text=Balaste the Fallen}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=

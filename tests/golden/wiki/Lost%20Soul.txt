@@ -3,15 +3,15 @@
 |image=[[File:Lost Soul.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Followers of Good]]
+|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
 |factionChange=
-|zones=[[Malaroth's Nesting Grounds]]
+|zones={{ZoneLink|stablekey=zone:malaroth|link=Malaroth's Nesting Grounds|text=Malaroth's Nesting Grounds}}
 |coordinates=1111.1 x 19.0 x 514.6
 |spawnchance=
 |spawntype=
 |respawn=6 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Seaspice}} (100.0%)<br>{{ItemLink|Bread}} (71.7%)<br>{{ItemLink|Citrine Stone}} (71.7%)<br>{{ItemLink|Water}} (71.7%)<br>{{ItemLink|Luminstone}} (41.1%)<br>{{ItemLink|Star Stone}} (41.1%)
+|droprates={{ItemLink|stablekey=item:cons - seaspice|link=Seaspice|text=Seaspice|image=Seaspice.png}} (100.0%)<br>{{ItemLink|stablekey=item:cons - bread|link=Bread|text=Bread|image=Bread.png}} (71.7%)<br>{{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (71.7%)<br>{{ItemLink|stablekey=item:cons - water|link=Water|text=Water|image=Water.png}} (71.7%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (41.1%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (41.1%)
 |level=4
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=2-5
 |elemental=2-5
 |void=2-5
-|spells={{AbilityLink|Magic Bolt}}<br>{{AbilityLink|Minor Lightning}}<br>{{AbilityLink|Minor Protection}}<br>{{AbilityLink|Tangle}}
+|spells={{AbilityLink|stablekey=spell:dru arc stc - magic bolt|link=Magic Bolt|text=Magic Bolt|image=Magic Bolt.png}}<br>{{AbilityLink|stablekey=spell:dru - minor lightning|link=Minor Lightning|text=Minor Lightning|image=Minor Lightning.png}}<br>{{AbilityLink|stablekey=spell:all - minor protection|link=Minor Protection|text=Minor Protection|image=Minor Protection.png}}<br>{{AbilityLink|stablekey=spell:dru - tangle|link=Tangle|text=Tangle|image=Tangle.png}}
 }}
 
 {{PAGENAME}} appears on the coast at night. Giving him some items that remind him of his identity will begin {{QuestLink|questlink=The Lost Soul}}

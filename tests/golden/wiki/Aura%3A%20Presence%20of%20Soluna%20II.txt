@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Morning Glow}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - soluna 2|link=Morning Glow|text=Morning Glow|image=Morning Glow.png}}
 |source=
 |used_by=
 }}

@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - vitheo's sight iii
 |type=
 |vendorsource=
-|source=[[Apparition of Vitheo]] (87.1%)
+|source={{CharacterLink|stablekey=character:remains of vitheo|link=Apparition of Vitheo|text=Apparition of Vitheo}} (87.1%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=22000
 |sell=14300
-|taughtspell={{AbilityLink|Vitheo's Sight III}}
+|taughtspell={{AbilityLink|stablekey=spell:duel - vitheo's sight iii|link=Vitheo's Sight III|text=Vitheo's Sight III|image=Vitheo's Sight III.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

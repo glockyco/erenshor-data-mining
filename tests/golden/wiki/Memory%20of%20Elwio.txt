@@ -3,10 +3,10 @@
 |stablekey=item:gen - memory of elwio
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Elwio the Traitor]] (100.0%)
+|source={{CharacterLink|stablekey=character:elwio the traitor|link=Elwio the Traitor|text=Elwio the Traitor}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|A Dying Wish, Part 3}}
+|relatedquest={{QuestLink|A Dying Wish, Part 3}}, {{QuestLink|stablekey=quest:sepulcher3|link=A Dying Wish, Part 3|text=A Dying Wish
 |craftsource=
 |componentfor=
 |buy=

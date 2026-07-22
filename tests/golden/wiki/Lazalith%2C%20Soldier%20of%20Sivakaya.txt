@@ -3,15 +3,15 @@
 |image=[[File:Lazalith, Soldier of Sivakaya.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Blacksalt Strand]]
+|zones={{ZoneLink|stablekey=zone:saltedstrand|link=Blacksalt Strand|text=Blacksalt Strand}}
 |coordinates=815.4 x 24.8 x 338.0
 |spawnchance=
 |spawntype=
 |respawn=6 minutes
-|guaranteeddrops={{ItemLink|Liturgical Pantaloons}}<br>{{ItemLink|Sivakayan Hookblade}}<br>{{ItemLink|Voidbloom Ring}}
-|droprates={{ItemLink|Chapters of Descent, Passage 4}} (100.0%)<ref>If the player is already holding {{ItemLink|Chapters of Descent, Passage 4}} in their inventory, another will not drop.</ref><br>{{ItemLink|Liturgical Pantaloons}} (33.3%)<br>{{ItemLink|Sivakayan Hookblade}} (33.3%)<ref>If Lazalith, Soldier of Sivakaya has {{ItemLink|Sivakayan Hookblade}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Voidbloom Ring}} (33.3%)<br>{{ItemLink|Inspiration}} (13.5%)
+|guaranteeddrops={{ItemLink|stablekey=item:leg - 16 - liturgical pantaloons|link=Liturgical Pantaloons|text=Liturgical Pantaloons|image=Liturgical Pantaloons.png}}<br>{{ItemLink|stablekey=item:weap - 18 - sivakayan hookblade|link=Sivakayan Hookblade|text=Sivakayan Hookblade|image=Sivakayan Hookblade.png}}<br>{{ItemLink|stablekey=item:ring - 16 - void ring|link=Voidbloom Ring|text=Voidbloom Ring|image=Voidbloom Ring.png}}
+|droprates={{ItemLink|stablekey=item:gen - cod - pg 4|link=Chapters of Descent, Passage 4|text=Chapters of Descent, Passage 4|image=Chapters of Descent, Passage 4.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - cod - pg 4|link=Chapters of Descent, Passage 4|text=Chapters of Descent, Passage 4|image=Chapters of Descent, Passage 4.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:leg - 16 - liturgical pantaloons|link=Liturgical Pantaloons|text=Liturgical Pantaloons|image=Liturgical Pantaloons.png}} (33.3%)<br>{{ItemLink|stablekey=item:weap - 18 - sivakayan hookblade|link=Sivakayan Hookblade|text=Sivakayan Hookblade|image=Sivakayan Hookblade.png}} (33.3%)<ref>If Lazalith, Soldier of Sivakaya has {{ItemLink|stablekey=item:weap - 18 - sivakayan hookblade|link=Sivakayan Hookblade|text=Sivakayan Hookblade|image=Sivakayan Hookblade.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:ring - 16 - void ring|link=Voidbloom Ring|text=Voidbloom Ring|image=Voidbloom Ring.png}} (33.3%)<br>{{ItemLink|stablekey=item:ring - 17 - inspiration|link=Inspiration|text=Inspiration|image=Inspiration.png}} (13.5%)
 |level=20
 |levelmodmin=0
 |levelmodmax=0

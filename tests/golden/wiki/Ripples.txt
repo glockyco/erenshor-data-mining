@@ -3,15 +3,15 @@
 |image=[[File:Ripples.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Abyssal Lake]]
+|zones={{ZoneLink|stablekey=zone:abyssal|link=Abyssal Lake|text=Abyssal Lake}}
 |coordinates=58.3 x 65.0 x 301.8
 |spawnchance=66%
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Amulet of Birdsong}}<br>{{ItemLink|Whispers of Wind}}
-|droprates={{ItemLink|Amulet of Birdsong}} (50.0%)<br>{{ItemLink|Whispers of Wind}} (50.0%)
+|guaranteeddrops={{ItemLink|stablekey=item:neck - 28 - amulet of birdsong|link=Amulet of Birdsong|text=Amulet of Birdsong|image=Amulet of Birdsong.png}}<br>{{ItemLink|stablekey=item:aura - vitheo 4|link=Whispers of Wind|text=Whispers of Wind|image=Whispers of Wind.png}}
+|droprates={{ItemLink|stablekey=item:neck - 28 - amulet of birdsong|link=Amulet of Birdsong|text=Amulet of Birdsong|image=Amulet of Birdsong.png}} (50.0%)<br>{{ItemLink|stablekey=item:aura - vitheo 4|link=Whispers of Wind|text=Whispers of Wind|image=Whispers of Wind.png}} (50.0%)
 |level=31
 |levelmodmin=0
 |levelmodmax=0

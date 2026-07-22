@@ -2,7 +2,7 @@
 |title=Spell Scroll: Vitheo's Wrath
 |stablekey=item:spell scroll - vitheo's wrath
 |type=[[Ability Books|Spell Scroll]]
-|vendorsource=[[Elizabeth DeWitt]]<br>[[Juctin Mysia]]
+|vendorsource={{CharacterLink|stablekey=character:elizabeth dewitt|link=Elizabeth DeWitt|text=Elizabeth DeWitt}}<br>{{CharacterLink|stablekey=character:juctin mysia|link=Juctin Mysia|text=Juctin Mysia}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=27000
 |sell=17550
-|taughtspell={{AbilityLink|Vitheo's Wrath}}
+|taughtspell={{AbilityLink|stablekey=spell:stc - vitheo's wrath|link=Vitheo's Wrath|text=Vitheo's Wrath|image=Vitheo's Wrath.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

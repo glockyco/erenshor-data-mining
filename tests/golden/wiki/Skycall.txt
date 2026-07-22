@@ -5,7 +5,7 @@
 |description=Upon impact, the arrow calls a bolt of lightning from the sky which damages the target and stuns all nearby targets.
 |type=Ranged
 |line=
-|classes=[[Stormcaller]] (15)
+|classes={{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}} (15)
 |required_level=
 |manacost=
 |aggro=
@@ -23,7 +23,7 @@
 |is_self_only=
 |is_group_effect=True
 |is_applied_to_caster=
-|effects={{AbilityLink|Skycall|image=Skycall (Skill).png}}
+|effects={{AbilityLink|stablekey=spell:none - skycall|link=Skycall|text=Skycall|image=Skycall (Skill).png}}
 |damage_type=
 |resist_modifier=
 |target_damage=3
@@ -66,7 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Skill Book: Skycaller Arrow}}
+|source={{ItemLink|stablekey=item:skillbook - skycaller arrow|link=Skill Book: Skycaller Arrow|text=Skill Book: Skycaller Arrow|image=Skill Book: Skycaller Arrow.png}}
 |used_by=
 }}
 
@@ -103,7 +103,7 @@
 |caster_healing=
 |shield_amount=
 |pet_to_summon=
-|status_effect={{AbilityLink|Dazzle}}
+|status_effect=[[Dazzle]]
 |add_proc=
 |add_proc_chance=
 |has_lifetap=

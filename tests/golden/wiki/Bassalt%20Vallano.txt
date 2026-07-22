@@ -3,15 +3,15 @@
 |image=[[File:Bassalt Vallano.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
-|factionChange=+2 [[The Azure Guard]]<br>-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
-|zones=[[Faerie's Brake]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|factionChange=+2 {{FactionLink|stablekey=faction:azureguard|link=The Azure Guard|text=The Azure Guard}}<br>-10 {{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|zones={{ZoneLink|stablekey=zone:brake|link=Faerie's Brake|text=Faerie's Brake}}
 |coordinates=174.6 x 18.3 x 295.8
 |spawnchance=
 |spawntype=
 |respawn=3 minutes
-|guaranteeddrops={{ItemLink|Backplate}}<br>{{ItemLink|Blue Leather Boots}}
-|droprates={{ItemLink|Note to Liam}} (100.0%)<ref>If the player is already holding {{ItemLink|Note to Liam}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Bone}} (89.5%)<br>{{ItemLink|Backplate}} (50.0%)<br>{{ItemLink|Blue Leather Boots}} (50.0%)<br>{{ItemLink|Polished Longsword}} (6.3%)<ref>If Bassalt Vallano has {{ItemLink|Polished Longsword}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Star Stone}} (6.3%)<br>{{ItemLink|Skeleton Eye}} (3.4%)<ref>If the player is already holding {{ItemLink|Skeleton Eye}} in their inventory, another will not drop.</ref>
+|guaranteeddrops={{ItemLink|stablekey=item:back - 11 - backplate|link=Backplate|text=Backplate|image=Backplate.png}}<br>{{ItemLink|stablekey=item:foot - 9 - blue leather boots|link=Blue Leather Boots|text=Blue Leather Boots|image=Blue Leather Boots.png}}
+|droprates={{ItemLink|stablekey=item:gen - note to liam|link=Note to Liam|text=Note to Liam|image=Note to Liam.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - note to liam|link=Note to Liam|text=Note to Liam|image=Note to Liam.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - an ancient bone|link=Ancient Bone|text=Ancient Bone|image=Ancient Bone.png}} (89.5%)<br>{{ItemLink|stablekey=item:back - 11 - backplate|link=Backplate|text=Backplate|image=Backplate.png}} (50.0%)<br>{{ItemLink|stablekey=item:foot - 9 - blue leather boots|link=Blue Leather Boots|text=Blue Leather Boots|image=Blue Leather Boots.png}} (50.0%)<br>{{ItemLink|stablekey=item:weap - 6 - polished longsword|link=Polished Longsword|text=Polished Longsword|image=Polished Longsword.png}} (6.3%)<ref>If Bassalt Vallano has {{ItemLink|stablekey=item:weap - 6 - polished longsword|link=Polished Longsword|text=Polished Longsword|image=Polished Longsword.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (6.3%)<br>{{ItemLink|stablekey=item:gen - skeleton eye|link=Skeleton Eye|text=Skeleton Eye|image=Skeleton Eye.png}} (3.4%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - skeleton eye|link=Skeleton Eye|text=Skeleton Eye|image=Skeleton Eye.png}} in their inventory, another will not drop.</ref>
 |level=10
 |levelmodmin=0
 |levelmodmax=0

@@ -3,7 +3,7 @@
 |stablekey=item:head - 21 - jhalmathir, helm of generals
 |type=
 |vendorsource=
-|source=[[Evadne the Corrupted]] (29.1%)
+|source={{CharacterLink|stablekey=character:evadne|link=Evadne the Corrupted|text=Evadne the Corrupted}} (29.1%)
 |othersource=
 |questsource=
 |relatedquest=

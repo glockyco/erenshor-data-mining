@@ -31,7 +31,7 @@
 |caster_healing=
 |shield_amount=
 |pet_to_summon=
-|status_effect={{AbilityLink|Stun}}
+|status_effect=[[Stun]]
 |add_proc=
 |add_proc_chance=
 |has_lifetap=True

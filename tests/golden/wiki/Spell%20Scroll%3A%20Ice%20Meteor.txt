@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - ice meteor
 |type=
 |vendorsource=
-|source=[[Ice Elemental]] (2.2%)<br>[[Greater Ice Elemental]] (1.0%)<br>[[Large Ice Elemental]] (1.0%)
+|source={{CharacterLink|stablekey=character:ice elemental|link=Ice Elemental|text=Ice Elemental}} (2.2%)<br>{{CharacterLink|stablekey=character:greater ice elemental|link=Greater Ice Elemental|text=Greater Ice Elemental}} (1.0%)<br>{{CharacterLink|stablekey=character:large ice elemental|link=Large Ice Elemental|text=Large Ice Elemental}} (1.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=
 |sell=
-|taughtspell={{AbilityLink|Ice Meteor}}
+|taughtspell={{AbilityLink|stablekey=spell:arc - ice meteor|link=Ice Meteor|text=Ice Meteor|image=Ice Meteor.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

@@ -3,7 +3,7 @@
 |stablekey=item:skillbook - soluna's touch
 |type=[[Ability Books|Skill Book]]
 |vendorsource=
-|source=[[High Paladin of Sivakaya]] (100.0%)
+|source={{CharacterLink|stablekey=character:warrior of sivakaya|link=High Paladin of Sivakaya|text=High Paladin of Sivakaya}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -12,7 +12,7 @@
 |buy=55000
 |sell=35750
 |taughtspell=
-|taughtskill={{AbilityLink|Soluna's Touch|image=Soluna's Touch (Skill).png}}
+|taughtskill={{AbilityLink|stablekey=skill:soluna's touch|link=Soluna's Touch|text=Soluna's Touch|image=Soluna's Touch (Skill).png}}
 |guaranteeddrops=
 |droprates=
 }}

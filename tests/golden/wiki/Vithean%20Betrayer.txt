@@ -3,15 +3,15 @@
 |image=[[File:Vithean Betrayer.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Vitheo's Rest]]
+|zones={{ZoneLink|stablekey=zone:vitheosend|link=Vitheo's Rest|text=Vitheo's Rest}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Spectral Dagger}} (5.1%)<br>{{ItemLink|Dark Flame Recipe}} (4.6%)<ref>If the player is already holding {{ItemLink|Dark Flame Recipe}} in their inventory, another will not drop.</ref><br>{{ItemLink|Life Flame Recipe}} (4.6%)<ref>If the player is already holding {{ItemLink|Life Flame Recipe}} in their inventory, another will not drop.</ref><br>{{ItemLink|Spectral Sword}} (4.6%)<ref>If Vithean Betrayer has {{ItemLink|Spectral Sword}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Stone Statue: Vitheo}} (1.7%)
+|droprates={{ItemLink|stablekey=item:weap - 15 - spectraldagger|link=Spectral Dagger|text=Spectral Dagger|image=Spectral Dagger.png}} (5.1%)<br>{{ItemLink|stablekey=item:gen - rekindling the flame 2|link=Dark Flame Recipe|text=Dark Flame Recipe|image=Dark Flame Recipe.png}} (4.6%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - rekindling the flame 2|link=Dark Flame Recipe|text=Dark Flame Recipe|image=Dark Flame Recipe.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - rekindling the flame 3|link=Life Flame Recipe|text=Life Flame Recipe|image=Life Flame Recipe.png}} (4.6%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - rekindling the flame 3|link=Life Flame Recipe|text=Life Flame Recipe|image=Life Flame Recipe.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:weap - 22 - spectralsword|link=Spectral Sword|text=Spectral Sword|image=Spectral Sword.png}} (4.6%)<ref>If Vithean Betrayer has {{ItemLink|stablekey=item:weap - 22 - spectralsword|link=Spectral Sword|text=Spectral Sword|image=Spectral Sword.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:furniture - stone statue vitheo|link=Stone Statue: Vitheo|text=Stone Statue: Vitheo|image=Stone Statue: Vitheo.png}} (1.7%)
 |level=32
 |levelmodmin=0
 |levelmodmax=0

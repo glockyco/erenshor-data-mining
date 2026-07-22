@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Insistence}}<br>{{ItemLink|Predator's Shard}}
+|itemswitheffect={{ItemLink|stablekey=item:ring - 42 - insistence|link=Insistence|text=Insistence|image=Insistence.png}}<br>{{ItemLink|stablekey=item:neck - 42 - predator's soulstone|link=Predator's Shard|text=Predator's Shard|image=Predator's Shard.png}}
 |source=
 |used_by=
 }}

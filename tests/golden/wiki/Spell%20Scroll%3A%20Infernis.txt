@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - infernis
 |type=[[Ability Books]]
 |vendorsource=
-|source=[[Oracle Miress]] (33.3%)<br>[[Oracle Tretha]] (33.3%)
+|source={{CharacterLink|stablekey=character:oracle miress|link=Oracle Miress|text=Oracle Miress}} (33.3%)<br>{{CharacterLink|stablekey=character:oracle tretha|link=Oracle Tretha|text=Oracle Tretha}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=20000
 |sell=13000
-|taughtspell={{AbilityLink|Infernis}}
+|taughtspell={{AbilityLink|stablekey=spell:arc - infernis|link=Infernis|text=Infernis|image=Infernis.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

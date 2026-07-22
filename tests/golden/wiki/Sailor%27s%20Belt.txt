@@ -2,8 +2,8 @@
 |title=Sailor's Belt
 |stablekey=item:belt - 9 - sailor's belt
 |type=
-|vendorsource=[[Saya Seawatcher]]
-|source=[[The Lost Sea Giant King]] (30.1%)
+|vendorsource={{CharacterLink|stablekey=character:saya seawatcher|link=Saya Seawatcher|text=Saya Seawatcher}}
+|source={{CharacterLink|stablekey=character:lost sea giant king|link=The Lost Sea Giant King|text=The Lost Sea Giant King}} (30.1%)
 |othersource=
 |questsource=
 |relatedquest=

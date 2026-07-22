@@ -3,15 +3,15 @@
 |image=[[File:Faceless Necromancer.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Azynthi's Garden|Azynthi's Garden (Dimensional Rift)]]
+|zones={{ZoneLink|stablekey=zone:azynthi|link=Azynthi's Garden|text=Azynthi's Garden (Dimensional Rift)}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Cloth Gloves}} (14.2%)<br>{{ItemLink|Cloth Hood}} (14.2%)<br>{{ItemLink|Cloth Shoes}} (14.2%)<br>{{ItemLink|Cloth Sleeves}} (14.2%)<br>{{ItemLink|Necromantic Bow}} (7.0%)
+|droprates={{ItemLink|stablekey=item:glove - 1 - cloth gloves|link=Cloth Gloves|text=Cloth Gloves|image=Cloth Gloves.png}} (14.2%)<br>{{ItemLink|stablekey=item:head - 1 - cloth hood|link=Cloth Hood|text=Cloth Hood|image=Cloth Hood.png}} (14.2%)<br>{{ItemLink|stablekey=item:foot - 1 - cloth shoes|link=Cloth Shoes|text=Cloth Shoes|image=Cloth Shoes.png}} (14.2%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves|link=Cloth Sleeves|text=Cloth Sleeves|image=Cloth Sleeves.png}} (14.2%)<br>{{ItemLink|stablekey=item:bow - 31 - bow of necromancy|link=Necromantic Bow|text=Necromantic Bow|image=Necromantic Bow.png}} (7.0%)
 |level=35
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=18-42
 |elemental=18-42
 |void=18-42
-|spells={{AbilityLink|Arterial Decay}}<br>{{AbilityLink|Soul Tap}}
+|spells={{AbilityLink|stablekey=spell:dru - arterial decay|link=Arterial Decay|text=Arterial Decay|image=Arterial Decay.png}}<br>{{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}
 }}
 
 [[Category:Azynthi's Garden]]

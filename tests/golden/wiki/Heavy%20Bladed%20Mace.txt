@@ -2,7 +2,7 @@
 |title=Heavy Bladed Mace
 |stablekey=item:weap - 8 - heavy mace
 |type=
-|vendorsource=[[Akaran Black]]
+|vendorsource={{CharacterLink|stablekey=character:akaran black|link=Akaran Black|text=Akaran Black}}
 |source=
 |othersource=
 |questsource=

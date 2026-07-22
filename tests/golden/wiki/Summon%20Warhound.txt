@@ -30,7 +30,7 @@
 |target_healing=
 |caster_healing=
 |shield_amount=
-|pet_to_summon=[[Summoned Azynthian Warhound]]
+|pet_to_summon={{CharacterLink|stablekey=character:summoned azynthian warhound|link=Summoned Azynthian Warhound|text=Summoned Azynthian Warhound}}
 |status_effect=
 |add_proc=
 |add_proc_chance=
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Warhound Collar}}
+|itemswitheffect={{ItemLink|stablekey=item:gen - azynthian collar|link=Warhound Collar|text=Warhound Collar|image=Warhound Collar.png}}
 |source=
 |used_by=
 }}

@@ -3,9 +3,9 @@
 |image=[[File:Captain Bellwain.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[The Followers of Good]]
+|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
 |factionChange=
-|zones=[[Bellwain Island]]
+|zones={{ZoneLink|stablekey=zone:summerevent|link=Bellwain Island|text=Bellwain Island}}
 |coordinates=158.7 x 10.8 x 156.3
 |spawnchance=
 |spawntype=

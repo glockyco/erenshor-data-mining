@@ -5,7 +5,7 @@
 |description=Steal 1455 life from your target, and heal yourself for an equal amount.
 |type=Damage
 |line=Direct_Damage
-|classes=[[Druid]] (29)<br>[[Reaver]] (29)
+|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (29)<br>{{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}} (29)
 |required_level=29
 |manacost=900
 |aggro=255
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Cursed Hide Shield}}<br>{{ItemLink|Horn of Aeiros}}<br>{{ItemLink|Necromantic Bow}}<br>{{ItemLink|Sableheart's Harness}}<br>{{ItemLink|Siva Bow}}<br>{{ItemLink|Sivakayan Shield}}
-|source={{ItemLink|Spell Scroll: Devour}}
-|used_by=[[Addison Priel]]<br>[[Candlekeeper]]<br>[[Cloaked Shadow]]<br>[[Darkwarden Awxa]]<br>[[Darkwarden Ealdred]]<br>[[Grounds Keeper]]<br>[[High Priestess of Sivakaya]]<br>[[Julianna Priel]]<br>[[Molorai Eldermistress]]<br>[[Nipper Farseer]]<br>[[Risen Hierophant]]<br>[[Sivakayan Devoted]]<br>[[Sivakayan Emissary]]<br>[[Spectre]]<br>[[Ta'Dah, Sorcerer of Ripper]]<br>[[Vextral]]<br>[[Vinx]]<br>[[Vos Ashlyn]]
+|itemswitheffect={{ItemLink|stablekey=item:secondary - 38 - cursed hide shield|link=Cursed Hide Shield|text=Cursed Hide Shield|image=Cursed Hide Shield.png}}<br>{{ItemLink|stablekey=item:weap - 39 - horn of aeiros|link=Horn of Aeiros|text=Horn of Aeiros|image=Horn of Aeiros.png}}<br>{{ItemLink|stablekey=item:bow - 31 - bow of necromancy|link=Necromantic Bow|text=Necromantic Bow|image=Necromantic Bow.png}}<br>{{ItemLink|stablekey=item:belt - 31 - sableheart's harness|link=Sableheart's Harness|text=Sableheart's Harness|image=Sableheart's Harness.png}}<br>{{ItemLink|stablekey=item:bow - 38 - sivakayan bow|link=Siva Bow|text=Siva Bow|image=Siva Bow.png}}<br>{{ItemLink|stablekey=item:secondary - 24 - sivakayan shield|link=Sivakayan Shield|text=Sivakayan Shield|image=Sivakayan Shield.png}}
+|source={{ItemLink|stablekey=item:spell scroll - devour|link=Spell Scroll: Devour|text=Spell Scroll: Devour|image=Spell Scroll: Devour.png}}
+|used_by={{CharacterLink|stablekey=character:addison priel|link=Addison Priel|text=Addison Priel}}<br>{{CharacterLink|stablekey=character:candlekeeper|link=Candlekeeper|text=Candlekeeper}}<br>{{CharacterLink|stablekey=character:cloaked shadow|link=Cloaked Shadow|text=Cloaked Shadow}}<br>{{CharacterLink|stablekey=character:darkwarden awxa|link=Darkwarden Awxa|text=Darkwarden Awxa}}<br>{{CharacterLink|stablekey=character:darkwarden ealdred|link=Darkwarden Ealdred|text=Darkwarden Ealdred}}<br>{{CharacterLink|stablekey=character:curator|link=Grounds Keeper|text=Grounds Keeper}}<br>{{CharacterLink|stablekey=character:druid of sivakaya|link=High Priestess of Sivakaya|text=High Priestess of Sivakaya}}<br>{{CharacterLink|stablekey=character:julianna priel 1|link=Julianna Priel|text=Julianna Priel}}<br>{{CharacterLink|stablekey=character:molorai eldermistress|link=Molorai Eldermistress|text=Molorai Eldermistress}}<br>{{CharacterLink|stablekey=character:nipper farseer|link=Nipper Farseer|text=Nipper Farseer}}<br>{{CharacterLink|stablekey=character:risen heirophant|link=Risen Hierophant|text=Risen Hierophant}}<br>{{CharacterLink|stablekey=character:sivakayan devoted|link=Sivakayan Devoted|text=Sivakayan Devoted}}<br>{{CharacterLink|stablekey=character:sivakayan emissary|link=Sivakayan Emissary|text=Sivakayan Emissary}}<br>{{CharacterLink|stablekey=character:spectre caster|link=Spectre|text=Spectre}}<br>{{CharacterLink|stablekey=character:ripparian high sorcerer|link=Ta'Dah, Sorcerer of Ripper|text=Ta'Dah, Sorcerer of Ripper}}<br>{{CharacterLink|stablekey=character:vextral|link=Vextral|text=Vextral}}<br>{{CharacterLink|stablekey=character:vinx|link=Vinx|text=Vinx}}<br>{{CharacterLink|stablekey=character:vos ashlyn|link=Vos Ashlyn|text=Vos Ashlyn}}
 }}

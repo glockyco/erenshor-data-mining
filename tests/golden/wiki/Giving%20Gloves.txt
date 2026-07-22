@@ -3,7 +3,7 @@
 |stablekey=item:glove - 28 - giving gloves
 |type=
 |vendorsource=
-|source=[[Addison Priel]] (50.0%)
+|source={{CharacterLink|stablekey=character:addison priel|link=Addison Priel|text=Addison Priel}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

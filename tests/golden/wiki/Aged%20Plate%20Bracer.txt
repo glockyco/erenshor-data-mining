@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 7 - aged plate bracer
 |type=
 |vendorsource=
-|source=[[Spectral Guard]] (2.7%)<br>[[Spectral High Guard]] (2.7%)<br>[[Spectral King's Guard]] (2.0%)<br>[[Rotting Royal Hound]] (0.9%)
+|source={{CharacterLink|stablekey=character:lost guard|link=Spectral Guard|text=Spectral Guard}} (2.7%)<br>{{CharacterLink|stablekey=character:lost high guard|link=Spectral High Guard|text=Spectral High Guard}} (2.7%)<br>{{CharacterLink|stablekey=character:lost king's guard|link=Spectral King's Guard|text=Spectral King's Guard}} (2.0%)<br>{{CharacterLink|stablekey=character:rotting royal hound|link=Rotting Royal Hound|text=Rotting Royal Hound}} (0.9%)
 |othersource=
 |questsource=
 |relatedquest=

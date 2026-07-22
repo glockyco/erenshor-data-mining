@@ -3,7 +3,7 @@
 |stablekey=item:belt - 31 - royals waistband
 |type=
 |vendorsource=
-|source=[[Prince Ardant]] (66.7%)
+|source={{CharacterLink|stablekey=character:braxonian prince ardant|link=Prince Ardant|text=Prince Ardant}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=

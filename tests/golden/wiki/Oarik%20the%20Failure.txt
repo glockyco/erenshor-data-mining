@@ -3,15 +3,15 @@
 |image=[[File:Oarik the Failure.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[The Followers of Evil]]
-|factionChange=+2 [[The Blades of Vitheo]]
-|zones=[[Vitheo's Rest]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|factionChange=+2 {{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}
+|zones={{ZoneLink|stablekey=zone:vitheosend|link=Vitheo's Rest|text=Vitheo's Rest}}
 |coordinates=433.2 x -28.9 x 402.0
 |spawnchance=99%
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Stabilizing Belt}}<br>{{ItemLink|Virophan Chestguard}}
-|droprates={{ItemLink|Stabilizing Belt}} (66.7%)<br>{{ItemLink|Virophan Chestguard}} (33.3%)
+|guaranteeddrops={{ItemLink|stablekey=item:belt - 24 - stabilizing belt|link=Stabilizing Belt|text=Stabilizing Belt|image=Stabilizing Belt.png}}<br>{{ItemLink|stablekey=item:chest - 25 - mithirilite chestguard|link=Virophan Chestguard|text=Virophan Chestguard|image=Virophan Chestguard.png}}
+|droprates={{ItemLink|stablekey=item:belt - 24 - stabilizing belt|link=Stabilizing Belt|text=Stabilizing Belt|image=Stabilizing Belt.png}} (66.7%)<br>{{ItemLink|stablekey=item:chest - 25 - mithirilite chestguard|link=Virophan Chestguard|text=Virophan Chestguard|image=Virophan Chestguard.png}} (33.3%)
 |level=25
 |levelmodmin=0
 |levelmodmax=0

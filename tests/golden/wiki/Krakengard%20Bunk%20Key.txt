@@ -3,10 +3,10 @@
 |stablekey=item:key - krarkengard bunk key
 |type=[[Keys|Key]], [[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Molorai Brewmistress]] (100.0%)
+|source={{CharacterLink|stablekey=character:molorai brewmistress|link=Molorai Brewmistress|text=Molorai Brewmistress}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Keys for Valrae}}
+|relatedquest={{QuestLink|Keys for Valrae}}<br>{{QuestLink|stablekey=quest:valraeskeys|link=Keys for Valrae|text=Keys for Valrae}}
 |craftsource=
 |componentfor=
 |buy=

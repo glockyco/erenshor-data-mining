@@ -2,7 +2,7 @@
 |title=Spell Scroll: Jolt
 |stablekey=item:spell scroll - jolt
 |type=[[Ability Books]]
-|vendorsource=[[Aldoa Manday]]<br>[[Edwin Ansegg]]<br>[[Ophelia Luminee]]
+|vendorsource={{CharacterLink|stablekey=character:addelia zurin:stowaway:508.78:67.80:537.95|link=Aldoa Manday|text=Aldoa Manday}}<br>{{CharacterLink|stablekey=character:edwin ansegg|link=Edwin Ansegg|text=Edwin Ansegg}}<br>{{CharacterLink|stablekey=character:ophelia instrumento|link=Ophelia Luminee|text=Ophelia Luminee}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=225
 |sell=146
-|taughtspell={{AbilityLink|Jolt}}
+|taughtspell={{AbilityLink|stablekey=spell:dru arc - jolt|link=Jolt|text=Jolt|image=Jolt.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

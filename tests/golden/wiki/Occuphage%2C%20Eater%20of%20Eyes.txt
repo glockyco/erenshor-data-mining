@@ -3,15 +3,15 @@
 |image=[[File:Occuphage, Eater of Eyes.png|thumb]]
 |imagecaption="Feed me..."
 |type=NPC
-|faction=[[The Followers of Good]]
+|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
 |factionChange=
-|zones=[[Island Tomb]]
+|zones={{ZoneLink|stablekey=zone:tutorial|link=Island Tomb|text=Island Tomb}}
 |coordinates=-65.0 x 22.3 x 149.1
 |spawnchance=
 |spawntype=
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|Seaweed}} (15.1%)<br>{{ItemLink|Nagalok Claw}} (10.1%)<br>{{ItemLink|Reptilian Scales}} (10.1%)<br>{{ItemLink|A Worm Eel}} (7.8%)
+|droprates={{ItemLink|stablekey=item:gen - seaweed|link=Seaweed|text=Seaweed|image=Seaweed.png}} (15.1%)<br>{{ItemLink|stablekey=item:gen - nagalok claw|link=Nagalok Claw|text=Nagalok Claw|image=Nagalok Claw.png}} (10.1%)<br>{{ItemLink|stablekey=item:gen - scaled skin|link=Reptilian Scales|text=Reptilian Scales|image=Reptilian Scales.png}} (10.1%)<br>{{ItemLink|stablekey=item:fish - a worm eel|link=A Worm Eel|text=A Worm Eel|image=A Worm Eel.png}} (7.8%)
 |level=99
 |levelmodmin=0
 |levelmodmax=0

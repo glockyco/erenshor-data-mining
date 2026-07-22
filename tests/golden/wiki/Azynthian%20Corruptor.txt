@@ -3,9 +3,9 @@
 |image=[[File:Azynthian Corruptor.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Brax's Plane of Elements]]<br>[[Plane of the Willow]]<br>[[Soluna's Celestial Plane]]<br>[[Vitheo's Plane of Valor]]
+|zones={{ZoneLink|stablekey=zone:planeofbrax|link=Brax's Plane of Elements|text=Brax's Plane of Elements}}<br>{{ZoneLink|stablekey=zone:planeoffernalla|link=Plane of the Willow|text=Plane of the Willow}}<br>{{ZoneLink|stablekey=zone:planeofsoluna|link=Soluna's Celestial Plane|text=Soluna's Celestial Plane}}<br>{{ZoneLink|stablekey=zone:planeofvitheo|link=Vitheo's Plane of Valor|text=Vitheo's Plane of Valor}}
 |coordinates=200.6 x 415.8 x 978.8<br>201.7 x 415.8 x 1012.8<br>491.2 x 25.2 x 462.8<br>1656.3 x 177.1 x 1607.7<br>1662.8 x 177.1 x 1588.7<br>1677.5 x 177.1 x 1619.2<br>1688.2 x 177.1 x 1586.5<br>1695.9 x 177.1 x 1603.0<br>2521.9 x 75.6 x 381.3<br>2522.4 x 75.6 x 425.3
 |spawnchance=
 |spawntype=Dynamic event spawn
@@ -32,7 +32,7 @@
 |poison=21-50
 |elemental=21-50
 |void=21-50
-|spells={{AbilityLink|Annihilate}}<br>{{AbilityLink|Grip of Azynthi}}<br>{{AbilityLink|Tenebris}}
+|spells={{AbilityLink|stablekey=spell:dru - annihilate|link=Annihilate|text=Annihilate|image=Annihilate.png}}<br>{{AbilityLink|stablekey=spell:none - grip of azynthi|link=Grip of Azynthi|text=Grip of Azynthi|image=Grip of Azynthi.png}}<br>{{AbilityLink|stablekey=spell:arc - tenebris|link=Tenebris|text=Tenebris|image=Tenebris.png}}
 }}
 
 [[Category:Brax's Plane of Elements]]

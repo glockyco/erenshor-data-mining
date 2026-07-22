@@ -5,7 +5,7 @@
 |description=(Taunt) Target becomes furious with the caster of this spell.
 |type=Damage
 |line=Pal_Other_Debuff
-|classes=[[Paladin]] (25)
+|classes={{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}} (25)
 |required_level=25
 |manacost=125
 |aggro=4500
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Erandian Avenger}}
-|source={{ItemLink|Spell Scroll: Impending Doom}}
+|itemswitheffect={{ItemLink|stablekey=item:secondary - 29 - erandian avenger|link=Erandian Avenger|text=Erandian Avenger|image=Erandian Avenger.png}}
+|source={{ItemLink|stablekey=item:spell scroll - impending doom|link=Spell Scroll: Impending Doom|text=Spell Scroll: Impending Doom|image=Spell Scroll: Impending Doom.png}}
 |used_by=
 }}

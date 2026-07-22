@@ -3,7 +3,7 @@
 |stablekey=item:belt - 35 - swampy loincloth
 |type=
 |vendorsource=
-|source=[[Rottenfoot Mauler]] (4.6%)<br>[[Rottenfoot Swampwalker]] (4.6%)<br>[[Rottenfoot Swampwalker]] (3.5%)<br>[[Rottenfoot Witchdoctor]] (3.5%)<br>[[Tek-Nu Dah]] (3.5%)
+|source={{CharacterLink|stablekey=character:a rottenfoot mauler|link=Rottenfoot Mauler|text=Rottenfoot Mauler}} (4.6%)<br>{{CharacterLink|stablekey=character:a rottenfoot goblin female|link=Rottenfoot Swampwalker|text=Rottenfoot Swampwalker}} (4.6%)<br>{{CharacterLink|stablekey=character:a rottenfoot goblin male|link=Rottenfoot Swampwalker|text=Rottenfoot Swampwalker}} (3.5%)<br>{{CharacterLink|stablekey=character:a rottenfoot goblin spiritcaller|link=Rottenfoot Witchdoctor|text=Rottenfoot Witchdoctor}} (3.5%)<br>{{CharacterLink|stablekey=character:tal-nah lo|link=Tek-Nu Dah|text=Tek-Nu Dah}} (3.5%)
 |othersource=
 |questsource=
 |relatedquest=

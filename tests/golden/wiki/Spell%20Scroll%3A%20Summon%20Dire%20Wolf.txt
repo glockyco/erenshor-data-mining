@@ -2,7 +2,7 @@
 |title=Spell Scroll: Summon Dire Wolf
 |stablekey=item:spell scroll - summon dire wolf
 |type=[[:Category:Ability Books|Spell Scroll]]
-|vendorsource=[[Juctin Mysia]]
+|vendorsource={{CharacterLink|stablekey=character:juctin mysia|link=Juctin Mysia|text=Juctin Mysia}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=6500
 |sell=4225
-|taughtspell={{AbilityLink|Summon Dire Wolf}}
+|taughtspell={{AbilityLink|stablekey=spell:dru - summon dire wolf|link=Summon Dire Wolf|text=Summon Dire Wolf|image=Summon Dire Wolf.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

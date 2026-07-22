@@ -3,7 +3,7 @@
 |stablekey=item:head - 31 - eternal diadem
 |type=
 |vendorsource=
-|source=[[Candlekeeper]] (50.0%)
+|source={{CharacterLink|stablekey=character:candlekeeper|link=Candlekeeper|text=Candlekeeper}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -3,7 +3,7 @@
 |stablekey=item:leg - 11 - spritely leggings
 |type=
 |vendorsource=
-|source=[[Massia the Fallen]] (50.0%)
+|source={{CharacterLink|stablekey=character:massia the felled|link=Massia the Fallen|text=Massia the Fallen}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -5,7 +5,7 @@
 |description=A high damage (360 / tick), short duration void spell.
 |type=StatusEffect
 |line=Dru_Void_DOT
-|classes=[[Druid]] (23)
+|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (23)
 |required_level=23
 |manacost=400
 |aggro=60
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Plague Mask}}
-|source={{ItemLink|Spell Scroll: Arterial Collapse}}
-|used_by=[[Ancient Spectre]]<br>[[Botanist]]<br>[[Edgar Taether]]<br>[[Faceless Necromancer]]<br>[[Illuminator]]<br>[[Loften Emblis]]<br>[[Molorai Nightmistress]]<br>[[Molorai Outrider]]<br>[[Molorai Truthseeker]]<br>[[Nipper Farseer]]<br>[[Priel Enforcer]]<br>[[Priel Malarist]]<br>[[Priel Soldier]]<br>[[Priel Tamer]]<br>[[Savannah Priel (Character)|Savannah Priel]]<br>[[Spectre]]<br>[[The Gardener of Loomingwood]]<br>[[Undertoes]]<br>[[Virvil Destova]]<br>[[Winkles]]
+|itemswitheffect={{ItemLink|stablekey=item:head - 31 - plague mask|link=Plague Mask|text=Plague Mask|image=Plague Mask.png}}
+|source={{ItemLink|stablekey=item:spell scroll - arterial collapse|link=Spell Scroll: Arterial Collapse|text=Spell Scroll: Arterial Collapse|image=Spell Scroll: Arterial Collapse.png}}
+|used_by={{CharacterLink|stablekey=character:spectre ancient|link=Ancient Spectre|text=Ancient Spectre}}<br>{{CharacterLink|stablekey=character:botanist|link=Botanist|text=Botanist}}<br>{{CharacterLink|stablekey=character:edgar taether:silkengrass:1050.92:97.34:1006.71|link=Edgar Taether|text=Edgar Taether}}<br>{{CharacterLink|stablekey=character:faceless necromancer|link=Faceless Necromancer|text=Faceless Necromancer}}<br>{{CharacterLink|stablekey=character:wisp lightbearer|link=Illuminator|text=Illuminator}}<br>{{CharacterLink|stablekey=character:loften emblis|link=Loften Emblis|text=Loften Emblis}}<br>{{CharacterLink|stablekey=character:molorai nightmistress|link=Molorai Nightmistress|text=Molorai Nightmistress}}<br>{{CharacterLink|stablekey=character:molorai enlightened|link=Molorai Outrider|text=Molorai Outrider}}<br>{{CharacterLink|stablekey=character:molorai enllightened m|link=Molorai Truthseeker|text=Molorai Truthseeker}}<br>{{CharacterLink|stablekey=character:nipper farseer|link=Nipper Farseer|text=Nipper Farseer}}<br>{{CharacterLink|stablekey=character:priel naturalist|link=Priel Enforcer|text=Priel Enforcer}}<br>{{CharacterLink|stablekey=character:priel molarist|link=Priel Malarist|text=Priel Malarist}}<br>{{CharacterLink|stablekey=character:priel soldier2|link=Priel Soldier|text=Priel Soldier}}<br>{{CharacterLink|stablekey=character:priel tamer|link=Priel Tamer|text=Priel Tamer}}<br>{{CharacterLink|stablekey=character:savannah priel|link=Savannah Priel (Character)|text=Savannah Priel}}<br>{{CharacterLink|stablekey=character:spectre caster|link=Spectre|text=Spectre}}<br>{{CharacterLink|stablekey=character:gardener|link=The Gardener of Loomingwood|text=The Gardener of Loomingwood}}<br>{{CharacterLink|stablekey=character:undertow|link=Undertoes|text=Undertoes}}<br>{{CharacterLink|stablekey=character:virvil destova|link=Virvil Destova|text=Virvil Destova}}<br>{{CharacterLink|stablekey=character:winkles|link=Winkles|text=Winkles}}
 }}

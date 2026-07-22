@@ -3,10 +3,10 @@
 |stablekey=item:gen - treasure hunter pg 4 (undercity)
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Spectral Torturer]] (100.0%)
+|source={{CharacterLink|stablekey=character:torturer|link=Spectral Torturer|text=Spectral Torturer}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|link=The Lost Soul{{!}}The Lost Soul Pt. 1}}
+|relatedquest={{QuestLink|link=The Lost Soul{{!}}The Lost Soul Pt. 1}}<br>{{QuestLink|stablekey=quest:thelostsoul|link=The Lost Soul|text=The Lost Soul Pt. 1}}
 |craftsource=
 |componentfor=
 |buy=

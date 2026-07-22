@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Rune of Ripper's Keep}}
+|itemswitheffect={{ItemLink|stablekey=item:gen - rune of ripper's keep|link=Rune of Ripper's Keep|text=Rune of Ripper's Keep|image=Rune of Ripper's Keep.png}}
 |source=
 |used_by=
 }}

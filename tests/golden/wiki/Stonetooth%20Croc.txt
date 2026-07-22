@@ -3,15 +3,15 @@
 |image=[[File:Stonetooth Croc.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Blooming Sepulcher]]
+|zones={{ZoneLink|stablekey=zone:bloomingsepulcher|link=Blooming Sepulcher|text=Blooming Sepulcher}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Croc Tail}} (27.8%)
+|droprates={{ItemLink|stablekey=item:gen - croc tail|link=Croc Tail|text=Croc Tail|image=Croc Tail.png}} (27.8%)
 |level=33
 |levelmodmin=0
 |levelmodmax=0

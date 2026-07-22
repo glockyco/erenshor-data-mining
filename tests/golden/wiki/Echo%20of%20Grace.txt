@@ -3,9 +3,9 @@
 |image=[[File:Echo of Grace.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Soluna's Celestial Plane]]
+|zones={{ZoneLink|stablekey=zone:planeofsoluna|link=Soluna's Celestial Plane|text=Soluna's Celestial Plane}}
 |coordinates=305.8 x 327.1 x 646.7<br>331.4 x 327.1 x 646.7
 |spawnchance=
 |spawntype=Dynamic event spawn

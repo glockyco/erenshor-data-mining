@@ -3,15 +3,15 @@
 |image=[[File:Catnip (Enemy).png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Good]]
+|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
 |factionChange=
-|zones=[[Mysterious Portal|Mysterious Portal (3)]]
+|zones={{ZoneLink|stablekey=zone:ripperportal|link=Mysterious Portal|text=Mysterious Portal (3)}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|Catnip}} (100.0%)
+|droprates={{ItemLink|stablekey=item:gen - catnip|link=Catnip|text=Catnip|image=Catnip.png}} (100.0%)
 |level=5
 |levelmodmin=0
 |levelmodmax=0

@@ -3,7 +3,7 @@
 |stablekey=item:aura - ethereal shell (item)
 |type=
 |vendorsource=
-|source=[[Xjeris]] (68.9%)
+|source={{CharacterLink|stablekey=character:jeris|link=Xjeris|text=Xjeris}} (68.9%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -22,7 +22,7 @@
 |name=Ethereal Shell
 |description=
 |aura_spell_icon=Aura: Ethereal Shell.png
-|aura_spell_name=[[Aura: Ethereal Shell]]
+|aura_spell_name={{AbilityLink|stablekey=spell:aura - ethereal shell|link=Aura: Ethereal Shell|text=Aura: Ethereal Shell|image=Aura: Ethereal Shell.png}}
 |aura_spell_level=42
 |aura_spell_duration_ticks=2
 |aura_spell_type=Beneficial

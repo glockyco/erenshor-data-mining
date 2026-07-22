@@ -2,7 +2,7 @@
 |title=Skill Book: Skycaller Arrow
 |stablekey=item:skillbook - skycaller arrow
 |type=[[Ability Books|Skill Book]]
-|vendorsource=[[Elizabeth DeWitt]]
+|vendorsource={{CharacterLink|stablekey=character:elizabeth dewitt|link=Elizabeth DeWitt|text=Elizabeth DeWitt}}
 |source=
 |othersource=
 |questsource=
@@ -12,7 +12,7 @@
 |buy=1350
 |sell=877
 |taughtspell=
-|taughtskill={{AbilityLink|Skycall|image=Skycall (Spell).png}}
+|taughtskill={{AbilityLink|stablekey=skill:archery - skycaller arrow|link=Skycall|text=Skycall|image=Skycall (Spell).png}}
 |guaranteeddrops=
 |droprates=
 }}

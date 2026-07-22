@@ -3,10 +3,10 @@
 |stablekey=item:gen - spark of the first flame
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Braxonian Ascended]] (7.8%)<br>[[Braxonian High Guard]] (7.8%)<br>[[Braxonian Tempest]] (7.8%)<br>[[Braxon Prospect]] (6.8%)
+|source={{CharacterLink|stablekey=character:braxonian ascended|link=Braxonian Ascended|text=Braxonian Ascended}} (7.8%)<br>{{CharacterLink|stablekey=character:braxonian high guard|link=Braxonian High Guard|text=Braxonian High Guard}} (7.8%)<br>{{CharacterLink|stablekey=character:braxonian tempest|link=Braxonian Tempest|text=Braxonian Tempest}} (7.8%)<br>{{CharacterLink|stablekey=character:braxonian prospect|link=Braxon Prospect|text=Braxon Prospect}} (6.8%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|The Dark Flame}}
+|relatedquest={{QuestLink|The Dark Flame}}<br>{{QuestLink|stablekey=quest:thedarkflame|link=The Dark Flame|text=The Dark Flame}}
 |craftsource=
 |componentfor=
 |buy=

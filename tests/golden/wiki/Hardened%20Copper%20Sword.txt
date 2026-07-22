@@ -3,11 +3,11 @@
 |stablekey=item:weap - bronze short sword +1
 |type=
 |vendorsource=
-|source=[[Bassle Wavebreaker]] (67.9%)<br>[[Cagnus Marlsen]] (67.9%)<br>[[Molorai Anointed]] (57.4%)<br>[[Molorai Specialist]] (57.4%)
+|source={{CharacterLink|stablekey=character:bassle wavebreak|link=Bassle Wavebreaker|text=Bassle Wavebreaker}} (67.9%)<br>{{CharacterLink|stablekey=character:cagnus marlsen|link=Cagnus Marlsen|text=Cagnus Marlsen}} (67.9%)<br>{{CharacterLink|stablekey=character:molorai anointed|link=Molorai Anointed|text=Molorai Anointed}} (57.4%)<br>{{CharacterLink|stablekey=character:molorai specialist|link=Molorai Specialist|text=Molorai Specialist}} (57.4%)<br>{{CharacterLink|stablekey=character:molorai specialist 1|link=Molorai Specialist|text=Molorai Specialist}} (57.4%)
 |othersource=
 |questsource=
 |relatedquest=
-|craftsource=1x {{ItemLink|Mold: Copper Sword}}<br>2x {{ItemLink|Chunk of Copper Ore}}<br>2x {{ItemLink|Chunk of Iron Ore}}
+|craftsource=1x {{ItemLink|stablekey=item:template - bronze sword|link=Mold: Copper Sword|text=Mold: Copper Sword|image=Mold: Copper Sword.png}}<br>2x {{ItemLink|stablekey=item:ore - bronze ore|link=Chunk of Copper Ore|text=Chunk of Copper Ore|image=Chunk of Copper Ore.png}}<br>2x {{ItemLink|stablekey=item:ore - iron ore|link=Chunk of Iron Ore|text=Chunk of Iron Ore|image=Chunk of Iron Ore.png}}
 |componentfor=
 |buy=76
 |sell=49

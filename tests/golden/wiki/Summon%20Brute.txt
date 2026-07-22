@@ -5,7 +5,7 @@
 |description=Summon a magical companion to fight along side you.
 |type=Pet
 |line=Generic
-|classes=[[Druid]] (34)
+|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (34)
 |required_level=34
 |manacost=1800
 |aggro=
@@ -30,7 +30,7 @@
 |target_healing=
 |caster_healing=
 |shield_amount=
-|pet_to_summon=[[Summoned: Brute]]
+|pet_to_summon={{CharacterLink|stablekey=character:summoned brute|link=Summoned: Brute|text=Summoned: Brute}}
 |status_effect=
 |add_proc=
 |add_proc_chance=
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Summon Brute}}
+|source={{ItemLink|stablekey=item:spell scroll - summon brute|link=Spell Scroll: Summon Brute|text=Spell Scroll: Summon Brute|image=Spell Scroll: Summon Brute.png}}
 |used_by=
 }}

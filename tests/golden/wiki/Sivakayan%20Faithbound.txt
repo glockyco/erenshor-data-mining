@@ -3,15 +3,15 @@
 |image=[[File:Sivakayan Faithbound.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Children of Sivakaya]]
+|faction={{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}
 |factionChange=
-|zones=[[Abyssal Lake]]
+|zones={{ZoneLink|stablekey=zone:abyssal|link=Abyssal Lake|text=Abyssal Lake}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Aetheria}} (4.3%)<ref>If the player is already holding {{ItemLink|Aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|Sivakayan Boat Pass}} (4.3%)<ref>If the player is already holding {{ItemLink|Sivakayan Boat Pass}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ruby}} (4.2%)<ref>If the player is already holding {{ItemLink|Ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|Sivakayan Breeches}} (2.1%)<br>{{ItemLink|Spell Scroll: Twisting Mind}} (2.1%)<br>{{ItemLink|Citrine Stone}} (2.1%)<br>{{ItemLink|Diamond}} (2.1%)<ref>If the player is already holding {{ItemLink|Diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ogrespice Leaf}} (2.1%)<br>{{ItemLink|Sea Glass}} (2.1%)<br>{{ItemLink|Sivakayan Wand}} (2.1%)
+|droprates={{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} (4.3%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - the boatman|link=Sivakayan Boat Pass|text=Sivakayan Boat Pass|image=Sivakayan Boat Pass.png}} (4.3%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - the boatman|link=Sivakayan Boat Pass|text=Sivakayan Boat Pass|image=Sivakayan Boat Pass.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} (4.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:leg - 24 - sivakayan breeches|link=Sivakayan Breeches|text=Sivakayan Breeches|image=Sivakayan Breeches.png}} (2.1%)<br>{{ItemLink|stablekey=item:spell scroll - twisting mind|link=Spell Scroll: Twisting Mind|text=Spell Scroll: Twisting Mind|image=Spell Scroll: Twisting Mind.png}} (2.1%)<br>{{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (2.1%)<br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (2.1%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - ogrespice leaf|link=Ogrespice Leaf|text=Ogrespice Leaf|image=Ogrespice Leaf.png}} (2.1%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (2.1%)<br>{{ItemLink|stablekey=item:wand - 25 - sivakayan wand|link=Sivakayan Wand|text=Sivakayan Wand|image=Sivakayan Wand.png}} (2.1%)
 |level=28
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=14-34
 |elemental=14-34
 |void=14-34
-|spells={{AbilityLink|Aetherstorm}}<br>{{AbilityLink|Winter's Bite}}
+|spells={{AbilityLink|stablekey=spell:arc - aetherstorm|link=Aetherstorm|text=Aetherstorm|image=Aetherstorm.png}}<br>{{AbilityLink|stablekey=spell:arc - winter's bite|link=Winter's Bite|text=Winter's Bite|image=Winter's Bite.png}}
 }}
 
 [[Category:Abyssal Lake]]

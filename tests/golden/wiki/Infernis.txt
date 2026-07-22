@@ -5,7 +5,7 @@
 |description=Slow targets movement, attack, and cause (1400 / tick) damage over time.
 |type=StatusEffect
 |line=Arc_Element_DOT
-|classes=[[Arcanist]] (34)
+|classes={{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}} (34)
 |required_level=34
 |manacost=1400
 |aggro=600
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Infernis}}
-|used_by=[[Braxon Elden]]<br>[[Karsith]]<br>[[Vos Ashlyn]]
+|source={{ItemLink|stablekey=item:spell scroll - infernis|link=Spell Scroll: Infernis|text=Spell Scroll: Infernis|image=Spell Scroll: Infernis.png}}
+|used_by={{CharacterLink|stablekey=character:braxon elden:braxonian:99.99:33.79:993.06|link=Braxon Elden|text=Braxon Elden}}<br>{{CharacterLink|stablekey=character:karsith|link=Karsith|text=Karsith}}<br>{{CharacterLink|stablekey=character:vos ashlyn|link=Vos Ashlyn|text=Vos Ashlyn}}
 }}

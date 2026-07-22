@@ -3,7 +3,7 @@
 |stablekey=item:weap - 16 - molorai broadsword
 |type=
 |vendorsource=
-|source=[[Molorai Outrider]] (20.6%)
+|source={{CharacterLink|stablekey=character:molorai outrider 1|link=Molorai Outrider|text=Molorai Outrider}} (20.6%)
 |othersource=
 |questsource=
 |relatedquest=

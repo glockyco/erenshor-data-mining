@@ -5,7 +5,7 @@
 |description=Scoring a killshot on an enemy resets all of your cooldowns immediately
 |type=Innate
 |line=
-|classes=[[Stormcaller]] (12)
+|classes={{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}} (12)
 |required_level=
 |manacost=
 |aggro=
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Skill Book: Precision}}
+|source={{ItemLink|stablekey=item:skillbook - precision|link=Skill Book: Precision|text=Skill Book: Precision|image=Skill Book: Precision.png}}
 |used_by=
 }}

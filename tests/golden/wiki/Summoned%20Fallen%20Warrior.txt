@@ -4,14 +4,14 @@
 |imagecaption=
 |type=NPC
 |faction=
-|factionChange=-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
+|factionChange=-10 {{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
 |zones=
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|Ancient Bone}} (87.6%)<br>{{ItemLink|Copper Sword}} (10.4%)<ref>If Summoned Fallen Warrior has {{ItemLink|Copper Sword}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Light Plate Breastplate}} (1.3%)<br>{{ItemLink|Light Plate Greaves}} (1.3%)<br>{{ItemLink|Tattered Leather Boots}} (1.3%)<br>{{ItemLink|Tattered Leather Gloves}} (1.3%)<br>{{ItemLink|Tattered Leather Leggings}} (1.3%)<br>{{ItemLink|Tattered Leather Skullcap}} (1.3%)<br>{{ItemLink|Tattered Leather Sleeves}} (1.3%)<br>{{ItemLink|Tattered Leather Tunic}} (1.3%)
+|droprates={{ItemLink|stablekey=item:gen - an ancient bone|link=Ancient Bone|text=Ancient Bone|image=Ancient Bone.png}} (87.6%)<br>{{ItemLink|stablekey=item:weap - bronze short sword|link=Copper Sword|text=Copper Sword|image=Copper Sword.png}} (10.4%)<ref>If Summoned Fallen Warrior has {{ItemLink|stablekey=item:weap - bronze short sword|link=Copper Sword|text=Copper Sword|image=Copper Sword.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:chest - 4 - light plate armor|link=Light Plate Breastplate|text=Light Plate Breastplate|image=Light Plate Breastplate.png}} (1.3%)<br>{{ItemLink|stablekey=item:leg - 3 - light plate greaves|link=Light Plate Greaves|text=Light Plate Greaves|image=Light Plate Greaves.png}} (1.3%)<br>{{ItemLink|stablekey=item:foot - 1 - tattered leather boots|link=Tattered Leather Boots|text=Tattered Leather Boots|image=Tattered Leather Boots.png}} (1.3%)<br>{{ItemLink|stablekey=item:glove - 1 - tattered leather gloves|link=Tattered Leather Gloves|text=Tattered Leather Gloves|image=Tattered Leather Gloves.png}} (1.3%)<br>{{ItemLink|stablekey=item:leg - 1 - tattered leather leggings|link=Tattered Leather Leggings|text=Tattered Leather Leggings|image=Tattered Leather Leggings.png}} (1.3%)<br>{{ItemLink|stablekey=item:head - 1 - tattered leather skullcap|link=Tattered Leather Skullcap|text=Tattered Leather Skullcap|image=Tattered Leather Skullcap.png}} (1.3%)<br>{{ItemLink|stablekey=item:arm - 1 - tattered leather sleeves|link=Tattered Leather Sleeves|text=Tattered Leather Sleeves|image=Tattered Leather Sleeves.png}} (1.3%)<br>{{ItemLink|stablekey=item:chest - 1 - tattered leather tunic|link=Tattered Leather Tunic|text=Tattered Leather Tunic|image=Tattered Leather Tunic.png}} (1.3%)
 |level=23
 |levelmodmin=0
 |levelmodmax=0

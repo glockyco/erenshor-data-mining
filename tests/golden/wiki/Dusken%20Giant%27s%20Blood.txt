@@ -3,12 +3,12 @@
 |stablekey=item:gen - dusken giants blood
 |type=[[Crafting]]
 |vendorsource=
-|source=[[Dusken Giant]] (86.3%)
+|source={{CharacterLink|stablekey=character:dusken giant|link=Dusken Giant|text=Dusken Giant}} (86.3%)
 |othersource=
 |questsource=
 |relatedquest=
 |craftsource=
-|componentfor={{ItemLink|Mold: Nighthollow Wax}}
+|componentfor={{ItemLink|stablekey=item:template - nighthollow wax mold|link=Mold: Nighthollow Wax|text=Mold: Nighthollow Wax|image=Mold: Nighthollow Wax.png}}
 |buy=8
 |sell=5
 |taughtspell=

@@ -2,8 +2,8 @@
 |title=Fiery Sapphire Ring
 |stablekey=item:ring - 6 - fiery sapphire ring
 |type=
-|vendorsource=[[Parmalee Gemlyn]]
-|source=[[Sand Mummy]] (9.1%)<br>[[Scorched Skeleton]] (9.1%)
+|vendorsource={{CharacterLink|stablekey=character:parmalee gemlyn|link=Parmalee Gemlyn|text=Parmalee Gemlyn}}
+|source={{CharacterLink|stablekey=character:desert mummy|link=Sand Mummy|text=Sand Mummy}} (9.1%)<br>{{CharacterLink|stablekey=character:scorched skeleton|link=Scorched Skeleton|text=Scorched Skeleton}} (9.1%)
 |othersource=
 |questsource=
 |relatedquest=

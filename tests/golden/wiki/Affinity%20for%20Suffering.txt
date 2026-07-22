@@ -5,7 +5,7 @@
 |description=For every 10% of missing life, you gain 2% haste. This effect is applied after all other haste sources are counted. The haste cap does not apply.
 |type=Beneficial
 |line=Reav_Suffering
-|classes=[[Reaver]] (1)
+|classes={{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}} (1)
 |required_level=1
 |manacost=20
 |aggro=
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Affinity for Suffering}}
+|source={{ItemLink|stablekey=item:spell scroll - affinity for suffering|link=Spell Scroll: Affinity for Suffering|text=Spell Scroll: Affinity for Suffering|image=Spell Scroll: Affinity for Suffering.png}}
 |used_by=
 }}

@@ -2,8 +2,8 @@
 |title=Living Chainmail Leggings
 |stablekey=item:leg - 11 - living chainmail greaves
 |type=
-|vendorsource=[[Tiver Banes]]
-|source=[[Molorai Spiritist]] (41.8%)<br>[[Botanist]] (6.9%)
+|vendorsource={{CharacterLink|stablekey=character:tiver banes|link=Tiver Banes|text=Tiver Banes}}
+|source={{CharacterLink|stablekey=character:molorai spiritist|link=Molorai Spiritist|text=Molorai Spiritist}} (41.8%)<br>{{CharacterLink|stablekey=character:botanist|link=Botanist|text=Botanist}} (6.9%)
 |othersource=
 |questsource=
 |relatedquest=

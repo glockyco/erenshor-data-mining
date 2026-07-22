@@ -3,7 +3,7 @@
 |stablekey=item:arm - 8 - faerie sleeves
 |type=
 |vendorsource=
-|source=[[Tinkles]] (4.0%)
+|source={{CharacterLink|stablekey=character:tinkles|link=Tinkles|text=Tinkles}} (4.0%)
 |othersource=
 |questsource=
 |relatedquest=

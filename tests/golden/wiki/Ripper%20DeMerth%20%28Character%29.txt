@@ -3,15 +3,15 @@
 |image=[[File:Ripper DeMerth.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction=[[Ripper DeMerth]]
-|factionChange=-400 [[Ripper DeMerth]]<br>+25 [[The Azure Guard]]<br>-35 [[The Citizens of Erenshor]]<br>+25 [[The Citizens of Port Azure]]
-|zones=[[Ripper's Keep]]
+|faction={{FactionLink|stablekey=faction:ripper|link=Ripper DeMerth|text=Ripper DeMerth}}
+|factionChange=-400 {{FactionLink|stablekey=faction:ripper|link=Ripper DeMerth|text=Ripper DeMerth}}<br>+25 {{FactionLink|stablekey=faction:azureguard|link=The Azure Guard|text=The Azure Guard}}<br>-35 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+25 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|zones={{ZoneLink|stablekey=zone:ripper|link=Ripper's Keep|text=Ripper's Keep}}
 |coordinates=549.2 x 140.0 x 515.0
 |spawnchance=
 |spawntype=
 |respawn=16 minutes
-|guaranteeddrops={{ItemLink|Age-Old Armlet}}<br>{{ItemLink|Ceto}}<br>{{ItemLink|Esen}}
-|droprates={{ItemLink|Ear of Ripper}} (100.0%)<ref>If the player is already holding {{ItemLink|Ear of Ripper}} in their inventory, another will not drop.</ref><br>{{ItemLink|Spell Scroll: Vithean Frenzy}} (87.1%)<br>{{ItemLink|Age-Old Armlet}} (33.3%)<br>{{ItemLink|Ceto}} (33.3%)<br>{{ItemLink|Esen}} (33.3%)<br>{{ItemLink|Ripper Insignia Badge}} (20.6%)<br>{{ItemLink|Ripparian Axe}} (12.1%)<br>{{ItemLink|Ripparian Greaves}} (3.0%)<br>{{ItemLink|Ripparian Plate}} (3.0%)
+|guaranteeddrops={{ItemLink|stablekey=item:arm - 37 - age-old armlet|link=Age-Old Armlet|text=Age-Old Armlet|image=Age-Old Armlet.png}}<br>{{ItemLink|stablekey=item:weap - 29 - ceto|link=Ceto|text=Ceto|image=Ceto.png}}<br>{{ItemLink|stablekey=item:weap - 29 - esen|link=Esen|text=Esen|image=Esen.png}}
+|droprates={{ItemLink|stablekey=item:gen - ear of ripper|link=Ear of Ripper|text=Ear of Ripper|image=Ear of Ripper.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ear of ripper|link=Ear of Ripper|text=Ear of Ripper|image=Ear of Ripper.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:spell scroll - vithean frenzy|link=Spell Scroll: Vithean Frenzy|text=Spell Scroll: Vithean Frenzy|image=Spell Scroll: Vithean Frenzy.png}} (87.1%)<br>{{ItemLink|stablekey=item:arm - 37 - age-old armlet|link=Age-Old Armlet|text=Age-Old Armlet|image=Age-Old Armlet.png}} (33.3%)<br>{{ItemLink|stablekey=item:weap - 29 - ceto|link=Ceto|text=Ceto|image=Ceto.png}} (33.3%)<br>{{ItemLink|stablekey=item:weap - 29 - esen|link=Esen|text=Esen|image=Esen.png}} (33.3%)<br>{{ItemLink|stablekey=item:gen  - ripper insignia ring|link=Ripper Insignia Badge|text=Ripper Insignia Badge|image=Ripper Insignia Badge.png}} (20.6%)<br>{{ItemLink|stablekey=item:weap - 36 - ripparian axe|link=Ripparian Axe|text=Ripparian Axe|image=Ripparian Axe.png}} (12.1%)<br>{{ItemLink|stablekey=item:leg - 30 - ripparian greaves|link=Ripparian Greaves|text=Ripparian Greaves|image=Ripparian Greaves.png}} (3.0%)<br>{{ItemLink|stablekey=item:chest - 30 - ripparian plate|link=Ripparian Plate|text=Ripparian Plate|image=Ripparian Plate.png}} (3.0%)
 |level=38
 |levelmodmin=0
 |levelmodmax=0

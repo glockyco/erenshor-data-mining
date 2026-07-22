@@ -3,7 +3,7 @@
 |stablekey=item:back - 33 - wingwoven cape
 |type=
 |vendorsource=
-|source=[[Winkles]] (18.2%)<br>[[A Faerie Enchantress]] (1.8%)<br>[[A Faerie Foliagian]] (1.8%)<br>[[A Faerie Windchild]] (1.8%)
+|source={{CharacterLink|stablekey=character:winkles|link=Winkles|text=Winkles}} (18.2%)<br>{{CharacterLink|stablekey=character:faerie enchantress|link=A Faerie Enchantress|text=A Faerie Enchantress}} (1.8%)<br>{{CharacterLink|stablekey=character:faerie foliagian|link=A Faerie Foliagian|text=A Faerie Foliagian}} (1.8%)<br>{{CharacterLink|stablekey=character:faerie windchild|link=A Faerie Windchild|text=A Faerie Windchild}} (1.8%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -3,15 +3,15 @@
 |image=[[File:Addison Priel.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction=[[Savannah Priel]]
-|factionChange=-35 [[Savannah Priel]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]<br>+1 [[The Solunarian Brotherhood]]
-|zones=[[Prielian Cascade]]
+|faction={{FactionLink|stablekey=faction:priel|link=Savannah Priel|text=Savannah Priel}}
+|factionChange=-35 {{FactionLink|stablekey=faction:priel|link=Savannah Priel|text=Savannah Priel}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+1 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
+|zones={{ZoneLink|stablekey=zone:prielplateau|link=Prielian Cascade|text=Prielian Cascade}}
 |coordinates=416.2 x 0.7 x 207.5
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Giving Gloves}}<br>{{ItemLink|Starched Wool Leggings}}
-|droprates={{ItemLink|Giving Gloves}} (50.0%)<br>{{ItemLink|Starched Wool Leggings}} (50.0%)<br>{{ItemLink|Bear Bone Club}} (8.7%)<ref>If Addison Priel has {{ItemLink|Bear Bone Club}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sea Glass}} (7.4%)<br>{{ItemLink|Star Stone}} (7.4%)<br>{{ItemLink|Priel Standard}} (4.2%)<ref>If Addison Priel has {{ItemLink|Priel Standard}} equipped, it is guaranteed to drop.</ref>
+|guaranteeddrops={{ItemLink|stablekey=item:glove - 28 - giving gloves|link=Giving Gloves|text=Giving Gloves|image=Giving Gloves.png}}<br>{{ItemLink|stablekey=item:leg - 28 - starched wool leggings|link=Starched Wool Leggings|text=Starched Wool Leggings|image=Starched Wool Leggings.png}}
+|droprates={{ItemLink|stablekey=item:glove - 28 - giving gloves|link=Giving Gloves|text=Giving Gloves|image=Giving Gloves.png}} (50.0%)<br>{{ItemLink|stablekey=item:leg - 28 - starched wool leggings|link=Starched Wool Leggings|text=Starched Wool Leggings|image=Starched Wool Leggings.png}} (50.0%)<br>{{ItemLink|stablekey=item:weap - 6 - bearbone club|link=Bear Bone Club|text=Bear Bone Club|image=Bear Bone Club.png}} (8.7%)<ref>If Addison Priel has {{ItemLink|stablekey=item:weap - 6 - bearbone club|link=Bear Bone Club|text=Bear Bone Club|image=Bear Bone Club.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (7.4%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (7.4%)<br>{{ItemLink|stablekey=item:back - 6 - priel standard|link=Priel Standard|text=Priel Standard|image=Priel Standard.png}} (4.2%)<ref>If Addison Priel has {{ItemLink|stablekey=item:back - 6 - priel standard|link=Priel Standard|text=Priel Standard|image=Priel Standard.png}} equipped, it is guaranteed to drop.</ref>
 |level=28
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=14-34
 |elemental=14-34
 |void=14-34
-|spells={{AbilityLink|Devour}}<br>{{AbilityLink|Group Revitalize}}<br>{{AbilityLink|Melting Bones}}
+|spells={{AbilityLink|stablekey=spell:dru reav - devour|link=Devour|text=Devour|image=Devour.png}}<br>{{AbilityLink|stablekey=spell:dru - group revitalize|link=Group Revitalize|text=Group Revitalize|image=Group Revitalize.png}}<br>{{AbilityLink|stablekey=spell:dru - melting bones|link=Melting Bones|text=Melting Bones|image=Melting Bones.png}}
 }}
 Found in the cave leading to the second level - turn right towards another cave room instead left to the exit.
 =Notes=

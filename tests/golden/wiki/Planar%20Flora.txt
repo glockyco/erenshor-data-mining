@@ -3,15 +3,15 @@
 |image=[[File:Planar Flora.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Plane of the Willow]]
+|zones={{ZoneLink|stablekey=zone:planeoffernalla|link=Plane of the Willow|text=Plane of the Willow}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=33 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Devoratrix Thorn}} (6.9%)<br>{{ItemLink|Loomingwood Branch}} (6.9%)<br>{{ItemLink|Fungus Covered Tunic}} (5.8%)<br>{{ItemLink|Blueprint: Loomingwood Market}} (0.5%)<br>{{ItemLink|Blueprint: Loomingwood Shrine}} (0.5%)
+|droprates={{ItemLink|stablekey=item:gen - devoratrix thorn|link=Devoratrix Thorn|text=Devoratrix Thorn|image=Devoratrix Thorn.png}} (6.9%)<br>{{ItemLink|stablekey=item:gen - loomingwood branch|link=Loomingwood Branch|text=Loomingwood Branch|image=Loomingwood Branch.png}} (6.9%)<br>{{ItemLink|stablekey=item:chest - 18 - fungus covered tunic|link=Fungus Covered Tunic|text=Fungus Covered Tunic|image=Fungus Covered Tunic.png}} (5.8%)<br>{{ItemLink|stablekey=item:furniture - loomingwood marketplace blueprint|link=Blueprint: Loomingwood Market|text=Blueprint: Loomingwood Market|image=Blueprint: Loomingwood Market.png}} (0.5%)<br>{{ItemLink|stablekey=item:furniture - loomingwood shrine blueprint|link=Blueprint: Loomingwood Shrine|text=Blueprint: Loomingwood Shrine|image=Blueprint: Loomingwood Shrine.png}} (0.5%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=21-50
 |elemental=21-50
 |void=21-50
-|spells={{AbilityLink|Morbidity's Grasp}}
+|spells={{AbilityLink|stablekey=spell:dru - morbidity's grasp|link=Morbidity's Grasp|text=Morbidity's Grasp|image=Morbidity's Grasp.png}}
 }}
 
 [[Category:Enemies]]

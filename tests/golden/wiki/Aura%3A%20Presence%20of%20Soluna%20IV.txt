@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Eclipse}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - soluna 4|link=Eclipse|text=Eclipse|image=Eclipse.png}}
 |source=
 |used_by=
 }}

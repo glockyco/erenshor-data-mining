@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Elixir of Enlightenment IV}}<br>{{ItemLink|Letters and Words}}
+|itemswitheffect={{ItemLink|stablekey=item:cons - enlightening potion iv|link=Elixir of Enlightenment IV|text=Elixir of Enlightenment IV|image=Elixir of Enlightenment IV.png}}<br>{{ItemLink|stablekey=item:hand - 42 - letters and words (rare)|link=Letters and Words|text=Letters and Words|image=Letters and Words.png}}
 |source=
 |used_by=
 }}

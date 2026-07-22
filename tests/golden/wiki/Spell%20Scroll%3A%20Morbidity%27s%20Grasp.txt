@@ -2,7 +2,7 @@
 |title=Spell Scroll: Morbidity's Grasp
 |stablekey=item:spell scroll - morbidity's grasp
 |type=[[Ability Books]]
-|vendorsource=[[Alexander Farland]]<br>[[Aspen Dechaffe]]
+|vendorsource={{CharacterLink|stablekey=character:alexander farland|link=Alexander Farland|text=Alexander Farland}}<br>{{CharacterLink|stablekey=character:aspen dechaffe|link=Aspen Dechaffe|text=Aspen Dechaffe}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=2500
 |sell=1625
-|taughtspell={{AbilityLink|Morbidity's Grasp}}
+|taughtspell={{AbilityLink|stablekey=spell:dru - morbidity's grasp|link=Morbidity's Grasp|text=Morbidity's Grasp|image=Morbidity's Grasp.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

@@ -3,7 +3,7 @@
 |stablekey=item:chest - 14 - rottenfoot tribal strap
 |type=
 |vendorsource=
-|source=[[Rottenfoot Mauler]] (5.8%)
+|source={{CharacterLink|stablekey=character:a rottenfoot mauler|link=Rottenfoot Mauler|text=Rottenfoot Mauler}} (5.8%)
 |othersource=
 |questsource=
 |relatedquest=

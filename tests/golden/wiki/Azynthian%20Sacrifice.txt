@@ -3,9 +3,9 @@
 |image=[[File:Azynthian Sacrifice.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Secluded Sanctuary]]
+|zones={{ZoneLink|stablekey=zone:stowawayportal|link=Secluded Sanctuary|text=Secluded Sanctuary}}
 |coordinates=-138.9 x 1.2 x -55.5<br>-119.6 x 1.2 x -88.8<br>-119.6 x 1.2 x -22.5<br>-40.4 x 1.2 x -88.8<br>-40.4 x 1.2 x -22.5<br>-25.1 x 1.2 x -55.5
 |spawnchance=
 |spawntype=Dynamic event spawn
@@ -32,7 +32,7 @@
 |poison=18-44
 |elemental=18-44
 |void=18-44
-|spells={{AbilityLink|Annihilate}}<br>{{AbilityLink|Grip of Azynthi}}<br>{{AbilityLink|Tenebris}}
+|spells={{AbilityLink|stablekey=spell:dru - annihilate|link=Annihilate|text=Annihilate|image=Annihilate.png}}<br>{{AbilityLink|stablekey=spell:none - grip of azynthi|link=Grip of Azynthi|text=Grip of Azynthi|image=Grip of Azynthi.png}}<br>{{AbilityLink|stablekey=spell:arc - tenebris|link=Tenebris|text=Tenebris|image=Tenebris.png}}
 }}
 
 [[Category:Enemies]]

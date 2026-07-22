@@ -5,7 +5,7 @@
 |description=Passive Skill: During combat, Stormcaller gains a small chance to spawn a "target", which they can attack and destroy to reset all cooldowns.
 |type=Innate
 |line=
-|classes=[[Stormcaller]] (35)
+|classes={{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}} (35)
 |required_level=
 |manacost=
 |aggro=
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Skill Book: Trick Shot}}
+|source={{ItemLink|stablekey=item:skillbook - trick shot|link=Skill Book: Trick Shot|text=Skill Book: Trick Shot|image=Skill Book: Trick Shot.png}}
 |used_by=
 }}

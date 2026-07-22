@@ -3,15 +3,15 @@
 |image=[[File:Blunga.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Brackish Coast Nagaloks]]
-|factionChange=+1 [[The Blades of Vitheo]]<br>-10 [[The Brackish Coast Nagaloks]]<br>+1 [[The Citizens of Erenshor]]<br>+1 [[The Citizens of Port Azure]]
-|zones=[[Willowwatch Ridge]]
+|faction={{FactionLink|stablekey=faction:nagalok|link=The Brackish Coast Nagaloks|text=The Brackish Coast Nagaloks}}
+|factionChange=+1 {{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}<br>-10 {{FactionLink|stablekey=faction:nagalok|link=The Brackish Coast Nagaloks|text=The Brackish Coast Nagaloks}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|zones={{ZoneLink|stablekey=zone:willowwatch|link=Willowwatch Ridge|text=Willowwatch Ridge}}
 |coordinates=96.1 x 59.7 x 609.7
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|Infused Bracelet}}<br>{{ItemLink|Kelp Crusted Shirt}}
-|droprates={{ItemLink|Kelp Crusted Shirt}} (83.3%)<br>{{ItemLink|Reptilian Scales}} (19.5%)<br>{{ItemLink|Infused Bracelet}} (16.7%)<br>{{ItemLink|Seaweed}} (15.1%)<br>{{ItemLink|A Worm Eel}} (7.8%)
+|guaranteeddrops={{ItemLink|stablekey=item:wrist - 6 - infused bracelet|link=Infused Bracelet|text=Infused Bracelet|image=Infused Bracelet.png}}<br>{{ItemLink|stablekey=item:chest - 5 - seaweed soaked shirt|link=Kelp Crusted Shirt|text=Kelp Crusted Shirt|image=Kelp Crusted Shirt.png}}
+|droprates={{ItemLink|stablekey=item:chest - 5 - seaweed soaked shirt|link=Kelp Crusted Shirt|text=Kelp Crusted Shirt|image=Kelp Crusted Shirt.png}} (83.3%)<br>{{ItemLink|stablekey=item:gen - scaled skin|link=Reptilian Scales|text=Reptilian Scales|image=Reptilian Scales.png}} (19.5%)<br>{{ItemLink|stablekey=item:wrist - 6 - infused bracelet|link=Infused Bracelet|text=Infused Bracelet|image=Infused Bracelet.png}} (16.7%)<br>{{ItemLink|stablekey=item:gen - seaweed|link=Seaweed|text=Seaweed|image=Seaweed.png}} (15.1%)<br>{{ItemLink|stablekey=item:fish - a worm eel|link=A Worm Eel|text=A Worm Eel|image=A Worm Eel.png}} (7.8%)
 |level=5
 |levelmodmin=0
 |levelmodmax=0

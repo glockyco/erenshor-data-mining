@@ -5,7 +5,7 @@
 |vendorsource=
 |source=
 |othersource=[[Baking Oven]]
-|questsource={{QuestLink|Malaroth Food}}
+|questsource={{QuestLink|Malaroth Food}}<br>{{QuestLink|stablekey=quest:malarothfeedmade|link=Malaroth Food|text=Malaroth Food}}
 |relatedquest=
 |craftsource=
 |componentfor=

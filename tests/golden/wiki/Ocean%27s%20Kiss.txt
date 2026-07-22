@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Ceto}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 29 - ceto|link=Ceto|text=Ceto|image=Ceto.png}}
 |source=
 |used_by=
 }}

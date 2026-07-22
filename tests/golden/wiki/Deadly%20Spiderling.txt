@@ -3,9 +3,9 @@
 |image=[[File:Deadly Spiderling.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Followers of Evil]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
 |factionChange=
-|zones=[[Plane of the Willow]]
+|zones={{ZoneLink|stablekey=zone:planeoffernalla|link=Plane of the Willow|text=Plane of the Willow}}
 |coordinates=1656.3 x 177.1 x 1607.7<br>1662.8 x 177.1 x 1588.7<br>1677.5 x 177.1 x 1619.2<br>1688.2 x 177.1 x 1586.5<br>1695.9 x 177.1 x 1603.0
 |spawnchance=
 |spawntype=Dynamic event spawn

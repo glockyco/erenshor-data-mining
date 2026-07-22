@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Toxic Strap}}
+|itemswitheffect={{ItemLink|stablekey=item:belt - 18 - toxic strap|link=Toxic Strap|text=Toxic Strap|image=Toxic Strap.png}}
 |source=
 |used_by=
 }}

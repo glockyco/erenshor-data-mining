@@ -11,7 +11,7 @@
 |componentfor=
 |buy=35
 |sell=23
-|taughtspell={{AbilityLink|Flight of Foot}}
+|taughtspell={{AbilityLink|stablekey=spell:dru - flight of foot|link=Flight of Foot|text=Flight of Foot|image=Flight of Foot.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

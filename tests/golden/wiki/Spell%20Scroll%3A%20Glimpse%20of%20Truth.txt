@@ -2,7 +2,7 @@
 |title=Spell Scroll: Glimpse of Truth
 |stablekey=item:spell scroll - glimpse of demise
 |type=[[Ability Books]]
-|vendorsource=[[Leyor M'Chante]]
+|vendorsource={{CharacterLink|stablekey=character:leyor m'chante|link=Leyor M'Chante|text=Leyor M'Chante}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=2500
 |sell=1625
-|taughtspell={{AbilityLink|Glimpse of Truth}}
+|taughtspell={{AbilityLink|stablekey=spell:pal - taunt glimpse of truth|link=Glimpse of Truth|text=Glimpse of Truth|image=Glimpse of Truth.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

@@ -2,7 +2,7 @@
 |title=Skill Book: Precision
 |stablekey=item:skillbook - precision
 |type=[[Ability Books|Skill Book]]
-|vendorsource=[[Windlae Oldseer]]
+|vendorsource={{CharacterLink|stablekey=character:windlae oldseer|link=Windlae Oldseer|text=Windlae Oldseer}}
 |source=
 |othersource=
 |questsource=
@@ -12,7 +12,7 @@
 |buy=2500
 |sell=1625
 |taughtspell=
-|taughtskill={{AbilityLink|Precision}}
+|taughtskill={{AbilityLink|stablekey=skill:archery - precision|link=Precision|text=Precision|image=Precision.png}}
 |guaranteeddrops=
 |droprates=
 }}

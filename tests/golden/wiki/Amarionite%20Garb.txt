@@ -3,7 +3,7 @@
 |stablekey=item:chest - 42 - amarionite garb
 |type=
 |vendorsource=
-|source=[[Chunk of Amarion]] (40.8%)
+|source={{CharacterLink|stablekey=character:chunk of amarion|link=Chunk of Amarion|text=Chunk of Amarion}} (40.8%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Worn
 |proc_chance=
 |proc_spell_icon=Vibrant Regrowth.png
-|proc_spell_name=[[Vibrant Regrowth]]
+|proc_spell_name={{AbilityLink|stablekey=spell:dru - vibrant regrowth (effect)|link=Vibrant Regrowth|text=Vibrant Regrowth|image=Vibrant Regrowth.png}}
 |proc_spell_level=35
 |proc_spell_duration_ticks=7
 |proc_spell_type=Beneficial

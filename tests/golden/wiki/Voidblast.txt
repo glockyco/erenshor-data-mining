@@ -67,5 +67,5 @@
 |inflict_on_self=
 |itemswitheffect=
 |source=
-|used_by=[[Ancient Celestarian]]<br>[[Ancient Knight]]
+|used_by={{CharacterLink|stablekey=character:ancient celestarian|link=Ancient Celestarian|text=Ancient Celestarian}}<br>{{CharacterLink|stablekey=character:ancient guard captain|link=Ancient Knight|text=Ancient Knight}}
 }}

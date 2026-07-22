@@ -3,7 +3,7 @@
 |stablekey=item:arm - 22 - battlemage sleeves
 |type=
 |vendorsource=
-|source=[[A Protected Memory]] (50.0%)
+|source={{CharacterLink|stablekey=character:2 - memory of the order|link=A Protected Memory|text=A Protected Memory}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Spell Scroll: Arcstorm
 |stablekey=item:spell scroll - arcstorm
 |type=[[Ability Books|Spell Scroll]]
-|vendorsource=[[Elizabeth DeWitt]]
+|vendorsource={{CharacterLink|stablekey=character:elizabeth dewitt|link=Elizabeth DeWitt|text=Elizabeth DeWitt}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=3000
 |sell=1950
-|taughtspell={{AbilityLink|Arcstorm}}
+|taughtspell={{AbilityLink|stablekey=spell:stc - arcstorm|link=Arcstorm|text=Arcstorm|image=Arcstorm.png}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

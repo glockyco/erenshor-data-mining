@@ -3,12 +3,12 @@
 |stablekey=item:ore - obsidian
 |type=[[Crafting]]
 |vendorsource=
-|source=[[Cinder]] (84.7%)<br>[[A Lava Spirit]] (13.1%)<br>[[Volcanic Giant]] (13.1%)<br>[[Stoneman Obsidian]] (2.0%)
+|source={{CharacterLink|stablekey=character:cinder|link=Cinder|text=Cinder}} (84.7%)<br>{{CharacterLink|stablekey=character:lava spirit|link=A Lava Spirit|text=A Lava Spirit}} (13.1%)<br>{{CharacterLink|stablekey=character:volcanic giant|link=Volcanic Giant|text=Volcanic Giant}} (13.1%)<br>{{CharacterLink|stablekey=character:stoneman obsidian|link=Stoneman Obsidian|text=Stoneman Obsidian}} (2.0%)
 |othersource=
 |questsource=
 |relatedquest=
 |craftsource=
-|componentfor={{ItemLink|Mold: Charm of Stone}}
+|componentfor={{ItemLink|stablekey=item:template - charm of stone|link=Mold: Charm of Stone|text=Mold: Charm of Stone|image=Mold: Charm of Stone.png}}
 |buy=15
 |sell=10
 |taughtspell=

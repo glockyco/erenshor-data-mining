@@ -5,7 +5,7 @@
 |description=Heal 200 damage per tick, over time
 |type=Heal
 |line=Healing
-|classes=[[Druid]] (35)
+|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (35)
 |required_level=35
 |manacost=800
 |aggro=
@@ -31,7 +31,7 @@
 |caster_healing=
 |shield_amount=
 |pet_to_summon=
-|status_effect={{AbilityLink|Vibrant Regrowth}}
+|status_effect=[[Vibrant Regrowth]]
 |add_proc=
 |add_proc_chance=
 |has_lifetap=
@@ -66,7 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Vibrant Regrowth}}
+|source={{ItemLink|stablekey=item:spell scroll - vibrant regrowth|link=Spell Scroll: Vibrant Regrowth|text=Spell Scroll: Vibrant Regrowth|image=Spell Scroll: Vibrant Regrowth.png}}
 |used_by=
 }}
 
@@ -139,7 +139,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Amarionite Garb}}
+|itemswitheffect={{ItemLink|stablekey=item:chest - 42 - amarionite garb|link=Amarionite Garb|text=Amarionite Garb|image=Amarionite Garb.png}}
 |source=
 |used_by=
 }}

@@ -3,10 +3,10 @@
 |stablekey=item:gen - brashell
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source=[[Evadne the Corrupted]] (100.0%)
+|source={{CharacterLink|stablekey=character:evadne|link=Evadne the Corrupted|text=Evadne the Corrupted}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|The Scent of Brashell}}
+|relatedquest={{QuestLink|The Scent of Brashell}}<br>{{QuestLink|stablekey=quest:brashell|link=The Scent of Brashell|text=The Scent of Brashell}}
 |craftsource=
 |componentfor=
 |buy=

@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 42 - radiant bracer
 |type=
 |vendorsource=
-|source=[[Solunarian Sunbringer]] (1.7%)<br>[[Solunarian Moonkeeper]] (1.1%)<br>[[Solunarian Paladin]] (1.0%)
+|source={{CharacterLink|stablekey=character:solunarian sunbringer|link=Solunarian Sunbringer|text=Solunarian Sunbringer}} (1.7%)<br>{{CharacterLink|stablekey=character:solunarian moonkeeper|link=Solunarian Moonkeeper|text=Solunarian Moonkeeper}} (1.1%)<br>{{CharacterLink|stablekey=character:solunarian paladin combined|link=Solunarian Paladin|text=Solunarian Paladin}} (1.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Cast
 |proc_chance=5
 |proc_spell_icon=Mana Flood.png
-|proc_spell_name=[[Mana Flood]]
+|proc_spell_name={{AbilityLink|stablekey=spell:arc - manaflood|link=Mana Flood|text=Mana Flood|image=Mana Flood.png}}
 |proc_spell_level=-1
 |proc_spell_duration_ticks=1
 |proc_spell_type=Heal

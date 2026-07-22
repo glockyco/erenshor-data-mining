@@ -3,15 +3,15 @@
 |image=[[File:Sivakayan Reaver.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Children of Sivakaya]]
-|factionChange=+2 [[The Agents of The Wisp]]<br>+2 [[The Azure Guard]]<br>-2 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
-|zones=[[Ripper's Keep]]<br>[[Silkengrass Meadowlands]]<br>[[Windwashed Pass]]
+|faction={{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}
+|factionChange=+2 {{FactionLink|stablekey=faction:wispagent|link=The Agents of The Wisp|text=The Agents of The Wisp}}<br>+2 {{FactionLink|stablekey=faction:azureguard|link=The Azure Guard|text=The Azure Guard}}<br>-2 {{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+2 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
+|zones={{ZoneLink|stablekey=zone:ripper|link=Ripper's Keep|text=Ripper's Keep}}<br>{{ZoneLink|stablekey=zone:silkengrass|link=Silkengrass Meadowlands|text=Silkengrass Meadowlands}}<br>{{ZoneLink|stablekey=zone:windwashed|link=Windwashed Pass|text=Windwashed Pass}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes (Ripper's Keep)<br>4 minutes (Silkengrass Meadowlands)<br>4 minutes (Windwashed Pass)
 |guaranteeddrops=
-|droprates={{ItemLink|Sea Glass}} (10.3%)<br>{{ItemLink|Star Stone}} (10.3%)<br>{{ItemLink|Sivakayan Ore}} (3.0%)<br>{{ItemLink|Spell Scroll: Enfeeble}} (3.0%)<br>{{ItemLink|Spell Scroll: Mutual Torment}} (3.0%)<br>{{ItemLink|Spell Scroll: Void Rend}} (3.0%)<br>{{ItemLink|Sivakayan Axe}} (1.2%)<ref>If Sivakayan Reaver has {{ItemLink|Sivakayan Axe}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sivakayan Bracer}} (1.2%)<br>{{ItemLink|Sivakayan Legplate}} (1.2%)<br>{{ItemLink|Sivakayan Plate}} (1.2%)<br>{{ItemLink|Sivakayan Straightsword}} (1.2%)<ref>If Sivakayan Reaver has {{ItemLink|Sivakayan Straightsword}} equipped, it is guaranteed to drop.</ref>
+|droprates={{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (10.3%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (10.3%)<br>{{ItemLink|stablekey=item:ore - sivakayan ore|link=Sivakayan Ore|text=Sivakayan Ore|image=Sivakayan Ore.png}} (3.0%)<br>{{ItemLink|stablekey=item:spell scroll - enfeeble|link=Spell Scroll: Enfeeble|text=Spell Scroll: Enfeeble|image=Spell Scroll: Enfeeble.png}} (3.0%)<br>{{ItemLink|stablekey=item:spell scroll - mutual torment|link=Spell Scroll: Mutual Torment|text=Spell Scroll: Mutual Torment|image=Spell Scroll: Mutual Torment.png}} (3.0%)<br>{{ItemLink|stablekey=item:spell scroll - void rend|link=Spell Scroll: Void Rend|text=Spell Scroll: Void Rend|image=Spell Scroll: Void Rend.png}} (3.0%)<br>{{ItemLink|stablekey=item:weap - 24 - sivakayan axe|link=Sivakayan Axe|text=Sivakayan Axe|image=Sivakayan Axe.png}} (1.2%)<ref>If Sivakayan Reaver has {{ItemLink|stablekey=item:weap - 24 - sivakayan axe|link=Sivakayan Axe|text=Sivakayan Axe|image=Sivakayan Axe.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:wrist - 21 - sivakayan bracer|link=Sivakayan Bracer|text=Sivakayan Bracer|image=Sivakayan Bracer.png}} (1.2%)<br>{{ItemLink|stablekey=item:leg - 24 - sivakayan legplate|link=Sivakayan Legplate|text=Sivakayan Legplate|image=Sivakayan Legplate.png}} (1.2%)<br>{{ItemLink|stablekey=item:chest - 25 - sivakayan plate|link=Sivakayan Plate|text=Sivakayan Plate|image=Sivakayan Plate.png}} (1.2%)<br>{{ItemLink|stablekey=item:weap - 24 - sivakayan straightsword|link=Sivakayan Straightsword|text=Sivakayan Straightsword|image=Sivakayan Straightsword.png}} (1.2%)<ref>If Sivakayan Reaver has {{ItemLink|stablekey=item:weap - 24 - sivakayan straightsword|link=Sivakayan Straightsword|text=Sivakayan Straightsword|image=Sivakayan Straightsword.png}} equipped, it is guaranteed to drop.</ref>
 |level=26
 |levelmodmin=0
 |levelmodmax=2
@@ -32,7 +32,7 @@
 |poison=13-31
 |elemental=13-31
 |void=13-31
-|spells={{AbilityLink|Moonburst}}<br>{{AbilityLink|Theft of Life}}<br>{{AbilityLink|Void Rend}}
+|spells={{AbilityLink|stablekey=spell:pal - moonburst|link=Moonburst|text=Moonburst|image=Moonburst.png}}<br>{{AbilityLink|stablekey=spell:dru reav - theft of life|link=Theft of Life|text=Theft of Life|image=Theft of Life.png}}<br>{{AbilityLink|stablekey=spell:reav - void rend|link=Void Rend|text=Void Rend|image=Void Rend.png}}
 }}
 
 {{Character
@@ -40,15 +40,15 @@
 |image=[[File:Sivakayan Reaver.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction=[[The Children of Sivakaya]]
-|factionChange=+2 [[The Agents of The Wisp]]<br>+2 [[The Azure Guard]]<br>-2 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]<br>+2 [[The Solunarian Brotherhood]]
-|zones=[[Rottenfoot]]
+|faction={{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}
+|factionChange=+2 {{FactionLink|stablekey=faction:wispagent|link=The Agents of The Wisp|text=The Agents of The Wisp}}<br>+2 {{FactionLink|stablekey=faction:azureguard|link=The Azure Guard|text=The Azure Guard}}<br>-2 {{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+2 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
+|zones={{ZoneLink|stablekey=zone:rottenfoot|link=Rottenfoot|text=Rottenfoot}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Sea Glass}} (10.3%)<br>{{ItemLink|Star Stone}} (10.3%)<br>{{ItemLink|Sivakayan Ore}} (3.0%)<br>{{ItemLink|Spell Scroll: Enfeeble}} (3.0%)<br>{{ItemLink|Spell Scroll: Mutual Torment}} (3.0%)<br>{{ItemLink|Spell Scroll: Void Rend}} (3.0%)<br>{{ItemLink|Sivakayan Axe}} (1.2%)<ref>If Sivakayan Reaver has {{ItemLink|Sivakayan Axe}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Sivakayan Bracer}} (1.2%)<br>{{ItemLink|Sivakayan Legplate}} (1.2%)<br>{{ItemLink|Sivakayan Plate}} (1.2%)<br>{{ItemLink|Sivakayan Straightsword}} (1.2%)<ref>If Sivakayan Reaver has {{ItemLink|Sivakayan Straightsword}} equipped, it is guaranteed to drop.</ref>
+|droprates={{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (10.3%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (10.3%)<br>{{ItemLink|stablekey=item:ore - sivakayan ore|link=Sivakayan Ore|text=Sivakayan Ore|image=Sivakayan Ore.png}} (3.0%)<br>{{ItemLink|stablekey=item:spell scroll - enfeeble|link=Spell Scroll: Enfeeble|text=Spell Scroll: Enfeeble|image=Spell Scroll: Enfeeble.png}} (3.0%)<br>{{ItemLink|stablekey=item:spell scroll - mutual torment|link=Spell Scroll: Mutual Torment|text=Spell Scroll: Mutual Torment|image=Spell Scroll: Mutual Torment.png}} (3.0%)<br>{{ItemLink|stablekey=item:spell scroll - void rend|link=Spell Scroll: Void Rend|text=Spell Scroll: Void Rend|image=Spell Scroll: Void Rend.png}} (3.0%)<br>{{ItemLink|stablekey=item:weap - 24 - sivakayan axe|link=Sivakayan Axe|text=Sivakayan Axe|image=Sivakayan Axe.png}} (1.2%)<ref>If Sivakayan Reaver has {{ItemLink|stablekey=item:weap - 24 - sivakayan axe|link=Sivakayan Axe|text=Sivakayan Axe|image=Sivakayan Axe.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:wrist - 21 - sivakayan bracer|link=Sivakayan Bracer|text=Sivakayan Bracer|image=Sivakayan Bracer.png}} (1.2%)<br>{{ItemLink|stablekey=item:leg - 24 - sivakayan legplate|link=Sivakayan Legplate|text=Sivakayan Legplate|image=Sivakayan Legplate.png}} (1.2%)<br>{{ItemLink|stablekey=item:chest - 25 - sivakayan plate|link=Sivakayan Plate|text=Sivakayan Plate|image=Sivakayan Plate.png}} (1.2%)<br>{{ItemLink|stablekey=item:weap - 24 - sivakayan straightsword|link=Sivakayan Straightsword|text=Sivakayan Straightsword|image=Sivakayan Straightsword.png}} (1.2%)<ref>If Sivakayan Reaver has {{ItemLink|stablekey=item:weap - 24 - sivakayan straightsword|link=Sivakayan Straightsword|text=Sivakayan Straightsword|image=Sivakayan Straightsword.png}} equipped, it is guaranteed to drop.</ref>
 |level=26
 |levelmodmin=0
 |levelmodmax=0
@@ -69,7 +69,7 @@
 |poison=13-31
 |elemental=13-31
 |void=13-31
-|spells={{AbilityLink|Moonburst}}<br>{{AbilityLink|Theft of Life}}<br>{{AbilityLink|Void Rend}}
+|spells={{AbilityLink|stablekey=spell:pal - moonburst|link=Moonburst|text=Moonburst|image=Moonburst.png}}<br>{{AbilityLink|stablekey=spell:dru reav - theft of life|link=Theft of Life|text=Theft of Life|image=Theft of Life.png}}<br>{{AbilityLink|stablekey=spell:reav - void rend|link=Void Rend|text=Void Rend|image=Void Rend.png}}
 }}
 
 [[Category:Enemies]]

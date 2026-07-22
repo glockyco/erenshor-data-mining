@@ -3,15 +3,15 @@
 |image=[[File:A Skeleton Captain.png|thumb]]
 |imagecaption="How I've longed for battle!"
 |type=Boss
-|faction=[[The Followers of Evil]]
-|factionChange=+2 [[The Azure Guard]]<br>-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
-|zones=[[The Bonepits]]
+|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|factionChange=+2 {{FactionLink|stablekey=faction:azureguard|link=The Azure Guard|text=The Azure Guard}}<br>-10 {{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
+|zones={{ZoneLink|stablekey=zone:bonepits|link=The Bonepits|text=The Bonepits}}
 |coordinates=36.5 x 68.6 x 434.9
 |spawnchance=
 |spawntype=
 |respawn=3 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|Pg. 1: Faded Entry}} (100.0%)<ref>If the player is already holding {{ItemLink|Pg. 1: Faded Entry}} in their inventory, another will not drop.</ref><br>{{ItemLink|Ancient Bone}} (87.1%)<br>{{ItemLink|Nightfall}} (9.4%)<br>{{ItemLink|Rotting Metal Shield}} (9.4%)<ref>If A Skeleton Captain has {{ItemLink|Rotting Metal Shield}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Skeleton Eye}} (6.0%)<ref>If the player is already holding {{ItemLink|Skeleton Eye}} in their inventory, another will not drop.</ref><br>{{ItemLink|Light Plate Breastplate}} (3.4%)<br>{{ItemLink|Light Plate Greaves}} (3.4%)<br>{{ItemLink|Polished Longsword}} (3.4%)<ref>If A Skeleton Captain has {{ItemLink|Polished Longsword}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|Star Stone}} (3.4%)
+|droprates={{ItemLink|stablekey=item:gen - treasure hunter pg 1 (bonepits)|link=Pg. 1: Faded Entry|text=Pg. 1: Faded Entry|image=Pg. 1: Faded Entry.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - treasure hunter pg 1 (bonepits)|link=Pg. 1: Faded Entry|text=Pg. 1: Faded Entry|image=Pg. 1: Faded Entry.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - an ancient bone|link=Ancient Bone|text=Ancient Bone|image=Ancient Bone.png}} (87.1%)<br>{{ItemLink|stablekey=item:weap - 6 - nightfall|link=Nightfall|text=Nightfall|image=Nightfall.png}} (9.4%)<br>{{ItemLink|stablekey=item:secondary - 7 - rotting metal shield|link=Rotting Metal Shield|text=Rotting Metal Shield|image=Rotting Metal Shield.png}} (9.4%)<ref>If A Skeleton Captain has {{ItemLink|stablekey=item:secondary - 7 - rotting metal shield|link=Rotting Metal Shield|text=Rotting Metal Shield|image=Rotting Metal Shield.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:gen - skeleton eye|link=Skeleton Eye|text=Skeleton Eye|image=Skeleton Eye.png}} (6.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - skeleton eye|link=Skeleton Eye|text=Skeleton Eye|image=Skeleton Eye.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:chest - 4 - light plate armor|link=Light Plate Breastplate|text=Light Plate Breastplate|image=Light Plate Breastplate.png}} (3.4%)<br>{{ItemLink|stablekey=item:leg - 3 - light plate greaves|link=Light Plate Greaves|text=Light Plate Greaves|image=Light Plate Greaves.png}} (3.4%)<br>{{ItemLink|stablekey=item:weap - 6 - polished longsword|link=Polished Longsword|text=Polished Longsword|image=Polished Longsword.png}} (3.4%)<ref>If A Skeleton Captain has {{ItemLink|stablekey=item:weap - 6 - polished longsword|link=Polished Longsword|text=Polished Longsword|image=Polished Longsword.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (3.4%)
 |level=8
 |levelmodmin=0
 |levelmodmax=0

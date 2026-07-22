@@ -5,7 +5,7 @@
 |description=Briefly stuns all nearby targets
 |type=AE
 |line=Stun
-|classes=[[Windblade]] (1)
+|classes={{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}} (1)
 |required_level=1
 |manacost=35
 |aggro=
@@ -31,7 +31,7 @@
 |caster_healing=
 |shield_amount=
 |pet_to_summon=
-|status_effect={{AbilityLink|Stun}}
+|status_effect=[[Stun]]
 |add_proc=
 |add_proc_chance=
 |has_lifetap=
@@ -65,7 +65,7 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|Merosavillian Bow}}
-|source={{ItemLink|Spell Scroll: Vithean Breeze}}
+|itemswitheffect={{ItemLink|stablekey=item:bow - 21 - merosavillian bow|link=Merosavillian Bow|text=Merosavillian Bow|image=Merosavillian Bow.png}}
+|source={{ItemLink|stablekey=item:spell scroll - vithean breeze|link=Spell Scroll: Vithean Breeze|text=Spell Scroll: Vithean Breeze|image=Spell Scroll: Vithean Breeze.png}}
 |used_by=
 }}

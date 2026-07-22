@@ -5,7 +5,7 @@
 |description=Heal base 1800 damage.
 |type=Heal
 |line=Healing
-|classes=[[Druid]] (27)
+|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (27)
 |required_level=27
 |manacost=950
 |aggro=
@@ -66,6 +66,6 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|Spell Scroll: Gift of Vitae}}
-|used_by=[[High Priestess of Sivakaya]]
+|source={{ItemLink|stablekey=item:spell scroll - gift of vitae|link=Spell Scroll: Gift of Vitae|text=Spell Scroll: Gift of Vitae|image=Spell Scroll: Gift of Vitae.png}}
+|used_by={{CharacterLink|stablekey=character:druid of sivakaya|link=High Priestess of Sivakaya|text=High Priestess of Sivakaya}}
 }}

@@ -3,12 +3,12 @@
 |stablekey=item:gen - remnants of a nightmare
 |type=[[Quest Items|Quest Item]], [[Crafting]]
 |vendorsource=
-|source=[[Restless Thoughts]] (78.7%)<br>[[Invader of Dreams]] (26.8%)<br>[[Nightmarian Hound]] (19.3%)<br>[[Nightmarian Arcanist]] (17.8%)<br>[[Nightmarian Knight]] (11.8%)<br>[[Lullaby Fiend]] (4.5%)<br>[[Night Terror]] (4.5%)<br>[[Waking Nightmare]] (4.5%)
+|source={{CharacterLink|stablekey=character:portal lord|link=Restless Thoughts|text=Restless Thoughts}} (78.7%)<br>{{CharacterLink|stablekey=character:dream invader:fernallaportal:343.45:0.52:405.94|link=Invader of Dreams|text=Invader of Dreams}} (26.8%)<br>{{CharacterLink|stablekey=character:nightmarian hound|link=Nightmarian Hound|text=Nightmarian Hound}} (19.3%)<br>{{CharacterLink|stablekey=character:nightmarian arcanist|link=Nightmarian Arcanist|text=Nightmarian Arcanist}} (17.8%)<br>{{CharacterLink|stablekey=character:nightmarian knight|link=Nightmarian Knight|text=Nightmarian Knight}} (11.8%)<br>{{CharacterLink|stablekey=character:portal spirit|link=Lullaby Fiend|text=Lullaby Fiend}} (4.5%)<br>{{CharacterLink|stablekey=character:portal crawler|link=Night Terror|text=Night Terror}} (4.5%)<br>{{CharacterLink|stablekey=character:portal fiend|link=Waking Nightmare|text=Waking Nightmare}} (4.5%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|The Revival Plains Ritual}}
+|relatedquest={{QuestLink|The Revival Plains Ritual}}<br>{{QuestLink|stablekey=quest:therevivalritual|link=The Revival Plains Ritual|text=The Revival Plains Ritual}}
 |craftsource=
-|componentfor={{ItemLink|Mold: A Strange Figurine}}
+|componentfor={{ItemLink|stablekey=item:template - a strange figurine|link=Mold: A Strange Figurine|text=Mold: A Strange Figurine|image=Mold: A Strange Figurine.png}}
 |buy=1
 |sell=1
 |taughtspell=
