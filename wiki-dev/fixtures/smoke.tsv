@@ -331,9 +331,12 @@ Lua Link Search Smoke	ability
 Ability Tooltip Fixture	Minor Lightning
 Ability Tooltip Fixture	Mana Cost: 30
 Ability Tooltip Fixture	Backstab - Activatable
+Ability Tooltip Fixture	Change Stance
 Unique Ability Tooltip Fixture	Minor Lightning
 Unique Ability Tooltip Fixture	Mana Cost: 30
 Semantic Tooltip Smoke	Keyed exact ability
+Semantic Tooltip Smoke	Keyed skill ability
+Semantic Tooltip Smoke	Keyed stance ability
 Semantic Tooltip Smoke	Unique positional ability
 Semantic Tooltip Smoke	Ambiguous positional ability
 Semantic Tooltip Smoke	Abyssal Plate

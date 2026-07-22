@@ -28,7 +28,7 @@
         <header>Acquisition</header>
         <data><label>Activated by</label><default>{{#invoke:Erenshor/Stance|field|activated_by}}</default></data>
     </group>
-</infobox>{{StanceTooltip|stablekey={{{stablekey|}}}}}{{#invoke:Erenshor/Stance|cargoStore}}{{#invoke:Erenshor/Stance|status}}{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Stances]]}}|<infobox type="Stances">
+</infobox>{{#invoke:Erenshor/Stance|cargoStore}}{{#invoke:Erenshor/Stance|status}}{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Stances]]}}|<infobox type="Stances">
     <title source="title"/>
     <image source="image"><caption source="imagecaption"/></image>
 

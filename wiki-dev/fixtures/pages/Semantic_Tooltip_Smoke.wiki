@@ -1,5 +1,7 @@
 = Semantic Tooltip Smoke =
 Keyed exact: {{AbilityLink|stablekey=spell:minor_lightning|link=Ability Tooltip Fixture|text=Keyed exact ability}}
+Keyed skill: {{AbilityLink|stablekey=skill:backstab|link=Ability Tooltip Fixture|text=Keyed skill ability}}
+Keyed stance: {{AbilityLink|stablekey=stance:aggressive|link=Ability Tooltip Fixture|text=Keyed stance ability}}
 Unique positional: {{AbilityLink|Unique Ability Tooltip Fixture|text=Unique positional ability}}
 Ambiguous positional: {{AbilityLink|Ability Tooltip Fixture|text=Ambiguous positional ability}}
 Item regression: {{ItemLink|Abyssal Plate}}

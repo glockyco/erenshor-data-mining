@@ -78,7 +78,16 @@ def test_keyed_and_unique_ability_links_load_the_correct_card(wiki_page: Page) -
     expect(overlay).to_contain_text("Minor Lightning")
     expect(overlay.locator('[data-erenshor-key="spell:minor_lightning"]')).to_have_count(1)
     expect(overlay.locator('[data-erenshor-key="skill:backstab"]')).to_have_count(0)
+    expect(overlay.locator('[data-erenshor-key="stance:aggressive"]')).to_have_count(0)
     expect(overlay.locator("a")).to_have_count(0)
+
+    wiki_page.locator(".erenshor-link--ability", has_text="Keyed skill ability").hover()
+    expect(overlay).to_have_attribute("data-state", "ready")
+    expect(overlay.locator('[data-erenshor-key="skill:backstab"]')).to_have_count(1)
+
+    wiki_page.locator(".erenshor-link--ability", has_text="Keyed stance ability").hover()
+    expect(overlay).to_have_attribute("data-state", "ready")
+    expect(overlay.locator('[data-erenshor-key="stance:aggressive"]')).to_have_count(1)
 
     unique_link = wiki_page.locator(".erenshor-link--ability", has_text="Unique positional ability")
     assert unique_link.get_attribute("data-erenshor-key") is None

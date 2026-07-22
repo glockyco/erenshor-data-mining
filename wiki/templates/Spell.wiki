@@ -57,7 +57,7 @@
           <header>Used By</header>
           <data><label>Characters</label><default>{{#invoke:Erenshor/Spell|field|used_by}}</default></data>
       </group>
-  </infobox>{{SpellTooltip|stablekey={{{stablekey|}}}}}{{#invoke:Erenshor/Spell|cargoStore}}{{#invoke:Erenshor/Spell|status}}{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Abilities]]}}</includeonly><noinclude>{{#cargo_declare:_table=Spells
+  </infobox>{{#if:{{{stablekey|}}}||{{SpellTooltip}}}}{{#invoke:Erenshor/Spell|cargoStore}}{{#invoke:Erenshor/Spell|status}}{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Abilities]]}}</includeonly><noinclude>{{#cargo_declare:_table=Spells
 |StableKey=String
 |Page=Page
 |Name=String
