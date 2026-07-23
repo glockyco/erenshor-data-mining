@@ -18,6 +18,21 @@ JsonObject = dict[str, Any]
 class MediaWikiRequestError(RuntimeError):
     """Base error for MediaWiki request policy failures."""
 
+    def __init__(
+        self,
+        message: str,
+        *,
+        status_code: int | None = None,
+        code: str | None = None,
+        info: str | None = None,
+        attempts: int | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.status_code = status_code
+        self.code = code
+        self.info = info
+        self.attempts = attempts
+
 
 class MediaWikiRetryableRequestError(MediaWikiRequestError):
     """Raised when retryable MediaWiki failures exhaust bounded retries."""
@@ -64,6 +79,17 @@ class _ClientLike(Protocol):
     def close(self) -> None: ...
 
 
+class _MultipartClientLike(Protocol):
+    def post(
+        self,
+        url: str,
+        *,
+        params: dict[str, str],
+        data: dict[str, Any] | None = None,
+        files: Mapping[str, Any],
+    ) -> _ResponseLike: ...
+
+
 class MediaWikiRequestor:
     """Small MediaWiki Action API requester with shared bot etiquette."""
 
@@ -73,27 +99,40 @@ class MediaWikiRequestor:
         api_url: str,
         policy: MediaWikiRequestPolicy | None = None,
         http_client: _ClientLike | None = None,
+        transport: httpx.BaseTransport | None = None,
+        timeout: float = 30.0,
+        user_agent: str | None = None,
+        formatversion: str | None = "2",
         clock: Clock | None = None,
     ) -> None:
+        if http_client is not None and transport is not None:
+            raise ValueError("transport and http_client are mutually exclusive")
         self.api_url = api_url
         self.policy = policy or MediaWikiRequestPolicy()
         self.clock = clock or RealClock()
         self._last_request_time: float | None = None
+        self._formatversion = formatversion
         self._http_client: _ClientLike
         if http_client is None:
             self._http_client = cast(
                 "_ClientLike",
-                httpx.Client(timeout=30, headers={"User-Agent": self.policy.user_agent}),
+                httpx.Client(
+                    timeout=timeout,
+                    headers={"User-Agent": user_agent or self.policy.user_agent},
+                    transport=transport,
+                ),
             )
             self._owns_http_client = True
         else:
             self._http_client = http_client
             self._owns_http_client = False
+        self._closed = False
 
     def close(self) -> None:
-        """Close the owned HTTP client."""
-        if self._owns_http_client:
+        """Close the owned HTTP client exactly once."""
+        if self._owns_http_client and not self._closed:
             self._http_client.close()
+        self._closed = True
 
     def get(
         self,
@@ -117,53 +156,104 @@ class MediaWikiRequestor:
         request_data = dict(data) if data is not None else None
         return self._request("POST", params=params, data=request_data, kind=kind, noninteractive=noninteractive)
 
+    def post_files(
+        self,
+        params: Mapping[str, str],
+        *,
+        data: Mapping[str, Any] | None = None,
+        files: Mapping[str, Any],
+        kind: RequestKind = RequestKind.WRITE,
+        noninteractive: bool = True,
+    ) -> JsonObject:
+        """Run a multipart POST request under the shared MediaWiki policy."""
+        request_data = dict(data) if data is not None else None
+        return self._request(
+            "POST",
+            params=params,
+            data=request_data,
+            files=files,
+            kind=kind,
+            noninteractive=noninteractive,
+        )
+
     def _request(
         self,
         method: str,
         *,
         params: Mapping[str, str],
-        data: dict[str, str] | None,
+        data: dict[str, Any] | None,
+        files: Mapping[str, Any] | None = None,
         kind: RequestKind,
         noninteractive: bool,
     ) -> JsonObject:
         request_params = self._params(params, noninteractive=noninteractive)
+        file_positions = _capture_file_positions(files)
         for attempt in range(self.policy.max_retries + 1):
+            _restore_file_positions(file_positions)
             self._pace(kind)
-            response = self._send(method, request_params, data)
+            response = self._send(method, request_params, data, files)
             retry_delay = self._retry_delay(response, attempt)
             if retry_delay is not None:
                 if attempt == self.policy.max_retries:
-                    raise MediaWikiRetryableRequestError("MediaWiki request exhausted retries")
+                    raise MediaWikiRetryableRequestError(
+                        "MediaWiki request exhausted retries",
+                        status_code=response.status_code,
+                        attempts=attempt + 1,
+                    )
                 self.clock.sleep(retry_delay)
                 continue
-            if 500 <= response.status_code < 600:
-                raise MediaWikiUnretryableRequestError(f"HTTP {response.status_code} from MediaWiki API")
-            if response.status_code >= 400:
-                raise MediaWikiUnretryableRequestError(f"HTTP {response.status_code} from MediaWiki API")
-            payload = response.json()
+            try:
+                payload = response.json()
+                json_error: Exception | None = None
+            except Exception as error:
+                # A transient response may carry its retry signal outside JSON.
+                # Preserve that retry before surfacing a parse or HTTP failure.
+                payload = {}
+                json_error = error
             api_retry_delay = self._api_retry_delay(payload, response, attempt)
             if api_retry_delay is not None:
                 if attempt == self.policy.max_retries:
-                    raise MediaWikiRetryableRequestError("MediaWiki API request exhausted retries")
+                    raise MediaWikiRetryableRequestError(
+                        "MediaWiki API request exhausted retries", attempts=attempt + 1
+                    )
                 self.clock.sleep(api_retry_delay)
                 continue
+            if 500 <= response.status_code < 600:
+                raise MediaWikiUnretryableRequestError(
+                    f"HTTP {response.status_code} from MediaWiki API", status_code=response.status_code
+                )
+            if response.status_code >= 400:
+                raise MediaWikiUnretryableRequestError(
+                    f"HTTP {response.status_code} from MediaWiki API", status_code=response.status_code
+                )
             if "error" in payload:
-                error = cast("dict[str, object]", payload["error"])
-                code = str(error.get("code", "unknown"))
-                info = str(error.get("info", "unknown MediaWiki API error"))
-                raise MediaWikiUnretryableRequestError(f"MediaWiki API error ({code}): {info}")
+                error_payload = cast("dict[str, object]", payload["error"])
+                code = str(error_payload.get("code", "unknown"))
+                info = str(error_payload.get("info", "unknown MediaWiki API error"))
+                raise MediaWikiUnretryableRequestError(f"MediaWiki API error ({code}): {info}", code=code, info=info)
+            if json_error is not None:
+                raise json_error
             return payload
         raise AssertionError("unreachable")
 
-    def _send(self, method: str, params: dict[str, str], data: dict[str, str] | None) -> _ResponseLike:
+    def _send(
+        self,
+        method: str,
+        params: dict[str, str],
+        data: dict[str, Any] | None,
+        files: Mapping[str, Any] | None = None,
+    ) -> _ResponseLike:
         if method == "GET":
             return self._http_client.get(self.api_url, params=params)
-        return self._http_client.post(self.api_url, params=params, data=data)
+        if files is None:
+            return self._http_client.post(self.api_url, params=params, data=data)
+        return cast("_MultipartClientLike", self._http_client).post(self.api_url, params=params, data=data, files=files)
 
     def _params(self, params: Mapping[str, str], *, noninteractive: bool) -> dict[str, str]:
         request_params = dict(params)
         request_params.setdefault("format", "json")
-        request_params.setdefault("formatversion", "2")
+        if self._formatversion is not None:
+            request_params.setdefault("formatversion", self._formatversion)
         if noninteractive:
             request_params.setdefault("maxlag", str(self.policy.maxlag))
         return request_params
@@ -198,6 +288,27 @@ class MediaWikiRequestor:
             attempt=attempt,
             policy=self.policy,
         )
+
+
+def _capture_file_positions(files: Mapping[str, Any] | None) -> list[tuple[Any, int]]:
+    if files is None:
+        return []
+    positions: list[tuple[Any, int]] = []
+    for value in files.values():
+        stream = value[1] if isinstance(value, tuple) and len(value) > 1 else value
+        try:
+            positions.append((stream, stream.tell()))
+        except (AttributeError, OSError):
+            continue
+    return positions
+
+
+def _restore_file_positions(positions: list[tuple[Any, int]]) -> None:
+    for stream, position in positions:
+        try:
+            stream.seek(position)
+        except (AttributeError, OSError):
+            continue
 
 
 def retry_delay_for(

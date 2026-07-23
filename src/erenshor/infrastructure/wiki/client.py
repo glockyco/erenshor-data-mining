@@ -18,7 +18,7 @@ operations, designed to work with wiki.gg (https://erenshor.wiki.gg).
 
 import hashlib
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC
 from pathlib import Path
 from typing import Any, Literal, NoReturn
@@ -27,7 +27,13 @@ import httpx
 from loguru import logger
 
 from erenshor.infrastructure.time import Clock, RealClock
-from erenshor.infrastructure.wiki.rate_limit import MediaWikiRequestPolicy, retry_delay_for
+from erenshor.infrastructure.wiki.rate_limit import (
+    MediaWikiRequestor,
+    MediaWikiRequestPolicy,
+    MediaWikiRetryableRequestError,
+    MediaWikiUnretryableRequestError,
+    RequestKind,
+)
 
 
 class MediaWikiAPIError(Exception):
@@ -196,6 +202,8 @@ class MediaWikiClient:
         timeout: float = 30.0,
         clock: Clock | None = None,
         request_policy: MediaWikiRequestPolicy | None = None,
+        *,
+        transport: httpx.BaseTransport | None = None,
     ) -> None:
         """Initialize MediaWiki API client.
 
@@ -230,15 +238,24 @@ class MediaWikiClient:
         self.minor_edit = minor_edit
         self.timeout = timeout
         self.clock = clock if clock is not None else RealClock()
-        self.request_policy = request_policy if request_policy is not None else MediaWikiRequestPolicy()
+        base_policy = request_policy if request_policy is not None else MediaWikiRequestPolicy()
+        # MediaWikiClient historically used one delay for reads and writes;
+        # retain that behavior while delegating pacing and retries to the requestor.
+        self.request_policy = replace(base_policy, read_delay=rate_limit_delay, write_delay=rate_limit_delay)
 
-        # Session state with custom User-Agent (required by wiki.gg)
-        # User-Agent should include bot name and contact info
         user_agent = f"{bot_username or 'ErenshorDataBot'}/0.3 (automated wiki updates) httpx"
-        headers = {"User-Agent": user_agent}
-        self._client = httpx.Client(timeout=timeout, headers=headers)
+        self._requestor = MediaWikiRequestor(
+            api_url=api_url,
+            policy=self.request_policy,
+            transport=transport,
+            timeout=timeout,
+            user_agent=user_agent,
+            # Client response parsers rely on the legacy Action API shape.
+            formatversion=None,
+            clock=self.clock,
+        )
         self._csrf_token: str | None = None
-        self._last_request_time: float = 0.0
+        self._closed = False
 
         logger.debug(f"MediaWiki client initialized: api_url={api_url}, user_agent={user_agent}")
 
@@ -251,24 +268,11 @@ class MediaWikiClient:
         self.close()
 
     def close(self) -> None:
-        """Close HTTP client and release resources.
-
-        Should be called when done with the client, or use context manager.
-        """
-        self._client.close()
+        """Close the owned requestor and its HTTP client exactly once."""
+        if not self._closed:
+            self._requestor.close()
+            self._closed = True
         logger.debug("MediaWiki client closed")
-
-    def _rate_limit(self) -> None:
-        """Apply rate limiting delay between requests.
-
-        Ensures minimum delay between API requests to avoid throttling.
-        """
-        elapsed = self.clock.time() - self._last_request_time
-        if elapsed < self.rate_limit_delay:
-            sleep_time = self.rate_limit_delay - elapsed
-            logger.debug(f"Rate limiting: sleeping {sleep_time:.2f}s")
-            self.clock.sleep(sleep_time)
-        self._last_request_time = self.clock.time()
 
     def _request(
         self,
@@ -276,84 +280,39 @@ class MediaWikiClient:
         method: str = "GET",
         data: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
-        """Make HTTP request to MediaWiki API.
-
-        Args:
-            params: Query parameters for API request.
-            method: HTTP method (GET or POST).
-            data: Form data for POST requests.
-
-        Returns:
-            JSON response from API.
-
-        Raises:
-            MediaWikiNetworkError: If network request fails.
-            MediaWikiRateLimitError: If rate limit exceeded.
-            MediaWikiAPIError: If API returns error response.
-        """
-        # Add format=json and a server-friendly maxlag to every request.
+        """Make an API request through the shared requestor policy."""
+        # Add format=json and a server-friendly maxlag to every request, as the
+        # legacy client did.  The requestor deliberately leaves formatversion
+        # untouched so these parsers continue receiving Action API v1 payloads.
+        params = dict(params)
         params["format"] = "json"
-        if "maxlag" not in params:
-            params["maxlag"] = str(self.request_policy.maxlag)
-        policy = self.request_policy
-        response = None
-        result: dict[str, Any] | None = None
-        json_error: Exception | None = None
-        for attempt in range(policy.max_retries + 1):
-            self._rate_limit()
-            try:
-                if method == "GET":
-                    response = self._client.get(self.api_url, params=params)
-                else:
-                    response = self._client.post(self.api_url, params=params, data=data)
-            except httpx.TimeoutException as e:
-                logger.error(f"MediaWiki API request timeout: {e}")
-                raise MediaWikiNetworkError(f"Request timeout: {e}") from e
-            except httpx.NetworkError as e:
-                logger.error(f"MediaWiki API network error: {e}")
-                raise MediaWikiNetworkError(f"Network error: {e}") from e
-            status_code = response.status_code if isinstance(response.status_code, int) else 200
-            try:
-                result = response.json()
-                json_error = None
-            except Exception as e:
-                result = None
-                json_error = e
-            delay = retry_delay_for(
-                status_code=status_code,
-                headers=response.headers,
-                payload=result if isinstance(result, dict) else {},
-                text=response.text if isinstance(getattr(response, "text", None), str) else "",
-                attempt=attempt,
-                policy=policy,
-            )
-            if delay is None:
-                break
-            if attempt >= policy.max_retries:
-                logger.warning(f"MediaWiki request exhausted {policy.max_retries} retries (status {status_code})")
-                raise MediaWikiRateLimitError(f"MediaWiki request exhausted retries after {attempt + 1} attempts")
-            logger.warning(f"MediaWiki transient response (status {status_code}); retrying in {delay:.1f}s")
-            self.clock.sleep(delay)
-        assert response is not None  # the retry loop always runs at least once
-        # Surface non-retryable HTTP failures (4xx/5xx that are not lag or rate limit).
+        params.setdefault("maxlag", str(self.request_policy.maxlag))
         try:
-            response.raise_for_status()
-        except httpx.HTTPStatusError as e:
-            logger.error(f"MediaWiki API HTTP error: {e.response.status_code}")
-            raise MediaWikiNetworkError(f"HTTP {e.response.status_code}: {e}") from e
-        if result is None:
-            logger.error(f"Failed to parse MediaWiki API response: {json_error}")
-            raise MediaWikiAPIError(f"Invalid JSON response: {json_error}") from json_error
-        # Check for API errors
-        if "error" in result:
-            error_code = result["error"].get("code", "unknown")
-            error_info = result["error"].get("info", "Unknown error")
-            logger.error(f"MediaWiki API error: {error_code} - {error_info}")
-            if error_code in ("badtoken", "notoken"):
-                # Token expired, clear cached token
-                self._csrf_token = None
-            raise MediaWikiAPIError(f"API error ({error_code}): {error_info}", code=error_code, info=error_info)
-        return result
+            if method == "GET":
+                return self._requestor.get(params, kind=RequestKind.READ)
+            return self._requestor.post(params, data=data, kind=RequestKind.WRITE)
+        except httpx.TimeoutException as e:
+            logger.error(f"MediaWiki API request timeout: {e}")
+            raise MediaWikiNetworkError(f"Request timeout: {e}") from e
+        except httpx.NetworkError as e:
+            logger.error(f"MediaWiki API network error: {e}")
+            raise MediaWikiNetworkError(f"Network error: {e}") from e
+        except MediaWikiRetryableRequestError as e:
+            logger.warning(f"MediaWiki request retries exhausted: {e}")
+            attempts = e.attempts or (self.request_policy.max_retries + 1)
+            raise MediaWikiRateLimitError(f"MediaWiki request exhausted retries after {attempts} attempts") from e
+        except MediaWikiUnretryableRequestError as e:
+            if e.code is not None:
+                if e.code in ("badtoken", "notoken"):
+                    self._csrf_token = None
+                info = e.info
+                if info == "unknown MediaWiki API error":
+                    info = "Unknown error"
+                raise MediaWikiAPIError(str(e), code=e.code, info=info) from e
+            raise MediaWikiNetworkError(str(e)) from e
+        except (ValueError, TypeError) as e:
+            logger.error(f"Failed to parse MediaWiki API response: {e}")
+            raise MediaWikiAPIError(f"Invalid JSON response: {e}") from e
 
     def login(self) -> None:
         """Login to MediaWiki with bot credentials.
@@ -1748,31 +1707,37 @@ class MediaWikiClient:
             with Path(file_path).open("rb") as f:
                 files = {"file": (filename, f, "image/png")}
 
-                # Use httpx's files parameter for multipart upload
-                response = self._client.post(
-                    self.api_url,
+                result = self._requestor.post_files(
+                    {"action": "upload"},
                     data=data,
                     files=files,
                 )
-                response.raise_for_status()
-                result: dict[str, Any] = response.json()
 
-        except httpx.HTTPStatusError as e:
-            logger.error(f"HTTP error during upload: {e.response.status_code}")
-            raise MediaWikiAPIError(f"HTTP {e.response.status_code} during file upload") from e
+        except MediaWikiRetryableRequestError as e:
+            attempts = e.attempts or (self.request_policy.max_retries + 1)
+            raise MediaWikiRateLimitError(f"MediaWiki request exhausted retries after {attempts} attempts") from e
+        except MediaWikiUnretryableRequestError as e:
+            if e.status_code is not None:
+                logger.error(f"HTTP error during upload: {e.status_code}")
+                raise MediaWikiAPIError(f"HTTP {e.status_code} during file upload") from e
+            error_info = e.info or "Unknown error"
+            error_code = e.code or "unknown"
+            logger.error(f"Upload API error: {error_code} - {error_info}")
+            raise MediaWikiAPIError(
+                f"Upload failed ({error_code}): {error_info}", code=error_code, info=error_info
+            ) from e
+
+        except httpx.TimeoutException as e:
+            logger.error(f"Timeout during upload: {e}")
+            raise MediaWikiNetworkError(f"Network error during upload: {e}") from e
+
+        except httpx.NetworkError as e:
+            logger.error(f"Network error during upload: {e}")
+            raise MediaWikiNetworkError(f"Network error during upload: {e}") from e
 
         except httpx.RequestError as e:
             logger.error(f"Network error during upload: {e}")
             raise MediaWikiNetworkError(f"Network error during upload: {e}") from e
-
-        # Check for API errors
-        if "error" in result:
-            error_info = result["error"]
-            error_code = error_info.get("code", "unknown")
-            error_text = error_info.get("info", "Unknown error")
-            logger.error(f"Upload API error: {error_code} - {error_text}")
-            raise MediaWikiAPIError(f"Upload failed ({error_code}): {error_text}")
-
         # Check upload result
         upload_result: dict[str, Any] = result.get("upload", {})
         if upload_result.get("result") != "Success":
