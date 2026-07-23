@@ -64,7 +64,6 @@ def test_registry_inventory_declares_all_loader_targets_and_public_surface() -> 
     assert set(MODS) == {
         "adventure-guide",
         "interactive-map-companion",
-        "interactive-maps-companion",
         "justice-for-f7",
         "map-tile-capture",
         "sprint",
@@ -79,7 +78,6 @@ def test_registry_inventory_declares_all_loader_targets_and_public_surface() -> 
     assert {mod_id: info["default_loader"] for mod_id, info in MODS.items()} == {
         "adventure-guide": "lunaris",
         "interactive-map-companion": "bepinex",
-        "interactive-maps-companion": "bepinex",
         "justice-for-f7": "lunaris",
         "map-tile-capture": "bepinex",
         "sprint": "lunaris",
@@ -97,15 +95,6 @@ def test_artifact_specs_are_exactly_derived_from_ordered_catalog() -> None:
             True,
             "WoW_Much/InteractiveMapCompanion",
             ("InteractiveMapCompanion.dll",),
-        ),
-        ModArtifactSpec(
-            "interactive-maps-companion",
-            Path("src/mods/InteractiveMapsCompanion"),
-            "Interactive Maps Companion",
-            "InteractiveMapsCompanion.dll",
-            ("bepinex", "lunaris"),
-            False,
-            None,
         ),
         ModArtifactSpec(
             "justice-for-f7",
@@ -159,7 +148,6 @@ def test_artifact_specs_are_exactly_derived_from_ordered_catalog() -> None:
 def test_build_target_resolution_is_deterministic_for_default_and_all() -> None:
     assert mod_command._resolve_build_targets(None, "default") == [
         ("interactive-map-companion", "bepinex"),
-        ("interactive-maps-companion", "bepinex"),
         ("justice-for-f7", "lunaris"),
         ("sprint", "lunaris"),
         ("map-tile-capture", "bepinex"),
@@ -727,7 +715,7 @@ def test_internal_mod_rejected_before_build_or_tcli(tmp_path: Path, monkeypatch:
     monkeypatch.setattr(mod_command.subprocess, "run", lambda *_args, **_kwargs: pytest.fail("ran tcli"))
 
     with pytest.raises(typer.Exit):
-        mod_command.thunderstore(SimpleNamespace(obj=ctx), mod="interactive-maps-companion", dry_run=True)
+        mod_command.thunderstore(SimpleNamespace(obj=ctx), mod="map-tile-capture", dry_run=True)
 
 
 def test_real_upload_requires_exactly_one_mod_and_non_placeholder_token(

@@ -7,7 +7,7 @@ namespace LoaderAdapter.Tests;
 
 internal static class AdapterContractInventory
 {
-    internal const int ExpectedAdapterCount = 12;
+    internal const int ExpectedAdapterCount = 10;
 
     internal static IReadOnlyList<AdapterContract> Contracts { get; } =
         new[]
@@ -40,20 +40,6 @@ internal static class AdapterContractInventory
                 "src/mods/InteractiveMapCompanion/src/Plugin.Lunaris.cs",
                 "LunarisPlugin",
                 "Awake",
-                "_runtime"
-            ),
-            new AdapterContract(
-                "src/mods/InteractiveMapsCompanion/InteractiveMapsCompanion.csproj",
-                "src/mods/InteractiveMapsCompanion/src/Plugin.BepInEx.cs",
-                "BepInPlugin",
-                "Start",
-                "_runtime"
-            ),
-            new AdapterContract(
-                "src/mods/InteractiveMapsCompanion/InteractiveMapsCompanion.csproj",
-                "src/mods/InteractiveMapsCompanion/src/Plugin.Lunaris.cs",
-                "LunarisPlugin",
-                "Start",
                 "_runtime"
             ),
             new AdapterContract(

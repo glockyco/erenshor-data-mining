@@ -102,15 +102,6 @@ MODS: dict[str, ModInfo] = {
         "bepinex_dlls": ["0Harmony.dll"],
         "lunaris_dlls": ["Newtonsoft.Json.dll", "0Harmony.dll"],
     },
-    "interactive-maps-companion": {
-        "dir": "src/mods/InteractiveMapsCompanion",
-        "name": "Interactive Maps Companion",
-        "dll_name": "InteractiveMapsCompanion.dll",
-        "loaders": ["bepinex", "lunaris"],
-        "default_loader": "bepinex",
-        "public": False,
-        "lunaris_dlls": ["Newtonsoft.Json.dll"],
-    },
     "justice-for-f7": {
         "dir": "src/mods/JusticeForF7",
         "name": "Justice for F7",

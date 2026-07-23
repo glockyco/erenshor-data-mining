@@ -264,11 +264,10 @@ loader selection, runtime inspection, and ScriptEngine reloads.
 | `Sprint` | Configurable sprint key, hold/toggle modes, and configurable speed multiplier. |
 | `JusticeForF7` | Extends the game’s F7 hide-UI mode to hide world-space UI such as nameplates, damage numbers, target rings, XP orbs, cast bars, and loot prompts. |
 
-### Legacy and internal mods
+### Internal mods
 
 | Mod | Purpose |
 | --- | --- |
-| `InteractiveMapsCompanion` | Legacy player-position broadcast mod on port `18584`. Kept separate from the current `InteractiveMapCompanion`. |
 | `MapTileCapture` | Internal capture tool for rendering orthographic map screenshots used by the tile pipeline. |
 
 ## Interactive map
@@ -376,7 +375,9 @@ Confirm the game is running with `InteractiveMapCompanion` installed, then check
 ws://localhost:18585
 ```
 
-The legacy `InteractiveMapsCompanion` uses port `18584`; do not mix the two ports.
+The legacy per-zone maps continue to accept player-position updates from retired
+`InteractiveMapsCompanion` installations on port `18584`. The current world map
+and `InteractiveMapCompanion` use port `18585`.
 
 ## License
 
