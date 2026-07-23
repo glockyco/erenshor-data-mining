@@ -12,7 +12,8 @@ internal sealed record AdapterContract(
     string SourcePath,
     string MetadataAttribute,
     string StartupMethod,
-    string RuntimeReceiver
+    string RuntimeReceiver,
+    bool RequiresDraw = false
 );
 
 internal static class AdapterContractValidator
@@ -168,6 +169,29 @@ internal static class AdapterContractValidator
                     $"Update does not invoke {contract.RuntimeReceiver}.Tick()"
                 )
             );
+        }
+
+        if (contract.RequiresDraw)
+        {
+            var drawMethods = MethodsNamed(plugin, "OnGUI").ToArray();
+            if (drawMethods.Length == 0)
+            {
+                diagnostics.Add(Diagnostic(contract, "draw", "OnGUI method is missing"));
+            }
+            else if (
+                !drawMethods.Any(method =>
+                    HasDirectTopLevelInvocation(method, contract.RuntimeReceiver, "Draw")
+                )
+            )
+            {
+                diagnostics.Add(
+                    Diagnostic(
+                        contract,
+                        "draw",
+                        $"OnGUI does not invoke {contract.RuntimeReceiver}.Draw()"
+                    )
+                );
+            }
         }
 
         var destroyMethods = MethodsNamed(plugin, "OnDestroy").ToArray();
@@ -528,6 +552,38 @@ internal static class AdapterContractValidator
 
     private static string AssignmentKey(AssignmentExpressionSyntax assignment) =>
         $"{assignment.Left} += {assignment.Right}";
+
+    private static bool HasDirectTopLevelInvocation(
+        MethodDeclarationSyntax method,
+        string receiver,
+        string member
+    )
+    {
+        ExpressionSyntax? expression = method.ExpressionBody?.Expression;
+        if (expression is null)
+        {
+            if (
+                method.Body?.Statements.Count != 1
+                || method.Body.Statements[0] is not ExpressionStatementSyntax statement
+            )
+            {
+                return false;
+            }
+
+            expression = statement.Expression;
+        }
+
+        var invocation = expression switch
+        {
+            InvocationExpressionSyntax direct => direct,
+            ConditionalAccessExpressionSyntax
+            {
+                WhenNotNull: InvocationExpressionSyntax conditional
+            } => conditional,
+            _ => null,
+        };
+        return invocation is not null && IsInvocation(invocation, receiver, member);
+    }
 
     private static bool HasInvocation(
         MethodDeclarationSyntax method,

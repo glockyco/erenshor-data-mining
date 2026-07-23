@@ -9,7 +9,8 @@ public sealed class AdapterContractValidatorTests
         "src/mods/Fixture/src/Plugin.BepInEx.cs",
         "BepInPlugin",
         "Awake",
-        "_runtime"
+        "_runtime",
+        true
     );
 
     [Fact]
@@ -102,6 +103,45 @@ public sealed class AdapterContractValidatorTests
             diagnostics,
             diagnostic => diagnostic.Contains("tick", StringComparison.Ordinal)
         );
+    }
+
+    [Fact]
+    public void Missing_draw_invocation_fails_when_required()
+    {
+        var missingDraw = ValidFixture.Replace("_runtime.Draw();", "", StringComparison.Ordinal);
+
+        var diagnostics = AdapterContractValidator.Validate(Contract, missingDraw);
+
+        Assert.Contains(
+            diagnostics,
+            diagnostic => diagnostic.Contains("draw", StringComparison.Ordinal)
+        );
+    }
+
+    [Fact]
+    public void Conditional_or_unreachable_draw_invocation_fails()
+    {
+        string[] callbacks =
+        {
+            "private void OnGUI() { return; _runtime.Draw(); }",
+            "private void OnGUI() { if (false) _runtime.Draw(); }",
+        };
+
+        foreach (string callback in callbacks)
+        {
+            var source = ValidFixture.Replace(
+                "private void OnGUI() => _runtime.Draw();",
+                callback,
+                StringComparison.Ordinal
+            );
+
+            var diagnostics = AdapterContractValidator.Validate(Contract, source);
+
+            Assert.Contains(
+                diagnostics,
+                diagnostic => diagnostic.Contains("draw", StringComparison.Ordinal)
+            );
+        }
     }
 
     [Fact]
@@ -310,6 +350,7 @@ public sealed class AdapterContractValidatorTests
                 _runtime.Start();
             }
             private void Update() => _runtime.Tick();
+            private void OnGUI() => _runtime.Draw();
             private void OnDestroy()
             {
                 _source.Changed -= OnChanged;

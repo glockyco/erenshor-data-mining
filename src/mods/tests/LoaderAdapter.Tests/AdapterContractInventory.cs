@@ -17,14 +17,16 @@ internal static class AdapterContractInventory
                 "src/mods/AdventureGuide/src/Plugin.BepInEx.cs",
                 "BepInPlugin",
                 "Awake",
-                "_runtime"
+                "_runtime",
+                true
             ),
             new AdapterContract(
                 "src/mods/AdventureGuide/AdventureGuide.csproj",
                 "src/mods/AdventureGuide/src/Plugin.Lunaris.cs",
                 "LunarisPlugin",
                 "Awake",
-                "_runtime"
+                "_runtime",
+                true
             ),
             new AdapterContract(
                 "src/mods/InteractiveMapCompanion/InteractiveMapCompanion.csproj",
