@@ -174,10 +174,6 @@ addopts = [
     "-v",
     "--strict-markers",
     "--tb=short",
-    "--cov=src/erenshor",
-    "--cov-report=term-missing",
-    "--cov-report=html",
-    "--cov-branch",
 ]
 markers = [
     "unit: Fast, isolated unit tests",
