@@ -505,6 +505,12 @@ _NATIVE_TEST_PROJECTS: tuple[_NativeTestProject, ...] = (
         default_loader="bepinex",
         required_ignored_references=(),
     ),
+    _NativeTestProject(
+        name="Sprint",
+        project=Path("src/mods/Sprint/tests/Sprint.Tests/Sprint.Tests.csproj"),
+        default_loader="lunaris",
+        required_ignored_references=(),
+    ),
 )
 
 

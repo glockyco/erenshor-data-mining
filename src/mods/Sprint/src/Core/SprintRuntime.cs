@@ -16,9 +16,7 @@ internal static class SprintRuntime
     private static Harmony? _harmony;
     private static ISprintSettings? _settings;
     private static Stats? _playerStats;
-    private static bool _sprintToggled;
-    private static bool _previousKeyPressed;
-    private static bool _active;
+    private static SprintInputState _inputState;
     private static float _multiplier = DefaultMultiplier;
     private static bool _started;
 
@@ -53,44 +51,37 @@ internal static class SprintRuntime
             var player = GameObject.Find("Player");
             if (player != null)
                 _playerStats = player.GetComponent<Stats>();
-            _active = false;
+            _inputState = SprintInputPolicy.Deactivate(_inputState);
             return;
         }
 
         _multiplier = _settings.Multiplier;
+        _inputState = SprintInputPolicy.Advance(
+            _inputState,
+            _settings.Enabled,
+            _settings.ToggleMode,
+            keyPressed
+        );
 
-        if (!_settings.Enabled)
-        {
-            _sprintToggled = false;
-            _active = false;
-            _previousKeyPressed = keyPressed;
-        }
-        else if (_settings.ToggleMode)
-        {
-            if (keyPressed && !_previousKeyPressed)
-                _sprintToggled = !_sprintToggled;
-            _previousKeyPressed = keyPressed;
-            _active = _sprintToggled;
-        }
-        else
-        {
-            _previousKeyPressed = keyPressed;
-            _active = keyPressed;
-        }
-
-        Apply(_playerStats, _active);
+        Apply(_playerStats, _inputState.Active);
     }
 
     /// <summary>
     /// Reapplies the game's base speed after a vanilla stat recalculation.
     /// </summary>
-    internal static void OnStatsCalculated(Stats stats) => Apply(stats, IsActiveFor(stats));
+    internal static void OnStatsCalculated(Stats stats)
+    {
+        if (stats == null || !SprintEligibility.IsPlayer(_playerStats, stats))
+            return;
+
+        Apply(stats, _inputState.Active);
+    }
 
     /// <summary>
     /// Returns whether sprint should apply to this instance.
     /// </summary>
     internal static bool IsActiveFor(Stats stats) =>
-        _started && _active && _playerStats != null && stats == _playerStats;
+        SprintEligibility.IsActiveFor(_started, _inputState.Active, _playerStats, stats);
 
     /// <summary>
     /// Restores the game's unmodified speed and removes all shared state. Safe
@@ -114,9 +105,7 @@ internal static class SprintRuntime
     {
         _settings = null;
         _playerStats = null;
-        _sprintToggled = false;
-        _previousKeyPressed = false;
-        _active = false;
+        _inputState = default;
         _multiplier = DefaultMultiplier;
         _started = false;
     }
@@ -131,11 +120,11 @@ internal static class SprintRuntime
             return;
 
         float seRunSpeed = Traverse.Create(stats).Field("seRunSpeed").GetValue<float>();
-        stats.actualRunSpeed = shouldSprint
-            ? (stats.RunSpeed + seRunSpeed) * _multiplier
-            : stats.RunSpeed + seRunSpeed;
-
-        if (stats.actualRunSpeed < 2f)
-            stats.actualRunSpeed = 2f;
+        stats.actualRunSpeed = SprintEffectPolicy.CalculateActualRunSpeed(
+            stats.RunSpeed,
+            seRunSpeed,
+            shouldSprint,
+            _multiplier
+        );
     }
 }

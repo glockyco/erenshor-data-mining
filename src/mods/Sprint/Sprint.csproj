@@ -20,6 +20,9 @@
     <!-- Suppress warnings that don't apply to mods -->
     <NoWarn>$(NoWarn);CS1591</NoWarn>
 
+    <!-- Exclude tests directory from main project compilation -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);tests/**</DefaultItemExcludes>
+
     <!-- Ship only Sprint.dll; Lunaris provides the shared deps at runtime -->
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
   </PropertyGroup>

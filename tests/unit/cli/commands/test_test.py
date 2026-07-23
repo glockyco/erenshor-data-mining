@@ -637,6 +637,10 @@ def test_mods_leaf_uses_each_exact_native_project_argv_and_repository_cwd(tmp_pa
             / "src/mods/InteractiveMapCompanion/tests/InteractiveMapCompanion.Tests/"
             / "InteractiveMapCompanion.Tests.csproj",
         ),
+        (
+            "lunaris",
+            tmp_path / "src/mods/Sprint/tests/Sprint.Tests/Sprint.Tests.csproj",
+        ),
     ]
     assert result.status == "passed"
     assert len(calls) == len(expected_projects)
@@ -648,6 +652,29 @@ def test_mods_leaf_uses_each_exact_native_project_argv_and_repository_cwd(tmp_pa
         logger = next(argument for argument in argv if argument.startswith("trx;LogFileName="))
         trx_paths.append(Path(logger.split("=", 1)[1]))
     assert len(trx_paths) == len(set(trx_paths))
+    assert list(result.result_counts["projects"]) == [
+        "AdventureGuide",
+        "InteractiveMapCompanion",
+        "Sprint",
+    ]
+
+
+def test_mods_leaf_cleans_each_native_report(tmp_path: Path, monkeypatch: Any) -> None:
+    monkeypatch.setitem(test._PREFLIGHTS, "mods", lambda _ctx: _passing_preflight())
+    report_paths: list[Path] = []
+
+    def fake_run_process(argv: Sequence[str], cwd: Path) -> Any:
+        report_path = _write_trx(argv, ["Passed"])
+        report_paths.append(report_path)
+        return test._CommandResult(tuple(argv), cwd, 0, 0.0)
+
+    monkeypatch.setattr(test, "_run_process", fake_run_process)
+    result = test._run_leaf(_context(tmp_path), "mods")
+
+    assert result.status == "passed"
+    assert len(report_paths) == len(test._NATIVE_TEST_PROJECTS) == 3
+    assert len(set(report_paths)) == len(report_paths)
+    assert all(not path.exists() for path in report_paths)
 
 
 @pytest.mark.parametrize(
@@ -690,6 +717,7 @@ def test_mods_preflight_requires_only_native_test_projects(tmp_path: Path, monke
 
     checks = test._preflight_mods(_context(tmp_path))
 
+    assert all(project.required_ignored_references == () for project in test._NATIVE_TEST_PROJECTS)
     assert all(check.ok for check in checks)
     assert checked_paths == [tmp_path / native_project.project for native_project in test._NATIVE_TEST_PROJECTS]
 
