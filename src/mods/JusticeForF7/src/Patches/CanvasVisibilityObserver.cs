@@ -3,9 +3,9 @@ namespace JusticeForF7.Patches;
 /// <summary>Synchronizes the game's canvas visibility with the extra world UI owned by Justice.</summary>
 internal sealed class CanvasVisibilityObserver
 {
-    private bool? _lastCanvasEnabled;
+    private CanvasVisibilityState _state;
 
-    public void Reset() => _lastCanvasEnabled = null;
+    public void Reset() => _state = CanvasVisibilityPolicy.Reset();
 
     public void Tick(WorldUIHider hider)
     {
@@ -13,24 +13,22 @@ internal sealed class CanvasVisibilityObserver
         if (canvas == null)
             return;
 
-        bool currentEnabled = canvas.enabled;
-        if (_lastCanvasEnabled == null)
+        var observation = CanvasVisibilityPolicy.Observe(_state, canvas.enabled);
+        _state = observation.State;
+
+        switch (observation.Action)
         {
-            _lastCanvasEnabled = currentEnabled;
-            return;
+            case CanvasVisibilityAction.None:
+                break;
+            case CanvasVisibilityAction.Tick:
+                hider.Tick();
+                break;
+            case CanvasVisibilityAction.Show:
+                hider.OnUIShown();
+                break;
+            case CanvasVisibilityAction.Hide:
+                hider.OnUIHidden();
+                break;
         }
-
-        if (currentEnabled == _lastCanvasEnabled.Value)
-        {
-            hider.Tick();
-            return;
-        }
-
-        _lastCanvasEnabled = currentEnabled;
-
-        if (currentEnabled)
-            hider.OnUIShown();
-        else
-            hider.OnUIHidden();
     }
 }

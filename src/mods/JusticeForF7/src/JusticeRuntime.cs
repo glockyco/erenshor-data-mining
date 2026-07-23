@@ -8,114 +8,104 @@ namespace JusticeForF7;
 /// Loader-neutral lifecycle owner for Justice. Adapters only supply settings and
 /// logging, while this class owns patching, scene subscriptions, and cleanup.
 /// </summary>
-internal sealed class JusticeRuntime
+internal sealed class JusticeRuntime : IJusticeLifecycleEffects
 {
     private readonly IModLogger _log;
     private readonly IJusticeSettings _settings;
     private readonly CanvasVisibilityObserver _canvasVisibility = new();
+    private readonly JusticeLifecycle _lifecycle;
 
     private Harmony? _harmony;
     private WorldUIHider? _hider;
-    private bool _running;
-    private bool _disabledReported;
 
     public JusticeRuntime(IModLogger log, IJusticeSettings settings)
     {
         _log = log;
         _settings = settings;
+        _lifecycle = new JusticeLifecycle(this);
     }
 
     /// <summary>Starts the mod at most once for the current adapter lifetime.</summary>
-    public void Start()
+    public void Start() => _lifecycle.Start(_settings.Enabled);
+
+    /// <summary>Applies live changes to the master enable setting.</summary>
+    public void Tick() => _lifecycle.Tick(_settings.Enabled);
+
+    /// <summary>Stops the mod and restores every piece of game state it owns.</summary>
+    public void Stop() => _lifecycle.Stop();
+
+    void IJusticeLifecycleEffects.Start()
     {
-        if (_running)
-            return;
-
-        if (!_settings.Enabled)
-        {
-            ReportDisabled();
-            return;
-        }
-
-        _disabledReported = false;
-
-        _hider = new WorldUIHider(_log, _settings);
-        NamePlatePatch.Hider = _hider;
-        NpcNamePlatePatch.Hider = _hider;
-        DmgPopPatch.Hider = _hider;
-        XPBubPatch.Hider = _hider;
-
-        _harmony = new Harmony(PluginInfo.GUID);
         try
         {
+            _hider = new WorldUIHider(_log, _settings);
+            NamePlatePatch.Hider = _hider;
+            NpcNamePlatePatch.Hider = _hider;
+            DmgPopPatch.Hider = _hider;
+            XPBubPatch.Hider = _hider;
+
+            _harmony = new Harmony(PluginInfo.GUID);
             _harmony.PatchAll();
             SceneManager.sceneLoaded += OnSceneLoaded;
-            _running = true;
+
+            if (_settings.EnableLogging)
+                _log.LogInfo($"{PluginInfo.Name} v{PluginInfo.Version} loaded");
         }
         catch
         {
-            Stop();
+            // Startup must leave no patches, subscriptions, or injected static
+            // references behind so a later retry can start from a clean state.
+            ((IJusticeLifecycleEffects)this).Stop();
             throw;
         }
-
-        if (_settings.EnableLogging)
-            _log.LogInfo($"{PluginInfo.Name} v{PluginInfo.Version} loaded");
     }
 
-    /// <summary>Applies live changes to the master enable setting.</summary>
-    public void Tick()
+    void IJusticeLifecycleEffects.Stop()
     {
-        if (_settings.Enabled)
-        {
-            Start();
-        }
-        else if (_running)
-        {
-            Stop();
-            ReportDisabled();
-        }
-        else
-        {
-            ReportDisabled();
-        }
+        SceneManager.sceneLoaded -= OnSceneLoaded;
 
-        if (_running && _hider != null)
+        try
+        {
+            _harmony?.UnpatchSelf();
+        }
+        finally
+        {
+            _harmony = null;
+            try
+            {
+                _hider?.OnUIShown();
+            }
+            finally
+            {
+                _hider = null;
+                _canvasVisibility.Reset();
+                NamePlatePatch.Hider = null;
+                NpcNamePlatePatch.Hider = null;
+                DmgPopPatch.Hider = null;
+                XPBubPatch.Hider = null;
+            }
+        }
+    }
+
+    void IJusticeLifecycleEffects.Tick()
+    {
+        if (_hider != null)
             _canvasVisibility.Tick(_hider);
     }
 
-    /// <summary>Stops the mod and restores every piece of game state it owns.</summary>
-    public void Stop()
+    void IJusticeLifecycleEffects.SceneLoaded()
     {
-        if (_running)
-            SceneManager.sceneLoaded -= OnSceneLoaded;
-
-        _harmony?.UnpatchSelf();
-        _harmony = null;
-
-        _hider?.OnUIShown();
-        _hider = null;
-
         _canvasVisibility.Reset();
-        NamePlatePatch.Hider = null;
-        NpcNamePlatePatch.Hider = null;
-        DmgPopPatch.Hider = null;
-        XPBubPatch.Hider = null;
-
-        _running = false;
+        _hider?.OnSceneLoaded();
     }
 
-    private void ReportDisabled()
+    void IJusticeLifecycleEffects.ReportDisabled()
     {
-        if (_disabledReported)
-            return;
-
-        _disabledReported = true;
         _log.LogInfo($"{PluginInfo.Name} v{PluginInfo.Version} loaded (disabled via config)");
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        _canvasVisibility.Reset();
-        _hider?.OnSceneLoaded();
+        _lifecycle.SceneLoaded();
     }
 }

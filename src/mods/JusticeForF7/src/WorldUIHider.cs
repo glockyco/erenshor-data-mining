@@ -18,7 +18,7 @@ internal sealed class WorldUIHider
     private readonly HashSet<Renderer> _disabledRenderers = new();
     private readonly HashSet<GameObject> _disabledGameObjects = new();
 
-    private int _framesSinceLastScan;
+    private RescanState _rescanState;
 
     /// <summary>Whether the world UI is currently hidden.</summary>
     public bool IsHidden { get; private set; }
@@ -27,8 +27,14 @@ internal sealed class WorldUIHider
     /// Whether creation of transient elements (damage pops, XP orbs) should
     /// be suppressed. Checked by Harmony prefix patches.
     /// </summary>
-    public bool SuppressDamageNumbers => IsHidden && _settings.HideDamageNumbers;
-    public bool SuppressXPOrbs => IsHidden && _settings.HideXPOrbs;
+    public bool SuppressDamageNumbers =>
+        VisibilityPolicy.ShouldSuppressTransient(
+            IsHidden,
+            _settings,
+            WorldElementKind.DamageNumbers
+        );
+    public bool SuppressXPOrbs =>
+        VisibilityPolicy.ShouldSuppressTransient(IsHidden, _settings, WorldElementKind.XPOrbs);
 
     public WorldUIHider(IModLogger log, IJusticeSettings settings)
     {
@@ -42,7 +48,7 @@ internal sealed class WorldUIHider
     public void OnUIHidden()
     {
         IsHidden = true;
-        _framesSinceLastScan = 0;
+        _rescanState = VisibilityPolicy.ResetRescan();
         ScanAndHide();
     }
 
@@ -61,19 +67,14 @@ internal sealed class WorldUIHider
     /// </summary>
     public void Tick()
     {
-        if (!IsHidden)
-            return;
-
-        var interval = _settings.RescanInterval;
-        if (interval <= 0)
-            return;
-
-        _framesSinceLastScan++;
-        if (_framesSinceLastScan >= interval)
-        {
-            _framesSinceLastScan = 0;
+        var decision = VisibilityPolicy.AdvanceRescan(
+            _rescanState,
+            IsHidden,
+            _settings.RescanInterval
+        );
+        _rescanState = decision.State;
+        if (decision.ShouldScan)
             ScanAndHide();
-        }
     }
 
     /// <summary>
@@ -87,7 +88,7 @@ internal sealed class WorldUIHider
 
         if (IsHidden)
         {
-            _framesSinceLastScan = 0;
+            _rescanState = VisibilityPolicy.ResetRescan();
             ScanAndHide();
         }
     }
@@ -97,7 +98,11 @@ internal sealed class WorldUIHider
     /// </summary>
     internal void EnforceTargetIndicatorHidden(NamePlate? plate)
     {
-        if (!IsHidden || !_settings.HideNameplates || plate == null)
+        if (
+            !IsHidden
+            || !VisibilityPolicy.IsCategoryEnabled(_settings, WorldElementKind.Nameplates)
+            || plate == null
+        )
             return;
 
         HideGameObject(plate.TargetInd);
@@ -108,7 +113,11 @@ internal sealed class WorldUIHider
     /// </summary>
     internal void EnforceHealthBarHidden(NamePlate? plate)
     {
-        if (!IsHidden || !_settings.HideNameplates || plate == null)
+        if (
+            !IsHidden
+            || !VisibilityPolicy.IsCategoryEnabled(_settings, WorldElementKind.Nameplates)
+            || plate == null
+        )
             return;
 
         HideGameObject(plate.Lifebar);
@@ -118,22 +127,22 @@ internal sealed class WorldUIHider
     {
         int count = 0;
 
-        if (_settings.HideNameplates)
+        if (VisibilityPolicy.IsCategoryEnabled(_settings, WorldElementKind.Nameplates))
             count += HideNameplates();
 
-        if (_settings.HideDamageNumbers)
+        if (VisibilityPolicy.IsCategoryEnabled(_settings, WorldElementKind.DamageNumbers))
             count += HideDamageNumbers();
 
-        if (_settings.HideTargetRings)
+        if (VisibilityPolicy.IsCategoryEnabled(_settings, WorldElementKind.TargetRings))
             count += HideTargetRings();
 
-        if (_settings.HideXPOrbs)
+        if (VisibilityPolicy.IsCategoryEnabled(_settings, WorldElementKind.XPOrbs))
             count += HideXPOrbs();
 
-        if (_settings.HideCastBars)
+        if (VisibilityPolicy.IsCategoryEnabled(_settings, WorldElementKind.CastBars))
             count += HideCastBars();
 
-        if (_settings.HideOtherWorldText)
+        if (VisibilityPolicy.IsCategoryEnabled(_settings, WorldElementKind.OtherWorldText))
             count += HideOtherWorldText();
 
         if (_settings.EnableLogging)

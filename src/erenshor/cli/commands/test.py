@@ -511,6 +511,12 @@ _NATIVE_TEST_PROJECTS: tuple[_NativeTestProject, ...] = (
         default_loader="lunaris",
         required_ignored_references=(),
     ),
+    _NativeTestProject(
+        name="JusticeForF7",
+        project=Path("src/mods/JusticeForF7/tests/JusticeForF7.Tests/JusticeForF7.Tests.csproj"),
+        default_loader="lunaris",
+        required_ignored_references=(),
+    ),
 )
 
 

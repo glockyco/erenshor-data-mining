@@ -641,6 +641,10 @@ def test_mods_leaf_uses_each_exact_native_project_argv_and_repository_cwd(tmp_pa
             "lunaris",
             tmp_path / "src/mods/Sprint/tests/Sprint.Tests/Sprint.Tests.csproj",
         ),
+        (
+            "lunaris",
+            tmp_path / "src/mods/JusticeForF7/tests/JusticeForF7.Tests/JusticeForF7.Tests.csproj",
+        ),
     ]
     assert result.status == "passed"
     assert len(calls) == len(expected_projects)
@@ -656,6 +660,7 @@ def test_mods_leaf_uses_each_exact_native_project_argv_and_repository_cwd(tmp_pa
         "AdventureGuide",
         "InteractiveMapCompanion",
         "Sprint",
+        "JusticeForF7",
     ]
 
 
@@ -672,7 +677,7 @@ def test_mods_leaf_cleans_each_native_report(tmp_path: Path, monkeypatch: Any) -
     result = test._run_leaf(_context(tmp_path), "mods")
 
     assert result.status == "passed"
-    assert len(report_paths) == len(test._NATIVE_TEST_PROJECTS) == 3
+    assert len(report_paths) == len(test._NATIVE_TEST_PROJECTS) == 4
     assert len(set(report_paths)) == len(report_paths)
     assert all(not path.exists() for path in report_paths)
 
