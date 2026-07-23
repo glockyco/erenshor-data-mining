@@ -1,3 +1,4 @@
+import { getMapsDatabasePath } from '$lib/database-path.server';
 import { Repository } from '$lib/database.node';
 import {
     buildZoneConfigs,
@@ -84,7 +85,7 @@ function transformToWorldOrThrow(
 
 export async function load() {
     const repo = new Repository();
-    await repo.init();
+    await repo.init(getMapsDatabasePath());
 
     // Query all zone bearings from database
     const bearings = await repo.getAllZoneNorthBearings();

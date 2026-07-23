@@ -1,31 +1,27 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
+import { getMapsDatabasePath } from './database-path.server';
 import { Repository } from './database.node';
+import { MAPS } from './maps';
 
 let db: Repository;
 
 beforeAll(async () => {
-    db = new Repository();
-    await db.init();
+	db = new Repository();
+	await db.init(getMapsDatabasePath());
 });
 
 afterAll(() => {
-    db.close();
+	db.close();
 });
 
 describe('getWorldStats', () => {
-    it('returns positive integer counts for each world table', () => {
-        const stats = db.getWorldStats();
-        for (const key of ['zones', 'classes', 'items', 'quests'] as const) {
-            expect(Number.isInteger(stats[key])).toBe(true);
-            expect(stats[key]).toBeGreaterThan(0);
-        }
-    });
-
-    // Stable cross-field invariants that catch a wrong-table bug without
-    // coupling to volatile exact counts (which change every game patch).
-    it('counts the intended tables', () => {
-        const stats = db.getWorldStats();
-        expect(stats.items).toBeGreaterThan(stats.zones);
-        expect(stats.quests).toBeGreaterThan(stats.classes);
-    });
+	it('counts the intended fixture tables', () => {
+		expect(db.getWorldStats()).toEqual({
+			zones: Object.keys(MAPS).length,
+			classes: 2,
+			items: 6,
+			quests: 2
+		});
+	});
 });

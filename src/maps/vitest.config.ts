@@ -8,6 +8,6 @@ export default defineConfig({
 		},
 	},
 	test: {
-		setupFiles: ['./vitest.setup.ts'],
+		globalSetup: ['./vitest.setup.ts'],
 	},
 });

@@ -1,101 +1,115 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
+import { getMapsDatabasePath } from './database-path.server';
 import { Repository } from './database.node';
+import { MAPS } from './maps';
+
+const DETAIL_ZONE = 'Stowaway';
 
 let db: Repository;
 
 beforeAll(async () => {
-    db = new Repository();
-    await db.init();
+	db = new Repository();
+	await db.init(getMapsDatabasePath());
 });
 
 afterAll(() => {
-    db.close();
+	db.close();
 });
 
 describe('Repository', () => {
-    it('gets achievement-trigger markers', async () => {
-        const zone = 'Duskenlight';
-        const markers = await db.getAchievementTriggerMarkers(zone);
-        expect(Array.isArray(markers)).toBe(true);
-        expect(markers.length).toBeGreaterThan(0);
-        expect(markers[0].category).toBe('achievement-trigger');
-    });
-    it('gets door markers', async () => {
-        const zone = 'Tutorial';
-        const markers = await db.getDoorMarkers(zone);
-        expect(Array.isArray(markers)).toBe(true);
-        expect(markers.length).toBeGreaterThan(0);
-        expect(markers[0].category).toBe('door');
-    });
-    it('gets mining-node markers', async () => {
-        const zone = 'Braxonian';
-        const markers = await db.getMiningNodeMarkers(zone);
-        expect(Array.isArray(markers)).toBe(true);
-        expect(markers.length).toBeGreaterThan(0);
-        expect(markers[0].category).toBe('mining-node');
-    });
-    it('gets teleport markers', async () => {
-        const zone = 'Silkengrass';
-        const markers = await db.getTeleportMarkers(zone);
-        expect(Array.isArray(markers)).toBe(true);
-        expect(markers.length).toBeGreaterThan(0);
-        expect(markers[0].category).toBe('teleport');
-    });
-    it('gets secret-passage markers', async () => {
-        const zone = 'Jaws';
-        const markers = await db.getSecretPassageMarkers(zone);
-        expect(Array.isArray(markers)).toBe(true);
-        expect(markers.length).toBeGreaterThan(0);
-        expect(markers[0].category).toBe('secret-passage');
-    });
-    it('gets spawn-point markers (npcs and enemies)', async () => {
-        const zone = 'Stowaway';
-        const markers = await db.getSpawnPointMarkers(zone);
-        expect(Array.isArray(markers)).toBe(true);
-        expect(markers.length).toBeGreaterThan(0);
-        // Function returns 'npc' or 'enemy' markers depending on spawn type
-        expect(['npc', 'enemy']).toContain(markers[0].category);
-    });
-    it('gets zone-line markers', async () => {
-        const zone = 'Stowaway';
-        const markers = await db.getZoneLineMarkers(zone);
-        expect(Array.isArray(markers)).toBe(true);
-        expect(markers.length).toBeGreaterThan(0);
-        expect(markers[0].category).toBe('zone-line');
-    });
-    it('gets all wiki items, including quest-unlocked vendor sources', async () => {
-        const items = await db.getAllItems();
-        expect(items.length).toBeGreaterThan(0);
-        expect(items.every((item) => (item.wikiPageName?.trim().length ?? 0) > 0)).toBe(true);
+	it('loads every marker category needed by the fixture zone detail', async () => {
+		const markerGroups = await Promise.all([
+			db.getAchievementTriggerMarkers(DETAIL_ZONE),
+			db.getDoorMarkers(DETAIL_ZONE),
+			db.getForgeMarkers(DETAIL_ZONE),
+			db.getItemBagMarkers(DETAIL_ZONE),
+			db.getMiningNodeMarkers(DETAIL_ZONE),
+			db.getSecretPassageMarkers(DETAIL_ZONE),
+			db.getSpawnPointMarkers(DETAIL_ZONE),
+			db.getTeleportMarkers(DETAIL_ZONE),
+			db.getTreasureLocMarkers(DETAIL_ZONE),
+			db.getWaterMarkers(DETAIL_ZONE),
+			db.getWishingWellMarkers(DETAIL_ZONE),
+			db.getZoneLineMarkers(DETAIL_ZONE)
+		]);
 
-        const enchantedSmithy = items.find(
-            (item) => item.itemStableKey === 'item:furniture - enchanted smithy'
-        );
-        expect(enchantedSmithy).toBeDefined();
+		expect(markerGroups.flat().map((marker) => marker.category).sort()).toEqual([
+			'achievement-trigger',
+			'door',
+			'enemy',
+			'forge',
+			'item-bag',
+			'mining-node',
+			'npc',
+			'secret-passage',
+			'teleport',
+			'treasure-loc',
+			'water',
+			'wishing-well',
+			'zone-line'
+		]);
+	});
 
-        const sources = await db.getItemSources();
-        expect(
-            sources.some(
-                (source) =>
-                    source.kind === 'vendor' &&
-                    source.itemStableKey === 'item:furniture - enchanted smithy' &&
-                    source.characterStableKey === 'character:breena carpenter'
-            )
-        ).toBe(true);
+	it('provides a bearing for every registered world-map zone', async () => {
+		const bearings = await db.getAllZoneNorthBearings();
 
-        const vendorItems = await db.getVendorItems('character:breena carpenter');
-        expect(vendorItems.some((item) => item.name === 'Enchanted Smithy')).toBe(true);
-    });
+		expect(Object.keys(bearings).sort()).toEqual(Object.keys(MAPS).sort());
+		expect(await db.getZoneNorthBearing(DETAIL_ZONE)).toBe(0);
+	});
 
-    it('gets all map-visible item acquisition sources', async () => {
-        const rows = await db.getItemSources();
-        expect(Array.isArray(rows)).toBe(true);
-        expect(rows.length).toBeGreaterThan(0);
+	it('loads deterministic enemy and popup data for the fixture zone', async () => {
+		expect(await db.getZoneEnemyInfo(DETAIL_ZONE)).toEqual({
+			levelRange: { min: 7, max: 7 },
+			uniques: [{ name: 'Fixture Enemy', wikiPageName: 'Fixture Enemy', level: 7 }],
+			rares: []
+		});
+		expect(await db.getCharacterByName('Fixture Enemy')).toEqual({
+			stableKey: 'character:fixture enemy'
+		});
+		expect(await db.getDropsForCharacter('character:fixture enemy')).toEqual([
+			{ itemName: 'Fixture Drop', dropProbability: 25 }
+		]);
+	});
 
-        for (const kind of ['drop', 'vendor', 'mining', 'fishing', 'bag'] as const) {
-            expect(rows.some((row) => row.kind === kind)).toBe(true);
-        }
-        expect(rows.every((row) => row.itemStableKey.length > 0)).toBe(true);
-        expect(rows.every((row) => row.displayName.length > 0)).toBe(true);
-    });
+	it('loads all searchable items and the quest-unlocked vendor item', async () => {
+		const items = await db.getAllItems();
+		expect(items).toHaveLength(6);
+		expect(items.every((item) => (item.wikiPageName?.trim().length ?? 0) > 0)).toBe(true);
+		expect(items.find((item) => item.itemStableKey === 'item:furniture - enchanted smithy')).toEqual({
+			itemStableKey: 'item:furniture - enchanted smithy',
+			displayName: 'Enchanted Smithy',
+			wikiPageName: 'Enchanted Smithy',
+			iconName: 'enchanted_smithy'
+		});
+
+		const sources = await db.getItemSources();
+		expect(
+			sources.find(
+				(source) =>
+					source.kind === 'vendor' &&
+					source.itemStableKey === 'item:furniture - enchanted smithy'
+			)
+		).toMatchObject({
+			kind: 'vendor',
+			characterStableKey: 'character:breena carpenter'
+		});
+		expect(await db.getVendorItems('character:breena carpenter')).toEqual([
+			{ name: 'Enchanted Smithy', price: 250 }
+		]);
+	});
+
+	it('loads every map-visible acquisition source kind', async () => {
+		const rows = await db.getItemSources();
+
+		expect(rows.map((row) => row.kind).sort()).toEqual([
+			'bag',
+			'drop',
+			'fishing',
+			'mining',
+			'vendor'
+		]);
+		expect(rows.every((row) => row.itemStableKey.length > 0)).toBe(true);
+		expect(rows.every((row) => row.displayName.length > 0)).toBe(true);
+	});
 });

@@ -1,34 +1,41 @@
-import { beforeAll } from 'vitest';
-import fs from 'fs';
-import path from 'path';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 
-const DB_SYMLINK_PATH = path.resolve('static/db/erenshor.sqlite');
-const VARIANT_DB_PATH = path.resolve('../../variants/main/erenshor-main.sqlite');
+import initSqlJs from 'sql.js/dist/sql-wasm.js';
 
-// Ensure the runtime DB symlink exists for tests. Vitest isolates each test
-// file into its own worker, so multiple DB-using files would previously race on
-// creating/removing this shared symlink (EEXIST). This is now idempotent: if a
-// resolvable symlink/file already exists we leave it untouched; otherwise we
-// (best-effort) replace a dangling link and create it, tolerating a concurrent
-// creation. We intentionally do not remove it afterward — it is the normal
-// runtime artifact the app expects to be present.
-beforeAll(() => {
-	fs.mkdirSync(path.dirname(DB_SYMLINK_PATH), { recursive: true });
+const MAPS_DATABASE_PATH_ENV = 'ERENSHOR_MAPS_DATABASE_PATH';
 
-	// existsSync follows the symlink: true only if it resolves to a real file.
-	if (fs.existsSync(DB_SYMLINK_PATH)) return;
-
-	// Remove a dangling symlink if one is present, then create a fresh one.
-	try {
-		fs.lstatSync(DB_SYMLINK_PATH);
-		fs.unlinkSync(DB_SYMLINK_PATH);
-	} catch {
-		// nothing at the path — fine
-	}
+export default async function setup() {
+	const fixtureDirectory = await mkdtemp(path.join(tmpdir(), 'erenshor-maps-'));
+	const databasePath = path.join(fixtureDirectory, 'map-database.sqlite');
+	const schemaPath = path.resolve('tests/fixtures/map-database.sql');
+	const previousDatabasePath = process.env[MAPS_DATABASE_PATH_ENV];
 
 	try {
-		fs.symlinkSync(VARIANT_DB_PATH, DB_SYMLINK_PATH);
-	} catch (err) {
-		if ((err as NodeJS.ErrnoException).code !== 'EEXIST') throw err;
+		const SQL = await initSqlJs({
+			locateFile: () => path.resolve('node_modules/sql.js/dist/sql-wasm.wasm')
+		});
+		const database = new SQL.Database();
+		try {
+			database.run(await readFile(schemaPath, 'utf8'));
+			await writeFile(databasePath, database.export());
+		} finally {
+			database.close();
+		}
+	} catch (error) {
+		await rm(fixtureDirectory, { recursive: true, force: true });
+		throw error;
 	}
-});
+
+	process.env[MAPS_DATABASE_PATH_ENV] = databasePath;
+
+	return async () => {
+		if (previousDatabasePath === undefined) {
+			delete process.env[MAPS_DATABASE_PATH_ENV];
+		} else {
+			process.env[MAPS_DATABASE_PATH_ENV] = previousDatabasePath;
+		}
+		await rm(fixtureDirectory, { recursive: true, force: true });
+	};
+}

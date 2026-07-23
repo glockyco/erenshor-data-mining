@@ -28,10 +28,13 @@ uv run erenshor maps dev      # Dev server; symlinks the variant DB
 uv run erenshor maps build    # Verify, build, and stamp provenance
 uv run erenshor maps preview  # Preview an existing fresh build
 uv run erenshor maps deploy   # Deploy an existing fresh build
+uv run erenshor test maps     # Lint, type-check, and run fixture-backed tests
 ```
 
 Do not use `pnpm dev` directly. The CLI manages the database symlink for dev and
-copies the canonical clean database into `static/db/` during build.
+copies the canonical clean database into `static/db/` during build. The Vitest
+phase creates a temporary deterministic SQLite fixture and does not read
+`static/db/erenshor.sqlite`.
 
 ## Data Flow
 
