@@ -600,14 +600,17 @@
 	}
 
 	function sourceIdentityWikitext( result, label ) {
-		const text = String( label || '' ).trim() ? label : result.name;
-		let output = '|stablekey=' + serializeSourceIdentityValue( result.key ) +
-			'|link=' + serializeSourceIdentityValue( result.page ) +
-			'|text=' + serializeSourceIdentityValue( text );
-		if ( result.kind !== 'quest' && result.image.trim() ) {
-			output += '|image=' + serializeSourceIdentityValue( result.image );
+		let output = '|stablekey=' + serializeSourceIdentityValue( result.key );
+		const text = identityTextOverride( result, label );
+		if ( text !== null ) {
+			output += '|text=' + serializeSourceIdentityValue( text );
 		}
 		return output;
+	}
+
+	function identityTextOverride( result, label ) {
+		const text = String( label || '' );
+		return text.trim() && text !== result.name ? text : null;
 	}
 
 	function serializeSourceIdentityValue( value ) {
@@ -931,14 +934,12 @@
 	}
 
 	function visualIdentityParameterData( result, label ) {
-		const text = String( label || '' ).trim() ? label : result.name;
 		const params = {
-			stablekey: { wt: result.key },
-			link: { wt: result.page },
-			text: { wt: text }
+			stablekey: { wt: result.key }
 		};
-		if ( result.kind !== 'quest' && result.image.trim() ) {
-			params.image = { wt: result.image };
+		const text = identityTextOverride( result, label );
+		if ( text !== null ) {
+			params.text = { wt: text };
 		}
 		return params;
 	}

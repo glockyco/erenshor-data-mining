@@ -171,7 +171,7 @@ def _render_wikitext(wikitext: str) -> str:
 
 def test_source_picker_inserts_exact_duplicate_and_escapes_label(wiki_page: Page) -> None:
     _open_source_editor(wiki_page)
-    selected_text = "flame bolt"
+    selected_text = "Flame Bolt"
     _set_source_selection(wiki_page, selected_text, 0, len(selected_text))
     _open_source_picker(wiki_page)
 
@@ -194,9 +194,7 @@ def test_source_picker_inserts_exact_duplicate_and_escapes_label(wiki_page: Page
     dialog.get_by_role("button", name="Insert", exact=True).click()
     dialog.wait_for(state="hidden")
 
-    assert wiki_page.locator("#wpTextbox1").input_value() == (
-        "{{AbilityLink|stablekey=spell:flame_bolt_greater|link=Flame Bolt|text=flame bolt|image=Flame Bolt}}"
-    )
+    assert wiki_page.locator("#wpTextbox1").input_value() == ("{{AbilityLink|stablekey=spell:flame_bolt_greater}}")
 
     _set_source_selection(wiki_page, selected_text, 0, len(selected_text))
     _open_source_picker(wiki_page)
@@ -227,8 +225,8 @@ def test_source_picker_upgrades_without_losing_wikitext(wiki_page: Page) -> None
     dialog.wait_for(state="hidden")
 
     assert wiki_page.locator("#wpTextbox1").input_value() == (
-        "Prefix {{AbilityLink|stablekey=spell:flame_bolt_greater|link=Flame Bolt"
-        "|text=Custom Flame|image=Flame Bolt|foo=<nowiki>A|text=B</nowiki>|imageonly=1}} suffix"
+        "Prefix {{AbilityLink|stablekey=spell:flame_bolt_greater"
+        "|text=Custom Flame|foo=<nowiki>A|text=B</nowiki>|imageonly=1}} suffix"
     )
 
     opaque = "<nowiki>{{AbilityLink|Flame Bolt}}</nowiki>"
@@ -258,14 +256,7 @@ def test_visual_picker_inserts_a_structured_template(wiki_page: Page) -> None:
     dialog.wait_for(state="hidden")
     _wait_for_visual_key(wiki_page, "spell:flame_bolt")
 
-    assert _visual_template_params(wiki_page, "spell:flame_bolt") == [
-        {
-            "stablekey": "spell:flame_bolt",
-            "link": "Flame Bolt",
-            "text": "Flame Bolt",
-            "image": "Flame Bolt",
-        }
-    ]
+    assert _visual_template_params(wiki_page, "spell:flame_bolt") == [{"stablekey": "spell:flame_bolt"}]
 
 
 def test_visual_picker_replaces_exact_link_identity(wiki_page: Page) -> None:
@@ -289,9 +280,7 @@ def test_visual_picker_replaces_exact_link_identity(wiki_page: Page) -> None:
     assert _visual_template_params(wiki_page, "spell:flame_bolt_greater") == [
         {
             "stablekey": "spell:flame_bolt_greater",
-            "link": "Flame Bolt",
             "text": "Manual Ability Text",
-            "image": "Flame Bolt",
         }
     ]
     assert not any(
