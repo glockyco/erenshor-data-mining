@@ -1,0 +1,5 @@
+<includeonly><div class="item-tooltip-vitals-column"><!--
+--><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Health</span> <span class="item-tooltip-stat-value">{{{health|0}}}</span></div><!--
+--><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Mana</span> <span class="item-tooltip-stat-value">{{{mana|0}}}</span></div><!--
+--><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Armor</span> <span class="item-tooltip-stat-value">{{{armor|0}}}</span></div><!--
+--></div></includeonly>

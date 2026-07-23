@@ -149,7 +149,7 @@ wiki-dev/fixtures/pages/Foo.wiki                 -> Foo
 From the repository root:
 
 ```bash
-python wiki-dev/smoke_test.py
+uv run python wiki-dev/smoke_test.py
 ```
 
 The default `wiki-dev/fixtures/smoke.tsv` renders `Smoke Page` through `action=parse` and verifies text returned by `Module:Erenshor/Smoke` through `Template:Smoke`.
@@ -196,6 +196,32 @@ uv run python wiki-dev/parity_check.py  # rendered-style parity vs captured live
 
 Run `uv run python wiki-dev/parity_check.py --capture` first (and after live
 styling changes) to refresh the gitignored baseline the check compares against.
+
+## Isolated clean parity
+
+Use the canonical clean gate to prove that a fresh MediaWiki installation
+matches the warm developer wiki:
+
+```bash
+uv run erenshor test wiki --clean-parity
+```
+
+The command validates the warm wiki first, creates a uniquely named Docker
+Compose project on an ephemeral port, imports into fresh database, image, and
+runtime volumes, recreates Cargo tables, runs smoke and browser contracts, and
+compares deterministic acceptance snapshots. It always removes the isolated
+containers and volumes. The warm wiki must have the same managed page hashes,
+Cargo fixture rows, smoke outcomes, interface inventory, and browser counters
+before and after the run.
+
+`wiki-dev/fixtures/dependencies/templates/` contains include-only copies of the
+live legacy item templates still required by the parameterized equipment
+renderer. The clean harness imports these with
+`--include-clean-dependencies`. Ordinary warm imports do not manage or overwrite
+the live-template copies in the developer wiki.
+
+The comparison report is written to
+`artifacts/test-reports/wiki-clean-parity.json`.
 
 ## Reset local state
 

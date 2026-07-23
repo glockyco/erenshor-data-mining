@@ -1,0 +1,7 @@
+<includeonly>{| class="item-tooltip-header"
+|-
+| class="item-tooltip-icon-cell" | {{{icon|}}}
+| class="item-tooltip-name-cell" | <div class="item-tooltip-name item-tooltip-tier-{{{tier|0}}}">{{{name|}}}</div><!--
+-->{{#if:{{{type|}}}|<div class="item-tooltip-type">{{{type}}}</div>}}<!--
+-->{{#if:{{{relic|}}}|<div class="item-tooltip-relic">Relic Item</div>}}
+|}</includeonly>

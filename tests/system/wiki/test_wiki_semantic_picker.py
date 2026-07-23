@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import json
+import os
 from collections.abc import Iterator
+from contextlib import suppress
 from html import unescape
 from urllib.parse import parse_qs, urlparse
 
@@ -11,8 +13,9 @@ import httpx
 import pytest
 from playwright.sync_api import Error as PlaywrightError
 from playwright.sync_api import Locator, Page, Route, expect, sync_playwright
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
-WIKI_BASE_URL = "http://localhost:8088"
+WIKI_BASE_URL = os.environ.get("ERENSHOR_WIKI_BASE_URL", "http://localhost:8088")
 API_URL = f"{WIKI_BASE_URL}/api.php"
 SOURCE_TITLE = "Smoke_Page"
 VE_TITLE = "Lua_AbilityLink_Smoke"
@@ -75,6 +78,12 @@ def _open_source_editor(page: Page) -> None:
     start.or_(toolbar_tool).first.wait_for()
     if start.is_visible():
         start.click()
+    else:
+        welcome = page.locator(".ve-init-mw-welcomeDialog.oo-ui-window-active")
+        with suppress(PlaywrightTimeoutError):
+            welcome.wait_for(state="visible", timeout=2_000)
+        if welcome.is_visible():
+            welcome.get_by_role("button", name="Start editing", exact=True).click()
     toolbar_tool.wait_for()
 
 
@@ -91,7 +100,7 @@ def _set_source_selection(page: Page, text: str, start: int, end: int) -> None:
 
 
 def _open_source_picker(page: Page) -> None:
-    page.get_by_role("button", name="Erenshor link", exact=True).click()
+    page.locator(".wikiEditor-ui-toolbar .tool[rel=erenshorLink]").click()
 
 
 def _active_dialog(page: Page) -> Locator:

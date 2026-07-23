@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from collections.abc import Iterator
 
 import httpx
@@ -9,7 +10,7 @@ import pytest
 from playwright.sync_api import Error as PlaywrightError
 from playwright.sync_api import Page, expect, sync_playwright
 
-WIKI_BASE_URL = "http://localhost:8088"
+WIKI_BASE_URL = os.environ.get("ERENSHOR_WIKI_BASE_URL", "http://localhost:8088")
 API_URL = f"{WIKI_BASE_URL}/api.php"
 FIXTURE_TITLE = "Semantic_Tooltip_Smoke"
 

@@ -1,0 +1,9 @@
+<includeonly>{{#if:{{{damage|}}}{{{delay|}}}|
+<div class="item-tooltip-dps">
+{{#ifeq:{{{type|}}}|Primary - 2-Handed|
+Base DPS: {{#expr: ceil( ({{{damage|0}}} / {{{delay|1}}}) * 2 ) }}
+|
+Base DPS: {{#expr: ceil( {{{damage|0}}} / {{{delay|1}}} ) }}
+}}
+</div>
+}}</includeonly>

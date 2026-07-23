@@ -452,6 +452,18 @@ def _preflight_wiki(cli_ctx: CLIContext) -> list[_Preflight]:
     return checks
 
 
+def _preflight_wiki_clean(cli_ctx: CLIContext) -> list[_Preflight]:
+    root = cli_ctx.repo_root
+    return [
+        *_preflight_wiki(cli_ctx),
+        _executable("curl"),
+        _file(root / "wiki-dev/acceptance.py", "wiki-dev/acceptance.py"),
+        _file(root / "wiki-dev/clean_parity.py", "wiki-dev/clean_parity.py"),
+        _file(root / "wiki-dev/bootstrap.sh", "wiki-dev/bootstrap.sh"),
+        _file(root / "wiki-dev/compose.yml", "wiki-dev/compose.yml"),
+    ]
+
+
 def _preflight_maps(cli_ctx: CLIContext) -> list[_Preflight]:
     checks = [_executable("pnpm")]
     try:
@@ -1141,9 +1153,38 @@ def _run_wiki_leaf(cli_ctx: CLIContext) -> _LeafResult:
     )
 
 
-def _run_leaf(cli_ctx: CLIContext, task_id: str, *, coverage: bool = False) -> _LeafResult:
+def _run_wiki_clean_parity_leaf(cli_ctx: CLIContext) -> _LeafResult:
+    """Compare an isolated clean stack with the warm developer wiki."""
+    detail_report = cli_ctx.repo_root / _REPORT_DIRECTORY / "wiki-clean-parity.json"
+    return _run_leaf_commands(
+        cli_ctx,
+        "wiki",
+        (
+            (
+                "uv",
+                "run",
+                "python",
+                "wiki-dev/clean_parity.py",
+                "--root",
+                str(cli_ctx.repo_root),
+                "--warm-base-url",
+                _WIKI_BASE_URL,
+                "--report",
+                str(detail_report),
+            ),
+        ),
+    )
+
+
+def _run_leaf(
+    cli_ctx: CLIContext,
+    task_id: str,
+    *,
+    coverage: bool = False,
+    wiki_clean_parity: bool = False,
+) -> _LeafResult:
     start = time.monotonic()
-    preflight_fn = _PREFLIGHTS[task_id]
+    preflight_fn = _preflight_wiki_clean if task_id == "wiki" and wiki_clean_parity else _PREFLIGHTS[task_id]
     preflight = preflight_fn(cli_ctx)
     prerequisite_json: list[_PrerequisiteJson] = [
         {"name": item.name, "status": "passed" if item.ok else "failed", "detail": item.detail} for item in preflight
@@ -1166,7 +1207,7 @@ def _run_leaf(cli_ctx: CLIContext, task_id: str, *, coverage: bool = False) -> _
     elif task_id == "data":
         result = _run_pytest_leaf(cli_ctx, task_id, ["tests/data"])
     elif task_id == "wiki":
-        result = _run_wiki_leaf(cli_ctx)
+        result = _run_wiki_clean_parity_leaf(cli_ctx) if wiki_clean_parity else _run_wiki_leaf(cli_ctx)
     elif task_id == "maps":
         source, _, _ = _maps_paths(cli_ctx)
         start = time.monotonic()
@@ -1260,7 +1301,13 @@ def _report_exit_code(payload: Mapping[str, object]) -> int:
     return value
 
 
-def _run_task(cli_ctx: CLIContext, requested: str, *, coverage: bool = False) -> None:
+def _run_task(
+    cli_ctx: CLIContext,
+    requested: str,
+    *,
+    coverage: bool = False,
+    wiki_clean_parity: bool = False,
+) -> None:
     start = time.monotonic()
     expanded: list[str] = []
     results: list[_LeafResult] = []
@@ -1269,7 +1316,12 @@ def _run_task(cli_ctx: CLIContext, requested: str, *, coverage: bool = False) ->
         for task_id in expanded:
             leaf_start = time.monotonic()
             try:
-                result = _run_leaf(cli_ctx, task_id, coverage=coverage and task_id == "unit")
+                result = _run_leaf(
+                    cli_ctx,
+                    task_id,
+                    coverage=coverage and task_id == "unit",
+                    wiki_clean_parity=wiki_clean_parity and task_id == "wiki",
+                )
             except KeyboardInterrupt:
                 results.append(
                     _LeafResult(
@@ -1371,9 +1423,19 @@ def test_data(ctx: typer.Context) -> None:
 
 
 @app.command("wiki")
-def test_wiki(ctx: typer.Context) -> None:
-    """Run the local MediaWiki verification gate."""
-    _run_task(ctx.obj, "wiki")
+def test_wiki(
+    ctx: typer.Context,
+    warm: bool = typer.Option(False, "--warm", help="Verify the existing warm developer wiki"),
+    clean_parity: bool = typer.Option(
+        False,
+        "--clean-parity",
+        help="Compare an isolated clean wiki with the warm developer wiki",
+    ),
+) -> None:
+    """Run one explicit local MediaWiki verification mode."""
+    if warm == clean_parity:
+        raise typer.BadParameter("Choose exactly one of --warm or --clean-parity")
+    _run_task(ctx.obj, "wiki", wiki_clean_parity=clean_parity)
 
 
 @app.command("maps")

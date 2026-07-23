@@ -1,0 +1,3 @@
+<includeonly><div class="item-tooltip-classes">
+{{#if:{{{arcanist|}}}|<span class="item-tooltip-class">Arcanist</span>}}{{#if:{{{druid|}}}|<span class="item-tooltip-class">Druid</span>}}{{#if:{{{paladin|}}}|<span class="item-tooltip-class">Paladin</span>}}{{#if:{{{reaver|}}}|<span class="item-tooltip-class">Reaver</span>}}{{#if:{{{stormcaller|}}}|<span class="item-tooltip-class">Stormcaller</span>}}{{#if:{{{duelist|}}}|<span class="item-tooltip-class">Windblade</span>}}
+</div></includeonly>

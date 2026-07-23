@@ -1,0 +1,40 @@
+<includeonly>{{#ifeq:{{NAMESPACENUMBER}}|0|<!--
+-->{{#ifeq:{{{item_type|}}}|weapon|[[Category:Weapons]]<!--
+-->{{#if:{{{range|}}}|{{#ifexpr:{{{range}}}>1|[[Category:Ranged Weapons]]}}}}<!--
+-->{{#ifeq:{{{weapon_type|}}}|Primary - 2-Handed|[[Category:2-Handed Weapons]]}}<!--
+-->{{#ifeq:{{{weapon_type|}}}|Primary|[[Category:Primary Weapons]]}}<!--
+-->{{#ifeq:{{{weapon_type|}}}|Primary or Secondary|[[Category:Primary or Secondary Weapons]]}}<!--
+-->{{#ifeq:{{{weapon_type|}}}|Secondary|[[Category:Off-Hand Equipment]]}}}}<!--
+-->{{#ifeq:{{{item_type|}}}|armor|[[Category:Armor]]<!--
+-->{{#ifeq:{{{slot|}}}|Charm|[[Category:Charms]]}}<!--
+-->{{#ifeq:{{{slot|}}}|Head|[[Category:Head Armor]]}}<!--
+-->{{#ifeq:{{{slot|}}}|Neck|[[Category:Neck Items]]}}<!--
+-->{{#ifeq:{{{slot|}}}|Ring|[[Category:Ring Items]]}}<!--
+-->{{#ifeq:{{{slot|}}}|Hand|[[Category:Hand Armor]]}}<!--
+-->{{#ifeq:{{{slot|}}}|Chest|[[Category:Chest Armor]]}}<!--
+-->{{#ifeq:{{{slot|}}}|Arm|[[Category:Arm Armor]]}}<!--
+-->{{#ifeq:{{{slot|}}}|Bracer|[[Category:Bracer Armor]]}}<!--
+-->{{#ifeq:{{{slot|}}}|Leg|[[Category:Leg Armor]]}}<!--
+-->{{#ifeq:{{{slot|}}}|Waist|[[Category:Waist Armor]]}}<!--
+-->{{#ifeq:{{{slot|}}}|Foot|[[Category:Foot Armor]]}}<!--
+-->{{#ifeq:{{{slot|}}}|Back|[[Category:Back Items]]}}}}<!--
+-->{{#ifeq:{{{item_type|}}}|charm|[[Category:Charms]]}}<!--
+-->{{#ifeq:{{{item_type|}}}|consumable|[[Category:Consumables]]}}<!--
+-->{{#ifeq:{{{item_type|}}}|spellscroll|[[Category:Ability Books]][[Category:Spell Scrolls]]}}<!--
+-->{{#ifeq:{{{item_type|}}}|skillbook|[[Category:Ability Books]][[Category:Skill Books]]}}<!--
+-->{{#ifeq:{{{item_type|}}}|aura|[[Category:Auras]]}}<!--
+-->{{#ifeq:{{{item_type|}}}|mold|[[Category:Molds]]}}<!--
+-->{{#ifeq:{{{item_type|}}}|general|[[Category:Items]]}}<!--
+     Spell-effect categories: anchor on proc_style / effect_style / aura_spell_name.
+     Parent Category:Items with Spell Effects is added alongside each bucket.
+     MediaWiki deduplicates repeated [[Category:X]] links on the same page.
+-->{{#ifeq:{{{proc_style|}}}|Activatable|[[Category:Activatable Items]][[Category:Items with Spell Effects]]}}<!--
+-->{{#ifeq:{{{effect_style|}}}|Activatable|[[Category:Activatable Items]][[Category:Items with Spell Effects]]}}<!--
+-->{{#if:{{{proc_spell_name|}}}|<!--
+-->{{#ifeq:{{{proc_style|}}}|Worn|[[Category:Worn Effect Items]][[Category:Items with Spell Effects]]}}<!--
+-->{{#ifeq:{{{proc_style|}}}|Attack|[[Category:Proc Items]][[Category:Items with Spell Effects]]}}<!--
+-->{{#ifeq:{{{proc_style|}}}|Bash|[[Category:Proc Items]][[Category:Items with Spell Effects]]}}<!--
+-->{{#ifeq:{{{proc_style|}}}|Cast|[[Category:Proc Items]][[Category:Items with Spell Effects]]}}<!--
+-->}}<!--
+-->{{#ifeq:{{{item_type|}}}|aura|{{#if:{{{aura_spell_name|}}}|[[Category:Items with Spell Effects]]}}}}<!--
+-->}}</includeonly>

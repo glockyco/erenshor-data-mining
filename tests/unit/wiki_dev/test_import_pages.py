@@ -181,6 +181,24 @@ def test_discovery_uses_unique_allowlisted_titles_and_includes_javascript(tmp_pa
     assert import_pages.page_content(javascript) == "window.tooltip = true;\n"
 
 
+def test_discovery_includes_clean_only_template_dependencies(tmp_path: Path) -> None:
+    import_pages = load_import_pages()
+    root = make_root(tmp_path)
+    dependency = root / "wiki-dev" / "fixtures" / "dependencies" / "templates" / "Item" / "Armor.wiki"
+    dependency.parent.mkdir(parents=True)
+    dependency.write_text("<includeonly>armor</includeonly>\n", encoding="utf-8")
+
+    regular_pages = import_pages.discover_pages(root)
+    assert all(page.title != "Template:Item/Armor" for page in regular_pages)
+
+    pages = import_pages.discover_pages(root, include_clean_dependencies=True)
+    source = next(page for page in pages if page.title == "Template:Item/Armor")
+
+    assert source.path == dependency
+    assert source.content_model == "wikitext"
+    assert import_pages.page_content(source) == "<includeonly>armor</includeonly>\n"
+
+
 def test_interface_definition_reconciliation_is_idempotent(tmp_path: Path) -> None:
     import_pages = load_import_pages()
     root = make_root(tmp_path)

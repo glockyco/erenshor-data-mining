@@ -3,8 +3,8 @@
 These exercise deploy, rollback, dependency refresh, and the fail-closed failure
 modes (edit conflict, lost create race, assertion failure) against the local
 MediaWiki harness in ``wiki-dev/``. They are skipped unless that harness is
-reachable at localhost:8088 and Docker is available for bot provisioning and
-page cleanup. Bring the harness up with ``wiki-dev/bootstrap.sh``.
+reachable at the configured wiki URL and Docker is available for bot provisioning
+and page cleanup. Bring the harness up with ``wiki-dev/bootstrap.sh``.
 
 maxlag/Retry-After backoff is not exercised here: replication lag cannot be
 induced on a single-node dev database without artificial injection, so that
@@ -14,6 +14,7 @@ behavior is covered deterministically by the client unit tests.
 from __future__ import annotations
 
 import hashlib
+import os
 import shutil
 import subprocess
 from collections.abc import Iterator
@@ -34,10 +35,11 @@ from erenshor.infrastructure.wiki import (
     MediaWikiRequestPolicy,
 )
 
-WIKI_BASE_URL = "http://localhost:8088"
+WIKI_BASE_URL = os.environ.get("ERENSHOR_WIKI_BASE_URL", "http://localhost:8088")
 API_URL = f"{WIKI_BASE_URL}/api.php"
 BOT_USER = "ErenshorBot"
 BOT_PASSWORD = "BotDevPassword-2026"
+COMPOSE_PROJECT = os.environ.get("ERENSHOR_WIKI_COMPOSE_PROJECT", "wiki-dev")
 COMPOSE_FILE = Path(__file__).resolve().parents[3] / "wiki-dev" / "compose.yml"
 
 
@@ -60,7 +62,15 @@ def _harness_reachable() -> bool:
 
 def _docker_compose(*args: str, stdin: str | None = None) -> subprocess.CompletedProcess[bytes]:
     return subprocess.run(
-        ["docker", "compose", "-f", str(COMPOSE_FILE), *args],
+        [
+            "docker",
+            "compose",
+            "--project-name",
+            COMPOSE_PROJECT,
+            "-f",
+            str(COMPOSE_FILE),
+            *args,
+        ],
         input=stdin.encode() if stdin is not None else None,
         capture_output=True,
         timeout=180,

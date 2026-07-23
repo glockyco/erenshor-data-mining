@@ -8,9 +8,15 @@ services:
       MYSQL_ROOT_PASSWORD: root
     command: --default-authentication-plugin=mysql_native_password
     volumes:
-      - ./db:/var/lib/mysql
+      - type: ${WIKI_DB_MOUNT_TYPE:-bind}
+        source: ${WIKI_DB_MOUNT_SOURCE:-./db}
+        target: /var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      test:
+        [
+          "CMD-SHELL",
+          "mysql --protocol=TCP -h 127.0.0.1 -uwiki -pwiki -D mediawiki -e 'SELECT 1' >/dev/null 2>&1",
+        ]
       interval: 5s
       timeout: 3s
       retries: 30
@@ -20,7 +26,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8088:80"
+      - "${WIKI_HOST_PORT:-8088}:80"
     depends_on:
       db:
         condition: service_healthy
@@ -31,6 +37,15 @@ services:
       MEDIAWIKI_DB_PASSWORD: wiki
     volumes:
       - ./LocalSettings.extra.php:/var/www/html/LocalSettings.extra.php:ro
-      - ./runtime:/workspace/wiki-dev-runtime
-      - ./images:/var/www/html/images
+      - type: ${WIKI_RUNTIME_MOUNT_TYPE:-bind}
+        source: ${WIKI_RUNTIME_MOUNT_SOURCE:-./runtime}
+        target: /workspace/wiki-dev-runtime
+      - type: ${WIKI_IMAGES_MOUNT_TYPE:-bind}
+        source: ${WIKI_IMAGES_MOUNT_SOURCE:-./images}
+        target: /var/www/html/images
       - ../wiki:/workspace/wiki:ro
+
+volumes:
+  clean-db:
+  clean-images:
+  clean-runtime:

@@ -190,29 +190,66 @@ def test_task_expansion_rejects_unknown_ids_and_cycles(monkeypatch: Any) -> None
 
 
 @pytest.mark.parametrize(
-    ("route", "task_id"),
+    ("arguments", "task_id"),
     [
-        ("unit", "unit"),
-        ("contract", "contract"),
-        ("data", "data"),
-        ("wiki", "wiki"),
-        ("maps", "maps"),
-        ("mods", "mods"),
-        ("ci", "ci"),
-        ("release", "release"),
+        (["unit"], "unit"),
+        (["contract"], "contract"),
+        (["data"], "data"),
+        (["wiki", "--warm"], "wiki"),
+        (["maps"], "maps"),
+        (["mods"], "mods"),
+        (["ci"], "ci"),
+        (["release"], "release"),
     ],
 )
-def test_all_typer_routes_dispatch_their_task_id(tmp_path: Path, monkeypatch: Any, route: str, task_id: str) -> None:
-    calls: list[tuple[str, bool]] = []
+def test_all_typer_routes_dispatch_their_task_id(
+    tmp_path: Path,
+    monkeypatch: Any,
+    arguments: list[str],
+    task_id: str,
+) -> None:
+    calls: list[tuple[str, bool, bool]] = []
 
-    def fake_run_task(_ctx: CLIContext, requested: str, *, coverage: bool = False) -> None:
-        calls.append((requested, coverage))
+    def fake_run_task(
+        _ctx: CLIContext,
+        requested: str,
+        *,
+        coverage: bool = False,
+        wiki_clean_parity: bool = False,
+    ) -> None:
+        calls.append((requested, coverage, wiki_clean_parity))
 
     monkeypatch.setattr(test, "_run_task", fake_run_task)
-    result = runner.invoke(test.app, [route], obj=_context(tmp_path))
+    result = runner.invoke(test.app, arguments, obj=_context(tmp_path))
 
     assert result.exit_code == 0
-    assert calls == [(task_id, False)]
+    assert calls == [(task_id, False, False)]
+
+
+def test_wiki_route_dispatches_clean_parity_and_requires_one_mode(tmp_path: Path, monkeypatch: Any) -> None:
+    calls: list[tuple[str, bool]] = []
+    monkeypatch.setattr(
+        test,
+        "_run_task",
+        lambda _ctx, requested, *, coverage=False, wiki_clean_parity=False: calls.append(
+            (requested, wiki_clean_parity)
+        ),
+    )
+
+    clean = runner.invoke(test.app, ["wiki", "--clean-parity"], obj=_context(tmp_path))
+    missing = runner.invoke(test.app, ["wiki"], obj=_context(tmp_path))
+    conflicting = runner.invoke(
+        test.app,
+        ["wiki", "--warm", "--clean-parity"],
+        obj=_context(tmp_path),
+    )
+
+    assert clean.exit_code == 0
+    assert calls == [("wiki", True)]
+    assert missing.exit_code != 0
+    assert "Choose exactly one" in missing.output
+    assert conflicting.exit_code != 0
+    assert "Choose exactly one" in conflicting.output
 
 
 def test_bare_test_command_prints_help(tmp_path: Path) -> None:
@@ -613,6 +650,38 @@ def test_wiki_leaf_uses_exact_setup_and_pytest_commands(tmp_path: Path, monkeypa
     assert pytest_command[5] == "erenshor.cli.commands.test"
     assert pytest_command[6] == "--erenshor-report"
     _assert_intermediate_report_path(Path(pytest_command[7]), tmp_path, "wiki")
+
+
+def test_wiki_clean_parity_leaf_uses_isolated_harness_command(tmp_path: Path, monkeypatch: Any) -> None:
+    monkeypatch.setattr(test, "_preflight_wiki_clean", lambda _ctx: _passing_preflight())
+    calls: list[tuple[Sequence[str], Path]] = []
+
+    def fake_run_process(argv: Sequence[str], cwd: Path) -> Any:
+        calls.append((argv, cwd))
+        return test._CommandResult(tuple(argv), cwd, 0, 0.125)
+
+    monkeypatch.setattr(test, "_run_process", fake_run_process)
+
+    result = test._run_leaf(_context(tmp_path), "wiki", wiki_clean_parity=True)
+
+    assert result.status == "passed"
+    assert calls == [
+        (
+            (
+                "uv",
+                "run",
+                "python",
+                "wiki-dev/clean_parity.py",
+                "--root",
+                str(tmp_path),
+                "--warm-base-url",
+                "http://localhost:8088",
+                "--report",
+                str(tmp_path / "artifacts/test-reports/wiki-clean-parity.json"),
+            ),
+            tmp_path,
+        )
+    ]
 
 
 def test_mods_leaf_uses_each_exact_native_project_argv_and_repository_cwd(tmp_path: Path, monkeypatch: Any) -> None:

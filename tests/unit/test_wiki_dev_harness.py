@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import sys
 from pathlib import Path
 from types import ModuleType
 
@@ -10,6 +11,7 @@ def load_script(path: str) -> ModuleType:
     assert spec is not None
     assert spec.loader is not None
     module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
     spec.loader.exec_module(module)
     return module
 
@@ -680,8 +682,9 @@ def test_cargo_check_reports_missing_and_mismatched_character_rows() -> None:
 def test_compose_does_not_mount_local_settings_before_install() -> None:
     compose = Path("wiki-dev/compose.yml").read_text(encoding="utf-8")
 
-    assert ":/var/www/html/LocalSettings.php" not in compose
-    assert "./runtime:/workspace/wiki-dev-runtime" in compose
+    assert "target: /var/www/html/LocalSettings.php" not in compose
+    assert "source: ${WIKI_RUNTIME_MOUNT_SOURCE:-./runtime}" in compose
+    assert "target: /workspace/wiki-dev-runtime" in compose
     assert "./LocalSettings.extra.php:/var/www/html/LocalSettings.extra.php:ro" in compose
 
 

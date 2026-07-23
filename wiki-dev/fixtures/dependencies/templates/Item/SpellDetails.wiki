@@ -1,0 +1,51 @@
+<includeonly><div class="item-spell-details"><!--
+--><div class="item-spell-details-header-row"><!--
+-->{{#if:{{{spell_icon|}}}|<div class="item-spell-details-icon">[[File:{{{spell_icon}}}|48px]]</div>}}<!--
+--><div class="item-spell-details-name-cell"><!--
+-->{{#if:{{{proc_header|}}}|<div class="item-spell-details-proc-header">{{{proc_header}}}</div>}}<!--
+--><div class="item-spell-details-header">{{#if:{{{spell_name|}}}|{{{spell_name}}}|Spell Effect}}</div><!--
+--></div><!--
+-->{{#if:{{{spell_icon|}}}|<div class="item-spell-details-spacer"></div>}}<!--
+--></div><!--
+--><div class="item-spell-details-content"><!--
+--><div class="item-spell-detail-row item-spell-level">Spell Level: {{{spell_level|0}}}</div><!--
+--><div class="item-spell-detail-row item-spell-duration">{{#if:{{{spell_duration_ticks|}}}|{{#ifexpr:{{{spell_duration_ticks}}} <= 0|Instant Effect|{{#if:{{{target_damage|}}}|Damage over time:|Effect Duration:}} {{#expr:{{{spell_duration_ticks}}} * 3}} sec}}|Instant Effect}}</div><!--
+--><div class="item-spell-detail-row">Spell Type: {{{spell_type|}}}</div><!--
+--><div class="item-spell-detail-row">Spell Line: {{{spell_line|}}}</div><!--
+-->{{#if:{{{target_damage|}}}|<div class="item-spell-detail-row item-spell-damage">Damage: {{{target_damage}}}{{#if:{{{spell_duration_ticks|}}}|{{#ifexpr:{{{spell_duration_ticks}}} > 0| / tick}}}}</div>}}<!--
+-->{{#if:{{{target_healing|}}}|<div class="item-spell-detail-row item-spell-healing">Healing: {{{target_healing}}}{{#if:{{{spell_duration_ticks|}}}|{{#ifexpr:{{{spell_duration_ticks}}} > 0| / tick}}}}</div>}}<!--
+-->{{#if:{{{shielding_amt|}}}|<div class="item-spell-detail-row item-spell-positive">Shield Amount: {{{shielding_amt}}}</div>}}<!--
+-->{{#ifeq:{{{worn|}}}|1||{{#if:{{{cast_time|}}}|<div class="item-spell-detail-row">Cast Time: {{{cast_time}}} sec</div>}}}}<!--
+-->{{#if:{{{damage_type|}}}|{{#if:{{{target_damage|}}}|<div class="item-spell-detail-row">Resist Type: {{{damage_type}}}</div>|{{#ifeq:{{{spell_type|}}}|StatusEffect|<div class="item-spell-detail-row">Resist Type: {{{damage_type}}}</div>|{{#if:{{{taunt_spell|}}}|<div class="item-spell-detail-row">Resist Type: {{{damage_type}}}</div>}}}}}}}}<!--
+-->{{#if:{{{lifetap|}}}|{{#ifeq:{{{lifetap}}}|0||<div class="item-spell-detail-row item-spell-flag">Lifetap</div>}}}}<!--
+-->{{#if:{{{group_effect|}}}|{{#ifeq:{{{group_effect}}}|0||<div class="item-spell-detail-row item-spell-flag">Group Effect</div>}}}}<!--
+-->{{#if:{{{stun_target|}}}|{{#ifeq:{{{stun_target}}}|0||<div class="item-spell-detail-row item-spell-flag">Stuns Target</div>}}}}<!--
+-->{{#if:{{{charm_target|}}}|{{#ifeq:{{{charm_target}}}|0||<div class="item-spell-detail-row item-spell-flag">Charms Target</div>}}}}<!--
+-->{{#if:{{{root_target|}}}|{{#ifeq:{{{root_target}}}|0||<div class="item-spell-detail-row item-spell-flag">Roots Target</div>}}}}<!--
+-->{{#if:{{{taunt_spell|}}}|{{#ifeq:{{{taunt_spell}}}|0||<div class="item-spell-detail-row item-spell-flag">Taunt: {{{aggro|0}}} aggro</div>}}}}<!--
+-->{{#if:{{{status_effect_name|}}}|<div class="item-spell-detail-row item-spell-flag">Apply Effects on Target: {{{status_effect_name}}}</div>}}<!--
+-->{{#if:{{{hp|}}}|{{#ifeq:{{{hp}}}|0||<div class="item-spell-detail-row">Hitpoints {{#ifexpr:{{{hp}}} > 0|<span class="item-spell-positive">+{{{hp}}}</span>|<span class="item-spell-negative">{{{hp}}}</span>}}</div>}}}}<!--
+-->{{#if:{{{ac|}}}|{{#ifeq:{{{ac}}}|0||<div class="item-spell-detail-row">Armor Class {{#ifexpr:{{{ac}}} > 0|<span class="item-spell-positive">+{{{ac}}}</span>|<span class="item-spell-negative">{{{ac}}}</span>}}</div>}}}}<!--
+-->{{#if:{{{mana|}}}|{{#ifeq:{{{mana}}}|0||<div class="item-spell-detail-row">Mana {{#ifexpr:{{{mana}}} > 0|<span class="item-spell-positive">+{{{mana}}}</span>|<span class="item-spell-negative">{{{mana}}}</span>}}</div>}}}}<!--
+-->{{#if:{{{str|}}}|{{#ifeq:{{{str}}}|0||<div class="item-spell-detail-row">Strength {{#ifexpr:{{{str}}} > 0|<span class="item-spell-positive">+{{{str}}}</span>|<span class="item-spell-negative">{{{str}}}</span>}}</div>}}}}<!--
+-->{{#if:{{{dex|}}}|{{#ifeq:{{{dex}}}|0||<div class="item-spell-detail-row">Dexterity {{#ifexpr:{{{dex}}} > 0|<span class="item-spell-positive">+{{{dex}}}</span>|<span class="item-spell-negative">{{{dex}}}</span>}}</div>}}}}<!--
+-->{{#if:{{{end|}}}|{{#ifeq:{{{end}}}|0||<div class="item-spell-detail-row">Endurance {{#ifexpr:{{{end}}} > 0|<span class="item-spell-positive">+{{{end}}}</span>|<span class="item-spell-negative">{{{end}}}</span>}}</div>}}}}<!--
+-->{{#if:{{{agi|}}}|{{#ifeq:{{{agi}}}|0||<div class="item-spell-detail-row">Agility {{#ifexpr:{{{agi}}} > 0|<span class="item-spell-positive">+{{{agi}}}</span>|<span class="item-spell-negative">{{{agi}}}</span>}}</div>}}}}<!--
+-->{{#if:{{{wis|}}}|{{#ifeq:{{{wis}}}|0||<div class="item-spell-detail-row">Wisdom {{#ifexpr:{{{wis}}} > 0|<span class="item-spell-positive">+{{{wis}}}</span>|<span class="item-spell-negative">{{{wis}}}</span>}}</div>}}}}<!--
+-->{{#if:{{{int|}}}|{{#ifeq:{{{int}}}|0||<div class="item-spell-detail-row">Intelligence {{#ifexpr:{{{int}}} > 0|<span class="item-spell-positive">+{{{int}}}</span>|<span class="item-spell-negative">{{{int}}}</span>}}</div>}}}}<!--
+-->{{#if:{{{cha|}}}|{{#ifeq:{{{cha}}}|0||<div class="item-spell-detail-row">Charisma {{#ifexpr:{{{cha}}} > 0|<span class="item-spell-positive">+{{{cha}}}</span>|<span class="item-spell-negative">{{{cha}}}</span>}}</div>}}}}<!--
+-->{{#if:{{{mr|}}}|{{#ifeq:{{{mr}}}|0||<div class="item-spell-detail-row">Magic Resist {{#ifexpr:{{{mr}}} > 0|<span class="item-spell-positive">+{{{mr}}}</span>|<span class="item-spell-negative">{{{mr}}}</span>}}</div>}}}}<!--
+-->{{#if:{{{er|}}}|{{#ifeq:{{{er}}}|0||<div class="item-spell-detail-row">Elemental Resist {{#ifexpr:{{{er}}} > 0|<span class="item-spell-positive">+{{{er}}}</span>|<span class="item-spell-negative">{{{er}}}</span>}}</div>}}}}<!--
+-->{{#if:{{{pr|}}}|{{#ifeq:{{{pr}}}|0||<div class="item-spell-detail-row">Poison Resist {{#ifexpr:{{{pr}}} > 0|<span class="item-spell-positive">+{{{pr}}}</span>|<span class="item-spell-negative">{{{pr}}}</span>}}</div>}}}}<!--
+-->{{#if:{{{vr|}}}|{{#ifeq:{{{vr}}}|0||<div class="item-spell-detail-row">Void Resist {{#ifexpr:{{{vr}}} > 0|<span class="item-spell-positive">+{{{vr}}}</span>|<span class="item-spell-negative">{{{vr}}}</span>}}</div>}}}}<!--
+-->{{#if:{{{movement_speed|}}}|{{#ifeq:{{{movement_speed}}}|0||<div class="item-spell-detail-row">Movement Speed {{#ifexpr:{{{movement_speed}}} > 0|<span class="item-spell-positive">+{{{movement_speed}}}</span>|<span class="item-spell-negative">{{{movement_speed}}}</span>}}</div>}}}}<!--
+-->{{#if:{{{damage_shield|}}}|{{#ifeq:{{{damage_shield}}}|0||<div class="item-spell-detail-row">Damage Shield {{#ifexpr:{{{damage_shield}}} > 0|<span class="item-spell-positive">+{{{damage_shield}}}</span>|<span class="item-spell-negative">{{{damage_shield}}}</span>}}</div>}}}}<!--
+-->{{#if:{{{haste|}}}|{{#ifeq:{{{haste}}}|0||<div class="item-spell-detail-row">Haste {{#ifexpr:{{{haste}}} > 0|<span class="item-spell-positive">+{{{haste}}}%</span>|<span class="item-spell-negative">{{{haste}}}%</span>}}</div>}}}}<!--
+-->{{#if:{{{percent_lifesteal|}}}|{{#ifeq:{{{percent_lifesteal}}}|0||<div class="item-spell-detail-row">Lifesteal {{#ifexpr:{{{percent_lifesteal}}} > 0|<span class="item-spell-positive">+{{{percent_lifesteal}}}%</span>|<span class="item-spell-negative">{{{percent_lifesteal}}}%</span>}}</div>}}}}<!--
+-->{{#if:{{{atk_roll_modifier|}}}|{{#ifeq:{{{atk_roll_modifier}}}|0||<div class="item-spell-detail-row">Attack Roll Modifier {{#ifexpr:{{{atk_roll_modifier}}} > 0|<span class="item-spell-positive">+{{{atk_roll_modifier}}}</span>|<span class="item-spell-negative">{{{atk_roll_modifier}}}</span>}}</div>}}}}<!--
+-->{{#if:{{{resonate_chance|}}}|{{#ifeq:{{{resonate_chance}}}|0||<div class="item-spell-detail-row">Resonance {{#ifexpr:{{{resonate_chance}}} > 0|<span class="item-spell-positive">+{{{resonate_chance}}}</span>|<span class="item-spell-negative">{{{resonate_chance}}}</span>}}</div>}}}}<!--
+-->{{#if:{{{add_proc_name|}}}|<div class="item-spell-detail-row">{{{add_proc_chance|0}}}% chance to proc {{{add_proc_name}}}</div>}}<!--
+-->{{#if:{{{special_descriptor|}}}|<div class="item-spell-detail-row item-spell-special">{{{special_descriptor}}}</div>}}<!--
+-->{{#if:{{{xp_bonus|}}}|<div class="item-spell-detail-row item-spell-positive">XP Bonus: +{{{xp_bonus}}}%</div>}}<!--
+--></div><!--
+--></div></includeonly>

@@ -1,0 +1,1 @@
+<includeonly><div style="position: relative; width: 80px;"><div style="position: absolute; left: 0px; top: 0px; padding: 0;">[[File:{{{sparkle}}}|{{{sparkle_size}}}]]</div>{{{icon}}}</div></includeonly>

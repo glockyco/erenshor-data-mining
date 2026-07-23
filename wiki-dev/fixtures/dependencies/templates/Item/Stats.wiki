@@ -1,0 +1,13 @@
+<includeonly><div class="item-tooltip-stats-column"><!--
+--><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Str</span> <span class="item-tooltip-stat-value">{{{str|0}}}</span></div><!--
+--><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">End</span> <span class="item-tooltip-stat-value">{{{end|0}}}</span></div><!--
+--><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Dex</span> <span class="item-tooltip-stat-value">{{{dex|0}}}</span></div><!--
+--><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Agi</span> <span class="item-tooltip-stat-value">{{{agi|0}}}</span></div><!--
+--><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Int</span> <span class="item-tooltip-stat-value">{{{int|0}}}</span></div><!--
+--><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Wis</span> <span class="item-tooltip-stat-value">{{{wis|0}}}</span></div><!--
+--><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Cha</span> <span class="item-tooltip-stat-value">{{{cha|0}}}</span></div><!--
+--><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Res</span> <span class="item-tooltip-stat-value">{{{res|0}}}</span></div><!--
+-->{{#if:{{{damage|}}}|<div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Damage</span> <span class="item-tooltip-stat-value">{{{damage}}}</span></div>}}<!--
+-->{{#if:{{{delay|}}}|<div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Delay</span> <span class="item-tooltip-stat-value">{{{delay}}} sec</span></div>}}<!--
+-->{{#if:{{{range|}}}|<div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Range</span> <span class="item-tooltip-stat-value">{{{range}}}</span></div>}}<!--
+--></div></includeonly>

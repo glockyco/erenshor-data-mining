@@ -115,7 +115,7 @@ def _discover_gadget_pages(root: Path, spec: GadgetSpec) -> list[PageSource]:
     ]
 
 
-def discover_pages(root: Path) -> list[PageSource]:
+def discover_pages(root: Path, *, include_clean_dependencies: bool = False) -> list[PageSource]:
     """Discover interface, gadget, module, template, and fixture pages."""
     spec = _load_gadget_spec(root)
     pages: list[PageSource] = []
@@ -154,6 +154,13 @@ def discover_pages(root: Path) -> list[PageSource]:
     if templates_dir.exists():
         for path in sorted(templates_dir.rglob("*.wiki")):
             relative = path.relative_to(templates_dir).with_suffix("")
+            title = "Template:" + "/".join(relative.parts).replace("_", " ")
+            pages.append(PageSource(title=title, path=path))
+
+    dependency_templates_dir = root / "wiki-dev" / "fixtures" / "dependencies" / "templates"
+    if include_clean_dependencies and dependency_templates_dir.exists():
+        for path in sorted(dependency_templates_dir.rglob("*.wiki")):
+            relative = path.relative_to(dependency_templates_dir).with_suffix("")
             title = "Template:" + "/".join(relative.parts).replace("_", " ")
             pages.append(PageSource(title=title, path=path))
 
@@ -603,10 +610,20 @@ def main() -> None:
     parser.add_argument("--root", type=Path, default=Path.cwd(), help="Repository root")
     parser.add_argument("--username", default="WikiSysop", help="Local wiki username")
     parser.add_argument("--password", default="DevWikiPassword-2026", help="Local wiki password")
+    parser.add_argument(
+        "--manifest-file",
+        type=Path,
+        help="Override managed state path for an isolated local wiki run",
+    )
+    parser.add_argument(
+        "--include-clean-dependencies",
+        action="store_true",
+        help="Import development-only live-template dependencies into an isolated clean wiki",
+    )
     parser.add_argument("--dry-run", action="store_true", help="Print discovered pages without editing")
     args = parser.parse_args()
 
-    pages = discover_pages(args.root)
+    pages = discover_pages(args.root, include_clean_dependencies=args.include_clean_dependencies)
     if args.dry_run:
         current = build_manifest(args.root, pages)
         for title, entry in current.items():
@@ -618,7 +635,14 @@ def main() -> None:
     with httpx.Client(timeout=30.0) as client:
         login(client, endpoint, args.username, args.password)
         token = csrf_token(client, endpoint)
-        report = reconcile_pages(client, endpoint, token, pages, args.root)
+        report = reconcile_pages(
+            client,
+            endpoint,
+            token,
+            pages,
+            args.root,
+            manifest_file=args.manifest_file,
+        )
 
     for action, titles in (
         ("Created", report.created),
