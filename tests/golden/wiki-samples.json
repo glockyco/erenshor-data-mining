@@ -1,0 +1,167 @@
+{
+  "version": 1,
+  "samples": [
+    {
+      "identity": "generator:armor_overview",
+      "generator": "armor_overview",
+      "title": "Armor",
+      "stable_keys": [],
+      "boundaries": ["generator.armor_overview"],
+      "required_templates": {},
+      "required_text": ["{| class=\"wikitable datatable compact hover\""]
+    },
+    {
+      "identity": "generator:weapons_overview",
+      "generator": "weapons_overview",
+      "title": "Weapons",
+      "stable_keys": [],
+      "boundaries": ["generator.weapons_overview"],
+      "required_templates": {},
+      "required_text": ["{| class=\"wikitable datatable compact hover\""]
+    },
+    {
+      "identity": "item:weap - 28 - world builder",
+      "generator": "entities",
+      "title": "World Builder",
+      "stable_keys": ["item:weap - 28 - world builder"],
+      "boundaries": [
+        "generator.entities",
+        "entity.item",
+        "item_kind.weapon",
+        "entity.item.equipment_tooltip",
+        "entity.item.proc"
+      ],
+      "required_templates": {"Item": 1, "ItemTooltip": 1},
+      "required_text": ["|proc_spell_name={{AbilityLink|stablekey=spell:none - fracture}}"]
+    },
+    {
+      "identity": "item:neck - 9 - ogre tooth necklace",
+      "generator": "entities",
+      "title": "A Grassland Sap Necklace",
+      "stable_keys": ["item:neck - 9 - ogre tooth necklace"],
+      "boundaries": ["item_kind.armor"],
+      "required_templates": {"Item": 1, "ItemTooltip": 1},
+      "required_text": []
+    },
+    {
+      "identity": "item:charm - 8 - adventure charm",
+      "generator": "entities",
+      "title": "Adventure Charm",
+      "stable_keys": ["item:charm - 8 - adventure charm"],
+      "boundaries": ["item_kind.charm"],
+      "required_templates": {"Item": 1, "Item/Charm": 1},
+      "required_text": []
+    },
+    {
+      "identity": "item:aura - aged prism",
+      "generator": "entities",
+      "title": "Aged Prism",
+      "stable_keys": ["item:aura - aged prism"],
+      "boundaries": ["item_kind.aura"],
+      "required_templates": {"Item": 1, "Item/Aura": 1},
+      "required_text": []
+    },
+    {
+      "identity": "item:spell scroll - minor healing",
+      "generator": "entities",
+      "title": "Spell Scroll: Minor Healing",
+      "stable_keys": ["item:spell scroll - minor healing"],
+      "boundaries": ["item_kind.spellscroll"],
+      "required_templates": {"Item": 1, "Item/SpellScroll": 1},
+      "required_text": []
+    },
+    {
+      "identity": "item:skillbook - kick",
+      "generator": "entities",
+      "title": "Skill Book: Kick",
+      "stable_keys": ["item:skillbook - kick"],
+      "boundaries": ["item_kind.skillbook"],
+      "required_templates": {"Item": 1, "Item/SkillBook": 1},
+      "required_text": []
+    },
+    {
+      "identity": "item:fish - gumtooth",
+      "generator": "entities",
+      "title": "A Beaktooth",
+      "stable_keys": ["item:fish - gumtooth"],
+      "boundaries": ["item_kind.consumable"],
+      "required_templates": {"Item": 1, "Item/Consumable": 1},
+      "required_text": []
+    },
+    {
+      "identity": "item:template - a ceremonial ring",
+      "generator": "entities",
+      "title": "Mold: A Ceremonial Ring",
+      "stable_keys": ["item:template - a ceremonial ring"],
+      "boundaries": ["item_kind.mold"],
+      "required_templates": {"Item": 1, "Item/Mold": 1},
+      "required_text": []
+    },
+    {
+      "identity": "item:quest - bellwain collection",
+      "generator": "entities",
+      "title": "A Collection of Notes",
+      "stable_keys": ["item:quest - bellwain collection"],
+      "boundaries": ["item_kind.general", "entity.item.preserved_content"],
+      "required_templates": {"Item": 1, "Item/General": 1},
+      "required_text": ["=Location=", "{{QuestLink|stablekey=quest:bellwainletters}}"]
+    },
+    {
+      "identity": "character:brackish crocodile",
+      "generator": "entities",
+      "title": "A Brackish Croc",
+      "stable_keys": [
+        "character:brackish crocodile",
+        "character:brackish crocodile small"
+      ],
+      "boundaries": ["entity.character", "entity.multi_entity"],
+      "required_templates": {"Character": 2},
+      "required_text": []
+    },
+    {
+      "identity": "character:flamewell:braxonia:86.83:59.42:593.95",
+      "generator": "entities",
+      "title": "Braxonian Flame Well",
+      "stable_keys": ["character:flamewell:braxonia:86.83:59.42:593.95"],
+      "boundaries": ["entity.character.preserved_content"],
+      "required_templates": {"Character": 1},
+      "required_text": ["The Flame well has two uses:"]
+    },
+    {
+      "identity": "spell:dru pal - minor healing",
+      "generator": "entities",
+      "title": "Minor Healing",
+      "stable_keys": ["spell:dru pal - minor healing"],
+      "boundaries": ["entity.spell", "entity.ability.tooltip"],
+      "required_templates": {"Ability": 1, "SpellTooltip": 1},
+      "required_text": []
+    },
+    {
+      "identity": "skill:arcane proficiency",
+      "generator": "entities",
+      "title": "Arcane Proficiency",
+      "stable_keys": ["skill:arcane proficiency"],
+      "boundaries": ["entity.skill"],
+      "required_templates": {"Ability": 1, "SkillTooltip": 1},
+      "required_text": []
+    },
+    {
+      "identity": "stance:aggressive",
+      "generator": "entities",
+      "title": "Aggressive",
+      "stable_keys": ["stance:aggressive"],
+      "boundaries": ["entity.stance"],
+      "required_templates": {"Stance": 1, "StanceTooltip": 1},
+      "required_text": []
+    },
+    {
+      "identity": "zone:brake",
+      "generator": "zones",
+      "title": "Faerie's Brake",
+      "stable_keys": ["zone:brake"],
+      "boundaries": ["generator.zones", "zone.map_and_connections"],
+      "required_templates": {"Zone": 1, "Zone Navbox": 1},
+      "required_text": ["{{MapLink|zone=Brake}}", "[[Fernalla's Revival Plains]]"]
+    }
+  ]
+}
