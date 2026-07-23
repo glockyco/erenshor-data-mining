@@ -18,8 +18,11 @@ import csv
 import shutil
 import sqlite3
 import tempfile
+from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
+from urllib.parse import quote
 
 import typer
 from loguru import logger
@@ -28,6 +31,13 @@ from rich.panel import Panel
 from sqlalchemy import create_engine
 
 from erenshor.application.sheets.formatter import SheetsFormatter
+from erenshor.application.wiki.representative_samples import (
+    load_representative_sample_spec,
+    validate_representative_sample_content,
+)
+from erenshor.application.wiki.semantic_validation import derive_corpus_expectations, validate_wiki_pages
+from erenshor.application.wiki.services.storage import WikiStorage
+from erenshor.cli.commands.wiki import _build_link_audit_catalog
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import database_exists, database_has_items, database_valid
 
@@ -95,6 +105,23 @@ ORDER BY cs.scene, cs.spawn_point_stable_key, rep.stable_key
 # code_facts_meta (assembly sha + extraction timestamp) is deliberately
 # excluded — it is volatile and would reintroduce capture thrash.
 _CODE_FACTS_SQL = "SELECT fact_id, key, value, value_type FROM code_facts ORDER BY fact_id, key"
+
+
+_CAPTURED_FAMILIES = frozenset({"wiki", "sheets", "map", "code_facts"})
+
+
+@dataclass(frozen=True, slots=True)
+class _CaptureCounts:
+    wiki_pages: int
+    sheets: int
+    map_rows: int
+    code_facts_rows: int
+
+
+class _GoldenCaptureError(RuntimeError):
+    def __init__(self, errors: list[str]) -> None:
+        self.errors = tuple(errors)
+        super().__init__(f"Golden capture failed for {len(errors)} families")
 
 
 def _golden_dir(repo_root: Path) -> Path:
@@ -205,6 +232,178 @@ def _capture_code_facts(db_path: Path, golden_code_facts_dir: Path, dry_run: boo
     return len(data_rows)
 
 
+def _copy_uncaptured_baseline_entries(source: Path, destination: Path) -> None:
+    """Carry checked-in specifications and other non-generated entries into a staged tree."""
+    if not source.exists():
+        return
+    for entry in source.iterdir():
+        if entry.name in _CAPTURED_FAMILIES:
+            continue
+        target = destination / entry.name
+        if entry.is_dir():
+            shutil.copytree(entry, target)
+        else:
+            shutil.copy2(entry, target)
+
+
+def _replace_golden_baseline(golden_dir: Path, populate: Callable[[Path], None]) -> None:
+    """Populate a sibling tree and replace the baseline only after the callback succeeds."""
+    parent = golden_dir.parent
+    parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix=".golden-stage-", dir=parent) as temporary:
+        transaction_dir = Path(temporary)
+        staged = transaction_dir / "staged"
+        backup = transaction_dir / "previous"
+        staged.mkdir()
+        populate(staged)
+
+        had_baseline = golden_dir.exists()
+        if had_baseline:
+            golden_dir.rename(backup)
+        try:
+            staged.rename(golden_dir)
+        except BaseException:
+            if had_baseline and backup.exists():
+                backup.rename(golden_dir)
+            raise
+
+
+def _validate_staged_baseline(
+    staged: Path,
+    *,
+    counts: _CaptureCounts,
+    cli_ctx: CLIContext,
+    wiki_dir: Path,
+) -> None:
+    """Run every semantic and structural gate against the completed candidate tree."""
+    storage = WikiStorage(wiki_dir)
+    titles = storage.list_generated_titles()
+    expected_wiki_files = {f"{quote(title, safe='_-.')}.txt" for title in titles}
+    staged_wiki_dir = staged / "wiki"
+    actual_wiki_files = {path.name for path in staged_wiki_dir.glob("*.txt")}
+    if actual_wiki_files != expected_wiki_files or len(actual_wiki_files) != counts.wiki_pages:
+        missing = sorted(expected_wiki_files - actual_wiki_files)
+        extra = sorted(actual_wiki_files - expected_wiki_files)
+        raise ValueError(f"Staged wiki inventory mismatch: missing={missing}, extra={extra}")
+
+    pages = {
+        title: (staged_wiki_dir / f"{quote(title, safe='_-.')}.txt").read_text(encoding="utf-8") for title in titles
+    }
+    expectations = derive_corpus_expectations(storage, titles)
+    catalog = _build_link_audit_catalog(cli_ctx)
+    validate_wiki_pages(
+        pages,
+        expectations=expectations,
+        catalog_entries=catalog,
+        planned_titles=titles,
+        known_generated_titles=titles,
+        variant=cli_ctx.variant,
+    ).raise_for_errors()
+
+    spec = load_representative_sample_spec(staged / "wiki-samples.json")
+    for sample in spec.samples:
+        if sample.generator == "zones":
+            zone_path = cli_ctx.repo_root / "wiki" / "zones" / f"{sample.title.replace(' ', '_')}.txt"
+            if not zone_path.is_file():
+                raise ValueError(f"Representative zone output missing: {zone_path}")
+            content = zone_path.read_text(encoding="utf-8")
+        else:
+            try:
+                content = pages[sample.title]
+            except KeyError as exc:
+                raise ValueError(f"Representative wiki page missing: {sample.title!r}") from exc
+        validate_representative_sample_content(sample, content)
+
+    sheet_files = tuple((staged / "sheets").glob("*.csv"))
+    if len(sheet_files) != counts.sheets or any(path.stat().st_size == 0 for path in sheet_files):
+        raise ValueError(f"Staged sheet inventory is invalid: expected {counts.sheets}, found {len(sheet_files)}")
+    for family, filename, expected_rows in (
+        ("map", "spawn-points.csv", counts.map_rows),
+        ("code_facts", "code_facts.csv", counts.code_facts_rows),
+    ):
+        path = staged / family / filename
+        if expected_rows < 1 or not path.is_file() or path.stat().st_size == 0:
+            raise ValueError(f"Staged {family} baseline is invalid: {path}")
+
+
+def _capture_candidate_families(
+    *,
+    target: Path,
+    display_target: Path,
+    generated_dir: Path,
+    db_path: Path,
+    queries_dir: Path,
+    map_base_url: str,
+    dry_run: bool,
+) -> _CaptureCounts:
+    """Capture all generated families into one candidate root."""
+    errors: list[str] = []
+    counts = {"wiki": 0, "sheets": 0, "map": 0, "code_facts": 0}
+    destinations = {
+        "wiki": target / "wiki",
+        "sheets": target / "sheets",
+        "map": target / "map",
+        "code_facts": target / "code_facts",
+    }
+    display_destinations = {name: display_target / name for name in destinations}
+    status = "[dim](dry run)[/dim]" if dry_run else "[green]staged[/green]"
+
+    captures: tuple[tuple[str, str, Path, str, Callable[[], int]], ...] = (
+        (
+            "wiki",
+            "Wiki pages",
+            generated_dir,
+            "pages",
+            lambda: _capture_wiki(generated_dir, destinations["wiki"], dry_run),
+        ),
+        (
+            "sheets",
+            "Sheets",
+            db_path,
+            "queries",
+            lambda: _capture_sheets(
+                db_path,
+                queries_dir,
+                destinations["sheets"],
+                dry_run,
+                map_base_url=map_base_url,
+            ),
+        ),
+        ("map", "Map spawn-points", db_path, "rows", lambda: _capture_map(db_path, destinations["map"], dry_run)),
+        (
+            "code_facts",
+            "Code facts",
+            db_path,
+            "rows",
+            lambda: _capture_code_facts(db_path, destinations["code_facts"], dry_run),
+        ),
+    )
+    for name, label, source, unit, capture_family in captures:
+        console.print(f"[bold]{label}[/bold]")
+        console.print(f"  Source:      {source}")
+        destination = display_destinations[name]
+        if name in {"map", "code_facts"}:
+            destination /= "spawn-points.csv" if name == "map" else "code_facts.csv"
+        console.print(f"  Destination: {destination}")
+        try:
+            counts[name] = capture_family()
+            console.print(f"  {status} — {counts[name]} {unit}")
+        except Exception as exc:
+            console.print(f"  [red]failed[/red] — {exc}")
+            logger.exception(f"{label} golden capture failed")
+            errors.append(f"{name}: {exc}")
+        console.print()
+
+    if errors:
+        raise _GoldenCaptureError(errors)
+    return _CaptureCounts(
+        wiki_pages=counts["wiki"],
+        sheets=counts["sheets"],
+        map_rows=counts["map"],
+        code_facts_rows=counts["code_facts"],
+    )
+
+
 @app.command()
 @require_preconditions(
     database_exists,
@@ -230,7 +429,8 @@ def capture(
       - tests/golden/map/     — spawn-points.csv (full map query output)
       - tests/golden/code_facts/ — code_facts.csv (hardcoded game constants)
 
-    Safe to re-run: overwrites any existing golden files.
+    Safe to re-run: stages and validates every family before replacing the
+    complete baseline tree. A failed capture leaves the prior tree unchanged.
     """
     cli_ctx: CLIContext = ctx.obj
 
@@ -247,11 +447,6 @@ def capture(
     queries_dir = Path(erenshor.application.sheets.__file__).parent / "queries"
 
     golden_dir = _golden_dir(repo_root)
-    golden_wiki_dir = golden_dir / "wiki"
-    golden_sheets_dir = golden_dir / "sheets"
-    golden_map_dir = golden_dir / "map"
-    golden_code_facts_dir = golden_dir / "code_facts"
-
     console.print()
     console.print(
         Panel.fit(
@@ -262,76 +457,48 @@ def capture(
     )
     console.print()
 
-    errors: list[str] = []
-
-    # Wiki pages
-    console.print("[bold]Wiki pages[/bold]")
-    console.print(f"  Source:      {generated_dir}")
-    console.print(f"  Destination: {golden_wiki_dir}")
     try:
-        count = _capture_wiki(generated_dir, golden_wiki_dir, dry_run)
-        status = "[dim](dry run)[/dim]" if dry_run else "[green]done[/green]"
-        console.print(f"  {status} — {count} pages")
-    except Exception as e:
-        console.print(f"  [red]failed[/red] — {e}")
-        logger.exception("Wiki golden capture failed")
-        errors.append(f"wiki: {e}")
-    console.print()
+        if dry_run:
+            _capture_candidate_families(
+                target=golden_dir,
+                display_target=golden_dir,
+                generated_dir=generated_dir,
+                db_path=db_path,
+                queries_dir=queries_dir,
+                map_base_url=variant_config.maps.base_url,
+                dry_run=True,
+            )
+        else:
 
-    # Sheets
-    console.print("[bold]Sheets[/bold]")
-    console.print(f"  Source:      {db_path}")
-    console.print(f"  Destination: {golden_sheets_dir}")
-    try:
-        map_base_url = variant_config.maps.base_url
-        count = _capture_sheets(db_path, queries_dir, golden_sheets_dir, dry_run, map_base_url=map_base_url)
-        status = "[dim](dry run)[/dim]" if dry_run else "[green]done[/green]"
-        console.print(f"  {status} — {count} queries")
-    except Exception as e:
-        console.print(f"  [red]failed[/red] — {e}")
-        logger.exception("Sheets golden capture failed")
-        errors.append(f"sheets: {e}")
-    console.print()
+            def populate(staged: Path) -> None:
+                _copy_uncaptured_baseline_entries(golden_dir, staged)
+                counts = _capture_candidate_families(
+                    target=staged,
+                    display_target=golden_dir,
+                    generated_dir=generated_dir,
+                    db_path=db_path,
+                    queries_dir=queries_dir,
+                    map_base_url=variant_config.maps.base_url,
+                    dry_run=False,
+                )
+                _validate_staged_baseline(staged, counts=counts, cli_ctx=cli_ctx, wiki_dir=wiki_dir)
 
-    # Map
-    console.print("[bold]Map spawn-points[/bold]")
-    console.print(f"  Source:      {db_path}")
-    console.print(f"  Destination: {golden_map_dir / 'spawn-points.csv'}")
-    try:
-        count = _capture_map(db_path, golden_map_dir, dry_run)
-        status = "[dim](dry run)[/dim]" if dry_run else "[green]done[/green]"
-        console.print(f"  {status} — {count} rows")
-    except Exception as e:
-        console.print(f"  [red]failed[/red] — {e}")
-        logger.exception("Map golden capture failed")
-        errors.append(f"map: {e}")
-    console.print()
-
-    # Code facts
-    console.print("[bold]Code facts[/bold]")
-    console.print(f"  Source:      {db_path}")
-    console.print(f"  Destination: {golden_code_facts_dir / 'code_facts.csv'}")
-    try:
-        count = _capture_code_facts(db_path, golden_code_facts_dir, dry_run)
-        status = "[dim](dry run)[/dim]" if dry_run else "[green]done[/green]"
-        console.print(f"  {status} — {count} rows")
-    except Exception as e:
-        console.print(f"  [red]failed[/red] — {e}")
-        logger.exception("Code-facts golden capture failed")
-        errors.append(f"code_facts: {e}")
-    console.print()
-
-    if errors:
-        console.print(f"[red]Capture failed ({len(errors)} error(s)):[/red]")
-        for err in errors:
-            console.print(f"  - {err}")
-        raise typer.Exit(1)
+            _replace_golden_baseline(golden_dir, populate)
+    except _GoldenCaptureError as exc:
+        console.print(f"[red]Capture failed ({len(exc.errors)} error(s)):[/red]")
+        for error in exc.errors:
+            console.print(f"  - {error}")
+        raise typer.Exit(1) from exc
+    except Exception as exc:
+        logger.exception("Golden baseline validation or replacement failed")
+        console.print(f"[red]Capture failed before baseline replacement:[/red] {exc}")
+        raise typer.Exit(1) from exc
 
     if dry_run:
         console.print("[yellow]Dry run — no files written.[/yellow]")
     else:
         console.print(
-            f"[green]Golden baseline captured to {golden_dir}[/green]\n"
+            f"[green]Golden baseline captured atomically to {golden_dir}[/green]\n"
             "Commit these files before making any pipeline changes."
         )
     console.print()

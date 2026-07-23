@@ -4,19 +4,17 @@ from __future__ import annotations
 
 import json
 import sqlite3
-from collections import Counter
 from contextlib import closing
 from pathlib import Path
 from typing import cast
 from urllib.parse import quote
-
-import mwparserfromhell
 
 from erenshor.application.wiki.representative_samples import (
     RepresentativePageSample,
     load_representative_sample_spec,
     registered_generator_names,
     required_sample_boundaries,
+    validate_representative_sample_content,
 )
 from erenshor.domain.entities.item_kind import classify_item_kind
 
@@ -78,17 +76,7 @@ def test_sample_pages_resolve_stable_identities_and_expected_shapes() -> None:
             content_path = _content_path(sample)
             assert content_path.is_file(), f"Representative output is missing: {content_path}"
             content = content_path.read_text(encoding="utf-8")
-            templates = Counter(
-                str(template.name).strip()
-                for template in mwparserfromhell.parse(content).filter_templates(recursive=False)
-            )
-            for template_name, minimum in sample.required_templates.items():
-                assert templates[template_name] >= minimum, (
-                    f"{sample.title}: expected at least {minimum} top-level {template_name!r} templates, "
-                    f"found {templates[template_name]}"
-                )
-            for marker in sample.required_text:
-                assert marker in content, f"{sample.title}: required representative marker is missing: {marker!r}"
+            validate_representative_sample_content(sample, content)
 
 
 def test_item_kind_samples_reach_the_declared_classifier_branches() -> None:

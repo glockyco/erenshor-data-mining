@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import json
+from collections import Counter
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from types import MappingProxyType
 from typing import cast
+
+import mwparserfromhell
 
 from erenshor.application.wiki.generators.registry import WIKI_GENERATORS
 from erenshor.domain.entities.item_kind import ItemKind
@@ -117,6 +120,24 @@ def parse_representative_sample_spec(data: object, *, max_pages: int = 99) -> Re
         raise ValueError("Representative sample boundary mismatch: " + ". ".join(parts))
 
     return RepresentativeSampleSpec(samples=samples)
+
+
+def validate_representative_sample_content(sample: RepresentativePageSample, content: str) -> None:
+    """Validate the structural markers that make one selected page representative."""
+    templates = Counter(
+        str(template.name).strip() for template in mwparserfromhell.parse(content).filter_templates(recursive=False)
+    )
+    errors: list[str] = []
+    for template_name, minimum in sample.required_templates.items():
+        if templates[template_name] < minimum:
+            errors.append(
+                f"expected at least {minimum} top-level {template_name!r} templates, found {templates[template_name]}"
+            )
+    for marker in sample.required_text:
+        if marker not in content:
+            errors.append(f"required marker is missing: {marker!r}")
+    if errors:
+        raise ValueError(f"Representative sample {sample.title!r} is invalid: " + ". ".join(errors))
 
 
 def _parse_sample(value: object, index: int) -> RepresentativePageSample:
@@ -232,4 +253,5 @@ __all__ = [
     "parse_representative_sample_spec",
     "registered_generator_names",
     "required_sample_boundaries",
+    "validate_representative_sample_content",
 ]

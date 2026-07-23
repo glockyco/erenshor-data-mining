@@ -1,4 +1,4 @@
-# ruff: noqa: E501, PLR0911
+# ruff: noqa: PLR0911
 """Pure semantic validation for generated wiki pages.
 
 The validator intentionally accepts ordinary in-memory mappings.  Generation and
@@ -20,7 +20,7 @@ from erenshor.application.wiki.generators.field_preservation import (
     FieldPreservationHandler,
 )
 from erenshor.application.wiki.generators.page_normalizer import PageNormalizer
-from erenshor.application.wiki.services.storage import PageMetadata
+from erenshor.application.wiki.services.storage import PageMetadata, WikiStorage
 from erenshor.application.wiki_deploy.link_audit import audit_links
 from erenshor.application.wiki_lua.link_catalog import LinkCatalogEntry
 from erenshor.infrastructure.wiki.template_parser import TemplateParser
@@ -679,6 +679,25 @@ class WikiPageExpectation:
         object.__setattr__(self, "ownership", tuple(self.ownership))
 
 
+def derive_corpus_expectations(storage: WikiStorage, page_titles: Collection[str]) -> dict[str, WikiPageExpectation]:
+    """Build metadata, fetched-content, and singleton-overview facts for a stored corpus."""
+    expectations: dict[str, WikiPageExpectation] = {}
+    for title in page_titles:
+        metadata = storage.get_metadata_by_title(title)
+        if metadata is None:
+            raise ValueError(f"Generated wiki metadata missing for {title!r}")
+        schema_kind = f"{title.casefold()}_overview" if title in {"Armor", "Weapons"} else None
+        ownership = (schema_kind,) if schema_kind is not None else ()
+        expectations[title] = WikiPageExpectation(
+            title=title,
+            metadata=metadata,
+            fetched_content=storage.read_fetched_by_title(title),
+            ownership=ownership,
+            schema_kind=schema_kind,
+        )
+    return expectations
+
+
 @dataclass(frozen=True, slots=True)
 class PageContract:
     """Derived ownership/schema facts, useful to integration callers."""
@@ -1130,16 +1149,20 @@ def _validate_structure(
         return
 
     if schema == "item":
-        item_keys = [key for key in expected_keys if key.startswith("item:")]
-        roots = [
+        expected_item_keys = [key for key in expected_keys if key.startswith("item:")]
+        item_root_indices = [
             i
             for i, (template, name) in enumerate(zip(templates, names, strict=True))
-            if name == "Item" and (not item_keys or _keyed_value(parser, template) in item_keys)
+            if name == "Item" and (not expected_item_keys or _keyed_value(parser, template) in expected_item_keys)
         ]
-        if item_keys and len(roots) != len(item_keys):
-            findings.add("required_schema", parsed.title, f"expected {len(item_keys)} Item roots, found {len(roots)}")
+        if expected_item_keys and len(item_root_indices) != len(expected_item_keys):
+            findings.add(
+                "required_schema",
+                parsed.title,
+                f"expected {len(expected_item_keys)} Item roots, found {len(item_root_indices)}",
+            )
         observed_item_keys: list[str] = []
-        for index in roots:
+        for index in item_root_indices:
             key = _keyed_value(parser, templates[index])
             if key is not None:
                 observed_item_keys.append(key)
@@ -1165,16 +1188,17 @@ def _validate_structure(
                     parsed.title,
                     f"Item companion {names[next_index]!r} does not match stable key {key!r}",
                 )
-        if item_keys and set(observed_item_keys) != set(item_keys):
+        if expected_item_keys and set(observed_item_keys) != set(expected_item_keys):
             findings.add(
                 "stable_identity",
                 parsed.title,
-                f"Item stable keys {sorted(observed_item_keys)!r} do not match metadata keys {sorted(item_keys)!r}",
+                f"Item stable keys {sorted(observed_item_keys)!r} "
+                f"do not match metadata keys {sorted(expected_item_keys)!r}",
             )
 
     elif schema == "ability":
-        keys = [key for key in expected_keys if key.startswith(("spell:", "skill:"))]
-        roots = []
+        expected_ability_keys = [key for key in expected_keys if key.startswith(("spell:", "skill:"))]
+        ability_root_indices: list[int] = []
         for index, name in enumerate(names):
             if name != "Ability":
                 continue
@@ -1187,12 +1211,16 @@ def _validate_structure(
                 None,
             )
             companion_key = None if next_index is None else _keyed_value(parser, templates[next_index])
-            if not keys or companion_key in keys:
-                roots.append(index)
-        if keys and len(roots) != len(keys):
-            findings.add("required_schema", parsed.title, f"expected {len(keys)} Ability roots, found {len(roots)}")
+            if not expected_ability_keys or companion_key in expected_ability_keys:
+                ability_root_indices.append(index)
+        if expected_ability_keys and len(ability_root_indices) != len(expected_ability_keys):
+            findings.add(
+                "required_schema",
+                parsed.title,
+                f"expected {len(expected_ability_keys)} Ability roots, found {len(ability_root_indices)}",
+            )
         observed_ability_keys: list[str] = []
-        for index in roots:
+        for index in ability_root_indices:
             next_index = next(
                 (
                     i
@@ -1223,15 +1251,16 @@ def _validate_structure(
                         parsed.title,
                         f"ability companion key {companion_key!r} has no spell:/skill: prefix",
                     )
-        if keys and set(observed_ability_keys) != set(keys):
+        if expected_ability_keys and set(observed_ability_keys) != set(expected_ability_keys):
             findings.add(
                 "stable_identity",
                 parsed.title,
-                f"Ability tooltip keys {sorted(observed_ability_keys)!r} do not match metadata keys {sorted(keys)!r}",
+                f"Ability tooltip keys {sorted(observed_ability_keys)!r} "
+                f"do not match metadata keys {sorted(expected_ability_keys)!r}",
             )
 
     elif schema == "stance":
-        roots = []
+        stance_root_indices: list[int] = []
         stance_key_set = {key for key in expected_keys if key.startswith("stance:")}
         for index, name in enumerate(names):
             if name != "Stance":
@@ -1246,11 +1275,15 @@ def _validate_structure(
             )
             companion_key = None if next_index is None else _keyed_value(parser, templates[next_index])
             if not stance_key_set or companion_key in stance_key_set:
-                roots.append(index)
-        if len(roots) != 1:
-            findings.add("required_schema", parsed.title, f"expected one Stance root, found {len(roots)}")
+                stance_root_indices.append(index)
+        if len(stance_root_indices) != 1:
+            findings.add(
+                "required_schema",
+                parsed.title,
+                f"expected one Stance root, found {len(stance_root_indices)}",
+            )
         observed_stance_keys: list[str] = []
-        for index in roots:
+        for index in stance_root_indices:
             next_index = next(
                 (
                     i
@@ -1272,28 +1305,31 @@ def _validate_structure(
                 _entry_identity(findings, parsed.title, key, "ability", catalog)
                 if not key.startswith("stance:"):
                     findings.add("stable_identity", parsed.title, f"StanceTooltip key {key!r} is not a stance identity")
-        stance_keys = [key for key in expected_keys if key.startswith("stance:")]
-        if stance_keys and set(observed_stance_keys) != set(stance_keys):
+        expected_stance_keys = [key for key in expected_keys if key.startswith("stance:")]
+        if expected_stance_keys and set(observed_stance_keys) != set(expected_stance_keys):
             findings.add(
                 "stable_identity",
                 parsed.title,
-                f"Stance tooltip keys {sorted(observed_stance_keys)!r} do not match metadata keys {sorted(stance_keys)!r}",
+                f"Stance tooltip keys {sorted(observed_stance_keys)!r} "
+                f"do not match metadata keys {sorted(expected_stance_keys)!r}",
             )
 
     elif schema == "character":
-        roots = [template for template, name in zip(templates, names, strict=True) if name == "Character"]
-        keys = [key for key in expected_keys if key.startswith("character:")]
-        owned_roots = roots[: len(keys)] if keys else roots
-        if keys and len(owned_roots) != len(keys):
+        character_roots = [template for template, name in zip(templates, names, strict=True) if name == "Character"]
+        character_keys = [key for key in expected_keys if key.startswith("character:")]
+        owned_roots = character_roots[: len(character_keys)] if character_keys else character_roots
+        if character_keys and len(owned_roots) != len(character_keys):
             findings.add(
-                "required_schema", parsed.title, f"expected {len(keys)} Character roots, found {len(owned_roots)}"
+                "required_schema",
+                parsed.title,
+                f"expected {len(character_keys)} Character roots, found {len(owned_roots)}",
             )
-        for key in keys:
+        for key in character_keys:
             _entry_identity(findings, parsed.title, key, "character", catalog)
 
     elif schema == "zone":
-        roots = names.count("Zone")
-        if roots < 1:
+        zone_root_count = names.count("Zone")
+        if zone_root_count < 1:
             findings.add("required_schema", parsed.title, "zone page requires a Zone template")
         if names.count("Zone Navbox") != 1:
             findings.add("required_schema", parsed.title, "zone page requires exactly one Zone Navbox")
@@ -1549,6 +1585,7 @@ __all__ = [
     "SemanticValidationError",
     "SemanticValidationReport",
     "WikiPageExpectation",
+    "derive_corpus_expectations",
     "derive_page_contract",
     "validate_wiki_pages",
 ]

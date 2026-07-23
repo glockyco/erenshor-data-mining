@@ -2,15 +2,14 @@
 
 from __future__ import annotations
 
-import json
 import shutil
 from pathlib import Path
 
 import pytest
 
-from erenshor.application.wiki.semantic_validation import WikiPageExpectation, validate_wiki_pages
+from erenshor.application.wiki.semantic_validation import derive_corpus_expectations, validate_wiki_pages
 from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
-from erenshor.application.wiki.services.storage import PageMetadata, WikiStorage
+from erenshor.application.wiki.services.storage import WikiStorage
 from erenshor.application.wiki_lua.link_catalog import build_link_catalog_entries
 from erenshor.infrastructure.database.connection import DatabaseConnection
 from erenshor.infrastructure.database.repositories.characters import CharacterRepository
@@ -57,26 +56,7 @@ def generated_semantic_corpus(tmp_path_factory: pytest.TempPathFactory):
         class_display = ClassDisplayNameService(connection)
 
         pages = storage.read_generated_pages()
-        metadata_by_title = {
-            title: PageMetadata.from_dict(value)
-            for title, value in json.loads((wiki_dir / "metadata.json").read_text(encoding="utf-8")).items()
-        }
-        expectations: dict[str, WikiPageExpectation] = {}
-        for title in pages:
-            metadata = metadata_by_title.get(title)
-            assert metadata is not None
-            schema_kind = None
-            ownership: tuple[str, ...] = ()
-            if title in {"Armor", "Weapons"}:
-                schema_kind = f"{title.casefold()}_overview"
-                ownership = (schema_kind,)
-            expectations[title] = WikiPageExpectation(
-                title=title,
-                metadata=metadata,
-                fetched_content=storage.read_fetched_by_title(title),
-                ownership=ownership,
-                schema_kind=schema_kind,
-            )
+        expectations = derive_corpus_expectations(storage, pages)
 
         catalog = build_link_catalog_entries(
             items=item_repo.get_items_for_link_catalog(),
