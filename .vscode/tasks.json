@@ -2,12 +2,96 @@
 	"version": "2.0.0",
 	"tasks": [
 		// ====================================================================
-		// PYTHON TASKS
+		// VERIFICATION TASKS
 		// ====================================================================
 		{
-			"label": "Python: Run All Tests",
+			"label": "Erenshor: Test - Unit",
 			"type": "shell",
-			"command": "uv run pytest",
+			"command": "uv run erenshor test unit",
+			"group": "test",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"group": "verification"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Erenshor: Test - Unit (Coverage)",
+			"type": "shell",
+			"command": "uv run erenshor test unit --coverage",
+			"group": "test",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"group": "verification"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Erenshor: Test - Contract",
+			"type": "shell",
+			"command": "uv run erenshor test contract",
+			"group": "test",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"group": "verification"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Erenshor: Test - Data",
+			"type": "shell",
+			"command": "uv run erenshor test data",
+			"group": "test",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"group": "verification"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Erenshor: Test - Wiki",
+			"type": "shell",
+			"command": "uv run erenshor test wiki",
+			"group": "test",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"group": "verification"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Erenshor: Test - Maps",
+			"type": "shell",
+			"command": "uv run erenshor test maps",
+			"group": "test",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"group": "verification"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Erenshor: Test - Mods",
+			"type": "shell",
+			"command": "uv run erenshor test mods",
+			"group": "test",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"group": "verification"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Erenshor: Test - CI",
+			"type": "shell",
+			"command": "uv run erenshor test ci",
 			"group": {
 				"kind": "test",
 				"isDefault": true
@@ -15,51 +99,29 @@
 			"presentation": {
 				"reveal": "always",
 				"panel": "dedicated",
-				"group": "python"
+				"group": "verification"
 			},
 			"problemMatcher": []
 		},
 		{
-			"label": "Python: Run Tests with Coverage",
+			"label": "Erenshor: Test - Release",
 			"type": "shell",
-			"command": "uv run pytest --cov",
+			"command": "uv run erenshor test release",
 			"group": "test",
 			"presentation": {
 				"reveal": "always",
 				"panel": "dedicated",
-				"group": "python"
+				"group": "verification"
 			},
 			"problemMatcher": []
 		},
-		{
-			"label": "Python: Run Unit Tests Only",
-			"type": "shell",
-			"command": "uv run pytest -m unit",
-			"group": "test",
-			"presentation": {
-				"reveal": "always",
-				"panel": "dedicated",
-				"group": "python"
-			},
-			"problemMatcher": []
-		},
-		{
-			"label": "Python: Run Integration Tests",
-			"type": "shell",
-			"command": "uv run pytest -m integration",
-			"group": "test",
-			"presentation": {
-				"reveal": "always",
-				"panel": "dedicated",
-				"group": "python"
-			},
-			"problemMatcher": []
-		},
+		// ====================================================================
+		// PYTHON TASKS
+		// ====================================================================
 		{
 			"label": "Python: Lint with Ruff",
 			"type": "shell",
 			"command": "uv run ruff check src/ tests/ --output-format=concise",
-			"group": "build",
 			"presentation": {
 				"reveal": "always",
 				"panel": "shared",
@@ -300,21 +362,6 @@
 				"group": "maps"
 			},
 			"problemMatcher": "$tsc"
-		},
-		{
-			"label": "Maps: Run Tests",
-			"type": "shell",
-			"command": "npm run test",
-			"options": {
-				"cwd": "${workspaceFolder}/src/maps"
-			},
-			"group": "test",
-			"presentation": {
-				"reveal": "always",
-				"panel": "dedicated",
-				"group": "maps"
-			},
-			"problemMatcher": []
 		},
 		{
 			"label": "Maps: Deploy to Cloudflare",

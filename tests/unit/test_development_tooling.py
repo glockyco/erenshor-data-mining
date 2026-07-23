@@ -40,21 +40,30 @@ def test_lefthook_runs_project_area_checks() -> None:
     config = Path("lefthook.yml").read_text(encoding="utf-8")
 
     assert "git diff --cached --check" in config
-
     assert "gitleaks protect --staged" in config
     assert "pre-commit:" in config
     assert "commit-msg:" in config
     assert "pre-push:" in config
+    assert "uv run mypy src/" not in config
+    assert "uv run pytest tests/unit -q --tb=short" not in config
+    assert "uv run pytest tests/integration -v" not in config
+
+    pre_push = config.split("pre-push:", maxsplit=1)[1]
+    pre_push_commands = [
+        line.strip()[len("run: ") :] for line in pre_push.splitlines() if line.strip().startswith("run: ")
+    ]
+    assert pre_push_commands == [
+        "uv run erenshor test unit",
+        "uv run erenshor test contract",
+    ]
+
     assert "uv run ruff format" in config
     assert "uv run ruff check --fix" in config
-    assert "uv run mypy src/" in config
-    assert "uv run pytest tests/unit -q --tb=short" in config
     assert "pnpm --filter erenshor-maps lint" in config
     assert "src/maps/*.{js,ts,svelte,cjs,mjs,json}" in config
     assert "bash src/mods/run-csharpier.sh" in config
     assert "pnpm exec stylua --check" in config
     assert "pnpm exec commitlint --edit" in config
-    assert "uv run pytest tests/integration -v" in config
 
 
 def test_commitlint_enforces_project_commit_policy() -> None:
