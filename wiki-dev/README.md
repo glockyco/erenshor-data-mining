@@ -123,6 +123,14 @@ uv run python wiki-dev/import_pages.py --dry-run
 uv run python wiki-dev/import_pages.py
 ```
 
+The importer reconciles only repository-managed titles. It compares current
+sources with exact remote content, creates missing pages, updates drifted pages,
+and deletes titles only when they were recorded in the previous managed
+manifest. Unmanaged wiki pages are never queried or changed. A successful run
+atomically refreshes the gitignored manifest at
+`wiki-dev/runtime/import_pages.manifest.json`. Re-running an unchanged import
+performs no edits, deletes, or purges.
+
 Mappings:
 
 ```text
