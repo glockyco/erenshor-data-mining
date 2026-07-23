@@ -45,13 +45,20 @@ def test_load_and_render_repository_gadget_spec() -> None:
         GadgetDefinition(
             name="semantic-link-picker",
             options=("ResourceLoader", "default", "rights=edit"),
-            sources=("semantic-link-picker.js", "semantic-link-picker.css"),
+            sources=(
+                "semantic-link-picker-core.js",
+                "semantic-link-picker.js",
+                "semantic-link-picker.css",
+            ),
         ),
     )
     assert render_definition_lines(spec) == (
         "* erenshor[ResourceLoader|default|hidden|type=styles]|erenshor.css",
         "* item-tooltips[ResourceLoader|default|hidden]|item-tooltips.js",
-        "* semantic-link-picker[ResourceLoader|default|rights=edit]|semantic-link-picker.js|semantic-link-picker.css",
+        (
+            "* semantic-link-picker[ResourceLoader|default|rights=edit]|"
+            "semantic-link-picker-core.js|semantic-link-picker.js|semantic-link-picker.css"
+        ),
     )
     with pytest.raises(FrozenInstanceError):
         spec.gadgets = ()  # type: ignore[misc]

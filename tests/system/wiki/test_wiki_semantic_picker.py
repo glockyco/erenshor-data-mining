@@ -24,7 +24,10 @@ def _picker_harness_ready() -> bool:
             API_URL,
             params={
                 "action": "query",
-                "titles": "MediaWiki:Gadget-semantic-link-picker.js|Lua AbilityLink Smoke",
+                "titles": (
+                    "MediaWiki:Gadget-semantic-link-picker-core.js|"
+                    "MediaWiki:Gadget-semantic-link-picker.js|Lua AbilityLink Smoke"
+                ),
                 "format": "json",
                 "formatversion": "2",
             },
@@ -34,7 +37,7 @@ def _picker_harness_ready() -> bool:
         pages = response.json()["query"]["pages"]
     except (httpx.HTTPError, KeyError, TypeError, ValueError):
         return False
-    return len(pages) == 2 and all("missing" not in page for page in pages)
+    return len(pages) == 3 and all("missing" not in page for page in pages)
 
 
 @pytest.fixture

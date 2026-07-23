@@ -13,4 +13,4 @@ sources = ["item-tooltips.js"]
 [[gadgets]]
 name = "semantic-link-picker"
 options = ["ResourceLoader", "default", "rights=edit"]
-sources = ["semantic-link-picker.js", "semantic-link-picker.css"]
+sources = ["semantic-link-picker-core.js", "semantic-link-picker.js", "semantic-link-picker.css"]

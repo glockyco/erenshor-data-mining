@@ -6,7 +6,8 @@
     "check": "pnpm --filter erenshor-maps check",
     "lint": "pnpm --filter erenshor-maps lint",
     "lint:fix": "pnpm --filter erenshor-maps lint:fix",
-    "format": "pnpm --filter erenshor-maps format"
+    "format": "pnpm --filter erenshor-maps format",
+    "test:wiki-picker": "node --test tests/unit/wiki/semantic-link-picker-core.test.js"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.0.2",
