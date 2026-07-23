@@ -34,13 +34,11 @@ import pytest
 
 REPO_ROOT = Path(__file__).parent.parent.parent
 GOLDEN_DIR = REPO_ROOT / "tests" / "golden"
-GOLDEN_WIKI_DIR = GOLDEN_DIR / "wiki"
 GOLDEN_SHEETS_DIR = GOLDEN_DIR / "sheets"
 GOLDEN_MAP_DIR = GOLDEN_DIR / "map"
 GOLDEN_CODE_FACTS_DIR = GOLDEN_DIR / "code_facts"
 
 QUERIES_DIR = REPO_ROOT / "src" / "erenshor" / "application" / "sheets" / "queries"
-WIKI_GENERATED_DIR = REPO_ROOT / "variants" / "main" / "wiki" / "generated"
 DB_PATH = REPO_ROOT / "variants" / "main" / "erenshor-main.sqlite"
 
 # ---------------------------------------------------------------------------
@@ -148,76 +146,6 @@ def golden_sheets_engine():
 # ---------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------
-
-
-class TestWikiGolden:
-    """Regression tests for wiki page generation output."""
-
-    def test_golden_dir_exists(self):
-        """Skip clearly if golden capture has not been run."""
-        if not GOLDEN_WIKI_DIR.exists():
-            pytest.skip(
-                f"Golden wiki directory not found: {GOLDEN_WIKI_DIR}\n"
-                "Run 'uv run erenshor golden capture' before running regression tests."
-            )
-
-    def test_no_pages_missing(self):
-        """Every page in the golden baseline must exist in the generated output."""
-        _skip_if_missing(GOLDEN_WIKI_DIR, "Golden wiki directory")
-        _skip_if_missing(WIKI_GENERATED_DIR, "Wiki generated directory")
-
-        golden_files = {f.name for f in GOLDEN_WIKI_DIR.glob("*.txt")}
-        generated_files = {f.name for f in WIKI_GENERATED_DIR.glob("*.txt")}
-
-        missing = golden_files - generated_files
-        assert not missing, (
-            f"{len(missing)} wiki page(s) present in golden but missing from generated output:\n"
-            + "\n".join(sorted(missing)[:20])
-            + ("\n..." if len(missing) > 20 else "")
-        )
-
-    def test_no_unexpected_pages_added(self):
-        """No new pages should appear that weren't in the golden baseline."""
-        _skip_if_missing(GOLDEN_WIKI_DIR, "Golden wiki directory")
-        _skip_if_missing(WIKI_GENERATED_DIR, "Wiki generated directory")
-
-        golden_files = {f.name for f in GOLDEN_WIKI_DIR.glob("*.txt")}
-        generated_files = {f.name for f in WIKI_GENERATED_DIR.glob("*.txt")}
-
-        added = generated_files - golden_files
-        assert not added, (
-            f"{len(added)} wiki page(s) in generated output not present in golden baseline:\n"
-            + "\n".join(sorted(added)[:20])
-            + ("\n..." if len(added) > 20 else "")
-        )
-
-    def test_page_content_unchanged(self):
-        """Every generated page must match its golden counterpart exactly."""
-        _skip_if_missing(GOLDEN_WIKI_DIR, "Golden wiki directory")
-        _skip_if_missing(WIKI_GENERATED_DIR, "Wiki generated directory")
-
-        regressions: list[str] = []
-
-        for golden_file in sorted(GOLDEN_WIKI_DIR.glob("*.txt")):
-            generated_file = WIKI_GENERATED_DIR / golden_file.name
-            if not generated_file.exists():
-                continue  # caught by test_no_pages_missing
-
-            from urllib.parse import unquote
-
-            page_title = unquote(golden_file.stem)
-
-            golden_content = golden_file.read_text(encoding="utf-8")
-            generated_content = generated_file.read_text(encoding="utf-8")
-
-            if golden_content != generated_content:
-                regressions.append(page_title)
-
-        assert not regressions, (
-            f"{len(regressions)} wiki page(s) differ from golden baseline:\n"
-            + "\n".join(sorted(regressions)[:20])
-            + ("\n..." if len(regressions) > 20 else "")
-        )
 
 
 class TestSheetsGolden:

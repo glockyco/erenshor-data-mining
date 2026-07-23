@@ -2,12 +2,17 @@
 
 from __future__ import annotations
 
+import json
 import shutil
 from pathlib import Path
 
 import pytest
 
-from erenshor.application.wiki.semantic_validation import derive_corpus_expectations, validate_wiki_pages
+from erenshor.application.wiki.semantic_validation import (
+    build_semantic_manifest,
+    derive_corpus_expectations,
+    validate_wiki_pages,
+)
 from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
 from erenshor.application.wiki.services.storage import WikiStorage
 from erenshor.application.wiki_lua.link_catalog import build_link_catalog_entries
@@ -24,6 +29,7 @@ from erenshor.infrastructure.database.repositories.zones import ZoneRepository
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DB_PATH = REPO_ROOT / "variants" / "main" / "erenshor-main.sqlite"
 SOURCE_WIKI_DIR = REPO_ROOT / "variants" / "main" / "wiki"
+GOLDEN_MANIFEST_PATH = REPO_ROOT / "tests" / "golden" / "wiki" / "manifest.json"
 
 
 @pytest.fixture(scope="module")
@@ -72,6 +78,15 @@ def generated_semantic_corpus(tmp_path_factory: pytest.TempPathFactory):
         yield pages, expectations, catalog
     finally:
         connection.close()
+
+
+def test_semantic_manifest_matches_golden(generated_semantic_corpus) -> None:
+    """The compact golden records every page identity and semantic output boundary."""
+    pages, expectations, catalog = generated_semantic_corpus
+    actual = build_semantic_manifest(pages, expectations=expectations, catalog_entries=catalog)
+
+    assert GOLDEN_MANIFEST_PATH.is_file(), "Run 'uv run erenshor golden capture' to create the wiki manifest"
+    assert actual == json.loads(GOLDEN_MANIFEST_PATH.read_text(encoding="utf-8"))
 
 
 def test_all_generated_pages_satisfy_semantic_contracts(generated_semantic_corpus) -> None:

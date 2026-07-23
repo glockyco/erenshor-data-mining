@@ -10,6 +10,7 @@ from erenshor.application.wiki.semantic_validation import (
     REQUIRED_TEMPLATE_FIELDS,
     SemanticValidationError,
     WikiPageExpectation,
+    build_semantic_manifest,
     derive_page_contract,
     validate_wiki_pages,
 )
@@ -211,6 +212,24 @@ def test_prefer_manual_sentinel_is_compared_using_existing_handler() -> None:
     pages["Sword"] = pages["Sword"].replace("|othersource=Editor source", "|othersource=-")
 
     assert not _validate(pages, expectations).has_errors
+
+
+def test_semantic_manifest_records_identity_shape_categories_and_links() -> None:
+    pages, expectations = _valid_corpus()
+
+    manifest = build_semantic_manifest(pages, expectations=expectations, catalog_entries=_catalog())
+
+    entries = {entry["title"]: entry for entry in manifest["pages"]}
+    assert manifest["version"] == 1
+    assert entries["Sword"] == {
+        "title": "Sword",
+        "stable_keys": ["item:sword"],
+        "schema": "item",
+        "generated_templates": ["Item", "ItemTooltip"],
+        "categories": ["Category:Items"],
+        "semantic_links": [],
+    }
+    assert entries["Equipment"]["semantic_links"] == ["ItemLink:1:Sword"]
 
 
 def test_malformed_fetched_content_fails_without_ownership_false_positive() -> None:

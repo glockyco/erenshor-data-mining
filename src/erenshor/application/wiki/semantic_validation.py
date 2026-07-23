@@ -13,7 +13,7 @@ from collections import Counter
 from collections.abc import Collection, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from types import MappingProxyType
-from typing import Any, cast
+from typing import Any, TypedDict, cast
 
 from erenshor.application.wiki.generators.field_preservation import (
     DEFAULT_PRESERVATION_RULES,
@@ -707,6 +707,20 @@ class PageContract:
     stable_keys: tuple[str, ...]
     generated_templates: tuple[str, ...]
     ownership: tuple[str, ...] = ()
+
+
+class SemanticManifestEntry(TypedDict):
+    title: str
+    stable_keys: list[str]
+    schema: str
+    generated_templates: list[str]
+    categories: list[str]
+    semantic_links: list[str]
+
+
+class SemanticManifest(TypedDict):
+    version: int
+    pages: list[SemanticManifestEntry]
 
 
 @dataclass(frozen=True, slots=True)
@@ -1498,6 +1512,60 @@ def _validate_categories(findings: _Findings, page: str, content: str, expected:
             )
 
 
+def build_semantic_manifest(
+    generated_pages: Mapping[str, str],
+    *,
+    expectations: Mapping[str, WikiPageExpectation | PageMetadata | Mapping[str, object]],
+    catalog_entries: Sequence[LinkCatalogEntry | Mapping[str, object]],
+) -> SemanticManifest:
+    """Build a deterministic, presentation-independent manifest for a generated corpus."""
+    catalog = _catalog(catalog_entries)
+    entries: list[SemanticManifestEntry] = []
+    for title in sorted(generated_pages, key=lambda value: (value.casefold(), value)):
+        if title not in expectations:
+            raise ValueError(f"Semantic manifest expectation missing for {title!r}")
+        content = generated_pages[title]
+        expectation = _metadata_for(title, expectations[title])
+        parsed = _parse_page(title, content)
+        stable_keys = _stable_keys(expectation)
+        schema = _schema_from_names(parsed.names, expectation.schema_kind, stable_keys, catalog)
+        generated_templates = sorted(
+            {name for name in parsed.names if name in GENERATED_TEMPLATES},
+            key=lambda value: (value.casefold(), value),
+        )
+        entries.append(
+            {
+                "title": title,
+                "stable_keys": list(stable_keys),
+                "schema": schema,
+                "generated_templates": generated_templates,
+                "categories": sorted(
+                    (category[2:-2] for category in _extract_categories(content)),
+                    key=lambda value: (value.casefold(), value),
+                ),
+                "semantic_links": _semantic_link_inventory(content),
+            }
+        )
+    return {"version": 1, "pages": entries}
+
+
+def _semantic_link_inventory(content: str) -> list[str]:
+    parser = TemplateParser()
+    code = parser.parse(content)
+    links: list[str] = []
+    for template in code.filter_templates(recursive=True):
+        name = _name(template)
+        if name not in SEMANTIC_LINK_TEMPLATES:
+            continue
+        params = _params(parser, template)
+        for parameter in ("stablekey", "link", "1"):
+            value = params.get(parameter, "").strip()
+            if value:
+                links.append(f"{name}:{parameter}:{value}")
+                break
+    return sorted(links, key=lambda value: (value.casefold(), value))
+
+
 def validate_wiki_pages(
     generated_pages: Mapping[str, str],
     *,
@@ -1582,9 +1650,12 @@ __all__ = [
     "REQUIRED_TEMPLATE_FIELDS",
     "PageContract",
     "SemanticFinding",
+    "SemanticManifest",
+    "SemanticManifestEntry",
     "SemanticValidationError",
     "SemanticValidationReport",
     "WikiPageExpectation",
+    "build_semantic_manifest",
     "derive_corpus_expectations",
     "derive_page_contract",
     "validate_wiki_pages",

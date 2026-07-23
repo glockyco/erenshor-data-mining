@@ -34,11 +34,6 @@ def _content_path(sample: RepresentativePageSample) -> Path:
     return GENERATED_DIR / filename
 
 
-def _standard_samples() -> tuple[RepresentativePageSample, ...]:
-    spec = load_representative_sample_spec(SPEC_PATH)
-    return tuple(sample for sample in spec.samples if sample.generator != "zones")
-
-
 def test_sample_spec_covers_every_generator_and_behavior_boundary() -> None:
     spec = load_representative_sample_spec(SPEC_PATH)
 
@@ -120,10 +115,15 @@ def test_item_kind_samples_reach_the_declared_classifier_branches() -> None:
             assert item_boundaries == [f"item_kind.{kind.value}"], sample.title
 
 
-def test_selected_standard_pages_match_the_existing_exhaustive_snapshots() -> None:
-    for sample in _standard_samples():
-        filename = f"{quote(sample.title, safe='_-.')}.txt"
-        generated = GENERATED_DIR / filename
-        golden = GOLDEN_WIKI_DIR / filename
-        assert golden.is_file(), f"Selected page is absent from the existing exhaustive baseline: {sample.title}"
-        assert generated.read_bytes() == golden.read_bytes(), sample.title
+def test_selected_pages_match_representative_golden_snapshots() -> None:
+    spec = load_representative_sample_spec(SPEC_PATH)
+    expected_files = {f"{quote(sample.title, safe='_-.')}.txt" for sample in spec.samples} | {"manifest.json"}
+    actual_files = {path.name for path in GOLDEN_WIKI_DIR.iterdir()}
+    assert actual_files == expected_files
+
+    for sample in spec.samples:
+        source = _content_path(sample)
+        golden = GOLDEN_WIKI_DIR / f"{quote(sample.title, safe='_-.')}.txt"
+        assert source.is_file(), f"Representative source is absent: {source}"
+        assert golden.is_file(), f"Representative golden snapshot is absent: {sample.title}"
+        assert source.read_bytes() == golden.read_bytes(), sample.title

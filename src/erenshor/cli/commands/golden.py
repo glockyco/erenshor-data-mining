@@ -4,7 +4,7 @@ Captures the current pipeline output as golden baseline files used by
 regression tests to detect unintended changes during the pipeline rewrite.
 
 Three output types are captured:
-  - Wiki pages: one .txt file per page title (copied from generated/)
+  - Wiki pages: representative exact snapshots plus a semantic all-page manifest
   - Sheets: one CSV per SQL query (23 files)
   - Map spawn-points: full spawn-points query output as CSV
 
@@ -15,6 +15,7 @@ to tests/golden/ and become the regression baseline.
 from __future__ import annotations
 
 import csv
+import json
 import shutil
 import sqlite3
 import tempfile
@@ -35,7 +36,11 @@ from erenshor.application.wiki.representative_samples import (
     load_representative_sample_spec,
     validate_representative_sample_content,
 )
-from erenshor.application.wiki.semantic_validation import derive_corpus_expectations, validate_wiki_pages
+from erenshor.application.wiki.semantic_validation import (
+    build_semantic_manifest,
+    derive_corpus_expectations,
+    validate_wiki_pages,
+)
 from erenshor.application.wiki.services.storage import WikiStorage
 from erenshor.cli.commands.wiki import _build_link_audit_catalog
 from erenshor.cli.preconditions import require_preconditions
@@ -140,29 +145,43 @@ def _write_golden_csv(path: Path, rows: list[list[object]]) -> None:
         writer.writerows(rows)
 
 
-def _capture_wiki(generated_dir: Path, golden_wiki_dir: Path, dry_run: bool) -> int:
-    """Copy wiki generated .txt files to golden/wiki/."""
-    if not generated_dir.exists():
+def _capture_wiki(
+    generated_dir: Path,
+    zone_dir: Path,
+    sample_spec_path: Path,
+    golden_wiki_dir: Path,
+    dry_run: bool,
+) -> int:
+    """Copy only declared representative pages to the wiki golden family."""
+    if not generated_dir.is_dir():
         raise FileNotFoundError(
             f"Wiki generated directory not found: {generated_dir}\nRun 'erenshor wiki generate' first."
         )
 
-    txt_files = sorted(generated_dir.glob("*.txt"))
-    if not txt_files:
-        raise FileNotFoundError(f"No .txt files found in {generated_dir}\nRun 'erenshor wiki generate' first.")
+    spec = load_representative_sample_spec(sample_spec_path)
+    sources: list[tuple[Path, str]] = []
+    for sample in spec.samples:
+        source = (
+            zone_dir / f"{sample.title.replace(' ', '_')}.txt"
+            if sample.generator == "zones"
+            else generated_dir / f"{quote(sample.title, safe='_-.')}.txt"
+        )
+        if not source.is_file():
+            raise FileNotFoundError(f"Representative wiki source missing for {sample.title!r}: {source}")
+        sources.append((source, f"{quote(sample.title, safe='_-.')}.txt"))
 
     if not dry_run:
         parent = golden_wiki_dir.parent
         parent.mkdir(parents=True, exist_ok=True)
-        with tempfile.TemporaryDirectory(dir=parent) as tmp:
-            tmp_dir = Path(tmp)
-            for src in txt_files:
-                shutil.copy2(src, tmp_dir / src.name)
+        with tempfile.TemporaryDirectory(dir=parent) as temporary:
+            staged_wiki = Path(temporary)
+            for source, filename in sources:
+                shutil.copy2(source, staged_wiki / filename)
             if golden_wiki_dir.exists():
                 shutil.rmtree(golden_wiki_dir)
-            shutil.move(str(tmp_dir), golden_wiki_dir)
+            shutil.move(str(staged_wiki), golden_wiki_dir)
 
-    return len(txt_files)
+    return len(sources)
 
 
 def _capture_sheets(
@@ -278,17 +297,7 @@ def _validate_staged_baseline(
     """Run every semantic and structural gate against the completed candidate tree."""
     storage = WikiStorage(wiki_dir)
     titles = storage.list_generated_titles()
-    expected_wiki_files = {f"{quote(title, safe='_-.')}.txt" for title in titles}
-    staged_wiki_dir = staged / "wiki"
-    actual_wiki_files = {path.name for path in staged_wiki_dir.glob("*.txt")}
-    if actual_wiki_files != expected_wiki_files or len(actual_wiki_files) != counts.wiki_pages:
-        missing = sorted(expected_wiki_files - actual_wiki_files)
-        extra = sorted(actual_wiki_files - expected_wiki_files)
-        raise ValueError(f"Staged wiki inventory mismatch: missing={missing}, extra={extra}")
-
-    pages = {
-        title: (staged_wiki_dir / f"{quote(title, safe='_-.')}.txt").read_text(encoding="utf-8") for title in titles
-    }
+    pages = storage.read_generated_pages(titles)
     expectations = derive_corpus_expectations(storage, titles)
     catalog = _build_link_audit_catalog(cli_ctx)
     validate_wiki_pages(
@@ -301,18 +310,38 @@ def _validate_staged_baseline(
     ).raise_for_errors()
 
     spec = load_representative_sample_spec(staged / "wiki-samples.json")
+    expected_wiki_files = {f"{quote(sample.title, safe='_-.')}.txt" for sample in spec.samples}
+    staged_wiki_dir = staged / "wiki"
+    actual_wiki_files = {path.name for path in staged_wiki_dir.glob("*.txt")}
+    if actual_wiki_files != expected_wiki_files or len(actual_wiki_files) != counts.wiki_pages:
+        missing = sorted(expected_wiki_files - actual_wiki_files)
+        extra = sorted(actual_wiki_files - expected_wiki_files)
+        raise ValueError(f"Staged wiki inventory mismatch: missing={missing}, extra={extra}")
+
     for sample in spec.samples:
+        staged_content = (staged_wiki_dir / f"{quote(sample.title, safe='_-.')}.txt").read_text(encoding="utf-8")
         if sample.generator == "zones":
-            zone_path = cli_ctx.repo_root / "wiki" / "zones" / f"{sample.title.replace(' ', '_')}.txt"
-            if not zone_path.is_file():
-                raise ValueError(f"Representative zone output missing: {zone_path}")
-            content = zone_path.read_text(encoding="utf-8")
+            source_path = cli_ctx.repo_root / "wiki" / "zones" / f"{sample.title.replace(' ', '_')}.txt"
+            if not source_path.is_file():
+                raise ValueError(f"Representative zone output missing: {source_path}")
+            source_content = source_path.read_text(encoding="utf-8")
         else:
             try:
-                content = pages[sample.title]
+                source_content = pages[sample.title]
             except KeyError as exc:
                 raise ValueError(f"Representative wiki page missing: {sample.title!r}") from exc
-        validate_representative_sample_content(sample, content)
+        if staged_content != source_content:
+            raise ValueError(f"Representative wiki snapshot changed while staging: {sample.title!r}")
+        validate_representative_sample_content(sample, staged_content)
+
+    manifest = build_semantic_manifest(pages, expectations=expectations, catalog_entries=catalog)
+    manifest_path = staged_wiki_dir / "manifest.json"
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    if json.loads(manifest_path.read_text(encoding="utf-8")) != manifest:
+        raise ValueError("Staged semantic wiki manifest did not round-trip")
 
     sheet_files = tuple((staged / "sheets").glob("*.csv"))
     if len(sheet_files) != counts.sheets or any(path.stat().st_size == 0 for path in sheet_files):
@@ -331,6 +360,7 @@ def _capture_candidate_families(
     target: Path,
     display_target: Path,
     generated_dir: Path,
+    repo_root: Path,
     db_path: Path,
     queries_dir: Path,
     map_base_url: str,
@@ -354,7 +384,13 @@ def _capture_candidate_families(
             "Wiki pages",
             generated_dir,
             "pages",
-            lambda: _capture_wiki(generated_dir, destinations["wiki"], dry_run),
+            lambda: _capture_wiki(
+                generated_dir,
+                repo_root / "wiki" / "zones",
+                target / "wiki-samples.json",
+                destinations["wiki"],
+                dry_run,
+            ),
         ),
         (
             "sheets",
@@ -424,7 +460,7 @@ def capture(
       - The variant database must exist and be populated
 
     Captured outputs:
-      - tests/golden/wiki/    — one .txt per wiki page (from wiki/generated/)
+      - tests/golden/wiki/    — representative page snapshots and semantic manifest
       - tests/golden/sheets/  — one CSV per SQL query (23 files)
       - tests/golden/map/     — spawn-points.csv (full map query output)
       - tests/golden/code_facts/ — code_facts.csv (hardcoded game constants)
@@ -463,6 +499,7 @@ def capture(
                 target=golden_dir,
                 display_target=golden_dir,
                 generated_dir=generated_dir,
+                repo_root=repo_root,
                 db_path=db_path,
                 queries_dir=queries_dir,
                 map_base_url=variant_config.maps.base_url,
@@ -476,6 +513,7 @@ def capture(
                     target=staged,
                     display_target=golden_dir,
                     generated_dir=generated_dir,
+                    repo_root=repo_root,
                     db_path=db_path,
                     queries_dir=queries_dir,
                     map_base_url=variant_config.maps.base_url,
