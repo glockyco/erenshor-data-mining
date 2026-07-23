@@ -1,0 +1,8 @@
+bin/
+obj/
+
+# The repository-wide Unity ignore rule excludes generated project files; this
+# hand-authored production project remains explicitly tracked.
+!ExportSurface.csproj
+# This hand-authored native test project is part of the verification contract.
+!tests/ExportSurface.Tests/ExportSurface.Tests.csproj

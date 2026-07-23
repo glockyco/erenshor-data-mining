@@ -269,20 +269,29 @@ def test_python_leaves_use_exact_pytest_path_argv_and_repository_cwd(
     assert calls[0][1] == tmp_path
 
 
-def test_contract_preflight_requires_codefacts_native_project(tmp_path: Path, monkeypatch: Any) -> None:
+def test_contract_preflight_requires_both_native_projects(tmp_path: Path, monkeypatch: Any) -> None:
     monkeypatch.setattr(test, "_executable", lambda name: test._Preflight(name, True, "present"))
 
     checks = test._preflight_contract(_context(tmp_path))
 
-    project_check = next(check for check in checks if check.name == "CodeFacts native test project")
-    assert not project_check.ok
-    assert project_check.detail == str(tmp_path / test._CODEFACTS_TEST_PROJECT)
+    project_checks = [check for check in checks if "native test project" in check.name]
+    assert [check.name for check in project_checks] == [
+        "CodeFacts native test project",
+        "ExportSurface native test project",
+    ]
+    assert [check.detail for check in project_checks] == [
+        str(tmp_path / test._CONTRACT_NATIVE_TEST_PROJECTS[0].project),
+        str(tmp_path / test._CONTRACT_NATIVE_TEST_PROJECTS[1].project),
+    ]
+    assert all(not check.ok for check in project_checks)
 
-    project = tmp_path / test._CODEFACTS_TEST_PROJECT
-    project.parent.mkdir(parents=True)
-    project.touch()
+    for project in test._CONTRACT_NATIVE_TEST_PROJECTS:
+        path = tmp_path / project.project
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.touch()
+
     checks = test._preflight_contract(_context(tmp_path))
-    assert next(check for check in checks if check.name == "CodeFacts native test project").ok
+    assert all(check.ok for check in checks if "native test project" in check.name)
 
 
 def test_contract_leaf_uses_exact_native_and_pytest_commands_and_namespaced_results(
@@ -302,15 +311,26 @@ def test_contract_leaf_uses_exact_native_and_pytest_commands_and_namespaced_resu
     result = test._run_leaf(_context(tmp_path), "contract")
 
     assert result.status == "passed"
-    assert len(calls) == 2
-    native_command, pytest_command = calls
-    project = tmp_path / test._CODEFACTS_TEST_PROJECT
-    native_logger = native_command[0][-1]
-    assert native_logger.startswith("trx;LogFileName=")
-    assert list(native_command[0]) == ["dotnet", "test", str(project), "-c", "Release", "--logger", native_logger]
-    assert native_command[1] == tmp_path
-    pytest_report = pytest_command[0][-1]
-    assert list(pytest_command[0]) == [
+    assert len(calls) == 3
+    native_projects = test._CONTRACT_NATIVE_TEST_PROJECTS
+    for (native_command, native_cwd), project in zip(calls[:2], native_projects, strict=True):
+        native_logger = native_command[-1]
+        expected_project = tmp_path / project.project
+        assert native_logger.startswith("trx;LogFileName=")
+        assert list(native_command) == [
+            "dotnet",
+            "test",
+            str(expected_project),
+            "-c",
+            "Release",
+            "--logger",
+            native_logger,
+        ]
+        assert native_cwd == tmp_path
+
+    pytest_command, pytest_cwd = calls[2]
+    pytest_report = pytest_command[-1]
+    assert list(pytest_command) == [
         "uv",
         "run",
         "pytest",
@@ -320,12 +340,14 @@ def test_contract_leaf_uses_exact_native_and_pytest_commands_and_namespaced_resu
         "--erenshor-report",
         pytest_report,
     ]
+    assert pytest_cwd == tmp_path
     _assert_intermediate_report_path(Path(pytest_report), tmp_path, "contract")
     assert result.result_counts == {
         "codefacts": {"executed": 1, "failed": 0, "skipped": 0, "not_executed": 0},
+        "exportsurface": {"executed": 1, "failed": 0, "skipped": 0, "not_executed": 0},
         "pytest": _counts(),
     }
-    assert set(result.diagnostics) == {"codefacts", "pytest"}
+    assert list(result.diagnostics) == ["codefacts", "exportsurface", "pytest"]
 
 
 @pytest.mark.parametrize(
@@ -346,7 +368,9 @@ def test_contract_native_runner_validates_trx_counts(
         return test._CommandResult(tuple(argv), cwd, 0, 0.0)
 
     monkeypatch.setattr(test, "_run_process", fake_run_process)
-    result = test._run_native_test_project(_context(tmp_path), test._CODEFACTS_TEST_PROJECT, name="CodeFacts")
+    result = test._run_native_test_project(
+        _context(tmp_path), test._CONTRACT_NATIVE_TEST_PROJECTS[0].project, name="CodeFacts"
+    )
 
     assert result.status == expected_status
     assert result.exit_code == (0 if expected_status == "passed" else 1)
@@ -356,18 +380,24 @@ def test_contract_native_runner_validates_trx_counts(
         assert result.status == "failed"
 
 
-def test_contract_leaf_runs_pytest_after_native_failure_and_propagates_failure(
+def test_contract_leaf_runs_every_native_project_and_pytest_after_native_failure(
     tmp_path: Path, monkeypatch: Any
 ) -> None:
+    native_calls: list[str] = []
     pytest_calls: list[Sequence[str]] = []
-    native = test._NativeTestResult(
-        command=test._CommandResult(("dotnet", "test"), tmp_path, 7, 0.0),
-        result_counts={"executed": 0, "failed": 0, "skipped": 0, "not_executed": 0},
-        status="failed",
-        exit_code=7,
-        diagnostics={"validation": ["exit_code=7"]},
-    )
-    monkeypatch.setattr(test, "_run_native_test_project", lambda *_args, **_kwargs: native)
+
+    def fake_native(_ctx: CLIContext, _project: Path, *, name: str) -> test._NativeTestResult:
+        native_calls.append(name)
+        failed = name == "CodeFacts"
+        return test._NativeTestResult(
+            command=test._CommandResult(("dotnet", "test", name), tmp_path, 7 if failed else 0, 0.0),
+            result_counts={"executed": 0 if failed else 1, "failed": 0, "skipped": 0, "not_executed": 0},
+            status="failed" if failed else "passed",
+            exit_code=7 if failed else 0,
+            diagnostics={"validation": ["exit_code=7"]} if failed else {},
+        )
+
+    monkeypatch.setattr(test, "_run_native_test_project", fake_native)
 
     def fake_pytest(_ctx: CLIContext, _task_id: str, arguments: Sequence[str], **_kwargs: Any) -> Any:
         pytest_calls.append(arguments)
@@ -387,10 +417,13 @@ def test_contract_leaf_runs_pytest_after_native_failure_and_propagates_failure(
 
     assert result.status == "failed"
     assert result.exit_code == 7
+    assert native_calls == ["CodeFacts", "ExportSurface"]
     assert pytest_calls == [["tests/contract"]]
-    assert result.result_counts["codefacts"] == native.result_counts
+    assert result.result_counts["codefacts"]["executed"] == 0
+    assert result.result_counts["exportsurface"]["executed"] == 1
     assert result.result_counts["pytest"] == _counts()
-    assert result.diagnostics["codefacts"] == native.diagnostics
+    assert result.diagnostics["codefacts"] == {"validation": ["exit_code=7"]}
+    assert result.diagnostics["exportsurface"] == {}
     assert result.diagnostics["pytest"] == {}
 
 
@@ -412,8 +445,8 @@ def test_contract_leaf_cleans_native_and_pytest_reports(tmp_path: Path, monkeypa
     result = test._run_contract_leaf(_context(tmp_path))
 
     assert result.status == "passed"
-    assert len(report_paths) == 2
-    assert len(set(report_paths)) == 2
+    assert len(report_paths) == 3
+    assert len(set(report_paths)) == 3
     assert all(not path.exists() for path in report_paths)
 
 

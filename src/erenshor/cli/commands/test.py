@@ -50,7 +50,27 @@ _REPORT_OPTION = "--erenshor-report"
 _REPORT_SCHEMA = 1
 _REPORT_DIRECTORY = Path("artifacts/test-reports")
 _WIKI_BASE_URL = "http://localhost:8088"
-_CODEFACTS_TEST_PROJECT = Path("src/tools/CodeFacts/tests/CodeFacts.Tests/CodeFacts.Tests.csproj")
+
+
+@dataclass(frozen=True)
+class _ContractNativeTestProject:
+    name: str
+    key: str
+    project: Path
+
+
+_CONTRACT_NATIVE_TEST_PROJECTS: tuple[_ContractNativeTestProject, ...] = (
+    _ContractNativeTestProject(
+        name="CodeFacts",
+        key="codefacts",
+        project=Path("src/tools/CodeFacts/tests/CodeFacts.Tests/CodeFacts.Tests.csproj"),
+    ),
+    _ContractNativeTestProject(
+        name="ExportSurface",
+        key="exportsurface",
+        project=Path("src/tools/ExportSurface/tests/ExportSurface.Tests/ExportSurface.Tests.csproj"),
+    ),
+)
 
 
 class TaskGraphError(ValueError):
@@ -354,12 +374,16 @@ def _preflight_unit(cli_ctx: CLIContext) -> list[_Preflight]:
 
 
 def _preflight_contract(cli_ctx: CLIContext) -> list[_Preflight]:
-    return [
+    checks = [
         _executable("uv"),
         _executable("dotnet"),
         _directory(cli_ctx.repo_root / "tests/contract", "tests/contract"),
-        _file(cli_ctx.repo_root / _CODEFACTS_TEST_PROJECT, "CodeFacts native test project"),
     ]
+    checks.extend(
+        _file(cli_ctx.repo_root / project.project, f"{project.name} native test project")
+        for project in _CONTRACT_NATIVE_TEST_PROJECTS
+    )
+    return checks
 
 
 def _preflight_data(cli_ctx: CLIContext) -> list[_Preflight]:
@@ -912,32 +936,38 @@ def _run_native_test_project(cli_ctx: CLIContext, project: Path, *, name: str) -
 
 
 def _run_contract_leaf(cli_ctx: CLIContext) -> _LeafResult:
-    """Run the native CodeFacts and Python contract tests exactly once each."""
+    """Run each native contract project and the Python contract tests exactly once."""
     start = time.monotonic()
-    native_result = _run_native_test_project(cli_ctx, _CODEFACTS_TEST_PROJECT, name="CodeFacts")
+    native_results = [
+        (
+            project,
+            _run_native_test_project(cli_ctx, project.project, name=project.name),
+        )
+        for project in _CONTRACT_NATIVE_TEST_PROJECTS
+    ]
     pytest_result = _run_pytest_leaf(cli_ctx, "contract", ["tests/contract"])
-    failed_result = next(
-        (result for result in (native_result, pytest_result) if result.exit_code != 0),
+    all_results = [result for _, result in native_results]
+    failed_native_result = next(
+        (result for result in all_results if result.exit_code != 0),
         None,
     )
+    exit_code = failed_native_result.exit_code if failed_native_result is not None else pytest_result.exit_code
+    result_counts: dict[str, object] = {project.key: result.result_counts for project, result in native_results}
+    result_counts["pytest"] = pytest_result.result_counts
+    diagnostics: dict[str, object] = {project.key: result.diagnostics for project, result in native_results}
+    diagnostics["pytest"] = pytest_result.diagnostics
     return _LeafResult(
         task_id="contract",
-        status="passed" if failed_result is None else "failed",
-        exit_code=0 if failed_result is None else failed_result.exit_code,
+        status="passed" if exit_code == 0 else "failed",
+        exit_code=exit_code,
         duration_seconds=_duration(start),
         prerequisites=[],
-        result_counts={
-            "codefacts": native_result.result_counts,
-            "pytest": pytest_result.result_counts,
-        },
+        result_counts=result_counts,
         commands=[
-            _command_json(native_result.command),
+            *(_command_json(result.command) for _, result in native_results),
             *pytest_result.commands,
         ],
-        diagnostics={
-            "codefacts": native_result.diagnostics,
-            "pytest": pytest_result.diagnostics,
-        },
+        diagnostics=diagnostics,
     )
 
 

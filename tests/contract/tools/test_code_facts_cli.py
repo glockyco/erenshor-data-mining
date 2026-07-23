@@ -3,7 +3,6 @@
 import json
 import shutil
 import subprocess
-from collections.abc import Callable
 from pathlib import Path
 
 import pytest
@@ -11,23 +10,10 @@ import pytest
 pytestmark = pytest.mark.skipif(shutil.which("dotnet") is None, reason="dotnet SDK not installed")
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-TOOL = REPO_ROOT / "src" / "tools" / "CodeFacts"
-FIXTURE_PROJ = TOOL / "tests" / "FixtureLib"
 SPECS = REPO_ROOT / "tests" / "fixtures" / "code_facts" / "fixture-specs.json"
 
 
-@pytest.fixture(scope="module")
-def fixture_dll(
-    tmp_path_factory: pytest.TempPathFactory,
-    code_facts_tool: Path,  # builds the analyzer once per session (shared)
-    dotnet_build: Callable[..., None],
-) -> Path:
-    out = tmp_path_factory.mktemp("fixture") / "Managed"  # satisfies the /Managed/ path gate
-    dotnet_build(FIXTURE_PROJ, "-o", str(out))
-    return out / "FixtureLib.dll"
-
-
-def run_tool(dll: Path, specs: Path) -> tuple[int, dict]:
+def run_tool(tool: Path, dll: Path, specs: Path) -> tuple[int, dict]:
     command = [
         "dotnet",
         "run",
@@ -35,7 +21,7 @@ def run_tool(dll: Path, specs: Path) -> tuple[int, dict]:
         "Release",
         "--no-build",
         "--project",
-        str(TOOL),
+        str(tool),
         "--",
         str(dll),
         str(specs),
@@ -50,8 +36,11 @@ def run_tool(dll: Path, specs: Path) -> tuple[int, dict]:
     return proc.returncode, payload
 
 
-def test_cli_serializes_successful_fixture_run(fixture_dll: Path) -> None:
-    rc, out = run_tool(fixture_dll, SPECS)
+def test_cli_serializes_successful_fixture_run(
+    fixture_dll: Path,
+    code_facts_tool: Path,
+) -> None:
+    rc, out = run_tool(code_facts_tool, fixture_dll, SPECS)
     assert rc == 0, out
     assert out["schema"] == 1
     assert out["assembly"] == str(fixture_dll)
