@@ -294,11 +294,11 @@ class TestSheetsFormatterIntegrationWithRealQueries:
 
     def test_format_sheet_with_production_queries(self) -> None:
         """Test formatter with production query files."""
-        # Use actual queries directory from project
-        queries_dir = Path("src/erenshor/application/formatters/sheets/queries")
-
-        if not queries_dir.exists():
-            pytest.skip("Production queries directory not found")
+        # Resolve from this test's repository location so the contract does not depend
+        # on the process working directory.
+        repo_root = Path(__file__).resolve().parents[4]
+        queries_dir = repo_root / "src/erenshor/application/sheets/queries"
+        assert queries_dir.is_dir(), f"Repository production query directory missing: {queries_dir}"
 
         # Create in-memory database (won't have data, just testing file loading)
         engine = create_engine("sqlite:///:memory:")

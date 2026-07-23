@@ -8,7 +8,6 @@ configuration loading, logging setup, and error handling.
 
 from __future__ import annotations
 
-import subprocess
 import sys
 from typing import Any
 
@@ -24,7 +23,7 @@ from erenshor.infrastructure.config import ConfigLoadError, get_repo_root, load_
 from erenshor.infrastructure.logging import setup_logging
 from erenshor.infrastructure.logging.setup import LoggingSetupError
 
-from .commands import backup, capture, extract, golden, guide, images, maps, mod, sheets, wiki
+from .commands import backup, capture, extract, golden, guide, images, maps, mod, sheets, test, wiki
 from .commands import eval as eval_cmd
 from .context import CLIContext
 
@@ -446,121 +445,7 @@ def config_show(
 app.add_typer(config_app, name="config")
 
 
-# Test command group
-test_app = typer.Typer(
-    name="test",
-    help="Run tests and validation",
-    no_args_is_help=True,
-)
-
-
-@test_app.callback(invoke_without_command=True)
-def test_callback(
-    ctx: typer.Context,
-    coverage: bool = typer.Option(
-        False,
-        "--coverage",
-        help="Generate coverage report",
-    ),
-) -> None:
-    """Run all tests.
-
-    Executes the complete test suite including unit and
-    integration tests. Optionally generates coverage report.
-    """
-    if ctx.invoked_subcommand is None:
-        cli_ctx: CLIContext = ctx.obj
-
-        console.print()
-        console.print("[bold cyan]Running all tests...[/bold cyan]")
-        console.print()
-
-        # Build pytest command
-        cmd = ["uv", "run", "pytest"]
-        if coverage:
-            cmd.extend(["--cov", "--cov-report=term-missing"])
-
-        # Run pytest
-        result = subprocess.run(
-            cmd,
-            cwd=cli_ctx.repo_root,
-            check=False,
-        )
-
-        sys.exit(result.returncode)
-
-
-@test_app.command("unit")
-def test_unit(
-    ctx: typer.Context,
-    coverage: bool = typer.Option(
-        False,
-        "--coverage",
-        help="Generate coverage report",
-    ),
-) -> None:
-    """Run unit tests only.
-
-    Executes only unit tests (fast, no external dependencies).
-    Optionally generates coverage report.
-    """
-    cli_ctx: CLIContext = ctx.obj
-
-    console.print()
-    console.print("[bold cyan]Running unit tests...[/bold cyan]")
-    console.print()
-
-    # Build pytest command
-    cmd = ["uv", "run", "pytest", "-m", "unit"]
-    if coverage:
-        cmd.extend(["--cov", "--cov-report=term-missing"])
-
-    # Run pytest
-    result = subprocess.run(
-        cmd,
-        cwd=cli_ctx.repo_root,
-        check=False,
-    )
-
-    sys.exit(result.returncode)
-
-
-@test_app.command("integration")
-def test_integration(
-    ctx: typer.Context,
-    coverage: bool = typer.Option(
-        False,
-        "--coverage",
-        help="Generate coverage report",
-    ),
-) -> None:
-    """Run integration tests only.
-
-    Executes only integration tests (slower, requires database
-    and external services). Optionally generates coverage report.
-    """
-    cli_ctx: CLIContext = ctx.obj
-
-    console.print()
-    console.print("[bold cyan]Running integration tests...[/bold cyan]")
-    console.print()
-
-    # Build pytest command
-    cmd = ["uv", "run", "pytest", "-m", "integration"]
-    if coverage:
-        cmd.extend(["--cov", "--cov-report=term-missing"])
-
-    # Run pytest
-    result = subprocess.run(
-        cmd,
-        cwd=cli_ctx.repo_root,
-        check=False,
-    )
-
-    sys.exit(result.returncode)
-
-
-app.add_typer(test_app, name="test")
+app.add_typer(test.app, name="test")
 
 
 def cli_main() -> None:
