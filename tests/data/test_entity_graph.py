@@ -86,8 +86,21 @@ class TestNodeCounts:
 # ---------------------------------------------------------------------------
 
 
+_NOT_FROM_DB: frozenset[EdgeType] = frozenset(
+    {
+        EdgeType.ENABLES_INTERACTION,
+        EdgeType.REMOVES_INVULNERABILITY,
+        EdgeType.REQUIRES_QUEST,
+        EdgeType.STEP_BUY,
+        EdgeType.STEP_TURN_IN,
+        EdgeType.PROTECTS,
+    }
+)
+_EDGE_TYPES_FROM_DB = tuple(edge_type for edge_type in EdgeType if edge_type not in _NOT_FROM_DB)
+
+
 class TestEdgeTypeCoverage:
-    """Verify every EdgeType is represented in the graph."""
+    """Verify every EdgeType produced by the database is represented in the graph."""
 
     # Edge types not produced by build_graph alone:
     # - ENABLES_INTERACTION, REMOVES_INVULNERABILITY: manual overrides only
@@ -96,21 +109,22 @@ class TestEdgeTypeCoverage:
     # - STEP_BUY, STEP_TURN_IN: projection actions synthesized by mod_writer;
     #   they are not graph relationships in the clean database
     # - PROTECTS: no protector data in clean DB; comes from overrides
-    _NOT_FROM_DB: ClassVar[set[EdgeType]] = {
-        EdgeType.ENABLES_INTERACTION,
-        EdgeType.REMOVES_INVULNERABILITY,
-        EdgeType.REQUIRES_QUEST,
-        EdgeType.STEP_BUY,
-        EdgeType.STEP_TURN_IN,
-        EdgeType.PROTECTS,
-    }
+    _NOT_FROM_DB: ClassVar[frozenset[EdgeType]] = _NOT_FROM_DB
 
-    @pytest.mark.parametrize("edge_type", list(EdgeType))
+    @pytest.mark.parametrize("edge_type", _EDGE_TYPES_FROM_DB)
     def test_edge_type_present(self, graph: EntityGraph, edge_type: EdgeType) -> None:
-        if edge_type in self._NOT_FROM_DB:
-            pytest.skip(f"{edge_type.value} not produced from DB data alone")
         edges = [e for e in graph.all_edges() if e.type == edge_type]
         assert len(edges) > 0, f"No edges of type {edge_type.value}"
+
+    def test_not_from_db_is_documented(self) -> None:
+        assert {
+            EdgeType.ENABLES_INTERACTION,
+            EdgeType.REMOVES_INVULNERABILITY,
+            EdgeType.REQUIRES_QUEST,
+            EdgeType.STEP_BUY,
+            EdgeType.STEP_TURN_IN,
+            EdgeType.PROTECTS,
+        } == self._NOT_FROM_DB
 
 
 class TestDeterministicEdgeOrder:
