@@ -87,6 +87,43 @@ public sealed class GuideContractTests
         Assert.Throws<InvalidDataException>(() => GuideData.ValidateWrapper(wrapper));
     }
 
+    [Fact]
+    public void Spawn_metadata_parses_direct_placement_and_respawn_fields()
+    {
+        const string json = """
+            {
+              "_version": 6,
+              "_character_spawns": {
+                "character:test": [
+                  {
+                    "scene": "TestScene",
+                    "x": 1.5,
+                    "y": 2.5,
+                    "z": 3.5,
+                    "spawn_upon_quest_complete_stable_key": "quest:gate",
+                    "is_directly_placed": true,
+                    "source_script": "TestSpawnScript"
+                  }
+                ]
+              },
+              "quests": [
+                {
+                  "stable_key": "quest:gate",
+                  "db_name": "GateQuest",
+                  "display_name": "Gate quest"
+                }
+              ]
+            }
+            """;
+
+        var data = GuideData.Parse(json);
+        var spawn = Assert.Single(data.CharacterSpawns["character:test"]);
+
+        Assert.Equal("quest:gate", spawn.SpawnUponQuestCompleteStableKey);
+        Assert.True(spawn.IsDirectlyPlaced);
+        Assert.Equal("TestSpawnScript", spawn.SourceScript);
+    }
+
     private static QuestEntry OrdinaryQuest(
         string stableKey,
         string dbName,

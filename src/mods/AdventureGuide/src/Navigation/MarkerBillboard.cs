@@ -17,19 +17,23 @@ public sealed class MarkerBillboard : MonoBehaviour
     private void Update()
     {
         var pc = GameData.PlayerControl;
-        if (pc == null)
-            return;
+        var target = BillboardUpdatePolicy.Select(
+            hasPlayer: pc != null,
+            firstPersonCameraActive: pc != null && pc.FPV.gameObject.activeSelf,
+            droneMode: pc != null && pc.DroneMode
+        );
 
-        if (!pc.FPV.gameObject.activeSelf)
+        switch (target)
         {
-            if (!pc.DroneMode)
+            case BillboardUpdateTarget.GameCamera:
                 transform.LookAt(GameData.GameCamPos);
-            else
-                transform.LookAt(pc.DroneCam.transform);
-        }
-        else
-        {
-            transform.LookAt(GameData.CamControl.FPV.transform.position);
+                break;
+            case BillboardUpdateTarget.DroneCamera:
+                transform.LookAt(pc!.DroneCam.transform);
+                break;
+            case BillboardUpdateTarget.FirstPersonCamera:
+                transform.LookAt(GameData.CamControl.FPV.transform.position);
+                break;
         }
     }
 }

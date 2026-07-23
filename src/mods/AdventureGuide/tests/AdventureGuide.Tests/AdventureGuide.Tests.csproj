@@ -23,6 +23,12 @@
 
   <ItemGroup>
     <Compile Include="../../src/Config/LoaderContracts.cs" Link="Config/LoaderContracts.cs" />
+    <Compile Include="../../src/Config/GuideConfig.cs" Link="Config/GuideConfig.cs" />
+    <Compile Include="../../src/Core/RuntimeLifecycleCoordinator.cs" Link="Core/RuntimeLifecycleCoordinator.cs" />
+    <Compile Include="../../src/Core/RuntimeResourceOwnership.cs" Link="Core/RuntimeResourceOwnership.cs" />
+    <Compile Include="../../src/Core/ShortcutCoordinator.cs" Link="Core/ShortcutCoordinator.cs" />
+    <Compile Include="../../src/Core/ShortcutPolicy.cs" Link="Core/ShortcutPolicy.cs" />
+    <Compile Include="../../../Shared/Input/KeyboardInput.cs" Link="Shared/Input/KeyboardInput.cs" />
     <Compile Include="../../src/Data/GuideData.cs" Link="Data/GuideData.cs" />
     <Compile Include="../../src/Data/QuestEntry.cs" Link="Data/QuestEntry.cs" />
     <Compile Include="../../src/Data/CharacterStableKey.cs" Link="Data/CharacterStableKey.cs" />
@@ -34,6 +40,8 @@
     <Compile Include="../../src/State/QuestStatusPolicy.cs" Link="State/QuestStatusPolicy.cs" />
     <Compile Include="../../src/State/TrackerPruningPolicy.cs" Link="State/TrackerPruningPolicy.cs" />
     <Compile Include="../../src/Navigation/NavigationPolicy.cs" Link="Navigation/NavigationPolicy.cs" />
+    <Compile Include="../../src/Navigation/BillboardUpdatePolicy.cs" Link="Navigation/BillboardUpdatePolicy.cs" />
+    <Compile Include="../../src/Navigation/DirectPlacementPolicy.cs" Link="Navigation/DirectPlacementPolicy.cs" />
     <Compile Include="../../src/Navigation/MarkerType.cs" Link="Navigation/MarkerType.cs" />
     <Compile Include="../../src/Navigation/MarkerDecision.cs" Link="Navigation/MarkerDecision.cs" />
     <Compile Include="../../src/Navigation/MarkerTextFormatter.cs" Link="Navigation/MarkerTextFormatter.cs" />

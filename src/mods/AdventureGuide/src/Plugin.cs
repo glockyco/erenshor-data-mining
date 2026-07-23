@@ -1,4 +1,5 @@
 using AdventureGuide.Config;
+using AdventureGuide.Core;
 using AdventureGuide.Data;
 using AdventureGuide.Diagnostics;
 using AdventureGuide.Navigation;
@@ -15,7 +16,7 @@ using UnityEngine.SceneManagement;
 
 namespace AdventureGuide;
 
-public sealed class AdventureGuideRuntime
+public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
 {
     internal static IModLogger Log { get; private set; } = NullModLogger.Instance;
 
@@ -23,6 +24,8 @@ public sealed class AdventureGuideRuntime
     private readonly IGuideConfigBackend _backend;
     private readonly string _iniPath;
     private readonly IKeyboardInput _keyboard;
+    private readonly RuntimeLifecycleCoordinator _lifecycle;
+    private readonly RuntimeResourceOwnership _resources;
 
     private Harmony? _harmony;
     private GuideConfig? _config;
@@ -48,8 +51,6 @@ public sealed class AdventureGuideRuntime
     private bool _wasEditUIMode;
     private bool _wantsMouseCapture;
     private bool _wantsTextInput;
-    private bool _started;
-    private bool _stopped;
 
     public AdventureGuideRuntime(
         IModLogger logger,
@@ -62,22 +63,36 @@ public sealed class AdventureGuideRuntime
         _backend = config;
         _iniPath = iniPath;
         _keyboard = keyboard;
+        _lifecycle = new RuntimeLifecycleCoordinator(this);
+        _resources = new RuntimeResourceOwnership(config);
     }
 
     public bool Start()
     {
-        if (_started)
-            return true;
-        if (_stopped)
+        var startDecision = _lifecycle.BeginStart();
+        if (startDecision == RuntimeStartDecision.RejectedAfterStop)
             return false;
+        if (startDecision == RuntimeStartDecision.AlreadyStarted)
+            return true;
 
-        _started = true;
         Log = _logger;
         AdventureGuideLog.Current = _logger;
 
         try
         {
-            _config = new GuideConfig(_backend);
+            try
+            {
+                _config = new GuideConfig(_backend);
+                _resources.AdoptConfiguration(_config);
+            }
+            catch
+            {
+                // GuideConfig owns the backend only after construction succeeds.
+                // A constructor exception leaves no config instance available to
+                // Stop(), so release the backend at this boundary exactly once.
+                _resources.Dispose();
+                throw;
+            }
             _data = GuideData.Load(_logger);
             _entities = new EntityRegistry();
             _state = new QuestStateTracker(_data, _entities);
@@ -209,10 +224,10 @@ public sealed class AdventureGuideRuntime
         }
     }
 
-    public void Tick()
+    public void Tick() => _lifecycle.Tick();
+
+    void IRuntimeLifecycleEffects.TickActive()
     {
-        if (!_started || _stopped)
-            return;
         _tracker?.Update();
 
         bool gameUIVisible = GameUIVisibility.IsVisible;
@@ -261,26 +276,19 @@ public sealed class AdventureGuideRuntime
 
         if (_config == null || _window == null || !_inGameplay)
             return;
-        if (!GameData.PlayerTyping && !_wantsTextInput)
-            HandleKeyboardShortcuts();
+        HandleKeyboardShortcuts();
         if (_wantsMouseCapture || GameData.PlayerTyping)
             return;
     }
 
-    public void Draw()
-    {
-        if (!_started || _stopped || !_gameUIVisible)
-            return;
-        _imgui?.OnGUI();
-    }
+    public void Draw() => _lifecycle.Draw(_gameUIVisible);
 
-    public void Stop()
-    {
-        if (_stopped)
-            return;
-        _stopped = true;
-        _started = false;
+    void IRuntimeLifecycleEffects.DrawActive() => _imgui?.OnGUI();
 
+    public void Stop() => _lifecycle.Stop();
+
+    void IRuntimeLifecycleEffects.StopActive()
+    {
         SceneManager.sceneLoaded -= OnSceneLoaded;
         if (_wasTextInputActive)
             GameData.PlayerTyping = false;
@@ -320,11 +328,10 @@ public sealed class AdventureGuideRuntime
         CameraCache.Invalidate();
         GameWindowOverlap.Reset();
 
-        _config?.Dispose();
         _config = null;
+        _resources.Dispose();
         ClearPatchStatics();
         ClearDebugApi();
-        _backend.Dispose();
         AdventureGuideLog.Reset();
         Log = NullModLogger.Instance;
     }
@@ -435,19 +442,26 @@ public sealed class AdventureGuideRuntime
     {
         if (_config == null || _window == null)
             return;
-        if (KeyboardShortcuts.WasPressed(_config.ToggleKey.Value, _keyboard))
-            _window.Toggle();
-        if (
-            _config.ReplaceQuestLog.Value
-            && KeyboardShortcuts.WasPressed(InputManager.Journal, _keyboard)
-        )
-            _window.Toggle();
-        if (
+
+        var actions = ShortcutCoordinator.Sample(
+            _keyboard,
+            _config.ToggleKey.Value,
+            InputManager.Journal,
+            _config.TrackerToggleKey.Value,
+            _config.GroundPathToggleKey.Value,
+            GameData.PlayerTyping,
+            _wantsTextInput,
+            _config.ReplaceQuestLog.Value,
             _config.TrackerEnabled.Value
-            && KeyboardShortcuts.WasPressed(_config.TrackerToggleKey.Value, _keyboard)
-        )
+        );
+
+        if ((actions & ShortcutAction.ToggleGuide) != 0)
+            _window.Toggle();
+        if ((actions & ShortcutAction.ToggleReplacementJournal) != 0)
+            _window.Toggle();
+        if ((actions & ShortcutAction.ToggleTracker) != 0)
             _tracker?.Toggle();
-        if (KeyboardShortcuts.WasPressed(_config.GroundPathToggleKey.Value, _keyboard))
+        if ((actions & ShortcutAction.ToggleGroundPath) != 0)
             _config.ShowGroundPath.Value = !_config.ShowGroundPath.Value;
     }
 
