@@ -677,9 +677,7 @@ def test_mods_parse_trx_inventory_and_outcomes(
     assert result.exit_code == (0 if expected_status == "passed" else 1)
 
 
-def test_mods_preflight_requires_active_loader_references_and_ignores_inactive_ones(
-    tmp_path: Path, monkeypatch: Any
-) -> None:
+def test_mods_preflight_requires_only_declared_ignored_references(tmp_path: Path, monkeypatch: Any) -> None:
     checked_paths: list[Path] = []
     monkeypatch.setattr(test, "_executable", lambda name: test._Preflight(name, True, "present"))
     monkeypatch.setattr(test, "_dotnet_sdk_10", lambda: test._Preflight("dotnet SDK 10", True, "10.0.0"))
@@ -695,7 +693,7 @@ def test_mods_preflight_requires_active_loader_references_and_ignores_inactive_o
 
     assert any(not check.ok for check in checks)
     assert (tmp_path / missing_active) in checked_paths
-    assert (tmp_path / "src/mods/InteractiveMapCompanion/lib/bepinex/0Harmony.dll") in checked_paths
+    assert (tmp_path / "src/mods/InteractiveMapCompanion/lib/bepinex/0Harmony.dll") not in checked_paths
     assert (tmp_path / "src/mods/AdventureGuide/lib/bepinex/0Harmony.dll") not in checked_paths
     assert (tmp_path / "src/mods/InteractiveMapCompanion/lib/lunaris/Lunaris.dll") not in checked_paths
 

@@ -1,4 +1,6 @@
+using InteractiveMapCompanion.Entities;
 using InteractiveMapCompanion.Protocol;
+using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace InteractiveMapCompanion.Tests.Protocol;
@@ -15,11 +17,14 @@ public class MessageSerializerTests
 
         var json = MessageSerializer.Serialize(message);
 
-        Assert.Contains("\"type\":", json);
-        Assert.Contains("\"protocolVersion\":", json);
-        Assert.Contains("\"modVersion\":", json);
-        Assert.Contains("\"zone\":", json);
-        Assert.Contains("\"capabilities\":", json);
+        var payload = JObject.Parse(json);
+
+        Assert.NotNull(payload["type"]);
+        Assert.NotNull(payload["protocolVersion"]);
+        Assert.NotNull(payload["modVersion"]);
+        Assert.NotNull(payload["zone"]);
+        Assert.NotNull(payload["capabilities"]);
+        Assert.Null(payload["Type"]);
     }
 
     [Fact]
@@ -32,11 +37,41 @@ public class MessageSerializerTests
 
         var json = MessageSerializer.Serialize(message);
 
-        Assert.Contains("\"type\":\"handshake\"", json);
-        Assert.Contains("\"zone\":\"TestZone\"", json);
-        Assert.Contains($"\"protocolVersion\":\"{ProtocolVersion.Current}\"", json);
-        Assert.Contains("\"entities\"", json);
-        Assert.Contains("\"markers\"", json);
+        var payload = JObject.Parse(json);
+        var capabilities = Assert.IsType<JArray>(payload["capabilities"]);
+
+        Assert.Equal("handshake", payload["type"]?.Value<string>());
+        Assert.Equal("TestZone", payload["zone"]?.Value<string>());
+        Assert.Equal(ProtocolVersion.Current, payload["protocolVersion"]?.Value<string>());
+        Assert.Equal(new[] { "entities", "markers" }, capabilities.Values<string>());
+    }
+
+    [Fact]
+    public void Serialize_StateUpdateMessage_OmitsNullOptionalEntityFields()
+    {
+        var entity = new EntityData(
+            Id: 7,
+            EntityType: "npc",
+            Name: "Test NPC",
+            Position: [1f, 2f, 3f],
+            Rotation: 90f
+        );
+        var message = new StateUpdateMessage(
+            Type: "stateUpdate",
+            Zone: "TestZone",
+            Timestamp: 123L,
+            Entities: [entity]
+        );
+
+        var payload = JObject.Parse(MessageSerializer.Serialize(message));
+        var entities = Assert.IsType<JArray>(payload["entities"]);
+        var serializedEntity = Assert.IsType<JObject>(entities[0]);
+
+        Assert.False(serializedEntity.ContainsKey("level"));
+        Assert.False(serializedEntity.ContainsKey("rarity"));
+        Assert.False(serializedEntity.ContainsKey("characterClass"));
+        Assert.False(serializedEntity.ContainsKey("owner"));
+        Assert.Equal("npc", serializedEntity["entityType"]?.Value<string>());
     }
 
     [Fact]

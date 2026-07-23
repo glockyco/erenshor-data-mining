@@ -13,7 +13,7 @@ public sealed class BroadcastLoop : IBroadcastLoop
 {
     private readonly IEntityTracker _entityTracker;
     private readonly IWebSocketServer _server;
-    private readonly IModConfig _config;
+    private readonly IBroadcastConfig _config;
     private readonly Action<string>? _log;
 
     private float _elapsed;
@@ -23,7 +23,7 @@ public sealed class BroadcastLoop : IBroadcastLoop
     public BroadcastLoop(
         IEntityTracker entityTracker,
         IWebSocketServer server,
-        IModConfig config,
+        IBroadcastConfig config,
         Action<string>? log = null
     )
     {

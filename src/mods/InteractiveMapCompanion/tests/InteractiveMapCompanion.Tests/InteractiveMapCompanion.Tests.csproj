@@ -20,17 +20,23 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-
-    <!-- Required for transitive dependencies from main project -->
-    <PackageReference Include="BepInEx.Core" Version="5.*" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../InteractiveMapCompanion.csproj" />
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>../../lib/UnityEngine.CoreModule.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
+    <Compile Include="../../src/Config/IBroadcastConfig.cs" Link="Config/IBroadcastConfig.cs" />
+    <Compile Include="../../src/State/IBroadcastLoop.cs" Link="State/IBroadcastLoop.cs" />
+    <Compile Include="../../src/State/BroadcastLoop.cs" Link="State/BroadcastLoop.cs" />
+    <Compile Include="../../src/Server/IWebSocketServer.cs" Link="Server/IWebSocketServer.cs" />
+    <Compile Include="../../src/Entities/IEntityTracker.cs" Link="Entities/IEntityTracker.cs" />
+    <Compile Include="../../src/Entities/EntityData.cs" Link="Entities/EntityData.cs" />
+    <Compile Include="../../src/Entities/EntityType.cs" Link="Entities/EntityType.cs" />
+    <Compile Include="../../src/Entities/EntityTracker.cs" Link="Entities/EntityTracker.cs" />
+    <Compile Include="../../src/Protocol/ProtocolVersion.cs" Link="Protocol/ProtocolVersion.cs" />
+    <Compile Include="../../src/Protocol/MessageSerializer.cs" Link="Protocol/MessageSerializer.cs" />
+    <Compile Include="../../src/Protocol/Messages.cs" Link="Protocol/Messages.cs" />
+    <Compile Include="../../src/PluginInfo.cs" Link="PluginInfo.cs" />
+    <Compile Include="../../../Shared/Input/KeyboardInput.cs" Link="Shared/Input/KeyboardInput.cs" />
   </ItemGroup>
 
 </Project>

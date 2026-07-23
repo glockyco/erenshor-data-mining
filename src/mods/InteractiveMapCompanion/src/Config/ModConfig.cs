@@ -17,10 +17,9 @@ public enum LogLevel
 /// Loader-neutral configuration consumed by the map companion runtime.
 /// Adapters own persistence and binding for their loader.
 /// </summary>
-public interface IModConfig
+public interface IModConfig : IBroadcastConfig
 {
     int Port { get; }
-    int UpdateInterval { get; }
     LogLevel WebSocketLogLevel { get; }
     LogLevel ModLogLevel { get; }
     bool EnableOverlay { get; }

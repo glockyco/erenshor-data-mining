@@ -520,17 +520,7 @@ _NATIVE_TEST_PROJECTS: tuple[_NativeTestProject, ...] = (
             "src/mods/InteractiveMapCompanion/tests/InteractiveMapCompanion.Tests/InteractiveMapCompanion.Tests.csproj"
         ),
         default_loader="bepinex",
-        required_ignored_references=(
-            Path("src/mods/InteractiveMapCompanion/lib/UnityEngine.CoreModule.dll"),
-            Path("src/mods/InteractiveMapCompanion/lib/Assembly-CSharp.dll"),
-            Path("src/mods/InteractiveMapCompanion/lib/UnityEngine.dll"),
-            Path("src/mods/InteractiveMapCompanion/lib/UnityEngine.InputLegacyModule.dll"),
-            Path("src/mods/InteractiveMapCompanion/lib/UnityEngine.TextRenderingModule.dll"),
-            Path("src/mods/InteractiveMapCompanion/lib/UnityEngine.UIModule.dll"),
-            Path("src/mods/InteractiveMapCompanion/lib/UnityEngine.UI.dll"),
-            Path("src/mods/InteractiveMapCompanion/lib/com.rlabrecque.steamworks.net.dll"),
-            Path("src/mods/InteractiveMapCompanion/lib/bepinex/0Harmony.dll"),
-        ),
+        required_ignored_references=(),
     ),
 )
 
