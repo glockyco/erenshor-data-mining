@@ -73,9 +73,8 @@ def test_builds_skill_data_with_raw_authoritative_fields() -> None:
                     {
                         "className": "Duelist",
                         "displayName": "Windblade",
+                        "kind": "class",
                         "stablekey": "class:duelist",
-                        "page": "Windblade",
-                        "text": "Windblade",
                         "level": 2,
                     },
                 ],
@@ -132,8 +131,6 @@ def test_builds_skill_relationship_fields_from_repository_links() -> None:
     assert record["source"] == [
         {
             "kind": "item",
-            "page": "Backstab Manual",
-            "text": "Backstab Manual",
             "stablekey": "item:backstab_manual",
         }
     ]
@@ -159,9 +156,8 @@ def test_builds_stance_skill_class_levels_without_hardcoding_display_names() -> 
         {
             "className": "Reaver",
             "displayName": "Reaver",
+            "kind": "class",
             "stablekey": "class:reaver",
-            "page": "Reaver",
-            "text": "Reaver",
             "level": 1,
         }
     ]

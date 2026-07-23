@@ -62,15 +62,7 @@ def _render_keyed_link(link: WikiLink, kind: str) -> str | None:
     if link.page_title is None or not link.stable_key:
         return None
 
-    params = [
-        f"stablekey={link.stable_key}",
-        f"link={link.page_title}",
-        f"text={link.display_name}",
-    ]
-    if link.image_name:
-        image = link.image_name if link.image_name.endswith(".png") else f"{link.image_name}.png"
-        params.append(f"image={image}")
-    return f"{{{{{kind}Link|{'|'.join(params)}}}}}"
+    return f"{{{{{kind}Link|stablekey={link.stable_key}}}}}"
 
 
 @dataclass(frozen=True)

@@ -7,9 +7,7 @@ return {
 			type = "Enemy",
 			faction = {
 				kind = "faction",
-				page = "The Followers of Evil",
-				text = "The Followers of Evil",
-				stablekey = "faction:the_followers_of_evil",
+				stablekey = "faction:evil",
 			},
 			zones = {
 				{ kind = "zone", page = "Blacksalt Strand", text = "Blacksalt Strand" },
@@ -85,9 +83,7 @@ return {
 			type = "NPC",
 			faction = {
 				kind = "faction",
-				page = "The Followers of Good",
-				text = "The Followers of Good",
-				stablekey = "faction:the_followers_of_good",
+				stablekey = "faction:good",
 			},
 			zones = {
 				{ kind = "zone", page = "Port Azure", text = "Port Azure" },
@@ -132,9 +128,7 @@ return {
 			type = "Enemy",
 			faction = {
 				kind = "faction",
-				page = "The Followers of Evil",
-				text = "The Followers of Evil",
-				stablekey = "faction:the_followers_of_evil",
+				stablekey = "faction:evil",
 			},
 			zones = {
 				{ kind = "zone", page = "Loomingwood Forest", text = "Loomingwood Forest" },
@@ -151,9 +145,7 @@ return {
 			type = "Rare",
 			faction = {
 				kind = "faction",
-				page = "The Followers of Good",
-				text = "The Followers of Good",
-				stablekey = "faction:the_followers_of_good",
+				stablekey = "faction:good",
 			},
 			zones = {
 				{ kind = "zone", page = "Loomingwood Forest", text = "Loomingwood Forest" },

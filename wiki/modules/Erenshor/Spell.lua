@@ -291,12 +291,7 @@ local function classesText(spell)
 			local classLink = type(classLinks) == "table" and classLinks[index] or nil
 			local args
 			if type(classLink) == "table" and not isBlank(classLink.stablekey) then
-				args = {
-					kind = "class",
-					stablekey = classLink.stablekey,
-					link = classLink.page,
-					text = classLink.text,
-				}
+				args = { kind = "class", stablekey = classLink.stablekey }
 			else
 				args = { kind = "class", page = className }
 			end

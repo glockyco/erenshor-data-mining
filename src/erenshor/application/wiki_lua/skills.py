@@ -164,10 +164,11 @@ def _class_levels(skill: Skill, class_display_names: Mapping[str, str]) -> list[
         level = getattr(skill, attr)
         if level is not None and level > 0:
             class_reference = mapped_class_link_ref(class_name, class_display_names)
+            display_name = class_display_names[class_name].strip()
             levels.append(
                 {
                     "className": class_name,
-                    "displayName": class_reference["text"],
+                    "displayName": display_name,
                     **class_reference,
                     "level": level,
                 }

@@ -104,8 +104,8 @@ def test_builds_spell_data_with_authoritative_raw_fields() -> None:
                 "line": "Direct_Damage",
                 "classes": ["Druid", "Stormcaller"],
                 "classLinks": [
-                    {"stablekey": "class:druid", "page": "Druid", "text": "Druid"},
-                    {"stablekey": "class:stormcaller", "page": "Stormcaller", "text": "Stormcaller"},
+                    {"kind": "class", "stablekey": "class:druid"},
+                    {"kind": "class", "stablekey": "class:stormcaller"},
                 ],
                 "requiredLevel": 6,
                 "manaCost": 30,
@@ -208,8 +208,6 @@ def test_builds_spell_relationship_fields_from_repository_links() -> None:
     assert record["source"] == [
         {
             "kind": "item",
-            "page": "Scroll of Minor Lightning",
-            "text": "Scroll of Minor Lightning",
             "stablekey": "item:scroll_of_minor_lightning",
         }
     ]
@@ -217,8 +215,6 @@ def test_builds_spell_relationship_fields_from_repository_links() -> None:
     assert record["usedBy"] == [
         {
             "kind": "character",
-            "page": "Storm Caller",
-            "text": "Storm Caller",
             "stablekey": "character:storm_caller",
         }
     ]

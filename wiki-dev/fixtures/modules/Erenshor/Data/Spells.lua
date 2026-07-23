@@ -158,13 +158,9 @@ return {
 				"Stormcaller",
 			},
 			["classLinks"] = {
-				{ ["stablekey"] = "class:druid", ["page"] = "Druid", ["text"] = "Druid" },
-				{ ["stablekey"] = "class:duelist", ["page"] = "Windblade", ["text"] = "Windblade" },
-				{
-					["stablekey"] = "class:stormcaller",
-					["page"] = "Stormcaller",
-					["text"] = "Stormcaller",
-				},
+				{ ["kind"] = "class", ["stablekey"] = "class:druid" },
+				{ ["kind"] = "class", ["stablekey"] = "class:duelist" },
+				{ ["kind"] = "class", ["stablekey"] = "class:stormcaller" },
 			},
 			["cooldownSeconds"] = 8.0,
 			["crowdControl"] = false,

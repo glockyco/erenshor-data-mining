@@ -15,11 +15,10 @@ from erenshor.domain.value_objects.wiki_link import (
 )
 
 
-def test_class_link_ref_carries_identity_and_canonical_fallback() -> None:
+def test_class_link_ref_carries_catalog_identity() -> None:
     assert class_link_ref("Duelist", "Windblade") == {
+        "kind": "class",
         "stablekey": "class:duelist",
-        "page": "Windblade",
-        "text": "Windblade",
     }
 
 
@@ -55,12 +54,12 @@ def test_shared_page_item_records_keep_stable_keys_in_wikitext_and_lua() -> None
     ]
 
     assert [str(link) for link in links] == [
-        "{{ItemLink|stablekey=item:alpha|link=Shared Item|text=Alpha|image=Alpha.png}}",
-        "{{ItemLink|stablekey=item:beta|link=Shared Item|text=Beta|image=Beta.png}}",
+        "{{ItemLink|stablekey=item:alpha}}",
+        "{{ItemLink|stablekey=item:beta}}",
     ]
     assert link_refs(links) == [
-        {"kind": "item", "page": "Shared Item", "text": "Alpha", "image": "Alpha", "stablekey": "item:alpha"},
-        {"kind": "item", "page": "Shared Item", "text": "Beta", "image": "Beta", "stablekey": "item:beta"},
+        {"kind": "item", "stablekey": "item:alpha"},
+        {"kind": "item", "stablekey": "item:beta"},
     ]
 
 
@@ -93,9 +92,7 @@ def test_item_link_without_identity_does_not_guess_one_from_page_text() -> None:
 def test_each_semantic_link_renders_keyed_identity(link_type: type[ItemLink], kind: str, key_prefix: str) -> None:
     link = link_type("Shared Page", "Display Name", "Icon", f"{key_prefix}:stable")
 
-    assert str(link) == (
-        f"{{{{{kind}Link|stablekey={key_prefix}:stable|link=Shared Page|text=Display Name|image=Icon.png}}}}"
-    )
+    assert str(link) == f"{{{{{kind}Link|stablekey={key_prefix}:stable}}}}"
 
 
 @pytest.mark.parametrize(
@@ -160,8 +157,6 @@ def test_excluded_semantic_links_are_plain_text(link_type: type[ItemLink], key_p
 def test_link_ref_maps_each_semantic_kind(link_type: type[ItemLink], kind: str, key_prefix: str) -> None:
     assert link_ref(link_type("Page", "Display", stable_key=f"{key_prefix}:stable")) == {
         "kind": kind,
-        "page": "Page",
-        "text": "Display",
         "stablekey": f"{key_prefix}:stable",
     }
 

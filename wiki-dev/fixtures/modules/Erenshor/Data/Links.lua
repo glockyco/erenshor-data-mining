@@ -48,11 +48,35 @@ return {
 			["page"] = "A Subterranean Magmite",
 			["subtype"] = "Enemy",
 		},
+		["class:druid"] = {
+			["key"] = "class:druid",
+			["kind"] = "class",
+			["name"] = "Druid",
+			["page"] = "Druid",
+		},
 		["class:duelist"] = {
 			["key"] = "class:duelist",
 			["kind"] = "class",
 			["name"] = "Windblade",
 			["page"] = "Windblade",
+		},
+		["class:paladin"] = {
+			["key"] = "class:paladin",
+			["kind"] = "class",
+			["name"] = "Paladin",
+			["page"] = "Paladin",
+		},
+		["class:reaver"] = {
+			["key"] = "class:reaver",
+			["kind"] = "class",
+			["name"] = "Reaver",
+			["page"] = "Reaver",
+		},
+		["class:stormcaller"] = {
+			["key"] = "class:stormcaller",
+			["kind"] = "class",
+			["name"] = "Stormcaller",
+			["page"] = "Stormcaller",
 		},
 		["faction:evil"] = {
 			["image"] = "The Followers of Evil",
@@ -464,8 +488,8 @@ return {
 		["Double Attack"] = {
 			"skill:double_attack",
 		},
-		["Windblade"] = {
-			"class:duelist",
+		["Druid"] = {
+			"class:druid",
 		},
 		["Ember"] = {
 			"spell:ember",
@@ -510,6 +534,9 @@ return {
 		["Normal"] = {
 			"stance:normal",
 		},
+		["Paladin"] = {
+			"class:paladin",
+		},
 		["Planar Stone"] = {
 			"item:ore - planar stone",
 		},
@@ -522,6 +549,9 @@ return {
 		},
 		["Rare Cave Spider"] = {
 			"character:rare_cave_spider",
+		},
+		["Reaver"] = {
+			"class:reaver",
 		},
 		["Reckless"] = {
 			"stance:reckless",
@@ -536,6 +566,9 @@ return {
 		["Stance: Aggressive"] = {
 			"skill:stance - aggressive",
 			"stance:aggressive",
+		},
+		["Stormcaller"] = {
+			"class:stormcaller",
 		},
 		["Sword Mastery"] = {
 			"skill:sword_mastery",
@@ -555,8 +588,11 @@ return {
 		["The Followers of Good"] = {
 			"faction:good",
 		},
+		["Windblade"] = {
+			"class:duelist",
+		},
 	},
-	["catalogSha256"] = "2dea74143c1b61296b6393a2eb98a7b1b02685bfae6170a9de6995372265a380",
+	["catalogSha256"] = "65b88832fa893b00f77d41183a0ae494bbcddb338f0036cf664d3d734295a54f",
 	["entries"] = {
 		{
 			["image"] = "A Cat for a Deer",
@@ -716,10 +752,10 @@ return {
 			["subtype"] = "skill",
 		},
 		{
-			["key"] = "class:duelist",
+			["key"] = "class:druid",
 			["kind"] = "class",
-			["name"] = "Windblade",
-			["page"] = "Windblade",
+			["name"] = "Druid",
+			["page"] = "Druid",
 		},
 		{
 			["image"] = "Ember",
@@ -842,6 +878,12 @@ return {
 			["subtype"] = "stance",
 		},
 		{
+			["key"] = "class:paladin",
+			["kind"] = "class",
+			["name"] = "Paladin",
+			["page"] = "Paladin",
+		},
+		{
 			["image"] = "Planar Stone.png",
 			["key"] = "item:ore - planar stone",
 			["kind"] = "item",
@@ -882,6 +924,12 @@ return {
 			["subtype"] = "Rare",
 		},
 		{
+			["key"] = "class:reaver",
+			["kind"] = "class",
+			["name"] = "Reaver",
+			["page"] = "Reaver",
+		},
+		{
 			["image"] = "Stance: Reckless",
 			["key"] = "stance:reckless",
 			["kind"] = "ability",
@@ -918,6 +966,12 @@ return {
 			["name"] = "Stance: Aggressive",
 			["page"] = "Stance: Aggressive",
 			["subtype"] = "skill",
+		},
+		{
+			["key"] = "class:stormcaller",
+			["kind"] = "class",
+			["name"] = "Stormcaller",
+			["page"] = "Stormcaller",
 		},
 		{
 			["image"] = "Sword Mastery",
@@ -964,6 +1018,12 @@ return {
 			["kind"] = "faction",
 			["name"] = "The Followers of Good",
 			["page"] = "The Followers of Good",
+		},
+		{
+			["key"] = "class:duelist",
+			["kind"] = "class",
+			["name"] = "Windblade",
+			["page"] = "Windblade",
 		},
 	},
 	["schemaVersion"] = 1,

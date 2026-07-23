@@ -24,14 +24,13 @@ LuaData = dict[str, object]
 
 
 def class_link_ref(internal_name: str, display_name: str) -> LuaData:
-    """Return one stable class reference with an explicit canonical fallback."""
+    """Return one class identity resolved through the shared link catalog."""
     canonical_page = display_name.strip()
     if not canonical_page:
         raise ValueError(f"Class {internal_name!r} has a blank display name")
     return {
+        "kind": "class",
         "stablekey": class_stable_key(internal_name),
-        "page": canonical_page,
-        "text": canonical_page,
     }
 
 
@@ -53,8 +52,15 @@ def link_ref(link: WikiLink, kind: str | None = None) -> LuaData | None:
     """Return a primitive typed reference table for a visible wiki link."""
     if link.page_title is None:
         return None
+    ref_kind = kind or _kind_for_link(link)
+    if link.stable_key and ref_kind != "page":
+        return {
+            "kind": ref_kind,
+            "stablekey": link.stable_key,
+        }
+
     ref: LuaData = {
-        "kind": kind or _kind_for_link(link),
+        "kind": ref_kind,
         "page": link.page_title,
         "text": link.display_name,
     }

@@ -158,12 +158,7 @@ local function classLevelsText(skill)
 		then
 			local args
 			if not isBlank(entry.stablekey) then
-				args = {
-					kind = "class",
-					stablekey = entry.stablekey,
-					link = entry.page,
-					text = entry.text,
-				}
+				args = { kind = "class", stablekey = entry.stablekey }
 			else
 				args = { kind = "class", page = displayName }
 			end

@@ -48,9 +48,6 @@ def test_equipment_overview_rows_use_internal_class_keys_and_mapped_names(
         generator._add_weapon_row(rows, item, stats, ["Duelist", "Arcanist", "Duelist"])
 
     class_cell = next(row for row in rows if row.startswith("|{{ClassLink"))
-    assert class_cell == (
-        "|{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}}, "
-        "{{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}}"
-    )
+    assert class_cell == ("|{{ClassLink|stablekey=class:arcanist}}, {{ClassLink|stablekey=class:duelist}}")
     assert "[[Windblade]]" not in "\n".join(rows)
     assert "[[Arcanist]]" not in "\n".join(rows)

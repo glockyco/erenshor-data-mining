@@ -83,14 +83,14 @@ class OverviewPageGeneratorBase(PageGenerator, ABC):
 
         Returns:
             Comma-separated semantic class links like:
-            "{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}},
-            {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}"
+            "{{ClassLink|stablekey=class:arcanist}},
+            {{ClassLink|stablekey=class:druid}}"
             or empty string if no classes
 
         Examples:
             >>> self._format_classes(["Arcanist", "Druid"])
-            '{{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}},
-            {{ClassLink|stablekey=class:druid|link=Druid|text=Druid}}'
+            '{{ClassLink|stablekey=class:arcanist}},
+            {{ClassLink|stablekey=class:druid}}'
             >>> self._format_classes([])
             ''
         """

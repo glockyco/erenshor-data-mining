@@ -238,12 +238,7 @@ local function classText(classes, classLinks)
 			if type(classLink) == "table" and not isBlank(classLink.stablekey) then
 				table.insert(
 					links,
-					Link.render({
-						kind = "class",
-						stablekey = classLink.stablekey,
-						link = classLink.page,
-						text = classLink.text,
-					})
+					Link.render({ kind = "class", stablekey = classLink.stablekey })
 				)
 			end
 		end

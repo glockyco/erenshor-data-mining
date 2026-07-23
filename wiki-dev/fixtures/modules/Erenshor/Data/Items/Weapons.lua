@@ -14,9 +14,9 @@ return {
 		sellValue = 3125,
 		classes = { "Duelist", "Paladin", "Reaver" },
 		classLinks = {
-			{ stablekey = "class:duelist", page = "Windblade", text = "Windblade" },
-			{ stablekey = "class:paladin", page = "Paladin", text = "Paladin" },
-			{ stablekey = "class:reaver", page = "Reaver", text = "Reaver" },
+			{ kind = "class", stablekey = "class:duelist" },
+			{ kind = "class", stablekey = "class:paladin" },
+			{ kind = "class", stablekey = "class:reaver" },
 		},
 		relic = true,
 		weaponProc = "spell:ember_proc",

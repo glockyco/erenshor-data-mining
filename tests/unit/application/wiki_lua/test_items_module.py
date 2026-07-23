@@ -55,8 +55,8 @@ def test_builds_item_index_and_sharded_records_with_tooltip_source_fields() -> N
                     "armor": 3,
                     "classes": ["Knight", "Paladin"],
                     "classLinks": [
-                        {"stablekey": "class:knight", "page": "Knight", "text": "Knight"},
-                        {"stablekey": "class:paladin", "page": "Paladin", "text": "Paladin"},
+                        {"kind": "class", "stablekey": "class:knight"},
+                        {"kind": "class", "stablekey": "class:paladin"},
                     ],
                     "stats": [
                         {

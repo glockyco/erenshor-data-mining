@@ -87,8 +87,6 @@ def test_builds_character_data_with_spawn_loot_and_spell_summaries() -> None:
                 "type": "Enemy",
                 "faction": {
                     "kind": "faction",
-                    "page": "The Followers of Evil",
-                    "text": "The Followers of Evil",
                     "stablekey": "faction:the_followers_of_evil",
                 },
                 "zones": [{"kind": "zone", "page": "Blacksalt Strand", "text": "Blacksalt Strand"}],
@@ -220,8 +218,6 @@ def test_faction_modifiers_keep_faction_kind_and_stable_key() -> None:
         {
             "link": {
                 "kind": "faction",
-                "page": "The Azure Guard",
-                "text": "The Azure Guard",
                 "stablekey": "faction:azureguard",
             },
             "modifier": -5,
