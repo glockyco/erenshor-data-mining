@@ -27,7 +27,7 @@ def fixture_dll(
     return out / "FixtureLib.dll"
 
 
-def run_tool(dll: Path, specs: Path, *, variant: str | None = None) -> tuple[int, dict]:
+def run_tool(dll: Path, specs: Path) -> tuple[int, dict]:
     command = [
         "dotnet",
         "run",
@@ -40,8 +40,6 @@ def run_tool(dll: Path, specs: Path, *, variant: str | None = None) -> tuple[int
         str(dll),
         str(specs),
     ]
-    if variant is not None:
-        command.extend(["--variant", variant])
     proc = subprocess.run(
         command,
         check=False,
@@ -52,90 +50,23 @@ def run_tool(dll: Path, specs: Path, *, variant: str | None = None) -> tuple[int
     return proc.returncode, payload
 
 
-def test_extracts_guarded_rolls_and_strings(fixture_dll: Path) -> None:
+def test_cli_serializes_successful_fixture_run(fixture_dll: Path) -> None:
     rc, out = run_tool(fixture_dll, SPECS)
     assert rc == 0, out
-    facts = {f["id"]: f for f in out["facts"]}
+    assert out["schema"] == 1
+    assert out["assembly"] == str(fixture_dll)
+
+    facts = {fact["id"]: fact for fact in out["facts"]}
     assert facts["fixture.pool_a"]["values"] == {"rate": "0.005", "min_level": "0"}
     assert facts["fixture.singleton_b"]["values"] == {"rate": "0.0125", "min_level": "20"}
     assert facts["fixture.combine_ids"]["values"] == {"strings": "31377423,46289586"}
     assert facts["fixture.auction_envelope"]["values"] == {"level": "> 0,< 40", "value": "> 0"}
 
-
-def test_unmatched_spec_fails_loud(fixture_dll: Path, tmp_path: Path) -> None:
-    specs = json.loads(SPECS.read_text())
-    specs["facts"][0]["args"]["member"] = "NoSuchPool"
-    bad = tmp_path / "bad-specs.json"
-    bad.write_text(json.dumps(specs))
-    rc, out = run_tool(fixture_dll, bad)
-    assert rc == 1
-    assert any("fixture.pool_a" in e for e in out["errors"])
-
-
-def test_assert_facts_pass_on_matching_shapes(fixture_dll: Path) -> None:
-    rc, out = run_tool(fixture_dll, SPECS)
-    assert rc == 0, out
-    facts = {f["id"]: f for f in out["facts"]}
-    assert facts["fixture.guarantee_shape"]["ok"] is True
-    assert facts["fixture.guarantee_shape"]["values"] is None
-    assert facts["fixture.trigger_strings"]["ok"] is True
+    for fact_id in (
+        "fixture.guarantee_shape",
+        "fixture.guarantee_retry_loop",
+        "fixture.trigger_strings",
+    ):
+        assert facts[fact_id]["ok"] is True
+        assert facts[fact_id]["values"] is None
     assert out["errors"] == []
-
-
-def test_node_shape_asserts_compound_statement(fixture_dll: Path) -> None:
-    rc, out = run_tool(fixture_dll, SPECS)
-    assert rc == 0, out
-    facts = {f["id"]: f for f in out["facts"]}
-    assert facts["fixture.guarantee_retry_loop"]["ok"] is True
-    assert facts["fixture.guarantee_retry_loop"]["values"] is None
-
-
-def test_node_shape_violation_fails_loud(fixture_dll: Path, tmp_path: Path) -> None:
-    specs = json.loads(SPECS.read_text())
-    for fact in specs["facts"]:
-        if fact["id"] == "fixture.guarantee_retry_loop":
-            fact["args"]["shape"] = "for (int i = 0; i < numberOfGuaranteedDrops; i++) { Drops.Add (PoolA [0]); }"
-    bad = tmp_path / "bad-node-shape.json"
-    bad.write_text(json.dumps(specs))
-    rc, out = run_tool(fixture_dll, bad)
-    assert rc == 1
-    assert any("fixture.guarantee_retry_loop" in e for e in out["errors"])
-
-
-def test_variant_scoped_facts_are_skipped_for_other_variants(fixture_dll: Path, tmp_path: Path) -> None:
-    specs = json.loads(SPECS.read_text())
-    for fact in specs["facts"]:
-        if fact["id"] == "fixture.guarantee_retry_loop":
-            fact["variants"] = ["playtest"]
-            fact["args"]["shape"] = "for (int i = 0; i < numberOfGuaranteedDrops; i++) { Drops.Add (PoolA [0]); }"
-    variant_specs = tmp_path / "variant-specs.json"
-    variant_specs.write_text(json.dumps(specs))
-
-    rc, out = run_tool(fixture_dll, variant_specs, variant="main")
-    assert rc == 0, out
-    facts = {fact["id"]: fact for fact in out["facts"]}
-    assert "fixture.guarantee_retry_loop" not in facts
-
-
-def test_statement_shape_violation_fails_loud(fixture_dll: Path, tmp_path: Path) -> None:
-    specs = json.loads(SPECS.read_text())
-    for fact in specs["facts"]:
-        if fact["id"] == "fixture.guarantee_shape":
-            fact["args"]["statement"] = "Drops.Add(NoSuchPool[0]);"
-    bad = tmp_path / "bad-statement.json"
-    bad.write_text(json.dumps(specs))
-    rc, out = run_tool(fixture_dll, bad)
-    assert rc == 1
-    assert any("fixture.guarantee_shape" in e for e in out["errors"])
-
-
-def test_string_set_violation_fails_loud(fixture_dll: Path, tmp_path: Path) -> None:
-    specs = json.loads(SPECS.read_text())
-    for fact in specs["facts"]:
-        if fact["id"] == "fixture.trigger_strings":
-            fact["args"]["strings"] = "31377423,46289586,99999999"
-    bad = tmp_path / "bad-stringset.json"
-    bad.write_text(json.dumps(specs))
-    rc, out = run_tool(fixture_dll, bad)
-    assert rc == 1
-    assert any("fixture.trigger_strings" in e for e in out["errors"])

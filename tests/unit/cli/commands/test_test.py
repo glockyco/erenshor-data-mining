@@ -240,7 +240,6 @@ def test_unit_route_preserves_explicit_coverage_option(tmp_path: Path, monkeypat
     ("task_id", "arguments"),
     [
         ("unit", ["tests/unit"]),
-        ("contract", ["tests/contract"]),
         ("data", ["tests/data"]),
     ],
 )
@@ -268,6 +267,154 @@ def test_python_leaves_use_exact_pytest_path_argv_and_repository_cwd(
     report_path = Path(command[-1])
     _assert_intermediate_report_path(report_path, tmp_path, task_id)
     assert calls[0][1] == tmp_path
+
+
+def test_contract_preflight_requires_codefacts_native_project(tmp_path: Path, monkeypatch: Any) -> None:
+    monkeypatch.setattr(test, "_executable", lambda name: test._Preflight(name, True, "present"))
+
+    checks = test._preflight_contract(_context(tmp_path))
+
+    project_check = next(check for check in checks if check.name == "CodeFacts native test project")
+    assert not project_check.ok
+    assert project_check.detail == str(tmp_path / test._CODEFACTS_TEST_PROJECT)
+
+    project = tmp_path / test._CODEFACTS_TEST_PROJECT
+    project.parent.mkdir(parents=True)
+    project.touch()
+    checks = test._preflight_contract(_context(tmp_path))
+    assert next(check for check in checks if check.name == "CodeFacts native test project").ok
+
+
+def test_contract_leaf_uses_exact_native_and_pytest_commands_and_namespaced_results(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    monkeypatch.setattr(test, "_read_pytest_report", lambda _path: (_counts(), None))
+    monkeypatch.setitem(test._PREFLIGHTS, "contract", lambda _ctx: _passing_preflight())
+    calls: list[tuple[Sequence[str], Path]] = []
+
+    def fake_run_process(argv: Sequence[str], cwd: Path) -> Any:
+        calls.append((argv, cwd))
+        if argv[0] == "dotnet":
+            _write_trx(argv, ["Passed"])
+        return test._CommandResult(tuple(argv), cwd, 0, 0.125)
+
+    monkeypatch.setattr(test, "_run_process", fake_run_process)
+    result = test._run_leaf(_context(tmp_path), "contract")
+
+    assert result.status == "passed"
+    assert len(calls) == 2
+    native_command, pytest_command = calls
+    project = tmp_path / test._CODEFACTS_TEST_PROJECT
+    native_logger = native_command[0][-1]
+    assert native_logger.startswith("trx;LogFileName=")
+    assert list(native_command[0]) == ["dotnet", "test", str(project), "-c", "Release", "--logger", native_logger]
+    assert native_command[1] == tmp_path
+    pytest_report = pytest_command[0][-1]
+    assert list(pytest_command[0]) == [
+        "uv",
+        "run",
+        "pytest",
+        "tests/contract",
+        "-p",
+        "erenshor.cli.commands.test",
+        "--erenshor-report",
+        pytest_report,
+    ]
+    _assert_intermediate_report_path(Path(pytest_report), tmp_path, "contract")
+    assert result.result_counts == {
+        "codefacts": {"executed": 1, "failed": 0, "skipped": 0, "not_executed": 0},
+        "pytest": _counts(),
+    }
+    assert set(result.diagnostics) == {"codefacts", "pytest"}
+
+
+@pytest.mark.parametrize(
+    ("outcomes", "expected_status"),
+    [
+        (["Passed"], "passed"),
+        ([], "failed"),
+        (["Failed"], "failed"),
+        (["Skipped"], "failed"),
+        (["NotExecuted"], "failed"),
+    ],
+)
+def test_contract_native_runner_validates_trx_counts(
+    tmp_path: Path, monkeypatch: Any, outcomes: list[str], expected_status: str
+) -> None:
+    def fake_run_process(argv: Sequence[str], cwd: Path) -> Any:
+        _write_trx(argv, outcomes)
+        return test._CommandResult(tuple(argv), cwd, 0, 0.0)
+
+    monkeypatch.setattr(test, "_run_process", fake_run_process)
+    result = test._run_native_test_project(_context(tmp_path), test._CODEFACTS_TEST_PROJECT, name="CodeFacts")
+
+    assert result.status == expected_status
+    assert result.exit_code == (0 if expected_status == "passed" else 1)
+    if expected_status == "passed":
+        assert result.result_counts["executed"] == 1
+    else:
+        assert result.status == "failed"
+
+
+def test_contract_leaf_runs_pytest_after_native_failure_and_propagates_failure(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    pytest_calls: list[Sequence[str]] = []
+    native = test._NativeTestResult(
+        command=test._CommandResult(("dotnet", "test"), tmp_path, 7, 0.0),
+        result_counts={"executed": 0, "failed": 0, "skipped": 0, "not_executed": 0},
+        status="failed",
+        exit_code=7,
+        diagnostics={"validation": ["exit_code=7"]},
+    )
+    monkeypatch.setattr(test, "_run_native_test_project", lambda *_args, **_kwargs: native)
+
+    def fake_pytest(_ctx: CLIContext, _task_id: str, arguments: Sequence[str], **_kwargs: Any) -> Any:
+        pytest_calls.append(arguments)
+        return test._LeafResult(
+            task_id="contract",
+            status="passed",
+            exit_code=0,
+            duration_seconds=0.0,
+            prerequisites=[],
+            result_counts=_counts(),
+            commands=[{"argv": ["uv", "run", "pytest", "tests/contract"], "cwd": str(tmp_path), "exit_code": 0}],
+            diagnostics={},
+        )
+
+    monkeypatch.setattr(test, "_run_pytest_leaf", fake_pytest)
+    result = test._run_contract_leaf(_context(tmp_path))
+
+    assert result.status == "failed"
+    assert result.exit_code == 7
+    assert pytest_calls == [["tests/contract"]]
+    assert result.result_counts["codefacts"] == native.result_counts
+    assert result.result_counts["pytest"] == _counts()
+    assert result.diagnostics["codefacts"] == native.diagnostics
+    assert result.diagnostics["pytest"] == {}
+
+
+def test_contract_leaf_cleans_native_and_pytest_reports(tmp_path: Path, monkeypatch: Any) -> None:
+    report_paths: list[Path] = []
+    monkeypatch.setattr(test, "_read_pytest_report", lambda _path: (_counts(), None))
+
+    def fake_run_process(argv: Sequence[str], cwd: Path) -> Any:
+        if argv[0] == "dotnet":
+            logger = next(argument for argument in argv if "LogFileName=" in argument)
+            path = Path(logger.split("=", 1)[1])
+            _write_trx(argv, ["Passed"])
+        else:
+            path = Path(argv[-1])
+        report_paths.append(path)
+        return test._CommandResult(tuple(argv), cwd, 0, 0.0)
+
+    monkeypatch.setattr(test, "_run_process", fake_run_process)
+    result = test._run_contract_leaf(_context(tmp_path))
+
+    assert result.status == "passed"
+    assert len(report_paths) == 2
+    assert len(set(report_paths)) == 2
+    assert all(not path.exists() for path in report_paths)
 
 
 def test_pytest_intermediate_report_paths_are_unique_and_cleaned(tmp_path: Path, monkeypatch: Any) -> None:

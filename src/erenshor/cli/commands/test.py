@@ -50,6 +50,7 @@ _REPORT_OPTION = "--erenshor-report"
 _REPORT_SCHEMA = 1
 _REPORT_DIRECTORY = Path("artifacts/test-reports")
 _WIKI_BASE_URL = "http://localhost:8088"
+_CODEFACTS_TEST_PROJECT = Path("src/tools/CodeFacts/tests/CodeFacts.Tests/CodeFacts.Tests.csproj")
 
 
 class TaskGraphError(ValueError):
@@ -140,6 +141,15 @@ class _LeafResult:
     result_counts: Mapping[str, object]
     commands: list[dict[str, object]]
     diagnostics: dict[str, object] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
+class _NativeTestResult:
+    command: _CommandResult
+    result_counts: Mapping[str, object]
+    status: str
+    exit_code: int
+    diagnostics: dict[str, object]
 
 
 class _PytestState:
@@ -348,6 +358,7 @@ def _preflight_contract(cli_ctx: CLIContext) -> list[_Preflight]:
         _executable("uv"),
         _executable("dotnet"),
         _directory(cli_ctx.repo_root / "tests/contract", "tests/contract"),
+        _file(cli_ctx.repo_root / _CODEFACTS_TEST_PROJECT, "CodeFacts native test project"),
     ]
 
 
@@ -837,6 +848,99 @@ def _run_pytest_leaf(
     )
 
 
+def _run_native_test_project(cli_ctx: CLIContext, project: Path, *, name: str) -> _NativeTestResult:
+    """Run one native test project and validate its temporary TRX report."""
+    report_directory = cli_ctx.repo_root / _REPORT_DIRECTORY
+    report_directory.mkdir(parents=True, exist_ok=True)
+    report_path = _temporary_report_path(
+        report_directory,
+        prefix=f".dotnet-{re.sub(r'[^A-Za-z0-9_.-]+', '_', name)}-",
+        suffix=".trx",
+    )
+    project_path = project if project.is_absolute() else cli_ctx.repo_root / project
+    command = [
+        "dotnet",
+        "test",
+        str(project_path),
+        "-c",
+        "Release",
+        "--logger",
+        f"trx;LogFileName={report_path}",
+    ]
+    try:
+        command_result = _run_process(command, cli_ctx.repo_root)
+        parsed_counts, report_error = _read_trx_report(report_path)
+    finally:
+        with suppress(OSError):
+            report_path.unlink(missing_ok=True)
+
+    violations: list[str] = []
+    diagnostics: dict[str, object] = {}
+    complete_counts: _CompleteTrxCounts | None = None
+    if report_error:
+        violations.append(report_error)
+        diagnostics["report_validation"] = [report_error]
+    else:
+        try:
+            complete_counts = _complete_trx_counts(parsed_counts)
+        except ValueError as validation_error:
+            report_error = str(validation_error)
+            violations.append(report_error)
+            diagnostics["report_validation"] = [report_error]
+        else:
+            if complete_counts["executed"] <= 0:
+                violations.append(f"executed={complete_counts['executed']}")
+            if complete_counts["failed"] > 0:
+                violations.append(f"failed={complete_counts['failed']}")
+            if complete_counts["skipped"] > 0:
+                violations.append(f"skipped={complete_counts['skipped']}")
+            if complete_counts["not_executed"] > 0:
+                violations.append(f"not_executed={complete_counts['not_executed']}")
+    if command_result.exit_code != 0:
+        violations.append(f"exit_code={command_result.exit_code}")
+
+    status = "passed" if not violations else "failed"
+    if violations and not report_error:
+        diagnostics["validation"] = violations
+    return _NativeTestResult(
+        command=command_result,
+        result_counts=complete_counts if complete_counts is not None else parsed_counts,
+        status=status,
+        exit_code=0 if status == "passed" else (command_result.exit_code or 1),
+        diagnostics=diagnostics,
+    )
+
+
+def _run_contract_leaf(cli_ctx: CLIContext) -> _LeafResult:
+    """Run the native CodeFacts and Python contract tests exactly once each."""
+    start = time.monotonic()
+    native_result = _run_native_test_project(cli_ctx, _CODEFACTS_TEST_PROJECT, name="CodeFacts")
+    pytest_result = _run_pytest_leaf(cli_ctx, "contract", ["tests/contract"])
+    failed_result = next(
+        (result for result in (native_result, pytest_result) if result.exit_code != 0),
+        None,
+    )
+    return _LeafResult(
+        task_id="contract",
+        status="passed" if failed_result is None else "failed",
+        exit_code=0 if failed_result is None else failed_result.exit_code,
+        duration_seconds=_duration(start),
+        prerequisites=[],
+        result_counts={
+            "codefacts": native_result.result_counts,
+            "pytest": pytest_result.result_counts,
+        },
+        commands=[
+            _command_json(native_result.command),
+            *pytest_result.commands,
+        ],
+        diagnostics={
+            "codefacts": native_result.diagnostics,
+            "pytest": pytest_result.diagnostics,
+        },
+    )
+
+
 def _run_mods_leaf(cli_ctx: CLIContext) -> _LeafResult:
     """Run every native project and validate its structured TRX result."""
     start = time.monotonic()
@@ -1025,7 +1129,7 @@ def _run_leaf(cli_ctx: CLIContext, task_id: str, *, coverage: bool = False) -> _
     if task_id == "unit":
         result = _run_pytest_leaf(cli_ctx, task_id, ["tests/unit"], coverage=coverage)
     elif task_id == "contract":
-        result = _run_pytest_leaf(cli_ctx, task_id, ["tests/contract"])
+        result = _run_contract_leaf(cli_ctx)
     elif task_id == "data":
         result = _run_pytest_leaf(cli_ctx, task_id, ["tests/data"])
     elif task_id == "wiki":
