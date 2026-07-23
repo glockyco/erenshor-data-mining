@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:weap - 29 - ceto|link=Ceto|text=Ceto|image=Ceto.png}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 29 - ceto}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - sea's kiss}}

@@ -3,7 +3,7 @@
 |stablekey=item:back - 17 - seawashed cloak
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:spike|link=Spike|text=Spike}} (33.3%)
+|source={{CharacterLink|stablekey=character:spike}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

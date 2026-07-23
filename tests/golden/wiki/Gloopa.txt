@@ -3,9 +3,9 @@
 |image=[[File:Gloopa.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:elderstone|link=The Elderstone Mines|text=The Elderstone Mines}}
+|zones={{ZoneLink|stablekey=zone:elderstone}}
 |coordinates=98.1 x -54.2 x -725.0
 |spawnchance=
 |spawntype=
@@ -40,9 +40,9 @@
 |image=[[File:Gloopa.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:elderstone|link=The Elderstone Mines|text=The Elderstone Mines}}
+|zones={{ZoneLink|stablekey=zone:elderstone}}
 |coordinates=98.1 x -54.2 x -725.0
 |spawnchance=
 |spawntype=Dynamic event spawn
@@ -77,15 +77,15 @@
 |image=[[File:Gloopa.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:elderstone|link=The Elderstone Mines|text=The Elderstone Mines}}
+|zones={{ZoneLink|stablekey=zone:elderstone}}
 |coordinates=98.1 x -54.2 x -725.0
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:ring - 16 - hardened slime ring|link=Hardened Slime Ring|text=Hardened Slime Ring|image=Hardened Slime Ring.png}} (1.7%)<br>{{ItemLink|stablekey=item:spell scroll - antidote|link=Spell Scroll: Antidote|text=Spell Scroll: Antidote|image=Spell Scroll: Antidote.png}} (1.7%)<br>{{ItemLink|stablekey=item:spell scroll - biting vines|link=Spell Scroll: Biting Vines|text=Spell Scroll: Biting Vines|image=Spell Scroll: Biting Vines.png}} (1.7%)<br>{{ItemLink|stablekey=item:spell scroll - brax's rage|link=Spell Scroll: Brax's Rage|text=Spell Scroll: Brax's Rage|image=Spell Scroll: Brax's Rage.png}} (1.7%)<br>{{ItemLink|stablekey=item:spell scroll - burning chains|link=Spell Scroll: Burning Chains|text=Spell Scroll: Burning Chains|image=Spell Scroll: Burning Chains.png}} (1.7%)<br>{{ItemLink|stablekey=item:spell scroll - moonburst|link=Spell Scroll: Moonburst|text=Spell Scroll: Moonburst|image=Spell Scroll: Moonburst.png}} (1.7%)<br>{{ItemLink|stablekey=item:spell scroll - summon cursed fawn|link=Spell Scroll: Summon Cursed Fawn|text=Spell Scroll: Summon Cursed Fawn|image=Spell Scroll: Summon Cursed Fawn.png}} (1.7%)<br>{{ItemLink|stablekey=item:spell scroll - toxicity|link=Spell Scroll: Toxicity|text=Spell Scroll: Toxicity|image=Spell Scroll: Toxicity.png}} (1.7%)
+|droprates={{ItemLink|stablekey=item:ring - 16 - hardened slime ring}} (1.7%)<br>{{ItemLink|stablekey=item:spell scroll - antidote}} (1.7%)<br>{{ItemLink|stablekey=item:spell scroll - biting vines}} (1.7%)<br>{{ItemLink|stablekey=item:spell scroll - brax's rage}} (1.7%)<br>{{ItemLink|stablekey=item:spell scroll - burning chains}} (1.7%)<br>{{ItemLink|stablekey=item:spell scroll - moonburst}} (1.7%)<br>{{ItemLink|stablekey=item:spell scroll - summon cursed fawn}} (1.7%)<br>{{ItemLink|stablekey=item:spell scroll - toxicity}} (1.7%)
 |level=21
 |levelmodmin=0
 |levelmodmax=0
@@ -114,15 +114,15 @@
 |image=[[File:Gloopa.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:elderstone|link=The Elderstone Mines|text=The Elderstone Mines}}
+|zones={{ZoneLink|stablekey=zone:elderstone}}
 |coordinates=98.1 x -54.2 x -725.0
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=15 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:ring - 16 - hardened slime ring|link=Hardened Slime Ring|text=Hardened Slime Ring|image=Hardened Slime Ring.png}}<br>{{ItemLink|stablekey=item:foot - 21 - slimetreads|link=Slimetreads|text=Slimetreads|image=Slimetreads.png}}<br>{{ItemLink|stablekey=item:belt - 18 - toxic strap|link=Toxic Strap|text=Toxic Strap|image=Toxic Strap.png}}
-|droprates={{ItemLink|stablekey=item:ore - ancient coal|link=Ancient Coal|text=Ancient Coal|image=Ancient Coal.png}} (74.5%)<br>{{ItemLink|stablekey=item:ring - 16 - hardened slime ring|link=Hardened Slime Ring|text=Hardened Slime Ring|image=Hardened Slime Ring.png}} (38.5%)<br>{{ItemLink|stablekey=item:foot - 21 - slimetreads|link=Slimetreads|text=Slimetreads|image=Slimetreads.png}} (38.5%)<br>{{ItemLink|stablekey=item:belt - 18 - toxic strap|link=Toxic Strap|text=Toxic Strap|image=Toxic Strap.png}} (38.5%)<br>{{ItemLink|stablekey=item:head - 19 - slime coated helm|link=Slime Coated Helm|text=Slime Coated Helm|image=Slime Coated Helm.png}} (4.3%)
+|guaranteeddrops={{ItemLink|stablekey=item:ring - 16 - hardened slime ring}}<br>{{ItemLink|stablekey=item:foot - 21 - slimetreads}}<br>{{ItemLink|stablekey=item:belt - 18 - toxic strap}}
+|droprates={{ItemLink|stablekey=item:ore - ancient coal}} (74.5%)<br>{{ItemLink|stablekey=item:ring - 16 - hardened slime ring}} (38.5%)<br>{{ItemLink|stablekey=item:foot - 21 - slimetreads}} (38.5%)<br>{{ItemLink|stablekey=item:belt - 18 - toxic strap}} (38.5%)<br>{{ItemLink|stablekey=item:head - 19 - slime coated helm}} (4.3%)
 |level=21
 |levelmodmin=0
 |levelmodmax=0

@@ -2,7 +2,7 @@
 |title=Skill Book: Block IV
 |stablekey=item:skillbook - block 4
 |type=[[Ability Books|Skill Book]]
-|vendorsource={{CharacterLink|stablekey=character:oscar vanellis:ripper:755.35:43.64:193.63|link=Oscar VanEllis|text=Oscar VanEllis}}<br>{{CharacterLink|stablekey=character:roreli gilmare:azure:143.76:26.28:342.76|link=Roreli Gilmare|text=Roreli Gilmare}}
+|vendorsource={{CharacterLink|stablekey=character:oscar vanellis:ripper:755.35:43.64:193.63}}<br>{{CharacterLink|stablekey=character:roreli gilmare:azure:143.76:26.28:342.76}}
 |source=
 |othersource=
 |questsource=
@@ -12,7 +12,7 @@
 |buy=12500
 |sell=8125
 |taughtspell=
-|taughtskill={{AbilityLink|stablekey=skill:block 4|link=Block IV|text=Block IV|image=Block IV.png}}
+|taughtskill={{AbilityLink|stablekey=skill:block 4}}
 |guaranteeddrops=
 |droprates=
 }}

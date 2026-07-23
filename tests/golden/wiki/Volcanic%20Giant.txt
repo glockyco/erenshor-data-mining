@@ -3,15 +3,15 @@
 |image=[[File:Volcanic Giant.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:rockshade|link=Rockshade Hold|text=Rockshade Hold}}
+|zones={{ZoneLink|stablekey=zone:rockshade}}
 |coordinates=434.8 x 122.9 x 418.4
 |spawnchance=
 |spawntype=
 |respawn=14 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:aura - the sage|link=Sage's Trinket|text=Sage's Trinket|image=Sage's Trinket.png}}<br>{{ItemLink|stablekey=item:wand - 26 - volcanic sceptre|link=Volcanic Sceptre|text=Volcanic Sceptre|image=Volcanic Sceptre.png}}<br>{{ItemLink|stablekey=item:secondary - 26 - volcanic shield|link=Volcanic Shield|text=Volcanic Shield|image=Volcanic Shield.png}}
-|droprates={{ItemLink|stablekey=item:wand - 26 - volcanic sceptre|link=Volcanic Sceptre|text=Volcanic Sceptre|image=Volcanic Sceptre.png}} (50.0%)<br>{{ItemLink|stablekey=item:aura - the sage|link=Sage's Trinket|text=Sage's Trinket|image=Sage's Trinket.png}} (25.0%)<br>{{ItemLink|stablekey=item:secondary - 26 - volcanic shield|link=Volcanic Shield|text=Volcanic Shield|image=Volcanic Shield.png}} (25.0%)<br>{{ItemLink|stablekey=item:ore - obsidian|link=Chunk of Obsidian|text=Chunk of Obsidian|image=Chunk of Obsidian.png}} (13.1%)<br>{{ItemLink|stablekey=item:cons - lava droplet|link=Droplet of Lava|text=Droplet of Lava|image=Droplet of Lava.png}} (13.1%)<br>{{ItemLink|stablekey=item:glove - 1 - cloth gloves|link=Cloth Gloves|text=Cloth Gloves|image=Cloth Gloves.png}} (5.1%)<br>{{ItemLink|stablekey=item:head - 1 - cloth hood|link=Cloth Hood|text=Cloth Hood|image=Cloth Hood.png}} (5.1%)<br>{{ItemLink|stablekey=item:leg - 1 - cloth pants|link=Cloth Pants|text=Cloth Pants|image=Cloth Pants.png}} (5.1%)<br>{{ItemLink|stablekey=item:chest - 1 - cloth shirt|link=Cloth Shirt|text=Cloth Shirt|image=Cloth Shirt.png}} (5.1%)<br>{{ItemLink|stablekey=item:foot - 1 - cloth shoes|link=Cloth Shoes|text=Cloth Shoes|image=Cloth Shoes.png}} (5.1%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves|link=Cloth Sleeves|text=Cloth Sleeves|image=Cloth Sleeves.png}} (5.1%)
+|guaranteeddrops={{ItemLink|stablekey=item:aura - the sage}}<br>{{ItemLink|stablekey=item:wand - 26 - volcanic sceptre}}<br>{{ItemLink|stablekey=item:secondary - 26 - volcanic shield}}
+|droprates={{ItemLink|stablekey=item:wand - 26 - volcanic sceptre}} (50.0%)<br>{{ItemLink|stablekey=item:aura - the sage}} (25.0%)<br>{{ItemLink|stablekey=item:secondary - 26 - volcanic shield}} (25.0%)<br>{{ItemLink|stablekey=item:ore - obsidian}} (13.1%)<br>{{ItemLink|stablekey=item:cons - lava droplet}} (13.1%)<br>{{ItemLink|stablekey=item:glove - 1 - cloth gloves}} (5.1%)<br>{{ItemLink|stablekey=item:head - 1 - cloth hood}} (5.1%)<br>{{ItemLink|stablekey=item:leg - 1 - cloth pants}} (5.1%)<br>{{ItemLink|stablekey=item:chest - 1 - cloth shirt}} (5.1%)<br>{{ItemLink|stablekey=item:foot - 1 - cloth shoes}} (5.1%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves}} (5.1%)
 |level=27
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=14-32
 |elemental=14-32
 |void=14-32
-|spells={{AbilityLink|stablekey=spell:arc - brax's rage|link=Brax's Rage|text=Brax's Rage|image=Brax's Rage.png}}<br>{{AbilityLink|stablekey=spell:arc - burning chains|link=Burning Chains|text=Burning Chains|image=Burning Chains.png}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's rage}}<br>{{AbilityLink|stablekey=spell:arc - burning chains}}
 }}
 
 ''{{main|Enemies}}''

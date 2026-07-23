@@ -3,9 +3,9 @@
 |stablekey=item:key - key to vitheo's rest
 |type=[[Quest Items|Quest Item]], [[Keys|Key]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:aareth graveblade|link=Aareth Graveblade|text=Aareth Graveblade}} (100.0%)<br>{{CharacterLink|stablekey=character:vethalo gala|link=Vethalo Gala|text=Vethalo Gala}} (100.0%)
+|source={{CharacterLink|stablekey=character:aareth graveblade}} (100.0%)<br>{{CharacterLink|stablekey=character:vethalo gala}} (100.0%)
 |othersource=
-|questsource={{QuestLink|A Key to Vitheo's Rest}}<br>{{QuestLink|stablekey=quest:vitheosrestkey|link=A Key to Vitheo's Rest|text=A Key to Vitheo's Rest}}
+|questsource={{QuestLink|A Key to Vitheo's Rest}}<br>{{QuestLink|stablekey=quest:vitheosrestkey}}
 |relatedquest=
 |craftsource=
 |componentfor=

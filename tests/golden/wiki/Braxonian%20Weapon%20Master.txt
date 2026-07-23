@@ -3,15 +3,15 @@
 |image=[[File:Braxonian Weapon Master.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:braxonia|link=Fallen Braxonia|text=Fallen Braxonia}}
+|zones={{ZoneLink|stablekey=zone:braxonia}}
 |coordinates=413.4 x 75.0 x 488.4
 |spawnchance=66%
 |spawntype=
 |respawn=8 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:back - 32 - braxonian cape|link=Braxonian Cape|text=Braxonian Cape|image=Braxonian Cape.png}}<br>{{ItemLink|stablekey=item:weap - 31 - soulshiver|link=Soulshiver|text=Soulshiver|image=Soulshiver.png}}
-|droprates={{ItemLink|stablekey=item:back - 32 - braxonian cape|link=Braxonian Cape|text=Braxonian Cape|image=Braxonian Cape.png}} (66.7%)<br>{{ItemLink|stablekey=item:weap - 31 - soulshiver|link=Soulshiver|text=Soulshiver|image=Soulshiver.png}} (33.3%)<br>{{ItemLink|stablekey=item:wrist - 30 - braxonian bracer|link=Braxonian Bracer|text=Braxonian Bracer|image=Braxonian Bracer.png}} (2.1%)<br>{{ItemLink|stablekey=item:glove - 30 - braxonian gauntlets|link=Braxonian Gauntlets|text=Braxonian Gauntlets|image=Braxonian Gauntlets.png}} (1.4%)<br>{{ItemLink|stablekey=item:foot - 31 - braxonian boots|link=Braxonian Plate Boots|text=Braxonian Plate Boots|image=Braxonian Plate Boots.png}} (1.4%)<br>{{ItemLink|stablekey=item:leg - 31 - braxonian greaves|link=Braxonian Greaves|text=Braxonian Greaves|image=Braxonian Greaves.png}} (0.7%)<br>{{ItemLink|stablekey=item:chest - 32 - braxonian plate|link=Braxonian Plate|text=Braxonian Plate|image=Braxonian Plate.png}} (0.7%)<br>{{ItemLink|stablekey=item:arm - 31 - braxonian vambraces|link=Braxonian Spaulders|text=Braxonian Spaulders|image=Braxonian Spaulders.png}} (0.7%)
+|guaranteeddrops={{ItemLink|stablekey=item:back - 32 - braxonian cape}}<br>{{ItemLink|stablekey=item:weap - 31 - soulshiver}}
+|droprates={{ItemLink|stablekey=item:back - 32 - braxonian cape}} (66.7%)<br>{{ItemLink|stablekey=item:weap - 31 - soulshiver}} (33.3%)<br>{{ItemLink|stablekey=item:wrist - 30 - braxonian bracer}} (2.1%)<br>{{ItemLink|stablekey=item:glove - 30 - braxonian gauntlets}} (1.4%)<br>{{ItemLink|stablekey=item:foot - 31 - braxonian boots}} (1.4%)<br>{{ItemLink|stablekey=item:leg - 31 - braxonian greaves}} (0.7%)<br>{{ItemLink|stablekey=item:chest - 32 - braxonian plate}} (0.7%)<br>{{ItemLink|stablekey=item:arm - 31 - braxonian vambraces}} (0.7%)
 |level=34
 |levelmodmin=0
 |levelmodmax=0

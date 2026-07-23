@@ -3,15 +3,15 @@
 |image=[[File:King Cobra.png|thumb]]
 |imagecaption=
 |type=Rare
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:silkengrass|link=Silkengrass Meadowlands|text=Silkengrass Meadowlands}}
+|zones={{ZoneLink|stablekey=zone:silkengrass}}
 |coordinates=
 |spawnchance=2-75%
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:ring - 15 - toxin warped band|link=Toxin Warped Band|text=Toxin Warped Band|image=Toxin Warped Band.png}} (15.0%)
+|droprates={{ItemLink|stablekey=item:ring - 15 - toxin warped band}} (15.0%)
 |level=18
 |levelmodmin=0
 |levelmodmax=0

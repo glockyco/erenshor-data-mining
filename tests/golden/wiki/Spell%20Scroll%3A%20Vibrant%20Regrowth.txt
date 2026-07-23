@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - vibrant regrowth
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:planar crawler|link=Planar Crawler|text=Planar Crawler}} (3.1%)<br>{{CharacterLink|stablekey=character:faerie trickster|link=Faerie Trickster|text=Faerie Trickster}} (2.3%)<br>{{CharacterLink|stablekey=character:planar faerie|link=Planar Faerie|text=Planar Faerie}} (2.3%)<br>{{CharacterLink|stablekey=character:pack mother|link=Pack Mother|text=Pack Mother}} (1.4%)<br>{{CharacterLink|stablekey=character:planar snake|link=Planar Cobra|text=Planar Cobra}} (1.4%)<br>{{CharacterLink|stablekey=character:planar grizzly|link=Planar Grizzly|text=Planar Grizzly}} (1.4%)<br>{{CharacterLink|stablekey=character:planar mino|link=Planar Minotaur|text=Planar Minotaur}} (1.4%)<br>{{CharacterLink|stablekey=character:planar wolf|link=Planar Wolf|text=Planar Wolf}} (1.4%)
+|source={{CharacterLink|stablekey=character:planar crawler}} (3.1%)<br>{{CharacterLink|stablekey=character:faerie trickster}} (2.3%)<br>{{CharacterLink|stablekey=character:planar faerie}} (2.3%)<br>{{CharacterLink|stablekey=character:pack mother}} (1.4%)<br>{{CharacterLink|stablekey=character:planar snake}} (1.4%)<br>{{CharacterLink|stablekey=character:planar grizzly}} (1.4%)<br>{{CharacterLink|stablekey=character:planar mino}} (1.4%)<br>{{CharacterLink|stablekey=character:planar wolf}} (1.4%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=
 |sell=
-|taughtspell={{AbilityLink|stablekey=spell:dru - vibrant regrowth (cast)|link=Vibrant Regrowth|text=Vibrant Regrowth|image=Vibrant Regrowth.png}}
+|taughtspell={{AbilityLink|stablekey=spell:dru - vibrant regrowth (cast)}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

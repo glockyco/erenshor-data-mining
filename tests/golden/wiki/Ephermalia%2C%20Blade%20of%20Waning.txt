@@ -3,7 +3,7 @@
 |stablekey=item:weap - 28 - ephermalia
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:morian the ascended|link=Morian the Ascended|text=Morian the Ascended}} (33.3%)
+|source={{CharacterLink|stablekey=character:morian the ascended}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=10
 |proc_spell_icon=Dark Haste.png
-|proc_spell_name={{AbilityLink|stablekey=spell:none - dark haste|link=Dark Haste|text=Dark Haste|image=Dark Haste.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:none - dark haste}}
 |proc_spell_level=10
 |proc_spell_duration_ticks=7
 |proc_spell_type=Beneficial

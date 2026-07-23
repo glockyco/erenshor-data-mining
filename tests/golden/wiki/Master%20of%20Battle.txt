@@ -3,9 +3,9 @@
 |image=[[File:Master of Battle.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}
-|factionChange=-20 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>-20 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
-|zones={{ZoneLink|stablekey=zone:planeofvitheo|link=Vitheo's Plane of Valor|text=Vitheo's Plane of Valor}}
+|faction={{FactionLink|stablekey=faction:vitheo}}
+|factionChange=-20 {{FactionLink|stablekey=faction:azurecitizens}}<br>-20 {{FactionLink|stablekey=faction:solunarians}}
+|zones={{ZoneLink|stablekey=zone:planeofvitheo}}
 |coordinates=463.9 x 25.2 x 417.1
 |spawnchance=
 |spawntype=
@@ -32,7 +32,7 @@
 |poison=10-24
 |elemental=10-24
 |void=10-24
-|spells={{AbilityLink|stablekey=spell:dru pal - minor healing|link=Minor Healing|text=Minor Healing|image=Minor Healing.png}}
+|spells={{AbilityLink|stablekey=spell:dru pal - minor healing}}
 }}
 
 {| class="wikitable"

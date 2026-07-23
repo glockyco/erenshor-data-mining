@@ -3,15 +3,15 @@
 |image=[[File:A Faerie Enchantress.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:skyfolk|link=The Skyfolk|text=The Skyfolk}}
-|factionChange=-5 {{FactionLink|stablekey=faction:skyfolk|link=The Skyfolk|text=The Skyfolk}}
-|zones={{ZoneLink|stablekey=zone:ripper|link=Ripper's Keep|text=Ripper's Keep}}
+|faction={{FactionLink|stablekey=faction:skyfolk}}
+|factionChange=-5 {{FactionLink|stablekey=faction:skyfolk}}
+|zones={{ZoneLink|stablekey=zone:ripper}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (14.3%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (14.3%)<br>{{ItemLink|stablekey=item:cons - seafruit|link=Seafruit|text=Seafruit|image=Seafruit.png}} (10.1%)<br>{{ItemLink|stablekey=item:gen - faerie dust|link=Bag of Faerie Dust|text=Bag of Faerie Dust|image=Bag of Faerie Dust.png}} (4.5%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - faerie dust|link=Bag of Faerie Dust|text=Bag of Faerie Dust|image=Bag of Faerie Dust.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (4.5%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:belt - 31 - charmed belt|link=Charmed Belt|text=Charmed Belt|image=Charmed Belt.png}} (1.8%)<br>{{ItemLink|stablekey=item:gen - faerie wing|link=Intact Faerie Wing|text=Intact Faerie Wing|image=Intact Faerie Wing.png}} (1.8%)<br>{{ItemLink|stablekey=item:ring - 33 - skyfolk band|link=Skyfolk Band|text=Skyfolk Band|image=Skyfolk Band.png}} (1.8%)<br>{{ItemLink|stablekey=item:neck - 31 - twinkling pendant|link=Twinkling Pendant|text=Twinkling Pendant|image=Twinkling Pendant.png}} (1.8%)<br>{{ItemLink|stablekey=item:back - 33 - wingwoven cape|link=Wingwoven Cape|text=Wingwoven Cape|image=Wingwoven Cape.png}} (1.8%)
+|droprates={{ItemLink|stablekey=item:gen citrine stone}} (14.3%)<br>{{ItemLink|stablekey=item:gen - luminstone}} (14.3%)<br>{{ItemLink|stablekey=item:cons - seafruit}} (10.1%)<br>{{ItemLink|stablekey=item:gen - faerie dust}} (4.5%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - faerie dust}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - diamond}} (4.5%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:belt - 31 - charmed belt}} (1.8%)<br>{{ItemLink|stablekey=item:gen - faerie wing}} (1.8%)<br>{{ItemLink|stablekey=item:ring - 33 - skyfolk band}} (1.8%)<br>{{ItemLink|stablekey=item:neck - 31 - twinkling pendant}} (1.8%)<br>{{ItemLink|stablekey=item:back - 33 - wingwoven cape}} (1.8%)
 |level=28
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=14-34
 |elemental=14-34
 |void=14-34
-|spells={{AbilityLink|stablekey=spell:arc - aetherstorm|link=Aetherstorm|text=Aetherstorm|image=Aetherstorm.png}}<br>{{AbilityLink|stablekey=spell:arc - sunburst|link=Sunburst (Lux)|text=Sunburst|image=Sunburst (Lux).png}}<br>{{AbilityLink|stablekey=spell:arc - winter's bite|link=Winter's Bite|text=Winter's Bite|image=Winter's Bite.png}}
+|spells={{AbilityLink|stablekey=spell:arc - aetherstorm}}<br>{{AbilityLink|stablekey=spell:arc - sunburst}}<br>{{AbilityLink|stablekey=spell:arc - winter's bite}}
 }}
 
 [[Category:Enemies]]

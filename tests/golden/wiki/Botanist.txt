@@ -3,15 +3,15 @@
 |image=[[File:Botanist.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:azynthi|link=Azynthi's Garden|text=Azynthi's Garden (Dimensional Rift)}}
+|zones={{ZoneLink|stablekey=zone:azynthi}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:chest - 12 - living chainmail jacket|link=Living Chainmail Jacket|text=Living Chainmail Jacket|image=Living Chainmail Jacket.png}} (6.9%)<br>{{ItemLink|stablekey=item:leg - 11 - living chainmail greaves|link=Living Chainmail Leggings|text=Living Chainmail Leggings|image=Living Chainmail Leggings.png}} (6.9%)<br>{{ItemLink|stablekey=item:weap - 33 - twisted branch|link=Twisted Branch|text=Twisted Branch|image=Twisted Branch.png}} (6.7%)<ref>If Botanist has {{ItemLink|stablekey=item:weap - 33 - twisted branch|link=Twisted Branch|text=Twisted Branch|image=Twisted Branch.png}} equipped, it is guaranteed to drop.</ref>
+|droprates={{ItemLink|stablekey=item:chest - 12 - living chainmail jacket}} (6.9%)<br>{{ItemLink|stablekey=item:leg - 11 - living chainmail greaves}} (6.9%)<br>{{ItemLink|stablekey=item:weap - 33 - twisted branch}} (6.7%)<ref>If Botanist has {{ItemLink|stablekey=item:weap - 33 - twisted branch}} equipped, it is guaranteed to drop.</ref>
 |level=35
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=18-42
 |elemental=18-42
 |void=18-42
-|spells={{AbilityLink|stablekey=spell:dru - arterial decay|link=Arterial Decay|text=Arterial Decay|image=Arterial Decay.png}}<br>{{AbilityLink|stablekey=spell:dru - biting vines|link=Biting Vines|text=Biting Vines|image=Biting Vines.png}}<br>{{AbilityLink|stablekey=spell:dru - morbidity's grasp|link=Morbidity's Grasp|text=Morbidity's Grasp|image=Morbidity's Grasp.png}}<br>{{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}<br>{{AbilityLink|stablekey=spell:dru - tangle|link=Tangle|text=Tangle|image=Tangle.png}}
+|spells={{AbilityLink|stablekey=spell:dru - arterial decay}}<br>{{AbilityLink|stablekey=spell:dru - biting vines}}<br>{{AbilityLink|stablekey=spell:dru - morbidity's grasp}}<br>{{AbilityLink|stablekey=spell:dru reav - soul tap}}<br>{{AbilityLink|stablekey=spell:dru - tangle}}
 }}
 
 [[Category:Azynthi's Garden]]

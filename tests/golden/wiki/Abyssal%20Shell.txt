@@ -3,7 +3,7 @@
 |stablekey=item:back - 28 - abyssal shell
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:undertow|link=Undertoes|text=Undertoes}} (66.7%)
+|source={{CharacterLink|stablekey=character:undertow}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=

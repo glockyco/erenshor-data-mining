@@ -3,7 +3,7 @@
 |stablekey=item:furniture - stone statue vitheo
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:vithean windblade|link=Vithean Betrayer|text=Vithean Betrayer}} (1.7%)<br>{{CharacterLink|stablekey=character:vithean immortal:1|link=Vithean Immortal|text=Vithean Immortal}} (0.8%)
+|source={{CharacterLink|stablekey=character:vithean windblade}} (1.7%)<br>{{CharacterLink|stablekey=character:vithean immortal:1}} (0.8%)
 |othersource=
 |questsource=
 |relatedquest=

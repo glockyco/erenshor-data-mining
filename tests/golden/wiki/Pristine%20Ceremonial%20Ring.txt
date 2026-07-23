@@ -7,7 +7,7 @@
 |othersource=[[Crafting]]
 |questsource=
 |relatedquest=
-|craftsource=1x {{ItemLink|stablekey=item:template - a ceremonial ring|link=Mold: A Ceremonial Ring|text=Mold: A Ceremonial Ring|image=Mold: A Ceremonial Ring.png}}<br>1x {{ItemLink|stablekey=item:ore - bronze ore|link=Chunk of Copper Ore|text=Chunk of Copper Ore|image=Chunk of Copper Ore.png}}<br>1x {{ItemLink|stablekey=item:gen - sivakayan horn|link=Sivakayan Horn|text=Sivakayan Horn|image=Sivakayan Horn.png}}<br>1x {{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}}<br>1x {{ItemLink|stablekey=item:gen - sivak|link=Sivakrux|text=Sivakrux|image=Sivakrux.png}}
+|craftsource=1x {{ItemLink|stablekey=item:template - a ceremonial ring}}<br>1x {{ItemLink|stablekey=item:ore - bronze ore}}<br>1x {{ItemLink|stablekey=item:gen - sivakayan horn}}<br>1x {{ItemLink|stablekey=item:gen - luminstone}}<br>1x {{ItemLink|stablekey=item:gen - sivak}}
 |componentfor=
 |buy=1400
 |sell=910
@@ -52,7 +52,7 @@
 |proc_style=Activatable
 |proc_chance=
 |proc_spell_icon=Sivakaya's Dismay.png
-|proc_spell_name={{AbilityLink|stablekey=spell:none - sivakaya's dismay|link=Sivakaya's Dismay|text=Sivakaya's Dismay|image=Sivakaya's Dismay.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:none - sivakaya's dismay}}
 |proc_spell_level=24
 |proc_spell_duration_ticks=8
 |proc_spell_type=StatusEffect

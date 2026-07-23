@@ -2,7 +2,7 @@
 |title=Executioner's Bow
 |stablekey=item:bow - 8 - executioner's string
 |type=
-|vendorsource={{CharacterLink|stablekey=character:torado  zortia|link=Torado Zortia|text=Torado Zortia}}
+|vendorsource={{CharacterLink|stablekey=character:torado  zortia}}
 |source=
 |othersource=
 |questsource=

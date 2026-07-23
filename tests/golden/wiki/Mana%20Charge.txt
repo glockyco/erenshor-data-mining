@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:ring - 24 - augmenting ring|link=Augmenting Ring|text=Augmenting Ring|image=Augmenting Ring.png}}<br>{{ItemLink|stablekey=item:ring - 20 - ring of concentration|link=Concentration Band|text=Concentration Band|image=Concentration Band.png}}<br>{{ItemLink|stablekey=item:ring - 17 - inspiration|link=Inspiration|text=Inspiration|image=Inspiration.png}}<br>{{ItemLink|stablekey=item:leg - 33 - naturewalker's breeches|link=Naturewalker's Breeches|text=Naturewalker's Breeches|image=Naturewalker's Breeches.png}}<br>{{ItemLink|stablekey=item:ring - 11 - ring of clarity|link=Ring of Clarity|text=Ring of Clarity|image=Ring of Clarity.png}}<br>{{ItemLink|stablekey=item:neck - 38 - ripparian pendant|link=Ripparian Pendant|text=Ripparian Pendant|image=Ripparian Pendant.png}}<br>{{ItemLink|stablekey=item:neck - 19 - the gift of thought|link=The Gift of Eloquence|text=The Gift of Eloquence|image=The Gift of Eloquence.png}}
+|itemswitheffect={{ItemLink|stablekey=item:ring - 24 - augmenting ring}}<br>{{ItemLink|stablekey=item:ring - 20 - ring of concentration}}<br>{{ItemLink|stablekey=item:ring - 17 - inspiration}}<br>{{ItemLink|stablekey=item:leg - 33 - naturewalker's breeches}}<br>{{ItemLink|stablekey=item:ring - 11 - ring of clarity}}<br>{{ItemLink|stablekey=item:neck - 38 - ripparian pendant}}<br>{{ItemLink|stablekey=item:neck - 19 - the gift of thought}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:arc - mana charge}}

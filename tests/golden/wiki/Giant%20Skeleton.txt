@@ -3,15 +3,15 @@
 |image=[[File:Giant Skeleton.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:silkengrass|link=Silkengrass Meadowlands|text=Silkengrass Meadowlands}}
+|zones={{ZoneLink|stablekey=zone:silkengrass}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=6 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - an ancient bone|link=Ancient Bone|text=Ancient Bone|image=Ancient Bone.png}} (53.1%)<br>{{ItemLink|stablekey=item:cons - water|link=Water|text=Water|image=Water.png}} (53.1%)
+|droprates={{ItemLink|stablekey=item:gen - an ancient bone}} (53.1%)<br>{{ItemLink|stablekey=item:cons - water}} (53.1%)
 |level=25
 |levelmodmin=0
 |levelmodmax=0

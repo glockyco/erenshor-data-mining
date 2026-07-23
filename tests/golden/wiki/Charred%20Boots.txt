@@ -2,8 +2,8 @@
 |title=Charred Boots
 |stablekey=item:foot - 5 - charred boots
 |type=
-|vendorsource={{CharacterLink|stablekey=character:asaga underloft|link=Asaga Underloft|text=Asaga Underloft}}
-|source={{CharacterLink|stablekey=character:failed cremation|link=Failed Cremation|text=Failed Cremation}} (48.3%)
+|vendorsource={{CharacterLink|stablekey=character:asaga underloft}}
+|source={{CharacterLink|stablekey=character:failed cremation}} (48.3%)
 |othersource=
 |questsource=
 |relatedquest=

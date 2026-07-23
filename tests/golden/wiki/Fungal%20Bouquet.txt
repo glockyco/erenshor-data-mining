@@ -3,7 +3,7 @@
 |stablekey=item:wand - 18 - fungal wand
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:corrupted golem|link=Ravager, The First Infected|text=Ravager, The First Infected}} (45.8%)
+|source={{CharacterLink|stablekey=character:corrupted golem}} (45.8%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=15
 |proc_spell_icon=Toxicity.png
-|proc_spell_name={{AbilityLink|stablekey=spell:dru - toxicity|link=Toxicity|text=Toxicity|image=Toxicity.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:dru - toxicity}}
 |proc_spell_level=9
 |proc_spell_duration_ticks=16
 |proc_spell_type=StatusEffect

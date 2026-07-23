@@ -3,15 +3,15 @@
 |image=[[File:Karsith.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:jaws|link=Jaws of Sivakaya|text=Jaws of Sivakaya}}
+|zones={{ZoneLink|stablekey=zone:jaws}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5-13 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - cod - pg 5|link=Chapters of Descent, Passage 5|text=Chapters of Descent, Passage 5|image=Chapters of Descent, Passage 5.png}} (2.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - cod - pg 5|link=Chapters of Descent, Passage 5|text=Chapters of Descent, Passage 5|image=Chapters of Descent, Passage 5.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - cod - pg 6|link=Chapters of Descent, Passage 6|text=Chapters of Descent, Passage 6|image=Chapters of Descent, Passage 6.png}} (2.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - cod - pg 6|link=Chapters of Descent, Passage 6|text=Chapters of Descent, Passage 6|image=Chapters of Descent, Passage 6.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - cod - pg 7|link=Chapters of Descent, Passage 7|text=Chapters of Descent, Passage 7|image=Chapters of Descent, Passage 7.png}} (2.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - cod - pg 7|link=Chapters of Descent, Passage 7|text=Chapters of Descent, Passage 7|image=Chapters of Descent, Passage 7.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - cod - pg 8|link=Chapters of Descent, Passage 8|text=Chapters of Descent, Passage 8|image=Chapters of Descent, Passage 8.png}} (2.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - cod - pg 8|link=Chapters of Descent, Passage 8|text=Chapters of Descent, Passage 8|image=Chapters of Descent, Passage 8.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:quest - game piece the faceless sivakayan|link=The Faceless|text=The Faceless|image=The Faceless.png}} (2.8%)<br>{{ItemLink|stablekey=item:secondary - 38 - bastion|link=Bastion|text=Bastion|image=Bastion.png}} (1.7%)<br>{{ItemLink|stablekey=item:glove - 30 - grips of faith|link=Grips of Faith|text=Grips of Faith|image=Grips of Faith.png}} (1.7%)<br>{{ItemLink|stablekey=item:foot - 38 - pious sandals|link=Pious Sandals|text=Pious Sandals|image=Pious Sandals.png}} (1.7%)<br>{{ItemLink|stablekey=item:spell scroll - florablast|link=Spell Scroll: Florablast|text=Spell Scroll: Florablast|image=Spell Scroll: Florablast.png}} (1.7%)
+|droprates={{ItemLink|stablekey=item:gen - cod - pg 5}} (2.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - cod - pg 5}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - cod - pg 6}} (2.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - cod - pg 6}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - cod - pg 7}} (2.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - cod - pg 7}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - cod - pg 8}} (2.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - cod - pg 8}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:quest - game piece the faceless sivakayan}} (2.8%)<br>{{ItemLink|stablekey=item:secondary - 38 - bastion}} (1.7%)<br>{{ItemLink|stablekey=item:glove - 30 - grips of faith}} (1.7%)<br>{{ItemLink|stablekey=item:foot - 38 - pious sandals}} (1.7%)<br>{{ItemLink|stablekey=item:spell scroll - florablast}} (1.7%)
 |level=34
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=17-41
 |elemental=17-41
 |void=17-41
-|spells={{AbilityLink|stablekey=spell:arc - aetherstorm|link=Aetherstorm|text=Aetherstorm|image=Aetherstorm.png}}<br>{{AbilityLink|stablekey=spell:arc - infernis|link=Infernis|text=Infernis|image=Infernis.png}}
+|spells={{AbilityLink|stablekey=spell:arc - aetherstorm}}<br>{{AbilityLink|stablekey=spell:arc - infernis}}
 }}
 
 [[Category:Enemies]]

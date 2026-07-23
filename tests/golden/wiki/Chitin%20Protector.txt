@@ -3,7 +3,7 @@
 |stablekey=item:chest - 25 - chitin protector
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:shelled monstrosity|link=Shelled Monstrosity|text=Shelled Monstrosity}} (33.3%)
+|source={{CharacterLink|stablekey=character:shelled monstrosity}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

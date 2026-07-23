@@ -3,7 +3,7 @@
 |stablekey=item:foot - 23 - windblown boots
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:2 - memory of the order|link=A Protected Memory|text=A Protected Memory}} (25.0%)
+|source={{CharacterLink|stablekey=character:2 - memory of the order}} (25.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Worn
 |proc_chance=
 |proc_spell_icon=Flight of Foot.png
-|proc_spell_name={{AbilityLink|stablekey=spell:dru - flight of foot|link=Flight of Foot|text=Flight of Foot|image=Flight of Foot.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:dru - flight of foot}}
 |proc_spell_level=-1
 |proc_spell_duration_ticks=2
 |proc_spell_type=Beneficial

@@ -3,15 +3,15 @@
 |image=[[File:Lacy.png|thumb]]
 |imagecaption=Not as Lacy as she looks!
 |type=Boss
-|faction={{FactionLink|stablekey=faction:priel|link=Savannah Priel|text=Savannah Priel}}
+|faction={{FactionLink|stablekey=faction:priel}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:prielplateau|link=Prielian Cascade|text=Prielian Cascade}}
+|zones={{ZoneLink|stablekey=zone:prielplateau}}
 |coordinates=407.0 x 45.1 x 356.2
 |spawnchance=
 |spawntype=
 |respawn=8 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:neck - 35 - malaroth lead|link=Malaroth Tag|text=Malaroth Tag|image=Malaroth Tag.png}} (100.0%)<br>{{ItemLink|stablekey=item:gen - malaroth hide|link=Malaroth Hide|text=Malaroth Hide|image=Malaroth Hide.png}} (22.1%)<br>{{ItemLink|stablekey=item:gen - ivory tusk|link=Ivory Tusk|text=Ivory Tusk|image=Ivory Tusk.png}} (19.5%)
+|droprates={{ItemLink|stablekey=item:neck - 35 - malaroth lead}} (100.0%)<br>{{ItemLink|stablekey=item:gen - malaroth hide}} (22.1%)<br>{{ItemLink|stablekey=item:gen - ivory tusk}} (19.5%)
 |level=33
 |levelmodmin=0
 |levelmodmax=0

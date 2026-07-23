@@ -3,9 +3,9 @@
 |image=[[File:Bea Thornfist.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:stowaway|link=The Citizens of Stowaway's Step|text=The Citizens of Stowaway's Step}}
-|factionChange=-15 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}
-|zones={{ZoneLink|stablekey=zone:silkengrass|link=Silkengrass Meadowlands|text=Silkengrass Meadowlands}}
+|faction={{FactionLink|stablekey=faction:stowaway}}
+|factionChange=-15 {{FactionLink|stablekey=faction:erenshorcitizens}}
+|zones={{ZoneLink|stablekey=zone:silkengrass}}
 |coordinates=659.5 x 39.7 x 169.4
 |spawnchance=
 |spawntype=

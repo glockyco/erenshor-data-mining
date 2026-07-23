@@ -3,7 +3,7 @@
 |stablekey=item:leg - 38 - creationist's wrap
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:aeiros|link=Aeiros, Soldier of Sivakaya|text=Aeiros, Soldier of Sivakaya}} (50.0%)
+|source={{CharacterLink|stablekey=character:aeiros}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

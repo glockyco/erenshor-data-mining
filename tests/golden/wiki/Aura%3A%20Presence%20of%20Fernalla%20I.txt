@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:aura - fernalla 1|link=Sprout|text=Sprout|image=Sprout.png}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - fernalla 1}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:aura - fernalla 1}}

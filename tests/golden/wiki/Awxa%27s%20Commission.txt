@@ -3,7 +3,7 @@
 |stablekey=item:gen - awxa's commission
 |type=[[Lore Items|Lore]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:darkwarden awxa|link=Darkwarden Awxa|text=Darkwarden Awxa}} (100.0%)
+|source={{CharacterLink|stablekey=character:darkwarden awxa}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Spell Scroll: Vithean Breeze
 |stablekey=item:spell scroll - vithean breeze
 |type=[[Ability Books]]
-|vendorsource={{CharacterLink|stablekey=character:addelia zurin:stowaway:508.78:67.80:537.95|link=Aldoa Manday|text=Aldoa Manday}}<br>{{CharacterLink|stablekey=character:ludo luxo|link=Ludo Luxo|text=Ludo Luxo}}<br>{{CharacterLink|stablekey=character:ophelia instrumento|link=Ophelia Luminee|text=Ophelia Luminee}}<br>{{CharacterLink|stablekey=character:pierson windwash|link=Pierson Windwash|text=Pierson Windwash}}<br>{{CharacterLink|stablekey=character:shopkeeper samuel|link=Samuel Thatcher|text=Samuel Thatcher}}<br>{{CharacterLink|stablekey=character:yale harvey|link=Yale Harvey|text=Yale Harvey}}
+|vendorsource={{CharacterLink|stablekey=character:addelia zurin:stowaway:508.78:67.80:537.95}}<br>{{CharacterLink|stablekey=character:ludo luxo}}<br>{{CharacterLink|stablekey=character:ophelia instrumento}}<br>{{CharacterLink|stablekey=character:pierson windwash}}<br>{{CharacterLink|stablekey=character:shopkeeper samuel}}<br>{{CharacterLink|stablekey=character:yale harvey}}
 |source=
 |othersource=[[Duelist]] starting gear
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=100
 |sell=65
-|taughtspell={{AbilityLink|stablekey=spell:duel - vithean breeze|link=Vithean Breeze|text=Vithean Breeze|image=Vithean Breeze.png}}
+|taughtspell={{AbilityLink|stablekey=spell:duel - vithean breeze}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

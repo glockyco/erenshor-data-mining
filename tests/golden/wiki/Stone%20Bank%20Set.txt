@@ -2,7 +2,7 @@
 |title=Stone Bank Set
 |stablekey=item:furniture - stone bank
 |type=
-|vendorsource={{CharacterLink|stablekey=character:breena carpenter|link=Breena Carpenter|text=Breena Carpenter}}
+|vendorsource={{CharacterLink|stablekey=character:breena carpenter}}
 |source=
 |othersource=
 |questsource=

@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:weap - 42 - gladiator's axe|link=Gladiator's Axe|text=Gladiator's Axe|image=Gladiator's Axe.png}}<br>{{ItemLink|stablekey=item:weap - 42 - spear of true north|link=Spear of True North|text=Spear of True North|image=Spear of True North.png}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 42 - gladiator's axe}}<br>{{ItemLink|stablekey=item:weap - 42 - spear of true north}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - vithean judgement}}

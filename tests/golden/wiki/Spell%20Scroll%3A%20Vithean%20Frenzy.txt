@@ -2,8 +2,8 @@
 |title=Spell Scroll: Vithean Frenzy
 |stablekey=item:spell scroll - vithean frenzy
 |type=[[Ability Books]]
-|vendorsource={{CharacterLink|stablekey=character:juctin mysia|link=Juctin Mysia|text=Juctin Mysia}}
-|source={{CharacterLink|stablekey=character:ripper demerth|link=Ripper DeMerth (Character)|text=Ripper DeMerth}} (87.1%)<br>{{CharacterLink|stablekey=character:guard captain azure|link=Captain Kilkay|text=Captain Kilkay}} (63.0%)
+|vendorsource={{CharacterLink|stablekey=character:juctin mysia}}
+|source={{CharacterLink|stablekey=character:ripper demerth}} (87.1%)<br>{{CharacterLink|stablekey=character:guard captain azure}} (63.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=8700
 |sell=5655
-|taughtspell={{AbilityLink|stablekey=spell:duel - vithean frenzy|link=Vithean Frenzy|text=Vithean Frenzy|image=Vithean Frenzy.png}}
+|taughtspell={{AbilityLink|stablekey=spell:duel - vithean frenzy}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 7 - earthen bracer
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:druo the reborn|link=Druo the Reborn|text=Druo the Reborn}} (43.4%)
+|source={{CharacterLink|stablekey=character:druo the reborn}} (43.4%)
 |othersource=
 |questsource=
 |relatedquest=

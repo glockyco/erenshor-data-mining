@@ -3,15 +3,15 @@
 |image=[[File:Nipper Farseer.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:abyssal|link=Abyssal Lake|text=Abyssal Lake}}
+|zones={{ZoneLink|stablekey=zone:abyssal}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - a coral|link=Coral|text=Coral|image=Coral.png}} (3.4%)<br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (3.4%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:spell scroll - death's embrace ii|link=Spell Scroll: Death's Embrace II|text=Spell Scroll: Death's Embrace II|image=Spell Scroll: Death's Embrace II.png}} (3.4%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (3.4%)
+|droprates={{ItemLink|stablekey=item:gen - a coral}} (3.4%)<br>{{ItemLink|stablekey=item:gen - diamond}} (3.4%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:spell scroll - death's embrace ii}} (3.4%)<br>{{ItemLink|stablekey=item:gen - a star stone}} (3.4%)
 |level=28
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=14-34
 |elemental=14-34
 |void=14-34
-|spells={{AbilityLink|stablekey=spell:dru - arterial decay|link=Arterial Decay|text=Arterial Decay|image=Arterial Decay.png}}<br>{{AbilityLink|stablekey=spell:dru reav - devour|link=Devour|text=Devour|image=Devour.png}}
+|spells={{AbilityLink|stablekey=spell:dru - arterial decay}}<br>{{AbilityLink|stablekey=spell:dru reav - devour}}
 }}
 
 [[Category:Abyssal Lake]]

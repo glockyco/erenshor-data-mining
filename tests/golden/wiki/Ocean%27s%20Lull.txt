@@ -5,7 +5,7 @@
 |description=Slow target's attack speed by 8%
 |type=StatusEffect
 |line=Attack_Speed_Debuff
-|classes={{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}} (6)
+|classes={{ClassLink|stablekey=class:duelist}} (6)
 |required_level=6
 |manacost=75
 |aggro=25
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - ocean's lull|link=Spell Scroll: Ocean's Lull|text=Spell Scroll: Ocean's Lull|image=Spell Scroll: Ocean's Lull.png}}
+|source={{ItemLink|stablekey=item:spell scroll - ocean's lull}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:duel - slow ocean's lull}}

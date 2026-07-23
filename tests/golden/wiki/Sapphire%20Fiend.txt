@@ -3,15 +3,15 @@
 |image=[[File:Sapphire Fiend.png|thumb]]
 |imagecaption=
 |type=Rare
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:rockshade|link=Rockshade Hold|text=Rockshade Hold}}
+|zones={{ZoneLink|stablekey=zone:rockshade}}
 |coordinates=
 |spawnchance=2-48%
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:ore - rock|link=Rock|text=Rock|image=Rock.png}} (99.3%)<br>{{ItemLink|stablekey=item:gen - chunk of living sapphire|link=Chunk of Living Sapphire|text=Chunk of Living Sapphire|image=Chunk of Living Sapphire.png}} (17.4%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - chunk of living sapphire|link=Chunk of Living Sapphire|text=Chunk of Living Sapphire|image=Chunk of Living Sapphire.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (13.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:ring - 24 - living sapphire ring|link=Living Sapphire Ring|text=Living Sapphire Ring|image=Living Sapphire Ring.png}} (9.0%)
+|droprates={{ItemLink|stablekey=item:ore - rock}} (99.3%)<br>{{ItemLink|stablekey=item:gen - chunk of living sapphire}} (17.4%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - chunk of living sapphire}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - diamond}} (13.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:ring - 24 - living sapphire ring}} (9.0%)
 |level=28
 |levelmodmin=0
 |levelmodmax=0

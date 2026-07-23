@@ -3,15 +3,15 @@
 |image=[[File:Leah Body.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:islandnecro|link=The Necromancers of the Island Tomb|text=The Necromancers of the Island Tomb}}
-|factionChange=-1000 {{FactionLink|stablekey=faction:islandnecro|link=The Necromancers of the Island Tomb|text=The Necromancers of the Island Tomb}}
-|zones={{ZoneLink|stablekey=zone:tutorial|link=Island Tomb|text=Island Tomb}}
+|faction={{FactionLink|stablekey=faction:islandnecro}}
+|factionChange=-1000 {{FactionLink|stablekey=faction:islandnecro}}
+|zones={{ZoneLink|stablekey=zone:tutorial}}
 |coordinates=166.2 x -8.9 x 164.1
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:quest - soul gem leah|link=Soul Gem (Leah)|text=Soul Gem (Leah)|image=Soul Gem (Leah).png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:quest - soul gem leah|link=Soul Gem (Leah)|text=Soul Gem (Leah)|image=Soul Gem (Leah).png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:cons - bread|link=Bread|text=Bread|image=Bread.png}} (78.0%)<br>{{ItemLink|stablekey=item:cons - water|link=Water|text=Water|image=Water.png}} (78.0%)
+|droprates={{ItemLink|stablekey=item:quest - soul gem leah}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:quest - soul gem leah}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:cons - bread}} (78.0%)<br>{{ItemLink|stablekey=item:cons - water}} (78.0%)
 |level=4
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=2-5
 |elemental=2-5
 |void=2-5
-|spells={{AbilityLink|stablekey=spell:dru arc stc - magic bolt|link=Magic Bolt|text=Magic Bolt|image=Magic Bolt.png}}
+|spells={{AbilityLink|stablekey=spell:dru arc stc - magic bolt}}
 }}
 
 Leah is located in the secret room behind the stone throne found in the [[Island Tomb]] behind [[Woe]].

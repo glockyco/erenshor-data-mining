@@ -3,7 +3,7 @@
 |stablekey=item:head - 31 - terra crown
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:nipper king|link=Nipper King|text=Nipper King}} (33.3%)
+|source={{CharacterLink|stablekey=character:nipper king}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

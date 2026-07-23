@@ -3,7 +3,7 @@
 |stablekey=item:weap - 38 - apotheosis
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:remains of vitheo|link=Apparition of Vitheo|text=Apparition of Vitheo}} (17.6%)
+|source={{CharacterLink|stablekey=character:remains of vitheo}} (17.6%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=2
 |proc_spell_icon=Vithean Revenge.png
-|proc_spell_name={{AbilityLink|stablekey=spell:duel - vithean revenge|link=Vithean Revenge|text=Vithean Revenge|image=Vithean Revenge.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:duel - vithean revenge}}
 |proc_spell_level=25
 |proc_spell_duration_ticks=5
 |proc_spell_type=Beneficial

@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:aura - primal ice shard|link=Primal Ice Shard|text=Primal Ice Shard|image=Primal Ice Shard.png}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - primal ice shard}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:aura - ice's memory}}

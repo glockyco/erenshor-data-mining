@@ -5,7 +5,7 @@
 |description=Fills your target with surging electricity, deals 18 damage / tick
 |type=StatusEffect
 |line=Stormcaller_Magic_DOT
-|classes={{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}} (4)
+|classes={{ClassLink|stablekey=class:stormcaller}} (4)
 |required_level=4
 |manacost=75
 |aggro=500
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - static invocation|link=Spell Scroll: Static Invocation|text=Spell Scroll: Static Invocation|image=Spell Scroll: Static Invocation.png}}
+|source={{ItemLink|stablekey=item:spell scroll - static invocation}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:stc - static invocation}}

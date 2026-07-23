@@ -3,7 +3,7 @@
 |stablekey=item:weap - 26 - stone sword
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:granitus|link=Granitus|text=Granitus}} (20.0%)<br>{{CharacterLink|stablekey=character:cinder|link=Cinder|text=Cinder}} (1.5%)<br>{{CharacterLink|stablekey=character:stoneman warrior|link=Stoneman|text=Stoneman}} (0.2%)
+|source={{CharacterLink|stablekey=character:granitus}} (20.0%)<br>{{CharacterLink|stablekey=character:cinder}} (1.5%)<br>{{CharacterLink|stablekey=character:stoneman warrior}} (0.2%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -5,7 +5,7 @@
 |description=Target receives a -2 attack roll penalty and -10 dex.
 |type=StatusEffect
 |line=Pal_Other_Debuff
-|classes={{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}} (5)
+|classes={{ClassLink|stablekey=class:paladin}} (5)
 |required_level=5
 |manacost=18
 |aggro=500
@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:weap - 14 - anointed sword|link=Anointed Sword|text=Anointed Sword|image=Anointed Sword.png}}
-|source={{ItemLink|stablekey=item:spell scroll - glare of soluna|link=Spell Scroll: Glare of Soluna|text=Spell Scroll: Glare of Soluna|image=Spell Scroll: Glare of Soluna.png}}
-|used_by={{CharacterLink|stablekey=character:ancient celestarian|link=Ancient Celestarian|text=Ancient Celestarian}}<br>{{CharacterLink|stablekey=character:ancient guard captain|link=Ancient Knight|text=Ancient Knight}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 14 - anointed sword}}
+|source={{ItemLink|stablekey=item:spell scroll - glare of soluna}}
+|used_by={{CharacterLink|stablekey=character:ancient celestarian}}<br>{{CharacterLink|stablekey=character:ancient guard captain}}
 }}
+{{SpellTooltip|stablekey=spell:pal - glare of soluna}}

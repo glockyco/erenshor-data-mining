@@ -65,10 +65,11 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:head - 35 - fury helm|link=Fury Helm|text=Fury Helm|image=Fury Helm.png}}<br>{{ItemLink|stablekey=item:glove - 42 - radiant gloves|link=Radiant Gloves|text=Radiant Gloves|image=Radiant Gloves.png}}
+|itemswitheffect={{ItemLink|stablekey=item:head - 35 - fury helm}}<br>{{ItemLink|stablekey=item:glove - 42 - radiant gloves}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - contagious rage}}
 
 '''{{PAGENAME}}''' is a support ability obtained exclusively through equipping certain [[Armor|Armors]].
 =Effect=

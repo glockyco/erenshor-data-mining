@@ -3,7 +3,7 @@
 |stablekey=item:head - 31 - blessed helm
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:raval|link=Raval, The First Paladin|text=Raval, The First Paladin}} (20.0%)
+|source={{CharacterLink|stablekey=character:raval}} (20.0%)
 |othersource=
 |questsource=
 |relatedquest=

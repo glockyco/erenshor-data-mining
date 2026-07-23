@@ -2,7 +2,7 @@
 |title=Spell Scroll: Meditative Trance (1)
 |stablekey=item:spell scroll - meditate
 |type=
-|vendorsource={{CharacterLink|stablekey=character:cerbantias flameward|link=Cerbantias Flameward|text=Cerbantias Flameward}}
+|vendorsource={{CharacterLink|stablekey=character:cerbantias flameward}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=1100
 |sell=715
-|taughtspell={{AbilityLink|stablekey=spell:arc - meditate|link=Meditative Trance|text=Meditative Trance|image=Meditative Trance.png}}
+|taughtspell={{AbilityLink|stablekey=spell:arc - meditate}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=
@@ -37,7 +37,7 @@
 |title=Spell Scroll: Meditative Trance (2)
 |stablekey=item:spell scroll - meditate dru
 |type=
-|vendorsource={{CharacterLink|stablekey=character:tiver banes|link=Tiver Banes|text=Tiver Banes}}
+|vendorsource={{CharacterLink|stablekey=character:tiver banes}}
 |source=
 |othersource=
 |questsource=
@@ -46,7 +46,7 @@
 |componentfor=
 |buy=1100
 |sell=715
-|taughtspell={{AbilityLink|stablekey=spell:arc - meditate|link=Meditative Trance|text=Meditative Trance|image=Meditative Trance.png}}
+|taughtspell={{AbilityLink|stablekey=spell:arc - meditate}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

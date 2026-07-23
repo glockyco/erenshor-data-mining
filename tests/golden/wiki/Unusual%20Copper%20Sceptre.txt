@@ -7,7 +7,7 @@
 |othersource=
 |questsource=
 |relatedquest=
-|craftsource=1x {{ItemLink|stablekey=item:template - bronze sceptre|link=Mold: Copper Sceptre|text=Mold: Copper Sceptre|image=Mold: Copper Sceptre.png}}<br>1x {{ItemLink|stablekey=item:ore - bronze ore|link=Chunk of Copper Ore|text=Chunk of Copper Ore|image=Chunk of Copper Ore.png}}<br>2x {{ItemLink|stablekey=item:ore - iron ore|link=Chunk of Iron Ore|text=Chunk of Iron Ore|image=Chunk of Iron Ore.png}}<br>1x {{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}}
+|craftsource=1x {{ItemLink|stablekey=item:template - bronze sceptre}}<br>1x {{ItemLink|stablekey=item:ore - bronze ore}}<br>2x {{ItemLink|stablekey=item:ore - iron ore}}<br>1x {{ItemLink|stablekey=item:gen - aetheria}}
 |componentfor=
 |buy=50
 |sell=32

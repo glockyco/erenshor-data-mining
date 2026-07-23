@@ -5,7 +5,7 @@
 |description=Passive Skill: Your DOT spells will heal your target's target each tick for 50% of damage dealt.
 |type=Innate
 |line=
-|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (35)
+|classes={{ClassLink|stablekey=class:druid}} (35)
 |required_level=
 |manacost=
 |aggro=
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:skillbook - reap and renew|link=Skill Book: Reap and Renew|text=Skill Book: Reap and Renew|image=Skill Book: Reap and Renew.png}}
+|source={{ItemLink|stablekey=item:skillbook - reap and renew}}
 |used_by=
 }}
+{{SkillTooltip|stablekey=skill:reap and renew}}

@@ -5,7 +5,7 @@
 |description=Heal nearby group members for base 1200 damage
 |type=Heal
 |line=Healing
-|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (30)
+|classes={{ClassLink|stablekey=class:druid}} (30)
 |required_level=30
 |manacost=755
 |aggro=
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - group healing major|link=Spell Scroll: Major Group Healing|text=Spell Scroll: Major Group Healing|image=Spell Scroll: Major Group Healing.png}}
+|source={{ItemLink|stablekey=item:spell scroll - group healing major}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:dru - major group healing}}

@@ -3,9 +3,9 @@
 |image=[[File:Brachette Leafwalker.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|faction={{FactionLink|stablekey=faction:good}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:hidden|link=Hidden Hills|text=Hidden Hills}}
+|zones={{ZoneLink|stablekey=zone:hidden}}
 |coordinates=9.6 x -0.9 x -108.1
 |spawnchance=
 |spawntype=
@@ -32,7 +32,7 @@
 |poison=12-30
 |elemental=12-30
 |void=12-30
-|spells={{AbilityLink|stablekey=spell:arc - brax's rage|link=Brax's Rage|text=Brax's Rage|image=Brax's Rage.png}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's rage}}
 }}
 
 Brachette is an NPC in [[Hidden Hills]].

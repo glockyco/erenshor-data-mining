@@ -2,8 +2,8 @@
 |title=Steel Long Sword
 |stablekey=item:weap - 4 - steel long sword
 |type=
-|vendorsource={{CharacterLink|stablekey=character:akaran black|link=Akaran Black|text=Akaran Black}}<br>{{CharacterLink|stablekey=character:pierson windwash|link=Pierson Windwash|text=Pierson Windwash}}
-|source={{CharacterLink|stablekey=character:a lesser avatar of sivakaya|link=A Lesser Avatar of Sivakaya|text=A Lesser Avatar of Sivakaya}} (20.6%)
+|vendorsource={{CharacterLink|stablekey=character:akaran black}}<br>{{CharacterLink|stablekey=character:pierson windwash}}
+|source={{CharacterLink|stablekey=character:a lesser avatar of sivakaya}} (20.6%)
 |othersource=
 |questsource=
 |relatedquest=

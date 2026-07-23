@@ -7,7 +7,7 @@
 |othersource=
 |questsource=
 |relatedquest=
-|craftsource=1x {{ItemLink|stablekey=item:template - charm of stone|link=Mold: Charm of Stone|text=Mold: Charm of Stone|image=Mold: Charm of Stone.png}}<br>1x {{ItemLink|stablekey=item:gen - pulsating stone|link=Pulsating Stone|text=Pulsating Stone|image=Pulsating Stone.png}}<br>1x {{ItemLink|stablekey=item:gen - polished stone|link=Polished Stone|text=Polished Stone|image=Polished Stone.png}}<br>1x {{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}}<br>1x {{ItemLink|stablekey=item:ore - obsidian|link=Chunk of Obsidian|text=Chunk of Obsidian|image=Chunk of Obsidian.png}}
+|craftsource=1x {{ItemLink|stablekey=item:template - charm of stone}}<br>1x {{ItemLink|stablekey=item:gen - pulsating stone}}<br>1x {{ItemLink|stablekey=item:gen - polished stone}}<br>1x {{ItemLink|stablekey=item:gen - ruby}}<br>1x {{ItemLink|stablekey=item:ore - obsidian}}
 |componentfor=
 |buy=25000
 |sell=16250

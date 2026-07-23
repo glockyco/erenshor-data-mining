@@ -3,10 +3,10 @@
 |stablekey=item:gen - small engraved compass
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:portal lord|link=Restless Thoughts|text=Restless Thoughts}} (100.0%)
+|source={{CharacterLink|stablekey=character:portal lord}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Underloft's Compass}}<br>{{QuestLink|stablekey=quest:underloftcompass|link=Underloft's Compass|text=Underloft's Compass}}
+|relatedquest={{QuestLink|Underloft's Compass}}<br>{{QuestLink|stablekey=quest:underloftcompass}}
 |craftsource=
 |componentfor=
 |buy=500

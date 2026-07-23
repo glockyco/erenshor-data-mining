@@ -3,7 +3,7 @@
 |stablekey=item:foot - 9 - blue leather boots
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:bassalt valanno|link=Bassalt Vallano|text=Bassalt Vallano}} (50.0%)
+|source={{CharacterLink|stablekey=character:bassalt valanno}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

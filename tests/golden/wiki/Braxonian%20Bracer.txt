@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 30 - braxonian bracer
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:braxonian weapon master|link=Braxonian Weapon Master|text=Braxonian Weapon Master}} (2.1%)<br>{{CharacterLink|stablekey=character:braxonian honor guard|link=Braxonian Honor Guard|text=Braxonian Honor Guard}} (1.9%)<br>{{CharacterLink|stablekey=character:braxonian high guard|link=Braxonian High Guard|text=Braxonian High Guard}} (1.6%)<br>{{CharacterLink|stablekey=character:braxonian planar guardian fire|link=Braxonian Planar Guard (Fire)|text=Braxonian Planar Guard (Fire)}} (1.1%)<br>{{CharacterLink|stablekey=character:braxonian planar guardian ice|link=Braxonian Planar Guard (Ice)|text=Braxonian Planar Guard (Ice)}} (1.1%)
+|source={{CharacterLink|stablekey=character:braxonian weapon master}} (2.1%)<br>{{CharacterLink|stablekey=character:braxonian honor guard}} (1.9%)<br>{{CharacterLink|stablekey=character:braxonian high guard}} (1.6%)<br>{{CharacterLink|stablekey=character:braxonian planar guardian fire}} (1.1%)<br>{{CharacterLink|stablekey=character:braxonian planar guardian ice}} (1.1%)
 |othersource=
 |questsource=
 |relatedquest=

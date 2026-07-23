@@ -3,7 +3,7 @@
 |stablekey=item:head - 30 - ripparian solder helm
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:hector yvey|link=Hector Yvey|text=Hector Yvey}} (12.1%)<br>{{CharacterLink|stablekey=character:mavik eston|link=Mavik Estonia|text=Mavik Estonia}} (12.1%)<br>{{CharacterLink|stablekey=character:ripper soldier|link=Ripper Soldier|text=Ripper Soldier}} (2.0%)
+|source={{CharacterLink|stablekey=character:hector yvey}} (12.1%)<br>{{CharacterLink|stablekey=character:mavik eston}} (12.1%)<br>{{CharacterLink|stablekey=character:ripper soldier}} (2.0%)
 |othersource=
 |questsource=
 |relatedquest=

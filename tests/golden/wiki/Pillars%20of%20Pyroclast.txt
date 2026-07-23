@@ -3,7 +3,7 @@
 |stablekey=item:leg - 26 - pillars of pyroclast
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:pyroclast|link=Pyroclast|text=Pyroclast}} (33.3%)
+|source={{CharacterLink|stablekey=character:pyroclast}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

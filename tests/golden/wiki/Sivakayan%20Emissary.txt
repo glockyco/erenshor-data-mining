@@ -3,15 +3,15 @@
 |image=[[File:Sivakayan Emissary.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}
+|faction={{FactionLink|stablekey=faction:sivakayans}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:azynthiclear|link=Azynthi's Garden|text=Azynthi's Garden}}
+|zones={{ZoneLink|stablekey=zone:azynthiclear}}
 |coordinates=612.3 x 109.3 x 470.4
 |spawnchance=67%
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:head - 33 - mask of spies|link=Mask of Spies|text=Mask of Spies|image=Mask of Spies.png}}<br>{{ItemLink|stablekey=item:chest - 30 - sivakayan dresscoat|link=Sivakayan Dresscoat|text=Sivakayan Dresscoat|image=Sivakayan Dresscoat.png}}
-|droprates={{ItemLink|stablekey=item:gen - sivakayan diplomacy|link=Sivakayan Diplomacy|text=Sivakayan Diplomacy|image=Sivakayan Diplomacy.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - sivakayan diplomacy|link=Sivakayan Diplomacy|text=Sivakayan Diplomacy|image=Sivakayan Diplomacy.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:head - 33 - mask of spies|link=Mask of Spies|text=Mask of Spies|image=Mask of Spies.png}} (50.0%)<br>{{ItemLink|stablekey=item:chest - 30 - sivakayan dresscoat|link=Sivakayan Dresscoat|text=Sivakayan Dresscoat|image=Sivakayan Dresscoat.png}} (50.0%)
+|guaranteeddrops={{ItemLink|stablekey=item:head - 33 - mask of spies}}<br>{{ItemLink|stablekey=item:chest - 30 - sivakayan dresscoat}}
+|droprates={{ItemLink|stablekey=item:gen - sivakayan diplomacy}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - sivakayan diplomacy}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:head - 33 - mask of spies}} (50.0%)<br>{{ItemLink|stablekey=item:chest - 30 - sivakayan dresscoat}} (50.0%)
 |level=32
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=16-38
 |elemental=16-38
 |void=16-38
-|spells={{AbilityLink|stablekey=spell:dru reav - devour|link=Devour|text=Devour|image=Devour.png}}<br>{{AbilityLink|stablekey=spell:dru - melting bones|link=Melting Bones|text=Melting Bones|image=Melting Bones.png}}
+|spells={{AbilityLink|stablekey=spell:dru reav - devour}}<br>{{AbilityLink|stablekey=spell:dru - melting bones}}
 }}
 
 [[Category:Azynthi's Garden]]

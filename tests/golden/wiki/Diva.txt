@@ -3,15 +3,15 @@
 |image=[[File:Diva.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:loomingwood|link=Loomingwood Forest|text=Loomingwood Forest}}
+|zones={{ZoneLink|stablekey=zone:loomingwood}}
 |coordinates=140.3 x 33.1 x 742.1
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:back - 27 - redleaf cape|link=Red Leaf Cape|text=Red Leaf Cape|image=Red Leaf Cape.png}}<br>{{ItemLink|stablekey=item:head - 28 - wisdom of the forest|link=Wisdom of the Forest|text=Wisdom of the Forest|image=Wisdom of the Forest.png}}
-|droprates={{ItemLink|stablekey=item:back - 27 - redleaf cape|link=Red Leaf Cape|text=Red Leaf Cape|image=Red Leaf Cape.png}} (50.0%)<br>{{ItemLink|stablekey=item:head - 28 - wisdom of the forest|link=Wisdom of the Forest|text=Wisdom of the Forest|image=Wisdom of the Forest.png}} (50.0%)<br>{{ItemLink|stablekey=item:gen - loomingwood branch|link=Loomingwood Branch|text=Loomingwood Branch|image=Loomingwood Branch.png}} (9.1%)<br>{{ItemLink|stablekey=item:chest - 18 - fungus covered tunic|link=Fungus Covered Tunic|text=Fungus Covered Tunic|image=Fungus Covered Tunic.png}} (3.8%)<br>{{ItemLink|stablekey=item:furniture - loomingwood marketplace blueprint|link=Blueprint: Loomingwood Market|text=Blueprint: Loomingwood Market|image=Blueprint: Loomingwood Market.png}} (0.3%)<br>{{ItemLink|stablekey=item:furniture - loomingwood shrine blueprint|link=Blueprint: Loomingwood Shrine|text=Blueprint: Loomingwood Shrine|image=Blueprint: Loomingwood Shrine.png}} (0.3%)
+|guaranteeddrops={{ItemLink|stablekey=item:back - 27 - redleaf cape}}<br>{{ItemLink|stablekey=item:head - 28 - wisdom of the forest}}
+|droprates={{ItemLink|stablekey=item:back - 27 - redleaf cape}} (50.0%)<br>{{ItemLink|stablekey=item:head - 28 - wisdom of the forest}} (50.0%)<br>{{ItemLink|stablekey=item:gen - loomingwood branch}} (9.1%)<br>{{ItemLink|stablekey=item:chest - 18 - fungus covered tunic}} (3.8%)<br>{{ItemLink|stablekey=item:furniture - loomingwood marketplace blueprint}} (0.3%)<br>{{ItemLink|stablekey=item:furniture - loomingwood shrine blueprint}} (0.3%)
 |level=26
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=13-31
 |elemental=13-31
 |void=13-31
-|spells={{AbilityLink|stablekey=spell:arc - aetherstorm|link=Aetherstorm|text=Aetherstorm|image=Aetherstorm.png}}<br>{{AbilityLink|stablekey=spell:arc - brax's rage|link=Brax's Rage|text=Brax's Rage|image=Brax's Rage.png}}<br>{{AbilityLink|stablekey=spell:arc - ethereal rend|link=Ethereal Rending|text=Ethereal Rending|image=Ethereal Rending.png}}
+|spells={{AbilityLink|stablekey=spell:arc - aetherstorm}}<br>{{AbilityLink|stablekey=spell:arc - brax's rage}}<br>{{AbilityLink|stablekey=spell:arc - ethereal rend}}
 }}
 
 [[Category:Bosses]]

@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 6 - wolfguard
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:battlefist|link=Battlefist|text=Battlefist}} (33.3%)
+|source={{CharacterLink|stablekey=character:battlefist}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

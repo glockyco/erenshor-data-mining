@@ -3,7 +3,7 @@
 |stablekey=item:back - 13 - gambler's cape
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:a highwayman marauder|link=A Highwayman Marauder|text=A Highwayman Marauder}} (3.0%)<br>{{CharacterLink|stablekey=character:a highwayman raider|link=A Highwayman Raider|text=A Highwayman Raider}} (3.0%)<br>{{CharacterLink|stablekey=character:a highwayman raider (1)|link=A Highwayman Raider|text=A Highwayman Raider}} (3.0%)<br>{{CharacterLink|stablekey=character:a highwayman raider (2)|link=A Highwayman Raider|text=A Highwayman Raider}} (3.0%)
+|source={{CharacterLink|stablekey=character:a highwayman marauder}} (3.0%)<br>{{CharacterLink|stablekey=character:a highwayman raider}} (3.0%)<br>{{CharacterLink|stablekey=character:a highwayman raider (1)}} (3.0%)<br>{{CharacterLink|stablekey=character:a highwayman raider (2)}} (3.0%)
 |othersource=
 |questsource=
 |relatedquest=

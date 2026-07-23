@@ -5,7 +5,7 @@
 |description=Convert 1200 life into 850 mana.  Cannot resonate.
 |type=Heal
 |line=Direct_Damage
-|classes={{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}} (35)
+|classes={{ClassLink|stablekey=class:reaver}} (35)
 |required_level=35
 |manacost=
 |aggro=
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=True
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - dark sacrifice|link=Spell Scroll: Dark Sacrifice|text=Spell Scroll: Dark Sacrifice|image=Spell Scroll: Dark Sacrifice.png}}
+|source={{ItemLink|stablekey=item:spell scroll - dark sacrifice}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:reav - dark sacrifice}}

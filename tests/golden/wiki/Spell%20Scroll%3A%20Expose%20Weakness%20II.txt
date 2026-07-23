@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - expose weakness ii
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:fallen gladiator 1|link=Wandering Gladiator|text=Wandering Gladiator}} (1.6%)<br>{{CharacterLink|stablekey=character:wandering champion|link=Expert Gladiator|text=Expert Gladiator}} (1.0%)<br>{{CharacterLink|stablekey=character:fallen gladiator|link=Wandering Gladiator|text=Wandering Gladiator}} (1.0%)<br>{{CharacterLink|stablekey=character:fallen gladiator 2|link=Wandering Gladiator|text=Wandering Gladiator}} (1.0%)
+|source={{CharacterLink|stablekey=character:fallen gladiator 1}} (1.6%)<br>{{CharacterLink|stablekey=character:wandering champion}} (1.0%)<br>{{CharacterLink|stablekey=character:fallen gladiator}} (1.0%)<br>{{CharacterLink|stablekey=character:fallen gladiator 2}} (1.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=
 |sell=
-|taughtspell={{AbilityLink|stablekey=spell:duel - expose weakness ii|link=Expose Weakness II|text=Expose Weakness II|image=Expose Weakness II.png}}
+|taughtspell={{AbilityLink|stablekey=spell:duel - expose weakness ii}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

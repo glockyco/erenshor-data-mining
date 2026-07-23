@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - gift of vitae
 |type=[[:Category:Ability Books|Spell Scroll]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:wild ancestral dog|link=Wild Ancestral Dog|text=Wild Ancestral Dog}} (50.0%)
+|source={{CharacterLink|stablekey=character:wild ancestral dog}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=25000
 |sell=16250
-|taughtspell={{AbilityLink|stablekey=spell:dru  - gift of vitae|link=Gift of Vitae|text=Gift of Vitae|image=Gift of Vitae.png}}
+|taughtspell={{AbilityLink|stablekey=spell:dru  - gift of vitae}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

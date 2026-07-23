@@ -3,7 +3,7 @@
 |stablekey=item:head - 8 - ring of the sea giant king
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:lost sea giant king|link=The Lost Sea Giant King|text=The Lost Sea Giant King}} (30.1%)
+|source={{CharacterLink|stablekey=character:lost sea giant king}} (30.1%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -3,7 +3,7 @@
 |stablekey=item:head - 25 - lost wizarding cap
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:arcane pupil|link=Arcane Pupil|text=Arcane Pupil}} (4.4%)
+|source={{CharacterLink|stablekey=character:arcane pupil}} (4.4%)
 |othersource=
 |questsource=
 |relatedquest=

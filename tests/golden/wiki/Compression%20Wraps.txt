@@ -3,7 +3,7 @@
 |stablekey=item:leg - 3 - compression wraps
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:a sorrowful spirit|link=A Sorrowful Spirit|text=A Sorrowful Spirit}} (4.4%)
+|source={{CharacterLink|stablekey=character:a sorrowful spirit}} (4.4%)
 |othersource=
 |questsource=
 |relatedquest=

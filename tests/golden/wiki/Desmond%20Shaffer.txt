@@ -3,9 +3,9 @@
 |image=[[File:Desmond Shaffer.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:stowaway|link=The Citizens of Stowaway's Step|text=The Citizens of Stowaway's Step}}
-|factionChange=-20 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>-20 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:stowaway|link=Stowaway's Step|text=Stowaway's Step}}
+|faction={{FactionLink|stablekey=faction:stowaway}}
+|factionChange=-20 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>-20 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:stowaway}}
 |coordinates=676.6 x 24.0 x 387.8
 |spawnchance=
 |spawntype=

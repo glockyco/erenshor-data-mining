@@ -3,7 +3,7 @@
 |stablekey=item:bow - 17 - humanbone bow
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:grassland ogre sentinel|link=A Grassland Ogre Sentinel|text=A Grassland Ogre Sentinel}} (12.1%)<br>{{CharacterLink|stablekey=character:grassland ogre shaman|link=A Grassland Ogre Shaman|text=A Grassland Ogre Shaman}} (8.7%)
+|source={{CharacterLink|stablekey=character:grassland ogre sentinel}} (12.1%)<br>{{CharacterLink|stablekey=character:grassland ogre shaman}} (8.7%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=5
 |proc_spell_icon=Theft of Life.png
-|proc_spell_name={{AbilityLink|stablekey=spell:dru reav - theft of life|link=Theft of Life|text=Theft of Life|image=Theft of Life.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:dru reav - theft of life}}
 |proc_spell_level=2
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:aura - steed|link=Spirit of the Steed|text=Spirit of the Steed|image=Spirit of the Steed.png}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - steed}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:aura - steed}}

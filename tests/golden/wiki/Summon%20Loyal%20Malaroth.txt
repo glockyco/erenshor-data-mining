@@ -30,7 +30,7 @@
 |target_healing=
 |caster_healing=
 |shield_amount=
-|pet_to_summon={{CharacterLink|stablekey=character:summoned loyal malaroth|link=Loyal Malaroth|text=Loyal Malaroth}}
+|pet_to_summon={{CharacterLink|stablekey=character:summoned loyal malaroth}}
 |status_effect=
 |add_proc=
 |add_proc_chance=
@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:neck - 35 - malaroth lead|link=Malaroth Tag|text=Malaroth Tag|image=Malaroth Tag.png}}
+|itemswitheffect={{ItemLink|stablekey=item:neck - 35 - malaroth lead}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - summon loyal malaroth}}

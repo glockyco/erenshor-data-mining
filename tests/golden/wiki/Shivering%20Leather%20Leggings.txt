@@ -3,7 +3,7 @@
 |stablekey=item:leg - 5 - shivering leather leggings
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:golden spirit|link=A Golden Spirit|text=A Golden Spirit}} (14.0%)<br>{{CharacterLink|stablekey=character:molorai druid|link=Molorai Militia Druid|text=Molorai Militia Druid}} (3.0%)
+|source={{CharacterLink|stablekey=character:golden spirit}} (14.0%)<br>{{CharacterLink|stablekey=character:molorai druid}} (3.0%)
 |othersource=
 |questsource=
 |relatedquest=

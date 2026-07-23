@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - emit vitae
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:solunarian paladin combined|link=Solunarian Paladin|text=Solunarian Paladin}} (1.1%)
+|source={{CharacterLink|stablekey=character:solunarian paladin combined}} (1.1%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=
 |sell=
-|taughtspell={{AbilityLink|stablekey=spell:reav - emit vitae|link=Emit Vitae|text=Emit Vitae|image=Emit Vitae.png}}
+|taughtspell={{AbilityLink|stablekey=spell:reav - emit vitae}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

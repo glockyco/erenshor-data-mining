@@ -3,15 +3,15 @@
 |image=[[File:Guardian of Brax.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:planeofbrax|link=Brax's Plane of Elements|text=Brax's Plane of Elements}}
+|zones={{ZoneLink|stablekey=zone:planeofbrax}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=30 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:ore - planar shard|link=Planar Stone Shards|text=Planar Stone Shards|image=Planar Stone Shards.png}} (16.3%)<br>{{ItemLink|stablekey=item:ore - planar stone|link=Planar Stone|text=Planar Stone|image=Planar Stone.png}} (8.4%)<br>{{ItemLink|stablekey=item:gen - sivak|link=Sivakrux|text=Sivakrux|image=Sivakrux.png}} (8.4%)
+|droprates={{ItemLink|stablekey=item:ore - planar shard}} (16.3%)<br>{{ItemLink|stablekey=item:ore - planar stone}} (8.4%)<br>{{ItemLink|stablekey=item:gen - sivak}} (8.4%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

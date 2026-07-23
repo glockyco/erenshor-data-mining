@@ -3,15 +3,15 @@
 |image=[[File:A Faerie Drone.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:skyfolk|link=The Skyfolk|text=The Skyfolk}}
-|factionChange=-5 {{FactionLink|stablekey=faction:skyfolk|link=The Skyfolk|text=The Skyfolk}}
-|zones={{ZoneLink|stablekey=zone:brake|link=Faerie's Brake|text=Faerie's Brake}}
+|faction={{FactionLink|stablekey=faction:skyfolk}}
+|factionChange=-5 {{FactionLink|stablekey=faction:skyfolk}}
+|zones={{ZoneLink|stablekey=zone:brake}}
 |coordinates=
 |spawnchance=11-100%
 |spawntype=
 |respawn=2-4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (14.3%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (14.3%)<br>{{ItemLink|stablekey=item:cons - seafruit|link=Seafruit|text=Seafruit|image=Seafruit.png}} (10.1%)<br>{{ItemLink|stablekey=item:gen - faerie dust|link=Bag of Faerie Dust|text=Bag of Faerie Dust|image=Bag of Faerie Dust.png}} (7.7%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - faerie dust|link=Bag of Faerie Dust|text=Bag of Faerie Dust|image=Bag of Faerie Dust.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:neck - 10 - dreamcatcher|link=Demon's Crest|text=Demon's Crest|image=Demon's Crest.png}} (4.5%)<br>{{ItemLink|stablekey=item:bow - 11 - recurve bow|link=Recurve Bow|text=Recurve Bow|image=Recurve Bow.png}} (4.5%)<br>{{ItemLink|stablekey=item:gen - faerie wing|link=Intact Faerie Wing|text=Intact Faerie Wing|image=Intact Faerie Wing.png}} (1.1%)
+|droprates={{ItemLink|stablekey=item:gen citrine stone}} (14.3%)<br>{{ItemLink|stablekey=item:gen - luminstone}} (14.3%)<br>{{ItemLink|stablekey=item:cons - seafruit}} (10.1%)<br>{{ItemLink|stablekey=item:gen - faerie dust}} (7.7%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - faerie dust}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:neck - 10 - dreamcatcher}} (4.5%)<br>{{ItemLink|stablekey=item:bow - 11 - recurve bow}} (4.5%)<br>{{ItemLink|stablekey=item:gen - faerie wing}} (1.1%)
 |level=8
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=4-10
 |elemental=4-10
 |void=4-10
-|spells={{AbilityLink|stablekey=spell:dru - biting vines|link=Biting Vines|text=Biting Vines|image=Biting Vines.png}}<br>{{AbilityLink|stablekey=spell:arc - brax's touch|link=Brax's Touch|text=Brax's Touch|image=Brax's Touch.png}}<br>{{AbilityLink|stablekey=spell:dru - flight of foot|link=Flight of Foot|text=Flight of Foot|image=Flight of Foot.png}}<br>{{AbilityLink|stablekey=spell:dru arc stc - magic bolt|link=Magic Bolt|text=Magic Bolt|image=Magic Bolt.png}}<br>{{AbilityLink|stablekey=spell:duel - vampiric touch|link=Vampiric Touch|text=Vampiric Touch|image=Vampiric Touch.png}}<br>{{AbilityLink|stablekey=spell:dru - weak poison|link=Weak Poison|text=Weak Poison|image=Weak Poison.png}}
+|spells={{AbilityLink|stablekey=spell:dru - biting vines}}<br>{{AbilityLink|stablekey=spell:arc - brax's touch}}<br>{{AbilityLink|stablekey=spell:dru - flight of foot}}<br>{{AbilityLink|stablekey=spell:dru arc stc - magic bolt}}<br>{{AbilityLink|stablekey=spell:duel - vampiric touch}}<br>{{AbilityLink|stablekey=spell:dru - weak poison}}
 }}
 
 Faerie Drones are small, magic enemies that spawn in [[Faerie's Brake]]. Due to their small hitbox they prove difficult to target and attack, so it is recommended to use the TAB targeting system. Faerie Drones can drop a [[Bag of Faerie Dust]], required for the quest "[[Faerie Dust for Nylith Valarro]]."

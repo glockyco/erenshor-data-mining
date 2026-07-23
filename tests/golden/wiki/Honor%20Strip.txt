@@ -3,7 +3,7 @@
 |stablekey=item:back - 19 - honor strip
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:a deepling orator|link=A Deepling Orator|text=A Deepling Orator}} (43.4%)
+|source={{CharacterLink|stablekey=character:a deepling orator}} (43.4%)
 |othersource=
 |questsource=
 |relatedquest=

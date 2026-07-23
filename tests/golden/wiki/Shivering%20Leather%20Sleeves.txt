@@ -3,7 +3,7 @@
 |stablekey=item:arm - 5 - shivering leather sleeves
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:crypt keeper|link=Crypt Keeper|text=Crypt Keeper}} (6.5%)<br>{{CharacterLink|stablekey=character:molorai druid|link=Molorai Militia Druid|text=Molorai Militia Druid}} (3.0%)
+|source={{CharacterLink|stablekey=character:crypt keeper}} (6.5%)<br>{{CharacterLink|stablekey=character:molorai druid}} (3.0%)
 |othersource=
 |questsource=
 |relatedquest=

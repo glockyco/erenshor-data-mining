@@ -3,7 +3,7 @@
 |stablekey=item:secondary - 26 - slab of meteorite
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:living meteorite|link=Living Meteorite|text=Living Meteorite}} (12.8%)
+|source={{CharacterLink|stablekey=character:living meteorite}} (12.8%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Bash
 |proc_chance=75
 |proc_spell_icon=Aetherstorm.png
-|proc_spell_name={{AbilityLink|stablekey=spell:arc - aetherstorm|link=Aetherstorm|text=Aetherstorm|image=Aetherstorm.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:arc - aetherstorm}}
 |proc_spell_level=28
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

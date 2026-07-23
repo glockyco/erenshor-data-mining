@@ -2,7 +2,7 @@
 |title=Spell Scroll: Glare of Soluna
 |stablekey=item:spell scroll - glare of soluna
 |type=[[Ability Books]]
-|vendorsource={{CharacterLink|stablekey=character:akaran black|link=Akaran Black|text=Akaran Black}}<br>{{CharacterLink|stablekey=character:leyor m'chante|link=Leyor M'Chante|text=Leyor M'Chante}}
+|vendorsource={{CharacterLink|stablekey=character:akaran black}}<br>{{CharacterLink|stablekey=character:leyor m'chante}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=155
 |sell=101
-|taughtspell={{AbilityLink|stablekey=spell:pal - glare of soluna|link=Glare of Soluna|text=Glare of Soluna|image=Glare of Soluna.png}}
+|taughtspell={{AbilityLink|stablekey=spell:pal - glare of soluna}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

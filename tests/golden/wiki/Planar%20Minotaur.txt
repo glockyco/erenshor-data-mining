@@ -3,15 +3,15 @@
 |image=[[File:Planar Minotaur.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:planeoffernalla|link=Plane of the Willow|text=Plane of the Willow}}
+|zones={{ZoneLink|stablekey=zone:planeoffernalla}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=33 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:ore - planar stone|link=Planar Stone|text=Planar Stone|image=Planar Stone.png}} (4.7%)<br>{{ItemLink|stablekey=item:wrist - 42 - minotaur shackle|link=Minotaur Wristguard|text=Minotaur Wristguard|image=Minotaur Wristguard.png}} (4.3%)<br>{{ItemLink|stablekey=item:ore - planar shard|link=Planar Stone Shards|text=Planar Stone Shards|image=Planar Stone Shards.png}} (2.9%)<br>{{ItemLink|stablekey=item:arm - 42 - chthonic armwraps|link=Chthonic Armwraps|text=Chthonic Armwraps|image=Chthonic Armwraps.png}} (1.6%)<br>{{ItemLink|stablekey=item:glove - 42 - chthonic gloves|link=Chthonic Handwraps|text=Chthonic Handwraps|image=Chthonic Handwraps.png}} (1.6%)<br>{{ItemLink|stablekey=item:head - 42 - chthonic hood|link=Chthonic Hood|text=Chthonic Hood|image=Chthonic Hood.png}} (1.6%)<br>{{ItemLink|stablekey=item:leg - 42 - chthonic pants|link=Chthonic Pants|text=Chthonic Pants|image=Chthonic Pants.png}} (1.6%)<br>{{ItemLink|stablekey=item:foot - 42 - chthonic sandals|link=Chthonic Sandals|text=Chthonic Sandals|image=Chthonic Sandals.png}} (1.6%)<br>{{ItemLink|stablekey=item:chest - 42 - chthonic tunic|link=Chthonic Tunic|text=Chthonic Tunic|image=Chthonic Tunic.png}} (1.6%)<br>{{ItemLink|stablekey=item:wrist - 42 - chthonic bracer|link=Chthonic Wristlet|text=Chthonic Wristlet|image=Chthonic Wristlet.png}} (1.6%)<br>{{ItemLink|stablekey=item:spell scroll - group regrowth|link=Spell Scroll: Group Regrowth|text=Spell Scroll: Group Regrowth|image=Spell Scroll: Group Regrowth.png}} (1.4%)<br>{{ItemLink|stablekey=item:spell scroll - necrotizing bloom|link=Spell Scroll: Necrotizing Bloom|text=Spell Scroll: Necrotizing Bloom|image=Spell Scroll: Necrotizing Bloom.png}} (1.4%)<br>{{ItemLink|stablekey=item:spell scroll - vibrant regrowth|link=Spell Scroll: Vibrant Regrowth|text=Spell Scroll: Vibrant Regrowth|image=Spell Scroll: Vibrant Regrowth.png}} (1.4%)
+|droprates={{ItemLink|stablekey=item:ore - planar stone}} (4.7%)<br>{{ItemLink|stablekey=item:wrist - 42 - minotaur shackle}} (4.3%)<br>{{ItemLink|stablekey=item:ore - planar shard}} (2.9%)<br>{{ItemLink|stablekey=item:arm - 42 - chthonic armwraps}} (1.6%)<br>{{ItemLink|stablekey=item:glove - 42 - chthonic gloves}} (1.6%)<br>{{ItemLink|stablekey=item:head - 42 - chthonic hood}} (1.6%)<br>{{ItemLink|stablekey=item:leg - 42 - chthonic pants}} (1.6%)<br>{{ItemLink|stablekey=item:foot - 42 - chthonic sandals}} (1.6%)<br>{{ItemLink|stablekey=item:chest - 42 - chthonic tunic}} (1.6%)<br>{{ItemLink|stablekey=item:wrist - 42 - chthonic bracer}} (1.6%)<br>{{ItemLink|stablekey=item:spell scroll - group regrowth}} (1.4%)<br>{{ItemLink|stablekey=item:spell scroll - necrotizing bloom}} (1.4%)<br>{{ItemLink|stablekey=item:spell scroll - vibrant regrowth}} (1.4%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

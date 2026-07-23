@@ -3,15 +3,15 @@
 |image=[[File:Loomingwood Minotaur Soldier.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:loomingwood|link=Loomingwood Forest|text=Loomingwood Forest}}<br>{{ZoneLink|stablekey=zone:malaroth|link=Malaroth's Nesting Grounds|text=Malaroth's Nesting Grounds}}
+|zones={{ZoneLink|stablekey=zone:loomingwood}}<br>{{ZoneLink|stablekey=zone:malaroth}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:weap - 24 - mino hatchet|link=Mino Hatchet|text=Mino Hatchet|image=Mino Hatchet.png}} (12.9%)<br>{{ItemLink|stablekey=item:furniture - loomingwood marketplace blueprint|link=Blueprint: Loomingwood Market|text=Blueprint: Loomingwood Market|image=Blueprint: Loomingwood Market.png}} (0.3%)<br>{{ItemLink|stablekey=item:furniture - loomingwood shrine blueprint|link=Blueprint: Loomingwood Shrine|text=Blueprint: Loomingwood Shrine|image=Blueprint: Loomingwood Shrine.png}} (0.3%)
+|droprates={{ItemLink|stablekey=item:weap - 24 - mino hatchet}} (12.9%)<br>{{ItemLink|stablekey=item:furniture - loomingwood marketplace blueprint}} (0.3%)<br>{{ItemLink|stablekey=item:furniture - loomingwood shrine blueprint}} (0.3%)
 |level=23
 |levelmodmin=0
 |levelmodmax=0

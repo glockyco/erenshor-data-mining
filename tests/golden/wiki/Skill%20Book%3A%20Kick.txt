@@ -2,8 +2,8 @@
 |title=Skill Book: Kick
 |stablekey=item:skillbook - kick
 |type=[[Ability Books|Skill Book]]
-|vendorsource={{CharacterLink|stablekey=character:aillee desten|link=Aillee Desten|text=Aillee Desten}}<br>{{CharacterLink|stablekey=character:amethi plazzo:stowaway:575.36:73.04:549.85|link=Amethi Plazzo|text=Amethi Plazzo}}<br>{{CharacterLink|stablekey=character:benson gamble|link=Benson Gamble|text=Benson Gamble}}<br>{{CharacterLink|stablekey=character:javo follay|link=Javo Follay|text=Javo Follay}}<br>{{CharacterLink|stablekey=character:ludo luxo|link=Ludo Luxo|text=Ludo Luxo}}<br>{{CharacterLink|stablekey=character:sven feartines|link=Sven Feartines|text=Sven Feartines}}<br>{{CharacterLink|stablekey=character:zane theavale|link=Zane Theavale|text=Zane Theavale}}
-|source={{CharacterLink|stablekey=character:islander bandit|link=Islander Bandit|text=Islander Bandit}} (1.1%)
+|vendorsource={{CharacterLink|stablekey=character:aillee desten}}<br>{{CharacterLink|stablekey=character:amethi plazzo:stowaway:575.36:73.04:549.85}}<br>{{CharacterLink|stablekey=character:benson gamble}}<br>{{CharacterLink|stablekey=character:javo follay}}<br>{{CharacterLink|stablekey=character:ludo luxo}}<br>{{CharacterLink|stablekey=character:sven feartines}}<br>{{CharacterLink|stablekey=character:zane theavale}}
+|source={{CharacterLink|stablekey=character:islander bandit}} (1.1%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -12,7 +12,7 @@
 |buy=75
 |sell=49
 |taughtspell=
-|taughtskill={{AbilityLink|stablekey=skill:kick|link=Kick|text=Kick|image=Kick.png}}
+|taughtskill={{AbilityLink|stablekey=skill:kick}}
 |guaranteeddrops=
 |droprates=
 }}

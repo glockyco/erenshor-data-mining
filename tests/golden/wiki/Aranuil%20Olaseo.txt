@@ -3,15 +3,15 @@
 |image=[[File:Aranuil Olaseo.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
-|factionChange=+3 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+3 {{FactionLink|stablekey=faction:stowaway|link=The Citizens of Stowaway's Step|text=The Citizens of Stowaway's Step}}
-|zones={{ZoneLink|stablekey=zone:rottenfoot|link=Rottenfoot|text=Rottenfoot}}
+|faction={{FactionLink|stablekey=faction:good}}
+|factionChange=+3 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+3 {{FactionLink|stablekey=faction:stowaway}}
+|zones={{ZoneLink|stablekey=zone:rottenfoot}}
 |coordinates=234.1 x 23.9 x 439.9
 |spawnchance=
 |spawntype=
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - ancestral coin|link=Daggerhart Ancestral Coin|text=Daggerhart Ancestral Coin|image=Daggerhart Ancestral Coin.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ancestral coin|link=Daggerhart Ancestral Coin|text=Daggerhart Ancestral Coin|image=Daggerhart Ancestral Coin.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:arm - 2 - islander bandit armwrap|link=Islander Bandit Armwrap|text=Islander Bandit Armwrap|image=Islander Bandit Armwrap.png}} (19.8%)<br>{{ItemLink|stablekey=item:weap - 3 - brackwood mace|link=Brackwood Mace|text=Brackwood Mace|image=Brackwood Mace.png}} (13.1%)<ref>If Aranuil Olaseo has {{ItemLink|stablekey=item:weap - 3 - brackwood mace|link=Brackwood Mace|text=Brackwood Mace|image=Brackwood Mace.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:chest - 4 - light plate armor|link=Light Plate Breastplate|text=Light Plate Breastplate|image=Light Plate Breastplate.png}} (3.2%)<br>{{ItemLink|stablekey=item:spell scroll - brax's touch|link=Spell Scroll: Brax's Touch|text=Spell Scroll: Brax's Touch|image=Spell Scroll: Brax's Touch.png}} (3.2%)<br>{{ItemLink|stablekey=item:spell scroll - magic bolt|link=Spell Scroll: Magic Bolt|text=Spell Scroll: Magic Bolt|image=Spell Scroll: Magic Bolt.png}} (3.2%)<br>{{ItemLink|stablekey=item:spell scroll - minor healing|link=Spell Scroll: Minor Healing|text=Spell Scroll: Minor Healing|image=Spell Scroll: Minor Healing.png}} (3.2%)<br>{{ItemLink|stablekey=item:spell scroll - minor lightning|link=Spell Scroll: Minor Lightning|text=Spell Scroll: Minor Lightning|image=Spell Scroll: Minor Lightning.png}} (3.2%)<br>{{ItemLink|stablekey=item:spell scroll - minor regen|link=Spell Scroll: Minor Regen|text=Spell Scroll: Minor Regen|image=Spell Scroll: Minor Regen.png}} (3.2%)<br>{{ItemLink|stablekey=item:spell scroll - tangle|link=Spell Scroll: Tangle|text=Spell Scroll: Tangle|image=Spell Scroll: Tangle.png}} (3.2%)
+|droprates={{ItemLink|stablekey=item:gen - ancestral coin}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ancestral coin}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:arm - 2 - islander bandit armwrap}} (19.8%)<br>{{ItemLink|stablekey=item:weap - 3 - brackwood mace}} (13.1%)<ref>If Aranuil Olaseo has {{ItemLink|stablekey=item:weap - 3 - brackwood mace}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:chest - 4 - light plate armor}} (3.2%)<br>{{ItemLink|stablekey=item:spell scroll - brax's touch}} (3.2%)<br>{{ItemLink|stablekey=item:spell scroll - magic bolt}} (3.2%)<br>{{ItemLink|stablekey=item:spell scroll - minor healing}} (3.2%)<br>{{ItemLink|stablekey=item:spell scroll - minor lightning}} (3.2%)<br>{{ItemLink|stablekey=item:spell scroll - minor regen}} (3.2%)<br>{{ItemLink|stablekey=item:spell scroll - tangle}} (3.2%)
 |level=14
 |levelmodmin=0
 |levelmodmax=0

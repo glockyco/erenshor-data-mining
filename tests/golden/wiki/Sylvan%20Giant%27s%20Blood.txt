@@ -3,12 +3,12 @@
 |stablekey=item:gen - sylvan giants blood
 |type=[[Crafting]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:sylvan giant|link=Sylvan Giant|text=Sylvan Giant}} (86.3%)
+|source={{CharacterLink|stablekey=character:sylvan giant}} (86.3%)
 |othersource=
 |questsource=
 |relatedquest=
 |craftsource=
-|componentfor={{ItemLink|stablekey=item:template - nighthollow wax mold|link=Mold: Nighthollow Wax|text=Mold: Nighthollow Wax|image=Mold: Nighthollow Wax.png}}
+|componentfor={{ItemLink|stablekey=item:template - nighthollow wax mold}}
 |buy=8
 |sell=5
 |taughtspell=

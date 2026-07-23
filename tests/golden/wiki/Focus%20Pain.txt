@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:weap - 38 - blackened bone axe|link=Blackbone Axe|text=Blackbone Axe|image=Blackbone Axe.png}}<br>{{ItemLink|stablekey=item:weap - 42 - blade of grace|link=Blade of Grace|text=Blade of Grace|image=Blade of Grace.png}}<br>{{ItemLink|stablekey=item:wrist - 42 - minotaur shackle|link=Minotaur Wristguard|text=Minotaur Wristguard|image=Minotaur Wristguard.png}}<br>{{ItemLink|stablekey=item:weap - 42 - moonmaker|link=Moonmaker|text=Moonmaker|image=Moonmaker.png}}<br>{{ItemLink|stablekey=item:wand - 25 - sivakayan wand|link=Sivakayan Wand|text=Sivakayan Wand|image=Sivakayan Wand.png}}<br>{{ItemLink|stablekey=item:weap - 24 - bonesaw|link=Unholy Bonesaw|text=Unholy Bonesaw|image=Unholy Bonesaw.png}}<br>{{ItemLink|stablekey=item:weap - 28 - world builder|link=World Builder|text=World Builder|image=World Builder.png}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 38 - blackened bone axe}}<br>{{ItemLink|stablekey=item:weap - 42 - blade of grace}}<br>{{ItemLink|stablekey=item:wrist - 42 - minotaur shackle}}<br>{{ItemLink|stablekey=item:weap - 42 - moonmaker}}<br>{{ItemLink|stablekey=item:wand - 25 - sivakayan wand}}<br>{{ItemLink|stablekey=item:weap - 24 - bonesaw}}<br>{{ItemLink|stablekey=item:weap - 28 - world builder}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - fracture}}

@@ -3,9 +3,9 @@
 |image=[[File:Sivakayan Boneraiser.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}
+|faction={{FactionLink|stablekey=faction:sivakayans}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:silkengrass|link=Silkengrass Meadowlands|text=Silkengrass Meadowlands}}
+|zones={{ZoneLink|stablekey=zone:silkengrass}}
 |coordinates=
 |spawnchance=
 |spawntype=

@@ -2,8 +2,8 @@
 |title=Skill Book: Stunning Strike
 |stablekey=item:skillbook - stun strike
 |type=[[Ability Books|Skill Book]]
-|vendorsource={{CharacterLink|stablekey=character:aillee desten|link=Aillee Desten|text=Aillee Desten}}<br>{{CharacterLink|stablekey=character:akaran black|link=Akaran Black|text=Akaran Black}}<br>{{CharacterLink|stablekey=character:benson gamble|link=Benson Gamble|text=Benson Gamble}}
-|source={{CharacterLink|stablekey=character:islander bandit|link=Islander Bandit|text=Islander Bandit}} (1.1%)
+|vendorsource={{CharacterLink|stablekey=character:aillee desten}}<br>{{CharacterLink|stablekey=character:akaran black}}<br>{{CharacterLink|stablekey=character:benson gamble}}
+|source={{CharacterLink|stablekey=character:islander bandit}} (1.1%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -12,7 +12,7 @@
 |buy=225
 |sell=146
 |taughtspell=
-|taughtskill={{AbilityLink|stablekey=skill:stun strike|link=Stunning Strike|text=Stunning Strike|image=Stunning Strike.png}}
+|taughtskill={{AbilityLink|stablekey=skill:stun strike}}
 |guaranteeddrops=
 |droprates=
 }}

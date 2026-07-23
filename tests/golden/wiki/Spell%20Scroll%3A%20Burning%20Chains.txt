@@ -2,8 +2,8 @@
 |title=Spell Scroll: Burning Chains
 |stablekey=item:spell scroll - burning chains
 |type=[[Ability Books|Spell Scroll]]
-|vendorsource={{CharacterLink|stablekey=character:addelia zurin:stowaway:508.78:67.80:537.95|link=Aldoa Manday|text=Aldoa Manday}}<br>{{CharacterLink|stablekey=character:nylith valorro|link=Nylith Valorro|text=Nylith Valorro}}<br>{{CharacterLink|stablekey=character:ophelia instrumento|link=Ophelia Luminee|text=Ophelia Luminee}}
-|source={{CharacterLink|stablekey=character:gloopa quarter|link=Gloopa|text=Gloopa (Quarter)}} (1.7%)<br>{{CharacterLink|stablekey=character:subterranean gel|link=A Subterranean Goop|text=A Subterranean Goop}} (1.6%)<br>{{CharacterLink|stablekey=character:subterranean magmite|link=A Subterranean Magmite|text=A Subterranean Magmite}} (1.6%)
+|vendorsource={{CharacterLink|stablekey=character:addelia zurin:stowaway:508.78:67.80:537.95}}<br>{{CharacterLink|stablekey=character:nylith valorro}}<br>{{CharacterLink|stablekey=character:ophelia instrumento}}
+|source={{CharacterLink|stablekey=character:gloopa quarter}} (1.7%)<br>{{CharacterLink|stablekey=character:subterranean gel}} (1.6%)<br>{{CharacterLink|stablekey=character:subterranean magmite}} (1.6%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=150
 |sell=98
-|taughtspell={{AbilityLink|stablekey=spell:arc - burning chains|link=Burning Chains|text=Burning Chains|image=Burning Chains.png}}
+|taughtspell={{AbilityLink|stablekey=spell:arc - burning chains}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

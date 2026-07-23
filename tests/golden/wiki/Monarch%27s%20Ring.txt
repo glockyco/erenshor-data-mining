@@ -3,7 +3,7 @@
 |stablekey=item:ring - 39 - monarch's ring
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:monarch of the flame|link=Monarch of the Flame|text=Monarch of the Flame}} (33.3%)
+|source={{CharacterLink|stablekey=character:monarch of the flame}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

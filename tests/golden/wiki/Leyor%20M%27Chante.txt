@@ -3,9 +3,9 @@
 |image=[[File:Leyor M'Chante.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
-|factionChange=-20 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>-20 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
-|zones={{ZoneLink|stablekey=zone:azure|link=Port Azure|text=Port Azure}}
+|faction={{FactionLink|stablekey=faction:solunarians}}
+|factionChange=-20 {{FactionLink|stablekey=faction:azurecitizens}}<br>-20 {{FactionLink|stablekey=faction:solunarians}}
+|zones={{ZoneLink|stablekey=zone:azure}}
 |coordinates=160.0 x 31.9 x 311.0
 |spawnchance=
 |spawntype=
@@ -32,7 +32,7 @@
 |poison=12-30
 |elemental=12-30
 |void=12-30
-|spells={{AbilityLink|stablekey=spell:dru pal - minor healing|link=Minor Healing|text=Minor Healing|image=Minor Healing.png}}<br>{{AbilityLink|stablekey=spell:dru duel - minor regen|link=Minor Regeneration|text=Minor Regeneration|image=Minor Regeneration.png}}<br>{{AbilityLink|stablekey=spell:pal - soluna's blessing|link=Soluna's Solar Blessing|text=Soluna's Solar Blessing|image=Soluna's Solar Blessing.png}}<br>{{AbilityLink|stablekey=spell:pal - soluna's invigoration|link=Soluna's Solar Invigoration|text=Soluna's Solar Invigoration|image=Soluna's Solar Invigoration.png}}
+|spells={{AbilityLink|stablekey=spell:dru pal - minor healing}}<br>{{AbilityLink|stablekey=spell:dru duel - minor regen}}<br>{{AbilityLink|stablekey=spell:pal - soluna's blessing}}<br>{{AbilityLink|stablekey=spell:pal - soluna's invigoration}}
 }}
 Leyor is an NPC located in the church-like building in [[Port Azure]]. And is the Quest giver for {{QuestLink|link=Soluna's Flameblade}} (Paladin Quest).
 This NPC will refuse to talk to you if you are any class other than Paladin.

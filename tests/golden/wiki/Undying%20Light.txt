@@ -3,9 +3,9 @@
 |image=[[File:Undying Light.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:shiveringtomb2|link=Shivering Tomb|text=Shivering Tomb (2)}}
+|zones={{ZoneLink|stablekey=zone:shiveringtomb2}}
 |coordinates=-147.3 x -68.3 x 336.0<br>-134.1 x -68.3 x 351.0<br>-134.1 x -68.3 x 320.7<br>-120.2 x -68.3 x 336.0<br>-32.3 x -68.3 x 336.0<br>-19.1 x -68.3 x 351.0<br>-19.1 x -68.3 x 320.7<br>-5.2 x -68.3 x 336.0
 |spawnchance=
 |spawntype=Dynamic event spawn

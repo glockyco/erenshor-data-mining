@@ -3,7 +3,7 @@
 |stablekey=item:arm - 17 - fungus covered armband
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:corrupted golem|link=Ravager, The First Infected|text=Ravager, The First Infected}} (45.8%)<br>{{CharacterLink|stablekey=character:a deepling crimsonite|link=A Deepling Crimsonite|text=A Deepling Crimsonite}} (2.3%)<br>{{CharacterLink|stablekey=character:a deepling lunarite|link=A Deepling Lunarite|text=A Deepling Lunarite}} (2.3%)<br>{{CharacterLink|stablekey=character:a deepling verdite|link=A Deepling Verdite|text=A Deepling Verdite}} (2.3%)<br>{{CharacterLink|stablekey=character:a deepling orator|link=A Deepling Orator|text=A Deepling Orator}} (1.5%)
+|source={{CharacterLink|stablekey=character:corrupted golem}} (45.8%)<br>{{CharacterLink|stablekey=character:a deepling crimsonite}} (2.3%)<br>{{CharacterLink|stablekey=character:a deepling lunarite}} (2.3%)<br>{{CharacterLink|stablekey=character:a deepling verdite}} (2.3%)<br>{{CharacterLink|stablekey=character:a deepling orator}} (1.5%)
 |othersource=
 |questsource=
 |relatedquest=

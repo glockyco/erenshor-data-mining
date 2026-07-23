@@ -7,7 +7,7 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|Willow Seeds}}<br>{{QuestLink|stablekey=quest:willowseed|link=Willow Seeds|text=Willow Seeds}}
+|questsource={{QuestLink|Willow Seeds}}<br>{{QuestLink|stablekey=quest:willowseed}}
 |relatedquest=
 |craftsource=
 |componentfor=

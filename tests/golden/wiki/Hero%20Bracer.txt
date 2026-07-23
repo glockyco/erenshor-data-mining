@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 22 - hero bracer
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:forest minotaur hero|link=Loomingwood Minotaur Hero|text=Loomingwood Minotaur Hero}} (34.6%)
+|source={{CharacterLink|stablekey=character:forest minotaur hero}} (34.6%)
 |othersource=
 |questsource=
 |relatedquest=

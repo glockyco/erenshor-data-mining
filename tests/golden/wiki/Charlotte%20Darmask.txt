@@ -3,9 +3,9 @@
 |image=[[File:Charlotte Darmask.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:fernalla|link=Fernalla's Children|text=Fernalla's Children}}
-|factionChange=-10 {{FactionLink|stablekey=faction:fernalla|link=Fernalla's Children|text=Fernalla's Children}}<br>-10 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}
-|zones={{ZoneLink|stablekey=zone:fernallafield|link=Fernalla's Revival Plains|text=Fernalla's Revival Plains}}
+|faction={{FactionLink|stablekey=faction:fernalla}}
+|factionChange=-10 {{FactionLink|stablekey=faction:fernalla}}<br>-10 {{FactionLink|stablekey=faction:erenshorcitizens}}
+|zones={{ZoneLink|stablekey=zone:fernallafield}}
 |coordinates=312.4 x 31.3 x 329.1
 |spawnchance=
 |spawntype=
@@ -32,7 +32,7 @@
 |poison=12-30
 |elemental=12-30
 |void=12-30
-|spells={{AbilityLink|stablekey=spell:dru - biting vines|link=Biting Vines|text=Biting Vines|image=Biting Vines.png}}<br>{{AbilityLink|stablekey=spell:arc - brax's rage|link=Brax's Rage|text=Brax's Rage|image=Brax's Rage.png}}<br>{{AbilityLink|stablekey=spell:dru - flight of foot|link=Flight of Foot|text=Flight of Foot|image=Flight of Foot.png}}<br>{{AbilityLink|stablekey=spell:dru arc - jolt|link=Jolt|text=Jolt|image=Jolt.png}}<br>{{AbilityLink|stablekey=spell:dru - minor lightning|link=Minor Lightning|text=Minor Lightning|image=Minor Lightning.png}}<br>{{AbilityLink|stablekey=spell:all - minor protection|link=Minor Protection|text=Minor Protection|image=Minor Protection.png}}<br>{{AbilityLink|stablekey=spell:dru duel - minor regen|link=Minor Regeneration|text=Minor Regeneration|image=Minor Regeneration.png}}
+|spells={{AbilityLink|stablekey=spell:dru - biting vines}}<br>{{AbilityLink|stablekey=spell:arc - brax's rage}}<br>{{AbilityLink|stablekey=spell:dru - flight of foot}}<br>{{AbilityLink|stablekey=spell:dru arc - jolt}}<br>{{AbilityLink|stablekey=spell:dru - minor lightning}}<br>{{AbilityLink|stablekey=spell:all - minor protection}}<br>{{AbilityLink|stablekey=spell:dru duel - minor regen}}
 }}
 
 Charlotte is an NPC located at the Shrine of Fernalla in [[Fernalla's Revival Plains]].

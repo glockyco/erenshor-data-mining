@@ -3,9 +3,9 @@
 |image=[[File:Gus Highrest.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:stowaway|link=The Citizens of Stowaway's Step|text=The Citizens of Stowaway's Step}}
-|factionChange=-25 {{FactionLink|stablekey=faction:stowaway|link=The Citizens of Stowaway's Step|text=The Citizens of Stowaway's Step}}
-|zones={{ZoneLink|stablekey=zone:willowwatch|link=Willowwatch Ridge|text=Willowwatch Ridge}}
+|faction={{FactionLink|stablekey=faction:stowaway}}
+|factionChange=-25 {{FactionLink|stablekey=faction:stowaway}}
+|zones={{ZoneLink|stablekey=zone:willowwatch}}
 |coordinates=586.1 x 49.7 x 320.9
 |spawnchance=
 |spawntype=

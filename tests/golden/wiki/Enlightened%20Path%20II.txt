@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:cons - enlightening potion ii|link=Elixir of Enlightenment II|text=Elixir of Enlightenment II|image=Elixir of Enlightenment II.png}}
+|itemswitheffect={{ItemLink|stablekey=item:cons - enlightening potion ii}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - blessing of xp 2}}

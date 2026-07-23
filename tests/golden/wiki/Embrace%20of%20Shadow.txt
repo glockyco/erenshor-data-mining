@@ -65,10 +65,11 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:head - 42 - chthonic hood|link=Chthonic Hood|text=Chthonic Hood|image=Chthonic Hood.png}}<br>{{ItemLink|stablekey=item:glove - 42 - cyclone steel gloves|link=Cyclone Steel Gloves|text=Cyclone Steel Gloves|image=Cyclone Steel Gloves.png}}<br>{{ItemLink|stablekey=item:ring - 40 - molorai heirloom ring|link=Eldoth's Heirloom Ring|text=Eldoth's Heirloom Ring|image=Eldoth's Heirloom Ring.png}}<br>{{ItemLink|stablekey=item:glove - 33 - grip of darkness|link=Grip of Darkness|text=Grip of Darkness|image=Grip of Darkness.png}}<br>{{ItemLink|stablekey=item:glove - 30 - shadow gloves|link=Shadow Gloves|text=Shadow Gloves|image=Shadow Gloves.png}}<br>{{ItemLink|stablekey=item:head - 39 - sivakayan tricorner|link=Sivakayan Tricorner|text=Sivakayan Tricorner|image=Sivakayan Tricorner.png}}<br>{{ItemLink|stablekey=item:glove - 42 - skyseared gloves|link=Skyseared Gloves|text=Skyseared Gloves|image=Skyseared Gloves.png}}<br>{{ItemLink|stablekey=item:belt - 31 - stilling cord|link=Stilling Cord|text=Stilling Cord|image=Stilling Cord.png}}<br>{{ItemLink|stablekey=item:glove - 42 - thaumic handwraps|link=Thaumic Handwraps|text=Thaumic Handwraps|image=Thaumic Handwraps.png}}
+|itemswitheffect={{ItemLink|stablekey=item:head - 42 - chthonic hood}}<br>{{ItemLink|stablekey=item:glove - 42 - cyclone steel gloves}}<br>{{ItemLink|stablekey=item:ring - 40 - molorai heirloom ring}}<br>{{ItemLink|stablekey=item:glove - 33 - grip of darkness}}<br>{{ItemLink|stablekey=item:glove - 30 - shadow gloves}}<br>{{ItemLink|stablekey=item:head - 39 - sivakayan tricorner}}<br>{{ItemLink|stablekey=item:glove - 42 - skyseared gloves}}<br>{{ItemLink|stablekey=item:belt - 31 - stilling cord}}<br>{{ItemLink|stablekey=item:glove - 42 - thaumic handwraps}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - embrace of shadow}}
 
 '''{{PAGENAME}}''' is a support ability obtained exclusively through equipping certain [[Armor|Armors]].
 =Effect=

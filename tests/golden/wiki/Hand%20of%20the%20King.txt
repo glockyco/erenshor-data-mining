@@ -3,15 +3,15 @@
 |image=[[File:Hand of the King.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:braxonian|link=Braxonian Desert|text=Braxonian Desert}}
+|zones={{ZoneLink|stablekey=zone:braxonian}}
 |coordinates=725.8 x 28.5 x 1191.1
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (81.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:quest - game piece monarch of flame|link=Monarch of Flame (Game Piece)|text=Monarch of Flame|image=Monarch of Flame.png}} (4.4%)<ref>If the player is already holding {{ItemLink|stablekey=item:quest - game piece monarch of flame|link=Monarch of Flame (Game Piece)|text=Monarch of Flame|image=Monarch of Flame.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:wrist - 30 - blessed braxonian bracelet|link=Blessed Braxonian Bracelet|text=Blessed Braxonian Bracelet|image=Blessed Braxonian Bracelet.png}} (3.0%)<br>{{ItemLink|stablekey=item:wrist - 30 - blessed braxonian bracer|link=Blessed Braxonian Bracer|text=Blessed Braxonian Bracer|image=Blessed Braxonian Bracer.png}} (3.0%)<br>{{ItemLink|stablekey=item:wrist - 30 - blessed braxonian wristlet|link=Blessed Braxonian Wristlet|text=Blessed Braxonian Wristlet|image=Blessed Braxonian Wristlet.png}} (3.0%)
+|droprates={{ItemLink|stablekey=item:gen - diamond}} (81.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:quest - game piece monarch of flame}} (4.4%)<ref>If the player is already holding {{ItemLink|stablekey=item:quest - game piece monarch of flame}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:wrist - 30 - blessed braxonian bracelet}} (3.0%)<br>{{ItemLink|stablekey=item:wrist - 30 - blessed braxonian bracer}} (3.0%)<br>{{ItemLink|stablekey=item:wrist - 30 - blessed braxonian wristlet}} (3.0%)
 |level=34
 |levelmodmin=0
 |levelmodmax=0

@@ -3,7 +3,7 @@
 |stablekey=item:quest - soul gem posta
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:posta|link=Posta|text=Posta}} (100.0%)
+|source={{CharacterLink|stablekey=character:posta}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|link=Aragath's Imprisonment}}

@@ -3,7 +3,7 @@
 |stablekey=item:key -  ancient braxonian key
 |type=[[Keys|Key]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:evadne|link=Evadne the Corrupted|text=Evadne the Corrupted}} (100.0%)
+|source={{CharacterLink|stablekey=character:evadne}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=

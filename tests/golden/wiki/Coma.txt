@@ -5,7 +5,7 @@
 |description=Renders your target helpless. Any damage breaks this effect.
 |type=StatusEffect
 |line=Sleep
-|classes={{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}} (33)
+|classes={{ClassLink|stablekey=class:arcanist}} (33)
 |required_level=33
 |manacost=400
 |aggro=
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - coma|link=Spell Scroll: Coma|text=Spell Scroll: Coma|image=Spell Scroll: Coma.png}}
-|used_by={{CharacterLink|stablekey=character:braxon elden:braxonian:99.99:33.79:993.06|link=Braxon Elden|text=Braxon Elden}}
+|source={{ItemLink|stablekey=item:spell scroll - coma}}
+|used_by={{CharacterLink|stablekey=character:braxon elden:braxonian:99.99:33.79:993.06}}
 }}
+{{SpellTooltip|stablekey=spell:arc - coma}}

@@ -2,7 +2,7 @@
 |title=Spell Scroll: Ball Lightning
 |stablekey=item:spell scroll - ball lightning
 |type=[[Ability Books|Spell Scroll]]
-|vendorsource={{CharacterLink|stablekey=character:elizabeth dewitt|link=Elizabeth DeWitt|text=Elizabeth DeWitt}}<br>{{CharacterLink|stablekey=character:windlae oldseer|link=Windlae Oldseer|text=Windlae Oldseer}}
+|vendorsource={{CharacterLink|stablekey=character:elizabeth dewitt}}<br>{{CharacterLink|stablekey=character:windlae oldseer}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=1800
 |sell=1170
-|taughtspell={{AbilityLink|stablekey=spell:stc - ball lightning|link=Ball Lightning|text=Ball Lightning|image=Ball Lightning.png}}
+|taughtspell={{AbilityLink|stablekey=spell:stc - ball lightning}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

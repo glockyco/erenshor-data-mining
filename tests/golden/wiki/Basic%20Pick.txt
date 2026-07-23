@@ -2,7 +2,7 @@
 |title=Basic Pick
 |stablekey=item:weap - 2 - basic pick
 |type=
-|vendorsource={{CharacterLink|stablekey=character:amethi plazzo:stowaway:575.36:73.04:549.85|link=Amethi Plazzo|text=Amethi Plazzo}}<br>{{CharacterLink|stablekey=character:brian meshley|link=Brian Meshley|text=Brian Meshley}}<br>{{CharacterLink|stablekey=character:javo follay|link=Javo Follay|text=Javo Follay}}<br>{{CharacterLink|stablekey=character:saya seawatcher|link=Saya Seawatcher|text=Saya Seawatcher}}
+|vendorsource={{CharacterLink|stablekey=character:amethi plazzo:stowaway:575.36:73.04:549.85}}<br>{{CharacterLink|stablekey=character:brian meshley}}<br>{{CharacterLink|stablekey=character:javo follay}}<br>{{CharacterLink|stablekey=character:saya seawatcher}}
 |source=
 |othersource=
 |questsource=

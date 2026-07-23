@@ -2,7 +2,7 @@
 |title=Spell Scroll: Vithean Wind
 |stablekey=item:spell scroll - vithean wind
 |type=[[Ability Books]]
-|vendorsource={{CharacterLink|stablekey=character:edwin ansegg|link=Edwin Ansegg|text=Edwin Ansegg}}<br>{{CharacterLink|stablekey=character:pierson windwash|link=Pierson Windwash|text=Pierson Windwash}}
+|vendorsource={{CharacterLink|stablekey=character:edwin ansegg}}<br>{{CharacterLink|stablekey=character:pierson windwash}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=4800
 |sell=3120
-|taughtspell={{AbilityLink|stablekey=spell:duel - vithean wind|link=Vithean Wind|text=Vithean Wind|image=Vithean Wind.png}}
+|taughtspell={{AbilityLink|stablekey=spell:duel - vithean wind}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

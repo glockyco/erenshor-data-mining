@@ -65,10 +65,11 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:belt - 34 - exhalted belt|link=Exalted Belt|text=Exalted Belt|image=Exalted Belt.png}}<br>{{ItemLink|stablekey=item:ring - 24 - seawashed ring|link=Ocean Aged Ring|text=Ocean Aged Ring|image=Ocean Aged Ring.png}}
+|itemswitheffect={{ItemLink|stablekey=item:belt - 34 - exhalted belt}}<br>{{ItemLink|stablekey=item:ring - 24 - seawashed ring}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:all - protection}}
 
 {{Ability
 |title=Protection
@@ -137,7 +138,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:belt - 31 - charmed belt|link=Charmed Belt|text=Charmed Belt|image=Charmed Belt.png}}
+|itemswitheffect={{ItemLink|stablekey=item:belt - 31 - charmed belt}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:all - protection (worn)}}

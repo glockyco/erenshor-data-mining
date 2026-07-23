@@ -3,15 +3,15 @@
 |image=[[File:Yarren Mathers.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|faction={{FactionLink|stablekey=faction:good}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:vitheo|link=Vitheo's Watch|text=Vitheo's Watch}}
+|zones={{ZoneLink|stablekey=zone:vitheo}}
 |coordinates=415.2 x 12.6 x 129.4
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:weap - 6 - bearbone club|link=Bear Bone Club|text=Bear Bone Club|image=Bear Bone Club.png}} (100.0%)
+|droprates={{ItemLink|stablekey=item:weap - 6 - bearbone club}} (100.0%)
 |level=6
 |levelmodmin=0
 |levelmodmax=0

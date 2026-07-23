@@ -3,7 +3,7 @@
 |stablekey=item:weap - 30 - fungal longsword
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:vinx|link=Vinx|text=Vinx}} (50.0%)
+|source={{CharacterLink|stablekey=character:vinx}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=10
 |proc_spell_icon=Blast of Thorns.png
-|proc_spell_name={{AbilityLink|stablekey=spell:dru - blast of thorns|link=Blast of Thorns|text=Blast of Thorns|image=Blast of Thorns.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:dru - blast of thorns}}
 |proc_spell_level=8
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

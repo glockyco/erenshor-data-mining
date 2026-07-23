@@ -3,7 +3,7 @@
 |stablekey=item:secondary - 11 - magus shield
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:sagan ilth|link=Sagan Ilth|text=Sagan Ilth}} (6.7%)
+|source={{CharacterLink|stablekey=character:sagan ilth}} (6.7%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Bash
 |proc_chance=75
 |proc_spell_icon=Ethereal Rending.png
-|proc_spell_name={{AbilityLink|stablekey=spell:arc - ethereal rend|link=Ethereal Rending|text=Ethereal Rending|image=Ethereal Rending.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:arc - ethereal rend}}
 |proc_spell_level=6
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

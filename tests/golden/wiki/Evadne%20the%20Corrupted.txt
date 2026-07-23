@@ -3,15 +3,15 @@
 |image=[[File:Evadne the Corrupted.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:braxonian|link=Braxonian Desert|text=Braxonian Desert}}
+|zones={{ZoneLink|stablekey=zone:braxonian}}
 |coordinates=981.7 x 80.4 x 585.2
 |spawnchance=
 |spawntype=
 |respawn=11 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:quest - game piece blazefiend|link=Blaze Fiend (Game Piece)|text=Blaze Fiend|image=Blaze Fiend.png}}<br>{{ItemLink|stablekey=item:ore - citrine sandsilver|link=Chunk of Citrine Sandsilver|text=Chunk of Citrine Sandsilver|image=Chunk of Citrine Sandsilver.png}}<br>{{ItemLink|stablekey=item:aura - brax 4|link=Flame of the Redemption|text=Flame of the Redemption|image=Flame of the Redemption.png}}<br>{{ItemLink|stablekey=item:head - 21 - jhalmathir, helm of generals|link=Jhalmathir, Helm of Generals|text=Jhalmathir, Helm of Generals|image=Jhalmathir, Helm of Generals.png}}<br>{{ItemLink|stablekey=item:leg - 21 - pyrelink pantaloons|link=Pyrelink Pantaloons|text=Pyrelink Pantaloons|image=Pyrelink Pantaloons.png}}
-|droprates={{ItemLink|stablekey=item:key -  ancient braxonian key|link=Ancient Braxonian Key|text=Ancient Braxonian Key|image=Ancient Braxonian Key.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:key -  ancient braxonian key|link=Ancient Braxonian Key|text=Ancient Braxonian Key|image=Ancient Braxonian Key.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - brashell|link=Brashell|text=Brashell|image=Brashell.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - brashell|link=Brashell|text=Brashell|image=Brashell.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:quest - game piece blazefiend|link=Blaze Fiend (Game Piece)|text=Blaze Fiend|image=Blaze Fiend.png}} (29.1%)<ref>If the player is already holding {{ItemLink|stablekey=item:quest - game piece blazefiend|link=Blaze Fiend (Game Piece)|text=Blaze Fiend|image=Blaze Fiend.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:ore - citrine sandsilver|link=Chunk of Citrine Sandsilver|text=Chunk of Citrine Sandsilver|image=Chunk of Citrine Sandsilver.png}} (29.1%)<br>{{ItemLink|stablekey=item:aura - brax 4|link=Flame of the Redemption|text=Flame of the Redemption|image=Flame of the Redemption.png}} (29.1%)<br>{{ItemLink|stablekey=item:head - 21 - jhalmathir, helm of generals|link=Jhalmathir, Helm of Generals|text=Jhalmathir, Helm of Generals|image=Jhalmathir, Helm of Generals.png}} (29.1%)<br>{{ItemLink|stablekey=item:leg - 21 - pyrelink pantaloons|link=Pyrelink Pantaloons|text=Pyrelink Pantaloons|image=Pyrelink Pantaloons.png}} (29.1%)
+|guaranteeddrops={{ItemLink|stablekey=item:quest - game piece blazefiend}}<br>{{ItemLink|stablekey=item:ore - citrine sandsilver}}<br>{{ItemLink|stablekey=item:aura - brax 4}}<br>{{ItemLink|stablekey=item:head - 21 - jhalmathir, helm of generals}}<br>{{ItemLink|stablekey=item:leg - 21 - pyrelink pantaloons}}
+|droprates={{ItemLink|stablekey=item:key -  ancient braxonian key}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:key -  ancient braxonian key}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - brashell}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - brashell}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:quest - game piece blazefiend}} (29.1%)<ref>If the player is already holding {{ItemLink|stablekey=item:quest - game piece blazefiend}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:ore - citrine sandsilver}} (29.1%)<br>{{ItemLink|stablekey=item:aura - brax 4}} (29.1%)<br>{{ItemLink|stablekey=item:head - 21 - jhalmathir, helm of generals}} (29.1%)<br>{{ItemLink|stablekey=item:leg - 21 - pyrelink pantaloons}} (29.1%)
 |level=25
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=12-30
 |elemental=12-30
 |void=12-30
-|spells={{AbilityLink|stablekey=spell:arc - ice spear|link=Ice Spear|text=Ice Spear|image=Ice Spear.png}}<br>{{AbilityLink|stablekey=spell:arc - immolation|link=Immolation|text=Immolation|image=Immolation.png}}
+|spells={{AbilityLink|stablekey=spell:arc - ice spear}}<br>{{AbilityLink|stablekey=spell:arc - immolation}}
 }}
 
 Located in the rocky northern mountains which is reached by a gigantic slope in the central area of the [[Braxonian Desert]].

@@ -3,15 +3,15 @@
 |image=[[File:Vinx.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:bloomingsepulcher|link=Blooming Sepulcher|text=Blooming Sepulcher}}
+|zones={{ZoneLink|stablekey=zone:bloomingsepulcher}}
 |coordinates=875.3 x 318.8 x 301.6
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:wand - 29 - bombastic wand|link=Bombastic Wand|text=Bombastic Wand|image=Bombastic Wand.png}}<br>{{ItemLink|stablekey=item:weap - 30 - fungal greatsword|link=Fungal Greatsword|text=Fungal Greatsword|image=Fungal Greatsword.png}}<br>{{ItemLink|stablekey=item:weap - 30 - fungal longsword|link=Fungal Longsword|text=Fungal Longsword|image=Fungal Longsword.png}}
-|droprates={{ItemLink|stablekey=item:cons - bread|link=Bread|text=Bread|image=Bread.png}} (57.4%)<br>{{ItemLink|stablekey=item:cons - water|link=Water|text=Water|image=Water.png}} (57.4%)<br>{{ItemLink|stablekey=item:weap - 30 - fungal longsword|link=Fungal Longsword|text=Fungal Longsword|image=Fungal Longsword.png}} (50.0%)<br>{{ItemLink|stablekey=item:wand - 29 - bombastic wand|link=Bombastic Wand|text=Bombastic Wand|image=Bombastic Wand.png}} (25.0%)<br>{{ItemLink|stablekey=item:weap - 30 - fungal greatsword|link=Fungal Greatsword|text=Fungal Greatsword|image=Fungal Greatsword.png}} (25.0%)<br>{{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} (17.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - decayed druid beads|link=Decayed Druid Beads|text=Decayed Druid Beads|image=Decayed Druid Beads.png}} (7.3%)<br>{{ItemLink|stablekey=item:head - 1 - cloth hood|link=Cloth Hood|text=Cloth Hood|image=Cloth Hood.png}} (3.9%)<br>{{ItemLink|stablekey=item:leg - 1 - cloth pants|link=Cloth Pants|text=Cloth Pants|image=Cloth Pants.png}} (3.9%)<br>{{ItemLink|stablekey=item:chest - 1 - cloth shirt|link=Cloth Shirt|text=Cloth Shirt|image=Cloth Shirt.png}} (3.9%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves|link=Cloth Sleeves|text=Cloth Sleeves|image=Cloth Sleeves.png}} (3.9%)<br>{{ItemLink|stablekey=item:neck - 31 - nature's promise|link=Nature's Promise|text=Nature's Promise|image=Nature's Promise.png}} (1.2%)<br>{{ItemLink|stablekey=item:furniture - stone statue fernalla|link=Stone Statue: Fernalla|text=Stone Statue: Fernalla|image=Stone Statue: Fernalla.png}} (1.2%)<br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (0.5%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:furniture - gold statue fernalla|link=Golden Statue: Fernalla|text=Golden Statue: Fernalla|image=Golden Statue: Fernalla.png}} (0.5%)
+|guaranteeddrops={{ItemLink|stablekey=item:wand - 29 - bombastic wand}}<br>{{ItemLink|stablekey=item:weap - 30 - fungal greatsword}}<br>{{ItemLink|stablekey=item:weap - 30 - fungal longsword}}
+|droprates={{ItemLink|stablekey=item:cons - bread}} (57.4%)<br>{{ItemLink|stablekey=item:cons - water}} (57.4%)<br>{{ItemLink|stablekey=item:weap - 30 - fungal longsword}} (50.0%)<br>{{ItemLink|stablekey=item:wand - 29 - bombastic wand}} (25.0%)<br>{{ItemLink|stablekey=item:weap - 30 - fungal greatsword}} (25.0%)<br>{{ItemLink|stablekey=item:gen - ruby}} (17.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - decayed druid beads}} (7.3%)<br>{{ItemLink|stablekey=item:head - 1 - cloth hood}} (3.9%)<br>{{ItemLink|stablekey=item:leg - 1 - cloth pants}} (3.9%)<br>{{ItemLink|stablekey=item:chest - 1 - cloth shirt}} (3.9%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves}} (3.9%)<br>{{ItemLink|stablekey=item:neck - 31 - nature's promise}} (1.2%)<br>{{ItemLink|stablekey=item:furniture - stone statue fernalla}} (1.2%)<br>{{ItemLink|stablekey=item:gen - diamond}} (0.5%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:furniture - gold statue fernalla}} (0.5%)
 |level=29
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=14-35
 |elemental=14-35
 |void=14-35
-|spells={{AbilityLink|stablekey=spell:dru reav - devour|link=Devour|text=Devour|image=Devour.png}}<br>{{AbilityLink|stablekey=spell:dru - lightning|link=Lightning|text=Lightning|image=Lightning.png}}
+|spells={{AbilityLink|stablekey=spell:dru reav - devour}}<br>{{AbilityLink|stablekey=spell:dru - lightning}}
 }}
 
 [[Category:Blooming Sepulcher]]

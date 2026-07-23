@@ -22,8 +22,8 @@
 |image=Mold: Duelist's Charm.png
 |name=Mold: Duelist's Charm
 |description=Recipes must be exact - use CNTRL + CLICK to separate stacks.<br><br>One-time usable in a forge. <br><br>*Fuel quality does not affect the outcome of this recipe
-|ingredients=1x {{ItemLink|stablekey=item:hand - 5 - idol of sivakaya|link=Idol of Sivakaya|text=Idol of Sivakaya|image=Idol of Sivakaya.png}}<br>1x {{ItemLink|stablekey=item:ore - citrine sandsilver|link=Chunk of Citrine Sandsilver|text=Chunk of Citrine Sandsilver|image=Chunk of Citrine Sandsilver.png}}<br>1x {{ItemLink|stablekey=item:gen - ogrespice leaf|link=Ogrespice Leaf|text=Ogrespice Leaf|image=Ogrespice Leaf.png}}<br>1x {{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}}
-|rewards={{ItemLink|stablekey=item:charm - 30 - duelist's charm|link=Duelist's Charm|text=Duelist's Charm|image=Duelist's Charm.png}}
+|ingredients=1x {{ItemLink|stablekey=item:hand - 5 - idol of sivakaya}}<br>1x {{ItemLink|stablekey=item:ore - citrine sandsilver}}<br>1x {{ItemLink|stablekey=item:gen - ogrespice leaf}}<br>1x {{ItemLink|stablekey=item:gen - a star stone}}
+|rewards={{ItemLink|stablekey=item:charm - 30 - duelist's charm}}
 |station=
 }}
 

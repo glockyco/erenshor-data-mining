@@ -3,15 +3,15 @@
 |image=[[File:Battlefist.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
-|factionChange=+3 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+3 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:willowwatch|link=Willowwatch Ridge|text=Willowwatch Ridge}}
+|faction={{FactionLink|stablekey=faction:evil}}
+|factionChange=+3 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+3 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:willowwatch}}
 |coordinates=868.1 x 22.1 x 621.8
 |spawnchance=
 |spawntype=
 |respawn=6 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:weap - 6 - gourd carver|link=Gourd Carver|text=Gourd Carver|image=Gourd Carver.png}}<br>{{ItemLink|stablekey=item:weap - 13 - spidersmasher|link=Spidersmasher|text=Spidersmasher|image=Spidersmasher.png}}<br>{{ItemLink|stablekey=item:wrist - 6 - wolfguard|link=Wolfguard|text=Wolfguard|image=Wolfguard.png}}
-|droprates={{ItemLink|stablekey=item:weap - 6 - gourd carver|link=Gourd Carver|text=Gourd Carver|image=Gourd Carver.png}} (33.3%)<br>{{ItemLink|stablekey=item:weap - 13 - spidersmasher|link=Spidersmasher|text=Spidersmasher|image=Spidersmasher.png}} (33.3%)<ref>If Battlefist has {{ItemLink|stablekey=item:weap - 13 - spidersmasher|link=Spidersmasher|text=Spidersmasher|image=Spidersmasher.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:wrist - 6 - wolfguard|link=Wolfguard|text=Wolfguard|image=Wolfguard.png}} (33.3%)
+|guaranteeddrops={{ItemLink|stablekey=item:weap - 6 - gourd carver}}<br>{{ItemLink|stablekey=item:weap - 13 - spidersmasher}}<br>{{ItemLink|stablekey=item:wrist - 6 - wolfguard}}
+|droprates={{ItemLink|stablekey=item:weap - 6 - gourd carver}} (33.3%)<br>{{ItemLink|stablekey=item:weap - 13 - spidersmasher}} (33.3%)<ref>If Battlefist has {{ItemLink|stablekey=item:weap - 13 - spidersmasher}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:wrist - 6 - wolfguard}} (33.3%)
 |level=6
 |levelmodmin=0
 |levelmodmax=0

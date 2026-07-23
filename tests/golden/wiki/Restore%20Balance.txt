@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:gen - crystallized balance|link=Crystallized Balance|text=Crystallized Balance|image=Crystallized Balance.png}}
+|itemswitheffect={{ItemLink|stablekey=item:gen - crystallized balance}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - restore balance}}

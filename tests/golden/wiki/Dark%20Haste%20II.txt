@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:back - 42 - cloak of flame|link=Cloak of Flame|text=Cloak of Flame|image=Cloak of Flame.png}}<br>{{ItemLink|stablekey=item:wrist - 42 - cyclone steel bracer|link=Cyclone Steel Bracer|text=Cyclone Steel Bracer|image=Cyclone Steel Bracer.png}}<br>{{ItemLink|stablekey=item:back - 33 - shadowclasp|link=Shadowclasp|text=Shadowclasp|image=Shadowclasp.png}}<br>{{ItemLink|stablekey=item:chest - 42 - thaumic vestiment|link=Thaumic Vestiment|text=Thaumic Vestiment|image=Thaumic Vestiment.png}}
+|itemswitheffect={{ItemLink|stablekey=item:back - 42 - cloak of flame}}<br>{{ItemLink|stablekey=item:wrist - 42 - cyclone steel bracer}}<br>{{ItemLink|stablekey=item:back - 33 - shadowclasp}}<br>{{ItemLink|stablekey=item:chest - 42 - thaumic vestiment}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - dark haste 2}}

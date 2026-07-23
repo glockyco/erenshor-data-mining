@@ -3,7 +3,7 @@
 |stablekey=item:arm - 18 - desert silk sleeves
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:priest of brax 1|link=Apha, Priest of Brax|text=Apha, Priest of Brax}} (67.9%)<br>{{CharacterLink|stablekey=character:priest of brax|link=Upha, Priest of Brax|text=Upha, Priest of Brax}} (67.9%)<br>{{CharacterLink|stablekey=character:molorai archaelogist|link=Molorai Archaeologist|text=Molorai Archaeologist}} (13.4%)<br>{{CharacterLink|stablekey=character:molorai archaelogist 1|link=Molorai Archaeologist|text=Molorai Archaeologist}} (12.1%)<br>{{CharacterLink|stablekey=character:blight priest|link=Blighted Priest|text=Blighted Priest}} (2.3%)<br>{{CharacterLink|stablekey=character:braxonian fanatic|link=Braxon Fanatic|text=Braxon Fanatic}} (1.7%)
+|source={{CharacterLink|stablekey=character:priest of brax 1}} (67.9%)<br>{{CharacterLink|stablekey=character:priest of brax}} (67.9%)<br>{{CharacterLink|stablekey=character:molorai archaelogist}} (13.4%)<br>{{CharacterLink|stablekey=character:molorai archaelogist 1}} (12.1%)<br>{{CharacterLink|stablekey=character:blight priest}} (2.3%)<br>{{CharacterLink|stablekey=character:braxonian fanatic}} (1.7%)
 |othersource=
 |questsource=
 |relatedquest=

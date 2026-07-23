@@ -3,7 +3,7 @@
 |stablekey=item:leg - 18 - reed trousers
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:plunkey|link=Plunkey|text=Plunkey}} (66.7%)
+|source={{CharacterLink|stablekey=character:plunkey}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=

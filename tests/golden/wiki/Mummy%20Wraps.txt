@@ -2,8 +2,8 @@
 |title=Mummy Wraps
 |stablekey=item:glove - 5 - mummy wraps
 |type=
-|vendorsource={{CharacterLink|stablekey=character:asaga underloft|link=Asaga Underloft|text=Asaga Underloft}}
-|source={{CharacterLink|stablekey=character:rotting mummy|link=Rotting Mummy|text=Rotting Mummy}} (7.0%)
+|vendorsource={{CharacterLink|stablekey=character:asaga underloft}}
+|source={{CharacterLink|stablekey=character:rotting mummy}} (7.0%)
 |othersource=
 |questsource=
 |relatedquest=

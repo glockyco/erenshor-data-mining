@@ -3,9 +3,9 @@
 |image=[[File:Supply Sergeant Tipp.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|factionChange=-35 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>-35 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:azure|link=Port Azure|text=Port Azure}}
+|faction={{FactionLink|stablekey=faction:azurecitizens}}
+|factionChange=-35 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>-35 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:azure}}
 |coordinates=268.5 x 26.3 x 118.1
 |spawnchance=
 |spawntype=

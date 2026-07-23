@@ -3,15 +3,15 @@
 |image=[[File:Crypt Keeper.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|faction={{FactionLink|stablekey=faction:good}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:stowaway|link=Stowaway's Step|text=Stowaway's Step}}
+|zones={{ZoneLink|stablekey=zone:stowaway}}
 |coordinates=592.4 x 39.9 x 669.2
 |spawnchance=
 |spawntype=
 |respawn=9 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:key - crypt key|link=Shivering Key (Halloween Event)|text=Shivering Key (Halloween Event)|image=Shivering Key (Halloween Event).png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:key - crypt key|link=Shivering Key (Halloween Event)|text=Shivering Key (Halloween Event)|image=Shivering Key (Halloween Event).png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - an ancient bone|link=Ancient Bone|text=Ancient Bone|image=Ancient Bone.png}} (46.7%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (46.7%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (46.7%)<br>{{ItemLink|stablekey=item:foot - 5 - shivering leather boots|link=Shivering Leather Boots|text=Shivering Leather Boots|image=Shivering Leather Boots.png}} (6.5%)<br>{{ItemLink|stablekey=item:head - 5 - shivering leather skullcap|link=Shivering Leather Skullcap|text=Shivering Leather Skullcap|image=Shivering Leather Skullcap.png}} (6.5%)<br>{{ItemLink|stablekey=item:arm - 5 - shivering leather sleeves|link=Shivering Leather Sleeves|text=Shivering Leather Sleeves|image=Shivering Leather Sleeves.png}} (6.5%)
+|droprates={{ItemLink|stablekey=item:key - crypt key}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:key - crypt key}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - an ancient bone}} (46.7%)<br>{{ItemLink|stablekey=item:gen - luminstone}} (46.7%)<br>{{ItemLink|stablekey=item:gen - seaglass}} (46.7%)<br>{{ItemLink|stablekey=item:foot - 5 - shivering leather boots}} (6.5%)<br>{{ItemLink|stablekey=item:head - 5 - shivering leather skullcap}} (6.5%)<br>{{ItemLink|stablekey=item:arm - 5 - shivering leather sleeves}} (6.5%)
 |level=18
 |levelmodmin=0
 |levelmodmax=0

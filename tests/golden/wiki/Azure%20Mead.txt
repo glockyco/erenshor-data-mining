@@ -2,11 +2,11 @@
 |title=Azure Mead
 |stablekey=item:cons - azure mead
 |type=[[Consumables|Consumable]], [[Quest Items|Quest Item]]
-|vendorsource={{CharacterLink|stablekey=character:benny bommby|link=Benny Bommby|text=Benny Bommby}}<br>{{CharacterLink|stablekey=character:innkeeper ryvan:azure:167.71:26.82:247.81|link=Innkeeper Ryvan|text=Innkeeper Ryvan}}<br>{{CharacterLink|stablekey=character:isaac salaman:azure:124.92:26.25:350.89|link=Isaac Salaman|text=Isaac Salaman}}<br>{{CharacterLink|stablekey=character:shady fisherman (1):summerevent:80.10:-5.17:6.41|link=Shady Fisherman|text=Shady Fisherman}}
-|source={{CharacterLink|stablekey=character:priel molarist|link=Priel Malarist|text=Priel Malarist}} (8.5%)
+|vendorsource={{CharacterLink|stablekey=character:benny bommby}}<br>{{CharacterLink|stablekey=character:innkeeper ryvan:azure:167.71:26.82:247.81}}<br>{{CharacterLink|stablekey=character:isaac salaman:azure:124.92:26.25:350.89}}<br>{{CharacterLink|stablekey=character:shady fisherman (1):summerevent:80.10:-5.17:6.41}}
+|source={{CharacterLink|stablekey=character:priel molarist}} (8.5%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|link=A Trade in Ripper's Keep}}<br>{{QuestLink|Malaroth Food}}<br>{{QuestLink|A Trade in Ripper's Keep}}<br>{{QuestLink|stablekey=quest:ripperrune|link=A Trade in Ripper's Keep|text=A Trade in Ripper's Keep}}<br>{{QuestLink|stablekey=quest:malarothfeedmade|link=Malaroth Food|text=Malaroth Food}}
+|relatedquest={{QuestLink|link=A Trade in Ripper's Keep}}<br>{{QuestLink|Malaroth Food}}<br>{{QuestLink|A Trade in Ripper's Keep}}<br>{{QuestLink|stablekey=quest:ripperrune}}<br>{{QuestLink|stablekey=quest:malarothfeedmade}}
 |craftsource=
 |componentfor=
 |buy=12
@@ -23,7 +23,7 @@
 |description=The official drink of Port Azure
 |disposable=True
 |effect_spell_icon=Hydrated.png
-|effect_spell_name={{AbilityLink|stablekey=spell:all - hydrated|link=Hydrated|text=Hydrated|image=Hydrated.png}}
+|effect_spell_name={{AbilityLink|stablekey=spell:all - hydrated}}
 |effect_spell_level=1
 |effect_spell_duration_ticks=220
 |effect_spell_type=Beneficial

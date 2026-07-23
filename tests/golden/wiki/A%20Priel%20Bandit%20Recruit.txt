@@ -3,15 +3,15 @@
 |image=[[File:A Priel Bandit Recruit.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:priel|link=Savannah Priel|text=Savannah Priel}}
-|factionChange=-2 {{FactionLink|stablekey=faction:priel|link=Savannah Priel|text=Savannah Priel}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+1 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
-|zones={{ZoneLink|stablekey=zone:hidden|link=Hidden Hills|text=Hidden Hills}}<br>{{ZoneLink|stablekey=zone:willowwatch|link=Willowwatch Ridge|text=Willowwatch Ridge}}
+|faction={{FactionLink|stablekey=faction:priel}}
+|factionChange=-2 {{FactionLink|stablekey=faction:priel}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens}}<br>+1 {{FactionLink|stablekey=faction:solunarians}}
+|zones={{ZoneLink|stablekey=zone:hidden}}<br>{{ZoneLink|stablekey=zone:willowwatch}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=2 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:ring - 4 - priel insignia ring|link=Priel Insignia Ring|text=Priel Insignia Ring|image=Priel Insignia Ring.png}} (14.8%)<br>{{ItemLink|stablekey=item:weap - 4 - priel knife|link=Priel Knife|text=Priel Knife|image=Priel Knife.png}} (12.9%)
+|droprates={{ItemLink|stablekey=item:ring - 4 - priel insignia ring}} (14.8%)<br>{{ItemLink|stablekey=item:weap - 4 - priel knife}} (12.9%)
 |level=6
 |levelmodmin=0
 |levelmodmax=0

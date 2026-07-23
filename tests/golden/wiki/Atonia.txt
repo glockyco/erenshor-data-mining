@@ -69,3 +69,4 @@
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:reav - atonia}}

@@ -3,9 +3,9 @@
 |image=[[File:Arabetha Songshade.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
-|factionChange=-2 {{FactionLink|stablekey=faction:molarai|link=Eldoth Molorai (Faction)|text=Eldoth Molorai}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+2 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
-|zones={{ZoneLink|stablekey=zone:brake|link=Faerie's Brake|text=Faerie's Brake}}
+|faction={{FactionLink|stablekey=faction:good}}
+|factionChange=-2 {{FactionLink|stablekey=faction:molarai}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens}}<br>+2 {{FactionLink|stablekey=faction:solunarians}}
+|zones={{ZoneLink|stablekey=zone:brake}}
 |coordinates=364.3 x 25.0 x 178.4
 |spawnchance=
 |spawntype=
@@ -32,7 +32,7 @@
 |poison=16-37
 |elemental=16-37
 |void=16-37
-|spells={{AbilityLink|stablekey=spell:dru - biting vines|link=Biting Vines|text=Biting Vines|image=Biting Vines.png}}<br>{{AbilityLink|stablekey=spell:dru arc - jolt|link=Jolt|text=Jolt|image=Jolt.png}}<br>{{AbilityLink|stablekey=spell:dru arc stc - magic bolt|link=Magic Bolt|text=Magic Bolt|image=Magic Bolt.png}}<br>{{AbilityLink|stablekey=spell:dru reav - theft of life|link=Theft of Life|text=Theft of Life|image=Theft of Life.png}}<br>{{AbilityLink|stablekey=spell:dru - weak poison|link=Weak Poison|text=Weak Poison|image=Weak Poison.png}}
+|spells={{AbilityLink|stablekey=spell:dru - biting vines}}<br>{{AbilityLink|stablekey=spell:dru arc - jolt}}<br>{{AbilityLink|stablekey=spell:dru arc stc - magic bolt}}<br>{{AbilityLink|stablekey=spell:dru reav - theft of life}}<br>{{AbilityLink|stablekey=spell:dru - weak poison}}
 }}
 
 Greeting message:

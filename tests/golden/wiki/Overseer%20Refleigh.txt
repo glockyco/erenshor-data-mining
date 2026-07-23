@@ -3,15 +3,15 @@
 |image=[[File:Overseer Refleigh.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:molarai|link=Eldoth Molorai (Faction)|text=Eldoth Molorai}}
-|factionChange=-2 {{FactionLink|stablekey=faction:molarai|link=Eldoth Molorai (Faction)|text=Eldoth Molorai}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+2 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
-|zones={{ZoneLink|stablekey=zone:braxonian|link=Braxonian Desert|text=Braxonian Desert}}
+|faction={{FactionLink|stablekey=faction:molarai}}
+|factionChange=-2 {{FactionLink|stablekey=faction:molarai}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens}}<br>+2 {{FactionLink|stablekey=faction:solunarians}}
+|zones={{ZoneLink|stablekey=zone:braxonian}}
 |coordinates=678.7 x 46.7 x 866.5
 |spawnchance=95%
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - eldoth - on braxonian 2|link=Eldoth Writings: The Wisp|text=Eldoth Writings: The Wisp|image=Eldoth Writings: The Wisp.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - eldoth - on braxonian 2|link=Eldoth Writings: The Wisp|text=Eldoth Writings: The Wisp|image=Eldoth Writings: The Wisp.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (87.1%)<br>{{ItemLink|stablekey=item:back - 17 - sandcloak|link=Cape of the Sands|text=Cape of the Sands|image=Cape of the Sands.png}} (14.2%)<br>{{ItemLink|stablekey=item:chest - 18 - molarai battle chain|link=Molorai Battle Chain|text=Molorai Battle Chain|image=Molorai Battle Chain.png}} (14.2%)<br>{{ItemLink|stablekey=item:wrist - 17 - searing wrap|link=Searing Wristwrap|text=Searing Wristwrap|image=Searing Wristwrap.png}} (14.2%)
+|droprates={{ItemLink|stablekey=item:gen - eldoth - on braxonian 2}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - eldoth - on braxonian 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen citrine stone}} (87.1%)<br>{{ItemLink|stablekey=item:back - 17 - sandcloak}} (14.2%)<br>{{ItemLink|stablekey=item:chest - 18 - molarai battle chain}} (14.2%)<br>{{ItemLink|stablekey=item:wrist - 17 - searing wrap}} (14.2%)
 |level=21
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=10-25
 |elemental=10-25
 |void=10-25
-|spells={{AbilityLink|stablekey=spell:arc - brax's rage|link=Brax's Rage|text=Brax's Rage|image=Brax's Rage.png}}<br>{{AbilityLink|stablekey=spell:arc - hardened skin|link=Hardened Skin|text=Hardened Skin|image=Hardened Skin.png}}<br>{{AbilityLink|stablekey=spell:all - minor protection|link=Minor Protection|text=Minor Protection|image=Minor Protection.png}}<br>{{AbilityLink|stablekey=spell:dru duel - minor regen|link=Minor Regeneration|text=Minor Regeneration|image=Minor Regeneration.png}}<br>{{AbilityLink|stablekey=spell:duel - vampiric touch|link=Vampiric Touch|text=Vampiric Touch|image=Vampiric Touch.png}}<br>{{AbilityLink|stablekey=spell:arc - winter's bite|link=Winter's Bite|text=Winter's Bite|image=Winter's Bite.png}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's rage}}<br>{{AbilityLink|stablekey=spell:arc - hardened skin}}<br>{{AbilityLink|stablekey=spell:all - minor protection}}<br>{{AbilityLink|stablekey=spell:dru duel - minor regen}}<br>{{AbilityLink|stablekey=spell:duel - vampiric touch}}<br>{{AbilityLink|stablekey=spell:arc - winter's bite}}
 }}
 
 [[Category:Bosses]]

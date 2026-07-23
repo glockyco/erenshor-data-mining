@@ -3,15 +3,15 @@
 |image=[[File:Thorn Boss.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:loomingwood|link=Loomingwood Forest|text=Loomingwood Forest}}
+|zones={{ZoneLink|stablekey=zone:loomingwood}}
 |coordinates=147.1 x 33.0 x 747.9
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:back - 27 - blueleaf cape|link=Blue Leaf Cape|text=Blue Leaf Cape|image=Blue Leaf Cape.png}}<br>{{ItemLink|stablekey=item:glove - 26 - thorned kuckle gloves|link=Thorned Knuckle Gloves|text=Thorned Knuckle Gloves|image=Thorned Knuckle Gloves.png}}
-|droprates={{ItemLink|stablekey=item:back - 27 - blueleaf cape|link=Blue Leaf Cape|text=Blue Leaf Cape|image=Blue Leaf Cape.png}} (50.0%)<br>{{ItemLink|stablekey=item:glove - 26 - thorned kuckle gloves|link=Thorned Knuckle Gloves|text=Thorned Knuckle Gloves|image=Thorned Knuckle Gloves.png}} (50.0%)<br>{{ItemLink|stablekey=item:gen - loomingwood branch|link=Loomingwood Branch|text=Loomingwood Branch|image=Loomingwood Branch.png}} (12.9%)<br>{{ItemLink|stablekey=item:furniture - loomingwood marketplace blueprint|link=Blueprint: Loomingwood Market|text=Blueprint: Loomingwood Market|image=Blueprint: Loomingwood Market.png}} (0.3%)<br>{{ItemLink|stablekey=item:furniture - loomingwood shrine blueprint|link=Blueprint: Loomingwood Shrine|text=Blueprint: Loomingwood Shrine|image=Blueprint: Loomingwood Shrine.png}} (0.3%)
+|guaranteeddrops={{ItemLink|stablekey=item:back - 27 - blueleaf cape}}<br>{{ItemLink|stablekey=item:glove - 26 - thorned kuckle gloves}}
+|droprates={{ItemLink|stablekey=item:back - 27 - blueleaf cape}} (50.0%)<br>{{ItemLink|stablekey=item:glove - 26 - thorned kuckle gloves}} (50.0%)<br>{{ItemLink|stablekey=item:gen - loomingwood branch}} (12.9%)<br>{{ItemLink|stablekey=item:furniture - loomingwood marketplace blueprint}} (0.3%)<br>{{ItemLink|stablekey=item:furniture - loomingwood shrine blueprint}} (0.3%)
 |level=26
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=13-31
 |elemental=13-31
 |void=13-31
-|spells={{AbilityLink|stablekey=spell:dru - morbidity's grasp|link=Morbidity's Grasp|text=Morbidity's Grasp|image=Morbidity's Grasp.png}}
+|spells={{AbilityLink|stablekey=spell:dru - morbidity's grasp}}
 }}
 
 [[Category:Bosses]]

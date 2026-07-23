@@ -5,7 +5,7 @@
 |description=Renders your target helpless. Any damage breaks this effect.
 |type=StatusEffect
 |line=Sleep
-|classes={{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}} (1)
+|classes={{ClassLink|stablekey=class:arcanist}} (1)
 |required_level=1
 |manacost=10
 |aggro=35
@@ -65,7 +65,8 @@
 |is_broken_on_damage=True
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:weap - 9 - ogre tooth club|link=Ogre Tooth Club|text=Ogre Tooth Club|image=Ogre Tooth Club.png}}
-|source={{ItemLink|stablekey=item:spell scroll - dazzle|link=Spell Scroll: Dazzle|text=Spell Scroll: Dazzle|image=Spell Scroll: Dazzle.png}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 9 - ogre tooth club}}
+|source={{ItemLink|stablekey=item:spell scroll - dazzle}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:arc - dazzle}}

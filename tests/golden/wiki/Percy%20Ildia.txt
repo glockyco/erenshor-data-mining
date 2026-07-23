@@ -3,9 +3,9 @@
 |image=[[File:Percy Ildia.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|factionChange=-20 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>-20 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:stowaway|link=Stowaway's Step|text=Stowaway's Step}}
+|faction={{FactionLink|stablekey=faction:azurecitizens}}
+|factionChange=-20 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>-20 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:stowaway}}
 |coordinates=693.2 x 20.7 x 504.8
 |spawnchance=
 |spawntype=

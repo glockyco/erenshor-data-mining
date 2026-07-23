@@ -65,9 +65,10 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:gen - rune of soluna's landing|link=Rune of Soluna's Landing|text=Rune of Soluna's Landing|image=Rune of Soluna's Landing.png}}
+|itemswitheffect={{ItemLink|stablekey=item:gen - rune of soluna's landing}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:arc - portal to soluna's landing}}
 
 [[Category:Teleportation]]

@@ -2,7 +2,7 @@
 |title=Skill Book: Celestial Smite II
 |stablekey=item:skillbook - celestial smite ii
 |type=
-|vendorsource={{CharacterLink|stablekey=character:akaran black|link=Akaran Black|text=Akaran Black}}
+|vendorsource={{CharacterLink|stablekey=character:akaran black}}
 |source=
 |othersource=
 |questsource=
@@ -12,7 +12,7 @@
 |buy=18500
 |sell=12025
 |taughtspell=
-|taughtskill={{AbilityLink|stablekey=skill:celestial smite ii|link=Celestial Smite II|text=Celestial Smite II|image=Celestial Smite II.png}}
+|taughtskill={{AbilityLink|stablekey=skill:celestial smite ii}}
 |guaranteeddrops=
 |droprates=
 }}

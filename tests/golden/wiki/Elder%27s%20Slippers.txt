@@ -3,7 +3,7 @@
 |stablekey=item:foot - 27 - elder's slippers
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:arcane headmaster|link=Arcane Headmaster|text=Arcane Headmaster}} (50.0%)
+|source={{CharacterLink|stablekey=character:arcane headmaster}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

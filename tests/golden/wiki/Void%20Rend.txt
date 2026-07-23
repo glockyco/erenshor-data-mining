@@ -5,7 +5,7 @@
 |description=Deals 800 void damage to your target and increase aggro by 350
 |type=Damage
 |line=Direct_Damage
-|classes={{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}} (24)
+|classes={{ClassLink|stablekey=class:reaver}} (24)
 |required_level=24
 |manacost=350
 |aggro=500
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - void rend|link=Spell Scroll: Void Rend|text=Spell Scroll: Void Rend|image=Spell Scroll: Void Rend.png}}
-|used_by={{CharacterLink|stablekey=character:sivakayan reaver|link=Sivakayan Reaver|text=Sivakayan Reaver}}<br>{{CharacterLink|stablekey=character:sivakayan reaver:1|link=Sivakayan Reaver|text=Sivakayan Reaver}}
+|source={{ItemLink|stablekey=item:spell scroll - void rend}}
+|used_by={{CharacterLink|stablekey=character:sivakayan reaver}}<br>{{CharacterLink|stablekey=character:sivakayan reaver:1}}
 }}
+{{SpellTooltip|stablekey=spell:reav - void rend}}

@@ -3,10 +3,10 @@
 |stablekey=item:gen - ancestral coin
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:aranuil olaseo|link=Aranuil Olaseo|text=Aranuil Olaseo}} (100.0%)<br>{{CharacterLink|stablekey=character:odyss repman:duskenlight:1312.16:70.01:695.11|link=Odyss Repman|text=Odyss Repman}} (100.0%)<br>{{CharacterLink|stablekey=character:vevillo polter|link=Vevillo Polter|text=Vevillo Polter}} (100.0%)
+|source={{CharacterLink|stablekey=character:aranuil olaseo}} (100.0%)<br>{{CharacterLink|stablekey=character:odyss repman:duskenlight:1312.16:70.01:695.11}} (100.0%)<br>{{CharacterLink|stablekey=character:vevillo polter}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|link=Daggerhart Ancestral Coin (Quest){{!}}Daggerhart Ancestral Coin}}<br>{{QuestLink|stablekey=quest:daggerhart ancestral coin|link=Daggerhart Ancestral Coin (Quest)|text=Daggerhart Ancestral Coin}}
+|relatedquest={{QuestLink|link=Daggerhart Ancestral Coin (Quest){{!}}Daggerhart Ancestral Coin}}<br>{{QuestLink|stablekey=quest:daggerhart ancestral coin}}
 |craftsource=
 |componentfor=
 |buy=50

@@ -2,8 +2,8 @@
 |title=Skill Book: Blood Feast
 |stablekey=item:skillbook - blood feast
 |type=[[Ability Books]]
-|vendorsource={{CharacterLink|stablekey=character:amethi plazzo:stowaway:575.36:73.04:549.85|link=Amethi Plazzo|text=Amethi Plazzo}}<br>{{CharacterLink|stablekey=character:javo follay|link=Javo Follay|text=Javo Follay}}<br>{{CharacterLink|stablekey=character:ludo luxo|link=Ludo Luxo|text=Ludo Luxo}}<br>{{CharacterLink|stablekey=character:sven feartines|link=Sven Feartines|text=Sven Feartines}}
-|source={{CharacterLink|stablekey=character:islander bandit|link=Islander Bandit|text=Islander Bandit}} (1.1%)
+|vendorsource={{CharacterLink|stablekey=character:amethi plazzo:stowaway:575.36:73.04:549.85}}<br>{{CharacterLink|stablekey=character:javo follay}}<br>{{CharacterLink|stablekey=character:ludo luxo}}<br>{{CharacterLink|stablekey=character:sven feartines}}
+|source={{CharacterLink|stablekey=character:islander bandit}} (1.1%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -12,7 +12,7 @@
 |buy=55
 |sell=36
 |taughtspell=
-|taughtskill={{AbilityLink|stablekey=skill:bloodfeast|link=Blood Feast|text=Blood Feast|image=Blood Feast.png}}
+|taughtskill={{AbilityLink|stablekey=skill:bloodfeast}}
 |guaranteeddrops=
 |droprates=
 }}

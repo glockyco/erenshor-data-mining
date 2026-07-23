@@ -3,7 +3,7 @@
 |stablekey=item:belt - 3 - worn wolf collar
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:alpha wolf|link=Alpha Wolf|text=Alpha Wolf}} (38.6%)<br>{{CharacterLink|stablekey=character:ancient canine|link=Ancient Canine|text=Ancient Canine}} (38.6%)
+|source={{CharacterLink|stablekey=character:alpha wolf}} (38.6%)<br>{{CharacterLink|stablekey=character:ancient canine}} (38.6%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -3,7 +3,7 @@
 |stablekey=item:arm - 19 - flaming vambraces
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:peon|link=Peon|text=Peon}} (33.3%)
+|source={{CharacterLink|stablekey=character:peon}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -3,7 +3,7 @@
 |stablekey=item:leg - 18 - silver plated leggings
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:corrupted golem|link=Ravager, The First Infected|text=Ravager, The First Infected}} (45.8%)
+|source={{CharacterLink|stablekey=character:corrupted golem}} (45.8%)
 |othersource=
 |questsource=
 |relatedquest=

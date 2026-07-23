@@ -5,7 +5,7 @@
 |description=Briefly stuns all nearby targets
 |type=AE
 |line=Stun
-|classes={{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}} (30)
+|classes={{ClassLink|stablekey=class:duelist}} (30)
 |required_level=30
 |manacost=500
 |aggro=
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - vithean gale|link=Spell Scroll: Vithean Gale|text=Spell Scroll: Vithean Gale|image=Spell Scroll: Vithean Gale.png}}
+|source={{ItemLink|stablekey=item:spell scroll - vithean gale}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:duel - vithean gale}}

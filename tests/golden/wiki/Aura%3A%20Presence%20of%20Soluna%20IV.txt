@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:aura - soluna 4|link=Eclipse|text=Eclipse|image=Eclipse.png}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - soluna 4}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:aura - soluna 4}}

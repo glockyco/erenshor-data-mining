@@ -3,9 +3,9 @@
 |image=[[File:Cecil Threbb.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}
-|factionChange=+1 {{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}<br>-20 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}
-|zones={{ZoneLink|stablekey=zone:brake|link=Faerie's Brake|text=Faerie's Brake}}
+|faction={{FactionLink|stablekey=faction:erenshorcitizens}}
+|factionChange=+1 {{FactionLink|stablekey=faction:sivakayans}}<br>-20 {{FactionLink|stablekey=faction:erenshorcitizens}}
+|zones={{ZoneLink|stablekey=zone:brake}}
 |coordinates=229.9 x 19.1 x 168.0
 |spawnchance=
 |spawntype=

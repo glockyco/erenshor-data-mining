@@ -69,6 +69,7 @@
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - frozen breath ae cast}}
 
 ----
 
@@ -143,3 +144,4 @@
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - frozen breath stun}}

@@ -3,9 +3,9 @@
 |image=[[File:Bellsie Belwain.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|faction={{FactionLink|stablekey=faction:good}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:summerevent|link=Bellwain Island|text=Bellwain Island}}
+|zones={{ZoneLink|stablekey=zone:summerevent}}
 |coordinates=158.9 x 10.8 x 158.0
 |spawnchance=
 |spawntype=

@@ -3,9 +3,9 @@
 |image=[[File:Elizabeth DeWitt.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|faction={{FactionLink|stablekey=faction:good}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:azure|link=Port Azure|text=Port Azure}}
+|zones={{ZoneLink|stablekey=zone:azure}}
 |coordinates=343.3 x 26.7 x 91.9
 |spawnchance=
 |spawntype=

@@ -3,9 +3,9 @@
 |image=[[File:Lieutenant Ulrik.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:azureguard|link=The Azure Guard|text=The Azure Guard}}
-|factionChange=+10 {{FactionLink|stablekey=faction:ripper|link=Ripper DeMerth|text=Ripper DeMerth}}<br>-50 {{FactionLink|stablekey=faction:azureguard|link=The Azure Guard|text=The Azure Guard}}
-|zones={{ZoneLink|stablekey=zone:fernallafield|link=Fernalla's Revival Plains|text=Fernalla's Revival Plains}}
+|faction={{FactionLink|stablekey=faction:azureguard}}
+|factionChange=+10 {{FactionLink|stablekey=faction:ripper}}<br>-50 {{FactionLink|stablekey=faction:azureguard}}
+|zones={{ZoneLink|stablekey=zone:fernallafield}}
 |coordinates=226.4 x 39.8 x 744.9
 |spawnchance=
 |spawntype=

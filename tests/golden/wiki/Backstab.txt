@@ -5,7 +5,7 @@
 |description=Deal major damage to your target.. Must be behind target.
 |type=Attack
 |line=
-|classes={{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}} (2)
+|classes={{ClassLink|stablekey=class:duelist}} (2)
 |required_level=
 |manacost=
 |aggro=
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:skillbook - backstab|link=Skill Book: Backstab|text=Skill Book: Backstab|image=Skill Book: Backstab.png}}
+|source={{ItemLink|stablekey=item:skillbook - backstab}}
 |used_by=
 }}
+{{SkillTooltip|stablekey=skill:backstab}}

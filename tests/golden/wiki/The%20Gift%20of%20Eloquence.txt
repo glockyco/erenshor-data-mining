@@ -3,7 +3,7 @@
 |stablekey=item:neck - 19 - the gift of thought
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:a deepling orator|link=A Deepling Orator|text=A Deepling Orator}} (43.4%)
+|source={{CharacterLink|stablekey=character:a deepling orator}} (43.4%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Worn
 |proc_chance=
 |proc_spell_icon=Mana Charge.png
-|proc_spell_name={{AbilityLink|stablekey=spell:arc - mana charge|link=Mana Charge|text=Mana Charge|image=Mana Charge.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:arc - mana charge}}
 |proc_spell_level=-1
 |proc_spell_duration_ticks=3
 |proc_spell_type=Beneficial

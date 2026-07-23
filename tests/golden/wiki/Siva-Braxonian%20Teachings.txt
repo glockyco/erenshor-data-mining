@@ -5,7 +5,7 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|The Ancient Teachings}}<br>{{QuestLink|stablekey=quest:schoolbooks|link=The Ancient Teachings|text=The Ancient Teachings}}
+|questsource={{QuestLink|The Ancient Teachings}}<br>{{QuestLink|stablekey=quest:schoolbooks}}
 |relatedquest=
 |craftsource=
 |componentfor=

@@ -3,9 +3,9 @@
 |image=[[File:Grayleigh Hawke.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}
-|factionChange=+2 {{FactionLink|stablekey=faction:wispagent|link=The Agents of The Wisp|text=The Agents of The Wisp}}<br>-20 {{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}<br>+2 {{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}<br>-20 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:azure|link=Port Azure|text=Port Azure}}
+|faction={{FactionLink|stablekey=faction:vitheo}}
+|factionChange=+2 {{FactionLink|stablekey=faction:wispagent}}<br>-20 {{FactionLink|stablekey=faction:vitheo}}<br>+2 {{FactionLink|stablekey=faction:sivakayans}}<br>-20 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:azure}}
 |coordinates=285.7 x 17.1 x 321.6
 |spawnchance=
 |spawntype=
@@ -32,7 +32,7 @@
 |poison=12-30
 |elemental=12-30
 |void=12-30
-|spells={{AbilityLink|stablekey=spell:all - minor protection|link=Minor Protection|text=Minor Protection|image=Minor Protection.png}}<br>{{AbilityLink|stablekey=spell:duel - vitheo's blessing of the sea|link=Vitheo's Blessing of the Sea|text=Vitheo's Blessing of the Sea|image=Vitheo's Blessing of the Sea.png}}<br>{{AbilityLink|stablekey=spell:duel - vitheo's blessing of the wind|link=Vitheo's Blessing of the Wind|text=Vitheo's Blessing of the Wind|image=Vitheo's Blessing of the Wind.png}}
+|spells={{AbilityLink|stablekey=spell:all - minor protection}}<br>{{AbilityLink|stablekey=spell:duel - vitheo's blessing of the sea}}<br>{{AbilityLink|stablekey=spell:duel - vitheo's blessing of the wind}}
 }}
 Grayleigh is an NPC located in [[Port Azure]] by a shrine. This NPC will refuse to talk to you if you are any class other than Duelist.
 

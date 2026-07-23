@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 11 - hollowed crustacean leg
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:old bracky|link=Old Brackey|text=Old Brackey}} (69.9%)
+|source={{CharacterLink|stablekey=character:old bracky}} (69.9%)
 |othersource=
 |questsource=
 |relatedquest=

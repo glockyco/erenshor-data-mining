@@ -3,7 +3,7 @@
 |stablekey=item:furniture - stone statue fernalla
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:risen heirophant|link=Risen Hierophant|text=Risen Hierophant}} (1.2%)<br>{{CharacterLink|stablekey=character:vinx|link=Vinx|text=Vinx}} (1.2%)<br>{{CharacterLink|stablekey=character:rotting guardian|link=Rotting Guardian|text=Rotting Guardian}} (0.6%)<br>{{CharacterLink|stablekey=character:risen druid|link=Risen Druid|text=Risen Druid}} (0.3%)
+|source={{CharacterLink|stablekey=character:risen heirophant}} (1.2%)<br>{{CharacterLink|stablekey=character:vinx}} (1.2%)<br>{{CharacterLink|stablekey=character:rotting guardian}} (0.6%)<br>{{CharacterLink|stablekey=character:risen druid}} (0.3%)
 |othersource=
 |questsource=
 |relatedquest=

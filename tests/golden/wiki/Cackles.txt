@@ -3,15 +3,15 @@
 |image=[[File:Cackles.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|faction={{FactionLink|stablekey=faction:good}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:shiveringstep|link=Shivering Step|text=Shivering Step}}
+|zones={{ZoneLink|stablekey=zone:shiveringstep}}
 |coordinates=723.2 x 21.1 x 491.0
 |spawnchance=
 |spawntype=
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:quest - vithean stones|link=Vithean Brick|text=Vithean Brick|image=Vithean Brick.png}} (6.7%)<ref>If the player is already holding {{ItemLink|stablekey=item:quest - vithean stones|link=Vithean Brick|text=Vithean Brick|image=Vithean Brick.png}} in their inventory, another will not drop.</ref>
+|droprates={{ItemLink|stablekey=item:quest - vithean stones}} (6.7%)<ref>If the player is already holding {{ItemLink|stablekey=item:quest - vithean stones}} in their inventory, another will not drop.</ref>
 |level=31
 |levelmodmin=0
 |levelmodmax=0

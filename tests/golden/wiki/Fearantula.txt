@@ -3,15 +3,15 @@
 |image=[[File:Fearantula.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:shiveringstep|link=Shivering Step|text=Shivering Step}}
+|zones={{ZoneLink|stablekey=zone:shiveringstep}}
 |coordinates=598.2 x 72.1 x 450.6
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:ring - 24 - augmenting ring|link=Augmenting Ring|text=Augmenting Ring|image=Augmenting Ring.png}}<br>{{ItemLink|stablekey=item:wrist - 19 - shadowmaker|link=Shadowmaker|text=Shadowmaker|image=Shadowmaker.png}}<br>{{ItemLink|stablekey=item:glove - 24 - widow's wraps|link=Widow's Wraps|text=Widow's Wraps|image=Widow's Wraps.png}}
-|droprates={{ItemLink|stablekey=item:gen - blue burnstone|link=Blue Burnstone|text=Blue Burnstone|image=Blue Burnstone.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - blue burnstone|link=Blue Burnstone|text=Blue Burnstone|image=Blue Burnstone.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - an ancient bone|link=Ancient Bone|text=Ancient Bone|image=Ancient Bone.png}} (61.0%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (61.0%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (61.0%)<br>{{ItemLink|stablekey=item:ring - 24 - augmenting ring|link=Augmenting Ring|text=Augmenting Ring|image=Augmenting Ring.png}} (33.3%)<br>{{ItemLink|stablekey=item:wrist - 19 - shadowmaker|link=Shadowmaker|text=Shadowmaker|image=Shadowmaker.png}} (33.3%)<br>{{ItemLink|stablekey=item:glove - 24 - widow's wraps|link=Widow's Wraps|text=Widow's Wraps|image=Widow's Wraps.png}} (33.3%)
+|guaranteeddrops={{ItemLink|stablekey=item:ring - 24 - augmenting ring}}<br>{{ItemLink|stablekey=item:wrist - 19 - shadowmaker}}<br>{{ItemLink|stablekey=item:glove - 24 - widow's wraps}}
+|droprates={{ItemLink|stablekey=item:gen - blue burnstone}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - blue burnstone}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - an ancient bone}} (61.0%)<br>{{ItemLink|stablekey=item:gen - luminstone}} (61.0%)<br>{{ItemLink|stablekey=item:gen - seaglass}} (61.0%)<br>{{ItemLink|stablekey=item:ring - 24 - augmenting ring}} (33.3%)<br>{{ItemLink|stablekey=item:wrist - 19 - shadowmaker}} (33.3%)<br>{{ItemLink|stablekey=item:glove - 24 - widow's wraps}} (33.3%)
 |level=23
 |levelmodmin=0
 |levelmodmax=0

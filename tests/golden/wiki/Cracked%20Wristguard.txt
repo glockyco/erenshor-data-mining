@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 7 - cracked wristguard
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:gort|link=Gort|text=Gort}} (50.0%)
+|source={{CharacterLink|stablekey=character:gort}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

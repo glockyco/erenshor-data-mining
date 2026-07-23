@@ -3,15 +3,15 @@
 |image=[[File:Lurk.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:rottenfoot|link=Rottenfoot|text=Rottenfoot}}
+|zones={{ZoneLink|stablekey=zone:rottenfoot}}
 |coordinates=97.7 x 23.0 x 304.6
 |spawnchance=
 |spawntype=
 |respawn=7 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:head - 17 - chewed helmet|link=Chewed Helmet|text=Chewed Helmet|image=Chewed Helmet.png}}<br>{{ItemLink|stablekey=item:glove - 18 - gator gloves|link=Gator Gloves|text=Gator Gloves|image=Gator Gloves.png}}
-|droprates={{ItemLink|stablekey=item:glove - 18 - gator gloves|link=Gator Gloves|text=Gator Gloves|image=Gator Gloves.png}} (66.7%)<br>{{ItemLink|stablekey=item:head - 17 - chewed helmet|link=Chewed Helmet|text=Chewed Helmet|image=Chewed Helmet.png}} (33.3%)<br>{{ItemLink|stablekey=item:cons - swampbomb|link=Muck Ball|text=Muck Ball|image=Muck Ball.png}} (19.6%)
+|guaranteeddrops={{ItemLink|stablekey=item:head - 17 - chewed helmet}}<br>{{ItemLink|stablekey=item:glove - 18 - gator gloves}}
+|droprates={{ItemLink|stablekey=item:glove - 18 - gator gloves}} (66.7%)<br>{{ItemLink|stablekey=item:head - 17 - chewed helmet}} (33.3%)<br>{{ItemLink|stablekey=item:cons - swampbomb}} (19.6%)
 |level=19
 |levelmodmin=0
 |levelmodmax=0

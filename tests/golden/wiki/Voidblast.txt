@@ -67,5 +67,6 @@
 |inflict_on_self=
 |itemswitheffect=
 |source=
-|used_by={{CharacterLink|stablekey=character:ancient celestarian|link=Ancient Celestarian|text=Ancient Celestarian}}<br>{{CharacterLink|stablekey=character:ancient guard captain|link=Ancient Knight|text=Ancient Knight}}
+|used_by={{CharacterLink|stablekey=character:ancient celestarian}}<br>{{CharacterLink|stablekey=character:ancient guard captain}}
 }}
+{{SpellTooltip|stablekey=spell:pal - blast of the void}}

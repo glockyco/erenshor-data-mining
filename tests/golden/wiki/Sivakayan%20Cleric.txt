@@ -3,15 +3,15 @@
 |image=[[File:Sivakayan Cleric.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}
-|factionChange=-2 {{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+1 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
-|zones={{ZoneLink|stablekey=zone:ripper|link=Ripper's Keep|text=Ripper's Keep}}<br>{{ZoneLink|stablekey=zone:silkengrass|link=Silkengrass Meadowlands|text=Silkengrass Meadowlands}}<br>{{ZoneLink|stablekey=zone:windwashed|link=Windwashed Pass|text=Windwashed Pass}}
+|faction={{FactionLink|stablekey=faction:sivakayans}}
+|factionChange=-2 {{FactionLink|stablekey=faction:sivakayans}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens}}<br>+1 {{FactionLink|stablekey=faction:solunarians}}
+|zones={{ZoneLink|stablekey=zone:ripper}}<br>{{ZoneLink|stablekey=zone:silkengrass}}<br>{{ZoneLink|stablekey=zone:windwashed}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes (Ripper's Keep)<br>4 minutes (Silkengrass Meadowlands)<br>4 minutes (Windwashed Pass)
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:ore - sivakayan ore|link=Sivakayan Ore|text=Sivakayan Ore|image=Sivakayan Ore.png}} (12.1%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (10.3%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (10.3%)<br>{{ItemLink|stablekey=item:wrist - 21 - sivakayan bracer|link=Sivakayan Bracer|text=Sivakayan Bracer|image=Sivakayan Bracer.png}} (1.2%)<br>{{ItemLink|stablekey=item:leg - 24 - sivakayan legplate|link=Sivakayan Legplate|text=Sivakayan Legplate|image=Sivakayan Legplate.png}} (1.2%)<br>{{ItemLink|stablekey=item:chest - 25 - sivakayan plate|link=Sivakayan Plate|text=Sivakayan Plate|image=Sivakayan Plate.png}} (1.2%)<br>{{ItemLink|stablekey=item:wand - 24 - sivakayan sceptre|link=Sivakayan Sceptre|text=Sivakayan Sceptre|image=Sivakayan Sceptre.png}} (1.2%)<ref>If Sivakayan Cleric has {{ItemLink|stablekey=item:wand - 24 - sivakayan sceptre|link=Sivakayan Sceptre|text=Sivakayan Sceptre|image=Sivakayan Sceptre.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:secondary - 24 - sivakayan shield|link=Sivakayan Shield|text=Sivakayan Shield|image=Sivakayan Shield.png}} (1.2%)<ref>If Sivakayan Cleric has {{ItemLink|stablekey=item:secondary - 24 - sivakayan shield|link=Sivakayan Shield|text=Sivakayan Shield|image=Sivakayan Shield.png}} equipped, it is guaranteed to drop.</ref>
+|droprates={{ItemLink|stablekey=item:ore - sivakayan ore}} (12.1%)<br>{{ItemLink|stablekey=item:gen - seaglass}} (10.3%)<br>{{ItemLink|stablekey=item:gen - a star stone}} (10.3%)<br>{{ItemLink|stablekey=item:wrist - 21 - sivakayan bracer}} (1.2%)<br>{{ItemLink|stablekey=item:leg - 24 - sivakayan legplate}} (1.2%)<br>{{ItemLink|stablekey=item:chest - 25 - sivakayan plate}} (1.2%)<br>{{ItemLink|stablekey=item:wand - 24 - sivakayan sceptre}} (1.2%)<ref>If Sivakayan Cleric has {{ItemLink|stablekey=item:wand - 24 - sivakayan sceptre}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:secondary - 24 - sivakayan shield}} (1.2%)<ref>If Sivakayan Cleric has {{ItemLink|stablekey=item:secondary - 24 - sivakayan shield}} equipped, it is guaranteed to drop.</ref>
 |level=26
 |levelmodmin=0
 |levelmodmax=2
@@ -32,22 +32,22 @@
 |poison=13-31
 |elemental=13-31
 |void=13-31
-|spells={{AbilityLink|stablekey=spell:dru pal - healing|link=Healing|text=Healing|image=Healing.png}}<br>{{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}
+|spells={{AbilityLink|stablekey=spell:dru pal - healing}}<br>{{AbilityLink|stablekey=spell:dru reav - soul tap}}
 }}
 {{Character
 |name=Sivakayan Cleric
 |image=[[File:Sivakayan Cleric.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}
-|factionChange=+5 {{FactionLink|stablekey=faction:azureguard|link=The Azure Guard|text=The Azure Guard}}<br>-2 {{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}<br>+5 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+5 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+5 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
-|zones={{ZoneLink|stablekey=zone:rottenfoot|link=Rottenfoot|text=Rottenfoot}}<br>{{ZoneLink|stablekey=zone:silkengrass|link=Silkengrass Meadowlands|text=Silkengrass Meadowlands}}
+|faction={{FactionLink|stablekey=faction:sivakayans}}
+|factionChange=+5 {{FactionLink|stablekey=faction:azureguard}}<br>-2 {{FactionLink|stablekey=faction:sivakayans}}<br>+5 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+5 {{FactionLink|stablekey=faction:azurecitizens}}<br>+5 {{FactionLink|stablekey=faction:solunarians}}
+|zones={{ZoneLink|stablekey=zone:rottenfoot}}<br>{{ZoneLink|stablekey=zone:silkengrass}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:ore - sivakayan ore|link=Sivakayan Ore|text=Sivakayan Ore|image=Sivakayan Ore.png}} (12.1%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (10.3%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (10.3%)<br>{{ItemLink|stablekey=item:wrist - 21 - sivakayan bracer|link=Sivakayan Bracer|text=Sivakayan Bracer|image=Sivakayan Bracer.png}} (1.2%)<br>{{ItemLink|stablekey=item:leg - 24 - sivakayan legplate|link=Sivakayan Legplate|text=Sivakayan Legplate|image=Sivakayan Legplate.png}} (1.2%)<br>{{ItemLink|stablekey=item:chest - 25 - sivakayan plate|link=Sivakayan Plate|text=Sivakayan Plate|image=Sivakayan Plate.png}} (1.2%)<br>{{ItemLink|stablekey=item:wand - 24 - sivakayan sceptre|link=Sivakayan Sceptre|text=Sivakayan Sceptre|image=Sivakayan Sceptre.png}} (1.2%)<ref>If Sivakayan Cleric has {{ItemLink|stablekey=item:wand - 24 - sivakayan sceptre|link=Sivakayan Sceptre|text=Sivakayan Sceptre|image=Sivakayan Sceptre.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:secondary - 24 - sivakayan shield|link=Sivakayan Shield|text=Sivakayan Shield|image=Sivakayan Shield.png}} (1.2%)<ref>If Sivakayan Cleric has {{ItemLink|stablekey=item:secondary - 24 - sivakayan shield|link=Sivakayan Shield|text=Sivakayan Shield|image=Sivakayan Shield.png}} equipped, it is guaranteed to drop.</ref>
+|droprates={{ItemLink|stablekey=item:ore - sivakayan ore}} (12.1%)<br>{{ItemLink|stablekey=item:gen - seaglass}} (10.3%)<br>{{ItemLink|stablekey=item:gen - a star stone}} (10.3%)<br>{{ItemLink|stablekey=item:wrist - 21 - sivakayan bracer}} (1.2%)<br>{{ItemLink|stablekey=item:leg - 24 - sivakayan legplate}} (1.2%)<br>{{ItemLink|stablekey=item:chest - 25 - sivakayan plate}} (1.2%)<br>{{ItemLink|stablekey=item:wand - 24 - sivakayan sceptre}} (1.2%)<ref>If Sivakayan Cleric has {{ItemLink|stablekey=item:wand - 24 - sivakayan sceptre}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:secondary - 24 - sivakayan shield}} (1.2%)<ref>If Sivakayan Cleric has {{ItemLink|stablekey=item:secondary - 24 - sivakayan shield}} equipped, it is guaranteed to drop.</ref>
 |level=26
 |levelmodmin=0
 |levelmodmax=0
@@ -68,7 +68,7 @@
 |poison=13-31
 |elemental=13-31
 |void=13-31
-|spells={{AbilityLink|stablekey=spell:dru pal - healing|link=Healing|text=Healing|image=Healing.png}}<br>{{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}
+|spells={{AbilityLink|stablekey=spell:dru pal - healing}}<br>{{AbilityLink|stablekey=spell:dru reav - soul tap}}
 }}
 
 [[Category:Enemies]]

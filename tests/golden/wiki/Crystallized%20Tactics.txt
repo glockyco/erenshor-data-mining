@@ -3,7 +3,7 @@
 |stablekey=item:hand - 24 - crystalized tactics
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:pamia the cursed 1|link=Pamia the Coward|text=Pamia the Coward}} (33.3%)
+|source={{CharacterLink|stablekey=character:pamia the cursed 1}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

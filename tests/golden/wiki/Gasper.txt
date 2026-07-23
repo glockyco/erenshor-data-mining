@@ -3,15 +3,15 @@
 |image=[[File:Gasper.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:shiveringstep|link=Shivering Step|text=Shivering Step}}
+|zones={{ZoneLink|stablekey=zone:shiveringstep}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (3.9%)<br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (3.6%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:cons - bread|link=Bread|text=Bread|image=Bread.png}} (2.1%)<br>{{ItemLink|stablekey=item:glove - 1 - cloth gloves|link=Cloth Gloves|text=Cloth Gloves|image=Cloth Gloves.png}} (2.1%)<br>{{ItemLink|stablekey=item:leg - 1 - cloth pants|link=Cloth Pants|text=Cloth Pants|image=Cloth Pants.png}} (2.1%)<br>{{ItemLink|stablekey=item:chest - 1 - cloth shirt|link=Cloth Shirt|text=Cloth Shirt|image=Cloth Shirt.png}} (2.1%)<br>{{ItemLink|stablekey=item:foot - 1 - cloth shoes|link=Cloth Shoes|text=Cloth Shoes|image=Cloth Shoes.png}} (2.1%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves|link=Cloth Sleeves|text=Cloth Sleeves|image=Cloth Sleeves.png}} (2.1%)<br>{{ItemLink|stablekey=item:spell scroll - healing|link=Spell Scroll: Healing|text=Spell Scroll: Healing|image=Spell Scroll: Healing.png}} (2.1%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (2.1%)<br>{{ItemLink|stablekey=item:cons - water|link=Water|text=Water|image=Water.png}} (2.1%)<br>{{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (1.8%)<br>{{ItemLink|stablekey=item:ring - 20 - ring of concentration|link=Concentration Band|text=Concentration Band|image=Concentration Band.png}} (1.8%)<br>{{ItemLink|stablekey=item:weap - 25 - demonclaw|link=Demon Claw|text=Demon Claw|image=Demon Claw.png}} (1.8%)<br>{{ItemLink|stablekey=item:ring - 24 - freeing stone|link=Freeing Stone|text=Freeing Stone|image=Freeing Stone.png}} (1.8%)<br>{{ItemLink|stablekey=item:gen - polished stone|link=Polished Stone|text=Polished Stone|image=Polished Stone.png}} (1.8%)<br>{{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} (1.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:wrist - 19 - shadowmaker|link=Shadowmaker|text=Shadowmaker|image=Shadowmaker.png}} (1.8%)
+|droprates={{ItemLink|stablekey=item:gen - luminstone}} (3.9%)<br>{{ItemLink|stablekey=item:gen - diamond}} (3.6%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:cons - bread}} (2.1%)<br>{{ItemLink|stablekey=item:glove - 1 - cloth gloves}} (2.1%)<br>{{ItemLink|stablekey=item:leg - 1 - cloth pants}} (2.1%)<br>{{ItemLink|stablekey=item:chest - 1 - cloth shirt}} (2.1%)<br>{{ItemLink|stablekey=item:foot - 1 - cloth shoes}} (2.1%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves}} (2.1%)<br>{{ItemLink|stablekey=item:spell scroll - healing}} (2.1%)<br>{{ItemLink|stablekey=item:gen - a star stone}} (2.1%)<br>{{ItemLink|stablekey=item:cons - water}} (2.1%)<br>{{ItemLink|stablekey=item:gen citrine stone}} (1.8%)<br>{{ItemLink|stablekey=item:ring - 20 - ring of concentration}} (1.8%)<br>{{ItemLink|stablekey=item:weap - 25 - demonclaw}} (1.8%)<br>{{ItemLink|stablekey=item:ring - 24 - freeing stone}} (1.8%)<br>{{ItemLink|stablekey=item:gen - polished stone}} (1.8%)<br>{{ItemLink|stablekey=item:gen - ruby}} (1.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:wrist - 19 - shadowmaker}} (1.8%)
 |level=21
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=10-25
 |elemental=10-25
 |void=10-25
-|spells={{AbilityLink|stablekey=spell:dru arc - jolt|link=Jolt|text=Jolt|image=Jolt.png}}
+|spells={{AbilityLink|stablekey=spell:dru arc - jolt}}
 }}
 
 They are found where the Bandit Cave is on [[Stowaway's Step]].

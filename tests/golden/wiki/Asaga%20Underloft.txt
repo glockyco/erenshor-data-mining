@@ -3,9 +3,9 @@
 |image=[[File:Asaga Underloft.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|factionChange=+2 {{FactionLink|stablekey=faction:wispagent|link=The Agents of The Wisp|text=The Agents of The Wisp}}<br>-20 {{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}<br>+2 {{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}<br>-20 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:azure|link=Port Azure|text=Port Azure}}
+|faction={{FactionLink|stablekey=faction:azurecitizens}}
+|factionChange=+2 {{FactionLink|stablekey=faction:wispagent}}<br>-20 {{FactionLink|stablekey=faction:vitheo}}<br>+2 {{FactionLink|stablekey=faction:sivakayans}}<br>-20 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:azure}}
 |coordinates=184.8 x 26.3 x 349.1
 |spawnchance=
 |spawntype=

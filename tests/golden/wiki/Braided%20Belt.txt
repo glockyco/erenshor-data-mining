@@ -5,7 +5,7 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|Alice Hewer's Necklace}}<br>{{QuestLink|stablekey=quest:alice hewer's necklace|link=Alice Hewer's Necklace|text=Alice Hewer's Necklace}}
+|questsource={{QuestLink|Alice Hewer's Necklace}}<br>{{QuestLink|stablekey=quest:alice hewer's necklace}}
 |relatedquest=
 |craftsource=
 |componentfor=

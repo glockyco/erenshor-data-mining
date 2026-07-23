@@ -2,7 +2,7 @@
 |title=Bronzed Solunarian Greaves
 |stablekey=item:leg - 8 - bronzed solunian greaves
 |type=
-|vendorsource={{CharacterLink|stablekey=character:akaran black|link=Akaran Black|text=Akaran Black}}
+|vendorsource={{CharacterLink|stablekey=character:akaran black}}
 |source=
 |othersource=
 |questsource=

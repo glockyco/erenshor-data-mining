@@ -5,7 +5,7 @@
 |description=You gain a small innate chance to block incoming attacks. Can proc shield ability. Requires a shield.
 |type=Innate
 |line=
-|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (25)<br>{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}} (25)
+|classes={{ClassLink|stablekey=class:druid}} (25)<br>{{ClassLink|stablekey=class:paladin}} (25)
 |required_level=
 |manacost=
 |aggro=
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:skillbook - block 3|link=Skill Book: Block III|text=Skill Book: Block III|image=Skill Book: Block III.png}}
+|source={{ItemLink|stablekey=item:skillbook - block 3}}
 |used_by=
 }}
+{{SkillTooltip|stablekey=skill:block 3}}

@@ -2,7 +2,7 @@
 |title=Spell Scroll: Instill Terror
 |stablekey=item:spell scroll - instill terror
 |type=
-|vendorsource={{CharacterLink|stablekey=character:grant haxoway|link=Grant Haxoway|text=Grant Haxoway}}
+|vendorsource={{CharacterLink|stablekey=character:grant haxoway}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=15000
 |sell=9750
-|taughtspell={{AbilityLink|stablekey=spell:reav - instill terror|link=Instill Terror|text=Instill Terror|image=Instill Terror.png}}
+|taughtspell={{AbilityLink|stablekey=spell:reav - instill terror}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

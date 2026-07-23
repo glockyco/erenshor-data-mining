@@ -3,12 +3,12 @@
 |stablekey=item:gen - broken key
 |type=[[Crafting]], [[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:woe|link=Woe|text=Woe}} (100.0%)
+|source={{CharacterLink|stablekey=character:woe}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|Whispers of Wyland}}<br>{{QuestLink|A Retired Locksmith}}
 |craftsource=
-|componentfor={{ItemLink|stablekey=item:template - a chewed key mold|link=Mold: A Ghostly Key|text=Mold: A Ghostly Key|image=Mold: A Ghostly Key.png}}
+|componentfor={{ItemLink|stablekey=item:template - a chewed key mold}}
 |buy=1
 |sell=1
 |taughtspell=

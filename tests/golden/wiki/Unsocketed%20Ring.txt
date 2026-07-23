@@ -5,8 +5,8 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|Orion Mycon's Lost Ring}}<br>{{QuestLink|Repairing Orion's Ring}}<br>{{QuestLink|stablekey=quest:tempeststone|link=Orion Mycon's Lost Ring|text=Orion Mycon's Lost Ring}}<br>{{QuestLink|stablekey=quest:tempeststone2|link=Repairing Orion's Ring|text=Repairing Orion's Ring}}
-|relatedquest={{QuestLink|Repairing Orion's Ring}}<br>{{QuestLink|Repairing Orion's Ring, Part 2}}<br>{{QuestLink|stablekey=quest:tempeststone2|link=Repairing Orion's Ring|text=Repairing Orion's Ring}}<br>{{QuestLink|stablekey=quest:tempeststone3|link=Repairing Orion's Ring, Part 2|text=Repairing Orion's Ring, Part 2}}
+|questsource={{QuestLink|Orion Mycon's Lost Ring}}<br>{{QuestLink|Repairing Orion's Ring}}<br>{{QuestLink|stablekey=quest:tempeststone}}<br>{{QuestLink|stablekey=quest:tempeststone2}}
+|relatedquest={{QuestLink|Repairing Orion's Ring}}<br>{{QuestLink|Repairing Orion's Ring, Part 2}}<br>{{QuestLink|stablekey=quest:tempeststone2}}<br>{{QuestLink|stablekey=quest:tempeststone3}}
 |craftsource=
 |componentfor=
 |buy=

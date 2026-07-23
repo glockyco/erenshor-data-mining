@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 22 - xasxi's bone bracer
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:xasxi|link=Xasxi|text=Xasxi}} (66.7%)
+|source={{CharacterLink|stablekey=character:xasxi}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=

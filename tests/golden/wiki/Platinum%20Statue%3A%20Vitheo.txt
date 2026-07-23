@@ -3,7 +3,7 @@
 |stablekey=item:furniture - stone statue platinum vitheo
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:arenachest 8|link=Vithean Chest|text=Vithean Chest (Round 8)}} (13.0%)
+|source={{CharacterLink|stablekey=character:arenachest 8}} (13.0%)
 |othersource=
 |questsource=
 |relatedquest=

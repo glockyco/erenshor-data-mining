@@ -3,15 +3,15 @@
 |image=[[File:Nipper Pup.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:rottenfoot|link=Rottenfoot|text=Rottenfoot}}
+|zones={{ZoneLink|stablekey=zone:rottenfoot}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - swamproot|link=Swamproot|text=Swamproot|image=Swamproot.png}} (74.5%)<br>{{ItemLink|stablekey=item:gen - scaled skin|link=Reptilian Scales|text=Reptilian Scales|image=Reptilian Scales.png}} (27.8%)
+|droprates={{ItemLink|stablekey=item:gen - swamproot}} (74.5%)<br>{{ItemLink|stablekey=item:gen - scaled skin}} (27.8%)
 |level=15
 |levelmodmin=0
 |levelmodmax=0

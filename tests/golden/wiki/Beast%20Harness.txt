@@ -3,7 +3,7 @@
 |stablekey=item:belt - 2 - beast harness
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:sylvan giant runt|link=Sylvan Giant Runt|text=Sylvan Giant Runt}} (25.0%)
+|source={{CharacterLink|stablekey=character:sylvan giant runt}} (25.0%)
 |othersource=
 |questsource=
 |relatedquest=

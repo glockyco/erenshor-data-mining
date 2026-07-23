@@ -3,7 +3,7 @@
 |stablekey=item:charm - 42 - aegis charm
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:fernallan high priest|link=Fernallan High Priest|text=Fernallan High Priest}} (68.7%)
+|source={{CharacterLink|stablekey=character:fernallan high priest}} (68.7%)
 |othersource=
 |questsource=
 |relatedquest=

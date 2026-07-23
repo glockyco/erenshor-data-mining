@@ -5,7 +5,7 @@
 |description=Restores 70% of your mana after a long cast time
 |type=Heal
 |line=Generic
-|classes={{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}} (12)<br>{{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (12)
+|classes={{ClassLink|stablekey=class:arcanist}} (12)<br>{{ClassLink|stablekey=class:druid}} (12)
 |required_level=12
 |manacost=
 |aggro=
@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:belt - 42 - cord of concentration|link=Cord of Concentration|text=Cord of Concentration|image=Cord of Concentration.png}}<br>{{ItemLink|stablekey=item:belt - 42 - gem encrusted girdle|link=Gem Encrusted Sash|text=Gem Encrusted Sash|image=Gem Encrusted Sash.png}}<br>{{ItemLink|stablekey=item:head - 42 - helm of clarity|link=Helmet of Clarity|text=Helmet of Clarity|image=Helmet of Clarity.png}}
-|source={{ItemLink|stablekey=item:spell scroll - meditate|link=Spell Scroll: Meditative Trance|text=Spell Scroll: Meditative Trance (1)|image=Spell Scroll: Meditative Trance.png}}<br>{{ItemLink|stablekey=item:spell scroll - meditate dru|link=Spell Scroll: Meditative Trance|text=Spell Scroll: Meditative Trance (2)|image=Spell Scroll: Meditative Trance.png}}
+|itemswitheffect={{ItemLink|stablekey=item:belt - 42 - cord of concentration}}<br>{{ItemLink|stablekey=item:belt - 42 - gem encrusted girdle}}<br>{{ItemLink|stablekey=item:head - 42 - helm of clarity}}
+|source={{ItemLink|stablekey=item:spell scroll - meditate}}<br>{{ItemLink|stablekey=item:spell scroll - meditate dru}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:arc - meditate}}

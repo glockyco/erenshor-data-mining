@@ -5,7 +5,7 @@
 |description=Fires an arrow that causes an enemy to BLEED - (Bleed deals 3% of CURRENT LIFE per tick in damage)
 |type=Ranged
 |line=
-|classes={{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}} (25)
+|classes={{ClassLink|stablekey=class:stormcaller}} (25)
 |required_level=
 |manacost=
 |aggro=
@@ -23,7 +23,7 @@
 |is_self_only=
 |is_group_effect=
 |is_applied_to_caster=
-|effects={{AbilityLink|stablekey=spell:none - bleed2|link=Bleed|text=Bleed|image=Bleed.png}}
+|effects={{AbilityLink|stablekey=spell:none - bleed2}}
 |damage_type=
 |resist_modifier=
 |target_damage=3
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:skillbook - arterial razor|link=Skill Book: Arterial Razor|text=Skill Book: Arterial Razor|image=Skill Book: Arterial Razor.png}}
+|source={{ItemLink|stablekey=item:skillbook - arterial razor}}
 |used_by=
 }}
+{{SkillTooltip|stablekey=skill:archery - arterial razor}}

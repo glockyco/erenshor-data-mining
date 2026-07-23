@@ -3,9 +3,9 @@
 |image=[[File:Elemental Energy.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|faction={{FactionLink|stablekey=faction:good}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:braxonia|link=Fallen Braxonia|text=Fallen Braxonia}}
+|zones={{ZoneLink|stablekey=zone:braxonia}}
 |coordinates=325.5 x 27.0 x 264.0
 |spawnchance=
 |spawntype=

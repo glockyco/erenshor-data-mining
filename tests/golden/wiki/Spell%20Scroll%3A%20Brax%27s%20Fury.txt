@@ -2,7 +2,7 @@
 |title=Spell Scroll: Brax's Fury
 |stablekey=item:spell scroll - brax's fury
 |type=[[Ability Books]]
-|vendorsource={{CharacterLink|stablekey=character:edwin ansegg|link=Edwin Ansegg|text=Edwin Ansegg}}
+|vendorsource={{CharacterLink|stablekey=character:edwin ansegg}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=4100
 |sell=2665
-|taughtspell={{AbilityLink|stablekey=spell:arc - brax's fury|link=Brax's Fury|text=Brax's Fury|image=Brax's Fury.png}}
+|taughtspell={{AbilityLink|stablekey=spell:arc - brax's fury}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

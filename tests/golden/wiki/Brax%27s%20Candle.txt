@@ -3,7 +3,7 @@
 |stablekey=item:wand - 29 - brax's candle
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:braxonian ascended|link=Braxonian Ascended|text=Braxonian Ascended}} (4.6%)<br>{{CharacterLink|stablekey=character:braxonian tempest|link=Braxonian Tempest|text=Braxonian Tempest}} (4.6%)
+|source={{CharacterLink|stablekey=character:braxonian ascended}} (4.6%)<br>{{CharacterLink|stablekey=character:braxonian tempest}} (4.6%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=10
 |proc_spell_icon=Brax's Rage.png
-|proc_spell_name={{AbilityLink|stablekey=spell:arc - brax's rage|link=Brax's Rage|text=Brax's Rage|image=Brax's Rage.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:arc - brax's rage}}
 |proc_spell_level=10
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

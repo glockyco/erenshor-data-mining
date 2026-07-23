@@ -3,7 +3,7 @@
 |stablekey=item:ring - 19 - shivering ring
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:boogeyman|link=Shadow of Sleep|text=Shadow of Sleep}} (8.2%)
+|source={{CharacterLink|stablekey=character:boogeyman}} (8.2%)
 |othersource=
 |questsource=
 |relatedquest=

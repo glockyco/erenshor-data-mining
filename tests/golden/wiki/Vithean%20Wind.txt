@@ -5,7 +5,7 @@
 |description=Briefly dazzles all nearby targets
 |type=AE
 |line=Stun
-|classes={{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}} (17)
+|classes={{ClassLink|stablekey=class:duelist}} (17)
 |required_level=17
 |manacost=155
 |aggro=
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - vithean wind|link=Spell Scroll: Vithean Wind|text=Spell Scroll: Vithean Wind|image=Spell Scroll: Vithean Wind.png}}
+|source={{ItemLink|stablekey=item:spell scroll - vithean wind}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:duel - vithean wind}}

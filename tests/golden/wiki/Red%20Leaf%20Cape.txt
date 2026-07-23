@@ -3,7 +3,7 @@
 |stablekey=item:back - 27 - redleaf cape
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:diva|link=Diva|text=Diva}} (50.0%)
+|source={{CharacterLink|stablekey=character:diva}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

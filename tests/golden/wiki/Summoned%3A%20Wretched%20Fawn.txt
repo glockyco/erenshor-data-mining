@@ -32,7 +32,7 @@
 |poison=10-23
 |elemental=10-23
 |void=10-23
-|spells={{AbilityLink|stablekey=spell:dru - predator's grace|link=Predator's Grace|text=Predator's Grace|image=Predator's Grace.png}}
+|spells={{AbilityLink|stablekey=spell:dru - predator's grace}}
 }}
 
 [[Category:Characters]]

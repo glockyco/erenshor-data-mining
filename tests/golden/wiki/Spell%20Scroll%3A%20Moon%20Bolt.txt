@@ -2,7 +2,7 @@
 |title=Spell Scroll: Moon Bolt
 |stablekey=item:spell scroll - moon bolt
 |type=[[Ability Books]]
-|vendorsource={{CharacterLink|stablekey=character:amethi plazzo:stowaway:575.36:73.04:549.85|link=Amethi Plazzo|text=Amethi Plazzo}}<br>{{CharacterLink|stablekey=character:javo follay|link=Javo Follay|text=Javo Follay}}
+|vendorsource={{CharacterLink|stablekey=character:amethi plazzo:stowaway:575.36:73.04:549.85}}<br>{{CharacterLink|stablekey=character:javo follay}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=65
 |sell=42
-|taughtspell={{AbilityLink|stablekey=spell:pal - moon bolt|link=Moon Bolt|text=Moon Bolt|image=Moon Bolt.png}}
+|taughtspell={{AbilityLink|stablekey=spell:pal - moon bolt}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

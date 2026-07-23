@@ -5,7 +5,7 @@
 |description=Lower target's resists by 12 and AC by 100
 |type=StatusEffect
 |line=Global_Magic_Debuff
-|classes={{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}} (24)
+|classes={{ClassLink|stablekey=class:reaver}} (24)
 |required_level=24
 |manacost=400
 |aggro=300
@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:ring - 14 - ancient ceremonial ring|link=Ceremonial Ring|text=Ceremonial Ring|image=Ceremonial Ring.png}}<br>{{ItemLink|stablekey=item:ring - 14 - ancient ceremonial ring 1|link=Pristine Ceremonial Ring|text=Pristine Ceremonial Ring|image=Pristine Ceremonial Ring.png}}
-|source={{ItemLink|stablekey=item:spell scroll - sivakaya's dismay|link=Spell Scroll: Sivakaya's Dismay|text=Spell Scroll: Sivakaya's Dismay|image=Spell Scroll: Sivakaya's Dismay.png}}
+|itemswitheffect={{ItemLink|stablekey=item:ring - 14 - ancient ceremonial ring}}<br>{{ItemLink|stablekey=item:ring - 14 - ancient ceremonial ring 1}}
+|source={{ItemLink|stablekey=item:spell scroll - sivakaya's dismay}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - sivakaya's dismay}}

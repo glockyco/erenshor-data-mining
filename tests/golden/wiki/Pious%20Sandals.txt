@@ -3,7 +3,7 @@
 |stablekey=item:foot - 38 - pious sandals
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:constructed faithful|link=Constructed Faithful|text=Constructed Faithful}} (4.9%)<br>{{CharacterLink|stablekey=character:astorim|link=Astorim|text=Astorim}} (1.7%)<br>{{CharacterLink|stablekey=character:karsith|link=Karsith|text=Karsith}} (1.7%)<br>{{CharacterLink|stablekey=character:orinthar|link=Orinthar|text=Orinthar}} (1.5%)<br>{{CharacterLink|stablekey=character:vextral|link=Vextral|text=Vextral}} (1.5%)
+|source={{CharacterLink|stablekey=character:constructed faithful}} (4.9%)<br>{{CharacterLink|stablekey=character:astorim}} (1.7%)<br>{{CharacterLink|stablekey=character:karsith}} (1.7%)<br>{{CharacterLink|stablekey=character:orinthar}} (1.5%)<br>{{CharacterLink|stablekey=character:vextral}} (1.5%)
 |othersource=
 |questsource=
 |relatedquest=

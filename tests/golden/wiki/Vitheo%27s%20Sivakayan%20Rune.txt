@@ -6,7 +6,7 @@
 |source=
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Repairing the Sivakayan Rune}}<br>{{QuestLink|stablekey=quest:sivakayanrunesfuse|link=Repairing the Sivakayan Rune|text=Repairing the Sivakayan Rune}}
+|relatedquest={{QuestLink|Repairing the Sivakayan Rune}}<br>{{QuestLink|stablekey=quest:sivakayanrunesfuse}}
 |craftsource=
 |componentfor=
 |buy=

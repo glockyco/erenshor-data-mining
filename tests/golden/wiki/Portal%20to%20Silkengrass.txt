@@ -65,9 +65,10 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:gen - rune of silkengrass|link=Rune of Silkengrass|text=Rune of Silkengrass|image=Rune of Silkengrass.png}}
+|itemswitheffect={{ItemLink|stablekey=item:gen - rune of silkengrass}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:arc - portal to silkengrass}}
 
 [[Category:Teleportation]]

@@ -2,7 +2,7 @@
 |title=Green Emerald Ring
 |stablekey=item:ring - 6 - emerald ring
 |type=
-|vendorsource={{CharacterLink|stablekey=character:parmalee gemlyn|link=Parmalee Gemlyn|text=Parmalee Gemlyn}}
+|vendorsource={{CharacterLink|stablekey=character:parmalee gemlyn}}
 |source=
 |othersource=
 |questsource=

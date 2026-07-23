@@ -2,7 +2,7 @@
 |title=Fishing Pole
 |stablekey=item:weap - 1 - fishing pole
 |type=
-|vendorsource={{CharacterLink|stablekey=character:amethi plazzo:stowaway:575.36:73.04:549.85|link=Amethi Plazzo|text=Amethi Plazzo}}<br>{{CharacterLink|stablekey=character:ghostly figure:shiveringstep:701.36:24.78:439.97|link=Enterprising Spirit|text=Enterprising Spirit}}<br>{{CharacterLink|stablekey=character:isaac salaman:azure:124.92:26.25:350.89|link=Isaac Salaman|text=Isaac Salaman}}<br>{{CharacterLink|stablekey=character:javo follay|link=Javo Follay|text=Javo Follay}}<br>{{CharacterLink|stablekey=character:oscar vanellis:ripper:755.35:43.64:193.63|link=Oscar VanEllis|text=Oscar VanEllis}}<br>{{CharacterLink|stablekey=character:shady fisherman (1):summerevent:80.10:-5.17:6.41|link=Shady Fisherman|text=Shady Fisherman}}
+|vendorsource={{CharacterLink|stablekey=character:amethi plazzo:stowaway:575.36:73.04:549.85}}<br>{{CharacterLink|stablekey=character:ghostly figure:shiveringstep:701.36:24.78:439.97}}<br>{{CharacterLink|stablekey=character:isaac salaman:azure:124.92:26.25:350.89}}<br>{{CharacterLink|stablekey=character:javo follay}}<br>{{CharacterLink|stablekey=character:oscar vanellis:ripper:755.35:43.64:193.63}}<br>{{CharacterLink|stablekey=character:shady fisherman (1):summerevent:80.10:-5.17:6.41}}
 |source=
 |othersource=
 |questsource=

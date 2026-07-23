@@ -2,7 +2,7 @@
 |title=Spell Scroll: Invisibility
 |stablekey=item:spell scroll - invisibility
 |type=
-|vendorsource={{CharacterLink|stablekey=character:edwin ansegg|link=Edwin Ansegg|text=Edwin Ansegg}}<br>{{CharacterLink|stablekey=character:nylith valorro|link=Nylith Valorro|text=Nylith Valorro}}
+|vendorsource={{CharacterLink|stablekey=character:edwin ansegg}}<br>{{CharacterLink|stablekey=character:nylith valorro}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=1000
 |sell=650
-|taughtspell={{AbilityLink|stablekey=spell:arc - invisibility|link=Invisibility|text=Invisibility|image=Invisibility.png}}
+|taughtspell={{AbilityLink|stablekey=spell:arc - invisibility}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

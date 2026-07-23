@@ -2,8 +2,8 @@
 |title=Living Chainmail Jacket
 |stablekey=item:chest - 12 - living chainmail jacket
 |type=
-|vendorsource={{CharacterLink|stablekey=character:tiver banes|link=Tiver Banes|text=Tiver Banes}}
-|source={{CharacterLink|stablekey=character:tinkles|link=Tinkles|text=Tinkles}} (23.7%)<br>{{CharacterLink|stablekey=character:botanist|link=Botanist|text=Botanist}} (6.9%)
+|vendorsource={{CharacterLink|stablekey=character:tiver banes}}
+|source={{CharacterLink|stablekey=character:tinkles}} (23.7%)<br>{{CharacterLink|stablekey=character:botanist}} (6.9%)
 |othersource=
 |questsource=
 |relatedquest=

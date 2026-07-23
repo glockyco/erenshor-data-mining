@@ -5,7 +5,7 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|A Skeleton Eye for Alyssia Fearnon}}<br>{{QuestLink|stablekey=quest:a skeleton eye for alyssa fearnon|link=A Skeleton Eye for Alyssia Fearnon|text=A Skeleton Eye for Alyssia Fearnon}}
+|questsource={{QuestLink|A Skeleton Eye for Alyssia Fearnon}}<br>{{QuestLink|stablekey=quest:a skeleton eye for alyssa fearnon}}
 |relatedquest=
 |craftsource=
 |componentfor=

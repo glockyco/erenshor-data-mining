@@ -3,7 +3,7 @@
 |stablekey=item:ring - 22 - wild colossus ring
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:xasxi|link=Xasxi|text=Xasxi}} (33.3%)
+|source={{CharacterLink|stablekey=character:xasxi}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

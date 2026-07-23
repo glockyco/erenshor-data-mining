@@ -4,7 +4,7 @@
 |stablekey=item:ore - stardust
 |type=[[:Category:Items|General]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:astral_ guardian of stars|link=Astra, Rogue of the Stars|text=Astra, Rogue of the Stars}} (68.7%)<br>{{CharacterLink|stablekey=character:stardust|link=Stardust|text=Stardust}} (8.7%)
+|source={{CharacterLink|stablekey=character:astral_ guardian of stars}} (68.7%)<br>{{CharacterLink|stablekey=character:stardust}} (8.7%)
 |othersource=
 |questsource=
 |relatedquest=

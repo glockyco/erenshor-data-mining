@@ -6,7 +6,7 @@ Starts {{QuestLink|link=The Duskenlight Ritual (Quest){{!}}The Duskenlight Ritua
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|Liam's Note}}<br>{{QuestLink|stablekey=quest:liamsnote|link=Liam's Note|text=Liam's Note}}
+|questsource={{QuestLink|Liam's Note}}<br>{{QuestLink|stablekey=quest:liamsnote}}
 |relatedquest=
 |craftsource=
 |componentfor=

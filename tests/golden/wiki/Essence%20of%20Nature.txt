@@ -3,10 +3,10 @@
 |stablekey=item:gen - essence of nature
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:corrupted oread|link=Corrupted Oread|text=Corrupted Oread}} (27.8%)<br>{{CharacterLink|stablekey=character:dryad spirit|link=Dryad Spirit|text=Dryad Spirit}} (27.8%)<br>{{CharacterLink|stablekey=character:massia the felled|link=Massia the Fallen|text=Massia the Fallen}} (27.8%)<br>{{CharacterLink|stablekey=character:spirit of nature|link=Spectral Bear|text=Spectral Bear}} (27.8%)<br>{{CharacterLink|stablekey=character:fernallan guardian|link=Fernallan Guardian|text=Fernallan Guardian}} (23.5%)<br>{{CharacterLink|stablekey=character:rotting guardian|link=Rotting Guardian|text=Rotting Guardian}} (14.8%)
+|source={{CharacterLink|stablekey=character:corrupted oread}} (27.8%)<br>{{CharacterLink|stablekey=character:dryad spirit}} (27.8%)<br>{{CharacterLink|stablekey=character:massia the felled}} (27.8%)<br>{{CharacterLink|stablekey=character:spirit of nature}} (27.8%)<br>{{CharacterLink|stablekey=character:fernallan guardian}} (23.5%)<br>{{CharacterLink|stablekey=character:rotting guardian}} (14.8%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|The Life Flame}}<br>{{QuestLink|stablekey=quest:thelifeflame|link=The Life Flame|text=The Life Flame}}
+|relatedquest={{QuestLink|The Life Flame}}<br>{{QuestLink|stablekey=quest:thelifeflame}}
 |craftsource=
 |componentfor=
 |buy=8

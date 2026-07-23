@@ -3,15 +3,15 @@
 |image=[[File:Nazura the Traitor.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:vitheosend|link=Vitheo's Rest|text=Vitheo's Rest}}
+|zones={{ZoneLink|stablekey=zone:vitheosend}}
 |coordinates=331.0 x 0.6 x 123.3
 |spawnchance=75%
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:ring - 34 - bladeturner|link=Bladeturner|text=Bladeturner|image=Bladeturner.png}}<br>{{ItemLink|stablekey=item:neck - 34 - frozen mana charm|link=Frozen Mana Charm|text=Frozen Mana Charm|image=Frozen Mana Charm.png}}
-|droprates={{ItemLink|stablekey=item:gen - rekindling the flame 1|link=The Recipe for Flame|text=The Recipe for Flame|image=The Recipe for Flame.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - rekindling the flame 1|link=The Recipe for Flame|text=The Recipe for Flame|image=The Recipe for Flame.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:neck - 34 - frozen mana charm|link=Frozen Mana Charm|text=Frozen Mana Charm|image=Frozen Mana Charm.png}} (66.7%)<br>{{ItemLink|stablekey=item:ring - 34 - bladeturner|link=Bladeturner|text=Bladeturner|image=Bladeturner.png}} (33.3%)
+|guaranteeddrops={{ItemLink|stablekey=item:ring - 34 - bladeturner}}<br>{{ItemLink|stablekey=item:neck - 34 - frozen mana charm}}
+|droprates={{ItemLink|stablekey=item:gen - rekindling the flame 1}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - rekindling the flame 1}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:neck - 34 - frozen mana charm}} (66.7%)<br>{{ItemLink|stablekey=item:ring - 34 - bladeturner}} (33.3%)
 |level=34
 |levelmodmin=0
 |levelmodmax=0

@@ -5,7 +5,7 @@
 |description=Deals 1200 poison based damage to a target.
 |type=Damage
 |line=Direct_Damage
-|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (20)
+|classes={{ClassLink|stablekey=class:druid}} (20)
 |required_level=20
 |manacost=625
 |aggro=300
@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:weap - 30 - fungal greatsword|link=Fungal Greatsword|text=Fungal Greatsword|image=Fungal Greatsword.png}}<br>{{ItemLink|stablekey=item:weap - 42 - spilling blade|link=Spilling Blade|text=Spilling Blade|image=Spilling Blade.png}}
-|source={{ItemLink|stablekey=item:spell scroll - drudd forest's reckoning|link=Spell Scroll: Forest's Reckoning|text=Spell Scroll: Forest's Reckoning|image=Spell Scroll: Forest's Reckoning.png}}
-|used_by={{CharacterLink|stablekey=character:risen heirophant|link=Risen Hierophant|text=Risen Hierophant}}<br>{{CharacterLink|stablekey=character:savannah priel|link=Savannah Priel (Character)|text=Savannah Priel}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 30 - fungal greatsword}}<br>{{ItemLink|stablekey=item:weap - 42 - spilling blade}}
+|source={{ItemLink|stablekey=item:spell scroll - drudd forest's reckoning}}
+|used_by={{CharacterLink|stablekey=character:risen heirophant}}<br>{{CharacterLink|stablekey=character:savannah priel}}
 }}
+{{SpellTooltip|stablekey=spell:dru - forest's reckoning}}

@@ -3,7 +3,7 @@
 |stablekey=item:belt - 42 - glacier belt
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:mizuki|link=Elementalist Mizuki|text=Elementalist Mizuki}} (68.9%)<br>{{CharacterLink|stablekey=character:god brax|link=Brax, God of Elements|text=Brax, God of Elements}} (30.7%)<br>{{CharacterLink|stablekey=character:god brax restored:planeofbrax:2543.61:75.50:404.12|link=Brax, God of Elements|text=Brax, God of Elements}} (30.7%)
+|source={{CharacterLink|stablekey=character:mizuki}} (68.9%)<br>{{CharacterLink|stablekey=character:god brax}} (30.7%)<br>{{CharacterLink|stablekey=character:god brax restored:planeofbrax:2543.61:75.50:404.12}} (30.7%)
 |othersource=
 |questsource=
 |relatedquest=

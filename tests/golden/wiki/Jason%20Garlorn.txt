@@ -3,9 +3,9 @@
 |image=[[File:Jason Garlorn.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}
-|factionChange=-10 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>-10 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:silkengrass|link=Silkengrass Meadowlands|text=Silkengrass Meadowlands}}
+|faction={{FactionLink|stablekey=faction:erenshorcitizens}}
+|factionChange=-10 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>-10 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:silkengrass}}
 |coordinates=275.4 x 32.5 x 470.5
 |spawnchance=
 |spawntype=

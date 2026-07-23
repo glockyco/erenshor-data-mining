@@ -3,7 +3,7 @@
 |stablekey=item:head - 18 - albino bear hood
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:albino kodiak|link=Albino Kodiak|text=Albino Kodiak}} (12.9%)
+|source={{CharacterLink|stablekey=character:albino kodiak}} (12.9%)
 |othersource=
 |questsource=
 |relatedquest=

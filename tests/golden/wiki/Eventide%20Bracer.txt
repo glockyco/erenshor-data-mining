@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 42 - eventide wristguard
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:solunarian sunbringer|link=Solunarian Sunbringer|text=Solunarian Sunbringer}} (1.7%)<br>{{CharacterLink|stablekey=character:solunarian moonkeeper|link=Solunarian Moonkeeper|text=Solunarian Moonkeeper}} (1.1%)<br>{{CharacterLink|stablekey=character:solunarian paladin combined|link=Solunarian Paladin|text=Solunarian Paladin}} (1.0%)
+|source={{CharacterLink|stablekey=character:solunarian sunbringer}} (1.7%)<br>{{CharacterLink|stablekey=character:solunarian moonkeeper}} (1.1%)<br>{{CharacterLink|stablekey=character:solunarian paladin combined}} (1.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Cast
 |proc_chance=5
 |proc_spell_icon=Sivakaya's Blessing.png
-|proc_spell_name={{AbilityLink|stablekey=spell:none - sivakaya's blessing|link=Sivakaya's Blessing|text=Sivakaya's Blessing|image=Sivakaya's Blessing.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:none - sivakaya's blessing}}
 |proc_spell_level=35
 |proc_spell_duration_ticks=3
 |proc_spell_type=Beneficial
@@ -92,7 +92,7 @@
 |proc_percent_lifesteal=2.0
 |proc_atk_roll_modifier=1
 |proc_resonate_chance=
-|proc_add_proc_name={{AbilityLink|stablekey=spell:dru - annihilate|link=Annihilate|text=Annihilate}}
+|proc_add_proc_name={{AbilityLink|stablekey=spell:dru - annihilate}}
 |proc_add_proc_chance=10
 |proc_special_descriptor=
 |proc_xp_bonus=

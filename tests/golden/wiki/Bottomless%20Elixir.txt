@@ -5,7 +5,7 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|Aetheria for Saya Seawatcher}}<br>{{QuestLink|stablekey=quest:aetheria|link=Aetheria for Saya Seawatcher|text=Aetheria for Saya Seawatcher}}
+|questsource={{QuestLink|Aetheria for Saya Seawatcher}}<br>{{QuestLink|stablekey=quest:aetheria}}
 |relatedquest=
 |craftsource=
 |componentfor=
@@ -26,7 +26,7 @@
 |disposable=
 |effect_style=Activatable
 |effect_spell_icon=Minor Healing.png
-|effect_spell_name={{AbilityLink|stablekey=spell:dru pal - minor healing|link=Minor Healing|text=Minor Healing|image=Minor Healing.png}}
+|effect_spell_name={{AbilityLink|stablekey=spell:dru pal - minor healing}}
 |effect_spell_level=3
 |effect_spell_duration_ticks=
 |effect_spell_type=Heal

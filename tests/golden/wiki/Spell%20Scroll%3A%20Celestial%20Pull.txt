@@ -2,7 +2,7 @@
 |title=Spell Scroll: Celestial Pull
 |stablekey=item:spell scroll - celestial pull
 |type=[[Ability Books]]
-|vendorsource={{CharacterLink|stablekey=character:akaran black|link=Akaran Black|text=Akaran Black}}
+|vendorsource={{CharacterLink|stablekey=character:akaran black}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=6500
 |sell=4225
-|taughtspell={{AbilityLink|stablekey=spell:pal - celestial pull|link=Celestial Pull|text=Celestial Pull|image=Celestial Pull.png}}
+|taughtspell={{AbilityLink|stablekey=spell:pal - celestial pull}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

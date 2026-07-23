@@ -2,7 +2,7 @@
 |title=Spell Scroll: Blast of Thorns
 |stablekey=item:spell scroll - drudd blast of thorns
 |type=[[:Category:Ability Books|Spell Scroll]], [[Crafting]]
-|vendorsource={{CharacterLink|stablekey=character:alyssa fearnon|link=Alyssia Fearnon|text=Alyssia Fearnon}}
+|vendorsource={{CharacterLink|stablekey=character:alyssa fearnon}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=750
 |sell=487
-|taughtspell={{AbilityLink|stablekey=spell:dru - blast of thorns|link=Blast of Thorns|text=Blast of Thorns|image=Blast of Thorns.png}}
+|taughtspell={{AbilityLink|stablekey=spell:dru - blast of thorns}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

@@ -3,7 +3,7 @@
 |stablekey=item:weap - 42 - moonmaker
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:solunarian moonkeeper|link=Solunarian Moonkeeper|text=Solunarian Moonkeeper}} (6.7%)
+|source={{CharacterLink|stablekey=character:solunarian moonkeeper}} (6.7%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=8
 |proc_spell_icon=Focus Pain.png
-|proc_spell_name={{AbilityLink|stablekey=spell:none - fracture|link=Focus Pain|text=Focus Pain|image=Focus Pain.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:none - fracture}}
 |proc_spell_level=32
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

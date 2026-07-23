@@ -3,12 +3,12 @@
 |stablekey=item:ore - ancient coal
 |type=[[Crafting]], [[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:gloopa quarter loot|link=Gloopa|text=Gloopa (Quarter)}} (74.5%)<br>{{CharacterLink|stablekey=character:astral_ guardian of stars|link=Astra, Rogue of the Stars|text=Astra, Rogue of the Stars}} (41.6%)<br>{{CharacterLink|stablekey=character:candlekeeper|link=Candlekeeper|text=Candlekeeper}} (40.2%)<br>{{CharacterLink|stablekey=character:statue of brax|link=Statue of Brax|text=Statue of Brax}} (34.1%)<br>{{CharacterLink|stablekey=character:fungal queen|link=Slumbering Queen|text=Slumbering Queen}} (28.3%)<br>{{CharacterLink|stablekey=character:braxonian prospect|link=Braxon Prospect|text=Braxon Prospect}} (1.1%)<br>{{CharacterLink|stablekey=character:braxonian ascended|link=Braxonian Ascended|text=Braxonian Ascended}} (1.1%)<br>{{CharacterLink|stablekey=character:braxonian tempest|link=Braxonian Tempest|text=Braxonian Tempest}} (1.1%)
+|source={{CharacterLink|stablekey=character:gloopa quarter loot}} (74.5%)<br>{{CharacterLink|stablekey=character:astral_ guardian of stars}} (41.6%)<br>{{CharacterLink|stablekey=character:candlekeeper}} (40.2%)<br>{{CharacterLink|stablekey=character:statue of brax}} (34.1%)<br>{{CharacterLink|stablekey=character:fungal queen}} (28.3%)<br>{{CharacterLink|stablekey=character:braxonian prospect}} (1.1%)<br>{{CharacterLink|stablekey=character:braxonian ascended}} (1.1%)<br>{{CharacterLink|stablekey=character:braxonian tempest}} (1.1%)
 |othersource=[[Mining]]
 |questsource=
-|relatedquest={{QuestLink|link=The Duskenlight Ritual (Quest){{!}}The Duskenlight Ritual}}<br>{{QuestLink|The Revival Plains Ritual}}<br>{{QuestLink|stablekey=quest:theduskenlightritual|link=The Duskenlight Ritual (Quest)|text=The Duskenlight Ritual}}<br>{{QuestLink|stablekey=quest:therevivalritual|link=The Revival Plains Ritual|text=The Revival Plains Ritual}}
+|relatedquest={{QuestLink|link=The Duskenlight Ritual (Quest){{!}}The Duskenlight Ritual}}<br>{{QuestLink|The Revival Plains Ritual}}<br>{{QuestLink|stablekey=quest:theduskenlightritual}}<br>{{QuestLink|stablekey=quest:therevivalritual}}
 |craftsource=
-|componentfor={{ItemLink|stablekey=item:template - arcanist's charm|link=Mold: Arcanist's Charm|text=Mold: Arcanist's Charm|image=Mold: Arcanist's Charm.png}}
+|componentfor={{ItemLink|stablekey=item:template - arcanist's charm}}
 |buy=
 |sell=
 |taughtspell=

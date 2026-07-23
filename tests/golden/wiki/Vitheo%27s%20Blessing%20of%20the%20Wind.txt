@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:back - 26 - feathered cape|link=Feathered Cape|text=Feathered Cape|image=Feathered Cape.png}}<br>{{ItemLink|stablekey=item:back - 26 - flowing cloak|link=Flowing Cloak|text=Flowing Cloak|image=Flowing Cloak.png}}<br>{{ItemLink|stablekey=item:back - 30 - lifewind|link=Lifewind|text=Lifewind|image=Lifewind.png}}<br>{{ItemLink|stablekey=item:secondary - 42 - sea wind shield|link=Sea Wind Shield|text=Sea Wind Shield|image=Sea Wind Shield.png}}
+|itemswitheffect={{ItemLink|stablekey=item:back - 26 - feathered cape}}<br>{{ItemLink|stablekey=item:back - 26 - flowing cloak}}<br>{{ItemLink|stablekey=item:back - 30 - lifewind}}<br>{{ItemLink|stablekey=item:secondary - 42 - sea wind shield}}
 |source=
-|used_by={{CharacterLink|stablekey=character:aragath swellsteer|link=Aragath Swellsteer|text=Aragath Swellsteer}}<br>{{CharacterLink|stablekey=character:amethi plazzo|link=Grayleigh Hawke|text=Grayleigh Hawke}}
+|used_by={{CharacterLink|stablekey=character:aragath swellsteer}}<br>{{CharacterLink|stablekey=character:amethi plazzo}}
 }}
+{{SpellTooltip|stablekey=spell:duel - vitheo's blessing of the wind}}

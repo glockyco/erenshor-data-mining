@@ -3,12 +3,12 @@
 |stablekey=item:gen - pulsating stone
 |type=[[Crafting]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:stone hound|link=Stone Hound|text=Stone Hound}} (86.3%)<br>{{CharacterLink|stablekey=character:mosscovered stoneman|link=Mosscovered Stoneman|text=Mosscovered Stoneman}} (43.4%)<br>{{CharacterLink|stablekey=character:stoneman colossus 1|link=Diamond Colossus|text=Diamond Colossus}} (15.7%)<br>{{CharacterLink|stablekey=character:stoneman seeker (1):blight:438.18:43.30:180.65|link=Stoneman Seeker|text=Stoneman Seeker}} (4.5%)<br>{{CharacterLink|stablekey=character:wishlan|link=Wishlan the Savior|text=Wishlan the Savior}} (4.5%)
+|source={{CharacterLink|stablekey=character:stone hound}} (86.3%)<br>{{CharacterLink|stablekey=character:mosscovered stoneman}} (43.4%)<br>{{CharacterLink|stablekey=character:stoneman colossus 1}} (15.7%)<br>{{CharacterLink|stablekey=character:stoneman seeker (1):blight:438.18:43.30:180.65}} (4.5%)<br>{{CharacterLink|stablekey=character:wishlan}} (4.5%)
 |othersource=
 |questsource=
 |relatedquest=
 |craftsource=
-|componentfor={{ItemLink|stablekey=item:template - charm of stone|link=Mold: Charm of Stone|text=Mold: Charm of Stone|image=Mold: Charm of Stone.png}}
+|componentfor={{ItemLink|stablekey=item:template - charm of stone}}
 |buy=50
 |sell=32
 |taughtspell=

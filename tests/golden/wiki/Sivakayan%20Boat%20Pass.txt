@@ -3,10 +3,10 @@
 |stablekey=item:gen - the boatman
 |type=[[Lore Items|Lore]], [[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:sivakayan devoted|link=Sivakayan Devoted|text=Sivakayan Devoted}} (4.3%)<br>{{CharacterLink|stablekey=character:sivakayan faithbound|link=Sivakayan Faithbound|text=Sivakayan Faithbound}} (4.3%)
+|source={{CharacterLink|stablekey=character:sivakayan devoted}} (4.3%)<br>{{CharacterLink|stablekey=character:sivakayan faithbound}} (4.3%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Passage to Azynthi's Garden}}<br>{{QuestLink|stablekey=quest:boatman|link=Passage to Azynthi's Garden|text=Passage to Azynthi's Garden}}
+|relatedquest={{QuestLink|Passage to Azynthi's Garden}}<br>{{QuestLink|stablekey=quest:boatman}}
 |craftsource=
 |componentfor=
 |buy=

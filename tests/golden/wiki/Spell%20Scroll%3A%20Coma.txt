@@ -2,7 +2,7 @@
 |title=Spell Scroll: Coma
 |stablekey=item:spell scroll - coma
 |type=[[Ability Books]]
-|vendorsource={{CharacterLink|stablekey=character:cerbantias flameward|link=Cerbantias Flameward|text=Cerbantias Flameward}}
+|vendorsource={{CharacterLink|stablekey=character:cerbantias flameward}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=32000
 |sell=20800
-|taughtspell={{AbilityLink|stablekey=spell:arc - coma|link=Coma|text=Coma|image=Coma.png}}
+|taughtspell={{AbilityLink|stablekey=spell:arc - coma}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

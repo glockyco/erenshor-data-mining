@@ -3,7 +3,7 @@
 |stablekey=item:back - 19 - layered cape
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:goliath|link=Goliath|text=Goliath}} (20.0%)
+|source={{CharacterLink|stablekey=character:goliath}} (20.0%)
 |othersource=
 |questsource=
 |relatedquest=

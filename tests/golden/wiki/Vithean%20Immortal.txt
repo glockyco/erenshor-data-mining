@@ -3,9 +3,9 @@
 |image=[[File:Vithean Immortal.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:planeofvitheo|link=Vitheo's Plane of Valor|text=Vitheo's Plane of Valor}}
+|zones={{ZoneLink|stablekey=zone:planeofvitheo}}
 |coordinates=516.8 x 25.2 x 516.2<br>564.6 x 25.2 x 492.7
 |spawnchance=
 |spawntype=Dynamic event spawn
@@ -40,15 +40,15 @@
 |image=[[File:Vithean Immortal.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:vitheosend|link=Vitheo's Rest|text=Vitheo's Rest}}
+|zones={{ZoneLink|stablekey=zone:vitheosend}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:weap - 22 - spectralsword|link=Spectral Sword|text=Spectral Sword|image=Spectral Sword.png}} (9.1%)<br>{{ItemLink|stablekey=item:weap - 15 - spectraldagger|link=Spectral Dagger|text=Spectral Dagger|image=Spectral Dagger.png}} (3.0%)<br>{{ItemLink|stablekey=item:furniture - stone statue vitheo|link=Stone Statue: Vitheo|text=Stone Statue: Vitheo|image=Stone Statue: Vitheo.png}} (0.8%)<br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (0.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:furniture - gold statue vitheo|link=Golden Statue: Vitheo|text=Golden Statue: Vitheo|image=Golden Statue: Vitheo.png}} (0.2%)<br>{{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} (0.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (0.2%)
+|droprates={{ItemLink|stablekey=item:weap - 22 - spectralsword}} (9.1%)<br>{{ItemLink|stablekey=item:weap - 15 - spectraldagger}} (3.0%)<br>{{ItemLink|stablekey=item:furniture - stone statue vitheo}} (0.8%)<br>{{ItemLink|stablekey=item:gen - diamond}} (0.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:furniture - gold statue vitheo}} (0.2%)<br>{{ItemLink|stablekey=item:gen - ruby}} (0.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - a star stone}} (0.2%)
 |level=34
 |levelmodmin=0
 |levelmodmax=0

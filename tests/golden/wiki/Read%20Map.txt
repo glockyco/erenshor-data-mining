@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:gen - treasure map|link=Treasure Map|text=Treasure Map|image=Treasure Map.png}}
+|itemswitheffect={{ItemLink|stablekey=item:gen - treasure map}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - read map}}

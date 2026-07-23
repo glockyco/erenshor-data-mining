@@ -3,7 +3,7 @@
 |stablekey=item:key - intricate
 |type=[[Keys|Key]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:molorai eldermistress|link=Molorai Eldermistress|text=Molorai Eldermistress}} (100.0%)
+|source={{CharacterLink|stablekey=character:molorai eldermistress}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=

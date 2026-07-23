@@ -3,7 +3,7 @@
 |stablekey=item:ring - 39 - ring of the deceiver
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:duelist of sivakaya|link=Assassin of Sivakaya|text=Assassin of Sivakaya}} (6.5%)<br>{{CharacterLink|stablekey=character:arcanist of sivakaya|link=Grand Arcanist of Sivakaya|text=Grand Arcanist of Sivakaya}} (6.5%)<br>{{CharacterLink|stablekey=character:warrior of sivakaya|link=High Paladin of Sivakaya|text=High Paladin of Sivakaya}} (6.5%)<br>{{CharacterLink|stablekey=character:druid of sivakaya|link=High Priestess of Sivakaya|text=High Priestess of Sivakaya}} (6.5%)<br>{{CharacterLink|stablekey=character:bowmistress of sivakaya|link=Bowmistress of Sivakaya|text=Bowmistress of Sivakaya}} (5.5%)
+|source={{CharacterLink|stablekey=character:duelist of sivakaya}} (6.5%)<br>{{CharacterLink|stablekey=character:arcanist of sivakaya}} (6.5%)<br>{{CharacterLink|stablekey=character:warrior of sivakaya}} (6.5%)<br>{{CharacterLink|stablekey=character:druid of sivakaya}} (6.5%)<br>{{CharacterLink|stablekey=character:bowmistress of sivakaya}} (5.5%)
 |othersource=
 |questsource=
 |relatedquest=

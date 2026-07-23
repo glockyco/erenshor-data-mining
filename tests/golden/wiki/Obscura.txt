@@ -5,7 +5,7 @@
 |description=Drastically reduce your aggro on a target.
 |type=Damage
 |line=Direct_Damage
-|classes={{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}} (35)
+|classes={{ClassLink|stablekey=class:stormcaller}} (35)
 |required_level=35
 |manacost=1000
 |aggro=-100000
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - obscura|link=Spell Scroll: Obscura|text=Spell Scroll: Obscura|image=Spell Scroll: Obscura.png}}
+|source={{ItemLink|stablekey=item:spell scroll - obscura}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:stc - obscura}}

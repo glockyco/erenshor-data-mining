@@ -3,7 +3,7 @@
 |stablekey=item:furniture - stone statue soluna
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:raval|link=Raval, The First Paladin|text=Raval, The First Paladin}} (3.3%)<br>{{CharacterLink|stablekey=character:ancient celestarian|link=Ancient Celestarian|text=Ancient Celestarian}} (1.2%)<br>{{CharacterLink|stablekey=character:ancient guard|link=Ancient Guard|text=Ancient Guard}} (1.2%)<br>{{CharacterLink|stablekey=character:ancient guard captain|link=Ancient Knight|text=Ancient Knight}} (1.2%)
+|source={{CharacterLink|stablekey=character:raval}} (3.3%)<br>{{CharacterLink|stablekey=character:ancient celestarian}} (1.2%)<br>{{CharacterLink|stablekey=character:ancient guard}} (1.2%)<br>{{CharacterLink|stablekey=character:ancient guard captain}} (1.2%)
 |othersource=
 |questsource=
 |relatedquest=

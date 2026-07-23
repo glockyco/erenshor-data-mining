@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:gen - rune of the hills|link=Rune of The Hills|text=Rune of The Hills|image=Rune of The Hills.png}}
+|itemswitheffect={{ItemLink|stablekey=item:gen - rune of the hills}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:arc - portal to hidden}}

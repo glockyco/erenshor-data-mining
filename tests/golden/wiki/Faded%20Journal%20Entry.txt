@@ -3,10 +3,10 @@
 |stablekey=item:gen - faded journal (soluna)
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:raval|link=Raval, The First Paladin|text=Raval, The First Paladin}} (100.0%)
+|source={{CharacterLink|stablekey=character:raval}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Note to Soluna}}<br>{{QuestLink|stablekey=quest:solunalandingrune|link=Note to Soluna|text=Note to Soluna}}
+|relatedquest={{QuestLink|Note to Soluna}}<br>{{QuestLink|stablekey=quest:solunalandingrune}}
 |craftsource=
 |componentfor=
 |buy=

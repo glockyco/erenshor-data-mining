@@ -3,15 +3,15 @@
 |image=[[File:Chunk of Amarion.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
-|factionChange=-100 {{FactionLink|stablekey=faction:fernalla|link=Fernalla's Children|text=Fernalla's Children}}
-|zones={{ZoneLink|stablekey=zone:planeofbrax|link=Brax's Plane of Elements|text=Brax's Plane of Elements}}
+|faction={{FactionLink|stablekey=faction:evil}}
+|factionChange=-100 {{FactionLink|stablekey=faction:fernalla}}
+|zones={{ZoneLink|stablekey=zone:planeofbrax}}
 |coordinates=1704.1 x 0.3 x 452.7
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:chest - 42 - amarionite garb|link=Amarionite Garb|text=Amarionite Garb|image=Amarionite Garb.png}}<br>{{ItemLink|stablekey=item:leg - 42 - colorless trousers|link=Colorless Trousers|text=Colorless Trousers|image=Colorless Trousers.png}}<br>{{ItemLink|stablekey=item:weap - 42 - king's gambit|link=King's Gambit|text=King's Gambit|image=King's Gambit.png}}
-|droprates={{ItemLink|stablekey=item:chest - 42 - amarionite garb|link=Amarionite Garb|text=Amarionite Garb|image=Amarionite Garb.png}} (40.8%)<br>{{ItemLink|stablekey=item:leg - 42 - colorless trousers|link=Colorless Trousers|text=Colorless Trousers|image=Colorless Trousers.png}} (40.8%)<br>{{ItemLink|stablekey=item:weap - 42 - king's gambit|link=King's Gambit|text=King's Gambit|image=King's Gambit.png}} (40.8%)<br>{{ItemLink|stablekey=item:ore - planar shard|link=Planar Stone Shards|text=Planar Stone Shards|image=Planar Stone Shards.png}} (24.0%)<br>{{ItemLink|stablekey=item:ore - planar stone|link=Planar Stone|text=Planar Stone|image=Planar Stone.png}} (12.6%)
+|guaranteeddrops={{ItemLink|stablekey=item:chest - 42 - amarionite garb}}<br>{{ItemLink|stablekey=item:leg - 42 - colorless trousers}}<br>{{ItemLink|stablekey=item:weap - 42 - king's gambit}}
+|droprates={{ItemLink|stablekey=item:chest - 42 - amarionite garb}} (40.8%)<br>{{ItemLink|stablekey=item:leg - 42 - colorless trousers}} (40.8%)<br>{{ItemLink|stablekey=item:weap - 42 - king's gambit}} (40.8%)<br>{{ItemLink|stablekey=item:ore - planar shard}} (24.0%)<br>{{ItemLink|stablekey=item:ore - planar stone}} (12.6%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

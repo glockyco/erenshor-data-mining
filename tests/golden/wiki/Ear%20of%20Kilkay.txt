@@ -3,10 +3,10 @@
 |stablekey=item:gen - ear of kilkay
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:guard captain azure|link=Captain Kilkay|text=Captain Kilkay}} (100.0%)
+|source={{CharacterLink|stablekey=character:guard captain azure}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|A Bounty on Guard Captain Kilkay}}<br>{{QuestLink|stablekey=quest:kilkaybounty|link=A Bounty on Guard Captain Kilkay|text=A Bounty on Guard Captain Kilkay}}
+|relatedquest={{QuestLink|A Bounty on Guard Captain Kilkay}}<br>{{QuestLink|stablekey=quest:kilkaybounty}}
 |craftsource=
 |componentfor=
 |buy=

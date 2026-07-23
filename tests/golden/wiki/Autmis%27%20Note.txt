@@ -3,7 +3,7 @@
 |stablekey=item:gen - oread note
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:autmis the lost|link=Autmis the Lost|text=Autmis the Lost}} (100.0%)
+|source={{CharacterLink|stablekey=character:autmis the lost}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=

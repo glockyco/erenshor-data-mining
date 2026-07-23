@@ -2,7 +2,7 @@
 |title=Spell Scroll: Vitheo's Sight
 |stablekey=item:spell scroll - vitheo's sight i
 |type=
-|vendorsource={{CharacterLink|stablekey=character:amethi plazzo:stowaway:575.36:73.04:549.85|link=Amethi Plazzo|text=Amethi Plazzo}}<br>{{CharacterLink|stablekey=character:javo follay|link=Javo Follay|text=Javo Follay}}<br>{{CharacterLink|stablekey=character:ludo luxo|link=Ludo Luxo|text=Ludo Luxo}}
+|vendorsource={{CharacterLink|stablekey=character:amethi plazzo:stowaway:575.36:73.04:549.85}}<br>{{CharacterLink|stablekey=character:javo follay}}<br>{{CharacterLink|stablekey=character:ludo luxo}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=255
 |sell=166
-|taughtspell={{AbilityLink|stablekey=spell:duel - vitheo's sight|link=Vitheo's Sight|text=Vitheo's Sight|image=Vitheo's Sight.png}}
+|taughtspell={{AbilityLink|stablekey=spell:duel - vitheo's sight}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

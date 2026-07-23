@@ -3,15 +3,15 @@
 |image=[[File:Loomingwood Minotaur Hero.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:loomingwood|link=Loomingwood Forest|text=Loomingwood Forest}}
+|zones={{ZoneLink|stablekey=zone:loomingwood}}
 |coordinates=900.7 x 29.5 x 613.1
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:wrist - 22 - hero bracer|link=Hero Bracer|text=Hero Bracer|image=Hero Bracer.png}}<br>{{ItemLink|stablekey=item:weap - 20 - minoaxe|link=Minoaxe|text=Minoaxe|image=Minoaxe.png}}<br>{{ItemLink|stablekey=item:chest - 28 - stonelined plate|link=Stonelined Plate|text=Stonelined Plate|image=Stonelined Plate.png}}
-|droprates={{ItemLink|stablekey=item:weap - 20 - minoaxe|link=Minoaxe|text=Minoaxe|image=Minoaxe.png}} (50.0%)<ref>If Loomingwood Minotaur Hero has {{ItemLink|stablekey=item:weap - 20 - minoaxe|link=Minoaxe|text=Minoaxe|image=Minoaxe.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:wrist - 22 - hero bracer|link=Hero Bracer|text=Hero Bracer|image=Hero Bracer.png}} (34.6%)<br>{{ItemLink|stablekey=item:chest - 28 - stonelined plate|link=Stonelined Plate|text=Stonelined Plate|image=Stonelined Plate.png}} (25.0%)<br>{{ItemLink|stablekey=item:furniture - loomingwood marketplace blueprint|link=Blueprint: Loomingwood Market|text=Blueprint: Loomingwood Market|image=Blueprint: Loomingwood Market.png}} (0.3%)<br>{{ItemLink|stablekey=item:furniture - loomingwood shrine blueprint|link=Blueprint: Loomingwood Shrine|text=Blueprint: Loomingwood Shrine|image=Blueprint: Loomingwood Shrine.png}} (0.3%)
+|guaranteeddrops={{ItemLink|stablekey=item:wrist - 22 - hero bracer}}<br>{{ItemLink|stablekey=item:weap - 20 - minoaxe}}<br>{{ItemLink|stablekey=item:chest - 28 - stonelined plate}}
+|droprates={{ItemLink|stablekey=item:weap - 20 - minoaxe}} (50.0%)<ref>If Loomingwood Minotaur Hero has {{ItemLink|stablekey=item:weap - 20 - minoaxe}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:wrist - 22 - hero bracer}} (34.6%)<br>{{ItemLink|stablekey=item:chest - 28 - stonelined plate}} (25.0%)<br>{{ItemLink|stablekey=item:furniture - loomingwood marketplace blueprint}} (0.3%)<br>{{ItemLink|stablekey=item:furniture - loomingwood shrine blueprint}} (0.3%)
 |level=26
 |levelmodmin=0
 |levelmodmax=0

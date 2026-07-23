@@ -3,7 +3,7 @@
 |stablekey=item:head - 31 - ardants crown
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:braxonian prince ardant|link=Prince Ardant|text=Prince Ardant}} (33.3%)
+|source={{CharacterLink|stablekey=character:braxonian prince ardant}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

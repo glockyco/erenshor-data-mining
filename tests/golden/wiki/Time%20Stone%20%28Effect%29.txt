@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:weap - 40 - reaper of regrowth|link=Reaper of Regrowth|text=Reaper of Regrowth|image=Reaper of Regrowth.png}}<br>{{ItemLink|stablekey=item:gen - time stone|link=Time Stone|text=Time Stone|image=Time Stone.png}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 40 - reaper of regrowth}}<br>{{ItemLink|stablekey=item:gen - time stone}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - time stone}}

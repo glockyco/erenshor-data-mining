@@ -5,7 +5,7 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|A Bounty on Guard Captain Kilkay}}<br>{{QuestLink|stablekey=quest:kilkaybounty|link=A Bounty on Guard Captain Kilkay|text=A Bounty on Guard Captain Kilkay}}
+|questsource={{QuestLink|A Bounty on Guard Captain Kilkay}}<br>{{QuestLink|stablekey=quest:kilkaybounty}}
 |relatedquest=
 |craftsource=
 |componentfor=
@@ -52,7 +52,7 @@
 |proc_style=Worn
 |proc_chance=
 |proc_spell_icon=Mana Charge.png
-|proc_spell_name={{AbilityLink|stablekey=spell:arc - mana charge|link=Mana Charge|text=Mana Charge|image=Mana Charge.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:arc - mana charge}}
 |proc_spell_level=-1
 |proc_spell_duration_ticks=3
 |proc_spell_type=Beneficial

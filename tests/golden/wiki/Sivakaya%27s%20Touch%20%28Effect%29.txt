@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:ring - 39 - sivakaya's touch|link=Sivakaya's Touch|text=Sivakaya's Touch|image=Sivakaya's Touch.png}}
+|itemswitheffect={{ItemLink|stablekey=item:ring - 39 - sivakaya's touch}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - sivakayas kiss}}

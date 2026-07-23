@@ -3,7 +3,7 @@
 |stablekey=item:template - nighthollow wax mold
 |type=[[Crafting|Mold]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:candlekeeper|link=Candlekeeper|text=Candlekeeper}} (100.0%)
+|source={{CharacterLink|stablekey=character:candlekeeper}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink | link=Recovering the Nighthollow Candle}}
@@ -22,8 +22,8 @@
 |image=Mold: Nighthollow Wax.png
 |name=Mold: Nighthollow Wax
 |description=Recipes must be exact - use CNTRL + CLICK to separate stacks.<br><br>One-time usable in a forge.
-|ingredients=1x {{ItemLink|stablekey=item:gen - dusken giants blood|link=Dusken Giant's Blood|text=Dusken Giant's Blood|image=Dusken Giant's Blood.png}}<br>1x {{ItemLink|stablekey=item:gen - ghostly giant's blood|link=Ghostly Giant's Blood|text=Ghostly Giant's Blood|image=Ghostly Giant's Blood.png}}<br>1x {{ItemLink|stablekey=item:gen - sylvan giants blood|link=Sylvan Giant's Blood|text=Sylvan Giant's Blood|image=Sylvan Giant's Blood.png}}<br>1x {{ItemLink|stablekey=item:gen - stone giants blood|link=Stone Giant's Blood|text=Stone Giant's Blood|image=Stone Giant's Blood.png}}<br>1x {{ItemLink|stablekey=item:gen - vampire fang|link=Vampire Fang|text=Vampire Fang|image=Vampire Fang.png}}
-|rewards={{ItemLink|stablekey=item:gen - nighthollow wax|link=Nighthollow Wax|text=Nighthollow Wax|image=Nighthollow Wax.png}}
+|ingredients=1x {{ItemLink|stablekey=item:gen - dusken giants blood}}<br>1x {{ItemLink|stablekey=item:gen - ghostly giant's blood}}<br>1x {{ItemLink|stablekey=item:gen - sylvan giants blood}}<br>1x {{ItemLink|stablekey=item:gen - stone giants blood}}<br>1x {{ItemLink|stablekey=item:gen - vampire fang}}
+|rewards={{ItemLink|stablekey=item:gen - nighthollow wax}}
 |station=
 }}
 

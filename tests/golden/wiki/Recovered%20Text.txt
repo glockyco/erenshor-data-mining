@@ -3,7 +3,7 @@
 |stablekey=item:gen - the ancient school
 |type=[[Lore Items|Lore]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:molorai high archaelogist 3|link=Molorai Archaeologist|text=Molorai Archaeologist}} (100.0%)
+|source={{CharacterLink|stablekey=character:molorai high archaelogist 3}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=

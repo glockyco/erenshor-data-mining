@@ -5,8 +5,8 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|A Trade in Ripper's Keep}}<br>{{QuestLink|Portal of Ripper's Keep}}<br>{{QuestLink|stablekey=quest:ripperrune|link=A Trade in Ripper's Keep|text=A Trade in Ripper's Keep}}<br>{{QuestLink|stablekey=quest:reliq-ripper|link=Portal of Ripper's Keep|text=Portal of Ripper's Keep}}
-|relatedquest={{QuestLink|Portal of Ripper's Keep}}<br>{{QuestLink|stablekey=quest:reliq-ripper|link=Portal of Ripper's Keep|text=Portal of Ripper's Keep}}
+|questsource={{QuestLink|A Trade in Ripper's Keep}}<br>{{QuestLink|Portal of Ripper's Keep}}<br>{{QuestLink|stablekey=quest:ripperrune}}<br>{{QuestLink|stablekey=quest:reliq-ripper}}
+|relatedquest={{QuestLink|Portal of Ripper's Keep}}<br>{{QuestLink|stablekey=quest:reliq-ripper}}
 |craftsource=
 |componentfor=
 |buy=5000
@@ -27,7 +27,7 @@ A reward for completing the quest {{QuestLink|link=A Trade in Ripper's Keep}}. I
 |disposable=
 |effect_style=Activatable
 |effect_spell_icon=Portal to Ripper's Keep.png
-|effect_spell_name={{AbilityLink|stablekey=spell:arc - portal to ripper|link=Portal to Ripper's Keep|text=Portal to Ripper's Keep|image=Portal to Ripper's Keep.png}}
+|effect_spell_name={{AbilityLink|stablekey=spell:arc - portal to ripper}}
 |effect_spell_level=25
 |effect_spell_duration_ticks=
 |effect_spell_type=Misc

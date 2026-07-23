@@ -3,15 +3,15 @@
 |image=[[File:Candlekeeper.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:braxonian|link=Braxonian Desert|text=Braxonian Desert}}
+|zones={{ZoneLink|stablekey=zone:braxonian}}
 |coordinates=725.8 x 28.5 x 1191.1
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
-|guaranteeddrops={{ItemLink|stablekey=item:head - 31 - eternal diadem|link=Eternal Diadem|text=Eternal Diadem|image=Eternal Diadem.png}}<br>{{ItemLink|stablekey=item:weap - 33 - frostmaker|link=Frostmaker|text=Frostmaker|image=Frostmaker.png}}
-|droprates={{ItemLink|stablekey=item:gen - candlekeeper note|link=Custodian of the Flame|text=Custodian of the Flame|image=Custodian of the Flame.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - candlekeeper note|link=Custodian of the Flame|text=Custodian of the Flame|image=Custodian of the Flame.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:template - nighthollow wax mold|link=Mold: Nighthollow Wax|text=Mold: Nighthollow Wax|image=Mold: Nighthollow Wax.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:template - nighthollow wax mold|link=Mold: Nighthollow Wax|text=Mold: Nighthollow Wax|image=Mold: Nighthollow Wax.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:head - 31 - eternal diadem|link=Eternal Diadem|text=Eternal Diadem|image=Eternal Diadem.png}} (50.0%)<br>{{ItemLink|stablekey=item:weap - 33 - frostmaker|link=Frostmaker|text=Frostmaker|image=Frostmaker.png}} (50.0%)<ref>If Candlekeeper has {{ItemLink|stablekey=item:weap - 33 - frostmaker|link=Frostmaker|text=Frostmaker|image=Frostmaker.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:ore - ancient coal|link=Ancient Coal|text=Ancient Coal|image=Ancient Coal.png}} (40.2%)<br>{{ItemLink|stablekey=item:ore - citrine sandsilver|link=Chunk of Citrine Sandsilver|text=Chunk of Citrine Sandsilver|image=Chunk of Citrine Sandsilver.png}} (40.2%)<br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (40.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:ore - sivakayan ore|link=Sivakayan Ore|text=Sivakayan Ore|image=Sivakayan Ore.png}} (40.2%)
+|guaranteeddrops={{ItemLink|stablekey=item:head - 31 - eternal diadem}}<br>{{ItemLink|stablekey=item:weap - 33 - frostmaker}}
+|droprates={{ItemLink|stablekey=item:gen - candlekeeper note}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - candlekeeper note}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:template - nighthollow wax mold}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:template - nighthollow wax mold}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:head - 31 - eternal diadem}} (50.0%)<br>{{ItemLink|stablekey=item:weap - 33 - frostmaker}} (50.0%)<ref>If Candlekeeper has {{ItemLink|stablekey=item:weap - 33 - frostmaker}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:ore - ancient coal}} (40.2%)<br>{{ItemLink|stablekey=item:ore - citrine sandsilver}} (40.2%)<br>{{ItemLink|stablekey=item:gen - diamond}} (40.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:ore - sivakayan ore}} (40.2%)
 |level=35
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=18-42
 |elemental=18-42
 |void=18-42
-|spells={{AbilityLink|stablekey=spell:dru reav - devour|link=Devour|text=Devour|image=Devour.png}}<br>{{AbilityLink|stablekey=spell:dru - melting bones|link=Melting Bones|text=Melting Bones|image=Melting Bones.png}}
+|spells={{AbilityLink|stablekey=spell:dru reav - devour}}<br>{{AbilityLink|stablekey=spell:dru - melting bones}}
 }}
 
 To summon Candlekeeper you must bring [[A Strange Figurine]] to the [[Braxonian Game Board]].

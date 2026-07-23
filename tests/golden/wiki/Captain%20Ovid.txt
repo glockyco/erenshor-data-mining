@@ -3,15 +3,15 @@
 |image=[[File:Captain Ovid.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:ripper|link=Ripper DeMerth|text=Ripper DeMerth}}
-|factionChange=-50 {{FactionLink|stablekey=faction:ripper|link=Ripper DeMerth|text=Ripper DeMerth}}<br>+5 {{FactionLink|stablekey=faction:azureguard|link=The Azure Guard|text=The Azure Guard}}<br>+5 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:ripper|link=Ripper's Keep|text=Ripper's Keep}}
+|faction={{FactionLink|stablekey=faction:ripper}}
+|factionChange=-50 {{FactionLink|stablekey=faction:ripper}}<br>+5 {{FactionLink|stablekey=faction:azureguard}}<br>+5 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:ripper}}
 |coordinates=526.6 x 108.9 x 615.9
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen  - ripper insignia ring|link=Ripper Insignia Badge|text=Ripper Insignia Badge|image=Ripper Insignia Badge.png}} (20.6%)<br>{{ItemLink|stablekey=item:arm - 36 - crested spaulders|link=Crested Spaulders|text=Crested Spaulders|image=Crested Spaulders.png}} (4.0%)<br>{{ItemLink|stablekey=item:wrist -  25 - officer's brace|link=Officer's Bracer|text=Officer's Bracer|image=Officer's Bracer.png}} (4.0%)<br>{{ItemLink|stablekey=item:weap - 36 - ripparian axe|link=Ripparian Axe|text=Ripparian Axe|image=Ripparian Axe.png}} (4.0%)<br>{{ItemLink|stablekey=item:leg - 30 - ripparian greaves|link=Ripparian Greaves|text=Ripparian Greaves|image=Ripparian Greaves.png}} (3.0%)<br>{{ItemLink|stablekey=item:chest - 30 - ripparian plate|link=Ripparian Plate|text=Ripparian Plate|image=Ripparian Plate.png}} (3.0%)
+|droprates={{ItemLink|stablekey=item:gen  - ripper insignia ring}} (20.6%)<br>{{ItemLink|stablekey=item:arm - 36 - crested spaulders}} (4.0%)<br>{{ItemLink|stablekey=item:wrist -  25 - officer's brace}} (4.0%)<br>{{ItemLink|stablekey=item:weap - 36 - ripparian axe}} (4.0%)<br>{{ItemLink|stablekey=item:leg - 30 - ripparian greaves}} (3.0%)<br>{{ItemLink|stablekey=item:chest - 30 - ripparian plate}} (3.0%)
 |level=36
 |levelmodmin=0
 |levelmodmax=0

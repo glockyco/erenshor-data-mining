@@ -5,7 +5,7 @@
 |description=Felling an enemy gives a burst of power and regeneration.
 |type=Innate
 |line=
-|classes={{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}} (1)
+|classes={{ClassLink|stablekey=class:duelist}} (1)
 |required_level=
 |manacost=
 |aggro=
@@ -23,7 +23,7 @@
 |is_self_only=True
 |is_group_effect=
 |is_applied_to_caster=True
-|effects={{AbilityLink|stablekey=spell:duel - pride|link=Pride|text=Pride|image=Pride.png}}
+|effects={{AbilityLink|stablekey=spell:duel - pride}}
 |damage_type=
 |resist_modifier=
 |target_damage=
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:skillbook - pride|link=Skill Book: Victor's Pride|text=Skill Book: Victor's Pride|image=Skill Book: Victor's Pride.png}}
+|source={{ItemLink|stablekey=item:skillbook - pride}}
 |used_by=
 }}
+{{SkillTooltip|stablekey=skill:pride}}

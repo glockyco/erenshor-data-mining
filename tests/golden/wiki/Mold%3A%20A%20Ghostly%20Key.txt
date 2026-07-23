@@ -3,7 +3,7 @@
 |stablekey=item:template - a chewed key mold
 |type=[[Crafting|Mold]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:plaxitheris|link=Plaxitheris|text=Plaxitheris}} (100.0%)
+|source={{CharacterLink|stablekey=character:plaxitheris}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink |questlink=Whispers of Wyland}}
@@ -21,8 +21,8 @@
 |image=Mold: A Ghostly Key.png
 |name=Mold: A Ghostly Key
 |description=Recipes must be exact - use CNTRL + CLICK to separate stacks.<br><br>One-time usable in a forge. <br><br>*Fuel quality does not affect the outcome of this recipe
-|ingredients=1x {{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}}<br>1x {{ItemLink|stablekey=item:ore - iron ore|link=Chunk of Iron Ore|text=Chunk of Iron Ore|image=Chunk of Iron Ore.png}}<br>1x {{ItemLink|stablekey=item:gen - broken key|link=Broken Key Blade|text=Broken Key Blade|image=Broken Key Blade.png}}<br>1x {{ItemLink|stablekey=item:gen - broken key bow|link=Broken Key Bow|text=Broken Key Bow|image=Broken Key Bow.png}}
-|rewards={{ItemLink|stablekey=item:key - ghostly key|link=Ghostly Key|text=Ghostly Key|image=Ghostly Key.png}}
+|ingredients=1x {{ItemLink|stablekey=item:gen - aetheria}}<br>1x {{ItemLink|stablekey=item:ore - iron ore}}<br>1x {{ItemLink|stablekey=item:gen - broken key}}<br>1x {{ItemLink|stablekey=item:gen - broken key bow}}
+|rewards={{ItemLink|stablekey=item:key - ghostly key}}
 |station=
 }}
 

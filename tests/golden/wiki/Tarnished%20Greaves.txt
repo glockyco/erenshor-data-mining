@@ -3,7 +3,7 @@
 |stablekey=item:leg - 7 - tarnished greaves
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:druo the reborn|link=Druo the Reborn|text=Druo the Reborn}} (27.4%)<br>{{CharacterLink|stablekey=character:grassland ogre plaguebringer|link=A Grassland Ogre Plaguebringer|text=A Grassland Ogre Plaguebringer}} (1.1%)
+|source={{CharacterLink|stablekey=character:druo the reborn}} (27.4%)<br>{{CharacterLink|stablekey=character:grassland ogre plaguebringer}} (1.1%)
 |othersource=
 |questsource=
 |relatedquest=

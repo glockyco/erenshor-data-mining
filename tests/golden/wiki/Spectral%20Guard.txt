@@ -3,15 +3,15 @@
 |image=[[File:Spectral Guard.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:undercity|link=Lost Cellar|text=Lost Cellar}}
+|zones={{ZoneLink|stablekey=zone:undercity}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:weap - 17 - tarnished halberd|link=Tarnished Halberd|text=Tarnished Halberd|image=Tarnished Halberd.png}} (6.9%)<br>{{ItemLink|stablekey=item:belt - 20 - tarnished steel belt|link=Tarnished Steel Belt|text=Tarnished Steel Belt|image=Tarnished Steel Belt.png}} (6.9%)<br>{{ItemLink|stablekey=item:wrist - 7 - aged plate bracer|link=Aged Plate Bracer|text=Aged Plate Bracer|image=Aged Plate Bracer.png}} (2.7%)<br>{{ItemLink|stablekey=item:arm - 6 - aged plate  sleeves|link=Aged Plate Sleeves|text=Aged Plate Sleeves|image=Aged Plate Sleeves.png}} (2.7%)<br>{{ItemLink|stablekey=item:foot - 18 - aged plate boots|link=Aged Plate Boots|text=Aged Plate Boots|image=Aged Plate Boots.png}} (1.4%)
+|droprates={{ItemLink|stablekey=item:weap - 17 - tarnished halberd}} (6.9%)<br>{{ItemLink|stablekey=item:belt - 20 - tarnished steel belt}} (6.9%)<br>{{ItemLink|stablekey=item:wrist - 7 - aged plate bracer}} (2.7%)<br>{{ItemLink|stablekey=item:arm - 6 - aged plate  sleeves}} (2.7%)<br>{{ItemLink|stablekey=item:foot - 18 - aged plate boots}} (1.4%)
 |level=16
 |levelmodmin=0
 |levelmodmax=0

@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 6 - embalmed bracer
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:zashlyn bloodbane|link=Zashlyn Bloodbane|text=Zashlyn Bloodbane}} (37.0%)
+|source={{CharacterLink|stablekey=character:zashlyn bloodbane}} (37.0%)
 |othersource=
 |questsource=
 |relatedquest=

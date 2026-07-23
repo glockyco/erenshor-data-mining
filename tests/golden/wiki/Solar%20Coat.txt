@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:chest - 42 - radiant chestguard|link=Radiant Chestguard|text=Radiant Chestguard|image=Radiant Chestguard.png}}
+|itemswitheffect={{ItemLink|stablekey=item:chest - 42 - radiant chestguard}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - solar coat}}

@@ -5,7 +5,7 @@
 |description=Lower a target's AC by 400
 |type=StatusEffect
 |line=Duel_Other_Debuff
-|classes={{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}} (35)
+|classes={{ClassLink|stablekey=class:duelist}} (35)
 |required_level=35
 |manacost=650
 |aggro=300
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - expose weakness ii|link=Spell Scroll: Expose Weakness II|text=Spell Scroll: Expose Weakness II|image=Spell Scroll: Expose Weakness II.png}}
+|source={{ItemLink|stablekey=item:spell scroll - expose weakness ii}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:duel - expose weakness ii}}

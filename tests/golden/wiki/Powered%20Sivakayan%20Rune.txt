@@ -5,8 +5,8 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|Repairing the Sivakayan Rune}}<br>{{QuestLink|stablekey=quest:sivakayanrunesfuse|link=Repairing the Sivakayan Rune|text=Repairing the Sivakayan Rune}}
-|relatedquest={{QuestLink|Stop Sivakaya!}}<br>{{QuestLink|stablekey=quest:sivakayanplanarportal|link=Stop Sivakaya!|text=Stop Sivakaya!}}
+|questsource={{QuestLink|Repairing the Sivakayan Rune}}<br>{{QuestLink|stablekey=quest:sivakayanrunesfuse}}
+|relatedquest={{QuestLink|Stop Sivakaya!}}<br>{{QuestLink|stablekey=quest:sivakayanplanarportal}}
 |craftsource=
 |componentfor=
 |buy=

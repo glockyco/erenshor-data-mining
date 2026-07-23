@@ -3,7 +3,7 @@
 |stablekey=item:furniture - gold statue fernalla
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:vinx|link=Vinx|text=Vinx}} (0.5%)<br>{{CharacterLink|stablekey=character:risen druid|link=Risen Druid|text=Risen Druid}} (0.2%)
+|source={{CharacterLink|stablekey=character:vinx}} (0.5%)<br>{{CharacterLink|stablekey=character:risen druid}} (0.2%)
 |othersource=
 |questsource=
 |relatedquest=

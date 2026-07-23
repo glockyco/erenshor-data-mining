@@ -3,9 +3,9 @@
 |image=[[File:Ivarest Hillsong.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:fernalla|link=Fernalla's Children|text=Fernalla's Children}}
-|factionChange=-30 {{FactionLink|stablekey=faction:fernalla|link=Fernalla's Children|text=Fernalla's Children}}<br>+2 {{FactionLink|stablekey=faction:wispagent|link=The Agents of The Wisp|text=The Agents of The Wisp}}<br>+2 {{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}
-|zones={{ZoneLink|stablekey=zone:duskenlight|link=The Duskenlight Coast|text=The Duskenlight Coast}}
+|faction={{FactionLink|stablekey=faction:fernalla}}
+|factionChange=-30 {{FactionLink|stablekey=faction:fernalla}}<br>+2 {{FactionLink|stablekey=faction:wispagent}}<br>+2 {{FactionLink|stablekey=faction:sivakayans}}
+|zones={{ZoneLink|stablekey=zone:duskenlight}}
 |coordinates=994.0 x 62.8 x 625.3
 |spawnchance=
 |spawntype=

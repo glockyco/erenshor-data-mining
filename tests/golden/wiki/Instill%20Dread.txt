@@ -5,7 +5,7 @@
 |description=Causes your target to disengage from combat and run away. Effective on up to level 35 targets.
 |type=StatusEffect
 |line=Reav_Fear
-|classes={{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}} (29)
+|classes={{ClassLink|stablekey=class:reaver}} (29)
 |required_level=29
 |manacost=500
 |aggro=2000
@@ -66,6 +66,7 @@
 |is_fear=True
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - instill dread|link=Spell Scroll: Instill Dread|text=Spell Scroll: Instill Dread|image=Spell Scroll: Instill Dread.png}}
+|source={{ItemLink|stablekey=item:spell scroll - instill dread}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:reav - instill dread}}

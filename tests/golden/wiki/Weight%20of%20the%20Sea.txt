@@ -5,7 +5,7 @@
 |description=Slow target's attack speed by 15%
 |type=StatusEffect
 |line=Attack_Speed_Debuff
-|classes={{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}} (15)
+|classes={{ClassLink|stablekey=class:duelist}} (15)
 |required_level=15
 |manacost=175
 |aggro=25
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - weight of the sea|link=Spell Scroll: Weight of the Sea|text=Spell Scroll: Weight of the Sea|image=Spell Scroll: Weight of the Sea.png}}
+|source={{ItemLink|stablekey=item:spell scroll - weight of the sea}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:duel - slow weight of the sea}}

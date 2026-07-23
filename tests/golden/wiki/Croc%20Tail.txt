@@ -3,10 +3,10 @@
 |stablekey=item:gen - croc tail
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:ancient croc 1|link=Stonetooth Croc|text=Stonetooth Croc}} (27.8%)<br>{{CharacterLink|stablekey=character:redbelly croc|link=Rotbelly Croc|text=Rotbelly Croc}} (14.8%)
+|source={{CharacterLink|stablekey=character:ancient croc 1}} (27.8%)<br>{{CharacterLink|stablekey=character:redbelly croc}} (14.8%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Croc Tails for the Poachers}}<br>{{QuestLink|stablekey=quest:croctail|link=Croc Tails for the Poachers|text=Croc Tails for the Poachers}}
+|relatedquest={{QuestLink|Croc Tails for the Poachers}}<br>{{QuestLink|stablekey=quest:croctail}}
 |craftsource=
 |componentfor=
 |buy=12

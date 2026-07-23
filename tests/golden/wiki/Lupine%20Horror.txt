@@ -3,15 +3,15 @@
 |image=[[File:Lupine Horror.png|thumb]]
 |imagecaption=
 |type=Rare
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
-|factionChange=+2 {{FactionLink|stablekey=faction:fernalla|link=Fernalla's Children|text=Fernalla's Children}}<br>+2 {{FactionLink|stablekey=faction:brax|link=The Torchbearers of Brax|text=The Torchbearers of Brax}}
-|zones={{ZoneLink|stablekey=zone:blight|link=The Blight|text=The Blight}}
+|faction={{FactionLink|stablekey=faction:evil}}
+|factionChange=+2 {{FactionLink|stablekey=faction:fernalla}}<br>+2 {{FactionLink|stablekey=faction:brax}}
+|zones={{ZoneLink|stablekey=zone:blight}}
 |coordinates=
 |spawnchance=7%
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:head - 27 - jackal hood|link=Jackal Hood|text=Jackal Hood|image=Jackal Hood.png}}<br>{{ItemLink|stablekey=item:ring - 22 - jackalbone loop|link=Jackalbone Loop|text=Jackalbone Loop|image=Jackalbone Loop.png}}
-|droprates={{ItemLink|stablekey=item:head - 27 - jackal hood|link=Jackal Hood|text=Jackal Hood|image=Jackal Hood.png}} (66.7%)<br>{{ItemLink|stablekey=item:ring - 22 - jackalbone loop|link=Jackalbone Loop|text=Jackalbone Loop|image=Jackalbone Loop.png}} (33.3%)<br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (19.5%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - ancient pottery shard|link=Ancient Pottery Shard|text=Ancient Pottery Shard|image=Ancient Pottery Shard.png}} (11.5%)<br>{{ItemLink|stablekey=item:gen - blightwood|link=Blightwood Slab|text=Blightwood Slab|image=Blightwood Slab.png}} (11.5%)
+|guaranteeddrops={{ItemLink|stablekey=item:head - 27 - jackal hood}}<br>{{ItemLink|stablekey=item:ring - 22 - jackalbone loop}}
+|droprates={{ItemLink|stablekey=item:head - 27 - jackal hood}} (66.7%)<br>{{ItemLink|stablekey=item:ring - 22 - jackalbone loop}} (33.3%)<br>{{ItemLink|stablekey=item:gen - diamond}} (19.5%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - ancient pottery shard}} (11.5%)<br>{{ItemLink|stablekey=item:gen - blightwood}} (11.5%)
 |level=25
 |levelmodmin=0
 |levelmodmax=0

@@ -8,7 +8,7 @@
 |questsource=
 |relatedquest=
 |craftsource=
-|componentfor={{ItemLink|stablekey=item:template - a chewed key mold|link=Mold: A Ghostly Key|text=Mold: A Ghostly Key|image=Mold: A Ghostly Key.png}}<br>{{ItemLink|stablekey=item:template - bronze sceptre|link=Mold: Copper Sceptre|text=Mold: Copper Sceptre|image=Mold: Copper Sceptre.png}}<br>{{ItemLink|stablekey=item:template - bronze sword|link=Mold: Copper Sword|text=Mold: Copper Sword|image=Mold: Copper Sword.png}}<br>{{ItemLink|stablekey=item:template - ethereal vault|link=Mold: Ethereal Vault|text=Mold: Ethereal Vault|image=Mold: Ethereal Vault.png}}
+|componentfor={{ItemLink|stablekey=item:template - a chewed key mold}}<br>{{ItemLink|stablekey=item:template - bronze sceptre}}<br>{{ItemLink|stablekey=item:template - bronze sword}}<br>{{ItemLink|stablekey=item:template - ethereal vault}}
 |buy=5
 |sell=3
 |taughtspell=

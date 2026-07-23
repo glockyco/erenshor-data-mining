@@ -3,10 +3,10 @@
 |stablekey=item:gen - tempest stone
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:priest of brax|link=Upha, Priest of Brax|text=Upha, Priest of Brax}} (100.0%)
+|source={{CharacterLink|stablekey=character:priest of brax}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Orion Mycon's Lost Ring}}<br>{{QuestLink|stablekey=quest:tempeststone|link=Orion Mycon's Lost Ring|text=Orion Mycon's Lost Ring}}
+|relatedquest={{QuestLink|Orion Mycon's Lost Ring}}<br>{{QuestLink|stablekey=quest:tempeststone}}
 |craftsource=
 |componentfor=
 |buy=500

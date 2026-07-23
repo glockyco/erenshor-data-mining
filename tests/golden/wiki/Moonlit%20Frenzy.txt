@@ -5,7 +5,7 @@
 |description=(Taunt) Target becomes furious with the caster of this spell.
 |type=Damage
 |line=Pal_Other_Debuff
-|classes={{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}} (35)
+|classes={{ClassLink|stablekey=class:paladin}} (35)
 |required_level=35
 |manacost=400
 |aggro=5200
@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:secondary - 42 - cometshard shield|link=Cometshard Shield|text=Cometshard Shield|image=Cometshard Shield.png}}
-|source={{ItemLink|stablekey=item:spell scroll - moonlit frenzy|link=Spell Scroll: Moonlit Frenzy|text=Spell Scroll: Moonlit Frenzy|image=Spell Scroll: Moonlit Frenzy.png}}
+|itemswitheffect={{ItemLink|stablekey=item:secondary - 42 - cometshard shield}}
+|source={{ItemLink|stablekey=item:spell scroll - moonlit frenzy}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:pal - taunt moonlit frenzy}}

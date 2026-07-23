@@ -3,9 +3,9 @@
 |image=[[File:Vera Pricher.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:fernalla|link=Fernalla's Children|text=Fernalla's Children}}
-|factionChange=-20 {{FactionLink|stablekey=faction:fernalla|link=Fernalla's Children|text=Fernalla's Children}}
-|zones={{ZoneLink|stablekey=zone:azure|link=Port Azure|text=Port Azure}}
+|faction={{FactionLink|stablekey=faction:fernalla}}
+|factionChange=-20 {{FactionLink|stablekey=faction:fernalla}}
+|zones={{ZoneLink|stablekey=zone:azure}}
 |coordinates=347.4 x 37.2 x 452.7
 |spawnchance=
 |spawntype=

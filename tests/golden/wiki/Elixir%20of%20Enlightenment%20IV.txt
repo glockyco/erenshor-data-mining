@@ -2,10 +2,10 @@
 |title=Elixir of Enlightenment IV
 |stablekey=item:cons - enlightening potion iv
 |type=[[Consumables|Consumable]]
-|vendorsource={{CharacterLink|stablekey=character:shady merchant|link=Elysia Thistlewick|text=Elysia Thistlewick}}
-|source={{CharacterLink|stablekey=character:treasurechest 0-10 1|link=Lost Treasure (1-10)|text=Lost Treasure (1-10)}} (11.7%)<br>{{CharacterLink|stablekey=character:treasurechest 20-30 1|link=Lost Treasure (20-30)|text=Lost Treasure (20-30)}} (10.8%)<br>{{ItemLink|stablekey=item:gen - braxonian fossil|link=Braxonian Fossil|text=Braxonian Fossil}} (10.5%)<br>{{CharacterLink|stablekey=character:treasurechest 10-20 1|link=Lost Treasure (10-20)|text=Lost Treasure (10-20)}} (7.2%)
+|vendorsource={{CharacterLink|stablekey=character:shady merchant}}
+|source={{CharacterLink|stablekey=character:treasurechest 0-10 1}} (11.7%)<br>{{CharacterLink|stablekey=character:treasurechest 20-30 1}} (10.8%)<br>{{ItemLink|stablekey=item:gen - braxonian fossil}} (10.5%)<br>{{CharacterLink|stablekey=character:treasurechest 10-20 1}} (7.2%)
 |othersource=
-|questsource={{QuestLink|link=The Mathers' Demise{{!}}The Mather's Demise, Part 3}}<br>{{QuestLink|The Mathers' Demise}}<br>{{QuestLink|stablekey=quest:mathersdemise3|link=The Mathers' Demise|text=The Mathers' Demise}}
+|questsource={{QuestLink|link=The Mathers' Demise{{!}}The Mather's Demise, Part 3}}<br>{{QuestLink|The Mathers' Demise}}<br>{{QuestLink|stablekey=quest:mathersdemise3}}
 |relatedquest=
 |craftsource=
 |componentfor=
@@ -23,7 +23,7 @@
 |description=
 |disposable=True
 |effect_spell_icon=Enlightened Path IV.png
-|effect_spell_name={{AbilityLink|stablekey=spell:none - blessing of xp 4|link=Enlightened Path IV|text=Enlightened Path IV|image=Enlightened Path IV.png}}
+|effect_spell_name={{AbilityLink|stablekey=spell:none - blessing of xp 4}}
 |effect_spell_level=30
 |effect_spell_duration_ticks=1000
 |effect_spell_type=Beneficial

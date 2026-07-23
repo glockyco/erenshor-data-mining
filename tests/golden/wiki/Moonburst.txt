@@ -5,7 +5,7 @@
 |description=Deals 100 damage to enemies in your immediate vicinity.
 |type=PBAE
 |line=Direct_Damage
-|classes={{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}} (10)
+|classes={{ClassLink|stablekey=class:paladin}} (10)
 |required_level=10
 |manacost=60
 |aggro=300
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - moonburst|link=Spell Scroll: Moonburst|text=Spell Scroll: Moonburst|image=Spell Scroll: Moonburst.png}}
-|used_by={{CharacterLink|stablekey=character:a deepling lunarite|link=A Deepling Lunarite|text=A Deepling Lunarite}}<br>{{CharacterLink|stablekey=character:a deepling orator|link=A Deepling Orator|text=A Deepling Orator}}<br>{{CharacterLink|stablekey=character:a rottenfoot goblin female|link=Rottenfoot Swampwalker|text=Rottenfoot Swampwalker}}<br>{{CharacterLink|stablekey=character:sivakayan legionairre|link=Sivakayan Legionnaire|text=Sivakayan Legionnaire}}<br>{{CharacterLink|stablekey=character:sivakayan raider|link=Sivakayan Raider|text=Sivakayan Raider}}<br>{{CharacterLink|stablekey=character:sivakayan raider:1|link=Sivakayan Raider|text=Sivakayan Raider}}<br>{{CharacterLink|stablekey=character:sivakayan reaver|link=Sivakayan Reaver|text=Sivakayan Reaver}}<br>{{CharacterLink|stablekey=character:sivakayan reaver:1|link=Sivakayan Reaver|text=Sivakayan Reaver}}<br>{{CharacterLink|stablekey=character:sivakayan spymaster|link=Sivakayan Spymaster|text=Sivakayan Spymaster}}
+|source={{ItemLink|stablekey=item:spell scroll - moonburst}}
+|used_by={{CharacterLink|stablekey=character:a deepling lunarite}}<br>{{CharacterLink|stablekey=character:a deepling orator}}<br>{{CharacterLink|stablekey=character:a rottenfoot goblin female}}<br>{{CharacterLink|stablekey=character:sivakayan legionairre}}<br>{{CharacterLink|stablekey=character:sivakayan raider}}<br>{{CharacterLink|stablekey=character:sivakayan raider:1}}<br>{{CharacterLink|stablekey=character:sivakayan reaver}}<br>{{CharacterLink|stablekey=character:sivakayan reaver:1}}<br>{{CharacterLink|stablekey=character:sivakayan spymaster}}
 }}
+{{SpellTooltip|stablekey=spell:pal - moonburst}}

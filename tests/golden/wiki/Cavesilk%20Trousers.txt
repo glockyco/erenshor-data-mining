@@ -3,7 +3,7 @@
 |stablekey=item:leg - 17 - cavesilk trousers
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:fungal queen|link=Slumbering Queen|text=Slumbering Queen}} (52.2%)
+|source={{CharacterLink|stablekey=character:fungal queen}} (52.2%)
 |othersource=
 |questsource=
 |relatedquest=

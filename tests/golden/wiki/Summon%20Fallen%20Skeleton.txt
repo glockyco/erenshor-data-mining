@@ -30,7 +30,7 @@
 |target_healing=
 |caster_healing=
 |shield_amount=
-|pet_to_summon={{CharacterLink|stablekey=character:summoned fallen warrior|link=Summoned Fallen Warrior|text=Summoned Fallen Warrior}}
+|pet_to_summon={{CharacterLink|stablekey=character:summoned fallen warrior}}
 |status_effect=
 |add_proc=
 |add_proc_chance=
@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:wrist - 25 - shackle of bidding|link=Shackle of Bidding|text=Shackle of Bidding|image=Shackle of Bidding.png}}
+|itemswitheffect={{ItemLink|stablekey=item:wrist - 25 - shackle of bidding}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:nec - summon fallen warrior}}

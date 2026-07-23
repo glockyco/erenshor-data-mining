@@ -3,7 +3,7 @@
 |stablekey=item:glove - 42 - gauntlets of fiery strength
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:warder of flame|link=Warder of Flame|text=Warder of Flame}} (69.7%)
+|source={{CharacterLink|stablekey=character:warder of flame}} (69.7%)
 |othersource=
 |questsource=
 |relatedquest=

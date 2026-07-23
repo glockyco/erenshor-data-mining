@@ -3,7 +3,7 @@
 |stablekey=item:weap - 31 - soulshiver
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:braxonian weapon master|link=Braxonian Weapon Master|text=Braxonian Weapon Master}} (33.3%)
+|source={{CharacterLink|stablekey=character:braxonian weapon master}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=20
 |proc_spell_icon=Winter's Bite.png
-|proc_spell_name={{AbilityLink|stablekey=spell:arc - winter's bite|link=Winter's Bite|text=Winter's Bite|image=Winter's Bite.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:arc - winter's bite}}
 |proc_spell_level=14
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

@@ -3,7 +3,7 @@
 |stablekey=item:glove - 42 - skyseared gloves
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:arenachest 1|link=Vithean Chest|text=Vithean Chest (Round 1)}} (2.5%)<br>{{CharacterLink|stablekey=character:arenachest 3|link=Vithean Chest|text=Vithean Chest (Round 3)}} (2.5%)<br>{{CharacterLink|stablekey=character:arenachest 4|link=Vithean Chest|text=Vithean Chest (Round 4)}} (2.4%)<br>{{CharacterLink|stablekey=character:arenachest 5|link=Vithean Chest|text=Vithean Chest (Round 5)}} (2.4%)<br>{{CharacterLink|stablekey=character:arenachest 6|link=Vithean Chest|text=Vithean Chest (Round 6)}} (2.4%)<br>{{CharacterLink|stablekey=character:arenachest 7|link=Vithean Chest|text=Vithean Chest (Round 7)}} (2.4%)<br>{{CharacterLink|stablekey=character:fallen gladiator 1|link=Wandering Gladiator|text=Wandering Gladiator}} (1.8%)<br>{{CharacterLink|stablekey=character:arenachest 2|link=Vithean Chest|text=Vithean Chest (Round 2)}} (1.6%)<br>{{CharacterLink|stablekey=character:honsus|link=Honsus|text=Honsus}} (1.5%)<br>{{CharacterLink|stablekey=character:tojokom|link=Tojokom|text=Tojokom}} (1.5%)<br>{{CharacterLink|stablekey=character:fallen gladiator|link=Wandering Gladiator|text=Wandering Gladiator}} (1.0%)<br>{{CharacterLink|stablekey=character:fallen gladiator 2|link=Wandering Gladiator|text=Wandering Gladiator}} (1.0%)<br>{{CharacterLink|stablekey=character:wandering champion|link=Expert Gladiator|text=Expert Gladiator}} (0.9%)
+|source={{CharacterLink|stablekey=character:arenachest 1}} (2.5%)<br>{{CharacterLink|stablekey=character:arenachest 3}} (2.5%)<br>{{CharacterLink|stablekey=character:arenachest 4}} (2.4%)<br>{{CharacterLink|stablekey=character:arenachest 5}} (2.4%)<br>{{CharacterLink|stablekey=character:arenachest 6}} (2.4%)<br>{{CharacterLink|stablekey=character:arenachest 7}} (2.4%)<br>{{CharacterLink|stablekey=character:fallen gladiator 1}} (1.8%)<br>{{CharacterLink|stablekey=character:arenachest 2}} (1.6%)<br>{{CharacterLink|stablekey=character:honsus}} (1.5%)<br>{{CharacterLink|stablekey=character:tojokom}} (1.5%)<br>{{CharacterLink|stablekey=character:fallen gladiator}} (1.0%)<br>{{CharacterLink|stablekey=character:fallen gladiator 2}} (1.0%)<br>{{CharacterLink|stablekey=character:wandering champion}} (0.9%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Worn
 |proc_chance=
 |proc_spell_icon=Embrace of Shadow.png
-|proc_spell_name={{AbilityLink|stablekey=spell:none - embrace of shadow|link=Embrace of Shadow|text=Embrace of Shadow|image=Embrace of Shadow.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:none - embrace of shadow}}
 |proc_spell_level=25
 |proc_spell_duration_ticks=2
 |proc_spell_type=Beneficial

@@ -3,9 +3,9 @@
 |image=[[File:Sean Figarello.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:stowaway|link=The Citizens of Stowaway's Step|text=The Citizens of Stowaway's Step}}
-|factionChange=-25 {{FactionLink|stablekey=faction:stowaway|link=The Citizens of Stowaway's Step|text=The Citizens of Stowaway's Step}}<br>-25 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
-|zones={{ZoneLink|stablekey=zone:stowaway|link=Stowaway's Step|text=Stowaway's Step}}
+|faction={{FactionLink|stablekey=faction:stowaway}}
+|factionChange=-25 {{FactionLink|stablekey=faction:stowaway}}<br>-25 {{FactionLink|stablekey=faction:solunarians}}
+|zones={{ZoneLink|stablekey=zone:stowaway}}
 |coordinates=605.5 x 72.2 x 464.4
 |spawnchance=
 |spawntype=
@@ -32,7 +32,7 @@
 |poison=12-30
 |elemental=12-30
 |void=12-30
-|spells={{AbilityLink|stablekey=spell:dru pal - minor healing|link=Minor Healing|text=Minor Healing|image=Minor Healing.png}}
+|spells={{AbilityLink|stablekey=spell:dru pal - minor healing}}
 }}
 Sean is located in [[Wickliff]] on [[Stowaway's Step]] and is selling a house.
 

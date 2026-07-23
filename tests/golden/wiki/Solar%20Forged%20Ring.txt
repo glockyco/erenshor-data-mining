@@ -3,7 +3,7 @@
 |stablekey=item:ring - 31 - solarforged ring
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:raval|link=Raval, The First Paladin|text=Raval, The First Paladin}} (40.0%)
+|source={{CharacterLink|stablekey=character:raval}} (40.0%)
 |othersource=
 |questsource=
 |relatedquest=

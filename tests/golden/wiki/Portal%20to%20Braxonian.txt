@@ -65,9 +65,10 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:gen - rune of sands|link=Rune of Sands|text=Rune of Sands|image=Rune of Sands.png}}
+|itemswitheffect={{ItemLink|stablekey=item:gen - rune of sands}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:arc - portal to braxonian}}
 
 [[Category:Teleportation]]

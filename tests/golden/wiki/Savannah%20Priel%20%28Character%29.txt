@@ -3,15 +3,15 @@
 |image=[[File:Savannah Priel (Character).png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:priel|link=Savannah Priel|text=Savannah Priel}}
-|factionChange=-350 {{FactionLink|stablekey=faction:priel|link=Savannah Priel|text=Savannah Priel}}<br>+20 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+20 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:prielplateau|link=Prielian Cascade|text=Prielian Cascade}}
+|faction={{FactionLink|stablekey=faction:priel}}
+|factionChange=-350 {{FactionLink|stablekey=faction:priel}}<br>+20 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+20 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:prielplateau}}
 |coordinates=490.6 x 45.5 x 532.8
 |spawnchance=
 |spawntype=
 |respawn=11 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:weap - 35 - charged sword|link=Charged Sword|text=Charged Sword|image=Charged Sword.png}}<br>{{ItemLink|stablekey=item:wrist - 28 - eroded bangle|link=Eroded Bangle|text=Eroded Bangle|image=Eroded Bangle.png}}
-|droprates={{ItemLink|stablekey=item:book - savannahs ledger|link=Savannah's Musings|text=Savannah's Musings|image=Savannah's Musings.png}} (100.0%)<br>{{ItemLink|stablekey=item:weap - 35 - charged sword|link=Charged Sword|text=Charged Sword|image=Charged Sword.png}} (50.0%)<ref>If Savannah Priel has {{ItemLink|stablekey=item:weap - 35 - charged sword|link=Charged Sword|text=Charged Sword|image=Charged Sword.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:wrist - 28 - eroded bangle|link=Eroded Bangle|text=Eroded Bangle|image=Eroded Bangle.png}} (50.0%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (19.3%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (19.3%)
+|guaranteeddrops={{ItemLink|stablekey=item:weap - 35 - charged sword}}<br>{{ItemLink|stablekey=item:wrist - 28 - eroded bangle}}
+|droprates={{ItemLink|stablekey=item:book - savannahs ledger}} (100.0%)<br>{{ItemLink|stablekey=item:weap - 35 - charged sword}} (50.0%)<ref>If Savannah Priel has {{ItemLink|stablekey=item:weap - 35 - charged sword}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:wrist - 28 - eroded bangle}} (50.0%)<br>{{ItemLink|stablekey=item:gen - seaglass}} (19.3%)<br>{{ItemLink|stablekey=item:gen - a star stone}} (19.3%)
 |level=39
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=20-47
 |elemental=20-47
 |void=20-47
-|spells={{AbilityLink|stablekey=spell:dru - arterial decay|link=Arterial Decay|text=Arterial Decay|image=Arterial Decay.png}}<br>{{AbilityLink|stablekey=spell:dru - forest's reckoning|link=Forest's Reckoning|text=Forest's Reckoning|image=Forest's Reckoning.png}}
+|spells={{AbilityLink|stablekey=spell:dru - arterial decay}}<br>{{AbilityLink|stablekey=spell:dru - forest's reckoning}}
 }}
 
 To find {{PAGENAME}}, just keep following the path up through the mountain. Located at the end in a house with 4 others.

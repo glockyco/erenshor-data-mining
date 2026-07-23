@@ -2,7 +2,7 @@
 |title=Spell Scroll: Dark Ritual
 |stablekey=item:spell scroll - dark ritual
 |type=
-|vendorsource={{CharacterLink|stablekey=character:shanty swingblade|link=Shantee Swingblade|text=Shantee Swingblade}}
+|vendorsource={{CharacterLink|stablekey=character:shanty swingblade}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=1200
 |sell=780
-|taughtspell={{AbilityLink|stablekey=spell:reav - dark ritual|link=Dark Ritual|text=Dark Ritual|image=Dark Ritual.png}}
+|taughtspell={{AbilityLink|stablekey=spell:reav - dark ritual}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

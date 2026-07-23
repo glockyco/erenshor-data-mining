@@ -2,7 +2,7 @@
 |title=Spell Scroll: Targeted Windstorm
 |stablekey=item:spell scroll - targeted windstorm
 |type=[[Ability Books|Spell Scroll]]
-|vendorsource={{CharacterLink|stablekey=character:elizabeth dewitt|link=Elizabeth DeWitt|text=Elizabeth DeWitt}}<br>{{CharacterLink|stablekey=character:torado  zortia|link=Torado Zortia|text=Torado Zortia}}
+|vendorsource={{CharacterLink|stablekey=character:elizabeth dewitt}}<br>{{CharacterLink|stablekey=character:torado  zortia}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=6000
 |sell=3900
-|taughtspell={{AbilityLink|stablekey=spell:stc - targeted windstorm|link=Targeted Windstorm|text=Targeted Windstorm|image=Targeted Windstorm.png}}
+|taughtspell={{AbilityLink|stablekey=spell:stc - targeted windstorm}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

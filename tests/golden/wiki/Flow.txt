@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:belt - 28 - empath's cord|link=Empath's Cord|text=Empath's Cord|image=Empath's Cord.png}}<br>{{ItemLink|stablekey=item:belt - 28 - flowing blightsilk sash|link=Flowing Blight Silk Sash|text=Flowing Blight Silk Sash|image=Flowing Blight Silk Sash.png}}<br>{{ItemLink|stablekey=item:ring - 24 - freeing stone|link=Freeing Stone|text=Freeing Stone|image=Freeing Stone.png}}<br>{{ItemLink|stablekey=item:glove - 24 - frenzied fistwraps|link=Frenzied Fistwraps|text=Frenzied Fistwraps|image=Frenzied Fistwraps.png}}<br>{{ItemLink|stablekey=item:head - 42 - helm of clarity|link=Helmet of Clarity|text=Helmet of Clarity|image=Helmet of Clarity.png}}
+|itemswitheffect={{ItemLink|stablekey=item:belt - 28 - empath's cord}}<br>{{ItemLink|stablekey=item:belt - 28 - flowing blightsilk sash}}<br>{{ItemLink|stablekey=item:ring - 24 - freeing stone}}<br>{{ItemLink|stablekey=item:glove - 24 - frenzied fistwraps}}<br>{{ItemLink|stablekey=item:head - 42 - helm of clarity}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - flow}}

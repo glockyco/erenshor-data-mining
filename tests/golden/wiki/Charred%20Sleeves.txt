@@ -3,7 +3,7 @@
 |stablekey=item:arm - 25 - charred epaulets
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:stoneman colossus|link=Stoneman Colossus|text=Stoneman Colossus}} (66.7%)
+|source={{CharacterLink|stablekey=character:stoneman colossus}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=

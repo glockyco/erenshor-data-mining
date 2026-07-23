@@ -5,7 +5,7 @@
 |description=Execute an attack so powerful, it momentarily stuns your opponent.
 |type=Attack
 |line=
-|classes={{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}} (7)<br>{{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}} (4)
+|classes={{ClassLink|stablekey=class:paladin}} (7)<br>{{ClassLink|stablekey=class:reaver}} (4)
 |required_level=
 |manacost=
 |aggro=
@@ -23,7 +23,7 @@
 |is_self_only=
 |is_group_effect=
 |is_applied_to_caster=
-|effects={{AbilityLink|stablekey=spell:gen - stun short|link=Stun|text=Stun|image=Stun.png}}
+|effects={{AbilityLink|stablekey=spell:gen - stun short}}
 |damage_type=Physical
 |resist_modifier=
 |target_damage=1
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:skillbook - stun strike|link=Skill Book: Stunning Strike|text=Skill Book: Stunning Strike|image=Skill Book: Stunning Strike.png}}
+|source={{ItemLink|stablekey=item:skillbook - stun strike}}
 |used_by=
 }}
+{{SkillTooltip|stablekey=skill:stun strike}}

@@ -3,7 +3,7 @@
 |stablekey=item:book - godless amarion
 |type=[[Lore Items|Lore]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:braxonian historian|link=Historian of Braxonia|text=Historian of Braxonia}} (100.0%)
+|source={{CharacterLink|stablekey=character:braxonian historian}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=

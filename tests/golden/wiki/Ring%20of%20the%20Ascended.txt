@@ -3,7 +3,7 @@
 |stablekey=item:ring - 39 - ring of the ascended
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:remains of vitheo|link=Apparition of Vitheo|text=Apparition of Vitheo}} (34.8%)
+|source={{CharacterLink|stablekey=character:remains of vitheo}} (34.8%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -5,7 +5,7 @@
 |description=Deals 4000 poison based damage to a target.
 |type=Damage
 |line=Direct_Damage
-|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (34)
+|classes={{ClassLink|stablekey=class:druid}} (34)
 |required_level=34
 |manacost=1000
 |aggro=700
@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:wrist - 42 - bracer of seeds|link=Bracer of Seeds|text=Bracer of Seeds|image=Bracer of Seeds.png}}<br>{{ItemLink|stablekey=item:weap - 42 - cycle's edge|link=Cycle's Edge|text=Cycle's Edge|image=Cycle's Edge.png}}<br>{{ItemLink|stablekey=item:bow - 42 - honsus' bow|link=Honsus' Bow|text=Honsus' Bow|image=Honsus' Bow.png}}<br>{{ItemLink|stablekey=item:secondary - 40 - nature's will|link=Nature's Will|text=Nature's Will|image=Nature's Will.png}}
-|source={{ItemLink|stablekey=item:spell scroll - drudd extinction bloom|link=Spell Scroll: Extinction Bloom|text=Spell Scroll: Extinction Bloom|image=Spell Scroll: Extinction Bloom.png}}
-|used_by={{CharacterLink|stablekey=character:ripparian high sorcerer|link=Ta'Dah, Sorcerer of Ripper|text=Ta'Dah, Sorcerer of Ripper}}
+|itemswitheffect={{ItemLink|stablekey=item:wrist - 42 - bracer of seeds}}<br>{{ItemLink|stablekey=item:weap - 42 - cycle's edge}}<br>{{ItemLink|stablekey=item:bow - 42 - honsus' bow}}<br>{{ItemLink|stablekey=item:secondary - 40 - nature's will}}
+|source={{ItemLink|stablekey=item:spell scroll - drudd extinction bloom}}
+|used_by={{CharacterLink|stablekey=character:ripparian high sorcerer}}
 }}
+{{SpellTooltip|stablekey=spell:dru - extinction bloom}}

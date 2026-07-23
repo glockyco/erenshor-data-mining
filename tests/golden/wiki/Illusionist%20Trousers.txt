@@ -3,7 +3,7 @@
 |stablekey=item:leg - 33 - illusionist trousers
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:molorai acquirer|link=Molorai Acquirer|text=Molorai Acquirer}} (66.7%)
+|source={{CharacterLink|stablekey=character:molorai acquirer}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=

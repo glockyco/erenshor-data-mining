@@ -5,7 +5,7 @@
 |description=Slow target's attack speed by 33%
 |type=StatusEffect
 |line=Attack_Speed_Debuff
-|classes={{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}} (25)
+|classes={{ClassLink|stablekey=class:duelist}} (25)
 |required_level=25
 |manacost=600
 |aggro=25
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - dooming undertow|link=Spell Scroll: Dooming Undertow|text=Spell Scroll: Dooming Undertow|image=Spell Scroll: Dooming Undertow.png}}
+|source={{ItemLink|stablekey=item:spell scroll - dooming undertow}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:duel - slow dooming undertow}}

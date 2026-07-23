@@ -2,7 +2,7 @@
 |title=Azure Plate Greaves
 |stablekey=item:leg - 7 - azure plate greaves
 |type=
-|vendorsource={{CharacterLink|stablekey=character:violetta smithfield|link=Violet Smithfield|text=Violet Smithfield}}
+|vendorsource={{CharacterLink|stablekey=character:violetta smithfield}}
 |source=
 |othersource=
 |questsource=

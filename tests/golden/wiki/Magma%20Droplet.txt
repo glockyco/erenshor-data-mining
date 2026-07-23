@@ -3,7 +3,7 @@
 |stablekey=item:neck - 42 - magma droplet
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:braxbridgechest|link=Braxonian Chest|text=Braxonian Chest}} (35.5%)<br>{{CharacterLink|stablekey=character:god brax|link=Brax, God of Elements|text=Brax, God of Elements}} (30.7%)<br>{{CharacterLink|stablekey=character:god brax restored:planeofbrax:2543.61:75.50:404.12|link=Brax, God of Elements|text=Brax, God of Elements}} (30.7%)
+|source={{CharacterLink|stablekey=character:braxbridgechest}} (35.5%)<br>{{CharacterLink|stablekey=character:god brax}} (30.7%)<br>{{CharacterLink|stablekey=character:god brax restored:planeofbrax:2543.61:75.50:404.12}} (30.7%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Activatable
 |proc_chance=
 |proc_spell_icon=Summon Magma Fiend.png
-|proc_spell_name={{AbilityLink|stablekey=spell:none - summon magma fiend|link=Summon Magma Fiend|text=Summon Magma Fiend|image=Summon Magma Fiend.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:none - summon magma fiend}}
 |proc_spell_level=34
 |proc_spell_duration_ticks=
 |proc_spell_type=Pet

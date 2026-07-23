@@ -3,7 +3,7 @@
 |stablekey=item:back - 42 - cloak of frost
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:greater ice elemental|link=Greater Ice Elemental|text=Greater Ice Elemental}} (4.3%)<br>{{CharacterLink|stablekey=character:large ice elemental|link=Large Ice Elemental|text=Large Ice Elemental}} (4.3%)
+|source={{CharacterLink|stablekey=character:greater ice elemental}} (4.3%)<br>{{CharacterLink|stablekey=character:large ice elemental}} (4.3%)
 |othersource=
 |questsource=
 |relatedquest=

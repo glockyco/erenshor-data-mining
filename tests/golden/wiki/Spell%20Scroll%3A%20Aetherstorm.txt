@@ -2,7 +2,7 @@
 |title=Spell Scroll: Aetherstorm
 |stablekey=item:spell scroll - aetherblast
 |type=[[Ability Books]]
-|vendorsource={{CharacterLink|stablekey=character:edwin ansegg|link=Edwin Ansegg|text=Edwin Ansegg}}
+|vendorsource={{CharacterLink|stablekey=character:edwin ansegg}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=8500
 |sell=5525
-|taughtspell={{AbilityLink|stablekey=spell:arc - aetherstorm|link=Aetherstorm|text=Aetherstorm|image=Aetherstorm.png}}
+|taughtspell={{AbilityLink|stablekey=spell:arc - aetherstorm}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

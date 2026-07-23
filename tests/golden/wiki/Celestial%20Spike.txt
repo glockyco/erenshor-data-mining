@@ -3,7 +3,7 @@
 |stablekey=item:hand - 25 - celestial spike
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:stardust|link=Stardust|text=Stardust}} (4.3%)
+|source={{CharacterLink|stablekey=character:stardust}} (4.3%)
 |othersource=
 |questsource=
 |relatedquest=

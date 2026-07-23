@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - intrusive ideas
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:molorai archmage|link=Molorai Archmage|text=Molorai Archmage}} (13.4%)<br>{{CharacterLink|stablekey=character:molorai archivist|link=Molorai Archmage|text=Molorai Archmage}} (13.1%)
+|source={{CharacterLink|stablekey=character:molorai archmage}} (13.4%)<br>{{CharacterLink|stablekey=character:molorai archivist}} (13.1%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=1800
 |sell=1170
-|taughtspell={{AbilityLink|stablekey=spell:arc - intrusive ideas|link=Intrusive Ideas|text=Intrusive Ideas|image=Intrusive Ideas.png}}
+|taughtspell={{AbilityLink|stablekey=spell:arc - intrusive ideas}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

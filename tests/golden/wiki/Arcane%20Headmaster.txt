@@ -3,15 +3,15 @@
 |image=[[File:Arcane Headmaster.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:ancientschool|link=The Ancients|text=The Ancients}}
+|faction={{FactionLink|stablekey=faction:ancientschool}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:duskenlight|link=The Duskenlight Coast|text=The Duskenlight Coast}}
+|zones={{ZoneLink|stablekey=zone:duskenlight}}
 |coordinates=516.0 x 80.2 x 530.9
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:foot - 27 - elder's slippers|link=Elder's Slippers|text=Elder's Slippers|image=Elder's Slippers.png}}<br>{{ItemLink|stablekey=item:neck - 26 - lover's locket|link=Lover's Locket|text=Lover's Locket|image=Lover's Locket.png}}
-|droprates={{ItemLink|stablekey=item:foot - 27 - elder's slippers|link=Elder's Slippers|text=Elder's Slippers|image=Elder's Slippers.png}} (50.0%)<br>{{ItemLink|stablekey=item:neck - 26 - lover's locket|link=Lover's Locket|text=Lover's Locket|image=Lover's Locket.png}} (50.0%)
+|guaranteeddrops={{ItemLink|stablekey=item:foot - 27 - elder's slippers}}<br>{{ItemLink|stablekey=item:neck - 26 - lover's locket}}
+|droprates={{ItemLink|stablekey=item:foot - 27 - elder's slippers}} (50.0%)<br>{{ItemLink|stablekey=item:neck - 26 - lover's locket}} (50.0%)
 |level=28
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=14-34
 |elemental=14-34
 |void=14-34
-|spells={{AbilityLink|stablekey=spell:arc - brax's fury|link=Brax's Fury|text=Brax's Fury|image=Brax's Fury.png}}<br>{{AbilityLink|stablekey=spell:arc - ice spear|link=Ice Spear|text=Ice Spear|image=Ice Spear.png}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's fury}}<br>{{AbilityLink|stablekey=spell:arc - ice spear}}
 }}
 
 This character is aggressive unless you are wearing a [[Pupil's Pin]]. Located at 516.0 x 80.2 x 530.9 - only appears at night along with the other Ghosts at the school.

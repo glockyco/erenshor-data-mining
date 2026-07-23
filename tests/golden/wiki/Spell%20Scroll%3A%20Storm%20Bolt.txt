@@ -2,7 +2,7 @@
 |title=Spell Scroll: Storm Bolt
 |stablekey=item:spell scroll - storm bolt
 |type=[[Ability Books|Spell Scroll]]
-|vendorsource={{CharacterLink|stablekey=character:innkeeper gus|link=Gus Highrest|text=Gus Highrest}}<br>{{CharacterLink|stablekey=character:shopkeeper treven:stowaway:384.76:58.46:394.49|link=Treven Pines|text=Treven Pines}}
+|vendorsource={{CharacterLink|stablekey=character:innkeeper gus}}<br>{{CharacterLink|stablekey=character:shopkeeper treven:stowaway:384.76:58.46:394.49}}
 |source=
 |othersource=[[Stormcaller]] (starter gear)
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=50
 |sell=32
-|taughtspell={{AbilityLink|stablekey=spell:stc - storm bolt|link=Storm Bolt|text=Storm Bolt|image=Storm Bolt.png}}
+|taughtspell={{AbilityLink|stablekey=spell:stc - storm bolt}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

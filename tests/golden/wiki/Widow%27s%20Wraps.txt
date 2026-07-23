@@ -3,7 +3,7 @@
 |stablekey=item:glove - 24 - widow's wraps
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:fearantula|link=Fearantula|text=Fearantula}} (33.3%)
+|source={{CharacterLink|stablekey=character:fearantula}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Activatable
 |proc_chance=
 |proc_spell_icon=Summon Widow.png
-|proc_spell_name={{AbilityLink|stablekey=spell:nec - summon widow|link=Summon Widow|text=Summon Widow|image=Summon Widow.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:nec - summon widow}}
 |proc_spell_level=23
 |proc_spell_duration_ticks=
 |proc_spell_type=Pet

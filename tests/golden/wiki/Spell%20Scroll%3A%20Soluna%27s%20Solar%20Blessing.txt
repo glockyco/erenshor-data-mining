@@ -11,7 +11,7 @@
 |componentfor=
 |buy=75
 |sell=49
-|taughtspell={{AbilityLink|stablekey=spell:pal - soluna's blessing|link=Soluna's Solar Blessing|text=Soluna's Solar Blessing|image=Soluna's Solar Blessing.png}}
+|taughtspell={{AbilityLink|stablekey=spell:pal - soluna's blessing}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

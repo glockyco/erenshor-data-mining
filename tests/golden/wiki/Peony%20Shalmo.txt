@@ -3,9 +3,9 @@
 |image=[[File:Peony Shalmo.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|factionChange=-20 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>-20 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:brake|link=Faerie's Brake|text=Faerie's Brake}}
+|faction={{FactionLink|stablekey=faction:azurecitizens}}
+|factionChange=-20 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>-20 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:brake}}
 |coordinates=112.6 x 16.2 x 183.1
 |spawnchance=
 |spawntype=

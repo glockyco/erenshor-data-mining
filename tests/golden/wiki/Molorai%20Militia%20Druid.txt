@@ -3,15 +3,15 @@
 |image=[[File:Molorai Militia Druid.png|thumb]]
 |imagecaption="You'll never forget the day you messed with the Molarai Militia!"
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:molarai|link=Eldoth Molorai (Faction)|text=Eldoth Molorai}}
-|factionChange=-2 {{FactionLink|stablekey=faction:molarai|link=Eldoth Molorai (Faction)|text=Eldoth Molorai}}<br>+2 {{FactionLink|stablekey=faction:azureguard|link=The Azure Guard|text=The Azure Guard}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+2 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
-|zones={{ZoneLink|stablekey=zone:krakengard|link=Old Krakengard|text=Old Krakengard}}<br>{{ZoneLink|stablekey=zone:vitheo|link=Vitheo's Watch|text=Vitheo's Watch}}
+|faction={{FactionLink|stablekey=faction:molarai}}
+|factionChange=-2 {{FactionLink|stablekey=faction:molarai}}<br>+2 {{FactionLink|stablekey=faction:azureguard}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens}}<br>+2 {{FactionLink|stablekey=faction:solunarians}}
+|zones={{ZoneLink|stablekey=zone:krakengard}}<br>{{ZoneLink|stablekey=zone:vitheo}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=8 minutes (Old Krakengard)<br>4 minutes (Vitheo's Watch)
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (87.1%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (11.5%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (11.5%)<br>{{ItemLink|stablekey=item:weap - 9 - pathfinder's staff|link=Pathfinder's Staff|text=Pathfinder's Staff|image=Pathfinder's Staff.png}} (3.0%)<ref>If Molorai Militia Druid has {{ItemLink|stablekey=item:weap - 9 - pathfinder's staff|link=Pathfinder's Staff|text=Pathfinder's Staff|image=Pathfinder's Staff.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:foot - 5 - shivering leather boots|link=Shivering Leather Boots|text=Shivering Leather Boots|image=Shivering Leather Boots.png}} (3.0%)<br>{{ItemLink|stablekey=item:leg - 5 - shivering leather leggings|link=Shivering Leather Leggings|text=Shivering Leather Leggings|image=Shivering Leather Leggings.png}} (3.0%)<br>{{ItemLink|stablekey=item:head - 5 - shivering leather skullcap|link=Shivering Leather Skullcap|text=Shivering Leather Skullcap|image=Shivering Leather Skullcap.png}} (3.0%)<br>{{ItemLink|stablekey=item:arm - 5 - shivering leather sleeves|link=Shivering Leather Sleeves|text=Shivering Leather Sleeves|image=Shivering Leather Sleeves.png}} (3.0%)<br>{{ItemLink|stablekey=item:chest - 5 - shivering leather tunic|link=Shivering Leather Tunic|text=Shivering Leather Tunic|image=Shivering Leather Tunic.png}} (3.0%)<br>{{ItemLink|stablekey=item:arm - 9 - vinewrapped vambracer|link=Vinewrapped Vambracers|text=Vinewrapped Vambracers|image=Vinewrapped Vambracers.png}} (3.0%)
+|droprates={{ItemLink|stablekey=item:gen citrine stone}} (87.1%)<br>{{ItemLink|stablekey=item:gen - luminstone}} (11.5%)<br>{{ItemLink|stablekey=item:gen - a star stone}} (11.5%)<br>{{ItemLink|stablekey=item:weap - 9 - pathfinder's staff}} (3.0%)<ref>If Molorai Militia Druid has {{ItemLink|stablekey=item:weap - 9 - pathfinder's staff}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:foot - 5 - shivering leather boots}} (3.0%)<br>{{ItemLink|stablekey=item:leg - 5 - shivering leather leggings}} (3.0%)<br>{{ItemLink|stablekey=item:head - 5 - shivering leather skullcap}} (3.0%)<br>{{ItemLink|stablekey=item:arm - 5 - shivering leather sleeves}} (3.0%)<br>{{ItemLink|stablekey=item:chest - 5 - shivering leather tunic}} (3.0%)<br>{{ItemLink|stablekey=item:arm - 9 - vinewrapped vambracer}} (3.0%)
 |level=9
 |levelmodmin=0
 |levelmodmax=2
@@ -32,7 +32,7 @@
 |poison=4-11
 |elemental=4-11
 |void=4-11
-|spells={{AbilityLink|stablekey=spell:dru - biting vines|link=Biting Vines|text=Biting Vines|image=Biting Vines.png}}<br>{{AbilityLink|stablekey=spell:dru arc stc - magic bolt|link=Magic Bolt|text=Magic Bolt|image=Magic Bolt.png}}<br>{{AbilityLink|stablekey=spell:all - minor protection|link=Minor Protection|text=Minor Protection|image=Minor Protection.png}}<br>{{AbilityLink|stablekey=spell:dru duel - minor regen|link=Minor Regeneration|text=Minor Regeneration|image=Minor Regeneration.png}}<br>{{AbilityLink|stablekey=spell:dru reav - theft of life|link=Theft of Life|text=Theft of Life|image=Theft of Life.png}}<br>{{AbilityLink|stablekey=spell:dru - weak poison|link=Weak Poison|text=Weak Poison|image=Weak Poison.png}}
+|spells={{AbilityLink|stablekey=spell:dru - biting vines}}<br>{{AbilityLink|stablekey=spell:dru arc stc - magic bolt}}<br>{{AbilityLink|stablekey=spell:all - minor protection}}<br>{{AbilityLink|stablekey=spell:dru duel - minor regen}}<br>{{AbilityLink|stablekey=spell:dru reav - theft of life}}<br>{{AbilityLink|stablekey=spell:dru - weak poison}}
 }}
 
 ''{{main|Enemies}}''

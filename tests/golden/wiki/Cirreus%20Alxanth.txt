@@ -3,15 +3,15 @@
 |image=[[File:Cirreus Alxanth.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|factionChange=-10 {{FactionLink|stablekey=faction:aquilimar|link=Aquilimar Guild|text=Aquilimar Guild}}
-|zones={{ZoneLink|stablekey=zone:krakengard|link=Old Krakengard|text=Old Krakengard}}
+|faction={{FactionLink|stablekey=faction:azurecitizens}}
+|factionChange=-10 {{FactionLink|stablekey=faction:aquilimar}}
+|zones={{ZoneLink|stablekey=zone:krakengard}}
 |coordinates=280.6 x -9.6 x 91.2
 |spawnchance=
 |spawntype=
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:weap - 12 - short sword of viropha|link=Short Sword of Viropha|text=Short Sword of Viropha|image=Short Sword of Viropha.png}} (8.9%)
+|droprates={{ItemLink|stablekey=item:weap - 12 - short sword of viropha}} (8.9%)
 |level=15
 |levelmodmin=0
 |levelmodmax=0

@@ -2,7 +2,7 @@
 |title=Rotting Meat
 |stablekey=item:gen - rotting meat
 |type=[[:Category:Items|General]]
-|vendorsource={{CharacterLink|stablekey=character:ghostly figure:shiveringstep:701.36:24.78:439.97|link=Enterprising Spirit|text=Enterprising Spirit}}
+|vendorsource={{CharacterLink|stablekey=character:ghostly figure:shiveringstep:701.36:24.78:439.97}}
 |source=
 |othersource=
 |questsource=

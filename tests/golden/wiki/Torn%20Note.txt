@@ -3,10 +3,10 @@
 |stablekey=item:gen - a torn note
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:ghost of wylan sercher|link=Ghost of Wyland Sercher|text=Ghost of Wyland Sercher}} (100.0%)
+|source={{CharacterLink|stablekey=character:ghost of wylan sercher}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Whispers of Wyland}}<br>{{QuestLink|link=Whispers of Wyland{{!}}Wyland's Note}}<br>{{QuestLink|stablekey=quest:wyland's note|link=Whispers of Wyland|text=Wyland's Note}}
+|relatedquest={{QuestLink|Whispers of Wyland}}<br>{{QuestLink|link=Whispers of Wyland{{!}}Wyland's Note}}<br>{{QuestLink|stablekey=quest:wyland's note}}
 |craftsource=
 |componentfor=
 |buy=

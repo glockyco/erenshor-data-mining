@@ -2,13 +2,13 @@
 |title=Elderstone Shard
 |stablekey=item:gen - elderstone shard
 |type=[[Crafting]], [[Quest Items|Quest Item]]
-|vendorsource={{CharacterLink|stablekey=character:parmalee gemlyn|link=Parmalee Gemlyn|text=Parmalee Gemlyn}}
-|source={{CharacterLink|stablekey=character:a fungal infected brute|link=A Fungus Ravaged Brute|text=A Fungus Ravaged Brute}} (6.7%)<br>{{CharacterLink|stablekey=character:corrupted golem|link=Ravager, The First Infected|text=Ravager, The First Infected}} (6.7%)<br>{{CharacterLink|stablekey=character:a deepling brute|link=A Deepling Brute|text=A Deepling Brute}} (3.2%)<br>{{CharacterLink|stablekey=character:a deepling crimsonite|link=A Deepling Crimsonite|text=A Deepling Crimsonite}} (2.3%)<br>{{CharacterLink|stablekey=character:a deepling lunarite|link=A Deepling Lunarite|text=A Deepling Lunarite}} (2.3%)<br>{{CharacterLink|stablekey=character:a deepling verdite|link=A Deepling Verdite|text=A Deepling Verdite}} (2.3%)<br>{{CharacterLink|stablekey=character:a deepling orator|link=A Deepling Orator|text=A Deepling Orator}} (1.5%)
+|vendorsource={{CharacterLink|stablekey=character:parmalee gemlyn}}
+|source={{CharacterLink|stablekey=character:a fungal infected brute}} (6.7%)<br>{{CharacterLink|stablekey=character:corrupted golem}} (6.7%)<br>{{CharacterLink|stablekey=character:a deepling brute}} (3.2%)<br>{{CharacterLink|stablekey=character:a deepling crimsonite}} (2.3%)<br>{{CharacterLink|stablekey=character:a deepling lunarite}} (2.3%)<br>{{CharacterLink|stablekey=character:a deepling verdite}} (2.3%)<br>{{CharacterLink|stablekey=character:a deepling orator}} (1.5%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Repairing Orion's Ring, Part 2}}<br>{{QuestLink|link=The Duskenlight Ritual (Quest){{!}}The Duskenlight Ritual}}<br>{{QuestLink|stablekey=quest:tempeststone3|link=Repairing Orion's Ring, Part 2|text=Repairing Orion's Ring, Part 2}}<br>{{QuestLink|stablekey=quest:theduskenlightritual|link=The Duskenlight Ritual (Quest)|text=The Duskenlight Ritual}}
+|relatedquest={{QuestLink|Repairing Orion's Ring, Part 2}}<br>{{QuestLink|link=The Duskenlight Ritual (Quest){{!}}The Duskenlight Ritual}}<br>{{QuestLink|stablekey=quest:tempeststone3}}<br>{{QuestLink|stablekey=quest:theduskenlightritual}}
 |craftsource=
-|componentfor={{ItemLink|stablekey=item:template - charm of rage|link=Mold: Charm of Rage|text=Mold: Charm of Rage|image=Mold: Charm of Rage.png}}
+|componentfor={{ItemLink|stablekey=item:template - charm of rage}}
 |buy=500
 |sell=325
 |taughtspell=

@@ -2,7 +2,7 @@
 |title=The Fall of Rockshade Hold
 |stablekey=item:book - fall of rockshade
 |type=[[Lore Items|Lore]]
-|vendorsource={{CharacterLink|stablekey=character:rory gilmare:azure:145.35:26.28:341.61|link=Rory Gilmare|text=Rory Gilmare}}
+|vendorsource={{CharacterLink|stablekey=character:rory gilmare:azure:145.35:26.28:341.61}}
 |source=
 |othersource=
 |questsource=

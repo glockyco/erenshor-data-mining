@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:weap - 42 - king's gambit|link=King's Gambit|text=King's Gambit|image=King's Gambit.png}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 42 - king's gambit}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - king's gambit}}

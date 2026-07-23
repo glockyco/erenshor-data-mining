@@ -3,7 +3,7 @@
 |stablekey=item:arm - 6 - aged plate  sleeves
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:lost royal bodyguards|link=Spectral Castle Guard|text=Spectral Castle Guard}} (3.4%)<br>{{CharacterLink|stablekey=character:lost guard|link=Spectral Guard|text=Spectral Guard}} (2.7%)<br>{{CharacterLink|stablekey=character:lost high guard|link=Spectral High Guard|text=Spectral High Guard}} (2.7%)<br>{{CharacterLink|stablekey=character:lost king's guard|link=Spectral King's Guard|text=Spectral King's Guard}} (2.0%)<br>{{CharacterLink|stablekey=character:rotting royal hound|link=Rotting Royal Hound|text=Rotting Royal Hound}} (0.9%)
+|source={{CharacterLink|stablekey=character:lost royal bodyguards}} (3.4%)<br>{{CharacterLink|stablekey=character:lost guard}} (2.7%)<br>{{CharacterLink|stablekey=character:lost high guard}} (2.7%)<br>{{CharacterLink|stablekey=character:lost king's guard}} (2.0%)<br>{{CharacterLink|stablekey=character:rotting royal hound}} (0.9%)
 |othersource=
 |questsource=
 |relatedquest=

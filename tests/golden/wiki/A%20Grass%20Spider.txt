@@ -3,15 +3,15 @@
 |image=[[File:A Grass Spider.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:brake|link=Faerie's Brake|text=Faerie's Brake}}<br>{{ZoneLink|stablekey=zone:hidden|link=Hidden Hills|text=Hidden Hills}}<br>{{ZoneLink|stablekey=zone:stowaway|link=Stowaway's Step|text=Stowaway's Step}}<br>{{ZoneLink|stablekey=zone:vitheo|link=Vitheo's Watch|text=Vitheo's Watch}}<br>{{ZoneLink|stablekey=zone:willowwatch|link=Willowwatch Ridge|text=Willowwatch Ridge}}
+|zones={{ZoneLink|stablekey=zone:brake}}<br>{{ZoneLink|stablekey=zone:hidden}}<br>{{ZoneLink|stablekey=zone:stowaway}}<br>{{ZoneLink|stablekey=zone:vitheo}}<br>{{ZoneLink|stablekey=zone:willowwatch}}
 |coordinates=
 |spawnchance=11-23% (Faerie's Brake)<br>33-100% (Hidden Hills)<br>17-100% (Stowaway's Step)<br>33% (Vitheo's Watch)<br>25% (Willowwatch Ridge)
 |spawntype=
 |respawn=2-4 minutes (Faerie's Brake)<br>2-3 minutes (Hidden Hills)<br>3-4 minutes (Stowaway's Step)<br>4-6 minutes (Vitheo's Watch)<br>4 minutes (Willowwatch Ridge)
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - ruined grass spider carapace|link=Ruined Grass Spider Carapace|text=Ruined Grass Spider Carapace|image=Ruined Grass Spider Carapace.png}} (24.9%)<br>{{ItemLink|stablekey=item:gen - pristine grass spider carapace|link=Pristine Grass Spider Carapace|text=Pristine Grass Spider Carapace|image=Pristine Grass Spider Carapace.png}} (2.8%)
+|droprates={{ItemLink|stablekey=item:gen - ruined grass spider carapace}} (24.9%)<br>{{ItemLink|stablekey=item:gen - pristine grass spider carapace}} (2.8%)
 |level=1
 |levelmodmin=0
 |levelmodmax=0

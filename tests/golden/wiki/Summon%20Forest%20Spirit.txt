@@ -5,7 +5,7 @@
 |description=Summon a magical companion to fight along side you.
 |type=Pet
 |line=Generic
-|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (18)
+|classes={{ClassLink|stablekey=class:druid}} (18)
 |required_level=18
 |manacost=300
 |aggro=
@@ -30,7 +30,7 @@
 |target_healing=
 |caster_healing=
 |shield_amount=
-|pet_to_summon={{CharacterLink|stablekey=character:summoned forest spirit|link=Summoned: Forest Spirit|text=Summoned: Forest Spirit}}
+|pet_to_summon={{CharacterLink|stablekey=character:summoned forest spirit}}
 |status_effect=
 |add_proc=
 |add_proc_chance=
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - summon forest spirit|link=Spell Scroll: Summon Forest Spirit|text=Spell Scroll: Summon Forest Spirit|image=Spell Scroll: Summon Forest Spirit.png}}
+|source={{ItemLink|stablekey=item:spell scroll - summon forest spirit}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:dru - summon forest spirit}}

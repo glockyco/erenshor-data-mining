@@ -3,15 +3,15 @@
 |image=[[File:Loomingwidow.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:loomingwood|link=Loomingwood Forest|text=Loomingwood Forest}}
+|zones={{ZoneLink|stablekey=zone:loomingwood}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - ruined grass spider carapace|link=Ruined Grass Spider Carapace|text=Ruined Grass Spider Carapace|image=Ruined Grass Spider Carapace.png}} (27.1%)<br>{{ItemLink|stablekey=item:furniture - loomingwood marketplace blueprint|link=Blueprint: Loomingwood Market|text=Blueprint: Loomingwood Market|image=Blueprint: Loomingwood Market.png}} (0.3%)<br>{{ItemLink|stablekey=item:furniture - loomingwood shrine blueprint|link=Blueprint: Loomingwood Shrine|text=Blueprint: Loomingwood Shrine|image=Blueprint: Loomingwood Shrine.png}} (0.3%)
+|droprates={{ItemLink|stablekey=item:gen - ruined grass spider carapace}} (27.1%)<br>{{ItemLink|stablekey=item:furniture - loomingwood marketplace blueprint}} (0.3%)<br>{{ItemLink|stablekey=item:furniture - loomingwood shrine blueprint}} (0.3%)
 |level=19
 |levelmodmin=0
 |levelmodmax=0

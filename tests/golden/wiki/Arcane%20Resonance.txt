@@ -5,7 +5,7 @@
 |description=Passive Skill: Your spells have a chance to hit multiple times.
 |type=Innate
 |line=
-|classes={{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}} (34)
+|classes={{ClassLink|stablekey=class:arcanist}} (34)
 |required_level=
 |manacost=
 |aggro=
@@ -69,3 +69,4 @@
 |source=
 |used_by=
 }}
+{{SkillTooltip|stablekey=skill:arcane resonance}}

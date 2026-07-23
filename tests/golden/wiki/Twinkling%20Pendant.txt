@@ -3,7 +3,7 @@
 |stablekey=item:neck - 31 - twinkling pendant
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:winkles|link=Winkles|text=Winkles}} (18.2%)<br>{{CharacterLink|stablekey=character:faerie enchantress|link=A Faerie Enchantress|text=A Faerie Enchantress}} (1.8%)<br>{{CharacterLink|stablekey=character:faerie foliagian|link=A Faerie Foliagian|text=A Faerie Foliagian}} (1.8%)<br>{{CharacterLink|stablekey=character:faerie windchild|link=A Faerie Windchild|text=A Faerie Windchild}} (1.8%)
+|source={{CharacterLink|stablekey=character:winkles}} (18.2%)<br>{{CharacterLink|stablekey=character:faerie enchantress}} (1.8%)<br>{{CharacterLink|stablekey=character:faerie foliagian}} (1.8%)<br>{{CharacterLink|stablekey=character:faerie windchild}} (1.8%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Activatable
 |proc_chance=
 |proc_spell_icon=Sleep.png
-|proc_spell_name={{AbilityLink|stablekey=spell:arc - sleep|link=Sleep|text=Sleep|image=Sleep.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:arc - sleep}}
 |proc_spell_level=17
 |proc_spell_duration_ticks=9
 |proc_spell_type=StatusEffect

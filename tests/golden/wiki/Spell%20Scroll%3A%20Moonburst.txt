@@ -2,8 +2,8 @@
 |title=Spell Scroll: Moonburst
 |stablekey=item:spell scroll - moonburst
 |type=[[Ability Books]]
-|vendorsource={{CharacterLink|stablekey=character:leyor m'chante|link=Leyor M'Chante|text=Leyor M'Chante}}
-|source={{CharacterLink|stablekey=character:molorai captain sigrid|link=Molorai Captain Sigrid|text=Molorai Captain Sigrid}} (12.7%)<br>{{CharacterLink|stablekey=character:gloopa quarter|link=Gloopa|text=Gloopa (Quarter)}} (1.7%)<br>{{CharacterLink|stablekey=character:subterranean gel|link=A Subterranean Goop|text=A Subterranean Goop}} (1.6%)<br>{{CharacterLink|stablekey=character:subterranean magmite|link=A Subterranean Magmite|text=A Subterranean Magmite}} (1.6%)
+|vendorsource={{CharacterLink|stablekey=character:leyor m'chante}}
+|source={{CharacterLink|stablekey=character:molorai captain sigrid}} (12.7%)<br>{{CharacterLink|stablekey=character:gloopa quarter}} (1.7%)<br>{{CharacterLink|stablekey=character:subterranean gel}} (1.6%)<br>{{CharacterLink|stablekey=character:subterranean magmite}} (1.6%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=1655
 |sell=1076
-|taughtspell={{AbilityLink|stablekey=spell:pal - moonburst|link=Moonburst|text=Moonburst|image=Moonburst.png}}
+|taughtspell={{AbilityLink|stablekey=spell:pal - moonburst}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

@@ -3,15 +3,15 @@
 |image=[[File:Grassland Ogre Hunter.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
-|factionChange=+3 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+3 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:willowwatch|link=Willowwatch Ridge|text=Willowwatch Ridge}}
+|faction={{FactionLink|stablekey=faction:evil}}
+|factionChange=+3 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+3 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:willowwatch}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=6 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:bow - 4 - carved bow|link=Carved Bow|text=Carved Bow|image=Carved Bow.png}} (22.1%)<br>{{ItemLink|stablekey=item:foot - 1 - tattered leather boots|link=Tattered Leather Boots|text=Tattered Leather Boots|image=Tattered Leather Boots.png}} (3.4%)<br>{{ItemLink|stablekey=item:glove - 1 - tattered leather gloves|link=Tattered Leather Gloves|text=Tattered Leather Gloves|image=Tattered Leather Gloves.png}} (3.4%)<br>{{ItemLink|stablekey=item:leg - 1 - tattered leather leggings|link=Tattered Leather Leggings|text=Tattered Leather Leggings|image=Tattered Leather Leggings.png}} (3.4%)<br>{{ItemLink|stablekey=item:head - 1 - tattered leather skullcap|link=Tattered Leather Skullcap|text=Tattered Leather Skullcap|image=Tattered Leather Skullcap.png}} (3.4%)<br>{{ItemLink|stablekey=item:arm - 1 - tattered leather sleeves|link=Tattered Leather Sleeves|text=Tattered Leather Sleeves|image=Tattered Leather Sleeves.png}} (3.4%)<br>{{ItemLink|stablekey=item:chest - 1 - tattered leather tunic|link=Tattered Leather Tunic|text=Tattered Leather Tunic|image=Tattered Leather Tunic.png}} (3.4%)
+|droprates={{ItemLink|stablekey=item:bow - 4 - carved bow}} (22.1%)<br>{{ItemLink|stablekey=item:foot - 1 - tattered leather boots}} (3.4%)<br>{{ItemLink|stablekey=item:glove - 1 - tattered leather gloves}} (3.4%)<br>{{ItemLink|stablekey=item:leg - 1 - tattered leather leggings}} (3.4%)<br>{{ItemLink|stablekey=item:head - 1 - tattered leather skullcap}} (3.4%)<br>{{ItemLink|stablekey=item:arm - 1 - tattered leather sleeves}} (3.4%)<br>{{ItemLink|stablekey=item:chest - 1 - tattered leather tunic}} (3.4%)
 |level=5
 |levelmodmin=0
 |levelmodmax=0

@@ -3,10 +3,10 @@
 |stablekey=item:gen - cod - pg 3
 |type=[[Lore Items|Lore]], [[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:acceptor|link=Acceptor|text=Acceptor}} (100.0%)
+|source={{CharacterLink|stablekey=character:acceptor}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|link=The Mathers' Demise{{!}}The Mather's Demise, Part 2}}<br>{{QuestLink|The Mathers' Demise}}<br>{{QuestLink|stablekey=quest:mathersdemise2|link=The Mathers' Demise|text=The Mathers' Demise}}
+|relatedquest={{QuestLink|link=The Mathers' Demise{{!}}The Mather's Demise, Part 2}}<br>{{QuestLink|The Mathers' Demise}}<br>{{QuestLink|stablekey=quest:mathersdemise2}}
 |craftsource=
 |componentfor=
 |buy=

@@ -3,7 +3,7 @@
 |stablekey=item:back - 24 - ritual cape
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:cinder|link=Cinder|text=Cinder}} (20.0%)
+|source={{CharacterLink|stablekey=character:cinder}} (20.0%)
 |othersource=
 |questsource=
 |relatedquest=

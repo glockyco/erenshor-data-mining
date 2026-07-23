@@ -3,7 +3,7 @@
 |stablekey=item:chest - 38 - abyssal plate
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:39 - sivakayan spectre|link=Sivakayan Voidmaster|text=Sivakayan Voidmaster}} (4.3%)
+|source={{CharacterLink|stablekey=character:39 - sivakayan spectre}} (4.3%)
 |othersource=
 |questsource=
 |relatedquest=

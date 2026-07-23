@@ -3,7 +3,7 @@
 |stablekey=item:charm - 42 - oceanic charm
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:arenachest 7|link=Vithean Chest|text=Vithean Chest (Round 7)}} (66.7%)
+|source={{CharacterLink|stablekey=character:arenachest 7}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -30,7 +30,7 @@
 |target_healing=
 |caster_healing=
 |shield_amount=
-|pet_to_summon={{CharacterLink|stablekey=character:summoned magma fiend|link=Summoned: Magma Fiend|text=Summoned: Magma Fiend}}
+|pet_to_summon={{CharacterLink|stablekey=character:summoned magma fiend}}
 |status_effect=
 |add_proc=
 |add_proc_chance=
@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:neck - 42 - magma droplet|link=Magma Droplet|text=Magma Droplet|image=Magma Droplet.png}}
+|itemswitheffect={{ItemLink|stablekey=item:neck - 42 - magma droplet}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - summon magma fiend}}

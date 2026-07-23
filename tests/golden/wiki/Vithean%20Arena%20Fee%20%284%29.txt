@@ -2,11 +2,11 @@
 |title=Vithean Arena Fee (4)
 |stablekey=item:quest - vithean arena token 4
 |type=[[Quest Items|Quest Item]]
-|vendorsource={{CharacterLink|stablekey=character:master of arms:planeofvitheo:463.87:25.16:417.06|link=Master of Battle|text=Master of Battle}}
-|source={{CharacterLink|stablekey=character:arenachest 3|link=Vithean Chest|text=Vithean Chest (Round 3)}} (100.0%)
+|vendorsource={{CharacterLink|stablekey=character:master of arms:planeofvitheo:463.87:25.16:417.06}}
+|source={{CharacterLink|stablekey=character:arenachest 3}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Vitheo's Arena IV}}<br>{{QuestLink|stablekey=quest:vithtokenmob4|link=Vitheo's Arena IV|text=Vitheo's Arena IV}}
+|relatedquest={{QuestLink|Vitheo's Arena IV}}<br>{{QuestLink|stablekey=quest:vithtokenmob4}}
 |craftsource=
 |componentfor=
 |buy=1000000

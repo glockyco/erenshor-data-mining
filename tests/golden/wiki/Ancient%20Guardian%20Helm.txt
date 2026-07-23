@@ -3,7 +3,7 @@
 |stablekey=item:head - 21 - ancient guardian helm
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:worn ancient guardian 1|link=Worn Ancient Guardian|text=Worn Ancient Guardian}} (1.4%)
+|source={{CharacterLink|stablekey=character:worn ancient guardian 1}} (1.4%)
 |othersource=
 |questsource=
 |relatedquest=

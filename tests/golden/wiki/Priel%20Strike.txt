@@ -5,7 +5,7 @@
 |description=Deal major damage to a target and interrupt spells
 |type=Attack
 |line=
-|classes={{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}} (28)
+|classes={{ClassLink|stablekey=class:duelist}} (28)
 |required_level=
 |manacost=
 |aggro=
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:skillbook - priel strike|link=Skill Book: Priel Strike|text=Skill Book: Priel Strike|image=Skill Book: Priel Strike.png}}
+|source={{ItemLink|stablekey=item:skillbook - priel strike}}
 |used_by=
 }}
+{{SkillTooltip|stablekey=skill:priel strike}}

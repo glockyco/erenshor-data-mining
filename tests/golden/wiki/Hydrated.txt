@@ -65,10 +65,11 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:cons - azure mead|link=Azure Mead|text=Azure Mead|image=Azure Mead.png}}<br>{{ItemLink|stablekey=item:wrist - 6 - seaslimed bracelet|link=Seaslimed Bracelet|text=Seaslimed Bracelet|image=Seaslimed Bracelet.png}}<br>{{ItemLink|stablekey=item:cons - vithean brew|link=Vithean Brew|text=Vithean Brew|image=Vithean Brew.png}}<br>{{ItemLink|stablekey=item:cons - water|link=Water|text=Water|image=Water.png}}
+|itemswitheffect={{ItemLink|stablekey=item:cons - azure mead}}<br>{{ItemLink|stablekey=item:wrist - 6 - seaslimed bracelet}}<br>{{ItemLink|stablekey=item:cons - vithean brew}}<br>{{ItemLink|stablekey=item:cons - water}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:all - hydrated}}
 
 '''{{PAGENAME}}''' is a support ability obtained by consuming [[Water]] or using a [[Seaslimed Bracelet]].
 

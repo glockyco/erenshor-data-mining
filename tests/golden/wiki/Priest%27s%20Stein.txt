@@ -5,7 +5,7 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|Intel from the Lost Cellar}}<br>{{QuestLink|stablekey=quest:lostcellarintel|link=Intel from the Lost Cellar|text=Intel from the Lost Cellar}}
+|questsource={{QuestLink|Intel from the Lost Cellar}}<br>{{QuestLink|stablekey=quest:lostcellarintel}}
 |relatedquest=
 |craftsource=
 |componentfor=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=4
 |proc_spell_icon=Group Heal.png
-|proc_spell_name={{AbilityLink|stablekey=spell:dru - group heal|link=Group Heal|text=Group Heal|image=Group Heal.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:dru - group heal}}
 |proc_spell_level=11
 |proc_spell_duration_ticks=
 |proc_spell_type=Heal

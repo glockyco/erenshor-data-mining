@@ -3,7 +3,7 @@
 |stablekey=item:hand - 42 - letters and words (common)
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:goddess fernalla|link=Fernalla, Goddess of Nature|text=Fernalla, Goddess of Nature}} (34.3%)<br>{{CharacterLink|stablekey=character:restored fernalla:planeoffernalla:1631.02:177.00:1537.14|link=Fernalla, Goddess of Nature|text=Fernalla, Goddess of Nature}} (1.5%)
+|source={{CharacterLink|stablekey=character:goddess fernalla}} (34.3%)<br>{{CharacterLink|stablekey=character:restored fernalla:planeoffernalla:1631.02:177.00:1537.14}} (1.5%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -105,7 +105,7 @@
 |stablekey=item:hand - 42 - letters and words (rare)
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:goddess fernalla|link=Fernalla, Goddess of Nature|text=Fernalla, Goddess of Nature}} (4.4%)<br>{{CharacterLink|stablekey=character:restored fernalla:planeoffernalla:1631.02:177.00:1537.14|link=Fernalla, Goddess of Nature|text=Fernalla, Goddess of Nature}} (0.5%)
+|source={{CharacterLink|stablekey=character:goddess fernalla}} (4.4%)<br>{{CharacterLink|stablekey=character:restored fernalla:planeoffernalla:1631.02:177.00:1537.14}} (0.5%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -154,7 +154,7 @@
 |proc_style=Activatable
 |proc_chance=
 |proc_spell_icon=Enlightened Path IV.png
-|proc_spell_name={{AbilityLink|stablekey=spell:none - blessing of xp 4|link=Enlightened Path IV|text=Enlightened Path IV|image=Enlightened Path IV.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:none - blessing of xp 4}}
 |proc_spell_level=30
 |proc_spell_duration_ticks=1000
 |proc_spell_type=Beneficial

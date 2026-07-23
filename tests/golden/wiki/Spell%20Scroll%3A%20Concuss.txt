@@ -2,8 +2,8 @@
 |title=Spell Scroll: Concuss
 |stablekey=item:spell scroll - concuss
 |type=[[Ability Books|Spell Scroll]]
-|vendorsource={{CharacterLink|stablekey=character:aspen dechaffe|link=Aspen Dechaffe|text=Aspen Dechaffe}}
-|source={{CharacterLink|stablekey=character:blight eater|link=Blight Eater|text=Blight Eater}} (4.6%)<br>{{CharacterLink|stablekey=character:a deepling crimsonite|link=A Deepling Crimsonite|text=A Deepling Crimsonite}} (2.8%)<br>{{CharacterLink|stablekey=character:a deepling orator|link=A Deepling Orator|text=A Deepling Orator}} (1.9%)
+|vendorsource={{CharacterLink|stablekey=character:aspen dechaffe}}
+|source={{CharacterLink|stablekey=character:blight eater}} (4.6%)<br>{{CharacterLink|stablekey=character:a deepling crimsonite}} (2.8%)<br>{{CharacterLink|stablekey=character:a deepling orator}} (1.9%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=1225
 |sell=796
-|taughtspell={{AbilityLink|stablekey=spell:dru arc - concuss|link=Concuss|text=Concuss|image=Concuss.png}}
+|taughtspell={{AbilityLink|stablekey=spell:dru arc - concuss}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

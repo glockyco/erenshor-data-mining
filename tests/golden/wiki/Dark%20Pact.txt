@@ -5,7 +5,7 @@
 |description=Convert 400 life into 320 mana. Cannot resonate.
 |type=Heal
 |line=Direct_Damage
-|classes={{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}} (20)
+|classes={{ClassLink|stablekey=class:reaver}} (20)
 |required_level=20
 |manacost=
 |aggro=
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=True
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - dark pact|link=Spell Scroll: Dark Pact|text=Spell Scroll: Dark Pact|image=Spell Scroll: Dark Pact.png}}
+|source={{ItemLink|stablekey=item:spell scroll - dark pact}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:reav - dark pact}}

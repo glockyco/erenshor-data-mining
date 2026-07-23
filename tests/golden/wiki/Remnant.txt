@@ -3,9 +3,9 @@
 |image=[[File:Remnant.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|faction={{FactionLink|stablekey=faction:good}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:bloomingsepulcher|link=Blooming Sepulcher|text=Blooming Sepulcher}}
+|zones={{ZoneLink|stablekey=zone:bloomingsepulcher}}
 |coordinates=243.7 x 375.3 x 848.6
 |spawnchance=
 |spawntype=

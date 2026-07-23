@@ -2,7 +2,7 @@
 |title=Skill Book: Taunting Stance
 |stablekey=item:skillbook - stance - taunting
 |type=
-|vendorsource={{CharacterLink|stablekey=character:aillee desten|link=Aillee Desten|text=Aillee Desten}}<br>{{CharacterLink|stablekey=character:xander zaxtrough|link=Xander Zaxtrough|text=Xander Zaxtrough}}<br>{{CharacterLink|stablekey=character:zane theavale|link=Zane Theavale|text=Zane Theavale}}
+|vendorsource={{CharacterLink|stablekey=character:aillee desten}}<br>{{CharacterLink|stablekey=character:xander zaxtrough}}<br>{{CharacterLink|stablekey=character:zane theavale}}
 |source=
 |othersource=
 |questsource=
@@ -12,7 +12,7 @@
 |buy=100
 |sell=65
 |taughtspell=
-|taughtskill={{AbilityLink|stablekey=skill:stance - taunting|link=Stance: Taunting|text=Stance: Taunting|image=Stance: Taunting.png}}
+|taughtskill={{AbilityLink|stablekey=skill:stance - taunting}}
 |guaranteeddrops=
 |droprates=
 }}

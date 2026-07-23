@@ -3,7 +3,7 @@
 |stablekey=item:chest - 42 - mana strand tunic
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:god brax|link=Brax, God of Elements|text=Brax, God of Elements}} (38.5%)<br>{{CharacterLink|stablekey=character:god brax restored:planeofbrax:2543.61:75.50:404.12|link=Brax, God of Elements|text=Brax, God of Elements}} (38.5%)
+|source={{CharacterLink|stablekey=character:god brax}} (38.5%)<br>{{CharacterLink|stablekey=character:god brax restored:planeofbrax:2543.61:75.50:404.12}} (38.5%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Worn
 |proc_chance=
 |proc_spell_icon=Mana Charge IV.png
-|proc_spell_name={{AbilityLink|stablekey=spell:arc - mana charge iv|link=Mana Charge IV|text=Mana Charge IV|image=Mana Charge IV.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:arc - mana charge iv}}
 |proc_spell_level=36
 |proc_spell_duration_ticks=3
 |proc_spell_type=Beneficial

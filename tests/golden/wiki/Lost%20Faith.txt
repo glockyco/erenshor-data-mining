@@ -3,10 +3,10 @@
 |stablekey=item:gen - lost faith
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:raval|link=Raval, The First Paladin|text=Raval, The First Paladin}} (35.4%)<br>{{CharacterLink|stablekey=character:ancient celestarian|link=Ancient Celestarian|text=Ancient Celestarian}} (22.1%)<br>{{CharacterLink|stablekey=character:fiend|link=Ancient Corpse|text=Ancient Corpse}} (22.1%)<br>{{CharacterLink|stablekey=character:ancient guard|link=Ancient Guard|text=Ancient Guard}} (22.1%)<br>{{CharacterLink|stablekey=character:ancient guard captain|link=Ancient Knight|text=Ancient Knight}} (22.1%)
+|source={{CharacterLink|stablekey=character:raval}} (35.4%)<br>{{CharacterLink|stablekey=character:ancient celestarian}} (22.1%)<br>{{CharacterLink|stablekey=character:fiend}} (22.1%)<br>{{CharacterLink|stablekey=character:ancient guard}} (22.1%)<br>{{CharacterLink|stablekey=character:ancient guard captain}} (22.1%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|link=Lost Faith (Quest){{!}}Lost Faith}}<br>{{QuestLink|link=Raval's Last Wish}}<br>{{QuestLink|stablekey=quest:lostfaith|link=Lost Faith (Quest)|text=Lost Faith}}
+|relatedquest={{QuestLink|link=Lost Faith (Quest){{!}}Lost Faith}}<br>{{QuestLink|link=Raval's Last Wish}}<br>{{QuestLink|stablekey=quest:lostfaith}}
 |craftsource=
 |componentfor=
 |buy=

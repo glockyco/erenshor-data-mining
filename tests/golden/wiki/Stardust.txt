@@ -3,15 +3,15 @@
 |image=[[File:Stardust.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|faction={{FactionLink|stablekey=faction:good}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:soluna|link=Soluna's Landing|text=Soluna's Landing}}
+|zones={{ZoneLink|stablekey=zone:soluna}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=46 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (14.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:ore - stardust|link=Stardust (Item)|text=Stardust|image=Stardust Item.png}} (8.7%)<br>{{ItemLink|stablekey=item:hand - 25 - celestial spike|link=Celestial Spike|text=Celestial Spike|image=Celestial Spike.png}} (4.3%)
+|droprates={{ItemLink|stablekey=item:gen - diamond}} (14.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:ore - stardust}} (8.7%)<br>{{ItemLink|stablekey=item:hand - 25 - celestial spike}} (4.3%)
 |level=25
 |levelmodmin=0
 |levelmodmax=0

@@ -5,7 +5,7 @@
 |description=1200 Magical damage on target, secondary damage on nearby targets.
 |type=AE
 |line=Direct_Damage
-|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (25)<br>{{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}} (25)
+|classes={{ClassLink|stablekey=class:druid}} (25)<br>{{ClassLink|stablekey=class:stormcaller}} (25)
 |required_level=25
 |manacost=200
 |aggro=60
@@ -65,10 +65,11 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:weap - 35 - charged sword|link=Charged Sword|text=Charged Sword|image=Charged Sword.png}}
-|source={{ItemLink|stablekey=item:spell scroll - major lightning|link=Spell Scroll: Major Lightning|text=Spell Scroll: Major Lightning|image=Spell Scroll: Major Lightning.png}}
-|used_by={{CharacterLink|stablekey=character:risen heirophant|link=Risen Hierophant|text=Risen Hierophant}}<br>{{CharacterLink|stablekey=character:summoned protector|link=Summoned: Protector|text=Summoned: Protector}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 35 - charged sword}}
+|source={{ItemLink|stablekey=item:spell scroll - major lightning}}
+|used_by={{CharacterLink|stablekey=character:risen heirophant}}<br>{{CharacterLink|stablekey=character:summoned protector}}
 }}
+{{SpellTooltip|stablekey=spell:dru - major lightning}}
 
 {{Ability
 |title=Major Lightning
@@ -141,3 +142,4 @@
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:dru - superior lightning}}

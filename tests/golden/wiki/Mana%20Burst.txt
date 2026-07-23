@@ -69,4 +69,5 @@
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:arc - manaburst}}
 <span style="color: red;">This spell is no longer in the game</span>

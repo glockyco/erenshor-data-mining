@@ -3,15 +3,15 @@
 |image=[[File:Braxonian Ascended.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:braxonia|link=Fallen Braxonia|text=Fallen Braxonia}}
+|zones={{ZoneLink|stablekey=zone:braxonia}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=8 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (9.1%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - polished stone|link=Polished Stone|text=Polished Stone|image=Polished Stone.png}} (7.8%)<br>{{ItemLink|stablekey=item:gen - spark of the first flame|link=Spark of the First Flame|text=Spark of the First Flame|image=Spark of the First Flame.png}} (7.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - spark of the first flame|link=Spark of the First Flame|text=Spark of the First Flame|image=Spark of the First Flame.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:cons - water|link=Water|text=Water|image=Water.png}} (7.8%)<br>{{ItemLink|stablekey=item:wand - 29 - brax's candle|link=Brax's Candle|text=Brax's Candle|image=Brax's Candle.png}} (4.6%)<br>{{ItemLink|stablekey=item:ore - ancient coal|link=Ancient Coal|text=Ancient Coal|image=Ancient Coal.png}} (1.1%)<br>{{ItemLink|stablekey=item:wrist - 30 - braxonian bracelet|link=Braxonian Bracelet|text=Braxonian Bracelet|image=Braxonian Bracelet.png}} (0.7%)<br>{{ItemLink|stablekey=item:glove - 30 - braxonian gloves|link=Braxonian Gloves|text=Braxonian Gloves|image=Braxonian Gloves.png}} (0.7%)<br>{{ItemLink|stablekey=item:glove - 30 - braxonian mitts|link=Braxonian Mitts|text=Braxonian Mitts|image=Braxonian Mitts.png}} (0.7%)<br>{{ItemLink|stablekey=item:wrist - 30 - braxonian wristlet|link=Braxonian Wristlet|text=Braxonian Wristlet|image=Braxonian Wristlet.png}} (0.7%)<br>{{ItemLink|stablekey=item:leg - 31 - braxonian breeches|link=Braxonian Breeches|text=Braxonian Breeches|image=Braxonian Breeches.png}} (0.4%)<br>{{ItemLink|stablekey=item:foot - 31 - braxonian leather boots|link=Braxonian Leather Boots|text=Braxonian Leather Boots|image=Braxonian Leather Boots.png}} (0.4%)<br>{{ItemLink|stablekey=item:arm - 31 - braxonian leather sleeves|link=Braxonian Leather Sleeves|text=Braxonian Leather Sleeves|image=Braxonian Leather Sleeves.png}} (0.4%)<br>{{ItemLink|stablekey=item:chest - 32 - braxonian leather tunic|link=Braxonian Leather Tunic|text=Braxonian Leather Tunic|image=Braxonian Leather Tunic.png}} (0.4%)<br>{{ItemLink|stablekey=item:leg - 31 - braxonian linens|link=Braxonian Linens|text=Braxonian Linens|image=Braxonian Linens.png}} (0.4%)<br>{{ItemLink|stablekey=item:arm - 31 - braxonian royal armband|link=Braxonian Royal Armband|text=Braxonian Royal Armband|image=Braxonian Royal Armband.png}} (0.4%)<br>{{ItemLink|stablekey=item:foot - 31 - braxonian royal shoes|link=Braxonian Royal Shoes|text=Braxonian Royal Shoes|image=Braxonian Royal Shoes.png}} (0.4%)<br>{{ItemLink|stablekey=item:chest - 32 - braxonian royal garb|link=Braxonian Royal Tunic|text=Braxonian Royal Tunic|image=Braxonian Royal Tunic.png}} (0.4%)
+|droprates={{ItemLink|stablekey=item:gen - diamond}} (9.1%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - polished stone}} (7.8%)<br>{{ItemLink|stablekey=item:gen - spark of the first flame}} (7.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - spark of the first flame}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:cons - water}} (7.8%)<br>{{ItemLink|stablekey=item:wand - 29 - brax's candle}} (4.6%)<br>{{ItemLink|stablekey=item:ore - ancient coal}} (1.1%)<br>{{ItemLink|stablekey=item:wrist - 30 - braxonian bracelet}} (0.7%)<br>{{ItemLink|stablekey=item:glove - 30 - braxonian gloves}} (0.7%)<br>{{ItemLink|stablekey=item:glove - 30 - braxonian mitts}} (0.7%)<br>{{ItemLink|stablekey=item:wrist - 30 - braxonian wristlet}} (0.7%)<br>{{ItemLink|stablekey=item:leg - 31 - braxonian breeches}} (0.4%)<br>{{ItemLink|stablekey=item:foot - 31 - braxonian leather boots}} (0.4%)<br>{{ItemLink|stablekey=item:arm - 31 - braxonian leather sleeves}} (0.4%)<br>{{ItemLink|stablekey=item:chest - 32 - braxonian leather tunic}} (0.4%)<br>{{ItemLink|stablekey=item:leg - 31 - braxonian linens}} (0.4%)<br>{{ItemLink|stablekey=item:arm - 31 - braxonian royal armband}} (0.4%)<br>{{ItemLink|stablekey=item:foot - 31 - braxonian royal shoes}} (0.4%)<br>{{ItemLink|stablekey=item:chest - 32 - braxonian royal garb}} (0.4%)
 |level=29
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=14-35
 |elemental=14-35
 |void=14-35
-|spells={{AbilityLink|stablekey=spell:arc - ice spear|link=Ice Spear|text=Ice Spear|image=Ice Spear.png}}<br>{{AbilityLink|stablekey=spell:arc - winter's bite|link=Winter's Bite|text=Winter's Bite|image=Winter's Bite.png}}
+|spells={{AbilityLink|stablekey=spell:arc - ice spear}}<br>{{AbilityLink|stablekey=spell:arc - winter's bite}}
 }}
 
 [[Category:Enemies]]

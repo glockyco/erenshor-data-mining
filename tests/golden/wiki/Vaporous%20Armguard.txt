@@ -3,7 +3,7 @@
 |stablekey=item:arm - 24 - vaporous armguard
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:dream invader:fernallaportal:343.45:0.52:405.94|link=Invader of Dreams|text=Invader of Dreams}} (25.0%)
+|source={{CharacterLink|stablekey=character:dream invader:fernallaportal:343.45:0.52:405.94}} (25.0%)
 |othersource=
 |questsource=
 |relatedquest=

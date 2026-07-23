@@ -3,7 +3,7 @@
 |stablekey=item:foot - 5 - shivering leather boots
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:golden spirit|link=A Golden Spirit|text=A Golden Spirit}} (14.0%)<br>{{CharacterLink|stablekey=character:crypt keeper|link=Crypt Keeper|text=Crypt Keeper}} (6.5%)<br>{{CharacterLink|stablekey=character:molorai druid|link=Molorai Militia Druid|text=Molorai Militia Druid}} (3.0%)
+|source={{CharacterLink|stablekey=character:golden spirit}} (14.0%)<br>{{CharacterLink|stablekey=character:crypt keeper}} (6.5%)<br>{{CharacterLink|stablekey=character:molorai druid}} (3.0%)
 |othersource=
 |questsource=
 |relatedquest=

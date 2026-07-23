@@ -5,7 +5,7 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|A Sivakayan Horn for Ludo Luxo}}<br>{{QuestLink|stablekey=quest:a sivakayan horn for ludo luxo|link=A Sivakayan Horn for Ludo Luxo|text=A Sivakayan Horn for Ludo Luxo}}
+|questsource={{QuestLink|A Sivakayan Horn for Ludo Luxo}}<br>{{QuestLink|stablekey=quest:a sivakayan horn for ludo luxo}}
 |relatedquest=
 |craftsource=
 |componentfor=

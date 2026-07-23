@@ -3,15 +3,15 @@
 |image=[[File:Servash Polaro.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:huntsmen|link=The Huntsmen|text=The Huntsmen}}
-|factionChange=-50 {{FactionLink|stablekey=faction:huntsmen|link=The Huntsmen|text=The Huntsmen}}
-|zones={{ZoneLink|stablekey=zone:silkengrass|link=Silkengrass Meadowlands|text=Silkengrass Meadowlands}}
+|faction={{FactionLink|stablekey=faction:huntsmen}}
+|factionChange=-50 {{FactionLink|stablekey=faction:huntsmen}}
+|zones={{ZoneLink|stablekey=zone:silkengrass}}
 |coordinates=1046.0 x 29.3 x 345.0
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (87.1%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (20.8%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (20.8%)
+|droprates={{ItemLink|stablekey=item:gen citrine stone}} (87.1%)<br>{{ItemLink|stablekey=item:gen - luminstone}} (20.8%)<br>{{ItemLink|stablekey=item:gen - a star stone}} (20.8%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=11-26
 |elemental=11-26
 |void=11-26
-|spells={{AbilityLink|stablekey=spell:arc - brax's rage|link=Brax's Rage|text=Brax's Rage|image=Brax's Rage.png}}<br>{{AbilityLink|stablekey=spell:arc - brax's touch|link=Brax's Touch|text=Brax's Touch|image=Brax's Touch.png}}<br>{{AbilityLink|stablekey=spell:dru arc stc - magic bolt|link=Magic Bolt|text=Magic Bolt|image=Magic Bolt.png}}<br>{{AbilityLink|stablekey=spell:dru - minor lightning|link=Minor Lightning|text=Minor Lightning|image=Minor Lightning.png}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's rage}}<br>{{AbilityLink|stablekey=spell:arc - brax's touch}}<br>{{AbilityLink|stablekey=spell:dru arc stc - magic bolt}}<br>{{AbilityLink|stablekey=spell:dru - minor lightning}}
 }}
 Servash is located near the burnt ruins in the [[Silkengrass Meadowlands]]
 

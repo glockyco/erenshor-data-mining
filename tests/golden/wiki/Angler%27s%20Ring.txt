@@ -6,8 +6,8 @@
 |source=
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|The Angler's Ring}}<br>{{QuestLink|stablekey=quest:anglerring|link=The Angler's Ring|text=The Angler's Ring}}
-|craftsource=1x {{ItemLink|stablekey=item:template - anglers ring|link=Mold: Angler's Ring|text=Mold: Angler's Ring|image=Mold: Angler's Ring.png}}<br>1x {{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}}<br>1x {{ItemLink|stablekey=item:ore - vithean ore|link=Vithean Ore|text=Vithean Ore|image=Vithean Ore.png}}<br>1x {{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}}<br>1x {{ItemLink|stablekey=item:gen - whispers of the sea|link=Whispers of the Sea|text=Whispers of the Sea|image=Whispers of the Sea.png}}
+|relatedquest={{QuestLink|The Angler's Ring}}<br>{{QuestLink|stablekey=quest:anglerring}}
+|craftsource=1x {{ItemLink|stablekey=item:template - anglers ring}}<br>1x {{ItemLink|stablekey=item:gen - luminstone}}<br>1x {{ItemLink|stablekey=item:ore - vithean ore}}<br>1x {{ItemLink|stablekey=item:gen - seaglass}}<br>1x {{ItemLink|stablekey=item:gen - whispers of the sea}}
 |componentfor=
 |buy=
 |sell=

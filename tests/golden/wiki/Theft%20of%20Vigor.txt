@@ -5,7 +5,7 @@
 |description=Steal attack speed from a target and give it to yourself.
 |type=StatusEffect
 |line=Pal_Magic_DOT
-|classes={{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}} (15)
+|classes={{ClassLink|stablekey=class:paladin}} (15)
 |required_level=15
 |manacost=95
 |aggro=750
@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:weap - 36 - executioner of azure|link=Executioner of Azure|text=Executioner of Azure|image=Executioner of Azure.png}}
-|source={{ItemLink|stablekey=item:spell scroll - stolen vigor|link=Spell Scroll: Theft of Vigor|text=Spell Scroll: Theft of Vigor|image=Spell Scroll: Theft of Vigor.png}}
-|used_by={{CharacterLink|stablekey=character:ancient celestarian|link=Ancient Celestarian|text=Ancient Celestarian}}<br>{{CharacterLink|stablekey=character:ancient guard captain|link=Ancient Knight|text=Ancient Knight}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 36 - executioner of azure}}
+|source={{ItemLink|stablekey=item:spell scroll - stolen vigor}}
+|used_by={{CharacterLink|stablekey=character:ancient celestarian}}<br>{{CharacterLink|stablekey=character:ancient guard captain}}
 }}
+{{SpellTooltip|stablekey=spell:pal - sap vitality}}

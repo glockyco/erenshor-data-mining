@@ -3,7 +3,7 @@
 |stablekey=item:weap - 20 - minoaxe
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:forest minotaur hero|link=Loomingwood Minotaur Hero|text=Loomingwood Minotaur Hero}} (50.0%)
+|source={{CharacterLink|stablekey=character:forest minotaur hero}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

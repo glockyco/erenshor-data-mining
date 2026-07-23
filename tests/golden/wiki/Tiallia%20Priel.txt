@@ -3,15 +3,15 @@
 |image=[[File:Tiallia Priel.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:priel|link=Savannah Priel|text=Savannah Priel}}
-|factionChange=-35 {{FactionLink|stablekey=faction:priel|link=Savannah Priel|text=Savannah Priel}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+1 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
-|zones={{ZoneLink|stablekey=zone:malaroth|link=Malaroth's Nesting Grounds|text=Malaroth's Nesting Grounds}}
+|faction={{FactionLink|stablekey=faction:priel}}
+|factionChange=-35 {{FactionLink|stablekey=faction:priel}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens}}<br>+1 {{FactionLink|stablekey=faction:solunarians}}
+|zones={{ZoneLink|stablekey=zone:malaroth}}
 |coordinates=968.8 x 56.7 x 344.0
 |spawnchance=75%
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:weap - 24 - end's call|link=End's Bane|text=End's Bane|image=End's Bane.png}}<br>{{ItemLink|stablekey=item:leg - 24 - nightstalker fur leggings|link=Nightstalker Fur Leggings|text=Nightstalker Fur Leggings|image=Nightstalker Fur Leggings.png}}
-|droprates={{ItemLink|stablekey=item:gen - priel note 1|link=Priel Note|text=Priel Note (2)|image=Priel Note.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - priel note 1|link=Priel Note|text=Priel Note (2)|image=Priel Note.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:leg - 24 - nightstalker fur leggings|link=Nightstalker Fur Leggings|text=Nightstalker Fur Leggings|image=Nightstalker Fur Leggings.png}} (75.0%)<br>{{ItemLink|stablekey=item:weap - 24 - end's call|link=End's Bane|text=End's Bane|image=End's Bane.png}} (25.0%)<ref>If Tiallia Priel has {{ItemLink|stablekey=item:weap - 24 - end's call|link=End's Bane|text=End's Bane|image=End's Bane.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (16.3%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (16.3%)<br>{{ItemLink|stablekey=item:back - 6 - priel standard|link=Priel Standard|text=Priel Standard|image=Priel Standard.png}} (5.9%)<ref>If Tiallia Priel has {{ItemLink|stablekey=item:back - 6 - priel standard|link=Priel Standard|text=Priel Standard|image=Priel Standard.png}} equipped, it is guaranteed to drop.</ref>
+|guaranteeddrops={{ItemLink|stablekey=item:weap - 24 - end's call}}<br>{{ItemLink|stablekey=item:leg - 24 - nightstalker fur leggings}}
+|droprates={{ItemLink|stablekey=item:gen - priel note 1}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - priel note 1}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:leg - 24 - nightstalker fur leggings}} (75.0%)<br>{{ItemLink|stablekey=item:weap - 24 - end's call}} (25.0%)<ref>If Tiallia Priel has {{ItemLink|stablekey=item:weap - 24 - end's call}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:gen - seaglass}} (16.3%)<br>{{ItemLink|stablekey=item:gen - a star stone}} (16.3%)<br>{{ItemLink|stablekey=item:back - 6 - priel standard}} (5.9%)<ref>If Tiallia Priel has {{ItemLink|stablekey=item:back - 6 - priel standard}} equipped, it is guaranteed to drop.</ref>
 |level=24
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=12-29
 |elemental=12-29
 |void=12-29
-|spells={{AbilityLink|stablekey=spell:duel - deathly embrace|link=Death's Embrace|text=Death's Embrace|image=Death's Embrace.png}}<br>{{AbilityLink|stablekey=spell:duel - expose weakness|link=Expose Weakness|text=Expose Weakness|image=Expose Weakness.png}}
+|spells={{AbilityLink|stablekey=spell:duel - deathly embrace}}<br>{{AbilityLink|stablekey=spell:duel - expose weakness}}
 }}
 Tiallia Priel can be found in the small Priel camp in [[Malaroth's Nesting Grounds]].
 

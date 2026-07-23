@@ -3,7 +3,7 @@
 |stablekey=item:foot - 18 - molorai warstomps
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:overseer lasael|link=Overseer Laseal|text=Overseer Laseal}} (55.1%)
+|source={{CharacterLink|stablekey=character:overseer lasael}} (55.1%)
 |othersource=
 |questsource=
 |relatedquest=

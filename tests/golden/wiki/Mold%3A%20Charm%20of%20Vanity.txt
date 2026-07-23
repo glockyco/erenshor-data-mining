@@ -22,8 +22,8 @@
 |image=Mold: Charm of Vanity.png
 |name=Mold: Charm of Vanity
 |description=Recipes must be exact - use CNTRL + CLICK to separate stacks.<br><br>One-time usable in a forge. <br><br>*Fuel quality does not affect the outcome of this recipe
-|ingredients=1x {{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}}<br>1x {{ItemLink|stablekey=item:gen - ivory tusk|link=Ivory Tusk|text=Ivory Tusk|image=Ivory Tusk.png}}<br>1x {{ItemLink|stablekey=item:neck - 12 - swirlstone amulet|link=Swirlstone Amulet|text=Swirlstone Amulet|image=Swirlstone Amulet.png}}<br>1x {{ItemLink|stablekey=item:gen - chunk of living sapphire|link=Chunk of Living Sapphire|text=Chunk of Living Sapphire|image=Chunk of Living Sapphire.png}}
-|rewards={{ItemLink|stablekey=item:charm - 22 - charm of vanity|link=Charm of Vanity|text=Charm of Vanity|image=Charm of Vanity.png}}
+|ingredients=1x {{ItemLink|stablekey=item:gen - seaglass}}<br>1x {{ItemLink|stablekey=item:gen - ivory tusk}}<br>1x {{ItemLink|stablekey=item:neck - 12 - swirlstone amulet}}<br>1x {{ItemLink|stablekey=item:gen - chunk of living sapphire}}
+|rewards={{ItemLink|stablekey=item:charm - 22 - charm of vanity}}
 |station=
 }}
 

@@ -32,7 +32,7 @@
 |shield_amount=
 |pet_to_summon=
 |status_effect=
-|add_proc={{AbilityLink|stablekey=spell:arc - brax's fury|link=Brax's Fury|text=Brax's Fury}}
+|add_proc={{AbilityLink|stablekey=spell:arc - brax's fury}}
 |add_proc_chance=33
 |has_lifetap=
 |lifesteal=
@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:wrist - 42 - the allbond|link=Allbond|text=Allbond|image=Allbond.png}}
+|itemswitheffect={{ItemLink|stablekey=item:wrist - 42 - the allbond}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - elementalform}}

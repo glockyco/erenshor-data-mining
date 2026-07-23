@@ -3,7 +3,7 @@
 |stablekey=item:furniture - gold statue soluna
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:raval|link=Raval, The First Paladin|text=Raval, The First Paladin}} (1.0%)<br>{{CharacterLink|stablekey=character:ancient guard|link=Ancient Guard|text=Ancient Guard}} (0.2%)
+|source={{CharacterLink|stablekey=character:raval}} (1.0%)<br>{{CharacterLink|stablekey=character:ancient guard}} (0.2%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -3,15 +3,15 @@
 |image=[[File:Shadow Man.png|thumb]]
 |imagecaption=
 |type=Rare
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
-|factionChange=-10 {{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:silkengrass|link=Silkengrass Meadowlands|text=Silkengrass Meadowlands}}
+|faction={{FactionLink|stablekey=faction:evil}}
+|factionChange=-10 {{FactionLink|stablekey=faction:sivakayans}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:silkengrass}}
 |coordinates=
 |spawnchance=10%
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (57.4%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (57.4%)<br>{{ItemLink|stablekey=item:neck - 19 - aether's blessing|link=Aether's Blessing|text=Aether's Blessing|image=Aether's Blessing.png}} (20.6%)<br>{{ItemLink|stablekey=item:head - 21 - aetherial helm|link=Aetherial Hood|text=Aetherial Hood|image=Aetherial Hood.png}} (12.1%)<br>{{ItemLink|stablekey=item:gen - rune of silkengrass|link=Rune of Silkengrass|text=Rune of Silkengrass|image=Rune of Silkengrass.png}} (5.9%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - rune of silkengrass|link=Rune of Silkengrass|text=Rune of Silkengrass|image=Rune of Silkengrass.png}} in their inventory, another will not drop.</ref>
+|droprates={{ItemLink|stablekey=item:gen citrine stone}} (57.4%)<br>{{ItemLink|stablekey=item:gen - a star stone}} (57.4%)<br>{{ItemLink|stablekey=item:neck - 19 - aether's blessing}} (20.6%)<br>{{ItemLink|stablekey=item:head - 21 - aetherial helm}} (12.1%)<br>{{ItemLink|stablekey=item:gen - rune of silkengrass}} (5.9%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - rune of silkengrass}} in their inventory, another will not drop.</ref>
 |level=19
 |levelmodmin=0
 |levelmodmax=0

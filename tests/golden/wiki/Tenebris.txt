@@ -5,7 +5,7 @@
 |description=Deals 4500 magic damage to your target.
 |type=Damage
 |line=Direct_Damage
-|classes={{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}} (32)
+|classes={{ClassLink|stablekey=class:arcanist}} (32)
 |required_level=32
 |manacost=1000
 |aggro=300
@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:wrist - 28 - eroded bangle|link=Eroded Bangle|text=Eroded Bangle|image=Eroded Bangle.png}}<br>{{ItemLink|stablekey=item:wrist - 28 - exploding brace|link=Exploding Brace|text=Exploding Brace|image=Exploding Brace.png}}<br>{{ItemLink|stablekey=item:weap - 28 - stirrer of sleep|link=Stirrer of Sleep|text=Stirrer of Sleep|image=Stirrer of Sleep.png}}<br>{{ItemLink|stablekey=item:wrist - 42 - thaumic wraps|link=Thaumic Wraps|text=Thaumic Wraps|image=Thaumic Wraps.png}}
-|source={{ItemLink|stablekey=item:spell scroll - tenebris|link=Spell Scroll: Tenebris|text=Spell Scroll: Tenebris|image=Spell Scroll: Tenebris.png}}
-|used_by={{CharacterLink|stablekey=character:acolyte of azynthi|link=Acolyte of Azynthi|text=Acolyte of Azynthi}}<br>{{CharacterLink|stablekey=character:braxonian educator|link=Ancient Educator|text=Ancient Educator}}<br>{{CharacterLink|stablekey=character:soluna azynthian corruptor|link=Azynthian Corruptor|text=Azynthian Corruptor}}<br>{{CharacterLink|stablekey=character:azynthian corruptor|link=Azynthian Keeper|text=Azynthian Keeper}}<br>{{CharacterLink|stablekey=character:azynthian sacrifice|link=Azynthian Sacrifice|text=Azynthian Sacrifice}}<br>{{CharacterLink|stablekey=character:braxon elden:braxonian:99.99:33.79:993.06|link=Braxon Elden|text=Braxon Elden}}<br>{{CharacterLink|stablekey=character:arcanist of sivakaya|link=Grand Arcanist of Sivakaya|text=Grand Arcanist of Sivakaya}}<br>{{CharacterLink|stablekey=character:ripparian high sorcerer|link=Ta'Dah, Sorcerer of Ripper|text=Ta'Dah, Sorcerer of Ripper}}
+|itemswitheffect={{ItemLink|stablekey=item:wrist - 28 - eroded bangle}}<br>{{ItemLink|stablekey=item:wrist - 28 - exploding brace}}<br>{{ItemLink|stablekey=item:weap - 28 - stirrer of sleep}}<br>{{ItemLink|stablekey=item:wrist - 42 - thaumic wraps}}
+|source={{ItemLink|stablekey=item:spell scroll - tenebris}}
+|used_by={{CharacterLink|stablekey=character:acolyte of azynthi}}<br>{{CharacterLink|stablekey=character:braxonian educator}}<br>{{CharacterLink|stablekey=character:soluna azynthian corruptor}}<br>{{CharacterLink|stablekey=character:azynthian corruptor}}<br>{{CharacterLink|stablekey=character:azynthian sacrifice}}<br>{{CharacterLink|stablekey=character:braxon elden:braxonian:99.99:33.79:993.06}}<br>{{CharacterLink|stablekey=character:arcanist of sivakaya}}<br>{{CharacterLink|stablekey=character:ripparian high sorcerer}}
 }}
+{{SpellTooltip|stablekey=spell:arc - tenebris}}

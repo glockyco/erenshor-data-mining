@@ -3,7 +3,7 @@
 |stablekey=item:weap - 40 - lux, carver of stars
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:astral_ guardian of stars|link=Astra, Rogue of the Stars|text=Astra, Rogue of the Stars}} (16.7%)
+|source={{CharacterLink|stablekey=character:astral_ guardian of stars}} (16.7%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=8
 |proc_spell_icon=Sunburst (Lux).png
-|proc_spell_name={{AbilityLink|stablekey=spell:arc - sunburst|link=Sunburst (Lux)|text=Sunburst|image=Sunburst (Lux).png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:arc - sunburst}}
 |proc_spell_level=28
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

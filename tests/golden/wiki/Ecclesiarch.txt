@@ -3,15 +3,15 @@
 |image=[[File:Ecclesiarch.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:saltedstrand|link=Blacksalt Strand|text=Blacksalt Strand}}
+|zones={{ZoneLink|stablekey=zone:saltedstrand}}
 |coordinates=764.6 x 25.4 x 274.8
 |spawnchance=20%
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:foot - 16  - devout moccasins|link=Devout Moccasins|text=Devout Moccasins|image=Devout Moccasins.png}} (9.1%)<br>{{ItemLink|stablekey=item:weap - 18 - acolyte's cudgel|link=Acolyte's Cudgel|text=Acolyte's Cudgel|image=Acolyte's Cudgel.png}} (6.7%)<ref>If Ecclesiarch has {{ItemLink|stablekey=item:weap - 18 - acolyte's cudgel|link=Acolyte's Cudgel|text=Acolyte's Cudgel|image=Acolyte's Cudgel.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:gen - cod - pg 4|link=Chapters of Descent, Passage 4|text=Chapters of Descent, Passage 4|image=Chapters of Descent, Passage 4.png}} (4.6%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - cod - pg 4|link=Chapters of Descent, Passage 4|text=Chapters of Descent, Passage 4|image=Chapters of Descent, Passage 4.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:cons - bread|link=Bread|text=Bread|image=Bread.png}} (2.0%)<br>{{ItemLink|stablekey=item:glove - 1 - cloth gloves|link=Cloth Gloves|text=Cloth Gloves|image=Cloth Gloves.png}} (2.0%)<br>{{ItemLink|stablekey=item:leg - 1 - cloth pants|link=Cloth Pants|text=Cloth Pants|image=Cloth Pants.png}} (2.0%)<br>{{ItemLink|stablekey=item:chest - 1 - cloth shirt|link=Cloth Shirt|text=Cloth Shirt|image=Cloth Shirt.png}} (2.0%)<br>{{ItemLink|stablekey=item:foot - 1 - cloth shoes|link=Cloth Shoes|text=Cloth Shoes|image=Cloth Shoes.png}} (2.0%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves|link=Cloth Sleeves|text=Cloth Sleeves|image=Cloth Sleeves.png}} (2.0%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (2.0%)<br>{{ItemLink|stablekey=item:spell scroll - healing|link=Spell Scroll: Healing|text=Spell Scroll: Healing|image=Spell Scroll: Healing.png}} (2.0%)<br>{{ItemLink|stablekey=item:spell scroll - magic skin|link=Spell Scroll: Magical Skin|text=Spell Scroll: Magical Skin|image=Spell Scroll: Magical Skin.png}} (2.0%)<br>{{ItemLink|stablekey=item:spell scroll - soul tap|link=Spell Scroll: Soul Tap|text=Spell Scroll: Soul Tap|image=Spell Scroll: Soul Tap.png}} (2.0%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (2.0%)<br>{{ItemLink|stablekey=item:cons - water|link=Water|text=Water|image=Water.png}} (2.0%)
+|droprates={{ItemLink|stablekey=item:foot - 16  - devout moccasins}} (9.1%)<br>{{ItemLink|stablekey=item:weap - 18 - acolyte's cudgel}} (6.7%)<ref>If Ecclesiarch has {{ItemLink|stablekey=item:weap - 18 - acolyte's cudgel}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:gen - cod - pg 4}} (4.6%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - cod - pg 4}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:cons - bread}} (2.0%)<br>{{ItemLink|stablekey=item:glove - 1 - cloth gloves}} (2.0%)<br>{{ItemLink|stablekey=item:leg - 1 - cloth pants}} (2.0%)<br>{{ItemLink|stablekey=item:chest - 1 - cloth shirt}} (2.0%)<br>{{ItemLink|stablekey=item:foot - 1 - cloth shoes}} (2.0%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves}} (2.0%)<br>{{ItemLink|stablekey=item:gen - luminstone}} (2.0%)<br>{{ItemLink|stablekey=item:spell scroll - healing}} (2.0%)<br>{{ItemLink|stablekey=item:spell scroll - magic skin}} (2.0%)<br>{{ItemLink|stablekey=item:spell scroll - soul tap}} (2.0%)<br>{{ItemLink|stablekey=item:gen - a star stone}} (2.0%)<br>{{ItemLink|stablekey=item:cons - water}} (2.0%)
 |level=17
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=8-20
 |elemental=8-20
 |void=8-20
-|spells={{AbilityLink|stablekey=spell:arc - brax's rage|link=Brax's Rage|text=Brax's Rage|image=Brax's Rage.png}}<br>{{AbilityLink|stablekey=spell:arc - ethereal rend|link=Ethereal Rending|text=Ethereal Rending|image=Ethereal Rending.png}}<br>{{AbilityLink|stablekey=spell:dru arc - jolt|link=Jolt|text=Jolt|image=Jolt.png}}<br>{{AbilityLink|stablekey=spell:dru - toxicity|link=Toxicity|text=Toxicity|image=Toxicity.png}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's rage}}<br>{{AbilityLink|stablekey=spell:arc - ethereal rend}}<br>{{AbilityLink|stablekey=spell:dru arc - jolt}}<br>{{AbilityLink|stablekey=spell:dru - toxicity}}
 }}
 
 [[Category:Blacksalt Strand]]

@@ -5,7 +5,7 @@
 |description=Passive Skill: Your spells have a chance to land with a critical hit
 |type=Innate
 |line=
-|classes={{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}} (8)<br>{{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}} (16)
+|classes={{ClassLink|stablekey=class:arcanist}} (8)<br>{{ClassLink|stablekey=class:stormcaller}} (16)
 |required_level=
 |manacost=
 |aggro=
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:skillbook - arcane proficiency|link=Skill Book: Arcane Proficiency|text=Skill Book: Arcane Proficiency|image=Skill Book: Arcane Proficiency.png}}
+|source={{ItemLink|stablekey=item:skillbook - arcane proficiency}}
 |used_by=
 }}
+{{SkillTooltip|stablekey=skill:arcane proficiency}}

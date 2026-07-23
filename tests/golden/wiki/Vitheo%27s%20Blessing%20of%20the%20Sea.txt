@@ -65,10 +65,11 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:weap - 12 - blade of the sea|link=Blade of the Sea|text=Blade of the Sea|image=Blade of the Sea.png}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 12 - blade of the sea}}
 |source=
-|used_by={{CharacterLink|stablekey=character:a rottenfoot goblin warrior|link=A Rottenfoot Warrior|text=A Rottenfoot Warrior}}<br>{{CharacterLink|stablekey=character:a rottenfoot goblin witchdoctor|link=A Rottenfoot Witchdoctor|text=A Rottenfoot Witchdoctor}}<br>{{CharacterLink|stablekey=character:a seafiend spirtist|link=A Seafiend|text=A Seafiend}}<br>{{CharacterLink|stablekey=character:aragath swellsteer|link=Aragath Swellsteer|text=Aragath Swellsteer}}<br>{{CharacterLink|stablekey=character:amethi plazzo|link=Grayleigh Hawke|text=Grayleigh Hawke}}<br>{{CharacterLink|stablekey=character:a rottenfoot mauler|link=Rottenfoot Mauler|text=Rottenfoot Mauler}}<br>{{CharacterLink|stablekey=character:a rottenfoot goblin female|link=Rottenfoot Swampwalker|text=Rottenfoot Swampwalker}}<br>{{CharacterLink|stablekey=character:a rottenfoot goblin spiritcaller|link=Rottenfoot Witchdoctor|text=Rottenfoot Witchdoctor}}
+|used_by={{CharacterLink|stablekey=character:a rottenfoot goblin warrior}}<br>{{CharacterLink|stablekey=character:a rottenfoot goblin witchdoctor}}<br>{{CharacterLink|stablekey=character:a seafiend spirtist}}<br>{{CharacterLink|stablekey=character:aragath swellsteer}}<br>{{CharacterLink|stablekey=character:amethi plazzo}}<br>{{CharacterLink|stablekey=character:a rottenfoot mauler}}<br>{{CharacterLink|stablekey=character:a rottenfoot goblin female}}<br>{{CharacterLink|stablekey=character:a rottenfoot goblin spiritcaller}}
 }}
+{{SpellTooltip|stablekey=spell:duel - vitheo's blessing of the sea}}
 
 {{Ability
 |title=Vitheo's Blessing of the Sea
@@ -137,7 +138,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:cons - seafruit|link=Seafruit|text=Seafruit|image=Seafruit.png}}
+|itemswitheffect={{ItemLink|stablekey=item:cons - seafruit}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:duel - vitheo's blessing of the sea (eaten)}}

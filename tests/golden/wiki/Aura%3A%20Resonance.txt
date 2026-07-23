@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:aura - gem of echoes|link=Gem of Echoes|text=Gem of Echoes|image=Gem of Echoes.png}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - gem of echoes}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:aura - resonate}}

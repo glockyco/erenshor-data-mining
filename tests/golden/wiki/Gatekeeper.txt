@@ -3,15 +3,15 @@
 |image=[[File:Gatekeeper.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|faction={{FactionLink|stablekey=faction:good}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:shiveringstep|link=Shivering Step|text=Shivering Step}}
+|zones={{ZoneLink|stablekey=zone:shiveringstep}}
 |coordinates=672.2 x 29.5 x 421.1
 |spawnchance=
 |spawntype=
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:glove - 1 - cloth gloves|link=Cloth Gloves|text=Cloth Gloves|image=Cloth Gloves.png}} (15.8%)<br>{{ItemLink|stablekey=item:head - 1 - cloth hood|link=Cloth Hood|text=Cloth Hood|image=Cloth Hood.png}} (15.8%)<br>{{ItemLink|stablekey=item:foot - 1 - cloth shoes|link=Cloth Shoes|text=Cloth Shoes|image=Cloth Shoes.png}} (15.8%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves|link=Cloth Sleeves|text=Cloth Sleeves|image=Cloth Sleeves.png}} (15.8%)
+|droprates={{ItemLink|stablekey=item:glove - 1 - cloth gloves}} (15.8%)<br>{{ItemLink|stablekey=item:head - 1 - cloth hood}} (15.8%)<br>{{ItemLink|stablekey=item:foot - 1 - cloth shoes}} (15.8%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves}} (15.8%)
 |level=1
 |levelmodmin=0
 |levelmodmax=0

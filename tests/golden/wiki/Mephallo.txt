@@ -3,15 +3,15 @@
 |image=[[File:Mephallo.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:shiveringstep|link=Shivering Step|text=Shivering Step}}
+|zones={{ZoneLink|stablekey=zone:shiveringstep}}
 |coordinates=508.9 x 64.8 x 997.4
 |spawnchance=
 |spawntype=
 |respawn=11 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:aura - hallows|link=Hallows Eve|text=Hallows Eve|image=Hallows Eve.png}}<br>{{ItemLink|stablekey=item:secondary - 26 - provoker|link=Provoker|text=Provoker|image=Provoker.png}}
-|droprates={{ItemLink|stablekey=item:secondary - 26 - provoker|link=Provoker|text=Provoker|image=Provoker.png}} (66.7%)<br>{{ItemLink|stablekey=item:aura - hallows|link=Hallows Eve|text=Hallows Eve|image=Hallows Eve.png}} (33.3%)<br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (13.5%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref>
+|guaranteeddrops={{ItemLink|stablekey=item:aura - hallows}}<br>{{ItemLink|stablekey=item:secondary - 26 - provoker}}
+|droprates={{ItemLink|stablekey=item:secondary - 26 - provoker}} (66.7%)<br>{{ItemLink|stablekey=item:aura - hallows}} (33.3%)<br>{{ItemLink|stablekey=item:gen - diamond}} (13.5%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond}} in their inventory, another will not drop.</ref>
 |level=23
 |levelmodmin=0
 |levelmodmax=0

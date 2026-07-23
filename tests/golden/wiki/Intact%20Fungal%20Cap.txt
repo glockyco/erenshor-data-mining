@@ -3,10 +3,10 @@
 |stablekey=item:gen - intact fungal cap
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:fungal protecter|link=Abyssal Fungus Protector|text=Abyssal Fungus Protector}} (18.2%)<br>{{CharacterLink|stablekey=character:fungal warden|link=Abyssal Fungus Protector|text=Abyssal Fungus Protector}} (2.1%)<br>{{CharacterLink|stablekey=character:fungal warrior|link=Abyssal Fungus Warrior|text=Abyssal Fungus Warrior}} (2.1%)
+|source={{CharacterLink|stablekey=character:fungal protecter}} (18.2%)<br>{{CharacterLink|stablekey=character:fungal warden}} (2.1%)<br>{{CharacterLink|stablekey=character:fungal warrior}} (2.1%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Ta'Dah's Shadows}}<br>{{QuestLink|stablekey=quest:tadahglobe|link=Ta'Dah's Shadows|text=Ta'Dah's Shadows}}
+|relatedquest={{QuestLink|Ta'Dah's Shadows}}<br>{{QuestLink|stablekey=quest:tadahglobe}}
 |craftsource=
 |componentfor=
 |buy=15

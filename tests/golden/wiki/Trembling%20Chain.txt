@@ -3,7 +3,7 @@
 |stablekey=item:neck - 25 - trembling chain
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:warded phantom:shiveringtomb2:-76.96:-68.40:284.89|link=Warded Shadow|text=Warded Shadow}} (37.9%)
+|source={{CharacterLink|stablekey=character:warded phantom:shiveringtomb2:-76.96:-68.40:284.89}} (37.9%)
 |othersource=
 |questsource=
 |relatedquest=

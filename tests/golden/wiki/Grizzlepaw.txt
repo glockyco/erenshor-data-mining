@@ -3,15 +3,15 @@
 |image=[[File:Grizzlepaw.png|thumb]]
 |imagecaption=A very heavy boi
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:brake|link=Faerie's Brake|text=Faerie's Brake}}
+|zones={{ZoneLink|stablekey=zone:brake}}
 |coordinates=79.6 x 19.1 x 356.1
 |spawnchance=75%
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - weathered chain|link=Weathered Chain|text=Weathered Chain|image=Weathered Chain.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - weathered chain|link=Weathered Chain|text=Weathered Chain|image=Weathered Chain.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - bear meat|link=Bear Meat|text=Bear Meat|image=Bear Meat.png}} (91.6%)<br>{{ItemLink|stablekey=item:belt - 5 - stalwart belt|link=Stalwart Belt|text=Stalwart Belt|image=Stalwart Belt.png}} (10.4%)
+|droprates={{ItemLink|stablekey=item:gen - weathered chain}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - weathered chain}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - bear meat}} (91.6%)<br>{{ItemLink|stablekey=item:belt - 5 - stalwart belt}} (10.4%)
 |level=9
 |levelmodmin=0
 |levelmodmax=0

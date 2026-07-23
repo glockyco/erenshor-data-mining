@@ -3,7 +3,7 @@
 |stablekey=item:ore - rock
 |type=[[Mining|Ore]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:rock fiend|link=Rock Fiend|text=Rock Fiend}} (99.6%)<br>{{CharacterLink|stablekey=character:rock sprite|link=Rock Sprite|text=Rock Sprite}} (99.6%)<br>{{CharacterLink|stablekey=character:living meteorite|link=Living Meteorite|text=Living Meteorite}} (99.5%)<br>{{CharacterLink|stablekey=character:magma sprite|link=Magma Sprite|text=Magma Sprite}} (99.3%)<br>{{CharacterLink|stablekey=character:ruby fiend|link=Ruby Fiend|text=Ruby Fiend}} (99.3%)<br>{{CharacterLink|stablekey=character:sapphire fiend|link=Sapphire Fiend|text=Sapphire Fiend}} (99.3%)<br>{{CharacterLink|stablekey=character:a rock minion|link=A Rock Minion|text=A Rock Minion}} (94.9%)<br>{{CharacterLink|stablekey=character:granitus|link=Granitus|text=Granitus}} (84.9%)<br>{{CharacterLink|stablekey=character:worn ancient guardian 1|link=Worn Ancient Guardian|text=Worn Ancient Guardian}} (34.1%)
+|source={{CharacterLink|stablekey=character:rock fiend}} (99.6%)<br>{{CharacterLink|stablekey=character:rock sprite}} (99.6%)<br>{{CharacterLink|stablekey=character:living meteorite}} (99.5%)<br>{{CharacterLink|stablekey=character:magma sprite}} (99.3%)<br>{{CharacterLink|stablekey=character:ruby fiend}} (99.3%)<br>{{CharacterLink|stablekey=character:sapphire fiend}} (99.3%)<br>{{CharacterLink|stablekey=character:a rock minion}} (94.9%)<br>{{CharacterLink|stablekey=character:granitus}} (84.9%)<br>{{CharacterLink|stablekey=character:worn ancient guardian 1}} (34.1%)
 |othersource=[[Mining]]
 |questsource=
 |relatedquest=

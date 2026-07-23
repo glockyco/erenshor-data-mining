@@ -6,7 +6,7 @@
 |source=
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|The Mystery of Bellwain Island}}<br>{{QuestLink|stablekey=quest:bellwainletters|link=The Mystery of Bellwain Island|text=The Mystery of Bellwain Island}}
+|relatedquest={{QuestLink|The Mystery of Bellwain Island}}<br>{{QuestLink|stablekey=quest:bellwainletters}}
 |craftsource=
 |componentfor=
 |buy=

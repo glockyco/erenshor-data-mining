@@ -3,7 +3,7 @@
 |stablekey=item:weap - 25 - lamplighter's pole
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:endkio|link=Kio the Darkbringer|text=Kio the Darkbringer}} (50.0%)
+|source={{CharacterLink|stablekey=character:endkio}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=20
 |proc_spell_icon=Brax's Rage.png
-|proc_spell_name={{AbilityLink|stablekey=spell:arc - brax's rage|link=Brax's Rage|text=Brax's Rage|image=Brax's Rage.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:arc - brax's rage}}
 |proc_spell_level=10
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

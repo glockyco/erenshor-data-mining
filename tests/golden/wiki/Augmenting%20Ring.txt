@@ -3,7 +3,7 @@
 |stablekey=item:ring - 24 - augmenting ring
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:fearantula|link=Fearantula|text=Fearantula}} (33.3%)
+|source={{CharacterLink|stablekey=character:fearantula}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Worn
 |proc_chance=
 |proc_spell_icon=Mana Charge.png
-|proc_spell_name={{AbilityLink|stablekey=spell:arc - mana charge|link=Mana Charge|text=Mana Charge|image=Mana Charge.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:arc - mana charge}}
 |proc_spell_level=-1
 |proc_spell_duration_ticks=3
 |proc_spell_type=Beneficial

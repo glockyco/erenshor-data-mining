@@ -3,9 +3,9 @@
 |image=[[File:A Brackish Croc.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:saltedstrand|link=Blacksalt Strand|text=Blacksalt Strand}}<br>{{ZoneLink|stablekey=zone:vitheo|link=Vitheo's Watch|text=Vitheo's Watch}}
+|zones={{ZoneLink|stablekey=zone:saltedstrand}}<br>{{ZoneLink|stablekey=zone:vitheo}}
 |coordinates=
 |spawnchance=
 |spawntype=
@@ -41,9 +41,9 @@ A Brackish Croc is the adult variant of the [[A Brackish Croc Whelp|Croc Whelp]]
 |image=[[File:A Brackish Croc.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:vitheo|link=Vitheo's Watch|text=Vitheo's Watch}}
+|zones={{ZoneLink|stablekey=zone:vitheo}}
 |coordinates=
 |spawnchance=
 |spawntype=

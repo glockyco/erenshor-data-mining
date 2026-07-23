@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - call of the void
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:blight eater|link=Blight Eater|text=Blight Eater}} (4.6%)<br>{{CharacterLink|stablekey=character:priest of brax 1|link=Apha, Priest of Brax|text=Apha, Priest of Brax}} (3.7%)<br>{{CharacterLink|stablekey=character:priest of brax|link=Upha, Priest of Brax|text=Upha, Priest of Brax}} (3.7%)<br>{{CharacterLink|stablekey=character:a deepling crimsonite|link=A Deepling Crimsonite|text=A Deepling Crimsonite}} (2.8%)<br>{{CharacterLink|stablekey=character:braxonian fanatic|link=Braxon Fanatic|text=Braxon Fanatic}} (2.8%)<br>{{CharacterLink|stablekey=character:a deepling orator|link=A Deepling Orator|text=A Deepling Orator}} (1.9%)
+|source={{CharacterLink|stablekey=character:blight eater}} (4.6%)<br>{{CharacterLink|stablekey=character:priest of brax 1}} (3.7%)<br>{{CharacterLink|stablekey=character:priest of brax}} (3.7%)<br>{{CharacterLink|stablekey=character:a deepling crimsonite}} (2.8%)<br>{{CharacterLink|stablekey=character:braxonian fanatic}} (2.8%)<br>{{CharacterLink|stablekey=character:a deepling orator}} (1.9%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=1900
 |sell=1235
-|taughtspell={{AbilityLink|stablekey=spell:arc - call of the void|link=Call of the Void|text=Call of the Void|image=Call of the Void.png}}
+|taughtspell={{AbilityLink|stablekey=spell:arc - call of the void}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

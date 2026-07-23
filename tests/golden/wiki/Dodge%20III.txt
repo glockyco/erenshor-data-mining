@@ -5,7 +5,7 @@
 |description=You gain a small innate chance to dodge incoming attacks.
 |type=Innate
 |line=
-|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (30)<br>{{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}} (24)<br>{{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}} (24)
+|classes={{ClassLink|stablekey=class:druid}} (30)<br>{{ClassLink|stablekey=class:stormcaller}} (24)<br>{{ClassLink|stablekey=class:duelist}} (24)
 |required_level=
 |manacost=
 |aggro=
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:skillbook - dodge 3|link=Skill Book: Dodge III|text=Skill Book: Dodge III|image=Skill Book: Dodge III.png}}
+|source={{ItemLink|stablekey=item:skillbook - dodge 3}}
 |used_by=
 }}
+{{SkillTooltip|stablekey=skill:dodge 3}}

@@ -5,7 +5,7 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|Wally's Moongill}}<br>{{QuestLink|stablekey=quest:wally's moongill|link=Wally's Moongill|text=Wally's Moongill}}
+|questsource={{QuestLink|Wally's Moongill}}<br>{{QuestLink|stablekey=quest:wally's moongill}}
 |relatedquest=
 |craftsource=
 |componentfor=

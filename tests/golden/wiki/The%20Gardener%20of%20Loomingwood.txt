@@ -3,15 +3,15 @@
 |image=[[File:The Gardener of Loomingwood.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:loomingwood|link=Loomingwood Forest|text=Loomingwood Forest}}
+|zones={{ZoneLink|stablekey=zone:loomingwood}}
 |coordinates=185.9 x 46.1 x 842.4
 |spawnchance=
 |spawntype=
 |respawn=7 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:aura - fernalla 4|link=Decay|text=Decay|image=Decay.png}}<br>{{ItemLink|stablekey=item:weap - 30 - looming reaper|link=Looming Reaper|text=Looming Reaper|image=Looming Reaper.png}}<br>{{ItemLink|stablekey=item:glove - 30 - rootwoven wraps|link=Rootwoven Wraps|text=Rootwoven Wraps|image=Rootwoven Wraps.png}}
-|droprates={{ItemLink|stablekey=item:gen - loomingwood branch|link=Loomingwood Branch|text=Loomingwood Branch|image=Loomingwood Branch.png}} (100.0%)<br>{{ItemLink|stablekey=item:glove - 30 - rootwoven wraps|link=Rootwoven Wraps|text=Rootwoven Wraps|image=Rootwoven Wraps.png}} (50.0%)<br>{{ItemLink|stablekey=item:aura - fernalla 4|link=Decay|text=Decay|image=Decay.png}} (25.0%)<br>{{ItemLink|stablekey=item:weap - 30 - looming reaper|link=Looming Reaper|text=Looming Reaper|image=Looming Reaper.png}} (25.0%)<ref>If The Gardener of Loomingwood has {{ItemLink|stablekey=item:weap - 30 - looming reaper|link=Looming Reaper|text=Looming Reaper|image=Looming Reaper.png}} equipped, it is guaranteed to drop.</ref>
+|guaranteeddrops={{ItemLink|stablekey=item:aura - fernalla 4}}<br>{{ItemLink|stablekey=item:weap - 30 - looming reaper}}<br>{{ItemLink|stablekey=item:glove - 30 - rootwoven wraps}}
+|droprates={{ItemLink|stablekey=item:gen - loomingwood branch}} (100.0%)<br>{{ItemLink|stablekey=item:glove - 30 - rootwoven wraps}} (50.0%)<br>{{ItemLink|stablekey=item:aura - fernalla 4}} (25.0%)<br>{{ItemLink|stablekey=item:weap - 30 - looming reaper}} (25.0%)<ref>If The Gardener of Loomingwood has {{ItemLink|stablekey=item:weap - 30 - looming reaper}} equipped, it is guaranteed to drop.</ref>
 |level=30
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=15-36
 |elemental=15-36
 |void=15-36
-|spells={{AbilityLink|stablekey=spell:dru - arterial decay|link=Arterial Decay|text=Arterial Decay|image=Arterial Decay.png}}<br>{{AbilityLink|stablekey=spell:dru - biting vines|link=Biting Vines|text=Biting Vines|image=Biting Vines.png}}<br>{{AbilityLink|stablekey=spell:dru - morbidity's grasp|link=Morbidity's Grasp|text=Morbidity's Grasp|image=Morbidity's Grasp.png}}<br>{{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}<br>{{AbilityLink|stablekey=spell:dru - tangle|link=Tangle|text=Tangle|image=Tangle.png}}
+|spells={{AbilityLink|stablekey=spell:dru - arterial decay}}<br>{{AbilityLink|stablekey=spell:dru - biting vines}}<br>{{AbilityLink|stablekey=spell:dru - morbidity's grasp}}<br>{{AbilityLink|stablekey=spell:dru reav - soul tap}}<br>{{AbilityLink|stablekey=spell:dru - tangle}}
 }}
 
 Located in a cubby surrounded by [[Devoratrix]].

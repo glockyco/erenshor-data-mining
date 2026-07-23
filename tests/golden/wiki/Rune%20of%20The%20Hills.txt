@@ -5,8 +5,8 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|link=Willow Soil (Quest){{!}}Willow Soil}}<br>{{QuestLink|Portal of Hidden Hills}}<br>{{QuestLink|stablekey=quest:reliq-hidden|link=Portal of Hidden Hills|text=Portal of Hidden Hills}}<br>{{QuestLink|stablekey=quest:willowsoil|link=Willow Soil (Quest)|text=Willow Soil}}
-|relatedquest={{QuestLink|Portal of Hidden Hills}}<br>{{QuestLink|stablekey=quest:reliq-hidden|link=Portal of Hidden Hills|text=Portal of Hidden Hills}}
+|questsource={{QuestLink|link=Willow Soil (Quest){{!}}Willow Soil}}<br>{{QuestLink|Portal of Hidden Hills}}<br>{{QuestLink|stablekey=quest:reliq-hidden}}<br>{{QuestLink|stablekey=quest:willowsoil}}
+|relatedquest={{QuestLink|Portal of Hidden Hills}}<br>{{QuestLink|stablekey=quest:reliq-hidden}}
 |craftsource=
 |componentfor=
 |buy=5
@@ -27,7 +27,7 @@ A reward for completing {{QuestLink|link=Willow Soil}}. It can teleport the user
 |disposable=
 |effect_style=Activatable
 |effect_spell_icon=Portal to Hidden.png
-|effect_spell_name={{AbilityLink|stablekey=spell:arc - portal to hidden|link=Portal to Hidden|text=Portal to Hidden|image=Portal to Hidden.png}}
+|effect_spell_name={{AbilityLink|stablekey=spell:arc - portal to hidden}}
 |effect_spell_level=25
 |effect_spell_duration_ticks=
 |effect_spell_type=Misc

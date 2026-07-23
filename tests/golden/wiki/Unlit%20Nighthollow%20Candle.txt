@@ -5,8 +5,8 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|Recovering the Nighthollow Candle}}<br>{{QuestLink|stablekey=quest:recoveringnighthollow|link=Recovering the Nighthollow Candle|text=Recovering the Nighthollow Candle}}
-|relatedquest={{QuestLink|Lighting the Nighthollow Candle}}<br>{{QuestLink|stablekey=quest:ignitingnighthollow|link=Lighting the Nighthollow Candle|text=Lighting the Nighthollow Candle}}
+|questsource={{QuestLink|Recovering the Nighthollow Candle}}<br>{{QuestLink|stablekey=quest:recoveringnighthollow}}
+|relatedquest={{QuestLink|Lighting the Nighthollow Candle}}<br>{{QuestLink|stablekey=quest:ignitingnighthollow}}
 |craftsource=
 |componentfor=
 |buy=

@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:chest - 42 - chthonic tunic|link=Chthonic Tunic|text=Chthonic Tunic|image=Chthonic Tunic.png}}
+|itemswitheffect={{ItemLink|stablekey=item:chest - 42 - chthonic tunic}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - lupine form}}

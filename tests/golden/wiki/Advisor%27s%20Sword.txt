@@ -3,7 +3,7 @@
 |stablekey=item:weap - 42 - advisor's sword
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:khorso|link=Khorso, Soluna's Advisor|text=Khorso, Soluna's Advisor}} (70.0%)<br>{{CharacterLink|stablekey=character:soluna|link=Soluna|text=Soluna}} (5.8%)
+|source={{CharacterLink|stablekey=character:khorso}} (70.0%)<br>{{CharacterLink|stablekey=character:soluna}} (5.8%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=4
 |proc_spell_icon=Group Major Heal.png
-|proc_spell_name={{AbilityLink|stablekey=spell:none - group major heal|link=Group Major Heal|text=Group Major Heal|image=Group Major Heal.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:none - group major heal}}
 |proc_spell_level=16
 |proc_spell_duration_ticks=
 |proc_spell_type=Heal

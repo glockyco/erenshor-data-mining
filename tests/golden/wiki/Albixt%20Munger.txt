@@ -3,9 +3,9 @@
 |image=[[File:Albixt Munger.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:stowaway|link=The Citizens of Stowaway's Step|text=The Citizens of Stowaway's Step}}
+|faction={{FactionLink|stablekey=faction:stowaway}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:silkengrass|link=Silkengrass Meadowlands|text=Silkengrass Meadowlands}}
+|zones={{ZoneLink|stablekey=zone:silkengrass}}
 |coordinates=649.3 x 40.4 x 225.0
 |spawnchance=
 |spawntype=

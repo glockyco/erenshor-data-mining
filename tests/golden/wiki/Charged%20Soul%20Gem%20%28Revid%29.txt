@@ -6,7 +6,7 @@
 |source=
 |othersource=Using {{ItemLink|Revid's Soul Gem}} on Revid's Watchlight.
 |questsource=
-|relatedquest={{QuestLink|Aragath's Imprisonment}}<br>{{QuestLink|stablekey=quest:aragath|link=Aragath's Imprisonment|text=Aragath's Imprisonment}}
+|relatedquest={{QuestLink|Aragath's Imprisonment}}<br>{{QuestLink|stablekey=quest:aragath}}
 |craftsource=
 |componentfor=
 |buy=1

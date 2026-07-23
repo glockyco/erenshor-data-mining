@@ -3,15 +3,15 @@
 |image=[[File:A Fungal Sentinel.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:elderstone|link=The Elderstone Mines|text=The Elderstone Mines}}
+|zones={{ZoneLink|stablekey=zone:elderstone}}
 |coordinates=8.6 x -135.5 x 755.9
 |spawnchance=
 |spawntype=
 |respawn=12 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:cons - brackfruit juice|link=Brackfruit Juice|text=Brackfruit Juice|image=Brackfruit Juice.png}} (93.5%)<br>{{ItemLink|stablekey=item:wrist - 16 - twisted spider leg|link=A Twisted Spider Leg|text=A Twisted Spider Leg|image=A Twisted Spider Leg.png}} (25.2%)<br>{{ItemLink|stablekey=item:fish - a fanged caveskimmer|link=A Fanged Caveskimmer|text=A Fanged Caveskimmer|image=A Fanged Caveskimmer.png}} (15.1%)<br>{{ItemLink|stablekey=item:gen - fungal spore|link=Fungal Spore|text=Fungal Spore|image=Fungal Spore.png}} (15.1%)
+|droprates={{ItemLink|stablekey=item:cons - brackfruit juice}} (93.5%)<br>{{ItemLink|stablekey=item:wrist - 16 - twisted spider leg}} (25.2%)<br>{{ItemLink|stablekey=item:fish - a fanged caveskimmer}} (15.1%)<br>{{ItemLink|stablekey=item:gen - fungal spore}} (15.1%)
 |level=19
 |levelmodmin=0
 |levelmodmax=0

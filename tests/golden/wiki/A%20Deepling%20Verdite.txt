@@ -3,15 +3,15 @@
 |image=[[File:A Deepling Verdite.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:elderstone|link=The Elderstone Mines|text=The Elderstone Mines}}
+|zones={{ZoneLink|stablekey=zone:elderstone}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - scaled skin|link=Reptilian Scales|text=Reptilian Scales|image=Reptilian Scales.png}} (12.1%)<br>{{ItemLink|stablekey=item:gen - serpentine blood|link=Serpentine Blood|text=Serpentine Blood|image=Serpentine Blood.png}} (12.1%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (12.1%)<br>{{ItemLink|stablekey=item:gen - elderstone shard|link=Elderstone Shard|text=Elderstone Shard|image=Elderstone Shard.png}} (2.3%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - elderstone shard|link=Elderstone Shard|text=Elderstone Shard|image=Elderstone Shard.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:arm - 17 - fungus covered armband|link=Fungus Covered Armband|text=Fungus Covered Armband|image=Fungus Covered Armband.png}} (2.3%)<br>{{ItemLink|stablekey=item:glove - 18 - runed mitts|link=Runed Gloves|text=Runed Gloves|image=Runed Gloves.png}} (2.3%)
+|droprates={{ItemLink|stablekey=item:gen - scaled skin}} (12.1%)<br>{{ItemLink|stablekey=item:gen - serpentine blood}} (12.1%)<br>{{ItemLink|stablekey=item:gen - a star stone}} (12.1%)<br>{{ItemLink|stablekey=item:gen - elderstone shard}} (2.3%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - elderstone shard}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:arm - 17 - fungus covered armband}} (2.3%)<br>{{ItemLink|stablekey=item:glove - 18 - runed mitts}} (2.3%)
 |level=18
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=9-22
 |elemental=9-22
 |void=9-22
-|spells={{AbilityLink|stablekey=spell:dru pal - minor healing|link=Minor Healing|text=Minor Healing|image=Minor Healing.png}}<br>{{AbilityLink|stablekey=spell:dru duel - minor regen|link=Minor Regeneration|text=Minor Regeneration|image=Minor Regeneration.png}}<br>{{AbilityLink|stablekey=spell:dru - the wild's grasp|link=The Wild's Fang|text=The Wild's Fang|image=The Wild's Fang.png}}
+|spells={{AbilityLink|stablekey=spell:dru pal - minor healing}}<br>{{AbilityLink|stablekey=spell:dru duel - minor regen}}<br>{{AbilityLink|stablekey=spell:dru - the wild's grasp}}
 }}
 ''{{main|Enemies}}''
 

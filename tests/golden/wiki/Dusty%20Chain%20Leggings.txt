@@ -2,7 +2,7 @@
 |title=Dusty Chain Leggings
 |stablekey=item:leg - 6 - dusty chain legs
 |type=
-|vendorsource={{CharacterLink|stablekey=character:pierson windwash|link=Pierson Windwash|text=Pierson Windwash}}
+|vendorsource={{CharacterLink|stablekey=character:pierson windwash}}
 |source=
 |othersource=
 |questsource=

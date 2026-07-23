@@ -3,7 +3,7 @@
 |stablekey=item:ring - 7 - ring of the sky
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:tinkles|link=Tinkles|text=Tinkles}} (4.0%)
+|source={{CharacterLink|stablekey=character:tinkles}} (4.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Activatable
 |proc_chance=
 |proc_spell_icon=Tangle.png
-|proc_spell_name={{AbilityLink|stablekey=spell:dru - tangle|link=Tangle|text=Tangle|image=Tangle.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:dru - tangle}}
 |proc_spell_level=8
 |proc_spell_duration_ticks=14
 |proc_spell_type=StatusEffect

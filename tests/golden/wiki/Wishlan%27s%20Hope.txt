@@ -3,10 +3,10 @@
 |stablekey=item:gen - wishlan's hope
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:cinder|link=Cinder|text=Cinder}} (100.0%)
+|source={{CharacterLink|stablekey=character:cinder}} (100.0%)
 |othersource=
-|questsource={{QuestLink|The Legend of Wishlan}}<br>{{QuestLink|stablekey=quest:wishlanshopehint|link=The Legend of Wishlan|text=The Legend of Wishlan}}
-|relatedquest={{QuestLink|link=Wishlan's Hope (Quest){{!}}Wishlan's Hope}}<br>{{QuestLink|The Legend of Wishlan}}<br>{{QuestLink|stablekey=quest:wishlanshopehint|link=The Legend of Wishlan|text=The Legend of Wishlan}}<br>{{QuestLink|stablekey=quest:wishlanshope|link=Wishlan's Hope (Quest)|text=Wishlan's Hope}}
+|questsource={{QuestLink|The Legend of Wishlan}}<br>{{QuestLink|stablekey=quest:wishlanshopehint}}
+|relatedquest={{QuestLink|link=Wishlan's Hope (Quest){{!}}Wishlan's Hope}}<br>{{QuestLink|The Legend of Wishlan}}<br>{{QuestLink|stablekey=quest:wishlanshopehint}}<br>{{QuestLink|stablekey=quest:wishlanshope}}
 |craftsource=
 |componentfor=
 |buy=

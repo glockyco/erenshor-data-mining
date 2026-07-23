@@ -3,10 +3,10 @@
 |stablekey=item:gen - plaxitheris eye
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:plaxitheris|link=Plaxitheris|text=Plaxitheris}} (100.0%)
+|source={{CharacterLink|stablekey=character:plaxitheris}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|link=Seaslimed Bracelet (Quest){{!}}Seaslimed Bracelet}}<br>{{QuestLink|stablekey=quest:occuphage|link=Seaslimed Bracelet (Quest)|text=Seaslimed Bracelet}}
+|relatedquest={{QuestLink|link=Seaslimed Bracelet (Quest){{!}}Seaslimed Bracelet}}<br>{{QuestLink|stablekey=quest:occuphage}}
 |craftsource=
 |componentfor=
 |buy=25

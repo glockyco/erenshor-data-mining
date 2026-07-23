@@ -3,15 +3,15 @@
 |image=[[File:Mourning.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:tutorial|link=Island Tomb|text=Island Tomb}}
+|zones={{ZoneLink|stablekey=zone:tutorial}}
 |coordinates=62.3 x -2.8 x -50.9
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - broken key bow|link=Broken Key Bow|text=Broken Key Bow|image=Broken Key Bow.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - broken key bow|link=Broken Key Bow|text=Broken Key Bow|image=Broken Key Bow.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (67.9%)<br>{{ItemLink|stablekey=item:gen - an ancient bone|link=Ancient Bone|text=Ancient Bone|image=Ancient Bone.png}} (41.0%)<br>{{ItemLink|stablekey=item:wand - 3 - weak wand|link=Weak Wand|text=Weak Wand|image=Weak Wand.png}} (41.0%)<br>{{ItemLink|stablekey=item:chest - 4 - funeral garb|link=Funeral Garb|text=Funeral Garb|image=Funeral Garb.png}} (10.1%)<br>{{ItemLink|stablekey=item:head - 5 - funeral shroud|link=Funeral Shroud|text=Funeral Shroud|image=Funeral Shroud.png}} (10.1%)<br>{{ItemLink|stablekey=item:weap - 1 - rustydagger|link=Rusty Dagger|text=Rusty Dagger|image=Rusty Dagger.png}} (10.1%)<br>{{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} (8.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:glove - 1 - cloth gloves|link=Cloth Gloves|text=Cloth Gloves|image=Cloth Gloves.png}} (3.0%)<br>{{ItemLink|stablekey=item:head - 1 - cloth hood|link=Cloth Hood|text=Cloth Hood|image=Cloth Hood.png}} (3.0%)<br>{{ItemLink|stablekey=item:leg - 1 - cloth pants|link=Cloth Pants|text=Cloth Pants|image=Cloth Pants.png}} (3.0%)<br>{{ItemLink|stablekey=item:chest - 1 - cloth shirt|link=Cloth Shirt|text=Cloth Shirt|image=Cloth Shirt.png}} (3.0%)<br>{{ItemLink|stablekey=item:foot - 1 - cloth shoes|link=Cloth Shoes|text=Cloth Shoes|image=Cloth Shoes.png}} (3.0%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves|link=Cloth Sleeves|text=Cloth Sleeves|image=Cloth Sleeves.png}} (3.0%)
+|droprates={{ItemLink|stablekey=item:gen - broken key bow}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - broken key bow}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - a star stone}} (67.9%)<br>{{ItemLink|stablekey=item:gen - an ancient bone}} (41.0%)<br>{{ItemLink|stablekey=item:wand - 3 - weak wand}} (41.0%)<br>{{ItemLink|stablekey=item:chest - 4 - funeral garb}} (10.1%)<br>{{ItemLink|stablekey=item:head - 5 - funeral shroud}} (10.1%)<br>{{ItemLink|stablekey=item:weap - 1 - rustydagger}} (10.1%)<br>{{ItemLink|stablekey=item:gen - aetheria}} (8.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:glove - 1 - cloth gloves}} (3.0%)<br>{{ItemLink|stablekey=item:head - 1 - cloth hood}} (3.0%)<br>{{ItemLink|stablekey=item:leg - 1 - cloth pants}} (3.0%)<br>{{ItemLink|stablekey=item:chest - 1 - cloth shirt}} (3.0%)<br>{{ItemLink|stablekey=item:foot - 1 - cloth shoes}} (3.0%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves}} (3.0%)
 |level=4
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=2-5
 |elemental=2-5
 |void=2-5
-|spells={{AbilityLink|stablekey=spell:arc - hardened skin|link=Hardened Skin|text=Hardened Skin|image=Hardened Skin.png}}
+|spells={{AbilityLink|stablekey=spell:arc - hardened skin}}
 }}
 
 ''{{main|Enemies}}''

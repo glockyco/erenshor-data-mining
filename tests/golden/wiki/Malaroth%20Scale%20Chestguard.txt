@@ -3,7 +3,7 @@
 |stablekey=item:chest - 28 - malaroth scale chestguard
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:broodmother|link=Brood Mother|text=Brood Mother}} (33.3%)
+|source={{CharacterLink|stablekey=character:broodmother}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

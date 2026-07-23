@@ -3,7 +3,7 @@
 |stablekey=item:chest - 30 - bloodstained plate
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:the abomination:vitheosend:286.50:0.57:175.67|link=The Abomination|text=The Abomination}} (50.0%)
+|source={{CharacterLink|stablekey=character:the abomination:vitheosend:286.50:0.57:175.67}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

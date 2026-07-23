@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - instill dread
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:darkwarden awxa|link=Darkwarden Awxa|text=Darkwarden Awxa}} (6.9%)<br>{{CharacterLink|stablekey=character:darkwarden ealdred|link=Darkwarden Ealdred|text=Darkwarden Ealdred}} (6.9%)
+|source={{CharacterLink|stablekey=character:darkwarden awxa}} (6.9%)<br>{{CharacterLink|stablekey=character:darkwarden ealdred}} (6.9%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=45000
 |sell=29250
-|taughtspell={{AbilityLink|stablekey=spell:reav - instill dread|link=Instill Dread|text=Instill Dread|image=Instill Dread.png}}
+|taughtspell={{AbilityLink|stablekey=spell:reav - instill dread}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

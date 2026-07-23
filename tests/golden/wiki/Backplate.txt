@@ -3,7 +3,7 @@
 |stablekey=item:back - 11 - backplate
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:bassalt valanno|link=Bassalt Vallano|text=Bassalt Vallano}} (50.0%)
+|source={{CharacterLink|stablekey=character:bassalt valanno}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

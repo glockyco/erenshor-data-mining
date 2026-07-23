@@ -5,7 +5,7 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|Keys for Valrae}}<br>{{QuestLink|stablekey=quest:valraeskeys|link=Keys for Valrae|text=Keys for Valrae}}
+|questsource={{QuestLink|Keys for Valrae}}<br>{{QuestLink|stablekey=quest:valraeskeys}}
 |relatedquest=
 |craftsource=
 |componentfor=

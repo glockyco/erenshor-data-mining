@@ -5,7 +5,7 @@
 |description=Deals 5500 elemental based damage to a target.
 |type=Damage
 |line=Direct_Damage
-|classes={{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}} (35)
+|classes={{ClassLink|stablekey=class:arcanist}} (35)
 |required_level=35
 |manacost=1700
 |aggro=200
@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:bow - 42 - frostbite|link=Frostbite|text=Frostbite|image=Frostbite.png}}
-|source={{ItemLink|stablekey=item:spell scroll - ice meteor|link=Spell Scroll: Ice Meteor|text=Spell Scroll: Ice Meteor|image=Spell Scroll: Ice Meteor.png}}
-|used_by={{CharacterLink|stablekey=character:greater ice elemental|link=Greater Ice Elemental|text=Greater Ice Elemental}}<br>{{CharacterLink|stablekey=character:ice elemental|link=Ice Elemental|text=Ice Elemental}}<br>{{CharacterLink|stablekey=character:large ice elemental|link=Large Ice Elemental|text=Large Ice Elemental}}
+|itemswitheffect={{ItemLink|stablekey=item:bow - 42 - frostbite}}
+|source={{ItemLink|stablekey=item:spell scroll - ice meteor}}
+|used_by={{CharacterLink|stablekey=character:greater ice elemental}}<br>{{CharacterLink|stablekey=character:ice elemental}}<br>{{CharacterLink|stablekey=character:large ice elemental}}
 }}
+{{SpellTooltip|stablekey=spell:arc - ice meteor}}

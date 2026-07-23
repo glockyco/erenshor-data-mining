@@ -2,7 +2,7 @@
 |title=Spell Scroll: Atonic Howl
 |stablekey=item:spell scroll - atonic howl
 |type=
-|vendorsource={{CharacterLink|stablekey=character:shanty swingblade|link=Shantee Swingblade|text=Shantee Swingblade}}
+|vendorsource={{CharacterLink|stablekey=character:shanty swingblade}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=1800
 |sell=1170
-|taughtspell={{AbilityLink|stablekey=spell:reav - atonic howl|link=Atonic Howl|text=Atonic Howl|image=Atonic Howl.png}}
+|taughtspell={{AbilityLink|stablekey=spell:reav - atonic howl}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

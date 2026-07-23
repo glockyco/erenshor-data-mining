@@ -3,15 +3,15 @@
 |image=[[File:Sivakayan Templar.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}
-|factionChange=+2 {{FactionLink|stablekey=faction:wispagent|link=The Agents of The Wisp|text=The Agents of The Wisp}}<br>+2 {{FactionLink|stablekey=faction:azureguard|link=The Azure Guard|text=The Azure Guard}}<br>-2 {{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+2 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
-|zones={{ZoneLink|stablekey=zone:abyssal|link=Abyssal Lake|text=Abyssal Lake}}
+|faction={{FactionLink|stablekey=faction:sivakayans}}
+|factionChange=+2 {{FactionLink|stablekey=faction:wispagent}}<br>+2 {{FactionLink|stablekey=faction:azureguard}}<br>-2 {{FactionLink|stablekey=faction:sivakayans}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens}}<br>+2 {{FactionLink|stablekey=faction:solunarians}}
+|zones={{ZoneLink|stablekey=zone:abyssal}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:ore - sivakayan ore|link=Sivakayan Ore|text=Sivakayan Ore|image=Sivakayan Ore.png}} (12.1%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (10.3%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (10.3%)<br>{{ItemLink|stablekey=item:wrist - 21 - sivakayan bracer|link=Sivakayan Bracer|text=Sivakayan Bracer|image=Sivakayan Bracer.png}} (1.2%)<br>{{ItemLink|stablekey=item:leg - 24 - sivakayan legplate|link=Sivakayan Legplate|text=Sivakayan Legplate|image=Sivakayan Legplate.png}} (1.2%)<br>{{ItemLink|stablekey=item:chest - 25 - sivakayan plate|link=Sivakayan Plate|text=Sivakayan Plate|image=Sivakayan Plate.png}} (1.2%)<br>{{ItemLink|stablekey=item:wand - 24 - sivakayan sceptre|link=Sivakayan Sceptre|text=Sivakayan Sceptre|image=Sivakayan Sceptre.png}} (1.2%)<ref>If Sivakayan Templar has {{ItemLink|stablekey=item:wand - 24 - sivakayan sceptre|link=Sivakayan Sceptre|text=Sivakayan Sceptre|image=Sivakayan Sceptre.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:secondary - 24 - sivakayan shield|link=Sivakayan Shield|text=Sivakayan Shield|image=Sivakayan Shield.png}} (1.2%)<ref>If Sivakayan Templar has {{ItemLink|stablekey=item:secondary - 24 - sivakayan shield|link=Sivakayan Shield|text=Sivakayan Shield|image=Sivakayan Shield.png}} equipped, it is guaranteed to drop.</ref>
+|droprates={{ItemLink|stablekey=item:ore - sivakayan ore}} (12.1%)<br>{{ItemLink|stablekey=item:gen - seaglass}} (10.3%)<br>{{ItemLink|stablekey=item:gen - a star stone}} (10.3%)<br>{{ItemLink|stablekey=item:wrist - 21 - sivakayan bracer}} (1.2%)<br>{{ItemLink|stablekey=item:leg - 24 - sivakayan legplate}} (1.2%)<br>{{ItemLink|stablekey=item:chest - 25 - sivakayan plate}} (1.2%)<br>{{ItemLink|stablekey=item:wand - 24 - sivakayan sceptre}} (1.2%)<ref>If Sivakayan Templar has {{ItemLink|stablekey=item:wand - 24 - sivakayan sceptre}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:secondary - 24 - sivakayan shield}} (1.2%)<ref>If Sivakayan Templar has {{ItemLink|stablekey=item:secondary - 24 - sivakayan shield}} equipped, it is guaranteed to drop.</ref>
 |level=28
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=14-34
 |elemental=14-34
 |void=14-34
-|spells={{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}<br>{{AbilityLink|stablekey=spell:dru pal - supreme healing|link=Supreme Healing|text=Supreme Healing|image=Supreme Healing.png}}
+|spells={{AbilityLink|stablekey=spell:dru reav - soul tap}}<br>{{AbilityLink|stablekey=spell:dru pal - supreme healing}}
 }}
 
 [[Category:Abyssal Lake]]

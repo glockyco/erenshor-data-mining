@@ -3,7 +3,7 @@
 |stablekey=item:key - rockshade key
 |type=[[Keys|Key]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:stoneman knight|link=Stoneman Knight|text=Stoneman Knight}} (1.1%)
+|source={{CharacterLink|stablekey=character:stoneman knight}} (1.1%)
 |othersource=
 |questsource=
 |relatedquest=

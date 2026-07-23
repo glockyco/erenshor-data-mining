@@ -3,7 +3,7 @@
 |stablekey=item:weap - 39 - monarch's blade
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:monarch of the flame|link=Monarch of the Flame|text=Monarch of the Flame}} (33.3%)
+|source={{CharacterLink|stablekey=character:monarch of the flame}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=10
 |proc_spell_icon=Brax's Fury.png
-|proc_spell_name={{AbilityLink|stablekey=spell:arc - brax's fury|link=Brax's Fury|text=Brax's Fury|image=Brax's Fury.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:arc - brax's fury}}
 |proc_spell_level=24
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

@@ -3,7 +3,7 @@
 |stablekey=item:bow - 24 - spectral bow
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:crypt guardian|link=The Crypt Guardian|text=The Crypt Guardian}} (8.7%)
+|source={{CharacterLink|stablekey=character:crypt guardian}} (8.7%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=5
 |proc_spell_icon=Jolt.png
-|proc_spell_name={{AbilityLink|stablekey=spell:dru arc - jolt|link=Jolt|text=Jolt|image=Jolt.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:dru arc - jolt}}
 |proc_spell_level=9
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

@@ -3,7 +3,7 @@
 |stablekey=item:weap - 35 - messenger
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:rotting guardian|link=Rotting Guardian|text=Rotting Guardian}} (0.6%)
+|source={{CharacterLink|stablekey=character:rotting guardian}} (0.6%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=70
 |proc_spell_icon=Brax's Touch.png
-|proc_spell_name={{AbilityLink|stablekey=spell:arc - brax's touch|link=Brax's Touch|text=Brax's Touch|image=Brax's Touch.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:arc - brax's touch}}
 |proc_spell_level=4
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

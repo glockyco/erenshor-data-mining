@@ -5,7 +5,7 @@
 |description=Slow a target's movement speed
 |type=StatusEffect
 |line=Stormcaller_Move_Debuff
-|classes={{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}} (25)
+|classes={{ClassLink|stablekey=class:stormcaller}} (25)
 |required_level=25
 |manacost=500
 |aggro=500
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - targeted windstorm|link=Spell Scroll: Targeted Windstorm|text=Spell Scroll: Targeted Windstorm|image=Spell Scroll: Targeted Windstorm.png}}
+|source={{ItemLink|stablekey=item:spell scroll - targeted windstorm}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:stc - targeted windstorm}}

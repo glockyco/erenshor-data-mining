@@ -32,7 +32,7 @@
 |shield_amount=
 |pet_to_summon=
 |status_effect=
-|add_proc={{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap}}
+|add_proc={{AbilityLink|stablekey=spell:dru reav - soul tap}}
 |add_proc_chance=5
 |has_lifetap=
 |lifesteal=
@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:glove - 41 - rotten hands|link=Rotten Hands|text=Rotten Hands|image=Rotten Hands.png}}
+|itemswitheffect={{ItemLink|stablekey=item:glove - 41 - rotten hands}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - gift of rot}}

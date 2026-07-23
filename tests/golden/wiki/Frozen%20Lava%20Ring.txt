@@ -3,7 +3,7 @@
 |stablekey=item:ring - 31 - frozen lava ring
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:braxonian historian|link=Historian of Braxonia|text=Historian of Braxonia}} (50.0%)
+|source={{CharacterLink|stablekey=character:braxonian historian}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -3,10 +3,10 @@
 |stablekey=item:gen - eldrich crystal
 |type=[[Quest Items|Quest Item]], [[:Category:Items|General]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:azynthian corruptor|link=Azynthian Keeper|text=Azynthian Keeper}} (100.0%)
+|source={{CharacterLink|stablekey=character:azynthian corruptor}} (100.0%)
 |othersource=
-|questsource={{QuestLink|The Eldrich Crystal}}<br>{{QuestLink|stablekey=quest:eldrichcrystalinfo|link=The Eldrich Crystal|text=The Eldrich Crystal}}
-|relatedquest={{QuestLink|A Lost Portal Pt. 2}}<br>{{QuestLink|A Fernallan Rune}}<br>{{QuestLink|A Solunarian Rune}}<br>{{QuestLink|A Vithean Rune}}<br>{{QuestLink|The Eldrich Crystal}}<br>{{QuestLink|stablekey=quest:fernallaraidrune|link=A Fernallan Rune|text=A Fernallan Rune}}<br>{{QuestLink|stablekey=quest:braxrune2|link=A Lost Portal Pt. 2|text=A Lost Portal Pt. 2}}<br>{{QuestLink|stablekey=quest:solunasraidrune|link=A Solunarian Rune|text=A Solunarian Rune}}<br>{{QuestLink|stablekey=quest:vitheosraidrune|link=A Vithean Rune|text=A Vithean Rune}}<br>{{QuestLink|stablekey=quest:eldrichcrystalinfo|link=The Eldrich Crystal|text=The Eldrich Crystal}}
+|questsource={{QuestLink|The Eldrich Crystal}}<br>{{QuestLink|stablekey=quest:eldrichcrystalinfo}}
+|relatedquest={{QuestLink|A Lost Portal Pt. 2}}<br>{{QuestLink|A Fernallan Rune}}<br>{{QuestLink|A Solunarian Rune}}<br>{{QuestLink|A Vithean Rune}}<br>{{QuestLink|The Eldrich Crystal}}<br>{{QuestLink|stablekey=quest:fernallaraidrune}}<br>{{QuestLink|stablekey=quest:braxrune2}}<br>{{QuestLink|stablekey=quest:solunasraidrune}}<br>{{QuestLink|stablekey=quest:vitheosraidrune}}<br>{{QuestLink|stablekey=quest:eldrichcrystalinfo}}
 |craftsource=
 |componentfor=
 |buy=

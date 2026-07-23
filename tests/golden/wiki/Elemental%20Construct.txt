@@ -3,9 +3,9 @@
 |image=[[File:Elemental Construct.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:planeofbrax|link=Brax's Plane of Elements|text=Brax's Plane of Elements}}
+|zones={{ZoneLink|stablekey=zone:planeofbrax}}
 |coordinates=2490.6 x 75.1 x 405.5<br>2502.2 x 75.1 x 381.3<br>2503.2 x 75.1 x 428.1
 |spawnchance=
 |spawntype=Dynamic event spawn

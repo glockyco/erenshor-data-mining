@@ -3,7 +3,7 @@
 |stablekey=item:head - 30 - diamond helm
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:24 - sivakayan spectre|link=Sivakayan Shadow|text=Sivakayan Shadow}} (8.6%)
+|source={{CharacterLink|stablekey=character:24 - sivakayan spectre}} (8.6%)
 |othersource=
 |questsource=
 |relatedquest=

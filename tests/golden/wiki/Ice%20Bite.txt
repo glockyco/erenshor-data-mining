@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:bow - 38 - icy bow|link=Icy Bow|text=Icy Bow|image=Icy Bow.png}}
+|itemswitheffect={{ItemLink|stablekey=item:bow - 38 - icy bow}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - ice bite}}

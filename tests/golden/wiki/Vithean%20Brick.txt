@@ -3,10 +3,10 @@
 |stablekey=item:quest - vithean stones
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:crackles:shiveringstep:723.17:21.11:490.96|link=Cackles|text=Cackles}} (6.7%)<br>{{CharacterLink|stablekey=character:crackles (4):shiveringstep:742.16:18.01:448.51|link=Crankles|text=Crankles}} (6.7%)<br>{{CharacterLink|stablekey=character:founder:shiveringstep:705.22:21.11:506.71|link=Founder|text=Founder}} (6.7%)<br>{{CharacterLink|stablekey=character:crackles (1):shiveringstep:729.97:21.11:471.76|link=Jack|text=Jack}} (6.7%)<br>{{CharacterLink|stablekey=character:crackles (3):shiveringstep:714.22:21.24:468.82|link=Rumors|text=Rumors}} (6.7%)<br>{{CharacterLink|stablekey=character:spurs:shiveringstep:432.97:14.24:299.17|link=Skelunker|text=Skelunker}} (6.7%)<br>{{CharacterLink|stablekey=character:crackles (2):shiveringstep:725.22:21.11:463.01|link=Sockets|text=Sockets}} (6.7%)<br>{{CharacterLink|stablekey=character:vithean remains|link=Vithean Remains|text=Vithean Remains}} (6.7%)<br>{{CharacterLink|stablekey=character:vithean blademaster|link=Vithean Blademaster|text=Vithean Blademaster}} (6.4%)<br>{{CharacterLink|stablekey=character:vithean elite|link=Vithean Elite|text=Vithean Elite}} (6.4%)
+|source={{CharacterLink|stablekey=character:crackles:shiveringstep:723.17:21.11:490.96}} (6.7%)<br>{{CharacterLink|stablekey=character:crackles (4):shiveringstep:742.16:18.01:448.51}} (6.7%)<br>{{CharacterLink|stablekey=character:founder:shiveringstep:705.22:21.11:506.71}} (6.7%)<br>{{CharacterLink|stablekey=character:crackles (1):shiveringstep:729.97:21.11:471.76}} (6.7%)<br>{{CharacterLink|stablekey=character:crackles (3):shiveringstep:714.22:21.24:468.82}} (6.7%)<br>{{CharacterLink|stablekey=character:spurs:shiveringstep:432.97:14.24:299.17}} (6.7%)<br>{{CharacterLink|stablekey=character:crackles (2):shiveringstep:725.22:21.11:463.01}} (6.7%)<br>{{CharacterLink|stablekey=character:vithean remains}} (6.7%)<br>{{CharacterLink|stablekey=character:vithean blademaster}} (6.4%)<br>{{CharacterLink|stablekey=character:vithean elite}} (6.4%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|A Portal to Vitheo's Rest}}<br>{{QuestLink|stablekey=quest:portaltovitheosrest|link=A Portal to Vitheo's Rest|text=A Portal to Vitheo's Rest}}
+|relatedquest={{QuestLink|A Portal to Vitheo's Rest}}<br>{{QuestLink|stablekey=quest:portaltovitheosrest}}
 |craftsource=
 |componentfor=
 |buy=

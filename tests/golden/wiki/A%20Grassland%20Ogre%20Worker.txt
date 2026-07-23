@@ -3,9 +3,9 @@
 |image=[[File:A Grassland Ogre Worker.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
-|factionChange=+3 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+3 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:underspine|link=Underspine Hollow|text=Underspine Hollow}}
+|faction={{FactionLink|stablekey=faction:evil}}
+|factionChange=+3 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+3 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:underspine}}
 |coordinates=
 |spawnchance=
 |spawntype=

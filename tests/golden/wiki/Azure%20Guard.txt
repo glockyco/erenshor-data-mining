@@ -3,9 +3,9 @@
 |image=[[File:Azure Guard.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:azureguard|link=The Azure Guard|text=The Azure Guard}}
-|factionChange=+10 {{FactionLink|stablekey=faction:ripper|link=Ripper DeMerth|text=Ripper DeMerth}}<br>-50 {{FactionLink|stablekey=faction:azureguard|link=The Azure Guard|text=The Azure Guard}}
-|zones={{ZoneLink|stablekey=zone:azure|link=Port Azure|text=Port Azure}}
+|faction={{FactionLink|stablekey=faction:azureguard}}
+|factionChange=+10 {{FactionLink|stablekey=faction:ripper}}<br>-50 {{FactionLink|stablekey=faction:azureguard}}
+|zones={{ZoneLink|stablekey=zone:azure}}
 |coordinates=
 |spawnchance=
 |spawntype=
@@ -80,9 +80,9 @@ The Guard by the watchtower:
 |image=[[File:Azure Guard.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:azureguard|link=The Azure Guard|text=The Azure Guard}}
-|factionChange=+10 {{FactionLink|stablekey=faction:ripper|link=Ripper DeMerth|text=Ripper DeMerth}}<br>-50 {{FactionLink|stablekey=faction:azureguard|link=The Azure Guard|text=The Azure Guard}}
-|zones={{ZoneLink|stablekey=zone:fernallafield|link=Fernalla's Revival Plains|text=Fernalla's Revival Plains}}
+|faction={{FactionLink|stablekey=faction:azureguard}}
+|factionChange=+10 {{FactionLink|stablekey=faction:ripper}}<br>-50 {{FactionLink|stablekey=faction:azureguard}}
+|zones={{ZoneLink|stablekey=zone:fernallafield}}
 |coordinates=
 |spawnchance=
 |spawntype=
@@ -117,9 +117,9 @@ The Guard by the watchtower:
 |image=[[File:Azure Guard.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|factionChange=+10 {{FactionLink|stablekey=faction:ripper|link=Ripper DeMerth|text=Ripper DeMerth}}<br>-50 {{FactionLink|stablekey=faction:azureguard|link=The Azure Guard|text=The Azure Guard}}
-|zones={{ZoneLink|stablekey=zone:saltedstrand|link=Blacksalt Strand|text=Blacksalt Strand}}<br>{{ZoneLink|stablekey=zone:fernallafield|link=Fernalla's Revival Plains|text=Fernalla's Revival Plains}}
+|faction={{FactionLink|stablekey=faction:azurecitizens}}
+|factionChange=+10 {{FactionLink|stablekey=faction:ripper}}<br>-50 {{FactionLink|stablekey=faction:azureguard}}
+|zones={{ZoneLink|stablekey=zone:saltedstrand}}<br>{{ZoneLink|stablekey=zone:fernallafield}}
 |coordinates=
 |spawnchance=
 |spawntype=

@@ -3,7 +3,7 @@
 |stablekey=item:quest - game piece the faceless sivakayan
 |type=[[:Category:Items|Summoning Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:siraethe|link=Vessel Siraethe|text=Vessel Siraethe}} (87.1%)<br>{{CharacterLink|stablekey=character:summoned protector|link=Summoned: Protector|text=Summoned: Protector}} (19.6%)<br>{{CharacterLink|stablekey=character:astorim|link=Astorim|text=Astorim}} (2.8%)<br>{{CharacterLink|stablekey=character:karsith|link=Karsith|text=Karsith}} (2.8%)<br>{{CharacterLink|stablekey=character:orinthar|link=Orinthar|text=Orinthar}} (2.8%)<br>{{CharacterLink|stablekey=character:vextral|link=Vextral|text=Vextral}} (2.8%)<br>{{CharacterLink|stablekey=character:aeiros|link=Aeiros, Soldier of Sivakaya|text=Aeiros, Soldier of Sivakaya}} (2.7%)<br>{{CharacterLink|stablekey=character:balthom|link=Balthom, Soldier of Sivakaya|text=Balthom, Soldier of Sivakaya}} (2.7%)
+|source={{CharacterLink|stablekey=character:siraethe}} (87.1%)<br>{{CharacterLink|stablekey=character:summoned protector}} (19.6%)<br>{{CharacterLink|stablekey=character:astorim}} (2.8%)<br>{{CharacterLink|stablekey=character:karsith}} (2.8%)<br>{{CharacterLink|stablekey=character:orinthar}} (2.8%)<br>{{CharacterLink|stablekey=character:vextral}} (2.8%)<br>{{CharacterLink|stablekey=character:aeiros}} (2.7%)<br>{{CharacterLink|stablekey=character:balthom}} (2.7%)
 |othersource=
 |questsource=
 |relatedquest=

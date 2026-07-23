@@ -2,7 +2,7 @@
 |title=Spell Scroll: Instill Horror
 |stablekey=item:spell scroll - instill horror
 |type=
-|vendorsource={{CharacterLink|stablekey=character:grant haxoway|link=Grant Haxoway|text=Grant Haxoway}}
+|vendorsource={{CharacterLink|stablekey=character:grant haxoway}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=2200
 |sell=1430
-|taughtspell={{AbilityLink|stablekey=spell:reav - instill horror|link=Instill Horror|text=Instill Horror|image=Instill Horror.png}}
+|taughtspell={{AbilityLink|stablekey=spell:reav - instill horror}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

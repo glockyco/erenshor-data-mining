@@ -3,15 +3,15 @@
 |image=[[File:Shadow of Vitheo.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:stowawayportal|link=Secluded Sanctuary|text=Secluded Sanctuary}}
+|zones={{ZoneLink|stablekey=zone:stowawayportal}}
 |coordinates=-81.7 x 1.5 x -106.9
 |spawnchance=
 |spawntype=
 |respawn=116 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - an ancient bone|link=Ancient Bone|text=Ancient Bone|image=Ancient Bone.png}} (53.1%)<br>{{ItemLink|stablekey=item:cons - water|link=Water|text=Water|image=Water.png}} (53.1%)
+|droprates={{ItemLink|stablekey=item:gen - an ancient bone}} (53.1%)<br>{{ItemLink|stablekey=item:cons - water}} (53.1%)
 |level=39
 |levelmodmin=0
 |levelmodmax=0

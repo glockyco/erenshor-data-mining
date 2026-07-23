@@ -3,7 +3,7 @@
 |stablekey=item:hand - 36 - tome of necromancy
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:darkwarden ilyth|link=Darkwarden Ilyth|text=Darkwarden Ilyth}} (50.0%)
+|source={{CharacterLink|stablekey=character:darkwarden ilyth}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Activatable
 |proc_chance=
 |proc_spell_icon=Summon Skeleton.png
-|proc_spell_name={{AbilityLink|stablekey=spell:none - summon skeleton|link=Summon Skeleton|text=Summon Skeleton|image=Summon Skeleton.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:none - summon skeleton}}
 |proc_spell_level=33
 |proc_spell_duration_ticks=
 |proc_spell_type=Pet

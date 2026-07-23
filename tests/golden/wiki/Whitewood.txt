@@ -3,9 +3,9 @@
 |stablekey=item:bow - 7 - whitewood bow
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:priel lieutenant|link=Priel Lieutenant Bovo|text=Priel Lieutenant Bovo}} (4.9%)<br>{{CharacterLink|stablekey=character:priel lieutenant 2|link=Priel Lieutenant Laflin|text=Priel Lieutenant Laflin}} (4.9%)<br>{{CharacterLink|stablekey=character:priel lieutenant 1|link=Priel Lieutenant Lance|text=Priel Lieutenant Lance}} (4.9%)
+|source={{CharacterLink|stablekey=character:priel lieutenant}} (4.9%)<br>{{CharacterLink|stablekey=character:priel lieutenant 2}} (4.9%)<br>{{CharacterLink|stablekey=character:priel lieutenant 1}} (4.9%)
 |othersource=
-|questsource={{QuestLink|Grizzlepaw's Chain}}<br>{{QuestLink|stablekey=quest:grizzlechain|link=Grizzlepaw's Chain|text=Grizzlepaw's Chain}}
+|questsource={{QuestLink|Grizzlepaw's Chain}}<br>{{QuestLink|stablekey=quest:grizzlechain}}
 |relatedquest=
 |craftsource=
 |componentfor=

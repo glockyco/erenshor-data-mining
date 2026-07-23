@@ -3,7 +3,7 @@
 |stablekey=item:head - 42 - chthonic hood
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:planar crawler|link=Planar Crawler|text=Planar Crawler}} (3.7%)<br>{{CharacterLink|stablekey=character:fernallan high planar guard|link=Fernallan High Guard|text=Fernallan High Guard}} (3.7%)<br>{{CharacterLink|stablekey=character:planar fungus|link=Planar Fungus|text=Planar Fungus}} (3.4%)<br>{{CharacterLink|stablekey=character:fernallan planar guard|link=Fernallan Planar Guard|text=Fernallan Planar Guard}} (2.9%)<br>{{CharacterLink|stablekey=character:planar grizzly|link=Planar Grizzly|text=Planar Grizzly}} (1.8%)<br>{{CharacterLink|stablekey=character:planar wolf|link=Planar Wolf|text=Planar Wolf}} (1.8%)<br>{{CharacterLink|stablekey=character:faerie trickster|link=Faerie Trickster|text=Faerie Trickster}} (1.7%)<br>{{CharacterLink|stablekey=character:planar faerie|link=Planar Faerie|text=Planar Faerie}} (1.7%)<br>{{CharacterLink|stablekey=character:pack mother|link=Pack Mother|text=Pack Mother}} (1.7%)<br>{{CharacterLink|stablekey=character:planar snake|link=Planar Cobra|text=Planar Cobra}} (1.7%)<br>{{CharacterLink|stablekey=character:planar mino|link=Planar Minotaur|text=Planar Minotaur}} (1.6%)<br>{{CharacterLink|stablekey=character:fernallan high priest|link=Fernallan High Priest|text=Fernallan High Priest}} (1.6%)
+|source={{CharacterLink|stablekey=character:planar crawler}} (3.7%)<br>{{CharacterLink|stablekey=character:fernallan high planar guard}} (3.7%)<br>{{CharacterLink|stablekey=character:planar fungus}} (3.4%)<br>{{CharacterLink|stablekey=character:fernallan planar guard}} (2.9%)<br>{{CharacterLink|stablekey=character:planar grizzly}} (1.8%)<br>{{CharacterLink|stablekey=character:planar wolf}} (1.8%)<br>{{CharacterLink|stablekey=character:faerie trickster}} (1.7%)<br>{{CharacterLink|stablekey=character:planar faerie}} (1.7%)<br>{{CharacterLink|stablekey=character:pack mother}} (1.7%)<br>{{CharacterLink|stablekey=character:planar snake}} (1.7%)<br>{{CharacterLink|stablekey=character:planar mino}} (1.6%)<br>{{CharacterLink|stablekey=character:fernallan high priest}} (1.6%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Worn
 |proc_chance=
 |proc_spell_icon=Embrace of Shadow.png
-|proc_spell_name={{AbilityLink|stablekey=spell:none - embrace of shadow|link=Embrace of Shadow|text=Embrace of Shadow|image=Embrace of Shadow.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:none - embrace of shadow}}
 |proc_spell_level=25
 |proc_spell_duration_ticks=2
 |proc_spell_type=Beneficial

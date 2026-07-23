@@ -3,7 +3,7 @@
 |stablekey=item:bow - 21 - merosavillian bow
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:lost king's guard|link=Spectral King's Guard|text=Spectral King's Guard}} (25.0%)
+|source={{CharacterLink|stablekey=character:lost king's guard}} (25.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=5
 |proc_spell_icon=Vithean Breeze.png
-|proc_spell_name={{AbilityLink|stablekey=spell:duel - vithean breeze|link=Vithean Breeze|text=Vithean Breeze|image=Vithean Breeze.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:duel - vithean breeze}}
 |proc_spell_level=1
 |proc_spell_duration_ticks=1
 |proc_spell_type=AE

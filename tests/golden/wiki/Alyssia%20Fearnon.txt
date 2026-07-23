@@ -3,9 +3,9 @@
 |image=[[File:Alyssia Fearnon.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:fernalla|link=Fernalla's Children|text=Fernalla's Children}}
-|factionChange=-20 {{FactionLink|stablekey=faction:fernalla|link=Fernalla's Children|text=Fernalla's Children}}<br>-20 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>-20 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:hidden|link=Hidden Hills|text=Hidden Hills}}
+|faction={{FactionLink|stablekey=faction:fernalla}}
+|factionChange=-20 {{FactionLink|stablekey=faction:fernalla}}<br>-20 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>-20 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:hidden}}
 |coordinates=-11.2 x -2.9 x -28.2
 |spawnchance=
 |spawntype=
@@ -32,7 +32,7 @@
 |poison=11-26
 |elemental=11-26
 |void=11-26
-|spells={{AbilityLink|stablekey=spell:arc - brax's rage|link=Brax's Rage|text=Brax's Rage|image=Brax's Rage.png}}<br>{{AbilityLink|stablekey=spell:dru reav - theft of life|link=Theft of Life|text=Theft of Life|image=Theft of Life.png}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's rage}}<br>{{AbilityLink|stablekey=spell:dru reav - theft of life}}
 }}
 
 Alyssia is a vendor in [[Hidden Hills]], she is a Druid Merchant. She is the quest giver for {{QuestLink | link=A Skeleton Eye for Alyssia Fearnon}}.

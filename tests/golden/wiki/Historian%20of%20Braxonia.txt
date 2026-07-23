@@ -3,15 +3,15 @@
 |image=[[File:Historian of Braxonia.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:braxonia|link=Fallen Braxonia|text=Fallen Braxonia}}
+|zones={{ZoneLink|stablekey=zone:braxonia}}
 |coordinates=633.4 x 45.3 x 443.6
 |spawnchance=75%
 |spawntype=
 |respawn=8 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:hand - 31 - braxonian scripture|link=Braxonian Testament|text=Braxonian Testament|image=Braxonian Testament.png}}<br>{{ItemLink|stablekey=item:ring - 31 - frozen lava ring|link=Frozen Lava Ring|text=Frozen Lava Ring|image=Frozen Lava Ring.png}}
-|droprates={{ItemLink|stablekey=item:gen - droplet of the first frost|link=Droplet of the First Frost|text=Droplet of the First Frost|image=Droplet of the First Frost.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - droplet of the first frost|link=Droplet of the First Frost|text=Droplet of the First Frost|image=Droplet of the First Frost.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:book - godless amarion|link=Godless Amarion|text=Godless Amarion|image=Godless Amarion.png}} (100.0%)<br>{{ItemLink|stablekey=item:charm - 5 - pupil's pin|link=Pupil's Pin|text=Pupil's Pin|image=Pupil's Pin.png}} (100.0%)<br>{{ItemLink|stablekey=item:hand - 31 - braxonian scripture|link=Braxonian Testament|text=Braxonian Testament|image=Braxonian Testament.png}} (50.0%)<br>{{ItemLink|stablekey=item:ring - 31 - frozen lava ring|link=Frozen Lava Ring|text=Frozen Lava Ring|image=Frozen Lava Ring.png}} (50.0%)<br>{{ItemLink|stablekey=item:gen - braxonian scripture 1|link=Braxonian Scripture|text=Braxonian Scripture (1)|image=Braxonian Scripture.png}} (14.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - braxonian scripture 1|link=Braxonian Scripture|text=Braxonian Scripture (1)|image=Braxonian Scripture.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - braxonian scripture|link=Braxonian Scripture|text=Braxonian Scripture (2)|image=Braxonian Scripture.png}} (14.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - braxonian scripture|link=Braxonian Scripture|text=Braxonian Scripture (2)|image=Braxonian Scripture.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (14.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref>
+|guaranteeddrops={{ItemLink|stablekey=item:hand - 31 - braxonian scripture}}<br>{{ItemLink|stablekey=item:ring - 31 - frozen lava ring}}
+|droprates={{ItemLink|stablekey=item:gen - droplet of the first frost}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - droplet of the first frost}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:book - godless amarion}} (100.0%)<br>{{ItemLink|stablekey=item:charm - 5 - pupil's pin}} (100.0%)<br>{{ItemLink|stablekey=item:hand - 31 - braxonian scripture}} (50.0%)<br>{{ItemLink|stablekey=item:ring - 31 - frozen lava ring}} (50.0%)<br>{{ItemLink|stablekey=item:gen - braxonian scripture 1}} (14.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - braxonian scripture 1}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - braxonian scripture}} (14.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - braxonian scripture}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - diamond}} (14.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond}} in their inventory, another will not drop.</ref>
 |level=33
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=16-40
 |elemental=16-40
 |void=16-40
-|spells={{AbilityLink|stablekey=spell:arc - brax's fury|link=Brax's Fury|text=Brax's Fury|image=Brax's Fury.png}}<br>{{AbilityLink|stablekey=spell:arc - ice spear|link=Ice Spear|text=Ice Spear|image=Ice Spear.png}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's fury}}<br>{{AbilityLink|stablekey=spell:arc - ice spear}}
 }}
 The Historian of Braxonia can be found in the Library in [[Fallen Braxonia]]
 =Notes=

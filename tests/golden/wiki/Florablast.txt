@@ -5,7 +5,7 @@
 |description=Heal base 2300 damage.
 |type=Heal
 |line=Healing
-|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (34)
+|classes={{ClassLink|stablekey=class:druid}} (34)
 |required_level=34
 |manacost=1200
 |aggro=
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - florablast|link=Spell Scroll: Florablast|text=Spell Scroll: Florablast|image=Spell Scroll: Florablast.png}}
+|source={{ItemLink|stablekey=item:spell scroll - florablast}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:dru  - florablast}}

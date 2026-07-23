@@ -3,15 +3,15 @@
 |image=[[File:Rottenfoot Swampwalker.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
-|factionChange=+1 {{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:fernallafield|link=Fernalla's Revival Plains|text=Fernalla's Revival Plains}}<br>{{ZoneLink|stablekey=zone:rottenfoot|link=Rottenfoot|text=Rottenfoot}}
+|faction={{FactionLink|stablekey=faction:evil}}
+|factionChange=+1 {{FactionLink|stablekey=faction:vitheo}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:fernallafield}}<br>{{ZoneLink|stablekey=zone:rottenfoot}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=4-5 minutes (Fernalla's Revival Plains)<br>4 minutes (Rottenfoot)
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - a coral|link=Coral|text=Coral|image=Coral.png}} (41.8%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (41.8%)<br>{{ItemLink|stablekey=item:gen - seaweed|link=Seaweed|text=Seaweed|image=Seaweed.png}} (41.8%)<br>{{ItemLink|stablekey=item:fish - husselfish|link=A Husselfish|text=A Husselfish|image=A Husselfish.png}} (7.8%)<br>{{ItemLink|stablekey=item:fish - a worm eel|link=A Worm Eel|text=A Worm Eel|image=A Worm Eel.png}} (7.8%)<br>{{ItemLink|stablekey=item:cons - swampbomb|link=Muck Ball|text=Muck Ball|image=Muck Ball.png}} (7.8%)<br>{{ItemLink|stablekey=item:spell scroll - expose weakness|link=Spell Scroll: Expose Weakness|text=Spell Scroll: Expose Weakness|image=Spell Scroll: Expose Weakness.png}} (4.6%)<br>{{ItemLink|stablekey=item:spell scroll - winter's bite|link=Spell Scroll: Winter's Bite|text=Spell Scroll: Winter's Bite|image=Spell Scroll: Winter's Bite.png}} (4.6%)<br>{{ItemLink|stablekey=item:belt - 35 - swampy loincloth|link=Swampy Loincloth|text=Swampy Loincloth|image=Swampy Loincloth.png}} (4.6%)<br>{{ItemLink|stablekey=item:weap - 9 - a petrified club|link=Petrified Club|text=Petrified Club|image=Petrified Club.png}} (3.4%)<ref>If Rottenfoot Swampwalker has {{ItemLink|stablekey=item:weap - 9 - a petrified club|link=Petrified Club|text=Petrified Club|image=Petrified Club.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:wrist - 8 - runewoven bracer|link=Runewoven Bracer|text=Runewoven Bracer|image=Runewoven Bracer.png}} (3.4%)
+|droprates={{ItemLink|stablekey=item:gen - a coral}} (41.8%)<br>{{ItemLink|stablekey=item:gen - seaglass}} (41.8%)<br>{{ItemLink|stablekey=item:gen - seaweed}} (41.8%)<br>{{ItemLink|stablekey=item:fish - husselfish}} (7.8%)<br>{{ItemLink|stablekey=item:fish - a worm eel}} (7.8%)<br>{{ItemLink|stablekey=item:cons - swampbomb}} (7.8%)<br>{{ItemLink|stablekey=item:spell scroll - expose weakness}} (4.6%)<br>{{ItemLink|stablekey=item:spell scroll - winter's bite}} (4.6%)<br>{{ItemLink|stablekey=item:belt - 35 - swampy loincloth}} (4.6%)<br>{{ItemLink|stablekey=item:weap - 9 - a petrified club}} (3.4%)<ref>If Rottenfoot Swampwalker has {{ItemLink|stablekey=item:weap - 9 - a petrified club}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:wrist - 8 - runewoven bracer}} (3.4%)
 |level=15
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=8-18
 |elemental=8-18
 |void=8-18
-|spells={{AbilityLink|stablekey=spell:duel - deathly embrace|link=Death's Embrace|text=Death's Embrace|image=Death's Embrace.png}}<br>{{AbilityLink|stablekey=spell:dru arc - jolt|link=Jolt|text=Jolt|image=Jolt.png}}<br>{{AbilityLink|stablekey=spell:dru pal - minor healing|link=Minor Healing|text=Minor Healing|image=Minor Healing.png}}<br>{{AbilityLink|stablekey=spell:all - minor protection|link=Minor Protection|text=Minor Protection|image=Minor Protection.png}}<br>{{AbilityLink|stablekey=spell:dru duel - minor regen|link=Minor Regeneration|text=Minor Regeneration|image=Minor Regeneration.png}}<br>{{AbilityLink|stablekey=spell:pal - moonburst|link=Moonburst|text=Moonburst|image=Moonburst.png}}<br>{{AbilityLink|stablekey=spell:dru reav - theft of life|link=Theft of Life|text=Theft of Life|image=Theft of Life.png}}<br>{{AbilityLink|stablekey=spell:duel - vitheo's blessing of the sea|link=Vitheo's Blessing of the Sea|text=Vitheo's Blessing of the Sea|image=Vitheo's Blessing of the Sea.png}}
+|spells={{AbilityLink|stablekey=spell:duel - deathly embrace}}<br>{{AbilityLink|stablekey=spell:dru arc - jolt}}<br>{{AbilityLink|stablekey=spell:dru pal - minor healing}}<br>{{AbilityLink|stablekey=spell:all - minor protection}}<br>{{AbilityLink|stablekey=spell:dru duel - minor regen}}<br>{{AbilityLink|stablekey=spell:pal - moonburst}}<br>{{AbilityLink|stablekey=spell:dru reav - theft of life}}<br>{{AbilityLink|stablekey=spell:duel - vitheo's blessing of the sea}}
 }}
 
 {{Character
@@ -40,15 +40,15 @@
 |image=[[File:Rottenfoot Swampwalker.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
-|factionChange=+1 {{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:fernallafield|link=Fernalla's Revival Plains|text=Fernalla's Revival Plains}}<br>{{ZoneLink|stablekey=zone:rottenfoot|link=Rottenfoot|text=Rottenfoot}}
+|faction={{FactionLink|stablekey=faction:evil}}
+|factionChange=+1 {{FactionLink|stablekey=faction:vitheo}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:fernallafield}}<br>{{ZoneLink|stablekey=zone:rottenfoot}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=4-5 minutes (Fernalla's Revival Plains)<br>4 minutes (Rottenfoot)
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - a coral|link=Coral|text=Coral|image=Coral.png}} (41.8%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (41.8%)<br>{{ItemLink|stablekey=item:gen - seaweed|link=Seaweed|text=Seaweed|image=Seaweed.png}} (41.8%)<br>{{ItemLink|stablekey=item:fish - husselfish|link=A Husselfish|text=A Husselfish|image=A Husselfish.png}} (15.1%)<br>{{ItemLink|stablekey=item:fish - a worm eel|link=A Worm Eel|text=A Worm Eel|image=A Worm Eel.png}} (7.8%)<br>{{ItemLink|stablekey=item:cons - swampbomb|link=Muck Ball|text=Muck Ball|image=Muck Ball.png}} (3.5%)<br>{{ItemLink|stablekey=item:spell scroll - expose weakness|link=Spell Scroll: Expose Weakness|text=Spell Scroll: Expose Weakness|image=Spell Scroll: Expose Weakness.png}} (3.5%)<br>{{ItemLink|stablekey=item:spell scroll - winter's bite|link=Spell Scroll: Winter's Bite|text=Spell Scroll: Winter's Bite|image=Spell Scroll: Winter's Bite.png}} (3.5%)<br>{{ItemLink|stablekey=item:belt - 35 - swampy loincloth|link=Swampy Loincloth|text=Swampy Loincloth|image=Swampy Loincloth.png}} (3.5%)<br>{{ItemLink|stablekey=item:weap - 9 - a petrified club|link=Petrified Club|text=Petrified Club|image=Petrified Club.png}} (3.4%)<ref>If Rottenfoot Swampwalker has {{ItemLink|stablekey=item:weap - 9 - a petrified club|link=Petrified Club|text=Petrified Club|image=Petrified Club.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:wrist - 8 - runewoven bracer|link=Runewoven Bracer|text=Runewoven Bracer|image=Runewoven Bracer.png}} (3.4%)
+|droprates={{ItemLink|stablekey=item:gen - a coral}} (41.8%)<br>{{ItemLink|stablekey=item:gen - seaglass}} (41.8%)<br>{{ItemLink|stablekey=item:gen - seaweed}} (41.8%)<br>{{ItemLink|stablekey=item:fish - husselfish}} (15.1%)<br>{{ItemLink|stablekey=item:fish - a worm eel}} (7.8%)<br>{{ItemLink|stablekey=item:cons - swampbomb}} (3.5%)<br>{{ItemLink|stablekey=item:spell scroll - expose weakness}} (3.5%)<br>{{ItemLink|stablekey=item:spell scroll - winter's bite}} (3.5%)<br>{{ItemLink|stablekey=item:belt - 35 - swampy loincloth}} (3.5%)<br>{{ItemLink|stablekey=item:weap - 9 - a petrified club}} (3.4%)<ref>If Rottenfoot Swampwalker has {{ItemLink|stablekey=item:weap - 9 - a petrified club}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:wrist - 8 - runewoven bracer}} (3.4%)
 |level=15
 |levelmodmin=0
 |levelmodmax=0

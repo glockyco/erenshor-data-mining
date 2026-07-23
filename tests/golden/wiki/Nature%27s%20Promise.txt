@@ -3,7 +3,7 @@
 |stablekey=item:neck - 31 - nature's promise
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:maple|link=Maple|text=Maple}} (1.5%)<br>{{CharacterLink|stablekey=character:greater fawn|link=Greater Fawn|text=Greater Fawn}} (1.5%)<br>{{CharacterLink|stablekey=character:risen heirophant|link=Risen Hierophant|text=Risen Hierophant}} (1.2%)<br>{{CharacterLink|stablekey=character:vinx|link=Vinx|text=Vinx}} (1.2%)<br>{{CharacterLink|stablekey=character:frenzy|link=Frenzy|text=Frenzy}} (1.0%)<br>{{CharacterLink|stablekey=character:grappler|link=Grappler|text=Grappler}} (1.0%)<br>{{CharacterLink|stablekey=character:fernallan guardian|link=Fernallan Guardian|text=Fernallan Guardian}} (0.6%)<br>{{CharacterLink|stablekey=character:rotting guardian|link=Rotting Guardian|text=Rotting Guardian}} (0.6%)
+|source={{CharacterLink|stablekey=character:maple}} (1.5%)<br>{{CharacterLink|stablekey=character:greater fawn}} (1.5%)<br>{{CharacterLink|stablekey=character:risen heirophant}} (1.2%)<br>{{CharacterLink|stablekey=character:vinx}} (1.2%)<br>{{CharacterLink|stablekey=character:frenzy}} (1.0%)<br>{{CharacterLink|stablekey=character:grappler}} (1.0%)<br>{{CharacterLink|stablekey=character:fernallan guardian}} (0.6%)<br>{{CharacterLink|stablekey=character:rotting guardian}} (0.6%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,8 +2,8 @@
 |title=Rottenfoot Ring
 |stablekey=item:ring - 13 - rottenfoot ring
 |type=
-|vendorsource={{CharacterLink|stablekey=character:asaga underloft|link=Asaga Underloft|text=Asaga Underloft}}
-|source={{CharacterLink|stablekey=character:a rottenfoot mauler|link=Rottenfoot Mauler|text=Rottenfoot Mauler}} (5.8%)
+|vendorsource={{CharacterLink|stablekey=character:asaga underloft}}
+|source={{CharacterLink|stablekey=character:a rottenfoot mauler}} (5.8%)
 |othersource=
 |questsource=
 |relatedquest=

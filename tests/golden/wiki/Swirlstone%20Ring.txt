@@ -3,7 +3,7 @@
 |stablekey=item:ring - 12 - swirlstone ring
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:molorai archivist|link=Molorai Archmage|text=Molorai Archmage}} (70.9%)
+|source={{CharacterLink|stablekey=character:molorai archivist}} (70.9%)
 |othersource=
 |questsource=
 |relatedquest=

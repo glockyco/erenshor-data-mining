@@ -3,7 +3,7 @@
 |stablekey=item:furniture - stone statue brax
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:braxonian prince oslind|link=Prince Oslind|text=Prince Oslind}} (1.4%)<br>{{CharacterLink|stablekey=character:braxonian prince ardant|link=Prince Ardant|text=Prince Ardant}} (1.4%)<br>{{CharacterLink|stablekey=character:braxonian honor guard|link=Braxonian Honor Guard|text=Braxonian Honor Guard}} (0.6%)<br>{{CharacterLink|stablekey=character:braxonian high guard|link=Braxonian High Guard|text=Braxonian High Guard}} (0.5%)
+|source={{CharacterLink|stablekey=character:braxonian prince oslind}} (1.4%)<br>{{CharacterLink|stablekey=character:braxonian prince ardant}} (1.4%)<br>{{CharacterLink|stablekey=character:braxonian honor guard}} (0.6%)<br>{{CharacterLink|stablekey=character:braxonian high guard}} (0.5%)
 |othersource=
 |questsource=
 |relatedquest=

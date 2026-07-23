@@ -3,15 +3,15 @@
 |image=[[File:Juctin Mysia.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:wispagent|link=The Agents of The Wisp|text=The Agents of The Wisp}}
-|factionChange=-50 {{FactionLink|stablekey=faction:wispagent|link=The Agents of The Wisp|text=The Agents of The Wisp}}
-|zones={{ZoneLink|stablekey=zone:loomingwood|link=Loomingwood Forest|text=Loomingwood Forest}}
+|faction={{FactionLink|stablekey=faction:wispagent}}
+|factionChange=-50 {{FactionLink|stablekey=faction:wispagent}}
+|zones={{ZoneLink|stablekey=zone:loomingwood}}
 |coordinates=340.8 x 29.5 x 457.5
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (87.1%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (20.8%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (20.8%)
+|droprates={{ItemLink|stablekey=item:gen citrine stone}} (87.1%)<br>{{ItemLink|stablekey=item:gen - luminstone}} (20.8%)<br>{{ItemLink|stablekey=item:gen - a star stone}} (20.8%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=11-26
 |elemental=11-26
 |void=11-26
-|spells={{AbilityLink|stablekey=spell:arc - brax's fury|link=Brax's Fury|text=Brax's Fury|image=Brax's Fury.png}}<br>{{AbilityLink|stablekey=spell:arc - ice spear|link=Ice Spear|text=Ice Spear|image=Ice Spear.png}}<br>{{AbilityLink|stablekey=spell:arc - immolation|link=Immolation|text=Immolation|image=Immolation.png}}<br>{{AbilityLink|stablekey=spell:dru arc stc - magic bolt|link=Magic Bolt|text=Magic Bolt|image=Magic Bolt.png}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's fury}}<br>{{AbilityLink|stablekey=spell:arc - ice spear}}<br>{{AbilityLink|stablekey=spell:arc - immolation}}<br>{{AbilityLink|stablekey=spell:dru arc stc - magic bolt}}
 }}
 Juctin Mysia is a spell merchant located inside one of the large buildings in Wardhaven in [[Loomingwood]]
 

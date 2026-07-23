@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:wrist - 39 - vessel bracelet|link=Bracelet of the Vessel|text=Bracelet of the Vessel|image=Bracelet of the Vessel.png}}<br>{{ItemLink|stablekey=item:wrist - 42 - radiant bracer|link=Radiant Bracer|text=Radiant Bracer|image=Radiant Bracer.png}}<br>{{ItemLink|stablekey=item:wrist - 42 - skyseared brace|link=Skyseared Brace|text=Skyseared Brace|image=Skyseared Brace.png}}<br>{{ItemLink|stablekey=item:wrist - 35 - warded brace|link=Warded Brace|text=Warded Brace|image=Warded Brace.png}}
+|itemswitheffect={{ItemLink|stablekey=item:wrist - 39 - vessel bracelet}}<br>{{ItemLink|stablekey=item:wrist - 42 - radiant bracer}}<br>{{ItemLink|stablekey=item:wrist - 42 - skyseared brace}}<br>{{ItemLink|stablekey=item:wrist - 35 - warded brace}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:arc - manaflood}}

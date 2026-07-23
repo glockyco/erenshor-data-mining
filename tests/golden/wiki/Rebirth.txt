@@ -3,7 +3,7 @@
 |stablekey=item:aura - fernalla 5
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:goddess fernalla|link=Fernalla, Goddess of Nature|text=Fernalla, Goddess of Nature}} (36.0%)
+|source={{CharacterLink|stablekey=character:goddess fernalla}} (36.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -22,7 +22,7 @@
 |name=Rebirth
 |description=
 |aura_spell_icon=Aura: Presence of Fernalla V.png
-|aura_spell_name={{AbilityLink|stablekey=spell:aura - fernalla 5|link=Aura: Presence of Fernalla V|text=Aura: Presence of Fernalla V|image=Aura: Presence of Fernalla V.png}}
+|aura_spell_name={{AbilityLink|stablekey=spell:aura - fernalla 5}}
 |aura_spell_level=35
 |aura_spell_duration_ticks=2
 |aura_spell_type=Beneficial

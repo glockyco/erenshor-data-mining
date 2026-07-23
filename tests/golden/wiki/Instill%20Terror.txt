@@ -5,7 +5,7 @@
 |description=Causes your target to disengage from combat and run away. Effective on up to level 30 targets.
 |type=StatusEffect
 |line=Reav_Fear
-|classes={{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}} (19)
+|classes={{ClassLink|stablekey=class:reaver}} (19)
 |required_level=19
 |manacost=350
 |aggro=3000
@@ -66,6 +66,7 @@
 |is_fear=True
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - instill terror|link=Spell Scroll: Instill Terror|text=Spell Scroll: Instill Terror|image=Spell Scroll: Instill Terror.png}}
+|source={{ItemLink|stablekey=item:spell scroll - instill terror}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:reav - instill terror}}

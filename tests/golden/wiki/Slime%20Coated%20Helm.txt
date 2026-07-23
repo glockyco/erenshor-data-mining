@@ -3,7 +3,7 @@
 |stablekey=item:head - 19 - slime coated helm
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:subterranean gel|link=A Subterranean Goop|text=A Subterranean Goop}} (6.7%)<br>{{CharacterLink|stablekey=character:subterranean magmite|link=A Subterranean Magmite|text=A Subterranean Magmite}} (6.7%)<br>{{CharacterLink|stablekey=character:gloopa quarter loot|link=Gloopa|text=Gloopa (Quarter)}} (4.3%)
+|source={{CharacterLink|stablekey=character:subterranean gel}} (6.7%)<br>{{CharacterLink|stablekey=character:subterranean magmite}} (6.7%)<br>{{CharacterLink|stablekey=character:gloopa quarter loot}} (4.3%)
 |othersource=
 |questsource=
 |relatedquest=

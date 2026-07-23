@@ -3,15 +3,15 @@
 |image=[[File:Virvil Destova.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:wispagent|link=The Agents of The Wisp|text=The Agents of The Wisp}}
+|faction={{FactionLink|stablekey=faction:wispagent}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:silkengrass|link=Silkengrass Meadowlands|text=Silkengrass Meadowlands}}
+|zones={{ZoneLink|stablekey=zone:silkengrass}}
 |coordinates=1037.0 x 96.1 x 979.9
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (87.1%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (20.8%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (20.8%)
+|droprates={{ItemLink|stablekey=item:gen citrine stone}} (87.1%)<br>{{ItemLink|stablekey=item:gen - luminstone}} (20.8%)<br>{{ItemLink|stablekey=item:gen - a star stone}} (20.8%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=11-26
 |elemental=11-26
 |void=11-26
-|spells={{AbilityLink|stablekey=spell:dru - arterial decay|link=Arterial Decay|text=Arterial Decay|image=Arterial Decay.png}}<br>{{AbilityLink|stablekey=spell:arc - burning chains|link=Burning Chains|text=Burning Chains|image=Burning Chains.png}}<br>{{AbilityLink|stablekey=spell:arc - ice spear|link=Ice Spear|text=Ice Spear|image=Ice Spear.png}}<br>{{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}
+|spells={{AbilityLink|stablekey=spell:dru - arterial decay}}<br>{{AbilityLink|stablekey=spell:arc - burning chains}}<br>{{AbilityLink|stablekey=spell:arc - ice spear}}<br>{{AbilityLink|stablekey=spell:dru reav - soul tap}}
 }}
 Virvil is located near a burning brazier in the [[Silkengrass Meadowlands]]
 

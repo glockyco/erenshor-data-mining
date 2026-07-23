@@ -3,15 +3,15 @@
 |image=[[File:Chance Barlow.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:wispagent|link=The Agents of The Wisp|text=The Agents of The Wisp}}
+|faction={{FactionLink|stablekey=faction:wispagent}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:stowaway|link=Stowaway's Step|text=Stowaway's Step}}
+|zones={{ZoneLink|stablekey=zone:stowaway}}
 |coordinates=432.9 x 9.4 x 811.4
 |spawnchance=
 |spawntype=
 |respawn=1 second
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (87.1%)<br>{{ItemLink|stablekey=item:head - 7 - arcanist cap|link=Arcanist Cap|text=Arcanist Cap|image=Arcanist Cap.png}} (19.5%)<ref>If Chance Barlow has {{ItemLink|stablekey=item:head - 7 - arcanist cap|link=Arcanist Cap|text=Arcanist Cap|image=Arcanist Cap.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (11.5%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (11.5%)
+|droprates={{ItemLink|stablekey=item:gen citrine stone}} (87.1%)<br>{{ItemLink|stablekey=item:head - 7 - arcanist cap}} (19.5%)<ref>If Chance Barlow has {{ItemLink|stablekey=item:head - 7 - arcanist cap}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:gen - luminstone}} (11.5%)<br>{{ItemLink|stablekey=item:gen - a star stone}} (11.5%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=11-26
 |elemental=11-26
 |void=11-26
-|spells={{AbilityLink|stablekey=spell:arc - brax's rage|link=Brax's Rage|text=Brax's Rage|image=Brax's Rage.png}}<br>{{AbilityLink|stablekey=spell:arc - brax's touch|link=Brax's Touch|text=Brax's Touch|image=Brax's Touch.png}}<br>{{AbilityLink|stablekey=spell:arc - hardened skin|link=Hardened Skin|text=Hardened Skin|image=Hardened Skin.png}}<br>{{AbilityLink|stablekey=spell:dru arc stc - magic bolt|link=Magic Bolt|text=Magic Bolt|image=Magic Bolt.png}}<br>{{AbilityLink|stablekey=spell:dru - minor lightning|link=Minor Lightning|text=Minor Lightning|image=Minor Lightning.png}}<br>{{AbilityLink|stablekey=spell:all - minor protection|link=Minor Protection|text=Minor Protection|image=Minor Protection.png}}<br>{{AbilityLink|stablekey=spell:dru duel - minor regen|link=Minor Regeneration|text=Minor Regeneration|image=Minor Regeneration.png}}<br>{{AbilityLink|stablekey=spell:duel - vampiric touch|link=Vampiric Touch|text=Vampiric Touch|image=Vampiric Touch.png}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's rage}}<br>{{AbilityLink|stablekey=spell:arc - brax's touch}}<br>{{AbilityLink|stablekey=spell:arc - hardened skin}}<br>{{AbilityLink|stablekey=spell:dru arc stc - magic bolt}}<br>{{AbilityLink|stablekey=spell:dru - minor lightning}}<br>{{AbilityLink|stablekey=spell:all - minor protection}}<br>{{AbilityLink|stablekey=spell:dru duel - minor regen}}<br>{{AbilityLink|stablekey=spell:duel - vampiric touch}}
 }}
 
 Chance is the NPC on the sandbar beneath the statue of Vitheo ready to take you to the mainland should you complete {{QuestLink | link=Whispers of Wyland}} and receive {{QuestLink | link=A Way To Erenshor}}.

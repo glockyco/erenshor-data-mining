@@ -2,7 +2,7 @@
 |title=Spell Scroll: Light Healing
 |stablekey=item:spell scroll - light healing
 |type=[[:Category:Ability Books|Spell Scroll]]
-|vendorsource={{CharacterLink|stablekey=character:tiver banes|link=Tiver Banes|text=Tiver Banes}}
+|vendorsource={{CharacterLink|stablekey=character:tiver banes}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=1000
 |sell=650
-|taughtspell={{AbilityLink|stablekey=spell:dru  - light healing|link=Light Healing|text=Light Healing|image=Light Healing.png}}
+|taughtspell={{AbilityLink|stablekey=spell:dru  - light healing}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

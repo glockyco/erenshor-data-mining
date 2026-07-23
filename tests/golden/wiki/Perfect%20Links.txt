@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 30 - perfect links
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:statue of brax|link=Statue of Brax|text=Statue of Brax}} (50.0%)
+|source={{CharacterLink|stablekey=character:statue of brax}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

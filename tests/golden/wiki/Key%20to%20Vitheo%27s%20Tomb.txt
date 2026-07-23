@@ -3,7 +3,7 @@
 |stablekey=item:key - key to vitheo's tomb
 |type=[[Keys|Key]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:the abomination:vitheosend:286.50:0.57:175.67|link=The Abomination|text=The Abomination}} (100.0%)
+|source={{CharacterLink|stablekey=character:the abomination:vitheosend:286.50:0.57:175.67}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=

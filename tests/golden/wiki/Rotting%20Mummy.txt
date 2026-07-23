@@ -3,15 +3,15 @@
 |image=[[File:Rotting Mummy.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:tutorial|link=Island Tomb|text=Island Tomb}}
+|zones={{ZoneLink|stablekey=zone:tutorial}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (16.5%)<br>{{ItemLink|stablekey=item:gen - polished stone|link=Polished Stone|text=Polished Stone|image=Polished Stone.png}} (16.5%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (16.5%)<br>{{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} (8.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:glove - 5 - mummy wraps|link=Mummy Wraps|text=Mummy Wraps|image=Mummy Wraps.png}} (7.0%)
+|droprates={{ItemLink|stablekey=item:gen - luminstone}} (16.5%)<br>{{ItemLink|stablekey=item:gen - polished stone}} (16.5%)<br>{{ItemLink|stablekey=item:gen - seaglass}} (16.5%)<br>{{ItemLink|stablekey=item:gen - aetheria}} (8.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:glove - 5 - mummy wraps}} (7.0%)
 |level=5
 |levelmodmin=0
 |levelmodmax=0

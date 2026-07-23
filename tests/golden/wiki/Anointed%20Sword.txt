@@ -3,7 +3,7 @@
 |stablekey=item:weap - 14 - anointed sword
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:overseer orlok|link=Overseer Orlok|text=Overseer Orlok}} (25.0%)
+|source={{CharacterLink|stablekey=character:overseer orlok}} (25.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=8
 |proc_spell_icon=Glare of Soluna.png
-|proc_spell_name={{AbilityLink|stablekey=spell:pal - glare of soluna|link=Glare of Soluna|text=Glare of Soluna|image=Glare of Soluna.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:pal - glare of soluna}}
 |proc_spell_level=5
 |proc_spell_duration_ticks=5
 |proc_spell_type=StatusEffect

@@ -16,3 +16,4 @@
 |stop_regen=
 |activated_by={{AbilityLink|Stance: Reckless}}
 }}
+{{StanceTooltip|stablekey=stance:reckless}}

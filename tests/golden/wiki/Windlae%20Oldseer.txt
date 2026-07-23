@@ -3,9 +3,9 @@
 |image=[[File:Windlae Oldseer.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:stowaway|link=The Citizens of Stowaway's Step|text=The Citizens of Stowaway's Step}}
-|factionChange=-15 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}
-|zones={{ZoneLink|stablekey=zone:hidden|link=Hidden Hills|text=Hidden Hills}}
+|faction={{FactionLink|stablekey=faction:stowaway}}
+|factionChange=-15 {{FactionLink|stablekey=faction:erenshorcitizens}}
+|zones={{ZoneLink|stablekey=zone:hidden}}
 |coordinates=-9.3 x -2.9 x -12.0
 |spawnchance=
 |spawntype=

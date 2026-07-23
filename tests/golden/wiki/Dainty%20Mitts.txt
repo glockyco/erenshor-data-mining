@@ -3,7 +3,7 @@
 |stablekey=item:glove - 22 - dainty gloves
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:stoneman colossus 1|link=Diamond Colossus|text=Diamond Colossus}} (50.0%)
+|source={{CharacterLink|stablekey=character:stoneman colossus 1}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -3,7 +3,7 @@
 |stablekey=item:head - 17 - helm of the deep
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:spike|link=Spike|text=Spike}} (66.7%)
+|source={{CharacterLink|stablekey=character:spike}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=

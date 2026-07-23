@@ -2,8 +2,8 @@
 |title=Skill Book: Block
 |stablekey=item:skillbook - block 1
 |type=[[Ability Books|Skill Book]]
-|vendorsource={{CharacterLink|stablekey=character:akaran black|link=Akaran Black|text=Akaran Black}}
-|source={{CharacterLink|stablekey=character:islander bandit|link=Islander Bandit|text=Islander Bandit}} (1.1%)
+|vendorsource={{CharacterLink|stablekey=character:akaran black}}
+|source={{CharacterLink|stablekey=character:islander bandit}} (1.1%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -12,7 +12,7 @@
 |buy=555
 |sell=361
 |taughtspell=
-|taughtskill={{AbilityLink|stablekey=skill:block 1|link=Block|text=Block|image=Block.png}}
+|taughtskill={{AbilityLink|stablekey=skill:block 1}}
 |guaranteeddrops=
 |droprates=
 }}

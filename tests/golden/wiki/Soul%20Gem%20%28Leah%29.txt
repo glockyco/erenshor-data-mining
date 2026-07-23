@@ -3,7 +3,7 @@
 |stablekey=item:quest - soul gem leah
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:leah|link=Leah|text=Leah}} (100.0%)
+|source={{CharacterLink|stablekey=character:leah}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|link=Aragath's Imprisonment}}

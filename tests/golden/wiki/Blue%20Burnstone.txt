@@ -3,10 +3,10 @@
 |stablekey=item:gen - blue burnstone
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:fearantula|link=Fearantula|text=Fearantula}} (100.0%)
+|source={{CharacterLink|stablekey=character:fearantula}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Changing the Lighthouse}}<br>{{QuestLink|stablekey=quest:shiver-lighthousechange|link=Changing the Lighthouse|text=Changing the Lighthouse}}
+|relatedquest={{QuestLink|Changing the Lighthouse}}<br>{{QuestLink|stablekey=quest:shiver-lighthousechange}}
 |craftsource=
 |componentfor=
 |buy=

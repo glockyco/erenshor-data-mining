@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:cons - enlightening potion iv|link=Elixir of Enlightenment IV|text=Elixir of Enlightenment IV|image=Elixir of Enlightenment IV.png}}<br>{{ItemLink|stablekey=item:hand - 42 - letters and words (rare)|link=Letters and Words|text=Letters and Words|image=Letters and Words.png}}
+|itemswitheffect={{ItemLink|stablekey=item:cons - enlightening potion iv}}<br>{{ItemLink|stablekey=item:hand - 42 - letters and words (rare)}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - blessing of xp 4}}

@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - death's embrace ii
 |type=[[Ability Books]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:nipper king|link=Nipper King|text=Nipper King}} (14.8%)<br>{{CharacterLink|stablekey=character:nipper diremaw|link=Nipper Diremaw|text=Nipper Diremaw}} (3.4%)<br>{{CharacterLink|stablekey=character:nipper farseer|link=Nipper Farseer|text=Nipper Farseer}} (3.4%)<br>{{CharacterLink|stablekey=character:nipper whiptail|link=Nipper Whiptail|text=Nipper Whiptail}} (3.4%)
+|source={{CharacterLink|stablekey=character:nipper king}} (14.8%)<br>{{CharacterLink|stablekey=character:nipper diremaw}} (3.4%)<br>{{CharacterLink|stablekey=character:nipper farseer}} (3.4%)<br>{{CharacterLink|stablekey=character:nipper whiptail}} (3.4%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=17500
 |sell=11375
-|taughtspell={{AbilityLink|stablekey=spell:duel - deathly embrace ii|link=Death's Embrace II|text=Death's Embrace II|image=Death's Embrace II.png}}
+|taughtspell={{AbilityLink|stablekey=spell:duel - deathly embrace ii}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

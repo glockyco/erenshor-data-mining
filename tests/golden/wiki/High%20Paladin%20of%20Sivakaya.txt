@@ -3,15 +3,15 @@
 |image=[[File:High Paladin of Sivakaya.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}
-|factionChange=+5 {{FactionLink|stablekey=faction:azureguard|link=The Azure Guard|text=The Azure Guard}}<br>-2 {{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}<br>+5 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+5 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+5 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
-|zones={{ZoneLink|stablekey=zone:braxonian|link=Braxonian Desert|text=Braxonian Desert}}
+|faction={{FactionLink|stablekey=faction:sivakayans}}
+|factionChange=+5 {{FactionLink|stablekey=faction:azureguard}}<br>-2 {{FactionLink|stablekey=faction:sivakayans}}<br>+5 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+5 {{FactionLink|stablekey=faction:azurecitizens}}<br>+5 {{FactionLink|stablekey=faction:solunarians}}
+|zones={{ZoneLink|stablekey=zone:braxonian}}
 |coordinates=725.8 x 28.5 x 1191.1
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:skillbook - soluna's touch|link=Skill Book: Soluna's Touch|text=Skill Book: Soluna's Touch|image=Skill Book: Soluna's Touch.png}} (100.0%)<br>{{ItemLink|stablekey=item:arm - 37 - armband of generals|link=Armband of Generals|text=Armband of Generals|image=Armband of Generals.png}} (6.5%)<br>{{ItemLink|stablekey=item:wrist - 39 - resonating brace|link=Resonating Brace|text=Resonating Brace|image=Resonating Brace.png}} (6.5%)<br>{{ItemLink|stablekey=item:ring - 39 - ring of the deceiver|link=Ring of the Deceiver|text=Ring of the Deceiver|image=Ring of the Deceiver.png}} (6.5%)<br>{{ItemLink|stablekey=item:ring - 39 - ring of the pious|link=Ring of the Pious|text=Ring of the Pious|image=Ring of the Pious.png}} (6.5%)<br>{{ItemLink|stablekey=item:back - 37 - sivakayan wings|link=Sivakayan Wings|text=Sivakayan Wings|image=Sivakayan Wings.png}} (6.5%)<br>{{ItemLink|stablekey=item:wrist - 21 - sivakayan bracer|link=Sivakayan Bracer|text=Sivakayan Bracer|image=Sivakayan Bracer.png}} (1.2%)<br>{{ItemLink|stablekey=item:leg - 24 - sivakayan legplate|link=Sivakayan Legplate|text=Sivakayan Legplate|image=Sivakayan Legplate.png}} (1.2%)<br>{{ItemLink|stablekey=item:chest - 25 - sivakayan plate|link=Sivakayan Plate|text=Sivakayan Plate|image=Sivakayan Plate.png}} (1.2%)<br>{{ItemLink|stablekey=item:wand - 24 - sivakayan sceptre|link=Sivakayan Sceptre|text=Sivakayan Sceptre|image=Sivakayan Sceptre.png}} (1.2%)<ref>If High Paladin of Sivakaya has {{ItemLink|stablekey=item:wand - 24 - sivakayan sceptre|link=Sivakayan Sceptre|text=Sivakayan Sceptre|image=Sivakayan Sceptre.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:secondary - 24 - sivakayan shield|link=Sivakayan Shield|text=Sivakayan Shield|image=Sivakayan Shield.png}} (1.2%)<ref>If High Paladin of Sivakaya has {{ItemLink|stablekey=item:secondary - 24 - sivakayan shield|link=Sivakayan Shield|text=Sivakayan Shield|image=Sivakayan Shield.png}} equipped, it is guaranteed to drop.</ref>
+|droprates={{ItemLink|stablekey=item:skillbook - soluna's touch}} (100.0%)<br>{{ItemLink|stablekey=item:arm - 37 - armband of generals}} (6.5%)<br>{{ItemLink|stablekey=item:wrist - 39 - resonating brace}} (6.5%)<br>{{ItemLink|stablekey=item:ring - 39 - ring of the deceiver}} (6.5%)<br>{{ItemLink|stablekey=item:ring - 39 - ring of the pious}} (6.5%)<br>{{ItemLink|stablekey=item:back - 37 - sivakayan wings}} (6.5%)<br>{{ItemLink|stablekey=item:wrist - 21 - sivakayan bracer}} (1.2%)<br>{{ItemLink|stablekey=item:leg - 24 - sivakayan legplate}} (1.2%)<br>{{ItemLink|stablekey=item:chest - 25 - sivakayan plate}} (1.2%)<br>{{ItemLink|stablekey=item:wand - 24 - sivakayan sceptre}} (1.2%)<ref>If High Paladin of Sivakaya has {{ItemLink|stablekey=item:wand - 24 - sivakayan sceptre}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:secondary - 24 - sivakayan shield}} (1.2%)<ref>If High Paladin of Sivakaya has {{ItemLink|stablekey=item:secondary - 24 - sivakayan shield}} equipped, it is guaranteed to drop.</ref>
 |level=38
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=19-46
 |elemental=19-46
 |void=19-46
-|spells={{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}<br>{{AbilityLink|stablekey=spell:pal - spectrum|link=Spectrum|text=Spectrum|image=Spectrum.png}}<br>{{AbilityLink|stablekey=spell:dru pal - supreme healing|link=Supreme Healing|text=Supreme Healing|image=Supreme Healing.png}}
+|spells={{AbilityLink|stablekey=spell:dru reav - soul tap}}<br>{{AbilityLink|stablekey=spell:pal - spectrum}}<br>{{AbilityLink|stablekey=spell:dru pal - supreme healing}}
 }}
 
 To summon High Paladin of Sivakaya you must bring a [[The Faceless]] to the [[Braxonian Game Board]].

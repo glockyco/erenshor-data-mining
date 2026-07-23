@@ -5,7 +5,7 @@
 |description=A high damage (3300 / tick), short duration void-based spell.
 |type=StatusEffect
 |line=Arc_Poison_DOT
-|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (35)
+|classes={{ClassLink|stablekey=class:druid}} (35)
 |required_level=35
 |manacost=600
 |aggro=60
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - necrotizing bloom|link=Spell Scroll: Necrotizing Bloom|text=Spell Scroll: Necrotizing Bloom|image=Spell Scroll: Necrotizing Bloom.png}}
+|source={{ItemLink|stablekey=item:spell scroll - necrotizing bloom}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:dru - necrotizing bloom}}

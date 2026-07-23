@@ -32,7 +32,7 @@
 |shield_amount=
 |pet_to_summon=
 |status_effect=
-|add_proc={{AbilityLink|stablekey=spell:arc - tenebris|link=Tenebris|text=Tenebris}}
+|add_proc={{AbilityLink|stablekey=spell:arc - tenebris}}
 |add_proc_chance=3
 |has_lifetap=
 |lifesteal=
@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:aura - end times|link=End Times|text=End Times|image=End Times.png}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - end times}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:aura - apocalypse}}

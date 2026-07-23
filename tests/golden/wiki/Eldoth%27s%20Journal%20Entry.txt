@@ -3,7 +3,7 @@
 |stablekey=item:gen - eldoth writings page 6
 |type=[[Lore Items|Lore]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:eldoth molorai|link=Eldoth Molorai|text=Eldoth Molorai}} (100.0%)
+|source={{CharacterLink|stablekey=character:eldoth molorai}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=

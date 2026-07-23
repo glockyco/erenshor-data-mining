@@ -5,7 +5,7 @@
 |description=Deals 900 elemental based damage to a target.
 |type=Damage
 |line=Direct_Damage
-|classes={{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}} (14)
+|classes={{ClassLink|stablekey=class:arcanist}} (14)
 |required_level=14
 |manacost=200
 |aggro=200
@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:weap - 33 - frostmaker|link=Frostmaker|text=Frostmaker|image=Frostmaker.png}}<br>{{ItemLink|stablekey=item:weap - 31 - soulshiver|link=Soulshiver|text=Soulshiver|image=Soulshiver.png}}
-|source={{ItemLink|stablekey=item:spell scroll - winter's bite|link=Spell Scroll: Winter's Bite|text=Spell Scroll: Winter's Bite|image=Spell Scroll: Winter's Bite.png}}
-|used_by={{CharacterLink|stablekey=character:faerie enchantress|link=A Faerie Enchantress|text=A Faerie Enchantress}}<br>{{CharacterLink|stablekey=character:a seafiend manalord|link=A Seafiend Manathite|text=A Seafiend Manathite}}<br>{{CharacterLink|stablekey=character:braxonian educator|link=Ancient Educator|text=Ancient Educator}}<br>{{CharacterLink|stablekey=character:braxonian ascended|link=Braxonian Ascended|text=Braxonian Ascended}}<br>{{CharacterLink|stablekey=character:ember acolyte|link=Ember Acolyte|text=Ember Acolyte}}<br>{{CharacterLink|stablekey=character:fenton the blighted|link=Fenton the Blighted|text=Fenton the Blighted}}<br>{{CharacterLink|stablekey=character:overseer refliegh|link=Overseer Refleigh|text=Overseer Refleigh}}<br>{{CharacterLink|stablekey=character:28 - sivakayan spectre|link=Shrouded Sivakayan|text=Shrouded Sivakayan}}<br>{{CharacterLink|stablekey=character:sivakayan faithbound|link=Sivakayan Faithbound|text=Sivakayan Faithbound}}<br>{{CharacterLink|stablekey=character:32 - sivakayan spectre|link=Sivakayan High Shadow|text=Sivakayan High Shadow}}<br>{{CharacterLink|stablekey=character:24 - sivakayan spectre|link=Sivakayan Shadow|text=Sivakayan Shadow}}<br>{{CharacterLink|stablekey=character:stoneman diamondine|link=Stoneman Diamondine|text=Stoneman Diamondine}}<br>{{CharacterLink|stablekey=character:stoneman seeker (1):blight:438.18:43.30:180.65|link=Stoneman Seeker|text=Stoneman Seeker}}<br>{{CharacterLink|stablekey=character:summoned forest spirit|link=Summoned: Forest Spirit|text=Summoned: Forest Spirit}}<br>{{CharacterLink|stablekey=character:winkles|link=Winkles|text=Winkles}}<br>{{CharacterLink|stablekey=character:wishlan|link=Wishlan the Savior|text=Wishlan the Savior}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 33 - frostmaker}}<br>{{ItemLink|stablekey=item:weap - 31 - soulshiver}}
+|source={{ItemLink|stablekey=item:spell scroll - winter's bite}}
+|used_by={{CharacterLink|stablekey=character:faerie enchantress}}<br>{{CharacterLink|stablekey=character:a seafiend manalord}}<br>{{CharacterLink|stablekey=character:braxonian educator}}<br>{{CharacterLink|stablekey=character:braxonian ascended}}<br>{{CharacterLink|stablekey=character:ember acolyte}}<br>{{CharacterLink|stablekey=character:fenton the blighted}}<br>{{CharacterLink|stablekey=character:overseer refliegh}}<br>{{CharacterLink|stablekey=character:28 - sivakayan spectre}}<br>{{CharacterLink|stablekey=character:sivakayan faithbound}}<br>{{CharacterLink|stablekey=character:32 - sivakayan spectre}}<br>{{CharacterLink|stablekey=character:24 - sivakayan spectre}}<br>{{CharacterLink|stablekey=character:stoneman diamondine}}<br>{{CharacterLink|stablekey=character:stoneman seeker (1):blight:438.18:43.30:180.65}}<br>{{CharacterLink|stablekey=character:summoned forest spirit}}<br>{{CharacterLink|stablekey=character:winkles}}<br>{{CharacterLink|stablekey=character:wishlan}}
 }}
+{{SpellTooltip|stablekey=spell:arc - winter's bite}}

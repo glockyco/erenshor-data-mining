@@ -3,7 +3,7 @@
 |stablekey=item:foot - 21 - slimetreads
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:gloopa quarter loot|link=Gloopa|text=Gloopa (Quarter)}} (38.5%)
+|source={{CharacterLink|stablekey=character:gloopa quarter loot}} (38.5%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -3,15 +3,15 @@
 |image=[[File:Acolyte of Azynthi.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:azynthiclear|link=Azynthi's Garden|text=Azynthi's Garden}}
+|zones={{ZoneLink|stablekey=zone:azynthiclear}}
 |coordinates=798.6 x 45.2 x 575.3
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - stolen memories|link=Stolen Memories|text=Stolen Memories|image=Stolen Memories.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - stolen memories|link=Stolen Memories|text=Stolen Memories|image=Stolen Memories.png}} in their inventory, another will not drop.</ref>
+|droprates={{ItemLink|stablekey=item:gen - stolen memories}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - stolen memories}} in their inventory, another will not drop.</ref>
 |level=45
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=22-54
 |elemental=22-54
 |void=22-54
-|spells={{AbilityLink|stablekey=spell:dru - annihilate|link=Annihilate|text=Annihilate|image=Annihilate.png}}<br>{{AbilityLink|stablekey=spell:none - grip of azynthi|link=Grip of Azynthi|text=Grip of Azynthi|image=Grip of Azynthi.png}}<br>{{AbilityLink|stablekey=spell:arc - tenebris|link=Tenebris|text=Tenebris|image=Tenebris.png}}
+|spells={{AbilityLink|stablekey=spell:dru - annihilate}}<br>{{AbilityLink|stablekey=spell:none - grip of azynthi}}<br>{{AbilityLink|stablekey=spell:arc - tenebris}}
 }}
 
 Once [[Eldoth Molorai (Character)|Eldoth Molorai]] has been defeated, type in chat:

@@ -2,8 +2,8 @@
 |title=Serpentine Blood
 |stablekey=item:gen - serpentine blood
 |type=[[:Category:Items|General]]
-|vendorsource={{CharacterLink|stablekey=character:ghostly figure:shiveringstep:701.36:24.78:439.97|link=Enterprising Spirit|text=Enterprising Spirit}}
-|source={{CharacterLink|stablekey=character:a deepling lunarite|link=A Deepling Lunarite|text=A Deepling Lunarite}} (12.1%)<br>{{CharacterLink|stablekey=character:a deepling verdite|link=A Deepling Verdite|text=A Deepling Verdite}} (12.1%)<br>{{CharacterLink|stablekey=character:a deepling crimsonite|link=A Deepling Crimsonite|text=A Deepling Crimsonite}} (7.8%)<br>{{CharacterLink|stablekey=character:a deepling orator|link=A Deepling Orator|text=A Deepling Orator}} (5.3%)
+|vendorsource={{CharacterLink|stablekey=character:ghostly figure:shiveringstep:701.36:24.78:439.97}}
+|source={{CharacterLink|stablekey=character:a deepling lunarite}} (12.1%)<br>{{CharacterLink|stablekey=character:a deepling verdite}} (12.1%)<br>{{CharacterLink|stablekey=character:a deepling crimsonite}} (7.8%)<br>{{CharacterLink|stablekey=character:a deepling orator}} (5.3%)
 |othersource=
 |questsource=
 |relatedquest=

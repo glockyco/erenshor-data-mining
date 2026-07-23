@@ -3,7 +3,7 @@
 |stablekey=item:belt - 5 - stalwart belt
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:grizzlepaw|link=Grizzlepaw|text=Grizzlepaw}} (10.4%)
+|source={{CharacterLink|stablekey=character:grizzlepaw}} (10.4%)
 |othersource=
 |questsource=
 |relatedquest=

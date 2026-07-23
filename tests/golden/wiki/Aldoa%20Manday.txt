@@ -3,9 +3,9 @@
 |image=[[File:Aldoa Manday.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:stowaway|link=The Citizens of Stowaway's Step|text=The Citizens of Stowaway's Step}}
-|factionChange=-20 {{FactionLink|stablekey=faction:stowaway|link=The Citizens of Stowaway's Step|text=The Citizens of Stowaway's Step}}
-|zones={{ZoneLink|stablekey=zone:stowaway|link=Stowaway's Step|text=Stowaway's Step}}
+|faction={{FactionLink|stablekey=faction:stowaway}}
+|factionChange=-20 {{FactionLink|stablekey=faction:stowaway}}
+|zones={{ZoneLink|stablekey=zone:stowaway}}
 |coordinates=508.8 x 67.8 x 537.9
 |spawnchance=
 |spawntype=

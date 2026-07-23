@@ -5,7 +5,7 @@
 |description=Do 700 void damage per tick for 3 ticks.
 |type=StatusEffect
 |line=Reav_VoidDOT
-|classes={{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}} (16)
+|classes={{ClassLink|stablekey=class:reaver}} (16)
 |required_level=16
 |manacost=300
 |aggro=200
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - suffocate|link=Spell Scroll: Suffocation|text=Spell Scroll: Suffocation|image=Spell Scroll: Suffocation.png}}
-|used_by={{CharacterLink|stablekey=character:reaver of sivakaya bkp|link=Reaver of Sivakaya|text=Reaver of Sivakaya}}
+|source={{ItemLink|stablekey=item:spell scroll - suffocate}}
+|used_by={{CharacterLink|stablekey=character:reaver of sivakaya bkp}}
 }}
+{{SpellTooltip|stablekey=spell:reav - suffocation}}

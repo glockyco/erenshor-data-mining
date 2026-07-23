@@ -3,10 +3,10 @@
 |stablekey=item:gen - siva-braxon teachings 2
 |type=[[Lore Items|Lore]], [[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:braxonian educator|link=Ancient Educator|text=Ancient Educator}} (7.8%)<br>{{CharacterLink|stablekey=character:arcane pupil|link=Arcane Pupil|text=Arcane Pupil}} (3.0%)
+|source={{CharacterLink|stablekey=character:braxonian educator}} (7.8%)<br>{{CharacterLink|stablekey=character:arcane pupil}} (3.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|The Ancient Teachings}}<br>{{QuestLink|stablekey=quest:schoolbooks|link=The Ancient Teachings|text=The Ancient Teachings}}
+|relatedquest={{QuestLink|The Ancient Teachings}}<br>{{QuestLink|stablekey=quest:schoolbooks}}
 |craftsource=
 |componentfor=
 |buy=

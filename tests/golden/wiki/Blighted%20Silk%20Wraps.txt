@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 28 - blighted silk wraps
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:fenton the blighted|link=Fenton the Blighted|text=Fenton the Blighted}} (75.0%)
+|source={{CharacterLink|stablekey=character:fenton the blighted}} (75.0%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -3,15 +3,15 @@
 |image=[[File:Exalted Firebone.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:azynthi|link=Azynthi's Garden|text=Azynthi's Garden (Dimensional Rift)}}
+|zones={{ZoneLink|stablekey=zone:azynthi}}
 |coordinates=569.6 x 103.8 x 482.6
 |spawnchance=75%
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:belt - 34 - exhalted belt|link=Exalted Belt|text=Exalted Belt|image=Exalted Belt.png}}<br>{{ItemLink|stablekey=item:chest - 32 - golden plate|link=Golden Plate|text=Golden Plate|image=Golden Plate.png}}
-|droprates={{ItemLink|stablekey=item:gen - an ancient bone|link=Ancient Bone|text=Ancient Bone|image=Ancient Bone.png}} (81.2%)<br>{{ItemLink|stablekey=item:belt - 34 - exhalted belt|link=Exalted Belt|text=Exalted Belt|image=Exalted Belt.png}} (66.7%)<br>{{ItemLink|stablekey=item:chest - 32 - golden plate|link=Golden Plate|text=Golden Plate|image=Golden Plate.png}} (33.3%)<br>{{ItemLink|stablekey=item:gen -  riftsnare gem|link=Riftsnare Gem|text=Riftsnare Gem|image=Riftsnare Gem.png}} (13.5%)
+|guaranteeddrops={{ItemLink|stablekey=item:belt - 34 - exhalted belt}}<br>{{ItemLink|stablekey=item:chest - 32 - golden plate}}
+|droprates={{ItemLink|stablekey=item:gen - an ancient bone}} (81.2%)<br>{{ItemLink|stablekey=item:belt - 34 - exhalted belt}} (66.7%)<br>{{ItemLink|stablekey=item:chest - 32 - golden plate}} (33.3%)<br>{{ItemLink|stablekey=item:gen -  riftsnare gem}} (13.5%)
 |level=37
 |levelmodmin=0
 |levelmodmax=0

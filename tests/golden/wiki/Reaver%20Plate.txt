@@ -2,10 +2,10 @@
 |title=Reaver Plate
 |stablekey=item:chest - 10 - reaver plate
 |type=
-|vendorsource={{CharacterLink|stablekey=character:shanty swingblade|link=Shantee Swingblade|text=Shantee Swingblade}}
+|vendorsource={{CharacterLink|stablekey=character:shanty swingblade}}
 |source=
 |othersource=
-|questsource={{QuestLink|A Necromancer's Book}}<br>{{QuestLink|stablekey=quest:bonepitnecrobook|link=A Necromancer's Book|text=A Necromancer's Book}}
+|questsource={{QuestLink|A Necromancer's Book}}<br>{{QuestLink|stablekey=quest:bonepitnecrobook}}
 |relatedquest=
 |craftsource=
 |componentfor=

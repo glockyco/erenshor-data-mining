@@ -3,10 +3,10 @@
 |stablekey=item:book - wardens of the north
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:ancient celestarian|link=Ancient Celestarian|text=Ancient Celestarian}} (7.8%)<br>{{CharacterLink|stablekey=character:ancient guard captain|link=Ancient Knight|text=Ancient Knight}} (2.1%)<br>{{CharacterLink|stablekey=character:ancient guard|link=Ancient Guard|text=Ancient Guard}} (1.2%)<br>{{CharacterLink|stablekey=character:fiend|link=Ancient Corpse|text=Ancient Corpse}} (1.0%)
+|source={{CharacterLink|stablekey=character:ancient celestarian}} (7.8%)<br>{{CharacterLink|stablekey=character:ancient guard captain}} (2.1%)<br>{{CharacterLink|stablekey=character:ancient guard}} (1.2%)<br>{{CharacterLink|stablekey=character:fiend}} (1.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|The Reaver's Origin}}<br>{{QuestLink|stablekey=quest:reaversofthenorth|link=The Reaver's Origin|text=The Reaver's Origin}}
+|relatedquest={{QuestLink|The Reaver's Origin}}<br>{{QuestLink|stablekey=quest:reaversofthenorth}}
 |craftsource=
 |componentfor=
 |buy=355

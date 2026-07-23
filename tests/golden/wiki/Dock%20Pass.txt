@@ -6,7 +6,7 @@
 |source=
 |othersource=[[Customs Guard]]
 |questsource=
-|relatedquest={{QuestLink|Stowaway Registration}}<br>{{QuestLink|stablekey=quest:stowaway registration|link=Stowaway Registration|text=Stowaway Registration}}
+|relatedquest={{QuestLink|Stowaway Registration}}<br>{{QuestLink|stablekey=quest:stowaway registration}}
 |craftsource=
 |componentfor=
 |buy=

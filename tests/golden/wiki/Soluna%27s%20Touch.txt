@@ -5,7 +5,7 @@
 |description=Passive Skill:  Chance to proc additional magic damage on each swing.
 |type=Innate
 |line=
-|classes={{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}} (35)
+|classes={{ClassLink|stablekey=class:paladin}} (35)
 |required_level=
 |manacost=
 |aggro=
@@ -66,9 +66,10 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:skillbook - soluna's touch|link=Skill Book: Soluna's Touch|text=Skill Book: Soluna's Touch|image=Skill Book: Soluna's Touch.png}}
+|source={{ItemLink|stablekey=item:skillbook - soluna's touch}}
 |used_by=
 }}
+{{SkillTooltip|stablekey=skill:soluna's touch}}
 
 {{Ability
 |title=Soluna's Touch
@@ -141,3 +142,4 @@
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:pal - soluna's touch}}

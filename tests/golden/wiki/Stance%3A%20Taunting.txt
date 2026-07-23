@@ -5,7 +5,7 @@
 |description=All of your actions generate substantially more aggro. Natural health regen is paused while in this stance.
 |type=Utility
 |line=
-|classes={{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}} (2)
+|classes={{ClassLink|stablekey=class:reaver}} (2)
 |required_level=
 |manacost=
 |aggro=
@@ -23,7 +23,7 @@
 |is_self_only=
 |is_group_effect=
 |is_applied_to_caster=
-|effects={{AbilityLink|stablekey=stance:taunting|link=Taunting|text=Taunting|image=Stance: Taunting.png}}
+|effects={{AbilityLink|stablekey=stance:taunting}}
 |damage_type=
 |resist_modifier=
 |target_damage=
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:skillbook - stance - taunting|link=Skill Book: Taunting Stance|text=Skill Book: Taunting Stance|image=Skill Book: Taunting Stance.png}}
+|source={{ItemLink|stablekey=item:skillbook - stance - taunting}}
 |used_by=
 }}
+{{SkillTooltip|stablekey=skill:stance - taunting}}

@@ -3,15 +3,15 @@
 |image=[[File:Reaver of Sivakaya.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}
-|factionChange=+5 {{FactionLink|stablekey=faction:azureguard|link=The Azure Guard|text=The Azure Guard}}<br>-2 {{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}<br>+5 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+5 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+5 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
-|zones={{ZoneLink|stablekey=zone:braxonian|link=Braxonian Desert|text=Braxonian Desert}}
+|faction={{FactionLink|stablekey=faction:sivakayans}}
+|factionChange=+5 {{FactionLink|stablekey=faction:azureguard}}<br>-2 {{FactionLink|stablekey=faction:sivakayans}}<br>+5 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+5 {{FactionLink|stablekey=faction:azurecitizens}}<br>+5 {{FactionLink|stablekey=faction:solunarians}}
+|zones={{ZoneLink|stablekey=zone:braxonian}}
 |coordinates=725.8 x 28.5 x 1191.1
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:skillbook - void slice|link=Skill Book: Void Slice|text=Skill Book: Void Slice|image=Skill Book: Void Slice.png}} (100.0%)<br>{{ItemLink|stablekey=item:arm - 37 - armband of generals|link=Armband of Generals|text=Armband of Generals|image=Armband of Generals.png}} (10.9%)<br>{{ItemLink|stablekey=item:back - 37 - sivakayan wings|link=Sivakayan Wings|text=Sivakayan Wings|image=Sivakayan Wings.png}} (10.9%)<br>{{ItemLink|stablekey=item:weap - 39 - reaver's steel|link=Reaver's Steel|text=Reaver's Steel|image=Reaver's Steel.png}} (6.9%)<ref>If Reaver of Sivakaya has {{ItemLink|stablekey=item:weap - 39 - reaver's steel|link=Reaver's Steel|text=Reaver's Steel|image=Reaver's Steel.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:ring - 39 - ring of the pious|link=Ring of the Pious|text=Ring of the Pious|image=Ring of the Pious.png}} (4.0%)<br>{{ItemLink|stablekey=item:wrist - 21 - sivakayan bracer|link=Sivakayan Bracer|text=Sivakayan Bracer|image=Sivakayan Bracer.png}} (1.5%)<br>{{ItemLink|stablekey=item:leg - 24 - sivakayan legplate|link=Sivakayan Legplate|text=Sivakayan Legplate|image=Sivakayan Legplate.png}} (1.5%)<br>{{ItemLink|stablekey=item:chest - 25 - sivakayan plate|link=Sivakayan Plate|text=Sivakayan Plate|image=Sivakayan Plate.png}} (1.5%)<br>{{ItemLink|stablekey=item:secondary - 24 - sivakayan shield|link=Sivakayan Shield|text=Sivakayan Shield|image=Sivakayan Shield.png}} (1.5%)<ref>If Reaver of Sivakaya has {{ItemLink|stablekey=item:secondary - 24 - sivakayan shield|link=Sivakayan Shield|text=Sivakayan Shield|image=Sivakayan Shield.png}} equipped, it is guaranteed to drop.</ref>
+|droprates={{ItemLink|stablekey=item:skillbook - void slice}} (100.0%)<br>{{ItemLink|stablekey=item:arm - 37 - armband of generals}} (10.9%)<br>{{ItemLink|stablekey=item:back - 37 - sivakayan wings}} (10.9%)<br>{{ItemLink|stablekey=item:weap - 39 - reaver's steel}} (6.9%)<ref>If Reaver of Sivakaya has {{ItemLink|stablekey=item:weap - 39 - reaver's steel}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:ring - 39 - ring of the pious}} (4.0%)<br>{{ItemLink|stablekey=item:wrist - 21 - sivakayan bracer}} (1.5%)<br>{{ItemLink|stablekey=item:leg - 24 - sivakayan legplate}} (1.5%)<br>{{ItemLink|stablekey=item:chest - 25 - sivakayan plate}} (1.5%)<br>{{ItemLink|stablekey=item:secondary - 24 - sivakayan shield}} (1.5%)<ref>If Reaver of Sivakaya has {{ItemLink|stablekey=item:secondary - 24 - sivakayan shield}} equipped, it is guaranteed to drop.</ref>
 |level=38
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=19-46
 |elemental=19-46
 |void=19-46
-|spells={{AbilityLink|stablekey=spell:reav - suffocation|link=Suffocate|text=Suffocate|image=Suffocate.png}}<br>{{AbilityLink|stablekey=spell:reav - void surge|link=Void Surge|text=Void Surge|image=Void Surge.png}}
+|spells={{AbilityLink|stablekey=spell:reav - suffocation}}<br>{{AbilityLink|stablekey=spell:reav - void surge}}
 }}
 
 [[Category:Braxonian Desert]]

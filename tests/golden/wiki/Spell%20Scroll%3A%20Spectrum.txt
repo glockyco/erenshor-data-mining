@@ -2,7 +2,7 @@
 |title=Spell Scroll: Spectrum
 |stablekey=item:spell scroll - spectrum
 |type=[[Ability Books]]
-|vendorsource={{CharacterLink|stablekey=character:leyor m'chante|link=Leyor M'Chante|text=Leyor M'Chante}}
+|vendorsource={{CharacterLink|stablekey=character:leyor m'chante}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=8550
 |sell=5558
-|taughtspell={{AbilityLink|stablekey=spell:pal - spectrum|link=Spectrum|text=Spectrum|image=Spectrum.png}}
+|taughtspell={{AbilityLink|stablekey=spell:pal - spectrum}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

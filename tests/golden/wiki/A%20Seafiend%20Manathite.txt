@@ -3,15 +3,15 @@
 |image=[[File:A Seafiend Manathite.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
-|factionChange=+1 {{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:windwashed|link=Windwashed Pass|text=Windwashed Pass}}
+|faction={{FactionLink|stablekey=faction:evil}}
+|factionChange=+1 {{FactionLink|stablekey=faction:vitheo}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:windwashed}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - a coral|link=Coral|text=Coral|image=Coral.png}} (51.4%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (51.4%)<br>{{ItemLink|stablekey=item:gen - seaweed|link=Seaweed|text=Seaweed|image=Seaweed.png}} (51.4%)<br>{{ItemLink|stablekey=item:weap - 1 - rustydagger|link=Rusty Dagger|text=Rusty Dagger|image=Rusty Dagger.png}} (17.3%)<br>{{ItemLink|stablekey=item:fish - husselfish|link=A Husselfish|text=A Husselfish|image=A Husselfish.png}} (14.9%)<br>{{ItemLink|stablekey=item:fish - a worm eel|link=A Worm Eel|text=A Worm Eel|image=A Worm Eel.png}} (14.9%)<br>{{ItemLink|stablekey=item:gen - whispers of the sea|link=Whispers of the Sea|text=Whispers of the Sea|image=Whispers of the Sea.png}} (8.8%)
+|droprates={{ItemLink|stablekey=item:gen - a coral}} (51.4%)<br>{{ItemLink|stablekey=item:gen - seaglass}} (51.4%)<br>{{ItemLink|stablekey=item:gen - seaweed}} (51.4%)<br>{{ItemLink|stablekey=item:weap - 1 - rustydagger}} (17.3%)<br>{{ItemLink|stablekey=item:fish - husselfish}} (14.9%)<br>{{ItemLink|stablekey=item:fish - a worm eel}} (14.9%)<br>{{ItemLink|stablekey=item:gen - whispers of the sea}} (8.8%)
 |level=16
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=8-19
 |elemental=8-19
 |void=8-19
-|spells={{AbilityLink|stablekey=spell:arc - burning chains|link=Burning Chains|text=Burning Chains|image=Burning Chains.png}}<br>{{AbilityLink|stablekey=spell:dru pal - minor healing|link=Minor Healing|text=Minor Healing|image=Minor Healing.png}}<br>{{AbilityLink|stablekey=spell:arc - winter's bite|link=Winter's Bite|text=Winter's Bite|image=Winter's Bite.png}}
+|spells={{AbilityLink|stablekey=spell:arc - burning chains}}<br>{{AbilityLink|stablekey=spell:dru pal - minor healing}}<br>{{AbilityLink|stablekey=spell:arc - winter's bite}}
 }}
 
 [[Category:Enemies]]

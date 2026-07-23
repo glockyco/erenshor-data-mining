@@ -5,7 +5,7 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|Find The Hider}}<br>{{QuestLink|stablekey=quest:shiver-hider|link=Find The Hider|text=Find The Hider}}
+|questsource={{QuestLink|Find The Hider}}<br>{{QuestLink|stablekey=quest:shiver-hider}}
 |relatedquest={{QuestLink|link=Warming the Isle}}
 |craftsource=
 |componentfor=

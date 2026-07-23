@@ -3,7 +3,7 @@
 |stablekey=item:head - 25 - spiderskin shroud
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:linkedspider1 (2):shiveringtomb2:-92.22:-68.65:93.79|link=Soul Linked Spider|text=Soul Linked Spider}} (50.0%)<br>{{CharacterLink|stablekey=character:linkedspider1 (3):shiveringtomb2:-92.22:-68.65:123.04|link=Soul Linked Spider|text=Soul Linked Spider}} (2.3%)<br>{{CharacterLink|stablekey=character:linkedspider1:shiveringtomb2:-63.47:-68.65:123.29|link=Soul Linked Spider|text=Soul Linked Spider}} (2.2%)
+|source={{CharacterLink|stablekey=character:linkedspider1 (2):shiveringtomb2:-92.22:-68.65:93.79}} (50.0%)<br>{{CharacterLink|stablekey=character:linkedspider1 (3):shiveringtomb2:-92.22:-68.65:123.04}} (2.3%)<br>{{CharacterLink|stablekey=character:linkedspider1:shiveringtomb2:-63.47:-68.65:123.29}} (2.2%)
 |othersource=
 |questsource=
 |relatedquest=

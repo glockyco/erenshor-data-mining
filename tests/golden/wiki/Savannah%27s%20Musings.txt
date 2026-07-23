@@ -3,7 +3,7 @@
 |stablekey=item:book - savannahs ledger
 |type=[[Lore Items|Lore]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:savannah priel|link=Savannah Priel (Character)|text=Savannah Priel}} (100.0%)
+|source={{CharacterLink|stablekey=character:savannah priel}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=

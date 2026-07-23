@@ -3,7 +3,7 @@
 |stablekey=item:gen - the malaroth process
 |type=[[Lore Items|Lore]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:priel molarist|link=Priel Malarist|text=Priel Malarist}} (13.1%)
+|source={{CharacterLink|stablekey=character:priel molarist}} (13.1%)
 |othersource=
 |questsource=
 |relatedquest=

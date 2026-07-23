@@ -3,9 +3,9 @@
 |image=[[File:A Dying Wish.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|faction={{FactionLink|stablekey=faction:good}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:bloomingsepulcher|link=Blooming Sepulcher|text=Blooming Sepulcher}}
+|zones={{ZoneLink|stablekey=zone:bloomingsepulcher}}
 |coordinates=533.6 x 355.4 x 764.1<br>785.2 x 319.5 x 378.5
 |spawnchance=
 |spawntype=Dynamic event spawn
@@ -40,9 +40,9 @@
 |image=[[File:A Dying Wish.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|faction={{FactionLink|stablekey=faction:good}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:bloomingsepulcher|link=Blooming Sepulcher|text=Blooming Sepulcher}}
+|zones={{ZoneLink|stablekey=zone:bloomingsepulcher}}
 |coordinates=179.5 x 371.2 x 613.3
 |spawnchance=
 |spawntype=Dynamic event spawn

@@ -3,7 +3,7 @@
 |stablekey=item:gen - swamproot
 |type=[[:Category:Items|General]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:nipper pup|link=Nipper Pup|text=Nipper Pup}} (74.5%)<br>{{CharacterLink|stablekey=character:ragewhip|link=Ragewhip|text=Ragewhip}} (27.8%)<br>{{CharacterLink|stablekey=character:jellyfish|link=Swamp Nettle|text=Swamp Nettle}} (23.5%)
+|source={{CharacterLink|stablekey=character:nipper pup}} (74.5%)<br>{{CharacterLink|stablekey=character:ragewhip}} (27.8%)<br>{{CharacterLink|stablekey=character:jellyfish}} (23.5%)
 |othersource=
 |questsource=
 |relatedquest=

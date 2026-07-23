@@ -3,15 +3,15 @@
 |image=[[File:Slumbering Queen.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|faction={{FactionLink|stablekey=faction:good}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:elderstone|link=The Elderstone Mines|text=The Elderstone Mines}}
+|zones={{ZoneLink|stablekey=zone:elderstone}}
 |coordinates=-210.2 x -143.9 x 968.0
 |spawnchance=
 |spawntype=
 |respawn=19 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:leg - 17 - cavesilk trousers|link=Cavesilk Trousers|text=Cavesilk Trousers|image=Cavesilk Trousers.png}}<br>{{ItemLink|stablekey=item:ring - 17 - elderstone ring|link=Elderstone Ring|text=Elderstone Ring|image=Elderstone Ring.png}}<br>{{ItemLink|stablekey=item:weap - 19 - queen's fang|link=Queen's Fang|text=Queen's Fang|image=Queen's Fang.png}}
-|droprates={{ItemLink|stablekey=item:leg - 17 - cavesilk trousers|link=Cavesilk Trousers|text=Cavesilk Trousers|image=Cavesilk Trousers.png}} (52.2%)<br>{{ItemLink|stablekey=item:ring - 17 - elderstone ring|link=Elderstone Ring|text=Elderstone Ring|image=Elderstone Ring.png}} (52.2%)<br>{{ItemLink|stablekey=item:weap - 19 - queen's fang|link=Queen's Fang|text=Queen's Fang|image=Queen's Fang.png}} (52.2%)<br>{{ItemLink|stablekey=item:fish - a fanged caveskimmer|link=A Fanged Caveskimmer|text=A Fanged Caveskimmer|image=A Fanged Caveskimmer.png}} (28.3%)<br>{{ItemLink|stablekey=item:wrist - 16 - twisted spider leg|link=A Twisted Spider Leg|text=A Twisted Spider Leg|image=A Twisted Spider Leg.png}} (28.3%)<br>{{ItemLink|stablekey=item:ore - ancient coal|link=Ancient Coal|text=Ancient Coal|image=Ancient Coal.png}} (28.3%)
+|guaranteeddrops={{ItemLink|stablekey=item:leg - 17 - cavesilk trousers}}<br>{{ItemLink|stablekey=item:ring - 17 - elderstone ring}}<br>{{ItemLink|stablekey=item:weap - 19 - queen's fang}}
+|droprates={{ItemLink|stablekey=item:leg - 17 - cavesilk trousers}} (52.2%)<br>{{ItemLink|stablekey=item:ring - 17 - elderstone ring}} (52.2%)<br>{{ItemLink|stablekey=item:weap - 19 - queen's fang}} (52.2%)<br>{{ItemLink|stablekey=item:fish - a fanged caveskimmer}} (28.3%)<br>{{ItemLink|stablekey=item:wrist - 16 - twisted spider leg}} (28.3%)<br>{{ItemLink|stablekey=item:ore - ancient coal}} (28.3%)
 |level=21
 |levelmodmin=0
 |levelmodmax=0

@@ -2,7 +2,7 @@
 |title=Mold: An Otherwordly Box
 |stablekey=item:template - an otherwordly mold
 |type=
-|vendorsource={{CharacterLink|stablekey=character:shady merchant|link=Elysia Thistlewick|text=Elysia Thistlewick}}<br>{{CharacterLink|stablekey=character:a rift vendor:reliquary:268.28:1.44:349.00|link=Summoned: Pocket Vendor|text=Summoned: Pocket Vendor}}
+|vendorsource={{CharacterLink|stablekey=character:shady merchant}}<br>{{CharacterLink|stablekey=character:a rift vendor:reliquary:268.28:1.44:349.00}}
 |source=
 |othersource=
 |questsource=

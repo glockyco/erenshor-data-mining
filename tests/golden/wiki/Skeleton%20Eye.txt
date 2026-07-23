@@ -3,10 +3,10 @@
 |stablekey=item:gen - skeleton eye
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:skeleton captain|link=A Skeleton Captain|text=A Skeleton Captain}} (6.0%)<br>{{CharacterLink|stablekey=character:wiggleribs|link=Wiggleribs|text=Wiggleribs}} (5.9%)<br>{{CharacterLink|stablekey=character:skeleton soldier|link=A Skeleton Soldier|text=A Skeleton Soldier}} (3.4%)<br>{{CharacterLink|stablekey=character:bassalt valanno|link=Bassalt Vallano|text=Bassalt Vallano}} (3.4%)
+|source={{CharacterLink|stablekey=character:skeleton captain}} (6.0%)<br>{{CharacterLink|stablekey=character:wiggleribs}} (5.9%)<br>{{CharacterLink|stablekey=character:skeleton soldier}} (3.4%)<br>{{CharacterLink|stablekey=character:bassalt valanno}} (3.4%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|A Skeleton Eye for Alyssia Fearnon}}<br>{{QuestLink|stablekey=quest:a skeleton eye for alyssa fearnon|link=A Skeleton Eye for Alyssia Fearnon|text=A Skeleton Eye for Alyssia Fearnon}}
+|relatedquest={{QuestLink|A Skeleton Eye for Alyssia Fearnon}}<br>{{QuestLink|stablekey=quest:a skeleton eye for alyssa fearnon}}
 |craftsource=
 |componentfor=
 |buy=44

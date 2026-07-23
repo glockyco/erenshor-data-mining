@@ -5,7 +5,7 @@
 |type=NPC
 |faction=
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:shiveringstep|link=Shivering Step|text=Shivering Step}}
+|zones={{ZoneLink|stablekey=zone:shiveringstep}}
 |coordinates=804.5 x 20.2 x 592.5
 |spawnchance=
 |spawntype=

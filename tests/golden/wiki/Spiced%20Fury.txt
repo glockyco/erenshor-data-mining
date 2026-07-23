@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:cons - seaspice|link=Seaspice|text=Seaspice|image=Seaspice.png}}
+|itemswitheffect={{ItemLink|stablekey=item:cons - seaspice}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:all - spiced fury}}

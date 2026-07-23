@@ -3,10 +3,10 @@
 |stablekey=item:gen - memory of balaste
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:balaste the cursed|link=Balaste the Fallen|text=Balaste the Fallen}} (100.0%)
+|source={{CharacterLink|stablekey=character:balaste the cursed}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|A Dying Wish, Part 2}}, {{QuestLink|stablekey=quest:sepulcher2|link=A Dying Wish, Part 2|text=A Dying Wish
+|relatedquest={{QuestLink|A Dying Wish, Part 2}}, {{QuestLink|stablekey=quest:sepulcher2}}
 |craftsource=
 |componentfor=
 |buy=

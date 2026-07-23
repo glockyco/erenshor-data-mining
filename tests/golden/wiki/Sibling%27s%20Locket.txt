@@ -3,7 +3,7 @@
 |stablekey=item:neck - 42 - sibling's locket
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:arenachest 7|link=Vithean Chest|text=Vithean Chest (Round 7)}} (66.7%)<br>{{CharacterLink|stablekey=character:arenachest 8|link=Vithean Chest|text=Vithean Chest (Round 8)}} (4.3%)
+|source={{CharacterLink|stablekey=character:arenachest 7}} (66.7%)<br>{{CharacterLink|stablekey=character:arenachest 8}} (4.3%)
 |othersource=
 |questsource=
 |relatedquest=

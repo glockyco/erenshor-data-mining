@@ -5,7 +5,7 @@
 |description=Deals 300 void damage to your target and increase aggro by 350
 |type=Damage
 |line=Direct_Damage
-|classes={{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}} (12)
+|classes={{ClassLink|stablekey=class:reaver}} (12)
 |required_level=12
 |manacost=150
 |aggro=350
@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:weap - 39 - reaver's steel|link=Reaver's Steel|text=Reaver's Steel|image=Reaver's Steel.png}}
-|source={{ItemLink|stablekey=item:spell scroll - void surge|link=Spell Scroll: Void Surge|text=Spell Scroll: Void Surge|image=Spell Scroll: Void Surge.png}}
-|used_by={{CharacterLink|stablekey=character:reaver of sivakaya bkp|link=Reaver of Sivakaya|text=Reaver of Sivakaya}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 39 - reaver's steel}}
+|source={{ItemLink|stablekey=item:spell scroll - void surge}}
+|used_by={{CharacterLink|stablekey=character:reaver of sivakaya bkp}}
 }}
+{{SpellTooltip|stablekey=spell:reav - void surge}}

@@ -3,15 +3,15 @@
 |image=[[File:Nipper King.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:abyssal|link=Abyssal Lake|text=Abyssal Lake}}
+|zones={{ZoneLink|stablekey=zone:abyssal}}
 |coordinates=263.2 x 85.5 x 352.6
 |spawnchance=50%
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:wrist - 28 - fungal wrapped bracer|link=Fungal Wrapped Bracer|text=Fungal Wrapped Bracer|image=Fungal Wrapped Bracer.png}}<br>{{ItemLink|stablekey=item:head - 31 - terra crown|link=Terra Crown|text=Terra Crown|image=Terra Crown.png}}
-|droprates={{ItemLink|stablekey=item:wrist - 28 - fungal wrapped bracer|link=Fungal Wrapped Bracer|text=Fungal Wrapped Bracer|image=Fungal Wrapped Bracer.png}} (66.7%)<br>{{ItemLink|stablekey=item:head - 31 - terra crown|link=Terra Crown|text=Terra Crown|image=Terra Crown.png}} (33.3%)<br>{{ItemLink|stablekey=item:spell scroll - death's embrace ii|link=Spell Scroll: Death's Embrace II|text=Spell Scroll: Death's Embrace II|image=Spell Scroll: Death's Embrace II.png}} (14.8%)<br>{{ItemLink|stablekey=item:gen - a coral|link=Coral|text=Coral|image=Coral.png}} (6.5%)<br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (6.5%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref>
+|guaranteeddrops={{ItemLink|stablekey=item:wrist - 28 - fungal wrapped bracer}}<br>{{ItemLink|stablekey=item:head - 31 - terra crown}}
+|droprates={{ItemLink|stablekey=item:wrist - 28 - fungal wrapped bracer}} (66.7%)<br>{{ItemLink|stablekey=item:head - 31 - terra crown}} (33.3%)<br>{{ItemLink|stablekey=item:spell scroll - death's embrace ii}} (14.8%)<br>{{ItemLink|stablekey=item:gen - a coral}} (6.5%)<br>{{ItemLink|stablekey=item:gen - diamond}} (6.5%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond}} in their inventory, another will not drop.</ref>
 |level=32
 |levelmodmin=0
 |levelmodmax=0

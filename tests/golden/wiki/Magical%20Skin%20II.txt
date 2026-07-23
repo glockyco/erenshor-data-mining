@@ -5,7 +5,7 @@
 |description=A long-duration shield that absorbs up to 2000 points of incoming damage
 |type=Beneficial
 |line=Shield
-|classes={{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}} (32)
+|classes={{ClassLink|stablekey=class:arcanist}} (32)
 |required_level=32
 |manacost=700
 |aggro=
@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:weap - 39 - thryne|link=Thryne, Sledge of Creation|text=Thryne, Sledge of Creation|image=Thryne, Sledge of Creation.png}}
-|source={{ItemLink|stablekey=item:spell scroll - magic skin 2|link=Spell Scroll: Magical Skin II|text=Spell Scroll: Magical Skin II|image=Spell Scroll: Magical Skin II.png}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 39 - thryne}}
+|source={{ItemLink|stablekey=item:spell scroll - magic skin 2}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:arc - magical skin ii}}

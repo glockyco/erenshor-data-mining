@@ -3,7 +3,7 @@
 |stablekey=item:gen - eldoth - on braxonian 1
 |type=[[Lore Items|Lore]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:molorai specialist|link=Molorai Specialist|text=Molorai Specialist}} (6.0%)<br>{{CharacterLink|stablekey=character:molorai outrider|link=Molorai Outrider|text=Molorai Outrider}} (5.7%)<br>{{CharacterLink|stablekey=character:molorai archaelogist|link=Molorai Archaeologist|text=Molorai Archaeologist}} (3.9%)<br>{{CharacterLink|stablekey=character:molorai archaelogist 1|link=Molorai Archaeologist|text=Molorai Archaeologist}} (3.4%)
+|source={{CharacterLink|stablekey=character:molorai specialist}} (6.0%)<br>{{CharacterLink|stablekey=character:molorai outrider}} (5.7%)<br>{{CharacterLink|stablekey=character:molorai archaelogist}} (3.9%)<br>{{CharacterLink|stablekey=character:molorai archaelogist 1}} (3.4%)
 |othersource=
 |questsource=
 |relatedquest=

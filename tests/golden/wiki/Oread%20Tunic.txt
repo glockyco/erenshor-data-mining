@@ -3,7 +3,7 @@
 |stablekey=item:chest - 7 - oread tunic
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:autmis the lost|link=Autmis the Lost|text=Autmis the Lost}} (53.7%)
+|source={{CharacterLink|stablekey=character:autmis the lost}} (53.7%)
 |othersource=
 |questsource=
 |relatedquest=

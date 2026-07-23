@@ -5,7 +5,7 @@
 |description=Deals 900 poison based damage to a target.
 |type=Damage
 |line=Dru_Other_Debuff
-|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (16)
+|classes={{ClassLink|stablekey=class:druid}} (16)
 |required_level=16
 |manacost=400
 |aggro=55
@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:wand - 29 - bombastic wand|link=Bombastic Wand|text=Bombastic Wand|image=Bombastic Wand.png}}<br>{{ItemLink|stablekey=item:wand - 42 - fernalla's paintbrush|link=Fernalla's Paintbrush|text=Fernalla's Paintbrush|image=Fernalla's Paintbrush.png}}<br>{{ItemLink|stablekey=item:weap - 42 - willowcutter|link=Willowcutter|text=Willowcutter|image=Willowcutter.png}}
-|source={{ItemLink|stablekey=item:spell scroll - drudd the wild's grasp|link=Spell Scroll: The Wild's Grasp|text=Spell Scroll: The Wild's Grasp|image=Spell Scroll: The Wild's Grasp.png}}
-|used_by={{CharacterLink|stablekey=character:a deepling verdite|link=A Deepling Verdite|text=A Deepling Verdite}}<br>{{CharacterLink|stablekey=character:priel purist|link=Priel Purist|text=Priel Purist}}
+|itemswitheffect={{ItemLink|stablekey=item:wand - 29 - bombastic wand}}<br>{{ItemLink|stablekey=item:wand - 42 - fernalla's paintbrush}}<br>{{ItemLink|stablekey=item:weap - 42 - willowcutter}}
+|source={{ItemLink|stablekey=item:spell scroll - drudd the wild's grasp}}
+|used_by={{CharacterLink|stablekey=character:a deepling verdite}}<br>{{CharacterLink|stablekey=character:priel purist}}
 }}
+{{SpellTooltip|stablekey=spell:dru - the wild's grasp}}

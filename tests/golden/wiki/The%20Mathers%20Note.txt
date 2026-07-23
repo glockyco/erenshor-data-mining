@@ -3,10 +3,10 @@
 |stablekey=item:gen - the mathers note
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:the corpse of brice mathers|link=The Corpse of Brice Mathers|text=The Corpse of Brice Mathers}} (100.0%)
+|source={{CharacterLink|stablekey=character:the corpse of brice mathers}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|The Mathers' Demise}}<br>{{QuestLink|stablekey=quest:mathersdemise|link=The Mathers' Demise|text=The Mathers' Demise}}
+|relatedquest={{QuestLink|The Mathers' Demise}}<br>{{QuestLink|stablekey=quest:mathersdemise}}
 |craftsource=
 |componentfor=
 |buy=

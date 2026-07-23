@@ -3,7 +3,7 @@
 |stablekey=item:weap - 18 - molorai parrying dagger
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:overseer lasael|link=Overseer Laseal|text=Overseer Laseal}} (50.0%)
+|source={{CharacterLink|stablekey=character:overseer lasael}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

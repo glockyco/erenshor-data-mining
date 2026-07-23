@@ -3,15 +3,15 @@
 |image=[[File:Ughl of the Skies.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
-|factionChange=+3 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+3 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:underspine|link=Underspine Hollow|text=Underspine Hollow}}
+|faction={{FactionLink|stablekey=faction:evil}}
+|factionChange=+3 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+3 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:underspine}}
 |coordinates=451.5 x 79.7 x 307.0
 |spawnchance=66%
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:glove - 7 - channeling gloves|link=Channeling Gloves|text=Channeling Gloves|image=Channeling Gloves.png}}<br>{{ItemLink|stablekey=item:ring - 14 - gapped ring|link=Gapped Ring|text=Gapped Ring|image=Gapped Ring.png}}
-|droprates={{ItemLink|stablekey=item:glove - 7 - channeling gloves|link=Channeling Gloves|text=Channeling Gloves|image=Channeling Gloves.png}} (50.0%)<br>{{ItemLink|stablekey=item:ring - 14 - gapped ring|link=Gapped Ring|text=Gapped Ring|image=Gapped Ring.png}} (50.0%)
+|guaranteeddrops={{ItemLink|stablekey=item:glove - 7 - channeling gloves}}<br>{{ItemLink|stablekey=item:ring - 14 - gapped ring}}
+|droprates={{ItemLink|stablekey=item:glove - 7 - channeling gloves}} (50.0%)<br>{{ItemLink|stablekey=item:ring - 14 - gapped ring}} (50.0%)
 |level=15
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=8-18
 |elemental=8-18
 |void=8-18
-|spells={{AbilityLink|stablekey=spell:arc - brax's rage|link=Brax's Rage|text=Brax's Rage|image=Brax's Rage.png}}<br>{{AbilityLink|stablekey=spell:arc - burning chains|link=Burning Chains|text=Burning Chains|image=Burning Chains.png}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's rage}}<br>{{AbilityLink|stablekey=spell:arc - burning chains}}
 }}
 
 [[Category:Bosses]]

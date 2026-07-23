@@ -5,7 +5,7 @@
 |description=Remove or reduce the duration of poisons.
 |type=Heal
 |line=Healing
-|classes={{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}} (8)<br>{{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (8)<br>{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}} (8)<br>{{ClassLink|stablekey=class:duelist|link=Windblade|text=Windblade}} (8)
+|classes={{ClassLink|stablekey=class:arcanist}} (8)<br>{{ClassLink|stablekey=class:druid}} (8)<br>{{ClassLink|stablekey=class:paladin}} (8)<br>{{ClassLink|stablekey=class:duelist}} (8)
 |required_level=8
 |manacost=50
 |aggro=
@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:wrist - 11 - salt soaked cuff|link=Salt Soaked Cuff|text=Salt Soaked Cuff|image=Salt Soaked Cuff.png}}
-|source={{ItemLink|stablekey=item:spell scroll - antidote|link=Spell Scroll: Antidote|text=Spell Scroll: Antidote|image=Spell Scroll: Antidote.png}}
+|itemswitheffect={{ItemLink|stablekey=item:wrist - 11 - salt soaked cuff}}
+|source={{ItemLink|stablekey=item:spell scroll - antidote}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:dru pal arc duel - antidote}}

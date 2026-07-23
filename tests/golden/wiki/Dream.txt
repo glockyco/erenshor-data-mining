@@ -3,15 +3,15 @@
 |image=[[File:Dream.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:shiveringtomb|link=Shivering Tomb|text=Shivering Tomb (1)}}
+|zones={{ZoneLink|stablekey=zone:shiveringtomb}}
 |coordinates=141.1 x -4.4 x 26.3
 |spawnchance=
 |spawntype=
 |respawn=9 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:arm - 22 - chewed armwraps|link=Chewed Armwraps|text=Chewed Armwraps|image=Chewed Armwraps.png}}<br>{{ItemLink|stablekey=item:wand - 21 - dreamy wand|link=Dreamy Wand|text=Dreamy Wand|image=Dreamy Wand.png}}
-|droprates={{ItemLink|stablekey=item:gen - ancient fang|link=Ancient Fang|text=Ancient Fang|image=Ancient Fang.png}} (100.0%)<br>{{ItemLink|stablekey=item:arm - 22 - chewed armwraps|link=Chewed Armwraps|text=Chewed Armwraps|image=Chewed Armwraps.png}} (50.0%)<br>{{ItemLink|stablekey=item:wand - 21 - dreamy wand|link=Dreamy Wand|text=Dreamy Wand|image=Dreamy Wand.png}} (50.0%)<br>{{ItemLink|stablekey=item:gen - bear meat|link=Bear Meat|text=Bear Meat|image=Bear Meat.png}} (27.8%)
+|guaranteeddrops={{ItemLink|stablekey=item:arm - 22 - chewed armwraps}}<br>{{ItemLink|stablekey=item:wand - 21 - dreamy wand}}
+|droprates={{ItemLink|stablekey=item:gen - ancient fang}} (100.0%)<br>{{ItemLink|stablekey=item:arm - 22 - chewed armwraps}} (50.0%)<br>{{ItemLink|stablekey=item:wand - 21 - dreamy wand}} (50.0%)<br>{{ItemLink|stablekey=item:gen - bear meat}} (27.8%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0

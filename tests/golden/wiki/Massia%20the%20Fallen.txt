@@ -3,15 +3,15 @@
 |image=[[File:Massia the Fallen.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:duskenlight|link=The Duskenlight Coast|text=The Duskenlight Coast}}
+|zones={{ZoneLink|stablekey=zone:duskenlight}}
 |coordinates=699.6 x 75.5 x 104.7
 |spawnchance=60%
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:leg - 11 - spritely leggings|link=Spritely Leggings|text=Spritely Leggings|image=Spritely Leggings.png}}<br>{{ItemLink|stablekey=item:weap - 10 - thorn|link=Thorn|text=Thorn|image=Thorn.png}}
-|droprates={{ItemLink|stablekey=item:leg - 11 - spritely leggings|link=Spritely Leggings|text=Spritely Leggings|image=Spritely Leggings.png}} (50.0%)<br>{{ItemLink|stablekey=item:weap - 10 - thorn|link=Thorn|text=Thorn|image=Thorn.png}} (50.0%)<br>{{ItemLink|stablekey=item:gen - essence of nature|link=Essence of Nature|text=Essence of Nature|image=Essence of Nature.png}} (27.8%)
+|guaranteeddrops={{ItemLink|stablekey=item:leg - 11 - spritely leggings}}<br>{{ItemLink|stablekey=item:weap - 10 - thorn}}
+|droprates={{ItemLink|stablekey=item:leg - 11 - spritely leggings}} (50.0%)<br>{{ItemLink|stablekey=item:weap - 10 - thorn}} (50.0%)<br>{{ItemLink|stablekey=item:gen - essence of nature}} (27.8%)
 |level=10
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=5-12
 |elemental=5-12
 |void=5-12
-|spells={{AbilityLink|stablekey=spell:arc - brax's touch|link=Brax's Touch|text=Brax's Touch|image=Brax's Touch.png}}<br>{{AbilityLink|stablekey=spell:dru - tangle|link=Tangle|text=Tangle|image=Tangle.png}}<br>{{AbilityLink|stablekey=spell:dru reav - theft of life|link=Theft of Life|text=Theft of Life|image=Theft of Life.png}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's touch}}<br>{{AbilityLink|stablekey=spell:dru - tangle}}<br>{{AbilityLink|stablekey=spell:dru reav - theft of life}}
 }}
 Massia is located in the small dryad outcrop located in the [[Duskenlight Coast]].
 

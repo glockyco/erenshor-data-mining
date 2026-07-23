@@ -3,15 +3,15 @@
 |image=[[File:Demented Malaroth.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:malaroth|link=Malaroth's Nesting Grounds|text=Malaroth's Nesting Grounds}}
+|zones={{ZoneLink|stablekey=zone:malaroth}}
 |coordinates=428.4 x 28.4 x 642.2
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
-|guaranteeddrops={{ItemLink|stablekey=item:secondary - 38 - cursed hide shield|link=Cursed Hide Shield|text=Cursed Hide Shield|image=Cursed Hide Shield.png}}<br>{{ItemLink|stablekey=item:weap - 39 - molten axe|link=Molten Axe|text=Molten Axe|image=Molten Axe.png}}
-|droprates={{ItemLink|stablekey=item:gen - demented brain|link=Demented Brain|text=Demented Brain|image=Demented Brain.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - demented brain|link=Demented Brain|text=Demented Brain|image=Demented Brain.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:secondary - 38 - cursed hide shield|link=Cursed Hide Shield|text=Cursed Hide Shield|image=Cursed Hide Shield.png}} (50.0%)<br>{{ItemLink|stablekey=item:weap - 39 - molten axe|link=Molten Axe|text=Molten Axe|image=Molten Axe.png}} (50.0%)<br>{{ItemLink|stablekey=item:gen - malaroth hide|link=Malaroth Hide|text=Malaroth Hide|image=Malaroth Hide.png}} (22.1%)<br>{{ItemLink|stablekey=item:gen - ivory tusk|link=Ivory Tusk|text=Ivory Tusk|image=Ivory Tusk.png}} (19.5%)
+|guaranteeddrops={{ItemLink|stablekey=item:secondary - 38 - cursed hide shield}}<br>{{ItemLink|stablekey=item:weap - 39 - molten axe}}
+|droprates={{ItemLink|stablekey=item:gen - demented brain}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - demented brain}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:secondary - 38 - cursed hide shield}} (50.0%)<br>{{ItemLink|stablekey=item:weap - 39 - molten axe}} (50.0%)<br>{{ItemLink|stablekey=item:gen - malaroth hide}} (22.1%)<br>{{ItemLink|stablekey=item:gen - ivory tusk}} (19.5%)
 |level=40
 |levelmodmin=0
 |levelmodmax=0

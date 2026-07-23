@@ -3,7 +3,7 @@
 |stablekey=item:gen - ruined grass spider carapace
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:loomingwidow|link=Loomingwidow|text=Loomingwidow}} (27.1%)<br>{{CharacterLink|stablekey=character:grass spider|link=A Grass Spider|text=A Grass Spider}} (24.9%)<br>{{CharacterLink|stablekey=character:mature grass spider|link=A Mature Grass Spider|text=A Mature Grass Spider}} (14.8%)
+|source={{CharacterLink|stablekey=character:loomingwidow}} (27.1%)<br>{{CharacterLink|stablekey=character:grass spider}} (24.9%)<br>{{CharacterLink|stablekey=character:mature grass spider}} (14.8%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Spell Scroll: Suffocation
 |stablekey=item:spell scroll - suffocate
 |type=
-|vendorsource={{CharacterLink|stablekey=character:grant haxoway|link=Grant Haxoway|text=Grant Haxoway}}
+|vendorsource={{CharacterLink|stablekey=character:grant haxoway}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=11500
 |sell=7475
-|taughtspell={{AbilityLink|stablekey=spell:reav - suffocation|link=Suffocate|text=Suffocate|image=Suffocate.png}}
+|taughtspell={{AbilityLink|stablekey=spell:reav - suffocation}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

@@ -3,15 +3,15 @@
 |image=[[File:Priel Tamer.png|thumb]]
 |imagecaption=
 |type=Rare
-|faction={{FactionLink|stablekey=faction:priel|link=Savannah Priel|text=Savannah Priel}}
-|factionChange=-2 {{FactionLink|stablekey=faction:priel|link=Savannah Priel|text=Savannah Priel}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+1 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
-|zones={{ZoneLink|stablekey=zone:malaroth|link=Malaroth's Nesting Grounds|text=Malaroth's Nesting Grounds}}
+|faction={{FactionLink|stablekey=faction:priel}}
+|factionChange=-2 {{FactionLink|stablekey=faction:priel}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens}}<br>+1 {{FactionLink|stablekey=faction:solunarians}}
+|zones={{ZoneLink|stablekey=zone:malaroth}}
 |coordinates=
 |spawnchance=4-10%
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - malaroth feed|link=Malaroth Feed|text=Malaroth Feed|image=Malaroth Feed.png}} (90.3%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - malaroth feed|link=Malaroth Feed|text=Malaroth Feed|image=Malaroth Feed.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (10.1%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (10.1%)<br>{{ItemLink|stablekey=item:ring - 18 - priel officer's ring|link=Priel Officer's Ring|text=Priel Officer's Ring|image=Priel Officer's Ring.png}} (3.0%)<br>{{ItemLink|stablekey=item:back - 24 - tamer's pack|link=Tamer's Pack|text=Tamer's Pack|image=Tamer's Pack.png}} (3.0%)
+|droprates={{ItemLink|stablekey=item:gen - malaroth feed}} (90.3%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - malaroth feed}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - seaglass}} (10.1%)<br>{{ItemLink|stablekey=item:gen - a star stone}} (10.1%)<br>{{ItemLink|stablekey=item:ring - 18 - priel officer's ring}} (3.0%)<br>{{ItemLink|stablekey=item:back - 24 - tamer's pack}} (3.0%)
 |level=21
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=10-25
 |elemental=10-25
 |void=10-25
-|spells={{AbilityLink|stablekey=spell:dru - arterial decay|link=Arterial Decay|text=Arterial Decay|image=Arterial Decay.png}}<br>{{AbilityLink|stablekey=spell:dru - morbidity's grasp|link=Morbidity's Grasp|text=Morbidity's Grasp|image=Morbidity's Grasp.png}}<br>{{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}
+|spells={{AbilityLink|stablekey=spell:dru - arterial decay}}<br>{{AbilityLink|stablekey=spell:dru - morbidity's grasp}}<br>{{AbilityLink|stablekey=spell:dru reav - soul tap}}
 }}
 Rare spawn in the Priel camp with the Capture Molorath
 =Notes=

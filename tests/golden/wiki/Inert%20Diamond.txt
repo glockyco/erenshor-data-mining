@@ -3,7 +3,7 @@
 |stablekey=item:template - inert diamond
 |type=[[Crafting|Mold]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:treasurechest 0-10 1|link=Lost Treasure (1-10)|text=Lost Treasure (1-10)}} (84.4%)<br>{{CharacterLink|stablekey=character:treasurechest 10-20 1|link=Lost Treasure (10-20)|text=Lost Treasure (10-20)}} (65.2%)<br>{{CharacterLink|stablekey=character:treasurechest 30-35|link=Lost Treasure (30+)|text=Lost Treasure (30+)}} (56.6%)
+|source={{CharacterLink|stablekey=character:treasurechest 0-10 1}} (84.4%)<br>{{CharacterLink|stablekey=character:treasurechest 10-20 1}} (65.2%)<br>{{CharacterLink|stablekey=character:treasurechest 30-35}} (56.6%)
 |othersource=all level 21+ enemies (0.8%)
 |questsource=
 |relatedquest=

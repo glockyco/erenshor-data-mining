@@ -3,7 +3,7 @@
 |stablekey=item:belt - 25 - belt of ages
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:2 - memory of the order|link=A Protected Memory|text=A Protected Memory}} (25.0%)
+|source={{CharacterLink|stablekey=character:2 - memory of the order}} (25.0%)
 |othersource=
 |questsource=
 |relatedquest=

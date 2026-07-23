@@ -3,15 +3,15 @@
 |image=[[File:Stoneman Seeker.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|faction={{FactionLink|stablekey=faction:good}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:blight|link=The Blight|text=The Blight}}
+|zones={{ZoneLink|stablekey=zone:blight}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - polished stone|link=Polished Stone|text=Polished Stone|image=Polished Stone.png}} (84.7%)<br>{{ItemLink|stablekey=item:gen - pulsating stone|link=Pulsating Stone|text=Pulsating Stone|image=Pulsating Stone.png}} (4.5%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - pulsating stone|link=Pulsating Stone|text=Pulsating Stone|image=Pulsating Stone.png}} in their inventory, another will not drop.</ref>
+|droprates={{ItemLink|stablekey=item:gen - polished stone}} (84.7%)<br>{{ItemLink|stablekey=item:gen - pulsating stone}} (4.5%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - pulsating stone}} in their inventory, another will not drop.</ref>
 |level=18
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=9-22
 |elemental=9-22
 |void=9-22
-|spells={{AbilityLink|stablekey=spell:arc - brax's fury|link=Brax's Fury|text=Brax's Fury|image=Brax's Fury.png}}<br>{{AbilityLink|stablekey=spell:arc - ice spear|link=Ice Spear|text=Ice Spear|image=Ice Spear.png}}<br>{{AbilityLink|stablekey=spell:arc - winter's bite|link=Winter's Bite|text=Winter's Bite|image=Winter's Bite.png}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's fury}}<br>{{AbilityLink|stablekey=spell:arc - ice spear}}<br>{{AbilityLink|stablekey=spell:arc - winter's bite}}
 }}
 
 Greeting message:

@@ -3,15 +3,15 @@
 |image=[[File:Ghost of Plaxitheris.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:shiveringstep|link=Shivering Step|text=Shivering Step}}
+|zones={{ZoneLink|stablekey=zone:shiveringstep}}
 |coordinates=319.0 x 77.1 x 582.4
 |spawnchance=
 |spawntype=
 |respawn=7 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:back - 19 - dreamthreaded wings|link=Dreamthread Wings|text=Dreamthread Wings|image=Dreamthread Wings.png}}<br>{{ItemLink|stablekey=item:belt - 23 - ghostly sash|link=Ghostly Sash|text=Ghostly Sash|image=Ghostly Sash.png}}
-|droprates={{ItemLink|stablekey=item:gen - soul of a ghostly beast|link=Soul of a Ghostly Beast|text=Soul of a Ghostly Beast|image=Soul of a Ghostly Beast.png}} (100.0%)<br>{{ItemLink|stablekey=item:gen - death's decay|link=Death's Decay|text=Death's Decay|image=Death's Decay.png}} (78.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - death's decay|link=Death's Decay|text=Death's Decay|image=Death's Decay.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - thief of breath|link=Thief of Breath|text=Thief of Breath|image=Thief of Breath.png}} (78.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - thief of breath|link=Thief of Breath|text=Thief of Breath|image=Thief of Breath.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:back - 19 - dreamthreaded wings|link=Dreamthread Wings|text=Dreamthread Wings|image=Dreamthread Wings.png}} (50.0%)<br>{{ItemLink|stablekey=item:belt - 23 - ghostly sash|link=Ghostly Sash|text=Ghostly Sash|image=Ghostly Sash.png}} (50.0%)
+|guaranteeddrops={{ItemLink|stablekey=item:back - 19 - dreamthreaded wings}}<br>{{ItemLink|stablekey=item:belt - 23 - ghostly sash}}
+|droprates={{ItemLink|stablekey=item:gen - soul of a ghostly beast}} (100.0%)<br>{{ItemLink|stablekey=item:gen - death's decay}} (78.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - death's decay}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - thief of breath}} (78.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - thief of breath}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:back - 19 - dreamthreaded wings}} (50.0%)<br>{{ItemLink|stablekey=item:belt - 23 - ghostly sash}} (50.0%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0

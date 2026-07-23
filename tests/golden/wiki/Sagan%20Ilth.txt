@@ -3,15 +3,15 @@
 |image=[[File:Sagan Ilth.png|thumb]]
 |imagecaption="Molorai do not stand down!"
 |type=Boss
-|faction={{FactionLink|stablekey=faction:molarai|link=Eldoth Molorai (Faction)|text=Eldoth Molorai}}
-|factionChange=-2 {{FactionLink|stablekey=faction:molarai|link=Eldoth Molorai (Faction)|text=Eldoth Molorai}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+2 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
-|zones={{ZoneLink|stablekey=zone:vitheo|link=Vitheo's Watch|text=Vitheo's Watch}}
+|faction={{FactionLink|stablekey=faction:molarai}}
+|factionChange=-2 {{FactionLink|stablekey=faction:molarai}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens}}<br>+2 {{FactionLink|stablekey=faction:solunarians}}
+|zones={{ZoneLink|stablekey=zone:vitheo}}
 |coordinates=310.9 x 27.9 x 78.9
 |spawnchance=25%
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (87.1%)<br>{{ItemLink|stablekey=item:head - 7 - arcanist cap|link=Arcanist Cap|text=Arcanist Cap|image=Arcanist Cap.png}} (13.4%)<ref>If Sagan Ilth has {{ItemLink|stablekey=item:head - 7 - arcanist cap|link=Arcanist Cap|text=Arcanist Cap|image=Arcanist Cap.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (11.5%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (11.5%)<br>{{ItemLink|stablekey=item:secondary - 11 - magus shield|link=Magus Shield|text=Magus Shield|image=Magus Shield.png}} (6.7%)<ref>If Sagan Ilth has {{ItemLink|stablekey=item:secondary - 11 - magus shield|link=Magus Shield|text=Magus Shield|image=Magus Shield.png}} equipped, it is guaranteed to drop.</ref>
+|droprates={{ItemLink|stablekey=item:gen citrine stone}} (87.1%)<br>{{ItemLink|stablekey=item:head - 7 - arcanist cap}} (13.4%)<ref>If Sagan Ilth has {{ItemLink|stablekey=item:head - 7 - arcanist cap}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:gen - luminstone}} (11.5%)<br>{{ItemLink|stablekey=item:gen - a star stone}} (11.5%)<br>{{ItemLink|stablekey=item:secondary - 11 - magus shield}} (6.7%)<ref>If Sagan Ilth has {{ItemLink|stablekey=item:secondary - 11 - magus shield}} equipped, it is guaranteed to drop.</ref>
 |level=11
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=6-13
 |elemental=6-13
 |void=6-13
-|spells={{AbilityLink|stablekey=spell:arc - brax's touch|link=Brax's Touch|text=Brax's Touch|image=Brax's Touch.png}}<br>{{AbilityLink|stablekey=spell:arc - ethereal rend|link=Ethereal Rending|text=Ethereal Rending|image=Ethereal Rending.png}}<br>{{AbilityLink|stablekey=spell:dru - minor lightning|link=Minor Lightning|text=Minor Lightning|image=Minor Lightning.png}}<br>{{AbilityLink|stablekey=spell:all - minor protection|link=Minor Protection|text=Minor Protection|image=Minor Protection.png}}<br>{{AbilityLink|stablekey=spell:dru duel - minor regen|link=Minor Regeneration|text=Minor Regeneration|image=Minor Regeneration.png}}<br>{{AbilityLink|stablekey=spell:duel - vampiric touch|link=Vampiric Touch|text=Vampiric Touch|image=Vampiric Touch.png}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's touch}}<br>{{AbilityLink|stablekey=spell:arc - ethereal rend}}<br>{{AbilityLink|stablekey=spell:dru - minor lightning}}<br>{{AbilityLink|stablekey=spell:all - minor protection}}<br>{{AbilityLink|stablekey=spell:dru duel - minor regen}}<br>{{AbilityLink|stablekey=spell:duel - vampiric touch}}
 }}
 Sagan can cast {{AbilityLink|Brax's Touch}}, {{AbilityLink|Minor Lightning}} and {{AbilityLink|Ethereal Rending}}.
 =Notes=

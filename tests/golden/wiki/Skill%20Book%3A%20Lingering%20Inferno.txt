@@ -3,7 +3,7 @@
 |stablekey=item:skillbook - lingering inferno
 |type=[[Ability Books|Skill Book]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:arcanist of sivakaya|link=Grand Arcanist of Sivakaya|text=Grand Arcanist of Sivakaya}} (100.0%)
+|source={{CharacterLink|stablekey=character:arcanist of sivakaya}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -12,7 +12,7 @@
 |buy=55000
 |sell=35750
 |taughtspell=
-|taughtskill={{AbilityLink|stablekey=skill:lingering inferno|link=Lingering Inferno|text=Lingering Inferno|image=Lingering Inferno.png}}
+|taughtskill={{AbilityLink|stablekey=skill:lingering inferno}}
 |guaranteeddrops=
 |droprates=
 }}

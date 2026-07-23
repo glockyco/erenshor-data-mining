@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:chest - 42 - cyclone steel plate|link=Cyclone Steel Plate|text=Cyclone Steel Plate|image=Cyclone Steel Plate.png}}<br>{{ItemLink|stablekey=item:ring - 42 - ring of tidal winds|link=Ring of Tidal Winds|text=Ring of Tidal Winds|image=Ring of Tidal Winds.png}}<br>{{ItemLink|stablekey=item:chest - 42 - skyseared tunic|link=Skyseared Tunic|text=Skyseared Tunic|image=Skyseared Tunic.png}}
+|itemswitheffect={{ItemLink|stablekey=item:chest - 42 - cyclone steel plate}}<br>{{ItemLink|stablekey=item:ring - 42 - ring of tidal winds}}<br>{{ItemLink|stablekey=item:chest - 42 - skyseared tunic}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - galeforce}}

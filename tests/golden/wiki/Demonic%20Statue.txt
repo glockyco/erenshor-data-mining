@@ -3,7 +3,7 @@
 |stablekey=item:gen - demonic statue
 |type=[[Quest Items]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:nightmare|link=Nightmare|text=Nightmare}} (100.0%)
+|source={{CharacterLink|stablekey=character:nightmare}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=

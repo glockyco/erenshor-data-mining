@@ -3,9 +3,9 @@
 |image=[[File:Oscar VanEllis.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:ripper|link=Ripper DeMerth|text=Ripper DeMerth}}
-|factionChange=-20 {{FactionLink|stablekey=faction:ripper|link=Ripper DeMerth|text=Ripper DeMerth}}
-|zones={{ZoneLink|stablekey=zone:ripper|link=Ripper's Keep|text=Ripper's Keep}}
+|faction={{FactionLink|stablekey=faction:ripper}}
+|factionChange=-20 {{FactionLink|stablekey=faction:ripper}}
+|zones={{ZoneLink|stablekey=zone:ripper}}
 |coordinates=755.4 x 43.6 x 193.6
 |spawnchance=
 |spawntype=

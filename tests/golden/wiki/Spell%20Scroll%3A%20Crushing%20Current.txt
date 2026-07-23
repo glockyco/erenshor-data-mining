@@ -11,7 +11,7 @@
 |componentfor=
 |buy=29000
 |sell=18850
-|taughtspell={{AbilityLink|stablekey=spell:duel - slow crushing current|link=Crushing Current|text=Crushing Current|image=Crushing Current.png}}
+|taughtspell={{AbilityLink|stablekey=spell:duel - slow crushing current}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

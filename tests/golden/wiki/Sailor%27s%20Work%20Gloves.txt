@@ -2,8 +2,8 @@
 |title=Sailor's Work Gloves
 |stablekey=item:glove - 7 - sailor's work gloves
 |type=
-|vendorsource={{CharacterLink|stablekey=character:saya seawatcher|link=Saya Seawatcher|text=Saya Seawatcher}}
-|source={{CharacterLink|stablekey=character:lost sea giant king|link=The Lost Sea Giant King|text=The Lost Sea Giant King}} (30.1%)<br>{{CharacterLink|stablekey=character:overseer orlok|link=Overseer Orlok|text=Overseer Orlok}} (3.2%)
+|vendorsource={{CharacterLink|stablekey=character:saya seawatcher}}
+|source={{CharacterLink|stablekey=character:lost sea giant king}} (30.1%)<br>{{CharacterLink|stablekey=character:overseer orlok}} (3.2%)
 |othersource=
 |questsource=
 |relatedquest=

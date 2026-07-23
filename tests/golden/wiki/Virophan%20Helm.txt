@@ -3,7 +3,7 @@
 |stablekey=item:head - 33 - virophan helm
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:elwio the traitor|link=Elwio the Traitor|text=Elwio the Traitor}} (66.7%)
+|source={{CharacterLink|stablekey=character:elwio the traitor}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=

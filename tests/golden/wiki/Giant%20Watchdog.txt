@@ -3,15 +3,15 @@
 |image=[[File:Giant Watchdog.png|thumb]]
 |imagecaption=Tick Tock. Woof.
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:molarai|link=Eldoth Molorai (Faction)|text=Eldoth Molorai}}
+|faction={{FactionLink|stablekey=faction:molarai}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:azynthiclear|link=Azynthi's Garden|text=Azynthi's Garden}}
+|zones={{ZoneLink|stablekey=zone:azynthiclear}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - wolf meat|link=Wolf Meat|text=Wolf Meat|image=Wolf Meat.png}} (86.3%)
+|droprates={{ItemLink|stablekey=item:gen - wolf meat}} (86.3%)
 |level=33
 |levelmodmin=0
 |levelmodmax=0

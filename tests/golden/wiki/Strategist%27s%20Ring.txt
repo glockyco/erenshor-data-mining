@@ -3,7 +3,7 @@
 |stablekey=item:ring - 22 - strategist's ring
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:chazza priel|link=Chazza Priel|text=Chazza Priel}} (50.0%)
+|source={{CharacterLink|stablekey=character:chazza priel}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

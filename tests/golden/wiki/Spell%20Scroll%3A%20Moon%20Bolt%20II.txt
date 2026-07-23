@@ -2,7 +2,7 @@
 |title=Spell Scroll: Moon Bolt II
 |stablekey=item:spell scroll - moon bolt ii
 |type=[[Ability Books]]
-|vendorsource={{CharacterLink|stablekey=character:leyor m'chante|link=Leyor M'Chante|text=Leyor M'Chante}}
+|vendorsource={{CharacterLink|stablekey=character:leyor m'chante}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=3500
 |sell=2275
-|taughtspell={{AbilityLink|stablekey=spell:pal - moon bolt ii|link=Moon Bolt II|text=Moon Bolt II|image=Moon Bolt II.png}}
+|taughtspell={{AbilityLink|stablekey=spell:pal - moon bolt ii}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

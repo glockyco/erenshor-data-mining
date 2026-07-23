@@ -3,9 +3,9 @@
 |image=[[File:Sergeant D'Vinn.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:stowaway|link=The Citizens of Stowaway's Step|text=The Citizens of Stowaway's Step}}
+|faction={{FactionLink|stablekey=faction:stowaway}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:stowaway|link=Stowaway's Step|text=Stowaway's Step}}
+|zones={{ZoneLink|stablekey=zone:stowaway}}
 |coordinates=553.4 x 68.5 x 571.3
 |spawnchance=
 |spawntype=

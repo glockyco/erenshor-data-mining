@@ -3,7 +3,7 @@
 |stablekey=item:neck - 3 - neophyte necklace
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:zashlyn bloodbane|link=Zashlyn Bloodbane|text=Zashlyn Bloodbane}} (39.0%)<br>{{CharacterLink|stablekey=character:neophyte necromancer|link=Neophyte Necromancer|text=Neophyte Necromancer}} (5.8%)<br>{{CharacterLink|stablekey=character:boatman|link=Boatman|text=Boatman}} (4.2%)<br>{{CharacterLink|stablekey=character:woe|link=Woe|text=Woe}} (2.7%)
+|source={{CharacterLink|stablekey=character:zashlyn bloodbane}} (39.0%)<br>{{CharacterLink|stablekey=character:neophyte necromancer}} (5.8%)<br>{{CharacterLink|stablekey=character:boatman}} (4.2%)<br>{{CharacterLink|stablekey=character:woe}} (2.7%)
 |othersource=
 |questsource=
 |relatedquest=

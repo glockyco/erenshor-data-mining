@@ -32,7 +32,7 @@
 |shield_amount=
 |pet_to_summon=
 |status_effect=
-|add_proc={{AbilityLink|stablekey=spell:none - soluna's smite ii|link=Smite II|text=Smite II}}
+|add_proc={{AbilityLink|stablekey=spell:none - soluna's smite ii}}
 |add_proc_chance=5
 |has_lifetap=
 |lifesteal=
@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:aura - soluna 5|link=Nova|text=Nova|image=Nova.png}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - soluna 5}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:aura - soluna 5}}

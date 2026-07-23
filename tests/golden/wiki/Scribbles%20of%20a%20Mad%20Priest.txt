@@ -3,7 +3,7 @@
 |stablekey=item:gen - scribbles of a mad priest
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:priest of brax|link=Upha, Priest of Brax|text=Upha, Priest of Brax}} (100.0%)
+|source={{CharacterLink|stablekey=character:priest of brax}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -77,7 +77,7 @@
 |stablekey=item:gen - scribbles of a mad priest 4
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:fenton the blighted|link=Fenton the Blighted|text=Fenton the Blighted}} (100.0%)
+|source={{CharacterLink|stablekey=character:fenton the blighted}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:weap - 21 - pin|link=Sleeper's Pin|text=Sleeper's Pin|image=Sleeper's Pin.png}}<br>{{ItemLink|stablekey=item:back - 42 - wakeweaver|link=Wakeweaver|text=Wakeweaver|image=Wakeweaver.png}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 21 - pin}}<br>{{ItemLink|stablekey=item:back - 42 - wakeweaver}}
 |source=
-|used_by={{CharacterLink|stablekey=character:summoned wretched fawn|link=Summoned: Wretched Fawn|text=Summoned: Wretched Fawn}}
+|used_by={{CharacterLink|stablekey=character:summoned wretched fawn}}
 }}
+{{SpellTooltip|stablekey=spell:dru - predator's grace}}

@@ -3,7 +3,7 @@
 |stablekey=item:weap - 35 - wyrmbone
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:wyrm whelp|link=Swamp Wyrm|text=Swamp Wyrm}} (25.0%)
+|source={{CharacterLink|stablekey=character:wyrm whelp}} (25.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=3
 |proc_spell_icon=Concuss.png
-|proc_spell_name={{AbilityLink|stablekey=spell:dru arc - concuss|link=Concuss|text=Concuss|image=Concuss.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:dru arc - concuss}}
 |proc_spell_level=17
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

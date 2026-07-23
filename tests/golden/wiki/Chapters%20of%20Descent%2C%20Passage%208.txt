@@ -3,10 +3,10 @@
 |stablekey=item:gen - cod - pg 8
 |type=[[Lore Items|Lore]], [[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:astorim|link=Astorim|text=Astorim}} (2.8%)<br>{{CharacterLink|stablekey=character:karsith|link=Karsith|text=Karsith}} (2.8%)<br>{{CharacterLink|stablekey=character:orinthar|link=Orinthar|text=Orinthar}} (2.8%)<br>{{CharacterLink|stablekey=character:vextral|link=Vextral|text=Vextral}} (2.8%)<br>{{CharacterLink|stablekey=character:aeiros|link=Aeiros, Soldier of Sivakaya|text=Aeiros, Soldier of Sivakaya}} (2.7%)<br>{{CharacterLink|stablekey=character:balthom|link=Balthom, Soldier of Sivakaya|text=Balthom, Soldier of Sivakaya}} (2.7%)
+|source={{CharacterLink|stablekey=character:astorim}} (2.8%)<br>{{CharacterLink|stablekey=character:karsith}} (2.8%)<br>{{CharacterLink|stablekey=character:orinthar}} (2.8%)<br>{{CharacterLink|stablekey=character:vextral}} (2.8%)<br>{{CharacterLink|stablekey=character:aeiros}} (2.7%)<br>{{CharacterLink|stablekey=character:balthom}} (2.7%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|link=The Mathers' Demise{{!}}The Mather's Demise, Part 3}}<br>{{QuestLink|The Mathers' Demise}}<br>{{QuestLink|stablekey=quest:mathersdemise3|link=The Mathers' Demise|text=The Mathers' Demise}}
+|relatedquest={{QuestLink|link=The Mathers' Demise{{!}}The Mather's Demise, Part 3}}<br>{{QuestLink|The Mathers' Demise}}<br>{{QuestLink|stablekey=quest:mathersdemise3}}
 |craftsource=
 |componentfor=
 |buy=

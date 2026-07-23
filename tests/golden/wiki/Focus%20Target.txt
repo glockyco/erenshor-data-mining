@@ -5,7 +5,7 @@
 |description=Archers get a major attack roll boost while attacking this target
 |type=StatusEffect
 |line=Generic
-|classes={{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}} (13)
+|classes={{ClassLink|stablekey=class:stormcaller}} (13)
 |required_level=13
 |manacost=200
 |aggro=500
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - focus target|link=Spell Scroll: Focus Target|text=Spell Scroll: Focus Target|image=Spell Scroll: Focus Target.png}}
+|source={{ItemLink|stablekey=item:spell scroll - focus target}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:stc - focus target}}

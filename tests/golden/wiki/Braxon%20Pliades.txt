@@ -3,9 +3,9 @@
 |image=[[File:Braxon Pliades.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|factionChange=-20 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>-20 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>-20 {{FactionLink|stablekey=faction:brax|link=The Torchbearers of Brax|text=The Torchbearers of Brax}}
-|zones={{ZoneLink|stablekey=zone:blight|link=The Blight|text=The Blight}}
+|faction={{FactionLink|stablekey=faction:azurecitizens}}
+|factionChange=-20 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>-20 {{FactionLink|stablekey=faction:azurecitizens}}<br>-20 {{FactionLink|stablekey=faction:brax}}
+|zones={{ZoneLink|stablekey=zone:blight}}
 |coordinates=744.0 x 31.6 x 617.9
 |spawnchance=
 |spawntype=

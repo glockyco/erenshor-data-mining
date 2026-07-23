@@ -3,7 +3,7 @@
 |stablekey=item:hand - 10 - argo's grimmiore
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:tinkles|link=Tinkles|text=Tinkles}} (23.7%)<br>{{CharacterLink|stablekey=character:molorai brewmistress|link=Molorai Brewmistress|text=Molorai Brewmistress}} (10.9%)<br>{{CharacterLink|stablekey=character:elizah vernor|link=Elizah Vernor|text=Elizah Vernor}} (8.2%)<br>{{CharacterLink|stablekey=character:thella steepleton|link=Thella Steepleton|text=Thella Steepleton}} (8.2%)<br>{{CharacterLink|stablekey=character:overseer orlok|link=Overseer Orlok|text=Overseer Orlok}} (3.2%)
+|source={{CharacterLink|stablekey=character:tinkles}} (23.7%)<br>{{CharacterLink|stablekey=character:molorai brewmistress}} (10.9%)<br>{{CharacterLink|stablekey=character:elizah vernor}} (8.2%)<br>{{CharacterLink|stablekey=character:thella steepleton}} (8.2%)<br>{{CharacterLink|stablekey=character:overseer orlok}} (3.2%)
 |othersource=
 |questsource=
 |relatedquest=

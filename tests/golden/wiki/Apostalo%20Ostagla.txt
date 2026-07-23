@@ -3,9 +3,9 @@
 |image=[[File:Apostalo Ostagla.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
-|factionChange=-20 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>-20 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
-|zones={{ZoneLink|stablekey=zone:azynthi|link=Azynthi's Garden|text=Azynthi's Garden (Dimensional Rift)}}
+|faction={{FactionLink|stablekey=faction:solunarians}}
+|factionChange=-20 {{FactionLink|stablekey=faction:azurecitizens}}<br>-20 {{FactionLink|stablekey=faction:solunarians}}
+|zones={{ZoneLink|stablekey=zone:azynthi}}
 |coordinates=733.8 x 94.1 x 494.5
 |spawnchance=
 |spawntype=
@@ -32,7 +32,7 @@
 |poison=10-24
 |elemental=10-24
 |void=10-24
-|spells={{AbilityLink|stablekey=spell:dru pal - minor healing|link=Minor Healing|text=Minor Healing|image=Minor Healing.png}}
+|spells={{AbilityLink|stablekey=spell:dru pal - minor healing}}
 }}
 
 Located within the tower. To find him, enter the ruined tower in [[Azynthi's Garden]] and use the [[Azynthian Riftstone]] to enter the dimensional rift.

@@ -3,15 +3,15 @@
 |image=[[File:Drowned Corpse.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
-|factionChange=-10 {{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:malaroth|link=Malaroth's Nesting Grounds|text=Malaroth's Nesting Grounds}}
+|faction={{FactionLink|stablekey=faction:evil}}
+|factionChange=-10 {{FactionLink|stablekey=faction:sivakayans}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:malaroth}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - an ancient bone|link=Ancient Bone|text=Ancient Bone|image=Ancient Bone.png}} (87.6%)<br>{{ItemLink|stablekey=item:arm - 18 - boatman's armband|link=Boatman's Armband|text=Boatman's Armband|image=Boatman's Armband.png}} (5.2%)<br>{{ItemLink|stablekey=item:head - 19 - pirate's hair tie|link=Pirate's Hair Tie|text=Pirate's Hair Tie|image=Pirate's Hair Tie.png}} (5.2%)<br>{{ItemLink|stablekey=item:chest - 4 - light plate armor|link=Light Plate Breastplate|text=Light Plate Breastplate|image=Light Plate Breastplate.png}} (1.3%)<br>{{ItemLink|stablekey=item:leg - 3 - light plate greaves|link=Light Plate Greaves|text=Light Plate Greaves|image=Light Plate Greaves.png}} (1.3%)<br>{{ItemLink|stablekey=item:foot - 1 - tattered leather boots|link=Tattered Leather Boots|text=Tattered Leather Boots|image=Tattered Leather Boots.png}} (1.3%)<br>{{ItemLink|stablekey=item:glove - 1 - tattered leather gloves|link=Tattered Leather Gloves|text=Tattered Leather Gloves|image=Tattered Leather Gloves.png}} (1.3%)<br>{{ItemLink|stablekey=item:leg - 1 - tattered leather leggings|link=Tattered Leather Leggings|text=Tattered Leather Leggings|image=Tattered Leather Leggings.png}} (1.3%)<br>{{ItemLink|stablekey=item:head - 1 - tattered leather skullcap|link=Tattered Leather Skullcap|text=Tattered Leather Skullcap|image=Tattered Leather Skullcap.png}} (1.3%)<br>{{ItemLink|stablekey=item:arm - 1 - tattered leather sleeves|link=Tattered Leather Sleeves|text=Tattered Leather Sleeves|image=Tattered Leather Sleeves.png}} (1.3%)<br>{{ItemLink|stablekey=item:chest - 1 - tattered leather tunic|link=Tattered Leather Tunic|text=Tattered Leather Tunic|image=Tattered Leather Tunic.png}} (1.3%)
+|droprates={{ItemLink|stablekey=item:gen - an ancient bone}} (87.6%)<br>{{ItemLink|stablekey=item:arm - 18 - boatman's armband}} (5.2%)<br>{{ItemLink|stablekey=item:head - 19 - pirate's hair tie}} (5.2%)<br>{{ItemLink|stablekey=item:chest - 4 - light plate armor}} (1.3%)<br>{{ItemLink|stablekey=item:leg - 3 - light plate greaves}} (1.3%)<br>{{ItemLink|stablekey=item:foot - 1 - tattered leather boots}} (1.3%)<br>{{ItemLink|stablekey=item:glove - 1 - tattered leather gloves}} (1.3%)<br>{{ItemLink|stablekey=item:leg - 1 - tattered leather leggings}} (1.3%)<br>{{ItemLink|stablekey=item:head - 1 - tattered leather skullcap}} (1.3%)<br>{{ItemLink|stablekey=item:arm - 1 - tattered leather sleeves}} (1.3%)<br>{{ItemLink|stablekey=item:chest - 1 - tattered leather tunic}} (1.3%)
 |level=18
 |levelmodmin=0
 |levelmodmax=0

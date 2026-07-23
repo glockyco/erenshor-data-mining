@@ -3,7 +3,7 @@
 |stablekey=item:weap - 3 - brackwood mace
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:vevillo polter|link=Vevillo Polter|text=Vevillo Polter}} (13.6%)<br>{{CharacterLink|stablekey=character:aranuil olaseo|link=Aranuil Olaseo|text=Aranuil Olaseo}} (13.1%)<br>{{CharacterLink|stablekey=character:odyss repman:duskenlight:1312.16:70.01:695.11|link=Odyss Repman|text=Odyss Repman}} (13.1%)<br>{{CharacterLink|stablekey=character:islander bandit|link=Islander Bandit|text=Islander Bandit}} (4.4%)
+|source={{CharacterLink|stablekey=character:vevillo polter}} (13.6%)<br>{{CharacterLink|stablekey=character:aranuil olaseo}} (13.1%)<br>{{CharacterLink|stablekey=character:odyss repman:duskenlight:1312.16:70.01:695.11}} (13.1%)<br>{{CharacterLink|stablekey=character:islander bandit}} (4.4%)
 |othersource=
 |questsource=
 |relatedquest=

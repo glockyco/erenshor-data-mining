@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 22 - chitin bracer
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:shelled monstrosity|link=Shelled Monstrosity|text=Shelled Monstrosity}} (66.7%)
+|source={{CharacterLink|stablekey=character:shelled monstrosity}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=

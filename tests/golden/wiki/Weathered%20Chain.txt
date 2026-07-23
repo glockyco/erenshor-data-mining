@@ -3,10 +3,10 @@
 |stablekey=item:gen - weathered chain
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:grizzlepaw|link=Grizzlepaw|text=Grizzlepaw}} (100.0%)
+|source={{CharacterLink|stablekey=character:grizzlepaw}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Grizzlepaw's Chain}}<br>{{QuestLink|stablekey=quest:grizzlechain|link=Grizzlepaw's Chain|text=Grizzlepaw's Chain}}
+|relatedquest={{QuestLink|Grizzlepaw's Chain}}<br>{{QuestLink|stablekey=quest:grizzlechain}}
 |craftsource=
 |componentfor=
 |buy=

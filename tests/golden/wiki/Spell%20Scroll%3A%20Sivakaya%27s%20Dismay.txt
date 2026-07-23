@@ -2,7 +2,7 @@
 |title=Spell Scroll: Sivakaya's Dismay
 |stablekey=item:spell scroll - sivakaya's dismay
 |type=
-|vendorsource={{CharacterLink|stablekey=character:shanty swingblade|link=Shantee Swingblade|text=Shantee Swingblade}}
+|vendorsource={{CharacterLink|stablekey=character:shanty swingblade}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=13200
 |sell=8580
-|taughtspell={{AbilityLink|stablekey=spell:none - sivakaya's dismay|link=Sivakaya's Dismay|text=Sivakaya's Dismay|image=Sivakaya's Dismay.png}}
+|taughtspell={{AbilityLink|stablekey=spell:none - sivakaya's dismay}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

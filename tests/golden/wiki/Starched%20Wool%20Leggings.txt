@@ -3,7 +3,7 @@
 |stablekey=item:leg - 28 - starched wool leggings
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:addison priel|link=Addison Priel|text=Addison Priel}} (50.0%)
+|source={{CharacterLink|stablekey=character:addison priel}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

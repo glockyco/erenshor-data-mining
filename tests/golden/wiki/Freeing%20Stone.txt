@@ -3,7 +3,7 @@
 |stablekey=item:ring - 24 - freeing stone
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:linkedspider1:shiveringtomb2:-63.47:-68.65:123.29|link=Soul Linked Spider|text=Soul Linked Spider}} (4.5%)<br>{{CharacterLink|stablekey=character:linkedspider1 (1):shiveringtomb2:-63.47:-68.65:93.79|link=Soul Linked Spider|text=Soul Linked Spider}} (2.3%)<br>{{CharacterLink|stablekey=character:gasper|link=Gasper|text=Gasper}} (1.8%)<br>{{CharacterLink|stablekey=character:boogeyman|link=Shadow of Sleep|text=Shadow of Sleep}} (1.7%)<br>{{CharacterLink|stablekey=character:daggerlegs|link=Daggerlegs|text=Daggerlegs}} (1.6%)<br>{{CharacterLink|stablekey=character:fright|link=Fright|text=Fright}} (1.6%)<br>{{CharacterLink|stablekey=character:shiverman|link=Shiverman|text=Shiverman}} (0.6%)
+|source={{CharacterLink|stablekey=character:linkedspider1:shiveringtomb2:-63.47:-68.65:123.29}} (4.5%)<br>{{CharacterLink|stablekey=character:linkedspider1 (1):shiveringtomb2:-63.47:-68.65:93.79}} (2.3%)<br>{{CharacterLink|stablekey=character:gasper}} (1.8%)<br>{{CharacterLink|stablekey=character:boogeyman}} (1.7%)<br>{{CharacterLink|stablekey=character:daggerlegs}} (1.6%)<br>{{CharacterLink|stablekey=character:fright}} (1.6%)<br>{{CharacterLink|stablekey=character:shiverman}} (0.6%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Worn
 |proc_chance=
 |proc_spell_icon=Flow.png
-|proc_spell_name={{AbilityLink|stablekey=spell:none - flow|link=Flow|text=Flow|image=Flow.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:none - flow}}
 |proc_spell_level=25
 |proc_spell_duration_ticks=5
 |proc_spell_type=Beneficial

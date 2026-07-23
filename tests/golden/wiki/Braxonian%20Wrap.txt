@@ -3,7 +3,7 @@
 |stablekey=item:chest - 19 - braxonian wrap
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:priest of brax 1|link=Apha, Priest of Brax|text=Apha, Priest of Brax}} (25.5%)<br>{{CharacterLink|stablekey=character:priest of brax|link=Upha, Priest of Brax|text=Upha, Priest of Brax}} (25.5%)
+|source={{CharacterLink|stablekey=character:priest of brax 1}} (25.5%)<br>{{CharacterLink|stablekey=character:priest of brax}} (25.5%)
 |othersource=
 |questsource=
 |relatedquest=

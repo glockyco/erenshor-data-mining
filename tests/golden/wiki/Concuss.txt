@@ -5,7 +5,7 @@
 |description=Deal 500 magic damage and leave a target momentarily stunned.
 |type=Damage
 |line=Direct_Damage
-|classes={{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}} (17)<br>{{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (17)
+|classes={{ClassLink|stablekey=class:arcanist}} (17)<br>{{ClassLink|stablekey=class:druid}} (17)
 |required_level=17
 |manacost=200
 |aggro=400
@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:weap - 22 - mooncutter|link=Mooncutter|text=Mooncutter|image=Mooncutter.png}}<br>{{ItemLink|stablekey=item:secondary - 18 - royal carapace|link=Royal Carapace|text=Royal Carapace|image=Royal Carapace.png}}<br>{{ItemLink|stablekey=item:weap - 17 - tarnished halberd|link=Tarnished Halberd|text=Tarnished Halberd|image=Tarnished Halberd.png}}<br>{{ItemLink|stablekey=item:weap - 14 - whipsword|link=Whipsword|text=Whipsword|image=Whipsword.png}}<br>{{ItemLink|stablekey=item:weap - 35 - wyrmbone|link=Wyrm Bone|text=Wyrm Bone|image=Wyrm Bone.png}}
-|source={{ItemLink|stablekey=item:spell scroll - concuss|link=Spell Scroll: Concuss|text=Spell Scroll: Concuss|image=Spell Scroll: Concuss.png}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 22 - mooncutter}}<br>{{ItemLink|stablekey=item:secondary - 18 - royal carapace}}<br>{{ItemLink|stablekey=item:weap - 17 - tarnished halberd}}<br>{{ItemLink|stablekey=item:weap - 14 - whipsword}}<br>{{ItemLink|stablekey=item:weap - 35 - wyrmbone}}
+|source={{ItemLink|stablekey=item:spell scroll - concuss}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:dru arc - concuss}}

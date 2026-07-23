@@ -2,7 +2,7 @@
 |title=Spell Scroll: Greater Regrowth
 |stablekey=item:spell scroll - greater regrowth
 |type=[[Ability Books|Spell Scroll]]
-|vendorsource={{CharacterLink|stablekey=character:aspen dechaffe|link=Aspen Dechaffe|text=Aspen Dechaffe}}
+|vendorsource={{CharacterLink|stablekey=character:aspen dechaffe}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=1600
 |sell=1040
-|taughtspell={{AbilityLink|stablekey=spell:dru - greater regrowth (cast)|link=Greater Regrowth|text=Greater Regrowth|image=Greater Regrowth.png}}
+|taughtspell={{AbilityLink|stablekey=spell:dru - greater regrowth (cast)}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

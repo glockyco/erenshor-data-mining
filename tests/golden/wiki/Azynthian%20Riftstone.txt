@@ -3,7 +3,7 @@
 |stablekey=item:gen - azynthian riftstone
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:riftstone:azynthiclear:797.65:46.43:562.68|link=Watchlight|text=Watchlight}} (100.0%)
+|source={{CharacterLink|stablekey=character:riftstone:azynthiclear:797.65:46.43:562.68}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest={{QuestLink|link=The Riftstone}}
@@ -26,7 +26,7 @@
 |disposable=
 |effect_style=Activatable
 |effect_spell_icon=Dimensional Rift.png
-|effect_spell_name={{AbilityLink|stablekey=spell:arc - dimensional rift|link=Dimensional Rift|text=Dimensional Rift|image=Dimensional Rift.png}}
+|effect_spell_name={{AbilityLink|stablekey=spell:arc - dimensional rift}}
 |effect_spell_level=25
 |effect_spell_duration_ticks=
 |effect_spell_type=Misc

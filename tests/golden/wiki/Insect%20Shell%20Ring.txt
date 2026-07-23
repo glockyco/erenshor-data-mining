@@ -3,7 +3,7 @@
 |stablekey=item:ring - 18 - insect shell ring
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:spark queen|link=Spark Queen|text=Spark Queen}} (50.0%)
+|source={{CharacterLink|stablekey=character:spark queen}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

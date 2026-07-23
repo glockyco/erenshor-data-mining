@@ -12,7 +12,7 @@
 |buy=75
 |sell=49
 |taughtspell=
-|taughtskill={{AbilityLink|stablekey=skill:archery - imbued arrow|link=Imbued Arrow|text=Imbued Arrow|image=Imbued Arrow.png}}
+|taughtskill={{AbilityLink|stablekey=skill:archery - imbued arrow}}
 |guaranteeddrops=
 |droprates=
 }}

@@ -2,8 +2,8 @@
 |title=Spell Scroll: Void Rend
 |stablekey=item:spell scroll - void rend
 |type=
-|vendorsource={{CharacterLink|stablekey=character:grant haxoway|link=Grant Haxoway|text=Grant Haxoway}}
-|source={{CharacterLink|stablekey=character:sivakayan reaver|link=Sivakayan Reaver|text=Sivakayan Reaver}} (3.0%)<br>{{CharacterLink|stablekey=character:sivakayan reaver:1|link=Sivakayan Reaver|text=Sivakayan Reaver}} (3.0%)
+|vendorsource={{CharacterLink|stablekey=character:grant haxoway}}
+|source={{CharacterLink|stablekey=character:sivakayan reaver}} (3.0%)<br>{{CharacterLink|stablekey=character:sivakayan reaver:1}} (3.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=14500
 |sell=9425
-|taughtspell={{AbilityLink|stablekey=spell:reav - void rend|link=Void Rend|text=Void Rend|image=Void Rend.png}}
+|taughtspell={{AbilityLink|stablekey=spell:reav - void rend}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

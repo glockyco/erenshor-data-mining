@@ -3,15 +3,15 @@
 |image=[[File:Swamp Wyrm.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:rottenfoot|link=Rottenfoot|text=Rottenfoot}}
+|zones={{ZoneLink|stablekey=zone:rottenfoot}}
 |coordinates=348.9 x 23.0 x 134.5
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:belt - 25 - gut cord|link=Gut Cord|text=Gut Cord|image=Gut Cord.png}}<br>{{ItemLink|stablekey=item:weap - 35 - wyrmbone|link=Wyrm Bone|text=Wyrm Bone|image=Wyrm Bone.png}}<br>{{ItemLink|stablekey=item:chest - 35 - wyrmskin protector|link=Wyrm Skin Protector|text=Wyrm Skin Protector|image=Wyrm Skin Protector.png}}
-|droprates={{ItemLink|stablekey=item:belt - 25 - gut cord|link=Gut Cord|text=Gut Cord|image=Gut Cord.png}} (50.0%)<br>{{ItemLink|stablekey=item:weap - 35 - wyrmbone|link=Wyrm Bone|text=Wyrm Bone|image=Wyrm Bone.png}} (25.0%)<br>{{ItemLink|stablekey=item:chest - 35 - wyrmskin protector|link=Wyrm Skin Protector|text=Wyrm Skin Protector|image=Wyrm Skin Protector.png}} (25.0%)
+|guaranteeddrops={{ItemLink|stablekey=item:belt - 25 - gut cord}}<br>{{ItemLink|stablekey=item:weap - 35 - wyrmbone}}<br>{{ItemLink|stablekey=item:chest - 35 - wyrmskin protector}}
+|droprates={{ItemLink|stablekey=item:belt - 25 - gut cord}} (50.0%)<br>{{ItemLink|stablekey=item:weap - 35 - wyrmbone}} (25.0%)<br>{{ItemLink|stablekey=item:chest - 35 - wyrmskin protector}} (25.0%)
 |level=34
 |levelmodmin=0
 |levelmodmax=0

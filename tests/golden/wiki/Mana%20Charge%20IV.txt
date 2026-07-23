@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:chest - 42 - mana strand tunic|link=Mana Strand Tunic|text=Mana Strand Tunic|image=Mana Strand Tunic.png}}<br>{{ItemLink|stablekey=item:head - 42 - moonlit mask|link=Moonlit Mask|text=Moonlit Mask|image=Moonlit Mask.png}}<br>{{ItemLink|stablekey=item:back - 42 - shroud of nature|link=Shroud of Nature|text=Shroud of Nature|image=Shroud of Nature.png}}
+|itemswitheffect={{ItemLink|stablekey=item:chest - 42 - mana strand tunic}}<br>{{ItemLink|stablekey=item:head - 42 - moonlit mask}}<br>{{ItemLink|stablekey=item:back - 42 - shroud of nature}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:arc - mana charge iv}}

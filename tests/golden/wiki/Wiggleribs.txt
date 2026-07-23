@@ -3,15 +3,15 @@
 |image=[[File:Wiggleribs.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
-|factionChange=+2 {{FactionLink|stablekey=faction:azureguard|link=The Azure Guard|text=The Azure Guard}}<br>-10 {{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:willowwatch|link=Willowwatch Ridge|text=Willowwatch Ridge}}
+|faction={{FactionLink|stablekey=faction:evil}}
+|factionChange=+2 {{FactionLink|stablekey=faction:azureguard}}<br>-10 {{FactionLink|stablekey=faction:sivakayans}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:willowwatch}}
 |coordinates=215.2 x 51.3 x 781.6
 |spawnchance=
 |spawntype=
 |respawn=6 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - an ancient bone|link=Ancient Bone|text=Ancient Bone|image=Ancient Bone.png}} (87.1%)<br>{{ItemLink|stablekey=item:bow - 6 - rotwood bow|link=Rotwood Bow|text=Rotwood Bow|image=Rotwood Bow.png}} (12.1%)<br>{{ItemLink|stablekey=item:weap - 6 - nightfall|link=Nightfall|text=Nightfall|image=Nightfall.png}} (6.9%)<ref>If Wiggleribs has {{ItemLink|stablekey=item:weap - 6 - nightfall|link=Nightfall|text=Nightfall|image=Nightfall.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:wrist - 11 - grip of insomnia|link=Pull of Insomnia|text=Pull of Insomnia|image=Pull of Insomnia.png}} (6.9%)<br>{{ItemLink|stablekey=item:wrist - 5 - grip of slumber|link=Pull of Sleep|text=Pull of Sleep|image=Pull of Sleep.png}} (6.9%)<br>{{ItemLink|stablekey=item:gen - skeleton eye|link=Skeleton Eye|text=Skeleton Eye|image=Skeleton Eye.png}} (5.9%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - skeleton eye|link=Skeleton Eye|text=Skeleton Eye|image=Skeleton Eye.png}} in their inventory, another will not drop.</ref>
+|droprates={{ItemLink|stablekey=item:gen - an ancient bone}} (87.1%)<br>{{ItemLink|stablekey=item:bow - 6 - rotwood bow}} (12.1%)<br>{{ItemLink|stablekey=item:weap - 6 - nightfall}} (6.9%)<ref>If Wiggleribs has {{ItemLink|stablekey=item:weap - 6 - nightfall}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:wrist - 11 - grip of insomnia}} (6.9%)<br>{{ItemLink|stablekey=item:wrist - 5 - grip of slumber}} (6.9%)<br>{{ItemLink|stablekey=item:gen - skeleton eye}} (5.9%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - skeleton eye}} in their inventory, another will not drop.</ref>
 |level=8
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=4-10
 |elemental=4-10
 |void=4-10
-|spells={{AbilityLink|stablekey=spell:dru - tangle|link=Tangle|text=Tangle|image=Tangle.png}}
+|spells={{AbilityLink|stablekey=spell:dru - tangle}}
 }}
 
 [[Category:Bosses]]

@@ -3,15 +3,15 @@
 |image=[[File:Ancient Knight.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:soluna|link=Soluna's Landing|text=Soluna's Landing}}
+|zones={{ZoneLink|stablekey=zone:soluna}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - an ancient bone|link=Ancient Bone|text=Ancient Bone|image=Ancient Bone.png}} (87.1%)<br>{{ItemLink|stablekey=item:gen - lost faith|link=Lost Faith|text=Lost Faith|image=Lost Faith.png}} (22.1%)<br>{{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} (13.4%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:neck - 26 - moonglow amulet|link=Moonglow Amulet|text=Moonglow Amulet|image=Moonglow Amulet.png}} (3.5%)<br>{{ItemLink|stablekey=item:book - wardens of the north|link=Wardens of the North|text=Wardens of the North|image=Wardens of the North.png}} (2.1%)<br>{{ItemLink|stablekey=item:furniture - stone statue soluna|link=Stone Statue: Soluna|text=Stone Statue: Soluna|image=Stone Statue: Soluna.png}} (1.2%)
+|droprates={{ItemLink|stablekey=item:gen - an ancient bone}} (87.1%)<br>{{ItemLink|stablekey=item:gen - lost faith}} (22.1%)<br>{{ItemLink|stablekey=item:gen - aetheria}} (13.4%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:neck - 26 - moonglow amulet}} (3.5%)<br>{{ItemLink|stablekey=item:book - wardens of the north}} (2.1%)<br>{{ItemLink|stablekey=item:furniture - stone statue soluna}} (1.2%)
 |level=30
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=15-36
 |elemental=15-36
 |void=15-36
-|spells={{AbilityLink|stablekey=spell:pal - glare of soluna|link=Glare of Soluna|text=Glare of Soluna|image=Glare of Soluna.png}}<br>{{AbilityLink|stablekey=spell:pal - spectrum|link=Spectrum|text=Spectrum|image=Spectrum.png}}<br>{{AbilityLink|stablekey=spell:dru pal - supreme healing|link=Supreme Healing|text=Supreme Healing|image=Supreme Healing.png}}<br>{{AbilityLink|stablekey=spell:pal - sap vitality|link=Theft of Vigor|text=Theft of Vigor|image=Theft of Vigor.png}}<br>{{AbilityLink|stablekey=spell:pal - blast of the void|link=Voidblast|text=Voidblast|image=Voidblast.png}}
+|spells={{AbilityLink|stablekey=spell:pal - glare of soluna}}<br>{{AbilityLink|stablekey=spell:pal - spectrum}}<br>{{AbilityLink|stablekey=spell:dru pal - supreme healing}}<br>{{AbilityLink|stablekey=spell:pal - sap vitality}}<br>{{AbilityLink|stablekey=spell:pal - blast of the void}}
 }}
 
 [[Category:Enemies]]

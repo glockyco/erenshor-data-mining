@@ -3,10 +3,10 @@
 |stablekey=item:gen - death's decay
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:ghost of plaxitheris|link=Ghost of Plaxitheris|text=Ghost of Plaxitheris}} (78.0%)<br>{{CharacterLink|stablekey=character:shiverman|link=Shiverman|text=Shiverman}} (59.2%)<br>{{CharacterLink|stablekey=character:warded phantom:shiveringtomb2:-76.96:-68.40:284.89|link=Warded Shadow|text=Warded Shadow}} (30.3%)<br>{{CharacterLink|stablekey=character:boogeyman|link=Shadow of Sleep|text=Shadow of Sleep}} (14.1%)
+|source={{CharacterLink|stablekey=character:ghost of plaxitheris}} (78.0%)<br>{{CharacterLink|stablekey=character:shiverman}} (59.2%)<br>{{CharacterLink|stablekey=character:warded phantom:shiveringtomb2:-76.96:-68.40:284.89}} (30.3%)<br>{{CharacterLink|stablekey=character:boogeyman}} (14.1%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Warming the Isle}}<br>{{QuestLink|stablekey=quest:shiver-flamelit|link=Warming the Isle|text=Warming the Isle}}
+|relatedquest={{QuestLink|Warming the Isle}}<br>{{QuestLink|stablekey=quest:shiver-flamelit}}
 |craftsource=
 |componentfor=
 |buy=5

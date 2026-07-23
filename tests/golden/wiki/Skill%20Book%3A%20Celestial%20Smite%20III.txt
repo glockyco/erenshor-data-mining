@@ -3,7 +3,7 @@
 |stablekey=item:skillbook - celestial smite iii
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:solunarian moonkeeper|link=Solunarian Moonkeeper|text=Solunarian Moonkeeper}} (2.8%)<br>{{CharacterLink|stablekey=character:solunarian sunbringer|link=Solunarian Sunbringer|text=Solunarian Sunbringer}} (2.8%)<br>{{CharacterLink|stablekey=character:solunarian paladin combined|link=Solunarian Paladin|text=Solunarian Paladin}} (1.1%)
+|source={{CharacterLink|stablekey=character:solunarian moonkeeper}} (2.8%)<br>{{CharacterLink|stablekey=character:solunarian sunbringer}} (2.8%)<br>{{CharacterLink|stablekey=character:solunarian paladin combined}} (1.1%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -12,7 +12,7 @@
 |buy=
 |sell=
 |taughtspell=
-|taughtskill={{AbilityLink|stablekey=skill:celestial smite iii|link=Celestial Smite III|text=Celestial Smite III|image=Celestial Smite III.png}}
+|taughtskill={{AbilityLink|stablekey=skill:celestial smite iii}}
 |guaranteeddrops=
 |droprates=
 }}

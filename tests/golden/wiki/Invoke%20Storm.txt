@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:ring - 20 - tempestalia|link=Tempestalia, Ring of Storms|text=Tempestalia, Ring of Storms|image=Tempestalia, Ring of Storms.png}}
+|itemswitheffect={{ItemLink|stablekey=item:ring - 20 - tempestalia}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:dru - invoke storm}}

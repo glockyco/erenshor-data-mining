@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:secondary - 42 - treant eye shield|link=Treant Eye Shield|text=Treant Eye Shield|image=Treant Eye Shield.png}}
+|itemswitheffect={{ItemLink|stablekey=item:secondary - 42 - treant eye shield}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - ancient rending}}

@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:wrist - 39 - resonating brace|link=Resonating Brace|text=Resonating Brace|image=Resonating Brace.png}}
+|itemswitheffect={{ItemLink|stablekey=item:wrist - 39 - resonating brace}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:arc - focus}}

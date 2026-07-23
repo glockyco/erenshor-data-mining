@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 17 - spelunker's brace
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:a fungal infected brute|link=A Fungus Ravaged Brute|text=A Fungus Ravaged Brute}} (13.4%)
+|source={{CharacterLink|stablekey=character:a fungal infected brute}} (13.4%)
 |othersource=
 |questsource=
 |relatedquest=

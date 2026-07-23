@@ -3,7 +3,7 @@
 |stablekey=item:weap - 28 - lamentation
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:parzgil|link=Parzgil|text=Parzgil}} (66.7%)
+|source={{CharacterLink|stablekey=character:parzgil}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=

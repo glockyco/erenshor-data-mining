@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 38 - gardener's wristwrap
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:curator|link=Grounds Keeper|text=Grounds Keeper}} (66.7%)
+|source={{CharacterLink|stablekey=character:curator}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=

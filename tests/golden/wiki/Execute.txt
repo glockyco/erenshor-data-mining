@@ -5,7 +5,7 @@
 |description=Fire a normal arrow, if target is less than 10% life, arrow does 8x damage
 |type=Ranged
 |line=
-|classes={{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}} (6)
+|classes={{ClassLink|stablekey=class:stormcaller}} (6)
 |required_level=
 |manacost=
 |aggro=
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:skillbook - execute|link=Skill Book: Execute|text=Skill Book: Execute|image=Skill Book: Execute.png}}
+|source={{ItemLink|stablekey=item:skillbook - execute}}
 |used_by=
 }}
+{{SkillTooltip|stablekey=skill:archery - execute}}

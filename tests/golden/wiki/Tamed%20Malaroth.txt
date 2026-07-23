@@ -3,15 +3,15 @@
 |image=[[File:Tamed Malaroth.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:priel|link=Savannah Priel|text=Savannah Priel}}
+|faction={{FactionLink|stablekey=faction:priel}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:prielplateau|link=Prielian Cascade|text=Prielian Cascade}}
+|zones={{ZoneLink|stablekey=zone:prielplateau}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - malaroth hide|link=Malaroth Hide|text=Malaroth Hide|image=Malaroth Hide.png}} (22.1%)<br>{{ItemLink|stablekey=item:gen - ivory tusk|link=Ivory Tusk|text=Ivory Tusk|image=Ivory Tusk.png}} (19.5%)
+|droprates={{ItemLink|stablekey=item:gen - malaroth hide}} (22.1%)<br>{{ItemLink|stablekey=item:gen - ivory tusk}} (19.5%)
 |level=28
 |levelmodmin=0
 |levelmodmax=0

@@ -3,15 +3,15 @@
 |image=[[File:Frenzy.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:bloomingsepulcher|link=Blooming Sepulcher|text=Blooming Sepulcher}}
+|zones={{ZoneLink|stablekey=zone:bloomingsepulcher}}
 |coordinates=389.0 x 354.7 x 207.6
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:glove - 24 - frenzied fistwraps|link=Frenzied Fistwraps|text=Frenzied Fistwraps|image=Frenzied Fistwraps.png}}<br>{{ItemLink|stablekey=item:wrist - 24 - wrathwrap|link=Wrath Wrap|text=Wrath Wrap|image=Wrath Wrap.png}}
-|droprates={{ItemLink|stablekey=item:glove - 24 - frenzied fistwraps|link=Frenzied Fistwraps|text=Frenzied Fistwraps|image=Frenzied Fistwraps.png}} (66.7%)<br>{{ItemLink|stablekey=item:wrist - 24 - wrathwrap|link=Wrath Wrap|text=Wrath Wrap|image=Wrath Wrap.png}} (33.3%)<br>{{ItemLink|stablekey=item:fish - moongill|link=A Moongill|text=A Moongill|image=A Moongill.png}} (17.8%)<br>{{ItemLink|stablekey=item:fish - sleepyhead|link=A Sleepyhead|text=A Sleepyhead|image=A Sleepyhead.png}} (17.8%)<br>{{ItemLink|stablekey=item:gen - decayed druid beads|link=Decayed Druid Beads|text=Decayed Druid Beads|image=Decayed Druid Beads.png}} (4.8%)<br>{{ItemLink|stablekey=item:furniture - wisp garden|link=Wisp Garden|text=Wisp Garden|image=Wisp Garden.png}} (1.0%)<br>{{ItemLink|stablekey=item:neck - 31 - nature's promise|link=Nature's Promise|text=Nature's Promise|image=Nature's Promise.png}} (1.0%)
+|guaranteeddrops={{ItemLink|stablekey=item:glove - 24 - frenzied fistwraps}}<br>{{ItemLink|stablekey=item:wrist - 24 - wrathwrap}}
+|droprates={{ItemLink|stablekey=item:glove - 24 - frenzied fistwraps}} (66.7%)<br>{{ItemLink|stablekey=item:wrist - 24 - wrathwrap}} (33.3%)<br>{{ItemLink|stablekey=item:fish - moongill}} (17.8%)<br>{{ItemLink|stablekey=item:fish - sleepyhead}} (17.8%)<br>{{ItemLink|stablekey=item:gen - decayed druid beads}} (4.8%)<br>{{ItemLink|stablekey=item:furniture - wisp garden}} (1.0%)<br>{{ItemLink|stablekey=item:neck - 31 - nature's promise}} (1.0%)
 |level=24
 |levelmodmin=0
 |levelmodmax=0

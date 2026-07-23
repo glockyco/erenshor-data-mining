@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:wand - 21 - dreamy wand|link=Dreamy Wand|text=Dreamy Wand|image=Dreamy Wand.png}}<br>{{ItemLink|stablekey=item:weap - 30 - mithril short sword|link=Mithril Short Sword|text=Mithril Short Sword|image=Mithril Short Sword.png}}
+|itemswitheffect={{ItemLink|stablekey=item:wand - 21 - dreamy wand}}<br>{{ItemLink|stablekey=item:weap - 30 - mithril short sword}}
 |source=
-|used_by={{CharacterLink|stablekey=character:stoneman magi|link=Stoneman Magi|text=Stoneman Magi}}
+|used_by={{CharacterLink|stablekey=character:stoneman magi}}
 }}
+{{SpellTooltip|stablekey=spell:none - mithril shards}}

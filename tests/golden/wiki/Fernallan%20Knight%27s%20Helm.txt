@@ -3,7 +3,7 @@
 |stablekey=item:head - 24 - fernallan knight's helm
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:maple|link=Maple|text=Maple}} (50.0%)
+|source={{CharacterLink|stablekey=character:maple}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

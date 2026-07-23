@@ -3,9 +3,9 @@
 |image=[[File:A Memory of Sivakaya.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|faction={{FactionLink|stablekey=faction:good}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:jaws|link=Jaws of Sivakaya|text=Jaws of Sivakaya}}
+|zones={{ZoneLink|stablekey=zone:jaws}}
 |coordinates=
 |spawnchance=
 |spawntype=

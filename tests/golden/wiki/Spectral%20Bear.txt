@@ -3,15 +3,15 @@
 |image=[[File:Spectral Bear.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:fernallafield|link=Fernalla's Revival Plains|text=Fernalla's Revival Plains}}<br>{{ZoneLink|stablekey=zone:duskenlight|link=The Duskenlight Coast|text=The Duskenlight Coast}}
+|zones={{ZoneLink|stablekey=zone:fernallafield}}<br>{{ZoneLink|stablekey=zone:duskenlight}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - essence of nature|link=Essence of Nature|text=Essence of Nature|image=Essence of Nature.png}} (27.8%)
+|droprates={{ItemLink|stablekey=item:gen - essence of nature}} (27.8%)
 |level=9
 |levelmodmin=0
 |levelmodmax=0

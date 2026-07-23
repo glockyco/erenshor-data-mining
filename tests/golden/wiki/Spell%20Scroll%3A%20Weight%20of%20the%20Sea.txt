@@ -2,7 +2,7 @@
 |title=Spell Scroll: Weight of the Sea
 |stablekey=item:spell scroll - weight of the sea
 |type=[[Ability Books]]
-|vendorsource={{CharacterLink|stablekey=character:pierson windwash|link=Pierson Windwash|text=Pierson Windwash}}
+|vendorsource={{CharacterLink|stablekey=character:pierson windwash}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=10000
 |sell=6500
-|taughtspell={{AbilityLink|stablekey=spell:duel - slow weight of the sea|link=Weight of the Sea|text=Weight of the Sea|image=Weight of the Sea.png}}
+|taughtspell={{AbilityLink|stablekey=spell:duel - slow weight of the sea}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

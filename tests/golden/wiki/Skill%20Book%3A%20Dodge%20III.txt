@@ -2,7 +2,7 @@
 |title=Skill Book: Dodge III
 |stablekey=item:skillbook - dodge 3
 |type=[[Ability Books|Skill Book]]
-|vendorsource={{CharacterLink|stablekey=character:oscar vanellis:ripper:755.35:43.64:193.63|link=Oscar VanEllis|text=Oscar VanEllis}}<br>{{CharacterLink|stablekey=character:roreli gilmare:azure:143.76:26.28:342.76|link=Roreli Gilmare|text=Roreli Gilmare}}
+|vendorsource={{CharacterLink|stablekey=character:oscar vanellis:ripper:755.35:43.64:193.63}}<br>{{CharacterLink|stablekey=character:roreli gilmare:azure:143.76:26.28:342.76}}
 |source=
 |othersource=
 |questsource=
@@ -12,7 +12,7 @@
 |buy=3500
 |sell=2275
 |taughtspell=
-|taughtskill={{AbilityLink|stablekey=skill:dodge 3|link=Dodge III|text=Dodge III|image=Dodge III.png}}
+|taughtskill={{AbilityLink|stablekey=skill:dodge 3}}
 |guaranteeddrops=
 |droprates=
 }}

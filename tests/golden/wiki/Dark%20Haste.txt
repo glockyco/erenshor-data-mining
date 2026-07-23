@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:weap - 18 - acolyte's cudgel|link=Acolyte's Cudgel|text=Acolyte's Cudgel|image=Acolyte's Cudgel.png}}<br>{{ItemLink|stablekey=item:weap - 28 - ephermalia|link=Ephermalia, Blade of Waning|text=Ephermalia, Blade of Waning|image=Ephermalia, Blade of Waning.png}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 18 - acolyte's cudgel}}<br>{{ItemLink|stablekey=item:weap - 28 - ephermalia}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - dark haste}}

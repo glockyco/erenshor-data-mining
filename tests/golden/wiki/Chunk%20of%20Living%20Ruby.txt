@@ -3,12 +3,12 @@
 |stablekey=item:gen - chunk of living ruby
 |type=[[Crafting]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:ruby fiend|link=Ruby Fiend|text=Ruby Fiend}} (17.4%)
+|source={{CharacterLink|stablekey=character:ruby fiend}} (17.4%)
 |othersource=
 |questsource=
 |relatedquest=
 |craftsource=
-|componentfor={{ItemLink|stablekey=item:template - charm of compassion|link=Mold: Charm of Compassion|text=Mold: Charm of Compassion|image=Mold: Charm of Compassion.png}}
+|componentfor={{ItemLink|stablekey=item:template - charm of compassion}}
 |buy=50
 |sell=32
 |taughtspell=

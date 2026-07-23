@@ -2,7 +2,7 @@
 |title=Spell Scroll: Magical Skin II
 |stablekey=item:spell scroll - magic skin 2
 |type=[[Ability Books]]
-|vendorsource={{CharacterLink|stablekey=character:cerbantias flameward|link=Cerbantias Flameward|text=Cerbantias Flameward}}
+|vendorsource={{CharacterLink|stablekey=character:cerbantias flameward}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=24555
 |sell=15961
-|taughtspell={{AbilityLink|stablekey=spell:arc - magical skin ii|link=Magical Skin II|text=Magical Skin II|image=Magical Skin II.png}}
+|taughtspell={{AbilityLink|stablekey=spell:arc - magical skin ii}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

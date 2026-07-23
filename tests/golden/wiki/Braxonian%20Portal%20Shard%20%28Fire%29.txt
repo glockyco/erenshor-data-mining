@@ -3,10 +3,10 @@
 |stablekey=item:gen - braxonian portal shard - fire
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:braxonian planar guardian fire|link=Braxonian Planar Guard (Fire)|text=Braxonian Planar Guard (Fire)}} (100.0%)
+|source={{CharacterLink|stablekey=character:braxonian planar guardian fire}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|A Lost Portal}}<br>{{QuestLink|stablekey=quest:braxrune|link=A Lost Portal|text=A Lost Portal}}
+|relatedquest={{QuestLink|A Lost Portal}}<br>{{QuestLink|stablekey=quest:braxrune}}
 |craftsource=
 |componentfor=
 |buy=

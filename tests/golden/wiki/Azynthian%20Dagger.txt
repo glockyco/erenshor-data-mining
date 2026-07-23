@@ -3,7 +3,7 @@
 |stablekey=item:weap - 35 - azynthiandagger
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:oracle miress|link=Oracle Miress|text=Oracle Miress}} (33.3%)
+|source={{CharacterLink|stablekey=character:oracle miress}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=4
 |proc_spell_icon=Soul Tap.png
-|proc_spell_name={{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:dru reav - soul tap}}
 |proc_spell_level=15
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

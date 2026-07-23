@@ -3,15 +3,15 @@
 |image=[[File:Aragath Swellsteer.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|faction={{FactionLink|stablekey=faction:good}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:stowaway|link=Stowaway's Step|text=Stowaway's Step}}
+|zones={{ZoneLink|stablekey=zone:stowaway}}
 |coordinates=202.0 x 52.9 x 344.8
 |spawnchance=
 |spawntype=
 |respawn=6 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:neck - 8 - seafarer's pendant|link=Seafarer's Pendant|text=Seafarer's Pendant|image=Seafarer's Pendant.png}} (100.0%)<br>{{ItemLink|stablekey=item:leg - 1 - cloth pants|link=Cloth Pants|text=Cloth Pants|image=Cloth Pants.png}} (78.0%)<br>{{ItemLink|stablekey=item:chest - 1 - cloth shirt|link=Cloth Shirt|text=Cloth Shirt|image=Cloth Shirt.png}} (78.0%)
+|droprates={{ItemLink|stablekey=item:neck - 8 - seafarer's pendant}} (100.0%)<br>{{ItemLink|stablekey=item:leg - 1 - cloth pants}} (78.0%)<br>{{ItemLink|stablekey=item:chest - 1 - cloth shirt}} (78.0%)
 |level=15
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=8-18
 |elemental=8-18
 |void=8-18
-|spells={{AbilityLink|stablekey=spell:duel - deathly embrace|link=Death's Embrace|text=Death's Embrace|image=Death's Embrace.png}}<br>{{AbilityLink|stablekey=spell:duel - vitheo's blessing of the sea|link=Vitheo's Blessing of the Sea|text=Vitheo's Blessing of the Sea|image=Vitheo's Blessing of the Sea.png}}<br>{{AbilityLink|stablekey=spell:duel - vitheo's blessing of the wind|link=Vitheo's Blessing of the Wind|text=Vitheo's Blessing of the Wind|image=Vitheo's Blessing of the Wind.png}}
+|spells={{AbilityLink|stablekey=spell:duel - deathly embrace}}<br>{{AbilityLink|stablekey=spell:duel - vitheo's blessing of the sea}}<br>{{AbilityLink|stablekey=spell:duel - vitheo's blessing of the wind}}
 }}
 
 Aragath is found heading into Plax's area but hugging left and going down the slope instead of going over to Plax. Aragath only appears at night time, 11PM to be exact. He is the questgiver for {{QuestLink|link=Aragath's Imprisonment}} and the target for {{QuestLink|link=Destroying Aragath}}

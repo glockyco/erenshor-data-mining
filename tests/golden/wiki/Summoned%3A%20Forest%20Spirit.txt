@@ -32,7 +32,7 @@
 |poison=10-23
 |elemental=10-23
 |void=10-23
-|spells={{AbilityLink|stablekey=spell:arc - brax's rage|link=Brax's Rage|text=Brax's Rage|image=Brax's Rage.png}}<br>{{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}<br>{{AbilityLink|stablekey=spell:arc - winter's bite|link=Winter's Bite|text=Winter's Bite|image=Winter's Bite.png}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's rage}}<br>{{AbilityLink|stablekey=spell:dru reav - soul tap}}<br>{{AbilityLink|stablekey=spell:arc - winter's bite}}
 }}
 
 [[Category:Characters]]

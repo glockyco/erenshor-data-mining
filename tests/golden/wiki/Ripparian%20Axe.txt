@@ -2,8 +2,8 @@
 |title=Ripparian Axe
 |stablekey=item:weap - 36 - ripparian axe
 |type=
-|vendorsource={{CharacterLink|stablekey=character:oscar vanellis:ripper:755.35:43.64:193.63|link=Oscar VanEllis|text=Oscar VanEllis}}
-|source={{CharacterLink|stablekey=character:ripper demerth|link=Ripper DeMerth (Character)|text=Ripper DeMerth}} (12.1%)<br>{{CharacterLink|stablekey=character:ripper soldier|link=Ripper Soldier|text=Ripper Soldier}} (12.1%)<br>{{CharacterLink|stablekey=character:armorer nell|link=Armorer Nell|text=Armorer Nell}} (4.0%)<br>{{CharacterLink|stablekey=character:captain ovid|link=Captain Ovid|text=Captain Ovid}} (4.0%)<br>{{CharacterLink|stablekey=character:celeso tinamen|link=Celeso the Historian|text=Celeso the Historian}} (4.0%)<br>{{CharacterLink|stablekey=character:jeremie galyard|link=Jeremie Galyard|text=Jeremie Galyard}} (4.0%)
+|vendorsource={{CharacterLink|stablekey=character:oscar vanellis:ripper:755.35:43.64:193.63}}
+|source={{CharacterLink|stablekey=character:ripper demerth}} (12.1%)<br>{{CharacterLink|stablekey=character:ripper soldier}} (12.1%)<br>{{CharacterLink|stablekey=character:armorer nell}} (4.0%)<br>{{CharacterLink|stablekey=character:captain ovid}} (4.0%)<br>{{CharacterLink|stablekey=character:celeso tinamen}} (4.0%)<br>{{CharacterLink|stablekey=character:jeremie galyard}} (4.0%)
 |othersource=
 |questsource=
 |relatedquest=

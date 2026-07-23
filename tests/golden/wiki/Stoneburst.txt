@@ -69,6 +69,7 @@
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:npc - stoneburst}}
 
 {{Ability
 |title=Stoneburst
@@ -141,3 +142,4 @@
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:npc - stoneburst 1}}

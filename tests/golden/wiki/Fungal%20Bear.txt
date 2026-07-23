@@ -3,15 +3,15 @@
 |image=[[File:Fungal Bear.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:bloomingsepulcher|link=Blooming Sepulcher|text=Blooming Sepulcher}}
+|zones={{ZoneLink|stablekey=zone:bloomingsepulcher}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - bear meat|link=Bear Meat|text=Bear Meat|image=Bear Meat.png}} (95.3%)<br>{{ItemLink|stablekey=item:furniture - wisp garden|link=Wisp Garden|text=Wisp Garden|image=Wisp Garden.png}} (0.5%)
+|droprates={{ItemLink|stablekey=item:gen - bear meat}} (95.3%)<br>{{ItemLink|stablekey=item:furniture - wisp garden}} (0.5%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0

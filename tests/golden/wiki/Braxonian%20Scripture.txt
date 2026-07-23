@@ -3,10 +3,10 @@
 |stablekey=item:gen - braxonian scripture
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:braxonian prince oslind|link=Prince Oslind|text=Prince Oslind}} (63.2%)<br>{{CharacterLink|stablekey=character:braxonian prince ardant|link=Prince Ardant|text=Prince Ardant}} (57.4%)<br>{{CharacterLink|stablekey=character:braxonian historian|link=Historian of Braxonia|text=Historian of Braxonia}} (14.2%)
+|source={{CharacterLink|stablekey=character:braxonian prince oslind}} (63.2%)<br>{{CharacterLink|stablekey=character:braxonian prince ardant}} (57.4%)<br>{{CharacterLink|stablekey=character:braxonian historian}} (14.2%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|link=Braxonian Scripture (Quest){{!}}Braxonian Scripture}}<br>{{QuestLink|stablekey=quest:braxscript|link=Braxonian Scripture (Quest)|text=Braxonian Scripture}}
+|relatedquest={{QuestLink|link=Braxonian Scripture (Quest){{!}}Braxonian Scripture}}<br>{{QuestLink|stablekey=quest:braxscript}}
 |craftsource=
 |componentfor=
 |buy=
@@ -77,10 +77,10 @@
 |stablekey=item:gen - braxonian scripture 1
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:braxonian prince oslind|link=Prince Oslind|text=Prince Oslind}} (63.2%)<br>{{CharacterLink|stablekey=character:braxonian prince ardant|link=Prince Ardant|text=Prince Ardant}} (57.4%)<br>{{CharacterLink|stablekey=character:braxonian historian|link=Historian of Braxonia|text=Historian of Braxonia}} (14.2%)
+|source={{CharacterLink|stablekey=character:braxonian prince oslind}} (63.2%)<br>{{CharacterLink|stablekey=character:braxonian prince ardant}} (57.4%)<br>{{CharacterLink|stablekey=character:braxonian historian}} (14.2%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|link=Braxonian Scripture (Quest){{!}}Braxonian Scripture}}<br>{{QuestLink|stablekey=quest:braxscript|link=Braxonian Scripture (Quest)|text=Braxonian Scripture}}
+|relatedquest={{QuestLink|link=Braxonian Scripture (Quest){{!}}Braxonian Scripture}}<br>{{QuestLink|stablekey=quest:braxscript}}
 |craftsource=
 |componentfor=
 |buy=

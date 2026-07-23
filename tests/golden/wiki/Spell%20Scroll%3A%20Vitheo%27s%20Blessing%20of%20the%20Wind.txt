@@ -11,7 +11,7 @@
 |componentfor=
 |buy=55
 |sell=36
-|taughtspell={{AbilityLink|stablekey=spell:duel - vitheo's blessing of the wind|link=Vitheo's Blessing of the Wind|text=Vitheo's Blessing of the Wind|image=Vitheo's Blessing of the Wind.png}}
+|taughtspell={{AbilityLink|stablekey=spell:duel - vitheo's blessing of the wind}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

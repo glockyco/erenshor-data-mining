@@ -3,15 +3,15 @@
 |image=[[File:Xjeris.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:planeoffernalla|link=Plane of the Willow|text=Plane of the Willow}}
+|zones={{ZoneLink|stablekey=zone:planeoffernalla}}
 |coordinates=1724.6 x 3.2 x 445.0
 |spawnchance=
 |spawntype=
 |respawn=33 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:chest - 42 - arachnid carapace|link=Arachnid Carapace|text=Arachnid Carapace|image=Arachnid Carapace.png}}<br>{{ItemLink|stablekey=item:aura - ethereal shell (item)|link=Ethereal Shell|text=Ethereal Shell|image=Ethereal Shell.png}}<br>{{ItemLink|stablekey=item:foot - 42 - skittering boots|link=Skittering Boots|text=Skittering Boots|image=Skittering Boots.png}}
-|droprates={{ItemLink|stablekey=item:ore - planar shard|link=Planar Stone Shards|text=Planar Stone Shards|image=Planar Stone Shards.png}} (81.0%)<br>{{ItemLink|stablekey=item:chest - 42 - arachnid carapace|link=Arachnid Carapace|text=Arachnid Carapace|image=Arachnid Carapace.png}} (68.9%)<br>{{ItemLink|stablekey=item:aura - ethereal shell (item)|link=Ethereal Shell|text=Ethereal Shell|image=Ethereal Shell.png}} (68.9%)<br>{{ItemLink|stablekey=item:foot - 42 - skittering boots|link=Skittering Boots|text=Skittering Boots|image=Skittering Boots.png}} (68.9%)<br>{{ItemLink|stablekey=item:ore - planar stone|link=Planar Stone|text=Planar Stone|image=Planar Stone.png}} (36.8%)
+|guaranteeddrops={{ItemLink|stablekey=item:chest - 42 - arachnid carapace}}<br>{{ItemLink|stablekey=item:aura - ethereal shell (item)}}<br>{{ItemLink|stablekey=item:foot - 42 - skittering boots}}
+|droprates={{ItemLink|stablekey=item:ore - planar shard}} (81.0%)<br>{{ItemLink|stablekey=item:chest - 42 - arachnid carapace}} (68.9%)<br>{{ItemLink|stablekey=item:aura - ethereal shell (item)}} (68.9%)<br>{{ItemLink|stablekey=item:foot - 42 - skittering boots}} (68.9%)<br>{{ItemLink|stablekey=item:ore - planar stone}} (36.8%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

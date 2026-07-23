@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:foot - 36 - wyrm stompers|link=Wyrm Stompers|text=Wyrm Stompers|image=Wyrm Stompers.png}}<br>{{ItemLink|stablekey=item:gen - wyrm's bane|link=Wyrm's Bane|text=Wyrm's Bane|image=Wyrm's Bane.png}}
+|itemswitheffect={{ItemLink|stablekey=item:foot - 36 - wyrm stompers}}<br>{{ItemLink|stablekey=item:gen - wyrm's bane}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - wyrm's bane}}

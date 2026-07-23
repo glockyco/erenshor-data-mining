@@ -3,10 +3,10 @@
 |stablekey=item:gen - ritual book
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:neophyte necromancer|link=Neophyte Necromancer|text=Neophyte Necromancer}} (3.5%)
+|source={{CharacterLink|stablekey=character:neophyte necromancer}} (3.5%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|A Necromancer's Book}}<br>{{QuestLink|stablekey=quest:bonepitnecrobook|link=A Necromancer's Book|text=A Necromancer's Book}}
+|relatedquest={{QuestLink|A Necromancer's Book}}<br>{{QuestLink|stablekey=quest:bonepitnecrobook}}
 |craftsource=
 |componentfor=
 |buy=150

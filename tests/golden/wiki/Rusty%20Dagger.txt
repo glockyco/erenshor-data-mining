@@ -2,8 +2,8 @@
 |title=Rusty Dagger
 |stablekey=item:weap - 1 - rustydagger
 |type=
-|vendorsource={{CharacterLink|stablekey=character:brian meshley|link=Brian Meshley|text=Brian Meshley}}
-|source={{CharacterLink|stablekey=character:algaeth bilgeflow 1|link=Algaeth Bilgeback|text=Algaeth Bilgeback}} (25.0%)<br>{{CharacterLink|stablekey=character:a seafiend spirtist|link=A Seafiend|text=A Seafiend}} (17.3%)<br>{{CharacterLink|stablekey=character:a seafiend tidal lord|link=A Seafiend Manalord|text=A Seafiend Manalord}} (17.3%)<br>{{CharacterLink|stablekey=character:a seafiend manalord|link=A Seafiend Manathite|text=A Seafiend Manathite}} (17.3%)<br>{{CharacterLink|stablekey=character:a seafiend soldier|link=A Seafiend Worker|text=A Seafiend Worker}} (17.3%)<br>{{CharacterLink|stablekey=character:mourning|link=Mourning|text=Mourning}} (10.1%)<br>{{CharacterLink|stablekey=character:molorai bodyguard|link=Molorai Bodyguard|text=Molorai Bodyguard}} (5.1%)<br>{{CharacterLink|stablekey=character:a sorrowful spirit|link=A Sorrowful Spirit|text=A Sorrowful Spirit}} (2.8%)<br>{{CharacterLink|stablekey=character:enraged spirit|link=An Enraged Spirit|text=An Enraged Spirit}} (2.8%)
+|vendorsource={{CharacterLink|stablekey=character:brian meshley}}
+|source={{CharacterLink|stablekey=character:algaeth bilgeflow 1}} (25.0%)<br>{{CharacterLink|stablekey=character:a seafiend spirtist}} (17.3%)<br>{{CharacterLink|stablekey=character:a seafiend tidal lord}} (17.3%)<br>{{CharacterLink|stablekey=character:a seafiend manalord}} (17.3%)<br>{{CharacterLink|stablekey=character:a seafiend soldier}} (17.3%)<br>{{CharacterLink|stablekey=character:mourning}} (10.1%)<br>{{CharacterLink|stablekey=character:molorai bodyguard}} (5.1%)<br>{{CharacterLink|stablekey=character:a sorrowful spirit}} (2.8%)<br>{{CharacterLink|stablekey=character:enraged spirit}} (2.8%)
 |othersource=
 |questsource=
 |relatedquest=

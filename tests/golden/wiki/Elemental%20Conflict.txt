@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:weap - 42 - elemental four-blade|link=Elemental Fourblade|text=Elemental Fourblade|image=Elemental Fourblade.png}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 42 - elemental four-blade}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - elemental conflict}}

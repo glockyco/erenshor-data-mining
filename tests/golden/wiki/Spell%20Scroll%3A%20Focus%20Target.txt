@@ -2,7 +2,7 @@
 |title=Spell Scroll: Focus Target
 |stablekey=item:spell scroll - focus target
 |type=[[Ability Books|Spell Scroll]]
-|vendorsource={{CharacterLink|stablekey=character:windlae oldseer|link=Windlae Oldseer|text=Windlae Oldseer}}
+|vendorsource={{CharacterLink|stablekey=character:windlae oldseer}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=1400
 |sell=910
-|taughtspell={{AbilityLink|stablekey=spell:stc - focus target|link=Focus Target|text=Focus Target|image=Focus Target.png}}
+|taughtspell={{AbilityLink|stablekey=spell:stc - focus target}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

@@ -5,7 +5,7 @@
 |description=Channel the power of Soluna into your attack
 |type=Attack
 |line=
-|classes={{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}} (9)
+|classes={{ClassLink|stablekey=class:paladin}} (9)
 |required_level=
 |manacost=
 |aggro=
@@ -23,7 +23,7 @@
 |is_self_only=
 |is_group_effect=
 |is_applied_to_caster=
-|effects={{AbilityLink|stablekey=spell:none - soluna's smite i|link=Smite|text=Smite|image=Smite.png}}
+|effects={{AbilityLink|stablekey=spell:none - soluna's smite i}}
 |damage_type=Physical
 |resist_modifier=
 |target_damage=2
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:skillbook - celestial smite i|link=Skill Book: Celestial Smite|text=Skill Book: Celestial Smite|image=Skill Book: Celestial Smite.png}}
+|source={{ItemLink|stablekey=item:skillbook - celestial smite i}}
 |used_by=
 }}
+{{SkillTooltip|stablekey=skill:celestial smite i}}

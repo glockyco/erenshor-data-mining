@@ -3,15 +3,15 @@
 |image=[[File:A Nagalok.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:nagalok|link=The Brackish Coast Nagaloks|text=The Brackish Coast Nagaloks}}
-|factionChange=+1 {{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}<br>-10 {{FactionLink|stablekey=faction:nagalok|link=The Brackish Coast Nagaloks|text=The Brackish Coast Nagaloks}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:saltedstrand|link=Blacksalt Strand|text=Blacksalt Strand}}<br>{{ZoneLink|stablekey=zone:duskenlight|link=The Duskenlight Coast|text=The Duskenlight Coast}}
+|faction={{FactionLink|stablekey=faction:nagalok}}
+|factionChange=+1 {{FactionLink|stablekey=faction:vitheo}}<br>-10 {{FactionLink|stablekey=faction:nagalok}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:saltedstrand}}<br>{{ZoneLink|stablekey=zone:duskenlight}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=4 minutes (Blacksalt Strand)<br>5 minutes (The Duskenlight Coast)
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:fish - a worm eel|link=A Worm Eel|text=A Worm Eel|image=A Worm Eel.png}} (7.8%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (7.8%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (7.8%)<br>{{ItemLink|stablekey=item:gen - nagalok claw|link=Nagalok Claw|text=Nagalok Claw|image=Nagalok Claw.png}} (6.8%)<br>{{ItemLink|stablekey=item:gen - scaled skin|link=Reptilian Scales|text=Reptilian Scales|image=Reptilian Scales.png}} (6.8%)<br>{{ItemLink|stablekey=item:belt - 17 - reinforced scale belt|link=Reinforced Scale Belt|text=Reinforced Scale Belt|image=Reinforced Scale Belt.png}} (6.7%)
+|droprates={{ItemLink|stablekey=item:fish - a worm eel}} (7.8%)<br>{{ItemLink|stablekey=item:gen - seaglass}} (7.8%)<br>{{ItemLink|stablekey=item:gen - a star stone}} (7.8%)<br>{{ItemLink|stablekey=item:gen - nagalok claw}} (6.8%)<br>{{ItemLink|stablekey=item:gen - scaled skin}} (6.8%)<br>{{ItemLink|stablekey=item:belt - 17 - reinforced scale belt}} (6.7%)
 |level=14
 |levelmodmin=0
 |levelmodmax=0
@@ -40,15 +40,15 @@
 |image=[[File:A Nagalok.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:nagalok|link=The Brackish Coast Nagaloks|text=The Brackish Coast Nagaloks}}
-|factionChange=+1 {{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}<br>-10 {{FactionLink|stablekey=faction:nagalok|link=The Brackish Coast Nagaloks|text=The Brackish Coast Nagaloks}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:duskenlight|link=The Duskenlight Coast|text=The Duskenlight Coast}}
+|faction={{FactionLink|stablekey=faction:nagalok}}
+|factionChange=+1 {{FactionLink|stablekey=faction:vitheo}}<br>-10 {{FactionLink|stablekey=faction:nagalok}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:duskenlight}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:fish - a worm eel|link=A Worm Eel|text=A Worm Eel|image=A Worm Eel.png}} (7.8%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (7.8%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (7.8%)<br>{{ItemLink|stablekey=item:gen - nagalok claw|link=Nagalok Claw|text=Nagalok Claw|image=Nagalok Claw.png}} (6.8%)<br>{{ItemLink|stablekey=item:gen - scaled skin|link=Reptilian Scales|text=Reptilian Scales|image=Reptilian Scales.png}} (6.8%)<br>{{ItemLink|stablekey=item:belt - 17 - reinforced scale belt|link=Reinforced Scale Belt|text=Reinforced Scale Belt|image=Reinforced Scale Belt.png}} (6.7%)
+|droprates={{ItemLink|stablekey=item:fish - a worm eel}} (7.8%)<br>{{ItemLink|stablekey=item:gen - seaglass}} (7.8%)<br>{{ItemLink|stablekey=item:gen - a star stone}} (7.8%)<br>{{ItemLink|stablekey=item:gen - nagalok claw}} (6.8%)<br>{{ItemLink|stablekey=item:gen - scaled skin}} (6.8%)<br>{{ItemLink|stablekey=item:belt - 17 - reinforced scale belt}} (6.7%)
 |level=14
 |levelmodmin=0
 |levelmodmax=0

@@ -5,7 +5,7 @@
 |type=NPC
 |faction=
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:ripperportal|link=Mysterious Portal|text=Mysterious Portal (3)}}
+|zones={{ZoneLink|stablekey=zone:ripperportal}}
 |coordinates=325.6 x 1.3 x 739.4
 |spawnchance=
 |spawntype=

@@ -2,7 +2,7 @@
 |title=Spell Scroll: Ocean's Lull
 |stablekey=item:spell scroll - ocean's lull
 |type=[[Ability Books]]
-|vendorsource={{CharacterLink|stablekey=character:ludo luxo|link=Ludo Luxo|text=Ludo Luxo}}
+|vendorsource={{CharacterLink|stablekey=character:ludo luxo}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=1400
 |sell=910
-|taughtspell={{AbilityLink|stablekey=spell:duel - slow ocean's lull|link=Ocean's Lull|text=Ocean's Lull|image=Ocean's Lull.png}}
+|taughtspell={{AbilityLink|stablekey=spell:duel - slow ocean's lull}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

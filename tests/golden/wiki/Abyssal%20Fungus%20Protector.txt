@@ -3,15 +3,15 @@
 |image=[[File:Abyssal Fungus Protector.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:abyssal|link=Abyssal Lake|text=Abyssal Lake}}
+|zones={{ZoneLink|stablekey=zone:abyssal}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - fungal spore|link=Fungal Spore|text=Fungal Spore|image=Fungal Spore.png}} (77.6%)<br>{{ItemLink|stablekey=item:gen - intact fungal cap|link=Intact Fungal Cap|text=Intact Fungal Cap|image=Intact Fungal Cap.png}} (18.2%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (1.8%)<br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (0.9%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:weap - 29 - fungal staff|link=Fungal Staff|text=Fungal Staff|image=Fungal Staff.png}} (0.9%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (0.9%)
+|droprates={{ItemLink|stablekey=item:gen - fungal spore}} (77.6%)<br>{{ItemLink|stablekey=item:gen - intact fungal cap}} (18.2%)<br>{{ItemLink|stablekey=item:gen - a star stone}} (1.8%)<br>{{ItemLink|stablekey=item:gen - diamond}} (0.9%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:weap - 29 - fungal staff}} (0.9%)<br>{{ItemLink|stablekey=item:gen - luminstone}} (0.9%)
 |level=28
 |levelmodmin=0
 |levelmodmax=0
@@ -40,15 +40,15 @@
 |image=[[File:Abyssal Fungus Protector.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:abyssal|link=Abyssal Lake|text=Abyssal Lake}}
+|zones={{ZoneLink|stablekey=zone:abyssal}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - fungal spore|link=Fungal Spore|text=Fungal Spore|image=Fungal Spore.png}} (83.8%)<br>{{ItemLink|stablekey=item:gen - intact fungal cap|link=Intact Fungal Cap|text=Intact Fungal Cap|image=Intact Fungal Cap.png}} (2.1%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (1.2%)<br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (0.6%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:weap - 29 - fungal staff|link=Fungal Staff|text=Fungal Staff|image=Fungal Staff.png}} (0.6%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (0.6%)
+|droprates={{ItemLink|stablekey=item:gen - fungal spore}} (83.8%)<br>{{ItemLink|stablekey=item:gen - intact fungal cap}} (2.1%)<br>{{ItemLink|stablekey=item:gen - a star stone}} (1.2%)<br>{{ItemLink|stablekey=item:gen - diamond}} (0.6%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:weap - 29 - fungal staff}} (0.6%)<br>{{ItemLink|stablekey=item:gen - luminstone}} (0.6%)
 |level=28
 |levelmodmin=0
 |levelmodmax=0

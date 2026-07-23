@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 39 - vessel bracelet
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:siraethe|link=Vessel Siraethe|text=Vessel Siraethe}} (28.6%)
+|source={{CharacterLink|stablekey=character:siraethe}} (28.6%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Cast
 |proc_chance=10
 |proc_spell_icon=Mana Flood.png
-|proc_spell_name={{AbilityLink|stablekey=spell:arc - manaflood|link=Mana Flood|text=Mana Flood|image=Mana Flood.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:arc - manaflood}}
 |proc_spell_level=-1
 |proc_spell_duration_ticks=1
 |proc_spell_type=Heal

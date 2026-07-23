@@ -3,9 +3,9 @@
 |image=[[File:Hooded Stone Serpent.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:rockshade|link=Rockshade Hold|text=Rockshade Hold}}
+|zones={{ZoneLink|stablekey=zone:rockshade}}
 |coordinates=
 |spawnchance=
 |spawntype=

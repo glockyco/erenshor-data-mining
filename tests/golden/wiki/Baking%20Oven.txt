@@ -5,7 +5,7 @@
 |type=NPC
 |faction=
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:summerevent|link=Bellwain Island|text=Bellwain Island}}<br>{{ZoneLink|stablekey=zone:azure|link=Port Azure|text=Port Azure}}<br>{{ZoneLink|stablekey=zone:prielplateau|link=Prielian Cascade|text=Prielian Cascade}}
+|zones={{ZoneLink|stablekey=zone:summerevent}}<br>{{ZoneLink|stablekey=zone:azure}}<br>{{ZoneLink|stablekey=zone:prielplateau}}
 |coordinates=
 |spawnchance=
 |spawntype=

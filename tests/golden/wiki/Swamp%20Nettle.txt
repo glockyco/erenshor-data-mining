@@ -3,15 +3,15 @@
 |image=[[File:Swamp Nettle.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:rottenfoot|link=Rottenfoot|text=Rottenfoot}}
+|zones={{ZoneLink|stablekey=zone:rottenfoot}}
 |coordinates=337.0 x 23.0 x 475.5
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - swamproot|link=Swamproot|text=Swamproot|image=Swamproot.png}} (23.5%)<br>{{ItemLink|stablekey=item:weap - 14 - jellywhip|link=Jellystick|text=Jellystick|image=Jellystick.png}} (4.3%)
+|droprates={{ItemLink|stablekey=item:gen - swamproot}} (23.5%)<br>{{ItemLink|stablekey=item:weap - 14 - jellywhip}} (4.3%)
 |level=14
 |levelmodmin=0
 |levelmodmax=0

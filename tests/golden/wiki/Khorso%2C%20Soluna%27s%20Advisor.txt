@@ -3,15 +3,15 @@
 |image=[[File:Khorso, Soluna's Advisor.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
-|factionChange=-15 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
-|zones={{ZoneLink|stablekey=zone:planeofsoluna|link=Soluna's Celestial Plane|text=Soluna's Celestial Plane}}
+|faction={{FactionLink|stablekey=faction:evil}}
+|factionChange=-15 {{FactionLink|stablekey=faction:solunarians}}
+|zones={{ZoneLink|stablekey=zone:planeofsoluna}}
 |coordinates=353.1 x 345.1 x 994.5
 |spawnchance=
 |spawntype=
 |respawn=33 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:weap - 42 - advisor's sword|link=Advisor's Sword|text=Advisor's Sword|image=Advisor's Sword.png}}<br>{{ItemLink|stablekey=item:ring - 42 - orbital loop|link=Orbital Loop|text=Orbital Loop|image=Orbital Loop.png}}<br>{{ItemLink|stablekey=item:aura - planetary shard|link=Planetary Shard|text=Planetary Shard|image=Planetary Shard.png}}
-|droprates={{ItemLink|stablekey=item:spell scroll - air of intimidation|link=Spell Scroll: Air of Intimidation|text=Spell Scroll: Air of Intimidation|image=Spell Scroll: Air of Intimidation.png}} (100.0%)<br>{{ItemLink|stablekey=item:ore - planar shard|link=Planar Stone Shards|text=Planar Stone Shards|image=Planar Stone Shards.png}} (90.7%)<br>{{ItemLink|stablekey=item:weap - 42 - advisor's sword|link=Advisor's Sword|text=Advisor's Sword|image=Advisor's Sword.png}} (70.0%)<br>{{ItemLink|stablekey=item:ring - 42 - orbital loop|link=Orbital Loop|text=Orbital Loop|image=Orbital Loop.png}} (70.0%)<br>{{ItemLink|stablekey=item:aura - planetary shard|link=Planetary Shard|text=Planetary Shard|image=Planetary Shard.png}} (70.0%)<br>{{ItemLink|stablekey=item:ore - planar stone|link=Planar Stone|text=Planar Stone|image=Planar Stone.png}} (64.9%)
+|guaranteeddrops={{ItemLink|stablekey=item:weap - 42 - advisor's sword}}<br>{{ItemLink|stablekey=item:ring - 42 - orbital loop}}<br>{{ItemLink|stablekey=item:aura - planetary shard}}
+|droprates={{ItemLink|stablekey=item:spell scroll - air of intimidation}} (100.0%)<br>{{ItemLink|stablekey=item:ore - planar shard}} (90.7%)<br>{{ItemLink|stablekey=item:weap - 42 - advisor's sword}} (70.0%)<br>{{ItemLink|stablekey=item:ring - 42 - orbital loop}} (70.0%)<br>{{ItemLink|stablekey=item:aura - planetary shard}} (70.0%)<br>{{ItemLink|stablekey=item:ore - planar stone}} (64.9%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

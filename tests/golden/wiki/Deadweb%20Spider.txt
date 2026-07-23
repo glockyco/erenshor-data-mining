@@ -3,9 +3,9 @@
 |image=[[File:Deadweb Spider.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:azynthi|link=Azynthi's Garden|text=Azynthi's Garden (Dimensional Rift)}}
+|zones={{ZoneLink|stablekey=zone:azynthi}}
 |coordinates=
 |spawnchance=
 |spawntype=

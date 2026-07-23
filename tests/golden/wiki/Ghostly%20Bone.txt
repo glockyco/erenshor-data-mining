@@ -3,7 +3,7 @@
 |stablekey=item:gen - ghostly bone
 |type=[[:Category:Items|General]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:azynthian firebone|link=Azynthian Firebone|text=Azynthian Firebone}} (91.9%)<br>{{CharacterLink|stablekey=character:azynthian icebone|link=Azynthian Icebone|text=Azynthian Icebone}} (91.9%)<br>{{CharacterLink|stablekey=character:greater azynthian firebone 1|link=Greater Azynthian Firebone|text=Greater Azynthian Firebone}} (91.9%)<br>{{CharacterLink|stablekey=character:greater azynthian icebone 1|link=Greater Azynthian Icebone|text=Greater Azynthian Icebone}} (91.9%)
+|source={{CharacterLink|stablekey=character:azynthian firebone}} (91.9%)<br>{{CharacterLink|stablekey=character:azynthian icebone}} (91.9%)<br>{{CharacterLink|stablekey=character:greater azynthian firebone 1}} (91.9%)<br>{{CharacterLink|stablekey=character:greater azynthian icebone 1}} (91.9%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -3,15 +3,15 @@
 |image=[[File:Spike.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:nagalok|link=The Brackish Coast Nagaloks|text=The Brackish Coast Nagaloks}}
-|factionChange=+1 {{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}<br>-10 {{FactionLink|stablekey=faction:nagalok|link=The Brackish Coast Nagaloks|text=The Brackish Coast Nagaloks}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:duskenlight|link=The Duskenlight Coast|text=The Duskenlight Coast}}
+|faction={{FactionLink|stablekey=faction:nagalok}}
+|factionChange=+1 {{FactionLink|stablekey=faction:vitheo}}<br>-10 {{FactionLink|stablekey=faction:nagalok}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:duskenlight}}
 |coordinates=1521.7 x 50.0 x 132.5
 |spawnchance=50%
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:head - 17 - helm of the deep|link=Helm of the Deep|text=Helm of the Deep|image=Helm of the Deep.png}}<br>{{ItemLink|stablekey=item:back - 17 - seawashed cloak|link=Seawashed Cloak|text=Seawashed Cloak|image=Seawashed Cloak.png}}
-|droprates={{ItemLink|stablekey=item:head - 17 - helm of the deep|link=Helm of the Deep|text=Helm of the Deep|image=Helm of the Deep.png}} (66.7%)<br>{{ItemLink|stablekey=item:back - 17 - seawashed cloak|link=Seawashed Cloak|text=Seawashed Cloak|image=Seawashed Cloak.png}} (33.3%)<br>{{ItemLink|stablekey=item:gen - nagalok claw|link=Nagalok Claw|text=Nagalok Claw|image=Nagalok Claw.png}} (10.1%)<br>{{ItemLink|stablekey=item:gen - scaled skin|link=Reptilian Scales|text=Reptilian Scales|image=Reptilian Scales.png}} (10.1%)<br>{{ItemLink|stablekey=item:fish - a worm eel|link=A Worm Eel|text=A Worm Eel|image=A Worm Eel.png}} (7.8%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (7.8%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (7.8%)
+|guaranteeddrops={{ItemLink|stablekey=item:head - 17 - helm of the deep}}<br>{{ItemLink|stablekey=item:back - 17 - seawashed cloak}}
+|droprates={{ItemLink|stablekey=item:head - 17 - helm of the deep}} (66.7%)<br>{{ItemLink|stablekey=item:back - 17 - seawashed cloak}} (33.3%)<br>{{ItemLink|stablekey=item:gen - nagalok claw}} (10.1%)<br>{{ItemLink|stablekey=item:gen - scaled skin}} (10.1%)<br>{{ItemLink|stablekey=item:fish - a worm eel}} (7.8%)<br>{{ItemLink|stablekey=item:gen - seaglass}} (7.8%)<br>{{ItemLink|stablekey=item:gen - a star stone}} (7.8%)
 |level=18
 |levelmodmin=0
 |levelmodmax=0

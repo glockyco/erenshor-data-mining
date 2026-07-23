@@ -3,15 +3,15 @@
 |image=[[File:Grant Haxoway.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|faction={{FactionLink|stablekey=faction:good}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:azure|link=Port Azure|text=Port Azure}}
+|zones={{ZoneLink|stablekey=zone:azure}}
 |coordinates=205.3 x 12.7 x 150.2
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (19.3%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (19.3%)
+|droprates={{ItemLink|stablekey=item:gen - seaglass}} (19.3%)<br>{{ItemLink|stablekey=item:gen - a star stone}} (19.3%)
 |level=26
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=13-31
 |elemental=13-31
 |void=13-31
-|spells={{AbilityLink|stablekey=spell:dru pal - healing|link=Healing|text=Healing|image=Healing.png}}<br>{{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}
+|spells={{AbilityLink|stablekey=spell:dru pal - healing}}<br>{{AbilityLink|stablekey=spell:dru reav - soul tap}}
 }}
 Grant Haxoway is a [[Reaver]] [[Vendors|Merchant]] in [[Port Azure]].
 

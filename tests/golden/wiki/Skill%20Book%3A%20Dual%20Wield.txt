@@ -2,8 +2,8 @@
 |title=Skill Book: Dual Wield
 |stablekey=item:skillbook - dual wield
 |type=[[Ability Books|Skill Book]]
-|vendorsource={{CharacterLink|stablekey=character:ludo luxo|link=Ludo Luxo|text=Ludo Luxo}}<br>{{CharacterLink|stablekey=character:sven feartines|link=Sven Feartines|text=Sven Feartines}}
-|source={{CharacterLink|stablekey=character:islander bandit|link=Islander Bandit|text=Islander Bandit}} (1.1%)
+|vendorsource={{CharacterLink|stablekey=character:ludo luxo}}<br>{{CharacterLink|stablekey=character:sven feartines}}
+|source={{CharacterLink|stablekey=character:islander bandit}} (1.1%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -12,7 +12,7 @@
 |buy=100
 |sell=65
 |taughtspell=
-|taughtskill={{AbilityLink|stablekey=skill:dual wield|link=Dual Wield|text=Dual Wield|image=Dual Wield.png}}
+|taughtskill={{AbilityLink|stablekey=skill:dual wield}}
 |guaranteeddrops=
 |droprates=
 }}

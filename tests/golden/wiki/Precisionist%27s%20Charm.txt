@@ -3,7 +3,7 @@
 |stablekey=item:charm - 35 - precisionist's charm
 |type=
 |vendorsource=
-|source={{ItemLink|stablekey=item:gen - braxonian fossil|link=Braxonian Fossil|text=Braxonian Fossil}} (5.3%)
+|source={{ItemLink|stablekey=item:gen - braxonian fossil}} (5.3%)
 |othersource=
 |questsource=
 |relatedquest=

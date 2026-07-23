@@ -3,9 +3,9 @@
 |image=[[File:Reliquary Ward.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:reliquary|link=Reliquary Hall|text=Reliquary Hall}}
+|zones={{ZoneLink|stablekey=zone:reliquary}}
 |coordinates=
 |spawnchance=
 |spawntype=

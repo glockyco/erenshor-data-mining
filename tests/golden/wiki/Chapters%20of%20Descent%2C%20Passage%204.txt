@@ -3,10 +3,10 @@
 |stablekey=item:gen - cod - pg 4
 |type=[[Lore Items|Lore]], [[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:soldier of sivakaya|link=Lazalith, Soldier of Sivakaya|text=Lazalith, Soldier of Sivakaya}} (100.0%)<br>{{CharacterLink|stablekey=character:ecclesiarch|link=Ecclesiarch|text=Ecclesiarch}} (4.6%)
+|source={{CharacterLink|stablekey=character:soldier of sivakaya}} (100.0%)<br>{{CharacterLink|stablekey=character:ecclesiarch}} (4.6%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|link=The Mathers' Demise{{!}}The Mather's Demise, Part 2}}<br>{{QuestLink|The Mathers' Demise}}<br>{{QuestLink|stablekey=quest:mathersdemise2|link=The Mathers' Demise|text=The Mathers' Demise}}
+|relatedquest={{QuestLink|link=The Mathers' Demise{{!}}The Mather's Demise, Part 2}}<br>{{QuestLink|The Mathers' Demise}}<br>{{QuestLink|stablekey=quest:mathersdemise2}}
 |craftsource=
 |componentfor=
 |buy=

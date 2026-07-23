@@ -5,7 +5,7 @@
 |description=Charm an NPC (up to level 12) to do your bidding for a short time.
 |type=StatusEffect
 |line=Charm
-|classes={{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}} (11)
+|classes={{ClassLink|stablekey=class:arcanist}} (11)
 |required_level=11
 |manacost=450
 |aggro=
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - intrusive ideas|link=Spell Scroll: Intrusive Ideas|text=Spell Scroll: Intrusive Ideas|image=Spell Scroll: Intrusive Ideas.png}}
+|source={{ItemLink|stablekey=item:spell scroll - intrusive ideas}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:arc - intrusive ideas}}

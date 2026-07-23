@@ -69,5 +69,6 @@
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:reav - corrupting void}}
 
 Proc that results from {{AbilityLink|Void Slice}}

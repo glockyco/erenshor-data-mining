@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:belt - 42 - creeping waistband|link=Creeping Waistband|text=Creeping Waistband|image=Creeping Waistband.png}}<br>{{ItemLink|stablekey=item:foot - 14 - journeying boots|link=Journeying Boots|text=Journeying Boots|image=Journeying Boots.png}}
+|itemswitheffect={{ItemLink|stablekey=item:belt - 42 - creeping waistband}}<br>{{ItemLink|stablekey=item:foot - 14 - journeying boots}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:dru - flight of foot 2}}

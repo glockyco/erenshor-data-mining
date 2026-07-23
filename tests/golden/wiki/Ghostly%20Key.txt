@@ -7,7 +7,7 @@
 |othersource=
 |questsource={{QuestLink|A Retired Locksmith}}
 |relatedquest={{QuestLink |questlink=Whispers of Wyland}}
-|craftsource=1x {{ItemLink|stablekey=item:template - a chewed key mold|link=Mold: A Ghostly Key|text=Mold: A Ghostly Key|image=Mold: A Ghostly Key.png}}<br>1x {{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}}<br>1x {{ItemLink|stablekey=item:ore - iron ore|link=Chunk of Iron Ore|text=Chunk of Iron Ore|image=Chunk of Iron Ore.png}}<br>1x {{ItemLink|stablekey=item:gen - broken key|link=Broken Key Blade|text=Broken Key Blade|image=Broken Key Blade.png}}<br>1x {{ItemLink|stablekey=item:gen - broken key bow|link=Broken Key Bow|text=Broken Key Bow|image=Broken Key Bow.png}}
+|craftsource=1x {{ItemLink|stablekey=item:template - a chewed key mold}}<br>1x {{ItemLink|stablekey=item:gen - aetheria}}<br>1x {{ItemLink|stablekey=item:ore - iron ore}}<br>1x {{ItemLink|stablekey=item:gen - broken key}}<br>1x {{ItemLink|stablekey=item:gen - broken key bow}}
 |componentfor=
 |buy=
 |sell=

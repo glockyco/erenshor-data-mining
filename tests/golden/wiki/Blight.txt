@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:weap - 33 - twisted branch|link=Twisted Branch|text=Twisted Branch|image=Twisted Branch.png}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 33 - twisted branch}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - blight}}

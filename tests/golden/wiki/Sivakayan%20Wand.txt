@@ -3,7 +3,7 @@
 |stablekey=item:wand - 25 - sivakayan wand
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:28 - sivakayan spectre|link=Shrouded Sivakayan|text=Shrouded Sivakayan}} (2.5%)<br>{{CharacterLink|stablekey=character:36 - sivakayan spectre|link=Sivakayan Doomshade|text=Sivakayan Doomshade}} (2.5%)<br>{{CharacterLink|stablekey=character:32 - sivakayan spectre|link=Sivakayan High Shadow|text=Sivakayan High Shadow}} (2.5%)<br>{{CharacterLink|stablekey=character:24 - sivakayan spectre|link=Sivakayan Shadow|text=Sivakayan Shadow}} (2.5%)<br>{{CharacterLink|stablekey=character:39 - sivakayan spectre|link=Sivakayan Voidmaster|text=Sivakayan Voidmaster}} (2.5%)<br>{{CharacterLink|stablekey=character:sivakayan devoted|link=Sivakayan Devoted|text=Sivakayan Devoted}} (2.1%)<br>{{CharacterLink|stablekey=character:sivakayan faithbound|link=Sivakayan Faithbound|text=Sivakayan Faithbound}} (2.1%)
+|source={{CharacterLink|stablekey=character:28 - sivakayan spectre}} (2.5%)<br>{{CharacterLink|stablekey=character:36 - sivakayan spectre}} (2.5%)<br>{{CharacterLink|stablekey=character:32 - sivakayan spectre}} (2.5%)<br>{{CharacterLink|stablekey=character:24 - sivakayan spectre}} (2.5%)<br>{{CharacterLink|stablekey=character:39 - sivakayan spectre}} (2.5%)<br>{{CharacterLink|stablekey=character:sivakayan devoted}} (2.1%)<br>{{CharacterLink|stablekey=character:sivakayan faithbound}} (2.1%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=1
 |proc_spell_icon=Focus Pain.png
-|proc_spell_name={{AbilityLink|stablekey=spell:none - fracture|link=Focus Pain|text=Focus Pain|image=Focus Pain.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:none - fracture}}
 |proc_spell_level=32
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

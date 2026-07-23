@@ -2,8 +2,8 @@
 |title=Bronzed Solunarian Plate
 |stablekey=item:chest - 10 - bronzed solunian plate
 |type=
-|vendorsource={{CharacterLink|stablekey=character:akaran black|link=Akaran Black|text=Akaran Black}}
-|source={{CharacterLink|stablekey=character:tinkles|link=Tinkles|text=Tinkles}} (23.7%)
+|vendorsource={{CharacterLink|stablekey=character:akaran black}}
+|source={{CharacterLink|stablekey=character:tinkles}} (23.7%)
 |othersource=
 |questsource=
 |relatedquest=

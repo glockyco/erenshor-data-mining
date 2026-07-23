@@ -3,7 +3,7 @@
 |stablekey=item:key - dockhouse key
 |type=[[Keys|Key]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:endkio|link=Kio the Darkbringer|text=Kio the Darkbringer}} (100.0%)
+|source={{CharacterLink|stablekey=character:endkio}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=

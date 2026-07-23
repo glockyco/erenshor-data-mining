@@ -22,8 +22,8 @@
 |image=Mold: Charm of Rage.png
 |name=Mold: Charm of Rage
 |description=Recipes must be exact - use CNTRL + CLICK to separate stacks.<br><br>One-time usable in a forge. <br><br>*Fuel quality does not affect the outcome of this recipe
-|ingredients=1x {{ItemLink|stablekey=item:ore - sivakayan ore|link=Sivakayan Ore|text=Sivakayan Ore|image=Sivakayan Ore.png}}<br>1x {{ItemLink|stablekey=item:gen - nagalok claw|link=Nagalok Claw|text=Nagalok Claw|image=Nagalok Claw.png}}<br>1x {{ItemLink|stablekey=item:gen - elderstone shard|link=Elderstone Shard|text=Elderstone Shard|image=Elderstone Shard.png}}<br>1x {{ItemLink|stablekey=item:weap - 19 - queen's fang|link=Queen's Fang|text=Queen's Fang|image=Queen's Fang.png}}
-|rewards={{ItemLink|stablekey=item:charm - 22 - charm of rage|link=Charm of Rage|text=Charm of Rage|image=Charm of Rage.png}}
+|ingredients=1x {{ItemLink|stablekey=item:ore - sivakayan ore}}<br>1x {{ItemLink|stablekey=item:gen - nagalok claw}}<br>1x {{ItemLink|stablekey=item:gen - elderstone shard}}<br>1x {{ItemLink|stablekey=item:weap - 19 - queen's fang}}
+|rewards={{ItemLink|stablekey=item:charm - 22 - charm of rage}}
 |station=
 }}
 

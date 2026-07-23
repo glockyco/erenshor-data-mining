@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:gen - box of portals|link=Box of Portals|text=Box of Portals|image=Box of Portals.png}}
+|itemswitheffect={{ItemLink|stablekey=item:gen - box of portals}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:arc - portal to reliquary}}

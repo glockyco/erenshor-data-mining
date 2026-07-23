@@ -3,15 +3,15 @@
 |image=[[File:Kingsman.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:braxonian|link=Braxonian Desert|text=Braxonian Desert}}
+|zones={{ZoneLink|stablekey=zone:braxonian}}
 |coordinates=725.8 x 28.5 x 1191.1
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
-|guaranteeddrops={{ItemLink|stablekey=item:wrist - 30 - blessed braxonian bracelet|link=Blessed Braxonian Bracelet|text=Blessed Braxonian Bracelet|image=Blessed Braxonian Bracelet.png}}<br>{{ItemLink|stablekey=item:wrist - 30 - blessed braxonian bracer|link=Blessed Braxonian Bracer|text=Blessed Braxonian Bracer|image=Blessed Braxonian Bracer.png}}<br>{{ItemLink|stablekey=item:wrist - 30 - blessed braxonian wristlet|link=Blessed Braxonian Wristlet|text=Blessed Braxonian Wristlet|image=Blessed Braxonian Wristlet.png}}
-|droprates={{ItemLink|stablekey=item:wrist - 30 - blessed braxonian bracelet|link=Blessed Braxonian Bracelet|text=Blessed Braxonian Bracelet|image=Blessed Braxonian Bracelet.png}} (33.3%)<br>{{ItemLink|stablekey=item:wrist - 30 - blessed braxonian bracer|link=Blessed Braxonian Bracer|text=Blessed Braxonian Bracer|image=Blessed Braxonian Bracer.png}} (33.3%)<br>{{ItemLink|stablekey=item:wrist - 30 - blessed braxonian wristlet|link=Blessed Braxonian Wristlet|text=Blessed Braxonian Wristlet|image=Blessed Braxonian Wristlet.png}} (33.3%)
+|guaranteeddrops={{ItemLink|stablekey=item:wrist - 30 - blessed braxonian bracelet}}<br>{{ItemLink|stablekey=item:wrist - 30 - blessed braxonian bracer}}<br>{{ItemLink|stablekey=item:wrist - 30 - blessed braxonian wristlet}}
+|droprates={{ItemLink|stablekey=item:wrist - 30 - blessed braxonian bracelet}} (33.3%)<br>{{ItemLink|stablekey=item:wrist - 30 - blessed braxonian bracer}} (33.3%)<br>{{ItemLink|stablekey=item:wrist - 30 - blessed braxonian wristlet}} (33.3%)
 |level=34
 |levelmodmin=0
 |levelmodmax=0

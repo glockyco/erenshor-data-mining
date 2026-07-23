@@ -2,13 +2,13 @@
 |title=Force of the Sea
 |stablekey=item:aura - vitheo 2
 |type=[[Auras]]<br>[[Crafting]]
-|vendorsource={{CharacterLink|stablekey=character:pierson windwash|link=Pierson Windwash|text=Pierson Windwash}}
+|vendorsource={{CharacterLink|stablekey=character:pierson windwash}}
 |source=
 |othersource=
 |questsource=
 |relatedquest=
 |craftsource=
-|componentfor={{ItemLink|stablekey=item:template - charm of the jester|link=Mold: Charm of the Jester|text=Mold: Charm of the Jester|image=Mold: Charm of the Jester.png}}
+|componentfor={{ItemLink|stablekey=item:template - charm of the jester}}
 |buy=1500
 |sell=975
 |taughtspell=
@@ -22,7 +22,7 @@
 |name=Force of the Sea
 |description=
 |aura_spell_icon=Aura: Presence of Vitheo II.png
-|aura_spell_name={{AbilityLink|stablekey=spell:aura - vitheo 2|link=Aura: Presence of Vitheo II|text=Aura: Presence of Vitheo II|image=Aura: Presence of Vitheo II.png}}
+|aura_spell_name={{AbilityLink|stablekey=spell:aura - vitheo 2}}
 |aura_spell_level=8
 |aura_spell_duration_ticks=2
 |aura_spell_type=Beneficial

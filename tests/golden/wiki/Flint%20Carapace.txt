@@ -3,12 +3,12 @@
 |stablekey=item:gen - flint carapace
 |type=[[Crafting]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:spark beetle|link=Spark Beetle|text=Spark Beetle}} (11.8%)<br>{{CharacterLink|stablekey=character:spark beetle soldier|link=Spark Soldier|text=Spark Soldier}} (11.8%)
+|source={{CharacterLink|stablekey=character:spark beetle}} (11.8%)<br>{{CharacterLink|stablekey=character:spark beetle soldier}} (11.8%)
 |othersource=
 |questsource=
 |relatedquest=
 |craftsource=
-|componentfor={{ItemLink|stablekey=item:template - charm of brilliance|link=Mold: Charm of Brilliance|text=Mold: Charm of Brilliance|image=Mold: Charm of Brilliance.png}}
+|componentfor={{ItemLink|stablekey=item:template - charm of brilliance}}
 |buy=1
 |sell=1
 |taughtspell=

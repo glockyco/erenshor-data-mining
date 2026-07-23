@@ -3,15 +3,15 @@
 |image=[[File:Harbinger of Corruption.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
-|factionChange=+2 {{FactionLink|stablekey=faction:fernalla|link=Fernalla's Children|text=Fernalla's Children}}<br>+2 {{FactionLink|stablekey=faction:brax|link=The Torchbearers of Brax|text=The Torchbearers of Brax}}
-|zones={{ZoneLink|stablekey=zone:blight|link=The Blight|text=The Blight}}
+|faction={{FactionLink|stablekey=faction:evil}}
+|factionChange=+2 {{FactionLink|stablekey=faction:fernalla}}<br>+2 {{FactionLink|stablekey=faction:brax}}
+|zones={{ZoneLink|stablekey=zone:blight}}
 |coordinates=648.1 x 52.6 x 477.8
 |spawnchance=75%
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:leg - 28 - blightsteel greaves|link=Blightsteel Greaves|text=Blightsteel Greaves|image=Blightsteel Greaves.png}}<br>{{ItemLink|stablekey=item:chest - 28 - blightsteel plate|link=Blightsteel Plate|text=Blightsteel Plate|image=Blightsteel Plate.png}}
-|droprates={{ItemLink|stablekey=item:leg - 28 - blightsteel greaves|link=Blightsteel Greaves|text=Blightsteel Greaves|image=Blightsteel Greaves.png}} (66.7%)<br>{{ItemLink|stablekey=item:chest - 28 - blightsteel plate|link=Blightsteel Plate|text=Blightsteel Plate|image=Blightsteel Plate.png}} (33.3%)<br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (19.5%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - ancient pottery shard|link=Ancient Pottery Shard|text=Ancient Pottery Shard|image=Ancient Pottery Shard.png}} (11.5%)<br>{{ItemLink|stablekey=item:gen - blightsand|link=Blight Crystals|text=Blight Crystals|image=Blight Crystals.png}} (11.5%)
+|guaranteeddrops={{ItemLink|stablekey=item:leg - 28 - blightsteel greaves}}<br>{{ItemLink|stablekey=item:chest - 28 - blightsteel plate}}
+|droprates={{ItemLink|stablekey=item:leg - 28 - blightsteel greaves}} (66.7%)<br>{{ItemLink|stablekey=item:chest - 28 - blightsteel plate}} (33.3%)<br>{{ItemLink|stablekey=item:gen - diamond}} (19.5%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - ancient pottery shard}} (11.5%)<br>{{ItemLink|stablekey=item:gen - blightsand}} (11.5%)
 |level=32
 |levelmodmin=0
 |levelmodmax=0

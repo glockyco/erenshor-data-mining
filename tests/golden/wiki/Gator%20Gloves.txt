@@ -3,7 +3,7 @@
 |stablekey=item:glove - 18 - gator gloves
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:lurk|link=Lurk|text=Lurk}} (66.7%)
+|source={{CharacterLink|stablekey=character:lurk}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=

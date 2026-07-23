@@ -2,7 +2,7 @@
 |title=Spell Scroll: Ensaring Roots
 |stablekey=item:spell scroll - ensaring roots
 |type=
-|vendorsource={{CharacterLink|stablekey=character:alexander farland|link=Alexander Farland|text=Alexander Farland}}
+|vendorsource={{CharacterLink|stablekey=character:alexander farland}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=14500
 |sell=9425
-|taughtspell={{AbilityLink|stablekey=spell:dru - ensnaring roots|link=Ensaring Roots|text=Ensaring Roots|image=Ensaring Roots.png}}
+|taughtspell={{AbilityLink|stablekey=spell:dru - ensnaring roots}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

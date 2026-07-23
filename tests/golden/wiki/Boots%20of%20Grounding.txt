@@ -3,7 +3,7 @@
 |stablekey=item:foot - 11 - boots of grounding
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:overseer orlok|link=Overseer Orlok|text=Overseer Orlok}} (3.2%)
+|source={{CharacterLink|stablekey=character:overseer orlok}} (3.2%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -3,15 +3,15 @@
 |image=[[File:Spinesnap Gorilla.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:ripperportal|link=Mysterious Portal|text=Mysterious Portal (3)}}
+|zones={{ZoneLink|stablekey=zone:ripperportal}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=1 minute
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:fish - moongill|link=A Moongill|text=A Moongill|image=A Moongill.png}} (17.8%)<br>{{ItemLink|stablekey=item:fish - sleepyhead|link=A Sleepyhead|text=A Sleepyhead|image=A Sleepyhead.png}} (17.8%)<br>{{ItemLink|stablekey=item:head - 30 - spinesnap hide hood|link=Spinesnap Hide Hood|text=Spinesnap Hide Hood|image=Spinesnap Hide Hood.png}} (6.7%)
+|droprates={{ItemLink|stablekey=item:fish - moongill}} (17.8%)<br>{{ItemLink|stablekey=item:fish - sleepyhead}} (17.8%)<br>{{ItemLink|stablekey=item:head - 30 - spinesnap hide hood}} (6.7%)
 |level=30
 |levelmodmin=0
 |levelmodmax=0

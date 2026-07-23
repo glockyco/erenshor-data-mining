@@ -3,7 +3,7 @@
 |stablekey=item:belt - 2- metal girdle
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:gort|link=Gort|text=Gort}} (50.0%)
+|source={{CharacterLink|stablekey=character:gort}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

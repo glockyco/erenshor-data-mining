@@ -3,15 +3,15 @@
 |image=[[File:Greater Vithean Elemental.png|thumb]]
 |imagecaption=
 |type=Rare
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:duskenlight|link=The Duskenlight Coast|text=The Duskenlight Coast}}
+|zones={{ZoneLink|stablekey=zone:duskenlight}}
 |coordinates=
 |spawnchance=3%
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:weap - 12 - blade of the sea|link=Blade of the Sea|text=Blade of the Sea|image=Blade of the Sea.png}}<br>{{ItemLink|stablekey=item:bow - 13 - seastring|link=Seastring|text=Seastring|image=Seastring.png}}<br>{{ItemLink|stablekey=item:wand - 12 - wand of air|link=Wand of Air|text=Wand of Air|image=Wand of Air.png}}
-|droprates={{ItemLink|stablekey=item:weap - 12 - blade of the sea|link=Blade of the Sea|text=Blade of the Sea|image=Blade of the Sea.png}} (33.3%)<br>{{ItemLink|stablekey=item:bow - 13 - seastring|link=Seastring|text=Seastring|image=Seastring.png}} (33.3%)<br>{{ItemLink|stablekey=item:wand - 12 - wand of air|link=Wand of Air|text=Wand of Air|image=Wand of Air.png}} (33.3%)
+|guaranteeddrops={{ItemLink|stablekey=item:weap - 12 - blade of the sea}}<br>{{ItemLink|stablekey=item:bow - 13 - seastring}}<br>{{ItemLink|stablekey=item:wand - 12 - wand of air}}
+|droprates={{ItemLink|stablekey=item:weap - 12 - blade of the sea}} (33.3%)<br>{{ItemLink|stablekey=item:bow - 13 - seastring}} (33.3%)<br>{{ItemLink|stablekey=item:wand - 12 - wand of air}} (33.3%)
 |level=10
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=5-12
 |elemental=5-12
 |void=5-12
-|spells={{AbilityLink|stablekey=spell:duel - expose weakness|link=Expose Weakness|text=Expose Weakness|image=Expose Weakness.png}}
+|spells={{AbilityLink|stablekey=spell:duel - expose weakness}}
 }}
 ''{{Main|Enemies}}''
 =Location=

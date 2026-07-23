@@ -3,15 +3,15 @@
 |image=[[File:Vos Ashlyn.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:azynthi|link=Azynthi's Garden|text=Azynthi's Garden (Dimensional Rift)}}
+|zones={{ZoneLink|stablekey=zone:azynthi}}
 |coordinates=535.7 x 67.4 x 270.6
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:spell scroll - annihilate|link=Spell Scroll: Annihilate|text=Spell Scroll: Annihilate|image=Spell Scroll: Annihilate.png}}<br>{{ItemLink|stablekey=item:spell scroll - tenebris|link=Spell Scroll: Tenebris|text=Spell Scroll: Tenebris|image=Spell Scroll: Tenebris.png}}
-|droprates={{ItemLink|stablekey=item:gen -  riftsnare gem|link=Riftsnare Gem|text=Riftsnare Gem|image=Riftsnare Gem.png}} (100.0%)<br>{{ItemLink|stablekey=item:spell scroll - annihilate|link=Spell Scroll: Annihilate|text=Spell Scroll: Annihilate|image=Spell Scroll: Annihilate.png}} (50.0%)<br>{{ItemLink|stablekey=item:spell scroll - tenebris|link=Spell Scroll: Tenebris|text=Spell Scroll: Tenebris|image=Spell Scroll: Tenebris.png}} (50.0%)<br>{{ItemLink|stablekey=item:glove - 1 - cloth gloves|link=Cloth Gloves|text=Cloth Gloves|image=Cloth Gloves.png}} (15.8%)<br>{{ItemLink|stablekey=item:head - 1 - cloth hood|link=Cloth Hood|text=Cloth Hood|image=Cloth Hood.png}} (15.8%)<br>{{ItemLink|stablekey=item:foot - 1 - cloth shoes|link=Cloth Shoes|text=Cloth Shoes|image=Cloth Shoes.png}} (15.8%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves|link=Cloth Sleeves|text=Cloth Sleeves|image=Cloth Sleeves.png}} (15.8%)
+|guaranteeddrops={{ItemLink|stablekey=item:spell scroll - annihilate}}<br>{{ItemLink|stablekey=item:spell scroll - tenebris}}
+|droprates={{ItemLink|stablekey=item:gen -  riftsnare gem}} (100.0%)<br>{{ItemLink|stablekey=item:spell scroll - annihilate}} (50.0%)<br>{{ItemLink|stablekey=item:spell scroll - tenebris}} (50.0%)<br>{{ItemLink|stablekey=item:glove - 1 - cloth gloves}} (15.8%)<br>{{ItemLink|stablekey=item:head - 1 - cloth hood}} (15.8%)<br>{{ItemLink|stablekey=item:foot - 1 - cloth shoes}} (15.8%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves}} (15.8%)
 |level=38
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=19-46
 |elemental=19-46
 |void=19-46
-|spells={{AbilityLink|stablekey=spell:arc - aetherstorm|link=Aetherstorm|text=Aetherstorm|image=Aetherstorm.png}}<br>{{AbilityLink|stablekey=spell:dru reav - devour|link=Devour|text=Devour|image=Devour.png}}<br>{{AbilityLink|stablekey=spell:arc - infernis|link=Infernis|text=Infernis|image=Infernis.png}}
+|spells={{AbilityLink|stablekey=spell:arc - aetherstorm}}<br>{{AbilityLink|stablekey=spell:dru reav - devour}}<br>{{AbilityLink|stablekey=spell:arc - infernis}}
 }}
 
 In the graveyard

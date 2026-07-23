@@ -3,7 +3,7 @@
 |stablekey=item:secondary - 38 - bastion
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:constructed faithful|link=Constructed Faithful|text=Constructed Faithful}} (4.9%)<br>{{CharacterLink|stablekey=character:astorim|link=Astorim|text=Astorim}} (1.7%)<br>{{CharacterLink|stablekey=character:karsith|link=Karsith|text=Karsith}} (1.7%)<br>{{CharacterLink|stablekey=character:orinthar|link=Orinthar|text=Orinthar}} (1.5%)<br>{{CharacterLink|stablekey=character:vextral|link=Vextral|text=Vextral}} (1.5%)
+|source={{CharacterLink|stablekey=character:constructed faithful}} (4.9%)<br>{{CharacterLink|stablekey=character:astorim}} (1.7%)<br>{{CharacterLink|stablekey=character:karsith}} (1.7%)<br>{{CharacterLink|stablekey=character:orinthar}} (1.5%)<br>{{CharacterLink|stablekey=character:vextral}} (1.5%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Bash
 |proc_chance=99
 |proc_spell_icon=Death Stare.png
-|proc_spell_name={{AbilityLink|stablekey=spell:none - deathstare|link=Death Stare|text=Death Stare|image=Death Stare.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:none - deathstare}}
 |proc_spell_level=25
 |proc_spell_duration_ticks=1
 |proc_spell_type=Damage

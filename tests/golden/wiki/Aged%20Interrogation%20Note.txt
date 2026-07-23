@@ -3,10 +3,10 @@
 |stablekey=item:gen - aged interrogation note
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:crazed prisoner|link=Tortured Prisoner|text=Tortured Prisoner}} (13.5%)
+|source={{CharacterLink|stablekey=character:crazed prisoner}} (13.5%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Intel from the Lost Cellar}}<br>{{QuestLink|stablekey=quest:lostcellarintel|link=Intel from the Lost Cellar|text=Intel from the Lost Cellar}}
+|relatedquest={{QuestLink|Intel from the Lost Cellar}}<br>{{QuestLink|stablekey=quest:lostcellarintel}}
 |craftsource=
 |componentfor=
 |buy=

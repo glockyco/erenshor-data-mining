@@ -3,7 +3,7 @@
 |stablekey=item:glove - 39 - gloves of vitheo
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:remains of vitheo|link=Apparition of Vitheo|text=Apparition of Vitheo}} (51.7%)
+|source={{CharacterLink|stablekey=character:remains of vitheo}} (51.7%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -3,7 +3,7 @@
 |stablekey=item:arm - 42 - lunar bangle
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:zenithchest|link=Solunarian Chest|text=Solunarian Chest}} (40.4%)
+|source={{CharacterLink|stablekey=character:zenithchest}} (40.4%)
 |othersource=
 |questsource=
 |relatedquest=

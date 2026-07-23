@@ -3,7 +3,7 @@
 |stablekey=item:weap - 10 - thorn
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:massia the felled|link=Massia the Fallen|text=Massia the Fallen}} (50.0%)
+|source={{CharacterLink|stablekey=character:massia the felled}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=15
 |proc_spell_icon=Biting Vines.png
-|proc_spell_name={{AbilityLink|stablekey=spell:dru - biting vines|link=Biting Vines|text=Biting Vines|image=Biting Vines.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:dru - biting vines}}
 |proc_spell_level=5
 |proc_spell_duration_ticks=9
 |proc_spell_type=StatusEffect

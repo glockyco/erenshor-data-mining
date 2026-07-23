@@ -3,7 +3,7 @@
 |stablekey=item:neck - 34 - frozen mana charm
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:nazura the cursed|link=Nazura the Traitor|text=Nazura the Traitor}} (66.7%)
+|source={{CharacterLink|stablekey=character:nazura the cursed}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -3,7 +3,7 @@
 |stablekey=item:back - 6 - satin cloak
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:zashlyn bloodbane|link=Zashlyn Bloodbane|text=Zashlyn Bloodbane}} (5.6%)
+|source={{CharacterLink|stablekey=character:zashlyn bloodbane}} (5.6%)
 |othersource=
 |questsource=
 |relatedquest=

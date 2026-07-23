@@ -3,15 +3,15 @@
 |image=[[File:Bloom Preserver.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:bloomingsepulcher|link=Blooming Sepulcher|text=Blooming Sepulcher}}
+|zones={{ZoneLink|stablekey=zone:bloomingsepulcher}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - decayed druid beads|link=Decayed Druid Beads|text=Decayed Druid Beads|image=Decayed Druid Beads.png}} (21.6%)<br>{{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} (17.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:weap - 28 - world builder|link=World Builder|text=World Builder|image=World Builder.png}} (1.5%)<ref>If Bloom Preserver has {{ItemLink|stablekey=item:weap - 28 - world builder|link=World Builder|text=World Builder|image=World Builder.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:furniture - wisp garden|link=Wisp Garden|text=Wisp Garden|image=Wisp Garden.png}} (1.0%)
+|droprates={{ItemLink|stablekey=item:gen - decayed druid beads}} (21.6%)<br>{{ItemLink|stablekey=item:gen - ruby}} (17.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:weap - 28 - world builder}} (1.5%)<ref>If Bloom Preserver has {{ItemLink|stablekey=item:weap - 28 - world builder}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:furniture - wisp garden}} (1.0%)
 |level=27
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=14-32
 |elemental=14-32
 |void=14-32
-|spells={{AbilityLink|stablekey=spell:dru - biting vines|link=Biting Vines|text=Biting Vines|image=Biting Vines.png}}<br>{{AbilityLink|stablekey=spell:dru - tangle|link=Tangle|text=Tangle|image=Tangle.png}}<br>{{AbilityLink|stablekey=spell:dru reav - theft of life|link=Theft of Life|text=Theft of Life|image=Theft of Life.png}}
+|spells={{AbilityLink|stablekey=spell:dru - biting vines}}<br>{{AbilityLink|stablekey=spell:dru - tangle}}<br>{{AbilityLink|stablekey=spell:dru reav - theft of life}}
 }}
 
 [[Category:Blooming Sepulcher]]

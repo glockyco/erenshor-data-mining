@@ -3,7 +3,7 @@
 |stablekey=item:back - 17 - sandcloak
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:overseer refliegh|link=Overseer Refleigh|text=Overseer Refleigh}} (14.2%)<br>{{CharacterLink|stablekey=character:molorai archaelogist|link=Molorai Archaeologist|text=Molorai Archaeologist}} (3.9%)<br>{{CharacterLink|stablekey=character:molorai archaelogist 1|link=Molorai Archaeologist|text=Molorai Archaeologist}} (3.4%)
+|source={{CharacterLink|stablekey=character:overseer refliegh}} (14.2%)<br>{{CharacterLink|stablekey=character:molorai archaelogist}} (3.9%)<br>{{CharacterLink|stablekey=character:molorai archaelogist 1}} (3.4%)
 |othersource=
 |questsource=
 |relatedquest=

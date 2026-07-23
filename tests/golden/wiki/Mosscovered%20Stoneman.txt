@@ -3,15 +3,15 @@
 |image=[[File:Mosscovered Stoneman.png|thumb]]
 |imagecaption=
 |type=Rare
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:rockshade|link=Rockshade Hold|text=Rockshade Hold}}
+|zones={{ZoneLink|stablekey=zone:rockshade}}
 |coordinates=
 |spawnchance=10-20%
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - polished stone|link=Polished Stone|text=Polished Stone|image=Polished Stone.png}} (43.4%)<br>{{ItemLink|stablekey=item:gen - pulsating stone|link=Pulsating Stone|text=Pulsating Stone|image=Pulsating Stone.png}} (43.4%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - pulsating stone|link=Pulsating Stone|text=Pulsating Stone|image=Pulsating Stone.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:foot - 23 - surestep|link=Surestep|text=Surestep|image=Surestep.png}} (27.8%)
+|droprates={{ItemLink|stablekey=item:gen - polished stone}} (43.4%)<br>{{ItemLink|stablekey=item:gen - pulsating stone}} (43.4%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - pulsating stone}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:foot - 23 - surestep}} (27.8%)
 |level=25
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=12-30
 |elemental=12-30
 |void=12-30
-|spells={{AbilityLink|stablekey=spell:dru - morbidity's grasp|link=Morbidity's Grasp|text=Morbidity's Grasp|image=Morbidity's Grasp.png}}<br>{{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}
+|spells={{AbilityLink|stablekey=spell:dru - morbidity's grasp}}<br>{{AbilityLink|stablekey=spell:dru reav - soul tap}}
 }}
 
 [[Category:Enemies]]

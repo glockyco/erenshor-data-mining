@@ -5,7 +5,7 @@
 |description=Deals 2400 poison based damage to a target.
 |type=Damage
 |line=Direct_Damage
-|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (28)
+|classes={{ClassLink|stablekey=class:druid}} (28)
 |required_level=28
 |manacost=1000
 |aggro=300
@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:bow - 30 - deathgiver|link=Deathgiver|text=Deathgiver|image=Deathgiver.png}}
-|source={{ItemLink|stablekey=item:spell scroll - drudd cull the unfit|link=Spell Scroll: Cull the Unfit|text=Spell Scroll: Cull the Unfit|image=Spell Scroll: Cull the Unfit.png}}
-|used_by={{CharacterLink|stablekey=character:curator|link=Grounds Keeper|text=Grounds Keeper}}<br>{{CharacterLink|stablekey=character:rotting guardian|link=Rotting Guardian|text=Rotting Guardian}}
+|itemswitheffect={{ItemLink|stablekey=item:bow - 30 - deathgiver}}
+|source={{ItemLink|stablekey=item:spell scroll - drudd cull the unfit}}
+|used_by={{CharacterLink|stablekey=character:curator}}<br>{{CharacterLink|stablekey=character:rotting guardian}}
 }}
+{{SpellTooltip|stablekey=spell:dru - cull the unfit}}

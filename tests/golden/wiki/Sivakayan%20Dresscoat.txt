@@ -3,7 +3,7 @@
 |stablekey=item:chest - 30 - sivakayan dresscoat
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:darkwarden ealdred|link=Darkwarden Ealdred|text=Darkwarden Ealdred}} (66.7%)<br>{{CharacterLink|stablekey=character:sivakayan emissary|link=Sivakayan Emissary|text=Sivakayan Emissary}} (50.0%)<br>{{CharacterLink|stablekey=character:darkwarden awxa|link=Darkwarden Awxa|text=Darkwarden Awxa}} (33.3%)
+|source={{CharacterLink|stablekey=character:darkwarden ealdred}} (66.7%)<br>{{CharacterLink|stablekey=character:sivakayan emissary}} (50.0%)<br>{{CharacterLink|stablekey=character:darkwarden awxa}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

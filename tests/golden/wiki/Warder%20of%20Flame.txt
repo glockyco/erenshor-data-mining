@@ -3,15 +3,15 @@
 |image=[[File:Warder of Flame.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:planeofbrax|link=Brax's Plane of Elements|text=Brax's Plane of Elements}}
+|zones={{ZoneLink|stablekey=zone:planeofbrax}}
 |coordinates=258.9 x 55.9 x 180.0
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:back - 42 - cloak of flame|link=Cloak of Flame|text=Cloak of Flame|image=Cloak of Flame.png}}<br>{{ItemLink|stablekey=item:charm - 42 - creator's charm|link=Creator's Charm|text=Creator's Charm|image=Creator's Charm.png}}<br>{{ItemLink|stablekey=item:glove - 42 - gauntlets of fiery strength|link=Gauntlets of Fiery Strength|text=Gauntlets of Fiery Strength|image=Gauntlets of Fiery Strength.png}}
-|droprates={{ItemLink|stablekey=item:ore - planar shard|link=Planar Stone Shards|text=Planar Stone Shards|image=Planar Stone Shards.png}} (91.1%)<br>{{ItemLink|stablekey=item:back - 42 - cloak of flame|link=Cloak of Flame|text=Cloak of Flame|image=Cloak of Flame.png}} (69.7%)<br>{{ItemLink|stablekey=item:charm - 42 - creator's charm|link=Creator's Charm|text=Creator's Charm|image=Creator's Charm.png}} (69.7%)<br>{{ItemLink|stablekey=item:glove - 42 - gauntlets of fiery strength|link=Gauntlets of Fiery Strength|text=Gauntlets of Fiery Strength|image=Gauntlets of Fiery Strength.png}} (69.7%)<br>{{ItemLink|stablekey=item:ore - planar stone|link=Planar Stone|text=Planar Stone|image=Planar Stone.png}} (38.2%)
+|guaranteeddrops={{ItemLink|stablekey=item:back - 42 - cloak of flame}}<br>{{ItemLink|stablekey=item:charm - 42 - creator's charm}}<br>{{ItemLink|stablekey=item:glove - 42 - gauntlets of fiery strength}}
+|droprates={{ItemLink|stablekey=item:ore - planar shard}} (91.1%)<br>{{ItemLink|stablekey=item:back - 42 - cloak of flame}} (69.7%)<br>{{ItemLink|stablekey=item:charm - 42 - creator's charm}} (69.7%)<br>{{ItemLink|stablekey=item:glove - 42 - gauntlets of fiery strength}} (69.7%)<br>{{ItemLink|stablekey=item:ore - planar stone}} (38.2%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

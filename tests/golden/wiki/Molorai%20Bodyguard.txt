@@ -3,15 +3,15 @@
 |image=[[File:Molorai Bodyguard.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:molarai|link=Eldoth Molorai (Faction)|text=Eldoth Molorai}}
-|factionChange=-2 {{FactionLink|stablekey=faction:molarai|link=Eldoth Molorai (Faction)|text=Eldoth Molorai}}<br>+2 {{FactionLink|stablekey=faction:azureguard|link=The Azure Guard|text=The Azure Guard}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+2 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
-|zones={{ZoneLink|stablekey=zone:krakengard|link=Old Krakengard|text=Old Krakengard}}
+|faction={{FactionLink|stablekey=faction:molarai}}
+|factionChange=-2 {{FactionLink|stablekey=faction:molarai}}<br>+2 {{FactionLink|stablekey=faction:azureguard}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens}}<br>+2 {{FactionLink|stablekey=faction:solunarians}}
+|zones={{ZoneLink|stablekey=zone:krakengard}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=8 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (87.1%)<br>{{ItemLink|stablekey=item:weap - 7 - molora axe|link=Molorai Axe|text=Molorai Axe|image=Molorai Axe.png}} (17.3%)<ref>If Molorai Bodyguard has {{ItemLink|stablekey=item:weap - 7 - molora axe|link=Molorai Axe|text=Molorai Axe|image=Molorai Axe.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (7.8%)<br>{{ItemLink|stablekey=item:foot - 9 - molorai battle boots|link=Molorai Battle Boots|text=Molorai Battle Boots|image=Molorai Battle Boots.png}} (7.8%)<br>{{ItemLink|stablekey=item:weap - 13 - razor waveblade|link=Razor Waveblade|text=Razor Waveblade|image=Razor Waveblade.png}} (5.1%)<ref>If Molorai Bodyguard has {{ItemLink|stablekey=item:weap - 13 - razor waveblade|link=Razor Waveblade|text=Razor Waveblade|image=Razor Waveblade.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:weap - 1 - rustydagger|link=Rusty Dagger|text=Rusty Dagger|image=Rusty Dagger.png}} (5.1%)
+|droprates={{ItemLink|stablekey=item:gen citrine stone}} (87.1%)<br>{{ItemLink|stablekey=item:weap - 7 - molora axe}} (17.3%)<ref>If Molorai Bodyguard has {{ItemLink|stablekey=item:weap - 7 - molora axe}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:gen - luminstone}} (7.8%)<br>{{ItemLink|stablekey=item:foot - 9 - molorai battle boots}} (7.8%)<br>{{ItemLink|stablekey=item:weap - 13 - razor waveblade}} (5.1%)<ref>If Molorai Bodyguard has {{ItemLink|stablekey=item:weap - 13 - razor waveblade}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:weap - 1 - rustydagger}} (5.1%)
 |level=14
 |levelmodmin=0
 |levelmodmax=0

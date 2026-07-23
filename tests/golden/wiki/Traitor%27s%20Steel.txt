@@ -3,7 +3,7 @@
 |stablekey=item:weap - 33 - traitor's steel
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:elwio the traitor|link=Elwio the Traitor|text=Elwio the Traitor}} (33.3%)
+|source={{CharacterLink|stablekey=character:elwio the traitor}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=10
 |proc_spell_icon=Melting Bones.png
-|proc_spell_name={{AbilityLink|stablekey=spell:dru - melting bones|link=Melting Bones|text=Melting Bones|image=Melting Bones.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:dru - melting bones}}
 |proc_spell_level=20
 |proc_spell_duration_ticks=16
 |proc_spell_type=StatusEffect

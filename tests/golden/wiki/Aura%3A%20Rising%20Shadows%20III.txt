@@ -32,7 +32,7 @@
 |shield_amount=
 |pet_to_summon=
 |status_effect=
-|add_proc={{AbilityLink|stablekey=spell:reav - void surge|link=Void Surge|text=Void Surge}}
+|add_proc={{AbilityLink|stablekey=spell:reav - void surge}}
 |add_proc_chance=3
 |has_lifetap=
 |lifesteal=
@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:aura - reaver 3|link=End of Life|text=End of Life|image=End of Life.png}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - reaver 3}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:aura - reaver 3}}

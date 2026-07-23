@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:wrist - 30 - blessed braxonian bracelet|link=Blessed Braxonian Bracelet|text=Blessed Braxonian Bracelet|image=Blessed Braxonian Bracelet.png}}<br>{{ItemLink|stablekey=item:wrist - 30 - blessed braxonian bracer|link=Blessed Braxonian Bracer|text=Blessed Braxonian Bracer|image=Blessed Braxonian Bracer.png}}<br>{{ItemLink|stablekey=item:wrist - 30 - blessed braxonian wristlet|link=Blessed Braxonian Wristlet|text=Blessed Braxonian Wristlet|image=Blessed Braxonian Wristlet.png}}<br>{{ItemLink|stablekey=item:neck - 38 - warped choker|link=Warped Choker|text=Warped Choker|image=Warped Choker.png}}
+|itemswitheffect={{ItemLink|stablekey=item:wrist - 30 - blessed braxonian bracelet}}<br>{{ItemLink|stablekey=item:wrist - 30 - blessed braxonian bracer}}<br>{{ItemLink|stablekey=item:wrist - 30 - blessed braxonian wristlet}}<br>{{ItemLink|stablekey=item:neck - 38 - warped choker}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - strength of brax}}

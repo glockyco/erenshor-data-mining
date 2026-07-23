@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 17 - searing wrap
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:overseer refliegh|link=Overseer Refleigh|text=Overseer Refleigh}} (14.2%)
+|source={{CharacterLink|stablekey=character:overseer refliegh}} (14.2%)
 |othersource=
 |questsource=
 |relatedquest=

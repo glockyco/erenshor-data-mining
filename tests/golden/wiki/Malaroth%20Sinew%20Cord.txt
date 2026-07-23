@@ -3,7 +3,7 @@
 |stablekey=item:belt - 23 - malaroth sinew cord
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:shivunax|link=Shivunax|text=Shivunax}} (66.7%)
+|source={{CharacterLink|stablekey=character:shivunax}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=

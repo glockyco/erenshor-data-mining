@@ -3,15 +3,15 @@
 |image=[[File:Elwio the Traitor.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:vitheosend|link=Vitheo's Rest|text=Vitheo's Rest}}
+|zones={{ZoneLink|stablekey=zone:vitheosend}}
 |coordinates=247.1 x 0.6 x 107.5
 |spawnchance=99%
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:weap - 33 - traitor's steel|link=Traitor's Steel|text=Traitor's Steel|image=Traitor's Steel.png}}<br>{{ItemLink|stablekey=item:head - 33 - virophan helm|link=Virophan Helm|text=Virophan Helm|image=Virophan Helm.png}}
-|droprates={{ItemLink|stablekey=item:gen - memory of elwio|link=Memory of Elwio|text=Memory of Elwio|image=Memory of Elwio.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - memory of elwio|link=Memory of Elwio|text=Memory of Elwio|image=Memory of Elwio.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - rekindling the flame|link=Rekindling The Flame|text=Rekindling The Flame|image=Rekindling The Flame.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - rekindling the flame|link=Rekindling The Flame|text=Rekindling The Flame|image=Rekindling The Flame.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:head - 33 - virophan helm|link=Virophan Helm|text=Virophan Helm|image=Virophan Helm.png}} (66.7%)<br>{{ItemLink|stablekey=item:spell scroll - blessed quiver|link=Spell Scroll: Blessed Quiver|text=Spell Scroll: Blessed Quiver|image=Spell Scroll: Blessed Quiver.png}} (63.0%)<br>{{ItemLink|stablekey=item:weap - 33 - traitor's steel|link=Traitor's Steel|text=Traitor's Steel|image=Traitor's Steel.png}} (33.3%)<ref>If Elwio the Traitor has {{ItemLink|stablekey=item:weap - 33 - traitor's steel|link=Traitor's Steel|text=Traitor's Steel|image=Traitor's Steel.png}} equipped, it is guaranteed to drop.</ref>
+|guaranteeddrops={{ItemLink|stablekey=item:weap - 33 - traitor's steel}}<br>{{ItemLink|stablekey=item:head - 33 - virophan helm}}
+|droprates={{ItemLink|stablekey=item:gen - memory of elwio}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - memory of elwio}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - rekindling the flame}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - rekindling the flame}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:head - 33 - virophan helm}} (66.7%)<br>{{ItemLink|stablekey=item:spell scroll - blessed quiver}} (63.0%)<br>{{ItemLink|stablekey=item:weap - 33 - traitor's steel}} (33.3%)<ref>If Elwio the Traitor has {{ItemLink|stablekey=item:weap - 33 - traitor's steel}} equipped, it is guaranteed to drop.</ref>
 |level=33
 |levelmodmin=0
 |levelmodmax=0

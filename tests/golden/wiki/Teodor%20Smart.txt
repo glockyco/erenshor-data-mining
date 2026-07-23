@@ -3,9 +3,9 @@
 |image=[[File:Teodor Smart.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:ripper|link=Ripper DeMerth|text=Ripper DeMerth}}
-|factionChange=-25 {{FactionLink|stablekey=faction:ripper|link=Ripper DeMerth|text=Ripper DeMerth}}
-|zones={{ZoneLink|stablekey=zone:ripper|link=Ripper's Keep|text=Ripper's Keep}}
+|faction={{FactionLink|stablekey=faction:ripper}}
+|factionChange=-25 {{FactionLink|stablekey=faction:ripper}}
+|zones={{ZoneLink|stablekey=zone:ripper}}
 |coordinates=691.2 x 43.6 x 182.0
 |spawnchance=
 |spawntype=
@@ -32,7 +32,7 @@
 |poison=4-8
 |elemental=4-8
 |void=4-8
-|spells={{AbilityLink|stablekey=spell:dru pal - minor healing|link=Minor Healing|text=Minor Healing|image=Minor Healing.png}}
+|spells={{AbilityLink|stablekey=spell:dru pal - minor healing}}
 }}
 
 Greeting message:

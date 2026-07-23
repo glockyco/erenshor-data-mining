@@ -3,7 +3,7 @@
 |stablekey=item:weap - 42 - planar ice lance
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:warder of ice|link=Warder of Ice|text=Warder of Ice}} (69.7%)
+|source={{CharacterLink|stablekey=character:warder of ice}} (69.7%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=95
 |proc_spell_icon=Ice Shock.png
-|proc_spell_name={{AbilityLink|stablekey=spell:arc - ice shock|link=Ice Shock|text=Ice Shock|image=Ice Shock.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:arc - ice shock}}
 |proc_spell_level=16
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

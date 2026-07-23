@@ -2,7 +2,7 @@
 |title=Fluorite Amulet
 |stablekey=item:neck - 5 - fluorite amulet
 |type=
-|vendorsource={{CharacterLink|stablekey=character:parmalee gemlyn|link=Parmalee Gemlyn|text=Parmalee Gemlyn}}
+|vendorsource={{CharacterLink|stablekey=character:parmalee gemlyn}}
 |source=
 |othersource=
 |questsource=

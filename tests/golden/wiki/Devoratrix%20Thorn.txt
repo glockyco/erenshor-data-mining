@@ -3,10 +3,10 @@
 |stablekey=item:gen - devoratrix thorn
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:devoratrix|link=Devoratrix|text=Devoratrix}} (6.9%)<br>{{CharacterLink|stablekey=character:planar snap|link=Planar Flora|text=Planar Flora}} (6.9%)
+|source={{CharacterLink|stablekey=character:devoratrix}} (6.9%)<br>{{CharacterLink|stablekey=character:planar snap}} (6.9%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Ritual Components}}<br>{{QuestLink|stablekey=quest:ritualcomponents|link=Ritual Components|text=Ritual Components}}
+|relatedquest={{QuestLink|Ritual Components}}<br>{{QuestLink|stablekey=quest:ritualcomponents}}
 |craftsource=
 |componentfor=
 |buy=12

@@ -3,9 +3,9 @@
 |image=[[File:Braxon Elden.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|factionChange=-20 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>-20 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>-20 {{FactionLink|stablekey=faction:brax|link=The Torchbearers of Brax|text=The Torchbearers of Brax}}
-|zones={{ZoneLink|stablekey=zone:braxonian|link=Braxonian Desert|text=Braxonian Desert}}
+|faction={{FactionLink|stablekey=faction:azurecitizens}}
+|factionChange=-20 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>-20 {{FactionLink|stablekey=faction:azurecitizens}}<br>-20 {{FactionLink|stablekey=faction:brax}}
+|zones={{ZoneLink|stablekey=zone:braxonian}}
 |coordinates=100.0 x 33.8 x 993.1
 |spawnchance=
 |spawntype=
@@ -32,7 +32,7 @@
 |poison=18-43
 |elemental=18-43
 |void=18-43
-|spells={{AbilityLink|stablekey=spell:arc - coma|link=Coma|text=Coma|image=Coma.png}}<br>{{AbilityLink|stablekey=spell:arc - infernis|link=Infernis|text=Infernis|image=Infernis.png}}<br>{{AbilityLink|stablekey=spell:arc - tenebris|link=Tenebris|text=Tenebris|image=Tenebris.png}}
+|spells={{AbilityLink|stablekey=spell:arc - coma}}<br>{{AbilityLink|stablekey=spell:arc - infernis}}<br>{{AbilityLink|stablekey=spell:arc - tenebris}}
 }}
 
 Elden is located at the archaeologist dig site in the [[Braxonian Desert]]. He is the quest giver for {{QuestLink|link=The Scent of Brashell}}

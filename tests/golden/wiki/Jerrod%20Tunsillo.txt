@@ -3,9 +3,9 @@
 |image=[[File:Jerrod Tunsillo.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:fernalla|link=Fernalla's Children|text=Fernalla's Children}}
-|factionChange=-10 {{FactionLink|stablekey=faction:fernalla|link=Fernalla's Children|text=Fernalla's Children}}
-|zones={{ZoneLink|stablekey=zone:soluna|link=Soluna's Landing|text=Soluna's Landing}}
+|faction={{FactionLink|stablekey=faction:fernalla}}
+|factionChange=-10 {{FactionLink|stablekey=faction:fernalla}}
+|zones={{ZoneLink|stablekey=zone:soluna}}
 |coordinates=264.0 x 100.9 x 432.6
 |spawnchance=
 |spawntype=

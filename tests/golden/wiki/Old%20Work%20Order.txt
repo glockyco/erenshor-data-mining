@@ -3,7 +3,7 @@
 |stablekey=item:gen - old work order
 |type=[[Lore Items|Lore]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:molorai mason|link=Molorai Mason|text=Molorai Mason}} (100.0%)
+|source={{CharacterLink|stablekey=character:molorai mason}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=

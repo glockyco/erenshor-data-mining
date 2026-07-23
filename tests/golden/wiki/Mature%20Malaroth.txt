@@ -3,15 +3,15 @@
 |image=[[File:Mature Malaroth.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:malaroth|link=Malaroth's Nesting Grounds|text=Malaroth's Nesting Grounds}}
+|zones={{ZoneLink|stablekey=zone:malaroth}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=7 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - malaroth hide|link=Malaroth Hide|text=Malaroth Hide|image=Malaroth Hide.png}} (22.1%)<br>{{ItemLink|stablekey=item:gen - ivory tusk|link=Ivory Tusk|text=Ivory Tusk|image=Ivory Tusk.png}} (19.5%)
+|droprates={{ItemLink|stablekey=item:gen - malaroth hide}} (22.1%)<br>{{ItemLink|stablekey=item:gen - ivory tusk}} (19.5%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0

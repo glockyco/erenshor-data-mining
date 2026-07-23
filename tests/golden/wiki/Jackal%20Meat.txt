@@ -3,7 +3,7 @@
 |stablekey=item:gen - jackal meat
 |type=[[:Category:Items|General]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:desert jackal|link=Desert Jackal|text=Desert Jackal}} (86.3%)
+|source={{CharacterLink|stablekey=character:desert jackal}} (86.3%)
 |othersource=
 |questsource=
 |relatedquest=

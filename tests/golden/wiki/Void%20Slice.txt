@@ -5,7 +5,7 @@
 |description=Passive Skill:  Chance for your blade to slice temporarily into the void on any swing, adding a high damage DOT proc to your attack
 |type=Innate
 |line=
-|classes={{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}} (35)
+|classes={{ClassLink|stablekey=class:reaver}} (35)
 |required_level=
 |manacost=
 |aggro=
@@ -66,8 +66,9 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:skillbook - void slice|link=Skill Book: Void Slice|text=Skill Book: Void Slice|image=Skill Book: Void Slice.png}}
+|source={{ItemLink|stablekey=item:skillbook - void slice}}
 |used_by=
 }}
+{{SkillTooltip|stablekey=skill:void slice}}
 
 The associated proc from Void Slice is {{AbilityLink|Corrupting Void}}.

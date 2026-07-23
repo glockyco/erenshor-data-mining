@@ -2,11 +2,11 @@
 |title=Vithean Arena Fee (1)
 |stablekey=item:quest - vithean arena token 1
 |type=[[Quest Items|Quest Item]]
-|vendorsource={{CharacterLink|stablekey=character:master of arms:planeofvitheo:463.87:25.16:417.06|link=Master of Battle|text=Master of Battle}}
-|source={{CharacterLink|stablekey=character:arenachest 8|link=Vithean Chest|text=Vithean Chest (Round 8)}} (100.0%)
+|vendorsource={{CharacterLink|stablekey=character:master of arms:planeofvitheo:463.87:25.16:417.06}}
+|source={{CharacterLink|stablekey=character:arenachest 8}} (100.0%)
 |othersource=
-|questsource={{QuestLink|An Arena Token}}<br>{{QuestLink|stablekey=quest:arenatoken|link=An Arena Token|text=An Arena Token}}
-|relatedquest={{QuestLink|Vitheo's Arena I}}<br>{{QuestLink|stablekey=quest:vithtokenmob1|link=Vitheo's Arena I|text=Vitheo's Arena I}}
+|questsource={{QuestLink|An Arena Token}}<br>{{QuestLink|stablekey=quest:arenatoken}}
+|relatedquest={{QuestLink|Vitheo's Arena I}}<br>{{QuestLink|stablekey=quest:vithtokenmob1}}
 |craftsource=
 |componentfor=
 |buy=250000

@@ -2,7 +2,7 @@
 |title=Spell Scroll: Atrophy
 |stablekey=item:spell scroll - atrophy
 |type=
-|vendorsource={{CharacterLink|stablekey=character:grant haxoway|link=Grant Haxoway|text=Grant Haxoway}}<br>{{CharacterLink|stablekey=character:xander zaxtrough|link=Xander Zaxtrough|text=Xander Zaxtrough}}
+|vendorsource={{CharacterLink|stablekey=character:grant haxoway}}<br>{{CharacterLink|stablekey=character:xander zaxtrough}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=300
 |sell=195
-|taughtspell={{AbilityLink|stablekey=spell:reav - atrophy|link=Atrophy|text=Atrophy|image=Atrophy.png}}
+|taughtspell={{AbilityLink|stablekey=spell:reav - atrophy}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

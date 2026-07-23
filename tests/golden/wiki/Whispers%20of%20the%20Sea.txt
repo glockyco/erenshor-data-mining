@@ -3,12 +3,12 @@
 |stablekey=item:gen - whispers of the sea
 |type=[[Crafting]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:a seafiend|link=A Seafiend|text=A Seafiend}} (8.8%)<br>{{CharacterLink|stablekey=character:a seafiend tidal lord|link=A Seafiend Manalord|text=A Seafiend Manalord}} (8.8%)<br>{{CharacterLink|stablekey=character:a seafiend manalord|link=A Seafiend Manathite|text=A Seafiend Manathite}} (8.8%)<br>{{CharacterLink|stablekey=character:a seafiend soldier|link=A Seafiend Worker|text=A Seafiend Worker}} (8.8%)<br>{{CharacterLink|stablekey=character:a seafiend spirtist|link=A Seafiend|text=A Seafiend}} (4.4%)
+|source={{CharacterLink|stablekey=character:a seafiend}} (8.8%)<br>{{CharacterLink|stablekey=character:a seafiend tidal lord}} (8.8%)<br>{{CharacterLink|stablekey=character:a seafiend manalord}} (8.8%)<br>{{CharacterLink|stablekey=character:a seafiend soldier}} (8.8%)<br>{{CharacterLink|stablekey=character:a seafiend spirtist}} (4.4%)
 |othersource=
 |questsource=
 |relatedquest=
 |craftsource=
-|componentfor={{ItemLink|stablekey=item:template - anglers ring|link=Mold: Angler's Ring|text=Mold: Angler's Ring|image=Mold: Angler's Ring.png}}
+|componentfor={{ItemLink|stablekey=item:template - anglers ring}}
 |buy=
 |sell=
 |taughtspell=

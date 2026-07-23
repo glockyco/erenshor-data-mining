@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:aura - mosquito|link=Amber's Gift|text=Amber's Gift|image=Amber's Gift.png}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - mosquito}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:aura - mosquito}}

@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:arm - 41 - armguards of presence|link=Armguards of Presence|text=Armguards of Presence|image=Armguards of Presence.png}}<br>{{ItemLink|stablekey=item:glove - 42 - eventide gauntlets|link=Eventide Gloves|text=Eventide Gloves|image=Eventide Gloves.png}}
+|itemswitheffect={{ItemLink|stablekey=item:arm - 41 - armguards of presence}}<br>{{ItemLink|stablekey=item:glove - 42 - eventide gauntlets}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - possession}}

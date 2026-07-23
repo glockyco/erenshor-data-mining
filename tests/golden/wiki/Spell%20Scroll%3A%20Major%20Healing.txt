@@ -2,7 +2,7 @@
 |title=Spell Scroll: Major Healing
 |stablekey=item:spell scroll - major healing
 |type=[[Ability Books|Spell Scroll]]
-|vendorsource={{CharacterLink|stablekey=character:aspen dechaffe|link=Aspen Dechaffe|text=Aspen Dechaffe}}
+|vendorsource={{CharacterLink|stablekey=character:aspen dechaffe}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=1600
 |sell=1040
-|taughtspell={{AbilityLink|stablekey=spell:dru pal - major healing|link=Major Healing|text=Major Healing|image=Major Healing.png}}
+|taughtspell={{AbilityLink|stablekey=spell:dru pal - major healing}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

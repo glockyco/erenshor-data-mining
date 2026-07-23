@@ -3,9 +3,9 @@
 |image=[[File:Ward of Siraethe.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:jaws|link=Jaws of Sivakaya|text=Jaws of Sivakaya}}
+|zones={{ZoneLink|stablekey=zone:jaws}}
 |coordinates=1581.6 x -19.8 x 109.6
 |spawnchance=
 |spawntype=Dynamic event spawn

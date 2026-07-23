@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:glove - 42 - sea shaper's gloves|link=Sea Shaper's Gloves|text=Sea Shaper's Gloves|image=Sea Shaper's Gloves.png}}
+|itemswitheffect={{ItemLink|stablekey=item:glove - 42 - sea shaper's gloves}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - obscurity of the deep}}

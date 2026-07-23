@@ -3,15 +3,15 @@
 |image=[[File:A Deepling Brute.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:elderstone|link=The Elderstone Mines|text=The Elderstone Mines}}
+|zones={{ZoneLink|stablekey=zone:elderstone}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:belt - 17 - reinforced scale belt|link=Reinforced Scale Belt|text=Reinforced Scale Belt|image=Reinforced Scale Belt.png}} (9.8%)<br>{{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} (6.6%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - elderstone shard|link=Elderstone Shard|text=Elderstone Shard|image=Elderstone Shard.png}} (3.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - elderstone shard|link=Elderstone Shard|text=Elderstone Shard|image=Elderstone Shard.png}} in their inventory, another will not drop.</ref>
+|droprates={{ItemLink|stablekey=item:belt - 17 - reinforced scale belt}} (9.8%)<br>{{ItemLink|stablekey=item:gen - ruby}} (6.6%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - elderstone shard}} (3.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - elderstone shard}} in their inventory, another will not drop.</ref>
 |level=19
 |levelmodmin=0
 |levelmodmax=0

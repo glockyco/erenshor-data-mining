@@ -3,9 +3,9 @@
 |image=[[File:Loomingwood Minotaur.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:loomingwood|link=Loomingwood Forest|text=Loomingwood Forest}}<br>{{ZoneLink|stablekey=zone:malaroth|link=Malaroth's Nesting Grounds|text=Malaroth's Nesting Grounds}}
+|zones={{ZoneLink|stablekey=zone:loomingwood}}<br>{{ZoneLink|stablekey=zone:malaroth}}
 |coordinates=
 |spawnchance=
 |spawntype=

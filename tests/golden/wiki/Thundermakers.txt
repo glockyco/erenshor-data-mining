@@ -3,7 +3,7 @@
 |stablekey=item:foot - 36 - thundermakers
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:treasurechest 30-35|link=Lost Treasure (30+)|text=Lost Treasure (30+)}} (12.8%)
+|source={{CharacterLink|stablekey=character:treasurechest 30-35}} (12.8%)
 |othersource=
 |questsource=
 |relatedquest=

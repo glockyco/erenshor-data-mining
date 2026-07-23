@@ -3,15 +3,15 @@
 |image=[[File:A Seafiend.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
-|factionChange=+1 {{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:saltedstrand|link=Blacksalt Strand|text=Blacksalt Strand}}
+|faction={{FactionLink|stablekey=faction:evil}}
+|factionChange=+1 {{FactionLink|stablekey=faction:vitheo}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:saltedstrand}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - a coral|link=Coral|text=Coral|image=Coral.png}} (51.4%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (51.4%)<br>{{ItemLink|stablekey=item:gen - seaweed|link=Seaweed|text=Seaweed|image=Seaweed.png}} (51.4%)<br>{{ItemLink|stablekey=item:fish - husselfish|link=A Husselfish|text=A Husselfish|image=A Husselfish.png}} (14.9%)<br>{{ItemLink|stablekey=item:fish - a worm eel|link=A Worm Eel|text=A Worm Eel|image=A Worm Eel.png}} (14.9%)<br>{{ItemLink|stablekey=item:gen - whispers of the sea|link=Whispers of the Sea|text=Whispers of the Sea|image=Whispers of the Sea.png}} (8.8%)<br>{{ItemLink|stablekey=item:foot - 1 - tattered leather boots|link=Tattered Leather Boots|text=Tattered Leather Boots|image=Tattered Leather Boots.png}} (6.0%)<br>{{ItemLink|stablekey=item:leg - 1 - tattered leather leggings|link=Tattered Leather Leggings|text=Tattered Leather Leggings|image=Tattered Leather Leggings.png}} (6.0%)<br>{{ItemLink|stablekey=item:chest - 1 - tattered leather tunic|link=Tattered Leather Tunic|text=Tattered Leather Tunic|image=Tattered Leather Tunic.png}} (6.0%)
+|droprates={{ItemLink|stablekey=item:gen - a coral}} (51.4%)<br>{{ItemLink|stablekey=item:gen - seaglass}} (51.4%)<br>{{ItemLink|stablekey=item:gen - seaweed}} (51.4%)<br>{{ItemLink|stablekey=item:fish - husselfish}} (14.9%)<br>{{ItemLink|stablekey=item:fish - a worm eel}} (14.9%)<br>{{ItemLink|stablekey=item:gen - whispers of the sea}} (8.8%)<br>{{ItemLink|stablekey=item:foot - 1 - tattered leather boots}} (6.0%)<br>{{ItemLink|stablekey=item:leg - 1 - tattered leather leggings}} (6.0%)<br>{{ItemLink|stablekey=item:chest - 1 - tattered leather tunic}} (6.0%)
 |level=10
 |levelmodmin=0
 |levelmodmax=0
@@ -40,15 +40,15 @@
 |image=[[File:A Seafiend.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
-|factionChange=+1 {{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:saltedstrand|link=Blacksalt Strand|text=Blacksalt Strand}}
+|faction={{FactionLink|stablekey=faction:evil}}
+|factionChange=+1 {{FactionLink|stablekey=faction:vitheo}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:saltedstrand}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - a coral|link=Coral|text=Coral|image=Coral.png}} (51.4%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (51.4%)<br>{{ItemLink|stablekey=item:gen - seaweed|link=Seaweed|text=Seaweed|image=Seaweed.png}} (51.4%)<br>{{ItemLink|stablekey=item:weap - 1 - rustydagger|link=Rusty Dagger|text=Rusty Dagger|image=Rusty Dagger.png}} (17.3%)<br>{{ItemLink|stablekey=item:fish - husselfish|link=A Husselfish|text=A Husselfish|image=A Husselfish.png}} (14.9%)<br>{{ItemLink|stablekey=item:fish - a worm eel|link=A Worm Eel|text=A Worm Eel|image=A Worm Eel.png}} (14.9%)<br>{{ItemLink|stablekey=item:wrist - 11 - salt soaked cuff|link=Salt Soaked Cuff|text=Salt Soaked Cuff|image=Salt Soaked Cuff.png}} (4.4%)<br>{{ItemLink|stablekey=item:gen - whispers of the sea|link=Whispers of the Sea|text=Whispers of the Sea|image=Whispers of the Sea.png}} (4.4%)
+|droprates={{ItemLink|stablekey=item:gen - a coral}} (51.4%)<br>{{ItemLink|stablekey=item:gen - seaglass}} (51.4%)<br>{{ItemLink|stablekey=item:gen - seaweed}} (51.4%)<br>{{ItemLink|stablekey=item:weap - 1 - rustydagger}} (17.3%)<br>{{ItemLink|stablekey=item:fish - husselfish}} (14.9%)<br>{{ItemLink|stablekey=item:fish - a worm eel}} (14.9%)<br>{{ItemLink|stablekey=item:wrist - 11 - salt soaked cuff}} (4.4%)<br>{{ItemLink|stablekey=item:gen - whispers of the sea}} (4.4%)
 |level=10
 |levelmodmin=0
 |levelmodmax=0
@@ -69,7 +69,7 @@
 |poison=5-12
 |elemental=5-12
 |void=5-12
-|spells={{AbilityLink|stablekey=spell:duel - deathly embrace|link=Death's Embrace|text=Death's Embrace|image=Death's Embrace.png}}<br>{{AbilityLink|stablekey=spell:dru pal - minor healing|link=Minor Healing|text=Minor Healing|image=Minor Healing.png}}<br>{{AbilityLink|stablekey=spell:all - minor protection|link=Minor Protection|text=Minor Protection|image=Minor Protection.png}}<br>{{AbilityLink|stablekey=spell:dru duel - minor regen|link=Minor Regeneration|text=Minor Regeneration|image=Minor Regeneration.png}}<br>{{AbilityLink|stablekey=spell:dru reav - theft of life|link=Theft of Life|text=Theft of Life|image=Theft of Life.png}}<br>{{AbilityLink|stablekey=spell:duel - vitheo's blessing of the sea|link=Vitheo's Blessing of the Sea|text=Vitheo's Blessing of the Sea|image=Vitheo's Blessing of the Sea.png}}
+|spells={{AbilityLink|stablekey=spell:duel - deathly embrace}}<br>{{AbilityLink|stablekey=spell:dru pal - minor healing}}<br>{{AbilityLink|stablekey=spell:all - minor protection}}<br>{{AbilityLink|stablekey=spell:dru duel - minor regen}}<br>{{AbilityLink|stablekey=spell:dru reav - theft of life}}<br>{{AbilityLink|stablekey=spell:duel - vitheo's blessing of the sea}}
 }}
 
 [[Category:Blacksalt Strand]]

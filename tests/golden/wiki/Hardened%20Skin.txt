@@ -5,7 +5,7 @@
 |description=A short-duration shield that absorbs up to 200 points of incoming damage
 |type=Beneficial
 |line=Shield
-|classes={{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}} (3)
+|classes={{ClassLink|stablekey=class:arcanist}} (3)
 |required_level=3
 |manacost=20
 |aggro=
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - hardened flesh|link=Spell Scroll: Hardened Skin|text=Spell Scroll: Hardened Skin|image=Spell Scroll: Hardened Skin.png}}
-|used_by={{CharacterLink|stablekey=character:grassland ogre chieftan|link=A Grassland Ogre Chieftain|text=A Grassland Ogre Chieftain}}<br>{{CharacterLink|stablekey=character:alexander farland|link=Alexander Farland|text=Alexander Farland}}<br>{{CharacterLink|stablekey=character:arbant sparrow|link=Arbant Sparrow|text=Arbant Sparrow}}<br>{{CharacterLink|stablekey=character:boshi polok:duskenlight:710.27:72.43:629.92|link=Boshi Polok|text=Boshi Polok}}<br>{{CharacterLink|stablekey=character:cerbantias flameward|link=Cerbantias Flameward|text=Cerbantias Flameward}}<br>{{CharacterLink|stablekey=character:chance barlow|link=Chance Barlow|text=Chance Barlow}}<br>{{CharacterLink|stablekey=character:damien torno|link=Damien Torno|text=Damien Torno}}<br>{{CharacterLink|stablekey=character:edwin ansegg|link=Edwin Ansegg|text=Edwin Ansegg}}<br>{{CharacterLink|stablekey=character:faun vulak:duskenlight:1529.68:64.02:672.84|link=Faun Vulak|text=Faun Vulak}}<br>{{CharacterLink|stablekey=character:lexant crowsilk|link=Lexant Crowsilk|text=Lexant Crowsilk}}<br>{{CharacterLink|stablekey=character:liam kilfa:duskenlight:364.21:65.34:343.17|link=Liam Kilfa|text=Liam Kilfa}}<br>{{CharacterLink|stablekey=character:malthor sageleaf|link=Malthor Sageleaf|text=Malthor Sageleaf}}<br>{{CharacterLink|stablekey=character:molorai archmage|link=Molorai Archmage|text=Molorai Archmage}}<br>{{CharacterLink|stablekey=character:mourning|link=Mourning|text=Mourning}}<br>{{CharacterLink|stablekey=character:overseer refliegh|link=Overseer Refleigh|text=Overseer Refleigh}}<br>{{CharacterLink|stablekey=character:corrupted golem|link=Ravager, The First Infected|text=Ravager, The First Infected}}
+|source={{ItemLink|stablekey=item:spell scroll - hardened flesh}}
+|used_by={{CharacterLink|stablekey=character:grassland ogre chieftan}}<br>{{CharacterLink|stablekey=character:alexander farland}}<br>{{CharacterLink|stablekey=character:arbant sparrow}}<br>{{CharacterLink|stablekey=character:boshi polok:duskenlight:710.27:72.43:629.92}}<br>{{CharacterLink|stablekey=character:cerbantias flameward}}<br>{{CharacterLink|stablekey=character:chance barlow}}<br>{{CharacterLink|stablekey=character:damien torno}}<br>{{CharacterLink|stablekey=character:edwin ansegg}}<br>{{CharacterLink|stablekey=character:faun vulak:duskenlight:1529.68:64.02:672.84}}<br>{{CharacterLink|stablekey=character:lexant crowsilk}}<br>{{CharacterLink|stablekey=character:liam kilfa:duskenlight:364.21:65.34:343.17}}<br>{{CharacterLink|stablekey=character:malthor sageleaf}}<br>{{CharacterLink|stablekey=character:molorai archmage}}<br>{{CharacterLink|stablekey=character:mourning}}<br>{{CharacterLink|stablekey=character:overseer refliegh}}<br>{{CharacterLink|stablekey=character:corrupted golem}}
 }}
+{{SpellTooltip|stablekey=spell:arc - hardened skin}}

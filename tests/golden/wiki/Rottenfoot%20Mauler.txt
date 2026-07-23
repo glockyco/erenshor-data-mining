@@ -3,15 +3,15 @@
 |image=[[File:Rottenfoot Mauler.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
-|factionChange=+1 {{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:rottenfoot|link=Rottenfoot|text=Rottenfoot}}
+|faction={{FactionLink|stablekey=faction:evil}}
+|factionChange=+1 {{FactionLink|stablekey=faction:vitheo}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:rottenfoot}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - a coral|link=Coral|text=Coral|image=Coral.png}} (32.7%)<br>{{ItemLink|stablekey=item:belt - 10 - rottenfoot sash|link=Rottenfoot Sash|text=Rottenfoot Sash|image=Rottenfoot Sash.png}} (32.7%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (32.7%)<br>{{ItemLink|stablekey=item:gen - seaweed|link=Seaweed|text=Seaweed|image=Seaweed.png}} (32.7%)<br>{{ItemLink|stablekey=item:fish - husselfish|link=A Husselfish|text=A Husselfish|image=A Husselfish.png}} (5.8%)<br>{{ItemLink|stablekey=item:fish - a worm eel|link=A Worm Eel|text=A Worm Eel|image=A Worm Eel.png}} (5.8%)<br>{{ItemLink|stablekey=item:ring - 13 - rottenfoot ring|link=Rottenfoot Ring|text=Rottenfoot Ring|image=Rottenfoot Ring.png}} (5.8%)<br>{{ItemLink|stablekey=item:chest - 14 - rottenfoot tribal strap|link=Rottenfoot Tribal Strap|text=Rottenfoot Tribal Strap|image=Rottenfoot Tribal Strap.png}} (5.8%)<br>{{ItemLink|stablekey=item:cons - swampbomb|link=Muck Ball|text=Muck Ball|image=Muck Ball.png}} (4.6%)<br>{{ItemLink|stablekey=item:head - 12 - rottenfoot cap|link=Rottenfoot Cap|text=Rottenfoot Cap|image=Rottenfoot Cap.png}} (4.6%)<br>{{ItemLink|stablekey=item:belt - 35 - swampy loincloth|link=Swampy Loincloth|text=Swampy Loincloth|image=Swampy Loincloth.png}} (4.6%)<br>{{ItemLink|stablekey=item:weap - 9 - a petrified club|link=Petrified Club|text=Petrified Club|image=Petrified Club.png}} (3.4%)<ref>If Rottenfoot Mauler has {{ItemLink|stablekey=item:weap - 9 - a petrified club|link=Petrified Club|text=Petrified Club|image=Petrified Club.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:wrist - 8 - runewoven bracer|link=Runewoven Bracer|text=Runewoven Bracer|image=Runewoven Bracer.png}} (3.4%)
+|droprates={{ItemLink|stablekey=item:gen - a coral}} (32.7%)<br>{{ItemLink|stablekey=item:belt - 10 - rottenfoot sash}} (32.7%)<br>{{ItemLink|stablekey=item:gen - seaglass}} (32.7%)<br>{{ItemLink|stablekey=item:gen - seaweed}} (32.7%)<br>{{ItemLink|stablekey=item:fish - husselfish}} (5.8%)<br>{{ItemLink|stablekey=item:fish - a worm eel}} (5.8%)<br>{{ItemLink|stablekey=item:ring - 13 - rottenfoot ring}} (5.8%)<br>{{ItemLink|stablekey=item:chest - 14 - rottenfoot tribal strap}} (5.8%)<br>{{ItemLink|stablekey=item:cons - swampbomb}} (4.6%)<br>{{ItemLink|stablekey=item:head - 12 - rottenfoot cap}} (4.6%)<br>{{ItemLink|stablekey=item:belt - 35 - swampy loincloth}} (4.6%)<br>{{ItemLink|stablekey=item:weap - 9 - a petrified club}} (3.4%)<ref>If Rottenfoot Mauler has {{ItemLink|stablekey=item:weap - 9 - a petrified club}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:wrist - 8 - runewoven bracer}} (3.4%)
 |level=15
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=8-18
 |elemental=8-18
 |void=8-18
-|spells={{AbilityLink|stablekey=spell:duel - deathly embrace|link=Death's Embrace|text=Death's Embrace|image=Death's Embrace.png}}<br>{{AbilityLink|stablekey=spell:dru pal - minor healing|link=Minor Healing|text=Minor Healing|image=Minor Healing.png}}<br>{{AbilityLink|stablekey=spell:all - minor protection|link=Minor Protection|text=Minor Protection|image=Minor Protection.png}}<br>{{AbilityLink|stablekey=spell:dru duel - minor regen|link=Minor Regeneration|text=Minor Regeneration|image=Minor Regeneration.png}}<br>{{AbilityLink|stablekey=spell:dru reav - theft of life|link=Theft of Life|text=Theft of Life|image=Theft of Life.png}}<br>{{AbilityLink|stablekey=spell:duel - vitheo's blessing of the sea|link=Vitheo's Blessing of the Sea|text=Vitheo's Blessing of the Sea|image=Vitheo's Blessing of the Sea.png}}
+|spells={{AbilityLink|stablekey=spell:duel - deathly embrace}}<br>{{AbilityLink|stablekey=spell:dru pal - minor healing}}<br>{{AbilityLink|stablekey=spell:all - minor protection}}<br>{{AbilityLink|stablekey=spell:dru duel - minor regen}}<br>{{AbilityLink|stablekey=spell:dru reav - theft of life}}<br>{{AbilityLink|stablekey=spell:duel - vitheo's blessing of the sea}}
 }}
 
 [[Category:Enemies]]

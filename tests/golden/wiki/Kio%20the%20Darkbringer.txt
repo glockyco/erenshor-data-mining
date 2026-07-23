@@ -3,15 +3,15 @@
 |image=[[File:Kio the Darkbringer.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:shiveringstep|link=Shivering Step|text=Shivering Step}}
+|zones={{ZoneLink|stablekey=zone:shiveringstep}}
 |coordinates=781.4 x 34.6 x 654.8
 |spawnchance=
 |spawntype=
 |respawn=14 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:wrist - 25 - ignition brace|link=Igniting Brace|text=Igniting Brace|image=Igniting Brace.png}}<br>{{ItemLink|stablekey=item:weap - 25 - lamplighter's pole|link=Lamplighter's Pole|text=Lamplighter's Pole|image=Lamplighter's Pole.png}}
-|droprates={{ItemLink|stablekey=item:gen - awaken the angel|link=Awaken the Angel|text=Awaken the Angel|image=Awaken the Angel.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - awaken the angel|link=Awaken the Angel|text=Awaken the Angel|image=Awaken the Angel.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:key - dockhouse key|link=Dockhouse Key|text=Dockhouse Key|image=Dockhouse Key.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:key - dockhouse key|link=Dockhouse Key|text=Dockhouse Key|image=Dockhouse Key.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:glove - 1 - cloth gloves|link=Cloth Gloves|text=Cloth Gloves|image=Cloth Gloves.png}} (64.2%)<br>{{ItemLink|stablekey=item:head - 1 - cloth hood|link=Cloth Hood|text=Cloth Hood|image=Cloth Hood.png}} (64.2%)<br>{{ItemLink|stablekey=item:foot - 1 - cloth shoes|link=Cloth Shoes|text=Cloth Shoes|image=Cloth Shoes.png}} (64.2%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves|link=Cloth Sleeves|text=Cloth Sleeves|image=Cloth Sleeves.png}} (64.2%)<br>{{ItemLink|stablekey=item:wrist - 25 - ignition brace|link=Igniting Brace|text=Igniting Brace|image=Igniting Brace.png}} (50.0%)<br>{{ItemLink|stablekey=item:weap - 25 - lamplighter's pole|link=Lamplighter's Pole|text=Lamplighter's Pole|image=Lamplighter's Pole.png}} (50.0%)
+|guaranteeddrops={{ItemLink|stablekey=item:wrist - 25 - ignition brace}}<br>{{ItemLink|stablekey=item:weap - 25 - lamplighter's pole}}
+|droprates={{ItemLink|stablekey=item:gen - awaken the angel}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - awaken the angel}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:key - dockhouse key}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:key - dockhouse key}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:glove - 1 - cloth gloves}} (64.2%)<br>{{ItemLink|stablekey=item:head - 1 - cloth hood}} (64.2%)<br>{{ItemLink|stablekey=item:foot - 1 - cloth shoes}} (64.2%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves}} (64.2%)<br>{{ItemLink|stablekey=item:wrist - 25 - ignition brace}} (50.0%)<br>{{ItemLink|stablekey=item:weap - 25 - lamplighter's pole}} (50.0%)
 |level=24
 |levelmodmin=0
 |levelmodmax=0

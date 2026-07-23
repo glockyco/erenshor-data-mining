@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 16 - crafted bracer
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:gruhglor|link=Gruhglor|text=Gruhglor}} (19.5%)
+|source={{CharacterLink|stablekey=character:gruhglor}} (19.5%)
 |othersource=
 |questsource=
 |relatedquest=

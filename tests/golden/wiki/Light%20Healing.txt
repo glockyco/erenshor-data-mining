@@ -5,7 +5,7 @@
 |description=Heals base 100 damage
 |type=Heal
 |line=Healing
-|classes={{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (10)
+|classes={{ClassLink|stablekey=class:druid}} (10)
 |required_level=10
 |manacost=80
 |aggro=
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - light healing|link=Spell Scroll: Light Healing|text=Spell Scroll: Light Healing|image=Spell Scroll: Light Healing.png}}
+|source={{ItemLink|stablekey=item:spell scroll - light healing}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:dru  - light healing}}

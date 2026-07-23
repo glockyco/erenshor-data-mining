@@ -3,7 +3,7 @@
 |stablekey=item:weap - 13 - spidersmasher
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:battlefist|link=Battlefist|text=Battlefist}} (33.3%)<br>{{CharacterLink|stablekey=character:obba of the warkind|link=Obba of the Warkind|text=Obba of the Warkind}} (3.4%)<br>{{CharacterLink|stablekey=character:grassland ogre bruiser|link=A Grassland Ogre Bruiser|text=A Grassland Ogre Bruiser}} (3.0%)<br>{{CharacterLink|stablekey=character:grassland ogre sentinel|link=A Grassland Ogre Sentinel|text=A Grassland Ogre Sentinel}} (3.0%)
+|source={{CharacterLink|stablekey=character:battlefist}} (33.3%)<br>{{CharacterLink|stablekey=character:obba of the warkind}} (3.4%)<br>{{CharacterLink|stablekey=character:grassland ogre bruiser}} (3.0%)<br>{{CharacterLink|stablekey=character:grassland ogre sentinel}} (3.0%)
 |othersource=
 |questsource=
 |relatedquest=

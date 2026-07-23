@@ -3,10 +3,10 @@
 |stablekey=item:gen - faerie wing
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:faerie enchantress|link=A Faerie Enchantress|text=A Faerie Enchantress}} (1.8%)<br>{{CharacterLink|stablekey=character:faerie foliagian|link=A Faerie Foliagian|text=A Faerie Foliagian}} (1.8%)<br>{{CharacterLink|stablekey=character:faerie windchild|link=A Faerie Windchild|text=A Faerie Windchild}} (1.8%)<br>{{CharacterLink|stablekey=character:faerie drone|link=A Faerie Drone|text=A Faerie Drone}} (1.1%)
+|source={{CharacterLink|stablekey=character:faerie enchantress}} (1.8%)<br>{{CharacterLink|stablekey=character:faerie foliagian}} (1.8%)<br>{{CharacterLink|stablekey=character:faerie windchild}} (1.8%)<br>{{CharacterLink|stablekey=character:faerie drone}} (1.1%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Ritual Components}}<br>{{QuestLink|stablekey=quest:ritualcomponents|link=Ritual Components|text=Ritual Components}}
+|relatedquest={{QuestLink|Ritual Components}}<br>{{QuestLink|stablekey=quest:ritualcomponents}}
 |craftsource=
 |componentfor=
 |buy=65

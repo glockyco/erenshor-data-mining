@@ -5,7 +5,7 @@
 |description=(Taunt) Target becomes furious with the caster of this spell.
 |type=Damage
 |line=Pal_Other_Debuff
-|classes={{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}} (1)
+|classes={{ClassLink|stablekey=class:paladin}} (1)
 |required_level=1
 |manacost=5
 |aggro=1100
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - lunar madness|link=Spell Scroll: Lunar Madness|text=Spell Scroll: Lunar Madness|image=Spell Scroll: Lunar Madness.png}}
+|source={{ItemLink|stablekey=item:spell scroll - lunar madness}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:pal - taunt lunar madness}}

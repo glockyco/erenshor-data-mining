@@ -5,8 +5,8 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|Hadden's Supplies}}<br>{{QuestLink|stablekey=quest:hadden1|link=Hadden's Supplies|text=Hadden's Supplies}}
-|relatedquest={{QuestLink|Hadden's Supplies 2}}<br>{{QuestLink|stablekey=quest:hadden2|link=Hadden's Supplies 2|text=Hadden's Supplies 2}}
+|questsource={{QuestLink|Hadden's Supplies}}<br>{{QuestLink|stablekey=quest:hadden1}}
+|relatedquest={{QuestLink|Hadden's Supplies 2}}<br>{{QuestLink|stablekey=quest:hadden2}}
 |craftsource=
 |componentfor=
 |buy=

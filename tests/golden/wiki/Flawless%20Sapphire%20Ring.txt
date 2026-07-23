@@ -3,7 +3,7 @@
 |stablekey=item:ring - 21 - flawless sapphire ring
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:treasurechest 20-30 1|link=Lost Treasure (20-30)|text=Lost Treasure (20-30)}} (7.0%)<br>{{CharacterLink|stablekey=character:treasurechest 10-20 1|link=Lost Treasure (10-20)|text=Lost Treasure (10-20)}} (6.2%)
+|source={{CharacterLink|stablekey=character:treasurechest 20-30 1}} (7.0%)<br>{{CharacterLink|stablekey=character:treasurechest 10-20 1}} (6.2%)
 |othersource=
 |questsource=
 |relatedquest=

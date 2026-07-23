@@ -3,7 +3,7 @@
 |stablekey=item:belt - 28 - gem adorned belt
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:broodmother|link=Brood Mother|text=Brood Mother}} (66.7%)
+|source={{CharacterLink|stablekey=character:broodmother}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=

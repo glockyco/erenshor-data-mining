@@ -3,15 +3,15 @@
 |image=[[File:Ragewhip.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:rottenfoot|link=Rottenfoot|text=Rottenfoot}}
+|zones={{ZoneLink|stablekey=zone:rottenfoot}}
 |coordinates=296.1 x 23.0 x 847.8
 |spawnchance=50%
 |spawntype=
 |respawn=4 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:head - 13 - jelly crown|link=Jellycrown|text=Jellycrown|image=Jellycrown.png}}<br>{{ItemLink|stablekey=item:weap - 14 - jellywhip|link=Jellystick|text=Jellystick|image=Jellystick.png}}
-|droprates={{ItemLink|stablekey=item:head - 13 - jelly crown|link=Jellycrown|text=Jellycrown|image=Jellycrown.png}} (50.0%)<br>{{ItemLink|stablekey=item:weap - 14 - jellywhip|link=Jellystick|text=Jellystick|image=Jellystick.png}} (50.0%)<br>{{ItemLink|stablekey=item:gen - swamproot|link=Swamproot|text=Swamproot|image=Swamproot.png}} (27.8%)
+|guaranteeddrops={{ItemLink|stablekey=item:head - 13 - jelly crown}}<br>{{ItemLink|stablekey=item:weap - 14 - jellywhip}}
+|droprates={{ItemLink|stablekey=item:head - 13 - jelly crown}} (50.0%)<br>{{ItemLink|stablekey=item:weap - 14 - jellywhip}} (50.0%)<br>{{ItemLink|stablekey=item:gen - swamproot}} (27.8%)
 |level=15
 |levelmodmin=0
 |levelmodmax=0

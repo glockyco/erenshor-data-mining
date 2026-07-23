@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:wrist - 19 - shadowmaker|link=Shadowmaker|text=Shadowmaker|image=Shadowmaker.png}}
+|itemswitheffect={{ItemLink|stablekey=item:wrist - 19 - shadowmaker}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - hint of shadow}}

@@ -3,7 +3,7 @@
 |stablekey=item:arm - 35 - dreamy sleeves
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:nightmare:ripperportal:663.80:9.40:313.60|link=Hypnic|text=Hypnic}} (33.3%)
+|source={{CharacterLink|stablekey=character:nightmare:ripperportal:663.80:9.40:313.60}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

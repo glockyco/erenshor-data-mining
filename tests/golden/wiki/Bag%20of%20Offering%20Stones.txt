@@ -5,7 +5,7 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|link=Wishlan's Hope (Quest){{!}}Wishlan's Hope}}<br>{{QuestLink|stablekey=quest:wishlanshope|link=Wishlan's Hope (Quest)|text=Wishlan's Hope}}
+|questsource={{QuestLink|link=Wishlan's Hope (Quest){{!}}Wishlan's Hope}}<br>{{QuestLink|stablekey=quest:wishlanshope}}
 |relatedquest=
 |craftsource=
 |componentfor=
@@ -28,7 +28,7 @@ Creates an {{ItemLink|Offering Stone}} when used.
 |disposable=
 |effect_style=Activatable
 |effect_spell_icon=Offering Stone (Effect).png
-|effect_spell_name={{AbilityLink|stablekey=spell:none - offering stone|link=Offering Stone (Effect)|text=Offering Stone|image=Offering Stone (Effect).png}}
+|effect_spell_name={{AbilityLink|stablekey=spell:none - offering stone}}
 |effect_spell_level=25
 |effect_spell_duration_ticks=
 |effect_spell_type=Misc

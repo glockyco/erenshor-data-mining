@@ -30,7 +30,7 @@
 |target_healing=
 |caster_healing=
 |shield_amount=
-|pet_to_summon={{CharacterLink|stablekey=character:summoned spider|link=Summoned Widow|text=Summoned Widow}}
+|pet_to_summon={{CharacterLink|stablekey=character:summoned spider}}
 |status_effect=
 |add_proc=
 |add_proc_chance=
@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:glove - 24 - widow's wraps|link=Widow's Wraps|text=Widow's Wraps|image=Widow's Wraps.png}}
+|itemswitheffect={{ItemLink|stablekey=item:glove - 24 - widow's wraps}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:nec - summon widow}}

@@ -3,7 +3,7 @@
 |stablekey=item:weap - 33 - twisted branch
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:botanist|link=Botanist|text=Botanist}} (6.7%)
+|source={{CharacterLink|stablekey=character:botanist}} (6.7%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=20
 |proc_spell_icon=Blight.png
-|proc_spell_name={{AbilityLink|stablekey=spell:none - blight|link=Blight|text=Blight|image=Blight.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:none - blight}}
 |proc_spell_level=5
 |proc_spell_duration_ticks=8
 |proc_spell_type=StatusEffect

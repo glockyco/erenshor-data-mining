@@ -3,7 +3,7 @@
 |stablekey=item:belt - 17 - reinforced scale belt
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:a deepling brute|link=A Deepling Brute|text=A Deepling Brute}} (9.8%)<br>{{CharacterLink|stablekey=character:nagalok|link=A Nagalok|text=A Nagalok}} (6.7%)<br>{{CharacterLink|stablekey=character:nagalok 1|link=A Nagalok|text=A Nagalok}} (6.7%)
+|source={{CharacterLink|stablekey=character:a deepling brute}} (9.8%)<br>{{CharacterLink|stablekey=character:nagalok}} (6.7%)<br>{{CharacterLink|stablekey=character:nagalok 1}} (6.7%)
 |othersource=
 |questsource=
 |relatedquest=

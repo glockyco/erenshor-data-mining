@@ -2,7 +2,7 @@
 |title=Spell Scroll: Theft of Vigor
 |stablekey=item:spell scroll - stolen vigor
 |type=[[Ability Books]]
-|vendorsource={{CharacterLink|stablekey=character:leyor m'chante|link=Leyor M'Chante|text=Leyor M'Chante}}
+|vendorsource={{CharacterLink|stablekey=character:leyor m'chante}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=3250
 |sell=2112
-|taughtspell={{AbilityLink|stablekey=spell:pal - sap vitality|link=Theft of Vigor|text=Theft of Vigor|image=Theft of Vigor.png}}
+|taughtspell={{AbilityLink|stablekey=spell:pal - sap vitality}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

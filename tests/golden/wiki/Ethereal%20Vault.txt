@@ -5,9 +5,9 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|Ancient Bones for Tilbert}}<br>{{QuestLink|Essence of Amarion}}<br>{{QuestLink|Molorai Axes for Tilbert}}<br>{{QuestLink|Priel Rings for Tilbert}}<br>{{QuestLink|stablekey=quest:bonechipsfortilbert|link=Ancient Bones for Tilbert|text=Ancient Bones for Tilbert}}<br>{{QuestLink|stablekey=quest:essenceofamarionforbanker|link=Essence of Amarion|text=Essence of Amarion}}<br>{{QuestLink|stablekey=quest:axesfortilbert|link=Molorai Axes for Tilbert|text=Molorai Axes for Tilbert}}<br>{{QuestLink|stablekey=quest:prielringsfortilbert|link=Priel Rings for Tilbert|text=Priel Rings for Tilbert}}
+|questsource={{QuestLink|Ancient Bones for Tilbert}}<br>{{QuestLink|Essence of Amarion}}<br>{{QuestLink|Molorai Axes for Tilbert}}<br>{{QuestLink|Priel Rings for Tilbert}}<br>{{QuestLink|stablekey=quest:bonechipsfortilbert}}<br>{{QuestLink|stablekey=quest:essenceofamarionforbanker}}<br>{{QuestLink|stablekey=quest:axesfortilbert}}<br>{{QuestLink|stablekey=quest:prielringsfortilbert}}
 |relatedquest=
-|craftsource=1x {{ItemLink|stablekey=item:template - ethereal vault|link=Mold: Ethereal Vault|text=Mold: Ethereal Vault|image=Mold: Ethereal Vault.png}}<br>1x {{ItemLink|stablekey=item:gen - an ancient bone|link=Ancient Bone|text=Ancient Bone|image=Ancient Bone.png}}<br>1x {{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}}<br>1x {{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}}<br>2x {{ItemLink|stablekey=item:ore - iron ore|link=Chunk of Iron Ore|text=Chunk of Iron Ore|image=Chunk of Iron Ore.png}}<br>1x {{ItemLink|stablekey=item:ore - bronze ore|link=Chunk of Copper Ore|text=Chunk of Copper Ore|image=Chunk of Copper Ore.png}}
+|craftsource=1x {{ItemLink|stablekey=item:template - ethereal vault}}<br>1x {{ItemLink|stablekey=item:gen - an ancient bone}}<br>1x {{ItemLink|stablekey=item:gen - luminstone}}<br>1x {{ItemLink|stablekey=item:gen - seaglass}}<br>2x {{ItemLink|stablekey=item:ore - iron ore}}<br>1x {{ItemLink|stablekey=item:ore - bronze ore}}
 |componentfor=
 |buy=150
 |sell=98
@@ -23,7 +23,7 @@
 |description=Using it will access your bank. Beware: moving after using this will break the connection and the bank access will end.
 |disposable=True
 |effect_spell_icon=Access Bank.png
-|effect_spell_name={{AbilityLink|stablekey=spell:none - summon butler|link=Access Bank|text=Access Bank|image=Access Bank.png}}
+|effect_spell_name={{AbilityLink|stablekey=spell:none - summon butler}}
 |effect_spell_level=35
 |effect_spell_duration_ticks=
 |effect_spell_type=Misc

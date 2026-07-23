@@ -3,9 +3,9 @@
 |stablekey=item:weap - 12 - short sword of viropha
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:aqualimar blade|link=Aquilamar Blade|text=Aquilamar Blade}} (8.9%)<br>{{CharacterLink|stablekey=character:aqualimar protector|link=Aquilamar Protector|text=Aquilamar Protector}} (8.9%)<br>{{CharacterLink|stablekey=character:cirreus alxanth:1|link=Cirreus Alxanth|text=Cirreus Alxanth}} (8.9%)<br>{{CharacterLink|stablekey=character:vethalo gala|link=Vethalo Gala|text=Vethalo Gala}} (8.9%)
+|source={{CharacterLink|stablekey=character:aqualimar blade}} (8.9%)<br>{{CharacterLink|stablekey=character:aqualimar protector}} (8.9%)<br>{{CharacterLink|stablekey=character:cirreus alxanth:1}} (8.9%)<br>{{CharacterLink|stablekey=character:vethalo gala}} (8.9%)
 |othersource=
-|questsource={{QuestLink|A Magical Sword in Port Azure}}<br>{{QuestLink|stablekey=quest:a magical sword in port azure|link=A Magical Sword in Port Azure|text=A Magical Sword in Port Azure}}
+|questsource={{QuestLink|A Magical Sword in Port Azure}}<br>{{QuestLink|stablekey=quest:a magical sword in port azure}}
 |relatedquest=
 |craftsource=
 |componentfor=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=5
 |proc_spell_icon=Theft of Life.png
-|proc_spell_name={{AbilityLink|stablekey=spell:dru reav - theft of life|link=Theft of Life|text=Theft of Life|image=Theft of Life.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:dru reav - theft of life}}
 |proc_spell_level=2
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

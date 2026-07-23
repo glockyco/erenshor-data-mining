@@ -3,15 +3,15 @@
 |image=[[File:A Grassland Ogre Shaman.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
-|factionChange=+3 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+3 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:underspine|link=Underspine Hollow|text=Underspine Hollow}}
+|faction={{FactionLink|stablekey=faction:evil}}
+|factionChange=+3 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+3 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:underspine}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - ogrespice leaf|link=Ogrespice Leaf|text=Ogrespice Leaf|image=Ogrespice Leaf.png}} (9.5%)<br>{{ItemLink|stablekey=item:bow - 17 - humanbone bow|link=Humanbone|text=Humanbone|image=Humanbone.png}} (8.7%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (7.4%)<br>{{ItemLink|stablekey=item:wand - 14 - ogrespice bundle|link=Ogrespice Bundle|text=Ogrespice Bundle|image=Ogrespice Bundle.png}} (2.1%)
+|droprates={{ItemLink|stablekey=item:gen - ogrespice leaf}} (9.5%)<br>{{ItemLink|stablekey=item:bow - 17 - humanbone bow}} (8.7%)<br>{{ItemLink|stablekey=item:gen - a star stone}} (7.4%)<br>{{ItemLink|stablekey=item:wand - 14 - ogrespice bundle}} (2.1%)
 |level=12
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=6-14
 |elemental=6-14
 |void=6-14
-|spells={{AbilityLink|stablekey=spell:dru - biting vines|link=Biting Vines|text=Biting Vines|image=Biting Vines.png}}<br>{{AbilityLink|stablekey=spell:dru - minor lightning|link=Minor Lightning|text=Minor Lightning|image=Minor Lightning.png}}<br>{{AbilityLink|stablekey=spell:dru - tangle|link=Tangle|text=Tangle|image=Tangle.png}}<br>{{AbilityLink|stablekey=spell:dru - toxicity|link=Toxicity|text=Toxicity|image=Toxicity.png}}
+|spells={{AbilityLink|stablekey=spell:dru - biting vines}}<br>{{AbilityLink|stablekey=spell:dru - minor lightning}}<br>{{AbilityLink|stablekey=spell:dru - tangle}}<br>{{AbilityLink|stablekey=spell:dru - toxicity}}
 }}
 
 [[Category:Enemies]]

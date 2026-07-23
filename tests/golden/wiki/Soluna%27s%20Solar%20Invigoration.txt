@@ -67,5 +67,6 @@
 |inflict_on_self=
 |itemswitheffect=
 |source=
-|used_by={{CharacterLink|stablekey=character:akaran black|link=Akaran Black|text=Akaran Black}}<br>{{CharacterLink|stablekey=character:colton calavia|link=Colton Calavia|text=Colton Calavia}}<br>{{CharacterLink|stablekey=character:foreman hauck|link=Foreman Hauck|text=Foreman Hauck}}<br>{{CharacterLink|stablekey=character:leyor m'chante|link=Leyor M'Chante|text=Leyor M'Chante}}<br>{{CharacterLink|stablekey=character:olden lennova:malaroth:490.95:26.90:274.26|link=Olden Lennova|text=Olden Lennova}}<br>{{CharacterLink|stablekey=character:sean figarello:stowaway:605.45:72.16:464.40|link=Sean Figarello|text=Sean Figarello}}<br>{{CharacterLink|stablekey=character:thomson rhett|link=Thomson Rhett|text=Thomson Rhett}}
+|used_by={{CharacterLink|stablekey=character:akaran black}}<br>{{CharacterLink|stablekey=character:colton calavia}}<br>{{CharacterLink|stablekey=character:foreman hauck}}<br>{{CharacterLink|stablekey=character:leyor m'chante}}<br>{{CharacterLink|stablekey=character:olden lennova:malaroth:490.95:26.90:274.26}}<br>{{CharacterLink|stablekey=character:sean figarello:stowaway:605.45:72.16:464.40}}<br>{{CharacterLink|stablekey=character:thomson rhett}}
 }}
+{{SpellTooltip|stablekey=spell:pal - soluna's invigoration}}

@@ -3,10 +3,10 @@
 |stablekey=item:gen - decayed druid beads
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:elder guardian|link=Elder Guardian|text=Elder Guardian}} (32.3%)<br>{{CharacterLink|stablekey=character:bloom preserver|link=Bloom Preserver|text=Bloom Preserver}} (21.6%)<br>{{CharacterLink|stablekey=character:greater fawn|link=Greater Fawn|text=Greater Fawn}} (21.6%)<br>{{CharacterLink|stablekey=character:chosen fawn|link=Chosen Fawn|text=Chosen Fawn}} (13.8%)<br>{{CharacterLink|stablekey=character:fawn of fernalla|link=Fawn of Fernalla|text=Fawn of Fernalla}} (13.8%)<br>{{CharacterLink|stablekey=character:maple|link=Maple|text=Maple}} (11.0%)<br>{{CharacterLink|stablekey=character:risen druid|link=Risen Druid|text=Risen Druid}} (10.6%)<br>{{CharacterLink|stablekey=character:risen heirophant|link=Risen Hierophant|text=Risen Hierophant}} (10.2%)<br>{{CharacterLink|stablekey=character:vinx|link=Vinx|text=Vinx}} (7.3%)<br>{{CharacterLink|stablekey=character:frenzy|link=Frenzy|text=Frenzy}} (4.8%)<br>{{CharacterLink|stablekey=character:grappler|link=Grappler|text=Grappler}} (4.8%)<br>{{CharacterLink|stablekey=character:fernallan guardian|link=Fernallan Guardian|text=Fernallan Guardian}} (3.0%)
+|source={{CharacterLink|stablekey=character:elder guardian}} (32.3%)<br>{{CharacterLink|stablekey=character:bloom preserver}} (21.6%)<br>{{CharacterLink|stablekey=character:greater fawn}} (21.6%)<br>{{CharacterLink|stablekey=character:chosen fawn}} (13.8%)<br>{{CharacterLink|stablekey=character:fawn of fernalla}} (13.8%)<br>{{CharacterLink|stablekey=character:maple}} (11.0%)<br>{{CharacterLink|stablekey=character:risen druid}} (10.6%)<br>{{CharacterLink|stablekey=character:risen heirophant}} (10.2%)<br>{{CharacterLink|stablekey=character:vinx}} (7.3%)<br>{{CharacterLink|stablekey=character:frenzy}} (4.8%)<br>{{CharacterLink|stablekey=character:grappler}} (4.8%)<br>{{CharacterLink|stablekey=character:fernallan guardian}} (3.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Druid Beads for Varran}}<br>{{QuestLink|stablekey=quest:druidbeads|link=Druid Beads for Varran|text=Druid Beads for Varran}}
+|relatedquest={{QuestLink|Druid Beads for Varran}}<br>{{QuestLink|stablekey=quest:druidbeads}}
 |craftsource=
 |componentfor=
 |buy=12

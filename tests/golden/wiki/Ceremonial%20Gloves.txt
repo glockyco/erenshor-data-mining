@@ -3,7 +3,7 @@
 |stablekey=item:glove - 5 - ceremonial gloves
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:failed cremation|link=Failed Cremation|text=Failed Cremation}} (48.3%)
+|source={{CharacterLink|stablekey=character:failed cremation}} (48.3%)
 |othersource=
 |questsource=
 |relatedquest=

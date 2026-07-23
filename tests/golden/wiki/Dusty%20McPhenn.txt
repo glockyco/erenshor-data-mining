@@ -3,9 +3,9 @@
 |image=[[File:Dusty McPhenn.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:ripper|link=Ripper DeMerth|text=Ripper DeMerth}}
-|factionChange=-20 {{FactionLink|stablekey=faction:ripper|link=Ripper DeMerth|text=Ripper DeMerth}}
-|zones={{ZoneLink|stablekey=zone:ripper|link=Ripper's Keep|text=Ripper's Keep}}
+|faction={{FactionLink|stablekey=faction:ripper}}
+|factionChange=-20 {{FactionLink|stablekey=faction:ripper}}
+|zones={{ZoneLink|stablekey=zone:ripper}}
 |coordinates=732.0 x 43.6 x 169.4
 |spawnchance=
 |spawntype=
@@ -32,7 +32,7 @@
 |poison=10-24
 |elemental=10-24
 |void=10-24
-|spells={{AbilityLink|stablekey=spell:dru pal - minor healing|link=Minor Healing|text=Minor Healing|image=Minor Healing.png}}
+|spells={{AbilityLink|stablekey=spell:dru pal - minor healing}}
 }}
 
 Greeting message: (If you are not a [[Paladin]])

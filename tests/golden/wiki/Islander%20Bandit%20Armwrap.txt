@@ -3,7 +3,7 @@
 |stablekey=item:arm - 2 - islander bandit armwrap
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:aranuil olaseo|link=Aranuil Olaseo|text=Aranuil Olaseo}} (19.8%)<br>{{CharacterLink|stablekey=character:odyss repman:duskenlight:1312.16:70.01:695.11|link=Odyss Repman|text=Odyss Repman}} (19.8%)<br>{{CharacterLink|stablekey=character:vevillo polter|link=Vevillo Polter|text=Vevillo Polter}} (19.8%)
+|source={{CharacterLink|stablekey=character:aranuil olaseo}} (19.8%)<br>{{CharacterLink|stablekey=character:odyss repman:duskenlight:1312.16:70.01:695.11}} (19.8%)<br>{{CharacterLink|stablekey=character:vevillo polter}} (19.8%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -5,7 +5,7 @@
 |description=Deals 275 magic damage to your target.
 |type=Damage
 |line=Direct_Damage
-|classes={{ClassLink|stablekey=class:stormcaller|link=Stormcaller|text=Stormcaller}} (10)
+|classes={{ClassLink|stablekey=class:stormcaller}} (10)
 |required_level=10
 |manacost=125
 |aggro=25
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - ball lightning|link=Spell Scroll: Ball Lightning|text=Spell Scroll: Ball Lightning|image=Spell Scroll: Ball Lightning.png}}
-|used_by={{CharacterLink|stablekey=character:grassland ogre sorcerer|link=A Grassland Ogre Sorcerer|text=A Grassland Ogre Sorcerer}}<br>{{CharacterLink|stablekey=character:grassland ogre thaumaturge|link=A Grassland Ogre Thaumaturge|text=A Grassland Ogre Thaumaturge}}
+|source={{ItemLink|stablekey=item:spell scroll - ball lightning}}
+|used_by={{CharacterLink|stablekey=character:grassland ogre sorcerer}}<br>{{CharacterLink|stablekey=character:grassland ogre thaumaturge}}
 }}
+{{SpellTooltip|stablekey=spell:stc - ball lightning}}

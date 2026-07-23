@@ -3,15 +3,15 @@
 |image=[[File:Sand Mummy.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:braxonian|link=Braxonian Desert|text=Braxonian Desert}}
+|zones={{ZoneLink|stablekey=zone:braxonian}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (46.7%)<br>{{ItemLink|stablekey=item:gen - polished stone|link=Polished Stone|text=Polished Stone|image=Polished Stone.png}} (46.7%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (46.7%)<br>{{ItemLink|stablekey=item:ring - 6 - fiery sapphire ring|link=Fiery Sapphire Ring|text=Fiery Sapphire Ring|image=Fiery Sapphire Ring.png}} (9.1%)<br>{{ItemLink|stablekey=item:gen - rune of sands|link=Rune of Sands|text=Rune of Sands|image=Rune of Sands.png}} (4.6%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - rune of sands|link=Rune of Sands|text=Rune of Sands|image=Rune of Sands.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:quest - game piece ember|link=Ember Acolyte (Game Piece)|text=Ember Acolyte|image=Ember Acolyte (Game Piece).png}} (3.4%)<ref>If the player is already holding {{ItemLink|stablekey=item:quest - game piece ember|link=Ember Acolyte (Game Piece)|text=Ember Acolyte|image=Ember Acolyte (Game Piece).png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:quest - game piece peon|link=Peon (Game Piece)|text=Peon|image=Peon (Game Piece).png}} (3.4%)<ref>If the player is already holding {{ItemLink|stablekey=item:quest - game piece peon|link=Peon (Game Piece)|text=Peon|image=Peon (Game Piece).png}} in their inventory, another will not drop.</ref>
+|droprates={{ItemLink|stablekey=item:gen - luminstone}} (46.7%)<br>{{ItemLink|stablekey=item:gen - polished stone}} (46.7%)<br>{{ItemLink|stablekey=item:gen - seaglass}} (46.7%)<br>{{ItemLink|stablekey=item:ring - 6 - fiery sapphire ring}} (9.1%)<br>{{ItemLink|stablekey=item:gen - rune of sands}} (4.6%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - rune of sands}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:quest - game piece ember}} (3.4%)<ref>If the player is already holding {{ItemLink|stablekey=item:quest - game piece ember}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:quest - game piece peon}} (3.4%)<ref>If the player is already holding {{ItemLink|stablekey=item:quest - game piece peon}} in their inventory, another will not drop.</ref>
 |level=16
 |levelmodmin=0
 |levelmodmax=0

@@ -3,7 +3,7 @@
 |stablekey=item:weap - 29 - asp's fang
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:asp|link=Asp|text=Asp}} (4.4%)
+|source={{CharacterLink|stablekey=character:asp}} (4.4%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=10
 |proc_spell_icon=Venom of the Asp.png
-|proc_spell_name={{AbilityLink|stablekey=spell:none - venom of the asp|link=Venom of the Asp|text=Venom of the Asp|image=Venom of the Asp.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:none - venom of the asp}}
 |proc_spell_level=30
 |proc_spell_duration_ticks=7
 |proc_spell_type=StatusEffect

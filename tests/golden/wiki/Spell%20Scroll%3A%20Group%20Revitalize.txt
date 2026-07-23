@@ -2,7 +2,7 @@
 |title=Spell Scroll: Group Revitalize
 |stablekey=item:spell scroll - group revitalize
 |type=[[Ability Books|Spell Scroll]]
-|vendorsource={{CharacterLink|stablekey=character:juctin mysia|link=Juctin Mysia|text=Juctin Mysia}}
+|vendorsource={{CharacterLink|stablekey=character:juctin mysia}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=9500
 |sell=6175
-|taughtspell={{AbilityLink|stablekey=spell:dru - group revitalize|link=Group Revitalize|text=Group Revitalize|image=Group Revitalize.png}}
+|taughtspell={{AbilityLink|stablekey=spell:dru - group revitalize}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

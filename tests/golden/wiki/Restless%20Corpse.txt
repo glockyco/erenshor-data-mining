@@ -3,9 +3,9 @@
 |image=[[File:Restless Corpse.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
-|factionChange=+2 {{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}
-|zones={{ZoneLink|stablekey=zone:saltedstrand|link=Blacksalt Strand|text=Blacksalt Strand}}
+|faction={{FactionLink|stablekey=faction:evil}}
+|factionChange=+2 {{FactionLink|stablekey=faction:vitheo}}
+|zones={{ZoneLink|stablekey=zone:saltedstrand}}
 |coordinates=
 |spawnchance=
 |spawntype=

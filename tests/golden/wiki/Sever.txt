@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:weap - 40 - parallax, key to the void|link=Parallax, Key to the Void|text=Parallax, Key to the Void|image=Parallax, Key to the Void.png}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 40 - parallax, key to the void}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:reav - sever}}

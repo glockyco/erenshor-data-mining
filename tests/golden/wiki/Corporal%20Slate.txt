@@ -3,9 +3,9 @@
 |image=[[File:Corporal Slate.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:stowaway|link=The Citizens of Stowaway's Step|text=The Citizens of Stowaway's Step}}
+|faction={{FactionLink|stablekey=faction:stowaway}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:stowaway|link=Stowaway's Step|text=Stowaway's Step}}
+|zones={{ZoneLink|stablekey=zone:stowaway}}
 |coordinates=683.2 x 29.6 x 425.5
 |spawnchance=
 |spawntype=

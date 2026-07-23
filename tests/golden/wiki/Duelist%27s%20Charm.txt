@@ -7,7 +7,7 @@
 |othersource=
 |questsource=
 |relatedquest=
-|craftsource=1x {{ItemLink|stablekey=item:template - duelist's charm|link=Mold: Duelist's Charm|text=Mold: Duelist's Charm|image=Mold: Duelist's Charm.png}}<br>1x {{ItemLink|stablekey=item:hand - 5 - idol of sivakaya|link=Idol of Sivakaya|text=Idol of Sivakaya|image=Idol of Sivakaya.png}}<br>1x {{ItemLink|stablekey=item:ore - citrine sandsilver|link=Chunk of Citrine Sandsilver|text=Chunk of Citrine Sandsilver|image=Chunk of Citrine Sandsilver.png}}<br>1x {{ItemLink|stablekey=item:gen - ogrespice leaf|link=Ogrespice Leaf|text=Ogrespice Leaf|image=Ogrespice Leaf.png}}<br>1x {{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}}
+|craftsource=1x {{ItemLink|stablekey=item:template - duelist's charm}}<br>1x {{ItemLink|stablekey=item:hand - 5 - idol of sivakaya}}<br>1x {{ItemLink|stablekey=item:ore - citrine sandsilver}}<br>1x {{ItemLink|stablekey=item:gen - ogrespice leaf}}<br>1x {{ItemLink|stablekey=item:gen - a star stone}}
 |componentfor=
 |buy=6000
 |sell=3900

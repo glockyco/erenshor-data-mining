@@ -3,9 +3,9 @@
 |image=[[File:Braxonian Flame Well.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|faction={{FactionLink|stablekey=faction:good}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:braxonia|link=Fallen Braxonia|text=Fallen Braxonia}}
+|zones={{ZoneLink|stablekey=zone:braxonia}}
 |coordinates=86.8 x 59.4 x 593.9
 |spawnchance=
 |spawntype=
@@ -37,7 +37,7 @@
 
 The Flame well has two uses:
 *Completing {{QuestLink|link=Lighting the Nighthollow Candle}}
-*Upgrading non-blessed items into [[Item Quality|Blessed Items]]
+*Upgrading Standard or Improved items to [[Item Quality#Blessed|Blessed]] quality, or Improved items directly to [[Item Quality#Ascended|Ascended]] quality, by offering them with {{ItemLink|Sivakrux}} and {{ItemLink|Offering Stone}}. See [[Item Quality]] for the chances and outcomes.
 
 [[Category:Characters]]
 [[Category:Fallen Braxonia]]

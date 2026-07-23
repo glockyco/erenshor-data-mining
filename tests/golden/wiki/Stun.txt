@@ -65,10 +65,11 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:secondary - 14 - crested shield|link=Crested Shield|text=Crested Shield|image=Crested Shield.png}}<br>{{ItemLink|stablekey=item:secondary - 14 - mudmold shield|link=Mudmold Shield|text=Mudmold Shield|image=Mudmold Shield.png}}<br>{{ItemLink|stablekey=item:secondary - 1 - old buckler|link=Old Buckler|text=Old Buckler|image=Old Buckler.png}}<br>{{ItemLink|stablekey=item:secondary - 7 - rotting metal shield|link=Rotting Metal Shield|text=Rotting Metal Shield|image=Rotting Metal Shield.png}}<br>{{ItemLink|stablekey=item:wrist - 16 - stinging bracer|link=Stinging Bracer|text=Stinging Bracer|image=Stinging Bracer.png}}
+|itemswitheffect={{ItemLink|stablekey=item:secondary - 14 - crested shield}}<br>{{ItemLink|stablekey=item:secondary - 14 - mudmold shield}}<br>{{ItemLink|stablekey=item:secondary - 1 - old buckler}}<br>{{ItemLink|stablekey=item:secondary - 7 - rotting metal shield}}<br>{{ItemLink|stablekey=item:wrist - 16 - stinging bracer}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:gen - stun}}
 
 {{Ability
 |title=Stun
@@ -141,3 +142,4 @@
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:gen - stun short}}

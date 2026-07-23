@@ -5,7 +5,7 @@
 |description=A short-duration shield that absorbs up to 400 points of incoming damage
 |type=Beneficial
 |line=Shield
-|classes={{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}} (15)
+|classes={{ClassLink|stablekey=class:arcanist}} (15)
 |required_level=15
 |manacost=300
 |aggro=
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - magic skin|link=Spell Scroll: Magical Skin|text=Spell Scroll: Magical Skin|image=Spell Scroll: Magical Skin.png}}
+|source={{ItemLink|stablekey=item:spell scroll - magic skin}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:arc - magical skin}}

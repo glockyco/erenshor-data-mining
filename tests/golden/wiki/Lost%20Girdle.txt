@@ -3,7 +3,7 @@
 |stablekey=item:belt - 20 - lost girdle
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:treasurechest 10-20 1|link=Lost Treasure (10-20)|text=Lost Treasure (10-20)}} (20.0%)<br>{{CharacterLink|stablekey=character:treasurechest 0-10 1|link=Lost Treasure (1-10)|text=Lost Treasure (1-10)}} (16.7%)
+|source={{CharacterLink|stablekey=character:treasurechest 10-20 1}} (20.0%)<br>{{CharacterLink|stablekey=character:treasurechest 0-10 1}} (16.7%)
 |othersource=
 |questsource=
 |relatedquest=

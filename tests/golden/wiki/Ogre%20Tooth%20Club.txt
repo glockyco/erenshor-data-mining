@@ -3,7 +3,7 @@
 |stablekey=item:weap - 9 - ogre tooth club
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:grassland ogre chieftan|link=A Grassland Ogre Chieftain|text=A Grassland Ogre Chieftain}} (9.0%)<br>{{CharacterLink|stablekey=character:grassland ogre elder|link=A Grassland Ogre Elder|text=A Grassland Ogre Elder}} (8.9%)
+|source={{CharacterLink|stablekey=character:grassland ogre chieftan}} (9.0%)<br>{{CharacterLink|stablekey=character:grassland ogre elder}} (8.9%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=15
 |proc_spell_icon=Dazzle.png
-|proc_spell_name={{AbilityLink|stablekey=spell:arc - dazzle|link=Dazzle|text=Dazzle|image=Dazzle.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:arc - dazzle}}
 |proc_spell_level=1
 |proc_spell_duration_ticks=5
 |proc_spell_type=StatusEffect

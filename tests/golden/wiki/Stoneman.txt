@@ -3,15 +3,15 @@
 |image=[[File:Stoneman.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:rockshade|link=Rockshade Hold|text=Rockshade Hold}}<br>{{ZoneLink|stablekey=zone:windwashed|link=Windwashed Pass|text=Windwashed Pass}}
+|zones={{ZoneLink|stablekey=zone:rockshade}}<br>{{ZoneLink|stablekey=zone:windwashed}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - polished stone|link=Polished Stone|text=Polished Stone|image=Polished Stone.png}} (82.2%)<br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (3.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} (3.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:furniture - stone auction blueprint|link=Blueprint: Stone Auction|text=Blueprint: Stone Auction|image=Blueprint: Stone Auction.png}} (0.2%)<br>{{ItemLink|stablekey=item:furniture - stone bank blueprint|link=Blueprint: Stone Bank|text=Blueprint: Stone Bank|image=Blueprint: Stone Bank.png}} (0.2%)<br>{{ItemLink|stablekey=item:furniture - stone dining blueprint|link=Blueprint: Stone Dining|text=Blueprint: Stone Dining|image=Blueprint: Stone Dining.png}} (0.2%)<br>{{ItemLink|stablekey=item:furniture - stone fountain blueprint|link=Blueprint: Stone Fountain|text=Blueprint: Stone Fountain|image=Blueprint: Stone Fountain.png}} (0.2%)<br>{{ItemLink|stablekey=item:furniture - stone training blueprint|link=Blueprint: Stone Training Room|text=Blueprint: Stone Training Room|image=Blueprint: Stone Training Room.png}} (0.2%)<br>{{ItemLink|stablekey=item:furniture - stone vendor blueprint|link=Blueprint: Stone Vendor|text=Blueprint: Stone Vendor|image=Blueprint: Stone Vendor.png}} (0.2%)
+|droprates={{ItemLink|stablekey=item:gen - polished stone}} (82.2%)<br>{{ItemLink|stablekey=item:gen - diamond}} (3.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - ruby}} (3.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:furniture - stone auction blueprint}} (0.2%)<br>{{ItemLink|stablekey=item:furniture - stone bank blueprint}} (0.2%)<br>{{ItemLink|stablekey=item:furniture - stone dining blueprint}} (0.2%)<br>{{ItemLink|stablekey=item:furniture - stone fountain blueprint}} (0.2%)<br>{{ItemLink|stablekey=item:furniture - stone training blueprint}} (0.2%)<br>{{ItemLink|stablekey=item:furniture - stone vendor blueprint}} (0.2%)
 |level=19
 |levelmodmin=0
 |levelmodmax=0
@@ -32,22 +32,22 @@
 |poison=10-23
 |elemental=10-23
 |void=10-23
-|spells={{AbilityLink|stablekey=spell:arc - brax's rage|link=Brax's Rage|text=Brax's Rage|image=Brax's Rage.png}}<br>{{AbilityLink|stablekey=spell:arc - ice shock|link=Ice Shock|text=Ice Shock|image=Ice Shock.png}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's rage}}<br>{{AbilityLink|stablekey=spell:arc - ice shock}}
 }}
 {{Character
 |name=Stoneman
 |image=[[File:Stoneman.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:rockshade|link=Rockshade Hold|text=Rockshade Hold}}<br>{{ZoneLink|stablekey=zone:windwashed|link=Windwashed Pass|text=Windwashed Pass}}
+|zones={{ZoneLink|stablekey=zone:rockshade}}<br>{{ZoneLink|stablekey=zone:windwashed}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - polished stone|link=Polished Stone|text=Polished Stone|image=Polished Stone.png}} (82.2%)<br>{{ItemLink|stablekey=item:furniture - enchanted smithy blueprint|link=Blueprint: Enchanted Smithy|text=Blueprint: Enchanted Smithy|image=Blueprint: Enchanted Smithy.png}} (6.4%)<br>{{ItemLink|stablekey=item:furniture - stone auction blueprint|link=Blueprint: Stone Auction|text=Blueprint: Stone Auction|image=Blueprint: Stone Auction.png}} (0.2%)<br>{{ItemLink|stablekey=item:furniture - stone bank blueprint|link=Blueprint: Stone Bank|text=Blueprint: Stone Bank|image=Blueprint: Stone Bank.png}} (0.2%)<br>{{ItemLink|stablekey=item:furniture - stone dining blueprint|link=Blueprint: Stone Dining|text=Blueprint: Stone Dining|image=Blueprint: Stone Dining.png}} (0.2%)<br>{{ItemLink|stablekey=item:furniture - stone fountain blueprint|link=Blueprint: Stone Fountain|text=Blueprint: Stone Fountain|image=Blueprint: Stone Fountain.png}} (0.2%)<br>{{ItemLink|stablekey=item:furniture - stone training blueprint|link=Blueprint: Stone Training Room|text=Blueprint: Stone Training Room|image=Blueprint: Stone Training Room.png}} (0.2%)<br>{{ItemLink|stablekey=item:furniture - stone vendor blueprint|link=Blueprint: Stone Vendor|text=Blueprint: Stone Vendor|image=Blueprint: Stone Vendor.png}} (0.2%)<br>{{ItemLink|stablekey=item:weap - 26 - stone sword|link=Stone Sword|text=Stone Sword|image=Stone Sword.png}} (0.2%)<ref>If Stoneman has {{ItemLink|stablekey=item:weap - 26 - stone sword|link=Stone Sword|text=Stone Sword|image=Stone Sword.png}} equipped, it is guaranteed to drop.</ref>
+|droprates={{ItemLink|stablekey=item:gen - polished stone}} (82.2%)<br>{{ItemLink|stablekey=item:furniture - enchanted smithy blueprint}} (6.4%)<br>{{ItemLink|stablekey=item:furniture - stone auction blueprint}} (0.2%)<br>{{ItemLink|stablekey=item:furniture - stone bank blueprint}} (0.2%)<br>{{ItemLink|stablekey=item:furniture - stone dining blueprint}} (0.2%)<br>{{ItemLink|stablekey=item:furniture - stone fountain blueprint}} (0.2%)<br>{{ItemLink|stablekey=item:furniture - stone training blueprint}} (0.2%)<br>{{ItemLink|stablekey=item:furniture - stone vendor blueprint}} (0.2%)<br>{{ItemLink|stablekey=item:weap - 26 - stone sword}} (0.2%)<ref>If Stoneman has {{ItemLink|stablekey=item:weap - 26 - stone sword}} equipped, it is guaranteed to drop.</ref>
 |level=19
 |levelmodmin=0
 |levelmodmax=0

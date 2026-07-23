@@ -3,7 +3,7 @@
 |stablekey=item:charm - 42 - interstellar charm
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:animation of faith|link=Animation of Faith|text=Animation of Faith}} (25.1%)<br>{{CharacterLink|stablekey=character:soluna|link=Soluna|text=Soluna}} (5.8%)
+|source={{CharacterLink|stablekey=character:animation of faith}} (25.1%)<br>{{CharacterLink|stablekey=character:soluna}} (5.8%)
 |othersource=
 |questsource=
 |relatedquest=

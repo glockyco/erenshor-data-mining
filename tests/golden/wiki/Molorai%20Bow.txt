@@ -3,7 +3,7 @@
 |stablekey=item:bow - 10 - molorai bow
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:molorai warrior|link=Molorai Militia Warrior|text=Molorai Militia Warrior}} (4.9%)
+|source={{CharacterLink|stablekey=character:molorai warrior}} (4.9%)
 |othersource=
 |questsource=
 |relatedquest=

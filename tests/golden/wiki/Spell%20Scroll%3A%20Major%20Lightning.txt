@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - major lightning
 |type=[[Ability Books|Spell Scroll]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:priel gifted|link=Priel Gifted|text=Priel Gifted}} (2.1%)<br>{{CharacterLink|stablekey=character:priel grimwatch|link=Priel Grimwatch|text=Priel Grimwatch}} (2.1%)
+|source={{CharacterLink|stablekey=character:priel gifted}} (2.1%)<br>{{CharacterLink|stablekey=character:priel grimwatch}} (2.1%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=6000
 |sell=3900
-|taughtspell={{AbilityLink|stablekey=spell:dru - major lightning|link=Major Lightning|text=Major Lightning|image=Major Lightning.png}}
+|taughtspell={{AbilityLink|stablekey=spell:dru - major lightning}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

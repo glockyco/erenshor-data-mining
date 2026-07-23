@@ -3,15 +3,15 @@
 |image=[[File:Risen Pilgrim.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
-|factionChange=-10 {{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:silkengrass|link=Silkengrass Meadowlands|text=Silkengrass Meadowlands}}
+|faction={{FactionLink|stablekey=faction:evil}}
+|factionChange=-10 {{FactionLink|stablekey=faction:sivakayans}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:silkengrass}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - an ancient bone|link=Ancient Bone|text=Ancient Bone|image=Ancient Bone.png}} (89.4%)<br>{{ItemLink|stablekey=item:weap - 1 - rusty sword|link=Rusty Shortsword|text=Rusty Shortsword|image=Rusty Shortsword.png}} (5.9%)<br>{{ItemLink|stablekey=item:leg - 1 - tattered leather leggings|link=Tattered Leather Leggings|text=Tattered Leather Leggings|image=Tattered Leather Leggings.png}} (2.9%)<br>{{ItemLink|stablekey=item:ring - 24 - simple engagement ring|link=Simple Engagement Ring|text=Simple Engagement Ring|image=Simple Engagement Ring.png}} (1.7%)<br>{{ItemLink|stablekey=item:foot - 1 - tattered leather boots|link=Tattered Leather Boots|text=Tattered Leather Boots|image=Tattered Leather Boots.png}} (1.2%)<br>{{ItemLink|stablekey=item:glove - 1 - tattered leather gloves|link=Tattered Leather Gloves|text=Tattered Leather Gloves|image=Tattered Leather Gloves.png}} (1.2%)<br>{{ItemLink|stablekey=item:head - 1 - tattered leather skullcap|link=Tattered Leather Skullcap|text=Tattered Leather Skullcap|image=Tattered Leather Skullcap.png}} (1.2%)<br>{{ItemLink|stablekey=item:arm - 1 - tattered leather sleeves|link=Tattered Leather Sleeves|text=Tattered Leather Sleeves|image=Tattered Leather Sleeves.png}} (1.2%)<br>{{ItemLink|stablekey=item:chest - 1 - tattered leather tunic|link=Tattered Leather Tunic|text=Tattered Leather Tunic|image=Tattered Leather Tunic.png}} (1.2%)
+|droprates={{ItemLink|stablekey=item:gen - an ancient bone}} (89.4%)<br>{{ItemLink|stablekey=item:weap - 1 - rusty sword}} (5.9%)<br>{{ItemLink|stablekey=item:leg - 1 - tattered leather leggings}} (2.9%)<br>{{ItemLink|stablekey=item:ring - 24 - simple engagement ring}} (1.7%)<br>{{ItemLink|stablekey=item:foot - 1 - tattered leather boots}} (1.2%)<br>{{ItemLink|stablekey=item:glove - 1 - tattered leather gloves}} (1.2%)<br>{{ItemLink|stablekey=item:head - 1 - tattered leather skullcap}} (1.2%)<br>{{ItemLink|stablekey=item:arm - 1 - tattered leather sleeves}} (1.2%)<br>{{ItemLink|stablekey=item:chest - 1 - tattered leather tunic}} (1.2%)
 |level=4
 |levelmodmin=0
 |levelmodmax=0

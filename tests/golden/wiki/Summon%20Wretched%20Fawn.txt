@@ -30,7 +30,7 @@
 |target_healing=
 |caster_healing=
 |shield_amount=
-|pet_to_summon={{CharacterLink|stablekey=character:summoned wretched fawn|link=Summoned: Wretched Fawn|text=Summoned: Wretched Fawn}}
+|pet_to_summon={{CharacterLink|stablekey=character:summoned wretched fawn}}
 |status_effect=
 |add_proc=
 |add_proc_chance=
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - summon wretched fawn|link=Spell Scroll: Summon Wretched Fawn|text=Spell Scroll: Summon Wretched Fawn|image=Spell Scroll: Summon Wretched Fawn.png}}
+|source={{ItemLink|stablekey=item:spell scroll - summon wretched fawn}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:dru - summon wretched fawn}}

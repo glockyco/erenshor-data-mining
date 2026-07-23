@@ -3,15 +3,15 @@
 |image=[[File:Chazza Priel.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:priel|link=Savannah Priel|text=Savannah Priel}}
-|factionChange=-35 {{FactionLink|stablekey=faction:priel|link=Savannah Priel|text=Savannah Priel}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+1 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
-|zones={{ZoneLink|stablekey=zone:windwashed|link=Windwashed Pass|text=Windwashed Pass}}
+|faction={{FactionLink|stablekey=faction:priel}}
+|factionChange=-35 {{FactionLink|stablekey=faction:priel}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens}}<br>+1 {{FactionLink|stablekey=faction:solunarians}}
+|zones={{ZoneLink|stablekey=zone:windwashed}}
 |coordinates=837.5 x 91.8 x 242.2
 |spawnchance=66%
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:arm - 22 - dueling armguards|link=Dueling Armguards|text=Dueling Armguards|image=Dueling Armguards.png}}<br>{{ItemLink|stablekey=item:ring - 22 - strategist's ring|link=Strategist's Ring|text=Strategist's Ring|image=Strategist's Ring.png}}
-|droprates={{ItemLink|stablekey=item:gen - priel note|link=Priel Note|text=Priel Note (1)|image=Priel Note.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - priel note|link=Priel Note|text=Priel Note (1)|image=Priel Note.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:arm - 22 - dueling armguards|link=Dueling Armguards|text=Dueling Armguards|image=Dueling Armguards.png}} (50.0%)<br>{{ItemLink|stablekey=item:ring - 22 - strategist's ring|link=Strategist's Ring|text=Strategist's Ring|image=Strategist's Ring.png}} (50.0%)<br>{{ItemLink|stablekey=item:weap - 6 - bearbone club|link=Bear Bone Club|text=Bear Bone Club|image=Bear Bone Club.png}} (8.7%)<ref>If Chazza Priel has {{ItemLink|stablekey=item:weap - 6 - bearbone club|link=Bear Bone Club|text=Bear Bone Club|image=Bear Bone Club.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (7.4%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (7.4%)<br>{{ItemLink|stablekey=item:back - 6 - priel standard|link=Priel Standard|text=Priel Standard|image=Priel Standard.png}} (4.2%)<ref>If Chazza Priel has {{ItemLink|stablekey=item:back - 6 - priel standard|link=Priel Standard|text=Priel Standard|image=Priel Standard.png}} equipped, it is guaranteed to drop.</ref>
+|guaranteeddrops={{ItemLink|stablekey=item:arm - 22 - dueling armguards}}<br>{{ItemLink|stablekey=item:ring - 22 - strategist's ring}}
+|droprates={{ItemLink|stablekey=item:gen - priel note}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - priel note}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:arm - 22 - dueling armguards}} (50.0%)<br>{{ItemLink|stablekey=item:ring - 22 - strategist's ring}} (50.0%)<br>{{ItemLink|stablekey=item:weap - 6 - bearbone club}} (8.7%)<ref>If Chazza Priel has {{ItemLink|stablekey=item:weap - 6 - bearbone club}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:gen - seaglass}} (7.4%)<br>{{ItemLink|stablekey=item:gen - a star stone}} (7.4%)<br>{{ItemLink|stablekey=item:back - 6 - priel standard}} (4.2%)<ref>If Chazza Priel has {{ItemLink|stablekey=item:back - 6 - priel standard}} equipped, it is guaranteed to drop.</ref>
 |level=20
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=10-24
 |elemental=10-24
 |void=10-24
-|spells={{AbilityLink|stablekey=spell:duel - deathly embrace|link=Death's Embrace|text=Death's Embrace|image=Death's Embrace.png}}<br>{{AbilityLink|stablekey=spell:duel - expose weakness|link=Expose Weakness|text=Expose Weakness|image=Expose Weakness.png}}
+|spells={{AbilityLink|stablekey=spell:duel - deathly embrace}}<br>{{AbilityLink|stablekey=spell:duel - expose weakness}}
 }}
 Chazza can be found in the Priel camp in the Windwashed pass.
 =Notes=

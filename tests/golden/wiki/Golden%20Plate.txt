@@ -3,7 +3,7 @@
 |stablekey=item:chest - 32 - golden plate
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:exalted skeleton|link=Exalted Firebone|text=Exalted Firebone}} (33.3%)
+|source={{CharacterLink|stablekey=character:exalted skeleton}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

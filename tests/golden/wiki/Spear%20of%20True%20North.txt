@@ -3,7 +3,7 @@
 |stablekey=item:weap - 42 - spear of true north
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:arenachest 8|link=Vithean Chest|text=Vithean Chest (Round 8)}} (36.4%)
+|source={{CharacterLink|stablekey=character:arenachest 8}} (36.4%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=14
 |proc_spell_icon=Vithean Judgement.png
-|proc_spell_name={{AbilityLink|stablekey=spell:none - vithean judgement|link=Vithean Judgement|text=Vithean Judgement|image=Vithean Judgement.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:none - vithean judgement}}
 |proc_spell_level=35
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

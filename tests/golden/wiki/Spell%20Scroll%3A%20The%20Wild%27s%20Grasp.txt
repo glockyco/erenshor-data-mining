@@ -2,7 +2,7 @@
 |title=Spell Scroll: The Wild's Grasp
 |stablekey=item:spell scroll - drudd the wild's grasp
 |type=
-|vendorsource={{CharacterLink|stablekey=character:tiver banes|link=Tiver Banes|text=Tiver Banes}}
+|vendorsource={{CharacterLink|stablekey=character:tiver banes}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=10000
 |sell=6500
-|taughtspell={{AbilityLink|stablekey=spell:dru - the wild's grasp|link=The Wild's Fang|text=The Wild's Fang|image=The Wild's Fang.png}}
+|taughtspell={{AbilityLink|stablekey=spell:dru - the wild's grasp}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

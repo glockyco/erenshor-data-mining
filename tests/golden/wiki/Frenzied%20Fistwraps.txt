@@ -3,7 +3,7 @@
 |stablekey=item:glove - 24 - frenzied fistwraps
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:frenzy|link=Frenzy|text=Frenzy}} (66.7%)
+|source={{CharacterLink|stablekey=character:frenzy}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Worn
 |proc_chance=
 |proc_spell_icon=Flow.png
-|proc_spell_name={{AbilityLink|stablekey=spell:none - flow|link=Flow|text=Flow|image=Flow.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:none - flow}}
 |proc_spell_level=25
 |proc_spell_duration_ticks=5
 |proc_spell_type=Beneficial

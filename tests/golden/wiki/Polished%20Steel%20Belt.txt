@@ -3,7 +3,7 @@
 |stablekey=item:belt - 31 - polished steel belt
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:braxonian honor guard|link=Braxonian Honor Guard|text=Braxonian Honor Guard}} (2.3%)
+|source={{CharacterLink|stablekey=character:braxonian honor guard}} (2.3%)
 |othersource=
 |questsource=
 |relatedquest=

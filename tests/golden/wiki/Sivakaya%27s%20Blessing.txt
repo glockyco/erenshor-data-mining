@@ -32,7 +32,7 @@
 |shield_amount=
 |pet_to_summon=
 |status_effect=
-|add_proc={{AbilityLink|stablekey=spell:dru - annihilate|link=Annihilate|text=Annihilate}}
+|add_proc={{AbilityLink|stablekey=spell:dru - annihilate}}
 |add_proc_chance=10
 |has_lifetap=
 |lifesteal=2.0
@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:wrist - 42 - eventide wristguard|link=Eventide Bracer|text=Eventide Bracer|image=Eventide Bracer.png}}
+|itemswitheffect={{ItemLink|stablekey=item:wrist - 42 - eventide wristguard}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - sivakaya's blessing}}

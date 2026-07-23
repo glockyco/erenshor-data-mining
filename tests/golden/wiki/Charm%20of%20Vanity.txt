@@ -7,7 +7,7 @@
 |othersource=
 |questsource=
 |relatedquest=
-|craftsource=1x {{ItemLink|stablekey=item:template - charm of vanity|link=Mold: Charm of Vanity|text=Mold: Charm of Vanity|image=Mold: Charm of Vanity.png}}<br>1x {{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}}<br>1x {{ItemLink|stablekey=item:gen - ivory tusk|link=Ivory Tusk|text=Ivory Tusk|image=Ivory Tusk.png}}<br>1x {{ItemLink|stablekey=item:neck - 12 - swirlstone amulet|link=Swirlstone Amulet|text=Swirlstone Amulet|image=Swirlstone Amulet.png}}<br>1x {{ItemLink|stablekey=item:gen - chunk of living sapphire|link=Chunk of Living Sapphire|text=Chunk of Living Sapphire|image=Chunk of Living Sapphire.png}}
+|craftsource=1x {{ItemLink|stablekey=item:template - charm of vanity}}<br>1x {{ItemLink|stablekey=item:gen - seaglass}}<br>1x {{ItemLink|stablekey=item:gen - ivory tusk}}<br>1x {{ItemLink|stablekey=item:neck - 12 - swirlstone amulet}}<br>1x {{ItemLink|stablekey=item:gen - chunk of living sapphire}}
 |componentfor=
 |buy=6000
 |sell=3900

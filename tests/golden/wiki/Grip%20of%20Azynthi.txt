@@ -67,5 +67,6 @@
 |inflict_on_self=
 |itemswitheffect=
 |source=
-|used_by={{CharacterLink|stablekey=character:acolyte of azynthi|link=Acolyte of Azynthi|text=Acolyte of Azynthi}}<br>{{CharacterLink|stablekey=character:soluna azynthian corruptor|link=Azynthian Corruptor|text=Azynthian Corruptor}}<br>{{CharacterLink|stablekey=character:azynthian corruptor|link=Azynthian Keeper|text=Azynthian Keeper}}<br>{{CharacterLink|stablekey=character:azynthian sacrifice|link=Azynthian Sacrifice|text=Azynthian Sacrifice}}
+|used_by={{CharacterLink|stablekey=character:acolyte of azynthi}}<br>{{CharacterLink|stablekey=character:soluna azynthian corruptor}}<br>{{CharacterLink|stablekey=character:azynthian corruptor}}<br>{{CharacterLink|stablekey=character:azynthian sacrifice}}
 }}
+{{SpellTooltip|stablekey=spell:none - grip of azynthi}}

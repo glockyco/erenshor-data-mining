@@ -3,15 +3,15 @@
 |image=[[File:Cursed Vithean Traitor.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:vitheosend|link=Vitheo's Rest|text=Vitheo's Rest}}
+|zones={{ZoneLink|stablekey=zone:vitheosend}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - rekindling the flame 2|link=Dark Flame Recipe|text=Dark Flame Recipe|image=Dark Flame Recipe.png}} (6.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - rekindling the flame 2|link=Dark Flame Recipe|text=Dark Flame Recipe|image=Dark Flame Recipe.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - rekindling the flame 3|link=Life Flame Recipe|text=Life Flame Recipe|image=Life Flame Recipe.png}} (6.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - rekindling the flame 3|link=Life Flame Recipe|text=Life Flame Recipe|image=Life Flame Recipe.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:wand - 15 - spectralsceptre|link=Spectral Sceptre|text=Spectral Sceptre|image=Spectral Sceptre.png}} (6.8%)<ref>If Cursed Vithean Traitor has {{ItemLink|stablekey=item:wand - 15 - spectralsceptre|link=Spectral Sceptre|text=Spectral Sceptre|image=Spectral Sceptre.png}} equipped, it is guaranteed to drop.</ref>
+|droprates={{ItemLink|stablekey=item:gen - rekindling the flame 2}} (6.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - rekindling the flame 2}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - rekindling the flame 3}} (6.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - rekindling the flame 3}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:wand - 15 - spectralsceptre}} (6.8%)<ref>If Cursed Vithean Traitor has {{ItemLink|stablekey=item:wand - 15 - spectralsceptre}} equipped, it is guaranteed to drop.</ref>
 |level=30
 |levelmodmin=0
 |levelmodmax=0

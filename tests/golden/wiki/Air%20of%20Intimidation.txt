@@ -5,7 +5,7 @@
 |description=Nearby unengaged enemies will be more likely to engage you before anyone else
 |type=Beneficial
 |line=Generic
-|classes={{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}} (35)
+|classes={{ClassLink|stablekey=class:paladin}} (35)
 |required_level=35
 |manacost=500
 |aggro=
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - air of intimidation|link=Spell Scroll: Air of Intimidation|text=Spell Scroll: Air of Intimidation|image=Spell Scroll: Air of Intimidation.png}}
+|source={{ItemLink|stablekey=item:spell scroll - air of intimidation}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:pal - air of intimidation}}

@@ -3,10 +3,10 @@
 |stablekey=item:gen - bag of willow soil
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:sylvan giant runt|link=Sylvan Giant Runt|text=Sylvan Giant Runt}} (100.0%)
+|source={{CharacterLink|stablekey=character:sylvan giant runt}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|link=Willow Soil (Quest){{!}}Willow Soil}}<br>{{QuestLink|stablekey=quest:willowsoil|link=Willow Soil (Quest)|text=Willow Soil}}
+|relatedquest={{QuestLink|link=Willow Soil (Quest){{!}}Willow Soil}}<br>{{QuestLink|stablekey=quest:willowsoil}}
 |craftsource=
 |componentfor=
 |buy=

@@ -3,7 +3,7 @@
 |stablekey=item:key - crypt key
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:crypt keeper|link=Crypt Keeper|text=Crypt Keeper}} (100.0%)
+|source={{CharacterLink|stablekey=character:crypt keeper}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=

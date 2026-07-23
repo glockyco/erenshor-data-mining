@@ -3,15 +3,15 @@
 |image=[[File:Boneweaver.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:loomingwood|link=Loomingwood Forest|text=Loomingwood Forest}}
+|zones={{ZoneLink|stablekey=zone:loomingwood}}
 |coordinates=372.8 x 27.4 x 181.9
 |spawnchance=66%
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:wand - 19 - boneweaver's leg|link=Boneweaver's Leg|text=Boneweaver's Leg|image=Boneweaver's Leg.png}}<br>{{ItemLink|stablekey=item:belt - 19 - spectral silk belt|link=Spectral Silk Belt|text=Spectral Silk Belt|image=Spectral Silk Belt.png}}
-|droprates={{ItemLink|stablekey=item:belt - 19 - spectral silk belt|link=Spectral Silk Belt|text=Spectral Silk Belt|image=Spectral Silk Belt.png}} (66.7%)<br>{{ItemLink|stablekey=item:wand - 19 - boneweaver's leg|link=Boneweaver's Leg|text=Boneweaver's Leg|image=Boneweaver's Leg.png}} (33.3%)
+|guaranteeddrops={{ItemLink|stablekey=item:wand - 19 - boneweaver's leg}}<br>{{ItemLink|stablekey=item:belt - 19 - spectral silk belt}}
+|droprates={{ItemLink|stablekey=item:belt - 19 - spectral silk belt}} (66.7%)<br>{{ItemLink|stablekey=item:wand - 19 - boneweaver's leg}} (33.3%)
 |level=19
 |levelmodmin=0
 |levelmodmax=0

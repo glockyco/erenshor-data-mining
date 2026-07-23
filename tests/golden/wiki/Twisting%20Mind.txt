@@ -5,7 +5,7 @@
 |description=Charm an NPC (up to level 30) to do your bidding for a short time.
 |type=StatusEffect
 |line=Charm
-|classes={{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}} (30)
+|classes={{ClassLink|stablekey=class:arcanist}} (30)
 |required_level=30
 |manacost=2000
 |aggro=
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - twisting mind|link=Spell Scroll: Twisting Mind|text=Spell Scroll: Twisting Mind|image=Spell Scroll: Twisting Mind.png}}
+|source={{ItemLink|stablekey=item:spell scroll - twisting mind}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:arc - twisting mind}}

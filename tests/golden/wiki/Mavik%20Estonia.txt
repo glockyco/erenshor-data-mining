@@ -3,15 +3,15 @@
 |image=[[File:Mavik Estonia.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:ripper|link=Ripper DeMerth|text=Ripper DeMerth}}
-|factionChange=-35 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>-35 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:silkengrass|link=Silkengrass Meadowlands|text=Silkengrass Meadowlands}}
+|faction={{FactionLink|stablekey=faction:ripper}}
+|factionChange=-35 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>-35 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:silkengrass}}
 |coordinates=462.2 x 92.5 x 935.8
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen  - ripper insignia ring|link=Ripper Insignia Badge|text=Ripper Insignia Badge|image=Ripper Insignia Badge.png}} (20.6%)<br>{{ItemLink|stablekey=item:head - 30 - ripparian solder helm|link=Ripparian Soldier Helm|text=Ripparian Soldier Helm|image=Ripparian Soldier Helm.png}} (12.1%)<br>{{ItemLink|stablekey=item:leg - 30 - ripparian greaves|link=Ripparian Greaves|text=Ripparian Greaves|image=Ripparian Greaves.png}} (3.0%)<br>{{ItemLink|stablekey=item:chest - 30 - ripparian plate|link=Ripparian Plate|text=Ripparian Plate|image=Ripparian Plate.png}} (3.0%)
+|droprates={{ItemLink|stablekey=item:gen  - ripper insignia ring}} (20.6%)<br>{{ItemLink|stablekey=item:head - 30 - ripparian solder helm}} (12.1%)<br>{{ItemLink|stablekey=item:leg - 30 - ripparian greaves}} (3.0%)<br>{{ItemLink|stablekey=item:chest - 30 - ripparian plate}} (3.0%)
 |level=30
 |levelmodmin=0
 |levelmodmax=0

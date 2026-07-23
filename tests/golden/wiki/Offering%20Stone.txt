@@ -6,7 +6,7 @@
 |source=
 |othersource=[[Bag of Offering Stones]]
 |questsource=
-|relatedquest={{QuestLink|link=Wishlan's Hope (Quest){{!}}Wishlan's Hope Pt. 2}}<br>{{QuestLink|stablekey=quest:wishlanshope2|link=Wishlan's Hope (Quest)|text=Wishlan's Hope Pt. 2}}
+|relatedquest={{QuestLink|link=Wishlan's Hope (Quest){{!}}Wishlan's Hope Pt. 2}}<br>{{QuestLink|stablekey=quest:wishlanshope2}}
 |craftsource=
 |componentfor=
 |buy=

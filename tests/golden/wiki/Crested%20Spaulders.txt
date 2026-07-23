@@ -3,7 +3,7 @@
 |stablekey=item:arm - 36 - crested spaulders
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:armorer nell|link=Armorer Nell|text=Armorer Nell}} (4.0%)<br>{{CharacterLink|stablekey=character:captain ovid|link=Captain Ovid|text=Captain Ovid}} (4.0%)<br>{{CharacterLink|stablekey=character:celeso tinamen|link=Celeso the Historian|text=Celeso the Historian}} (4.0%)<br>{{CharacterLink|stablekey=character:jeremie galyard|link=Jeremie Galyard|text=Jeremie Galyard}} (4.0%)
+|source={{CharacterLink|stablekey=character:armorer nell}} (4.0%)<br>{{CharacterLink|stablekey=character:captain ovid}} (4.0%)<br>{{CharacterLink|stablekey=character:celeso tinamen}} (4.0%)<br>{{CharacterLink|stablekey=character:jeremie galyard}} (4.0%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -3,15 +3,15 @@
 |image=[[File:Posta's Body.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:islandnecro|link=The Necromancers of the Island Tomb|text=The Necromancers of the Island Tomb}}
-|factionChange=-1000 {{FactionLink|stablekey=faction:islandnecro|link=The Necromancers of the Island Tomb|text=The Necromancers of the Island Tomb}}
-|zones={{ZoneLink|stablekey=zone:tutorial|link=Island Tomb|text=Island Tomb}}
+|faction={{FactionLink|stablekey=faction:islandnecro}}
+|factionChange=-1000 {{FactionLink|stablekey=faction:islandnecro}}
+|zones={{ZoneLink|stablekey=zone:tutorial}}
 |coordinates=161.5 x -8.9 x 166.8
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:quest - soul gem posta|link=Soul Gem (Posta)|text=Soul Gem (Posta)|image=Soul Gem (Posta).png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:quest - soul gem posta|link=Soul Gem (Posta)|text=Soul Gem (Posta)|image=Soul Gem (Posta).png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:cons - bread|link=Bread|text=Bread|image=Bread.png}} (78.0%)<br>{{ItemLink|stablekey=item:cons - water|link=Water|text=Water|image=Water.png}} (78.0%)
+|droprates={{ItemLink|stablekey=item:quest - soul gem posta}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:quest - soul gem posta}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:cons - bread}} (78.0%)<br>{{ItemLink|stablekey=item:cons - water}} (78.0%)
 |level=4
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=2-5
 |elemental=2-5
 |void=2-5
-|spells={{AbilityLink|stablekey=spell:dru - weak poison|link=Weak Poison|text=Weak Poison|image=Weak Poison.png}}
+|spells={{AbilityLink|stablekey=spell:dru - weak poison}}
 }}
 
 Posta is located in the secret room behind the stone throne found in the [[Island Tomb]] behind [[Woe]].

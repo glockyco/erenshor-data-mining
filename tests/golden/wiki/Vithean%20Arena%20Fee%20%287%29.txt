@@ -2,11 +2,11 @@
 |title=Vithean Arena Fee (7)
 |stablekey=item:quest - vithean arena token 7
 |type=[[Quest Items|Quest Item]]
-|vendorsource={{CharacterLink|stablekey=character:master of arms:planeofvitheo:463.87:25.16:417.06|link=Master of Battle|text=Master of Battle}}
-|source={{CharacterLink|stablekey=character:arenachest 6|link=Vithean Chest|text=Vithean Chest (Round 6)}} (100.0%)
+|vendorsource={{CharacterLink|stablekey=character:master of arms:planeofvitheo:463.87:25.16:417.06}}
+|source={{CharacterLink|stablekey=character:arenachest 6}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Vitheo's Arena VII}}<br>{{QuestLink|stablekey=quest:vithtokenmob7|link=Vitheo's Arena VII|text=Vitheo's Arena VII}}
+|relatedquest={{QuestLink|Vitheo's Arena VII}}<br>{{QuestLink|stablekey=quest:vithtokenmob7}}
 |craftsource=
 |componentfor=
 |buy=2000000

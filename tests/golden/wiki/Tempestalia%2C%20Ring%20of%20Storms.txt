@@ -5,7 +5,7 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|Repairing Orion's Ring, Part 2}}, {{QuestLink|stablekey=quest:tempeststone3|link=Repairing Orion's Ring, Part 2|text=Repairing Orion's Ring
+|questsource={{QuestLink|Repairing Orion's Ring, Part 2}}, {{QuestLink|stablekey=quest:tempeststone3}}
 |relatedquest=
 |craftsource=
 |componentfor=
@@ -52,7 +52,7 @@
 |proc_style=Activatable
 |proc_chance=
 |proc_spell_icon=Invoke Storm.png
-|proc_spell_name={{AbilityLink|stablekey=spell:dru - invoke storm|link=Invoke Storm|text=Invoke Storm|image=Invoke Storm.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:dru - invoke storm}}
 |proc_spell_level=8
 |proc_spell_duration_ticks=9
 |proc_spell_type=Misc

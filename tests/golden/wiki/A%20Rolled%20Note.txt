@@ -5,8 +5,8 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|Percy's Seaspice}}<br>{{QuestLink|stablekey=quest:percy's seaspice|link=Percy's Seaspice|text=Percy's Seaspice}}
-|relatedquest={{QuestLink|Passage off the Island}}<br>{{QuestLink|stablekey=quest:voldance|link=Passage off the Island|text=Passage off the Island}}
+|questsource={{QuestLink|Percy's Seaspice}}<br>{{QuestLink|stablekey=quest:percy's seaspice}}
+|relatedquest={{QuestLink|Passage off the Island}}<br>{{QuestLink|stablekey=quest:voldance}}
 |craftsource=
 |componentfor=
 |buy=

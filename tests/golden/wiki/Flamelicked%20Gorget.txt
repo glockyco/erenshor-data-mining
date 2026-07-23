@@ -3,7 +3,7 @@
 |stablekey=item:neck - 18 - flamelicked gorget
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:ember acolyte|link=Ember Acolyte|text=Ember Acolyte}} (33.3%)
+|source={{CharacterLink|stablekey=character:ember acolyte}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -3,15 +3,15 @@
 |image=[[File:Rotting Guardian.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:bloomingsepulcher|link=Blooming Sepulcher|text=Blooming Sepulcher}}
+|zones={{ZoneLink|stablekey=zone:bloomingsepulcher}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - essence of nature|link=Essence of Nature|text=Essence of Nature|image=Essence of Nature.png}} (14.8%)<br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (10.5%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:weap - 35 - messenger|link=Messenger|text=Messenger|image=Messenger.png}} (0.6%)<ref>If Rotting Guardian has {{ItemLink|stablekey=item:weap - 35 - messenger|link=Messenger|text=Messenger|image=Messenger.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:neck - 31 - nature's promise|link=Nature's Promise|text=Nature's Promise|image=Nature's Promise.png}} (0.6%)<br>{{ItemLink|stablekey=item:furniture - stone statue fernalla|link=Stone Statue: Fernalla|text=Stone Statue: Fernalla|image=Stone Statue: Fernalla.png}} (0.6%)<br>{{ItemLink|stablekey=item:furniture - wisp garden|link=Wisp Garden|text=Wisp Garden|image=Wisp Garden.png}} (0.6%)
+|droprates={{ItemLink|stablekey=item:gen - essence of nature}} (14.8%)<br>{{ItemLink|stablekey=item:gen - diamond}} (10.5%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:weap - 35 - messenger}} (0.6%)<ref>If Rotting Guardian has {{ItemLink|stablekey=item:weap - 35 - messenger}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:neck - 31 - nature's promise}} (0.6%)<br>{{ItemLink|stablekey=item:furniture - stone statue fernalla}} (0.6%)<br>{{ItemLink|stablekey=item:furniture - wisp garden}} (0.6%)
 |level=33
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=16-40
 |elemental=16-40
 |void=16-40
-|spells={{AbilityLink|stablekey=spell:dru - annihilate|link=Annihilate|text=Annihilate|image=Annihilate.png}}<br>{{AbilityLink|stablekey=spell:dru - cull the unfit|link=Cull the Unfit|text=Cull the Unfit|image=Cull the Unfit.png}}
+|spells={{AbilityLink|stablekey=spell:dru - annihilate}}<br>{{AbilityLink|stablekey=spell:dru - cull the unfit}}
 }}
 
 [[Category:Blooming Sepulcher]]

@@ -3,10 +3,10 @@
 |stablekey=item:furniture - expert training blueprint
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:arenachest 2|link=Vithean Chest|text=Vithean Chest (Round 2)}} (54.7%)
+|source={{CharacterLink|stablekey=character:arenachest 2}} (54.7%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Crafting: Expert Training Room}}<br>{{QuestLink|stablekey=quest:furniture-expert-training|link=Crafting: Expert Training Room|text=Crafting: Expert Training Room}}
+|relatedquest={{QuestLink|Crafting: Expert Training Room}}<br>{{QuestLink|stablekey=quest:furniture-expert-training}}
 |craftsource=
 |componentfor=
 |buy=

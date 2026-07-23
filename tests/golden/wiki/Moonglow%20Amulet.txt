@@ -3,7 +3,7 @@
 |stablekey=item:neck - 26 - moonglow amulet
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:fiend|link=Ancient Corpse|text=Ancient Corpse}} (5.8%)<br>{{CharacterLink|stablekey=character:ancient celestarian|link=Ancient Celestarian|text=Ancient Celestarian}} (4.6%)<br>{{CharacterLink|stablekey=character:ancient guard|link=Ancient Guard|text=Ancient Guard}} (3.5%)<br>{{CharacterLink|stablekey=character:ancient guard captain|link=Ancient Knight|text=Ancient Knight}} (3.5%)
+|source={{CharacterLink|stablekey=character:fiend}} (5.8%)<br>{{CharacterLink|stablekey=character:ancient celestarian}} (4.6%)<br>{{CharacterLink|stablekey=character:ancient guard}} (3.5%)<br>{{CharacterLink|stablekey=character:ancient guard captain}} (3.5%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Worn
 |proc_chance=
 |proc_spell_icon=Nightstalker's Finesse.png
-|proc_spell_name={{AbilityLink|stablekey=spell:duel - nightstalker's finesse|link=Nightstalker's Finesse|text=Nightstalker's Finesse|image=Nightstalker's Finesse.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:duel - nightstalker's finesse}}
 |proc_spell_level=-1
 |proc_spell_duration_ticks=2
 |proc_spell_type=Beneficial

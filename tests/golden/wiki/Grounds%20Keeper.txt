@@ -3,15 +3,15 @@
 |image=[[File:Grounds Keeper.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:azynthi|link=Azynthi's Garden|text=Azynthi's Garden (Dimensional Rift)}}
+|zones={{ZoneLink|stablekey=zone:azynthi}}
 |coordinates=511.1 x 90.9 x 582.0
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:weap - 38 - bramblecull|link=Bramblecull|text=Bramblecull|image=Bramblecull.png}}<br>{{ItemLink|stablekey=item:wrist - 38 - gardener's wristwrap|link=Gardener's Wrist Wrap|text=Gardener's Wrist Wrap|image=Gardener's Wrist Wrap.png}}
-|droprates={{ItemLink|stablekey=item:gen -  riftsnare gem|link=Riftsnare Gem|text=Riftsnare Gem|image=Riftsnare Gem.png}} (100.0%)<br>{{ItemLink|stablekey=item:wrist - 38 - gardener's wristwrap|link=Gardener's Wrist Wrap|text=Gardener's Wrist Wrap|image=Gardener's Wrist Wrap.png}} (66.7%)<br>{{ItemLink|stablekey=item:weap - 38 - bramblecull|link=Bramblecull|text=Bramblecull|image=Bramblecull.png}} (33.3%)<ref>If Grounds Keeper has {{ItemLink|stablekey=item:weap - 38 - bramblecull|link=Bramblecull|text=Bramblecull|image=Bramblecull.png}} equipped, it is guaranteed to drop.</ref>
+|guaranteeddrops={{ItemLink|stablekey=item:weap - 38 - bramblecull}}<br>{{ItemLink|stablekey=item:wrist - 38 - gardener's wristwrap}}
+|droprates={{ItemLink|stablekey=item:gen -  riftsnare gem}} (100.0%)<br>{{ItemLink|stablekey=item:wrist - 38 - gardener's wristwrap}} (66.7%)<br>{{ItemLink|stablekey=item:weap - 38 - bramblecull}} (33.3%)<ref>If Grounds Keeper has {{ItemLink|stablekey=item:weap - 38 - bramblecull}} equipped, it is guaranteed to drop.</ref>
 |level=35
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=18-42
 |elemental=18-42
 |void=18-42
-|spells={{AbilityLink|stablekey=spell:dru - cull the unfit|link=Cull the Unfit|text=Cull the Unfit|image=Cull the Unfit.png}}<br>{{AbilityLink|stablekey=spell:dru reav - devour|link=Devour|text=Devour|image=Devour.png}}
+|spells={{AbilityLink|stablekey=spell:dru - cull the unfit}}<br>{{AbilityLink|stablekey=spell:dru reav - devour}}
 }}
 
 In the hedge maze by the statue

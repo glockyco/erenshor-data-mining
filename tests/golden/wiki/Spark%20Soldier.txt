@@ -3,15 +3,15 @@
 |image=[[File:Spark Soldier.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:undercity|link=Lost Cellar|text=Lost Cellar}}
+|zones={{ZoneLink|stablekey=zone:undercity}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - flint carapace|link=Flint Carapace|text=Flint Carapace|image=Flint Carapace.png}} (11.8%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (11.8%)<br>{{ItemLink|stablekey=item:cons - lava droplet|link=Droplet of Lava|text=Droplet of Lava|image=Droplet of Lava.png}} (4.3%)
+|droprates={{ItemLink|stablekey=item:gen - flint carapace}} (11.8%)<br>{{ItemLink|stablekey=item:gen - luminstone}} (11.8%)<br>{{ItemLink|stablekey=item:cons - lava droplet}} (4.3%)
 |level=17
 |levelmodmin=0
 |levelmodmax=0

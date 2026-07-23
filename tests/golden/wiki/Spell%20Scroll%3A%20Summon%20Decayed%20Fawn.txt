@@ -2,8 +2,8 @@
 |title=Spell Scroll: Summon Decayed Fawn
 |stablekey=item:spell scroll - summon decayed fawn
 |type=[[:Category:Ability Books|Spell Scroll]]
-|vendorsource={{CharacterLink|stablekey=character:addelia zurin:stowaway:508.78:67.80:537.95|link=Aldoa Manday|text=Aldoa Manday}}<br>{{CharacterLink|stablekey=character:alyssa fearnon|link=Alyssia Fearnon|text=Alyssia Fearnon}}<br>{{CharacterLink|stablekey=character:ophelia instrumento|link=Ophelia Luminee|text=Ophelia Luminee}}
-|source={{CharacterLink|stablekey=character:a sorrowful spirit|link=A Sorrowful Spirit|text=A Sorrowful Spirit}} (2.8%)<br>{{CharacterLink|stablekey=character:islander bandit|link=Islander Bandit|text=Islander Bandit}} (1.1%)
+|vendorsource={{CharacterLink|stablekey=character:addelia zurin:stowaway:508.78:67.80:537.95}}<br>{{CharacterLink|stablekey=character:alyssa fearnon}}<br>{{CharacterLink|stablekey=character:ophelia instrumento}}
+|source={{CharacterLink|stablekey=character:a sorrowful spirit}} (2.8%)<br>{{CharacterLink|stablekey=character:islander bandit}} (1.1%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=100
 |sell=65
-|taughtspell={{AbilityLink|stablekey=spell:dru - summon decayed fawn|link=Summon Decayed Fawn|text=Summon Decayed Fawn|image=Summon Decayed Fawn.png}}
+|taughtspell={{AbilityLink|stablekey=spell:dru - summon decayed fawn}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

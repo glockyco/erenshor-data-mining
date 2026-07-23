@@ -3,10 +3,10 @@
 |stablekey=item:ring - 4 - priel insignia ring
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:priel recruit|link=A Priel Bandit Recruit|text=A Priel Bandit Recruit}} (14.8%)
+|source={{CharacterLink|stablekey=character:priel recruit}} (14.8%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Priel Rings for Tilbert}}<br>{{QuestLink|stablekey=quest:prielringsfortilbert|link=Priel Rings for Tilbert|text=Priel Rings for Tilbert}}
+|relatedquest={{QuestLink|Priel Rings for Tilbert}}<br>{{QuestLink|stablekey=quest:prielringsfortilbert}}
 |craftsource=
 |componentfor=
 |buy=8

@@ -5,7 +5,7 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|A Vithean Rune}}<br>{{QuestLink|stablekey=quest:vitheosraidrune|link=A Vithean Rune|text=A Vithean Rune}}
+|questsource={{QuestLink|A Vithean Rune}}<br>{{QuestLink|stablekey=quest:vitheosraidrune}}
 |relatedquest=
 |craftsource=
 |componentfor=

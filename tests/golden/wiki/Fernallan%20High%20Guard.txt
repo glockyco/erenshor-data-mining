@@ -3,15 +3,15 @@
 |image=[[File:Fernallan High Guard.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:planeoffernalla|link=Plane of the Willow|text=Plane of the Willow}}
+|zones={{ZoneLink|stablekey=zone:planeoffernalla}}
 |coordinates=530.7 x 32.2 x 1164.4
 |spawnchance=
 |spawntype=
 |respawn=33 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:ore - planar shard|link=Planar Stone Shards|text=Planar Stone Shards|image=Planar Stone Shards.png}} (8.3%)<br>{{ItemLink|stablekey=item:weap - 42 - spilling blade|link=Spilling Blade|text=Spilling Blade|image=Spilling Blade.png}} (6.7%)<br>{{ItemLink|stablekey=item:arm - 42 - chthonic armwraps|link=Chthonic Armwraps|text=Chthonic Armwraps|image=Chthonic Armwraps.png}} (3.7%)<br>{{ItemLink|stablekey=item:glove - 42 - chthonic gloves|link=Chthonic Handwraps|text=Chthonic Handwraps|image=Chthonic Handwraps.png}} (3.7%)<br>{{ItemLink|stablekey=item:head - 42 - chthonic hood|link=Chthonic Hood|text=Chthonic Hood|image=Chthonic Hood.png}} (3.7%)<br>{{ItemLink|stablekey=item:leg - 42 - chthonic pants|link=Chthonic Pants|text=Chthonic Pants|image=Chthonic Pants.png}} (3.7%)<br>{{ItemLink|stablekey=item:foot - 42 - chthonic sandals|link=Chthonic Sandals|text=Chthonic Sandals|image=Chthonic Sandals.png}} (3.7%)<br>{{ItemLink|stablekey=item:chest - 42 - chthonic tunic|link=Chthonic Tunic|text=Chthonic Tunic|image=Chthonic Tunic.png}} (3.7%)<br>{{ItemLink|stablekey=item:wrist - 42 - chthonic bracer|link=Chthonic Wristlet|text=Chthonic Wristlet|image=Chthonic Wristlet.png}} (3.7%)<br>{{ItemLink|stablekey=item:ore - planar stone|link=Planar Stone|text=Planar Stone|image=Planar Stone.png}} (3.4%)
+|droprates={{ItemLink|stablekey=item:ore - planar shard}} (8.3%)<br>{{ItemLink|stablekey=item:weap - 42 - spilling blade}} (6.7%)<br>{{ItemLink|stablekey=item:arm - 42 - chthonic armwraps}} (3.7%)<br>{{ItemLink|stablekey=item:glove - 42 - chthonic gloves}} (3.7%)<br>{{ItemLink|stablekey=item:head - 42 - chthonic hood}} (3.7%)<br>{{ItemLink|stablekey=item:leg - 42 - chthonic pants}} (3.7%)<br>{{ItemLink|stablekey=item:foot - 42 - chthonic sandals}} (3.7%)<br>{{ItemLink|stablekey=item:chest - 42 - chthonic tunic}} (3.7%)<br>{{ItemLink|stablekey=item:wrist - 42 - chthonic bracer}} (3.7%)<br>{{ItemLink|stablekey=item:ore - planar stone}} (3.4%)
 |level=40
 |levelmodmin=0
 |levelmodmax=0

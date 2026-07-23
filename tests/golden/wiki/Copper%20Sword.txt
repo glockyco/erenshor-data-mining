@@ -2,12 +2,12 @@
 |title=Copper Sword
 |stablekey=item:weap - bronze short sword
 |type=
-|vendorsource={{CharacterLink|stablekey=character:brian meshley|link=Brian Meshley|text=Brian Meshley}}<br>{{CharacterLink|stablekey=character:pierson windwash|link=Pierson Windwash|text=Pierson Windwash}}
-|source={{CharacterLink|stablekey=character:gort|link=Gort|text=Gort}} (10.4%)<br>{{CharacterLink|stablekey=character:summoned fallen warrior|link=Summoned Fallen Warrior|text=Summoned Fallen Warrior}} (10.4%)<br>{{CharacterLink|stablekey=character:the corpse of brice mathers|link=The Corpse of Brice Mathers|text=The Corpse of Brice Mathers}} (10.4%)<br>{{CharacterLink|stablekey=character:the corpse of cyndreela mathers|link=The Corpse of Cyndreela Mathers|text=The Corpse of Cyndreela Mathers}} (10.4%)<br>{{CharacterLink|stablekey=character:sturdy skeleton|link=A Sturdy Skeleton|text=A Sturdy Skeleton}} (7.0%)
+|vendorsource={{CharacterLink|stablekey=character:brian meshley}}<br>{{CharacterLink|stablekey=character:pierson windwash}}
+|source={{CharacterLink|stablekey=character:gort}} (10.4%)<br>{{CharacterLink|stablekey=character:summoned fallen warrior}} (10.4%)<br>{{CharacterLink|stablekey=character:the corpse of brice mathers}} (10.4%)<br>{{CharacterLink|stablekey=character:the corpse of cyndreela mathers}} (10.4%)<br>{{CharacterLink|stablekey=character:sturdy skeleton}} (7.0%)
 |othersource=
-|questsource={{QuestLink|link=Daggerhart Ancestral Coin (Quest){{!}}Daggerhart Ancestral Coin}}<br>{{QuestLink|stablekey=quest:daggerhart ancestral coin|link=Daggerhart Ancestral Coin (Quest)|text=Daggerhart Ancestral Coin}}
+|questsource={{QuestLink|link=Daggerhart Ancestral Coin (Quest){{!}}Daggerhart Ancestral Coin}}<br>{{QuestLink|stablekey=quest:daggerhart ancestral coin}}
 |relatedquest=
-|craftsource=1x {{ItemLink|stablekey=item:template - bronze sword|link=Mold: Copper Sword|text=Mold: Copper Sword|image=Mold: Copper Sword.png}}<br>2x {{ItemLink|stablekey=item:ore - bronze ore|link=Chunk of Copper Ore|text=Chunk of Copper Ore|image=Chunk of Copper Ore.png}}<br>2x {{ItemLink|stablekey=item:ore - iron ore|link=Chunk of Iron Ore|text=Chunk of Iron Ore|image=Chunk of Iron Ore.png}}
+|craftsource=1x {{ItemLink|stablekey=item:template - bronze sword}}<br>2x {{ItemLink|stablekey=item:ore - bronze ore}}<br>2x {{ItemLink|stablekey=item:ore - iron ore}}
 |componentfor=
 |buy=56
 |sell=36

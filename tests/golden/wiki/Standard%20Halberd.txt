@@ -2,7 +2,7 @@
 |title=Standard Halberd
 |stablekey=item:weap - 6 - standard halberd
 |type=
-|vendorsource={{CharacterLink|stablekey=character:brian meshley|link=Brian Meshley|text=Brian Meshley}}
+|vendorsource={{CharacterLink|stablekey=character:brian meshley}}
 |source=
 |othersource=
 |questsource=

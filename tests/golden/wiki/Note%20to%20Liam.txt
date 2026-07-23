@@ -4,10 +4,10 @@ Reading the note starts the quest {{QuestLink|link=Liam's Note}}
 |stablekey=item:gen - note to liam
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:bassalt valanno|link=Bassalt Vallano|text=Bassalt Vallano}} (100.0%)
+|source={{CharacterLink|stablekey=character:bassalt valanno}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Liam's Note}}<br>{{QuestLink|stablekey=quest:liamsnote|link=Liam's Note|text=Liam's Note}}
+|relatedquest={{QuestLink|Liam's Note}}<br>{{QuestLink|stablekey=quest:liamsnote}}
 |craftsource=
 |componentfor=
 |buy=

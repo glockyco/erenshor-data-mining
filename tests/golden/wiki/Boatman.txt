@@ -3,15 +3,15 @@
 |image=[[File:Boatman.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|faction={{FactionLink|stablekey=faction:good}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:azynthiclear|link=Azynthi's Garden|text=Azynthi's Garden}}<br>{{ZoneLink|stablekey=zone:blight|link=The Blight|text=The Blight}}
+|zones={{ZoneLink|stablekey=zone:azynthiclear}}<br>{{ZoneLink|stablekey=zone:blight}}
 |coordinates=323.9 x 14.9 x 749.1
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:glove - 1 - cloth gloves|link=Cloth Gloves|text=Cloth Gloves|image=Cloth Gloves.png}} (12.4%)<br>{{ItemLink|stablekey=item:head - 1 - cloth hood|link=Cloth Hood|text=Cloth Hood|image=Cloth Hood.png}} (12.4%)<br>{{ItemLink|stablekey=item:foot - 1 - cloth shoes|link=Cloth Shoes|text=Cloth Shoes|image=Cloth Shoes.png}} (12.4%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves|link=Cloth Sleeves|text=Cloth Sleeves|image=Cloth Sleeves.png}} (12.4%)<br>{{ItemLink|stablekey=item:leg - 1 - cloth pants|link=Cloth Pants|text=Cloth Pants|image=Cloth Pants.png}} (4.2%)<br>{{ItemLink|stablekey=item:chest - 1 - cloth shirt|link=Cloth Shirt|text=Cloth Shirt|image=Cloth Shirt.png}} (4.2%)<br>{{ItemLink|stablekey=item:neck - 3 - neophyte necklace|link=Neophyte Necklace|text=Neophyte Necklace|image=Neophyte Necklace.png}} (4.2%)<br>{{ItemLink|stablekey=item:gen - graveweed leaf|link=Graveweed Leaf|text=Graveweed Leaf|image=Graveweed Leaf.png}} (1.1%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - graveweed leaf|link=Graveweed Leaf|text=Graveweed Leaf|image=Graveweed Leaf.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:hand - 5 - idol of sivakaya|link=Idol of Sivakaya|text=Idol of Sivakaya|image=Idol of Sivakaya.png}} (1.1%)<ref>If Boatman has {{ItemLink|stablekey=item:hand - 5 - idol of sivakaya|link=Idol of Sivakaya|text=Idol of Sivakaya|image=Idol of Sivakaya.png}} equipped, it is guaranteed to drop.</ref>
+|droprates={{ItemLink|stablekey=item:glove - 1 - cloth gloves}} (12.4%)<br>{{ItemLink|stablekey=item:head - 1 - cloth hood}} (12.4%)<br>{{ItemLink|stablekey=item:foot - 1 - cloth shoes}} (12.4%)<br>{{ItemLink|stablekey=item:arm - 1 - cloth sleeves}} (12.4%)<br>{{ItemLink|stablekey=item:leg - 1 - cloth pants}} (4.2%)<br>{{ItemLink|stablekey=item:chest - 1 - cloth shirt}} (4.2%)<br>{{ItemLink|stablekey=item:neck - 3 - neophyte necklace}} (4.2%)<br>{{ItemLink|stablekey=item:gen - graveweed leaf}} (1.1%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - graveweed leaf}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:hand - 5 - idol of sivakaya}} (1.1%)<ref>If Boatman has {{ItemLink|stablekey=item:hand - 5 - idol of sivakaya}} equipped, it is guaranteed to drop.</ref>
 |level=22
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=11-26
 |elemental=11-26
 |void=11-26
-|spells={{AbilityLink|stablekey=spell:all - minor protection|link=Minor Protection|text=Minor Protection|image=Minor Protection.png}}<br>{{AbilityLink|stablekey=spell:dru - weak poison|link=Weak Poison|text=Weak Poison|image=Weak Poison.png}}
+|spells={{AbilityLink|stablekey=spell:all - minor protection}}<br>{{AbilityLink|stablekey=spell:dru - weak poison}}
 }}
 The Boatman can be found at [[The Blight]] docks (coordinates:  129, 457).
 

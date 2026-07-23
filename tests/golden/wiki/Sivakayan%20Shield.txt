@@ -3,7 +3,7 @@
 |stablekey=item:secondary - 24 - sivakayan shield
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:gherist morthario|link=Gherist Morthario|text=Gherist Morthario}} (26.9%)<br>{{CharacterLink|stablekey=character:reaver of sivakaya bkp|link=Reaver of Sivakaya|text=Reaver of Sivakaya}} (1.5%)<br>{{CharacterLink|stablekey=character:duelist of sivakaya|link=Assassin of Sivakaya|text=Assassin of Sivakaya}} (1.2%)<br>{{CharacterLink|stablekey=character:arcanist of sivakaya|link=Grand Arcanist of Sivakaya|text=Grand Arcanist of Sivakaya}} (1.2%)<br>{{CharacterLink|stablekey=character:warrior of sivakaya|link=High Paladin of Sivakaya|text=High Paladin of Sivakaya}} (1.2%)<br>{{CharacterLink|stablekey=character:druid of sivakaya|link=High Priestess of Sivakaya|text=High Priestess of Sivakaya}} (1.2%)<br>{{CharacterLink|stablekey=character:sivakayan bodyguard|link=Sivakayan Bodyguard|text=Sivakayan Bodyguard}} (1.2%)<br>{{CharacterLink|stablekey=character:sivakayan cleric|link=Sivakayan Cleric|text=Sivakayan Cleric}} (1.2%)<br>{{CharacterLink|stablekey=character:sivakayan cleric:1|link=Sivakayan Cleric|text=Sivakayan Cleric}} (1.2%)<br>{{CharacterLink|stablekey=character:sivakayan templar|link=Sivakayan Templar|text=Sivakayan Templar}} (1.2%)
+|source={{CharacterLink|stablekey=character:gherist morthario}} (26.9%)<br>{{CharacterLink|stablekey=character:reaver of sivakaya bkp}} (1.5%)<br>{{CharacterLink|stablekey=character:duelist of sivakaya}} (1.2%)<br>{{CharacterLink|stablekey=character:arcanist of sivakaya}} (1.2%)<br>{{CharacterLink|stablekey=character:warrior of sivakaya}} (1.2%)<br>{{CharacterLink|stablekey=character:druid of sivakaya}} (1.2%)<br>{{CharacterLink|stablekey=character:sivakayan bodyguard}} (1.2%)<br>{{CharacterLink|stablekey=character:sivakayan cleric}} (1.2%)<br>{{CharacterLink|stablekey=character:sivakayan cleric:1}} (1.2%)<br>{{CharacterLink|stablekey=character:sivakayan templar}} (1.2%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Bash
 |proc_chance=75
 |proc_spell_icon=Devour.png
-|proc_spell_name={{AbilityLink|stablekey=spell:dru reav - devour|link=Devour|text=Devour|image=Devour.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:dru reav - devour}}
 |proc_spell_level=29
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

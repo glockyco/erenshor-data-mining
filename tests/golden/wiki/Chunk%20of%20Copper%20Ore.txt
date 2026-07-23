@@ -8,7 +8,7 @@
 |questsource=
 |relatedquest=
 |craftsource=
-|componentfor={{ItemLink|stablekey=item:template - a ceremonial ring|link=Mold: A Ceremonial Ring|text=Mold: A Ceremonial Ring|image=Mold: A Ceremonial Ring.png}}<br>{{ItemLink|stablekey=item:template - charm of compassion|link=Mold: Charm of Compassion|text=Mold: Charm of Compassion|image=Mold: Charm of Compassion.png}}<br>{{ItemLink|stablekey=item:template - bronze sceptre|link=Mold: Copper Sceptre|text=Mold: Copper Sceptre|image=Mold: Copper Sceptre.png}}<br>{{ItemLink|stablekey=item:template - bronze sword|link=Mold: Copper Sword|text=Mold: Copper Sword|image=Mold: Copper Sword.png}}<br>{{ItemLink|stablekey=item:template - druid's charm|link=Mold: Druid's Charm|text=Mold: Druid's Charm|image=Mold: Druid's Charm.png}}<br>{{ItemLink|stablekey=item:template - ethereal vault|link=Mold: Ethereal Vault|text=Mold: Ethereal Vault|image=Mold: Ethereal Vault.png}}
+|componentfor={{ItemLink|stablekey=item:template - a ceremonial ring}}<br>{{ItemLink|stablekey=item:template - charm of compassion}}<br>{{ItemLink|stablekey=item:template - bronze sceptre}}<br>{{ItemLink|stablekey=item:template - bronze sword}}<br>{{ItemLink|stablekey=item:template - druid's charm}}<br>{{ItemLink|stablekey=item:template - ethereal vault}}
 |buy=5
 |sell=3
 |taughtspell=

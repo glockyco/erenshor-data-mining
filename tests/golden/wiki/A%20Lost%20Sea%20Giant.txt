@@ -3,15 +3,15 @@
 |image=[[File:A Lost Sea Giant.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:vitheo|link=Vitheo's Watch|text=Vitheo's Watch}}
+|zones={{ZoneLink|stablekey=zone:vitheo}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - ghostly giant's blood|link=Ghostly Giant's Blood|text=Ghostly Giant's Blood|image=Ghostly Giant's Blood.png}} (87.1%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (24.6%)<br>{{ItemLink|stablekey=item:cons - seafruit|link=Seafruit|text=Seafruit|image=Seafruit.png}} (4.0%)<br>{{ItemLink|stablekey=item:cons - seaspice|link=Seaspice|text=Seaspice|image=Seaspice.png}} (4.0%)<br>{{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} (3.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:secondary - 7 - twilight shield|link=Twilight Shield|text=Twilight Shield|image=Twilight Shield.png}} (3.0%)
+|droprates={{ItemLink|stablekey=item:gen - ghostly giant's blood}} (87.1%)<br>{{ItemLink|stablekey=item:gen - seaglass}} (24.6%)<br>{{ItemLink|stablekey=item:cons - seafruit}} (4.0%)<br>{{ItemLink|stablekey=item:cons - seaspice}} (4.0%)<br>{{ItemLink|stablekey=item:gen - aetheria}} (3.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:secondary - 7 - twilight shield}} (3.0%)
 |level=11
 |levelmodmin=0
 |levelmodmax=0
@@ -54,15 +54,15 @@
 |image=[[File:A Lost Sea Giant.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:vitheo|link=Vitheo's Watch|text=Vitheo's Watch}}
+|zones={{ZoneLink|stablekey=zone:vitheo}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - ghostly giant's blood|link=Ghostly Giant's Blood|text=Ghostly Giant's Blood|image=Ghostly Giant's Blood.png}} (93.5%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (28.2%)<br>{{ItemLink|stablekey=item:secondary - 7 - twilight shield|link=Twilight Shield|text=Twilight Shield|image=Twilight Shield.png}} (13.1%)<ref>If A Lost Sea Giant has {{ItemLink|stablekey=item:secondary - 7 - twilight shield|link=Twilight Shield|text=Twilight Shield|image=Twilight Shield.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:weap - 8 - sea giant's cutlass|link=Sea Giant's Cutlass|text=Sea Giant's Cutlass|image=Sea Giant's Cutlass.png}} (8.9%)<ref>If A Lost Sea Giant has {{ItemLink|stablekey=item:weap - 8 - sea giant's cutlass|link=Sea Giant's Cutlass|text=Sea Giant's Cutlass|image=Sea Giant's Cutlass.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} (4.4%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} in their inventory, another will not drop.</ref>
+|droprates={{ItemLink|stablekey=item:gen - ghostly giant's blood}} (93.5%)<br>{{ItemLink|stablekey=item:gen - seaglass}} (28.2%)<br>{{ItemLink|stablekey=item:secondary - 7 - twilight shield}} (13.1%)<ref>If A Lost Sea Giant has {{ItemLink|stablekey=item:secondary - 7 - twilight shield}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:weap - 8 - sea giant's cutlass}} (8.9%)<ref>If A Lost Sea Giant has {{ItemLink|stablekey=item:weap - 8 - sea giant's cutlass}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:gen - aetheria}} (4.4%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - aetheria}} in their inventory, another will not drop.</ref>
 |level=8
 |levelmodmin=0
 |levelmodmax=0

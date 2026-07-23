@@ -2,8 +2,8 @@
 |title=Spell Scroll: Toxicity
 |stablekey=item:spell scroll - toxicity
 |type=[[Ability Books]]
-|vendorsource={{CharacterLink|stablekey=character:tiver banes|link=Tiver Banes|text=Tiver Banes}}
-|source={{CharacterLink|stablekey=character:gloopa quarter|link=Gloopa|text=Gloopa (Quarter)}} (1.7%)<br>{{CharacterLink|stablekey=character:subterranean gel|link=A Subterranean Goop|text=A Subterranean Goop}} (1.6%)<br>{{CharacterLink|stablekey=character:subterranean magmite|link=A Subterranean Magmite|text=A Subterranean Magmite}} (1.6%)
+|vendorsource={{CharacterLink|stablekey=character:tiver banes}}
+|source={{CharacterLink|stablekey=character:gloopa quarter}} (1.7%)<br>{{CharacterLink|stablekey=character:subterranean gel}} (1.6%)<br>{{CharacterLink|stablekey=character:subterranean magmite}} (1.6%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=850
 |sell=552
-|taughtspell={{AbilityLink|stablekey=spell:dru - toxicity|link=Toxicity|text=Toxicity|image=Toxicity.png}}
+|taughtspell={{AbilityLink|stablekey=spell:dru - toxicity}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

@@ -2,7 +2,7 @@
 |title=Wood Bank Set
 |stablekey=item:furniture - wood bank
 |type=
-|vendorsource={{CharacterLink|stablekey=character:breena carpenter|link=Breena Carpenter|text=Breena Carpenter}}
+|vendorsource={{CharacterLink|stablekey=character:breena carpenter}}
 |source=
 |othersource=
 |questsource=

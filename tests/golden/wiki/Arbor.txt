@@ -3,15 +3,15 @@
 |image=[[File:Arbor.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:planeoffernalla|link=Plane of the Willow|text=Plane of the Willow}}
+|zones={{ZoneLink|stablekey=zone:planeoffernalla}}
 |coordinates=287.9 x 22.7 x 309.8
 |spawnchance=
 |spawntype=
 |respawn=48 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:neck - 42 - predator's soulstone|link=Predator's Shard|text=Predator's Shard|image=Predator's Shard.png}}<br>{{ItemLink|stablekey=item:back - 42 - secrets of life|link=Secrets of Life|text=Secrets of Life|image=Secrets of Life.png}}<br>{{ItemLink|stablekey=item:secondary - 42 - treant eye shield|link=Treant Eye Shield|text=Treant Eye Shield|image=Treant Eye Shield.png}}
-|droprates={{ItemLink|stablekey=item:neck - 42 - predator's soulstone|link=Predator's Shard|text=Predator's Shard|image=Predator's Shard.png}} (66.7%)<br>{{ItemLink|stablekey=item:back - 42 - secrets of life|link=Secrets of Life|text=Secrets of Life|image=Secrets of Life.png}} (66.7%)<br>{{ItemLink|stablekey=item:secondary - 42 - treant eye shield|link=Treant Eye Shield|text=Treant Eye Shield|image=Treant Eye Shield.png}} (66.7%)<br>{{ItemLink|stablekey=item:ore - planar stone|link=Planar Stone|text=Planar Stone|image=Planar Stone.png}} (64.9%)<br>{{ItemLink|stablekey=item:ore - planar shard|link=Planar Stone Shards|text=Planar Stone Shards|image=Planar Stone Shards.png}} (64.9%)<br>{{ItemLink|stablekey=item:spell scroll - summon treant|link=Spell Scroll: Summon Treant|text=Spell Scroll: Summon Treant|image=Spell Scroll: Summon Treant.png}} (64.9%)<br>{{ItemLink|stablekey=item:chest - 42 - chthonic tunic|link=Chthonic Tunic|text=Chthonic Tunic|image=Chthonic Tunic.png}} (30.4%)
+|guaranteeddrops={{ItemLink|stablekey=item:neck - 42 - predator's soulstone}}<br>{{ItemLink|stablekey=item:back - 42 - secrets of life}}<br>{{ItemLink|stablekey=item:secondary - 42 - treant eye shield}}
+|droprates={{ItemLink|stablekey=item:neck - 42 - predator's soulstone}} (66.7%)<br>{{ItemLink|stablekey=item:back - 42 - secrets of life}} (66.7%)<br>{{ItemLink|stablekey=item:secondary - 42 - treant eye shield}} (66.7%)<br>{{ItemLink|stablekey=item:ore - planar stone}} (64.9%)<br>{{ItemLink|stablekey=item:ore - planar shard}} (64.9%)<br>{{ItemLink|stablekey=item:spell scroll - summon treant}} (64.9%)<br>{{ItemLink|stablekey=item:chest - 42 - chthonic tunic}} (30.4%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0

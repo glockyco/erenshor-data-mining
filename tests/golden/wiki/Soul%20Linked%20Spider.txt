@@ -3,15 +3,15 @@
 |image=[[File:Soul Linked Spider.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:shiveringtomb2|link=Shivering Tomb|text=Shivering Tomb (2)}}
+|zones={{ZoneLink|stablekey=zone:shiveringtomb2}}
 |coordinates=-63.5 x -68.7 x 93.8
 |spawnchance=
 |spawntype=
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:key - shadowed key|link=Shadowed Key|text=Shadowed Key|image=Shadowed Key.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:key - shadowed key|link=Shadowed Key|text=Shadowed Key|image=Shadowed Key.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:ring - 20 - ring of concentration|link=Concentration Band|text=Concentration Band|image=Concentration Band.png}} (2.3%)<br>{{ItemLink|stablekey=item:ring - 24 - freeing stone|link=Freeing Stone|text=Freeing Stone|image=Freeing Stone.png}} (2.3%)
+|droprates={{ItemLink|stablekey=item:key - shadowed key}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:key - shadowed key}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:ring - 20 - ring of concentration}} (2.3%)<br>{{ItemLink|stablekey=item:ring - 24 - freeing stone}} (2.3%)
 |level=24
 |levelmodmin=0
 |levelmodmax=0
@@ -40,15 +40,15 @@
 |image=[[File:Soul Linked Spider.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:shiveringtomb2|link=Shivering Tomb|text=Shivering Tomb (2)}}
+|zones={{ZoneLink|stablekey=zone:shiveringtomb2}}
 |coordinates=-92.2 x -68.7 x 93.8
 |spawnchance=
 |spawntype=
 |respawn=
-|guaranteeddrops={{ItemLink|stablekey=item:neck - 25 - chain of protection|link=Chain of Protection|text=Chain of Protection|image=Chain of Protection.png}}<br>{{ItemLink|stablekey=item:head - 25 - spiderskin shroud|link=Spiderskin Shroud|text=Spiderskin Shroud|image=Spiderskin Shroud.png}}
-|droprates={{ItemLink|stablekey=item:neck - 25 - chain of protection|link=Chain of Protection|text=Chain of Protection|image=Chain of Protection.png}} (50.0%)<br>{{ItemLink|stablekey=item:head - 25 - spiderskin shroud|link=Spiderskin Shroud|text=Spiderskin Shroud|image=Spiderskin Shroud.png}} (50.0%)
+|guaranteeddrops={{ItemLink|stablekey=item:neck - 25 - chain of protection}}<br>{{ItemLink|stablekey=item:head - 25 - spiderskin shroud}}
+|droprates={{ItemLink|stablekey=item:neck - 25 - chain of protection}} (50.0%)<br>{{ItemLink|stablekey=item:head - 25 - spiderskin shroud}} (50.0%)
 |level=24
 |levelmodmin=0
 |levelmodmax=0
@@ -77,15 +77,15 @@
 |image=[[File:Soul Linked Spider.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:shiveringtomb2|link=Shivering Tomb|text=Shivering Tomb (2)}}
+|zones={{ZoneLink|stablekey=zone:shiveringtomb2}}
 |coordinates=-92.2 x -68.7 x 123.0
 |spawnchance=
 |spawntype=
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:neck - 25 - chain of protection|link=Chain of Protection|text=Chain of Protection|image=Chain of Protection.png}} (2.3%)<br>{{ItemLink|stablekey=item:head - 25 - spiderskin shroud|link=Spiderskin Shroud|text=Spiderskin Shroud|image=Spiderskin Shroud.png}} (2.3%)
+|droprates={{ItemLink|stablekey=item:neck - 25 - chain of protection}} (2.3%)<br>{{ItemLink|stablekey=item:head - 25 - spiderskin shroud}} (2.3%)
 |level=24
 |levelmodmin=0
 |levelmodmax=0
@@ -114,15 +114,15 @@
 |image=[[File:Soul Linked Spider.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:shiveringtomb2|link=Shivering Tomb|text=Shivering Tomb (2)}}
+|zones={{ZoneLink|stablekey=zone:shiveringtomb2}}
 |coordinates=-63.5 x -68.7 x 123.3
 |spawnchance=
 |spawntype=
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:ring - 20 - ring of concentration|link=Concentration Band|text=Concentration Band|image=Concentration Band.png}} (4.5%)<br>{{ItemLink|stablekey=item:ring - 24 - freeing stone|link=Freeing Stone|text=Freeing Stone|image=Freeing Stone.png}} (4.5%)<br>{{ItemLink|stablekey=item:neck - 25 - chain of protection|link=Chain of Protection|text=Chain of Protection|image=Chain of Protection.png}} (2.2%)<br>{{ItemLink|stablekey=item:head - 25 - spiderskin shroud|link=Spiderskin Shroud|text=Spiderskin Shroud|image=Spiderskin Shroud.png}} (2.2%)
+|droprates={{ItemLink|stablekey=item:ring - 20 - ring of concentration}} (4.5%)<br>{{ItemLink|stablekey=item:ring - 24 - freeing stone}} (4.5%)<br>{{ItemLink|stablekey=item:neck - 25 - chain of protection}} (2.2%)<br>{{ItemLink|stablekey=item:head - 25 - spiderskin shroud}} (2.2%)
 |level=24
 |levelmodmin=0
 |levelmodmax=0

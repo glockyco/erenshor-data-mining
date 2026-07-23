@@ -2,7 +2,7 @@
 |title=Spell Scroll: Void Surge
 |stablekey=item:spell scroll - void surge
 |type=
-|vendorsource={{CharacterLink|stablekey=character:grant haxoway|link=Grant Haxoway|text=Grant Haxoway}}
+|vendorsource={{CharacterLink|stablekey=character:grant haxoway}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=1500
 |sell=975
-|taughtspell={{AbilityLink|stablekey=spell:reav - void surge|link=Void Surge|text=Void Surge|image=Void Surge.png}}
+|taughtspell={{AbilityLink|stablekey=spell:reav - void surge}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

@@ -2,7 +2,7 @@
 |title=Belt Lamp
 |stablekey=item:gen - belt lamp
 |type=
-|vendorsource={{CharacterLink|stablekey=character:innkeeper gus|link=Gus Highrest|text=Gus Highrest}}<br>{{CharacterLink|stablekey=character:parmalee gemlyn|link=Parmalee Gemlyn|text=Parmalee Gemlyn}}<br>{{CharacterLink|stablekey=character:shopkeeper samuel|link=Samuel Thatcher|text=Samuel Thatcher}}<br>{{CharacterLink|stablekey=character:shopkeeper treven:stowaway:384.76:58.46:394.49|link=Treven Pines|text=Treven Pines}}
+|vendorsource={{CharacterLink|stablekey=character:innkeeper gus}}<br>{{CharacterLink|stablekey=character:parmalee gemlyn}}<br>{{CharacterLink|stablekey=character:shopkeeper samuel}}<br>{{CharacterLink|stablekey=character:shopkeeper treven:stowaway:384.76:58.46:394.49}}
 |source=
 |othersource=
 |questsource=

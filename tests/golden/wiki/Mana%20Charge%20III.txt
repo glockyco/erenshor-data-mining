@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:head - 41 - azynthian cowl|link=Azynthian Mask|text=Azynthian Mask|image=Azynthian Mask.png}}<br>{{ItemLink|stablekey=item:head - 42 - fiery thoughts|link=Fiery Thoughts|text=Fiery Thoughts|image=Fiery Thoughts.png}}<br>{{ItemLink|stablekey=item:head - 42 - radiant helm|link=Radiant Helm|text=Radiant Helm|image=Radiant Helm.png}}<br>{{ItemLink|stablekey=item:head - 42 - thaumic hood|link=Thaumic Hood|text=Thaumic Hood|image=Thaumic Hood.png}}
+|itemswitheffect={{ItemLink|stablekey=item:head - 41 - azynthian cowl}}<br>{{ItemLink|stablekey=item:head - 42 - fiery thoughts}}<br>{{ItemLink|stablekey=item:head - 42 - radiant helm}}<br>{{ItemLink|stablekey=item:head - 42 - thaumic hood}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:arc - mana charge iii}}

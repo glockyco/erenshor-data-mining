@@ -2,7 +2,7 @@
 |title=Falling Shadow
 |stablekey=item:aura - reaver 1
 |type=
-|vendorsource={{CharacterLink|stablekey=character:alexandria fadden|link=Alexandria Fadden|text=Alexandria Fadden}}<br>{{CharacterLink|stablekey=character:amanda rostley:stowaway:701.86:24.78:440.34|link=Amanda Rostley|text=Amanda Rostley}}
+|vendorsource={{CharacterLink|stablekey=character:alexandria fadden}}<br>{{CharacterLink|stablekey=character:amanda rostley:stowaway:701.86:24.78:440.34}}
 |source=
 |othersource=
 |questsource=
@@ -22,7 +22,7 @@
 |name=Falling Shadow
 |description=
 |aura_spell_icon=Aura: Rising Shadows I.png
-|aura_spell_name={{AbilityLink|stablekey=spell:aura - reaver 1|link=Aura: Rising Shadows I|text=Aura: Rising Shadows I|image=Aura: Rising Shadows I.png}}
+|aura_spell_name={{AbilityLink|stablekey=spell:aura - reaver 1}}
 |aura_spell_level=1
 |aura_spell_duration_ticks=2
 |aura_spell_type=Beneficial
@@ -62,7 +62,7 @@
 |aura_percent_lifesteal=
 |aura_atk_roll_modifier=
 |aura_resonate_chance=
-|aura_add_proc_name={{AbilityLink|stablekey=spell:reav - void bolt|link=Void Bolt|text=Void Bolt}}
+|aura_add_proc_name={{AbilityLink|stablekey=spell:reav - void bolt}}
 |aura_add_proc_chance=3
 |aura_special_descriptor=Party gets a 3% chance on-hit to proc Void Bolt
 }}

@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:weap - 25 - diamondclaw|link=Diamond Claw|text=Diamond Claw|image=Diamond Claw.png}}<br>{{ItemLink|stablekey=item:weap - 25 - diamond claymore|link=Diamond Claymore|text=Diamond Claymore|image=Diamond Claymore.png}}<br>{{ItemLink|stablekey=item:weap - 30 - diamond edged sword|link=Diamond Edged Sword|text=Diamond Edged Sword|image=Diamond Edged Sword.png}}<br>{{ItemLink|stablekey=item:secondary - 18 - diamondine shield|link=Diamondine Shield|text=Diamondine Shield|image=Diamondine Shield.png}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 25 - diamondclaw}}<br>{{ItemLink|stablekey=item:weap - 25 - diamond claymore}}<br>{{ItemLink|stablekey=item:weap - 30 - diamond edged sword}}<br>{{ItemLink|stablekey=item:secondary - 18 - diamondine shield}}
 |source=
-|used_by={{CharacterLink|stablekey=character:stoneman colossus 1|link=Diamond Colossus|text=Diamond Colossus}}<br>{{CharacterLink|stablekey=character:stoneman diamondine|link=Stoneman Diamondine|text=Stoneman Diamondine}}
+|used_by={{CharacterLink|stablekey=character:stoneman colossus 1}}<br>{{CharacterLink|stablekey=character:stoneman diamondine}}
 }}
+{{SpellTooltip|stablekey=spell:none - diamond burst}}

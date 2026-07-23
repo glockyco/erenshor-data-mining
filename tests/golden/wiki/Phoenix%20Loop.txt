@@ -3,7 +3,7 @@
 |stablekey=item:ring - 24 - phoenix band
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:pyroclast|link=Pyroclast|text=Pyroclast}} (33.3%)
+|source={{CharacterLink|stablekey=character:pyroclast}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Activatable
 |proc_chance=
 |proc_spell_icon=Major Healing.png
-|proc_spell_name={{AbilityLink|stablekey=spell:dru pal - major healing|link=Major Healing|text=Major Healing|image=Major Healing.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:dru pal - major healing}}
 |proc_spell_level=21
 |proc_spell_duration_ticks=
 |proc_spell_type=Heal

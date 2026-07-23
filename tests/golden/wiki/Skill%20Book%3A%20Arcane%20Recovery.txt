@@ -2,7 +2,7 @@
 |title=Skill Book: Arcane Recovery
 |stablekey=item:skillbook - arcane recovery
 |type=[[Ability Books]]
-|vendorsource={{CharacterLink|stablekey=character:edwin ansegg|link=Edwin Ansegg|text=Edwin Ansegg}}<br>{{CharacterLink|stablekey=character:roreli gilmare:azure:143.76:26.28:342.76|link=Roreli Gilmare|text=Roreli Gilmare}}<br>{{CharacterLink|stablekey=character:tiver banes|link=Tiver Banes|text=Tiver Banes}}
+|vendorsource={{CharacterLink|stablekey=character:edwin ansegg}}<br>{{CharacterLink|stablekey=character:roreli gilmare:azure:143.76:26.28:342.76}}<br>{{CharacterLink|stablekey=character:tiver banes}}
 |source=
 |othersource=
 |questsource=
@@ -12,7 +12,7 @@
 |buy=2355
 |sell=1531
 |taughtspell=
-|taughtskill={{AbilityLink|stablekey=skill:arcane recovery|link=Arcane Recovery|text=Arcane Recovery|image=Arcane Recovery.png}}
+|taughtskill={{AbilityLink|stablekey=skill:arcane recovery}}
 |guaranteeddrops=
 |droprates=
 }}

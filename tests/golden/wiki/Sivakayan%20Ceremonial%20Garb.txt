@@ -3,7 +3,7 @@
 |stablekey=item:chest - 25 - sivakayan ceremonial garb
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:sivakayan voidweaver|link=Sivakayan Voidweaver|text=Sivakayan Voidweaver}} (12.9%)
+|source={{CharacterLink|stablekey=character:sivakayan voidweaver}} (12.9%)
 |othersource=
 |questsource=
 |relatedquest=

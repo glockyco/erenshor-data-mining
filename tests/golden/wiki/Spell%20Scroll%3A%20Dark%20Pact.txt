@@ -2,7 +2,7 @@
 |title=Spell Scroll: Dark Pact
 |stablekey=item:spell scroll - dark pact
 |type=
-|vendorsource={{CharacterLink|stablekey=character:shanty swingblade|link=Shantee Swingblade|text=Shantee Swingblade}}
+|vendorsource={{CharacterLink|stablekey=character:shanty swingblade}}
 |source=
 |othersource=
 |questsource=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=18500
 |sell=12025
-|taughtspell={{AbilityLink|stablekey=spell:reav - dark pact|link=Dark Pact|text=Dark Pact|image=Dark Pact.png}}
+|taughtspell={{AbilityLink|stablekey=spell:reav - dark pact}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

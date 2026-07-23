@@ -3,10 +3,10 @@
 |stablekey=item:gen - graveweed leaf
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:neophyte necromancer|link=Neophyte Necromancer|text=Neophyte Necromancer}} (10.1%)<br>{{CharacterLink|stablekey=character:zashlyn bloodbane|link=Zashlyn Bloodbane|text=Zashlyn Bloodbane}} (8.5%)<br>{{CharacterLink|stablekey=character:boatman|link=Boatman|text=Boatman}} (1.1%)
+|source={{CharacterLink|stablekey=character:neophyte necromancer}} (10.1%)<br>{{CharacterLink|stablekey=character:zashlyn bloodbane}} (8.5%)<br>{{CharacterLink|stablekey=character:boatman}} (1.1%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Graveweed Leaf for Benson Gamble}}<br>{{QuestLink|stablekey=quest:graveweed leaf for benson gamble|link=Graveweed Leaf for Benson Gamble|text=Graveweed Leaf for Benson Gamble}}
+|relatedquest={{QuestLink|Graveweed Leaf for Benson Gamble}}<br>{{QuestLink|stablekey=quest:graveweed leaf for benson gamble}}
 |craftsource=
 |componentfor=
 |buy=25

@@ -65,10 +65,11 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:weap - 40 - eternox, remnant of the void|link=Eternox, Remnant of the Void|text=Eternox, Remnant of the Void|image=Eternox, Remnant of the Void.png}}
+|itemswitheffect={{ItemLink|stablekey=item:weap - 40 - eternox, remnant of the void}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:dru - healing bloom (cast)}}
 
 {{Ability
 |title=Healing Bloom
@@ -141,3 +142,4 @@
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:dru - healing bloom (effect)}}

@@ -3,15 +3,15 @@
 |image=[[File:Greater Azynthian Firebone.png|thumb]]
 |imagecaption=
 |type=Rare
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:azynthiclear|link=Azynthi's Garden|text=Azynthi's Garden}}<br>{{ZoneLink|stablekey=zone:azynthi|link=Azynthi's Garden|text=Azynthi's Garden (Dimensional Rift)}}
+|zones={{ZoneLink|stablekey=zone:azynthiclear}}<br>{{ZoneLink|stablekey=zone:azynthi}}
 |coordinates=
 |spawnchance=5-34%
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - ghostly bone|link=Ghostly Bone|text=Ghostly Bone|image=Ghostly Bone.png}} (91.9%)<br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (9.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} (4.6%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - aetheria|link=Aetheria|text=Aetheria|image=Aetheria.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (4.6%)<br>{{ItemLink|stablekey=item:spell scroll - necrosis|link=Spell Scroll: Necrosis|text=Spell Scroll: Necrosis|image=Spell Scroll: Necrosis.png}} (2.3%)
+|droprates={{ItemLink|stablekey=item:gen - ghostly bone}} (91.9%)<br>{{ItemLink|stablekey=item:gen - diamond}} (9.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - aetheria}} (4.6%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - aetheria}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - luminstone}} (4.6%)<br>{{ItemLink|stablekey=item:spell scroll - necrosis}} (2.3%)
 |level=34
 |levelmodmin=0
 |levelmodmax=0

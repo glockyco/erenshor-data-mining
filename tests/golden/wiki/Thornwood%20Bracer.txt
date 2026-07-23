@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 42 - thornwood bracer
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:fernallan high priest|link=Fernallan High Priest|text=Fernallan High Priest}} (68.7%)<br>{{CharacterLink|stablekey=character:goddess fernalla|link=Fernalla, Goddess of Nature|text=Fernalla, Goddess of Nature}} (5.8%)
+|source={{CharacterLink|stablekey=character:fernallan high priest}} (68.7%)<br>{{CharacterLink|stablekey=character:goddess fernalla}} (5.8%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Cast
 |proc_chance=3
 |proc_spell_icon=Bleed.png
-|proc_spell_name={{AbilityLink|stablekey=spell:none - bleed2|link=Bleed|text=Bleed|image=Bleed.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:none - bleed2}}
 |proc_spell_level=9
 |proc_spell_duration_ticks=10
 |proc_spell_type=StatusEffect

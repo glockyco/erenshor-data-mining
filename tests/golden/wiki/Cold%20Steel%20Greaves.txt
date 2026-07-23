@@ -2,8 +2,8 @@
 |title=Cold Steel Greaves
 |stablekey=item:leg - 6 - cold steel greaves
 |type=
-|vendorsource={{CharacterLink|stablekey=character:shanty swingblade|link=Shantee Swingblade|text=Shantee Swingblade}}
-|source={{CharacterLink|stablekey=character:golden spirit|link=A Golden Spirit|text=A Golden Spirit}} (14.0%)<br>{{CharacterLink|stablekey=character:molorai warrior|link=Molorai Militia Warrior|text=Molorai Militia Warrior}} (4.9%)
+|vendorsource={{CharacterLink|stablekey=character:shanty swingblade}}
+|source={{CharacterLink|stablekey=character:golden spirit}} (14.0%)<br>{{CharacterLink|stablekey=character:molorai warrior}} (4.9%)
 |othersource=
 |questsource=
 |relatedquest=

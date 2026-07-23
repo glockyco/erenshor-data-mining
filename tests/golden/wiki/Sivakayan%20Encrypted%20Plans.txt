@@ -3,10 +3,10 @@
 |stablekey=item:gen - sivakayan codex encryption
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:39 - sivakayan spectre|link=Sivakayan Voidmaster|text=Sivakayan Voidmaster}} (100.0%)
+|source={{CharacterLink|stablekey=character:39 - sivakayan spectre}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Ripper's Questline}}<br>{{QuestLink|Sivakayans in Port Azure}}<br>{{QuestLink|link=Ripper's Questline{{!}}Ripper's Questline (1)}}<br>{{QuestLink|stablekey=quest:ripperquestline1|link=Ripper's Questline|text=Ripper's Questline (1)}}<br>{{QuestLink|stablekey=quest:sivakayansinazure|link=Sivakayans in Port Azure|text=Sivakayans in Port Azure}}
+|relatedquest={{QuestLink|Ripper's Questline}}<br>{{QuestLink|Sivakayans in Port Azure}}<br>{{QuestLink|link=Ripper's Questline{{!}}Ripper's Questline (1)}}<br>{{QuestLink|stablekey=quest:ripperquestline1}}<br>{{QuestLink|stablekey=quest:sivakayansinazure}}
 |craftsource=
 |componentfor=
 |buy=

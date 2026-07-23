@@ -3,15 +3,15 @@
 |image=[[File:A Golden Spirit.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:shiveringstep|link=Shivering Step|text=Shivering Step}}
+|zones={{ZoneLink|stablekey=zone:shiveringstep}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:leg - 6 - cold steel greaves|link=Cold Steel Greaves|text=Cold Steel Greaves|image=Cold Steel Greaves.png}} (14.0%)<br>{{ItemLink|stablekey=item:head - 6 - cold steel helm|link=Cold Steel Helm|text=Cold Steel Helm|image=Cold Steel Helm.png}} (14.0%)<br>{{ItemLink|stablekey=item:foot - 5 - shivering leather boots|link=Shivering Leather Boots|text=Shivering Leather Boots|image=Shivering Leather Boots.png}} (14.0%)<br>{{ItemLink|stablekey=item:leg - 5 - shivering leather leggings|link=Shivering Leather Leggings|text=Shivering Leather Leggings|image=Shivering Leather Leggings.png}} (14.0%)
+|droprates={{ItemLink|stablekey=item:leg - 6 - cold steel greaves}} (14.0%)<br>{{ItemLink|stablekey=item:head - 6 - cold steel helm}} (14.0%)<br>{{ItemLink|stablekey=item:foot - 5 - shivering leather boots}} (14.0%)<br>{{ItemLink|stablekey=item:leg - 5 - shivering leather leggings}} (14.0%)
 |level=6
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=3-7
 |elemental=3-7
 |void=3-7
-|spells={{AbilityLink|stablekey=spell:arc - brax's touch|link=Brax's Touch|text=Brax's Touch|image=Brax's Touch.png}}<br>{{AbilityLink|stablekey=spell:dru arc - jolt|link=Jolt|text=Jolt|image=Jolt.png}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's touch}}<br>{{AbilityLink|stablekey=spell:dru arc - jolt}}
 }}
 
 [[Category:Enemies]]

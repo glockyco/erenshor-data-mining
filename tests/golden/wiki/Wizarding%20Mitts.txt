@@ -2,7 +2,7 @@
 |title=Wizarding Mitts
 |stablekey=item:glove - 7 - wizarding mitts
 |type=
-|vendorsource={{CharacterLink|stablekey=character:edwin ansegg|link=Edwin Ansegg|text=Edwin Ansegg}}
+|vendorsource={{CharacterLink|stablekey=character:edwin ansegg}}
 |source=
 |othersource=
 |questsource=

@@ -3,10 +3,10 @@
 |stablekey=item:gen - ritual stone
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:an apparation of sivakaya|link=An Apparition of Sivakaya|text=An Apparition of Sivakaya}} (100.0%)
+|source={{CharacterLink|stablekey=character:an apparation of sivakaya}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Clearing the Bonepits}}<br>{{QuestLink|stablekey=quest:clearbonepits|link=Clearing the Bonepits|text=Clearing the Bonepits}}
+|relatedquest={{QuestLink|Clearing the Bonepits}}<br>{{QuestLink|stablekey=quest:clearbonepits}}
 |craftsource=
 |componentfor=
 |buy=1

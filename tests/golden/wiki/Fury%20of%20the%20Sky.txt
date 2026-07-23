@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:bow - 40 - arco, crescent of the void|link=Arc, Crescent of the Void|text=Arc, Crescent of the Void|image=Arc, Crescent of the Void.png}}
+|itemswitheffect={{ItemLink|stablekey=item:bow - 40 - arco, crescent of the void}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - sky's fury}}

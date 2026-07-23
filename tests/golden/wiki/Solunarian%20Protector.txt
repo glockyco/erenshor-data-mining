@@ -3,9 +3,9 @@
 |image=[[File:Solunarian Protector.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
-|factionChange=-15 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
-|zones={{ZoneLink|stablekey=zone:malaroth|link=Malaroth's Nesting Grounds|text=Malaroth's Nesting Grounds}}<br>{{ZoneLink|stablekey=zone:soluna|link=Soluna's Landing|text=Soluna's Landing}}
+|faction={{FactionLink|stablekey=faction:good}}
+|factionChange=-15 {{FactionLink|stablekey=faction:solunarians}}
+|zones={{ZoneLink|stablekey=zone:malaroth}}<br>{{ZoneLink|stablekey=zone:soluna}}
 |coordinates=
 |spawnchance=
 |spawntype=

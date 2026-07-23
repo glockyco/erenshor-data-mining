@@ -3,10 +3,10 @@
 |stablekey=item:gen - demented brain
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:demented malaroth|link=Demented Malaroth|text=Demented Malaroth}} (100.0%)
+|source={{CharacterLink|stablekey=character:demented malaroth}} (100.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|Completing the Ritual}}<br>{{QuestLink|stablekey=quest:stowawayritualcomplete|link=Completing the Ritual|text=Completing the Ritual}}
+|relatedquest={{QuestLink|Completing the Ritual}}<br>{{QuestLink|stablekey=quest:stowawayritualcomplete}}
 |craftsource=
 |componentfor=
 |buy=

@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:aura - corruption|link=Corruption of Sivakaya|text=Corruption of Sivakaya|image=Corruption of Sivakaya.png}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - corruption}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:aura - corruption}}

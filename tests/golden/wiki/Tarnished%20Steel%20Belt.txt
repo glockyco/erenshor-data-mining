@@ -3,7 +3,7 @@
 |stablekey=item:belt - 20 - tarnished steel belt
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:lost guard|link=Spectral Guard|text=Spectral Guard}} (6.9%)<br>{{CharacterLink|stablekey=character:lost high guard|link=Spectral High Guard|text=Spectral High Guard}} (6.9%)
+|source={{CharacterLink|stablekey=character:lost guard}} (6.9%)<br>{{CharacterLink|stablekey=character:lost high guard}} (6.9%)
 |othersource=
 |questsource=
 |relatedquest=

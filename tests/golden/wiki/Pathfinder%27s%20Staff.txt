@@ -3,7 +3,7 @@
 |stablekey=item:weap - 9 - pathfinder's staff
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:elizah vernor|link=Elizah Vernor|text=Elizah Vernor}} (8.2%)<br>{{CharacterLink|stablekey=character:thella steepleton|link=Thella Steepleton|text=Thella Steepleton}} (8.2%)<br>{{CharacterLink|stablekey=character:molorai druid|link=Molorai Militia Druid|text=Molorai Militia Druid}} (3.0%)
+|source={{CharacterLink|stablekey=character:elizah vernor}} (8.2%)<br>{{CharacterLink|stablekey=character:thella steepleton}} (8.2%)<br>{{CharacterLink|stablekey=character:molorai druid}} (3.0%)
 |othersource=
 |questsource=
 |relatedquest=

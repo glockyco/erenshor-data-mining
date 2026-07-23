@@ -3,15 +3,15 @@
 |image=[[File:Stalzo.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:islandnecro|link=The Necromancers of the Island Tomb|text=The Necromancers of the Island Tomb}}
-|factionChange=-1000 {{FactionLink|stablekey=faction:islandnecro|link=The Necromancers of the Island Tomb|text=The Necromancers of the Island Tomb}}
-|zones={{ZoneLink|stablekey=zone:tutorial|link=Island Tomb|text=Island Tomb}}
+|faction={{FactionLink|stablekey=faction:islandnecro}}
+|factionChange=-1000 {{FactionLink|stablekey=faction:islandnecro}}
+|zones={{ZoneLink|stablekey=zone:tutorial}}
 |coordinates=165.0 x -8.9 x 166.8
 |spawnchance=
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:quest - soul gem stalzo|link=Soul Gem (Stalzo)|text=Soul Gem (Stalzo)|image=Soul Gem (Stalzo).png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:quest - soul gem stalzo|link=Soul Gem (Stalzo)|text=Soul Gem (Stalzo)|image=Soul Gem (Stalzo).png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:cons - bread|link=Bread|text=Bread|image=Bread.png}} (78.0%)<br>{{ItemLink|stablekey=item:cons - water|link=Water|text=Water|image=Water.png}} (78.0%)
+|droprates={{ItemLink|stablekey=item:quest - soul gem stalzo}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:quest - soul gem stalzo}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:cons - bread}} (78.0%)<br>{{ItemLink|stablekey=item:cons - water}} (78.0%)
 |level=4
 |levelmodmin=0
 |levelmodmax=0

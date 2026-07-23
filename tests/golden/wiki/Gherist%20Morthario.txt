@@ -3,15 +3,15 @@
 |image=[[File:Gherist Morthario.png|thumb]]
 |imagecaption=Gherist holding a [[Sivakayan Straightsword]].
 |type=Boss
-|faction={{FactionLink|stablekey=faction:priel|link=Savannah Priel|text=Savannah Priel}}
-|factionChange=-2 {{FactionLink|stablekey=faction:priel|link=Savannah Priel|text=Savannah Priel}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+1 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
-|zones={{ZoneLink|stablekey=zone:rottenfoot|link=Rottenfoot|text=Rottenfoot}}
+|faction={{FactionLink|stablekey=faction:priel}}
+|factionChange=-2 {{FactionLink|stablekey=faction:priel}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens}}<br>+1 {{FactionLink|stablekey=faction:solunarians}}
+|zones={{ZoneLink|stablekey=zone:rottenfoot}}
 |coordinates=736.7 x 24.4 x 202.3
 |spawnchance=60%
 |spawntype=
 |respawn=4 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - marching orders|link=Marching Orders|text=Marching Orders|image=Marching Orders.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - marching orders|link=Marching Orders|text=Marching Orders|image=Marching Orders.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:weap - 24 - sivakayan straightsword|link=Sivakayan Straightsword|text=Sivakayan Straightsword|image=Sivakayan Straightsword.png}} (28.2%)<ref>If Gherist Morthario has {{ItemLink|stablekey=item:weap - 24 - sivakayan straightsword|link=Sivakayan Straightsword|text=Sivakayan Straightsword|image=Sivakayan Straightsword.png}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:wrist - 21 - sivakayan bracer|link=Sivakayan Bracer|text=Sivakayan Bracer|image=Sivakayan Bracer.png}} (27.5%)<br>{{ItemLink|stablekey=item:leg - 24 - sivakayan legplate|link=Sivakayan Legplate|text=Sivakayan Legplate|image=Sivakayan Legplate.png}} (27.5%)<br>{{ItemLink|stablekey=item:chest - 25 - sivakayan plate|link=Sivakayan Plate|text=Sivakayan Plate|image=Sivakayan Plate.png}} (27.5%)<br>{{ItemLink|stablekey=item:secondary - 24 - sivakayan shield|link=Sivakayan Shield|text=Sivakayan Shield|image=Sivakayan Shield.png}} (26.9%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (10.5%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (10.5%)
+|droprates={{ItemLink|stablekey=item:gen - marching orders}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - marching orders}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:weap - 24 - sivakayan straightsword}} (28.2%)<ref>If Gherist Morthario has {{ItemLink|stablekey=item:weap - 24 - sivakayan straightsword}} equipped, it is guaranteed to drop.</ref><br>{{ItemLink|stablekey=item:wrist - 21 - sivakayan bracer}} (27.5%)<br>{{ItemLink|stablekey=item:leg - 24 - sivakayan legplate}} (27.5%)<br>{{ItemLink|stablekey=item:chest - 25 - sivakayan plate}} (27.5%)<br>{{ItemLink|stablekey=item:secondary - 24 - sivakayan shield}} (26.9%)<br>{{ItemLink|stablekey=item:gen - seaglass}} (10.5%)<br>{{ItemLink|stablekey=item:gen - a star stone}} (10.5%)
 |level=28
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=14-34
 |elemental=14-34
 |void=14-34
-|spells={{AbilityLink|stablekey=spell:dru reav - soul tap|link=Soul Tap|text=Soul Tap|image=Soul Tap.png}}
+|spells={{AbilityLink|stablekey=spell:dru reav - soul tap}}
 }}
 
 [[Category:Bosses]]

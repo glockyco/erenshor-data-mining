@@ -3,7 +3,7 @@
 |stablekey=item:wrist - 42 - bracer of seeds
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:goddess fernalla|link=Fernalla, Goddess of Nature|text=Fernalla, Goddess of Nature}} (36.0%)
+|source={{CharacterLink|stablekey=character:goddess fernalla}} (36.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Cast
 |proc_chance=3
 |proc_spell_icon=Extinction Bloom.png
-|proc_spell_name={{AbilityLink|stablekey=spell:dru - extinction bloom|link=Extinction Bloom|text=Extinction Bloom|image=Extinction Bloom.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:dru - extinction bloom}}
 |proc_spell_level=34
 |proc_spell_duration_ticks=
 |proc_spell_type=Damage

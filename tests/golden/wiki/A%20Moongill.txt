@@ -3,10 +3,10 @@
 |stablekey=item:fish - moongill
 |type=[[Consumables|Consumable]], [[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:wardwarped alpha|link=Wardwarped Alpha|text=Wardwarped Alpha}} (20.8%)<br>{{CharacterLink|stablekey=character:frenzy|link=Frenzy|text=Frenzy}} (17.8%)<br>{{CharacterLink|stablekey=character:grappler|link=Grappler|text=Grappler}} (17.8%)<br>{{CharacterLink|stablekey=character:spinesnap gorilla|link=Spinesnap Gorilla|text=Spinesnap Gorilla}} (17.8%)<br>{{CharacterLink|stablekey=character:plaxitheris|link=Plaxitheris|text=Plaxitheris}} (16.7%)<br>{{CharacterLink|stablekey=character:wardwarped gorilla|link=Wardwarped Gorilla|text=Wardwarped Gorilla}} (14.2%)
+|source={{CharacterLink|stablekey=character:wardwarped alpha}} (20.8%)<br>{{CharacterLink|stablekey=character:frenzy}} (17.8%)<br>{{CharacterLink|stablekey=character:grappler}} (17.8%)<br>{{CharacterLink|stablekey=character:spinesnap gorilla}} (17.8%)<br>{{CharacterLink|stablekey=character:plaxitheris}} (16.7%)<br>{{CharacterLink|stablekey=character:wardwarped gorilla}} (14.2%)
 |othersource=[[Fishing]]
 |questsource=
-|relatedquest={{QuestLink |questlink=Wally's Moongill}}<br>{{QuestLink|Malaroth Food}}<br>{{QuestLink|Wally's Moongill}}<br>{{QuestLink|stablekey=quest:malarothfeedmade|link=Malaroth Food|text=Malaroth Food}}<br>{{QuestLink|stablekey=quest:wally's moongill|link=Wally's Moongill|text=Wally's Moongill}}
+|relatedquest={{QuestLink |questlink=Wally's Moongill}}<br>{{QuestLink|Malaroth Food}}<br>{{QuestLink|Wally's Moongill}}<br>{{QuestLink|stablekey=quest:malarothfeedmade}}<br>{{QuestLink|stablekey=quest:wally's moongill}}
 |craftsource=
 |componentfor=
 |buy=25
@@ -24,7 +24,7 @@ A fish that can be caught between 10PM-6AM. Required for {{QuestLink |questlink=
 |description=A Common Nocturnal Sea Fish
 |disposable=True
 |effect_spell_icon=Nourished.png
-|effect_spell_name={{AbilityLink|stablekey=spell:all - nourished|link=Nourished|text=Nourished|image=Nourished.png}}
+|effect_spell_name={{AbilityLink|stablekey=spell:all - nourished}}
 |effect_spell_level=1
 |effect_spell_duration_ticks=220
 |effect_spell_type=Beneficial

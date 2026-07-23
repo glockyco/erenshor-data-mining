@@ -3,15 +3,15 @@
 |image=[[File:Diamond Colossus.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:rockshade|link=Rockshade Hold|text=Rockshade Hold}}
+|zones={{ZoneLink|stablekey=zone:rockshade}}
 |coordinates=872.7 x 100.8 x 681.6
 |spawnchance=20%
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:glove - 22 - dainty gloves|link=Dainty Mitts|text=Dainty Mitts|image=Dainty Mitts.png}}<br>{{ItemLink|stablekey=item:chest - 25 - preserved cloth coat|link=Preserved Cloth Coat|text=Preserved Cloth Coat|image=Preserved Cloth Coat.png}}
-|droprates={{ItemLink|stablekey=item:gen - polished stone|link=Polished Stone|text=Polished Stone|image=Polished Stone.png}} (88.0%)<br>{{ItemLink|stablekey=item:glove - 22 - dainty gloves|link=Dainty Mitts|text=Dainty Mitts|image=Dainty Mitts.png}} (50.0%)<br>{{ItemLink|stablekey=item:chest - 25 - preserved cloth coat|link=Preserved Cloth Coat|text=Preserved Cloth Coat|image=Preserved Cloth Coat.png}} (50.0%)<br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (15.7%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - pulsating stone|link=Pulsating Stone|text=Pulsating Stone|image=Pulsating Stone.png}} (15.7%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - pulsating stone|link=Pulsating Stone|text=Pulsating Stone|image=Pulsating Stone.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:furniture - stone auction blueprint|link=Blueprint: Stone Auction|text=Blueprint: Stone Auction|image=Blueprint: Stone Auction.png}} (0.5%)<br>{{ItemLink|stablekey=item:furniture - stone bank blueprint|link=Blueprint: Stone Bank|text=Blueprint: Stone Bank|image=Blueprint: Stone Bank.png}} (0.5%)<br>{{ItemLink|stablekey=item:furniture - stone dining blueprint|link=Blueprint: Stone Dining|text=Blueprint: Stone Dining|image=Blueprint: Stone Dining.png}} (0.5%)<br>{{ItemLink|stablekey=item:furniture - stone fountain blueprint|link=Blueprint: Stone Fountain|text=Blueprint: Stone Fountain|image=Blueprint: Stone Fountain.png}} (0.5%)<br>{{ItemLink|stablekey=item:furniture - stone training blueprint|link=Blueprint: Stone Training Room|text=Blueprint: Stone Training Room|image=Blueprint: Stone Training Room.png}} (0.5%)<br>{{ItemLink|stablekey=item:furniture - stone vendor blueprint|link=Blueprint: Stone Vendor|text=Blueprint: Stone Vendor|image=Blueprint: Stone Vendor.png}} (0.5%)
+|guaranteeddrops={{ItemLink|stablekey=item:glove - 22 - dainty gloves}}<br>{{ItemLink|stablekey=item:chest - 25 - preserved cloth coat}}
+|droprates={{ItemLink|stablekey=item:gen - polished stone}} (88.0%)<br>{{ItemLink|stablekey=item:glove - 22 - dainty gloves}} (50.0%)<br>{{ItemLink|stablekey=item:chest - 25 - preserved cloth coat}} (50.0%)<br>{{ItemLink|stablekey=item:gen - diamond}} (15.7%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - pulsating stone}} (15.7%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - pulsating stone}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:furniture - stone auction blueprint}} (0.5%)<br>{{ItemLink|stablekey=item:furniture - stone bank blueprint}} (0.5%)<br>{{ItemLink|stablekey=item:furniture - stone dining blueprint}} (0.5%)<br>{{ItemLink|stablekey=item:furniture - stone fountain blueprint}} (0.5%)<br>{{ItemLink|stablekey=item:furniture - stone training blueprint}} (0.5%)<br>{{ItemLink|stablekey=item:furniture - stone vendor blueprint}} (0.5%)
 |level=28
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=14-34
 |elemental=14-34
 |void=14-34
-|spells={{AbilityLink|stablekey=spell:none - diamond burst|link=Diamond Burst|text=Diamond Burst|image=Diamond Burst.png}}<br>{{AbilityLink|stablekey=spell:npc - stoneburst 2|link=Quake|text=Quake|image=Quake.png}}
+|spells={{AbilityLink|stablekey=spell:none - diamond burst}}<br>{{AbilityLink|stablekey=spell:npc - stoneburst 2}}
 }}
 
 Rarely spawns in place of the [[Stoneman Colossus]].

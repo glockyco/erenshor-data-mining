@@ -3,15 +3,15 @@
 |image=[[File:Algaeth Bilgeback.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
-|factionChange=+1 {{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:windwashed|link=Windwashed Pass|text=Windwashed Pass}}
+|faction={{FactionLink|stablekey=faction:evil}}
+|factionChange=+1 {{FactionLink|stablekey=faction:vitheo}}<br>+1 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+1 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:windwashed}}
 |coordinates=329.6 x 32.0 x 466.6
 |spawnchance=75%
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:hand - 17 - pearlescent depth totem|link=Pearlescent Kelp Totem|text=Pearlescent Kelp Totem|image=Pearlescent Kelp Totem.png}}<br>{{ItemLink|stablekey=item:neck - 18 - seastone prism|link=Seastone Prism|text=Seastone Prism|image=Seastone Prism.png}}
-|droprates={{ItemLink|stablekey=item:neck - 18 - seastone prism|link=Seastone Prism|text=Seastone Prism|image=Seastone Prism.png}} (85.7%)<br>{{ItemLink|stablekey=item:gen - a coral|link=Coral|text=Coral|image=Coral.png}} (51.4%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (51.4%)<br>{{ItemLink|stablekey=item:gen - seaweed|link=Seaweed|text=Seaweed|image=Seaweed.png}} (51.4%)<br>{{ItemLink|stablekey=item:weap - 1 - rustydagger|link=Rusty Dagger|text=Rusty Dagger|image=Rusty Dagger.png}} (25.0%)<br>{{ItemLink|stablekey=item:fish - husselfish|link=A Husselfish|text=A Husselfish|image=A Husselfish.png}} (14.9%)<br>{{ItemLink|stablekey=item:fish - a worm eel|link=A Worm Eel|text=A Worm Eel|image=A Worm Eel.png}} (14.9%)<br>{{ItemLink|stablekey=item:hand - 17 - pearlescent depth totem|link=Pearlescent Kelp Totem|text=Pearlescent Kelp Totem|image=Pearlescent Kelp Totem.png}} (14.3%)
+|guaranteeddrops={{ItemLink|stablekey=item:hand - 17 - pearlescent depth totem}}<br>{{ItemLink|stablekey=item:neck - 18 - seastone prism}}
+|droprates={{ItemLink|stablekey=item:neck - 18 - seastone prism}} (85.7%)<br>{{ItemLink|stablekey=item:gen - a coral}} (51.4%)<br>{{ItemLink|stablekey=item:gen - seaglass}} (51.4%)<br>{{ItemLink|stablekey=item:gen - seaweed}} (51.4%)<br>{{ItemLink|stablekey=item:weap - 1 - rustydagger}} (25.0%)<br>{{ItemLink|stablekey=item:fish - husselfish}} (14.9%)<br>{{ItemLink|stablekey=item:fish - a worm eel}} (14.9%)<br>{{ItemLink|stablekey=item:hand - 17 - pearlescent depth totem}} (14.3%)
 |level=18
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=9-22
 |elemental=9-22
 |void=9-22
-|spells={{AbilityLink|stablekey=spell:duel - deathly embrace ii|link=Death's Embrace II|text=Death's Embrace II|image=Death's Embrace II.png}}<br>{{AbilityLink|stablekey=spell:dru pal - minor healing|link=Minor Healing|text=Minor Healing|image=Minor Healing.png}}
+|spells={{AbilityLink|stablekey=spell:duel - deathly embrace ii}}<br>{{AbilityLink|stablekey=spell:dru pal - minor healing}}
 }}
 
 [[Category:Bosses]]

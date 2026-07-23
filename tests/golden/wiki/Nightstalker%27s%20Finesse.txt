@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:neck - 22 - collar of the huntress|link=Collar of the Huntress|text=Collar of the Huntress|image=Collar of the Huntress.png}}<br>{{ItemLink|stablekey=item:head - 42 - cyclone steel helm|link=Cyclone Steel Helm|text=Cyclone Steel Helm|image=Cyclone Steel Helm.png}}<br>{{ItemLink|stablekey=item:ring - 22 - jackalbone loop|link=Jackalbone Loop|text=Jackalbone Loop|image=Jackalbone Loop.png}}<br>{{ItemLink|stablekey=item:neck - 26 - moonglow amulet|link=Moonglow Amulet|text=Moonglow Amulet|image=Moonglow Amulet.png}}<br>{{ItemLink|stablekey=item:neck - 22 - pteriaped claw necklace|link=Pteriaped Claw Necklace|text=Pteriaped Claw Necklace|image=Pteriaped Claw Necklace.png}}
+|itemswitheffect={{ItemLink|stablekey=item:neck - 22 - collar of the huntress}}<br>{{ItemLink|stablekey=item:head - 42 - cyclone steel helm}}<br>{{ItemLink|stablekey=item:ring - 22 - jackalbone loop}}<br>{{ItemLink|stablekey=item:neck - 26 - moonglow amulet}}<br>{{ItemLink|stablekey=item:neck - 22 - pteriaped claw necklace}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:duel - nightstalker's finesse}}

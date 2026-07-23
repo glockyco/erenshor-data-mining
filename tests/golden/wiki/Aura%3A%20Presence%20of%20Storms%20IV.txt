@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:aura - storm 4|link=Lightning Strike|text=Lightning Strike|image=Lightning Strike.png}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - storm 4}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:aura - storm 4}}

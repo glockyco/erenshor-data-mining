@@ -3,9 +3,9 @@
 |image=[[File:Sapling.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:planeoffernalla|link=Plane of the Willow|text=Plane of the Willow}}
+|zones={{ZoneLink|stablekey=zone:planeoffernalla}}
 |coordinates=286.5 x 22.4 x 301.4<br>289.5 x 22.5 x 319.9
 |spawnchance=
 |spawntype=Dynamic event spawn
@@ -32,7 +32,7 @@
 |poison=55
 |elemental=55
 |void=55
-|spells={{AbilityLink|stablekey=spell:dru  - miraculous heal|link=Miraculous Healing|text=Miraculous Healing|image=Miraculous Healing.png}}
+|spells={{AbilityLink|stablekey=spell:dru  - miraculous heal}}
 }}
 
 [[Category:Enemies]]

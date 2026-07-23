@@ -5,7 +5,7 @@
 |description=You gain a small innate chance to block incoming attacks. Can proc shield ability. Requires a shield.
 |type=Innate
 |line=
-|classes={{ClassLink|stablekey=class:arcanist|link=Arcanist|text=Arcanist}} (20)<br>{{ClassLink|stablekey=class:druid|link=Druid|text=Druid}} (20)<br>{{ClassLink|stablekey=class:paladin|link=Paladin|text=Paladin}} (15)<br>{{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}} (15)
+|classes={{ClassLink|stablekey=class:arcanist}} (20)<br>{{ClassLink|stablekey=class:druid}} (20)<br>{{ClassLink|stablekey=class:paladin}} (15)<br>{{ClassLink|stablekey=class:reaver}} (15)
 |required_level=
 |manacost=
 |aggro=
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:skillbook - block 2|link=Skill Book: Block II|text=Skill Book: Block II|image=Skill Book: Block II.png}}
+|source={{ItemLink|stablekey=item:skillbook - block 2}}
 |used_by=
 }}
+{{SkillTooltip|stablekey=skill:block 2}}

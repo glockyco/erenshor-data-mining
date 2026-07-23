@@ -3,15 +3,15 @@
 |image=[[File:Fire Elemental.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:planeofbrax|link=Brax's Plane of Elements|text=Brax's Plane of Elements}}
+|zones={{ZoneLink|stablekey=zone:planeofbrax}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=30 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:ore - planar shard|link=Planar Stone Shards|text=Planar Stone Shards|image=Planar Stone Shards.png}} (7.1%)<br>{{ItemLink|stablekey=item:skillbook - multifocus|link=Skill Book: Multifocus|text=Skill Book: Multifocus|image=Skill Book: Multifocus.png}} (2.6%)<br>{{ItemLink|stablekey=item:spell scroll - brax's wrath|link=Spell Scroll: Brax's Wrath|text=Spell Scroll: Brax's Wrath|image=Spell Scroll: Brax's Wrath.png}} (2.6%)<br>{{ItemLink|stablekey=item:ore - planar stone|link=Planar Stone|text=Planar Stone|image=Planar Stone.png}} (2.2%)<br>{{ItemLink|stablekey=item:foot - 42 - thaumic slippers|link=Thaumic Boots|text=Thaumic Boots|image=Thaumic Boots.png}} (1.7%)<br>{{ItemLink|stablekey=item:glove - 42 - thaumic handwraps|link=Thaumic Handwraps|text=Thaumic Handwraps|image=Thaumic Handwraps.png}} (1.7%)<br>{{ItemLink|stablekey=item:head - 42 - thaumic hood|link=Thaumic Hood|text=Thaumic Hood|image=Thaumic Hood.png}} (1.7%)<br>{{ItemLink|stablekey=item:arm - 42 - thaumic sleeves|link=Thaumic Sleeves|text=Thaumic Sleeves|image=Thaumic Sleeves.png}} (1.7%)<br>{{ItemLink|stablekey=item:leg - 42 - thaumic trousers|link=Thaumic Trousers|text=Thaumic Trousers|image=Thaumic Trousers.png}} (1.7%)<br>{{ItemLink|stablekey=item:chest - 42 - thaumic vestiment|link=Thaumic Vestiment|text=Thaumic Vestiment|image=Thaumic Vestiment.png}} (1.7%)<br>{{ItemLink|stablekey=item:wrist - 42 - thaumic wraps|link=Thaumic Wraps|text=Thaumic Wraps|image=Thaumic Wraps.png}} (1.7%)<br>{{ItemLink|stablekey=item:gen - sivak|link=Sivakrux|text=Sivakrux|image=Sivakrux.png}} (1.2%)
+|droprates={{ItemLink|stablekey=item:ore - planar shard}} (7.1%)<br>{{ItemLink|stablekey=item:skillbook - multifocus}} (2.6%)<br>{{ItemLink|stablekey=item:spell scroll - brax's wrath}} (2.6%)<br>{{ItemLink|stablekey=item:ore - planar stone}} (2.2%)<br>{{ItemLink|stablekey=item:foot - 42 - thaumic slippers}} (1.7%)<br>{{ItemLink|stablekey=item:glove - 42 - thaumic handwraps}} (1.7%)<br>{{ItemLink|stablekey=item:head - 42 - thaumic hood}} (1.7%)<br>{{ItemLink|stablekey=item:arm - 42 - thaumic sleeves}} (1.7%)<br>{{ItemLink|stablekey=item:leg - 42 - thaumic trousers}} (1.7%)<br>{{ItemLink|stablekey=item:chest - 42 - thaumic vestiment}} (1.7%)<br>{{ItemLink|stablekey=item:wrist - 42 - thaumic wraps}} (1.7%)<br>{{ItemLink|stablekey=item:gen - sivak}} (1.2%)
 |level=42
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=21-50
 |elemental=21-50
 |void=21-50
-|spells={{AbilityLink|stablekey=spell:arc - brax's fury|link=Brax's Fury|text=Brax's Fury|image=Brax's Fury.png}}
+|spells={{AbilityLink|stablekey=spell:arc - brax's fury}}
 }}
 
 [[Category:Brax's Plane of Elements]]

@@ -3,7 +3,7 @@
 |stablekey=item:head - 21 - sivakayan cloth band
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:sivakayan voidweaver|link=Sivakayan Voidweaver|text=Sivakayan Voidweaver}} (7.4%)
+|source={{CharacterLink|stablekey=character:sivakayan voidweaver}} (7.4%)
 |othersource=
 |questsource=
 |relatedquest=

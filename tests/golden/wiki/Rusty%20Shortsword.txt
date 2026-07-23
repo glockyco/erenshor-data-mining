@@ -2,8 +2,8 @@
 |title=Rusty Shortsword
 |stablekey=item:weap - 1 - rusty sword
 |type=
-|vendorsource={{CharacterLink|stablekey=character:innkeeper gus|link=Gus Highrest|text=Gus Highrest}}<br>{{CharacterLink|stablekey=character:innkeeper ryvan:azure:167.71:26.82:247.81|link=Innkeeper Ryvan|text=Innkeeper Ryvan}}<br>{{CharacterLink|stablekey=character:shopkeeper samuel|link=Samuel Thatcher|text=Samuel Thatcher}}<br>{{CharacterLink|stablekey=character:shopkeeper treven:stowaway:384.76:58.46:394.49|link=Treven Pines|text=Treven Pines}}<br>{{CharacterLink|stablekey=character:yale harvey|link=Yale Harvey|text=Yale Harvey}}
-|source={{CharacterLink|stablekey=character:brittle skeelton|link=A Brittle Skeleton|text=A Brittle Skeleton}} (5.9%)<br>{{CharacterLink|stablekey=character:risen pilgrim|link=Risen Pilgrim|text=Risen Pilgrim}} (5.9%)
+|vendorsource={{CharacterLink|stablekey=character:innkeeper gus}}<br>{{CharacterLink|stablekey=character:innkeeper ryvan:azure:167.71:26.82:247.81}}<br>{{CharacterLink|stablekey=character:shopkeeper samuel}}<br>{{CharacterLink|stablekey=character:shopkeeper treven:stowaway:384.76:58.46:394.49}}<br>{{CharacterLink|stablekey=character:yale harvey}}
+|source={{CharacterLink|stablekey=character:brittle skeelton}} (5.9%)<br>{{CharacterLink|stablekey=character:risen pilgrim}} (5.9%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -32,7 +32,7 @@
 |shield_amount=
 |pet_to_summon=
 |status_effect=
-|add_proc={{AbilityLink|stablekey=spell:none - peerless grace|link=Peerless Grace|text=Peerless Grace}}
+|add_proc={{AbilityLink|stablekey=spell:none - peerless grace}}
 |add_proc_chance=3
 |has_lifetap=
 |lifesteal=
@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:leg - 42 - colorless trousers|link=Colorless Trousers|text=Colorless Trousers|image=Colorless Trousers.png}}<br>{{ItemLink|stablekey=item:ring - 42 - halo of twin skies|link=Halo of Twin Skies|text=Halo of Twin Skies|image=Halo of Twin Skies.png}}
+|itemswitheffect={{ItemLink|stablekey=item:leg - 42 - colorless trousers}}<br>{{ItemLink|stablekey=item:ring - 42 - halo of twin skies}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:none - connection}}

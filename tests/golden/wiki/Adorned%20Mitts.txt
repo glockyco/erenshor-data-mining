@@ -3,7 +3,7 @@
 |stablekey=item:glove - 18 - adorned mitts
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:prioress|link=Prioress|text=Prioress}} (6.7%)
+|source={{CharacterLink|stablekey=character:prioress}} (6.7%)
 |othersource=
 |questsource=
 |relatedquest=

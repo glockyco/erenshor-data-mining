@@ -5,7 +5,7 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|The Reaver's Origin}}<br>{{QuestLink|stablekey=quest:reaversofthenorth|link=The Reaver's Origin|text=The Reaver's Origin}}
+|questsource={{QuestLink|The Reaver's Origin}}<br>{{QuestLink|stablekey=quest:reaversofthenorth}}
 |relatedquest=
 |craftsource=
 |componentfor=
@@ -26,7 +26,7 @@
 |disposable=
 |effect_style=Activatable
 |effect_spell_icon=Repel Darkness.png
-|effect_spell_name={{AbilityLink|stablekey=spell:none - repel darkness|link=Repel Darkness|text=Repel Darkness|image=Repel Darkness.png}}
+|effect_spell_name={{AbilityLink|stablekey=spell:none - repel darkness}}
 |effect_spell_level=30
 |effect_spell_duration_ticks=
 |effect_spell_type=Misc

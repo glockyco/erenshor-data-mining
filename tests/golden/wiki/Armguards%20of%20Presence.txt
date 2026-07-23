@@ -3,7 +3,7 @@
 |stablekey=item:arm - 41 - armguards of presence
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:azynthian corruptor|link=Azynthian Keeper|text=Azynthian Keeper}} (40.8%)
+|source={{CharacterLink|stablekey=character:azynthian corruptor}} (40.8%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Worn
 |proc_chance=
 |proc_spell_icon=Possession.png
-|proc_spell_name={{AbilityLink|stablekey=spell:none - possession|link=Possession|text=Possession|image=Possession.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:none - possession}}
 |proc_spell_level=40
 |proc_spell_duration_ticks=5
 |proc_spell_type=Beneficial

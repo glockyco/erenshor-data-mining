@@ -7,7 +7,7 @@
 |othersource=
 |questsource=
 |relatedquest=
-|craftsource=1x {{ItemLink|stablekey=item:template - arcanist's charm|link=Mold: Arcanist's Charm|text=Mold: Arcanist's Charm|image=Mold: Arcanist's Charm.png}}<br>1x {{ItemLink|stablekey=item:ore - ancient coal|link=Ancient Coal|text=Ancient Coal|image=Ancient Coal.png}}<br>1x {{ItemLink|stablekey=item:ore - citrine sandsilver|link=Chunk of Citrine Sandsilver|text=Chunk of Citrine Sandsilver|image=Chunk of Citrine Sandsilver.png}}<br>1x {{ItemLink|stablekey=item:ore - braxonian ore|link=Braxonian Ore|text=Braxonian Ore|image=Braxonian Ore.png}}<br>1x {{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}}
+|craftsource=1x {{ItemLink|stablekey=item:template - arcanist's charm}}<br>1x {{ItemLink|stablekey=item:ore - ancient coal}}<br>1x {{ItemLink|stablekey=item:ore - citrine sandsilver}}<br>1x {{ItemLink|stablekey=item:ore - braxonian ore}}<br>1x {{ItemLink|stablekey=item:gen - luminstone}}
 |componentfor=
 |buy=6000
 |sell=3900

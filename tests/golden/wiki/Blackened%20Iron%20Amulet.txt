@@ -3,7 +3,7 @@
 |stablekey=item:neck - 11 - blackened iron amulet
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:gruhglor|link=Gruhglor|text=Gruhglor}} (19.5%)
+|source={{CharacterLink|stablekey=character:gruhglor}} (19.5%)
 |othersource=
 |questsource=
 |relatedquest=

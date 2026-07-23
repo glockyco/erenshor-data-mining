@@ -3,9 +3,9 @@
 |image=[[File:Neziroth Daggerhart.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:stowaway|link=The Citizens of Stowaway's Step|text=The Citizens of Stowaway's Step}}
-|factionChange=-25 {{FactionLink|stablekey=faction:stowaway|link=The Citizens of Stowaway's Step|text=The Citizens of Stowaway's Step}}
-|zones={{ZoneLink|stablekey=zone:stowaway|link=Stowaway's Step|text=Stowaway's Step}}
+|faction={{FactionLink|stablekey=faction:stowaway}}
+|factionChange=-25 {{FactionLink|stablekey=faction:stowaway}}
+|zones={{ZoneLink|stablekey=zone:stowaway}}
 |coordinates=497.1 x 68.7 x 677.6
 |spawnchance=
 |spawntype=

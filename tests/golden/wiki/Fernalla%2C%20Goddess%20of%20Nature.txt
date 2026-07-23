@@ -3,15 +3,15 @@
 |image=[[File:Fernalla, Goddess of Nature.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:planeoffernalla|link=Plane of the Willow|text=Plane of the Willow}}
+|zones={{ZoneLink|stablekey=zone:planeoffernalla}}
 |coordinates=1674.8 x 177.1 x 1601.7
 |spawnchance=
 |spawntype=
 |respawn=33 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:wrist - 42 - bracer of seeds|link=Bracer of Seeds|text=Bracer of Seeds|image=Bracer of Seeds.png}}<br>{{ItemLink|stablekey=item:weap - 42 - cycle's edge|link=Cycle's Edge|text=Cycle's Edge|image=Cycle's Edge.png}}<br>{{ItemLink|stablekey=item:ring - 42 - insistence|link=Insistence|text=Insistence|image=Insistence.png}}<br>{{ItemLink|stablekey=item:hand - 42 - letters and words (common)|link=Letters and Words|text=Letters and Words|image=Letters and Words.png}}<br>{{ItemLink|stablekey=item:aura - fernalla 5|link=Rebirth|text=Rebirth|image=Rebirth.png}}<br>{{ItemLink|stablekey=item:back - 42 - shroud of nature|link=Shroud of Nature|text=Shroud of Nature|image=Shroud of Nature.png}}
-|droprates={{ItemLink|stablekey=item:wrist - 42 - bracer of seeds|link=Bracer of Seeds|text=Bracer of Seeds|image=Bracer of Seeds.png}} (36.0%)<br>{{ItemLink|stablekey=item:weap - 42 - cycle's edge|link=Cycle's Edge|text=Cycle's Edge|image=Cycle's Edge.png}} (36.0%)<br>{{ItemLink|stablekey=item:ring - 42 - insistence|link=Insistence|text=Insistence|image=Insistence.png}} (36.0%)<br>{{ItemLink|stablekey=item:aura - fernalla 5|link=Rebirth|text=Rebirth|image=Rebirth.png}} (36.0%)<br>{{ItemLink|stablekey=item:back - 42 - shroud of nature|link=Shroud of Nature|text=Shroud of Nature|image=Shroud of Nature.png}} (36.0%)<br>{{ItemLink|stablekey=item:hand - 42 - letters and words (common)|link=Letters and Words|text=Letters and Words|image=Letters and Words.png}} (34.3%)<br>{{ItemLink|stablekey=item:furniture - stone statue platinum fernalla|link=Platinum Statue: Fernalla|text=Platinum Statue: Fernalla|image=Platinum Statue: Fernalla.png}} (14.8%)<br>{{ItemLink|stablekey=item:back - 42 - ribcage|link=Abominable Ribcage|text=Abominable Ribcage|image=Abominable Ribcage.png}} (5.8%)<br>{{ItemLink|stablekey=item:chest - 42 - arachnid carapace|link=Arachnid Carapace|text=Arachnid Carapace|image=Arachnid Carapace.png}} (5.8%)<br>{{ItemLink|stablekey=item:wand - 42 - fernalla's paintbrush|link=Fernalla's Paintbrush|text=Fernalla's Paintbrush|image=Fernalla's Paintbrush.png}} (5.8%)<br>{{ItemLink|stablekey=item:belt - 42 - gem encrusted girdle|link=Gem Encrusted Sash|text=Gem Encrusted Sash|image=Gem Encrusted Sash.png}} (5.8%)<br>{{ItemLink|stablekey=item:ring - 42 - repellant ring|link=Repellant Ring|text=Repellant Ring|image=Repellant Ring.png}} (5.8%)<br>{{ItemLink|stablekey=item:foot - 42 - skittering boots|link=Skittering Boots|text=Skittering Boots|image=Skittering Boots.png}} (5.8%)<br>{{ItemLink|stablekey=item:wrist - 42 - thornwood bracer|link=Thornwood Bracer|text=Thornwood Bracer|image=Thornwood Bracer.png}} (5.8%)<br>{{ItemLink|stablekey=item:chest - 42 - trickster's tunic|link=Trickster's Tunic|text=Trickster's Tunic|image=Trickster's Tunic.png}} (5.8%)<br>{{ItemLink|stablekey=item:hand - 42 - letters and words (rare)|link=Letters and Words|text=Letters and Words|image=Letters and Words.png}} (4.4%)
+|guaranteeddrops={{ItemLink|stablekey=item:wrist - 42 - bracer of seeds}}<br>{{ItemLink|stablekey=item:weap - 42 - cycle's edge}}<br>{{ItemLink|stablekey=item:ring - 42 - insistence}}<br>{{ItemLink|stablekey=item:hand - 42 - letters and words (common)}}<br>{{ItemLink|stablekey=item:aura - fernalla 5}}<br>{{ItemLink|stablekey=item:back - 42 - shroud of nature}}
+|droprates={{ItemLink|stablekey=item:wrist - 42 - bracer of seeds}} (36.0%)<br>{{ItemLink|stablekey=item:weap - 42 - cycle's edge}} (36.0%)<br>{{ItemLink|stablekey=item:ring - 42 - insistence}} (36.0%)<br>{{ItemLink|stablekey=item:aura - fernalla 5}} (36.0%)<br>{{ItemLink|stablekey=item:back - 42 - shroud of nature}} (36.0%)<br>{{ItemLink|stablekey=item:hand - 42 - letters and words (common)}} (34.3%)<br>{{ItemLink|stablekey=item:furniture - stone statue platinum fernalla}} (14.8%)<br>{{ItemLink|stablekey=item:back - 42 - ribcage}} (5.8%)<br>{{ItemLink|stablekey=item:chest - 42 - arachnid carapace}} (5.8%)<br>{{ItemLink|stablekey=item:wand - 42 - fernalla's paintbrush}} (5.8%)<br>{{ItemLink|stablekey=item:belt - 42 - gem encrusted girdle}} (5.8%)<br>{{ItemLink|stablekey=item:ring - 42 - repellant ring}} (5.8%)<br>{{ItemLink|stablekey=item:foot - 42 - skittering boots}} (5.8%)<br>{{ItemLink|stablekey=item:wrist - 42 - thornwood bracer}} (5.8%)<br>{{ItemLink|stablekey=item:chest - 42 - trickster's tunic}} (5.8%)<br>{{ItemLink|stablekey=item:hand - 42 - letters and words (rare)}} (4.4%)
 |level=43
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=22-52
 |elemental=22-52
 |void=22-52
-|spells={{AbilityLink|stablekey=spell:dru - group revitalize|link=Group Revitalize|text=Group Revitalize|image=Group Revitalize.png}}
+|spells={{AbilityLink|stablekey=spell:dru - group revitalize}}
 }}
 
 '''Fernalla, Goddess of Nature''' is one of Erenshor's gods and a boss in [[Plane of the Willow]].
@@ -50,15 +50,15 @@ Fernalla is commonly depicted in an angelic form because her ascension to become
 |image=[[File:Fernalla, Goddess of Nature.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|faction={{FactionLink|stablekey=faction:good}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:planeoffernalla|link=Plane of the Willow|text=Plane of the Willow}}
+|zones={{ZoneLink|stablekey=zone:planeoffernalla}}
 |coordinates=1631.0 x 177.0 x 1537.1
 |spawnchance=
 |spawntype=
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:furniture - stone statue platinum fernalla|link=Platinum Statue: Fernalla|text=Platinum Statue: Fernalla|image=Platinum Statue: Fernalla.png}} (11.2%)<br>{{ItemLink|stablekey=item:hand - 42 - letters and words (common)|link=Letters and Words|text=Letters and Words|image=Letters and Words.png}} (1.5%)<br>{{ItemLink|stablekey=item:hand - 42 - letters and words (rare)|link=Letters and Words|text=Letters and Words|image=Letters and Words.png}} (0.5%)
+|droprates={{ItemLink|stablekey=item:furniture - stone statue platinum fernalla}} (11.2%)<br>{{ItemLink|stablekey=item:hand - 42 - letters and words (common)}} (1.5%)<br>{{ItemLink|stablekey=item:hand - 42 - letters and words (rare)}} (0.5%)
 |level=43
 |levelmodmin=0
 |levelmodmax=0
@@ -79,7 +79,7 @@ Fernalla is commonly depicted in an angelic form because her ascension to become
 |poison=22-52
 |elemental=22-52
 |void=22-52
-|spells={{AbilityLink|stablekey=spell:dru - group revitalize|link=Group Revitalize|text=Group Revitalize|image=Group Revitalize.png}}
+|spells={{AbilityLink|stablekey=spell:dru - group revitalize}}
 }}
 
 [[Category:Bosses]]

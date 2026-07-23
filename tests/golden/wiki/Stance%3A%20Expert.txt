@@ -5,7 +5,7 @@
 |description=Gain a 33% increase to physical damage dealt, and 33% damage increase to all spell damage dealt.  Your focus on offense stops all natural health regeneration.
 |type=Utility
 |line=
-|classes={{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}} (35)
+|classes={{ClassLink|stablekey=class:reaver}} (35)
 |required_level=
 |manacost=
 |aggro=
@@ -23,7 +23,7 @@
 |is_self_only=
 |is_group_effect=
 |is_applied_to_caster=
-|effects={{AbilityLink|stablekey=stance:expert|link=Expert|text=Expert|image=Expert.png}}
+|effects={{AbilityLink|stablekey=stance:expert}}
 |damage_type=
 |resist_modifier=
 |target_damage=
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:skillbook - stance - expert|link=Skill Book: Expert Stance|text=Skill Book: Expert Stance|image=Skill Book: Expert Stance.png}}
+|source={{ItemLink|stablekey=item:skillbook - stance - expert}}
 |used_by=
 }}
+{{SkillTooltip|stablekey=skill:stance - expert}}

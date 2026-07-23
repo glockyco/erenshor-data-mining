@@ -3,15 +3,15 @@
 |image=[[File:Rotbelly Croc.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:rottenfoot|link=Rottenfoot|text=Rottenfoot}}
+|zones={{ZoneLink|stablekey=zone:rottenfoot}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=4-6 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - croc tail|link=Croc Tail|text=Croc Tail|image=Croc Tail.png}} (14.8%)<br>{{ItemLink|stablekey=item:cons - swampbomb|link=Muck Ball|text=Muck Ball|image=Muck Ball.png}} (12.9%)
+|droprates={{ItemLink|stablekey=item:gen - croc tail}} (14.8%)<br>{{ItemLink|stablekey=item:cons - swampbomb}} (12.9%)
 |level=14
 |levelmodmin=0
 |levelmodmax=0

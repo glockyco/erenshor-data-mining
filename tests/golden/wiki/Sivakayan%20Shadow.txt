@@ -3,7 +3,7 @@
 |image=[[File:Sivakayan Shadow.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
 |zones=
 |coordinates=
@@ -11,7 +11,7 @@
 |spawntype=
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - sivakayan codex shard 1|link=Sivakayan Codex 1 of 4|text=Sivakayan Codex 1 of 4|image=Sivakayan Codex 1 of 4.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - sivakayan codex shard 1|link=Sivakayan Codex 1 of 4|text=Sivakayan Codex 1 of 4|image=Sivakayan Codex 1 of 4.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:head - 30 - diamond helm|link=Diamond Helm|text=Diamond Helm|image=Diamond Helm.png}} (8.6%)<br>{{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} (4.9%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:weap - 30 - diamond edged sword|link=Diamond Edged Sword|text=Diamond Edged Sword|image=Diamond Edged Sword.png}} (4.3%)<br>{{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (2.5%)<br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (2.5%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (2.5%)<br>{{ItemLink|stablekey=item:wand - 25 - sivakayan wand|link=Sivakayan Wand|text=Sivakayan Wand|image=Sivakayan Wand.png}} (2.5%)
+|droprates={{ItemLink|stablekey=item:gen - sivakayan codex shard 1}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - sivakayan codex shard 1}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:head - 30 - diamond helm}} (8.6%)<br>{{ItemLink|stablekey=item:gen - ruby}} (4.9%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:weap - 30 - diamond edged sword}} (4.3%)<br>{{ItemLink|stablekey=item:gen citrine stone}} (2.5%)<br>{{ItemLink|stablekey=item:gen - diamond}} (2.5%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - seaglass}} (2.5%)<br>{{ItemLink|stablekey=item:wand - 25 - sivakayan wand}} (2.5%)
 |level=24
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=12-29
 |elemental=12-29
 |void=12-29
-|spells={{AbilityLink|stablekey=spell:arc - aetherstorm|link=Aetherstorm|text=Aetherstorm|image=Aetherstorm.png}}<br>{{AbilityLink|stablekey=spell:arc - winter's bite|link=Winter's Bite|text=Winter's Bite|image=Winter's Bite.png}}
+|spells={{AbilityLink|stablekey=spell:arc - aetherstorm}}<br>{{AbilityLink|stablekey=spell:arc - winter's bite}}
 }}
 
 The {{PAGENAME}} is one of five Sivakayan Spectres that can randomly spawn in a zone when the {{ItemLink|Watcher's Lens}} is equipped in a [[Cosmetic Items|cosmetic item]] slot.

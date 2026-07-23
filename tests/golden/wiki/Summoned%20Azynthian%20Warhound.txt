@@ -11,7 +11,7 @@
 |spawntype=
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - wolf meat|link=Wolf Meat|text=Wolf Meat|image=Wolf Meat.png}} (86.3%)
+|droprates={{ItemLink|stablekey=item:gen - wolf meat}} (86.3%)
 |level=33
 |levelmodmin=0
 |levelmodmax=0

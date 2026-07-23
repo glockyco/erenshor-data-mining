@@ -5,8 +5,8 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|link=The Lost Soul{{!}}The Lost Soul Pt. 2}}<br>{{QuestLink|stablekey=quest:thelostsoul2|link=The Lost Soul|text=The Lost Soul Pt. 2}}
-|relatedquest={{QuestLink|link=The Lost Soul{{!}}The Lost Soul Pt. 3}}<br>{{QuestLink|stablekey=quest:thelostsoul3|link=The Lost Soul|text=The Lost Soul Pt. 3}}
+|questsource={{QuestLink|link=The Lost Soul{{!}}The Lost Soul Pt. 2}}<br>{{QuestLink|stablekey=quest:thelostsoul2}}
+|relatedquest={{QuestLink|link=The Lost Soul{{!}}The Lost Soul Pt. 3}}<br>{{QuestLink|stablekey=quest:thelostsoul3}}
 |craftsource=
 |componentfor=
 |buy=

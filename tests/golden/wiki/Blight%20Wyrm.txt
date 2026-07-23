@@ -3,15 +3,15 @@
 |image=[[File:Blight Wyrm.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:blight|link=The Blight|text=The Blight}}
+|zones={{ZoneLink|stablekey=zone:blight}}
 |coordinates=866.8 x 42.3 x 232.9
 |spawnchance=
 |spawntype=
 |respawn=44 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:back - 38 - plaguewind|link=Plaguewind|text=Plaguewind|image=Plaguewind.png}}<br>{{ItemLink|stablekey=item:glove - 41 - rotten hands|link=Rotten Hands|text=Rotten Hands|image=Rotten Hands.png}}<br>{{ItemLink|stablekey=item:leg - 38 - statuesque greaves|link=Statuesque Greaves|text=Statuesque Greaves|image=Statuesque Greaves.png}}
-|droprates={{ItemLink|stablekey=item:back - 38 - plaguewind|link=Plaguewind|text=Plaguewind|image=Plaguewind.png}} (33.3%)<br>{{ItemLink|stablekey=item:glove - 41 - rotten hands|link=Rotten Hands|text=Rotten Hands|image=Rotten Hands.png}} (33.3%)<br>{{ItemLink|stablekey=item:leg - 38 - statuesque greaves|link=Statuesque Greaves|text=Statuesque Greaves|image=Statuesque Greaves.png}} (33.3%)
+|guaranteeddrops={{ItemLink|stablekey=item:back - 38 - plaguewind}}<br>{{ItemLink|stablekey=item:glove - 41 - rotten hands}}<br>{{ItemLink|stablekey=item:leg - 38 - statuesque greaves}}
+|droprates={{ItemLink|stablekey=item:back - 38 - plaguewind}} (33.3%)<br>{{ItemLink|stablekey=item:glove - 41 - rotten hands}} (33.3%)<br>{{ItemLink|stablekey=item:leg - 38 - statuesque greaves}} (33.3%)
 |level=40
 |levelmodmin=0
 |levelmodmax=0

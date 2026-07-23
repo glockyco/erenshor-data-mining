@@ -3,12 +3,12 @@
 |stablekey=item:gen - sivakayan horn
 |type=[[Quest Items|Quest Item]], [[Crafting]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:a lesser avatar of sivakaya|link=A Lesser Avatar of Sivakaya|text=A Lesser Avatar of Sivakaya}} (9.0%)
+|source={{CharacterLink|stablekey=character:a lesser avatar of sivakaya}} (9.0%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|A Sivakayan Horn for Ludo Luxo}}<br>{{QuestLink|stablekey=quest:a sivakayan horn for ludo luxo|link=A Sivakayan Horn for Ludo Luxo|text=A Sivakayan Horn for Ludo Luxo}}
+|relatedquest={{QuestLink|A Sivakayan Horn for Ludo Luxo}}<br>{{QuestLink|stablekey=quest:a sivakayan horn for ludo luxo}}
 |craftsource=
-|componentfor={{ItemLink|stablekey=item:template - a ceremonial ring|link=Mold: A Ceremonial Ring|text=Mold: A Ceremonial Ring|image=Mold: A Ceremonial Ring.png}}
+|componentfor={{ItemLink|stablekey=item:template - a ceremonial ring}}
 |buy=50
 |sell=32
 |taughtspell=

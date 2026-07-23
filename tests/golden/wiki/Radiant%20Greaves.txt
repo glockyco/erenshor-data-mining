@@ -3,7 +3,7 @@
 |stablekey=item:leg - 42 - radiant greaves
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:solunarian sunbringer|link=Solunarian Sunbringer|text=Solunarian Sunbringer}} (1.7%)<br>{{CharacterLink|stablekey=character:solunarian moonkeeper|link=Solunarian Moonkeeper|text=Solunarian Moonkeeper}} (1.1%)<br>{{CharacterLink|stablekey=character:solunarian paladin combined|link=Solunarian Paladin|text=Solunarian Paladin}} (1.0%)
+|source={{CharacterLink|stablekey=character:solunarian sunbringer}} (1.7%)<br>{{CharacterLink|stablekey=character:solunarian moonkeeper}} (1.1%)<br>{{CharacterLink|stablekey=character:solunarian paladin combined}} (1.0%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -5,7 +5,7 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|A Bounty on Ripper DeMerth}}<br>{{QuestLink|stablekey=quest:rippersbounty|link=A Bounty on Ripper DeMerth|text=A Bounty on Ripper DeMerth}}
+|questsource={{QuestLink|A Bounty on Ripper DeMerth}}<br>{{QuestLink|stablekey=quest:rippersbounty}}
 |relatedquest=
 |craftsource=
 |componentfor=
@@ -52,7 +52,7 @@
 |proc_style=Worn
 |proc_chance=
 |proc_spell_icon=Soluna's Solar Blessing.png
-|proc_spell_name={{AbilityLink|stablekey=spell:pal - soluna's blessing|link=Soluna's Solar Blessing|text=Soluna's Solar Blessing|image=Soluna's Solar Blessing.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:pal - soluna's blessing}}
 |proc_spell_level=-1
 |proc_spell_duration_ticks=5
 |proc_spell_type=Beneficial

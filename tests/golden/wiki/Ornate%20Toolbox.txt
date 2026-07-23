@@ -3,10 +3,10 @@
 |stablekey=item:gen - an ornate toolbox
 |type=[[Quest Items|Quest Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:a highwayman raider|link=A Highwayman Raider|text=A Highwayman Raider}} (7.3%)<br>{{CharacterLink|stablekey=character:a highwayman raider (1)|link=A Highwayman Raider|text=A Highwayman Raider}} (7.3%)<br>{{CharacterLink|stablekey=character:a highwayman raider (2)|link=A Highwayman Raider|text=A Highwayman Raider}} (7.3%)
+|source={{CharacterLink|stablekey=character:a highwayman raider}} (7.3%)<br>{{CharacterLink|stablekey=character:a highwayman raider (1)}} (7.3%)<br>{{CharacterLink|stablekey=character:a highwayman raider (2)}} (7.3%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink | link=A Hermit's Request}}<br>{{QuestLink|A Hermit's Request}}<br>{{QuestLink|stablekey=quest:a hermit's request|link=A Hermit's Request|text=A Hermit's Request}}
+|relatedquest={{QuestLink | link=A Hermit's Request}}<br>{{QuestLink|A Hermit's Request}}<br>{{QuestLink|stablekey=quest:a hermit's request}}
 |craftsource=
 |componentfor=
 |buy=

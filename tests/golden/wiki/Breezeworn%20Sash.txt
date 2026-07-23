@@ -5,7 +5,7 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|Faerie Dust for Nylith Valorro}}<br>{{QuestLink|stablekey=quest:faerie dust for nylith valarro|link=Faerie Dust for Nylith Valorro|text=Faerie Dust for Nylith Valorro}}
+|questsource={{QuestLink|Faerie Dust for Nylith Valorro}}<br>{{QuestLink|stablekey=quest:faerie dust for nylith valarro}}
 |relatedquest=
 |craftsource=
 |componentfor=

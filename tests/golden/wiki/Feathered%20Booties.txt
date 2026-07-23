@@ -3,7 +3,7 @@
 |stablekey=item:foot - 19 - feathered booties
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:pteriaped matron|link=Pteriaped Matron|text=Pteriaped Matron}} (66.7%)
+|source={{CharacterLink|stablekey=character:pteriaped matron}} (66.7%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -2,7 +2,7 @@
 |title=Skill Book: Blunted Arrow
 |stablekey=item:skillbook - blunted arrow
 |type=[[Ability Books|Skill Book]]
-|vendorsource={{CharacterLink|stablekey=character:shopkeeper samuel|link=Samuel Thatcher|text=Samuel Thatcher}}<br>{{CharacterLink|stablekey=character:windlae oldseer|link=Windlae Oldseer|text=Windlae Oldseer}}
+|vendorsource={{CharacterLink|stablekey=character:shopkeeper samuel}}<br>{{CharacterLink|stablekey=character:windlae oldseer}}
 |source=
 |othersource=
 |questsource=
@@ -12,7 +12,7 @@
 |buy=225
 |sell=146
 |taughtspell=
-|taughtskill={{AbilityLink|stablekey=skill:archery - blunted arrow|link=Blunted Arrow|text=Blunted Arrow|image=Blunted Arrow.png}}
+|taughtskill={{AbilityLink|stablekey=skill:archery - blunted arrow}}
 |guaranteeddrops=
 |droprates=
 }}

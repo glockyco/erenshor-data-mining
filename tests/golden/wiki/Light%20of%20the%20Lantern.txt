@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:gen - keeper's lantern|link=Keeper's Lantern|text=Keeper's Lantern|image=Keeper's Lantern.png}}
+|itemswitheffect={{ItemLink|stablekey=item:gen - keeper's lantern}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:arc - bind}}

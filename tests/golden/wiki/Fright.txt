@@ -3,15 +3,15 @@
 |image=[[File:Fright.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:shiveringstep|link=Shivering Step|text=Shivering Step}}<br>{{ZoneLink|stablekey=zone:shiveringtomb2|link=Shivering Tomb|text=Shivering Tomb (2)}}
+|zones={{ZoneLink|stablekey=zone:shiveringstep}}<br>{{ZoneLink|stablekey=zone:shiveringtomb2}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (47.9%)<br>{{ItemLink|stablekey=item:gen - an ancient bone|link=Ancient Bone|text=Ancient Bone|image=Ancient Bone.png}} (46.7%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (46.7%)<br>{{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} (3.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond|link=Diamond|text=Diamond|image=Diamond.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (1.6%)<br>{{ItemLink|stablekey=item:ring - 20 - ring of concentration|link=Concentration Band|text=Concentration Band|image=Concentration Band.png}} (1.6%)<br>{{ItemLink|stablekey=item:weap - 25 - demonclaw|link=Demon Claw|text=Demon Claw|image=Demon Claw.png}} (1.6%)<br>{{ItemLink|stablekey=item:ring - 24 - freeing stone|link=Freeing Stone|text=Freeing Stone|image=Freeing Stone.png}} (1.6%)<br>{{ItemLink|stablekey=item:gen - polished stone|link=Polished Stone|text=Polished Stone|image=Polished Stone.png}} (1.6%)<br>{{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} (1.6%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ruby|link=Ruby|text=Ruby|image=Ruby.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:wrist - 19 - shadowmaker|link=Shadowmaker|text=Shadowmaker|image=Shadowmaker.png}} (1.6%)
+|droprates={{ItemLink|stablekey=item:gen - luminstone}} (47.9%)<br>{{ItemLink|stablekey=item:gen - an ancient bone}} (46.7%)<br>{{ItemLink|stablekey=item:gen - seaglass}} (46.7%)<br>{{ItemLink|stablekey=item:gen - diamond}} (3.2%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - diamond}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen citrine stone}} (1.6%)<br>{{ItemLink|stablekey=item:ring - 20 - ring of concentration}} (1.6%)<br>{{ItemLink|stablekey=item:weap - 25 - demonclaw}} (1.6%)<br>{{ItemLink|stablekey=item:ring - 24 - freeing stone}} (1.6%)<br>{{ItemLink|stablekey=item:gen - polished stone}} (1.6%)<br>{{ItemLink|stablekey=item:gen - ruby}} (1.6%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - ruby}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:wrist - 19 - shadowmaker}} (1.6%)
 |level=22
 |levelmodmin=0
 |levelmodmax=0

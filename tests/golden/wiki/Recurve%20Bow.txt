@@ -3,7 +3,7 @@
 |stablekey=item:bow - 11 - recurve bow
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:faerie drone|link=A Faerie Drone|text=A Faerie Drone}} (4.5%)
+|source={{CharacterLink|stablekey=character:faerie drone}} (4.5%)
 |othersource=
 |questsource=
 |relatedquest=

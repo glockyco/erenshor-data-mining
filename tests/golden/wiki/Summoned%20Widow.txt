@@ -3,7 +3,7 @@
 |image=[[File:Summoned Widow.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|faction={{FactionLink|stablekey=faction:good}}
 |factionChange=
 |zones=
 |coordinates=

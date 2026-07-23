@@ -3,15 +3,15 @@
 |image=[[File:Braxonian Chest.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:planeofbrax|link=Brax's Plane of Elements|text=Brax's Plane of Elements}}
+|zones={{ZoneLink|stablekey=zone:planeofbrax}}
 |coordinates=1251.3 x 35.1 x 460.3
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
-|guaranteeddrops={{ItemLink|stablekey=item:back - 42 - blizzardbane|link=Blizzard Bane|text=Blizzard Bane|image=Blizzard Bane.png}}<br>{{ItemLink|stablekey=item:wrist - 42 - cleansing brace|link=Cleansing Brace|text=Cleansing Brace|image=Cleansing Brace.png}}<br>{{ItemLink|stablekey=item:bow - 42 - frostbite|link=Frostbite|text=Frostbite|image=Frostbite.png}}<br>{{ItemLink|stablekey=item:wrist - 42 - frozen grip|link=Frozen Grip|text=Frozen Grip|image=Frozen Grip.png}}<br>{{ItemLink|stablekey=item:neck - 42 - magma droplet|link=Magma Droplet|text=Magma Droplet|image=Magma Droplet.png}}<br>{{ItemLink|stablekey=item:weap - 42 - obsidian edge|link=Obsidian Edge|text=Obsidian Edge|image=Obsidian Edge.png}}
-|droprates={{ItemLink|stablekey=item:gen - sivak|link=Sivakrux|text=Sivakrux|image=Sivakrux.png}} (98.3%)<br>{{ItemLink|stablekey=item:back - 42 - blizzardbane|link=Blizzard Bane|text=Blizzard Bane|image=Blizzard Bane.png}} (35.5%)<br>{{ItemLink|stablekey=item:wrist - 42 - cleansing brace|link=Cleansing Brace|text=Cleansing Brace|image=Cleansing Brace.png}} (35.5%)<br>{{ItemLink|stablekey=item:bow - 42 - frostbite|link=Frostbite|text=Frostbite|image=Frostbite.png}} (35.5%)<br>{{ItemLink|stablekey=item:wrist - 42 - frozen grip|link=Frozen Grip|text=Frozen Grip|image=Frozen Grip.png}} (35.5%)<br>{{ItemLink|stablekey=item:neck - 42 - magma droplet|link=Magma Droplet|text=Magma Droplet|image=Magma Droplet.png}} (35.5%)<br>{{ItemLink|stablekey=item:weap - 42 - obsidian edge|link=Obsidian Edge|text=Obsidian Edge|image=Obsidian Edge.png}} (35.5%)<br>{{ItemLink|stablekey=item:ore - planar shard|link=Planar Stone Shards|text=Planar Stone Shards|image=Planar Stone Shards.png}} (24.9%)<br>{{ItemLink|stablekey=item:ore - planar stone|link=Planar Stone|text=Planar Stone|image=Planar Stone.png}} (17.9%)
+|guaranteeddrops={{ItemLink|stablekey=item:back - 42 - blizzardbane}}<br>{{ItemLink|stablekey=item:wrist - 42 - cleansing brace}}<br>{{ItemLink|stablekey=item:bow - 42 - frostbite}}<br>{{ItemLink|stablekey=item:wrist - 42 - frozen grip}}<br>{{ItemLink|stablekey=item:neck - 42 - magma droplet}}<br>{{ItemLink|stablekey=item:weap - 42 - obsidian edge}}
+|droprates={{ItemLink|stablekey=item:gen - sivak}} (98.3%)<br>{{ItemLink|stablekey=item:back - 42 - blizzardbane}} (35.5%)<br>{{ItemLink|stablekey=item:wrist - 42 - cleansing brace}} (35.5%)<br>{{ItemLink|stablekey=item:bow - 42 - frostbite}} (35.5%)<br>{{ItemLink|stablekey=item:wrist - 42 - frozen grip}} (35.5%)<br>{{ItemLink|stablekey=item:neck - 42 - magma droplet}} (35.5%)<br>{{ItemLink|stablekey=item:weap - 42 - obsidian edge}} (35.5%)<br>{{ItemLink|stablekey=item:ore - planar shard}} (24.9%)<br>{{ItemLink|stablekey=item:ore - planar stone}} (17.9%)
 |level=1
 |levelmodmin=0
 |levelmodmax=0

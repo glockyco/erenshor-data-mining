@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:aura - soluna 3|link=Rising Moon|text=Rising Moon|image=Rising Moon.png}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - soluna 3}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:aura - soluna 3}}

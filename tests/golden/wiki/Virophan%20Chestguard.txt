@@ -3,7 +3,7 @@
 |stablekey=item:chest - 25 - mithirilite chestguard
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:oarik the cursed|link=Oarik the Failure|text=Oarik the Failure}} (33.3%)
+|source={{CharacterLink|stablekey=character:oarik the cursed}} (33.3%)
 |othersource=
 |questsource=
 |relatedquest=

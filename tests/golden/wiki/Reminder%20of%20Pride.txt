@@ -3,7 +3,7 @@
 |stablekey=item:ring - 42 - reminder of pride
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:arenachest 8|link=Vithean Chest|text=Vithean Chest (Round 8)}} (36.4%)
+|source={{CharacterLink|stablekey=character:arenachest 8}} (36.4%)
 |othersource=
 |questsource=
 |relatedquest=

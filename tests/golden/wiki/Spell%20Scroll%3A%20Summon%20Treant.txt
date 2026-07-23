@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - summon treant
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:arbor|link=Arbor|text=Arbor}} (64.9%)
+|source={{CharacterLink|stablekey=character:arbor}} (64.9%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=
 |sell=
-|taughtspell={{AbilityLink|stablekey=spell:dru - summon treant|link=Summon Treant|text=Summon Treant|image=Summon Treant.png}}
+|taughtspell={{AbilityLink|stablekey=spell:dru - summon treant}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

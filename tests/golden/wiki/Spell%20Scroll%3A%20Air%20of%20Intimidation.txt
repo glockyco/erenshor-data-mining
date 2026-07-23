@@ -3,7 +3,7 @@
 |stablekey=item:spell scroll - air of intimidation
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:khorso|link=Khorso, Soluna's Advisor|text=Khorso, Soluna's Advisor}} (100.0%)
+|source={{CharacterLink|stablekey=character:khorso}} (100.0%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -11,7 +11,7 @@
 |componentfor=
 |buy=
 |sell=
-|taughtspell={{AbilityLink|stablekey=spell:pal - air of intimidation|link=Air of Intimidation|text=Air of Intimidation|image=Air of Intimidation.png}}
+|taughtspell={{AbilityLink|stablekey=spell:pal - air of intimidation}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

@@ -5,7 +5,7 @@
 |stablekey=item:quest - game piece blazefiend
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:evadne|link=Evadne the Corrupted|text=Evadne the Corrupted}} (29.1%)<br>{{CharacterLink|stablekey=character:molorai archaelogist|link=Molorai Archaeologist|text=Molorai Archaeologist}} (5.8%)<br>{{CharacterLink|stablekey=character:priest of brax 1|link=Apha, Priest of Brax|text=Apha, Priest of Brax}} (3.7%)<br>{{CharacterLink|stablekey=character:priest of brax|link=Upha, Priest of Brax|text=Upha, Priest of Brax}} (3.7%)<br>{{CharacterLink|stablekey=character:molorai archaelogist 1|link=Molorai Archaeologist|text=Molorai Archaeologist}} (2.5%)
+|source={{CharacterLink|stablekey=character:evadne}} (29.1%)<br>{{CharacterLink|stablekey=character:molorai archaelogist}} (5.8%)<br>{{CharacterLink|stablekey=character:priest of brax 1}} (3.7%)<br>{{CharacterLink|stablekey=character:priest of brax}} (3.7%)<br>{{CharacterLink|stablekey=character:molorai archaelogist 1}} (2.5%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -3,9 +3,9 @@
 |image=[[File:Watchlight.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|faction={{FactionLink|stablekey=faction:good}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:stowaway|link=Stowaway's Step|text=Stowaway's Step}}
+|zones={{ZoneLink|stablekey=zone:stowaway}}
 |coordinates=
 |spawnchance=
 |spawntype=
@@ -40,15 +40,15 @@
 |image=[[File:Watchlight.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|faction={{FactionLink|stablekey=faction:good}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:azynthiclear|link=Azynthi's Garden|text=Azynthi's Garden}}
+|zones={{ZoneLink|stablekey=zone:azynthiclear}}
 |coordinates=797.6 x 46.4 x 562.7
 |spawnchance=
 |spawntype=
 |respawn=
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen - azynthian riftstone|link=Azynthian Riftstone|text=Azynthian Riftstone|image=Azynthian Riftstone.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - azynthian riftstone|link=Azynthian Riftstone|text=Azynthian Riftstone|image=Azynthian Riftstone.png}} in their inventory, another will not drop.</ref>
+|droprates={{ItemLink|stablekey=item:gen - azynthian riftstone}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - azynthian riftstone}} in their inventory, another will not drop.</ref>
 |level=25
 |levelmodmin=0
 |levelmodmax=0

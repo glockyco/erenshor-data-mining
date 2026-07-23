@@ -5,8 +5,8 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|A Cat for a Deer}}<br>{{QuestLink|stablekey=quest:catfordeer|link=A Cat for a Deer|text=A Cat for a Deer}}
-|relatedquest={{QuestLink|Completing the Ritual}}<br>{{QuestLink|stablekey=quest:stowawayritualcomplete|link=Completing the Ritual|text=Completing the Ritual}}
+|questsource={{QuestLink|A Cat for a Deer}}<br>{{QuestLink|stablekey=quest:catfordeer}}
+|relatedquest={{QuestLink|Completing the Ritual}}<br>{{QuestLink|stablekey=quest:stowawayritualcomplete}}
 |craftsource=
 |componentfor=
 |buy=

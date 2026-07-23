@@ -3,15 +3,15 @@
 |image=[[File:Wardwarped Gorilla.png|thumb]]
 |imagecaption=
 |type=Enemy
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:loomingwood|link=Loomingwood Forest|text=Loomingwood Forest}}
+|zones={{ZoneLink|stablekey=zone:loomingwood}}
 |coordinates=
 |spawnchance=
 |spawntype=
 |respawn=5 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:fish - moongill|link=A Moongill|text=A Moongill|image=A Moongill.png}} (14.2%)<br>{{ItemLink|stablekey=item:fish - sleepyhead|link=A Sleepyhead|text=A Sleepyhead|image=A Sleepyhead.png}} (14.2%)<br>{{ItemLink|stablekey=item:spell scroll - summon brute|link=Spell Scroll: Summon Brute|text=Spell Scroll: Summon Brute|image=Spell Scroll: Summon Brute.png}} (14.2%)
+|droprates={{ItemLink|stablekey=item:fish - moongill}} (14.2%)<br>{{ItemLink|stablekey=item:fish - sleepyhead}} (14.2%)<br>{{ItemLink|stablekey=item:spell scroll - summon brute}} (14.2%)
 |level=34
 |levelmodmin=0
 |levelmodmax=0

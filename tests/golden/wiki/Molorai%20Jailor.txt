@@ -3,15 +3,15 @@
 |image=[[File:Molorai Jailor.png|thumb]]
 |imagecaption="You'll never forget the day you messed with the Molarai Militia!"
 |type=Boss
-|faction={{FactionLink|stablekey=faction:molarai|link=Eldoth Molorai (Faction)|text=Eldoth Molorai}}
-|factionChange=-2 {{FactionLink|stablekey=faction:molarai|link=Eldoth Molorai (Faction)|text=Eldoth Molorai}}<br>+2 {{FactionLink|stablekey=faction:azureguard|link=The Azure Guard|text=The Azure Guard}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}<br>+2 {{FactionLink|stablekey=faction:solunarians|link=The Solunarian Brotherhood|text=The Solunarian Brotherhood}}
-|zones={{ZoneLink|stablekey=zone:krakengard|link=Old Krakengard|text=Old Krakengard}}
+|faction={{FactionLink|stablekey=faction:molarai}}
+|factionChange=-2 {{FactionLink|stablekey=faction:molarai}}<br>+2 {{FactionLink|stablekey=faction:azureguard}}<br>+2 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+2 {{FactionLink|stablekey=faction:azurecitizens}}<br>+2 {{FactionLink|stablekey=faction:solunarians}}
+|zones={{ZoneLink|stablekey=zone:krakengard}}
 |coordinates=279.8 x -9.6 x 62.6
 |spawnchance=33%
 |spawntype=
 |respawn=8 minutes
 |guaranteeddrops=
-|droprates={{ItemLink|stablekey=item:gen citrine stone|link=Citrine Stone|text=Citrine Stone|image=Citrine Stone.png}} (87.1%)<br>{{ItemLink|stablekey=item:weap - 12 - the interrogator|link=The Interrogator|text=The Interrogator|image=The Interrogator.png}} (19.5%)<br>{{ItemLink|stablekey=item:gen - luminstone|link=Luminstone|text=Luminstone|image=Luminstone.png}} (11.5%)<br>{{ItemLink|stablekey=item:gen - eldoth writings page 3|link=Molorai Manifesto, Pg. 3|text=Molorai Manifesto, Pg. 3|image=Molorai Manifesto, Pg. 3.png}} (5.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - eldoth writings page 3|link=Molorai Manifesto, Pg. 3|text=Molorai Manifesto, Pg. 3|image=Molorai Manifesto, Pg. 3.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (5.8%)
+|droprates={{ItemLink|stablekey=item:gen citrine stone}} (87.1%)<br>{{ItemLink|stablekey=item:weap - 12 - the interrogator}} (19.5%)<br>{{ItemLink|stablekey=item:gen - luminstone}} (11.5%)<br>{{ItemLink|stablekey=item:gen - eldoth writings page 3}} (5.8%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - eldoth writings page 3}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - a star stone}} (5.8%)
 |level=12
 |levelmodmin=0
 |levelmodmax=0

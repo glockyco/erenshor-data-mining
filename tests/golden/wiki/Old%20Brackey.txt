@@ -3,15 +3,15 @@
 |image=[[File:Old Brackey.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:vitheo|link=Vitheo's Watch|text=Vitheo's Watch}}
+|zones={{ZoneLink|stablekey=zone:vitheo}}
 |coordinates=443.5 x 5.9 x 279.9
 |spawnchance=79%
 |spawntype=
 |respawn=2 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:wand - 12 - eyestalk wand|link=Eyestalk Wand|text=Eyestalk Wand|image=Eyestalk Wand.png}}<br>{{ItemLink|stablekey=item:wrist - 11 - hollowed crustacean leg|link=Hollowed Crustacean Leg|text=Hollowed Crustacean Leg|image=Hollowed Crustacean Leg.png}}
-|droprates={{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (91.9%)<br>{{ItemLink|stablekey=item:wrist - 11 - hollowed crustacean leg|link=Hollowed Crustacean Leg|text=Hollowed Crustacean Leg|image=Hollowed Crustacean Leg.png}} (69.9%)<br>{{ItemLink|stablekey=item:wand - 12 - eyestalk wand|link=Eyestalk Wand|text=Eyestalk Wand|image=Eyestalk Wand.png}} (39.9%)
+|guaranteeddrops={{ItemLink|stablekey=item:wand - 12 - eyestalk wand}}<br>{{ItemLink|stablekey=item:wrist - 11 - hollowed crustacean leg}}
+|droprates={{ItemLink|stablekey=item:gen - seaglass}} (91.9%)<br>{{ItemLink|stablekey=item:wrist - 11 - hollowed crustacean leg}} (69.9%)<br>{{ItemLink|stablekey=item:wand - 12 - eyestalk wand}} (39.9%)
 |level=12
 |levelmodmin=0
 |levelmodmax=0

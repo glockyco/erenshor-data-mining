@@ -3,7 +3,7 @@
 |stablekey=item:weap - 42 - elemental four-blade
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:mizuki|link=Elementalist Mizuki|text=Elementalist Mizuki}} (68.9%)
+|source={{CharacterLink|stablekey=character:mizuki}} (68.9%)
 |othersource=
 |questsource=
 |relatedquest=
@@ -52,7 +52,7 @@
 |proc_style=Attack
 |proc_chance=20
 |proc_spell_icon=Elemental Conflict.png
-|proc_spell_name={{AbilityLink|stablekey=spell:none - elemental conflict|link=Elemental Conflict|text=Elemental Conflict|image=Elemental Conflict.png}}
+|proc_spell_name={{AbilityLink|stablekey=spell:none - elemental conflict}}
 |proc_spell_level=42
 |proc_spell_duration_ticks=3
 |proc_spell_type=StatusEffect

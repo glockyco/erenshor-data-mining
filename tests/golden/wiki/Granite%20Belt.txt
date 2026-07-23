@@ -3,7 +3,7 @@
 |stablekey=item:belt - 28 - granite girdle
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:granitus|link=Granitus|text=Granitus}} (20.0%)
+|source={{CharacterLink|stablekey=character:granitus}} (20.0%)
 |othersource=
 |questsource=
 |relatedquest=

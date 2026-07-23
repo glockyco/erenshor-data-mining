@@ -3,7 +3,7 @@
 |stablekey=item:ring - 42 - repellant ring
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:sprinkles|link=Sprinkles|text=Sprinkles}} (69.6%)<br>{{CharacterLink|stablekey=character:goddess fernalla|link=Fernalla, Goddess of Nature|text=Fernalla, Goddess of Nature}} (5.8%)
+|source={{CharacterLink|stablekey=character:sprinkles}} (69.6%)<br>{{CharacterLink|stablekey=character:goddess fernalla}} (5.8%)
 |othersource=
 |questsource=
 |relatedquest=

@@ -3,7 +3,7 @@
 |stablekey=item:ring - 24 - living ruby ring
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:ruby fiend|link=Ruby Fiend|text=Ruby Fiend}} (9.0%)
+|source={{CharacterLink|stablekey=character:ruby fiend}} (9.0%)
 |othersource=
 |questsource=
 |relatedquest=

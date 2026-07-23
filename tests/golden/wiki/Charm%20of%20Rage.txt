@@ -7,7 +7,7 @@
 |othersource=
 |questsource=
 |relatedquest=
-|craftsource=1x {{ItemLink|stablekey=item:template - charm of rage|link=Mold: Charm of Rage|text=Mold: Charm of Rage|image=Mold: Charm of Rage.png}}<br>1x {{ItemLink|stablekey=item:ore - sivakayan ore|link=Sivakayan Ore|text=Sivakayan Ore|image=Sivakayan Ore.png}}<br>1x {{ItemLink|stablekey=item:gen - nagalok claw|link=Nagalok Claw|text=Nagalok Claw|image=Nagalok Claw.png}}<br>1x {{ItemLink|stablekey=item:gen - elderstone shard|link=Elderstone Shard|text=Elderstone Shard|image=Elderstone Shard.png}}<br>1x {{ItemLink|stablekey=item:weap - 19 - queen's fang|link=Queen's Fang|text=Queen's Fang|image=Queen's Fang.png}}
+|craftsource=1x {{ItemLink|stablekey=item:template - charm of rage}}<br>1x {{ItemLink|stablekey=item:ore - sivakayan ore}}<br>1x {{ItemLink|stablekey=item:gen - nagalok claw}}<br>1x {{ItemLink|stablekey=item:gen - elderstone shard}}<br>1x {{ItemLink|stablekey=item:weap - 19 - queen's fang}}
 |componentfor=
 |buy=25000
 |sell=16250

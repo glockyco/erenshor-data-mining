@@ -11,7 +11,7 @@
 |componentfor=
 |buy=35
 |sell=23
-|taughtspell={{AbilityLink|stablekey=spell:dru - dissipate storm|link=Dissipate Storm|text=Dissipate Storm|image=Dissipate Storm.png}}
+|taughtspell={{AbilityLink|stablekey=spell:dru - dissipate storm}}
 |taughtskill=
 |guaranteeddrops=
 |droprates=

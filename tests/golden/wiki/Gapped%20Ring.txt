@@ -3,7 +3,7 @@
 |stablekey=item:ring - 14 - gapped ring
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:ughl of the sky|link=Ughl of the Skies|text=Ughl of the Skies}} (50.0%)
+|source={{CharacterLink|stablekey=character:ughl of the sky}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

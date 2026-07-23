@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:aura - planetary shard|link=Planetary Shard|text=Planetary Shard|image=Planetary Shard.png}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - planetary shard}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:aura - universe's will}}

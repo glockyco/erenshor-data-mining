@@ -3,7 +3,7 @@
 |stablekey=item:belt - 25 - gut cord
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:wyrm whelp|link=Swamp Wyrm|text=Swamp Wyrm}} (50.0%)
+|source={{CharacterLink|stablekey=character:wyrm whelp}} (50.0%)
 |othersource=
 |questsource=
 |relatedquest=

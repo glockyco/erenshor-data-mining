@@ -5,7 +5,7 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|Underloft's Compass}}<br>{{QuestLink|stablekey=quest:underloftcompass|link=Underloft's Compass|text=Underloft's Compass}}
+|questsource={{QuestLink|Underloft's Compass}}<br>{{QuestLink|stablekey=quest:underloftcompass}}
 |relatedquest={{QuestLink|questlink=The Revival Plains Ritual}}
 |craftsource=
 |componentfor=

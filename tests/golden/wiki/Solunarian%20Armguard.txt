@@ -5,7 +5,7 @@
 |vendorsource=
 |source=
 |othersource=
-|questsource={{QuestLink|Graveweed Leaf for Benson Gamble}}<br>{{QuestLink|stablekey=quest:graveweed leaf for benson gamble|link=Graveweed Leaf for Benson Gamble|text=Graveweed Leaf for Benson Gamble}}
+|questsource={{QuestLink|Graveweed Leaf for Benson Gamble}}<br>{{QuestLink|stablekey=quest:graveweed leaf for benson gamble}}
 |relatedquest=
 |craftsource=
 |componentfor=

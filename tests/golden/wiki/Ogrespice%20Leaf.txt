@@ -3,12 +3,12 @@
 |stablekey=item:gen - ogrespice leaf
 |type=[[Quest Items|Quest Item]]<br>[[Crafting]]<br>[[Quest Items|Quest Item]], [[Crafting]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:grassland ogre bruiser|link=A Grassland Ogre Bruiser|text=A Grassland Ogre Bruiser}} (19.3%)<br>{{CharacterLink|stablekey=character:grassland ogre elder shaman|link=A Grassland Ogre Mystic|text=A Grassland Ogre Mystic}} (13.9%)<br>{{CharacterLink|stablekey=character:grassland ogre sentinel|link=A Grassland Ogre Sentinel|text=A Grassland Ogre Sentinel}} (13.2%)<br>{{CharacterLink|stablekey=character:grassland ogre shaman|link=A Grassland Ogre Shaman|text=A Grassland Ogre Shaman}} (9.5%)<br>{{CharacterLink|stablekey=character:wild ogre|link=Wild Ogre|text=Wild Ogre}} (4.3%)<br>{{CharacterLink|stablekey=character:obba of the warkind|link=Obba of the Warkind|text=Obba of the Warkind}} (3.4%)<br>{{CharacterLink|stablekey=character:sivakayan devoted|link=Sivakayan Devoted|text=Sivakayan Devoted}} (2.1%)<br>{{CharacterLink|stablekey=character:sivakayan faithbound|link=Sivakayan Faithbound|text=Sivakayan Faithbound}} (2.1%)
+|source={{CharacterLink|stablekey=character:grassland ogre bruiser}} (19.3%)<br>{{CharacterLink|stablekey=character:grassland ogre elder shaman}} (13.9%)<br>{{CharacterLink|stablekey=character:grassland ogre sentinel}} (13.2%)<br>{{CharacterLink|stablekey=character:grassland ogre shaman}} (9.5%)<br>{{CharacterLink|stablekey=character:wild ogre}} (4.3%)<br>{{CharacterLink|stablekey=character:obba of the warkind}} (3.4%)<br>{{CharacterLink|stablekey=character:sivakayan devoted}} (2.1%)<br>{{CharacterLink|stablekey=character:sivakayan faithbound}} (2.1%)
 |othersource=
 |questsource=
-|relatedquest={{QuestLink|link=Ogre Spice for Valrae}}<br>{{QuestLink|Ogre Spice for Valrae}}<br>{{QuestLink|stablekey=quest:valraesogrespice|link=Ogre Spice for Valrae|text=Ogre Spice for Valrae}}
+|relatedquest={{QuestLink|link=Ogre Spice for Valrae}}<br>{{QuestLink|Ogre Spice for Valrae}}<br>{{QuestLink|stablekey=quest:valraesogrespice}}
 |craftsource=
-|componentfor={{ItemLink|stablekey=item:template - duelist's charm|link=Mold: Duelist's Charm|text=Mold: Duelist's Charm|image=Mold: Duelist's Charm.png}}
+|componentfor={{ItemLink|stablekey=item:template - duelist's charm}}
 |buy=4
 |sell=3
 |taughtspell=

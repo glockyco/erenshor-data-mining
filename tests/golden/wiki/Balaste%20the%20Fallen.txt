@@ -3,15 +3,15 @@
 |image=[[File:Balaste the Fallen.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
-|factionChange=+2 {{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}
-|zones={{ZoneLink|stablekey=zone:vitheosend|link=Vitheo's Rest|text=Vitheo's Rest}}
+|faction={{FactionLink|stablekey=faction:evil}}
+|factionChange=+2 {{FactionLink|stablekey=faction:vitheo}}
+|zones={{ZoneLink|stablekey=zone:vitheosend}}
 |coordinates=489.4 x -11.4 x 492.6
 |spawnchance=99%
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:arm - 24 - fine silk sleeves|link=Intricate Sleeves|text=Intricate Sleeves|image=Intricate Sleeves.png}}<br>{{ItemLink|stablekey=item:foot - 21 - virophan leather slippers|link=Virophan Leather Slippers|text=Virophan Leather Slippers|image=Virophan Leather Slippers.png}}
-|droprates={{ItemLink|stablekey=item:gen - memory of balaste|link=Memory of Balaste|text=Memory of Balaste|image=Memory of Balaste.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - memory of balaste|link=Memory of Balaste|text=Memory of Balaste|image=Memory of Balaste.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - the traitors|link=The Traitor's Hall|text=The Traitor's Hall|image=The Traitor's Hall.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - the traitors|link=The Traitor's Hall|text=The Traitor's Hall|image=The Traitor's Hall.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:arm - 24 - fine silk sleeves|link=Intricate Sleeves|text=Intricate Sleeves|image=Intricate Sleeves.png}} (66.7%)<br>{{ItemLink|stablekey=item:foot - 21 - virophan leather slippers|link=Virophan Leather Slippers|text=Virophan Leather Slippers|image=Virophan Leather Slippers.png}} (33.3%)
+|guaranteeddrops={{ItemLink|stablekey=item:arm - 24 - fine silk sleeves}}<br>{{ItemLink|stablekey=item:foot - 21 - virophan leather slippers}}
+|droprates={{ItemLink|stablekey=item:gen - memory of balaste}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - memory of balaste}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:gen - the traitors}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - the traitors}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:arm - 24 - fine silk sleeves}} (66.7%)<br>{{ItemLink|stablekey=item:foot - 21 - virophan leather slippers}} (33.3%)
 |level=26
 |levelmodmin=0
 |levelmodmax=0

@@ -3,15 +3,15 @@
 |image=[[File:Sylvan Giant Runt.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:willowwatch|link=Willowwatch Ridge|text=Willowwatch Ridge}}
+|zones={{ZoneLink|stablekey=zone:willowwatch}}
 |coordinates=728.7 x 49.9 x 557.2
 |spawnchance=
 |spawntype=
 |respawn=6 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:arm - 8 - archer's vambrace|link=Archer's Vambrace|text=Archer's Vambrace|image=Archer's Vambrace.png}}<br>{{ItemLink|stablekey=item:belt - 2 - beast harness|link=Beast Harness|text=Beast Harness|image=Beast Harness.png}}<br>{{ItemLink|stablekey=item:weap - 6 - old halberd|link=Old Halberd|text=Old Halberd|image=Old Halberd.png}}<br>{{ItemLink|stablekey=item:belt - 6 - sylvan cord|link=Sylvan Cord|text=Sylvan Cord|image=Sylvan Cord.png}}
-|droprates={{ItemLink|stablekey=item:gen - bag of willow soil|link=Willow Soil|text=Willow Soil|image=Willow Soil.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - bag of willow soil|link=Willow Soil|text=Willow Soil|image=Willow Soil.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:cons - bread|link=Bread|text=Bread|image=Bread.png}} (86.3%)<br>{{ItemLink|stablekey=item:cons - seaspice|link=Seaspice|text=Seaspice|image=Seaspice.png}} (86.3%)<br>{{ItemLink|stablekey=item:arm - 8 - archer's vambrace|link=Archer's Vambrace|text=Archer's Vambrace|image=Archer's Vambrace.png}} (25.0%)<br>{{ItemLink|stablekey=item:belt - 2 - beast harness|link=Beast Harness|text=Beast Harness|image=Beast Harness.png}} (25.0%)<br>{{ItemLink|stablekey=item:weap - 6 - old halberd|link=Old Halberd|text=Old Halberd|image=Old Halberd.png}} (25.0%)<br>{{ItemLink|stablekey=item:belt - 6 - sylvan cord|link=Sylvan Cord|text=Sylvan Cord|image=Sylvan Cord.png}} (25.0%)<br>{{ItemLink|stablekey=item:chest - 4 - light plate armor|link=Light Plate Breastplate|text=Light Plate Breastplate|image=Light Plate Breastplate.png}} (23.5%)<br>{{ItemLink|stablekey=item:leg - 3 - light plate greaves|link=Light Plate Greaves|text=Light Plate Greaves|image=Light Plate Greaves.png}} (23.5%)<br>{{ItemLink|stablekey=item:back - 4 - torn cape|link=Old Torn Cape|text=Old Torn Cape|image=Old Torn Cape.png}} (23.5%)<br>{{ItemLink|stablekey=item:ring - 5 - ring of magic bolt|link=Ring of Magic Bolt|text=Ring of Magic Bolt|image=Ring of Magic Bolt.png}} (23.5%)
+|guaranteeddrops={{ItemLink|stablekey=item:arm - 8 - archer's vambrace}}<br>{{ItemLink|stablekey=item:belt - 2 - beast harness}}<br>{{ItemLink|stablekey=item:weap - 6 - old halberd}}<br>{{ItemLink|stablekey=item:belt - 6 - sylvan cord}}
+|droprates={{ItemLink|stablekey=item:gen - bag of willow soil}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - bag of willow soil}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:cons - bread}} (86.3%)<br>{{ItemLink|stablekey=item:cons - seaspice}} (86.3%)<br>{{ItemLink|stablekey=item:arm - 8 - archer's vambrace}} (25.0%)<br>{{ItemLink|stablekey=item:belt - 2 - beast harness}} (25.0%)<br>{{ItemLink|stablekey=item:weap - 6 - old halberd}} (25.0%)<br>{{ItemLink|stablekey=item:belt - 6 - sylvan cord}} (25.0%)<br>{{ItemLink|stablekey=item:chest - 4 - light plate armor}} (23.5%)<br>{{ItemLink|stablekey=item:leg - 3 - light plate greaves}} (23.5%)<br>{{ItemLink|stablekey=item:back - 4 - torn cape}} (23.5%)<br>{{ItemLink|stablekey=item:ring - 5 - ring of magic bolt}} (23.5%)
 |level=7
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=4-8
 |elemental=4-8
 |void=4-8
-|spells={{AbilityLink|stablekey=spell:dru - biting vines|link=Biting Vines|text=Biting Vines|image=Biting Vines.png}}<br>{{AbilityLink|stablekey=spell:dru - tangle|link=Tangle|text=Tangle|image=Tangle.png}}
+|spells={{AbilityLink|stablekey=spell:dru - biting vines}}<br>{{AbilityLink|stablekey=spell:dru - tangle}}
 }}
 
 ''{{main|Enemies}}''

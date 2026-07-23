@@ -65,7 +65,8 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:aura - storm 2|link=Falling Rain|text=Falling Rain|image=Falling Rain.png}}
+|itemswitheffect={{ItemLink|stablekey=item:aura - storm 2}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:aura - storm 2}}

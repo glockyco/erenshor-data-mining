@@ -3,9 +3,9 @@
 |image=[[File:Jan Yarrow.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:stowaway|link=The Citizens of Stowaway's Step|text=The Citizens of Stowaway's Step}}
-|factionChange=-20 {{FactionLink|stablekey=faction:fernalla|link=Fernalla's Children|text=Fernalla's Children}}<br>-20 {{FactionLink|stablekey=faction:stowaway|link=The Citizens of Stowaway's Step|text=The Citizens of Stowaway's Step}}
-|zones={{ZoneLink|stablekey=zone:stowaway|link=Stowaway's Step|text=Stowaway's Step}}
+|faction={{FactionLink|stablekey=faction:stowaway}}
+|factionChange=-20 {{FactionLink|stablekey=faction:fernalla}}<br>-20 {{FactionLink|stablekey=faction:stowaway}}
+|zones={{ZoneLink|stablekey=zone:stowaway}}
 |coordinates=567.8 x 72.3 x 423.8
 |spawnchance=
 |spawntype=

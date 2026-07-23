@@ -5,15 +5,15 @@
 |image=[[File:Fallen Fernalla.png|thumb]]
 |imagecaption=Phase Three Version
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
-|factionChange=+35 {{FactionLink|stablekey=faction:fernalla|link=Fernalla's Children|text=Fernalla's Children}}<br>+35 {{FactionLink|stablekey=faction:vitheo|link=The Blades of Vitheo|text=The Blades of Vitheo}}<br>-100 {{FactionLink|stablekey=faction:sivakayans|link=The Children of Sivakaya|text=The Children of Sivakaya}}<br>+35 {{FactionLink|stablekey=faction:brax|link=The Torchbearers of Brax|text=The Torchbearers of Brax}}
-|zones={{ZoneLink|stablekey=zone:bloomingsepulcher|link=Blooming Sepulcher|text=Blooming Sepulcher}}
+|faction={{FactionLink|stablekey=faction:evil}}
+|factionChange=+35 {{FactionLink|stablekey=faction:fernalla}}<br>+35 {{FactionLink|stablekey=faction:vitheo}}<br>-100 {{FactionLink|stablekey=faction:sivakayans}}<br>+35 {{FactionLink|stablekey=faction:brax}}
+|zones={{ZoneLink|stablekey=zone:bloomingsepulcher}}
 |coordinates=689.0 x 259.7 x 870.1
 |spawnchance=
 |spawntype=Dynamic event spawn
 |respawn=
-|guaranteeddrops={{ItemLink|stablekey=item:wrist - 40 - guiding presence|link=Guiding Presence|text=Guiding Presence|image=Guiding Presence.png}}<br>{{ItemLink|stablekey=item:secondary - 40 - nature's will|link=Nature's Will|text=Nature's Will|image=Nature's Will.png}}<br>{{ItemLink|stablekey=item:back - 40 - verdant embrace|link=Verdant Embrace|text=Verdant Embrace|image=Verdant Embrace.png}}
-|droprates={{ItemLink|stablekey=item:gen - inert rune of fernalla|link=Inert Rune of Fernalla|text=Inert Rune of Fernalla|image=Inert Rune of Fernalla.png}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - inert rune of fernalla|link=Inert Rune of Fernalla|text=Inert Rune of Fernalla|image=Inert Rune of Fernalla.png}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:wrist - 40 - guiding presence|link=Guiding Presence|text=Guiding Presence|image=Guiding Presence.png}} (35.5%)<br>{{ItemLink|stablekey=item:secondary - 40 - nature's will|link=Nature's Will|text=Nature's Will|image=Nature's Will.png}} (35.5%)<br>{{ItemLink|stablekey=item:back - 40 - verdant embrace|link=Verdant Embrace|text=Verdant Embrace|image=Verdant Embrace.png}} (35.5%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (7.4%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (7.4%)<br>{{ItemLink|stablekey=item:weap - 40 - reaper of regrowth|link=Reaper of Regrowth|text=Reaper of Regrowth|image=Reaper of Regrowth.png}} (3.2%)
+|guaranteeddrops={{ItemLink|stablekey=item:wrist - 40 - guiding presence}}<br>{{ItemLink|stablekey=item:secondary - 40 - nature's will}}<br>{{ItemLink|stablekey=item:back - 40 - verdant embrace}}
+|droprates={{ItemLink|stablekey=item:gen - inert rune of fernalla}} (100.0%)<ref>If the player is already holding {{ItemLink|stablekey=item:gen - inert rune of fernalla}} in their inventory, another will not drop.</ref><br>{{ItemLink|stablekey=item:wrist - 40 - guiding presence}} (35.5%)<br>{{ItemLink|stablekey=item:secondary - 40 - nature's will}} (35.5%)<br>{{ItemLink|stablekey=item:back - 40 - verdant embrace}} (35.5%)<br>{{ItemLink|stablekey=item:gen - seaglass}} (7.4%)<br>{{ItemLink|stablekey=item:gen - a star stone}} (7.4%)<br>{{ItemLink|stablekey=item:weap - 40 - reaper of regrowth}} (3.2%)
 |level=40
 |levelmodmin=0
 |levelmodmax=0
@@ -42,15 +42,15 @@
 |image=[[File:Fallen Fernalla.png|thumb]]
 |imagecaption=Phase One Version
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
+|faction={{FactionLink|stablekey=faction:evil}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:bloomingsepulcher|link=Blooming Sepulcher|text=Blooming Sepulcher}}
+|zones={{ZoneLink|stablekey=zone:bloomingsepulcher}}
 |coordinates=689.0 x 259.7 x 870.1
 |spawnchance=
 |spawntype=
 |respawn=15 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:wrist - 40 - guiding presence|link=Guiding Presence|text=Guiding Presence|image=Guiding Presence.png}}<br>{{ItemLink|stablekey=item:secondary - 40 - nature's will|link=Nature's Will|text=Nature's Will|image=Nature's Will.png}}<br>{{ItemLink|stablekey=item:weap - 40 - reaper of regrowth|link=Reaper of Regrowth|text=Reaper of Regrowth|image=Reaper of Regrowth.png}}<br>{{ItemLink|stablekey=item:back - 40 - verdant embrace|link=Verdant Embrace|text=Verdant Embrace|image=Verdant Embrace.png}}
-|droprates={{ItemLink|stablekey=item:wrist - 40 - guiding presence|link=Guiding Presence|text=Guiding Presence|image=Guiding Presence.png}} (27.4%)<br>{{ItemLink|stablekey=item:secondary - 40 - nature's will|link=Nature's Will|text=Nature's Will|image=Nature's Will.png}} (27.4%)<br>{{ItemLink|stablekey=item:weap - 40 - reaper of regrowth|link=Reaper of Regrowth|text=Reaper of Regrowth|image=Reaper of Regrowth.png}} (27.4%)<br>{{ItemLink|stablekey=item:back - 40 - verdant embrace|link=Verdant Embrace|text=Verdant Embrace|image=Verdant Embrace.png}} (27.4%)<br>{{ItemLink|stablekey=item:gen - seaglass|link=Sea Glass|text=Sea Glass|image=Sea Glass.png}} (7.4%)<br>{{ItemLink|stablekey=item:gen - a star stone|link=Star Stone|text=Star Stone|image=Star Stone.png}} (7.4%)
+|guaranteeddrops={{ItemLink|stablekey=item:wrist - 40 - guiding presence}}<br>{{ItemLink|stablekey=item:secondary - 40 - nature's will}}<br>{{ItemLink|stablekey=item:weap - 40 - reaper of regrowth}}<br>{{ItemLink|stablekey=item:back - 40 - verdant embrace}}
+|droprates={{ItemLink|stablekey=item:wrist - 40 - guiding presence}} (27.4%)<br>{{ItemLink|stablekey=item:secondary - 40 - nature's will}} (27.4%)<br>{{ItemLink|stablekey=item:weap - 40 - reaper of regrowth}} (27.4%)<br>{{ItemLink|stablekey=item:back - 40 - verdant embrace}} (27.4%)<br>{{ItemLink|stablekey=item:gen - seaglass}} (7.4%)<br>{{ItemLink|stablekey=item:gen - a star stone}} (7.4%)
 |level=39
 |levelmodmin=0
 |levelmodmax=0
@@ -71,7 +71,7 @@
 |poison=20-47
 |elemental=20-47
 |void=20-47
-|spells={{AbilityLink|stablekey=spell:dru - group revitalize|link=Group Revitalize|text=Group Revitalize|image=Group Revitalize.png}}
+|spells={{AbilityLink|stablekey=spell:dru - group revitalize}}
 }}
 
 For information about the quest NPC in [[Blooming Sepulcher]], see [[Fallen Fernalla (NPC)]].

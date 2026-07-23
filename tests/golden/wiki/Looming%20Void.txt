@@ -2,7 +2,7 @@
 |title=Looming Void
 |stablekey=item:aura - reaver 2
 |type=
-|vendorsource={{CharacterLink|stablekey=character:shanty swingblade|link=Shantee Swingblade|text=Shantee Swingblade}}
+|vendorsource={{CharacterLink|stablekey=character:shanty swingblade}}
 |source=
 |othersource=
 |questsource=
@@ -22,7 +22,7 @@
 |name=Looming Void
 |description=
 |aura_spell_icon=Aura: Rising Shadows II.png
-|aura_spell_name={{AbilityLink|stablekey=spell:aura - reaver 2|link=Aura: Rising Shadows II|text=Aura: Rising Shadows II|image=Aura: Rising Shadows II.png}}
+|aura_spell_name={{AbilityLink|stablekey=spell:aura - reaver 2}}
 |aura_spell_level=1
 |aura_spell_duration_ticks=2
 |aura_spell_type=Beneficial
@@ -62,7 +62,7 @@
 |aura_percent_lifesteal=
 |aura_atk_roll_modifier=
 |aura_resonate_chance=
-|aura_add_proc_name={{AbilityLink|stablekey=spell:dru reav - theft of life|link=Theft of Life|text=Theft of Life}}
+|aura_add_proc_name={{AbilityLink|stablekey=spell:dru reav - theft of life}}
 |aura_add_proc_chance=3
 |aura_special_descriptor=Party gets a 3% chance on-hit to proc Theft of Life
 }}

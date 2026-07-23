@@ -3,9 +3,9 @@
 |image=[[File:Shattered Sivakaya.png|thumb]]
 |imagecaption=
 |type=NPC
-|faction={{FactionLink|stablekey=faction:good|link=The Followers of Good|text=The Followers of Good}}
+|faction={{FactionLink|stablekey=faction:good}}
 |factionChange=
-|zones={{ZoneLink|stablekey=zone:stowawayportal|link=Secluded Sanctuary|text=Secluded Sanctuary}}
+|zones={{ZoneLink|stablekey=zone:stowawayportal}}
 |coordinates=-85.9 x 0.9 x -41.6
 |spawnchance=
 |spawntype=

@@ -3,7 +3,7 @@
 |stablekey=item:leg - 30 - treewoven leggings
 |type=
 |vendorsource=
-|source={{CharacterLink|stablekey=character:3 - memory of the gift|link=A Protected Memory|text=A Protected Memory}} (25.0%)
+|source={{CharacterLink|stablekey=character:3 - memory of the gift}} (25.0%)
 |othersource=
 |questsource=
 |relatedquest=

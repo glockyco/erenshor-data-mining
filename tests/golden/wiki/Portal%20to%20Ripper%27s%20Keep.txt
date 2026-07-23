@@ -65,9 +65,10 @@
 |is_broken_on_damage=
 |is_fear=
 |inflict_on_self=
-|itemswitheffect={{ItemLink|stablekey=item:gen - rune of ripper's keep|link=Rune of Ripper's Keep|text=Rune of Ripper's Keep|image=Rune of Ripper's Keep.png}}
+|itemswitheffect={{ItemLink|stablekey=item:gen - rune of ripper's keep}}
 |source=
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:arc - portal to ripper}}
 
 [[Category:Teleportation]]

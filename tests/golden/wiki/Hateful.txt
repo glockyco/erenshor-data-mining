@@ -16,3 +16,4 @@
 |stop_regen=1
 |activated_by={{AbilityLink|Stance: Hateful}}
 }}
+{{StanceTooltip|stablekey=stance:hateful}}

@@ -2,8 +2,8 @@
 |title=Polished Longsword
 |stablekey=item:weap - 6 - polished longsword
 |type=
-|vendorsource={{CharacterLink|stablekey=character:benson gamble|link=Benson Gamble|text=Benson Gamble}}<br>{{CharacterLink|stablekey=character:sven feartines|link=Sven Feartines|text=Sven Feartines}}
-|source={{CharacterLink|stablekey=character:bassalt valanno|link=Bassalt Vallano|text=Bassalt Vallano}} (6.3%)<br>{{CharacterLink|stablekey=character:skeleton soldier|link=A Skeleton Soldier|text=A Skeleton Soldier}} (4.0%)<br>{{CharacterLink|stablekey=character:skeleton captain|link=A Skeleton Captain|text=A Skeleton Captain}} (3.4%)
+|vendorsource={{CharacterLink|stablekey=character:benson gamble}}<br>{{CharacterLink|stablekey=character:sven feartines}}
+|source={{CharacterLink|stablekey=character:bassalt valanno}} (6.3%)<br>{{CharacterLink|stablekey=character:skeleton soldier}} (4.0%)<br>{{CharacterLink|stablekey=character:skeleton captain}} (3.4%)
 |othersource=
 |questsource=
 |relatedquest=

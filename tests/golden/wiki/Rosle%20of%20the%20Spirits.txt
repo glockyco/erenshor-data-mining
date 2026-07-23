@@ -3,15 +3,15 @@
 |image=[[File:Rosle of the Spirits.png|thumb]]
 |imagecaption=
 |type=Boss
-|faction={{FactionLink|stablekey=faction:evil|link=The Followers of Evil|text=The Followers of Evil}}
-|factionChange=+3 {{FactionLink|stablekey=faction:erenshorcitizens|link=The Citizens of Erenshor|text=The Citizens of Erenshor}}<br>+3 {{FactionLink|stablekey=faction:azurecitizens|link=The Citizens of Port Azure|text=The Citizens of Port Azure}}
-|zones={{ZoneLink|stablekey=zone:underspine|link=Underspine Hollow|text=Underspine Hollow}}
+|faction={{FactionLink|stablekey=faction:evil}}
+|factionChange=+3 {{FactionLink|stablekey=faction:erenshorcitizens}}<br>+3 {{FactionLink|stablekey=faction:azurecitizens}}
+|zones={{ZoneLink|stablekey=zone:underspine}}
 |coordinates=131.7 x 85.8 x 276.3
 |spawnchance=66%
 |spawntype=
 |respawn=5 minutes
-|guaranteeddrops={{ItemLink|stablekey=item:secondary - 14 - mudmold shield|link=Mudmold Shield|text=Mudmold Shield|image=Mudmold Shield.png}}<br>{{ItemLink|stablekey=item:ring - 14 - ring of the mystics|link=Ring of The Mystics|text=Ring of The Mystics|image=Ring of The Mystics.png}}
-|droprates={{ItemLink|stablekey=item:ring - 14 - ring of the mystics|link=Ring of The Mystics|text=Ring of The Mystics|image=Ring of The Mystics.png}} (66.7%)<br>{{ItemLink|stablekey=item:secondary - 14 - mudmold shield|link=Mudmold Shield|text=Mudmold Shield|image=Mudmold Shield.png}} (33.3%)
+|guaranteeddrops={{ItemLink|stablekey=item:secondary - 14 - mudmold shield}}<br>{{ItemLink|stablekey=item:ring - 14 - ring of the mystics}}
+|droprates={{ItemLink|stablekey=item:ring - 14 - ring of the mystics}} (66.7%)<br>{{ItemLink|stablekey=item:secondary - 14 - mudmold shield}} (33.3%)
 |level=15
 |levelmodmin=0
 |levelmodmax=0
@@ -32,7 +32,7 @@
 |poison=8-18
 |elemental=8-18
 |void=8-18
-|spells={{AbilityLink|stablekey=spell:dru - minor lightning|link=Minor Lightning|text=Minor Lightning|image=Minor Lightning.png}}<br>{{AbilityLink|stablekey=spell:dru - morbidity's grasp|link=Morbidity's Grasp|text=Morbidity's Grasp|image=Morbidity's Grasp.png}}<br>{{AbilityLink|stablekey=spell:dru - toxicity|link=Toxicity|text=Toxicity|image=Toxicity.png}}
+|spells={{AbilityLink|stablekey=spell:dru - minor lightning}}<br>{{AbilityLink|stablekey=spell:dru - morbidity's grasp}}<br>{{AbilityLink|stablekey=spell:dru - toxicity}}
 }}
 
 [[Category:Bosses]]

@@ -3,7 +3,7 @@
 |stablekey=item:quest - game piece peon
 |type=[[:Category:Items|Summoning Item]]
 |vendorsource=
-|source={{CharacterLink|stablekey=character:desert mummy|link=Sand Mummy|text=Sand Mummy}} (3.4%)<br>{{CharacterLink|stablekey=character:scorched skeleton|link=Scorched Skeleton|text=Scorched Skeleton}} (3.4%)<br>{{CharacterLink|stablekey=character:blight eater|link=Blight Eater|text=Blight Eater}} (3.0%)<br>{{CharacterLink|stablekey=character:blight priest|link=Blighted Priest|text=Blighted Priest}} (2.3%)<br>{{CharacterLink|stablekey=character:braxonian fanatic|link=Braxon Fanatic|text=Braxon Fanatic}} (1.7%)
+|source={{CharacterLink|stablekey=character:desert mummy}} (3.4%)<br>{{CharacterLink|stablekey=character:scorched skeleton}} (3.4%)<br>{{CharacterLink|stablekey=character:blight eater}} (3.0%)<br>{{CharacterLink|stablekey=character:blight priest}} (2.3%)<br>{{CharacterLink|stablekey=character:braxonian fanatic}} (1.7%)
 |othersource=
 |questsource=
 |relatedquest=

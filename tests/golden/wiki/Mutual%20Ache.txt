@@ -5,7 +5,7 @@
 |description=Deals base 50 scaling void damage to your target, and 50 true damage to yourself
 |type=Damage
 |line=Direct_Damage
-|classes={{ClassLink|stablekey=class:reaver|link=Reaver|text=Reaver}} (5)
+|classes={{ClassLink|stablekey=class:reaver}} (5)
 |required_level=5
 |manacost=75
 |aggro=75
@@ -66,6 +66,7 @@
 |is_fear=
 |inflict_on_self=True
 |itemswitheffect=
-|source={{ItemLink|stablekey=item:spell scroll - mutual ache|link=Spell Scroll: Mutual Ache|text=Spell Scroll: Mutual Ache|image=Spell Scroll: Mutual Ache.png}}
+|source={{ItemLink|stablekey=item:spell scroll - mutual ache}}
 |used_by=
 }}
+{{SpellTooltip|stablekey=spell:reav - mutual ache}}
