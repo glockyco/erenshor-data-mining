@@ -4,21 +4,15 @@ import sqlite3
 from contextlib import closing
 from pathlib import Path
 
-import pytest
 
-MAIN_DB = Path(__file__).resolve().parents[2] / "variants" / "main" / "erenshor-main.sqlite"
-
-
-def _main_connection() -> sqlite3.Connection:
-    if not MAIN_DB.exists():
-        pytest.skip("main clean DB missing; run 'uv run erenshor -V main extract build'")
-    conn = sqlite3.connect(MAIN_DB)
+def _main_connection(db_path: Path) -> sqlite3.Connection:
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
 
 
-def test_vithean_arena_rounds_join_fights_to_reward_chests() -> None:
-    with closing(_main_connection()) as db:
+def test_vithean_arena_rounds_join_fights_to_reward_chests(main_clean_db: Path) -> None:
+    with closing(_main_connection(main_clean_db)) as db:
         rows = db.execute(
             """
             SELECT
@@ -49,8 +43,8 @@ def test_vithean_arena_rounds_join_fights_to_reward_chests() -> None:
     assert {row["chest_object_name"] for row in rows if row["round_index"] == 8} == {"ArenaChest 8"}
 
 
-def test_vithean_arena_rounds_join_reward_chests_to_loot() -> None:
-    with closing(_main_connection()) as db:
+def test_vithean_arena_rounds_join_reward_chests_to_loot(main_clean_db: Path) -> None:
+    with closing(_main_connection(main_clean_db)) as db:
         rows = db.execute(
             """
             SELECT items.display_name, ROUND(loot_drops.drop_probability, 2) AS drop_probability

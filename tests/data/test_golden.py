@@ -8,15 +8,16 @@ fails the test. Intentional changes (bug fixes) must be reflected by
 re-running 'golden capture' and committing the updated golden files.
 
 Run these tests after every significant pipeline change:
-    uv run pytest tests/integration/test_golden.py -v
+    uv run pytest tests/data/test_golden.py -v
 
 Prerequisites:
     - variants/main/erenshor-main.sqlite must exist (run extract export/build)
     - variants/main/wiki/generated/ must be populated (run wiki generate)
     - tests/golden/ must be populated (run golden capture)
 
-All three tests are marked integration and are skipped when the required
-files are absent.
+The clean/raw main databases and shipped main DLL are required data-leaf
+inputs and fail the suite when absent. Golden output directories must be
+populated (run 'golden capture' before running regression tests).
 """
 
 from __future__ import annotations
@@ -149,7 +150,6 @@ def golden_sheets_engine():
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.integration
 class TestWikiGolden:
     """Regression tests for wiki page generation output."""
 
@@ -220,7 +220,6 @@ class TestWikiGolden:
         )
 
 
-@pytest.mark.integration
 class TestSheetsGolden:
     """Regression tests for sheets SQL query output."""
 
@@ -282,7 +281,6 @@ class TestSheetsGolden:
         assert not missing, f"Golden CSVs exist for queries that no longer exist: {missing}"
 
 
-@pytest.mark.integration
 class TestMapGolden:
     """Regression tests for the map spawn-points query output."""
 
@@ -319,7 +317,6 @@ class TestMapGolden:
         )
 
 
-@pytest.mark.integration
 class TestCodeFactsGolden:
     """Regression tests for the code-facts passthrough output."""
 

@@ -1,4 +1,4 @@
-"""Integration tests for the guide compiler and JSON serializer.
+"""Data tests for the guide compiler and JSON serializer.
 
 Runs against the real SQLite database to verify:
 - CompiledData structural invariants
@@ -57,11 +57,11 @@ EXPECTED_TOP_LEVEL_KEYS = {
 
 
 @pytest.fixture(scope="module")
-def graph(integration_db: Path) -> EntityGraph:
+def graph(main_clean_db: Path) -> EntityGraph:
     from erenshor.application.guide.generator import generate
 
     overrides = Path("quest_guides/graph_overrides.toml")
-    return generate(integration_db, overrides if overrides.exists() else None)
+    return generate(main_clean_db, overrides if overrides.exists() else None)
 
 
 @pytest.fixture(scope="module")

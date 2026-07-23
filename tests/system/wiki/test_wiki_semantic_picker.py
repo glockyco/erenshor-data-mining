@@ -12,8 +12,6 @@ import pytest
 from playwright.sync_api import Error as PlaywrightError
 from playwright.sync_api import Locator, Page, Route, expect, sync_playwright
 
-pytestmark = pytest.mark.integration
-
 WIKI_BASE_URL = "http://localhost:8088"
 API_URL = f"{WIKI_BASE_URL}/api.php"
 SOURCE_TITLE = "Smoke_Page"

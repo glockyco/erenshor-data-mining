@@ -34,13 +34,11 @@ from erenshor.infrastructure.wiki import (
     MediaWikiRequestPolicy,
 )
 
-pytestmark = pytest.mark.integration
-
 WIKI_BASE_URL = "http://localhost:8088"
 API_URL = f"{WIKI_BASE_URL}/api.php"
 BOT_USER = "ErenshorBot"
 BOT_PASSWORD = "BotDevPassword-2026"
-COMPOSE_FILE = Path(__file__).resolve().parents[2] / "wiki-dev" / "compose.yml"
+COMPOSE_FILE = Path(__file__).resolve().parents[3] / "wiki-dev" / "compose.yml"
 
 
 def _harness_reachable() -> bool:
@@ -418,7 +416,7 @@ def test_override_review_removes_overridable_params_without_accessors(
     wiki_client: MediaWikiClient, pages: _PageScope
 ) -> None:
     """Override review resolves every overridable root param, not just display fields."""
-    repo_root = Path(__file__).resolve().parents[2]
+    repo_root = Path(__file__).resolve().parents[3]
     _deploy_module(wiki_client, "Module:Erenshor/Item", repo_root / "wiki" / "modules" / "Erenshor" / "Item.lua")
 
     title = pages.claim("ErenshorITOverrideContract")
@@ -463,7 +461,7 @@ def test_overridable_param_resolves_without_display_accessor(
     wiki_client: MediaWikiClient, module: str, stable_key: str, field_name: str, expected: str
 ) -> None:
     """Every overridable root param resolves to its generated value, not a Scribunto error."""
-    repo_root = Path(__file__).resolve().parents[2]
+    repo_root = Path(__file__).resolve().parents[3]
     _deploy_module(wiki_client, f"Module:{module}", repo_root / "wiki" / "modules" / f"{module}.lua")
 
     rendered = wiki_client.expand_templates(

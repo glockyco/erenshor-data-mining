@@ -1,4 +1,4 @@
-"""Integration tests for the entity graph pipeline.
+"""Data tests for the entity graph pipeline.
 
 Tests run against the real clean SQLite database.  They verify that the
 graph builder produces the expected node/edge counts and captures known
@@ -20,14 +20,14 @@ if TYPE_CHECKING:
 
 
 @pytest.fixture(scope="module")
-def graph(integration_db: Path) -> EntityGraph:
+def graph(main_clean_db: Path) -> EntityGraph:
     """Build the entity graph once for the entire test module.
 
     Uses generate() so that graph overrides are merged and quest
     metadata (zone + level) is denormalized — matching production.
     """
     overrides = Path("quest_guides/graph_overrides.toml")
-    return generate(integration_db, overrides if overrides.exists() else None)
+    return generate(main_clean_db, overrides if overrides.exists() else None)
 
 
 # ---------------------------------------------------------------------------

@@ -1,9 +1,8 @@
-"""Integration tests for the ExportSurface field-coverage checker.
+"""Data tests for the ExportSurface field-coverage checker.
 
 Verifies the C# tool (built + invoked through the Python runner) reports each
-finding kind correctly against the real shipping assembly. Mirrors the
-test_code_facts_real.py pattern: skip when the shipped DLL or dotnet SDK is
-absent.
+finding kind correctly against the real shipping assembly. The data suite
+fails when the shipped DLL or .NET SDK is absent.
 """
 
 from __future__ import annotations
@@ -11,15 +10,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DLL = REPO_ROOT / "variants" / "main" / "game" / "Erenshor_Data" / "Managed" / "Assembly-CSharp.dll"
-
-pytestmark = [
-    pytest.mark.integration,
-    pytest.mark.skipif(not DLL.exists(), reason="main shipped DLL not present"),
-]
 
 
 def test_reports_each_finding_kind(tmp_path: Path) -> None:

@@ -1,22 +1,13 @@
 """Shape assertions against the real main-variant binary (no exact values)."""
 
 import json
-import shutil
 import subprocess
 from pathlib import Path
-
-import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DLL = REPO_ROOT / "variants" / "main" / "game" / "Erenshor_Data" / "Managed" / "Assembly-CSharp.dll"
 TOOL = REPO_ROOT / "src" / "tools" / "CodeFacts"
 SPECS = TOOL / "specs" / "erenshor-facts.json"
-
-pytestmark = [
-    pytest.mark.integration,
-    pytest.mark.skipif(shutil.which("dotnet") is None, reason="dotnet SDK not installed"),
-    pytest.mark.skipif(not DLL.exists(), reason="main variant game files not present"),
-]
 
 
 def test_all_facts_extract_with_sane_shapes(code_facts_tool: Path) -> None:

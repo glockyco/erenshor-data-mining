@@ -12,16 +12,6 @@ import sqlite3
 from collections import Counter
 from pathlib import Path
 
-import pytest
-
-REPO_ROOT = Path(__file__).resolve().parents[2]
-RAW_DB = REPO_ROOT / "variants" / "main" / "erenshor-main-raw.sqlite"
-
-pytestmark = [
-    pytest.mark.integration,
-    pytest.mark.skipif(not RAW_DB.exists(), reason="main raw export DB not present"),
-]
-
 
 def _counts(rows: list[sqlite3.Row], column: str) -> Counter[str]:
     return Counter(str(row[column]) for row in rows)
@@ -57,9 +47,9 @@ def _expected_enemy_location_counts(rows: list[sqlite3.Row]) -> Counter[str]:
     return Counter(character for character, _position in expected_pairs)
 
 
-def test_vith_arena_dynamic_enemy_spawns_match_arena_round_enemies() -> None:
+def test_vith_arena_dynamic_enemy_spawns_match_arena_round_enemies(main_raw_db: Path) -> None:
     """VithArena fight placement mirrors the game's unique character/location surface."""
-    with sqlite3.connect(RAW_DB) as conn:
+    with sqlite3.connect(main_raw_db) as conn:
         conn.row_factory = sqlite3.Row
         expected = conn.execute(
             """
@@ -97,9 +87,9 @@ def test_vith_arena_dynamic_enemy_spawns_match_arena_round_enemies() -> None:
     assert len(distinct_positions) == 3
 
 
-def test_vith_arena_dynamic_chest_spawns_match_arena_rounds() -> None:
+def test_vith_arena_dynamic_chest_spawns_match_arena_rounds(main_raw_db: Path) -> None:
     """Each VithArena reward chest gets one dynamic spawn at ChestSpawnPos."""
-    with sqlite3.connect(RAW_DB) as conn:
+    with sqlite3.connect(main_raw_db) as conn:
         conn.row_factory = sqlite3.Row
         expected = conn.execute("SELECT AwardChestCharacterStableKey FROM ArenaRounds").fetchall()
         actual = conn.execute(

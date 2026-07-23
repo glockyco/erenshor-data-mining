@@ -8,12 +8,9 @@ from pathlib import Path
 
 import pytest
 
-pytestmark = [
-    pytest.mark.integration,
-    pytest.mark.skipif(shutil.which("dotnet") is None, reason="dotnet SDK not installed"),
-]
+pytestmark = pytest.mark.skipif(shutil.which("dotnet") is None, reason="dotnet SDK not installed")
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 TOOL = REPO_ROOT / "src" / "tools" / "CodeFacts"
 FIXTURE_PROJ = TOOL / "tests" / "FixtureLib"
 SPECS = REPO_ROOT / "tests" / "fixtures" / "code_facts" / "fixture-specs.json"
