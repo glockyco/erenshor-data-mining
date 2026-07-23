@@ -16,7 +16,7 @@ internal sealed class WorkflowCycleState
     private readonly KillRequirement?[] _killRequirements;
 
     public QuestEntry Quest { get; }
-    public GuideWorkflowState.WorkflowStage Stage { get; private set; }
+    public WorkflowStage Stage { get; private set; }
     public int Generation { get; private set; }
     public int LastItemCount { get; private set; }
     public bool TriggerLatched { get; private set; }
@@ -72,7 +72,7 @@ internal sealed class WorkflowCycleState
         LastItemCount = currentItemCount;
         _killedByGroup.Clear();
         Stage = triggerLatched
-            ? GuideWorkflowState.WorkflowStage.TriggerConsumed
+            ? WorkflowStage.TriggerConsumed
             : StageForInventory(currentItemCount);
     }
 
@@ -83,9 +83,7 @@ internal sealed class WorkflowCycleState
         RewardSeen = false;
         RecoveryPending = TriggerLatched;
         changed |= SetStage(
-            TriggerLatched
-                ? GuideWorkflowState.WorkflowStage.TriggerConsumed
-                : StageForInventory(currentItemCount)
+            TriggerLatched ? WorkflowStage.TriggerConsumed : StageForInventory(currentItemCount)
         );
         return changed;
     }
@@ -100,7 +98,7 @@ internal sealed class WorkflowCycleState
         {
             TriggerLatched = true;
             RecoveryPending = false;
-            return SetStage(GuideWorkflowState.WorkflowStage.TriggerConsumed) || changed;
+            return SetStage(WorkflowStage.TriggerConsumed) || changed;
         }
 
         if (!TriggerLatched)
@@ -112,7 +110,7 @@ internal sealed class WorkflowCycleState
     {
         bool changed = LastItemCount != currentItemCount;
         LastItemCount = currentItemCount;
-        if (!TriggerLatched && Stage != GuideWorkflowState.WorkflowStage.Unverifiable)
+        if (!TriggerLatched && Stage != WorkflowStage.Unverifiable)
             changed |= SetStage(StageForInventory(currentItemCount));
         return changed;
     }
@@ -123,7 +121,7 @@ internal sealed class WorkflowCycleState
         TriggerLatched = true;
         RecoveryPending = false;
         LastItemCount = currentItemCount;
-        changed |= SetStage(GuideWorkflowState.WorkflowStage.TargetsActive);
+        changed |= SetStage(WorkflowStage.TargetsActive);
         return changed;
     }
 
@@ -131,7 +129,7 @@ internal sealed class WorkflowCycleState
     {
         bool changed = RecoveryPending;
         RecoveryPending = false;
-        changed |= SetStage(GuideWorkflowState.WorkflowStage.TargetsActive);
+        changed |= SetStage(WorkflowStage.TargetsActive);
         return changed;
     }
 
@@ -140,11 +138,7 @@ internal sealed class WorkflowCycleState
         _killedByGroup[group] = _killedByGroup.TryGetValue(group, out int killed) ? killed + 1 : 1;
         if (!TargetsDefeated)
         {
-            SetStage(
-                anyLiveTargets
-                    ? GuideWorkflowState.WorkflowStage.TargetsActive
-                    : GuideWorkflowState.WorkflowStage.TriggerConsumed
-            );
+            SetStage(anyLiveTargets ? WorkflowStage.TargetsActive : WorkflowStage.TriggerConsumed);
         }
         return true;
     }
@@ -157,7 +151,7 @@ internal sealed class WorkflowCycleState
         RewardSeen = true;
         foreach (var expected in _expectedByGroup)
             _killedByGroup[expected.Key] = expected.Value;
-        changed |= SetStage(GuideWorkflowState.WorkflowStage.RewardAvailable);
+        changed |= SetStage(WorkflowStage.RewardAvailable);
         return changed;
     }
 
@@ -166,11 +160,11 @@ internal sealed class WorkflowCycleState
         if (lostObservedTarget)
             return MarkUnverifiable();
         if (RewardSeen)
-            return SetStage(GuideWorkflowState.WorkflowStage.RewardAvailable);
+            return SetStage(WorkflowStage.RewardAvailable);
         if (liveTargetCount > 0)
-            return SetStage(GuideWorkflowState.WorkflowStage.TargetsActive);
-        if (Stage != GuideWorkflowState.WorkflowStage.Unverifiable)
-            return SetStage(GuideWorkflowState.WorkflowStage.TriggerConsumed);
+            return SetStage(WorkflowStage.TargetsActive);
+        if (Stage != WorkflowStage.Unverifiable)
+            return SetStage(WorkflowStage.TriggerConsumed);
         return false;
     }
 
@@ -182,7 +176,7 @@ internal sealed class WorkflowCycleState
         return hasRuntimeEvidence ? false : MarkUnverifiable();
     }
 
-    public bool MarkUnverifiable() => SetStage(GuideWorkflowState.WorkflowStage.Unverifiable);
+    public bool MarkUnverifiable() => SetStage(WorkflowStage.Unverifiable);
 
     public void ResetCycle(int currentItemCount)
     {
@@ -205,7 +199,7 @@ internal sealed class WorkflowCycleState
         var steps = Quest.Steps;
         if (steps == null)
             return 0;
-        if (Stage == GuideWorkflowState.WorkflowStage.Unverifiable)
+        if (Stage == WorkflowStage.Unverifiable)
             return -1;
 
         for (int i = 0; i < steps.Count; i++)
@@ -265,12 +259,12 @@ internal sealed class WorkflowCycleState
             _expectedByGroup.Keys.OrderBy(key => key, StringComparer.OrdinalIgnoreCase)
         );
 
-    private GuideWorkflowState.WorkflowStage StageForInventory(int count) =>
+    private WorkflowStage StageForInventory(int count) =>
         count >= Quest.WorkflowCycle!.Trigger.Quantity
-            ? GuideWorkflowState.WorkflowStage.ItemReady
-            : GuideWorkflowState.WorkflowStage.NeedItem;
+            ? WorkflowStage.ItemReady
+            : WorkflowStage.NeedItem;
 
-    private bool SetStage(GuideWorkflowState.WorkflowStage stage)
+    private bool SetStage(WorkflowStage stage)
     {
         if (Stage == stage)
             return false;

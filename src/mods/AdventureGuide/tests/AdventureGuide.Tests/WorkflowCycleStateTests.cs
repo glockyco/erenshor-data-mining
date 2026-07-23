@@ -14,12 +14,12 @@ public sealed class WorkflowCycleStateTests
         int itemCount = 1;
 
         state.BeginScene(itemCount);
-        Assert.Equal(GuideWorkflowState.WorkflowStage.ItemReady, state.Stage);
+        Assert.Equal(WorkflowStage.ItemReady, state.Stage);
         Assert.Equal(1, state.GetCurrentStepIndex(_ => itemCount));
 
         itemCount = 0;
         state.ObserveInventory(itemCount, insideTrigger: false);
-        Assert.Equal(GuideWorkflowState.WorkflowStage.NeedItem, state.Stage);
+        Assert.Equal(WorkflowStage.NeedItem, state.Stage);
         Assert.Equal(0, state.GetCurrentStepIndex(_ => itemCount));
 
         itemCount = 1;
@@ -27,7 +27,7 @@ public sealed class WorkflowCycleStateTests
         itemCount = 0;
         state.ObserveInventory(itemCount, insideTrigger: true);
 
-        Assert.Equal(GuideWorkflowState.WorkflowStage.TriggerConsumed, state.Stage);
+        Assert.Equal(WorkflowStage.TriggerConsumed, state.Stage);
         Assert.Equal(2, state.GetCurrentStepIndex(_ => itemCount));
     }
 
@@ -44,7 +44,7 @@ public sealed class WorkflowCycleStateTests
         state.BeginScene(itemCount);
         state.CompleteRecovery(hasRuntimeEvidence: false);
 
-        Assert.Equal(GuideWorkflowState.WorkflowStage.Unverifiable, state.Stage);
+        Assert.Equal(WorkflowStage.Unverifiable, state.Stage);
         Assert.Equal(-1, state.GetCurrentStepIndex(_ => itemCount));
     }
 
@@ -64,7 +64,7 @@ public sealed class WorkflowCycleStateTests
         Assert.True(state.TargetsDefeated);
         state.ResetCycle(itemCount);
         Assert.Equal(1, state.Generation);
-        Assert.Equal(GuideWorkflowState.WorkflowStage.NeedItem, state.Stage);
+        Assert.Equal(WorkflowStage.NeedItem, state.Stage);
         Assert.Equal(0, state.GetCurrentStepIndex(_ => itemCount));
 
         itemCount = 1;
@@ -76,29 +76,49 @@ public sealed class WorkflowCycleStateTests
         state.ResetCycle(itemCount);
 
         Assert.Equal(2, state.Generation);
-        Assert.Equal(GuideWorkflowState.WorkflowStage.NeedItem, state.Stage);
+        Assert.Equal(WorkflowStage.NeedItem, state.Stage);
         Assert.Equal(0, state.GetCurrentStepIndex(_ => itemCount));
     }
 
     [Fact]
-    public void Reload_discovery_stops_after_the_bounded_window()
+    public void Discovery_window_runs_immediately_then_five_times_at_one_second_intervals()
     {
+        var window = new DiscoveryWindow();
         int discoveryCalls = 0;
-        var workflows = new GuideWorkflowState(
-            TestData.Build(TestData.WorkflowQuest()),
-            new EntityRegistry(),
-            () =>
-            {
-                discoveryCalls++;
-                return Array.Empty<Character>();
-            }
-        );
-        workflows.OnSceneChanged("TestScene", _ => 0);
+        int completionCalls = 0;
 
-        for (int i = 0; i < 10; i++)
-            workflows.Update(1f, _ => 0);
+        window.Schedule();
+
+        void Advance(float deltaTime)
+        {
+            if (!window.Advance(deltaTime))
+                return;
+            discoveryCalls++;
+            if (window.IsComplete)
+                completionCalls++;
+        }
+
+        Advance(0f);
+        Assert.Equal(1, discoveryCalls);
+        Assert.Equal(0, completionCalls);
+
+        for (int i = 0; i < 4; i++)
+        {
+            Advance(0.5f);
+            Advance(0.5f);
+        }
 
         Assert.Equal(5, discoveryCalls);
+        Assert.Equal(1, completionCalls);
+        Assert.True(window.IsComplete);
+        Advance(1f);
+        Assert.Equal(5, discoveryCalls);
+        Assert.Equal(1, completionCalls);
+
+        window.Schedule();
+        Assert.False(window.IsComplete);
+        Advance(0f);
+        Assert.Equal(6, discoveryCalls);
     }
 
     [Fact]
@@ -158,11 +178,11 @@ public sealed class WorkflowCycleStateTests
         state.RecordTargetDeath("character:test enemy", anyLiveTargets: false);
         state.ObserveReward();
 
-        Assert.Equal(GuideWorkflowState.WorkflowStage.RewardAvailable, state.Stage);
+        Assert.Equal(WorkflowStage.RewardAvailable, state.Stage);
         Assert.Equal(3, state.GetCurrentStepIndex(_ => 0));
 
         state.ResetCycle(0);
-        Assert.Equal(GuideWorkflowState.WorkflowStage.NeedItem, state.Stage);
+        Assert.Equal(WorkflowStage.NeedItem, state.Stage);
         Assert.Equal(0, state.GetCurrentStepIndex(_ => 0));
     }
 

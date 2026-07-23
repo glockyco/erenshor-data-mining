@@ -100,10 +100,10 @@ public sealed class TrackerState
         {
             var key = _orderedList[i];
             var quest = data.GetByRuntimeKey(key);
-            if (
-                quest == null
-                || (state.IsCompleted(quest) && quest.Flags is not { Repeatable: true })
-            )
+            bool questExists = quest != null;
+            bool isCompleted = questExists && state.IsCompleted(quest!);
+            bool isRepeatable = questExists && quest!.Flags is { Repeatable: true };
+            if (TrackerPruningPolicy.ShouldPrune(questExists, isCompleted, isRepeatable))
                 Untrack(key);
         }
     }

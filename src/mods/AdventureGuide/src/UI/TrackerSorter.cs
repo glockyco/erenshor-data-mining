@@ -307,9 +307,13 @@ internal static class TrackerSorter
         )
         {
             return new SourceDistance(
-                Vector3.Distance(
-                    playerPos,
-                    new Vector3(step.Location.X, step.Location.Y, step.Location.Z)
+                NavigationPolicy.EuclideanDistance(
+                    playerPos.x,
+                    playerPos.y,
+                    playerPos.z,
+                    step.Location.X,
+                    step.Location.Y,
+                    step.Location.Z
                 )
             );
         }
@@ -405,7 +409,14 @@ internal static class TrackerSorter
         {
             if (!string.Equals(sp.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase))
                 continue;
-            float d = Vector3.Distance(playerPos, new Vector3(sp.X, sp.Y, sp.Z));
+            float d = NavigationPolicy.EuclideanDistance(
+                playerPos.x,
+                playerPos.y,
+                playerPos.z,
+                sp.X,
+                sp.Y,
+                sp.Z
+            );
             if (d < best)
                 best = d;
         }

@@ -4,14 +4,6 @@ using AdventureGuide.Navigation;
 
 namespace AdventureGuide.State;
 
-public enum QuestRuntimeStatus
-{
-    Available,
-    Active,
-    ImplicitlyActive,
-    Completed,
-}
-
 /// <summary>
 /// Single status boundary for game-backed and guide-only quest entries.
 /// Ordinary quests mirror GameData; guide-only workflows delegate exclusively
@@ -86,13 +78,10 @@ public sealed class QuestStateTracker
     public QuestRuntimeStatus GetStatus(QuestEntry quest)
     {
         if (quest.IsGuideOnly)
-        {
-            if (!Workflows.IsInCurrentScene(quest))
-                return QuestRuntimeStatus.Available;
-            return Workflows.IsInProgress(quest)
-                ? QuestRuntimeStatus.Active
-                : QuestRuntimeStatus.ImplicitlyActive;
-        }
+            return QuestStatusPolicy.GetGuideOnlyStatus(
+                Workflows.IsInCurrentScene(quest),
+                Workflows.IsInProgress(quest)
+            );
 
         if (_activeQuests.Contains(quest.DBName))
             return QuestRuntimeStatus.Active;

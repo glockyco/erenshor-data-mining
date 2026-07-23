@@ -13,16 +13,6 @@ namespace AdventureGuide.State;
 /// </summary>
 public sealed class GuideWorkflowState
 {
-    public enum WorkflowStage
-    {
-        NeedItem,
-        ItemReady,
-        TriggerConsumed,
-        TargetsActive,
-        RewardAvailable,
-        Unverifiable,
-    }
-
     private sealed class Runtime
     {
         public readonly QuestEntry Quest;
@@ -74,18 +64,15 @@ public sealed class GuideWorkflowState
     private readonly Dictionary<string, Runtime> _byStableKey = new(
         StringComparer.OrdinalIgnoreCase
     );
+    private readonly DiscoveryWindow _discovery = new();
     private GuideConfig? _config;
     private IConfigValue<string>? _recoveryEntry;
     private string? _selectedWorkflowKey;
     private int _boundSlotIndex = -1;
     private string _currentScene = "";
     private float _evaluationTimer;
-    private float _discoveryTimer;
-    private int _discoveryAttemptsRemaining;
 
     private const float EvaluationInterval = 0.25f;
-    private const float DiscoveryInterval = 1f;
-    private const int SceneDiscoveryAttempts = 5;
 
     public event Action<QuestEntry>? Changed;
     public event Action<QuestEntry>? CycleReset;
@@ -227,15 +214,11 @@ public sealed class GuideWorkflowState
             }
         }
 
-        if (_discoveryAttemptsRemaining <= 0)
+        if (!_discovery.Advance(deltaTime))
             return;
-        _discoveryTimer -= deltaTime;
-        if (_discoveryTimer > 0f)
-            return;
-        _discoveryTimer = DiscoveryInterval;
-        _discoveryAttemptsRemaining--;
+
         RevalidateLiveEntities(countItem);
-        if (_discoveryAttemptsRemaining == 0)
+        if (_discovery.IsComplete)
             CompleteRecoveryDiscovery();
     }
 
@@ -625,9 +608,5 @@ public sealed class GuideWorkflowState
             );
     }
 
-    private void ScheduleDiscovery()
-    {
-        _discoveryAttemptsRemaining = SceneDiscoveryAttempts;
-        _discoveryTimer = 0f;
-    }
+    private void ScheduleDiscovery() => _discovery.Schedule();
 }

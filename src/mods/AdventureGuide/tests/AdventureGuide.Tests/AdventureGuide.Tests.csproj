@@ -18,20 +18,30 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>../../lib/Assembly-CSharp.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>../../lib/UnityEngine.CoreModule.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
+    <Compile Include="../../src/Config/LoaderContracts.cs" Link="Config/LoaderContracts.cs" />
+    <Compile Include="../../src/Data/GuideData.cs" Link="Data/GuideData.cs" />
+    <Compile Include="../../src/Data/QuestEntry.cs" Link="Data/QuestEntry.cs" />
+    <Compile Include="../../src/Data/CharacterStableKey.cs" Link="Data/CharacterStableKey.cs" />
+    <Compile Include="../../src/Data/StepSceneResolver.cs" Link="Data/StepSceneResolver.cs" />
+    <Compile Include="../../src/State/WorkflowStage.cs" Link="State/WorkflowStage.cs" />
+    <Compile Include="../../src/State/WorkflowCycleState.cs" Link="State/WorkflowCycleState.cs" />
+    <Compile Include="../../src/State/DiscoveryWindow.cs" Link="State/DiscoveryWindow.cs" />
+    <Compile Include="../../src/State/QuestRuntimeStatus.cs" Link="State/QuestRuntimeStatus.cs" />
+    <Compile Include="../../src/State/QuestStatusPolicy.cs" Link="State/QuestStatusPolicy.cs" />
+    <Compile Include="../../src/State/TrackerPruningPolicy.cs" Link="State/TrackerPruningPolicy.cs" />
+    <Compile Include="../../src/Navigation/NavigationPolicy.cs" Link="Navigation/NavigationPolicy.cs" />
+    <Compile Include="../../src/Navigation/MarkerType.cs" Link="Navigation/MarkerType.cs" />
+    <Compile Include="../../src/Navigation/MarkerDecision.cs" Link="Navigation/MarkerDecision.cs" />
+    <Compile Include="../../src/Navigation/MarkerTextFormatter.cs" Link="Navigation/MarkerTextFormatter.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../AdventureGuide.csproj" />
+    <EmbeddedResource Include="../../../../../quest_guides/quest-guide.json">
+      <LogicalName>AdventureGuide.quest-guide.json</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

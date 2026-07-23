@@ -677,25 +677,21 @@ def test_mods_parse_trx_inventory_and_outcomes(
     assert result.exit_code == (0 if expected_status == "passed" else 1)
 
 
-def test_mods_preflight_requires_only_declared_ignored_references(tmp_path: Path, monkeypatch: Any) -> None:
+def test_mods_preflight_requires_only_native_test_projects(tmp_path: Path, monkeypatch: Any) -> None:
     checked_paths: list[Path] = []
     monkeypatch.setattr(test, "_executable", lambda name: test._Preflight(name, True, "present"))
     monkeypatch.setattr(test, "_dotnet_sdk_10", lambda: test._Preflight("dotnet SDK 10", True, "10.0.0"))
-    missing_active = Path("src/mods/AdventureGuide/lib/lunaris/Lunaris.dll")
 
     def fake_file(path: Path, label: str) -> test._Preflight:
         checked_paths.append(path)
-        return test._Preflight(label, path != tmp_path / missing_active, str(path))
+        return test._Preflight(label, True, str(path))
 
     monkeypatch.setattr(test, "_file", fake_file)
 
     checks = test._preflight_mods(_context(tmp_path))
 
-    assert any(not check.ok for check in checks)
-    assert (tmp_path / missing_active) in checked_paths
-    assert (tmp_path / "src/mods/InteractiveMapCompanion/lib/bepinex/0Harmony.dll") not in checked_paths
-    assert (tmp_path / "src/mods/AdventureGuide/lib/bepinex/0Harmony.dll") not in checked_paths
-    assert (tmp_path / "src/mods/InteractiveMapCompanion/lib/lunaris/Lunaris.dll") not in checked_paths
+    assert all(check.ok for check in checks)
+    assert checked_paths == [tmp_path / native_project.project for native_project in test._NATIVE_TEST_PROJECTS]
 
 
 def test_preflight_failure_is_reported_and_prevents_subprocesses(tmp_path: Path, monkeypatch: Any) -> None:

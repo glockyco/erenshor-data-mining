@@ -119,19 +119,22 @@ public sealed class NavigationController
         int originStepOrder
     )
     {
-        var location =
-            step.Location
-            ?? throw new ArgumentException("Fixed-position step has no location", nameof(step));
-        return new NavigationTarget(
-            NavigationTarget.Kind.Position,
-            new Vector3(location.X, location.Y, location.Z),
-            step.TargetName ?? step.Description,
-            location.Scene,
-            quest.RuntimeKey,
-            step.Order,
-            step.TargetKey,
+        var spec = NavigationPolicy.CreateFixedPositionTargetSpec(
+            step,
+            quest,
             originQuestKey,
             originStepOrder
+        );
+        return new NavigationTarget(
+            NavigationTarget.Kind.Position,
+            new Vector3(spec.X, spec.Y, spec.Z),
+            spec.DisplayName,
+            spec.Scene,
+            spec.QuestKey,
+            spec.StepOrder,
+            spec.SourceId,
+            spec.OriginQuestKey,
+            spec.OriginStepOrder
         );
     }
 

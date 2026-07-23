@@ -215,7 +215,7 @@ public sealed class WorldMarkerSystem
             if (acq.SourceType != "character" || acq.SourceStableKey == null)
                 continue;
 
-            var questType = repeatable ? MarkerType.QuestGiverRepeat : MarkerType.QuestGiver;
+            var questType = MarkerDecision.GetQuestGiverType(repeatable);
             string? subText = acq.Keyword != null ? $"Say '{acq.Keyword}'" : "Talk to";
             string displayName = acq.SourceName ?? quest.DisplayName;
 
@@ -239,13 +239,9 @@ public sealed class WorldMarkerSystem
             if (comp.SourceType != "character" || comp.SourceStableKey == null)
                 continue;
 
-            MarkerType questType;
-            if (hasAllItems)
-                questType = repeatable ? MarkerType.TurnInRepeatReady : MarkerType.TurnInReady;
-            else
-                questType = MarkerType.TurnInPending;
+            MarkerType questType = MarkerDecision.GetTurnInType(hasAllItems, repeatable);
 
-            string subText = FormatTurnInText(quest, comp);
+            string subText = MarkerTextFormatter.FormatTurnInText(quest, comp);
             string displayName = comp.SourceName ?? quest.DisplayName;
 
             EmitPerSpawnMarkers(comp.SourceStableKey, scene, displayName, questType, subText);
@@ -294,7 +290,7 @@ public sealed class WorldMarkerSystem
                 step.Location.StableKey,
                 MarkerType.Objective,
                 step.TargetName ?? step.Description,
-                FormatStepActionText(step),
+                MarkerTextFormatter.FormatStepActionText(step),
                 new Vector3(step.Location.X, step.Location.Y, step.Location.Z)
                     + Vector3.up * StaticHeightOffset,
                 targetKey: null
@@ -308,7 +304,7 @@ public sealed class WorldMarkerSystem
                 scene,
                 step.TargetName ?? step.Description,
                 MarkerType.Objective,
-                FormatStepActionText(step)
+                MarkerTextFormatter.FormatStepActionText(step)
             );
         }
     }
@@ -728,58 +724,6 @@ public sealed class WorldMarkerSystem
         return seconds > 0f ? SpawnTimerTracker.FormatTimer(seconds) : "Respawning...";
     }
 
-    // ── Text formatting ──────────────────────────────────────────
-
-    /// <summary>Format sub-text for turn-in markers: "Give {name}" or "Give {n} items".</summary>
-    private static string FormatTurnInText(QuestEntry quest, CompletionSource comp)
-    {
-        if (quest.RequiredItems == null || quest.RequiredItems.Count == 0)
-        {
-            if (comp.Keyword != null)
-                return $"Say '{comp.Keyword}'";
-            return "Talk to";
-        }
-
-        // Filter out or_group alternatives — only count truly required items
-        int count = 0;
-        string? firstName = null;
-        foreach (var ri in quest.RequiredItems)
-        {
-            if (ri.OrGroup != null)
-                continue;
-            count++;
-            firstName ??= ri.ItemName;
-        }
-
-        if (count == 0)
-        {
-            if (comp.Keyword != null)
-                return $"Say '{comp.Keyword}'";
-            return "Talk to";
-        }
-        if (count == 1)
-            return $"Give {firstName}";
-        return $"Give {count} items";
-    }
-
-    /// <summary>Format sub-text for objective step markers based on step action.</summary>
-    private static string FormatStepActionText(QuestStep step)
-    {
-        return step.Action switch
-        {
-            "talk" when step.Keyword != null => $"Say '{step.Keyword}'",
-            "talk" => "Talk to",
-            "turn_in" => "Turn in",
-            "buy" => "Buy",
-            "loot" => "Loot",
-            "shout" when step.Keyword != null => $"Shout '{step.Keyword}'",
-            "shout" => "Shout near",
-            "kill" when step.Quantity > 1 => $"Kill ({step.Quantity})",
-            "kill" => "Kill",
-            _ => "Talk to",
-        };
-    }
-
     // ── Helpers ───────────────────────────────────────────────────
 
     /// <summary>
@@ -804,7 +748,7 @@ public sealed class WorldMarkerSystem
         if (_intentIndex.TryGetValue(spawnKey, out int existingIdx))
         {
             var existing = _markers[existingIdx];
-            if (type < existing.Type) // lower ordinal = higher priority
+            if (MarkerDecision.ShouldReplace(existing.Type, type))
             {
                 _markers[existingIdx] = new MarkerEntry
                 {
