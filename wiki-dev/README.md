@@ -221,7 +221,16 @@ renderer. The clean harness imports these with
 the live-template copies in the developer wiki.
 
 The comparison report is written to
-`artifacts/test-reports/wiki-clean-parity.json`.
+`artifacts/test-reports/wiki-clean-parity.json`. Warm and clean parity each run
+three browser contracts: source insertion, VisualEditor replacement, and
+combined tooltip success and failure behavior.
+
+On the first browser failure, pytest writes the rendered HTML, screenshot,
+console messages, failed requests, page errors, test metadata, and Docker
+Compose service logs under
+`artifacts/test-reports/wiki-diagnostics/first-failure/`. A new browser test
+session clears stale diagnostics, so a passing run cannot leave an old failure
+bundle behind.
 
 ## Reset local state
 

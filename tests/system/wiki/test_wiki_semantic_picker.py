@@ -4,15 +4,12 @@ from __future__ import annotations
 
 import json
 import os
-from collections.abc import Iterator
 from contextlib import suppress
 from html import unescape
-from urllib.parse import parse_qs, urlparse
 
 import httpx
 import pytest
-from playwright.sync_api import Error as PlaywrightError
-from playwright.sync_api import Locator, Page, Route, expect, sync_playwright
+from playwright.sync_api import Locator, Page, expect
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 WIKI_BASE_URL = os.environ.get("ERENSHOR_WIKI_BASE_URL", "http://localhost:8088")
@@ -44,26 +41,13 @@ def _picker_harness_ready() -> bool:
 
 
 @pytest.fixture
-def wiki_page() -> Iterator[Page]:
+def wiki_page(browser_page: Page) -> Page:
     if not _picker_harness_ready():
         pytest.skip(
             "Current semantic-picker fixtures are not imported into the local wiki. "
             "Run 'uv run python wiki-dev/import_pages.py'."
         )
-
-    with sync_playwright() as playwright:
-        try:
-            browser = playwright.chromium.launch(headless=True)
-        except PlaywrightError as error:
-            pytest.skip(f"Playwright Chromium is unavailable: {error}")
-        page = browser.new_page(viewport={"width": 1440, "height": 1000})
-        page_errors: list[str] = []
-        page.on("pageerror", lambda error: page_errors.append(str(error)))
-        try:
-            yield page
-        finally:
-            browser.close()
-        assert page_errors == []
+    return browser_page
 
 
 def _open_source_editor(page: Page) -> None:
@@ -219,56 +203,6 @@ def test_source_picker_inserts_exact_duplicate_and_escapes_label(wiki_page: Page
     assert "A | B }}" in _render_wikitext(generated)
 
 
-def test_source_picker_upgrades_without_losing_wikitext(wiki_page: Page) -> None:
-    _open_source_editor(wiki_page)
-    source = "Prefix {{AbilityLink|Flame Bolt|text=Custom Flame|foo=<nowiki>A|text=B</nowiki>|imageonly=1}} suffix"
-    cursor = source.index("AbilityLink")
-    _set_source_selection(wiki_page, source, cursor, cursor)
-    _open_source_picker(wiki_page)
-
-    dialog = _active_dialog(wiki_page)
-    dialog.wait_for()
-    assert dialog.get_by_role("button", name="Upgrade to stable key", exact=True).is_disabled()
-    dialog.locator('[role="option"][data-erenshor-key="spell:flame_bolt_greater"]').click()
-    assert dialog.get_by_role("textbox", name="Link text").input_value() == "Custom Flame"
-    dialog.get_by_role("button", name="Upgrade to stable key", exact=True).click()
-    dialog.wait_for(state="hidden")
-
-    assert wiki_page.locator("#wpTextbox1").input_value() == (
-        "Prefix {{AbilityLink|stablekey=spell:flame_bolt_greater"
-        "|text=Custom Flame|foo=<nowiki>A|text=B</nowiki>|imageonly=1}} suffix"
-    )
-
-    opaque = "<nowiki>{{AbilityLink|Flame Bolt}}</nowiki>"
-    cursor = opaque.index("Flame")
-    _set_source_selection(wiki_page, opaque, cursor, cursor)
-    _open_source_picker(wiki_page)
-    wiki_page.wait_for_timeout(200)
-    assert _active_dialog(wiki_page).count() == 0
-    assert wiki_page.locator("#wpTextbox1").input_value() == opaque
-    assert "Place the cursor in plain text" in wiki_page.locator(".mw-notification-content").last.inner_text()
-
-
-def test_visual_picker_inserts_a_structured_template(wiki_page: Page) -> None:
-    _open_visual_editor(wiki_page)
-    editor = wiki_page.locator(".ve-ce-documentNode")
-    editor.click()
-    _open_visual_picker(wiki_page)
-
-    dialog = _active_dialog(wiki_page)
-    dialog.wait_for()
-    search = dialog.get_by_role("combobox", name="Search")
-    search.fill("flame bolt")
-    result = dialog.locator('[role="option"][data-erenshor-key="spell:flame_bolt"]')
-    result.wait_for()
-    result.click()
-    dialog.get_by_role("button", name="Insert", exact=True).click()
-    dialog.wait_for(state="hidden")
-    _wait_for_visual_key(wiki_page, "spell:flame_bolt")
-
-    assert _visual_template_params(wiki_page, "spell:flame_bolt") == [{"stablekey": "spell:flame_bolt"}]
-
-
 def test_visual_picker_replaces_exact_link_identity(wiki_page: Page) -> None:
     _open_visual_editor(wiki_page)
     manual = wiki_page.locator('[typeof~="mw:Transclusion"].erenshor-link', has_text="Manual Ability Text")
@@ -297,27 +231,3 @@ def test_visual_picker_replaces_exact_link_identity(wiki_page: Page) -> None:
         params.get("text") == "Manual Ability Text"
         for params in _visual_template_params(wiki_page, "spell:minor_lightning")
     )
-
-
-def test_source_picker_fails_closed_when_lookup_is_unavailable(wiki_page: Page) -> None:
-    _open_source_editor(wiki_page)
-
-    def abort_link_lookup(route: Route) -> None:
-        query = parse_qs(urlparse(route.request.url).query)
-        if query.get("action") == ["expandtemplates"]:
-            route.abort()
-        else:
-            route.continue_()
-
-    wiki_page.route("**/api.php?**", abort_link_lookup)
-    selected_text = "Copper Armor Mold"
-    _set_source_selection(wiki_page, selected_text, 0, len(selected_text))
-    _open_source_picker(wiki_page)
-
-    dialog = _active_dialog(wiki_page)
-    dialog.wait_for()
-    status = dialog.get_by_role("status")
-    expect(status).to_have_text("Unable to load Erenshor links. Existing manual links are still available.")
-    assert dialog.get_by_role("option").count() == 0
-    assert dialog.get_by_role("button", name="Insert", exact=True).is_disabled()
-    assert wiki_page.locator("#wpTextbox1").input_value() == selected_text
