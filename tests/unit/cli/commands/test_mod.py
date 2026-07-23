@@ -14,6 +14,7 @@ from urllib.error import HTTPError, URLError
 import pytest
 import typer
 
+from erenshor.application.mods.artifacts import ArtifactIssue, ModArtifactSpec
 from erenshor.cli.commands import mod as mod_command
 from erenshor.cli.commands.mod import MODS, REQUIRED_DLLS
 
@@ -85,6 +86,76 @@ def test_registry_inventory_declares_all_loader_targets_and_public_surface() -> 
     }
 
 
+def test_artifact_specs_are_exactly_derived_from_ordered_catalog() -> None:
+    assert mod_command._artifact_specs() == (
+        ModArtifactSpec(
+            "interactive-map-companion",
+            Path("src/mods/InteractiveMapCompanion"),
+            "Interactive Map Companion",
+            "InteractiveMapCompanion.dll",
+            ("bepinex", "lunaris"),
+            True,
+            "WoW_Much/InteractiveMapCompanion",
+            ("InteractiveMapCompanion.dll",),
+        ),
+        ModArtifactSpec(
+            "interactive-maps-companion",
+            Path("src/mods/InteractiveMapsCompanion"),
+            "Interactive Maps Companion",
+            "InteractiveMapsCompanion.dll",
+            ("bepinex", "lunaris"),
+            False,
+            None,
+        ),
+        ModArtifactSpec(
+            "justice-for-f7",
+            Path("src/mods/JusticeForF7"),
+            "Justice for F7",
+            "JusticeForF7.dll",
+            ("bepinex", "lunaris"),
+            True,
+            "WoW_Much/JusticeForF7",
+            ("JusticeForF7.dll",),
+        ),
+        ModArtifactSpec(
+            "sprint",
+            Path("src/mods/Sprint"),
+            "Sprint",
+            "Sprint.dll",
+            ("bepinex", "lunaris"),
+            True,
+            "WoW_Much/Sprint",
+            ("Sprint.dll",),
+        ),
+        ModArtifactSpec(
+            "map-tile-capture",
+            Path("src/mods/MapTileCapture"),
+            "Map Tile Capture",
+            "MapTileCapture.dll",
+            ("bepinex", "lunaris"),
+            False,
+            None,
+        ),
+        ModArtifactSpec(
+            "adventure-guide",
+            Path("src/mods/AdventureGuide"),
+            "Adventure Guide",
+            "AdventureGuide.dll",
+            ("bepinex", "lunaris"),
+            True,
+            "WoW_Much/AdventureGuide",
+            (
+                "AdventureGuide.dll",
+                "ImGui.NET.dll",
+                "Newtonsoft.Json.dll",
+                "System.Numerics.Vectors.dll",
+                "System.Runtime.CompilerServices.Unsafe.dll",
+                "cimgui.dll",
+            ),
+        ),
+    )
+
+
 def test_build_target_resolution_is_deterministic_for_default_and_all() -> None:
     assert mod_command._resolve_build_targets(None, "default") == [
         ("interactive-map-companion", "bepinex"),
@@ -152,6 +223,7 @@ def test_dotnet_build_receives_loader_property(tmp_path: Path, monkeypatch: pyte
         return subprocess.CompletedProcess(args, 0)
 
     monkeypatch.setattr(mod_command, "_check_dotnet_available", lambda: True)
+    monkeypatch.setattr(mod_command, "verify_built_mod_artifacts", lambda *_args: ())
     monkeypatch.setattr(mod_command.subprocess, "run", fake_run)
     mod_command._build_mods_internal(ctx, "sprint", loader="lunaris")
 
@@ -162,6 +234,84 @@ def test_dotnet_build_receives_loader_property(tmp_path: Path, monkeypatch: pyte
         "Debug",
         "-p:ModLoader=lunaris",
     ]
+
+
+def test_built_verifier_receives_exact_resolved_targets(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    ctx = _ctx(tmp_path).obj
+    targets = [("sprint", "lunaris"), ("justice-for-f7", "bepinex")]
+    for mod_id, _loader in targets:
+        mod_dir = tmp_path / MODS[mod_id]["dir"]
+        (mod_dir / "lib").mkdir(parents=True)
+        (mod_dir / "lib" / "Assembly-CSharp.dll").write_bytes(b"reference")
+
+    forwarded: list[tuple[str, str]] = []
+    monkeypatch.setattr(mod_command, "_resolve_build_targets", lambda *_args: targets)
+    monkeypatch.setattr(mod_command, "_check_dotnet_available", lambda: True)
+    monkeypatch.setattr(
+        mod_command.subprocess,
+        "run",
+        lambda args, **kwargs: subprocess.CompletedProcess(args, 0),
+    )
+    monkeypatch.setattr(
+        mod_command,
+        "verify_built_mod_artifacts",
+        lambda _root, _specs, received: forwarded.extend(received) or (),
+    )
+
+    mod_command._build_mods_internal(ctx, loader="all")
+
+    assert forwarded == targets
+
+
+def test_built_artifact_failure_exits_before_completion(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: Any
+) -> None:
+    ctx = _ctx(tmp_path).obj
+    mod_dir = tmp_path / MODS["sprint"]["dir"]
+    (mod_dir / "lib").mkdir(parents=True)
+    (mod_dir / "lib" / "Assembly-CSharp.dll").write_bytes(b"reference")
+    monkeypatch.setattr(mod_command, "_check_dotnet_available", lambda: True)
+    monkeypatch.setattr(
+        mod_command.subprocess,
+        "run",
+        lambda args, **kwargs: subprocess.CompletedProcess(args, 0),
+    )
+    monkeypatch.setattr(
+        mod_command,
+        "verify_built_mod_artifacts",
+        lambda *_args: (ArtifactIssue("sprint", "built-output-dll", "missing"),),
+    )
+
+    with pytest.raises(typer.Exit) as raised:
+        mod_command._build_mods_internal(ctx, "sprint", loader="lunaris")
+
+    assert raised.value.exit_code == 1
+    assert "built-output-dll" in capsys.readouterr().out
+
+
+def test_failed_build_does_not_run_built_verifier(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    ctx = _ctx(tmp_path).obj
+    mod_dir = tmp_path / MODS["sprint"]["dir"]
+    (mod_dir / "lib").mkdir(parents=True)
+    (mod_dir / "lib" / "Assembly-CSharp.dll").write_bytes(b"reference")
+    verification_calls: list[object] = []
+    monkeypatch.setattr(mod_command, "_check_dotnet_available", lambda: True)
+    monkeypatch.setattr(
+        mod_command.subprocess,
+        "run",
+        lambda args, **kwargs: subprocess.CompletedProcess(args, 1),
+    )
+    monkeypatch.setattr(
+        mod_command,
+        "verify_built_mod_artifacts",
+        lambda *_args: verification_calls.append(True) or (),
+    )
+
+    with pytest.raises(typer.Exit) as raised:
+        mod_command._build_mods_internal(ctx, "sprint", loader="lunaris")
+
+    assert raised.value.exit_code == 1
+    assert verification_calls == []
 
 
 def test_deploy_target_routing_and_scripts_guard(tmp_path: Path) -> None:

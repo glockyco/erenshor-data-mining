@@ -14,6 +14,7 @@ import pytest
 import typer
 from typer.testing import CliRunner
 
+from erenshor.application.mods.artifacts import ArtifactIssue
 from erenshor.cli.commands import test
 from erenshor.cli.context import CLIContext
 
@@ -724,12 +725,35 @@ def test_mods_preflight_requires_only_native_test_projects(tmp_path: Path, monke
         return test._Preflight(label, True, str(path))
 
     monkeypatch.setattr(test, "_file", fake_file)
+    monkeypatch.setattr(test, "verify_static_mod_artifacts", lambda *_args: ())
+    monkeypatch.setattr(test, "format_artifact_issues", lambda _issues: "")
 
     checks = test._preflight_mods(_context(tmp_path))
 
     assert all(project.required_ignored_references == () for project in test._NATIVE_TEST_PROJECTS)
     assert all(check.ok for check in checks)
+    assert checks[-1].name == "static mod artifacts"
     assert checked_paths == [tmp_path / native_project.project for native_project in test._NATIVE_TEST_PROJECTS]
+
+
+def test_static_artifact_failure_prevents_native_subprocesses(tmp_path: Path, monkeypatch: Any) -> None:
+    monkeypatch.setattr(test, "_executable", lambda name: test._Preflight(name, True, "present"))
+    monkeypatch.setattr(test, "_dotnet_sdk_10", lambda: test._Preflight("dotnet SDK 10", True, "10.0.0"))
+    monkeypatch.setattr(test, "_file", lambda path, label: test._Preflight(label, True, str(path)))
+    monkeypatch.setattr(
+        test,
+        "verify_static_mod_artifacts",
+        lambda *_args: (ArtifactIssue("sprint", "catalog-project", "missing"),),
+    )
+    monkeypatch.setattr(test, "format_artifact_issues", lambda issues: "sprint [catalog-project]: missing")
+    subprocess_calls: list[Any] = []
+    monkeypatch.setattr(test.subprocess, "run", lambda *args, **kwargs: subprocess_calls.append((args, kwargs)))
+
+    with pytest.raises(typer.Exit) as raised:
+        test._run_task(_context(tmp_path), "mods")
+
+    assert raised.value.exit_code == 1
+    assert subprocess_calls == []
 
 
 def test_preflight_failure_is_reported_and_prevents_subprocesses(tmp_path: Path, monkeypatch: Any) -> None:

@@ -32,6 +32,16 @@ from loguru import logger
 from rich.console import Console
 from rich.panel import Panel
 
+from erenshor.application.mods.artifacts import (
+    REQUIRED_DLLS as _ARTIFACT_REQUIRED_DLLS,
+)
+from erenshor.application.mods.artifacts import (
+    ModArtifactSpec,
+    format_artifact_issues,
+    is_forbidden_runtime_dll,
+    verify_built_mod_artifacts,
+)
+
 if TYPE_CHECKING:
     from ..context import CLIContext
 
@@ -49,6 +59,7 @@ class ModInfo(TypedDict):
     default_loader: LoaderName
     public: bool
     thunderstore: NotRequired[str]
+    thunderstore_files: NotRequired[list[str]]
     bepinex_dlls: NotRequired[list[str]]
     lunaris_dlls: NotRequired[list[str]]
 
@@ -86,6 +97,7 @@ MODS: dict[str, ModInfo] = {
         "default_loader": "bepinex",
         "public": True,
         "thunderstore": "WoW_Much/InteractiveMapCompanion",
+        "thunderstore_files": ["InteractiveMapCompanion.dll"],
         # Harmony ships with BepInEx, not with the game — copy from BepInEx/core/
         "bepinex_dlls": ["0Harmony.dll"],
         "lunaris_dlls": ["Newtonsoft.Json.dll", "0Harmony.dll"],
@@ -107,6 +119,7 @@ MODS: dict[str, ModInfo] = {
         "default_loader": "lunaris",
         "public": True,
         "thunderstore": "WoW_Much/JusticeForF7",
+        "thunderstore_files": ["JusticeForF7.dll"],
         "lunaris_dlls": ["0Harmony.dll"],
     },
     "sprint": {
@@ -117,6 +130,7 @@ MODS: dict[str, ModInfo] = {
         "default_loader": "lunaris",
         "public": True,
         "thunderstore": "WoW_Much/Sprint",
+        "thunderstore_files": ["Sprint.dll"],
         "lunaris_dlls": ["0Harmony.dll"],
     },
     "map-tile-capture": {
@@ -137,6 +151,14 @@ MODS: dict[str, ModInfo] = {
         "default_loader": "lunaris",
         "public": True,
         "thunderstore": "WoW_Much/AdventureGuide",
+        "thunderstore_files": [
+            "AdventureGuide.dll",
+            "ImGui.NET.dll",
+            "Newtonsoft.Json.dll",
+            "System.Numerics.Vectors.dll",
+            "System.Runtime.CompilerServices.Unsafe.dll",
+            "cimgui.dll",
+        ],
         "bepinex_dlls": ["0Harmony.dll"],
         "lunaris_dlls": [
             "ImGui.NET.dll",
@@ -147,25 +169,27 @@ MODS: dict[str, ModInfo] = {
     },
 }
 
-# Required DLLs to copy from game
-REQUIRED_DLLS = [
-    "Assembly-CSharp.dll",
-    "UnityEngine.dll",
-    "UnityEngine.CoreModule.dll",
-    "UnityEngine.InputLegacyModule.dll",
-    "UnityEngine.IMGUIModule.dll",
-    "UnityEngine.UIModule.dll",
-    "UnityEngine.UI.dll",
-    "UnityEngine.TextRenderingModule.dll",
-    "UnityEngine.AIModule.dll",
-    "UnityEngine.PhysicsModule.dll",
-    "Unity.TextMeshPro.dll",
-    "com.rlabrecque.steamworks.net.dll",
-]
 
-FORBIDDEN_RUNTIME_DLLS = frozenset(
-    [*(dll.casefold() for dll in REQUIRED_DLLS), "bepinex.dll", "lunaris.dll", "0harmony.dll"]
-)
+def _artifact_specs() -> tuple[ModArtifactSpec, ...]:
+    """Convert the ordered mod catalog into artifact-verifier specifications."""
+    return tuple(
+        ModArtifactSpec(
+            mod_id=mod_id,
+            directory=Path(info["dir"]),
+            display_name=info["name"],
+            dll_name=info["dll_name"],
+            loaders=tuple(info["loaders"]),
+            public=info["public"],
+            thunderstore_id=info.get("thunderstore"),
+            thunderstore_files=tuple(info.get("thunderstore_files", ())),
+        )
+        for mod_id, info in MODS.items()
+    )
+
+
+# Required DLLs to copy from game.  Artifact policy owns the canonical names;
+# this module retains the setup-facing name for existing callers.
+REQUIRED_DLLS = _ARTIFACT_REQUIRED_DLLS
 
 
 def _check_dotnet_available() -> bool:
@@ -735,6 +759,13 @@ def _build_mods_internal(
         console.print(f"[red]Build failed for: {', '.join(failed)}[/red]")
         raise typer.Exit(1)
 
+    artifact_issues = verify_built_mod_artifacts(cli_ctx.repo_root, _artifact_specs(), targets)
+    if artifact_issues:
+        console.print("[red]Artifact verification failed:[/red]")
+        for diagnostic in format_artifact_issues(artifact_issues).splitlines():
+            console.print(f"  ✗ {diagnostic}", style="red", markup=False)
+        raise typer.Exit(1)
+
 
 @app.command()
 def setup(ctx: typer.Context) -> None:
@@ -1167,10 +1198,6 @@ def _require_regular_file(path: Path, label: str) -> None:
         raise ValueError(f"{label} is not a regular file: {path}")
 
 
-def _is_forbidden_runtime_dll(name: str) -> bool:
-    return name.casefold() in FORBIDDEN_RUNTIME_DLLS
-
-
 def _parse_thunderstore_manifest(
     manifest_path: Path,
     mod_dir: Path,
@@ -1231,7 +1258,7 @@ def _parse_thunderstore_manifest(
         )
         if source.exists() and (not source.is_file() or source.is_symlink()):
             raise ValueError(f"build.copy[{index}].source is not a regular file: {source}")
-        if _is_forbidden_runtime_dll(source.name):
+        if is_forbidden_runtime_dll(source.name):
             raise ValueError(f"build.copy[{index}].source is a game/runtime DLL: {source.name}")
         source_relative = source.relative_to(repo_root)
         if source_relative.parts and source_relative.parts[0] == "variants":
@@ -1357,7 +1384,7 @@ def _validate_thunderstore_package(package: Path, manifest: ThunderstoreManifest
         mode = (info.external_attr >> 16) & 0xFFFF
         if stat.S_ISLNK(mode):
             raise ValueError(f"symlink is not allowed in package: {name}")
-        if _is_forbidden_runtime_dll(path.name):
+        if is_forbidden_runtime_dll(path.name):
             raise ValueError(f"game/runtime DLL is not allowed in package: {name}")
         names.append(name)
     if len(names) != len(set(names)):

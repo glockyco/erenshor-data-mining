@@ -27,6 +27,9 @@ from typing import TYPE_CHECKING, Any, Protocol, TypedDict, TypeGuard, cast
 import typer
 from rich.console import Console
 
+from erenshor.application.mods.artifacts import format_artifact_issues, verify_static_mod_artifacts
+from erenshor.cli.commands.mod import _artifact_specs
+
 if TYPE_CHECKING:
     from erenshor.cli.context import CLIContext
 
@@ -558,17 +561,26 @@ def _preflight_mods(cli_ctx: CLIContext) -> list[_Preflight]:
     checks = [_executable("dotnet"), _dotnet_sdk_10()]
     if not _NATIVE_TEST_PROJECTS:
         checks.append(_Preflight("native test project inventory", False, "No native test projects are configured"))
-        return checks
-    for native_project in _NATIVE_TEST_PROJECTS:
-        project = root / native_project.project
-        project_check = _file(project, f"{native_project.name} native test project")
-        checks.append(project_check)
-        if not project_check.ok:
-            continue
-        checks.extend(
-            _file(root / reference, f"{native_project.name} required reference {reference.name}")
-            for reference in native_project.required_ignored_references
+    else:
+        for native_project in _NATIVE_TEST_PROJECTS:
+            project = root / native_project.project
+            project_check = _file(project, f"{native_project.name} native test project")
+            checks.append(project_check)
+            if not project_check.ok:
+                continue
+            checks.extend(
+                _file(root / reference, f"{native_project.name} required reference {reference.name}")
+                for reference in native_project.required_ignored_references
+            )
+    artifact_issues = verify_static_mod_artifacts(root, _artifact_specs())
+    artifact_detail = format_artifact_issues(artifact_issues)
+    checks.append(
+        _Preflight(
+            "static mod artifacts",
+            not artifact_issues,
+            artifact_detail or "All static mod artifact checks passed",
         )
+    )
     return checks
 
 
