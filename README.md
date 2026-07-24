@@ -339,6 +339,28 @@ uv run erenshor test unit
 uv run erenshor test integration
 ```
 
+### Verification acceptance baseline
+
+Measured on 2026-07-24 on an Apple M2 macOS workstation. Fast-gate timings are
+the median of three runs after one warm-up. Environment-bound gates were run
+once. Every command writes machine-readable diagnostics under
+`artifacts/test-reports/`.
+
+| Gate | Canonical command | Required environment | Observed result | Duration | Report |
+| --- | --- | --- | --- | ---: | --- |
+| Unit | `uv run erenshor test unit` | uv and `tests/unit/` | 1,672 passed | 24.14 s | `unit.json` |
+| Contract | `uv run erenshor test contract` | uv, .NET 9, and the native analyzer projects | 3 pytest, 13 CodeFacts, and 14 ExportSurface tests passed | 21.20 s | `contract.json` and `native/contract/*.trx` |
+| Warm wiki | `uv run erenshor test wiki --warm` | running local MediaWiki, its API, and Playwright Chromium | 189 managed pages plus API and browser acceptance passed | 38.11 s | `wiki.json` |
+| Local CI | `uv run erenshor test ci` | unit, contract, maps, and mods prerequisites | all four disjoint leaves passed | 111.25 s | `ci.json` |
+| Clean wiki parity | `uv run erenshor test wiki --clean-parity` | Docker, uv, curl, and Playwright Chromium | isolated 189-page import, Cargo, API, and browser parity passed | 334.02 s | `wiki.json` and `wiki-clean-parity.json` |
+| Main data | `uv run erenshor -V main test data` | main raw and clean databases plus shipped `Assembly-CSharp.dll` | 142 passed | 172.45 s | `data.json` |
+| Main release | `uv run erenshor -V main test release` | every leaf prerequisite plus provisioned dual-loader mod references | six leaves and three release actions passed | 537.36 s | `release.json` |
+
+The contract gate includes the production CodeFacts and ExportSurface analyzer
+projects. The data gate includes the dynamic-spawn and full-export database
+contracts. A new Unity batch export remains a separate post-update operation
+because it mutates the raw database and requires the configured Unity project.
+
 CI runs on pushes and pull requests to `main`. The workflow covers Python linting, formatting checks, type checking, pytest, Gitleaks scanning, mod metadata validation, and targeted C# formatting/tests for `InteractiveMapCompanion`.
 
 ## Troubleshooting
