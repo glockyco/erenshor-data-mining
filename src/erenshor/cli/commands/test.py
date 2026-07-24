@@ -616,7 +616,7 @@ def _command_json(result: _CommandResult) -> dict[str, object]:
 
 def _pytest_command(arguments: Sequence[str], report_path: Path | None = None) -> list[str]:
     """Build the subprocess command for a pytest leaf."""
-    command = ["uv", "run", "pytest", *arguments]
+    command = ["uv", "run", "pytest", *arguments, "--quiet"]
     if report_path is not None:
         command.extend(["-p", _PYTEST_PLUGIN, _REPORT_OPTION, str(report_path)])
     return command

@@ -298,7 +298,8 @@ def test_python_leaves_use_exact_pytest_path_argv_and_repository_cwd(
     assert result.status == "passed"
     command = calls[0][0]
     assert command[: 3 + len(arguments)] == ["uv", "run", "pytest", *arguments]
-    assert command[3 + len(arguments) : 5 + len(arguments)] == [
+    assert command[3 + len(arguments) : 6 + len(arguments)] == [
+        "--quiet",
         "-p",
         "erenshor.cli.commands.test",
     ]
@@ -373,6 +374,7 @@ def test_contract_leaf_uses_exact_native_and_pytest_commands_and_namespaced_resu
         "run",
         "pytest",
         "tests/contract",
+        "--quiet",
         "-p",
         "erenshor.cli.commands.test",
         "--erenshor-report",
@@ -564,16 +566,17 @@ def test_wiki_leaf_uses_exact_setup_and_pytest_commands(tmp_path: Path, monkeypa
     ]
     pytest_command, pytest_cwd = calls[3]
     assert pytest_cwd == tmp_path
-    assert pytest_command[:5] == [
+    assert pytest_command[:6] == [
         "uv",
         "run",
         "pytest",
         "tests/system/wiki",
+        "--quiet",
         "-p",
     ]
-    assert pytest_command[5] == "erenshor.cli.commands.test"
-    assert pytest_command[6] == "--erenshor-report"
-    _assert_intermediate_report_path(Path(pytest_command[7]), tmp_path, "wiki")
+    assert pytest_command[6] == "erenshor.cli.commands.test"
+    assert pytest_command[7] == "--erenshor-report"
+    _assert_intermediate_report_path(Path(pytest_command[8]), tmp_path, "wiki")
 
 
 def test_wiki_clean_parity_leaf_uses_isolated_harness_command(tmp_path: Path, monkeypatch: Any) -> None:
@@ -1146,6 +1149,7 @@ def test_focused_unit_command_stays_on_unit_tree(tmp_path: Path, monkeypatch: An
 
     assert result.status == "passed"
     assert calls[0][3] == "tests/unit"
+    assert "--quiet" in calls[0]
     assert "--cov" not in calls[0]
 
 
