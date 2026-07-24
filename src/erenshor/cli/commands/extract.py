@@ -21,13 +21,16 @@ from loguru import logger
 from rich.console import Console
 
 from erenshor.application.code_facts import extract_code_facts
+from erenshor.application.extract.clean_database_workflow import (
+    CleanDatabaseRequest,
+    CleanDatabaseWorkflow,
+)
 from erenshor.application.extract.export_workflow import (
     ExportRequest,
     ExportWorkflow,
     adapter_exit_code,
 )
 from erenshor.application.extract.rip_workflow import RipRequest, RipWorkflow
-from erenshor.application.processor.build import build as build_clean_db
 from erenshor.application.services.backup_service import BackupService
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import raw_database_exists
@@ -481,11 +484,14 @@ def build(ctx: typer.Context) -> None:
 
     try:
         with _profile_command(profile, command_name, cli_ctx, terminal=True):
-            build_clean_db(
-                raw_db_path=raw_db_path,
-                clean_db_path=clean_db_path,
-                mapping_json_path=mapping_json_path,
+            result = CleanDatabaseWorkflow().run(
+                CleanDatabaseRequest(
+                    raw_db_path=raw_db_path,
+                    clean_db_path=clean_db_path,
+                    mapping_json_path=mapping_json_path,
+                )
             )
+            logger.info(f"Clean database built: clean_db={result.clean_db_path}")
             logger.info("Next: Run 'erenshor wiki generate' or 'erenshor sheets deploy'")
     except Exception as e:
         console.print(f"[red]Error during build: {e}[/red]")

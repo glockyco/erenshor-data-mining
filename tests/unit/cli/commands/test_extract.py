@@ -28,6 +28,12 @@ class VariantStub:
     def resolved_profiles(self, repo_root: Path) -> Path:
         return self.root / "profiles"
 
+    def resolved_database_raw(self, repo_root: Path) -> Path:
+        return self.root / "database_raw.sqlite"
+
+    def resolved_database(self, repo_root: Path) -> Path:
+        return self.root / "database.sqlite"
+
 
 def _context(tmp_path: Path, variant: VariantStub) -> SimpleNamespace:
     return SimpleNamespace(
