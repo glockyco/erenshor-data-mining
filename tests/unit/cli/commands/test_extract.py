@@ -38,7 +38,12 @@ def _context(tmp_path: Path, variant: VariantStub) -> SimpleNamespace:
     )
 
 
-def test_export_command_registers_profile_option() -> None:
+def test_rip_command_composes() -> None:
+    result = CliRunner().invoke(extract.app, ["rip", "--help"])
+
+    assert result.exit_code == 0
+    assert "Extract Unity project from game files via AssetRipper" in result.stdout
+
     command = get_command(extract.app).commands["export"]
 
     assert any("--profile" in param.opts for param in command.params)

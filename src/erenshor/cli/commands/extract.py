@@ -10,7 +10,6 @@ This module provides commands for managing the data extraction pipeline:
 from __future__ import annotations
 
 import json
-import shutil
 import subprocess
 from collections.abc import Iterator
 from contextlib import contextmanager
@@ -22,6 +21,7 @@ from loguru import logger
 from rich.console import Console
 
 from erenshor.application.code_facts import extract_code_facts
+from erenshor.application.extract.rip_workflow import RipRequest, RipWorkflow
 from erenshor.application.processor.build import build as build_clean_db
 from erenshor.application.services.backup_service import BackupService
 from erenshor.cli.preconditions import require_preconditions
@@ -52,63 +52,6 @@ app = typer.Typer(
 )
 profile_app = typer.Typer(name="profile", help="Inspect extraction profile runs", no_args_is_help=True)
 app.add_typer(profile_app, name="profile")
-
-
-# UPM packages always added to ExportedProject/Packages/manifest.json after a
-# fresh rip. AssetRipper writes only `com.unity.modules.*` entries, but the
-# Editor scripts under `src/Assets/Editor/` (LootTableListener, etc.) reference
-# `Newtonsoft.Json`, which only resolves when the UPM Newtonsoft package is
-# present. Without this, `extract export` fails compilation with CS0246.
-REQUIRED_UPM_PACKAGES: dict[str, str] = {
-    "com.unity.nuget.newtonsoft-json": "3.2.1",
-}
-
-
-def _patch_manifest_after_rip(unity_project_dir: Path, prior_user_deps: dict[str, str]) -> None:
-    """Restore user-added deps and ensure required deps after AssetRipper rewrites the manifest.
-
-    AssetRipper emits a minimal manifest containing only `com.unity.modules.*` entries.
-    Any project-specific deps a developer added (e.g. `com.coplaydev.unity-mcp`) are
-    wiped on every rip. This helper re-merges them and guarantees the deps required
-    by the export pipeline are present.
-    """
-    manifest_path = unity_project_dir / "ExportedProject" / "Packages" / "manifest.json"
-    if not manifest_path.exists():
-        logger.warning(f"Packages/manifest.json not found after rip: {manifest_path}")
-        return
-
-    manifest = json.loads(manifest_path.read_text())
-    deps: dict[str, str] = manifest.setdefault("dependencies", {})
-
-    restored = {k: v for k, v in prior_user_deps.items() if k not in deps}
-    deps.update(restored)
-    required_added = {k: v for k, v in REQUIRED_UPM_PACKAGES.items() if k not in deps}
-    deps.update(required_added)
-
-    if restored:
-        logger.info(f"Restored user-added UPM deps: {sorted(restored)}")
-    if required_added:
-        logger.info(f"Added required UPM deps: {sorted(required_added)}")
-
-    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
-
-
-def _snapshot_user_deps(unity_project_dir: Path) -> dict[str, str]:
-    """Snapshot non-`com.unity.modules.*` deps from the existing manifest (if any).
-
-    These are user-added entries that AssetRipper would otherwise wipe. Returns an
-    empty dict if the manifest doesn't exist (first-ever rip for this variant).
-    """
-    manifest_path = unity_project_dir / "ExportedProject" / "Packages" / "manifest.json"
-    if not manifest_path.exists():
-        return {}
-    try:
-        manifest = json.loads(manifest_path.read_text())
-    except json.JSONDecodeError as e:
-        logger.warning(f"Could not parse existing manifest, treating as empty: {e}")
-        return {}
-    deps: dict[str, str] = manifest.get("dependencies", {})
-    return {k: v for k, v in deps.items() if not k.startswith("com.unity.modules.")}
 
 
 console = Console()
@@ -350,45 +293,17 @@ def rip(ctx: typer.Context) -> None:
 
     try:
         with _profile_command(profile, command_name, cli_ctx):
-            # Snapshot user-added UPM deps from the existing manifest before AssetRipper wipes it.
-            prior_user_deps = _snapshot_user_deps(unity_project_dir)
-            if prior_user_deps:
-                logger.info(f"Snapshotted {len(prior_user_deps)} user-added UPM deps to restore after rip")
-
-            # Clean up old Unity project before extraction
-            if unity_project_dir.exists():
-                logger.info(f"Removing old Unity project: {unity_project_dir}")
-                shutil.rmtree(unity_project_dir)
-
             logger.info(f"Extracting Unity project: variant={cli_ctx.variant}")
-
-            # Extract Unity project
-            assetripper.extract(
-                source_dir=game_files_dir / "Erenshor_Data",
-                target_dir=unity_project_dir,
-                log_dir=logs_dir,
-                profile=profile,
+            RipWorkflow(assetripper).run(
+                RipRequest(
+                    source_dir=game_files_dir / "Erenshor_Data",
+                    unity_project_dir=unity_project_dir,
+                    logs_dir=logs_dir,
+                    editor_source=variant_config.resolved_editor_scripts(cli_ctx.repo_root),
+                    packages_source=cli_ctx.repo_root / "src" / "Assets" / "Packages",
+                    profile=profile,
+                )
             )
-
-            # Create Editor scripts symlink
-            editor_target = unity_project_dir / "ExportedProject" / "Assets" / "Editor"
-            editor_source = variant_config.resolved_editor_scripts(cli_ctx.repo_root)
-            logger.info(f"Creating Editor scripts symlink: {editor_target} -> {editor_source}")
-            editor_target.symlink_to(editor_source)
-
-            # Copy NuGet packages (DLLs must be copied, not symlinked, due to Unity assembly loading)
-            packages_source = cli_ctx.repo_root / "src" / "Assets" / "Packages"
-            packages_target = unity_project_dir / "ExportedProject" / "Assets" / "Packages"
-            if packages_source.exists():
-                logger.info(f"Copying NuGet packages: {packages_source} -> {packages_target}")
-                shutil.copytree(packages_source, packages_target, dirs_exist_ok=True)
-            else:
-                logger.warning(f"Packages directory not found: {packages_source}")
-
-            # Re-apply user-added UPM deps and ensure pipeline-required deps are present.
-            _patch_manifest_after_rip(unity_project_dir, prior_user_deps)
-
-            logger.info(f"Unity project extraction complete: {unity_project_dir}")
 
             # Generate .csproj for LSP support
             _generate_ide_project_files(cli_ctx, variant_config, unity_project_dir, game_files_dir)
