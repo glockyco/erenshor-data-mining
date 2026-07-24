@@ -1083,6 +1083,29 @@ def _run_leaf_commands(
     )
 
 
+def _run_maps_leaf(cli_ctx: CLIContext, source: Path) -> _LeafResult:
+    """Run independent maps checks together before the prerender smoke."""
+    start = time.monotonic()
+    with ThreadPoolExecutor(max_workers=len(maps.CHECK_COMMANDS), thread_name_prefix="maps-check") as executor:
+        futures = [executor.submit(_run_process, command, source) for command in maps.CHECK_COMMANDS]
+        results = [future.result() for future in futures]
+
+    if all(result.exit_code == 0 for result in results):
+        results.append(_run_process(maps.PRERENDER_SMOKE_COMMAND, source))
+
+    failed = next((result for result in results if result.exit_code != 0), None)
+    expected_count = len(maps.CHECK_COMMANDS) + 1
+    return _LeafResult(
+        task_id="maps",
+        status="passed" if failed is None and len(results) == expected_count else "failed",
+        exit_code=0 if failed is None and len(results) == expected_count else (failed.exit_code if failed else 1),
+        duration_seconds=_duration(start),
+        prerequisites=[],
+        result_counts={"commands": expected_count, "completed_commands": len(results)},
+        commands=[_command_json(result) for result in results],
+    )
+
+
 def _run_wiki_leaf(cli_ctx: CLIContext) -> _LeafResult:
     """Import and smoke the local wiki, then enforce structured pytest counts."""
     start = time.monotonic()
@@ -1184,8 +1207,7 @@ def _run_leaf(
         result = _run_wiki_clean_parity_leaf(cli_ctx) if wiki_clean_parity else _run_wiki_leaf(cli_ctx)
     elif task_id == "maps":
         source, _ = _maps_paths(cli_ctx)
-        commands = (*maps.CHECK_COMMANDS, maps.PRERENDER_SMOKE_COMMAND)
-        result = _run_leaf_commands(cli_ctx, task_id, commands, cwd=source)
+        result = _run_maps_leaf(cli_ctx, source)
     elif task_id == "mods":
         result = _run_mods_leaf(cli_ctx)
     else:  # pragma: no cover - guarded by expand_tasks and _PREFLIGHTS

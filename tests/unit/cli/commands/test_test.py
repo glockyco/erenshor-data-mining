@@ -518,21 +518,51 @@ def test_maps_leaf_uses_exact_commands_and_configured_source_cwd(tmp_path: Path,
     source = tmp_path / "maps"
     monkeypatch.setitem(test._PREFLIGHTS, "maps", lambda _ctx: _passing_preflight())
     calls: list[tuple[tuple[str, ...], Path]] = []
+    barrier = Barrier(3)
+    call_lock = Lock()
 
     def fake_run_process(argv: Sequence[str], cwd: Path) -> Any:
-        calls.append((argv, cwd))
+        if argv[0] == "pnpm":
+            barrier.wait(timeout=5)
+        with call_lock:
+            calls.append((tuple(argv), cwd))
         return test._CommandResult(tuple(argv), cwd, 0, 0.125)
 
     monkeypatch.setattr(test, "_run_process", fake_run_process)
     result = test._run_leaf(_context(tmp_path, configured_maps=True), "maps")
 
     assert result.status == "passed"
-    assert calls == [
+    assert set(calls[:3]) == {
         (("pnpm", "run", "lint"), source),
         (("pnpm", "run", "check"), source),
         (("pnpm", "run", "test"), source),
-        (("node", "scripts/test-prerender.mjs"), source),
+    }
+    assert calls[3] == (("node", "scripts/test-prerender.mjs"), source)
+    assert [command["argv"] for command in result.commands] == [
+        ["pnpm", "run", "lint"],
+        ["pnpm", "run", "check"],
+        ["pnpm", "run", "test"],
+        ["node", "scripts/test-prerender.mjs"],
     ]
+
+
+def test_maps_leaf_skips_prerender_when_a_static_check_fails(tmp_path: Path, monkeypatch: Any) -> None:
+    monkeypatch.setitem(test._PREFLIGHTS, "maps", lambda _ctx: _passing_preflight())
+    calls: list[tuple[str, ...]] = []
+
+    def fake_run_process(argv: Sequence[str], cwd: Path) -> Any:
+        command = tuple(argv)
+        calls.append(command)
+        exit_code = 1 if command == ("pnpm", "run", "check") else 0
+        return test._CommandResult(command, cwd, exit_code, 0.125)
+
+    monkeypatch.setattr(test, "_run_process", fake_run_process)
+    result = test._run_leaf(_context(tmp_path, configured_maps=True), "maps")
+
+    assert result.status == "failed"
+    assert result.exit_code == 1
+    assert ("node", "scripts/test-prerender.mjs") not in calls
+    assert result.result_counts == {"commands": 4, "completed_commands": 3}
 
 
 def test_wiki_leaf_uses_exact_setup_and_pytest_commands(tmp_path: Path, monkeypatch: Any) -> None:
