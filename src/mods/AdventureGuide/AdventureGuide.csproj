@@ -49,37 +49,6 @@
     <EmbeddedResource Include="resources/Roboto-Regular.ttf" LogicalName="AdventureGuide.Roboto-Regular.ttf" />
   </ItemGroup>
 
-  <!-- Version generation targets -->
-  <Target Name="SetModVersion" BeforeTargets="GeneratePluginInfo" Condition="'$(ModVersion)' != ''">
-    <PropertyGroup>
-      <Version>$(ModVersion)</Version>
-    </PropertyGroup>
-  </Target>
-
-  <Target Name="GetGitVersion" BeforeTargets="GeneratePluginInfo" Condition="'$(ModVersion)' == ''">
-    <Exec Command="python3 ../../../scripts/generate-mod-version.py . $(Configuration)"
-          ConsoleToMSBuild="true" IgnoreExitCode="false"
-          StandardOutputImportance="low" EchoOff="true">
-      <Output TaskParameter="ConsoleOutput" PropertyName="GitVersion" />
-    </Exec>
-    <PropertyGroup>
-      <Version>$(GitVersion)</Version>
-    </PropertyGroup>
-  </Target>
-
-  <Target Name="GeneratePluginInfo" BeforeTargets="CoreCompile" DependsOnTargets="SetModVersion;GetGitVersion">
-    <PropertyGroup>
-      <PluginInfoFile>$(IntermediateOutputPath)PluginInfo.g.cs</PluginInfoFile>
-      <PluginInfoLine1>namespace AdventureGuide%3B</PluginInfoLine1>
-      <PluginInfoLine2>internal static partial class PluginInfo { public const string Version = "$(Version)"%3B }</PluginInfoLine2>
-    </PropertyGroup>
-    <WriteLinesToFile File="$(PluginInfoFile)" Lines="$(PluginInfoLine1)" Overwrite="true" />
-    <WriteLinesToFile File="$(PluginInfoFile)" Lines="$(PluginInfoLine2)" Overwrite="false" />
-    <ItemGroup>
-      <Compile Include="$(PluginInfoFile)" />
-    </ItemGroup>
-  </Target>
-
   <!-- Lunaris supplies these assemblies at runtime; the Vault package is
        intentionally a single AdventureGuide.dll. -->
   <ItemGroup Condition="'$(ModLoader)' == 'lunaris'">

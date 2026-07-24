@@ -44,7 +44,7 @@ src/
 ├── Plugin.BepInEx.cs   # Native BepInEx entrypoint
 ├── Plugin.Lunaris.cs   # Native Lunaris entrypoint
 ├── Plugin.cs           # Shared lifecycle and runtime wiring
-├── PluginInfo.cs       # Generated version constant (scripts/generate-mod-version.py)
+├── PluginInfo.cs       # Generated version constant (Directory.Build.targets)
 ├── Config/             # Loader-neutral settings plus native config adapters
 ├── Data/               # GuideData (embedded quest-guide.json), QuestEntry, step scene resolver
 ├── State/              # Quest/tracker state, step progress, game-UI visibility

@@ -1,0 +1,48 @@
+<Project>
+  <!-- Shared version metadata for every production mod project. -->
+  <Target Name="GeneratePluginInfo"
+          BeforeTargets="CoreCompile"
+          Condition="'$(IsModProject)' == 'true'">
+    <!-- An explicit ModVersion is authoritative. Otherwise derive the CalVer
+         version from the latest commit touching this mod directory. -->
+    <Exec Command="git -C &quot;$(MSBuildProjectDirectory)&quot; log -1 --format=%cs ."
+          Condition="'$(ModVersion)' == ''"
+          ConsoleToMSBuild="true"
+          IgnoreExitCode="true"
+          StandardOutputImportance="low"
+          EchoOff="true">
+      <Output TaskParameter="ConsoleOutput" PropertyName="GitCommitDate" />
+      <Output TaskParameter="ExitCode" PropertyName="GitLogExitCode" />
+    </Exec>
+    <PropertyGroup Condition="'$(ModVersion)' == ''">
+      <GitCommitDate>$([System.String]::Copy('$(GitCommitDate)').Trim())</GitCommitDate>
+      <GitDateValid Condition="$([System.String]::Copy('$(GitCommitDate)').Length) == '10'">true</GitDateValid>
+      <GitYear Condition="'$(GitDateValid)' == 'true'">$([System.String]::Copy('$(GitCommitDate)').Substring(0,4))</GitYear>
+      <GitMonth Condition="'$(GitDateValid)' == 'true'">$([System.Int32]::Parse($([System.String]::Copy('$(GitCommitDate)').Substring(5,2))))</GitMonth>
+      <GitDay Condition="'$(GitDateValid)' == 'true'">$([System.String]::Copy('$(GitCommitDate)').Substring(8,2))</GitDay>
+    </PropertyGroup>
+    <Exec Command="git -C &quot;$(MSBuildProjectDirectory)&quot; status --porcelain ."
+          Condition="'$(ModVersion)' == '' and '$(GitDateValid)' == 'true'"
+          ConsoleToMSBuild="true"
+          IgnoreExitCode="true"
+          StandardOutputImportance="low"
+          EchoOff="true">
+      <Output TaskParameter="ConsoleOutput" PropertyName="GitStatus" />
+    </Exec>
+    <Error Condition="'$(ModVersion)' == '' and '$(Configuration)' == 'Release' and '$(GitStatus)' != ''"
+           Text="Cannot build Release with uncommitted changes in $(MSBuildProjectDirectory). Commit or stash your changes first." />
+    <PropertyGroup>
+      <Version Condition="'$(ModVersion)' != ''">$(ModVersion)</Version>
+      <Version Condition="'$(ModVersion)' == '' and '$(GitDateValid)' == 'true'">$(GitYear).$(GitMonth)$(GitDay).0</Version>
+      <Version Condition="'$(ModVersion)' == '' and '$(GitDateValid)' != 'true'">0.0.0</Version>
+      <PluginInfoFile>$(IntermediateOutputPath)PluginInfo.g.cs</PluginInfoFile>
+      <PluginInfoLine1>namespace $(RootNamespace)%3B</PluginInfoLine1>
+      <PluginInfoLine2>internal static partial class PluginInfo { public const string Version = "$(Version)"%3B }</PluginInfoLine2>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(PluginInfoFile)" Lines="$(PluginInfoLine1)" Overwrite="true" />
+    <WriteLinesToFile File="$(PluginInfoFile)" Lines="$(PluginInfoLine2)" Overwrite="false" />
+    <ItemGroup>
+      <Compile Include="$(PluginInfoFile)" />
+    </ItemGroup>
+  </Target>
+</Project>

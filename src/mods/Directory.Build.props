@@ -9,8 +9,9 @@
     <!-- Exclude every historical and loader-scoped generated tree before SDK default globs run. -->
     <DefaultItemExcludes>$(DefaultItemExcludes);**/obj/**;**/bin/**</DefaultItemExcludes>
   </PropertyGroup>
-  <!-- Loader-specific defaults and intermediate paths apply only to the five mod projects. -->
+  <!-- Loader-specific defaults and intermediate paths apply only to the five production mod projects. -->
   <PropertyGroup Condition="'$(MSBuildProjectName)' == 'AdventureGuide' or '$(MSBuildProjectName)' == 'InteractiveMapCompanion' or '$(MSBuildProjectName)' == 'MapTileCapture' or '$(MSBuildProjectName)' == 'Sprint' or '$(MSBuildProjectName)' == 'JusticeForF7'">
+    <IsModProject>true</IsModProject>
     <ModLoader Condition="'$(ModLoader)' == '' and ('$(MSBuildProjectName)' == 'AdventureGuide' or '$(MSBuildProjectName)' == 'Sprint' or '$(MSBuildProjectName)' == 'JusticeForF7')">lunaris</ModLoader>
     <ModLoader Condition="'$(ModLoader)' == ''">bepinex</ModLoader>
     <BaseIntermediateOutputPath>obj/$(ModLoader)/</BaseIntermediateOutputPath>
