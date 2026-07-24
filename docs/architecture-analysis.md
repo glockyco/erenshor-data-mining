@@ -907,9 +907,9 @@ Steps (✓ = complete):
    snake_case column names throughout. Remove COALESCE. Remove SimPlayer/
    exclusion WHERE clauses. Fix `?marker=` → `?sel=marker:`. Use
    `display_name` where appropriate. The variant comparison is available via
-   `uv run erenshor extract compare-variants`. Update
-   `scripts/validate_database.py` and `scripts/zone_discrepancy_report.py`
-   for snake_case clean DB schema. All concerns ship in one commit since they
+   `uv run erenshor extract compare-variants`. Retained clean-database
+   integrity contracts run through `uv run erenshor test data`. Diagnostic-only
+   standalone reports are removed. All concerns ship in one commit since they
    share the same schema change.
 
    Note: `image_processor.py` SQL is updated as part of step 6 (where the
@@ -1053,9 +1053,8 @@ pages include working map links.
 | `infrastructure/database/repositories/items.py` | Source queries return pre-built `WikiLink` objects via JOINs on display/wiki columns |
 | All other entity repositories | Queries rewritten for snake_case clean DB; remove `pascal_to_snake` |
 | All 23 sheets SQL files | snake_case columns, no COALESCE, fix map URL format |
-| `scripts/validate_database.py` | Update SQL for snake_case clean DB |
+| `uv run erenshor test data` | Validate retained clean-database integrity contracts |
 | `uv run erenshor extract compare-variants` | Compare configured clean variant databases |
-| `scripts/zone_discrepancy_report.py` | Update SQL for snake_case clean DB |
 
 ### Phase 2: To be created
 
