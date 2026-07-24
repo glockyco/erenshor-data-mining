@@ -15,12 +15,12 @@ from urllib.error import HTTPError, URLError
 import pytest
 import typer
 
-from erenshor.application.mods.artifacts import ArtifactIssue, ModArtifactSpec
+from erenshor.application.mods import local_workflow
+from erenshor.application.mods.artifacts import REQUIRED_DLLS, ArtifactIssue, ModArtifactSpec
 from erenshor.application.mods.catalog import artifact_specs, iter_mods, lookup_mod, public_mods
 from erenshor.cli.commands import mod as mod_command
-from erenshor.cli.commands.mod import REQUIRED_DLLS
 
-_DISCOVER_CROSSOVER_GAME_PATH = mod_command._discover_crossover_game_path
+_DISCOVER_CROSSOVER_GAME_PATH = local_workflow.discover_crossover_game_path
 
 
 def _mod(mod_id: str):
@@ -63,7 +63,7 @@ def _ctx(
 @pytest.fixture(autouse=True)
 def _disable_workstation_crossover_discovery(monkeypatch: pytest.MonkeyPatch) -> None:
     """Unit tests must never resolve or modify the developer's real game install."""
-    monkeypatch.setattr(mod_command, "_discover_crossover_game_path", lambda _app_id: None)
+    monkeypatch.setattr(local_workflow, "discover_crossover_game_path", lambda _app_id: None)
 
 
 def test_registry_inventory_declares_all_loader_targets_and_public_surface() -> None:
@@ -153,34 +153,34 @@ def test_artifact_specs_are_exactly_derived_from_ordered_catalog() -> None:
 
 
 def test_build_target_resolution_is_deterministic_for_default_and_all() -> None:
-    assert mod_command._resolve_build_targets(None, "default") == [
+    assert local_workflow.resolve_build_targets(None, "default") == [
         ("interactive-map-companion", "bepinex"),
         ("justice-for-f7", "lunaris"),
         ("sprint", "lunaris"),
         ("map-tile-capture", "bepinex"),
         ("adventure-guide", "lunaris"),
     ]
-    targets = mod_command._resolve_build_targets("sprint", "all")
+    targets = local_workflow.resolve_build_targets("sprint", "all")
     assert targets == [("sprint", "bepinex"), ("sprint", "lunaris")]
-    assert mod_command._resolve_deploy_targets("adventure-guide", "default") == [("adventure-guide", "lunaris")]
+    assert local_workflow.resolve_deploy_targets("adventure-guide", "default") == [("adventure-guide", "lunaris")]
 
 
 def test_target_resolution_rejects_invalid_and_unsupported_loader(monkeypatch: pytest.MonkeyPatch) -> None:
     with pytest.raises(ValueError, match="Unsupported loader target"):
-        mod_command._resolve_build_targets("sprint", "invalid")
+        local_workflow.resolve_build_targets("sprint", "invalid")
     with pytest.raises(ValueError, match="all"):
-        mod_command._resolve_deploy_targets("sprint", "all")
+        local_workflow.resolve_deploy_targets("sprint", "all")
 
     changed = tuple(
         replace(definition, loaders=("lunaris",)) if definition.mod_id == "sprint" else definition
         for definition in iter_mods()
     )
     changed_by_id = {definition.mod_id: definition for definition in changed}
-    monkeypatch.setattr(mod_command, "lookup_mod", changed_by_id.__getitem__)
-    monkeypatch.setattr(mod_command, "iter_mods", lambda: iter(changed))
+    monkeypatch.setattr(local_workflow, "lookup_mod", changed_by_id.__getitem__)
+    monkeypatch.setattr(local_workflow, "iter_mods", lambda: iter(changed))
     with pytest.raises(ValueError, match="does not support"):
-        mod_command._resolve_build_targets("sprint", "bepinex")
-    assert mod_command._resolve_build_targets("sprint", "all") == [("sprint", "lunaris")]
+        local_workflow.resolve_build_targets("sprint", "bepinex")
+    assert local_workflow.resolve_build_targets("sprint", "all") == [("sprint", "lunaris")]
 
 
 def test_catalog_definitions_are_immutable() -> None:
@@ -190,8 +190,8 @@ def test_catalog_definitions_are_immutable() -> None:
 
 def test_output_paths_are_isolated_by_loader(tmp_path: Path) -> None:
     ctx = _ctx(tmp_path).obj
-    bepinex = mod_command._get_mod_output_dir(ctx, "sprint", "bepinex")
-    lunaris = mod_command._get_mod_output_dir(ctx, "sprint", "lunaris")
+    bepinex = local_workflow.mod_output_dir(ctx, "sprint", "bepinex")
+    lunaris = local_workflow.mod_output_dir(ctx, "sprint", "lunaris")
     assert bepinex == tmp_path / "src/mods/Sprint/bin/Debug/netstandard2.1/bepinex"
     assert lunaris == tmp_path / "src/mods/Sprint/bin/Debug/netstandard2.1/lunaris"
     assert bepinex != lunaris
@@ -208,10 +208,10 @@ def test_dotnet_build_receives_loader_property(tmp_path: Path, monkeypatch: pyte
         calls.append((args, kwargs))
         return subprocess.CompletedProcess(args, 0)
 
-    monkeypatch.setattr(mod_command, "_check_dotnet_available", lambda: True)
-    monkeypatch.setattr(mod_command, "verify_built_mod_artifacts", lambda *_args: ())
+    monkeypatch.setattr(local_workflow, "check_dotnet_available", lambda: True)
+    monkeypatch.setattr(local_workflow, "verify_built_mod_artifacts", lambda *_args: ())
     monkeypatch.setattr(mod_command.subprocess, "run", fake_run)
-    mod_command._build_mods_internal(ctx, "sprint", loader="lunaris")
+    local_workflow.build_mods(ctx, "sprint", loader="lunaris", runner=mod_command.subprocess.run)
 
     assert calls[0][0] == [
         "dotnet",
@@ -231,20 +231,20 @@ def test_built_verifier_receives_exact_resolved_targets(tmp_path: Path, monkeypa
         (mod_dir / "lib" / "Assembly-CSharp.dll").write_bytes(b"reference")
 
     forwarded: list[tuple[str, str]] = []
-    monkeypatch.setattr(mod_command, "_resolve_build_targets", lambda *_args: targets)
-    monkeypatch.setattr(mod_command, "_check_dotnet_available", lambda: True)
+    monkeypatch.setattr(local_workflow, "resolve_build_targets", lambda *_args: targets)
+    monkeypatch.setattr(local_workflow, "check_dotnet_available", lambda: True)
     monkeypatch.setattr(
         mod_command.subprocess,
         "run",
         lambda args, **kwargs: subprocess.CompletedProcess(args, 0),
     )
     monkeypatch.setattr(
-        mod_command,
+        local_workflow,
         "verify_built_mod_artifacts",
         lambda _root, _specs, received: forwarded.extend(received) or (),
     )
 
-    mod_command._build_mods_internal(ctx, loader="all")
+    local_workflow.build_mods(ctx, loader="all", runner=mod_command.subprocess.run)
 
     assert forwarded == targets
 
@@ -256,23 +256,21 @@ def test_built_artifact_failure_exits_before_completion(
     mod_dir = tmp_path / _mod("sprint").directory
     (mod_dir / "lib").mkdir(parents=True)
     (mod_dir / "lib" / "Assembly-CSharp.dll").write_bytes(b"reference")
-    monkeypatch.setattr(mod_command, "_check_dotnet_available", lambda: True)
+    monkeypatch.setattr(local_workflow, "check_dotnet_available", lambda: True)
     monkeypatch.setattr(
         mod_command.subprocess,
         "run",
         lambda args, **kwargs: subprocess.CompletedProcess(args, 0),
     )
     monkeypatch.setattr(
-        mod_command,
+        local_workflow,
         "verify_built_mod_artifacts",
         lambda *_args: (ArtifactIssue("sprint", "built-output-dll", "missing"),),
     )
 
-    with pytest.raises(typer.Exit) as raised:
-        mod_command._build_mods_internal(ctx, "sprint", loader="lunaris")
+    result = local_workflow.build_mods(ctx, "sprint", loader="lunaris", runner=mod_command.subprocess.run)
 
-    assert raised.value.exit_code == 1
-    assert "built-output-dll" in capsys.readouterr().out
+    assert result.artifact_issues == (ArtifactIssue("sprint", "built-output-dll", "missing"),)
 
 
 def test_failed_build_does_not_run_built_verifier(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -281,43 +279,42 @@ def test_failed_build_does_not_run_built_verifier(tmp_path: Path, monkeypatch: p
     (mod_dir / "lib").mkdir(parents=True)
     (mod_dir / "lib" / "Assembly-CSharp.dll").write_bytes(b"reference")
     verification_calls: list[object] = []
-    monkeypatch.setattr(mod_command, "_check_dotnet_available", lambda: True)
+    monkeypatch.setattr(local_workflow, "check_dotnet_available", lambda: True)
     monkeypatch.setattr(
         mod_command.subprocess,
         "run",
         lambda args, **kwargs: subprocess.CompletedProcess(args, 1),
     )
     monkeypatch.setattr(
-        mod_command,
+        local_workflow,
         "verify_built_mod_artifacts",
         lambda *_args: verification_calls.append(True) or (),
     )
 
-    with pytest.raises(typer.Exit) as raised:
-        mod_command._build_mods_internal(ctx, "sprint", loader="lunaris")
+    result = local_workflow.build_mods(ctx, "sprint", loader="lunaris", runner=mod_command.subprocess.run)
 
-    assert raised.value.exit_code == 1
+    assert result.failed == ("sprint (lunaris)",)
     assert verification_calls == []
 
 
 def test_deploy_target_routing_and_scripts_guard(tmp_path: Path) -> None:
-    assert mod_command._get_deploy_target_dir("bepinex", tmp_path, scripts=False) == (
+    assert local_workflow.deploy_target_dir("bepinex", tmp_path, scripts=False) == (
         tmp_path / "BepInEx/plugins",
         "BepInEx/plugins",
         False,
     )
-    assert mod_command._get_deploy_target_dir("bepinex", tmp_path, scripts=True) == (
+    assert local_workflow.deploy_target_dir("bepinex", tmp_path, scripts=True) == (
         tmp_path / "BepInEx/scripts",
         "BepInEx/scripts (hot reload)",
         True,
     )
-    assert mod_command._get_deploy_target_dir("lunaris", tmp_path, scripts=False) == (
+    assert local_workflow.deploy_target_dir("lunaris", tmp_path, scripts=False) == (
         tmp_path / "plugins",
         "Lunaris plugins",
         False,
     )
     with pytest.raises(ValueError, match="BepInEx"):
-        mod_command._get_deploy_target_dir("lunaris", tmp_path, scripts=True)
+        local_workflow.deploy_target_dir("lunaris", tmp_path, scripts=True)
 
 
 @pytest.mark.parametrize("variant", ["main", "playtest", "demo"])
@@ -326,7 +323,7 @@ def test_game_path_uses_selected_variant(variant: str, tmp_path: Path, monkeypat
     game = tmp_path / variant
     (game / "Erenshor_Data" / "Managed").mkdir(parents=True)
     ctx = _ctx(tmp_path, variant=variant, game_paths={variant: game}).obj
-    assert mod_command._get_game_path(ctx, allow_extracted=True) == game
+    assert local_workflow.get_game_path(ctx, allow_extracted=True) == game
 
 
 def test_game_path_configured_variant_install_precedes_global_environment(
@@ -344,7 +341,7 @@ def test_game_path_configured_variant_install_precedes_global_environment(
     ).obj
     monkeypatch.setenv("ERENSHOR_GAME_PATH", str(environment))
 
-    assert mod_command._get_game_path(ctx) == configured
+    assert local_workflow.get_game_path(ctx) == configured
 
 
 @pytest.mark.parametrize(
@@ -368,8 +365,8 @@ def test_crossover_discovery_uses_selected_steam_app(
     (game / "Erenshor_Data" / "Managed").mkdir(parents=True)
     manifest = steamapps / f"appmanifest_{app_id}.acf"
     manifest.write_text(f'"AppState"\n{{\n\t"installdir"\t\t"{install_dir}"\n}}\n')
-    monkeypatch.setattr(mod_command, "CROSSOVER_BOTTLES_ROOT", bottles)
-    monkeypatch.setattr(mod_command.sys, "platform", "darwin")
+    monkeypatch.setattr(local_workflow, "CROSSOVER_BOTTLES_ROOT", bottles)
+    monkeypatch.setattr(local_workflow.sys, "platform", "darwin")
     monkeypatch.setenv("CROSSOVER_BOTTLE", "QA")
 
     assert _DISCOVER_CROSSOVER_GAME_PATH(app_id) == game
@@ -382,7 +379,7 @@ def test_game_path_environment_override_has_precedence(tmp_path: Path, monkeypat
     environment.mkdir()
     ctx = _ctx(tmp_path, variant="playtest", game_paths={"playtest": configured}).obj
     monkeypatch.setenv("ERENSHOR_GAME_PATH", str(environment))
-    assert mod_command._get_game_path(ctx) == environment
+    assert local_workflow.get_game_path(ctx) == environment
 
 
 def _write_loader_proxies(game: Path, *, active: str = "lunaris") -> None:
@@ -396,13 +393,13 @@ def test_loader_activation_switches_in_place_and_is_idempotent(tmp_path: Path) -
     game = tmp_path / "game"
     _write_loader_proxies(game)
 
-    sources = mod_command._loader_proxy_sources(game)
-    assert mod_command._detect_active_loader(game, sources) == "lunaris"
-    assert mod_command._activate_loader(game, "bepinex") is True
+    sources = local_workflow.loader_proxy_sources(game)
+    assert local_workflow.detect_active_loader(game, sources) == "lunaris"
+    assert local_workflow.activate_loader(game, "bepinex") is True
     assert (game / "winhttp.dll").read_bytes() == b"bepinex-proxy"
     assert (game / "winhttp.lunaris.dll").read_bytes() == b"lunaris-proxy"
-    assert mod_command._activate_loader(game, "bepinex") is False
-    assert mod_command._activate_loader(game, "lunaris") is True
+    assert local_workflow.activate_loader(game, "bepinex") is False
+    assert local_workflow.activate_loader(game, "lunaris") is True
     assert (game / "winhttp.dll").read_bytes() == b"lunaris-proxy"
 
 
@@ -413,7 +410,7 @@ def test_loader_activation_refuses_unknown_active_proxy(tmp_path: Path) -> None:
     active.write_bytes(b"unrelated-winhttp-proxy")
 
     with pytest.raises(ValueError, match="unrecognized"):
-        mod_command._activate_loader(game, "bepinex")
+        local_workflow.activate_loader(game, "bepinex")
 
     assert active.read_bytes() == b"unrelated-winhttp-proxy"
 
@@ -424,7 +421,7 @@ def test_loader_activation_rejects_conflicting_saved_proxies(tmp_path: Path) -> 
     (game / "winhttp.dll.bepinex-backup").write_bytes(b"different-bepinex-proxy")
 
     with pytest.raises(ValueError, match="conflicting bepinex"):
-        mod_command._activate_loader(game, "bepinex")
+        local_workflow.activate_loader(game, "bepinex")
 
 
 def test_game_path_rejects_environment_override_for_another_steam_app(
@@ -436,22 +433,23 @@ def test_game_path_rejects_environment_override_for_another_steam_app(
     ctx = _ctx(tmp_path, variant="demo", game_paths={"demo": tmp_path / "demo"}).obj
     monkeypatch.setenv("ERENSHOR_GAME_PATH", str(main))
 
-    assert mod_command._get_game_path(ctx) is None
+    assert local_workflow.get_game_path(ctx) is None
 
 
 def test_deploy_routes_explicit_loader_output(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     ctx = _ctx(tmp_path).obj
     game = tmp_path / "game"
     _write_loader_proxies(game)
-    output = mod_command._get_mod_output_dir(ctx, "sprint", "bepinex")
+    output = local_workflow.mod_output_dir(ctx, "sprint", "bepinex")
     output.mkdir(parents=True)
     (output / "Sprint.dll").write_bytes(b"bepinex")
     calls: list[str] = []
-    monkeypatch.setattr(mod_command, "_get_game_path", lambda _ctx: game)
+    monkeypatch.setattr(local_workflow, "get_game_path", lambda _ctx: game)
     monkeypatch.setattr(
-        mod_command,
-        "_build_mods_internal",
-        lambda _ctx, mod=None, **kwargs: calls.append(kwargs["loader"]),
+        local_workflow,
+        "build_mods",
+        lambda _ctx, mod=None, **kwargs: calls.append(kwargs["loader"])
+        or local_workflow.BuildResult(((mod or "sprint", kwargs["loader"]),)),
     )
 
     mod_command.deploy(ctx=SimpleNamespace(obj=ctx), mod="sprint", loader="bepinex", scripts=False)
@@ -498,8 +496,12 @@ source = "./bin/Debug/netstandard2.1/bepinex/ImGui.NET.dll"
 target = "plugins/AdventureGuide/"
 """
     )
-    monkeypatch.setattr(mod_command, "_get_game_path", lambda _ctx: game)
-    monkeypatch.setattr(mod_command, "_build_mods_internal", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(local_workflow, "get_game_path", lambda _ctx: game)
+    monkeypatch.setattr(
+        local_workflow,
+        "build_mods",
+        lambda *_args, **_kwargs: local_workflow.BuildResult((("adventure-guide", "bepinex"),)),
+    )
 
     mod_command.deploy(
         ctx=SimpleNamespace(obj=ctx),
@@ -518,8 +520,8 @@ target = "plugins/AdventureGuide/"
 def test_deploy_rejects_mixed_default_loaders_before_build(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     ctx = _ctx(tmp_path)
     monkeypatch.setattr(
-        mod_command,
-        "_build_mods_internal",
+        local_workflow,
+        "build_mods",
         lambda *_args, **_kwargs: pytest.fail("mixed deploy must not build"),
     )
 
@@ -532,8 +534,8 @@ def test_deploy_rejects_scripts_for_default_lunaris_before_build(
 ) -> None:
     ctx = _ctx(tmp_path)
     monkeypatch.setattr(
-        mod_command,
-        "_build_mods_internal",
+        local_workflow,
+        "build_mods",
         lambda *_args, **_kwargs: pytest.fail("invalid deploy must not build"),
     )
     with pytest.raises(typer.Exit):
@@ -684,9 +686,10 @@ def _prepare_thunderstore_command(
     builds: list[tuple[str, str, dict[str, Any]]] = []
 
     def build(_ctx: Any, mod: str | None = None, **kwargs: Any) -> None:
+        kwargs.pop("runner", None)
         builds.append((mod or "", kwargs.pop("loader", ""), kwargs))
 
-    monkeypatch.setattr(mod_command, "_build_mods_internal", build)
+    monkeypatch.setattr(local_workflow, "build_mods", build)
     subprocess_calls: list[tuple[list[str], dict[str, Any]]] = []
     monkeypatch.setattr(
         mod_command.subprocess,
@@ -708,8 +711,8 @@ def test_internal_mod_rejected_before_build_or_tcli(tmp_path: Path, monkeypatch:
     ctx = _ctx(tmp_path).obj
     monkeypatch.setattr(mod_command, "_check_tcli_available", lambda: True)
     monkeypatch.setattr(
-        mod_command,
-        "_build_mods_internal",
+        local_workflow,
+        "build_mods",
         lambda *_args, **_kwargs: pytest.fail("built internal mod"),
     )
     monkeypatch.setattr(mod_command.subprocess, "run", lambda *_args, **_kwargs: pytest.fail("ran tcli"))
@@ -725,8 +728,8 @@ def test_real_upload_requires_exactly_one_mod_and_non_placeholder_token(
     monkeypatch.setattr(mod_command, "_check_tcli_available", lambda: True)
     monkeypatch.setenv("TCLI_AUTH_TOKEN", "valid-sentinel")
     monkeypatch.setattr(
-        mod_command,
-        "_build_mods_internal",
+        local_workflow,
+        "build_mods",
         lambda *_args, **_kwargs: pytest.fail("built unexpectedly"),
     )
     monkeypatch.setattr(mod_command.subprocess, "run", lambda *_args, **_kwargs: pytest.fail("ran tcli"))
@@ -742,8 +745,8 @@ def test_tcli_missing_is_rejected_before_build(tmp_path: Path, monkeypatch: pyte
     ctx = _ctx(tmp_path).obj
     monkeypatch.setattr(mod_command, "_check_tcli_available", lambda: False)
     monkeypatch.setattr(
-        mod_command,
-        "_build_mods_internal",
+        local_workflow,
+        "build_mods",
         lambda *_args, **_kwargs: pytest.fail("built unexpectedly"),
     )
 
@@ -772,7 +775,7 @@ def test_all_selected_releases_are_preflighted_before_any_build(
     builds: list[str] = []
     monkeypatch.setattr(mod_command, "_check_tcli_available", lambda: True)
     monkeypatch.setattr(mod_command, "_get_thunderstore_version", lambda *_args: "2099.101.0")
-    monkeypatch.setattr(mod_command, "_build_mods_internal", lambda _ctx, mod=None, **_kwargs: builds.append(mod or ""))
+    monkeypatch.setattr(local_workflow, "build_mods", lambda _ctx, mod=None, **_kwargs: builds.append(mod or ""))
     monkeypatch.setattr(mod_command.subprocess, "run", lambda *_args, **_kwargs: pytest.fail("ran tcli"))
 
     with pytest.raises(typer.Exit):
@@ -1026,10 +1029,11 @@ def test_static_input_changed_during_build_aborts_before_tcli(tmp_path: Path, mo
     manifest = manifests[next(iter(manifests))]
 
     def build_and_mutate(_ctx: Any, mod: str | None = None, **kwargs: Any) -> None:
+        kwargs.pop("runner", None)
         builds.append((mod or "", kwargs.pop("loader", ""), kwargs))
         manifest.readme.write_text("changed during mod build")
 
-    monkeypatch.setattr(mod_command, "_build_mods_internal", build_and_mutate)
+    monkeypatch.setattr(local_workflow, "build_mods", build_and_mutate)
 
     with pytest.raises(typer.Exit):
         mod_command.thunderstore(ctx, mod="sprint", dry_run=True)
@@ -1205,9 +1209,10 @@ def test_vault_build_is_explicitly_lunaris(tmp_path: Path, monkeypatch: pytest.M
     calls: list[str] = []
     monkeypatch.setattr(mod_command, "_get_vault_version", lambda _ref: "2026.716.0")
     monkeypatch.setattr(
-        mod_command,
-        "_build_mods_internal",
-        lambda _ctx, mod=None, **kwargs: calls.append(kwargs["loader"]),
+        local_workflow,
+        "build_mods",
+        lambda _ctx, mod=None, **kwargs: calls.append(kwargs["loader"])
+        or local_workflow.BuildResult(((mod or "sprint", kwargs["loader"]),)),
     )
 
     mod_command.vault(SimpleNamespace(obj=ctx), mod="sprint")
@@ -1258,18 +1263,18 @@ def test_lunaris_shared_lib_sourced_only_from_resolved_lib_dir(tmp_path: Path) -
     lib_dir = tmp_path / "libs"
     lib_dir.mkdir()
     (lib_dir / "ImGui.NET.dll").write_bytes(b"stub")
-    assert mod_command._find_lunaris_shared_lib("ImGui.NET.dll", lib_dir) == lib_dir / "ImGui.NET.dll"
-    assert mod_command._find_lunaris_shared_lib("Newtonsoft.Json.dll", None) is None
+    assert local_workflow.find_lunaris_shared_lib("ImGui.NET.dll", lib_dir) == lib_dir / "ImGui.NET.dll"
+    assert local_workflow.find_lunaris_shared_lib("Newtonsoft.Json.dll", None) is None
 
 
 def test_configured_lunaris_lib_dir_prefers_env_over_config(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     env_dir = tmp_path / "env"
     config_dir = tmp_path / "config"
     monkeypatch.setenv("ERENSHOR_LUNARIS_LIB_DIR", str(env_dir))
-    assert mod_command._configured_lunaris_lib_dir(config_dir) == env_dir
+    assert local_workflow.configured_lunaris_lib_dir(config_dir) == env_dir
     monkeypatch.delenv("ERENSHOR_LUNARIS_LIB_DIR")
-    assert mod_command._configured_lunaris_lib_dir(config_dir) == config_dir
-    assert mod_command._configured_lunaris_lib_dir(None) is None
+    assert local_workflow.configured_lunaris_lib_dir(config_dir) == config_dir
+    assert local_workflow.configured_lunaris_lib_dir(None) is None
 
 
 def test_ensure_lunaris_libs_cached_extracts_and_reuses_dlls(tmp_path: Path) -> None:
@@ -1279,11 +1284,11 @@ def test_ensure_lunaris_libs_cached_extracts_and_reuses_dlls(tmp_path: Path) -> 
         zf.writestr("README.txt", b"ignored")
     repo_root = tmp_path / "repo"
     repo_root.mkdir()
-    cache_dir = mod_command._ensure_lunaris_libs_cached(repo_root, archive.as_uri())
+    cache_dir = local_workflow.ensure_lunaris_libs_cached(repo_root, archive.as_uri())
     assert (cache_dir / "ImGui.NET.dll").read_bytes() == b"imgui"
     assert not (cache_dir / "README.txt").exists()
     (cache_dir / "ImGui.NET.dll").write_bytes(b"cached")
-    assert mod_command._ensure_lunaris_libs_cached(repo_root, "https://invalid.invalid/missing.zip") == cache_dir
+    assert local_workflow.ensure_lunaris_libs_cached(repo_root, "https://invalid.invalid/missing.zip") == cache_dir
     assert (cache_dir / "ImGui.NET.dll").read_bytes() == b"cached"
 
 
@@ -1296,9 +1301,9 @@ def test_launch_uses_crossover_steam_protocol(tmp_path: Path, monkeypatch: pytes
     calls: list[tuple[list[str], bool]] = []
 
     monkeypatch.delenv("CROSSOVER_BOTTLE", raising=False)
-    monkeypatch.setattr(mod_command.sys, "platform", "darwin")
-    monkeypatch.setattr(mod_command, "CROSSOVER_START", crossover_start)
-    monkeypatch.setattr(mod_command, "_crossover_bottle_for_path", lambda _path: "Steam")
+    monkeypatch.setattr(local_workflow.sys, "platform", "darwin")
+    monkeypatch.setattr(local_workflow, "CROSSOVER_START", crossover_start)
+    monkeypatch.setattr(local_workflow, "crossover_bottle_for_path", lambda _path: "Steam")
     monkeypatch.setattr(
         mod_command.subprocess,
         "run",
