@@ -299,7 +299,11 @@ def test_python_leaves_use_exact_pytest_path_argv_and_repository_cwd(
     assert result.status == "passed"
     command = calls[0][0]
     assert command[: 3 + len(arguments)] == ["uv", "run", "pytest", *arguments]
-    assert command[3 + len(arguments) : 6 + len(arguments)] == [
+    option_offset = 3 + len(arguments)
+    if task_id == "unit":
+        assert command[option_offset] == "--numprocesses=2"
+        option_offset += 1
+    assert command[option_offset : option_offset + 3] == [
         "--quiet",
         "-p",
         "erenshor.cli.commands.test",
@@ -1166,6 +1170,7 @@ def test_explicit_unit_coverage_uses_one_xml_report(tmp_path: Path, monkeypatch:
     assert calls[0].count("--cov=src/erenshor") == 1
     assert calls[0].count("--cov-report=xml") == 1
     assert calls[0].count("--cov-branch") == 1
+    assert calls[0].count("--numprocesses=2") == 1
     assert "--cov-report=term-missing" not in calls[0]
 
 
@@ -1183,6 +1188,7 @@ def test_focused_unit_command_stays_on_unit_tree(tmp_path: Path, monkeypatch: An
 
     assert result.status == "passed"
     assert calls[0][3] == "tests/unit"
+    assert "--numprocesses=2" in calls[0]
     assert "--quiet" in calls[0]
     assert "--cov" not in calls[0]
 

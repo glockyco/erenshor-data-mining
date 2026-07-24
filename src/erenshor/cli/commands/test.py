@@ -820,6 +820,8 @@ def _run_pytest_leaf(
 ) -> _LeafResult:
     start = time.monotonic()
     command_arguments = list(arguments)
+    if task_id == "unit":
+        command_arguments.append("--numprocesses=2")
     if coverage:
         command_arguments.extend(["--cov=src/erenshor", "--cov-report=xml", "--cov-branch"])
 

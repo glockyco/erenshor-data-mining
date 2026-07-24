@@ -76,6 +76,7 @@ dev = [
     "types-pillow",
     "types-jinja2",
     "playwright>=1.60.0",
+    "pytest-xdist>=3.8.0",
 ]
 
 [tool.ruff]
