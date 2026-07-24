@@ -6,7 +6,6 @@ local Tooltip = require("Module:Erenshor/Spell/Tooltip")
 local Cargo = require("Module:Erenshor/Cargo")
 
 local Data = mw.loadData("Module:Erenshor/Data/Spells")
-local CharacterData = mw.loadData("Module:Erenshor/Data/Characters")
 
 local p = {}
 
@@ -330,11 +329,7 @@ local function linkedCharacter(stableKey)
 	if isBlank(stableKey) then
 		return ""
 	end
-	local character = CharacterData.characters[stableKey]
-	if character == nil or isBlank(character.page) then
-		return ""
-	end
-	return Link.render({ kind = "character", page = character.page, text = character.name })
+	return Link.render({ kind = "character", stablekey = stableKey })
 end
 
 local function linkedSpell(stableKey)
