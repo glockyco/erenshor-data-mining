@@ -104,41 +104,36 @@
       "wiki_page_name": "Sivakayan Shadow",
       "display_name": "Sivakayan Shadow",
       "image_name": "Sivakayan Shadow",
-      "is_map_visible": 0,
       "mapping_type": "custom",
-      "reason": "Spawned by ZoneAnnounce from GameData.Misc.SivakayanSpectres at a randomly selected live spawn point. Include on the wiki but omit from the map because its position is runtime-determined."
+      "reason": "Spawned by ZoneAnnounce from GameData.Misc.SivakayanSpectres at a randomly selected live spawn point. Include in map search without a fixed marker because its position is runtime-determined."
     },
     "character:28 - sivakayan spectre": {
       "wiki_page_name": "Shrouded Sivakayan",
       "display_name": "Shrouded Sivakayan",
       "image_name": "Shrouded Sivakayan",
-      "is_map_visible": 0,
       "mapping_type": "custom",
-      "reason": "Spawned by ZoneAnnounce from GameData.Misc.SivakayanSpectres at a randomly selected live spawn point. Include on the wiki but omit from the map because its position is runtime-determined."
+      "reason": "Spawned by ZoneAnnounce from GameData.Misc.SivakayanSpectres at a randomly selected live spawn point. Include in map search without a fixed marker because its position is runtime-determined."
     },
     "character:32 - sivakayan spectre": {
       "wiki_page_name": "Sivakayan High Shadow",
       "display_name": "Sivakayan High Shadow",
       "image_name": "Sivakayan High Shadow",
-      "is_map_visible": 0,
       "mapping_type": "custom",
-      "reason": "Spawned by ZoneAnnounce from GameData.Misc.SivakayanSpectres at a randomly selected live spawn point. Include on the wiki but omit from the map because its position is runtime-determined."
+      "reason": "Spawned by ZoneAnnounce from GameData.Misc.SivakayanSpectres at a randomly selected live spawn point. Include in map search without a fixed marker because its position is runtime-determined."
     },
     "character:36 - sivakayan spectre": {
       "wiki_page_name": "Sivakayan Doomshade",
       "display_name": "Sivakayan Doomshade",
       "image_name": "Sivakayan Doomshade",
-      "is_map_visible": 0,
       "mapping_type": "custom",
-      "reason": "Spawned by ZoneAnnounce from GameData.Misc.SivakayanSpectres at a randomly selected live spawn point. Include on the wiki but omit from the map because its position is runtime-determined."
+      "reason": "Spawned by ZoneAnnounce from GameData.Misc.SivakayanSpectres at a randomly selected live spawn point. Include in map search without a fixed marker because its position is runtime-determined."
     },
     "character:39 - sivakayan spectre": {
       "wiki_page_name": "Sivakayan Voidmaster",
       "display_name": "Sivakayan Voidmaster",
       "image_name": "Sivakayan Voidmaster",
-      "is_map_visible": 0,
       "mapping_type": "custom",
-      "reason": "Spawned by ZoneAnnounce from GameData.Misc.SivakayanSpectres at a randomly selected live spawn point. Include on the wiki but omit from the map because its position is runtime-determined."
+      "reason": "Spawned by ZoneAnnounce from GameData.Misc.SivakayanSpectres at a randomly selected live spawn point. Include in map search without a fixed marker because its position is runtime-determined."
     },
     "character:a bank rift": {
       "wiki_page_name": null,
