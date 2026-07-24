@@ -84,7 +84,12 @@ var envelope = new
             actual = f.Actual,
         }),
 };
-string json = JsonSerializer.Serialize(envelope, new JsonSerializerOptions { WriteIndented = true });
+string json = JsonSerializer.Serialize(envelope, JsonOptions.Indented);
 if (outPath is null) Console.WriteLine(json);
 else File.WriteAllText(outPath, json);
 return findings.Count == 0 ? 0 : 1;
+
+internal static class JsonOptions
+{
+    internal static readonly JsonSerializerOptions Indented = new() { WriteIndented = true };
+}
