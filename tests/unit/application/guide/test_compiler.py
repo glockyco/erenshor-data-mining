@@ -33,23 +33,7 @@ from erenshor.application.guide.compiler import (
 from erenshor.application.guide.graph import EntityGraph
 from erenshor.application.guide.schema import Edge, EdgeType, Node, NodeType, WorkflowCycle, WorkflowTarget
 
-
-def _graph(*nodes: Node, edges: list[Edge] | None = None) -> EntityGraph:
-    graph = EntityGraph()
-    for node in nodes:
-        graph.add_node(node)
-    for edge in edges or []:
-        graph.add_edge(edge)
-    graph.build_indexes()
-    return graph
-
-
-def _quest(key: str, db_name: str | None = None) -> Node:
-    return Node(key=key, type=NodeType.QUEST, display_name=key, db_name=db_name)
-
-
-def _item(key: str) -> Node:
-    return Node(key=key, type=NodeType.ITEM, display_name=key)
+from .fixtures import build_graph, item_node, quest_node, spawn_node
 
 
 def _char(key: str, *, scene: str = "Forest", x: float = 1.0, y: float = 2.0, z: float = 3.0) -> Node:
@@ -61,19 +45,6 @@ def _char(key: str, *, scene: str = "Forest", x: float = 1.0, y: float = 2.0, z:
         x=x,
         y=y,
         z=z,
-    )
-
-
-def _spawn(key: str, *, scene: str = "Forest", zone_key: str = "zone:forest") -> Node:
-    return Node(
-        key=key,
-        type=NodeType.SPAWN_POINT,
-        display_name=key,
-        scene=scene,
-        zone_key=zone_key,
-        x=10.0,
-        y=20.0,
-        z=30.0,
     )
 
 
@@ -176,7 +147,7 @@ def test_nested_compiled_types_round_trip() -> None:
 
 
 def test_compile_graph_assigns_dense_node_ids_in_key_order() -> None:
-    compiled = compile_graph(_graph(_quest("quest:b"), _item("item:a"), _quest("quest:a")))
+    compiled = compile_graph(build_graph(quest_node("quest:b"), item_node("item:a"), quest_node("quest:a")))
 
     assert compiled.node_keys == ["item:a", "quest:a", "quest:b"]
     assert compiled.node_key_to_id == {"item:a": 0, "quest:a": 1, "quest:b": 2}
@@ -187,10 +158,10 @@ def test_compile_graph_assigns_dense_node_ids_in_key_order() -> None:
 
 
 def test_compile_graph_builds_topo_order_and_marks_cycles_infeasible() -> None:
-    graph = _graph(
-        _quest("quest:a"),
-        _quest("quest:b"),
-        _quest("quest:c"),
+    graph = build_graph(
+        quest_node("quest:a"),
+        quest_node("quest:b"),
+        quest_node("quest:c"),
         edges=[
             Edge(source="quest:a", target="quest:b", type=EdgeType.REQUIRES_QUEST),
             Edge(source="quest:b", target="quest:c", type=EdgeType.REQUIRES_QUEST),
@@ -206,13 +177,13 @@ def test_compile_graph_builds_topo_order_and_marks_cycles_infeasible() -> None:
 
 
 def test_compile_graph_builds_quest_specs_and_sources() -> None:
-    graph = _graph(
-        _quest("quest:a", db_name="QUESTA"),
-        _quest("quest:b", db_name="QUESTB"),
-        _item("item:x"),
+    graph = build_graph(
+        quest_node("quest:a", db_name="QUESTA"),
+        quest_node("quest:b", db_name="QUESTB"),
+        item_node("item:x"),
         _char("char:giver"),
         _char("char:mob"),
-        _spawn("spawn:mob:1"),
+        spawn_node("spawn:mob:1"),
         edges=[
             Edge(source="quest:a", target="quest:b", type=EdgeType.REQUIRES_QUEST),
             Edge(source="quest:a", target="item:x", type=EdgeType.REQUIRES_ITEM, quantity=3),
@@ -244,11 +215,11 @@ def test_compile_graph_builds_quest_specs_and_sources() -> None:
 
 
 def test_compile_graph_builds_unlock_predicates_and_dependent_quest_indices() -> None:
-    graph = _graph(
-        _quest("quest:unlock", db_name="UNLOCK"),
-        _quest("quest:needs", db_name="NEEDS"),
+    graph = build_graph(
+        quest_node("quest:unlock", db_name="UNLOCK"),
+        quest_node("quest:needs", db_name="NEEDS"),
         _char("char:vendor"),
-        _item("item:key"),
+        item_node("item:key"),
         edges=[
             Edge(source="quest:unlock", target="char:vendor", type=EdgeType.UNLOCKS_CHARACTER, group="route-a"),
             Edge(source="quest:needs", target="quest:unlock", type=EdgeType.REQUIRES_QUEST),
@@ -290,9 +261,9 @@ def _child_goals(compiled: CompiledData, dependency: DetailDependency) -> list[D
 
 
 def test_compile_graph_emits_item_acquisition_detail_dependencies() -> None:
-    graph = _graph(
-        _quest("quest:reward"),
-        _item("item:note"),
+    graph = build_graph(
+        quest_node("quest:reward"),
+        item_node("item:note"),
         _char("char:mob"),
         edges=[
             Edge(source="char:mob", target="item:note", type=EdgeType.DROPS_ITEM),
@@ -321,10 +292,10 @@ def test_compile_graph_emits_item_acquisition_detail_dependencies() -> None:
 
 
 def test_compile_graph_emits_quest_completion_detail_dependencies() -> None:
-    graph = _graph(
-        _quest("quest:pre"),
-        _quest("quest:root"),
-        _item("item:key"),
+    graph = build_graph(
+        quest_node("quest:pre"),
+        quest_node("quest:root"),
+        item_node("item:key"),
         _char("char:giver"),
         _char("char:step"),
         _char("char:turnin"),
@@ -366,9 +337,9 @@ def test_compile_graph_emits_quest_completion_detail_dependencies() -> None:
 
 
 def test_compile_graph_emits_item_action_detail_dependencies() -> None:
-    graph = _graph(
-        _quest("quest:read"),
-        _item("item:note"),
+    graph = build_graph(
+        quest_node("quest:read"),
+        item_node("item:note"),
         edges=[
             Edge(source="item:note", target="quest:read", type=EdgeType.ASSIGNS_QUEST),
         ],
@@ -387,9 +358,9 @@ def test_compile_graph_emits_item_action_detail_dependencies() -> None:
 
 
 def test_compile_graph_emits_item_action_dependencies_for_item_giver_specs() -> None:
-    graph = _graph(
-        _quest("quest:read"),
-        _item("item:note"),
+    graph = build_graph(
+        quest_node("quest:read"),
+        item_node("item:note"),
         edges=[
             Edge(source="quest:read", target="item:note", type=EdgeType.ASSIGNED_BY),
         ],
@@ -408,10 +379,10 @@ def test_compile_graph_emits_item_action_dependencies_for_item_giver_specs() -> 
 
 
 def test_compile_graph_emits_unlock_group_detail_dependencies() -> None:
-    graph = _graph(
-        _quest("quest:a"),
-        _quest("quest:b"),
-        _item("item:key"),
+    graph = build_graph(
+        quest_node("quest:a"),
+        quest_node("quest:b"),
+        item_node("item:key"),
         _char("char:target"),
         edges=[
             Edge(source="quest:a", target="char:target", type=EdgeType.UNLOCKS_CHARACTER, group="route-a"),
@@ -442,11 +413,11 @@ def test_compile_graph_emits_unlock_group_detail_dependencies() -> None:
 
 
 def test_compile_graph_builds_real_giver_blueprints_with_required_prereqs() -> None:
-    graph = _graph(
-        _quest("quest:pre", db_name="PREQ"),
-        _quest("quest:root", db_name="ROOT"),
+    graph = build_graph(
+        quest_node("quest:pre", db_name="PREQ"),
+        quest_node("quest:root", db_name="ROOT"),
         _char("char:giver", scene="Town", x=1.0, y=2.0, z=3.0),
-        _spawn("spawn:giver:1", scene="Town"),
+        spawn_node("spawn:giver:1", scene="Town"),
         edges=[
             Edge(source="quest:root", target="quest:pre", type=EdgeType.REQUIRES_QUEST),
             Edge(source="quest:root", target="char:giver", type=EdgeType.ASSIGNED_BY, keyword="hail"),
@@ -472,10 +443,10 @@ def test_compile_graph_builds_real_giver_blueprints_with_required_prereqs() -> N
 
 
 def test_compile_graph_builds_real_completion_blueprints() -> None:
-    graph = _graph(
-        _quest("quest:root", db_name="ROOT"),
+    graph = build_graph(
+        quest_node("quest:root", db_name="ROOT"),
         _char("char:turnin", scene="Town", x=4.0, y=5.0, z=6.0),
-        _spawn("spawn:turnin:1", scene="Town"),
+        spawn_node("spawn:turnin:1", scene="Town"),
         edges=[
             Edge(source="quest:root", target="char:turnin", type=EdgeType.COMPLETED_BY, keyword="done"),
             Edge(source="char:turnin", target="spawn:turnin:1", type=EdgeType.HAS_SPAWN),
@@ -499,7 +470,7 @@ def test_compile_graph_builds_real_completion_blueprints() -> None:
 
 
 def test_graph_builder_spawn_nodes_preserve_source_script() -> None:
-    from erenshor.application.guide.graph_builder import _add_spawn_point_nodes
+    from erenshor.application.guide.node_builder import _add_spawn_point_nodes
 
     conn = sqlite3.connect(":memory:")
     conn.row_factory = sqlite3.Row
@@ -558,7 +529,7 @@ def test_graph_builder_spawn_nodes_preserve_source_script() -> None:
 
 
 def test_graph_builder_completion_edges_keep_talk_keywords() -> None:
-    from erenshor.application.guide.graph_builder import _add_quest_completion_edges
+    from erenshor.application.guide.edge_builder import _add_quest_completion_edges
 
     conn = sqlite3.connect(":memory:")
     conn.row_factory = sqlite3.Row
@@ -588,8 +559,8 @@ def test_graph_builder_completion_edges_keep_talk_keywords() -> None:
             ("char:bassle", "quest:meetbassle", "taking"),
         )
 
-        graph = _graph(
-            _quest("quest:meetbassle", db_name="ROOT"),
+        graph = build_graph(
+            quest_node("quest:meetbassle", db_name="ROOT"),
             _char("char:bassle"),
         )
         _add_quest_completion_edges(conn, graph)
@@ -602,7 +573,7 @@ def test_graph_builder_completion_edges_keep_talk_keywords() -> None:
 
 
 def test_graph_builder_groups_distinct_acquisition_sources() -> None:
-    from erenshor.application.guide.graph_builder import _add_quest_acquisition_edges
+    from erenshor.application.guide.edge_builder import _add_quest_acquisition_edges
 
     conn = sqlite3.connect(":memory:")
     conn.row_factory = sqlite3.Row
@@ -632,12 +603,12 @@ def test_graph_builder_groups_distinct_acquisition_sources() -> None:
                 ("quest:items", "item_read", "item", "item:a", None),
             ],
         )
-        graph = _graph(
-            _quest("quest:single"),
-            _quest("quest:items"),
-            _item("item:single"),
-            _item("item:a"),
-            _item("item:b"),
+        graph = build_graph(
+            quest_node("quest:single"),
+            quest_node("quest:items"),
+            item_node("item:single"),
+            item_node("item:a"),
+            item_node("item:b"),
         )
 
         _add_quest_acquisition_edges(conn, graph)
@@ -656,7 +627,7 @@ def test_graph_builder_groups_distinct_acquisition_sources() -> None:
 
 
 def test_graph_builder_groups_completion_sources_and_matching_steps() -> None:
-    from erenshor.application.guide.graph_builder import (
+    from erenshor.application.guide.edge_builder import (
         _add_quest_completion_edges,
         _add_quest_step_edges,
     )
@@ -738,9 +709,9 @@ def test_graph_builder_groups_completion_sources_and_matching_steps() -> None:
                 ("char:kill:b", "quest:killonly"),
             ],
         )
-        graph = _graph(
+        graph = build_graph(
             *[
-                _quest(key)
+                quest_node(key)
                 for key in (
                     "quest:single",
                     "quest:talkzone",
@@ -754,7 +725,7 @@ def test_graph_builder_groups_completion_sources_and_matching_steps() -> None:
             _char("char:death"),
             _char("char:kill:a"),
             _char("char:kill:b"),
-            _item("item:read"),
+            item_node("item:read"),
             *[
                 Node(key=key, type=NodeType.ZONE, display_name=key)
                 for key in ("zone:talk", "zone:a", "zone:b", "zone:killonly")
@@ -811,7 +782,7 @@ def test_graph_builder_groups_completion_sources_and_matching_steps() -> None:
 
 
 def test_compile_graph_preserves_runtime_metadata() -> None:
-    graph = _graph(
+    graph = build_graph(
         Node(
             key="door:crypt",
             type=NodeType.DOOR,
@@ -824,7 +795,7 @@ def test_compile_graph_preserves_runtime_metadata() -> None:
             type=NodeType.FACTION,
             display_name="Wardens",
         ),
-        _item("item:key"),
+        item_node("item:key"),
         Node(
             key="quest:root",
             type=NodeType.QUEST,
@@ -896,7 +867,7 @@ def test_compile_graph_preserves_runtime_metadata() -> None:
 
 
 def test_graph_builder_synthetic_workflows_and_compile() -> None:
-    from erenshor.application.guide.graph_builder import _add_guide_workflow_nodes_and_edges
+    from erenshor.application.guide.node_builder import _add_guide_workflow_nodes_and_edges
 
     conn = sqlite3.connect(":memory:")
     conn.row_factory = sqlite3.Row
@@ -1007,12 +978,12 @@ def test_graph_builder_synthetic_workflows_and_compile() -> None:
             "character:shivunax",
             "character:demented malaroth",
         ]
-        graph = _graph(
-            *[_item(f"item:coin{i}") for i in range(1, 9)],
-            _item("item:gen - malaroth feed"),
-            _item("item:gen - malaroth feed bad"),
+        graph = build_graph(
+            *[item_node(f"item:coin{i}") for i in range(1, 9)],
+            item_node("item:gen - malaroth feed"),
+            item_node("item:gen - malaroth feed bad"),
             *[_char(key) for key in chars],
-            _quest("quest:vithtokenmob1"),
+            quest_node("quest:vithtokenmob1"),
         )
         _add_guide_workflow_nodes_and_edges(conn, graph, {"Arena": "zone:arena", "Malaroth": "zone:malaroth"})
         graph.build_indexes()
@@ -1071,7 +1042,7 @@ def test_graph_builder_synthetic_workflows_and_compile() -> None:
 
 
 def test_graph_builder_workflows_reject_malformed_trigger_facts() -> None:
-    from erenshor.application.guide.graph_builder import _add_guide_workflow_nodes_and_edges
+    from erenshor.application.guide.node_builder import _add_guide_workflow_nodes_and_edges
 
     conn = sqlite3.connect(":memory:")
     conn.row_factory = sqlite3.Row
@@ -1114,7 +1085,7 @@ def test_graph_builder_workflows_reject_malformed_trigger_facts() -> None:
             ),
         )
         conn.execute("INSERT INTO arena_round_enemies VALUES ('arena:bad', 0, 'char:enemy')")
-        graph = _graph(_item("item:coin"), _char("char:chest"), _char("char:enemy"))
+        graph = build_graph(item_node("item:coin"), _char("char:chest"), _char("char:enemy"))
         with pytest.raises(ValueError, match="non-positive trigger bounds"):
             _add_guide_workflow_nodes_and_edges(conn, graph, {"Arena": "zone:arena"})
     finally:
@@ -1122,7 +1093,7 @@ def test_graph_builder_workflows_reject_malformed_trigger_facts() -> None:
 
 
 def test_compile_graph_rejects_inconsistent_guide_workflow_flags() -> None:
-    graph = _graph(
+    graph = build_graph(
         Node(
             key="quest:guide",
             type=NodeType.QUEST,
@@ -1164,8 +1135,8 @@ def test_compile_graph_rejects_nonfinite_workflow_location() -> None:
             targets=[WorkflowTarget("character:target", 1)],
         ),
     )
-    graph = _graph(
-        _item("item:trigger"),
+    graph = build_graph(
+        item_node("item:trigger"),
         _char("character:target"),
         location,
         workflow,
@@ -1199,7 +1170,7 @@ def test_compile_graph_rejects_nonfinite_workflow_location() -> None:
     ],
 )
 def test_graph_builder_rejects_workflow_identity_collisions(collision: Node, message: str) -> None:
-    from erenshor.application.guide.graph_builder import _add_guide_workflow_nodes_and_edges
+    from erenshor.application.guide.node_builder import _add_guide_workflow_nodes_and_edges
 
     conn = sqlite3.connect(":memory:")
     conn.row_factory = sqlite3.Row
@@ -1222,9 +1193,34 @@ def test_graph_builder_rejects_workflow_identity_collisions(collision: Node, mes
             );
             """
         )
-        graph = _graph(_item("item:trigger"), _char("character:target"), collision)
+        graph = build_graph(item_node("item:trigger"), _char("character:target"), collision)
 
         with pytest.raises(ValueError, match=message):
             _add_guide_workflow_nodes_and_edges(conn, graph, {"EventScene": "zone:event"})
     finally:
         conn.close()
+
+
+def test_build_graph_closes_connection_when_node_build_fails(monkeypatch: pytest.MonkeyPatch) -> None:
+    from erenshor.application.guide import graph_builder
+
+    class TrackingConnection:
+        row_factory: object = None
+        closed = False
+
+        def close(self) -> None:
+            self.closed = True
+
+    connection = TrackingConnection()
+    monkeypatch.setattr(graph_builder.sqlite3, "connect", lambda _: connection)
+    monkeypatch.setattr(graph_builder, "_build_scene_to_zone", lambda _: {})
+
+    def fail_node_build(*_: object) -> None:
+        raise RuntimeError("synthetic node failure")
+
+    monkeypatch.setattr(graph_builder, "build_nodes", fail_node_build)
+
+    with pytest.raises(RuntimeError, match="synthetic node failure"):
+        graph_builder.build_graph("unused.db")
+
+    assert connection.closed

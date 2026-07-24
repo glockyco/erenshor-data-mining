@@ -13,38 +13,12 @@ from erenshor.application.guide.graph import EntityGraph
 from erenshor.application.guide.mod_writer import build_mod_guide, serialize_mod_guide
 from erenshor.application.guide.schema import Edge, EdgeType, Node, NodeType, WorkflowCycle, WorkflowTarget
 
-
-def _graph(*nodes: Node, edges: list[Edge] | None = None) -> EntityGraph:
-    graph = EntityGraph()
-    for node in nodes:
-        graph.add_node(node)
-    for edge in edges or []:
-        graph.add_edge(edge)
-    graph.build_indexes()
-    return graph
-
-
-def _quest(key: str, db_name: str, **kwargs: object) -> Node:
-    return Node(
-        key=key,
-        type=NodeType.QUEST,
-        display_name=kwargs.pop("display_name", db_name),
-        db_name=db_name,
-        **kwargs,
-    )
-
-
-def _item(key: str, name: str | None = None) -> Node:
-    return Node(key=key, type=NodeType.ITEM, display_name=name or key)
-
-
-def _character(key: str, name: str | None = None, **kwargs: object) -> Node:
-    return Node(key=key, type=NodeType.CHARACTER, display_name=name or key, **kwargs)
+from .fixtures import build_graph, character_node, item_node, quest_node
 
 
 def _fixture() -> tuple[EntityGraph, dict[str, object]]:
     """Build one small graph exercising every legacy wrapper section."""
-    main = _quest(
+    main = quest_node(
         "quest:main",
         "MAIN",
         display_name="Main Quest",
@@ -63,12 +37,12 @@ def _fixture() -> tuple[EntityGraph, dict[str, object]]:
         zone="Ashen Vale",
         zone_key="zone:ashen",
     )
-    previous = _quest("quest:previous", "PREVIOUS", display_name="Previous Quest")
-    alternate = _quest("quest:alternate", "ALTERNATE", display_name="Alternate Quest")
-    second = _quest("quest:second", "SECOND", display_name="Second Quest")
-    also = _quest("quest:also", "ALSO", display_name="Also Quest")
+    previous = quest_node("quest:previous", "PREVIOUS", display_name="Previous Quest")
+    alternate = quest_node("quest:alternate", "ALTERNATE", display_name="Alternate Quest")
+    second = quest_node("quest:second", "SECOND", display_name="Second Quest")
+    also = quest_node("quest:also", "ALSO", display_name="Also Quest")
 
-    giver = _character(
+    giver = character_node(
         "char:giver",
         "Quest Giver",
         scene="AshenScene",
@@ -78,7 +52,7 @@ def _fixture() -> tuple[EntityGraph, dict[str, object]]:
         y=2,
         z=3,
     )
-    completer = _character(
+    completer = character_node(
         "char:completer",
         "Quest Completer",
         scene="AshenScene",
@@ -88,7 +62,7 @@ def _fixture() -> tuple[EntityGraph, dict[str, object]]:
         y=5,
         z=6,
     )
-    mob = _character(
+    mob = character_node(
         "char:mob",
         "Relic Guardian",
         scene="AshenScene",
@@ -99,7 +73,7 @@ def _fixture() -> tuple[EntityGraph, dict[str, object]]:
         y=8,
         z=9,
     )
-    unlockable = _character(
+    unlockable = character_node(
         "char:unlockable",
         "Unlocked Guide",
         scene="AshenScene",
@@ -130,10 +104,10 @@ def _fixture() -> tuple[EntityGraph, dict[str, object]]:
         source_script="VithArenaFight",
     )
 
-    item_a = _item("item:alpha", "Alpha Relic")
-    item_b = _item("item:beta", "Beta Relic")
-    reward = _item("item:reward", "Reward Relic")
-    read_item = _item("item:read", "Ancient Tablet")
+    item_a = item_node("item:alpha", "Alpha Relic")
+    item_b = item_node("item:beta", "Beta Relic")
+    reward = item_node("item:reward", "Reward Relic")
+    read_item = item_node("item:read", "Ancient Tablet")
     travel_zone = Node(
         key="zone:travel",
         type=NodeType.ZONE,
@@ -204,7 +178,7 @@ def _fixture() -> tuple[EntityGraph, dict[str, object]]:
         ),
         Edge(source="quest:previous", target="quest:main", type=EdgeType.CHAINS_TO),
     ]
-    graph = _graph(
+    graph = build_graph(
         main,
         previous,
         alternate,
@@ -407,8 +381,8 @@ def test_build_mod_guide_emits_zone_character_and_unlock_lookups() -> None:
 
 
 def _resource_graph(source_type: NodeType) -> EntityGraph:
-    quest = _quest("quest:resource", "RESOURCE")
-    item = _item("item:resource", "Resource Item")
+    quest = quest_node("quest:resource", "RESOURCE", display_name="RESOURCE")
+    item = item_node("item:resource", "Resource Item")
     source = Node(
         key=f"{source_type.value}:source",
         type=source_type,
@@ -418,7 +392,7 @@ def _resource_graph(source_type: NodeType) -> EntityGraph:
         zone_key="zone:resource",
         level=9,
     )
-    return _graph(
+    return build_graph(
         quest,
         item,
         source,
@@ -461,7 +435,7 @@ def test_build_mod_guide_rejects_unsupported_resource_yield_source() -> None:
 
 def _coordinate_graph(node_type: NodeType, field: str, value: float | None) -> EntityGraph:
     if node_type == NodeType.SPAWN_POINT:
-        character = _character("char:coordinate", "Coordinate Character")
+        character = character_node("char:coordinate", "Coordinate Character")
         spawn = Node(
             key="spawn:coordinate",
             type=node_type,
@@ -472,7 +446,9 @@ def _coordinate_graph(node_type: NodeType, field: str, value: float | None) -> E
             z=3,
         )
         spawn = replace(spawn, **{field: value})
-        return _graph(character, spawn, edges=[Edge(source=character.key, target=spawn.key, type=EdgeType.HAS_SPAWN)])
+        return build_graph(
+            character, spawn, edges=[Edge(source=character.key, target=spawn.key, type=EdgeType.HAS_SPAWN)]
+        )
     line = Node(
         key="zone-line:coordinate",
         type=node_type,
@@ -484,7 +460,7 @@ def _coordinate_graph(node_type: NodeType, field: str, value: float | None) -> E
         destination_zone_key="zone:destination",
         destination_display="Destination Zone",
     )
-    return _graph(replace(line, **{field: value}))
+    return build_graph(replace(line, **{field: value}))
 
 
 @pytest.mark.parametrize(
@@ -509,16 +485,16 @@ def test_build_mod_guide_rejects_invalid_required_coordinates(
 
 
 def _vendor_unlock_graph(multiple: bool = False) -> EntityGraph:
-    quest = _quest("quest:vendor", "VENDOR")
-    item = _item("item:vendor", "Vendor Unlock Item")
-    vendor = _character("char:vendor", "Unlock Vendor", is_vendor=True)
+    quest = quest_node("quest:vendor", "VENDOR", display_name="VENDOR")
+    item = item_node("item:vendor", "Vendor Unlock Item")
+    vendor = character_node("char:vendor", "Unlock Vendor", is_vendor=True)
     edges = [Edge(source=quest.key, target=item.key, type=EdgeType.UNLOCKS_VENDOR_ITEM, note=vendor.key)]
     nodes = [quest, item, vendor]
     if multiple:
-        second_item = _item("item:vendor-second", "Second Vendor Item")
+        second_item = item_node("item:vendor-second", "Second Vendor Item")
         nodes.append(second_item)
         edges.append(Edge(source=quest.key, target=second_item.key, type=EdgeType.UNLOCKS_VENDOR_ITEM, note=vendor.key))
-    return _graph(*nodes, edges=edges)
+    return build_graph(*nodes, edges=edges)
 
 
 def test_build_mod_guide_emits_single_vendor_unlock_names() -> None:
@@ -539,10 +515,10 @@ def test_build_mod_guide_rejects_multiple_vendor_unlocks() -> None:
 
 
 def _item_step_graph() -> EntityGraph:
-    quest = _quest("quest:item-step", "ITEM_STEP")
-    item = _item("item:item-step", "Read Me")
-    source = _character("char:item-source", "Item Source", level=11)
-    return _graph(
+    quest = quest_node("quest:item-step", "ITEM_STEP", display_name="ITEM_STEP")
+    item = item_node("item:item-step", "Read Me")
+    source = character_node("char:item-source", "Item Source", level=11)
+    return build_graph(
         quest,
         item,
         source,
@@ -582,7 +558,7 @@ def test_build_mod_guide_synthesizes_deduped_item_requirements_from_item_steps()
 
 
 def _level_step_graph() -> EntityGraph:
-    quest = _quest("quest:levels", "LEVELS")
+    quest = quest_node("quest:levels", "LEVELS", display_name="LEVELS")
     zone = Node(
         key="zone:levels",
         type=NodeType.ZONE,
@@ -592,11 +568,11 @@ def _level_step_graph() -> EntityGraph:
         level_min=16,
         level_max=16,
     )
-    character = _character("char:levels", "Level Character", zone="Level Zone", level=12)
-    source = _character("char:dropper", "Level Dropper", zone="Level Zone", level=18)
-    second_source = _character("char:dropper2", "Another Dropper", zone="Level Zone", level=14)
-    item = _item("item:levels", "Level Item")
-    return _graph(
+    character = character_node("char:levels", "Level Character", zone="Level Zone", level=12)
+    source = character_node("char:dropper", "Level Dropper", zone="Level Zone", level=18)
+    second_source = character_node("char:dropper2", "Another Dropper", zone="Level Zone", level=14)
+    item = item_node("item:levels", "Level Item")
+    return build_graph(
         quest,
         zone,
         character,
@@ -636,9 +612,9 @@ def test_build_mod_guide_emits_per_step_level_estimates_and_factors() -> None:
 
 
 def _acquisition_item_graph(*, mixed_source: bool = False, required: bool = False) -> EntityGraph:
-    prior = _quest("quest:prior", "PRIOR", display_name="Prior Quest")
-    current = _quest("quest:current", "CURRENT", display_name="Duskenlight Quest")
-    item = _item("item:duskenlight", "Duskenlight")
+    prior = quest_node("quest:prior", "PRIOR", display_name="Prior Quest")
+    current = quest_node("quest:current", "CURRENT", display_name="Duskenlight Quest")
+    item = item_node("item:duskenlight", "Duskenlight")
     nodes: list[Node] = [prior, current, item]
     edges = [
         Edge(source=prior.key, target=item.key, type=EdgeType.REWARDS_ITEM),
@@ -652,13 +628,13 @@ def _acquisition_item_graph(*, mixed_source: bool = False, required: bool = Fals
             ]
         )
     if mixed_source:
-        source = _character("char:duskenlight-source", "Duskenlight Source")
+        source = character_node("char:duskenlight-source", "Duskenlight Source")
         nodes.append(source)
         edges.append(Edge(source=source.key, target=item.key, type=EdgeType.DROPS_ITEM))
-    return _graph(*nodes, edges=edges)
+    return build_graph(*nodes, edges=edges)
 
 
-def test_build_mod_guide_emits_item_bearing_prerequisite_for_quest_rewarded_acquisition_item() -> None:
+def test_build_mod_guide_emits_item_bearing_prerequisite_for_quest_rewarded_acquisitionitem_node() -> None:
     graph = _acquisition_item_graph()
 
     current = _main_entry(build_mod_guide(graph, compile_graph(graph)), "quest:current")
@@ -673,7 +649,7 @@ def test_build_mod_guide_emits_item_bearing_prerequisite_for_quest_rewarded_acqu
     ]
 
 
-def test_build_mod_guide_does_not_hide_prerequisite_for_mixed_source_acquisition_item() -> None:
+def test_build_mod_guide_does_not_hide_prerequisite_for_mixed_source_acquisitionitem_node() -> None:
     graph = _acquisition_item_graph(mixed_source=True)
 
     current = _main_entry(build_mod_guide(graph, compile_graph(graph)), "quest:current")
@@ -766,13 +742,13 @@ def _finite_floats(value: object) -> list[float]:
 
 
 def _arena_step_graph() -> EntityGraph:
-    quest = _quest("quest:arena", "ARENA")
-    token = _item("item:vith-token", "Vith Token")
-    fee = _item("item:vith-coin", "Vith Coin")
-    completer = _character("char:arena-master", "Arena Master")
-    enemy = _character("char:arena-enemy", "Arena Wave Enemy")
-    chest = _character("char:arena-chest", "Arena Reward Chest")
-    return _graph(
+    quest = quest_node("quest:arena", "ARENA", display_name="ARENA")
+    token = item_node("item:vith-token", "Vith Token")
+    fee = item_node("item:vith-coin", "Vith Coin")
+    completer = character_node("char:arena-master", "Arena Master")
+    enemy = character_node("char:arena-enemy", "Arena Wave Enemy")
+    chest = character_node("char:arena-chest", "Arena Reward Chest")
+    return build_graph(
         quest,
         token,
         fee,
@@ -826,7 +802,7 @@ def test_build_mod_guide_emits_arena_steps_in_ordinal_order_and_dedupes_turn_in(
 
 
 def _workflow_projection_graph() -> EntityGraph:
-    trigger_item = _item("item:arena-fee", "Arena Fee")
+    trigger_item = item_node("item:arena-fee", "Arena Fee")
     location = Node(
         key="guide-location:arena:one",
         type=NodeType.LOCATION,
@@ -844,14 +820,14 @@ def _workflow_projection_graph() -> EntityGraph:
         trigger_bounds_extents_z=6.0,
         guide_only=True,
     )
-    target = _character("character:arena-target", "Arena Target", level=40)
-    reward = _character("character:arena-reward", "Arena Reward")
-    drop_source = _character("character:previous-chest", "Previous Chest")
-    vendor_a = _character("character:vendor-a", "Vendor A", scene="ArenaScene", zone="Arena Zone")
-    vendor_b = _character("character:vendor-b", "Vendor B", scene="ArenaScene", zone="Arena Zone")
-    unlock_a = _quest("quest:unlock-a", "UNLOCK_A", display_name="Unlock Vendor A")
-    unlock_b = _quest("quest:unlock-b", "UNLOCK_B", display_name="Unlock Vendor B")
-    workflow = _quest(
+    target = character_node("character:arena-target", "Arena Target", level=40)
+    reward = character_node("character:arena-reward", "Arena Reward")
+    drop_source = character_node("character:previous-chest", "Previous Chest")
+    vendor_a = character_node("character:vendor-a", "Vendor A", scene="ArenaScene", zone="Arena Zone")
+    vendor_b = character_node("character:vendor-b", "Vendor B", scene="ArenaScene", zone="Arena Zone")
+    unlock_a = quest_node("quest:unlock-a", "UNLOCK_A", display_name="Unlock Vendor A")
+    unlock_b = quest_node("quest:unlock-b", "UNLOCK_B", display_name="Unlock Vendor B")
+    workflow = quest_node(
         "guide-quest:arena:one",
         "guide.arena.one",
         display_name="Arena Round One",
@@ -868,7 +844,7 @@ def _workflow_projection_graph() -> EntityGraph:
             reset_evidence="reward_container_consumed",
         ),
     )
-    return _graph(
+    return build_graph(
         workflow,
         unlock_a,
         unlock_b,
@@ -976,9 +952,9 @@ def test_build_mod_guide_rejects_invalid_workflow_projection_metadata() -> None:
 
 
 def test_build_mod_guide_rejects_real_and_synthetic_db_name_collision() -> None:
-    real = _quest("quest:real", "REAL")
-    synthetic = _quest("guide-quest:one", "guide.one", implicit=True)
-    graph = _graph(real, synthetic)
+    real = quest_node("quest:real", "REAL")
+    synthetic = quest_node("guide-quest:one", "guide.one", implicit=True)
+    graph = build_graph(real, synthetic)
     compiled = compile_graph(graph)
     synthetic.db_name = "REAL"
 

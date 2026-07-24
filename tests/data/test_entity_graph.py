@@ -7,27 +7,14 @@ relationships from the game data.
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar
 
 import pytest
 
-from erenshor.application.guide.generator import generate
 from erenshor.application.guide.schema import EdgeType, NodeType
 
 if TYPE_CHECKING:
     from erenshor.application.guide.graph import EntityGraph
-
-
-@pytest.fixture(scope="module")
-def graph(main_clean_db: Path) -> EntityGraph:
-    """Build the entity graph once for the entire test module.
-
-    Uses generate() so that graph overrides are merged and quest
-    metadata (zone + level) is denormalized — matching production.
-    """
-    overrides = Path("quest_guides/graph_overrides.toml")
-    return generate(main_clean_db, overrides if overrides.exists() else None)
 
 
 # ---------------------------------------------------------------------------

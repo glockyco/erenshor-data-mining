@@ -11,9 +11,12 @@ import shutil
 import subprocess
 from collections.abc import Callable, Generator
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pytest
+
+if TYPE_CHECKING:
+    from erenshor.application.guide.graph import EntityGraph
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 MAIN_CLEAN_DB = REPO_ROOT / "variants" / "main" / "erenshor-main.sqlite"
@@ -72,6 +75,15 @@ def _main_data_preconditions(
     # Dependencies perform the checks.  Keeping this fixture autouse means a
     # test that does not otherwise need a particular file cannot accidentally
     # turn a missing data prerequisite into a skip.
+
+
+@pytest.fixture(scope="session")
+def graph(main_clean_db: Path) -> EntityGraph:
+    """Build the production guide graph once for all data contracts."""
+    from erenshor.application.guide.generator import generate
+
+    overrides = REPO_ROOT / "quest_guides" / "graph_overrides.toml"
+    return generate(main_clean_db, overrides if overrides.exists() else None)
 
 
 @pytest.fixture(scope="session")

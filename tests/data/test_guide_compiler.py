@@ -11,7 +11,6 @@ All tests skip if the database is not available.
 from __future__ import annotations
 
 import json
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pytest
@@ -54,14 +53,6 @@ EXPECTED_TOP_LEVEL_KEYS = {
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
-
-
-@pytest.fixture(scope="module")
-def graph(main_clean_db: Path) -> EntityGraph:
-    from erenshor.application.guide.generator import generate
-
-    overrides = Path("quest_guides/graph_overrides.toml")
-    return generate(main_clean_db, overrides if overrides.exists() else None)
 
 
 @pytest.fixture(scope="module")
