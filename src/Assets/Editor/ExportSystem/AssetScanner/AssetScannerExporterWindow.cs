@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using UnityEditor;
@@ -19,35 +20,7 @@ public class AssetScannerExporterWindow : EditorWindow
     private AssetScanProgress _progress = new();
     private AssetScanner _activeScanner;
 
-    private bool _selectAllSteps = true;
-    private bool _exportAchievementTriggers = true;
-    private bool _exportAscensions = true;
-    private bool _exportBooks = true;
-    private bool _exportCharacters = true;
-    private bool _exportClasses = true;
-    private bool _exportDoors = true;
-    private bool _exportForges = true;
-    private bool _exportGuildTopics = true;
-    private bool _exportItemBags = true;
-    private bool _exportItems = true;
-    private bool _exportLootTables = true;
-    private bool _exportMiningNodes = true;
-    private bool _exportQuests = true;
-    private bool _exportSecretPassages = true;
-    private bool _exportSkills = true;
-    private bool _exportSpells = true;
-    private bool _exportStances = true;
-    private bool _exportSpawnPoints = true;
-    private bool _exportTeleportLocs = true;
-    private bool _exportTreasureHunting = true;
-    private bool _exportTreasureLocs = true;
-    private bool _exportWaters = true;
-    private bool _exportWishingWells = true;
-    private bool _exportWorldFactions = true;
-    private bool _exportZoneAnnounces = true;
-    private bool _exportZoneAtlasEntries = true;
-    private bool _exportZoneLines = true;
-    private bool _exportQuestActivations = true;
+    private readonly HashSet<string> _selectedListenerKeys = new(StringComparer.OrdinalIgnoreCase);
 
     [MenuItem("Tools/Export Game Data")]
     public static void ShowWindow()
@@ -57,9 +30,12 @@ public class AssetScannerExporterWindow : EditorWindow
         window.Show();
     }
 
+    private bool _selectAllSteps = true;
+
     private void OnEnable()
     {
         _outputPath = Repository.GetDefaultDatabasePath();
+        SetAllStepToggles(true);
     }
 
     private void OnDisable()
@@ -143,68 +119,29 @@ public class AssetScannerExporterWindow : EditorWindow
         {
             SetAllStepToggles(_selectAllSteps);
         }
+
         EditorGUI.BeginDisabledGroup(_selectAllSteps);
-        _exportAchievementTriggers = EditorGUILayout.ToggleLeft("Achievement Triggers", _exportAchievementTriggers);
-        _exportAscensions = EditorGUILayout.ToggleLeft("Ascensions", _exportAscensions);
-        _exportBooks = EditorGUILayout.ToggleLeft("Books", _exportBooks);
-        _exportCharacters = EditorGUILayout.ToggleLeft("Characters", _exportCharacters);
-        _exportClasses = EditorGUILayout.ToggleLeft("Classes", _exportClasses);
-        _exportDoors = EditorGUILayout.ToggleLeft("Doors", _exportDoors);
-        _exportForges = EditorGUILayout.ToggleLeft("Forges", _exportForges);
-        _exportGuildTopics = EditorGUILayout.ToggleLeft("Guild Topics", _exportGuildTopics);
-        _exportItemBags = EditorGUILayout.ToggleLeft("Item Bags", _exportItemBags);
-        _exportItems = EditorGUILayout.ToggleLeft("Items", _exportItems);
-        _exportLootTables = EditorGUILayout.ToggleLeft("Loot Drops", _exportLootTables);
-        _exportMiningNodes = EditorGUILayout.ToggleLeft("Mining Nodes", _exportMiningNodes);
-        _exportQuests = EditorGUILayout.ToggleLeft("Quests", _exportQuests);
-        _exportSecretPassages = EditorGUILayout.ToggleLeft("Secret Passages", _exportSecretPassages);
-        _exportSkills = EditorGUILayout.ToggleLeft("Skills", _exportSkills);
-        _exportSpells = EditorGUILayout.ToggleLeft("Spells", _exportSpells);
-        _exportStances = EditorGUILayout.ToggleLeft("Stances", _exportStances);
-        _exportSpawnPoints = EditorGUILayout.ToggleLeft("Spawn Points", _exportSpawnPoints);
-        _exportTeleportLocs = EditorGUILayout.ToggleLeft("Teleport Locations", _exportTeleportLocs);
-        _exportTreasureHunting = EditorGUILayout.ToggleLeft("Treasure Hunting", _exportTreasureHunting);
-        _exportTreasureLocs = EditorGUILayout.ToggleLeft("Treasure Locations", _exportTreasureLocs);
-        _exportWaters = EditorGUILayout.ToggleLeft("Waters", _exportWaters);
-        _exportWishingWells = EditorGUILayout.ToggleLeft("Wishing Wells", _exportWishingWells);
-        _exportWorldFactions = EditorGUILayout.ToggleLeft("World Factions", _exportWorldFactions);
-        _exportZoneAnnounces = EditorGUILayout.ToggleLeft("Zones", _exportZoneAnnounces);
-        _exportZoneAtlasEntries = EditorGUILayout.ToggleLeft("Zone Atlas Entries", _exportZoneAtlasEntries);
-        _exportZoneLines = EditorGUILayout.ToggleLeft("Zone Lines", _exportZoneLines);
-        _exportQuestActivations = EditorGUILayout.ToggleLeft("Quest Activations", _exportQuestActivations);
+        foreach (ExportListenerDefinition definition in ExportListenerRegistry.Definitions)
+        {
+            bool selected = _selectedListenerKeys.Contains(definition.Key);
+            bool updated = EditorGUILayout.ToggleLeft(definition.Label, selected);
+            if (updated != selected)
+            {
+                if (updated) _selectedListenerKeys.Add(definition.Key);
+                else _selectedListenerKeys.Remove(definition.Key);
+            }
+        }
         EditorGUI.EndDisabledGroup();
     }
 
     private void SetAllStepToggles(bool value)
     {
-        _exportAchievementTriggers = value;
-        _exportAscensions = value;
-        _exportBooks = value;
-        _exportCharacters = value;
-        _exportClasses = value;
-        _exportDoors = value;
-        _exportForges = value;
-        _exportGuildTopics = value;
-        _exportItemBags = value;
-        _exportItems = value;
-        _exportLootTables = value;
-        _exportMiningNodes = value;
-        _exportQuests = value;
-        _exportSecretPassages = value;
-        _exportSkills = value;
-        _exportSpells = value;
-        _exportStances = value;
-        _exportSpawnPoints = value;
-        _exportTeleportLocs = value;
-        _exportTreasureHunting = value;
-        _exportTreasureLocs = value;
-        _exportWaters = value;
-        _exportWishingWells = value;
-        _exportWorldFactions = value;
-        _exportZoneAnnounces = value;
-        _exportZoneAtlasEntries = value;
-        _exportZoneLines = value;
-        _exportQuestActivations = value;
+        _selectedListenerKeys.Clear();
+        if (value)
+        {
+            foreach (ExportListenerDefinition definition in ExportListenerRegistry.Definitions)
+                _selectedListenerKeys.Add(definition.Key);
+        }
     }
 
     private void StartScanAndExport()
@@ -219,48 +156,11 @@ public class AssetScannerExporterWindow : EditorWindow
 
         _db = new SQLiteConnection(_outputPath);
 
-        // Shared resolvers ensure all listeners that reference the same entity
-        // agree on the same deduplicated stable key for each instance
-        var characterKeyResolver = new CharacterStableKeyResolver();
-        var zoneLineKeyResolver = new ZoneLineStableKeyResolver();
+        ExportListenerRegistry.Register(
+            _activeScanner,
+            _db,
+            _selectedListenerKeys);
 
-        if (_exportTeleportLocs) _activeScanner.RegisterNullListener(new TeleportLocListener(_db));
-
-        if (_exportSecretPassages) _activeScanner.RegisterGameObjectListener(new SecretPassageListener(_db));
-        if (_exportWishingWells) _activeScanner.RegisterGameObjectListener(new WishingWellListener(_db));
-
-        if (_exportAscensions) _activeScanner.RegisterScriptableObjectListener(new AscensionListener(_db));
-        if (_exportBooks) _activeScanner.RegisterScriptableObjectListener(new BookListener(_db));
-        if (_exportClasses) _activeScanner.RegisterScriptableObjectListener(new ClassListener(_db));
-        if (_exportGuildTopics) _activeScanner.RegisterScriptableObjectListener(new GuildTopicListener(_db));
-        if (_exportQuests) _activeScanner.RegisterScriptableObjectListener(new QuestListener(_db));
-        if (_exportSkills) _activeScanner.RegisterScriptableObjectListener(new SkillListener(_db, characterKeyResolver));
-        if (_exportSpells) _activeScanner.RegisterScriptableObjectListener(new SpellListener(_db, characterKeyResolver));
-        if (_exportStances) _activeScanner.RegisterScriptableObjectListener(new StanceListener(_db));
-        if (_exportWorldFactions) _activeScanner.RegisterScriptableObjectListener(new WorldFactionListener(_db));
-        if (_exportZoneAtlasEntries) _activeScanner.RegisterScriptableObjectListener(new ZoneAtlasEntryListener(_db));
-
-        // Item wikiStrings depend on spells for proc data, so we need to register items later.
-        if (_exportItems) _activeScanner.RegisterScriptableObjectListener(new ItemListener(_db));
-
-        if (_exportAchievementTriggers) _activeScanner.RegisterComponentListener(new AchievementTriggerListener(_db));
-        if (_exportDoors) _activeScanner.RegisterComponentListener(new DoorListener(_db));
-        if (_exportForges) _activeScanner.RegisterComponentListener(new ForgeListener(_db));
-        if (_exportItemBags) _activeScanner.RegisterComponentListener(new ItemBagListener(_db));
-        if (_exportLootTables) _activeScanner.RegisterComponentListener(new LootTableListener(_db, characterKeyResolver));
-        if (_exportLootTables) _activeScanner.RegisterComponentListener(new MiscListener(_db));
-        if (_exportMiningNodes) _activeScanner.RegisterComponentListener(new MiningNodeListener(_db));
-        if (_exportSpawnPoints) _activeScanner.RegisterComponentListener(new SpawnPointListener(_db, characterKeyResolver));
-        if (_exportSpawnPoints) _activeScanner.RegisterComponentListener(new SpawnPointTriggerListener(_db, characterKeyResolver));
-        if (_exportTreasureHunting) _activeScanner.RegisterComponentListener(new TreasureHuntingListener(_db));
-        if (_exportTreasureLocs) _activeScanner.RegisterComponentListener(new TreasureLocListener(_db));
-        if (_exportWaters) _activeScanner.RegisterComponentListener(new WaterListener(_db));
-        if (_exportZoneAnnounces) _activeScanner.RegisterComponentListener(new ZoneAnnounceListener(_db));
-        if (_exportZoneLines) _activeScanner.RegisterComponentListener(new ZoneLineListener(_db, zoneLineKeyResolver));
-        if (_exportQuestActivations) _activeScanner.RegisterGameObjectListener(new QuestActivationListener(_db, zoneLineKeyResolver, characterKeyResolver));
-
-        // Characters.IsUnique depends on spawn point data, so we need to register characters later.
-        if (_exportCharacters) _activeScanner.RegisterComponentListener(new CharacterListener(_db, characterKeyResolver));
 
         _stopwatch = Stopwatch.StartNew();
         EditorCoroutineRunner.StartCoroutine(ScanAndExportCoroutine());
@@ -289,35 +189,7 @@ public class AssetScannerExporterWindow : EditorWindow
         EditorGUILayout.LabelField(_status);
         EditorGUILayout.Space();
         EditorGUILayout.BeginHorizontal();
-        bool anyStepSelected =
-            _exportAchievementTriggers ||
-            _exportAscensions ||
-            _exportBooks ||
-            _exportCharacters ||
-            _exportClasses ||
-            _exportDoors ||
-            _exportForges ||
-            _exportGuildTopics ||
-            _exportWorldFactions ||
-            _exportItemBags ||
-            _exportItems ||
-            _exportLootTables ||
-            _exportMiningNodes ||
-            _exportQuests ||
-            _exportSecretPassages ||
-            _exportSkills ||
-            _exportSpells ||
-            _exportStances ||
-            _exportSpawnPoints ||
-            _exportTeleportLocs ||
-            _exportTreasureHunting ||
-            _exportTreasureLocs ||
-            _exportWaters ||
-            _exportWishingWells ||
-            _exportZoneAnnounces ||
-            _exportZoneAtlasEntries ||
-            _exportZoneLines ||
-            _exportQuestActivations;
+        bool anyStepSelected = _selectedListenerKeys.Count > 0;
         EditorGUI.BeginDisabledGroup(_isScanning || !anyStepSelected || string.IsNullOrEmpty(_outputPath));
         if (GUILayout.Button("Export Selected Steps", GUILayout.Height(30)))
         {

@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using SQLite;
 using UnityEditor;
@@ -34,11 +33,12 @@ using Debug = UnityEngine.Debug;
 /// - `-profileOutput <path>`: Writes listener profile JSON when profiling is enabled
 ///
 /// Available entity types:
-/// achievementtriggers, ascensions, books, characters, classes, doors, forges,
-/// guildtopics, itembags, items, loottables, miningnodes, questactivations, quests,
-/// secretpassages, skills, spells, spawnpoints, stances, teleportlocs,
-/// treasurehunting, treasurelocs, waters, wishingwells, worldfactions, zoneannounces,
-/// zoneatlasentries, zonelines
+/// gameconstants, achievementtriggers, arenarounds, ascensions, books,
+/// characters, classes, classstartingitems, doors, forges, guildtopics,
+/// itembags, itemdrops, items, loottables, miningnodes, questactivations,
+/// quests, secretpassages, skills, spells, spawnpoints, stances,
+/// teleportlocs, treasurehunting, treasurelocs, waters, wishingwells,
+/// worldfactions, zoneannounces, zoneatlasentries, zonelines
 ///
 /// The `spawnpoints` export includes both classic SpawnPoint components and
 /// trigger-based SpawnPointTrigger encounter spawners.
@@ -46,11 +46,10 @@ using Debug = UnityEngine.Debug;
 /// Exit codes:
 /// - 0: Success
 /// - 1: Error (check Unity log for details)
+/// - 3: Dynamic-spawn coverage gate failed
 /// </summary>
 public static class ExportBatch
 {
-    private static string CatalogPath =>
-        System.IO.Path.Combine(Application.dataPath, "Editor", "ExportSystem", "AssetScanner", "dynamic-spawn-catalog.toml");
     private static DynamicSpawnSourceListener? _dynamicSpawnListener;
     /// <summary>
     /// Logging level for batch export operations.
@@ -295,107 +294,13 @@ public static class ExportBatch
     /// <returns>Number of listeners registered</returns>
     private static int RegisterListeners(AssetScanner scanner, SQLiteConnection db, HashSet<string> entityTypes, LogLevel logLevel)
     {
-        bool exportAll = entityTypes.Count == 0;
-        int registeredCount = 0;
-
-        // Shared resolvers ensure all listeners that reference the same entity
-        // agree on the same deduplicated stable key for each instance
-        var characterKeyResolver = new CharacterStableKeyResolver();
-        var zoneLineKeyResolver = new ZoneLineStableKeyResolver();
-
-        // Define all available listeners with their type keys
-        // Using a dictionary for O(1) lookup and cleaner registration logic
-        var listenerRegistry = new Dictionary<string, Action>
-        {
-            // Null listeners (no asset type, special processing)
-            ["gameconstants"] = () => scanner.RegisterNullListener(new GameConstantListener(db)),
-            ["teleportlocs"] = () => scanner.RegisterNullListener(new TeleportLocListener(db)),
-
-            // GameObject listeners
-            ["secretpassages"] = () => scanner.RegisterGameObjectListener(new SecretPassageListener(db)),
-            ["wishingwells"] = () => scanner.RegisterGameObjectListener(new WishingWellListener(db)),
-            ["questactivations"] = () => scanner.RegisterGameObjectListener(new QuestActivationListener(db, zoneLineKeyResolver, characterKeyResolver)),
-
-            // ScriptableObject listeners (order matters for dependencies!)
-            ["ascensions"] = () => scanner.RegisterScriptableObjectListener(new AscensionListener(db)),
-            ["books"] = () => scanner.RegisterScriptableObjectListener(new BookListener(db)),
-            ["classes"] = () => scanner.RegisterScriptableObjectListener(new ClassListener(db)),
-            ["quests"] = () => scanner.RegisterScriptableObjectListener(new QuestListener(db)),
-            ["skills"] = () => scanner.RegisterScriptableObjectListener(new SkillListener(db, characterKeyResolver)),
-            ["spells"] = () => scanner.RegisterScriptableObjectListener(new SpellListener(db, characterKeyResolver)),
-            ["stances"] = () => scanner.RegisterScriptableObjectListener(new StanceListener(db)),
-            ["guildtopics"] = () => scanner.RegisterScriptableObjectListener(new GuildTopicListener(db)),
-            ["worldfactions"] = () => scanner.RegisterScriptableObjectListener(new WorldFactionListener(db)),
-            ["zoneatlasentries"] = () => scanner.RegisterScriptableObjectListener(new ZoneAtlasEntryListener(db)),
-
-            // Items depend on spells (for proc data), so register after spells
-            ["items"] = () => scanner.RegisterScriptableObjectListener(new ItemListener(db)),
-
-            // Component listeners
-            ["achievementtriggers"] = () => scanner.RegisterComponentListener(new AchievementTriggerListener(db)),
-            ["doors"] = () => scanner.RegisterComponentListener(new DoorListener(db)),
-            ["forges"] = () => scanner.RegisterComponentListener(new ForgeListener(db)),
-            ["itembags"] = () => scanner.RegisterComponentListener(new ItemBagListener(db)),
-            ["classstartingitems"] = () => scanner.RegisterComponentListener(new ClassStartingItemsListener(db)),
-            ["loottables"] = () => scanner.RegisterComponentListener(new LootTableListener(db, characterKeyResolver)),
-            ["arenarounds"] = () => scanner.RegisterComponentListener(new VithArenaListener(db, characterKeyResolver)),
-            ["itemdrops"] = () => scanner.RegisterComponentListener(new MiscListener(db)),
-            ["miningnodes"] = () => scanner.RegisterComponentListener(new MiningNodeListener(db)),
-            ["spawnpoints"] = () =>
-            {
-                scanner.RegisterComponentListener(new SpawnPointListener(db, characterKeyResolver));
-                scanner.RegisterComponentListener(new SpawnPointTriggerListener(db, characterKeyResolver));
-                // Dynamic spawn source listener — walks event-script MonoBehaviours
-                var catalogPath = System.IO.Path.Combine(Application.dataPath, "Editor", "ExportSystem", "AssetScanner", "dynamic-spawn-catalog.toml");
-                UnityEngine.Debug.Log($"[DynamicSpawn] Catalog path: {catalogPath}, exists: {System.IO.File.Exists(catalogPath)}");
-                var catalog = DynamicSpawnCatalog.Load(catalogPath);
-                UnityEngine.Debug.Log($"[DynamicSpawn] Catalog loaded: {catalog.Entries.Count} entries, {catalog.KnownScripts.Count} scripts");
-                _dynamicSpawnListener = new DynamicSpawnSourceListener(db, characterKeyResolver, catalog);
-                scanner.RegisterComponentListener(_dynamicSpawnListener);
-            },
-            ["treasurehunting"] = () => scanner.RegisterComponentListener(new TreasureHuntingListener(db)),
-            ["treasurelocs"] = () => scanner.RegisterComponentListener(new TreasureLocListener(db)),
-            ["waters"] = () => scanner.RegisterComponentListener(new WaterListener(db)),
-            ["zoneannounces"] = () => scanner.RegisterComponentListener(new ZoneAnnounceListener(db)),
-            ["zonelines"] = () => scanner.RegisterComponentListener(new ZoneLineListener(db, zoneLineKeyResolver)),
-
-            // Characters depend on spawn points (for IsUnique calculation), so register last
-            // CharacterListener also populates QuestCompletionSources at the end of OnScanFinished
-            ["characters"] = () => scanner.RegisterComponentListener(new CharacterListener(db, characterKeyResolver)),
-        };
-
-        // Register listeners based on selection
-        foreach (var entry in listenerRegistry)
-        {
-            bool shouldRegister = exportAll || entityTypes.Contains(entry.Key);
-
-            if (shouldRegister)
-            {
-                try
-                {
-                    entry.Value(); // Execute registration action
-                    registeredCount++;
-                    Log(LogLevel.Verbose, logLevel, $"[EXPORT_REGISTER] Registered listener: {entry.Key}");
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogError($"[EXPORT_ERROR] Failed to register listener '{entry.Key}': {ex.Message}");
-                    throw;
-                }
-            }
-        }
-
-        // Validate that all requested entity types were recognized
-        if (!exportAll)
-        {
-            var unknownTypes = entityTypes.Except(listenerRegistry.Keys, StringComparer.OrdinalIgnoreCase).ToList();
-            if (unknownTypes.Count > 0)
-            {
-                throw new ArgumentException($"Unknown entity types: {string.Join(", ", unknownTypes)}. Available types: {string.Join(", ", listenerRegistry.Keys.OrderBy(k => k))}");
-            }
-        }
-
-        return registeredCount;
+        ExportListenerRegistrationResult result = ExportListenerRegistry.Register(
+            scanner,
+            db,
+            entityTypes,
+            definition => Log(LogLevel.Verbose, logLevel, $"[EXPORT_REGISTER] Registered listener: {definition.Key}"));
+        _dynamicSpawnListener = result.DynamicSpawnListener;
+        return result.RegisteredCount;
     }
 
     /// <summary>
