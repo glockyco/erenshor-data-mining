@@ -5,17 +5,19 @@ description: Interactive map system architecture and debugging. Use when working
 
 # Debugging Map Issues
 
-The map uses SvelteKit (prerendered) + deck.gl layers. Bugs can live anywhere
-in the pipeline: DB → `+page.server.ts` → `data.markers.*` → deck.gl layer.
-Use Playwright to close the debug loop entirely without a browser.
+The map uses SvelteKit (prerendered) + deck.gl. Bugs can live anywhere
+in the pipeline: DB → `map-world-data.server.ts` → `data.markers.*` → deck.gl layer.
+The server-only world-data builder owns repository initialization and cleanup,
+queries, coordinate transforms, normalization, sorting, and item preloading. The
+`+page.server.ts` route only delegates to that builder.
 
 ## Architecture facts
 
 - DB used at runtime: `src/maps/static/db/erenshor.sqlite` (symlink to `variants/main/erenshor-main.sqlite`)
 - Variant builds still run frontend tests against that static DB path. Before `maps build -V <variant>`, save the current target, temporarily point the symlink at the variant clean DB, and restore the original target after the command—even when the build fails. Verify with `readlink src/maps/static/db/erenshor.sqlite`.
 - `maps thumbnails` requires a running `maps dev` or `maps preview` server and a local Playwright Chromium installation (`pnpm exec playwright install chromium`, once per machine). Pass the actual server URL with `--url`; use `maps dev` when generating thumbnails from variant data.
-- `+page.server.ts` has `export const prerender = true` — server code also
-  runs during `uv run erenshor maps build` (stdout visible in build output)
+- `+page.server.ts` has `export const prerender = true` and delegates to the
+  server-only world-data builder — server code also runs during `uv run erenshor maps build` (stdout visible in build output)
 - Enemy markers split into three arrays: `data.markers.enemiesCommon/Rare/Unique`
 - NPC markers: `data.markers.npcs`
 - Bucket assignment: `isNpc = characters.every(c => c.isFriendly)`; else enemy sorted by `isUnique`/`isRare`
@@ -90,8 +92,9 @@ Run with: `node src/maps/debug-markers.js`
 **Marker visible but wrong icon** → `getEnemyIconType` uses `isUnique`/`isRare` on
 `EnemyMarker` (marker-level flags), not `effectiveRarity` on `SpawnCharacter`
 
-**Level slider range distorted** → range calc in `+page.server.ts` skips
-markers where all characters are invulnerable; check the `hasVulnerable` guard
+**Level slider range distorted** → level-range calculation in
+`map-world-data.server.ts` skips markers where all characters are invulnerable;
+check the `hasVulnerable` guard
 
 ## DB queries for quick spot-checks
 
