@@ -805,6 +805,13 @@ function p.run()
 		"overview notes render semantic worn ability link"
 	)
 	assertContains(wornNotes, "[[Minor Lightning]]", "overview notes render worn ability page")
+	local wornTooltip = Item.renderTooltip(
+		{ stablekey = "item:abyssal_plate", quality = "Standard" },
+		"Abyssal Plate"
+	)
+	assertContains(wornTooltip, "Resonance ", "item effect tooltip includes game resonance row")
+	assertContains(wornTooltip, "+30", "item effect tooltip includes resonance value")
+	assertAbsent(wornTooltip, "24px", "item effect link omits its duplicate ability icon")
 
 	local weaponCargo = Item.cargoArgs({ args = { stablekey = "item:ember_longsword" } })
 	assertEqual(weaponCargo.WeaponType, "OneHandMelee", "cargo store contains weapon subtype")

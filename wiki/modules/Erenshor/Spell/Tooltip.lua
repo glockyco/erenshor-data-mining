@@ -1,11 +1,14 @@
 -- Module:Erenshor/Spell/Tooltip
 --
--- Presentation layer for the spell tooltip. Reproduces the in-game spellbook
--- tooltip (SpellbookSlot.cs:150-275) row-for-row, reusing the item tooltip's
--- `item-spell-*` CSS classes so spell pages look like the game.
+-- Presentation layer for the spell tooltip. Uses the spellbook tooltip as its
+-- base (SpellbookSlot.cs:150-275), then includes player-visible modifier rows
+-- exposed by the item's spell-details tooltip (ItemInfoWindow.cs:691-835). The
+-- game surfaces disagree: SpellbookSlot omits resonance and added procs, while
+-- ItemInfoWindow includes them. The wiki keeps the spellbook layout without
+-- hiding those mechanics.
 --
--- Faithfulness: content, order, labels, colors, and which rows appear match the
--- game. Permitted convenience: the applied status effect renders as a link.
+-- Content order, labels, and colors follow the corresponding game rows.
+-- Permitted conveniences: applied status effects and added procs render as links.
 
 local Common = require("Module:Erenshor/Ability/Common")
 
@@ -71,8 +74,12 @@ function Tooltip.render(spell)
 
 	local content = root:tag("div"):addClass("item-spell-details-content")
 
+	detailRow(content, "Spell Level: " .. Common.num(spell.requiredLevel), "item-spell-level")
 	detailRow(content, Common.spellDuration(spell), "item-spell-duration")
 	detailRow(content, "Spell Type: " .. (spell.type or ""))
+	if not Common.isBlank(spell.line) then
+		detailRow(content, "Spell Line: " .. spell.line)
+	end
 	detailRow(content, "Mana Cost: " .. Common.num(spell.manaCost))
 
 	if Common.truthy(spell.targetDamage) then
@@ -114,6 +121,23 @@ function Tooltip.render(spell)
 				mod.label .. " " .. Common.signedMod(spell[mod.key], MOD_SUFFIX[mod.key])
 			)
 		end
+	end
+
+	if Common.num(spell.levelScaledManaRestoration) ~= 0 then
+		detailRow(
+			content,
+			"Mana Regen " .. Common.signedMod(spell.levelScaledManaRestoration) .. " per level"
+		)
+	end
+	if Common.num(spell.armorPenPercent) ~= 0 then
+		detailRow(content, "Armor Penetration " .. Common.signedMod(spell.armorPenPercent, "%"))
+	end
+	if Common.num(spell.resonance) ~= 0 then
+		detailRow(content, "Resonance " .. Common.signedMod(spell.resonance))
+	end
+	local addProcLink = Common.spellLink(spell.addProcStableKey)
+	if not Common.isBlank(addProcLink) then
+		detailRow(content, Common.num(spell.addProcChance) .. "% chance to proc " .. addProcLink)
 	end
 
 	if not Common.isBlank(spell.specialDescriptor) then

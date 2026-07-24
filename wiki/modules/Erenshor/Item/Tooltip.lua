@@ -102,6 +102,8 @@ local truthy = Common.truthy
 local signedMod = Common.signedMod
 local spellDuration = Common.spellDuration
 local spellName = Common.spellName
+-- The 48px spell icon already occupies the proc header's icon cell. Keep the
+-- adjacent title as a plain page link rather than repeating a 24px link icon.
 local spellLink = Common.spellLink
 
 local function tierOf(quality)

@@ -148,6 +148,30 @@ function p.run()
 		"missing spell is tracked"
 	)
 
+	local minorTooltip = Spell.renderTooltip(minor, "Minor Lightning")
+	assertContains(minorTooltip, "Spell Level: 6", "spell tooltip includes item-detail level")
+	assertContains(
+		minorTooltip,
+		"Spell Line: Direct_Damage",
+		"spell tooltip includes item-detail line"
+	)
+	assertContains(minorTooltip, "Resonance ", "spell tooltip includes item-detail resonance")
+	assertContains(minorTooltip, "+30", "spell tooltip includes resonance value")
+	assertContains(
+		minorTooltip,
+		"Armor Penetration ",
+		"spell tooltip includes spellbook armor penetration"
+	)
+	assertContains(minorTooltip, "+12%", "spell tooltip includes armor penetration value")
+	assertContains(
+		minorTooltip,
+		"Mana Regen ",
+		"spell tooltip includes level-scaled mana restoration"
+	)
+	assertContains(minorTooltip, "+1.5 per level", "spell tooltip labels level scaling")
+	assertContains(minorTooltip, "25% chance to proc", "spell tooltip includes added proc chance")
+	assertContains(minorTooltip, "[[Ancient Presence]]", "spell tooltip links the added proc")
+
 	local buffTip =
 		Spell.renderTooltip({ stablekey = "spell:ancient_presence" }, "Ancient Presence")
 	assertContains(buffTip, "Effect Duration: 12 sec", "buff tooltip shows effect duration")
