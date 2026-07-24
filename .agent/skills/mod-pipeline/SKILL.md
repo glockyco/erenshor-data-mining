@@ -29,9 +29,8 @@ The public set is exactly:
 | `sprint` | `WoW_Much/Sprint` |
 | `justice-for-f7` | `WoW_Much/JusticeForF7` |
 
-The registry's other mods (`interactive-maps-companion` and
-`map-tile-capture`) are internal and local-install only. They are not
-Thunderstore or Vault releases.
+The registry's other mod (`map-tile-capture`) is internal and local-install
+only. It is not a Thunderstore or Vault release.
 
 ## Local setup
 
@@ -107,7 +106,7 @@ with `--scripts` (BepInEx only):
 uv run erenshor mod deploy --mod <public-id> --loader bepinex --scripts
 ```
 
-Deploy all six native targets and activate BepInEx:
+Deploy all five native targets and activate BepInEx:
 
 ```bash
 uv run erenshor -V playtest mod deploy --loader bepinex
@@ -123,7 +122,7 @@ uv run erenshor mod deploy --mod <public-id> --loader lunaris
 Lunaris deploys the native DLL to `<game>/plugins`. Restart the game after a
 Lunaris deployment. `--scripts` is not valid for this loader.
 
-Deploy all six native targets and activate Lunaris:
+Deploy all five native targets and activate Lunaris:
 
 ```bash
 uv run erenshor -V playtest mod deploy --loader lunaris

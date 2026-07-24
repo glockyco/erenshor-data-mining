@@ -29,8 +29,8 @@ import typer
 from rich.console import Console
 
 from erenshor.application.mods.artifacts import format_artifact_issues, verify_static_mod_artifacts
+from erenshor.application.mods.catalog import artifact_specs
 from erenshor.cli.commands import maps
-from erenshor.cli.commands.mod import _artifact_specs
 
 if TYPE_CHECKING:
     from erenshor.cli.context import CLIContext
@@ -565,7 +565,7 @@ def _preflight_mods(cli_ctx: CLIContext) -> list[_Preflight]:
                 _file(root / reference, f"{native_project.name} required reference {reference.name}")
                 for reference in native_project.required_ignored_references
             )
-    artifact_issues = verify_static_mod_artifacts(root, _artifact_specs())
+    artifact_issues = verify_static_mod_artifacts(root, artifact_specs())
     artifact_detail = format_artifact_issues(artifact_issues)
     checks.append(
         _Preflight(

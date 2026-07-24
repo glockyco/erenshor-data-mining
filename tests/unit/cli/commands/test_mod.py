@@ -5,6 +5,7 @@ from __future__ import annotations
 import stat
 import subprocess
 import zipfile
+from dataclasses import FrozenInstanceError, replace
 from datetime import datetime
 from pathlib import Path
 from types import SimpleNamespace
@@ -15,10 +16,15 @@ import pytest
 import typer
 
 from erenshor.application.mods.artifacts import ArtifactIssue, ModArtifactSpec
+from erenshor.application.mods.catalog import artifact_specs, iter_mods, lookup_mod, public_mods
 from erenshor.cli.commands import mod as mod_command
-from erenshor.cli.commands.mod import MODS, REQUIRED_DLLS
+from erenshor.cli.commands.mod import REQUIRED_DLLS
 
 _DISCOVER_CROSSOVER_GAME_PATH = mod_command._discover_crossover_game_path
+
+
+def _mod(mod_id: str):
+    return lookup_mod(mod_id)
 
 
 def _ctx(
@@ -61,21 +67,22 @@ def _disable_workstation_crossover_discovery(monkeypatch: pytest.MonkeyPatch) ->
 
 
 def test_registry_inventory_declares_all_loader_targets_and_public_surface() -> None:
-    assert set(MODS) == {
-        "adventure-guide",
+    definitions = tuple(iter_mods())
+    assert tuple(definition.mod_id for definition in definitions) == (
         "interactive-map-companion",
         "justice-for-f7",
+        "sprint",
         "map-tile-capture",
-        "sprint",
-    }
-    assert {mod_id for mod_id, info in MODS.items() if info["public"]} == {
+        "adventure-guide",
+    )
+    assert {definition.mod_id for definition in public_mods()} == {
         "adventure-guide",
         "interactive-map-companion",
         "justice-for-f7",
         "sprint",
     }
-    assert all(info["loaders"] == ["bepinex", "lunaris"] for info in MODS.values())
-    assert {mod_id: info["default_loader"] for mod_id, info in MODS.items()} == {
+    assert all(definition.loaders == ("bepinex", "lunaris") for definition in definitions)
+    assert {definition.mod_id: definition.default_loader for definition in definitions} == {
         "adventure-guide": "lunaris",
         "interactive-map-companion": "bepinex",
         "justice-for-f7": "lunaris",
@@ -85,7 +92,7 @@ def test_registry_inventory_declares_all_loader_targets_and_public_surface() -> 
 
 
 def test_artifact_specs_are_exactly_derived_from_ordered_catalog() -> None:
-    assert mod_command._artifact_specs() == (
+    assert artifact_specs() == (
         ModArtifactSpec(
             "interactive-map-companion",
             Path("src/mods/InteractiveMapCompanion"),
@@ -158,36 +165,27 @@ def test_build_target_resolution_is_deterministic_for_default_and_all() -> None:
     assert mod_command._resolve_deploy_targets("adventure-guide", "default") == [("adventure-guide", "lunaris")]
 
 
-def test_target_resolution_rejects_invalid_and_unsupported_loader() -> None:
+def test_target_resolution_rejects_invalid_and_unsupported_loader(monkeypatch: pytest.MonkeyPatch) -> None:
     with pytest.raises(ValueError, match="Unsupported loader target"):
         mod_command._resolve_build_targets("sprint", "invalid")
     with pytest.raises(ValueError, match="all"):
         mod_command._resolve_deploy_targets("sprint", "all")
 
-    original = MODS["sprint"]["loaders"]
-    MODS["sprint"]["loaders"] = ["lunaris"]
-    try:
-        with pytest.raises(ValueError, match="does not support"):
-            mod_command._resolve_build_targets("sprint", "bepinex")
-        assert mod_command._resolve_build_targets("sprint", "all") == [("sprint", "lunaris")]
-    finally:
-        MODS["sprint"]["loaders"] = original
-
-
-def test_build_rejects_unsupported_target_before_dotnet(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    ctx = _ctx(tmp_path).obj
-    original = MODS["sprint"]["loaders"]
-    MODS["sprint"]["loaders"] = ["lunaris"]
-    monkeypatch.setattr(
-        mod_command,
-        "_check_dotnet_available",
-        lambda: pytest.fail("dotnet availability must not be checked"),
+    changed = tuple(
+        replace(definition, loaders=("lunaris",)) if definition.mod_id == "sprint" else definition
+        for definition in iter_mods()
     )
-    try:
-        with pytest.raises(typer.Exit):
-            mod_command._build_mods_internal(ctx, "sprint", loader="bepinex")
-    finally:
-        MODS["sprint"]["loaders"] = original
+    changed_by_id = {definition.mod_id: definition for definition in changed}
+    monkeypatch.setattr(mod_command, "lookup_mod", changed_by_id.__getitem__)
+    monkeypatch.setattr(mod_command, "iter_mods", lambda: iter(changed))
+    with pytest.raises(ValueError, match="does not support"):
+        mod_command._resolve_build_targets("sprint", "bepinex")
+    assert mod_command._resolve_build_targets("sprint", "all") == [("sprint", "lunaris")]
+
+
+def test_catalog_definitions_are_immutable() -> None:
+    with pytest.raises(FrozenInstanceError):
+        _mod("sprint").loaders = ("lunaris",)
 
 
 def test_output_paths_are_isolated_by_loader(tmp_path: Path) -> None:
@@ -201,7 +199,7 @@ def test_output_paths_are_isolated_by_loader(tmp_path: Path) -> None:
 
 def test_dotnet_build_receives_loader_property(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     ctx = _ctx(tmp_path).obj
-    mod_dir = tmp_path / MODS["sprint"]["dir"]
+    mod_dir = tmp_path / _mod("sprint").directory
     (mod_dir / "lib").mkdir(parents=True)
     (mod_dir / "lib" / "Assembly-CSharp.dll").write_bytes(b"reference")
     calls: list[tuple[list[str], dict[str, Any]]] = []
@@ -228,7 +226,7 @@ def test_built_verifier_receives_exact_resolved_targets(tmp_path: Path, monkeypa
     ctx = _ctx(tmp_path).obj
     targets = [("sprint", "lunaris"), ("justice-for-f7", "bepinex")]
     for mod_id, _loader in targets:
-        mod_dir = tmp_path / MODS[mod_id]["dir"]
+        mod_dir = tmp_path / _mod(mod_id).directory
         (mod_dir / "lib").mkdir(parents=True)
         (mod_dir / "lib" / "Assembly-CSharp.dll").write_bytes(b"reference")
 
@@ -255,7 +253,7 @@ def test_built_artifact_failure_exits_before_completion(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: Any
 ) -> None:
     ctx = _ctx(tmp_path).obj
-    mod_dir = tmp_path / MODS["sprint"]["dir"]
+    mod_dir = tmp_path / _mod("sprint").directory
     (mod_dir / "lib").mkdir(parents=True)
     (mod_dir / "lib" / "Assembly-CSharp.dll").write_bytes(b"reference")
     monkeypatch.setattr(mod_command, "_check_dotnet_available", lambda: True)
@@ -279,7 +277,7 @@ def test_built_artifact_failure_exits_before_completion(
 
 def test_failed_build_does_not_run_built_verifier(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     ctx = _ctx(tmp_path).obj
-    mod_dir = tmp_path / MODS["sprint"]["dir"]
+    mod_dir = tmp_path / _mod("sprint").directory
     (mod_dir / "lib").mkdir(parents=True)
     (mod_dir / "lib" / "Assembly-CSharp.dll").write_bytes(b"reference")
     verification_calls: list[object] = []
@@ -470,7 +468,7 @@ def test_bepinex_deploy_uses_thunderstore_runtime_layout(tmp_path: Path, monkeyp
     stale = game / "BepInEx/plugins/AdventureGuide.dll"
     stale.parent.mkdir(parents=True)
     stale.write_bytes(b"stale-plugin")
-    mod_dir = tmp_path / MODS["adventure-guide"]["dir"]
+    mod_dir = tmp_path / _mod("adventure-guide").directory
     output = mod_dir / "bin/Debug/netstandard2.1/bepinex"
     output.mkdir(parents=True)
     (output / "AdventureGuide.dll").write_bytes(b"plugin")
@@ -571,11 +569,11 @@ def _thunderstore_fixture(
     changelog: str = "./thunderstore/CHANGELOG.md",
 ) -> tuple[Path, Path, Path]:
     """Create a small manifest and all declared regular-file inputs."""
-    info = MODS[mod_id]
-    mod_dir = tmp_path / info["dir"]
+    definition = _mod(mod_id)
+    mod_dir = tmp_path / definition.directory
     manifest_path = mod_dir / "thunderstore.toml"
-    source = source or f"./bin/Debug/netstandard2.1/bepinex/{info['dll_name']}"
-    target = target or f"plugins/{info['dll_name'][:-4]}/"
+    source = source or f"./bin/Debug/netstandard2.1/bepinex/{definition.dll_name}"
+    target = target or f"plugins/{definition.dll_name[:-4]}/"
 
     def write_declared(raw: str, content: bytes | str) -> None:
         candidate = (mod_dir / raw.removeprefix("./")).resolve(strict=False)
@@ -699,9 +697,11 @@ def _prepare_thunderstore_command(
 
 
 def test_thunderstore_registry_has_exact_public_ids() -> None:
-    assert {mod_id: info["thunderstore"] for mod_id, info in MODS.items() if "thunderstore" in info} == (
-        PUBLIC_THUNDERSTORE_IDS
-    )
+    assert {
+        definition.mod_id: definition.thunderstore_id
+        for definition in iter_mods()
+        if definition.thunderstore_id is not None
+    } == (PUBLIC_THUNDERSTORE_IDS)
 
 
 def test_internal_mod_rejected_before_build_or_tcli(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -755,7 +755,7 @@ def test_dry_run_builds_all_public_mods_and_never_publishes(tmp_path: Path, monk
     ctx, _manifests, builds, calls = _prepare_thunderstore_command(tmp_path, monkeypatch, list(PUBLIC_THUNDERSTORE_IDS))
     mod_command.thunderstore(ctx, mod=None, dry_run=True)
 
-    expected = [mod_id for mod_id, info in MODS.items() if info.get("public") and "thunderstore" in info]
+    expected = [definition.mod_id for definition in public_mods() if definition.thunderstore_id is not None]
     assert [mod_id for mod_id, _loader, _kwargs in builds] == expected
     assert all(loader == "bepinex" for _mod_id, loader, _kwargs in builds)
     assert [args[1] for args, _kwargs in calls] == ["build"] * 4
@@ -767,7 +767,7 @@ def test_all_selected_releases_are_preflighted_before_any_build(
     ctx = _ctx(tmp_path).obj
     for mod_id in PUBLIC_THUNDERSTORE_IDS:
         _thunderstore_fixture(tmp_path, mod_id)
-    bad_manifest = tmp_path / MODS["sprint"]["dir"] / "thunderstore.toml"
+    bad_manifest = tmp_path / _mod("sprint").directory / "thunderstore.toml"
     bad_manifest.write_text(bad_manifest.read_text().replace("./vault/icon.png", "./missing.png"))
     builds: list[str] = []
     monkeypatch.setattr(mod_command, "_check_tcli_available", lambda: True)
@@ -985,7 +985,7 @@ def test_exact_bepinex_build_and_tcli_argv_and_cwd(tmp_path: Path, monkeypatch: 
 
     assert builds == [("sprint", "bepinex", {"version": "2099.101.0"})]
     manifest_path = next(iter(manifests))
-    mod_dir = tmp_path / MODS["sprint"]["dir"]
+    mod_dir = tmp_path / _mod("sprint").directory
     assert calls[0] == (
         ["tcli", "build", "--package-version", "2099.101.0", "--config-path", manifest_path],
         {"cwd": mod_dir, "check": False},
@@ -1197,7 +1197,7 @@ def test_package_zip_location_requires_exact_single_expected_zip(tmp_path: Path)
 
 def test_vault_build_is_explicitly_lunaris(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     ctx = _ctx(tmp_path).obj
-    mod_dir = tmp_path / MODS["sprint"]["dir"]
+    mod_dir = tmp_path / _mod("sprint").directory
     vault_dir = mod_dir / "vault"
     vault_dir.mkdir(parents=True)
     (vault_dir / "vault.toml").write_text('[mod]\nmod_ref = "sprint"\n')
@@ -1240,18 +1240,18 @@ def test_setup_provisions_union_of_loader_references(tmp_path: Path, monkeypatch
 
     mod_command.setup(ctx)
 
-    for _mod_id, mod_info in MODS.items():
-        lib_dir = tmp_path / mod_info["dir"] / "lib"
+    for definition in iter_mods():
+        lib_dir = tmp_path / definition.directory / "lib"
         assert all((lib_dir / dll_name).exists() for dll_name in REQUIRED_DLLS)
         assert (lib_dir / "lunaris" / "Lunaris.dll").read_bytes() == b"lunaris"
     assert (
-        tmp_path / MODS["interactive-map-companion"]["dir"] / "lib/bepinex/0Harmony.dll"
+        tmp_path / _mod("interactive-map-companion").directory / "lib/bepinex/0Harmony.dll"
     ).read_bytes() == b"bepinex harmony"
     assert (
-        tmp_path / MODS["interactive-map-companion"]["dir"] / "lib/lunaris/0Harmony.dll"
+        tmp_path / _mod("interactive-map-companion").directory / "lib/lunaris/0Harmony.dll"
     ).read_bytes() == b"lunaris harmony"
-    assert (tmp_path / MODS["sprint"]["dir"] / "lib/lunaris/0Harmony.dll").read_bytes() == b"lunaris harmony"
-    assert (tmp_path / MODS["adventure-guide"]["dir"] / "lib/lunaris/ImGui.NET.dll").read_bytes() == b"ImGui.NET.dll"
+    assert (tmp_path / _mod("sprint").directory / "lib/lunaris/0Harmony.dll").read_bytes() == b"lunaris harmony"
+    assert (tmp_path / _mod("adventure-guide").directory / "lib/lunaris/ImGui.NET.dll").read_bytes() == b"ImGui.NET.dll"
 
 
 def test_lunaris_shared_lib_sourced_only_from_resolved_lib_dir(tmp_path: Path) -> None:

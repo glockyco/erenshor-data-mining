@@ -23,7 +23,7 @@ import zipfile
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
-from typing import TYPE_CHECKING, Annotated, Literal, NotRequired, TypedDict, cast
+from typing import TYPE_CHECKING, Annotated, Literal, cast
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -36,33 +36,18 @@ from erenshor.application.mods.artifacts import (
     REQUIRED_DLLS as _ARTIFACT_REQUIRED_DLLS,
 )
 from erenshor.application.mods.artifacts import (
-    ModArtifactSpec,
     format_artifact_issues,
     is_forbidden_runtime_dll,
     verify_built_mod_artifacts,
 )
+from erenshor.application.mods.catalog import LoaderName, artifact_specs, iter_mods, lookup_mod, public_mods
 
 if TYPE_CHECKING:
     from ..context import CLIContext
 
 
-LoaderName = Literal["bepinex", "lunaris"]
 BuildLoader = Literal["default", "bepinex", "lunaris", "all"]
 DeployLoader = Literal["default", "bepinex", "lunaris"]
-
-
-class ModInfo(TypedDict):
-    dir: str
-    name: str
-    dll_name: str
-    loaders: list[LoaderName]
-    default_loader: LoaderName
-    public: bool
-    thunderstore: NotRequired[str]
-    thunderstore_files: NotRequired[list[str]]
-    bepinex_dlls: NotRequired[list[str]]
-    lunaris_dlls: NotRequired[list[str]]
-
 
 app = typer.Typer(
     name="mod",
@@ -84,98 +69,6 @@ LOADER_PROXY_CANDIDATES: dict[LoaderName, tuple[str, ...]] = {
 }
 
 VAULT_API_BASE = "https://erenshorvault.app/api"
-
-# Mod registry - all companion mods in the project. Every mod has native build
-# targets for both loaders; ``default_loader`` preserves the current install
-# path used by website/default deploys.
-MODS: dict[str, ModInfo] = {
-    "interactive-map-companion": {
-        "dir": "src/mods/InteractiveMapCompanion",
-        "name": "Interactive Map Companion",
-        "dll_name": "InteractiveMapCompanion.dll",
-        "loaders": ["bepinex", "lunaris"],
-        "default_loader": "bepinex",
-        "public": True,
-        "thunderstore": "WoW_Much/InteractiveMapCompanion",
-        "thunderstore_files": ["InteractiveMapCompanion.dll"],
-        # Harmony ships with BepInEx, not with the game — copy from BepInEx/core/
-        "bepinex_dlls": ["0Harmony.dll"],
-        "lunaris_dlls": ["Newtonsoft.Json.dll", "0Harmony.dll"],
-    },
-    "justice-for-f7": {
-        "dir": "src/mods/JusticeForF7",
-        "name": "Justice for F7",
-        "dll_name": "JusticeForF7.dll",
-        "loaders": ["bepinex", "lunaris"],
-        "default_loader": "lunaris",
-        "public": True,
-        "thunderstore": "WoW_Much/JusticeForF7",
-        "thunderstore_files": ["JusticeForF7.dll"],
-        "lunaris_dlls": ["0Harmony.dll"],
-    },
-    "sprint": {
-        "dir": "src/mods/Sprint",
-        "name": "Sprint",
-        "dll_name": "Sprint.dll",
-        "loaders": ["bepinex", "lunaris"],
-        "default_loader": "lunaris",
-        "public": True,
-        "thunderstore": "WoW_Much/Sprint",
-        "thunderstore_files": ["Sprint.dll"],
-        "lunaris_dlls": ["0Harmony.dll"],
-    },
-    "map-tile-capture": {
-        "dir": "src/mods/MapTileCapture",
-        "name": "Map Tile Capture",
-        "dll_name": "MapTileCapture.dll",
-        "loaders": ["bepinex", "lunaris"],
-        "default_loader": "bepinex",
-        "public": False,
-        "bepinex_dlls": ["0Harmony.dll"],
-        "lunaris_dlls": ["Newtonsoft.Json.dll", "0Harmony.dll"],
-    },
-    "adventure-guide": {
-        "dir": "src/mods/AdventureGuide",
-        "name": "Adventure Guide",
-        "dll_name": "AdventureGuide.dll",
-        "loaders": ["bepinex", "lunaris"],
-        "default_loader": "lunaris",
-        "public": True,
-        "thunderstore": "WoW_Much/AdventureGuide",
-        "thunderstore_files": [
-            "AdventureGuide.dll",
-            "ImGui.NET.dll",
-            "Newtonsoft.Json.dll",
-            "System.Numerics.Vectors.dll",
-            "System.Runtime.CompilerServices.Unsafe.dll",
-            "cimgui.dll",
-        ],
-        "bepinex_dlls": ["0Harmony.dll"],
-        "lunaris_dlls": [
-            "ImGui.NET.dll",
-            "Newtonsoft.Json.dll",
-            "System.Numerics.Vectors.dll",
-            "0Harmony.dll",
-        ],
-    },
-}
-
-
-def _artifact_specs() -> tuple[ModArtifactSpec, ...]:
-    """Convert the ordered mod catalog into artifact-verifier specifications."""
-    return tuple(
-        ModArtifactSpec(
-            mod_id=mod_id,
-            directory=Path(info["dir"]),
-            display_name=info["name"],
-            dll_name=info["dll_name"],
-            loaders=tuple(info["loaders"]),
-            public=info["public"],
-            thunderstore_id=info.get("thunderstore"),
-            thunderstore_files=tuple(info.get("thunderstore_files", ())),
-        )
-        for mod_id, info in MODS.items()
-    )
 
 
 # Required DLLs to copy from game.  Artifact policy owns the canonical names;
@@ -419,9 +312,11 @@ def _print_loader_status(game_path: Path) -> None:
 
 def _get_mod_dir(cli_ctx: CLIContext, mod_id: str) -> Path:
     """Get the mod source directory."""
-    if mod_id not in MODS:
-        raise ValueError(f"Unknown mod: {mod_id}")
-    return cli_ctx.repo_root / MODS[mod_id]["dir"]
+    try:
+        definition = lookup_mod(mod_id)
+    except KeyError as exc:
+        raise ValueError(f"Unknown mod: {mod_id}") from exc
+    return cli_ctx.repo_root / definition.directory
 
 
 def _get_mod_lib_dir(cli_ctx: CLIContext, mod_id: str) -> Path:
@@ -431,7 +326,8 @@ def _get_mod_lib_dir(cli_ctx: CLIContext, mod_id: str) -> Path:
 
 def _get_mod_loader_lib_dir(cli_ctx: CLIContext, mod_id: str, loader: LoaderName) -> Path:
     """Get the isolated reference directory for a loader target."""
-    if loader not in MODS[mod_id]["loaders"]:
+    definition = lookup_mod(mod_id)
+    if loader not in definition.loaders:
         raise ValueError(f"{mod_id} does not support the {loader} loader")
     return _get_mod_lib_dir(cli_ctx, mod_id) / loader
 
@@ -444,7 +340,8 @@ def _get_mod_output_dir(
     configuration: str = "Debug",
 ) -> Path:
     """Get the isolated build output directory for a loader target."""
-    if loader not in MODS[mod_id]["loaders"]:
+    definition = lookup_mod(mod_id)
+    if loader not in definition.loaders:
         raise ValueError(f"{mod_id} does not support the {loader} loader")
     return _get_mod_dir(cli_ctx, mod_id) / "bin" / configuration / "netstandard2.1" / loader
 
@@ -464,10 +361,10 @@ def _get_deploy_files(
     scripts: bool,
 ) -> tuple[DeployFile, ...]:
     """Resolve the complete runtime file set for one native deployment."""
-    mod_info = MODS[mod_id]
+    definition = lookup_mod(mod_id)
     mod_dir = _get_mod_dir(cli_ctx, mod_id)
     manifest_path = mod_dir / "thunderstore.toml"
-    thunderstore_id = mod_info.get("thunderstore")
+    thunderstore_id = definition.thunderstore_id
     if loader == "bepinex" and not scripts and manifest_path.is_file() and thunderstore_id:
         namespace, name = thunderstore_id.split("/", 1)
         manifest = _parse_thunderstore_manifest(
@@ -484,13 +381,13 @@ def _get_deploy_files(
             )
             for copy in manifest.copies
         )
-        if not any(file.source.name == mod_info["dll_name"] for file in manifest_files):
-            raise ValueError(f"Thunderstore manifest does not deploy {mod_info['dll_name']}")
+        if not any(file.source.name == definition.dll_name for file in manifest_files):
+            raise ValueError(f"Thunderstore manifest does not deploy {definition.dll_name}")
         return manifest_files
 
     target_dir, _, copy_pdb = _get_deploy_target_dir(loader, game_path, scripts=scripts)
     output_dir = _get_mod_output_dir(cli_ctx, mod_id, loader)
-    dll_name = mod_info["dll_name"]
+    dll_name = definition.dll_name
     files = [DeployFile(output_dir / dll_name, target_dir / dll_name)]
     if copy_pdb:
         pdb_name = dll_name.replace(".dll", ".pdb")
@@ -510,8 +407,8 @@ def _conflicting_deploy_paths(
     if loader != "bepinex":
         return ()
 
-    mod_info = MODS[mod_id]
-    dll_name = mod_info["dll_name"]
+    definition = lookup_mod(mod_id)
+    dll_name = definition.dll_name
     pdb_name = dll_name.replace(".dll", ".pdb")
     plugins = _get_bepinex_plugins_dir(game_path)
     candidates = {
@@ -520,7 +417,7 @@ def _conflicting_deploy_paths(
         _get_bepinex_scripts_dir(game_path) / dll_name,
         _get_bepinex_scripts_dir(game_path) / pdb_name,
     }
-    thunderstore_id = mod_info.get("thunderstore")
+    thunderstore_id = definition.thunderstore_id
     if thunderstore_id:
         package_name = thunderstore_id.split("/", 1)[1]
         candidates.add(plugins / package_name / dll_name)
@@ -568,23 +465,26 @@ def _resolve_mod_targets(
         choices = ", ".join(sorted(valid_loaders))
         raise ValueError(f"Unsupported loader target {loader!r}; choose {choices}")
 
-    mod_ids = [mod] if mod else list(MODS)
-    if mod and mod not in MODS:
-        raise ValueError(f"Unknown mod: {mod}")
+    mod_ids = [mod] if mod else [definition.mod_id for definition in iter_mods()]
+    if mod:
+        try:
+            lookup_mod(mod)
+        except KeyError as exc:
+            raise ValueError(f"Unknown mod: {mod}") from exc
 
     targets: list[tuple[str, LoaderName]] = []
     for mod_id in mod_ids:
-        mod_info = MODS[mod_id]
+        definition = lookup_mod(mod_id)
         selected: list[LoaderName]
         if loader == "all":
-            selected = list(mod_info["loaders"])
+            selected = list(definition.loaders)
         elif loader == "default":
-            selected = [mod_info["default_loader"]]
+            selected = [definition.default_loader]
         else:
             selected = [cast("LoaderName", loader)]
 
         for selected_loader in selected:
-            if selected_loader not in mod_info["loaders"]:
+            if selected_loader not in definition.loaders:
                 raise ValueError(f"{mod_id} does not support the {selected_loader} loader")
             targets.append((mod_id, selected_loader))
     return targets
@@ -717,7 +617,8 @@ def _build_mods_internal(
             console.print("Run 'uv run erenshor mod setup' first.")
             raise typer.Exit(1)
 
-        console.print(f"[bold]{MODS[mod_id]['name']} ({target_loader})[/bold]")
+        definition = lookup_mod(mod_id)
+        console.print(f"[bold]{definition.display_name} ({target_loader})[/bold]")
         console.print(f"[dim]{mod_dir}[/dim]")
         console.print()
 
@@ -750,7 +651,7 @@ def _build_mods_internal(
         console.print(f"[red]Build failed for: {', '.join(failed)}[/red]")
         raise typer.Exit(1)
 
-    artifact_issues = verify_built_mod_artifacts(cli_ctx.repo_root, _artifact_specs(), targets)
+    artifact_issues = verify_built_mod_artifacts(cli_ctx.repo_root, artifact_specs(), targets)
     if artifact_issues:
         console.print("[red]Artifact verification failed:[/red]")
         for diagnostic in format_artifact_issues(artifact_issues).splitlines():
@@ -805,11 +706,12 @@ def setup(ctx: typer.Context) -> None:
     # Provision common game references once and keep each loader's references in
     # its own directory. In particular, BepInEx and Lunaris ship different
     # 0Harmony.dll assemblies and must never overwrite one another.
-    for mod_id, mod_info in MODS.items():
+    for definition in iter_mods():
+        mod_id = definition.mod_id
         lib_dir = _get_mod_lib_dir(cli_ctx, mod_id)
         lib_dir.mkdir(parents=True, exist_ok=True)
 
-        console.print(f"[bold]{mod_info['name']}[/bold]")
+        console.print(f"[bold]{definition.display_name}[/bold]")
         missing: list[str] = []
 
         for dll_name in REQUIRED_DLLS:
@@ -822,7 +724,7 @@ def setup(ctx: typer.Context) -> None:
                 shutil.copy2(source, target)
                 console.print(f"  [green]✓[/green] {dll_name}")
 
-        for target_loader in mod_info["loaders"]:
+        for target_loader in definition.loaders:
             loader_lib_dir = _get_mod_loader_lib_dir(cli_ctx, mod_id, target_loader)
             loader_lib_dir.mkdir(parents=True, exist_ok=True)
 
@@ -837,8 +739,8 @@ def setup(ctx: typer.Context) -> None:
                     shutil.copy2(lunaris_dll, loader_lib_dir / "Lunaris.dll")
                     console.print(f"  [green]✓[/green] Lunaris.dll (from {lunaris_dll.parent})")
 
-            loader_dlls: list[str] = (
-                mod_info.get("lunaris_dlls", []) if target_loader == "lunaris" else mod_info.get("bepinex_dlls", [])
+            loader_dlls: tuple[str, ...] = (
+                definition.lunaris_dlls if target_loader == "lunaris" else definition.bepinex_dlls
             )
             for dll_name in loader_dlls:
                 loader_source: Path | None
@@ -1103,7 +1005,8 @@ def deploy(
 
     for mod_id, selected_loader in targets:
         _, deploy_label, _ = _get_deploy_target_dir(selected_loader, game_path, scripts=scripts)
-        console.print(f"[bold]{MODS[mod_id]['name']} ({selected_loader}) → {deploy_label}[/bold]")
+        definition = lookup_mod(mod_id)
+        console.print(f"[bold]{definition.display_name} ({selected_loader}) → {deploy_label}[/bold]")
         try:
             _remove_conflicting_deploy_paths(conflicting_files[mod_id])
         except (OSError, ValueError) as exc:
@@ -1550,21 +1453,23 @@ def thunderstore(
         raise typer.Exit(1)
 
     if mod is not None:
-        if mod not in MODS:
+        try:
+            definition = lookup_mod(mod)
+        except KeyError:
             console.print(f"[red]Error: Unknown mod: {mod}[/red]")
-            raise typer.Exit(1)
-        if not MODS[mod].get("public") or "thunderstore" not in MODS[mod]:
+            raise typer.Exit(1) from None
+        if not definition.public or definition.thunderstore_id is None:
             console.print(f"[red]Error: {mod} is not configured for Thunderstore[/red]")
             raise typer.Exit(1)
         selected = [mod]
     else:
-        selected = [mod_id for mod_id, info in MODS.items() if info.get("public") and "thunderstore" in info]
+        selected = [definition.mod_id for definition in public_mods() if definition.thunderstore_id is not None]
 
     releases: list[ThunderstoreRelease] = []
     # Preflight every release, including version lookups, before any build starts.
     for mod_id in selected:
-        mod_info = MODS[mod_id]
-        ts_id = mod_info.get("thunderstore")
+        definition = lookup_mod(mod_id)
+        ts_id = definition.thunderstore_id
         if not ts_id or ts_id.count("/") != 1:
             console.print(f"[red]Error: invalid Thunderstore id for {mod_id}[/red]")
             raise typer.Exit(1)
@@ -1597,7 +1502,7 @@ def thunderstore(
     built_releases: list[ThunderstoreRelease] = []
     for release in releases:
         console.print()
-        console.print(f"[bold]{MODS[release.mod_id]['name']}[/bold]")
+        console.print(f"[bold]{lookup_mod(release.mod_id).display_name}[/bold]")
         console.print(f"  Version: [cyan]{release.version}[/cyan]")
         console.print("[bold]Building...[/bold]")
         try:
@@ -1673,7 +1578,7 @@ def thunderstore(
         except (OSError, ValueError) as exc:
             console.print(f"[red]Error: {exc}[/red]")
             raise typer.Exit(1) from exc
-        namespace, name = (MODS[release.mod_id].get("thunderstore") or "").split("/", 1)
+        namespace, name = (lookup_mod(release.mod_id).thunderstore_id or "").split("/", 1)
         try:
             result = subprocess.run(
                 [
@@ -1732,15 +1637,17 @@ def vault(
         return (_get_mod_dir(cli_ctx, mod_id) / "vault" / "vault.toml").exists()
 
     if mod:
-        if mod not in MODS:
+        try:
+            lookup_mod(mod)
+        except KeyError:
             console.print(f"[red]Error: Unknown mod: {mod}[/red]")
-            raise typer.Exit(1)
+            raise typer.Exit(1) from None
         if not has_listing(mod):
             console.print(f"[red]Error: {mod} has no vault/vault.toml listing[/red]")
             raise typer.Exit(1)
         eligible = [mod]
     else:
-        eligible = [m for m in MODS if has_listing(m)]
+        eligible = [definition.mod_id for definition in iter_mods() if has_listing(definition.mod_id)]
 
     if not eligible:
         console.print("[yellow]No mods have a vault/vault.toml listing.[/yellow]")
@@ -1751,7 +1658,8 @@ def vault(
         config = tomllib.loads((mod_dir / "vault" / "vault.toml").read_text())
         mod_ref = config["mod"]["mod_ref"]
 
-        console.print(f"[bold]{MODS[mod_id]['name']}[/bold]")
+        definition = lookup_mod(mod_id)
+        console.print(f"[bold]{definition.display_name}[/bold]")
         version = _get_vault_version(mod_ref)
         console.print(f"  Version: [cyan]{version}[/cyan]  (mod_ref: {mod_ref})")
 
@@ -1767,7 +1675,7 @@ def vault(
         console.print("[bold]Building...[/bold]")
         _build_mods_internal(cli_ctx, mod_id, version=version, loader="lunaris")
 
-        dll = _get_mod_output_dir(cli_ctx, mod_id, "lunaris") / MODS[mod_id]["dll_name"]
+        dll = _get_mod_output_dir(cli_ctx, mod_id, "lunaris") / definition.dll_name
         console.print(f"  [green]✓[/green] {dll}")
         console.print()
         console.print("  [bold]Upload (manual until the Vault write API ships):[/bold]")
