@@ -272,27 +272,11 @@ export function deserializeSelection(raw: string, ctx: DeserializeContext): Sele
             return { type: 'zone', zone };
         }
         case 'enemy': {
-            const markers = ctx.searchIndex.enemyProvider.getMarkers(value);
-            if (markers.length === 0) {
+            const result = ctx.searchIndex.enemyProvider.getResult(value);
+            if (!result) {
                 return { type: 'search-not-found', searchType: 'enemy', name: value };
             }
-            const zones = new Set(markers.map((m) => m.zone));
-            const chars = markers.flatMap((m) => m.characters.filter((c) => c.name === value));
-            const effectiveRarity = chars.some((c) => c.effectiveRarity === Rarity.unique)
-                ? Rarity.unique
-                : chars.some((c) => c.effectiveRarity === Rarity.rare)
-                  ? Rarity.rare
-                  : Rarity.common;
-            return {
-                type: 'search',
-                result: {
-                    type: 'enemy',
-                    name: value,
-                    effectiveRarity,
-                    spawnCount: markers.length,
-                    zoneCount: zones.size
-                }
-            };
+            return { type: 'search', result };
         }
         case 'npc': {
             const markers = ctx.searchIndex.npcProvider.getMarkers(value);

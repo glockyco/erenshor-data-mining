@@ -169,8 +169,12 @@
                     const parts: string[] = ['Enemy'];
                     if (r.effectiveRarity === Rarity.unique) parts.push('Unique');
                     else if (r.effectiveRarity === Rarity.rare) parts.push('Rare');
-                    parts.push(`${r.spawnCount} spawn${r.spawnCount !== 1 ? 's' : ''}`);
-                    parts.push(`${r.zoneCount} zone${r.zoneCount !== 1 ? 's' : ''}`);
+                    if (r.spawnCount === 0) {
+                        parts.push('Location unknown');
+                    } else {
+                        parts.push(`${r.spawnCount} spawn${r.spawnCount !== 1 ? 's' : ''}`);
+                        parts.push(`${r.zoneCount} zone${r.zoneCount !== 1 ? 's' : ''}`);
+                    }
                     return parts.join(' \u2022 ');
                 }
                 case 'npc': {
@@ -241,6 +245,12 @@
         return searchIndex.enemyProvider.getMarkers(selection.result.name);
     });
 
+    const searchUnlocatedEnemies = $derived.by(() => {
+        if (selection?.type !== 'search' || selection.result.type !== 'enemy' || !searchIndex)
+            return [];
+        return searchIndex.enemyProvider.getUnlocated(selection.result.name);
+    });
+
     const searchNpcMarkers = $derived.by(() => {
         if (selection?.type !== 'search' || selection.result.type !== 'npc' || !searchIndex)
             return [];
@@ -273,6 +283,7 @@
             <SearchEnemyPopup
                 name={result.name}
                 markers={searchEnemyMarkers}
+                unlocated={searchUnlocatedEnemies}
                 {onHoverSpawn}
                 {onFocusSpawn}
                 {onFocusAll}

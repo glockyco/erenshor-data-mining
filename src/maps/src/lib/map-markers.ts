@@ -18,6 +18,14 @@ export type BaseMarker = {
     popup?: string;
 };
 
+export type UnlocatedEnemy = {
+    stableKey: string;
+    name: string;
+    wikiPageName: string | null;
+    level: number;
+    effectiveRarity: Rarity;
+};
+
 // Character info for spawn points (characters that can spawn at a location)
 export type SpawnCharacter = {
     name: string;

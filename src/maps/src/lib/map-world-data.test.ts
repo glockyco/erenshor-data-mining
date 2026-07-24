@@ -41,6 +41,13 @@ describe('buildMapWorldData', () => {
             zoneName: "Stowaway's Step"
         });
         expect(data.levelRange).toEqual({ min: 7, max: 7 });
+        expect(data.unlocatedEnemies).toEqual([
+            expect.objectContaining({
+                stableKey: 'character:runtime enemy',
+                name: 'Runtime Enemy',
+                level: 12
+            })
+        ]);
         expect(data.allItems).toHaveLength(6);
         expect(data.itemSources.map((source) => source.kind).sort()).toEqual([
             'bag',

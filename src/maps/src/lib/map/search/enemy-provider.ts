@@ -6,8 +6,15 @@
  */
 
 import { Rarity } from '$lib/map-markers';
+import type { UnlocatedEnemy } from '$lib/map-markers';
 import type { WorldEnemy } from '$lib/types/world-map';
-import type { SearchProvider, IndexEntry, ResolvedHighlight, SearchResult } from './types';
+import type {
+    SearchProvider,
+    IndexEntry,
+    ResolvedHighlight,
+    SearchResult,
+    EnemySearchResult
+} from './types';
 
 export class EnemySearchProvider implements SearchProvider {
     readonly categoryLabel = 'Enemies';
@@ -15,13 +22,17 @@ export class EnemySearchProvider implements SearchProvider {
 
     /** Name → all WorldEnemy markers that contain a character with that name */
     readonly enemyByName: Map<string, WorldEnemy[]>;
+    /** Name → map-visible enemies whose spawn point is runtime-selected. */
+    readonly unlocatedByName: Map<string, UnlocatedEnemy[]>;
 
     constructor(
         enemiesCommon: WorldEnemy[],
         enemiesRare: WorldEnemy[],
-        enemiesUnique: WorldEnemy[]
+        enemiesUnique: WorldEnemy[],
+        unlocatedEnemies: UnlocatedEnemy[]
     ) {
         this.enemyByName = new Map();
+        this.unlocatedByName = new Map();
 
         for (const enemies of [enemiesCommon, enemiesRare, enemiesUnique]) {
             for (const marker of enemies) {
@@ -38,34 +49,61 @@ export class EnemySearchProvider implements SearchProvider {
                 }
             }
         }
+
+        for (const enemy of unlocatedEnemies) {
+            const existing = this.unlocatedByName.get(enemy.name);
+            if (existing) existing.push(enemy);
+            else this.unlocatedByName.set(enemy.name, [enemy]);
+        }
+    }
+
+    getResult(name: string): EnemySearchResult | null {
+        const markers = this.enemyByName.get(name) ?? [];
+        if (markers.length > 0) {
+            const zones = new Set(markers.map((marker) => marker.zone));
+            const characters = markers.flatMap((marker) =>
+                marker.characters.filter((character) => character.name === name)
+            );
+            const effectiveRarity = characters.some(
+                (character) => character.effectiveRarity === Rarity.unique
+            )
+                ? Rarity.unique
+                : characters.some((character) => character.effectiveRarity === Rarity.rare)
+                  ? Rarity.rare
+                  : Rarity.common;
+            return {
+                type: 'enemy',
+                name,
+                effectiveRarity,
+                spawnCount: markers.length,
+                zoneCount: zones.size
+            };
+        }
+
+        const unlocated = this.unlocatedByName.get(name) ?? [];
+        if (unlocated.length === 0) return null;
+        const effectiveRarity = unlocated.some((enemy) => enemy.effectiveRarity === Rarity.unique)
+            ? Rarity.unique
+            : unlocated.some((enemy) => enemy.effectiveRarity === Rarity.rare)
+              ? Rarity.rare
+              : Rarity.common;
+        return {
+            type: 'enemy',
+            name,
+            effectiveRarity,
+            spawnCount: 0,
+            zoneCount: 0
+        };
     }
 
     buildIndex(): IndexEntry[] {
         const entries: IndexEntry[] = [];
+        const names = new Set([...this.enemyByName.keys(), ...this.unlocatedByName.keys()]);
 
-        for (const [name, markers] of this.enemyByName) {
-            const zones = new Set(markers.map((m) => m.zone));
-            // Each SpawnCharacter already carries the globally-correct
-            // effectiveRarity (derived from Characters.IsRare/IsCommon/IsUnique,
-            // which are pre-computed global aggregates in the DB). Simple
-            // precedence: unique > rare > common.
-            const chars = markers.flatMap((m) => m.characters.filter((c) => c.name === name));
-            const effectiveRarity = chars.some((c) => c.effectiveRarity === Rarity.unique)
-                ? Rarity.unique
-                : chars.some((c) => c.effectiveRarity === Rarity.rare)
-                  ? Rarity.rare
-                  : Rarity.common;
-
-            entries.push({
-                searchText: name.toLowerCase(),
-                result: {
-                    type: 'enemy',
-                    name,
-                    effectiveRarity,
-                    spawnCount: markers.length,
-                    zoneCount: zones.size
-                }
-            });
+        for (const name of names) {
+            const result = this.getResult(name);
+            if (!result) continue;
+            entries.push({ searchText: name.toLowerCase(), result });
         }
 
         return entries;
@@ -82,6 +120,10 @@ export class EnemySearchProvider implements SearchProvider {
             positions: markers.map((m) => m.worldPosition),
             stableKeys: markers.map((m) => m.stableKey)
         };
+    }
+
+    getUnlocated(name: string): UnlocatedEnemy[] {
+        return this.unlocatedByName.get(name) ?? [];
     }
 
     /** Get all enemy markers for a given character name (for popup rendering) */

@@ -135,6 +135,7 @@
             enemiesCommon: data.markers.enemiesCommon,
             enemiesRare: data.markers.enemiesRare,
             enemiesUnique: data.markers.enemiesUnique,
+            unlocatedEnemies: data.unlocatedEnemies,
             npcs: data.markers.npcs,
             zones: data.zones,
             miningNodes: data.markers.miningNodes,

@@ -41,6 +41,10 @@ CREATE TABLE characters (
     is_friendly INTEGER NOT NULL
 );
 
+CREATE TABLE spells (
+    pet_to_summon_stable_key TEXT REFERENCES characters(stable_key)
+);
+
 CREATE TABLE character_deduplications (
     group_key TEXT NOT NULL,
     member_stable_key TEXT NOT NULL REFERENCES characters(stable_key),
@@ -292,11 +296,13 @@ INSERT INTO characters (
     invulnerable, is_common, is_rare, is_unique, is_friendly
 ) VALUES
     ('character:breena carpenter', 'Breena Carpenter', 'Breena Carpenter', 'Breena Carpenter', 5, 1, 1, 0, 1, 0, 0, 1),
-    ('character:fixture enemy', 'Fixture Enemy', 'Fixture Enemy', 'Fixture Enemy', 7, 0, 0, 0, 0, 0, 1, 0);
+    ('character:fixture enemy', 'Fixture Enemy', 'Fixture Enemy', 'Fixture Enemy', 7, 0, 0, 0, 0, 0, 1, 0),
+    ('character:runtime enemy', 'Runtime Enemy', 'Runtime Enemy', 'Runtime Enemy', 12, 0, 0, 0, 0, 1, 0, 0);
 
 INSERT INTO character_deduplications (group_key, member_stable_key, is_map_visible) VALUES
     ('character-group:breena', 'character:breena carpenter', 1),
-    ('character-group:fixture-enemy', 'character:fixture enemy', 1);
+    ('character-group:fixture-enemy', 'character:fixture enemy', 1),
+    ('character-group:runtime-enemy', 'character:runtime enemy', 1);
 
 INSERT INTO map_character_spawns (
     character_stable_key, spawn_point_stable_key, scene, x, y, z, spawn_delay_4,

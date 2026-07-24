@@ -86,6 +86,7 @@ export type MapWorldDataRepository = Pick<RepositoryBase,
     | 'getAllZoneNorthBearings'
     | 'getZoneEnemyInfo'
     | 'getSpawnPointMarkers'
+    | 'getUnlocatedEnemies'
     | 'getZoneLineMarkers'
     | 'getForgeMarkers'
     | 'getWishingWellMarkers'
@@ -543,6 +544,10 @@ export async function buildMapWorldData(
     enemiesRare.sort(enabledLast);
     enemiesUnique.sort(enabledLast);
 
+    // Preload searchable enemies whose runtime-selected spawn points cannot be
+    // represented as map markers.
+    const unlocatedEnemies = await repo.getUnlocatedEnemies();
+
     // Preload item metadata and acquisition sources for the map search index
     // (no runtime DB access — see ItemSearchProvider).
     const itemSources = await repo.getItemSources();
@@ -571,6 +576,7 @@ export async function buildMapWorldData(
         worldCenter,
         worldBounds,
         levelRange: { min: enemyLevelMin, max: enemyLevelMax },
+        unlocatedEnemies,
         itemSources,
         allItems
     };

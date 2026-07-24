@@ -1,5 +1,6 @@
 <script lang="ts">
     import { SvelteMap } from 'svelte/reactivity';
+    import type { UnlocatedEnemy } from '$lib/map-markers';
     import type { WorldEnemy } from '$lib/types/world-map';
     import WikiLink from '$lib/components/map/WikiLink.svelte';
     import Crosshair from '@lucide/svelte/icons/crosshair';
@@ -7,12 +8,13 @@
     interface Props {
         name: string;
         markers: WorldEnemy[];
+        unlocated: UnlocatedEnemy[];
         onHoverSpawn: (stableKey: string | null) => void;
         onFocusSpawn: (stableKey: string) => void;
         onFocusAll: () => void;
     }
 
-    let { name, markers, onHoverSpawn, onFocusSpawn, onFocusAll }: Props = $props();
+    let { name, markers, unlocated, onHoverSpawn, onFocusSpawn, onFocusAll }: Props = $props();
 
     // Overall level range from the searched character across all spawn points
     const levelRange = $derived.by(() => {
@@ -25,6 +27,10 @@
                 min = Math.min(min, char.level);
                 max = Math.max(max, char.level);
             }
+        }
+        for (const enemy of unlocated) {
+            min = Math.min(min, enemy.level);
+            max = Math.max(max, enemy.level);
         }
         if (!isFinite(min)) return null;
         return min === max ? `Level ${min}` : `Level ${min}–${max}`;
@@ -83,6 +89,9 @@
             const match = marker.characters.find((c) => c.name === name && c.wikiPageName);
             if (match?.wikiPageName) return match.wikiPageName;
         }
+        for (const enemy of unlocated) {
+            if (enemy.wikiPageName) return enemy.wikiPageName;
+        }
         return null;
     });
 </script>
@@ -98,8 +107,9 @@
         <WikiLink pageName={wikiPageName} />
     </div>
 
-    <!-- Focus all button -->
-    <button
+    {#if markers.length > 0}
+        <!-- Focus all button -->
+        <button
         type="button"
         onclick={() => onFocusAll()}
         class="flex w-full items-center justify-center gap-2 rounded-md
@@ -174,4 +184,10 @@
             </div>
         {/each}
     </div>
+    {:else}
+        <p class="border-t border-zinc-700 pt-3 text-center text-xs text-zinc-400">
+            This enemy can appear in the world, but its spawn point is selected at runtime and
+            cannot be shown in advance.
+        </p>
+    {/if}
 </div>

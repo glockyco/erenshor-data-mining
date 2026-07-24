@@ -13,7 +13,7 @@ import type {
     WorldItemBag,
     ZoneWorldPosition
 } from '$lib/types/world-map';
-import type { ItemSourceRow, ItemSourceItemMeta } from '$lib/map-markers';
+import type { ItemSourceRow, ItemSourceItemMeta, UnlocatedEnemy } from '$lib/map-markers';
 import type {
     SearchProvider,
     IndexEntry,
@@ -112,6 +112,7 @@ export function buildSearchIndex(input: {
     enemiesCommon: WorldEnemy[];
     enemiesRare: WorldEnemy[];
     enemiesUnique: WorldEnemy[];
+    unlocatedEnemies: UnlocatedEnemy[];
     npcs: WorldNpc[];
     zones: ZoneWorldPosition[];
     miningNodes: WorldMiningNode[];
@@ -123,7 +124,8 @@ export function buildSearchIndex(input: {
     const enemyProvider = new EnemySearchProvider(
         input.enemiesCommon,
         input.enemiesRare,
-        input.enemiesUnique
+        input.enemiesUnique,
+        input.unlocatedEnemies
     );
     const npcProvider = new NpcSearchProvider(input.npcs);
     const zoneProvider = new ZoneSearchProvider(input.zones);

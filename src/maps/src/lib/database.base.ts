@@ -18,6 +18,7 @@ import type {
     SpawnCharacter,
     TeleportMarker,
     TreasureLocMarker,
+    UnlocatedEnemy,
     VendorItem,
     WaterMarker,
     WishingWellMarker,
@@ -424,6 +425,64 @@ export class RepositoryBase {
         }
         stmt.free();
         return markers;
+    }
+
+    async getUnlocatedEnemies(): Promise<UnlocatedEnemy[]> {
+        if (!this.db) throw new Error('DB not initialized');
+
+        const stmt = this.db.prepare(`
+            WITH rep_groups AS (
+                SELECT d.group_key, MIN(d.member_stable_key) AS rep_stable_key
+                FROM character_deduplications d
+                WHERE d.is_map_visible = 1
+                GROUP BY d.group_key
+            )
+            SELECT
+                rep.stable_key AS StableKey,
+                rep.display_name AS Name,
+                rep.wiki_page_name AS WikiPageName,
+                rep.level AS Level,
+                rep.is_common AS IsCommon,
+                rep.is_rare AS IsRare,
+                rep.is_unique AS IsUnique
+            FROM rep_groups rg
+            JOIN characters rep ON rep.stable_key = rg.rep_stable_key
+            WHERE rep.is_friendly = 0
+              AND NOT EXISTS (
+                  SELECT 1
+                  FROM character_deduplications d
+                  JOIN map_character_spawns cs
+                    ON cs.character_stable_key = d.member_stable_key
+                  WHERE d.group_key = rg.group_key
+                    AND d.is_map_visible = 1
+                    AND (cs.spawn_chance > 0 OR cs.source_script IS NOT NULL)
+                    AND cs.spawn_point_stable_key IS NOT NULL
+              )
+              AND NOT EXISTS (
+                  SELECT 1
+                  FROM spells sp
+                  WHERE sp.pet_to_summon_stable_key = rep.stable_key
+              )
+            ORDER BY rep.display_name, rep.stable_key
+        `);
+
+        const enemies: UnlocatedEnemy[] = [];
+        while (stmt.step()) {
+            const row = stmt.getAsObject();
+            enemies.push({
+                stableKey: row.StableKey as string,
+                name: row.Name as string,
+                wikiPageName: row.WikiPageName as string | null,
+                level: row.Level as number,
+                effectiveRarity: row.IsUnique
+                    ? Rarity.unique
+                    : !!row.IsRare && !row.IsCommon
+                      ? Rarity.rare
+                      : Rarity.common
+            });
+        }
+        stmt.free();
+        return enemies;
     }
 
     async getSpawnPointMarkers(mapName: string): Promise<(NpcMarker | EnemyMarker)[]> {

@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
+import { Rarity } from './map-markers';
 import { getMapsDatabasePath } from './database-path.server';
 import { Repository } from './database.node';
 import { MAPS } from './maps';
@@ -69,6 +70,18 @@ describe('Repository', () => {
 		});
 		expect(await db.getDropsForCharacter('character:fixture enemy')).toEqual([
 			{ itemName: 'Fixture Drop', dropProbability: 25 }
+		]);
+	});
+
+	it('loads map-visible enemies without fixed spawn points', async () => {
+		expect(await db.getUnlocatedEnemies()).toEqual([
+			{
+				stableKey: 'character:runtime enemy',
+				name: 'Runtime Enemy',
+				wikiPageName: 'Runtime Enemy',
+				level: 12,
+				effectiveRarity: Rarity.rare
+			}
 		]);
 	});
 
