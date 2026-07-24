@@ -9,8 +9,10 @@ from pathlib import Path
 import pytest
 
 from erenshor.application.wiki.semantic_validation import (
+    build_generated_manual_ownership_report,
     build_semantic_manifest,
     derive_corpus_expectations,
+    derive_page_contract,
     validate_wiki_pages,
 )
 from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
@@ -101,3 +103,33 @@ def test_all_generated_pages_satisfy_semantic_contracts(generated_semantic_corpu
         variant="main",
     )
     report.raise_for_errors()
+
+
+def test_generated_manual_ownership_report_covers_every_generated_page(generated_semantic_corpus) -> None:
+    """The ownership report partitions the selected corpus without reclassifying failures as manual."""
+    pages, expectations, catalog = generated_semantic_corpus
+    validation = validate_wiki_pages(
+        pages,
+        expectations=expectations,
+        catalog_entries=catalog,
+        planned_titles=pages,
+        known_generated_titles=pages,
+        variant="main",
+    )
+    contracts = tuple(
+        derive_page_contract(
+            title,
+            pages[title],
+            expectations[title].metadata,
+            catalog,
+            schema_kind=expectations[title].schema_kind,
+        )
+        for title in pages
+    )
+    report = build_generated_manual_ownership_report(contracts, validation_report=validation)
+
+    assert {entry.page for entry in report.entries} == set(pages)
+    assert report.total_pages == len(pages)
+    assert report.generated_pages + report.manual_pages + report.invalid_pages == report.total_pages
+    assert report.invalid_pages == 0
+    assert not report.has_errors
