@@ -19,6 +19,7 @@ import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
 from collections.abc import Iterable, Mapping, Sequence
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import suppress
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -1269,6 +1270,34 @@ def _report_exit_code(payload: Mapping[str, object]) -> int:
     return value
 
 
+def _run_leaf_guarded(
+    cli_ctx: CLIContext,
+    task_id: str,
+    *,
+    coverage: bool,
+    wiki_clean_parity: bool,
+) -> _LeafResult:
+    """Run one leaf and convert unexpected failures into report data."""
+    leaf_start = time.monotonic()
+    try:
+        return _run_leaf(
+            cli_ctx,
+            task_id,
+            coverage=coverage and task_id == "unit",
+            wiki_clean_parity=wiki_clean_parity and task_id == "wiki",
+        )
+    except Exception as leaf_error:
+        return _LeafResult(
+            task_id=task_id,
+            status="failed",
+            exit_code=1,
+            duration_seconds=_duration(leaf_start),
+            prerequisites=[],
+            result_counts={},
+            commands=[{"error": str(leaf_error)}],
+        )
+
+
 def _run_task(
     cli_ctx: CLIContext,
     requested: str,
@@ -1282,40 +1311,28 @@ def _run_task(
     release_actions: _LeafResult | None = None
     try:
         expanded = expand_tasks(requested)
-        for task_id in expanded:
-            leaf_start = time.monotonic()
-            try:
-                result = _run_leaf(
+        if len(expanded) == 1:
+            results.append(
+                _run_leaf_guarded(
                     cli_ctx,
-                    task_id,
-                    coverage=coverage and task_id == "unit",
-                    wiki_clean_parity=wiki_clean_parity and task_id == "wiki",
+                    expanded[0],
+                    coverage=coverage,
+                    wiki_clean_parity=wiki_clean_parity,
                 )
-            except KeyboardInterrupt:
-                results.append(
-                    _LeafResult(
-                        task_id=task_id,
-                        status="interrupted",
-                        exit_code=130,
-                        duration_seconds=_duration(leaf_start),
-                        prerequisites=[],
-                        result_counts={},
-                        commands=[],
-                        diagnostics={"error": "KeyboardInterrupt"},
+            )
+        else:
+            with ThreadPoolExecutor(max_workers=len(expanded), thread_name_prefix="verification") as executor:
+                futures = [
+                    executor.submit(
+                        _run_leaf_guarded,
+                        cli_ctx,
+                        task_id,
+                        coverage=coverage,
+                        wiki_clean_parity=wiki_clean_parity,
                     )
-                )
-                raise
-            except Exception as leaf_error:
-                result = _LeafResult(
-                    task_id=task_id,
-                    status="failed",
-                    exit_code=1,
-                    duration_seconds=_duration(leaf_start),
-                    prerequisites=[],
-                    result_counts={},
-                    commands=[{"error": str(leaf_error)}],
-                )
-            results.append(result)
+                    for task_id in expanded
+                ]
+                results.extend(future.result() for future in futures)
         if requested == "release":
             if any(result.exit_code != 0 for result in results):
                 release_actions = _LeafResult(

@@ -7,6 +7,7 @@ import os
 import subprocess
 from collections.abc import Sequence
 from pathlib import Path
+from threading import Barrier, Lock
 from types import SimpleNamespace
 from typing import Any
 
@@ -1069,9 +1070,13 @@ def test_report_write_is_atomic_and_deterministic(tmp_path: Path, monkeypatch: A
 def test_composite_invokes_each_expanded_leaf_once_then_release_actions(tmp_path: Path, monkeypatch: Any) -> None:
     calls: list[tuple[str, bool]] = []
     command_calls: list[tuple[str, ...]] = []
+    barrier = Barrier(6)
+    call_lock = Lock()
 
     def fake_leaf(_ctx: CLIContext, task_id: str, **kwargs: Any) -> test._LeafResult:
-        calls.append((task_id, kwargs.get("wiki_clean_parity", False)))
+        barrier.wait(timeout=5)
+        with call_lock:
+            calls.append((task_id, kwargs.get("wiki_clean_parity", False)))
         return _leaf_result(task_id)
 
     def fake_process(argv: Sequence[str], cwd: Path) -> test._CommandResult:
@@ -1084,8 +1089,8 @@ def test_composite_invokes_each_expanded_leaf_once_then_release_actions(tmp_path
     test._run_task(_context(tmp_path), "release", wiki_clean_parity=True)
 
     expected_leaves = ["unit", "contract", "maps", "mods", "data", "wiki"]
-    assert [task_id for task_id, _clean in calls] == expected_leaves
-    assert calls[-1] == ("wiki", True)
+    assert sorted(task_id for task_id, _clean in calls) == sorted(expected_leaves)
+    assert ("wiki", True) in calls
     assert command_calls == list(test._RELEASE_COMMANDS)
     payload = json.loads((tmp_path / "artifacts/test-reports/release.json").read_text(encoding="utf-8"))
     assert [leaf["task_id"] for leaf in payload["leaves"]] == expected_leaves
