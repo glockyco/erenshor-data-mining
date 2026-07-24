@@ -10917,6 +10917,7 @@
         "CharacterLink:stablekey:character:brown bear",
         "CharacterLink:stablekey:character:brown bear cub",
         "CharacterLink:stablekey:character:dreambear",
+        "CharacterLink:stablekey:character:ferdinant",
         "CharacterLink:stablekey:character:fungal bear",
         "CharacterLink:stablekey:character:grizzlepaw",
         "CharacterLink:stablekey:character:kodiak",
@@ -24528,6 +24529,25 @@
       "title": "Fenton the Blighted"
     },
     {
+      "categories": [
+        "Category:Characters",
+        "Category:Faerie's Brake"
+      ],
+      "generated_templates": [
+        "Character"
+      ],
+      "schema": "character",
+      "semantic_links": [
+        "FactionLink:stablekey:faction:good",
+        "ItemLink:stablekey:item:gen - bear meat",
+        "ZoneLink:stablekey:zone:brake"
+      ],
+      "stable_keys": [
+        "character:ferdinant"
+      ],
+      "title": "Ferdinant"
+    },
+    {
       "categories": [],
       "generated_templates": [
         "Ability",
@@ -25052,7 +25072,7 @@
       "stable_keys": [
         "spell:none - fit of resonance"
       ],
-      "title": "Fit of Resonance"
+      "title": "Fit of Brilliance"
     },
     {
       "categories": [

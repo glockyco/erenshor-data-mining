@@ -2730,7 +2730,7 @@ There are multiple tiers of armor with lower defense armors being available for 
 |8
 |8
 |10
-|{{AbilityLink|stablekey=spell:none - fit of resonance}}, 2% on cast
+|{{AbilityLink|stablekey=spell:none - fit of resonance}}, 12% on cast
 |{{ClassLink|stablekey=class:arcanist}}, {{ClassLink|stablekey=class:druid}}, {{ClassLink|stablekey=class:duelist}}, {{ClassLink|stablekey=class:stormcaller}}
 |-
 |style="text-align: left;"|{{ItemLink|stablekey=item:wrist - 42 - minotaur shackle}}
