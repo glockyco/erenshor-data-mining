@@ -402,11 +402,6 @@ def build(
             logger.info("Running maps verification")
             _run_checks(maps_dir)
 
-        logger.info("Running maps prebuild steps")
-        _run(["node", "scripts/generate-tiles-manifest.js"], maps_dir)
-        _run(["node", "scripts/generate-og-image.mjs"], maps_dir)
-        _run(["node", "scripts/generate-item-icons.mjs", cli_ctx.variant], maps_dir)
-
         maps_db_dir.mkdir(parents=True, exist_ok=True)
         try:
             logger.info(f"Copying database: {db_path} -> {maps_db_path}")
@@ -417,6 +412,11 @@ def build(
         except Exception as e:
             console.print(f"[red]Error copying database: {e}[/red]")
             raise typer.Exit(1) from e
+
+        logger.info("Running maps prebuild steps")
+        _run(["node", "scripts/generate-tiles-manifest.js"], maps_dir)
+        _run(["node", "scripts/generate-og-image.mjs"], maps_dir)
+        _run(["node", "scripts/generate-item-icons.mjs", cli_ctx.variant], maps_dir)
 
         logger.info("Running Vite build")
         _run(

@@ -30,7 +30,7 @@ def _write_project(tmp_path: Path) -> tuple[Path, Path]:
     return maps_dir, database_path
 
 
-def _ctx(tmp_path: Path, maps_dir: Path, database_path: Path, *, dry_run: bool = False) -> SimpleNamespace:
+def _ctx(tmp_path: Path, maps_dir: Path, database_path: Path, *, dry_run: bool = False) -> Any:
     variant = VariantConfig(
         name="Main",
         app_id="0",
@@ -66,12 +66,15 @@ def test_build_copies_database_runs_verify_prebuild_then_build_and_writes_sideca
     environments: list[dict[str, str] | None] = []
 
     def fake_run(args: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        if args == ["node", "scripts/generate-item-icons.mjs", "main"]:
+            staged_database = maps_dir / "static" / "db" / "erenshor.sqlite"
+            assert staged_database.read_bytes() == database_path.read_bytes()
         calls.append(args)
         environments.append(kwargs.get("env"))
         return subprocess.CompletedProcess(args=args, returncode=0)
 
     monkeypatch.setattr(maps, "_check_pnpm_available", lambda: True)
-    monkeypatch.setattr(maps.subprocess, "run", fake_run)
+    monkeypatch.setattr("erenshor.cli.commands.maps.subprocess.run", fake_run)
 
     maps.build(ctx)
 
@@ -101,7 +104,7 @@ def test_check_runs_only_deterministic_frontend_checks(tmp_path: Path, monkeypat
         return subprocess.CompletedProcess(args=args, returncode=0)
 
     monkeypatch.setattr(maps, "_check_pnpm_available", lambda: True)
-    monkeypatch.setattr(maps.subprocess, "run", fake_run)
+    monkeypatch.setattr("erenshor.cli.commands.maps.subprocess.run", fake_run)
 
     maps.check(ctx)
 
@@ -118,7 +121,7 @@ def test_build_can_reuse_completed_checks_without_repeating_them(tmp_path: Path,
         return subprocess.CompletedProcess(args=args, returncode=0)
 
     monkeypatch.setattr(maps, "_check_pnpm_available", lambda: True)
-    monkeypatch.setattr(maps.subprocess, "run", fake_run)
+    monkeypatch.setattr("erenshor.cli.commands.maps.subprocess.run", fake_run)
 
     maps.build(ctx, skip_checks=True)
 
@@ -145,7 +148,7 @@ def test_preview_uses_vite_directly_for_fresh_build(tmp_path: Path, monkeypatch:
         return subprocess.CompletedProcess(args=args, returncode=0)
 
     monkeypatch.setattr(maps, "_check_pnpm_available", lambda: True)
-    monkeypatch.setattr(maps.subprocess, "run", fake_run)
+    monkeypatch.setattr("erenshor.cli.commands.maps.subprocess.run", fake_run)
 
     maps.preview(ctx, port=4174)
 
@@ -168,7 +171,7 @@ def test_deploy_uses_wrangler_directly_for_fresh_build(tmp_path: Path, monkeypat
 
     monkeypatch.setenv("CLOUDFLARE_API_TOKEN", "token")
     monkeypatch.setattr(maps, "_check_pnpm_available", lambda: True)
-    monkeypatch.setattr(maps.subprocess, "run", fake_run)
+    monkeypatch.setattr("erenshor.cli.commands.maps.subprocess.run", fake_run)
 
     maps.deploy(ctx)
 
