@@ -94,6 +94,7 @@ from erenshor.infrastructure.database.repositories.spells import SpellRepository
 from erenshor.infrastructure.database.repositories.stances import StanceRepository
 from erenshor.infrastructure.database.repositories.zones import ZoneRepository
 from erenshor.infrastructure.wiki.client import MediaWikiClient
+from erenshor.infrastructure.wiki.rate_limit import MediaWikiRequestor, MediaWikiRequestPolicy
 
 app = typer.Typer(
     name="wiki",
@@ -773,11 +774,15 @@ def inventory_templates(
     cli_ctx: CLIContext = ctx.obj
     wiki_config = cli_ctx.config.global_.mediawiki
     transport = FixtureDirectoryTransport(fixture_dir) if fixture_dir is not None else None
-    client = MediaWikiInventoryClient(
-        api_url=wiki_config.api_url,
-        transport=transport,
-        rate_limit_delay=wiki_config.api_delay,
+    requestor = (
+        None
+        if transport is not None
+        else MediaWikiRequestor(
+            api_url=wiki_config.api_url,
+            policy=MediaWikiRequestPolicy(read_delay=wiki_config.api_delay),
+        )
     )
+    client = MediaWikiInventoryClient(transport=transport, requestor=requestor)
 
     try:
         manifest = render_ownership_manifest(template_inventory_from_api(client))
@@ -789,7 +794,8 @@ def inventory_templates(
         logger.exception("Template inventory failed")
         raise typer.Exit(1) from e
     finally:
-        client.close()
+        if requestor is not None:
+            requestor.close()
 
 
 @app.command()
@@ -936,7 +942,12 @@ def sync_interface(
     cli_ctx: CLIContext = ctx.obj
     output_root = Path("wiki-dev/interface")
     image_root = Path("wiki-dev/images")
-    client = MediaWikiInterfaceClient(api_url="https://erenshor.wiki.gg/api.php", rate_limit_delay=rate_limit_delay)
+    wiki_config = cli_ctx.config.global_.mediawiki
+    requestor = MediaWikiRequestor(
+        api_url=wiki_config.api_url,
+        policy=MediaWikiRequestPolicy(read_delay=rate_limit_delay),
+    )
+    client = MediaWikiInterfaceClient(requestor)
     try:
         result = sync_interface_pages(
             client=client,
@@ -949,7 +960,7 @@ def sync_interface(
         logger.exception("Wiki interface sync failed")
         raise typer.Exit(1) from e
     finally:
-        client.close()
+        requestor.close()
 
     if cli_ctx.dry_run:
         console.print("[yellow]Dry run - no files written[/yellow]")

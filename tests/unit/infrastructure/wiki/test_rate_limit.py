@@ -72,6 +72,24 @@ def test_adds_json_format_and_maxlag_to_noninteractive_requests() -> None:
     ]
 
 
+def test_download_uses_the_owned_http_session() -> None:
+    image_response = httpx.Response(
+        200,
+        content=b"image-bytes",
+        headers={"Content-Type": "image/png"},
+        request=httpx.Request("GET", "https://erenshor.wiki.gg/images/logo.png"),
+    )
+    client = FakeHttpClient([image_response])
+    requestor = make_requestor(client)
+
+    result = requestor.download("https://erenshor.wiki.gg/images/logo.png")
+
+    assert result.status_code == 200
+    assert result.content_type == "image/png"
+    assert result.content == b"image-bytes"
+    assert client.requests == [("GET", {}, None)]
+
+
 def test_omits_maxlag_for_interactive_requests() -> None:
     client = FakeHttpClient([response()])
     requestor = make_requestor(client)

@@ -50,6 +50,15 @@ class RequestKind(StrEnum):
 
 
 @dataclass(frozen=True)
+class MediaWikiDownload:
+    """Binary response downloaded through the shared MediaWiki session."""
+
+    status_code: int
+    content_type: str
+    content: bytes
+
+
+@dataclass(frozen=True)
 class MediaWikiRequestPolicy:
     """Rate-limit and retry settings for non-interactive MediaWiki jobs."""
 
@@ -67,6 +76,7 @@ class _ResponseLike(Protocol):
     status_code: int
     headers: Mapping[str, str]
     text: str
+    content: bytes
 
     def json(self) -> JsonObject: ...
 
@@ -174,6 +184,21 @@ class MediaWikiRequestor:
             files=files,
             kind=kind,
             noninteractive=noninteractive,
+        )
+
+    def download(
+        self,
+        url: str,
+        *,
+        kind: RequestKind = RequestKind.READ,
+    ) -> MediaWikiDownload:
+        """Download bytes through the owned HTTP session and pacing policy."""
+        self._pace(kind)
+        response = self._http_client.get(url, params={})
+        return MediaWikiDownload(
+            status_code=response.status_code,
+            content_type=response.headers.get("content-type", ""),
+            content=response.content,
         )
 
     def _request(

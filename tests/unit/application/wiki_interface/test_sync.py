@@ -1,15 +1,18 @@
 from __future__ import annotations
 
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import pytest
 
 from erenshor.application.wiki_interface.sync import (
+    MediaWikiInterfaceClient,
     MediaWikiInterfacePage,
     MissingInterfacePageError,
     gadget_source_titles,
     sync_interface_pages,
 )
+from erenshor.infrastructure.wiki.rate_limit import MediaWikiDownload, MediaWikiRequestor
 
 
 class FakeInterfaceClient:
@@ -49,6 +52,29 @@ def fixed_interface_pages(extra: dict[str, str]) -> dict[str, str]:
     }
     pages.update(extra)
     return pages
+
+
+def test_interface_adapter_borrows_one_requestor_for_api_and_media() -> None:
+    requestor = MagicMock(spec=MediaWikiRequestor)
+    requestor.api_url = "https://erenshor.wiki.gg/api.php"
+    requestor.get.return_value = {
+        "query": {
+            "pages": [
+                {
+                    "revisions": [
+                        {"slots": {"main": {"content": "body {}"}}},
+                    ]
+                }
+            ]
+        }
+    }
+    requestor.download.return_value = MediaWikiDownload(200, "image/png", b"png")
+    client = MediaWikiInterfaceClient(requestor)
+
+    assert client.raw_page("MediaWiki:Common.css") == "body {}"
+    assert client.media_file_by_path("/images/Site-logo.png") == b"png"
+    requestor.get.assert_called_once()
+    requestor.download.assert_called_once_with("https://erenshor.wiki.gg/images/Site-logo.png")
 
 
 def test_gadget_source_titles_reads_definition_sources() -> None:

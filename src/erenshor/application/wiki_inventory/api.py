@@ -6,9 +6,10 @@ import json
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
-from erenshor.infrastructure.wiki.rate_limit import MediaWikiRequestor, MediaWikiRequestPolicy
+if TYPE_CHECKING:
+    from erenshor.infrastructure.wiki.rate_limit import MediaWikiRequestor
 
 JsonObject = dict[str, Any]
 Transport = Callable[[dict[str, str]], JsonObject]
@@ -34,25 +35,13 @@ class MediaWikiInventoryClient:
     def __init__(
         self,
         *,
-        api_url: str,
         transport: Transport | None = None,
-        rate_limit_delay: float = 1.0,
         requestor: MediaWikiRequestor | None = None,
     ) -> None:
-        self.api_url = api_url
+        if (transport is None) == (requestor is None):
+            raise ValueError("exactly one inventory transport is required")
         self._transport = transport
         self._requestor = requestor
-        self._owns_requestor = requestor is None and transport is None
-        if self._owns_requestor:
-            self._requestor = MediaWikiRequestor(
-                api_url=api_url,
-                policy=MediaWikiRequestPolicy(read_delay=rate_limit_delay),
-            )
-
-    def close(self) -> None:
-        """Close the owned requestor."""
-        if self._owns_requestor and self._requestor is not None:
-            self._requestor.close()
 
     def list_templates(self) -> list[str]:
         pages = self._paginate(

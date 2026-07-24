@@ -3,6 +3,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from typing import Any
+from unittest.mock import MagicMock
+
+import pytest
 
 from erenshor.application.wiki_inventory.api import MediaWikiInventoryClient
 from erenshor.application.wiki_inventory.templates import (
@@ -11,6 +14,7 @@ from erenshor.application.wiki_inventory.templates import (
     render_ownership_manifest,
     template_inventory_from_api,
 )
+from erenshor.infrastructure.wiki.rate_limit import MediaWikiRequestor
 
 
 def load_fixture(name: str) -> dict[str, Any]:
@@ -29,6 +33,31 @@ class RecordedTransport:
         return self._responses.pop(0)
 
 
+def test_client_borrows_the_injected_requestor() -> None:
+    requestor = MagicMock(spec=MediaWikiRequestor)
+    requestor.get.return_value = {"query": {"allpages": [{"title": "Template:Item"}]}}
+    client = MediaWikiInventoryClient(requestor=requestor)
+
+    assert client.list_templates() == ["Template:Item"]
+    requestor.get.assert_called_once_with(
+        {
+            "action": "query",
+            "list": "allpages",
+            "apnamespace": "10",
+            "aplimit": "max",
+        }
+    )
+
+
+def test_client_requires_exactly_one_transport() -> None:
+    requestor = MagicMock(spec=MediaWikiRequestor)
+
+    with pytest.raises(ValueError, match="exactly one"):
+        MediaWikiInventoryClient()
+    with pytest.raises(ValueError, match="exactly one"):
+        MediaWikiInventoryClient(requestor=requestor, transport=RecordedTransport([]))
+
+
 def test_client_follows_allpages_continuation() -> None:
     transport = RecordedTransport(
         [
@@ -36,7 +65,7 @@ def test_client_follows_allpages_continuation() -> None:
             load_fixture("allpages-page2.json"),
         ]
     )
-    client = MediaWikiInventoryClient(api_url="https://example.invalid/api.php", transport=transport)
+    client = MediaWikiInventoryClient(transport=transport)
 
     templates = client.list_templates()
 
@@ -57,7 +86,7 @@ def test_client_counts_transclusions_across_continuation() -> None:
             load_fixture("embeddedin-item-page2.json"),
         ]
     )
-    client = MediaWikiInventoryClient(api_url="https://example.invalid/api.php", transport=transport)
+    client = MediaWikiInventoryClient(transport=transport)
 
     summary = client.embeddedin_summary("Template:Item")
 
@@ -96,7 +125,7 @@ def test_builds_inventory_from_recorded_api_payloads() -> None:
             load_fixture("embeddedin-item-page2.json"),
         ]
     )
-    client = MediaWikiInventoryClient(api_url="https://example.invalid/api.php", transport=transport)
+    client = MediaWikiInventoryClient(transport=transport)
 
     inventory = template_inventory_from_api(client)
 
@@ -119,7 +148,7 @@ def test_renders_deterministic_ownership_manifest() -> None:
             load_fixture("embeddedin-item-page2.json"),
         ]
     )
-    client = MediaWikiInventoryClient(api_url="https://example.invalid/api.php", transport=transport)
+    client = MediaWikiInventoryClient(transport=transport)
 
     manifest = render_ownership_manifest(template_inventory_from_api(client))
 

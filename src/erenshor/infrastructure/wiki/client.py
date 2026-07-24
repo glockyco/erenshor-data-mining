@@ -274,6 +274,11 @@ class MediaWikiClient:
             self._closed = True
         logger.debug("MediaWiki client closed")
 
+    @property
+    def requestor(self) -> MediaWikiRequestor:
+        """Return the borrowed request capability for specialized adapters."""
+        return self._requestor
+
     def _request(
         self,
         params: dict[str, Any],

@@ -6,11 +6,10 @@ import difflib
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
 
-import httpx
-
-from erenshor.infrastructure.wiki.rate_limit import MediaWikiRequestor, MediaWikiRequestPolicy
+if TYPE_CHECKING:
+    from erenshor.infrastructure.wiki.rate_limit import MediaWikiRequestor
 
 FIXED_INTERFACE_TITLES: tuple[str, ...] = (
     "MediaWiki:Common.css",
@@ -97,16 +96,9 @@ class InterfaceSyncResult:
 class MediaWikiInterfaceClient:
     """Read raw MediaWiki interface pages and files through the live wiki."""
 
-    def __init__(self, *, api_url: str, rate_limit_delay: float = 1.0) -> None:
-        self._requestor = MediaWikiRequestor(
-            api_url=api_url,
-            policy=MediaWikiRequestPolicy(read_delay=rate_limit_delay),
-        )
-        self._origin = api_url.removesuffix("/api.php")
-
-    def close(self) -> None:
-        """Close the owned HTTP client."""
-        self._requestor.close()
+    def __init__(self, requestor: MediaWikiRequestor) -> None:
+        self._requestor = requestor
+        self._origin = requestor.api_url.removesuffix("/api.php")
 
     def raw_page(self, title: str) -> str | None:
         """Return raw page content, or None when the page is missing."""
@@ -169,16 +161,10 @@ class MediaWikiInterfaceClient:
         return self._download_image_url(f"{self._origin}/{path.removeprefix('/')}")
 
     def _download_image_url(self, url: str) -> bytes | None:
-        response = httpx.get(
-            url,
-            timeout=30,
-            follow_redirects=True,
-            headers={"User-Agent": self._requestor.policy.user_agent},
-        )
+        response = self._requestor.download(url)
         if response.status_code != 200:
             return None
-        content_type = response.headers.get("content-type", "")
-        if not content_type.startswith("image/"):
+        if not response.content_type.startswith("image/"):
             return None
         return response.content
 
