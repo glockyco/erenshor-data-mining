@@ -12,7 +12,6 @@ Processing rules:
 
 from __future__ import annotations
 
-import hashlib
 from collections.abc import Iterator
 from datetime import UTC, datetime
 from pathlib import Path
@@ -20,6 +19,8 @@ from typing import TYPE_CHECKING
 
 import imagehash
 from PIL import Image
+
+from erenshor.application.hashing import sha256_file
 
 if TYPE_CHECKING:
     from erenshor.domain.entities.image import ImageInfo, ProcessingResult
@@ -171,7 +172,7 @@ class ImageProcessor:
             raise ValueError(f"Source not found: {image_info.icon_name}")
 
         # Calculate source hash before processing
-        source_hash = self._sha256_file(image_info.source_path)
+        source_hash = sha256_file(image_info.source_path)
 
         # Process the image
         with Image.open(image_info.source_path) as source_img:
@@ -195,7 +196,7 @@ class ImageProcessor:
             dimensions = img.size
 
         # Calculate content hash of processed file
-        content_hash = self._sha256_file(output_path)
+        content_hash = sha256_file(output_path)
 
         # Get file size
         file_size = output_path.stat().st_size
@@ -217,15 +218,6 @@ class ImageProcessor:
         filename_base = image_info.stable_key.replace(":", "@", 1)
         filename_base = filename_base.replace("/", "_").replace("\\", "_")
         return f"{filename_base}.png"
-
-    @staticmethod
-    def _sha256_file(file_path: Path) -> str:
-        """Calculate SHA256 hash of a file."""
-        sha256_hash = hashlib.sha256()
-        with file_path.open("rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
 
     def _resize_and_pad(self, image: Image.Image, size: tuple[int, int]) -> Image.Image:
         """Resize image to fit within size, preserving aspect ratio."""

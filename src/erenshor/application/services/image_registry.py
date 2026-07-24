@@ -15,7 +15,6 @@ The registry enables efficient image processing by:
 
 from __future__ import annotations
 
-import hashlib
 import sqlite3
 from datetime import UTC, datetime
 from pathlib import Path
@@ -25,6 +24,7 @@ import imagehash
 from loguru import logger
 from PIL import Image
 
+from erenshor.application.hashing import sha256_file
 from erenshor.domain.value_objects.wiki_filename import sanitize_wiki_filename
 
 if TYPE_CHECKING:
@@ -161,12 +161,7 @@ class ImageRegistry:
         if not file_path.exists():
             raise FileNotFoundError(f"File not found: {file_path}")
 
-        # Calculate SHA256 content hash
-        sha256 = hashlib.sha256()
-        with file_path.open("rb") as f:
-            for chunk in iter(lambda: f.read(8192), b""):
-                sha256.update(chunk)
-        content_hash = sha256.hexdigest()
+        content_hash = sha256_file(file_path)
 
         # Calculate perceptual hash
         with Image.open(file_path) as img:
@@ -684,7 +679,7 @@ class ImageRegistry:
 
         # Check if source file changed
         if source_path.exists():
-            source_hash = self._sha256_file(source_path)
+            source_hash = sha256_file(source_path)
             if source_hash != metadata.source_hash:
                 # Source updated - must reprocess
                 logger.debug(f"Source changed for {stable_key}, reprocessing")
@@ -730,20 +725,3 @@ class ImageRegistry:
                 "renamed": counts.get("renamed", 0),
                 "removed": counts.get("removed", 0),
             }
-
-    @staticmethod
-    def _sha256_file(file_path: Path) -> str:
-        """Calculate SHA256 hash of a file.
-
-        Args:
-            file_path: Path to file.
-
-        Returns:
-            Hex string of SHA256 hash.
-        """
-        sha256_hash = hashlib.sha256()
-        with file_path.open("rb") as f:
-            # Read file in chunks for memory efficiency
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
