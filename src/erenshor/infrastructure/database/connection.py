@@ -1,17 +1,13 @@
-"""Database connection management with pooling and transaction support.
+"""Manage one lazily cached SQLite connection per manager instance.
 
-This module provides SQLite connection management with connection pooling,
-context manager support, and transaction handling for the Erenshor data mining pipeline.
+The connection is created on first use and reused until :meth:`close` is called.
+``connect()`` scopes access to that connection but does not own it or close it
+when the scope exits. Call ``close()`` explicitly, or use the manager as an
+outer context manager, to release the connection.
 
-Features:
-- Connection pooling (lightweight reuse of connections)
-- Context manager support (automatic cleanup)
-- Transaction management (explicit commit/rollback)
-- Read-only mode (for safety when querying)
-- Proper error handling and logging
-
-The DatabaseConnection class is thread-safe and can be used across multiple
-operations to reuse connections efficiently.
+Transactions are managed separately by ``transaction()``: successful scopes
+commit, database errors and other exceptions roll back, and only database
+errors are wrapped in :class:`DatabaseConnectionError`.
 """
 
 import sqlite3
@@ -29,44 +25,29 @@ class DatabaseConnectionError(Exception):
     - Database file does not exist or cannot be accessed
     - Connection cannot be established
     - Transaction commit/rollback fails
-    - Connection pool operations fail
+    - Connection cleanup operations fail
     """
 
     pass
 
 
 class DatabaseConnection:
-    """Manages SQLite database connections with pooling and transaction support.
+    """Manage one lazily cached SQLite connection.
 
-    This class provides a connection pool (simple reuse pattern) for SQLite databases,
-    along with context manager support for automatic cleanup and transaction management.
+    The connection is created on first use and reused for the lifetime of this
+    manager. ``connect()`` provides an access scope but does not close the
+    connection when that scope exits. Call ``close()`` explicitly, or use this
+    manager as an outer context manager, to close it.
 
-    The connection pool is lightweight since SQLite doesn't support true connection
-    pooling - instead we reuse a single connection per instance and provide safe
-    cleanup mechanisms.
+    ``transaction()`` starts an explicit transaction, commits on successful
+    completion, and rolls back on database or other exceptions. Database
+    exceptions are wrapped in :class:`DatabaseConnectionError`, while other
+    exceptions are re-raised after rollback.
 
     Attributes:
         database_path: Path to SQLite database file.
         read_only: If True, connection is opened in read-only mode.
-        _connection: Cached connection instance (None when not connected).
-
-    Example:
-        >>> # Basic usage with context manager
-        >>> db = DatabaseConnection(Path("erenshor.sqlite"))
-        >>> with db.connect() as conn:
-        ...     cursor = conn.execute("SELECT * FROM Characters")
-        ...     rows = cursor.fetchall()
-
-        >>> # Transaction support
-        >>> with db.transaction() as conn:
-        ...     conn.execute("INSERT INTO Characters (...) VALUES (...)")
-        ...     # Automatically commits on success, rolls back on error
-
-        >>> # Read-only mode for safety
-        >>> db_readonly = DatabaseConnection(Path("erenshor.sqlite"), read_only=True)
-        >>> with db_readonly.connect() as conn:
-        ...     # Write operations will fail
-        ...     cursor = conn.execute("SELECT * FROM Characters")
+        _connection: Lazily cached connection, or None after close.
     """
 
     def __init__(self, database_path: Path, read_only: bool = False) -> None:
@@ -94,10 +75,10 @@ class DatabaseConnection:
         logger.debug(f"DatabaseConnection initialized: path={database_path}, read_only={read_only}")
 
     def _get_connection(self) -> sqlite3.Connection:
-        """Get or create a database connection.
+        """Get or lazily create the cached database connection.
 
-        This implements the connection pooling logic - reuses existing connection
-        if available, creates new one if needed.
+        Reuses the existing connection for this manager until ``close()`` is
+        called. This is one connection per manager, not a connection pool.
 
         Returns:
             Active SQLite connection instance.
@@ -151,8 +132,8 @@ class DatabaseConnection:
             logger.error(f"Database operation failed: {e}")
             raise DatabaseConnectionError(f"Database operation failed: {e}") from e
         finally:
-            # Note: We don't close the connection here (pooling)
-            # Connection will be closed in close() or __del__
+            # The access scope does not own the cached connection. It remains
+            # open for reuse until close() or the outer manager context exits.
             pass
 
     @contextmanager
@@ -224,12 +205,11 @@ class DatabaseConnection:
             raise
 
     def close(self) -> None:
-        """Close the database connection and release resources.
+        """Close the cached connection and release its resources.
 
-        This should be called when done with the connection manager to ensure
-        proper cleanup. Also called automatically in __del__.
-
-        Safe to call multiple times (idempotent).
+        Closing is explicit: ``connect()`` scopes do not close the connection.
+        The operation is idempotent, and also runs when the manager is used as
+        an outer context manager or is garbage-collected.
         """
         if self._connection is not None:
             try:
