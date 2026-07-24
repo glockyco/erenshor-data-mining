@@ -5,28 +5,10 @@ from __future__ import annotations
 import json
 
 from erenshor.application.guide.compiler import compile_graph
-from erenshor.application.guide.graph import EntityGraph
 from erenshor.application.guide.json_writer import serialize
-from erenshor.application.guide.schema import Edge, EdgeType, Node, NodeType
+from erenshor.application.guide.schema import Edge, EdgeType
 
-
-def _graph(*nodes: Node, edges: list[Edge] | None = None) -> EntityGraph:
-    graph = EntityGraph()
-    for node in nodes:
-        graph.add_node(node)
-    for edge in edges or []:
-        graph.add_edge(edge)
-    graph.build_indexes()
-    return graph
-
-
-def _quest(key: str, db_name: str | None = None, **kwargs: object) -> Node:
-    return Node(key=key, type=NodeType.QUEST, display_name=key, db_name=db_name, **kwargs)
-
-
-def _item(key: str) -> Node:
-    return Node(key=key, type=NodeType.ITEM, display_name=key)
-
+from .fixtures import build_graph, item_node, quest_node
 
 EXPECTED_TOP_LEVEL_KEYS = {
     "nodes",
@@ -57,9 +39,9 @@ EXPECTED_TOP_LEVEL_KEYS = {
 
 
 def test_serialize_produces_valid_json_with_expected_keys() -> None:
-    graph = _graph(
-        _quest("quest:a", db_name="QA"),
-        _item("item:x"),
+    graph = build_graph(
+        quest_node("quest:a", db_name="QA"),
+        item_node("item:x"),
         edges=[Edge(source="quest:a", target="item:x", type=EdgeType.REWARDS_ITEM)],
     )
     compiled = compile_graph(graph)
@@ -72,8 +54,8 @@ def test_serialize_produces_valid_json_with_expected_keys() -> None:
 
 
 def test_serialize_round_trips_node_metadata() -> None:
-    graph = _graph(
-        _quest(
+    graph = build_graph(
+        quest_node(
             "quest:rich",
             db_name="RICH",
             description="Recover the key.",
@@ -102,7 +84,7 @@ def test_serialize_round_trips_node_metadata() -> None:
 
 
 def test_serialize_nan_positions_as_null() -> None:
-    graph = _graph(_quest("quest:nopos", db_name="NP"))
+    graph = build_graph(quest_node("quest:nopos", db_name="NP"))
     compiled = compile_graph(graph)
     data = json.loads(serialize(compiled))
 
@@ -113,9 +95,9 @@ def test_serialize_nan_positions_as_null() -> None:
 
 
 def test_serialize_round_trips_edge_metadata() -> None:
-    graph = _graph(
-        _quest("quest:a", db_name="QA"),
-        _item("item:x"),
+    graph = build_graph(
+        quest_node("quest:a", db_name="QA"),
+        item_node("item:x"),
         edges=[
             Edge(
                 source="quest:a",
