@@ -176,11 +176,6 @@ def generated_content_sha256(generated_pages: Mapping[str, str]) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
-# A short alias reads naturally in integrations while retaining the explicit
-# public function above for callers that want to name the hash operation.
-hash_generated_content = generated_content_sha256
-
-
 @dataclass(frozen=True, slots=True)
 class _CatalogIndex:
     entries_by_key: Mapping[str, LinkCatalogEntry]
@@ -280,10 +275,6 @@ def catalog_sha256(entries: Sequence[LinkCatalogEntry | Mapping[str, object]]) -
         separators=(",", ":"),
     )
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
-
-
-# The plan names the local side explicitly when comparing the live digest.
-local_catalog_sha256 = catalog_sha256
 
 
 def _parameter_values(template: Any) -> tuple[dict[str, str], list[str]]:
@@ -748,8 +739,6 @@ __all__ = [
     "audit_links",
     "catalog_sha256",
     "generated_content_sha256",
-    "hash_generated_content",
-    "local_catalog_sha256",
     "parse_link_occurrences",
     "write_audit_report",
 ]

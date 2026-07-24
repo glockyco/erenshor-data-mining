@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from erenshor.application.wiki_deploy.link_audit import (
     audit_links,
+    catalog_sha256,
     generated_content_sha256,
-    local_catalog_sha256,
     parse_link_occurrences,
 )
 from erenshor.application.wiki_lua.link_catalog import LinkCatalogEntry
@@ -220,6 +220,6 @@ def test_local_catalog_digest_matches_live_digest_without_warning() -> None:
         generated_pages={},
         catalog_entries=catalog,
         planned_titles=set(),
-        live_catalog_sha256=local_catalog_sha256(catalog),
+        live_catalog_sha256=catalog_sha256(catalog),
     )
     assert "live_link_catalog_stale" not in {finding.code for finding in report.findings}
