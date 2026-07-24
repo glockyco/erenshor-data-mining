@@ -7,11 +7,11 @@ from typing import Any
 import websockets
 from loguru import logger
 
+from .constants import TILE_SIZE
 from .state import CaptureState, _sha256
 from .stitcher import stitch_chunks
 from .tile_generator import generate_tile_pyramid
 
-TILE_SIZE = 256
 WS_PORT = 18586
 MAX_CHUNK_PX = 4096
 
@@ -119,7 +119,7 @@ class CaptureOrchestrator:
         master_path: Path,
     ) -> None:
         """Send capture_zone, collect chunks, stitch into master."""
-        chunks = _build_chunk_grid(zc, master_path.parent)
+        chunks = build_chunk_grid(zc, master_path.parent)
         hide_roofs = variant == "clear"
 
         msg = {
@@ -171,11 +171,11 @@ class _CaptureError(Exception):
 # -- chunk grid ---------------------------------------------------------------
 
 
-def _build_chunk_grid(zc: dict[str, Any], output_dir: Path) -> list[dict[str, Any]]:
+def build_chunk_grid(zc: dict[str, Any], output_dir: Path) -> list[dict[str, Any]]:
     """Compute the chunk grid for a zone capture.
 
-    The master image is ``baseTilesX * 2^maxZoom * 256`` by
-    ``baseTilesY * 2^maxZoom * 256`` pixels.  The world area is
+    The master image is ``baseTilesX * 2^maxZoom * TILE_SIZE`` by
+    ``baseTilesY * 2^maxZoom * TILE_SIZE`` pixels.  The world area is
     ``baseTilesX * tileSize`` by ``baseTilesY * tileSize`` units.
     If a pixel dimension exceeds MAX_CHUNK_PX, the image is split.
     """

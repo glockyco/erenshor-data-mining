@@ -7,7 +7,8 @@ from typing import Any
 from loguru import logger
 from PIL import Image
 
-TILE_SIZE = 256
+from .constants import TILE_SIZE
+
 WEBP_QUALITY = 85
 
 
@@ -77,6 +78,7 @@ def generate_tile_pyramid(
                 total += 1
 
     # --- Negative zoom levels: combine 2x2 from level above ---
+    half_tile_size = TILE_SIZE // 2
     source_tiles_x = base_x
     source_tiles_y = base_y
 
@@ -109,10 +111,10 @@ def generate_tile_pyramid(
                             continue
 
                         src_tile = Image.open(tile_path).convert("RGBA")
-                        src_tile = src_tile.resize((128, 128), Image.LANCZOS)
+                        src_tile = src_tile.resize((half_tile_size, half_tile_size), Image.LANCZOS)
                         # dy=0 (south) → bottom half; dy=1 (north) → top half
-                        canvas_y = (1 - dy) * 128
-                        canvas.paste(src_tile, (dx * 128, canvas_y))
+                        canvas_y = (1 - dy) * half_tile_size
+                        canvas.paste(src_tile, (dx * half_tile_size, canvas_y))
 
                 out_y_idx = -(out_y + 1)
                 canvas.save(tile_x_dir / f"{out_y_idx}.webp", "WEBP", quality=WEBP_QUALITY)
