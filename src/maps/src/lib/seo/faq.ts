@@ -153,8 +153,8 @@ export const FAQ_ITEMS: FaqItem[] = [
         answer: [
             'Collect one of each Torn Treasure Map piece: Top Left, Top Right, Bottom Left, and Bottom Right. Give all four to ',
             {
-                text: 'Cecil Threbb',
-                href: 'https://erenshor.wiki.gg/wiki/Cecil_Threbb'
+                text: 'Torin Much',
+                href: 'https://erenshor.wiki.gg/wiki/Torin_Much'
             },
             " in Faerie's Brake to complete the repeatable ",
             {
