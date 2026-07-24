@@ -31,6 +31,7 @@ from erenshor.application.extract.export_workflow import (
     adapter_exit_code,
 )
 from erenshor.application.extract.rip_workflow import RipRequest, RipWorkflow
+from erenshor.application.extract.variant_comparison import generate_report, get_build_id
 from erenshor.application.services.backup_service import BackupService
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import raw_database_exists
@@ -187,6 +188,69 @@ def profile_report(
         raise typer.BadParameter("Only --latest is currently supported")
     report = ExportProfileReport.load_latest(_profile_root(cli_ctx))
     console.print(report.to_markdown(), soft_wrap=True)
+
+
+@app.command("compare-variants")
+def compare_variants(
+    ctx: typer.Context,
+    base_variant: str = typer.Option(
+        "main",
+        "--base-variant",
+        help="Older variant to compare against (default: main)",
+    ),
+    new_variant: str = typer.Option(
+        "demo",
+        "--new-variant",
+        help="Newer variant to compare (default: demo)",
+    ),
+    output: Path | None = typer.Option(
+        None,
+        "--output",
+        "-o",
+        help="Write the report to this Markdown file",
+    ),
+    print_report: bool = typer.Option(
+        False,
+        "--print",
+        help="Print the report to stdout when --output is also supplied",
+    ),
+) -> None:
+    """Compare the clean databases for two configured game variants."""
+    cli_ctx: CLIContext = ctx.obj
+    variants = cli_ctx.config.variants
+    for variant_name in (base_variant, new_variant):
+        if variant_name not in variants:
+            typer.echo(f"Error: Unknown variant '{variant_name}'", err=True)
+            raise typer.Exit(1)
+
+    if base_variant == new_variant:
+        typer.echo("Error: Base and new variants must be different", err=True)
+        raise typer.Exit(1)
+
+    base_config = variants[base_variant]
+    new_config = variants[new_variant]
+    base_db = base_config.resolved_database(cli_ctx.repo_root)
+    new_db = new_config.resolved_database(cli_ctx.repo_root)
+    if not base_db.exists():
+        typer.echo(f"Error: Old database not found for variant '{base_variant}': {base_db}", err=True)
+        raise typer.Exit(1)
+    if not new_db.exists():
+        typer.echo(f"Error: New database not found for variant '{new_variant}': {new_db}", err=True)
+        raise typer.Exit(1)
+
+    report = generate_report(
+        base_variant,
+        new_variant,
+        base_db,
+        new_db,
+        get_build_id(base_config.resolved_backups(cli_ctx.repo_root)),
+        get_build_id(new_config.resolved_backups(cli_ctx.repo_root)),
+        output_path=output,
+    )
+    if output is not None:
+        typer.echo(f"Report written to: {output}")
+    if output is None or print_report:
+        typer.echo(report, nl=False)
 
 
 @app.command()
