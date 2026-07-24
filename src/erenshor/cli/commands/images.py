@@ -26,6 +26,7 @@ from erenshor.domain.value_objects.wiki_filename import needs_redirect, sanitize
 
 if TYPE_CHECKING:
     from erenshor.cli.context import CLIContext
+    from erenshor.domain.entities.image import ImageMetadata
 
 __all__ = ["app"]
 
@@ -336,12 +337,30 @@ def report(
         raise typer.Exit(1)
 
 
+def _deployment_list_for_stable_keys(registry: ImageRegistry, stable_keys: list[str]) -> dict[str, ImageMetadata]:
+    deployment_dict: dict[str, ImageMetadata] = {}
+    missing_stable_keys = []
+    for stable_key in stable_keys:
+        metadata = registry.get_image_metadata(stable_key)
+        if metadata is None:
+            missing_stable_keys.append(stable_key)
+            continue
+        deployment_dict[metadata.image_name] = metadata
+    if missing_stable_keys:
+        raise ValueError("Unknown image stable key(s): " + ", ".join(missing_stable_keys))
+    return deployment_dict
+
+
 @app.command("upload")
 def upload(
     ctx: typer.Context,
     changed_only: Annotated[bool, typer.Option("--changed-only", help="Upload only changed images")] = False,
     dry_run: Annotated[bool, typer.Option("--dry-run", help="Preview without uploading")] = False,
     force: Annotated[bool, typer.Option("--force", help="Re-upload existing images")] = False,
+    stable_keys: Annotated[
+        list[str] | None,
+        typer.Option("--stable-key", help="Upload only this registry stable key; repeat for multiple images"),
+    ] = None,
 ) -> None:
     """Upload processed images to MediaWiki.
 
@@ -425,7 +444,14 @@ def upload(
     console.print()
 
     # Get upload list
-    if changed_only:
+    if stable_keys:
+        try:
+            deployment_dict = _deployment_list_for_stable_keys(registry, stable_keys)
+        except ValueError as error:
+            console.print(f"[red]{error}[/red]")
+            raise typer.Exit(1) from error
+        console.print(f"[bold]Found {len(deployment_dict)} explicitly selected images to upload[/bold]")
+    elif changed_only:
         # Get unique image_names that need deployment (deduplicated)
         deployment_dict = registry.get_deployment_list()
         console.print(f"[bold]Found {len(deployment_dict)} unique changed images to upload[/bold]")
