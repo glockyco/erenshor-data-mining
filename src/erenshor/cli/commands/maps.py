@@ -14,7 +14,7 @@ import signal
 import subprocess
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Annotated
 
 import typer
 from loguru import logger
@@ -40,6 +40,13 @@ app = typer.Typer(
 )
 
 console = Console()
+
+CHECK_COMMANDS: tuple[tuple[str, ...], ...] = (
+    ("pnpm", "run", "lint"),
+    ("pnpm", "run", "check"),
+    ("pnpm", "run", "test"),
+)
+PRERENDER_SMOKE_COMMAND = ("node", "scripts/test-prerender.mjs")
 
 
 def _run(cmd: list[str], cwd: Path, *, env: dict[str, str] | None = None) -> None:
@@ -288,10 +295,50 @@ def preview(
         raise typer.Exit(1) from e
 
 
+def _run_checks(maps_dir: Path) -> None:
+    """Run the deterministic frontend verification commands once."""
+    for command in CHECK_COMMANDS:
+        _run(list(command), maps_dir)
+
+
+@app.command()
+def check(ctx: typer.Context) -> None:
+    """Run lint, Svelte diagnostics, and fixture-backed Vitest tests."""
+    cli_ctx: CLIContext = ctx.obj
+
+    if not _check_pnpm_available():
+        console.print("[red]Error: pnpm not found in PATH[/red]")
+        console.print("\nPlease install pnpm:")
+        console.print("  https://pnpm.io/installation")
+        raise typer.Exit(1)
+
+    variant_config = cli_ctx.config.variants[cli_ctx.variant]
+    maps_dir = variant_config.maps.resolved_source_dir(cli_ctx.repo_root)
+    if not maps_dir.exists():
+        console.print(f"[red]Error: Maps directory not found: {maps_dir}[/red]")
+        raise typer.Exit(1)
+    if not _check_node_modules(maps_dir):
+        console.print("[yellow]Warning: node_modules not found[/yellow]")
+        console.print("\nPlease install dependencies first:")
+        console.print(f"  cd {maps_dir}")
+        console.print("  pnpm install")
+        raise typer.Exit(1)
+
+    _run_checks(maps_dir)
+
+
 @app.command()
 @require_preconditions(database_exists, database_valid, database_has_items)
 def build(
     ctx: typer.Context,
+    skip_checks: Annotated[
+        bool,
+        typer.Option(
+            "--skip-checks",
+            help="Skip checks already completed by the verification DAG.",
+            hidden=True,
+        ),
+    ] = False,
 ) -> None:
     """Build production site with copied database.
 
@@ -351,10 +398,9 @@ def build(
 
     # Run verify, prebuild, and build
     try:
-        logger.info("Running maps verification")
-        _run(["pnpm", "run", "lint"], maps_dir)
-        _run(["pnpm", "run", "check"], maps_dir)
-        _run(["pnpm", "run", "test"], maps_dir)
+        if not skip_checks:
+            logger.info("Running maps verification")
+            _run_checks(maps_dir)
 
         logger.info("Running maps prebuild steps")
         _run(["node", "scripts/generate-tiles-manifest.js"], maps_dir)
@@ -373,7 +419,11 @@ def build(
             raise typer.Exit(1) from e
 
         logger.info("Running Vite build")
-        _run(["pnpm", "exec", "vite", "build"], maps_dir)
+        _run(
+            ["pnpm", "exec", "vite", "build"],
+            maps_dir,
+            env={**os.environ, "ERENSHOR_MAPS_DATABASE_PATH": str(db_path)},
+        )
         hashes = build_info.compute_input_hashes(maps_source_dir=maps_dir, database_path=db_path)
         build_info.write_build_info(build_dir, hashes)
         console.print()

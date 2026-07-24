@@ -28,6 +28,7 @@ import typer
 from rich.console import Console
 
 from erenshor.application.mods.artifacts import format_artifact_issues, verify_static_mod_artifacts
+from erenshor.cli.commands import maps
 from erenshor.cli.commands.mod import _artifact_specs
 
 if TYPE_CHECKING:
@@ -336,24 +337,12 @@ def _main_data_paths(cli_ctx: CLIContext) -> tuple[Path, Path, Path]:
     return clean, raw, assembly
 
 
-def _maps_paths(cli_ctx: CLIContext) -> tuple[Path, Path, Path]:
+def _maps_paths(cli_ctx: CLIContext) -> tuple[Path, Path]:
     variant = cast("_VariantWithMaps", _variant(cli_ctx))
     maps = variant.maps
     root = cli_ctx.repo_root
     source = _configured_path(maps, "resolved_source_dir", "source_dir", root)
-    database_dir = _configured_path(maps, "resolved_database_dir", "database_dir", root)
-    return source, source / "node_modules", database_dir / "erenshor.sqlite"
-
-
-def _maps_vitest_database_path(cli_ctx: CLIContext) -> Path:
-    """Return the main DB consumed by ``src/maps/vitest.setup.ts``.
-
-    Vitest resolves ``../../variants/main/erenshor-main.sqlite`` from the
-    maps project, regardless of the CLI's selected game variant.  Keep this
-    preflight aligned with that setup file; it must not create or inspect the
-    runtime symlink itself.
-    """
-    return cli_ctx.repo_root / "variants/main/erenshor-main.sqlite"
+    return source, source / "node_modules"
 
 
 # ------------------------------ preflights --------------------------------
@@ -465,9 +454,9 @@ def _preflight_wiki_clean(cli_ctx: CLIContext) -> list[_Preflight]:
 
 
 def _preflight_maps(cli_ctx: CLIContext) -> list[_Preflight]:
-    checks = [_executable("pnpm")]
+    checks = [_executable("pnpm"), _executable("node")]
     try:
-        source, node_modules, static_database = _maps_paths(cli_ctx)
+        source, node_modules = _maps_paths(cli_ctx)
     except (AttributeError, KeyError, TypeError, ValueError) as error:
         checks.append(_Preflight("maps configuration", False, str(error)))
     else:
@@ -475,25 +464,10 @@ def _preflight_maps(cli_ctx: CLIContext) -> list[_Preflight]:
             [
                 _directory(source, "configured maps project"),
                 _directory(node_modules, "maps node_modules"),
+                _file(source / "scripts/test-prerender.mjs", "maps prerender smoke"),
+                _file(source / "tests/fixtures/map-database.sql", "maps fixture schema"),
             ]
         )
-        static_check = _file(static_database, "current maps database")
-        if static_check.ok:
-            checks.append(static_check)
-        else:
-            main_database = _maps_vitest_database_path(cli_ctx)
-            main_check = _file(main_database, "main maps test database")
-            if main_check.ok:
-                checks.append(_Preflight("maps database", True, main_check.detail))
-            else:
-                checks.append(
-                    _Preflight(
-                        "maps database",
-                        False,
-                        f"Neither configured static DB nor main maps test DB exists: "
-                        f"{static_database}; {main_database}",
-                    )
-                )
     return checks
 
 
@@ -1088,12 +1062,14 @@ def _run_leaf_commands(
     task_id: str,
     commands: Sequence[Sequence[str]],
     *,
+    cwd: Path | None = None,
     continue_on_failure: bool = False,
 ) -> _LeafResult:
     start = time.monotonic()
     results: list[_CommandResult] = []
+    command_cwd = cwd or cli_ctx.repo_root
     for command in commands:
-        result = _run_process(command, cli_ctx.repo_root)
+        result = _run_process(command, command_cwd)
         results.append(result)
         if result.exit_code != 0 and not continue_on_failure:
             break
@@ -1209,25 +1185,9 @@ def _run_leaf(
     elif task_id == "wiki":
         result = _run_wiki_clean_parity_leaf(cli_ctx) if wiki_clean_parity else _run_wiki_leaf(cli_ctx)
     elif task_id == "maps":
-        source, _, _ = _maps_paths(cli_ctx)
-        start = time.monotonic()
-        commands = (("pnpm", "run", "lint"), ("pnpm", "run", "check"), ("pnpm", "run", "test"))
-        results: list[_CommandResult] = []
-        for command in commands:
-            command_result = _run_process(command, source)
-            results.append(command_result)
-            if command_result.exit_code != 0:
-                break
-        failed = next((item for item in results if item.exit_code != 0), None)
-        result = _LeafResult(
-            task_id=task_id,
-            status="passed" if failed is None and len(results) == len(commands) else "failed",
-            exit_code=0 if failed is None and len(results) == len(commands) else (failed.exit_code if failed else 1),
-            duration_seconds=_duration(start),
-            prerequisites=[],
-            result_counts={"commands": len(commands), "completed_commands": len(results)},
-            commands=[_command_json(item) for item in results],
-        )
+        source, _ = _maps_paths(cli_ctx)
+        commands = (*maps.CHECK_COMMANDS, maps.PRERENDER_SMOKE_COMMAND)
+        result = _run_leaf_commands(cli_ctx, task_id, commands, cwd=source)
     elif task_id == "mods":
         result = _run_mods_leaf(cli_ctx)
     else:  # pragma: no cover - guarded by expand_tasks and _PREFLIGHTS

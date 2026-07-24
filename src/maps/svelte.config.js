@@ -9,7 +9,14 @@ const config = {
         // group, /map, /robots.txt, /sitemap.xml, and every /maps/[mapName]
         // route enumerated from MAPS). Unknown URLs should 404, not be
         // rewritten to the home page.
-        adapter: adapter()
+        adapter: adapter(
+            process.env.ERENSHOR_MAPS_BUILD_DIR
+                ? {
+                      pages: process.env.ERENSHOR_MAPS_BUILD_DIR,
+                      assets: process.env.ERENSHOR_MAPS_BUILD_DIR
+                  }
+                : undefined
+        )
     }
 };
 

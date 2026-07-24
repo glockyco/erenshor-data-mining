@@ -63,9 +63,11 @@ def test_build_copies_database_runs_verify_prebuild_then_build_and_writes_sideca
     maps_dir, database_path = _write_project(tmp_path)
     ctx = _ctx(tmp_path, maps_dir, database_path)
     calls: list[list[str]] = []
+    environments: list[dict[str, str] | None] = []
 
-    def fake_run(args: list[str], **_kwargs: Any) -> subprocess.CompletedProcess[str]:
+    def fake_run(args: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
         calls.append(args)
+        environments.append(kwargs.get("env"))
         return subprocess.CompletedProcess(args=args, returncode=0)
 
     monkeypatch.setattr(maps, "_check_pnpm_available", lambda: True)
@@ -82,9 +84,50 @@ def test_build_copies_database_runs_verify_prebuild_then_build_and_writes_sideca
         ["node", "scripts/generate-item-icons.mjs", "main"],
         ["pnpm", "exec", "vite", "build"],
     ]
+    assert environments[-1] is not None
+    assert environments[-1]["ERENSHOR_MAPS_DATABASE_PATH"] == str(database_path)
     assert (maps_dir / "static" / "db" / "erenshor.sqlite").read_bytes() == database_path.read_bytes()
     expected = build_info.compute_input_hashes(maps_source_dir=maps_dir, database_path=database_path)
     assert build_info.read_build_info(maps_dir / "build") == expected
+
+
+def test_check_runs_only_deterministic_frontend_checks(tmp_path: Path, monkeypatch: Any) -> None:
+    maps_dir, database_path = _write_project(tmp_path)
+    ctx = _ctx(tmp_path, maps_dir, database_path)
+    calls: list[list[str]] = []
+
+    def fake_run(args: list[str], **_kwargs: Any) -> subprocess.CompletedProcess[str]:
+        calls.append(args)
+        return subprocess.CompletedProcess(args=args, returncode=0)
+
+    monkeypatch.setattr(maps, "_check_pnpm_available", lambda: True)
+    monkeypatch.setattr(maps.subprocess, "run", fake_run)
+
+    maps.check(ctx)
+
+    assert calls == [list(command) for command in maps.CHECK_COMMANDS]
+
+
+def test_build_can_reuse_completed_checks_without_repeating_them(tmp_path: Path, monkeypatch: Any) -> None:
+    maps_dir, database_path = _write_project(tmp_path)
+    ctx = _ctx(tmp_path, maps_dir, database_path)
+    calls: list[list[str]] = []
+
+    def fake_run(args: list[str], **_kwargs: Any) -> subprocess.CompletedProcess[str]:
+        calls.append(args)
+        return subprocess.CompletedProcess(args=args, returncode=0)
+
+    monkeypatch.setattr(maps, "_check_pnpm_available", lambda: True)
+    monkeypatch.setattr(maps.subprocess, "run", fake_run)
+
+    maps.build(ctx, skip_checks=True)
+
+    assert calls == [
+        ["node", "scripts/generate-tiles-manifest.js"],
+        ["node", "scripts/generate-og-image.mjs"],
+        ["node", "scripts/generate-item-icons.mjs", "main"],
+        ["pnpm", "exec", "vite", "build"],
+    ]
 
 
 def test_preview_uses_vite_directly_for_fresh_build(tmp_path: Path, monkeypatch: Any) -> None:

@@ -525,87 +525,8 @@ def test_maps_leaf_uses_exact_commands_and_configured_source_cwd(tmp_path: Path,
         (("pnpm", "run", "lint"), source),
         (("pnpm", "run", "check"), source),
         (("pnpm", "run", "test"), source),
+        (("node", "scripts/test-prerender.mjs"), source),
     ]
-
-
-@pytest.mark.parametrize("static_present", [True, False])
-def test_maps_preflight_accepts_static_or_canonical_variant_database(
-    tmp_path: Path, monkeypatch: Any, static_present: bool
-) -> None:
-    source = tmp_path / "maps"
-    node_modules = source / "node_modules"
-    database_dir = tmp_path / "static-db"
-    source.mkdir()
-    node_modules.mkdir()
-    database_dir.mkdir()
-    static_database = database_dir / "erenshor.sqlite"
-    canonical_database = tmp_path / "variants/main/erenshor-main.sqlite"
-    canonical_database.parent.mkdir(parents=True)
-    selected_database = static_database if static_present else canonical_database
-    selected_database.touch()
-
-    maps = SimpleNamespace(source_dir=source, database_dir=database_dir)
-    variant = SimpleNamespace(
-        maps=maps,
-        database=canonical_database,
-        resolved_database=lambda _root: canonical_database,
-    )
-    context = CLIContext(
-        config=SimpleNamespace(variants={"main": variant}),
-        variant="main",
-        dry_run=False,
-        repo_root=tmp_path,
-    )
-    monkeypatch.setattr(test, "_executable", lambda name: test._Preflight(name, True, "/bin/pnpm"))
-
-    checks = test._preflight_maps(context)
-
-    assert all(check.ok for check in checks)
-    database_checks = [check for check in checks if "database" in check.name]
-    assert len(database_checks) == 1
-    assert database_checks[0].detail == str(selected_database)
-
-
-def test_maps_preflight_fallback_uses_main_database_for_other_selected_variant(
-    tmp_path: Path, monkeypatch: Any
-) -> None:
-    source = tmp_path / "maps"
-    node_modules = source / "node_modules"
-    database_dir = tmp_path / "static-db"
-    source.mkdir()
-    node_modules.mkdir()
-    database_dir.mkdir()
-    main_database = tmp_path / "variants/main/erenshor-main.sqlite"
-    selected_database = tmp_path / "demo.sqlite"
-    main_database.parent.mkdir(parents=True)
-    main_database.touch()
-    selected_database.touch()
-
-    maps = SimpleNamespace(source_dir=source, database_dir=database_dir)
-    main_variant = SimpleNamespace(
-        maps=maps,
-        database=main_database,
-        resolved_database=lambda _root: main_database,
-    )
-    selected_variant = SimpleNamespace(
-        maps=maps,
-        database=selected_database,
-        resolved_database=lambda _root: selected_database,
-    )
-    context = CLIContext(
-        config=SimpleNamespace(variants={"main": main_variant, "demo": selected_variant}),
-        variant="demo",
-        dry_run=False,
-        repo_root=tmp_path,
-    )
-    monkeypatch.setattr(test, "_executable", lambda name: test._Preflight(name, True, "/bin/pnpm"))
-
-    checks = test._preflight_maps(context)
-
-    assert all(check.ok for check in checks)
-    database_checks = [check for check in checks if "database" in check.name]
-    assert len(database_checks) == 1
-    assert database_checks[0].detail == str(main_database)
 
 
 def test_wiki_leaf_uses_exact_setup_and_pytest_commands(tmp_path: Path, monkeypatch: Any) -> None:
@@ -945,7 +866,7 @@ def test_invalid_pytest_report_validation_is_persisted_in_leaf_diagnostics(tmp_p
     assert "schema" in str(diagnostics["report_validation"])
 
 
-def test_maps_preflight_checks_configured_database_without_external_tools(tmp_path: Path, monkeypatch: Any) -> None:
+def test_maps_preflight_checks_toolchain_and_fixture_without_database(tmp_path: Path, monkeypatch: Any) -> None:
     executable_calls: list[str] = []
     directory_calls: list[str] = []
     file_calls: list[str] = []
@@ -968,9 +889,9 @@ def test_maps_preflight_checks_configured_database_without_external_tools(tmp_pa
     checks = test._preflight_maps(_context(tmp_path, configured_maps=True))
 
     assert all(check.ok for check in checks)
-    assert executable_calls == ["pnpm"]
+    assert executable_calls == ["pnpm", "node"]
     assert directory_calls == ["configured maps project", "maps node_modules"]
-    assert file_calls == ["current maps database"]
+    assert file_calls == ["maps prerender smoke", "maps fixture schema"]
 
 
 def test_wiki_preflight_monkeypatches_api_and_browser_boundaries(tmp_path: Path, monkeypatch: Any) -> None:
