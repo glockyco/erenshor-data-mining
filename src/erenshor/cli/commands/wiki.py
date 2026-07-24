@@ -1668,6 +1668,12 @@ def deploy(
                         include_live_pages=False,
                         output_path=None if cli_ctx.dry_run else _default_link_audit_output(cli_ctx),
                     )
+                    stale_catalog = any(finding.code == "live_link_catalog_stale" for finding in report.findings)
+                    if stale_catalog:
+                        raise ValueError(
+                            "Generated article deployment requires the live semantic-link catalog to match "
+                            "the generated catalog. Deploy repo-owned Lua/data pages first."
+                        )
                     if report.has_errors:
                         error_count = sum(1 for finding in report.findings if finding.severity == "error")
                         raise ValueError(f"Semantic link audit found {error_count} blocking finding(s)")

@@ -449,6 +449,50 @@ class TestWikiLinkAuditCommand:
         run_audit.assert_not_called()
         assert "audit-links" in directory.output
 
+    def test_generated_deploy_blocks_stale_live_link_catalog(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        mock_operation_result: OperationResult,
+    ) -> None:
+        import erenshor.cli.commands.wiki as wiki_command
+
+        service = MagicMock()
+
+        def deploy_all(**kwargs):
+            kwargs["preflight"]({"Generated": "{{CharacterLink|stablekey=character:a}}"})
+            return mock_operation_result
+
+        service.deploy_all.side_effect = deploy_all
+        monkeypatch.setattr(
+            wiki_command,
+            "_create_wiki_composition",
+            lambda _ctx, **_: _mock_wiki_composition(),
+        )
+        monkeypatch.setattr(wiki_command, "WikiDeployService", lambda **_: service)
+        stale_catalog = LinkAuditFinding(
+            code="live_link_catalog_stale",
+            severity="warning",
+            source_page="Module:Erenshor/Data/Links",
+            kind=None,
+            stable_key=None,
+            supplied_target=None,
+            canonical_target=None,
+            message="stale",
+        )
+        monkeypatch.setattr(
+            wiki_command,
+            "_run_link_audit",
+            MagicMock(return_value=self._report(stale_catalog)),
+        )
+
+        result = runner.invoke(
+            app,
+            ["--dry-run", "wiki", "deploy", "--legacy-article-deploy"],
+        )
+
+        assert result.exit_code == 1
+        assert "live semantic-link catalog" in result.output
+
 
 class TestWikiInventoryTemplatesCommand:
     """Test wiki template inventory command."""
