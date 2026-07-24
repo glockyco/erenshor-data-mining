@@ -3,8 +3,6 @@ from __future__ import annotations
 import math
 from typing import Any
 
-TILE_SIZE = 256
-
 
 def estimate_tile_count(config: dict[str, Any]) -> dict[str, dict[str, int]]:
     """Estimate the total tile count per zone and a grand total.
