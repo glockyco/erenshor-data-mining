@@ -133,28 +133,102 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-  test-csharp:
-    name: Test C#
+  test-native-analyzers:
+    name: Native Analyzer Tests (${{ matrix.name }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: CodeFacts
+            project: src/tools/CodeFacts/tests/CodeFacts.Tests/CodeFacts.Tests.csproj
+          - name: ExportSurface
+            project: src/tools/ExportSurface/tests/ExportSurface.Tests/ExportSurface.Tests.csproj
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up .NET
+      - name: Set up .NET 9 and 10
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: |
+            9.0.x
+            10.0.x
 
-      - name: Run tests
-        run: dotnet test --verbosity normal
-        working-directory: src/mods/InteractiveMapCompanion
+      - name: Run ${{ matrix.name }} tests
+        run: |
+          dotnet test "${{ matrix.project }}" \
+            -c Release \
+            --logger "trx;LogFileName=${{ matrix.name }}.trx" \
+            --results-directory "$RUNNER_TEMP/test-results/${{ matrix.name }}" \
+            -- RunConfiguration.TreatNoTestsAsError=true
+
+      - name: Upload ${{ matrix.name }} TRX
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-analyzer-${{ matrix.name }}-trx
+          path: ${{ runner.temp }}/test-results/${{ matrix.name }}/*.trx
+          if-no-files-found: error
+
+  test-native-mods:
+    name: Native Mod Tests (${{ matrix.name }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: AdventureGuide
+            project: src/mods/AdventureGuide/tests/AdventureGuide.Tests/AdventureGuide.Tests.csproj
+            loader: lunaris
+          - name: InteractiveMapCompanion
+            project: src/mods/InteractiveMapCompanion/tests/InteractiveMapCompanion.Tests/InteractiveMapCompanion.Tests.csproj
+            loader: bepinex
+          - name: Sprint
+            project: src/mods/Sprint/tests/Sprint.Tests/Sprint.Tests.csproj
+            loader: lunaris
+          - name: JusticeForF7
+            project: src/mods/JusticeForF7/tests/JusticeForF7.Tests/JusticeForF7.Tests.csproj
+            loader: lunaris
+          - name: LoaderAdapters
+            project: src/mods/tests/LoaderAdapter.Tests/LoaderAdapter.Tests.csproj
+            loader: bepinex
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 9 and 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            9.0.x
+            10.0.x
+
+      - name: Run ${{ matrix.name }} tests
+        run: |
+          dotnet test "${{ matrix.project }}" \
+            -c Release \
+            -p:ModLoader=${{ matrix.loader }} \
+            -p:ModVersion=0.0.0-test \
+            --logger "trx;LogFileName=${{ matrix.name }}.trx" \
+            --results-directory "$RUNNER_TEMP/test-results/${{ matrix.name }}" \
+            -- RunConfiguration.TreatNoTestsAsError=true
+
+      - name: Upload ${{ matrix.name }} TRX
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-mod-${{ matrix.name }}-trx
+          path: ${{ runner.temp }}/test-results/${{ matrix.name }}/*.trx
+          if-no-files-found: error
 
   # Summary job that all other jobs depend on
   # This makes it easy to require a single status check for branch protection
   ci-success:
     name: CI Success
     runs-on: ubuntu-latest
-    needs: [lint-python, lint-csharp, type-check, security, test-python, test-csharp]
+    needs:
+      [lint-python, lint-csharp, type-check, security, test-python, test-native-analyzers, test-native-mods]
     if: always()
     steps:
       - name: Check all jobs status
@@ -164,7 +238,8 @@ jobs:
              [[ "${{ needs.type-check.result }}" != "success" ]] || \
              [[ "${{ needs.security.result }}" != "success" ]] || \
              [[ "${{ needs.test-python.result }}" != "success" ]] || \
-             [[ "${{ needs.test-csharp.result }}" != "success" ]]; then
+             [[ "${{ needs.test-native-analyzers.result }}" != "success" ]] || \
+             [[ "${{ needs.test-native-mods.result }}" != "success" ]]; then
             echo "One or more jobs failed"
             exit 1
           fi

@@ -647,7 +647,8 @@ def test_mods_leaf_uses_each_exact_native_project_argv_and_repository_cwd(tmp_pa
     for (argv, cwd), (loader, project) in zip(calls, expected_projects, strict=True):
         assert cwd == tmp_path
         assert argv[:3] == ["dotnet", "test", str(project)]
-        assert argv[3:5] == [f"-p:ModLoader={loader}", "-p:ModVersion=0.0.0-test"]
+        assert argv[3:5] == ["-c", "Release"]
+        assert argv[5:7] == [f"-p:ModLoader={loader}", "-p:ModVersion=0.0.0-test"]
         logger = next(argument for argument in argv if argument.startswith("trx;LogFileName="))
         trx_paths.append(Path(logger.split("=", 1)[1]))
     assert len(trx_paths) == len(set(trx_paths))

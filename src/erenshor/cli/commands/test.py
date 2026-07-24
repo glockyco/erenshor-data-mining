@@ -993,6 +993,8 @@ def _run_mods_leaf(cli_ctx: CLIContext) -> _LeafResult:
             "dotnet",
             "test",
             str(project),
+            "-c",
+            "Release",
             f"-p:ModLoader={native_project.default_loader}",
             "-p:ModVersion=0.0.0-test",
             "--logger",
