@@ -55,11 +55,11 @@ app.add_typer(guide.app, name="guide")
 @app.callback()
 def main(
     ctx: typer.Context,
-    variant: str = typer.Option(
-        "main",
+    variant: str | None = typer.Option(
+        None,
         "--variant",
         "-V",
-        help="Game variant to operate on (main, playtest, demo)",
+        help="Game variant to operate on (defaults to config.default_variant)",
     ),
     dry_run: bool = typer.Option(
         False,
@@ -102,15 +102,23 @@ def main(
         elif quiet:
             config.global_.logging.level = "error"
 
-        # Setup logging (variant-specific if specified, global otherwise)
-        # Only use variant-specific logging if the variant exists
-        variant_for_logging = variant if variant in config.variants else None
-        setup_logging(config, variant=variant_for_logging)
+        selected_variant = variant or config.default_variant
+        if selected_variant not in config.variants:
+            available = ", ".join(sorted(config.variants)) or "none"
+            typer.echo(
+                f"Configuration Error: Unknown variant '{selected_variant}'. Available variants: {available}",
+                err=True,
+            )
+            raise typer.Exit(1)
+
+        # Setup logging after validating the selected variant so variant-specific
+        # paths are never resolved from an invalid selection.
+        setup_logging(config, variant=selected_variant)
 
         # Create CLI context
         ctx.obj = CLIContext(
             config=config,
-            variant=variant,
+            variant=selected_variant,
             dry_run=dry_run,
             repo_root=repo_root,
         )
@@ -119,8 +127,10 @@ def main(
         if dry_run:
             logger.info("DRY RUN mode enabled - no changes will be made")
 
-        logger.debug(f"CLI initialized: variant={variant}, dry_run={dry_run}")
+        logger.debug(f"CLI initialized: variant={selected_variant}, dry_run={dry_run}")
 
+    except typer.Exit:
+        raise
     except ConfigLoadError as e:
         typer.echo(f"Configuration Error: {e}", err=True)
         raise typer.Exit(1) from None

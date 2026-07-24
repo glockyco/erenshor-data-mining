@@ -105,6 +105,25 @@ class TestGetGeneratorsByName:
         with pytest.raises(ValueError, match=r"Unknown generator.*weapons"):
             get_generators_by_name(mock_context, ["items", "weapons"])
 
+    def test_zone_output_dir_is_bound_from_context(self, monkeypatch, tmp_path):
+        """Zone output routing uses the composed repository path, not cwd."""
+        registration = GeneratorRegistration(
+            name="zones",
+            factory=lambda _context: Mock(),
+            description="Zone pages",
+            auto_deploy=False,
+        )
+        context = Mock(spec=GeneratorContext)
+        context.zone_output_dir = tmp_path / "repository" / "wiki" / "zones"
+        monkeypatch.setattr(
+            "erenshor.application.wiki.generators.registry.WIKI_GENERATORS",
+            [registration],
+        )
+
+        pairs = get_generators_by_name(context, ["zones"])
+
+        assert pairs[0][0].output_dir == context.zone_output_dir
+
 
 class TestListGenerators:
     """Test list_generators function."""

@@ -778,10 +778,11 @@ def _generate_all_ide_project_files(cli_ctx: CLIContext) -> None:
             logger.warning(f"Failed to generate IDE files for variant '{variant_name}': {e}")
             console.print(f"  [yellow]⚠[/yellow] {variant_name}: {e}")
 
-    # Generate Editor scripts csproj in src/Assets/Editor for root solution
-    src_editor_dir = cli_ctx.repo_root / "src" / "Assets" / "Editor"
-    src_editor_csproj: Path | None = None
-    if src_editor_dir.exists():
+    # Generate the root Editor scripts project from the selected variant's configured source.
+    selected_variant_config = cli_ctx.config.variants[cli_ctx.variant]
+    root_editor_dir = selected_variant_config.resolved_editor_scripts(cli_ctx.repo_root)
+    root_editor_csproj: Path | None = None
+    if root_editor_dir.exists():
         console.print()
         console.print("[bold]Generating Editor scripts project:[/bold]")
 
@@ -806,13 +807,13 @@ def _generate_all_ide_project_files(cli_ctx: CLIContext) -> None:
             console.print("    [dim]Run 'extract ide-setup' after extracting at least one variant[/dim]")
         else:
             try:
-                src_editor_csproj = generate_editor_scripts_csproj(
-                    editor_scripts_dir=src_editor_dir,
+                root_editor_csproj = generate_editor_scripts_csproj(
+                    editor_scripts_dir=root_editor_dir,
                     unity_paths=unity_paths,
                     game_scripts_csproj=game_scripts_ref,
                 )
-                logger.info(f"Generated: {src_editor_csproj}")
-                console.print(f"  [green]✓[/green] {src_editor_csproj.relative_to(cli_ctx.repo_root)}")
+                logger.info(f"Generated: {root_editor_csproj}")
+                console.print(f"  [green]✓[/green] {root_editor_csproj.relative_to(cli_ctx.repo_root)}")
             except Exception as e:
                 logger.warning(f"Failed to generate Editor scripts project: {e}")
                 console.print(f"  [yellow]⚠[/yellow] {e}")
@@ -835,8 +836,8 @@ def _generate_all_ide_project_files(cli_ctx: CLIContext) -> None:
 
     # Build list of projects for root solution (mods + Editor scripts, no game scripts)
     all_mod_projects = list(mod_projects)
-    if src_editor_csproj:
-        all_mod_projects.insert(0, src_editor_csproj)  # Add Editor scripts to mods list
+    if root_editor_csproj:
+        all_mod_projects.insert(0, root_editor_csproj)  # Add Editor scripts to mods list
 
     # Generate root solution with mods and Editor (game scripts excluded to save memory)
     if not all_mod_projects and not test_projects:

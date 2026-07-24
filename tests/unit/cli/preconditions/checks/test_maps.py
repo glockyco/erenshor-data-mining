@@ -81,16 +81,26 @@ def test_build_matches_inputs_passes_for_fresh_sidecar(tmp_path: Path) -> None:
 def test_cloudflare_auth_configured_passes_with_api_token(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("CLOUDFLARE_API_TOKEN", "token")
 
-    result = maps.cloudflare_auth_configured({})
+    result = maps.cloudflare_auth_configured({"maps_source_dir": Path("configured/maps")})
 
     assert result.passed is True
 
 
-def test_cloudflare_auth_configured_fails_without_token_or_wrangler(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_cloudflare_auth_configured_requires_maps_source_dir(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("CLOUDFLARE_API_TOKEN", raising=False)
     monkeypatch.setattr(maps.shutil, "which", lambda _name: None)
 
-    result = maps.cloudflare_auth_configured({"maps_source_dir": Path("src/maps")})
+    with pytest.raises(KeyError, match="maps_source_dir"):
+        maps.cloudflare_auth_configured({})
+
+
+def test_cloudflare_auth_configured_fails_without_token_or_wrangler(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("CLOUDFLARE_API_TOKEN", raising=False)
+    monkeypatch.setattr(maps.shutil, "which", lambda _name: None)
+
+    result = maps.cloudflare_auth_configured({"maps_source_dir": Path("configured/maps")})
 
     assert result.passed is False
     assert "CLOUDFLARE_API_TOKEN" in result.detail

@@ -239,6 +239,7 @@ def test_build_check_context():
     variant_config.resolved_game_files.return_value = Path("/game/files")
     variant_config.resolved_logs.return_value = Path("/logs")
     variant_config.resolved_backups.return_value = Path("/backups")
+    variant_config.resolved_editor_scripts.return_value = Path("/editor/scripts")
 
     maps_config = Mock()
     maps_config.resolved_source_dir.return_value = Path("/maps")
@@ -264,6 +265,7 @@ def test_build_check_context():
     assert context["game_dir"] == Path("/game/files")
     assert context["logs_dir"] == Path("/logs")
     assert context["backups_dir"] == Path("/backups")
+    assert context["editor_scripts_dir"] == Path("/editor/scripts")
     assert context["maps_source_dir"] == Path("/maps")
     assert context["build_dir"] == Path("/maps/build")
     assert context["maps_db_path"] == Path("/maps/static/db/erenshor.sqlite")

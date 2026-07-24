@@ -7,6 +7,7 @@ access to repositories and storage without passing them individually.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -45,6 +46,8 @@ class GeneratorContext:
         storage: Wiki storage for reading fetched pages
         class_display: Service for mapping class names to display names
         maps_base_url: Base URL for the interactive map website
+        zone_positions_path: Selected variant's maps zone-positions.json path
+        zone_output_dir: Repository-owned output directory for generated zone pages
     """
 
     item_repo: ItemRepository
@@ -60,3 +63,5 @@ class GeneratorContext:
     storage: WikiStorage
     class_display: ClassDisplayNameService
     maps_base_url: str
+    zone_positions_path: Path | None = None
+    zone_output_dir: Path | None = None

@@ -58,10 +58,11 @@ def run(
 
     from erenshor.application.capture.orchestrator import CaptureOrchestrator
     from erenshor.application.capture.state import CaptureState
-    from erenshor.application.capture.zone_config import get_zone_keys, load_zone_config
+    from erenshor.application.capture.zone_config import CONFIG_RELATIVE_PATH, get_zone_keys, load_zone_config
 
     cli_ctx: CLIContext = ctx.obj
-    config = load_zone_config(cli_ctx.repo_root)
+    maps_source_dir = cli_ctx.config.variants[cli_ctx.variant].maps.resolved_source_dir(cli_ctx.repo_root)
+    config = load_zone_config(maps_source_dir / CONFIG_RELATIVE_PATH)
     selected = get_zone_keys(config, zones)
     state = CaptureState.load(cli_ctx.repo_root)
 
@@ -77,7 +78,8 @@ def run(
     console.print()
 
     variants = [variant] if variant else None
-    orch = CaptureOrchestrator(cli_ctx.repo_root, config, state)
+    tile_output_dir = maps_source_dir / "static" / "tiles"
+    orch = CaptureOrchestrator(cli_ctx.repo_root, config, state, tile_output_dir=tile_output_dir)
     asyncio.run(orch.run(selected, variants=variants, force=force))
 
     console.print("[bold green]Capture pipeline complete[/bold green]")
@@ -99,13 +101,14 @@ def tile(
     """
     from erenshor.application.capture.state import CaptureState
     from erenshor.application.capture.tile_generator import generate_tile_pyramid
-    from erenshor.application.capture.zone_config import get_zone_keys, load_zone_config
+    from erenshor.application.capture.zone_config import CONFIG_RELATIVE_PATH, get_zone_keys, load_zone_config
 
     cli_ctx: CLIContext = ctx.obj
-    config = load_zone_config(cli_ctx.repo_root)
+    maps_source_dir = cli_ctx.config.variants[cli_ctx.variant].maps.resolved_source_dir(cli_ctx.repo_root)
+    config = load_zone_config(maps_source_dir / CONFIG_RELATIVE_PATH)
     selected = get_zone_keys(config, zones)
     state = CaptureState.load(cli_ctx.repo_root)
-    tiles_dir = cli_ctx.repo_root / "src" / "maps" / "static" / "tiles"
+    tiles_dir = maps_source_dir / "static" / "tiles"
 
     console.print()
     console.print("[bold cyan]Re-tiling from master PNGs[/bold cyan]")
@@ -145,10 +148,11 @@ def status(
     which zones have been captured, their status, and variants.
     """
     from erenshor.application.capture.state import CaptureState
-    from erenshor.application.capture.zone_config import load_zone_config
+    from erenshor.application.capture.zone_config import CONFIG_RELATIVE_PATH, load_zone_config
 
     cli_ctx: CLIContext = ctx.obj
-    config = load_zone_config(cli_ctx.repo_root)
+    maps_source_dir = cli_ctx.config.variants[cli_ctx.variant].maps.resolved_source_dir(cli_ctx.repo_root)
+    config = load_zone_config(maps_source_dir / CONFIG_RELATIVE_PATH)
     state = CaptureState.load(cli_ctx.repo_root)
 
     table = Table(title="Capture Status")
@@ -195,10 +199,11 @@ def budget(
     """
 
     from erenshor.application.capture.budget import estimate_tile_count
-    from erenshor.application.capture.zone_config import load_zone_config
+    from erenshor.application.capture.zone_config import CONFIG_RELATIVE_PATH, load_zone_config
 
     cli_ctx: CLIContext = ctx.obj
-    config = load_zone_config(cli_ctx.repo_root)
+    maps_source_dir = cli_ctx.config.variants[cli_ctx.variant].maps.resolved_source_dir(cli_ctx.repo_root)
+    config = load_zone_config(maps_source_dir / CONFIG_RELATIVE_PATH)
     estimates = estimate_tile_count(config)
 
     table = Table(title="Tile Budget Estimate")

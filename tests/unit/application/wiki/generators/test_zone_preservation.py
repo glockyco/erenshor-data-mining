@@ -75,6 +75,9 @@ def mock_context(tmp_path: Path) -> Mock:
     zone_repo.get_all_zones.return_value = [soluna]
     zone_repo.get_zone_connections.return_value = ["Loomingwood Forest", "Malaroth's Nesting Grounds"]
     ctx.zone_repo = zone_repo
+    zone_positions_path = tmp_path / "zone-positions.json"
+    zone_positions_path.write_text('{"Soluna": {}}', encoding="utf-8")
+    ctx.zone_positions_path = zone_positions_path
     return ctx
 
 

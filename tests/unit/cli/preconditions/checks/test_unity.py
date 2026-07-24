@@ -81,19 +81,17 @@ def test_editor_scripts_linked_with_valid_symlink(tmp_path: Path):
     unity_dir = tmp_path / "unity"
 
     # Create source directory
-    source_editor = repo_root / "src" / "Assets" / "Editor"
+    source_editor = repo_root / "configured" / "Editor"
     source_editor.mkdir(parents=True)
     (source_editor / "test.cs").write_text("// test")
 
-    # Create Unity project with ExportedProject subdirectory
     exported_project = unity_dir / "ExportedProject"
     (exported_project / "Assets").mkdir(parents=True)
     editor_link = exported_project / "Assets" / "Editor"
     editor_link.symlink_to(source_editor)
-
     context = {
         "unity_project": unity_dir,
-        "repo_root": repo_root,
+        "editor_scripts_dir": source_editor,
     }
     result = editor_scripts_linked(context)
 
@@ -105,12 +103,10 @@ def test_editor_scripts_linked_when_missing(tmp_path: Path):
     """Test editor_scripts_linked fails when symlink doesn't exist."""
     repo_root = tmp_path / "repo"
     unity_dir = tmp_path / "unity"
-    exported_project = unity_dir / "ExportedProject"
-    (exported_project / "Assets").mkdir(parents=True)
-
+    source_editor = repo_root / "configured" / "Editor"
     context = {
         "unity_project": unity_dir,
-        "repo_root": repo_root,
+        "editor_scripts_dir": source_editor,
     }
     result = editor_scripts_linked(context)
 
@@ -127,10 +123,10 @@ def test_editor_scripts_linked_when_not_symlink(tmp_path: Path):
     exported_project = unity_dir / "ExportedProject"
     editor_dir = exported_project / "Assets" / "Editor"
     editor_dir.mkdir(parents=True)
-
+    source_editor = repo_root / "configured" / "Editor"
     context = {
         "unity_project": unity_dir,
-        "repo_root": repo_root,
+        "editor_scripts_dir": source_editor,
     }
     result = editor_scripts_linked(context)
 
@@ -144,7 +140,7 @@ def test_editor_scripts_linked_when_wrong_target(tmp_path: Path):
     unity_dir = tmp_path / "unity"
 
     # Create source directory
-    source_editor = repo_root / "src" / "Assets" / "Editor"
+    source_editor = repo_root / "configured" / "Editor"
     source_editor.mkdir(parents=True)
 
     # Create wrong target
@@ -156,10 +152,9 @@ def test_editor_scripts_linked_when_wrong_target(tmp_path: Path):
     (exported_project / "Assets").mkdir(parents=True)
     editor_link = exported_project / "Assets" / "Editor"
     editor_link.symlink_to(wrong_target)
-
     context = {
         "unity_project": unity_dir,
-        "repo_root": repo_root,
+        "editor_scripts_dir": source_editor,
     }
     result = editor_scripts_linked(context)
 

@@ -65,6 +65,7 @@ def build_matches_inputs(context: dict[str, Any]) -> PreconditionResult:
 
 def cloudflare_auth_configured(context: dict[str, Any]) -> PreconditionResult:
     """Check that Cloudflare credentials are available for wrangler deploy."""
+    maps_source_dir = Path(context["maps_source_dir"])
     if os.environ.get("CLOUDFLARE_API_TOKEN"):
         return PreconditionResult(
             passed=True,
@@ -72,7 +73,6 @@ def cloudflare_auth_configured(context: dict[str, Any]) -> PreconditionResult:
             message="Cloudflare API token configured",
         )
 
-    maps_source_dir = Path(context.get("maps_source_dir", "src/maps"))
     if shutil.which("pnpm") is not None:
         try:
             result = subprocess.run(
@@ -98,6 +98,6 @@ def cloudflare_auth_configured(context: dict[str, Any]) -> PreconditionResult:
         message="Cloudflare authentication not configured",
         detail=(
             "Set CLOUDFLARE_API_TOKEN (+ CLOUDFLARE_ACCOUNT_ID when required) "
-            "or run `pnpm -C src/maps exec wrangler login`."
+            f"or run `pnpm -C {maps_source_dir} exec wrangler login`."
         ),
     )

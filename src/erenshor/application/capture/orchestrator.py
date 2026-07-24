@@ -24,11 +24,13 @@ class CaptureOrchestrator:
         repo_root: Path,
         config: dict[str, Any],
         state: CaptureState,
+        tile_output_dir: Path,
         ws_url: str = f"ws://localhost:{WS_PORT}",
     ) -> None:
         self.repo_root = repo_root
         self.config = config
         self.state = state
+        self.tile_output_dir = tile_output_dir
         self.ws_url = ws_url
         self._ws: Any = None
 
@@ -53,12 +55,11 @@ class CaptureOrchestrator:
         zones: list[str],
         variants: list[str] | None,
         force: bool = False,
-        out_dir: Path | None = None,
     ) -> None:
         """Capture, stitch, crop-if-needed, and tile every zone x variant."""
         await self.connect()
         try:
-            await self._run_inner(zones, variants, force, out_dir)
+            await self._run_inner(zones, variants, force)
         finally:
             await self.close()
 
@@ -67,9 +68,8 @@ class CaptureOrchestrator:
         zones: list[str],
         variants: list[str] | None,
         force: bool,
-        out_dir: Path | None,
     ) -> None:
-        tile_out = out_dir or (self.repo_root / "src" / "maps" / "static" / "tiles")
+        tile_out = self.tile_output_dir
         master_dir = self.repo_root / ".erenshor" / "masters"
         master_dir.mkdir(parents=True, exist_ok=True)
 

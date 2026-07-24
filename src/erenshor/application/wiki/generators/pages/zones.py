@@ -3,7 +3,7 @@
 Generates individual wiki pages for each zone (grouped by wiki_page_name so
 Mysterious Portal's three instances produce a single page).
 
-Pages are written to wiki/zones/ (set via GeneratorRegistration.output_dir)
+Pages are written to the explicitly composed repository wiki zones directory
 rather than the standard WikiStorage. The generator handles its own field
 preservation so manually-edited fields (level, image, prose, tables) survive
 regeneration.
@@ -26,13 +26,8 @@ if TYPE_CHECKING:
     from erenshor.application.wiki.generators.context import GeneratorContext
     from erenshor.domain.entities.zone import Zone
 
-# Path to zone-positions.json is version-controlled and stable.
-_ZONE_POSITIONS_PATH = Path("src/maps/src/lib/data/zone-positions.json")
-
-# Default output directory; the registry overrides via the output_dir param.
-# Kept as a module constant so the generator and registry share one source of
-# truth for the path and tests can inject a tmp_path.
-_DEFAULT_OUTPUT_DIR = Path("wiki/zones")
+# Zone map positions are supplied by the CLI composition boundary from the
+# selected variant's configured maps source directory.
 
 
 class ZonePageGenerator(PageGenerator):
@@ -51,17 +46,35 @@ class ZonePageGenerator(PageGenerator):
     Output: ``{output_dir}/{Title_With_Spaces_As_Underscores}.txt``
     """
 
-    def __init__(self, context: GeneratorContext, output_dir: Path = _DEFAULT_OUTPUT_DIR) -> None:
+    def __init__(
+        self,
+        context: GeneratorContext,
+        output_dir: Path | None = None,
+        zone_positions_path: Path | None = None,
+    ) -> None:
         super().__init__(context)
         self._preservation_handler = FieldPreservationHandler()
+
+        if output_dir is None:
+            output_dir = context.zone_output_dir
+        if not isinstance(output_dir, Path):
+            raise ValueError("Zone generator requires an explicit output directory")
         self._output_dir = output_dir
 
-        # Load valid map keys from the version-controlled zone-positions.json.
-        # Zones whose scene_name is NOT in this set have no interactive map.
+        if zone_positions_path is None:
+            zone_positions_path = context.zone_positions_path
+        self._map_keys: set[str]
+        if not isinstance(zone_positions_path, Path):
+            logger.warning("zone-positions.json path not configured; no map links will be generated")
+            self._map_keys = set()
+            return
+
+        # Load valid map keys from the selected variant's version-controlled
+        # zone-positions.json. Zones absent from this file have no map link.
         try:
-            self._map_keys: set[str] = set(json.loads(_ZONE_POSITIONS_PATH.read_text(encoding="utf-8")).keys())
+            self._map_keys = set(json.loads(zone_positions_path.read_text(encoding="utf-8")).keys())
         except FileNotFoundError:
-            logger.warning(f"zone-positions.json not found at {_ZONE_POSITIONS_PATH}; no map links will be generated")
+            logger.warning(f"zone-positions.json not found at {zone_positions_path}; no map links will be generated")
             self._map_keys = set()
 
     def get_pages_to_fetch(self) -> list[str]:

@@ -70,20 +70,21 @@ def unity_project_exists(context: dict[str, Any]) -> PreconditionResult:
 def editor_scripts_linked(context: dict[str, Any]) -> PreconditionResult:
     """Check if Editor scripts are properly symlinked.
 
-    The Editor scripts must be symlinked from src/Assets/Editor
-    to the Unity project's ExportedProject/Assets/Editor directory.
+    The Editor scripts must be symlinked from the selected variant's
+    configured editor_scripts directory to the Unity project's
+    ExportedProject/Assets/Editor directory.
 
     Args:
-        context: Check context containing 'unity_project' and 'repo_root' keys.
+        context: Check context containing 'unity_project' and
+            'editor_scripts_dir' keys.
 
     Returns:
         PreconditionResult indicating success or failure.
     """
     unity_dir = Path(context["unity_project"])
-    repo_root = Path(context["repo_root"])
+    source_editor_dir = Path(context["editor_scripts_dir"])
 
     editor_dir = unity_dir / "ExportedProject" / "Assets" / "Editor"
-    source_editor_dir = repo_root / "src" / "Assets" / "Editor"
 
     if not editor_dir.exists():
         return PreconditionResult(

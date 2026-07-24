@@ -8,7 +8,7 @@ enables selective generation via CLI flags.
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -51,8 +51,7 @@ class GeneratorRegistration:
     output_dir: Path | None = field(default=None)
 
 
-# Global registry of all wiki page generators
-_ZONE_OUTPUT_DIR = Path("wiki/zones")
+# Zone paths are bound from GeneratorContext for each selected variant.
 
 
 def _create_entity_generator(context: GeneratorContext) -> EntityPageGenerator:
@@ -68,7 +67,29 @@ def _create_armor_overview_generator(context: GeneratorContext) -> ArmorOverview
 
 
 def _create_zone_generator(context: GeneratorContext) -> ZonePageGenerator:
-    return ZonePageGenerator(context, output_dir=_ZONE_OUTPUT_DIR)
+    return ZonePageGenerator(
+        context,
+        output_dir=context.zone_output_dir,
+        zone_positions_path=context.zone_positions_path,
+    )
+
+
+def _bind_registration(registration: GeneratorRegistration, context: GeneratorContext) -> GeneratorRegistration:
+    """Bind paths that are composed per wiki invocation."""
+    if registration.name != "zones":
+        return registration
+    if context.zone_output_dir is None:
+        raise ValueError("Zone generator requires an explicit output directory")
+    return replace(registration, output_dir=context.zone_output_dir)
+
+
+def _instantiate_registration(
+    registration: GeneratorRegistration,
+    context: GeneratorContext,
+) -> tuple[GeneratorRegistration, PageGenerator]:
+    """Bind invocation paths and construct one generator."""
+    bound = _bind_registration(registration, context)
+    return bound, bound.factory(context)
 
 
 WIKI_GENERATORS: list[GeneratorRegistration] = [
@@ -92,7 +113,7 @@ WIKI_GENERATORS: list[GeneratorRegistration] = [
         factory=_create_zone_generator,
         description="Generate individual zone pages with connections and map links",
         auto_deploy=False,
-        output_dir=_ZONE_OUTPUT_DIR,
+        output_dir=None,
     ),
 ]
 
@@ -131,7 +152,7 @@ def get_generators_by_name(
     # If no filter, return all generators
     if generator_names is None:
         logger.debug(f"Instantiating all {len(WIKI_GENERATORS)} registered generators")
-        return [(reg, reg.factory(context)) for reg in WIKI_GENERATORS]
+        return [_instantiate_registration(reg, context) for reg in WIKI_GENERATORS]
 
     # Validate all requested names exist
     available_names = {reg.name for reg in WIKI_GENERATORS}
@@ -150,7 +171,7 @@ def get_generators_by_name(
         f"{', '.join(reg.name for reg in filtered_registrations)}"
     )
 
-    return [(reg, reg.factory(context)) for reg in filtered_registrations]
+    return [_instantiate_registration(reg, context) for reg in filtered_registrations]
 
 
 def list_generators() -> list[tuple[str, str, bool]]:

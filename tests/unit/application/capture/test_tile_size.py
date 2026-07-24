@@ -1,10 +1,92 @@
+from __future__ import annotations
+
+import asyncio
+import json
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import Mock
 
 from PIL import Image
 
-from erenshor.application.capture import orchestrator
+from erenshor.application.capture import orchestrator, zone_config
 from erenshor.application.capture.constants import TILE_SIZE
 from erenshor.application.capture.tile_generator import generate_tile_pyramid
+from erenshor.application.capture.zone_config import load_zone_config
+from erenshor.cli.commands import capture as capture_command
+
+
+def test_zone_config_reads_explicit_nondefault_path(tmp_path: Path) -> None:
+    config_path = tmp_path / "configured" / "maps" / "zone-capture-config.json"
+    config_path.parent.mkdir(parents=True)
+    config_path.write_text(json.dumps({"zone": {"sceneName": "Scene"}}), encoding="utf-8")
+
+    assert load_zone_config(config_path) == {"zone": {"sceneName": "Scene"}}
+
+
+def test_capture_cli_uses_selected_variant_maps_source(tmp_path: Path, monkeypatch) -> None:
+    maps_source_dir = tmp_path / "variant-maps"
+    loaded_paths: list[Path] = []
+
+    def load(path: Path) -> dict:
+        loaded_paths.append(path)
+        return {}
+
+    monkeypatch.setattr(zone_config, "load_zone_config", load)
+    monkeypatch.setattr("erenshor.application.capture.state.CaptureState.load", lambda _root: Mock())
+    maps = SimpleNamespace(resolved_source_dir=lambda _repo_root: maps_source_dir)
+    variant = SimpleNamespace(maps=maps)
+    cli_ctx = SimpleNamespace(
+        repo_root=tmp_path,
+        variant="playtest",
+        config=SimpleNamespace(variants={"playtest": variant}),
+    )
+
+    capture_command.status(SimpleNamespace(obj=cli_ctx))
+
+    assert loaded_paths == [maps_source_dir / zone_config.CONFIG_RELATIVE_PATH]
+
+
+def test_capture_uses_explicit_tile_output_dir(tmp_path: Path, monkeypatch) -> None:
+    tile_output_dir = tmp_path / "configured" / "maps" / "static" / "tiles"
+    config = {
+        "zone": {
+            "sceneName": "Scene",
+            "captureVariants": ["open"],
+            "baseTilesX": 1,
+            "baseTilesY": 1,
+            "maxZoom": 0,
+        }
+    }
+
+    class State:
+        def should_skip(self, zone: str, variant: str, master_path: Path, *, force: bool = False) -> bool:
+            return False
+
+        def set_variant_state(self, zone: str, variant: str, data: dict[str, object]) -> None:
+            pass
+
+        def save(self, repo_root: Path) -> None:
+            pass
+
+    async def fake_capture(zone: str, variant: str, zone_config: dict, master_path: Path) -> None:
+        master_path.write_bytes(b"master")
+
+    output_dirs: list[Path] = []
+    monkeypatch.setattr(
+        orchestrator,
+        "generate_tile_pyramid",
+        lambda master, zone, variant, cfg, output: output_dirs.append(output) or 1,
+    )
+    monkeypatch.setattr(orchestrator, "_sha256", lambda _path: "hash")
+
+    capture = orchestrator.CaptureOrchestrator(tmp_path, config, State(), tile_output_dir=tile_output_dir)
+    monkeypatch.setattr(capture, "_capture_zone", fake_capture)
+    monkeypatch.setattr(capture, "connect", lambda: asyncio.sleep(0))
+    monkeypatch.setattr(capture, "close", lambda: asyncio.sleep(0))
+
+    asyncio.run(capture.run(["zone"], variants=None))
+
+    assert output_dirs == [tile_output_dir]
 
 
 def test_chunk_grid_uses_shared_tile_size_for_capture_pixels(tmp_path: Path) -> None:
