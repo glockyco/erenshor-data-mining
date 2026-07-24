@@ -17,10 +17,6 @@ from erenshor.infrastructure.wiki.client import (
     MediaWikiRateLimitError,
     MediaWikiTitleStatus,
 )
-from erenshor.infrastructure.wiki.filename_sanitizer import (
-    needs_redirect,
-    sanitize_wiki_filename,
-)
 from erenshor.infrastructure.wiki.rate_limit import (
     MediaWikiRequestError,
     MediaWikiRequestor,
@@ -59,6 +55,4 @@ __all__ = [
     "TemplateNotFoundError",
     "TemplateParser",
     "TemplateParserError",
-    "needs_redirect",
-    "sanitize_wiki_filename",
 ]

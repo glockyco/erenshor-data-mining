@@ -25,7 +25,7 @@ import imagehash
 from loguru import logger
 from PIL import Image
 
-from erenshor.infrastructure.wiki.filename_sanitizer import sanitize_wiki_filename
+from erenshor.domain.value_objects.wiki_filename import sanitize_wiki_filename
 
 if TYPE_CHECKING:
     from erenshor.domain.entities.image import ImageInfo, ImageMetadata, ProcessingResult

@@ -22,7 +22,7 @@ from rich.table import Table
 from erenshor.application.services.image_comparator import ImageComparator
 from erenshor.application.services.image_processor import ImageProcessor
 from erenshor.application.services.image_registry import ImageRegistry
-from erenshor.infrastructure.wiki.filename_sanitizer import needs_redirect, sanitize_wiki_filename
+from erenshor.domain.value_objects.wiki_filename import needs_redirect, sanitize_wiki_filename
 
 if TYPE_CHECKING:
     from erenshor.cli.context import CLIContext

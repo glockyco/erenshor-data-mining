@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from erenshor.infrastructure.wiki.filename_sanitizer import sanitize_wiki_filename
+from erenshor.domain.value_objects.wiki_filename import sanitize_wiki_filename
 
 __all__ = [
     "ChangeType",
