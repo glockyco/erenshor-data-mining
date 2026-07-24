@@ -53,12 +53,12 @@ def mock_registry(monkeypatch):
     mock_generators = [
         GeneratorRegistration(
             name="items",
-            generator_class=MockItemGenerator,
+            factory=MockItemGenerator,
             description="Item pages",
         ),
         GeneratorRegistration(
             name="characters",
-            generator_class=MockCharacterGenerator,
+            factory=MockCharacterGenerator,
             description="Character pages",
         ),
     ]

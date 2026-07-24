@@ -7,6 +7,7 @@ enables selective generation via CLI flags.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -33,7 +34,7 @@ class GeneratorRegistration:
 
     Attributes:
         name: Unique identifier for CLI selection (e.g., "items", "weapons_overview")
-        generator_class: PageGenerator class to instantiate
+        factory: Typed callable that constructs the page generator for a context
         description: Human-readable description for CLI help text
         auto_deploy: If False, pages are excluded from the default `wiki deploy` run.
             Use for generators that write to a separate output_dir rather than
@@ -44,35 +45,54 @@ class GeneratorRegistration:
     """
 
     name: str
-    generator_class: type[PageGenerator]
+    factory: Callable[[GeneratorContext], PageGenerator]
     description: str
     auto_deploy: bool = True
     output_dir: Path | None = field(default=None)
 
 
 # Global registry of all wiki page generators
+_ZONE_OUTPUT_DIR = Path("wiki/zones")
+
+
+def _create_entity_generator(context: GeneratorContext) -> EntityPageGenerator:
+    return EntityPageGenerator(context)
+
+
+def _create_weapons_overview_generator(context: GeneratorContext) -> WeaponsOverviewPageGenerator:
+    return WeaponsOverviewPageGenerator(context)
+
+
+def _create_armor_overview_generator(context: GeneratorContext) -> ArmorOverviewPageGenerator:
+    return ArmorOverviewPageGenerator(context)
+
+
+def _create_zone_generator(context: GeneratorContext) -> ZonePageGenerator:
+    return ZonePageGenerator(context, output_dir=_ZONE_OUTPUT_DIR)
+
+
 WIKI_GENERATORS: list[GeneratorRegistration] = [
     GeneratorRegistration(
         name="entities",
-        generator_class=EntityPageGenerator,
+        factory=_create_entity_generator,
         description="Generate pages for all game entities (items, characters, spells, skills, stances)",
     ),
     GeneratorRegistration(
         name="weapons_overview",
-        generator_class=WeaponsOverviewPageGenerator,
+        factory=_create_weapons_overview_generator,
         description="Generate Weapons overview page with sortable stats table",
     ),
     GeneratorRegistration(
         name="armor_overview",
-        generator_class=ArmorOverviewPageGenerator,
+        factory=_create_armor_overview_generator,
         description="Generate Armor overview page with sortable stats table",
     ),
     GeneratorRegistration(
         name="zones",
-        generator_class=ZonePageGenerator,
+        factory=_create_zone_generator,
         description="Generate individual zone pages with connections and map links",
         auto_deploy=False,
-        output_dir=Path("wiki/zones"),
+        output_dir=_ZONE_OUTPUT_DIR,
     ),
 ]
 
@@ -111,7 +131,7 @@ def get_generators_by_name(
     # If no filter, return all generators
     if generator_names is None:
         logger.debug(f"Instantiating all {len(WIKI_GENERATORS)} registered generators")
-        return [(reg, _instantiate_generator(reg, context)) for reg in WIKI_GENERATORS]
+        return [(reg, reg.factory(context)) for reg in WIKI_GENERATORS]
 
     # Validate all requested names exist
     available_names = {reg.name for reg in WIKI_GENERATORS}
@@ -130,25 +150,7 @@ def get_generators_by_name(
         f"{', '.join(reg.name for reg in filtered_registrations)}"
     )
 
-    return [(reg, _instantiate_generator(reg, context)) for reg in filtered_registrations]
-
-
-def _instantiate_generator(reg: GeneratorRegistration, context: GeneratorContext) -> PageGenerator:
-    """Instantiate a generator, passing output_dir when the registration has one.
-
-    Generators without an output_dir use the base ``PageGenerator(context)``
-    constructor. Generators with an output_dir (currently only zones) receive
-    it as a keyword argument so they read the existing on-disk file for field
-    preservation instead of relying solely on fetched wiki storage. The base
-    ``PageGenerator`` contract only takes ``context``, so the output_dir call
-    is untyped at the registry boundary; the generator validates the kwarg.
-    """
-    if reg.output_dir is not None:
-        # ZonePageGenerator extends the base constructor with output_dir; the
-        # registry type is the base type, so this call bypasses static checking.
-        gen: PageGenerator = reg.generator_class(context, output_dir=reg.output_dir)  # type: ignore[call-arg]  # pyright: ignore[reportCallIssue]
-        return gen
-    return reg.generator_class(context)
+    return [(reg, reg.factory(context)) for reg in filtered_registrations]
 
 
 def list_generators() -> list[tuple[str, str, bool]]:
