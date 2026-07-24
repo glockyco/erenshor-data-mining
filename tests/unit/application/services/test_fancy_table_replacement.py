@@ -9,6 +9,7 @@ from unittest.mock import Mock
 
 import pytest
 
+from erenshor.application.wiki.generators.context import GeneratorContext
 from erenshor.application.wiki.services.generate_service import WikiGenerateService
 
 
@@ -19,21 +20,9 @@ def generate_service():
     Only the _replace_fancy_tables helper methods are exercised by these
     tests, so most dependencies are unused.
     """
-    return WikiGenerateService(
-        storage=None,  # type: ignore
-        item_repo=None,  # type: ignore
-        character_repo=None,  # type: ignore
-        spell_repo=None,  # type: ignore
-        skill_repo=None,  # type: ignore
-        stance_repo=None,  # type: ignore
-        faction_repo=None,  # type: ignore
-        spawn_repo=None,  # type: ignore
-        loot_repo=None,  # type: ignore
-        quest_repo=None,  # type: ignore
-        zone_repo=None,  # type: ignore
-        class_display=Mock(),
-        maps_base_url="https://example.com",
-    )
+    context = Mock(spec=GeneratorContext)
+    context.storage = Mock()
+    return WikiGenerateService(context=context)
 
 
 class TestFancyTableReplacement:

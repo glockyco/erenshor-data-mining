@@ -10,7 +10,6 @@ import pytest
 
 from erenshor.application.wiki.services.deploy_service import WikiDeployService
 from erenshor.application.wiki.services.storage import PageMetadata
-from erenshor.application.wiki.services.wiki_service import WikiService
 
 
 def _metadata(title: str, *, deployable: bool = True) -> PageMetadata:
@@ -72,25 +71,6 @@ def test_preflight_gets_filtered_limited_content_and_total_considered(
     assert result.skipped == 1
     assert [call.kwargs["title"] for call in wiki_client.edit_page.call_args_list] == ["B First", "C Second"]
     assert storage.read_generated_by_title.call_count == 2
-
-
-def test_wiki_service_forwards_preflight_callback() -> None:
-    """The orchestration facade exposes and forwards the generated-page hook."""
-    service = WikiService.__new__(WikiService)
-    service._deploy_service = MagicMock()
-    callback = MagicMock()
-    expected = object()
-    service._deploy_service.deploy_all.return_value = expected
-
-    result = service.deploy_all(preflight=callback)
-
-    assert result is expected
-    service._deploy_service.deploy_all.assert_called_once_with(
-        dry_run=False,
-        limit=None,
-        page_titles=None,
-        preflight=callback,
-    )
 
 
 def test_preflight_runs_before_login_and_edit(monkeypatch: pytest.MonkeyPatch) -> None:

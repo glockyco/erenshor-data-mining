@@ -12,7 +12,6 @@ from rich.console import Console
 
 from erenshor.application.wiki.generators.base import GeneratedPage, PageMetadata
 from erenshor.application.wiki.services.generate_service import WikiGenerateService
-from erenshor.application.wiki.services.wiki_service import WikiService
 
 
 def _service() -> tuple[WikiGenerateService, MagicMock, MagicMock]:
@@ -68,22 +67,3 @@ def test_generation_preflight_runs_only_after_all_pages_process() -> None:
     )
 
     assert events == ["first", "second", "preflight"]
-
-
-def test_wiki_service_forwards_generation_preflight_callback() -> None:
-    service = WikiService.__new__(WikiService)
-    service._generate_service = MagicMock()
-    callback = MagicMock()
-    expected = object()
-    service._generate_service.generate_all.return_value = expected
-
-    result = service.generate_all(preflight=callback)
-
-    assert result is expected
-    service._generate_service.generate_all.assert_called_once_with(
-        dry_run=False,
-        limit=None,
-        page_titles=None,
-        generator_names=None,
-        preflight=callback,
-    )

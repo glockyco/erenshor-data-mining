@@ -21,20 +21,9 @@ if TYPE_CHECKING:
     import mwparserfromhell.wikicode
 
     from erenshor.application.wiki.generators.base import GeneratedPage
+    from erenshor.application.wiki.generators.context import GeneratorContext
     from erenshor.application.wiki.generators.registry import GeneratorRegistration
-    from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
-    from erenshor.application.wiki.services.storage import WikiStorage
-    from erenshor.infrastructure.database.repositories.characters import CharacterRepository
-    from erenshor.infrastructure.database.repositories.factions import FactionRepository
-    from erenshor.infrastructure.database.repositories.items import ItemRepository
-    from erenshor.infrastructure.database.repositories.loot_tables import LootTableRepository
-    from erenshor.infrastructure.database.repositories.quests import QuestRepository
-    from erenshor.infrastructure.database.repositories.skills import SkillRepository
-    from erenshor.infrastructure.database.repositories.spawn_points import SpawnPointRepository
-    from erenshor.infrastructure.database.repositories.spells import SpellRepository
-    from erenshor.infrastructure.database.repositories.stances import StanceRepository
-    from erenshor.infrastructure.database.repositories.zones import ZoneRepository
-from erenshor.application.wiki.generators.context import GeneratorContext
+
 from erenshor.application.wiki.generators.field_preservation import FieldPreservationHandler
 from erenshor.application.wiki.generators.legacy_template_remover import LegacyTemplateRemover
 from erenshor.application.wiki.generators.page_normalizer import PageNormalizer
@@ -48,41 +37,13 @@ class WikiGenerateService:
 
     def __init__(
         self,
-        storage: WikiStorage,
-        item_repo: ItemRepository,
-        character_repo: CharacterRepository,
-        spell_repo: SpellRepository,
-        skill_repo: SkillRepository,
-        stance_repo: StanceRepository,
-        faction_repo: FactionRepository,
-        spawn_repo: SpawnPointRepository,
-        loot_repo: LootTableRepository,
-        quest_repo: QuestRepository,
-        zone_repo: ZoneRepository,
-        class_display: ClassDisplayNameService,
-        maps_base_url: str,
+        context: GeneratorContext,
         console: Console | None = None,
     ) -> None:
-        """Initialize generate service."""
-        self._storage = storage
+        """Initialize generate service with a shared generator context."""
+        self._context = context
+        self._storage = context.storage
         self._console = console or Console()
-
-        # Create generator context with all dependencies
-        self._context = GeneratorContext(
-            item_repo=item_repo,
-            character_repo=character_repo,
-            spell_repo=spell_repo,
-            skill_repo=skill_repo,
-            stance_repo=stance_repo,
-            faction_repo=faction_repo,
-            spawn_repo=spawn_repo,
-            loot_repo=loot_repo,
-            quest_repo=quest_repo,
-            zone_repo=zone_repo,
-            storage=storage,
-            class_display=class_display,
-            maps_base_url=maps_base_url,
-        )
 
         # Handlers for preservation and normalization
         self._preservation_handler = FieldPreservationHandler()

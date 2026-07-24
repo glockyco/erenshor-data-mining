@@ -25,6 +25,16 @@ from erenshor.application.wiki_deploy.rollback import RollbackResult, RollbackRe
 runner = CliRunner()
 
 
+def _mock_wiki_composition() -> MagicMock:
+    """Return a context-managed composition with owned dependency placeholders."""
+    composition = MagicMock()
+    composition.__enter__.return_value = composition
+    composition.context = MagicMock()
+    composition.storage = MagicMock()
+    composition.wiki_client = MagicMock()
+    return composition
+
+
 @pytest.fixture
 def mock_operation_result():
     """Create mock operation result."""
@@ -67,48 +77,56 @@ def mock_operation_result_with_failures():
 class TestWikiFetchCommand:
     """Test wiki fetch command."""
 
-    @patch("erenshor.cli.commands.wiki._create_wiki_service")
-    def test_fetch_success(self, mock_create_service, mock_operation_result):
+    @patch("erenshor.cli.commands.wiki.WikiFetchService")
+    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
+    def test_fetch_success(self, mock_create_composition, mock_fetch_service, mock_operation_result):
         """Test successful fetch."""
         mock_service = MagicMock()
         mock_service.fetch_all.return_value = mock_operation_result
-        mock_create_service.return_value = mock_service
+        mock_create_composition.return_value = _mock_wiki_composition()
+        mock_fetch_service.return_value = mock_service
 
         result = runner.invoke(app, ["wiki", "fetch"])
 
         assert result.exit_code == 0
         mock_service.fetch_all.assert_called_once()
 
-    @patch("erenshor.cli.commands.wiki._create_wiki_service")
-    def test_fetch_with_limit(self, mock_create_service, mock_operation_result):
+    @patch("erenshor.cli.commands.wiki.WikiFetchService")
+    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
+    def test_fetch_with_limit(self, mock_create_composition, mock_fetch_service, mock_operation_result):
         """Test fetch with limit parameter."""
         mock_service = MagicMock()
         mock_service.fetch_all.return_value = mock_operation_result
-        mock_create_service.return_value = mock_service
+        mock_create_composition.return_value = _mock_wiki_composition()
+        mock_fetch_service.return_value = mock_service
 
         result = runner.invoke(app, ["wiki", "fetch", "--limit", "5"])
 
         assert result.exit_code == 0
         mock_service.fetch_all.assert_called_once()
 
-    @patch("erenshor.cli.commands.wiki._create_wiki_service")
-    def test_fetch_with_force(self, mock_create_service, mock_operation_result):
+    @patch("erenshor.cli.commands.wiki.WikiFetchService")
+    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
+    def test_fetch_with_force(self, mock_create_composition, mock_fetch_service, mock_operation_result):
         """Test fetch with force flag."""
         mock_service = MagicMock()
         mock_service.fetch_all.return_value = mock_operation_result
-        mock_create_service.return_value = mock_service
+        mock_create_composition.return_value = _mock_wiki_composition()
+        mock_fetch_service.return_value = mock_service
 
         result = runner.invoke(app, ["wiki", "fetch", "--force"])
 
         assert result.exit_code == 0
         mock_service.fetch_all.assert_called_once()
 
-    @patch("erenshor.cli.commands.wiki._create_wiki_service")
-    def test_fetch_dry_run(self, mock_create_service, mock_operation_result):
+    @patch("erenshor.cli.commands.wiki.WikiFetchService")
+    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
+    def test_fetch_dry_run(self, mock_create_composition, mock_fetch_service, mock_operation_result):
         """Test fetch in dry-run mode."""
         mock_service = MagicMock()
         mock_service.fetch_all.return_value = mock_operation_result
-        mock_create_service.return_value = mock_service
+        mock_create_composition.return_value = _mock_wiki_composition()
+        mock_fetch_service.return_value = mock_service
 
         result = runner.invoke(app, ["--dry-run", "wiki", "fetch"])
 
@@ -119,12 +137,14 @@ class TestWikiFetchCommand:
 class TestWikiGenerateCommand:
     """Test wiki generate command."""
 
-    @patch("erenshor.cli.commands.wiki._create_wiki_service")
-    def test_generate_success(self, mock_create_service, mock_operation_result):
+    @patch("erenshor.cli.commands.wiki.WikiGenerateService")
+    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
+    def test_generate_success(self, mock_create_composition, mock_generate_service, mock_operation_result):
         """Test successful generate."""
         mock_service = MagicMock()
         mock_service.generate_all.return_value = mock_operation_result
-        mock_create_service.return_value = mock_service
+        mock_create_composition.return_value = _mock_wiki_composition()
+        mock_generate_service.return_value = mock_service
 
         result = runner.invoke(app, ["wiki", "generate"])
 
@@ -134,36 +154,44 @@ class TestWikiGenerateCommand:
         assert "deploy-repo-pages" in result.output
         assert "--legacy-article-deploy" in result.output
 
-    @patch("erenshor.cli.commands.wiki._create_wiki_service")
-    def test_generate_with_limit(self, mock_create_service, mock_operation_result):
+    @patch("erenshor.cli.commands.wiki.WikiGenerateService")
+    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
+    def test_generate_with_limit(self, mock_create_composition, mock_generate_service, mock_operation_result):
         """Test generate with limit parameter."""
         mock_service = MagicMock()
         mock_service.generate_all.return_value = mock_operation_result
-        mock_create_service.return_value = mock_service
+        mock_create_composition.return_value = _mock_wiki_composition()
+        mock_generate_service.return_value = mock_service
 
         result = runner.invoke(app, ["wiki", "generate", "--limit", "5"])
 
         assert result.exit_code == 0
         mock_service.generate_all.assert_called_once()
 
-    @patch("erenshor.cli.commands.wiki._create_wiki_service")
-    def test_generate_dry_run(self, mock_create_service, mock_operation_result):
+    @patch("erenshor.cli.commands.wiki.WikiGenerateService")
+    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
+    def test_generate_dry_run(self, mock_create_composition, mock_generate_service, mock_operation_result):
         """Test generate in dry-run mode."""
         mock_service = MagicMock()
         mock_service.generate_all.return_value = mock_operation_result
-        mock_create_service.return_value = mock_service
+        mock_create_composition.return_value = _mock_wiki_composition()
+        mock_generate_service.return_value = mock_service
 
         result = runner.invoke(app, ["--dry-run", "wiki", "generate"])
 
         assert result.exit_code == 0
         mock_service.generate_all.assert_called_once()
 
-    @patch("erenshor.cli.commands.wiki._create_wiki_service")
-    def test_generate_with_warnings(self, mock_create_service, mock_operation_result_with_warnings):
+    @patch("erenshor.cli.commands.wiki.WikiGenerateService")
+    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
+    def test_generate_with_warnings(
+        self, mock_create_composition, mock_generate_service, mock_operation_result_with_warnings
+    ):
         """Test generate that completes with warnings."""
         mock_service = MagicMock()
         mock_service.generate_all.return_value = mock_operation_result_with_warnings
-        mock_create_service.return_value = mock_service
+        mock_create_composition.return_value = _mock_wiki_composition()
+        mock_generate_service.return_value = mock_service
 
         result = runner.invoke(app, ["wiki", "generate"])
 
@@ -349,7 +377,12 @@ class TestWikiLinkAuditCommand:
             return mock_operation_result
 
         service.generate_all.side_effect = generate_all
-        monkeypatch.setattr(wiki_command, "_create_wiki_service", MagicMock(return_value=service))
+        monkeypatch.setattr(
+            wiki_command,
+            "_create_wiki_composition",
+            lambda _ctx, **_: _mock_wiki_composition(),
+        )
+        monkeypatch.setattr(wiki_command, "WikiGenerateService", lambda **_: service)
         run_audit = MagicMock(return_value=self._report())
         monkeypatch.setattr(wiki_command, "_run_link_audit", run_audit)
 
@@ -379,7 +412,12 @@ class TestWikiLinkAuditCommand:
 
         service.deploy_all.side_effect = deploy_all
         service.deploy_from_dir.return_value = mock_operation_result
-        monkeypatch.setattr(wiki_command, "_create_wiki_service", MagicMock(return_value=service))
+        monkeypatch.setattr(
+            wiki_command,
+            "_create_wiki_composition",
+            lambda _ctx, **_: _mock_wiki_composition(),
+        )
+        monkeypatch.setattr(wiki_command, "WikiDeployService", lambda **_: service)
         run_audit = MagicMock(return_value=self._report())
         monkeypatch.setattr(wiki_command, "_run_link_audit", run_audit)
 
@@ -455,48 +493,58 @@ class TestWikiSyncInterfaceCommand:
 class TestWikiDeployCommand:
     """Test wiki deploy command."""
 
-    @patch("erenshor.cli.commands.wiki._create_wiki_service")
-    def test_deploy_success(self, mock_create_service, mock_operation_result):
+    @patch("erenshor.cli.commands.wiki.WikiDeployService")
+    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
+    def test_deploy_success(self, mock_create_composition, mock_deploy_service, mock_operation_result):
         """Test successful deploy."""
         mock_service = MagicMock()
         mock_service.deploy_all.return_value = mock_operation_result
-        mock_create_service.return_value = mock_service
+        mock_create_composition.return_value = _mock_wiki_composition()
+        mock_deploy_service.return_value = mock_service
 
         result = runner.invoke(app, ["wiki", "deploy", "--legacy-article-deploy"])
 
         assert result.exit_code == 0
         mock_service.deploy_all.assert_called_once()
 
-    @patch("erenshor.cli.commands.wiki._create_wiki_service")
-    def test_deploy_with_limit(self, mock_create_service, mock_operation_result):
+    @patch("erenshor.cli.commands.wiki.WikiDeployService")
+    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
+    def test_deploy_with_limit(self, mock_create_composition, mock_deploy_service, mock_operation_result):
         """Test deploy with limit parameter."""
         mock_service = MagicMock()
         mock_service.deploy_all.return_value = mock_operation_result
-        mock_create_service.return_value = mock_service
+        mock_create_composition.return_value = _mock_wiki_composition()
+        mock_deploy_service.return_value = mock_service
 
         result = runner.invoke(app, ["wiki", "deploy", "--legacy-article-deploy", "--limit", "5"])
 
         assert result.exit_code == 0
         mock_service.deploy_all.assert_called_once()
 
-    @patch("erenshor.cli.commands.wiki._create_wiki_service")
-    def test_deploy_dry_run(self, mock_create_service, mock_operation_result):
+    @patch("erenshor.cli.commands.wiki.WikiDeployService")
+    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
+    def test_deploy_dry_run(self, mock_create_composition, mock_deploy_service, mock_operation_result):
         """Test deploy in dry-run mode."""
         mock_service = MagicMock()
         mock_service.deploy_all.return_value = mock_operation_result
-        mock_create_service.return_value = mock_service
+        mock_create_composition.return_value = _mock_wiki_composition()
+        mock_deploy_service.return_value = mock_service
 
         result = runner.invoke(app, ["--dry-run", "wiki", "deploy", "--legacy-article-deploy"])
 
         assert result.exit_code == 0
         mock_service.deploy_all.assert_called_once()
 
-    @patch("erenshor.cli.commands.wiki._create_wiki_service")
-    def test_deploy_with_failures(self, mock_create_service, mock_operation_result_with_failures):
+    @patch("erenshor.cli.commands.wiki.WikiDeployService")
+    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
+    def test_deploy_with_failures(
+        self, mock_create_composition, mock_deploy_service, mock_operation_result_with_failures
+    ):
         """Test deploy that completes with failures."""
         mock_service = MagicMock()
         mock_service.deploy_all.return_value = mock_operation_result_with_failures
-        mock_create_service.return_value = mock_service
+        mock_create_composition.return_value = _mock_wiki_composition()
+        mock_deploy_service.return_value = mock_service
 
         result = runner.invoke(app, ["wiki", "deploy", "--legacy-article-deploy"])
 
@@ -890,14 +938,14 @@ class TestWikiDeployRepoCommand:
         assert deploy.call_args.kwargs["known_live_titles"] == {"Module:Erenshor/Data/Links"}
         authenticated.close.assert_called_once_with()
 
-    @patch("erenshor.cli.commands.wiki._create_wiki_service")
-    def test_legacy_deploy_requires_explicit_legacy_flag(self, mock_create_service):
+    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
+    def test_legacy_deploy_requires_explicit_legacy_flag(self, mock_create_composition):
         """Test legacy generated article deploy is guarded during Lua cutover."""
         result = runner.invoke(app, ["wiki", "deploy"])
 
         assert result.exit_code == 1
         assert "--legacy-article-deploy" in result.output
-        mock_create_service.assert_not_called()
+        mock_create_composition.assert_not_called()
 
     def test_deploy_reports_changed_cargo_declarations(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
         """Test a changed Cargo declaration is reported with a pointer to Special:CargoTables."""

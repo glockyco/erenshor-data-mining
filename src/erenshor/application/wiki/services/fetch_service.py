@@ -12,7 +12,9 @@ from loguru import logger
 from rich.console import Console
 from rich.progress import track
 
-from erenshor.application.wiki.generators.context import GeneratorContext
+if TYPE_CHECKING:
+    from erenshor.application.wiki.generators.context import GeneratorContext
+
 from erenshor.application.wiki.generators.registry import get_generators_by_name
 from erenshor.application.wiki.services.helpers import display_operation_summary
 from erenshor.application.wiki.services.page import OperationResult
@@ -38,79 +40,20 @@ def build_fetch_page_index(context: GeneratorContext) -> dict[str, list[str]]:
     return {title: list(stable_keys) for title, stable_keys in build_article_identity_map(entities).items()}
 
 
-if TYPE_CHECKING:
-    from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
-    from erenshor.application.wiki.services.storage import WikiStorage
-    from erenshor.infrastructure.database.repositories.characters import CharacterRepository
-    from erenshor.infrastructure.database.repositories.factions import FactionRepository
-    from erenshor.infrastructure.database.repositories.items import ItemRepository
-    from erenshor.infrastructure.database.repositories.loot_tables import LootTableRepository
-    from erenshor.infrastructure.database.repositories.quests import QuestRepository
-    from erenshor.infrastructure.database.repositories.skills import SkillRepository
-    from erenshor.infrastructure.database.repositories.spawn_points import SpawnPointRepository
-    from erenshor.infrastructure.database.repositories.spells import SpellRepository
-    from erenshor.infrastructure.database.repositories.stances import StanceRepository
-    from erenshor.infrastructure.database.repositories.zones import ZoneRepository
-
-
 class WikiFetchService:
     """Service for fetching wiki pages from MediaWiki."""
 
     def __init__(
         self,
         wiki_client: MediaWikiClient,
-        storage: WikiStorage,
-        item_repo: ItemRepository,
-        character_repo: CharacterRepository,
-        spell_repo: SpellRepository,
-        skill_repo: SkillRepository,
-        stance_repo: StanceRepository,
-        faction_repo: FactionRepository,
-        spawn_repo: SpawnPointRepository,
-        loot_repo: LootTableRepository,
-        quest_repo: QuestRepository,
-        zone_repo: ZoneRepository,
-        class_display: ClassDisplayNameService,
-        maps_base_url: str,
+        context: GeneratorContext,
         console: Console | None = None,
     ) -> None:
-        """Initialize fetch service.
-
-        Args:
-            wiki_client: MediaWiki API client for fetching pages.
-            storage: Storage for caching fetched pages.
-            item_repo: Repository for item entities.
-            character_repo: Repository for character entities.
-            spell_repo: Repository for spell entities.
-            skill_repo: Repository for skill entities.
-            stance_repo: Repository for stance entities.
-            faction_repo: Repository for faction data.
-            spawn_repo: Repository for spawn point data.
-            loot_repo: Repository for loot table data.
-            quest_repo: Repository for quest data.
-            class_display: Service for mapping class names to display names.
-            console: Rich console for output (optional).
-        """
+        """Initialize fetch service with a shared generator context."""
         self._wiki_client = wiki_client
-        self._storage = storage
+        self._context = context
+        self._storage = context.storage
         self._console = console or Console()
-
-        # Create generator context with all dependencies
-        self._context = GeneratorContext(
-            item_repo=item_repo,
-            character_repo=character_repo,
-            spell_repo=spell_repo,
-            skill_repo=skill_repo,
-            stance_repo=stance_repo,
-            faction_repo=faction_repo,
-            spawn_repo=spawn_repo,
-            loot_repo=loot_repo,
-            quest_repo=quest_repo,
-            zone_repo=zone_repo,
-            storage=storage,
-            class_display=class_display,
-            maps_base_url=maps_base_url,
-        )
 
         logger.debug("WikiFetchService initialized")
 

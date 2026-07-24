@@ -23,6 +23,7 @@ import tempfile
 import uuid
 from collections import Counter
 from collections.abc import Mapping
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Annotated, Literal
 
@@ -31,9 +32,12 @@ from loguru import logger
 from rich.console import Console
 from rich.panel import Panel
 
+from erenshor.application.wiki.generators.context import GeneratorContext
 from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
+from erenshor.application.wiki.services.deploy_service import WikiDeployService
+from erenshor.application.wiki.services.fetch_service import WikiFetchService
+from erenshor.application.wiki.services.generate_service import WikiGenerateService
 from erenshor.application.wiki.services.storage import WikiStorage
-from erenshor.application.wiki.services.wiki_service import WikiService
 from erenshor.application.wiki_deploy.article_identity import build_article_identity_map
 from erenshor.application.wiki_deploy.link_audit import (
     ERROR_CODES,
@@ -147,75 +151,103 @@ def _read_page_titles(pages_file: str) -> list[str]:
         raise typer.Exit(1) from e
 
 
-def _create_wiki_service(cli_ctx: CLIContext) -> WikiService:
-    """Create WikiService with dependencies.
+@dataclass(frozen=True, slots=True)
+class _MediaWikiCredentials:
+    """Credentials selected for one CLI-owned MediaWiki client."""
 
-    Args:
-        cli_ctx: CLI context with config and variant info.
+    username: str
+    password: str
 
-    Returns:
-        Configured WikiService instance.
-    """
-    # Get variant config
-    variant_config = cli_ctx.config.variants[cli_ctx.variant]
 
-    # Create database connection
-    db_path = variant_config.resolved_database(cli_ctx.repo_root)
-    db_connection = DatabaseConnection(db_path, read_only=True)
-
-    # Create repositories
-    item_repo = ItemRepository(db_connection)
-    character_repo = CharacterRepository(db_connection)
-    spell_repo = SpellRepository(db_connection)
-    skill_repo = SkillRepository(db_connection)
-    stance_repo = StanceRepository(db_connection)
-    faction_repo = FactionRepository(db_connection)
-    spawn_repo = SpawnPointRepository(db_connection)
-    loot_repo = LootTableRepository(db_connection)
-    quest_repo = QuestRepository(db_connection)
-    zone_repo = ZoneRepository(db_connection)
-    # Create wiki client
+def _normal_bot_credentials(cli_ctx: CLIContext) -> _MediaWikiCredentials:
+    """Return the normal bot credentials used by wiki data commands."""
     wiki_config = cli_ctx.config.global_.mediawiki
-    wiki_client = MediaWikiClient(
+    return _MediaWikiCredentials(wiki_config.bot_username, wiki_config.bot_password)
+
+
+def _interface_admin_credentials(cli_ctx: CLIContext) -> _MediaWikiCredentials:
+    """Return dedicated interface-admin credentials without bot fallback."""
+    wiki_config = cli_ctx.config.global_.mediawiki
+    username = wiki_config.interface_username.strip()
+    password = wiki_config.interface_password
+    if not username or not password:
+        raise ValueError(
+            "Interface deployment requires dedicated interface-admin credentials. "
+            "Set [global.mediawiki].interface_username and interface_password in "
+            ".erenshor/config.local.toml; bot_username and bot_password are never used as a fallback."
+        )
+    return _MediaWikiCredentials(username, password)
+
+
+@dataclass(slots=True)
+class _WikiComposition:
+    """Own the resources shared by one fetch, generate, or deploy command."""
+
+    database: DatabaseConnection
+    context: GeneratorContext
+    storage: WikiStorage
+    wiki_client: MediaWikiClient | None = None
+
+    def __enter__(self) -> "_WikiComposition":
+        return self
+
+    def __exit__(self, *_: object) -> None:
+        try:
+            if self.wiki_client is not None:
+                self.wiki_client.close()
+        finally:
+            self.database.close()
+
+
+def _create_normal_bot_mediawiki_client(cli_ctx: CLIContext) -> MediaWikiClient:
+    """Create a normal bot client without logging in yet."""
+    wiki_config = cli_ctx.config.global_.mediawiki
+    credentials = _normal_bot_credentials(cli_ctx)
+    return MediaWikiClient(
         api_url=wiki_config.api_url,
-        bot_username=wiki_config.bot_username,
-        bot_password=wiki_config.bot_password,
+        bot_username=credentials.username,
+        bot_password=credentials.password,
     )
 
-    # Create wiki storage
-    wiki_dir = variant_config.resolved_wiki(cli_ctx.repo_root)
-    storage = WikiStorage(wiki_dir)
 
-    # Create class display name service
-    class_display = ClassDisplayNameService(db_connection)
-
-    # Create and return service
-    maps_base_url = variant_config.maps.base_url
-    return WikiService(
-        wiki_client=wiki_client,
+def _create_wiki_composition(cli_ctx: CLIContext, *, with_client: bool) -> _WikiComposition:
+    """Create one database, storage, and GeneratorContext for a wiki command."""
+    variant_config = cli_ctx.config.variants[cli_ctx.variant]
+    database = DatabaseConnection(variant_config.resolved_database(cli_ctx.repo_root), read_only=True)
+    storage = WikiStorage(variant_config.resolved_wiki(cli_ctx.repo_root))
+    context = GeneratorContext(
+        item_repo=ItemRepository(database),
+        character_repo=CharacterRepository(database),
+        spell_repo=SpellRepository(database),
+        skill_repo=SkillRepository(database),
+        stance_repo=StanceRepository(database),
+        faction_repo=FactionRepository(database),
+        spawn_repo=SpawnPointRepository(database),
+        loot_repo=LootTableRepository(database),
+        quest_repo=QuestRepository(database),
+        zone_repo=ZoneRepository(database),
         storage=storage,
-        item_repo=item_repo,
-        character_repo=character_repo,
-        spell_repo=spell_repo,
-        skill_repo=skill_repo,
-        stance_repo=stance_repo,
-        faction_repo=faction_repo,
-        spawn_repo=spawn_repo,
-        loot_repo=loot_repo,
-        quest_repo=quest_repo,
-        zone_repo=zone_repo,
-        class_display=class_display,
-        maps_base_url=maps_base_url,
+        class_display=ClassDisplayNameService(database),
+        maps_base_url=variant_config.maps.base_url,
     )
+    wiki_client = None
+    try:
+        if with_client:
+            wiki_client = _create_normal_bot_mediawiki_client(cli_ctx)
+    except Exception:
+        database.close()
+        raise
+    return _WikiComposition(database=database, context=context, storage=storage, wiki_client=wiki_client)
 
 
 def _create_mediawiki_client(cli_ctx: CLIContext) -> MediaWikiClient:
     """Create an authenticated MediaWiki client for deployment commands."""
     wiki_config = cli_ctx.config.global_.mediawiki
+    credentials = _normal_bot_credentials(cli_ctx)
     client = MediaWikiClient(
         api_url=wiki_config.api_url,
-        bot_username=wiki_config.bot_username,
-        bot_password=wiki_config.bot_password,
+        bot_username=credentials.username,
+        bot_password=credentials.password,
     )
     client.login()
     return client
@@ -240,19 +272,12 @@ def _create_readonly_mediawiki_client(cli_ctx: CLIContext) -> MediaWikiClient:
 def _create_interface_mediawiki_client(cli_ctx: CLIContext) -> MediaWikiClient:
     """Create and log in the dedicated interface-admin MediaWiki client."""
     wiki_config = cli_ctx.config.global_.mediawiki
-    username = wiki_config.interface_username.strip()
-    password = wiki_config.interface_password
-    if not username or not password:
-        raise ValueError(
-            "Interface deployment requires dedicated interface-admin credentials. "
-            "Set [global.mediawiki].interface_username and interface_password in "
-            ".erenshor/config.local.toml; bot_username and bot_password are never used as a fallback."
-        )
+    credentials = _interface_admin_credentials(cli_ctx)
 
     client = MediaWikiClient(
         api_url=wiki_config.api_url,
-        bot_username=username,
-        bot_password=password,
+        bot_username=credentials.username,
+        bot_password=credentials.password,
         batch_size=wiki_config.upload_batch_size,
         rate_limit_delay=wiki_config.upload_delay,
         edit_summary=wiki_config.upload_edit_summary,
@@ -616,17 +641,21 @@ def fetch(
     console.print()
 
     try:
-        # Create service
-        service = _create_wiki_service(cli_ctx)
+        with _create_wiki_composition(cli_ctx, with_client=True) as composition:
+            assert composition.wiki_client is not None
+            service = WikiFetchService(
+                wiki_client=composition.wiki_client,
+                context=composition.context,
+            )
 
-        # Fetch pages (all or specified)
-        result = service.fetch_all(
-            dry_run=cli_ctx.dry_run,
-            limit=limit,
-            force_refetch=force,
-            page_titles=page_titles,
-            generator_names=generator,
-        )
+            # Fetch pages (all or specified)
+            result = service.fetch_all(
+                dry_run=cli_ctx.dry_run,
+                limit=limit,
+                force_refetch=force,
+                page_titles=page_titles,
+                generator_names=generator,
+            )
 
         # Show warnings and errors
         if result.has_warnings():
@@ -868,30 +897,30 @@ def generate(
     console.print()
 
     try:
-        # Create service
-        service = _create_wiki_service(cli_ctx)
+        with _create_wiki_composition(cli_ctx, with_client=False) as composition:
+            service = WikiGenerateService(context=composition.context)
 
-        # Generate pages (all or specified) and audit the exact processed
-        # snapshot before generation reports success.
-        def audit_generated_pages(generated_pages: Mapping[str, str]) -> None:
-            report = _run_link_audit(
-                cli_ctx,
-                generated_pages,
-                online=False,
-                include_live_pages=False,
-                output_path=None if cli_ctx.dry_run else _default_link_audit_output(cli_ctx),
+            # Generate pages (all or specified) and audit the exact processed
+            # snapshot before generation reports success.
+            def audit_generated_pages(generated_pages: Mapping[str, str]) -> None:
+                report = _run_link_audit(
+                    cli_ctx,
+                    generated_pages,
+                    online=False,
+                    include_live_pages=False,
+                    output_path=None if cli_ctx.dry_run else _default_link_audit_output(cli_ctx),
+                )
+                if report.has_errors:
+                    error_count = sum(1 for finding in report.findings if finding.severity == "error")
+                    raise ValueError(f"Semantic link audit found {error_count} blocking finding(s)")
+
+            result = service.generate_all(
+                dry_run=cli_ctx.dry_run,
+                limit=limit,
+                page_titles=page_titles,
+                generator_names=generator,
+                preflight=audit_generated_pages,
             )
-            if report.has_errors:
-                error_count = sum(1 for finding in report.findings if finding.severity == "error")
-                raise ValueError(f"Semantic link audit found {error_count} blocking finding(s)")
-
-        result = service.generate_all(
-            dry_run=cli_ctx.dry_run,
-            limit=limit,
-            page_titles=page_titles,
-            generator_names=generator,
-            preflight=audit_generated_pages,
-        )
 
         # Show warnings and errors
         if result.has_warnings():
@@ -1587,53 +1616,63 @@ def deploy(
 
     try:
         if from_dir:
-            service = _create_wiki_service(cli_ctx)
-            console.print(
-                "[yellow]Directory uploads are outside the generated-content gate. "
-                "Run 'erenshor wiki audit-links' explicitly for generated storage.[/yellow]"
-            )
-            result = service.deploy_from_dir(
-                source_dir=Path(from_dir),
-                dry_run=cli_ctx.dry_run,
-            )
+            with _create_wiki_composition(cli_ctx, with_client=True) as composition:
+                assert composition.wiki_client is not None
+                service = WikiDeployService(
+                    wiki_client=composition.wiki_client,
+                    storage=composition.storage,
+                )
+                console.print(
+                    "[yellow]Directory uploads are outside the generated-content gate. "
+                    "Run 'erenshor wiki audit-links' explicitly for generated storage.[/yellow]"
+                )
+                result = service.deploy_from_dir(
+                    source_dir=Path(from_dir),
+                    dry_run=cli_ctx.dry_run,
+                )
         else:
             _assert_generated_deploy_preconditions(ctx)
-            service = _create_wiki_service(cli_ctx)
-            page_titles: list[str] | None = None
-            if pages_file:
-                page_titles = _read_page_titles(pages_file)
-                logger.info(f"Deploying {len(page_titles)} pages from {pages_file}")
-
-            console.print()
-            console.print(
-                Panel.fit(
-                    f"[bold cyan]Deploying legacy generated wiki article pages[/bold cyan]\n"
-                    f"Variant: {cli_ctx.variant}\n"
-                    f"Dry-run: {cli_ctx.dry_run}\n"
-                    f"Pages: {'from ' + pages_file if pages_file else 'all'}",
-                    border_style="cyan",
+            with _create_wiki_composition(cli_ctx, with_client=True) as composition:
+                assert composition.wiki_client is not None
+                service = WikiDeployService(
+                    wiki_client=composition.wiki_client,
+                    storage=composition.storage,
                 )
-            )
-            console.print()
+                page_titles: list[str] | None = None
+                if pages_file:
+                    page_titles = _read_page_titles(pages_file)
+                    logger.info(f"Deploying {len(page_titles)} pages from {pages_file}")
 
-            def audit_deployment_pages(generated_pages: Mapping[str, str]) -> None:
-                report = _run_link_audit(
-                    cli_ctx,
-                    generated_pages,
-                    online=True,
-                    include_live_pages=False,
-                    output_path=None if cli_ctx.dry_run else _default_link_audit_output(cli_ctx),
+                console.print()
+                console.print(
+                    Panel.fit(
+                        f"[bold cyan]Deploying legacy generated wiki article pages[/bold cyan]\n"
+                        f"Variant: {cli_ctx.variant}\n"
+                        f"Dry-run: {cli_ctx.dry_run}\n"
+                        f"Pages: {'from ' + pages_file if pages_file else 'all'}",
+                        border_style="cyan",
+                    )
                 )
-                if report.has_errors:
-                    error_count = sum(1 for finding in report.findings if finding.severity == "error")
-                    raise ValueError(f"Semantic link audit found {error_count} blocking finding(s)")
+                console.print()
 
-            result = service.deploy_all(
-                dry_run=cli_ctx.dry_run,
-                limit=limit,
-                page_titles=page_titles,
-                preflight=audit_deployment_pages,
-            )
+                def audit_deployment_pages(generated_pages: Mapping[str, str]) -> None:
+                    report = _run_link_audit(
+                        cli_ctx,
+                        generated_pages,
+                        online=True,
+                        include_live_pages=False,
+                        output_path=None if cli_ctx.dry_run else _default_link_audit_output(cli_ctx),
+                    )
+                    if report.has_errors:
+                        error_count = sum(1 for finding in report.findings if finding.severity == "error")
+                        raise ValueError(f"Semantic link audit found {error_count} blocking finding(s)")
+
+                result = service.deploy_all(
+                    dry_run=cli_ctx.dry_run,
+                    limit=limit,
+                    page_titles=page_titles,
+                    preflight=audit_deployment_pages,
+                )
 
         if result.has_warnings():
             logger.warning(f"Deployment completed with {len(result.warnings)} warnings")

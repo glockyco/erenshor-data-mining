@@ -213,7 +213,7 @@ class SectionGeneratorBase(ABC):
         Subclasses must implement this to define entity-specific template generation.
         Should return template wikitext (infobox + categories) for ONE entity only.
 
-        Multi-entity page assembly is handled by WikiService, not here.
+        Multi-entity page assembly is handled by the generate service, not here.
 
         Args:
             *args: Entity data (subclass-specific, must be single entity)
