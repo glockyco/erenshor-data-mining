@@ -223,7 +223,7 @@ def test_all_typer_routes_dispatch_their_task_id(
     result = runner.invoke(test.app, arguments, obj=_context(tmp_path))
 
     assert result.exit_code == 0
-    assert calls == [(task_id, False, False)]
+    assert calls == [(task_id, False, task_id == "release")]
 
 
 def test_wiki_route_dispatches_clean_parity_and_requires_one_mode(tmp_path: Path, monkeypatch: Any) -> None:
@@ -465,7 +465,7 @@ def test_contract_leaf_runs_every_native_project_and_pytest_after_native_failure
     assert result.diagnostics["pytest"] == {}
 
 
-def test_contract_leaf_cleans_native_and_pytest_reports(tmp_path: Path, monkeypatch: Any) -> None:
+def test_contract_leaf_retains_native_reports_and_cleans_pytest_report(tmp_path: Path, monkeypatch: Any) -> None:
     report_paths: list[Path] = []
     monkeypatch.setattr(test, "_read_pytest_report", lambda _path: (_counts(), None))
 
@@ -485,7 +485,10 @@ def test_contract_leaf_cleans_native_and_pytest_reports(tmp_path: Path, monkeypa
     assert result.status == "passed"
     assert len(report_paths) == 3
     assert len(set(report_paths)) == 3
-    assert all(not path.exists() for path in report_paths)
+    assert all(path.exists() for path in report_paths[:2])
+    assert report_paths[0] == tmp_path / "artifacts/test-reports/native/contract/CodeFacts.trx"
+    assert report_paths[1] == tmp_path / "artifacts/test-reports/native/contract/ExportSurface.trx"
+    assert not report_paths[2].exists()
 
 
 def test_pytest_intermediate_report_paths_are_unique_and_cleaned(tmp_path: Path, monkeypatch: Any) -> None:
@@ -661,7 +664,7 @@ def test_mods_leaf_uses_each_exact_native_project_argv_and_repository_cwd(tmp_pa
     ]
 
 
-def test_mods_leaf_cleans_each_native_report(tmp_path: Path, monkeypatch: Any) -> None:
+def test_mods_leaf_retains_each_native_report(tmp_path: Path, monkeypatch: Any) -> None:
     monkeypatch.setitem(test._PREFLIGHTS, "mods", lambda _ctx: _passing_preflight())
     report_paths: list[Path] = []
 
@@ -676,7 +679,8 @@ def test_mods_leaf_cleans_each_native_report(tmp_path: Path, monkeypatch: Any) -
     assert result.status == "passed"
     assert len(report_paths) == len(test._NATIVE_TEST_PROJECTS) == 5
     assert len(set(report_paths)) == len(report_paths)
-    assert all(not path.exists() for path in report_paths)
+    assert all(path.exists() for path in report_paths)
+    assert report_paths[0] == tmp_path / "artifacts/test-reports/native/mods/AdventureGuide.trx"
 
 
 @pytest.mark.parametrize(
@@ -1059,20 +1063,73 @@ def test_report_write_is_atomic_and_deterministic(tmp_path: Path, monkeypatch: A
     assert all(source.name.startswith(".unit.json.") and source.suffix == ".tmp" for source, _ in replacements)
 
 
-def test_composite_invokes_each_expanded_leaf_once_in_order(tmp_path: Path, monkeypatch: Any) -> None:
-    calls: list[str] = []
-    monkeypatch.setattr(
-        test,
-        "_run_leaf",
-        lambda _ctx, task_id, **_kwargs: (calls.append(task_id) or _leaf_result(task_id)),
-    )
+def test_composite_invokes_each_expanded_leaf_once_then_release_actions(tmp_path: Path, monkeypatch: Any) -> None:
+    calls: list[tuple[str, bool]] = []
+    command_calls: list[tuple[str, ...]] = []
 
-    test._run_task(_context(tmp_path), "release")
+    def fake_leaf(_ctx: CLIContext, task_id: str, **kwargs: Any) -> test._LeafResult:
+        calls.append((task_id, kwargs.get("wiki_clean_parity", False)))
+        return _leaf_result(task_id)
 
-    assert calls == ["unit", "contract", "maps", "mods", "data", "wiki"]
+    def fake_process(argv: Sequence[str], cwd: Path) -> test._CommandResult:
+        command_calls.append(tuple(argv))
+        return test._CommandResult(tuple(argv), cwd, 0, 0.0)
+
+    monkeypatch.setattr(test, "_run_leaf", fake_leaf)
+    monkeypatch.setattr(test, "_run_process", fake_process)
+
+    test._run_task(_context(tmp_path), "release", wiki_clean_parity=True)
+
+    expected_leaves = ["unit", "contract", "maps", "mods", "data", "wiki"]
+    assert [task_id for task_id, _clean in calls] == expected_leaves
+    assert calls[-1] == ("wiki", True)
+    assert command_calls == list(test._RELEASE_COMMANDS)
     payload = json.loads((tmp_path / "artifacts/test-reports/release.json").read_text(encoding="utf-8"))
-    assert [leaf["task_id"] for leaf in payload["leaves"]] == calls
-    assert len(calls) == len(set(calls)) == 6
+    assert [leaf["task_id"] for leaf in payload["leaves"]] == expected_leaves
+    assert len(expected_leaves) == len(set(expected_leaves)) == 6
+    assert payload["release_actions"]["status"] == "passed"
+    assert payload["release_actions"]["result_counts"] == {"commands": 3, "completed_commands": 3}
+
+
+def test_release_actions_are_blocked_when_a_leaf_fails(tmp_path: Path, monkeypatch: Any) -> None:
+    command_calls: list[Sequence[str]] = []
+
+    def fake_leaf(_ctx: CLIContext, task_id: str, **_kwargs: Any) -> test._LeafResult:
+        result = _leaf_result(task_id)
+        if task_id == "data":
+            result.status = "failed"
+            result.exit_code = 1
+        return result
+
+    monkeypatch.setattr(test, "_run_leaf", fake_leaf)
+    monkeypatch.setattr(test, "_run_process", lambda argv, _cwd: command_calls.append(argv))
+
+    with pytest.raises(typer.Exit):
+        test._run_task(_context(tmp_path), "release", wiki_clean_parity=True)
+
+    assert command_calls == []
+    payload = json.loads((tmp_path / "artifacts/test-reports/release.json").read_text(encoding="utf-8"))
+    assert payload["release_actions"]["status"] == "blocked"
+    assert payload["release_actions"]["diagnostics"]["reason"].startswith("release actions require")
+
+
+def test_explicit_unit_coverage_uses_one_xml_report(tmp_path: Path, monkeypatch: Any) -> None:
+    monkeypatch.setitem(test._PREFLIGHTS, "unit", lambda _ctx: _passing_preflight())
+    monkeypatch.setattr(test, "_read_pytest_report", lambda _path: (_counts(), None))
+    calls: list[list[str]] = []
+
+    def fake_run_process(argv: list[str], _cwd: Path) -> Any:
+        calls.append(argv)
+        return test._CommandResult(tuple(argv), tmp_path, 0, 0.0)
+
+    monkeypatch.setattr(test, "_run_process", fake_run_process)
+    result = test._run_leaf(_context(tmp_path), "unit", coverage=True)
+
+    assert result.status == "passed"
+    assert calls[0].count("--cov=src/erenshor") == 1
+    assert calls[0].count("--cov-report=xml") == 1
+    assert calls[0].count("--cov-branch") == 1
+    assert "--cov-report=term-missing" not in calls[0]
 
 
 def test_focused_unit_command_stays_on_unit_tree(tmp_path: Path, monkeypatch: Any) -> None:

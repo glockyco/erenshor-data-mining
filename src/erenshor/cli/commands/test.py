@@ -53,6 +53,7 @@ _PYTEST_PLUGIN = "erenshor.cli.commands.test"
 _REPORT_OPTION = "--erenshor-report"
 _REPORT_SCHEMA = 1
 _REPORT_DIRECTORY = Path("artifacts/test-reports")
+_NATIVE_REPORT_DIRECTORY = _REPORT_DIRECTORY / "native"
 _WIKI_BASE_URL = "http://localhost:8088"
 
 
@@ -95,6 +96,11 @@ TASKS: Mapping[str, tuple[str, ...]] = {
 }
 LEAF_TASKS = ("unit", "contract", "data", "wiki", "maps", "mods")
 COMPOSITE_TASKS = ("ci", "release")
+_RELEASE_COMMANDS: tuple[tuple[str, ...], ...] = (
+    ("uv", "run", "erenshor", "-V", "main", "maps", "build", "--skip-checks"),
+    ("uv", "run", "erenshor", "-V", "main", "mod", "build", "--loader", "all"),
+    ("uv", "run", "erenshor", "-V", "main", "mod", "thunderstore", "--dry-run"),
+)
 
 
 @dataclass(frozen=True)
@@ -799,6 +805,11 @@ def _complete_trx_counts(counts: _TrxCounts) -> _CompleteTrxCounts:
     }
 
 
+def _native_report_path(repo_root: Path, group: str, name: str) -> Path:
+    safe_name = re.sub(r"[^A-Za-z0-9_.-]+", "_", name).strip("._") or "project"
+    return repo_root / _NATIVE_REPORT_DIRECTORY / group / f"{safe_name}.trx"
+
+
 def _run_pytest_leaf(
     cli_ctx: CLIContext,
     task_id: str,
@@ -809,7 +820,7 @@ def _run_pytest_leaf(
     start = time.monotonic()
     command_arguments = list(arguments)
     if coverage:
-        command_arguments.extend(["--cov", "--cov-report=term-missing"])
+        command_arguments.extend(["--cov=src/erenshor", "--cov-report=xml", "--cov-branch"])
 
     report_directory = cli_ctx.repo_root / _REPORT_DIRECTORY
     report_directory.mkdir(parents=True, exist_ok=True)
@@ -862,14 +873,10 @@ def _run_pytest_leaf(
 
 
 def _run_native_test_project(cli_ctx: CLIContext, project: Path, *, name: str) -> _NativeTestResult:
-    """Run one native test project and validate its temporary TRX report."""
-    report_directory = cli_ctx.repo_root / _REPORT_DIRECTORY
-    report_directory.mkdir(parents=True, exist_ok=True)
-    report_path = _temporary_report_path(
-        report_directory,
-        prefix=f".dotnet-{re.sub(r'[^A-Za-z0-9_.-]+', '_', name)}-",
-        suffix=".trx",
-    )
+    """Run one native test project and validate its retained TRX report."""
+    report_path = _native_report_path(cli_ctx.repo_root, "contract", name)
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report_path.unlink(missing_ok=True)
     project_path = project if project.is_absolute() else cli_ctx.repo_root / project
     command = [
         "dotnet",
@@ -880,12 +887,8 @@ def _run_native_test_project(cli_ctx: CLIContext, project: Path, *, name: str) -
         "--logger",
         f"trx;LogFileName={report_path}",
     ]
-    try:
-        command_result = _run_process(command, cli_ctx.repo_root)
-        parsed_counts, report_error = _read_trx_report(report_path)
-    finally:
-        with suppress(OSError):
-            report_path.unlink(missing_ok=True)
+    command_result = _run_process(command, cli_ctx.repo_root)
+    parsed_counts, report_error = _read_trx_report(report_path)
 
     violations: list[str] = []
     diagnostics: dict[str, object] = {}
@@ -975,8 +978,6 @@ def _run_mods_leaf(cli_ctx: CLIContext) -> _LeafResult:
             diagnostics={"validation": ["native test project inventory is empty"]},
         )
 
-    report_directory = cli_ctx.repo_root / _REPORT_DIRECTORY
-    report_directory.mkdir(parents=True, exist_ok=True)
     command_results: list[_CommandResult] = []
     project_counts: dict[str, _CompleteTrxCounts] = {}
     violations: list[str] = []
@@ -984,11 +985,9 @@ def _run_mods_leaf(cli_ctx: CLIContext) -> _LeafResult:
     for native_project in _NATIVE_TEST_PROJECTS:
         name = native_project.name
         project = cli_ctx.repo_root / native_project.project
-        report_path = _temporary_report_path(
-            report_directory,
-            prefix=f".dotnet-{re.sub(r'[^A-Za-z0-9_.-]+', '_', name)}-",
-            suffix=".trx",
-        )
+        report_path = _native_report_path(cli_ctx.repo_root, "mods", name)
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        report_path.unlink(missing_ok=True)
         command = [
             "dotnet",
             "test",
@@ -1000,13 +999,9 @@ def _run_mods_leaf(cli_ctx: CLIContext) -> _LeafResult:
             "--logger",
             f"trx;LogFileName={report_path}",
         ]
-        try:
-            command_result = _run_process(command, cli_ctx.repo_root)
-            command_results.append(command_result)
-            parsed_counts, report_error = _read_trx_report(report_path)
-        finally:
-            with suppress(OSError):
-                report_path.unlink(missing_ok=True)
+        command_result = _run_process(command, cli_ctx.repo_root)
+        command_results.append(command_result)
+        parsed_counts, report_error = _read_trx_report(report_path)
 
         if report_error:
             report_validation.append(f"{name}: {report_error}")
@@ -1231,9 +1226,11 @@ def _report_payload(
     expanded: list[str],
     results: list[_LeafResult],
     duration: float,
+    release_actions: _LeafResult | None = None,
 ) -> dict[str, object]:
-    failed = next((item for item in results if item.exit_code != 0), None)
-    return {
+    all_results = [*results, *([release_actions] if release_actions is not None else [])]
+    failed = next((item for item in all_results if item.exit_code != 0), None)
+    payload: dict[str, object] = {
         "schema": _REPORT_SCHEMA,
         "requested_task": requested,
         "requested_task_id": requested,
@@ -1254,6 +1251,15 @@ def _report_payload(
             for item in results
         ],
     }
+    if release_actions is not None:
+        payload["release_actions"] = {
+            "status": release_actions.status,
+            "exit_code": release_actions.exit_code,
+            "duration_seconds": release_actions.duration_seconds,
+            "result_counts": release_actions.result_counts,
+            "diagnostics": {**release_actions.diagnostics, "commands": release_actions.commands},
+        }
+    return payload
 
 
 def _report_exit_code(payload: Mapping[str, object]) -> int:
@@ -1273,6 +1279,7 @@ def _run_task(
     start = time.monotonic()
     expanded: list[str] = []
     results: list[_LeafResult] = []
+    release_actions: _LeafResult | None = None
     try:
         expanded = expand_tasks(requested)
         for task_id in expanded:
@@ -1309,8 +1316,35 @@ def _run_task(
                     commands=[{"error": str(leaf_error)}],
                 )
             results.append(result)
+        if requested == "release":
+            if any(result.exit_code != 0 for result in results):
+                release_actions = _LeafResult(
+                    task_id="release-actions",
+                    status="blocked",
+                    exit_code=0,
+                    duration_seconds=0.0,
+                    prerequisites=[],
+                    result_counts={"commands": len(_RELEASE_COMMANDS), "completed_commands": 0},
+                    commands=[],
+                    diagnostics={"reason": "release actions require every verification leaf to pass"},
+                )
+            else:
+                try:
+                    release_actions = _run_leaf_commands(cli_ctx, "release-actions", _RELEASE_COMMANDS)
+                except KeyboardInterrupt:
+                    raise
+                except Exception as release_error:
+                    release_actions = _LeafResult(
+                        task_id="release-actions",
+                        status="failed",
+                        exit_code=1,
+                        duration_seconds=0.0,
+                        prerequisites=[],
+                        result_counts={"commands": len(_RELEASE_COMMANDS), "completed_commands": 0},
+                        commands=[{"error": str(release_error)}],
+                    )
     except KeyboardInterrupt:
-        payload = _report_payload(requested, expanded, results, _duration(start))
+        payload = _report_payload(requested, expanded, results, _duration(start), release_actions)
         payload.update(
             {
                 "status": "interrupted",
@@ -1339,7 +1373,7 @@ def _run_task(
             "error": str(task_error),
         }
     else:
-        payload = _report_payload(requested, expanded, results, _duration(start))
+        payload = _report_payload(requested, expanded, results, _duration(start), release_actions)
 
     try:
         report_path = _write_report(cli_ctx.repo_root, requested, payload)
@@ -1420,8 +1454,8 @@ def test_ci(ctx: typer.Context) -> None:
 
 @app.command("release")
 def test_release(ctx: typer.Context) -> None:
-    """Run CI plus the main data and local wiki leaves."""
-    _run_task(ctx.obj, "release")
+    """Run CI, main data, clean wiki parity, and provisioned release builds."""
+    _run_task(ctx.obj, "release", wiki_clean_parity=True)
 
 
 __all__ = [
