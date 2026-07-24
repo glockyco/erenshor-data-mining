@@ -15767,27 +15767,6 @@
     {
       "categories": [
         "Category:Characters",
-        "Category:Faerie's Brake"
-      ],
-      "generated_templates": [
-        "Character"
-      ],
-      "schema": "character",
-      "semantic_links": [
-        "FactionLink:stablekey:faction:erenshorcitizens",
-        "FactionLink:stablekey:faction:erenshorcitizens",
-        "FactionLink:stablekey:faction:sivakayans",
-        "QuestLink:link:Repairing Treasure Maps",
-        "ZoneLink:stablekey:zone:brake"
-      ],
-      "stable_keys": [
-        "character:cecil threbb"
-      ],
-      "title": "Cecil Threbb"
-    },
-    {
-      "categories": [
-        "Category:Characters",
         "Category:Ripper's Keep"
       ],
       "generated_templates": [
@@ -60511,6 +60490,26 @@
         "character:torado  zortia"
       ],
       "title": "Torado Zortia"
+    },
+    {
+      "categories": [
+        "Category:Characters",
+        "Category:Faerie's Brake"
+      ],
+      "generated_templates": [
+        "Character"
+      ],
+      "schema": "character",
+      "semantic_links": [
+        "FactionLink:stablekey:faction:erenshorcitizens",
+        "FactionLink:stablekey:faction:erenshorcitizens",
+        "FactionLink:stablekey:faction:sivakayans",
+        "ZoneLink:stablekey:zone:brake"
+      ],
+      "stable_keys": [
+        "character:cecil threbb"
+      ],
+      "title": "Torin Much"
     },
     {
       "categories": [
