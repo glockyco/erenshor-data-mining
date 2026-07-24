@@ -53,9 +53,21 @@
 			"problemMatcher": []
 		},
 		{
-			"label": "Erenshor: Test - Wiki",
+			"label": "Erenshor: Test - Wiki (Warm)",
 			"type": "shell",
-			"command": "uv run erenshor test wiki",
+			"command": "uv run erenshor test wiki --warm",
+			"group": "test",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"group": "verification"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Erenshor: Test - Wiki (Clean Parity)",
+			"type": "shell",
+			"command": "uv run erenshor test wiki --clean-parity",
 			"group": "test",
 			"presentation": {
 				"reveal": "always",

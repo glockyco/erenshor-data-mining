@@ -185,15 +185,8 @@ uv run erenshor maps deploy
 uv run erenshor maps thumbnails
 ```
 
-The map can also be run through the pnpm workspace scripts from the repository root:
-
-```bash
-pnpm dev
-pnpm build
-pnpm preview
-pnpm check
-pnpm lint
-```
+The CLI owns map development, verification, builds, and deployment. Use these
+commands instead of invoking workspace package scripts directly.
 
 ### Build and deploy companion mods
 
@@ -308,21 +301,13 @@ pnpm exec lefthook run pre-push
 The pre-commit hook runs Gitleaks when `gitleaks` is installed locally; CI
 always runs the repository security scan.
 
-Run checks for the area you changed:
+Run independent static checks for the area you changed:
 
 ```bash
 # Python
 uv run ruff format src/ tests/
 uv run ruff check src/ tests/
 uv run mypy src/
-uv run pytest
-uv run pytest tests/unit -q --tb=short
-uv run pytest tests/integration -v
-
-# Map frontend
-pnpm check
-pnpm lint
-pnpm build
 
 # Lua modules
 pnpm exec stylua --check wiki/modules
@@ -331,13 +316,31 @@ pnpm exec stylua --check wiki/modules
 bash src/mods/run-csharpier.sh
 ```
 
-The CLI also exposes test helpers:
+Run behavioral verification through the canonical task leaves:
 
 ```bash
-uv run erenshor test
 uv run erenshor test unit
-uv run erenshor test integration
+uv run erenshor test unit --coverage
+uv run erenshor test contract
+uv run erenshor test maps
+uv run erenshor test mods
+uv run erenshor test wiki --warm
+uv run erenshor -V main test data
 ```
+
+Use the composites for the same disjoint leaves in parallel:
+
+```bash
+uv run erenshor test ci
+uv run erenshor -V main test release
+```
+
+`test ci` runs unit, contract, maps, and mods. `test release` adds the main data
+leaf, clean wiki parity, a real main-data map build, dual-loader mod builds, and
+Thunderstore package validation. Run clean wiki parity directly with
+`uv run erenshor test wiki --clean-parity` when that isolated Docker gate is the
+only target. Every leaf checks its own prerequisites, rejects zero collected
+tests, and writes a structured report under `artifacts/test-reports/`.
 
 ### Verification acceptance baseline
 
@@ -361,7 +364,10 @@ projects. The data gate includes the dynamic-spawn and full-export database
 contracts. A new Unity batch export remains a separate post-update operation
 because it mutates the raw database and requires the configured Unity project.
 
-CI runs on pushes and pull requests to `main`. The workflow covers Python linting, formatting checks, type checking, pytest, Gitleaks scanning, mod metadata validation, and targeted C# formatting/tests for `InteractiveMapCompanion`.
+CI runs independent static-check jobs plus the unit leaf with XML coverage, the
+contract leaf, the hermetic maps leaf, and all maintained native mod tests. Main
+data, clean wiki parity, real release builds, package validation, and Unity
+exports remain explicit environment-bound gates.
 
 ## Troubleshooting
 
