@@ -194,6 +194,16 @@ class TestUnityBatchModeExecuteMethod:
 
         assert "Unity project not found" in str(exc_info.value)
 
+    def test_runtime_error_carries_process_exit_code(self, tmp_path: Path) -> None:
+        unity_exe = tmp_path / "Unity"
+        unity_exe.touch()
+        unity = UnityBatchMode(unity_path=unity_exe)
+
+        with pytest.raises(UnityRuntimeError) as exc_info:
+            unity._check_execution_result(3, tmp_path / "missing.log")
+
+        assert exc_info.value.exit_code == 3
+
     @patch("erenshor.infrastructure.unity.batch_mode.subprocess.Popen")
     def test_execute_method_timeout(self, mock_popen: MagicMock, tmp_path: Path) -> None:
         """Test execution fails when Unity times out."""

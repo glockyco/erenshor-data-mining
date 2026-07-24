@@ -21,6 +21,11 @@ from loguru import logger
 from rich.console import Console
 
 from erenshor.application.code_facts import extract_code_facts
+from erenshor.application.extract.export_workflow import (
+    ExportRequest,
+    ExportWorkflow,
+    adapter_exit_code,
+)
 from erenshor.application.extract.rip_workflow import RipRequest, RipWorkflow
 from erenshor.application.processor.build import build as build_clean_db
 from erenshor.application.services.backup_service import BackupService
@@ -369,19 +374,9 @@ def export(
 
     try:
         with _profile_command(recorder, command_name, cli_ctx):
-            # Clean up old raw database before export
-            if database_path.exists():
-                logger.info(f"Removing old raw database: {database_path}")
-                database_path.unlink()
-
             logger.info(f"Exporting game data: variant={cli_ctx.variant}")
 
-            # Create log file path
-            import time
-
-            log_file = logs_dir / f"export_{int(time.time())}.log"
-
-            # Map Python log levels to Unity log levels
+            # Map Python log levels to Unity log levels.
             python_to_unity_log_level = {
                 "DEBUG": "verbose",
                 "INFO": "normal",
@@ -391,33 +386,62 @@ def export(
             }
             unity_log_level = python_to_unity_log_level.get(cli_ctx.config.global_.logging.level.upper(), "normal")
 
-            # Export data
-            unity.execute_method(
-                project_path=unity_project_dir / "ExportedProject",
-                class_name="ExportBatch",
-                method_name="Run",
-                log_file=log_file,
-                arguments={
-                    "dbPath": str(database_path.absolute()),
-                    "logLevel": unity_log_level,
-                    "profile": "true" if profile else "false",
-                    "profileOutput": str(profile_output_path),
-                },
-                profile=recorder,
+            def backup(database: Path) -> None:
+                from datetime import datetime
+
+                console.print("[bold]Creating backup...[/bold]")
+                try:
+                    steam_config = cli_ctx.config.global_.steam
+                    steamcmd = SteamCMD(username=steam_config.username, platform=steam_config.platform)
+                    build_id = steamcmd.get_build_id(
+                        variant_config.resolved_game_files(cli_ctx.repo_root),
+                        variant_config.app_id,
+                    )
+                    if not build_id:
+                        build_id = datetime.now().strftime("backup-%Y%m%d-%H%M%S")
+                        logger.warning(f"Could not determine Steam build ID, using timestamp: {build_id}")
+                        console.print(f"[yellow]Using timestamp-based backup ID: {build_id}[/yellow]")
+
+                    service = BackupService()
+                    stats = service.create_backup(
+                        variant=cli_ctx.variant,
+                        build_id=build_id,
+                        database_path=database,
+                        scripts_path=unity_project_dir / "ExportedProject" / "Assets" / "Scripts",
+                        backup_dir=variant_config.resolved_backups(cli_ctx.repo_root),
+                        app_id=variant_config.app_id,
+                    )
+                    service.display_backup_stats(stats)
+                except Exception as error:
+                    logger.error(f"Failed to create backup: {error}")
+                    console.print(f"[yellow]Warning: Backup creation failed: {error}[/yellow]")
+                    console.print("[yellow]Export succeeded but backup was not created.[/yellow]")
+                    console.print()
+
+            workflow = ExportWorkflow(
+                unity,
+                profile_importer=lambda output_path: _import_unity_profile_output(recorder, output_path),
+                backup=backup,
             )
-            if profile:
-                _import_unity_profile_output(recorder, profile_output_path)
-
-            logger.info(f"Raw data exported: raw_db={database_path}, log={log_file}")
+            result = workflow.run(
+                ExportRequest(
+                    unity_project_dir=unity_project_dir,
+                    database_path=database_path,
+                    logs_dir=logs_dir,
+                    log_level=unity_log_level,
+                    profile_enabled=profile,
+                    profile_output_path=profile_output_path,
+                    profile=recorder,
+                )
+            )
+            logger.info(f"Raw data exported: raw_db={result.database_path}, log={result.log_file}")
             logger.info("Run 'erenshor extract build' to produce the clean database")
-
-            # Create backup for cross-version analysis
-            _create_backup_after_export(cli_ctx, variant_config, database_path)
 
     except Exception as e:
         console.print(f"[red]Error during export: {e}[/red]")
         logger.exception("Unity export failed")
-        raise typer.Exit(1) from e
+        exit_code = adapter_exit_code(e)
+        raise typer.Exit(exit_code if exit_code is not None else 1) from e
 
 
 @app.command()
@@ -508,66 +532,6 @@ def code_facts(ctx: typer.Context) -> None:
         console.print(f"[red]Error during code-facts extraction: {e}[/red]")
         logger.exception("Code-facts extraction failed")
         raise typer.Exit(1) from e
-
-
-def _create_backup_after_export(cli_ctx: CLIContext, variant_config: Any, database_path: Path) -> None:
-    """Create backup after successful Unity export.
-
-    Attempts to get Steam build ID from manifest. If not available, falls back
-    to timestamp-based ID. Backups are for cross-version analysis (SQL queries,
-    C# diffs, change detection), not for restoration.
-
-    Args:
-        cli_ctx: CLI context with config and variant info.
-        variant_config: Variant-specific configuration.
-        database_path: Path to exported database.
-    """
-    from datetime import datetime
-
-    console.print("[bold]Creating backup...[/bold]")
-
-    try:
-        # Get build ID from Steam manifest
-        game_files_dir = variant_config.resolved_game_files(cli_ctx.repo_root)
-        steam_config = cli_ctx.config.global_.steam
-        steamcmd = SteamCMD(
-            username=steam_config.username,
-            platform=steam_config.platform,
-        )
-
-        build_id = steamcmd.get_build_id(game_files_dir, variant_config.app_id)
-
-        # Fallback: Use timestamp-based ID if Steam build ID unavailable
-        if not build_id:
-            build_id = datetime.now().strftime("backup-%Y%m%d-%H%M%S")
-            logger.warning(f"Could not determine Steam build ID, using timestamp: {build_id}")
-            console.print(f"[yellow]Using timestamp-based backup ID: {build_id}[/yellow]")
-
-        # Get paths for backup
-        unity_project_dir = variant_config.resolved_unity_project(cli_ctx.repo_root)
-        scripts_path = unity_project_dir / "ExportedProject" / "Assets" / "Scripts"
-        backup_dir = variant_config.resolved_backups(cli_ctx.repo_root)
-
-        # Create backup
-        service = BackupService()
-        stats = service.create_backup(
-            variant=cli_ctx.variant,
-            build_id=build_id,
-            database_path=database_path,
-            scripts_path=scripts_path,
-            backup_dir=backup_dir,
-            app_id=variant_config.app_id,
-        )
-
-        # Display backup stats
-        service.display_backup_stats(stats)
-
-    except Exception as e:
-        # Log error but don't fail the export
-        logger.error(f"Failed to create backup: {e}")
-        console.print(f"[yellow]Warning: Backup creation failed: {e}[/yellow]")
-        console.print("[yellow]Export succeeded but backup was not created.[/yellow]")
-        console.print()
 
 
 def _generate_ide_project_files(
