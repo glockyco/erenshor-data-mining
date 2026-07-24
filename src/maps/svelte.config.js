@@ -5,6 +5,7 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 const config = {
     preprocess: vitePreprocess(),
     kit: {
+        outDir: process.env.ERENSHOR_MAPS_SVELTE_OUT_DIR ?? '.svelte-kit',
         // No `fallback`: every reachable URL is prerendered (the (app)
         // group, /map, /robots.txt, /sitemap.xml, and every /maps/[mapName]
         // route enumerated from MAPS). Unknown URLs should 404, not be

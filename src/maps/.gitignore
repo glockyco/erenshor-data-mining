@@ -176,6 +176,7 @@ node_modules
 .netlify
 .wrangler
 /.svelte-kit
+/.svelte-kit-prerender-*
 /build
 
 # OS

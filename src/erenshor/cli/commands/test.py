@@ -1084,17 +1084,15 @@ def _run_leaf_commands(
 
 
 def _run_maps_leaf(cli_ctx: CLIContext, source: Path) -> _LeafResult:
-    """Run independent maps checks together before the prerender smoke."""
+    """Run independent maps checks and the isolated prerender smoke together."""
     start = time.monotonic()
-    with ThreadPoolExecutor(max_workers=len(maps.CHECK_COMMANDS), thread_name_prefix="maps-check") as executor:
-        futures = [executor.submit(_run_process, command, source) for command in maps.CHECK_COMMANDS]
+    commands = (*maps.CHECK_COMMANDS, maps.PRERENDER_SMOKE_COMMAND)
+    with ThreadPoolExecutor(max_workers=len(commands), thread_name_prefix="maps-check") as executor:
+        futures = [executor.submit(_run_process, command, source) for command in commands]
         results = [future.result() for future in futures]
 
-    if all(result.exit_code == 0 for result in results):
-        results.append(_run_process(maps.PRERENDER_SMOKE_COMMAND, source))
-
     failed = next((result for result in results if result.exit_code != 0), None)
-    expected_count = len(maps.CHECK_COMMANDS) + 1
+    expected_count = len(commands)
     return _LeafResult(
         task_id="maps",
         status="passed" if failed is None and len(results) == expected_count else "failed",
