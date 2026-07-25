@@ -188,6 +188,12 @@ Thumbs.db
 .env.*
 !.env.example
 !.env.test
+# The Cloudflare Web Analytics beacon token is public by design, is embedded
+# verbatim in every deployed page, and is required at build time because the
+# layout imports it from '$env/static/public'. Keep it in the checkout so a
+# clean clone type-checks and builds with analytics intact. Real secrets belong
+# in .env.local, which stays ignored.
+!.env
 
 # Vite
 vite.config.js.timestamp-*
