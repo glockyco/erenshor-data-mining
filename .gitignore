@@ -857,3 +857,8 @@ wiki-dev/parity/baseline.json
 
 # Local database files
 *.db
+
+# The Visual Studio template above claims generic build-output directory names
+# (Debug/, Release/, bin/, obj/, ...) across the whole repository. The maps
+# source tree uses one of those names for real source, so re-include it.
+!src/maps/src/**/[Dd]ebug/
