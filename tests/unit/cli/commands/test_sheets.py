@@ -1,17 +1,14 @@
 """Unit tests for sheets CLI commands."""
 
+from dataclasses import replace
 from unittest.mock import MagicMock, patch
 
 import pytest
 from typer.testing import CliRunner
 
-# Patch the decorator BEFORE importing the command module
-with patch("erenshor.cli.preconditions.require_preconditions") as mock_decorator:
-    # Make it a passthrough decorator
-    mock_decorator.side_effect = lambda *checks: lambda func: func
-    from erenshor.cli.main import app
-
 from erenshor.application.sheets.service import DeploymentResult, SheetMetadata
+from erenshor.cli.commands import sheets
+from erenshor.cli.context import CLIContext
 
 runner = CliRunner()
 
@@ -84,7 +81,7 @@ class TestSheetsListCommand:
     """Test sheets list command."""
 
     @patch("erenshor.cli.commands.sheets._create_sheets_service")
-    def test_list_sheets_success(self, mock_create_service, mock_sheet_metadata):
+    def test_list_sheets_success(self, mock_create_service, mock_sheet_metadata, cli_context: CLIContext):
         """Test successful sheet listing."""
         # Setup mock service
         mock_service = MagicMock()
@@ -92,7 +89,7 @@ class TestSheetsListCommand:
         mock_create_service.return_value = mock_service
 
         # Run command
-        result = runner.invoke(app, ["sheets", "list"])
+        result = runner.invoke(sheets.app, ["list"], obj=cli_context)
 
         # Verify
         assert result.exit_code == 0
@@ -102,7 +99,7 @@ class TestSheetsListCommand:
         mock_service.list_sheets.assert_called_once()
 
     @patch("erenshor.cli.commands.sheets._create_sheets_service")
-    def test_list_sheets_empty(self, mock_create_service):
+    def test_list_sheets_empty(self, mock_create_service, cli_context: CLIContext):
         """Test listing when no sheets available."""
         # Setup mock service
         mock_service = MagicMock()
@@ -110,14 +107,14 @@ class TestSheetsListCommand:
         mock_create_service.return_value = mock_service
 
         # Run command
-        result = runner.invoke(app, ["sheets", "list"])
+        result = runner.invoke(sheets.app, ["list"], obj=cli_context)
 
         # Verify
         assert result.exit_code == 0
         assert "No sheets found" in result.stdout
 
     @patch("erenshor.cli.commands.sheets._create_sheets_service")
-    def test_list_sheets_service_exception(self, mock_create_service):
+    def test_list_sheets_service_exception(self, mock_create_service, cli_context: CLIContext):
         """Test listing when service raises exception."""
         # Setup mock service to raise exception
         mock_service = MagicMock()
@@ -125,7 +122,7 @@ class TestSheetsListCommand:
         mock_create_service.return_value = mock_service
 
         # Run command
-        result = runner.invoke(app, ["sheets", "list"])
+        result = runner.invoke(sheets.app, ["list"], obj=cli_context)
 
         # Verify
         assert result.exit_code == 1
@@ -136,7 +133,7 @@ class TestSheetsDeployCommand:
     """Test sheets deploy command."""
 
     @patch("erenshor.cli.commands.sheets._create_sheets_service")
-    def test_deploy_all_sheets_success(self, mock_create_service, mock_deployment_result):
+    def test_deploy_all_sheets_success(self, mock_create_service, mock_deployment_result, cli_context: CLIContext):
         """Test successful deployment of all sheets."""
         # Setup mock service
         mock_service = MagicMock()
@@ -144,14 +141,14 @@ class TestSheetsDeployCommand:
         mock_create_service.return_value = mock_service
 
         # Run command
-        result = runner.invoke(app, ["sheets", "deploy", "--all-sheets"])
+        result = runner.invoke(sheets.app, ["deploy", "--all-sheets"], obj=cli_context)
 
         # Verify
         assert result.exit_code == 0
         mock_service.deploy.assert_called_once_with(sheet_names=None, all_sheets=True, dry_run=False)
 
     @patch("erenshor.cli.commands.sheets._create_sheets_service")
-    def test_deploy_specific_sheets_success(self, mock_create_service, mock_deployment_result):
+    def test_deploy_specific_sheets_success(self, mock_create_service, mock_deployment_result, cli_context: CLIContext):
         """Test successful deployment of specific sheets."""
         # Setup mock service
         mock_service = MagicMock()
@@ -159,7 +156,11 @@ class TestSheetsDeployCommand:
         mock_create_service.return_value = mock_service
 
         # Run command
-        result = runner.invoke(app, ["sheets", "deploy", "--sheets", "items", "--sheets", "characters"])
+        result = runner.invoke(
+            sheets.app,
+            ["deploy", "--sheets", "items", "--sheets", "characters"],
+            obj=cli_context,
+        )
 
         # Verify
         assert result.exit_code == 0
@@ -168,7 +169,7 @@ class TestSheetsDeployCommand:
         )
 
     @patch("erenshor.cli.commands.sheets._create_sheets_service")
-    def test_deploy_dry_run(self, mock_create_service, mock_deployment_result):
+    def test_deploy_dry_run(self, mock_create_service, mock_deployment_result, cli_context: CLIContext):
         """Test deployment in dry-run mode."""
         # Setup mock service
         mock_service = MagicMock()
@@ -176,21 +177,25 @@ class TestSheetsDeployCommand:
         mock_create_service.return_value = mock_service
 
         # Run command with global --dry-run flag
-        result = runner.invoke(app, ["--dry-run", "sheets", "deploy", "--all-sheets"])
+        result = runner.invoke(
+            sheets.app,
+            ["deploy", "--all-sheets"],
+            obj=replace(cli_context, dry_run=True),
+        )
 
         # Verify
         assert result.exit_code == 0
         mock_service.deploy.assert_called_once_with(sheet_names=None, all_sheets=True, dry_run=True)
 
     @patch("erenshor.cli.commands.sheets._create_sheets_service")
-    def test_deploy_no_sheets_specified(self, mock_create_service):
+    def test_deploy_no_sheets_specified(self, mock_create_service, cli_context: CLIContext):
         """Test deployment when no sheets are specified."""
         # Setup mock service (won't be called)
         mock_service = MagicMock()
         mock_create_service.return_value = mock_service
 
         # Run command without --sheets or --all-sheets
-        result = runner.invoke(app, ["sheets", "deploy"])
+        result = runner.invoke(sheets.app, ["deploy"], obj=cli_context)
 
         # Verify
         assert result.exit_code == 1
@@ -198,7 +203,9 @@ class TestSheetsDeployCommand:
         mock_service.deploy.assert_not_called()
 
     @patch("erenshor.cli.commands.sheets._create_sheets_service")
-    def test_deploy_with_failures(self, mock_create_service, mock_deployment_result_with_failures):
+    def test_deploy_with_failures(
+        self, mock_create_service, mock_deployment_result_with_failures, cli_context: CLIContext
+    ):
         """Test deployment that completes with failures."""
         # Setup mock service
         mock_service = MagicMock()
@@ -206,14 +213,14 @@ class TestSheetsDeployCommand:
         mock_create_service.return_value = mock_service
 
         # Run command
-        result = runner.invoke(app, ["sheets", "deploy", "--all-sheets"])
+        result = runner.invoke(sheets.app, ["deploy", "--all-sheets"], obj=cli_context)
 
         # Verify - should exit 1 with failures
         assert result.exit_code == 1
         mock_service.deploy.assert_called_once()
 
     @patch("erenshor.cli.commands.sheets._create_sheets_service")
-    def test_deploy_service_exception(self, mock_create_service):
+    def test_deploy_service_exception(self, mock_create_service, cli_context: CLIContext):
         """Test deployment when service raises exception."""
         # Setup mock service to raise exception
         mock_service = MagicMock()
@@ -221,20 +228,20 @@ class TestSheetsDeployCommand:
         mock_create_service.return_value = mock_service
 
         # Run command
-        result = runner.invoke(app, ["sheets", "deploy", "--all-sheets"])
+        result = runner.invoke(sheets.app, ["deploy", "--all-sheets"], obj=cli_context)
 
         # Verify
         assert result.exit_code == 1
         assert "Error during sheets deployment" in result.stdout
 
     @patch("erenshor.cli.commands.sheets._create_sheets_service")
-    def test_deploy_missing_spreadsheet_id(self, mock_create_service):
+    def test_deploy_missing_spreadsheet_id(self, mock_create_service, cli_context: CLIContext):
         """Test deployment when spreadsheet_id is not configured."""
         # Setup mock service creation to raise ValueError
         mock_create_service.side_effect = ValueError("No spreadsheet_id configured")
 
         # Run command
-        result = runner.invoke(app, ["sheets", "deploy", "--all-sheets"])
+        result = runner.invoke(sheets.app, ["deploy", "--all-sheets"], obj=cli_context)
 
         # Verify
         assert result.exit_code == 1
