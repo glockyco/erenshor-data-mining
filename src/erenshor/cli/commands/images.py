@@ -621,8 +621,8 @@ def upload(
                 console.print(f"[red]✗ Redirects failed: {redirect_stats['failed']}[/red]")
                 console.print()
                 console.print("[bold red]Redirect Errors:[/bold red]")
-                for original, error in redirect_errors[:10]:  # Show first 10
-                    console.print(f"  [red]File:{original}.png[/red]: {error}")
+                for original, error_message in redirect_errors[:10]:  # Show first 10
+                    console.print(f"  [red]File:{original}.png[/red]: {error_message}")
                 if len(redirect_errors) > 10:
                     console.print(f"  [dim]... and {len(redirect_errors) - 10} more errors[/dim]")
 
