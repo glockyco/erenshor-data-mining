@@ -343,13 +343,12 @@ def test_compare_variants_main_vs_demo_report_preserves_metrics(tmp_path: Path) 
 
 
 def test_compare_variants_registers_options_and_help() -> None:
-    result = CliRunner().invoke(extract.app, ["compare-variants", "--help"])
+    command = get_command(extract.app).commands["compare-variants"]
+    option_names = {opt for param in command.params for opt in param.opts}
 
-    assert result.exit_code == 0
-    assert "--base-variant" in result.stdout
-    assert "--new-variant" in result.stdout
-    assert "--output" in result.stdout
-    assert "Compare the clean databases" in result.stdout
+    assert {"--base-variant", "--new-variant", "--output"} <= option_names
+    assert command.help is not None
+    assert "Compare the clean databases" in command.help
 
 
 def test_compare_variants_rejects_unknown_variant(tmp_path: Path) -> None:
