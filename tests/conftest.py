@@ -2,14 +2,9 @@
 
 This module provides comprehensive fixtures for testing the wiki update pipeline
 with real components (no mocking):
-- Real SQLite database from exported game data
 - Real registry system
 - Real file I/O for pages
 - Real rendering with Jinja2
-
-Database Fixtures:
-- integration_db: Uses most recently exported database from variants/ directory
-- production_db: Optional full database (skips if missing)
 
 All fixtures create temporary directories and clean up after themselves.
 """
@@ -28,57 +23,6 @@ if TYPE_CHECKING:
 
 # Lazy imports to avoid loading modules that don't exist yet during early testing
 # These imports happen inside fixture functions only when actually needed
-
-
-# === Database Fixtures ===
-
-
-@pytest.fixture(scope="session")
-def integration_db() -> Generator[Path]:
-    """Find most recently exported database from any variant.
-
-    This fixture uses real exported databases instead of hand-written fixtures.
-    Searches variants/ directory for erenshor-*.sqlite files and returns
-    the most recently modified one.
-
-    Returns:
-        Path: Path to the most recently exported database
-
-    Raises:
-        pytest.skip: If no exported database exists
-    """
-    variants_dir = Path(__file__).parent.parent / "variants"
-    databases = list(variants_dir.glob("*/erenshor-*.sqlite"))
-
-    # Exclude raw exports and backup/temp files — only the processed clean DB has
-    # the full schema (stable_key, etc.) that repository tests depend on.
-    databases = [db for db in databases if ".pre-" not in db.name and "-raw" not in db.name]
-
-    if not databases:
-        pytest.skip("No exported database found. Run 'uv run erenshor extract export' first.")
-
-    # Return most recently modified
-    yield max(databases, key=lambda p: p.stat().st_mtime)
-
-
-@pytest.fixture
-def production_db() -> Generator[Path | None]:
-    """Optional fixture for testing against production database.
-
-    This fixture looks for a production database in the variants/main directory.
-    If not found, the test is skipped. Use this for tests that need to verify
-    behavior against real production data.
-
-    Returns:
-        Path | None: Path to production database or None if not available
-    """
-    repo_root = Path(__file__).parent.parent
-    prod_db_path = repo_root / "variants" / "main" / "erenshor-main.sqlite"
-
-    if not prod_db_path.exists():
-        pytest.skip("Production database not available (run 'erenshor export' first)")
-
-    yield prod_db_path
 
 
 @pytest.fixture(autouse=True)
