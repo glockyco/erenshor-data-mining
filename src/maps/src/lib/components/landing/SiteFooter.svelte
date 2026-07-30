@@ -4,22 +4,22 @@
   nav, which floats bottom-right at every width.
 -->
 <script lang="ts">
-    import type { PatchAnnouncement } from '$lib/steam-news';
-    import { compareFreshness, isNotablyStale, type Freshness } from '$lib/steam-news';
-
-    interface Provenance {
-        gameBuildId: string;
-        buildUpdatedAt: string;
-    }
+    import {
+        compareFreshness,
+        isNotablyStale,
+        type BuildFeed,
+        type BuildProvenance,
+        type Freshness
+    } from '$lib/steam-builds';
 
     // Null whenever the export did not record a build. An honest older date is
     // fine for a reference tool; a fabricated "updated today" is not, so the
     // line is omitted rather than guessed.
-    let { provenance = null }: { provenance?: Provenance | null } = $props();
+    let { provenance = null }: { provenance?: BuildProvenance | null } = $props();
 
     const buildDate = $derived.by(() => {
         if (!provenance) return null;
-        const date = new Date(provenance.buildUpdatedAt);
+        const date = new Date(provenance.buildPublishedAt);
         if (Number.isNaN(date.getTime())) return null;
         return date.toLocaleDateString('en-US', {
             day: 'numeric',
@@ -37,16 +37,14 @@
     let freshness = $state<Freshness | null>(null);
 
     $effect(() => {
-        const buildUpdatedAt = provenance?.buildUpdatedAt;
-        if (!buildUpdatedAt) return;
+        const stamp = provenance;
+        if (!stamp) return;
 
         const aborter = new AbortController();
         fetch('/api/game-version', { signal: aborter.signal })
-            .then((response) =>
-                response.ok ? (response.json() as Promise<PatchAnnouncement>) : null
-            )
-            .then((latest) => {
-                freshness = compareFreshness(buildUpdatedAt, latest);
+            .then((response) => (response.ok ? (response.json() as Promise<BuildFeed>) : null))
+            .then((feed) => {
+                freshness = compareFreshness(stamp, feed?.builds);
             })
             .catch(() => {
                 freshness = null;
@@ -66,13 +64,16 @@
         return `${freshness.daysOld} days ago`;
     });
 
-    // The verdict is deliberately unquantified: see `compareFreshness` for why a
-    // patch count over this data would be false precision. "Has it changed" and
-    // "how old is it" are the two questions a reader actually has, and the link
-    // lets them judge whether the change touches what they came to read.
+    // The count is exact: the exported build is located in the feed by ID, and
+    // only builds the developer announced are counted, so unannounced rebuilds
+    // never inflate it into something a player would not recognise as a patch.
+    // Days alone could not distinguish a quiet week from one that shipped daily.
     const freshnessLabel = $derived.by(() => {
         if (!freshness) return null;
-        return freshness.state === 'current' ? 'up to date' : 'game patched since';
+        if (freshness.state === 'current') return 'up to date';
+        const count = `${freshness.patchesBehind}${freshness.saturated ? '+' : ''}`;
+        const plural = freshness.patchesBehind === 1 && !freshness.saturated ? '' : 'es';
+        return `${count} patch${plural} behind`;
     });
     const notablyStale = $derived(freshness ? isNotablyStale(freshness) : false);
 </script>
@@ -85,7 +86,7 @@
         {#if provenance && buildDate}
             <span>
                 Game data from <time
-                    datetime={provenance.buildUpdatedAt}
+                    datetime={provenance.buildPublishedAt}
                     title="Steam build {provenance.gameBuildId}">{buildDate}</time
                 >{#if ageLabel}&nbsp;<span class="whitespace-nowrap">({ageLabel})</span
                     >{/if}{#if freshnessLabel}&nbsp;<span
@@ -93,7 +94,7 @@
                         >&middot; {#if freshness?.latest}<a
                                 href={freshness.latest.url}
                                 rel="noreferrer"
-                                title={freshness.latest.title}
+                                title={freshness.latest.notesTitle}
                                 class="underline decoration-dotted underline-offset-2 hover:decoration-solid focus-visible:rounded-[2px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
                                 >{freshnessLabel}</a
                             >{:else}{freshnessLabel}{/if}</span
