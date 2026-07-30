@@ -177,15 +177,51 @@ the full result.
 Confirm the roll expression and bounds in source first. Then sample the narrow
 runtime helper or activation path enough times to detect wiring errors.
 
-- Use at least 1,000 iterations for ordinary percentage checks.
+- Use at least 1,000 iterations for ordinary percentage checks, but respect the
+  scene-safety limits below: split large samples across several `eval` calls
+  rather than one giant loop.
 - Test every rank or threshold branch.
 - Report counts and observed rates, not only percentages.
 - Keep setup and object lookup outside the sample loop.
 - Do not call the RNG alone. Exercise the mechanic that consumes the roll.
 - Use a deterministic boundary test for 0% and 100% when available.
+- Prefer a numeric discriminator over the combat log. `chatLogLines` is capped
+  at 1500 and trims from the front, so counting matches across the whole log or
+  a `[countBefore, countAfter)` window silently breaks once saturated (the
+  window goes empty, counts can go negative). Reading a fixed tail also
+  misfires: a prior iteration's line lingers when a low-output action adds few
+  lines. Measure `target.DmgFromPlayerSource` deltas instead: the constant
+  minimum is the non-critical baseline, larger values are crits.
 
 A sample supports the implementation wiring. The source expression remains the
 proof of the exact intended probability.
+
+#### Mass sampling without freezing the game
+
+Full resolution paths are expensive and side-effectful. Sampling them naively
+freezes the editor and makes every subsequent `eval` (even `ping`) time out.
+
+- `SpellVessel.ResolveSpell` instantiates a resolve-effect particle system per
+  call with `cullingMode = AlwaysSimulate`. Thousands accumulate, each keeps
+  simulating off-screen, and the scene grinds to a halt with no self-recovery in
+  a usable timeframe. Suppress the FX by placing the target beyond the effect's
+  spawn radius (40 m for spell resolves): save the target position, offset it
+  (e.g. `+100` on one axis), sample, then restore. Damage still applies; only
+  the cosmetic instantiation is skipped. With suppression, hundreds of resolves
+  run in seconds.
+- Prefer deterministic helpers with no loop for formula and magnitude claims.
+  `CheckResistAmount`, `CalcDmgBonus`, and reading `resistModifier` after
+  `CreateSpellProc` are instant and spawn nothing. Reserve looped full-resolves
+  for probabilistic wiring only.
+- Cap iterations per `eval` call (a few hundred) and split large samples across
+  calls. Watch `eval ping` latency between batches: rising latency means the
+  scene is bogging, so stop and let transient objects expire.
+- Destroy each disposable vessel, but note the resolve FX is a separate,
+  unowned object. Distance suppression is the only clean way to avoid it.
+- Use pure-damage spells (`StatusEffectToApply == null`, not `Lifetap` or
+  `JoltSpell`) for single-hit damage measurement. Status and DoT spells add
+  asynchronous `DmgFromPlayerSource` through `TickEffects`, producing a
+  continuous spread that masks the effect under test.
 
 #### Timing and cooldown checks
 

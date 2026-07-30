@@ -71,6 +71,24 @@ For controlled experiments that validate damage, healing, resistance, proc,
 resource, or cooldown behavior, use the `combat-evaluation` skill. Keep this
 skill focused on HotRepl commands, evaluator constraints, and runtime access.
 
+## Scene safety in loops
+
+A loop that instantiates GameObjects each iteration can flood the scene and hang
+the game: subsequent evals (even `ping`) time out and the process may not
+recover on its own. Two facts learned from combat benchmarking:
+
+- `SpellVessel.ResolveSpell` spawns a resolve particle system per call with
+  `cullingMode = AlwaysSimulate`, so orphaned effects keep burning CPU. Cap loop
+  iterations (a few hundred), split large samples across calls, and check `eval
+  ping` latency between batches. See `combat-evaluation` for suppressing the FX
+  by target distance.
+- `UpdateSocialLog.chatLogLines` is a static list capped at 1500 that trims from
+  the front. Counting log matches across a saturated log is unreliable; prefer a
+  numeric signal (e.g. `target.DmgFromPlayerSource`) for detection.
+
+If a loop hangs the game, killing and relaunching is faster than waiting for the
+scene to drain.
+
 ## C# 7 Limitations
 
 The Mono compiler supports C# 7.x only. These **do not work**:
