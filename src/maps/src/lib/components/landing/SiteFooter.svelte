@@ -72,7 +72,7 @@
                 <a
                     href={STEAMDB_PATCH_NOTES}
                     rel="noreferrer"
-                    class="text-muted no-underline hover:text-accent">{provenance.gameBuildId}</a
+                    class="text-accent underline decoration-dotted underline-offset-2 hover:decoration-solid focus-visible:rounded-[2px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">{provenance.gameBuildId}</a
                 >
                &middot; {buildDate}{#if freshnessLabel}&nbsp;<span
                         class={freshness?.state === 'behind' ? 'text-accent' : 'text-muted'}
