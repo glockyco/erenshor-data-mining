@@ -300,6 +300,24 @@ INSERT INTO items (
     ('item:fixture drop', 'Fixture Drop', 'Fixture Drop', 'fixture_drop', 30, 1),
     ('item:furniture - enchanted smithy', 'Enchanted Smithy', 'Enchanted Smithy', 'enchanted_smithy', 250, 1);
 
+-- A loot table larger than any cap a query might reintroduce. These carry no
+-- wiki page, so they stay out of item search and the searchable-item counts
+-- while still exercising the drop list.
+INSERT INTO items (
+    stable_key, display_name, wiki_page_name, item_icon_name, item_value, is_map_visible
+) VALUES
+    ('item:hoard 01', 'Hoard Item 01', NULL, NULL, 1, 0),
+    ('item:hoard 02', 'Hoard Item 02', NULL, NULL, 1, 0),
+    ('item:hoard 03', 'Hoard Item 03', NULL, NULL, 1, 0),
+    ('item:hoard 04', 'Hoard Item 04', NULL, NULL, 1, 0),
+    ('item:hoard 05', 'Hoard Item 05', NULL, NULL, 1, 0),
+    ('item:hoard 06', 'Hoard Item 06', NULL, NULL, 1, 0),
+    ('item:hoard 07', 'Hoard Item 07', NULL, NULL, 1, 0),
+    ('item:hoard 08', 'Hoard Item 08', NULL, NULL, 1, 0),
+    ('item:hoard 09', 'Hoard Item 09', NULL, NULL, 1, 0),
+    ('item:hoard 10', 'Hoard Item 10', NULL, NULL, 1, 0),
+    ('item:hoard 11', 'Hoard Item 11', NULL, NULL, 1, 0);
+
 INSERT INTO characters (
     stable_key, display_name, npc_name, wiki_page_name, level, is_vendor, has_dialog,
     invulnerable, is_common, is_rare, is_unique, is_friendly
@@ -355,6 +373,22 @@ INSERT INTO zone_atlas_entries (zone_name, level_range_low, level_range_high) VA
 
 INSERT INTO loot_drops (character_stable_key, item_stable_key, drop_probability) VALUES
     ('character:fixture enemy', 'item:fixture drop', 25);
+
+-- Twelve drops in total for one character, so a reinstated `LIMIT 10` fails
+-- instead of quietly hiding the tail. Two share a probability to pin the
+-- name tiebreaker that keeps rendering order stable.
+INSERT INTO loot_drops (character_stable_key, item_stable_key, drop_probability) VALUES
+    ('character:fixture enemy', 'item:hoard 01', 90),
+    ('character:fixture enemy', 'item:hoard 02', 80),
+    ('character:fixture enemy', 'item:hoard 03', 70),
+    ('character:fixture enemy', 'item:hoard 04', 60),
+    ('character:fixture enemy', 'item:hoard 05', 50),
+    ('character:fixture enemy', 'item:hoard 06', 40),
+    ('character:fixture enemy', 'item:hoard 07', 30),
+    ('character:fixture enemy', 'item:hoard 08', 20),
+    ('character:fixture enemy', 'item:hoard 09', 15),
+    ('character:fixture enemy', 'item:hoard 10', 10),
+    ('character:fixture enemy', 'item:hoard 11', 25);
 INSERT INTO character_vendor_quest_unlocks (character_stable_key, quest_stable_key) VALUES
     ('character:breena carpenter', 'quest:vendor-unlock');
 INSERT INTO quest_variants (quest_stable_key, unlock_item_for_vendor_stable_key) VALUES

@@ -68,8 +68,23 @@ describe('Repository', () => {
 		expect(await db.getCharacterByName('Fixture Enemy')).toEqual({
 			stableKey: 'character:fixture enemy'
 		});
+		// Every drop, not the first ten: a cap here is indistinguishable from a
+		// short loot table, and 165 of the game's 728 characters with drops have
+		// more than ten. 'Fixture Drop' and 'Hoard Item 11' share a probability,
+		// so their order also pins the name tiebreaker.
 		expect(await db.getDropsForCharacter('character:fixture enemy')).toEqual([
-			{ itemName: 'Fixture Drop', dropProbability: 25 }
+			{ itemName: 'Hoard Item 01', dropProbability: 90 },
+			{ itemName: 'Hoard Item 02', dropProbability: 80 },
+			{ itemName: 'Hoard Item 03', dropProbability: 70 },
+			{ itemName: 'Hoard Item 04', dropProbability: 60 },
+			{ itemName: 'Hoard Item 05', dropProbability: 50 },
+			{ itemName: 'Hoard Item 06', dropProbability: 40 },
+			{ itemName: 'Hoard Item 07', dropProbability: 30 },
+			{ itemName: 'Fixture Drop', dropProbability: 25 },
+			{ itemName: 'Hoard Item 11', dropProbability: 25 },
+			{ itemName: 'Hoard Item 08', dropProbability: 20 },
+			{ itemName: 'Hoard Item 09', dropProbability: 15 },
+			{ itemName: 'Hoard Item 10', dropProbability: 10 }
 		]);
 	});
 

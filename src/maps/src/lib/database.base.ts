@@ -1107,6 +1107,17 @@ export class RepositoryBase {
         return bearings;
     }
 
+    /**
+     * Every drop a character can yield, most likely first.
+     *
+     * Deliberately uncapped. A truncated list is indistinguishable from a
+     * complete one, and 165 of the 728 characters with drops have more than ten,
+     * so a cap silently misinforms a quarter of the enemies anyone would look up.
+     * The popup body scrolls, so length costs nothing but scrolling, and the
+     * largest table in the game is 26 rows.
+     *
+     * Name breaks probability ties so the order is stable across renders.
+     */
     async getDropsForCharacter(stableKey: string): Promise<CharacterDrop[]> {
         if (!this.db) throw new Error('DB not initialized');
 
@@ -1118,8 +1129,7 @@ export class RepositoryBase {
             FROM loot_drops ld
             JOIN items i ON i.stable_key = ld.item_stable_key
             WHERE ld.character_stable_key = ?
-            ORDER BY ld.drop_probability DESC
-            LIMIT 10
+            ORDER BY ld.drop_probability DESC, i.display_name
         `,
             [stableKey]
         );
