@@ -50,7 +50,21 @@ is exactly what this layer adds.
 
 ### 1. `/zones/{slug}` — per-zone reference page (primary)
 
-One prerendered page per zone (43 zones). Sections, in order:
+One prerendered page per zone. The slug is the Unity **scene key** — the same key
+`/maps/{slug}` already uses, taken from `src/maps/src/lib/data/zone-capture-config.json`
+and filtered through `DISPLAY_NAMES` in `src/maps/src/lib/maps.ts`. Scene keys are
+unique by construction, so zones sharing a display name (Island Tomb ×3,
+Mysterious Portal ×3, Azynthi's Garden ×2) need no disambiguation scheme: they
+already have distinct routes, distinct tiles, and scene-filtered marker queries.
+Reuse `DISPLAY_NAMES` for the heading so a zone page and its map agree on wording.
+Worker routing is exact and case-sensitive, so keep the PascalCase key rather than
+lowercasing it for cosmetics.
+
+Skip zones with no content at all. `Detention` ("Prison") is the only one: zero
+enemies, zero NPCs, zero points of interest, zero connections. A page for it would
+be a heading over empty tables, which is a doorway page.
+
+Sections, in order:
 
 - **Header** — zone name (`<h1>`), a mono meta tag (`OVERWORLD · {n}
   ZONE CONNECTIONS`), player-facing level guidance, and a small set of
@@ -73,8 +87,9 @@ One prerendered page per zone (43 zones). Sections, in order:
   (common/rare/unique) · `→ wiki`. Section metadata should use high-signal counts
   such as `4 Unique · 3 Rare`, not explanatory filler such as "exact levels listed
   below." Sorted by level; uniques visually emphasized.
-- **NPCs & Vendors ({n})** — list; vendors grouped first and flagged; each row gets
-  `→ wiki`.
+- **NPCs ({n})** — list; vendors grouped first and flagged; each row gets
+  `→ wiki`. Vendors are NPCs — every `is_vendor` character is also `is_friendly`
+  — so they are a flagged subset here, never a co-equal heading.
 - **Resources & Points of Interest** — inline counts with the same map-marker
   icons/colors used by the interactive map. Show categories when present:
   `Teleport Destination`, `Wishing Wells`, `Forges`, `Mineral Deposits`,
@@ -94,8 +109,8 @@ One prerendered page per zone (43 zones). Sections, in order:
 
 ### 2. `/zones` — zone index
 
-A single prerendered directory of all 43 zones (deduplicated display names),
-grouped overworld vs. dungeon and enriched with data-derived browse sections:
+A single prerendered directory of all 46 content-bearing zones (47 exist;
+`Detention` is excluded), grouped overworld vs. dungeon via `zones.is_dungeon` and enriched with data-derived browse sections:
 zones by recommended level, zones with teleports, zones with vendors, zones with
 fishing waters, zones with treasure sites, and zones with unique spawns. Every
 entry links `/zones/{slug}`. Serves the "erenshor zones" query (48 impressions,
@@ -104,8 +119,9 @@ position 9.2, 0 clicks today) and hubs the cluster.
 ### 3. `/map` — below-the-fold content section
 
 The deck.gl map stays full-bleed at 100vh, untouched. Below it, a prerendered
-section: a short intro with site-wide aggregates (43 zones, 3,685 spawn points,
-717 NPCs, 102 mineral deposits, 55 treasure sites) and a "Browse By Zone"
+section: a short intro with site-wide aggregates, all derived at prerender time rather
+than hardcoded (46 zones, 573 enemy types, 359 NPCs, 53 vendors, 102 mineral
+deposits, 55 treasure sites, 32 wishing wells, 22 forges) and a "Browse By Zone"
 directory of real `<a href>` links to every `/zones/{slug}`. No standalone marker legend or
 generic wiki callout — those read as explanatory filler. Users who came for the
 map never scroll; crawlers and readers get substance. This is prerendered DOM,
@@ -115,19 +131,23 @@ primary lever.
 
 ## Data sources
 
-All from the clean DB (`erenshor-{variant}.sqlite`, PascalCase schema). Per-zone
-queries key on `Scene` = `Zones.SceneName`:
+All from the clean DB (`erenshor-{variant}.sqlite`, **snake_case** schema).
+Per-zone queries key on `scene` = `zones.scene_name`:
 
-- **Enemies:** `SpawnPoints` (`IsEnabled=1`) ⋈ `SpawnPointCharacters`
-  (`SpawnChance>0`) ⋈ `Characters` (`IsFriendly=0`), distinct by
-  `CharacterStableKey`. Rarity from `Characters.IsUnique/IsRare` (else common);
-  level from `Characters.Level`.
-- **NPCs & vendors:** same join with `IsFriendly=1`; `IsVendor` flags vendors.
-- **Resources/POIs:** `MiningNodes`, `Waters`, `WishingWells`, `Teleports`,
-  `TreasureLocations`, `Forges`, `ItemBags`, `SecretPassages`, and
-  `AchievementTriggers` by `Scene`.
-- **Connections:** `ZoneLines` (`IsEnabled=1`), `DestinationZoneStableKey` →
-  `Zones.StableKey` → `ZoneName`.
+- **Enemies:** `character_spawns` (`is_enabled=1`) ⋈ `characters`
+  (`is_friendly=0`), distinct by `character_stable_key`. Rarity from
+  `characters.is_unique` / `is_rare` (else common); level from `characters.level`.
+- **NPCs:** same join with `is_friendly=1`; `is_vendor` flags the vendor subset.
+- **Resources/POIs:** `mining_nodes`, `waters`, `wishing_wells`, `teleports`,
+  `treasure_locations`, `forges`, `item_bags`, `secret_passages`, and
+  `achievement_triggers` by `scene`.
+- **Connections:** `zone_lines` (`is_enabled=1`), `destination_zone_stable_key`
+  → `zones.stable_key` → `zone_name`.
+- **Wiki titles:** `wiki_page_name`, already present on `characters`, `zones`, and
+  the other entity tables, and already selected by the map's marker queries. It is
+  the mapping.json-resolved title the wiki build groups by, so duplicate display
+  names resolve correctly with no extra artifact. Build the URL with the existing
+  `WikiLink.svelte` component rather than a second copy of the URL logic.
 - **Recommended level:** derive a player-facing guidance signal from enemy levels
   rather than displaying raw min/max. Use spawn-weighted enemy levels, cap all
   values at the current player max level (35), and choose an outlier-resistant
@@ -141,30 +161,32 @@ Locked decision from the migration plan. This layer can mention map-derived
 availability (locations, drops, vendors, resources, route connections) but should
 not become the canonical long-form reference. Two directions:
 
-- **Out:** every enemy/NPC/vendor row links to its wiki page (character name →
-  wiki title; resolve via the existing name/registry mapping used by the wiki
-  build). Zone pages link to the zone's wiki page for fuller notes, quest
-  context, and reference details.
+- **Out:** every enemy/NPC row links to its wiki page via the row's
+  `wiki_page_name`, never its display name. 156 display names are duplicated
+  across 363 rows, and mapping.json deliberately disambiguates some of them, so
+  linking by name lands on the wrong page or a redlink. Zone pages link to the
+  zone's wiki page for fuller notes, quest context, and reference details.
 - **In (highest-value backlink):** the migration plan's task to repoint the
   wiki's map-link template should also point zone/enemy pages at the matching
   `/zones/{slug}`, so the wiki's traffic flows into the cluster.
 
 ## Freshness / provenance
 
-Surface a truthful data-provenance line, not a synthetic "updated today":
+The shared `(app)` footer already states provenance and staleness, and zone pages
+inherit it by living in that route group. Nothing further is required here beyond
+not contradicting it.
 
-- Display: *"Map data synced to Erenshor build `{buildid}` · {export month/year}"*,
-  with `{buildid}` linking to SteamDB app history
-  (`https://steamdb.info/app/2382520/patchnotes/`).
-- Erenshor publishes only coarse versions (0.7 + unnumbered patches); the **Steam
-  build ID** (e.g. `20370413`, read from `appmanifest_2382520.acf` by
-  `_read_build_id` in `extract.py`, stored in `export_profile`) is the precise,
-  verifiable identifier.
-- Wiring gap: `.build-info.json` (maps build sidecar) only hashes inputs; it does
-  not carry the build ID. Thread `game_build_id` + export date from
-  `export_profile` into the clean DB (a small provenance row/table) → maps data →
-  footer. An honest older date is fine for a reference tool; never auto-bump a
-  date without a data change.
+- The clean DB carries `code_facts_meta.game_build_id` and `game_build_updated_at`,
+  stamped from `appmanifest_<app_id>.acf` by `erenshor extract code-facts`. The
+  date tracks the game build, not the extraction run, so re-running the pipeline
+  never advertises freshness the data does not have.
+- The footer renders *"Map data synced to Erenshor build `{buildid}` · {month year}"*
+  with the build linking to SteamDB app history, and appends a live comparison
+  against the newest Steam patch announcement served by the Worker at
+  `/api/game-version`.
+- Do not add a per-page "last updated" line. One provenance statement for the
+  whole site is the honest granularity: every page is rebuilt from the same
+  export, so a per-zone date would imply per-zone currency that does not exist.
 
 ## SEO specifics
 
@@ -204,15 +226,11 @@ on static image crops or tile-composite previews.
 
 ## Open questions (for iteration)
 
-- **Slug collisions:** several scenes share a display name (Island Tomb ×3,
-  Mysterious Portal ×3, Azynthi's Garden ×2). `/zones/{slug}` and `/maps/{slug}`
-  must be unique — scene-qualified slug, merged page, or exclude portal/instanced
-  scenes? Must align with the migration's `/maps/{slug}` slug scheme.
-- **Dungeon depth:** do dungeons get the same treatment, or a lighter page?
-- **Sequencing:** ship with the domain/URL migration (URLs churn once) or as an
-  independent follow-up after it lands?
-- **Enemy→wiki resolution:** confirm the name→wiki-title mapping the wiki build
-  uses is importable here, or whether a shared slug map is needed.
+- **Dungeon page depth:** `zones.is_dungeon` marks 11 of 47 zones, but it does not
+  predict content volume — dungeons land mid-table, and Fallen Braxonia and
+  Vitheo's Rest out-mass most overworld zones. Use one template with sections that
+  hide when empty, and reserve `is_dungeon` for grouping on the index. Revisit only
+  if a dungeon page proves to need genuinely different sections.
 - **Future map embed:** after v1, consider an interactive zone-map embed directly
   below the header if it can reuse the existing map component without duplicating
   rendering logic.
@@ -224,14 +242,17 @@ on static image crops or tile-composite previews.
 
 ## Acceptance criteria
 
-- Every non-excluded zone has a prerendered `/zones/{slug}` page whose enemy, NPC,
-  resource, and connection data matches the clean DB for that zone.
-- `/zones` lists all zones; `/map` renders the below-fold content section with the
+- All 46 content-bearing zones have a prerendered `/zones/{slug}` page, keyed by
+  scene, whose enemy, NPC, resource, and connection data matches the clean DB for
+  that scene. `Detention` has no page.
+- `/zones` lists those zones; `/map` renders the below-fold content section with the
   full zone directory; the deck.gl map behavior and layout are unchanged.
-- All entity rows link to the correct wiki page; all connection/zone links resolve
-  to real routes; no broken internal links.
+- Every entity row links through `wiki_page_name`, verified against a zone whose
+  roster contains a duplicated display name; all connection/zone links resolve to
+  real routes; no broken internal links.
 - New routes appear in `sitemap.xml` with correct canonicals; JSON-LD validates in
   Google's Rich Results Test.
-- Provenance line shows the real Steam build ID and export date and links to SteamDB.
+- Zone pages inherit the shared footer, so its provenance and staleness line is
+  present and states the build the page's data came from.
 - Content is present in the prerendered HTML (view-source / crawler-visible), not
   only after hydration.
