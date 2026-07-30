@@ -188,7 +188,8 @@ CREATE TABLE code_facts (
 
 CREATE TABLE code_facts_meta (
     assembly_sha256 TEXT,
-    extracted_at    TEXT
+    extracted_at    TEXT,
+    game_build_id   TEXT
 );
 
 CREATE TABLE secret_passages (

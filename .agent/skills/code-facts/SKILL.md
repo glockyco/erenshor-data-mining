@@ -49,6 +49,15 @@ replaces the raw `code_facts` / `code_facts_meta` tables. Idempotent — re-runn
 drops and recreates the tables. `extract build` gates on their presence (step 0);
 a missing table means the extract step was skipped, which is an ordering error.
 
+`code_facts_meta` also carries `game_build_id`, the installed Steam build read
+from `appmanifest_<app_id>.acf`. Erenshor publishes only coarse version strings,
+so the build ID is the one precise, publicly verifiable identifier for a game
+version. It rides here because this command is the last pipeline step that
+touches the shipped game files before the clean build, and it is carried into the
+clean DB verbatim, where the maps site reads it for its data-provenance footer.
+A missing appmanifest stores NULL — consumers omit the provenance rather than
+render a fabricated build number.
+
 Failure meanings:
 - **analyzer exit 1** — a matcher bound ≠ once: the named game method changed shape.
 - **build `ValueError` about missing tables** — you ran `build` without `code-facts`.

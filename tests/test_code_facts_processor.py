@@ -32,7 +32,7 @@ def test_code_facts_passthrough(tmp_path: Path) -> None:
     raw.execute(
         "CREATE TABLE code_facts (fact_id TEXT, key TEXT, value TEXT, value_type TEXT, PRIMARY KEY (fact_id, key))"
     )
-    raw.execute("CREATE TABLE code_facts_meta (assembly_sha256 TEXT, extracted_at TEXT)")
+    raw.execute("CREATE TABLE code_facts_meta (assembly_sha256 TEXT, extracted_at TEXT, game_build_id TEXT)")
     raw.executemany(
         "INSERT INTO code_facts VALUES (?, ?, ?, ?)",
         [
@@ -41,8 +41,8 @@ def test_code_facts_passthrough(tmp_path: Path) -> None:
         ],
     )
     raw.execute(
-        "INSERT INTO code_facts_meta VALUES (?, ?)",
-        ("abc123def4567", "2026-06-11T00:00:00Z"),
+        "INSERT INTO code_facts_meta VALUES (?, ?, ?)",
+        ("abc123def4567", "2026-06-11T00:00:00Z", "24362350"),
     )
     raw.commit()
 
@@ -56,8 +56,8 @@ def test_code_facts_passthrough(tmp_path: Path) -> None:
         ("loot.guarantee_one_drop", "ok", "true", "bool"),
         ("loot.world_drop.maps", "rate", "0.0125", "float"),
     ]
-    meta = clean.execute("SELECT assembly_sha256, extracted_at FROM code_facts_meta").fetchall()
-    assert meta == [("abc123def4567", "2026-06-11T00:00:00Z")]
+    meta = clean.execute("SELECT assembly_sha256, extracted_at, game_build_id FROM code_facts_meta").fetchall()
+    assert meta == [("abc123def4567", "2026-06-11T00:00:00Z", "24362350")]
 
 
 def test_empty_meta_is_an_ordering_error(tmp_path: Path) -> None:
@@ -66,7 +66,7 @@ def test_empty_meta_is_an_ordering_error(tmp_path: Path) -> None:
     raw.execute(
         "CREATE TABLE code_facts (fact_id TEXT, key TEXT, value TEXT, value_type TEXT, PRIMARY KEY (fact_id, key))"
     )
-    raw.execute("CREATE TABLE code_facts_meta (assembly_sha256 TEXT, extracted_at TEXT)")
+    raw.execute("CREATE TABLE code_facts_meta (assembly_sha256 TEXT, extracted_at TEXT, game_build_id TEXT)")
     raw.commit()  # half-written raw: tables exist but meta is empty
 
     writer = _clean_writer(tmp_path)

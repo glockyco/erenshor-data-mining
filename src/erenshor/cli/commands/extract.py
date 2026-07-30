@@ -596,7 +596,13 @@ def code_facts(ctx: typer.Context) -> None:
 
     try:
         with _profile_command(profile, command_name, cli_ctx):
-            count = extract_code_facts(cli_ctx.repo_root, assembly, raw_db_path, cli_ctx.variant)
+            count = extract_code_facts(
+                cli_ctx.repo_root,
+                assembly,
+                raw_db_path,
+                cli_ctx.variant,
+                game_build_id=_read_build_id(cli_ctx, variant_config),
+            )
             logger.info(f"Extracted {count} code-fact rows. Run 'erenshor extract build' next.")
     except Exception as e:
         console.print(f"[red]Error during code-facts extraction: {e}[/red]")

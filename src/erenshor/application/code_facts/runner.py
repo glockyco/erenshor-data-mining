@@ -60,11 +60,22 @@ def run_tool(repo_root: Path, assembly: Path, variant: str | None = None) -> dic
     return cast("dict[str, Any]", json.loads(proc.stdout))
 
 
-def write_code_facts(raw_db_path: Path, payload: dict[str, Any], assembly_sha256: str) -> int:
+def write_code_facts(
+    raw_db_path: Path,
+    payload: dict[str, Any],
+    assembly_sha256: str,
+    game_build_id: str | None,
+) -> int:
     """Replace the writer-owned `code_facts` tables with the analyzer payload.
 
     Drops and recreates only ``code_facts`` and ``code_facts_meta``; all other
     raw tables (owned by the Unity export) are left untouched.
+
+    ``game_build_id`` is the installed Steam build the shipped assembly came
+    from. It is the only precise, publicly verifiable identifier for a game
+    version (Erenshor ships coarse version strings), so it rides along with the
+    extraction metadata and becomes the provenance shown by downstream
+    consumers.
     """
     rows: list[tuple[str, str, str, str]] = []
     for fact in payload["facts"]:
@@ -83,18 +94,27 @@ def write_code_facts(raw_db_path: Path, payload: dict[str, Any], assembly_sha256
             "value TEXT NOT NULL, value_type TEXT NOT NULL, "
             "PRIMARY KEY (fact_id, key))"
         )
-        conn.execute("CREATE TABLE code_facts_meta (assembly_sha256 TEXT NOT NULL, extracted_at TEXT NOT NULL)")
+        conn.execute(
+            "CREATE TABLE code_facts_meta ("
+            "assembly_sha256 TEXT NOT NULL, extracted_at TEXT NOT NULL, game_build_id TEXT)"
+        )
         conn.executemany("INSERT INTO code_facts VALUES (?, ?, ?, ?)", rows)
         conn.execute(
-            "INSERT INTO code_facts_meta VALUES (?, ?)",
-            (assembly_sha256, datetime.now(UTC).isoformat()),
+            "INSERT INTO code_facts_meta VALUES (?, ?, ?)",
+            (assembly_sha256, datetime.now(UTC).isoformat(), game_build_id),
         )
-    logger.info(f"code_facts written: {len(rows)} rows")
+    logger.info(f"code_facts written: {len(rows)} rows (game build {game_build_id or 'unknown'})")
     return len(rows)
 
 
-def extract_code_facts(repo_root: Path, assembly: Path, raw_db_path: Path, variant: str | None = None) -> int:
+def extract_code_facts(
+    repo_root: Path,
+    assembly: Path,
+    raw_db_path: Path,
+    variant: str | None = None,
+    game_build_id: str | None = None,
+) -> int:
     """Run the analyzer against ``assembly`` and persist the facts into the raw DB."""
     payload = run_tool(repo_root, assembly, variant)
     sha = hashlib.sha256(assembly.read_bytes()).hexdigest()
-    return write_code_facts(raw_db_path, payload, assembly_sha256=sha)
+    return write_code_facts(raw_db_path, payload, assembly_sha256=sha, game_build_id=game_build_id)
