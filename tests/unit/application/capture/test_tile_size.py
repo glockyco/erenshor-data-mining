@@ -115,6 +115,28 @@ def test_chunk_grid_uses_shared_tile_size_for_capture_pixels(tmp_path: Path) -> 
     ]
 
 
+def test_tile_pyramid_replaces_stale_zone_output(tmp_path: Path) -> None:
+    master = tmp_path / "master.png"
+    Image.new("RGBA", (TILE_SIZE, TILE_SIZE), (10, 20, 30, 255)).save(master)
+    output = tmp_path / "tiles"
+    stale_tile = output / "test-zone" / "3" / "0" / "-1.webp"
+    stale_tile.parent.mkdir(parents=True)
+    stale_tile.write_bytes(b"stale")
+
+    count = generate_tile_pyramid(
+        master,
+        "test-zone",
+        "clear",
+        {"baseTilesX": 1, "baseTilesY": 1, "maxZoom": 0},
+        output,
+    )
+
+    tiles = list((output / "test-zone").glob("*/*/*.webp"))
+    assert count == 1
+    assert tiles == [output / "test-zone" / "0" / "0" / "-1.webp"]
+    assert not stale_tile.exists()
+
+
 def test_tile_pyramid_keeps_every_zoom_at_shared_tile_size(tmp_path: Path) -> None:
     master = tmp_path / "master.png"
     Image.new("RGBA", (2 * TILE_SIZE, TILE_SIZE), (10, 20, 30, 255)).save(master)

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+import shutil
 from pathlib import Path
 from typing import Any
 
@@ -43,6 +44,8 @@ def generate_tile_pyramid(
     img = Image.open(master_path).convert("RGBA")
 
     zone_dir = out_dir / zone_key
+    if zone_dir.exists():
+        shutil.rmtree(zone_dir)
     total = 0
 
     # --- Positive/zero zoom levels: slice from master ---
