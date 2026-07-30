@@ -30,8 +30,8 @@ leaves this queue.
    templates, styling delivery for Lua-owned markup, the production deploy path,
    and incremental article conversion only after Lua parity with the legacy
    display contract is proven.
-2. **Only then add user-facing map features.** Annotation UX, item-to-droppers
-   search, and textual `/zones/{slug}` content are valuable, but they follow the
+2. **Only then add user-facing map features.** Annotation UX, service discovery,
+   and textual `/zones/{slug}` content are valuable, but they follow the
    wiki/data work.
 3. **Keep residual data gaps honest.** Parked or low-priority export gaps stay
    recorded until a consumer makes them important; they do not block active
@@ -77,19 +77,24 @@ residual export/data debt. Evidence-gated items never start before their gate.
    wiki/data work is blocked on permissions.
 9. **Map search deferred UX** *(note, active)* — category empty states and
     recent searches; polish only.
-10. **Crawlable `/zones/{slug}` content layer** *(draft descendant of the archived migration)*
-    — textual zone references after `/maps/{slug}` and wiki/map links settle.
+10. **[`2026-07-30-map-service-discovery`](2026-07-30-map-service-discovery.md)**
+    *(spec, draft)* — make merchants, bankers, and auction brokers first-class
+    map roles with distinct markers, filters, generic service search, and
+    analyzer-backed role data.
+11. **[`2026-07-04-maps-zones-content-layer`](2026-07-04-maps-zones-content-layer.md)**
+    *(spec, draft)* — textual zone references after the service roles they
+    consume and the settled `/maps/{slug}` routes.
 
 **P3 — residual data/export debt**
 
-11. **[`2026-07-11-dynamic-spawn-semantics-map-ux`](2026-07-11-dynamic-spawn-semantics-map-ux.md)**
+12. **[`2026-07-11-dynamic-spawn-semantics-map-ux`](2026-07-11-dynamic-spawn-semantics-map-ux.md)**
     *(plan, active)* — make dynamic-only rarity and Brax spawn provenance
     authoritative for processor, map, and wiki consumers.
-12. **Category C zone-wide random spawns** *(note, active)* — model Sivakayan
+13. **Category C zone-wide random spawns** *(note, active)* — model Sivakayan
     spectres as per-zone random appearances, not fixed spawn points.
-13. **[`2026-06-30-loot-table-gold-range-export`](2026-06-30-loot-table-gold-range-export.md)**
+14. **[`2026-06-30-loot-table-gold-range-export`](2026-06-30-loot-table-gold-range-export.md)**
     *(plan, parked)* — resume only if a consumer needs static gold ranges.
-14. **Small content debt, no planning doc needed:** hand-curate the four planar
+15. **Small content debt, no planning doc needed:** hand-curate the four planar
     zone pages before a future wiki article deploy; document forging/merge
     mechanics before exposing Merging Vessel as a `UsedIn` relationship.
 

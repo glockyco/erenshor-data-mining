@@ -71,7 +71,7 @@ Sections, in order:
   planning-relevant chips. Keep this header factual and data-derived; do not add
   editorial flavor text or prose summaries that belong on the wiki. Header chips
   should answer "is this zone worth opening for my character right now?" Examples:
-  recommended level, main enemy band, unique/rare spawn counts, or vendor/facility
+  recommended level, main enemy band, unique/rare spawn counts, or service/facility
   presence. Do not surface routine resource density such as mineral-deposit counts
   in the header. Counts belong in chips and tables, not prose.
 - **Open in interactive map →** primary link to `/maps/{slug}` (the canvas app).
@@ -87,9 +87,14 @@ Sections, in order:
   (common/rare/unique) · `→ wiki`. Section metadata should use high-signal counts
   such as `4 Unique · 3 Rare`, not explanatory filler such as "exact levels listed
   below." Sorted by level; uniques visually emphasized.
-- **NPCs ({n})** — list; vendors grouped first and flagged; each row gets
-  `→ wiki`. Vendors are NPCs — every `is_vendor` character is also `is_friendly`
-  — so they are a flagged subset here, never a co-equal heading.
+- **Services** — consume the character role flags defined by
+  [`2026-07-30-map-service-discovery`](2026-07-30-map-service-discovery.md).
+  List Bankers, Auction brokers, then Merchants, with each row linking to the
+  character's wiki page and interactive-map location. Show explicit `Not
+  present` rows for Bank and Auction House because their absence is useful
+  planning information. Merchant absence may remain implicit.
+- **NPCs ({n})** — list non-service friendly characters; each row gets `→ wiki`.
+  Service characters remain NPCs in the data model but are not repeated here.
 - **Resources & Points of Interest** — inline counts with the same map-marker
   icons/colors used by the interactive map. Show categories when present:
   `Teleport Destination`, `Wishing Wells`, `Forges`, `Mineral Deposits`,
@@ -97,10 +102,10 @@ Sections, in order:
   `Achievement Triggers`. Sort semantically by player intent: teleports, wishing
   wells, and forges first; repeatable gathering next; loot/pickups after that;
   progression/completion last. For high-value facilities players check
-  intentionally (forge, wishing well, teleport, vendor, and future
-  bank/auction-house locations), show explicit `Not present` rows when absence is
-  useful. Labels must use player-facing game/map terminology — never generic
-  implementation shorthand such as `nodes`.
+  intentionally (forge, wishing well, and teleport), show explicit `Not
+  present` rows when absence is useful. Service availability belongs in the
+  dedicated Services section. Labels must use player-facing game/map
+  terminology — never generic implementation shorthand such as `nodes`.
 - **Connected Zones ({n})** — outbound zone links (`DestinationZoneStableKey` →
   zone), without duplicating route text such as `DisplayText` unless it materially
   helps. Use one arrow/wayfinding language per pill; do not prefix every
@@ -111,9 +116,10 @@ Sections, in order:
 
 A single prerendered directory of all 46 content-bearing zones (47 exist;
 `Detention` is excluded), grouped overworld vs. dungeon via `zones.is_dungeon` and enriched with data-derived browse sections:
-zones by recommended level, zones with teleports, zones with vendors, zones with
-fishing waters, zones with treasure sites, and zones with unique spawns. Every
-entry links `/zones/{slug}`. Serves the "erenshor zones" query (48 impressions,
+zones by recommended level, zones with teleports, zones with merchants, zones
+with banks, zones with auction houses, zones with fishing waters, zones with
+treasure sites, and zones with unique spawns. Every entry links to
+`/zones/{slug}`. Serves the "erenshor zones" query (48 impressions,
 position 9.2, 0 clicks today) and hubs the cluster.
 
 ### 3. `/map` — below-the-fold content section
@@ -137,7 +143,11 @@ Per-zone queries key on `scene` = `zones.scene_name`:
 - **Enemies:** `character_spawns` (`is_enabled=1`) ⋈ `characters`
   (`is_friendly=0`), distinct by `character_stable_key`. Rarity from
   `characters.is_unique` / `is_rare` (else common); level from `characters.level`.
-- **NPCs:** same join with `is_friendly=1`; `is_vendor` flags the vendor subset.
+- **NPCs:** same join with `is_friendly=1`, excluding service characters from
+  the displayed NPC list.
+- **Services:** `characters.is_vendor`, `is_banker`, and `is_auction_broker` as
+  defined by the service-discovery spec. The zone route must consume these clean
+  flags and must not duplicate name-based role logic.
 - **Resources/POIs:** `mining_nodes`, `waters`, `wishing_wells`, `teleports`,
   `treasure_locations`, `forges`, `item_bags`, `secret_passages`, and
   `achievement_triggers` by `scene`.
@@ -224,21 +234,15 @@ on static image crops or tile-composite previews.
 - No accounts, no backend, no runtime DB (stays prerendered + static).
 - No new OG imagery or `Dataset` JSON-LD (out of scope per migration plan).
 
-## Open questions (for iteration)
+## Dependencies and deferred extensions
 
-- **Dungeon page depth:** `zones.is_dungeon` marks 11 of 47 zones, but it does not
-  predict content volume — dungeons land mid-table, and Fallen Braxonia and
-  Vitheo's Rest out-mass most overworld zones. Use one template with sections that
-  hide when empty, and reserve `is_dungeon` for grouping on the index. Revisit only
-  if a dungeon page proves to need genuinely different sections.
+- **Service discovery:** bank, auction-house, and merchant availability depends
+  on [`2026-07-30-map-service-discovery`](2026-07-30-map-service-discovery.md).
+  This spec consumes its clean role flags and shared labels rather than deriving
+  roles independently.
 - **Future map embed:** after v1, consider an interactive zone-map embed directly
   below the header if it can reuse the existing map component without duplicating
   rendering logic.
-- **Banks / auction houses:** current clean DB has no persistent `Bank` or
-  `AuctionHouse` facility table. Name searches find disabled `Summoned: Pocket
-  Bank` / `Summoned: Pocket Auctions` rift characters, not normal map-visible
-  facilities. If the game has persistent bank or auction-house locations, model
-  and export them separately before listing them here.
 
 ## Acceptance criteria
 
@@ -248,8 +252,9 @@ on static image crops or tile-composite previews.
 - `/zones` lists those zones; `/map` renders the below-fold content section with the
   full zone directory; the deck.gl map behavior and layout are unchanged.
 - Every entity row links through `wiki_page_name`, verified against a zone whose
-  roster contains a duplicated display name; all connection/zone links resolve to
-  real routes; no broken internal links.
+  roster contains a duplicated display name; every service row uses the shared
+  role flags; all connection/zone links resolve to real routes; no broken
+  internal links.
 - New routes appear in `sitemap.xml` with correct canonicals; JSON-LD validates in
   Google's Rich Results Test.
 - Zone pages inherit the shared footer, so its provenance and staleness line is
