@@ -9,6 +9,7 @@ from unittest.mock import Mock
 from PIL import Image
 
 from erenshor.application.capture import orchestrator, zone_config
+from erenshor.application.capture.budget import estimate_tile_count
 from erenshor.application.capture.constants import TILE_SIZE
 from erenshor.application.capture.tile_generator import generate_tile_pyramid
 from erenshor.application.capture.zone_config import load_zone_config
@@ -113,6 +114,22 @@ def test_chunk_grid_uses_shared_tile_size_for_capture_pixels(tmp_path: Path) -> 
             "outputPath": "Z:" + str((tmp_path / "chunk_0.png").resolve()).replace("/", "\\"),
         }
     ]
+
+
+def test_tile_budget_matches_non_power_of_two_pyramid() -> None:
+    result = estimate_tile_count(
+        {
+            "zone": {
+                "baseTilesX": 7,
+                "baseTilesY": 10,
+                "maxZoom": 0,
+                "captureVariants": ["clear"],
+            }
+        }
+    )
+
+    # 7x10 at z0, then 4x5, 2x3, 1x2, and 1x1.
+    assert result == {"zone": {"tiles": 99}, "_total": {"tiles": 99}}
 
 
 def test_tile_pyramid_replaces_stale_zone_output(tmp_path: Path) -> None:

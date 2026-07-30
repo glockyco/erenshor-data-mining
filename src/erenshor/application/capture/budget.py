@@ -24,12 +24,13 @@ def estimate_tile_count(config: dict[str, Any]) -> dict[str, dict[str, int]]:
         else:
             min_zoom = 0
 
-        tiles_per_variant = 0
-        for z in range(max_zoom, min_zoom - 1, -1):
-            scale = 2**z
-            num_x = max(1, round(base_x * scale))
-            num_y = max(1, round(base_y * scale))
-            tiles_per_variant += num_x * num_y
+        tiles_per_variant = sum(base_x * base_y * (4**zoom) for zoom in range(max_zoom + 1))
+        source_x = base_x
+        source_y = base_y
+        for _target_zoom in range(-1, min_zoom - 1, -1):
+            source_x = math.ceil(source_x / 2)
+            source_y = math.ceil(source_y / 2)
+            tiles_per_variant += source_x * source_y
 
         zone_total = tiles_per_variant * len(variants)
         result[zone_key] = {"tiles": zone_total}
