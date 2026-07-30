@@ -169,8 +169,40 @@ Live has 32 `Module:Erenshor/` pages, 19 non-data and 14 data. Five repo-owned
 titles are absent from live: `Module:Erenshor/Link/Search`, `Data/Characters`,
 `Data/Quests`, `Data/Stances`, and `Data/Zones`. The four missing data modules mean
 the Lua path for characters, quests, zones, and stances cannot resolve on live even
-where a template branch exists.
+where a template branch exists. None of the four has any log entry, so each was
+never created rather than deleted.
 
+### 8.1 `Data/Characters` cannot be deployed as one page
+
+Live `maxarticlesize` is **4,194,304 bytes**. The generated module is **5,099,976
+bytes**, which is 906 KB and 21.6 percent over the limit, so the deploy must fail.
+The fix is precedented in the repo: `Data/Items` is already sharded into nine
+kind-shards, the largest of which is `Items/Armor` at 3,608,766 bytes and therefore
+fits. Generated module sizes:
+
+| Module | Bytes | Fits 4 MiB |
+|---|---|---|
+| `Data/Characters` | 5,099,976 | **no** |
+| `Data/Items/Armor` | 3,608,766 | yes |
+| `Data/Links` | 1,625,494 | yes |
+| `Data/Items/Weapons` | 1,312,337 | yes |
+| `Data/Items/General` | 947,468 | yes |
+| `Data/Spells` | 861,936 | yes |
+| `Data/Quests` | 41,121 | yes |
+| `Data/Zones` | 14,284 | yes |
+| `Data/Stances` | 4,577 | yes |
+
+Size explains only `Data/Characters`. `Data/Quests`, `Data/Stances`, and
+`Data/Zones` are tiny and were still never pushed, and they are exactly the three
+types whose templates were reverted to legacy. [INFERENCE] Those three were left
+undeployed because their templates no longer used them, not because the deploy
+failed. Generated-data deploys are opt-in and require an explicit `--pages-file`,
+so omission is easy.
+
+Live also carries a `Data/AbilityLinks` page with no local counterpart, which is a
+leftover from an earlier naming.
+
+### 8.2 Staleness
 Data modules are stale and unevenly sourced. `Data/Items` and its nine item shards
 were last written by `WoWMuch` on 2026-07-12, while `Data/Spells` and `Data/Links`
 were written by `WoWBot` on 2026-07-24. The clean database is main build 24362350
@@ -224,6 +256,73 @@ quality at all. Separately, that method's failure path passes the item's origina
 *quantity* into the `_qual` parameter of `Inventory.AddItemToInv(Item, int)`, which
 looks like a game bug and is not a wiki concern.
 
+## 11. The parity gate does not check parity
+
+The design spec treats presentation parity as a conversion gate. No instrument
+currently measures it.
+
+- `wiki-dev/parity_check.py` renders seven fixed fixture pages on the local Docker
+  harness and compares them against a live-captured baseline of **computed CSS
+  properties and DOM target presence only** (infobox shell, title, data row, plus
+  group, header, and divider for characters). It never compares field values,
+  wikitext, or rendered content, and the baseline is gitignored.
+- `wiki-dev/clean_parity.py` compares warm against freshly bootstrapped local
+  MediaWiki acceptance snapshots. It proves stack reproducibility, not
+  legacy-against-Lua equivalence.
+- Neither runs in CI. `.github/workflows/ci.yml` has no parity job, and
+  `tests/unit/test_wiki_dev_parity.py` only exercises the comparison helpers.
+
+So "parity is unproven" understates it: a conversion could regress every field and
+the gate would still pass.
+
+### 11.1 Known field asymmetries
+
+| Type | Difference |
+|---|---|
+| Item | Lua root dispatch omits `vendorsource`, `source`, `questsource`, `relatedquest`, `componentfor`, `guaranteeddrops`, `droprates`. This is by design per section 8.1 of the design spec, which moves them to Cargo queries, so converting an item page while Cargo is empty silently drops its entire obtainability content. |
+| Character | Lua adds `map`, `experience`, and `spawnwithstatus`, which legacy has no equivalent for. Drop rows differ in order: legacy sorts by probability then name, Lua preserves input order. Drop-rate and guaranteed-drop display is explicitly in progress. |
+| Skill | Lua dispatch is a strict subset. It omits `line`, `required_level`, `manacost`, and more, where legacy emits them as blank parameters. |
+| Zone | Lua populates `image`, `imagecaption`, and `level`, which legacy leaves blank, and Lua emits no Zone Navbox. |
+| Quest | Lua routes `items` through `QuestRewardsQuery`, a Cargo query, where legacy supplies it inline. |
+| Spell | Field coverage matches. Cast time relies on the exported seconds value rather than legacy tick division, so agreement depends on the export being correct. The `XPBonus` percentage rule is a divergence risk because legacy multiplies by 100 and the Lua accessor may already receive a percentage. |
+| Stance | Field coverage matches plus a Lua-only `imagecaption`. Formatting is conceptually equivalent but was not compared as rendered output. |
+
+### 11.2 The one live Lua surface is not a like-for-like
+
+`Item/ParameterizedTooltip` does expand the legacy `Item/Weapon` and `Item/Armor`
+cards, so its structure is shared. It also adds all eight quality variants through
+`Item/Quality` with `PLANAR_MARCH_ENABLED = true`, plus labels, a flex wrapper, and
+sparkle treatment, and its quality formulas are new. No test compares its rendered
+output against the legacy card. The one surface that shipped therefore changed the
+mechanism and the presentation at the same time, which is the pattern to avoid for
+the remaining types.
+
+## 12. Article corpus coverage
+
+Live has 3,171 content pages and 7,167 total pages. Main-namespace transclusion
+counts show the corpus is items and characters, and that three entity templates are
+barely used while two are unused entirely.
+
+| Template | Main-namespace transclusions |
+|---|---|
+| `Item` | 500+ |
+| `Character` | 500+ |
+| `ItemTooltip` | 500+ |
+| `Zone` | 43 |
+| `Quest` | 19 |
+| `Stance` | 7 |
+| `Spell` | **0** |
+| `Skill` | **0** |
+| `SpellTooltip` | 1 |
+| `SkillTooltip` | 0 |
+
+`Category:Spells` and `Category:Skills` are both empty and `Flame Bolt` does not
+exist, so spells and skills have effectively no article corpus. The consequence is
+that live `Template:Spell` and `Template:Skill` being unconditional Lua with no
+legacy fallback is currently harmless, because nothing transcludes them. It also
+means 348 spells and 52 skills in the clean database have no articles at all, which
+is a larger content gap than the parity question.
+
 ## Corrections applied to the plans
 
 Applied in the same commit as this audit.
@@ -241,16 +340,27 @@ Applied in the same commit as this audit.
 
 ## What this changes about sequencing
 
-1. **Create the Cargo tables as a privileged account.** This is the true blocker
-   and it is one operation, not a phase. Nothing downstream of Cargo can be
-   validated on production until it happens.
-2. **Deploy the repo's dual-path `Quest`, `Zone`, and `Stance` bodies**, and treat
-   the two reverts as a required regression test before any template deploy.
-3. **Give `Spell` and `Skill` a legacy fallback** or accept them as permanently
-   Lua-only and record that decision, because they currently contradict §5.
-4. **Deploy the four missing data modules** so the character, quest, zone, and
-   stance Lua paths can resolve at all.
-5. **Close the styling integration**, which is now a small piece of work rather
-   than a platform blocker.
-6. **Decide whether `lua=1` stays.** It is a sound safety valve, but the spec's
-   dual-path contract assumes `stablekey` alone selects the new path.
+1. **Build a real parity instrument first.** Nothing today measures field-level
+   equivalence, so "get Cargo and Lua working properly" is currently unfalsifiable.
+   Render each entity through both paths and diff extracted field values and
+   rendered HTML. This is the true gate and it blocks everything below.
+2. **Make the path selector an explicit flag on all seven templates.** `lua=1`
+   already does this for `Item` (`wiki/templates/Item.wiki:1` and `:129-132`), and
+   `PLANAR_MARCH_ENABLED` in `Module:Erenshor/Item/Quality.lua:12` is the
+   module-level precedent with a per-call override for regression tests. Promote the
+   flag to the canonical selector for every type and update section 5 of the design
+   spec, because `stablekey`
+   is now carried by 792 articles for the map link and tooltip and can no longer
+   select a path. A template holding both branches behind an opt-in flag is inert on
+   deploy, which structurally removes the revert failure mode.
+3. **Shard `Data/Characters` below 4 MiB** following the `Data/Items` pattern, then
+   deploy the four missing data modules.
+4. **Create the Cargo tables as a privileged account.** Until this happens any
+   converted page loses its relationship sections, because the Lua path delegates
+   them to Cargo queries.
+5. **Prove parity per type on a sandbox page, then convert one page, then a batch.**
+6. **Freeze content and visualization changes** until the steps above are green.
+   Change the mechanism or the presentation, never both at once.
+7. **Decide `Spell` and `Skill` explicitly.** They have no legacy fallback, but also
+   no transclusions, so the cheap correct move is to give them the same flag as
+   every other type before any article starts using them.
