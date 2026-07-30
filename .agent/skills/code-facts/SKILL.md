@@ -50,13 +50,16 @@ drops and recreates the tables. `extract build` gates on their presence (step 0)
 a missing table means the extract step was skipped, which is an ordering error.
 
 `code_facts_meta` also carries `game_build_id`, the installed Steam build read
-from `appmanifest_<app_id>.acf`. Erenshor publishes only coarse version strings,
-so the build ID is the one precise, publicly verifiable identifier for a game
-version. It rides here because this command is the last pipeline step that
-touches the shipped game files before the clean build, and it is carried into the
-clean DB verbatim, where the maps site reads it for its data-provenance footer.
-A missing appmanifest stores NULL — consumers omit the provenance rather than
-render a fabricated build number.
+from `appmanifest_<app_id>.acf`, and `game_build_published_at`, the nullable
+ISO-8601 UTC publication time resolved by exact build-id match against
+SteamDB's undocumented build RSS feed. Erenshor publishes only coarse version
+strings, so the build ID is the one precise, publicly verifiable identifier for
+a game version. It rides here because this command is the last pipeline step
+that touches the shipped game files before the clean build, and both values are
+carried into the clean DB verbatim, where the maps site reads them for its
+data-provenance footer. If the feed is unavailable or the build has aged out
+of its window, publication time stores NULL. Consumers omit the provenance
+rather than rendering a fabricated local timestamp.
 
 Failure meanings:
 - **analyzer exit 1** — a matcher bound ≠ once: the named game method changed shape.

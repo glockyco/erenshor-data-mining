@@ -32,14 +32,14 @@ def test_writer_creates_and_replaces_only_its_tables(tmp_path: Path) -> None:
         PAYLOAD,
         assembly_sha256="abc123",
         game_build_id="24362350",
-        game_build_updated_at="2026-07-24T05:24:35+00:00",
+        game_build_published_at="2026-07-23T21:53:44+00:00",
     )
     write_code_facts(  # idempotent re-run
         db,
         PAYLOAD,
         assembly_sha256="abc123",
         game_build_id="24362350",
-        game_build_updated_at="2026-07-24T05:24:35+00:00",
+        game_build_published_at="2026-07-23T21:53:44+00:00",
     )
 
     with sqlite3.connect(db) as conn:
@@ -50,13 +50,13 @@ def test_writer_creates_and_replaces_only_its_tables(tmp_path: Path) -> None:
         assert conn.execute("SELECT assembly_sha256 FROM code_facts_meta").fetchone()[0] == "abc123"
         assert conn.execute("SELECT game_build_id FROM code_facts_meta").fetchone()[0] == "24362350"
         assert (
-            conn.execute("SELECT game_build_updated_at FROM code_facts_meta").fetchone()[0]
-            == "2026-07-24T05:24:35+00:00"
+            conn.execute("SELECT game_build_published_at FROM code_facts_meta").fetchone()[0]
+            == "2026-07-23T21:53:44+00:00"
         )
         assert conn.execute("SELECT count(*) FROM other").fetchone() is not None
 
 
-def test_build_date_survives_re_extraction(tmp_path: Path) -> None:
+def test_publish_date_survives_re_extraction(tmp_path: Path) -> None:
     """Re-extracting without a game update must not advance the build date.
 
     ``extracted_at`` tracks the run and moves every time; the provenance a
@@ -64,16 +64,16 @@ def test_build_date_survives_re_extraction(tmp_path: Path) -> None:
     freshness the data does not have.
     """
     db = tmp_path / "raw.sqlite"
-    build_date = "2026-07-24T05:24:35+00:00"
+    build_date = "2026-07-23T21:53:44+00:00"
 
-    write_code_facts(db, PAYLOAD, assembly_sha256="abc", game_build_id="1", game_build_updated_at=build_date)
+    write_code_facts(db, PAYLOAD, assembly_sha256="abc", game_build_id="1", game_build_published_at=build_date)
     with sqlite3.connect(db) as conn:
         first_extracted = conn.execute("SELECT extracted_at FROM code_facts_meta").fetchone()[0]
 
-    write_code_facts(db, PAYLOAD, assembly_sha256="abc", game_build_id="1", game_build_updated_at=build_date)
+    write_code_facts(db, PAYLOAD, assembly_sha256="abc", game_build_id="1", game_build_published_at=build_date)
     with sqlite3.connect(db) as conn:
         second_extracted, second_build_date = conn.execute(
-            "SELECT extracted_at, game_build_updated_at FROM code_facts_meta"
+            "SELECT extracted_at, game_build_published_at FROM code_facts_meta"
         ).fetchone()
 
     assert second_extracted != first_extracted
@@ -81,15 +81,16 @@ def test_build_date_survives_re_extraction(tmp_path: Path) -> None:
 
 
 def test_writer_records_unknown_build_id_as_null(tmp_path: Path) -> None:
-    """A missing appmanifest must persist as NULL, never as a placeholder string.
+    """A missing or unresolvable SteamDB build must persist as NULL, never as a
+    placeholder string.
 
     Downstream provenance rendering keys on NULL to omit the line entirely, so a
     stringified 'None' or 'unknown' would surface as a fabricated build number.
     """
     db = tmp_path / "raw.sqlite"
 
-    write_code_facts(db, PAYLOAD, assembly_sha256="abc123", game_build_id=None, game_build_updated_at=None)
+    write_code_facts(db, PAYLOAD, assembly_sha256="abc123", game_build_id=None, game_build_published_at=None)
 
     with sqlite3.connect(db) as conn:
         assert conn.execute("SELECT game_build_id FROM code_facts_meta").fetchone()[0] is None
-        assert conn.execute("SELECT game_build_updated_at FROM code_facts_meta").fetchone()[0] is None
+        assert conn.execute("SELECT game_build_published_at FROM code_facts_meta").fetchone()[0] is None

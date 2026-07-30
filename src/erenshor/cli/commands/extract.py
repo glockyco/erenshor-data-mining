@@ -49,6 +49,7 @@ from erenshor.infrastructure.csproj_generator import (
     generate_solution_file,
 )
 from erenshor.infrastructure.export_profile import ExportProfileRecorder, ExportProfileReport
+from erenshor.infrastructure.steam.build_feed import fetch_build_feed, resolve_build_published_at
 from erenshor.infrastructure.steam.steamcmd import SteamCMD
 from erenshor.infrastructure.unity.batch_mode import UnityBatchMode
 
@@ -111,23 +112,24 @@ def _read_build_id(cli_ctx: CLIContext, variant_config: Any) -> str | None:
     return _read_manifest_fields(cli_ctx, variant_config, {"buildid"}).get("buildid")
 
 
-def _read_build_updated_at(cli_ctx: CLIContext, variant_config: Any) -> str | None:
-    """Return when the local install last became a new Steam build, as ISO UTC.
-
-    This dates the *game data*, not the extraction run, so re-running a pipeline
-    step never advances it. Steam only exposes the publish time of the build that
-    is currently public, so a superseded build's publish date is unrecoverable
-    after the fact -- the local update time is the durable, always-available
-    equivalent, and matches the "synced" wording consumers render.
-    """
-    raw = _read_manifest_fields(cli_ctx, variant_config, {"LastUpdated"}).get("LastUpdated")
-    if not raw:
+def _resolve_build_published_at(variant_config: Any, build_id: str | None) -> str | None:
+    """Resolve an installed build's authoritative SteamDB publication time."""
+    if not build_id:
+        logger.warning("Could not resolve build publication time: installed Steam build ID is unavailable")
         return None
     try:
-        return datetime.fromtimestamp(int(raw), UTC).isoformat()
-    except ValueError:
-        logger.debug(f"Steam app manifest LastUpdated is not a timestamp: {raw!r}")
+        builds = fetch_build_feed(str(variant_config.app_id))
+        published_at = resolve_build_published_at(builds, build_id)
+    except Exception as exc:
+        logger.warning(f"Could not resolve build publication time from SteamDB feed: {exc}")
         return None
+    if published_at is None:
+        logger.warning(f"SteamDB build feed does not contain installed build {build_id}")
+        return None
+    if published_at.tzinfo is None or published_at.utcoffset() is None:
+        logger.warning(f"SteamDB returned a timezone-less publication time for build {build_id}")
+        return None
+    return published_at.astimezone(UTC).isoformat()
 
 
 def _profile_root(cli_ctx: CLIContext) -> Path:
@@ -623,13 +625,14 @@ def code_facts(ctx: typer.Context) -> None:
 
     try:
         with _profile_command(profile, command_name, cli_ctx):
+            build_id = _read_build_id(cli_ctx, variant_config)
             count = extract_code_facts(
                 cli_ctx.repo_root,
                 assembly,
                 raw_db_path,
                 cli_ctx.variant,
-                game_build_id=_read_build_id(cli_ctx, variant_config),
-                game_build_updated_at=_read_build_updated_at(cli_ctx, variant_config),
+                game_build_id=build_id,
+                game_build_published_at=_resolve_build_published_at(variant_config, build_id),
             )
             logger.info(f"Extracted {count} code-fact rows. Run 'erenshor extract build' next.")
     except Exception as e:

@@ -190,7 +190,7 @@ CREATE TABLE code_facts_meta (
     assembly_sha256       TEXT,
     extracted_at          TEXT,
     game_build_id         TEXT,
-    game_build_updated_at TEXT
+    game_build_published_at TEXT
 );
 
 CREATE TABLE secret_passages (
