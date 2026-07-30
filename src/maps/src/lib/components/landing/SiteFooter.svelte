@@ -4,6 +4,8 @@
   nav, which floats bottom-right at every width.
 -->
 <script lang="ts">
+    import { compareFreshness, type Freshness, type PatchAnnouncement } from '$lib/steam-news';
+
     interface Provenance {
         gameBuildId: string;
         buildUpdatedAt: string;
@@ -26,6 +28,37 @@
             timeZone: 'UTC'
         });
     });
+
+    // The site is prerendered, so the live patch check cannot run at render
+    // time the way a server-rendered page would do it. It is a progressive
+    // enhancement instead: the build and its date are already in the static
+    // HTML, and this only adds how that build compares to the live game. On any
+    // failure the comparison stays absent rather than claiming currency.
+    let freshness = $state<Freshness | null>(null);
+
+    $effect(() => {
+        const buildUpdatedAt = provenance?.buildUpdatedAt;
+        if (!buildUpdatedAt) return;
+
+        const aborter = new AbortController();
+        fetch('/api/game-version', { signal: aborter.signal })
+            .then((response) => (response.ok ? (response.json() as Promise<PatchAnnouncement>) : null))
+            .then((latest) => {
+                freshness = compareFreshness(buildUpdatedAt, latest);
+            })
+            .catch(() => {
+                freshness = null;
+            });
+
+        return () => aborter.abort();
+    });
+
+    const freshnessLabel = $derived.by(() => {
+        if (!freshness) return null;
+        if (freshness.state === 'current') return 'up to date';
+        if (freshness.daysBehind < 1) return 'game patched since';
+        return `game patched ${freshness.daysBehind} day${freshness.daysBehind === 1 ? '' : 's'} later`;
+    });
 </script>
 
 <footer class="mt-2 border-t border-line">
@@ -41,7 +74,16 @@
                     rel="noreferrer"
                     class="text-muted no-underline hover:text-accent">{provenance.gameBuildId}</a
                 >
-                · {buildDate}
+               &middot; {buildDate}{#if freshnessLabel}&nbsp;<span
+                        class={freshness?.state === 'behind' ? 'text-accent' : 'text-muted'}
+                    >
+                        · {#if freshness?.state === 'behind'}<a
+                                href={freshness.latest.url}
+                                rel="noreferrer"
+                                class="text-accent underline decoration-dotted underline-offset-2"
+                                >{freshnessLabel}</a
+                            >{:else}{freshnessLabel}{/if}
+                    </span>{/if}
             </span>
         {/if}
         <span>

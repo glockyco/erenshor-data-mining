@@ -1,5 +1,11 @@
-import { describe, expect, it } from 'vitest';
-import worker, { CANONICAL_HOST, LEGACY_HOST, handleRequest, type Env } from './worker';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import worker, {
+    CANONICAL_HOST,
+    GAME_VERSION_PATH,
+    LEGACY_HOST,
+    handleRequest,
+    type Env
+} from './worker';
 
 const html = '<!doctype html><html><body>page</body></html>';
 const resources = [
@@ -156,5 +162,70 @@ describe('dual-host Worker routing', () => {
         const { assets } = createAssets();
         const response = await worker.fetch(request(LEGACY_HOST, '/map'), envWith(assets));
         expect(response.status).toBe(200);
+    });
+});
+
+describe('game-version endpoint', () => {
+    const patchFeed = `<rss><channel><item>
+        <title>7/26/26 - Patch Notes</title>
+        <link>https://store.steampowered.com/news/app/2382520/view/1</link>
+        <pubDate>Mon, 27 Jul 2026 03:13:30 +0000</pubDate>
+    </item></channel></rss>`;
+
+    afterEach(() => {
+        vi.unstubAllGlobals();
+    });
+
+    function stubSteam(response: Response | Error) {
+        const upstream = vi.fn<(url: string | URL | Request, init?: RequestInit) => Promise<Response>>(() =>
+            response instanceof Error ? Promise.reject(response) : Promise.resolve(response)
+        );
+        vi.stubGlobal('fetch', upstream);
+        return upstream;
+    }
+
+    it.each([CANONICAL_HOST, LEGACY_HOST])('answers the newest patch on %s', async (host) => {
+        // Both hosts serve the prerendered pages that consume this, so both must
+        // answer it rather than redirecting the fetch cross-origin.
+        const { assets, calls } = createAssets();
+        stubSteam(new Response(patchFeed));
+
+        const response = await handleRequest(request(host, GAME_VERSION_PATH), envWith(assets));
+
+        expect(response.status).toBe(200);
+        expect(await response.json()).toEqual({
+            title: '7/26/26 - Patch Notes',
+            publishedAt: Date.parse('Mon, 27 Jul 2026 03:13:30 +0000') / 1000,
+            url: 'https://store.steampowered.com/news/app/2382520/view/1'
+        });
+        expect(calls).toEqual([]);
+    });
+
+    it('caches at the colo so page traffic does not become Steam traffic', async () => {
+        const { assets } = createAssets();
+        const upstream = stubSteam(new Response(patchFeed));
+
+        const response = await handleRequest(request(CANONICAL_HOST, GAME_VERSION_PATH), envWith(assets));
+
+        const init = upstream.mock.calls[0][1] as RequestInit & {
+            cf?: { cacheTtl?: number; cacheEverything?: boolean };
+        };
+        expect(init.cf).toMatchObject({ cacheEverything: true });
+        expect(init.cf?.cacheTtl).toBeGreaterThan(0);
+        expect(response.headers.get('cache-control')).toContain('s-maxage=');
+    });
+
+    it.each([
+        ['an upstream error status', new Response('nope', { status: 500 })],
+        ['a network failure', new Error('connect ECONNREFUSED')],
+        ['a feed with no patch notes', new Response('<rss><channel></channel></rss>')]
+    ])('answers 503 rather than inventing a version on %s', async (_case, outcome) => {
+        const { assets } = createAssets();
+        stubSteam(outcome);
+
+        const response = await handleRequest(request(CANONICAL_HOST, GAME_VERSION_PATH), envWith(assets));
+
+        expect(response.status).toBe(503);
+        expect(await response.json()).not.toHaveProperty('publishedAt');
     });
 });
