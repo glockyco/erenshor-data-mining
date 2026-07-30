@@ -4,7 +4,7 @@ import wasmUrl from 'sql.js/dist/sql-wasm.wasm?url';
 import { RepositoryBase } from '$lib/database.base';
 
 export class Repository extends RepositoryBase {
-	async init(dbPath = 'db/erenshor.sqlite') {
+	async init(dbPath = '/db/erenshor.sqlite') {
 		if (!this.SQL) {
 			this.SQL = await initSqlJs({
 				locateFile: () => wasmUrl
