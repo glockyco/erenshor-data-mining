@@ -109,16 +109,26 @@ and [`2026-06-26-maps-domain-url-migration`](archive/2026-06-26-maps-domain-url-
 
 ## Standing gates
 
+- **Cargo tables do not exist on production.** None of the ten designed tables are
+  live, so every Cargo deliverable is unexercised there. Declaring does not create a
+  table, and `WoWBot` lacks `recreatecargodata`. Creation and every schema change run
+  as `WoWMuch` or another sysop-equivalent account. This is the real blocker ahead of
+  Phases 4 to 8.
 - **Cargo refresh model.** A data-only change needs no recreate: reparsing a page
   rewrites rows in place. Recreate is for schema changes; a large recreate uses
-  a replacement table and a manual `Special:CargoTables` switch-in. Confirm the
-  deploy bot's recreate permission before the production cutover.
+  a replacement table and a manual `Special:CargoTables` switch-in.
 - **Wiki article deploy is single-target.** `erenshor.wiki.gg` is not
   variant-scoped; do not deploy article changes from a non-shipping build.
-- **Lua-owned presentation gate.** The live wiki has no TemplateStyles extension
-  and `MediaWiki:Gadget-erenshor.css` is interface-protected. Before any type
-  converts, provide a deliverable styling path and prove Lua presentation parity
-  with the legacy display contract against live pages.
+- **Template deploys have broken live twice.** `WoWBot` pushed Lua-only `Quest`,
+  `Zone`, and `Stance` bodies on 2026-07-14 and 2026-07-22, and an admin reverted both
+  rounds. Prove the legacy branch renders parameter-only articles before any template
+  deploy.
+- **Lua-owned presentation gate is integration, not platform.** `TemplateStyles` and
+  `TemplateStylesExtender` are installed and already used on live, and the gadget
+  stylesheet deploys through the configured interface-admin account. Before any type
+  converts, wire deterministic `<templatestyles>` emission, own a CSS source for Lua
+  markup, and prove Lua presentation parity with the legacy display contract against
+  live pages.
 - **Legacy map compatibility.** Future maps deployments must retain the single
   `erenshor-maps` Worker on both hosts. The old workers.dev `/map`, verification
   token, and same-origin runtime resources remain available for shipped
@@ -139,6 +149,7 @@ and [`2026-06-26-maps-domain-url-migration`](archive/2026-06-26-maps-domain-url-
 
 - `docs/plans/archive/2026-06-26-maps-domain-url-migration.md` — archived maps domain and URL migration.
 - `docs/plans/2026-06-04-wiki-cargo-data-architecture.md` — Cargo/Lua design authority.
+- `docs/plans/2026-07-30-wiki-cutover-state-audit.md` — measured live wiki state as of 2026-07-30.
 - `docs/plans/archive/2026-07-04-export-gap-analysis.md` — archived export and formula gap audit.
 - `docs/plans/archive/2026-07-13-planar-march-release-refresh.md` — archived release plan.
 - `docs/plans/archive/2026-07-12-adventure-guide-tracker-and-data-refresh.md` — archived guide plan.

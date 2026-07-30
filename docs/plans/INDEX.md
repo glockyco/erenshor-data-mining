@@ -11,6 +11,7 @@
 - **Wiki Deferred Obtainability Mechanics** [plan] `2026-07-10-wiki-deferred-mechanics` (0/15) ← 2026-06-23-wiki-cargo-phase-3
 - **Dynamic Spawn Semantics and Map UX Audit** [plan] `2026-07-11-dynamic-spawn-semantics-map-ux` (—)
 - **Wiki Legacy Article Cutover** [plan] `2026-07-11-wiki-article-cutover` (—) ← 2026-06-04-wiki-cargo-data-architecture
+- **Wiki Cutover State Audit (2026-07-30)** [audit] `2026-07-30-wiki-cutover-state-audit` ← 2026-07-09-erenshor-planning-overview
 
 ## draft
 

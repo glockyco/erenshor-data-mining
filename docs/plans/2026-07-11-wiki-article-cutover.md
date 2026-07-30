@@ -10,17 +10,21 @@ parent: 2026-06-04-wiki-cargo-data-architecture
 
 ## Context
 
-The repo-owned Lua modules, templates, and generated data modules for playtest
-build 24157014 are deployed to the production wiki. `Template:ItemTooltip`
-dispatches `kind=Weapon` or `kind=Armor` to
+The repo-owned Lua modules and templates are deployed to the production wiki,
+along with generated data modules for items, item shards, spells, skills, and
+links. `Module:Erenshor/Data/Characters`, `Data/Quests`, `Data/Stances`,
+`Data/Zones`, and `Module:Erenshor/Link/Search` are **not** deployed.
+`Template:ItemTooltip` dispatches `kind=Weapon` or `kind=Armor` to
 `Module:Erenshor/Item/ParameterizedTooltip` in the production equipment path;
 `stablekey=...` dispatches to `Module:Erenshor/Item/Tooltip` for the reserved
-Lua article path. Twelve item article pages (four samples plus one for each
-item kind) use the new generated format and have verified rendering. The full
-article-page refresh is deferred to release day because playtest data is a
-spoiler; see
-`docs/plans/2026-07-13-planar-march-release-refresh.md`. Playtest images and
-filename redirects are uploaded.
+Lua article path. 793 equipment articles use the parameterized tooltip and have
+verified rendering. Playtest images and filename redirects are uploaded.
+
+**No article page is on the Lua path and production Cargo is empty.** Live
+`Template:Item` gates its Lua branch on `lua=1` in addition to `stablekey`, and no
+live page sets `lua=1`. None of the ten designed Cargo tables exist on production,
+because declaring does not create them and `WoWBot` lacks `recreatecargodata`. See
+`docs/plans/2026-07-30-wiki-cutover-state-audit.md`.
 
 Equipment articles currently use one parameterized `{{ItemTooltip|kind=...}}`
 invocation with display-ready Normal-quality legacy arguments.
@@ -29,13 +33,16 @@ through `Module:Erenshor/Item/Quality` (with `PLANAR_MARCH_ENABLED=false` until
 the patch ships) and composes the live legacy `Item/Weapon` and `Item/Armor`
 templates through newline-joined `frame:expandTemplate` assembly. Non-equipment
 kinds (general, consumable, aura, charm, spell scroll, skill book, and mold)
-remain on legacy Jinja article templates until Lua-owned styling is deliverable;
-their stablekey path is reserved for the future cutover.
+remain on legacy Jinja article templates; their stablekey path is reserved for the
+future cutover.
 
-The live wiki has no TemplateStyles extension, and
-`MediaWiki:Gadget-erenshor.css` is interface-protected, so styling changes
-cannot be delivered through the repository pipeline. The legacy Jinja path
-therefore remains the production writer while the cutover gates are completed.
+Styling is deliverable. `TemplateStyles` 1.0 and `TemplateStylesExtender` 2.0.0 are
+installed, unprotected `Template:*/styles.css` subpages accept the `sanitized-css`
+model, and `MediaWiki:Gadget-erenshor.css` is deployable through the configured
+`WoWMuch@InterfaceDeploy` interface-admin account. The remaining styling work is
+integration: nothing emits a `<templatestyles>` tag and no CSS source is owned for
+Lua markup. The legacy Jinja path remains the production writer until the cutover
+gates are completed.
 
 ## Approach
 
@@ -44,10 +51,11 @@ therefore remains the production writer while the cutover gates are completed.
 No article type may move to the Lua stablekey path until all of these
 prerequisites are satisfied:
 
-- A deliverable styling path exists for Lua-owned markup. The live wiki has no
-  TemplateStyles extension, and `MediaWiki:Gadget-erenshor.css` is
-  interface-protected; manual administrator paste is the only styling channel
-  available today.
+- The designed Cargo tables exist on production, created with `cargorecreatetables`
+  run as `WoWMuch` or another sysop-equivalent account. `WoWBot` cannot do this.
+- Styling for Lua-owned markup is wired end to end: a CSS source is owned in the
+  repo, a `<templatestyles>` tag is emitted deterministically, and the stylesheet
+  deploys through `wiki deploy-interface` or a `Template:*/styles.css` subpage.
 - Lua presentation parity with the restored legacy display contract is proven
   against live pages, including wikilinked names, icon suffixes, unit
   conversions, zero-as-blank optional fields, the XPBonus percent rule,
@@ -55,16 +63,27 @@ prerequisites are satisfied:
 - Scribunto testcase pages exercise renderers through real frames using
   `mw.getCurrentFrame():newChild`; frame mocks are prohibited. `Module:*/testcases`
   pages are excluded from production deploy manifests.
+- The four undeployed data modules are live, so the character, quest, zone, and
+  stance Lua paths can resolve.
 
 The legacy Jinja generator is re-hardened and remains the production article
-writer until Phase 7 completes. It must continue to write the reverted
-non-equipment kinds while styling and presentation parity are unresolved.
+writer until Phase 7 completes. It must continue to write the non-equipment kinds
+while the gates above are unresolved.
+
+**Template deploys are a known live regression risk.** `WoWBot` twice deployed
+Lua-only `Quest`, `Zone`, and `Stance` bodies with no legacy fallback, and an admin
+reverted both rounds within a minute, on 2026-07-14 and 2026-07-22. The repo's
+dual-path bodies for those three landed after the second revert and have never been
+deployed. Any template deploy must first prove the legacy branch still renders
+parameter-only articles.
 
 ### 1. Add the community-row layer required for safe conversion
 
 Implement the Phase 4 contribution layer before writing the thin-page converter.
-Reuse the existing `ObtainedFrom`, `UsedIn`, and `Spawns` Cargo schemas and the
-stable-key resolution conventions already used by `Module:Erenshor/Link.lua`.
+It reuses the `ObtainedFrom`, `UsedIn`, and `Spawns` Cargo schemas defined by the
+repo's store templates and the stable-key resolution conventions already used by
+`Module:Erenshor/Link.lua`. Those schemas are declared in the repo but do not yet
+exist on production, so table creation precedes this step.
 
 - Add `{{ItemSource}}` storage for `ObtainedFrom` rows with
   `Origin=community`, `SourceType=community`, null `SourceKey`, and preserved
@@ -85,7 +104,12 @@ Use the existing Cargo declaration/store modules and the established
 
 Extend the stablekey conditional architecture from `wiki/templates/Item.wiki`
 and `wiki/templates/Character.wiki` to `Spell.wiki`, `Skill.wiki`,
-`Stance.wiki`, `Quest.wiki`, and `Zone.wiki`.
+`Stance.wiki`, `Quest.wiki`, and `Zone.wiki`. Current repo state: `Character`,
+`Quest`, `Zone`, and `Stance` branch on `stablekey`, `Item` branches on `lua=1`
+plus `stablekey`, and `Spell` and `Skill` are unconditional Lua with no legacy
+fallback. Live state is further behind, because `Quest`, `Zone`, and `Stance` are
+legacy-only there. Resolve `Spell` and `Skill` explicitly: either give them a
+legacy branch or record the decision that they stay Lua-only.
 
 For each template, preserve the current generated stablekey branch unchanged
 except where a test proves a defect. Add a no-stablekey legacy branch containing

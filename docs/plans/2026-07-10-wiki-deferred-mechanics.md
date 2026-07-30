@@ -47,8 +47,12 @@ losing game behavior.
 
 ### Task 5: Model Braxonian Flame Well quality ritual
 
-- [ ] Add a code fact for the offering-stone quality upgrade (quality 2 to 1),
-  export its item relationship, and define the reverse display semantics.
+- [ ] Add a code fact for the offering-stone blessing ritual. `TradeWindow.CheckOfferingStones`
+  requires equal non-zero counts of Sivakrux (`23431650`) and Offering Stone (`340104`)
+  plus exactly one non-General, non-Aura item, and on success returns that item at
+  quality **2**, or quality **3** on a second roll gated by the offering size. It never
+  reads the offered item's own quality. Export its item relationship and define the
+  display semantics.
 - [ ] Add Cargo, parity, and golden regression coverage for the ritual.
 
 ### Task 6: Render the runtime global random world-drop pool
