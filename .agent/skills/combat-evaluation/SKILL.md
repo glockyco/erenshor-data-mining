@@ -148,6 +148,23 @@ UnityEngine.Object.Destroy(vessel.gameObject);
 Use the helper that owns the claim. Do not generalize `CalcDmgBonus` to healing,
 melee, or mitigation paths that use different methods.
 
+Three traps make a correct formula look wrong:
+
+- **Caps applied after the term under test.** A crit multiplier applied before a
+  `TargetDamage * 15` clamp is invisible when the base already exceeds the cap;
+  both crit and non-crit collapse to the cap. Use a large-`TargetDamage` spell so
+  `base * maxMultiplier` stays under the cap.
+- **A stat that feeds both the condition and the base.** `IntScaleMod` drives the
+  crit chance and `CalcDmgBonus`. When you vary it across runs, recompute the
+  non-critical baseline per configuration; never reuse a baseline captured under
+  different stats.
+- **Displayed versus applied results.** A multiplier applied to the returned
+  damage *after* `MagicDamageMe` (the SimPlayer spell crit, `num3 *= 1.2..1.6`)
+  inflates the combat-log number and lifetap healing but not the HP already
+  removed. Measure `target.DmgFromPlayerSource` (applied) separately from the
+  logged value (displayed) to tell them apart. A player spell crit, by contrast,
+  multiplies `dmgBonus` before `MagicDamageMe`, so it changes real HP.
+
 #### Resource checks
 
 Disable regeneration, set a known starting value, perform one action, and
