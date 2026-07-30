@@ -156,7 +156,7 @@ Conventional commits: `type(scope): description`
 ## Testing
 
 ```bash
-uv run pytest                       # All tests (744+)
+uv run pytest                       # All Python tests (1900+)
 uv run pytest -m integration        # Integration tests only
 uv run erenshor golden capture      # Regenerate golden baselines after data changes
 ```
@@ -164,6 +164,32 @@ uv run erenshor golden capture      # Regenerate golden baselines after data cha
 Always run `golden capture` before deploying data changes and review diffs.
 Golden files in `tests/golden/` detect unintended data-pipeline changes; they
 are not a frontend-only maps redeploy gate.
+
+### Matching CI locally
+
+`uv run pytest` is **not** what CI runs, and passing it is not evidence CI will
+pass. CI gates on four static checks plus four verification leaves, none of
+which `pytest` invokes:
+
+```bash
+uv run ruff check src/ tests/ && uv run ruff format --check src/ tests/
+uv run mypy src/
+uv run erenshor test ci             # unit, contract, maps, mods leaves
+```
+
+CI additionally runs `dotnet csharpier --check .` from the repository root,
+which does not reproduce there locally: the CSharpier tool manifests live per
+mod under `src/mods/*/.config/`, so a root-level `dotnet tool restore` finds
+nothing. Check C# formatting from inside the mod you touched instead.
+
+Run that block before pushing. The `maps` leaf matters most and is the easiest
+to miss: it prerenders the site against the hermetic fixture in
+`src/maps/tests/fixtures/map-database.sql`, whereas `erenshor maps build`
+prerenders against the real clean DB from `variants/`. The two databases have
+different schemas, so a query touching a table the fixture lacks passes locally
+and fails in CI every time. `tests/contract/test_maps_fixture_schema.py` catches
+column drift between them, but a table the fixture never had is only caught by
+running the leaf.
 
 ## Skill Directory
 
