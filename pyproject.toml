@@ -175,6 +175,10 @@ addopts = [
     "-v",
     "--strict-markers",
     "--tb=short",
+    # Derive module names from the full path. The default prepend mode keys on
+    # basename within the nearest package, so two test files sharing a name in
+    # non-package directories collide at collection and abort the whole run.
+    "--import-mode=importlib",
 ]
 markers = [
     "unit: Fast, isolated unit tests",
