@@ -4,7 +4,7 @@
     import SiteHeader from '$lib/components/landing/SiteHeader.svelte';
     import SiteFooter from '$lib/components/landing/SiteFooter.svelte';
 
-    let { children } = $props();
+    let { children, data } = $props();
 
     // The landing page owns its full-bleed layout; every other (app) page keeps
     // the shared centered content container it was designed against.
@@ -20,5 +20,5 @@
             {@render children()}
         </div>
     {/if}
-    <SiteFooter />
+    <SiteFooter provenance={data.provenance} />
 </div>
