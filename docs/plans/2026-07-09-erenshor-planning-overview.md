@@ -150,6 +150,8 @@ and [`2026-06-26-maps-domain-url-migration`](archive/2026-06-26-maps-domain-url-
 - `docs/plans/archive/2026-06-26-maps-domain-url-migration.md` — archived maps domain and URL migration.
 - `docs/plans/2026-06-04-wiki-cargo-data-architecture.md` — Cargo/Lua design authority.
 - `docs/plans/2026-07-30-wiki-cutover-state-audit.md` — measured live wiki state as of 2026-07-30.
+- `docs/plans/2026-07-30-wiki-cargo-schema-revision.md` — schema fixes to land before first Cargo table creation.
+- `docs/plans/2026-07-30-wiki-deploy-sync-discipline.md` — live-versus-repo sync gates.
 - `docs/plans/archive/2026-07-04-export-gap-analysis.md` — archived export and formula gap audit.
 - `docs/plans/archive/2026-07-13-planar-march-release-refresh.md` — archived release plan.
 - `docs/plans/archive/2026-07-12-adventure-guide-tracker-and-data-refresh.md` — archived guide plan.
