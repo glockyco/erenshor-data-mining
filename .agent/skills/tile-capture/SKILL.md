@@ -66,11 +66,16 @@ CrossOver installs by the selected variant's Steam App ID.
 
 ```bash
 uv run erenshor capture run [--zones A] [--zones B] [--variant clear] [--force]
-uv run erenshor capture tile [--zones A]    # re-tile from existing masters, no game needed
+uv run erenshor capture tile [--zones A]    # replace pyramids from existing masters, no game needed
 uv run erenshor capture status
 uv run erenshor capture budget
 uv run erenshor maps thumbnails [--zones A]  # needs dev/preview server running (see below)
 ```
+
+`capture tile` removes each selected zone's existing output before writing the
+replacement pyramid. This is required when `maxZoom` or base dimensions shrink:
+overwriting only the new paths leaves obsolete zoom levels behind. Unselected
+zones are untouched.
 
 ## Scene Lighting
 
@@ -95,9 +100,11 @@ at runtime via HotRepl.
 
 ## 20k File Limit
 
-Cloudflare/Wrangler hard limit ~20k files. Currently ~18,315. Managed via per-zone `maxZoom`
-(large zones: 0, medium: 1, small: 2) and skipping `open` for outdoor zones.
-Use `capture budget` before regenerating.
+Cloudflare/Wrangler hard limit ~20k files. The current configuration generates
+4,912 zone tiles. Managed via per-zone `maxZoom` (large zones: 0, medium: 1,
+small: 2) and skipping `open` for outdoor zones. Run `capture budget` before
+regenerating. Its total must equal the sum printed by `capture tile`; a mismatch
+means the preflight and generator have drifted.
 
 ## Setting Bounds for a New Zone
 
