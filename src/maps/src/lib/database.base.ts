@@ -1576,16 +1576,22 @@ export class RepositoryBase {
      * Erenshor publishes only coarse version strings, so the Steam build ID is
      * the precise, publicly verifiable identifier. It is stamped into the raw
      * DB by `erenshor extract code-facts` and carried into the clean DB
-     * verbatim. Returns null when the build ID is unknown so callers omit the
-     * provenance line rather than render a fabricated one.
+     * verbatim.
+     *
+     * The date deliberately tracks the game build, not the extraction run: an
+     * honest older date is correct for a reference tool, whereas re-running a
+     * pipeline step must never advertise freshness the data does not have.
+     * Returns null unless both fields are known, so callers omit the line
+     * rather than render a fabricated one.
      */
-    getDataProvenance(): { gameBuildId: string; extractedAt: string } | null {
+    getDataProvenance(): { gameBuildId: string; buildUpdatedAt: string } | null {
         if (!this.db) throw new Error('DB not initialized');
         const res = this.db.exec(
-            'SELECT game_build_id, extracted_at FROM code_facts_meta WHERE game_build_id IS NOT NULL LIMIT 1'
+            'SELECT game_build_id, game_build_updated_at FROM code_facts_meta ' +
+                'WHERE game_build_id IS NOT NULL AND game_build_updated_at IS NOT NULL LIMIT 1'
         );
         const row = res[0]?.values[0];
         if (!row) return null;
-        return { gameBuildId: String(row[0]), extractedAt: String(row[1]) };
+        return { gameBuildId: String(row[0]), buildUpdatedAt: String(row[1]) };
     }
 }

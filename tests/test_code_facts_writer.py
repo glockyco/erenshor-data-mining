@@ -27,8 +27,20 @@ def test_writer_creates_and_replaces_only_its_tables(tmp_path: Path) -> None:
     with sqlite3.connect(db) as conn:
         conn.execute("CREATE TABLE other (x)")  # pre-existing export table must survive
 
-    write_code_facts(db, PAYLOAD, assembly_sha256="abc123", game_build_id="24362350")
-    write_code_facts(db, PAYLOAD, assembly_sha256="abc123", game_build_id="24362350")  # idempotent re-run
+    write_code_facts(
+        db,
+        PAYLOAD,
+        assembly_sha256="abc123",
+        game_build_id="24362350",
+        game_build_updated_at="2026-07-24T05:24:35+00:00",
+    )
+    write_code_facts(  # idempotent re-run
+        db,
+        PAYLOAD,
+        assembly_sha256="abc123",
+        game_build_id="24362350",
+        game_build_updated_at="2026-07-24T05:24:35+00:00",
+    )
 
     with sqlite3.connect(db) as conn:
         rows = conn.execute("SELECT fact_id, key, value FROM code_facts ORDER BY fact_id, key").fetchall()
@@ -37,7 +49,35 @@ def test_writer_creates_and_replaces_only_its_tables(tmp_path: Path) -> None:
         assert ("loot.guarantee_one_drop", "ok", "true") in rows
         assert conn.execute("SELECT assembly_sha256 FROM code_facts_meta").fetchone()[0] == "abc123"
         assert conn.execute("SELECT game_build_id FROM code_facts_meta").fetchone()[0] == "24362350"
+        assert (
+            conn.execute("SELECT game_build_updated_at FROM code_facts_meta").fetchone()[0]
+            == "2026-07-24T05:24:35+00:00"
+        )
         assert conn.execute("SELECT count(*) FROM other").fetchone() is not None
+
+
+def test_build_date_survives_re_extraction(tmp_path: Path) -> None:
+    """Re-extracting without a game update must not advance the build date.
+
+    ``extracted_at`` tracks the run and moves every time; the provenance a
+    consumer renders must track the game build instead, or a re-run would claim
+    freshness the data does not have.
+    """
+    db = tmp_path / "raw.sqlite"
+    build_date = "2026-07-24T05:24:35+00:00"
+
+    write_code_facts(db, PAYLOAD, assembly_sha256="abc", game_build_id="1", game_build_updated_at=build_date)
+    with sqlite3.connect(db) as conn:
+        first_extracted = conn.execute("SELECT extracted_at FROM code_facts_meta").fetchone()[0]
+
+    write_code_facts(db, PAYLOAD, assembly_sha256="abc", game_build_id="1", game_build_updated_at=build_date)
+    with sqlite3.connect(db) as conn:
+        second_extracted, second_build_date = conn.execute(
+            "SELECT extracted_at, game_build_updated_at FROM code_facts_meta"
+        ).fetchone()
+
+    assert second_extracted != first_extracted
+    assert second_build_date == build_date
 
 
 def test_writer_records_unknown_build_id_as_null(tmp_path: Path) -> None:
@@ -48,7 +88,8 @@ def test_writer_records_unknown_build_id_as_null(tmp_path: Path) -> None:
     """
     db = tmp_path / "raw.sqlite"
 
-    write_code_facts(db, PAYLOAD, assembly_sha256="abc123", game_build_id=None)
+    write_code_facts(db, PAYLOAD, assembly_sha256="abc123", game_build_id=None, game_build_updated_at=None)
 
     with sqlite3.connect(db) as conn:
         assert conn.execute("SELECT game_build_id FROM code_facts_meta").fetchone()[0] is None
+        assert conn.execute("SELECT game_build_updated_at FROM code_facts_meta").fetchone()[0] is None

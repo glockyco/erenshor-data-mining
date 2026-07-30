@@ -28,7 +28,9 @@ def process_code_facts(raw: sqlite3.Connection, writer: Writer) -> None:
             {"fact_id": r["fact_id"], "key": r["key"], "value": r["value"], "value_type": r["value_type"]}
             for r in raw.execute("SELECT fact_id, key, value, value_type FROM code_facts").fetchall()
         ]
-        meta = raw.execute("SELECT assembly_sha256, extracted_at, game_build_id FROM code_facts_meta").fetchone()
+        meta = raw.execute(
+            "SELECT assembly_sha256, extracted_at, game_build_id, game_build_updated_at FROM code_facts_meta"
+        ).fetchone()
     except sqlite3.OperationalError as exc:
         raise ValueError(_ORDERING_ERROR) from exc
 
@@ -42,6 +44,7 @@ def process_code_facts(raw: sqlite3.Connection, writer: Writer) -> None:
                 "assembly_sha256": meta["assembly_sha256"],
                 "extracted_at": meta["extracted_at"],
                 "game_build_id": meta["game_build_id"],
+                "game_build_updated_at": meta["game_build_updated_at"],
             }
         ]
     )

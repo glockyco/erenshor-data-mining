@@ -13,6 +13,7 @@ import json
 import subprocess
 from collections.abc import Iterator
 from contextlib import contextmanager
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
@@ -84,21 +85,49 @@ def _read_git_sha(repo_root: Path) -> str | None:
     return sha or None
 
 
-def _read_build_id(cli_ctx: CLIContext, variant_config: Any) -> str | None:
-    """Read the installed Steam build ID without requiring SteamCMD itself."""
+def _read_manifest_fields(cli_ctx: CLIContext, variant_config: Any, keys: set[str]) -> dict[str, str]:
+    """Read quoted scalar fields from the installed Steam app manifest.
+
+    Avoids a SteamCMD dependency: the ``.acf`` is a flat quoted key/value
+    format, and the fields we need are scalars at any nesting depth.
+    """
     game_files_dir = Path(variant_config.resolved_game_files(cli_ctx.repo_root))
     manifest_file = game_files_dir / "steamapps" / f"appmanifest_{variant_config.app_id}.acf"
     if not manifest_file.exists():
-        return None
+        return {}
+    found: dict[str, str] = {}
     try:
         for line in manifest_file.read_text(encoding="utf-8").splitlines():
-            if '"buildid"' in line:
-                parts = line.split('"')
-                if len(parts) >= 4:
-                    return parts[3]
+            parts = line.split('"')
+            if len(parts) >= 4 and parts[1] in keys and parts[1] not in found:
+                found[parts[1]] = parts[3]
     except OSError as e:
-        logger.debug(f"Could not read Steam build ID for export profile: {e}")
-    return None
+        logger.debug(f"Could not read Steam app manifest: {e}")
+    return found
+
+
+def _read_build_id(cli_ctx: CLIContext, variant_config: Any) -> str | None:
+    """Read the installed Steam build ID without requiring SteamCMD itself."""
+    return _read_manifest_fields(cli_ctx, variant_config, {"buildid"}).get("buildid")
+
+
+def _read_build_updated_at(cli_ctx: CLIContext, variant_config: Any) -> str | None:
+    """Return when the local install last became a new Steam build, as ISO UTC.
+
+    This dates the *game data*, not the extraction run, so re-running a pipeline
+    step never advances it. Steam only exposes the publish time of the build that
+    is currently public, so a superseded build's publish date is unrecoverable
+    after the fact -- the local update time is the durable, always-available
+    equivalent, and matches the "synced" wording consumers render.
+    """
+    raw = _read_manifest_fields(cli_ctx, variant_config, {"LastUpdated"}).get("LastUpdated")
+    if not raw:
+        return None
+    try:
+        return datetime.fromtimestamp(int(raw), UTC).isoformat()
+    except ValueError:
+        logger.debug(f"Steam app manifest LastUpdated is not a timestamp: {raw!r}")
+        return None
 
 
 def _profile_root(cli_ctx: CLIContext) -> Path:
@@ -454,8 +483,6 @@ def export(
             unity_log_level = python_to_unity_log_level.get(cli_ctx.config.global_.logging.level.upper(), "normal")
 
             def backup(database: Path) -> None:
-                from datetime import datetime
-
                 console.print("[bold]Creating backup...[/bold]")
                 try:
                     steam_config = cli_ctx.config.global_.steam
@@ -602,6 +629,7 @@ def code_facts(ctx: typer.Context) -> None:
                 raw_db_path,
                 cli_ctx.variant,
                 game_build_id=_read_build_id(cli_ctx, variant_config),
+                game_build_updated_at=_read_build_updated_at(cli_ctx, variant_config),
             )
             logger.info(f"Extracted {count} code-fact rows. Run 'erenshor extract build' next.")
     except Exception as e:

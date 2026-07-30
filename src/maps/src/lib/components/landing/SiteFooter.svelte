@@ -6,19 +6,19 @@
 <script lang="ts">
     interface Provenance {
         gameBuildId: string;
-        extractedAt: string;
+        buildUpdatedAt: string;
     }
 
-    // Null whenever the export did not record a build ID. An honest older date
-    // is fine for a reference tool; a fabricated "updated today" is not, so the
+    // Null whenever the export did not record a build. An honest older date is
+    // fine for a reference tool; a fabricated "updated today" is not, so the
     // line is omitted rather than guessed.
     let { provenance = null }: { provenance?: Provenance | null } = $props();
 
     const STEAMDB_PATCH_NOTES = 'https://steamdb.info/app/2382520/patchnotes/';
 
-    const exportedOn = $derived.by(() => {
+    const buildDate = $derived.by(() => {
         if (!provenance) return null;
-        const date = new Date(provenance.extractedAt);
+        const date = new Date(provenance.buildUpdatedAt);
         if (Number.isNaN(date.getTime())) return null;
         return date.toLocaleDateString('en-US', {
             month: 'long',
@@ -33,7 +33,7 @@
         class="mx-auto flex max-w-[1140px] flex-col gap-2 px-7 pt-[26px] pb-20 text-[0.88rem] text-muted min-[880px]:flex-row min-[880px]:flex-wrap min-[880px]:items-center min-[880px]:justify-between min-[880px]:gap-[14px]"
     >
         <span>Erenshor Maps. A fan project, not affiliated with Burgee Media.</span>
-        {#if provenance && exportedOn}
+        {#if provenance && buildDate}
             <span>
                 Map data synced to Erenshor build
                 <a
@@ -41,7 +41,7 @@
                     rel="noreferrer"
                     class="text-muted no-underline hover:text-accent">{provenance.gameBuildId}</a
                 >
-                · {exportedOn}
+                · {buildDate}
             </span>
         {/if}
         <span>

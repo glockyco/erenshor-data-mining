@@ -65,6 +65,7 @@ def write_code_facts(
     payload: dict[str, Any],
     assembly_sha256: str,
     game_build_id: str | None,
+    game_build_updated_at: str | None,
 ) -> int:
     """Replace the writer-owned `code_facts` tables with the analyzer payload.
 
@@ -75,7 +76,8 @@ def write_code_facts(
     from. It is the only precise, publicly verifiable identifier for a game
     version (Erenshor ships coarse version strings), so it rides along with the
     extraction metadata and becomes the provenance shown by downstream
-    consumers.
+    consumers. ``game_build_updated_at`` dates that build rather than this run,
+    so re-extracting without a game update never advances it.
     """
     rows: list[tuple[str, str, str, str]] = []
     for fact in payload["facts"]:
@@ -96,12 +98,13 @@ def write_code_facts(
         )
         conn.execute(
             "CREATE TABLE code_facts_meta ("
-            "assembly_sha256 TEXT NOT NULL, extracted_at TEXT NOT NULL, game_build_id TEXT)"
+            "assembly_sha256 TEXT NOT NULL, extracted_at TEXT NOT NULL, "
+            "game_build_id TEXT, game_build_updated_at TEXT)"
         )
         conn.executemany("INSERT INTO code_facts VALUES (?, ?, ?, ?)", rows)
         conn.execute(
-            "INSERT INTO code_facts_meta VALUES (?, ?, ?)",
-            (assembly_sha256, datetime.now(UTC).isoformat(), game_build_id),
+            "INSERT INTO code_facts_meta VALUES (?, ?, ?, ?)",
+            (assembly_sha256, datetime.now(UTC).isoformat(), game_build_id, game_build_updated_at),
         )
     logger.info(f"code_facts written: {len(rows)} rows (game build {game_build_id or 'unknown'})")
     return len(rows)
@@ -113,8 +116,15 @@ def extract_code_facts(
     raw_db_path: Path,
     variant: str | None = None,
     game_build_id: str | None = None,
+    game_build_updated_at: str | None = None,
 ) -> int:
     """Run the analyzer against ``assembly`` and persist the facts into the raw DB."""
     payload = run_tool(repo_root, assembly, variant)
     sha = hashlib.sha256(assembly.read_bytes()).hexdigest()
-    return write_code_facts(raw_db_path, payload, assembly_sha256=sha, game_build_id=game_build_id)
+    return write_code_facts(
+        raw_db_path,
+        payload,
+        assembly_sha256=sha,
+        game_build_id=game_build_id,
+        game_build_updated_at=game_build_updated_at,
+    )
