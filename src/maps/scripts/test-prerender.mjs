@@ -45,6 +45,10 @@ try {
     await build();
 
     await assertPrerenderedHtml(outputDirectory, 'index.html', 'two classes');
+    // The footer's provenance is a server `load`, so a missing table 500s every
+    // page in the (app) group rather than just dropping a line. Assert the
+    // rendered date, not merely that the build survived.
+    await assertPrerenderedHtml(outputDirectory, 'index.html', 'January 1, 2020');
     await assertPrerenderedHtml(outputDirectory, 'map.html', 'Fixture Enemy');
     await assertPrerenderedHtml(outputDirectory, 'maps/Stowaway.html', "Stowaway's Step");
     console.log('Fixture prerender smoke passed for /, /map, and /maps/Stowaway.');

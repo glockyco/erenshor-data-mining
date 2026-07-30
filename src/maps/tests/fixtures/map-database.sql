@@ -10,7 +10,7 @@ CREATE TABLE zones (
 );
 
 CREATE TABLE classes (
-    stable_key TEXT PRIMARY KEY
+    class_name TEXT PRIMARY KEY
 );
 
 CREATE TABLE quests (
@@ -228,6 +228,15 @@ CREATE TABLE quest_variants (
     unlock_item_for_vendor_stable_key TEXT REFERENCES items(stable_key)
 );
 
+-- Read by the shared site footer through `getDataProvenance`, so the (app)
+-- layout load fails and every page 500s during prerender without it.
+CREATE TABLE code_facts_meta (
+    assembly_sha256 TEXT,
+    extracted_at TEXT,
+    game_build_id TEXT,
+    game_build_published_at TEXT
+);
+
 -- The world map builds every registered zone, so every MAPS key needs a bearing.
 INSERT INTO zones (stable_key, scene_name, display_name, is_map_visible, north_bearing) VALUES
     ('zone:abyssal', 'Abyssal', 'Abyssal Lake', 1, 0),
@@ -278,7 +287,7 @@ INSERT INTO zones (stable_key, scene_name, display_name, is_map_visible, north_b
     ('zone:willowwatch', 'Willowwatch', 'Willowwatch Ridge', 1, 0),
     ('zone:windwashed', 'Windwashed', 'Windwashed Pass', 1, 0);
 
-INSERT INTO classes (stable_key) VALUES ('class:nightblade'), ('class:paladin');
+INSERT INTO classes (class_name) VALUES ('Nightblade'), ('Paladin');
 INSERT INTO quests (stable_key) VALUES ('quest:vendor-unlock'), ('quest:fixture-secondary');
 
 INSERT INTO items (
@@ -350,3 +359,8 @@ INSERT INTO character_vendor_quest_unlocks (character_stable_key, quest_stable_k
     ('character:breena carpenter', 'quest:vendor-unlock');
 INSERT INTO quest_variants (quest_stable_key, unlock_item_for_vendor_stable_key) VALUES
     ('quest:vendor-unlock', 'item:furniture - enchanted smithy');
+
+-- A build id and publish time distinct from any real one, so a fixture render
+-- can never be mistaken for a render of the live data.
+INSERT INTO code_facts_meta (assembly_sha256, extracted_at, game_build_id, game_build_published_at) VALUES
+    ('fixture-sha', '2020-01-02T03:04:05+00:00', '10000001', '2020-01-01T00:00:00+00:00');
