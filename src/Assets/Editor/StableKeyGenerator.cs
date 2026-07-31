@@ -82,9 +82,10 @@ public static class StableKeyGenerator
 
         // Find Resources folder position and extract path after it
         var resourcesIndex = pathWithoutExtension.IndexOf("/Resources/");
-        var resourcePath = resourcesIndex >= 0
-            ? pathWithoutExtension.Substring(resourcesIndex + "/Resources/".Length)
-            : System.IO.Path.GetFileNameWithoutExtension(assetPath);
+        var resourcePath =
+            resourcesIndex >= 0
+                ? pathWithoutExtension.Substring(resourcesIndex + "/Resources/".Length)
+                : System.IO.Path.GetFileNameWithoutExtension(assetPath);
 
         // Normalize path: replace slashes with dashes, apply standard normalization
         var normalizedPath = resourcePath.Replace('/', '-').Replace('\\', '-');
@@ -174,7 +175,8 @@ public static class StableKeyGenerator
             var xStr = FormatCoord(character.transform.position.x);
             var yStr = FormatCoord(character.transform.position.y);
             var zStr = FormatCoord(character.transform.position.z);
-            baseKey = $"character:{normalizedObjectName}:{normalizedSceneName}:{xStr}:{yStr}:{zStr}";
+            baseKey =
+                $"character:{normalizedObjectName}:{normalizedSceneName}:{xStr}:{yStr}:{zStr}";
         }
 
         // Append variant index if this is a duplicate
@@ -248,7 +250,6 @@ public static class StableKeyGenerator
         return $"trigger:{Normalize(scene)}:{FormatCoord(x)}:{FormatCoord(y)}:{FormatCoord(z)}";
     }
 
-
     /// <summary>
     /// Generate stable key for a door.
     /// Format: "door:scene:x:y:z"
@@ -289,12 +290,24 @@ public static class StableKeyGenerator
     /// Generate stable key for a zone line.
     /// Format: "zoneline:source_scene:dest_scene:x:y:z"
     /// </summary>
-    public static string ForZoneLine(string sourceScene, string destScene, float x, float y, float z)
+    public static string ForZoneLine(
+        string sourceScene,
+        string destScene,
+        float x,
+        float y,
+        float z
+    )
     {
         if (string.IsNullOrEmpty(sourceScene))
-            throw new ArgumentException("Source scene cannot be null or empty", nameof(sourceScene));
+            throw new ArgumentException(
+                "Source scene cannot be null or empty",
+                nameof(sourceScene)
+            );
         if (string.IsNullOrEmpty(destScene))
-            throw new ArgumentException("Destination scene cannot be null or empty", nameof(destScene));
+            throw new ArgumentException(
+                "Destination scene cannot be null or empty",
+                nameof(destScene)
+            );
 
         return $"zoneline:{Normalize(sourceScene)}:{Normalize(destScene)}:{FormatCoord(x)}:{FormatCoord(y)}:{FormatCoord(z)}";
     }
@@ -394,7 +407,10 @@ public static class StableKeyGenerator
         if (string.IsNullOrEmpty(objectName))
             throw new ArgumentException("Object name cannot be null or empty", nameof(objectName));
         if (roundIndex <= 0)
-            throw new ArgumentOutOfRangeException(nameof(roundIndex), "Round index must be positive");
+            throw new ArgumentOutOfRangeException(
+                nameof(roundIndex),
+                "Round index must be positive"
+            );
 
         return $"arenaround:{Normalize(scene)}:{Normalize(objectName)}:{roundIndex}";
     }

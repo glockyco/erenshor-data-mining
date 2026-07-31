@@ -59,14 +59,17 @@ public class WaterListener : IAssetScanListener<Water>
             Z = z,
             Width = asset.transform.localScale.x,
             Height = asset.transform.localScale.y,
-            Depth = asset.transform.localScale.z
+            Depth = asset.transform.localScale.z,
         };
 
         _waterRecords.Add(water);
         _waterFishableRecords.AddRange(CreateWaterFishableRecords(asset, stableKey));
     }
 
-    private static List<WaterFishableRecord> CreateWaterFishableRecords(Water water, string waterStableKey)
+    private static List<WaterFishableRecord> CreateWaterFishableRecords(
+        Water water,
+        string waterStableKey
+    )
     {
         var waterFishableRecords = new List<WaterFishableRecord>();
 
@@ -76,7 +79,7 @@ public class WaterListener : IAssetScanListener<Water>
             "item:torn treasure map (top right)",
             "item:torn treasure map (top left)",
             "item:torn treasure map (bottom right)",
-            "item:torn treasure map (bottom left)"
+            "item:torn treasure map (bottom left)",
         };
 
         void AddFishableRecords(List<Item> fishables, string type)
@@ -99,18 +102,21 @@ public class WaterListener : IAssetScanListener<Water>
             foreach (var itemStableKey in treasureMapPieceStableKeys)
             {
                 itemTotalDropChances.TryAdd(itemStableKey, 0f);
-                itemTotalDropChances[itemStableKey] += mapFragmentChance / treasureMapPieceStableKeys.Count;
+                itemTotalDropChances[itemStableKey] +=
+                    mapFragmentChance / treasureMapPieceStableKeys.Count;
             }
 
             foreach (var kvp in itemTotalDropChances)
             {
-                waterFishableRecords.Add(new WaterFishableRecord
-                {
-                    WaterStableKey = waterStableKey,
-                    Type = type,
-                    ItemStableKey = kvp.Key,
-                    DropChance = kvp.Value
-                });
+                waterFishableRecords.Add(
+                    new WaterFishableRecord
+                    {
+                        WaterStableKey = waterStableKey,
+                        Type = type,
+                        ItemStableKey = kvp.Key,
+                        DropChance = kvp.Value,
+                    }
+                );
             }
         }
 

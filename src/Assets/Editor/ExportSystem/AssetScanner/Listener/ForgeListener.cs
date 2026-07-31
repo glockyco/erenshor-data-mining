@@ -38,13 +38,15 @@ public class ForgeListener : IAssetScanListener<ForgeEffect>
         var baseStableKey = StableKeyGenerator.ForForge(scene, x, y, z);
         var stableKey = _keyTracker.GetUniqueKey(baseStableKey, asset.gameObject.name);
 
-        _records.Add(new ForgeRecord
-        {
-            StableKey = stableKey,
-            Scene = scene,
-            X = x,
-            Y = y,
-            Z = z
-        });
+        _records.Add(
+            new ForgeRecord
+            {
+                StableKey = stableKey,
+                Scene = scene,
+                X = x,
+                Y = y,
+                Z = z,
+            }
+        );
     }
 }

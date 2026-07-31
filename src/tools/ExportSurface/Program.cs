@@ -6,7 +6,9 @@ using Mono.Cecil;
 
 if (args.Length < 2)
 {
-    Console.Error.WriteLine("usage: ExportSurface <assembly.dll> <manifest.json> [--out <result.json>]");
+    Console.Error.WriteLine(
+        "usage: ExportSurface <assembly.dll> <manifest.json> [--out <result.json>]"
+    );
     return 2;
 }
 
@@ -38,10 +40,13 @@ if (!File.Exists(assemblyPath))
     Console.Error.WriteLine($"assembly not found: {assemblyPath}");
     return 2;
 }
+
 // Only the shipped binary is authoritative (spec §6).
 if (!assemblyPath.Replace('\\', '/').Contains("/Managed/"))
 {
-    Console.Error.WriteLine($"refusing non-shipped assembly path (must be under .../Managed/): {assemblyPath}");
+    Console.Error.WriteLine(
+        $"refusing non-shipped assembly path (must be under .../Managed/): {assemblyPath}"
+    );
     return 2;
 }
 if (!File.Exists(manifestPath))
@@ -85,8 +90,10 @@ var envelope = new
         }),
 };
 string json = JsonSerializer.Serialize(envelope, JsonOptions.Indented);
-if (outPath is null) Console.WriteLine(json);
-else File.WriteAllText(outPath, json);
+if (outPath is null)
+    Console.WriteLine(json);
+else
+    File.WriteAllText(outPath, json);
 return findings.Count == 0 ? 0 : 1;
 
 internal static class JsonOptions

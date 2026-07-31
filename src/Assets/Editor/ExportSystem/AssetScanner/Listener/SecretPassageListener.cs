@@ -53,14 +53,51 @@ public class SecretPassageListener : IAssetScanListener<GameObject>
         var exclusionReason = GetExclusionReason(asset.name);
         string[] keywords =
         {
-            "ASCHIEVEMENT", "AUDIO", "AggroArea", "BLOCKER", "BonePile", "Bush", "Candle", "Chandelier", "Chess",
-            "Cube", "Curtain", "Event", "Flowers", "Furnace", "Halberd", "LOD", "Leaves", "MemorySphere", "Mushroom",
-            "Pickaxe", "Plane", "PlanterBox", "PointOfInterest", "Pole", "Rubble", "SAFESPOT",
-            "Shiver Intro", "Spear", "Sphere", "Statue", "Sword", "Torch", "Tree", "Trigger", "Tut", "Tutorial",
-            "Water", "ZoneLine", "Bounds", "FishingRod", "Wall_Frame_Curved",
+            "ASCHIEVEMENT",
+            "AUDIO",
+            "AggroArea",
+            "BLOCKER",
+            "BonePile",
+            "Bush",
+            "Candle",
+            "Chandelier",
+            "Chess",
+            "Cube",
+            "Curtain",
+            "Event",
+            "Flowers",
+            "Furnace",
+            "Halberd",
+            "LOD",
+            "Leaves",
+            "MemorySphere",
+            "Mushroom",
+            "Pickaxe",
+            "Plane",
+            "PlanterBox",
+            "PointOfInterest",
+            "Pole",
+            "Rubble",
+            "SAFESPOT",
+            "Shiver Intro",
+            "Spear",
+            "Sphere",
+            "Statue",
+            "Sword",
+            "Torch",
+            "Tree",
+            "Trigger",
+            "Tut",
+            "Tutorial",
+            "Water",
+            "ZoneLine",
+            "Bounds",
+            "FishingRod",
+            "Wall_Frame_Curved",
         };
         var matchedKeyword = keywords.FirstOrDefault(keyword =>
-            asset.name.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0);
+            asset.name.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0
+        );
         if (exclusionReason is null && matchedKeyword is not null)
         {
             exclusionReason = $"{LegacyKeywordExclusion}:{matchedKeyword}";
@@ -73,17 +110,26 @@ public class SecretPassageListener : IAssetScanListener<GameObject>
 
         var colliders = asset.GetComponents<Collider>();
         var noCollisionLayer = LayerMask.NameToLayer("NoCollision");
-        var enabledCollider = colliders.FirstOrDefault(c => c.enabled && asset.layer != noCollisionLayer);
+        var enabledCollider = colliders.FirstOrDefault(c =>
+            c.enabled && asset.layer != noCollisionLayer
+        );
 
         var renderers = asset.GetComponents<Renderer>();
         var enabledRenderer = renderers.FirstOrDefault(r => r.enabled);
 
-        if (colliders.Length == 0 || renderers.Length == 0 || (!enabledCollider && !enabledRenderer))
+        if (
+            colliders.Length == 0
+            || renderers.Length == 0
+            || (!enabledCollider && !enabledRenderer)
+        )
         {
             return;
         }
 
-        var isHiddenDoor = asset.GetComponent<Door>() && !asset.name.ToLower().Contains("door") && !asset.name.ToLower().Contains("gate");
+        var isHiddenDoor =
+            asset.GetComponent<Door>()
+            && !asset.name.ToLower().Contains("door")
+            && !asset.name.ToLower().Contains("gate");
         var isIllusoryWall = !enabledCollider && enabledRenderer;
         var isInvisibleFloor = enabledCollider && !enabledRenderer;
 
@@ -111,11 +157,15 @@ public class SecretPassageListener : IAssetScanListener<GameObject>
             throw new InvalidOperationException("Secret passage exclusion must include a reason");
         }
 
-        Debug.Log(isExcluded
-            ? $"[{GetType().Name}] Excluded: {asset.name} ({exclusionReason})"
-            : $"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
+        Debug.Log(
+            isExcluded
+                ? $"[{GetType().Name}] Excluded: {asset.name} ({exclusionReason})"
+                : $"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})"
+        );
 
-        var position = enabledRenderer ? enabledRenderer.bounds.center : enabledCollider.bounds.center;
+        var position = enabledRenderer
+            ? enabledRenderer.bounds.center
+            : enabledCollider.bounds.center;
         var scene = asset.scene.name;
         var x = position.x;
         var y = position.y;
@@ -149,8 +199,10 @@ public class SecretPassageListener : IAssetScanListener<GameObject>
             return NavigationLinkExclusion;
         }
 
-        if (normalized.Equals("RAIDWELCOME", StringComparison.OrdinalIgnoreCase) ||
-            normalized.Equals("ARENA EVENT", StringComparison.OrdinalIgnoreCase))
+        if (
+            normalized.Equals("RAIDWELCOME", StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("ARENA EVENT", StringComparison.OrdinalIgnoreCase)
+        )
         {
             return EventAnchorExclusion;
         }
@@ -175,7 +227,10 @@ public class SecretPassageListener : IAssetScanListener<GameObject>
 
     private static bool IsRoomMarker(string objectName)
     {
-        if (objectName.Length != 7 || !objectName.StartsWith("Room ", StringComparison.OrdinalIgnoreCase))
+        if (
+            objectName.Length != 7
+            || !objectName.StartsWith("Room ", StringComparison.OrdinalIgnoreCase)
+        )
         {
             return false;
         }

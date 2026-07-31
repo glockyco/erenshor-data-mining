@@ -17,13 +17,15 @@ public class AssetScanner
     private readonly Dictionary<Type, HashSet<object>> _componentListeners = new();
     private readonly Dictionary<Type, HashSet<object>> _scriptableObjectListeners = new();
     private readonly AssetScanProfiler _profiler;
-    private readonly Dictionary<(Type ListenerType, Type AssetType), MethodInfo> _onAssetFoundMethodCache = new();
+    private readonly Dictionary<
+        (Type ListenerType, Type AssetType),
+        MethodInfo
+    > _onAssetFoundMethodCache = new();
 
     public AssetScanner(AssetScanProfiler profiler = null)
     {
         _profiler = profiler ?? AssetScanProfiler.Disabled;
     }
-
 
     public void RegisterNullListener(IAssetScanListener<Object> listener)
     {
@@ -35,17 +37,22 @@ public class AssetScanner
         RegisterListener(_gameObjectListeners, listener);
     }
 
-    public void RegisterComponentListener<T>(IAssetScanListener<T> listener) where T : Component
+    public void RegisterComponentListener<T>(IAssetScanListener<T> listener)
+        where T : Component
     {
         RegisterListener(_componentListeners, listener);
     }
 
-    public void RegisterScriptableObjectListener<T>(IAssetScanListener<T> listener) where T : ScriptableObject
+    public void RegisterScriptableObjectListener<T>(IAssetScanListener<T> listener)
+        where T : ScriptableObject
     {
         RegisterListener(_scriptableObjectListeners, listener);
     }
 
-    private void RegisterListener<T>(Dictionary<Type, HashSet<object>> map, IAssetScanListener<T> listener)
+    private void RegisterListener<T>(
+        Dictionary<Type, HashSet<object>> map,
+        IAssetScanListener<T> listener
+    )
         where T : Object
     {
         var type = typeof(T);
@@ -70,7 +77,8 @@ public class AssetScanner
             return cached;
         }
 
-        MethodInfo method = listenerObj.GetType()
+        MethodInfo method = listenerObj
+            .GetType()
             .GetMethods()
             .FirstOrDefault(candidate =>
             {
@@ -80,7 +88,8 @@ public class AssetScanner
                 }
 
                 ParameterInfo[] parameters = candidate.GetParameters();
-                return parameters.Length == 1 && parameters[0].ParameterType.IsAssignableFrom(assetType);
+                return parameters.Length == 1
+                    && parameters[0].ParameterType.IsAssignableFrom(assetType);
             });
         _onAssetFoundMethodCache[key] = method;
         return method;
@@ -97,28 +106,45 @@ public class AssetScanner
 
         MethodInfo method = null;
         string listenerName = listenerObj.GetType().Name;
-        _profiler.Measure("dispatch", listenerName + ".method_lookup", () =>
-        {
-            method = GetCachedOnAssetFoundMethod(listenerObj, asset.GetType());
-        });
+        _profiler.Measure(
+            "dispatch",
+            listenerName + ".method_lookup",
+            () =>
+            {
+                method = GetCachedOnAssetFoundMethod(listenerObj, asset.GetType());
+            }
+        );
         if (method != null)
         {
-            _profiler.Measure("listener.OnAssetFound", listenerName, () =>
-            {
-                method.Invoke(listenerObj, new object[] { asset });
-            });
+            _profiler.Measure(
+                "listener.OnAssetFound",
+                listenerName,
+                () =>
+                {
+                    method.Invoke(listenerObj, new object[] { asset });
+                }
+            );
         }
     }
 
     public IEnumerator ScanAllAssetsCoroutine(
         Func<bool> cancelRequested = null,
-        Action<AssetScanProgress> progressCallback = null)
+        Action<AssetScanProgress> progressCallback = null
+    )
     {
         const float maxFrameTimeMs = 10f;
         Stopwatch stopwatch = new Stopwatch();
 
         // --- Notify Scan Started ---
-        foreach (var listenerMap in new[] { _nullListeners, _gameObjectListeners, _scriptableObjectListeners, _componentListeners })
+        foreach (
+            var listenerMap in new[]
+            {
+                _nullListeners,
+                _gameObjectListeners,
+                _scriptableObjectListeners,
+                _componentListeners,
+            }
+        )
         {
             foreach (var listenerObj in listenerMap.SelectMany(kvp => kvp.Value))
             {
@@ -130,17 +156,25 @@ public class AssetScanner
         if (_scriptableObjectListeners.Count > 0)
         {
             ScriptableObject[] resourceAssets = Array.Empty<ScriptableObject>();
-            _profiler.Measure("scanner.shared", "resources_load_all", () =>
-            {
-                resourceAssets = Resources.LoadAll<ScriptableObject>("");
-            });
+            _profiler.Measure(
+                "scanner.shared",
+                "resources_load_all",
+                () =>
+                {
+                    resourceAssets = Resources.LoadAll<ScriptableObject>("");
+                }
+            );
             var assets = new List<ScriptableObject>(resourceAssets);
 
             string[] guids = Array.Empty<string>();
-            _profiler.Measure("scanner.shared", "scriptable_object_find_assets", () =>
-            {
-                guids = AssetDatabase.FindAssets("t:Class");
-            });
+            _profiler.Measure(
+                "scanner.shared",
+                "scriptable_object_find_assets",
+                () =>
+                {
+                    guids = AssetDatabase.FindAssets("t:Class");
+                }
+            );
             foreach (var guid in guids)
             {
                 var path = AssetDatabase.GUIDToAssetPath(guid);
@@ -161,13 +195,16 @@ public class AssetScanner
                     yield break;
                 }
                 current++;
-                progressCallback?.Invoke(new AssetScanProgress
-                {
-                    Phase = "ScriptableObjects",
-                    Current = current,
-                    Total = total,
-                });
-                if (asset == null) continue;
+                progressCallback?.Invoke(
+                    new AssetScanProgress
+                    {
+                        Phase = "ScriptableObjects",
+                        Current = current,
+                        Total = total,
+                    }
+                );
+                if (asset == null)
+                    continue;
                 var assetType = asset.GetType();
                 foreach (var kvp in _scriptableObjectListeners)
                 {
@@ -202,10 +239,14 @@ public class AssetScanner
         if (_componentListeners.Count > 0)
         {
             string[] prefabGuids = Array.Empty<string>();
-            _profiler.Measure("scanner.shared", "prefab_find_assets", () =>
-            {
-                prefabGuids = AssetDatabase.FindAssets("t:Prefab");
-            });
+            _profiler.Measure(
+                "scanner.shared",
+                "prefab_find_assets",
+                () =>
+                {
+                    prefabGuids = AssetDatabase.FindAssets("t:Prefab");
+                }
+            );
             int prefabTotal = prefabGuids.Length;
             int prefabCurrent = 0;
             stopwatch.Restart();
@@ -216,17 +257,29 @@ public class AssetScanner
                 prefabCurrent++;
                 var path = AssetDatabase.GUIDToAssetPath(guid);
                 var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-                progressCallback?.Invoke(new AssetScanProgress
-                {
-                    Phase = "Prefabs",
-                    Current = prefabCurrent,
-                    Total = prefabTotal,
-                });
+                progressCallback?.Invoke(
+                    new AssetScanProgress
+                    {
+                        Phase = "Prefabs",
+                        Current = prefabCurrent,
+                        Total = prefabTotal,
+                    }
+                );
                 if (prefab != null)
                 {
-                    foreach (var _ in ScanGameObjectsAndComponentsInHierarchy(
-                        prefab, stopwatch, maxFrameTimeMs, cancelRequested, progressCallback,
-                        "Prefabs", prefabCurrent, prefabTotal, false))
+                    foreach (
+                        var _ in ScanGameObjectsAndComponentsInHierarchy(
+                            prefab,
+                            stopwatch,
+                            maxFrameTimeMs,
+                            cancelRequested,
+                            progressCallback,
+                            "Prefabs",
+                            prefabCurrent,
+                            prefabTotal,
+                            false
+                        )
+                    )
                     {
                         yield return null;
                     }
@@ -238,10 +291,14 @@ public class AssetScanner
         if (_gameObjectListeners.Count > 0 || _componentListeners.Count > 0)
         {
             EditorBuildSettingsScene[] scenePaths = Array.Empty<EditorBuildSettingsScene>();
-            _profiler.Measure("scanner.shared", "scene_find_assets", () =>
-            {
-                scenePaths = EditorBuildSettings.scenes;
-            });
+            _profiler.Measure(
+                "scanner.shared",
+                "scene_find_assets",
+                () =>
+                {
+                    scenePaths = EditorBuildSettings.scenes;
+                }
+            );
             int total = scenePaths.Length;
             int current = 0;
             foreach (var scene in scenePaths)
@@ -249,23 +306,39 @@ public class AssetScanner
                 if (cancelRequested != null && cancelRequested())
                     yield break;
                 current++;
-                progressCallback?.Invoke(new AssetScanProgress
-                {
-                    Phase = "Scenes",
-                    Current = current,
-                    Total = total,
-                });
+                progressCallback?.Invoke(
+                    new AssetScanProgress
+                    {
+                        Phase = "Scenes",
+                        Current = current,
+                        Total = total,
+                    }
+                );
                 UnityEngine.SceneManagement.Scene sceneObj = default;
-                _profiler.Measure("scanner.shared", "scene_open", () =>
-                {
-                    sceneObj = EditorSceneManager.OpenScene(scene.path, OpenSceneMode.Single);
-                });
+                _profiler.Measure(
+                    "scanner.shared",
+                    "scene_open",
+                    () =>
+                    {
+                        sceneObj = EditorSceneManager.OpenScene(scene.path, OpenSceneMode.Single);
+                    }
+                );
                 var rootObjects = sceneObj.GetRootGameObjects();
                 foreach (var root in rootObjects)
                 {
-                    foreach (var _ in ScanGameObjectsAndComponentsInHierarchy(
-                        root, stopwatch, maxFrameTimeMs, cancelRequested, progressCallback,
-                        "Scenes", current, total, true))
+                    foreach (
+                        var _ in ScanGameObjectsAndComponentsInHierarchy(
+                            root,
+                            stopwatch,
+                            maxFrameTimeMs,
+                            cancelRequested,
+                            progressCallback,
+                            "Scenes",
+                            current,
+                            total,
+                            true
+                        )
+                    )
                     {
                         yield return null;
                     }
@@ -274,14 +347,26 @@ public class AssetScanner
         }
 
         // --- Notify Scan Finished ---
-        foreach (var listenerMap in new[] { _nullListeners, _gameObjectListeners, _scriptableObjectListeners, _componentListeners })
+        foreach (
+            var listenerMap in new[]
+            {
+                _nullListeners,
+                _gameObjectListeners,
+                _scriptableObjectListeners,
+                _componentListeners,
+            }
+        )
         {
             foreach (var listenerObj in listenerMap.SelectMany(kvp => kvp.Value))
             {
-                _profiler.Measure("listener.OnScanFinished", listenerObj.GetType().Name, () =>
-                {
-                    InvokeListenerMethod(listenerObj, "OnScanFinished");
-                });
+                _profiler.Measure(
+                    "listener.OnScanFinished",
+                    listenerObj.GetType().Name,
+                    () =>
+                    {
+                        InvokeListenerMethod(listenerObj, "OnScanFinished");
+                    }
+                );
             }
         }
         _profiler.LogAndWriteSummary();
@@ -296,7 +381,8 @@ public class AssetScanner
         string parentPhase,
         int parentCurrent,
         int parentTotal,
-        bool notifyGameObjectListeners)
+        bool notifyGameObjectListeners
+    )
     {
         if (root == null)
         {
@@ -347,10 +433,14 @@ public class AssetScanner
             if (_profiler.Enabled)
             {
                 components = Array.Empty<Component>();
-                _profiler.Measure("scanner.shared", "get_components", () =>
-                {
-                    components = go.GetComponents<Component>();
-                });
+                _profiler.Measure(
+                    "scanner.shared",
+                    "get_components",
+                    () =>
+                    {
+                        components = go.GetComponents<Component>();
+                    }
+                );
             }
             else
             {
@@ -387,12 +477,14 @@ public class AssetScanner
                 }
             }
 
-            progressCallback?.Invoke(new AssetScanProgress
-            {
-                Phase = parentPhase,
-                Current = parentCurrent,
-                Total = parentTotal,
-            });
+            progressCallback?.Invoke(
+                new AssetScanProgress
+                {
+                    Phase = parentPhase,
+                    Current = parentCurrent,
+                    Total = parentTotal,
+                }
+            );
 
             if (stopwatch.ElapsedMilliseconds >= maxFrameTimeMs)
             {
@@ -402,16 +494,20 @@ public class AssetScanner
 
             if (_profiler.Enabled)
             {
-                _profiler.Measure("scanner.shared", "scene_hierarchy_walk", () =>
-                {
-                    foreach (Transform child in go.transform)
+                _profiler.Measure(
+                    "scanner.shared",
+                    "scene_hierarchy_walk",
+                    () =>
                     {
-                        if (child != null && child.gameObject != null)
+                        foreach (Transform child in go.transform)
                         {
-                            stack.Push(child.gameObject);
+                            if (child != null && child.gameObject != null)
+                            {
+                                stack.Push(child.gameObject);
+                            }
                         }
                     }
-                });
+                );
             }
             else
             {

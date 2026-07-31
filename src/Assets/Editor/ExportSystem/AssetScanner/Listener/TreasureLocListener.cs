@@ -50,7 +50,7 @@ public class TreasureLocListener : IAssetScanListener<TreasureLoc>
             Scene = scene,
             X = x,
             Y = y,
-            Z = z
+            Z = z,
         };
     }
 }

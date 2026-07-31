@@ -37,7 +37,8 @@ public class LootTableProbabilityCalculator
         {
             foreach (var item in list)
             {
-                if (item == null) continue;
+                if (item == null)
+                    continue;
                 if (!itemIndex.ContainsKey(item))
                 {
                     itemIndex[item] = allItems.Count;
@@ -60,9 +61,12 @@ public class LootTableProbabilityCalculator
             {
                 foreach (var item in list)
                 {
-                    if (item == null) continue;
-                    if (!dict.ContainsKey(item)) dict[item] = 1;
-                    else dict[item]++;
+                    if (item == null)
+                        continue;
+                    if (!dict.ContainsKey(item))
+                        dict[item] = 1;
+                    else
+                        dict[item]++;
                 }
 
                 totalEntries[i] = list.Count;
@@ -87,7 +91,8 @@ public class LootTableProbabilityCalculator
 
         for (int i = 0; i < 5; ++i)
         {
-            bool hasItems = dropLists[i] != null && dropLists[i].Count > 0 && (i < 4 ? nonCommonAllowed : true);
+            bool hasItems =
+                dropLists[i] != null && dropLists[i].Count > 0 && (i < 4 ? nonCommonAllowed : true);
             if (hasItems)
             {
                 effectiveProbs[i] = baseProbs[i] + carry;
@@ -232,7 +237,13 @@ public class LootTableProbabilityCalculator
 
                 if (isWorld)
                     nextWorldDrop = true;
-                else if (idx < itemCount && idx >= 0 && idx < itemCount && idx >= 0 && idx < itemCount)
+                else if (
+                    idx < itemCount
+                    && idx >= 0
+                    && idx < itemCount
+                    && idx >= 0
+                    && idx < itemCount
+                )
                 {
                     // Only increment nonCommonUsed if it's a non-common drop
                     // (for ultrarare, legendary, rare, uncommon)
@@ -297,7 +308,8 @@ public class LootTableProbabilityCalculator
         {
             foreach (var item in lootTable.ActualDrops)
             {
-                if (item == null) continue;
+                if (item == null)
+                    continue;
                 var fixedDropDistribution = new double[maxCount];
                 fixedDropDistribution[1] = 1.0;
                 ConvolveDropDistribution(resultDict, item.name, fixedDropDistribution, maxCount);
@@ -310,7 +322,8 @@ public class LootTableProbabilityCalculator
     private static void ApplyGuaranteedDropDistributions(
         LootTable lootTable,
         Dictionary<string, double[]> resultDict,
-        int maxCount)
+        int maxCount
+    )
     {
         if (lootTable.GuaranteeOneDrop is not { Count: > 0 })
             return;
@@ -347,7 +360,9 @@ public class LootTableProbabilityCalculator
             return;
 
         if (items.Count > 63)
-            throw new InvalidOperationException($"LootTable '{lootTable.name}' has {items.Count} distinct guaranteed items; the exporter supports at most 63.");
+            throw new InvalidOperationException(
+                $"LootTable '{lootTable.name}' has {items.Count} distinct guaranteed items; the exporter supports at most 63."
+            );
 
         ulong initialSelectedMask = 0UL;
         if (lootTable.ActualDrops != null)
@@ -370,7 +385,8 @@ public class LootTableProbabilityCalculator
                 totalEntryCount,
                 rollCount,
                 initialSelectedMask,
-                maxCount);
+                maxCount
+            );
             ConvolveDropDistribution(resultDict, items[itemIndex].name, distribution, maxCount);
         }
     }
@@ -383,11 +399,12 @@ public class LootTableProbabilityCalculator
         int totalEntryCount,
         int rollCount,
         ulong initialSelectedMask,
-        int maxCount)
+        int maxCount
+    )
     {
         var states = new Dictionary<(ulong selectedMask, int targetCount), double>
         {
-            [(initialSelectedMask, 0)] = 1.0
+            [(initialSelectedMask, 0)] = 1.0,
         };
 
         for (int roll = 0; roll < rollCount; roll++)
@@ -408,9 +425,10 @@ public class LootTableProbabilityCalculator
                 }
 
                 double invalidProbability = (double)invalidEntryCount / totalEntryCount;
-                double validScale = invalidProbability >= 1.0
-                    ? 0.0
-                    : (1.0 - Math.Pow(invalidProbability, 10)) / (1.0 - invalidProbability);
+                double validScale =
+                    invalidProbability >= 1.0
+                        ? 0.0
+                        : (1.0 - Math.Pow(invalidProbability, 10)) / (1.0 - invalidProbability);
                 double fallbackScale = Math.Pow(invalidProbability, 9);
 
                 for (int itemIndex = 0; itemIndex < items.Count; itemIndex++)
@@ -424,16 +442,27 @@ public class LootTableProbabilityCalculator
                     if (outcomeProbability <= 0.0)
                         continue;
 
-                    ulong nextSelectedMask = alreadySelected ? selectedMask : selectedMask | (1UL << itemIndex);
+                    ulong nextSelectedMask = alreadySelected
+                        ? selectedMask
+                        : selectedMask | (1UL << itemIndex);
                     int nextTargetCount = targetCount + (itemIndex == targetItemIndex ? 1 : 0);
-                    AddStateProbability(nextStates, (nextSelectedMask, nextTargetCount), stateProbability * outcomeProbability);
+                    AddStateProbability(
+                        nextStates,
+                        (nextSelectedMask, nextTargetCount),
+                        stateProbability * outcomeProbability
+                    );
                 }
 
                 if (nullEntryCount > 0)
                 {
-                    double nullOutcomeProbability = fallbackScale * nullEntryCount / totalEntryCount;
+                    double nullOutcomeProbability =
+                        fallbackScale * nullEntryCount / totalEntryCount;
                     if (nullOutcomeProbability > 0.0)
-                        AddStateProbability(nextStates, (selectedMask, targetCount), stateProbability * nullOutcomeProbability);
+                        AddStateProbability(
+                            nextStates,
+                            (selectedMask, targetCount),
+                            stateProbability * nullOutcomeProbability
+                        );
                 }
             }
 
@@ -452,7 +481,8 @@ public class LootTableProbabilityCalculator
     private static void AddStateProbability(
         Dictionary<(ulong selectedMask, int targetCount), double> states,
         (ulong selectedMask, int targetCount) key,
-        double probability)
+        double probability
+    )
     {
         if (states.ContainsKey(key))
             states[key] += probability;
@@ -464,7 +494,8 @@ public class LootTableProbabilityCalculator
         Dictionary<string, double[]> resultDict,
         string itemName,
         double[] addedDistribution,
-        int maxCount)
+        int maxCount
+    )
     {
         if (!resultDict.TryGetValue(itemName, out var existingDistribution))
         {
@@ -480,7 +511,8 @@ public class LootTableProbabilityCalculator
                 int combinedCount = existingCount + addedCount;
                 if (combinedCount >= maxCount)
                     continue;
-                convolved[combinedCount] += existingDistribution[existingCount] * addedDistribution[addedCount];
+                convolved[combinedCount] +=
+                    existingDistribution[existingCount] * addedDistribution[addedCount];
             }
         }
 

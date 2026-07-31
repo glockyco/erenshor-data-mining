@@ -38,11 +38,18 @@ public class GuildTopicListener : IAssetScanListener<GuildTopic>
             StableKey = StableKeyGenerator.ForGuildTopic(asset, assetPath),
             GuildTopicDBIndex = _records.Count,
             Id = asset.Id,
-            ActivationWords = asset.ActivationWords != null ? JsonConvert.SerializeObject(asset.ActivationWords) : "[]",
-            Responses = asset.Responses != null ? JsonConvert.SerializeObject(asset.Responses) : "[]",
-            RelevantScenes = asset.RelevantScene != null ? JsonConvert.SerializeObject(asset.RelevantScene) : "[]",
+            ActivationWords =
+                asset.ActivationWords != null
+                    ? JsonConvert.SerializeObject(asset.ActivationWords)
+                    : "[]",
+            Responses =
+                asset.Responses != null ? JsonConvert.SerializeObject(asset.Responses) : "[]",
+            RelevantScenes =
+                asset.RelevantScene != null
+                    ? JsonConvert.SerializeObject(asset.RelevantScene)
+                    : "[]",
             RequiredLevelToKnow = asset.RequiredLevelToKnow,
-            ResourceName = asset.name
+            ResourceName = asset.name,
         };
 
         _records.Add(record);

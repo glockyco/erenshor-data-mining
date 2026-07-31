@@ -43,13 +43,15 @@ public class WishingWellListener : IAssetScanListener<GameObject>
         var baseStableKey = StableKeyGenerator.ForWishingWell(scene, x, y, z);
         var stableKey = _keyTracker.GetUniqueKey(baseStableKey, asset.name);
 
-        _records.Add(new WishingWellRecord
-        {
-            StableKey = stableKey,
-            Scene = scene,
-            X = x,
-            Y = y,
-            Z = z
-        });
+        _records.Add(
+            new WishingWellRecord
+            {
+                StableKey = stableKey,
+                Scene = scene,
+                X = x,
+                Y = y,
+                Z = z,
+            }
+        );
     }
 }

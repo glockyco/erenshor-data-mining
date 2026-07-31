@@ -14,7 +14,10 @@ public class SpawnPointTriggerListener : IAssetScanListener<SpawnPointTrigger>
     private readonly List<SpawnPointTriggerCharacterRecord> _characterRecords = new();
     private readonly DuplicateKeyTracker _keyTracker = new("SpawnPointTriggerListener");
 
-    public SpawnPointTriggerListener(SQLiteConnection db, CharacterStableKeyResolver characterKeyResolver)
+    public SpawnPointTriggerListener(
+        SQLiteConnection db,
+        CharacterStableKeyResolver characterKeyResolver
+    )
     {
         _db = db;
         _characterKeyResolver = characterKeyResolver;
@@ -24,7 +27,9 @@ public class SpawnPointTriggerListener : IAssetScanListener<SpawnPointTrigger>
     {
         if (asset.SpawnSpots == null || asset.SpawnSpots.Count == 0)
         {
-            Debug.LogWarning($"[SpawnPointTriggerListener] Trigger '{asset.gameObject.name}' has no SpawnSpots, skipping");
+            Debug.LogWarning(
+                $"[SpawnPointTriggerListener] Trigger '{asset.gameObject.name}' has no SpawnSpots, skipping"
+            );
             return;
         }
 
@@ -44,27 +49,39 @@ public class SpawnPointTriggerListener : IAssetScanListener<SpawnPointTrigger>
             }
 
             var position = spawnSpot.transform.position;
-            var baseKey = StableKeyGenerator.ForSpawnPointTrigger(scene, position.x, position.y, position.z);
-            var stableKey = _keyTracker.GetUniqueKey(baseKey, $"{asset.gameObject.name}/{spawnSpot.name}");
+            var baseKey = StableKeyGenerator.ForSpawnPointTrigger(
+                scene,
+                position.x,
+                position.y,
+                position.z
+            );
+            var stableKey = _keyTracker.GetUniqueKey(
+                baseKey,
+                $"{asset.gameObject.name}/{spawnSpot.name}"
+            );
 
-            _triggerRecords.Add(new SpawnPointTriggerRecord
-            {
-                StableKey = stableKey,
-                Scene = scene,
-                X = position.x,
-                Y = position.y,
-                Z = position.z,
-                IsEnabledByDefault = isEnabledByDefault,
-            });
+            _triggerRecords.Add(
+                new SpawnPointTriggerRecord
+                {
+                    StableKey = stableKey,
+                    Scene = scene,
+                    X = position.x,
+                    Y = position.y,
+                    Z = position.z,
+                    IsEnabledByDefault = isEnabledByDefault,
+                }
+            );
 
             foreach (var characterChance in characterChances)
             {
-                _characterRecords.Add(new SpawnPointTriggerCharacterRecord
-                {
-                    SpawnPointTriggerStableKey = stableKey,
-                    CharacterStableKey = characterChance.Key,
-                    SpawnChance = characterChance.Value,
-                });
+                _characterRecords.Add(
+                    new SpawnPointTriggerCharacterRecord
+                    {
+                        SpawnPointTriggerStableKey = stableKey,
+                        CharacterStableKey = characterChance.Key,
+                        SpawnChance = characterChance.Value,
+                    }
+                );
             }
         }
     }
@@ -95,7 +112,10 @@ public class SpawnPointTriggerListener : IAssetScanListener<SpawnPointTrigger>
                 continue;
             }
 
-            if (shiverEvent.SpawnTriggers != null && shiverEvent.SpawnTriggers.Contains(trigger.gameObject))
+            if (
+                shiverEvent.SpawnTriggers != null
+                && shiverEvent.SpawnTriggers.Contains(trigger.gameObject)
+            )
             {
                 return true;
             }
@@ -103,7 +123,6 @@ public class SpawnPointTriggerListener : IAssetScanListener<SpawnPointTrigger>
 
         return !trigger.isActiveAndEnabled;
     }
-
 
     private Dictionary<string, float> BuildCharacterChances(SpawnPointTrigger trigger)
     {
@@ -132,7 +151,8 @@ public class SpawnPointTriggerListener : IAssetScanListener<SpawnPointTrigger>
         Dictionary<string, float> characterChances,
         GameObject? spawnable,
         float spawnChance,
-        string sourceLabel)
+        string sourceLabel
+    )
     {
         if (spawnable == null || spawnChance <= 0f)
         {
@@ -143,7 +163,8 @@ public class SpawnPointTriggerListener : IAssetScanListener<SpawnPointTrigger>
         if (character == null)
         {
             Debug.LogWarning(
-                $"[SpawnPointTriggerListener] {sourceLabel} '{spawnable.name}' has no Character component, skipping");
+                $"[SpawnPointTriggerListener] {sourceLabel} '{spawnable.name}' has no Character component, skipping"
+            );
             return;
         }
 

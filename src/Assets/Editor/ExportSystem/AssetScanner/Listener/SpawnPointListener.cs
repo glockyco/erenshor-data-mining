@@ -18,9 +18,9 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
     private readonly DuplicateKeyTracker _keyTracker = new("SpawnPointListener");
 
     // Spawn delay multipliers from GameManager.SpawnTimeMod (lines 209-224)
-    private const float SpawnDelayMultiplier2 = 1.1f;  // 1-2 group members
-    private const float SpawnDelayMultiplier3 = 1.5f;  // 3 group members
-    private const float SpawnDelayMultiplier4 = 1.8f;  // 4 group members
+    private const float SpawnDelayMultiplier2 = 1.1f; // 1-2 group members
+    private const float SpawnDelayMultiplier3 = 1.5f; // 3 group members
+    private const float SpawnDelayMultiplier4 = 1.8f; // 4 group members
 
     public SpawnPointListener(SQLiteConnection db, CharacterStableKeyResolver characterKeyResolver)
     {
@@ -80,11 +80,22 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
         _spawnPointCharacterRecords.AddRange(spawnPointCharacterRecords);
 
         _spawnPointStopQuestRecords.AddRange(CreateSpawnPointStopQuestRecords(asset, stableKey));
-        _spawnPointPatrolPointRecords.AddRange(CreateSpawnPointPatrolPointRecords(asset, stableKey));
-        _spawnPointEssentialLinkRecords.AddRange(CreateSpawnPointEssentialLinkRecords(asset, stableKey, scene));
+        _spawnPointPatrolPointRecords.AddRange(
+            CreateSpawnPointPatrolPointRecords(asset, stableKey)
+        );
+        _spawnPointEssentialLinkRecords.AddRange(
+            CreateSpawnPointEssentialLinkRecords(asset, stableKey, scene)
+        );
     }
 
-    private SpawnPointRecord CreateSpawnPointRecord(SpawnPoint spawnPoint, string stableKey, string scene, float x, float y, float z)
+    private SpawnPointRecord CreateSpawnPointRecord(
+        SpawnPoint spawnPoint,
+        string stableKey,
+        string scene,
+        float x,
+        float y,
+        float z
+    )
     {
         // Default value 600f is taken from `SpawnPoint.Start`.
         var spawnDelay = spawnPoint.SpawnDelay == 0f ? 600f : spawnPoint.SpawnDelay;
@@ -107,20 +118,28 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
             Staggerable = spawnPoint.staggerable,
             StaggerMod = spawnPoint.staggerMod,
             NightSpawn = spawnPoint.NightSpawn,
-            PatrolPoints = spawnPoint.PatrolPoints != null ? string.Join(", ", spawnPoint.PatrolPoints.Select(t => t.position.ToString())) : null,
+            PatrolPoints =
+                spawnPoint.PatrolPoints != null
+                    ? string.Join(", ", spawnPoint.PatrolPoints.Select(t => t.position.ToString()))
+                    : null,
             LoopPatrol = spawnPoint.LoopPatrol,
             RandomWanderRange = spawnPoint.RandomWanderRange,
-            SpawnUponQuestCompleteStableKey = spawnPoint.SpawnUponQuestComplete != null
-                ? StableKeyGenerator.ForQuest(spawnPoint.SpawnUponQuestComplete)
-                : null,
+            SpawnUponQuestCompleteStableKey =
+                spawnPoint.SpawnUponQuestComplete != null
+                    ? StableKeyGenerator.ForQuest(spawnPoint.SpawnUponQuestComplete)
+                    : null,
             ProtectorStableKey = GetProtectorStableKey(spawnPoint),
         };
     }
 
-    private List<SpawnPointCharacterRecord> CreateSpawnPointCharacterRecords(SpawnPoint spawnPoint, string spawnPointStableKey)
+    private List<SpawnPointCharacterRecord> CreateSpawnPointCharacterRecords(
+        SpawnPoint spawnPoint,
+        string spawnPointStableKey
+    )
     {
         // Use Character stable key for grouping
-        var characterData = new Dictionary<string, (float spawnChance, bool isCommon, bool isRare)>();
+        var characterData =
+            new Dictionary<string, (float spawnChance, bool isCommon, bool isRare)>();
 
         float rareNpcChance = spawnPoint.RareSpawns.Count == 0 ? 0 : spawnPoint.RareNPCChance;
         float commonNpcChance = 100.0f - rareNpcChance;
@@ -134,7 +153,9 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
                 var character = rareSpawn.GetComponent<Character>();
                 if (character == null)
                 {
-                    UnityEngine.Debug.LogWarning($"[SpawnPointListener] RareSpawn GameObject '{rareSpawn.name}' has no Character component, skipping");
+                    UnityEngine.Debug.LogWarning(
+                        $"[SpawnPointListener] RareSpawn GameObject '{rareSpawn.name}' has no Character component, skipping"
+                    );
                     continue;
                 }
                 var characterStableKey = _characterKeyResolver.GetStableKey(character);
@@ -160,7 +181,9 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
                 var character = commonSpawn.GetComponent<Character>();
                 if (character == null)
                 {
-                    UnityEngine.Debug.LogWarning($"[SpawnPointListener] CommonSpawn GameObject '{commonSpawn.name}' has no Character component, skipping");
+                    UnityEngine.Debug.LogWarning(
+                        $"[SpawnPointListener] CommonSpawn GameObject '{commonSpawn.name}' has no Character component, skipping"
+                    );
                     continue;
                 }
                 var characterStableKey = _characterKeyResolver.GetStableKey(character);
@@ -181,20 +204,25 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
         var records = new List<SpawnPointCharacterRecord>();
         foreach (var kvp in characterData)
         {
-            records.Add(new SpawnPointCharacterRecord
-            {
-                SpawnPointStableKey = spawnPointStableKey,
-                CharacterStableKey = kvp.Key,
-                SpawnChance = kvp.Value.spawnChance,
-                IsCommon = kvp.Value.isCommon,
-                IsRare = kvp.Value.isRare,
-            });
+            records.Add(
+                new SpawnPointCharacterRecord
+                {
+                    SpawnPointStableKey = spawnPointStableKey,
+                    CharacterStableKey = kvp.Key,
+                    SpawnChance = kvp.Value.spawnChance,
+                    IsCommon = kvp.Value.isCommon,
+                    IsRare = kvp.Value.isRare,
+                }
+            );
         }
 
         return records;
     }
 
-    private List<SpawnPointStopQuestRecord> CreateSpawnPointStopQuestRecords(SpawnPoint spawnPoint, string spawnPointStableKey)
+    private List<SpawnPointStopQuestRecord> CreateSpawnPointStopQuestRecords(
+        SpawnPoint spawnPoint,
+        string spawnPointStableKey
+    )
     {
         var records = new List<SpawnPointStopQuestRecord>();
         var seenQuestStableKeys = new HashSet<string>();
@@ -208,11 +236,13 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
                     var questStableKey = StableKeyGenerator.ForQuest(quest);
                     if (seenQuestStableKeys.Add(questStableKey))
                     {
-                        records.Add(new SpawnPointStopQuestRecord
-                        {
-                            SpawnPointStableKey = spawnPointStableKey,
-                            QuestStableKey = questStableKey
-                        });
+                        records.Add(
+                            new SpawnPointStopQuestRecord
+                            {
+                                SpawnPointStableKey = spawnPointStableKey,
+                                QuestStableKey = questStableKey,
+                            }
+                        );
                     }
                 }
             }
@@ -221,7 +251,10 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
         return records;
     }
 
-    private List<SpawnPointPatrolPointRecord> CreateSpawnPointPatrolPointRecords(SpawnPoint spawnPoint, string spawnPointStableKey)
+    private List<SpawnPointPatrolPointRecord> CreateSpawnPointPatrolPointRecords(
+        SpawnPoint spawnPoint,
+        string spawnPointStableKey
+    )
     {
         var records = new List<SpawnPointPatrolPointRecord>();
 
@@ -232,14 +265,16 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
                 var patrolPoint = spawnPoint.PatrolPoints[i];
                 if (patrolPoint != null)
                 {
-                    records.Add(new SpawnPointPatrolPointRecord
-                    {
-                        SpawnPointStableKey = spawnPointStableKey,
-                        SequenceIndex = i,
-                        X = patrolPoint.position.x,
-                        Y = patrolPoint.position.y,
-                        Z = patrolPoint.position.z
-                    });
+                    records.Add(
+                        new SpawnPointPatrolPointRecord
+                        {
+                            SpawnPointStableKey = spawnPointStableKey,
+                            SequenceIndex = i,
+                            X = patrolPoint.position.x,
+                            Y = patrolPoint.position.y,
+                            Z = patrolPoint.position.z,
+                        }
+                    );
                 }
             }
         }
@@ -248,7 +283,10 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
     }
 
     private List<SpawnPointEssentialLinkRecord> CreateSpawnPointEssentialLinkRecords(
-        SpawnPoint spawnPoint, string spawnPointStableKey, string scene)
+        SpawnPoint spawnPoint,
+        string spawnPointStableKey,
+        string scene
+    )
     {
         var records = new List<SpawnPointEssentialLinkRecord>();
 
@@ -269,16 +307,19 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
                 essentialScene,
                 essential.transform.position.x,
                 essential.transform.position.y,
-                essential.transform.position.z);
+                essential.transform.position.z
+            );
 
             if (seenKeys.Add(essentialKey))
             {
-                records.Add(new SpawnPointEssentialLinkRecord
-                {
-                    SourceSpawnPointStableKey = spawnPointStableKey,
-                    EssentialSpawnPointStableKey = essentialKey,
-                    SourceScene = scene,
-                });
+                records.Add(
+                    new SpawnPointEssentialLinkRecord
+                    {
+                        SourceSpawnPointStableKey = spawnPointStableKey,
+                        EssentialSpawnPointStableKey = essentialKey,
+                        SourceScene = scene,
+                    }
+                );
             }
         }
 
@@ -293,7 +334,9 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
         var character = spawnPoint.Protector.GetComponent<Character>();
         if (character == null)
         {
-            UnityEngine.Debug.LogWarning($"[SpawnPointListener] Protector GameObject '{spawnPoint.Protector.name}' at {spawnPoint.transform.position} has no Character component, skipping");
+            UnityEngine.Debug.LogWarning(
+                $"[SpawnPointListener] Protector GameObject '{spawnPoint.Protector.name}' at {spawnPoint.transform.position} has no Character component, skipping"
+            );
             return null;
         }
 

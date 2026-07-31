@@ -33,13 +33,18 @@ public class TreasureHuntingListener : IAssetScanListener<TreasureHunting>
 
     private List<TreasureHuntingRecord> CreateRecords(TreasureHunting treasureHunting)
     {
-        return treasureHunting.PossibleZones.Select((zoneName, i) => new TreasureHuntingRecord
-        {
-            ZoneName = zoneName,
-            ZoneDisplayName = treasureHunting.ZoneDisplayNames[i],
-            IsPickableAlways = i < 3,
-            IsPickableGreater20 = i < 6,
-            IsPickableGreater30 = i < 9
-        }).ToList();
+        return treasureHunting
+            .PossibleZones.Select(
+                (zoneName, i) =>
+                    new TreasureHuntingRecord
+                    {
+                        ZoneName = zoneName,
+                        ZoneDisplayName = treasureHunting.ZoneDisplayNames[i],
+                        IsPickableAlways = i < 3,
+                        IsPickableGreater20 = i < 6,
+                        IsPickableGreater30 = i < 9,
+                    }
+            )
+            .ToList();
     }
 }

@@ -29,8 +29,10 @@ public class SpawnPointRecord
     public string? PatrolPoints { get; set; }
     public bool LoopPatrol { get; set; }
     public float RandomWanderRange { get; set; }
+
     [ForeignKey(typeof(QuestRecord), "StableKey")]
     public string? SpawnUponQuestCompleteStableKey { get; set; }
+
     [ForeignKey(typeof(CharacterRecord), "StableKey")]
     public string? ProtectorStableKey { get; set; }
 }

@@ -38,8 +38,10 @@ public class SkillRecord
     // --- Effects & Mechanics ---
     public bool AESkill { get; set; } // From Skill.AESkill
     public bool Interrupt { get; set; } // From Skill.Interrupt
+
     [ForeignKey(typeof(CharacterRecord), "StableKey")]
     public string? SpawnOnUseStableKey { get; set; }
+
     [ForeignKey(typeof(SpellRecord), "StableKey")]
     public string? EffectToApplyStableKey { get; set; }
     public bool AffectPlayer { get; set; } // From Skill.AffectPlayer
@@ -54,8 +56,10 @@ public class SkillRecord
     public bool GuaranteeProc { get; set; } // From Skill.GuaranteeProc
     public bool SkillCanCrit { get; set; } // From Skill.SkillCanCrit
     public bool AutomateAttack { get; set; } // From Skill.AutomateAttack
+
     [ForeignKey(typeof(SpellRecord), "StableKey")]
     public string? CastOnTargetStableKey { get; set; }
+
     [ForeignKey(typeof(StanceRecord), "StableKey")]
     public string? StanceToUseStableKey { get; set; }
 

@@ -55,9 +55,8 @@ public class DoorListener : IAssetScanListener<Door>
             X = x,
             Y = y,
             Z = z,
-            KeyItemStableKey = door.RequiredKey != null
-                ? StableKeyGenerator.ForItem(door.RequiredKey)
-                : null
+            KeyItemStableKey =
+                door.RequiredKey != null ? StableKeyGenerator.ForItem(door.RequiredKey) : null,
         };
     }
 }

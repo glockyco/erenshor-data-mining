@@ -58,14 +58,17 @@ public class MiningNodeListener : IAssetScanListener<MiningNode>
             Y = y,
             Z = z,
             NPCName = asset.GetComponent<NPC>().NPCName,
-            RespawnTime = asset.RespawnTime
+            RespawnTime = asset.RespawnTime,
         };
 
         _miningNodeRecords.Add(miningNode);
         _miningNodeItemRecords.AddRange(CreateMiningNodeItemRecords(asset, stableKey));
     }
 
-    private static List<MiningNodeItemRecord> CreateMiningNodeItemRecords(MiningNode node, string miningNodeStableKey)
+    private static List<MiningNodeItemRecord> CreateMiningNodeItemRecords(
+        MiningNode node,
+        string miningNodeStableKey
+    )
     {
         // Calculate drop chances based on the logic in MiningNode.Mine()
         // Legend = 96-99, Rare = 75-95, Common = 20-75, Guarantee = 0-19
@@ -122,12 +125,14 @@ public class MiningNodeListener : IAssetScanListener<MiningNode>
         }
 
         // Create one record per item
-        var itemRecords = itemTotalDropChances.Select(kvp => new MiningNodeItemRecord
-        {
-            MiningNodeStableKey = miningNodeStableKey,
-            ItemStableKey = kvp.Key,
-            DropChance = kvp.Value
-        }).ToList();
+        var itemRecords = itemTotalDropChances
+            .Select(kvp => new MiningNodeItemRecord
+            {
+                MiningNodeStableKey = miningNodeStableKey,
+                ItemStableKey = kvp.Key,
+                DropChance = kvp.Value,
+            })
+            .ToList();
 
         return itemRecords;
     }

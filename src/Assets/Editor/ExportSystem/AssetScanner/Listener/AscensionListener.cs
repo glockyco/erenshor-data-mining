@@ -88,7 +88,7 @@ public class AscensionListener : IAssetScanListener<Ascension>
             // Reaver
             TripleAttackChanceReav = asset.TripleAttackChanceReav,
 
-            ResourceName = asset.name
+            ResourceName = asset.name,
         };
 
         _records.Add(record);

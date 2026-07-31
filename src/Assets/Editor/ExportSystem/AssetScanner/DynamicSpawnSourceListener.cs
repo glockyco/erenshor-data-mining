@@ -13,7 +13,8 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
 {
     private const string VithArenaFightPositionStrategy = "vith_arena_fight";
     private const string VitheoFightPositionStrategy = "vitheo_fight";
-    private static readonly BindingFlags FieldFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+    private static readonly BindingFlags FieldFlags =
+        BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
     private readonly SQLiteConnection _db;
     private readonly CharacterStableKeyResolver _characterKeyResolver;
@@ -44,7 +45,8 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
     public DynamicSpawnSourceListener(
         SQLiteConnection db,
         CharacterStableKeyResolver characterKeyResolver,
-        DynamicSpawnCatalog catalog)
+        DynamicSpawnCatalog catalog
+    )
     {
         _db = db;
         _characterKeyResolver = characterKeyResolver;
@@ -54,14 +56,17 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
     public void OnAssetFound(MonoBehaviour comp)
     {
         var type = comp.GetType();
-        if (type.Assembly.GetName().Name != "Assembly-CSharp") return;
-        if (type == typeof(SpawnPoint) || type == typeof(SpawnPointTrigger)) return;
+        if (type.Assembly.GetName().Name != "Assembly-CSharp")
+            return;
+        if (type == typeof(SpawnPoint) || type == typeof(SpawnPointTrigger))
+            return;
 
         var scriptName = type.Name;
 
         var hostTransform = comp.transform;
         var hostScene = comp.gameObject.scene.name ?? "";
-        var isChainedHost = comp.GetComponent<Character>() != null
+        var isChainedHost =
+            comp.GetComponent<Character>() != null
             && PrefabUtility.IsPartOfPrefabAsset(comp.gameObject);
 
         // Walk public instance fields by reflection — matches catalog field names directly
@@ -70,16 +75,20 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
         {
             var fieldName = field.Name;
             var entry = _catalog.Classify(scriptName, fieldName);
-            if (entry.Classification == DynamicSpawnClassification.Denied) continue;
+            if (entry.Classification == DynamicSpawnClassification.Denied)
+                continue;
 
-            var triggerMetadata = entry.Classification == DynamicSpawnClassification.Allowed
-                ? ResolveTriggerMetadata(comp, scriptName, fieldName, entry)
-                : default;
+            var triggerMetadata =
+                entry.Classification == DynamicSpawnClassification.Allowed
+                    ? ResolveTriggerMetadata(comp, scriptName, fieldName, entry)
+                    : default;
             var value = field.GetValue(comp);
-            if (value == null) continue;
+            if (value == null)
+                continue;
 
             var characters = ResolveCharacters(value);
-            if (characters.Count == 0) continue;
+            if (characters.Count == 0)
+                continue;
 
             if (entry.Classification == DynamicSpawnClassification.Unknown)
             {
@@ -95,20 +104,33 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
                 foreach (var character in characters)
                 {
                     // Category B — host is a Character prefab; write to chained table
-                    var parentKey = _characterKeyResolver.GetStableKey(comp.GetComponent<Character>()!);
+                    var parentKey = _characterKeyResolver.GetStableKey(
+                        comp.GetComponent<Character>()!
+                    );
                     var childKey = _characterKeyResolver.GetStableKey(character);
-                    _chainedRecords.Add(new CharacterChainedSpawnRecord
-                    {
-                        ParentStableKey = parentKey,
-                        ChildStableKey = childKey,
-                        SourceScript = scriptName,
-                    });
+                    _chainedRecords.Add(
+                        new CharacterChainedSpawnRecord
+                        {
+                            ParentStableKey = parentKey,
+                            ChildStableKey = childKey,
+                            SourceScript = scriptName,
+                        }
+                    );
                 }
             }
             else if (entry.PositionStrategy == VithArenaFightPositionStrategy)
             {
-                foreach (var resolved in ResolveVithArenaFightSpawns(comp, value, scriptName, fieldName))
-                    AddDynamicSpawnRecord(resolved.Character, resolved.Position, hostScene, scriptName, eventPosition, triggerMetadata);
+                foreach (
+                    var resolved in ResolveVithArenaFightSpawns(comp, value, scriptName, fieldName)
+                )
+                    AddDynamicSpawnRecord(
+                        resolved.Character,
+                        resolved.Position,
+                        hostScene,
+                        scriptName,
+                        eventPosition,
+                        triggerMetadata
+                    );
             }
             else if (entry.PositionStrategy == VitheoFightPositionStrategy)
             {
@@ -116,7 +138,14 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
                 foreach (var character in characters)
                 {
                     foreach (var position in positions)
-                        AddDynamicSpawnRecord(character, position, hostScene, scriptName, eventPosition, triggerMetadata);
+                        AddDynamicSpawnRecord(
+                            character,
+                            position,
+                            hostScene,
+                            scriptName,
+                            eventPosition,
+                            triggerMetadata
+                        );
                 }
             }
             else
@@ -126,7 +155,14 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
                 {
                     var positions = ResolvePositions(comp, entry.PositionField);
                     foreach (var pos in positions)
-                        AddDynamicSpawnRecord(character, pos, hostScene, scriptName, eventPosition, triggerMetadata);
+                        AddDynamicSpawnRecord(
+                            character,
+                            pos,
+                            hostScene,
+                            scriptName,
+                            eventPosition,
+                            triggerMetadata
+                        );
                 }
             }
         }
@@ -147,11 +183,14 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
                 foreach (var rec in uniqueSpawns.Values)
                     _db.InsertOrReplace(rec);
             });
-            UnityEngine.Debug.Log($"[DynamicSpawn] Inserted {uniqueSpawns.Count} spawn records (from {_spawnRecords.Count} raw)");
+            UnityEngine.Debug.Log(
+                $"[DynamicSpawn] Inserted {uniqueSpawns.Count} spawn records (from {_spawnRecords.Count} raw)"
+            );
 
             // Insert chained spawn records (deduplicate by composite)
             _db.CreateTable<CharacterChainedSpawnRecord>();
-            var uniqueChained = new Dictionary<(string, string, string), CharacterChainedSpawnRecord>();
+            var uniqueChained =
+                new Dictionary<(string, string, string), CharacterChainedSpawnRecord>();
             foreach (var rec in _chainedRecords)
                 uniqueChained[(rec.ParentStableKey, rec.ChildStableKey, rec.SourceScript)] = rec;
             _db.RunInTransaction(() =>
@@ -160,7 +199,9 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
                 foreach (var rec in uniqueChained.Values)
                     _db.InsertOrReplace(rec);
             });
-            UnityEngine.Debug.Log($"[DynamicSpawn] Inserted {uniqueChained.Count} chained records (from {_chainedRecords.Count} raw)");
+            UnityEngine.Debug.Log(
+                $"[DynamicSpawn] Inserted {uniqueChained.Count} chained records (from {_chainedRecords.Count} raw)"
+            );
         }
         catch (Exception ex)
         {
@@ -171,7 +212,8 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
         var assemblyTypes = new HashSet<string>();
         foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
         {
-            if (assembly.GetName().Name != "Assembly-CSharp") continue;
+            if (assembly.GetName().Name != "Assembly-CSharp")
+                continue;
             foreach (var t in assembly.GetTypes())
                 assemblyTypes.Add(t.Name);
         }
@@ -179,12 +221,14 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
         {
             if (!assemblyTypes.Contains(scriptName))
             {
-                _envelope.StaleEntries.Add(new DynamicSpawnErrorEnvelope.StaleEntry
-                {
-                    Kind = "unknown",
-                    ScriptType = scriptName,
-                    FieldName = "<all fields>",
-                });
+                _envelope.StaleEntries.Add(
+                    new DynamicSpawnErrorEnvelope.StaleEntry
+                    {
+                        Kind = "unknown",
+                        ScriptType = scriptName,
+                        FieldName = "<all fields>",
+                    }
+                );
             }
         }
 
@@ -209,7 +253,8 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
                 try
                 {
                     var c = go.GetComponent<Character>();
-                    if (c != null) result.Add(c);
+                    if (c != null)
+                        result.Add(c);
                 }
                 catch (UnassignedReferenceException) { }
                 break;
@@ -226,7 +271,8 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
                         try
                         {
                             var c = go2.GetComponent<Character>();
-                            if (c != null) result.Add(c);
+                            if (c != null)
+                                result.Add(c);
                         }
                         catch (UnassignedReferenceException) { }
                     }
@@ -246,7 +292,8 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
         MonoBehaviour host,
         string scriptName,
         string fieldName,
-        CatalogEntry entry)
+        CatalogEntry entry
+    )
     {
         var metadata = new TriggerMetadata
         {
@@ -260,23 +307,26 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
             if (triggerField == null)
             {
                 throw new InvalidOperationException(
-                    $"[DynamicSpawn] {scriptName}.{fieldName} declares trigger_item_field '{entry.TriggerItemField}', " +
-                    $"but {host.GetType().Name}.{entry.TriggerItemField} does not exist.");
+                    $"[DynamicSpawn] {scriptName}.{fieldName} declares trigger_item_field '{entry.TriggerItemField}', "
+                        + $"but {host.GetType().Name}.{entry.TriggerItemField} does not exist."
+                );
             }
 
             if (!typeof(Item).IsAssignableFrom(triggerField.FieldType))
             {
                 throw new InvalidOperationException(
-                    $"[DynamicSpawn] {scriptName}.{fieldName} declares trigger_item_field '{entry.TriggerItemField}', " +
-                    $"but the field type is {triggerField.FieldType.FullName}, not Item.");
+                    $"[DynamicSpawn] {scriptName}.{fieldName} declares trigger_item_field '{entry.TriggerItemField}', "
+                        + $"but the field type is {triggerField.FieldType.FullName}, not Item."
+                );
             }
 
             var triggerItem = triggerField.GetValue(host) as Item;
             if (triggerItem == null)
             {
                 throw new InvalidOperationException(
-                    $"[DynamicSpawn] {scriptName}.{fieldName} declares trigger_item_field '{entry.TriggerItemField}', " +
-                    "but the declared Item field is null.");
+                    $"[DynamicSpawn] {scriptName}.{fieldName} declares trigger_item_field '{entry.TriggerItemField}', "
+                        + "but the declared Item field is null."
+                );
             }
 
             metadata.ItemStableKey = StableKeyGenerator.ForItem(triggerItem);
@@ -286,12 +336,12 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
         {
             metadata.Bounds = TriggerBoundsResolver.ResolveHost(
                 host,
-                $"{nameof(DynamicSpawnSourceListener)} {scriptName}.{fieldName}");
+                $"{nameof(DynamicSpawnSourceListener)} {scriptName}.{fieldName}"
+            );
         }
 
         return metadata;
     }
-
 
     private void AddDynamicSpawnRecord(
         Character character,
@@ -299,42 +349,58 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
         string hostScene,
         string scriptName,
         Vector3? eventPosition,
-        TriggerMetadata triggerMetadata)
+        TriggerMetadata triggerMetadata
+    )
     {
         var childKey = _characterKeyResolver.GetStableKey(character);
         var triggerBounds = triggerMetadata.Bounds;
         var key = eventPosition.HasValue
             ? $"{childKey}|{hostScene}|{pos.x}|{pos.y}|{pos.z}|{scriptName}|event:{eventPosition.Value.x}|{eventPosition.Value.y}|{eventPosition.Value.z}"
             : $"{childKey}|{hostScene}|{pos.x}|{pos.y}|{pos.z}|{scriptName}";
-        _spawnRecords.Add(new DynamicCharacterSpawnRecord
-        {
-            Key = key,
-            CharacterStableKey = childKey,
-            Scene = hostScene,
-            X = pos.x,
-            Y = pos.y,
-            Z = pos.z,
-            SourceScript = scriptName,
-            EventX = eventPosition?.x,
-            EventY = eventPosition?.y,
-            EventZ = eventPosition?.z,
-            TriggerItemStableKey = triggerMetadata.ItemStableKey,
-            TriggerMode = triggerMetadata.Mode,
-            EventDisplayName = triggerMetadata.DisplayName,
-            TriggerBoundsCenterX = triggerBounds.HasValue ? triggerBounds.Value.center.x : (float?)null,
-            TriggerBoundsCenterY = triggerBounds.HasValue ? triggerBounds.Value.center.y : (float?)null,
-            TriggerBoundsCenterZ = triggerBounds.HasValue ? triggerBounds.Value.center.z : (float?)null,
-            TriggerBoundsExtentsX = triggerBounds.HasValue ? triggerBounds.Value.extents.x : (float?)null,
-            TriggerBoundsExtentsY = triggerBounds.HasValue ? triggerBounds.Value.extents.y : (float?)null,
-            TriggerBoundsExtentsZ = triggerBounds.HasValue ? triggerBounds.Value.extents.z : (float?)null,
-        });
+        _spawnRecords.Add(
+            new DynamicCharacterSpawnRecord
+            {
+                Key = key,
+                CharacterStableKey = childKey,
+                Scene = hostScene,
+                X = pos.x,
+                Y = pos.y,
+                Z = pos.z,
+                SourceScript = scriptName,
+                EventX = eventPosition?.x,
+                EventY = eventPosition?.y,
+                EventZ = eventPosition?.z,
+                TriggerItemStableKey = triggerMetadata.ItemStableKey,
+                TriggerMode = triggerMetadata.Mode,
+                EventDisplayName = triggerMetadata.DisplayName,
+                TriggerBoundsCenterX = triggerBounds.HasValue
+                    ? triggerBounds.Value.center.x
+                    : (float?)null,
+                TriggerBoundsCenterY = triggerBounds.HasValue
+                    ? triggerBounds.Value.center.y
+                    : (float?)null,
+                TriggerBoundsCenterZ = triggerBounds.HasValue
+                    ? triggerBounds.Value.center.z
+                    : (float?)null,
+                TriggerBoundsExtentsX = triggerBounds.HasValue
+                    ? triggerBounds.Value.extents.x
+                    : (float?)null,
+                TriggerBoundsExtentsY = triggerBounds.HasValue
+                    ? triggerBounds.Value.extents.y
+                    : (float?)null,
+                TriggerBoundsExtentsZ = triggerBounds.HasValue
+                    ? triggerBounds.Value.extents.z
+                    : (float?)null,
+            }
+        );
     }
 
     private List<ResolvedCharacterSpawn> ResolveVithArenaFightSpawns(
         MonoBehaviour host,
         object value,
         string scriptName,
-        string fieldName)
+        string fieldName
+    )
     {
         var result = new List<ResolvedCharacterSpawn>();
         if (!(value is IList list))
@@ -344,8 +410,9 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
         if (positionFields.Count != list.Count)
         {
             UnityEngine.Debug.LogWarning(
-                $"[DynamicSpawn] {scriptName}.{fieldName} has {list.Count} entries; " +
-                "VithArena.SpawnPiece only defines placement for 1-3 enemies");
+                $"[DynamicSpawn] {scriptName}.{fieldName} has {list.Count} entries; "
+                    + "VithArena.SpawnPiece only defines placement for 1-3 enemies"
+            );
             return result;
         }
 
@@ -358,15 +425,12 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
             if (!TryResolvePosition(host, positionFields[i], out var position))
             {
                 UnityEngine.Debug.LogWarning(
-                    $"[DynamicSpawn] {scriptName}.{fieldName} could not resolve {positionFields[i]}; skipping enemy {i}");
+                    $"[DynamicSpawn] {scriptName}.{fieldName} could not resolve {positionFields[i]}; skipping enemy {i}"
+                );
                 continue;
             }
 
-            result.Add(new ResolvedCharacterSpawn
-            {
-                Character = character,
-                Position = position,
-            });
+            result.Add(new ResolvedCharacterSpawn { Character = character, Position = position });
         }
 
         return result;
@@ -392,9 +456,12 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
 
     private static List<string> VithArenaFightPositionFields(int count)
     {
-        if (count == 1) return new List<string> { "SpawnLoc1" };
-        if (count == 2) return new List<string> { "SpawnLoc2", "SpawnLoc3" };
-        if (count == 3) return new List<string> { "SpawnLoc1", "SpawnLoc2", "SpawnLoc3" };
+        if (count == 1)
+            return new List<string> { "SpawnLoc1" };
+        if (count == 2)
+            return new List<string> { "SpawnLoc2", "SpawnLoc3" };
+        if (count == 3)
+            return new List<string> { "SpawnLoc1", "SpawnLoc2", "SpawnLoc3" };
         return new List<string>();
     }
 
@@ -406,7 +473,10 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
             {
                 return go.GetComponent<Character>();
             }
-            catch (UnassignedReferenceException) { return null; }
+            catch (UnassignedReferenceException)
+            {
+                return null;
+            }
         }
 
         return item as Character;
@@ -416,7 +486,8 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
     {
         position = default;
         var field = host.GetType().GetField(fieldName, BindingFlags.Public | BindingFlags.Instance);
-        if (field == null) return false;
+        if (field == null)
+            return false;
 
         var val = field.GetValue(host);
         if (val is Transform t)
@@ -445,8 +516,10 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
         foreach (var name in fieldNames)
         {
             var trimmed = name.Trim();
-            var field = host.GetType().GetField(trimmed, BindingFlags.Public | BindingFlags.Instance);
-            if (field == null) continue;
+            var field = host.GetType()
+                .GetField(trimmed, BindingFlags.Public | BindingFlags.Instance);
+            if (field == null)
+                continue;
 
             var val = field.GetValue(host);
             if (val is Transform t)
@@ -477,8 +550,13 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
     }
 
     private void RecordFinding(
-        MonoBehaviour host, string scriptName, string fieldName,
-        FieldInfo field, object value, Character exampleCharacter)
+        MonoBehaviour host,
+        string scriptName,
+        string fieldName,
+        FieldInfo field,
+        object value,
+        Character exampleCharacter
+    )
     {
         var fieldKind = field.FieldType.Name;
         string? prefabPath = null;
@@ -490,15 +568,17 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
         stableKey = _characterKeyResolver.GetStableKey(exampleCharacter);
         displayName = go.name;
 
-        _envelope.Findings.Add(new DynamicSpawnErrorEnvelope.Finding
-        {
-            ScriptType = scriptName,
-            FieldName = fieldName,
-            FieldKind = fieldKind,
-            ExamplePrefabPath = prefabPath,
-            ExampleStableKey = stableKey,
-            ExampleDisplayName = displayName,
-            HostScenePath = host.gameObject.scene.path,
-        });
+        _envelope.Findings.Add(
+            new DynamicSpawnErrorEnvelope.Finding
+            {
+                ScriptType = scriptName,
+                FieldName = fieldName,
+                FieldKind = fieldKind,
+                ExamplePrefabPath = prefabPath,
+                ExampleStableKey = stableKey,
+                ExampleDisplayName = displayName,
+                HostScenePath = host.gameObject.scene.path,
+            }
+        );
     }
 }

@@ -1,7 +1,7 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.SceneManagement;
-using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class SceneScriptSearchWindow : EditorWindow
@@ -27,9 +27,13 @@ public class SceneScriptSearchWindow : EditorWindow
 
     private void OnGUI()
     {
-        EditorGUILayout.LabelField("Find script references across all scenes", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField(
+            "Find script references across all scenes",
+            EditorStyles.boldLabel
+        );
 
-        targetScript = (MonoScript)EditorGUILayout.ObjectField("Script to find:", targetScript, typeof(MonoScript), false);
+        targetScript = (MonoScript)
+            EditorGUILayout.ObjectField("Script to find:", targetScript, typeof(MonoScript), false);
 
         EditorGUILayout.Space();
         searchInScenes = EditorGUILayout.Toggle("Search in Scenes", searchInScenes);
@@ -49,7 +53,10 @@ public class SceneScriptSearchWindow : EditorWindow
         if (foundReferences.Count > 0)
         {
             EditorGUILayout.Space();
-            EditorGUILayout.LabelField($"Found {foundReferences.Count} references:", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(
+                $"Found {foundReferences.Count} references:",
+                EditorStyles.boldLabel
+            );
 
             scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
 
@@ -57,15 +64,17 @@ public class SceneScriptSearchWindow : EditorWindow
             {
                 EditorGUILayout.BeginHorizontal();
 
-                string label = reference.IsPrefab ?
-                    $"Prefab: {reference.AssetPath}" :
-                    $"Scene: {reference.AssetPath} → {reference.ObjectPath}";
+                string label = reference.IsPrefab
+                    ? $"Prefab: {reference.AssetPath}"
+                    : $"Scene: {reference.AssetPath} → {reference.ObjectPath}";
 
                 EditorGUILayout.LabelField(label);
 
                 if (GUILayout.Button("Select", GUILayout.Width(60)))
                 {
-                    Selection.activeObject = AssetDatabase.LoadAssetAtPath<Object>(reference.AssetPath);
+                    Selection.activeObject = AssetDatabase.LoadAssetAtPath<Object>(
+                        reference.AssetPath
+                    );
                 }
 
                 EditorGUILayout.EndHorizontal();
@@ -86,7 +95,9 @@ public class SceneScriptSearchWindow : EditorWindow
             bool save = EditorUtility.DisplayDialog(
                 "Save Current Scene?",
                 "The current scene has unsaved changes. Save before proceeding?",
-                "Save", "Don't Save");
+                "Save",
+                "Don't Save"
+            );
 
             if (save)
             {
@@ -107,19 +118,25 @@ public class SceneScriptSearchWindow : EditorWindow
                 for (int i = 0; i < prefabCount; i++)
                 {
                     string prefabPath = AssetDatabase.GUIDToAssetPath(prefabGuids[i]);
-                    EditorUtility.DisplayProgressBar("Searching Prefabs",
-                        $"Checking {prefabPath}", (float)i / prefabCount);
+                    EditorUtility.DisplayProgressBar(
+                        "Searching Prefabs",
+                        $"Checking {prefabPath}",
+                        (float)i / prefabCount
+                    );
 
                     GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
                     Component[] components = prefab.GetComponentsInChildren(scriptType, true);
 
                     if (components.Length > 0)
                     {
-                        foundReferences.Add(new ScriptReference {
-                            AssetPath = prefabPath,
-                            ObjectPath = "",
-                            IsPrefab = true
-                        });
+                        foundReferences.Add(
+                            new ScriptReference
+                            {
+                                AssetPath = prefabPath,
+                                ObjectPath = "",
+                                IsPrefab = true,
+                            }
+                        );
                     }
                 }
             }
@@ -133,19 +150,26 @@ public class SceneScriptSearchWindow : EditorWindow
                 for (int i = 0; i < sceneCount; i++)
                 {
                     string scenePath = AssetDatabase.GUIDToAssetPath(sceneGuids[i]);
-                    EditorUtility.DisplayProgressBar("Searching Scenes",
-                        $"Checking {scenePath}", (float)i / sceneCount);
+                    EditorUtility.DisplayProgressBar(
+                        "Searching Scenes",
+                        $"Checking {scenePath}",
+                        (float)i / sceneCount
+                    );
 
                     Scene scene = EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);
 
-                    MonoBehaviour[] scripts = GameObject.FindObjectsOfType(scriptType, true) as MonoBehaviour[];
+                    MonoBehaviour[] scripts =
+                        GameObject.FindObjectsOfType(scriptType, true) as MonoBehaviour[];
                     foreach (MonoBehaviour script in scripts)
                     {
-                        foundReferences.Add(new ScriptReference {
-                            AssetPath = scenePath,
-                            ObjectPath = GetGameObjectPath(script.gameObject),
-                            IsPrefab = false
-                        });
+                        foundReferences.Add(
+                            new ScriptReference
+                            {
+                                AssetPath = scenePath,
+                                ObjectPath = GetGameObjectPath(script.gameObject),
+                                IsPrefab = false,
+                            }
+                        );
                     }
                 }
             }

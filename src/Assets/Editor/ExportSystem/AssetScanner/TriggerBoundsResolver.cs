@@ -20,13 +20,18 @@ internal static class TriggerBoundsResolver
             }
 
             var bounds = collider.bounds;
-            if (!IsFinite(bounds.center) || !IsFinite(bounds.extents)
-                || !IsFinite(bounds.min) || !IsFinite(bounds.max))
+            if (
+                !IsFinite(bounds.center)
+                || !IsFinite(bounds.extents)
+                || !IsFinite(bounds.min)
+                || !IsFinite(bounds.max)
+            )
             {
                 throw Error(
                     component,
                     context,
-                    $"trigger collider '{collider.name}' (instance {collider.GetInstanceID()}) has non-finite bounds");
+                    $"trigger collider '{collider.name}' (instance {collider.GetInstanceID()}) has non-finite bounds"
+                );
             }
 
             if (!foundTrigger)
@@ -45,8 +50,12 @@ internal static class TriggerBoundsResolver
             throw Error(component, context, "host has no enabled trigger colliders");
         }
 
-        if (!IsFinite(union.center) || !IsFinite(union.extents)
-            || !IsFinite(union.min) || !IsFinite(union.max))
+        if (
+            !IsFinite(union.center)
+            || !IsFinite(union.extents)
+            || !IsFinite(union.min)
+            || !IsFinite(union.max)
+        )
         {
             throw Error(component, context, "unioned trigger bounds are non-finite");
         }
@@ -64,12 +73,17 @@ internal static class TriggerBoundsResolver
         return !float.IsNaN(value) && !float.IsInfinity(value);
     }
 
-    private static InvalidOperationException Error(Component component, string context, string reason)
+    private static InvalidOperationException Error(
+        Component component,
+        string context,
+        string reason
+    )
     {
         var host = component.gameObject;
         return new InvalidOperationException(
-            $"[{context}] {reason} on '{host.name}' " +
-            $"(scene '{host.scene.name}', component instance {component.GetInstanceID()}, " +
-            $"object instance {host.GetInstanceID()})");
+            $"[{context}] {reason} on '{host.name}' "
+                + $"(scene '{host.scene.name}', component instance {component.GetInstanceID()}, "
+                + $"object instance {host.GetInstanceID()})"
+        );
     }
 }

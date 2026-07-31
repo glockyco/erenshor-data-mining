@@ -52,14 +52,15 @@ using Debug = UnityEngine.Debug;
 public static class ExportBatch
 {
     private static DynamicSpawnSourceListener? _dynamicSpawnListener;
+
     /// <summary>
     /// Logging level for batch export operations.
     /// </summary>
     private enum LogLevel
     {
-        Quiet,   // Only errors and critical messages
-        Normal,  // Standard progress and completion messages
-        Verbose  // Detailed progress for every phase and milestone
+        Quiet, // Only errors and critical messages
+        Normal, // Standard progress and completion messages
+        Verbose, // Detailed progress for every phase and milestone
     }
 
     /// <summary>
@@ -77,7 +78,11 @@ public static class ExportBatch
 
             Log(LogLevel.Normal, args.logLevel, "[EXPORT_START] Starting batch export...");
             Log(LogLevel.Normal, args.logLevel, $"[EXPORT_CONFIG] Database path: {args.dbPath}");
-            Log(LogLevel.Normal, args.logLevel, $"[EXPORT_CONFIG] Entities: {(args.entityTypes.Count == 0 ? "all" : string.Join(", ", args.entityTypes))}");
+            Log(
+                LogLevel.Normal,
+                args.logLevel,
+                $"[EXPORT_CONFIG] Entities: {(args.entityTypes.Count == 0 ? "all" : string.Join(", ", args.entityTypes))}"
+            );
             Log(LogLevel.Normal, args.logLevel, $"[EXPORT_CONFIG] Log level: {args.logLevel}");
 
             // Validate database path
@@ -87,20 +92,36 @@ public static class ExportBatch
             AssetScanProfiler profiler = new AssetScanProfiler(args.profile, args.profileOutput);
             AssetScanner scanner = new AssetScanner(profiler);
 
-            using (SQLiteConnection db = new SQLiteConnection(args.dbPath, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create))
+            using (
+                SQLiteConnection db = new SQLiteConnection(
+                    args.dbPath,
+                    SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create
+                )
+            )
             {
                 // Enable foreign key constraints
                 db.Execute("PRAGMA foreign_keys = ON");
 
                 // Register listeners based on entity selection
-                int registeredCount = RegisterListeners(scanner, db, args.entityTypes, args.logLevel);
+                int registeredCount = RegisterListeners(
+                    scanner,
+                    db,
+                    args.entityTypes,
+                    args.logLevel
+                );
 
                 if (registeredCount == 0)
                 {
-                    throw new InvalidOperationException("No listeners were registered. Check entity type names.");
+                    throw new InvalidOperationException(
+                        "No listeners were registered. Check entity type names."
+                    );
                 }
 
-                Log(LogLevel.Normal, args.logLevel, $"[EXPORT_CONFIG] Registered {registeredCount} entity types");
+                Log(
+                    LogLevel.Normal,
+                    args.logLevel,
+                    $"[EXPORT_CONFIG] Registered {registeredCount} entity types"
+                );
 
                 // Execute scan synchronously
                 ExecuteScanSynchronously(scanner, args.logLevel);
@@ -111,12 +132,17 @@ public static class ExportBatch
                     var envelopePath = System.IO.Path.Combine(
                         System.IO.Path.GetDirectoryName(args.dbPath)!,
                         ".export",
-                        "dynamic-spawn-errors.json");
+                        "dynamic-spawn-errors.json"
+                    );
 
                     if (_dynamicSpawnListener.HasErrors)
                     {
                         _dynamicSpawnListener.Envelope.WriteToFile(envelopePath);
-                        Log(LogLevel.Normal, args.logLevel, $"[EXPORT_GATE_FAILED] Dynamic spawn coverage gate failed. See: {envelopePath}");
+                        Log(
+                            LogLevel.Normal,
+                            args.logLevel,
+                            $"[EXPORT_GATE_FAILED] Dynamic spawn coverage gate failed. See: {envelopePath}"
+                        );
                         EditorApplication.Exit(3);
                         return;
                     }
@@ -125,7 +151,11 @@ public static class ExportBatch
                     if (System.IO.File.Exists(envelopePath))
                     {
                         System.IO.File.Delete(envelopePath);
-                        Log(LogLevel.Normal, args.logLevel, $"[EXPORT_GATE_PASSED] Dynamic spawn coverage gate passed. Removed stale envelope: {envelopePath}");
+                        Log(
+                            LogLevel.Normal,
+                            args.logLevel,
+                            $"[EXPORT_GATE_PASSED] Dynamic spawn coverage gate passed. Removed stale envelope: {envelopePath}"
+                        );
                     }
                 }
 
@@ -136,7 +166,11 @@ public static class ExportBatch
                 CreateCoordinatesView(db, args.logLevel);
 
                 totalStopwatch.Stop();
-                Log(LogLevel.Normal, args.logLevel, $"[EXPORT_COMPLETE] Export completed successfully in {totalStopwatch.Elapsed.TotalSeconds:F2}s");
+                Log(
+                    LogLevel.Normal,
+                    args.logLevel,
+                    $"[EXPORT_COMPLETE] Export completed successfully in {totalStopwatch.Elapsed.TotalSeconds:F2}s"
+                );
             } // Database connection automatically disposed here
 
             // Exit with success code
@@ -145,7 +179,9 @@ public static class ExportBatch
         catch (Exception ex)
         {
             totalStopwatch.Stop();
-            Debug.LogError($"[EXPORT_ERROR] Export failed after {totalStopwatch.Elapsed.TotalSeconds:F2}s: {ex.Message}");
+            Debug.LogError(
+                $"[EXPORT_ERROR] Export failed after {totalStopwatch.Elapsed.TotalSeconds:F2}s: {ex.Message}"
+            );
             Debug.LogError($"[EXPORT_STACKTRACE] {ex.StackTrace}");
 
             // Log inner exception if present
@@ -186,7 +222,7 @@ public static class ExportBatch
             entityTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase),
             logLevel = LogLevel.Normal,
             profile = false,
-            profileOutput = string.Empty
+            profileOutput = string.Empty,
         };
 
         for (int i = 0; i < args.Length - 1; i++)
@@ -203,7 +239,10 @@ public static class ExportBatch
                     // Special case: "all" means export all entity types (leave set empty)
                     if (entitiesArg != "all")
                     {
-                        string[] entities = entitiesArg.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        string[] entities = entitiesArg.Split(
+                            new[] { ',', ' ' },
+                            StringSplitOptions.RemoveEmptyEntries
+                        );
                         foreach (string entity in entities)
                         {
                             result.entityTypes.Add(entity.Trim());
@@ -219,13 +258,19 @@ public static class ExportBatch
                         "quiet" => LogLevel.Quiet,
                         "normal" => LogLevel.Normal,
                         "verbose" => LogLevel.Verbose,
-                        _ => throw new ArgumentException($"Invalid log level: {args[i + 1]}. Valid options: quiet, normal, verbose")
+                        _ => throw new ArgumentException(
+                            $"Invalid log level: {args[i + 1]}. Valid options: quiet, normal, verbose"
+                        ),
                     };
                     i++;
                     break;
 
                 case "-profile":
-                    result.profile = string.Equals(args[i + 1], "true", StringComparison.OrdinalIgnoreCase);
+                    result.profile = string.Equals(
+                        args[i + 1],
+                        "true",
+                        StringComparison.OrdinalIgnoreCase
+                    );
                     i++;
                     break;
 
@@ -240,8 +285,8 @@ public static class ExportBatch
         if (string.IsNullOrEmpty(result.dbPath))
         {
             throw new System.ArgumentException(
-                "[EXPORT_ERROR] Missing required argument: -dbPath\n" +
-                "Usage: Unity -batchmode -projectPath <path> -executeMethod ExportBatch.ExportToDatabase -dbPath <path>"
+                "[EXPORT_ERROR] Missing required argument: -dbPath\n"
+                    + "Usage: Unity -batchmode -projectPath <path> -executeMethod ExportBatch.ExportToDatabase -dbPath <path>"
             );
         }
 
@@ -280,7 +325,10 @@ public static class ExportBatch
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException($"Cannot write to database path '{dbPath}': {ex.Message}", ex);
+            throw new InvalidOperationException(
+                $"Cannot write to database path '{dbPath}': {ex.Message}",
+                ex
+            );
         }
     }
 
@@ -293,13 +341,24 @@ public static class ExportBatch
     /// <param name="entityTypes">Set of entity types to export (empty = all)</param>
     /// <param name="logLevel">Current logging level</param>
     /// <returns>Number of listeners registered</returns>
-    private static int RegisterListeners(AssetScanner scanner, SQLiteConnection db, HashSet<string> entityTypes, LogLevel logLevel)
+    private static int RegisterListeners(
+        AssetScanner scanner,
+        SQLiteConnection db,
+        HashSet<string> entityTypes,
+        LogLevel logLevel
+    )
     {
         ExportListenerRegistrationResult result = ExportListenerRegistry.Register(
             scanner,
             db,
             entityTypes,
-            definition => Log(LogLevel.Verbose, logLevel, $"[EXPORT_REGISTER] Registered listener: {definition.Key}"));
+            definition =>
+                Log(
+                    LogLevel.Verbose,
+                    logLevel,
+                    $"[EXPORT_REGISTER] Registered listener: {definition.Key}"
+                )
+        );
         _dynamicSpawnListener = result.DynamicSpawnListener;
         return result.RegisteredCount;
     }
@@ -326,8 +385,11 @@ public static class ExportBatch
             {
                 if (currentPhase != null)
                 {
-                    Log(LogLevel.Normal, logLevel,
-                        $"[EXPORT_PHASE_COMPLETE] {currentPhase} completed in {phaseStopwatch.Elapsed.TotalSeconds:F2}s");
+                    Log(
+                        LogLevel.Normal,
+                        logLevel,
+                        $"[EXPORT_PHASE_COMPLETE] {currentPhase} completed in {phaseStopwatch.Elapsed.TotalSeconds:F2}s"
+                    );
                 }
 
                 currentPhase = progress.Phase;
@@ -336,7 +398,11 @@ public static class ExportBatch
                 lastLoggedStep = 0;
                 phaseStopwatch.Restart();
 
-                Log(LogLevel.Normal, logLevel, $"[EXPORT_PHASE] {currentPhase} ({totalSteps} items)");
+                Log(
+                    LogLevel.Normal,
+                    logLevel,
+                    $"[EXPORT_PHASE] {currentPhase} ({totalSteps} items)"
+                );
             }
 
             // Update progress
@@ -347,15 +413,18 @@ public static class ExportBatch
             if (currentStep - lastLoggedStep >= logInterval || currentStep == totalSteps)
             {
                 float percent = totalSteps > 0 ? (float)currentStep / totalSteps * 100 : 0;
-                Log(LogLevel.Verbose, logLevel,
-                    $"[EXPORT_PROGRESS] {currentStep}/{totalSteps} ({percent:F1}%)");
+                Log(
+                    LogLevel.Verbose,
+                    logLevel,
+                    $"[EXPORT_PROGRESS] {currentStep}/{totalSteps} ({percent:F1}%)"
+                );
                 lastLoggedStep = currentStep;
             }
         }
 
         // Create the scan coroutine
         var enumerator = scanner.ScanAllAssetsCoroutine(
-            cancelRequested: () => false,  // Never cancel in batch mode
+            cancelRequested: () => false, // Never cancel in batch mode
             progressCallback: ProgressCallback
         );
 
@@ -370,8 +439,11 @@ public static class ExportBatch
         // Log final phase completion
         if (currentPhase != null)
         {
-            Log(LogLevel.Normal, logLevel,
-                $"[EXPORT_PHASE_COMPLETE] {currentPhase} completed in {phaseStopwatch.Elapsed.TotalSeconds:F2}s");
+            Log(
+                LogLevel.Normal,
+                logLevel,
+                $"[EXPORT_PHASE_COMPLETE] {currentPhase} completed in {phaseStopwatch.Elapsed.TotalSeconds:F2}s"
+            );
         }
     }
 
@@ -389,7 +461,8 @@ public static class ExportBatch
         db.Execute("DROP VIEW IF EXISTS Coordinates");
 
         // Create view that unions all entity tables
-        db.Execute(@"
+        db.Execute(
+            @"
             CREATE VIEW Coordinates AS
             SELECT StableKey, Scene, X, Y, Z, 'Character' AS Category
               FROM Characters WHERE Scene IS NOT NULL
@@ -419,7 +492,8 @@ public static class ExportBatch
             UNION ALL
             SELECT StableKey, Scene, X, Y, Z, 'TreasureLocation' AS Category
               FROM TreasureLocations
-        ");
+        "
+        );
 
         Log(LogLevel.Verbose, logLevel, "[EXPORT_VIEW] Coordinates view created successfully");
     }
@@ -432,21 +506,32 @@ public static class ExportBatch
     /// <param name="logLevel">Current log level setting</param>
     private static void CreateDirectPlacementSpawnPoints(SQLiteConnection db, LogLevel logLevel)
     {
-        Log(LogLevel.Verbose, logLevel, "[EXPORT_SPAWN] Creating spawn points for directly placed characters...");
+        Log(
+            LogLevel.Verbose,
+            logLevel,
+            "[EXPORT_SPAWN] Creating spawn points for directly placed characters..."
+        );
 
         // Query existing spawn point keys to avoid collisions
         var existingSpawnPointKeys = db.Query<SpawnPointRecord>("SELECT StableKey FROM SpawnPoints")
             .Select(r => r.StableKey)
             .ToList();
 
-        var keyTracker = new DuplicateKeyTracker("DirectPlacementSpawnPoints", existingSpawnPointKeys);
+        var keyTracker = new DuplicateKeyTracker(
+            "DirectPlacementSpawnPoints",
+            existingSpawnPointKeys
+        );
 
         // Query Characters table for non-prefab characters with coordinates
         var directlyPlacedCharacters = db.Query<CharacterRecord>(
             "SELECT StableKey, Scene, X, Y, Z, IsEnabled FROM Characters WHERE IsPrefab = 0 AND Scene IS NOT NULL AND X IS NOT NULL AND Y IS NOT NULL AND Z IS NOT NULL"
         );
 
-        Log(LogLevel.Normal, logLevel, $"[EXPORT_SPAWN] Found {directlyPlacedCharacters.Count} directly placed characters");
+        Log(
+            LogLevel.Normal,
+            logLevel,
+            $"[EXPORT_SPAWN] Found {directlyPlacedCharacters.Count} directly placed characters"
+        );
 
         var spawnPointRecords = new List<SpawnPointRecord>();
         var spawnPointCharacterRecords = new List<SpawnPointCharacterRecord>();
@@ -466,7 +551,11 @@ public static class ExportBatch
             var baseStableKey = StableKeyGenerator.ForSpawnPoint(scene, x, y, z);
             if (existingSpawnPointKeys.Contains(baseStableKey))
             {
-                Log(LogLevel.Verbose, logLevel, $"[EXPORT_SPAWN] Skipping {character.StableKey}: real SpawnPoint already exists at {baseStableKey}");
+                Log(
+                    LogLevel.Verbose,
+                    logLevel,
+                    $"[EXPORT_SPAWN] Skipping {character.StableKey}: real SpawnPoint already exists at {baseStableKey}"
+                );
                 continue;
             }
             var stableKey = keyTracker.GetUniqueKey(baseStableKey, character.StableKey);
@@ -517,7 +606,11 @@ public static class ExportBatch
             db.InsertAll(spawnPointCharacterRecords);
         });
 
-        Log(LogLevel.Verbose, logLevel, $"[EXPORT_SPAWN] Created {spawnPointRecords.Count} spawn points for directly placed characters");
+        Log(
+            LogLevel.Verbose,
+            logLevel,
+            $"[EXPORT_SPAWN] Created {spawnPointRecords.Count} spawn points for directly placed characters"
+        );
     }
 
     /// <summary>

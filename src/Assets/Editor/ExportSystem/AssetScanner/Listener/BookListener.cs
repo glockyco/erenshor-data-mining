@@ -32,14 +32,15 @@ public class BookListener : IAssetScanListener<NullScriptableObject>
         var books = AllBooks.Books;
         foreach (var (bookName, pages) in books)
         {
-            if (pages == null || pages.Length == 0) continue;
+            if (pages == null || pages.Length == 0)
+                continue;
             for (var i = 0; i < pages.Length; i++)
             {
                 var record = new BookRecord
                 {
                     BookTitle = bookName,
                     PageNumber = i,
-                    PageContent = pages[i] ?? ""
+                    PageContent = pages[i] ?? "",
                 };
                 _records.Add(record);
             }

@@ -16,10 +16,13 @@ public class ZoneRecord
     public string UseZoneAsTempBind { get; set; } = string.Empty;
 
     public string Achievement { get; set; } = string.Empty;
+
     [ForeignKey(typeof(QuestRecord), "StableKey")]
     public string? CompleteQuestOnEnterStableKey { get; set; }
+
     [ForeignKey(typeof(QuestRecord), "StableKey")]
     public string? CompleteSecondQuestOnEnterStableKey { get; set; }
+
     [ForeignKey(typeof(QuestRecord), "StableKey")]
     public string? AssignQuestOnEnterStableKey { get; set; }
 

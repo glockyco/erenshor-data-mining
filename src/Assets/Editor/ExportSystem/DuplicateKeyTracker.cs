@@ -35,7 +35,10 @@ public class DuplicateKeyTracker
         {
             // Check if key has variant suffix (e.g., "base:1", "base:2")
             var lastColonIndex = key.LastIndexOf(':');
-            if (lastColonIndex > 0 && int.TryParse(key.Substring(lastColonIndex + 1), out var variant))
+            if (
+                lastColonIndex > 0
+                && int.TryParse(key.Substring(lastColonIndex + 1), out var variant)
+            )
             {
                 // Key has variant - extract base key
                 var baseKey = key.Substring(0, lastColonIndex);
@@ -73,8 +76,8 @@ public class DuplicateKeyTracker
         var uniqueKey = $"{baseKey}:{count}";
 
         Debug.LogWarning(
-            $"[{_listenerName}] Duplicate StableKey: '{baseKey}'. " +
-            $"Asset: '{assetName ?? "unknown"}'. Assigning variant index |{count}."
+            $"[{_listenerName}] Duplicate StableKey: '{baseKey}'. "
+                + $"Asset: '{assetName ?? "unknown"}'. Assigning variant index |{count}."
         );
 
         return uniqueKey;

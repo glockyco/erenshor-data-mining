@@ -53,7 +53,7 @@ public class StanceListener : IAssetScanListener<Stance>
             SwitchMessage = asset.SwitchMessage,
             StanceDesc = asset.StanceDesc,
 
-            ResourceName = asset.name
+            ResourceName = asset.name,
         };
 
         _records.Add(record);

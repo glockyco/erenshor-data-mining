@@ -41,14 +41,16 @@ public class ZoneAnnounceListener : IAssetScanListener<ZoneAnnounce>
             CompleteQuestOnEnterStableKey = !string.IsNullOrEmpty(asset.CompleteQuestOnEnter)
                 ? StableKeyGenerator.ForQuestFromDBName(asset.CompleteQuestOnEnter)
                 : null,
-            CompleteSecondQuestOnEnterStableKey = !string.IsNullOrEmpty(asset.CompleteSecondQuestOnEnter)
+            CompleteSecondQuestOnEnterStableKey = !string.IsNullOrEmpty(
+                asset.CompleteSecondQuestOnEnter
+            )
                 ? StableKeyGenerator.ForQuestFromDBName(asset.CompleteSecondQuestOnEnter)
                 : null,
             AssignQuestOnEnterStableKey = !string.IsNullOrEmpty(asset.AssignQuestOnEnter)
                 ? StableKeyGenerator.ForQuestFromDBName(asset.AssignQuestOnEnter)
                 : null,
             // North bearing from ZoneAnnounce GameObject's Y rotation
-            NorthBearing = asset.transform.eulerAngles.y
+            NorthBearing = asset.transform.eulerAngles.y,
         };
 
         _records.Add(record);

@@ -53,11 +53,10 @@ public class ItemBagListener : IAssetScanListener<ItemBag>
             X = x,
             Y = y,
             Z = z,
-            ItemStableKey = asset.Contents != null
-                ? StableKeyGenerator.ForItem(asset.Contents)
-                : null,
+            ItemStableKey =
+                asset.Contents != null ? StableKeyGenerator.ForItem(asset.Contents) : null,
             Respawns = asset.Respawns,
-            RespawnTimer = asset.RespawnTimer
+            RespawnTimer = asset.RespawnTimer,
         };
 
         _itemBagRecords.Add(itemBag);

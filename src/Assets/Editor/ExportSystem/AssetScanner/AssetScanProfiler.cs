@@ -73,8 +73,8 @@ public sealed class AssetScanProfiler
             return;
         }
 
-        List<ProfileRow> rows = _timings.Values
-            .OrderByDescending(timing => timing.ElapsedTicks)
+        List<ProfileRow> rows = _timings
+            .Values.OrderByDescending(timing => timing.ElapsedTicks)
             .Select(timing => timing.ToRow())
             .ToList();
 
@@ -130,7 +130,8 @@ public sealed class AssetScanProfiler
             double totalMs,
             double avgMs,
             double maxMs,
-            double firstStartMs)
+            double firstStartMs
+        )
         {
             Category = category;
             Name = name;

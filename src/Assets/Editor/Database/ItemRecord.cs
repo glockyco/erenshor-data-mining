@@ -24,6 +24,7 @@ public class ItemRecord
     public float WeaponDly { get; set; }
     public bool Shield { get; set; } // Is it a shield?
     public float WeaponProcChance { get; set; }
+
     [ForeignKey(typeof(SpellRecord), "StableKey")]
     public string? WeaponProcOnHitStableKey { get; set; }
 
@@ -31,6 +32,7 @@ public class ItemRecord
     public bool IsWand { get; set; }
     public int WandRange { get; set; }
     public float WandProcChance { get; set; }
+
     [ForeignKey(typeof(SpellRecord), "StableKey")]
     public string? WandEffectStableKey { get; set; }
     public float WandBoltColorR { get; set; }
@@ -42,6 +44,7 @@ public class ItemRecord
 
     // --- Bow Properties ---
     public bool IsBow { get; set; }
+
     [ForeignKey(typeof(SpellRecord), "StableKey")]
     public string? BowEffectStableKey { get; set; }
     public float BowProcChance { get; set; }
@@ -52,14 +55,19 @@ public class ItemRecord
     // --- Effects & Interactions ---
     [ForeignKey(typeof(SpellRecord), "StableKey")]
     public string? ItemEffectOnClickStableKey { get; set; }
+
     [ForeignKey(typeof(SkillRecord), "StableKey")]
     public string? ItemSkillUseStableKey { get; set; }
+
     [ForeignKey(typeof(SpellRecord), "StableKey")]
     public string? TeachSpellStableKey { get; set; }
+
     [ForeignKey(typeof(SkillRecord), "StableKey")]
     public string? TeachSkillStableKey { get; set; }
+
     [ForeignKey(typeof(SpellRecord), "StableKey")]
     public string? AuraStableKey { get; set; }
+
     [ForeignKey(typeof(SpellRecord), "StableKey")]
     public string? WornEffectStableKey { get; set; }
     public float SpellCastTime { get; set; } // Cast time modifier or specific cast time? (Check Item.cs usage)
@@ -67,6 +75,7 @@ public class ItemRecord
     // --- Quest Interaction ---
     [ForeignKey(typeof(QuestRecord), "StableKey")]
     public string? AssignQuestOnReadStableKey { get; set; }
+
     [ForeignKey(typeof(QuestRecord), "StableKey")]
     public string? CompleteOnReadStableKey { get; set; }
 
@@ -99,6 +108,7 @@ public class ItemRecord
     public string? AttackSoundName { get; set; } = string.Empty; // Name of the AudioClip
     public string? ItemIconName { get; set; } = string.Empty; // Name of the Sprite for the icon
     public string EquipmentToActivate { get; set; } = string.Empty; // String identifier for visual equipment
+
     //public string ShoulderTrimL { get; set; }
     //public string ShoulderTrimR { get; set; }
     //public string ElbowTrimL { get; set; }
@@ -107,6 +117,7 @@ public class ItemRecord
     //public string KneeTrimR { get; set; }
     public bool HideHairWhenEquipped { get; set; }
     public bool HideHeadWhenEquipped { get; set; }
+
     // Colors (RGBA components)
     //public float ItemPrimaryColorR { get; set; }
     //public float ItemPrimaryColorG { get; set; }

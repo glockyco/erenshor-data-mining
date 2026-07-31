@@ -48,8 +48,7 @@ namespace FixtureLib
                 {
                     item = PoolA[Rng.Next(0, PoolA.Count)];
                     attempts++;
-                }
-                while (attempts < 10 && (item == null || Drops.Contains(item)));
+                } while (attempts < 10 && (item == null || Drops.Contains(item)));
                 if (item != null)
                 {
                     Drops.Add(item);

@@ -10,8 +10,10 @@ public class WaterFishableRecord
     [Indexed(Name = "WaterFishable_Primary_IDX", Order = 1, Unique = true)]
     [ForeignKey(typeof(WaterRecord), "StableKey")]
     public string WaterStableKey { get; set; } = string.Empty;
+
     [Indexed(Name = "WaterFishable_Primary_IDX", Order = 2, Unique = true)]
     public string Type { get; set; } = string.Empty; // "DayFishable" or "NightFishable"
+
     [Indexed(Name = "WaterFishable_Primary_IDX", Order = 3, Unique = true)]
     [ForeignKey(typeof(ItemRecord), "StableKey")]
     public string ItemStableKey { get; set; } = string.Empty;

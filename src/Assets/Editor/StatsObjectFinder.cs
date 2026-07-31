@@ -1,14 +1,28 @@
-using UnityEngine;
-using UnityEditor;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
+using UnityEngine;
 
 public class StatsObjectFinder : EditorWindow
 {
     private Vector2 scrollPosition;
     private string searchString = "";
-    private List<(GameObject obj, int level, float baseHP, string npcName, int? maxDrops, int? maxNonCommonDrops)> objectsWithStats =
-        new List<(GameObject obj, int level, float baseHP, string npcName, int? maxDrops, int? maxNonCommonDrops)>();
+    private List<(
+        GameObject obj,
+        int level,
+        float baseHP,
+        string npcName,
+        int? maxDrops,
+        int? maxNonCommonDrops
+    )> objectsWithStats =
+        new List<(
+            GameObject obj,
+            int level,
+            float baseHP,
+            string npcName,
+            int? maxDrops,
+            int? maxNonCommonDrops
+        )>();
     private int minimumLevel = 0;
 
     private enum SortField
@@ -19,7 +33,7 @@ public class StatsObjectFinder : EditorWindow
         HP,
         Effort,
         MaxDrops,
-        MaxNonCommonDrops
+        MaxNonCommonDrops,
     }
 
     private SortField sortField = SortField.Name;
@@ -60,8 +74,9 @@ public class StatsObjectFinder : EditorWindow
         if (!string.IsNullOrEmpty(searchString))
         {
             filteredObjects = filteredObjects.FindAll(item =>
-                item.obj.name.ToLower().Contains(searchString.ToLower()) ||
-                item.npcName.ToLower().Contains(searchString.ToLower()));
+                item.obj.name.ToLower().Contains(searchString.ToLower())
+                || item.npcName.ToLower().Contains(searchString.ToLower())
+            );
         }
 
         if (minimumLevel > 0)
@@ -73,7 +88,11 @@ public class StatsObjectFinder : EditorWindow
 
         EditorGUILayout.BeginHorizontal();
         EditorGUILayout.LabelField("NPC Prefabs with Stats:", EditorStyles.boldLabel);
-        EditorGUILayout.LabelField($"Total: {filteredObjects.Count}", EditorStyles.boldLabel, GUILayout.Width(100));
+        EditorGUILayout.LabelField(
+            $"Total: {filteredObjects.Count}",
+            EditorStyles.boldLabel,
+            GUILayout.Width(100)
+        );
         EditorGUILayout.EndHorizontal();
 
         EditorGUILayout.BeginHorizontal("box");
@@ -103,8 +122,14 @@ public class StatsObjectFinder : EditorWindow
             EditorGUILayout.LabelField($"Level: {level}", GUILayout.Width(70));
             EditorGUILayout.LabelField($"Base HP: {baseHP}", GUILayout.Width(80));
             EditorGUILayout.LabelField($"Effort: {baseHP / level:F2}", GUILayout.Width(80));
-            EditorGUILayout.LabelField(maxDrops.HasValue ? maxDrops.ToString() : "-", GUILayout.Width(80));
-            EditorGUILayout.LabelField(maxNonCommonDrops.HasValue ? maxNonCommonDrops.ToString() : "-", GUILayout.Width(100));
+            EditorGUILayout.LabelField(
+                maxDrops.HasValue ? maxDrops.ToString() : "-",
+                GUILayout.Width(80)
+            );
+            EditorGUILayout.LabelField(
+                maxNonCommonDrops.HasValue ? maxNonCommonDrops.ToString() : "-",
+                GUILayout.Width(100)
+            );
             EditorGUILayout.EndHorizontal();
         }
 
@@ -122,8 +147,23 @@ public class StatsObjectFinder : EditorWindow
         }
     }
 
-    private IEnumerable<(GameObject obj, int level, float baseHP, string npcName, int? maxDrops, int? maxNonCommonDrops)>
-        SortObjects(List<(GameObject obj, int level, float baseHP, string npcName, int? maxDrops, int? maxNonCommonDrops)> objects)
+    private IEnumerable<(
+        GameObject obj,
+        int level,
+        float baseHP,
+        string npcName,
+        int? maxDrops,
+        int? maxNonCommonDrops
+    )> SortObjects(
+        List<(
+            GameObject obj,
+            int level,
+            float baseHP,
+            string npcName,
+            int? maxDrops,
+            int? maxNonCommonDrops
+        )> objects
+    )
     {
         return sortField switch
         {
@@ -155,7 +195,7 @@ public class StatsObjectFinder : EditorWindow
                 ? objects.OrderBy(x => x.maxNonCommonDrops ?? -1)
                 : objects.OrderByDescending(x => x.maxNonCommonDrops ?? -1),
 
-            _ => objects
+            _ => objects,
         };
     }
 
@@ -182,14 +222,16 @@ public class StatsObjectFinder : EditorWindow
                     int? maxDrops = lootTable?.MaxNumberDrops;
                     int? maxNonCommonDrops = lootTable?.MaxNonCommonDrops;
 
-                    objectsWithStats.Add((
-                        prefab,
-                        stats.Level,
-                        stats.BaseHP,
-                        npc.NPCName,
-                        maxDrops,
-                        maxNonCommonDrops
-                    ));
+                    objectsWithStats.Add(
+                        (
+                            prefab,
+                            stats.Level,
+                            stats.BaseHP,
+                            npc.NPCName,
+                            maxDrops,
+                            maxNonCommonDrops
+                        )
+                    );
                 }
             }
         }

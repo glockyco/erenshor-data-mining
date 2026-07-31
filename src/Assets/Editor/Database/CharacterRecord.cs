@@ -54,8 +54,10 @@ public class CharacterRecord
     public bool SimPlayersIgnoreUntilOrdered { get; set; }
     public float Enrage { get; set; }
     public string? ShoutOnDeath { get; set; } = string.Empty;
+
     [ForeignKey(typeof(QuestRecord), "StableKey")]
     public string? QuestCompleteOnDeath { get; set; } = string.Empty;
+
     [ForeignKey(typeof(QuestRecord), "StableKey")]
     public string? ShoutTriggerQuestStableKey { get; set; } = string.Empty;
     public string? ShoutTriggerKeyword { get; set; } = string.Empty;
@@ -111,16 +113,22 @@ public class CharacterRecord
 
     [ForeignKey(typeof(SpellRecord), "StableKey")]
     public string? PetSpellStableKey { get; set; }
+
     [ForeignKey(typeof(SpellRecord), "StableKey")]
     public string? SpawnWithStatusStableKey { get; set; }
+
     [ForeignKey(typeof(SpellRecord), "StableKey")]
     public string? GroupHotSpellStableKey { get; set; }
+
     [ForeignKey(typeof(SpellRecord), "StableKey")]
     public string? EmitVitaeSpellStableKey { get; set; }
+
     [ForeignKey(typeof(SpellRecord), "StableKey")]
     public string? HotSpellStableKey { get; set; }
+
     [ForeignKey(typeof(SpellRecord), "StableKey")]
     public string? AeTauntSpellStableKey { get; set; }
+
     [ForeignKey(typeof(SpellRecord), "StableKey")]
     public string? ProcOnHitStableKey { get; set; }
     public float ProcOnHitChance { get; set; }

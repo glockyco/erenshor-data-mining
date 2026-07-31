@@ -3,9 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using SQLite;
 using UnityEditor;
 using UnityEngine;
-using SQLite;
 
 public class AssetScannerExporterWindow : EditorWindow
 {
@@ -68,26 +68,46 @@ public class AssetScannerExporterWindow : EditorWindow
         string newPath = EditorGUILayout.TextField(displayPath, GUILayout.ExpandWidth(true));
         if (newPath != displayPath)
         {
-            try {
-                string potentialFullPath = Path.IsPathRooted(newPath) ? Path.GetFullPath(newPath) : Path.GetFullPath(Path.Combine(projectPath, newPath));
+            try
+            {
+                string potentialFullPath = Path.IsPathRooted(newPath)
+                    ? Path.GetFullPath(newPath)
+                    : Path.GetFullPath(Path.Combine(projectPath, newPath));
                 string directory = Path.GetDirectoryName(potentialFullPath);
                 if (!string.IsNullOrEmpty(directory))
                 {
                     _outputPath = potentialFullPath;
                     EditorPrefs.SetString(Repository.EditorPrefsKey, _outputPath);
                 }
-            } catch (System.Exception ex) {
-                UnityEngine.Debug.LogError($"[AssetScannerExporterWindow] Invalid output path: {newPath}. Error: {ex.Message}");
-                EditorUtility.DisplayDialog("Invalid Path", $"The specified output path is invalid:\n\n{newPath}\n\nError: {ex.Message}", "OK");
+            }
+            catch (System.Exception ex)
+            {
+                UnityEngine.Debug.LogError(
+                    $"[AssetScannerExporterWindow] Invalid output path: {newPath}. Error: {ex.Message}"
+                );
+                EditorUtility.DisplayDialog(
+                    "Invalid Path",
+                    $"The specified output path is invalid:\n\n{newPath}\n\nError: {ex.Message}",
+                    "OK"
+                );
             }
         }
         if (GUILayout.Button("Browse...", GUILayout.Width(80)))
         {
-            string directory = string.IsNullOrEmpty(_outputPath) ? Application.dataPath + "/.." : Path.GetDirectoryName(_outputPath);
-            string filename = string.IsNullOrEmpty(_outputPath) ? Repository.DefaultFilename : Path.GetFileName(_outputPath);
+            string directory = string.IsNullOrEmpty(_outputPath)
+                ? Application.dataPath + "/.."
+                : Path.GetDirectoryName(_outputPath);
+            string filename = string.IsNullOrEmpty(_outputPath)
+                ? Repository.DefaultFilename
+                : Path.GetFileName(_outputPath);
             if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
                 directory = Application.dataPath + "/..";
-            string chosenPath = EditorUtility.SaveFilePanel("Select Database Output Path", directory, filename, "sqlite");
+            string chosenPath = EditorUtility.SaveFilePanel(
+                "Select Database Output Path",
+                directory,
+                filename,
+                "sqlite"
+            );
             if (!string.IsNullOrEmpty(chosenPath))
             {
                 _outputPath = chosenPath;
@@ -99,14 +119,18 @@ public class AssetScannerExporterWindow : EditorWindow
 
     private void DrawProgressSection()
     {
-        if (!_isScanning) return;
+        if (!_isScanning)
+            return;
         float progress = (_progress.Total > 0) ? (float)_progress.Current / _progress.Total : 0f;
         string label = $"{_progress.Phase ?? ""} ({_progress.Current}/{_progress.Total})";
         GUILayout.Space(10);
         EditorGUILayout.LabelField("Progress:", EditorStyles.boldLabel);
         Rect rect = GUILayoutUtility.GetRect(18, 18, "TextField");
         EditorGUI.ProgressBar(rect, progress, label);
-        string timeStr = _elapsedSeconds > 0 ? TimeSpan.FromSeconds(_elapsedSeconds).ToString(@"hh\:mm\:ss") : "00:00:00";
+        string timeStr =
+            _elapsedSeconds > 0
+                ? TimeSpan.FromSeconds(_elapsedSeconds).ToString(@"hh\:mm\:ss")
+                : "00:00:00";
         EditorGUILayout.LabelField($"Elapsed: {timeStr}", EditorStyles.miniLabel);
     }
 
@@ -127,8 +151,10 @@ public class AssetScannerExporterWindow : EditorWindow
             bool updated = EditorGUILayout.ToggleLeft(definition.Label, selected);
             if (updated != selected)
             {
-                if (updated) _selectedListenerKeys.Add(definition.Key);
-                else _selectedListenerKeys.Remove(definition.Key);
+                if (updated)
+                    _selectedListenerKeys.Add(definition.Key);
+                else
+                    _selectedListenerKeys.Remove(definition.Key);
             }
         }
         EditorGUI.EndDisabledGroup();
@@ -156,11 +182,7 @@ public class AssetScannerExporterWindow : EditorWindow
 
         _db = new SQLiteConnection(_outputPath);
 
-        ExportListenerRegistry.Register(
-            _activeScanner,
-            _db,
-            _selectedListenerKeys);
-
+        ExportListenerRegistry.Register(_activeScanner, _db, _selectedListenerKeys);
 
         _stopwatch = Stopwatch.StartNew();
         EditorCoroutineRunner.StartCoroutine(ScanAndExportCoroutine());
@@ -170,7 +192,12 @@ public class AssetScannerExporterWindow : EditorWindow
     {
         var scanCoroutine = _activeScanner.ScanAllAssetsCoroutine(
             () => _cancelRequested,
-            progress => { _progress = progress; Repaint(); });
+            progress =>
+            {
+                _progress = progress;
+                Repaint();
+            }
+        );
         while (scanCoroutine.MoveNext())
         {
             _elapsedSeconds = _stopwatch.Elapsed.TotalSeconds;
@@ -190,7 +217,9 @@ public class AssetScannerExporterWindow : EditorWindow
         EditorGUILayout.Space();
         EditorGUILayout.BeginHorizontal();
         bool anyStepSelected = _selectedListenerKeys.Count > 0;
-        EditorGUI.BeginDisabledGroup(_isScanning || !anyStepSelected || string.IsNullOrEmpty(_outputPath));
+        EditorGUI.BeginDisabledGroup(
+            _isScanning || !anyStepSelected || string.IsNullOrEmpty(_outputPath)
+        );
         if (GUILayout.Button("Export Selected Steps", GUILayout.Height(30)))
         {
             StartScanAndExport();
@@ -204,7 +233,8 @@ public class AssetScannerExporterWindow : EditorWindow
         EditorGUI.EndDisabledGroup();
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.Space();
-        bool fileExists = !_isScanning && !string.IsNullOrEmpty(_outputPath) && File.Exists(_outputPath);
+        bool fileExists =
+            !_isScanning && !string.IsNullOrEmpty(_outputPath) && File.Exists(_outputPath);
         EditorGUI.BeginDisabledGroup(!fileExists);
         if (GUILayout.Button("Open Output Folder"))
         {

@@ -53,6 +53,7 @@ public class SpellRecord
     public bool Lifetap { get; set; } // From Spell.Lifetap
     public string DamageType { get; set; } // From Spell.MyDamageType enum
     public float ResistModifier { get; set; } // From Spell.ResistModifier
+
     [ForeignKey(typeof(SpellRecord), "StableKey")]
     public string? AddProcStableKey { get; set; }
     public int AddProcChance { get; set; } // From Spell.AddProcChance
@@ -93,6 +94,7 @@ public class SpellRecord
     // --- Special Mechanics ---
     [ForeignKey(typeof(CharacterRecord), "StableKey")]
     public string? PetToSummonStableKey { get; set; }
+
     [ForeignKey(typeof(SpellRecord), "StableKey")]
     public string? StatusEffectToApplyStableKey { get; set; }
     public bool ReapAndRenew { get; set; } // From Spell.ReapAndRenew

@@ -48,7 +48,8 @@ public class QuestActivationListener : IAssetScanListener<GameObject>
     public QuestActivationListener(
         SQLiteConnection db,
         ZoneLineStableKeyResolver zoneLineKeyResolver,
-        CharacterStableKeyResolver characterKeyResolver)
+        CharacterStableKeyResolver characterKeyResolver
+    )
     {
         _db = db;
         _zoneLineKeyResolver = zoneLineKeyResolver;
@@ -69,8 +70,10 @@ public class QuestActivationListener : IAssetScanListener<GameObject>
             _db.InsertAll(_characterRecords);
         });
 
-        Debug.Log($"[{GetType().Name}] Exported {_zoneLineRecords.Count} zone line unlock records, " +
-                  $"{_characterRecords.Count} character unlock records");
+        Debug.Log(
+            $"[{GetType().Name}] Exported {_zoneLineRecords.Count} zone line unlock records, "
+                + $"{_characterRecords.Count} character unlock records"
+        );
 
         _zoneLineRecords.Clear();
         _characterRecords.Clear();
@@ -171,7 +174,9 @@ public class QuestActivationListener : IAssetScanListener<GameObject>
             // on its own GO will NOT be activated when its parent is enabled (Unity
             // propagates activation only to children that already have activeSelf=true).
             // Exception: if the zone line IS the direct target, it will be activated.
-            foreach (var zoneLine in target.GetComponentsInChildren<Zoneline>(includeInactive: true))
+            foreach (
+                var zoneLine in target.GetComponentsInChildren<Zoneline>(includeInactive: true)
+            )
             {
                 if (!zoneLine.gameObject.activeSelf && zoneLine.gameObject != target)
                     continue;
@@ -181,30 +186,36 @@ public class QuestActivationListener : IAssetScanListener<GameObject>
                 {
                     if (_seenZoneLineUnlocks.Add((stableKey, groupId, questDBName)))
                     {
-                        _zoneLineRecords.Add(new ZoneLineQuestUnlockRecord
-                        {
-                            ZoneLineStableKey = stableKey,
-                            UnlockGroup = groupId,
-                            QuestDBName = questDBName,
-                        });
+                        _zoneLineRecords.Add(
+                            new ZoneLineQuestUnlockRecord
+                            {
+                                ZoneLineStableKey = stableKey,
+                                UnlockGroup = groupId,
+                                QuestDBName = questDBName,
+                            }
+                        );
                     }
                 }
             }
 
             // Characters: emit records for Character components found in the hierarchy.
-            foreach (var character in target.GetComponentsInChildren<Character>(includeInactive: true))
+            foreach (
+                var character in target.GetComponentsInChildren<Character>(includeInactive: true)
+            )
             {
                 var stableKey = _characterKeyResolver.GetStableKey(character);
                 foreach (var questDBName in questDBNames)
                 {
                     if (_seenCharacterUnlocks.Add((stableKey, groupId, questDBName)))
                     {
-                        _characterRecords.Add(new CharacterQuestUnlockRecord
-                        {
-                            CharacterStableKey = stableKey,
-                            UnlockGroup = groupId,
-                            QuestDBName = questDBName,
-                        });
+                        _characterRecords.Add(
+                            new CharacterQuestUnlockRecord
+                            {
+                                CharacterStableKey = stableKey,
+                                UnlockGroup = groupId,
+                                QuestDBName = questDBName,
+                            }
+                        );
                     }
                 }
             }
@@ -215,14 +226,16 @@ public class QuestActivationListener : IAssetScanListener<GameObject>
             // Apply the same activeSelf guard as zone lines: a SpawnPoint that is
             // inactive inside the target hierarchy (not the direct target) would not
             // be activated by enabling the parent.
-            foreach (var spawnPoint in target.GetComponentsInChildren<SpawnPoint>(includeInactive: true))
+            foreach (
+                var spawnPoint in target.GetComponentsInChildren<SpawnPoint>(includeInactive: true)
+            )
             {
                 if (!spawnPoint.gameObject.activeSelf && spawnPoint.gameObject != target)
                     continue;
 
-                var allSpawns =
-                    (spawnPoint.CommonSpawns ?? new List<GameObject>())
-                    .Concat(spawnPoint.RareSpawns ?? new List<GameObject>());
+                var allSpawns = (spawnPoint.CommonSpawns ?? new List<GameObject>()).Concat(
+                    spawnPoint.RareSpawns ?? new List<GameObject>()
+                );
                 foreach (var spawnGO in allSpawns)
                 {
                     if (spawnGO == null)
@@ -235,12 +248,14 @@ public class QuestActivationListener : IAssetScanListener<GameObject>
                     {
                         if (_seenCharacterUnlocks.Add((stableKey, groupId, questDBName)))
                         {
-                            _characterRecords.Add(new CharacterQuestUnlockRecord
-                            {
-                                CharacterStableKey = stableKey,
-                                UnlockGroup = groupId,
-                                QuestDBName = questDBName,
-                            });
+                            _characterRecords.Add(
+                                new CharacterQuestUnlockRecord
+                                {
+                                    CharacterStableKey = stableKey,
+                                    UnlockGroup = groupId,
+                                    QuestDBName = questDBName,
+                                }
+                            );
                         }
                     }
                 }

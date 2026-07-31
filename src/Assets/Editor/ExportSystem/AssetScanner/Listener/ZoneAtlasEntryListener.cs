@@ -57,11 +57,15 @@ public class ZoneAtlasEntryListener : IAssetScanListener<ZoneAtlasEntry>
             {
                 if (!string.IsNullOrEmpty(neighborZoneName))
                 {
-                    _neighborRecords.Add(new ZoneAtlasNeighborRecord
-                    {
-                        ZoneAtlasId = asset.Id,
-                        NeighborZoneStableKey = StableKeyGenerator.ForZoneFromSceneName(neighborZoneName)
-                    });
+                    _neighborRecords.Add(
+                        new ZoneAtlasNeighborRecord
+                        {
+                            ZoneAtlasId = asset.Id,
+                            NeighborZoneStableKey = StableKeyGenerator.ForZoneFromSceneName(
+                                neighborZoneName
+                            ),
+                        }
+                    );
                 }
             }
         }

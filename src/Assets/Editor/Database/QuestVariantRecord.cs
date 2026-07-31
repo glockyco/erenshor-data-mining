@@ -14,6 +14,7 @@ public class QuestVariantRecord
     // --- Core Identification ---
     [PrimaryKey]
     public string ResourceName { get; set; } = string.Empty; // ScriptableObject filename (unique)
+
     [ForeignKey(typeof(QuestRecord), "StableKey")]
     public string QuestStableKey { get; set; } = string.Empty; // FK to Quests table
     public int QuestDBIndex { get; set; } // Index in Resources.LoadAll array
@@ -22,9 +23,11 @@ public class QuestVariantRecord
 
     // --- Rewards & Completion ---
     public int XPonComplete { get; set; }
+
     [ForeignKey(typeof(ItemRecord), "StableKey")]
     public string? ItemOnCompleteStableKey { get; set; }
     public int GoldOnComplete { get; set; }
+
     [ForeignKey(typeof(QuestRecord), "StableKey")]
     public string? AssignNewQuestOnCompleteStableKey { get; set; }
 

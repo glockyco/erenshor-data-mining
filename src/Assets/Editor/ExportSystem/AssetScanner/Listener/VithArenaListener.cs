@@ -11,7 +11,8 @@ public class VithArenaListener : IAssetScanListener<VithArena>
     private const string ArenaTriggerMode = "proximity_auto_consume";
     private const string ArenaEventDisplayName = "Vitheo's arena";
 
-    private static readonly BindingFlags FieldFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+    private static readonly BindingFlags FieldFlags =
+        BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
     private readonly SQLiteConnection _db;
     private readonly CharacterStableKeyResolver _characterKeyResolver;
@@ -55,7 +56,9 @@ public class VithArenaListener : IAssetScanListener<VithArena>
         var scene = asset.gameObject.scene.name;
         if (string.IsNullOrEmpty(scene))
         {
-            Debug.LogWarning($"[{GetType().Name}] VithArena on prefab '{asset.gameObject.name}' has no scene; skipping");
+            Debug.LogWarning(
+                $"[{GetType().Name}] VithArena on prefab '{asset.gameObject.name}' has no scene; skipping"
+            );
             return;
         }
         var triggerBounds = TriggerBoundsResolver.ResolveHost(asset, nameof(VithArenaListener));
@@ -64,7 +67,9 @@ public class VithArenaListener : IAssetScanListener<VithArena>
         var awardChests = GetFieldValue<List<GameObject>>(asset, "AwardChests");
         if (awardChests == null || awardChests.Count == 0)
         {
-            Debug.LogWarning($"[{GetType().Name}] VithArena '{asset.gameObject.name}' has no award chests; skipping");
+            Debug.LogWarning(
+                $"[{GetType().Name}] VithArena '{asset.gameObject.name}' has no award chests; skipping"
+            );
             return;
         }
 
@@ -81,77 +86,101 @@ public class VithArenaListener : IAssetScanListener<VithArena>
 
             if (coin == null)
             {
-                Debug.LogWarning($"[{GetType().Name}] VithArena '{asset.gameObject.name}' round {roundIndex} has no coin; skipping");
+                Debug.LogWarning(
+                    $"[{GetType().Name}] VithArena '{asset.gameObject.name}' round {roundIndex} has no coin; skipping"
+                );
                 continue;
             }
             if (fight == null || fight.Count == 0)
             {
-                Debug.LogWarning($"[{GetType().Name}] VithArena '{asset.gameObject.name}' round {roundIndex} has no fight list; skipping");
+                Debug.LogWarning(
+                    $"[{GetType().Name}] VithArena '{asset.gameObject.name}' round {roundIndex} has no fight list; skipping"
+                );
                 continue;
             }
             if (awardChest == null)
             {
-                Debug.LogWarning($"[{GetType().Name}] VithArena '{asset.gameObject.name}' round {roundIndex} has no award chest; skipping");
+                Debug.LogWarning(
+                    $"[{GetType().Name}] VithArena '{asset.gameObject.name}' round {roundIndex} has no award chest; skipping"
+                );
                 continue;
             }
 
             var chestCharacter = awardChest.GetComponent<Character>();
             if (chestCharacter == null)
             {
-                Debug.LogWarning($"[{GetType().Name}] VithArena '{asset.gameObject.name}' round {roundIndex} award chest '{awardChest.name}' has no Character component; skipping");
+                Debug.LogWarning(
+                    $"[{GetType().Name}] VithArena '{asset.gameObject.name}' round {roundIndex} award chest '{awardChest.name}' has no Character component; skipping"
+                );
                 continue;
             }
 
-            var stableKey = StableKeyGenerator.ForArenaRound(scene, asset.gameObject.name, roundIndex);
-            _roundRecords.Add(new ArenaRoundRecord
-            {
-                StableKey = stableKey,
-                Scene = scene,
-                ArenaObjectName = asset.gameObject.name,
-                RoundIndex = roundIndex,
-                CoinItemStableKey = StableKeyGenerator.ForItem(coin),
-                AwardChestCharacterStableKey = _characterKeyResolver.GetStableKey(chestCharacter),
-                TriggerMode = ArenaTriggerMode,
-                EventDisplayName = ArenaEventDisplayName,
-                EventX = eventPosition.x,
-                EventY = eventPosition.y,
-                EventZ = eventPosition.z,
-                TriggerBoundsCenterX = triggerBounds.center.x,
-                TriggerBoundsCenterY = triggerBounds.center.y,
-                TriggerBoundsCenterZ = triggerBounds.center.z,
-                TriggerBoundsExtentsX = triggerBounds.extents.x,
-                TriggerBoundsExtentsY = triggerBounds.extents.y,
-                TriggerBoundsExtentsZ = triggerBounds.extents.z,
-            });
+            var stableKey = StableKeyGenerator.ForArenaRound(
+                scene,
+                asset.gameObject.name,
+                roundIndex
+            );
+            _roundRecords.Add(
+                new ArenaRoundRecord
+                {
+                    StableKey = stableKey,
+                    Scene = scene,
+                    ArenaObjectName = asset.gameObject.name,
+                    RoundIndex = roundIndex,
+                    CoinItemStableKey = StableKeyGenerator.ForItem(coin),
+                    AwardChestCharacterStableKey = _characterKeyResolver.GetStableKey(
+                        chestCharacter
+                    ),
+                    TriggerMode = ArenaTriggerMode,
+                    EventDisplayName = ArenaEventDisplayName,
+                    EventX = eventPosition.x,
+                    EventY = eventPosition.y,
+                    EventZ = eventPosition.z,
+                    TriggerBoundsCenterX = triggerBounds.center.x,
+                    TriggerBoundsCenterY = triggerBounds.center.y,
+                    TriggerBoundsCenterZ = triggerBounds.center.z,
+                    TriggerBoundsExtentsX = triggerBounds.extents.x,
+                    TriggerBoundsExtentsY = triggerBounds.extents.y,
+                    TriggerBoundsExtentsZ = triggerBounds.extents.z,
+                }
+            );
 
             for (var sequenceIndex = 0; sequenceIndex < fight.Count; sequenceIndex++)
             {
                 var enemy = fight[sequenceIndex];
                 if (enemy == null)
                 {
-                    Debug.LogWarning($"[{GetType().Name}] VithArena '{asset.gameObject.name}' round {roundIndex} enemy {sequenceIndex} is null; skipping enemy");
+                    Debug.LogWarning(
+                        $"[{GetType().Name}] VithArena '{asset.gameObject.name}' round {roundIndex} enemy {sequenceIndex} is null; skipping enemy"
+                    );
                     continue;
                 }
 
                 var enemyCharacter = enemy.GetComponent<Character>();
                 if (enemyCharacter == null)
                 {
-                    Debug.LogWarning($"[{GetType().Name}] VithArena '{asset.gameObject.name}' round {roundIndex} enemy '{enemy.name}' has no Character component; skipping enemy");
+                    Debug.LogWarning(
+                        $"[{GetType().Name}] VithArena '{asset.gameObject.name}' round {roundIndex} enemy '{enemy.name}' has no Character component; skipping enemy"
+                    );
                     continue;
                 }
 
-                _enemyRecords.Add(new ArenaRoundEnemyRecord
-                {
-                    ArenaRoundStableKey = stableKey,
-                    SequenceIndex = sequenceIndex,
-                    EnemyCharacterStableKey = _characterKeyResolver.GetStableKey(enemyCharacter),
-                });
+                _enemyRecords.Add(
+                    new ArenaRoundEnemyRecord
+                    {
+                        ArenaRoundStableKey = stableKey,
+                        SequenceIndex = sequenceIndex,
+                        EnemyCharacterStableKey = _characterKeyResolver.GetStableKey(
+                            enemyCharacter
+                        ),
+                    }
+                );
             }
         }
     }
 
-
-    private static T? GetFieldValue<T>(VithArena asset, string fieldName) where T : class
+    private static T? GetFieldValue<T>(VithArena asset, string fieldName)
+        where T : class
     {
         var field = asset.GetType().GetField(fieldName, FieldFlags);
         return field?.GetValue(asset) as T;

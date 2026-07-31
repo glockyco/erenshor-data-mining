@@ -24,13 +24,25 @@ public class GameConstantListener : IAssetScanListener<Object>
 
         // Combat/Balance modifiers - these are the most important for comparing variants
         AddConstant("HPScale", GameData.HPScale, "NPC HP multiplier applied at spawn");
-        AddConstant("Under35HPScale", GameData.Under35HPScale, "Additional NPC HP multiplier applied at spawn when Level is 8-36");
-        AddConstant("Under8HPScale", GameData.Under8HPScale, "Additional NPC HP multiplier applied at spawn when Level <= 7");
+        AddConstant(
+            "Under35HPScale",
+            GameData.Under35HPScale,
+            "Additional NPC HP multiplier applied at spawn when Level is 8-36"
+        );
+        AddConstant(
+            "Under8HPScale",
+            GameData.Under8HPScale,
+            "Additional NPC HP multiplier applied at spawn when Level <= 7"
+        );
         AddConstant("ServerHPMod", GameData.ServerHPMod, "Server HP modifier (user adjustable)");
         AddConstant("ServerXPMod", GameData.ServerXPMod, "Server XP modifier");
         AddConstant("ServerDMGMod", GameData.ServerDMGMod, "Server damage modifier");
         AddConstant("ServerLootRate", GameData.ServerLootRate, "Server loot rate modifier");
-        AddConstant("LootBlessBonus", GameData.LootBlessBonus, "Bonus loot multiplier from Blessing Altar (runtime, default 0; set to 1 when BlessingTimer active)");
+        AddConstant(
+            "LootBlessBonus",
+            GameData.LootBlessBonus,
+            "Bonus loot multiplier from Blessing Altar (runtime, default 0; set to 1 when BlessingTimer active)"
+        );
         AddConstant("RespawnTimeMod", GameData.RespawnTimeMod, "Respawn time modifier");
         AddConstant("RunSpeedMod", GameData.RunSpeedMod, "Run speed modifier");
 
@@ -64,35 +76,40 @@ public class GameConstantListener : IAssetScanListener<Object>
 
     private void AddConstant(string key, float value, string? description = null)
     {
-        _records.Add(new GameConstantRecord
-        {
-            Key = key,
-            Value = value.ToString("G"),
-            ValueType = "float",
-            Description = description
-        });
+        _records.Add(
+            new GameConstantRecord
+            {
+                Key = key,
+                Value = value.ToString("G"),
+                ValueType = "float",
+                Description = description,
+            }
+        );
     }
 
     private void AddConstant(string key, int value, string? description = null)
     {
-        _records.Add(new GameConstantRecord
-        {
-            Key = key,
-            Value = value.ToString(),
-            ValueType = "int",
-            Description = description
-        });
+        _records.Add(
+            new GameConstantRecord
+            {
+                Key = key,
+                Value = value.ToString(),
+                ValueType = "int",
+                Description = description,
+            }
+        );
     }
 
     private void AddConstant(string key, bool value, string? description = null)
     {
-        _records.Add(new GameConstantRecord
-        {
-            Key = key,
-            Value = value ? "true" : "false",
-            ValueType = "bool",
-            Description = description
-        });
+        _records.Add(
+            new GameConstantRecord
+            {
+                Key = key,
+                Value = value ? "true" : "false",
+                ValueType = "bool",
+                Description = description,
+            }
+        );
     }
-
 }

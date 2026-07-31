@@ -52,7 +52,7 @@ public class AchievementTriggerListener : IAssetScanListener<AchievementTrigger>
             X = x,
             Y = y,
             Z = z,
-            AchievementName = achievementTrigger.AchievementName
+            AchievementName = achievementTrigger.AchievementName,
         };
     }
 }

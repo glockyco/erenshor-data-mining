@@ -17,6 +17,7 @@ public class ZoneLineRecord
 
     public bool IsEnabled { get; set; }
     public string DisplayText { get; set; } = string.Empty;
+
     [ForeignKey(typeof(ZoneRecord), "StableKey")]
     public string? DestinationZoneStableKey { get; set; }
     public float LandingPositionX { get; set; }

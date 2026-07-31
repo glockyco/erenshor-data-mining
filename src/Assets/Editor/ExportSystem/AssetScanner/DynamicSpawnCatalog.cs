@@ -6,12 +6,17 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-public enum DynamicSpawnClassification { Unknown = 0, Allowed, Denied }
+public enum DynamicSpawnClassification
+{
+    Unknown = 0,
+    Allowed,
+    Denied,
+}
 
 public struct CatalogEntry
 {
     public DynamicSpawnClassification Classification { get; set; }
-    public string? PositionField { get; set; }   // comma-separated for multi-position spawns; listener splits
+    public string? PositionField { get; set; } // comma-separated for multi-position spawns; listener splits
     public string? PositionStrategy { get; set; } // named resolver for non-Cartesian placement semantics
     public bool IncludeHostPosition { get; set; }
     public string? TriggerItemField { get; set; }
@@ -52,14 +57,36 @@ public class DynamicSpawnCatalog
         foreach (var rawLine in File.ReadAllLines(path))
         {
             var line = rawLine.Trim();
-            if (line.StartsWith('#') || line.Length == 0) continue;
+            if (line.StartsWith('#') || line.Length == 0)
+                continue;
 
             if (line == "[[allowed]]" || line == "[[denied]]")
             {
                 if (currentScript != null && currentFields != null)
-                    catalog.AddSection(currentSection!, currentScript, currentFields, currentPositionField, currentPositionStrategy, currentIncludeHostPosition, currentTriggerItemField, currentTriggerMode, currentEventDisplayName, currentIncludeHostBounds, currentReason);
+                    catalog.AddSection(
+                        currentSection!,
+                        currentScript,
+                        currentFields,
+                        currentPositionField,
+                        currentPositionStrategy,
+                        currentIncludeHostPosition,
+                        currentTriggerItemField,
+                        currentTriggerMode,
+                        currentEventDisplayName,
+                        currentIncludeHostBounds,
+                        currentReason
+                    );
                 currentSection = line == "[[allowed]]" ? "allowed" : "denied";
-                currentScript = null; currentFields = null; currentPositionField = null; currentPositionStrategy = null; currentIncludeHostPosition = false; currentTriggerItemField = null; currentTriggerMode = null; currentEventDisplayName = null; currentIncludeHostBounds = false; currentReason = null;
+                currentScript = null;
+                currentFields = null;
+                currentPositionField = null;
+                currentPositionStrategy = null;
+                currentIncludeHostPosition = false;
+                currentTriggerItemField = null;
+                currentTriggerMode = null;
+                currentEventDisplayName = null;
+                currentIncludeHostBounds = false;
+                currentReason = null;
             }
             else if (line.StartsWith("script = "))
             {
@@ -103,13 +130,40 @@ public class DynamicSpawnCatalog
             }
         }
         if (currentScript != null && currentFields != null)
-            catalog.AddSection(currentSection!, currentScript, currentFields, currentPositionField, currentPositionStrategy, currentIncludeHostPosition, currentTriggerItemField, currentTriggerMode, currentEventDisplayName, currentIncludeHostBounds, currentReason);
+            catalog.AddSection(
+                currentSection!,
+                currentScript,
+                currentFields,
+                currentPositionField,
+                currentPositionStrategy,
+                currentIncludeHostPosition,
+                currentTriggerItemField,
+                currentTriggerMode,
+                currentEventDisplayName,
+                currentIncludeHostBounds,
+                currentReason
+            );
         return catalog;
     }
 
-    private void AddSection(string section, string script, List<string> fields, string? positionField, string? positionStrategy, bool includeHostPosition, string? triggerItemField, string? triggerMode, string? eventDisplayName, bool includeHostBounds, string? reason)
+    private void AddSection(
+        string section,
+        string script,
+        List<string> fields,
+        string? positionField,
+        string? positionStrategy,
+        bool includeHostPosition,
+        string? triggerItemField,
+        string? triggerMode,
+        string? eventDisplayName,
+        bool includeHostBounds,
+        string? reason
+    )
     {
-        var classification = section == "allowed" ? DynamicSpawnClassification.Allowed : DynamicSpawnClassification.Denied;
+        var classification =
+            section == "allowed"
+                ? DynamicSpawnClassification.Allowed
+                : DynamicSpawnClassification.Denied;
         _knownScripts.Add(script);
         foreach (var field in fields)
         {
@@ -117,8 +171,9 @@ public class DynamicSpawnCatalog
             if (_entries.ContainsKey(key))
             {
                 throw new InvalidOperationException(
-                    $"Duplicate catalog entry: {script}.{field} appears in multiple [[allowed]]/[[denied]] sections. " +
-                    "Each (script, field) pair must be classified exactly once.");
+                    $"Duplicate catalog entry: {script}.{field} appears in multiple [[allowed]]/[[denied]] sections. "
+                        + "Each (script, field) pair must be classified exactly once."
+                );
             }
             _entries[key] = new CatalogEntry
             {
@@ -146,7 +201,8 @@ public class DynamicSpawnCatalog
     {
         // script = "Chessboard"  →  Chessboard
         var eq = line.IndexOf('=');
-        if (eq < 0) return string.Empty;
+        if (eq < 0)
+            return string.Empty;
         var val = line.Substring(eq + 1).Trim();
         if (val.StartsWith('"') && val.EndsWith('"'))
             val = val.Substring(1, val.Length - 2);
@@ -156,13 +212,15 @@ public class DynamicSpawnCatalog
     private static bool ParseBoolValue(string line)
     {
         var eq = line.IndexOf('=');
-        return eq >= 0 && line.Substring(eq + 1).Trim().Equals("true", StringComparison.OrdinalIgnoreCase);
+        return eq >= 0
+            && line.Substring(eq + 1).Trim().Equals("true", StringComparison.OrdinalIgnoreCase);
     }
 
     private static List<string> ParseStringArrayValue(string line)
     {
         var eq = line.IndexOf('=');
-        if (eq < 0) return new List<string>();
+        if (eq < 0)
+            return new List<string>();
         var val = line.Substring(eq + 1).Trim();
         // Strip outer brackets
         if (val.StartsWith('[') && val.EndsWith(']'))

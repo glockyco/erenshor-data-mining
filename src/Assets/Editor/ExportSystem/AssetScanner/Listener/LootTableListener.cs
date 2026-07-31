@@ -42,12 +42,15 @@ public class LootTableListener : IAssetScanListener<LootTable>
         foreach (var record in records)
         {
             var existingRecord = _records.FirstOrDefault(r =>
-                r.CharacterStableKey == record.CharacterStableKey &&
-                r.ItemStableKey == record.ItemStableKey);
+                r.CharacterStableKey == record.CharacterStableKey
+                && r.ItemStableKey == record.ItemStableKey
+            );
 
             if (existingRecord != null)
             {
-                UnityEngine.Debug.LogWarning($"[LootTableListener] Duplicate loot drop: Character '{record.CharacterStableKey}' dropping Item '{record.ItemStableKey}'. LootTable asset: '{asset.name}'. Skipping duplicate.");
+                UnityEngine.Debug.LogWarning(
+                    $"[LootTableListener] Duplicate loot drop: Character '{record.CharacterStableKey}' dropping Item '{record.ItemStableKey}'. LootTable asset: '{asset.name}'. Skipping duplicate."
+                );
                 continue;
             }
 
@@ -57,14 +60,18 @@ public class LootTableListener : IAssetScanListener<LootTable>
 
     private List<LootTableRecord> CreateRecords(LootTable lootTable)
     {
-        var perItemDistributions = _probabilityCalculator.CalculatePerItemDropCountDistributions(lootTable);
+        var perItemDistributions = _probabilityCalculator.CalculatePerItemDropCountDistributions(
+            lootTable
+        );
         var expectedDrops = _probabilityCalculator.ComputeExpectedDrops(perItemDistributions);
 
         // Get Character component to generate stable key
         var character = lootTable.gameObject.GetComponent<Character>();
         if (character == null)
         {
-            Debug.LogWarning($"[{GetType().Name}] LootTable on {lootTable.gameObject.name} has no Character component - skipping");
+            Debug.LogWarning(
+                $"[{GetType().Name}] LootTable on {lootTable.gameObject.name} has no Character component - skipping"
+            );
             return new List<LootTableRecord>();
         }
 
@@ -89,7 +96,9 @@ public class LootTableListener : IAssetScanListener<LootTable>
                     var pct = Math.Round(dist[n] * 100.0, 2);
                     if (pct > 0)
                     {
-                        dropCountList.Add(new DropCountProbability { Count = n, Chance = $"{pct}%" });
+                        dropCountList.Add(
+                            new DropCountProbability { Count = n, Chance = $"{pct}%" }
+                        );
                     }
                 }
             }
@@ -102,20 +111,31 @@ public class LootTableListener : IAssetScanListener<LootTable>
                 ExpectedPerKill = Math.Round(expectedDrops.GetValueOrDefault(item.name, 0.0), 4),
                 DropCountDistribution = JsonConvert.SerializeObject(dropCountList),
                 IsActual = lootTable.ActualDrops != null && lootTable.ActualDrops.Contains(item),
-                IsGuaranteed = lootTable.GuaranteeOneDrop != null && lootTable.GuaranteeOneDrop.Contains(item),
+                IsGuaranteed =
+                    lootTable.GuaranteeOneDrop != null && lootTable.GuaranteeOneDrop.Contains(item),
                 IsCommon = lootTable.CommonDrop != null && lootTable.CommonDrop.Contains(item),
-                IsUncommon = lootTable.UncommonDrop != null && lootTable.UncommonDrop.Contains(item),
+                IsUncommon =
+                    lootTable.UncommonDrop != null && lootTable.UncommonDrop.Contains(item),
                 IsRare = lootTable.RareDrop != null && lootTable.RareDrop.Contains(item),
-                IsLegendary = lootTable.LegendaryDrop != null && lootTable.LegendaryDrop.Contains(item),
-                IsUltraRare = lootTable.UltraRareDrop != null && lootTable.UltraRareDrop.Contains(item),
+                IsLegendary =
+                    lootTable.LegendaryDrop != null && lootTable.LegendaryDrop.Contains(item),
+                IsUltraRare =
+                    lootTable.UltraRareDrop != null && lootTable.UltraRareDrop.Contains(item),
                 IsUnique = item.Unique,
-                IsVisible = lootTable.VisiblePieces.Select(t => t.name).Contains(item.EquipmentToActivate),
-                Zone = lootTable.ZoneThisLootIsFrom ?? string.Empty
+                IsVisible = lootTable
+                    .VisiblePieces.Select(t => t.name)
+                    .Contains(item.EquipmentToActivate),
+                Zone = lootTable.ZoneThisLootIsFrom ?? string.Empty,
             };
             records.Add(record);
         }
 
-        if (perItemDistributions.TryGetValue(LootTableProbabilityCalculator.WorldDropKey, out var worldDist))
+        if (
+            perItemDistributions.TryGetValue(
+                LootTableProbabilityCalculator.WorldDropKey,
+                out var worldDist
+            )
+        )
         {
             var worldProb = worldDist is { Length: > 0 } ? 1.0 - worldDist[0] : 0.0;
             worldProb = Math.Round(worldProb * 100.0, 2);
@@ -128,22 +148,32 @@ public class LootTableListener : IAssetScanListener<LootTable>
                     var pct = Math.Round(worldDist[n] * 100.0, 2);
                     if (pct > 0)
                     {
-                        worldDropCountList.Add(new DropCountProbability { Count = n, Chance = $"{pct}%" });
+                        worldDropCountList.Add(
+                            new DropCountProbability { Count = n, Chance = $"{pct}%" }
+                        );
                     }
                 }
             }
 
-            records.Add(new LootTableRecord
-            {
-                CharacterStableKey = characterStableKey,
-                ItemStableKey = LootTableProbabilityCalculator.WorldDropKey,
-                DropProbability = worldProb,
-                ExpectedPerKill = Math.Round(expectedDrops.GetValueOrDefault(LootTableProbabilityCalculator.WorldDropKey, 0.0), 4),
-                DropCountDistribution = JsonConvert.SerializeObject(worldDropCountList),
-                IsGuaranteed = false,
-                IsUnique = false,
-                IsVisible = false
-            });
+            records.Add(
+                new LootTableRecord
+                {
+                    CharacterStableKey = characterStableKey,
+                    ItemStableKey = LootTableProbabilityCalculator.WorldDropKey,
+                    DropProbability = worldProb,
+                    ExpectedPerKill = Math.Round(
+                        expectedDrops.GetValueOrDefault(
+                            LootTableProbabilityCalculator.WorldDropKey,
+                            0.0
+                        ),
+                        4
+                    ),
+                    DropCountDistribution = JsonConvert.SerializeObject(worldDropCountList),
+                    IsGuaranteed = false,
+                    IsUnique = false,
+                    IsVisible = false,
+                }
+            );
         }
 
         return records;
@@ -152,21 +182,25 @@ public class LootTableListener : IAssetScanListener<LootTable>
     private static IEnumerable<Item> EnumerateAllUniqueItems(LootTable lootTable)
     {
         var seen = new HashSet<string>();
-        foreach (var list in new[]
-                 {
-                     lootTable.UltraRareDrop,
-                     lootTable.LegendaryDrop,
-                     lootTable.RareDrop,
-                     lootTable.UncommonDrop,
-                     lootTable.CommonDrop,
-                     lootTable.GuaranteeOneDrop,
-                     lootTable.ActualDrops
-                 })
+        foreach (
+            var list in new[]
+            {
+                lootTable.UltraRareDrop,
+                lootTable.LegendaryDrop,
+                lootTable.RareDrop,
+                lootTable.UncommonDrop,
+                lootTable.CommonDrop,
+                lootTable.GuaranteeOneDrop,
+                lootTable.ActualDrops,
+            }
+        )
         {
-            if (list == null) continue;
+            if (list == null)
+                continue;
             foreach (var item in list)
             {
-                if (item is null) continue;
+                if (item is null)
+                    continue;
                 if (seen.Add(item.Id))
                     yield return item;
             }

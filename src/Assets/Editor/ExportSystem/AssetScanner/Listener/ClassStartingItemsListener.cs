@@ -93,16 +93,19 @@ public class ClassStartingItemsListener : IAssetScanListener<CharSelectManager>
             Item item = items[sortOrder];
             if (item == null)
             {
-                _validationFailure ??= $"{className} has a null starting item at position {sortOrder}";
+                _validationFailure ??=
+                    $"{className} has a null starting item at position {sortOrder}";
                 return;
             }
 
-            _records.Add(new ClassStartingItemRecord
-            {
-                ClassName = className,
-                SortOrder = sortOrder,
-                ItemStableKey = StableKeyGenerator.ForItem(item),
-            });
+            _records.Add(
+                new ClassStartingItemRecord
+                {
+                    ClassName = className,
+                    SortOrder = sortOrder,
+                    ItemStableKey = StableKeyGenerator.ForItem(item),
+                }
+            );
         }
 
         _classesWithItems.Add(className);
@@ -118,9 +121,10 @@ public class ClassStartingItemsListener : IAssetScanListener<CharSelectManager>
         if (_managerCount != 1 || _sourceConfigurations.Count != 1)
         {
             throw new InvalidOperationException(
-                $"Expected exactly one CharSelectManager source configuration, found " +
-                $"{_managerCount} manager(s) across {_sourceConfigurations.Count} source(s): " +
-                $"{string.Join(", ", _sourceConfigurations)}");
+                $"Expected exactly one CharSelectManager source configuration, found "
+                    + $"{_managerCount} manager(s) across {_sourceConfigurations.Count} source(s): "
+                    + $"{string.Join(", ", _sourceConfigurations)}"
+            );
         }
 
         foreach (string className in ExpectedClassNames)

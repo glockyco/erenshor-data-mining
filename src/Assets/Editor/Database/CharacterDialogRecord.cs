@@ -16,16 +16,21 @@ public class CharacterDialogRecord
 
     public string DialogText { get; set; } = string.Empty;
     public string? Keywords { get; set; }
+
     [ForeignKey(typeof(ItemRecord), "StableKey")]
     public string? GiveItemStableKey { get; set; }
+
     [ForeignKey(typeof(QuestRecord), "StableKey")]
     public string? AssignQuestStableKey { get; set; }
+
     [ForeignKey(typeof(QuestRecord), "StableKey")]
     public string? CompleteQuestStableKey { get; set; }
     public string? RepeatingQuestDialog { get; set; }
     public bool KillSelfOnSay { get; set; }
+
     [ForeignKey(typeof(QuestRecord), "StableKey")]
     public string? RequiredQuestStableKey { get; set; }
+
     [ForeignKey(typeof(CharacterRecord), "StableKey")]
     public string? SpawnCharacterStableKey { get; set; }
 }

@@ -50,7 +50,10 @@ public class SpellListener : IAssetScanListener<Spell>
     {
         if (spell == null)
         {
-            throw new System.ArgumentNullException(nameof(spell), "[SpellListener] Cannot create record from null spell");
+            throw new System.ArgumentNullException(
+                nameof(spell),
+                "[SpellListener] Cannot create record from null spell"
+            );
         }
 
         string? spellIconName = null;
@@ -107,9 +110,8 @@ public class SpellListener : IAssetScanListener<Spell>
             Lifetap = spell.Lifetap,
             DamageType = spell.MyDamageType.ToString(),
             ResistModifier = spell.ResistModifier,
-            AddProcStableKey = spell.AddProc != null
-                ? StableKeyGenerator.ForSpell(spell.AddProc)
-                : null,
+            AddProcStableKey =
+                spell.AddProc != null ? StableKeyGenerator.ForSpell(spell.AddProc) : null,
             AddProcChance = spell.AddProcChance,
 
             // --- Stat Buffs/Debuffs ---
@@ -146,12 +148,16 @@ public class SpellListener : IAssetScanListener<Spell>
             TauntSpell = spell.TauntSpell,
 
             // --- Special Mechanics ---
-            PetToSummonStableKey = spell.PetToSummon != null
-                ? _characterKeyResolver.GetStableKey(spell.PetToSummon.GetComponent<Character>())
-                : null,
-            StatusEffectToApplyStableKey = spell.StatusEffectToApply != null
-                ? StableKeyGenerator.ForSpell(spell.StatusEffectToApply)
-                : null,
+            PetToSummonStableKey =
+                spell.PetToSummon != null
+                    ? _characterKeyResolver.GetStableKey(
+                        spell.PetToSummon.GetComponent<Character>()
+                    )
+                    : null,
+            StatusEffectToApplyStableKey =
+                spell.StatusEffectToApply != null
+                    ? StableKeyGenerator.ForSpell(spell.StatusEffectToApply)
+                    : null,
             ReapAndRenew = spell.ReapAndRenew,
             ResonateChance = spell.ResonateChance,
             XPBonus = spell.XPBonus,
@@ -196,11 +202,13 @@ public class SpellListener : IAssetScanListener<Spell>
             {
                 if (characterClass != null && !string.IsNullOrEmpty(characterClass.ClassName))
                 {
-                    records.Add(new SpellClassRecord
-                    {
-                        SpellStableKey = spellStableKey,
-                        ClassName = characterClass.ClassName
-                    });
+                    records.Add(
+                        new SpellClassRecord
+                        {
+                            SpellStableKey = spellStableKey,
+                            ClassName = characterClass.ClassName,
+                        }
+                    );
                 }
             }
         }

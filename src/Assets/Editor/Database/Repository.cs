@@ -29,6 +29,9 @@ public static class Repository
 
     public static string GetDefaultDatabasePath()
     {
-        return EditorPrefs.GetString(EditorPrefsKey, Path.Combine(Application.dataPath, DefaultFilename));
+        return EditorPrefs.GetString(
+            EditorPrefsKey,
+            Path.Combine(Application.dataPath, DefaultFilename)
+        );
     }
 }

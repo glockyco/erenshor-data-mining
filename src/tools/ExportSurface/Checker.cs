@@ -2,7 +2,13 @@ using Mono.Cecil;
 
 namespace ExportSurface;
 
-internal sealed record Finding(string Type, string Field, string Kind, string? Expected, string? Actual);
+internal sealed record Finding(
+    string Type,
+    string Field,
+    string Kind,
+    string? Expected,
+    string? Actual
+);
 
 /// <summary>
 /// Metadata-only field enumeration and diff against the manifest.
@@ -14,14 +20,21 @@ internal static class Checker
     /// Enumerate public instance fields of a type via Mono.Cecil metadata.
     /// Never executes code — metadata read only (spec §6).
     /// </summary>
-    public static Dictionary<string, string> PublicInstanceFields(ModuleDefinition module, string typeFullName)
+    public static Dictionary<string, string> PublicInstanceFields(
+        ModuleDefinition module,
+        string typeFullName
+    )
     {
-        var type = module.GetType(typeFullName)
-            ?? throw new InvalidDataException($"in-scope type not found in assembly: {typeFullName}");
+        var type =
+            module.GetType(typeFullName)
+            ?? throw new InvalidDataException(
+                $"in-scope type not found in assembly: {typeFullName}"
+            );
         var fields = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (var f in type.Fields)
         {
-            if (!f.IsPublic || f.IsStatic) continue;   // public instance only (spec §1)
+            if (!f.IsPublic || f.IsStatic)
+                continue; // public instance only (spec §1)
             fields[f.Name] = f.FieldType.FullName;
         }
         return fields;
@@ -35,7 +48,8 @@ internal static class Checker
     public static IEnumerable<Finding> Diff(
         string typeName,
         Dictionary<string, FieldEntry> manifestFields,
-        Dictionary<string, string> actualFields)
+        Dictionary<string, string> actualFields
+    )
     {
         foreach (var (name, actualType) in actualFields)
         {
@@ -68,14 +82,16 @@ internal static class Checker
                 yield return new Finding(typeName, name, "stale", entry.Type, null);
         }
     }
+
     /// <summary>
     /// A manifest entry is fully classified when its status is valid and its
     /// required annotation is present: captured -> by, ignored -> reason (spec §4).
     /// </summary>
-    private static bool IsClassified(FieldEntry entry) => entry.Status switch
-    {
-        "captured" => !string.IsNullOrWhiteSpace(entry.By),
-        "ignored" => !string.IsNullOrWhiteSpace(entry.Reason),
-        _ => false,
-    };
+    private static bool IsClassified(FieldEntry entry) =>
+        entry.Status switch
+        {
+            "captured" => !string.IsNullOrWhiteSpace(entry.By),
+            "ignored" => !string.IsNullOrWhiteSpace(entry.Reason),
+            _ => false,
+        };
 }

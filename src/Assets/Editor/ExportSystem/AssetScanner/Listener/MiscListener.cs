@@ -44,7 +44,9 @@ public class MiscListener : IAssetScanListener<Misc>
                     _fossilGameStableKeys.Add(StableKeyGenerator.ForItem(item));
                 }
             }
-            Debug.Log($"[{GetType().Name}] Stored {_fossilGameStableKeys.Count} FossilGame stable keys for later processing");
+            Debug.Log(
+                $"[{GetType().Name}] Stored {_fossilGameStableKeys.Count} FossilGame stable keys for later processing"
+            );
         }
         else
         {
@@ -85,7 +87,9 @@ public class MiscListener : IAssetScanListener<Misc>
         var sourceItemStableKey = FindSourceItemForSpell(BreakFossilSpellKey);
         if (string.IsNullOrEmpty(sourceItemStableKey))
         {
-            Debug.LogError($"[{GetType().Name}] Could not find source item for spell '{BreakFossilSpellKey}'");
+            Debug.LogError(
+                $"[{GetType().Name}] Could not find source item for spell '{BreakFossilSpellKey}'"
+            );
             return;
         }
 
@@ -111,22 +115,28 @@ public class MiscListener : IAssetScanListener<Misc>
             return;
         }
 
-        Debug.Log($"[{GetType().Name}] FossilGame has {totalCount} total entries, {itemCounts.Count} unique items");
+        Debug.Log(
+            $"[{GetType().Name}] FossilGame has {totalCount} total entries, {itemCounts.Count} unique items"
+        );
 
         // Create records with calculated probabilities
         foreach (var kvp in itemCounts)
         {
             var dropProbability = Math.Round((double)kvp.Value / totalCount * 100.0, 2);
 
-            _records.Add(new ItemDropRecord
-            {
-                SourceItemStableKey = sourceItemStableKey,
-                DroppedItemStableKey = kvp.Key,
-                DropProbability = dropProbability,
-                IsGuaranteed = true // One item from this pool always drops
-            });
+            _records.Add(
+                new ItemDropRecord
+                {
+                    SourceItemStableKey = sourceItemStableKey,
+                    DroppedItemStableKey = kvp.Key,
+                    DropProbability = dropProbability,
+                    IsGuaranteed = true, // One item from this pool always drops
+                }
+            );
 
-            Debug.Log($"[{GetType().Name}] {kvp.Key}: {kvp.Value}/{totalCount} = {dropProbability}%");
+            Debug.Log(
+                $"[{GetType().Name}] {kvp.Key}: {kvp.Value}/{totalCount} = {dropProbability}%"
+            );
         }
     }
 
@@ -135,7 +145,8 @@ public class MiscListener : IAssetScanListener<Misc>
     /// </summary>
     private string? FindSourceItemForSpell(string spellStableKey)
     {
-        var query = @"
+        var query =
+            @"
             SELECT StableKey
             FROM Items
             WHERE ItemEffectOnClickStableKey = ?

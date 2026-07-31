@@ -1,5 +1,3 @@
 using UnityEngine;
 
-public class NullScriptableObject : ScriptableObject
-{
-}
+public class NullScriptableObject : ScriptableObject { }

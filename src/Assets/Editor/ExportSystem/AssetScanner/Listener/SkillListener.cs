@@ -76,12 +76,14 @@ public class SkillListener : IAssetScanListener<Skill>
             // --- Effects & Mechanics ---
             AESkill = skill.AESkill,
             Interrupt = skill.Interrupt,
-            SpawnOnUseStableKey = skill.SpawnOnUse != null
-                ? _characterKeyResolver.GetStableKey(skill.SpawnOnUse.GetComponent<Character>())
-                : null,
-            EffectToApplyStableKey = skill.EffectToApply != null
-                ? StableKeyGenerator.ForSpell(skill.EffectToApply)
-                : null,
+            SpawnOnUseStableKey =
+                skill.SpawnOnUse != null
+                    ? _characterKeyResolver.GetStableKey(skill.SpawnOnUse.GetComponent<Character>())
+                    : null,
+            EffectToApplyStableKey =
+                skill.EffectToApply != null
+                    ? StableKeyGenerator.ForSpell(skill.EffectToApply)
+                    : null,
             AffectPlayer = skill.AffectPlayer,
             AffectTarget = skill.AffectTarget,
             SkillRange = skill.SkillRange,
@@ -94,12 +96,10 @@ public class SkillListener : IAssetScanListener<Skill>
             GuaranteeProc = skill.GuaranteeProc,
             SkillCanCrit = skill.SkillCanCrit,
             AutomateAttack = skill.AutomateAttack,
-            CastOnTargetStableKey = skill.CastOnTarget != null
-                ? StableKeyGenerator.ForSpell(skill.CastOnTarget)
-                : null,
-            StanceToUseStableKey = skill.StanceToUse != null
-                ? StableKeyGenerator.ForStance(skill.StanceToUse)
-                : null,
+            CastOnTargetStableKey =
+                skill.CastOnTarget != null ? StableKeyGenerator.ForSpell(skill.CastOnTarget) : null,
+            StanceToUseStableKey =
+                skill.StanceToUse != null ? StableKeyGenerator.ForStance(skill.StanceToUse) : null,
 
             // --- Visual/Audio ---
             SkillAnimName = skill.SkillAnimName,
