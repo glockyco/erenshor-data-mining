@@ -124,6 +124,15 @@ describe('Repository', () => {
 			{ stableKey: 'character:fixture enemy twin', inScene: false }
 		]);
 
+		// An unrecognised scene behaves the same way. The live overlay takes its
+		// scene from whatever the companion mod reports, so a mod that reports
+		// something this database does not know must still yield every candidate
+		// rather than none.
+		expect(await db.getCharactersByName('Fixture Enemy', 'NotAScene')).toEqual([
+			{ stableKey: 'character:fixture enemy', inScene: false },
+			{ stableKey: 'character:fixture enemy twin', inScene: false }
+		]);
+
 		expect(await db.getCharactersByName('No Such Enemy', DETAIL_ZONE)).toEqual([]);
 	});
 
