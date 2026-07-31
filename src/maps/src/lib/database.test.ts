@@ -88,6 +88,26 @@ describe('Repository', () => {
 		]);
 	});
 
+	it('batches drops for several characters in one query', async () => {
+		// The spawn popup asks for every character at a point at once. A crowded
+		// point hosts fourteen, so per-character queries made latency scale with
+		// how busy the spot is.
+		const drops = await db.getDropsForCharacters([
+			'character:fixture enemy',
+			'character:runtime enemy'
+		]);
+
+		// Same rows and same order as the single-character call, so the batched
+		// path cannot drift from it.
+		expect(drops.get('character:fixture enemy')).toEqual(
+			await db.getDropsForCharacter('character:fixture enemy')
+		);
+		// A character with no loot is absent rather than mapping to an empty list,
+		// so callers can tell "no drops" from "not asked".
+		expect(drops.has('character:runtime enemy')).toBe(false);
+		expect(await db.getDropsForCharacters([])).toEqual(new Map());
+	});
+
 	it('loads map-visible enemies without fixed spawn points', async () => {
 		expect(await db.getUnlocatedEnemies()).toEqual([
 			{

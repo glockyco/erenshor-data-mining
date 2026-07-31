@@ -35,13 +35,18 @@
             const repo = new Repository();
             await repo.init();
 
-            for (const char of marker.characters) {
-                const drops = await repo.getDropsForCharacter(char.stableKey);
-                characterDrops.set(char.stableKey, drops);
+            const keys = marker.characters.map((char) => char.stableKey);
+            const drops = await repo.getDropsForCharacters(keys);
+            for (const key of keys) {
+                characterDrops.set(key, drops.get(key) ?? []);
+            }
 
+            for (const char of marker.characters) {
                 if (char.isVendor) {
-                    const items = await repo.getVendorItems(char.stableKey);
-                    characterVendorItems.set(char.stableKey, items);
+                    characterVendorItems.set(
+                        char.stableKey,
+                        await repo.getVendorItems(char.stableKey)
+                    );
                 }
             }
 

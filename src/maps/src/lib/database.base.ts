@@ -1148,6 +1148,54 @@ export class RepositoryBase {
     }
 
     /**
+     * Every drop for each of several characters, most likely first.
+     *
+     * One statement for the whole set. A spawn point can host fourteen
+     * characters, and querying them one at a time made popup latency scale with
+     * how crowded the spot is.
+     *
+     * Characters with no loot are absent from the result rather than mapping to
+     * an empty list, so a caller can still tell "no drops" from "not asked".
+     */
+    async getDropsForCharacters(stableKeys: string[]): Promise<Map<string, CharacterDrop[]>> {
+        if (!this.db) throw new Error('DB not initialized');
+
+        const drops = new Map<string, CharacterDrop[]>();
+        if (stableKeys.length === 0) return drops;
+
+        const placeholders = stableKeys.map(() => '?').join(', ');
+        const stmt = this.db.prepare(
+            `
+            SELECT
+                ld.character_stable_key AS characterStableKey,
+                i.display_name AS itemName,
+                ld.drop_probability AS dropProbability
+            FROM loot_drops ld
+            JOIN items i ON i.stable_key = ld.item_stable_key
+            WHERE ld.character_stable_key IN (${placeholders})
+            ORDER BY ld.character_stable_key, ld.drop_probability DESC, i.display_name
+        `,
+            stableKeys
+        );
+
+        while (stmt.step()) {
+            const row = stmt.getAsObject();
+            const key = row.characterStableKey as string;
+            let list = drops.get(key);
+            if (!list) {
+                list = [];
+                drops.set(key, list);
+            }
+            list.push({
+                itemName: row.itemName as string,
+                dropProbability: row.dropProbability as number
+            });
+        }
+        stmt.free();
+        return drops;
+    }
+
+    /**
      * Preload every item with a wiki page for the map item search. This includes
      * items whose acquisition sources are not represented by map markers.
      */
