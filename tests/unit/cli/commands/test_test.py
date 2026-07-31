@@ -154,24 +154,26 @@ def test_pytest_report_accepts_extra_metadata_without_relaxing_required_schema(t
 
 
 def test_task_catalog_has_exact_leaves_and_composites() -> None:
-    assert test.LEAF_TASKS == ("unit", "contract", "data", "wiki", "maps", "mods")
+    assert test.LEAF_TASKS == ("static", "unit", "contract", "data", "wiki", "maps", "mods")
     assert test.COMPOSITE_TASKS == ("ci", "release")
     assert test.TASKS == {
+        "static": (),
         "unit": (),
         "contract": (),
         "data": (),
         "wiki": (),
         "maps": (),
         "mods": (),
-        "ci": ("unit", "contract", "maps", "mods"),
+        "ci": ("static", "unit", "contract", "maps", "mods"),
         "release": ("ci", "data", "wiki"),
     }
 
 
 def test_task_expansion_is_ordered_and_suppresses_duplicate_leaves() -> None:
-    assert test.expand_tasks("ci") == ["unit", "contract", "maps", "mods"]
-    assert test.expand_tasks("release") == ["unit", "contract", "maps", "mods", "data", "wiki"]
+    assert test.expand_tasks("ci") == ["static", "unit", "contract", "maps", "mods"]
+    assert test.expand_tasks("release") == ["static", "unit", "contract", "maps", "mods", "data", "wiki"]
     assert test.expand_tasks(["release", "ci", "unit", "wiki"]) == [
+        "static",
         "unit",
         "contract",
         "maps",
@@ -193,6 +195,7 @@ def test_task_expansion_rejects_unknown_ids_and_cycles(monkeypatch: Any) -> None
 @pytest.mark.parametrize(
     ("arguments", "task_id"),
     [
+        (["static"], "static"),
         (["unit"], "unit"),
         (["contract"], "contract"),
         (["data"], "data"),
@@ -518,7 +521,28 @@ def test_pytest_intermediate_report_paths_are_unique_and_cleaned(tmp_path: Path,
         assert not path.exists()
 
 
-def test_maps_leaf_uses_exact_commands_and_configured_source_cwd(tmp_path: Path, monkeypatch: Any) -> None:
+def test_static_leaf_reports_all_checks_when_one_fails(tmp_path: Path, monkeypatch: Any) -> None:
+    monkeypatch.setitem(test._PREFLIGHTS, "static", lambda _ctx: _passing_preflight())
+    calls: list[tuple[str, ...]] = []
+
+    def fake_run_process(argv: Sequence[str], cwd: Path) -> Any:
+        command = tuple(argv)
+        calls.append(command)
+        return test._CommandResult(command, cwd, 1 if command[2:4] == ("ruff", "format") else 0, 0.125)
+
+    monkeypatch.setattr(test, "_run_process", fake_run_process)
+    result = test._run_leaf(_context(tmp_path), "static")
+
+    assert result.status == "failed"
+    assert result.exit_code == 1
+    assert calls == [
+        ("uv", "run", "ruff", "check", "src/", "tests/"),
+        ("uv", "run", "ruff", "format", "--check", "src/", "tests/"),
+        ("uv", "run", "mypy", "src/"),
+        ("dotnet", "csharpier", "--check", "."),
+    ]
+    assert result.result_counts == {"commands": 4, "completed_commands": 4}
+
     source = tmp_path / "maps"
     monkeypatch.setitem(test._PREFLIGHTS, "maps", lambda _ctx: _passing_preflight())
     calls: list[tuple[tuple[str, ...], Path]] = []
@@ -1066,7 +1090,7 @@ def test_success_report_contains_schema_identity_prerequisites_counts_diagnostic
     assert payload["schema"] == 1
     assert payload["requested_task"] == "ci"
     assert payload["requested_task_id"] == "ci"
-    assert payload["expanded_leaves"] == ["unit", "contract", "maps", "mods"]
+    assert payload["expanded_leaves"] == ["static", "unit", "contract", "maps", "mods"]
     assert payload["status"] == "passed"
     assert payload["exit_code"] == 0
     assert payload["duration_seconds"] >= 0
@@ -1103,7 +1127,7 @@ def test_report_write_is_atomic_and_deterministic(tmp_path: Path, monkeypatch: A
 def test_composite_invokes_each_expanded_leaf_once_then_release_actions(tmp_path: Path, monkeypatch: Any) -> None:
     calls: list[tuple[str, bool]] = []
     command_calls: list[tuple[str, ...]] = []
-    barrier = Barrier(6)
+    barrier = Barrier(7)
     call_lock = Lock()
 
     def fake_leaf(_ctx: CLIContext, task_id: str, **kwargs: Any) -> test._LeafResult:
@@ -1121,13 +1145,13 @@ def test_composite_invokes_each_expanded_leaf_once_then_release_actions(tmp_path
 
     test._run_task(_context(tmp_path), "release", wiki_clean_parity=True)
 
-    expected_leaves = ["unit", "contract", "maps", "mods", "data", "wiki"]
+    expected_leaves = ["static", "unit", "contract", "maps", "mods", "data", "wiki"]
     assert sorted(task_id for task_id, _clean in calls) == sorted(expected_leaves)
     assert ("wiki", True) in calls
     assert command_calls == list(test._RELEASE_COMMANDS)
     payload = json.loads((tmp_path / "artifacts/test-reports/release.json").read_text(encoding="utf-8"))
     assert [leaf["task_id"] for leaf in payload["leaves"]] == expected_leaves
-    assert len(expected_leaves) == len(set(expected_leaves)) == 6
+    assert len(expected_leaves) == len(set(expected_leaves)) == 7
     assert payload["release_actions"]["status"] == "passed"
     assert payload["release_actions"]["result_counts"] == {"commands": 3, "completed_commands": 3}
 

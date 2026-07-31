@@ -156,8 +156,9 @@ Conventional commits: `type(scope): description`
 ## Testing
 
 ```bash
-uv run pytest                       # All Python tests (1900+)
+uv run pytest                       # All Python tests except live canaries
 uv run pytest -m integration        # Integration tests only
+uv run pytest -m canary             # Live third-party canaries only
 uv run erenshor golden capture      # Regenerate golden baselines after data changes
 ```
 
@@ -172,18 +173,13 @@ pass. CI gates on four static checks plus four verification leaves, none of
 which `pytest` invokes:
 
 ```bash
-uv run ruff check src/ tests/ && uv run ruff format --check src/ tests/
-uv run mypy src/
-uv run erenshor test ci             # unit, contract, maps, mods leaves
+uv run erenshor test ci
 ```
 
-CI additionally runs `dotnet csharpier --check .` from the repository root,
-which does not reproduce there locally: the CSharpier tool manifests live per
-mod under `src/mods/*/.config/`, so a root-level `dotnet tool restore` finds
-nothing. Check C# formatting from inside the mod you touched instead.
-
-Run that block before pushing. The `maps` leaf matters most and is the easiest
-to miss: it prerenders the site against the hermetic fixture in
+Run that command before pushing. Its static leaf includes the root CSharpier check,
+which covers all maintained C# while `.csharpierignore` excludes the
+`variants/` decompiled game code. The `maps` leaf matters most and is the
+easiest to miss: it prerenders the site against the hermetic fixture in
 `src/maps/tests/fixtures/map-database.sql`, whereas `erenshor maps build`
 prerenders against the real clean DB from `variants/`. The two databases have
 different schemas, so a query touching a table the fixture lacks passes locally

@@ -86,16 +86,17 @@ class TaskGraphError(ValueError):
 # Ordered tuples are part of the public verification contract.  Do not turn
 # these into sets: CI reports and execution order must be stable.
 TASKS: Mapping[str, tuple[str, ...]] = {
+    "static": (),
     "unit": (),
     "contract": (),
     "data": (),
     "wiki": (),
     "maps": (),
     "mods": (),
-    "ci": ("unit", "contract", "maps", "mods"),
+    "ci": ("static", "unit", "contract", "maps", "mods"),
     "release": ("ci", "data", "wiki"),
 }
-LEAF_TASKS = ("unit", "contract", "data", "wiki", "maps", "mods")
+LEAF_TASKS = ("static", "unit", "contract", "data", "wiki", "maps", "mods")
 COMPOSITE_TASKS = ("ci", "release")
 _RELEASE_COMMANDS: tuple[tuple[str, ...], ...] = (
     ("uv", "run", "erenshor", "-V", "main", "maps", "build", "--skip-checks"),
@@ -368,6 +369,15 @@ def _file(path: Path, label: str) -> _Preflight:
     return _Preflight(name=label, ok=path.is_file(), detail=str(path))
 
 
+def _preflight_static(cli_ctx: CLIContext) -> list[_Preflight]:
+    root = cli_ctx.repo_root
+    return [
+        _executable("uv"),
+        _executable("dotnet"),
+        _file(root / ".config/dotnet-tools.json", ".config/dotnet-tools.json"),
+    ]
+
+
 def _preflight_unit(cli_ctx: CLIContext) -> list[_Preflight]:
     return [_executable("uv"), _directory(cli_ctx.repo_root / "tests/unit", "tests/unit")]
 
@@ -582,6 +592,7 @@ def _xml_local_name(tag: str) -> str:
 
 
 _PREFLIGHTS = {
+    "static": _preflight_static,
     "unit": _preflight_unit,
     "contract": _preflight_contract,
     "data": _preflight_data,
@@ -1085,6 +1096,21 @@ def _run_leaf_commands(
     )
 
 
+def _run_static_leaf(cli_ctx: CLIContext) -> _LeafResult:
+    """Run every static CI check and retain each command's result."""
+    return _run_leaf_commands(
+        cli_ctx,
+        "static",
+        (
+            ("uv", "run", "ruff", "check", "src/", "tests/"),
+            ("uv", "run", "ruff", "format", "--check", "src/", "tests/"),
+            ("uv", "run", "mypy", "src/"),
+            ("dotnet", "csharpier", "--check", "."),
+        ),
+        continue_on_failure=True,
+    )
+
+
 def _run_maps_leaf(cli_ctx: CLIContext, source: Path) -> _LeafResult:
     """Run independent maps checks and the isolated prerender smoke together."""
     start = time.monotonic()
@@ -1197,7 +1223,9 @@ def _run_leaf(
             commands=[],
         )
 
-    if task_id == "unit":
+    if task_id == "static":
+        result = _run_static_leaf(cli_ctx)
+    elif task_id == "unit":
         result = _run_pytest_leaf(cli_ctx, task_id, ["tests/unit"], coverage=coverage)
     elif task_id == "contract":
         result = _run_contract_leaf(cli_ctx)
@@ -1436,6 +1464,12 @@ def test_callback(ctx: typer.Context) -> None:
         typer.echo(ctx.get_help())
 
 
+@app.command("static")
+def test_static(ctx: typer.Context) -> None:
+    """Run the static checks required by CI."""
+    _run_task(ctx.obj, "static")
+
+
 @app.command("unit")
 def test_unit(
     ctx: typer.Context,
@@ -1487,7 +1521,7 @@ def test_mods(ctx: typer.Context) -> None:
 
 @app.command("ci")
 def test_ci(ctx: typer.Context) -> None:
-    """Run the disjoint CI verification leaves."""
+    """Run static checks and the disjoint CI verification leaves."""
     _run_task(ctx.obj, "ci")
 
 
