@@ -64,9 +64,10 @@ residual export/data debt. Evidence-gated items never start before their gate.
 7. **[`2026-07-10-wiki-deferred-mechanics`](2026-07-10-wiki-deferred-mechanics.md)**
    *(plan, active)* — deferred smithing, conversion, and other non-standard
    obtainability paths, after at least one type is converted.
-8. **Spell and skill articles do not exist.** 348 spells and 52 skills are in the
-   clean database with zero articles and empty categories. This is a larger reader-facing
-   gap than any remaining storage work.
+8. **Adopt `Template:Ability` into the repo.** It renders 390 live pages, has no repo
+   source, and was last edited on the wiki in November 2025. Spells and skills share it
+   because the game does not present them as clearly distinct, so splitting them into
+   `{{Spell}}` and `{{Skill}}` needs a repo-owned legacy body first.
 9. **Community contribution layer** *(future)* — `{{ItemSource}}` and
    `{{SpawnPoint}}`, after a converted type proves the row shapes in production.
 

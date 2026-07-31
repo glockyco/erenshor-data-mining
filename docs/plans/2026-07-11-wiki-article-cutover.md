@@ -55,23 +55,42 @@ next.
 Each slice ends with a type whose articles render from Lua, store Cargo rows, answer
 at least one reverse query, and no longer have a Jinja generator.
 
-| Order | Type | Entities | Live pages | Why here |
+| Order | Type | DB pages | Live corpus | Migration shape |
 |---|---|---|---|---|
-| 1 | Stance | 7 | 7 | Complete one-to-one coverage, 4,577-byte data module, no owned junction, one small reverse query against `Skills.StanceToUseKey`. The whole chain at seven pages. |
-| 2 | Zone | 47 | 43 | Still small, no detail table by design, exercises reverse queries against `ObtainedFrom` and `Spawns` without owning either. |
-| 3 | Quest | 198 | 19 | Exposes the page-coverage gap and the `QuestRewardsQuery` path. Mostly article creation rather than conversion. |
-| 4 | Character | 1,254 | 500+ | Owns `Spawns` and `CharacterAbilities`. Needs the data module under the size limit first. |
-| 5 | Item | 1,537 | 793 | Owns `ObtainedFrom`, `UsedIn`, and `ItemEffects`. Largest blast radius, most valuable, converted last. |
-| 6 | Spell, Skill | 400 | 0 | Not a conversion. No articles exist, so this is content creation on the already-migrated path. |
+| 1 | Stance | 7 | 7 on `{{Stance}}` | Clean swap. Complete one-to-one coverage, 4,577-byte data module, no owned junction, one small reverse query against `Skills.StanceToUseKey`. The whole chain at seven pages. |
+| 2 | Zone | 43 | 43 on `{{Zone}}`, 44 categorised | Clean swap. No detail table by design, exercises reverse queries against `ObtainedFrom` and `Spawns` without owning either. |
+| 3 | Spell and Skill | 382 | 390 on `{{Ability}}` | **Type split.** One legacy template becomes two, with separate Cargo tables. Four pages need one stanza of each type. The only slice with a novel shape, so it is de-risked before the two largest types. |
+| 4 | Character | 874 | 500+ on `{{Character}}` | Owns `Spawns` and `CharacterAbilities`. Needs the data module under the size limit first. |
+| 5 | Item | 1,508 | 500+ on `{{Item}}`, 793 tooltips | Owns `ObtainedFrom`, `UsedIn`, and `ItemEffects`. Largest blast radius. |
+| 6 | Quest | 179 | 19 on `{{Quest}}`, 96 hand-written prose | **Content preservation, not a swap.** Merging generated infoboxes into pages a human wrote. Highest content-loss risk, so it goes last with the override classifier fully proven. |
 
 Slice 1 is the real gate. If stances cannot go end to end, nothing larger can.
 
-Capabilities by slice: slice 1 needs sections 2 through 6 for one type only. Slice 4
-additionally needs the character data module under 4,194,304 bytes. Slice 5
-additionally needs the schema revision in
-`2026-07-30-wiki-cargo-schema-revision`. **Section 1, the community-row layer, is not
-a prerequisite for any slice** and moves to the end, after at least one type is
-converted and the row shapes are proven in production.
+Ordering is by migration shape, not entity count. Slices 1 and 2 are clean swaps that
+prove the chain. Slice 3 introduces the only type split and forces the identity
+registry to handle a page whose authoritative set spans two types, which slices 4 and
+5 then rely on. Slice 6 is last because it is the only slice that risks destroying
+community writing.
+
+Capabilities by slice: slice 1 needs sections 2 through 6 for one type only. Slice 3
+additionally needs multi-type page support in the registry and converter, and a
+repo-owned legacy body for abilities, which does not exist yet. Slice 4 additionally
+needs the character data module under 4,194,304 bytes. Slice 5 additionally needs the
+schema revision in `2026-07-30-wiki-cargo-schema-revision`. Slice 6 additionally needs
+the override classifier to stop skipping ambiguous pages. **Section 1, the
+community-row layer, is not a prerequisite for any slice** and moves to the end.
+
+### Abilities need a repo-owned legacy body first
+
+`Template:Ability` renders 390 live pages and has no repo source. It is inventoried in
+`wiki_inventory/templates.py` but not managed, and was last edited on the wiki in
+November 2025. This is why `Spell.wiki` and `Skill.wiki` are unconditional Lua with no
+legacy branch: there was nothing repo-side to embed.
+
+Before slice 3, adopt `Template:Ability` into the repo verbatim, deploy it unchanged
+to prove the adoption is byte-faithful, and only then use it as the legacy branch of
+the split templates. Adopting a live page into repo ownership is a general capability
+the drift-detection work needs anyway.
 
 ## Approach
 

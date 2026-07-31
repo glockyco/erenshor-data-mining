@@ -299,29 +299,50 @@ the remaining types.
 
 ## 12. Article corpus coverage
 
-Live has 3,171 content pages and 7,167 total pages. Main-namespace transclusion
-counts show the corpus is items and characters, and that three entity templates are
-barely used while two are unused entirely.
+Live has 3,171 content pages and 7,167 total pages. Counting only the *new* entity
+templates understates the corpus badly, because most types are still on their legacy
+template. The real picture, by category membership and by DB expectation:
 
-| Template | Main-namespace transclusions |
-|---|---|
-| `Item` | 500+ |
-| `Character` | 500+ |
-| `ItemTooltip` | 500+ |
-| `Zone` | 43 |
-| `Quest` | 19 |
-| `Stance` | 7 |
-| `Spell` | **0** |
-| `Skill` | **0** |
-| `SpellTooltip` | 1 |
-| `SkillTooltip` | 0 |
+| Type | DB entities | DB distinct pages | Live category | On the new template | Legacy vehicle |
+|---|---|---|---|---|---|
+| Item | 1,537 | 1,508 | 500+ | 500+ `{{Item}}` | same template, `lua=1` unset |
+| Character | 1,254 | 874 | 360 | 500+ `{{Character}}` | same template, legacy branch |
+| Spell | 348 | 335 | 390 shared | **0** `{{Spell}}` | `{{Ability}}` |
+| Skill | 51 | 51 | 390 shared | **0** `{{Skill}}` | `{{Ability}}` |
+| Quest | 191 | 179 | 115 | 19 `{{Quest}}` | 96 hand-written prose, no infobox |
+| Zone | 47 | 43 | 44 | 43 `{{Zone}}` | already converted |
+| Stance | 7 | 7 | 7 | 7 `{{Stance}}` | already converted |
 
-`Category:Spells` and `Category:Skills` are both empty and `Flame Bolt` does not
-exist, so spells and skills have effectively no article corpus. The consequence is
-that live `Template:Spell` and `Template:Skill` being unconditional Lua with no
-legacy fallback is currently harmless, because nothing transcludes them. It also
-means 348 spells and 52 skills in the clean database have no articles at all, which
-is a larger content gap than the parity question.
+### 12.1 Abilities are one legacy template, not two
+
+`Template:Ability` carries **390 live pages** and `Category:Abilities` holds the same
+390. Spells and skills were never split on the wiki, because in game they do not look
+very different until you inspect them closely. The legacy Jinja generator emits a
+single `{{Ability|...}}` call from `templates/ability.jinja2` for both types.
+
+The new design splits them into `{{Spell}}` and `{{Skill}}` with separate `Spells`
+and `Skills` Cargo tables and a shared `AbilityClasses` junction. That makes the
+ability slice a **type split**, not a rendering swap, and it is the only slice with
+that shape. Four page names host both a spell and a skill and therefore need one
+stanza of each: `Lingering Inferno`, `Envenomed Arrow`, `Skycall`, and
+`Soluna's Touch`. Thirteen further spell pages host two spells of the same name.
+
+**`Template:Ability` is not repo-owned.** There is no `wiki/templates/Ability.wiki`.
+It lives only on the wiki, 4,499 bytes, last edited 2025-11-18 by `WoWMuch`, and the
+repo merely lists it in `wiki_inventory/templates.py` as a production template it
+inventories but does not manage. That explains why `Spell.wiki` and `Skill.wiki` are
+unconditional Lua with no legacy fallback: **there was no repo-side legacy body to
+embed verbatim.** It is a consequence of the ownership boundary, not an oversight.
+
+### 12.2 Quests are mostly hand-written community prose
+
+96 of the 115 categorised quest pages use no infobox template at all. They are
+community-authored prose with categories, links, and coloured dialogue prompts. Only
+19 use `{{Quest}}`, against 179 pages the clean database expects.
+
+Quest conversion is therefore not a template swap. It is merging generated infoboxes
+into pages a human wrote, which is the highest content-loss risk in the cutover and
+exactly the case `override_migration.py` currently skips as ambiguous.
 
 ## Corrections applied to the plans
 
