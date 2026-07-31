@@ -26,6 +26,11 @@ _ENTRY_RE = re.compile(
     r"""(?P<dependencies>Array\.Empty<string>\(\)|new\[\]\s*\{(?P<dependency_text>[^}]*)\})"""
 )
 _DEPENDENCY_RE = re.compile(r'"([^"]+)"')
+# Counts declarations for the completeness cross-check below. Tolerates line
+# breaks between `new(` and its first argument, because the formatter is free to
+# wrap a long declaration and the check must survey the same declarations the
+# entry pattern does rather than a particular layout of them.
+_DECLARATION_RE = re.compile(r'new\(\s*"')
 
 
 def read_listener_inventory(path: Path) -> tuple[ListenerInventoryEntry, ...]:
@@ -42,7 +47,7 @@ def read_listener_inventory(path: Path) -> tuple[ListenerInventoryEntry, ...]:
     )
     if not entries:
         raise ValueError(f"No listener declarations found in {path}")
-    declarations = source.count('new("')
+    declarations = len(_DECLARATION_RE.findall(source))
     if declarations != len(entries):
         raise ValueError(
             f"Could not parse all listener declarations in {path}: parsed {len(entries)} of {declarations}"
