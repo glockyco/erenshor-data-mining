@@ -65,9 +65,10 @@ describe('Repository', () => {
 			uniques: [{ name: 'Fixture Enemy', wikiPageName: 'Fixture Enemy', level: 7 }],
 			rares: []
 		});
-		expect(await db.getCharacterByName('Fixture Enemy')).toEqual({
-			stableKey: 'character:fixture enemy'
-		});
+		expect(await db.getCharactersByName('Fixture Enemy', DETAIL_ZONE)).toEqual([
+			{ stableKey: 'character:fixture enemy', inScene: true },
+			{ stableKey: 'character:fixture enemy twin', inScene: false }
+		]);
 		// Every drop, not the first ten: a cap here is indistinguishable from a
 		// short loot table, and 165 of the game's 728 characters with drops have
 		// more than ten. 'Fixture Drop' and 'Hoard Item 11' share a probability,
@@ -106,6 +107,24 @@ describe('Repository', () => {
 		// so callers can tell "no drops" from "not asked".
 		expect(drops.has('character:runtime enemy')).toBe(false);
 		expect(await db.getDropsForCharacters([])).toEqual(new Map());
+	});
+
+	it('returns every character sharing a name, flagged by scene', async () => {
+		// A name is not an identity: 39 map-visible names cover more than one
+		// character and 22 of those disagree on loot, so answering with one of them
+		// presents a guess as a fact.
+		expect(await db.getCharactersByName('Fixture Enemy', 'StowawayPortal')).toEqual([
+			{ stableKey: 'character:fixture enemy', inScene: false },
+			{ stableKey: 'character:fixture enemy twin', inScene: true }
+		]);
+
+		// With no scene to prefer, no candidate is favoured over another.
+		expect(await db.getCharactersByName('Fixture Enemy')).toEqual([
+			{ stableKey: 'character:fixture enemy', inScene: false },
+			{ stableKey: 'character:fixture enemy twin', inScene: false }
+		]);
+
+		expect(await db.getCharactersByName('No Such Enemy', DETAIL_ZONE)).toEqual([]);
 	});
 
 	it('loads map-visible enemies without fixed spawn points', async () => {

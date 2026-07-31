@@ -32,7 +32,8 @@ describe('buildMapWorldData', () => {
         expect(data.markers.enemiesCommon).toEqual([]);
         expect(data.markers.enemiesRare).toEqual([]);
         expect(data.markers.enemiesUnique.map((marker) => marker.stableKey)).toEqual([
-            'spawn:stowaway-enemy'
+            'spawn:stowaway-enemy',
+            'spawn:portal-enemy'
         ]);
         expect(data.markers.enemiesUnique[0]).toMatchObject({
             levelMin: 7,

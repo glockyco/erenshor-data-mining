@@ -20,10 +20,11 @@ describe('getWorldStats', () => {
 		expect(db.getWorldStats()).toEqual({
 			zones: Object.keys(MAPS).length,
 			classes: 2,
-			// Six wiki-backed items plus the eleven loot-table fillers that exercise
-			// an uncapped drop list. This counts every item row, not just searchable
-			// ones, so the fillers show up here and nowhere else.
-			items: 17,
+			// Six wiki-backed items plus the twelve loot-table fillers that exercise
+			// an uncapped drop list and a name shared by two characters. This counts
+			// every item row, not just searchable ones, so the fillers show up here
+			// and nowhere else.
+			items: 18,
 			quests: 2
 		});
 	});

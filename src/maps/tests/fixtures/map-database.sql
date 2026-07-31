@@ -316,7 +316,8 @@ INSERT INTO items (
     ('item:hoard 08', 'Hoard Item 08', NULL, NULL, 1, 0),
     ('item:hoard 09', 'Hoard Item 09', NULL, NULL, 1, 0),
     ('item:hoard 10', 'Hoard Item 10', NULL, NULL, 1, 0),
-    ('item:hoard 11', 'Hoard Item 11', NULL, NULL, 1, 0);
+    ('item:hoard 11', 'Hoard Item 11', NULL, NULL, 1, 0),
+    ('item:hoard 12', 'Hoard Item 12', NULL, NULL, 1, 0);
 
 INSERT INTO characters (
     stable_key, display_name, npc_name, wiki_page_name, level, is_vendor, has_dialog,
@@ -324,12 +325,18 @@ INSERT INTO characters (
 ) VALUES
     ('character:breena carpenter', 'Breena Carpenter', 'Breena Carpenter', 'Breena Carpenter', 5, 1, 1, 0, 1, 0, 0, 1),
     ('character:fixture enemy', 'Fixture Enemy', 'Fixture Enemy', 'Fixture Enemy', 7, 0, 0, 0, 0, 0, 1, 0),
-    ('character:runtime enemy', 'Runtime Enemy', 'Runtime Enemy', 'Runtime Enemy', 12, 0, 0, 0, 0, 1, 0, 0);
+    ('character:runtime enemy', 'Runtime Enemy', 'Runtime Enemy', 'Runtime Enemy', 12, 0, 0, 0, 0, 1, 0, 0),
+    -- Shares a display name with 'character:fixture enemy' but drops something
+    -- else and lives in another scene. 39 map-visible names in the real data are
+    -- worn by more than one character, and 22 of those disagree on loot, so
+    -- resolving a live NPC by name alone has to cope with this.
+    ('character:fixture enemy twin', 'Fixture Enemy', 'Fixture Enemy', 'Fixture Enemy', 7, 0, 0, 0, 0, 0, 1, 0);
 
 INSERT INTO character_deduplications (group_key, member_stable_key, is_map_visible) VALUES
     ('character-group:breena', 'character:breena carpenter', 1),
     ('character-group:fixture-enemy', 'character:fixture enemy', 1),
-    ('character-group:runtime-enemy', 'character:runtime enemy', 1);
+    ('character-group:runtime-enemy', 'character:runtime enemy', 1),
+    ('character-group:fixture-enemy-twin', 'character:fixture enemy twin', 1);
 
 INSERT INTO map_character_spawns (
     character_stable_key, spawn_point_stable_key, scene, x, y, z, spawn_delay_4,
@@ -337,7 +344,8 @@ INSERT INTO map_character_spawns (
     source_script, event_x, event_y, event_z
 ) VALUES
     ('character:breena carpenter', 'spawn:stowaway-breena', 'Stowaway', 200, 0, 300, 30, 1, 0, 0, 0, 100, NULL, NULL, NULL, NULL),
-    ('character:fixture enemy', 'spawn:stowaway-enemy', 'Stowaway', 220, 0, 320, 45, 1, 0, 5, 0, 100, NULL, NULL, NULL, NULL);
+    ('character:fixture enemy', 'spawn:stowaway-enemy', 'Stowaway', 220, 0, 320, 45, 1, 0, 5, 0, 100, NULL, NULL, NULL, NULL),
+    ('character:fixture enemy twin', 'spawn:portal-enemy', 'StowawayPortal', 40, 0, 60, 45, 1, 0, 5, 0, 100, NULL, NULL, NULL, NULL);
 
 INSERT INTO achievement_triggers (stable_key, scene, x, y, z, achievement_name) VALUES
     ('achievement:stowaway-fixture', 'Stowaway', 240, 0, 340, 'Fixture Achievement');
@@ -389,6 +397,13 @@ INSERT INTO loot_drops (character_stable_key, item_stable_key, drop_probability)
     ('character:fixture enemy', 'item:hoard 09', 15),
     ('character:fixture enemy', 'item:hoard 10', 10),
     ('character:fixture enemy', 'item:hoard 11', 25);
+
+-- The twin overlaps on one item at a different chance and adds one of its own,
+-- which is what forces a combined view to show a range instead of a number.
+-- Both are map-invisible so this cannot disturb the item-source fixtures.
+INSERT INTO loot_drops (character_stable_key, item_stable_key, drop_probability) VALUES
+    ('character:fixture enemy twin', 'item:hoard 01', 45),
+    ('character:fixture enemy twin', 'item:hoard 12', 12);
 INSERT INTO character_vendor_quest_unlocks (character_stable_key, quest_stable_key) VALUES
     ('character:breena carpenter', 'quest:vendor-unlock');
 INSERT INTO quest_variants (quest_stable_key, unlock_item_for_vendor_stable_key) VALUES

@@ -1451,7 +1451,24 @@ export class RepositoryBase {
         return items;
     }
 
-    async getCharacterByName(name: string): Promise<{ stableKey: string } | null> {
+    /**
+     * Every map-visible character sharing a display name, with whether each one
+     * is placed in the given scene.
+     *
+     * Names are not identities. 39 display names are worn by more than one
+     * deduplicated character, and for 22 of those the characters drop different
+     * things -- `Molorai Archaeologist` covers four with four distinct loot
+     * tables. Returning one arbitrarily, as this did while it answered with a
+     * single row and `LIMIT 1`, presents one variant's loot as the whole truth.
+     *
+     * The scene flag lets a caller prefer the variants that actually exist where
+     * the player is standing, while still seeing the rest when the live zone
+     * holds no placed copy, which happens for dynamically spawned characters.
+     */
+    async getCharactersByName(
+        name: string,
+        scene: string | null = null
+    ): Promise<{ stableKey: string; inScene: boolean }[]> {
         if (!this.db) throw new Error('DB not initialized');
 
         const stmt = this.db.prepare(
@@ -1462,24 +1479,33 @@ export class RepositoryBase {
                 WHERE d.is_map_visible = 1
                 GROUP BY d.group_key
             )
-            SELECT c.stable_key AS StableKey
+            SELECT
+                c.stable_key AS StableKey,
+                EXISTS (
+                    SELECT 1
+                    FROM character_deduplications m
+                    JOIN map_character_spawns s
+                      ON s.character_stable_key = m.member_stable_key
+                    WHERE m.group_key = r.group_key AND s.scene = ?
+                ) AS InScene
             FROM reps r
             JOIN characters c ON c.stable_key = r.rep_stable_key
             WHERE c.display_name = ?
             ORDER BY c.stable_key
-            LIMIT 1
             `,
-            [name]
+            [scene, name]
         );
 
-        if (stmt.step()) {
+        const matches: { stableKey: string; inScene: boolean }[] = [];
+        while (stmt.step()) {
             const row = stmt.getAsObject();
-            stmt.free();
-            return { stableKey: row.StableKey as string };
+            matches.push({
+                stableKey: row.StableKey as string,
+                inScene: Boolean(row.InScene)
+            });
         }
-
         stmt.free();
-        return null;
+        return matches;
     }
 
     async getZoneEnemyInfo(zoneName: string): Promise<{
