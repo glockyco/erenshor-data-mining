@@ -42,59 +42,59 @@ leaves this queue.
 Every planned work item below is ranked. Ordering logic: complete the Cargo/Lua
 work while preserving wiki links and presentation; then later map UX; then
 residual export/data debt. Evidence-gated items never start before their gate.
-
 **P1 — wiki Cargo/Lua cutover and backlink stability**
 
-1. **[`2026-06-04-wiki-cargo-data-architecture`](2026-06-04-wiki-cargo-data-architecture.md)**
-   *(spec, active)* — remain the design authority while later phases change
-   reality; update only when implementation discovers a better steady state.
-2. **[`2026-07-10-wiki-deferred-mechanics`](2026-07-10-wiki-deferred-mechanics.md)**
-   *(plan, active)* — preserve and implement deferred smithing, conversion, and
-   other non-standard obtainability paths under the Cargo/Lua gates.
-3. **[`2026-07-11-wiki-article-cutover`](2026-07-11-wiki-article-cutover.md)**
-   *(plan, active)* — incrementally convert legacy articles only after Lua parity
-   and styling gates are proven, preserving community content and the restored
-   legacy display contract.
-4. **Lua presentation and parity gate** *(required before any type converts)* —
-   provide a deliverable styling path for Lua-owned markup and prove links,
-   units, zero handling, and other display conventions against live pages.
-   Keep non-equipment kinds on legacy Jinja templates until both gates clear.
-5. **Community contribution layer** *(future Phase 4 plan)* — add
-   `{{ItemSource}}` → `ObtainedFrom`, `{{SpawnPoint}}` → `Spawns`, stablekey
-   validation, and editor docs after the Cargo model and presentation gate.
-6. **Dual-path templates and thin-page generator** *(future Phases 5–6)* — add
-   legacy fallbacks for spell/skill/stance/zone/quest templates, then generate
-   thin `{{Type|stablekey=…}}` pages without losing community content.
-7. **Production wiki cutover** *(future Phases 7–8)* — pass TemplateSandbox,
-   deploy modules/templates, create or reparse Cargo tables according to schema
-   change, convert pages incrementally, retire legacy branches, and smoke-test
-   live pages.
+1. **Create the Cargo tables on production** as `WoWMuch`. One operation, and every
+   Cargo deliverable is unexercised until it happens.
+2. **Build the parity instrument** — render each entity through the legacy and Lua
+   paths and diff extracted field values. Nothing measures this today, so "working
+   properly" is currently unfalsifiable.
+3. **[`2026-07-30-wiki-cargo-schema-revision`](2026-07-30-wiki-cargo-schema-revision.md)**
+   *(spec, draft)* — schema defects fixed before the tables are created, because a
+   later change costs a recreate plus a manual sysop switch-in.
+4. **[`2026-07-30-wiki-deploy-sync-discipline`](2026-07-30-wiki-deploy-sync-discipline.md)**
+   *(spec, draft)* — drift detection, size preflight, and the canary render gate. The
+   controls whose absence caused two production breakages.
+5. **[`2026-07-11-wiki-article-cutover`](2026-07-11-wiki-article-cutover.md)**
+   *(plan, active)* — convert one entity type end to end, stances first, and retire
+   that type's Jinja generator before starting the next.
+6. **[`2026-06-04-wiki-cargo-data-architecture`](2026-06-04-wiki-cargo-data-architecture.md)**
+   *(spec, active)* — remains the design authority; update it when implementation
+   discovers a better steady state.
+7. **[`2026-07-10-wiki-deferred-mechanics`](2026-07-10-wiki-deferred-mechanics.md)**
+   *(plan, active)* — deferred smithing, conversion, and other non-standard
+   obtainability paths, after at least one type is converted.
+8. **Spell and skill articles do not exist.** 348 spells and 52 skills are in the
+   clean database with zero articles and empty categories. This is a larger reader-facing
+   gap than any remaining storage work.
+9. **Community contribution layer** *(future)* — `{{ItemSource}}` and
+   `{{SpawnPoint}}`, after a converted type proves the row shapes in production.
 
 **P2 — later map UX**
 
-8. **[`2026-06-27-map-annotations`](2026-06-27-map-annotations.md)** *(spec,
+10. **[`2026-06-27-map-annotations`](2026-06-27-map-annotations.md)** *(spec,
    active)* — standalone annotation UX for later map work or periods when
    wiki/data work is blocked on permissions.
-9. **Map search deferred UX** *(note, active)* — category empty states and
+11. **Map search deferred UX** *(note, active)* — category empty states and
     recent searches; polish only.
-10. **[`2026-07-30-map-service-discovery`](2026-07-30-map-service-discovery.md)**
+12. **[`2026-07-30-map-service-discovery`](2026-07-30-map-service-discovery.md)**
     *(spec, draft)* — make merchants, bankers, and auction brokers first-class
     map roles with distinct markers, filters, generic service search, and
     analyzer-backed role data.
-11. **[`2026-07-04-maps-zones-content-layer`](2026-07-04-maps-zones-content-layer.md)**
+13. **[`2026-07-04-maps-zones-content-layer`](2026-07-04-maps-zones-content-layer.md)**
     *(spec, draft)* — textual zone references after the service roles they
     consume and the settled `/maps/{slug}` routes.
 
 **P3 — residual data/export debt**
 
-12. **[`2026-07-11-dynamic-spawn-semantics-map-ux`](2026-07-11-dynamic-spawn-semantics-map-ux.md)**
+14. **[`2026-07-11-dynamic-spawn-semantics-map-ux`](2026-07-11-dynamic-spawn-semantics-map-ux.md)**
     *(plan, active)* — make dynamic-only rarity and Brax spawn provenance
     authoritative for processor, map, and wiki consumers.
-13. **Category C zone-wide random spawns** *(note, active)* — model Sivakayan
+15. **Category C zone-wide random spawns** *(note, active)* — model Sivakayan
     spectres as per-zone random appearances, not fixed spawn points.
-14. **[`2026-06-30-loot-table-gold-range-export`](2026-06-30-loot-table-gold-range-export.md)**
+16. **[`2026-06-30-loot-table-gold-range-export`](2026-06-30-loot-table-gold-range-export.md)**
     *(plan, parked)* — resume only if a consumer needs static gold ranges.
-15. **Small content debt, no planning doc needed:** hand-curate the four planar
+17. **Small content debt, no planning doc needed:** hand-curate the four planar
     zone pages before a future wiki article deploy; document forging/merge
     mechanics before exposing Merging Vessel as a `UsedIn` relationship.
 

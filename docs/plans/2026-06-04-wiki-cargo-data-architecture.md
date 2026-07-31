@@ -511,6 +511,13 @@ from item slot), not a stored conflated column.
 Maps/Molds/etc. into every NPC at runtime — not per-source), and two 1-off hardcoded
 obtainability specials (Chessboard Candlekeeper→mold, Time Stone). Documented, not modeled.
 
+**Empty query results are a rendering state, not a failure.** A reverse-query section
+whose Cargo query returns nothing renders as absent or as an explicit "none recorded"
+line, never as an error, a broken table, or a Lua stack trace. This keeps a page
+readable when its table does not exist yet, when a recreate is mid-flight, or when a
+replacement table has not been switched in. It is the property that makes Cargo an
+additive layer rather than a hard dependency of every article.
+
 ### 8.1 Forward-store / reverse-query rendering
 
 Every relationship row is stored once from its owner page (item-owned for

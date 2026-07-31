@@ -44,6 +44,35 @@ integration: nothing emits a `<templatestyles>` tag and no CSS source is owned f
 Lua markup. The legacy Jinja path remains the production writer until the cutover
 gates are completed.
 
+## Delivery sequence
+
+The capability sections below are requirements, not an order of work. Delivering
+them horizontally, every type at every stage, is what produced two months with no
+production Cargo and no converted article. Deliver **one entity type end to end**
+instead, smallest first, and retire that type's legacy generator before starting the
+next.
+
+Each slice ends with a type whose articles render from Lua, store Cargo rows, answer
+at least one reverse query, and no longer have a Jinja generator.
+
+| Order | Type | Entities | Live pages | Why here |
+|---|---|---|---|---|
+| 1 | Stance | 7 | 7 | Complete one-to-one coverage, 4,577-byte data module, no owned junction, one small reverse query against `Skills.StanceToUseKey`. The whole chain at seven pages. |
+| 2 | Zone | 47 | 43 | Still small, no detail table by design, exercises reverse queries against `ObtainedFrom` and `Spawns` without owning either. |
+| 3 | Quest | 198 | 19 | Exposes the page-coverage gap and the `QuestRewardsQuery` path. Mostly article creation rather than conversion. |
+| 4 | Character | 1,254 | 500+ | Owns `Spawns` and `CharacterAbilities`. Needs the data module under the size limit first. |
+| 5 | Item | 1,537 | 793 | Owns `ObtainedFrom`, `UsedIn`, and `ItemEffects`. Largest blast radius, most valuable, converted last. |
+| 6 | Spell, Skill | 400 | 0 | Not a conversion. No articles exist, so this is content creation on the already-migrated path. |
+
+Slice 1 is the real gate. If stances cannot go end to end, nothing larger can.
+
+Capabilities by slice: slice 1 needs sections 2 through 6 for one type only. Slice 4
+additionally needs the character data module under 4,194,304 bytes. Slice 5
+additionally needs the schema revision in
+`2026-07-30-wiki-cargo-schema-revision`. **Section 1, the community-row layer, is not
+a prerequisite for any slice** and moves to the end, after at least one type is
+converted and the row shapes are proven in production.
+
 ## Approach
 
 ### Cutover gates before any type conversion
@@ -77,7 +106,11 @@ dual-path bodies for those three landed after the second revert and have never b
 deployed. Any template deploy must first prove the legacy branch still renders
 parameter-only articles.
 
-### 1. Add the community-row layer required for safe conversion
+### 1. Add the community-row layer, after the first type is converted
+
+This is the last capability to build, not the first. It has no consumer until at
+least one type renders reverse-query sections in production, and building it first
+adds schema surface to a table that has never been created.
 
 Implement the Phase 4 contribution layer before writing the thin-page converter.
 It reuses the `ObtainedFrom`, `UsedIn`, and `Spawns` Cargo schemas defined by the
@@ -229,8 +262,9 @@ writing and uses the namespace-agnostic guarded APIs in
 Production account handling is explicit: article edits and uploads run as
 `WoWBot@erenshor-wiki` with its bot password. `WoWMuch@CargoProbe` lacks the
 bot right; repo-page deploys may use the `--assertion user` fallback with that
-account. The `recreatecargodata` right for WoWBot on wiki.gg remains
-unverified and is an open Phase 7 gate.
+account. `WoWBot` does **not** hold `recreatecargodata`, verified 2026-07-30, so
+every Cargo table creation and schema change runs as `WoWMuch` or another
+sysop-equivalent account.
 
 Store a dedicated article conversion manifest containing title, entity type,
 old/new revision IDs and timestamps, old/new content hashes, stable-key set,
