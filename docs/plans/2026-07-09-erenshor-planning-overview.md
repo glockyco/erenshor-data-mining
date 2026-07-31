@@ -68,34 +68,38 @@ residual export/data debt. Evidence-gated items never start before their gate.
    source, and was last edited on the wiki in November 2025. Spells and skills share it
    because the game does not present them as clearly distinct, so splitting them into
    `{{Spell}}` and `{{Skill}}` needs a repo-owned legacy body first.
-9. **Community contribution layer** *(future)* — `{{ItemSource}}` and
+9. **[`2026-07-31-wiki-quest-article-strategy`](2026-07-31-wiki-quest-article-strategy.md)**
+   *(spec, draft)* — quest article conversion is deferred pending a design decision on
+   how generated step-by-step guides and hand-written community prose should combine.
+   96 of 115 live quest pages are human prose by at least eight editors.
+10. **Community contribution layer** *(future)* — `{{ItemSource}}` and
    `{{SpawnPoint}}`, after a converted type proves the row shapes in production.
 
 **P2 — later map UX**
 
-10. **[`2026-06-27-map-annotations`](2026-06-27-map-annotations.md)** *(spec,
+11. **[`2026-06-27-map-annotations`](2026-06-27-map-annotations.md)** *(spec,
    active)* — standalone annotation UX for later map work or periods when
    wiki/data work is blocked on permissions.
-11. **Map search deferred UX** *(note, active)* — category empty states and
+12. **Map search deferred UX** *(note, active)* — category empty states and
     recent searches; polish only.
-12. **[`2026-07-30-map-service-discovery`](2026-07-30-map-service-discovery.md)**
+13. **[`2026-07-30-map-service-discovery`](2026-07-30-map-service-discovery.md)**
     *(spec, draft)* — make merchants, bankers, and auction brokers first-class
     map roles with distinct markers, filters, generic service search, and
     analyzer-backed role data.
-13. **[`2026-07-04-maps-zones-content-layer`](2026-07-04-maps-zones-content-layer.md)**
+14. **[`2026-07-04-maps-zones-content-layer`](2026-07-04-maps-zones-content-layer.md)**
     *(spec, draft)* — textual zone references after the service roles they
     consume and the settled `/maps/{slug}` routes.
 
 **P3 — residual data/export debt**
 
-14. **[`2026-07-11-dynamic-spawn-semantics-map-ux`](2026-07-11-dynamic-spawn-semantics-map-ux.md)**
+15. **[`2026-07-11-dynamic-spawn-semantics-map-ux`](2026-07-11-dynamic-spawn-semantics-map-ux.md)**
     *(plan, active)* — make dynamic-only rarity and Brax spawn provenance
     authoritative for processor, map, and wiki consumers.
-15. **Category C zone-wide random spawns** *(note, active)* — model Sivakayan
+16. **Category C zone-wide random spawns** *(note, active)* — model Sivakayan
     spectres as per-zone random appearances, not fixed spawn points.
-16. **[`2026-06-30-loot-table-gold-range-export`](2026-06-30-loot-table-gold-range-export.md)**
+17. **[`2026-06-30-loot-table-gold-range-export`](2026-06-30-loot-table-gold-range-export.md)**
     *(plan, parked)* — resume only if a consumer needs static gold ranges.
-17. **Small content debt, no planning doc needed:** hand-curate the four planar
+18. **Small content debt, no planning doc needed:** hand-curate the four planar
     zone pages before a future wiki article deploy; document forging/merge
     mechanics before exposing Merging Vessel as a `UsedIn` relationship.
 
@@ -153,6 +157,7 @@ and [`2026-06-26-maps-domain-url-migration`](archive/2026-06-26-maps-domain-url-
 - `docs/plans/2026-07-30-wiki-cutover-state-audit.md` — measured live wiki state as of 2026-07-30.
 - `docs/plans/2026-07-30-wiki-cargo-schema-revision.md` — schema fixes to land before first Cargo table creation.
 - `docs/plans/2026-07-30-wiki-deploy-sync-discipline.md` — live-versus-repo sync gates.
+- `docs/plans/2026-07-31-wiki-quest-article-strategy.md` — deferred quest article decision.
 - `docs/plans/archive/2026-07-04-export-gap-analysis.md` — archived export and formula gap audit.
 - `docs/plans/archive/2026-07-13-planar-march-release-refresh.md` — archived release plan.
 - `docs/plans/archive/2026-07-12-adventure-guide-tracker-and-data-refresh.md` — archived guide plan.

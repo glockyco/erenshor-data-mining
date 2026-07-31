@@ -20,5 +20,6 @@
 - **Map Service Discovery** [spec] `2026-07-30-map-service-discovery` ← 2026-07-09-erenshor-planning-overview
 - **Cargo Schema Revision** [spec] `2026-07-30-wiki-cargo-schema-revision` ← 2026-06-04-wiki-cargo-data-architecture
 - **Wiki Deploy and Sync Discipline** [spec] `2026-07-30-wiki-deploy-sync-discipline` ← 2026-07-09-erenshor-planning-overview
+- **Quest Article Strategy** [spec] `2026-07-31-wiki-quest-article-strategy` ← 2026-07-09-erenshor-planning-overview
 
 _71 archived — see `docs/plans/archive/`._

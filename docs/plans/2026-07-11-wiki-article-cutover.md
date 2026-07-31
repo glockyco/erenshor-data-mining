@@ -62,22 +62,28 @@ at least one reverse query, and no longer have a Jinja generator.
 | 3 | Spell and Skill | 382 | 390 on `{{Ability}}` | **Type split.** One legacy template becomes two, with separate Cargo tables. Four pages need one stanza of each type. The only slice with a novel shape, so it is de-risked before the two largest types. |
 | 4 | Character | 874 | 500+ on `{{Character}}` | Owns `Spawns` and `CharacterAbilities`. Needs the data module under the size limit first. |
 | 5 | Item | 1,508 | 500+ on `{{Item}}`, 793 tooltips | Owns `ObtainedFrom`, `UsedIn`, and `ItemEffects`. Largest blast radius. |
-| 6 | Quest | 179 | 19 on `{{Quest}}`, 96 hand-written prose | **Content preservation, not a swap.** Merging generated infoboxes into pages a human wrote. Highest content-loss risk, so it goes last with the override classifier fully proven. |
+
+**Quest article conversion is out of scope for this plan.** Their target form is
+undecided, so no quest page is converted here. See
+[`2026-07-31-wiki-quest-article-strategy`](2026-07-31-wiki-quest-article-strategy.md).
+
+This defers page conversion only. `Quest` stays in the entity registry, `Template:Quest`
+still gets its dual-path body, and `Module:Erenshor/Data/Quests` still deploys, so the
+19 pages already using `{{Quest}}` keep working and gain the Lua path when their pages
+opt in. Do not remove `Quest` from the registry in section 3.
 
 Slice 1 is the real gate. If stances cannot go end to end, nothing larger can.
 
 Ordering is by migration shape, not entity count. Slices 1 and 2 are clean swaps that
 prove the chain. Slice 3 introduces the only type split and forces the identity
 registry to handle a page whose authoritative set spans two types, which slices 4 and
-5 then rely on. Slice 6 is last because it is the only slice that risks destroying
-community writing.
+5 then rely on.
 
 Capabilities by slice: slice 1 needs sections 2 through 6 for one type only. Slice 3
 additionally needs multi-type page support in the registry and converter, and a
 repo-owned legacy body for abilities, which does not exist yet. Slice 4 additionally
 needs the character data module under 4,194,304 bytes. Slice 5 additionally needs the
-schema revision in `2026-07-30-wiki-cargo-schema-revision`. Slice 6 additionally needs
-the override classifier to stop skipping ambiguous pages. **Section 1, the
+schema revision in `2026-07-30-wiki-cargo-schema-revision`. **Section 1, the
 community-row layer, is not a prerequisite for any slice** and moves to the end.
 
 ### Abilities need a repo-owned legacy body first
