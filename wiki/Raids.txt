@@ -1,0 +1,82 @@
+{{spoiler}}
+{{tocright}}
+
+'''Raids''' are [[Erenshor]]'s endgame group content, introduced by the ''Planar March'' update (patch 0.7). Instead of the usual party of five, a raid fields three parties of five: fifteen characters, made up of the player and fourteen [[Simulated Players]] drawn from the player's [[Guild]].
+
+Four raids are currently available. All four are Ethereal Planes reached through portals in the [[Reliquary Hall]], and each portal is opened by placing the matching rune in the Reliquary's outermost customization slots. Raid enemies are level 40–42 and raid bosses are level 43, so a raid roster should be at the level cap and in end-game [[Recommended Gear|pre-raid gear]] before starting.
+
+==The Raids==
+
+{| class="wikitable sortable"
+! Raid !! Rune !! Final Boss !! Map
+|-
+| [[Plane of the Willow]] || {{ItemLink|Rune of The Willow}} || [[Fernalla, Goddess of Nature]] || {{MapLink|zone=PlaneOfFernalla}}
+|-
+| [[Vitheo's Plane of Valor]] || {{ItemLink|Rune of Honor}} || [[Vitheo the Tactician]] || {{MapLink|zone=PlaneOfVitheo}}
+|-
+| [[Soluna's Celestial Plane]] || {{ItemLink|Rune of the Celestial}} || [[Soluna]] || {{MapLink|zone=PlaneOfSoluna}}
+|-
+| [[Brax's Plane of Elements]] || {{ItemLink|Rune of Elements}} || [[Brax, God of Elements]] || {{MapLink|zone=PlaneOfBrax}}
+|-
+| [[Sivakaya's Plane of Destruction]] || {{ItemLink|Celestine Portal}} || <span style="color: red;">''Unimplemented''</span> || —
+|}
+
+Each raid's full enemy and boss roster is listed on its own zone page. [[Vitheo's Plane of Valor]] is unusual: most of its content is an eight-round arena gauntlet, and the loot for each round drops from a [[Vithean Chest|Vithean Chest]] rather than from the boss itself.
+
+==Unlocking the Raids==
+
+Raid access is gated behind a long chain that runs through most of Erenshor's level 30+ dungeons. In outline, the player must:
+
+# Obtain the four Inert Runes, one per god, from [[Apparition of Vitheo]], [[Fallen Fernalla]], [[Braxon Elden]], and the [[Freed Spirit of Raval]].
+# Complete the [[Stowaway's Step]] ritual to open [[Secluded Sanctuary]], then farm four {{ItemLink|Eldrich Crystal|text=Eldrich Crystals}} there.
+# Combine each Inert Rune with an {{ItemLink|Eldrich Crystal}} at the matching planar energy to create the four raid runes.
+# Place the four runes in the [[Reliquary Hall]] rune slots to enable their portals.
+
+For the complete step-by-step process, including every prerequisite dungeon and boss, see '''[[Raid Unlocking Walkthrough]]'''.
+
+==Forming a Raid==
+
+Raids are started from the [[Guild]] window using the '''Call Raid''' button. Several conditions apply:
+
+* '''You must be in the [[Reliquary Hall]].''' Elsewhere the game replies ''"Raids must be formed in a Reliquary."'' A game option lifts this restriction.
+* '''You must not be in a group.''' Dismiss any group members first, or the game replies ''"Dismiss your group before forming a raid."''
+* '''Erenshor's Young cannot raid.''' Members of that guild are refused with ''"Erenshor's Young cannot participate in raids."''
+
+Calling the raid summons your guild to the hall and automatically fills the roster with your A-Team [[Simulated Players]]. Additional Sims can be added by targeting them and adding them to a slot.
+
+Only the [[Reliquary Hall]] and the four planes are raid-capable zones. Zoning into anything else breaks the raid up: ''"A strange force pulls your companions in different directions... (This is not a raidable zone)."''
+
+While a raid is active, opponents below level 40 award no experience, so a standing raid cannot be used to farm ordinary content.
+
+==The Raid Window==
+
+The raid window replaces the group window and controls all fifteen slots. Its per-group controls are the core of raid leading:
+
+* '''Group task''' — each of the three groups is independently set to assist the main group, assist the second group, assist the third group, focus that group's assigned target, or focus all adds.
+* '''Main Tank / Main Assist''' — one slot per group, driving what the rest of the group attacks and who healers prioritise.
+* '''Puller''', '''CC''' and '''Heals''' flags — mark which Sims pull, which apply crowd control such as {{AbilityLink|Coma}}, and which heal.
+* '''Heal assignment matrix''' — each healer is given a per-slot health threshold at which it starts healing that target.
+* '''DPS throttle''' — a per-group and raid-wide damage limiter, used to control aggro and pacing.
+* '''Loot Dist.''' — distributes loot, including {{ItemLink|Sivakrux|text=Sivakruxes}} and {{ItemLink|Planar Stone|text=Planar Stones}}, across the raid.
+
+Experience earned in a raid is shared with every raider, and each kill slightly improves your Sims' opinion of you.
+
+==Preparing for a Raid==
+
+Two dedicated guides cover raid preparation in depth:
+
+* '''[[Class Roles in the Planar March Raid]]''' — what each class and build contributes, which debuffs stack, and how many tanks, healers, and damage dealers to bring.
+* '''[[Distributing Gear in the Planar March Raid]]''' — stat priorities, weapon choices per build, aura selection, and which gear to upgrade first.
+
+The short version: tanks want Agility and AC, everyone wants their lowest resist pushed well past 140%, damage dealers want [[Haste]] at the cap, and gear is upgraded to [[Item Quality|Blessed]] with {{ItemLink|Sivakrux|text=Sivakruxes}} and to [[Item Quality|Ascended]] with {{ItemLink|Planar Stone|text=Planar Stones}}, both of which drop throughout the raids.
+
+==See Also==
+
+* [[Raid Unlocking Walkthrough]]
+* [[Class Roles in the Planar March Raid]]
+* [[Distributing Gear in the Planar March Raid]]
+* [[Reliquary Hall]]
+* [[Zones]]
+* [[Item Quality]]
+
+[[Category:Zones]]
