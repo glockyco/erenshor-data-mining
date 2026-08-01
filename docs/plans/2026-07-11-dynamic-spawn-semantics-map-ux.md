@@ -1,14 +1,18 @@
 ---
 title: Dynamic Spawn Semantics and Map UX Audit
 type: plan
-status: active
+status: draft
 created: 2026-07-11
-parent:
+parent: 2026-07-09-erenshor-planning-overview
 superseded_by:
 archived:
 ---
 
 # Goal
+
+> **Activation requirement:** Before promotion to active, move the existing numbered
+> implementation sections under a recognized `## Tasks` section. Preserve their
+> processor and map design during that structural cleanup.
 
 Make dynamic-only character rarity and Brax spawn provenance authoritative so
 the processor and its map/wiki consumers identify bosses without inferring

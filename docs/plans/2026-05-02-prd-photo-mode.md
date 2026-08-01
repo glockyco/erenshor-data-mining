@@ -8,6 +8,13 @@ parent:
 
 # Erenshor Photo Mode - Implementation Plan
 
+> **Design warning:** Before promotion to active, revalidate every feasibility claim
+> against the current shipped `Assembly-CSharp`, Unity dependencies, and current
+> mod-development conventions, especially DroneCam/CameraController APIs, Unity
+> Post-Processing v2 profiles/settings, DayNight/AtmosphereColors fields, input/UI
+> ownership, and plugin/dependency metadata. Replace stale estimates and open questions
+> with verified decisions during that future re-audit, not during this cleanup.
+
 **Created:** February 13, 2026
 **Project:** Standalone BepInEx mod for Erenshor
 **Related:** Separate from "Justice for F7" UI hiding mod

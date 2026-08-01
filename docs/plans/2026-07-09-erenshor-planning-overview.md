@@ -46,10 +46,9 @@ specs, and executable work in plans.
 - [`2026-07-11-wiki-article-cutover`](2026-07-11-wiki-article-cutover.md)
 - [`2026-07-31-wiki-quest-article-strategy`](2026-07-31-wiki-quest-article-strategy.md)
 
-The
-[`2026-07-30-wiki-cutover-state-audit`](2026-07-30-wiki-cutover-state-audit.md)
-is the dated production evidence baseline. Its completion moves the same artifact to
-archive navigation.
+The archived
+[`2026-07-30-wiki-cutover-state-audit`](archive/2026-07-30-wiki-cutover-state-audit.md)
+is the dated production evidence baseline.
 
 ## Later map work
 
@@ -63,8 +62,9 @@ archive navigation.
 - [`2026-07-11-dynamic-spawn-semantics-map-ux`](2026-07-11-dynamic-spawn-semantics-map-ux.md)
 - [`2026-06-28-category-c-zone-random-spawns`](2026-06-28-category-c-zone-random-spawns.md)
 - [`2026-07-10-wiki-deferred-mechanics`](2026-07-10-wiki-deferred-mechanics.md)
-- Gold-range export trigger note, added when the stale implementation plan is
-  superseded
+  activates only after at least one entity type completes article conversion and
+  legacy retirement.
+- [`2026-08-01-loot-table-gold-range-trigger`](2026-08-01-loot-table-gold-range-trigger.md)
 - [`2026-05-02-prd-photo-mode`](2026-05-02-prd-photo-mode.md)
 
 ## Standing gates

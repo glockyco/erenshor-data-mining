@@ -1,9 +1,10 @@
 ---
 title: Wiki Cutover State Audit (2026-07-30)
 type: audit
-status: active
+status: implemented
 created: 2026-07-30
 parent: 2026-07-09-erenshor-planning-overview
+archived: 2026-08-01
 ---
 
 # Wiki Cutover State Audit (2026-07-30)

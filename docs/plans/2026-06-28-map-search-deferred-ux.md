@@ -1,7 +1,7 @@
 ---
 title: Map Search — Deferred UX Improvements
 type: note
-status: active
+status: draft
 created: 2026-06-28
 parent: 2026-06-28-map-search-ux-improvements
 ---

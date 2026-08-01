@@ -1,7 +1,7 @@
 ---
 title: Category C — Zone-Wide Random Spawners
 type: note
-status: active
+status: draft
 created: 2026-06-28
 parent: 2026-05-28-dynamic-spawn-coverage-design
 ---

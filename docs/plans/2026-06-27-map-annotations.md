@@ -1,12 +1,16 @@
 ---
 title: World Map — User Annotations (Pins, Paths, Regions)
 type: spec
-status: active
+status: draft
 created: 2026-06-27
 parent: 2026-07-09-erenshor-planning-overview
 ---
 
 # World Map — User Annotations (Pins, Paths, Regions)
+
+> **Prerequisite for activation:** Before promotion to active, revalidate the
+> implementation anchors against current layer construction in
+> `src/maps/src/lib/map/layers.ts`.
 
 **Goal:** Let users place personal annotations on the world map — styled point pins (icon + color), drawn paths (farming routes), and drawn regions (area highlights) — persisted in localStorage with JSON export/import for backup and sharing.
 

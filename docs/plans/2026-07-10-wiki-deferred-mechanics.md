@@ -1,7 +1,7 @@
 ---
 title: Wiki Deferred Obtainability Mechanics
 type: plan
-status: active
+status: draft
 created: 2026-07-10
 parent: 2026-06-23-wiki-cargo-phase-3
 ---
