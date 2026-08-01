@@ -219,8 +219,8 @@
 
 .mp-popular {
 	display: grid;
-	grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-	gap: 1.25rem 2.5rem;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 460px);
+	gap: 1.25rem 2rem;
 	align-items: start;
 	margin-top: 1rem;
 }
