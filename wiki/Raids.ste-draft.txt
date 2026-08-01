@@ -5,7 +5,7 @@ The Planar March update (patch 0.7) added '''raids''' to [[Erenshor]]. A raid is
 
 The game has four raids. Each raid is an Ethereal Plane. A portal in the [[Reliquary Hall]] gives access to each plane. To open a portal, put the correct rune into one of the four outer slots in the Reliquary. Raid enemies are level 40 to 42, and raid bosses are level 43.
 
-Because the enemies have these levels, all raid members must have the maximum level. They must also have the best gear that is available before the raids. For gear advice, refer to [[Recommended Gear]].
+All raid members should be maximum level. They should also be equipped with high level gear from pre-raid bosses and dungeons. For gear advice, refer to [[Recommended_Gear#Pre-Raid_Recommended]].
 
 ==The Raids==
 
@@ -29,15 +29,51 @@ The zone page for each raid gives the full list of its enemies and its bosses.
 
 ==Unlock the Raids==
 
-The four raids have a long unlock procedure. The procedure goes through most of the dungeons for levels 30 and higher. These are the primary steps:
+To unlock the four raids, you must make four raid runes. Each raid rune needs one Inert Rune and one {{ItemLink|Eldrich Crystal}}.
 
-# Get the four Inert Runes. One rune comes from each god. Defeat [[Apparition of Vitheo]], [[Fallen Fernalla]], and [[Braxon Elden]]. Then speak to the [[Freed Spirit of Raval]].
-# Do the [[Stowaway's Step]] ritual. The ritual opens [[Secluded Sanctuary]].
-# In [[Secluded Sanctuary]], get four {{ItemLink|Eldrich Crystal|text=Eldrich Crystals}}.
-# Give one Inert Rune and one {{ItemLink|Eldrich Crystal}} to the related planar energy. This makes one raid rune. Do this four times.
-# Put the four raid runes into the rune slots in the [[Reliquary Hall]]. The four portals then become available.
+Many of the steps below have their own long chain of prerequisites. For the full procedure, refer to '''[[Raid Unlocking Walkthrough]]'''.
 
-For the full procedure with all the necessary dungeons and bosses, refer to '''[[Raid Unlocking Walkthrough]]'''.
+===Step 1: Get the four Inert Runes===
+
+The four Inert Runes have four different sources.
+
+* {{ItemLink|Inert Rune of Vitheo}}. Defeat [[Apparition of Vitheo]] in [[Vitheo's Rest]].
+* {{ItemLink|Inert Rune of Fernalla}}. Defeat [[Fallen Fernalla]] in [[Blooming Sepulcher]].
+* {{ItemLink|Inert Rune of Soluna}}. Defeat [[Astra, Rogue of the Stars]] in [[Soluna's Landing]]. Then give the {{ItemLink|Heart of Astra}} to the [[Freed Spirit of Raval]].
+* {{ItemLink|Inert Rune of Brax}}. Defeat the [[Braxonian Planar Guard (Fire)]] and the [[Braxonian Planar Guard (Ice)]] in [[Fallen Braxonia]]. Then give their two portal shards to [[Braxon Elden]] in [[Braxonian Desert]].
+
+===Step 2: Open the Secluded Sanctuary===
+
+The gate to [[Secluded Sanctuary]] is on [[Stowaway's Step]]. To open the gate, complete the quest {{QuestLink|Completing the Ritual}}. Give these four items to [[Lucian Revald]]:
+
+* {{ItemLink|Loss Stone}}
+* {{ItemLink|Demented Brain}}
+* {{ItemLink|A Remnant of Sivakaya}}
+* {{ItemLink|Nightmare Crystal}}
+
+===Step 3: Get four Eldrich Crystals===
+
+Defeat the [[Azynthian Keeper]] in [[Secluded Sanctuary]]. It always drops one {{ItemLink|Eldrich Crystal}}. You need one crystal for each of the four runes.
+
+===Step 4: Make the four raid runes===
+
+Give one Inert Rune and one {{ItemLink|Eldrich Crystal}} to the related energy. Three of these NPCs have the name [[Verdant Energy]]. The fourth has the name [[Elemental Energy]].
+
+{| class="wikitable"
+! Inert Rune !! Energy !! Zone !! Result
+|-
+| {{ItemLink|Inert Rune of Vitheo}} || [[Verdant Energy]] || [[Vitheo's Rest]] || {{ItemLink|Rune of Honor}}
+|-
+| {{ItemLink|Inert Rune of Fernalla}} || [[Verdant Energy]] || [[Fernalla's Revival Plains]] || {{ItemLink|Rune of The Willow}}
+|-
+| {{ItemLink|Inert Rune of Soluna}} || [[Verdant Energy]] || [[Soluna's Landing]] || {{ItemLink|Rune of the Celestial}}
+|-
+| {{ItemLink|Inert Rune of Brax}} || [[Elemental Energy]] || [[Fallen Braxonia]] || {{ItemLink|Rune of Elements}}
+|}
+
+===Step 5: Open the portals===
+
+Put the four raid runes into the four outer slots of the [[Reliquary Hall]] menu. Then push the build button.
 
 ==Start a Raid==
 
@@ -51,18 +87,19 @@ When you start a raid, the game calls your guild to the hall. The game also puts
 
 Only the [[Reliquary Hall]] and the four planes permit a raid. If you go to a different zone, the raid stops. The game then shows this message: "A strange force pulls your companions in different directions... (This is not a raidable zone)."
 
-During a raid, enemies below level 40 give no experience. Thus you cannot use a raid to get experience from usual content.
+During a raid, enemies below level 40 give no experience. Thus you cannot use a raid to get experience from lower level content.
 
 ==The Raid Window==
 
-The raid window replaces the group window. The window controls all 15 slots. These controls are the most important tools for the raid leader:
+The raid window replaces the group window. It has 14 slots for [[Simulated Players]] and one card for the player. The player is always in the first group. These controls are the most important tools for the raid leader:
 
-* '''Group task.''' Set a task for each of the three groups. A group can help the first group, the second group, or the third group. A group can also attack its own target or attack all adds.
-* '''Main Tank and Main Assist.''' Select one member for each role in each group. This member controls the target for the other members. Healers also give priority to this member.
-* '''Puller, CC, and Heals flags.''' These flags show which Sim Players pull, which Sim Players use crowd control, and which Sim Players heal. An example of crowd control is {{AbilityLink|Coma}}.
-* '''Heal assignments.''' For each healer, set a health value for each other member. The healer starts to heal that member at this value.
-* '''DPS throttle.''' Decrease the damage of one group or of the full raid. Use this control to hold aggro and to set the speed of a fight.
-* '''Loot Dist.''' Give loot to the raid members. This includes {{ItemLink|Sivakrux|text=Sivakruxes}} and {{ItemLink|Planar Stone|text=Planar Stones}}.
+* '''Group task.''' Set one task for each of the three groups. A group can help the first, the second, or the third group. A group can also attack its own target, or attack all adds.
+* '''Main Assist and Main Tank.''' This is one role, not two. Each group has one member with this role. The other members attack the target of this member. Healers heal this member first.
+* '''Puller.''' Each group can have one puller.
+* '''CC and Heals.''' These are flags. More than one member in a group can have them. An example of crowd control is {{AbilityLink|Coma}}.
+* '''Heal assignments.''' For each healer, set a percentage of maximum health for each other member. The healer heals that member when the health of that member goes below the percentage. A value of zero removes the assignment.
+* '''DPS throttle.''' Increase the delay between the attacks of one group or of the full raid. At high values, Sim Players do not use their spells and skills.
+* '''Loot dist.''' Give an item to a raid member. Use this control for {{ItemLink|Sivakrux|text=Sivakruxes}} and {{ItemLink|Planar Stone|text=Planar Stones}}.
 
 All raid members receive the experience from a kill. Each kill also increases the opinion of your Sim Players about you.
 
@@ -73,13 +110,13 @@ Two other pages give more data about raid preparation:
 * '''[[Class Roles in the Planar March Raid]]''' shows what each class and each build gives to the raid. It also shows which debuffs are cumulative, and how many tanks, healers, and damage dealers to use.
 * '''[[Distributing Gear in the Planar March Raid]]''' shows the priority of the stats and the correct weapon for each build. It also shows which auras to use, and which gear to upgrade first.
 
-This is a short summary:
+This is a short summary. These are recommendations from the two guides, not strict requirements:
 
-* Tanks need Agility and AC.
-* All members need a minimum of 140% in their lowest resistance.
-* Damage dealers need the maximum [[Haste]].
-* Use {{ItemLink|Sivakrux|text=Sivakruxes}} to make gear [[Item Quality|Blessed]].
-* Use {{ItemLink|Planar Stone|text=Planar Stones}} to make gear [[Item Quality|Ascended]].
+* '''Tanks.''' Collect Agility and AC.
+* '''Resistances.''' Increase the lowest resistance of each member. The guide recommends 140% before the late encounters, and 170% to 190% at the end.
+* '''Damage dealers.''' Increase [[Haste]]. The game limits the bonus from effects to 60%.
+* '''Paladins and Windblades.''' These two classes get 15% Haste from their abilities. Thus 45% from gear is sufficient for them.
+* '''Item quality.''' Use {{ItemLink|Sivakrux|text=Sivakruxes}} to make gear [[Item Quality|Blessed]]. Use {{ItemLink|Planar Stone|text=Planar Stones}} to make gear [[Item Quality|Ascended]].
 
 Sivakruxes and Planar Stones drop in all four raids.
 
