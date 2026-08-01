@@ -37,7 +37,7 @@
 <div class="mp-tile">[[File:Armor.png|x84px|link=Armor]]<div>[[Armor]]</div></div>
 <div class="mp-tile">[[File:AbilityBooks.png|x84px|link=Ability Books]]<div>[[Ability Books]]</div></div>
 <div class="mp-tile">[[File:Auras.png|x84px|link=Auras]]<div>[[Auras]]</div></div>
-<div class="mp-tile">[[File:Crafting.png|x84px|link=Crafting]]<div>[[Crafting]]</div></div>
+<div class="mp-tile">[[File:Charms.png|x84px|link=Charms]]<div>[[Charms]]</div></div>
 <div class="mp-tile">[[File:Enemies.png|x84px|link=Enemies]]<div>[[Enemies]]</div></div>
 <div class="mp-tile">[[File:Quests.png|x84px|link=Quests]]<div>[[Quests]]</div></div>
 <div class="mp-tile">[[File:Zones icon.png|x84px|link=Zones]]<div>[[Zones]]</div></div>
@@ -63,6 +63,7 @@
 <ul>
 <li>[[Recommended Gear]]</li>
 <li>[[Item Quality]]</li>
+<li>[[Auction House]]</li>
 <li>[[Treasure Hunting]]</li>
 <li>[[Watcher's Lens]]</li>
 </ul>
@@ -83,8 +84,8 @@
 <h3 class="mp-label">Other Activities</h3>
 <ul>
 <li>[[Teleportation]]</li>
+<li>[[Crafting]]</li>
 <li>[[Fishing]]</li>
-<li>[[Auction House]]</li>
 <li>[[The Mystery of Bellwain Island]]</li>
 <li>[[Shivering Step Walkthrough]]</li>
 </ul>
@@ -92,11 +93,11 @@
 
 </div>
 
-<div class="mp-section">Popular Pages</div>
+<div class="mp-section">Other Popular Pages</div>
 
 <div class="mp-popular">
 <div class="mp-popular-links">
-[[Classes]] &nbsp;·&nbsp; [[Simulated Players]] &nbsp;·&nbsp; [[Recommended Gear]] &nbsp;·&nbsp; [[Item Quality]] &nbsp;·&nbsp; [[Zones]] &nbsp;·&nbsp; [[Teleportation]] &nbsp;·&nbsp; [[Raids]] &nbsp;·&nbsp; [[Ability Books]] &nbsp;·&nbsp; [[Fishing]] &nbsp;·&nbsp; [[Port Azure]] &nbsp;·&nbsp; [[Factions]] &nbsp;·&nbsp; [[Achievements]] &nbsp;·&nbsp; [[Server Admin Panel]] &nbsp;·&nbsp; [[Lore|History of Erenshor]]
+[[Port Azure]] &nbsp;·&nbsp; [[NPCs]] &nbsp;·&nbsp; [[Vendors]] &nbsp;·&nbsp; [[Factions]] &nbsp;·&nbsp; [[Guild]] &nbsp;·&nbsp; [[Haste]] &nbsp;·&nbsp; [[Resonance]] &nbsp;·&nbsp; [[Status Effects]] &nbsp;·&nbsp; [[Achievements]] &nbsp;·&nbsp; [[Server Admin Panel]] &nbsp;·&nbsp; [[Lore|History of Erenshor]]
 </div>
 <div class="mp-map-callout">
 <span class="mp-cta">[https://erenshor.compendiums.org/map Open the interactive map]</span>
