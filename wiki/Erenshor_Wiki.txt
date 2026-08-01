@@ -179,4 +179,3 @@ buttonlabel=Create
 __NOTOC__
 __NOEDITSECTION__
 __NOTITLE__
-[[Category:{{SITENAME}}| ]]
