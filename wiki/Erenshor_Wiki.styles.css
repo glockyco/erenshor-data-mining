@@ -249,7 +249,8 @@
 
 .mp-popular-links {
 	display: grid;
-	gap: 1.25rem;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 1.5rem;
 }
 
 .mp-popular-group ul {
@@ -427,6 +428,11 @@
 }
 
 @media (max-width: 600px) {
+	.mp-popular-links {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 1.25rem;
+	}
+
 	.mp-tiles {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
