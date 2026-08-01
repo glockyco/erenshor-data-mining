@@ -2,7 +2,7 @@
 
 <div class="mp-masthead">
 <div class="mp-masthead-text">
-<div class="mp-wordmark">Official Erenshor Wiki</div>
+<h1 class="mp-wordmark">Official Erenshor Wiki</h1>
 <div class="mp-standfirst">[https://store.steampowered.com/app/2382520/Erenshor/ Erenshor] is a single-player RPG with the soul of a classic MMO. Partner with [[Simulated Players|SimPlayers]] and explore an open world where every reward has a story. Find thousands of items, quests, raids, and secrets at your own pace.</div>
 <div class="mp-colophon">Early Access &nbsp;·&nbsp; Patch 0.7 <b>Planar March</b> &nbsp;·&nbsp; <b>{{NUMBEROFARTICLES}}</b> articles</div>
 <div class="mp-spoiler"><b>Major spoilers.</b> This wiki gives quest solutions, boss tactics, and endgame content.</div>
@@ -13,7 +13,7 @@
 </div>
 </div>
 
-<div class="mp-section">Latest Update</div>
+<h2 class="mp-section">Latest Update</h2>
 
 <div class="mp-update">
 <div class="mp-update-body">
@@ -30,7 +30,7 @@
 <div class="mp-update-art">[[File:Planar March.png|480px|link=Raids|Planar March key art]]</div>
 </div>
 
-<div class="mp-section">Contents</div>
+<h2 class="mp-section">Contents</h2>
 
 <div class="mp-tiles">
 <div class="mp-tile">[[File:Weapons.png|x84px|link=Weapons]]<div>[[Weapons]]</div></div>
@@ -43,7 +43,7 @@
 <div class="mp-tile">[[File:Zones icon.png|x84px|link=Zones]]<div>[[Zones]]</div></div>
 </div>
 
-<div class="mp-section">Guides</div>
+<h2 class="mp-section">Guides</h2>
 
 <div class="mp-guides">
 
@@ -93,7 +93,7 @@
 
 </div>
 
-<div class="mp-section">Other Popular Pages</div>
+<h2 class="mp-section">Other Popular Pages</h2>
 
 <div class="mp-popular">
 <div class="mp-popular-links">
@@ -105,7 +105,7 @@
 </div>
 </div>
 
-<div class="mp-section">The Wiki</div>
+<h2 class="mp-section">The Wiki</h2>
 
 <div class="mp-foot">
 

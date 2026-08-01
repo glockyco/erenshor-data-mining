@@ -23,8 +23,11 @@
 
 .mp-wordmark {
 	margin: 0;
+	padding: 0;
+	border: 0;
 	font-family: "Linux Libertine", Georgia, Times, serif;
 	font-size: 2.9rem;
+	font-weight: normal;
 	line-height: 1.05;
 	letter-spacing: 0.01em;
 	color: var(--color-base, #ededed);
@@ -86,8 +89,10 @@
 	margin: 2.5rem 0 0;
 	padding-top: 0.5rem;
 	border-top: 1px solid var(--border-color-base, #866806);
+	border-bottom: 0;
 	font-family: "Linux Libertine", Georgia, Times, serif;
 	font-size: 1.5rem;
+	font-weight: normal;
 	line-height: 1.2;
 	color: var(--color-base, #ededed);
 }
