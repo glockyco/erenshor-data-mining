@@ -866,9 +866,16 @@ form.createbox:invalid .cdx-button {
 	font-weight: 600;
 }
 
-/* Keep the "nothing to submit yet" signal, without the grey slab. */
+/* Keep the "nothing to submit yet" signal, without the grey slab. InputBox
+   suppresses the pointer here too, which reads as merely unresponsive; say
+   what is actually true instead. */
 form.createbox:invalid .cdx-button {
 	opacity: 0.55;
+	cursor: not-allowed !important;
+}
+
+.mw-inputbox-form .cdx-button:enabled {
+	cursor: pointer;
 }
 
 .mw-inputbox-form .cdx-button:enabled:hover,
