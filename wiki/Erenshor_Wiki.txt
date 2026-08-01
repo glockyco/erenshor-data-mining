@@ -25,7 +25,7 @@
 <li>20 new bosses with unique mechanics.</li>
 <li>130+ new items, spells, and skills.</li>
 </ul>
-<div class="mp-update-links">'''[[Raids]]''' &nbsp;·&nbsp; [[Raid Unlocking Walkthrough]] &nbsp;·&nbsp; [[Class Roles in the Planar March Raid|Class Roles]] &nbsp;·&nbsp; [[Distributing Gear in the Planar March Raid|Distributing Gear]]<br />[https://store.steampowered.com/news/app/2382520/view/670622499729311277 Official Announcement on Steam] &nbsp;·&nbsp; [https://store.steampowered.com/news/app/2382520 All Patch Notes]</div>
+<div class="mp-update-links">'''[[Raids]]''' &nbsp;·&nbsp; [[Raid Unlocking Walkthrough|Unlocking Raids]] &nbsp;·&nbsp; [[Class Roles in the Planar March Raid|Class Roles in Raids]] &nbsp;·&nbsp; [[Distributing Gear in the Planar March Raid|Distributing Raid Gear]]<br />[https://store.steampowered.com/news/app/2382520/view/670622499729311277 Official Announcement on Steam] &nbsp;·&nbsp; [https://store.steampowered.com/news/app/2382520 All Patch Notes]</div>
 </div>
 <div class="mp-update-art">[[File:Planar March.png|480px|link=Raids|Planar March key art]]</div>
 </div>
@@ -73,10 +73,10 @@
 <h3 class="mp-label">Endgame</h3>
 <ul>
 <li>[[Raids]]</li>
-<li>[[Raid Unlocking Walkthrough]]</li>
+<li>[[Raid Unlocking Walkthrough|Unlocking Raids]]</li>
 <li>[[Ascension Skills]]</li>
 <li>[[Class Roles in the Planar March Raid|Class Roles in Raids]]</li>
-<li>[[Distributing Gear in the Planar March Raid|Raid Gear]]</li>
+<li>[[Distributing Gear in the Planar March Raid|Distributing Raid Gear]]</li>
 </ul>
 </div>
 
