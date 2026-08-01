@@ -24,9 +24,9 @@
 .mp-wordmark {
 	margin: 0;
 	font-family: "Linux Libertine", Georgia, Times, serif;
-	font-size: clamp(2.25rem, 5vw, 3.25rem);
-	line-height: 1;
-	letter-spacing: 0.02em;
+	font-size: clamp(1.9rem, 3.6vw, 2.9rem);
+	line-height: 1.05;
+	letter-spacing: 0.01em;
 	color: var(--color-base, #ededed);
 }
 
