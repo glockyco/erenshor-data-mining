@@ -844,3 +844,40 @@
     animation: none;
   }
 }
+
+/* ==========================================================================
+   InputBox create forms
+   --------------------------------------------------------------------------
+   InputBox renders its submit control as a Codex button, which arrives in
+   Codex blue on hover and, while the title field is empty, in Codex disabled
+   grey through `form.createbox:invalid .cdx-button` with `!important`. Both
+   read as foreign against the wiki palette, and neither can be overridden
+   from TemplateStyles, which strips `!important`. Theme them here instead so
+   every page carrying an <inputbox> matches, not just the main page.
+   ========================================================================== */
+
+.mw-inputbox-form .cdx-button,
+form.createbox:invalid .cdx-button {
+	border: 1px solid var( --wiki-content-link-color, #d8b74a ) !important;
+	border-radius: 0 !important;
+	background-color: transparent !important;
+	color: var( --wiki-content-link-color, #d8b74a ) !important;
+	box-shadow: none !important;
+	font-weight: 600;
+}
+
+/* Keep the "nothing to submit yet" signal, without the grey slab. */
+form.createbox:invalid .cdx-button {
+	opacity: 0.55;
+}
+
+.mw-inputbox-form .cdx-button:enabled:hover,
+.mw-inputbox-form .cdx-button:enabled:focus {
+	background-color: var( --wiki-content-link-color, #d8b74a ) !important;
+	color: #17150e !important;
+}
+
+.mw-inputbox-form .cdx-text-input__input {
+	border-radius: 0;
+	box-shadow: none;
+}
