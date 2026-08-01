@@ -173,3 +173,14 @@
 	color: var(--wiki-sidebar-heading-color) !important;
 	background: none !important;
 }
+
+/* Local parity for __NOTITLE__ on the main page.
+   The NoTitle extension hides the heading with `.mw-body .firstHeading`, but
+   the synced live MediaWiki:Common.css declares the same selector as
+   `display: block` inside a screen query and is loaded after it, so the
+   extension loses on source order. Live does not have this conflict: the
+   heading is correctly hidden there. Raise specificity for the one page that
+   uses the magic word so local preview matches live. */
+body.page-Erenshor_Wiki .mw-body .firstHeading {
+	display: none;
+}

@@ -35,4 +35,11 @@ RUN set -eux; \
 # already vendored by the base image, so neither needs composer.
 RUN set -eux; \
     git clone --depth 1 --branch REL1_43 https://gerrit.wikimedia.org/r/mediawiki/extensions/TemplateStyles /var/www/html/extensions/TemplateStyles; \
-    git clone --depth 1 https://github.com/octfx/mediawiki-extensions-TemplateStylesExtender.git /var/www/html/extensions/TemplateStylesExtender
+    git clone --depth 1 https://github.com/octfx/mediawiki-extensions-TemplateStylesExtender.git /var/www/html/extensions/TemplateStylesExtender; \
+    git clone --depth 1 --branch REL1_43 https://gerrit.wikimedia.org/r/mediawiki/extensions/NoTitle /var/www/html/extensions/NoTitle; \
+    git clone --depth 1 --branch v2.9.0 https://github.com/StarCitizenTools/mediawiki-extensions-EmbedVideo.git /var/www/html/extensions/EmbedVideo
+
+# The stock 2 MB PHP upload ceiling rejects ordinary live wiki assets, such as
+# the world map plate used by the main page. Raise it so local preview can
+# mirror real content.
+RUN printf 'upload_max_filesize = 32M\npost_max_size = 32M\n' > /usr/local/etc/php/conf.d/uploads.ini

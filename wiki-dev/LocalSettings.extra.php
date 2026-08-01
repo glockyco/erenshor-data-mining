@@ -18,6 +18,11 @@ wfLoadExtension( 'TemplateStyles' );
 wfLoadExtension( 'TemplateStylesExtender' );
 # InputBox backs the create-page form on the main page. Bundled with core.
 wfLoadExtension( 'InputBox' );
+# NoTitle supplies __NOTITLE__ and EmbedVideo supplies <evlplayer>. Both are
+# used by the main page on the live wiki, so the local preview needs them to
+# render that page faithfully rather than leaking markup as literal text.
+wfLoadExtension( 'NoTitle' );
+wfLoadExtension( 'EmbedVideo' );
 
 
 $wgScribuntoDefaultEngine = 'luastandalone';
@@ -40,6 +45,12 @@ $wgCargoDBpassword = $wgDBpassword;
 
 $wgShowExceptionDetails = true;
 $wgShowDBErrorBacktrace = true;
+
+# EmbedVideo touches the service container while registering, which MediaWiki
+# 1.43 reports as deprecated. The container runs with display_errors on, so the
+# notice is printed into every API response and page, corrupting both. Warnings
+# and errors stay visible; only deprecations are silenced.
+error_reporting( E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED );
 $wgEnableUploads = true;
 $wgDefaultSkin = 'vector';
 $wgVectorDefaultSkinVersion = '1';
@@ -50,3 +61,5 @@ $wgFavicon = '/images/Site-favicon.ico';
 
 # Show the TemplateSandbox edit box on local template and module pages.
 $wgTemplateSandboxEditNamespaces = [ NS_TEMPLATE, 828 ];
+
+$wgMaxUploadSize = 32 * 1024 * 1024;

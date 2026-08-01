@@ -18,8 +18,10 @@ runtime surface used by production pages:
 
 ```text
 Cargo
+EmbedVideo
 Gadgets
 InputBox
+NoTitle
 ParserFunctions
 PortableInfobox
 Scribunto
@@ -35,9 +37,19 @@ pages that adapt to the night and day themes through the skin's Codex tokens
 only sanitize correctly when it is loaded. `wikimedia/css-sanitizer` ships in
 the base image, so neither extension needs composer.
 
-The local stack does not provide `__NOTITLE__`, which the live wiki supports.
-Pages that use it render the literal magic word locally. That is a known
-preview gap, not a page defect.
+`NoTitle`, `EmbedVideo`, and `InputBox` back `__NOTITLE__`, `<evlplayer>`, and
+`<inputbox>` respectively. The main page uses all three, and without them the
+local preview leaks the raw markup as literal text instead of rendering it.
+
+Two consequences of `EmbedVideo` are worth knowing. It is pinned to `v2.9.0`
+rather than tracking master, and it touches the service container while
+registering, which MediaWiki 1.43 reports as deprecated. Because the container
+runs with `display_errors` on, that notice would otherwise be printed into
+every API response and page body, so `LocalSettings.extra.php` silences
+deprecations while leaving warnings and errors visible.
+
+The stock 2 MB PHP upload ceiling rejects ordinary live assets such as the
+world map plate, so the image raises it to 32 MB.
 
 The live wiki is MediaWiki 1.43.6 with Classic Vector, Scribunto,
 TemplateSandbox, Gadgets/DataTables, PortableInfobox, and LIBRARIAN 4.21.0
