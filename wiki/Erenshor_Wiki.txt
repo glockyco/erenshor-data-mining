@@ -125,11 +125,8 @@
 </div>
 </div>
 <div class="mp-map-callout">
-<div class="mp-map-thumb">[[File:Erenshor interactive map.png|1200px|link=https://erenshor.compendiums.org/map|alt=Interactive Erenshor world map with filters, location markers, routes, and Plain Necklace item details]]</div>
-<div class="mp-map-copy">
 <span class="mp-cta">[https://erenshor.compendiums.org/map Open the interactive map]</span>
 <div class="mp-caption">The map shows all zones. You can search for characters, enemies, vendors, mining nodes, and treasure. It uses the same game data as this wiki.</div>
-</div>
 </div>
 </div>
 

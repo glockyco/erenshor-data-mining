@@ -261,19 +261,8 @@
 }
 
 .mp-map-callout {
-	display: grid;
-	grid-template-columns: minmax(120px, 150px) minmax(0, 1fr);
-	gap: 1rem;
-	align-items: start;
 	width: 100%;
 	max-width: 460px;
-}
-
-.mp-map-callout img {
-	display: block;
-	width: 100%;
-	height: auto;
-	border: 1px solid var(--border-color-base, #866806);
 }
 
 .mp-map-callout .mp-cta {
@@ -438,11 +427,6 @@
 }
 
 @media (max-width: 600px) {
-	.mp-map-callout {
-		grid-template-columns: minmax(100px, 120px) minmax(0, 1fr);
-		gap: 0.75rem;
-	}
-
 	.mp-tiles {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
