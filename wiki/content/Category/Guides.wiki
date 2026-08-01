@@ -1,7 +1,16 @@
-Hand-written walkthroughs, reference tables, and strategy pages, as opposed to the item, character, and ability pages generated from extracted game data.
+Hand-written walkthroughs and strategy pages for learning the game, planning progression and gear, organizing raid roles, and completing puzzles or zones. The main [[Quests]] index is included as the entry point to quest walkthrough content.
 
-A page belongs here when a person wrote it to explain how to do something: a walkthrough, a progression or gearing guide, a class or role breakdown, or an explanation of a game system that needs more than an infobox.
+General mechanics and reference articles are not included here unless they provide a walkthrough or concrete strategy.
 
-Overview pages that are mostly generated tables, such as [[Armor]] and [[Weapons]], do not belong here. Neither do individual [[Zones|zone]], [[:Category:Characters|character]], or item pages.
+<!-- Managed members:
+Player Guide
+Quests
+Recommended Gear
+Raid Unlocking Walkthrough
+Class Roles in the Planar March Raid
+Distributing Gear in the Planar March Raid
+The Mystery of Bellwain Island
+Shivering Step Walkthrough
+-->
 
 [[Category:Erenshor Wiki]]
