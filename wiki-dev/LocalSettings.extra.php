@@ -63,3 +63,8 @@ $wgFavicon = '/images/Site-favicon.ico';
 $wgTemplateSandboxEditNamespaces = [ NS_TEMPLATE, 828 ];
 
 $wgMaxUploadSize = 32 * 1024 * 1024;
+
+# Live wiki.gg serves a responsive Vector (body carries skin--responsive).
+# Legacy Vector is not responsive by default, which squeezes the local content
+# column to ~198px at a 390px viewport and makes mobile preview meaningless.
+$wgVectorResponsive = true;
