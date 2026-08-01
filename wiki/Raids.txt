@@ -7,6 +7,12 @@ The game has four raids. Each raid is an Ethereal Plane. A portal in the [[Reliq
 
 All raid members should be maximum level. They should also be equipped with high level gear from pre-raid bosses and dungeons. For gear advice, refer to [[Recommended_Gear#Pre-Raid_Recommended]].
 
+These three pages give more detail:
+
+* '''[[Raid Unlocking Walkthrough]]''' gives the full unlock procedure.
+* '''[[Class Roles in the Planar March Raid]]''' gives the strengths of each class and each build.
+* '''[[Distributing Gear in the Planar March Raid]]''' gives the stat priorities and the gear choices.
+
 ==The Raids==
 
 {| class="wikitable sortable"
@@ -99,7 +105,7 @@ The raid window replaces the group window. It has 14 slots for [[Simulated Playe
 * '''CC and Heals.''' These are flags. More than one member in a group can have them.
 * '''Heal assignments.''' For each healer, set a percentage of maximum health for each other member. The healer heals that member when the health of that member goes below the percentage. A value of zero removes the assignment.
 * '''DPS throttle.''' Increase the delay between the attacks of one group or of the full raid. At high values, Sim Players do not use their spells and skills.
-* '''Loot dist.''' Give an item to a raid member. The window shows only the members whose class can use the item. {{ItemLink|Sivakrux|text=Sivakruxes}} and {{ItemLink|Planar Stone|text=Planar Stones}} are an exception. For these two items, the window shows all members.
+* '''Loot dist.''' Give an item to a raid member. The window shows only the members whose class can use the item.
 
 All raid members receive the experience from a kill. Each kill also increases the opinion of your Sim Players about you.
 
