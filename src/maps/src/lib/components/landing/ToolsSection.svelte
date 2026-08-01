@@ -106,9 +106,10 @@
     }
     .featured img {
         width: 100%;
-        height: 100%;
-        min-height: 260px;
-        object-fit: cover;
+        height: auto;
+        aspect-ratio: 2500 / 1968;
+        object-fit: contain;
+        align-self: center;
         display: block;
     }
     .featured .body {
