@@ -1,190 +1,107 @@
 <templatestyles src="Main page/styles.css" />
 
 <div class="mp-masthead">
-<div class="mp-wordmark">The Erenshor Wiki</div>
-<div class="mp-standfirst">[[Erenshor]] is a single-player nod to the MMORPGs of the past. Partner up with our signature "Simulated Players" to experience all of the joys of open-world MMORPG gameplay on your own schedule, without the time commitment.</div>
-<div class="mp-colophon">Early Access &nbsp;·&nbsp; Patch 0.7 <b>Planar March</b> &nbsp;·&nbsp; <b>{{NUMBEROFARTICLES}}</b> articles &nbsp;·&nbsp; <b>{{NUMBEROFPAGES}}</b> pages &nbsp;·&nbsp; Updated {{CURRENTMONTHNAME}} {{CURRENTYEAR}}</div>
+<div class="mp-masthead-text">
+<div class="mp-wordmark">Erenshor</div>
+<div class="mp-standfirst">A single-player nod to the MMORPGs of the past. Partner up with our signature "Simulated Players" for all the joys of open-world MMORPG gameplay, on your own schedule and without the time commitment.</div>
+<div class="mp-colophon">Early Access &nbsp;·&nbsp; Patch 0.7 <b>Planar March</b> &nbsp;·&nbsp; <b>{{NUMBEROFARTICLES}}</b> articles</div>
+<div class="mp-spoiler"><b>Major spoilers inside.</b> This wiki documents everything gathered from within the game, including quest solutions, boss encounters, and endgame content.</div>
+</div>
+<div class="mp-masthead-media">
+<evlplayer id="Erenshor-Announce" defaultid="5oVA7tEMqME" alignment="center"></evlplayer>
+<div class="mp-caption">Early Access announce trailer</div>
+</div>
 </div>
 
-<div class="mp-spoiler"><b>Major spoilers inside.</b> This wiki documents everything gathered from within the game, including quest solutions, boss encounters, and endgame content. Browse at your own risk.</div>
+<div class="mp-section">Latest update</div>
 
-<div class="mp-section">This patch</div>
-
-<div class="mp-patch">
-<div>
-<div class="mp-patch-title">Planar March</div>
-<div class="mp-patch-body">Patch 0.7 added Erenshor's first [[Raids|raids]]: four Ethereal Planes entered through portals in the [[Reliquary Hall]], fought by three parties of five. Getting in takes a long chain through the level 30+ dungeons, and gearing fifteen characters is its own discipline.
-
-Start with the '''[[Raids]]''' hub, then the '''[[Raid Unlocking Walkthrough]]'''. For running one: '''[[Class Roles in the Planar March Raid|Class Roles]]''' and '''[[Distributing Gear in the Planar March Raid|Distributing Gear]]'''.</div>
-</div>
-<dl class="mp-facts">
-<div><dt>Raid size</dt><dd>15</dd></div>
-<div><dt>Raids available</dt><dd>4</dd></div>
-<div><dt>Enemy levels</dt><dd>40–42</dd></div>
-<div><dt>Boss levels</dt><dd>43</dd></div>
-<div><dt>New items, spells & skills</dt><dd>130+</dd></div>
-</dl>
-</div>
-
-<div class="mp-section">The world, by level</div>
-<div class="mp-section-note">Zones are placed by their median enemy level. The full table, with level ranges and maps, is on [[Zones]].</div>
-
-<div class="mp-bands">
-
-<div class="mp-band">
-<div class="mp-band-level">1–9</div>
+<div class="mp-update">
+<div class="mp-update-art">[[File:Raids.png|150px|link=Raids|The four raid runes]]</div>
+<div class="mp-update-body">
+<div class="mp-update-title">Patch 0.7 &mdash; Planar March</div>
+<div class="mp-update-meta">The raids patch &nbsp;·&nbsp; 13 July 2026</div>
 <ul>
-<li>[[Stowaway's Step]]</li>
-<li>[[Island Tomb]]</li>
-<li>[[Willowwatch Ridge]]</li>
-<li>[[Hidden Hills]]</li>
-<li>[[Faerie's Brake]]</li>
-<li>[[The Bonepits]]</li>
-<li>[[Vitheo's Watch]]</li>
+<li>Four raids, each an Ethereal Plane reached from the [[Reliquary Hall]]</li>
+<li>15-person parties: you plus 14 [[Simulated Players]], in three groups of five</li>
+<li>20 new bosses at level 43, with trash at 40&ndash;42</li>
+<li>130+ new items, spells and skills</li>
 </ul>
-<div class="mp-band-guide">Start here: [[Player Guide]]</div>
+<div class="mp-update-links">'''[[Raids]]''' &nbsp;·&nbsp; [[Raid Unlocking Walkthrough]] &nbsp;·&nbsp; [[Class Roles in the Planar March Raid|Class Roles]] &nbsp;·&nbsp; [[Distributing Gear in the Planar March Raid|Distributing Gear]]</div>
+</div>
 </div>
 
-<div class="mp-band">
-<div class="mp-band-level">10–19</div>
-<ul>
-<li>[[Port Azure]]</li>
-<li>[[Old Krakengard]]</li>
-<li>[[Underspine Hollow]]</li>
-<li>[[Fernalla's Revival Plains]]</li>
-<li>[[The Duskenlight Coast]]</li>
-<li>[[Rottenfoot]]</li>
-<li>[[The Elderstone Mines]]</li>
-<li>[[Braxonian Desert]]</li>
-</ul>
-<div class="mp-band-guide">Gear: [[Recommended Gear]]</div>
+<div class="mp-section">Contents</div>
+
+<div class="mp-tiles">
+<div class="mp-tile">[[File:Weapons.png|x84px|link=Weapons]]<div>[[Weapons]]</div></div>
+<div class="mp-tile">[[File:Armor.png|x84px|link=Armor]]<div>[[Armor]]</div></div>
+<div class="mp-tile">[[File:AbilityBooks.png|x84px|link=Ability Books]]<div>[[Ability Books]]</div></div>
+<div class="mp-tile">[[File:Auras.png|x84px|link=Auras]]<div>[[Auras]]</div></div>
+<div class="mp-tile">[[File:Characters.png|x84px|link=:Category:Characters]]<div>[[:Category:Characters|Characters]]</div></div>
+<div class="mp-tile">[[File:Enemies.png|x84px|link=Enemies]]<div>[[Enemies]]</div></div>
+<div class="mp-tile">[[File:Quests.png|x84px|link=Quests]]<div>[[Quests]]</div></div>
+<div class="mp-tile">[[File:Zones icon.png|x84px|link=Zones]]<div>[[Zones]]</div></div>
 </div>
 
-<div class="mp-band">
-<div class="mp-band-level">20–29</div>
-<ul>
-<li>[[Silkengrass Meadowlands]]</li>
-<li>[[Blooming Sepulcher]]</li>
-<li>[[Vitheo's Rest]]</li>
-<li>[[Loomingwood Forest]]</li>
-<li>[[Rockshade Hold]]</li>
-<li>[[The Blight]]</li>
-<li>[[Soluna's Landing]]</li>
-<li>[[Abyssal Lake]]</li>
-</ul>
-<div class="mp-band-guide">Gear: [[Recommended Gear#Pre-Raid Recommended|Pre-raid]]</div>
-</div>
+<div class="mp-section">Guides</div>
+<div class="mp-section-note">Hand-written walkthroughs and reference, ordered roughly by where you are in the game.</div>
 
-<div class="mp-band">
-<div class="mp-band-level">30–35</div>
-<ul>
-<li>[[Ripper's Keep]]</li>
-<li>[[Fallen Braxonia]]</li>
-<li>[[Prielian Cascade]]</li>
-<li>[[Azynthi's Garden]]</li>
-<li>[[Jaws of Sivakaya]]</li>
-<li>[[Secluded Sanctuary]]</li>
-</ul>
-<div class="mp-band-guide">Unlock: [[Raid Unlocking Walkthrough]]</div>
-</div>
-
-<div class="mp-band">
-<div class="mp-band-level">Raids</div>
-<ul>
-<li>[[Plane of the Willow]]</li>
-<li>[[Vitheo's Plane of Valor]]</li>
-<li>[[Soluna's Celestial Plane]]</li>
-<li>[[Brax's Plane of Elements]]</li>
-</ul>
-<div class="mp-band-guide">Overview: [[Raids]]</div>
-</div>
-
-</div>
-
-<div class="mp-section">Look something up</div>
-
-<div class="mp-index">
+<div class="mp-guides">
 
 <div>
-<h3>Your character</h3>
+<h3 class="mp-label">Starting out</h3>
 <ul>
+<li>[[Player Guide]]</li>
 <li>[[Classes]]</li>
 <li>[[Simulated Players]]</li>
-<li>[[Stats]]</li>
-<li>[[Proficiencies]]</li>
-<li>[[Ability Books]]</li>
-<li>[[Ascension Skills]]</li>
-<li>[[Achievements]]</li>
+<li>[[Leveling]]</li>
+<li>[[Stats]] and [[Proficiencies]]</li>
 </ul>
 </div>
 
 <div>
-<h3>Equipment</h3>
+<h3 class="mp-label">Gearing up</h3>
 <ul>
-<li>[[Weapons]]</li>
-<li>[[Armor]]</li>
-<li>[[Charms]]</li>
-<li>[[Auras]]</li>
-<li>[[Item Quality]]</li>
 <li>[[Recommended Gear]]</li>
-</ul>
-</div>
-
-<div>
-<h3>World</h3>
-<ul>
-<li>[[Zones]]</li>
-<li>[[Raids]]</li>
-<li>[[:Category:Characters|Characters]]</li>
-<li>[[Enemies]]</li>
-<li>[[Factions]]</li>
-<li>[[Lore]]</li>
-</ul>
-</div>
-
-<div>
-<h3>Activities</h3>
-<ul>
-<li>[[Quests]]</li>
+<li>[[Item Quality]]</li>
+<li>[[Ascension Skills]]</li>
 <li>[[Crafting]]</li>
-<li>[[Fishing]]</li>
+<li>[[Treasure Hunting]]</li>
+</ul>
+</div>
+
+<div>
+<h3 class="mp-label">Endgame</h3>
+<ul>
+<li>[[Raids]]</li>
+<li>[[Raid Unlocking Walkthrough]]</li>
+<li>[[Class Roles in the Planar March Raid|Class Roles in Raids]]</li>
+<li>[[Distributing Gear in the Planar March Raid|Distributing Raid Gear]]</li>
+</ul>
+</div>
+
+<div>
+<h3 class="mp-label">Systems and events</h3>
+<ul>
+<li>[[Arc Quests]]</li>
+<li>[[Shivering Step Walkthrough]]</li>
 <li>[[Auction House]]</li>
 <li>[[Teleportation]]</li>
-</ul>
-</div>
-
-<div>
-<h3>Mechanics</h3>
-<ul>
-<li>[[Haste]]</li>
-<li>[[Resonance]]</li>
-<li>[[Item Quality]]</li>
+<li>[[Server Admin Panel]]</li>
 </ul>
 </div>
 
 </div>
 
-<div class="mp-section">Interactive map</div>
+<div class="mp-section">Popular pages</div>
 
-<div class="mp-map">
-<div>
-<p>Every zone, with searchable markers for characters, enemies, quest givers, vendors, mining nodes, treasure, and zone lines. Built from the same extracted game data as this wiki, so it stays current with the live build.</p>
-<p><span class="mp-cta">[https://erenshor.compendiums.org/map Open the map]</span></p>
+<div class="mp-popular">
+<div class="mp-popular-links">
+[[Classes]] &nbsp;·&nbsp; [[Simulated Players]] &nbsp;·&nbsp; [[Recommended Gear]] &nbsp;·&nbsp; [[Item Quality]] &nbsp;·&nbsp; [[Zones]] &nbsp;·&nbsp; [[Raids]] &nbsp;·&nbsp; [[Ability Books]] &nbsp;·&nbsp; [[Crafting]] &nbsp;·&nbsp; [[Port Azure]] &nbsp;·&nbsp; [[Factions]] &nbsp;·&nbsp; [[Achievements]] &nbsp;·&nbsp; [[Lore|History of Erenshor]]
 </div>
-<div class="mp-maplinks">
-<h3 style="margin:0 0 0.5rem;font-size:0.75rem;font-weight:700;letter-spacing:0.11em;text-transform:uppercase;">Jump to a zone</h3>
-<div class="mp-index">
-<div><ul>
-<li>[https://erenshor.compendiums.org/map?sel=zone%3AAzure Port Azure]</li>
-<li>[https://erenshor.compendiums.org/map?sel=zone%3AReliquary Reliquary Hall]</li>
-<li>[https://erenshor.compendiums.org/map?sel=zone%3ADuskenlight The Duskenlight Coast]</li>
-</ul></div>
-<div><ul>
-<li>[https://erenshor.compendiums.org/map?sel=zone%3ABraxonian Braxonian Desert]</li>
-<li>[https://erenshor.compendiums.org/map?sel=zone%3ASoluna Soluna's Landing]</li>
-<li>[https://erenshor.compendiums.org/map?sel=zone%3APlaneOfVitheo Vitheo's Plane of Valor]</li>
-</ul></div>
-</div>
+<div class="mp-map-callout">
+<span class="mp-cta">[https://erenshor.compendiums.org/map Open the interactive map]</span>
+<div class="mp-caption">Every zone, with searchable markers for characters, enemies, vendors, mining nodes and treasure. Built from the same extracted game data as this wiki.</div>
 </div>
 </div>
 
@@ -193,38 +110,44 @@ Start with the '''[[Raids]]''' hub, then the '''[[Raid Unlocking Walkthrough]]''
 <div class="mp-foot">
 
 <div>
-<h3 style="margin:0 0 0.4rem;font-size:0.75rem;font-weight:700;letter-spacing:0.11em;text-transform:uppercase;">Contribute</h3>
-<p style="margin:0 0 0.6rem;font-size:0.9375rem;">We maintain [[Special:Statistics|{{NUMBEROFPAGES}} pages]]. Anyone can help.</p>
+<h3 class="mp-label">Contribute</h3>
+<p>We maintain [[Special:Statistics|{{NUMBEROFPAGES}} pages]]. Anyone can help.</p>
 <ol>
 <li>Read the [[Project:Wiki rules|wiki rules]].</li>
 <li>[[Special:Userlogin|Register]] to track your contributions.</li>
 <li>Check [[Special:Recentchanges|recent changes]] and [[Special:Newpages|new pages]].</li>
 <li>Fill in the [[Special:Wantedpages|missing pages]].</li>
-<li>Add sources for items with [[:Category:Unknown Item Source|unknown sources]] — there may be bosses not yet on the wiki.</li>
+<li>Add sources for items with [[:Category:Unknown Item Source|unknown sources]].</li>
 </ol>
-<p style="margin:0.6rem 0 0;font-size:0.9375rem;">Questions? Reach Richard or Brian (Burgee) on the [https://discord.gg/u8AJzEtTRV community Discord].</p>
-<inputbox>
-type=create
-width=26
-placeholder=Create a page
-</inputbox>
+<p>Questions? Reach Richard or Brian (Burgee) on the [https://discord.gg/u8AJzEtTRV community Discord].</p>
 </div>
 
 <div>
-<h3 style="margin:0 0 0.4rem;font-size:0.75rem;font-weight:700;letter-spacing:0.11em;text-transform:uppercase;">Official links</h3>
+<h3 class="mp-label">Start a page</h3>
+<inputbox>
+type=create
+width=24
+placeholder=Page title
+buttonlabel=Create
+</inputbox>
+<h3 class="mp-label mp-label-spaced">Official links</h3>
 <ul>
 <li>[https://store.steampowered.com/app/2382520/Erenshor/ Erenshor on Steam]</li>
 <li>[https://discord.gg/DxqZc5Dc9q Discord]</li>
 <li>[https://www.patreon.com/BurgeeMedia Patreon]</li>
 <li>[https://trello.com/b/XPo0OThp/erenshor-roadmap Development roadmap]</li>
-<li>[[:File:EA FEATURES.png|Early Access features]]</li>
+</ul>
+</div>
+
+<div>
+<h3 class="mp-label">More from Burgee Media</h3>
+<ul>
 <li>[https://www.youtube.com/channel/UCdcbStkw_tk9rASRXoS9K-Q YouTube]</li>
 <li>[https://twitter.com/BurgeeGames X / Twitter]</li>
 <li>[https://www.facebook.com/Erenshor/ Facebook]</li>
 <li>[https://burgeemedia.net/ Burgee Media]</li>
 <li>[https://impress.games/press-kit/burgee-media/erenshor Press kit]</li>
 <li>[https://erenshor.com/gallery/ESPPG.pdf Player's Guide (PDF)]</li>
-<li>[https://www.youtube.com/watch?v=5oVA7tEMqME Early Access announce trailer]</li>
 </ul>
 </div>
 

@@ -1,19 +1,31 @@
-/* Main page — almanac layout.
+/* Main page.
    Deploy to [[Template:Main page/styles.css]] (content model: sanitized-css).
+
+   Structure follows a survey of thirteen comparable game wikis: a current
+   update block first (all thirteen carry one), a small illustrated tile index
+   (eleven of thirteen use icon navigation), then guides, then community.
+   Kept deliberately lean: OSRS and RuneScape converge on roughly the same
+   compact layout at ten and thirty times this wiki's article count.
+
    Colours come from the skin's Codex tokens so the page holds in both the
    night and day themes; literal fallbacks match the night theme. */
 
+/* ---- Masthead ---- */
+
 .mp-masthead {
+	display: grid;
+	grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+	gap: 1.5rem 2.5rem;
+	align-items: start;
 	margin: 0 0 1.75rem;
-	padding-bottom: 1rem;
+	padding-bottom: 1.25rem;
 	border-bottom: 3px double var(--border-color-base, #866806);
 }
 
 .mp-wordmark {
 	margin: 0;
 	font-family: "Linux Libertine", Georgia, Times, serif;
-	font-size: clamp(2.5rem, 6vw, 3.75rem);
-	font-weight: 400;
+	font-size: clamp(2.25rem, 5vw, 3.25rem);
 	line-height: 1;
 	letter-spacing: 0.02em;
 	color: var(--color-base, #ededed);
@@ -27,9 +39,8 @@
 }
 
 .mp-colophon {
-	margin-top: 1rem;
+	margin-top: 0.9rem;
 	font-size: 0.8125rem;
-	line-height: 1.7;
 	letter-spacing: 0.06em;
 	text-transform: uppercase;
 	font-variant-numeric: tabular-nums;
@@ -42,7 +53,7 @@
 }
 
 .mp-spoiler {
-	margin: 0 0 2.5rem;
+	margin: 1rem 0 0;
 	padding: 0.5rem 0;
 	border-top: 1px solid var(--border-color-base, #866806);
 	border-bottom: 1px solid var(--border-color-base, #866806);
@@ -55,14 +66,29 @@
 	color: var(--color-destructive, #ff6666);
 }
 
-/* Section heading: rule above, tight below. */
+.mp-masthead-media .embedvideo-evlbox,
+.mp-masthead-media .embedvideo {
+	width: 100%;
+	max-width: 100%;
+	aspect-ratio: 16 / 9;
+	border: 1px solid var(--border-color-base, #866806);
+}
+
+.mp-caption {
+	margin-top: 0.4rem;
+	font-size: 0.8125rem;
+	line-height: 1.5;
+	color: var(--color-subtle, #b9ab90);
+}
+
+/* ---- Section headings: rule above, tight below ---- */
+
 .mp-section {
-	margin: 2.75rem 0 0;
+	margin: 2.5rem 0 0;
 	padding-top: 0.5rem;
 	border-top: 1px solid var(--border-color-base, #866806);
 	font-family: "Linux Libertine", Georgia, Times, serif;
 	font-size: 1.5rem;
-	font-weight: 400;
 	line-height: 1.2;
 	color: var(--color-base, #ededed);
 }
@@ -74,106 +100,8 @@
 	color: var(--color-subtle, #b9ab90);
 }
 
-/* Patch entry — the one place the page raises its voice. */
-.mp-patch {
-	display: grid;
-	grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-	gap: 1.5rem 2.5rem;
-	align-items: start;
-}
-
-.mp-patch-title {
-	margin: 0 0 0.4rem;
-	font-family: "Linux Libertine", Georgia, Times, serif;
-	font-size: 1.75rem;
-	line-height: 1.15;
-	color: var(--color-base, #ededed);
-}
-
-.mp-patch-body {
-	margin: 0;
-	max-width: 60ch;
-	line-height: 1.6;
-}
-
-.mp-facts {
-	margin: 0;
-	font-variant-numeric: tabular-nums;
-	font-size: 0.9375rem;
-}
-
-.mp-facts div {
-	display: flex;
-	justify-content: space-between;
-	gap: 1rem;
-	padding: 0.3rem 0;
-	border-bottom: 1px solid var(--border-color-subtle, #3a3125);
-}
-
-.mp-facts dt {
-	color: var(--color-subtle, #b9ab90);
-}
-
-.mp-facts dd {
-	margin: 0;
-	font-weight: 600;
-	text-align: right;
-}
-
-/* Gazetteer — the world indexed by level band. */
-.mp-bands {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
-	gap: 1.75rem 1.5rem;
-}
-
-.mp-band {
-	display: flex;
-	flex-direction: column;
-}
-
-.mp-band-level {
+.mp-label {
 	margin: 0 0 0.5rem;
-	padding-bottom: 0.35rem;
-	border-bottom: 1px solid var(--border-color-base, #866806);
-	font-variant-numeric: tabular-nums;
-	font-size: 1.125rem;
-	font-weight: 600;
-	letter-spacing: 0.02em;
-	 color: var(--color-base, #ededed);
-	transition: border-color 160ms ease-out;
-}
-
-.mp-band:hover .mp-band-level {
-	border-bottom-color: var(--color-progressive, #f8ca2e);
-}
-
-.mp-band ul {
-	margin: 0 0 0.6rem;
-	padding: 0;
-	list-style: none;
-	font-size: 0.9375rem;
-	line-height: 1.75;
-}
-
-.mp-band-guide {
-	display: block;
-	margin-top: auto;
-	padding-top: 0.5rem;
-	border-top: 1px dotted var(--border-color-subtle, #3a3125);
-	font-size: 0.875rem;
-	color: var(--color-subtle, #b9ab90);
-}
-
-/* Reference index — replaces the icon grid. */
-.mp-index {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
-	gap: 1.5rem;
-}
-
-.mp-index h3 {
-	margin: 0 0 0.4rem;
 	font-family: inherit;
 	font-size: 0.75rem;
 	font-weight: 700;
@@ -182,25 +110,115 @@
 	color: var(--color-subtle, #b9ab90);
 }
 
-.mp-index ul {
+.mp-label-spaced {
+	margin-top: 1.5rem;
+}
+
+/* ---- Latest update ---- */
+
+.mp-update {
+	display: flex;
+	gap: 1.5rem;
+	align-items: flex-start;
+	margin-top: 1rem;
+}
+
+.mp-update-art {
+	flex: 0 0 auto;
+}
+
+.mp-update-body {
+	min-width: 0;
+}
+
+.mp-update-title {
+	font-family: "Linux Libertine", Georgia, Times, serif;
+	font-size: 1.6rem;
+	line-height: 1.15;
+	color: var(--color-base, #ededed);
+}
+
+.mp-update-meta {
+	margin: 0.15rem 0 0.7rem;
+	font-size: 0.8125rem;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--color-subtle, #b9ab90);
+}
+
+.mp-update ul {
+	margin: 0 0 0.8rem 1.1rem;
+	padding: 0;
+	line-height: 1.7;
+}
+
+.mp-update-links {
+	padding-top: 0.6rem;
+	border-top: 1px dotted var(--border-color-subtle, #3a3125);
+	font-size: 0.9375rem;
+}
+
+/* ---- Tile index ---- */
+
+.mp-tiles {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(8rem, 100%), 1fr));
+	gap: 1.25rem 1rem;
+	margin-top: 1.25rem;
+}
+
+.mp-tile {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	font-size: 0.9375rem;
+}
+
+.mp-tile img {
+	max-width: 100%;
+	height: auto;
+}
+
+.mp-tile > p {
+	margin: 0;
+	min-height: 84px;
+	display: flex;
+	align-items: flex-end;
+}
+
+.mp-tile > div {
+	margin-top: 0.5rem;
+}
+
+/* ---- Guides ---- */
+
+.mp-guides {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
+	gap: 1.5rem 1.25rem;
+}
+
+.mp-guides ul {
 	margin: 0;
 	padding: 0;
 	list-style: none;
 	line-height: 1.85;
+	font-size: 0.9375rem;
 }
 
-/* Map — flagship companion surface. */
-.mp-map {
+/* ---- Popular pages and map ---- */
+
+.mp-popular {
 	display: grid;
-	grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
-	gap: 1.5rem 2.5rem;
+	grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+	gap: 1.25rem 2.5rem;
 	align-items: start;
+	margin-top: 1rem;
 }
 
-.mp-map p {
-	margin: 0 0 0.75rem;
-	max-width: 56ch;
-	line-height: 1.6;
+.mp-popular-links {
+	line-height: 2;
 }
 
 .mp-cta a {
@@ -213,14 +231,9 @@
 	transition: background-color 160ms ease-out;
 }
 
-.mp-cta a.external,
-.mp-maplinks a.external {
+.mp-cta a.external {
 	background: none;
 	padding-right: 1.1rem;
-}
-
-.mp-maplinks a.external {
-	padding-right: 0;
 }
 
 .mp-cta a:hover,
@@ -230,11 +243,19 @@
 	text-decoration: none;
 }
 
-/* Colophon foot — contribute and official links. */
+/* ---- Foot ---- */
+
 .mp-foot {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(min(14rem, 100%), 1fr));
 	gap: 2rem;
+	margin-top: 1rem;
+}
+
+.mp-foot p {
+	margin: 0 0 0.6rem;
+	font-size: 0.9375rem;
+	line-height: 1.6;
 }
 
 .mp-foot ul {
@@ -252,15 +273,31 @@
 	font-size: 0.9375rem;
 }
 
-@media (max-width: 720px) {
-	.mp-patch,
-	.mp-map {
+/* InputBox ships a fixed-width Codex field that will not shrink with its
+   column. Let the whole input group follow the grid track instead. */
+.mp-foot .mw-inputbox-centered,
+.mp-foot .cdx-text-input,
+.mp-foot .mw-inputbox-input {
+	width: 100%;
+	min-width: 0;
+	max-width: 100%;
+	box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+	.mp-masthead,
+	.mp-popular {
 		grid-template-columns: minmax(0, 1fr);
 	}
 }
 
+@media (max-width: 600px) {
+	.mp-update {
+		flex-direction: column;
+	}
+}
+
 @media (prefers-reduced-motion: reduce) {
-	.mp-band-level,
 	.mp-cta a {
 		transition: none;
 	}
