@@ -3,7 +3,7 @@
 <div class="mp-masthead">
 <div class="mp-masthead-text">
 <div class="mp-wordmark">Official Erenshor Wiki</div>
-<div class="mp-standfirst">Erenshor is a single-player RPG with the soul of a classic MMO. Partner with Erenshor's SimPlayers and explore an open world where every reward has a story. Find thousands of items, quests, raids, and secrets at your own pace.</div>
+<div class="mp-standfirst">[https://store.steampowered.com/app/2382520/Erenshor/ Erenshor] is a single-player RPG with the soul of a classic MMO. Partner with Erenshor's [[Simulated Players|SimPlayers]] and explore an open world where every reward has a story. Find thousands of items, quests, raids, and secrets at your own pace.</div>
 <div class="mp-colophon">Early Access &nbsp;·&nbsp; Patch 0.7 <b>Planar March</b> &nbsp;·&nbsp; <b>{{NUMBEROFARTICLES}}</b> articles</div>
 <div class="mp-spoiler"><b>Major spoilers.</b> This wiki gives quest solutions, boss tactics, and endgame content.</div>
 </div>
