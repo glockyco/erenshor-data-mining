@@ -3,7 +3,6 @@
 ** recentchanges-url|recentchanges
 ** randompage-url|randompage
 ** helppage|help-mediawiki
-** Player Guide|About Game
 
 * Getting Started
 ** Player Guide|Player Guide
