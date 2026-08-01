@@ -1,0 +1,54 @@
+* navigation
+** mainpage|mainpage-description
+** recentchanges-url|recentchanges
+** randompage-url|randompage
+** helppage|help-mediawiki
+
+* Getting Started
+** Player Guide|Player Guide
+** Classes|Classes
+** Simulated Players|Simulated Players
+** Leveling|Leveling
+
+* Character
+** Stats|Stats
+** Proficiencies|Proficiencies
+** Ability Books|Ability Books
+** Ascension Skills|Ascension Skills
+** Achievements|Achievements
+
+* Equipment
+** Weapons|Weapons
+** Armor|Armor
+** Charms|Charms
+** Auras|Auras
+** Item Quality|Item Quality
+** Recommended Gear|Recommended Gear
+
+* World
+** Zones|Zones
+** Raids|Raids
+** :Category:Characters|Characters
+** Enemies|Enemies
+** Factions|Factions
+** Lore|Lore
+
+* Activities
+** Quests|Quests
+** Crafting|Crafting
+** Fishing|Fishing
+** Treasure Hunting|Treasure Hunting
+** Auction House|Auction House
+** Teleportation|Teleportation
+
+* Guides
+** :Category:Guides|All guides
+** Raid Unlocking Walkthrough|Unlocking raids
+** Class Roles in the Planar March Raid|Class roles in raids
+** Distributing Gear in the Planar March Raid|Distributing raid gear
+** Arc Quests|Arc quests
+** Shivering Step Walkthrough|Shivering Step
+
+* SEARCH
+* TOOLBOX
+* LANGUAGES
