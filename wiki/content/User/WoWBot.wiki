@@ -1,30 +1,19 @@
-'''WoWBot''' is the account that publishes wiki pages generated from Erenshor's game data. It is operated by [[User:WoWMuch|WoWMuch]].
+'''WoWBot''' is a bot account that automatically publishes and updates wiki pages generated from Erenshor's game data. It is operated by [[User:WoWMuch|WoWMuch]].
 
 Game files are read after each Steam update, exported to a database, and rendered into wikitext. WoWBot then uploads only the pages whose content changed. It does not make editorial decisions and it does not write prose.
 
-To reach the operator, or to report a page the bot is getting wrong, use the <code>#wiki-chat</code> channel on the [https://discord.gg/DxqZc5Dc9q Erenshor Discord].
+To reach WoWMuch, or to report a page the bot is getting wrong, use the <code>#wiki-chat</code> channel on the [https://discord.gg/DxqZc5Dc9q Erenshor Discord].
 
 == What the bot maintains ==
 
-{| class="wikitable"
-! Pages !! Source
-|-
-| Item pages, including weapons, armor, charms, auras, consumables, molds, skill books, and spell scrolls || Item records exported from the game
-|-
-| Character pages, including enemies, bosses, NPCs, and vendors || Character records and spawn points
-|-
-| Ability pages, spells, skills, and stances || Ability records
-|-
-| Zone pages || Zone records, spawn points, and zone lines
-|-
-| The [[Armor]] and [[Weapons]] overview tables || Item records
-|-
-| Vendor inventory tables || Vendor stock as it exists in the game files
-|-
-| Item and ability icons in the <code>File:</code> namespace || Game textures
-|-
-| <code>Module:Erenshor/*</code> and the repository's templates || Source files in the project repository
-|}
+* Item pages, including weapons, armor, charms, auras, consumables, molds, skill books, and spell scrolls
+* Character pages, including enemies, bosses, NPCs, and vendors
+* Ability pages, spells, skills, and stances
+* Zone pages
+* The [[Armor]] and [[Weapons]] overview tables
+* Vendor inventory tables
+* Item and ability icons in the <code>File:</code> namespace
+* <code>Module:Erenshor/*</code> and the repository's templates
 
 == What the bot does not touch ==
 
