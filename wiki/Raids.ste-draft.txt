@@ -1,0 +1,95 @@
+{{spoiler}}
+{{tocright}}
+
+The Planar March update (patch 0.7) added '''raids''' to [[Erenshor]]. A raid is the largest group activity in the game. A usual party has five members. A raid has three parties of five members. This makes 15 members in total: the player and 14 [[Simulated Players]] from the player's [[Guild]].
+
+The game has four raids. Each raid is an Ethereal Plane. A portal in the [[Reliquary Hall]] gives access to each plane. To open a portal, put the correct rune into one of the four outer slots in the Reliquary. Raid enemies are level 40 to 42, and raid bosses are level 43.
+
+Because the enemies have these levels, all raid members must have the maximum level. They must also have the best gear that is available before the raids. For gear advice, refer to [[Recommended Gear]].
+
+==The Raids==
+
+{| class="wikitable sortable"
+! Raid !! Rune !! Last Boss !! Map
+|-
+| [[Plane of the Willow]] || {{ItemLink|Rune of The Willow}} || [[Fernalla, Goddess of Nature]] || {{MapLink|zone=PlaneOfFernalla}}
+|-
+| [[Vitheo's Plane of Valor]] || {{ItemLink|Rune of Honor}} || [[Vitheo the Tactician]] || {{MapLink|zone=PlaneOfVitheo}}
+|-
+| [[Soluna's Celestial Plane]] || {{ItemLink|Rune of the Celestial}} || [[Soluna]] || {{MapLink|zone=PlaneOfSoluna}}
+|-
+| [[Brax's Plane of Elements]] || {{ItemLink|Rune of Elements}} || [[Brax, God of Elements]] || {{MapLink|zone=PlaneOfBrax}}
+|-
+| [[Sivakaya's Plane of Destruction]] || {{ItemLink|Celestine Portal}} || <span style="color: red;">''Not available''</span> || —
+|}
+
+The zone page for each raid gives the full list of its enemies and its bosses.
+
+[[Vitheo's Plane of Valor]] is different from the other three raids. Most of this raid is an arena with eight rounds. For each round, the loot comes from a [[Vithean Chest|Vithean Chest]] and not from the boss.
+
+==Unlock the Raids==
+
+The four raids have a long unlock procedure. The procedure goes through most of the dungeons for levels 30 and higher. These are the primary steps:
+
+# Get the four Inert Runes. One rune comes from each god. Defeat [[Apparition of Vitheo]], [[Fallen Fernalla]], and [[Braxon Elden]]. Then speak to the [[Freed Spirit of Raval]].
+# Do the [[Stowaway's Step]] ritual. The ritual opens [[Secluded Sanctuary]].
+# In [[Secluded Sanctuary]], get four {{ItemLink|Eldrich Crystal|text=Eldrich Crystals}}.
+# Give one Inert Rune and one {{ItemLink|Eldrich Crystal}} to the related planar energy. This makes one raid rune. Do this four times.
+# Put the four raid runes into the rune slots in the [[Reliquary Hall]]. The four portals then become available.
+
+For the full procedure with all the necessary dungeons and bosses, refer to '''[[Raid Unlocking Walkthrough]]'''.
+
+==Start a Raid==
+
+To start a raid, push the '''Call Raid''' button in the [[Guild]] window. Three conditions apply.
+
+* '''You must be in the [[Reliquary Hall]].''' In other zones, the game shows this message: "Raids must be formed in a Reliquary." A game option removes this condition.
+* '''You must not be in a group.''' First, dismiss all group members. If you do not, the game shows this message: "Dismiss your group before forming a raid."
+* '''Members of Erenshor's Young cannot start a raid.''' The game shows this message: "Erenshor's Young cannot participate in raids."
+
+When you start a raid, the game calls your guild to the hall. The game also puts your A-Team [[Simulated Players]] into the raid slots. To add more Sim Players, select a Sim Player and add it to an empty slot.
+
+Only the [[Reliquary Hall]] and the four planes permit a raid. If you go to a different zone, the raid stops. The game then shows this message: "A strange force pulls your companions in different directions... (This is not a raidable zone)."
+
+During a raid, enemies below level 40 give no experience. Thus you cannot use a raid to get experience from usual content.
+
+==The Raid Window==
+
+The raid window replaces the group window. The window controls all 15 slots. These controls are the most important tools for the raid leader:
+
+* '''Group task.''' Set a task for each of the three groups. A group can help the first group, the second group, or the third group. A group can also attack its own target or attack all adds.
+* '''Main Tank and Main Assist.''' Select one member for each role in each group. This member controls the target for the other members. Healers also give priority to this member.
+* '''Puller, CC, and Heals flags.''' These flags show which Sim Players pull, which Sim Players use crowd control, and which Sim Players heal. An example of crowd control is {{AbilityLink|Coma}}.
+* '''Heal assignments.''' For each healer, set a health value for each other member. The healer starts to heal that member at this value.
+* '''DPS throttle.''' Decrease the damage of one group or of the full raid. Use this control to hold aggro and to set the speed of a fight.
+* '''Loot Dist.''' Give loot to the raid members. This includes {{ItemLink|Sivakrux|text=Sivakruxes}} and {{ItemLink|Planar Stone|text=Planar Stones}}.
+
+All raid members receive the experience from a kill. Each kill also increases the opinion of your Sim Players about you.
+
+==Prepare for a Raid==
+
+Two other pages give more data about raid preparation:
+
+* '''[[Class Roles in the Planar March Raid]]''' shows what each class and each build gives to the raid. It also shows which debuffs are cumulative, and how many tanks, healers, and damage dealers to use.
+* '''[[Distributing Gear in the Planar March Raid]]''' shows the priority of the stats and the correct weapon for each build. It also shows which auras to use, and which gear to upgrade first.
+
+This is a short summary:
+
+* Tanks need Agility and AC.
+* All members need a minimum of 140% in their lowest resistance.
+* Damage dealers need the maximum [[Haste]].
+* Use {{ItemLink|Sivakrux|text=Sivakruxes}} to make gear [[Item Quality|Blessed]].
+* Use {{ItemLink|Planar Stone|text=Planar Stones}} to make gear [[Item Quality|Ascended]].
+
+Sivakruxes and Planar Stones drop in all four raids.
+
+==See Also==
+
+* [[Raid Unlocking Walkthrough]]
+* [[Class Roles in the Planar March Raid]]
+* [[Distributing Gear in the Planar March Raid]]
+* [[Reliquary Hall]]
+* [[Zones]]
+* [[Item Quality]]
+
+[[Category:Zones]]
