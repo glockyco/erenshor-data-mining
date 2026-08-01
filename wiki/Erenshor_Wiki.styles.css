@@ -191,18 +191,18 @@
 }
 
 .mp-tile:hover > div,
-.mp-tile:focus-within > div {
+.mp-tile > a:focus + div {
 	color: var(--color-progressive, #f8ca2e);
 	text-decoration: underline;
 }
 
-.mp-tile:focus-within {
-	outline: 2px solid var(--color-progressive, #f8ca2e);
-	outline-offset: 4px;
+.mp-tile > a:focus {
+	outline: none;
 }
 
-.mp-tile > a:focus-visible {
-	outline: none;
+.mp-tile > a:focus::after {
+	outline: 2px solid var(--color-progressive, #f8ca2e);
+	outline-offset: 4px;
 }
 
 .mp-tile img {
@@ -369,7 +369,7 @@
 	box-shadow: none;
 }
 
-.mp-createbox .cdx-text-input__input:focus-visible {
+.mp-createbox .cdx-text-input__input:focus {
 	border-color: var(--color-progressive, #f8ca2e);
 	outline: 2px solid var(--color-progressive, #f8ca2e);
 	outline-offset: 2px;
