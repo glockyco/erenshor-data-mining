@@ -3,9 +3,9 @@
 <div class="mp-masthead">
 <div class="mp-masthead-text">
 <div class="mp-wordmark">Erenshor</div>
-<div class="mp-standfirst">A single-player nod to the MMORPGs of the past. Partner up with our signature "Simulated Players" for all the joys of open-world MMORPG gameplay, on your own schedule and without the time commitment.</div>
+<div class="mp-standfirst">Erenshor is a single-player RPG with the soul of a classic MMO. Partner with Erenshor's SimPlayers and explore an open world where every reward has a story. Find thousands of items, quests, raids, and secrets at your own pace.</div>
 <div class="mp-colophon">Early Access &nbsp;·&nbsp; Patch 0.7 <b>Planar March</b> &nbsp;·&nbsp; <b>{{NUMBEROFARTICLES}}</b> articles</div>
-<div class="mp-spoiler"><b>Major spoilers inside.</b> This wiki documents everything gathered from within the game, including quest solutions, boss encounters, and endgame content.</div>
+<div class="mp-spoiler"><b>Major spoilers.</b> This wiki gives quest solutions, boss tactics, and endgame content.</div>
 </div>
 <div class="mp-masthead-media">
 <evlplayer id="Erenshor-Announce" defaultid="5oVA7tEMqME" alignment="center"></evlplayer>
@@ -16,18 +16,18 @@
 <div class="mp-section">Latest update</div>
 
 <div class="mp-update">
-<div class="mp-update-art">[[File:Raids.png|150px|link=Raids|The four raid runes]]</div>
 <div class="mp-update-body">
 <div class="mp-update-title">Patch 0.7 &mdash; Planar March</div>
 <div class="mp-update-meta">The raids patch &nbsp;·&nbsp; 13 July 2026</div>
 <ul>
-<li>Four raids, each an Ethereal Plane reached from the [[Reliquary Hall]]</li>
-<li>15-person parties: you plus 14 [[Simulated Players]], in three groups of five</li>
-<li>20 new bosses at level 43, with trash at 40&ndash;42</li>
-<li>130+ new items, spells and skills</li>
+<li>Four raids. Each one is an Ethereal Plane. A portal in the [[Reliquary Hall]] gives access.</li>
+<li>A raid has 15 members: you and 14 [[Simulated Players]] in three groups of five.</li>
+<li>20 new bosses at level 43. The other enemies are level 40 to 42.</li>
+<li>More than 130 new items, spells, and skills.</li>
 </ul>
-<div class="mp-update-links">'''[[Raids]]''' &nbsp;·&nbsp; [[Raid Unlocking Walkthrough]] &nbsp;·&nbsp; [[Class Roles in the Planar March Raid|Class Roles]] &nbsp;·&nbsp; [[Distributing Gear in the Planar March Raid|Distributing Gear]]</div>
+<div class="mp-update-links">'''[[Raids]]''' &nbsp;·&nbsp; [[Raid Unlocking Walkthrough]] &nbsp;·&nbsp; [[Class Roles in the Planar March Raid|Class Roles]] &nbsp;·&nbsp; [[Distributing Gear in the Planar March Raid|Distributing Gear]]<br />[https://store.steampowered.com/news/app/2382520/view/670622499729311277 Official announcement on Steam] &nbsp;·&nbsp; [https://store.steampowered.com/news/app/2382520 All patch notes]</div>
 </div>
+<div class="mp-update-art">[[File:Planar March.png|340px|link=Raids|Planar March key art]]</div>
 </div>
 
 <div class="mp-section">Contents</div>
@@ -37,19 +37,19 @@
 <div class="mp-tile">[[File:Armor.png|x84px|link=Armor]]<div>[[Armor]]</div></div>
 <div class="mp-tile">[[File:AbilityBooks.png|x84px|link=Ability Books]]<div>[[Ability Books]]</div></div>
 <div class="mp-tile">[[File:Auras.png|x84px|link=Auras]]<div>[[Auras]]</div></div>
-<div class="mp-tile">[[File:Characters.png|x84px|link=:Category:Characters]]<div>[[:Category:Characters|Characters]]</div></div>
+<div class="mp-tile">[[File:Crafting.png|x84px|link=Crafting]]<div>[[Crafting]]</div></div>
 <div class="mp-tile">[[File:Enemies.png|x84px|link=Enemies]]<div>[[Enemies]]</div></div>
 <div class="mp-tile">[[File:Quests.png|x84px|link=Quests]]<div>[[Quests]]</div></div>
 <div class="mp-tile">[[File:Zones icon.png|x84px|link=Zones]]<div>[[Zones]]</div></div>
 </div>
 
 <div class="mp-section">Guides</div>
-<div class="mp-section-note">Hand-written walkthroughs and reference, ordered roughly by where you are in the game.</div>
+<div class="mp-section-note">These guides are in the order that you usually need them.</div>
 
 <div class="mp-guides">
 
 <div>
-<h3 class="mp-label">Starting out</h3>
+<h3 class="mp-label">Start here</h3>
 <ul>
 <li>[[Player Guide]]</li>
 <li>[[Classes]]</li>
@@ -60,13 +60,13 @@
 </div>
 
 <div>
-<h3 class="mp-label">Gearing up</h3>
+<h3 class="mp-label">Get better gear</h3>
 <ul>
 <li>[[Recommended Gear]]</li>
 <li>[[Item Quality]]</li>
 <li>[[Ascension Skills]]</li>
-<li>[[Crafting]]</li>
 <li>[[Treasure Hunting]]</li>
+<li>[[Watcher's Lens]]</li>
 </ul>
 </div>
 
@@ -75,18 +75,18 @@
 <ul>
 <li>[[Raids]]</li>
 <li>[[Raid Unlocking Walkthrough]]</li>
-<li>[[Class Roles in the Planar March Raid|Class Roles in Raids]]</li>
-<li>[[Distributing Gear in the Planar March Raid|Distributing Raid Gear]]</li>
+<li>[[Class Roles in the Planar March Raid|Class roles in raids]]</li>
+<li>[[Distributing Gear in the Planar March Raid|Raid gear]]</li>
 </ul>
 </div>
 
 <div>
-<h3 class="mp-label">Systems and events</h3>
+<h3 class="mp-label">Other activities</h3>
 <ul>
-<li>[[Arc Quests]]</li>
-<li>[[Shivering Step Walkthrough]]</li>
+<li>[[Fishing]]</li>
 <li>[[Auction House]]</li>
-<li>[[Teleportation]]</li>
+<li>[[The Mystery of Bellwain Island]]</li>
+<li>[[Shivering Step Walkthrough]]</li>
 <li>[[Server Admin Panel]]</li>
 </ul>
 </div>
@@ -97,11 +97,11 @@
 
 <div class="mp-popular">
 <div class="mp-popular-links">
-[[Classes]] &nbsp;·&nbsp; [[Simulated Players]] &nbsp;·&nbsp; [[Recommended Gear]] &nbsp;·&nbsp; [[Item Quality]] &nbsp;·&nbsp; [[Zones]] &nbsp;·&nbsp; [[Raids]] &nbsp;·&nbsp; [[Ability Books]] &nbsp;·&nbsp; [[Crafting]] &nbsp;·&nbsp; [[Port Azure]] &nbsp;·&nbsp; [[Factions]] &nbsp;·&nbsp; [[Achievements]] &nbsp;·&nbsp; [[Lore|History of Erenshor]]
+[[Classes]] &nbsp;·&nbsp; [[Simulated Players]] &nbsp;·&nbsp; [[Recommended Gear]] &nbsp;·&nbsp; [[Item Quality]] &nbsp;·&nbsp; [[Zones]] &nbsp;·&nbsp; [[Raids]] &nbsp;·&nbsp; [[Ability Books]] &nbsp;·&nbsp; [[Fishing]] &nbsp;·&nbsp; [[Port Azure]] &nbsp;·&nbsp; [[Factions]] &nbsp;·&nbsp; [[Achievements]] &nbsp;·&nbsp; [[Lore|History of Erenshor]]
 </div>
 <div class="mp-map-callout">
 <span class="mp-cta">[https://erenshor.compendiums.org/map Open the interactive map]</span>
-<div class="mp-caption">Every zone, with searchable markers for characters, enemies, vendors, mining nodes and treasure. Built from the same extracted game data as this wiki.</div>
+<div class="mp-caption">The map shows all zones. You can search for characters, enemies, vendors, mining nodes, and treasure. It uses the same game data as this wiki.</div>
 </div>
 </div>
 
@@ -115,38 +115,36 @@
 <ol>
 <li>Read the [[Project:Wiki rules|wiki rules]].</li>
 <li>[[Special:Userlogin|Register]] to track your contributions.</li>
-<li>Check [[Special:Recentchanges|recent changes]] and [[Special:Newpages|new pages]].</li>
-<li>Fill in the [[Special:Wantedpages|missing pages]].</li>
-<li>Add sources for items with [[:Category:Unknown Item Source|unknown sources]].</li>
+<li>Look at [[Special:Recentchanges|recent changes]] and [[Special:Newpages|new pages]].</li>
+<li>Create a page from the [[Special:Wantedpages|list of needed pages]].</li>
+<li>Add sources to items with [[:Category:Unknown Item Source|unknown sources]].</li>
 </ol>
-<p>Questions? Reach Richard or Brian (Burgee) on the [https://discord.gg/u8AJzEtTRV community Discord].</p>
-</div>
-
-<div>
-<h3 class="mp-label">Start a page</h3>
+<p>For questions, speak to Richard or Brian (Burgee) on the [https://discord.gg/u8AJzEtTRV community Discord].</p>
+<h3 class="mp-label mp-label-spaced">Start a page</h3>
+<div class="mp-createbox">
 <inputbox>
 type=create
-width=24
+width=22
 placeholder=Page title
 buttonlabel=Create
 </inputbox>
-<h3 class="mp-label mp-label-spaced">Official links</h3>
-<ul>
-<li>[https://store.steampowered.com/app/2382520/Erenshor/ Erenshor on Steam]</li>
-<li>[https://discord.gg/DxqZc5Dc9q Discord]</li>
-<li>[https://www.patreon.com/BurgeeMedia Patreon]</li>
-<li>[https://trello.com/b/XPo0OThp/erenshor-roadmap Development roadmap]</li>
-</ul>
+</div>
 </div>
 
 <div>
-<h3 class="mp-label">More from Burgee Media</h3>
-<ul>
-<li>[https://www.youtube.com/channel/UCdcbStkw_tk9rASRXoS9K-Q YouTube]</li>
-<li>[https://twitter.com/BurgeeGames X / Twitter]</li>
+<h3 class="mp-label">Official links</h3>
+<ul class="mp-linklist">
+<li>[https://store.steampowered.com/app/2382520/Erenshor/ Erenshor on Steam]</li>
+<li>[https://store.steampowered.com/news/app/2382520 Patch notes and news]</li>
+<li>[https://store.steampowered.com/app/2522260/Erenshor_Demo/ Erenshor Demo]</li>
+<li>[https://erenshor.com/ Erenshor website]</li>
+<li>[https://discord.gg/DxqZc5Dc9q Discord]</li>
+<li>[https://trello.com/b/XPo0OThp/erenshor-roadmap Development roadmap]</li>
+<li>[https://www.patreon.com/BurgeeMedia Patreon]</li>
+<li>[https://www.youtube.com/@BurgeeMedia YouTube]</li>
+<li>[https://x.com/BurgeeGames X / Twitter]</li>
+<li>[https://www.instagram.com/burgee_media/ Instagram]</li>
 <li>[https://www.facebook.com/Erenshor/ Facebook]</li>
-<li>[https://burgeemedia.net/ Burgee Media]</li>
-<li>[https://impress.games/press-kit/burgee-media/erenshor Press kit]</li>
 <li>[https://erenshor.com/gallery/ESPPG.pdf Player's Guide (PDF)]</li>
 </ul>
 </div>
