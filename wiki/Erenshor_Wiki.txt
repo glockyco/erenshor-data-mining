@@ -9,25 +9,25 @@
 </div>
 <div class="mp-masthead-media">
 <evlplayer id="Erenshor-Announce" defaultid="5oVA7tEMqME" alignment="center"></evlplayer>
-<div class="mp-caption">Early Access announce trailer</div>
+<div class="mp-caption">Early Access Announce Trailer</div>
 </div>
 </div>
 
-<div class="mp-section">Latest update</div>
+<div class="mp-section">Latest Update</div>
 
 <div class="mp-update">
 <div class="mp-update-body">
 <div class="mp-update-title">Patch 0.7 &mdash; Planar March</div>
 <div class="mp-update-meta">The raids patch &nbsp;·&nbsp; 13 July 2026</div>
 <ul>
-<li>Four raids. Each one is an Ethereal Plane. A portal in the [[Reliquary Hall]] gives access.</li>
-<li>A raid has 15 members: you and 14 [[Simulated Players]] in three groups of five.</li>
-<li>20 new bosses at level 43. The other enemies are level 40 to 42.</li>
-<li>More than 130 new items, spells, and skills.</li>
+<li>15-person raids: you and 14 [[Simulated Players]] in three groups of five.</li>
+<li>4 new zones, each an Ethereal Plane reached from the [[Reliquary Hall]].</li>
+<li>20 new bosses with unique mechanics.</li>
+<li>130+ new items, spells, and skills.</li>
 </ul>
-<div class="mp-update-links">'''[[Raids]]''' &nbsp;·&nbsp; [[Raid Unlocking Walkthrough]] &nbsp;·&nbsp; [[Class Roles in the Planar March Raid|Class Roles]] &nbsp;·&nbsp; [[Distributing Gear in the Planar March Raid|Distributing Gear]]<br />[https://store.steampowered.com/news/app/2382520/view/670622499729311277 Official announcement on Steam] &nbsp;·&nbsp; [https://store.steampowered.com/news/app/2382520 All patch notes]</div>
+<div class="mp-update-links">'''[[Raids]]''' &nbsp;·&nbsp; [[Raid Unlocking Walkthrough]] &nbsp;·&nbsp; [[Class Roles in the Planar March Raid|Class Roles]] &nbsp;·&nbsp; [[Distributing Gear in the Planar March Raid|Distributing Gear]]<br />[https://store.steampowered.com/news/app/2382520/view/670622499729311277 Official Announcement on Steam] &nbsp;·&nbsp; [https://store.steampowered.com/news/app/2382520 All Patch Notes]</div>
 </div>
-<div class="mp-update-art">[[File:Planar March.png|340px|link=Raids|Planar March key art]]</div>
+<div class="mp-update-art">[[File:Planar March.png|480px|link=Raids|Planar March key art]]</div>
 </div>
 
 <div class="mp-section">Contents</div>
@@ -49,7 +49,7 @@
 <div class="mp-guides">
 
 <div>
-<h3 class="mp-label">Start here</h3>
+<h3 class="mp-label">Start Here</h3>
 <ul>
 <li>[[Player Guide]]</li>
 <li>[[Classes]]</li>
@@ -60,11 +60,10 @@
 </div>
 
 <div>
-<h3 class="mp-label">Get better gear</h3>
+<h3 class="mp-label">Get Better Gear</h3>
 <ul>
 <li>[[Recommended Gear]]</li>
 <li>[[Item Quality]]</li>
-<li>[[Ascension Skills]]</li>
 <li>[[Treasure Hunting]]</li>
 <li>[[Watcher's Lens]]</li>
 </ul>
@@ -75,29 +74,29 @@
 <ul>
 <li>[[Raids]]</li>
 <li>[[Raid Unlocking Walkthrough]]</li>
-<li>[[Class Roles in the Planar March Raid|Class roles in raids]]</li>
-<li>[[Distributing Gear in the Planar March Raid|Raid gear]]</li>
+<li>[[Ascension Skills]]</li>
+<li>[[Class Roles in the Planar March Raid|Class Roles in Raids]]</li>
+<li>[[Distributing Gear in the Planar March Raid|Raid Gear]]</li>
 </ul>
 </div>
 
 <div>
-<h3 class="mp-label">Other activities</h3>
+<h3 class="mp-label">Other Activities</h3>
 <ul>
 <li>[[Fishing]]</li>
 <li>[[Auction House]]</li>
 <li>[[The Mystery of Bellwain Island]]</li>
 <li>[[Shivering Step Walkthrough]]</li>
-<li>[[Server Admin Panel]]</li>
 </ul>
 </div>
 
 </div>
 
-<div class="mp-section">Popular pages</div>
+<div class="mp-section">Popular Pages</div>
 
 <div class="mp-popular">
 <div class="mp-popular-links">
-[[Classes]] &nbsp;·&nbsp; [[Simulated Players]] &nbsp;·&nbsp; [[Recommended Gear]] &nbsp;·&nbsp; [[Item Quality]] &nbsp;·&nbsp; [[Zones]] &nbsp;·&nbsp; [[Raids]] &nbsp;·&nbsp; [[Ability Books]] &nbsp;·&nbsp; [[Fishing]] &nbsp;·&nbsp; [[Port Azure]] &nbsp;·&nbsp; [[Factions]] &nbsp;·&nbsp; [[Achievements]] &nbsp;·&nbsp; [[Lore|History of Erenshor]]
+[[Classes]] &nbsp;·&nbsp; [[Simulated Players]] &nbsp;·&nbsp; [[Recommended Gear]] &nbsp;·&nbsp; [[Item Quality]] &nbsp;·&nbsp; [[Zones]] &nbsp;·&nbsp; [[Raids]] &nbsp;·&nbsp; [[Ability Books]] &nbsp;·&nbsp; [[Fishing]] &nbsp;·&nbsp; [[Port Azure]] &nbsp;·&nbsp; [[Factions]] &nbsp;·&nbsp; [[Achievements]] &nbsp;·&nbsp; [[Server Admin Panel]] &nbsp;·&nbsp; [[Lore|History of Erenshor]]
 </div>
 <div class="mp-map-callout">
 <span class="mp-cta">[https://erenshor.compendiums.org/map Open the interactive map]</span>
@@ -105,7 +104,7 @@
 </div>
 </div>
 
-<div class="mp-section">The wiki</div>
+<div class="mp-section">The Wiki</div>
 
 <div class="mp-foot">
 
@@ -120,7 +119,7 @@
 <li>Add sources to items with [[:Category:Unknown Item Source|unknown sources]].</li>
 </ol>
 <p>For questions, speak to Richard or Brian (Burgee) on the [https://discord.gg/u8AJzEtTRV community Discord].</p>
-<h3 class="mp-label mp-label-spaced">Start a page</h3>
+<h3 class="mp-label mp-label-spaced">Start a Page</h3>
 <div class="mp-createbox">
 <inputbox>
 type=create
@@ -132,14 +131,13 @@ buttonlabel=Create
 </div>
 
 <div>
-<h3 class="mp-label">Official links</h3>
+<h3 class="mp-label">Official Links</h3>
 <ul class="mp-linklist">
 <li>[https://store.steampowered.com/app/2382520/Erenshor/ Erenshor on Steam]</li>
-<li>[https://store.steampowered.com/news/app/2382520 Patch notes and news]</li>
+<li>[https://store.steampowered.com/news/app/2382520 Patch Notes and News]</li>
 <li>[https://store.steampowered.com/app/2522260/Erenshor_Demo/ Erenshor Demo]</li>
-<li>[https://erenshor.com/ Erenshor website]</li>
+<li>[https://erenshor.com/ Erenshor Website]</li>
 <li>[https://discord.gg/DxqZc5Dc9q Discord]</li>
-<li>[https://trello.com/b/XPo0OThp/erenshor-roadmap Development roadmap]</li>
 <li>[https://www.patreon.com/BurgeeMedia Patreon]</li>
 <li>[https://www.youtube.com/@BurgeeMedia YouTube]</li>
 <li>[https://x.com/BurgeeGames X / Twitter]</li>
