@@ -1,0 +1,532 @@
+{{DISPLAYTITLE:Item quality}}
+'''Item quality''' is the upgrade level of a piece of equipment. Higher-quality items have better stats and a colored sparkle in the inventory.
+
+The eight qualities, from lowest to highest, are: '''Standard''', '''Improved +1''' through '''Improved +5''' (green sparkle), '''Blessed''' (blue sparkle), and '''Ascended''' (purple sparkle).
+
+[[File:SparkleComparison.png|thumb|right|200px|Standard, Blessed, and Ascended sparkles. Improved items use a green sparkle.]]
+
+== Quick summary ==
+* Only weapons and armor get stat bonuses from quality. A Charm still shows the sparkle but gains no stats from it. Auras and general items get neither.
+* Improved items sparkle green, Blessed items blue, and Ascended items purple. Higher quality means better stats.
+* Combine two matching Standard or Improved items in a {{ItemLink|Merging Vessel}} at a forge to make the next tier up, to a maximum of Improved +5.
+* To make an item Blessed, offer the item at the [[Braxonian Flame Well]] with {{ItemLink|Sivakrux}} and {{ItemLink|Offering Stone}}.
+* To make an item Ascended, combine a Blessed item with a {{ItemLink|Mold: An Otherwordly Box}} and a {{ItemLink|Planar Stone}}. An Improved item can also jump straight to Ascended at the Flame Well.
+* An {{ItemLink|Inert Diamond}} resets a Blessed or Ascended item back to Standard.
+
+[[Category:Items]]
+
+==Quality tiers==
+{| class="wikitable"
+! Quality
+! Appearance
+! How to get it
+|-
+| <span style="display:inline-block;width:0.85em;height:0.85em;background:#FFFFFF;border:1px solid #666;vertical-align:middle;margin-right:0.4em;"></span>Standard
+| No sparkle
+| Ordinary loot, or reset with an {{ItemLink|Inert Diamond}}
+|-
+| <span style="display:inline-block;width:0.85em;height:0.85em;background:#00FF00;border:1px solid #666;vertical-align:middle;margin-right:0.4em;"></span>Improved +1
+| Green sparkle, <code>+1</code> suffix
+| Enemy loot, or combine two Standard copies in a {{ItemLink|Merging Vessel}}
+|-
+| <span style="display:inline-block;width:0.85em;height:0.85em;background:#00FF00;border:1px solid #666;vertical-align:middle;margin-right:0.4em;"></span>Improved +2
+| Green sparkle, <code>+2</code> suffix
+| Enemy loot, or combine two Improved +1 copies
+|-
+| <span style="display:inline-block;width:0.85em;height:0.85em;background:#00FF00;border:1px solid #666;vertical-align:middle;margin-right:0.4em;"></span>Improved +3
+| Green sparkle, <code>+3</code> suffix
+| Enemy loot, or combine two Improved +2 copies
+|-
+| <span style="display:inline-block;width:0.85em;height:0.85em;background:#00FF00;border:1px solid #666;vertical-align:middle;margin-right:0.4em;"></span>Improved +4
+| Green sparkle, <code>+4</code> suffix
+| Enemy loot, or combine two Improved +3 copies
+|-
+| <span style="display:inline-block;width:0.85em;height:0.85em;background:#00FF00;border:1px solid #666;vertical-align:middle;margin-right:0.4em;"></span>Improved +5
+| Green sparkle, <code>+5</code> suffix
+| Enemy loot, or combine two Improved +4 copies
+|-
+| <span style="display:inline-block;width:0.85em;height:0.85em;background:#00F9FF;border:1px solid #666;vertical-align:middle;margin-right:0.4em;"></span>Blessed
+| Blue sparkle, blue item name
+| Enemy loot, the [[Braxonian Flame Well]], or smithing certain items with {{ItemLink|Ancient Coal}}
+|-
+| <span style="display:inline-block;width:0.85em;height:0.85em;background:#FC87FF;border:1px solid #666;vertical-align:middle;margin-right:0.4em;"></span>Ascended
+| Purple sparkle, purple item name
+| {{ItemLink|Mold: An Otherwordly Box}} with a Blessed item, or the [[Braxonian Flame Well]] with an Improved item
+|}
+
+Only weapons and armor gain stats from quality. A Charm can still show a quality sparkle, but it gets no stat bonus from it. Auras and general items get neither the sparkle nor any stat bonus.
+
+==Drop chances==
+When a weapon or armor piece drops as enemy loot, the game assigns it one of these qualities:
+
+{| class="wikitable"
+! Result
+! Chance
+|-
+| Standard
+| 94%
+|-
+| Blessed
+| 1%
+|-
+| Improved +1
+| 3.75%
+|-
+| Improved +2
+| 0.875%
+|-
+| Improved +3
+| 0.25%
+|-
+| Improved +4
+| 0.10%
+|-
+| Improved +5
+| 0.025%
+|}
+
+The five Improved results share a 5% chance, then a second roll picks which one. Improved +1 is the most likely of the five, and Improved +5 is the rarest.
+
+Chest loot uses its own quality, not this roll.
+
+==Upgrading items==
+There are three ways to upgrade an item's quality:
+
+{| class="wikitable"
+! Method !! Input !! Result
+|-
+| {{ItemLink|Merging Vessel}}
+| Two identical Standard or Improved items
+| Next Improved tier (guaranteed)
+|-
+| [[Braxonian Flame Well]]
+| A Standard or Improved item, plus Sivakrux and Offering Stones
+| Blessed, or Ascended straight from an Improved item (by chance)
+|-
+| {{ItemLink|Mold: An Otherwordly Box}}
+| A Blessed item, plus a Planar Stone
+| Ascended (guaranteed)
+|}
+
+===Merging Vessel===
+A {{ItemLink|Merging Vessel}} combines two identical Standard or Improved items into a single item one tier higher. It only raises Improved quality, up to Improved +5, and cannot make an item Blessed or Ascended. Take it to a [[Crafting#Smithing|forge]] along with:
+
+* the Merging Vessel
+* a fuel item (any {{ItemLink|Coal}} works)
+* two copies of the same item at the same quality — for example, two {{ItemLink|Stinging Bracer}}s that are both Standard
+
+{| class="wikitable"
+! Combine these two
+! Result
+|-
+| Two Standard items
+| Improved +1
+|-
+| Two Improved +1 items
+| Improved +2
+|-
+| Two Improved +2 items
+| Improved +3
+|-
+| Two Improved +3 items
+| Improved +4
+|-
+| Two Improved +4 items
+| Improved +5
+|}
+
+A valid combine always succeeds — there is no random chance. Both items must be the exact same base item at the same quality. The recipe rejects Blessed and Ascended items, Improved +5 (it cannot go higher), and mismatched pairs. Nothing is consumed if the forge rejects the inputs.
+
+To reach Improved +5 from scratch, you need 32 Standard copies of the same item (16 to make eight +1s, 8 to make four +2s, and so on — 31 Merging Vessels and 31 fuel items total).
+
+===Blessed===
+Three ways to make an item Blessed:
+
+* '''Braxonian Flame Well:''' offer a Standard or Improved item with {{ItemLink|Sivakrux}} and {{ItemLink|Offering Stone}}.
+* '''Enemy loot:''' 1% of quality rolls.
+* '''Ancient Coal:''' using {{ItemLink|Ancient Coal}} instead of {{ItemLink|Coal}} as the fuel makes the smithed item Blessed. This works with four molds only: {{ItemLink|Mold: Copper Sword}}, {{ItemLink|Mold: Copper Sceptre}}, {{ItemLink|Mold: A Ceremonial Ring}} and {{ItemLink|Mold: Angler's Ring}}. Every other recipe ignores which fuel you used.
+
+The [[Braxonian Flame Well]] is in [[Fallen Braxonia]]. A {{ItemLink|Flame Well Seed}} can also open one in [[Reliquary Hall]]. You offer one equipment item plus an equal number of Sivakrux and Offering Stones. The blessing succeeds on a roll under the success chance, which is '''40% per Sivakrux''' plus a bonus of '''8% for each Improved level''' on the offered item. Improved level is the number after the plus (Improved +1 adds 8%, Improved +5 adds 40%). A chance at or above 100% always succeeds.
+
+{| class="wikitable"
+! Item quality
+! 1 Sivakrux
+! 2 Sivakrux
+! 3 Sivakrux
+|-
+| Standard
+| 40%
+| 80%
+| 100%
+|-
+| Improved +1
+| 48%
+| 88%
+| 100%
+|-
+| Improved +2
+| 56%
+| 96%
+| 100%
+|-
+| Improved +3
+| 64%
+| 100%
+| 100%
+|-
+| Improved +4
+| 72%
+| 100%
+| 100%
+|-
+| Improved +5
+| 80%
+| 100%
+| 100%
+|}
+
+Only Standard and Improved equipment can be offered. Blessed and Ascended items are rejected, as are more than one item at a time or unequal Sivakrux/Offering Stone counts. All offered Sivakrux and Offering Stones are consumed whether the blessing succeeds or fails. On failure, the item returns unchanged at its original quality.
+
+When the offered item is Improved and the blessing succeeds, a second roll can enhance it '''straight to Ascended''' instead of Blessed (the Ascended message above). This Ascended chance is '''8% per Improved level''' plus '''5% per Sivakrux''' offered. Standard items never take this path — only Improved items can be Ascended at the Flame Well.
+
+{| class="wikitable"
+! Improved level
+! 1 Sivakrux
+! 2 Sivakrux
+! 3 Sivakrux
+|-
+| Improved +1
+| 13%
+| 18%
+| 23%
+|-
+| Improved +2
+| 21%
+| 26%
+| 31%
+|-
+| Improved +3
+| 29%
+| 34%
+| 39%
+|-
+| Improved +4
+| 37%
+| 42%
+| 47%
+|-
+| Improved +5
+| 45%
+| 50%
+| 55%
+|}
+
+The flame says a different line for each outcome:
+
+{| class="wikitable"
+! Outcome
+! What the flame says
+|-
+| '''Blessed'''
+| "The offering has been accepted..." then "You receive your item back with a blessing from Brax himself."
+|-
+| '''Ascended'''
+| Adds "The quality of the offering pleases Brax greatly, and he enhances the blessing!" The item comes back Ascended instead of Blessed.
+|-
+| '''Failure'''
+| "Brax was not pleased with this offering..." then "You receive your item back, just as it was before you offered it." The Sivakrux and Offering Stones are still used up.
+|-
+| '''Invalid offering'''
+| "The offering must be balanced and it must not be greedy" — the counts did not match, you offered more than one item, or the item is not Standard or Improved equipment. Nothing is used up.
+|}
+
+In game, the accepted, declined, and rejected lines all start with "The flame roars, sounding nearly human:".
+
+===Ascended===
+Two ways to make an item Ascended:
+
+'''Mold: An Otherwordly Box.''' Combine in a forge:
+
+* one {{ItemLink|Mold: An Otherwordly Box}}
+* one {{ItemLink|Planar Stone}}
+* one Blessed item
+
+The Blessed item becomes Ascended. The recipe always succeeds and consumes all three inputs. Standard, Improved, and already-Ascended items are rejected. The mold is sold by [[Elysia Thistlewick]] and the [[Summoned: Pocket Vendor]].
+
+'''Braxonian Flame Well.''' Offering an Improved item can produce an Ascended item directly, skipping the Blessed tier. See the [[#Blessed|Blessed]] section above for the chance. This is the only way to reach Ascended without first having a Blessed item.
+
+===Removing a blessing===
+{{ItemLink|Inert Diamond}} removes Blessed or Ascended quality. In a forge, combine one Inert Diamond, one fuel item, and one Blessed or Ascended item. The item returns at Standard quality, and you also get one {{ItemLink|Planar Stone Shards}}.
+
+The recipe rejects Standard and Improved items. It does not preserve any Improved tier the item may have had before being blessed.
+
+==SimPlayer equipment==
+[[Simulated Players|SimPlayer]] gear can carry quality values. The Sim inspection window offers two operations:
+
+{| class="wikitable"
+! Operation
+! Where
+! Resource needed
+! Chance
+|-
+| Upgrade to Blessed
+| Near the Flame Well
+| 1, 2, or 3 Sivakrux held by that SimPlayer
+| 40%, 80%, or 100%
+|-
+| Upgrade to Ascended
+| Near a forge
+| 1 Planar Stone held by that SimPlayer
+| 100%
+|}
+
+SimPlayer offerings do not require Offering Stones. Auras are rejected. The inspection window does not offer the Improved progression. Sivakrux are consumed on both success and failure. The item's quality only changes on success. Unlike offering at the Flame Well yourself, SimPlayer blessing chances are a flat 40% per Sivakrux with no Improved bonus, and a SimPlayer upgrade to Blessed never jumps straight to Ascended.
+
+==How stats scale==
+
+Each stat type scales differently by quality. Improved adds fixed amounts to primary stats, health, mana, and positive armor. Blessed and Ascended use stronger formulas that scale with the item's base value.
+
+Resonance and weapon damage increase only at Blessed (+1) and Ascended (+2). Improved quality does not change either.
+
+Quality does not directly modify weapon delay, weapon range, or proc chances. An Improved Dexterity score can still make a proc more likely through combat calculations.
+
+===Exact formulas===
+
+Let ''b'' be the stat's Standard value and ''n'' be the number in Improved +''n''. <code>R(x)</code> means round to the nearest integer, with exact halves going to the nearest even integer. <code>max(...)</code> means use the largest value. "Blessed + ''x''" means the Blessed result for the same base, plus ''x''.
+
+====Improved +1 through +5====
+{| class="wikitable"
+! Field
+! Result
+|-
+| Primary stats (Str, End, Dex, Agi, Int, Wis, Cha)
+| ''b'' + 1 at +1/+2, ''b'' + 2 at +3/+4, ''b'' + 3 at +5
+|-
+| Health and Mana
+| ''b'' + 5''n''
+|-
+| Armor Class
+| ''b'' + ''n'' when ''b'' > 0, otherwise ''b''
+|-
+| Resists (Magic, Elemental, Poison, Void)
+| ''b'' at +1/+2, ''b'' + 1 at +3 through +5
+|-
+| Resonance and weapon damage
+| ''b''
+|}
+
+====Blessed====
+{| class="wikitable"
+! Field
+! Result
+|-
+| Primary stats
+| ''b'' + R(''b'' / 3) + 3
+|-
+| Health and Mana
+| ''b'' + R(''b'' / 5) + 30
+|-
+| Armor Class
+| ''b'' + R(''b'' / 6) + 3
+|-
+| Resists
+| ''b'' + R(''b'' / 3) + 1
+|-
+| Resonance and weapon damage
+| ''b'' + 1
+|}
+
+====Ascended====
+{| class="wikitable"
+! Field
+! Result
+|-
+| Primary stats
+| max(2''b'', ''b'' + 5, Blessed + 5, ''b'' + 6)
+|-
+| Health and Mana
+| max(''b'' + R(''b'' / 2) + 50, Blessed + 1, ''b'' + 26)
+|-
+| Armor Class
+| max(''b'' + R(''b'' / 2), Blessed + 4, ''b'' + 8)
+|-
+| Resists
+| max(2''b'', ''b'' + 3, Blessed + 1, ''b'' + 2)
+|-
+| Resonance and weapon damage
+| ''b'' + 2
+|}
+
+For primary stats, a base of zero or less remains unchanged at every quality. Improved armor also remains unchanged when the base is zero or less. The other stats use the formulas even when their base is zero.
+
+Blessed is not always better than Improved +5 on every field. For example, Improved +5 adds 5 Armor to a positive base, while Blessed adds R(''b'' / 6) + 3 — which can be less than 5 on low-base items.
+
+==Worked example: Stinging Bracer==
+The Standard {{ItemLink|Stinging Bracer}} has these base stats: 5 Armor, 5 Health, 5 Mana, 5 Intelligence, 5 Wisdom, 5 Charisma, 3 Magic Resist, 3 Void Resist, 0 Poison Resist, 0 Elemental Resist, 0 Resonance.
+
+{| class="wikitable"
+! Quality
+! Armor
+! HP / Mana
+! Int / Wis / Cha
+! Magic / Void Resist
+! Poison / Elem Resist
+! Resonance
+|-
+| {{ItemLink|Stinging Bracer|text=Standard|image=Stinging Bracer.png|quality=Standard}}
+| 5
+| 5 / 5
+| 5 / 5 / 5
+| 3 / 3
+| 0 / 0
+| 0
+|-
+| {{ItemLink|Stinging Bracer|text=Improved +1|image=Stinging Bracer.png|quality=Improved +1}}
+| 6
+| 10 / 10
+| 6 / 6 / 6
+| 3 / 3
+| 0 / 0
+| 0
+|-
+| {{ItemLink|Stinging Bracer|text=Improved +2|image=Stinging Bracer.png|quality=Improved +2}}
+| 7
+| 15 / 15
+| 6 / 6 / 6
+| 3 / 3
+| 0 / 0
+| 0
+|-
+| {{ItemLink|Stinging Bracer|text=Improved +3|image=Stinging Bracer.png|quality=Improved +3}}
+| 8
+| 20 / 20
+| 7 / 7 / 7
+| 4 / 4
+| 1 / 1
+| 0
+|-
+| {{ItemLink|Stinging Bracer|text=Improved +4|image=Stinging Bracer.png|quality=Improved +4}}
+| 9
+| 25 / 25
+| 7 / 7 / 7
+| 4 / 4
+| 1 / 1
+| 0
+|-
+| {{ItemLink|Stinging Bracer|text=Improved +5|image=Stinging Bracer.png|quality=Improved +5}}
+| 10
+| 30 / 30
+| 8 / 8 / 8
+| 4 / 4
+| 1 / 1
+| 0
+|-
+| {{ItemLink|Stinging Bracer|text=Blessed|image=Stinging Bracer.png|quality=Blessed}}
+| 9
+| 36 / 36
+| 10 / 10 / 10
+| 5 / 5
+| 1 / 1
+| 1
+|-
+| {{ItemLink|Stinging Bracer|text=Ascended|image=Stinging Bracer.png|quality=Ascended}}
+| 13
+| 57 / 57
+| 15 / 15 / 15
+| 6 / 6
+| 3 / 3
+| 2
+|}
+
+Notice that Improved +5 has 10 Armor while Blessed has only 9 Armor. Blessed is stronger on every other stat, but Armor dropped.
+
+==Comparison==
+
+{{ItemTooltip
+|kind=Armor
+|image=Stinging Bracer.png
+|name=Stinging Bracer
+|slot=Bracer
+|type=
+|relic=
+|str=0
+|end=0
+|dex=0
+|agi=0
+|int=5
+|wis=5
+|cha=5
+|res=0
+|damage=
+|delay=
+|range=
+|health=5
+|mana=5
+|armor=5
+|magic=3
+|poison=0
+|elemental=0
+|void=3
+|description=It leaks venom
+|arcanist=True
+|duelist=
+|druid=True
+|paladin=
+|reaver=
+|stormcaller=True
+|proc_style=Cast
+|proc_chance=10
+|proc_spell_icon=Stun.png
+|proc_spell_name=[[Stun]]
+|proc_spell_level=3
+|proc_spell_duration_ticks=3
+|proc_spell_type=StatusEffect
+|proc_spell_line=Stun
+|proc_target_damage=
+|proc_target_healing=
+|proc_shielding_amt=
+|proc_damage_type=Magic
+|proc_cast_time=0.8
+|proc_cooldown=14.0
+|proc_spell_range=30.0
+|proc_lifetap=
+|proc_group_effect=
+|proc_stun_target=True
+|proc_charm_target=
+|proc_root_target=
+|proc_taunt_spell=
+|proc_aggro=500
+|proc_status_effect_name=
+|proc_hp=
+|proc_ac=
+|proc_mana=
+|proc_str=
+|proc_dex=
+|proc_end=
+|proc_agi=
+|proc_wis=
+|proc_int=
+|proc_cha=
+|proc_mr=
+|proc_er=
+|proc_pr=
+|proc_vr=
+|proc_movement_speed=
+|proc_damage_shield=
+|proc_haste=
+|proc_percent_lifesteal=
+|proc_atk_roll_modifier=
+|proc_resonate_chance=
+|proc_add_proc_name=
+|proc_add_proc_chance=
+|proc_special_descriptor=
+|proc_xp_bonus=
+}}
+
+==References==
+* [https://store.steampowered.com/news/app/2382520/view/670622499729311277 Planar March announcement]
+* {{ItemLink|Merging Vessel}}
+* {{ItemLink|Mold: An Otherwordly Box}}
+* {{ItemLink|Inert Diamond}}
+* [[Braxonian Flame Well]]
+* [[Reliquary Hall]]

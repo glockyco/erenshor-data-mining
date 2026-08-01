@@ -1,0 +1,303 @@
+{{DISPLAYTITLE:Critical strikes}}
+
+'''Critical strikes''' are physical attacks that deal increased damage after passing a probability check based on the attacker's level, Dexterity, Finesse, and class. The game does not store one flat “critical chance” stat. Instead, it performs a set of random trials, counts the successes, and uses that count as the percentage chance for a final critical roll. [[#Technical evidence|Build 24184286 evidence]] below documents the shipped implementation.
+
+This page describes the physical <code>Stats.isCriticalAttack</code> path in '''build 24184286'''. It does not identify that build as the latest game build. Spell [[Critical Blast]], damage-over-time criticals, critical healing, backstab effects, and other independently implemented critical-like systems are outside this calculation.
+
+== Quick summary ==
+* '''Dexterity''' determines how many critical opportunities an attack receives. '''Finesse''' is the 1–40 proficiency value that controls both the number of opportunities and the success chance of each one. [Source A], [Source B], [Source C]
+* Let <math>L</math> be level, <math>D</math> be Dexterity, and <math>F</math> be Finesse. For the common readable form, the number of opportunities is <math>n=\lfloor DF/100\rfloor+1</math>, and each ordinary opportunity succeeds with probability <math>p=L/(100-F)</math>. [Source C]
+* Arcanist, Druid, Paladin, and Reaver use <math>n</math> trials at <math>p</math>. Stormcaller adds <math>n</math> weaker trials at <math>0.4p</math>. Windblade adds another <math>n</math> full-strength trials at <math>p</math>. [Source C]
+* If the trials produce a counter <math>K</math>, the final physical critical chance is <math>\operatorname{E}[\min(K,100)]/100</math>. The per-attack cap is why the exact curves bend gradually into 100% instead of following a straight line and then stopping. [Source C]
+* A convenient calculator formula is <math>\min(100,npC)</math> percent, where <math>C=1</math> normally, <math>C=1.4</math> for Stormcaller, and <math>C=2</math> for Windblade. It is exact before the counter can exceed 100, but can overestimate by about three percentage points in the transition into saturation.
+* Most physical criticals use a 1.5× pre-rounding damage multiplier. Eligible auto-melee criticals with [[Crippling Blow]] have a 10% chance to become 3.0× criticals instead. [[Reckless Strike]] uses its own 1.3× critical multiplier. [Source D], [Source E]
+
+== Dexterity and Finesse ==
+
+Dexterity and Finesse are separate values:
+
+* '''Dexterity''' is the current attribute after base stats, equipment, and status effects are combined.
+* '''Finesse''' is the proficiency associated with Dexterity. The character interface calls it “Finesse”, while the implementation stores the effective value as <code>DexScaleMod</code>.
+
+Effective Finesse combines the class's starting Dexterity proficiency, item bonuses, and spent proficiency points, then clamps the result to the range 1–40. [Source A], [Source B]
+
+Finesse affects critical chance in two ways at once. Raising it increases the number of trials through <math>DF/100</math>, and it also makes every trial easier by reducing the size of the random range in <math>L/(100-F)</math>. This is why the higher-Finesse curves rise much faster than a simple linear Dexterity bonus.
+
+== Exact physical critical chance ==
+
+=== Step 1: Count critical opportunities ===
+
+Let:
+
+* <math>L</math> = attacker level;
+* <math>D</math> = current Dexterity;
+* <math>F</math> = effective Finesse.
+
+The game loops over every integer <math>i</math> beginning at zero while:
+
+::<math display="block">i\le D\left(\frac{F}{100}\right).</math>
+
+Because the loop includes zero and includes the upper endpoint, its readable opportunity count is:
+
+::<math display="block">n=\left\lfloor\frac{DF}{100}\right\rfloor+1.</math>
+
+The <math>+1</math> is real: even a product below 1 still produces the <math>i=0</math> opportunity. [Source C]
+
+The shipped code evaluates the loop bound with 32-bit floating-point arithmetic. A fully implementation-exact expression is therefore:
+
+::<math display="block">n=\left\lfloor \operatorname{f32}\!\left(D\,\operatorname{f32}\!\left(\frac{F}{100}\right)\right)\right\rfloor+1.</math>
+
+This distinction matters only at rare exact-looking boundaries. For example, <math>D=300</math> and <math>F=21</math> mathematically produce 63, but the game's single-precision product is just below 63, so the loop produces 63 opportunities rather than 64. It does not affect the plotted <math>F=10,20,30,40</math> curves from 0 through 1,000 Dexterity.
+
+=== Step 2: Roll each opportunity ===
+
+Each full-strength opportunity draws a uniformly random integer from 0 through <math>99-F</math> and succeeds when that integer is below level <math>L</math>. In the supported ranges <math>L\le35</math> and <math>1\le F\le40</math>, its success probability is:
+
+::<math display="block">p=\frac{L}{100-F}.</math>
+
+For example, at level 35 and Finesse 20, each trial succeeds with probability <math>35/80=43.75\%</math>. This is the success chance of one internal trial, not the attack's final critical chance. [Source C]
+
+=== Step 3: Apply the class branch ===
+
+The class branch changes how many trials are made:
+
+{| class="wikitable"
+! Displayed class branch !! Trial model !! Expected counter before the cap
+|-
+| Arcanist, Druid, Paladin, Reaver || <math>n</math> trials at <math>p</math> || <math>np</math>
+|-
+| Stormcaller || <math>n</math> trials at <math>p</math>, plus <math>n</math> trials at <math>0.4p</math> || <math>1.4np</math>
+|-
+| Windblade || <math>2n</math> trials at <math>p</math> || <math>2np</math>
+|}
+
+Stormcaller's second trial is gated by a 40% roll and then makes the same level-versus-Finesse roll. The combined probability of that additional success is therefore <math>0.4p</math>. Windblade is named <code>Duelist</code> internally in this build; its branch always makes the second full-strength trial. [Source C]
+
+Equivalently, before the final cap:
+
+* Ordinary: <math>K\sim\operatorname{Binomial}(n,p)</math>.
+* Stormcaller: <math>K=X+Y</math>, where <math>X\sim\operatorname{Binomial}(n,p)</math> and <math>Y\sim\operatorname{Binomial}(n,0.4p)</math>.
+* Windblade: <math>K\sim\operatorname{Binomial}(2n,p)</math>.
+
+=== Step 4: Make the final critical roll ===
+
+After all opportunities have been rolled, the game draws an integer from 0 through 99 and produces a critical hit when it is below the accumulated counter <math>K</math>. Conditional on a particular counter, the chance is therefore <math>\min(K,100)\%</math>. Averaging over every possible counter gives the exact physical critical probability:
+
+::<math display="block">c_{\mathrm{exact}}=\frac{\operatorname{E}[\min(K,100)]}{100}.</math>
+
+The cap must be applied to every possible counter before those outcomes are averaged. Clamping only the average counter gives a slightly different result near saturation.
+
+[[File:Physical-critical-chance-by-class.png|thumb|center|700px|Exact level-35 physical critical chance across Dexterity, Finesse, and class branches.]]
+
+== A practical calculator formula ==
+
+For a quick calculation, define the class factor:
+
+::<math display="block">C=\begin{cases}
+1, & \text{Arcanist, Druid, Paladin, or Reaver},\\
+1.4, & \text{Stormcaller},\\
+2, & \text{Windblade}.
+\end{cases}</math>
+
+Then use:
+
+::<math display="block">\mathrm{Crit}_{\mathrm{simple}}\%=\min\!\left(100,\left(\left\lfloor\frac{DF}{100}\right\rfloor+1\right)\frac{L}{100-F}C\right).</math>
+
+In calculator syntax:
+
+:<code>min(100, (floor(D * F / 100) + 1) * L / (100 - F) * C)</code>
+
+For a level-35 ordinary class with 100 Dexterity and 12 Finesse:
+
+:<code>min(100, (floor(100 * 12 / 100) + 1) * 35 / (100 - 12) * 1)</code>
+
+This gives approximately 5.17%, which is also exact at those stats because the counter cannot reach 100.
+
+=== Why the simple formula overestimates near 100% ===
+
+The simplified formula calculates the average counter and then caps that average at 100. The game rolls the individual trials first, caps each attack's resulting counter at 100, and only then makes the final critical roll. In symbols, the approximation uses:
+
+::<math display="block">\min\!\left(100,\operatorname{E}[K]\right),</math>
+
+while the game uses:
+
+::<math display="block">\operatorname{E}[\min(100,K)].</math>
+
+Near saturation, some attacks roll counters above 100 while others remain below it. Points above 100 are discarded, but shortfalls below 100 still reduce the final chance. The excess from a high roll cannot compensate for a low roll, so the simplified formula overestimates the exact result.
+
+Before saturation, the two expressions are equal because <math>K</math> cannot exceed 100. Far beyond saturation, they converge again because nearly every counter reaches 100. The error therefore forms a narrow peak during the transition rather than continuing to grow. Across the level-35 plot from 0 to 1,000 Dexterity, the largest overestimate is about 3.10 percentage points.
+
+[[File:Physical-critical-calculator-error.png|thumb|center|700px|Percentage-point overestimate from the simplified level-35 calculator formula. Peak labels mark the largest error for each visible curve.]]
+
+== Critical damage ==
+
+Critical chance and critical damage are separate stages. Let <math>c</math> be physical critical chance as a fraction from 0 to 1, and let <math>m</math> be the critical multiplier relative to the same noncritical path before per-hit rounding. The long-run same-path damage ratio is:
+
+::<math display="block">R=(1-c)+cm=1+c(m-1).</math>
+
+=== Standard physical critical ===
+
+The ordinary physical critical branch multiplies damage by 1.5 and rounds the result to an integer. Ignoring that per-hit rounding in the algebraic comparison:
+
+::<math display="block">R_{\mathrm{standard}}=1+0.50c.</math>
+
+At 50% critical chance, this is 1.25× long-run damage relative to the same noncritical attack path. [Source D]
+
+=== Crippling Blow ===
+
+For eligible automatic melee attacks, [[Crippling Blow]] is checked only after a standard critical succeeds. Its random 0–9 roll succeeds only on 9, giving a 10% proc chance. A proc doubles the already-created 1.5× critical result, producing a 3.0× critical before rounding effects. [Source D]
+
+The expected multiplier conditional on having crit is:
+
+::<math display="block">m_{\mathrm{Crippling}}=0.9(1.5)+0.1(3.0)=1.65.</math>
+
+The corresponding long-run same-path ratio is:
+
+::<math display="block">R_{\mathrm{Crippling}}=1+0.65c.</math>
+
+=== Reckless Strike ===
+
+[[Reckless Strike]] has its own critical branch and uses a 1.3× critical multiplier relative to its corresponding noncritical result:
+
+::<math display="block">R_{\mathrm{Reckless}}=1+0.30c.</math>
+
+This is intentionally lower than the standard 1.5× physical critical multiplier. [Source E]
+
+[[File:Physical-critical-expected-damage.png|thumb|center|700px|Long-run same-path damage ratios before per-hit rounding for standard criticals, eligible Crippling Blow attacks, and Reckless Strike.]]
+
+These damage-ratio lines are algebraic comparisons, not complete predictions of a combat-log hit. The shipped code rounds individual damage values, and later attack-path processing, mitigation, misses, and changing inputs can move observed results.
+
+== Scope and exceptions ==
+
+The <code>isCriticalAttack</code> probability model is reused by several physical attack paths, but not every mechanic containing the word “critical” uses it in the same way.
+
+* Spell [[Critical Blast]] is a separate spell-damage branch and does not use this physical critical formula.
+* Critical damage-over-time and critical healing chances are separate ascension-driven systems.
+* Backstab and other conditional abilities may apply their own checks or multipliers.
+* [[Reckless Strike]] uses the physical critical chance check but replaces the standard damage multiplier with 1.3×.
+* Crippling Blow is an additional proc after an eligible automatic melee attack has already crit.
+
+When comparing observed hits, use the same attack path, target, equipment, stance, and mitigation state. A critical multiplier by itself does not describe every downstream part of the final combat result.
+
+== Reproducibility ==
+
+The three plots on this page are generated deterministically by [https://github.com/glockyco/erenshor-data-mining/blob/main/src/tools/render_spell_scaling_plots.py <code>src/tools/render_spell_scaling_plots.py</code>]. Run that script from the repository with Pillow installed; it writes <code>physical-critical-chance-by-class.png</code>, <code>physical-critical-calculator-error.png</code>, and <code>physical-critical-expected-damage.png</code> to <code>wiki/mechanics/images/</code>.
+
+The exact probability curves come from [https://github.com/glockyco/erenshor-data-mining/blob/main/src/erenshor/tools/critical_strike_model.py <code>src/erenshor/tools/critical_strike_model.py</code>]. That model preserves the capped counter distribution and the shipped float32 opportunity boundary instead of clamping only the expected counter.
+
+== Technical evidence (build 24184286) ==
+
+The excerpts below are local reference evidence extracted from the shipped game's decompiled scripts for build 24184286. These decompiled shipped-game files are '''not repository-authored source'''; they are retained locally so the mechanics can be checked against the shipped build. Paths are repository-relative and line ranges refer to those retained files.
+
+=== Player-facing terminology ===
+
+'''Source A — <code>variants/main/backups/build-24184286/scripts/Assembly-CSharp/CalcStats.cs</code>, Dexterity description, lines 165–174, and <code>ItemInfoWindow.cs</code>, lines 275–277:''' the interface names the associated proficiency “Finesse” and describes its relationship to Dexterity.
+
+<syntaxhighlight lang="csharp">
+CharSelectStatDescHeadline.text = "Finesse";
+CharSelectStatDescText.text = "Increases your ability to use DEXTERITY for "
+    + "bypassing a target's physical defense and getting higher quality hits "
+    + "during combat. Dexterity is also used for Blocking and triggering weapon procs.";
+
+// Item tooltip:
+text = text + "Finesse: +" + item.DexScaling + " / 40\n";
+</syntaxhighlight>
+
+=== Effective Dexterity and Finesse ===
+
+'''Source B — <code>variants/main/backups/build-24184286/scripts/Assembly-CSharp/Stats.cs</code>, <code>Stats.CalcStats</code>, lines 469–485:''' current Dexterity is assembled from base, item, and status values; effective Finesse is assembled from class, item, and spent proficiency values and clamped to 1–40.
+
+<syntaxhighlight lang="csharp">
+CurrentDex = BaseDex + MyInv.ItemDex + seDex;
+// ...
+DexScaleMod = Mathf.Clamp(
+    CharacterClass.DexBenefit + MyInv.DexScaleMod + DexScaleSpent,
+    1,
+    40);
+</syntaxhighlight>
+
+=== Opportunity trials, class branches, and final roll ===
+
+'''Source C — <code>variants/main/backups/build-24184286/scripts/Assembly-CSharp/Stats.cs</code>, <code>Stats.isCriticalAttack</code>, lines 2403–2427:''' the inclusive Dexterity/Finesse loop makes the ordinary trial, optionally makes the Windblade or Stormcaller trial, accumulates the counter, and finally rolls 0–99 against it.
+
+<syntaxhighlight lang="csharp">
+public bool isCriticalAttack()
+{
+    bool result = false;
+    int num = 0;
+    int num2 = 0;
+    if (CharacterClass != null)
+        num2 = DexScaleMod;
+
+    for (int i = 0;
+        (float)i <= (float)Myself.MyStats.GetCurrentDex()
+            * ((float)DexScaleMod / 100f);
+        i++)
+    {
+        if (UnityEngine.Random.Range(0, 100 - num2) < Level)
+            num++;
+
+        if ((CharacterClass == GameData.ClassDB.Duelist
+            || (CharacterClass == GameData.ClassDB.Stormcaller
+                && UnityEngine.Random.Range(0, 10) > 5))
+            && UnityEngine.Random.Range(0, 100 - num2) < Level)
+        {
+            num++;
+        }
+    }
+
+    if (UnityEngine.Random.Range(0, 100) < num)
+        result = true;
+    return result;
+}
+</syntaxhighlight>
+
+=== Standard critical and Crippling Blow ===
+
+'''Source D — <code>variants/main/backups/build-24184286/scripts/Assembly-CSharp/PlayerCombat.cs</code>, <code>HandleDamageResult</code>, lines 607–625:''' eligible auto-melee damage uses the standard 1.5× critical, then checks the 10% Crippling Blow branch and doubles that critical result.
+
+<syntaxhighlight lang="csharp">
+if (myStats.isCriticalAttack() && dmg > 0)
+{
+    dmg = Mathf.RoundToInt((float)dmg * 1.5f);
+    criticalHit = true;
+    if (myStats.Myself.MySkills.KnownSkills.Contains(
+            GameData.SkillDatabase.GetSkillByName("Crippling Blow"))
+        && Random.Range(0, 10) > 8)
+    {
+        dmg *= 2;
+    }
+}
+</syntaxhighlight>
+
+=== Reckless Strike ===
+
+'''Source E — <code>variants/main/backups/build-24184286/scripts/Assembly-CSharp/UseSkill.cs</code>, <code>UseSkill.DoSkill</code>, lines 194–220:''' Reckless Strike skill ID <code>14354340</code> uses a 1.3× multiplier when the physical critical check succeeds; the neighboring ordinary skill branch uses 1.5×.
+
+<syntaxhighlight lang="csharp">
+if (_skill.Id == "14354340")
+{
+    // Reckless Strike setup omitted.
+    if (MyStats.isCriticalAttack() && num3 > 0)
+    {
+        num3 = Mathf.RoundToInt((float)num3 * 1.3f);
+        criticalHit = true;
+    }
+}
+else if (MyStats.isCriticalAttack() && num3 > 0)
+{
+    num3 = Mathf.RoundToInt((float)num3 * 1.5f);
+    criticalHit = true;
+}
+</syntaxhighlight>
+
+== See also ==
+* [[Dexterity]]
+* [[Finesse]]
+* [[Critical Blast]]
+* [[Crippling Blow]]
+* [[Reckless Strike]]
+* [[Physical damage]]
+
+[[Category:Mechanics]]
+[[Category:Combat]]

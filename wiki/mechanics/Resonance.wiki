@@ -1,0 +1,193 @@
+{{DISPLAYTITLE:Resonance}}
+
+'''Resonance''' (RES) gives eligible spells a chance to cast a second time immediately. The repeated cast costs no mana and uses its own hit, resistance, critical, and damage rolls.
+
+== Quick summary ==
+* Each point of effective Resonance gives a 1% chance to repeat an eligible spell, up to a guaranteed repeat at 100 RES.
+* Direct-damage spells, targeted area spells, point-blank area spells, and healing spells can resonate unless the spell is specifically excluded.
+* Damage-over-time and other status-effect spells cannot resonate.
+* An ordinary resonated direct-damage spell uses 30% of its normal base component, then recalculates the full [[Stats#Intelligence|Intelligence]] and [[Proficiencies|Arcanism]] contribution.
+* Targeted area and point-blank area spells repeat at full damage.
+* Healing spells use 50% of their base healing on the repeated cast, then recalculate their full [[Stats#Wisdom|Wisdom]] and [[Proficiencies|Restoration]] contribution.
+
+== Resonance chance ==
+
+The game rolls an integer from 0 through 99 after an eligible spell resolves. The spell resonates when the roll is lower than the caster's effective RES:
+
+:<math display="block">\Pr(\text{resonance})=\min\left(\frac{R}{100},1\right),</math>
+
+where <math>R</math> is effective Resonance.
+
+{| class="wikitable"
+! Effective RES !! Resonance chance
+|-
+| 1 || 1%
+|-
+| 25 || 25%
+|-
+| 50 || 50%
+|-
+| 99 || 99%
+|-
+| 100 or more || 100%
+|}
+
+Effective Resonance is the rounded total of base Resonance, equipment Resonance, and temporary Resonance effects after the active stance multiplier is applied. All current stances use a Resonance multiplier of 1.
+
+A resonance can occur even when the original spell is resisted. An area spell
+can also resonate after hitting no targets. The repeated cast performs a new
+resistance roll.
+
+== Repeated cast ==
+
+A successful resonance starts a second cast of the same spell. The repeated cast:
+
+* costs no mana
+* resolves after a 1.1-unit internal recast timer
+* preserves the original {{AbilityLink|Chant Control}} scaling
+* can be created even when the original cast dealt no damage
+* rolls critical effects and target resistance independently
+
+The internal recast timer advances at 60 units per second. A 1.1-unit timer is nominally 0.018 seconds, but the spell can resolve only on a frame update. At 60 frames per second, it therefore resolves on the second frame, approximately 0.033 seconds after the resonance. A resonating spell proc uses a 1-unit timer, nominally 0.017 seconds.
+
+Resonance has a per-character cooldown. Most resonances set it to approximately one second. A resonating direct-damage weapon proc sets it to approximately 0.08 seconds. The cooldown normally prevents the repeated cast from immediately resonating again.
+
+== Eligible spells ==
+
+Eligibility is based on the spell type.
+
+{| class="wikitable"
+! Spell type !! Can resonate? !! Repeated effect
+|-
+| Direct damage || Yes || Reduced direct-damage base, then normal scaling
+|-
+| Targeted area damage || Yes || Full normal damage
+|-
+| Point-blank area damage || Yes || Full normal damage
+|-
+| Health healing || Yes || Half base healing, then normal scaling
+|-
+| Mana restoration and cleanse effects classified as healing || Yes || Full normal effect
+|-
+| Damage over time and other status effects || No || Not applicable
+|-
+| Beneficial buffs || No || Not applicable
+|-
+| Miscellaneous spells || No || Not applicable
+|-
+| Pet summons || No || Not applicable
+|}
+
+Weapon, bow, wand, and bracer procs use the same eligibility rules. A proc can resonate when the spell produced by the proc belongs to an eligible type.
+
+=== Explicit exclusions ===
+
+The following spells belong to an otherwise eligible type but are specifically prevented from resonating:
+
+'''Reaver damage spells'''
+* {{AbilityLink|Mutual Ache}}
+* {{AbilityLink|Mutual Pain}}
+* {{AbilityLink|Mutual Torment}}
+* {{AbilityLink|Mutual Doom}}
+
+'''Reaver mana-restoration spells'''
+* {{AbilityLink|Dark Ritual}}
+* {{AbilityLink|Dark Pact}}
+* {{AbilityLink|Dark Sacrifice}}
+* {{AbilityLink|Emit Vitae}}
+
+All current targeted area and point-blank area damage spells are eligible.
+
+== Direct-damage formula ==
+
+A resonated direct-damage spell uses 30% of the normal base spell component. Its [[Stats#Intelligence|Intelligence]] and [[Proficiencies|Arcanism]] contribution is then calculated normally.
+
+Let:
+* <math>B</math> be the rounded spell base after {{AbilityLink|Chant Control}} and stance spell-damage modifiers
+* <math>L</math> be character level
+* <math>I</math> be current [[Stats#Intelligence|Intelligence]]
+* <math>A</math> be effective [[Proficiencies|Arcanism]] divided by 100
+* <math>X</math> be the base component used by the current cast
+
+The pre-resistance direct-damage calculation is:
+
+:<math display="block">D=\operatorname{round}\left(X+\operatorname{round}\left(\frac{L}{8}A(3I+X)\right)\right).</math>
+
+For an ordinary cast:
+
+:<math display="block">X=B.</math>
+
+For an ordinary resonated cast:
+
+:<math display="block">X=0.30B.</math>
+
+The <math>3I</math> term retains its full value, so [[Stats#Intelligence|Intelligence]] and [[Proficiencies|Arcanism]] can make the repeated hit substantially larger than 30% of the original hit.
+
+After this calculation, the repeated cast independently applies the critical blast from {{AbilityLink|Arcane Proficiency}}, [[Ascension Skills#Arcanist|Arcane Mastery]], the normal damage cap, and target resistance or mitigation.
+
+== Area damage ==
+
+Targeted area and point-blank area spells repeat their full normal damage calculation. Each target receives another independent resistance roll.
+
+A resonated area spell can therefore deal full normal damage again to every eligible target.
+
+== Healing and mana restoration ==
+
+Health-healing spells can resonate. The repeated heal uses 50% of the spell's base HP value, then applies the full [[Stats#Wisdom|Wisdom]] and [[Proficiencies|Restoration]] contribution. [[Ascension Skills#Druid|Critical Healing]] and other healing bonuses are rolled normally.
+
+The full [[Stats#Wisdom|Wisdom]] and [[Proficiencies|Restoration]] contribution is added after the base HP value is halved, so the repeated heal can exceed half of the original heal.
+
+Mana-restoration spells and cleanse-style effects classified as healing repeat their full normal effect. The four excluded Reaver mana-restoration spells listed above cannot resonate.
+
+== Roaring Echoes ==
+
+The repeat chance is capped at 100%. Resonance above 100 instead improves resonated direct-damage spells through the [[Ascension Skills#Arcanist|Arcanist ascension Roaring Echoes]].
+
+On a resonated direct-damage spell, Roaring Echoes has a 30% activation chance per ascension rank:
+
+{| class="wikitable"
+! Roaring Echoes rank !! Activation chance
+|-
+| 1 || 30%
+|-
+| 2 || 60%
+|-
+| 3 || 90%
+|}
+
+When Roaring Echoes activates at more than 100 RES, it replaces the ordinary 30% base component with:
+
+:<math display="block">X=\frac{R}{100}B.</math>
+
+Examples:
+
+{| class="wikitable"
+! Effective RES !! Base component when Roaring Echoes activates
+|-
+| 110 || 110% of the normal base
+|-
+| 125 || 125% of the normal base
+|-
+| 150 || 150% of the normal base
+|}
+
+The normal [[Stats#Intelligence|Intelligence]] and [[Proficiencies|Arcanism]] contribution is then calculated from the enhanced base.
+
+== Arcane Recovery ==
+
+{{AbilityLink|Arcane Recovery}} is available to [[Arcanist|Arcanists]] at level 12 and to [[Druid|Druids]] and [[Stormcaller|Stormcallers]] at level 20. When a spell resonates, Arcane Recovery restores a random 15% through 65% of that spell's mana cost, up to the caster's maximum mana.
+
+{{AbilityLink|Arcane Recovery}} uses the listed mana cost of the resonating spell. A proc with a nonzero listed mana cost can therefore grant mana through Arcane Recovery.
+
+== See also ==
+* [[Stats]]
+* [[Arcanist]]
+* {{AbilityLink|Arcane Proficiency}}
+* {{AbilityLink|Arcane Recovery}}
+* {{AbilityLink|Chant Control}}
+
+{| class="wikitable" style="text-align:center; width:100%;"
+! Combat Statistics
+|-
+| [[Haste]] &bull; [[Resonance]]
+|}

@@ -1,0 +1,317 @@
+{{DISPLAYTITLE:Chant Control and Resonance}}
+
+'''Chant Control''' is the Arcanist timing skill that lets a player stop a damage spell at a chosen point in its channel. '''Resonance''' is a chance for that spell to be cast again without another mana payment. The two systems are separate: Chant Control changes the spell's scaling multiplier, while Resonance decides whether a second cast is created. [[#Technical evidence|Build 24184286 evidence]] below documents the shipped implementation.
+
+This page describes the direct-damage path in '''build 24184286'''. It does not identify that build as the latest game build.
+
+For current general Resonance behavior, including eligible spell types, healing, mana restoration, item procs, {{AbilityLink|Arcane Recovery}}, and [[Ascension Skills#Arcanist|Roaring Echoes]], see [[Resonance]]. This page limits its Resonance discussion to the direct-damage interaction with Chant Control in build 24184286.
+
+== Quick summary ==
+* Use {{AbilityLink|Chant Control}} while an Arcanist damage spell is channeling to enter controlled-chant mode. Use it again to end the spell immediately. The End Chant asset describes this as scaling damage by how far the channel has progressed; the implementation gives an Arcanist an additional 40% of the original cast time after the normal endpoint. [Source A], [Source B], [Source J]
+* Let <math>p</math> be normalized channel progress: <math>p=0</math> at the start and <math>p=1</math> at the ordinary end of the cast. For direct-damage spells, <math>M(p)=p^2</math> through the ordinary cast and continues along a smaller overchant slope to <math>p=1.4</math>; the same multiplier scales the damage component and base spell cooldown. [Source C], [Source K]
+* Spell/stat and resistance processing happens after the chant-scaled spell component. For a fixed test setup, observed damage is usefully written <math>D=A+B\,M</math>, where <math>A</math> is the fixed part and <math>B</math> is the part affected by Chant Control. [Source C], [Source D], [Source E]
+* [[Resonance]] is a percentage roll using the caster's effective RES. A successful roll creates an immediate, free recast; the resonant damage component is normally 30% of the scalable component. [Source F], [Source G], [Source H], [Source I]
+* The critical blast from {{AbilityLink|Arcane Proficiency}} is an independent multiplier: when it procs, the direct damage bonus is multiplied by a random value from 1.10 through 1.30. It is not the Chant Control multiplier. [Source D]
+* [[Ascension Skills#Arcanist|Roaring Echoes]] changes the resonant component only when the proc occurs and effective RES is above 100: it replaces the ordinary 30% component with <math>R\%</math>, where <math>R</math> is effective RES. Its proc chance is 30% per ascension rank. [Source I]
+
+== Chant Control ==
+
+=== Activation and the overchant window ===
+
+The skill is the End Chant asset (skill ID <code>10823930</code>, display name "Chant Control"). It can be used only while a damage spell is being channeled. The first activation arms controlled-chant mode; a second activation calls the immediate end path. If the player waits past the normal cast endpoint, the Arcanist receives an overchant window equal to 40% of the original cast time. [Source A], [Source B], [Source J]
+
+In the implementation, the spell resolves normally at the ordinary endpoint unless controlled-chant mode is active. During the extra 40%, progress is accumulated as <code>overChantLife / overChantTotal</code>; ending the spell converts the combined progress to the curve below. [Source C]
+
+=== Multiplier ===
+
+Let <math>p</math> be the total normalized progress, including the overchant portion. The Chant Control multiplier is:
+
+:<math display="block">M(p)=\begin{cases}
+p^2, & 0\le p\le 1,\\
+\left[1+0.315\dfrac{p-1}{0.4}\right]^2, & 1<p\le 1.4.
+\end{cases}</math>
+
+The first branch is the ordinary channel: damage grows quadratically with progress. The second branch starts at <math>M(1)=1</math> and reaches <math>M(1.4)=1.729225</math> (about 1.729×). The 0.315 coefficient and the final square are the conversion performed by <code>CompleteSpellEarlyWithScaling</code>. [Source C]
+
+{| class="wikitable"
+! Normalized progress <math>p</math> !! Interpretation !! <math>M(p)</math>
+|-
+| 0.00 || Start of channel || 0.000
+|-
+| 0.25 || One quarter of ordinary cast || 0.063
+|-
+| 0.50 || Half of ordinary cast || 0.250
+|-
+| 0.75 || Three quarters of ordinary cast || 0.563
+|-
+| 1.00 || Ordinary cast endpoint || 1.000
+|-
+| 1.10 || 25% into overchant window || 1.164
+|-
+| 1.20 || Halfway through overchant window || 1.340
+|-
+| 1.30 || 75% through overchant window || 1.528
+|-
+| 1.40 || End of 40% overchant window || 1.729
+|}
+
+[[File:Chant-control-scaling.png|thumb|center|520px|Chant Control's piecewise multiplier <math>M(p)</math>.]]
+
+=== Spell cooldown ===
+
+The same <math>M(p)</math> scales the affected spell's base cooldown before the Arcanist's rank-based Cooldown Reduction is subtracted. Ignoring that later reduction, <math>C_{\mathrm{scaled}}=C_{\mathrm{base}}M(p)</math>: releasing at half cast gives 25% base damage and 25% base cooldown, ordinary completion gives 100% of both, and the ideal overchant endpoint gives about 172.9% of both. [Source K]
+
+This is the cooldown of the spell being channeled, not the cooldown value stored on the Chant Control skill asset. [Source J], [Source K]
+
+=== Why observed damage is not just <math>M</math> ===
+
+<math>M</math> scales the spell's damage component; it is not the complete combat result. Normal caster stat contributions are applied to that component in the damage-bonus calculation, then target resistance and the target's damage-taken stance modifier are applied by <code>Character.MagicDamageMe</code>. [Source D], [Source E], [Source I]
+
+For a fixed spell, caster, target, stance, and resistance setup, this makes a useful empirical model:
+
+:<math display="block">D(M)=A+B\,M.</math>
+
+Here <math>A</math> is the part that does not change with Chant Control and <math>B</math> is the stat-scaled part that does. This decomposition is a comparison tool for like-for-like observations, not a replacement for the complete combat pipeline. [Source C], [Source D], [Source E]
+
+== Resonance ==
+
+=== Chance and recast semantics ===
+
+The caster's effective RES is calculated from base RES, item RES, status effects, and the active stance. The displayed Resonance description calls it a percentage chance for a damage spell to be recast instantly and for no mana. In the direct-damage resolver, a random 0–99 roll succeeds when it is below effective RES; the resolver then starts the same spell with <code>_resonate: true</code> and the normal cast path's mana-use flag is false. [Source F], [Source G], [Source H], [Source B]
+
+The original cast's Chant Control multiplier is carried into that recast, but a resonating cast is marked separately. This is why Resonance is best read as a second cast event with a reduced scalable component, rather than as a second application of the Chant Control curve. [Source B], [Source H]
+
+[[File:Resonance-scaling.png|thumb|center|520px|Ordinary resonance and Roaring Echoes scaling.]]
+
+=== Ordinary resonance ===
+
+For a resonating direct-damage spell, the scalable damage component is normally:
+
+:<math display="block">B_{\mathrm{res}}=0.30\,B.</math>
+
+The fixed portion and subsequent target processing still apply, so the ordinary-resonance observation is not exactly 30% of the original final number. In the <math>A+B\,M</math> comparison model, ordinary resonance at the same chant point is represented by replacing the scalable component with its 30% resonant component. [Source D], [Source I]
+
+=== Arcane Proficiency critical blast ===
+
+The critical blast granted by {{AbilityLink|Arcane Proficiency}} is a separate conditional branch in the direct-damage resolver. When its condition is met, the already-built damage bonus is multiplied by a random 1.10–1.30. It does not alter <math>M(p)</math>, the Resonance chance, or the Roaring Echoes rule. Thus a critical result should be compared with a noncritical result at the same chant and resonance state, rather than folded into the Chant Control formula. [Source D]
+
+=== Roaring Echoes ===
+
+Roaring Echoes is checked on a resonating cast. It procs with a chance of 30% per ascension rank. If it procs and effective RES is above 100, let <math>R</math> be that RES value. The ordinary 30% resonant component is replaced by:
+
+:<math display="block">B_{\mathrm{echo}}=\dfrac{R}{100}\,B\qquad (R>100).</math>
+
+Equivalently, the resonant component uses 30% normally, but uses <math>R\%</math> when Roaring Echoes activates at <math>R>100</math>. At <math>R=122</math>, for example, the replacement component is 122% of <math>B</math>, not 30% of <math>B</math>. The condition and the rank roll are visible together in the shipped <code>CalcDmgBonus</code> method. [Source I]
+
+[[File:Resonance-observed-results.png|thumb|center|520px|Community observations at 122 RES, shown as noncritical and critical blast results.]]
+
+== Community validation at 122 RES ==
+
+The following like-for-like community observations use the same direct-damage setup and 122 RES. "Original" is the initial cast, "ordinary resonance" is a resonant cast without Roaring Echoes, and "Roaring Echoes" is the resonant result with the conditional replacement active. These are the community validation measurements reproduced below.
+
+{| class="wikitable"
+! Case !! Noncritical damage !! critical blast damage
+|-
+| Original cast || 33335 || 39805
+|-
+| Ordinary resonance || 15548 || 17669
+|-
+| Roaring Echoes || 38927 || 45178
+|}
+
+A decomposition of the original and Roaring Echoes observations gives <math>A\approx7917</math> and <math>B\approx25418</math>: <math>A+B\approx33335</math> and <math>A+1.22B\approx38927</math>. It then predicts <math>A+0.30B\approx15542</math> for ordinary resonance, close to the observed 15548. Extending the same decomposition to the end of the Chant Control window gives <math>A+25418\times1.729225\approx51871</math>, close to the observed maximum-chant value 52395. The like-for-like conclusion is that the observations support a quadratic Chant Control curve, a 30% ordinary resonant component, and a distinct high-RES Roaring Echoes replacement; critical blast remains an independent 1.10–1.30 multiplier. The supporting data are the community validation table above; implementation details are [Source C], [Source D], and [Source I].
+
+== Reproducibility ==
+
+The three plots on this page are generated deterministically by [https://github.com/glockyco/erenshor-data-mining/blob/main/src/tools/render_spell_scaling_plots.py <code>src/tools/render_spell_scaling_plots.py</code>]. Run that script from the repository with Pillow installed; it writes <code>chant-control-scaling.png</code>, <code>resonance-scaling.png</code>, and <code>resonance-observed-results.png</code> to <code>wiki/mechanics/images/</code>. The script is the single source for regenerating the plot pixels; the formulas and observations above are the documented inputs.
+
+== Technical evidence (build 24184286) ==
+
+The excerpts below are local reference evidence extracted from the shipped game's decompiled scripts for build 24184286. These decompiled shipped-game files are '''not repository-authored source'''; they are retained locally so the mechanics can be checked against the shipped build. Paths are repository-relative and line ranges refer to those retained files.
+
+=== Skill gate and activation ===
+
+'''Source A — <code>variants/main/backups/build-24184286/scripts/Assembly-CSharp/UseSkill.cs</code>, <code>UseSkill.DoSkill</code>, lines 118–125 and 497–500:''' the End Chant skill ID is accepted only while casting, then calls <code>ControlledChant()</code>.
+
+<syntaxhighlight lang="csharp">
+if (_skill.Id == "10823930")
+{
+    if (MyStats?.Myself?.MySpells?.isCasting() != true)
+        passCheck = false;
+}
+// ...
+if (_skill.TypeOfSkill == Skill.SkillType.Other && _skill.Id == "10823930"
+    && MyStats?.Myself?.MySpells?.isCasting() == true)
+{
+    result = MyStats.Myself.MySpells.ControlledChant();
+}
+</syntaxhighlight>
+
+'''Source B — <code>variants/main/backups/build-24184286/scripts/Assembly-CSharp/CastSpell.cs</code>, <code>StartSpell</code>, <code>ControlledChant</code>, and <code>EndCastWithScaling</code>, lines 219–267 and 434–449:''' the cast component forwards activation and scaling completion; the resonance recast path uses <code>_useMana: false</code>.
+
+<syntaxhighlight lang="csharp">
+CurrentVessel.CreateSpellChargeEffect(CurrentlyCasting, base.transform, _target,
+    this, castTime, _useMana: false, _resonate);
+
+public bool ControlledChant()
+{
+    if (CurrentVessel != null && CurrentVessel.spell != null)
+        return CurrentVessel.DoControlledChant();
+    return false;
+}
+
+public void EndCastWithScaling()
+{
+    if (CurrentVessel != null && CurrentVessel.spell != null)
+        CurrentVessel.CompleteSpellEarlyWithScaling();
+}
+</syntaxhighlight>
+
+=== Chant curve and direct damage ===
+
+'''Source C — <code>variants/main/backups/build-24184286/scripts/Assembly-CSharp/SpellVessel.cs</code>, <code>CreateSpellChargeEffect</code>, <code>Update</code>, <code>DoControlledChant</code>, and <code>CompleteSpellEarlyWithScaling</code>, lines 141–191, 311–364, and 436–464:''' Arcanists receive <code>totalLife * 0.4f</code>; the controlled branch accumulates overchant life; completion computes the pre-square progress and then squares it.
+
+<syntaxhighlight lang="csharp">
+if (_source.MyChar.MyStats.CharacterClass == GameData.ClassDB.Arcanist)
+    overChantTotal = totalLife * 0.4f;
+// ...
+else if (overChantLife < overChantTotal)
+{
+    overChantLife = EffectLife - totalLife;
+    if (overChantLife >= overChantTotal)
+        CompleteSpellEarlyWithScaling();
+}
+// ...
+public bool DoControlledChant()
+{
+    if (!ControlledChant)
+    {
+        ControlledChant = true;
+        return false;
+    }
+    CompleteSpellEarlyWithScaling();
+    return true;
+}
+
+public void CompleteSpellEarlyWithScaling()
+{
+    scaleDmg = Mathf.Clamp01(EffectLife / totalLife)
+        + 0.315f * (overChantLife / overChantTotal);
+    scaleDmg = ConvertToCurve(scaleDmg * 100f) / 100f;
+    ResolveSpell();
+}
+
+private float ConvertToCurve(float scaleC, float p = 2f)
+{
+    float f = scaleC / 100f;
+    return 100f * Mathf.Pow(f, p);
+}
+</syntaxhighlight>
+
+'''Source D — <code>variants/main/backups/build-24184286/scripts/Assembly-CSharp/SpellVessel.cs</code>, <code>ResolveSpell</code>, lines 522–563:''' the direct-damage branch builds the spell component from <code>scaleDmg</code>, applies the independent critical blast range, and passes the result to <code>MagicDamageMe</code>.
+
+<syntaxhighlight lang="csharp">
+if (spell.TargetDamage > 0 && (SpellSource.isPlayer || SpellSource.isSimPlayer))
+    dmgBonus = CalcDmgBonus(Mathf.RoundToInt(
+        spell.TargetDamage * scaleDmg
+        + spell.TargetDamage * (stance.SpellDamageMod - 1f)));
+if (flag2)
+    dmgBonus = Mathf.RoundToInt((float)dmgBonus * Random.Range(1.1f, 1.3f));
+int num3 = targ.GetComponent<Character>().MagicDamageMe(
+    dmgBonus, /* ... */, resistModifier, spell.TargetDamage);
+</syntaxhighlight>
+
+'''Source E — <code>variants/main/backups/build-24184286/scripts/Assembly-CSharp/Character.cs</code>, <code>MagicDamageMe</code>, lines 1510–1582:''' target-side magic damage checks resistance and applies the target stance's damage-taken modifier after the incoming spell damage is built.
+
+<syntaxhighlight lang="csharp">
+num2 = CheckResistAmount(resistMod, _attacker.MyStats.Level, _dmgType);
+// ...
+_dmg = Mathf.RoundToInt(((float)_dmg - (float)_dmg * num2)
+    * MyStats.CombatStance.DamageTakenMod);
+</syntaxhighlight>
+
+'''Source K — <code>variants/main/backups/build-24184286/scripts/Assembly-CSharp/SpellVessel.cs</code>, <code>EndSpell</code>, lines 1984–2001:''' for a non-proc player cast, the affected spell's base cooldown is multiplied by <code>scaleDmg</code>, then the Arcanist Cooldown Reduction rank subtracts its separate amount.
+
+<syntaxhighlight lang="csharp">
+if (allHotkey.Cooldown <= spell.Cooldown * 60f * CDMult * scaleDmg)
+{
+    allHotkey.Cooldown = spell.Cooldown * 60f * CDMult * scaleDmg;
+}
+allHotkey.Cooldown -= spell.Cooldown * 60f
+    * (SpellSource.MyChar.MySkills.GetAscensionRank("7758218") * 0.1f)
+    * CDMult;
+</syntaxhighlight>
+
+=== RES and resonance ===
+
+'''Source H — <code>variants/main/backups/build-24184286/scripts/Assembly-CSharp/SpellVessel.cs</code>, <code>ResolveSpell</code>, lines 741–773:''' the effective-RES roll gates a recast, starts it with <code>_resonate: true</code>, carries <code>scaleDmg</code>, and applies the resonance cooldown.
+
+<syntaxhighlight lang="csharp">
+if (Random.Range(0, 100) >= SpellSource.MyChar.MyStats.GetCurrentRes()
+    || !(SpellSource.MyChar.MyStats.resonanceCD <= 0f) || spell.NoResonate)
+    break;
+if (!isProc)
+    SpellSource.StartSpell(spell, targ, 1.1f, _resonate: true, scaleDmg);
+else
+    SpellSource.StartSpellFromProc(spell, targ, 1f, _resonating: true, scaleDmg);
+</syntaxhighlight>
+
+'''Source G — <code>variants/main/backups/build-24184286/scripts/Assembly-CSharp/CalcStats.cs</code>, <code>CalcStats.MouseOverRes</code>, lines 248–250:''' the shipped UI describes Resonance as a percent chance to recast damage spells instantly and for no mana, while warning that a resonating spell may not do full damage.
+
+<syntaxhighlight lang="csharp">
+StatDescHeadline.text = "Resonance";
+StatDescText.text = "Resonance is a characters % chance to have any damage spell "
+    + "re-cast itself instantly, and for no mana. Resonating spells may not do "
+    + "full spell damage.";
+</syntaxhighlight>
+
+'''Source F — <code>variants/main/backups/build-24184286/scripts/Assembly-CSharp/Stats.cs</code>, <code>Stats.CalcStats</code>, lines 449–476:''' effective RES is assembled from base, item, and status values and multiplied by stance ResonanceAmount.
+
+<syntaxhighlight lang="csharp">
+CurrentRes = Mathf.RoundToInt((float)(BaseRes + MyInv.ItemRes + seRes)
+    * stance.ResonanceAmount);
+</syntaxhighlight>
+
+'''Source I — <code>variants/main/backups/build-24184286/scripts/Assembly-CSharp/SpellVessel.cs</code>, <code>CalcDmgBonus</code>, lines 2420–2445:''' resonating damage uses 0.3, then a Roaring Echoes rank roll of 30 per rank; when current RES exceeds 100, the component becomes <math>R\%</math> of the base.
+
+<syntaxhighlight lang="csharp">
+if (resonating)
+{
+    num *= 0.3f;
+    if (Random.Range(0, 100)
+        < SpellSource.MyChar.MySkills.GetAscensionRank("32723648") * 30)
+    {
+        int num2 = SpellSource.MyChar.MyStats.GetCurrentRes() - 100;
+        if (num2 > 0)
+        {
+            num = _baseDamage;
+            num += (float)_baseDamage * ((float)num2 / 100f);
+        }
+    }
+}
+</syntaxhighlight>
+
+'''Source J — <code>variants/main/unity/ExportedProject/Assets/Resources/skills/End Chant.asset</code>, lines 10–20 and 24–27:''' the shipped End Chant record identifies skill ID <code>10823930</code>, names it Chant Control, requires Arcanist level 1, and describes the controlled damage/overchant behavior.
+
+<syntaxhighlight lang="yaml">
+m_Name: End Chant
+Id: 10823930
+SkillName: Chant Control
+Cooldown: 120
+SkillDesc: Activate any time during the channeling of a DAMAGE SPELL to control your chant. Activate again to immediately end the spell. Damage is scaled by how far along the channel was. Going over 100% increases damage further, but adds a cooldown penalty.
+ArcanistRequiredLevel: 1
+TypeOfSkill: 4
+</syntaxhighlight>
+
+== See also ==
+* {{AbilityLink|Chant Control}}
+* [[Resonance]]
+* {{AbilityLink|Arcane Proficiency}}
+* [[Ascension Skills#Arcanist|Roaring Echoes]]
+* [[Arcanist]]
+* [[Spell damage]]
+
+[[Category:Mechanics]]
+[[Category:Combat]]
+[[Category:Abilities]]
+[[Category:Arcanist]]

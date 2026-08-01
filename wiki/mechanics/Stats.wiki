@@ -1,0 +1,116 @@
+{{tocright}}
+'''{{PAGENAME}}''' or statistics determine your character's ability to perform in specific categories.
+{{Quote|Stats are king.|Burgee}}
+=Main Stats=
+There are seven main stats in [[Erenshor]]: '''Strength''' (''Str''), '''Endurance''' (''End''), '''Dexterity''' (''Dex''), '''Agility''' (''Agi''), '''Intelligence''' (''Int''), '''Wisdom''' (''Wis''), and '''Charisma''' (''Cha''). Each stat governs various attributes, while [[Proficiencies]] determine how strongly those stats are used in calculations.
+
+Players begin the game with '''12''' points in each main stat regardless of class, and this number does not change as the character levels up. Instead, stats in Erenshor are primarily increased through equipment, including [[Weapons]], [[Armor]], [[Charm|Charms]], and [[Auras]]. Stats can also be temporarily raised or lowered through various [[Status Effects]], including buffs and debuffs, as well as [[Consumables|Consumables]], [[:Category:Abilities|Spells]], and [[:Category:Abilities|Abilities]].
+
+The effectiveness of most stats is directly influenced by character [[Leveling|level]] and [[Proficiencies]]. For example, each point of Endurance adds 0.2 / 0.4 / 0.8 maximum HP per character level before rounding at 10 / 20 / 40 [[Proficiencies|Hardiness]].
+
+
+==Strength==
+'''Strength''' factors into a character's melee and bow damage. [[Proficiencies|Physicality]] determines how much Strength contributes.
+
+==Endurance==
+'''Endurance''' increases a character's maximum HP and health regeneration. [[Proficiencies|Hardiness]] determines how much Endurance contributes.
+
+==Dexterity==
+'''Dexterity''' influences a character's melee and bow damage, hit quality, critical hit chance, block chance, and weapon proc chance. [[Proficiencies|Finesse]] determines how much Dexterity contributes.
+
+==Agility==
+'''Agility''' governs a character's [[#Other Stats|Armor Class]] (''AC'') and dodge chance. [[Proficiencies|Defense]] determines how much Agility contributes.
+
+==Intelligence==
+'''Intelligence''' increases a character's offensive spell damage, maximum MP, and wand attack damage. With {{AbilityLink|Arcane Proficiency}}, it also increases spell critical hit chance. [[Proficiencies|Arcanism]] determines how much Intelligence contributes.
+
+==Wisdom==
+'''Wisdom''' increases the strength of a character's healing spells and the amount of MP restored by mana regeneration. [[Proficiencies|Restoration]] determines how much Wisdom contributes.
+
+==Charisma==
+'''Charisma''' helps offensive spells bypass the target's resistances. [[Proficiencies|Mind]] determines how much Charisma contributes.
+
+= Other Stats =
+In addition to the main stats there are also other important statistics:
+{| class="wikitable"
+!Name
+!Description
+|-
+|HP
+|Your character's total Health Points. Once it reaches 0 you die.
+|-
+|AC
+|Your character's total Armor Class. Higher AC reduces more damage from physical attacks.
+|-
+|MP
+|Your character's total Mana Points. Required for casting spells.
+|-
+|MP Regen
+|Higher MP Regen restores more MP each regeneration tick.
+|-
+|Resists
+|Resistance to Magic, Elemental, Poison, and Void damage. Higher resistance reduces damage from that type.
+|-
+|Attack Bonus
+|Adds a flat bonus to melee and bow attack rolls, reducing misses and increasing hit damage.
+|-
+|[[Resonance]]
+|Gives a % chance to instantly recast a spell for free.
+|-
+|[[Haste]]
+|Reduces main-hand weapon attack delay, increasing attack speed. Haste stacks additively and is capped at 60%.
+|}
+
+The following stats affect your character but are not shown in the stats panel:
+
+=== Hidden Stats ===
+{| class="wikitable"
+!Name
+!Description
+|-
+|Running speed
+|The higher it is the faster you run and swim.
+|-
+|Attack delay
+|The time between basic attacks. Lower attack delay means faster attacks.
+|-
+|Life Steal
+|Heals the attacker for a percentage of damage dealt by melee attacks, bow attacks, and physical combat skills.
+|}
+<!--
+===Stat Scaling===
+
+HP increase based on Endurance and Strength with examples:
+{| class="wikitable"
+|+Stat bonuses
+!Class
+!per 1 Endurance
+!per 1 Strength
+!10 End at level 10
+!10 Str at level 10
+|-
+|Arcanist
+|0.05 * Level
+|0.01 * Level
+| +5
+| +1
+|-
+|Druid
+|0.1 * Level
+|0.05 * Level
+| +10
+| +5
+|-
+|Duelist
+|0.1 * Level
+|0.15 * Level
+| +10
+| +15
+|-
+|Paladin
+|0.15 * Level
+|0.15 * Level
+| +15
+| +15
+|}
+-->
