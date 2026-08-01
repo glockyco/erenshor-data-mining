@@ -1,0 +1,268 @@
+/* Main page — almanac layout.
+   Deploy to [[Template:Main page/styles.css]] (content model: sanitized-css).
+   Colours come from the skin's Codex tokens so the page holds in both the
+   night and day themes; literal fallbacks match the night theme. */
+
+.mp-masthead {
+	margin: 0 0 1.75rem;
+	padding-bottom: 1rem;
+	border-bottom: 3px double var(--border-color-base, #866806);
+}
+
+.mp-wordmark {
+	margin: 0;
+	font-family: "Linux Libertine", Georgia, Times, serif;
+	font-size: clamp(2.5rem, 6vw, 3.75rem);
+	font-weight: 400;
+	line-height: 1;
+	letter-spacing: 0.02em;
+	color: var(--color-base, #ededed);
+}
+
+.mp-standfirst {
+	max-width: 62ch;
+	margin: 0.75rem 0 0;
+	font-size: 1.05rem;
+	line-height: 1.5;
+}
+
+.mp-colophon {
+	margin-top: 1rem;
+	font-size: 0.8125rem;
+	line-height: 1.7;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	font-variant-numeric: tabular-nums;
+	color: var(--color-subtle, #b9ab90);
+}
+
+.mp-colophon b {
+	font-weight: 600;
+	color: var(--color-base, #ededed);
+}
+
+.mp-spoiler {
+	margin: 0 0 2.5rem;
+	padding: 0.5rem 0;
+	border-top: 1px solid var(--border-color-base, #866806);
+	border-bottom: 1px solid var(--border-color-base, #866806);
+	font-size: 0.9375rem;
+}
+
+.mp-spoiler b {
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--color-destructive, #ff6666);
+}
+
+/* Section heading: rule above, tight below. */
+.mp-section {
+	margin: 2.75rem 0 0;
+	padding-top: 0.5rem;
+	border-top: 1px solid var(--border-color-base, #866806);
+	font-family: "Linux Libertine", Georgia, Times, serif;
+	font-size: 1.5rem;
+	font-weight: 400;
+	line-height: 1.2;
+	color: var(--color-base, #ededed);
+}
+
+.mp-section-note {
+	margin: 0.25rem 0 1.25rem;
+	max-width: 68ch;
+	font-size: 0.9375rem;
+	color: var(--color-subtle, #b9ab90);
+}
+
+/* Patch entry — the one place the page raises its voice. */
+.mp-patch {
+	display: grid;
+	grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+	gap: 1.5rem 2.5rem;
+	align-items: start;
+}
+
+.mp-patch-title {
+	margin: 0 0 0.4rem;
+	font-family: "Linux Libertine", Georgia, Times, serif;
+	font-size: 1.75rem;
+	line-height: 1.15;
+	color: var(--color-base, #ededed);
+}
+
+.mp-patch-body {
+	margin: 0;
+	max-width: 60ch;
+	line-height: 1.6;
+}
+
+.mp-facts {
+	margin: 0;
+	font-variant-numeric: tabular-nums;
+	font-size: 0.9375rem;
+}
+
+.mp-facts div {
+	display: flex;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: 0.3rem 0;
+	border-bottom: 1px solid var(--border-color-subtle, #3a3125);
+}
+
+.mp-facts dt {
+	color: var(--color-subtle, #b9ab90);
+}
+
+.mp-facts dd {
+	margin: 0;
+	font-weight: 600;
+	text-align: right;
+}
+
+/* Gazetteer — the world indexed by level band. */
+.mp-bands {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+	gap: 1.75rem 1.5rem;
+}
+
+.mp-band {
+	display: flex;
+	flex-direction: column;
+}
+
+.mp-band-level {
+	margin: 0 0 0.5rem;
+	padding-bottom: 0.35rem;
+	border-bottom: 1px solid var(--border-color-base, #866806);
+	font-variant-numeric: tabular-nums;
+	font-size: 1.125rem;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	color: var(--color-base, #ededed);
+	transition: border-color 160ms ease-out;
+}
+
+.mp-band:hover .mp-band-level,
+.mp-band:focus-within .mp-band-level {
+	border-bottom-color: var(--color-progressive, #f8ca2e);
+}
+
+.mp-band ul {
+	margin: 0 0 0.6rem;
+	padding: 0;
+	list-style: none;
+	font-size: 0.9375rem;
+	line-height: 1.75;
+}
+
+.mp-band-guide {
+	display: block;
+	margin-top: auto;
+	padding-top: 0.5rem;
+	border-top: 1px dotted var(--border-color-subtle, #3a3125);
+	font-size: 0.875rem;
+	color: var(--color-subtle, #b9ab90);
+}
+
+/* Reference index — replaces the icon grid. */
+.mp-index {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+	gap: 1.5rem;
+}
+
+.mp-index h3 {
+	margin: 0 0 0.4rem;
+	font-family: inherit;
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.11em;
+	text-transform: uppercase;
+	color: var(--color-subtle, #b9ab90);
+}
+
+.mp-index ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	line-height: 1.85;
+}
+
+/* Map — flagship companion surface. */
+.mp-map {
+	display: grid;
+	grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+	gap: 1.5rem 2.5rem;
+	align-items: start;
+}
+
+.mp-map p {
+	margin: 0 0 0.75rem;
+	max-width: 56ch;
+	line-height: 1.6;
+}
+
+.mp-cta {
+	display: inline-block;
+	padding: 0.45rem 1.1rem;
+	border: 1px solid var(--color-progressive, #f8ca2e);
+	font-size: 0.9375rem;
+	font-weight: 600;
+	letter-spacing: 0.03em;
+	transition: background-color 160ms ease-out;
+}
+
+.mp-cta a.external,
+.mp-maplinks a.external {
+	background: none;
+	padding-right: 0;
+}
+
+.mp-cta:hover,
+.mp-cta:focus-within {
+	background-color: var(--color-progressive, #f8ca2e);
+}
+
+.mp-cta:hover a,
+.mp-cta:focus-within a {
+	color: #171717;
+	text-decoration: none;
+}
+
+/* Colophon foot — contribute and official links. */
+.mp-foot {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+	gap: 2rem;
+}
+
+.mp-foot ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	line-height: 1.85;
+	font-size: 0.9375rem;
+}
+
+.mp-foot ol {
+	margin: 0;
+	padding-left: 1.2rem;
+	line-height: 1.7;
+	font-size: 0.9375rem;
+}
+
+@media (max-width: 720px) {
+	.mp-patch,
+	.mp-map {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.mp-band-level,
+	.mp-cta {
+		transition: none;
+	}
+}
