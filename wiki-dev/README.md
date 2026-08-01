@@ -266,3 +266,29 @@ cd wiki-dev
 docker compose down -v
 rm -rf db images runtime
 ```
+
+## Mirror live content for review
+
+`import_pages.py` imports only repository-managed sources, which leaves the
+local wiki with a few hundred pages against the live wiki's several thousand.
+Anything that depends on real content (main page links, category sizes,
+navigation, search) therefore cannot be reviewed locally.
+
+```bash
+uv run python wiki-dev/mirror_live.py --dry-run
+uv run python wiki-dev/mirror_live.py                # pages only, ~6 minutes
+uv run python wiki-dev/mirror_live.py --with-files   # also images, ~800 MB
+```
+
+It reads live through the export API and imports with `importDump.php`. It
+holds back every title `import_pages.py` manages, so repository sources still
+govern those and the import manifest stays authoritative. It only reads from
+live and cannot write there.
+
+Namespaces default to main, File, and Category. Template and Module are
+excluded deliberately: mirroring them would hide local changes under whatever
+live currently has. Pass `--namespaces` to override.
+
+Note that `importDump.php` runs with `--no-updates`, so the script recomputes
+`site_stats` afterwards. Without that, `Special:Statistics` and
+`{{NUMBEROFARTICLES}}` keep reporting the pre-mirror counts.
