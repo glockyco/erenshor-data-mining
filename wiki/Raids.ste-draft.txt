@@ -96,10 +96,10 @@ The raid window replaces the group window. It has 14 slots for [[Simulated Playe
 * '''Group task.''' Set one task for each of the three groups. A group can help the first, the second, or the third group. A group can also attack its own target, or attack all adds.
 * '''Main Assist and Main Tank.''' This is one role, not two. Each group has one member with this role. The other members attack the target of this member. Healers heal this member first.
 * '''Puller.''' Each group can have one puller.
-* '''CC and Heals.''' These are flags. More than one member in a group can have them. An example of crowd control is {{AbilityLink|Coma}}.
+* '''CC and Heals.''' These are flags. More than one member in a group can have them.
 * '''Heal assignments.''' For each healer, set a percentage of maximum health for each other member. The healer heals that member when the health of that member goes below the percentage. A value of zero removes the assignment.
 * '''DPS throttle.''' Increase the delay between the attacks of one group or of the full raid. At high values, Sim Players do not use their spells and skills.
-* '''Loot dist.''' Give an item to a raid member. Use this control for {{ItemLink|Sivakrux|text=Sivakruxes}} and {{ItemLink|Planar Stone|text=Planar Stones}}.
+* '''Loot dist.''' Give an item to a raid member. The window shows only the members whose class can use the item. {{ItemLink|Sivakrux|text=Sivakruxes}} and {{ItemLink|Planar Stone|text=Planar Stones}} are an exception. For these two items, the window shows all members.
 
 All raid members receive the experience from a kill. Each kill also increases the opinion of your Sim Players about you.
 
