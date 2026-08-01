@@ -317,6 +317,14 @@ the architecture: **the Lua data module stays the record.**
   1,043, `ItemEffects` 603, `CharacterFactionModifiers` 1,387, `AbilityClasses` 344,
   `UsedIn` 325.
 
-## Sequencing
+## Execution owner
 
-All of this lands **before** the first production `cargorecreatetables`.
+`2026-08-01-wiki-cargo-cutover-foundation` owns implementation order. Its task 1
+requires human approval of this technical contract. Its task 4 applies the payload,
+headroom, junction, declaration, and schema changes below, and task 7 performs first
+production table creation only after selector, deploy-safety, and module prerequisites
+pass.
+
+All schema work lands before the first production `cargorecreatetables`. This spec
+remains `draft` until reviewed and is not promoted automatically by the planning
+cleanup.
