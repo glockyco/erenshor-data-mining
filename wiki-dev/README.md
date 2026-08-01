@@ -19,12 +19,25 @@ runtime surface used by production pages:
 ```text
 Cargo
 Gadgets
+InputBox
 ParserFunctions
 PortableInfobox
 Scribunto
 TemplateSandbox
+TemplateStyles
+TemplateStylesExtender
 Vector
 ```
+
+`TemplateStyles` is paired with `TemplateStylesExtender` because the live wiki
+runs both. The Extender is what permits CSS custom properties and `var()`, so
+pages that adapt to the night and day themes through the skin's Codex tokens
+only sanitize correctly when it is loaded. `wikimedia/css-sanitizer` ships in
+the base image, so neither extension needs composer.
+
+The local stack does not provide `__NOTITLE__`, which the live wiki supports.
+Pages that use it render the literal magic word locally. That is a known
+preview gap, not a page defect.
 
 The live wiki is MediaWiki 1.43.6 with Classic Vector, Scribunto,
 TemplateSandbox, Gadgets/DataTables, PortableInfobox, and LIBRARIAN 4.21.0

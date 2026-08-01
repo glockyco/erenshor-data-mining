@@ -27,3 +27,12 @@ RUN set -eux; \
     git clone --depth 1 --branch REL1_43 --recurse-submodules https://gerrit.wikimedia.org/r/mediawiki/extensions/VisualEditor /var/www/html/extensions/VisualEditor; \
     git clone --depth 1 --branch REL1_43 https://gerrit.wikimedia.org/r/mediawiki/extensions/WikiEditor /var/www/html/extensions/WikiEditor; \
     git clone --depth 1 https://github.com/Universal-Omega/PortableInfobox.git /var/www/html/extensions/PortableInfobox
+
+# TemplateStyles mirrors the live wiki, which runs TemplateStyles with the
+# Extender. The Extender is what permits CSS custom properties and var(), so
+# pages that adapt to the night and day themes through the skin's Codex tokens
+# only sanitize correctly when both are present. wikimedia/css-sanitizer is
+# already vendored by the base image, so neither needs composer.
+RUN set -eux; \
+    git clone --depth 1 --branch REL1_43 https://gerrit.wikimedia.org/r/mediawiki/extensions/TemplateStyles /var/www/html/extensions/TemplateStyles; \
+    git clone --depth 1 https://github.com/octfx/mediawiki-extensions-TemplateStylesExtender.git /var/www/html/extensions/TemplateStylesExtender

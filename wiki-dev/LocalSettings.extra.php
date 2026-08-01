@@ -14,6 +14,10 @@ wfLoadExtension( 'WikiEditor' );
 wfLoadExtension( 'CodeMirror' );
 wfLoadExtension( 'TemplateData' );
 wfLoadExtension( 'VisualEditor' );
+wfLoadExtension( 'TemplateStyles' );
+wfLoadExtension( 'TemplateStylesExtender' );
+# InputBox backs the create-page form on the main page. Bundled with core.
+wfLoadExtension( 'InputBox' );
 
 
 $wgScribuntoDefaultEngine = 'luastandalone';
