@@ -3,6 +3,7 @@
 ** recentchanges-url|recentchanges
 ** randompage-url|randompage
 ** helppage|help-mediawiki
+** Player Guide|About Game
 
 * Getting Started
 ** Player Guide|Player Guide
@@ -42,10 +43,10 @@
 ** Teleportation|Teleportation
 
 * Guides
-** :Category:Guides|All guides
-** Raid Unlocking Walkthrough|Unlocking raids
-** Class Roles in the Planar March Raid|Class roles in raids
-** Distributing Gear in the Planar March Raid|Distributing raid gear
+** :Category:Guides|All Guides
+** Raid Unlocking Walkthrough|Unlocking Raids
+** Class Roles in the Planar March Raid|Class Roles in Raids
+** Distributing Gear in the Planar March Raid|Distributing Raid Gear
 ** Shivering Step Walkthrough|Shivering Step
 ** The Mystery of Bellwain Island|Bellwain Island
 

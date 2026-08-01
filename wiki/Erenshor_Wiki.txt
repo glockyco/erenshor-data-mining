@@ -82,6 +82,7 @@
 <div>
 <h3 class="mp-label">Other Activities</h3>
 <ul>
+<li>[[Teleportation]]</li>
 <li>[[Fishing]]</li>
 <li>[[Auction House]]</li>
 <li>[[The Mystery of Bellwain Island]]</li>
@@ -95,7 +96,7 @@
 
 <div class="mp-popular">
 <div class="mp-popular-links">
-[[Classes]] &nbsp;·&nbsp; [[Simulated Players]] &nbsp;·&nbsp; [[Recommended Gear]] &nbsp;·&nbsp; [[Item Quality]] &nbsp;·&nbsp; [[Zones]] &nbsp;·&nbsp; [[Raids]] &nbsp;·&nbsp; [[Ability Books]] &nbsp;·&nbsp; [[Fishing]] &nbsp;·&nbsp; [[Port Azure]] &nbsp;·&nbsp; [[Factions]] &nbsp;·&nbsp; [[Achievements]] &nbsp;·&nbsp; [[Server Admin Panel]] &nbsp;·&nbsp; [[Lore|History of Erenshor]]
+[[Classes]] &nbsp;·&nbsp; [[Simulated Players]] &nbsp;·&nbsp; [[Recommended Gear]] &nbsp;·&nbsp; [[Item Quality]] &nbsp;·&nbsp; [[Zones]] &nbsp;·&nbsp; [[Teleportation]] &nbsp;·&nbsp; [[Raids]] &nbsp;·&nbsp; [[Ability Books]] &nbsp;·&nbsp; [[Fishing]] &nbsp;·&nbsp; [[Port Azure]] &nbsp;·&nbsp; [[Factions]] &nbsp;·&nbsp; [[Achievements]] &nbsp;·&nbsp; [[Server Admin Panel]] &nbsp;·&nbsp; [[Lore|History of Erenshor]]
 </div>
 <div class="mp-map-callout">
 <span class="mp-cta">[https://erenshor.compendiums.org/map Open the interactive map]</span>
