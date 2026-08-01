@@ -47,11 +47,4 @@ Text outside the infobox is never touched. Notes, sections, and categories that 
 
 If a value looks wrong on a page the bot maintains, correcting it on the wiki will not hold, because the next run regenerates it. Report it instead: the fix belongs in the export pipeline, and the same error is usually repeated across many pages.
 
-== Edit summaries ==
-
-* '''Automated wiki update''' — the routine run after a game update
-* '''Update vendor inventory from current game data''' — vendor stock tables
-* '''Deploy repo-owned wiki pages''' — templates and Lua modules from the repository
-* Anything more specific describes a one-off migration, such as an item quality rename or a link repair
-
 [[Category:Erenshor Wiki]]
