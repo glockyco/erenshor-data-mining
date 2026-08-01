@@ -34,8 +34,16 @@ and rollback.
   old and new revision ids and timestamps, and a rollback sidecar.
 - Deploy stages are ordered: generated data, then Lua modules, then Cargo
   declarations, then templates, then content pages.
-- Accounts are correctly separated: the bot for content, `WoWMuch@InterfaceDeploy`
-  for the `MediaWiki` namespace, anonymous reads for inventory.
+- Accounts are separated by namespace and operation. The bot is used for ordinary
+  content, while privileged interface and Cargo operations require an account whose
+  effective session holds the necessary rights. Credential labels alone are never
+  accepted as proof of authorization.
+- On 2026-08-01, both configured BotPassword sessions received MediaWiki error code
+  `cascadeprotected` when editing `Erenshor Wiki` and
+  `Template:Main page/styles.css`. An authenticated browser edit succeeded for
+  `Template:Main page/styles.css` at revision 45126 and `Erenshor Wiki` at revision
+  45127. This proves that account membership and a configured credential do not
+  establish that the selected API session can mutate a protected target.
 
 ## Gaps
 
@@ -77,11 +85,18 @@ against production would have caught both revert incidents before any write.
 Cargo recreate runs one job per contributing page. On shared hosting `$wgJobRunRate`
 governs progress, so completion must be observed rather than assumed.
 
-### 6. Cargo recreate is not automatable by the bot
+### 6. Privileged operations require effective-rights and protection checks
 
 `WoWBot` lacks `recreatecargodata`. The tooling prints an instruction to use
 `Special:CargoTables` and stops, which is correct today but leaves the most dangerous
 step entirely manual and unrecorded.
+
+Protection is a separate effective-authorization boundary. On 2026-08-01, both
+configured BotPassword sessions received MediaWiki error code `cascadeprotected` for
+`Erenshor Wiki` and `Template:Main page/styles.css`. Authenticated browser edits
+succeeded for the stylesheet at revision 45126 and the main page at revision 45127.
+The deploy must therefore preflight the selected credential against direct and
+cascading protection rather than infer access from the account's groups.
 
 ### 7. CI runs no wiki checks
 
@@ -114,9 +129,15 @@ Five gates, in order. A deploy that skips a gate is not a deploy.
   `prop=limitreportdata`, and reject if Lua memory or time exceeds a fraction of the
   reported ceiling. Current live ceilings are 52,428,800 bytes and 15.000 seconds, and
   the heaviest page today sits at 19 percent of memory.
-- Assert the deploying account holds every right the plan needs, extending the
-  existing `editinterface` dry-run check to `recreatecargodata` when the plan touches
-  Cargo declarations.
+- Query direct and cascading protection for every target before any write. Resolve
+  every applicable restriction and expiry, then verify that the selected credential
+  holds every required right. Group membership or another session for the same
+  account is not sufficient evidence.
+- Assert the deploying account holds every operation right, extending the existing
+  `editinterface` dry-run check to `recreatecargodata` when the plan touches Cargo
+  declarations.
+- A protected target rejected by the configured credentials fails preflight before
+  the first mutation. Do not discover protection failure partway through a deploy.
 
 ### Gate 2 — Drift verification
 
@@ -161,6 +182,12 @@ revert incidents lacked.
   ambiguous.
 - On any guarded failure, stop. Never continue past a failure the way the legacy
   article deploy does.
+- The only permitted manual handoff is deterministic. Emit the target title,
+  repository source path, expected content SHA, required edit order, and edit
+  summary, then stop the automated deploy. After the authenticated browser edit,
+  fetch the raw live content and require exact SHA equality before resuming. Never
+  retry through another unguarded API path, and never treat the browser handoff as
+  successful without that post-edit equality check.
 
 ### Gate 5 — Post-deploy verification and Cargo migration
 
@@ -178,6 +205,12 @@ revert incidents lacked.
      until the switch, so a storing template saved earlier will error.**
 - Run every recreate as `WoWMuch` or another sysop-equivalent account, and record the
   operation in the manifest even though a human performs the switch-in.
+
+The first production table creation is ordered by
+`2026-08-01-wiki-cargo-cutover-foundation`, after parity, schema, selector, module,
+and deploy-safety prerequisites pass. This spec remains the reusable authority for
+privileged creation, replacement-table migration, and post-operation verification.
+It does not duplicate the foundation task order.
 
 ### Ownership convention
 
@@ -202,6 +235,13 @@ Make collision structurally impossible rather than a matter of care.
   `edit_page` is deleted, not merely avoided.
 - A deploy that would exceed `maxarticlesize` fails in preflight, naming the page and
   the overage, and a regression test covers the oversized character module case.
+- Preflight rejects a protected target before the first mutation when the selected
+  credential lacks any right required by direct or cascading protection. Coverage
+  includes the observed `cascadeprotected` failures for `Erenshor Wiki` and
+  `Template:Main page/styles.css`.
+- A protected-page manual handoff contains the title, repository source path,
+  expected content SHA, required edit order, and edit summary. Automation remains
+  stopped until raw live content has exact SHA equality with the intended source.
 - A template or module deploy renders the canary set through `templatesandboxtext` and
   fails on new parse warnings, script errors, or unapproved HTML diffs.
 - Reverting the three template incidents is reproducible as a test: deploying a

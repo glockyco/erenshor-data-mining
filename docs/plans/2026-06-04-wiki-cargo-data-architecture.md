@@ -51,22 +51,27 @@ is also undeployed.
 - Non-equipment kinds (`general`, `consumable`, `aura`, `charm`, `spell scroll`,
   `skill book`, `mold`) remain on the legacy Jinja templates.
 
-Remaining work (sequenced in §15):
+Remaining work follows one dependency chain:
 
-- **Cargo table creation** — run `cargorecreatetables` as a privileged account.
-  This is the blocker that keeps every Cargo deliverable unexercised on production.
-- Styling integration — wire deterministic `<templatestyles>` emission and own a
-  CSS source for Lua markup, then prove Lua presentation parity with the restored
-  legacy display contract. The platform prerequisite is already satisfied (§2.1).
-- Phase 4 — community contribution layer: `{{ItemSource}}` rows fold into
-  `ObtainedFrom` and `{{SpawnPoint}}` into `Spawns` (shared `Origin`, free-text
-  `SourceText`, stablekey validation).
-- Phase 5 — dual-path templates for the remaining entity types, starting from the
-  legacy non-equipment path.
-- Phase 6 — thin-page article generator + automated article deploy.
-- Phase 7 — staged production conversion of the remaining pages/types, then
-  per-type legacy retirement.
-- Phase 8 — freshness / orphan reconciliation + editor and template documentation.
+1. Approve the field-level render-parity contract in
+   `2026-08-01-wiki-render-parity-gate` and implement its local comparison
+   instrument.
+2. Correct the Cargo schema and generated payload under
+   `2026-07-30-wiki-cargo-schema-revision`.
+3. Implement the reusable protection, drift, guarded-write, rollback, and
+   privileged-operation controls in `2026-07-30-wiki-deploy-sync-discipline`.
+4. Deploy the missing data modules and exact `lua=1` dual paths for all seven
+   entity types while every production article remains on its legacy path.
+5. Create the production Cargo tables through the privileged replacement-table
+   procedure, then run local and TemplateSandbox canaries.
+6. Convert articles per type under `2026-07-11-wiki-article-cutover` only after
+   `2026-08-01-wiki-cargo-cutover-foundation` records a passing foundation report
+   with zero converted production articles.
+
+The foundation plan owns the executable order through table creation and sandbox
+readiness. The article-cutover plan owns per-type conversion and legacy retirement.
+The Cargo ownership, replacement-table, refresh, identity, and community-row design
+below remains authoritative.
 
 ## 1. Purpose & scope
 
@@ -113,11 +118,14 @@ Non-goals / out of scope:
 - **Thin-page conversion remains incomplete.** No article uses the thin form; Phase 6
   still delivers the override-preserving thin-page converter and automated article
   deploy for all seven entity types.
-- **The new-path resolve is stablekey-only.** `Module:Erenshor/*` `resolve`
-  requires an explicit `stablekey` (no page-title fallback — required because a
-  page hosts multiple entities); without it the module renders nothing. This is
-  why legacy pages cannot simply "switch templates" — they need the thin form
-  *or* the legacy fallback path (§5).
+- **Path selection and entity identity are separate.** Exact `lua=1` is the only
+  selector for the generated Lua/Cargo branch across all seven entity templates.
+  `stablekey` is identity data only. After `lua=1` selects that branch,
+  `Module:Erenshor/*` `resolve` requires an explicit valid `stablekey` because a
+  page can host multiple entities. A missing or invalid key emits the missing-data
+  diagnostic and stores no Cargo row. Without exact `lua=1`, the template renders
+  the verbatim legacy branch and performs no Cargo write even when a `stablekey` is
+  present (§5).
 - **Entity identity is `stable_key`.** Every clean-DB entity table has
   `stable_key TEXT PRIMARY KEY`; `Page` and `Name` are both non-unique (e.g. two
   `Regrowth` spells share a page+name).
@@ -227,10 +235,11 @@ These shape every Cargo decision below:
 5. **Two curation layers by provenance, layered precedence.** Generated rows
    (deploy-owned) and community rows (wiki-owned, never overwritten) share tables
    via an `Origin` column (`generated`|`community`); community wins on overlap.
-6. **Two non-overlapping render paths; no mixing (§5).** A page is *either* fully
-   new (stablekey → data module + Cargo) *or* fully legacy (no stablekey →
-   inline-param rendering, no Cargo). Cargo only ever receives clean
-   stablekey-resolved data — never inline param wikitext.
+6. **Two non-overlapping render paths with separate selection and identity (§5).**
+   Exact `lua=1` selects the generated Lua/Cargo path. `stablekey` identifies the
+   entity only after that selection. Every invocation without exact `lua=1` uses
+   the verbatim legacy path and performs no Cargo write, even if it carries a
+   `stablekey`.
 
 ## 4. Entity identity & multi-entity pages
 
@@ -244,58 +253,70 @@ duplicate StableKeys; this extends to every new table.
 ## 5. Dual-path cutover architecture
 
 The cutover must never leave the wiki broken, even for the hour-plus a
-rate-limited full deploy takes. Achieved with **backward-compatible templates**
-(expand/contract): every entity template branches on `stablekey` presence into
-two **completely separate, non-overlapping** paths.
+rate-limited full deploy takes. Every Item, Character, Spell, Skill, Stance, Quest,
+and Zone template therefore has two completely separate render paths selected only
+by an exact flag check:
 
 ```wikitext
-<includeonly>{{#if:{{{stablekey|}}}|
-  <!-- NEW PATH (fully migrated): PortableInfobox fields come ONLY from
-       {{#invoke:Erenshor/<Type>|field|X}} (data module + module-processed
-       overrides) plus {{#invoke:Erenshor/<Type>|cargoStore}}. No raw inline
-       param wikitext is read; this is the current repo template body, unchanged. -->
+<includeonly>{{#ifeq:{{{lua|}}}|1|
+  {{#if:{{{stablekey|}}}|
+    <!-- GENERATED PATH: resolve stablekey, render from the data module,
+         and invoke cargoStore. -->
+  |
+    <!-- Existing missing-data diagnostic. No cargoStore. -->
+  }}
 |
-  <!-- LEGACY PATH: the original live inline-param infobox, embedded verbatim.
-       Renders {{{title}}}, {{{manacost}}}, … as wikitext. NO #invoke, NO cargoStore. -->
+  <!-- LEGACY PATH: the original live inline-parameter body, embedded verbatim.
+       No generated-data #invoke and no cargoStore. -->
 }}</includeonly>
 ```
+
+Permanent selector and identity invariant:
+
+- **Exact `lua=1` is the only generated-path selector.** No other `lua` value and
+  no identity field selects that path.
+- **`stablekey` is identity data only.** Its presence never selects a rendering
+  path.
+- **No exact flag means verbatim legacy behavior.** Without exact `lua=1`, the
+  invocation renders the legacy branch and performs no `cargoStore` call, even if
+  `stablekey` is present.
+- **The generated path fails closed on identity.** With exact `lua=1`, a valid
+  `stablekey` is required. A missing or invalid key emits the existing missing-data
+  diagnostic, stores no Cargo row, and never falls back to legacy rendering.
+- **The paths never mix.** Generated-path rendering reads only resolved module data
+  plus declared overrides. Legacy rendering reads inline parameter wikitext only.
+- **The contract applies uniformly to all seven entity types.** Spell and Skill use
+  the same dual path as Item, Character, Stance, Quest, and Zone. They are not
+  unconditional Lua templates.
+
+This produces the required four-case matrix:
+
+| Invocation | Render path | Cargo behavior |
+|---|---|---|
+| no `lua=1`, no key | legacy | no store |
+| exact `lua=1`, valid key | generated Lua | store resolved rows |
+| exact `lua=1`, missing or invalid key | missing-data diagnostic | no store |
+| key without exact `lua=1` | legacy | no store |
 
 **Production presentation rules:** wikitable markup must begin at line start, so
 parameterized equipment rendering composes expanded legacy templates with
 `frame:expandTemplate` and newline-joined assembly. Do not wrap expanded wikitext
-in `mw.html`, `frame:preprocess`, or `#tag:div`; those wrappers prevent the
+in `mw.html`, `frame:preprocess`, or `#tag:div`. Those wrappers prevent the
 wikitable markup from parsing in production.
 
-Properties (all required):
-- **All-or-nothing per page.** Stablekey present → entirely new path; absent →
-  entirely legacy path. Never half-and-half.
-- **Cargo stays pure.** `cargoStore` lives only in the new branch, so it never
-  runs for a legacy page; Cargo only ever holds clean stablekey-resolved data.
-- **The new path is untouched.** It is the existing repo template body (Cargo +
-  module overrides, already green on the harness). The dual-path change is purely
-  *additive*: a gated legacy fallback branch.
-- **The legacy path preserves original behavior exactly** — the live legacy
-  template body is embedded verbatim, so a not-yet-converted page renders
-  identically to today (its `{{ItemLink}}`/`[[links]]` params expand as wikitext,
-  which a Lua fallback could not do — Scribunto output is not re-expanded).
+**Current production boundary.** Equipment articles may carry a `stablekey` for
+parameterized tooltips and interactive-map links while remaining on the legacy
+infobox path. Zero articles currently pass exact `lua=1`. Quest, Zone, and Stance
+are legacy-only on live, Character has a key-selected split that must be corrected,
+and Spell and Skill are unconditional Lua in the repo and must gain the uniform
+flag-selected dual path before any canary.
 
-**Current production boundary.** Equipment articles use the parameterized
-stablekey-compatible tooltip path. No article enters the Lua infobox branch at all:
-live `Template:Item` additionally requires `lua=1`, which no page sets, so the branch
-is a deliberately dormant safety valve reserved for the cutover. Live `Quest`, `Zone`,
-and `Stance` are legacy-only, and live `Skill` and `Spell` are unconditional Lua with
-no legacy fallback, so "branch directly on `stablekey`" is not yet true of any type
-except `Character`. Later phases begin from this split. Whether `lua=1` survives as
-the gate, or `stablekey` alone selects the new path as specified above, is an open
-decision.
-
-Incremental, zero-downtime sequence: deploy dual-path templates + modules
-(stablekey pages use the new branch; legacy pages remain on the legacy branch) →
-convert pages to thin form one at a time (each crosses to the new branch + gets
-its Cargo row; unconverted pages stay on the legacy branch) → once a type is
-fully converted, delete its legacy else-branch and retire that type's Jinja2
-generator. The dual-path template is a temporary scaffold whose legacy half is
-deleted type-by-type; the end state is pure-new templates.
+Incremental cutover sequence: deploy the uniform dual-path templates and modules
+while every article stays legacy, create and verify Cargo, exercise both branches,
+then add exact `lua=1` to one guarded article at a time. Once every page of one type
+has converted and passed its retirement gate, delete that type's legacy branch and
+retire its Jinja2 generator. The dual-path template is a temporary scaffold whose
+legacy half is deleted type by type.
 
 ## 6. Thin-page article generation
 
@@ -638,8 +659,11 @@ page source), and the precedence rules. Supersedes the ad-hoc doc pages.
 
 - Multi-entity: same-name two-spell and two-character pages → two rows, distinct
   StableKey, shared Page; both infoboxes render.
-- Dual-path (§5): a fat fixture page → legacy branch renders + **no** Cargo row;
-  a thin fixture page → new branch renders + Cargo row.
+- Selector matrix (§5): no flag stays legacy and stores nothing, exact `lua=1`
+  plus a valid key renders generated data and stores rows, exact `lua=1` plus a
+  missing or invalid key emits the diagnostic and stores nothing, and a key without
+  the flag stays legacy and stores nothing. Exercise all four cases for Item,
+  Character, Spell, Skill, Stance, Quest, and Zone.
 - No markup in Cargo: assert stored values are names/numbers, not `<span>`/`[[…]]`.
 - Reverse queries: item "dropped by", ability "used by", "what a class can learn".
 - Community layer: `{{ItemSource}}` stores an `ObtainedFrom` row and `{{SpawnPoint}}`
@@ -664,57 +688,43 @@ page source), and the precedence rules. Supersedes the ad-hoc doc pages.
   probe (`2026-07-09-wiki-cargo-storage-validation`); nested hidden storage is the
   selected contract and no attach-trick is required.
 
-## 15. Phased sequencing
+## 15. Dependency sequence
 
-Remaining phases complete each type's Cargo/template path and validate it before
-converting that type's pages. The deployed modules and templates plus the
-parameterized equipment tooltip corpus are the production baseline. Each phase is
-TDD-first and atomic; `writing-plans` turns each into a step-by-step plan.
+The executable sequence is owned by
+`2026-08-01-wiki-cargo-cutover-foundation`. The technical contracts remain in this
+architecture spec and its sibling parity, schema, and deploy/sync specs.
 
-**Pre-Phase-3 storage validation (complete).** The live storage-shape questions were
-answered by the `2026-07-09-wiki-cargo-storage-validation` probe: nested hidden storage
-templates are the selected contract (no attach-trick); an edit + forced-link purge
-rewrites a page's rows in place (so a same-schema refresh needs no recreate); schema
-changes recreate via `cargorecreatetables` + per-table `cargorecreatedata` with
-row-count polling; stale rows do not survive edits/deletes; multi-entity pages key on
-StableKey; and a large-table recreate's replacement-table switch-in is a manual
-`Special:CargoTables` admin step. The main-account probe can drive schema + data
-recreation. Verified 2026-07-30: `WoWBot` does **not** hold `recreatecargodata`, so
-production table creation and every schema change run as `WoWMuch` or another
-sysop-equivalent account (§2). No designed table has been created on production yet,
-which is the outstanding blocker rather than a gate.
+1. Approve `2026-08-01-wiki-render-parity-gate`,
+   `2026-07-30-wiki-cargo-schema-revision`, and
+   `2026-07-30-wiki-deploy-sync-discipline`.
+2. Implement the local parity instrument and its field-loss regression.
+3. Apply the exact `lua=1` selector matrix to all seven templates.
+4. Correct schema declarations and generated payloads, including the Character
+   module size gate and the `ItemEffects` junction.
+5. Implement reusable size, protection, rights, drift, sandbox, guarded-write,
+   rollback, and queue controls.
+6. Deploy the missing data modules and adopt live `Template:Ability` byte for byte
+   while all production articles remain on legacy paths.
+7. Create production Cargo tables through the privileged replacement-table
+   procedure, then verify schemas and row counts.
+8. Run local and TemplateSandbox parity canaries for all seven types and all
+   required selector and multi-entity cases.
+9. Publish a foundation-completion report proving zero failed cases, zero required
+   `not_exercised` cases, and zero converted production articles.
 
-3. Phase 3 — complete; plan archived. The item-owned `ObtainedFrom`/`UsedIn`
-   model, `CharacterAbilities` and `Spawns` junctions, scalar item→ability
-   columns, reverse queries, related flags/exports, and removal of
-   `Drops`/`ContainerDrops` are the baseline for the remaining phases.
-**Prerequisite before Phase 4 —** create the designed Cargo tables on production as a
-   privileged account, then wire styling integration for Lua-owned markup and prove
-   parity with the restored legacy presentation contract (links, units, zero handling,
-   icons, and drop displays) against live pages. The styling *platform* prerequisite
-   is already satisfied (§2.1).
-4. Phase 4 — community contribution layer.
-5. Phase 5 — dual-path templates for the remaining entity types (verbatim legacy
-   fallback branch; new branch unchanged); both-branch harness tests.
-6. Phase 6 — thin-page article generator + automated article deploy +
-   generalized override-preserving conversion (all seven types).
-7. Phase 7 — staged production conversion of the remaining pages/types:
-   TemplateSandbox gate → deploy dual-path templates/modules → create the Cargo
-   tables (first-time recreate; a large table's replacement-table switch-in is a
-   manual `Special:CargoTables` step, no API) → incrementally convert pages to
-   thin, each page's parse storing its rows → per-type, delete the legacy branch
-   + retire that type's Jinja2 generator → live smoke + rollback manifest +
-   orphan-page report for manual deletion. Steady-state refreshes thereafter
-   reparse pages (no recreate); a schema change reruns `cargorecreatetables` +
-   `cargorecreatedata` as a sysop-equivalent account, since the deploy bot lacks
-   `recreatecargodata`.
-8. Phase 8 — freshness / orphan drop-and-recreate automation + documentation.
+Only that report unlocks `2026-07-11-wiki-article-cutover`. Article conversion then
+runs per type in the order Stance, Zone, Spell and Skill, Character, and Item. Quest
+article conversion remains governed by `2026-07-31-wiki-quest-article-strategy`.
+Community-row implementation remains part of this architecture but is not a
+prerequisite for first production Cargo creation or article conversion.
 
 ## 16. Key decisions
 
-- Dual-path `{{#if:stablekey|new|legacy}}` cutover; all-or-nothing per page; Cargo
-  written only in the new branch; legacy branch = verbatim legacy infobox, deleted
-  per type after conversion.
+- Exact `lua=1` is the only generated Lua/Cargo selector for all seven entity
+  templates. `stablekey` is identity only. Without exact `lua=1`, the verbatim
+  legacy branch renders and stores nothing even when a key is present. With exact
+  `lua=1`, a missing or invalid key diagnoses and stores nothing without falling
+  back to legacy.
 - Thin generated `{{Type|stablekey=}}` pages are the cutover mechanism; community
   content is preserved on-page.
 - Store each relationship row once from its owner page, query it from every other page; no denormalized reverse arrays.

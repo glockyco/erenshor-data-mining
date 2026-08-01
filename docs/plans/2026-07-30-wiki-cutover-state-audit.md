@@ -91,23 +91,28 @@ infobox or store Cargo rows. Render spot checks are clean, with no Lua or script
 errors on the parameterized pages `Arcanist Cap` and `Razor Waveblade` or the
 legacy pages `Muck Ball` and `Ripper Insignia Badge`.
 
-## 4. Dual-path status, live against repo
+## 4. Dual-path status, live against the accepted selector contract
 
-Spec §5 requires all seven entity templates to branch directly on `stablekey`.
-Neither live nor the repo satisfies that.
+The accepted architecture requires exact `lua=1` to select the generated Lua/Cargo
+branch for all seven entity templates. `stablekey` is identity data only. Without the
+exact flag, the verbatim legacy branch must render and perform no Cargo write, even
+when a key is present. With the flag, a missing or invalid key must diagnose and store
+nothing without falling back to legacy. Neither live nor the repo yet satisfies that
+uniform contract.
 
 | Template | Live | Repo |
 |---|---|---|
-| `Item` | branch gated on `lua=1` plus `stablekey` | same |
-| `Character` | branch on `stablekey` | same |
-| `Quest` | legacy only | dual-path |
-| `Zone` | legacy only | dual-path |
-| `Stance` | legacy only | dual-path |
+| `Item` | exact `lua=1` plus key selects Lua | same |
+| `Character` | key selects Lua | same |
+| `Quest` | legacy only | dual-path keyed by identity |
+| `Zone` | legacy only | dual-path keyed by identity |
+| `Stance` | legacy only | dual-path keyed by identity |
 | `Skill` | unconditional Lua | unconditional Lua |
 | `Spell` | unconditional Lua | unconditional Lua |
 
-`Skill` and `Spell` have no legacy fallback at all, so they violate the
-all-or-nothing property rather than implementing it.
+Only Item already separates opt-in selection from identity. Character and the three
+repo-only dual paths select from the key, while Skill and Spell have no legacy
+fallback. All seven require the four-case selector matrix before production canaries.
 
 ## 5. The deploy bot is fighting an admin
 
@@ -137,9 +142,21 @@ On this wiki `recreatecargodata` is granted only to `sysop`, `staff`, `staff-bot
 `global-sysop`, `titan`, and `librarian-admin`. **The deploy bot therefore cannot
 create or recreate Cargo tables and never will as a plain bot account.** Table
 creation and every future schema change must run as `WoWMuch` or an equivalently
-privileged account. Whether the configured `WoWMuch@InterfaceDeploy` bot password
-carries the grant needed for `cargorecreatetables` is untested and is the one
-remaining unknown on this gate.
+privileged account.
+
+A second effective-authorization finding was measured on 2026-08-01. Both configured
+BotPassword sessions received MediaWiki error code `cascadeprotected` for
+`Erenshor Wiki` and `Template:Main page/styles.css`. Authenticated browser edits then
+succeeded for `Template:Main page/styles.css` at revision 45126 and `Erenshor Wiki`
+at revision 45127. The deploy credential must therefore be checked against direct and
+cascading protection per target before any write. Account groups do not prove that a
+particular API session can edit a protected page.
+
+The only safe handoff for that observed failure class is deterministic: emit the
+page title, repository source path, expected content SHA, required edit order, and
+edit summary, then stop automation. After an authenticated browser edit, fetch raw
+live content and require exact SHA equality before resuming. An unguarded API retry or
+an unverified browser edit is not success.
 
 ## 7. The styling gate is open
 
@@ -344,44 +361,30 @@ Quest conversion is therefore not a template swap. It is merging generated infob
 into pages a human wrote, which is the highest content-loss risk in the cutover and
 exactly the case `override_migration.py` currently skips as ambiguous.
 
-## Corrections applied to the plans
+## Actionable conclusions
 
-Applied in the same commit as this audit.
+This audit remains the dated evidence baseline. Forward design and execution live in
+the current planning artifacts:
 
-- `2026-06-04-wiki-cargo-data-architecture` — the no-TemplateStyles and
-  undeliverable-gadget claims, the "twelve item article pages" and Phase 3
-  production-complete claims, the unverified `recreatecargodata` gate, the
-  installed TemplateData and `/doc` stack claim, and the stale `Smithing.cs` line
-  range.
-- `2026-07-11-wiki-article-cutover` — the repeated styling claims, the "existing
-  `ObtainedFrom`/`UsedIn`/`Spawns` Cargo schemas" claim, and the all-seven
-  dual-path claim.
-- `2026-07-09-erenshor-planning-overview` — the standing styling gate.
-- `2026-07-10-wiki-deferred-mechanics` — the Brax ritual quality wording.
+- `2026-06-04-wiki-cargo-data-architecture` owns exact `lua=1` selection, identity,
+  Cargo ownership, refresh, replacement-table, and community-row design.
+- `2026-08-01-wiki-render-parity-gate` owns field-level legacy/Lua comparison,
+  multi-entity identity, normalization, allowlisting, and readiness verdicts.
+- `2026-07-30-wiki-cargo-schema-revision` owns payload reduction, module headroom,
+  `ItemEffects`, schema corrections, and declare-only templates.
+- `2026-07-30-wiki-deploy-sync-discipline` owns live-size, rights and protection
+  preflight, drift, TemplateSandbox, guarded writes, rollback, queue polling,
+  privileged operations, and verified browser handoff.
+- `2026-08-01-wiki-cargo-cutover-foundation` owns the dependency order through
+  production table creation and all-seven sandbox readiness, ending with zero
+  converted articles.
+- `2026-07-11-wiki-article-cutover` owns post-foundation per-type article conversion
+  and legacy retirement. Quest conversion remains separately gated by
+  `2026-07-31-wiki-quest-article-strategy`.
 
-## What this changes about sequencing
-
-1. **Build a real parity instrument first.** Nothing today measures field-level
-   equivalence, so "get Cargo and Lua working properly" is currently unfalsifiable.
-   Render each entity through both paths and diff extracted field values and
-   rendered HTML. This is the true gate and it blocks everything below.
-2. **Make the path selector an explicit flag on all seven templates.** `lua=1`
-   already does this for `Item` (`wiki/templates/Item.wiki:1` and `:129-132`), and
-   `PLANAR_MARCH_ENABLED` in `Module:Erenshor/Item/Quality.lua:12` is the
-   module-level precedent with a per-call override for regression tests. Promote the
-   flag to the canonical selector for every type and update section 5 of the design
-   spec, because `stablekey`
-   is now carried by 792 articles for the map link and tooltip and can no longer
-   select a path. A template holding both branches behind an opt-in flag is inert on
-   deploy, which structurally removes the revert failure mode.
-3. **Shard `Data/Characters` below 4 MiB** following the `Data/Items` pattern, then
-   deploy the four missing data modules.
-4. **Create the Cargo tables as a privileged account.** Until this happens any
-   converted page loses its relationship sections, because the Lua path delegates
-   them to Cargo queries.
-5. **Prove parity per type on a sandbox page, then convert one page, then a batch.**
-6. **Freeze content and visualization changes** until the steps above are green.
-   Change the mechanism or the presentation, never both at once.
-7. **Decide `Spell` and `Skill` explicitly.** They have no legacy fallback, but also
-   no transclusions, so the cheap correct move is to give them the same flag as
-   every other type before any article starts using them.
+The measured requirements driving those artifacts are unchanged: zero current
+`lua=1` article usage, absent production tables, four missing generated entity data
+modules, two prior template reverts, no field-level parity instrument, and a
+high-risk mixed Spell/Skill and quest corpus. Production creation follows parity,
+schema, selector, deploy-safety, and module prerequisites. Article conversion follows
+a passing foundation report.
