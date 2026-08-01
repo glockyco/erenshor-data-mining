@@ -1,0 +1,68 @@
+'''WoWBot''' is the account that publishes wiki pages generated from Erenshor's game data. It is operated by [[User:WoWMuch|WoWMuch]].
+
+Game files are read after each Steam update, exported to a database, and rendered into wikitext. WoWBot then uploads only the pages whose content changed. It does not make editorial decisions and it does not write prose.
+
+To reach the operator, or to report a page the bot is getting wrong, use the <code>#wiki-chat</code> channel on the [https://discord.gg/DxqZc5Dc9q Erenshor Discord].
+
+== What the bot maintains ==
+
+{| class="wikitable"
+! Pages !! Source
+|-
+| Item pages, including weapons, armor, charms, auras, consumables, molds, skill books, and spell scrolls || Item records exported from the game
+|-
+| Character pages, including enemies, bosses, NPCs, and vendors || Character records and spawn points
+|-
+| Ability pages, spells, skills, and stances || Ability records
+|-
+| Zone pages || Zone records, spawn points, and zone lines
+|-
+| The [[Armor]] and [[Weapons]] overview tables || Item records
+|-
+| Vendor inventory tables || Vendor stock as it exists in the game files
+|-
+| Item and ability icons in the <code>File:</code> namespace || Game textures
+|-
+| <code>Module:Erenshor/*</code> and the repository's templates || Source files in the project repository
+|}
+
+== What the bot does not touch ==
+
+Everything else. Guides, walkthroughs, class pages, lore, faction pages, mechanics articles, and the overview prose on data pages are written and maintained by people. The bot has no opinion on them and will not edit them.
+
+== Editing a page the bot maintains ==
+
+The bot does not blindly overwrite a page. When it regenerates one, some fields keep whatever an editor put there. Others are replaced from the game data every run, because the game is the authority for them.
+
+{| class="wikitable"
+! Page type !! Kept if you set it !! Always replaced from game data
+|-
+| Item
+| <code>image</code>, <code>imagecaption</code>, <code>othersource</code>. <code>type</code>, <code>questsource</code>, and <code>relatedquest</code> are merged, so manual entries survive alongside generated ones.
+| Stats, drop sources, vendor sources, and every other field
+|-
+| Character
+| <code>imagecaption</code>, <code>type</code>
+| Stats, abilities, loot. <code>zones</code>, <code>coordinates</code>, and <code>respawn</code> come from the game data when it has them, and fall back to whatever is on the page when it does not.
+|-
+| Ability
+| <code>image</code>
+| Every other field
+|-
+| Zone
+| <code>image</code>, <code>imagecaption</code>, <code>level</code>, <code>type</code>
+| <code>maplink</code>, <code>connects</code>
+|}
+
+Text outside the infobox is never touched. Notes, sections, and categories that editors add to a generated page are preserved.
+
+If a value looks wrong on a page the bot maintains, correcting it on the wiki will not hold, because the next run regenerates it. Report it instead: the fix belongs in the export pipeline, and the same error is usually repeated across many pages.
+
+== Edit summaries ==
+
+* '''Automated wiki update''' — the routine run after a game update
+* '''Update vendor inventory from current game data''' — vendor stock tables
+* '''Deploy repo-owned wiki pages''' — templates and Lua modules from the repository
+* Anything more specific describes a one-off migration, such as an item quality rename or a link repair
+
+[[Category:Erenshor Wiki]]

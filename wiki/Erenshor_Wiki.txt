@@ -44,7 +44,6 @@
 </div>
 
 <div class="mp-section">Guides</div>
-<div class="mp-section-note">People write these guides by hand. Most other pages on the wiki come from the game data.</div>
 
 <div class="mp-guides">
 
@@ -118,7 +117,7 @@
 <li>Create a page from the [[Special:Wantedpages|list of needed pages]].</li>
 <li>Add sources to items with [[:Category:Unknown Item Source|unknown sources]].</li>
 </ol>
-<p>For questions, speak to Richard or Brian (Burgee) on the [https://discord.gg/u8AJzEtTRV community Discord].</p>
+<p>To coordinate with other editors, use the <code>#wiki-chat</code> channel on the [https://discord.gg/DxqZc5Dc9q Erenshor Discord]. [[User:WoWBot|WoWBot]] keeps the item, character, and ability pages current from the game data.</p>
 <h3 class="mp-label mp-label-spaced">Start a Page</h3>
 <div class="mp-createbox">
 <inputbox>
@@ -132,6 +131,7 @@ buttonlabel=Create
 
 <div>
 <h3 class="mp-label">Official Links</h3>
+<p>For questions about the game, reach Richard or Brian (Burgee) on the [https://discord.gg/u8AJzEtTRV community Discord].</p>
 <ul class="mp-linklist">
 <li>[https://store.steampowered.com/app/2382520/Erenshor/ Erenshor on Steam]</li>
 <li>[https://store.steampowered.com/news/app/2382520 Patch Notes and News]</li>
