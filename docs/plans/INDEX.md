@@ -22,5 +22,6 @@
 - **LootTable Gold Range Trigger** [note] `2026-08-01-loot-table-gold-range-trigger` ← 2026-07-09-erenshor-planning-overview
 - **Wiki Cargo Cutover Foundation** [plan] `2026-08-01-wiki-cargo-cutover-foundation` (0/9) ← 2026-07-09-erenshor-planning-overview
 - **Wiki Render Parity Gate** [spec] `2026-08-01-wiki-render-parity-gate` ← 2026-07-09-erenshor-planning-overview
+- **Live NPC Identity from the Companion Mod** [plan] `2026-08-05-live-npc-identity` (0/23) ← 2026-07-09-erenshor-planning-overview
 
 _73 archived — see `docs/plans/archive/`._
