@@ -417,6 +417,9 @@ class CharacterSectionGenerator(SectionGeneratorBase):
             "faction_change": faction_change,
             "zones": zones,
             "coordinates": coordinates,
+            # Editor-owned landmark description. The export has no source for it, so the
+            # parameter is emitted empty and only ever filled on the wiki.
+            "location": "",
             "spawn_chance": spawn_chance,
             "spawn_type": spawn_type,
             "respawn": respawn,

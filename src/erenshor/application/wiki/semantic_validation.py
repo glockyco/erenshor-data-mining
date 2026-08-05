@@ -69,6 +69,7 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
             "factionChange",
             "zones",
             "coordinates",
+            "location",
             "spawnchance",
             "spawntype",
             "respawn",

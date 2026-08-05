@@ -7,6 +7,7 @@
 |factionChange=
 |zones={{ZoneLink|stablekey=zone:braxonia}}
 |coordinates=86.8 x 59.4 x 593.9
+|location=
 |spawnchance=
 |spawntype=
 |respawn=

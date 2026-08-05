@@ -778,3 +778,25 @@ class TestTemplateFormatting:
         assert "health=200" in result or "|health=200\n" in result
         assert "experience=50-100" in result or "|experience=50-100\n" in result
         assert "faction=Bandit" in result or "|faction=Bandit\n" in result
+
+    def test_merge_templates_keeps_editor_location_against_empty_generated_value(self) -> None:
+        """The export never sources location, so the editor's description must survive."""
+        handler = FieldPreservationHandler()
+
+        old_wikitext = """{{Character
+|name=Hadden Passican
+|coordinates=367.4 x 41.1 x 537.6
+|location=A small campfire area west of the Goodsoil refugee tents
+|level=22
+}}"""
+
+        new_wikitext = """{{Character
+|name=Hadden Passican
+|coordinates=367.4 x 41.1 x 537.6
+|location=
+|level=22
+}}"""
+
+        result = handler.merge_templates(old_wikitext, new_wikitext, ["Character"])
+
+        assert "|location=A small campfire area west of the Goodsoil refugee tents\n" in result
