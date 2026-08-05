@@ -114,11 +114,31 @@ class SpellRelationshipItemRepository(Protocol):
 
     def get_items_with_spell_effect(self, spell_stable_key: str) -> list[ItemLink]: ...
 
+    def get_classes_that_can_learn_spell(self, spell_stable_key: str) -> list[str]: ...
+
 
 class SpellRelationshipCharacterRepository(Protocol):
     """Character repository methods needed for spell relationship fields."""
 
     def get_characters_using_spell(self, spell_stable_key: str) -> list[CharacterLink]: ...
+
+
+def _usable_classes(
+    spell_stable_key: str,
+    spell_repo: SpellDataRepository,
+    item_repo: SpellRelationshipItemRepository | None,
+) -> list[str]:
+    """Classes that can cast a spell.
+
+    ``Spell.UsedBy`` only drives SimPlayer spell selection and omits classes for
+    some scroll-taught spells, so it is unioned with the class restrictions of
+    the scrolls that teach the spell -- reading a scroll is what grants a player
+    the spell in game.
+    """
+    classes = set(spell_repo.get_spell_classes(spell_stable_key))
+    if item_repo is not None:
+        classes.update(item_repo.get_classes_that_can_learn_spell(spell_stable_key))
+    return sorted(classes, key=str.casefold)
 
 
 def generate_spells_module(
@@ -129,7 +149,7 @@ def generate_spells_module(
 ) -> str:
     """Generate `Module:Erenshor/Data/Spells` from clean DB repositories."""
     spells = spell_repo.get_spells_for_wiki_generation()
-    classes = {spell.stable_key: spell_repo.get_spell_classes(spell.stable_key) for spell in spells}
+    classes = {spell.stable_key: _usable_classes(spell.stable_key, spell_repo, item_repo) for spell in spells}
     return module_text(
         build_spells_data(
             spells,

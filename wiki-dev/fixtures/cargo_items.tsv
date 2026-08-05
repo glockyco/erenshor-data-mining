@@ -6,5 +6,5 @@ Healing Draught	item:healing_draught	Healing Draught	Consumable	General									
 Lucky Charm	item:lucky_charm	Lucky Charm	Charm	Charm		8																		500	125	Lucky Charm.png	Druid,Paladin														0	0
 Magical Bag	item:magical_bag	Magical Bag	General																					950000	237500	Magical Bag.png															0	0
 Manual Item Override	item:ember_longsword	Manual Ember Blade	Weapon	Primary	OneHandMelee	12	18	2.5				5		2						3				12500	3125	Manual Ember Blade.png	Duelist,Paladin,Reaver			spell:ember_proc	20									1	1	0
-Scroll of Ember	item:scroll_of_ember	Scroll of Ember	Spell Scroll																					300	75	Scroll of Ember.png		spell:ember													0	0
+Scroll of Ember	item:scroll_of_ember	Scroll of Ember	Spell Scroll																					300	75	Scroll of Ember.png	Arcanist,Duelist	spell:ember													0	0
 Sword Mastery Manual	item:sword_mastery_manual	Sword Mastery Manual	Skill Book																					355	88	Sword Mastery Manual.png			skill:sword_mastery												0	0

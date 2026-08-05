@@ -265,11 +265,13 @@ class ItemSectionGenerator(SectionGeneratorBase):
         display_name = item.display_name or item.item_name or ""
         image_name = item.image_name or display_name
 
-        spell_classes = enriched.taught_spell_classes
+        # Reading a scroll is gated on the scroll's own class restrictions, not on
+        # the taught spell's UsedBy list (which only drives SimPlayer behaviour).
+        scroll_classes = enriched.classes
         required_level = str(spell.required_level) if spell and spell.required_level else ""
 
         def class_level(class_name: str) -> str:
-            return required_level if class_name in spell_classes else ""
+            return required_level if class_name in scroll_classes else ""
 
         spellscroll_context = {
             "image": f"{image_name}.png" if image_name else "",

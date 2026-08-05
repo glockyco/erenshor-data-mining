@@ -1349,6 +1349,16 @@ function p.run()
 		"Arcanist: 8",
 		"spell scroll shows the required level per usable class"
 	)
+	assertContains(
+		spellScroll,
+		"Windblade: 8",
+		"spell scroll resolves internal class names to display names"
+	)
+	assertAbsent(
+		spellScroll,
+		"Stormcaller: 8",
+		"spell scroll levels follow the scroll's classes, not the taught spell's UsedBy list"
+	)
 	assertContains(spellScroll, "Mana Cost: 25", "spell scroll shows the mana cost")
 	assertContains(spellScroll, "Spell Type: Damage", "spell scroll shows the spell type")
 

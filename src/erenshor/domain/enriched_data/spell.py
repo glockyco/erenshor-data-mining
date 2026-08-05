@@ -26,8 +26,9 @@ class EnrichedSpellData:
 
         Args:
             spell: Spell entity (carries add_proc_link and status_effect_link)
-            classes: Class names that can use this spell (from spell_classes junction table).
-                     Empty list if no obtainable teaching items exist.
+            classes: Class names that can learn this spell (from the class restrictions
+                     of the scrolls that teach it). Empty list if no obtainable
+                     teaching items exist.
             items_with_effect: Pre-built ItemLink objects for items that grant this spell
             teaching_items: Pre-built ItemLink objects for items that teach this spell
             used_by_characters: Pre-built CharacterLink objects for NPCs that use this spell

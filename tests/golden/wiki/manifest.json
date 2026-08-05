@@ -4713,6 +4713,7 @@
         "ClassLink:stablekey:class:druid",
         "ClassLink:stablekey:class:duelist",
         "ClassLink:stablekey:class:paladin",
+        "ClassLink:stablekey:class:stormcaller",
         "ItemLink:stablekey:item:spell scroll - antidote",
         "ItemLink:stablekey:item:wrist - 11 - salt soaked cuff"
       ],
@@ -35158,6 +35159,9 @@
         "CharacterLink:stablekey:character:sven feartines",
         "CharacterLink:stablekey:character:woe",
         "CharacterLink:stablekey:character:zashlyn bloodbane",
+        "ClassLink:stablekey:class:arcanist",
+        "ClassLink:stablekey:class:druid",
+        "ClassLink:stablekey:class:paladin",
         "ItemLink:stablekey:item:back - 20 - lost cape",
         "ItemLink:stablekey:item:cons - brackfruit juice",
         "ItemLink:stablekey:item:spell scroll - minor protection",
@@ -57716,6 +57720,7 @@
       "schema": "ability",
       "semantic_links": [
         "CharacterLink:stablekey:character:summoned wretched fawn",
+        "ClassLink:stablekey:class:druid",
         "ItemLink:stablekey:item:spell scroll - summon wretched fawn"
       ],
       "stable_keys": [

@@ -26,7 +26,6 @@ class EnrichedItemData:
         sources: SourceInfo | None = None,
         aura_spell: Spell | None = None,
         taught_spell: Spell | None = None,
-        taught_spell_classes: list[str] | None = None,
         taught_skill: Skill | None = None,
     ) -> None:
         """Initialize enriched item data.
@@ -39,7 +38,6 @@ class EnrichedItemData:
             sources: Source information (vendors, drops, quests, crafting)
             aura_spell: Spell entity for aura items (from item.aura_stable_key)
             taught_spell: Spell entity for spell scrolls (from item.teach_spell_stable_key)
-            taught_spell_classes: Classes that can use the taught spell (from SpellClasses)
             taught_skill: Skill entity for skill books (from item.teach_skill_stable_key)
         """
         self.item = item
@@ -49,5 +47,4 @@ class EnrichedItemData:
         self.sources = sources
         self.aura_spell = aura_spell
         self.taught_spell = taught_spell
-        self.taught_spell_classes = taught_spell_classes or []
         self.taught_skill = taught_skill

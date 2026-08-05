@@ -207,10 +207,8 @@ class EntityPageGenerator(PageGenerator):
             aura_spell = self.context.spell_repo.get_spell_by_stable_key(item.aura_stable_key)
 
         taught_spell = None
-        taught_spell_classes: list[str] = []
         if item.teach_spell_stable_key:
             taught_spell = self.context.spell_repo.get_spell_by_stable_key(item.teach_spell_stable_key)
-            taught_spell_classes = self.context.spell_repo.get_spell_classes(item.teach_spell_stable_key)
 
         taught_skill = None
         if item.teach_skill_stable_key:
@@ -224,7 +222,6 @@ class EntityPageGenerator(PageGenerator):
             sources=sources,
             aura_spell=aura_spell,
             taught_spell=taught_spell,
-            taught_spell_classes=taught_spell_classes,
             taught_skill=taught_skill,
         )
 
@@ -332,9 +329,11 @@ class EntityPageGenerator(PageGenerator):
     def _assemble_spell(self, spell: Spell) -> EnrichedSpellData:
         obtainable_teaching_items = self.context.item_repo.get_obtainable_items_that_teach_spell(spell.stable_key)
 
+        # Scroll class restrictions decide who can learn a spell in game, so the
+        # spell's own UsedBy list is not authoritative here.
         classes: list[str] = []
         if obtainable_teaching_items:
-            classes = self.context.spell_repo.get_spell_classes(spell.stable_key)
+            classes = self.context.item_repo.get_classes_that_can_learn_spell(spell.stable_key)
 
         items_with_effect = self.context.item_repo.get_items_with_spell_effect(spell.stable_key)
         used_by_characters = self.context.character_repo.get_characters_using_spell(spell.stable_key)

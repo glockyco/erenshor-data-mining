@@ -112,6 +112,13 @@ class FakeItemRepository:
     def get_obtainable_items_that_teach_skill(self, skill_stable_key: str) -> list[ItemLink]:
         return self._skill_teaching_items.get(skill_stable_key, [])
 
+    def get_classes_that_can_learn_spell(self, spell_stable_key: str) -> list[str]:
+        classes: set[str] = set()
+        for item in self._items:
+            if item.teach_spell_stable_key == spell_stable_key:
+                classes.update(self._classes.get(item.stable_key, []))
+        return sorted(classes)
+
     def get_items_with_spell_effect(self, spell_stable_key: str) -> list[ItemLink]:
         return self._spell_effect_items.get(spell_stable_key, [])
 

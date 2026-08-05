@@ -163,6 +163,39 @@ class ItemRepository(BaseRepository[Item]):
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve item classes for {stable_key}: {e}") from e
 
+    def get_classes_that_can_learn_spell(self, spell_stable_key: str) -> list[str]:
+        """Get the classes able to learn a spell from a scroll.
+
+        Reading a scroll is gated on the *scroll's* class restrictions
+        (``Item.Classes``) plus ``Spell.RequiredLevel``. ``Spell.UsedBy`` only
+        drives SimPlayer spell selection and is incomplete for some spells, so
+        it must not be used to describe player access.
+
+        Args:
+            spell_stable_key: Spell stable key (format: 'spell:resource_name')
+
+        Returns:
+            Union of class names across every scroll teaching this spell.
+
+        Raises:
+            RepositoryError: If query execution fails
+        """
+        query = """
+            SELECT DISTINCT ic.class_name
+            FROM items i
+            JOIN item_classes ic ON ic.item_stable_key = i.stable_key
+            WHERE i.teach_spell_stable_key = ?
+            ORDER BY ic.class_name
+        """
+
+        try:
+            rows = self._execute_raw(query, (spell_stable_key,))
+            classes = [str(row["class_name"]) for row in rows]
+            logger.debug(f"Retrieved {len(classes)} learnable classes for spell {spell_stable_key}")
+            return classes
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve learnable classes for '{spell_stable_key}': {e}") from e
+
     def get_item_stats(self, stable_key: str) -> list[ItemStats]:
         """Get all quality variants for an item.
 

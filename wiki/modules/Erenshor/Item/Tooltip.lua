@@ -834,8 +834,10 @@ local function spellScrollTooltip(item, stats)
 	local reqs = bookRequirements(body)
 	local spell = SpellData.spells[item.teachesSpell]
 	if spell ~= nil then
+		-- Reading a scroll is gated on the scroll's own class restrictions, not on
+		-- the taught spell's UsedBy list (which only drives SimPlayer behaviour).
 		local usable = {}
-		for _, class in ipairs(spell.classes or {}) do
+		for _, class in ipairs(item.classes or {}) do
 			usable[class] = true
 		end
 		local level = num(spell.requiredLevel)
