@@ -168,7 +168,11 @@ function p.run()
 		"Mana Regen ",
 		"spell tooltip includes level-scaled mana restoration"
 	)
-	assertContains(minorTooltip, "+1.5 per level", "spell tooltip labels level scaling")
+	assertContains(
+		minorTooltip,
+		'<span class="item-spell-positive">+1.5</span> per level',
+		"spell tooltip labels level scaling"
+	)
 	assertContains(minorTooltip, "25% chance to proc", "spell tooltip includes added proc chance")
 	assertContains(minorTooltip, "[[Ancient Presence]]", "spell tooltip links the added proc")
 
