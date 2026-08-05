@@ -1126,6 +1126,11 @@ function p.run()
 	assertContains(weaponTooltip, "Paladin", "weapon tooltip shows class restrictions")
 	assertContains(
 		weaponTooltip,
+		'class="item-tooltip-class">Windblade',
+		"weapon tooltip resolves the internal Duelist name to Windblade"
+	)
+	assertContains(
+		weaponTooltip,
 		"item-tooltip-two-column",
 		"weapon tooltip uses the two-column body"
 	)

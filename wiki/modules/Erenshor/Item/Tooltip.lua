@@ -68,9 +68,11 @@ local SLOT_DISPLAY = { PrimaryOrSecondary = "Primary or Secondary" }
 -- treated as 2-handed for the label and the Base DPS x2.
 local TWO_HANDED = { TwoHandMelee = true, TwoHandStaff = true }
 
--- Class restriction display order (live Item/ClassRestrictions). The data
--- already carries display names (Duelist is stored as Windblade).
+-- Class restriction display order (live Item/ClassRestrictions). Class name
+-- lists in the data modules carry internal names, so Windblade is matched
+-- through its internal alias.
 local CLASS_ORDER = { "Arcanist", "Druid", "Paladin", "Reaver", "Stormcaller", "Windblade" }
+local CLASS_INTERNAL_ALIAS = { Windblade = "Duelist" }
 
 local ATTRIBUTES = {
 	{ label = "Str", key = "str" },
@@ -493,7 +495,7 @@ local function classRestrictions(item)
 	local node = mw.html.create("div"):addClass("item-tooltip-classes")
 	local any = false
 	for _, name in ipairs(CLASS_ORDER) do
-		if present[name] then
+		if present[name] or present[CLASS_INTERNAL_ALIAS[name]] then
 			node:tag("span"):addClass("item-tooltip-class"):wikitext(name)
 			any = true
 		end
@@ -824,8 +826,6 @@ local function skillBookTooltip(item, stats)
 	end
 	return tostring(root)
 end
-
-local CLASS_INTERNAL_ALIAS = { Windblade = "Duelist" }
 
 -- SpellScroll: the taught spell's required level for each usable class, mana
 -- cost, spell type, and description.
