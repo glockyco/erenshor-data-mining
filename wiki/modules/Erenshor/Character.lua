@@ -26,6 +26,7 @@ local FIELD_OVERRIDES = {
 	levelmodmin = "levelModMin",
 	levelvariancemax = "levelVarianceMax",
 	levelvariancemin = "levelVarianceMin",
+	location = "location",
 	magic = "magic",
 	mana = "mana",
 	name = "name",
@@ -54,6 +55,7 @@ local ROOT_PUBLIC_PARAMETERS = {
 	"factionchange",
 	"zones",
 	"coordinates",
+	"location",
 	"respawn",
 	"spawnchance",
 	"spawntype",
@@ -406,6 +408,11 @@ local FIELD_ACCESSORS = {
 	end,
 	coordinates = function(c)
 		return c.coordinates
+	end,
+	-- Editor-written landmark description ("near the zone-in"). The export has no
+	-- source for it, so the value only ever arrives as an article parameter.
+	location = function(c)
+		return c.location
 	end,
 	respawn = function(c)
 		return c.respawn

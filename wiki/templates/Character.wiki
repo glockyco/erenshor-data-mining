@@ -8,6 +8,7 @@
         <data><label>Map</label><default>{{#invoke:Erenshor/Character|field|map}}</default></data>
         <data><label>Zones:</label><default>{{#invoke:Erenshor/Character|field|zones}}</default></data>
         <data><label>Coordinates:</label><default>{{#invoke:Erenshor/Character|field|coordinates}}</default></data>
+        <data><label>Location:</label><default>{{#invoke:Erenshor/Character|field|location}}</default></data>
         <data><label>Base Respawn:</label><default>{{#invoke:Erenshor/Character|field|respawn}}</default></data>
         <data><label>Spawn Chance:</label><default>{{#invoke:Erenshor/Character|field|spawnchance}}</default></data>
         <data><label>Spawn Type:</label><default>{{#invoke:Erenshor/Character|field|spawntype}}</default></data>
@@ -67,6 +68,7 @@
         </data>
         <data source="zones"><label>Zones:</label></data>
         <data source="coordinates"><label>Coordinates:</label></data>
+        <data source="location"><label>Location:</label></data>
         <data source="respawn"><label>Base Respawn:</label></data>
         <data source="spawnchance"><label>Spawn Chance:</label></data>
         <data source="spawnType"><label>Spawn Type:</label></data>

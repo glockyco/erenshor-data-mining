@@ -71,6 +71,20 @@ function p.run()
 		"288–648",
 		"field experience folds boss XP multiplier into base range"
 	)
+	assertEqual(
+		Character.fieldValue(bearKey, "A Grizzly Bear", "location"),
+		"",
+		"field location is blank without an article value"
+	)
+	assertEqual(
+		Character.fieldValue(
+			{ stablekey = "character:a_grizzly_bear", location = "Near the zone-in" },
+			"A Grizzly Bear",
+			"location"
+		),
+		"Near the zone-in",
+		"field location resolves the article override"
+	)
 	local faction = Character.fieldValue(bearKey, "A Grizzly Bear", "faction")
 	assertContains(faction, "erenshor-link--faction", "faction renders semantic link")
 	assertContains(faction, "[[The Followers of Evil]]", "faction includes page link")

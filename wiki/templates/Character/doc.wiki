@@ -1,0 +1,141 @@
+== Description ==
+Displays a standardized infobox for all characters in Erenshor - both hostile enemies and friendly NPCs.
+
+Most fields are auto-generated from the game database by [[User:WoWBot|WoWBot]]
+and should not be manually edited. Fields marked '''Manual''' can be added or corrected by editors.
+
+The '''Interactive Map''' row links to the [https://erenshor.compendiums.org/map Interactive World Map] and shows all known spawn
+locations for the character.
+
+== Syntax ==
+<pre>
+{{Character
+|name=
+|image=
+|imagecaption=
+|type=
+|faction=
+|factionChange=
+|zones=
+|coordinates=
+|location=
+|spawnchance=
+|respawn=
+|guaranteeddrops=
+|droprates=
+|level=
+|experience=
+|health=
+|mana=
+|ac=
+|strength=
+|endurance=
+|dexterity=
+|agility=
+|intelligence=
+|wisdom=
+|charisma=
+|magic=
+|poison=
+|elemental=
+|void=
+|spells=
+|levelmodmin=
+|levelmodmax=
+|levelvariancemin=
+|levelvariancemax=
+|xpmultiplier=
+}}
+</pre>
+
+== Parameters ==
+{| class="wikitable"
+! Parameter !! Source !! Description
+|-
+| <code>name</code> || Auto || Character display name. Also drives the interactive map search link.
+|-
+| <code>image</code> || Auto || Image in <code><nowiki>[[File:Name.png|thumb]]</nowiki></code> format.
+|-
+| <code>imagecaption</code> || '''Manual''' || Optional caption below the character image.
+|-
+| <code>type</code> || Auto (manual override accepted) || Character classification: <code>NPC</code>, <code>Boss</code>, <code>Rare</code>, or <code>Enemy</code>. Controls page category and map link prefix.
+|-
+| <code>faction</code> || Auto || Faction wiki link.
+|-
+| <code>factionChange</code> || Auto || Reputation changes granted to the player on kill.
+|-
+| <code>class</code> || '''Manual''' || Character class (used by Simulated Player pages).
+|-
+| <code>zones</code> || Auto || Zone wiki links where this character spawns.
+|-
+| <code>coordinates</code> || Auto || Game coordinates (<code>X x Y x Z</code>). Only shown for single-location characters.
+|-
+| <code>location</code> || '''Manual''' || Plain-text description of where to find the character, such as <code>Near the zone-in</code> or <code>By the bank in Port Azure</code>. Never overwritten by the bot.
+|-
+| <code>spawnchance</code> || Auto || Spawn chance percentage. Only shown for rare/unique characters.
+|-
+| <code>respawn</code> || Auto || Base respawn time.
+|-
+| <code>guaranteeddrops</code> || Auto || Items with 100% drop rate (shown only when two or more exist).
+|-
+| <code>droprates</code> || Auto || All loot drops sorted by probability.
+|-
+| <code>level</code> || Auto || Base character level.
+|-
+| <code>experience</code> || '''Manual''' || Base XP range. Not auto-generated.
+|-
+| <code>health</code> || Auto || Calculated maximum HP.
+|-
+| <code>ac</code> || Auto || Calculated armor class.
+|-
+| <code>magic</code> || Auto || Magic resistance range (e.g. <code>10-30</code>).
+|-
+| <code>poison</code> || Auto || Poison resistance range.
+|-
+| <code>elemental</code> || Auto || Elemental resistance range.
+|-
+| <code>void</code> || Auto || Void resistance range.
+|-
+| <code>spells</code> || Auto || Spells used by this character.
+|}
+
+== Example ==
+<pre>
+{{Character
+|name=Aetherfiend
+|image=[[File:Aetherfiend.png|thumb]]
+|imagecaption=
+|type=Enemy
+|faction=[[The Followers of Evil]]
+|factionChange=-10 [[The Children of Sivakaya]]<br>+2 [[The Citizens of Erenshor]]<br>+2 [[The Citizens of Port Azure]]
+|zones=[[Loomingwood Forest]]
+|coordinates=
+|spawnchance=
+|respawn=5 minutes
+|guaranteeddrops=
+|droprates={{ItemLink|Citrine Stone}} (57.4%)<br>{{ItemLink|Star Stone}} (57.4%)<br>{{ItemLink|Aether's Blessing}} (20.5%)<br>{{ItemLink|Aetherial Hood}} (12.1%)<br>{{ItemLink|Rune of Silkengrass}} (5.9%)<ref>If the player is already holding {{ItemLink|Rune of Silkengrass}} in their inventory, another will not drop.</ref><br>{{ItemLink|Blueprint: Loomingwood Market}} (0.4%)<br>{{ItemLink|Blueprint: Loomingwood Shrine}} (0.4%)
+|level=27
+|levelmodmin=0
+|levelmodmax=0
+|levelvariancemin=-1
+|levelvariancemax=1
+|xpmultiplier=1.0
+|health=50050
+|mana=0
+|ac=405
+|strength=550
+|endurance=550
+|dexterity=550
+|agility=550
+|intelligence=550
+|wisdom=550
+|charisma=550
+|magic=14-32
+|poison=14-32
+|elemental=14-32
+|void=14-32
+|spells=
+}}
+</pre>
+
+<includeonly>[[Category:Infobox templates]]</includeonly>
