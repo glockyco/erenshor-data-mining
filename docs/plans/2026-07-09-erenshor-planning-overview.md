@@ -50,6 +50,12 @@ The archived
 [`2026-07-30-wiki-cutover-state-audit`](archive/2026-07-30-wiki-cutover-state-audit.md)
 is the dated production evidence baseline.
 
+### Presentation
+
+- [`2026-08-06-wiki-main-page-redesign`](2026-08-06-wiki-main-page-redesign.md)
+  rebuilds the landing page and its TemplateStyles sheet. Independent of the Cargo
+  cutover: it touches no entity article and no generated content.
+
 ## Later map work
 
 - [`2026-06-27-map-annotations`](2026-06-27-map-annotations.md)

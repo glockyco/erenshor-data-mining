@@ -4,6 +4,7 @@
 
 - **Wiki Lua Migration & Cargo Data Architecture** [spec] `2026-06-04-wiki-cargo-data-architecture` ← 2026-07-09-erenshor-planning-overview
 - **Erenshor — Planning Overview** [overview] `2026-07-09-erenshor-planning-overview`
+- **Wiki Main Page Redesign** [plan] `2026-08-06-wiki-main-page-redesign` (0/8) ← 2026-07-09-erenshor-planning-overview
 
 ## draft
 
