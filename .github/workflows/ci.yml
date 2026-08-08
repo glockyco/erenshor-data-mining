@@ -45,7 +45,7 @@ jobs:
 
       - name: Upload static report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: verification-static
           path: artifacts/test-reports/static.json
@@ -90,7 +90,7 @@ jobs:
 
       - name: Upload unit report and coverage
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: verification-unit
           path: |
@@ -140,7 +140,7 @@ jobs:
 
       - name: Upload contract reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: verification-contract
           path: |
@@ -188,7 +188,7 @@ jobs:
 
       - name: Upload maps report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: verification-maps
           path: artifacts/test-reports/maps.json
@@ -226,7 +226,7 @@ jobs:
 
       - name: Upload mod reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: verification-mods
           path: |
