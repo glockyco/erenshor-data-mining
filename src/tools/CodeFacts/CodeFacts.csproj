@@ -21,6 +21,6 @@
   <ItemGroup>
     <!-- Pinned EXACTLY. Upgrading this is a deliberate, standalone commit
          (expect matcher churn); never combine with a game update. -->
-    <PackageReference Include="ICSharpCode.Decompiler" Version="10.1.0.8386" />
+    <PackageReference Include="ICSharpCode.Decompiler" Version="10.1.1.8388" />
   </ItemGroup>
 </Project>

@@ -79,10 +79,10 @@
        ImGui.NET, Vectors, or its native cimgui is permitted. -->
   <ItemGroup Condition="'$(ModLoader)' == 'bepinex'">
     <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
-    <PackageReference Include="ImGui.NET" Version="1.88.0" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="System.Numerics.Vectors" Version="4.4.0"
+    <PackageReference Include="ImGui.NET" Version="1.91.6.1" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="System.Numerics.Vectors" Version="4.6.1"
                       GeneratePathProperty="true" PrivateAssets="all" Aliases="vectors" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" PrivateAssets="all" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" PrivateAssets="all" />
     <Reference Include="0Harmony">
       <HintPath>lib/bepinex/0Harmony.dll</HintPath>
       <Private>false</Private>

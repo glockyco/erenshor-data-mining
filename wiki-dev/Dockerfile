@@ -1,4 +1,4 @@
-FROM mediawiki:1.43
+FROM mediawiki:1.46
 
 RUN set -eux; \
     apt-get update; \
