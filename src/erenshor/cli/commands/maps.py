@@ -13,6 +13,7 @@ import shutil
 import signal
 import subprocess
 import sys
+from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Annotated
 
@@ -47,6 +48,34 @@ CHECK_COMMANDS: tuple[tuple[str, ...], ...] = (
     ("pnpm", "run", "test"),
 )
 PRERENDER_SMOKE_COMMAND = ("node", "scripts/test-prerender.mjs")
+
+# The two hostnames are two Cloudflare services deployed from one build. The
+# canonical service owns erenshor.compendiums.org, the legacy service keeps
+# erenshor-maps.wowmuch1.workers.dev for shipped companion overlays.
+DEPLOY_CONFIGS: dict[str, str] = {
+    "site": "wrangler.jsonc",
+    "legacy": "wrangler.legacy.jsonc",
+}
+# Order matters. Only a config that declares a route moves a Custom Domain, so
+# the canonical deploy is the single point where hostname ownership changes.
+# Deploying it first means a failure leaves the previous owner untouched.
+DEPLOY_ORDER: tuple[str, ...] = ("site", "legacy")
+
+
+class DeployTarget(str, Enum):
+    """Which Worker service(s) `maps deploy` should publish."""
+
+    ALL = "all"
+    SITE = "site"
+    LEGACY = "legacy"
+
+
+def _deploy_command(target: str, *, dry_run: bool) -> list[str]:
+    """Build the wrangler invocation for one service."""
+    command = ["pnpm", "exec", "wrangler", "deploy", "--config", DEPLOY_CONFIGS[target]]
+    if dry_run:
+        command.append("--dry-run")
+    return command
 
 
 def _run(cmd: list[str], cwd: Path, *, env: dict[str, str] | None = None) -> None:
@@ -449,11 +478,24 @@ def build(
 @require_preconditions(build_exists, build_matches_inputs, cloudflare_auth_configured)
 def deploy(
     ctx: typer.Context,
+    target: Annotated[
+        DeployTarget,
+        typer.Option(
+            "--target",
+            help="Which Worker service to publish: the canonical site, the legacy compatibility host, or both.",
+        ),
+    ] = DeployTarget.ALL,
 ) -> None:
     """Deploy to Cloudflare.
 
-    Deploys built site to Cloudflare using wrangler. Requires valid
+    Deploys the built site to Cloudflare using wrangler. Requires valid
     Cloudflare credentials. Build must exist before deploying.
+
+    One build is published to two Worker services: `erenshor-maps-site`
+    serves erenshor.compendiums.org, and `erenshor-maps` keeps
+    erenshor-maps.wowmuch1.workers.dev alive for shipped companion mods.
+    With the default target both are deployed, canonical first, because
+    that is the deploy that moves the Custom Domain.
     """
     cli_ctx: CLIContext = ctx.obj
 
@@ -481,11 +523,16 @@ def deploy(
         console.print(f"  erenshor -V {cli_ctx.variant} maps build")
         raise typer.Exit(1)
 
+    targets = DEPLOY_ORDER if target is DeployTarget.ALL else (target.value,)
+
     # Show info panel
     console.print()
     console.print(
         Panel.fit(
-            f"[bold cyan]Deploying to Cloudflare[/bold cyan]\nVariant: {cli_ctx.variant}\nBuild: {build_dir}",
+            f"[bold cyan]Deploying to Cloudflare[/bold cyan]\n"
+            f"Variant: {cli_ctx.variant}\n"
+            f"Build: {build_dir}\n"
+            f"Services: {', '.join(DEPLOY_CONFIGS[name] for name in targets)}",
             border_style="cyan",
         )
     )
@@ -493,28 +540,36 @@ def deploy(
 
     if cli_ctx.dry_run:
         console.print("[yellow]DRY RUN: Would deploy with:[/yellow]")
-        console.print(f"  pnpm exec wrangler deploy  (in {maps_dir})")
+        for name in targets:
+            console.print(f"  {' '.join(_deploy_command(name, dry_run=False))}  (in {maps_dir})")
         console.print()
         return
 
     # Run deployment
-    try:
-        logger.info("Deploying to Cloudflare via wrangler")
-        _run(["pnpm", "exec", "wrangler", "deploy"], maps_dir)
+    for position, name in enumerate(targets):
+        try:
+            logger.info(f"Deploying {DEPLOY_CONFIGS[name]} to Cloudflare via wrangler")
+            _run(_deploy_command(name, dry_run=False), maps_dir)
+        except KeyboardInterrupt:
+            console.print("\n[yellow]Deployment interrupted[/yellow]")
+            raise typer.Exit(1) from None
+        except typer.Exit:
+            # The canonical deploy is what repoints the Custom Domain, so a
+            # partial run leaves production in a known state worth naming.
+            if position > 0:
+                console.print()
+                console.print(f"[yellow]{DEPLOY_CONFIGS[targets[0]]} is already live. Resume with:[/yellow]")
+                console.print(f"  erenshor -V {cli_ctx.variant} maps deploy --target {name}")
+                console.print()
+            raise
+        except Exception as e:
+            console.print(f"[red]Error during deployment: {e}[/red]")
+            raise typer.Exit(1) from e
 
-        console.print()
-        console.print("[green]Deployment completed successfully![/green]")
-        console.print("[dim]Check deployment status at: https://dash.cloudflare.com/[/dim]")
-        console.print()
-
-    except KeyboardInterrupt:
-        console.print("\n[yellow]Deployment interrupted[/yellow]")
-        raise typer.Exit(1) from None
-    except typer.Exit:
-        raise
-    except Exception as e:
-        console.print(f"[red]Error during deployment: {e}[/red]")
-        raise typer.Exit(1) from e
+    console.print()
+    console.print("[green]Deployment completed successfully![/green]")
+    console.print("[dim]Check deployment status at: https://dash.cloudflare.com/[/dim]")
+    console.print()
 
 
 @app.command()

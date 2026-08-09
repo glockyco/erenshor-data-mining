@@ -9,6 +9,9 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
+import pytest
+import typer
+
 from erenshor.application.maps import build_info
 from erenshor.cli.commands import maps
 from erenshor.cli.context import CLIContext
@@ -155,14 +158,15 @@ def test_preview_uses_vite_directly_for_fresh_build(tmp_path: Path, monkeypatch:
     assert calls == [["pnpm", "exec", "vite", "preview", "--port", "4174"]]
 
 
-def test_deploy_uses_wrangler_directly_for_fresh_build(tmp_path: Path, monkeypatch: Any) -> None:
+def _ready_to_deploy(tmp_path: Path, monkeypatch: Any, *, dry_run: bool = False) -> tuple[Any, list[list[str]]]:
+    """A fresh, stamped build plus credentials, with wrangler calls recorded."""
     maps_dir, database_path = _write_project(tmp_path)
     build_dir = maps_dir / "build"
     build_dir.mkdir()
     (build_dir / "index.html").write_text("<h1>ok</h1>\n")
     hashes = build_info.compute_input_hashes(maps_source_dir=maps_dir, database_path=database_path)
     build_info.write_build_info(build_dir, hashes)
-    ctx = _ctx(tmp_path, maps_dir, database_path)
+    ctx = _ctx(tmp_path, maps_dir, database_path, dry_run=dry_run)
     calls: list[list[str]] = []
 
     def fake_run(args: list[str], **_kwargs: Any) -> subprocess.CompletedProcess[str]:
@@ -172,7 +176,82 @@ def test_deploy_uses_wrangler_directly_for_fresh_build(tmp_path: Path, monkeypat
     monkeypatch.setenv("CLOUDFLARE_API_TOKEN", "token")
     monkeypatch.setattr(maps, "_check_pnpm_available", lambda: True)
     monkeypatch.setattr("erenshor.cli.commands.maps.subprocess.run", fake_run)
+    return ctx, calls
+
+
+def test_deploy_publishes_canonical_before_legacy(tmp_path: Path, monkeypatch: Any) -> None:
+    # The canonical deploy is the one that repoints the Custom Domain, so it
+    # must run first for the cutover to stay reversible.
+    ctx, calls = _ready_to_deploy(tmp_path, monkeypatch)
 
     maps.deploy(ctx)
 
-    assert calls == [["pnpm", "exec", "wrangler", "deploy"]]
+    assert calls == [
+        ["pnpm", "exec", "wrangler", "deploy", "--config", "wrangler.jsonc"],
+        ["pnpm", "exec", "wrangler", "deploy", "--config", "wrangler.legacy.jsonc"],
+    ]
+
+
+def test_deploy_site_target_leaves_the_legacy_service_untouched(tmp_path: Path, monkeypatch: Any) -> None:
+    ctx, calls = _ready_to_deploy(tmp_path, monkeypatch)
+
+    maps.deploy(ctx, target=maps.DeployTarget.SITE)
+
+    assert calls == [["pnpm", "exec", "wrangler", "deploy", "--config", "wrangler.jsonc"]]
+
+
+def test_deploy_legacy_target_leaves_the_canonical_service_untouched(tmp_path: Path, monkeypatch: Any) -> None:
+    ctx, calls = _ready_to_deploy(tmp_path, monkeypatch)
+
+    maps.deploy(ctx, target=maps.DeployTarget.LEGACY)
+
+    assert calls == [["pnpm", "exec", "wrangler", "deploy", "--config", "wrangler.legacy.jsonc"]]
+
+
+def test_deploy_stops_before_the_legacy_service_when_the_canonical_one_fails(tmp_path: Path, monkeypatch: Any) -> None:
+    ctx, calls = _ready_to_deploy(tmp_path, monkeypatch)
+
+    def failing_run(args: list[str], **_kwargs: Any) -> subprocess.CompletedProcess[str]:
+        calls.append(args)
+        return subprocess.CompletedProcess(args=args, returncode=1)
+
+    monkeypatch.setattr("erenshor.cli.commands.maps.subprocess.run", failing_run)
+
+    with pytest.raises(typer.Exit):
+        maps.deploy(ctx)
+
+    assert calls == [["pnpm", "exec", "wrangler", "deploy", "--config", "wrangler.jsonc"]]
+
+
+def test_deploy_names_a_resumable_command_when_only_the_legacy_service_fails(
+    tmp_path: Path, monkeypatch: Any, capsys: Any
+) -> None:
+    ctx, calls = _ready_to_deploy(tmp_path, monkeypatch)
+
+    def fail_second(args: list[str], **_kwargs: Any) -> subprocess.CompletedProcess[str]:
+        calls.append(args)
+        returncode = 1 if "wrangler.legacy.jsonc" in args else 0
+        return subprocess.CompletedProcess(args=args, returncode=returncode)
+
+    monkeypatch.setattr("erenshor.cli.commands.maps.subprocess.run", fail_second)
+
+    with pytest.raises(typer.Exit):
+        maps.deploy(ctx)
+
+    assert len(calls) == 2
+    # The canonical service is already serving the custom domain at this point,
+    # so the operator needs the resume command rather than a rerun of both.
+    assert "maps deploy --target legacy" in capsys.readouterr().out
+
+
+def test_deploy_dry_run_reports_both_services_without_invoking_wrangler(
+    tmp_path: Path, monkeypatch: Any, capsys: Any
+) -> None:
+    ctx, calls = _ready_to_deploy(tmp_path, monkeypatch, dry_run=True)
+
+    maps.deploy(ctx)
+
+    assert calls == []
+    output = capsys.readouterr().out
+    assert "--config wrangler.jsonc" in output
+    assert "--config wrangler.legacy.jsonc" in output
