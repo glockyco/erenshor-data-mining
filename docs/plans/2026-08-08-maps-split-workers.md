@@ -351,10 +351,10 @@ three have distinct rollback boundaries.
 
 ## Implementation tasks
 
-**Status (2026-08-09):** all four commits are merged on `main` and
-`uv run erenshor test ci` is green across every leaf. What remains is the
-authorised two-gate cutover below, which has not been performed. Production
-still serves both hosts from the single `erenshor-maps` service.
+**Status (2026-08-09):** complete. All four commits are merged, CI is green
+across every leaf, and the two-gate cutover has been executed and verified in
+production. See the cutover record below. The only outstanding item is reading
+the 24-hour analytics window described under post-cutover acceptance.
 
 ### Task 1: Separate the entrypoints without changing legacy behavior
 
@@ -516,16 +516,16 @@ attaches but fails smoke verification, execute the rollback immediately.
 
 ### Canonical host
 
-- [ ] `/`, `/map`, and one exact `/maps/{key}` return `200` with canonical-host
+- [x] `/`, `/map`, and one exact `/maps/{key}` return `200` with canonical-host
       metadata.
-- [ ] `/map/` and `/maps/{key}/` still return the same-origin relative `307`
+- [x] `/map/` and `/maps/{key}/` still return the same-origin relative `307`
       recorded in the baseline, not a `200` and not a cross-origin redirect.
-- [ ] `/service-worker.js`, one hashed `/_app/immutable` file, one SQLite file,
+- [x] `/service-worker.js`, one hashed `/_app/immutable` file, one SQLite file,
       one tile, one image, and one font return their expected content types.
-- [ ] Conditional requests retain valid ETag and `304` behavior.
-- [ ] `/api/game-version` returns the existing JSON schema and cache headers.
-- [ ] An unknown path, wrong-case root key, and `/zones/{key}` return `404`.
-- [ ] A real browser loads `/map`, initializes the map, installs the service
+- [x] Conditional requests retain valid ETag and `304` behavior.
+- [x] `/api/game-version` returns the existing JSON schema and cache headers.
+- [x] An unknown path, wrong-case root key, and `/zones/{key}` return `404`.
+- [x] A real browser loads `/map`, initializes the map, installs the service
       worker, and reports no console or failed-network errors.
 
 Open a live tail on `erenshor-maps-site`, then request the static paths and the
@@ -535,22 +535,22 @@ fixed the invocation path.
 
 ### Legacy host
 
-- [ ] `/map` remains a same-origin `200` document and does not navigate to the
+- [x] `/map` remains a same-origin `200` document and does not navigate to the
       custom domain.
-- [ ] `/map/` remains a same-origin relative `307` to `/map`. A cross-origin
+- [x] `/map/` remains a same-origin relative `307` to `/map`. A cross-origin
       redirect here breaks shipped companion overlays.
-- [ ] The service worker, Svelte runtime, SQLite file, representative tiles,
+- [x] The service worker, Svelte runtime, SQLite file, representative tiles,
       images, icons, and fonts remain same-origin successful responses.
-- [ ] The service worker registers under the legacy origin and completes its
+- [x] The service worker registers under the legacy origin and completes its
       current offline-cache install without a cross-origin or scope error.
-- [ ] One exact mixed-case root map key redirects to canonical `/maps/{key}` and
+- [x] One exact mixed-case root map key redirects to canonical `/maps/{key}` and
       preserves an encoded query byte-for-byte.
-- [ ] Wrong-case, trailing-slash, unknown, malformed, and reserved paths retain
+- [x] Wrong-case, trailing-slash, unknown, malformed, and reserved paths retain
       their current 404 behavior.
-- [ ] A real non-`/map` HTML route redirects to the same canonical path and query.
-- [ ] `/sitemap.xml` and the Google verification token retain their current
+- [x] A real non-`/map` HTML route redirects to the same canonical path and query.
+- [x] `/sitemap.xml` and the Google verification token retain their current
       special behavior.
-- [ ] `/api/game-version` retains its existing JSON behavior.
+- [x] `/api/game-version` retains its existing JSON behavior.
 
 A live tail on `erenshor-maps` should show these legacy requests. Those
 invocations are intentional compatibility work.
@@ -582,6 +582,47 @@ recorded pre-cutover version of `erenshor-maps` or retry
 Do not delete `erenshor-maps-site`, old versions, domain records, or certificates
 during the stabilization window. Rollback changes only the Custom Domain's
 service attachment and, if necessary, the active Worker version.
+
+## Cutover record (2026-08-09)
+
+Executed from the MacBook Air. Both gates succeeded and no rollback was needed.
+
+| Item | Value |
+| --- | --- |
+| Gate 1, canonical | `erenshor-maps-site` version `f9e7865c-8a59-4dd3-8392-00231d407b11`, 6,790 assets uploaded |
+| Domain takeover | Wrangler prompted `erenshor.compendiums.org (used as a domain for "erenshor-maps"). Update them to point to this script instead?` and was answered yes |
+| Domain record | ID `8a8254cb46d6f1b791657ed2db270fb00f434831` and cert `c45c2c19-db5e-4eb2-82d1-0578c8e1afe7` were both retained, only `service` changed |
+| Gate 2, legacy | `erenshor-maps` version `3d8d0503-ed5a-49ba-806c-c00104ab403e`, 102 changed assets against 7,279 already uploaded |
+| Pre-cutover legacy version, for rollback | `42ada1ac-8af3-4871-a02e-c9d0f3f5cd6b`, deployment `72ab2e78-f552-481a-b6e6-9207f0bce76d` |
+| Canonical runtime after cutover | `serve_directly: true`, `static_routing.user_worker: ["/api/game-version"]` |
+| Legacy runtime after cutover | `serve_directly: false`, `raw_run_worker_first: true`, workers.dev still enabled |
+
+Live-tail proof on `erenshor-maps-site`: requesting `/map`, `/maps/Stowaway`,
+`/service-worker.js`, `/tiles/tiles-manifest.json`, `/db/erenshor.sqlite`, and
+`/sitemap.xml` produced no Worker invocation. Only `/api/game-version` did.
+
+Both smoke matrices matched the pre-cutover baseline, including the
+trailing-slash `307`s, byte-for-byte legacy query preservation, and identical
+ETags across the two services for shared assets. In a real browser the canonical
+`/map` rendered with an activated service worker and zero console or network
+errors, and the legacy `/map` stayed same-origin, kept its cross-domain
+canonical tag, and completed its 255-tile offline install.
+
+Per-minute invocations for `erenshor-maps` fell from several hundred to over a
+thousand per minute before 18:58 UTC to zero in most minutes afterwards. The one
+post-cutover spike of 599 was this session's own legacy browser check, which is
+the expected cost of a worker-first host performing the tile precache.
+
+Two caveats for whoever reads the dashboard next:
+
+- Invocations for the new service currently land under `__unknown__` in
+  `workersInvocationsAdaptive`. A controlled burst of 12 `/api/game-version`
+  requests appeared as `__unknown__: 11`, so the script-name dimension has not
+  propagated yet. Re-check attribution before drawing conclusions.
+- The Air pins Python `3.14.7` through `.python-version`, but its Homebrew `uv`
+  cannot download that build, and the project only requires `>=3.13`. The
+  deploy was run with `uv run -p 3.13`. Either upgrade `uv` there or relax the
+  pin, otherwise the next deploy hits the same wall.
 
 ## Post-cutover acceptance
 
