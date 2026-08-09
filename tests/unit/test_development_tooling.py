@@ -40,7 +40,7 @@ def test_lefthook_runs_project_area_checks() -> None:
     config = Path("lefthook.yml").read_text(encoding="utf-8")
 
     assert "git diff --cached --check" in config
-    assert "gitleaks protect --staged" in config
+    assert "gitleaks git --pre-commit --staged" in config
     assert "pre-commit:" in config
     assert "commit-msg:" in config
     assert "pre-push:" in config
@@ -53,8 +53,8 @@ def test_lefthook_runs_project_area_checks() -> None:
         line.strip()[len("run: ") :] for line in pre_push.splitlines() if line.strip().startswith("run: ")
     ]
     assert pre_push_commands == [
-        "uv run erenshor test unit",
-        "uv run erenshor test contract",
+        "scripts/with-dev-env.sh uv run erenshor test unit",
+        "scripts/with-dev-env.sh uv run erenshor test contract",
     ]
 
     assert "uv run ruff format" in config
@@ -64,6 +64,30 @@ def test_lefthook_runs_project_area_checks() -> None:
     assert "bash src/mods/run-csharpier.sh" in config
     assert "pnpm exec stylua --check" in config
     assert "pnpm exec commitlint --edit" in config
+
+
+def test_hook_jobs_needing_project_tools_enter_the_dev_shell() -> None:
+    """Hooks must not assume the invoking process has the toolchain on PATH.
+
+    Git clients that are not shells run hooks with the bare session PATH, where
+    a job calling a dev-shell tool directly aborts the commit or push with exit
+    127 for reasons unrelated to the change.
+    """
+    wrapper = Path("scripts/with-dev-env.sh")
+    assert wrapper.is_file()
+    assert wrapper.stat().st_mode & 0o111, "wrapper must be executable"
+
+    config = Path("lefthook.yml").read_text(encoding="utf-8")
+    dev_shell_tools = ("uv ", "pnpm ", "gitleaks ", "dotnet ", "run-csharpier.sh")
+    unwrapped = [
+        command
+        for line in config.splitlines()
+        if line.strip().startswith("run: ")
+        for command in [line.strip()[len("run: ") :]]
+        if any(tool in command for tool in dev_shell_tools) and not command.startswith("scripts/with-dev-env.sh ")
+    ]
+
+    assert unwrapped == [], f"hook jobs bypass the dev shell: {unwrapped}"
 
 
 def test_commitlint_enforces_project_commit_policy() -> None:

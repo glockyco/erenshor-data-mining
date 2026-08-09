@@ -4,6 +4,10 @@ output:
   - execution
   - failure
 
+# Every job that needs a project tool goes through scripts/with-dev-env.sh.
+# Git clients that are not shells (Fork, IDE integrations) run hooks with the
+# bare launchd PATH, where uv, pnpm and dotnet do not exist.
+
 pre-commit:
   piped: true
   jobs:
@@ -12,28 +16,28 @@ pre-commit:
 
     - name: ruff format
       glob: "*.py"
-      run: uv run ruff format {staged_files}
+      run: scripts/with-dev-env.sh uv run ruff format {staged_files}
       stage_fixed: true
 
     - name: ruff check
       glob: "*.py"
-      run: uv run ruff check --fix {staged_files}
+      run: scripts/with-dev-env.sh uv run ruff check --fix {staged_files}
       stage_fixed: true
 
     - name: maps lint
       glob:
         - "src/maps/*.{js,ts,svelte,cjs,mjs,json}"
         - "src/maps/**/*.{js,ts,svelte,cjs,mjs,json}"
-      run: pnpm --filter erenshor-maps lint
+      run: scripts/with-dev-env.sh pnpm --filter erenshor-maps lint
 
     - name: csharpier
       glob: "src/mods/**/*.cs"
-      run: bash src/mods/run-csharpier.sh {staged_files}
+      run: scripts/with-dev-env.sh bash src/mods/run-csharpier.sh {staged_files}
       stage_fixed: true
 
     - name: stylua
       glob: "*.lua"
-      run: pnpm exec stylua --check {staged_files}
+      run: scripts/with-dev-env.sh pnpm exec stylua --check {staged_files}
 
     - name: plans docs
       glob: "docs/plans/**/*.md"
@@ -42,20 +46,20 @@ pre-commit:
       skip:
         - run: "! command -v omp-plans"
 
+    # gitleaks ships in the dev shell, so a missing binary is a broken
+    # environment rather than a reason to push unscanned changes.
     - name: gitleaks
-      run: gitleaks protect --staged --redact --verbose
-      skip:
-        - run: "! command -v gitleaks"
+      run: scripts/with-dev-env.sh gitleaks git --pre-commit --staged --redact --verbose
 
 commit-msg:
   jobs:
     - name: commitlint
-      run: pnpm exec commitlint --edit {1}
+      run: scripts/with-dev-env.sh pnpm exec commitlint --edit {1}
 
 pre-push:
   jobs:
     - name: unit
-      run: uv run erenshor test unit
+      run: scripts/with-dev-env.sh uv run erenshor test unit
 
     - name: contract
-      run: uv run erenshor test contract
+      run: scripts/with-dev-env.sh uv run erenshor test contract

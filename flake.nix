@@ -49,6 +49,9 @@
 
             # Ad-hoc inspection of the raw and clean databases.
             pkgs.sqlite
+
+            # The pre-commit secret scan, matching the CI security job.
+            pkgs.gitleaks
           ];
 
           env = {

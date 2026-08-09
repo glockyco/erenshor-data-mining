@@ -321,8 +321,14 @@ pnpm exec lefthook run pre-commit
 pnpm exec lefthook run pre-push
 ```
 
-The pre-commit hook runs Gitleaks when `gitleaks` is installed locally; CI
-always runs the repository security scan.
+Hook jobs that need project tooling run through `scripts/with-dev-env.sh`, which
+enters the dev shell when the calling process is not already inside it. Git
+clients that are not shells — Fork, IDE integrations — invoke hooks with the
+bare session PATH, where `uv` does not exist and every job would fail with exit
+127. Add the wrapper to any new job that calls a dev-shell tool.
+
+Gitleaks ships in the dev shell, so the pre-commit secret scan always runs
+rather than skipping itself; CI runs the same scan over the repository.
 
 Run independent static checks for the area you changed:
 
