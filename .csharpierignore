@@ -1,1 +1,5 @@
 variants/
+
+# Nix flake inputs materialised by direnv. Third-party sources in the nix store,
+# not maintained code, and read-only, so they can never be formatted.
+.direnv/
