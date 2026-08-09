@@ -15,13 +15,21 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 
+from erenshor.infrastructure.config import load_config
+
 if TYPE_CHECKING:
     from erenshor.application.guide.graph import EntityGraph
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-MAIN_CLEAN_DB = REPO_ROOT / "variants" / "main" / "erenshor-main.sqlite"
-MAIN_RAW_DB = REPO_ROOT / "variants" / "main" / "erenshor-main-raw.sqlite"
-SHIPPED_MAIN_DLL = REPO_ROOT / "variants" / "main" / "game" / "Erenshor_Data" / "Managed" / "Assembly-CSharp.dll"
+
+# Resolve through the configuration rather than the default layout: local config
+# may point game_files at an installation the pipeline only reads, in which case
+# the shipped assembly does not live under variants/main/game.
+_MAIN_VARIANT = load_config().variants["main"]
+MAIN_CLEAN_DB = _MAIN_VARIANT.resolved_database(REPO_ROOT)
+MAIN_RAW_DB = _MAIN_VARIANT.resolved_database_raw(REPO_ROOT)
+SHIPPED_MAIN_DLL = _MAIN_VARIANT.resolved_game_files(REPO_ROOT) / "Erenshor_Data" / "Managed" / "Assembly-CSharp.dll"
+MAIN_WIKI_GENERATED = _MAIN_VARIANT.resolved_wiki(REPO_ROOT) / "generated"
 CODE_FACTS_TOOL = REPO_ROOT / "src" / "tools" / "CodeFacts"
 
 
@@ -65,11 +73,31 @@ def shipped_main_dll() -> Path:
     )
 
 
+@pytest.fixture(scope="session")
+def main_wiki_generated() -> Path:
+    """Return the generated wiki tree, or fail when it has not been produced.
+
+    Generation preserves manually authored sections of the live pages, so the
+    fetch has to precede it: generating without one silently drops that content
+    and the samples then fail on missing markers rather than on the real cause.
+    """
+    directory = MAIN_WIKI_GENERATED
+    if not directory.is_dir() or not any(directory.glob("*.txt")):
+        pytest.fail(
+            f"Generated wiki pages not found: {directory}\nGenerate the required input with "
+            "`uv run erenshor -V main wiki fetch && uv run erenshor -V main wiki generate` "
+            "before running tests/data.",
+            pytrace=False,
+        )
+    return directory
+
+
 @pytest.fixture(scope="session", autouse=True)
 def _main_data_preconditions(
     main_clean_db: Path,
     main_raw_db: Path,
     shipped_main_dll: Path,
+    main_wiki_generated: Path,
 ) -> None:
     """Require all shipping data inputs for every explicit data-leaf test."""
     # Dependencies perform the checks.  Keeping this fixture autouse means a

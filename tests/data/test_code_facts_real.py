@@ -5,12 +5,11 @@ import subprocess
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-DLL = REPO_ROOT / "variants" / "main" / "game" / "Erenshor_Data" / "Managed" / "Assembly-CSharp.dll"
 TOOL = REPO_ROOT / "src" / "tools" / "CodeFacts"
 SPECS = TOOL / "specs" / "erenshor-facts.json"
 
 
-def test_all_facts_extract_with_sane_shapes(code_facts_tool: Path) -> None:
+def test_all_facts_extract_with_sane_shapes(code_facts_tool: Path, shipped_main_dll: Path) -> None:
     proc = subprocess.run(
         [
             "dotnet",
@@ -21,7 +20,7 @@ def test_all_facts_extract_with_sane_shapes(code_facts_tool: Path) -> None:
             "--project",
             str(code_facts_tool),
             "--",
-            str(DLL),
+            str(shipped_main_dll),
             str(SPECS),
             "--variant",
             "main",
