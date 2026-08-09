@@ -38,7 +38,7 @@
 
 The Flame well has two uses:
 *Completing {{QuestLink|link=Lighting the Nighthollow Candle}}
-*Upgrading Standard or Improved items to [[Item Quality#Blessed|Blessed]] quality, or Improved items directly to [[Item Quality#Ascended|Ascended]] quality, by offering them with {{ItemLink|Sivakrux}} and {{ItemLink|Offering Stone}}. See [[Item Quality]] for the chances and outcomes.
+*Upgrading non-blessed items into [[Item Quality|Blessed Items]]
 
 [[Category:Characters]]
 [[Category:Fallen Braxonia]]
