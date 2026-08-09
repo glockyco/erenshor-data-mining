@@ -365,3 +365,33 @@ def test_compare_variants_rejects_missing_database(tmp_path: Path) -> None:
 
     assert result.exit_code == 1
     assert "New database not found for variant 'demo'" in result.output
+
+
+class LibraryVariantStub(VariantStub):
+    """A variant whose game_files points into a regular Steam library."""
+
+    def resolved_game_files(self, repo_root: Path) -> Path:
+        return self.root / "Steam" / "steamapps" / "common" / "Erenshor"
+
+
+def test_read_build_id_from_downloaded_install(tmp_path: Path) -> None:
+    """`extract download` writes the manifest inside the install directory."""
+    variant = VariantStub(tmp_path)
+    _write_manifest(variant.resolved_game_files(tmp_path), variant.app_id, "20287268")
+
+    assert extract._read_build_id(_context(tmp_path, variant), variant) == "20287268"
+
+
+def test_read_build_id_from_steam_library_install(tmp_path: Path) -> None:
+    """A library install keeps its manifest two levels above the game directory."""
+    variant = LibraryVariantStub(tmp_path)
+    _write_manifest(tmp_path / "Steam", variant.app_id, "20287269")
+
+    assert extract._read_build_id(_context(tmp_path, variant), variant) == "20287269"
+
+
+def test_read_build_id_without_manifest(tmp_path: Path) -> None:
+    """A missing manifest is reported as unknown rather than raising."""
+    variant = VariantStub(tmp_path)
+
+    assert extract._read_build_id(_context(tmp_path, variant), variant) is None

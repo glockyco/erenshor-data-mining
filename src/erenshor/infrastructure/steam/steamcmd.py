@@ -37,9 +37,9 @@ class SteamCMDError(Exception):
 class SteamCMDNotFoundError(SteamCMDError):
     """Raised when SteamCMD executable is not found on the system.
 
-    This typically means SteamCMD is not installed or not in PATH.
-    On macOS: brew install steamcmd
-    On Linux: Install via package manager or download from Valve
+    This typically means SteamCMD is not installed or not in PATH. Only the
+    download workflow needs it; every other command reads an existing install.
+    Download from https://developer.valvesoftware.com/wiki/SteamCMD
     """
 
     pass
@@ -128,8 +128,9 @@ class SteamCMD:
         if not self._check_installed():
             raise SteamCMDNotFoundError(
                 "SteamCMD not found in PATH.\n"
-                "Install with: brew install steamcmd (macOS)\n"
-                "Or download from: https://developer.valvesoftware.com/wiki/SteamCMD"
+                "Only 'extract download' needs it: point [variants.<name>] game_files at an "
+                "existing installation to skip the download entirely.\n"
+                "Otherwise install it from https://developer.valvesoftware.com/wiki/SteamCMD"
             )
 
         logger.debug(f"SteamCMD initialized: username={username}, platform={platform}")
@@ -244,53 +245,6 @@ class SteamCMD:
         except FileNotFoundError as e:
             # This shouldn't happen if _check_installed worked, but handle it anyway
             raise SteamCMDNotFoundError("SteamCMD executable not found") from e
-
-    def get_build_id(self, install_dir: Path, app_id: str) -> str | None:
-        """Get the currently installed build ID for a game.
-
-        Reads the Steam manifest file to extract the build ID. Returns None
-        if the game is not installed or the manifest is missing.
-
-        Args:
-            install_dir: Directory where game is installed.
-            app_id: Steam App ID.
-
-        Returns:
-            Build ID string if found, None if game not installed or manifest missing.
-
-        Example:
-            >>> steamcmd = SteamCMD()
-            >>> build_id = steamcmd.get_build_id(
-            ...     install_dir=Path("variants/main/game"),
-            ...     app_id="2382520"
-            ... )
-            >>> print(f"Current build: {build_id}")
-        """
-        manifest_file = install_dir / "steamapps" / f"appmanifest_{app_id}.acf"
-
-        if not manifest_file.exists():
-            logger.debug(f"Manifest file not found: {manifest_file}")
-            return None
-
-        try:
-            content = manifest_file.read_text(encoding="utf-8")
-
-            # Parse build ID from manifest (ACF format)
-            for line in content.splitlines():
-                if '"buildid"' in line:
-                    # Extract number from line
-                    parts = line.split('"')
-                    if len(parts) >= 4:
-                        build_id = parts[3]
-                        logger.debug(f"Found build ID: {build_id}")
-                        return build_id
-
-            logger.warning(f"Build ID not found in manifest: {manifest_file}")
-            return None
-
-        except Exception as e:
-            logger.error(f"Failed to read manifest file: {e}")
-            return None
 
     def is_game_installed(self, install_dir: Path, game_executable: str = "Erenshor.exe") -> bool:
         """Check if game files are present in the install directory.

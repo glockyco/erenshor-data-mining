@@ -103,8 +103,8 @@ def _read_manifest_fields(cli_ctx: CLIContext, variant_config: Any, keys: set[st
     format, and the fields we need are scalars at any nesting depth.
     """
     game_files_dir = Path(variant_config.resolved_game_files(cli_ctx.repo_root))
-    manifest_file = game_files_dir / "steamapps" / f"appmanifest_{variant_config.app_id}.acf"
-    if not manifest_file.exists():
+    manifest_file = _find_app_manifest(game_files_dir, str(variant_config.app_id))
+    if manifest_file is None:
         return {}
     found: dict[str, str] = {}
     try:
@@ -115,6 +115,21 @@ def _read_manifest_fields(cli_ctx: CLIContext, variant_config: Any, keys: set[st
     except OSError as e:
         logger.debug(f"Could not read Steam app manifest: {e}")
     return found
+
+
+def _find_app_manifest(game_files_dir: Path, app_id: str) -> Path | None:
+    """Locate the Steam app manifest for an installed game.
+
+    `extract download` writes a self-contained install whose manifest sits in
+    its own `steamapps/`. A regular Steam library instead installs to
+    `<library>/steamapps/common/<game>` and keeps the manifest two levels up,
+    which is the layout when `game_files` points at a copy you already play.
+    """
+    name = f"appmanifest_{app_id}.acf"
+    candidates = [game_files_dir / "steamapps" / name]
+    if game_files_dir.parent.name == "common" and game_files_dir.parent.parent.name == "steamapps":
+        candidates.append(game_files_dir.parent.parent / name)
+    return next((candidate for candidate in candidates if candidate.is_file()), None)
 
 
 def _read_build_id(cli_ctx: CLIContext, variant_config: Any) -> str | None:
@@ -540,12 +555,7 @@ def export(
             def backup(database: Path) -> None:
                 console.print("[bold]Creating backup...[/bold]")
                 try:
-                    steam_config = cli_ctx.config.global_.steam
-                    steamcmd = SteamCMD(username=steam_config.username, platform=steam_config.platform)
-                    build_id = steamcmd.get_build_id(
-                        variant_config.resolved_game_files(cli_ctx.repo_root),
-                        variant_config.app_id,
-                    )
+                    build_id = _read_build_id(cli_ctx, variant_config)
                     if not build_id:
                         build_id = datetime.now().strftime("backup-%Y%m%d-%H%M%S")
                         logger.warning(f"Could not determine Steam build ID, using timestamp: {build_id}")

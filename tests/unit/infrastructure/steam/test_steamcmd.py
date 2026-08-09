@@ -40,7 +40,9 @@ class TestSteamCMDInitialization:
             SteamCMD()
 
         assert "SteamCMD not found" in str(exc_info.value)
-        assert "brew install steamcmd" in str(exc_info.value)
+        # The message must point at the workflow that needs it, not an installer
+        # that is wrong on most machines.
+        assert "extract download" in str(exc_info.value)
 
     @patch("erenshor.infrastructure.steam.steamcmd.shutil.which")
     def test_init_defaults(self, mock_which: MagicMock) -> None:
@@ -143,52 +145,6 @@ class TestSteamCMDDownload:
             steamcmd.download(app_id="2382520", install_dir=install_dir)
 
         assert "Game download failed" in str(exc_info.value)
-
-
-class TestSteamCMDBuildID:
-    """Test build ID extraction from manifest files."""
-
-    @patch("erenshor.infrastructure.steam.steamcmd.shutil.which")
-    def test_get_build_id_success(self, mock_which: MagicMock, tmp_path: Path) -> None:
-        """Test successful build ID extraction."""
-        mock_which.return_value = "/usr/local/bin/steamcmd"
-
-        # Create mock manifest file
-        manifest_dir = tmp_path / "steamapps"
-        manifest_dir.mkdir(parents=True)
-        manifest_file = manifest_dir / "appmanifest_2382520.acf"
-        manifest_file.write_text('"AppState"\n{\n\t"buildid"\t\t"20287268"\n\t"other"\t\t"value"\n}\n')
-
-        steamcmd = SteamCMD()
-        build_id = steamcmd.get_build_id(install_dir=tmp_path, app_id="2382520")
-
-        assert build_id == "20287268"
-
-    @patch("erenshor.infrastructure.steam.steamcmd.shutil.which")
-    def test_get_build_id_manifest_missing(self, mock_which: MagicMock, tmp_path: Path) -> None:
-        """Test build ID returns None when manifest doesn't exist."""
-        mock_which.return_value = "/usr/local/bin/steamcmd"
-
-        steamcmd = SteamCMD()
-        build_id = steamcmd.get_build_id(install_dir=tmp_path, app_id="2382520")
-
-        assert build_id is None
-
-    @patch("erenshor.infrastructure.steam.steamcmd.shutil.which")
-    def test_get_build_id_malformed_manifest(self, mock_which: MagicMock, tmp_path: Path) -> None:
-        """Test build ID returns None when manifest is malformed."""
-        mock_which.return_value = "/usr/local/bin/steamcmd"
-
-        # Create malformed manifest
-        manifest_dir = tmp_path / "steamapps"
-        manifest_dir.mkdir(parents=True)
-        manifest_file = manifest_dir / "appmanifest_2382520.acf"
-        manifest_file.write_text("invalid manifest content")
-
-        steamcmd = SteamCMD()
-        build_id = steamcmd.get_build_id(install_dir=tmp_path, app_id="2382520")
-
-        assert build_id is None
 
 
 class TestSteamCMDGameInstalled:
