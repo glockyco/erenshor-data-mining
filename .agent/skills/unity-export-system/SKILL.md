@@ -153,7 +153,9 @@ In the `RegisterListeners` method, add a registration entry:
 # Full export via CLI
 uv run erenshor extract export
 
-# Or via Unity batch mode directly
-Unity -batchmode -projectPath variants/main/unity \
+# Or via Unity batch mode directly. Unity is never on PATH: use the
+# executable from [global.unity] path, which must be the pinned version.
+"/Applications/Unity/Hub/Editor/2021.3.45f2/Unity.app/Contents/MacOS/Unity" \
+  -batchmode -projectPath variants/main/unity/ExportedProject \
   -executeMethod ExportBatch.Run -logFile export.log -quit
 ```

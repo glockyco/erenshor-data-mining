@@ -31,11 +31,14 @@ starting before treating a failed ping as a loader failure.
 
 ## Install or update the HotRepl host
 
-HotRepl is maintained in `~/Projects/HotRepl/`. The current BepInEx host is a
-multi-assembly deployment. Build the host from that checkout:
+HotRepl is a separate repository, checked out beside this one
+(`~/src/github.com/glockyco/HotRepl` on the current workstation). The BepInEx
+host is a multi-assembly deployment. Build it from that checkout, inside this
+repository's dev shell so the .NET SDK is present:
 
 ```bash
-dotnet build ~/Projects/HotRepl/src/HotRepl.BepInEx --nologo -v q
+HOTREPL=~/src/github.com/glockyco/HotRepl
+dotnet build "$HOTREPL/src/HotRepl.BepInEx" --nologo -v q
 ```
 
 The deploy source is
@@ -231,7 +234,7 @@ uv run erenshor eval run --timeout 3000 'while(true){}'  # ms, killed after ~3s
 
 | File | Purpose |
 |---|---|
-| `~/Projects/HotRepl/` | Standalone HotRepl project |
+| `~/src/github.com/glockyco/HotRepl` | Standalone HotRepl project (separate checkout) |
 | `src/erenshor/application/eval/client.py` | Python WebSocket client |
 | `src/erenshor/cli/commands/eval.py` | CLI commands |
 | `src/mods/AdventureGuide/src/Diagnostics/DebugAPI.cs` | AdventureGuide inspection API |
