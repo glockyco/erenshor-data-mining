@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
+from erenshor.infrastructure.config.paths import PathResolutionError
 from erenshor.infrastructure.config.schema import (
     AssetRipperConfig,
     BehaviorConfig,
@@ -162,7 +163,7 @@ class TestAssetRipperConfig:
     def test_default_values(self):
         """Test that AssetRipperConfig has correct default values."""
         config = AssetRipperConfig()
-        assert config.path == ""  # No default path - must be configured
+        assert config.path == "AssetRipper.GUI.Free"  # Resolved on PATH
         assert config.port == 8080
         assert config.timeout == 3600
 
@@ -202,6 +203,26 @@ class TestAssetRipperConfig:
         resolved = config.resolved_path(tmp_path, validate=False)
         assert resolved == tmp_path / "AssetRipper"
         assert resolved.is_absolute()
+
+    def test_resolved_path_finds_bare_name_on_path(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+        """A name without a separator is resolved against PATH, not the repo root."""
+        bin_dir = tmp_path / "bin"
+        bin_dir.mkdir()
+        executable = bin_dir / "AssetRipper.GUI.Free"
+        executable.touch()
+        executable.chmod(0o755)
+        monkeypatch.setenv("PATH", str(bin_dir))
+
+        config = AssetRipperConfig()
+        assert config.resolved_path(tmp_path, validate=True) == executable
+
+    def test_resolved_path_rejects_missing_bare_name(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+        """Validation fails loudly when the named executable is not on PATH."""
+        monkeypatch.setenv("PATH", str(tmp_path / "empty"))
+
+        config = AssetRipperConfig()
+        with pytest.raises(PathResolutionError, match="not found on PATH"):
+            config.resolved_path(tmp_path, validate=True)
 
 
 class TestDatabaseConfig:

@@ -11,6 +11,7 @@ The configuration supports:
 - Multiple game variants (main, playtest, demo) with variant-specific configs
 """
 
+import shutil
 from pathlib import Path
 from typing import Literal
 
@@ -128,12 +129,13 @@ class AssetRipperConfig(BaseModel):
     """AssetRipper configuration for extracting Unity projects from game files.
 
     AssetRipper converts compiled game assets back into editable Unity projects.
-    Path must be configured in .erenshor/config.local.toml - no defaults provided.
+    A bare executable name is looked up on PATH, so the dev shell can supply the
+    binary; a value containing a separator is treated as a filesystem path.
     """
 
     path: str = Field(
-        default="",
-        description="Path to AssetRipper executable (required, must be configured)",
+        default="AssetRipper.GUI.Free",
+        description="AssetRipper executable: bare name resolved on PATH, or an explicit path",
     )
     port: int = Field(
         default=8080,
@@ -151,6 +153,10 @@ class AssetRipperConfig(BaseModel):
     def resolved_path(self, repo_root: Path, validate: bool = True) -> Path:
         """Get resolved AssetRipper executable path.
 
+        A configured value without a path separator names an executable on PATH
+        and is resolved there, which keeps environment-managed installations
+        (nix dev shell, package manager) out of the tracked configuration.
+
         Args:
             repo_root: Repository root for path expansion.
             validate: If True, verify that AssetRipper executable exists.
@@ -161,7 +167,19 @@ class AssetRipperConfig(BaseModel):
         Raises:
             PathResolutionError: If validation enabled and AssetRipper not found.
         """
-        from .paths import resolve_path
+        from .paths import PathResolutionError, resolve_path
+
+        if self.path and "/" not in self.path and "\\" not in self.path:
+            found = shutil.which(self.path)
+            if found is not None:
+                return Path(found)
+            if validate:
+                raise PathResolutionError(
+                    f"AssetRipper executable not found on PATH: {self.path}\n"
+                    f"Enter the dev shell, or set [global.assetripper] path to an "
+                    f"explicit location in .erenshor/config.local.toml."
+                )
+            return Path(self.path)
 
         return resolve_path(self.path, repo_root, validate=validate)
 
