@@ -1,0 +1,36 @@
+/**
+ * Compatibility service for `erenshor-maps.wowmuch1.workers.dev`.
+ *
+ * The Worker name MUST stay `erenshor-maps`, because workers.dev hostnames are
+ * derived from it and shipped companion overlays hardcode that hostname.
+ *
+ * This service deploys the same `./build` as the canonical one. The duplicate
+ * bundle is deliberate: old overlays require `/map` and all of its runtime
+ * resources to stay same-origin, so they cannot be proxied from the canonical
+ * service, and it keeps this service a working rollback target.
+ *
+ * `run_worker_first` stays enabled here because the routing decisions are made
+ * on the request hostname, which asset rules cannot express.
+ *
+ * This config declares no route. Wrangler only touches Custom Domains when a
+ * config lists one, so deploying this never detaches or reattaches
+ * `erenshor.compendiums.org`. Ownership moves solely through the canonical
+ * deploy, which is why the canonical service must be deployed first.
+ */
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "erenshor-maps",
+	"main": "./src/legacy-worker.ts",
+	"workers_dev": true,
+	"compatibility_date": "2025-06-01",
+	"assets": {
+		"directory": "./build",
+		"binding": "ASSETS",
+		"run_worker_first": true,
+		"html_handling": "auto-trailing-slash",
+		"not_found_handling": "none"
+	},
+	"observability": {
+		"enabled": true
+	}
+}
