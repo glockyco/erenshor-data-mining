@@ -84,6 +84,8 @@ class TestAssetRipperServerManagement:
         assert str(executable) in call_args
         assert "--port" in call_args
         assert "8080" in call_args
+        # Without this the GUI build opens a browser instead of serving the API.
+        assert "--headless" in call_args
 
     @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.run")
     @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.Popen")

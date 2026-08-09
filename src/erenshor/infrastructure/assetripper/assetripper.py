@@ -167,6 +167,22 @@ class AssetRipper:
         except (subprocess.TimeoutExpired, FileNotFoundError):
             return False
 
+    def launch_command(self) -> list[str]:
+        """Build the argv that starts the AssetRipper web server.
+
+        `--headless` keeps AssetRipper from opening a browser window, which is
+        what makes the GUI build usable as a headless HTTP API.
+
+        Returns:
+            Executable and arguments for the server process.
+        """
+        return [
+            str(self.executable_path),
+            "--port",
+            str(self.port),
+            "--headless",
+        ]
+
     def start_server(self, log_dir: Path) -> None:
         """Start AssetRipper web API server.
 
@@ -191,12 +207,7 @@ class AssetRipper:
         try:
             with self._log_file.open("w") as log_file:
                 process = subprocess.Popen(
-                    [
-                        str(self.executable_path),
-                        "--port",
-                        str(self.port),
-                        "--launch-browser=false",
-                    ],
+                    self.launch_command(),
                     stdout=log_file,
                     stderr=subprocess.STDOUT,
                 )
