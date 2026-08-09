@@ -135,6 +135,7 @@ nix develop
 uv sync --dev
 uv run erenshor status
 uv run erenshor extract download     # skip when game_files points at an existing install
+uv run erenshor extract packages     # Editor NuGet dependencies, once per checkout
 uv run erenshor extract rip
 uv run erenshor extract export
 uv run erenshor extract code-facts
@@ -299,6 +300,7 @@ Enter the dev shell, then install project dependencies:
 nix develop           # or `direnv allow` once, with nix-direnv
 uv sync --dev
 pnpm install
+dotnet tool restore   # csharpier, pinned in .config/dotnet-tools.json
 ```
 
 The dev shell pins the toolchain versions `.github/workflows/ci.yml` installs

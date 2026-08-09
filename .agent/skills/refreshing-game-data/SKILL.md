@@ -31,10 +31,13 @@ It reports whether the Unity `ExportedProject` is stale relative to `Erenshor_Da
 
 ## Canonical order
 
-`rip → export → code-facts → build → validate → republish`. Each gate must pass before the next.
+`packages → rip → export → code-facts → build → validate → republish`. Each gate must pass before the next.
+
+### 0. Restore the Editor's NuGet dependencies
+`erenshor extract packages` — writes `src/Assets/Packages` from `src/Assets/packages.config`, which the rip copies into the project. It is variant-independent, cached, and a no-op once restored, but a checkout without it cannot compile the export scripts, so `extract rip` refuses to run.
 
 ### 1. Re-rip if stale
-`erenshor -V {v} extract rip` — wipes the Unity project, runs AssetRipper, recreates the `Assets/Editor` symlink and `Packages/` copy, and restores any user-added UPM deps + injects required ones (`com.unity.nuget.newtonsoft-json` today). See `skill://unity-export-system` for the listener architecture.
+`erenshor -V {v} extract rip` — wipes the Unity project, runs AssetRipper, recreates the `Assets/Editor` symlink and `Packages/` copy, and restores any user-added UPM deps + injects required ones (`com.unity.nuget.newtonsoft-json` today). Newtonsoft comes from that UPM package alone: a second copy under `Assets/Packages` makes Unity reject both as duplicate precompiled assemblies. See `skill://unity-export-system` for the listener architecture.
 
 After re-ripping, commit the freshly-decompiled tree in its detached discovery repo and diff against the prior build to surface mechanics changes outside the code-facts registry (see `skill://code-facts`). The git-dir lives outside the work tree because `extract rip` `rmtree`s the whole Unity project; explicit flags need no `.git` inside the wiped dir, so history survives the rip:
 ```bash

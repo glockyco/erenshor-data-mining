@@ -30,6 +30,13 @@ ExportBatch.cs (entry point)
 | AssetScanner.cs | Scans assets, notifies listeners |
 | Repository.cs | Database operations |
 
+**Dependencies**: the scripts compile against SQLite-net, SQLitePCLRaw and
+HtmlAgilityPack, pinned in `src/Assets/packages.config` and restored into the
+gitignored `src/Assets/Packages` by `erenshor extract packages`. Adding one means
+adding it there, not dropping a DLL into the tree. Newtonsoft.Json is the
+exception: it arrives as the UPM package the rip injects, and a duplicate copy
+under `Assets/Packages` fails the build.
+
 ## Listeners
 
 Each listener implements `IAssetScanListener<T>` to extract specific game data.
