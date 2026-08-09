@@ -1,3 +1,17 @@
+/**
+ * Compatibility Worker for `erenshor-maps.wowmuch1.workers.dev`.
+ *
+ * Shipped companion overlays hardcode the legacy `/map` document and refuse to
+ * navigate to another host, so this Worker keeps that document and every
+ * runtime resource it loads same-origin. It runs ahead of asset serving
+ * (`run_worker_first: true`) because its routing decisions depend on the
+ * request hostname, which asset rules cannot express.
+ *
+ * The canonical host is served by `site-worker.ts`. The canonical branch below
+ * is therefore normally unreachable, and is retained deliberately: it keeps
+ * this Worker a valid rollback target if the Custom Domain has to be reattached
+ * to `erenshor-maps`.
+ */
 import { GAME_VERSION_PATH, handleGameVersion } from '$lib/game-version';
 import { MAPS } from '$lib/maps';
 

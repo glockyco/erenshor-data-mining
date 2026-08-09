@@ -4,8 +4,9 @@ import worker, {
     GAME_VERSION_PATH,
     LEGACY_HOST,
     handleRequest,
+    type AssetsBinding,
     type Env
-} from './worker';
+} from './legacy-worker';
 
 const html = '<!doctype html><html><body>page</body></html>';
 const resources = [
@@ -53,7 +54,7 @@ function createAssets() {
     return { assets, calls };
 }
 
-function envWith(assets: ReturnType<typeof createAssets>['assets']): Env {
+function envWith(assets: AssetsBinding): Env {
     return { ASSETS: assets };
 }
 
