@@ -816,6 +816,11 @@ FodyWeavers.xsd
 # Erenshor state and configuration
 .erenshor/
 
+# Nix dev shell: direnv cache and `nix build` result symlinks
+.direnv/
+/result
+/result-*
+
 # Pipeline working directories
 variants/
 
