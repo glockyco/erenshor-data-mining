@@ -351,17 +351,22 @@ three have distinct rollback boundaries.
 
 ## Implementation tasks
 
+**Status (2026-08-09):** all four commits are merged on `main` and
+`uv run erenshor test ci` is green across every leaf. What remains is the
+authorised two-gate cutover below, which has not been performed. Production
+still serves both hosts from the single `erenshor-maps` service.
+
 ### Task 1: Separate the entrypoints without changing legacy behavior
 
-- [ ] Rename `worker.ts` and `worker.test.ts` to their `legacy-worker` names with
+- [x] Rename `worker.ts` and `worker.test.ts` to their `legacy-worker` names with
       LSP-aware file renames so imports follow the move.
-- [ ] Keep `LEGACY_HOST`, `CANONICAL_HOST`, the GSC token, exact map-key lookup,
+- [x] Keep `LEGACY_HOST`, `CANONICAL_HOST`, the GSC token, exact map-key lookup,
       content-type redirect decision, and all existing exports in the legacy
       entrypoint.
-- [ ] Keep the canonical-host transparent asset branch in the legacy entrypoint.
+- [x] Keep the canonical-host transparent asset branch in the legacy entrypoint.
       Document that it is the custom-domain rollback path, not normal steady
       state.
-- [ ] Add `site-worker.ts` as a single default export with the routing inlined
+- [x] Add `site-worker.ts` as a single default export with the routing inlined
       in `fetch`. Match `GAME_VERSION_PATH` exactly, call the existing
       `handleGameVersion`, and delegate every other invocation to the asset
       binding. Do not mirror the legacy file's exported `handleRequest` wrapper.
@@ -369,69 +374,69 @@ three have distinct rollback boundaries.
       seam, whereas here it would be a one-line wrapper the repository's
       tiny-function rule rejects. Canonical tests exercise `worker.fetch`
       directly. This exact shape compiled on the deploy machine at 3.22 KiB.
-- [ ] Keep bindings structural and local to each entrypoint. Do not introduce a
+- [x] Keep bindings structural and local to each entrypoint. Do not introduce a
       framework abstraction for two small handlers.
-- [ ] Move the existing route tests without weakening them.
-- [ ] Add canonical tests proving the API handler does not consult assets, an
+- [x] Move the existing route tests without weakening them.
+- [x] Add canonical tests proving the API handler does not consult assets, an
       unexpected path delegates unchanged to assets, and the default export uses
       the same handler.
 
 ### Task 2: Encode the service split in Wrangler
 
-- [ ] Change `wrangler.jsonc` to `name = "erenshor-maps-site"`,
+- [x] Change `wrangler.jsonc` to `name = "erenshor-maps-site"`,
       `main = "./src/site-worker.ts"`, `workers_dev = false`, and retain only the
       `erenshor.compendiums.org` Custom Domain.
-- [ ] Configure the canonical asset binding with the shared `./build` directory,
+- [x] Configure the canonical asset binding with the shared `./build` directory,
       selective `run_worker_first = ["/api/game-version"]`, current HTML
       handling, and current not-found handling.
-- [ ] Add `wrangler.legacy.jsonc` with `name = "erenshor-maps"`,
+- [x] Add `wrangler.legacy.jsonc` with `name = "erenshor-maps"`,
       `main = "./src/legacy-worker.ts"`, `workers_dev = true`, no custom-domain
       route, the same asset directory, and `run_worker_first = true`.
-- [ ] Keep observability enabled for both services so the cutover can be proven
+- [x] Keep observability enabled for both services so the cutover can be proven
       with separate live tails.
-- [ ] Add a topology test that parses both strict-JSON configs and asserts the
+- [x] Add a topology test that parses both strict-JSON configs and asserts the
       service names, entrypoints, `workers_dev` ownership, custom-domain
       ownership, shared asset directory, and opposite Worker-first policies.
-- [ ] Assert in the topology test that the canonical config lists
+- [x] Assert in the topology test that the canonical config lists
       `/api/game-version` in `run_worker_first`. The measured failure mode is a
       static file at that path silently shadowing the endpoint, so this is a
       correctness assertion rather than a style preference.
-- [ ] Run Wrangler's dry-run compilation for each config. A JSON parse test alone
+- [x] Run Wrangler's dry-run compilation for each config. A JSON parse test alone
       does not prove either entrypoint bundles.
 
 ### Task 3: Make the canonical CLI own both deployments
 
-- [ ] Add a typed `--target` option to `uv run erenshor maps deploy` with
+- [x] Add a typed `--target` option to `uv run erenshor maps deploy` with
       `all`, `site`, and `legacy`. Default to `all`.
-- [ ] Map `site` to `wrangler deploy --config wrangler.jsonc` and `legacy` to
+- [x] Map `site` to `wrangler deploy --config wrangler.jsonc` and `legacy` to
       `wrangler deploy --config wrangler.legacy.jsonc`. Continue running through
       the maps directory with the existing Cloudflare precondition.
-- [ ] For `all`, deploy `site` first and `legacy` second. This follows the Ancient
+- [x] For `all`, deploy `site` first and `legacy` second. This follows the Ancient
       Kingdoms safety rule: establish and verify the new custom-domain owner
       before altering the retained-name legacy service.
-- [ ] Stop immediately when the site deployment fails. Do not touch the legacy
+- [x] Stop immediately when the site deployment fails. Do not touch the legacy
       service.
-- [ ] If the site succeeds and legacy fails, print that the canonical service is
+- [x] If the site succeeds and legacy fails, print that the canonical service is
       already live and give the exact resumable command
       `uv run erenshor maps deploy --target legacy`.
-- [ ] Keep deploy a pure upload. It must not call checks, prebuild generators, or
+- [x] Keep deploy a pure upload. It must not call checks, prebuild generators, or
       Vite, and both targets must consume the same already-stamped build.
-- [ ] Make global dry-run append Wrangler's `--dry-run` flag and compile each
+- [x] Make global dry-run append Wrangler's `--dry-run` flag and compile each
       selected target without uploading it. Print the exact ordered commands.
-- [ ] Extend the CLI tests for site-only, legacy-only, all-target order, first
+- [x] Extend the CLI tests for site-only, legacy-only, all-target order, first
       failure, second failure with the recovery hint, and Wrangler dry-run
       commands.
 
 ### Task 4: Update durable operational documentation
 
-- [ ] Replace every statement that `maps deploy` publishes one Wrangler target.
-- [ ] Document that the default config is canonical and the legacy config retains
+- [x] Replace every statement that `maps deploy` publishes one Wrangler target.
+- [x] Document that the default config is canonical and the legacy config retains
       the permanent Worker name.
-- [ ] Add a compact topology section to the interactive-map skill.
-- [ ] Keep all user-facing build and deploy instructions on
+- [x] Add a compact topology section to the interactive-map skill.
+- [x] Keep all user-facing build and deploy instructions on
       `uv run erenshor maps build` and `uv run erenshor maps deploy`. Do not teach
       raw Wrangler commands as the normal workflow.
-- [ ] Add a dated note to the archived domain-migration plan stating that this
+- [x] Add a dated note to the archived domain-migration plan stating that this
       plan supersedes only its single-Worker deployment decision. The legacy
       runtime and route matrices remain authoritative.
 
