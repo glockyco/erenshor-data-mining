@@ -40,13 +40,14 @@ version = "2021.3.45f2"
 timeout = 3600
 
 [global.assetripper]
-# Path to AssetRipper executable
+# The dev shell puts AssetRipper on PATH and config.toml resolves it by name,
+# so this override is only needed for a manually installed copy.
 # Download from: https://github.com/AssetRipper/AssetRipper/releases
 #
 # Examples:
-# - macOS/Linux: "$HOME/Applications/AssetRipper/AssetRipper.ConsoleApp"
-# - Windows: "C:/Tools/AssetRipper/AssetRipper.ConsoleApp.exe"
-path = "$HOME/Applications/AssetRipper/AssetRipper.ConsoleApp"
+# - macOS/Linux: "$HOME/Applications/AssetRipper/AssetRipper.GUI.Free"
+# - Windows: "C:/Tools/AssetRipper/AssetRipper.GUI.Free.exe"
+path = "AssetRipper.GUI.Free"
 
 # Port for AssetRipper GUI (if using GUI version)
 port = 8080
@@ -126,6 +127,14 @@ level = "info"
 # Enable/disable variant (set to false to skip in operations)
 enabled = true
 
+# Source game files for `extract rip`. Defaults to the directory that
+# `extract download` fills via SteamCMD. Point it at an existing installation
+# to rip the copy you already play instead of downloading a second one.
+# The pipeline only reads from it.
+#
+# CrossOver Steam bottle on macOS:
+# game_files = "$HOME/Library/Application Support/CrossOver/Bottles/Steam/drive_c/Program Files (x86)/Steam/steamapps/common/Erenshor"
+
 # Google Sheets spreadsheet ID (from spreadsheet URL)
 # URL format: https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID}/edit
 # Uncomment and replace with your spreadsheet ID if different
@@ -178,11 +187,10 @@ enabled = true
 # - ~ - User's home directory (in paths)
 #
 # Common Tasks:
-# 1. Set Steam username
+# 1. Set Steam username, or point game_files at an existing installation
 # 2. Set Unity path (if not in default location)
-# 3. Set AssetRipper path
-# 4. Set MediaWiki bot credentials (for wiki uploads)
-# 5. Set Google Sheets credentials (for sheet uploads)
+# 3. Set MediaWiki bot credentials (for wiki uploads)
+# 4. Set Google Sheets credentials (for sheet uploads)
 #
 # Security Best Practices:
 # - NEVER commit config.local.toml to git
@@ -193,10 +201,10 @@ enabled = true
 #
 # Troubleshooting:
 # - Run `erenshor config show` to see loaded configuration
-# - Run `erenshor doctor` to validate settings
+# - Run `erenshor status` to check tool discovery and variant state
 # - Check logs in .erenshor/logs/ for errors
 #
 # For more information, see:
 # - README.md - Installation and setup guide
-# - CLAUDE.md - Complete configuration reference
+# - AGENTS.md - Working agreements and command map
 # - docs/ - Additional documentation

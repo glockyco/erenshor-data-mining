@@ -61,14 +61,25 @@ InteractiveMapCompanion
 
 ## Requirements
 
-- Python 3.13 or newer.
-- `uv` for Python dependency and tool management.
-- Unity `2021.3.45f2`.
-- AssetRipper.
-- SteamCMD.
-- A Steam account that owns Erenshor for download workflows.
-- pnpm for the map frontend workspace.
-- .NET SDK for native mod build/test workflows.
+The `flake.nix` dev shell provides the whole command-line toolchain at the versions CI uses:
+
+- Python 3.14 and `uv` for Python dependency and tool management.
+- .NET SDK 9 and 10 for the native tools, mods, and their tests.
+- Node 22 and pnpm 10 for the map frontend workspace.
+- AssetRipper for `extract rip`.
+- `sqlite3` for ad-hoc database inspection.
+
+```bash
+nix develop           # or `direnv allow` once, with nix-direnv
+```
+
+Every `uv run erenshor ...` command in this README assumes that shell.
+
+Three things the dev shell cannot supply, because they are licensed, interactive, or platform-specific:
+
+- Unity `2021.3.45f2`, installed through Unity Hub and activated with a Unity account. `extract export` refuses to run against any other version.
+- SteamCMD and a Steam account that owns Erenshor, for `extract download`. Not needed if `game_files` points at a copy of the game you already have installed.
+- CrossOver or another Windows runtime, for launching the game and its companion mods on macOS.
 
 Local config supplies machine-specific paths and credentials. Do not commit local credentials.
 
@@ -83,7 +94,7 @@ Create the local config file before running workflows that need tool paths or cr
 
 ```bash
 mkdir -p .erenshor
-cp config.toml .erenshor/config.local.toml
+cp config.local.toml.example .erenshor/config.local.toml
 ```
 
 Common local values:
@@ -92,13 +103,16 @@ Common local values:
 [global.steam]
 username = "your_steam_username"
 
-[global.assetripper]
-path = "/path/to/AssetRipper"
-
 [global.mediawiki]
 bot_username = "YourUsername@BotName"
 bot_password = "your_bot_password"
+
+[variants.main]
+# Rip an installation you already have instead of downloading a second copy.
+game_files = "$HOME/Library/Application Support/CrossOver/Bottles/Steam/drive_c/Program Files (x86)/Steam/steamapps/common/Erenshor"
 ```
+
+AssetRipper needs no entry: the tracked config resolves it from PATH, which the dev shell populates.
 
 The default variant is `main`. Use `--variant` or `-V` to target another variant:
 
@@ -117,11 +131,13 @@ Configured variants:
 ## Quick start
 
 ```bash
+nix develop
 uv sync --dev
 uv run erenshor status
-uv run erenshor extract download
+uv run erenshor extract download     # skip when game_files points at an existing install
 uv run erenshor extract rip
 uv run erenshor extract export
+uv run erenshor extract code-facts
 uv run erenshor extract build
 ```
 
@@ -277,12 +293,17 @@ Tracked live entity types include the player, SimPlayers, pets, friendly NPCs, a
 
 ## Development
 
-Install development dependencies:
+Enter the dev shell, then install project dependencies:
 
 ```bash
+nix develop           # or `direnv allow` once, with nix-direnv
 uv sync --dev
 pnpm install
 ```
+
+The dev shell pins the toolchain versions `.github/workflows/ci.yml` installs
+with its `setup-*` actions. Move both together, or local runs of the
+verification leaves stop predicting CI.
 
 Install Git hooks:
 

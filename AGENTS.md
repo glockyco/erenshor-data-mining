@@ -64,6 +64,11 @@ sqlite3 variants/main/erenshor-main.sqlite ".tables"
 
 ## Essential Commands
 
+Every command below runs inside the `flake.nix` dev shell, which supplies uv,
+the .NET SDKs, Node, pnpm, AssetRipper, and `sqlite3`. With nix-direnv it is
+already active in the working tree; otherwise prefix a one-off command with
+`nix develop --command`.
+
 ```bash
 uv run erenshor --help                          # All command groups
 uv run erenshor extract export                  # Unity -> raw SQLite
