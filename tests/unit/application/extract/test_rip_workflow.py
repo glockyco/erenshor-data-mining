@@ -98,3 +98,18 @@ def test_rip_workflow_rejects_missing_editor_source(tmp_path: Path) -> None:
 
     with pytest.raises(FileNotFoundError, match="Editor scripts directory"):
         RipWorkflow(MagicMock()).run(request)
+
+
+def test_rip_workflow_rejects_missing_packages_source(tmp_path: Path) -> None:
+    request = _request(tmp_path)
+    request = RipRequest(
+        source_dir=request.source_dir,
+        unity_project_dir=request.unity_project_dir,
+        logs_dir=request.logs_dir,
+        editor_source=request.editor_source,
+        packages_source=tmp_path / "missing-packages",
+    )
+
+    # Continuing would produce a project whose export scripts cannot compile.
+    with pytest.raises(FileNotFoundError, match="Editor NuGet packages not found"):
+        RipWorkflow(FakeAssetRipper()).run(request)

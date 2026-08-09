@@ -92,11 +92,13 @@ class RipWorkflow:
         self._replace_editor_link(editor_target, request.editor_source)
 
         packages_target = request.unity_project_dir / "ExportedProject" / "Assets" / "Packages"
-        if request.packages_source.exists():
-            logger.info(f"Copying NuGet packages: {request.packages_source} -> {packages_target}")
-            shutil.copytree(request.packages_source, packages_target, dirs_exist_ok=True)
-        else:
-            logger.warning(f"Packages directory not found: {request.packages_source}")
+        if not request.packages_source.exists():
+            raise FileNotFoundError(
+                f"Editor NuGet packages not found: {request.packages_source}\n"
+                "Run 'erenshor extract packages'. Without them the export scripts cannot compile."
+            )
+        logger.info(f"Copying NuGet packages: {request.packages_source} -> {packages_target}")
+        shutil.copytree(request.packages_source, packages_target, dirs_exist_ok=True)
 
         restored, added = self._restore_manifest(request.unity_project_dir, prior_user_deps)
         logger.info(f"Unity project extraction complete: {request.unity_project_dir}")

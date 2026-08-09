@@ -67,6 +67,35 @@ def unity_project_exists(context: dict[str, Any]) -> PreconditionResult:
     )
 
 
+def editor_packages_restored(context: dict[str, Any]) -> PreconditionResult:
+    """Check that the Editor scripts' NuGet dependencies are on disk.
+
+    Ripping without them produces a Unity project whose export scripts cannot
+    compile, and the failure only surfaces minutes later inside batch mode.
+
+    Args:
+        context: Check context containing the 'repo_root' key.
+
+    Returns:
+        PreconditionResult indicating success or failure.
+    """
+    packages_dir = Path(context["repo_root"]) / "src" / "Assets" / "Packages"
+
+    if not packages_dir.is_dir() or not any(packages_dir.glob("*/lib/*/*.dll")):
+        return PreconditionResult(
+            passed=False,
+            check_name="editor_packages_restored",
+            message="Editor NuGet packages not restored",
+            detail=f"Missing assemblies under: {packages_dir}\nRun 'erenshor extract packages'",
+        )
+
+    return PreconditionResult(
+        passed=True,
+        check_name="editor_packages_restored",
+        message="Editor NuGet packages restored",
+    )
+
+
 def editor_scripts_linked(context: dict[str, Any]) -> PreconditionResult:
     """Check if Editor scripts are properly symlinked.
 

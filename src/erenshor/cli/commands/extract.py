@@ -26,6 +26,11 @@ from erenshor.application.extract.clean_database_workflow import (
     CleanDatabaseRequest,
     CleanDatabaseWorkflow,
 )
+from erenshor.application.extract.editor_packages import (
+    PackageRestoreError,
+    read_packages_config,
+    restore_packages,
+)
 from erenshor.application.extract.export_workflow import (
     ExportRequest,
     ExportWorkflow,
@@ -38,7 +43,12 @@ from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import raw_database_exists
 from erenshor.cli.preconditions.checks.field_coverage import export_field_coverage_current
 from erenshor.cli.preconditions.checks.steam import game_files_exist, steam_credentials_exist
-from erenshor.cli.preconditions.checks.unity import editor_scripts_linked, unity_project_exists, unity_version_matches
+from erenshor.cli.preconditions.checks.unity import (
+    editor_packages_restored,
+    editor_scripts_linked,
+    unity_project_exists,
+    unity_version_matches,
+)
 from erenshor.infrastructure.assetripper.assetripper import AssetRipper
 from erenshor.infrastructure.csproj_generator import (
     UnityPaths,
@@ -358,7 +368,50 @@ def download(
 
 
 @app.command()
-@require_preconditions(game_files_exist)
+def packages(
+    ctx: typer.Context,
+    force: bool = typer.Option(False, "--force", help="Re-extract packages that are already present"),
+) -> None:
+    """Restore the NuGet dependencies the Unity Editor scripts compile against.
+
+    `src/Assets/Packages` is generated output that NuGetForUnity normally writes
+    from inside the Editor, so a fresh checkout does not have it and the batch
+    export fails on unresolved references. Versions come from
+    `src/Assets/packages.config`, and the archives are cached under
+    `.erenshor/cache/nuget`.
+
+    `extract rip` copies the result into the ripped Unity project.
+    """
+    cli_ctx: CLIContext = ctx.obj
+    packages_config = cli_ctx.repo_root / "src" / "Assets" / "packages.config"
+    packages_dir = cli_ctx.repo_root / "src" / "Assets" / "Packages"
+    cache_dir = cli_ctx.repo_root / ".erenshor" / "cache" / "nuget"
+
+    if cli_ctx.dry_run:
+        for package in read_packages_config(packages_config):
+            logger.info(f"[Dry-run] Would restore {package.directory_name} into {packages_dir}")
+        return
+
+    try:
+        result = restore_packages(
+            packages_config=packages_config,
+            packages_dir=packages_dir,
+            cache_dir=cache_dir,
+            force=force,
+        )
+    except PackageRestoreError as e:
+        console.print(f"[red]Error restoring Editor packages: {e}[/red]")
+        logger.exception("Editor package restore failed")
+        raise typer.Exit(1) from e
+
+    logger.info(
+        f"Editor packages ready for {result.runtime_id}: "
+        f"{len(result.restored)} restored, {len(result.reused)} already present"
+    )
+
+
+@app.command()
+@require_preconditions(game_files_exist, editor_packages_restored)
 def rip(ctx: typer.Context) -> None:
     """Extract Unity project from game files via AssetRipper.
 

@@ -3,7 +3,12 @@
 from pathlib import Path
 from unittest.mock import Mock
 
-from erenshor.cli.preconditions.checks.unity import editor_scripts_linked, unity_project_exists, unity_version_matches
+from erenshor.cli.preconditions.checks.unity import (
+    editor_packages_restored,
+    editor_scripts_linked,
+    unity_project_exists,
+    unity_version_matches,
+)
 
 
 def test_unity_project_exists_with_valid_project(tmp_path: Path):
@@ -237,3 +242,31 @@ def test_unity_version_matches_with_wrong_version(tmp_path: Path):
 
     assert result.passed is False
     assert "mismatch" in result.message.lower()
+
+
+def test_editor_packages_restored_with_assemblies(tmp_path: Path):
+    """Test editor_packages_restored passes once a package assembly exists."""
+    assembly = tmp_path / "src" / "Assets" / "Packages" / "SQLite-net.1.9.172" / "lib" / "netstandard2.0"
+    assembly.mkdir(parents=True)
+    (assembly / "SQLite-net.dll").write_bytes(b"dll")
+
+    result = editor_packages_restored({"repo_root": tmp_path})
+
+    assert result.passed is True
+
+
+def test_editor_packages_restored_without_packages_directory(tmp_path: Path):
+    """Test editor_packages_restored fails on a fresh checkout."""
+    result = editor_packages_restored({"repo_root": tmp_path})
+
+    assert result.passed is False
+    assert "extract packages" in result.detail
+
+
+def test_editor_packages_restored_with_empty_package_directory(tmp_path: Path):
+    """Test editor_packages_restored fails when a restore left no assemblies."""
+    (tmp_path / "src" / "Assets" / "Packages" / "SQLite-net.1.9.172").mkdir(parents=True)
+
+    result = editor_packages_restored({"repo_root": tmp_path})
+
+    assert result.passed is False
