@@ -16,7 +16,7 @@ Wire the per-subsystem pipelines into the right order and surface the variant-sc
 | Raw + clean SQLite | Yes | `variants/{v}/erenshor-{v}{-raw}.sqlite` |
 | Google Sheets | Yes, per-spreadsheet | each variant has its own `spreadsheet_id` in `config.toml` |
 | AdventureGuide `guide.json` | Input-variant scoped, single output | overwrites `quest_guides/guide.json` — only one variant ships at a time |
-| Interactive map build | Yes via `build_dir`; deploy target is the single `src/maps/wrangler.jsonc` worker | shared DB symlink `src/maps/static/db/erenshor.sqlite` is swapped per build |
+| Interactive map build | Yes via `build_dir`; one build is deployed to both Worker services (`wrangler.jsonc` and `wrangler.legacy.jsonc`) | shared DB symlink `src/maps/static/db/erenshor.sqlite` is swapped per build |
 | Map tiles + `zone-capture-config.json` | **Shared** | tiles added for one variant are visible to all |
 | `mapping.json` | **Shared** | overrides apply across all variants |
 | MediaWiki | **Single target — `erenshor.wiki.gg`** | `wiki deploy -V playtest` overwrites main's pages |
@@ -100,7 +100,7 @@ Shared-output actions require an explicit variant gate before running:
   workflow); otherwise capture from `main`.
 - `wiki deploy` overwrites `erenshor.wiki.gg` (single target across all variants).
 - `guide compile` overwrites the single `quest_guides/guide.json` embedded into the next AdventureGuide build.
-- `maps deploy` publishes the single `src/maps/wrangler.jsonc` Worker target. Build/playtest locally, but deploy only the shipping variant.
+- `maps deploy` publishes one build to both Worker services, canonical first: `wrangler.jsonc` serves `erenshor.compendiums.org`, `wrangler.legacy.jsonc` keeps `erenshor-maps.wowmuch1.workers.dev` alive for shipped companion mods. Build/playtest locally, but deploy only the shipping variant.
 
 ## End-of-session teardown
 

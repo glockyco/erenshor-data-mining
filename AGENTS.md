@@ -82,7 +82,7 @@ uv run erenshor mod deploy --mod <id> --loader lunaris     # Build, deploy, and 
 uv run erenshor mod deploy --mod <id> --loader bepinex --scripts # BepInEx hot reload
 uv run erenshor mod thunderstore --dry-run                 # Validate all public BepInEx packages
 uv run erenshor maps build                    # Verify, build, and stamp maps site
-uv run erenshor maps deploy                   # Deploy existing fresh maps build
+uv run erenshor maps deploy                   # Deploy existing fresh maps build (both Worker services)
 uv run pytest                                   # Run all tests
 uv run erenshor golden capture                # Regenerate data-pipeline golden baselines
 ```

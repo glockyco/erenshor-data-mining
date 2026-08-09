@@ -24,6 +24,15 @@ are complete; wiki, Steam, compendiums.org, and repository-controlled backlinks
 use the canonical origin. The legacy `/map` runtime and verification token remain
 healthy for shipped companion overlays and old-property monitoring.
 
+> **Superseded in part (2026-08-08).** The "One retained Worker" decision below
+> no longer holds. Serving both hosts from one Worker required
+> `run_worker_first`, which made every canonical static request invoke the
+> Worker: 460,069 invocations in 24 hours, 99.65% of the account's total. The
+> hosts were split into two services by
+> `docs/plans/2026-08-08-maps-split-workers.md`. Every other decision here,
+> including the canonical origin, the URL scheme, and the legacy host and route
+> matrices, remains authoritative.
+
 ## Decisions (locked)
 
 - **One retained Worker.** Keep the existing Worker name
