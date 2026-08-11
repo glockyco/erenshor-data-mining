@@ -33,6 +33,13 @@ class PageNormalizer:
         "[[Category: Vendors]]",
     }
 
+    GENERATED_CHARACTER_CATEGORIES: ClassVar[set[str]] = {
+        "[[Category:Bosses]]",
+        "[[Category:Characters]]",
+        "[[Category:Enemies]]",
+        "[[Category:Vendors]]",
+    }
+
     def normalize(self, wikitext: str, new_wikitext: str | None = None) -> str:
         """Normalize wiki page content.
 
@@ -49,6 +56,9 @@ class PageNormalizer:
         # If new content provided, merge its categories too
         if new_wikitext:
             new_categories = self._extract_categories(new_wikitext)
+            if self.GENERATED_CHARACTER_CATEGORIES.intersection(new_categories):
+                categories = [cat for cat in categories if cat not in self.GENERATED_CHARACTER_CATEGORIES]
+
             # Merge while avoiding duplicates
             seen = set(categories)
             for cat in new_categories:

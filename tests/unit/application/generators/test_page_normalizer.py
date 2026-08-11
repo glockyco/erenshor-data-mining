@@ -128,6 +128,17 @@ class TestPageNormalizer:
         assert "[[Category:Generated]]" in result
         assert "[[Category:Manual]]" in result
 
+    def test_normalize_replaces_generated_character_categories(self, normalizer: PageNormalizer) -> None:
+        """Fresh character classifications replace stale generated categories."""
+        old_wikitext = "[[Category:Bosses]]\n[[Category:Manual]]\nOld content"
+        new_wikitext = "[[Category:Enemies]]\nNew content"
+
+        result = normalizer.normalize(old_wikitext, new_wikitext)
+
+        assert "[[Category:Bosses]]" not in result
+        assert "[[Category:Enemies]]" in result
+        assert "[[Category:Manual]]" in result
+
     def test_normalize_merge_deduplicates(self, normalizer: PageNormalizer) -> None:
         """Test merging deduplicates categories present in both old and new."""
         old_wikitext = "[[Category:Items]]\n[[Category:Manual]]\nContent"
