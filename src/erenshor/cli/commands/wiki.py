@@ -22,7 +22,7 @@ import sys
 import tempfile
 import uuid
 from collections import Counter
-from collections.abc import Mapping
+from collections.abc import Collection, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Annotated, Literal
@@ -537,11 +537,14 @@ def _run_link_audit(
     online: bool,
     include_live_pages: bool,
     output_path: Path | None,
+    known_generated_titles: Collection[str] | None = None,
 ) -> LinkAuditReport:
     """Run one audit from canonical repositories and optional read-only live facts."""
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
     storage = WikiStorage(variant_config.resolved_wiki(cli_ctx.repo_root))
-    known_generated_titles = set(storage.list_generated_titles()) | set(generated_pages)
+    if known_generated_titles is None:
+        known_generated_titles = storage.list_generated_titles()
+    complete_generated_titles = set(known_generated_titles) | set(generated_pages)
     client = _create_readonly_mediawiki_client(cli_ctx) if online else None
     try:
         audit_service = LinkAuditService(_build_link_audit_catalog(cli_ctx), client=client)
@@ -551,7 +554,7 @@ def _run_link_audit(
             variant=cli_ctx.variant,
             online=online,
             include_live_pages=include_live_pages,
-            known_generated_titles=known_generated_titles,
+            known_generated_titles=complete_generated_titles,
         )
     finally:
         if client is not None:
@@ -914,6 +917,7 @@ def generate(
                     online=False,
                     include_live_pages=False,
                     output_path=None if cli_ctx.dry_run else _default_link_audit_output(cli_ctx),
+                    known_generated_titles=tuple(generated_pages),
                 )
                 if report.has_errors:
                     error_count = sum(1 for finding in report.findings if finding.severity == "error")

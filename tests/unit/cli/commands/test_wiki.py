@@ -420,6 +420,7 @@ class TestWikiLinkAuditCommand:
             "online": False,
             "include_live_pages": False,
             "output_path": None,
+            "known_generated_titles": ("Generated",),
         }
 
     def test_generated_deploy_runs_online_audit_but_directory_upload_does_not(
