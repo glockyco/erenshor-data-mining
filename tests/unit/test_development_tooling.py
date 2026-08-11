@@ -123,6 +123,19 @@ def test_python_selector_matches_flake_and_ci_minor_version() -> None:
     assert "python-version: '3.14'" in ci
 
 
+def test_flake_exposes_explicit_locked_dependency_bootstrap() -> None:
+    flake = Path("flake.nix").read_text(encoding="utf-8")
+    assert "bootstrap = pkgs.writeShellApplication {" in flake
+    assert "uv sync --frozen --dev" in flake
+    assert "pnpm install --frozen-lockfile" in flake
+    assert "dotnet tool restore" in flake
+    assert "apps = forAllSystems" in flake
+    assert "shellHook" not in flake
+
+    readme = Path("README.md").read_text(encoding="utf-8")
+    assert "nix run .#bootstrap" in readme
+
+
 def test_development_docs_point_to_lefthook_not_pre_commit() -> None:
     readme = Path("README.md").read_text(encoding="utf-8")
 

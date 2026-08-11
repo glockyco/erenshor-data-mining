@@ -18,14 +18,51 @@
         "x86_64-linux"
       ];
 
-      forAllSystems =
-        f: nixpkgs.lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
+      forAllSystems = f: nixpkgs.lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
     in
     {
+      packages = forAllSystems (pkgs: {
+        bootstrap = pkgs.writeShellApplication {
+          name = "erenshor-bootstrap";
+          runtimeInputs = [
+            pkgs.git
+            pkgs.uv
+            pkgs.python314
+            pkgs.nodejs_22
+            pkgs.pnpm_10
+            (pkgs.dotnetCorePackages.combinePackages [
+              pkgs.dotnetCorePackages.sdk_9_0
+              pkgs.dotnetCorePackages.sdk_10_0
+            ])
+          ];
+          text = ''
+            if [[ ! -f flake.nix || ! -f uv.lock || ! -f pnpm-lock.yaml ]]; then
+              echo "Run nix run .#bootstrap from the repository root." >&2
+              exit 1
+            fi
+
+            export UV_PYTHON="${pkgs.python314}/bin/python3.14"
+            export UV_PYTHON_DOWNLOADS=never
+            export DOTNET_CLI_TELEMETRY_OPTOUT=1
+            export DOTNET_NOLOGO=1
+
+            uv sync --frozen --dev
+            pnpm install --frozen-lockfile
+            dotnet tool restore
+          '';
+        };
+      });
+
+      apps = forAllSystems (pkgs: {
+        bootstrap = {
+          type = "app";
+          program = "${self.packages.${pkgs.stdenv.hostPlatform.system}.bootstrap}/bin/erenshor-bootstrap";
+        };
+      });
+
       devShells = forAllSystems (pkgs: {
         default = pkgs.mkShellNoCC {
-          # Versions mirror .github/workflows/ci.yml. CI installs them with the
-          # setup-* actions; keep both sides in step when either moves.
+          # The flake owns toolchain versions for local development and CI.
           packages = [
             # Python 3.14 with uv managing the project virtualenv.
             pkgs.uv
@@ -69,6 +106,7 @@
       formatter = forAllSystems (pkgs: pkgs.nixfmt-tree);
 
       checks = forAllSystems (pkgs: {
+        bootstrap = self.packages.${pkgs.stdenv.hostPlatform.system}.bootstrap;
         devShell = self.devShells.${pkgs.stdenv.hostPlatform.system}.default;
       });
     };

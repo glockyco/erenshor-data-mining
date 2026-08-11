@@ -130,9 +130,20 @@ Configured variants:
 
 ## Quick start
 
+Install the locked Python, JavaScript, and .NET tool dependencies explicitly. The
+bootstrap app uses the flake toolchain, works outside an active dev shell, and
+fails rather than rewriting a stale lockfile:
+
+```bash
+nix run .#bootstrap
+```
+
+Then enter the development shell and run the data pipeline. Unity editor packages
+remain an extraction-specific setup step because they require the external Unity
+installation:
+
 ```bash
 nix develop
-uv sync --dev
 uv run erenshor status
 uv run erenshor extract download     # skip when game_files points at an existing install
 uv run erenshor extract packages     # Editor NuGet dependencies, once per checkout
