@@ -1259,6 +1259,26 @@ def test_setup_provisions_union_of_loader_references(tmp_path: Path, monkeypatch
     assert (tmp_path / _mod("adventure-guide").directory / "lib/lunaris/ImGui.NET.dll").read_bytes() == b"ImGui.NET.dll"
 
 
+def test_setup_can_provision_one_bepinex_target_without_lunaris(tmp_path: Path) -> None:
+    game = tmp_path / "game"
+    managed = game / "Erenshor_Data" / "Managed"
+    managed.mkdir(parents=True)
+    for dll_name in REQUIRED_DLLS:
+        (managed / dll_name).write_bytes(b"game")
+    bepinex_core = game / "BepInEx" / "core"
+    bepinex_core.mkdir(parents=True)
+    (bepinex_core / "0Harmony.dll").write_bytes(b"bepinex harmony")
+    ctx = _ctx(tmp_path, game_paths={"main": game})
+
+    mod_command.setup(ctx, mod="map-tile-capture", loader="bepinex")
+
+    lib_dir = tmp_path / _mod("map-tile-capture").directory / "lib"
+    assert all((lib_dir / dll_name).exists() for dll_name in REQUIRED_DLLS)
+    assert (lib_dir / "bepinex" / "0Harmony.dll").read_bytes() == b"bepinex harmony"
+    assert not (lib_dir / "lunaris").exists()
+    assert not (tmp_path / _mod("sprint").directory / "lib").exists()
+
+
 def test_lunaris_shared_lib_sourced_only_from_resolved_lib_dir(tmp_path: Path) -> None:
     lib_dir = tmp_path / "libs"
     lib_dir.mkdir()

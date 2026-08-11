@@ -54,14 +54,21 @@ LOADER_PROXY_CANDIDATES: dict[LoaderName, tuple[str, ...]] = {
 
 
 @app.command()
-def setup(ctx: typer.Context) -> None:
+def setup(
+    ctx: typer.Context,
+    mod: Annotated[str | None, typer.Option("--mod", help="Set up one mod (or all if not specified)")] = None,
+    loader: Annotated[
+        BuildLoader,
+        typer.Option("--loader", help="Set up target: default, bepinex, lunaris, or all"),
+    ] = "all",
+) -> None:
     """Provision mod compilation references."""
     cli_ctx: CLIContext = ctx.obj
     console.print()
     console.print(Panel.fit("[bold cyan]Mod Setup[/bold cyan]", border_style="cyan"))
     console.print()
     try:
-        result = local_workflow.setup_mods(cli_ctx)
+        result = local_workflow.setup_mods(cli_ctx, mod, loader=loader)
     except (OSError, RuntimeError, ValueError) as exc:
         console.print(f"[red]Error: {exc}[/red]")
         raise typer.Exit(1) from exc

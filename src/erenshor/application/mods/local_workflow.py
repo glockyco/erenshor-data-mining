@@ -417,7 +417,13 @@ def ensure_lunaris_libs_cached(repo_root: Path, libs_url: str) -> Path:
     return cache_dir
 
 
-def setup_mods(cli_ctx: CLIContext) -> SetupResult:
+def setup_mods(
+    cli_ctx: CLIContext,
+    mod: str | None = None,
+    *,
+    loader: BuildLoader = "all",
+) -> SetupResult:
+    targets = resolve_build_targets(mod, loader)
     game_path = get_game_path(cli_ctx, allow_extracted=True)
     if not game_path:
         raise ValueError(f"game installation not found for variant {cli_ctx.variant!r}")
@@ -425,13 +431,18 @@ def setup_mods(cli_ctx: CLIContext) -> SetupResult:
     if not source_dir.exists():
         raise ValueError(f"Managed directory not found: {source_dir}")
     bepinex_core_dir = game_path / "BepInEx" / "core"
-    mods_cfg = cli_ctx.config.global_.mods
-    configured = mods_cfg.resolved_lunaris_lib_dir(cli_ctx.repo_root) if mods_cfg.lunaris_lib_dir else None
-    lunaris_lib_dir = configured_lunaris_lib_dir(configured) or ensure_lunaris_libs_cached(
-        cli_ctx.repo_root, mods_cfg.lunaris_libs_url
-    )
-    for definition in iter_mods():
-        lib_dir = mod_lib_dir(cli_ctx, definition.mod_id)
+    lunaris_lib_dir: Path | None = None
+    if any(target_loader == "lunaris" for _, target_loader in targets):
+        mods_cfg = cli_ctx.config.global_.mods
+        configured = mods_cfg.resolved_lunaris_lib_dir(cli_ctx.repo_root) if mods_cfg.lunaris_lib_dir else None
+        lunaris_lib_dir = configured_lunaris_lib_dir(configured) or ensure_lunaris_libs_cached(
+            cli_ctx.repo_root, mods_cfg.lunaris_libs_url
+        )
+    selected_mod_ids = dict.fromkeys(mod_id for mod_id, _ in targets)
+    for mod_id in selected_mod_ids:
+        definition = lookup_mod(mod_id)
+        selected_loaders = tuple(target_loader for target_mod, target_loader in targets if target_mod == mod_id)
+        lib_dir = mod_lib_dir(cli_ctx, mod_id)
         lib_dir.mkdir(parents=True, exist_ok=True)
         missing: list[str] = []
         for dll_name in REQUIRED_DLLS:
@@ -440,8 +451,8 @@ def setup_mods(cli_ctx: CLIContext) -> SetupResult:
                 missing.append(dll_name)
             else:
                 shutil.copy2(source, lib_dir / dll_name)
-        for target_loader in definition.loaders:
-            loader_lib_dir = mod_loader_lib_dir(cli_ctx, definition.mod_id, target_loader)
+        for target_loader in selected_loaders:
+            loader_lib_dir = mod_loader_lib_dir(cli_ctx, mod_id, target_loader)
             loader_lib_dir.mkdir(parents=True, exist_ok=True)
             if target_loader == "lunaris":
                 lunaris_dll = find_lunaris_dll(game_path, lunaris_lib_dir)

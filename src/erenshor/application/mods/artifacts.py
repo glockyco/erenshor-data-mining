@@ -27,6 +27,9 @@ _REQUIRED_DLLS = (
     "UnityEngine.TextRenderingModule.dll",
     "UnityEngine.AIModule.dll",
     "UnityEngine.PhysicsModule.dll",
+    "UnityEngine.ImageConversionModule.dll",
+    "UnityEngine.ParticleSystemModule.dll",
+    "UnityEngine.TerrainModule.dll",
     "Unity.TextMeshPro.dll",
     "com.rlabrecque.steamworks.net.dll",
 )
