@@ -1346,6 +1346,39 @@ def test_launch_uses_crossover_steam_protocol(tmp_path: Path, monkeypatch: pytes
     ]
 
 
+def test_launch_applies_native_proxy_override_for_active_loader(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    game = tmp_path / "game"
+    game.mkdir()
+    executable = game / "Erenshor.exe"
+    executable.write_bytes(b"game")
+    (game / "winhttp.dll").write_bytes(b"bepinex proxy")
+    (game / "winhttp.bepinex.dll").write_bytes(b"bepinex proxy")
+    crossover_start = tmp_path / "cxstart"
+    crossover_start.touch()
+    ctx = _ctx(tmp_path, game_installs={"main": game})
+
+    monkeypatch.delenv("CROSSOVER_BOTTLE", raising=False)
+    monkeypatch.setattr(local_workflow.sys, "platform", "darwin")
+    monkeypatch.setattr(local_workflow, "CROSSOVER_START", crossover_start)
+    monkeypatch.setattr(local_workflow, "crossover_bottle_for_path", lambda _path: "Steam")
+
+    plan = local_workflow.plan_launch(ctx.obj)
+
+    assert plan.command == (
+        str(crossover_start),
+        "--bottle",
+        "Steam",
+        "--dll",
+        "winhttp=n,b",
+        "--no-wait",
+        "--workdir",
+        str(game),
+        str(executable),
+    )
+
+
 def test_next_calver_revision_handles_day_boundary_and_revision() -> None:
     assert release.next_calver_revision("2026.716", None) == "2026.716.0"
     assert release.next_calver_revision("2026.716", "2026.715.3") == "2026.716.0"

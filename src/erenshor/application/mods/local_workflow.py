@@ -691,15 +691,34 @@ def plan_launch(cli_ctx: CLIContext) -> LaunchPlan:
     if variant_config is None or not variant_config.app_id:
         raise ValueError(f"Steam App ID not configured for variant {cli_ctx.variant!r}")
     bottle = os.environ.get("CROSSOVER_BOTTLE") or crossover_bottle_for_path(game_path)
+    executable = game_path / "Erenshor.exe"
     if sys.platform == "darwin" and bottle:
         if not CROSSOVER_START.exists():
             raise ValueError(f"CrossOver launcher not found: {CROSSOVER_START}")
+        active_loader = detect_active_loader(game_path, loader_proxy_sources(game_path))
+        if active_loader in {"bepinex", "lunaris"}:
+            if not executable.exists():
+                raise ValueError(f"Game executable not found: {executable}")
+            return LaunchPlan(
+                (
+                    str(CROSSOVER_START),
+                    "--bottle",
+                    bottle,
+                    "--dll",
+                    "winhttp=n,b",
+                    "--no-wait",
+                    "--workdir",
+                    str(game_path),
+                    str(executable),
+                ),
+                game_path,
+                bottle,
+            )
         return LaunchPlan(
             (str(CROSSOVER_START), "--bottle", bottle, "--no-wait", f"steam://rungameid/{variant_config.app_id}"),
             game_path,
             bottle,
         )
-    executable = game_path / "Erenshor.exe"
     if not executable.exists():
         raise ValueError(f"Game executable not found: {executable}")
     return LaunchPlan((str(executable),), game_path, None)
