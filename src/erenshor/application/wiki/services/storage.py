@@ -303,20 +303,22 @@ class WikiStorage:
 
         metadata = self._load_metadata()
         content_changed = False
+        entity_names = [stable_key.split(":", 1)[1].replace("_", " ").title() for stable_key in stable_keys]
 
         if page_title in metadata:
             # Check if content actually changed
             old_hash = metadata[page_title].generated_hash
             content_changed = old_hash != content_hash
 
+            metadata[page_title].stable_keys = list(stable_keys)
+            metadata[page_title].entity_names = entity_names
             metadata[page_title].generated_at = datetime.now().isoformat()
             metadata[page_title].generated_hash = content_hash
         else:
             logger.warning(f"Creating metadata for {page_title} without fetch info")
-            entity_names = [sk.split(":", 1)[1].replace("_", " ").title() for sk in stable_keys]
             metadata[page_title] = PageMetadata(
                 page_title=page_title,
-                stable_keys=stable_keys,
+                stable_keys=list(stable_keys),
                 entity_names=entity_names,
                 generated_at=datetime.now().isoformat(),
                 generated_hash=content_hash,

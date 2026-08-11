@@ -19,6 +19,18 @@ def test_save_generated_by_title_strips_trailing_line_whitespace(tmp_path: Path)
     assert storage.list_generated_titles() == ("A Page",)
 
 
+def test_save_generated_by_title_replaces_existing_identities(tmp_path: Path) -> None:
+    storage = WikiStorage(tmp_path)
+    storage.save_generated_by_title("Shared Page", ["character:old_name"], "old\n")
+
+    storage.save_generated_by_title("Shared Page", ["character:new_name"], "new\n")
+
+    metadata = storage.get_metadata_by_title("Shared Page")
+    assert metadata is not None
+    assert metadata.stable_keys == ["character:new_name"]
+    assert metadata.entity_names == ["New Name"]
+
+
 def test_read_generated_pages_returns_filtered_deterministic_snapshot(tmp_path: Path) -> None:
     storage = WikiStorage(tmp_path)
     storage.save_generated_by_title("Zulu", ["item:zulu"], "zulu\n")
