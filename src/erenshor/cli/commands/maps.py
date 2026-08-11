@@ -412,6 +412,12 @@ def build(
         console.print(f"  erenshor -V {cli_ctx.variant} export")
         raise typer.Exit(1)
 
+    try:
+        build_info.validate_tile_inputs(maps_dir)
+    except build_info.TileInputError as error:
+        console.print(f"[red]Error: {error}[/red]")
+        raise typer.Exit(1) from error
+
     # Show info panel
     console.print()
     console.print(

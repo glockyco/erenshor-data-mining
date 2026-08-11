@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import shutil
 import sqlite3
 import subprocess
 from contextlib import closing
@@ -22,6 +23,12 @@ def _write_project(tmp_path: Path) -> tuple[Path, Path]:
     maps_dir = tmp_path / "maps"
     (maps_dir / "src").mkdir(parents=True)
     (maps_dir / "static" / "db").mkdir(parents=True)
+    tiles_dir = maps_dir / "static" / "tiles" / "TestZone" / "-1" / "0"
+    tiles_dir.mkdir(parents=True)
+    (maps_dir / "static" / "tiles" / "tiles-manifest.json").write_text(
+        '{"zoom_levels": {"0": {"tiles": ["/tiles/TestZone/-1/0/0.webp"], "count": 1}}}\n'
+    )
+    (tiles_dir / "0.webp").write_bytes(b"tile")
     (maps_dir / "node_modules").mkdir()
     (maps_dir / "package.json").write_text("{}\n")
     (maps_dir / "src" / "app.ts").write_text("export const ok = true;\n")
@@ -95,6 +102,26 @@ def test_build_copies_database_runs_verify_prebuild_then_build_and_writes_sideca
     assert (maps_dir / "static" / "db" / "erenshor.sqlite").read_bytes() == database_path.read_bytes()
     expected = build_info.compute_input_hashes(maps_source_dir=maps_dir, database_path=database_path)
     assert build_info.read_build_info(maps_dir / "build") == expected
+
+
+def test_build_refuses_missing_tiles_before_frontend_checks(tmp_path: Path, monkeypatch: Any) -> None:
+    maps_dir, database_path = _write_project(tmp_path)
+    tile_dir = maps_dir / "static" / "tiles"
+    shutil.rmtree(tile_dir)
+    ctx = _ctx(tmp_path, maps_dir, database_path)
+    calls: list[list[str]] = []
+
+    def fake_run(args: list[str], **_kwargs: Any) -> subprocess.CompletedProcess[str]:
+        calls.append(args)
+        return subprocess.CompletedProcess(args=args, returncode=0)
+
+    monkeypatch.setattr(maps, "_check_pnpm_available", lambda: True)
+    monkeypatch.setattr("erenshor.cli.commands.maps.subprocess.run", fake_run)
+
+    with pytest.raises(typer.Exit):
+        maps.build(ctx)
+
+    assert calls == []
 
 
 def test_check_runs_only_deterministic_frontend_checks(tmp_path: Path, monkeypatch: Any) -> None:
@@ -177,6 +204,17 @@ def _ready_to_deploy(tmp_path: Path, monkeypatch: Any, *, dry_run: bool = False)
     monkeypatch.setattr(maps, "_check_pnpm_available", lambda: True)
     monkeypatch.setattr("erenshor.cli.commands.maps.subprocess.run", fake_run)
     return ctx, calls
+
+
+def test_deploy_refuses_blank_tile_provenance(tmp_path: Path, monkeypatch: Any) -> None:
+    ctx, calls = _ready_to_deploy(tmp_path, monkeypatch)
+    build_dir = Path(ctx.obj.config.variants["main"].maps.build_dir)
+    (build_dir / build_info.BUILD_INFO_NAME).write_text('{"code": "abc", "data": "def", "tiles": ""}\n')
+
+    with pytest.raises(typer.Exit):
+        maps.deploy(ctx)
+
+    assert calls == []
 
 
 def test_deploy_publishes_canonical_before_legacy(tmp_path: Path, monkeypatch: Any) -> None:

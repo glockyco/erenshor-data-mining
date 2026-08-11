@@ -45,7 +45,15 @@ def build_matches_inputs(context: dict[str, Any]) -> PreconditionResult:
             detail=f"Run `erenshor maps build` to create {build_info.BUILD_INFO_NAME} before previewing or deploying.",
         )
 
-    current = build_info.compute_input_hashes(maps_source_dir=maps_source_dir, database_path=database_path)
+    try:
+        current = build_info.compute_input_hashes(maps_source_dir=maps_source_dir, database_path=database_path)
+    except build_info.TileInputError as error:
+        return PreconditionResult(
+            passed=False,
+            check_name="build_matches_inputs",
+            message="Map tile inputs are incomplete",
+            detail=str(error),
+        )
     changed = build_info.changed_groups(previous, current)
     if changed:
         changed_list = ", ".join(sorted(changed))

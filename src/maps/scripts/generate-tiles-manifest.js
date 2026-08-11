@@ -25,7 +25,10 @@ async function findTiles(dir, tiles = []) {
 }
 
 async function main() {
-    const allTiles = await findTiles(TILES_DIR);
+    const allTiles = (await findTiles(TILES_DIR)).sort();
+    if (allTiles.length === 0) {
+        throw new Error(`No WebP tiles found under ${TILES_DIR}`);
+    }
 
     // Group by zoom level
     const zoomLevels = {};
@@ -58,4 +61,7 @@ async function main() {
     );
 }
 
-main().catch(console.error);
+main().catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+});

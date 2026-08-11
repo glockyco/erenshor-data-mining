@@ -25,6 +25,45 @@ _CONFIG_FILES = (
 _ROOT_CONFIG_FILES = ("pnpm-lock.yaml",)
 
 
+class TileInputError(ValueError):
+    """Raised when the map tile tree cannot produce a deployable build."""
+
+
+def validate_tile_inputs(maps_source_dir: Path) -> None:
+    """Require a manifest and at least one captured WebP tile."""
+    tiles_dir = maps_source_dir / "static" / "tiles"
+    if not tiles_dir.is_dir():
+        raise TileInputError(f"Map tile directory is missing: {tiles_dir}. Capture or sync map tiles before building.")
+
+    manifest_path = tiles_dir / "tiles-manifest.json"
+    if not manifest_path.is_file():
+        raise TileInputError(
+            f"Map tile manifest is missing: {manifest_path}. "
+            "Run the tile manifest generator after capturing or syncing tiles."
+        )
+
+    tile_files = [path for path in tiles_dir.rglob("*.webp") if path.is_file()]
+    if not tile_files:
+        raise TileInputError(f"No WebP map tiles found under {tiles_dir}. Capture or sync map tiles before building.")
+
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise TileInputError(f"Map tile manifest is unreadable: {manifest_path}") from error
+
+    zoom_levels = manifest.get("zoom_levels") if isinstance(manifest, dict) else None
+    if not isinstance(zoom_levels, dict):
+        raise TileInputError(f"Map tile manifest has no zoom_levels: {manifest_path}")
+
+    manifest_count = sum(
+        level.get("count", 0)
+        for level in zoom_levels.values()
+        if isinstance(level, dict) and isinstance(level.get("count", 0), int)
+    )
+    if manifest_count <= 0:
+        raise TileInputError(f"Map tile manifest contains no precached tiles: {manifest_path}")
+
+
 def _sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
@@ -52,10 +91,8 @@ def _code_hash(maps_source_dir: Path) -> str:
 
 
 def _tiles_hash(maps_source_dir: Path) -> str:
+    validate_tile_inputs(maps_source_dir)
     tiles_dir = maps_source_dir / "static" / "tiles"
-    if not tiles_dir.is_dir():
-        return ""
-
     tile_files = [path for path in tiles_dir.rglob("*") if path.is_file()]
     manifest_path = tiles_dir / "tiles-manifest.json"
     manifest_bytes = manifest_path.read_bytes() if manifest_path.is_file() else b""
@@ -87,6 +124,8 @@ def changed_groups(before: dict[str, str], after: dict[str, str]) -> set[str]:
 
 def write_build_info(build_dir: Path, hashes: dict[str, str]) -> None:
     """Atomically write the build input hash sidecar into a build directory."""
+    if set(hashes) != set(_INPUT_GROUPS) or not all(hashes.values()):
+        raise ValueError("Build provenance requires non-empty code, data, and tile hashes")
     build_dir.mkdir(parents=True, exist_ok=True)
     sidecar_path = build_dir / BUILD_INFO_NAME
     tmp_path = sidecar_path.with_name(f"{BUILD_INFO_NAME}.{os.getpid()}.tmp")
@@ -109,6 +148,6 @@ def read_build_info(build_dir: Path) -> dict[str, str] | None:
         return None
     if set(data) != set(_INPUT_GROUPS):
         return None
-    if not all(isinstance(value, str) for value in data.values()):
+    if not all(isinstance(value, str) and value for value in data.values()):
         return None
     return data
