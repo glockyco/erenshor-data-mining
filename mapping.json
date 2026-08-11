@@ -2,12 +2,13 @@
   "metadata": {
     "schema_version": "2.0",
     "created_at": "2025-09-21T15:44:48.853024Z",
-    "updated_at": "2026-01-30T15:37:29.593783+00:00"
+    "updated_at": "2026-08-11T17:34:03Z"
   },
   "rules": {
     "character:arenachest 1": {
       "wiki_page_name": "Vithean Chest",
       "display_name": "Vithean Chest (Round 1)",
+      "expected_npc_name": "Vithean Chest",
       "image_name": "Vithean Chest",
       "mapping_type": "custom",
       "reason": "Plane of Vitheo arena ladder: 8 identically-named chests; suffix by arena round (chest index)"
@@ -15,6 +16,7 @@
     "character:arenachest 2": {
       "wiki_page_name": "Vithean Chest",
       "display_name": "Vithean Chest (Round 2)",
+      "expected_npc_name": "Vithean Chest",
       "image_name": "Vithean Chest",
       "mapping_type": "custom",
       "reason": "Plane of Vitheo arena ladder: suffix by arena round (chest index)"
@@ -22,6 +24,7 @@
     "character:arenachest 3": {
       "wiki_page_name": "Vithean Chest",
       "display_name": "Vithean Chest (Round 3)",
+      "expected_npc_name": "Vithean Chest",
       "image_name": "Vithean Chest",
       "mapping_type": "custom",
       "reason": "Plane of Vitheo arena ladder: suffix by arena round (chest index)"
@@ -29,6 +32,7 @@
     "character:arenachest 4": {
       "wiki_page_name": "Vithean Chest",
       "display_name": "Vithean Chest (Round 4)",
+      "expected_npc_name": "Vithean Chest",
       "image_name": "Vithean Chest",
       "mapping_type": "custom",
       "reason": "Plane of Vitheo arena ladder: suffix by arena round (chest index)"
@@ -36,6 +40,7 @@
     "character:arenachest 5": {
       "wiki_page_name": "Vithean Chest",
       "display_name": "Vithean Chest (Round 5)",
+      "expected_npc_name": "Vithean Chest",
       "image_name": "Vithean Chest",
       "mapping_type": "custom",
       "reason": "Plane of Vitheo arena ladder: suffix by arena round (chest index)"
@@ -43,6 +48,7 @@
     "character:arenachest 6": {
       "wiki_page_name": "Vithean Chest",
       "display_name": "Vithean Chest (Round 6)",
+      "expected_npc_name": "Vithean Chest",
       "image_name": "Vithean Chest",
       "mapping_type": "custom",
       "reason": "Plane of Vitheo arena ladder: suffix by arena round (chest index)"
@@ -50,6 +56,7 @@
     "character:arenachest 6:planeofvitheo:514.24:25.16:476.86": {
       "wiki_page_name": "Vithean Chest",
       "display_name": "Vithean Chest (Round 6)",
+      "expected_npc_name": "Vithean Chest",
       "image_name": "Vithean Chest",
       "is_wiki_generated": 0,
       "is_map_visible": 0,
@@ -59,6 +66,7 @@
     "character:arenachest 7": {
       "wiki_page_name": "Vithean Chest",
       "display_name": "Vithean Chest (Round 7)",
+      "expected_npc_name": "Vithean Chest",
       "image_name": "Vithean Chest",
       "mapping_type": "custom",
       "reason": "Plane of Vitheo arena ladder: suffix by arena round (chest index)"
@@ -66,6 +74,7 @@
     "character:arenachest 8": {
       "wiki_page_name": "Vithean Chest",
       "display_name": "Vithean Chest (Round 8)",
+      "expected_npc_name": "Vithean Chest",
       "image_name": "Vithean Chest",
       "mapping_type": "custom",
       "reason": "Plane of Vitheo arena ladder final round (drops Fee (1), loops); suffix by arena round (chest index)"
@@ -1022,6 +1031,7 @@
     "character:braxonian planar guardian fire": {
       "wiki_page_name": "Braxonian Planar Guard (Fire)",
       "display_name": "Braxonian Planar Guard (Fire)",
+      "expected_npc_name": "Braxonian Planar Guard",
       "image_name": "Fire Planar Guard",
       "mapping_type": "custom",
       "reason": null
@@ -1029,6 +1039,7 @@
     "character:braxonian planar guardian ice": {
       "wiki_page_name": "Braxonian Planar Guard (Ice)",
       "display_name": "Braxonian Planar Guard (Ice)",
+      "expected_npc_name": "Braxonian Planar Guard",
       "image_name": "Ice Planar Guard",
       "mapping_type": "custom",
       "reason": null
@@ -1055,6 +1066,7 @@
     "character:catnip (1):ripperportal:339.55:0.17:757.54": {
       "wiki_page_name": "Catnip (Enemy)",
       "display_name": "Catnip (Enemy)",
+      "expected_npc_name": "Catnip",
       "image_name": "Catnip (Enemy)",
       "mapping_type": "custom",
       "reason": null
@@ -1062,6 +1074,7 @@
     "character:catnip (2):ripperportal:339.55:-0.02:748.79": {
       "wiki_page_name": "Catnip (Enemy)",
       "display_name": "Catnip (Enemy)",
+      "expected_npc_name": "Catnip",
       "image_name": "Catnip (Enemy)",
       "mapping_type": "custom",
       "reason": null
@@ -1069,6 +1082,7 @@
     "character:catnip:ripperportal:332.30:0.28:757.54": {
       "wiki_page_name": "Catnip (Enemy)",
       "display_name": "Catnip (Enemy)",
+      "expected_npc_name": "Catnip",
       "image_name": "Catnip (Enemy)",
       "mapping_type": "custom",
       "reason": null
@@ -1215,6 +1229,7 @@
     "character:endkio": {
       "wiki_page_name": "Kio the Darkbringer",
       "display_name": "Kio the Darkbringer",
+      "expected_npc_name": "Kio The Darkbringer",
       "image_name": "Kio the Darkbringer",
       "mapping_type": "custom",
       "reason": "Fix capitalization: 'The' -> 'the'"
@@ -1375,16 +1390,19 @@
     "character:gloopa half": {
       "wiki_page_name": "Gloopa",
       "display_name": "Gloopa (Half)",
+      "expected_npc_name": "Gloopa",
       "image_name": "Gloopa"
     },
     "character:gloopa quarter": {
       "wiki_page_name": "Gloopa",
       "display_name": "Gloopa (Quarter)",
+      "expected_npc_name": "Gloopa",
       "image_name": "Gloopa"
     },
     "character:gloopa quarter loot": {
       "wiki_page_name": "Gloopa",
       "display_name": "Gloopa (Quarter)",
+      "expected_npc_name": "Gloopa",
       "image_name": "Gloopa"
     },
     "character:golden spirit": {
@@ -1901,13 +1919,6 @@
       "display_name": "Molorai Archaeologist",
       "image_name": "Molorai Archaeologist Dusken"
     },
-    "character:molorai archivist": {
-      "wiki_page_name": "Molorai Archmage",
-      "display_name": "Molorai Archmage",
-      "image_name": "Molorai Archmage",
-      "mapping_type": "custom",
-      "reason": null
-    },
     "character:molorai archmage": {
       "wiki_page_name": "Molorai Archmage",
       "display_name": "Molorai Archmage",
@@ -2354,6 +2365,7 @@
     "character:reaver of sivakaya": {
       "wiki_page_name": null,
       "display_name": "Reaver of Sivakaya",
+      "expected_npc_name": "Assassin of Sivakaya",
       "image_name": "Reaver of Sivakaya",
       "is_wiki_generated": 0,
       "is_map_visible": 0
@@ -2385,6 +2397,7 @@
     "character:riftstone:azynthiclear:797.65:46.43:562.68": {
       "wiki_page_name": "Watchlight",
       "display_name": "Watchlight",
+      "expected_npc_name": "Riftstone",
       "image_name": "Watchlight",
       "mapping_type": "custom",
       "reason": null
@@ -3002,6 +3015,7 @@
     "character:treasurechest 0-10 1": {
       "wiki_page_name": "Lost Treasure (1-10)",
       "display_name": "Lost Treasure (1-10)",
+      "expected_npc_name": "Lost Treasure",
       "image_name": "Lost Treasure",
       "is_wiki_generated": 1,
       "is_map_visible": 0,
@@ -3011,6 +3025,7 @@
     "character:treasurechest 10-20 1": {
       "wiki_page_name": "Lost Treasure (10-20)",
       "display_name": "Lost Treasure (10-20)",
+      "expected_npc_name": "Lost Treasure",
       "image_name": "Lost Treasure",
       "is_wiki_generated": 1,
       "is_map_visible": 0,
@@ -3020,6 +3035,7 @@
     "character:treasurechest 20-30 1": {
       "wiki_page_name": "Lost Treasure (20-30)",
       "display_name": "Lost Treasure (20-30)",
+      "expected_npc_name": "Lost Treasure",
       "image_name": "Lost Treasure",
       "is_wiki_generated": 1,
       "is_map_visible": 0,
@@ -3029,6 +3045,7 @@
     "character:treasurechest 30-35": {
       "wiki_page_name": "Lost Treasure (30+)",
       "display_name": "Lost Treasure (30+)",
+      "expected_npc_name": "Lost Treasure",
       "image_name": "Lost Treasure",
       "is_wiki_generated": 1,
       "is_map_visible": 0,

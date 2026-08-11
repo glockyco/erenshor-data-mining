@@ -39,7 +39,7 @@ from .entities import (
     process_world_tables,
     process_zones,
 )
-from .mapping import load_mapping
+from .mapping import load_mapping, validate_character_name_overrides
 from .writer import Writer
 
 
@@ -80,6 +80,12 @@ def build(
     raw.row_factory = sqlite3.Row
 
     try:
+        raw_npc_names = {
+            str(row["StableKey"]): str(row["NPCName"] or "")
+            for row in raw.execute("SELECT StableKey, NPCName FROM Characters")
+        }
+        validate_character_name_overrides(mapping, raw_npc_names)
+
         writer = Writer(clean_db_path)
         writer.create_schema()
 
