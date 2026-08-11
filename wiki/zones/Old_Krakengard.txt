@@ -20,22 +20,22 @@ Old Krakengard is located in [[Vitheo's Watch]]. Below is a list of all NPC's an
 |[[Cirreus Alxanth]]
 |[[Molorai Archmage]]
 |[[Molorai Chef]]
-|[[Molorai Brewmistress]]
+|[[Molorai Archivist]]
 |-
 |
 |[[Molorai Attack Dog]]
 |[[Molorai Jailor]]
-|[[Molorai Captain Sigrid]]
+|[[Molorai Brewmistress]]
 |-
 |
 |[[Molorai Bodyguard]]
 |[[Molorai Spiritist]]
-|[[Overseer Orlok]]
+|[[Molorai Captain Sigrid]]
 |-
 |
 |[[Molorai Militia Arcanist]]
 |
-|
+|[[Overseer Orlok]]
 |-
 |
 |[[Molorai Militia Druid]]
