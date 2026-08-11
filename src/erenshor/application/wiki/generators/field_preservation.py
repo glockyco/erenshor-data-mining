@@ -575,6 +575,13 @@ class FieldPreservationHandler:
                     )
                     old_code.append(f"\n\n{formatted_template}")
 
+            # Generated templates have authoritative cardinality. If entities
+            # split or disappear, retaining unmatched old templates silently
+            # keeps stale generated records on the page.
+            for stale_tmpl in old_templates[len(new_tmpls) :]:
+                logger.debug(f"Removing stale {template_name} template")
+                self._parser.remove_template(old_code, stale_tmpl)
+
         # Render modified old page (templates updated, manual content preserved)
         result = self._parser.render(old_code)
         logger.debug(f"Merged templates into existing page successfully ({len(result)} characters)")

@@ -419,6 +419,19 @@ class TestFieldPreservationHandler:
         # Should return old wikitext unchanged (preserving everything)
         assert result == old_wikitext
 
+    def test_merge_templates_removes_old_templates_without_generated_entities(self) -> None:
+        handler = FieldPreservationHandler()
+        old_wikitext = (
+            "{{Character|name=Current|level=9}}\n\n{{Character|name=Renamed|level=11}}\n\n== Notes ==\nManual content"
+        )
+        new_wikitext = "{{Character|name=Current|level=9}}"
+
+        result = handler.merge_templates(old_wikitext, new_wikitext, ["Character"])
+
+        assert result.count("{{Character") == 1
+        assert "name=Renamed" not in result
+        assert "Manual content" in result
+
     def test_merge_templates_preserves_non_template_content(self) -> None:
         """merge_templates should preserve non-template content from old page."""
         handler = FieldPreservationHandler()
