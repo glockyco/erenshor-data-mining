@@ -111,6 +111,18 @@ def test_lua_tooling_is_configured_for_scribunto_modules() -> None:
     assert "frame" in luacheck
 
 
+def test_python_selector_matches_flake_and_ci_minor_version() -> None:
+    selector = Path(".python-version").read_text(encoding="utf-8").strip()
+    assert selector == "3.14"
+
+    flake = Path("flake.nix").read_text(encoding="utf-8")
+    assert "pkgs.python314" in flake
+    assert 'UV_PYTHON = "${pkgs.python314}/bin/python3.14"' in flake
+
+    ci = Path(".github/workflows/ci.yml").read_text(encoding="utf-8")
+    assert "python-version: '3.14'" in ci
+
+
 def test_development_docs_point_to_lefthook_not_pre_commit() -> None:
     readme = Path("README.md").read_text(encoding="utf-8")
 
