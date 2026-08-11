@@ -120,7 +120,30 @@ def test_python_selector_matches_flake_and_ci_minor_version() -> None:
     assert 'UV_PYTHON = "${pkgs.python314}/bin/python3.14"' in flake
 
     ci = Path(".github/workflows/ci.yml").read_text(encoding="utf-8")
-    assert "python-version: '3.14'" in ci
+    assert "DeterminateSystems/determinate-nix-action@v3.21.9" in ci
+    assert "actions/setup-python" not in ci
+
+
+def test_ci_uses_the_flake_toolchain_for_project_commands() -> None:
+    ci = Path(".github/workflows/ci.yml").read_text(encoding="utf-8")
+
+    assert ci.count("DeterminateSystems/determinate-nix-action@v3.21.9") == 5
+    assert "actions/setup-python" not in ci
+    assert "actions/setup-node" not in ci
+    assert "actions/setup-dotnet" not in ci
+    assert "pnpm/action-setup" not in ci
+    assert "astral-sh/setup-uv" not in ci
+    assert "id-token: write" in ci
+
+    project_tools = ("uv ", "pnpm ", "dotnet ")
+    unwrapped = [
+        line.strip()[len("run: ") :]
+        for line in ci.splitlines()
+        if line.strip().startswith("run: ")
+        and any(tool in line for tool in project_tools)
+        and "nix develop --command" not in line
+    ]
+    assert unwrapped == []
 
 
 def test_flake_exposes_explicit_locked_dependency_bootstrap() -> None:
