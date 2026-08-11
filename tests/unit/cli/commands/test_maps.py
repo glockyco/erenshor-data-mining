@@ -89,10 +89,10 @@ def test_build_copies_database_runs_verify_prebuild_then_build_and_writes_sideca
     maps.build(ctx)
 
     assert calls == [
+        ["node", "scripts/generate-tiles-manifest.js"],
         ["pnpm", "run", "lint"],
         ["pnpm", "run", "check"],
         ["pnpm", "run", "test"],
-        ["node", "scripts/generate-tiles-manifest.js"],
         ["node", "scripts/generate-og-image.mjs"],
         ["node", "scripts/generate-item-icons.mjs", "main"],
         ["pnpm", "exec", "vite", "build"],
@@ -122,6 +122,28 @@ def test_build_refuses_missing_tiles_before_frontend_checks(tmp_path: Path, monk
         maps.build(ctx)
 
     assert calls == []
+
+
+def test_build_generates_missing_manifest_from_captured_tiles(tmp_path: Path, monkeypatch: Any) -> None:
+    maps_dir, database_path = _write_project(tmp_path)
+    manifest_path = maps_dir / "static" / "tiles" / "tiles-manifest.json"
+    manifest_path.unlink()
+    ctx = _ctx(tmp_path, maps_dir, database_path)
+    calls: list[list[str]] = []
+
+    def fake_run(args: list[str], **_kwargs: Any) -> subprocess.CompletedProcess[str]:
+        calls.append(args)
+        if args == ["node", "scripts/generate-tiles-manifest.js"]:
+            manifest_path.write_text('{"zoom_levels": {"0": {"tiles": ["/tiles/TestZone/-1/0/0.webp"], "count": 1}}}\n')
+        return subprocess.CompletedProcess(args=args, returncode=0)
+
+    monkeypatch.setattr(maps, "_check_pnpm_available", lambda: True)
+    monkeypatch.setattr("erenshor.cli.commands.maps.subprocess.run", fake_run)
+
+    maps.build(ctx, skip_checks=True)
+
+    assert calls[0] == ["node", "scripts/generate-tiles-manifest.js"]
+    assert manifest_path.is_file()
 
 
 def test_check_runs_only_deterministic_frontend_checks(tmp_path: Path, monkeypatch: Any) -> None:

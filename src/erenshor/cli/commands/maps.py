@@ -413,6 +413,13 @@ def build(
         raise typer.Exit(1)
 
     try:
+        build_info.validate_tile_files(maps_dir)
+    except build_info.TileInputError as error:
+        console.print(f"[red]Error: {error}[/red]")
+        raise typer.Exit(1) from error
+
+    _run(["node", "scripts/generate-tiles-manifest.js"], maps_dir)
+    try:
         build_info.validate_tile_inputs(maps_dir)
     except build_info.TileInputError as error:
         console.print(f"[red]Error: {error}[/red]")
@@ -449,7 +456,6 @@ def build(
             raise typer.Exit(1) from e
 
         logger.info("Running maps prebuild steps")
-        _run(["node", "scripts/generate-tiles-manifest.js"], maps_dir)
         _run(["node", "scripts/generate-og-image.mjs"], maps_dir)
         _run(["node", "scripts/generate-item-icons.mjs", cli_ctx.variant], maps_dir)
 

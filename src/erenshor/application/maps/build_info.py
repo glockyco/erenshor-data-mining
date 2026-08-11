@@ -29,22 +29,22 @@ class TileInputError(ValueError):
     """Raised when the map tile tree cannot produce a deployable build."""
 
 
-def validate_tile_inputs(maps_source_dir: Path) -> None:
-    """Require a manifest and at least one captured WebP tile."""
+def validate_tile_files(maps_source_dir: Path) -> None:
+    """Require at least one captured WebP tile before manifest generation."""
     tiles_dir = maps_source_dir / "static" / "tiles"
     if not tiles_dir.is_dir():
-        raise TileInputError(f"Map tile directory is missing: {tiles_dir}. Capture or sync map tiles before building.")
+        raise TileInputError(f"Map tile directory is missing: {tiles_dir}. Capture map tiles before building.")
+    if not any(path.is_file() for path in tiles_dir.rglob("*.webp")):
+        raise TileInputError(f"No WebP map tiles found under {tiles_dir}. Capture map tiles before building.")
 
+
+def validate_tile_inputs(maps_source_dir: Path) -> None:
+    """Require generated manifest metadata for captured WebP tiles."""
+    validate_tile_files(maps_source_dir)
+    tiles_dir = maps_source_dir / "static" / "tiles"
     manifest_path = tiles_dir / "tiles-manifest.json"
     if not manifest_path.is_file():
-        raise TileInputError(
-            f"Map tile manifest is missing: {manifest_path}. "
-            "Run the tile manifest generator after capturing or syncing tiles."
-        )
-
-    tile_files = [path for path in tiles_dir.rglob("*.webp") if path.is_file()]
-    if not tile_files:
-        raise TileInputError(f"No WebP map tiles found under {tiles_dir}. Capture or sync map tiles before building.")
+        raise TileInputError(f"Map tile manifest generation failed: {manifest_path}")
 
     try:
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
