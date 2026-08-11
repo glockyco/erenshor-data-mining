@@ -1620,6 +1620,7 @@ def deploy(
         raise typer.Exit(1)
 
     try:
+        page_titles = _read_page_titles(pages_file) if pages_file else None
         if from_dir:
             with _create_wiki_composition(cli_ctx, with_client=True) as composition:
                 assert composition.wiki_client is not None
@@ -1634,6 +1635,8 @@ def deploy(
                 result = service.deploy_from_dir(
                     source_dir=Path(from_dir),
                     dry_run=cli_ctx.dry_run,
+                    limit=limit,
+                    page_titles=page_titles,
                 )
         else:
             _assert_generated_deploy_preconditions(ctx)
@@ -1643,9 +1646,7 @@ def deploy(
                     wiki_client=composition.wiki_client,
                     storage=composition.storage,
                 )
-                page_titles: list[str] | None = None
-                if pages_file:
-                    page_titles = _read_page_titles(pages_file)
+                if page_titles is not None:
                     logger.info(f"Deploying {len(page_titles)} pages from {pages_file}")
 
                 console.print()

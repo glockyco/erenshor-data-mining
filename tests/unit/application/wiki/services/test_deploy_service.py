@@ -140,3 +140,29 @@ def test_deploy_from_dir_does_not_run_generated_preflight(tmp_path: Path) -> Non
 
     wiki_client.login.assert_not_called()
     wiki_client.edit_page.assert_not_called()
+
+
+def test_deploy_from_dir_filters_titles_before_limit(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """Only requested directory pages count toward the deployment limit."""
+    (tmp_path / "A_Page.txt").write_text("a", encoding="utf-8")
+    (tmp_path / "B_Page.txt").write_text("b", encoding="utf-8")
+    (tmp_path / "C_Page.txt").write_text("c", encoding="utf-8")
+    service, wiki_client, _ = _service({}, {})
+    monkeypatch.setattr("erenshor.application.wiki.services.deploy_service.time.sleep", lambda _: None)
+
+    result = service.deploy_from_dir(
+        tmp_path,
+        page_titles=["B Page", "C Page"],
+        limit=1,
+    )
+
+    assert result.total == 1
+    assert result.succeeded == 1
+    wiki_client.edit_page.assert_called_once_with(
+        title="B Page",
+        content="b",
+        summary="Manual wiki update",
+    )

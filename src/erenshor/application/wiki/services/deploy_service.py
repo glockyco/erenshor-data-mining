@@ -45,6 +45,8 @@ class WikiDeployService:
         self,
         source_dir: Path,
         dry_run: bool = False,
+        limit: int | None = None,
+        page_titles: list[str] | None = None,
     ) -> OperationResult:
         """Deploy wiki pages from .txt files in a directory.
 
@@ -63,6 +65,8 @@ class WikiDeployService:
         Args:
             source_dir: Directory containing .txt files to deploy.
             dry_run: If True, simulate without actually uploading.
+            limit: Maximum number of selected pages to deploy.
+            page_titles: Exact wiki page titles to deploy. All pages are selected when omitted.
 
         Returns:
             OperationResult with summary statistics.
@@ -101,13 +105,18 @@ class WikiDeployService:
             )
 
         txt_files = sorted(source_dir.glob("*.txt"))
+        if page_titles is not None:
+            requested_titles = set(page_titles)
+            txt_files = [txt_file for txt_file in txt_files if _stem_to_title(txt_file.stem) in requested_titles]
+        if limit is not None:
+            txt_files = txt_files[:limit]
         if not txt_files:
             return OperationResult(
                 total=0,
                 succeeded=0,
                 failed=0,
                 skipped=0,
-                warnings=[f"No .txt files found in {source_dir}"],
+                warnings=[f"No matching .txt files found in {source_dir}"],
                 errors=[],
             )
 
