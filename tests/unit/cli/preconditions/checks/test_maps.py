@@ -13,6 +13,12 @@ def _write_maps_inputs(tmp_path: Path) -> tuple[Path, Path, Path]:
     build_dir = maps_dir / "build"
     (maps_dir / "src").mkdir(parents=True)
     (maps_dir / "static" / "db").mkdir(parents=True)
+    tile_path = maps_dir / "static" / "tiles" / "TestZone" / "-1" / "0" / "0.webp"
+    tile_path.parent.mkdir(parents=True)
+    tile_path.write_bytes(b"tile")
+    (maps_dir / "static" / "tiles" / "tiles-manifest.json").write_text(
+        '{"zoom_levels": {"-1": {"tiles": ["/tiles/TestZone/-1/0/0.webp"], "count": 1}}}\n'
+    )
     (maps_dir / "package.json").write_text("{}\n")
     (maps_dir / "src" / "app.ts").write_text("export const ok = true;\n")
     database_path = tmp_path / "erenshor.sqlite"
@@ -62,6 +68,22 @@ def test_build_matches_inputs_reports_changed_groups(tmp_path: Path) -> None:
 
     assert result.passed is False
     assert "code" in result.detail
+
+
+def test_build_matches_inputs_rejects_removed_tiles(tmp_path: Path) -> None:
+    maps_dir, build_dir, database_path = _write_maps_inputs(tmp_path)
+    build_dir.mkdir()
+    hashes = build_info.compute_input_hashes(maps_source_dir=maps_dir, database_path=database_path)
+    build_info.write_build_info(build_dir, hashes)
+    for tile in (maps_dir / "static" / "tiles").rglob("*.webp"):
+        tile.unlink()
+
+    result = maps.build_matches_inputs(
+        {"maps_source_dir": maps_dir, "build_dir": build_dir, "database_path": database_path}
+    )
+
+    assert result.passed is False
+    assert result.message == "Map tile inputs are incomplete"
 
 
 def test_build_matches_inputs_passes_for_fresh_sidecar(tmp_path: Path) -> None:
