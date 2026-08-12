@@ -99,6 +99,11 @@
 
             DOTNET_CLI_TELEMETRY_OPTOUT = "1";
             DOTNET_NOLOGO = "1";
+          }
+          // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
+            # PyPI's Linux NumPy wheel dynamically loads libstdc++. mkShellNoCC
+            # deliberately omits the compiler, so expose only its runtime.
+            LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [ pkgs.stdenv.cc.cc.lib ];
           };
         };
       });
