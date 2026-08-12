@@ -30,7 +30,7 @@ jobs:
         run: nix develop --command dotnet tool restore
 
       - name: Run static leaf
-        run: nix develop --command uv run erenshor test static
+        run: nix develop --command erenshor test static
 
       - name: Upload static report
         if: always()
@@ -65,7 +65,7 @@ jobs:
         uses: DeterminateSystems/determinate-nix-action@v3.21.9
 
       - name: Run unit leaf with coverage
-        run: nix develop --command uv run erenshor test unit --coverage
+        run: nix develop --command erenshor test unit --coverage
 
       - name: Upload unit report and coverage
         if: always()
@@ -98,7 +98,7 @@ jobs:
         uses: DeterminateSystems/determinate-nix-action@v3.21.9
 
       - name: Run contract leaf
-        run: nix develop --command uv run erenshor test contract
+        run: nix develop --command erenshor test contract
 
       - name: Upload contract reports
         if: always()
@@ -124,7 +124,7 @@ jobs:
         run: nix develop --command pnpm install --frozen-lockfile
 
       - name: Run maps leaf
-        run: nix develop --command uv run erenshor test maps
+        run: nix develop --command erenshor test maps
 
       - name: Upload maps report
         if: always()
@@ -145,7 +145,7 @@ jobs:
         uses: DeterminateSystems/determinate-nix-action@v3.21.9
 
       - name: Run mods leaf
-        run: nix develop --command uv run erenshor test mods
+        run: nix develop --command erenshor test mods
 
       - name: Upload mod reports
         if: always()

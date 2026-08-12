@@ -21,4 +21,4 @@ jobs:
         uses: DeterminateSystems/determinate-nix-action@v3.21.9
 
       - name: Run SteamDB build feed canary
-        run: nix develop --command uv run pytest tests/integration/test_build_feed_canary.py -m canary -v
+        run: nix develop --command pytest tests/integration/test_build_feed_canary.py -m canary -v

@@ -53,12 +53,12 @@ def test_lefthook_runs_project_area_checks() -> None:
         line.strip()[len("run: ") :] for line in pre_push.splitlines() if line.strip().startswith("run: ")
     ]
     assert pre_push_commands == [
-        "scripts/with-dev-env.sh uv run erenshor test unit",
-        "scripts/with-dev-env.sh uv run erenshor test contract",
+        "scripts/with-dev-env.sh erenshor test unit",
+        "scripts/with-dev-env.sh erenshor test contract",
     ]
 
-    assert "uv run ruff format" in config
-    assert "uv run ruff check --fix" in config
+    assert "scripts/with-dev-env.sh ruff format" in config
+    assert "scripts/with-dev-env.sh ruff check --fix" in config
     assert "pnpm --filter erenshor-maps lint" in config
     assert "src/maps/*.{js,ts,svelte,cjs,mjs,json}" in config
     assert "bash src/mods/run-csharpier.sh" in config
@@ -78,7 +78,16 @@ def test_hook_jobs_needing_project_tools_enter_the_dev_shell() -> None:
     assert wrapper.stat().st_mode & 0o111, "wrapper must be executable"
 
     config = Path("lefthook.yml").read_text(encoding="utf-8")
-    dev_shell_tools = ("uv ", "pnpm ", "gitleaks ", "dotnet ", "run-csharpier.sh")
+    dev_shell_tools = (
+        "erenshor ",
+        "pytest ",
+        "ruff ",
+        "mypy ",
+        "pnpm ",
+        "gitleaks ",
+        "dotnet ",
+        "run-csharpier.sh",
+    )
     unwrapped = [
         command
         for line in config.splitlines()
@@ -134,9 +143,10 @@ def test_ci_uses_the_flake_toolchain_for_project_commands() -> None:
     assert "pnpm/action-setup" not in ci
     assert "astral-sh/setup-uv" not in ci
     assert "uv sync" not in ci
+    assert "uv run" not in ci
     assert "id-token: write" in ci
 
-    project_tools = ("uv ", "pnpm ", "dotnet ")
+    project_tools = ("erenshor ", "pytest ", "pnpm ", "dotnet ")
     unwrapped = [
         line.strip()[len("run: ") :]
         for line in ci.splitlines()
@@ -153,6 +163,7 @@ def test_github_workflows_do_not_create_mutable_python_environments() -> None:
     assert "actions/setup-python" not in workflows
     assert "astral-sh/setup-uv" not in workflows
     assert "uv sync" not in workflows
+    assert "uv run" not in workflows
 
 
 def test_flake_builds_locked_python_and_bootstraps_mutable_tools() -> None:

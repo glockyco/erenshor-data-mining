@@ -99,9 +99,9 @@ TASKS: Mapping[str, tuple[str, ...]] = {
 LEAF_TASKS = ("static", "unit", "contract", "data", "wiki", "maps", "mods")
 COMPOSITE_TASKS = ("ci", "release")
 _RELEASE_COMMANDS: tuple[tuple[str, ...], ...] = (
-    ("uv", "run", "erenshor", "-V", "main", "maps", "build", "--skip-checks"),
-    ("uv", "run", "erenshor", "-V", "main", "mod", "build", "--loader", "all"),
-    ("uv", "run", "erenshor", "-V", "main", "mod", "thunderstore", "--dry-run"),
+    ("erenshor", "-V", "main", "maps", "build", "--skip-checks"),
+    ("erenshor", "-V", "main", "mod", "build", "--loader", "all"),
+    ("erenshor", "-V", "main", "mod", "thunderstore", "--dry-run"),
 )
 
 
@@ -628,7 +628,7 @@ def _command_json(result: _CommandResult) -> dict[str, object]:
 
 def _pytest_command(arguments: Sequence[str], report_path: Path | None = None) -> list[str]:
     """Build the subprocess command for a pytest leaf."""
-    command = ["uv", "run", "pytest", *arguments, "--quiet"]
+    command = ["pytest", *arguments, "--quiet"]
     if report_path is not None:
         command.extend(["-p", _PYTEST_PLUGIN, _REPORT_OPTION, str(report_path)])
     return command
@@ -1102,9 +1102,9 @@ def _run_static_leaf(cli_ctx: CLIContext) -> _LeafResult:
         cli_ctx,
         "static",
         (
-            ("uv", "run", "ruff", "check", "src/", "tests/"),
-            ("uv", "run", "ruff", "format", "--check", "src/", "tests/"),
-            ("uv", "run", "mypy", "src/"),
+            ("ruff", "check", "src/", "tests/"),
+            ("ruff", "format", "--check", "src/", "tests/"),
+            ("mypy", "src/"),
             ("dotnet", "csharpier", "--check", "."),
         ),
         continue_on_failure=True,
@@ -1137,9 +1137,9 @@ def _run_wiki_leaf(cli_ctx: CLIContext) -> _LeafResult:
     start = time.monotonic()
     base = _WIKI_BASE_URL
     setup_commands = (
-        ("uv", "run", "python", "wiki-dev/import_pages.py", "--base-url", base, "--root", str(cli_ctx.repo_root)),
-        ("uv", "run", "python", "wiki-dev/smoke_test.py", "--base-url", base),
-        ("uv", "run", "python", "wiki-dev/cargo_check.py", "--base-url", base),
+        ("python", "wiki-dev/import_pages.py", "--base-url", base, "--root", str(cli_ctx.repo_root)),
+        ("python", "wiki-dev/smoke_test.py", "--base-url", base),
+        ("python", "wiki-dev/cargo_check.py", "--base-url", base),
     )
     setup_results: list[_CommandResult] = []
     for command in setup_commands:

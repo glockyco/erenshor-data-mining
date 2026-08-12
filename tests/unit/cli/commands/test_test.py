@@ -301,8 +301,8 @@ def test_python_leaves_use_exact_pytest_path_argv_and_repository_cwd(
 
     assert result.status == "passed"
     command = calls[0][0]
-    assert command[: 3 + len(arguments)] == ["uv", "run", "pytest", *arguments]
-    option_offset = 3 + len(arguments)
+    assert command[: 1 + len(arguments)] == ["pytest", *arguments]
+    option_offset = 1 + len(arguments)
     if task_id == "unit":
         assert command[option_offset] == "--numprocesses=2"
         option_offset += 1
@@ -378,8 +378,6 @@ def test_contract_leaf_uses_exact_native_and_pytest_commands_and_namespaced_resu
     pytest_command, pytest_cwd = calls[2]
     pytest_report = pytest_command[-1]
     assert list(pytest_command) == [
-        "uv",
-        "run",
         "pytest",
         "tests/contract",
         "--quiet",
@@ -456,7 +454,7 @@ def test_contract_leaf_runs_every_native_project_and_pytest_after_native_failure
             duration_seconds=0.0,
             prerequisites=[],
             result_counts=_counts(),
-            commands=[{"argv": ["uv", "run", "pytest", "tests/contract"], "cwd": str(tmp_path), "exit_code": 0}],
+            commands=[{"argv": ["pytest", "tests/contract"], "cwd": str(tmp_path), "exit_code": 0}],
             diagnostics={},
         )
 
@@ -528,7 +526,7 @@ def test_static_leaf_reports_all_checks_when_one_fails(tmp_path: Path, monkeypat
     def fake_run_process(argv: Sequence[str], cwd: Path) -> Any:
         command = tuple(argv)
         calls.append(command)
-        return test._CommandResult(command, cwd, 1 if command[2:4] == ("ruff", "format") else 0, 0.125)
+        return test._CommandResult(command, cwd, 1 if command[:2] == ("ruff", "format") else 0, 0.125)
 
     monkeypatch.setattr(test, "_run_process", fake_run_process)
     result = test._run_leaf(_context(tmp_path), "static")
@@ -536,9 +534,9 @@ def test_static_leaf_reports_all_checks_when_one_fails(tmp_path: Path, monkeypat
     assert result.status == "failed"
     assert result.exit_code == 1
     assert calls == [
-        ("uv", "run", "ruff", "check", "src/", "tests/"),
-        ("uv", "run", "ruff", "format", "--check", "src/", "tests/"),
-        ("uv", "run", "mypy", "src/"),
+        ("ruff", "check", "src/", "tests/"),
+        ("ruff", "format", "--check", "src/", "tests/"),
+        ("mypy", "src/"),
         ("dotnet", "csharpier", "--check", "."),
     ]
     assert result.result_counts == {"commands": 4, "completed_commands": 4}
@@ -608,8 +606,6 @@ def test_wiki_leaf_uses_exact_setup_and_pytest_commands(tmp_path: Path, monkeypa
     assert calls[:3] == [
         (
             (
-                "uv",
-                "run",
                 "python",
                 "wiki-dev/import_pages.py",
                 "--base-url",
@@ -619,22 +615,20 @@ def test_wiki_leaf_uses_exact_setup_and_pytest_commands(tmp_path: Path, monkeypa
             ),
             tmp_path,
         ),
-        (("uv", "run", "python", "wiki-dev/smoke_test.py", "--base-url", "http://localhost:8088"), tmp_path),
-        (("uv", "run", "python", "wiki-dev/cargo_check.py", "--base-url", "http://localhost:8088"), tmp_path),
+        (("python", "wiki-dev/smoke_test.py", "--base-url", "http://localhost:8088"), tmp_path),
+        (("python", "wiki-dev/cargo_check.py", "--base-url", "http://localhost:8088"), tmp_path),
     ]
     pytest_command, pytest_cwd = calls[3]
     assert pytest_cwd == tmp_path
-    assert pytest_command[:6] == [
-        "uv",
-        "run",
+    assert pytest_command[:4] == [
         "pytest",
         "tests/system/wiki",
         "--quiet",
         "-p",
     ]
-    assert pytest_command[6] == "erenshor.cli.commands.test"
-    assert pytest_command[7] == "--erenshor-report"
-    _assert_intermediate_report_path(Path(pytest_command[8]), tmp_path, "wiki")
+    assert pytest_command[4] == "erenshor.cli.commands.test"
+    assert pytest_command[5] == "--erenshor-report"
+    _assert_intermediate_report_path(Path(pytest_command[6]), tmp_path, "wiki")
 
 
 def test_wiki_clean_parity_leaf_uses_isolated_harness_command(tmp_path: Path, monkeypatch: Any) -> None:
@@ -1211,7 +1205,7 @@ def test_focused_unit_command_stays_on_unit_tree(tmp_path: Path, monkeypatch: An
     result = test._run_leaf(_context(tmp_path), "unit")
 
     assert result.status == "passed"
-    assert calls[0][3] == "tests/unit"
+    assert calls[0][1] == "tests/unit"
     assert "--numprocesses=2" in calls[0]
     assert "--quiet" in calls[0]
     assert "--cov" not in calls[0]

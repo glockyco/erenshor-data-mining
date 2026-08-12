@@ -16,12 +16,12 @@ pre-commit:
 
     - name: ruff format
       glob: "*.py"
-      run: scripts/with-dev-env.sh uv run ruff format {staged_files}
+      run: scripts/with-dev-env.sh ruff format {staged_files}
       stage_fixed: true
 
     - name: ruff check
       glob: "*.py"
-      run: scripts/with-dev-env.sh uv run ruff check --fix {staged_files}
+      run: scripts/with-dev-env.sh ruff check --fix {staged_files}
       stage_fixed: true
 
     - name: maps lint
@@ -59,7 +59,7 @@ commit-msg:
 pre-push:
   jobs:
     - name: unit
-      run: scripts/with-dev-env.sh uv run erenshor test unit
+      run: scripts/with-dev-env.sh erenshor test unit
 
     - name: contract
-      run: scripts/with-dev-env.sh uv run erenshor test contract
+      run: scripts/with-dev-env.sh erenshor test contract

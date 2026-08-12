@@ -10,7 +10,7 @@ Tools for extracting Erenshor game data, building SQLite databases, publishing w
 
 ## What this repository provides
 
-- A Python CLI, `uv run erenshor`, for extraction, publishing, map, mod, capture, and development workflows.
+- A Python CLI, `erenshor`, for extraction, publishing, map, mod, capture, and development workflows.
 - A game-data pipeline from Steam download to AssetRipper output, Unity batch export, raw SQLite, and clean SQLite.
 - MediaWiki and Google Sheets publishing from the clean database.
 - A SvelteKit/deck.gl interactive map deployed with Wrangler to Cloudflare Workers.
@@ -73,7 +73,7 @@ The `flake.nix` dev shell provides the whole command-line toolchain at the versi
 nix develop           # or `direnv allow` once, with nix-direnv
 ```
 
-Every `uv run erenshor ...` command in this README assumes that shell.
+Every `erenshor ...` command in this README assumes that shell.
 
 Three things the dev shell cannot supply, because they are licensed, interactive, or platform-specific:
 
@@ -117,7 +117,7 @@ AssetRipper needs no entry: the tracked config resolves it from PATH, which the 
 The default variant is `main`. Use `--variant` or `-V` to target another variant:
 
 ```bash
-uv run erenshor --variant playtest status
+erenshor --variant playtest status
 ```
 
 Configured variants:
@@ -145,13 +145,13 @@ installation:
 
 ```bash
 nix develop
-uv run erenshor status
-uv run erenshor extract download     # skip when game_files points at an existing install
-uv run erenshor extract packages     # Editor NuGet dependencies, once per checkout
-uv run erenshor extract rip
-uv run erenshor extract export
-uv run erenshor extract code-facts
-uv run erenshor extract build
+erenshor status
+erenshor extract download     # skip when game_files points at an existing install
+erenshor extract packages     # Editor NuGet dependencies, once per checkout
+erenshor extract rip
+erenshor extract export
+erenshor extract code-facts
+erenshor extract build
 ```
 
 The clean database for the default variant is written to:
@@ -160,58 +160,58 @@ The clean database for the default variant is written to:
 variants/main/erenshor-main.sqlite
 ```
 
-Run `uv run erenshor --help` and `uv run erenshor <group> --help` for the current command surface.
+Run `erenshor --help` and `erenshor <group> --help` for the current command surface.
 
 ## Common workflows
 
 ### Inspect local setup
 
 ```bash
-uv run erenshor status
-uv run erenshor config show
+erenshor status
+erenshor config show
 ```
 
 ### Extract and build game data
 
 ```bash
-uv run erenshor extract download
-uv run erenshor extract rip
-uv run erenshor extract export
-uv run erenshor extract build
+erenshor extract download
+erenshor extract rip
+erenshor extract export
+erenshor extract build
 ```
 
 ### Publish wiki output
 
 ```bash
-uv run erenshor wiki fetch
-uv run erenshor wiki generate
-uv run erenshor wiki deploy
+erenshor wiki fetch
+erenshor wiki generate
+erenshor wiki deploy
 ```
 
 ### Publish Google Sheets
 
 ```bash
-uv run erenshor sheets list
-uv run erenshor sheets deploy
+erenshor sheets list
+erenshor sheets deploy
 ```
 
 ### Process and upload images
 
 ```bash
-uv run erenshor images process
-uv run erenshor images compare
-uv run erenshor images report
-uv run erenshor images upload
+erenshor images process
+erenshor images compare
+erenshor images report
+erenshor images upload
 ```
 
 ### Run and deploy the interactive map
 
 ```bash
-uv run erenshor maps dev
-uv run erenshor maps build
-uv run erenshor maps preview
-uv run erenshor maps deploy
-uv run erenshor maps thumbnails
+erenshor maps dev
+erenshor maps build
+erenshor maps preview
+erenshor maps deploy
+erenshor maps thumbnails
 ```
 
 The CLI owns map development, verification, builds, and deployment. Use these
@@ -224,12 +224,12 @@ remain installed in one game installation. Deployment activates exactly one by
 switching the root `winhttp.dll` proxy. Select the game variant with `-V`:
 
 ```bash
-uv run erenshor -V playtest mod setup
-uv run erenshor -V playtest mod build --loader all
-uv run erenshor -V playtest mod status
-uv run erenshor -V playtest mod deploy --loader lunaris
-uv run erenshor -V playtest mod deploy --loader bepinex
-uv run erenshor mod thunderstore --dry-run
+erenshor -V playtest mod setup
+erenshor -V playtest mod build --loader all
+erenshor -V playtest mod status
+erenshor -V playtest mod deploy --loader lunaris
+erenshor -V playtest mod deploy --loader bepinex
+erenshor mod thunderstore --dry-run
 ```
 
 Use `mod deploy --mod <id> --loader <bepinex|lunaris>` for one mod and
@@ -242,16 +242,16 @@ rebuilding. Standard CrossOver installs are resolved from `-V main`,
 ### Capture map tiles
 
 ```bash
-uv run erenshor capture status
-uv run erenshor capture budget
-uv run erenshor capture run
-uv run erenshor capture tile
+erenshor capture status
+erenshor capture budget
+erenshor capture run
+erenshor capture tile
 ```
 
 ### Compile AdventureGuide data
 
 ```bash
-uv run erenshor guide compile
+erenshor guide compile
 ```
 
 The AdventureGuide mod embeds the compiled guide graph from `quest_guides/guide.json`.
@@ -263,13 +263,13 @@ the default `main` variant through Steam. HotRepl remains installed between
 sessions, so it is not redeployed for each launch.
 
 ```bash
-uv run erenshor mod activate --loader bepinex
-uv run erenshor mod launch
-uv run erenshor eval ping
-uv run erenshor eval run 'SceneManager.GetActiveScene().name'
-uv run erenshor eval watch 'GameData.PlayerControl.transform.position'
-uv run erenshor eval complete 'Camera.main.'
-uv run erenshor eval reset
+erenshor mod activate --loader bepinex
+erenshor mod launch
+erenshor eval ping
+erenshor eval run 'SceneManager.GetActiveScene().name'
+erenshor eval watch 'GameData.PlayerControl.transform.position'
+erenshor eval complete 'Camera.main.'
+erenshor eval reset
 ```
 
 The `runtime-eval` skill documents current multi-assembly host installation,
@@ -358,26 +358,26 @@ bash src/mods/run-csharpier.sh
 Run behavioral verification through the canonical task leaves:
 
 ```bash
-uv run erenshor test unit
-uv run erenshor test unit --coverage
-uv run erenshor test contract
-uv run erenshor test maps
-uv run erenshor test mods
-uv run erenshor test wiki --warm
-uv run erenshor -V main test data
+erenshor test unit
+erenshor test unit --coverage
+erenshor test contract
+erenshor test maps
+erenshor test mods
+erenshor test wiki --warm
+erenshor -V main test data
 ```
 
 Use the composites for the same disjoint leaves in parallel:
 
 ```bash
-uv run erenshor test ci
-uv run erenshor -V main test release
+erenshor test ci
+erenshor -V main test release
 ```
 
 `test ci` runs unit, contract, maps, and mods. `test release` adds the main data
 leaf, clean wiki parity, a real main-data map build, dual-loader mod builds, and
 Thunderstore package validation. Run clean wiki parity directly with
-`uv run erenshor test wiki --clean-parity` when that isolated Docker gate is the
+`erenshor test wiki --clean-parity` when that isolated Docker gate is the
 only target. Every leaf checks its own prerequisites, rejects zero collected
 tests, and writes a structured report under `artifacts/test-reports/`.
 
@@ -390,13 +390,13 @@ once. Every command writes machine-readable diagnostics under
 
 | Gate | Canonical command | Required environment | Observed result | Duration | Report |
 | --- | --- | --- | --- | ---: | --- |
-| Unit | `uv run erenshor test unit` | uv and `tests/unit/` | 1,672 passed | 24.14 s | `unit.json` |
-| Contract | `uv run erenshor test contract` | uv, .NET 9, and the native analyzer projects | 3 pytest, 13 CodeFacts, and 14 ExportSurface tests passed | 21.20 s | `contract.json` and `native/contract/*.trx` |
-| Warm wiki | `uv run erenshor test wiki --warm` | running local MediaWiki, its API, and Playwright Chromium | 189 managed pages plus API and browser acceptance passed | 38.11 s | `wiki.json` |
-| Local CI | `uv run erenshor test ci` | unit, contract, maps, and mods prerequisites | all four disjoint leaves passed | 111.25 s | `ci.json` |
-| Clean wiki parity | `uv run erenshor test wiki --clean-parity` | Docker, uv, curl, and Playwright Chromium | isolated 189-page import, Cargo, API, and browser parity passed | 334.02 s | `wiki.json` and `wiki-clean-parity.json` |
-| Main data | `uv run erenshor -V main test data` | main raw and clean databases plus shipped `Assembly-CSharp.dll` | 142 passed | 172.45 s | `data.json` |
-| Main release | `uv run erenshor -V main test release` | every leaf prerequisite plus provisioned dual-loader mod references | six leaves and three release actions passed | 537.36 s | `release.json` |
+| Unit | `erenshor test unit` | uv and `tests/unit/` | 1,672 passed | 24.14 s | `unit.json` |
+| Contract | `erenshor test contract` | uv, .NET 9, and the native analyzer projects | 3 pytest, 13 CodeFacts, and 14 ExportSurface tests passed | 21.20 s | `contract.json` and `native/contract/*.trx` |
+| Warm wiki | `erenshor test wiki --warm` | running local MediaWiki, its API, and Playwright Chromium | 189 managed pages plus API and browser acceptance passed | 38.11 s | `wiki.json` |
+| Local CI | `erenshor test ci` | unit, contract, maps, and mods prerequisites | all four disjoint leaves passed | 111.25 s | `ci.json` |
+| Clean wiki parity | `erenshor test wiki --clean-parity` | Docker, uv, curl, and Playwright Chromium | isolated 189-page import, Cargo, API, and browser parity passed | 334.02 s | `wiki.json` and `wiki-clean-parity.json` |
+| Main data | `erenshor -V main test data` | main raw and clean databases plus shipped `Assembly-CSharp.dll` | 142 passed | 172.45 s | `data.json` |
+| Main release | `erenshor -V main test release` | every leaf prerequisite plus provisioned dual-loader mod references | six leaves and three release actions passed | 537.36 s | `release.json` |
 
 The contract gate includes the production CodeFacts and ExportSurface analyzer
 projects. The data gate includes the dynamic-spawn and full-export database
@@ -413,7 +413,7 @@ exports remain explicit environment-bound gates.
 ### Check setup first
 
 ```bash
-uv run erenshor status
+erenshor status
 ```
 
 This reports configured tool paths and database state.
@@ -431,7 +431,7 @@ variants/{variant}/logs/export_*.log
 Update `.erenshor/config.local.toml`, then rerun:
 
 ```bash
-uv run erenshor status
+erenshor status
 ```
 
 ### Map live mode does not connect
