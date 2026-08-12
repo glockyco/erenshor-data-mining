@@ -44,9 +44,9 @@ def dotnet_build() -> Callable[..., None]:
 
 @pytest.fixture(scope="session")
 def code_facts_tool() -> Path:
-    """Build the CodeFacts analyzer once per session; return its project dir."""
+    """Build the CodeFacts analyzer once per session; return its managed assembly."""
     build_dotnet(_CODE_FACTS_TOOL)
-    return _CODE_FACTS_TOOL
+    return _CODE_FACTS_TOOL / "bin" / "Release" / "net9.0" / "CodeFacts.dll"
 
 
 @pytest.fixture(scope="session")
@@ -62,6 +62,6 @@ def fixture_dll(
 
 @pytest.fixture(scope="session")
 def export_surface_tool() -> Path:
-    """Build the ExportSurface checker once per session; return its project dir."""
+    """Build the ExportSurface checker once per session; return its managed assembly."""
     build_dotnet(_EXPORT_SURFACE_TOOL)
-    return _EXPORT_SURFACE_TOOL
+    return _EXPORT_SURFACE_TOOL / "bin" / "Release" / "net9.0" / "ExportSurface.dll"

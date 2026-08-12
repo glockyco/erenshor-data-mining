@@ -31,13 +31,7 @@ def test_cli_reports_unclassified_fixture_fields(
     proc = subprocess.run(
         [
             "dotnet",
-            "run",
-            "-c",
-            "Release",
-            "--no-build",
-            "--project",
             str(export_surface_tool),
-            "--",
             str(fixture_dll),
             str(manifest),
         ],

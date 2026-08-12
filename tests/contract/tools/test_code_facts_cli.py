@@ -16,13 +16,7 @@ SPECS = REPO_ROOT / "tests" / "fixtures" / "code_facts" / "fixture-specs.json"
 def run_tool(tool: Path, dll: Path, specs: Path) -> tuple[int, dict]:
     command = [
         "dotnet",
-        "run",
-        "-c",
-        "Release",
-        "--no-build",
-        "--project",
         str(tool),
-        "--",
         str(dll),
         str(specs),
     ]
