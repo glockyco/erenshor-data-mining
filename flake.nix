@@ -101,9 +101,13 @@
             DOTNET_NOLOGO = "1";
           }
           // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
-            # PyPI's Linux NumPy wheel dynamically loads libstdc++. mkShellNoCC
-            # deliberately omits the compiler, so expose only its runtime.
-            LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [ pkgs.stdenv.cc.cc.lib ];
+            # PyPI's Linux NumPy wheel dynamically loads libstdc++. Keep its
+            # matching libc visible too so nested .NET processes cannot mix the
+            # Nix C++ runtime with the host distribution's older libc.
+            LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [
+              pkgs.stdenv.cc.cc.lib
+              pkgs.stdenv.cc.libc
+            ];
           };
         };
       });
