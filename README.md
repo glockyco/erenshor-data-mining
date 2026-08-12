@@ -63,7 +63,7 @@ InteractiveMapCompanion
 
 The `flake.nix` dev shell provides the whole command-line toolchain at the versions CI uses:
 
-- Python 3.14 and `uv` for Python dependency and tool management.
+- Python 3.14 with the `uv.lock` environment built reproducibly by uv2nix. `uv` remains the command runner and lockfile editor.
 - .NET SDK 9 and 10 for the native tools, mods, and their tests.
 - Node 22 and pnpm 10 for the map frontend workspace.
 - AssetRipper for `extract rip`.
@@ -130,9 +130,10 @@ Configured variants:
 
 ## Quick start
 
-Install the locked Python, JavaScript, and .NET tool dependencies explicitly. The
-bootstrap app uses the flake toolchain, works outside an active dev shell, and
-fails rather than rewriting a stale lockfile:
+Install the locked JavaScript dependencies and .NET tools explicitly. The Python
+environment is built from `uv.lock` when Nix realizes the development shell. The
+bootstrap app works outside an active dev shell and fails rather than rewriting a
+stale lockfile:
 
 ```bash
 nix run .#bootstrap
@@ -305,18 +306,16 @@ Tracked live entity types include the player, SimPlayers, pets, friendly NPCs, a
 
 ## Development
 
-Enter the dev shell, then install project dependencies:
+Install the mutable JavaScript and .NET dependencies, then enter the dev shell:
 
 ```bash
+nix run .#bootstrap
 nix develop           # or `direnv allow` once, with nix-direnv
-uv sync --dev
-pnpm install
-dotnet tool restore   # csharpier, pinned in .config/dotnet-tools.json
 ```
 
-The dev shell pins the toolchain versions `.github/workflows/ci.yml` installs
-with its `setup-*` actions. Move both together, or local runs of the
-verification leaves stop predicting CI.
+The dev shell builds the locked Python environment and pins the same toolchain
+versions CI uses. Update the flake and workflow together so local verification
+continues to predict CI.
 
 Install Git hooks:
 

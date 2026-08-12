@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "editables"]
 build-backend = "hatchling.build"
 
 [project]
@@ -78,6 +78,11 @@ dev = [
     "playwright>=1.60.0",
     "pytest-xdist>=3.8.0",
 ]
+
+# mwparserfromhell has no macOS Python 3.14 wheel and its sdist omits the
+# setuptools backend from its package metadata.
+[tool.uv.extra-build-dependencies]
+mwparserfromhell = ["setuptools"]
 
 [tool.ruff]
 target-version = "py313"

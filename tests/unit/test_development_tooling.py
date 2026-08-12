@@ -116,8 +116,8 @@ def test_python_selector_matches_flake_and_ci_minor_version() -> None:
     assert selector == "3.14"
 
     flake = Path("flake.nix").read_text(encoding="utf-8")
-    assert "pkgs.python314" in flake
-    assert 'UV_PYTHON = "${pkgs.python314}/bin/python3.14"' in flake
+    assert "python = pkgs.python314" in flake
+    assert "UV_PYTHON = pythonSet.python.interpreter" in flake
 
     ci = Path(".github/workflows/ci.yml").read_text(encoding="utf-8")
     assert "DeterminateSystems/determinate-nix-action@v3.21.9" in ci
@@ -133,6 +133,7 @@ def test_ci_uses_the_flake_toolchain_for_project_commands() -> None:
     assert "actions/setup-dotnet" not in ci
     assert "pnpm/action-setup" not in ci
     assert "astral-sh/setup-uv" not in ci
+    assert "uv sync" not in ci
     assert "id-token: write" in ci
 
     project_tools = ("uv ", "pnpm ", "dotnet ")
@@ -146,14 +147,33 @@ def test_ci_uses_the_flake_toolchain_for_project_commands() -> None:
     assert unwrapped == []
 
 
-def test_flake_exposes_explicit_locked_dependency_bootstrap() -> None:
+def test_github_workflows_do_not_create_mutable_python_environments() -> None:
+    workflows = "\n".join(path.read_text(encoding="utf-8") for path in sorted(Path(".github/workflows").glob("*.yml")))
+
+    assert "actions/setup-python" not in workflows
+    assert "astral-sh/setup-uv" not in workflows
+    assert "uv sync" not in workflows
+
+
+def test_flake_builds_locked_python_and_bootstraps_mutable_tools() -> None:
     flake = Path("flake.nix").read_text(encoding="utf-8")
+    lock = json.loads(Path("flake.lock").read_text(encoding="utf-8"))
+
+    assert "uv2nix.lib.workspace.loadWorkspace" in flake
+    assert 'sourcePreference = "wheel"' in flake
+    assert 'mkVirtualEnv "erenshor-dev-env" workspace.deps.all' in flake
+    assert "lib.fileset.toSource" in flake
+    assert 'UV_NO_SYNC = "1"' in flake
+    assert "UV_PROJECT_ENVIRONMENT" in flake
+    assert "LD_LIBRARY_PATH" not in flake
+    assert "autoPatchelf" not in flake
+    assert "uv sync" not in flake
+    assert {"pyproject-build-systems", "pyproject-nix", "uv2nix"} <= lock["nodes"].keys()
+
     assert "bootstrap = pkgs.writeShellApplication {" in flake
-    assert "uv sync --frozen --dev" in flake
     assert "pnpm install --frozen-lockfile" in flake
     assert "dotnet tool restore" in flake
     assert "apps = forAllSystems" in flake
-    assert "shellHook" not in flake
 
     readme = Path("README.md").read_text(encoding="utf-8")
     assert "nix run .#bootstrap" in readme
