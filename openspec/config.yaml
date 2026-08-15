@@ -1,0 +1,31 @@
+schema: spec-driven
+
+context: |
+  Erenshor is a solo-maintained, polyglot game-data and companion-tooling repository.
+  Maintained systems use Python and uv, SvelteKit and pnpm, C# and NuGet, plus Nix flakes.
+  Nix is the canonical development and CI toolchain. Language-native manifests define project dependencies.
+  Project workflows run through `uv run erenshor ...`; direct package-manager commands are only for dependency bootstrap and validation.
+  Prefer clean cutovers, one owner for each generated file, fail-closed automation, and no compatibility shims.
+  Never modify shipped-game reference files, installed game files, generated data, or deployment outputs by hand.
+  Follow AGENTS.md and the relevant subsystem skill before implementation.
+
+rules:
+  proposal:
+    - State the architectural problem, goals, non-goals, and migration boundary.
+  design:
+    - Define one authoritative owner and one lock boundary for each dependency ecosystem.
+    - Explain failure handling, update grouping, and branch-protection behavior.
+  specs:
+    - Express observable repository and automation contracts with testable scenarios.
+  tasks:
+    - Group work into atomic Conventional Commit units.
+    - Include migration, verification, documentation, and cleanup tasks.
+
+operations:
+  apply:
+    guidance:
+      - Implement commits sequentially in the main working tree.
+      - Run the narrow changed-path checks, then `uv run erenshor test ci` before publication.
+  archive:
+    guidance:
+      - Archive only after implementation, CI, and repository settings match the specifications.
