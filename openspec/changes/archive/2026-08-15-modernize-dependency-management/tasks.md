@@ -1,28 +1,28 @@
 ## 1. Shared Renovate Prerequisite
 
-- [ ] 1.1 Create the coordinated `modernize-shared-renovate-policy` OpenSpec change in `glockyco/renovate-config`.
-- [ ] 1.2 Remove repository-wide dependency grouping and conflict-only rebasing from the shared preset.
-- [ ] 1.3 Validate the shared preset and audit every repository that extends it.
-- [ ] 1.4 Merge the shared preset change before enabling Erenshor project-specific rules.
+- [x] 1.1 Create the coordinated `modernize-shared-renovate-policy` OpenSpec change in `glockyco/renovate-config`.
+- [x] 1.2 Remove repository-wide dependency grouping and conflict-only rebasing from the shared preset.
+- [x] 1.3 Validate the shared preset and audit every repository that extends it.
+- [x] 1.4 Merge the shared preset change before enabling Erenshor project-specific rules.
 
 ## 2. Dependency Ownership Cutover
 
 - [x] 2.1 Record the current manifest, lockfile, updater, open-PR, and branch-protection state for migration evidence.
-- [ ] 2.2 Add the Nix-matched root pnpm `packageManager` assertion and its version-consistency check.
-- [ ] 2.3 Delete both nested Maps lockfiles and the item-exporter Bun lock, add the item exporter to the root workspace, and remove unused `@sveltejs/adapter-auto`.
-- [ ] 2.4 Add Bun to the Nix toolchain, regenerate the root pnpm lock for every workspace package, and prove a frozen install from a clean checkout.
+- [x] 2.2 Add the Nix-matched root pnpm `packageManager` assertion and its version-consistency check.
+- [x] 2.3 Delete both nested Maps lockfiles and the item-exporter Bun lock, add the item exporter to the root workspace, and remove unused `@sveltejs/adapter-auto`.
+- [x] 2.4 Add Bun to the Nix toolchain, regenerate the root pnpm lock for every workspace package, and prove a frozen install from a clean checkout.
 - [x] 2.5 Delete the seven duplicate nested .NET tool manifests and prove root manifest discovery from a mod directory.
 - [x] 2.6 Run the Maps verification leaf and item-exporter type check, then confirm no active workflow reads a removed lockfile.
 - [x] 2.7 Commit the ownership cutover as `chore(deps): establish canonical dependency boundaries`.
 
 ## 3. Reproducible NuGet State
 
-- [ ] 3.1 Resolve and record the current effective NuGet versions for every maintained C# project.
-- [ ] 3.2 Add `src/Directory.Packages.props`, move maintained package versions out of project files, and replace duplicate mod NuGet configs with one mapped source configuration.
+- [x] 3.1 Resolve and record the current effective NuGet versions for every maintained C# project.
+- [x] 3.2 Add `src/Directory.Packages.props`, move maintained package versions out of project files, and replace duplicate mod NuGet configs with one mapped source configuration.
 - [x] 3.3 Add `src/Directory.Build.props` to enable dependency locks only for maintained projects.
-- [ ] 3.4 Generate and commit lockfiles for all maintained projects with packages.
+- [x] 3.4 Generate and commit lockfiles for all maintained projects with packages.
 - [x] 3.5 Add one locked-restore inventory that covers every maintained C# project without including generated variant projects.
-- [ ] 3.6 Prove locked restore fails after a controlled stale-manifest change, then restore the valid state.
+- [x] 3.6 Prove locked restore fails after a controlled stale-manifest change, then restore the valid state.
 - [x] 3.7 Run contract and mod verification leaves against locked dependency state.
 - [x] 3.8 Commit NuGet centralization as `chore(dotnet): centralize and lock package resolution`.
 
@@ -73,15 +73,15 @@
 - [x] 8.2 Update the map and mod skills where lock, bootstrap, test, or NuGet workflows changed.
 - [x] 8.3 Document manual major-update review, security-update handling, and updater failure recovery.
 - [x] 8.4 Remove obsolete lockfile references from maintained documentation and scripts.
-- [ ] 8.5 Commit guidance as `docs(deps): document canonical update workflow`.
+- [x] 8.5 Commit guidance as `docs(deps): document canonical update workflow`.
 
 ## 9. Repository Protection and Queue Reset
 
-- [ ] 9.1 Enable administrator enforcement and disable force pushes on `main` while preserving strict `CI Success` and linear history.
-- [ ] 9.2 Verify the exact branch-protection state through the GitHub API.
-- [ ] 9.3 Merge the migration commits only after `uv run erenshor test ci` passes from clean dependency state.
-- [ ] 9.4 Close or supersede every dependency pull request generated from the old ownership model.
-- [ ] 9.5 Trigger fresh Renovate and Nix update runs from the migrated `main` branch.
-- [ ] 9.6 Verify one non-major update, one approved major update, one coupled group, and one controlled failure follow the specification.
-- [ ] 9.7 Confirm the dependency dashboard contains no duplicate, unavailable-by-rename, or obsolete-lockfile entries.
-- [ ] 9.8 Archive this OpenSpec change only after repository state and automation match every requirement.
+- [x] 9.1 Enable administrator enforcement and disable force pushes on `main` while preserving strict `CI Success` and linear history.
+- [x] 9.2 Verify the exact branch-protection state through the GitHub API.
+- [x] 9.3 Merge the migration commits only after `uv run erenshor test ci` passes from clean dependency state.
+- [x] 9.4 Close or supersede every dependency pull request generated from the old ownership model.
+- [x] 9.5 Trigger fresh Renovate and Nix update runs from the migrated `main` branch.
+- [x] 9.6 Verify one non-major update, one approved major update, one coupled group, and one controlled failure follow the specification.
+- [x] 9.7 Confirm the dependency dashboard contains no duplicate, unavailable-by-rename, or obsolete-lockfile entries.
+- [x] 9.8 Archive this OpenSpec change only after repository state and automation match every requirement.
