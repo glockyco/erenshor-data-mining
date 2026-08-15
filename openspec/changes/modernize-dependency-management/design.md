@@ -90,7 +90,7 @@ The central files live under `src`, not the repository root. This prevents them 
 
 Remove the seven nested mod and test tool manifests. Keep only root `.config/dotnet-tools.json`, which `dotnet tool restore` can discover from every maintained subdirectory.
 
-Migrate all maintained test projects from `xunit` v2 to `xunit.v3` in one explicit test-toolchain change. Update project output type and runner metadata as required by xUnit v3. Do not ask Renovate to infer the package rename.
+Migrate all maintained test projects from `xunit` v2 to the `xunit.v3` 3.x package line in one explicit test-toolchain change. Update each project to an executable and use the 3.x Visual Studio adapter. Keep the VSTest path because the canonical CLI emits VSTest TRX reports; `xunit.v3` 4.x cannot use that target under the .NET 10 SDK. Remove `coverlet.collector` because no maintained command activates it, and its instrumentation changes the assemblies that CodeFacts verifies. Do not ask Renovate to infer the package rename or group a future Microsoft Testing Platform migration with routine updates.
 
 Alternatives considered:
 
