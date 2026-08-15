@@ -13,7 +13,7 @@
 - [ ] 2.4 Add Bun to the Nix toolchain, regenerate the root pnpm lock for every workspace package, and prove a frozen install from a clean checkout.
 - [x] 2.5 Delete the seven duplicate nested .NET tool manifests and prove root manifest discovery from a mod directory.
 - [x] 2.6 Run the Maps verification leaf and item-exporter type check, then confirm no active workflow reads a removed lockfile.
-- [ ] 2.7 Commit the ownership cutover as `chore(deps): establish canonical dependency boundaries`.
+- [x] 2.7 Commit the ownership cutover as `chore(deps): establish canonical dependency boundaries`.
 
 ## 3. Reproducible NuGet State
 
