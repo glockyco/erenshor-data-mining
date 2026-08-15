@@ -129,14 +129,14 @@ def test_python_selector_matches_flake_and_ci_minor_version() -> None:
     assert "UV_PYTHON = pythonSet.python.interpreter" in flake
 
     ci = Path(".github/workflows/ci.yml").read_text(encoding="utf-8")
-    assert "DeterminateSystems/determinate-nix-action@v3.21.9" in ci
+    assert "DeterminateSystems/determinate-nix-action@61cbfe2efc2d4e7a8a6d56967c3c1058e846c858 # v3.21.9" in ci
     assert "actions/setup-python" not in ci
 
 
 def test_ci_uses_the_flake_toolchain_for_project_commands() -> None:
     ci = Path(".github/workflows/ci.yml").read_text(encoding="utf-8")
 
-    assert ci.count("DeterminateSystems/determinate-nix-action@v3.21.9") == 5
+    assert ci.count("DeterminateSystems/determinate-nix-action@61cbfe2efc2d4e7a8a6d56967c3c1058e846c858") == 6
     assert "actions/setup-python" not in ci
     assert "actions/setup-node" not in ci
     assert "actions/setup-dotnet" not in ci
