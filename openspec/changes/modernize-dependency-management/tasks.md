@@ -28,12 +28,12 @@
 
 ## 4. xUnit v3 Migration
 
-- [ ] 4.1 Replace xUnit v2 references with the xUnit v3 package set in central package management.
-- [ ] 4.2 Convert all seven maintained test projects to the required executable test-project form.
-- [ ] 4.3 Update runner and test SDK metadata without changing test behavior or coverage collection.
-- [ ] 4.4 Regenerate affected NuGet lockfiles.
-- [ ] 4.5 Run every native contract and mod test project and verify retained TRX reports.
-- [ ] 4.6 Commit the migration as `test(dotnet): migrate maintained tests to xunit v3`.
+- [x] 4.1 Replace xUnit v2 references with the xUnit v3 package set in central package management.
+- [x] 4.2 Convert all seven maintained test projects to the required executable test-project form.
+- [x] 4.3 Update runner and test SDK metadata, remove the unused coverage collector, and retain VSTest TRX reporting.
+- [x] 4.4 Regenerate affected NuGet lockfiles.
+- [x] 4.5 Run every native contract and mod test project and verify retained TRX reports.
+- [x] 4.6 Commit the migration as `test(dotnet): migrate maintained tests to xunit v3`.
 
 ## 5. Canonical Dependency-State Verification
 
