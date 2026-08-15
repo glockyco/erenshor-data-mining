@@ -49,13 +49,13 @@
 
 ## 6. Fail-Closed CI Authentication
 
-- [ ] 6.1 Restrict workflow-level permissions to read-only repository contents.
-- [ ] 6.2 Upgrade Codecov with unit-job-only OIDC permission and fail-closed upload behavior.
+- [x] 6.1 Restrict workflow-level permissions to read-only repository contents.
+- [x] 6.2 Upgrade Codecov with unit-job-only OIDC permission and fail-closed upload behavior.
 - [ ] 6.3 Verify one pull-request run reports an accepted Codecov upload.
 - [ ] 6.4 Remove the obsolete long-lived Codecov secret after OIDC succeeds.
 - [x] 6.5 Pin every third-party Action to a verified full commit SHA with a release comment.
 - [x] 6.6 Run workflow and dependency-state validation against all pinned references.
-- [ ] 6.7 Commit CI hardening as `ci: make dependency verification fail closed`.
+- [ ] 6.7 Commit CI hardening as `fix(ci): make dependency verification fail closed`.
 
 ## 7. Project-Specific Update Automation
 

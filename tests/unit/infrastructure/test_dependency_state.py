@@ -49,6 +49,20 @@ def test_repository_workflows_are_immutable_and_aggregate_dependency_state() -> 
     assert 'needs.dependency-state.result }}" != "success"' in workflow
 
 
+def test_codecov_oidc_is_job_scoped_and_fail_closed() -> None:
+    workflow = (_REPO_ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+    workflow_permissions = workflow.split("jobs:", 1)[0]
+    unit_job = workflow.split("  test-unit:\n", 1)[1].split("  test-contract:\n", 1)[0]
+
+    assert "permissions:\n  contents: read\n" in workflow_permissions
+    assert "id-token" not in workflow_permissions
+    assert "permissions:\n      contents: read\n      id-token: write\n" in unit_job
+    assert "use_oidc: true" in unit_job
+    assert "fail_ci_if_error: true" in unit_job
+    assert "disable_search: true" in unit_job
+    assert "CODECOV_TOKEN" not in unit_job
+
+
 def test_action_validation_reports_every_mutable_or_missing_reference(tmp_path: Path) -> None:
     workflows = tmp_path / ".github/workflows"
     workflows.mkdir(parents=True)

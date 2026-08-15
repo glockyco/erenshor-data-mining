@@ -13,7 +13,6 @@ concurrency:
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   dependency-state:
@@ -78,6 +77,9 @@ jobs:
   test-unit:
     name: Test Unit
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -101,12 +103,12 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5
         with:
+          use_oidc: true
+          fail_ci_if_error: true
+          disable_search: true
           files: ./coverage.xml
           flags: unittests
           name: codecov-umbrella
-          fail_ci_if_error: false
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   test-contract:
     name: Test Contract
