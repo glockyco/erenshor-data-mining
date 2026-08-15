@@ -124,13 +124,23 @@ BepInEx package references are private compile assets. Lunaris and its shared
 runtime assemblies come from the loader-specific `lib/lunaris/` references
 provisioned by `mod setup`. Never copy loader or game assemblies into a package.
 
-Typical BepInEx-side packages include:
+Typical BepInEx-side package references include:
 
 ```xml
-<PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
-<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-<PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.34.2" />
+<PackageReference Include="BepInEx.Core" PrivateAssets="all" />
+<PackageReference Include="Newtonsoft.Json" />
+<PackageReference Include="ILRepack.Lib.MSBuild.Task" />
 <!-- Add Fleck for a WebSocket server if needed. -->
+```
+
+Do not put versions in a project file. `src/Directory.Packages.props` owns every
+NuGet version. The mod project owns separate BepInEx and Lunaris lockfiles. After
+a package change, regenerate and verify both graphs:
+
+```bash
+dotnet restore src/mods/<Mod>/<Mod>.csproj -p:ModLoader=bepinex --force-evaluate
+dotnet restore src/mods/<Mod>/<Mod>.csproj -p:ModLoader=lunaris --force-evaluate
+erenshor test dependency-state
 ```
 
 Use Newtonsoft.Json, not System.Text.Json, which is unavailable on Unity's Mono

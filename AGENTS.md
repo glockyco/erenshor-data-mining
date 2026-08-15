@@ -101,6 +101,35 @@ Drive every subsystem through `uv run erenshor ...`; never call `pnpm build`,
 | Verify Python pipeline | `uv run pytest` |
 | Verify data baselines | `uv run erenshor golden capture` |
 
+## Dependency Ownership
+
+Each dependency graph has one version owner and one lock owner:
+
+| Graph | Version owner | Lock or pin owner |
+|---|---|---|
+| Nix | `flake.nix` | `flake.lock` |
+| Python | `pyproject.toml` | `uv.lock` |
+| pnpm | Root and workspace `package.json` files | Root `pnpm-lock.yaml` |
+| NuGet | `src/Directory.Packages.props` | Project `packages.lock.json` files |
+| .NET tools | `.config/dotnet-tools.json` | Exact manifest versions |
+| Actions | Workflow `uses:` entries | Full commit SHAs |
+
+Renovate owns every graph except Nix. The dedicated
+`update-nix-dependencies.yml` workflow owns Nix and the synchronized pnpm
+version in `flake.nix`. Do not add another updater, a nested JavaScript lockfile,
+an inline NuGet version, or a second package-version source.
+
+Manual dependency changes must regenerate the authoritative lock state:
+
+- Python: `uv lock`
+- pnpm: `pnpm install --lockfile-only` from the repository root
+- NuGet: targeted `dotnet restore --force-evaluate` commands
+- Nix: `nix flake update`, then `nix run .#sync-pnpm-version`
+
+A mod project requires one restore for `bepinex` and one for `lunaris`. Run
+`uv run erenshor test dependency-state` after every dependency change. See
+`README.md` for review policy and recovery commands.
+
 ## Runtime Inspection
 
 Use HotRepl (`erenshor eval`) to inspect live game state, check field

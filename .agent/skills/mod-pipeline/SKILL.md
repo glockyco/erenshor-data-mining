@@ -44,6 +44,12 @@ Setup copies game references and the resolved loader references into each
 mod's `lib/` tree. Lunaris references come from the configured Lunaris library
 (or the cache downloaded by setup), not from BepInEx's copies.
 
+NuGet versions belong in `src/Directory.Packages.props`, not in a mod project.
+Each mod has separate BepInEx and Lunaris lockfiles. After a package change,
+restore both loader graphs with `--force-evaluate`. Then run
+`erenshor test dependency-state`. The `mod-development` skill contains the exact
+commands.
+
 `-V main`, `-V playtest`, and `-V demo` select the matching runnable install.
 Resolution is variant-specific:
 
