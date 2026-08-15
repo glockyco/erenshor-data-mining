@@ -213,6 +213,14 @@ updates bypass the normal schedule and release-age delay, but they still require
 human review, a current branch, and a passing `CI Success` check. Automerge is
 disabled for every group.
 
+The private [`glockyco/dependency-automation`](https://github.com/glockyco/dependency-automation)
+control plane runs Nix updates for every managed repository. It mints one
+short-lived `glockyco-dependency-updater` GitHub App token scoped to this
+repository, regenerates `flake.lock` and the matching pnpm assertion, then opens
+one review-only pull request. Normal pull-request CI starts automatically, and
+the token is revoked when the job ends. This repository does not store the App
+private key or run a competing Nix scheduler.
+
 If an updater produces stale or conflicting lock state, do not edit the lockfile
 by hand. Run the matching command above, commit the complete regenerated lock
 state to the same updater branch, and rerun CI. Close a superseded Renovate pull

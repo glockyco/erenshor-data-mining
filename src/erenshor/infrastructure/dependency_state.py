@@ -11,7 +11,7 @@ from erenshor.infrastructure.dotnet_projects import MAINTAINED_DOTNET_RESTORE_TA
 
 _ACTION_REFERENCE = re.compile(r"^\s*(?:-\s*)?uses:\s*[\"']?(?P<target>[^\"'#\s]+)")
 _COMMIT_SHA = re.compile(r"[0-9a-fA-F]{40}")
-_NIX_UPDATER_WORKFLOW = ".github/workflows/update-nix-dependencies.yml"
+_LOCAL_NIX_UPDATER_WORKFLOW = ".github/workflows/update-nix-dependencies.yml"
 _ROOT_DEPENDENCY_FILES = (
     ".config/dotnet-tools.json",
     "flake.lock",
@@ -71,7 +71,7 @@ def immutable_action_reference_violations(repo_root: Path) -> tuple[str, ...]:
 
 
 def nix_updater_ownership_violations(repo_root: Path) -> tuple[str, ...]:
-    """Return conflicts between Renovate and the dedicated Nix updater."""
+    """Return conflicts between Renovate and the central Nix updater."""
     violations: list[str] = []
     renovate_path = repo_root / "renovate.json"
     try:
@@ -99,22 +99,8 @@ def nix_updater_ownership_violations(repo_root: Path) -> tuple[str, ...]:
     if not manager_is_reserved("npm", "packageManager"):
         violations.append("Renovate must reserve npm packageManager assertions for the Nix updater")
 
-    workflow_path = repo_root / _NIX_UPDATER_WORKFLOW
-    if not workflow_path.is_file():
-        violations.append(f"{_NIX_UPDATER_WORKFLOW} is missing")
-        return tuple(violations)
-
-    workflow = workflow_path.read_text(encoding="utf-8")
-    required_fragments = {
-        "nix flake update": "refresh flake.lock",
-        "nix run .#sync-pnpm-version": "synchronize the pnpm assertion",
-        "automation/update-nix-dependencies": "use one stable proposal branch",
-        "flake.lock\n            package.json": "commit only flake state and its pnpm assertion",
-        "gh workflow run ci.yml": "dispatch canonical CI for the proposal",
-    }
-    for fragment, requirement in required_fragments.items():
-        if fragment not in workflow:
-            violations.append(f"{_NIX_UPDATER_WORKFLOW} must {requirement}")
+    if (repo_root / _LOCAL_NIX_UPDATER_WORKFLOW).exists():
+        violations.append(f"{_LOCAL_NIX_UPDATER_WORKFLOW} competes with glockyco/dependency-automation")
 
     return tuple(violations)
 

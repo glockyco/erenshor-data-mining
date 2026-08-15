@@ -69,7 +69,26 @@ def test_updater_ownership_reports_competing_or_missing_owners(tmp_path: Path) -
     assert nix_updater_ownership_violations(tmp_path) == (
         "Renovate must disable the nix manager",
         "Renovate must reserve npm packageManager assertions for the Nix updater",
-        ".github/workflows/update-nix-dependencies.yml is missing",
+    )
+
+
+def test_updater_ownership_rejects_a_target_local_nix_workflow(tmp_path: Path) -> None:
+    (tmp_path / "renovate.json").write_text(
+        """{
+  "packageRules": [
+    {"matchManagers": ["nix"], "enabled": false},
+    {"matchManagers": ["npm"], "matchDepTypes": ["packageManager"], "enabled": false}
+  ]
+}
+""",
+        encoding="utf-8",
+    )
+    workflow = tmp_path / ".github/workflows/update-nix-dependencies.yml"
+    workflow.parent.mkdir(parents=True)
+    workflow.write_text("name: competing updater\n", encoding="utf-8")
+
+    assert nix_updater_ownership_violations(tmp_path) == (
+        ".github/workflows/update-nix-dependencies.yml competes with glockyco/dependency-automation",
     )
 
 
