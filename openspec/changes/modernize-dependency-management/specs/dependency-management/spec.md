@@ -21,6 +21,7 @@ The repository MUST define one authoritative manifest set and one lock boundary 
 #### Scenario: .NET dependency ownership
 - **WHEN** a maintained C# project consumes a NuGet package
 - **THEN** its declared version comes from the maintained central package definition
+- **AND** package source mapping selects the project-owned feed for each package ID
 - **AND** its committed lock records the resolved graph
 
 #### Scenario: Nix dependency ownership

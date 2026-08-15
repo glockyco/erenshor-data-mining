@@ -4,6 +4,8 @@
      so it stays in -v normal / binlogs but doesn't bury real errors. NoWarn does
      not work — MSB3277 is an MSBuild task warning, not a compiler one. -->
 <Project>
+  <Import Project="$(MSBuildThisFileDirectory)..\Directory.Build.props" />
+
   <PropertyGroup>
     <MSBuildWarningsAsMessages>$(MSBuildWarningsAsMessages);MSB3277</MSBuildWarningsAsMessages>
     <!-- Exclude every historical and loader-scoped generated tree before SDK default globs run. -->
@@ -14,6 +16,7 @@
     <IsModProject>true</IsModProject>
     <ModLoader Condition="'$(ModLoader)' == '' and ('$(MSBuildProjectName)' == 'AdventureGuide' or '$(MSBuildProjectName)' == 'Sprint' or '$(MSBuildProjectName)' == 'JusticeForF7')">lunaris</ModLoader>
     <ModLoader Condition="'$(ModLoader)' == ''">bepinex</ModLoader>
+    <NuGetLockFilePath>packages.$(ModLoader).lock.json</NuGetLockFilePath>
     <BaseIntermediateOutputPath>obj/$(ModLoader)/</BaseIntermediateOutputPath>
     <MSBuildProjectExtensionsPath>$(BaseIntermediateOutputPath)</MSBuildProjectExtensionsPath>
   </PropertyGroup>

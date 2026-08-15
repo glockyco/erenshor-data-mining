@@ -18,13 +18,13 @@
 ## 3. Reproducible NuGet State
 
 - [ ] 3.1 Resolve and record the current effective NuGet versions for every maintained C# project.
-- [ ] 3.2 Add `src/Directory.Packages.props` and move maintained package versions out of project files.
-- [ ] 3.3 Add `src/Directory.Build.props` to enable dependency locks only for maintained projects.
+- [ ] 3.2 Add `src/Directory.Packages.props`, move maintained package versions out of project files, and replace duplicate mod NuGet configs with one mapped source configuration.
+- [x] 3.3 Add `src/Directory.Build.props` to enable dependency locks only for maintained projects.
 - [ ] 3.4 Generate and commit lockfiles for all maintained projects with packages.
-- [ ] 3.5 Add one locked-restore inventory that covers every maintained C# project without including generated variant projects.
+- [x] 3.5 Add one locked-restore inventory that covers every maintained C# project without including generated variant projects.
 - [ ] 3.6 Prove locked restore fails after a controlled stale-manifest change, then restore the valid state.
-- [ ] 3.7 Run contract and mod verification leaves against locked dependency state.
-- [ ] 3.8 Commit NuGet centralization as `chore(dotnet): centralize and lock package resolution`.
+- [x] 3.7 Run contract and mod verification leaves against locked dependency state.
+- [x] 3.8 Commit NuGet centralization as `chore(dotnet): centralize and lock package resolution`.
 
 ## 4. xUnit v3 Migration
 
