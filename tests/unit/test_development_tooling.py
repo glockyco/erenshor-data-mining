@@ -144,7 +144,6 @@ def test_ci_uses_the_flake_toolchain_for_project_commands() -> None:
     assert "astral-sh/setup-uv" not in ci
     assert "uv sync" not in ci
     assert "uv run" not in ci
-    assert "id-token: write" in ci
 
     project_tools = ("erenshor ", "pytest ", "pnpm ", "dotnet ")
     unwrapped = [
@@ -176,12 +175,15 @@ def test_flake_builds_locked_python_and_bootstraps_mutable_tools() -> None:
     assert "lib.fileset.toSource" in flake
     assert 'UV_NO_SYNC = "1"' in flake
     assert "UV_PROJECT_ENVIRONMENT" in flake
+    assert 'DOTNET_ROOT = "${dotnetEnvironment}/share/dotnet"' in flake
     assert "LD_LIBRARY_PATH" not in flake
     assert "autoPatchelf" not in flake
     assert "uv sync" not in flake
     assert {"pyproject-build-systems", "pyproject-nix", "uv2nix"} <= lock["nodes"].keys()
 
-    assert "bootstrap = pkgs.writeShellApplication {" in flake
+    assert "assert assertPnpmVersion pkgs;" in flake
+    assert 'name = "erenshor-sync-pnpm-version"' in flake
+    assert "nix run .#sync-pnpm-version" in flake
     assert "pnpm install --frozen-lockfile" in flake
     assert "dotnet tool restore" in flake
     assert "apps = forAllSystems" in flake

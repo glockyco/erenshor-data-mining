@@ -110,27 +110,50 @@
         let
           pkgs = nixpkgs.legacyPackages.${system};
         in
-        assert assertPnpmVersion pkgs;
         {
-          bootstrap = pkgs.writeShellApplication {
-            name = "erenshor-bootstrap";
+          bootstrap =
+            assert assertPnpmVersion pkgs;
+            pkgs.writeShellApplication {
+              name = "erenshor-bootstrap";
+              runtimeInputs = [
+                pkgs.git
+                pkgs.nodejs_22
+                pkgs.pnpm_10
+                (dotnetSdk pkgs)
+              ];
+              text = ''
+                if [[ ! -f flake.nix || ! -f uv.lock || ! -f pnpm-lock.yaml ]]; then
+                  echo "Run nix run .#bootstrap from the repository root." >&2
+                  exit 1
+                fi
+
+                export DOTNET_CLI_TELEMETRY_OPTOUT=1
+                export DOTNET_NOLOGO=1
+
+                pnpm install --frozen-lockfile
+                dotnet tool restore
+              '';
+            };
+
+          sync-pnpm-version = pkgs.writeShellApplication {
+            name = "erenshor-sync-pnpm-version";
             runtimeInputs = [
-              pkgs.git
-              pkgs.nodejs_22
+              pkgs.jq
               pkgs.pnpm_10
-              (dotnetSdk pkgs)
             ];
             text = ''
-              if [[ ! -f flake.nix || ! -f uv.lock || ! -f pnpm-lock.yaml ]]; then
-                echo "Run nix run .#bootstrap from the repository root." >&2
+              if [[ ! -f flake.nix || ! -f package.json ]]; then
+                echo "Run nix run .#sync-pnpm-version from the repository root." >&2
                 exit 1
               fi
 
-              export DOTNET_CLI_TELEMETRY_OPTOUT=1
-              export DOTNET_NOLOGO=1
-
-              pnpm install --frozen-lockfile
-              dotnet tool restore
+              package_manager="pnpm@$(pnpm --version)"
+              temporary="$(mktemp package.json.XXXXXX)"
+              trap 'rm -f "$temporary"' EXIT
+              jq --arg package_manager "$package_manager" \
+                '.packageManager = $package_manager' package.json > "$temporary"
+              mv "$temporary" package.json
+              trap - EXIT
             '';
           };
 
@@ -142,6 +165,10 @@
         bootstrap = {
           type = "app";
           program = "${self.packages.${system}.bootstrap}/bin/erenshor-bootstrap";
+        };
+        sync-pnpm-version = {
+          type = "app";
+          program = "${self.packages.${system}.sync-pnpm-version}/bin/erenshor-sync-pnpm-version";
         };
       });
 
@@ -156,6 +183,7 @@
             ]
           );
           pythonEnvironment = pythonSet.mkVirtualEnv "erenshor-dev-env" workspace.deps.all;
+          dotnetEnvironment = dotnetSdk pkgs;
         in
         assert assertPnpmVersion pkgs;
         {
@@ -166,7 +194,7 @@
               pythonEnvironment
               pkgs.uv
               pkgs.git
-              (dotnetSdk pkgs)
+              dotnetEnvironment
               pkgs.nodejs_22
               pkgs.pnpm_10
               pkgs.bun
@@ -187,6 +215,9 @@
 
               DOTNET_CLI_TELEMETRY_OPTOUT = "1";
               DOTNET_NOLOGO = "1";
+              # xUnit v3 test apphosts start outside the dotnet wrapper and
+              # need the combined Nix runtime root explicitly.
+              DOTNET_ROOT = "${dotnetEnvironment}/share/dotnet";
             };
 
             # Editable packages need the live checkout path rather than the

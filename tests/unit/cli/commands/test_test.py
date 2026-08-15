@@ -539,6 +539,7 @@ def test_dependency_state_leaf_runs_all_locked_boundaries(tmp_path: Path, monkey
         lambda: (("dotnet", "restore", "project.csproj", "--locked-mode", "--force-evaluate"),),
     )
     monkeypatch.setattr(test, "immutable_action_reference_violations", lambda _root: ())
+    monkeypatch.setattr(test, "nix_updater_ownership_violations", lambda _root: ())
     calls: list[tuple[str, ...]] = []
 
     def fake_run_process(argv: Sequence[str], cwd: Path) -> Any:
@@ -565,6 +566,7 @@ def test_dependency_state_leaf_runs_all_locked_boundaries(tmp_path: Path, monkey
         "locked_nuget_graphs": 1,
         "mutated_dependency_files": 0,
         "immutable_action_violations": 0,
+        "updater_ownership_violations": 0,
     }
 
 
@@ -572,6 +574,7 @@ def test_dependency_state_leaf_fails_when_a_validator_rewrites_a_lock(tmp_path: 
     monkeypatch.setitem(test._PREFLIGHTS, "dependency-state", lambda _ctx: _passing_preflight())
     monkeypatch.setattr(test, "locked_nuget_restore_commands", lambda: ())
     monkeypatch.setattr(test, "immutable_action_reference_violations", lambda _root: ())
+    monkeypatch.setattr(test, "nix_updater_ownership_violations", lambda _root: ())
     snapshots = iter(({"uv.lock": "before"}, {"uv.lock": "after"}))
     monkeypatch.setattr(test, "dependency_state_snapshot", lambda _root: next(snapshots))
     monkeypatch.setattr(
@@ -596,6 +599,7 @@ def test_dependency_state_leaf_fails_on_mutable_action_reference(tmp_path: Path,
         "immutable_action_reference_violations",
         lambda _root: (".github/workflows/ci.yml:1: actions/checkout@v7 does not use a full commit SHA",),
     )
+    monkeypatch.setattr(test, "nix_updater_ownership_violations", lambda _root: ())
     monkeypatch.setattr(
         test,
         "_run_process",
@@ -610,6 +614,29 @@ def test_dependency_state_leaf_fails_on_mutable_action_reference(tmp_path: Path,
     assert result.diagnostics["immutable_actions"] == [
         ".github/workflows/ci.yml:1: actions/checkout@v7 does not use a full commit SHA"
     ]
+
+
+def test_dependency_state_leaf_fails_on_competing_updater(tmp_path: Path, monkeypatch: Any) -> None:
+    monkeypatch.setitem(test._PREFLIGHTS, "dependency-state", lambda _ctx: _passing_preflight())
+    monkeypatch.setattr(test, "locked_nuget_restore_commands", lambda: ())
+    monkeypatch.setattr(test, "immutable_action_reference_violations", lambda _root: ())
+    monkeypatch.setattr(
+        test,
+        "nix_updater_ownership_violations",
+        lambda _root: ("Renovate must disable the nix manager",),
+    )
+    monkeypatch.setattr(
+        test,
+        "_run_process",
+        lambda argv, cwd: test._CommandResult(tuple(argv), cwd, 0, 0.0),
+    )
+
+    result = test._run_leaf(_context(tmp_path), "dependency-state")
+
+    assert result.status == "failed"
+    assert result.exit_code == 1
+    assert result.result_counts["updater_ownership_violations"] == 1
+    assert result.diagnostics["updater_ownership"] == ["Renovate must disable the nix manager"]
 
 
 def test_static_leaf_reports_all_checks_when_one_fails(tmp_path: Path, monkeypatch: Any) -> None:

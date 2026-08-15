@@ -5,6 +5,7 @@ from pathlib import Path
 from erenshor.infrastructure.dependency_state import (
     immutable_action_reference_violations,
     locked_nuget_restore_commands,
+    nix_updater_ownership_violations,
 )
 from erenshor.infrastructure.dotnet_projects import MAINTAINED_DOTNET_RESTORE_TARGETS
 
@@ -42,6 +43,7 @@ def test_action_validation_accepts_full_shas_and_local_actions(tmp_path: Path) -
 
 def test_repository_workflows_are_immutable_and_aggregate_dependency_state() -> None:
     assert immutable_action_reference_violations(_REPO_ROOT) == ()
+    assert nix_updater_ownership_violations(_REPO_ROOT) == ()
 
     workflow = (_REPO_ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
     assert "  dependency-state:\n" in workflow
@@ -49,18 +51,26 @@ def test_repository_workflows_are_immutable_and_aggregate_dependency_state() -> 
     assert 'needs.dependency-state.result }}" != "success"' in workflow
 
 
-def test_codecov_oidc_is_job_scoped_and_fail_closed() -> None:
+def test_ci_uses_read_only_permissions_without_unused_coverage_uploads() -> None:
     workflow = (_REPO_ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
-    workflow_permissions = workflow.split("jobs:", 1)[0]
     unit_job = workflow.split("  test-unit:\n", 1)[1].split("  test-contract:\n", 1)[0]
 
-    assert "permissions:\n  contents: read\n" in workflow_permissions
-    assert "id-token" not in workflow_permissions
-    assert "permissions:\n      contents: read\n      id-token: write\n" in unit_job
-    assert "use_oidc: true" in unit_job
-    assert "fail_ci_if_error: true" in unit_job
-    assert "disable_search: true" in unit_job
-    assert "CODECOV_TOKEN" not in unit_job
+    assert "permissions:\n  contents: read\n" in workflow.split("jobs:", 1)[0]
+    assert "id-token" not in workflow
+    assert "codecov" not in workflow.lower()
+    assert "--coverage" not in unit_job
+    assert "coverage.xml" not in unit_job
+    assert "path: artifacts/test-reports/unit.json" in unit_job
+
+
+def test_updater_ownership_reports_competing_or_missing_owners(tmp_path: Path) -> None:
+    (tmp_path / "renovate.json").write_text('{"packageRules": []}\n', encoding="utf-8")
+
+    assert nix_updater_ownership_violations(tmp_path) == (
+        "Renovate must disable the nix manager",
+        "Renovate must reserve npm packageManager assertions for the Nix updater",
+        ".github/workflows/update-nix-dependencies.yml is missing",
+    )
 
 
 def test_action_validation_reports_every_mutable_or_missing_reference(tmp_path: Path) -> None:

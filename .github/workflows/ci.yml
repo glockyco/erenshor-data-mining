@@ -5,6 +5,7 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 # Cancel in-progress runs when a new workflow is triggered on the same ref
 concurrency:
@@ -77,9 +78,6 @@ jobs:
   test-unit:
     name: Test Unit
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -87,28 +85,16 @@ jobs:
       - name: Install Nix
         uses: DeterminateSystems/determinate-nix-action@61cbfe2efc2d4e7a8a6d56967c3c1058e846c858 # v3.21.9
 
-      - name: Run unit leaf with coverage
-        run: nix develop --command erenshor test unit --coverage
+      - name: Run unit leaf
+        run: nix develop --command erenshor test unit
 
-      - name: Upload unit report and coverage
+      - name: Upload unit report
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: verification-unit
-          path: |
-            artifacts/test-reports/unit.json
-            coverage.xml
+          path: artifacts/test-reports/unit.json
           if-no-files-found: error
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5
-        with:
-          use_oidc: true
-          fail_ci_if_error: true
-          disable_search: true
-          files: ./coverage.xml
-          flags: unittests
-          name: codecov-umbrella
 
   test-contract:
     name: Test Contract
