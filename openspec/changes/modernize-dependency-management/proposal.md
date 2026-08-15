@@ -14,7 +14,7 @@ Dependency updates currently cross conflicting package-manager boundaries, use f
 - Make dependency validation fail closed in CI, including coverage upload and lock freshness.
 - Harden `main` so required checks also apply to administrators and force pushes are disabled.
 - Pin third-party GitHub Actions to immutable commit SHAs and let Renovate update their digests.
-- **BREAKING**: Remove nested JavaScript lockfiles, duplicate .NET tool manifests, floating NuGet ranges, and the unused `@sveltejs/adapter-auto` dependency.
+- **BREAKING**: Remove the nested Maps locks, the standalone item-exporter Bun lock, duplicate .NET tool manifests, floating NuGet ranges, and the unused `@sveltejs/adapter-auto` dependency.
 - **BREAKING**: Recreate the current Renovate queue after the new ownership rules replace its generated branches.
 
 ### Goals
@@ -49,4 +49,4 @@ None.
 
 ## Impact
 
-Affected files include `flake.nix`, `flake.lock`, `package.json`, `pnpm-workspace.yaml`, `pnpm-lock.yaml`, `pyproject.toml`, `uv.lock`, C# project files, new NuGet central-management files, `.config/dotnet-tools.json`, `.github/workflows/ci.yml`, `renovate.json`, shared Renovate policy, and dependency guidance. GitHub branch protection also changes. Existing Renovate pull requests become obsolete and must be recreated after the migration.
+Affected files include `flake.nix`, `flake.lock`, `package.json`, `pnpm-workspace.yaml`, `pnpm-lock.yaml`, the removed `src/tools/item-export/bun.lock`, `pyproject.toml`, `uv.lock`, C# project files, new NuGet central-management files, `.config/dotnet-tools.json`, `.github/workflows/ci.yml`, `renovate.json`, shared Renovate policy, and dependency guidance. GitHub branch protection also changes. Existing Renovate pull requests become obsolete and must be recreated after the migration.

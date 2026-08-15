@@ -5,6 +5,7 @@ See `proposal.md` for motivation and scope. The repository has four dependency e
 The current boundaries are inconsistent:
 
 - The root pnpm workspace includes `src/maps`, but `src/maps` also has npm and pnpm lockfiles.
+- The Bun-based item exporter has a second JavaScript lock and is absent from both the root workspace and the Nix development toolchain.
 - Python has a sound `pyproject.toml` and `uv.lock` boundary that Nix consumes.
 - Maintained C# projects repeat floating package ranges and have no dependency locks.
 - Eight identical `dotnet-tools.json` files claim root ownership of the same CSharpier version.
@@ -57,16 +58,17 @@ Alternatives considered:
 - Let every native manager install its own toolchain. Rejected because local and CI versions would diverge from the existing Nix shell.
 - Omit the pnpm package-manager assertion. Rejected because non-Nix tooling and Renovate would not know the intended pnpm version.
 
-### 2. Make the root pnpm workspace the only JavaScript boundary
+### 2. Make the root pnpm workspace the only JavaScript dependency boundary
 
-Delete `src/maps/package-lock.json` and `src/maps/pnpm-lock.yaml`. Keep `src/maps/package.json` as a workspace manifest and keep one root `pnpm-lock.yaml`. Add an exact root `packageManager` assertion that matches the Nix-provided pnpm.
+Delete `src/maps/package-lock.json`, `src/maps/pnpm-lock.yaml`, and `src/tools/item-export/bun.lock`. Keep both project manifests as workspace packages and keep one root `pnpm-lock.yaml`. Add an exact root `packageManager` assertion that matches the Nix-provided pnpm.
 
-Remove `@sveltejs/adapter-auto` because the map configuration uses `@sveltejs/adapter-static`. Regenerate the root lock through the Nix shell.
+The item exporter continues to run on Bun because it uses `bun:sqlite`, but pnpm owns its dependency graph. Add Bun to the Nix development toolchain instead of letting a second package manager own that graph. Remove `@sveltejs/adapter-auto` because the map configuration uses `@sveltejs/adapter-static`. Regenerate the root lock through the Nix shell.
 
 Alternatives considered:
 
 - Give `src/maps` its own independent pnpm workspace. Rejected because root scripts, CI, and the current workspace already treat it as one project.
 - Keep the nested npm lock for deployment tooling. Rejected because no active command consumes npm state.
+- Keep the item exporter as an independent Bun package boundary. Rejected because Bun is needed only at runtime; pnpm can resolve the same packages through the existing root workspace without a competing lock.
 
 ### 3. Keep Python's existing manifest and lock model
 
@@ -82,7 +84,7 @@ Alternative considered:
 
 Add `src/Directory.Packages.props` with Central Package Management enabled. Move all maintained `PackageReference` versions into this file. Keep reference metadata and loader conditions in each project.
 
-Add `src/Directory.Build.props` to enable package lock generation for maintained projects. Commit each resulting `packages.lock.json`. CI performs locked restore before native builds and tests.
+Add `src/Directory.Build.props` to enable package lock generation for maintained projects. Commit `packages.lock.json` for each unconditional project graph. Production mod package references vary by `ModLoader`, so each mod commits `packages.bepinex.lock.json` and `packages.lunaris.lock.json`; a single lock cannot represent both conditional graphs. Mod test projects keep one `packages.lock.json` because their package graph is loader-independent. CI performs locked restore for every maintained graph before native builds and tests.
 
 The central files live under `src`, not the repository root. This prevents them from changing generated decompiled projects under `variants/`.
 
