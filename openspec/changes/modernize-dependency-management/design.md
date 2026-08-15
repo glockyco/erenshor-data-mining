@@ -82,7 +82,7 @@ Alternative considered:
 
 ### 4. Centralize and lock maintained NuGet dependencies under `src`
 
-Add `src/Directory.Packages.props` with Central Package Management enabled. Move all maintained `PackageReference` versions into this file. Keep reference metadata and loader conditions in each project.
+Add `src/Directory.Packages.props` with Central Package Management enabled. Move all maintained `PackageReference` versions into this file. Keep reference metadata and loader conditions in each project. Replace five identical per-mod NuGet configurations with one `src/mods/nuget.config` that clears inherited sources and maps `BepInEx.*` to the BepInEx feed while all other packages use NuGet.org.
 
 Add `src/Directory.Build.props` to enable package lock generation for maintained projects. Commit `packages.lock.json` for each unconditional project graph. Production mod package references vary by `ModLoader`, so each mod commits `packages.bepinex.lock.json` and `packages.lunaris.lock.json`; a single lock cannot represent both conditional graphs. Mod test projects keep one `packages.lock.json` because their package graph is loader-independent. CI performs locked restore for every maintained graph before native builds and tests.
 

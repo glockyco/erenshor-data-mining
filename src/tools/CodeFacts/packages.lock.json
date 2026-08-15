@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "dependencies": {
+    "net9.0": {
+      "ICSharpCode.Decompiler": {
+        "type": "Direct",
+        "requested": "[10.1.1.8388, )",
+        "resolved": "10.1.1.8388",
+        "contentHash": "Gel09L54mMdYMBivl6DSw8OtQR29joHvmqEPdsA+/lJE0Q8qgwCOyV7NkMIZC0BFCjluDNzqEQzUnRx/OtvB1Q==",
+        "dependencies": {
+          "System.Collections.Immutable": "9.0.0",
+          "System.Reflection.Metadata": "9.0.0"
+        }
+      },
+      "System.Collections.Immutable": {
+        "type": "Transitive",
+        "resolved": "9.0.0",
+        "contentHash": "QhkXUl2gNrQtvPmtBTQHb0YsUrDiDQ2QS09YbtTTiSjGcf7NBqtYbrG/BE06zcBPCKEwQGzIv13IVdXNOSub2w=="
+      },
+      "System.Reflection.Metadata": {
+        "type": "Transitive",
+        "resolved": "9.0.0",
+        "contentHash": "ANiqLu3DxW9kol/hMmTWbt3414t9ftdIuiIU7j80okq2YzAueo120M442xk1kDJWtmZTqWQn7wHDvMRipVOEOQ=="
+      }
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "dependencies": {
+    ".NETStandard,Version=v2.1": {
+      "Fleck": {
+        "type": "Direct",
+        "requested": "[1.2.0, )",
+        "resolved": "1.2.0",
+        "contentHash": "bPLXn6QbLAFoviur6XbrKB0Zn6x04E8VibHXyHZeJsoC7bkUl5DVtzM5cZgDuqHkIrBqAXJyTNJwSNIc6wBJ2Q=="
+      },
+      "ILRepack.Lib.MSBuild.Task": {
+        "type": "Direct",
+        "requested": "[2.0.46, )",
+        "resolved": "2.0.46",
+        "contentHash": "g5a/rQndAn0OczzunFutw3nCzQcfq96i7SYRKV11sc0LO+KN0MDbDHo2znLBK5ZC7duaD1RC62OwlhFlnkPQuQ=="
+      }
+    }
+  }
+}

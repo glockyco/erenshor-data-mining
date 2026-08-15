@@ -28,7 +28,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(ModLoader)' == 'bepinex'">
-    <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
+    <PackageReference Include="BepInEx.Core" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(ModLoader)' == 'bepinex'">

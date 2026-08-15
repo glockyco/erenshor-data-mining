@@ -51,15 +51,15 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(ModLoader)' == 'bepinex'">
-    <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-    <PackageReference Include="Fleck" Version="1.*" />
-    <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.46" />
+    <PackageReference Include="BepInEx.Core" PrivateAssets="all" />
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="Fleck" />
+    <PackageReference Include="ILRepack.Lib.MSBuild.Task" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(ModLoader)' == 'lunaris'">
-    <PackageReference Include="Fleck" Version="1.*" />
-    <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.46" PrivateAssets="all" />
+    <PackageReference Include="Fleck" />
+    <PackageReference Include="ILRepack.Lib.MSBuild.Task" PrivateAssets="all" />
   </ItemGroup>
 
   <!-- Game assembly references (copied via erenshor mod setup) -->

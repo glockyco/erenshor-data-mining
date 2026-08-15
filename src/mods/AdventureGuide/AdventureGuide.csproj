@@ -78,11 +78,11 @@
   <!-- BepInEx uses official packages as separate assets; no ILRepack of
        ImGui.NET, Vectors, or its native cimgui is permitted. -->
   <ItemGroup Condition="'$(ModLoader)' == 'bepinex'">
-    <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
-    <PackageReference Include="ImGui.NET" Version="1.91.6.1" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="System.Numerics.Vectors" Version="4.6.1"
+    <PackageReference Include="BepInEx.Core" PrivateAssets="all" />
+    <PackageReference Include="ImGui.NET" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="System.Numerics.Vectors"
                       GeneratePathProperty="true" PrivateAssets="all" Aliases="vectors" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" PrivateAssets="all" />
+    <PackageReference Include="Newtonsoft.Json" PrivateAssets="all" />
     <Reference Include="0Harmony">
       <HintPath>lib/bepinex/0Harmony.dll</HintPath>
       <Private>false</Private>
