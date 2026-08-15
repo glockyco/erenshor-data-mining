@@ -16,15 +16,36 @@ permissions:
   id-token: write
 
 jobs:
+  dependency-state:
+    name: Dependency State
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Install Nix
+        uses: DeterminateSystems/determinate-nix-action@61cbfe2efc2d4e7a8a6d56967c3c1058e846c858 # v3.21.9
+
+      - name: Validate committed dependency state
+        run: nix develop --command erenshor test dependency-state
+
+      - name: Upload dependency-state report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: verification-dependency-state
+          path: artifacts/test-reports/dependency-state.json
+          if-no-files-found: error
+
   static:
     name: Static Checks
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Install Nix
-        uses: DeterminateSystems/determinate-nix-action@v3.21.9
+        uses: DeterminateSystems/determinate-nix-action@61cbfe2efc2d4e7a8a6d56967c3c1058e846c858 # v3.21.9
 
       - name: Restore tools
         run: nix develop --command dotnet tool restore
@@ -34,7 +55,7 @@ jobs:
 
       - name: Upload static report
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: verification-static
           path: artifacts/test-reports/static.json
@@ -45,12 +66,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0  # Fetch all history for gitleaks
 
       - name: Run gitleaks
-        uses: gitleaks/gitleaks-action@v2
+        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -59,17 +80,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Install Nix
-        uses: DeterminateSystems/determinate-nix-action@v3.21.9
+        uses: DeterminateSystems/determinate-nix-action@61cbfe2efc2d4e7a8a6d56967c3c1058e846c858 # v3.21.9
 
       - name: Run unit leaf with coverage
         run: nix develop --command erenshor test unit --coverage
 
       - name: Upload unit report and coverage
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: verification-unit
           path: |
@@ -78,7 +99,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5
         with:
           files: ./coverage.xml
           flags: unittests
@@ -92,17 +113,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Install Nix
-        uses: DeterminateSystems/determinate-nix-action@v3.21.9
+        uses: DeterminateSystems/determinate-nix-action@61cbfe2efc2d4e7a8a6d56967c3c1058e846c858 # v3.21.9
 
       - name: Run contract leaf
         run: nix develop --command erenshor test contract
 
       - name: Upload contract reports
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: verification-contract
           path: |
@@ -115,10 +136,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Install Nix
-        uses: DeterminateSystems/determinate-nix-action@v3.21.9
+        uses: DeterminateSystems/determinate-nix-action@61cbfe2efc2d4e7a8a6d56967c3c1058e846c858 # v3.21.9
 
       - name: Install map dependencies
         run: nix develop --command pnpm install --frozen-lockfile
@@ -128,7 +149,7 @@ jobs:
 
       - name: Upload maps report
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: verification-maps
           path: artifacts/test-reports/maps.json
@@ -139,17 +160,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Install Nix
-        uses: DeterminateSystems/determinate-nix-action@v3.21.9
+        uses: DeterminateSystems/determinate-nix-action@61cbfe2efc2d4e7a8a6d56967c3c1058e846c858 # v3.21.9
 
       - name: Run mods leaf
         run: nix develop --command erenshor test mods
 
       - name: Upload mod reports
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: verification-mods
           path: |
@@ -165,12 +186,13 @@ jobs:
     name: CI Success
     runs-on: ubuntu-latest
     needs:
-      [static, security, test-unit, test-contract, test-maps, test-mods]
+      [dependency-state, static, security, test-unit, test-contract, test-maps, test-mods]
     if: always()
     steps:
       - name: Check all jobs status
         run: |
-          if [[ "${{ needs.static.result }}" != "success" ]] || \
+          if [[ "${{ needs.dependency-state.result }}" != "success" ]] || \
+             [[ "${{ needs.static.result }}" != "success" ]] || \
              [[ "${{ needs.security.result }}" != "success" ]] || \
              [[ "${{ needs.test-unit.result }}" != "success" ]] || \
              [[ "${{ needs.test-contract.result }}" != "success" ]] || \

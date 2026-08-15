@@ -31,6 +31,12 @@ from rich.console import Console
 from erenshor.application.mods.artifacts import format_artifact_issues, verify_static_mod_artifacts
 from erenshor.application.mods.catalog import artifact_specs
 from erenshor.cli.commands import maps
+from erenshor.infrastructure.dependency_state import (
+    dependency_state_paths,
+    dependency_state_snapshot,
+    immutable_action_reference_violations,
+    locked_nuget_restore_commands,
+)
 
 if TYPE_CHECKING:
     from erenshor.cli.context import CLIContext
@@ -86,6 +92,7 @@ class TaskGraphError(ValueError):
 # Ordered tuples are part of the public verification contract.  Do not turn
 # these into sets: CI reports and execution order must be stable.
 TASKS: Mapping[str, tuple[str, ...]] = {
+    "dependency-state": (),
     "static": (),
     "unit": (),
     "contract": (),
@@ -93,10 +100,10 @@ TASKS: Mapping[str, tuple[str, ...]] = {
     "wiki": (),
     "maps": (),
     "mods": (),
-    "ci": ("static", "unit", "contract", "maps", "mods"),
+    "ci": ("dependency-state", "static", "unit", "contract", "maps", "mods"),
     "release": ("ci", "data", "wiki"),
 }
-LEAF_TASKS = ("static", "unit", "contract", "data", "wiki", "maps", "mods")
+LEAF_TASKS = ("dependency-state", "static", "unit", "contract", "data", "wiki", "maps", "mods")
 COMPOSITE_TASKS = ("ci", "release")
 _RELEASE_COMMANDS: tuple[tuple[str, ...], ...] = (
     ("erenshor", "-V", "main", "maps", "build", "--skip-checks"),
@@ -369,6 +376,15 @@ def _file(path: Path, label: str) -> _Preflight:
     return _Preflight(name=label, ok=path.is_file(), detail=str(path))
 
 
+def _preflight_dependency_state(cli_ctx: CLIContext) -> list[_Preflight]:
+    root = cli_ctx.repo_root
+    return [
+        *(_executable(name) for name in ("nix", "uv", "pnpm", "dotnet", "actionlint", "renovate-config-validator")),
+        *(_file(root / path, path) for path in dependency_state_paths()),
+        _directory(root / ".github/workflows", ".github/workflows"),
+    ]
+
+
 def _preflight_static(cli_ctx: CLIContext) -> list[_Preflight]:
     root = cli_ctx.repo_root
     return [
@@ -592,6 +608,7 @@ def _xml_local_name(tag: str) -> str:
 
 
 _PREFLIGHTS = {
+    "dependency-state": _preflight_dependency_state,
     "static": _preflight_static,
     "unit": _preflight_unit,
     "contract": _preflight_contract,
@@ -1096,6 +1113,45 @@ def _run_leaf_commands(
     )
 
 
+def _run_dependency_state_leaf(cli_ctx: CLIContext) -> _LeafResult:
+    """Validate every committed dependency boundary without updating it."""
+    locked_restore_commands = locked_nuget_restore_commands()
+    commands = (
+        ("nix", "flake", "check", "--no-build", "--no-update-lock-file"),
+        ("uv", "lock", "--check"),
+        ("pnpm", "install", "--frozen-lockfile", "--ignore-scripts"),
+        ("dotnet", "tool", "restore"),
+        ("actionlint",),
+        ("renovate-config-validator", "renovate.json"),
+        *locked_restore_commands,
+    )
+    before = dependency_state_snapshot(cli_ctx.repo_root)
+    result = _run_leaf_commands(
+        cli_ctx,
+        "dependency-state",
+        commands,
+        continue_on_failure=True,
+    )
+    after = dependency_state_snapshot(cli_ctx.repo_root)
+    mutated_files = tuple(path for path, digest in before.items() if after.get(path) != digest)
+    action_violations = immutable_action_reference_violations(cli_ctx.repo_root)
+    if mutated_files:
+        result.status = "failed"
+        result.exit_code = result.exit_code or 1
+        result.diagnostics["mutated_dependency_files"] = list(mutated_files)
+    if action_violations:
+        result.status = "failed"
+        result.exit_code = result.exit_code or 1
+        result.diagnostics["immutable_actions"] = list(action_violations)
+    result.result_counts = {
+        **result.result_counts,
+        "locked_nuget_graphs": len(locked_restore_commands),
+        "mutated_dependency_files": len(mutated_files),
+        "immutable_action_violations": len(action_violations),
+    }
+    return result
+
+
 def _run_static_leaf(cli_ctx: CLIContext) -> _LeafResult:
     """Run every static CI check and retain each command's result."""
     return _run_leaf_commands(
@@ -1223,7 +1279,9 @@ def _run_leaf(
             commands=[],
         )
 
-    if task_id == "static":
+    if task_id == "dependency-state":
+        result = _run_dependency_state_leaf(cli_ctx)
+    elif task_id == "static":
         result = _run_static_leaf(cli_ctx)
     elif task_id == "unit":
         result = _run_pytest_leaf(cli_ctx, task_id, ["tests/unit"], coverage=coverage)
@@ -1462,6 +1520,12 @@ def test_callback(ctx: typer.Context) -> None:
     """Run one leaf task or a canonical composite task."""
     if ctx.invoked_subcommand is None:
         typer.echo(ctx.get_help())
+
+
+@app.command("dependency-state")
+def test_dependency_state(ctx: typer.Context) -> None:
+    """Validate committed dependency locks and automation configuration."""
+    _run_task(ctx.obj, "dependency-state")
 
 
 @app.command("static")

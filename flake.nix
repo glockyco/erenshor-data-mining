@@ -44,6 +44,16 @@
 
       forAllSystems = nixpkgs.lib.genAttrs systems;
 
+      packageManager = (builtins.fromJSON (builtins.readFile ./package.json)).packageManager;
+      assertPnpmVersion =
+        pkgs:
+        let
+          expected = "pnpm@${pkgs.pnpm_10.version}";
+        in
+        pkgs.lib.assertMsg (
+          packageManager == expected
+        ) "package.json provides ${packageManager}; the Nix toolchain provides ${expected}";
+
       workspace = uv2nix.lib.workspace.loadWorkspace { workspaceRoot = ./.; };
 
       lockedPythonOverlay = workspace.mkPyprojectOverlay {
@@ -100,6 +110,7 @@
         let
           pkgs = nixpkgs.legacyPackages.${system};
         in
+        assert assertPnpmVersion pkgs;
         {
           bootstrap = pkgs.writeShellApplication {
             name = "erenshor-bootstrap";
@@ -146,6 +157,7 @@
           );
           pythonEnvironment = pythonSet.mkVirtualEnv "erenshor-dev-env" workspace.deps.all;
         in
+        assert assertPnpmVersion pkgs;
         {
           default = pkgs.mkShellNoCC {
             # Nix builds the uv.lock-selected Python environment. The remaining
@@ -161,6 +173,8 @@
               pkgs.assetripper
               pkgs.sqlite
               pkgs.gitleaks
+              pkgs.actionlint
+              pkgs.renovate
             ];
 
             env = {

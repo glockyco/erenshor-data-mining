@@ -154,9 +154,10 @@ def test_pytest_report_accepts_extra_metadata_without_relaxing_required_schema(t
 
 
 def test_task_catalog_has_exact_leaves_and_composites() -> None:
-    assert test.LEAF_TASKS == ("static", "unit", "contract", "data", "wiki", "maps", "mods")
+    assert test.LEAF_TASKS == ("dependency-state", "static", "unit", "contract", "data", "wiki", "maps", "mods")
     assert test.COMPOSITE_TASKS == ("ci", "release")
     assert test.TASKS == {
+        "dependency-state": (),
         "static": (),
         "unit": (),
         "contract": (),
@@ -164,15 +165,25 @@ def test_task_catalog_has_exact_leaves_and_composites() -> None:
         "wiki": (),
         "maps": (),
         "mods": (),
-        "ci": ("static", "unit", "contract", "maps", "mods"),
+        "ci": ("dependency-state", "static", "unit", "contract", "maps", "mods"),
         "release": ("ci", "data", "wiki"),
     }
 
 
 def test_task_expansion_is_ordered_and_suppresses_duplicate_leaves() -> None:
-    assert test.expand_tasks("ci") == ["static", "unit", "contract", "maps", "mods"]
-    assert test.expand_tasks("release") == ["static", "unit", "contract", "maps", "mods", "data", "wiki"]
+    assert test.expand_tasks("ci") == ["dependency-state", "static", "unit", "contract", "maps", "mods"]
+    assert test.expand_tasks("release") == [
+        "dependency-state",
+        "static",
+        "unit",
+        "contract",
+        "maps",
+        "mods",
+        "data",
+        "wiki",
+    ]
     assert test.expand_tasks(["release", "ci", "unit", "wiki"]) == [
+        "dependency-state",
         "static",
         "unit",
         "contract",
@@ -195,6 +206,7 @@ def test_task_expansion_rejects_unknown_ids_and_cycles(monkeypatch: Any) -> None
 @pytest.mark.parametrize(
     ("arguments", "task_id"),
     [
+        (["dependency-state"], "dependency-state"),
         (["static"], "static"),
         (["unit"], "unit"),
         (["contract"], "contract"),
@@ -517,6 +529,87 @@ def test_pytest_intermediate_report_paths_are_unique_and_cleaned(tmp_path: Path,
     for path in paths:
         _assert_intermediate_report_path(path, tmp_path, "unit")
         assert not path.exists()
+
+
+def test_dependency_state_leaf_runs_all_locked_boundaries(tmp_path: Path, monkeypatch: Any) -> None:
+    monkeypatch.setitem(test._PREFLIGHTS, "dependency-state", lambda _ctx: _passing_preflight())
+    monkeypatch.setattr(
+        test,
+        "locked_nuget_restore_commands",
+        lambda: (("dotnet", "restore", "project.csproj", "--locked-mode", "--force-evaluate"),),
+    )
+    monkeypatch.setattr(test, "immutable_action_reference_violations", lambda _root: ())
+    calls: list[tuple[str, ...]] = []
+
+    def fake_run_process(argv: Sequence[str], cwd: Path) -> Any:
+        command = tuple(argv)
+        calls.append(command)
+        return test._CommandResult(command, cwd, 0, 0.125)
+
+    monkeypatch.setattr(test, "_run_process", fake_run_process)
+    result = test._run_leaf(_context(tmp_path), "dependency-state")
+
+    assert result.status == "passed"
+    assert calls == [
+        ("nix", "flake", "check", "--no-build", "--no-update-lock-file"),
+        ("uv", "lock", "--check"),
+        ("pnpm", "install", "--frozen-lockfile", "--ignore-scripts"),
+        ("dotnet", "tool", "restore"),
+        ("actionlint",),
+        ("renovate-config-validator", "renovate.json"),
+        ("dotnet", "restore", "project.csproj", "--locked-mode", "--force-evaluate"),
+    ]
+    assert result.result_counts == {
+        "commands": 7,
+        "completed_commands": 7,
+        "locked_nuget_graphs": 1,
+        "mutated_dependency_files": 0,
+        "immutable_action_violations": 0,
+    }
+
+
+def test_dependency_state_leaf_fails_when_a_validator_rewrites_a_lock(tmp_path: Path, monkeypatch: Any) -> None:
+    monkeypatch.setitem(test._PREFLIGHTS, "dependency-state", lambda _ctx: _passing_preflight())
+    monkeypatch.setattr(test, "locked_nuget_restore_commands", lambda: ())
+    monkeypatch.setattr(test, "immutable_action_reference_violations", lambda _root: ())
+    snapshots = iter(({"uv.lock": "before"}, {"uv.lock": "after"}))
+    monkeypatch.setattr(test, "dependency_state_snapshot", lambda _root: next(snapshots))
+    monkeypatch.setattr(
+        test,
+        "_run_process",
+        lambda argv, cwd: test._CommandResult(tuple(argv), cwd, 0, 0.0),
+    )
+
+    result = test._run_leaf(_context(tmp_path), "dependency-state")
+
+    assert result.status == "failed"
+    assert result.exit_code == 1
+    assert result.result_counts["mutated_dependency_files"] == 1
+    assert result.diagnostics["mutated_dependency_files"] == ["uv.lock"]
+
+
+def test_dependency_state_leaf_fails_on_mutable_action_reference(tmp_path: Path, monkeypatch: Any) -> None:
+    monkeypatch.setitem(test._PREFLIGHTS, "dependency-state", lambda _ctx: _passing_preflight())
+    monkeypatch.setattr(test, "locked_nuget_restore_commands", lambda: ())
+    monkeypatch.setattr(
+        test,
+        "immutable_action_reference_violations",
+        lambda _root: (".github/workflows/ci.yml:1: actions/checkout@v7 does not use a full commit SHA",),
+    )
+    monkeypatch.setattr(
+        test,
+        "_run_process",
+        lambda argv, cwd: test._CommandResult(tuple(argv), cwd, 0, 0.0),
+    )
+
+    result = test._run_leaf(_context(tmp_path), "dependency-state")
+
+    assert result.status == "failed"
+    assert result.exit_code == 1
+    assert result.result_counts["immutable_action_violations"] == 1
+    assert result.diagnostics["immutable_actions"] == [
+        ".github/workflows/ci.yml:1: actions/checkout@v7 does not use a full commit SHA"
+    ]
 
 
 def test_static_leaf_reports_all_checks_when_one_fails(tmp_path: Path, monkeypatch: Any) -> None:
@@ -1084,7 +1177,7 @@ def test_success_report_contains_schema_identity_prerequisites_counts_diagnostic
     assert payload["schema"] == 1
     assert payload["requested_task"] == "ci"
     assert payload["requested_task_id"] == "ci"
-    assert payload["expanded_leaves"] == ["static", "unit", "contract", "maps", "mods"]
+    assert payload["expanded_leaves"] == ["dependency-state", "static", "unit", "contract", "maps", "mods"]
     assert payload["status"] == "passed"
     assert payload["exit_code"] == 0
     assert payload["duration_seconds"] >= 0
@@ -1121,7 +1214,7 @@ def test_report_write_is_atomic_and_deterministic(tmp_path: Path, monkeypatch: A
 def test_composite_invokes_each_expanded_leaf_once_then_release_actions(tmp_path: Path, monkeypatch: Any) -> None:
     calls: list[tuple[str, bool]] = []
     command_calls: list[tuple[str, ...]] = []
-    barrier = Barrier(7)
+    barrier = Barrier(8)
     call_lock = Lock()
 
     def fake_leaf(_ctx: CLIContext, task_id: str, **kwargs: Any) -> test._LeafResult:
@@ -1139,13 +1232,13 @@ def test_composite_invokes_each_expanded_leaf_once_then_release_actions(tmp_path
 
     test._run_task(_context(tmp_path), "release", wiki_clean_parity=True)
 
-    expected_leaves = ["static", "unit", "contract", "maps", "mods", "data", "wiki"]
+    expected_leaves = ["dependency-state", "static", "unit", "contract", "maps", "mods", "data", "wiki"]
     assert sorted(task_id for task_id, _clean in calls) == sorted(expected_leaves)
     assert ("wiki", True) in calls
     assert command_calls == list(test._RELEASE_COMMANDS)
     payload = json.loads((tmp_path / "artifacts/test-reports/release.json").read_text(encoding="utf-8"))
     assert [leaf["task_id"] for leaf in payload["leaves"]] == expected_leaves
-    assert len(expected_leaves) == len(set(expected_leaves)) == 7
+    assert len(expected_leaves) == len(set(expected_leaves)) == 8
     assert payload["release_actions"]["status"] == "passed"
     assert payload["release_actions"]["result_counts"] == {"commands": 3, "completed_commands": 3}
 
