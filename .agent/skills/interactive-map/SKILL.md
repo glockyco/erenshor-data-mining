@@ -11,6 +11,21 @@ The server-only world-data builder owns repository initialization and cleanup,
 queries, coordinate transforms, normalization, sorting, and item preloading. The
 `+page.server.ts` route only delegates to that builder.
 
+## Dependency updates
+
+The map is part of the root pnpm workspace. Add or change map dependencies only
+in `src/maps/package.json`, then regenerate the root lockfile from the repository
+root:
+
+```bash
+pnpm install --lockfile-only
+erenshor test dependency-state
+```
+
+Never create a lockfile under `src/maps/` and never run an updater only from that
+directory. Renovate owns routine map updates and groups compatible pnpm patch
+and minor releases. Review major updates through the Dependency Dashboard.
+
 ## Hosting topology
 
 Two Worker services, one build, deployed canonical first by `maps deploy`:

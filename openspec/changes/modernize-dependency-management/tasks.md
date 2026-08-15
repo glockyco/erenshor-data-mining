@@ -50,29 +50,29 @@
 ## 6. Fail-Closed CI Authentication
 
 - [x] 6.1 Restrict workflow-level permissions to read-only repository contents.
-- [x] 6.2 Upgrade Codecov with unit-job-only OIDC permission and fail-closed upload behavior.
-- [ ] 6.3 Verify one pull-request run reports an accepted Codecov upload.
-- [ ] 6.4 Remove the obsolete long-lived Codecov secret after OIDC succeeds.
+- [x] 6.2 Remove the unused Codecov integration and its elevated CI permission.
+- [x] 6.3 Keep the unit verification report without generating or uploading unused coverage data.
+- [x] 6.4 Confirm that no obsolete Codecov secret remains.
 - [x] 6.5 Pin every third-party Action to a verified full commit SHA with a release comment.
 - [x] 6.6 Run workflow and dependency-state validation against all pinned references.
-- [ ] 6.7 Commit CI hardening as `fix(ci): make dependency verification fail closed`.
+- [x] 6.7 Commit CI hardening as `fix(ci): make dependency verification fail closed`.
 
 ## 7. Project-Specific Update Automation
 
-- [ ] 7.1 Configure Renovate managers so Renovate excludes Nix state and owns all supported non-Nix state.
-- [ ] 7.2 Require dashboard approval for non-security major updates and immediate proposals for vulnerability alerts.
-- [ ] 7.3 Add only documented compatibility groups for SvelteKit and Vite, ESLint, deck.gl, .NET test tooling, and GitHub Actions.
-- [ ] 7.4 Add ecosystem labels, manual merge policy, and a short non-security release age.
-- [ ] 7.5 Install the dedicated Nix updater for this repository with ownership of flake state and matching pnpm assertions.
-- [ ] 7.6 Run Renovate and Nix updater dry runs and prove that no file has two automated owners.
-- [ ] 7.7 Commit repository automation as `chore(deps): define project update policy`.
+- [x] 7.1 Configure Renovate managers so Renovate excludes Nix state and owns all supported non-Nix state.
+- [x] 7.2 Require dashboard approval for non-security major updates and immediate proposals for vulnerability alerts.
+- [x] 7.3 Add only documented compatibility groups for SvelteKit and Vite, ESLint, deck.gl, .NET test tooling, and GitHub Actions.
+- [x] 7.4 Add ecosystem labels, manual merge policy, and a short non-security release age.
+- [x] 7.5 Install the dedicated Nix updater for this repository with ownership of flake state and matching pnpm assertions.
+- [x] 7.6 Run Renovate and Nix updater dry runs and prove that no file has two automated owners.
+- [x] 7.7 Commit repository automation as `chore(deps): define project update policy`.
 
 ## 8. Guidance and Clean Cutover
 
-- [ ] 8.1 Update `AGENTS.md` with the authoritative dependency ownership table and regeneration commands.
-- [ ] 8.2 Update the map and mod skills where lock, bootstrap, test, or NuGet workflows changed.
-- [ ] 8.3 Document manual major-update review, security-update handling, and updater failure recovery.
-- [ ] 8.4 Remove obsolete lockfile references from maintained documentation and scripts.
+- [x] 8.1 Update `AGENTS.md` with the authoritative dependency ownership table and regeneration commands.
+- [x] 8.2 Update the map and mod skills where lock, bootstrap, test, or NuGet workflows changed.
+- [x] 8.3 Document manual major-update review, security-update handling, and updater failure recovery.
+- [x] 8.4 Remove obsolete lockfile references from maintained documentation and scripts.
 - [ ] 8.5 Commit guidance as `docs(deps): document canonical update workflow`.
 
 ## 9. Repository Protection and Queue Reset

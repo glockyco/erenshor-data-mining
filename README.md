@@ -162,6 +162,64 @@ variants/main/erenshor-main.sqlite
 
 Run `erenshor --help` and `erenshor <group> --help` for the current command surface.
 
+## Dependency maintenance
+
+Renovate owns routine updates for Python, pnpm, NuGet, .NET tools, and GitHub
+Actions. A separate GitHub Actions workflow owns Nix flake updates because each
+Nix update must also synchronize the pnpm version supplied by the dev shell.
+These owners are exclusive. Do not enable Renovate's Nix manager or add another
+scheduled dependency updater.
+
+| Dependency graph | Version manifest | Authoritative lock or pin | Automated owner |
+| --- | --- | --- | --- |
+| Nix | `flake.nix` inputs | `flake.lock` | `update-nix-dependencies.yml` |
+| Python | `pyproject.toml` | `uv.lock` | Renovate |
+| pnpm workspace | Root and workspace `package.json` files | `pnpm-lock.yaml` | Renovate |
+| NuGet | `src/Directory.Packages.props` and project `PackageReference` items | Maintained `packages.lock.json` files | Renovate |
+| .NET tools | `.config/dotnet-tools.json` | Exact versions in the manifest | Renovate |
+| GitHub Actions | `.github/workflows/*.yml` | Full commit SHA with a release comment | Renovate |
+
+Use the root manifest for each graph. Do not add nested JavaScript lockfiles,
+inline NuGet versions, or a second copy of a package version. `src/Directory.Packages.props`
+owns NuGet versions. Each maintained .NET project owns its generated lockfile.
+Mod projects own one lockfile for each loader graph.
+
+For a manual update, change the owning manifest and regenerate only its
+corresponding lock state:
+
+```bash
+uv lock
+pnpm install --lockfile-only
+
+dotnet restore path/to/Project.csproj --force-evaluate
+# Mod projects have two independent restore graphs.
+dotnet restore src/mods/<Mod>/<Mod>.csproj -p:ModLoader=bepinex --force-evaluate
+dotnet restore src/mods/<Mod>/<Mod>.csproj -p:ModLoader=lunaris --force-evaluate
+
+nix flake update
+nix run .#sync-pnpm-version
+```
+
+Then run the locked dependency gate and the complete local CI contract:
+
+```bash
+erenshor test dependency-state
+erenshor test ci
+```
+
+Renovate groups compatible patch and minor updates by ecosystem. Major updates
+remain blocked until they are approved in the Dependency Dashboard. Security
+updates bypass the normal schedule and release-age delay, but they still require
+human review, a current branch, and a passing `CI Success` check. Automerge is
+disabled for every group.
+
+If an updater produces stale or conflicting lock state, do not edit the lockfile
+by hand. Run the matching command above, commit the complete regenerated lock
+state to the same updater branch, and rerun CI. Close a superseded Renovate pull
+request so Renovate can recreate it from the current base. For Nix failures,
+rerun the dedicated Nix workflow or run both Nix commands locally. Do not run a
+second Nix updater against the same branch.
+
 ## Common workflows
 
 ### Inspect local setup
