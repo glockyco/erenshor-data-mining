@@ -7,12 +7,12 @@
 
 ## 2. Dependency Ownership Cutover
 
-- [ ] 2.1 Record the current manifest, lockfile, updater, open-PR, and branch-protection state for migration evidence.
+- [x] 2.1 Record the current manifest, lockfile, updater, open-PR, and branch-protection state for migration evidence.
 - [ ] 2.2 Add the Nix-matched root pnpm `packageManager` assertion and its version-consistency check.
-- [ ] 2.3 Delete both nested Maps lockfiles and remove unused `@sveltejs/adapter-auto`.
-- [ ] 2.4 Regenerate the root pnpm lock through the Nix shell and prove a frozen install from a clean checkout.
-- [ ] 2.5 Delete the seven duplicate nested .NET tool manifests and prove root manifest discovery from a mod directory.
-- [ ] 2.6 Run the Maps verification leaf and confirm no active workflow reads a removed lockfile.
+- [ ] 2.3 Delete both nested Maps lockfiles and the item-exporter Bun lock, add the item exporter to the root workspace, and remove unused `@sveltejs/adapter-auto`.
+- [ ] 2.4 Add Bun to the Nix toolchain, regenerate the root pnpm lock for every workspace package, and prove a frozen install from a clean checkout.
+- [x] 2.5 Delete the seven duplicate nested .NET tool manifests and prove root manifest discovery from a mod directory.
+- [x] 2.6 Run the Maps verification leaf and item-exporter type check, then confirm no active workflow reads a removed lockfile.
 - [ ] 2.7 Commit the ownership cutover as `chore(deps): establish canonical dependency boundaries`.
 
 ## 3. Reproducible NuGet State

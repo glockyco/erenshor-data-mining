@@ -8,9 +8,10 @@ Defines how the repository records, updates, validates, and merges dependency st
 The repository MUST define one authoritative manifest set and one lock boundary for each maintained dependency ecosystem. A dependency file MUST NOT compete with another lockfile or package manager for the same project.
 
 #### Scenario: JavaScript dependency ownership
-- **WHEN** a JavaScript dependency is added or updated in any workspace package
-- **THEN** the root workspace lock records the complete resolved change
-- **AND** no nested JavaScript lockfile exists
+- **WHEN** a JavaScript dependency is added or updated in the map or Bun-based item exporter
+- **THEN** the root pnpm workspace lock records the complete resolved change
+- **AND** no nested npm, pnpm, or Bun lockfile exists
+- **AND** Bun remains a Nix-provided runtime rather than a second dependency owner
 
 #### Scenario: Python dependency ownership
 - **WHEN** a Python project dependency changes
