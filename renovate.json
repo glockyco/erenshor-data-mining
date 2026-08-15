@@ -1,6 +1,101 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "local>glockyco/renovate-config"
+  "extends": ["local>glockyco/renovate-config"],
+  "automerge": false,
+  "platformAutomerge": false,
+  "labels": ["dependencies"],
+  "minimumReleaseAge": "3 days",
+  "minimumReleaseAgeBehaviour": "timestamp-required",
+  "internalChecksFilter": "strict",
+  "major": {
+    "dependencyDashboardApproval": true
+  },
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "automerge": false,
+    "dependencyDashboardApproval": false,
+    "labels": ["dependencies", "security"]
+  },
+  "packageRules": [
+    {
+      "description": "Reserve flake inputs for the dedicated Nix updater",
+      "matchManagers": ["nix"],
+      "enabled": false
+    },
+    {
+      "description": "Reserve the pnpm toolchain assertion for the Nix updater",
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["packageManager"],
+      "enabled": false
+    },
+    {
+      "description": "Label JavaScript dependency updates",
+      "matchManagers": ["npm"],
+      "addLabels": ["javascript"]
+    },
+    {
+      "description": "Label Python dependency updates",
+      "matchManagers": ["pep621", "uv"],
+      "addLabels": ["python"]
+    },
+    {
+      "description": "Label .NET dependency updates",
+      "matchManagers": ["nuget"],
+      "addLabels": ["dotnet"]
+    },
+    {
+      "description": "Require explicit approval for non-security major updates",
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true,
+      "addLabels": ["major"]
+    },
+    {
+      "description": "Group the SvelteKit and Vite compatibility surface",
+      "groupName": "SvelteKit and Vite",
+      "matchManagers": ["npm"],
+      "matchPackageNames": [
+        "@sveltejs/adapter-static",
+        "@sveltejs/kit",
+        "@sveltejs/vite-plugin-svelte",
+        "svelte",
+        "vite"
+      ]
+    },
+    {
+      "description": "Group the ESLint compatibility surface",
+      "groupName": "ESLint",
+      "matchManagers": ["npm"],
+      "matchPackageNames": [
+        "@eslint/compat",
+        "@eslint/js",
+        "eslint",
+        "eslint-config-prettier",
+        "eslint-plugin-svelte",
+        "globals",
+        "typescript-eslint"
+      ]
+    },
+    {
+      "description": "Group deck.gl packages released as one suite",
+      "groupName": "deck.gl",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["/^@deck\\.gl\\//"]
+    },
+    {
+      "description": "Group the VSTest-compatible xUnit toolchain",
+      "groupName": ".NET test tooling",
+      "matchManagers": ["nuget"],
+      "matchPackageNames": [
+        "Microsoft.NET.Test.Sdk",
+        "xunit.runner.visualstudio",
+        "xunit.v3"
+      ]
+    },
+    {
+      "description": "Group immutable GitHub Actions under one validation boundary",
+      "groupName": "GitHub Actions",
+      "matchManagers": ["github-actions"],
+      "addLabels": ["github-actions"]
+    }
   ]
 }

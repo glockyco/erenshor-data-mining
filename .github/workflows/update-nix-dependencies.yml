@@ -1,0 +1,68 @@
+name: Update Nix dependencies
+
+on:
+  schedule:
+    - cron: "17 6 * * 6"
+  workflow_dispatch:
+
+concurrency:
+  group: update-nix-dependencies
+  cancel-in-progress: false
+
+permissions:
+  actions: write
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  update:
+    name: Update flake lock
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Install Nix
+        uses: DeterminateSystems/determinate-nix-action@61cbfe2efc2d4e7a8a6d56967c3c1058e846c858 # v3.21.9
+
+      - name: Refresh locked Nix inputs
+        run: |
+          nix flake update
+          nix run .#sync-pnpm-version
+
+      - name: Create or update pull request
+        id: pull-request
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          add-paths: |
+            flake.lock
+            package.json
+          branch: automation/update-nix-dependencies
+          delete-branch: true
+          sign-commits: true
+          commit-message: |
+            chore(nix): update locked inputs
+
+            Refresh the locked Nix toolchain and keep the pnpm assertion aligned
+            with the pnpm version supplied by that toolchain.
+          title: "chore(nix): update locked inputs"
+          body: |
+            Updates the locked Nix inputs and the matching pnpm toolchain assertion.
+
+            The workflow dispatches the canonical CI suite for every created or
+            updated proposal. Merge remains manual.
+          labels: |
+            dependencies
+            nix
+
+      - name: Run CI on the proposal
+        if: >-
+          steps.pull-request.outputs.pull-request-operation == 'created' ||
+          steps.pull-request.outputs.pull-request-operation == 'updated'
+        env:
+          BRANCH: ${{ steps.pull-request.outputs.pull-request-branch }}
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run ci.yml --ref "$BRANCH"

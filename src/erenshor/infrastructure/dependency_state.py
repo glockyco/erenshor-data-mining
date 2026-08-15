@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import re
 from pathlib import Path
 
@@ -10,6 +11,7 @@ from erenshor.infrastructure.dotnet_projects import MAINTAINED_DOTNET_RESTORE_TA
 
 _ACTION_REFERENCE = re.compile(r"^\s*(?:-\s*)?uses:\s*[\"']?(?P<target>[^\"'#\s]+)")
 _COMMIT_SHA = re.compile(r"[0-9a-fA-F]{40}")
+_NIX_UPDATER_WORKFLOW = ".github/workflows/update-nix-dependencies.yml"
 _ROOT_DEPENDENCY_FILES = (
     ".config/dotnet-tools.json",
     "flake.lock",
@@ -65,6 +67,55 @@ def immutable_action_reference_violations(repo_root: Path) -> tuple[str, ...]:
                 violations.append(
                     f"{path.relative_to(repo_root)}:{line_number}: {target} does not use a full commit SHA"
                 )
+    return tuple(violations)
+
+
+def nix_updater_ownership_violations(repo_root: Path) -> tuple[str, ...]:
+    """Return conflicts between Renovate and the dedicated Nix updater."""
+    violations: list[str] = []
+    renovate_path = repo_root / "renovate.json"
+    try:
+        renovate = json.loads(renovate_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        return (f"renovate.json cannot be read: {error}",)
+
+    rules = renovate.get("packageRules", [])
+    if not isinstance(rules, list):
+        return ("renovate.json packageRules must be a list",)
+
+    def manager_is_reserved(manager: str, dependency_type: str | None = None) -> bool:
+        for rule in rules:
+            if not isinstance(rule, dict) or rule.get("enabled") is not False:
+                continue
+            managers = rule.get("matchManagers", [])
+            if manager not in managers:
+                continue
+            if dependency_type is None or dependency_type in rule.get("matchDepTypes", []):
+                return True
+        return False
+
+    if not manager_is_reserved("nix"):
+        violations.append("Renovate must disable the nix manager")
+    if not manager_is_reserved("npm", "packageManager"):
+        violations.append("Renovate must reserve npm packageManager assertions for the Nix updater")
+
+    workflow_path = repo_root / _NIX_UPDATER_WORKFLOW
+    if not workflow_path.is_file():
+        violations.append(f"{_NIX_UPDATER_WORKFLOW} is missing")
+        return tuple(violations)
+
+    workflow = workflow_path.read_text(encoding="utf-8")
+    required_fragments = {
+        "nix flake update": "refresh flake.lock",
+        "nix run .#sync-pnpm-version": "synchronize the pnpm assertion",
+        "automation/update-nix-dependencies": "use one stable proposal branch",
+        "flake.lock\n            package.json": "commit only flake state and its pnpm assertion",
+        "gh workflow run ci.yml": "dispatch canonical CI for the proposal",
+    }
+    for fragment, requirement in required_fragments.items():
+        if fragment not in workflow:
+            violations.append(f"{_NIX_UPDATER_WORKFLOW} must {requirement}")
+
     return tuple(violations)
 
 

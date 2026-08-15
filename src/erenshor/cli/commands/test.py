@@ -36,6 +36,7 @@ from erenshor.infrastructure.dependency_state import (
     dependency_state_snapshot,
     immutable_action_reference_violations,
     locked_nuget_restore_commands,
+    nix_updater_ownership_violations,
 )
 
 if TYPE_CHECKING:
@@ -1135,6 +1136,7 @@ def _run_dependency_state_leaf(cli_ctx: CLIContext) -> _LeafResult:
     after = dependency_state_snapshot(cli_ctx.repo_root)
     mutated_files = tuple(path for path, digest in before.items() if after.get(path) != digest)
     action_violations = immutable_action_reference_violations(cli_ctx.repo_root)
+    updater_violations = nix_updater_ownership_violations(cli_ctx.repo_root)
     if mutated_files:
         result.status = "failed"
         result.exit_code = result.exit_code or 1
@@ -1143,11 +1145,16 @@ def _run_dependency_state_leaf(cli_ctx: CLIContext) -> _LeafResult:
         result.status = "failed"
         result.exit_code = result.exit_code or 1
         result.diagnostics["immutable_actions"] = list(action_violations)
+    if updater_violations:
+        result.status = "failed"
+        result.exit_code = result.exit_code or 1
+        result.diagnostics["updater_ownership"] = list(updater_violations)
     result.result_counts = {
         **result.result_counts,
         "locked_nuget_graphs": len(locked_restore_commands),
         "mutated_dependency_files": len(mutated_files),
         "immutable_action_violations": len(action_violations),
+        "updater_ownership_violations": len(updater_violations),
     }
     return result
 
