@@ -37,15 +37,15 @@
 
 ## 5. Canonical Dependency-State Verification
 
-- [ ] 5.1 Add a dependency-state leaf to the canonical `erenshor test` command.
-- [ ] 5.2 Validate flake checks and Python lock freshness without mutating the Nix Python environment.
-- [ ] 5.3 Validate pnpm assertion consistency and a frozen root workspace install.
-- [ ] 5.4 Validate root .NET tool restore and locked NuGet restore for the maintained project inventory.
-- [ ] 5.5 Validate Renovate configuration and immutable third-party Action references.
-- [ ] 5.6 Add focused tests for each stale-state failure and for complete successful dependency state.
-- [ ] 5.7 Add the dependency-state job to CI and to the `CI Success` aggregate.
-- [ ] 5.8 Prove a controlled stale lock fails both the leaf and aggregate CI contract.
-- [ ] 5.9 Commit the gate as `feat(test): add dependency-state verification`.
+- [x] 5.1 Add a dependency-state leaf to the canonical `erenshor test` command.
+- [x] 5.2 Validate flake checks and Python lock freshness without mutating the Nix Python environment.
+- [x] 5.3 Validate pnpm assertion consistency and a frozen root workspace install.
+- [x] 5.4 Validate root .NET tool restore and locked NuGet restore for the maintained project inventory.
+- [x] 5.5 Validate Renovate configuration and immutable third-party Action references.
+- [x] 5.6 Add focused tests for each stale-state failure and for complete successful dependency state.
+- [x] 5.7 Add the dependency-state job to CI and to the `CI Success` aggregate.
+- [x] 5.8 Prove a controlled stale lock fails both the leaf and aggregate CI contract.
+- [x] 5.9 Commit the gate as `feat(test): add dependency-state verification`.
 
 ## 6. Fail-Closed CI Authentication
 
@@ -53,8 +53,8 @@
 - [ ] 6.2 Upgrade Codecov with unit-job-only OIDC permission and fail-closed upload behavior.
 - [ ] 6.3 Verify one pull-request run reports an accepted Codecov upload.
 - [ ] 6.4 Remove the obsolete long-lived Codecov secret after OIDC succeeds.
-- [ ] 6.5 Pin every third-party Action to a verified full commit SHA with a release comment.
-- [ ] 6.6 Run workflow and dependency-state validation against all pinned references.
+- [x] 6.5 Pin every third-party Action to a verified full commit SHA with a release comment.
+- [x] 6.6 Run workflow and dependency-state validation against all pinned references.
 - [ ] 6.7 Commit CI hardening as `ci: make dependency verification fail closed`.
 
 ## 7. Project-Specific Update Automation
