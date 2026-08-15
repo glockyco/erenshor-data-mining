@@ -63,7 +63,7 @@
 - [x] 7.2 Require dashboard approval for non-security major updates and immediate proposals for vulnerability alerts.
 - [x] 7.3 Add only documented compatibility groups for SvelteKit and Vite, ESLint, deck.gl, .NET test tooling, and GitHub Actions.
 - [x] 7.4 Add ecosystem labels, manual merge policy, and a short non-security release age.
-- [x] 7.5 Install the dedicated Nix updater for this repository with ownership of flake state and matching pnpm assertions.
+- [x] 7.5 Register the repository with the central App-authored Nix updater for flake state and matching pnpm assertions.
 - [x] 7.6 Run Renovate and Nix updater dry runs and prove that no file has two automated owners.
 - [x] 7.7 Commit repository automation as `chore(deps): define project update policy`.
 

@@ -114,10 +114,13 @@ Each dependency graph has one version owner and one lock owner:
 | .NET tools | `.config/dotnet-tools.json` | Exact manifest versions |
 | Actions | Workflow `uses:` entries | Full commit SHAs |
 
-Renovate owns every graph except Nix. The dedicated
-`update-nix-dependencies.yml` workflow owns Nix and the synchronized pnpm
-version in `flake.nix`. Do not add another updater, a nested JavaScript lockfile,
-an inline NuGet version, or a second package-version source.
+Renovate owns every graph except Nix. The private
+`glockyco/dependency-automation` control plane owns Nix and the synchronized pnpm
+version in `flake.nix`. It creates pull requests with a repository-scoped token
+from the private `glockyco-dependency-updater` GitHub App. This repository does
+not store the App key or run a local Nix update workflow. Do not add another
+updater, a nested JavaScript lockfile, an inline NuGet version, or a second
+package-version source.
 
 Manual dependency changes must regenerate the authoritative lock state:
 

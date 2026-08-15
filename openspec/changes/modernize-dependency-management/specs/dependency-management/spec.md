@@ -57,6 +57,9 @@ Each dependency-controlled file MUST have one automated updater. An updater MUST
 #### Scenario: Nix update
 - **WHEN** the Nix updater proposes a flake input update
 - **THEN** the pull request contains the flake lock and all required matching tool assertions
+- **AND** the central control plane uses a short-lived repository-scoped GitHub App token
+- **AND** this repository stores no App private key or competing Nix scheduler
+- **AND** normal pull-request CI starts without manual workflow approval
 - **AND** no other updater opens a duplicate proposal for that state
 
 #### Scenario: Incomplete generated artifacts

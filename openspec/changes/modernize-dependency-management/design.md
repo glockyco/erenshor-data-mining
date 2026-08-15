@@ -52,11 +52,17 @@ Nix remains the authoritative source for executable toolchains. Native managers 
 
 The Nix updater must also refresh any exact language-native assertion of a Nix-provided tool. CI compares the asserted pnpm version with `pnpm --version`. Renovate must not update that assertion independently.
 
+The protected `glockyco/dependency-automation` control plane owns scheduled Nix execution for the managed repository fleet. It stores the existing private `glockyco-dependency-updater` App key once, mints a short-lived token scoped to this repository, runs the declared update commands, and fails if they change a path outside `flake.lock` or `package.json`. The App grants metadata read, contents read/write, and pull requests read/write. It creates review-only pull requests that start normal pull-request CI. This repository stores no App key and runs no competing Nix scheduler.
+
 Alternatives considered:
 
 - Use Nix for all dependency graphs. Rejected because native lockfiles are required by ecosystem tooling, editors, and dependency bots.
 - Let every native manager install its own toolchain. Rejected because local and CI versions would diverge from the existing Nix shell.
 - Omit the pnpm package-manager assertion. Rejected because non-Nix tooling and Renovate would not know the intended pnpm version.
+- Store the App private key and scheduler in every target repository. Rejected because each repository would become a trust root for every repository in the App installation.
+- Publish with the default `GITHUB_TOKEN`. Rejected because GitHub requires manual approval before CI can run on pull requests created by `github-actions[bot]`.
+- Dispatch CI separately after creating the pull request. Rejected because `workflow_dispatch` does not preserve pull-request event semantics or status reporting.
+- Publish with a personal access token. Rejected because the credential would be long-lived, human-owned, and broader than the existing repository-scoped App installation.
 
 ### 2. Make the root pnpm workspace the only JavaScript dependency boundary
 
