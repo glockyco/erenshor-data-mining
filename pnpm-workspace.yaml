@@ -1,4 +1,5 @@
 packages:
   - "src/maps"
+  - "src/tools/item-export"
 onlyBuiltDependencies:
   - lefthook

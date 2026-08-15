@@ -157,6 +157,7 @@
               (dotnetSdk pkgs)
               pkgs.nodejs_22
               pkgs.pnpm_10
+              pkgs.bun
               pkgs.assetripper
               pkgs.sqlite
               pkgs.gitleaks
