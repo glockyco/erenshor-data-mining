@@ -12,8 +12,8 @@
 
 ## 3. Acceptance and Cleanup
 
-- [ ] 3.1 Run strict OpenSpec validation, formatting, dependency-state, and flake checks
-- [ ] 3.2 Remove interrupted generated profiles and verify a normal nix-direnv refresh completes once
-- [ ] 3.3 Measure warm directory entry and Git status latency after the refresh
-- [ ] 3.4 Commit the specification and implementation as separate atomic changes
+- [x] 3.1 Run strict OpenSpec validation, formatting, dependency-state, and flake checks
+- [x] 3.2 Remove interrupted generated profiles and verify a normal nix-direnv refresh completes once
+- [x] 3.3 Measure warm directory entry and Git status latency after the refresh
+- [x] 3.4 Commit the specification and implementation as separate atomic changes
 - [ ] 3.5 Push the branch and verify required CI before archival

@@ -67,7 +67,19 @@ sqlite3 variants/main/erenshor-main.sqlite ".tables"
 Every command below runs inside the `flake.nix` dev shell, which supplies uv,
 the .NET SDKs, Node, pnpm, AssetRipper, and `sqlite3`. With nix-direnv it is
 already active in the working tree; otherwise prefix a one-off command with
-`nix develop --command`.
+`nix develop --command`. On Darwin, the shell uses Nixpkgs' fixed-output .NET
+SDKs and the hash-pinned official AssetRipper release. A lock refresh can fetch
+those artifacts, but it must not compile Swift or a .NET VMR.
+
+If automatic entry unexpectedly starts a compiler, stop it and inspect the
+bounded plan from outside the repository before retrying:
+
+```bash
+nix build --dry-run 'path:/path/to/erenshor-data-mining#devShells.aarch64-darwin.default'
+```
+
+The plan must not contain `swift`, `dotnet-vmr`, or `dotnet-stage0`. Do not
+disable direnv or let an avoidable source toolchain finish as a workaround.
 
 ```bash
 uv run erenshor --help                          # All command groups
