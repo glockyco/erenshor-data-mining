@@ -97,12 +97,36 @@
         )
       );
 
+      dotnetPackages =
+        pkgs:
+        if pkgs.stdenv.hostPlatform.isDarwin then
+          pkgs.dotnetCorePackages.overrideScope (
+            _final: previous: {
+              runtime_9_0 = previous."runtime_9_0-bin";
+              runtime_10_0 = previous."runtime_10_0-bin";
+              sdk_9_0 = previous."sdk_9_0-bin";
+              sdk_10_0 = previous."sdk_10_0-bin";
+            }
+          )
+        else
+          pkgs.dotnetCorePackages;
+
       dotnetSdk =
         pkgs:
-        pkgs.dotnetCorePackages.combinePackages [
-          pkgs.dotnetCorePackages.sdk_9_0
-          pkgs.dotnetCorePackages.sdk_10_0
+        let
+          packages = dotnetPackages pkgs;
+        in
+        packages.combinePackages [
+          packages.sdk_9_0
+          packages.sdk_10_0
         ];
+
+      assetRipper =
+        pkgs:
+        if pkgs.stdenv.hostPlatform.isDarwin then
+          pkgs.callPackage ./nix/assetripper-bin.nix { }
+        else
+          pkgs.assetripper;
     in
     {
       packages = forAllSystems (
@@ -198,7 +222,7 @@
               pkgs.nodejs_22
               pkgs.pnpm_10
               pkgs.bun
-              pkgs.assetripper
+              (assetRipper pkgs)
               pkgs.sqlite
               pkgs.gitleaks
               pkgs.actionlint
