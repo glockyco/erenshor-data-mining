@@ -34,8 +34,11 @@ for candidate in \
 done
 export PATH
 
-# `uv` stands in for the whole shell: nothing provides it but the dev shell.
-if command -v uv >/dev/null 2>&1; then
+# Probe the requested command, not a stand-in for the shell. Another
+# repository's dev shell satisfies a stand-in like `uv` while providing none of
+# the hook tools, and the exec then dies with 127 for a reason unrelated to the
+# change being committed.
+if command -v "$1" >/dev/null 2>&1; then
     exec "$@"
 fi
 
