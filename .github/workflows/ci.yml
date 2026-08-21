@@ -16,6 +16,22 @@ permissions:
   contents: read
 
 jobs:
+  openspec:
+    name: OpenSpec Artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Install Nix
+        uses: DeterminateSystems/determinate-nix-action@61cbfe2efc2d4e7a8a6d56967c3c1058e846c858 # v3.21.9
+
+      # The check is defined once for the whole workstation in the fleet input.
+      # It fails on an invalid artifact and on a change archived with unfinished
+      # tasks.
+      - name: Validate OpenSpec artifacts
+        run: nix build --no-link .#checks.x86_64-linux.openspec
+
   dependency-state:
     name: Dependency State
     runs-on: ubuntu-latest
@@ -174,12 +190,13 @@ jobs:
     name: CI Success
     runs-on: ubuntu-latest
     needs:
-      [dependency-state, static, security, test-unit, test-contract, test-maps, test-mods]
+      [openspec, dependency-state, static, security, test-unit, test-contract, test-maps, test-mods]
     if: always()
     steps:
       - name: Check all jobs status
         run: |
-          if [[ "${{ needs.dependency-state.result }}" != "success" ]] || \
+          if [[ "${{ needs.openspec.result }}" != "success" ]] || \
+             [[ "${{ needs.dependency-state.result }}" != "success" ]] || \
              [[ "${{ needs.static.result }}" != "success" ]] || \
              [[ "${{ needs.security.result }}" != "success" ]] || \
              [[ "${{ needs.test-unit.result }}" != "success" ]] || \

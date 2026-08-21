@@ -47,7 +47,7 @@ def test_repository_workflows_are_immutable_and_aggregate_dependency_state() -> 
 
     workflow = (_REPO_ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
     assert "  dependency-state:\n" in workflow
-    assert "[dependency-state, static, security, test-unit, test-contract, test-maps, test-mods]" in workflow
+    assert "[openspec, dependency-state, static, security, test-unit, test-contract, test-maps, test-mods]" in workflow
     assert 'needs.dependency-state.result }}" != "success"' in workflow
 
 

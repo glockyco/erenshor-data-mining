@@ -6,6 +6,13 @@
     # the host system share one evaluated package set and one binary cache.
     nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.2605";
 
+    # Defines the OpenSpec artifact check every repository on this workstation
+    # runs, so the commands and the pinned CLI live in one place.
+    fleet = {
+      url = "github:glockyco/omp-agent-setup";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     pyproject-nix = {
       url = "github:pyproject-nix/pyproject.nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -29,6 +36,7 @@
     {
       self,
       nixpkgs,
+      fleet,
       pyproject-nix,
       uv2nix,
       pyproject-build-systems,
@@ -257,6 +265,10 @@
       formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-tree);
 
       checks = forAllSystems (system: {
+        openspec = fleet.lib.openspecCheck {
+          pkgs = nixpkgs.legacyPackages.${system};
+          src = ./.;
+        };
         bootstrap = self.packages.${system}.bootstrap;
         python = self.packages.${system}.python;
         devShell = self.devShells.${system}.default;
