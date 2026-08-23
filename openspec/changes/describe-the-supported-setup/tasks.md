@@ -26,7 +26,8 @@
 
 - [ ] 5.1 Import the bottle root and launcher path in `cli/commands/mod.py` from `application/mods/local_workflow`, which already exports both.
 - [ ] 5.2 Confirm the existing launch and discovery tests still pass, including the tests that patch these constants.
-- [ ] 5.3 Search for other environment-specific values defined more than once and record what is found.
+- [ ] 5.3 Give the Unity editor path one definition. `config.toml` and `src/erenshor/infrastructure/config/schema.py` each carry the same absolute machine-specific default, so the tracked file and the schema can disagree about where Unity lives.
+- [ ] 5.4 Search for further environment-specific values defined more than once, and give each one definition or record why two are correct.
 
 ## 6. A check that keeps references honest
 
