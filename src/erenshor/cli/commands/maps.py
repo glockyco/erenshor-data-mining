@@ -195,6 +195,7 @@ def dev(
     link = DatabaseLinkTransaction(db_path, maps_db_path)
     process: subprocess.Popen[bytes] | None = None
     previous_handlers: dict[signal.Signals, signal.Handlers] = {}
+    shutdown_requested = False
     try:
         link.install()
         console.print()
@@ -220,13 +221,17 @@ def dev(
         )
 
         def request_shutdown(_signum: int, _frame: object) -> None:
+            nonlocal shutdown_requested
+            shutdown_requested = True
             if process is not None and process.poll() is None:
                 os.killpg(process.pid, signal.SIGTERM)
 
         for handled_signal in (signal.SIGINT, signal.SIGTERM):
             previous_handlers[handled_signal] = signal.signal(handled_signal, request_shutdown)
         return_code = process.wait()
-        if return_code != 0:
+        if shutdown_requested:
+            console.print("\n[yellow]Shutting down...[/yellow]")
+        elif return_code != 0:
             raise RuntimeError(f"Dev server exited with code {return_code}")
     except KeyboardInterrupt:
         console.print("\n[yellow]Shutting down...[/yellow]")

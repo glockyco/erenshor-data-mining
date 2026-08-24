@@ -428,3 +428,40 @@ def test_maps_dev_terminates_child_and_restores_link_on_interruption(tmp_path: P
     target, prior, signals = _run_dev_lifecycle(tmp_path, monkeypatch, KeyboardInterrupt())
     assert target.readlink() == prior
     assert signals == [(73, maps.signal.SIGTERM)]
+
+
+def test_maps_dev_treats_signal_shutdown_as_expected(tmp_path: Path, monkeypatch: Any) -> None:
+    maps_dir, database_path = _write_project(tmp_path)
+    ctx = _ctx(tmp_path, maps_dir, database_path)
+    target = maps_dir / "static/db/erenshor.sqlite"
+    prior = tmp_path / "prior.sqlite"
+    prior.touch()
+    target.symlink_to(prior)
+    handlers: dict[maps.signal.Signals, Any] = {}
+
+    class SignalProcess(_FakeDevProcess):
+        def wait(self, timeout: float | None = None) -> int:
+            if timeout is None and self.returncode is None:
+                handlers[maps.signal.SIGINT](maps.signal.SIGINT, None)
+            return int(self.returncode or 0)
+
+    process = SignalProcess(0)
+    monkeypatch.setattr(maps, "_check_pnpm_available", lambda: True)
+    monkeypatch.setattr(maps, "_check_node_modules", lambda _path: True)
+    monkeypatch.setattr(maps.subprocess, "Popen", lambda *_args, **_kwargs: process)
+
+    def install_handler(sig: maps.signal.Signals, handler: Any) -> maps.signal.Handlers:
+        handlers[sig] = handler
+        return maps.signal.SIG_DFL
+
+    monkeypatch.setattr(maps.signal, "signal", install_handler)
+    monkeypatch.setattr(
+        maps.os,
+        "killpg",
+        lambda _pid, sig: setattr(process, "returncode", -sig),
+    )
+
+    maps.dev(ctx)
+
+    assert target.readlink() == prior
+    assert process.returncode == -maps.signal.SIGTERM
