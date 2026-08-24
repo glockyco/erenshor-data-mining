@@ -27,12 +27,12 @@
 - [x] 4.2 Remove the routine end-of-session teardown section and replace relevant recovery text with exact-identity inspection guidance.
 - [x] 4.3 Remove current instructions to quit Unity Hub or kill `UnityLicensingClient`; retain incident evidence only where it explains an observed historical failure.
 - [x] 4.4 Search the repository for the removed script, broad port/process-age cleanup, and global process-name kill instructions; remove every current route.
-- [ ] 4.5 Commit the teardown removal, skill update, and related documentation cleanup as one verified change.
+- [x] 4.5 Commit the teardown removal, skill update, and related documentation cleanup as one verified change.
 
 ## 5. Validate the change
 
-- [ ] 5.1 Run the focused Python tests for mod launch, process sessions, and maps development.
-- [ ] 5.2 Run `nix develop --command uv run ruff check` and the repository type checker for the changed Python paths.
-- [ ] 5.3 Run the repository's agent-instruction and skill-reference checks.
-- [ ] 5.4 Run `openspec validate own-refresh-session-resources --strict`.
-- [ ] 5.5 Run the applicable repository pre-push gate before archive.
+- [x] 5.1 Run the focused Python tests for mod launch, process sessions, and maps development.
+- [x] 5.2 Run `nix develop --command uv run ruff check` and the repository type checker for the changed Python paths.
+- [x] 5.3 Run the repository's agent-instruction and skill-reference checks.
+- [x] 5.4 Run `openspec validate own-refresh-session-resources --strict`.
+- [x] 5.5 Run the applicable repository pre-push gate before archive.
