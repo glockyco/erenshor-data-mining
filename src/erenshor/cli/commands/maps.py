@@ -14,7 +14,7 @@ import signal
 import subprocess
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Annotated
+from typing import TYPE_CHECKING, Annotated, Any
 
 import typer
 from loguru import logger
@@ -194,7 +194,7 @@ def dev(
 
     link = DatabaseLinkTransaction(db_path, maps_db_path)
     process: subprocess.Popen[bytes] | None = None
-    previous_handlers: dict[signal.Signals, signal.Handlers] = {}
+    previous_handlers: dict[signal.Signals, Any] = {}
     shutdown_requested = False
     try:
         link.install()
