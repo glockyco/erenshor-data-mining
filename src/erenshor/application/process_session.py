@@ -34,10 +34,10 @@ def read_process_identity(pid: int) -> ProcessIdentity | None:
     )
     if result.returncode != 0 or not result.stdout.strip():
         return None
-    fields = result.stdout.strip().split(maxsplit=7)
-    if len(fields) != 8:
+    fields = result.stdout.strip().split(maxsplit=6)
+    if len(fields) != 7:
         return None
-    return ProcessIdentity(pid, int(fields[0]), " ".join(fields[1:6]), fields[7])
+    return ProcessIdentity(pid, int(fields[0]), " ".join(fields[1:6]), fields[6])
 
 
 def identity_matches(expected: ProcessIdentity, actual: ProcessIdentity | None) -> bool:

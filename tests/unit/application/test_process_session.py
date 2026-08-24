@@ -40,6 +40,19 @@ def identity(pid: int = 41) -> process_session.ProcessIdentity:
     return process_session.ProcessIdentity(pid, pid, "start-token", "/usr/bin/fake")
 
 
+def test_reads_macos_process_identity_fields(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        process_session.subprocess,
+        "run",
+        lambda *_args, **_kwargs: subprocess.CompletedProcess(
+            [], 0, " 82125  Mon Aug 24 20:50:58 2026 /usr/bin/perl\n", ""
+        ),
+    )
+    assert process_session.read_process_identity(82125) == process_session.ProcessIdentity(
+        82125, 82125, "Mon Aug 24 20:50:58 2026", "/usr/bin/perl"
+    )
+
+
 def test_normal_completion_records_atomically_then_removes_record(tmp_path: Path) -> None:
     process = FakeProcess()
     observed: list[Path] = []
