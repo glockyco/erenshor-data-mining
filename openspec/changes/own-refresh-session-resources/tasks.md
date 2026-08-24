@@ -1,10 +1,10 @@
 ## 1. Supervise game processes
 
-- [ ] 1.1 Add a process-session owner that starts a dedicated process group, records exact process identities atomically, validates identities before signaling, and removes its record after complete shutdown.
-- [ ] 1.2 Change CrossOver launch planning from `--no-wait` to `--wait-children` and keep `mod launch` active for the owned session.
-- [ ] 1.3 On interruption, terminate the owned process group gracefully, wait for the bounded grace period, and force only validated survivors.
-- [ ] 1.4 Add focused tests for normal completion, interruption, a stubborn owned child, PID identity mismatch, atomic record cleanup, and refusal to terminate an unowned process.
-- [ ] 1.5 Commit game supervision and its tests as one verified change.
+- [x] 1.1 Add a process-session owner that starts a dedicated process group, records exact process identities atomically, validates identities before signaling, and removes its record after complete shutdown.
+- [x] 1.2 Change CrossOver launch planning from `--no-wait` to `--wait-children` and keep `mod launch` active for the owned session.
+- [x] 1.3 On interruption, terminate the owned process group gracefully, wait for the bounded grace period, and force only validated survivors.
+- [x] 1.4 Add focused tests for normal completion, interruption, a stubborn owned child, PID identity mismatch, atomic record cleanup, and refusal to terminate an unowned process.
+- [x] 1.5 Commit game supervision and its tests as one verified change.
 
 ## 2. Make maps state transactional
 

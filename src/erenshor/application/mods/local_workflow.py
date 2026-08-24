@@ -31,6 +31,7 @@ from erenshor.application.mods.artifacts import (
     verify_built_mod_artifacts,
 )
 from erenshor.application.mods.catalog import LoaderName, artifact_specs, iter_mods, lookup_mod
+from erenshor.application.process_session import ProcessSession
 
 if TYPE_CHECKING:
     from erenshor.cli.context import CLIContext
@@ -706,7 +707,7 @@ def plan_launch(cli_ctx: CLIContext) -> LaunchPlan:
                     bottle,
                     "--dll",
                     "winhttp=n,b",
-                    "--no-wait",
+                    "--wait-children",
                     "--workdir",
                     str(game_path),
                     str(executable),
@@ -715,7 +716,7 @@ def plan_launch(cli_ctx: CLIContext) -> LaunchPlan:
                 bottle,
             )
         return LaunchPlan(
-            (str(CROSSOVER_START), "--bottle", bottle, "--no-wait", f"steam://rungameid/{variant_config.app_id}"),
+            (str(CROSSOVER_START), "--bottle", bottle, "--wait-children", f"steam://rungameid/{variant_config.app_id}"),
             game_path,
             bottle,
         )
@@ -724,11 +725,16 @@ def plan_launch(cli_ctx: CLIContext) -> LaunchPlan:
     return LaunchPlan((str(executable),), game_path, None)
 
 
-def launch_game(cli_ctx: CLIContext, *, runner: ProcessRunner = subprocess.run) -> LaunchPlan:
+def launch_game(
+    cli_ctx: CLIContext,
+    *,
+    session_factory: Callable[[Path], ProcessSession] = ProcessSession,
+) -> LaunchPlan:
     plan = plan_launch(cli_ctx)
-    result = runner(list(plan.command), check=False)
-    if plan.crossover_bottle is not None and result.returncode != 0:
-        raise RuntimeError(f"Steam launch failed with exit code {result.returncode}")
+    record_path = cli_ctx.repo_root / ".agent/state/game-session.json"
+    return_code = session_factory(record_path).run(list(plan.command), cwd=plan.game_path)
+    if return_code != 0:
+        raise RuntimeError(f"game launch failed with exit code {return_code}")
     return plan
 
 

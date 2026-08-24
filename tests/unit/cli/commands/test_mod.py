@@ -1325,9 +1325,10 @@ def test_launch_uses_crossover_steam_protocol(tmp_path: Path, monkeypatch: pytes
     monkeypatch.setattr(local_workflow, "CROSSOVER_START", crossover_start)
     monkeypatch.setattr(local_workflow, "crossover_bottle_for_path", lambda _path: "Steam")
     monkeypatch.setattr(
-        mod_command.subprocess,
-        "run",
-        lambda command, check: calls.append((command, check)) or SimpleNamespace(returncode=0),
+        local_workflow,
+        "launch_game",
+        lambda cli_ctx: calls.append((list(local_workflow.plan_launch(cli_ctx).command), False))
+        or local_workflow.plan_launch(cli_ctx),
     )
 
     mod_command.launch(ctx)
@@ -1338,7 +1339,7 @@ def test_launch_uses_crossover_steam_protocol(tmp_path: Path, monkeypatch: pytes
                 str(crossover_start),
                 "--bottle",
                 "Steam",
-                "--no-wait",
+                "--wait-children",
                 "steam://rungameid/2382520",
             ],
             False,
@@ -1372,7 +1373,7 @@ def test_launch_applies_native_proxy_override_for_active_loader(
         "Steam",
         "--dll",
         "winhttp=n,b",
-        "--no-wait",
+        "--wait-children",
         "--workdir",
         str(game),
         str(executable),

@@ -457,7 +457,7 @@ def launch(ctx: typer.Context) -> None:
         else:
             console.print(f"[dim]Executable: {plan.game_path / 'Erenshor.exe'}[/dim]")
         console.print()
-        local_workflow.launch_game(cli_ctx, runner=subprocess.run)
+        local_workflow.launch_game(cli_ctx)
     except (OSError, RuntimeError, ValueError) as exc:
         console.print(f"[red]Error: {exc}[/red]")
         raise typer.Exit(1) from exc

@@ -129,12 +129,17 @@ def test_launch_plan_and_runner_are_injected(tmp_path: Path, monkeypatch: pytest
     executable = game / "Erenshor.exe"
     executable.touch()
     monkeypatch.setattr(local_workflow.sys, "platform", "linux")
-    calls: list[tuple[list[str], bool]] = []
+    calls: list[tuple[Path, list[str], Path | None]] = []
 
-    plan = local_workflow.launch_game(
-        ctx,
-        runner=lambda command, check: calls.append((command, check)) or SimpleNamespace(returncode=0),
-    )
+    class FakeSession:
+        def __init__(self, record_path: Path) -> None:
+            self.record_path = record_path
+
+        def run(self, command: list[str], *, cwd: Path | None = None) -> int:
+            calls.append((self.record_path, command, cwd))
+            return 0
+
+    plan = local_workflow.launch_game(ctx, session_factory=FakeSession)
 
     assert plan.command == (str(executable),)
-    assert calls == [([str(executable)], False)]
+    assert calls == [(tmp_path / ".agent/state/game-session.json", [str(executable)], game)]
