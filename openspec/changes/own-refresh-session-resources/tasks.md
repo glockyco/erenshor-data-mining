@@ -8,11 +8,11 @@
 
 ## 2. Make maps state transactional
 
-- [ ] 2.1 Replace direct link mutation with a transaction that records absent or symlink state and refuses a regular file or directory.
-- [ ] 2.2 Put Vite process shutdown and link restoration in one `try`/`finally` path used for normal exit, signals, startup failure, and runtime failure.
-- [ ] 2.3 Detect concurrent link replacement and fail closed without overwriting the newer state.
-- [ ] 2.4 Add focused tests for prior-target restoration, initially absent state, regular-file refusal, runtime failure, interruption, and concurrent replacement.
-- [ ] 2.5 Commit maps lifecycle ownership and its tests as one verified change.
+- [x] 2.1 Replace direct link mutation with a transaction that records absent or symlink state and refuses a regular file or directory.
+- [x] 2.2 Put Vite process shutdown and link restoration in one `try`/`finally` path used for normal exit, signals, startup failure, and runtime failure.
+- [x] 2.3 Detect concurrent link replacement and fail closed without overwriting the newer state.
+- [x] 2.4 Add focused tests for prior-target restoration, initially absent state, regular-file refusal, runtime failure, interruption, and concurrent replacement.
+- [x] 2.5 Commit maps lifecycle ownership and its tests as one verified change.
 
 ## 3. Prove real process ownership
 

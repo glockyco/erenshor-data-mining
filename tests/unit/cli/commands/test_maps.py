@@ -315,3 +315,116 @@ def test_deploy_dry_run_reports_both_services_without_invoking_wrangler(
     output = capsys.readouterr().out
     assert "--config wrangler.jsonc" in output
     assert "--config wrangler.legacy.jsonc" in output
+
+
+def test_database_link_transaction_restores_prior_target(tmp_path: Path) -> None:
+    prior = tmp_path / "prior.sqlite"
+    selected = tmp_path / "selected.sqlite"
+    prior.touch()
+    selected.touch()
+    target = tmp_path / "erenshor.sqlite"
+    target.symlink_to(prior)
+    transaction = maps.DatabaseLinkTransaction(selected, target)
+    transaction.install()
+    assert target.readlink() == selected
+    transaction.restore()
+    assert target.readlink() == prior
+
+
+def test_database_link_transaction_removes_initially_absent_link(tmp_path: Path) -> None:
+    selected = tmp_path / "selected.sqlite"
+    selected.touch()
+    target = tmp_path / "erenshor.sqlite"
+    transaction = maps.DatabaseLinkTransaction(selected, target)
+    transaction.install()
+    transaction.restore()
+    assert not target.exists() and not target.is_symlink()
+
+
+@pytest.mark.parametrize("kind", ["file", "directory"])
+def test_database_link_transaction_refuses_unmanaged_path(tmp_path: Path, kind: str) -> None:
+    selected = tmp_path / "selected.sqlite"
+    selected.touch()
+    target = tmp_path / "erenshor.sqlite"
+    target.touch() if kind == "file" else target.mkdir()
+    with pytest.raises(RuntimeError, match=str(target)):
+        maps.DatabaseLinkTransaction(selected, target).install()
+    assert not target.is_symlink()
+
+
+def test_database_link_transaction_refuses_concurrent_replacement(tmp_path: Path) -> None:
+    selected = tmp_path / "selected.sqlite"
+    replacement = tmp_path / "replacement.sqlite"
+    selected.touch()
+    replacement.touch()
+    target = tmp_path / "erenshor.sqlite"
+    transaction = maps.DatabaseLinkTransaction(selected, target)
+    transaction.install()
+    target.unlink()
+    target.symlink_to(replacement)
+    with pytest.raises(RuntimeError, match="changed concurrently"):
+        transaction.restore()
+    assert target.readlink() == replacement
+
+
+class _FakeDevProcess:
+    def __init__(self, outcome: int | BaseException) -> None:
+        self.pid = 73
+        self.outcome = outcome
+        self.returncode: int | None = None
+
+    def wait(self, timeout: float | None = None) -> int:
+        if isinstance(self.outcome, BaseException) and timeout is None:
+            outcome, self.outcome = self.outcome, 0
+            raise outcome
+        self.returncode = int(self.outcome)
+        return self.returncode
+
+    def poll(self) -> int | None:
+        return self.returncode
+
+
+def _run_dev_lifecycle(
+    tmp_path: Path, monkeypatch: Any, outcome: int | BaseException
+) -> tuple[Path, Path, list[tuple[int, int]]]:
+    maps_dir, database_path = _write_project(tmp_path)
+    ctx = _ctx(tmp_path, maps_dir, database_path)
+    target = maps_dir / "static/db/erenshor.sqlite"
+    prior = tmp_path / "prior.sqlite"
+    prior.touch()
+    target.symlink_to(prior)
+    process = _FakeDevProcess(outcome)
+    signals: list[tuple[int, int]] = []
+    monkeypatch.setattr(maps, "_check_pnpm_available", lambda: True)
+    monkeypatch.setattr(maps, "_check_node_modules", lambda _path: True)
+    monkeypatch.setattr(maps.subprocess, "Popen", lambda *_args, **_kwargs: process)
+    monkeypatch.setattr(maps.signal, "signal", lambda *_args: maps.signal.SIG_DFL)
+
+    def killpg(pid: int, sig: int) -> None:
+        signals.append((pid, sig))
+        process.returncode = -sig
+
+    monkeypatch.setattr(maps.os, "killpg", killpg)
+    try:
+        maps.dev(ctx)
+    except typer.Exit:
+        if not isinstance(outcome, int) or outcome == 0:
+            raise
+    return target, prior, signals
+
+
+def test_maps_dev_restores_link_after_normal_exit(tmp_path: Path, monkeypatch: Any) -> None:
+    target, prior, signals = _run_dev_lifecycle(tmp_path, monkeypatch, 0)
+    assert target.readlink() == prior
+    assert signals == []
+
+
+def test_maps_dev_restores_link_after_runtime_failure(tmp_path: Path, monkeypatch: Any) -> None:
+    target, prior, _signals = _run_dev_lifecycle(tmp_path, monkeypatch, 7)
+    assert target.readlink() == prior
+
+
+def test_maps_dev_terminates_child_and_restores_link_on_interruption(tmp_path: Path, monkeypatch: Any) -> None:
+    target, prior, signals = _run_dev_lifecycle(tmp_path, monkeypatch, KeyboardInterrupt())
+    assert target.readlink() == prior
+    assert signals == [(73, maps.signal.SIGTERM)]

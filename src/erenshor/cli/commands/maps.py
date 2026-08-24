@@ -12,7 +12,6 @@ import os
 import shutil
 import signal
 import subprocess
-import sys
 from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Annotated
@@ -110,26 +109,33 @@ def _get_maps_db_path(cli_ctx: CLIContext) -> Path:
     return maps_db_dir / "erenshor.sqlite"
 
 
-def _create_symlink(source: Path, target: Path) -> None:
-    """Create symlink, removing existing target if necessary."""
-    if target.exists() or target.is_symlink():
-        if target.is_symlink():
-            logger.debug(f"Removing existing symlink: {target}")
-        else:
-            logger.debug(f"Removing existing file: {target}")
-        target.unlink()
+class DatabaseLinkTransaction:
+    """Temporarily replace a database symlink and restore its exact prior state."""
 
-    logger.info(f"Creating symlink: {target} -> {source}")
-    target.symlink_to(source)
+    def __init__(self, source: Path, target: Path) -> None:
+        self.source = source
+        self.target = target
+        self._prior_target: Path | None = None
+        self._installed = False
+        self._temporary_target = source
 
+    def install(self) -> None:
+        if self.target.is_symlink():
+            self._prior_target = self.target.readlink()
+            self.target.unlink()
+        elif self.target.exists():
+            raise RuntimeError(f"refusing to replace regular file or directory: {self.target}")
+        self.target.symlink_to(self.source)
+        self._installed = True
 
-def _remove_symlink(target: Path) -> None:
-    """Remove symlink if it exists."""
-    if target.is_symlink():
-        logger.info(f"Removing symlink: {target}")
-        target.unlink()
-    elif target.exists():
-        logger.warning(f"Target exists but is not a symlink: {target}")
+    def restore(self) -> None:
+        if not self._installed:
+            return
+        if not self.target.is_symlink() or self.target.readlink() != self._temporary_target:
+            raise RuntimeError(f"database link changed concurrently; refusing to overwrite: {self.target}")
+        self.target.unlink()
+        if self._prior_target is not None:
+            self.target.symlink_to(self._prior_target)
 
 
 @app.command()
@@ -186,64 +192,58 @@ def dev(
     # Ensure maps db directory exists
     maps_db_dir.mkdir(parents=True, exist_ok=True)
 
-    # Create symlink
+    link = DatabaseLinkTransaction(db_path, maps_db_path)
+    process: subprocess.Popen[bytes] | None = None
+    previous_handlers: dict[signal.Signals, signal.Handlers] = {}
     try:
-        _create_symlink(db_path, maps_db_path)
-    except Exception as e:
-        console.print(f"[red]Error creating symlink: {e}[/red]")
-        raise typer.Exit(1) from e
-
-    # Show info panel
-    console.print()
-    console.print(
-        Panel.fit(
-            f"[bold cyan]Starting Maps Development Server[/bold cyan]\n"
-            f"Variant: {cli_ctx.variant}\n"
-            f"Port: {port}\n"
-            f"Database: {db_path}\n"
-            f"Maps DB: {maps_db_path} (symlinked)",
-            border_style="cyan",
+        link.install()
+        console.print()
+        console.print(
+            Panel.fit(
+                f"[bold cyan]Starting Maps Development Server[/bold cyan]\n"
+                f"Variant: {cli_ctx.variant}\n"
+                f"Port: {port}\n"
+                f"Database: {db_path}\n"
+                f"Maps DB: {maps_db_path} (symlinked)",
+                border_style="cyan",
+            )
         )
-    )
-    console.print()
-    console.print("[dim]Database changes will be reflected immediately (symlinked)[/dim]")
-    console.print("[dim]Press Ctrl+C to stop the server[/dim]")
-    console.print()
+        console.print()
+        console.print("[dim]Database changes will be reflected immediately (symlinked)[/dim]")
+        console.print("[dim]Press Ctrl+C to stop the server[/dim]")
+        console.print()
 
-    # Setup cleanup handler
-    def cleanup_handler(signum: int, frame: object) -> None:
-        """Clean up symlink on exit."""
-        console.print("\n[yellow]Shutting down...[/yellow]")
-        _remove_symlink(maps_db_path)
-        sys.exit(0)
-
-    # Register signal handlers
-    signal.signal(signal.SIGINT, cleanup_handler)
-    signal.signal(signal.SIGTERM, cleanup_handler)
-
-    # Run dev server
-    try:
-        result = subprocess.run(
+        process = subprocess.Popen(
             ["pnpm", "exec", "vite", "dev", "--port", str(port)],
             cwd=maps_dir,
-            check=False,
+            start_new_session=True,
         )
 
-        # Cleanup on normal exit
-        _remove_symlink(maps_db_path)
+        def request_shutdown(_signum: int, _frame: object) -> None:
+            if process is not None and process.poll() is None:
+                os.killpg(process.pid, signal.SIGTERM)
 
-        if result.returncode != 0:
-            console.print(f"[red]Dev server exited with code {result.returncode}[/red]")
-            raise typer.Exit(result.returncode)
-
+        for handled_signal in (signal.SIGINT, signal.SIGTERM):
+            previous_handlers[handled_signal] = signal.signal(handled_signal, request_shutdown)
+        return_code = process.wait()
+        if return_code != 0:
+            raise RuntimeError(f"Dev server exited with code {return_code}")
     except KeyboardInterrupt:
         console.print("\n[yellow]Shutting down...[/yellow]")
-        _remove_symlink(maps_db_path)
-        raise typer.Exit(0) from None
-    except Exception as e:
-        console.print(f"[red]Error running dev server: {e}[/red]")
-        _remove_symlink(maps_db_path)
-        raise typer.Exit(1) from e
+    except (OSError, RuntimeError) as exc:
+        console.print(f"[red]Error running dev server: {exc}[/red]")
+        raise typer.Exit(1) from exc
+    finally:
+        for handled_signal, previous_handler in previous_handlers.items():
+            signal.signal(handled_signal, previous_handler)
+        if process is not None and process.poll() is None:
+            os.killpg(process.pid, signal.SIGTERM)
+            try:
+                process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                os.killpg(process.pid, signal.SIGKILL)
+                process.wait()
+        link.restore()
 
 
 @app.command()
