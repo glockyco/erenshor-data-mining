@@ -78,14 +78,14 @@ Refresh the `playtest` variant from the current Steam installation before the Mo
    - Generate legacy local article pages with `uv run erenshor -V playtest wiki generate`. Full unfiltered generation is required so stale generated entries are removed; do not replace it with a targeted `--pages-file` run. Lua/Cargo module generation is not part of this release because that pipeline is not fully implemented yet; do not run `wiki generate-lua`.
    - Do not run `wiki deploy`, `wiki deploy-repo-pages`, `wiki refresh-embedded`, or any other MediaWiki write. The only wiki-side network operation in this plan is fetching current source pages.
 
-8. **Deploy playtest Sheets after a dry-run and perform final teardown.** (Depends on steps 3 and 7.)
+8. **Deploy playtest Sheets after a dry-run and stop owned sessions.** (Depends on steps 3 and 7.)
    - Preview all configured tabs against the playtest clean DB: `uv run erenshor -V playtest --dry-run sheets deploy --all-sheets`. Confirm the command reports the playtest spreadsheet target, not main, and no query failures.
    - Deploy the playtest spreadsheet: `uv run erenshor -V playtest sheets deploy --all-sheets`. This is safe because `config.toml` gives playtest its own spreadsheet ID; require the Google service-account credentials to have Editor access. A failed tab is a failed release gate, not a partial success to ignore.
-   - Run `python .agent/skills/refreshing-game-data/scripts/teardown_session.py` last. It stops maps/game/Unity processes, removes capture/session leftovers, checks ports, and restores the shared maps DB symlink to main. Re-run the final read-only freshness/status checks if teardown reports a problem.
+   - Stop each foreground `maps dev` or `mod launch` command with one interrupt. Each command owns its process group, and `maps dev` restores its prior database link. Do not use the retired global teardown procedure from this historical plan. Re-run the final read-only freshness and status checks if an owning command reports a cleanup failure.
 
 ## Critical files & anchors
 
-- `skill://refreshing-game-data` — canonical order, variant scope, shared-output rules, and teardown.
+- `skill://refreshing-game-data` — canonical order, variant scope, shared-output rules, and command-owned shutdown.
 - `skill://auditing-spawn-coverage` — export exit-3 handling and mandatory residual audits before publishing.
 - `skill://tile-capture` — MapTileCapture WebSocket, forced recapture, shared tile output, budget, and visual checks.
 - `src/erenshor/cli/commands/extract.py` (`download`, `rip`, `export`, `code_facts`, `build`) — exact extraction side effects and gate order.
@@ -100,7 +100,7 @@ Refresh the `playtest` variant from the current Steam installation before the Mo
 - Map build: `maps build` succeeds, creates/stamps `src/maps/build-playtest`, and `maps preview` serves `/map` on port 4173 with the refreshed playtest database.
 - Guide/wiki: `quest_guides/guide.json` parses and focused guide tests pass; wiki dry-runs show planned outputs, real fetch/generate complete without failed pages, and generated articles are present under the playtest wiki directory. Lua/Cargo generation is intentionally skipped until that pipeline is fully implemented.
 - Sheets: dry-run formats every tab; real `--all-sheets` completes with zero failed tabs and targets the configured playtest spreadsheet.
-- Boundaries: no command writes to `erenshor.wiki.gg` or deploys the Cloudflare worker; teardown restores the main map symlink.
+- Boundaries: no command writes to `erenshor.wiki.gg` or deploys the Cloudflare worker; each long-running command stops its own processes, and `maps dev` restores its prior database link.
 
 ## Assumptions & contingencies
 

@@ -31,7 +31,7 @@ from erenshor.application.mods.artifacts import (
     verify_built_mod_artifacts,
 )
 from erenshor.application.mods.catalog import LoaderName, artifact_specs, iter_mods, lookup_mod
-from erenshor.application.process_session import ProcessSession
+from erenshor.application.process_session import ProcessSession, recover_recorded_session
 
 if TYPE_CHECKING:
     from erenshor.cli.context import CLIContext
@@ -725,6 +725,13 @@ def plan_launch(cli_ctx: CLIContext) -> LaunchPlan:
     return LaunchPlan((str(executable),), game_path, None)
 
 
+def recover_game_session(cli_ctx: CLIContext) -> bool:
+    record_path = cli_ctx.repo_root / ".agent/state/game-session.json"
+    if not record_path.exists():
+        return False
+    return recover_recorded_session(record_path)
+
+
 def launch_game(
     cli_ctx: CLIContext,
     *,
@@ -782,6 +789,7 @@ __all__ = [
     "plan_deploy",
     "plan_launch",
     "prepare_deploy",
+    "recover_game_session",
     "resolve_build_targets",
     "resolve_deploy_targets",
     "setup_mods",

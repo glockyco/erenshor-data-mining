@@ -71,6 +71,11 @@ class ProcessSession:
 
     def run(self, command: list[str], *, cwd: Path | None = None) -> int:
         self.record_path.parent.mkdir(parents=True, exist_ok=True)
+        if self.record_path.exists():
+            raise RuntimeError(
+                f"game session record already exists: {self.record_path}; "
+                "inspect it with `erenshor mod launch --recover` before another launch"
+            )
         process = self._starter(command, cwd=cwd, start_new_session=True)
         self._process = process
         if self.identity_settle_seconds > 0:
@@ -82,7 +87,7 @@ class ProcessSession:
             raise RuntimeError(f"cannot record process identity for PID {process.pid}")
         self._identity = identity
         self._write_record(identity, command)
-        previous_handlers: dict[signal.Signals, signal.Handlers] = {}
+        previous_handlers: dict[signal.Signals, Any] = {}
 
         def request_shutdown(_signum: int, _frame: object) -> None:
             raise KeyboardInterrupt
@@ -132,6 +137,8 @@ class ProcessSession:
 def recover_recorded_session(
     record_path: Path,
     *,
+    grace_seconds: float = 8.0,
+    poll_seconds: float = 0.1,
     identity_reader: IdentityReader = read_process_identity,
     signal_process_group: Callable[[int, signal.Signals], None] = os.killpg,
 ) -> bool:
@@ -139,7 +146,25 @@ def recover_recorded_session(
     payload = json.loads(record_path.read_text(encoding="utf-8"))
     expected = ProcessIdentity(**payload["identity"])
     actual = identity_reader(expected.pid)
+    if actual is None:
+        record_path.unlink()
+        return False
     if not identity_matches(expected, actual):
         raise RuntimeError(f"process identity mismatch for PID {expected.pid}; candidate was not signaled")
+
+    def process_identity_changed() -> bool:
+        deadline = time.monotonic() + grace_seconds
+        while identity_matches(expected, identity_reader(expected.pid)):
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                return False
+            time.sleep(min(poll_seconds, remaining))
+        return True
+
     signal_process_group(expected.process_group, signal.SIGTERM)
+    if not process_identity_changed():
+        signal_process_group(expected.process_group, signal.SIGKILL)
+        if not process_identity_changed():
+            raise RuntimeError(f"recorded process PID {expected.pid} did not exit; ownership record retained")
+    record_path.unlink()
     return True

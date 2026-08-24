@@ -60,7 +60,7 @@ Run `pytest tests/integration -v` against this variant. **Do not** run `golden c
 
 ### 6. Republish only the variant-safe outputs
 - **Sheets:** `erenshor -V {v} sheets deploy --all-sheets` (dry-run first with the global `--dry-run` flag).
-- **Local map:** `erenshor -V {v} maps build && erenshor -V {v} maps dev` (or `preview`). The teardown script restores the main symlink at end of session.
+- **Local map:** `erenshor -V {v} maps build && erenshor -V {v} maps dev` (or `preview`). Keep `maps dev` in the foreground. It restores the prior database link when it stops.
 - **Guide compile / Wiki / Cloudflare map deploy:** see Variant safety rules.
 
 ### 7. Tile capture for new zones
@@ -102,18 +102,19 @@ Shared-output actions require an explicit variant gate before running:
 - `guide compile` overwrites the single `quest_guides/guide.json` embedded into the next AdventureGuide build.
 - `maps deploy` publishes one build to both Worker services, canonical first: `wrangler.jsonc` serves `erenshor.compendiums.org`, `wrangler.legacy.jsonc` keeps `erenshor-maps.wowmuch1.workers.dev` alive for shipped companion mods. Build/playtest locally, but deploy only the shipping variant.
 
-## End-of-session teardown
+## Session shutdown and recovery
 
-```bash
-python .agent/skills/refreshing-game-data/scripts/teardown_session.py
-```
-Stops the maps dev server, kills the game and its wine satellites (Erenshor.exe, conhost.exe holding BepInEx console windows, UnityCrashHandler64.exe zombies), quits Unity Hub if it was opened, and restores the map DB symlink to main. The cleanup has multiple pitfalls (bash `kill` builtin quirks, wine processes reparenting to launchd, conhost surviving `pkill -f wineserver`) — the script handles all of them. Don't reinvent it manually.
+Keep `erenshor mod launch` and `erenshor -V {v} maps dev` in the foreground. Stop each command with one interrupt. Each command stops only the process group that it created. `maps dev` also restores the database link that existed when it started.
+
+Do not search for processes by name, age, or port. Do not quit Unity Hub or its licensing service. They are not resources that this workflow owns.
+
+If `mod launch` reports a cleanup failure or leaves `.agent/state/game-session.json`, run `erenshor mod launch --recover`. Recovery compares the recorded PID, process group, start time, and command with the live process. It signals only an exact match. If it reports an identity mismatch, inspect the reported PID and the record. Do not signal the candidate automatically.
 
 ## Recovering from common mistakes
 
 | Symptom | Cause | Recovery |
 |---|---|---|
-| Map shows wrong content during main work | DB symlink left on another variant | run the teardown script, or `ln -snf "$(pwd)/variants/main/erenshor-main.sqlite" src/maps/static/db/erenshor.sqlite` |
+| Map shows wrong content after `maps dev` reports a restoration failure | The database link changed while the command was active | Inspect the reported path and its current target. Restore the intended target only after you identify who changed it. |
 | `extract export` produces unchanged data despite new game files | Forgot to re-rip; Unity scanned stale ExportedProject | re-rip, then re-export |
 | Wiki deploy from non-main variant overwrote main's pages | Variant safety rule ignored | `erenshor -V main wiki generate && erenshor -V main wiki deploy` |
 | `golden capture` from non-main variant broke main's tests | Capture writes to shared `tests/golden/` | `git checkout tests/golden/`, re-capture from main after main's DB is current |

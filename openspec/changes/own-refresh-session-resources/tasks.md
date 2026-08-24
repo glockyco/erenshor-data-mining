@@ -23,10 +23,10 @@
 
 ## 4. Remove compensating teardown
 
-- [ ] 4.1 Delete `.agent/skills/refreshing-game-data/scripts/teardown_session.py` after the real ownership gates pass.
-- [ ] 4.2 Remove the routine end-of-session teardown section and replace relevant recovery text with exact-identity inspection guidance.
-- [ ] 4.3 Remove current instructions to quit Unity Hub or kill `UnityLicensingClient`; retain incident evidence only where it explains an observed historical failure.
-- [ ] 4.4 Search the repository for the removed script, broad port/process-age cleanup, and global process-name kill instructions; remove every current route.
+- [x] 4.1 Delete `.agent/skills/refreshing-game-data/scripts/teardown_session.py` after the real ownership gates pass.
+- [x] 4.2 Remove the routine end-of-session teardown section and replace relevant recovery text with exact-identity inspection guidance.
+- [x] 4.3 Remove current instructions to quit Unity Hub or kill `UnityLicensingClient`; retain incident evidence only where it explains an observed historical failure.
+- [x] 4.4 Search the repository for the removed script, broad port/process-age cleanup, and global process-name kill instructions; remove every current route.
 - [ ] 4.5 Commit the teardown removal, skill update, and related documentation cleanup as one verified change.
 
 ## 5. Validate the change

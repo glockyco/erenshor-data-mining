@@ -443,9 +443,30 @@ def vault(
 
 
 @app.command()
-def launch(ctx: typer.Context) -> None:
-    """Launch the selected game through Steam."""
+def launch(
+    ctx: typer.Context,
+    recover: Annotated[
+        bool,
+        typer.Option(
+            "--recover",
+            help="Inspect the recorded session identity and stop only an exact match.",
+        ),
+    ] = False,
+) -> None:
+    """Launch the selected game through Steam or recover its recorded session."""
     cli_ctx: CLIContext = ctx.obj
+    if recover:
+        try:
+            stopped = local_workflow.recover_game_session(cli_ctx)
+        except (OSError, RuntimeError, ValueError) as exc:
+            console.print(f"[red]Error: {exc}[/red]")
+            raise typer.Exit(1) from exc
+        if stopped:
+            console.print("[green]Stopped the recorded game session.[/green]")
+        else:
+            console.print("No live recorded game session was found.")
+        return
+
     console.print()
     console.print(Panel.fit("[bold cyan]Launch Game[/bold cyan]", border_style="cyan"))
     console.print()

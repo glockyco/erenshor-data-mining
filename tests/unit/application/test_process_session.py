@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import signal
 import subprocess
+from dataclasses import asdict
 from pathlib import Path
 
 import pytest
@@ -120,6 +121,27 @@ def test_stubborn_owned_process_is_forced_after_grace(tmp_path: Path, monkeypatc
     assert signals == [(41, signal.SIGTERM), (41, signal.SIGKILL)]
 
 
+def test_launch_refuses_to_overwrite_existing_session_record(tmp_path: Path) -> None:
+    record = tmp_path / "session.json"
+    record.write_text("{}", encoding="utf-8")
+    session = process_session.ProcessSession(
+        record,
+        starter=lambda *_args, **_kwargs: pytest.fail("must not start another process"),
+    )
+    with pytest.raises(RuntimeError, match=r"record already exists.*--recover"):
+        session.run(["fake"])
+
+
+def test_recovery_removes_record_when_process_is_gone(tmp_path: Path) -> None:
+    record = tmp_path / "session.json"
+    record.write_text(
+        json.dumps({"identity": {"pid": 41, "process_group": 41, "started_at": "old", "command": "old"}}),
+        encoding="utf-8",
+    )
+    assert not process_session.recover_recorded_session(record, identity_reader=lambda _pid: None)
+    assert not record.exists()
+
+
 def test_recovery_refuses_pid_identity_mismatch(tmp_path: Path) -> None:
     record = tmp_path / "session.json"
     record.write_text(
@@ -155,7 +177,26 @@ def test_recovery_signals_exact_recorded_identity(tmp_path: Path) -> None:
     signals: list[tuple[int, signal.Signals]] = []
     assert process_session.recover_recorded_session(
         record,
-        identity_reader=lambda _pid: expected,
+        identity_reader=lambda _pid: expected if not signals else None,
         signal_process_group=lambda pgid, sig: signals.append((pgid, sig)),
     )
     assert signals == [(41, signal.SIGTERM)]
+    assert not record.exists()
+
+
+def test_recovery_forces_only_the_still_matching_process(tmp_path: Path) -> None:
+    expected = identity()
+    record = tmp_path / "session.json"
+    record.write_text(
+        json.dumps({"identity": asdict(expected)}),
+        encoding="utf-8",
+    )
+    signals: list[tuple[int, signal.Signals]] = []
+    assert process_session.recover_recorded_session(
+        record,
+        grace_seconds=0,
+        identity_reader=lambda _pid: expected if len(signals) < 2 else None,
+        signal_process_group=lambda pgid, sig: signals.append((pgid, sig)),
+    )
+    assert signals == [(41, signal.SIGTERM), (41, signal.SIGKILL)]
+    assert not record.exists()

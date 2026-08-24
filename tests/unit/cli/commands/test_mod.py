@@ -1347,6 +1347,25 @@ def test_launch_uses_crossover_steam_protocol(tmp_path: Path, monkeypatch: pytes
     ]
 
 
+def test_launch_recovery_does_not_start_another_game(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    ctx = _ctx(tmp_path)
+    recovered: list[object] = []
+    monkeypatch.setattr(
+        local_workflow,
+        "recover_game_session",
+        lambda cli_ctx: recovered.append(cli_ctx) or True,
+    )
+    monkeypatch.setattr(
+        local_workflow,
+        "launch_game",
+        lambda _cli_ctx: pytest.fail("recovery must not launch a game"),
+    )
+
+    mod_command.launch(ctx, recover=True)
+
+    assert recovered == [ctx.obj]
+
+
 def test_launch_applies_native_proxy_override_for_active_loader(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
