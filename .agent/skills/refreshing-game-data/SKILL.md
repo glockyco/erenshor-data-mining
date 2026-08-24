@@ -110,6 +110,8 @@ Do not search for processes by name, age, or port. Do not quit Unity Hub or its 
 
 If `mod launch` reports a cleanup failure or leaves `.agent/state/game-session.json`, run `erenshor mod launch --recover`. Recovery compares the recorded PID, process group, start time, and command with the live process. It signals only an exact match. If it reports an identity mismatch, inspect the reported PID and the record. Do not signal the candidate automatically.
 
+If you find a possible session process without an ownership record, run `erenshor mod launch --inspect-pid <pid>`. The command reports that PID's process group, start time, and command. It does not send a signal.
+
 ## Recovering from common mistakes
 
 | Symptom | Cause | Recovery |

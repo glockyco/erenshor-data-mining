@@ -18,6 +18,7 @@ import typer
 from erenshor.application.mods import local_workflow, release
 from erenshor.application.mods.artifacts import REQUIRED_DLLS, ArtifactIssue, ModArtifactSpec
 from erenshor.application.mods.catalog import artifact_specs, iter_mods, lookup_mod, public_mods
+from erenshor.application.process_session import ProcessIdentity
 from erenshor.cli.commands import mod as mod_command
 
 _DISCOVER_CROSSOVER_GAME_PATH = local_workflow.discover_crossover_game_path
@@ -1364,6 +1365,26 @@ def test_launch_recovery_does_not_start_another_game(tmp_path: Path, monkeypatch
     mod_command.launch(ctx, recover=True)
 
     assert recovered == [ctx.obj]
+
+
+def test_launch_inspects_unowned_pid_without_signaling(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    ctx = _ctx(tmp_path)
+    identity = ProcessIdentity(41, 42, "Mon Aug 24 21:00:00 2026", "/usr/bin/example")
+    monkeypatch.setattr(mod_command, "read_process_identity", lambda _pid: identity)
+    monkeypatch.setattr(
+        local_workflow,
+        "launch_game",
+        lambda _cli_ctx: pytest.fail("inspection must not launch a game"),
+    )
+
+    mod_command.launch(ctx, inspect_pid=41)
+
+    output = capsys.readouterr().out
+    assert "PID: 41" in output
+    assert "Process group: 42" in output
+    assert "No signal was sent" in output
 
 
 def test_launch_applies_native_proxy_override_for_active_loader(

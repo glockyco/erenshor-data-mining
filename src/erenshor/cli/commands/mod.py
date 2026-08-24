@@ -25,6 +25,7 @@ from rich.panel import Panel
 from erenshor.application.mods import local_workflow, release
 from erenshor.application.mods.artifacts import format_artifact_issues
 from erenshor.application.mods.catalog import LoaderName, lookup_mod
+from erenshor.application.process_session import read_process_identity
 
 if TYPE_CHECKING:
     from ..context import CLIContext
@@ -452,9 +453,31 @@ def launch(
             help="Inspect the recorded session identity and stop only an exact match.",
         ),
     ] = False,
+    inspect_pid: Annotated[
+        int | None,
+        typer.Option(
+            "--inspect-pid",
+            min=1,
+            help="Report one explicit process identity without signaling it.",
+        ),
+    ] = None,
 ) -> None:
-    """Launch the selected game through Steam or recover its recorded session."""
+    """Launch the selected game, recover its session, or inspect one PID."""
     cli_ctx: CLIContext = ctx.obj
+    if recover and inspect_pid is not None:
+        console.print("[red]Error: --recover and --inspect-pid are mutually exclusive.[/red]")
+        raise typer.Exit(2)
+    if inspect_pid is not None:
+        identity = read_process_identity(inspect_pid)
+        if identity is None:
+            console.print(f"No live process was found for PID {inspect_pid}.")
+        else:
+            console.print(f"PID: {identity.pid}")
+            console.print(f"Process group: {identity.process_group}")
+            console.print(f"Started: {identity.started_at}")
+            console.print(f"Command: {identity.command}")
+            console.print("No signal was sent. This process has no repository ownership record.")
+        return
     if recover:
         try:
             stopped = local_workflow.recover_game_session(cli_ctx)
