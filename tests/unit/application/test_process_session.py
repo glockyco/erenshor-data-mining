@@ -53,6 +53,20 @@ def test_reads_macos_process_identity_fields(monkeypatch: pytest.MonkeyPatch) ->
     )
 
 
+def test_normalizes_crossover_exec_wrapper_command(monkeypatch: pytest.MonkeyPatch) -> None:
+    stable = "/Applications/CrossOver.app/Contents/SharedSupport/CrossOver/lib/wine/winewrapper.exe --wait-children"
+    monkeypatch.setattr(
+        process_session.subprocess,
+        "run",
+        lambda *_args, **_kwargs: subprocess.CompletedProcess(
+            [], 0, f" 41 Mon Aug 24 20:50:58 2026 /tmp/wineloader {stable}\n", ""
+        ),
+    )
+    assert process_session.read_process_identity(41) == process_session.ProcessIdentity(
+        41, 41, "Mon Aug 24 20:50:58 2026", stable
+    )
+
+
 def test_normal_completion_records_atomically_then_removes_record(tmp_path: Path) -> None:
     process = FakeProcess()
     observed: list[Path] = []
@@ -79,7 +93,8 @@ def test_interruption_terminates_owned_group(tmp_path: Path, monkeypatch: pytest
         starter=lambda *_args, **_kwargs: process,
         identity_reader=lambda _pid: identity(),
     )
-    assert session.run(["fake"]) == 130
+    with pytest.raises(KeyboardInterrupt):
+        session.run(["fake"])
     assert signals == [(41, signal.SIGTERM)]
     assert not (tmp_path / "session.json").exists()
 
@@ -100,14 +115,15 @@ def test_stubborn_owned_process_is_forced_after_grace(tmp_path: Path, monkeypatc
         starter=lambda *_args, **_kwargs: process,
         identity_reader=lambda _pid: identity(),
     )
-    assert session.run(["fake"]) == 130
+    with pytest.raises(KeyboardInterrupt):
+        session.run(["fake"])
     assert signals == [(41, signal.SIGTERM), (41, signal.SIGKILL)]
 
 
 def test_recovery_refuses_pid_identity_mismatch(tmp_path: Path) -> None:
     record = tmp_path / "session.json"
     record.write_text(
-        json.dumps({"identity": {"pid": 41, "process_group": 41, "started_at": "old", "executable": "old"}}),
+        json.dumps({"identity": {"pid": 41, "process_group": 41, "started_at": "old", "command": "old"}}),
         encoding="utf-8",
     )
     signaled: list[object] = []
@@ -130,7 +146,7 @@ def test_recovery_signals_exact_recorded_identity(tmp_path: Path) -> None:
                     "pid": expected.pid,
                     "process_group": expected.process_group,
                     "started_at": expected.started_at,
-                    "executable": expected.executable,
+                    "command": expected.command,
                 }
             }
         ),

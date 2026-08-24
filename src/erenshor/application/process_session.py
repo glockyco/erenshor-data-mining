@@ -6,6 +6,7 @@ import json
 import os
 import signal
 import subprocess
+import time
 from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -17,7 +18,7 @@ class ProcessIdentity:
     pid: int
     process_group: int
     started_at: str
-    executable: str
+    command: str
 
 
 IdentityReader = Callable[[int], ProcessIdentity | None]
@@ -27,7 +28,7 @@ ProcessStarter = Callable[..., Any]
 def read_process_identity(pid: int) -> ProcessIdentity | None:
     """Read identity fields from the operating system for one PID."""
     result = subprocess.run(
-        ["ps", "-p", str(pid), "-o", "pgid=", "-o", "lstart=", "-o", "comm="],
+        ["ps", "-p", str(pid), "-o", "pgid=", "-o", "lstart=", "-o", "args="],
         check=False,
         capture_output=True,
         text=True,
@@ -37,7 +38,11 @@ def read_process_identity(pid: int) -> ProcessIdentity | None:
     fields = result.stdout.strip().split(maxsplit=6)
     if len(fields) != 7:
         return None
-    return ProcessIdentity(pid, int(fields[0]), " ".join(fields[1:6]), fields[6])
+    command = fields[6]
+    crossover_command = command.find("/Applications/CrossOver.app/")
+    if crossover_command >= 0:
+        command = command[crossover_command:]
+    return ProcessIdentity(pid, int(fields[0]), " ".join(fields[1:6]), command)
 
 
 def identity_matches(expected: ProcessIdentity, actual: ProcessIdentity | None) -> bool:
@@ -52,11 +57,13 @@ class ProcessSession:
         record_path: Path,
         *,
         grace_seconds: float = 8.0,
+        identity_settle_seconds: float = 0.5,
         starter: ProcessStarter = subprocess.Popen,
         identity_reader: IdentityReader = read_process_identity,
     ) -> None:
         self.record_path = record_path
         self.grace_seconds = grace_seconds
+        self.identity_settle_seconds = identity_settle_seconds
         self._starter = starter
         self._identity_reader = identity_reader
         self._process: Any | None = None
@@ -66,6 +73,8 @@ class ProcessSession:
         self.record_path.parent.mkdir(parents=True, exist_ok=True)
         process = self._starter(command, cwd=cwd, start_new_session=True)
         self._process = process
+        if self.identity_settle_seconds > 0:
+            time.sleep(self.identity_settle_seconds)
         identity = self._identity_reader(process.pid)
         if identity is None:
             process.terminate()
@@ -73,12 +82,21 @@ class ProcessSession:
             raise RuntimeError(f"cannot record process identity for PID {process.pid}")
         self._identity = identity
         self._write_record(identity, command)
+        previous_handlers: dict[signal.Signals, signal.Handlers] = {}
+
+        def request_shutdown(_signum: int, _frame: object) -> None:
+            raise KeyboardInterrupt
+
+        for handled_signal in (signal.SIGINT, signal.SIGTERM):
+            previous_handlers[handled_signal] = signal.signal(handled_signal, request_shutdown)
         try:
             return int(process.wait())
         except KeyboardInterrupt:
             self.shutdown()
-            return 130
+            raise
         finally:
+            for handled_signal, previous_handler in previous_handlers.items():
+                signal.signal(handled_signal, previous_handler)
             if process.poll() is None:
                 self.shutdown()
             if process.poll() is not None:

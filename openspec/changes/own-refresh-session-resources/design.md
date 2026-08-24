@@ -32,7 +32,9 @@ CrossOver provides `cxstart --wait-children`. The repository supports macOS as t
 
 Replace `cxstart --no-wait` with `cxstart --wait-children`. Run the launcher in a dedicated process group and keep `mod launch` active until CrossOver reports that the game and its children have exited.
 
-On interruption, send graceful termination to the owned group. Wait for a bounded grace period. Send forced termination only to surviving members whose process identities still match the identities captured by the supervisor.
+`cxstart` is a Perl launcher that replaces itself with `winewrapper`. Capture the launcher identity only after this expected `exec` transition stabilizes. Validate its PID, process group, start time, and executable before each signal.
+
+On interruption, send graceful termination to the validated launcher group. `--wait-children` remains the authoritative CrossOver owner for Wine children that reparent to PID 1 or enter other process groups; do not rediscover those children by name. Wait for a bounded grace period. Send forced termination only while the validated launcher identity still matches. The real smoke must confirm that ending the launcher group also ends the session game, console, and crash-handler processes while unrelated bottle processes remain.
 
 This changes the CLI from fire-and-forget to foreground supervision. That is intentional: a command cannot own cleanup after it has exited.
 
@@ -40,9 +42,9 @@ Do not use `wineserver -k` or terminate a complete bottle. The bottle contains a
 
 ### Persist exact identities for crash recovery
 
-The supervisor records PID, process start time, and expected executable or command identity for each process that it directly starts or observes as part of its process tree. An atomic session record can survive an abrupt supervisor exit.
+The supervisor records the stabilized `winewrapper` PID, process group, start time, and command identity. An atomic session record can survive an abrupt supervisor exit. CrossOver remains responsible for its reparented Wine children through `--wait-children`; the repository does not infer ownership of those processes after reparenting.
 
-Recovery validates all recorded identity fields before signaling a process. A PID match alone is insufficient because the operating system can reuse PIDs. If CrossOver moves a child outside the initial process group, the real-launch smoke must prove that the supervisor records that child before it becomes detached.
+Recovery validates all recorded identity fields before signaling the launcher group. A PID match alone is insufficient because the operating system can reuse PIDs. If the real-launch smoke shows that a Wine child survives a validated launcher-group shutdown, this ownership mechanism fails and the teardown script must remain until CrossOver provides a stronger owned handle.
 
 Do not add broad fallback discovery. An unowned possible process is a diagnostic result for manual inspection, not a kill target.
 

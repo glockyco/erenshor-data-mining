@@ -16,8 +16,8 @@
 
 ## 3. Prove real process ownership
 
-- [ ] 3.1 Launch the selected CrossOver game through `uv run erenshor mod launch` and confirm that the command remains active while the game runs.
-- [ ] 3.2 Stop the supervised launch and confirm the game, its session `conhost.exe`, and its Unity crash handler exit while unrelated bottle processes remain.
+- [x] 3.1 Launch the selected CrossOver game through `uv run erenshor mod launch` and confirm that the command remains active while the game runs.
+- [x] 3.2 Stop the supervised launch and confirm the game, its session `conhost.exe`, and its Unity crash handler exit while unrelated bottle processes remain.
 - [ ] 3.3 Run `uv run erenshor maps dev` with a non-main variant, interrupt it, confirm its port is released, and confirm the exact prior database-link state is restored.
 - [ ] 3.4 Simulate an identity mismatch in the recovery path and confirm that the candidate process is reported but not signaled.
 
