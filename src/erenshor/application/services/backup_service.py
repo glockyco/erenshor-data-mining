@@ -452,13 +452,16 @@ class BackupService:
         """List all backups in directory.
 
         Reads metadata from all backup directories and returns as list.
-        Skips directories without valid metadata.
 
         Args:
             backup_dir: Base backup directory.
 
         Returns:
             List of BackupMetadata, sorted by build ID (newest first).
+
+        Raises:
+            BackupValidationError: If any backup directory lacks readable
+                metadata. Every broken backup is named.
 
         Example:
             >>> service = BackupService()
@@ -469,9 +472,10 @@ class BackupService:
         if not backup_dir.exists():
             return []
 
-        backups = []
+        backups: list[BackupMetadata] = []
+        broken: list[str] = []
 
-        for backup_path in backup_dir.iterdir():
+        for backup_path in sorted(backup_dir.iterdir()):
             if not backup_path.is_dir():
                 continue
 
@@ -479,19 +483,15 @@ class BackupService:
             if backup_path.name.startswith(".backup-"):
                 continue
 
-            # Read metadata
             metadata_path = backup_path / "metadata.json"
-            if not metadata_path.exists():
-                logger.warning(f"Skipping backup without metadata: {backup_path}")
-                continue
-
             try:
                 metadata_dict = json.loads(metadata_path.read_text())
-                metadata = BackupMetadata(**metadata_dict)
-                backups.append(metadata)
-            except Exception as e:
-                logger.warning(f"Failed to read backup metadata: {backup_path} - {e}")
-                continue
+                backups.append(BackupMetadata(**metadata_dict))
+            except (OSError, json.JSONDecodeError, TypeError) as e:
+                broken.append(f"{backup_path}: {e}")
+
+        if broken:
+            raise BackupValidationError("Backups without readable metadata:\n  " + "\n  ".join(broken))
 
         # Sort by build ID (descending - newest first)
         backups.sort(key=lambda b: b.build_id, reverse=True)

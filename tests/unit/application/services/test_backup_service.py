@@ -430,23 +430,23 @@ class TestBackupService:
         backups = backup_service.list_backups(backup_dir)
         assert backups == []
 
-    def test_list_backups_skips_invalid_metadata(
+    def test_list_backups_names_every_backup_without_readable_metadata(
         self,
         backup_service: BackupService,
         tmp_path: Path,
     ):
-        """Test that list_backups skips backups with invalid metadata."""
+        """A broken backup is reported, not silently left out of the list."""
         backup_dir = tmp_path / "backups"
         backup_dir.mkdir()
+        (backup_dir / "build-20370413").mkdir()
+        (backup_dir / "build-20370413" / "metadata.json").write_text("invalid json")
+        (backup_dir / "build-20370414").mkdir()
 
-        # Create backup with invalid metadata
-        invalid_backup = backup_dir / "build-20370413"
-        invalid_backup.mkdir()
-        (invalid_backup / "metadata.json").write_text("invalid json")
+        with pytest.raises(BackupValidationError) as error:
+            backup_service.list_backups(backup_dir)
 
-        # List should be empty (invalid backup skipped)
-        backups = backup_service.list_backups(backup_dir)
-        assert backups == []
+        assert "build-20370413" in str(error.value)
+        assert "build-20370414" in str(error.value)
 
     def test_format_size(self, backup_service: BackupService):
         """Test human-readable size formatting."""
