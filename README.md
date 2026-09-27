@@ -99,17 +99,12 @@ cp config.local.toml.example .erenshor/config.local.toml
 Common local values:
 
 ```toml
-[global.steam]
-username = "your_steam_username"
-
 [global.mediawiki]
 bot_username = "YourUsername@BotName"
 bot_password = "your_bot_password"
-
-[variants.main]
-# Rip an installation you already have instead of downloading a second copy.
-game_files = "$HOME/Library/Application Support/CrossOver/Bottles/Steam/drive_c/Program Files (x86)/Steam/steamapps/common/Erenshor"
 ```
+
+Game files are not configured. The CLI finds each variant's installation in the CrossOver Steam bottle by its Steam app ID. Set `CROSSOVER_BOTTLE` when several bottles exist. An unknown or removed configuration key is an error that names the key.
 
 AssetRipper needs no entry: the tracked config resolves it from PATH, which the dev shell populates.
 

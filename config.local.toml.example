@@ -15,14 +15,6 @@
 # GLOBAL SETTINGS
 # =============================================================================
 
-[global.steam]
-# Your Steam username (REQUIRED for downloading game files)
-# Get this from your Steam account settings
-username = "your_steam_username"
-
-# Platform for SteamCMD downloads (usually "windows" even on Mac/Linux)
-platform = "windows"
-
 [global.unity]
 # Path to Unity Editor executable
 # REQUIRED: Must match the exact version used by the game (2021.3.45f2)
@@ -127,23 +119,15 @@ level = "info"
 # Enable/disable variant (set to false to skip in operations)
 enabled = true
 
-# Source game files for `extract rip`. Defaults to the directory that
-# `extract download` fills via SteamCMD. Point it at an existing installation
-# to rip the copy you already play instead of downloading a second one.
-# The pipeline only reads from it.
-#
-# CrossOver Steam bottle on macOS:
-# game_files = "$HOME/Library/Application Support/CrossOver/Bottles/Steam/drive_c/Program Files (x86)/Steam/steamapps/common/Erenshor"
+# Game files are not configured. The Steam client in the CrossOver bottle
+# installs each variant, and the CLI finds it by the variant's Steam app ID.
+# Set the CROSSOVER_BOTTLE environment variable when several bottles exist.
 
 # Google Sheets spreadsheet ID (from spreadsheet URL)
 # URL format: https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID}/edit
 # Uncomment and replace with your spreadsheet ID if different
 # [variants.main.google_sheets]
 # spreadsheet_id = "your_spreadsheet_id_here"
-
-# Maps deployment (rarely need changing)
-# [variants.main.maps]
-# deploy_target = "erenshor-maps"  # Cloudflare Pages project name
 
 # Playtest Variant (Beta/Alpha Testing)
 # --------------------------------------
@@ -187,7 +171,7 @@ enabled = true
 # - ~ - User's home directory (in paths)
 #
 # Common Tasks:
-# 1. Set Steam username, or point game_files at an existing installation
+# 1. Install each variant you extract through the Steam client in CrossOver
 # 2. Set Unity path (if not in default location)
 # 3. Set MediaWiki bot credentials (for wiki uploads)
 # 4. Set Google Sheets credentials (for sheet uploads)

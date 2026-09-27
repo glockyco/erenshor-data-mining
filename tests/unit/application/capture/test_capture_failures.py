@@ -23,7 +23,6 @@ def _context(tmp_path: Path) -> SimpleNamespace:
         app_id="0",
         unity_project=str(tmp_path / "unity"),
         editor_scripts=str(tmp_path / "editor"),
-        game_files=str(tmp_path / "game"),
         database_raw=str(tmp_path / "raw.sqlite"),
         database=str(tmp_path / "clean.sqlite"),
         logs=str(tmp_path / "logs"),

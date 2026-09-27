@@ -36,14 +36,11 @@ def minimal_config(tmp_path: Path) -> Config:
             paths=PathsConfig(
                 logs=".erenshor/logs",
                 state=".erenshor/state.json",
-                backups=".erenshor/backups",
             ),
             mediawiki=MediaWikiConfig(
                 api_url="https://wiki.example.com/api.php",
                 bot_username="TestBot",
-                bot_password_env="MEDIAWIKI_PASSWORD",
                 api_delay=1.0,
-                api_timeout=30.0,
                 api_batch_size=50,
             ),
         ),
@@ -54,7 +51,6 @@ def minimal_config(tmp_path: Path) -> Config:
                 app_id="2382520",
                 unity_project="variants/main/unity",
                 editor_scripts="src/Assets/Editor",
-                game_files="variants/main/game",
                 database_raw="variants/main/erenshor-main-raw.sqlite",
                 database="variants/main/erenshor-main.sqlite",
                 logs="variants/main/logs",

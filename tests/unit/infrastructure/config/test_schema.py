@@ -22,7 +22,6 @@ from erenshor.infrastructure.config.schema import (
     MediaWikiConfig,
     ModsConfig,
     PathsConfig,
-    SteamConfig,
     UnityConfig,
     VariantConfig,
     VariantGoogleSheetsConfig,
@@ -70,35 +69,6 @@ class TestPathsConfig:
         resolved = config.resolved_logs(tmp_path)
         assert resolved == tmp_path / ".erenshor/logs"
         assert resolved.is_absolute()
-
-
-class TestSteamConfig:
-    """Tests for SteamConfig model."""
-
-    def test_default_values(self):
-        """Test that SteamConfig has correct default values."""
-        config = SteamConfig()
-        assert config.username == ""
-        assert config.platform == "windows"
-
-    def test_valid_platforms(self):
-        """Test that valid platform values are accepted."""
-        for platform in ["windows", "macos", "linux"]:
-            config = SteamConfig(platform=platform)
-            assert config.platform == platform
-
-    def test_invalid_platform_rejected(self):
-        """Test that invalid platform values are rejected."""
-        with pytest.raises(ValidationError) as exc_info:
-            SteamConfig(platform="invalid")
-
-        errors = exc_info.value.errors()
-        assert any("platform" in str(e["loc"]) for e in errors)
-
-    def test_custom_username(self):
-        """Test setting custom Steam username."""
-        config = SteamConfig(username="test_user")
-        assert config.username == "test_user"
 
 
 class TestUnityConfig:
@@ -409,7 +379,6 @@ class TestGlobalConfig:
 
         # Check that all nested configs are created
         assert isinstance(config.paths, PathsConfig)
-        assert isinstance(config.steam, SteamConfig)
         assert isinstance(config.unity, UnityConfig)
         assert isinstance(config.assetripper, AssetRipperConfig)
         assert isinstance(config.database, DatabaseConfig)
@@ -525,7 +494,6 @@ class TestVariantConfig:
             "app_id",
             "unity_project",
             "editor_scripts",
-            "game_files",
             "database_raw",
             "database",
             "logs",
@@ -544,7 +512,6 @@ class TestVariantConfig:
             app_id="2382520",
             unity_project="$REPO_ROOT/variants/main/unity",
             editor_scripts="$REPO_ROOT/src/Assets/Editor",
-            game_files="$REPO_ROOT/variants/main/game",
             database_raw="$REPO_ROOT/variants/main/erenshor-raw.sqlite",
             database="$REPO_ROOT/variants/main/erenshor.sqlite",
             logs="$REPO_ROOT/variants/main/logs",
@@ -555,7 +522,6 @@ class TestVariantConfig:
         assert config.enabled is True  # Default
         assert config.description == ""  # Default
         assert config.images_output == ""  # Default
-        assert config.game_install == ""  # Auto-discovered or game_files fallback
         assert config.name == "Main Game"
         assert config.app_id == "2382520"
 
@@ -567,7 +533,6 @@ class TestVariantConfig:
             app_id="12345",
             unity_project="/path/to/unity",
             editor_scripts="/path/to/scripts",
-            game_files="/path/to/game",
             database_raw="/path/to/raw.sqlite",
             database="/path/to/db.sqlite",
             logs="/path/to/logs",
@@ -583,8 +548,6 @@ class TestVariantConfig:
             app_id="12345",
             unity_project="$REPO_ROOT/unity",
             editor_scripts="$REPO_ROOT/scripts",
-            game_files="$REPO_ROOT/game",
-            game_install="$HOME/Games/Erenshor",
             database_raw="$REPO_ROOT/raw.sqlite",
             database="$REPO_ROOT/db.sqlite",
             logs="$REPO_ROOT/logs",
@@ -595,17 +558,12 @@ class TestVariantConfig:
 
         assert config.resolved_unity_project(tmp_path) == tmp_path / "unity"
         assert config.resolved_editor_scripts(tmp_path) == tmp_path / "scripts"
-        assert config.resolved_game_files(tmp_path) == tmp_path / "game"
-        assert config.resolved_game_install(tmp_path) == Path.home() / "Games/Erenshor"
         assert config.resolved_database_raw(tmp_path) == tmp_path / "raw.sqlite"
         assert config.resolved_database(tmp_path) == tmp_path / "db.sqlite"
         assert config.resolved_logs(tmp_path) == tmp_path / "logs"
         assert config.resolved_backups(tmp_path) == tmp_path / "backups"
         assert config.resolved_images_output(tmp_path) == tmp_path / "images"
         assert config.resolved_profiles(tmp_path) == tmp_path / "profiles"
-
-        config.game_install = ""
-        assert config.resolved_game_install(tmp_path) is None
 
 
 class TestConfig:
@@ -630,7 +588,6 @@ class TestConfig:
                     app_id="2382520",
                     unity_project="/path/to/unity",
                     editor_scripts="/path/to/scripts",
-                    game_files="/path/to/game",
                     database_raw="/path/to/raw.sqlite",
                     database="/path/to/db.sqlite",
                     logs="/path/to/logs",
@@ -671,7 +628,6 @@ class TestConfig:
                     app_id="1",
                     unity_project="/main/unity",
                     editor_scripts="/scripts",
-                    game_files="/main/game",
                     database_raw="/main/raw.sqlite",
                     database="/main/db.sqlite",
                     logs="/main/logs",
@@ -683,7 +639,6 @@ class TestConfig:
                     app_id="2",
                     unity_project="/playtest/unity",
                     editor_scripts="/scripts",
-                    game_files="/playtest/game",
                     database_raw="/playtest/raw.sqlite",
                     database="/playtest/db.sqlite",
                     logs="/playtest/logs",

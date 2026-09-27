@@ -262,7 +262,6 @@ class TestResolvePathRealWorld:
         """Test variant directory path patterns."""
         variant_paths = {
             "unity_project": "$REPO_ROOT/variants/main/unity",
-            "game_files": "$REPO_ROOT/variants/main/game",
             "database": "$REPO_ROOT/variants/main/erenshor-main.sqlite",
             "logs": "$REPO_ROOT/variants/main/logs",
             "backups": "$REPO_ROOT/variants/main/backups",
@@ -278,7 +277,6 @@ class TestResolvePathRealWorld:
         tool_paths = [
             "/Applications/Unity/Hub/Editor/2021.3.45f2/Unity.app",
             "$HOME/Projects/AssetRipper/AssetRipper.GUI.Free",
-            "/usr/local/bin/steamcmd",
         ]
 
         for path in tool_paths:

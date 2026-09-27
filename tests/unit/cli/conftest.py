@@ -34,7 +34,6 @@ def cli_context(tmp_path: Path) -> CLIContext:
         app_id="0",
         unity_project=str(tmp_path / "unity"),
         editor_scripts=str(tmp_path / "editor"),
-        game_files=str(tmp_path / "game"),
         database_raw=str(tmp_path / "raw.sqlite"),
         database=str(database_path),
         logs=str(tmp_path / "logs"),
