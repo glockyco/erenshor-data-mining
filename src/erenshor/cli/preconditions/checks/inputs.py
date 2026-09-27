@@ -78,18 +78,12 @@ def wiki_credentials(context: dict[str, Any]) -> PreconditionResult:
 
 
 def game_installation(context: dict[str, Any]) -> PreconditionResult:
-    """Resolve the selected variant's runnable installation without changing it."""
-    from erenshor.application.mods.local_workflow import GameInstallationError, get_game_path
+    """Resolve the selected variant's Steam client installation without changing it."""
+    from erenshor.application.mods.local_workflow import get_game_path
+    from erenshor.infrastructure.steam.installation import GameInstallationError
 
     try:
         game_path = get_game_path(context["cli_ctx"])
     except GameInstallationError as error:
         return PreconditionResult(False, "game_installation", "Cannot resolve game installation", str(error))
-    if game_path is None:
-        return PreconditionResult(
-            False,
-            "game_installation",
-            f"Game installation not found for {context['variant']}",
-            "Install the selected Steam app or set [variants.<name>] game_install.",
-        )
     return PreconditionResult(True, "game_installation", f"Game installation: {game_path}")

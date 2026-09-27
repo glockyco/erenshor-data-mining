@@ -13,7 +13,6 @@ import io
 import os
 import shutil
 import subprocess
-import sys
 import tempfile
 import zipfile
 from collections.abc import Callable
@@ -23,8 +22,6 @@ from typing import TYPE_CHECKING, Any, Literal, cast
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
-from loguru import logger
-
 from erenshor.application.mods.artifacts import (
     REQUIRED_DLLS,
     format_artifact_issues,
@@ -32,6 +29,7 @@ from erenshor.application.mods.artifacts import (
 )
 from erenshor.application.mods.catalog import LoaderName, artifact_specs, iter_mods, lookup_mod
 from erenshor.application.process_session import ProcessSession, recover_recorded_session
+from erenshor.infrastructure.steam.installation import GameInstallation, find_game_installation
 
 if TYPE_CHECKING:
     from erenshor.cli.context import CLIContext
@@ -40,7 +38,6 @@ BuildLoader = Literal["default", "bepinex", "lunaris", "all"]
 DeployLoader = Literal["default", "bepinex", "lunaris"]
 ProcessRunner = Callable[..., Any]
 
-CROSSOVER_BOTTLES_ROOT = Path.home() / "Library/Application Support/CrossOver/Bottles"
 CROSSOVER_START = Path("/Applications/CrossOver.app/Contents/SharedSupport/CrossOver/bin/cxstart")
 LOADER_PROXY_CANDIDATES: dict[LoaderName, tuple[str, ...]] = {
     "bepinex": (
@@ -113,111 +110,22 @@ class SetupResult:
 class LaunchPlan:
     command: tuple[str, ...]
     game_path: Path
-    crossover_bottle: str | None
+    crossover_bottle: str
 
 
-class GameInstallationError(ValueError):
-    """Raised when discovery cannot determine the game installation."""
+def get_game_installation(cli_ctx: CLIContext) -> GameInstallation:
+    """Return the selected variant's Steam client installation.
 
-
-def _read_steam_install_dir(manifest: Path) -> str:
-    try:
-        lines = manifest.read_text(encoding="utf-8").splitlines()
-    except (OSError, UnicodeDecodeError) as exc:
-        raise GameInstallationError(f"Cannot read Steam app manifest {manifest}: {exc}") from exc
-    for line in lines:
-        if '"installdir"' not in line:
-            continue
-        parts = line.split('"')
-        if len(parts) >= 4 and parts[3]:
-            return parts[3]
-    raise GameInstallationError(f"Steam app manifest has no installdir: {manifest}")
-
-
-def discover_crossover_game_path(app_id: str) -> Path | None:
-    """Find the CrossOver installation of Steam app ``app_id``.
-
-    Returns None when no bottle has the app installed. Raises when a bottle's
-    app manifest cannot be read, or when several bottles have the app, because
-    each of those needs a different fix than a missing installation.
+    Raises:
+        GameInstallationError: If the installation cannot be resolved.
     """
-    if sys.platform != "darwin":
-        return None
-    bottle_name = os.environ.get("CROSSOVER_BOTTLE")
-    if bottle_name:
-        bottle_dirs = [CROSSOVER_BOTTLES_ROOT / bottle_name]
-    elif CROSSOVER_BOTTLES_ROOT.is_dir():
-        bottle_dirs = sorted(path for path in CROSSOVER_BOTTLES_ROOT.iterdir() if path.is_dir())
-    else:
-        return None
-    matches: list[Path] = []
-    for bottle_dir in bottle_dirs:
-        steamapps = bottle_dir / "drive_c/Program Files (x86)/Steam/steamapps"
-        manifest = steamapps / f"appmanifest_{app_id}.acf"
-        if not manifest.is_file():
-            continue
-        candidate = steamapps / "common" / _read_steam_install_dir(manifest)
-        if (candidate / "Erenshor_Data" / "Managed").is_dir():
-            matches.append(candidate)
-    if len(matches) > 1:
-        joined = "\n  ".join(str(match) for match in matches)
-        raise GameInstallationError(
-            f"Steam app {app_id} is installed in several CrossOver bottles:\n  {joined}\n"
-            "Set CROSSOVER_BOTTLE to the bottle to use."
-        )
-    return matches[0] if matches else None
+    variant_config = cli_ctx.config.variants[cli_ctx.variant]
+    return find_game_installation(cli_ctx.variant, variant_config.app_id)
 
 
-def crossover_bottle_for_path(game_path: Path) -> str | None:
-    try:
-        relative = game_path.resolve().relative_to(CROSSOVER_BOTTLES_ROOT.resolve())
-    except ValueError:
-        return None
-    return relative.parts[0] if relative.parts else None
-
-
-def _read_game_app_id(game_path: Path) -> str | None:
-    try:
-        app_id = (game_path / "steam_appid.txt").read_text(encoding="utf-8").strip()
-    except OSError:
-        return None
-    return app_id or None
-
-
-def get_game_path(cli_ctx: CLIContext, *, allow_extracted: bool = False) -> Path | None:
-    variant_config = cli_ctx.config.variants.get(cli_ctx.variant)
-    if variant_config:
-        resolve_install = getattr(variant_config, "resolved_game_install", None)
-        configured = cast("Path | None", resolve_install(cli_ctx.repo_root)) if resolve_install else None
-        if configured is not None:
-            if configured.exists():
-                return configured
-            logger.warning(f"Configured game_install does not exist: {configured}")
-            return None
-        discovered = discover_crossover_game_path(variant_config.app_id)
-        if discovered is not None:
-            return discovered
-
-    env_path = os.environ.get("ERENSHOR_GAME_PATH")
-    if env_path:
-        path = Path(env_path)
-        if path.exists():
-            expected_app_id = variant_config.app_id if variant_config else None
-            actual_app_id = _read_game_app_id(path)
-            if expected_app_id is None or actual_app_id is None or actual_app_id == expected_app_id:
-                return path
-            logger.warning(
-                f"Ignoring ERENSHOR_GAME_PATH for Steam app {actual_app_id}; "
-                f"variant {cli_ctx.variant!r} requires app {expected_app_id}"
-            )
-        else:
-            logger.warning(f"ERENSHOR_GAME_PATH set but path doesn't exist: {env_path}")
-
-    if allow_extracted and variant_config:
-        game_files = variant_config.resolved_game_files(cli_ctx.repo_root)
-        if (game_files / "Erenshor_Data" / "Managed").exists():
-            return game_files
-    return None
+def get_game_path(cli_ctx: CLIContext) -> Path:
+    """Return the selected variant's game directory."""
+    return get_game_installation(cli_ctx).path
 
 
 def managed_dir(game_path: Path) -> Path:
@@ -433,12 +341,8 @@ def setup_mods(
     loader: BuildLoader = "all",
 ) -> SetupResult:
     targets = resolve_build_targets(mod, loader)
-    game_path = get_game_path(cli_ctx, allow_extracted=True)
-    if not game_path:
-        raise ValueError(f"game installation not found for variant {cli_ctx.variant!r}")
+    game_path = get_game_path(cli_ctx)
     source_dir = managed_dir(game_path)
-    if not source_dir.exists():
-        raise ValueError(f"Managed directory not found: {source_dir}")
     bepinex_core_dir = game_path / "BepInEx" / "core"
     lunaris_lib_dir: Path | None = None
     if any(target_loader == "lunaris" for _, target_loader in targets):
@@ -693,44 +597,37 @@ def deploy_mods(plan: DeployPlan) -> DeployResult:
 
 
 def plan_launch(cli_ctx: CLIContext) -> LaunchPlan:
-    game_path = get_game_path(cli_ctx)
-    if not game_path:
-        raise ValueError(f"game installation not found for variant {cli_ctx.variant!r}")
-    variant_config = cli_ctx.config.variants.get(cli_ctx.variant)
-    if variant_config is None or not variant_config.app_id:
-        raise ValueError(f"Steam App ID not configured for variant {cli_ctx.variant!r}")
-    bottle = os.environ.get("CROSSOVER_BOTTLE") or crossover_bottle_for_path(game_path)
-    executable = game_path / "Erenshor.exe"
-    if sys.platform == "darwin" and bottle:
-        if not CROSSOVER_START.exists():
-            raise ValueError(f"CrossOver launcher not found: {CROSSOVER_START}")
-        active_loader = detect_active_loader(game_path, loader_proxy_sources(game_path))
-        if active_loader in {"bepinex", "lunaris"}:
-            if not executable.exists():
-                raise ValueError(f"Game executable not found: {executable}")
-            return LaunchPlan(
-                (
-                    str(CROSSOVER_START),
-                    "--bottle",
-                    bottle,
-                    "--dll",
-                    "winhttp=n,b",
-                    "--wait-children",
-                    "--workdir",
-                    str(game_path),
-                    str(executable),
-                ),
-                game_path,
-                bottle,
-            )
+    installation = get_game_installation(cli_ctx)
+    game_path = installation.path
+    bottle = installation.bottle
+    if not CROSSOVER_START.exists():
+        raise ValueError(f"CrossOver launcher not found: {CROSSOVER_START}")
+    active_loader = detect_active_loader(game_path, loader_proxy_sources(game_path))
+    if active_loader in {"bepinex", "lunaris"}:
+        executable = game_path / "Erenshor.exe"
+        if not executable.exists():
+            raise ValueError(f"Game executable not found: {executable}")
         return LaunchPlan(
-            (str(CROSSOVER_START), "--bottle", bottle, "--wait-children", f"steam://rungameid/{variant_config.app_id}"),
+            (
+                str(CROSSOVER_START),
+                "--bottle",
+                bottle,
+                "--dll",
+                "winhttp=n,b",
+                "--wait-children",
+                "--workdir",
+                str(game_path),
+                str(executable),
+            ),
             game_path,
             bottle,
         )
-    if not executable.exists():
-        raise ValueError(f"Game executable not found: {executable}")
-    return LaunchPlan((str(executable),), game_path, None)
+    app_id = cli_ctx.config.variants[cli_ctx.variant].app_id
+    return LaunchPlan(
+        (str(CROSSOVER_START), "--bottle", bottle, "--wait-children", f"steam://rungameid/{app_id}"),
+        game_path,
+        bottle,
+    )
 
 
 def recover_game_session(cli_ctx: CLIContext) -> bool:
@@ -754,7 +651,6 @@ def launch_game(
 
 
 __all__ = [
-    "CROSSOVER_BOTTLES_ROOT",
     "CROSSOVER_START",
     "LOADER_PROXY_CANDIDATES",
     "REQUIRED_DLLS",
@@ -764,7 +660,6 @@ __all__ = [
     "DeployPlan",
     "DeployResult",
     "DeploySelection",
-    "GameInstallationError",
     "LaunchPlan",
     "SetupResult",
     "activate_loader",
@@ -774,16 +669,15 @@ __all__ = [
     "check_dotnet_available",
     "configured_lunaris_lib_dir",
     "conflicting_deploy_paths",
-    "crossover_bottle_for_path",
     "deploy_files",
     "deploy_mods",
     "deploy_target_dir",
     "detect_active_loader",
-    "discover_crossover_game_path",
     "ensure_lunaris_libs_cached",
     "file_sha256",
     "find_lunaris_dll",
     "find_lunaris_shared_lib",
+    "get_game_installation",
     "get_game_path",
     "launch_game",
     "loader_proxy_sources",

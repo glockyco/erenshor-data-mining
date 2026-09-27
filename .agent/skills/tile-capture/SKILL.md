@@ -52,9 +52,9 @@ grep -i "Map Tile Capture\|capture\|error\|exception" \
   "<resolved-game-install>/BepInEx/LogOutput.log"
 ```
 
-For a Lunaris target, inspect the Lunaris in-game log UI. Do not use a global
-`ERENSHOR_GAME_PATH` to choose the variant; the mod CLI resolves standard
-CrossOver installs by the selected variant's Steam App ID.
+For a Lunaris target, inspect the Lunaris in-game log UI. The mod CLI resolves
+the installation from the selected variant's Steam app ID, so pass the intended
+`-V` flag.
 
 - **TypeLoadException**: Missing DLL in ILRepack merge — check `ILRepack.targets`.
 - **NullReferenceException from game code**: Expected (NPCDialogManager, SpawnPoint, etc. fail

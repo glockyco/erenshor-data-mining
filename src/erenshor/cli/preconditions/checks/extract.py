@@ -7,6 +7,7 @@ from typing import Any
 from erenshor.cli.preconditions.base import PreconditionResult
 from erenshor.infrastructure.config.paths import PathResolutionError
 from erenshor.infrastructure.csproj_generator import UnityPaths
+from erenshor.infrastructure.steam.installation import GameInstallationError, find_game_installation
 
 
 def comparison_databases(context: dict[str, Any]) -> PreconditionResult:
@@ -41,9 +42,10 @@ def ide_sources(context: dict[str, Any]) -> PreconditionResult:
         scripts_dir = variant.resolved_unity_project(repo_root) / "ExportedProject/Assets/Scripts/Assembly-CSharp"
         if not scripts_dir.is_dir():
             continue
-        managed_dir = variant.resolved_game_files(repo_root) / "Erenshor_Data/Managed"
-        if not managed_dir.is_dir():
-            return PreconditionResult(False, "ide_sources", f"{name}: Managed DLLs not found: {managed_dir}")
+        try:
+            managed_dir = find_game_installation(name, variant.app_id).managed_dir
+        except GameInstallationError as error:
+            return PreconditionResult(False, "ide_sources", f"{name}: game installation unavailable", str(error))
         plugins_dir = variant.resolved_unity_project(repo_root) / "ExportedProject/Assets/Plugins"
         has_managed_dll = any(path.name != "Assembly-CSharp.dll" for path in managed_dir.glob("*.dll"))
         if not has_managed_dll and not any(plugins_dir.glob("*.dll")):

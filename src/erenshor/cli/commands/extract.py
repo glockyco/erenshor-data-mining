@@ -42,8 +42,7 @@ from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import raw_database_exists
 from erenshor.cli.preconditions.checks.extract import comparison_databases, ide_sources
 from erenshor.cli.preconditions.checks.field_coverage import export_field_coverage_current
-from erenshor.cli.preconditions.checks.inputs import required_path
-from erenshor.cli.preconditions.checks.steam import game_files_exist
+from erenshor.cli.preconditions.checks.inputs import game_installation, required_path
 from erenshor.cli.preconditions.checks.unity import (
     editor_packages_restored,
     editor_scripts_linked,
@@ -61,6 +60,12 @@ from erenshor.infrastructure.csproj_generator import (
 )
 from erenshor.infrastructure.export_profile import ExportProfileRecorder, ExportProfileReport
 from erenshor.infrastructure.steam.build_feed import fetch_build_feed, resolve_build_published_at
+from erenshor.infrastructure.steam.installation import (
+    GameInstallation,
+    GameInstallationError,
+    find_game_installation,
+    read_manifest_fields,
+)
 from erenshor.infrastructure.unity.batch_mode import UnityBatchMode
 
 if TYPE_CHECKING:
@@ -96,54 +101,16 @@ def _read_git_sha(repo_root: Path) -> str | None:
     return sha or None
 
 
-def _read_manifest_fields(cli_ctx: CLIContext, variant_config: Any, keys: set[str]) -> dict[str, str]:
-    """Read quoted scalar fields from the installed Steam app manifest.
-
-    Avoids a SteamCMD dependency: the ``.acf`` is a flat quoted key/value
-    format, and the fields we need are scalars at any nesting depth. A missing
-    manifest yields no fields. An unreadable manifest raises OSError.
-    """
-    game_files_dir = Path(variant_config.resolved_game_files(cli_ctx.repo_root))
-    manifest_file = _find_app_manifest(game_files_dir, str(variant_config.app_id))
-    if manifest_file is None:
-        return {}
-    found: dict[str, str] = {}
-    for line in manifest_file.read_text(encoding="utf-8").splitlines():
-        parts = line.split('"')
-        if len(parts) >= 4 and parts[1] in keys and parts[1] not in found:
-            found[parts[1]] = parts[3]
-    return found
+def _game_installation(cli_ctx: CLIContext) -> GameInstallation:
+    """Return the selected variant's Steam client installation."""
+    return find_game_installation(cli_ctx.variant, cli_ctx.config.variants[cli_ctx.variant].app_id)
 
 
-def _find_app_manifest(game_files_dir: Path, app_id: str) -> Path | None:
-    """Locate the Steam app manifest for an installed game.
-
-    `extract download` writes a self-contained install whose manifest sits in
-    its own `steamapps/`. A regular Steam library instead installs to
-    `<library>/steamapps/common/<game>` and keeps the manifest two levels up,
-    which is the layout when `game_files` points at a copy you already play.
-    """
-    name = f"appmanifest_{app_id}.acf"
-    candidates = [game_files_dir / "steamapps" / name]
-    if game_files_dir.parent.name == "common" and game_files_dir.parent.parent.name == "steamapps":
-        candidates.append(game_files_dir.parent.parent / name)
-    return next((candidate for candidate in candidates if candidate.is_file()), None)
-
-
-def _read_build_id(cli_ctx: CLIContext, variant_config: Any) -> str | None:
-    """Read the installed Steam build ID without requiring SteamCMD itself."""
-    return _read_manifest_fields(cli_ctx, variant_config, {"buildid"}).get("buildid")
-
-
-def _require_build_id(cli_ctx: CLIContext, variant_config: Any) -> str:
-    """Return the installed Steam build ID for steps that record provenance."""
-    build_id = _read_build_id(cli_ctx, variant_config)
+def _installed_build_id(installation: GameInstallation) -> str:
+    """Return the Steam build ID recorded in the installation's app manifest."""
+    build_id = read_manifest_fields(installation.manifest, {"buildid"}).get("buildid")
     if not build_id:
-        game_files_dir = variant_config.resolved_game_files(cli_ctx.repo_root)
-        raise RuntimeError(
-            f"Installed Steam build ID is unavailable: no appmanifest_{variant_config.app_id}.acf "
-            f"with a buildid was found for {game_files_dir}"
-        )
+        raise GameInstallationError(f"Steam app manifest has no buildid: {installation.manifest}")
     return build_id
 
 
@@ -169,9 +136,9 @@ def _profile_root(cli_ctx: CLIContext) -> Path:
 
 def _open_profile(
     cli_ctx: CLIContext,
-    variant_config: Any,
     command: str,
     *,
+    game_build_id: str,
     unity_version: str | None,
     assetripper_version: str | None,
 ) -> ExportProfileRecorder:
@@ -181,7 +148,7 @@ def _open_profile(
         root=profile_root,
         variant=cli_ctx.variant,
         command=command,
-        game_build_id=_read_build_id(cli_ctx, variant_config),
+        game_build_id=game_build_id,
         git_sha=_read_git_sha(cli_ctx.repo_root),
         unity_version=unity_version,
         assetripper_version=assetripper_version,
@@ -338,7 +305,7 @@ def packages(
 
 
 @app.command()
-@require_preconditions(game_files_exist, editor_packages_restored)
+@require_preconditions(game_installation, editor_packages_restored)
 def rip(ctx: typer.Context) -> None:
     """Extract Unity project from game files via AssetRipper.
 
@@ -351,7 +318,8 @@ def rip(ctx: typer.Context) -> None:
     """
     cli_ctx: CLIContext = ctx.obj
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
-    game_files_dir = variant_config.resolved_game_files(cli_ctx.repo_root)
+    installation = _game_installation(cli_ctx)
+    game_files_dir = installation.path
     unity_project_dir = variant_config.resolved_unity_project(cli_ctx.repo_root)
     logs_dir = variant_config.resolved_logs(cli_ctx.repo_root)
 
@@ -369,8 +337,8 @@ def rip(ctx: typer.Context) -> None:
     command_name = "extract rip"
     profile = _open_profile(
         cli_ctx,
-        variant_config,
         command_name,
+        game_build_id=_installed_build_id(installation),
         unity_version=None,
         assetripper_version=assetripper.get_version(),
     )
@@ -390,7 +358,7 @@ def rip(ctx: typer.Context) -> None:
             )
 
             # Generate .csproj for LSP support
-            _generate_ide_project_files(cli_ctx, variant_config, unity_project_dir, game_files_dir)
+            _generate_ide_project_files(unity_project_dir, installation.managed_dir)
 
             logger.info("Next: Run 'erenshor extract export' to export game data to SQLite")
 
@@ -402,6 +370,7 @@ def rip(ctx: typer.Context) -> None:
 
 @app.command()
 @require_preconditions(
+    game_installation,
     export_field_coverage_current,
     unity_project_exists,
     editor_scripts_linked,
@@ -428,6 +397,7 @@ def export(
     unity_project_dir = variant_config.resolved_unity_project(cli_ctx.repo_root)
     database_path = variant_config.resolved_database_raw(cli_ctx.repo_root)
     logs_dir = variant_config.resolved_logs(cli_ctx.repo_root)
+    build_id = _installed_build_id(_game_installation(cli_ctx))
 
     if cli_ctx.dry_run:
         logger.info(f"[Dry-run] Would export data to SQLite: unity={unity_project_dir}, raw_db={database_path}")
@@ -442,8 +412,8 @@ def export(
     command_name = "extract export"
     recorder = _open_profile(
         cli_ctx,
-        variant_config,
         command_name,
+        game_build_id=build_id,
         unity_version=unity.get_version(),
         assetripper_version=None,
     )
@@ -464,8 +434,6 @@ def export(
                 "CRITICAL": "quiet",
             }
             unity_log_level = python_to_unity_log_level.get(cli_ctx.config.global_.logging.level.upper(), "normal")
-
-            build_id = _require_build_id(cli_ctx, variant_config)
 
             def backup(database: Path) -> None:
                 console.print("[bold]Creating backup...[/bold]")
@@ -510,7 +478,7 @@ def export(
 
 
 @app.command()
-@require_preconditions(raw_database_exists)
+@require_preconditions(game_installation, raw_database_exists)
 def build(ctx: typer.Context) -> None:
     """Build the clean database from the raw export.
 
@@ -538,8 +506,8 @@ def build(ctx: typer.Context) -> None:
     command_name = "extract build"
     profile = _open_profile(
         cli_ctx,
-        variant_config,
         command_name,
+        game_build_id=_installed_build_id(_game_installation(cli_ctx)),
         unity_version=None,
         assetripper_version=None,
     )
@@ -562,7 +530,7 @@ def build(ctx: typer.Context) -> None:
 
 
 @app.command("code-facts")
-@require_preconditions(game_files_exist, raw_database_exists)
+@require_preconditions(game_installation, raw_database_exists)
 def code_facts(ctx: typer.Context) -> None:
     """Extract hardcoded game constants from the shipped assembly into the raw DB.
 
@@ -574,9 +542,8 @@ def code_facts(ctx: typer.Context) -> None:
     """
     cli_ctx: CLIContext = ctx.obj
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
-    assembly = (
-        variant_config.resolved_game_files(cli_ctx.repo_root) / "Erenshor_Data" / "Managed" / "Assembly-CSharp.dll"
-    )
+    installation = _game_installation(cli_ctx)
+    assembly = installation.managed_dir / "Assembly-CSharp.dll"
     raw_db_path = variant_config.resolved_database_raw(cli_ctx.repo_root)
 
     if cli_ctx.dry_run:
@@ -584,17 +551,17 @@ def code_facts(ctx: typer.Context) -> None:
         return
 
     command_name = "extract code-facts"
+    build_id = _installed_build_id(installation)
     profile = _open_profile(
         cli_ctx,
-        variant_config,
         command_name,
+        game_build_id=build_id,
         unity_version=None,
         assetripper_version=None,
     )
 
     try:
         with _profile_command(profile, command_name, cli_ctx):
-            build_id = _require_build_id(cli_ctx, variant_config)
             count = extract_code_facts(
                 cli_ctx.repo_root,
                 assembly,
@@ -610,26 +577,21 @@ def code_facts(ctx: typer.Context) -> None:
         raise typer.Exit(1) from e
 
 
-def _generate_ide_project_files(
-    cli_ctx: CLIContext, variant_config: Any, unity_project_dir: Path, game_files_dir: Path
-) -> None:
+def _generate_ide_project_files(unity_project_dir: Path, managed_dir: Path) -> None:
     """Generate .csproj and .sln files for LSP support.
 
     Creates project files that enable IDE features like "Find References"
     for the decompiled game scripts.
 
     Args:
-        cli_ctx: CLI context.
-        variant_config: Variant-specific configuration.
         unity_project_dir: Path to Unity project directory.
-        game_files_dir: Path to game files directory.
+        managed_dir: The installation's managed assembly directory.
 
     Raises:
         RuntimeError: If the project files cannot be generated. The Unity
             project is already in place at that point.
     """
     scripts_dir = unity_project_dir / "ExportedProject" / "Assets" / "Scripts" / "Assembly-CSharp"
-    managed_dir = game_files_dir / "Erenshor_Data" / "Managed"
     plugins_dir = unity_project_dir / "ExportedProject" / "Assets" / "Plugins"
     solution_dir = unity_project_dir / "ExportedProject"
 
@@ -711,10 +673,8 @@ def _generate_all_ide_project_files(cli_ctx: CLIContext) -> None:
     console.print("[bold]Generating variant project files:[/bold]")
     for variant_name, variant_config in cli_ctx.config.variants.items():
         unity_project_dir = variant_config.resolved_unity_project(cli_ctx.repo_root)
-        game_files_dir = variant_config.resolved_game_files(cli_ctx.repo_root)
 
         scripts_dir = unity_project_dir / "ExportedProject" / "Assets" / "Scripts" / "Assembly-CSharp"
-        managed_dir = game_files_dir / "Erenshor_Data" / "Managed"
         plugins_dir = unity_project_dir / "ExportedProject" / "Assets" / "Plugins"
         solution_dir = unity_project_dir / "ExportedProject"
         editor_dir = unity_project_dir / "ExportedProject" / "Assets" / "Editor"
@@ -725,6 +685,7 @@ def _generate_all_ide_project_files(cli_ctx: CLIContext) -> None:
             console.print(f"  [dim]- {variant_name} (not extracted)[/dim]")
             continue
         try:
+            managed_dir = find_game_installation(variant_name, variant_config.app_id).managed_dir
             # Generate .csproj for game scripts
             csproj_path = generate_game_scripts_csproj(
                 scripts_dir=scripts_dir,

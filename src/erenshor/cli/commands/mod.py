@@ -14,7 +14,7 @@ import os
 import subprocess
 import zipfile
 from pathlib import Path
-from typing import TYPE_CHECKING, Annotated, Literal, cast
+from typing import TYPE_CHECKING, Annotated, Literal
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -34,6 +34,7 @@ from erenshor.cli.preconditions.checks.mod import (
     mod_references,
     mod_setup_source,
 )
+from erenshor.infrastructure.steam.installation import GameInstallationError
 
 if TYPE_CHECKING:
     from ..context import CLIContext
@@ -50,30 +51,14 @@ app = typer.Typer(
 
 console = Console()
 
-CROSSOVER_BOTTLES_ROOT = Path.home() / "Library/Application Support/CrossOver/Bottles"
-CROSSOVER_START = Path("/Applications/CrossOver.app/Contents/SharedSupport/CrossOver/bin/cxstart")
-LOADER_PROXY_CANDIDATES: dict[LoaderName, tuple[str, ...]] = {
-    "bepinex": (
-        "winhttp.bepinex.dll",
-        "winhttp.bepinex-backup.dll",
-        "winhttp.dll.bepinex-backup",
-    ),
-    "lunaris": ("winhttp.lunaris.dll",),
-}
-
 
 def _require_game_path(cli_ctx: CLIContext) -> Path:
     """Return the selected variant's game installation or exit with the reason."""
     try:
-        game_path = local_workflow.get_game_path(cli_ctx)
-    except local_workflow.GameInstallationError as exc:
+        return local_workflow.get_game_path(cli_ctx)
+    except GameInstallationError as exc:
         console.print(f"[red]Error: {exc}[/red]")
         raise typer.Exit(1) from exc
-    if game_path is None:
-        console.print(f"[red]Error: game installation not found for variant {cli_ctx.variant!r}[/red]")
-        console.print("Install the selected Steam app or set [variants.<name>] game_install.")
-        raise typer.Exit(1)
-    return game_path
 
 
 @app.command()
@@ -122,7 +107,7 @@ def dev_setup(ctx: typer.Context) -> None:
     console.print(Panel.fit("[bold cyan]Mod Dev Setup[/bold cyan]", border_style="cyan"))
     console.print()
 
-    game_path = cast("Path", local_workflow.get_game_path(cli_ctx))
+    game_path = local_workflow.get_game_path(cli_ctx)
 
     plugins_dir = local_workflow.bepinex_plugins_dir(game_path)
     plugins_dir.mkdir(parents=True, exist_ok=True)
@@ -244,7 +229,7 @@ def activate(
 ) -> None:
     """Activate BepInEx or Lunaris for the selected game variant."""
     cli_ctx: CLIContext = ctx.obj
-    game_path = cast("Path", local_workflow.get_game_path(cli_ctx))
+    game_path = local_workflow.get_game_path(cli_ctx)
     console.print()
     console.print(Panel.fit("[bold cyan]Activate Mod Loader[/bold cyan]", border_style="cyan"))
     console.print(f"[dim]Variant: {cli_ctx.variant}[/dim]")
@@ -282,7 +267,7 @@ def deploy(
 ) -> None:
     """Build and deploy mods to an explicit loader directory."""
     cli_ctx: CLIContext = ctx.obj
-    game_path = cast("Path", local_workflow.get_game_path(cli_ctx))
+    game_path = local_workflow.get_game_path(cli_ctx)
     console.print()
     console.print(Panel.fit("[bold cyan]Mod Deploy[/bold cyan]", border_style="cyan"))
     console.print(f"[dim]Variant: {cli_ctx.variant}[/dim]")
@@ -509,11 +494,8 @@ def launch(
     console.print()
     try:
         plan = local_workflow.plan_launch(cli_ctx)
-        if plan.crossover_bottle is not None:
-            console.print(f"[dim]Launching through Steam in CrossOver bottle: {plan.crossover_bottle}[/dim]")
-            console.print(f"[dim]Steam URL: {plan.command[-1]}[/dim]")
-        else:
-            console.print(f"[dim]Executable: {plan.game_path / 'Erenshor.exe'}[/dim]")
+        console.print(f"[dim]Launching in CrossOver bottle: {plan.crossover_bottle}[/dim]")
+        console.print(f"[dim]Target: {plan.command[-1]}[/dim]")
         console.print()
         local_workflow.launch_game(cli_ctx)
     except (OSError, RuntimeError, ValueError) as exc:

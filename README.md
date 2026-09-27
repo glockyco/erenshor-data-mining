@@ -297,10 +297,9 @@ erenshor mod thunderstore --dry-run
 
 Use `mod deploy --mod <id> --loader <bepinex|lunaris>` for one mod and
 `mod activate --loader <bepinex|lunaris>` to switch an installed loader without
-rebuilding. Standard CrossOver installs are resolved from `-V main`,
-`-V playtest`, or `-V demo`; non-standard installs use
-`[variants.<name>] game_install` in `.erenshor/config.local.toml`. See the
-`mod-pipeline` skill for package publication and proxy safety details.
+rebuilding. The installation is found in the CrossOver Steam bottle by the Steam
+app ID of `-V main`, `-V playtest`, or `-V demo`. See the `mod-pipeline` skill
+for package publication and proxy safety details.
 
 ### Capture map tiles
 

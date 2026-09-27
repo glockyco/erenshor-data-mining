@@ -15,6 +15,7 @@ from typer.testing import CliRunner
 
 from erenshor.cli.commands import extract
 from erenshor.infrastructure.export_profile import ExportProfileRecorder
+from erenshor.infrastructure.steam.installation import GameInstallation, GameInstallationError
 from erenshor.infrastructure.time import MockClock
 
 if TYPE_CHECKING:
@@ -26,9 +27,6 @@ class VariantStub:
 
     def __init__(self, root: Path) -> None:
         self.root = root
-
-    def resolved_game_files(self, repo_root: Path) -> Path:
-        return self.root / "game"
 
     def resolved_profiles(self, repo_root: Path) -> Path:
         return self.root / "profiles"
@@ -100,23 +98,16 @@ def test_profile_report_prints_latest_profile(tmp_path: Path) -> None:
     assert "Unity overhead before/after ExportBatch: 2000.00 ms" in result.stdout
 
 
-def _write_manifest(game_files: Path, app_id: str, build_id: str) -> None:
-    steamapps = game_files / "steamapps"
-    steamapps.mkdir(parents=True)
-    (steamapps / f"appmanifest_{app_id}.acf").write_text(f'"AppState"\n{{\n    "buildid" "{build_id}"\n}}\n')
-
-
 def test_open_profile_uses_variant_profile_root_and_metadata(tmp_path: Path) -> None:
     variant = VariantStub(tmp_path)
-    _write_manifest(variant.resolved_game_files(tmp_path), variant.app_id, "23789241")
     ctx = _context(tmp_path, variant)
 
     completed = MagicMock(stdout="abcdef0\n")
     with patch("erenshor.cli.commands.extract.subprocess.run", return_value=completed):
         profile = extract._open_profile(
             ctx,
-            variant,
             "extract export",
+            game_build_id="23789241",
             unity_version="2021.3.45f2",
             assetripper_version="1.2.3",
         )
@@ -399,66 +390,48 @@ def test_packages_rejects_missing_manifest_before_restore(cli_context: CLIContex
     assert not (tmp_path / "src/Assets/Packages").exists()
 
 
-@pytest.mark.parametrize(
-    ("managed_exists", "cause"),
-    [(False, "Managed DLLs not found"), (True, "No DLLs found")],
-)
-def test_ide_setup_rejects_missing_managed_dlls_before_generation(
-    cli_context: CLIContext, tmp_path: Path, managed_exists: bool, cause: str
+@pytest.mark.parametrize("installed", [False, True])
+def test_ide_setup_rejects_missing_game_assemblies_before_generation(
+    cli_context: CLIContext, tmp_path: Path, installed: bool
 ) -> None:
     editor = tmp_path / "UnityEditor"
     editor.write_text("")
     cli_context.config.global_.unity.path = str(editor)
     scripts = tmp_path / "unity/ExportedProject/Assets/Scripts/Assembly-CSharp"
     scripts.mkdir(parents=True)
-    if managed_exists:
-        (tmp_path / "game/Erenshor_Data/Managed").mkdir(parents=True)
+    game = tmp_path / "game"
+    (game / "Erenshor_Data/Managed").mkdir(parents=True)
+
+    def resolve(variant: str, app_id: str) -> GameInstallation:
+        if not installed:
+            raise GameInstallationError(f"Variant {variant!r} (Steam app {app_id}) is not installed")
+        return GameInstallation(game, tmp_path / "appmanifest.acf", "Steam")
+
     with (
+        patch("erenshor.cli.preconditions.checks.extract.find_game_installation", resolve),
         patch.object(extract.UnityPaths, "from_executable", return_value=object()),
         patch.object(extract, "generate_game_scripts_csproj", side_effect=AssertionError("generation ran")),
     ):
         result = CliRunner().invoke(extract.app, ["ide-setup"], obj=cli_context)
 
     assert result.exit_code == 1
-    assert cause in result.output
+    assert ("No DLLs found" if installed else "is not installed") in result.output
     assert not list(tmp_path.glob("**/*.csproj"))
 
 
-class LibraryVariantStub(VariantStub):
-    """A variant whose game_files points into a regular Steam library."""
+def test_build_id_comes_from_the_installation_manifest(tmp_path: Path) -> None:
+    manifest = tmp_path / "appmanifest_3090030.acf"
+    manifest.write_text('"AppState"\n{\n    "buildid" "20287269"\n}\n')
 
-    def resolved_game_files(self, repo_root: Path) -> Path:
-        return self.root / "Steam" / "steamapps" / "common" / "Erenshor"
-
-
-def test_read_build_id_from_downloaded_install(tmp_path: Path) -> None:
-    """`extract download` writes the manifest inside the install directory."""
-    variant = VariantStub(tmp_path)
-    _write_manifest(variant.resolved_game_files(tmp_path), variant.app_id, "20287268")
-
-    assert extract._read_build_id(_context(tmp_path, variant), variant) == "20287268"
+    assert extract._installed_build_id(GameInstallation(tmp_path / "game", manifest, "Steam")) == "20287269"
 
 
-def test_read_build_id_from_steam_library_install(tmp_path: Path) -> None:
-    """A library install keeps its manifest two levels above the game directory."""
-    variant = LibraryVariantStub(tmp_path)
-    _write_manifest(tmp_path / "Steam", variant.app_id, "20287269")
+def test_manifest_without_build_id_is_named(tmp_path: Path) -> None:
+    manifest = tmp_path / "appmanifest_3090030.acf"
+    manifest.write_text('"AppState"\n{\n}\n')
 
-    assert extract._read_build_id(_context(tmp_path, variant), variant) == "20287269"
-
-
-def test_read_build_id_without_manifest(tmp_path: Path) -> None:
-    """A missing manifest is reported as unknown rather than raising."""
-    variant = VariantStub(tmp_path)
-
-    assert extract._read_build_id(_context(tmp_path, variant), variant) is None
-
-
-def test_provenance_steps_require_the_installed_build_id(tmp_path: Path) -> None:
-    variant = VariantStub(tmp_path)
-
-    with pytest.raises(RuntimeError, match=f"appmanifest_{variant.app_id}.acf"):
-        extract._require_build_id(_context(tmp_path, variant), variant)
+    with pytest.raises(GameInstallationError, match=r"appmanifest_3090030\.acf"):
+        extract._installed_build_id(GameInstallation(tmp_path / "game", manifest, "Steam"))
 
 
 def test_unreachable_build_feed_fails_publication_lookup(tmp_path: Path) -> None:

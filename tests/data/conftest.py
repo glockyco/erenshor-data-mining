@@ -16,19 +16,16 @@ from typing import TYPE_CHECKING, Any
 import pytest
 
 from erenshor.infrastructure.config import load_config
+from erenshor.infrastructure.steam.installation import GameInstallationError, find_game_installation
 
 if TYPE_CHECKING:
     from erenshor.application.guide.graph import EntityGraph
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
-# Resolve through the configuration rather than the default layout: local config
-# may point game_files at an installation the pipeline only reads, in which case
-# the shipped assembly does not live under variants/main/game.
 _MAIN_VARIANT = load_config().variants["main"]
 MAIN_CLEAN_DB = _MAIN_VARIANT.resolved_database(REPO_ROOT)
 MAIN_RAW_DB = _MAIN_VARIANT.resolved_database_raw(REPO_ROOT)
-SHIPPED_MAIN_DLL = _MAIN_VARIANT.resolved_game_files(REPO_ROOT) / "Erenshor_Data" / "Managed" / "Assembly-CSharp.dll"
 MAIN_WIKI_GENERATED = _MAIN_VARIANT.resolved_wiki(REPO_ROOT) / "generated"
 CODE_FACTS_TOOL = REPO_ROOT / "src" / "tools" / "CodeFacts"
 
@@ -66,10 +63,14 @@ def main_raw_db() -> Path:
 @pytest.fixture(scope="session")
 def shipped_main_dll() -> Path:
     """Return the shipped main Assembly-CSharp binary, or fail when absent."""
+    try:
+        installation = find_game_installation("main", _MAIN_VARIANT.app_id)
+    except GameInstallationError as error:
+        pytest.fail(f"Shipped main Assembly-CSharp.dll unavailable: {error}", pytrace=False)
     return _required_file(
-        SHIPPED_MAIN_DLL,
+        installation.managed_dir / "Assembly-CSharp.dll",
         "Shipped main Assembly-CSharp.dll",
-        "uv run erenshor -V main extract export",
+        "the Steam client in the CrossOver bottle (verify game files)",
     )
 
 

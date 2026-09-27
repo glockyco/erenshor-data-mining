@@ -2,28 +2,24 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
 from erenshor.application.mods import local_workflow
 from erenshor.application.mods.artifacts import REQUIRED_DLLS
 from erenshor.application.mods.catalog import lookup_mod
 from erenshor.cli.preconditions.base import PreconditionResult
 from erenshor.cli.preconditions.checks.inputs import game_installation
+from erenshor.infrastructure.steam.installation import GameInstallationError
 
 
 def mod_setup_source(context: dict[str, Any]) -> PreconditionResult:
-    """Allow an installed or extracted game with managed assemblies."""
+    """Require the installed game's managed assemblies and loader references."""
     try:
         selected = local_workflow.resolve_build_targets(context.get("mod"), context.get("loader", "all"))
-        game = local_workflow.get_game_path(context["cli_ctx"], allow_extracted=True)
-    except (local_workflow.GameInstallationError, ValueError) as error:
+        game = local_workflow.get_game_path(context["cli_ctx"])
+    except (GameInstallationError, ValueError) as error:
         return PreconditionResult(False, "mod_setup_source", "Cannot resolve mod references", str(error))
-    if game is None:
-        return PreconditionResult(False, "mod_setup_source", f"Game source not found for {context['variant']}")
     managed = local_workflow.managed_dir(game)
-    if not managed.is_dir():
-        return PreconditionResult(False, "mod_setup_source", f"Managed directory not found: {managed}")
     missing = [managed / name for name in REQUIRED_DLLS if not (managed / name).is_file()]
     for mod_id, loader in selected:
         if loader == "bepinex":
@@ -56,7 +52,7 @@ def dev_tools_configured(context: dict[str, Any]) -> PreconditionResult:
     installation = game_installation(context)
     if not installation.passed:
         return installation
-    game = cast("Path", local_workflow.get_game_path(context["cli_ctx"]))
+    game = local_workflow.get_game_path(context["cli_ctx"])
     bepinex = game / "BepInEx"
     if not bepinex.is_dir():
         return PreconditionResult(False, "dev_tools_configured", f"BepInEx not installed at {bepinex}")

@@ -22,6 +22,7 @@ from erenshor import __version__
 from erenshor.infrastructure.config import ConfigLoadError, get_repo_root, load_config
 from erenshor.infrastructure.logging import setup_logging
 from erenshor.infrastructure.logging.setup import LoggingSetupError
+from erenshor.infrastructure.steam.installation import GameInstallationError, find_game_installation
 
 from .commands import backup, capture, extract, golden, guide, images, maps, mod, sheets, test, wiki
 from .commands import eval as eval_cmd
@@ -239,9 +240,11 @@ def status(
         unity_status = "[green](exists)[/green]" if unity_path.exists() else "[dim](not found)[/dim]"
         variant_table.add_row("Unity project", f"{unity_path} {unity_status}")
 
-        game_files_path = variant_config.resolved_game_files(cli_ctx.repo_root)
-        game_status = "[green](exists)[/green]" if game_files_path.exists() else "[dim](not found)[/dim]"
-        variant_table.add_row("Game files", f"{game_files_path} {game_status}")
+        try:
+            installation = find_game_installation(variant_name, variant_config.app_id)
+            variant_table.add_row("Game files", f"{installation.path} [green](installed)[/green]")
+        except GameInstallationError as error:
+            variant_table.add_row("Game files", f"[red]{error}[/red]")
 
         logs_path = variant_config.resolved_logs(cli_ctx.repo_root)
         logs_status = "[green](exists)[/green]" if logs_path.exists() else "[dim](not found)[/dim]"

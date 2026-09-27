@@ -23,11 +23,11 @@ Wire the per-subsystem pipelines into the right order and surface the variant-sc
 
 ## Preflight
 
-Run the freshness check before starting:
+The Steam client in the CrossOver bottle installs and updates each variant. Update the game there first, then run the freshness check:
 ```bash
-python .agent/skills/refreshing-game-data/scripts/check_pipeline_freshness.py {v}
+uv run python .agent/skills/refreshing-game-data/scripts/check_pipeline_freshness.py {v}
 ```
-It reports whether the Unity `ExportedProject` is stale relative to `Erenshor_Data` (re-rip needed) and prints the variant's current asset counts.
+It finds the variant's installation by its Steam app ID, reports whether the Unity `ExportedProject` is stale relative to `Erenshor_Data` (re-rip needed), and prints the variant's current asset counts. A variant that is not installed in the bottle fails with its app ID.
 
 ## Canonical order
 
@@ -69,7 +69,7 @@ Compute the delta of `SELECT DISTINCT scene_name FROM zones` minus the keys of `
 ## Timing and profiling refreshes
 
 Extraction commands persist profile runs under `variants/{variant}/profiles/`.
-Use them to separate Steam download, AssetRipper, Unity subprocess overhead,
+Use them to separate AssetRipper, Unity subprocess overhead,
 Unity C# export, listener `OnAssetFound`, listener `OnScanFinished`, code-facts,
 and clean build cost before optimizing.
 

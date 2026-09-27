@@ -59,7 +59,7 @@ def test_wiki_credentials_require_both_values_unless_preview() -> None:
 
 
 def test_game_installation_preserves_discovery_error(monkeypatch: pytest.MonkeyPatch) -> None:
-    from erenshor.application.mods.local_workflow import GameInstallationError
+    from erenshor.infrastructure.steam.installation import GameInstallationError
 
     def fail(_ctx: object) -> None:
         raise GameInstallationError("ambiguous bottles: A and B")
@@ -152,7 +152,12 @@ def test_dev_tools_preflight_refuses_missing_config_before_creating_dirs(
 
 
 def test_launch_inspection_skips_installation_only_when_not_launching(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr("erenshor.application.mods.local_workflow.get_game_path", lambda _ctx: None)
+    from erenshor.infrastructure.steam.installation import GameInstallationError
+
+    def absent(_ctx: object) -> Path:
+        raise GameInstallationError("Variant 'demo' (Steam app 2522260) is not installed")
+
+    monkeypatch.setattr("erenshor.application.mods.local_workflow.get_game_path", absent)
     context = {"cli_ctx": object(), "variant": "demo", "recover": False, "inspect_pid": None}
     assert not launch_installation(context).passed
     assert "demo" in str(launch_installation(context))

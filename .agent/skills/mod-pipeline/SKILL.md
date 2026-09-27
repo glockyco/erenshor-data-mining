@@ -50,30 +50,22 @@ restore both loader graphs with `--force-evaluate`. Then run
 `erenshor test dependency-state`. The `mod-development` skill contains the exact
 commands.
 
-`-V main`, `-V playtest`, and `-V demo` select the matching runnable install.
-Resolution is variant-specific:
+`-V main`, `-V playtest`, and `-V demo` select the matching installation. Every
+command, including extraction, finds it the same way: the Steam client in a
+CrossOver bottle writes `appmanifest_<app_id>.acf`, and the CLI reads the
+installation directory from the manifest of the selected variant's app ID.
+`CROSSOVER_BOTTLE` limits the search to one bottle. Without it, exactly one
+bottle must contain the app. No path is configured per machine.
 
-1. `[variants.<name>] game_install` from `.erenshor/config.local.toml`, when set.
-2. The selected variant's Steam App ID inside `CROSSOVER_BOTTLE`. If the bottle
-   variable is unset, a unique matching CrossOver bottle is discovered.
-3. The legacy `ERENSHOR_GAME_PATH` process-wide override, only when its
-   `steam_appid.txt` does not contradict the selected variant.
-4. For `mod setup` only, the selected variant's extracted `game_files` path.
-
-Deploy, status, activation, and launch require a runnable install. They never
-fall back to extracted game files, which prevents `-V demo` from modifying main
-when the demo is not installed.
-
-Standard CrossOver installs therefore need only the variant flag:
+Resolution fails with a separate message when the variant is not installed,
+when several bottles contain it, when its manifest cannot be read, and when the
+installation lacks `Erenshor_Data/Managed`. A variant that is not installed
+cannot fall back to another variant's files, so `-V demo` never modifies main.
 
 ```bash
 uv run erenshor -V playtest mod setup
 uv run erenshor -V playtest mod status
 ```
-
-Use `game_install` for an external Steam library or another non-standard
-layout. The same variant selection applies to deploy, status, activation, and
-launch.
 
 ## Loader-targeted build and deploy
 
@@ -224,10 +216,9 @@ There is no GitHub Actions release workflow.
 
 - **Missing `lib/` references:** run `uv run erenshor mod setup` and verify the
   game path and Lunaris library configuration.
-- **Wrong game variant:** run `mod status` with the intended `-V` flag. Set
-  `[variants.<name>] game_install` only for non-standard installs. A standard
-  CrossOver Steam install is resolved by App ID before the legacy
-  `ERENSHOR_GAME_PATH` fallback.
+- **Wrong game variant:** run `mod status` with the intended `-V` flag. The
+  status names the installation found for that variant's Steam app ID, or the
+  reason none was found.
 - **Loader cannot activate:** install both loaders once and keep the backup
   proxies their installers create. `mod status` reports the recognized active
   and available proxies. The CLI will not overwrite an unknown `winhttp.dll`.

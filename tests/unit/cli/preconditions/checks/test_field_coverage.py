@@ -5,7 +5,14 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from erenshor.cli.preconditions.checks import field_coverage as fc
+
+
+@pytest.fixture(autouse=True)
+def _installed_at_tmp_path(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("erenshor.application.mods.local_workflow.get_game_path", lambda _ctx: tmp_path)
 
 
 def _manifest(repo_root: Path, *, types: list[str] | None = None) -> None:
@@ -37,7 +44,7 @@ def test_fails_on_field_findings(tmp_path: Path, monkeypatch) -> None:
     res = fc.export_field_coverage_current(
         {
             "repo_root": tmp_path,
-            "game_dir": tmp_path,
+            "cli_ctx": object(),
         }
     )
 
@@ -57,7 +64,7 @@ def test_fails_on_missing_listener_types(tmp_path: Path, monkeypatch) -> None:
     res = fc.export_field_coverage_current(
         {
             "repo_root": tmp_path,
-            "game_dir": tmp_path,
+            "cli_ctx": object(),
         }
     )
 
@@ -76,7 +83,7 @@ def test_passes_when_clean(tmp_path: Path, monkeypatch) -> None:
     res = fc.export_field_coverage_current(
         {
             "repo_root": tmp_path,
-            "game_dir": tmp_path,
+            "cli_ctx": object(),
         }
     )
 
@@ -90,7 +97,7 @@ def test_fails_when_dll_absent(tmp_path: Path) -> None:
     res = fc.export_field_coverage_current(
         {
             "repo_root": tmp_path,
-            "game_dir": tmp_path,
+            "cli_ctx": object(),
         }
     )
 

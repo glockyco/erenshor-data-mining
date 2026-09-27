@@ -33,8 +33,19 @@ def export_field_coverage_current(context: dict[str, Any]) -> PreconditionResult
     coverage check (invariant 3) into a single pass/fail. Always strict
     (spec §7): a missing DLL or manifest fails the gate.
     """
+    from erenshor.application.mods.local_workflow import get_game_path
+    from erenshor.infrastructure.steam.installation import GameInstallationError
+
     repo_root = Path(context["repo_root"])
-    game_dir = Path(context["game_dir"])
+    try:
+        game_dir = get_game_path(context["cli_ctx"])
+    except GameInstallationError as error:
+        return PreconditionResult(
+            passed=False,
+            check_name="export_field_coverage_current",
+            message="game installation unavailable",
+            detail=str(error),
+        )
     dll = game_dir / "Erenshor_Data" / "Managed" / "Assembly-CSharp.dll"
     manifest = repo_root / MANIFEST_PATH
     listener_dir = repo_root / LISTENER_DIR

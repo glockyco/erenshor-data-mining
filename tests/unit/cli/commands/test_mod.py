@@ -23,8 +23,16 @@ from erenshor.application.mods.catalog import artifact_specs, iter_mods, lookup_
 from erenshor.application.process_session import ProcessIdentity
 from erenshor.cli.commands import mod as mod_command
 from erenshor.cli.context import CLIContext
+from erenshor.infrastructure.steam.installation import GameInstallation, GameInstallationError
 
-_DISCOVER_CROSSOVER_GAME_PATH = local_workflow.discover_crossover_game_path
+
+def _installed(monkeypatch: pytest.MonkeyPatch, game: Path, bottle: str = "Steam") -> None:
+    """Resolve every variant to ``game`` as if the Steam client installed it there."""
+    monkeypatch.setattr(
+        local_workflow,
+        "find_game_installation",
+        lambda _variant, _app_id: GameInstallation(game, game.parent.parent / "appmanifest.acf", bottle),
+    )
 
 
 def _mod(mod_id: str):
@@ -36,17 +44,14 @@ def _ctx(
     *,
     variant: str = "main",
     game_paths: dict[str, Path] | None = None,
-    game_installs: dict[str, Path | None] | None = None,
     mods_config: Any | None = None,
 ) -> SimpleNamespace:
     """Build the smallest CLI context needed by mod command helpers."""
     paths = game_paths or {variant: tmp_path / variant}
-    installs = game_installs or {}
     app_ids = {"main": "2382520", "playtest": "3090030", "demo": "2522260"}
     variants = {
         name: SimpleNamespace(
             app_id=app_ids.get(name, "0"),
-            resolved_game_files=lambda _root, path=path: path,
             resolved_unity_project=lambda _root, path=path: path / "unity",
             resolved_database=lambda _root, path=path: path / "clean.sqlite",
             resolved_database_raw=lambda _root, path=path: path / "raw.sqlite",
@@ -59,7 +64,6 @@ def _ctx(
                 resolved_build_dir=lambda _root, path=path: path / "maps/build",
                 resolved_database_dir=lambda _root, path=path: path / "maps/db",
             ),
-            resolved_game_install=lambda _root, path=installs.get(name): path,
         )
         for name, path in paths.items()
     }
@@ -79,7 +83,11 @@ def _ctx(
 @pytest.fixture(autouse=True)
 def _disable_workstation_crossover_discovery(monkeypatch: pytest.MonkeyPatch) -> None:
     """Unit tests must never resolve or modify the developer's real game install."""
-    monkeypatch.setattr(local_workflow, "discover_crossover_game_path", lambda _app_id: None)
+
+    def not_installed(variant: str, app_id: str) -> GameInstallation:
+        raise GameInstallationError(f"Variant {variant!r} (Steam app {app_id}) is not installed")
+
+    monkeypatch.setattr(local_workflow, "find_game_installation", not_installed)
 
 
 def test_registry_inventory_declares_all_loader_targets_and_public_surface() -> None:
@@ -333,114 +341,13 @@ def test_deploy_target_routing_and_scripts_guard(tmp_path: Path) -> None:
         local_workflow.deploy_target_dir("lunaris", tmp_path, scripts=True)
 
 
-@pytest.mark.parametrize("variant", ["main", "playtest", "demo"])
-def test_game_path_uses_selected_variant(variant: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.delenv("ERENSHOR_GAME_PATH", raising=False)
-    game = tmp_path / variant
-    (game / "Erenshor_Data" / "Managed").mkdir(parents=True)
-    ctx = _ctx(tmp_path, variant=variant, game_paths={variant: game}).obj
-    assert local_workflow.get_game_path(ctx, allow_extracted=True) == game
-
-
-def test_game_path_configured_variant_install_precedes_global_environment(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    configured = tmp_path / "playtest-install"
-    configured.mkdir()
-    environment = tmp_path / "main-install"
-    environment.mkdir()
-    ctx = _ctx(
-        tmp_path,
-        variant="playtest",
-        game_paths={"playtest": tmp_path / "extracted"},
-        game_installs={"playtest": configured},
-    ).obj
-    monkeypatch.setenv("ERENSHOR_GAME_PATH", str(environment))
-
-    assert local_workflow.get_game_path(ctx) == configured
-
-
-@pytest.mark.parametrize(
-    ("variant", "app_id", "install_dir"),
-    [
-        ("main", "2382520", "Erenshor"),
-        ("playtest", "3090030", "Erenshor Playtest"),
-        ("demo", "2522260", "Erenshor Demo"),
-    ],
-)
-def test_crossover_discovery_uses_selected_steam_app(
-    variant: str,
-    app_id: str,
-    install_dir: str,
-    tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    bottles = tmp_path / "Bottles"
-    steamapps = bottles / "QA" / "drive_c/Program Files (x86)/Steam/steamapps"
-    game = steamapps / "common" / install_dir
-    (game / "Erenshor_Data" / "Managed").mkdir(parents=True)
-    manifest = steamapps / f"appmanifest_{app_id}.acf"
-    manifest.write_text(f'"AppState"\n{{\n\t"installdir"\t\t"{install_dir}"\n}}\n')
-    monkeypatch.setattr(local_workflow, "CROSSOVER_BOTTLES_ROOT", bottles)
-    monkeypatch.setattr(local_workflow.sys, "platform", "darwin")
-    monkeypatch.setenv("CROSSOVER_BOTTLE", "QA")
-
-    assert _DISCOVER_CROSSOVER_GAME_PATH(app_id) == game
-
-
-def _bottle(bottles: Path, name: str, app_id: str, manifest_text: str | None) -> Path:
-    steamapps = bottles / name / "drive_c/Program Files (x86)/Steam/steamapps"
-    game = steamapps / "common" / "Erenshor"
-    (game / "Erenshor_Data" / "Managed").mkdir(parents=True)
-    if manifest_text is not None:
-        (steamapps / f"appmanifest_{app_id}.acf").write_text(manifest_text)
-    return game
-
-
-def _discover_in(bottles: Path, monkeypatch: pytest.MonkeyPatch) -> Path | None:
-    monkeypatch.setattr(local_workflow, "CROSSOVER_BOTTLES_ROOT", bottles)
-    monkeypatch.setattr(local_workflow.sys, "platform", "darwin")
-    monkeypatch.delenv("CROSSOVER_BOTTLE", raising=False)
-    return _DISCOVER_CROSSOVER_GAME_PATH("2382520")
-
-
-def test_discovery_names_every_bottle_when_several_hold_the_game(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    manifest = '"AppState"\n{\n\t"installdir"\t\t"Erenshor"\n}\n'
-    first = _bottle(tmp_path / "Bottles", "Steam", "2382520", manifest)
-    second = _bottle(tmp_path / "Bottles", "Steam Copy", "2382520", manifest)
-
-    with pytest.raises(local_workflow.GameInstallationError, match="several CrossOver bottles") as error:
-        _discover_in(tmp_path / "Bottles", monkeypatch)
-
-    assert str(first) in str(error.value)
-    assert str(second) in str(error.value)
-
-
-def test_discovery_names_an_unusable_app_manifest(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    _bottle(tmp_path / "Bottles", "Steam", "2382520", '"AppState"\n{\n}\n')
-
-    with pytest.raises(local_workflow.GameInstallationError, match=r"appmanifest_2382520\.acf"):
-        _discover_in(tmp_path / "Bottles", monkeypatch)
-
-
-def test_discovery_reports_absence_when_no_bottle_holds_the_game(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    _bottle(tmp_path / "Bottles", "Steam", "2382520", None)
-
-    assert _discover_in(tmp_path / "Bottles", monkeypatch) is None
-
-
 def test_mod_command_prints_the_ambiguity_instead_of_absence(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    def ambiguous(_app_id: str) -> Path:
-        raise local_workflow.GameInstallationError("Steam app 2382520 is installed in several CrossOver bottles")
+    def ambiguous(_variant: str, _app_id: str) -> GameInstallation:
+        raise GameInstallationError("Steam app 2382520 is installed in several CrossOver bottles")
 
-    monkeypatch.setattr(local_workflow, "discover_crossover_game_path", ambiguous)
-    monkeypatch.delenv("ERENSHOR_GAME_PATH", raising=False)
+    monkeypatch.setattr(local_workflow, "find_game_installation", ambiguous)
 
     with pytest.raises(typer.Exit):
         mod_command.status(_ctx(tmp_path))
@@ -448,16 +355,6 @@ def test_mod_command_prints_the_ambiguity_instead_of_absence(
     output = capsys.readouterr().out
     assert "several CrossOver bottles" in output
     assert "not found" not in output
-
-
-def test_game_path_environment_override_has_precedence(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    configured = tmp_path / "playtest"
-    (configured / "Erenshor_Data" / "Managed").mkdir(parents=True)
-    environment = tmp_path / "environment"
-    environment.mkdir()
-    ctx = _ctx(tmp_path, variant="playtest", game_paths={"playtest": configured}).obj
-    monkeypatch.setenv("ERENSHOR_GAME_PATH", str(environment))
-    assert local_workflow.get_game_path(ctx) == environment
 
 
 def _write_loader_proxies(game: Path, *, active: str = "lunaris") -> None:
@@ -500,18 +397,6 @@ def test_loader_activation_rejects_conflicting_saved_proxies(tmp_path: Path) -> 
 
     with pytest.raises(ValueError, match="conflicting bepinex"):
         local_workflow.activate_loader(game, "bepinex")
-
-
-def test_game_path_rejects_environment_override_for_another_steam_app(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    main = tmp_path / "main"
-    main.mkdir()
-    (main / "steam_appid.txt").write_text("2382520\n")
-    ctx = _ctx(tmp_path, variant="demo", game_paths={"demo": tmp_path / "demo"}).obj
-    monkeypatch.setenv("ERENSHOR_GAME_PATH", str(main))
-
-    assert local_workflow.get_game_path(ctx) is None
 
 
 def test_deploy_routes_explicit_loader_output(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -1370,8 +1255,8 @@ def test_setup_provisions_union_of_loader_references(tmp_path: Path, monkeypatch
         lunaris_libs_url="https://invalid.invalid/LunarisLibs.zip",
         resolved_lunaris_lib_dir=lambda _root: lunaris_lib,
     )
-    ctx = _ctx(tmp_path, game_paths={"main": game}, mods_config=mods_config)
-    monkeypatch.setenv("ERENSHOR_GAME_PATH", str(game))
+    ctx = _ctx(tmp_path, mods_config=mods_config)
+    _installed(monkeypatch, game)
 
     mod_command.setup(ctx)
 
@@ -1389,7 +1274,9 @@ def test_setup_provisions_union_of_loader_references(tmp_path: Path, monkeypatch
     assert (tmp_path / _mod("adventure-guide").directory / "lib/lunaris/ImGui.NET.dll").read_bytes() == b"ImGui.NET.dll"
 
 
-def test_setup_can_provision_one_bepinex_target_without_lunaris(tmp_path: Path) -> None:
+def test_setup_can_provision_one_bepinex_target_without_lunaris(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     game = tmp_path / "game"
     managed = game / "Erenshor_Data" / "Managed"
     managed.mkdir(parents=True)
@@ -1399,7 +1286,8 @@ def test_setup_can_provision_one_bepinex_target_without_lunaris(tmp_path: Path) 
     bepinex_core = game / "BepInEx" / "core"
     bepinex_core.mkdir(parents=True)
     (bepinex_core / "0Harmony.dll").write_bytes(b"bepinex harmony")
-    ctx = _ctx(tmp_path, game_paths={"main": game})
+    ctx = _ctx(tmp_path)
+    _installed(monkeypatch, game)
 
     mod_command.setup(ctx, mod="map-tile-capture", loader="bepinex")
 
@@ -1470,13 +1358,11 @@ def test_launch_uses_crossover_steam_protocol(tmp_path: Path, monkeypatch: pytes
     game.mkdir()
     crossover_start = tmp_path / "cxstart"
     crossover_start.touch()
-    ctx = _ctx(tmp_path, game_installs={"main": game})
+    ctx = _ctx(tmp_path)
+    _installed(monkeypatch, game)
     calls: list[tuple[list[str], bool]] = []
 
-    monkeypatch.delenv("CROSSOVER_BOTTLE", raising=False)
-    monkeypatch.setattr(local_workflow.sys, "platform", "darwin")
     monkeypatch.setattr(local_workflow, "CROSSOVER_START", crossover_start)
-    monkeypatch.setattr(local_workflow, "crossover_bottle_for_path", lambda _path: "Steam")
     monkeypatch.setattr(
         local_workflow,
         "launch_game",
@@ -1550,12 +1436,9 @@ def test_launch_applies_native_proxy_override_for_active_loader(
     (game / "winhttp.bepinex.dll").write_bytes(b"bepinex proxy")
     crossover_start = tmp_path / "cxstart"
     crossover_start.touch()
-    ctx = _ctx(tmp_path, game_installs={"main": game})
-
-    monkeypatch.delenv("CROSSOVER_BOTTLE", raising=False)
-    monkeypatch.setattr(local_workflow.sys, "platform", "darwin")
+    ctx = _ctx(tmp_path)
+    _installed(monkeypatch, game)
     monkeypatch.setattr(local_workflow, "CROSSOVER_START", crossover_start)
-    monkeypatch.setattr(local_workflow, "crossover_bottle_for_path", lambda _path: "Steam")
 
     plan = local_workflow.plan_launch(ctx.obj)
 

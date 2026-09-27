@@ -30,7 +30,6 @@ Example:
 from .database import database_exists, database_has_items, database_valid, raw_database_exists
 from .field_coverage import export_field_coverage_current
 from .filesystem import directory_exists, directory_writable, file_exists
-from .steam import game_files_exist, steam_credentials_exist
 from .unity import editor_scripts_linked, unity_project_exists, unity_version_matches
 
 __all__ = [
@@ -42,9 +41,7 @@ __all__ = [
     "editor_scripts_linked",
     "export_field_coverage_current",
     "file_exists",
-    "game_files_exist",
     "raw_database_exists",
-    "steam_credentials_exist",
     "unity_project_exists",
     "unity_version_matches",
 ]
