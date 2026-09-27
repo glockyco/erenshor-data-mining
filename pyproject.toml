@@ -79,8 +79,9 @@ dev = [
     "pytest-xdist>=3.8.0",
 ]
 
-# mwparserfromhell has no macOS Python 3.14 wheel and its sdist omits the
-# setuptools backend from its package metadata.
+# mwparserfromhell publishes no Python 3.14 wheel and its sdist omits the
+# setuptools backend from its package metadata. uv needs this to build the sdist.
+# The Nix environment takes the prebuilt nixpkgs package instead (flake.nix).
 [tool.uv.extra-build-dependencies]
 mwparserfromhell = ["setuptools"]
 

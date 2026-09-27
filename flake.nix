@@ -91,6 +91,27 @@
         });
       };
 
+      # mwparserfromhell publishes no CPython 3.14 wheels, so uv2nix would
+      # compile its C extension from the sdist on every interpreter change.
+      # nixpkgs builds the same release for the same interpreter and the binary
+      # cache serves it. The assertion stops a silent version drift between
+      # uv.lock and nixpkgs.
+      prebuiltPythonOverlay =
+        pkgs: _final: prev:
+        let
+          hacks = pkgs.callPackage pyproject-nix.build.hacks { };
+          from = pkgs.python314Packages.mwparserfromhell;
+        in
+        {
+          mwparserfromhell =
+            assert nixpkgs.lib.assertMsg (from.version == prev.mwparserfromhell.version)
+              "uv.lock pins mwparserfromhell ${prev.mwparserfromhell.version}, nixpkgs provides ${from.version}";
+            hacks.nixpkgsPrebuilt {
+              inherit from;
+              prev = prev.mwparserfromhell;
+            };
+        };
+
       pythonSets = forAllSystems (
         system:
         let
@@ -101,6 +122,7 @@
           nixpkgs.lib.composeManyExtensions [
             pyproject-build-systems.overlays.wheel
             lockedPythonOverlay
+            (prebuiltPythonOverlay pkgs)
           ]
         )
       );
