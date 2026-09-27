@@ -11,5 +11,5 @@
 
 ## 3. Verification
 
-- [ ] 3.1 Run `extract build`, `golden capture`, and review the baseline diff with the user.
+- [x] 3.1 Run `extract build`, `golden capture`, and review the baseline diff with the user.
 - [x] 3.2 Run `uv run erenshor test ci` and `openspec validate encounter-tiers --strict`.

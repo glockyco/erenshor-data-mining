@@ -11,6 +11,8 @@
 "auction.updateah_gates","item_level",">= 40","text"
 "auction.updateah_gates","item_value","<= 0","text"
 "character.base_xp_per_level","ok","true","bool"
+"character.boss_consider_threshold","ok","true","bool"
+"character.boss_xp_level_floor","ok","true","bool"
 "critical.dex_proficiency_clamp","ok","true","bool"
 "critical.final_roll","ok","true","bool"
 "critical.opportunity_trials","ok","true","bool"
