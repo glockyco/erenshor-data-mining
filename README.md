@@ -499,9 +499,11 @@ Confirm the game is running with `InteractiveMapCompanion` installed, then check
 ws://localhost:18585
 ```
 
-The legacy per-zone maps continue to accept player-position updates from retired
-`InteractiveMapsCompanion` installations on port `18584`. The current world map
-and `InteractiveMapCompanion` use port `18585`.
+The per-zone maps accept player-position updates on port `18584` from the
+retired `InteractiveMapsCompanion` mod. Nothing in this repository serves that
+port, but players who still run the mod keep live tracking, so the port and its
+message format are kept indefinitely. The world map and
+`InteractiveMapCompanion` use port `18585`.
 
 ## License
 

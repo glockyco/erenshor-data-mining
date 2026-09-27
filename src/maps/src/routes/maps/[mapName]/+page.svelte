@@ -209,7 +209,11 @@
                 maxZoom: config.maxZoom
             }).addTo(map);
 
-            // Initialize WebSocket for player position
+            // Player position for the per-zone maps. Nothing in this repository
+            // serves port 18584. The retired InteractiveMapsCompanion mod does, and
+            // players who still run it keep live tracking here. This socket and its
+            // message format are kept indefinitely. The mod sends one JSON object
+            // per update: { scene, x, y, z, fx, fy, fz }.
             if (!webSocket) {
                 webSocket = new WebSocket('ws://localhost:18584');
 
@@ -218,15 +222,7 @@
                 };
 
                 webSocket.onmessage = (event) => {
-                    const message = JSON.parse(event.data);
-
-                    // Ignore new mod messages (they have a 'type' field)
-                    if (message.type) {
-                        return;
-                    }
-
-                    // Old mod format
-                    const { scene, x, y, z, fx, fy, fz } = message;
+                    const { scene, x, y, z, fx, fy, fz } = JSON.parse(event.data);
                     playerPosition = { scene, x, y, z, fx, fy, fz };
                 };
 
