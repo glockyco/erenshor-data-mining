@@ -21,6 +21,14 @@ from erenshor.infrastructure.export_profile import ExportProfileRecorder
 from erenshor.infrastructure.time import MockClock
 
 
+def _running_process() -> MagicMock:
+    """Return a Popen double for a server process that is still running."""
+    process = MagicMock()
+    process.pid = 12345
+    process.poll.return_value = None
+    return process
+
+
 class TestAssetRipperInitialization:
     """Test AssetRipper initialization and validation."""
 
@@ -66,10 +74,7 @@ class TestAssetRipperServerManagement:
         executable = tmp_path / "AssetRipper.GUI.Free"
         executable.touch()
 
-        # Mock process
-        mock_process = MagicMock()
-        mock_process.pid = 12345
-        mock_popen.return_value = mock_process
+        mock_popen.return_value = _running_process()
 
         # Mock server check to return True (server is running)
         mock_run.return_value = MagicMock(returncode=0)
@@ -78,7 +83,7 @@ class TestAssetRipperServerManagement:
         assetripper.start_server(log_dir=tmp_path)
 
         # Verify server was started
-        assert assetripper._server_pid == 12345
+        assert assetripper._process is mock_popen.return_value
         mock_popen.assert_called_once()
         call_args = mock_popen.call_args[0][0]
         assert str(executable) in call_args
@@ -94,10 +99,7 @@ class TestAssetRipperServerManagement:
         executable = tmp_path / "AssetRipper.GUI.Free"
         executable.touch()
 
-        # Mock process
-        mock_process = MagicMock()
-        mock_process.pid = 12345
-        mock_popen.return_value = mock_process
+        mock_popen.return_value = _running_process()
 
         # Mock server check to always return False (server not responding)
         mock_run.return_value = MagicMock(returncode=1)
@@ -110,7 +112,7 @@ class TestAssetRipperServerManagement:
             assetripper.start_server(log_dir=tmp_path)
 
         assert "failed to start" in str(exc_info.value).lower()
-        assert assetripper._server_pid is None  # Server stopped after failure
+        assert assetripper._process is None  # Server stopped after failure
 
     @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.Popen")
     def test_start_server_spawn_error(self, mock_popen: MagicMock, tmp_path: Path) -> None:
@@ -129,30 +131,57 @@ class TestAssetRipperServerManagement:
         assert "failed to start" in str(exc_info.value).lower()
 
     @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.run")
-    def test_stop_server(self, mock_run: MagicMock, tmp_path: Path) -> None:
-        """Test stopping server."""
+    @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.Popen")
+    def test_start_server_reports_early_exit(self, mock_popen: MagicMock, mock_run: MagicMock, tmp_path: Path) -> None:
+        """A server process that exits before answering fails at once with its exit code."""
         executable = tmp_path / "AssetRipper.GUI.Free"
         executable.touch()
+        process = _running_process()
+        process.poll.return_value = 3
+        mock_popen.return_value = process
+        mock_run.return_value = MagicMock(returncode=1)
+        clock = MockClock()
+        started_at = clock.time()
+        assetripper = AssetRipper(executable_path=executable, clock=clock)
 
-        assetripper = AssetRipper(executable_path=executable, clock=MockClock())
-        assetripper._server_pid = 12345
+        with pytest.raises(AssetRipperServerError, match="exited with code 3"):
+            assetripper.start_server(log_dir=tmp_path)
 
-        assetripper.stop_server()
+        assert clock.time() == started_at
+        assert assetripper._process is None
 
-        # Verify kill commands were called
-        assert assetripper._server_pid is None
-        assert mock_run.call_count >= 1
-
-    def test_stop_server_no_pid(self, tmp_path: Path) -> None:
-        """Test stopping server when no server is running."""
+    def test_stop_server_terminates_without_force_when_process_exits(self, tmp_path: Path) -> None:
         executable = tmp_path / "AssetRipper.GUI.Free"
         executable.touch()
-
+        process = _running_process()
         assetripper = AssetRipper(executable_path=executable)
-        assetripper._server_pid = None
+        assetripper._process = process
 
-        # Should not raise exception
         assetripper.stop_server()
+
+        process.terminate.assert_called_once_with()
+        process.kill.assert_not_called()
+        assert assetripper._process is None
+
+    def test_stop_server_kills_process_that_ignores_terminate(self, tmp_path: Path) -> None:
+        executable = tmp_path / "AssetRipper.GUI.Free"
+        executable.touch()
+        process = _running_process()
+        process.wait.side_effect = [subprocess.TimeoutExpired("AssetRipper", 10), 0]
+        assetripper = AssetRipper(executable_path=executable)
+        assetripper._process = process
+
+        assetripper.stop_server()
+
+        process.kill.assert_called_once_with()
+        assert process.wait.call_count == 2
+        assert assetripper._process is None
+
+    def test_stop_server_without_running_server_is_a_no_op(self, tmp_path: Path) -> None:
+        executable = tmp_path / "AssetRipper.GUI.Free"
+        executable.touch()
+
+        AssetRipper(executable_path=executable).stop_server()
 
     @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.run")
     @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.Popen")
@@ -162,7 +191,7 @@ class TestAssetRipperServerManagement:
         executable.touch()
 
         assetripper = AssetRipper(executable_path=executable)
-        assetripper._server_pid = 12345
+        assetripper._process = _running_process()
 
         assetripper.start_server(log_dir=tmp_path)
 
@@ -191,10 +220,7 @@ class TestAssetRipperExtraction:
         target_dir = tmp_path / "unity"
         log_dir = tmp_path
 
-        # Mock process for server
-        mock_process = MagicMock()
-        mock_process.pid = 12345
-        mock_popen.return_value = mock_process
+        mock_popen.return_value = _running_process()
 
         # Mock API responses - need more responses for multiple curl calls
         def mock_run_side_effect(*args, **kwargs):
@@ -234,7 +260,7 @@ class TestAssetRipperExtraction:
         assert target_dir.exists()
 
         # Verify server was stopped
-        assert assetripper._server_pid is None
+        assert assetripper._process is None
 
     @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.run")
     @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.Popen")
@@ -262,9 +288,7 @@ class TestAssetRipperExtraction:
             clock=MockClock(),
         )
 
-        mock_process = MagicMock()
-        mock_process.pid = 12345
-        mock_popen.return_value = mock_process
+        mock_popen.return_value = _running_process()
 
         def mock_run_side_effect(*args, **kwargs):
             cmd = args[0] if args else []
@@ -326,10 +350,7 @@ class TestAssetRipperExtraction:
 
         target_dir = tmp_path / "unity"
 
-        # Mock process
-        mock_process = MagicMock()
-        mock_process.pid = 12345
-        mock_popen.return_value = mock_process
+        mock_popen.return_value = _running_process()
 
         # Mock server check success, but LoadFolder failure
         mock_run.side_effect = [
@@ -347,7 +368,7 @@ class TestAssetRipperExtraction:
         assert "does not exist" in str(exc_info.value).lower()
 
         # Verify server was stopped despite error
-        assert assetripper._server_pid is None
+        assert assetripper._process is None
 
     @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.run")
     @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.Popen")
@@ -361,10 +382,7 @@ class TestAssetRipperExtraction:
 
         target_dir = tmp_path / "unity"
 
-        # Mock process
-        mock_process = MagicMock()
-        mock_process.pid = 12345
-        mock_popen.return_value = mock_process
+        mock_popen.return_value = _running_process()
 
         # Mock API responses (all successful)
         def mock_run_side_effect(*args, **kwargs):
@@ -399,7 +417,7 @@ class TestAssetRipperExtraction:
         assert "timed out" in str(exc_info.value).lower()
 
         # Verify server was stopped despite timeout
-        assert assetripper._server_pid is None
+        assert assetripper._process is None
 
 
 class TestAssetRipperUtilities:

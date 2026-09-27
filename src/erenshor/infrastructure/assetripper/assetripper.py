@@ -24,6 +24,8 @@ from loguru import logger
 from erenshor.infrastructure.export_profile import ExportProfileRecorder
 from erenshor.infrastructure.time import Clock, RealClock
 
+_STOP_GRACE_SECONDS = 10
+
 
 class AssetRipperError(Exception):
     """Base exception for AssetRipper-related errors.
@@ -120,7 +122,7 @@ class AssetRipper:
         self.port = port
         self.timeout = timeout
         self.clock = clock if clock is not None else RealClock()
-        self._server_pid: int | None = None
+        self._process: subprocess.Popen[bytes] | None = None
         self._log_file: Path | None = None
 
         # Verify AssetRipper exists and is executable
@@ -193,8 +195,8 @@ class AssetRipper:
             AssetRipperServerError: If server fails to start.
             ValueError: If log_dir is not provided.
         """
-        if self._server_pid is not None:
-            logger.debug(f"Server already running (PID: {self._server_pid})")
+        if self._process is not None:
+            logger.debug(f"Server already running (PID: {self._process.pid})")
             return
 
         logger.info(f"Starting AssetRipper server on port {self.port}...")
@@ -211,7 +213,7 @@ class AssetRipper:
                     stdout=log_file,
                     stderr=subprocess.STDOUT,
                 )
-                self._server_pid = process.pid
+                self._process = process
         except Exception as e:
             raise AssetRipperServerError(f"Failed to start AssetRipper server: {e}") from e
 
@@ -221,9 +223,17 @@ class AssetRipper:
 
         while wait_time < startup_timeout:
             if self._check_server_running():
-                logger.info(f"Server started successfully (PID: {self._server_pid})")
+                logger.info(f"Server started successfully (PID: {process.pid})")
                 logger.debug(f"Server log: {self._log_file}")
                 return
+
+            exit_code = process.poll()
+            if exit_code is not None:
+                self._process = None
+                raise AssetRipperServerError(
+                    f"AssetRipper exited with code {exit_code} before its server answered.\n"
+                    f"Check log file: {self._log_file}"
+                )
 
             self.clock.sleep(1)
             wait_time += 1
@@ -235,28 +245,24 @@ class AssetRipper:
         )
 
     def stop_server(self) -> None:
-        """Stop AssetRipper web API server."""
-        if self._server_pid is None:
+        """Stop the AssetRipper web API server and reap its process.
+
+        Sends SIGTERM first. Sends SIGKILL only when the process is still
+        alive after the grace period.
+        """
+        if self._process is None:
             logger.debug("No server to stop")
             return
 
+        process, self._process = self._process, None
         logger.info("Stopping AssetRipper server...")
-
+        process.terminate()
         try:
-            # Try graceful termination first
-            subprocess.run(["kill", str(self._server_pid)], check=False)
-
-            # Wait briefly for graceful shutdown
-            self.clock.sleep(2)
-
-            # Force kill if still running
-            subprocess.run(["kill", "-9", str(self._server_pid)], check=False)
-
-        except Exception as e:
-            logger.warning(f"Error stopping server: {e}")
-
-        finally:
-            self._server_pid = None
+            process.wait(timeout=_STOP_GRACE_SECONDS)
+        except subprocess.TimeoutExpired:
+            logger.warning(f"AssetRipper did not exit within {_STOP_GRACE_SECONDS}s after SIGTERM; killing it")
+            process.kill()
+            process.wait()
 
     def _url_encode(self, path: str) -> str:
         """URL encode a path for API requests.
