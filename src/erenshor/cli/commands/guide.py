@@ -7,6 +7,10 @@ from typing import TYPE_CHECKING
 
 import typer
 
+from erenshor.cli.preconditions import require_preconditions
+from erenshor.cli.preconditions.checks.database import database_exists, database_valid
+from erenshor.cli.preconditions.checks.inputs import option_path
+
 if TYPE_CHECKING:
     from erenshor.cli.context import CLIContext
 
@@ -14,6 +18,7 @@ app = typer.Typer(help="Adventure Guide compiled guide commands")
 
 
 @app.command()
+@require_preconditions(database_exists, database_valid, option_path("overrides"))
 def compile(
     ctx: typer.Context,
     output: Path = typer.Option(
@@ -38,10 +43,6 @@ def compile(
 
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
     db_path = variant_config.resolved_database(cli_ctx.repo_root)
-
-    if not db_path.exists():
-        typer.echo(f"Error: Database not found: {db_path}", err=True)
-        raise typer.Exit(1)
 
     guides_dir = cli_ctx.repo_root / "quest_guides"
     if output is None:
@@ -69,6 +70,7 @@ def compile(
 
 
 @app.command("export-mod")
+@require_preconditions(database_exists, database_valid, option_path("overrides"))
 def export_mod(
     ctx: typer.Context,
     output: Path = typer.Option(
@@ -93,10 +95,6 @@ def export_mod(
 
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
     db_path = variant_config.resolved_database(cli_ctx.repo_root)
-
-    if not db_path.exists():
-        typer.echo(f"Error: Database not found: {db_path}", err=True)
-        raise typer.Exit(1)
 
     guides_dir = cli_ctx.repo_root / "quest_guides"
     if output is None:
