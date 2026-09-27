@@ -60,7 +60,7 @@
 ## 10. Verification and documentation
 
 - [ ] 10.1 Run each affected pipeline end to end against valid inputs and confirm byte-identical output against the task 1.1 baseline.
-- [ ] 10.2 Run `uv run erenshor test ci` and compare against the task 1.2 result.
+- [x] 10.2 Run `uv run erenshor test ci` and compare against the task 1.2 result.
 - [x] 10.3 Document the failure rule where contributors will meet it, in present tense, describing the current behaviour only.
-- [ ] 10.4 Run `openspec validate fail-loudly-on-partial-work --strict`.
+- [x] 10.4 Run `openspec validate fail-loudly-on-partial-work --strict`.
 - [x] 10.5 Search the application and infrastructure packages for remaining handlers that convert a failure into a value, and either fix each or record why it is correct.
