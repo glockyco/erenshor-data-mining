@@ -21,9 +21,9 @@ export const SIDEBAR_WIDTH = {
  */
 export const LAYER_COLORS = {
     // Enemies (static spawn points - muted warm colors)
-    enemy: [217, 119, 6] as [number, number, number], // amber-600 (common spawn)
-    'enemy-elite': [225, 29, 72] as [number, number, number], // rose-600 (rare spawn)
-    'enemy-boss': [109, 40, 217] as [number, number, number], // violet-700 (unique spawn)
+    enemy: [217, 119, 6] as [number, number, number], // amber-600 (enemy)
+    'enemy-elite': [225, 29, 72] as [number, number, number], // rose-600 (elite)
+    'enemy-boss': [109, 40, 217] as [number, number, number], // violet-700 (boss)
     // NPCs (friendly characters)
     npc: [14, 165, 233] as [number, number, number], // sky-500
     // Zone connections
