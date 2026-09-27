@@ -165,6 +165,9 @@ def dev_setup(ctx: typer.Context) -> None:
                         target = plugins_dir / dll_filename
                         target.write_bytes(zf.read(entry))
                         console.print(f"  [green]\u2713[/green] {dll_filename}")
+        if not (plugins_dir / check_dll).exists():
+            console.print(f"  [red]{name} archive did not contain {check_dll}. Dev setup is incomplete.[/red]")
+            raise typer.Exit(1)
 
     console.print()
     console.print("[green]Dev setup complete![/green]")
