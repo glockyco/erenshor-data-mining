@@ -26,6 +26,27 @@ def required_path(key: str, relative: str = "", *, kind: Literal["file", "direct
     return check
 
 
+def option_path(
+    key: str, *, kind: Literal["file", "directory"] = "file", default: str | None = None
+) -> PreconditionCheck:
+    """Check an optional file or directory named by a command option."""
+
+    def check(context: dict[str, Any]) -> PreconditionResult:
+        value = context.get(key)
+        if (value is None and default is None) or value == "-":
+            return PreconditionResult(True, f"option_{key}", f"No {key} input requested")
+        path = Path(value) if value is not None else Path(str(default))
+        if default is not None and not path.is_absolute():
+            path = Path(context["repo_root"]) / path
+        present = path.is_file() if kind == "file" else path.is_dir()
+        if not present:
+            return PreconditionResult(False, f"option_{key}", f"Required {kind} not found: {path}")
+        return PreconditionResult(True, f"option_{key}", f"Required {kind} exists: {path}")
+
+    check.__name__ = f"option_{key}"
+    return check
+
+
 def program_available(program: str, *, extra_dirs: tuple[Path, ...] = ()) -> PreconditionCheck:
     """Require a named executable before starting external work."""
 

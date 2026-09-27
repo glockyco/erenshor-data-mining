@@ -86,6 +86,8 @@ from erenshor.application.wiki_lua.link_catalog import LinkCatalogEntry, build_l
 from erenshor.cli.context import CLIContext
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import database_exists, database_has_items, database_valid
+from erenshor.cli.preconditions.checks.inputs import option_path, wiki_credentials
+from erenshor.cli.preconditions.checks.wiki import interface_admin_credentials, wiki_deploy_inputs, wiki_endpoint
 from erenshor.infrastructure.database.connection import DatabaseConnection
 from erenshor.infrastructure.database.repositories.characters import CharacterRepository
 from erenshor.infrastructure.database.repositories.factions import FactionRepository
@@ -567,11 +569,6 @@ def _run_link_audit(
     return report
 
 
-@require_preconditions(database_exists, database_valid, database_has_items)
-def _assert_generated_deploy_preconditions(ctx: typer.Context) -> None:
-    """Require clean database inputs only for generated-storage deployment."""
-
-
 def _lua_output_root(cli_ctx: CLIContext) -> Path:
     """Return the local generated Lua module output directory."""
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
@@ -793,6 +790,7 @@ def audit_links_command(
 
 
 @app.command("inventory-templates")
+@require_preconditions(wiki_endpoint, option_path("fixture_dir", kind="directory"))
 def inventory_templates(
     ctx: typer.Context,
     output: Path = typer.Option(
@@ -963,6 +961,7 @@ def generate(
 
 
 @app.command("sync-interface")
+@require_preconditions(wiki_endpoint)
 def sync_interface(
     ctx: typer.Context,
     rate_limit_delay: Annotated[
@@ -1019,6 +1018,7 @@ def sync_interface(
 
 
 @app.command("deploy-interface")
+@require_preconditions(wiki_endpoint, interface_admin_credentials)
 def deploy_interface_command(
     ctx: typer.Context,
     manifest_path: Annotated[
@@ -1095,6 +1095,11 @@ def deploy_interface_command(
 
 
 @app.command("rollback-interface")
+@require_preconditions(
+    wiki_endpoint,
+    interface_admin_credentials,
+    option_path("manifest_path", default="output/wiki-interface/deploy-manifest.json"),
+)
 def rollback_interface_command(
     ctx: typer.Context,
     manifest_path: Annotated[
@@ -1119,9 +1124,6 @@ def rollback_interface_command(
         cli_ctx,
         manifest_path if manifest_path is not None else Path("output/wiki-interface/deploy-manifest.json"),
     )
-    if not manifest_file.exists():
-        console.print(f"[red]Interface deployment manifest not found: {manifest_file}[/red]")
-        raise typer.Exit(1)
 
     try:
         manifest = read_interface_deploy_manifest(manifest_file)
@@ -1224,6 +1226,7 @@ def _candidate_repo_page_manifest(
 
 
 @app.command("deploy-repo-pages")
+@require_preconditions(wiki_endpoint, wiki_credentials, option_path("pages_file"))
 def deploy_repo_pages_command(
     ctx: typer.Context,
     pages_file: Annotated[
@@ -1437,6 +1440,7 @@ def review_overrides_command(
 
 
 @app.command("refresh-embedded")
+@require_preconditions(wiki_endpoint, wiki_credentials)
 def refresh_embedded_command(
     ctx: typer.Context,
     dependency_titles: Annotated[
@@ -1529,6 +1533,7 @@ def refresh_embedded_command(
 
 
 @app.command("rollback-repo-pages")
+@require_preconditions(wiki_endpoint, wiki_credentials, option_path("manifest_path"))
 def rollback_repo_pages_command(
     ctx: typer.Context,
     manifest_path: Annotated[
@@ -1550,9 +1555,6 @@ def rollback_repo_pages_command(
 ) -> None:
     """Restore repo-owned page text recorded in a deployment manifest."""
     cli_ctx: CLIContext = ctx.obj
-    if not manifest_path.exists():
-        console.print(f"[red]Deployment manifest not found: {manifest_path}[/red]")
-        raise typer.Exit(1)
 
     manifest = read_repo_page_manifest(manifest_path)
 
@@ -1589,6 +1591,12 @@ def rollback_repo_pages_command(
 
 
 @app.command()
+@require_preconditions(
+    wiki_endpoint,
+    wiki_credentials,
+    option_path("pages_file"),
+    wiki_deploy_inputs,
+)
 def deploy(
     ctx: typer.Context,
     limit: int | None = typer.Option(
@@ -1643,7 +1651,6 @@ def deploy(
                     page_titles=page_titles,
                 )
         else:
-            _assert_generated_deploy_preconditions(ctx)
             with _create_wiki_composition(cli_ctx, with_client=True) as composition:
                 assert composition.wiki_client is not None
                 service = WikiDeployService(

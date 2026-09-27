@@ -22,6 +22,16 @@ from erenshor.cli.context import CLIContext
 runner = CliRunner()
 
 
+@pytest.fixture(autouse=True)
+def _configured_wiki_accounts(cli_context: CLIContext) -> None:
+    """Give command tests local credential values without contacting a wiki."""
+    config = cli_context.config.global_.mediawiki
+    config.bot_username = "FixtureBot"
+    config.bot_password = "fixture-secret"
+    config.interface_username = "FixtureAdmin"
+    config.interface_password = "fixture-secret"
+
+
 def _unwrapped(output: str) -> str:
     """Return console output with Rich's line wrapping collapsed to single spaces."""
     return " ".join(output.split())
@@ -1830,3 +1840,15 @@ class TestWikiRollbackRepoCommand:
         assert entry.title == "Module:Erenshor/Item"
         assert entry.rollback_text_source == "rollback/Module_Erenshor_Item.wiki"
         assert entry.old_revision_id == 10
+
+
+def test_interface_deploy_requires_admin_before_any_wiki_login(
+    cli_context: CLIContext, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    cli_context.config.global_.mediawiki.interface_password = ""
+    monkeypatch.setattr(wiki, "_create_interface_mediawiki_client", lambda _ctx: pytest.fail("logged in"))
+
+    result = runner.invoke(wiki.app, ["deploy-interface"], obj=cli_context)
+
+    assert result.exit_code == 1
+    assert "interface-admin credentials" in _unwrapped(result.output)
