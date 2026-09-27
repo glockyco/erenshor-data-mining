@@ -41,7 +41,9 @@ from erenshor.application.extract.variant_comparison import generate_report
 from erenshor.application.services.backup_service import BackupError, BackupService
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import raw_database_exists
+from erenshor.cli.preconditions.checks.extract import comparison_databases, ide_sources
 from erenshor.cli.preconditions.checks.field_coverage import export_field_coverage_current
+from erenshor.cli.preconditions.checks.inputs import required_path
 from erenshor.cli.preconditions.checks.steam import game_files_exist, steam_credentials_exist
 from erenshor.cli.preconditions.checks.unity import (
     editor_packages_restored,
@@ -251,6 +253,7 @@ def profile_report(
 
 
 @app.command("compare-variants")
+@require_preconditions(comparison_databases)
 def compare_variants(
     ctx: typer.Context,
     base_variant: str = typer.Option(
@@ -278,25 +281,8 @@ def compare_variants(
     """Compare the clean databases for two configured game variants."""
     cli_ctx: CLIContext = ctx.obj
     variants = cli_ctx.config.variants
-    for variant_name in (base_variant, new_variant):
-        if variant_name not in variants:
-            typer.echo(f"Error: Unknown variant '{variant_name}'", err=True)
-            raise typer.Exit(1)
-
-    if base_variant == new_variant:
-        typer.echo("Error: Base and new variants must be different", err=True)
-        raise typer.Exit(1)
-
-    base_config = variants[base_variant]
-    new_config = variants[new_variant]
-    base_db = base_config.resolved_database(cli_ctx.repo_root)
-    new_db = new_config.resolved_database(cli_ctx.repo_root)
-    if not base_db.exists():
-        typer.echo(f"Error: Old database not found for variant '{base_variant}': {base_db}", err=True)
-        raise typer.Exit(1)
-    if not new_db.exists():
-        typer.echo(f"Error: New database not found for variant '{new_variant}': {new_db}", err=True)
-        raise typer.Exit(1)
+    base_db = variants[base_variant].resolved_database(cli_ctx.repo_root)
+    new_db = variants[new_variant].resolved_database(cli_ctx.repo_root)
 
     try:
         report = generate_report(base_variant, new_variant, base_db, new_db, output_path=output)
@@ -383,6 +369,7 @@ def download(
 
 
 @app.command()
+@require_preconditions(required_path("repo_root", "src/Assets/packages.config"))
 def packages(
     ctx: typer.Context,
     force: bool = typer.Option(False, "--force", help="Re-extract packages that are already present"),
@@ -741,6 +728,7 @@ def _generate_ide_project_files(
 
 
 @app.command("ide-setup")
+@require_preconditions(ide_sources)
 def ide_setup(ctx: typer.Context) -> None:
     """Generate IDE project files for all variants and mods.
 
@@ -792,12 +780,7 @@ def _generate_all_ide_project_files(cli_ctx: CLIContext) -> None:
     unity_config = cli_ctx.config.global_.unity
     unity_editor_path = unity_config.resolved_path(cli_ctx.repo_root)
 
-    try:
-        unity_paths = UnityPaths.from_executable(unity_editor_path)
-    except FileNotFoundError as e:
-        console.print(f"[red]Error:[/red] {e}")
-        console.print("[yellow]Unity Editor is required for IDE setup.[/yellow]")
-        raise typer.Exit(1) from e
+    unity_paths = UnityPaths(executable=unity_editor_path)
 
     # Process all variants - generate per-variant project files
     console.print("[bold]Generating variant project files:[/bold]")
@@ -816,12 +799,6 @@ def _generate_all_ide_project_files(cli_ctx: CLIContext) -> None:
             logger.info(f"Variant '{variant_name}' not extracted, skipping")
             console.print(f"  [dim]- {variant_name} (not extracted)[/dim]")
             continue
-
-        if not managed_dir.exists():
-            failures.append(f"{variant_name}: Managed DLLs not found: {managed_dir}")
-            console.print(f"  [red]✗[/red] {variant_name} (missing Managed DLLs)")
-            continue
-
         try:
             # Generate .csproj for game scripts
             csproj_path = generate_game_scripts_csproj(

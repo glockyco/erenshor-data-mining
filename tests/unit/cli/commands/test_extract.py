@@ -5,6 +5,7 @@ import sqlite3
 from contextlib import closing
 from pathlib import Path
 from types import SimpleNamespace
+from typing import TYPE_CHECKING
 from unittest.mock import MagicMock, patch
 
 import httpx
@@ -15,6 +16,9 @@ from typer.testing import CliRunner
 from erenshor.cli.commands import extract
 from erenshor.infrastructure.export_profile import ExportProfileRecorder
 from erenshor.infrastructure.time import MockClock
+
+if TYPE_CHECKING:
+    from erenshor.cli.context import CLIContext
 
 
 class VariantStub:
@@ -314,23 +318,20 @@ def _write_comparison_db(path: Path, *, include_new_rows: bool, build_id: str | 
 
 
 def _comparison_context(
-    tmp_path: Path, *, include_new_db: bool = True, new_build_id: str | None = "200"
-) -> SimpleNamespace:
-    base_variant = VariantStub(tmp_path / "main")
-    new_variant = VariantStub(tmp_path / "demo")
-    _write_comparison_db(base_variant.resolved_database(tmp_path), include_new_rows=False, build_id="100")
+    cli_context: CLIContext, tmp_path: Path, *, include_new_db: bool = True, new_build_id: str | None = "200"
+) -> CLIContext:
+    original = cli_context.config.variants["main"]
+    base = original.model_copy(update={"database": str(tmp_path / "main/database.sqlite")})
+    new = original.model_copy(update={"name": "Demo", "database": str(tmp_path / "demo/database.sqlite")})
+    _write_comparison_db(base.resolved_database(cli_context.repo_root), include_new_rows=False, build_id="100")
     if include_new_db:
-        _write_comparison_db(new_variant.resolved_database(tmp_path), include_new_rows=True, build_id=new_build_id)
-    return SimpleNamespace(
-        repo_root=tmp_path,
-        variant="main",
-        dry_run=False,
-        config=SimpleNamespace(variants={"main": base_variant, "demo": new_variant}),
-    )
+        _write_comparison_db(new.resolved_database(cli_context.repo_root), include_new_rows=True, build_id=new_build_id)
+    cli_context.config.variants.update({"main": base, "demo": new})
+    return cli_context
 
 
-def test_compare_variants_main_vs_demo_report_preserves_metrics(tmp_path: Path) -> None:
-    result = CliRunner().invoke(extract.app, ["compare-variants"], obj=_comparison_context(tmp_path))
+def test_compare_variants_main_vs_demo_report_preserves_metrics(cli_context: CLIContext, tmp_path: Path) -> None:
+    result = CliRunner().invoke(extract.app, ["compare-variants"], obj=_comparison_context(cli_context, tmp_path))
 
     assert result.exit_code == 0
     assert "# Erenshor: Demo vs Main Comparison" in result.stdout
@@ -359,29 +360,68 @@ def test_compare_variants_registers_options_and_help() -> None:
     assert "Compare the clean databases" in command.help
 
 
-def test_compare_variants_rejects_unknown_variant(tmp_path: Path) -> None:
-    context = _comparison_context(tmp_path)
+def test_compare_variants_rejects_unknown_variant(cli_context: CLIContext, tmp_path: Path) -> None:
+    context = _comparison_context(cli_context, tmp_path)
     result = CliRunner().invoke(extract.app, ["compare-variants", "--base-variant", "unknown"], obj=context)
 
     assert result.exit_code == 1
     assert "Unknown variant 'unknown'" in result.output
 
 
-def test_compare_variants_rejects_missing_database(tmp_path: Path) -> None:
-    context = _comparison_context(tmp_path, include_new_db=False)
-    result = CliRunner().invoke(extract.app, ["compare-variants"], obj=context)
+def test_compare_variants_rejects_missing_database(cli_context: CLIContext, tmp_path: Path) -> None:
+    context = _comparison_context(cli_context, tmp_path, include_new_db=False)
+    output = tmp_path / "report.md"
+    with patch.object(extract, "generate_report", side_effect=AssertionError("report ran")):
+        result = CliRunner().invoke(extract.app, ["compare-variants", "--output", str(output)], obj=context)
 
     assert result.exit_code == 1
     assert "New database not found for variant 'demo'" in result.output
+    assert not output.exists()
 
 
-def test_compare_variants_rejects_database_without_build_provenance(tmp_path: Path) -> None:
-    context = _comparison_context(tmp_path, new_build_id=None)
+def test_compare_variants_rejects_database_without_build_provenance(cli_context: CLIContext, tmp_path: Path) -> None:
+    context = _comparison_context(cli_context, tmp_path, new_build_id=None)
     result = CliRunner().invoke(extract.app, ["compare-variants"], obj=context)
 
     assert result.exit_code == 1
     assert "has no build provenance" in result.output
     assert "erenshor extract build" in result.output
+
+
+def test_packages_rejects_missing_manifest_before_restore(cli_context: CLIContext, tmp_path: Path) -> None:
+    cli_context.repo_root = tmp_path
+
+    with patch.object(extract, "restore_packages", side_effect=AssertionError("restore ran")):
+        result = CliRunner().invoke(extract.app, ["packages"], obj=cli_context)
+
+    assert result.exit_code == 1
+    assert "packages.config" in result.output
+    assert not (tmp_path / "src/Assets/Packages").exists()
+
+
+@pytest.mark.parametrize(
+    ("managed_exists", "cause"),
+    [(False, "Managed DLLs not found"), (True, "No DLLs found")],
+)
+def test_ide_setup_rejects_missing_managed_dlls_before_generation(
+    cli_context: CLIContext, tmp_path: Path, managed_exists: bool, cause: str
+) -> None:
+    editor = tmp_path / "UnityEditor"
+    editor.write_text("")
+    cli_context.config.global_.unity.path = str(editor)
+    scripts = tmp_path / "unity/ExportedProject/Assets/Scripts/Assembly-CSharp"
+    scripts.mkdir(parents=True)
+    if managed_exists:
+        (tmp_path / "game/Erenshor_Data/Managed").mkdir(parents=True)
+    with (
+        patch.object(extract.UnityPaths, "from_executable", return_value=object()),
+        patch.object(extract, "generate_game_scripts_csproj", side_effect=AssertionError("generation ran")),
+    ):
+        result = CliRunner().invoke(extract.app, ["ide-setup"], obj=cli_context)
+
+    assert result.exit_code == 1
+    assert cause in result.output
+    assert not list(tmp_path.glob("**/*.csproj"))
 
 
 class LibraryVariantStub(VariantStub):
