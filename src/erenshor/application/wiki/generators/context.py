@@ -63,5 +63,5 @@ class GeneratorContext:
     storage: WikiStorage
     class_display: ClassDisplayNameService
     maps_base_url: str
-    zone_positions_path: Path | None = None
+    zone_positions_path: Path
     zone_output_dir: Path | None = None

@@ -154,3 +154,36 @@ class TestZonePagePreservation:
         content = pages[0].content
         assert "|level=30-40" in content
         assert "1-5" not in content
+
+
+class TestZonePositionsInput:
+    """Zone pages are not generated without the map positions their links need."""
+
+    @pytest.mark.parametrize(
+        ("content", "error", "message"),
+        [
+            (None, FileNotFoundError, "zone-positions.json not found"),
+            ("{not json", ValueError, "zone-positions.json is unreadable"),
+            ('["Soluna"]', ValueError, "must map scene names to positions"),
+        ],
+    )
+    def test_missing_or_malformed_positions_stop_generation(
+        self, mock_context: Mock, tmp_path: Path, content: str | None, error: type[Exception], message: str
+    ) -> None:
+        positions = tmp_path / "zone-positions.json"
+        if content is None:
+            positions.unlink()
+        else:
+            positions.write_text(content, encoding="utf-8")
+
+        with pytest.raises(error, match=message):
+            ZonePageGenerator(mock_context, output_dir=tmp_path / "zones")
+
+    def test_zone_absent_from_positions_has_no_map_link(self, mock_context: Mock, tmp_path: Path) -> None:
+        (tmp_path / "zone-positions.json").write_text('{"Elsewhere": {}}', encoding="utf-8")
+        output_dir = tmp_path / "zones"
+        output_dir.mkdir()
+
+        (page,) = ZonePageGenerator(mock_context, output_dir=output_dir).generate_pages()
+
+        assert "MapLink" not in page.content

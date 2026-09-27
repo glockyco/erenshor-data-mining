@@ -31,8 +31,8 @@
 
 ## 6. Generation refuses to emit lossy output
 
-- [ ] 6.1 Change `application/wiki/generators/pages/zones.py` so absent or unconfigured zone-position input fails instead of producing an empty key set.
-- [ ] 6.2 Add a regression test proving wiki pages are not emitted without map links when that input is missing.
+- [x] 6.1 Change `application/wiki/generators/pages/zones.py` so absent or unconfigured zone-position input fails instead of producing an empty key set.
+- [x] 6.2 Add a regression test proving wiki pages are not emitted without map links when that input is missing.
 
 ## 7. Name the missing program
 
