@@ -7,7 +7,6 @@ injects process or remote clients at the boundary.
 
 from __future__ import annotations
 
-import contextlib
 import hashlib
 import json
 import os
@@ -356,26 +355,28 @@ def validate_thunderstore_package(package: Path, manifest: ThunderstoreManifest)
         raise ValueError("package CHANGELOG.md does not match build.changelog")
 
 
+def _calver_revision(version: str) -> int:
+    parts = version.split(".")
+    if len(parts) != 3 or not all(part.isdigit() for part in parts):
+        raise ValueError(f"malformed CalVer version: {version!r}")
+    return int(parts[2])
+
+
 def next_calver_revision(date_prefix: str, latest_version: str | None) -> str:
     """Return the next ``YYYY.MDD.R`` revision for a date prefix."""
-    revision = 0
-    if latest_version and latest_version.startswith(f"{date_prefix}."):
-        with contextlib.suppress(IndexError, ValueError):
-            revision = int(latest_version.split(".")[2]) + 1
-    return f"{date_prefix}.{revision}"
+    if latest_version is None or not latest_version.startswith(f"{date_prefix}."):
+        return f"{date_prefix}.0"
+    return f"{date_prefix}.{_calver_revision(latest_version) + 1}"
 
 
 def latest_calver_for_prefix(versions: Sequence[str], date_prefix: str) -> str | None:
-    """Select the highest revision for ``date_prefix`` independent of order."""
+    """Select the highest revision for ``date_prefix`` independent of order.
 
-    def revision(version: str) -> int:
-        try:
-            return int(version.split(".")[2])
-        except (IndexError, ValueError):
-            return -1
-
+    A version with the date prefix but a malformed revision raises, because
+    ignoring it could reuse a revision that is already published.
+    """
     matching = [version for version in versions if version.startswith(f"{date_prefix}.")]
-    return max(matching, key=revision) if matching else None
+    return max(matching, key=_calver_revision) if matching else None
 
 
 def get_vault_version(mod_ref: str, *, now: datetime | None = None) -> str:
@@ -399,7 +400,10 @@ def get_vault_version(mod_ref: str, *, now: datetime | None = None) -> str:
         versions = []
     except (URLError, TimeoutError, OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
         raise RuntimeError(f"Vault version lookup failed for {mod_ref}: {exc}") from exc
-    return next_calver_revision(date_prefix, latest_calver_for_prefix(versions, date_prefix))
+    try:
+        return next_calver_revision(date_prefix, latest_calver_for_prefix(versions, date_prefix))
+    except ValueError as exc:
+        raise RuntimeError(f"Vault version lookup failed for {mod_ref}: {exc}") from exc
 
 
 def _parse_vault_versions(data: object) -> list[str]:
