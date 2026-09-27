@@ -10,11 +10,14 @@ This module provides commands for capturing map tiles from the game:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import typer
 from rich.console import Console
 from rich.table import Table
+
+from erenshor.cli.preconditions import require_preconditions
+from erenshor.cli.preconditions.checks.capture import capture_config, captured_masters
 
 if TYPE_CHECKING:
     from ..context import CLIContext
@@ -29,6 +32,7 @@ console = Console()
 
 
 @app.command()
+@require_preconditions(capture_config)
 def run(
     ctx: typer.Context,
     zones: list[str] | None = typer.Option(
@@ -106,6 +110,7 @@ def run(
 
 
 @app.command()
+@require_preconditions(capture_config, captured_masters)
 def tile(
     ctx: typer.Context,
     zones: list[str] | None = typer.Option(
@@ -141,18 +146,11 @@ def tile(
     console.print()
 
     total_tiles = 0
-    failures: list[str] = []
     for zone_key in selected:
         zone_cfg = config[zone_key]
         for variant in capture_variants(zone_key, zone_cfg):
-            variant_state = state.get_variant_state(zone_key, variant)
-            if not variant_state or not variant_state.get("masterPath"):
-                failures.append(f"{zone_key}/{variant}: no captured master in the capture state")
-                continue
-            master = cli_ctx.repo_root / variant_state["masterPath"]
-            if not master.exists():
-                failures.append(f"{zone_key}/{variant}: master PNG missing at {master}")
-                continue
+            record = cast("dict[str, str]", state.get_variant_state(zone_key, variant))
+            master = cli_ctx.repo_root / record["masterPath"]
 
             count = generate_tile_pyramid(master, zone_key, variant, zone_cfg, tiles_dir)
             total_tiles += count
@@ -160,13 +158,6 @@ def tile(
 
     console.print()
     console.print(f"[bold]Total tiles generated: {total_tiles:,}[/bold]")
-    if failures:
-        for failure in failures:
-            console.print(f"[red]Failed: {failure}[/red]")
-        console.print(f"[red]Re-tiling incomplete: {len(failures)} zone variants have no usable master.[/red]")
-        console.print("  Re-capture a zone with:")
-        console.print("  uv run erenshor capture run --zones <zone> --variant <variant> --force")
-        raise typer.Exit(1)
 
 
 @app.command()

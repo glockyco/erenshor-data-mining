@@ -22,6 +22,9 @@ from rich.table import Table
 from erenshor.application.services.image_comparator import ImageComparator
 from erenshor.application.services.image_processor import ImageProcessor
 from erenshor.application.services.image_registry import ImageComparisonError, ImageRegistry, ImageRegistryError
+from erenshor.cli.preconditions import require_preconditions
+from erenshor.cli.preconditions.checks.database import database_exists, database_valid
+from erenshor.cli.preconditions.checks.inputs import required_path, wiki_credentials
 from erenshor.domain.value_objects.wiki_filename import needs_redirect, sanitize_wiki_filename
 
 if TYPE_CHECKING:
@@ -34,6 +37,11 @@ app = typer.Typer(help="Image processing operations")
 
 
 @app.command("process")
+@require_preconditions(
+    database_exists,
+    database_valid,
+    required_path("unity_project", "ExportedProject/Assets/Texture2D", kind="directory"),
+)
 def process(
     ctx: typer.Context,
     force: Annotated[bool, typer.Option("--force", help="Reprocess all images")] = False,
@@ -72,12 +80,6 @@ def process(
         console.print("[yellow]Migrating legacy 'processed/' directory to 'current/'...[/yellow]")
         legacy_dir.rename(current_dir)
         console.print("[green]✓[/green] Migration complete")
-
-    # Verify paths
-    if not texture_dir.exists():
-        console.print(f"[red]Error: Texture directory not found: {texture_dir}[/red]")
-        console.print("Run 'erenshor extract rip' first to extract Unity assets")
-        raise typer.Exit(1)
 
     db_path = variant_config.resolved_database(cli_ctx.repo_root)
 
@@ -195,6 +197,10 @@ def process(
 
 
 @app.command("compare")
+@require_preconditions(
+    required_path("images_dir", "current", kind="directory"),
+    required_path("images_dir", "registry.db"),
+)
 def compare(
     ctx: typer.Context,
     similarity: Annotated[float, typer.Option("--similarity", help="Similarity threshold (0.0-1.0)")] = 0.95,
@@ -225,17 +231,6 @@ def compare(
     current_dir = images_base_dir / "current"
     previous_dir = images_base_dir / "previous"
     registry_db_path = images_base_dir / "registry.db"
-
-    # Verify paths
-    if not current_dir.exists():
-        console.print(f"[red]Error: Current images directory not found: {current_dir}[/red]")
-        console.print("Run 'erenshor images process' first")
-        raise typer.Exit(1)
-
-    if not registry_db_path.exists():
-        console.print(f"[red]Error: Image registry not found: {registry_db_path}[/red]")
-        console.print("Run 'erenshor images process' first")
-        raise typer.Exit(1)
 
     # Initialize services
     registry = ImageRegistry(registry_db_path)
@@ -272,6 +267,7 @@ def compare(
 
 
 @app.command("report")
+@require_preconditions(required_path("images_dir", "registry.db"))
 def report(
     ctx: typer.Context,
     format: Annotated[str, typer.Option("--format", help="Output format (table or json)")] = "table",
@@ -297,12 +293,6 @@ def report(
     unity_project = variant_config.resolved_unity_project(cli_ctx.repo_root)
     images_base_dir = unity_project.parent / "images"
     registry_db_path = images_base_dir / "registry.db"
-
-    # Verify registry exists
-    if not registry_db_path.exists():
-        console.print(f"[red]Error: Image registry not found: {registry_db_path}[/red]")
-        console.print("Run 'erenshor images process' and 'erenshor images compare' first")
-        raise typer.Exit(1)
 
     # Load changed images
     registry = ImageRegistry(registry_db_path)
@@ -357,6 +347,11 @@ def _deployment_list_for_stable_keys(registry: ImageRegistry, stable_keys: list[
 
 
 @app.command("upload")
+@require_preconditions(
+    required_path("images_dir", "current", kind="directory"),
+    required_path("images_dir", "registry.db"),
+    wiki_credentials,
+)
 def upload(
     ctx: typer.Context,
     changed_only: Annotated[bool, typer.Option("--changed-only", help="Upload only changed images")] = False,
@@ -394,29 +389,11 @@ def upload(
     bot_password = wiki_config.bot_password
     api_url = wiki_config.api_url
 
-    if not bot_username or not bot_password:
-        if dry_run:
-            console.print("[yellow]Warning: Bot credentials not configured[/yellow]")
-        else:
-            console.print("[red]Error: Bot credentials required for upload[/red]")
-            console.print("Configure bot_username and bot_password in config.toml")
-            raise typer.Exit(1)
-
     # Setup paths
     unity_project = variant_config.resolved_unity_project(cli_ctx.repo_root)
     images_base_dir = unity_project.parent / "images"
     current_dir = images_base_dir / "current"
     registry_db_path = images_base_dir / "registry.db"
-
-    if not current_dir.exists():
-        console.print(f"[red]Error: Current images directory not found: {current_dir}[/red]")
-        console.print("Run 'erenshor images process' first")
-        raise typer.Exit(1)
-
-    if not registry_db_path.exists():
-        console.print(f"[red]Error: Image registry not found: {registry_db_path}[/red]")
-        console.print("Run 'erenshor images process' first")
-        raise typer.Exit(1)
 
     # Initialize registry
     registry = ImageRegistry(registry_db_path)

@@ -8,6 +8,7 @@ clear error messages if any check fails.
 
 from collections.abc import Callable
 from functools import wraps
+from inspect import signature
 from typing import Any
 
 import typer
@@ -83,6 +84,9 @@ def require_preconditions(*checks: PreconditionCheck) -> Callable[[Callable[...,
             # Build context for precondition checks
             cli_ctx: CLIContext = ctx.obj
             context = _build_check_context(cli_ctx)
+            arguments = signature(func).bind_partial(*args, **kwargs)
+            arguments.apply_defaults()
+            context.update({key: value for key, value in arguments.arguments.items() if key != "ctx"})
 
             # Run all precondition checks
             results: list[PreconditionResult] = []
@@ -139,6 +143,7 @@ def _build_check_context(cli_ctx: CLIContext) -> dict[str, Any]:
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
 
     return {
+        "cli_ctx": cli_ctx,
         "variant": cli_ctx.variant,
         "repo_root": cli_ctx.repo_root,
         "database_path": variant_config.resolved_database(cli_ctx.repo_root),
@@ -151,6 +156,8 @@ def _build_check_context(cli_ctx: CLIContext) -> dict[str, Any]:
         "maps_source_dir": variant_config.maps.resolved_source_dir(cli_ctx.repo_root),
         "build_dir": variant_config.maps.resolved_build_dir(cli_ctx.repo_root),
         "maps_db_path": variant_config.maps.resolved_database_dir(cli_ctx.repo_root) / "erenshor.sqlite",
+        "images_dir": variant_config.resolved_unity_project(cli_ctx.repo_root).parent / "images",
+        "wiki_dir": variant_config.resolved_wiki(cli_ctx.repo_root),
         "config": cli_ctx.config,
         "dry_run": cli_ctx.dry_run,
     }
