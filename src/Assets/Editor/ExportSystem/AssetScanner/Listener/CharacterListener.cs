@@ -571,16 +571,26 @@ public class CharacterListener : IAssetScanListener<Character>
                     : null,
             Allies = character.Allies != null ? string.Join(", ", character.Allies) : null,
             IsPrefab = prefabType != PrefabAssetType.NotAPrefab,
-            IsFriendly = new List<string>
-            {
-                "DEBUG",
-                "GoodGuard",
-                "GoodHuman",
-                "OtherGood",
-                "PC",
-                "Player",
-                "Villager",
-            }.Contains(character.MyFaction.ToString()),
+            // A good-faction character that attacks the player on sight is
+            // hostile: NPC.SpawnMapArrow marks it red like any enemy.
+            IsFriendly =
+                new List<string>
+                {
+                    "DEBUG",
+                    "GoodGuard",
+                    "GoodHuman",
+                    "OtherGood",
+                    "PC",
+                    "Player",
+                    "Villager",
+                }.Contains(character.MyFaction.ToString())
+                && (
+                    character.AggressiveTowards == null
+                    || (
+                        !character.AggressiveTowards.Contains(Character.Faction.Player)
+                        && !character.AggressiveTowards.Contains(Character.Faction.PC)
+                    )
+                ),
             IsNPC = npc != null,
             IsSimPlayer = simPlayer != null,
             IsVendor = vendorInventory != null,
