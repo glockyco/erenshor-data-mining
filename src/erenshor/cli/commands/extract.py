@@ -36,7 +36,7 @@ from erenshor.application.extract.export_workflow import (
     adapter_exit_code,
 )
 from erenshor.application.extract.rip_workflow import RipRequest, RipWorkflow
-from erenshor.application.extract.variant_comparison import generate_report
+from erenshor.application.extract.variant_comparison import generate_report, recorded_build_id
 from erenshor.application.services.backup_service import BackupError, BackupService
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import raw_database_exists
@@ -486,7 +486,8 @@ def build(ctx: typer.Context) -> None:
     mapping.json overrides, filters excluded entities and SimPlayers,
     deduplicates identical characters, recomputes IsUnique per display
     name group, and writes the clean database consumed by wiki, sheets,
-    and map.
+    and map. The clean database is then added to the backup of the game
+    build it records, so 'extract changes' can compare later builds with it.
 
     Does not require a fresh 'extract export' — re-running 'extract build'
     after changing build logic is much faster than a full re-export.
@@ -522,6 +523,11 @@ def build(ctx: typer.Context) -> None:
                 )
             )
             logger.info(f"Clean database built: clean_db={result.clean_db_path}")
+            build_id = recorded_build_id(result.clean_db_path)
+            stored = BackupService().add_clean_database(
+                variant_config.resolved_backups(cli_ctx.repo_root), build_id, result.clean_db_path
+            )
+            logger.info(f"Clean database backed up for build {build_id}: {stored}")
             logger.info("Next: Run 'erenshor wiki generate' or 'erenshor sheets deploy'")
     except Exception as e:
         console.print(f"[red]Error during build: {e}[/red]")

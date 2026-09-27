@@ -13,6 +13,24 @@ from erenshor.application.services import (
 )
 
 
+def _metadata_json(database_path: str, clean_database_path: str | None = None) -> str:
+    """Serialize complete backup metadata naming the given database files."""
+    return json.dumps(
+        {
+            "variant": "main",
+            "build_id": "20370413",
+            "app_id": "2382520",
+            "created_at": "2026-01-01T00:00:00+00:00",
+            "database_path": database_path,
+            "database_size_bytes": 1,
+            "scripts_count": 1,
+            "scripts_size_bytes": 1,
+            "total_size_bytes": 2,
+            "clean_database_path": clean_database_path,
+        }
+    )
+
+
 class TestBackupService:
     """Test suite for BackupService."""
 
@@ -538,7 +556,7 @@ class TestBackupService:
         backup_path.mkdir()
 
         # Create metadata
-        (backup_path / "metadata.json").write_text("{}")
+        (backup_path / "metadata.json").write_text(_metadata_json("erenshor.sqlite"))
 
         # Create empty database
         db_dir = backup_path / "database"
@@ -563,7 +581,7 @@ class TestBackupService:
         backup_path.mkdir()
 
         # Create metadata
-        (backup_path / "metadata.json").write_text("{}")
+        (backup_path / "metadata.json").write_text(_metadata_json("erenshor.sqlite"))
 
         # Create database
         db_dir = backup_path / "database"
@@ -576,3 +594,80 @@ class TestBackupService:
 
         with pytest.raises(BackupValidationError, match="No script files found"):
             backup_service._validate_backup(backup_path)
+
+
+class TestCleanDatabaseBackup:
+    """extract build adds the clean database to the installed build's backup."""
+
+    @pytest.fixture
+    def backup_service(self) -> BackupService:
+        return BackupService()
+
+    @pytest.fixture
+    def mock_database(self, tmp_path: Path) -> Path:
+        path = tmp_path / "erenshor-main-raw.sqlite"
+        path.write_bytes(b"raw database")
+        return path
+
+    @pytest.fixture
+    def mock_scripts(self, tmp_path: Path) -> Path:
+        path = tmp_path / "scripts"
+        path.mkdir()
+        (path / "Game.cs").write_text("// game")
+        return path
+
+    def _backup(self, service: BackupService, database: Path, scripts: Path, backup_dir: Path) -> Path:
+        service.create_backup(
+            variant="main",
+            build_id="20370413",
+            database_path=database,
+            scripts_path=scripts,
+            backup_dir=backup_dir,
+            app_id="2382520",
+        )
+        return backup_dir / "build-20370413"
+
+    def test_clean_database_joins_the_backup(
+        self, backup_service: BackupService, mock_database: Path, mock_scripts: Path, tmp_path: Path
+    ):
+        backup = self._backup(backup_service, mock_database, mock_scripts, tmp_path / "backups")
+        clean = tmp_path / "erenshor-main.sqlite"
+        clean.write_bytes(b"clean database")
+
+        stored = backup_service.add_clean_database(tmp_path / "backups", "20370413", clean)
+
+        assert stored.read_bytes() == b"clean database"
+        assert (backup / "database" / mock_database.name).exists()
+        [metadata] = backup_service.list_backups(tmp_path / "backups")
+        assert metadata.clean_database_path == "erenshor-main.sqlite"
+
+    def test_failed_copy_leaves_the_backup_unchanged(
+        self,
+        backup_service: BackupService,
+        mock_database: Path,
+        mock_scripts: Path,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        backup = self._backup(backup_service, mock_database, mock_scripts, tmp_path / "backups")
+        before = {path.relative_to(backup): path.read_bytes() for path in backup.rglob("*") if path.is_file()}
+        clean = tmp_path / "erenshor-main.sqlite"
+        clean.write_bytes(b"clean database")
+
+        def fail(*_args: object, **_kwargs: object) -> None:
+            raise OSError("disk full")
+
+        monkeypatch.setattr("erenshor.application.services.backup_service.shutil.copy2", fail)
+        with pytest.raises(BackupError, match="disk full"):
+            backup_service.add_clean_database(tmp_path / "backups", "20370413", clean)
+
+        after = {path.relative_to(backup): path.read_bytes() for path in backup.rglob("*") if path.is_file()}
+        assert after == before
+        assert [path.name for path in (tmp_path / "backups").iterdir()] == ["build-20370413"]
+
+    def test_build_without_a_backup_is_named(self, backup_service: BackupService, tmp_path: Path):
+        clean = tmp_path / "erenshor-main.sqlite"
+        clean.write_bytes(b"clean database")
+
+        with pytest.raises(BackupError, match="No backup for build 20370413"):
+            backup_service.add_clean_database(tmp_path / "backups", "20370413", clean)
