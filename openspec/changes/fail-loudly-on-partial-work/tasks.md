@@ -5,9 +5,9 @@
 
 ## 2. Capture reports what it did
 
-- [ ] 2.1 Change `application/capture/orchestrator.py` so a failed zone is collected rather than skipped, and the run reports every failure.
-- [ ] 2.2 Change `cli/commands/capture.py` so the completion message is emitted only when no zone failed, and a partial run exits non-zero and states that the output is partial.
-- [ ] 2.3 Add a regression test proving one failing zone makes the command exit non-zero and name that zone.
+- [x] 2.1 Change `application/capture/orchestrator.py` so a failed zone is collected rather than skipped, and the run reports every failure.
+- [x] 2.2 Change `cli/commands/capture.py` so the completion message is emitted only when no zone failed, and a partial run exits non-zero and states that the output is partial.
+- [x] 2.3 Add a regression test proving one failing zone makes the command exit non-zero and name that zone.
 - [ ] 2.4 Confirm a run with every zone valid produces output identical to the task 1.1 baseline.
 
 ## 3. A failed image comparison is not `unchanged`

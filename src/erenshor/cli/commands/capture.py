@@ -13,7 +13,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import typer
-from loguru import logger
 from rich.console import Console
 from rich.table import Table
 
@@ -80,9 +79,30 @@ def run(
     variants = [variant] if variant else None
     tile_output_dir = maps_source_dir / "static" / "tiles"
     orch = CaptureOrchestrator(cli_ctx.repo_root, config, state, tile_output_dir=tile_output_dir)
-    asyncio.run(orch.run(selected, variants=variants, force=force))
+    try:
+        report = asyncio.run(orch.run(selected, variants=variants, force=force))
+    except BaseException:
+        if orch.report.captured:
+            console.print(
+                f"[red]Capture stopped. {len(orch.report.captured)} zone variants were captured and tiled "
+                "before the error, so the tile set is partial.[/red]"
+            )
+        raise
 
-    console.print("[bold green]Capture pipeline complete[/bold green]")
+    for failure in report.failures:
+        console.print(f"[red]Failed: {failure.zone}/{failure.variant}: {failure.reason}[/red]")
+    if not report.complete:
+        console.print(
+            f"[red]Capture incomplete: {len(report.failures)} of "
+            f"{len(report.failures) + len(report.captured) + len(report.up_to_date)} zone variants failed. "
+            "The tile set is partial.[/red]"
+        )
+        raise typer.Exit(1)
+
+    console.print(
+        f"[bold green]Capture pipeline complete[/bold green]: {len(report.captured)} captured, "
+        f"{len(report.up_to_date)} up to date"
+    )
 
 
 @app.command()
@@ -116,19 +136,18 @@ def tile(
     console.print()
 
     total_tiles = 0
+    failures: list[str] = []
     for zone_key in selected:
         zone_cfg = config[zone_key]
         for variant in zone_cfg.get("captureVariants", ["clear"]):
             variant_state = state.get_variant_state(zone_key, variant)
             if not variant_state or not variant_state.get("masterPath"):
-                logger.warning(f"No captured master for {zone_key}/{variant}, skipping")
+                failures.append(f"{zone_key}/{variant}: no captured master in the capture state")
                 continue
             master = cli_ctx.repo_root / variant_state["masterPath"]
             if not master.exists():
-                console.print(f"[red]Error: master PNG missing: {master}[/red]")
-                console.print("  State says it exists but file is gone. Re-capture with:")
-                console.print(f"  uv run erenshor capture run --zones {zone_key} --variant {variant} --force")
-                raise typer.Exit(1)
+                failures.append(f"{zone_key}/{variant}: master PNG missing at {master}")
+                continue
 
             count = generate_tile_pyramid(master, zone_key, variant, zone_cfg, tiles_dir)
             total_tiles += count
@@ -136,6 +155,13 @@ def tile(
 
     console.print()
     console.print(f"[bold]Total tiles generated: {total_tiles:,}[/bold]")
+    if failures:
+        for failure in failures:
+            console.print(f"[red]Failed: {failure}[/red]")
+        console.print(f"[red]Re-tiling incomplete: {len(failures)} zone variants have no usable master.[/red]")
+        console.print("  Re-capture a zone with:")
+        console.print("  uv run erenshor capture run --zones <zone> --variant <variant> --force")
+        raise typer.Exit(1)
 
 
 @app.command()

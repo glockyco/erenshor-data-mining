@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +15,28 @@ from .tile_generator import generate_tile_pyramid
 
 WS_PORT = 18586
 MAX_CHUNK_PX = 4096
+
+
+@dataclass(frozen=True)
+class CaptureFailure:
+    """A zone variant that the mod could not capture."""
+
+    zone: str
+    variant: str
+    reason: str
+
+
+@dataclass
+class CaptureReport:
+    """What one capture run did, unit by unit."""
+
+    captured: list[tuple[str, str]] = field(default_factory=list)
+    up_to_date: list[tuple[str, str]] = field(default_factory=list)
+    failures: list[CaptureFailure] = field(default_factory=list)
+
+    @property
+    def complete(self) -> bool:
+        return not self.failures
 
 
 class CaptureOrchestrator:
@@ -33,6 +56,7 @@ class CaptureOrchestrator:
         self.tile_output_dir = tile_output_dir
         self.ws_url = ws_url
         self._ws: Any = None
+        self.report = CaptureReport()
 
     async def connect(self) -> None:
         """Establish the WebSocket connection to the in-game mod."""
@@ -55,13 +79,20 @@ class CaptureOrchestrator:
         zones: list[str],
         variants: list[str] | None,
         force: bool = False,
-    ) -> None:
-        """Capture, stitch, crop-if-needed, and tile every zone x variant."""
+    ) -> CaptureReport:
+        """Capture, stitch, and tile every zone x variant.
+
+        A zone variant that the mod fails to capture is recorded in the report,
+        and the run continues so the report names every failure. Any other
+        error stops the run. ``self.report`` then describes the units that
+        finished before it.
+        """
         await self.connect()
         try:
             await self._run_inner(zones, variants, force)
         finally:
             await self.close()
+        return self.report
 
     async def _run_inner(
         self,
@@ -82,6 +113,7 @@ class CaptureOrchestrator:
 
                 if self.state.should_skip(zone_key, variant, master_path, force=force):
                     logger.info(f"Skipping {zone_key}/{variant} (up-to-date)")
+                    self.report.up_to_date.append((zone_key, variant))
                     continue
 
                 logger.info(f"Capturing {zone_key}/{variant}")
@@ -90,6 +122,7 @@ class CaptureOrchestrator:
                     logger.info(f"Master: {master_path}")
                 except _CaptureError as exc:
                     logger.error(f"Capture failed for {zone_key}/{variant}: {exc}")
+                    self.report.failures.append(CaptureFailure(zone_key, variant, str(exc)))
                     continue
 
                 # Tile generation
@@ -108,6 +141,7 @@ class CaptureOrchestrator:
                     },
                 )
                 self.state.save(self.repo_root)
+                self.report.captured.append((zone_key, variant))
 
     # -- zone capture ---------------------------------------------------------
 
@@ -159,9 +193,11 @@ class CaptureOrchestrator:
             elif msg_type == "capture_error":
                 raise _CaptureError(resp.get("reason", "unknown error"))
 
-        # Stitch chunks into master
-        if chunk_paths:
-            stitch_chunks(chunk_paths, chunks, master_path)
+        # A completion message with missing chunks would leave an older master
+        # in place, and the run would tile it as if it were this capture.
+        if len(chunk_paths) != len(chunks):
+            raise _CaptureError(f"mod completed the capture with {len(chunk_paths)} of {len(chunks)} chunks")
+        stitch_chunks(chunk_paths, chunks, master_path)
 
 
 class _CaptureError(Exception):
