@@ -19,6 +19,27 @@ from erenshor.cli.context import CLIContext
 from erenshor.infrastructure.config.schema import Config, MapsConfig, VariantConfig
 
 
+@pytest.fixture(autouse=True)
+def _programs_on_path(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Commands resolve node and pnpm before running them. Tests fake the runs."""
+    monkeypatch.setattr(maps.shutil, "which", lambda name: f"/usr/bin/{name}")
+
+
+def test_step_with_missing_program_names_it_and_runs_nothing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setattr(maps.shutil, "which", lambda _name: None)
+    ran: list[list[str]] = []
+    monkeypatch.setattr(maps.subprocess, "run", lambda args, **_kwargs: ran.append(args))
+
+    with pytest.raises(typer.Exit) as exit_info:
+        maps._run(["node", "scripts/generate-og-image.mjs"], tmp_path)
+
+    assert exit_info.value.exit_code == 1
+    assert "node not found on PATH" in capsys.readouterr().out
+    assert ran == []
+
+
 def _write_project(tmp_path: Path) -> tuple[Path, Path]:
     maps_dir = tmp_path / "maps"
     (maps_dir / "src").mkdir(parents=True)
