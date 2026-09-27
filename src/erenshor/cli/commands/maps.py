@@ -374,11 +374,11 @@ def build(
         ),
     ] = False,
 ) -> None:
-    """Build production site with copied database.
+    """Build the production site from the selected variant database.
 
-    Builds static site for production deployment. Copies
-    database into build output for deployment to Cloudflare
-    Pages. Optimizes assets and generates production bundles.
+    Links the variant database into the static directory for the prebuild
+    scripts and the Vite build, then restores the previous link. Writes the
+    build sidecar that deploy uses to reject a stale build.
     """
     cli_ctx: CLIContext = ctx.obj
 
@@ -443,22 +443,17 @@ def build(
     )
     console.print()
 
-    # Run verify, prebuild, and build
+    # Prebuild scripts read the static database path, so it points at the
+    # selected variant only while this build runs.
+    link = DatabaseLinkTransaction(db_path, maps_db_path)
     try:
         if not skip_checks:
             logger.info("Running maps verification")
             _run_checks(maps_dir)
 
         maps_db_dir.mkdir(parents=True, exist_ok=True)
-        try:
-            logger.info(f"Copying database: {db_path} -> {maps_db_path}")
-            if maps_db_path.is_symlink():
-                maps_db_path.unlink()
-            shutil.copy2(db_path, maps_db_path)
-            console.print(f"[green]Database copied to {maps_db_path}[/green]")
-        except Exception as e:
-            console.print(f"[red]Error copying database: {e}[/red]")
-            raise typer.Exit(1) from e
+        logger.info(f"Linking database: {maps_db_path} -> {db_path}")
+        link.install()
 
         logger.info("Running maps prebuild steps")
         _run(["node", "scripts/generate-og-image.mjs"], maps_dir)
@@ -489,6 +484,8 @@ def build(
     except Exception as e:
         console.print(f"[red]Error during build: {e}[/red]")
         raise typer.Exit(1) from e
+    finally:
+        link.restore()
 
 
 @app.command()

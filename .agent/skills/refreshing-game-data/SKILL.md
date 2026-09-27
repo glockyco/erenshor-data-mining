@@ -16,7 +16,7 @@ Wire the per-subsystem pipelines into the right order and surface the variant-sc
 | Raw + clean SQLite | Yes | `variants/{v}/erenshor-{v}{-raw}.sqlite` |
 | Google Sheets | Yes, per-spreadsheet | each variant has its own `spreadsheet_id` in `config.toml` |
 | AdventureGuide `guide.json` | Input-variant scoped, single output | overwrites `quest_guides/guide.json` — only one variant ships at a time |
-| Interactive map build | Yes via `build_dir`; one build is deployed to both Worker services (`wrangler.jsonc` and `wrangler.legacy.jsonc`) | shared DB symlink `src/maps/static/db/erenshor.sqlite` is swapped per build |
+| Interactive map build | Yes via `build_dir`; one build is deployed to both Worker services (`wrangler.jsonc` and `wrangler.legacy.jsonc`) | shared DB link `src/maps/static/db/erenshor.sqlite` points at the built variant only while `maps build` runs |
 | Map tiles + `zone-capture-config.json` | **Shared** | tiles added for one variant are visible to all |
 | `mapping.json` | **Shared** | overrides apply across all variants |
 | MediaWiki | **Single target — `erenshor.wiki.gg`** | `wiki deploy -V playtest` overwrites main's pages |

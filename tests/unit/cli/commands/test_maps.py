@@ -67,17 +67,20 @@ def _ctx(tmp_path: Path, maps_dir: Path, database_path: Path, *, dry_run: bool =
     return SimpleNamespace(obj=cli_context)
 
 
-def test_build_copies_database_runs_verify_prebuild_then_build_and_writes_sidecar(
+def test_build_links_database_runs_verify_prebuild_then_build_and_restores_link(
     tmp_path: Path, monkeypatch: Any
 ) -> None:
     maps_dir, database_path = _write_project(tmp_path)
     ctx = _ctx(tmp_path, maps_dir, database_path)
+    staged_database = maps_dir / "static" / "db" / "erenshor.sqlite"
+    prior = tmp_path / "prior.sqlite"
+    prior.touch()
+    staged_database.symlink_to(prior)
     calls: list[list[str]] = []
     environments: list[dict[str, str] | None] = []
 
     def fake_run(args: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
         if args == ["node", "scripts/generate-item-icons.mjs", "main"]:
-            staged_database = maps_dir / "static" / "db" / "erenshor.sqlite"
             assert staged_database.read_bytes() == database_path.read_bytes()
         calls.append(args)
         environments.append(kwargs.get("env"))
@@ -99,9 +102,31 @@ def test_build_copies_database_runs_verify_prebuild_then_build_and_writes_sideca
     ]
     assert environments[-1] is not None
     assert environments[-1]["ERENSHOR_MAPS_DATABASE_PATH"] == str(database_path)
-    assert (maps_dir / "static" / "db" / "erenshor.sqlite").read_bytes() == database_path.read_bytes()
+    # maps dev links this path next, so the build leaves the prior link and no copy.
+    assert staged_database.readlink() == prior
     expected = build_info.compute_input_hashes(maps_source_dir=maps_dir, database_path=database_path)
     assert build_info.read_build_info(maps_dir / "build") == expected
+
+
+def test_build_restores_link_when_vite_build_fails(tmp_path: Path, monkeypatch: Any) -> None:
+    maps_dir, database_path = _write_project(tmp_path)
+    ctx = _ctx(tmp_path, maps_dir, database_path)
+    staged_database = maps_dir / "static" / "db" / "erenshor.sqlite"
+    prior = tmp_path / "prior.sqlite"
+    prior.touch()
+    staged_database.symlink_to(prior)
+
+    def fake_run(args: list[str], **_kwargs: Any) -> subprocess.CompletedProcess[str]:
+        returncode = 1 if args[:3] == ["pnpm", "exec", "vite"] else 0
+        return subprocess.CompletedProcess(args=args, returncode=returncode)
+
+    monkeypatch.setattr(maps, "_check_pnpm_available", lambda: True)
+    monkeypatch.setattr("erenshor.cli.commands.maps.subprocess.run", fake_run)
+
+    with pytest.raises(typer.Exit):
+        maps.build(ctx)
+
+    assert staged_database.readlink() == prior
 
 
 def test_build_refuses_missing_tiles_before_frontend_checks(tmp_path: Path, monkeypatch: Any) -> None:
