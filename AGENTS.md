@@ -187,7 +187,14 @@ Conventional commits: `type(scope): description`
 
 ## Code Quality
 
-1. **Fail fast**: no fallback functionality that hides errors.
+1. **Fail fast**: no fallback functionality that hides errors. A failed
+   lookup, read, or measurement raises an error that names the operation,
+   the input, and the cause. It never becomes an empty result, `None`, or a
+   default value that means "nothing here". Return an empty result only when
+   the source was read and really contains nothing. A batch command
+   continues past a failed item, names every failure at the end, says that
+   its output is partial, and exits non-zero. Ambiguity (several matching
+   candidates) is an error of its own, distinct from absence.
 2. **No backward compatibility**: clean breaks when changing behavior.
 3. **Clean cuts**: remove old code entirely when refactoring.
 4. **Atomic commits**: one concept per commit.
