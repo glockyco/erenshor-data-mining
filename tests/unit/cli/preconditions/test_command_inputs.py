@@ -9,9 +9,11 @@ from unittest.mock import Mock
 import pytest
 import typer
 
+from erenshor.cli.commands import eval as eval_command
 from erenshor.cli.commands import images
 from erenshor.cli.commands import mod as mod_command
 from erenshor.cli.preconditions.checks.capture import capture_config, captured_masters
+from erenshor.cli.preconditions.checks.eval import eval_source
 from erenshor.cli.preconditions.checks.inputs import (
     game_installation,
     program_available,
@@ -166,3 +168,27 @@ def test_mod_build_stops_before_compiler_when_references_missing(
         mod_command.build(SimpleNamespace(obj=cli_context), mod="unknown", loader="bepinex")
     assert error.value.exit_code == 1
     assert "unknown" in capsys.readouterr().out
+
+
+def test_eval_source_requires_one_input_and_reports_missing_file(tmp_path: Path) -> None:
+    source = tmp_path / "sample.cs"
+    context = {"code": None, "file": None}
+    assert not eval_source(context).passed
+    context["file"] = source
+    assert not eval_source(context).passed
+    assert str(source) in str(eval_source(context))
+    source.write_text("1 + 1")
+    assert eval_source(context).passed
+    context["code"] = "2 + 2"
+    assert not eval_source(context).passed
+
+
+def test_eval_run_missing_file_stops_before_game_request(
+    tmp_path: Path, cli_context: object, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setattr(eval_command, "_run", Mock(side_effect=AssertionError("connected to game")))
+    source = tmp_path / "missing.cs"
+    with pytest.raises(typer.Exit) as error:
+        eval_command.run(SimpleNamespace(obj=cli_context), code=None, file=source, json_output=False, timeout=100)
+    assert error.value.exit_code == 1
+    assert source.name in capsys.readouterr().out
