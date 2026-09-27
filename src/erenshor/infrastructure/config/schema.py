@@ -134,7 +134,7 @@ class AssetRipperConfig(BaseModel):
     """
 
     path: str = Field(
-        default="AssetRipper.GUI.Free",
+        default="AssetRipper",
         description="AssetRipper executable: bare name resolved on PATH, or an explicit path",
     )
     port: int = Field(

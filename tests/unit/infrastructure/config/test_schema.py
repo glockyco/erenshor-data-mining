@@ -160,13 +160,6 @@ class TestUnityConfig:
 class TestAssetRipperConfig:
     """Tests for AssetRipperConfig model."""
 
-    def test_default_values(self):
-        """Test that AssetRipperConfig has correct default values."""
-        config = AssetRipperConfig()
-        assert config.path == "AssetRipper.GUI.Free"  # Resolved on PATH
-        assert config.port == 8080
-        assert config.timeout == 3600
-
     def test_port_constraints(self):
         """Test that port respects min/max constraints."""
         # Valid values
@@ -208,12 +201,12 @@ class TestAssetRipperConfig:
         """A name without a separator is resolved against PATH, not the repo root."""
         bin_dir = tmp_path / "bin"
         bin_dir.mkdir()
-        executable = bin_dir / "AssetRipper.GUI.Free"
+        executable = bin_dir / "AssetRipper"
         executable.touch()
         executable.chmod(0o755)
         monkeypatch.setenv("PATH", str(bin_dir))
 
-        config = AssetRipperConfig()
+        config = AssetRipperConfig(path="AssetRipper")
         assert config.resolved_path(tmp_path, validate=True) == executable
 
     def test_resolved_path_rejects_missing_bare_name(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):

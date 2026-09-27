@@ -24,7 +24,7 @@ timeout = 3600
 # Override with an explicit path in .erenshor/config.local.toml for a manual
 # install: path = "$HOME/Applications/AssetRipper/AssetRipper.GUI.Free"
 # Download: https://github.com/AssetRipper/AssetRipper/releases
-path = "AssetRipper.GUI.Free"
+path = "AssetRipper"
 port = 8080
 timeout = 3600
 

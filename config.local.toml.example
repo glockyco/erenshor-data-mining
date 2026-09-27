@@ -47,7 +47,7 @@ timeout = 3600
 # Examples:
 # - macOS/Linux: "$HOME/Applications/AssetRipper/AssetRipper.GUI.Free"
 # - Windows: "C:/Tools/AssetRipper/AssetRipper.GUI.Free.exe"
-path = "AssetRipper.GUI.Free"
+path = "AssetRipper"
 
 # Port for AssetRipper GUI (if using GUI version)
 port = 8080
