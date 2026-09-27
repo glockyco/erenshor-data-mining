@@ -19,9 +19,9 @@
 
 ## 4. Release versioning fails instead of restarting
 
-- [ ] 4.1 Change `application/mods/release.py` so a failed vault version lookup raises a named error instead of returning an empty collection.
-- [ ] 4.2 Keep the distinction between a reachable registry that reports nothing published and a lookup that failed.
-- [ ] 4.3 Add a regression test proving an unreachable registry does not produce a revision number.
+- [x] 4.1 Change `application/mods/release.py` so a failed vault version lookup raises a named error instead of returning an empty collection.
+- [x] 4.2 Keep the distinction between a reachable registry that reports nothing published and a lookup that failed.
+- [x] 4.3 Add a regression test proving an unreachable registry does not produce a revision number.
 
 ## 5. A manifest that cannot be read is not rewritten
 

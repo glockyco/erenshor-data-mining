@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import io
 import stat
 import subprocess
 import zipfile
@@ -979,6 +980,46 @@ def test_thunderstore_version_malformed_or_missing_latest_fails(
     monkeypatch.setattr(release, "urlopen", lambda *_args, **_kwargs: _Response(payload))
     with pytest.raises((ValueError, RuntimeError)):
         release.get_thunderstore_version("WoW_Much", "Sprint")
+
+
+def test_vault_version_continues_after_latest_published_revision(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(release, "datetime", _FixedDate)
+    payload = b'{"versions":[{"version":"2099.101.0"},{"version":"2099.101.2"},{"version":"2098.1231.9"}]}'
+    monkeypatch.setattr(release, "urlopen", lambda *_args, **_kwargs: _Response(payload))
+
+    assert release.get_vault_version("sprint") == "2099.101.3"
+
+
+def test_vault_version_starts_at_zero_for_a_mod_the_vault_does_not_list(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(release, "datetime", _FixedDate)
+    not_found = HTTPError("https://example.invalid", 404, "Not Found", {}, io.BytesIO(b'{"error":"Mod not found"}'))
+    monkeypatch.setattr(release, "urlopen", lambda *_args, **_kwargs: (_ for _ in ()).throw(not_found))
+
+    assert release.get_vault_version("new-mod") == "2099.101.0"
+
+
+@pytest.mark.parametrize(
+    "failure",
+    [
+        HTTPError("https://example.invalid", 503, "unavailable", {}, io.BytesIO(b"")),
+        HTTPError("https://example.invalid", 404, "Not Found", {}, io.BytesIO(b"<html>moved</html>")),
+        URLError("offline"),
+        TimeoutError("timed out"),
+    ],
+)
+def test_unreachable_vault_does_not_produce_a_revision(monkeypatch: pytest.MonkeyPatch, failure: Exception) -> None:
+    monkeypatch.setattr(release, "urlopen", lambda *_args, **_kwargs: (_ for _ in ()).throw(failure))
+
+    with pytest.raises(RuntimeError, match="Vault version lookup failed for sprint"):
+        release.get_vault_version("sprint")
+
+
+@pytest.mark.parametrize("payload", [b"not-json", b"{}", b'{"versions":{}}', b'{"versions":[{"id":"x"}]}'])
+def test_malformed_vault_listing_does_not_produce_a_revision(monkeypatch: pytest.MonkeyPatch, payload: bytes) -> None:
+    monkeypatch.setattr(release, "urlopen", lambda *_args, **_kwargs: _Response(payload))
+
+    with pytest.raises(RuntimeError, match="Vault version lookup failed for sprint"):
+        release.get_vault_version("sprint")
 
 
 def test_exact_bepinex_build_and_tcli_argv_and_cwd(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
