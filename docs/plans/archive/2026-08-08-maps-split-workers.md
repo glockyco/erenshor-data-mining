@@ -1,11 +1,10 @@
 ---
 title: Split Canonical and Legacy Erenshor Map Workers
 type: plan
-status: draft
+status: implemented
 created: 2026-08-08
 parent: 2026-06-26-maps-domain-url-migration
-superseded_by:
-archived:
+archived: 2026-09-27
 ---
 
 # Split Canonical and Legacy Erenshor Map Workers
