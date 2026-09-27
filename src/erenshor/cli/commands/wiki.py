@@ -593,7 +593,7 @@ def fetch(
         False,
         "--force",
         "-f",
-        help="Force re-fetch even if pages are already cached",
+        help="Re-download every page, even when its saved revision is current",
     ),
     pages_file: str | None = typer.Option(
         None,
@@ -613,8 +613,10 @@ def fetch(
     storage for later use during generation. This allows you to work offline
     and avoid re-fetching pages multiple times.
 
-    By default, skips pages that have already been fetched. Use --force to
-    re-fetch all pages regardless of cache status.
+    By default, compares each page's current wiki revision with the revision
+    saved at the last fetch, and downloads only pages that changed. Pages that
+    were deleted on the wiki are removed from local storage. Use --force to
+    re-download all pages.
 
     You can specify which pages to fetch using --pages-file:
     - Fetch from file: --pages-file pages.txt
