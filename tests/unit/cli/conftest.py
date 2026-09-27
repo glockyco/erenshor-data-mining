@@ -10,7 +10,7 @@ import pytest
 
 from erenshor.cli.context import CLIContext
 from erenshor.infrastructure.config.loader import get_repo_root
-from erenshor.infrastructure.config.schema import Config, MapsConfig, VariantConfig
+from erenshor.infrastructure.config.schema import Config, GlobalConfig, MapsConfig, UnityConfig, VariantConfig
 
 
 @pytest.fixture
@@ -47,7 +47,10 @@ def cli_context(tmp_path: Path) -> CLIContext:
     )
 
     return CLIContext(
-        config=Config(variants={"main": variant}),
+        config=Config(
+            global_=GlobalConfig(unity=UnityConfig(version="2021.3.45f2", path=str(tmp_path / "Unity"))),
+            variants={"main": variant},
+        ),
         variant="main",
         dry_run=False,
         repo_root=get_repo_root(),

@@ -14,7 +14,7 @@ from PIL import Image
 from erenshor.application.capture import orchestrator
 from erenshor.cli.commands import capture as capture_command
 from erenshor.cli.context import CLIContext
-from erenshor.infrastructure.config.schema import Config, MapsConfig, VariantConfig
+from erenshor.infrastructure.config.schema import Config, GlobalConfig, MapsConfig, UnityConfig, VariantConfig
 
 
 def _context(tmp_path: Path) -> SimpleNamespace:
@@ -34,7 +34,17 @@ def _context(tmp_path: Path) -> SimpleNamespace:
             build_dir=str(tmp_path / "maps/build"),
         ),
     )
-    return SimpleNamespace(obj=CLIContext(Config(variants={"main": variant}), "main", False, tmp_path))
+    return SimpleNamespace(
+        obj=CLIContext(
+            Config(
+                global_=GlobalConfig(unity=UnityConfig(version="2021.3.45f2", path=str(tmp_path / "Unity"))),
+                variants={"main": variant},
+            ),
+            "main",
+            False,
+            tmp_path,
+        )
+    )
 
 
 def _zone(scene: str) -> dict[str, Any]:

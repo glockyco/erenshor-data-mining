@@ -16,7 +16,7 @@ import typer
 from erenshor.application.maps import build_info
 from erenshor.cli.commands import maps
 from erenshor.cli.context import CLIContext
-from erenshor.infrastructure.config.schema import Config, MapsConfig, VariantConfig
+from erenshor.infrastructure.config.schema import Config, GlobalConfig, MapsConfig, UnityConfig, VariantConfig
 
 
 @pytest.fixture(autouse=True)
@@ -79,7 +79,10 @@ def _ctx(tmp_path: Path, maps_dir: Path, database_path: Path, *, dry_run: bool =
         ),
     )
     cli_context = CLIContext(
-        config=Config(variants={"main": variant}),
+        config=Config(
+            global_=GlobalConfig(unity=UnityConfig(version="2021.3.45f2", path=str(tmp_path / "Unity"))),
+            variants={"main": variant},
+        ),
         variant="main",
         dry_run=dry_run,
         repo_root=tmp_path,

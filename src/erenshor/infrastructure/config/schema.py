@@ -81,12 +81,10 @@ class UnityConfig(ConfigModel):
     """
 
     version: str = Field(
-        default="2021.3.45f2",
-        description="Unity Editor version (must match game's Unity version exactly)",
+        description="Unity Editor version (must match game's Unity version exactly). Set in config.toml.",
     )
     path: str = Field(
-        default="/Applications/Unity/Hub/Editor/2021.3.45f2/Unity.app/Contents/MacOS/Unity",
-        description="Path to Unity executable",
+        description="Path to Unity executable. Set in config.toml, override in the local config.",
     )
     timeout: int = Field(
         default=3600,
@@ -389,7 +387,6 @@ class GlobalConfig(ConfigModel):
         description="Global path configuration",
     )
     unity: UnityConfig = Field(
-        default_factory=UnityConfig,
         description="Unity Editor configuration",
     )
     assetripper: AssetRipperConfig = Field(
@@ -624,7 +621,6 @@ class Config(ConfigModel):
     )
     global_: GlobalConfig = Field(
         alias="global",
-        default_factory=GlobalConfig,
         description="Global configuration shared across all variants",
     )
     variants: dict[str, VariantConfig] = Field(

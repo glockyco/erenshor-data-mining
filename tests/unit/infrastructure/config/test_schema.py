@@ -27,6 +27,8 @@ from erenshor.infrastructure.config.schema import (
     VariantGoogleSheetsConfig,
 )
 
+UNITY = {"version": "2021.3.45f2", "path": "/Applications/Unity/Hub/Editor/2021.3.45f2/Unity.app"}
+
 
 class TestPathsConfig:
     """Tests for PathsConfig model."""
@@ -74,37 +76,24 @@ class TestPathsConfig:
 class TestUnityConfig:
     """Tests for UnityConfig model."""
 
-    def test_default_values(self):
-        """Test that UnityConfig has correct default values."""
-        config = UnityConfig()
-        assert config.version == "2021.3.45f2"
-        assert "/Unity" in config.path
-        assert config.timeout == 3600
-
     def test_timeout_constraints(self):
         """Test that timeout respects min/max constraints."""
         # Valid values
-        UnityConfig(timeout=60)  # Min
-        UnityConfig(timeout=3600)  # Default
-        UnityConfig(timeout=7200)  # Max
+        UnityConfig(**UNITY, timeout=60)  # Min
+        UnityConfig(**UNITY, timeout=3600)  # Default
+        UnityConfig(**UNITY, timeout=7200)  # Max
 
         # Too low
         with pytest.raises(ValidationError):
-            UnityConfig(timeout=59)
+            UnityConfig(**UNITY, timeout=59)
 
         # Too high
         with pytest.raises(ValidationError):
-            UnityConfig(timeout=7201)
-
-    def test_custom_path(self):
-        """Test setting custom Unity path."""
-        custom_path = "/custom/unity/Unity.app"
-        config = UnityConfig(path=custom_path)
-        assert config.path == custom_path
+            UnityConfig(**UNITY, timeout=7201)
 
     def test_resolved_path(self, tmp_path: Path):
         """Test resolved_path() method without validation."""
-        config = UnityConfig(path="$REPO_ROOT/Unity.app")
+        config = UnityConfig(version="2021.3.45f2", path="$REPO_ROOT/Unity.app")
         resolved = config.resolved_path(tmp_path, validate=False)
         assert resolved == tmp_path / "Unity.app"
         assert resolved.is_absolute()
@@ -113,7 +102,7 @@ class TestUnityConfig:
         """Test resolved_path() with validation raises error if path doesn't exist."""
         from erenshor.infrastructure.config.paths import PathResolutionError
 
-        config = UnityConfig(path="$REPO_ROOT/nonexistent/Unity.app")
+        config = UnityConfig(version="2021.3.45f2", path="$REPO_ROOT/nonexistent/Unity.app")
         with pytest.raises(PathResolutionError):
             config.resolved_path(tmp_path, validate=True)
 
@@ -122,7 +111,7 @@ class TestUnityConfig:
         unity_path = tmp_path / "Unity.app"
         unity_path.touch()
 
-        config = UnityConfig(path=str(unity_path))
+        config = UnityConfig(version="2021.3.45f2", path=str(unity_path))
         resolved = config.resolved_path(tmp_path, validate=True)
         assert resolved == unity_path
 
@@ -373,40 +362,10 @@ class TestLoggingConfig:
 class TestGlobalConfig:
     """Tests for GlobalConfig model."""
 
-    def test_default_factory_creates_nested_configs(self):
-        """Test that default_factory creates all nested configuration objects."""
-        config = GlobalConfig()
-
-        # Check that all nested configs are created
-        assert isinstance(config.paths, PathsConfig)
-        assert isinstance(config.unity, UnityConfig)
-        assert isinstance(config.assetripper, AssetRipperConfig)
-        assert isinstance(config.database, DatabaseConfig)
-        assert isinstance(config.mediawiki, MediaWikiConfig)
-        assert isinstance(config.google_sheets, GoogleSheetsConfig)
-        assert isinstance(config.behavior, BehaviorConfig)
-        assert isinstance(config.logging, LoggingConfig)
-
-    def test_custom_nested_values(self):
-        """Test creating GlobalConfig with custom nested values."""
-        config = GlobalConfig(
-            unity=UnityConfig(timeout=7200),
-            logging=LoggingConfig(level="debug"),
-        )
-        assert config.unity.timeout == 7200
-        assert config.logging.level == "debug"
-
-    def test_partial_override_preserves_defaults(self):
-        """Test that overriding one field doesn't affect other defaults."""
-        config = GlobalConfig(
-            unity=UnityConfig(timeout=7200)  # Override just timeout
-        )
-        # Unity timeout is overridden
-        assert config.unity.timeout == 7200
-        # But other Unity fields keep defaults
-        assert config.unity.version == "2021.3.45f2"
-        # Other top-level configs keep their defaults
-        assert config.logging.level == "info"
+    def test_unity_section_is_required(self):
+        """config.toml is the only source of the Unity version and path."""
+        with pytest.raises(ValidationError, match="unity"):
+            GlobalConfig()
 
 
 class TestVariantGoogleSheetsConfig:
@@ -569,19 +528,10 @@ class TestVariantConfig:
 class TestConfig:
     """Tests for root Config model."""
 
-    def test_minimal_valid_config(self):
-        """Test creating minimal valid Config."""
-        config = Config()
-
-        # Check defaults
-        assert config.version == "0.3"
-        assert config.default_variant == "main"
-        assert isinstance(config.global_, GlobalConfig)
-        assert config.variants == {}
-
     def test_config_with_variants(self):
         """Test creating Config with variant configurations."""
         config = Config(
+            global_=GlobalConfig(unity=UnityConfig(**UNITY)),
             variants={
                 "main": VariantConfig(
                     name="Main Game",
@@ -594,7 +544,7 @@ class TestConfig:
                     backups="/path/to/backups",
                     wiki="/path/to/wiki",
                 )
-            }
+            },
         )
 
         assert "main" in config.variants
@@ -607,7 +557,7 @@ class TestConfig:
         config_dict = {
             "version": "0.3",
             "default_variant": "main",
-            "global": {"logging": {"level": "debug"}},
+            "global": {"unity": UNITY, "logging": {"level": "debug"}},
             "variants": {},
         }
 
@@ -616,12 +566,13 @@ class TestConfig:
 
     def test_custom_default_variant(self):
         """Test setting custom default variant."""
-        config = Config(default_variant="playtest")
+        config = Config(global_=GlobalConfig(unity=UnityConfig(**UNITY)), default_variant="playtest")
         assert config.default_variant == "playtest"
 
     def test_multiple_variants(self):
         """Test config with multiple variants."""
         config = Config(
+            global_=GlobalConfig(unity=UnityConfig(**UNITY)),
             variants={
                 "main": VariantConfig(
                     name="Main",
@@ -645,7 +596,7 @@ class TestConfig:
                     backups="/playtest/backups",
                     wiki="/playtest/wiki",
                 ),
-            }
+            },
         )
 
         assert len(config.variants) == 2
