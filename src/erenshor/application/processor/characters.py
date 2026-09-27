@@ -1,7 +1,7 @@
 """Character processor for the Layer 2 pipeline.
 
 This is the most complex processor because characters have the most
-relationships and require deduplication and is_unique computation.
+relationships and require deduplication and encounter-tier computation.
 
 Processing steps (in order):
 1. Load all Characters rows from the raw DB, excluding SimPlayers, the
@@ -12,7 +12,7 @@ Processing steps (in order):
 5. Deduplicate all characters: group by identity key (all scalar fields +
    relationship sets). Compute stable dedup groups and write
    character_deduplications membership rows.
-6. Recompute is_unique and is_rare per group using all merged spawns.
+6. Compute the encounter tier per group using all merged spawns.
 7. Write characters, spawns, and all junction tables.
 
 Deduplication identity includes:
@@ -190,6 +190,42 @@ def _dedup_key(d: _CharData) -> tuple[object, ...]:
         d.attack_skill_keys,
         d.loot,
     )
+
+
+# code-fact: character.boss_xp_level_floor
+_BOSS_XP_LEVEL = 40
+_BOSS_XP_FLOOR = 2.0
+# code-fact: character.boss_consider_threshold
+_BOSS_XP_THRESHOLD = 1.0
+
+
+def _effective_boss_xp(raw: dict[str, object]) -> float:
+    """Return the BossXp an NPC has after start-up, where level 40+ raises it to 2."""
+    boss_xp = float(cast("float | None", raw.get("BossXpMultiplier")) or 0.0)
+    level = int(cast("int | None", raw.get("Level")) or 0)
+    return max(boss_xp, _BOSS_XP_FLOOR) if level >= _BOSS_XP_LEVEL else boss_xp
+
+
+def _derive_encounter_tier(members: list[_CharData]) -> str:
+    """Classify a deduplication group as npc, boss, elite, or enemy.
+
+    Named characters (effective BossXp above the game's threshold) are bosses
+    at a single placement or when only events spawn them, and elites when the
+    game can place them at several spawn points. A character with exactly
+    one ordinary placement is a boss even without BossXp.
+    """
+    if any(bool(member.char.raw.get("IsFriendly")) for member in members):
+        return "npc"
+    placements = {
+        spawn.spawn_point_stable_key
+        for member in members
+        for spawn in member.spawns
+        if spawn.spawn_point_stable_key is not None and spawn.source_script is None
+    }
+    named = max(_effective_boss_xp(member.char.raw) for member in members) > _BOSS_XP_THRESHOLD
+    if named:
+        return "boss" if len(placements) <= 1 else "elite"
+    return "boss" if len(placements) == 1 else "enemy"
 
 
 def _derive_group_rarity(members: list[_CharData]) -> tuple[int, int]:
@@ -741,8 +777,7 @@ def process_characters(
     logger.info(f"Characters: {len(groups)} dedup groups from {len(char_data)} characters")
 
     dedup_rows: list[dict[str, object]] = []
-    unique_group_count = 0
-    rare_group_count = 0
+    tier_counts: dict[str, int] = defaultdict(int)
     for members in groups.values():
         group_key = min(m.char.stable_key for m in members)
         for m in members:
@@ -755,17 +790,15 @@ def process_characters(
                 }
             )
 
+        tier = _derive_encounter_tier(members)
+        tier_counts[tier] += 1
         is_unique, is_rare = _derive_group_rarity(members)
-        if is_unique:
-            unique_group_count += 1
-        if is_rare:
-            rare_group_count += 1
-
         for m in members:
+            m.char.raw["EncounterTier"] = tier
             m.char.raw["IsUnique"] = is_unique
             m.char.raw["IsRare"] = is_rare
 
-    logger.info(f"Characters: {unique_group_count} unique groups, {rare_group_count} rare groups after recomputation")
+    logger.info(f"Characters: encounter tiers per group {dict(sorted(tier_counts.items()))}")
 
     # ------------------------------------------------------------------
     # Step 6: Write characters
@@ -797,6 +830,7 @@ def process_characters(
             "is_common": r.get("IsCommon"),
             "is_rare": r.get("IsRare"),
             "is_unique": r.get("IsUnique"),
+            "encounter_tier": r["EncounterTier"],
             "is_friendly": r.get("IsFriendly"),
             "is_npc": r.get("IsNPC"),
             "is_vendor": r.get("IsVendor"),

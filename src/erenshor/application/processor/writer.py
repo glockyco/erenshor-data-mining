@@ -804,6 +804,7 @@ CREATE TABLE characters (
     is_common                   INTEGER,
     is_rare                     INTEGER,
     is_unique                   INTEGER,
+    encounter_tier              TEXT NOT NULL CHECK (encounter_tier IN ('npc', 'boss', 'elite', 'enemy')),
     is_friendly                 INTEGER,
     is_npc                      INTEGER,
     is_vendor                   INTEGER,
