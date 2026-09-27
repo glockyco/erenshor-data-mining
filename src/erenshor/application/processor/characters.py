@@ -73,6 +73,7 @@ class _CharRow:
     image_name: str
     is_wiki_generated: int
     is_map_visible: int
+    encounter_tier_override: str | None = None
 
 
 @dataclass
@@ -213,8 +214,18 @@ def _derive_encounter_tier(members: list[_CharData]) -> str:
     Named characters (effective BossXp above the game's threshold) are bosses
     at a single placement or when only events spawn them, and elites when the
     game can place them at several spawn points. A character with exactly
-    one ordinary placement is a boss even without BossXp.
+    one ordinary placement is a boss even without BossXp. A tier override in
+    mapping.json replaces the derived tier and must agree across the group.
+
+    Raises:
+        ValueError: If members of the group carry different tier overrides.
     """
+    overrides = {member.char.encounter_tier_override for member in members} - {None}
+    if len(overrides) > 1 or (overrides and any(m.char.encounter_tier_override is None for m in members)):
+        keys = ", ".join(sorted(member.char.stable_key for member in members))
+        raise ValueError(f"mapping.json encounter_tier overrides disagree within one character group: {keys}")
+    if overrides:
+        return str(overrides.pop())
     if any(bool(member.char.raw.get("IsFriendly")) for member in members):
         return "npc"
     placements = {
@@ -382,12 +393,14 @@ def process_characters(
             image_name = override["image_name"].strip()
             is_wiki_generated = int(override["is_wiki_generated"])
             is_map_visible = int(override["is_map_visible"])
+            encounter_tier_override = override["encounter_tier"]
         else:
             display_name = npc_name.strip()
             wiki_page_name = npc_name.strip()
             image_name = npc_name.strip()
             is_wiki_generated = 1
             is_map_visible = 1
+            encounter_tier_override = None
         chars.append(
             _CharRow(
                 raw=row,
@@ -397,6 +410,7 @@ def process_characters(
                 image_name=image_name,
                 is_wiki_generated=is_wiki_generated,
                 is_map_visible=is_map_visible,
+                encounter_tier_override=encounter_tier_override,
             )
         )
 

@@ -48,6 +48,10 @@ class MappingOverride(TypedDict):
     expected_npc_name: str | None
     is_wiki_generated: int
     is_map_visible: int
+    encounter_tier: str | None
+
+
+ENCOUNTER_TIERS = frozenset({"npc", "boss", "elite", "enemy"})
 
 
 class SpawnMappingOverride(TypedDict):
@@ -113,8 +117,9 @@ def load_mapping(
     applied.
 
     ``expected_npc_name`` pins the raw game name behind an intentional
-    display-name override. Other metadata fields such as ``mapping_type`` and
-    ``reason`` are ignored.
+    display-name override. ``encounter_tier`` replaces the derived tier for a
+    character that game data classifies wrongly, and requires a ``reason``.
+    Other metadata fields such as ``mapping_type`` are ignored.
 
     Args:
         path: Path to mapping.json.
@@ -169,6 +174,17 @@ def load_mapping(
             if image_name is None:
                 errors.append(f"{stable_key}: rule missing 'image_name'")
                 continue
+            encounter_tier = rule.get("encounter_tier")
+            if encounter_tier is not None:
+                if encounter_tier not in ENCOUNTER_TIERS:
+                    errors.append(
+                        f"{stable_key}: 'encounter_tier' must be one of {sorted(ENCOUNTER_TIERS)}, "
+                        f"found {encounter_tier!r}"
+                    )
+                    continue
+                if not isinstance(rule.get("reason"), str) or not rule["reason"].strip():
+                    errors.append(f"{stable_key}: 'encounter_tier' override requires a 'reason'")
+                    continue
 
             character_result[stable_key] = MappingOverride(
                 display_name=display_name,
@@ -177,6 +193,7 @@ def load_mapping(
                 expected_npc_name=expected_npc_name,
                 is_wiki_generated=int(rule.get("is_wiki_generated", 1)),
                 is_map_visible=int(rule.get("is_map_visible", 1)),
+                encounter_tier=encounter_tier,
             )
 
     if errors:

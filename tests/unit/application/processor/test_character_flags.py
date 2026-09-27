@@ -1,5 +1,7 @@
 """Tests that exported gameplay fields are present in clean schemas."""
 
+import pytest
+
 from erenshor.application.processor.characters import (
     _CharData,
     _CharRow,
@@ -13,7 +15,14 @@ def _table_columns(writer: Writer, table_name: str) -> set[str]:
     return {row[1] for row in writer._conn.execute(f"PRAGMA table_info({table_name})").fetchall()}
 
 
-def _char_data(*, boss_xp: float = 0.0, level: int = 10, friendly: int = 0, spawns: list[_SpawnRow]) -> _CharData:
+def _char_data(
+    *,
+    boss_xp: float = 0.0,
+    level: int = 10,
+    friendly: int = 0,
+    override: str | None = None,
+    spawns: list[_SpawnRow],
+) -> _CharData:
     return _CharData(
         char=_CharRow(
             raw={"BossXpMultiplier": boss_xp, "Level": level, "IsFriendly": friendly},
@@ -23,6 +32,7 @@ def _char_data(*, boss_xp: float = 0.0, level: int = 10, friendly: int = 0, spaw
             image_name="Test",
             is_wiki_generated=1,
             is_map_visible=1,
+            encounter_tier_override=override,
         ),
         spawns=spawns,
     )
@@ -168,3 +178,14 @@ def test_character_base_combat_stat_columns_exist(tmp_path):
     assert "cannot_be_snared" in cols
 
     writer._conn.close()
+
+
+def test_mapping_override_replaces_the_derived_tier() -> None:
+    member = _char_data(friendly=1, override="enemy", spawns=_placements(3))
+
+    assert _derive_encounter_tier([member, member]) == "enemy"
+
+
+def test_override_must_cover_the_whole_group() -> None:
+    with pytest.raises(ValueError, match="disagree"):
+        _derive_encounter_tier([_char_data(override="enemy", spawns=_placements(1)), _char_data(spawns=_placements(1))])
