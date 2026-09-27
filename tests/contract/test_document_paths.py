@@ -1,0 +1,96 @@
+"""Active documents name only repository paths that exist."""
+
+from __future__ import annotations
+
+import re
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
+# Documents a contributor or agent reads to learn how the project works today.
+# Plans and archived OpenSpec changes are dated records and are not checked.
+ACTIVE_DOCUMENTS = (
+    "README.md",
+    "AGENTS.md",
+    "PRODUCT.md",
+    ".env.example",
+    "config.toml",
+    "config.local.toml.example",
+    "docs/*.md",
+    ".agent/skills/**/*.md",
+    "openspec/specs/**/*.md",
+)
+
+# Top-level directories whose paths a document can name.
+TRACKED_ROOTS = (
+    ".agent",
+    ".config",
+    ".github",
+    "docs",
+    "nix",
+    "openspec",
+    "quest_guides",
+    "scripts",
+    "src",
+    "tests",
+    "wiki",
+    "wiki-templates",
+)
+
+# Paths that documents name on purpose although they do not exist in a checkout.
+EXEMPT = frozenset(
+    {
+        # Placeholder names in "add a new ..." walkthroughs.
+        "src/erenshor/cli/commands/mycommand.py",
+        "src/erenshor/application/sheets/queries/my-sheet.sql",
+        "src/Assets/Editor/Database/MyRecord.cs",
+        "src/Assets/Editor/ExportSystem/AssetScanner/Listener/MyListener.cs",
+        # Runtime state that `mod launch` writes and removes.
+        ".agent/state/game-session.json",
+    }
+)
+_CANDIDATE = re.compile(r"`([^`\s]+)`|\]\(([^)\s#]+)")
+_TEMPLATE = re.compile(r"[{}<>*$]|\.\.\.|…")
+
+
+def _documents() -> list[Path]:
+    found: set[Path] = set()
+    for pattern in ACTIVE_DOCUMENTS:
+        found.update(path for path in REPO_ROOT.glob(pattern) if path.is_file())
+    return sorted(found)
+
+
+def _referenced_paths(text: str) -> set[str]:
+    paths: set[str] = set()
+    for match in _CANDIDATE.finditer(text):
+        raw = (match.group(1) or match.group(2)).rstrip(".,:;")
+        path = raw.split(":", 1)[0].removeprefix("./").rstrip("/")
+        if _TEMPLATE.search(path) or path.split("/", 1)[0] not in TRACKED_ROOTS or "/" not in path:
+            continue
+        paths.add(path)
+    return paths
+
+
+def missing_references() -> dict[str, list[str]]:
+    """Return each active document's references to paths that do not exist."""
+    missing: dict[str, list[str]] = {}
+    for document in _documents():
+        absent = sorted(
+            path
+            for path in _referenced_paths(document.read_text(encoding="utf-8"))
+            if path not in EXEMPT and not (REPO_ROOT / path).exists()
+        )
+        if absent:
+            missing[str(document.relative_to(REPO_ROOT))] = absent
+    return missing
+
+
+def test_active_documents_name_only_existing_paths() -> None:
+    assert missing_references() == {}
+
+
+def test_a_removed_path_is_reported() -> None:
+    text = "See `src/erenshor/cli/main.py` and `src/erenshor/removed_module.py`."
+
+    assert _referenced_paths(text) == {"src/erenshor/cli/main.py", "src/erenshor/removed_module.py"}
+    assert not (REPO_ROOT / "src/erenshor/removed_module.py").exists()
