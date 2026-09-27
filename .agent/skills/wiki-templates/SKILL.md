@@ -63,7 +63,8 @@ See `field_preservation.py` for the full preservation rules.
 
 Key preserved fields by template:
 - **Items**: `image`, `imagecaption` (prefer manual), `othersource`, `type`/`questsource`/`relatedquest` (merge)
-- **Characters**: `imagecaption`, `type` (prefer manual), `zones`/`coordinates`/`respawn` (prefer database)
+- **Characters**: `imagecaption` (preserve), `zones`/`coordinates`/`respawn`
+  (prefer database). `type` always uses the stored encounter tier.
 - **Abilities**: `image` (prefer manual)
 
 ## Services
