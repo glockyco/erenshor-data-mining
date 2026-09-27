@@ -36,8 +36,8 @@
 
 ## 7. Name the missing program
 
-- [ ] 7.1 Change `infrastructure/assetripper/assetripper.py` to confirm `curl` is resolvable before probing, and fail naming the program rather than returning `False` and waiting for the startup timeout.
-- [ ] 7.2 Change the export-log monitor so a read error is reported with its cause rather than logged at debug and polled past.
+- [x] 7.1 Change `infrastructure/assetripper/assetripper.py` so it needs no external `curl`: call the AssetRipper API through an HTTP client, and fail at once when the AssetRipper process exits, rather than returning `False` and waiting for the startup timeout.
+- [x] 7.2 Change the export-log monitor so a read error is reported with its cause rather than logged at debug and polled past.
 - [x] 7.3 Add a resolvability check with a named error to `application/code_facts/runner.py`, matching the one in `application/export_surface/runner.py`.
 - [x] 7.4 Convert raw subprocess failures in the maps helper into named errors identifying the program.
 - [ ] 7.5 Add tests for each named failure.

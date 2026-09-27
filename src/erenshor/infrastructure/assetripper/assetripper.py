@@ -19,12 +19,17 @@ multi-variant system (main/playtest/demo).
 import subprocess
 from pathlib import Path
 
+import httpx
 from loguru import logger
 
 from erenshor.infrastructure.export_profile import ExportProfileRecorder
 from erenshor.infrastructure.time import Clock, RealClock
 
 _STOP_GRACE_SECONDS = 10
+_API_TIMEOUT_SECONDS = 30
+# The export request blocks until the export finishes. The wrapper stops
+# waiting for the response after this long and follows the log instead.
+_EXPORT_REQUEST_SECONDS = 10
 
 
 class AssetRipperError(Exception):
@@ -106,6 +111,7 @@ class AssetRipper:
         port: int = 8080,
         timeout: int = 3600,
         clock: Clock | None = None,
+        transport: httpx.BaseTransport | None = None,
     ) -> None:
         """Initialize AssetRipper wrapper.
 
@@ -114,6 +120,7 @@ class AssetRipper:
             port: Port for AssetRipper web API server (default: 8080).
             timeout: Maximum time to wait for export operations in seconds (default: 3600).
             clock: Clock implementation for time operations (default: RealClock()).
+            transport: HTTP transport for the AssetRipper API (default: real network).
 
         Raises:
             AssetRipperNotFoundError: If AssetRipper executable is not found.
@@ -122,6 +129,7 @@ class AssetRipper:
         self.port = port
         self.timeout = timeout
         self.clock = clock if clock is not None else RealClock()
+        self._transport = transport
         self._process: subprocess.Popen[bytes] | None = None
         self._log_file: Path | None = None
 
@@ -151,6 +159,33 @@ class AssetRipper:
         """
         return f"http://localhost:{self.port}"
 
+    def _request(
+        self,
+        method: str,
+        endpoint: str,
+        *,
+        timeout: float | None,
+        params: dict[str, str] | None = None,
+        data: dict[str, str] | None = None,
+    ) -> httpx.Response:
+        with httpx.Client(base_url=self._get_base_url(), transport=self._transport, timeout=timeout) as client:
+            return client.request(method, endpoint, params=params, data=data)
+
+    def _api(
+        self,
+        method: str,
+        endpoint: str,
+        *,
+        timeout: float | None,
+        params: dict[str, str] | None = None,
+        data: dict[str, str] | None = None,
+    ) -> httpx.Response:
+        """Call the AssetRipper API, naming the request when it cannot complete."""
+        try:
+            return self._request(method, endpoint, timeout=timeout, params=params, data=data)
+        except httpx.TransportError as error:
+            raise AssetRipperServerError(f"AssetRipper API request {method} {endpoint} failed: {error}") from error
+
     def _check_server_running(self) -> bool:
         """Check if AssetRipper server is running and responding.
 
@@ -158,15 +193,8 @@ class AssetRipper:
             True if server is responding, False otherwise.
         """
         try:
-            # Use curl to check if server responds (avoid adding requests dependency)
-            result = subprocess.run(
-                ["curl", "-s", "-f", f"{self._get_base_url()}/"],
-                capture_output=True,
-                timeout=5,
-                check=False,
-            )
-            return result.returncode == 0
-        except (subprocess.TimeoutExpired, FileNotFoundError):
+            return self._request("GET", "/", timeout=5).is_success
+        except httpx.TransportError:
             return False
 
     def launch_command(self) -> list[str]:
@@ -264,81 +292,6 @@ class AssetRipper:
             process.kill()
             process.wait()
 
-    def _url_encode(self, path: str) -> str:
-        """URL encode a path for API requests.
-
-        Args:
-            path: Path to encode.
-
-        Returns:
-            URL-encoded path.
-        """
-        # Simple URL encoding for paths (avoid adding urllib dependency)
-        # This is sufficient for file paths
-        import urllib.parse
-
-        return urllib.parse.quote(path, safe="")
-
-    def _api_post(self, endpoint: str, data: dict[str, str], timeout: int | None = None) -> tuple[str, int]:
-        """Make POST request to AssetRipper API.
-
-        Args:
-            endpoint: API endpoint (e.g., "/LoadFolder").
-            data: Form data to post.
-            timeout: Request timeout in seconds (None = no timeout).
-
-        Returns:
-            Tuple of (response body, HTTP status code).
-
-        Raises:
-            AssetRipperServerError: If API request fails.
-        """
-        url = f"{self._get_base_url()}{endpoint}"
-
-        # Build curl command
-        cmd = ["curl", "-s", "-w", "\\n%{http_code}", "-X", "POST", url]
-        cmd.extend(["-H", "Content-Type: application/x-www-form-urlencoded"])
-
-        # Add timeout if specified
-        if timeout:
-            cmd.extend(["--max-time", str(timeout)])
-
-        # Add form data
-        for key, value in data.items():
-            cmd.extend(["--data-urlencode", f"{key}={value}"])
-
-        try:
-            result = subprocess.run(cmd, capture_output=True, text=True, check=False)
-            lines = result.stdout.rsplit("\n", 1)
-            body = lines[0] if len(lines) > 1 else ""
-            status_code = int(lines[-1]) if lines[-1].isdigit() else 0
-
-            return body, status_code
-
-        except Exception as e:
-            raise AssetRipperServerError(f"API request failed: {e}") from e
-
-    def _api_get(self, endpoint: str) -> str:
-        """Make GET request to AssetRipper API.
-
-        Args:
-            endpoint: API endpoint with query params.
-
-        Returns:
-            Response body.
-
-        Raises:
-            AssetRipperServerError: If API request fails.
-        """
-        url = f"{self._get_base_url()}{endpoint}"
-
-        try:
-            result = subprocess.run(["curl", "-s", url], capture_output=True, text=True, check=False)
-            return result.stdout
-
-        except Exception as e:
-            raise AssetRipperServerError(f"API request failed: {e}") from e
-
     def _load_files(self, source_dir: Path) -> None:
         """Load game files into AssetRipper.
 
@@ -349,18 +302,16 @@ class AssetRipper:
             AssetRipperExportError: If loading files fails.
         """
         logger.info(f"Loading files from: {source_dir}")
+        source = str(source_dir.absolute())
 
-        # Verify source directory exists via API
-        exists = self._api_get(f"/IO/Directory/Exists?Path={self._url_encode(str(source_dir.absolute()))}")
-
-        if exists.strip().lower() != "true":
+        exists = self._api("GET", "/IO/Directory/Exists", params={"Path": source}, timeout=_API_TIMEOUT_SECONDS)
+        if exists.text.strip().lower() != "true":
             raise AssetRipperExportError(f"Source directory does not exist: {source_dir}")
 
-        # Load files
-        _, status_code = self._api_post("/LoadFolder", {"path": str(source_dir.absolute())})
-
-        if status_code != 302:  # AssetRipper returns 302 redirect on success
-            raise AssetRipperExportError(f"Failed to load files. HTTP status: {status_code}")
+        # LoadFolder answers only after loading finishes, with a redirect on success.
+        response = self._api("POST", "/LoadFolder", data={"path": source}, timeout=None)
+        if response.status_code != 302:
+            raise AssetRipperExportError(f"Failed to load files. HTTP status: {response.status_code}")
 
         logger.info("Files loaded successfully. Processing...")
         self.clock.sleep(5)  # Wait for initial processing
@@ -379,17 +330,24 @@ class AssetRipper:
         # Create target directory if needed
         target_dir.mkdir(parents=True, exist_ok=True)
 
-        # Start export with short timeout (API call is synchronous and blocks until completion)
-        # We timeout after 10 seconds to avoid blocking, then monitor via log file
-        _, status_code = self._api_post("/Export/UnityProject", {"path": str(target_dir.absolute())}, timeout=10)
+        try:
+            response = self._request(
+                "POST",
+                "/Export/UnityProject",
+                data={"path": str(target_dir.absolute())},
+                timeout=_EXPORT_REQUEST_SECONDS,
+            )
+        except httpx.ReadTimeout:
+            # A large export outlives the request. AssetRipper keeps exporting,
+            # and _monitor_export follows its log until it reports completion.
+            logger.info("Export started")
+            return
+        except httpx.TransportError as error:
+            raise AssetRipperServerError(f"AssetRipper export request failed: {error}") from error
 
-        # Status code 0 means curl timed out, which is expected for long-running exports
-        # Status code 302 means immediate success (unlikely for large exports)
-        # Any other status code is an error
-        if status_code not in (0, 302):
-            raise AssetRipperExportError(f"Failed to start export. HTTP status: {status_code}")
-
-        logger.info("Export started successfully")
+        if response.status_code != 302:
+            raise AssetRipperExportError(f"Failed to start export. HTTP status: {response.status_code}")
+        logger.info("Export finished before the request returned")
 
     def _monitor_export(self) -> None:
         """Monitor export progress by watching log file.
@@ -397,9 +355,10 @@ class AssetRipper:
         Raises:
             AssetRipperExportError: If export times out or fails.
         """
-        if not self._log_file or not self._log_file.exists():
-            logger.warning("Log file not available, skipping progress monitoring")
-            return
+        if self._log_file is None or not self._log_file.is_file():
+            raise AssetRipperExportError(
+                f"AssetRipper log file is missing, so the export cannot be followed: {self._log_file}"
+            )
 
         logger.info(f"Monitoring export progress (timeout: {self.timeout}s)...")
         logger.info("This may take 15-20 minutes. Progress updates every 30 seconds...")
@@ -425,15 +384,20 @@ class AssetRipper:
                     read_size = min(10240, file_size)  # Read last 10KB max
                     f.seek(max(0, file_size - read_size))
                     log_tail = f.read().decode("utf-8", errors="ignore")
+            except OSError as error:
+                raise AssetRipperExportError(f"Cannot read AssetRipper log {self._log_file}: {error}") from error
 
-                # AssetRipper outputs these messages when export completes
-                if "Finished post-export" in log_tail or "Finished exporting assets" in log_tail:
-                    logger.info("Export completed successfully!")
-                    return
+            # AssetRipper outputs these messages when export completes
+            if "Finished post-export" in log_tail or "Finished exporting assets" in log_tail:
+                logger.info("Export completed successfully!")
+                return
 
-            except Exception as e:
-                logger.debug(f"Error reading log file: {e}")
-
+            exit_code = self._process.poll() if self._process is not None else None
+            if exit_code is not None:
+                raise AssetRipperExportError(
+                    f"AssetRipper exited with code {exit_code} before finishing the export.\n"
+                    f"Check log: {self._log_file}"
+                )
         raise AssetRipperExportError(
             f"Export monitoring timed out after {self.timeout} seconds.\n"
             f"Export may still be running. Check log: {self._log_file}"
