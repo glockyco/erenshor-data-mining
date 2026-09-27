@@ -31,12 +31,12 @@ and minor releases. Review major updates through the Dependency Dashboard.
 Two Worker services, one build, deployed canonical first by `maps deploy`:
 
 - `wrangler.jsonc` → `erenshor-maps-site` → `erenshor.compendiums.org`. Assets
-  are served without invoking the Worker. `src/site-worker.ts` handles only
+  are served without invoking the Worker. `src/maps/src/site-worker.ts` handles only
   `/api/game-version`, which `assets.run_worker_first` routes to it. Listing
   that path is required: with plain asset-first routing a static file at that
   path would shadow the endpoint and serve stale JSON.
 - `wrangler.legacy.jsonc` → `erenshor-maps` → `erenshor-maps.wowmuch1.workers.dev`.
-  `src/legacy-worker.ts` runs before assets because it routes on hostname, and
+  `src/maps/src/legacy-worker.ts` runs before assets because it routes on hostname, and
   keeps the legacy `/map` document plus its runtime resources same-origin for
   shipped companion overlays. Never rename this service.
 
@@ -44,7 +44,7 @@ Trailing-slash HTML paths (`/map/`, `/maps/{key}/`) answer with a same-origin
 relative `307` from the asset layer's `auto-trailing-slash` handling on both
 hosts. That is expected, not a bug.
 
-`src/worker-config.test.ts` asserts this split, so a config that merges the two
+`src/maps/src/worker-config.test.ts` asserts this split, so a config that merges the two
 services back together fails the suite rather than production.
 
 ## Architecture facts

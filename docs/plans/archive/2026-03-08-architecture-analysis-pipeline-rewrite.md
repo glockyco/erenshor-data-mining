@@ -1,3 +1,12 @@
+---
+title: "Architecture Analysis: Data Pipeline Rewrite"
+type: spec
+status: superseded
+created: 2026-03-08
+archived: 2026-09-27
+parent: 2026-03-08-prd-data-pipeline-rewrite
+---
+
 # Architecture Analysis: Data Pipeline Rewrite
 
 ## Purpose

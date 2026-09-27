@@ -42,7 +42,7 @@ dotnet build "$HOTREPL/src/HotRepl.BepInEx" --nologo -v q
 ```
 
 The deploy source is
-`src/HotRepl.BepInEx/bin/Debug/netstandard2.1/`. Deploy every top-level DLL
+`$HOTREPL/src/HotRepl.BepInEx/bin/Debug/netstandard2.1/`. Deploy every top-level DLL
 from that output into a dedicated `BepInEx/plugins/HotRepl/` directory. Replace the
 existing HotRepl directory as one unit so every assembly comes from the same
 build. The set includes `HotRepl.BepInEx.dll`, `HotRepl.Core.dll`,
