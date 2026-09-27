@@ -12,10 +12,10 @@
 
 ## 3. A failed image comparison is not `unchanged`
 
-- [ ] 3.1 Change `application/services/image_registry.py` so a perceptual-hash failure raises instead of setting `change_type='unchanged'`, `is_changed=False`, and `similarity_score=1.0`.
-- [ ] 3.2 Change the hash fallback that substitutes database values so it raises rather than reporting a stored value as a fresh measurement.
-- [ ] 3.3 Add a regression test proving an image whose comparison raises is never selected as needing no upload.
-- [ ] 3.4 Confirm an image run over valid inputs selects the same set as the task 1.1 baseline.
+- [x] 3.1 Change `application/services/image_registry.py` so a perceptual-hash failure raises instead of setting `change_type='unchanged'`, `is_changed=False`, and `similarity_score=1.0`.
+- [x] 3.2 Change the hash fallback that substitutes database values so it raises rather than reporting a stored value as a fresh measurement.
+- [x] 3.3 Add a regression test proving an image whose comparison raises is never selected as needing no upload.
+- [x] 3.4 Confirm an image run over valid inputs selects the same set as the task 1.1 baseline.
 
 ## 4. Release versioning fails instead of restarting
 

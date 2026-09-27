@@ -39,6 +39,15 @@ class ImageRegistryError(Exception):
     pass
 
 
+class ImageComparisonError(ImageRegistryError):
+    """Raised when perceptual hashes could not be compared for some images."""
+
+    def __init__(self, failures: list[tuple[str, str]]) -> None:
+        self.failures = failures
+        details = "\n".join(f"  {stable_key}: {reason}" for stable_key, reason in failures)
+        super().__init__(f"Could not compare perceptual hashes for {len(failures)} images:\n{details}")
+
+
 class ImageRegistry:
     """Registry for tracking image versions and changes.
 
@@ -215,13 +224,8 @@ class ImageRegistry:
                             prev_processed_at = datetime.fromtimestamp(
                                 previous_file.stat().st_mtime, tz=UTC
                             ).isoformat()
-                        except Exception as e:
-                            logger.warning(f"Failed to calculate hash for {previous_file}: {e}, using database values")
-                            # Fall back to database copy
-                            prev_hash = None
-                            prev_phash = None
-                            prev_processed_at = None
-                            prev_size = None
+                        except OSError as e:
+                            raise ImageRegistryError(f"Cannot hash previous image {previous_file}: {e}") from e
                     else:
                         # File doesn't exist in previous/, use database copy
                         prev_hash = None
@@ -279,7 +283,11 @@ class ImageRegistry:
                         current_file_size = ?,
                         source_hash = ?,
                         source_path = ?,
-                        updated_at = ?
+                        updated_at = ?,
+                        -- The new current image has not been compared yet.
+                        is_changed = 0,
+                        change_type = NULL,
+                        similarity_score = NULL
                     WHERE stable_key = ?
                     """,
                     (
@@ -401,7 +409,13 @@ class ImageRegistry:
             similarity_threshold: Perceptual similarity threshold (0.0-1.0).
                 Below this threshold = changed, above = unchanged.
                 Default: 0.95 (95% similar = unchanged).
+
+        Raises:
+            ImageComparisonError: If any stored hash cannot be compared. No
+                classification is written in that case, because a failed
+                comparison is not evidence that an image is unchanged.
         """
+        failures: list[tuple[str, str]] = []
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
@@ -441,11 +455,9 @@ class ImageRegistry:
                         else:
                             change_type = "modified"
                             is_changed = True
-                    except Exception as e:
-                        logger.warning(f"Failed to compare perceptual hashes for {stable_key}: {e}")
-                        change_type = "unchanged"
-                        is_changed = False
-                        similarity_score = 1.0
+                    except (ValueError, TypeError) as e:
+                        failures.append((stable_key, str(e)))
+                        continue
 
                 # Detect renames: wiki filename changed but visual content didn't
                 if not is_changed and row["uploaded_filename"] is not None:
@@ -465,6 +477,8 @@ class ImageRegistry:
                     (is_changed, change_type, similarity_score, stable_key),
                 )
 
+            if failures:
+                raise ImageComparisonError(failures)
             conn.commit()
 
         logger.info(f"Detected changes with {similarity_threshold * 100:.0f}% similarity threshold")
@@ -575,12 +589,32 @@ class ImageRegistry:
 
         Returns:
             Dictionary mapping image_name to ImageMetadata for images needing upload.
+
+        Raises:
+            ImageRegistryError: If a processed image has not been compared since
+                it was processed.
         """
         from erenshor.domain.entities.image import ImageMetadata
 
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
+
+            # A processed image without a classification was never compared, so
+            # its absence from the changed set says nothing about whether it changed.
+            cursor.execute("""
+                SELECT stable_key FROM image_versions
+                WHERE current_phash IS NOT NULL AND change_type IS NULL
+                ORDER BY stable_key
+            """)
+            unclassified = [row["stable_key"] for row in cursor.fetchall()]
+            if unclassified:
+                shown = ", ".join(unclassified[:10])
+                more = f" and {len(unclassified) - 10} more" if len(unclassified) > 10 else ""
+                raise ImageRegistryError(
+                    f"{len(unclassified)} processed images have not been compared: {shown}{more}. "
+                    "Run 'erenshor images compare' first."
+                )
 
             # Get all changed images that need upload
             cursor.execute("""

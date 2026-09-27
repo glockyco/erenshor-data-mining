@@ -21,7 +21,7 @@ from rich.table import Table
 
 from erenshor.application.services.image_comparator import ImageComparator
 from erenshor.application.services.image_processor import ImageProcessor
-from erenshor.application.services.image_registry import ImageRegistry
+from erenshor.application.services.image_registry import ImageComparisonError, ImageRegistry, ImageRegistryError
 from erenshor.domain.value_objects.wiki_filename import needs_redirect, sanitize_wiki_filename
 
 if TYPE_CHECKING:
@@ -246,7 +246,12 @@ def compare(
     console.print()
 
     # Run comparison
-    report = comparator.compare_all(similarity_threshold=similarity)
+    try:
+        report = comparator.compare_all(similarity_threshold=similarity)
+    except ImageComparisonError as error:
+        console.print(f"[red]{error}[/red]")
+        console.print("No change classification was written. Re-run 'erenshor images process' for these images.")
+        raise typer.Exit(1) from error
 
     # Display results
     console.print("[bold]Comparison Results:[/bold]")
@@ -453,27 +458,34 @@ def upload(
         console.print(f"[bold]Found {len(deployment_dict)} explicitly selected images to upload[/bold]")
     elif changed_only:
         # Get unique image_names that need deployment (deduplicated)
-        deployment_dict = registry.get_deployment_list()
+        try:
+            deployment_dict = registry.get_deployment_list()
+        except ImageRegistryError as error:
+            console.print(f"[red]{error}[/red]")
+            raise typer.Exit(1) from error
         console.print(f"[bold]Found {len(deployment_dict)} unique changed images to upload[/bold]")
     else:
-        # Get all images from current directory
         console.print("[yellow]Warning: Uploading ALL images (use --changed-only for efficiency)[/yellow]")
-        # Build list from filesystem for backward compatibility
         deployment_dict = {}
-        all_image_files = sorted(current_dir.glob("*.png"))
-
-        for image_file in all_image_files:
-            # Extract stable_key from filename
-            if "@" not in image_file.stem:
+        unregistered: list[str] = []
+        for image_file in sorted(current_dir.glob("*.png")):
+            # Processed files are named <entity_type>@<resource_name>.png.
+            metadata = (
+                registry.get_image_metadata(image_file.stem.replace("@", ":", 1)) if "@" in image_file.stem else None
+            )
+            if metadata is None:
+                unregistered.append(image_file.name)
                 continue
+            # Use image_name as key to deduplicate
+            deployment_dict[metadata.image_name] = metadata
 
-            stable_key = image_file.stem.replace("@", ":", 1)
-
-            # Get metadata from registry
-            metadata = registry.get_image_metadata(stable_key)
-            if metadata:
-                # Use image_name as key to deduplicate
-                deployment_dict[metadata.image_name] = metadata
+        if unregistered:
+            console.print(
+                f"[red]{len(unregistered)} files in {current_dir} have no registry entry: "
+                f"{', '.join(unregistered[:10])}{' ...' if len(unregistered) > 10 else ''}[/red]"
+            )
+            console.print("Run 'erenshor images process' so the registry matches the processed files.")
+            raise typer.Exit(1)
 
         console.print(f"[bold]Found {len(deployment_dict)} unique images to upload[/bold]")
 
@@ -640,9 +652,12 @@ def upload(
     if dry_run:
         console.print()
         console.print("[yellow]DRY-RUN: No files were uploaded[/yellow]")
-    else:
-        console.print()
-        console.print("[green]✓ Upload complete[/green]")
 
     if stats["failed"] > 0 or redirect_stats.get("failed", 0) > 0:
+        console.print()
+        console.print("[red]Upload incomplete: some images or redirects failed, see above.[/red]")
         raise typer.Exit(1)
+
+    if not dry_run:
+        console.print()
+        console.print("[green]✓ Upload complete[/green]")
