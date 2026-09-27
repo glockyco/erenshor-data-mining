@@ -13,7 +13,7 @@ import json
 import subprocess
 from collections.abc import Iterator
 from contextlib import contextmanager
-from datetime import UTC, datetime
+from datetime import UTC
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
@@ -38,7 +38,7 @@ from erenshor.application.extract.export_workflow import (
 )
 from erenshor.application.extract.rip_workflow import RipRequest, RipWorkflow
 from erenshor.application.extract.variant_comparison import generate_report
-from erenshor.application.services.backup_service import BackupService
+from erenshor.application.services.backup_service import BackupError, BackupService
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import raw_database_exists
 from erenshor.cli.preconditions.checks.field_coverage import export_field_coverage_current
@@ -100,20 +100,18 @@ def _read_manifest_fields(cli_ctx: CLIContext, variant_config: Any, keys: set[st
     """Read quoted scalar fields from the installed Steam app manifest.
 
     Avoids a SteamCMD dependency: the ``.acf`` is a flat quoted key/value
-    format, and the fields we need are scalars at any nesting depth.
+    format, and the fields we need are scalars at any nesting depth. A missing
+    manifest yields no fields. An unreadable manifest raises OSError.
     """
     game_files_dir = Path(variant_config.resolved_game_files(cli_ctx.repo_root))
     manifest_file = _find_app_manifest(game_files_dir, str(variant_config.app_id))
     if manifest_file is None:
         return {}
     found: dict[str, str] = {}
-    try:
-        for line in manifest_file.read_text(encoding="utf-8").splitlines():
-            parts = line.split('"')
-            if len(parts) >= 4 and parts[1] in keys and parts[1] not in found:
-                found[parts[1]] = parts[3]
-    except OSError as e:
-        logger.debug(f"Could not read Steam app manifest: {e}")
+    for line in manifest_file.read_text(encoding="utf-8").splitlines():
+        parts = line.split('"')
+        if len(parts) >= 4 and parts[1] in keys and parts[1] not in found:
+            found[parts[1]] = parts[3]
     return found
 
 
@@ -137,22 +135,28 @@ def _read_build_id(cli_ctx: CLIContext, variant_config: Any) -> str | None:
     return _read_manifest_fields(cli_ctx, variant_config, {"buildid"}).get("buildid")
 
 
-def _resolve_build_published_at(variant_config: Any, build_id: str | None) -> str | None:
-    """Resolve an installed build's authoritative SteamDB publication time."""
+def _require_build_id(cli_ctx: CLIContext, variant_config: Any) -> str:
+    """Return the installed Steam build ID for steps that record provenance."""
+    build_id = _read_build_id(cli_ctx, variant_config)
     if not build_id:
-        logger.warning("Could not resolve build publication time: installed Steam build ID is unavailable")
-        return None
-    try:
-        builds = fetch_build_feed(str(variant_config.app_id))
-        published_at = resolve_build_published_at(builds, build_id)
-    except Exception as exc:
-        logger.warning(f"Could not resolve build publication time from SteamDB feed: {exc}")
-        return None
+        game_files_dir = variant_config.resolved_game_files(cli_ctx.repo_root)
+        raise RuntimeError(
+            f"Installed Steam build ID is unavailable: no appmanifest_{variant_config.app_id}.acf "
+            f"with a buildid was found for {game_files_dir}"
+        )
+    return build_id
+
+
+def _resolve_build_published_at(variant_config: Any, build_id: str) -> str | None:
+    """Resolve an installed build's authoritative SteamDB publication time.
+
+    A feed that cannot be fetched or parsed raises. A build that is not in the
+    feed window returns None, because the feed holds only recent builds.
+    """
+    builds = fetch_build_feed(str(variant_config.app_id))
+    published_at = resolve_build_published_at(builds, build_id)
     if published_at is None:
         logger.warning(f"SteamDB build feed does not contain installed build {build_id}")
-        return None
-    if published_at.tzinfo is None or published_at.utcoffset() is None:
-        logger.warning(f"SteamDB returned a timezone-less publication time for build {build_id}")
         return None
     return published_at.astimezone(UTC).isoformat()
 
@@ -549,16 +553,12 @@ def export(
             }
             unity_log_level = python_to_unity_log_level.get(cli_ctx.config.global_.logging.level.upper(), "normal")
 
+            build_id = _require_build_id(cli_ctx, variant_config)
+
             def backup(database: Path) -> None:
                 console.print("[bold]Creating backup...[/bold]")
+                service = BackupService()
                 try:
-                    build_id = _read_build_id(cli_ctx, variant_config)
-                    if not build_id:
-                        build_id = datetime.now().strftime("backup-%Y%m%d-%H%M%S")
-                        logger.warning(f"Could not determine Steam build ID, using timestamp: {build_id}")
-                        console.print(f"[yellow]Using timestamp-based backup ID: {build_id}[/yellow]")
-
-                    service = BackupService()
                     stats = service.create_backup(
                         variant=cli_ctx.variant,
                         build_id=build_id,
@@ -567,12 +567,9 @@ def export(
                         backup_dir=variant_config.resolved_backups(cli_ctx.repo_root),
                         app_id=variant_config.app_id,
                     )
-                    service.display_backup_stats(stats)
-                except Exception as error:
-                    logger.error(f"Failed to create backup: {error}")
-                    console.print(f"[yellow]Warning: Backup creation failed: {error}[/yellow]")
-                    console.print("[yellow]Export succeeded but backup was not created.[/yellow]")
-                    console.print()
+                except (BackupError, OSError) as error:
+                    raise RuntimeError(f"The raw database was exported to {database}, but {error}") from error
+                service.display_backup_stats(stats)
 
             workflow = ExportWorkflow(
                 unity,
@@ -685,7 +682,7 @@ def code_facts(ctx: typer.Context) -> None:
 
     try:
         with _profile_command(profile, command_name, cli_ctx):
-            build_id = _read_build_id(cli_ctx, variant_config)
+            build_id = _require_build_id(cli_ctx, variant_config)
             count = extract_code_facts(
                 cli_ctx.repo_root,
                 assembly,
@@ -714,41 +711,33 @@ def _generate_ide_project_files(
         variant_config: Variant-specific configuration.
         unity_project_dir: Path to Unity project directory.
         game_files_dir: Path to game files directory.
+
+    Raises:
+        RuntimeError: If the project files cannot be generated. The Unity
+            project is already in place at that point.
     """
     scripts_dir = unity_project_dir / "ExportedProject" / "Assets" / "Scripts" / "Assembly-CSharp"
     managed_dir = game_files_dir / "Erenshor_Data" / "Managed"
     plugins_dir = unity_project_dir / "ExportedProject" / "Assets" / "Plugins"
     solution_dir = unity_project_dir / "ExportedProject"
 
-    if not scripts_dir.exists():
-        logger.warning(f"Scripts directory not found, skipping IDE setup: {scripts_dir}")
-        return
-
-    if not managed_dir.exists():
-        logger.warning(f"Managed DLLs directory not found, skipping IDE setup: {managed_dir}")
-        return
-
     try:
-        # Generate .csproj
         csproj_path = generate_game_scripts_csproj(
             scripts_dir=scripts_dir,
             managed_dlls_dir=managed_dir,
             plugins_dir=plugins_dir,
         )
         logger.info(f"Generated project file for LSP support: {csproj_path}")
-
-        # Generate .sln
         sln_path = generate_solution_file(
             solution_dir=solution_dir,
             csproj_path=csproj_path,
         )
         logger.info(f"Generated solution file: {sln_path}")
-
-    except Exception as e:
-        # Log error but don't fail the rip
-        logger.warning(f"Failed to generate IDE project files: {e}")
-        console.print(f"[yellow]Warning: IDE setup failed: {e}[/yellow]")
-        console.print("[yellow]Rip succeeded but LSP support may not work.[/yellow]")
+    except (OSError, ValueError) as e:
+        raise RuntimeError(
+            f"The Unity project was extracted to {unity_project_dir}, but IDE project generation failed: {e}. "
+            "Run 'erenshor extract ide-setup' after fixing the cause."
+        ) from e
 
 
 @app.command("ide-setup")
@@ -797,6 +786,7 @@ def _generate_all_ide_project_files(cli_ctx: CLIContext) -> None:
     """
     variant_solutions: list[Path] = []
     editor_csproj_path: Path | None = None
+    failures: list[str] = []
 
     # Get Unity paths for Editor script references
     unity_config = cli_ctx.config.global_.unity
@@ -828,8 +818,8 @@ def _generate_all_ide_project_files(cli_ctx: CLIContext) -> None:
             continue
 
         if not managed_dir.exists():
-            logger.warning(f"Variant '{variant_name}' missing Managed DLLs, skipping")
-            console.print(f"  [yellow]⚠[/yellow] {variant_name} (missing Managed DLLs)")
+            failures.append(f"{variant_name}: Managed DLLs not found: {managed_dir}")
+            console.print(f"  [red]✗[/red] {variant_name} (missing Managed DLLs)")
             continue
 
         try:
@@ -856,9 +846,9 @@ def _generate_all_ide_project_files(cli_ctx: CLIContext) -> None:
                     # Track the first Editor csproj for root solution
                     if editor_csproj_path is None:
                         editor_csproj_path = editor_csproj
-                except Exception as e:
-                    logger.warning(f"Failed to generate Editor project for '{variant_name}': {e}")
-                    console.print(f"  [yellow]⚠[/yellow] Editor scripts: {e}")
+                except (OSError, ValueError) as e:
+                    failures.append(f"{variant_name} Editor scripts: {e}")
+                    console.print(f"  [red]✗[/red] Editor scripts: {e}")
 
             # Generate variant-specific .sln (includes both game scripts and Editor)
             additional_projects = [editor_csproj] if editor_csproj else None
@@ -871,9 +861,9 @@ def _generate_all_ide_project_files(cli_ctx: CLIContext) -> None:
             console.print(f"  [green]✓[/green] {sln_path.relative_to(cli_ctx.repo_root)}")
             variant_solutions.append(sln_path)
 
-        except Exception as e:
-            logger.warning(f"Failed to generate IDE files for variant '{variant_name}': {e}")
-            console.print(f"  [yellow]⚠[/yellow] {variant_name}: {e}")
+        except (OSError, ValueError) as e:
+            failures.append(f"{variant_name}: {e}")
+            console.print(f"  [red]✗[/red] {variant_name}: {e}")
 
     # Generate the root Editor scripts project from the selected variant's configured source.
     selected_variant_config = cli_ctx.config.variants[cli_ctx.variant]
@@ -911,9 +901,9 @@ def _generate_all_ide_project_files(cli_ctx: CLIContext) -> None:
                 )
                 logger.info(f"Generated: {root_editor_csproj}")
                 console.print(f"  [green]✓[/green] {root_editor_csproj.relative_to(cli_ctx.repo_root)}")
-            except Exception as e:
-                logger.warning(f"Failed to generate Editor scripts project: {e}")
-                console.print(f"  [yellow]⚠[/yellow] {e}")
+            except (OSError, ValueError) as e:
+                failures.append(f"root Editor scripts: {e}")
+                console.print(f"  [red]✗[/red] {e}")
 
     # Discover mod projects
     mods_dir = cli_ctx.repo_root / "src" / "mods"
@@ -938,6 +928,7 @@ def _generate_all_ide_project_files(cli_ctx: CLIContext) -> None:
 
     # Generate root solution with mods and Editor (game scripts excluded to save memory)
     if not all_mod_projects and not test_projects:
+        _raise_ide_failures(failures)
         console.print()
         console.print("[yellow]No mod or Editor projects found. Root solution not generated.[/yellow]")
         if variant_solutions:
@@ -959,6 +950,7 @@ def _generate_all_ide_project_files(cli_ctx: CLIContext) -> None:
         mod_projects=all_mod_projects,
         test_projects=test_projects,
     )
+    _raise_ide_failures(failures)
 
     console.print(f"  [green]✓[/green] {root_sln_path.relative_to(cli_ctx.repo_root)}")
     console.print()
@@ -979,3 +971,9 @@ def _generate_all_ide_project_files(cli_ctx: CLIContext) -> None:
     console.print()
     console.print("[dim]Tip: For Zed, use OmniSharp for cross-file Find References:[/dim]")
     console.print('[dim]  "languages": { "CSharp": { "language_servers": ["omnisharp", "!roslyn"] } }[/dim]')
+
+
+def _raise_ide_failures(failures: list[str]) -> None:
+    """Fail IDE setup after every project that could be generated was written."""
+    if failures:
+        raise RuntimeError("IDE project generation failed for:\n  " + "\n  ".join(failures))

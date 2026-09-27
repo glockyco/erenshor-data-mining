@@ -1,6 +1,5 @@
 """Tests for BackupService."""
 
-import contextlib
 import json
 from datetime import UTC, datetime
 from pathlib import Path
@@ -260,40 +259,75 @@ class TestBackupService:
                 app_id="2382520",
             )
 
-    def test_create_backup_atomic_on_failure(
+    def test_failed_backup_keeps_the_previous_backup_for_the_build(
         self,
         backup_service: BackupService,
         mock_database: Path,
+        mock_scripts: Path,
         tmp_path: Path,
     ):
-        """Test that failed backup doesn't leave partial backup."""
+        """A backup that fails validation must not destroy the good one."""
         backup_dir = tmp_path / "backups"
         build_id = "20370413"
+        backup_service.create_backup(
+            variant="main",
+            build_id=build_id,
+            database_path=mock_database,
+            scripts_path=mock_scripts,
+            backup_dir=backup_dir,
+            app_id="2382520",
+        )
+        backup_path = backup_dir / f"build-{build_id}"
+        previous_metadata = (backup_path / "metadata.json").read_text()
+        empty_scripts = tmp_path / "empty_scripts"
+        empty_scripts.mkdir()
 
-        # Create scripts directory that will cause failure
-        scripts_path = tmp_path / "scripts"
-        scripts_path.mkdir()
-        # Add a file that will cause copy to fail (simulate permission error)
-        # We'll just use a non-existent subdirectory as scripts_path
-        bad_scripts = tmp_path / "nonexistent"
-
-        with contextlib.suppress(BackupError):
+        with pytest.raises(BackupError, match="No script files found"):
             backup_service.create_backup(
                 variant="main",
                 build_id=build_id,
                 database_path=mock_database,
-                scripts_path=bad_scripts,
+                scripts_path=empty_scripts,
                 backup_dir=backup_dir,
                 app_id="2382520",
             )
 
-        # Verify no backup directory exists
-        backup_path = backup_dir / f"build-{build_id}"
-        assert not backup_path.exists()
+        assert (backup_path / "metadata.json").read_text() == previous_metadata
+        assert [path.name for path in backup_dir.iterdir()] == [f"build-{build_id}"]
 
-        # Verify no temp directory left behind
-        temp_path = backup_dir / f".backup-{build_id}.tmp"
-        assert not temp_path.exists()
+    def test_backup_restores_a_backup_left_aside_by_an_interrupted_replacement(
+        self,
+        backup_service: BackupService,
+        mock_database: Path,
+        mock_scripts: Path,
+        tmp_path: Path,
+    ):
+        """A crash between the two renames leaves the only good backup aside."""
+        backup_dir = tmp_path / "backups"
+        build_id = "20370413"
+        backup_service.create_backup(
+            variant="main",
+            build_id=build_id,
+            database_path=mock_database,
+            scripts_path=mock_scripts,
+            backup_dir=backup_dir,
+            app_id="2382520",
+        )
+        (backup_dir / f"build-{build_id}").rename(backup_dir / f".backup-{build_id}.old")
+        empty_scripts = tmp_path / "empty_scripts"
+        empty_scripts.mkdir()
+
+        with pytest.raises(BackupError):
+            backup_service.create_backup(
+                variant="main",
+                build_id=build_id,
+                database_path=mock_database,
+                scripts_path=empty_scripts,
+                backup_dir=backup_dir,
+                app_id="2382520",
+            )
+
+        assert [backup.build_id for backup in backup_service.list_backups(backup_dir)] == [build_id]
 
     def test_create_backup_skips_editor_scripts(
         self,

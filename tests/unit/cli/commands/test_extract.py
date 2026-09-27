@@ -7,6 +7,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
+import httpx
 import pytest
 from typer.main import get_command
 from typer.testing import CliRunner
@@ -411,3 +412,25 @@ def test_read_build_id_without_manifest(tmp_path: Path) -> None:
     variant = VariantStub(tmp_path)
 
     assert extract._read_build_id(_context(tmp_path, variant), variant) is None
+
+
+def test_provenance_steps_require_the_installed_build_id(tmp_path: Path) -> None:
+    variant = VariantStub(tmp_path)
+
+    with pytest.raises(RuntimeError, match=f"appmanifest_{variant.app_id}.acf"):
+        extract._require_build_id(_context(tmp_path, variant), variant)
+
+
+def test_unreachable_build_feed_fails_publication_lookup(tmp_path: Path) -> None:
+    variant = VariantStub(tmp_path)
+    failure = httpx.ConnectError("SteamDB unreachable")
+
+    with patch.object(extract, "fetch_build_feed", side_effect=failure), pytest.raises(httpx.ConnectError):
+        extract._resolve_build_published_at(variant, "24405256")
+
+
+def test_build_outside_the_feed_window_has_no_publication_time(tmp_path: Path) -> None:
+    variant = VariantStub(tmp_path)
+
+    with patch.object(extract, "fetch_build_feed", return_value=[]):
+        assert extract._resolve_build_published_at(variant, "24405256") is None
