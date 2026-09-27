@@ -198,8 +198,9 @@ class ImageRegistry:
             image_info: Discovery information (entity names, source path).
             processing_result: Processing metadata (hashes, size, timestamp).
             previous_dir: Optional path to previous/ directory for hash calculation.
-                If provided, calculates hashes from actual backed-up files.
-                If not provided, copies database values (for backward compatibility).
+                If it holds this image, the previous_* values are hashed from that
+                file. Otherwise they are the current_* values recorded by the last
+                run, which describe the same file.
         """
         now = datetime.now(UTC).isoformat()
 
