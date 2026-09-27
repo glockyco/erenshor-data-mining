@@ -247,9 +247,12 @@ def test_import_unity_profile_output_records_listener_spans(tmp_path: Path) -> N
     assert json.loads(row[3]) == {"calls": 100, "avg_ms": 30.0, "max_ms": 50.0}
 
 
-def _write_comparison_db(path: Path, *, include_new_rows: bool) -> None:
+def _write_comparison_db(path: Path, *, include_new_rows: bool, build_id: str | None) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(path) as connection:
+    with closing(sqlite3.connect(path)) as connection, connection:
+        if build_id is not None:
+            connection.execute("CREATE TABLE code_facts_meta (game_build_id TEXT)")
+            connection.execute("INSERT INTO code_facts_meta VALUES (?)", (build_id,))
         connection.executescript(
             """
             CREATE TABLE items (
@@ -309,12 +312,14 @@ def _write_comparison_db(path: Path, *, include_new_rows: bool) -> None:
             )
 
 
-def _comparison_context(tmp_path: Path, *, include_new_db: bool = True) -> SimpleNamespace:
+def _comparison_context(
+    tmp_path: Path, *, include_new_db: bool = True, new_build_id: str | None = "200"
+) -> SimpleNamespace:
     base_variant = VariantStub(tmp_path / "main")
     new_variant = VariantStub(tmp_path / "demo")
-    _write_comparison_db(base_variant.resolved_database(tmp_path), include_new_rows=False)
+    _write_comparison_db(base_variant.resolved_database(tmp_path), include_new_rows=False, build_id="100")
     if include_new_db:
-        _write_comparison_db(new_variant.resolved_database(tmp_path), include_new_rows=True)
+        _write_comparison_db(new_variant.resolved_database(tmp_path), include_new_rows=True, build_id=new_build_id)
     return SimpleNamespace(
         repo_root=tmp_path,
         variant="main",
@@ -328,6 +333,8 @@ def test_compare_variants_main_vs_demo_report_preserves_metrics(tmp_path: Path) 
 
     assert result.exit_code == 0
     assert "# Erenshor: Demo vs Main Comparison" in result.stdout
+    assert "**Old Variant**: main (Build 100)" in result.stdout
+    assert "**New Variant**: demo (Build 200)" in result.stdout
     assert "| Zones | 1 | 2 | +1 |" in result.stdout
     assert "| Items | 1 | 2 | +1 |" in result.stdout
     assert "| Spells | 1 | 2 | +1 |" in result.stdout
@@ -365,6 +372,15 @@ def test_compare_variants_rejects_missing_database(tmp_path: Path) -> None:
 
     assert result.exit_code == 1
     assert "New database not found for variant 'demo'" in result.output
+
+
+def test_compare_variants_rejects_database_without_build_provenance(tmp_path: Path) -> None:
+    context = _comparison_context(tmp_path, new_build_id=None)
+    result = CliRunner().invoke(extract.app, ["compare-variants"], obj=context)
+
+    assert result.exit_code == 1
+    assert "has no build provenance" in result.output
+    assert "erenshor extract build" in result.output
 
 
 class LibraryVariantStub(VariantStub):

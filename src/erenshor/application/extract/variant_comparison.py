@@ -3,29 +3,43 @@
 from __future__ import annotations
 
 import sqlite3
+from collections.abc import Iterator
+from contextlib import closing, contextmanager
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 
-def get_build_id(backups_dir: Path) -> str:
-    """Return the latest recorded backup build ID for a variant."""
-    try:
-        if not backups_dir.exists():
-            return "Unknown"
+@contextmanager
+def _read_only(db_path: Path, *, base_db: Path | None = None) -> Iterator[sqlite3.Connection]:
+    """Open a clean database read-only, optionally attaching a base database.
 
-        build_dirs = sorted(backups_dir.glob("backup-*"), reverse=True)
-        if build_dirs:
-            return build_dirs[0].name.removeprefix("backup-")
-
-        return "Unknown"
-    except OSError:
-        return "Unknown"
+    Read-only URIs make a missing path an error instead of an empty new file.
+    """
+    with closing(sqlite3.connect(f"{db_path.resolve().as_uri()}?mode=ro", uri=True)) as connection:
+        if base_db is not None:
+            connection.execute("ATTACH DATABASE ? AS base", (f"{base_db.resolve().as_uri()}?mode=ro",))
+        yield connection
 
 
-def _attach_base(connection: sqlite3.Connection, base_db: Path) -> None:
-    """Attach the base database without interpolating a filesystem path."""
-    connection.execute("ATTACH DATABASE ? AS base", (str(base_db),))
+def recorded_build_id(db_path: Path) -> str:
+    """Return the game build ID that the clean database was built from.
+
+    Raises:
+        ValueError: If the database does not record its game build.
+        sqlite3.Error: If the database cannot be opened or read.
+    """
+    rebuild = "Rebuild it with 'erenshor extract build'."
+    with _read_only(db_path) as connection:
+        has_provenance = connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'code_facts_meta'"
+        ).fetchone()
+        if has_provenance is None:
+            raise ValueError(f"{db_path} has no build provenance. {rebuild}")
+        row = connection.execute("SELECT game_build_id FROM code_facts_meta").fetchone()
+    if row is None or row[0] is None:
+        raise ValueError(f"{db_path} does not record its game build ID. {rebuild}")
+    return str(row[0])
 
 
 def get_counts(db_path: Path) -> dict[str, int]:
@@ -38,14 +52,13 @@ def get_counts(db_path: Path) -> dict[str, int]:
         ("Quests", "quests"),
         ("Zones", "zones"),
     )
-    with sqlite3.connect(db_path) as connection:
+    with _read_only(db_path) as connection:
         return {name: int(connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]) for name, table in tables}
 
 
 def compare_items(base_db: Path, new_db: Path) -> list[dict[str, Any]]:
     """Find items present in the new database but not the base database."""
-    with sqlite3.connect(new_db) as connection:
-        _attach_base(connection, base_db)
+    with _read_only(new_db, base_db=base_db) as connection:
         rows = connection.execute(
             """
             SELECT display_name, required_slot, item_level, lore
@@ -70,8 +83,7 @@ def compare_items(base_db: Path, new_db: Path) -> list[dict[str, Any]]:
 
 def compare_spells(base_db: Path, new_db: Path) -> list[dict[str, Any]]:
     """Find spells present in the new database but not the base database."""
-    with sqlite3.connect(new_db) as connection:
-        _attach_base(connection, base_db)
+    with _read_only(new_db, base_db=base_db) as connection:
         rows = connection.execute(
             """
             SELECT display_name, type, spell_desc
@@ -95,8 +107,7 @@ def compare_spells(base_db: Path, new_db: Path) -> list[dict[str, Any]]:
 
 def compare_characters(base_db: Path, new_db: Path) -> list[dict[str, Any]]:
     """Find characters present in the new database but not the base database."""
-    with sqlite3.connect(new_db) as connection:
-        _attach_base(connection, base_db)
+    with _read_only(new_db, base_db=base_db) as connection:
         rows = connection.execute(
             """
             SELECT
@@ -131,8 +142,7 @@ def compare_characters(base_db: Path, new_db: Path) -> list[dict[str, Any]]:
 
 def compare_quests(base_db: Path, new_db: Path) -> list[dict[str, Any]]:
     """Find quests present in the new database but not the base database."""
-    with sqlite3.connect(new_db) as connection:
-        _attach_base(connection, base_db)
+    with _read_only(new_db, base_db=base_db) as connection:
         rows = connection.execute(
             """
             SELECT
@@ -160,8 +170,7 @@ def compare_quests(base_db: Path, new_db: Path) -> list[dict[str, Any]]:
 
 def compare_zones(base_db: Path, new_db: Path) -> list[dict[str, Any]]:
     """Find zones present in the new database but not the base database."""
-    with sqlite3.connect(new_db) as connection:
-        _attach_base(connection, base_db)
+    with _read_only(new_db, base_db=base_db) as connection:
         rows = connection.execute(
             """
             SELECT zone_name, scene_name
@@ -248,13 +257,18 @@ def generate_report(
     new_variant: str,
     base_db: Path,
     new_db: Path,
-    base_build: str,
-    new_build: str,
     *,
     output_path: Path | None = None,
     generated_at: datetime | None = None,
 ) -> str:
-    """Generate and optionally write a complete variant comparison report."""
+    """Generate and optionally write a complete variant comparison report.
+
+    Raises:
+        ValueError: If either database does not record the game build it was
+            built from.
+    """
+    base_build = recorded_build_id(base_db)
+    new_build = recorded_build_id(new_db)
     base_counts = get_counts(base_db)
     new_counts = get_counts(new_db)
     new_items = compare_items(base_db, new_db)

@@ -37,7 +37,7 @@ from erenshor.application.extract.export_workflow import (
     adapter_exit_code,
 )
 from erenshor.application.extract.rip_workflow import RipRequest, RipWorkflow
-from erenshor.application.extract.variant_comparison import generate_report, get_build_id
+from erenshor.application.extract.variant_comparison import generate_report
 from erenshor.application.services.backup_service import BackupService
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import raw_database_exists
@@ -294,15 +294,11 @@ def compare_variants(
         typer.echo(f"Error: New database not found for variant '{new_variant}': {new_db}", err=True)
         raise typer.Exit(1)
 
-    report = generate_report(
-        base_variant,
-        new_variant,
-        base_db,
-        new_db,
-        get_build_id(base_config.resolved_backups(cli_ctx.repo_root)),
-        get_build_id(new_config.resolved_backups(cli_ctx.repo_root)),
-        output_path=output,
-    )
+    try:
+        report = generate_report(base_variant, new_variant, base_db, new_db, output_path=output)
+    except ValueError as error:
+        typer.echo(f"Error: {error}", err=True)
+        raise typer.Exit(1) from error
     if output is not None:
         typer.echo(f"Report written to: {output}")
     if output is None or print_report:
