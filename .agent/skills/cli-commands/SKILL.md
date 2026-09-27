@@ -91,9 +91,8 @@ State-changing commands with declarations:
 
 - `capture run`, `capture tile`
 - `images process`, `images compare`, `images report --output`, `images upload`
-- `extract compare-variants --output`, `extract download`, `extract packages`,
-  `extract rip`, `extract export`, `extract build`, `extract code-facts`,
-  `extract ide-setup`
+- `extract compare-variants --output`, `extract packages`, `extract rip`,
+  `extract export`, `extract build`, `extract code-facts`, `extract ide-setup`
 - `golden capture`
 - `guide compile`, `guide export-mod`
 - `maps dev`, `maps preview`, `maps check`, `maps build`, `maps deploy`,

@@ -11,7 +11,7 @@ Tools for extracting Erenshor game data, building SQLite databases, publishing w
 ## What this repository provides
 
 - A Python CLI, `erenshor`, for extraction, publishing, map, mod, capture, and development workflows.
-- A game-data pipeline from Steam download to AssetRipper output, Unity batch export, raw SQLite, and clean SQLite.
+- A game-data pipeline from the Steam installation to AssetRipper output, Unity batch export, raw SQLite, and clean SQLite.
 - MediaWiki and Google Sheets publishing from the clean database.
 - A SvelteKit/deck.gl interactive map deployed with Wrangler to Cloudflare Workers.
 - BepInEx companion mods for live map integration, quest guidance, sprinting, screenshot cleanup, and map tile capture.
@@ -19,7 +19,7 @@ Tools for extracting Erenshor game data, building SQLite databases, publishing w
 Core data pipeline:
 
 ```text
-SteamCMD game files
+Steam client installation (CrossOver bottle)
   → AssetRipper Unity project
   → Unity batch export
       → raw SQLite database
@@ -78,8 +78,7 @@ Every `erenshor ...` command in this README assumes that shell.
 Three things the dev shell cannot supply, because they are licensed, interactive, or platform-specific:
 
 - Unity `2021.3.45f2`, installed through Unity Hub and activated with a Unity account. `extract export` refuses to run against any other version.
-- SteamCMD and a Steam account that owns Erenshor, for `extract download`. Not needed if `game_files` points at a copy of the game you already have installed.
-- CrossOver or another Windows runtime, for launching the game and its companion mods on macOS.
+- CrossOver with a Steam client bottle that has each variant you extract installed. The tooling finds a variant's installation by its Steam app ID and does not download game files itself. The same installation launches the game and its companion mods.
 
 Local config supplies machine-specific paths and credentials. Do not commit local credentials.
 
@@ -146,7 +145,6 @@ installation:
 ```bash
 nix develop
 erenshor status
-erenshor extract download     # skip when game_files points at an existing install
 erenshor extract packages     # Editor NuGet dependencies, once per checkout
 erenshor extract rip
 erenshor extract export
@@ -240,7 +238,6 @@ erenshor config show
 ### Extract and build game data
 
 ```bash
-erenshor extract download
 erenshor extract rip
 erenshor extract export
 erenshor extract build

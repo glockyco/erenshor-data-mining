@@ -1,7 +1,6 @@
 """Extract commands for data extraction pipeline.
 
 This module provides commands for managing the data extraction pipeline:
-- Downloading game files from Steam via SteamCMD
 - Extracting Unity projects via AssetRipper
 - Exporting game data to raw SQLite via Unity batch mode
 - Building the clean database from the raw export
@@ -44,7 +43,7 @@ from erenshor.cli.preconditions.checks.database import raw_database_exists
 from erenshor.cli.preconditions.checks.extract import comparison_databases, ide_sources
 from erenshor.cli.preconditions.checks.field_coverage import export_field_coverage_current
 from erenshor.cli.preconditions.checks.inputs import required_path
-from erenshor.cli.preconditions.checks.steam import game_files_exist, steam_credentials_exist
+from erenshor.cli.preconditions.checks.steam import game_files_exist
 from erenshor.cli.preconditions.checks.unity import (
     editor_packages_restored,
     editor_scripts_linked,
@@ -62,7 +61,6 @@ from erenshor.infrastructure.csproj_generator import (
 )
 from erenshor.infrastructure.export_profile import ExportProfileRecorder, ExportProfileReport
 from erenshor.infrastructure.steam.build_feed import fetch_build_feed, resolve_build_published_at
-from erenshor.infrastructure.steam.steamcmd import SteamCMD
 from erenshor.infrastructure.unity.batch_mode import UnityBatchMode
 
 if TYPE_CHECKING:
@@ -293,79 +291,6 @@ def compare_variants(
         typer.echo(f"Report written to: {output}")
     if output is None or print_report:
         typer.echo(report, nl=False)
-
-
-@app.command()
-@require_preconditions(steam_credentials_exist)
-def download(
-    ctx: typer.Context,
-    validate: bool = typer.Option(
-        False,
-        "--validate",
-        help="Verify file integrity and redownload corrupted files (slower)",
-    ),
-) -> None:
-    """Download or update game files from Steam via SteamCMD.
-
-    Downloads the Erenshor game files for the selected variant using SteamCMD.
-    Automatically detects and downloads updates if a newer build is available.
-
-    Use --validate only if you suspect file corruption or extraction issues.
-    Validation checks all files against Steam's checksums and redownloads any
-    that don't match. This is slower but ensures complete file integrity.
-
-    Requires valid Steam credentials and game ownership.
-    """
-    cli_ctx: CLIContext = ctx.obj
-    variant_config = cli_ctx.config.variants[cli_ctx.variant]
-    game_files_dir = variant_config.resolved_game_files(cli_ctx.repo_root)
-
-    if cli_ctx.dry_run:
-        logger.info(f"[Dry-run] Would download/update game files: app_id={variant_config.app_id}, dir={game_files_dir}")
-        return
-
-    command_name = "extract download"
-    profile = _open_profile(
-        cli_ctx,
-        variant_config,
-        command_name,
-        unity_version=None,
-        assetripper_version=None,
-    )
-
-    try:
-        with _profile_command(profile, command_name, cli_ctx):
-            # Log what we're doing
-            if validate:
-                logger.info(
-                    f"Downloading game files with validation: variant={cli_ctx.variant}, app_id={variant_config.app_id}"
-                )
-                logger.info("File validation enabled - all files will be verified (slower)")
-            else:
-                logger.info(f"Downloading game files: variant={cli_ctx.variant}, app_id={variant_config.app_id}")
-
-            # Create SteamCMD wrapper
-            steam_config = cli_ctx.config.global_.steam
-            steamcmd = SteamCMD(
-                username=steam_config.username,
-                platform=steam_config.platform,
-            )
-
-            # Download/update game files
-            steamcmd.download(
-                app_id=variant_config.app_id,
-                install_dir=game_files_dir,
-                validate=validate,
-            )
-            profile.update_game_build_id(_read_build_id(cli_ctx, variant_config))
-
-            logger.info(f"Download complete: {game_files_dir}")
-            logger.info("Next: Run 'erenshor extract rip' to extract Unity project")
-
-    except Exception as e:
-        console.print(f"[red]Error during download: {e}[/red]")
-        logger.exception("Game download failed")
-        raise typer.Exit(1) from e
 
 
 @app.command()
