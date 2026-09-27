@@ -89,9 +89,9 @@ site — an untagged assert spec fails the test.
 
 A detached git repo at `variants/{v}/decompile-history.git` versions the
 decompiled tree across builds. Its git-dir lives **outside** the work tree
-because `extract rip` does `rmtree` on the whole Unity project — a `.git`
+because `extract rip` replaces the whole Unity project directory — a `.git`
 placed inside `Assembly-CSharp/` would be destroyed on every update. The
-`--git-dir`/`--work-tree` flags need no `.git` (or gitlink) inside the wiped
+`--git-dir`/`--work-tree` flags need no `.git` (or gitlink) inside the replaced
 dir, so history survives the rip. `variants/` is gitignored, so the main repo
 never sees it. After each re-rip, commit the new tree and diff against the
 previous build to catch mechanics no fact spec anticipates:

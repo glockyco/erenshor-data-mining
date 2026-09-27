@@ -25,9 +25,9 @@
 
 ## 5. A manifest that cannot be read is not rewritten
 
-- [ ] 5.1 Change `application/extract/rip_workflow.py` so a missing or malformed dependency manifest raises and names the file, instead of returning an empty mapping.
-- [ ] 5.2 Confirm the restore step that writes the manifest cannot run after a failed read.
-- [ ] 5.3 Add a regression test for both the absent and the malformed manifest.
+- [x] 5.1 Change `application/extract/rip_workflow.py` so a missing or malformed dependency manifest raises and names the file, instead of returning an empty mapping.
+- [x] 5.2 Confirm the restore step that writes the manifest cannot run after a failed read.
+- [x] 5.3 Add a regression test for both the absent and the malformed manifest.
 
 ## 6. Generation refuses to emit lossy output
 

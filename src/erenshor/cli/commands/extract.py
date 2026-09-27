@@ -434,7 +434,8 @@ def rip(ctx: typer.Context) -> None:
     a Unity project structure. This allows access to game assets
     and ScriptableObjects for data mining.
 
-    Always performs fresh extraction, removing any existing Unity project.
+    Always performs a fresh extraction into a staging directory, then replaces
+    the existing Unity project. A failed extraction leaves the old project.
     """
     cli_ctx: CLIContext = ctx.obj
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
