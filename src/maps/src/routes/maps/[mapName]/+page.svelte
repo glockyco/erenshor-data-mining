@@ -6,7 +6,7 @@
     import { MAPS } from '$lib/maps';
     import { getBrowserRepository } from '$lib/database.default';
     import { type LatLngExpression, type Map as LeafletMap, type LeafletMouseEvent } from 'leaflet';
-    import type { Marker, EnemyMarker, NpcMarker } from '$lib/map-markers';
+    import { compareEncounterTier, type Marker, type EnemyMarker, type NpcMarker } from '$lib/map-markers';
     import Seo from '$lib/components/Seo.svelte';
     import ScaleBar from '$lib/components/map/ScaleBar.svelte';
     import CoordinateReadout from '$lib/components/map/CoordinateReadout.svelte';
@@ -274,25 +274,15 @@
                 repository.getZoneLineMarkers(currentMapName)
             ]);
 
-            // Sort spawn points by rarity
+            // Sort spawn points by encounter tier.
             spawnPointMarkers.sort((a, b) => {
                 // Enemies always come before NPCs
                 if (a.category === 'enemy' && b.category === 'npc') return -1;
                 if (a.category === 'npc' && b.category === 'enemy') return 1;
 
-                // Sort enemies by rarity (unique > rare > common)
+                // Paint bosses last so the most notable encounters stay visible.
                 if (a.category === 'enemy' && b.category === 'enemy') {
-                    const rankA = (a as EnemyMarker).isUnique
-                        ? 2
-                        : (a as EnemyMarker).isRare
-                          ? 1
-                          : 0;
-                    const rankB = (b as EnemyMarker).isUnique
-                        ? 2
-                        : (b as EnemyMarker).isRare
-                          ? 1
-                          : 0;
-                    return rankA - rankB;
+                    return -compareEncounterTier(a.encounterTier, b.encounterTier);
                 }
 
                 return 0;
@@ -374,16 +364,16 @@
                         iconClass = 'fa-solid fa-question';
                         break;
                     case 'enemy':
-                        if ((marker as EnemyMarker).isUnique) {
+                        if ((marker as EnemyMarker).encounterTier === 'boss') {
                             color = 'black';
                             radius = 12;
-                            layer = 'Enemies (Unique)';
-                        } else if ((marker as EnemyMarker).isRare) {
+                            layer = 'Enemies (Boss)';
+                        } else if ((marker as EnemyMarker).encounterTier === 'elite') {
                             color = 'red';
-                            layer = 'Enemies (Rare)';
+                            layer = 'Enemies (Elite)';
                         } else {
                             color = 'blue';
-                            layer = 'Enemies (Common)';
+                            layer = 'Enemies (Enemy)';
                         }
                         iconClass = 'fa-solid fa-skull';
                         if (!(marker as EnemyMarker).isEnabled) color = 'gray';

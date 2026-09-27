@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { EntityData } from '$lib/map/live/types';
+    import { resolveLiveEncounterTier, type EnemyTier } from '$lib/map-markers';
     import { liveState } from '$lib/map/live/stores.svelte';
     import { aggregateDropVariants, type AggregatedDrop } from '$lib/map/live/drop-variants';
     import { getBrowserRepository } from '$lib/database.default';
@@ -7,9 +8,10 @@
 
     interface Props {
         entity: EntityData;
+        encounterTierByName: ReadonlyMap<string, EnemyTier>;
     }
 
-    let { entity }: Props = $props();
+    let { entity, encounterTierByName }: Props = $props();
 
     let drops = $state<AggregatedDrop[]>([]);
     let variantCount = $state(0);
@@ -54,25 +56,21 @@
         return `${drop.minProbability.toFixed(1)}\u2013${drop.maxProbability.toFixed(1)}%`;
     }
 
-    function getRarityClass(): string {
-        if (entity.rarity === 'boss') return 'bg-zinc-700 text-zinc-200';
-        if (entity.rarity === 'rare') return 'bg-red-900/50 text-red-300';
-        return 'bg-blue-900/50 text-blue-300';
-    }
+    const tier = $derived(resolveLiveEncounterTier(entity, encounterTierByName));
 
-    function getRarityLabel(): string {
-        if (entity.rarity === 'boss') return 'Boss';
-        if (entity.rarity === 'rare') return 'Rare';
-        return 'Common';
+    function getTierClass(): string {
+        if (tier === 'boss') return 'bg-zinc-700 text-zinc-200';
+        if (tier === 'elite') return 'bg-red-900/50 text-red-300';
+        return 'bg-blue-900/50 text-blue-300';
     }
 </script>
 
 <div class="space-y-3">
-    <!-- Rarity Badge and Wiki Link -->
+    <!-- Encounter tier and wiki link -->
     <div class="flex items-center justify-between">
-        {#if entity.rarity && entity.entityType === 'npc_enemy'}
-            <span class="rounded px-1.5 py-0.5 text-xs {getRarityClass()}">
-                {getRarityLabel()}
+        {#if entity.entityType === 'npc_enemy'}
+            <span class="rounded px-1.5 py-0.5 text-xs {getTierClass()}">
+                {tier === 'boss' ? 'Boss' : tier === 'elite' ? 'Elite' : 'Enemy'}
             </span>
         {:else}
             <div></div>

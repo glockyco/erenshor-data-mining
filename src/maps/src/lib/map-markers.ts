@@ -1,16 +1,56 @@
-/**
- * Ordered rarity tiers. Lower value = rarer.
- * Sort ascending to get rarest-first order.
- * Use named constants (Rarity.unique, Rarity.rare, Rarity.common) for
- * comparisons rather than raw numbers.
- */
-export const Rarity = {
-    unique: 0,
-    rare: 1,
-    common: 2
+import type { EntityData } from './map/live/types';
+
+/** Character tiers in display order, most notable first. */
+export const ENCOUNTER_TIER_ORDER = {
+    boss: 0,
+    elite: 1,
+    enemy: 2,
+    npc: 3
 } as const;
 
-export type Rarity = (typeof Rarity)[keyof typeof Rarity];
+export type EncounterTier = keyof typeof ENCOUNTER_TIER_ORDER;
+export type EnemyTier = Exclude<EncounterTier, 'npc'>;
+
+export function compareEncounterTier(a: EncounterTier, b: EncounterTier): number {
+    return ENCOUNTER_TIER_ORDER[a] - ENCOUNTER_TIER_ORDER[b];
+}
+
+export function mostNotableEnemyTier(characters: readonly { encounterTier: EncounterTier }[]): EnemyTier {
+    let best: EnemyTier | null = null;
+    for (const { encounterTier } of characters) {
+        if (encounterTier === 'npc') continue;
+        if (!best || compareEncounterTier(encounterTier, best) < 0) best = encounterTier;
+    }
+    if (!best) throw new Error('Enemy marker has no hostile characters');
+    return best;
+}
+
+/** Index stored tiers once, retaining the highest tier for names shared by characters. */
+export function buildEncounterTierByName(
+    markers: readonly { characters: readonly SpawnCharacter[] }[],
+    unlocated: readonly UnlocatedEnemy[]
+): Map<string, EnemyTier> {
+    const tiers = new Map<string, EnemyTier>();
+    const addTier = (name: string, tier: EncounterTier) => {
+        if (tier === 'npc') return;
+        const previous = tiers.get(name);
+        if (!previous || compareEncounterTier(tier, previous) < 0) tiers.set(name, tier);
+    };
+    for (const marker of markers) {
+        for (const character of marker.characters) addTier(character.name, character.encounterTier);
+    }
+    for (const enemy of unlocated) addTier(enemy.name, enemy.encounterTier);
+    return tiers;
+}
+
+/** Use the mod's BossXp classification only when no stored tier matches the name. */
+export function resolveLiveEncounterTier(
+    entity: EntityData,
+    tiers: ReadonlyMap<string, EnemyTier>
+): EnemyTier {
+    return tiers.get(entity.name) ??
+        (entity.rarity === 'boss' ? 'boss' : entity.rarity === 'rare' ? 'elite' : 'enemy');
+}
 
 export type BaseMarker = {
     stableKey: string;
@@ -23,7 +63,7 @@ export type UnlocatedEnemy = {
     name: string;
     wikiPageName: string | null;
     level: number;
-    effectiveRarity: Rarity;
+    encounterTier: EnemyTier;
 };
 
 // Character info for spawn points (characters that can spawn at a location)
@@ -35,16 +75,7 @@ export type SpawnCharacter = {
     spawnChance: number | null;
     sourceScript: string | null;
     eventPosition: { x: number; y: number; z: number } | null;
-    isCommon: boolean;
-    isRare: boolean;
-    isUnique: boolean;
-    /**
-     * Effective rarity derived from isCommon/isRare/isUnique.
-     * A character is rare only when isRare && !isCommon — isCommon wins over
-     * isRare when both are set. Use this instead of reading the raw flags
-     * directly so that the rule is applied consistently everywhere.
-     */
-    effectiveRarity: Rarity;
+    encounterTier: EncounterTier;
     isFriendly: boolean;
     isInvulnerable: boolean;
     isVendor: boolean;
@@ -83,8 +114,7 @@ export type ItemDropSource = ItemSourceItemMeta & {
     kind: 'drop';
     characterStableKey: string;
     npcName: string;
-    isRare: boolean;
-    isUnique: boolean;
+    encounterTier: EncounterTier;
     dropProbability: number; // 0–100
 };
 
@@ -175,8 +205,7 @@ export type EnemyMarker = BaseMarker & {
     spawnDelay: number | null;
     isNightSpawn: boolean;
     isEnabled: boolean;
-    isUnique: boolean;
-    isRare: boolean;
+    encounterTier: EnemyTier;
     movement: MovementData | null;
 };
 

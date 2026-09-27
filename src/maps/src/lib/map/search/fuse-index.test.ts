@@ -5,7 +5,7 @@ import { searchTiered, searchTieredWithTotal } from './fuse-index';
 function enemy(name: string): IndexEntry {
     return {
         searchText: name.toLowerCase(),
-        result: { type: 'enemy', name, effectiveRarity: 2, spawnCount: 1, zoneCount: 1 }
+        result: { type: 'enemy', name, encounterTier: 'enemy', spawnCount: 1, zoneCount: 1 }
     };
 }
 function item(name: string): IndexEntry {

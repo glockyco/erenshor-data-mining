@@ -37,10 +37,10 @@ function rgbToHex(rgb: readonly [number, number, number]): string {
 // Marker type configurations: icon + color key
 // Colors are derived from LAYER_COLORS (single source of truth)
 const MARKER_ICONS: Record<string, { icon: IconNode; colorKey: keyof typeof LAYER_COLORS }> = {
-    // Enemies - differentiated by rarity
+    // Enemies differentiated by encounter tier
     enemy: { icon: Skull, colorKey: 'enemy' },
-    'enemy-rare': { icon: Skull, colorKey: 'enemy-rare' },
-    'enemy-unique': { icon: Skull, colorKey: 'enemy-unique' },
+    'enemy-elite': { icon: Skull, colorKey: 'enemy-elite' },
+    'enemy-boss': { icon: Skull, colorKey: 'enemy-boss' },
     'enemy-disabled': { icon: Skull, colorKey: 'disabled' },
     // NPCs (friendly characters)
     npc: { icon: User, colorKey: 'npc' },
@@ -66,8 +66,8 @@ const MARKER_ICONS: Record<string, { icon: IconNode; colorKey: keyof typeof LAYE
     'simplayer-live': { icon: UserPlus, colorKey: 'simplayer-live' },
     'pet-live': { icon: Cat, colorKey: 'pet-live' },
     'npc-friendly-live': { icon: User, colorKey: 'npc-friendly-live' },
-    'enemy-common-live': { icon: Skull, colorKey: 'enemy-common-live' },
-    'enemy-rare-live': { icon: Skull, colorKey: 'enemy-rare-live' },
+    'enemy-live': { icon: Skull, colorKey: 'enemy-live' },
+    'enemy-elite-live': { icon: Skull, colorKey: 'enemy-elite-live' },
     'enemy-boss-live': { icon: Skull, colorKey: 'enemy-boss-live' }
 };
 
@@ -182,21 +182,20 @@ export async function createIconAtlas(): Promise<IconAtlasResult> {
 }
 
 /**
- * Get the icon type key for an enemy marker based on its enabled state and rarity.
+ * Get the icon type for an enemy marker from its stored encounter tier.
  */
 export function getEnemyIconType(marker: {
     isEnabled?: boolean;
-    isUnique?: boolean;
-    isRare?: boolean;
+    encounterTier: 'boss' | 'elite' | 'enemy';
 }): MarkerIconType {
     if (marker.isEnabled === false) {
         return 'enemy-disabled';
     }
-    if (marker.isUnique) {
-        return 'enemy-unique';
+    if (marker.encounterTier === 'boss') {
+        return 'enemy-boss';
     }
-    if (marker.isRare) {
-        return 'enemy-rare';
+    if (marker.encounterTier === 'elite') {
+        return 'enemy-elite';
     }
     return 'enemy';
 }

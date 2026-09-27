@@ -13,6 +13,7 @@
  * deck.gl instance.
  */
 
+import { resolveLiveEncounterTier, type EnemyTier } from '../map-markers';
 import { ICON_SIZE, BACKGROUND_COLOR, LAYER_COLORS, HIGHLIGHT_COLORS, MOVEMENT_COLORS } from './config';
 import { createZoneTileset2D, getTileWorldCorners, type ZoneTileIndex } from './zone-tileset';
 import {
@@ -91,9 +92,9 @@ export interface LayerData {
         MapMarkerData,
         | 'achievementTriggers'
         | 'doors'
-        | 'enemiesCommon'
-        | 'enemiesRare'
-        | 'enemiesUnique'
+        | 'enemiesEnemy'
+        | 'enemiesElite'
+        | 'enemiesBoss'
         | 'forges'
         | 'itemBags'
         | 'miningNodes'
@@ -129,6 +130,8 @@ export interface CreateLayersParams {
     modules: DeckLayerModules;
     /** Route data (markers, zones, zone configs). */
     data: LayerData;
+    /** Stored character tiers indexed once by name for live marker classification. */
+    encounterTierByName: ReadonlyMap<string, EnemyTier>;
     /** Zones with debug position overrides applied (used for bounds/selection). */
     effectiveZones: ZoneWorldPosition[];
     /** Debug zone position overrides. */
@@ -225,6 +228,7 @@ export function createLayers(params: CreateLayersParams): unknown[] {
         atlas,
         modules,
         data,
+        encounterTierByName,
         effectiveZones,
         overrides,
         draggingZone,
@@ -262,8 +266,7 @@ export function createLayers(params: CreateLayersParams): unknown[] {
         worldPosition: [number, number];
         zone: string;
         isEnabled?: boolean;
-        isUnique?: boolean;
-        isRare?: boolean;
+        encounterTier?: 'boss' | 'elite' | 'enemy';
     };
     const createIconLayer = (
         id: string,
@@ -471,13 +474,13 @@ export function createLayers(params: CreateLayersParams): unknown[] {
         }
     });
 
-    // Enemy layers (by rarity, with level filtering via DataFilterExtension)
+    // Enemy layers ordered by tier, with level filtering via DataFilterExtension.
     // Filter logic: show spawn if levelMin <= filterMax AND levelMax >= filterMin (overlap)
     const levelFilterExt = new DataFilterExtension({ filterSize: 2 });
 
-    const enemiesCommonLayer = new IconLayer({
-        id: 'enemies-common',
-        data: data.markers.enemiesCommon,
+    const enemiesEnemyLayer = new IconLayer({
+        id: 'enemies-enemy',
+        data: data.markers.enemiesEnemy,
         iconAtlas: atlas.atlas,
         iconMapping: atlas.mapping,
         getPosition: (d: WorldEnemy) => getMarkerPosition(d),
@@ -498,9 +501,9 @@ export function createLayers(params: CreateLayersParams): unknown[] {
             filterRange: levelFilter
         }
     });
-    const enemiesRareLayer = new IconLayer({
-        id: 'enemies-rare',
-        data: data.markers.enemiesRare,
+    const enemiesEliteLayer = new IconLayer({
+        id: 'enemies-elite',
+        data: data.markers.enemiesElite,
         iconAtlas: atlas.atlas,
         iconMapping: atlas.mapping,
         getPosition: (d: WorldEnemy) => getMarkerPosition(d),
@@ -521,9 +524,9 @@ export function createLayers(params: CreateLayersParams): unknown[] {
             filterRange: levelFilter
         }
     });
-    const enemiesUniqueLayer = new IconLayer({
-        id: 'enemies-unique',
-        data: data.markers.enemiesUnique,
+    const enemiesBossLayer = new IconLayer({
+        id: 'enemies-boss',
+        data: data.markers.enemiesBoss,
         iconAtlas: atlas.atlas,
         iconMapping: atlas.mapping,
         getPosition: (d: WorldEnemy) => getMarkerPosition(d),
@@ -556,10 +559,12 @@ export function createLayers(params: CreateLayersParams): unknown[] {
                 return 'pet-live';
             case 'npc_friendly':
                 return 'npc-friendly-live';
-            case 'npc_enemy':
-                if (entity.rarity === 'boss') return 'enemy-boss-live';
-                if (entity.rarity === 'rare') return 'enemy-rare-live';
-                return 'enemy-common-live';
+            case 'npc_enemy': {
+                const tier = resolveLiveEncounterTier(entity, encounterTierByName);
+                if (tier === 'boss') return 'enemy-boss-live';
+                if (tier === 'elite') return 'enemy-elite-live';
+                return 'enemy-live';
+            }
             default:
                 return 'player-live'; // fallback
         }
@@ -575,10 +580,12 @@ export function createLayers(params: CreateLayersParams): unknown[] {
                 return ICON_SIZE.base * 1.0; // Normal
             case 'npc_friendly':
                 return ICON_SIZE.base * 1.0; // Normal
-            case 'npc_enemy':
-                if (entity.rarity === 'boss') return ICON_SIZE.base * 1.5; // Boss size
-                if (entity.rarity === 'rare') return ICON_SIZE.base * 1.25; // Rare size
-                return ICON_SIZE.base * 1.0; // Common size
+            case 'npc_enemy': {
+                const tier = resolveLiveEncounterTier(entity, encounterTierByName);
+                if (tier === 'boss') return ICON_SIZE.base * 1.5;
+                if (tier === 'elite') return ICON_SIZE.base * 1.25;
+                return ICON_SIZE.base;
+            }
             default:
                 return ICON_SIZE.base;
         }
@@ -634,7 +641,7 @@ export function createLayers(params: CreateLayersParams): unknown[] {
 
     // === LIVE ENTITIES (priority-ordered, bottom to top) ===
     // Split by entity type to ensure important entities render on top.
-    // Player is always most visible, followed by threats (boss > rare > common),
+    // Player is always most visible, followed by threats (boss > elite > enemy),
     // then allies (simplayers), companions (pets), and background NPCs.
 
     const liveNpcFriendlyLayer = createLiveEntityLayer(
@@ -649,19 +656,17 @@ export function createLayers(params: CreateLayersParams): unknown[] {
         (e) => e.entityType === 'simplayer'
     );
 
-    const liveEnemiesCommonLayer = createLiveEntityLayer(
-        'live-enemies-common',
-        (e) => e.entityType === 'npc_enemy' && (!e.rarity || e.rarity === 'common')
+    const liveEnemiesEnemyLayer = createLiveEntityLayer(
+        'live-enemies-enemy',
+        (e) => e.entityType === 'npc_enemy' && resolveLiveEncounterTier(e, encounterTierByName) === 'enemy'
     );
-
-    const liveEnemiesRareLayer = createLiveEntityLayer(
-        'live-enemies-rare',
-        (e) => e.entityType === 'npc_enemy' && e.rarity === 'rare'
+    const liveEnemiesEliteLayer = createLiveEntityLayer(
+        'live-enemies-elite',
+        (e) => e.entityType === 'npc_enemy' && resolveLiveEncounterTier(e, encounterTierByName) === 'elite'
     );
-
     const liveEnemiesBossLayer = createLiveEntityLayer(
         'live-enemies-boss',
-        (e) => e.entityType === 'npc_enemy' && e.rarity === 'boss'
+        (e) => e.entityType === 'npc_enemy' && resolveLiveEncounterTier(e, encounterTierByName) === 'boss'
     );
 
     const livePlayerLayer = createLiveEntityLayer('live-player', (e) => e.entityType === 'player');
@@ -872,9 +877,9 @@ export function createLayers(params: CreateLayersParams): unknown[] {
     type PatrolSegment = { source: [number, number]; target: [number, number] };
 
     const allSpawnMarkers = [
-        ...data.markers.enemiesCommon,
-        ...data.markers.enemiesRare,
-        ...data.markers.enemiesUnique,
+        ...data.markers.enemiesEnemy,
+        ...data.markers.enemiesElite,
+        ...data.markers.enemiesBoss,
         ...data.markers.npcs
     ];
 
@@ -1041,12 +1046,12 @@ export function createLayers(params: CreateLayersParams): unknown[] {
         vis.zoneLines && zoneLineDestinationsLayer,
         // Event connector lines sit beneath spawn icons
         eventAnchorLinesLayer,
-        // Common enemies
-        vis.spawnPoints && enemiesCommonLayer,
+        // Enemy-tier spawns
+        vis.spawnPoints && enemiesEnemyLayer,
         // NPCs
         vis.characters && npcsLayer,
-        // Rare enemies
-        vis.spawnPointsRare && enemiesRareLayer,
+        // Elite spawns
+        vis.spawnPointsElite && enemiesEliteLayer,
         // Resources
         vis.miningNodes && miningNodesLayer,
         vis.itemBags && itemBagsLayer,
@@ -1062,14 +1067,14 @@ export function createLayers(params: CreateLayersParams): unknown[] {
         vis.teleports && teleportsLayer,
         // Zone line icons
         vis.zoneLines && zoneLineIconsLayer,
-        // Unique enemies
-        vis.spawnPointsUnique && enemiesUniqueLayer,
+        // Boss spawns
+        vis.spawnPointsBoss && enemiesBossLayer,
         // Live entities (above static markers, priority-ordered bottom to top)
         liveNpcFriendlyLayer,
         livePetsLayer,
         liveSimPlayersLayer,
-        liveEnemiesCommonLayer,
-        liveEnemiesRareLayer,
+        liveEnemiesEnemyLayer,
+        liveEnemiesEliteLayer,
         liveEnemiesBossLayer,
         livePlayerLayer,
         // Global movement overlays (below per-selection so selection paints on top)

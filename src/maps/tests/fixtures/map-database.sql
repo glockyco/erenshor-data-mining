@@ -38,6 +38,7 @@ CREATE TABLE characters (
     is_common INTEGER NOT NULL,
     is_rare INTEGER NOT NULL,
     is_unique INTEGER NOT NULL,
+    encounter_tier TEXT NOT NULL,
     is_friendly INTEGER NOT NULL
 );
 
@@ -321,16 +322,16 @@ INSERT INTO items (
 
 INSERT INTO characters (
     stable_key, display_name, npc_name, wiki_page_name, level, is_vendor, has_dialog,
-    invulnerable, is_common, is_rare, is_unique, is_friendly
+    invulnerable, is_common, is_rare, is_unique, is_friendly, encounter_tier
 ) VALUES
-    ('character:breena carpenter', 'Breena Carpenter', 'Breena Carpenter', 'Breena Carpenter', 5, 1, 1, 0, 1, 0, 0, 1),
-    ('character:fixture enemy', 'Fixture Enemy', 'Fixture Enemy', 'Fixture Enemy', 7, 0, 0, 0, 0, 0, 1, 0),
-    ('character:runtime enemy', 'Runtime Enemy', 'Runtime Enemy', 'Runtime Enemy', 12, 0, 0, 0, 0, 1, 0, 0),
+    ('character:breena carpenter', 'Breena Carpenter', 'Breena Carpenter', 'Breena Carpenter', 5, 1, 1, 0, 1, 0, 0, 1, 'npc'),
+    ('character:fixture enemy', 'Fixture Enemy', 'Fixture Enemy', 'Fixture Enemy', 7, 0, 0, 0, 0, 0, 1, 0, 'boss'),
+    ('character:runtime enemy', 'Runtime Enemy', 'Runtime Enemy', 'Runtime Enemy', 12, 0, 0, 0, 0, 1, 0, 0, 'elite'),
     -- Shares a display name with 'character:fixture enemy' but drops something
     -- else and lives in another scene. 39 map-visible names in the real data are
     -- worn by more than one character, and 22 of those disagree on loot, so
     -- resolving a live NPC by name alone has to cope with this.
-    ('character:fixture enemy twin', 'Fixture Enemy', 'Fixture Enemy', 'Fixture Enemy', 7, 0, 0, 0, 0, 0, 1, 0);
+    ('character:fixture enemy twin', 'Fixture Enemy', 'Fixture Enemy', 'Fixture Enemy', 7, 0, 0, 0, 0, 0, 1, 0, 'boss');
 
 INSERT INTO character_deduplications (group_key, member_stable_key, is_map_visible) VALUES
     ('character-group:breena', 'character:breena carpenter', 1),

@@ -13,16 +13,17 @@
     import type { EntityData } from '$lib/map/live/types';
     import { getSelectionBorderColor } from '$lib/types/selection';
     import { calculateTooltipPosition } from '$lib/utils/tooltip';
-    import { Rarity } from '$lib/map-markers';
+    import { compareEncounterTier, resolveLiveEncounterTier, type EnemyTier } from '$lib/map-markers';
 
     interface Props {
         selection: Selection;
         x: number;
         y: number;
         zoneName: string;
+        encounterTierByName: ReadonlyMap<string, EnemyTier>;
     }
 
-    let { selection, x, y, zoneName }: Props = $props();
+    let { selection, x, y, zoneName, encounterTierByName }: Props = $props();
 
     // Track tooltip dimensions for positioning
     let tooltipRef: HTMLDivElement | null = $state(null);
@@ -42,14 +43,14 @@
     function getBorderColorClass(): string {
         if (!selection) return 'border-l-gray-500';
         if (selection.type !== 'marker') {
-            return getSelectionBorderColor(selection);
+            return getSelectionBorderColor(selection, encounterTierByName);
         }
         const marker = selection.marker;
         switch (marker.category) {
             case 'enemy': {
                 const m = marker as WorldEnemy;
-                if (m.isUnique) return 'border-l-violet-700';
-                if (m.isRare) return 'border-l-rose-600';
+                if (m.encounterTier === 'boss') return 'border-l-violet-700';
+                if (m.encounterTier === 'elite') return 'border-l-rose-600';
                 return 'border-l-amber-600';
             }
             case 'npc':
@@ -98,34 +99,29 @@
             return { name: 'Empty Spawn', detail: '' };
         }
 
-        // Sort by rarity: unique > rare > common
-        const sorted = [...chars].sort((a, b) => a.effectiveRarity - b.effectiveRarity);
-
-        const rarest = sorted[0];
-        const rarestRarity =
-            rarest.effectiveRarity === Rarity.unique
-                ? 'Unique'
-                : rarest.effectiveRarity === Rarity.rare
-                  ? 'Rare'
-                  : '';
+        const sorted = [...chars].sort((a, b) => compareEncounterTier(a.encounterTier, b.encounterTier));
+        const mostNotable = sorted[0];
+        const tierLabel = mostNotable.encounterTier === 'boss'
+            ? 'Boss'
+            : mostNotable.encounterTier === 'elite' ? 'Elite' : '';
         const respawn = formatRespawnTime(m.spawnDelay);
         const night = m.isNightSpawn ? '🌙 23:00-7:00' : '';
         const warning = !m.isEnabled ? '(Initially) Disabled' : undefined;
 
         if (chars.length === 1) {
-            const parts = [rarestRarity, night, respawn].filter(Boolean);
+            const parts = [tierLabel, night, respawn].filter(Boolean);
             return {
-                name: rarest.name,
+                name: mostNotable.name,
                 detail: parts.join(' • '),
                 warning
             };
         }
 
-        // Multiple enemies - show rarest + count
+        // Multiple enemies: show the most notable tier and count.
         const others = chars.length - 1;
-        const parts = [rarestRarity, `+${others} more`, night, respawn].filter(Boolean);
+        const parts = [tierLabel, `+${others} more`, night, respawn].filter(Boolean);
         return {
-            name: rarest.name,
+            name: mostNotable.name,
             detail: parts.join(' • '),
             warning
         };
@@ -230,9 +226,8 @@
             }
             case 'npc_enemy': {
                 const parts = ['Enemy', level];
-                if (entity.rarity && entity.rarity !== 'common') {
-                    parts.push(entity.rarity.charAt(0).toUpperCase() + entity.rarity.slice(1));
-                }
+                const tier = resolveLiveEncounterTier(entity, encounterTierByName);
+                if (tier !== 'enemy') parts.push(tier === 'boss' ? 'Boss' : 'Elite');
                 return { name: entity.name, detail: parts.filter(Boolean).join(' • ') };
             }
             default:

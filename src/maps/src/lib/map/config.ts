@@ -22,8 +22,8 @@ export const SIDEBAR_WIDTH = {
 export const LAYER_COLORS = {
     // Enemies (static spawn points - muted warm colors)
     enemy: [217, 119, 6] as [number, number, number], // amber-600 (common spawn)
-    'enemy-rare': [225, 29, 72] as [number, number, number], // rose-600 (rare spawn)
-    'enemy-unique': [109, 40, 217] as [number, number, number], // violet-700 (unique spawn)
+    'enemy-elite': [225, 29, 72] as [number, number, number], // rose-600 (rare spawn)
+    'enemy-boss': [109, 40, 217] as [number, number, number], // violet-700 (unique spawn)
     // NPCs (friendly characters)
     npc: [14, 165, 233] as [number, number, number], // sky-500
     // Zone connections
@@ -48,8 +48,8 @@ export const LAYER_COLORS = {
     'simplayer-live': [6, 182, 212] as [number, number, number], // cyan-500 - ALLY
     'pet-live': [217, 70, 239] as [number, number, number], // fuchsia-500 - COMPANION
     'npc-friendly-live': [16, 185, 129] as [number, number, number], // emerald-500 - FRIENDLY
-    'enemy-common-live': [249, 115, 22] as [number, number, number], // orange-500 - THREAT
-    'enemy-rare-live': [239, 68, 68] as [number, number, number], // red-500 - HIGH THREAT
+    'enemy-live': [249, 115, 22] as [number, number, number], // orange-500 - THREAT
+    'enemy-elite-live': [239, 68, 68] as [number, number, number], // red-500 - HIGH THREAT
     'enemy-boss-live': [24, 24, 27] as [number, number, number] // zinc-900 - BOSS (iconic black)
 } as const;
 
@@ -122,8 +122,8 @@ export const MARKER_BORDER_COLORS: Record<string, string> = {
     'achievement-trigger': 'border-l-rose-500',
     door: 'border-l-amber-700',
     enemy: 'border-l-amber-600',
-    'enemy-rare': 'border-l-rose-600',
-    'enemy-unique': 'border-l-violet-700',
+    'enemy-elite': 'border-l-rose-600',
+    'enemy-boss': 'border-l-violet-700',
     forge: 'border-l-orange-500',
     'item-bag': 'border-l-yellow-500',
     'mining-node': 'border-l-gray-400',

@@ -5,7 +5,7 @@
  * represents ALL spawn points across all zones where that character can appear.
  */
 
-import { Rarity } from '$lib/map-markers';
+import { mostNotableEnemyTier } from '$lib/map-markers';
 import type { UnlocatedEnemy } from '$lib/map-markers';
 import type { WorldEnemy } from '$lib/types/world-map';
 import type {
@@ -26,18 +26,19 @@ export class EnemySearchProvider implements SearchProvider {
     readonly unlocatedByName: Map<string, UnlocatedEnemy[]>;
 
     constructor(
-        enemiesCommon: WorldEnemy[],
-        enemiesRare: WorldEnemy[],
-        enemiesUnique: WorldEnemy[],
+        enemiesEnemy: WorldEnemy[],
+        enemiesElite: WorldEnemy[],
+        enemiesBoss: WorldEnemy[],
         unlocatedEnemies: UnlocatedEnemy[]
     ) {
         this.enemyByName = new Map();
         this.unlocatedByName = new Map();
 
-        for (const enemies of [enemiesCommon, enemiesRare, enemiesUnique]) {
+        for (const enemies of [enemiesEnemy, enemiesElite, enemiesBoss]) {
             for (const marker of enemies) {
                 const seen = new Set<string>();
                 for (const char of marker.characters) {
+                    if (char.encounterTier === 'npc') continue;
                     if (seen.has(char.name)) continue;
                     seen.add(char.name);
                     const existing = this.enemyByName.get(char.name);
@@ -62,19 +63,13 @@ export class EnemySearchProvider implements SearchProvider {
         if (markers.length > 0) {
             const zones = new Set(markers.map((marker) => marker.zone));
             const characters = markers.flatMap((marker) =>
-                marker.characters.filter((character) => character.name === name)
+                marker.characters.filter((character) => character.name === name && character.encounterTier !== 'npc')
             );
-            const effectiveRarity = characters.some(
-                (character) => character.effectiveRarity === Rarity.unique
-            )
-                ? Rarity.unique
-                : characters.some((character) => character.effectiveRarity === Rarity.rare)
-                  ? Rarity.rare
-                  : Rarity.common;
+            const encounterTier = mostNotableEnemyTier(characters);
             return {
                 type: 'enemy',
                 name,
-                effectiveRarity,
+                encounterTier,
                 spawnCount: markers.length,
                 zoneCount: zones.size
             };
@@ -82,15 +77,11 @@ export class EnemySearchProvider implements SearchProvider {
 
         const unlocated = this.unlocatedByName.get(name) ?? [];
         if (unlocated.length === 0) return null;
-        const effectiveRarity = unlocated.some((enemy) => enemy.effectiveRarity === Rarity.unique)
-            ? Rarity.unique
-            : unlocated.some((enemy) => enemy.effectiveRarity === Rarity.rare)
-              ? Rarity.rare
-              : Rarity.common;
+        const encounterTier = mostNotableEnemyTier(unlocated);
         return {
             type: 'enemy',
             name,
-            effectiveRarity,
+            encounterTier,
             spawnCount: 0,
             zoneCount: 0
         };

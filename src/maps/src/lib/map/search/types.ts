@@ -5,7 +5,7 @@
  * implements a provider that builds index entries and resolves highlights.
  */
 
-import type { Rarity } from '$lib/map-markers';
+import type { EnemyTier } from '$lib/map-markers';
 import type { ZoneWorldPosition } from '$lib/types/world-map';
 
 // =============================================================================
@@ -15,7 +15,7 @@ import type { ZoneWorldPosition } from '$lib/types/world-map';
 export type EnemySearchResult = {
     type: 'enemy';
     name: string;
-    effectiveRarity: Rarity;
+    encounterTier: EnemyTier;
     spawnCount: number;
     zoneCount: number;
 };

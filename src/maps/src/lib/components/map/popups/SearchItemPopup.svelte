@@ -328,16 +328,16 @@
                                 <div class="min-w-0 flex-1">
                                     <div class="flex flex-wrap items-center gap-x-1.5 text-zinc-300">
                                         <span class="truncate">{dropper.row.npcName}</span>
-                                        {#if dropper.row.isUnique}
+                                        {#if dropper.row.encounterTier === 'boss'}
                                             <span
                                                 class="rounded px-1 py-0.5 text-[10px]
                                                        bg-amber-900/50 text-amber-300"
-                                            >Unique</span>
-                                        {:else if dropper.row.isRare}
+                                            >Boss</span>
+                                        {:else if dropper.row.encounterTier === 'elite'}
                                             <span
                                                 class="rounded px-1 py-0.5 text-[10px]
                                                        bg-indigo-900/50 text-indigo-300"
-                                            >Rare</span>
+                                            >Elite</span>
                                         {/if}
                                     </div>
                                     <div class="flex flex-wrap items-center gap-x-1 text-zinc-500">

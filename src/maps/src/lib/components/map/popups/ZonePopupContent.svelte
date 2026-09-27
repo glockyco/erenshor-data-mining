@@ -30,12 +30,12 @@
         <div class="text-sm text-zinc-400">No enemies in this zone.</div>
     {/if}
 
-    <!-- Unique Enemies -->
-    {#if enemyInfo && enemyInfo.uniques.length > 0}
+    <!-- Bosses -->
+    {#if enemyInfo && enemyInfo.bosses.length > 0}
         <div class="rounded bg-zinc-800 p-3">
-            <div class="text-xs text-zinc-500 uppercase tracking-wide mb-2">Uniques</div>
+            <div class="text-xs text-zinc-500 uppercase tracking-wide mb-2">Bosses</div>
             <div class="space-y-1.5">
-                {#each enemyInfo.uniques as enemy, i (i)}
+                {#each enemyInfo.bosses as enemy, i (i)}
                     <div class="flex items-center justify-between gap-2 text-sm">
                         <span class="text-zinc-300 truncate min-w-0">{enemy.name}</span>
                         <div class="flex items-center gap-2 shrink-0">
@@ -48,12 +48,12 @@
         </div>
     {/if}
 
-    <!-- Rare Enemies -->
-    {#if enemyInfo && enemyInfo.rares.length > 0}
+    <!-- Elites -->
+    {#if enemyInfo && enemyInfo.elites.length > 0}
         <div class="rounded bg-zinc-800 p-3">
-            <div class="text-xs text-zinc-500 uppercase tracking-wide mb-2">Rares</div>
+            <div class="text-xs text-zinc-500 uppercase tracking-wide mb-2">Elites</div>
             <div class="space-y-1.5">
-                {#each enemyInfo.rares as enemy, i (i)}
+                {#each enemyInfo.elites as enemy, i (i)}
                     <div class="flex items-center justify-between gap-2 text-sm">
                         <span class="text-zinc-300 truncate min-w-0">{enemy.name}</span>
                         <div class="flex items-center gap-2 shrink-0">

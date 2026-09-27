@@ -1,6 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-import { Rarity } from './map-markers';
 import { getMapsDatabasePath } from './database-path.server';
 import { Repository } from './database.node';
 import { MAPS } from './maps';
@@ -62,8 +61,8 @@ describe('Repository', () => {
 	it('loads deterministic enemy and popup data for the fixture zone', async () => {
 		expect(await db.getZoneEnemyInfo(DETAIL_ZONE)).toEqual({
 			levelRange: { min: 7, max: 7 },
-			uniques: [{ name: 'Fixture Enemy', wikiPageName: 'Fixture Enemy', level: 7 }],
-			rares: []
+			bosses: [{ name: 'Fixture Enemy', wikiPageName: 'Fixture Enemy', level: 7 }],
+			elites: []
 		});
 		expect(await db.getCharactersByName('Fixture Enemy', DETAIL_ZONE)).toEqual([
 			{ stableKey: 'character:fixture enemy', inScene: true },
@@ -143,7 +142,7 @@ describe('Repository', () => {
 				name: 'Runtime Enemy',
 				wikiPageName: 'Runtime Enemy',
 				level: 12,
-				effectiveRarity: Rarity.rare
+				encounterTier: 'elite'
 			}
 		]);
 	});
@@ -170,6 +169,11 @@ describe('Repository', () => {
 			kind: 'vendor',
 			characterStableKey: 'character:breena carpenter'
 		});
+		expect(
+			sources.find(
+				(source) => source.kind === 'drop' && source.characterStableKey === 'character:fixture enemy'
+			)
+		).toMatchObject({ kind: 'drop', encounterTier: 'boss' });
 		expect(await db.getVendorItems('character:breena carpenter')).toEqual([
 			{ name: 'Enchanted Smithy', price: 250 }
 		]);

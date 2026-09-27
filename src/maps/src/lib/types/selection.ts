@@ -1,4 +1,4 @@
-import { Rarity } from '$lib/map-markers';
+import { resolveLiveEncounterTier, type EnemyTier } from '$lib/map-markers';
 import type { AnyWorldMarker, WorldEnemy, WorldNpc, ZoneWorldPosition, ZoneConfig } from './world-map';
 import type { EntityData } from '$lib/map/live/types';
 import type { SearchResult } from '$lib/map/search';
@@ -113,7 +113,7 @@ export function getSelectionZone(selection: Selection): string | null {
 /**
  * Get border color for selection.
  */
-export function getSelectionBorderColor(selection: Selection): string {
+export function getSelectionBorderColor(selection: Selection, encounterTierByName: ReadonlyMap<string, EnemyTier>): string {
     if (!selection) return 'border-l-gray-400';
 
     switch (selection.type) {
@@ -122,7 +122,7 @@ export function getSelectionBorderColor(selection: Selection): string {
         case 'marker-group':
             return selection.markers[0] ? getMarkerBorderColor(selection.markers[0]) : 'border-l-gray-500';
         case 'live':
-            return getLiveEntityBorderColor(selection.entity);
+            return getLiveEntityBorderColor(selection.entity, encounterTierByName);
         case 'zone':
             return 'border-l-purple-500';
         case 'search':
@@ -135,8 +135,8 @@ export function getSelectionBorderColor(selection: Selection): string {
 function getSearchBorderColor(result: SearchResult): string {
     switch (result.type) {
         case 'enemy':
-            if (result.effectiveRarity === Rarity.unique) return 'border-l-violet-700';
-            if (result.effectiveRarity === Rarity.rare) return 'border-l-rose-600';
+            if (result.encounterTier === 'boss') return 'border-l-violet-700';
+            if (result.encounterTier === 'elite') return 'border-l-rose-600';
             return 'border-l-amber-600';
         case 'npc':
             return 'border-l-sky-500';
@@ -149,12 +149,8 @@ function getSearchBorderColor(result: SearchResult): string {
 
 function getMarkerBorderColor(marker: AnyWorldMarker): string {
     if (marker.category === 'enemy') {
-        const chars = marker.characters;
-        if (chars.length === 0) return 'border-l-gray-500';
-        const hasUnique = chars.some((c) => c.effectiveRarity === Rarity.unique);
-        const hasRare = chars.some((c) => c.effectiveRarity === Rarity.rare);
-        if (hasUnique) return 'border-l-violet-700';
-        if (hasRare) return 'border-l-rose-600';
+        if (marker.encounterTier === 'boss') return 'border-l-violet-700';
+        if (marker.encounterTier === 'elite') return 'border-l-rose-600';
         return 'border-l-amber-600';
     }
 
@@ -166,7 +162,7 @@ function getMarkerBorderColor(marker: AnyWorldMarker): string {
     return 'border-l-gray-500';
 }
 
-function getLiveEntityBorderColor(entity: EntityData): string {
+function getLiveEntityBorderColor(entity: EntityData, encounterTierByName: ReadonlyMap<string, EnemyTier>): string {
     switch (entity.entityType) {
         case 'player':
             return 'border-l-lime-500';
@@ -177,8 +173,8 @@ function getLiveEntityBorderColor(entity: EntityData): string {
         case 'npc_friendly':
             return 'border-l-emerald-500';
         case 'npc_enemy':
-            if (entity.rarity === 'boss') return 'border-l-zinc-900';
-            if (entity.rarity === 'rare') return 'border-l-red-500';
+            if (resolveLiveEncounterTier(entity, encounterTierByName) === 'boss') return 'border-l-zinc-900';
+            if (resolveLiveEncounterTier(entity, encounterTierByName) === 'elite') return 'border-l-red-500';
             return 'border-l-orange-500';
         default:
             return 'border-l-gray-400';

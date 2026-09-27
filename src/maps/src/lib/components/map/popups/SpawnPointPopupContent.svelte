@@ -1,7 +1,7 @@
 <script lang="ts">
     import { SvelteMap } from 'svelte/reactivity';
     import type { WorldEnemy, WorldNpc, SpawnCharacter } from '$lib/types/world-map';
-    import { Rarity } from '$lib/map-markers';
+    import { compareEncounterTier } from '$lib/map-markers';
     import type { CharacterDrop, VendorItem } from '$lib/map-markers';
     import { getBrowserRepository } from '$lib/database.default';
     import WikiLink from '$lib/components/map/WikiLink.svelte';
@@ -86,23 +86,14 @@
         return price.toLocaleString();
     }
 
-    // Get rarity badge color
-    function getRarityClass(char: SpawnCharacter): string {
-        if (char.effectiveRarity === Rarity.unique) return 'bg-zinc-700 text-zinc-200';
-        if (char.effectiveRarity === Rarity.rare) return 'bg-red-900/50 text-red-300';
+    function getTierClass(char: SpawnCharacter): string {
+        if (char.encounterTier === 'boss') return 'bg-zinc-700 text-zinc-200';
+        if (char.encounterTier === 'elite') return 'bg-red-900/50 text-red-300';
         return 'bg-blue-900/50 text-blue-300';
     }
 
-    // Get rarity label
-    function getRarityLabel(char: SpawnCharacter): string {
-        if (char.effectiveRarity === Rarity.unique) return 'Unique';
-        if (char.effectiveRarity === Rarity.rare) return 'Rare';
-        return 'Common';
-    }
-
-    // Sort characters by rarity (unique > rare > common)
     const sortedCharacters = $derived(
-        [...marker.characters].sort((a, b) => a.effectiveRarity - b.effectiveRarity)
+        [...marker.characters].sort((a, b) => compareEncounterTier(a.encounterTier, b.encounterTier))
     );
 </script>
 
@@ -158,8 +149,8 @@
                         </div>
                     </div>
                     <div class="flex flex-col items-end gap-1 shrink-0">
-                        <span class="rounded px-1.5 py-0.5 text-xs {getRarityClass(char)}">
-                            {getRarityLabel(char)}
+                        <span class="rounded px-1.5 py-0.5 text-xs {getTierClass(char)}">
+                            {char.encounterTier === 'npc' ? 'NPC' : char.encounterTier === 'boss' ? 'Boss' : char.encounterTier === 'elite' ? 'Elite' : 'Enemy'}
                         </span>
                         <WikiLink pageName={char.wikiPageName} />
                     </div>

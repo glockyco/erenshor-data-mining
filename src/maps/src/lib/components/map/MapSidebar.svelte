@@ -74,8 +74,8 @@
         zoneBounds: '#6b7280',
         zoneLabels: '#6b7280',
         spawnPoints: rgbToHex(LAYER_COLORS.enemy),
-        spawnPointsRare: rgbToHex(LAYER_COLORS['enemy-rare']),
-        spawnPointsUnique: rgbToHex(LAYER_COLORS['enemy-unique']),
+        spawnPointsElite: rgbToHex(LAYER_COLORS['enemy-elite']),
+        spawnPointsBoss: rgbToHex(LAYER_COLORS['enemy-boss']),
         characters: rgbToHex(LAYER_COLORS.npc),
         zoneLines: rgbToHex(LAYER_COLORS['zone-line']),
         teleports: rgbToHex(LAYER_COLORS.teleport),
@@ -105,22 +105,22 @@
 
     const enemyToggles: QuickToggle[] = [
         {
-            key: 'spawnPointsUnique',
+            key: 'spawnPointsBoss',
             icon: Skull,
-            color: colors.spawnPointsUnique,
-            label: 'Unique Enemy Spawn Points'
+            color: colors.spawnPointsBoss,
+            label: 'Boss Enemy Spawn Points'
         },
         {
-            key: 'spawnPointsRare',
+            key: 'spawnPointsElite',
             icon: Skull,
-            color: colors.spawnPointsRare,
-            label: 'Rare Enemy Spawn Points'
+            color: colors.spawnPointsElite,
+            label: 'Elite Enemy Spawn Points'
         },
         {
             key: 'spawnPoints',
             icon: Skull,
             color: colors.spawnPoints,
-            label: 'Common Enemy Spawn Points'
+            label: 'Enemy Spawn Points'
         }
     ];
 
@@ -195,19 +195,19 @@
             onchange={onLevelFilterChange}
         />
         <LayerToggle
-            label="Unique"
-            checked={visibility.spawnPointsUnique}
-            color={colors.spawnPointsUnique}
-            onchange={handleToggle('spawnPointsUnique')}
+            label="Boss"
+            checked={visibility.spawnPointsBoss}
+            color={colors.spawnPointsBoss}
+            onchange={handleToggle('spawnPointsBoss')}
         />
         <LayerToggle
-            label="Rare"
-            checked={visibility.spawnPointsRare}
-            color={colors.spawnPointsRare}
-            onchange={handleToggle('spawnPointsRare')}
+            label="Elite"
+            checked={visibility.spawnPointsElite}
+            color={colors.spawnPointsElite}
+            onchange={handleToggle('spawnPointsElite')}
         />
         <LayerToggle
-            label="Common"
+            label="Enemy"
             checked={visibility.spawnPoints}
             color={colors.spawnPoints}
             onchange={handleToggle('spawnPoints')}

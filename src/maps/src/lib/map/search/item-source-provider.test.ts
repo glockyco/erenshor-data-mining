@@ -14,7 +14,6 @@ import type {
     WorldWater,
     WorldItemBag
 } from '$lib/types/world-map';
-import { Rarity } from '$lib/map-markers';
 import { ItemSearchProvider } from './item-source-provider';
 import type { ItemSearchResult } from './types';
 
@@ -47,10 +46,7 @@ function makeEnemy(
                 spawnChance: 100,
                 sourceScript: null,
                 eventPosition: null,
-                isCommon: true,
-                isRare: false,
-                isUnique: false,
-                effectiveRarity: Rarity.common,
+                encounterTier: 'enemy',
                 isFriendly: false,
                 isInvulnerable: false,
                 isVendor: false,
@@ -81,10 +77,7 @@ function makeNpc(
                 spawnChance: 100,
                 sourceScript: null,
                 eventPosition: null,
-                isCommon: true,
-                isRare: false,
-                isUnique: false,
-                effectiveRarity: Rarity.common,
+                encounterTier: 'npc',
                 isFriendly: true,
                 isInvulnerable: false,
                 isVendor: false,
@@ -110,8 +103,7 @@ function row(
         iconName: null,
         characterStableKey: charStableKey,
         npcName,
-        isRare: false,
-        isUnique: false,
+        encounterTier: 'enemy',
         dropProbability,
         ...opts
     };
@@ -493,8 +485,8 @@ describe('ItemSearchProvider', () => {
 
     it('getMarkersForItem and getSourcesForItem return data for the item', () => {
         const rows = [
-            row('item:1', 'Gem', 'char:1', 'Goblin', 5, { isRare: true }),
-            row('item:1', 'Gem', 'char:2', 'Orc', 30, { isUnique: true })
+            row('item:1', 'Gem', 'char:1', 'Goblin', 5, { encounterTier: 'elite' }),
+            row('item:1', 'Gem', 'char:2', 'Orc', 30, { encounterTier: 'boss' })
         ];
         const provider = new ItemSearchProvider(rows, [
             makeEnemy('sp:1', 'Duskenlight', 'Duskenlight', 'char:1', 'Goblin'),
