@@ -24,6 +24,7 @@ from rich.panel import Panel
 from erenshor.application.maps import build_info
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import database_exists, database_has_items, database_valid
+from erenshor.cli.preconditions.checks.inputs import program_available, required_path
 from erenshor.cli.preconditions.checks.maps import (
     build_exists,
     build_matches_inputs,
@@ -89,16 +90,6 @@ def _run(cmd: list[str], cwd: Path, *, env: dict[str, str] | None = None) -> Non
         raise typer.Exit(result.returncode)
 
 
-def _check_pnpm_available() -> bool:
-    """Check if pnpm is available in PATH."""
-    return shutil.which("pnpm") is not None
-
-
-def _check_node_modules(maps_dir: Path) -> bool:
-    """Check if node_modules directory exists."""
-    return (maps_dir / "node_modules").exists()
-
-
 def _get_database_path(cli_ctx: CLIContext) -> Path:
     """Get the variant database path."""
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
@@ -142,6 +133,14 @@ class DatabaseLinkTransaction:
 
 
 @app.command()
+@require_preconditions(
+    database_exists,
+    database_valid,
+    database_has_items,
+    program_available("pnpm"),
+    required_path("maps_source_dir", kind="directory"),
+    required_path("maps_source_dir", "node_modules", kind="directory"),
+)
 def dev(
     ctx: typer.Context,
     port: int = typer.Option(
@@ -158,39 +157,12 @@ def dev(
     """
     cli_ctx: CLIContext = ctx.obj
 
-    # Check pnpm availability
-    if not _check_pnpm_available():
-        console.print("[red]Error: pnpm not found in PATH[/red]")
-        console.print("\nPlease install pnpm:")
-        console.print("  https://pnpm.io/installation")
-        raise typer.Exit(1)
-
     # Get paths
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
     maps_dir = variant_config.maps.resolved_source_dir(cli_ctx.repo_root)
     maps_db_dir = variant_config.maps.resolved_database_dir(cli_ctx.repo_root)
     db_path = _get_database_path(cli_ctx)
     maps_db_path = _get_maps_db_path(cli_ctx)
-
-    # Check maps directory
-    if not maps_dir.exists():
-        console.print(f"[red]Error: Maps directory not found: {maps_dir}[/red]")
-        raise typer.Exit(1)
-
-    # Check node_modules
-    if not _check_node_modules(maps_dir):
-        console.print("[yellow]Warning: node_modules not found[/yellow]")
-        console.print("\nPlease install dependencies first:")
-        console.print(f"  cd {maps_dir}")
-        console.print("  pnpm install")
-        raise typer.Exit(1)
-
-    # Check database exists
-    if not db_path.exists():
-        console.print(f"[red]Error: Database not found: {db_path}[/red]")
-        console.print("\nPlease export the database first:")
-        console.print(f"  erenshor -V {cli_ctx.variant} export")
-        raise typer.Exit(1)
 
     # Ensure maps db directory exists
     maps_db_dir.mkdir(parents=True, exist_ok=True)
@@ -255,7 +227,13 @@ def dev(
 
 
 @app.command()
-@require_preconditions(build_exists, build_matches_inputs)
+@require_preconditions(
+    build_exists,
+    build_matches_inputs,
+    program_available("pnpm"),
+    required_path("maps_source_dir", kind="directory"),
+    required_path("maps_source_dir", "node_modules", kind="directory"),
+)
 def preview(
     ctx: typer.Context,
     port: int = typer.Option(
@@ -272,29 +250,10 @@ def preview(
     """
     cli_ctx: CLIContext = ctx.obj
 
-    # Check pnpm availability
-    if not _check_pnpm_available():
-        console.print("[red]Error: pnpm not found in PATH[/red]")
-        console.print("\nPlease install pnpm:")
-        console.print("  https://pnpm.io/installation")
-        raise typer.Exit(1)
-
     # Get paths
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
     maps_dir = variant_config.maps.resolved_source_dir(cli_ctx.repo_root)
     build_dir = variant_config.maps.resolved_build_dir(cli_ctx.repo_root)
-
-    # Check maps directory
-    if not maps_dir.exists():
-        console.print(f"[red]Error: Maps directory not found: {maps_dir}[/red]")
-        raise typer.Exit(1)
-
-    # Check build exists
-    if not build_dir.exists():
-        console.print(f"[red]Error: Build directory not found: {build_dir}[/red]")
-        console.print("\nPlease build the site first:")
-        console.print(f"  erenshor -V {cli_ctx.variant} maps build")
-        raise typer.Exit(1)
 
     # Show info panel
     console.print()
@@ -339,33 +298,31 @@ def _run_checks(maps_dir: Path) -> None:
 
 
 @app.command()
+@require_preconditions(
+    program_available("pnpm"),
+    required_path("maps_source_dir", kind="directory"),
+    required_path("maps_source_dir", "node_modules", kind="directory"),
+)
 def check(ctx: typer.Context) -> None:
     """Run lint, Svelte diagnostics, and fixture-backed Vitest tests."""
     cli_ctx: CLIContext = ctx.obj
 
-    if not _check_pnpm_available():
-        console.print("[red]Error: pnpm not found in PATH[/red]")
-        console.print("\nPlease install pnpm:")
-        console.print("  https://pnpm.io/installation")
-        raise typer.Exit(1)
-
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
     maps_dir = variant_config.maps.resolved_source_dir(cli_ctx.repo_root)
-    if not maps_dir.exists():
-        console.print(f"[red]Error: Maps directory not found: {maps_dir}[/red]")
-        raise typer.Exit(1)
-    if not _check_node_modules(maps_dir):
-        console.print("[yellow]Warning: node_modules not found[/yellow]")
-        console.print("\nPlease install dependencies first:")
-        console.print(f"  cd {maps_dir}")
-        console.print("  pnpm install")
-        raise typer.Exit(1)
 
     _run_checks(maps_dir)
 
 
 @app.command()
-@require_preconditions(database_exists, database_valid, database_has_items)
+@require_preconditions(
+    database_exists,
+    database_valid,
+    database_has_items,
+    program_available("pnpm"),
+    program_available("node"),
+    required_path("maps_source_dir", kind="directory"),
+    required_path("maps_source_dir", "node_modules", kind="directory"),
+)
 def build(
     ctx: typer.Context,
     skip_checks: Annotated[
@@ -385,13 +342,6 @@ def build(
     """
     cli_ctx: CLIContext = ctx.obj
 
-    # Check pnpm availability
-    if not _check_pnpm_available():
-        console.print("[red]Error: pnpm not found in PATH[/red]")
-        console.print("\nPlease install pnpm:")
-        console.print("  https://pnpm.io/installation")
-        raise typer.Exit(1)
-
     # Get paths
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
     maps_dir = variant_config.maps.resolved_source_dir(cli_ctx.repo_root)
@@ -399,26 +349,6 @@ def build(
     build_dir = variant_config.maps.resolved_build_dir(cli_ctx.repo_root)
     db_path = _get_database_path(cli_ctx)
     maps_db_path = _get_maps_db_path(cli_ctx)
-
-    # Check maps directory
-    if not maps_dir.exists():
-        console.print(f"[red]Error: Maps directory not found: {maps_dir}[/red]")
-        raise typer.Exit(1)
-
-    # Check node_modules
-    if not _check_node_modules(maps_dir):
-        console.print("[yellow]Warning: node_modules not found[/yellow]")
-        console.print("\nPlease install dependencies first:")
-        console.print(f"  cd {maps_dir}")
-        console.print("  pnpm install")
-        raise typer.Exit(1)
-
-    # Check database exists
-    if not db_path.exists():
-        console.print(f"[red]Error: Database not found: {db_path}[/red]")
-        console.print("\nPlease export the database first:")
-        console.print(f"  erenshor -V {cli_ctx.variant} export")
-        raise typer.Exit(1)
 
     try:
         build_info.validate_tile_files(maps_dir)
@@ -492,7 +422,14 @@ def build(
 
 
 @app.command()
-@require_preconditions(build_exists, build_matches_inputs, cloudflare_auth_configured)
+@require_preconditions(
+    build_exists,
+    build_matches_inputs,
+    cloudflare_auth_configured,
+    program_available("pnpm"),
+    required_path("maps_source_dir", kind="directory"),
+    required_path("maps_source_dir", "node_modules", kind="directory"),
+)
 def deploy(
     ctx: typer.Context,
     target: Annotated[
@@ -516,29 +453,10 @@ def deploy(
     """
     cli_ctx: CLIContext = ctx.obj
 
-    # Check pnpm availability
-    if not _check_pnpm_available():
-        console.print("[red]Error: pnpm not found in PATH[/red]")
-        console.print("\nPlease install pnpm:")
-        console.print("  https://pnpm.io/installation")
-        raise typer.Exit(1)
-
     # Get paths
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
     maps_dir = variant_config.maps.resolved_source_dir(cli_ctx.repo_root)
     build_dir = variant_config.maps.resolved_build_dir(cli_ctx.repo_root)
-
-    # Check maps directory
-    if not maps_dir.exists():
-        console.print(f"[red]Error: Maps directory not found: {maps_dir}[/red]")
-        raise typer.Exit(1)
-
-    # Check build exists
-    if not build_dir.exists():
-        console.print(f"[red]Error: Build directory not found: {build_dir}[/red]")
-        console.print("\nPlease build the site first:")
-        console.print(f"  erenshor -V {cli_ctx.variant} maps build")
-        raise typer.Exit(1)
 
     targets = DEPLOY_ORDER if target is DeployTarget.ALL else (target.value,)
 
@@ -590,6 +508,11 @@ def deploy(
 
 
 @app.command()
+@require_preconditions(
+    program_available("node"),
+    required_path("maps_source_dir", kind="directory"),
+    required_path("maps_source_dir", "node_modules", kind="directory"),
+)
 def thumbnails(
     ctx: typer.Context,
     zones: list[str] = typer.Option(
@@ -614,10 +537,6 @@ def thumbnails(
     cli_ctx: CLIContext = ctx.obj
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
     maps_dir = variant_config.maps.resolved_source_dir(cli_ctx.repo_root)
-
-    if not _check_node_modules(maps_dir):
-        console.print("[yellow]Error: node_modules not found. Run pnpm install first.[/yellow]")
-        raise typer.Exit(1)
 
     env = os.environ.copy()
     env["MAPS_URL"] = url

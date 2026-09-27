@@ -88,6 +88,22 @@ def _ctx(tmp_path: Path, maps_dir: Path, database_path: Path, *, dry_run: bool =
     return SimpleNamespace(obj=cli_context)
 
 
+def test_dev_requires_dependencies_before_linking_database(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    maps_dir, database_path = _write_project(tmp_path)
+    (maps_dir / "node_modules").rmdir()
+    ctx = _ctx(tmp_path, maps_dir, database_path)
+    monkeypatch.setattr(maps.subprocess, "Popen", lambda *_args, **_kwargs: pytest.fail("started server"))
+
+    with pytest.raises(typer.Exit) as error:
+        maps.dev(ctx)
+
+    assert error.value.exit_code == 1
+    assert "node_modules" in capsys.readouterr().out
+    assert not (maps_dir / "static/db/erenshor.sqlite").exists()
+
+
 def test_build_links_database_runs_verify_prebuild_then_build_and_restores_link(
     tmp_path: Path, monkeypatch: Any
 ) -> None:
@@ -107,7 +123,6 @@ def test_build_links_database_runs_verify_prebuild_then_build_and_restores_link(
         environments.append(kwargs.get("env"))
         return subprocess.CompletedProcess(args=args, returncode=0)
 
-    monkeypatch.setattr(maps, "_check_pnpm_available", lambda: True)
     monkeypatch.setattr("erenshor.cli.commands.maps.subprocess.run", fake_run)
 
     maps.build(ctx)
@@ -141,7 +156,6 @@ def test_build_restores_link_when_vite_build_fails(tmp_path: Path, monkeypatch: 
         returncode = 1 if args[:3] == ["pnpm", "exec", "vite"] else 0
         return subprocess.CompletedProcess(args=args, returncode=returncode)
 
-    monkeypatch.setattr(maps, "_check_pnpm_available", lambda: True)
     monkeypatch.setattr("erenshor.cli.commands.maps.subprocess.run", fake_run)
 
     with pytest.raises(typer.Exit):
@@ -161,7 +175,6 @@ def test_build_refuses_missing_tiles_before_frontend_checks(tmp_path: Path, monk
         calls.append(args)
         return subprocess.CompletedProcess(args=args, returncode=0)
 
-    monkeypatch.setattr(maps, "_check_pnpm_available", lambda: True)
     monkeypatch.setattr("erenshor.cli.commands.maps.subprocess.run", fake_run)
 
     with pytest.raises(typer.Exit):
@@ -183,7 +196,6 @@ def test_build_generates_missing_manifest_from_captured_tiles(tmp_path: Path, mo
             manifest_path.write_text('{"zoom_levels": {"0": {"tiles": ["/tiles/TestZone/-1/0/0.webp"], "count": 1}}}\n')
         return subprocess.CompletedProcess(args=args, returncode=0)
 
-    monkeypatch.setattr(maps, "_check_pnpm_available", lambda: True)
     monkeypatch.setattr("erenshor.cli.commands.maps.subprocess.run", fake_run)
 
     maps.build(ctx, skip_checks=True)
@@ -201,7 +213,6 @@ def test_check_runs_only_deterministic_frontend_checks(tmp_path: Path, monkeypat
         calls.append(args)
         return subprocess.CompletedProcess(args=args, returncode=0)
 
-    monkeypatch.setattr(maps, "_check_pnpm_available", lambda: True)
     monkeypatch.setattr("erenshor.cli.commands.maps.subprocess.run", fake_run)
 
     maps.check(ctx)
@@ -218,7 +229,6 @@ def test_build_can_reuse_completed_checks_without_repeating_them(tmp_path: Path,
         calls.append(args)
         return subprocess.CompletedProcess(args=args, returncode=0)
 
-    monkeypatch.setattr(maps, "_check_pnpm_available", lambda: True)
     monkeypatch.setattr("erenshor.cli.commands.maps.subprocess.run", fake_run)
 
     maps.build(ctx, skip_checks=True)
@@ -245,7 +255,6 @@ def test_preview_uses_vite_directly_for_fresh_build(tmp_path: Path, monkeypatch:
         calls.append(args)
         return subprocess.CompletedProcess(args=args, returncode=0)
 
-    monkeypatch.setattr(maps, "_check_pnpm_available", lambda: True)
     monkeypatch.setattr("erenshor.cli.commands.maps.subprocess.run", fake_run)
 
     maps.preview(ctx, port=4174)
@@ -269,7 +278,6 @@ def _ready_to_deploy(tmp_path: Path, monkeypatch: Any, *, dry_run: bool = False)
         return subprocess.CompletedProcess(args=args, returncode=0)
 
     monkeypatch.setenv("CLOUDFLARE_API_TOKEN", "token")
-    monkeypatch.setattr(maps, "_check_pnpm_available", lambda: True)
     monkeypatch.setattr("erenshor.cli.commands.maps.subprocess.run", fake_run)
     return ctx, calls
 
@@ -441,8 +449,6 @@ def _run_dev_lifecycle(
     target.symlink_to(prior)
     process = _FakeDevProcess(outcome)
     signals: list[tuple[int, int]] = []
-    monkeypatch.setattr(maps, "_check_pnpm_available", lambda: True)
-    monkeypatch.setattr(maps, "_check_node_modules", lambda _path: True)
     monkeypatch.setattr(maps.subprocess, "Popen", lambda *_args, **_kwargs: process)
     monkeypatch.setattr(maps.signal, "signal", lambda *_args: maps.signal.SIG_DFL)
 
@@ -492,8 +498,6 @@ def test_maps_dev_treats_signal_shutdown_as_expected(tmp_path: Path, monkeypatch
             return int(self.returncode or 0)
 
     process = SignalProcess(0)
-    monkeypatch.setattr(maps, "_check_pnpm_available", lambda: True)
-    monkeypatch.setattr(maps, "_check_node_modules", lambda _path: True)
     monkeypatch.setattr(maps.subprocess, "Popen", lambda *_args, **_kwargs: process)
 
     def install_handler(sig: maps.signal.Signals, handler: Any) -> maps.signal.Handlers:
