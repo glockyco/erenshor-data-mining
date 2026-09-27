@@ -529,9 +529,9 @@ def build(ctx: typer.Context) -> None:
 
     Reads the raw SQLite database produced by 'extract export', applies
     mapping.json overrides, filters excluded entities and SimPlayers,
-    deduplicates identical characters, recomputes IsUnique per display
-    name group, and writes the clean database consumed by wiki, sheets,
-    and map. The clean database is then added to the backup of the game
+    deduplicates identical characters, computes one encounter tier per
+    deduplication group, and writes the clean database consumed by wiki,
+    sheets, and map. The clean database is then added to the backup of the game
     build it records, so 'extract changes' can compare later builds with it.
 
     Does not require a fresh 'extract export' — re-running 'extract build'

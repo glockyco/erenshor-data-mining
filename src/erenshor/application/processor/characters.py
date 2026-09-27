@@ -228,26 +228,6 @@ def _derive_encounter_tier(members: list[_CharData]) -> str:
     return "boss" if len(placements) == 1 else "enemy"
 
 
-def _derive_group_rarity(members: list[_CharData]) -> tuple[int, int]:
-    """Derive unique/rare flags without counting event summons as placements."""
-    ordinary_spawns = [
-        spawn
-        for member in members
-        for spawn in member.spawns
-        if spawn.spawn_point_stable_key is not None and spawn.source_script is None
-    ]
-    if ordinary_spawns:
-        is_unique = int(len(ordinary_spawns) == 1)
-        any_common = any(bool(spawn.is_common) for spawn in ordinary_spawns)
-        any_rare = any(bool(spawn.is_rare) for spawn in ordinary_spawns)
-    else:
-        is_unique = int(any(bool(member.char.raw.get("IsUnique")) for member in members))
-        any_common = any(bool(member.char.raw.get("IsCommon")) for member in members)
-        any_rare = any(bool(member.char.raw.get("IsRare")) for member in members)
-    is_rare = int(any_rare and not any_common)
-    return is_unique, is_rare
-
-
 def _load_rows(conn: sqlite3.Connection, sql: str, params: tuple[object, ...] = ()) -> list[dict[str, object]]:
     cur = conn.execute(sql, params)
     cols = [d[0] for d in cur.description]
@@ -792,11 +772,8 @@ def process_characters(
 
         tier = _derive_encounter_tier(members)
         tier_counts[tier] += 1
-        is_unique, is_rare = _derive_group_rarity(members)
         for m in members:
             m.char.raw["EncounterTier"] = tier
-            m.char.raw["IsUnique"] = is_unique
-            m.char.raw["IsRare"] = is_rare
 
     logger.info(f"Characters: encounter tiers per group {dict(sorted(tier_counts.items()))}")
 
@@ -827,9 +804,6 @@ def process_characters(
             "aggressive_towards": r.get("AggressiveTowards"),
             "allies": r.get("Allies"),
             "is_prefab": r.get("IsPrefab"),
-            "is_common": r.get("IsCommon"),
-            "is_rare": r.get("IsRare"),
-            "is_unique": r.get("IsUnique"),
             "encounter_tier": r["EncounterTier"],
             "is_friendly": r.get("IsFriendly"),
             "is_npc": r.get("IsNPC"),
