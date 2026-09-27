@@ -54,7 +54,8 @@ def test_rip_workflow_replaces_project_and_prepares_outputs(tmp_path: Path) -> N
     ripper = FakeAssetRipper()
     result = RipWorkflow(ripper).run(request)
 
-    assert ripper.calls == [(request.source_dir, request.unity_project_dir, request.logs_dir)]
+    assert ripper.calls == [(request.source_dir, _staging_dir(request), request.logs_dir)]
+    assert not _staging_dir(request).exists()
     assert not (request.unity_project_dir / "old-marker").exists()
     assert (request.unity_project_dir / "ExportedProject" / "Assets" / "Editor").is_symlink()
     assert (
@@ -72,18 +73,74 @@ def test_rip_workflow_replaces_project_and_prepares_outputs(tmp_path: Path) -> N
     assert not list(request.unity_project_dir.rglob("*.tmp"))
 
 
-def test_rip_workflow_propagates_assetripper_failure_after_cleanup(tmp_path: Path) -> None:
+def _old_project(request: RipRequest, dependencies: object) -> Path:
+    manifest = request.unity_project_dir / "ExportedProject" / "Packages" / "manifest.json"
+    manifest.parent.mkdir(parents=True)
+    manifest.write_text(json.dumps({"dependencies": dependencies}))
+    (request.unity_project_dir / "old-marker").write_text("keep me until the rip succeeds")
+    return manifest
+
+
+def _staging_dir(request: RipRequest) -> Path:
+    return request.unity_project_dir.with_name(f".{request.unity_project_dir.name}.rip")
+
+
+def test_failed_rip_keeps_the_old_project_and_its_user_dependencies(tmp_path: Path) -> None:
     request = _request(tmp_path)
-    request.unity_project_dir.mkdir()
-    (request.unity_project_dir / "old-marker").write_text("remove me")
-    failure = RuntimeError("AssetRipper failed")
-    ripper = FakeAssetRipper(fail=failure)
+    old_manifest = _old_project(request, {"com.example.tool": "2.0"})
+    ripper = FakeAssetRipper(fail=RuntimeError("AssetRipper failed"))
 
     with pytest.raises(RuntimeError, match="AssetRipper failed"):
         RipWorkflow(ripper).run(request)
 
-    assert not request.unity_project_dir.exists()
-    assert ripper.calls == [(request.source_dir, request.unity_project_dir, request.logs_dir)]
+    assert (request.unity_project_dir / "old-marker").exists()
+    assert json.loads(old_manifest.read_text()) == {"dependencies": {"com.example.tool": "2.0"}}
+    assert not _staging_dir(request).exists()
+    assert ripper.calls == [(request.source_dir, _staging_dir(request), request.logs_dir)]
+
+
+@pytest.mark.parametrize(
+    ("content", "message"),
+    [
+        ("{not json", "Unity package manifest is unreadable"),
+        ('{"dependencies": ["com.example.tool"]}', "no dependencies object"),
+        (None, "Unity package manifest not found"),
+    ],
+)
+def test_unreadable_old_manifest_stops_the_rip_before_anything_changes(
+    tmp_path: Path, content: str | None, message: str
+) -> None:
+    request = _request(tmp_path)
+    manifest = request.unity_project_dir / "ExportedProject" / "Packages" / "manifest.json"
+    manifest.parent.mkdir(parents=True)
+    if content is not None:
+        manifest.write_text(content)
+    ripper = FakeAssetRipper()
+
+    with pytest.raises((FileNotFoundError, ValueError), match=message) as error:
+        RipWorkflow(ripper).run(request)
+
+    assert str(manifest) in str(error.value)
+    assert ripper.calls == []
+    assert manifest.parent.is_dir()
+    if content is not None:
+        assert manifest.read_text() == content
+
+
+def test_rip_without_a_manifest_fails_and_keeps_the_old_project(tmp_path: Path) -> None:
+    request = _request(tmp_path)
+    _old_project(request, {})
+
+    class RipperWithoutManifest(FakeAssetRipper):
+        def extract(self, source_dir: Path, target_dir: Path, log_dir: Path, profile: object = None) -> None:
+            super().extract(source_dir, target_dir, log_dir, profile)
+            (target_dir / "ExportedProject" / "Packages" / "manifest.json").unlink()
+
+    with pytest.raises(FileNotFoundError, match="Unity package manifest not found"):
+        RipWorkflow(RipperWithoutManifest()).run(request)
+
+    assert (request.unity_project_dir / "old-marker").exists()
+    assert not _staging_dir(request).exists()
 
 
 def test_rip_workflow_rejects_missing_editor_source(tmp_path: Path) -> None:

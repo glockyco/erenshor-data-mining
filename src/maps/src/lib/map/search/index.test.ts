@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import type { IndexEntry } from './types';
+import type { WorldEnemy } from '$lib/types/world-map';
 import { searchMarkers } from './index';
+import { EnemySearchProvider } from './enemy-provider';
 
 function item(name: string, stableKey: string): IndexEntry {
     return {
@@ -24,13 +26,13 @@ function item(name: string, stableKey: string): IndexEntry {
     };
 }
 
-function enemy(name: string): IndexEntry {
+function enemy(name: string, encounterTier: 'boss' | 'elite' | 'enemy' = 'enemy'): IndexEntry {
     return {
         searchText: name.toLowerCase(),
         result: {
             type: 'enemy',
             name,
-            effectiveRarity: 2,
+            encounterTier,
             spawnCount: 1,
             zoneCount: 1
         }
@@ -109,6 +111,33 @@ describe('searchMarkers', () => {
         expect(exact.categories.item.hasMore).toBe(false);
         expect(exact.hasMore).toBe(false);
     });
+    it('orders enemy results by encounter tier before name', () => {
+        const entries = [
+            enemy('Wolf', 'enemy'),
+            enemy('Wolf Champion', 'elite'),
+            enemy('Wolf King', 'boss')
+        ];
+        const names = searchMarkers('wolf', entries).categories.enemy.matches.map((match) =>
+            match.result.type === 'enemy' ? match.result.name : ''
+        );
+        expect(names).toEqual(['Wolf King', 'Wolf Champion', 'Wolf']);
+    });
+
+    it('does not index friendly characters at a mixed enemy spawn', () => {
+        const marker = {
+            zone: 'Test',
+            characters: [
+                { name: 'Merchant', encounterTier: 'npc' },
+                { name: 'Wolf', encounterTier: 'elite' }
+            ]
+        } as WorldEnemy;
+        const provider = new EnemySearchProvider([marker], [], [], []);
+
+        expect(provider.buildIndex().map((entry) => entry.result.type === 'enemy' ? entry.result.name : '')).toEqual(['Wolf']);
+        expect(provider.getResult('Wolf')?.encounterTier).toBe('elite');
+        expect(provider.getResult('Merchant')).toBeNull();
+    });
+
     it('returns an empty response for queries shorter than 2 chars', () => {
         expect(searchMarkers('a', [], 20).matches).toEqual([]);
         expect(searchMarkers('', [], 20).matches).toEqual([]);

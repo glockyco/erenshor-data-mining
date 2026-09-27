@@ -15,10 +15,16 @@ import shutil
 from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
-class PathsConfig(BaseModel):
+class ConfigModel(BaseModel):
+    """Base for configuration sections. An unknown or removed key is an error."""
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class PathsConfig(ConfigModel):
     """Global path configuration for project directories and files.
 
     All paths support variable expansion:
@@ -68,37 +74,17 @@ class PathsConfig(BaseModel):
         return resolve_path(self.templates, repo_root)
 
 
-class SteamConfig(BaseModel):
-    """Steam and SteamCMD configuration.
-
-    SteamCMD is used to download game files from Steam. Credentials
-    are loaded from config.toml or .erenshor/config.local.toml.
-    Store sensitive credentials in config.local.toml only (gitignored).
-    """
-
-    username: str = Field(
-        default="",
-        description="Steam username (set in .erenshor/config.local.toml)",
-    )
-    platform: Literal["windows", "macos", "linux"] = Field(
-        default="windows",
-        description="Platform version to download (force Windows for cross-platform compatibility)",
-    )
-
-
-class UnityConfig(BaseModel):
+class UnityConfig(ConfigModel):
     """Unity Editor configuration for batch mode exports.
 
     Unity must match the exact version used by the game for asset compatibility.
     """
 
     version: str = Field(
-        default="2021.3.45f2",
-        description="Unity Editor version (must match game's Unity version exactly)",
+        description="Unity Editor version (must match game's Unity version exactly). Set in config.toml.",
     )
     path: str = Field(
-        default="/Applications/Unity/Hub/Editor/2021.3.45f2/Unity.app/Contents/MacOS/Unity",
-        description="Path to Unity executable",
+        description="Path to Unity executable. Set in config.toml, override in the local config.",
     )
     timeout: int = Field(
         default=3600,
@@ -125,7 +111,7 @@ class UnityConfig(BaseModel):
         return resolve_path(self.path, repo_root, validate=validate)
 
 
-class AssetRipperConfig(BaseModel):
+class AssetRipperConfig(ConfigModel):
     """AssetRipper configuration for extracting Unity projects from game files.
 
     AssetRipper converts compiled game assets back into editable Unity projects.
@@ -134,7 +120,7 @@ class AssetRipperConfig(BaseModel):
     """
 
     path: str = Field(
-        default="AssetRipper.GUI.Free",
+        default="AssetRipper",
         description="AssetRipper executable: bare name resolved on PATH, or an explicit path",
     )
     port: int = Field(
@@ -184,7 +170,7 @@ class AssetRipperConfig(BaseModel):
         return resolve_path(self.path, repo_root, validate=validate)
 
 
-class DatabaseConfig(BaseModel):
+class DatabaseConfig(ConfigModel):
     """Database configuration and validation settings.
 
     SQLite databases store extracted game data in normalized tables.
@@ -196,7 +182,7 @@ class DatabaseConfig(BaseModel):
     )
 
 
-class MediaWikiConfig(BaseModel):
+class MediaWikiConfig(ConfigModel):
     """MediaWiki API configuration for wiki synchronization.
 
     Supports fetching wiki templates and uploading generated pages.
@@ -266,7 +252,7 @@ class MediaWikiConfig(BaseModel):
     )
 
 
-class GoogleSheetsConfig(BaseModel):
+class GoogleSheetsConfig(ConfigModel):
     """Google Sheets API configuration for spreadsheet deployment.
 
     Uses Google Service Account credentials for API access.
@@ -314,7 +300,7 @@ class GoogleSheetsConfig(BaseModel):
         return resolve_path(self.credentials_file, repo_root, validate=validate)
 
 
-class BehaviorConfig(BaseModel):
+class BehaviorConfig(ConfigModel):
     """Global behavior settings for pipeline operations.
 
     These settings control retry logic, timeouts, and other behavioral aspects
@@ -335,7 +321,7 @@ class BehaviorConfig(BaseModel):
     )
 
 
-class BepInExDevToolsConfig(BaseModel):
+class BepInExDevToolsConfig(ConfigModel):
     """Download URLs for BepInEx development tools.
 
     Used by `erenshor mod dev-setup` to install ScriptEngine (hot reload)
@@ -347,7 +333,7 @@ class BepInExDevToolsConfig(BaseModel):
     config_manager_url: str = Field(description="ConfigurationManager download URL (BepInEx5 release)")
 
 
-class LoggingConfig(BaseModel):
+class LoggingConfig(ConfigModel):
     """Logging configuration for the pipeline.
 
     Controls log level and format for both Bash CLI and Python services.
@@ -359,7 +345,7 @@ class LoggingConfig(BaseModel):
     )
 
 
-class ModsConfig(BaseModel):
+class ModsConfig(ConfigModel):
     """Configuration for companion mod builds."""
 
     lunaris_lib_dir: str = Field(
@@ -389,7 +375,7 @@ class ModsConfig(BaseModel):
         return resolve_path(self.lunaris_lib_dir, repo_root, validate=validate)
 
 
-class GlobalConfig(BaseModel):
+class GlobalConfig(ConfigModel):
     """Global configuration settings shared across all variants.
 
     Contains tool configurations, service settings, and behavioral options
@@ -400,12 +386,7 @@ class GlobalConfig(BaseModel):
         default_factory=PathsConfig,
         description="Global path configuration",
     )
-    steam: SteamConfig = Field(
-        default_factory=SteamConfig,
-        description="Steam and SteamCMD configuration",
-    )
     unity: UnityConfig = Field(
-        default_factory=UnityConfig,
         description="Unity Editor configuration",
     )
     assetripper: AssetRipperConfig = Field(
@@ -442,7 +423,7 @@ class GlobalConfig(BaseModel):
     )
 
 
-class VariantGoogleSheetsConfig(BaseModel):
+class VariantGoogleSheetsConfig(ConfigModel):
     """Variant-specific Google Sheets configuration.
 
     Each game variant can deploy to a different spreadsheet.
@@ -454,7 +435,7 @@ class VariantGoogleSheetsConfig(BaseModel):
     )
 
 
-class MapsConfig(BaseModel):
+class MapsConfig(ConfigModel):
     """Configuration for the interactive maps web application.
 
     The maps project is a SvelteKit application that displays game data
@@ -508,7 +489,7 @@ class MapsConfig(BaseModel):
         return resolve_path(self.build_dir, repo_root)
 
 
-class VariantConfig(BaseModel):
+class VariantConfig(ConfigModel):
     """Configuration for a single game variant.
 
     Game variants represent different versions (main, playtest, demo) with
@@ -527,24 +508,13 @@ class VariantConfig(BaseModel):
         description="Description of what this variant represents",
     )
     app_id: str = Field(
-        description="Steam App ID for game download",
+        description="Steam App ID. Discovery finds the installation by this ID in the CrossOver Steam bottle.",
     )
     unity_project: str = Field(
         description="Path to Unity project directory (created by AssetRipper)",
     )
     editor_scripts: str = Field(
         description="Path to custom Unity Editor scripts (symlinked into project)",
-    )
-    game_files: str = Field(
-        description="Path to downloaded game files from Steam",
-    )
-    game_install: str = Field(
-        default="",
-        description=(
-            "Path to the runnable game installation used by mod setup, deployment, and launch. "
-            "Leave empty to discover the selected Steam app in the configured CrossOver bottle "
-            "or fall back to game_files."
-        ),
     )
     database_raw: str = Field(
         description="Path to raw SQLite database written directly by Unity export",
@@ -586,24 +556,9 @@ class VariantConfig(BaseModel):
 
         return resolve_path(self.editor_scripts, repo_root)
 
-    def resolved_game_files(self, repo_root: Path) -> Path:
-        """Get resolved game files directory path."""
-        from .paths import resolve_path
-
-        return resolve_path(self.game_files, repo_root)
-
-    def resolved_game_install(self, repo_root: Path) -> Path | None:
-        """Get the configured runnable game installation, when set."""
-        if not self.game_install:
-            return None
-
-        from .paths import resolve_path
-
-        return resolve_path(self.game_install, repo_root)
-
     def resolved_profiles(self, repo_root: Path) -> Path:
         """Get resolved extraction profile directory path."""
-        return self.resolved_game_files(repo_root).parent / "profiles"
+        return self.resolved_database(repo_root).parent / "profiles"
 
     def resolved_database_raw(self, repo_root: Path) -> Path:
         """Get resolved raw database file path (Unity export target)."""
@@ -642,7 +597,7 @@ class VariantConfig(BaseModel):
         return resolve_path(self.wiki, repo_root)
 
 
-class Config(BaseModel):
+class Config(ConfigModel):
     """Root configuration model for the Erenshor data mining pipeline.
 
     This is the top-level configuration object that contains all settings
@@ -666,7 +621,6 @@ class Config(BaseModel):
     )
     global_: GlobalConfig = Field(
         alias="global",
-        default_factory=GlobalConfig,
         description="Global configuration shared across all variants",
     )
     variants: dict[str, VariantConfig] = Field(

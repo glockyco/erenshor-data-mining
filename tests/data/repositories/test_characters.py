@@ -60,3 +60,15 @@ def test_legacy_vendor_query_includes_quest_gated_stock(
     """
     vendors = character_repo.get_vendors_selling_item("item:furniture - enchanted smithy")
     assert any(link.display_name == "Breena Carpenter" for link in vendors)
+
+
+def test_page_vendor_status_covers_every_group_member(character_repo: CharacterRepository) -> None:
+    """Cerbantias Flameward sells items only as the 'combined' duplicate, not the representative."""
+    cerbantias = next(
+        character
+        for character in character_repo.get_characters_for_wiki_generation()
+        if character.wiki_page_name == "Cerbantias Flameward"
+    )
+
+    assert cerbantias.stable_key == "character:cerbantias flameward"
+    assert cerbantias.is_vendor

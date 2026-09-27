@@ -16,30 +16,30 @@ Wire the per-subsystem pipelines into the right order and surface the variant-sc
 | Raw + clean SQLite | Yes | `variants/{v}/erenshor-{v}{-raw}.sqlite` |
 | Google Sheets | Yes, per-spreadsheet | each variant has its own `spreadsheet_id` in `config.toml` |
 | AdventureGuide `guide.json` | Input-variant scoped, single output | overwrites `quest_guides/guide.json` — only one variant ships at a time |
-| Interactive map build | Yes via `build_dir`; one build is deployed to both Worker services (`wrangler.jsonc` and `wrangler.legacy.jsonc`) | shared DB symlink `src/maps/static/db/erenshor.sqlite` is swapped per build |
+| Interactive map build | Yes via `build_dir`; one build is deployed to both Worker services (`wrangler.jsonc` and `wrangler.legacy.jsonc`) | shared DB link `src/maps/static/db/erenshor.sqlite` points at the built variant only while `maps build` runs |
 | Map tiles + `zone-capture-config.json` | **Shared** | tiles added for one variant are visible to all |
 | `mapping.json` | **Shared** | overrides apply across all variants |
 | MediaWiki | **Single target — `erenshor.wiki.gg`** | `wiki deploy -V playtest` overwrites main's pages |
 
 ## Preflight
 
-Run the freshness check before starting:
+The Steam client in the CrossOver bottle installs and updates each variant. Update the game there first, then run the freshness check:
 ```bash
-python .agent/skills/refreshing-game-data/scripts/check_pipeline_freshness.py {v}
+uv run python .agent/skills/refreshing-game-data/scripts/check_pipeline_freshness.py {v}
 ```
-It reports whether the Unity `ExportedProject` is stale relative to `Erenshor_Data` (re-rip needed) and prints the variant's current asset counts.
+It finds the variant's installation by its Steam app ID, reports whether the Unity `ExportedProject` is stale relative to `Erenshor_Data` (re-rip needed), and prints the variant's current asset counts. A variant that is not installed in the bottle fails with its app ID.
 
 ## Canonical order
 
-`packages → rip → export → code-facts → build → validate → republish`. Each gate must pass before the next.
+`packages → rip → export → code-facts → build → review changes → validate → republish`. Each gate must pass before the next.
 
 ### 0. Restore the Editor's NuGet dependencies
 `erenshor extract packages` — writes `src/Assets/Packages` from `src/Assets/packages.config`, which the rip copies into the project. It is variant-independent, cached, and a no-op once restored, but a checkout without it cannot compile the export scripts, so `extract rip` refuses to run.
 
 ### 1. Re-rip if stale
-`erenshor -V {v} extract rip` — wipes the Unity project, runs AssetRipper, recreates the `Assets/Editor` symlink and `Packages/` copy, and restores any user-added UPM deps + injects required ones (`com.unity.nuget.newtonsoft-json` today). Newtonsoft comes from that UPM package alone: a second copy under `Assets/Packages` makes Unity reject both as duplicate precompiled assemblies. See `skill://unity-export-system` for the listener architecture.
+`erenshor -V {v} extract rip` — runs AssetRipper into a staging directory next to the Unity project, recreates the `Assets/Editor` symlink and `Packages/` copy there, restores any user-added UPM deps + injects required ones (`com.unity.nuget.newtonsoft-json` today), and only then replaces the old project. A failed rip leaves the old project in place. The rip stops before changing anything when the old project's `Packages/manifest.json` is missing or unreadable, because its user-added deps could not be preserved. Newtonsoft comes from that UPM package alone: a second copy under `Assets/Packages` makes Unity reject both as duplicate precompiled assemblies. See `skill://unity-export-system` for the listener architecture.
 
-After re-ripping, commit the freshly-decompiled tree in its detached discovery repo and diff against the prior build to surface mechanics changes outside the code-facts registry (see `skill://code-facts`). The git-dir lives outside the work tree because `extract rip` `rmtree`s the whole Unity project; explicit flags need no `.git` inside the wiped dir, so history survives the rip:
+After re-ripping, commit the freshly-decompiled tree in its detached discovery repo and diff against the prior build to surface mechanics changes outside the code-facts registry (see `skill://code-facts`). The git-dir lives outside the work tree because `extract rip` replaces the whole Unity project directory; explicit flags need no `.git` inside the replaced dir, so history survives the rip:
 ```bash
 G="git --git-dir=variants/{v}/decompile-history.git --work-tree=variants/{v}/unity/ExportedProject/Assets/Scripts/Assembly-CSharp"
 $G add -A && $G commit -m "game build <version>"
@@ -55,21 +55,28 @@ $G diff HEAD~1 --stat   # churn outside known fact targets = new mechanics to mo
 ### 4. Python build
 `erenshor -V {v} extract build` — produces clean DB. Watch the log for `mapping.json` warnings about new entities lacking overrides; add minimal entries and re-run. Schema/processor errors surface here — fix at the source under `src/erenshor/application/processor/`.
 
-### 5. Validate
+### 5. Review what the update changed
+`extract build` stores the clean database in `backups/build-<id>/`. Then run
+`erenshor -V {v} extract changes --output /tmp/changes-{v}.md` to compare it with the
+newest earlier backed-up build (or `--since <build-id>`). Read every changed table
+before republishing: a removed row or a changed stat is usually the story of the patch,
+and an unexpected one is usually a pipeline bug.
+
+### 6. Validate
 Run `pytest tests/integration -v` against this variant. **Do not** run `golden capture` on a non-main variant — see Variant safety rules. Then run `skill://auditing-spawn-coverage` — new event scripts in a patch silently widen the spawn-coverage gap and that skill is the gate that catches them before sheets/wiki/map ship.
 
-### 6. Republish only the variant-safe outputs
+### 7. Republish only the variant-safe outputs
 - **Sheets:** `erenshor -V {v} sheets deploy --all-sheets` (dry-run first with the global `--dry-run` flag).
 - **Local map:** `erenshor -V {v} maps build && erenshor -V {v} maps dev` (or `preview`). Keep `maps dev` in the foreground. It restores the prior database link when it stops.
 - **Guide compile / Wiki / Cloudflare map deploy:** see Variant safety rules.
 
-### 7. Tile capture for new zones
+### 8. Tile capture for new zones
 Compute the delta of `SELECT DISTINCT scene_name FROM zones` minus the keys of `zone-capture-config.json`. For each new scene, follow `skill://tile-capture` end-to-end: bounds discovery, config entry, `DISPLAY_NAMES`, `capture run`, verification, commit per zone. New zones also need a `zone-positions.json` entry — see `skill://interactive-map`.
 
 ## Timing and profiling refreshes
 
 Extraction commands persist profile runs under `variants/{variant}/profiles/`.
-Use them to separate Steam download, AssetRipper, Unity subprocess overhead,
+Use them to separate AssetRipper, Unity subprocess overhead,
 Unity C# export, listener `OnAssetFound`, listener `OnScanFinished`, code-facts,
 and clean build cost before optimizing.
 
@@ -104,11 +111,11 @@ Shared-output actions require an explicit variant gate before running:
 
 ## Session shutdown and recovery
 
-Keep `erenshor mod launch` and `erenshor -V {v} maps dev` in the foreground. Stop each command with one interrupt. Each command stops only the process group that it created. `maps dev` also restores the database link that existed when it started.
+Keep `erenshor mod launch` and `erenshor -V {v} maps dev` in the foreground. Stop each command with one interrupt. Each command stops only the processes that it created. For `mod launch` these are the CrossOver wrapper and every process that joined its process group while the wrapper ran, including the game itself, which can outlive the wrapper. `maps dev` also restores the database link that existed when it started.
 
 Do not search for processes by name, age, or port. Do not quit Unity Hub or its licensing service. They are not resources that this workflow owns.
 
-If `mod launch` reports a cleanup failure or leaves `.agent/state/game-session.json`, run `erenshor mod launch --recover`. Recovery compares the recorded PID, process group, start time, and command with the live process. It signals only an exact match. If it reports an identity mismatch, inspect the reported PID and the record. Do not signal the candidate automatically.
+If `mod launch` reports a cleanup failure or leaves `.agent/state/game-session.json`, run `erenshor mod launch --recover`. The record lists every owned process with its PID, process group, start time, and command. Recovery signals only a process whose current identity matches its entry exactly, so a reused PID is never signalled. A record of another schema is refused with instructions to inspect its PIDs.
 
 If you find a possible session process without an ownership record, run `erenshor mod launch --inspect-pid <pid>`. The command reports that PID's process group, start time, and command. It does not send a signal.
 

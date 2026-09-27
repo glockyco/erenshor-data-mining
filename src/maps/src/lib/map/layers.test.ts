@@ -86,8 +86,7 @@ function makeEnemy(overrides: Partial<WorldEnemy> = {}): WorldEnemy {
         levelMin: 5,
         levelMax: 10,
         isEnabled: true,
-        isUnique: false,
-        isRare: false,
+        encounterTier: 'enemy',
         characters: [],
         ...overrides
     } as unknown as WorldEnemy;
@@ -96,9 +95,9 @@ function makeEnemy(overrides: Partial<WorldEnemy> = {}): WorldEnemy {
 const emptyMarkers: LayerData['markers'] = {
     achievementTriggers: [],
     doors: [],
-    enemiesCommon: [],
-    enemiesRare: [],
-    enemiesUnique: [],
+    enemiesEnemy: [],
+    enemiesElite: [],
+    enemiesBoss: [],
     forges: [],
     itemBags: [],
     miningNodes: [],
@@ -119,6 +118,7 @@ function baseParams(overrides: Partial<CreateLayersParams> = {}): CreateLayersPa
             zones: [zone],
             zoneConfigs: { Test: zoneConfig }
         },
+        encounterTierByName: new Map(),
         effectiveZones: [zone],
         overrides: {},
         draggingZone: null,
@@ -201,9 +201,9 @@ describe('createLayers ordering', () => {
             'zone-labels',
             'zone-line-connections',
             'zone-line-destinations',
-            'enemies-common',
+            'enemies-enemy',
             'npcs',
-            'enemies-rare',
+            'enemies-elite',
             'mining-nodes',
             'item-bags',
             'treasure-locs',
@@ -214,15 +214,15 @@ describe('createLayers ordering', () => {
             'wishing-wells',
             'teleports',
             'zone-lines',
-            'enemies-unique'
+            'enemies-boss'
         ]);
     });
 
-    it('keeps rare and unique enemies above common/NPC layers', () => {
+    it('paints elites and bosses above ordinary enemies and NPCs', () => {
         const list = ids(createLayers(baseParams()));
-        expect(list.indexOf('enemies-common')).toBeLessThan(list.indexOf('enemies-rare'));
-        expect(list.indexOf('npcs')).toBeLessThan(list.indexOf('enemies-rare'));
-        expect(list.indexOf('enemies-rare')).toBeLessThan(list.indexOf('enemies-unique'));
+        expect(list.indexOf('enemies-enemy')).toBeLessThan(list.indexOf('enemies-elite'));
+        expect(list.indexOf('npcs')).toBeLessThan(list.indexOf('enemies-elite'));
+        expect(list.indexOf('enemies-elite')).toBeLessThan(list.indexOf('enemies-boss'));
     });
 });
 
@@ -247,14 +247,14 @@ describe('createLayers visibility filtering', () => {
         const vis: LayerVisibility = {
             ...DEFAULT_LAYER_VISIBILITY,
             spawnPoints: false,
-            spawnPointsRare: false,
-            spawnPointsUnique: false,
+            spawnPointsElite: false,
+            spawnPointsBoss: false,
             characters: false
         };
         const list = ids(createLayers(baseParams({ layerVisibility: vis })));
-        expect(list).not.toContain('enemies-common');
-        expect(list).not.toContain('enemies-rare');
-        expect(list).not.toContain('enemies-unique');
+        expect(list).not.toContain('enemies-enemy');
+        expect(list).not.toContain('enemies-elite');
+        expect(list).not.toContain('enemies-boss');
         expect(list).not.toContain('npcs');
     });
 
@@ -276,7 +276,7 @@ describe('createLayers update triggers', () => {
     it('binds the enemy level filter range and its update trigger to levelFilter', () => {
         const levelFilter: [number, number] = [3, 8];
         const layers = createLayers(baseParams({ levelFilter }));
-        const common = byId(layers, 'enemies-common');
+        const common = byId(layers, 'enemies-enemy');
 
         expect(common.props.filterRange).toEqual([
             [-Infinity, 8],
@@ -289,7 +289,7 @@ describe('createLayers update triggers', () => {
     it('recomputes marker positions when overrides change', () => {
         const overrides = { Test: { worldX: 110, worldY: 190 } };
         const layers = createLayers(baseParams({ overrides }));
-        const common = byId(layers, 'enemies-common');
+        const common = byId(layers, 'enemies-enemy');
         const triggers = common.props.updateTriggers as { getPosition: unknown[] };
         expect(triggers.getPosition).toContain(overrides);
     });
@@ -305,13 +305,13 @@ describe('createLayers positioning', () => {
             baseParams({
                 overrides,
                 data: {
-                    markers: { ...emptyMarkers, enemiesCommon: [enemy] },
+                    markers: { ...emptyMarkers, enemiesEnemy: [enemy] },
                     zones: [zone],
                     zoneConfigs: { Test: zoneConfig }
                 }
             })
         );
-        const common = byId(layers, 'enemies-common');
+        const common = byId(layers, 'enemies-enemy');
         const getPosition = common.props.getPosition as (d: WorldEnemy) => [number, number];
         expect(getPosition(enemy)).toEqual(
             adjustMarkerPosition(enemy.worldPosition, enemy.zone, [zone], overrides)
@@ -338,6 +338,32 @@ describe('createLayers positioning', () => {
         expect(getPosition(player)).toEqual(
             transformEntityToWorld({ ...player, zone: 'Test' }, [zone], { Test: zoneConfig }, {})
         );
+    });
+
+    it('uses the stored tier for known live enemies and the mod tier for unknown names', () => {
+        const known: EntityData = {
+            id: 2,
+            entityType: 'npc_enemy',
+            name: 'Alpha Wolf',
+            position: [30, 0, 180],
+            rotation: 0,
+            rarity: 'boss'
+        };
+        const unknown: EntityData = { ...known, id: 3, name: 'Unknown Boss' };
+        const layers = createLayers(baseParams({
+            encounterTierByName: new Map([['Alpha Wolf', 'elite']]),
+            live: { connectionState: 'connected', zone: 'Test', entities: [known, unknown] }
+        }));
+
+        const elite = byId(layers, 'live-enemies-elite');
+        expect(elite.props.data).toEqual([known]);
+        expect((elite.props.getIcon as (entity: EntityData) => string)(known)).toBe('enemy-elite-live');
+        expect((elite.props.getSize as (entity: EntityData) => number)(known)).toBe(25);
+
+        const boss = byId(layers, 'live-enemies-boss');
+        expect(boss.props.data).toEqual([unknown]);
+        expect((boss.props.getIcon as (entity: EntityData) => string)(unknown)).toBe('enemy-boss-live');
+        expect((boss.props.getSize as (entity: EntityData) => number)(unknown)).toBe(30);
     });
 
     it('omits live layers when disconnected', () => {

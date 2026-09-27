@@ -1,13 +1,15 @@
-"""Unit tests for AssetRipper wrapper.
+"""Unit tests for the AssetRipper wrapper.
 
-These tests verify the AssetRipper wrapper's behavior using mocks to avoid
-requiring actual AssetRipper installation or long-running extraction processes.
+The AssetRipper process is replaced by a Popen double and its HTTP API by an
+httpx mock transport, so the tests need no AssetRipper installation.
 """
 
 import subprocess
 from pathlib import Path
+from typing import IO, Any
 from unittest.mock import MagicMock, patch
 
+import httpx
 import pytest
 
 from erenshor.infrastructure.assetripper import (
@@ -20,13 +22,74 @@ from erenshor.infrastructure.assetripper import (
 from erenshor.infrastructure.export_profile import ExportProfileRecorder
 from erenshor.infrastructure.time import MockClock
 
+POPEN = "erenshor.infrastructure.assetripper.assetripper.subprocess.Popen"
+
+
+def _running_process() -> MagicMock:
+    """Return a Popen double for a server process that is still running."""
+    process = MagicMock()
+    process.pid = 12345
+    process.poll.return_value = None
+    return process
+
+
+def _server(log_text: str = "") -> Any:
+    """Return a Popen replacement that writes ``log_text`` to the server log."""
+
+    def popen(_argv: list[str], stdout: IO[str], stderr: int) -> MagicMock:
+        stdout.write(log_text)
+        return _running_process()
+
+    return popen
+
+
+def _api(
+    *,
+    up: bool = True,
+    directory_exists: str = "true",
+    load_status: int = 302,
+    export: int | None = None,
+) -> httpx.MockTransport:
+    """Fake AssetRipper API. ``export=None`` means the export outlives the request."""
+
+    def handle(request: httpx.Request) -> httpx.Response:
+        if not up:
+            raise httpx.ConnectError("connection refused", request=request)
+        match request.url.path:
+            case "/":
+                return httpx.Response(200)
+            case "/IO/Directory/Exists":
+                return httpx.Response(200, text=directory_exists)
+            case "/LoadFolder":
+                return httpx.Response(load_status)
+            case "/Export/UnityProject":
+                if export is None:
+                    raise httpx.ReadTimeout("still exporting", request=request)
+                return httpx.Response(export)
+        return httpx.Response(404)
+
+    return httpx.MockTransport(handle)
+
+
+def _assetripper(tmp_path: Path, transport: httpx.MockTransport, **kwargs: Any) -> AssetRipper:
+    executable = tmp_path / "AssetRipper"
+    executable.touch()
+    return AssetRipper(
+        executable_path=executable, clock=kwargs.pop("clock", MockClock()), transport=transport, **kwargs
+    )
+
+
+def _game(tmp_path: Path) -> Path:
+    source = tmp_path / "game" / "Erenshor_Data"
+    source.mkdir(parents=True)
+    return source
+
 
 class TestAssetRipperInitialization:
     """Test AssetRipper initialization and validation."""
 
     def test_init_with_explicit_path(self, tmp_path: Path) -> None:
-        """Test successful initialization with explicit executable path."""
-        executable = tmp_path / "AssetRipper.GUI.Free"
+        executable = tmp_path / "AssetRipper"
         executable.touch()
 
         assetripper = AssetRipper(executable_path=executable, port=8080, timeout=3600)
@@ -36,220 +99,112 @@ class TestAssetRipperInitialization:
         assert assetripper.timeout == 3600
 
     def test_init_executable_not_found(self, tmp_path: Path) -> None:
-        """Test initialization fails when executable doesn't exist."""
-        nonexistent = tmp_path / "nonexistent"
-
-        with pytest.raises(AssetRipperNotFoundError) as exc_info:
-            AssetRipper(executable_path=nonexistent)
-
-        assert "not found" in str(exc_info.value).lower()
+        with pytest.raises(AssetRipperNotFoundError, match="not found"):
+            AssetRipper(executable_path=tmp_path / "nonexistent")
 
     def test_init_path_is_directory(self, tmp_path: Path) -> None:
-        """Test initialization fails when path is a directory."""
         directory = tmp_path / "assetripper_dir"
         directory.mkdir()
 
-        with pytest.raises(AssetRipperNotFoundError) as exc_info:
+        with pytest.raises(AssetRipperNotFoundError, match="not a file") as exc_info:
             AssetRipper(executable_path=directory)
 
-        assert "not a file" in str(exc_info.value).lower()
         assert "config.local.toml" in str(exc_info.value)
 
 
 class TestAssetRipperServerManagement:
     """Test AssetRipper server lifecycle management."""
 
-    @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.run")
-    @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.Popen")
-    def test_start_server_success(self, mock_popen: MagicMock, mock_run: MagicMock, tmp_path: Path) -> None:
-        """Test successful server startup."""
-        executable = tmp_path / "AssetRipper.GUI.Free"
-        executable.touch()
+    def test_start_server_launches_headless_api_on_the_port(self, tmp_path: Path) -> None:
+        assetripper = _assetripper(tmp_path, _api(), port=8080)
 
-        # Mock process
-        mock_process = MagicMock()
-        mock_process.pid = 12345
-        mock_popen.return_value = mock_process
+        with patch(POPEN, side_effect=_server()) as popen:
+            assetripper.start_server(log_dir=tmp_path)
 
-        # Mock server check to return True (server is running)
-        mock_run.return_value = MagicMock(returncode=0)
-
-        assetripper = AssetRipper(executable_path=executable, port=8080)
-        assetripper.start_server(log_dir=tmp_path)
-
-        # Verify server was started
-        assert assetripper._server_pid == 12345
-        mock_popen.assert_called_once()
-        call_args = mock_popen.call_args[0][0]
-        assert str(executable) in call_args
-        assert "--port" in call_args
-        assert "8080" in call_args
+        argv = popen.call_args[0][0]
+        assert argv[0] == str(assetripper.executable_path)
+        assert argv[argv.index("--port") + 1] == "8080"
         # Without this the GUI build opens a browser instead of serving the API.
-        assert "--headless" in call_args
+        assert "--headless" in argv
 
-    @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.run")
-    @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.Popen")
-    def test_start_server_timeout(self, mock_popen: MagicMock, mock_run: MagicMock, tmp_path: Path) -> None:
-        """Test server startup times out if server doesn't respond."""
-        executable = tmp_path / "AssetRipper.GUI.Free"
-        executable.touch()
+    def test_start_server_times_out_when_the_api_never_answers(self, tmp_path: Path) -> None:
+        assetripper = _assetripper(tmp_path, _api(up=False))
 
-        # Mock process
-        mock_process = MagicMock()
-        mock_process.pid = 12345
-        mock_popen.return_value = mock_process
-
-        # Mock server check to always return False (server not responding)
-        mock_run.return_value = MagicMock(returncode=1)
-
-        # Use MockClock for instant timeout (no actual waiting)
-        mock_clock = MockClock()
-        assetripper = AssetRipper(executable_path=executable, port=8080, clock=mock_clock)
-
-        with pytest.raises(AssetRipperServerError) as exc_info:
+        with patch(POPEN, side_effect=_server()), pytest.raises(AssetRipperServerError, match="failed to start"):
             assetripper.start_server(log_dir=tmp_path)
 
-        assert "failed to start" in str(exc_info.value).lower()
-        assert assetripper._server_pid is None  # Server stopped after failure
+        assert assetripper._process is None
 
-    @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.Popen")
-    def test_start_server_spawn_error(self, mock_popen: MagicMock, tmp_path: Path) -> None:
-        """Test server startup fails when process spawn fails."""
-        executable = tmp_path / "AssetRipper.GUI.Free"
-        executable.touch()
+    def test_start_server_spawn_error(self, tmp_path: Path) -> None:
+        assetripper = _assetripper(tmp_path, _api())
 
-        # Mock Popen to raise exception
-        mock_popen.side_effect = OSError("Permission denied")
-
-        assetripper = AssetRipper(executable_path=executable, port=8080)
-
-        with pytest.raises(AssetRipperServerError) as exc_info:
+        with patch(POPEN, side_effect=OSError("Permission denied")), pytest.raises(AssetRipperServerError):
             assetripper.start_server(log_dir=tmp_path)
 
-        assert "failed to start" in str(exc_info.value).lower()
+    def test_start_server_reports_early_exit(self, tmp_path: Path) -> None:
+        """A server process that exits before answering fails at once with its exit code."""
+        process = _running_process()
+        process.poll.return_value = 3
+        clock = MockClock()
+        started_at = clock.time()
+        assetripper = _assetripper(tmp_path, _api(up=False), clock=clock)
 
-    @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.run")
-    def test_stop_server(self, mock_run: MagicMock, tmp_path: Path) -> None:
-        """Test stopping server."""
-        executable = tmp_path / "AssetRipper.GUI.Free"
-        executable.touch()
+        with patch(POPEN, return_value=process), pytest.raises(AssetRipperServerError, match="exited with code 3"):
+            assetripper.start_server(log_dir=tmp_path)
 
-        assetripper = AssetRipper(executable_path=executable, clock=MockClock())
-        assetripper._server_pid = 12345
+        assert clock.time() == started_at
+        assert assetripper._process is None
+
+    def test_start_server_when_already_running_is_a_no_op(self, tmp_path: Path) -> None:
+        assetripper = _assetripper(tmp_path, _api())
+        assetripper._process = _running_process()
+
+        with patch(POPEN) as popen:
+            assetripper.start_server(log_dir=tmp_path)
+
+        popen.assert_not_called()
+
+    def test_stop_server_terminates_without_force_when_process_exits(self, tmp_path: Path) -> None:
+        process = _running_process()
+        assetripper = _assetripper(tmp_path, _api())
+        assetripper._process = process
 
         assetripper.stop_server()
 
-        # Verify kill commands were called
-        assert assetripper._server_pid is None
-        assert mock_run.call_count >= 1
+        process.terminate.assert_called_once_with()
+        process.kill.assert_not_called()
+        assert assetripper._process is None
 
-    def test_stop_server_no_pid(self, tmp_path: Path) -> None:
-        """Test stopping server when no server is running."""
-        executable = tmp_path / "AssetRipper.GUI.Free"
-        executable.touch()
+    def test_stop_server_kills_process_that_ignores_terminate(self, tmp_path: Path) -> None:
+        process = _running_process()
+        process.wait.side_effect = [subprocess.TimeoutExpired("AssetRipper", 10), 0]
+        assetripper = _assetripper(tmp_path, _api())
+        assetripper._process = process
 
-        assetripper = AssetRipper(executable_path=executable)
-        assetripper._server_pid = None
-
-        # Should not raise exception
         assetripper.stop_server()
 
-    @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.run")
-    @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.Popen")
-    def test_start_server_already_running(self, mock_popen: MagicMock, mock_run: MagicMock, tmp_path: Path) -> None:
-        """Test starting server when already running is a no-op."""
-        executable = tmp_path / "AssetRipper.GUI.Free"
-        executable.touch()
+        process.kill.assert_called_once_with()
+        assert process.wait.call_count == 2
+        assert assetripper._process is None
 
-        assetripper = AssetRipper(executable_path=executable)
-        assetripper._server_pid = 12345
-
-        assetripper.start_server(log_dir=tmp_path)
-
-        # Should not spawn new process
-        mock_popen.assert_not_called()
+    def test_stop_server_without_running_server_is_a_no_op(self, tmp_path: Path) -> None:
+        _assetripper(tmp_path, _api()).stop_server()
 
 
 class TestAssetRipperExtraction:
     """Test AssetRipper extraction workflow."""
 
-    @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.run")
-    @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.Popen")
-    def test_extract_success(
-        self,
-        mock_popen: MagicMock,
-        mock_run: MagicMock,
-        tmp_path: Path,
-    ) -> None:
-        """Test successful extraction workflow."""
-        executable = tmp_path / "AssetRipper.GUI.Free"
-        executable.touch()
+    def test_extract_follows_a_long_export_to_completion(self, tmp_path: Path) -> None:
+        assetripper = _assetripper(tmp_path, _api(export=None), timeout=60)
+        target = tmp_path / "unity"
 
-        source_dir = tmp_path / "game/Erenshor_Data"
-        source_dir.mkdir(parents=True)
+        with patch(POPEN, side_effect=_server("Export started\nFinished post-export\n")):
+            assetripper.extract(source_dir=_game(tmp_path), target_dir=target, log_dir=tmp_path)
 
-        target_dir = tmp_path / "unity"
-        log_dir = tmp_path
+        assert target.is_dir()
+        assert assetripper._process is None
 
-        # Mock process for server
-        mock_process = MagicMock()
-        mock_process.pid = 12345
-        mock_popen.return_value = mock_process
-
-        # Mock API responses - need more responses for multiple curl calls
-        def mock_run_side_effect(*args, **kwargs):
-            cmd = args[0] if args else []
-            if "curl" in cmd:
-                # Check what API endpoint is being called
-                if any("/IO/Directory/Exists" in str(arg) for arg in cmd):
-                    return MagicMock(returncode=0, stdout="true")
-                if any("LoadFolder" in str(arg) for arg in cmd) or any(
-                    "Export/UnityProject" in str(arg) for arg in cmd
-                ):
-                    return MagicMock(returncode=0, stdout="\n302")
-                # Server health check
-                return MagicMock(returncode=0)
-            return MagicMock(returncode=0)
-
-        mock_run.side_effect = mock_run_side_effect
-
-        # Use MockClock for instant execution
-        mock_clock = MockClock()
-        assetripper = AssetRipper(executable_path=executable, port=8080, timeout=1, clock=mock_clock)
-
-        # Patch Path.open to return completion message when log file is read in binary mode
-        original_path_open = Path.open
-        from io import BytesIO
-
-        def patched_path_open(self, mode="r", *args, **kwargs):
-            # When log file is read in binary mode for monitoring, return completion message
-            if "assetripper_" in str(self) and "rb" in mode:
-                return BytesIO(b"Export started\nFinished post-export\n")
-            return original_path_open(self, mode, *args, **kwargs)
-
-        with patch.object(Path, "open", patched_path_open):
-            assetripper.extract(source_dir=source_dir, target_dir=target_dir, log_dir=log_dir)
-
-        # Verify target directory was created
-        assert target_dir.exists()
-
-        # Verify server was stopped
-        assert assetripper._server_pid is None
-
-    @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.run")
-    @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.Popen")
-    def test_extract_records_internal_profile_spans(
-        self,
-        mock_popen: MagicMock,
-        mock_run: MagicMock,
-        tmp_path: Path,
-    ) -> None:
-        """Test extraction records AssetRipper sub-stage profile spans."""
-        executable = tmp_path / "AssetRipper.GUI.Free"
-        executable.touch()
-        source_dir = tmp_path / "game" / "Erenshor_Data"
-        source_dir.mkdir(parents=True)
-        target_dir = tmp_path / "unity"
+    def test_extract_records_internal_profile_spans(self, tmp_path: Path) -> None:
         profile = ExportProfileRecorder.open_or_create(
             root=tmp_path / "profiles",
             variant="playtest",
@@ -261,259 +216,128 @@ class TestAssetRipperExtraction:
             machine="darwin-arm64",
             clock=MockClock(),
         )
+        assetripper = _assetripper(tmp_path, _api(export=302), timeout=60, clock=profile.clock)
 
-        mock_process = MagicMock()
-        mock_process.pid = 12345
-        mock_popen.return_value = mock_process
-
-        def mock_run_side_effect(*args, **kwargs):
-            cmd = args[0] if args else []
-            if "curl" in cmd:
-                if any("/IO/Directory/Exists" in str(arg) for arg in cmd):
-                    return MagicMock(returncode=0, stdout="true")
-                if any("LoadFolder" in str(arg) for arg in cmd) or any(
-                    "Export/UnityProject" in str(arg) for arg in cmd
-                ):
-                    return MagicMock(returncode=0, stdout="\n302")
-                return MagicMock(returncode=0)
-            return MagicMock(returncode=0)
-
-        mock_run.side_effect = mock_run_side_effect
-        assetripper = AssetRipper(executable_path=executable, port=8080, timeout=1, clock=profile.clock)
-
-        original_path_open = Path.open
-        from io import BytesIO
-
-        def patched_path_open(self, mode="r", *args, **kwargs):
-            if "assetripper_" in str(self) and "rb" in mode:
-                return BytesIO(b"Export started\nFinished post-export\n")
-            return original_path_open(self, mode, *args, **kwargs)
-
-        with patch.object(Path, "open", patched_path_open):
-            assetripper.extract(source_dir=source_dir, target_dir=target_dir, log_dir=tmp_path, profile=profile)
+        with patch(POPEN, side_effect=_server("Finished exporting assets\n")):
+            assetripper.extract(
+                source_dir=_game(tmp_path), target_dir=tmp_path / "unity", log_dir=tmp_path, profile=profile
+            )
 
         names = {span.name for span in profile.spans}
-        assert "assetripper.start_server" in names
-        assert "assetripper.load_files" in names
-        assert "assetripper.export_start" in names
-        assert "assetripper.monitor_export" in names
-        assert "assetripper.stop_server" in names
+        assert {
+            "assetripper.start_server",
+            "assetripper.load_files",
+            "assetripper.export_start",
+            "assetripper.monitor_export",
+            "assetripper.stop_server",
+        } <= names
 
     def test_extract_source_not_found(self, tmp_path: Path) -> None:
-        """Test extraction fails when source directory doesn't exist."""
-        executable = tmp_path / "AssetRipper.GUI.Free"
-        executable.touch()
+        assetripper = _assetripper(tmp_path, _api())
 
-        source_dir = tmp_path / "nonexistent"
-        target_dir = tmp_path / "unity"
+        with pytest.raises(AssetRipperNotFoundError, match="does not exist"):
+            assetripper.extract(source_dir=tmp_path / "nonexistent", target_dir=tmp_path / "unity", log_dir=tmp_path)
 
-        assetripper = AssetRipper(executable_path=executable)
+    def test_extract_fails_when_assetripper_cannot_see_the_source(self, tmp_path: Path) -> None:
+        assetripper = _assetripper(tmp_path, _api(directory_exists="false"))
 
-        with pytest.raises(AssetRipperNotFoundError) as exc_info:
-            assetripper.extract(source_dir=source_dir, target_dir=target_dir, log_dir=tmp_path)
+        with patch(POPEN, side_effect=_server()), pytest.raises(AssetRipperExportError, match="does not exist"):
+            assetripper.extract(source_dir=_game(tmp_path), target_dir=tmp_path / "unity", log_dir=tmp_path)
 
-        assert "does not exist" in str(exc_info.value).lower()
+        assert assetripper._process is None
 
-    @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.run")
-    @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.Popen")
-    def test_extract_load_files_error(self, mock_popen: MagicMock, mock_run: MagicMock, tmp_path: Path) -> None:
-        """Test extraction fails when loading files fails."""
-        executable = tmp_path / "AssetRipper.GUI.Free"
-        executable.touch()
+    def test_extract_fails_when_loading_is_rejected(self, tmp_path: Path) -> None:
+        assetripper = _assetripper(tmp_path, _api(load_status=500))
 
-        source_dir = tmp_path / "game"
-        source_dir.mkdir()
+        with patch(POPEN, side_effect=_server()), pytest.raises(AssetRipperExportError, match="HTTP status: 500"):
+            assetripper.extract(source_dir=_game(tmp_path), target_dir=tmp_path / "unity", log_dir=tmp_path)
 
-        target_dir = tmp_path / "unity"
+    def test_extract_fails_when_the_export_request_is_rejected(self, tmp_path: Path) -> None:
+        assetripper = _assetripper(tmp_path, _api(export=500))
 
-        # Mock process
-        mock_process = MagicMock()
-        mock_process.pid = 12345
-        mock_popen.return_value = mock_process
+        with patch(POPEN, side_effect=_server()), pytest.raises(AssetRipperExportError, match="HTTP status: 500"):
+            assetripper.extract(source_dir=_game(tmp_path), target_dir=tmp_path / "unity", log_dir=tmp_path)
 
-        # Mock server check success, but LoadFolder failure
-        mock_run.side_effect = [
-            MagicMock(returncode=0),  # Server health check
-            MagicMock(returncode=0, stdout="false"),  # Directory doesn't exist
-        ]
-
-        # Use MockClock for instant execution
-        mock_clock = MockClock()
-        assetripper = AssetRipper(executable_path=executable, port=8080, clock=mock_clock)
-
-        with pytest.raises(AssetRipperExportError) as exc_info:
-            assetripper.extract(source_dir=source_dir, target_dir=target_dir, log_dir=tmp_path)
-
-        assert "does not exist" in str(exc_info.value).lower()
-
-        # Verify server was stopped despite error
-        assert assetripper._server_pid is None
-
-    @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.run")
-    @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.Popen")
-    def test_extract_export_timeout(self, mock_popen: MagicMock, mock_run: MagicMock, tmp_path: Path) -> None:
-        """Test extraction fails when export times out."""
-        executable = tmp_path / "AssetRipper.GUI.Free"
-        executable.touch()
-
-        source_dir = tmp_path / "game"
-        source_dir.mkdir()
-
-        target_dir = tmp_path / "unity"
-
-        # Mock process
-        mock_process = MagicMock()
-        mock_process.pid = 12345
-        mock_popen.return_value = mock_process
-
-        # Mock API responses (all successful)
-        def mock_run_side_effect(*args, **kwargs):
-            cmd = args[0] if args else []
-            if "curl" in cmd:
-                # Check what API endpoint is being called
-                if any("/IO/Directory/Exists" in str(arg) for arg in cmd):
-                    return MagicMock(returncode=0, stdout="true")
-                if any("LoadFolder" in str(arg) for arg in cmd) or any(
-                    "Export/UnityProject" in str(arg) for arg in cmd
-                ):
-                    return MagicMock(returncode=0, stdout="\n302")
-                # Server health check
-                return MagicMock(returncode=0)
-            return MagicMock(returncode=0)
-
-        mock_run.side_effect = mock_run_side_effect
-
-        # Mock log file without completion message (will timeout)
-        log_content = "Export started\\nProcessing...\\n"
-
-        # Use MockClock for instant timeout
-        mock_clock = MockClock()
-        assetripper = AssetRipper(executable_path=executable, port=8080, timeout=1, clock=mock_clock)
+    def test_extract_times_out_without_a_completion_message(self, tmp_path: Path) -> None:
+        assetripper = _assetripper(tmp_path, _api(export=None), timeout=10)
 
         with (
-            patch.object(Path, "read_text", return_value=log_content),
-            pytest.raises(AssetRipperExportError) as exc_info,
+            patch(POPEN, side_effect=_server("Export started\nProcessing...\n")),
+            pytest.raises(AssetRipperExportError, match="timed out"),
         ):
-            assetripper.extract(source_dir=source_dir, target_dir=target_dir, log_dir=tmp_path)
+            assetripper.extract(source_dir=_game(tmp_path), target_dir=tmp_path / "unity", log_dir=tmp_path)
 
-        assert "timed out" in str(exc_info.value).lower()
+        assert assetripper._process is None
 
-        # Verify server was stopped despite timeout
-        assert assetripper._server_pid is None
+    def test_extract_fails_at_once_when_assetripper_exits_during_the_export(self, tmp_path: Path) -> None:
+        process = _running_process()
+        process.poll.side_effect = [None, 134, 134]
+        assetripper = _assetripper(tmp_path, _api(export=None), timeout=3600)
+
+        def popen(_argv: list[str], stdout: IO[str], stderr: int) -> MagicMock:
+            stdout.write("Export started\n")
+            return process
+
+        with patch(POPEN, side_effect=popen), pytest.raises(AssetRipperExportError, match="exited with code 134"):
+            assetripper.extract(source_dir=_game(tmp_path), target_dir=tmp_path / "unity", log_dir=tmp_path)
+
+    def test_unreadable_log_is_reported_instead_of_polled(self, tmp_path: Path) -> None:
+        assetripper = _assetripper(tmp_path, _api(export=None), timeout=3600)
+        original_open = Path.open
+
+        def open_log(path: Path, mode: str = "r", *args: Any, **kwargs: Any) -> Any:
+            if path.name.startswith("assetripper_") and mode == "rb":
+                raise PermissionError("denied")
+            return original_open(path, mode, *args, **kwargs)
+
+        with (
+            patch(POPEN, side_effect=_server("Export started\n")),
+            patch.object(Path, "open", open_log),
+            pytest.raises(AssetRipperExportError, match=r"Cannot read AssetRipper log .*denied"),
+        ):
+            assetripper.extract(source_dir=_game(tmp_path), target_dir=tmp_path / "unity", log_dir=tmp_path)
 
 
 class TestAssetRipperUtilities:
     """Test AssetRipper utility methods."""
 
     def test_is_installed_true(self, tmp_path: Path) -> None:
-        """Test is_installed returns True when executable exists."""
-        executable = tmp_path / "AssetRipper.GUI.Free"
-        executable.touch()
-
-        assetripper = AssetRipper(executable_path=executable)
-
-        assert assetripper.is_installed() is True
+        assert _assetripper(tmp_path, _api()).is_installed() is True
 
     def test_is_installed_false(self, tmp_path: Path) -> None:
-        """Test is_installed returns False when executable is removed."""
-        executable = tmp_path / "AssetRipper.GUI.Free"
-        executable.touch()
-
-        assetripper = AssetRipper(executable_path=executable)
-
-        # Remove executable
-        executable.unlink()
+        assetripper = _assetripper(tmp_path, _api())
+        assetripper.executable_path.unlink()
 
         assert assetripper.is_installed() is False
 
     @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.run")
     def test_get_version_success(self, mock_run: MagicMock, tmp_path: Path) -> None:
-        """Test getting version when available."""
-        executable = tmp_path / "AssetRipper.GUI.Free"
-        executable.touch()
-
         mock_run.return_value = MagicMock(returncode=0, stdout="AssetRipper v1.3.4\n", stderr="")
 
-        assetripper = AssetRipper(executable_path=executable)
-        version = assetripper.get_version()
-
-        assert version == "AssetRipper v1.3.4"
-        mock_run.assert_called_once()
+        assert _assetripper(tmp_path, _api()).get_version() == "AssetRipper v1.3.4"
 
     @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.run")
     def test_get_version_not_available(self, mock_run: MagicMock, tmp_path: Path) -> None:
-        """Test get_version returns None when version command fails."""
-        executable = tmp_path / "AssetRipper.GUI.Free"
-        executable.touch()
-
         mock_run.side_effect = subprocess.TimeoutExpired("cmd", 5)
 
-        assetripper = AssetRipper(executable_path=executable)
-        version = assetripper.get_version()
-
-        assert version is None
+        assert _assetripper(tmp_path, _api()).get_version() is None
 
     def test_get_base_url(self, tmp_path: Path) -> None:
-        """Test base URL construction."""
-        executable = tmp_path / "AssetRipper.GUI.Free"
-        executable.touch()
+        assert _assetripper(tmp_path, _api(), port=9000)._get_base_url() == "http://localhost:9000"
 
-        assetripper = AssetRipper(executable_path=executable, port=9000)
-
-        assert assetripper._get_base_url() == "http://localhost:9000"
-
-    @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.run")
-    def test_check_server_running_true(self, mock_run: MagicMock, tmp_path: Path) -> None:
-        """Test server running check returns True when server responds."""
-        executable = tmp_path / "AssetRipper.GUI.Free"
-        executable.touch()
-
-        mock_run.return_value = MagicMock(returncode=0)
-
-        assetripper = AssetRipper(executable_path=executable, port=8080)
-
-        assert assetripper._check_server_running() is True
-
-    @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.run")
-    def test_check_server_running_false(self, mock_run: MagicMock, tmp_path: Path) -> None:
-        """Test server running check returns False when server doesn't respond."""
-        executable = tmp_path / "AssetRipper.GUI.Free"
-        executable.touch()
-
-        mock_run.return_value = MagicMock(returncode=1)
-
-        assetripper = AssetRipper(executable_path=executable, port=8080)
-
-        assert assetripper._check_server_running() is False
-
-    @patch("erenshor.infrastructure.assetripper.assetripper.subprocess.run")
-    def test_check_server_running_timeout(self, mock_run: MagicMock, tmp_path: Path) -> None:
-        """Test server running check handles timeout gracefully."""
-        executable = tmp_path / "AssetRipper.GUI.Free"
-        executable.touch()
-
-        mock_run.side_effect = subprocess.TimeoutExpired("curl", 5)
-
-        assetripper = AssetRipper(executable_path=executable, port=8080)
-
-        assert assetripper._check_server_running() is False
+    def test_check_server_running(self, tmp_path: Path) -> None:
+        assert _assetripper(tmp_path, _api())._check_server_running() is True
+        assert _assetripper(tmp_path, _api(up=False))._check_server_running() is False
 
 
 class TestAssetRipperErrorHierarchy:
     """Test exception hierarchy and inheritance."""
 
     def test_exception_hierarchy(self) -> None:
-        """Test all exceptions inherit from AssetRipperError."""
         assert issubclass(AssetRipperNotFoundError, AssetRipperError)
         assert issubclass(AssetRipperServerError, AssetRipperError)
         assert issubclass(AssetRipperExportError, AssetRipperError)
 
     def test_base_exception_catchable(self, tmp_path: Path) -> None:
-        """Test catching base exception catches all AssetRipper errors."""
-        executable = tmp_path / "nonexistent"
-
-        try:
-            AssetRipper(executable_path=executable)
-            pytest.fail("Should have raised exception")
-        except AssetRipperError:
-            pass  # Successfully caught via base exception
+        with pytest.raises(AssetRipperError):
+            AssetRipper(executable_path=tmp_path / "nonexistent")

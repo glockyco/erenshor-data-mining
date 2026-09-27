@@ -375,8 +375,8 @@
         "ZoneLink:stablekey:zone:bloomingsepulcher"
       ],
       "stable_keys": [
-        "character:fernalla's wish - 1",
-        "character:fernalla's wish - 2"
+        "character:fernalla's wish - 2",
+        "character:fernalla's wish - 1"
       ],
       "title": "A Dying Wish"
     },
@@ -1247,8 +1247,8 @@
         "ZoneLink:stablekey:zone:vitheo"
       ],
       "stable_keys": [
-        "character:lost sea giant",
-        "character:lost sea giant female"
+        "character:lost sea giant female",
+        "character:lost sea giant"
       ],
       "title": "A Lost Sea Giant"
     },
@@ -1531,9 +1531,9 @@
         "ZoneLink:stablekey:zone:bloomingsepulcher"
       ],
       "stable_keys": [
-        "character:1 - memory of defeat",
+        "character:3 - memory of the gift",
         "character:2 - memory of the order",
-        "character:3 - memory of the gift"
+        "character:1 - memory of defeat"
       ],
       "title": "A Protected Memory"
     },
@@ -1754,6 +1754,7 @@
     },
     {
       "categories": [
+        "Category:Elites",
         "Category:Enemies",
         "Category:Windwashed Pass"
       ],
@@ -1861,7 +1862,6 @@
     },
     {
       "categories": [
-        "Category:Bosses",
         "Category:Enemies",
         "Category:The Bonepits"
       ],
@@ -2556,6 +2556,7 @@
     {
       "categories": [
         "Category:Azynthi's Garden",
+        "Category:Bosses",
         "Category:Enemies"
       ],
       "generated_templates": [
@@ -3365,7 +3366,7 @@
     },
     {
       "categories": [
-        "Category:Bosses",
+        "Category:Elites",
         "Category:Enemies",
         "Category:Silkengrass Meadowlands"
       ],
@@ -3646,7 +3647,7 @@
     },
     {
       "categories": [
-        "Category:Bosses",
+        "Category:Elites",
         "Category:Enemies",
         "Category:Faerie's Brake",
         "Category:Hidden Hills"
@@ -4171,7 +4172,7 @@
     },
     {
       "categories": [
-        "Category:Characters",
+        "Category:Enemies",
         "Category:The Duskenlight Coast"
       ],
       "generated_templates": [
@@ -5023,8 +5024,6 @@
         "ItemLink:stablekey:item:chest - 1 - cloth shirt",
         "ItemLink:stablekey:item:leg - 1 - cloth pants",
         "ItemLink:stablekey:item:neck - 8 - seafarer's pendant",
-        "QuestLink:link:Aragath's Imprisonment",
-        "QuestLink:link:Aragath's Imprisonment",
         "QuestLink:link:Aragath's Imprisonment",
         "QuestLink:link:Aragath's Imprisonment",
         "QuestLink:link:Aragath's Imprisonment",
@@ -8819,6 +8818,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Braxonian Desert",
         "Category:Enemies"
       ],
@@ -10080,6 +10080,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Brax's Plane of Elements",
         "Category:Enemies",
         "Category:Plane of the Willow",
@@ -10400,6 +10401,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Enemies",
         "Category:Soluna's Celestial Plane"
       ],
@@ -11507,6 +11509,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Braxonian Desert",
         "Category:Enemies"
       ],
@@ -12862,6 +12865,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Braxonian Desert",
         "Category:Enemies"
       ],
@@ -13349,6 +13353,7 @@
       "categories": [
         "Category:Brax's Plane of Elements",
         "Category:Characters",
+        "Category:Elites",
         "Category:Enemies"
       ],
       "generated_templates": [
@@ -13358,6 +13363,9 @@
       "semantic_links": [
         "FactionLink:stablekey:faction:evil",
         "FactionLink:stablekey:faction:good",
+        "ItemLink:1:Fernalla's Sivakayan Rune",
+        "ItemLink:1:Powered Sivakayan Rune",
+        "ItemLink:1:Vitheo's Sivakayan Rune",
         "ItemLink:stablekey:item:aura - brax 5",
         "ItemLink:stablekey:item:aura - brax 5",
         "ItemLink:stablekey:item:aura - brax 5",
@@ -13398,6 +13406,7 @@
         "ItemLink:stablekey:item:wrist - 42 - the allbond",
         "ItemLink:stablekey:item:wrist - 42 - the allbond",
         "ItemLink:stablekey:item:wrist - 42 - the allbond",
+        "QuestLink:1:Repairing the Sivakayan Rune",
         "ZoneLink:stablekey:zone:planeofbrax",
         "ZoneLink:stablekey:zone:planeofbrax"
       ],
@@ -13531,6 +13540,7 @@
     {
       "categories": [
         "Category:Brax's Plane of Elements",
+        "Category:Elites",
         "Category:Enemies"
       ],
       "generated_templates": [
@@ -15424,6 +15434,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Braxonian Desert",
         "Category:Enemies"
       ],
@@ -15608,8 +15619,8 @@
         "ZoneLink:stablekey:zone:prielplateau"
       ],
       "stable_keys": [
-        "character:character_peasant_white:prielplateau:73.57:0.05:343.45",
-        "character:miner"
+        "character:miner",
+        "character:character_peasant_white:prielplateau:73.57:0.05:343.45"
       ],
       "title": "Captive Miner"
     },
@@ -15718,7 +15729,6 @@
     {
       "categories": [
         "Category: Mysterious Portal",
-        "Category:Characters",
         "Category:Enemies",
         "Category:Mysterious Portal"
       ],
@@ -15941,7 +15951,9 @@
         "Item/General"
       ],
       "schema": "item",
-      "semantic_links": [],
+      "semantic_links": [
+        "QuestLink:1:Stop Sivakaya!"
+      ],
       "stable_keys": [
         "item:furniture - celestial portal"
       ],
@@ -16952,6 +16964,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Enemies",
         "Category:Plane of the Willow"
       ],
@@ -18331,6 +18344,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Enemies",
         "Category:Soluna's Celestial Plane"
       ],
@@ -18349,6 +18363,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Enemies",
         "Category:Soluna's Celestial Plane"
       ],
@@ -18367,6 +18382,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Enemies",
         "Category:Soluna's Celestial Plane"
       ],
@@ -18385,6 +18401,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Enemies",
         "Category:Soluna's Celestial Plane"
       ],
@@ -18622,6 +18639,7 @@
     {
       "categories": [
         "Category:Blooming Sepulcher",
+        "Category:Elites",
         "Category:Enemies"
       ],
       "generated_templates": [
@@ -18982,7 +19000,7 @@
     {
       "categories": [
         "Category:Bosses",
-        "Category:Characters",
+        "Category:Enemies",
         "Category:Shivering Step",
         "Category:Stowaway's Step"
       ],
@@ -20031,6 +20049,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Enemies",
         "Category:Plane of the Willow"
       ],
@@ -20331,6 +20350,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Enemies",
         "Category:Malaroth's Nesting Grounds"
       ],
@@ -20921,7 +20941,7 @@
     },
     {
       "categories": [
-        "Category:Bosses",
+        "Category:Elites",
         "Category:Enemies",
         "Category:Silkengrass Meadowlands"
       ],
@@ -21626,7 +21646,6 @@
     },
     {
       "categories": [
-        "Category:Bosses",
         "Category:Enemies",
         "Category:The Duskenlight Coast"
       ],
@@ -21902,6 +21921,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Enemies",
         "Category:Soluna's Celestial Plane"
       ],
@@ -22332,6 +22352,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Brax's Plane of Elements",
         "Category:Enemies"
       ],
@@ -22351,6 +22372,7 @@
     {
       "categories": [
         "Category:Brax's Plane of Elements",
+        "Category:Elites",
         "Category:Enemies"
       ],
       "generated_templates": [
@@ -23028,7 +23050,8 @@
     },
     {
       "categories": [
-        "Category:Characters",
+        "Category:Bosses",
+        "Category:Enemies",
         "Category:Shivering Step",
         "Category:Vendors"
       ],
@@ -23067,8 +23090,8 @@
         "ItemLink:stablekey:item:skillbook - envenomed arrow"
       ],
       "stable_keys": [
-        "spell:none - envenomed arrow",
-        "skill:archery - envenomed arrow"
+        "skill:archery - envenomed arrow",
+        "spell:none - envenomed arrow"
       ],
       "title": "Envenomed Arrow"
     },
@@ -23766,6 +23789,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Enemies",
         "Category:Vitheo's Plane of Valor"
       ],
@@ -24066,6 +24090,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Enemies",
         "Category:Plane of the Willow"
       ],
@@ -24354,7 +24379,6 @@
     },
     {
       "categories": [
-        "Category:Bosses",
         "Category:Enemies",
         "Category:Shivering Step"
       ],
@@ -24612,6 +24636,7 @@
         "AbilityLink:stablekey:spell:dru - group revitalize",
         "FactionLink:stablekey:faction:evil",
         "FactionLink:stablekey:faction:good",
+        "ItemLink:1:Fernalla's Sivakayan Rune",
         "ItemLink:stablekey:item:aura - fernalla 5",
         "ItemLink:stablekey:item:aura - fernalla 5",
         "ItemLink:stablekey:item:back - 42 - ribcage",
@@ -24753,6 +24778,7 @@
     },
     {
       "categories": [
+        "Category:Elites",
         "Category:Enemies",
         "Category:Plane of the Willow"
       ],
@@ -24880,6 +24906,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Brax's Plane of Elements",
         "Category:Enemies"
       ],
@@ -24974,6 +25001,7 @@
     {
       "categories": [
         "Category:Brax's Plane of Elements",
+        "Category:Elites",
         "Category:Enemies"
       ],
       "generated_templates": [
@@ -25578,6 +25606,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Enemies",
         "Category:Soluna's Celestial Plane"
       ],
@@ -27524,6 +27553,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Braxonian Desert",
         "Category:Enemies"
       ],
@@ -27874,6 +27904,7 @@
     {
       "categories": [
         "Category:Brax's Plane of Elements",
+        "Category:Elites",
         "Category:Enemies"
       ],
       "generated_templates": [
@@ -27905,6 +27936,7 @@
     {
       "categories": [
         "Category:Brax's Plane of Elements",
+        "Category:Elites",
         "Category:Enemies"
       ],
       "generated_templates": [
@@ -27952,7 +27984,7 @@
     },
     {
       "categories": [
-        "Category:Bosses",
+        "Category:Elites",
         "Category:Enemies",
         "Category:The Duskenlight Coast"
       ],
@@ -28236,6 +28268,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Brax's Plane of Elements",
         "Category:Enemies",
         "Category:Plane of the Willow",
@@ -28299,6 +28332,7 @@
     {
       "categories": [
         "Category:Brax's Plane of Elements",
+        "Category:Elites",
         "Category:Enemies"
       ],
       "generated_templates": [
@@ -28766,6 +28800,7 @@
     },
     {
       "categories": [
+        "Category:Elites",
         "Category:Enemies",
         "Category:Island Tomb",
         "Category:Shivering Tomb"
@@ -29038,6 +29073,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Braxonian Desert",
         "Category:Enemies"
       ],
@@ -29077,6 +29113,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Braxonian Desert",
         "Category:Enemies"
       ],
@@ -29237,6 +29274,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Enemies",
         "Category:Vitheo's Plane of Valor"
       ],
@@ -29478,6 +29516,7 @@
     {
       "categories": [
         "Category:Brax's Plane of Elements",
+        "Category:Elites",
         "Category:Enemies"
       ],
       "generated_templates": [
@@ -29508,6 +29547,7 @@
     {
       "categories": [
         "Category:Brax's Plane of Elements",
+        "Category:Elites",
         "Category:Enemies"
       ],
       "generated_templates": [
@@ -29625,6 +29665,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Brax's Plane of Elements",
         "Category:Enemies"
       ],
@@ -31419,7 +31460,7 @@
     },
     {
       "categories": [
-        "Category:Bosses",
+        "Category:Elites",
         "Category:Enemies",
         "Category:Silkengrass Meadowlands"
       ],
@@ -31797,6 +31838,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Brax's Plane of Elements",
         "Category:Enemies"
       ],
@@ -31828,6 +31870,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Brax's Plane of Elements",
         "Category:Enemies"
       ],
@@ -31901,6 +31944,7 @@
     {
       "categories": [
         "Category:Brax's Plane of Elements",
+        "Category:Elites",
         "Category:Enemies"
       ],
       "generated_templates": [
@@ -32147,6 +32191,7 @@
       ],
       "schema": "item",
       "semantic_links": [
+        "AbilityLink:1:Enlightened Path IV",
         "AbilityLink:stablekey:spell:none - blessing of xp 4",
         "CharacterLink:stablekey:character:goddess fernalla",
         "CharacterLink:stablekey:character:goddess fernalla",
@@ -32604,8 +32649,8 @@
         "ItemLink:stablekey:item:skillbook - lingering inferno"
       ],
       "stable_keys": [
-        "spell:arc - lingering inferno",
-        "skill:lingering inferno"
+        "skill:lingering inferno",
+        "spell:arc - lingering inferno"
       ],
       "title": "Lingering Inferno"
     },
@@ -33577,7 +33622,7 @@
     },
     {
       "categories": [
-        "Category:Bosses",
+        "Category:Elites",
         "Category:Enemies",
         "Category:The Blight"
       ],
@@ -35956,10 +36001,10 @@
         "ZoneLink:stablekey:zone:duskenlight"
       ],
       "stable_keys": [
+        "character:molorai high archaelogist 3",
         "character:molorai archaelogist",
         "character:molorai archaelogist 1",
-        "character:molorai archaelogist 2",
-        "character:molorai high archaelogist 3"
+        "character:molorai archaelogist 2"
       ],
       "title": "Molorai Archaeologist"
     },
@@ -36002,7 +36047,6 @@
     },
     {
       "categories": [
-        "Category:Bosses",
         "Category:Enemies",
         "Category:Old Krakengard"
       ],
@@ -37782,6 +37826,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Enemies",
         "Category:Vitheo's Plane of Valor"
       ],
@@ -38813,7 +38858,7 @@
     },
     {
       "categories": [
-        "Category:Bosses",
+        "Category:Elites",
         "Category:Enemies",
         "Category:The Blight"
       ],
@@ -39749,6 +39794,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Enemies",
         "Category:Vitheo's Plane of Valor"
       ],
@@ -40154,6 +40200,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Enemies",
         "Category:Plane of the Willow"
       ],
@@ -40659,6 +40706,7 @@
     },
     {
       "categories": [
+        "Category:Elites",
         "Category:Enemies",
         "Category:Shivering Tomb"
       ],
@@ -40883,6 +40931,7 @@
     },
     {
       "categories": [
+        "Category:Elites",
         "Category:Enemies",
         "Category:Plane of the Willow"
       ],
@@ -40913,6 +40962,7 @@
     },
     {
       "categories": [
+        "Category:Elites",
         "Category:Enemies",
         "Category:Plane of the Willow"
       ],
@@ -40943,6 +40993,7 @@
     },
     {
       "categories": [
+        "Category:Elites",
         "Category:Enemies",
         "Category:Plane of the Willow"
       ],
@@ -40993,6 +41044,7 @@
     },
     {
       "categories": [
+        "Category:Elites",
         "Category:Enemies",
         "Category:Plane of the Willow"
       ],
@@ -41035,6 +41087,7 @@
     },
     {
       "categories": [
+        "Category:Elites",
         "Category:Enemies",
         "Category:Plane of the Willow"
       ],
@@ -41065,6 +41118,7 @@
     },
     {
       "categories": [
+        "Category:Elites",
         "Category:Enemies",
         "Category:Plane of the Willow"
       ],
@@ -41112,6 +41166,7 @@
     },
     {
       "categories": [
+        "Category:Elites",
         "Category:Enemies",
         "Category:Plane of the Willow"
       ],
@@ -41325,6 +41380,7 @@
     },
     {
       "categories": [
+        "Category:Elites",
         "Category:Enemies",
         "Category:Plane of the Willow"
       ],
@@ -42521,6 +42577,7 @@
     },
     {
       "categories": [
+        "Category:Elites",
         "Category:Enemies",
         "Category:Malaroth's Nesting Grounds"
       ],
@@ -42864,7 +42921,6 @@
     },
     {
       "categories": [
-        "Category:Bosses",
         "Category:Enemies",
         "Category:Loomingwood Forest"
       ],
@@ -43445,6 +43501,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Braxonian Desert",
         "Category:Enemies"
       ],
@@ -44085,6 +44142,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Enemies",
         "Category:Mysterious Portal"
       ],
@@ -46563,6 +46621,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Enemies",
         "Category:Plane of the Willow"
       ],
@@ -46803,6 +46862,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Enemies",
         "Category:Plane of the Willow"
       ],
@@ -47519,7 +47579,6 @@
     },
     {
       "categories": [
-        "Category:Bosses",
         "Category:Enemies",
         "Category:Silkengrass Meadowlands"
       ],
@@ -48211,6 +48270,25 @@
       ],
       "schema": "item",
       "semantic_links": [
+        "ItemLink:1:Aevum",
+        "ItemLink:1:Aevum",
+        "ItemLink:1:Aevum",
+        "ItemLink:1:Aevum",
+        "ItemLink:1:Crystallized Balance",
+        "ItemLink:1:Elixir of Enlightenment I",
+        "ItemLink:1:Elixir of Enlightenment I",
+        "ItemLink:1:Elixir of Enlightenment I",
+        "ItemLink:1:Elixir of Enlightenment II",
+        "ItemLink:1:Elixir of Enlightenment III",
+        "ItemLink:1:Elixir of Enlightenment IV",
+        "ItemLink:1:Essence of Amarion",
+        "ItemLink:1:Evacuate Soul",
+        "ItemLink:1:Inert Diamond",
+        "ItemLink:1:Mold: Charm of Rage",
+        "ItemLink:1:Planar Stone",
+        "ItemLink:1:Planar Stone Shards",
+        "ItemLink:1:Sivakrux",
+        "ItemLink:1:Torn Treasure Map (Top Left)",
         "QuestLink:link:The Lost Soul{{!}}The Lost Soul Pt. 3",
         "QuestLink:stablekey:quest:thelostsoul3"
       ],
@@ -49720,6 +49798,7 @@
     },
     {
       "categories": [
+        "Category:Elites",
         "Category:Enemies",
         "Category:Vitheo's Rest"
       ],
@@ -50933,8 +51012,8 @@
         "ItemLink:stablekey:item:skillbook - skycaller arrow"
       ],
       "stable_keys": [
-        "spell:none - skycall",
-        "skill:archery - skycaller arrow"
+        "skill:archery - skycaller arrow",
+        "spell:none - skycall"
       ],
       "title": "Skycall"
     },
@@ -51542,6 +51621,7 @@
       "semantic_links": [
         "FactionLink:stablekey:faction:evil",
         "FactionLink:stablekey:faction:good",
+        "ItemLink:1:Celestine Portal",
         "ItemLink:stablekey:item:aura - soluna 5",
         "ItemLink:stablekey:item:aura - soluna 5",
         "ItemLink:stablekey:item:belt - 42 - ellipse cord",
@@ -51630,8 +51710,8 @@
         "ItemLink:stablekey:item:skillbook - soluna's touch"
       ],
       "stable_keys": [
-        "spell:pal - soluna's touch",
-        "skill:soluna's touch"
+        "skill:soluna's touch",
+        "spell:pal - soluna's touch"
       ],
       "title": "Soluna's Touch"
     },
@@ -51687,6 +51767,7 @@
     },
     {
       "categories": [
+        "Category:Elites",
         "Category:Enemies",
         "Category:Soluna's Celestial Plane"
       ],
@@ -51724,6 +51805,7 @@
     },
     {
       "categories": [
+        "Category:Elites",
         "Category:Enemies",
         "Category:Soluna's Celestial Plane"
       ],
@@ -51802,6 +51884,7 @@
     },
     {
       "categories": [
+        "Category:Elites",
         "Category:Enemies",
         "Category:Soluna's Celestial Plane"
       ],
@@ -52304,6 +52387,7 @@
     },
     {
       "categories": [
+        "Category:Elites",
         "Category:Enemies",
         "Category:Lost Cellar"
       ],
@@ -56363,7 +56447,7 @@
     },
     {
       "categories": [
-        "Category:Characters",
+        "Category:Enemies",
         "Category:Soluna's Landing"
       ],
       "generated_templates": [
@@ -57796,6 +57880,7 @@
     },
     {
       "categories": [
+        "Category:Elites",
         "Category:Enemies",
         "Category:Jaws of Sivakaya"
       ],
@@ -58124,7 +58209,7 @@
     },
     {
       "categories": [
-        "Category:Bosses",
+        "Category:Elites",
         "Category:Enemies",
         "Category:Fernalla's Revival Plains",
         "Category:Silkengrass Meadowlands"
@@ -58226,6 +58311,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Enemies",
         "Category:Soluna's Celestial Plane"
       ],
@@ -59422,7 +59508,8 @@
     },
     {
       "categories": [
-        "Category:Characters",
+        "Category:Bosses",
+        "Category:Enemies",
         "Category:Shivering Step"
       ],
       "generated_templates": [
@@ -60230,6 +60317,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Enemies",
         "Category:Vitheo's Plane of Valor"
       ],
@@ -60568,10 +60656,10 @@
         "ZoneLink:stablekey:zone:reliquary"
       ],
       "stable_keys": [
-        "character:d:reliquary:268.68:-2.12:339.01",
         "character:sm_prop_dummy_archery_01:azure:168.89:41.79:309.30",
-        "character:sm_prop_dummy_archery_01:reliquary:268.46:0.17:358.09",
-        "character:sm_prop_dummy_archery_01 (1):reliquary:269.08:0.17:329.22"
+        "character:d:reliquary:268.68:-2.12:339.01",
+        "character:sm_prop_dummy_archery_01 (1):reliquary:269.08:0.17:329.22",
+        "character:sm_prop_dummy_archery_01:reliquary:268.46:0.17:358.09"
       ],
       "title": "Training Dummy"
     },
@@ -60846,6 +60934,7 @@
     {
       "categories": [
         "Category:Brax's Plane of Elements",
+        "Category:Elites",
         "Category:Enemies"
       ],
       "generated_templates": [
@@ -62036,6 +62125,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Enemies",
         "Category:Vitheo's Plane of Valor"
       ],
@@ -62537,6 +62627,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Enemies",
         "Category:Vitheo's Plane of Valor"
       ],
@@ -62600,6 +62691,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Enemies",
         "Category:Vitheo's Plane of Valor"
       ],
@@ -62651,6 +62743,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Enemies",
         "Category:Vitheo's Plane of Valor",
         "Category:Vitheo's Rest"
@@ -62698,6 +62791,7 @@
     },
     {
       "categories": [
+        "Category:Bosses",
         "Category:Enemies",
         "Category:Vitheo's Plane of Valor"
       ],
@@ -62837,14 +62931,15 @@
         "FactionLink:stablekey:faction:evil",
         "FactionLink:stablekey:faction:evil",
         "FactionLink:stablekey:faction:good",
+        "ItemLink:1:Vitheo's Sivakayan Rune",
         "ZoneLink:stablekey:zone:planeofvitheo",
         "ZoneLink:stablekey:zone:planeofvitheo",
         "ZoneLink:stablekey:zone:planeofvitheo"
       ],
       "stable_keys": [
-        "character:restoredvitheo:planeofvitheo:479.15:25.20:441.61",
         "character:vitheo",
-        "character:vitheo observer"
+        "character:vitheo observer",
+        "character:restoredvitheo:planeofvitheo:479.15:25.20:441.61"
       ],
       "title": "Vitheo the Tactician"
     },
@@ -63407,6 +63502,7 @@
     },
     {
       "categories": [
+        "Category:Elites",
         "Category:Enemies",
         "Category:Vitheo's Plane of Valor"
       ],
@@ -63501,6 +63597,7 @@
     {
       "categories": [
         "Category:Characters",
+        "Category:Elites",
         "Category:Enemies",
         "Category:Jaws of Sivakaya"
       ],
@@ -65527,6 +65624,7 @@
     },
     {
       "categories": [
+        "Category:Elites",
         "Category:Enemies",
         "Category:Ripper's Keep"
       ],

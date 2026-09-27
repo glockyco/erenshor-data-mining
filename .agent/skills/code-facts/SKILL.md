@@ -57,8 +57,9 @@ strings, so the build ID is the one precise, publicly verifiable identifier for
 a game version. It rides here because this command is the last pipeline step
 that touches the shipped game files before the clean build, and both values are
 carried into the clean DB verbatim, where the maps site reads them for its
-data-provenance footer. If the feed is unavailable or the build has aged out
-of its window, publication time stores NULL. Consumers omit the provenance
+data-provenance footer. The command fails when the manifest has no build ID or
+the feed cannot be fetched or parsed. If the build has only aged out of the
+feed window, publication time stores NULL. Consumers then omit the provenance
 rather than rendering a fabricated local timestamp.
 
 Failure meanings:
@@ -89,9 +90,9 @@ site — an untagged assert spec fails the test.
 
 A detached git repo at `variants/{v}/decompile-history.git` versions the
 decompiled tree across builds. Its git-dir lives **outside** the work tree
-because `extract rip` does `rmtree` on the whole Unity project — a `.git`
+because `extract rip` replaces the whole Unity project directory — a `.git`
 placed inside `Assembly-CSharp/` would be destroyed on every update. The
-`--git-dir`/`--work-tree` flags need no `.git` (or gitlink) inside the wiped
+`--git-dir`/`--work-tree` flags need no `.git` (or gitlink) inside the replaced
 dir, so history survives the rip. `variants/` is gitignored, so the main repo
 never sees it. After each re-rip, commit the new tree and diff against the
 previous build to catch mechanics no fact spec anticipates:

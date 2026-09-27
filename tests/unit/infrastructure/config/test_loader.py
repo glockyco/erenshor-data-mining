@@ -324,6 +324,18 @@ class TestLoadConfig:
         assert "playtest" in config.variants
         assert config.variants["playtest"].name == "Playtest Branch"
 
+    def test_removed_key_in_local_override_is_named(self, tmp_path: Path, monkeypatch):
+        """A key the schema no longer has fails loading instead of being ignored."""
+        (tmp_path / ".git").mkdir()
+        fixture_path = Path(__file__).parent / "../../../fixtures/config/base_config.toml"
+        (tmp_path / "config.toml").write_text(fixture_path.read_text())
+        (tmp_path / ".erenshor").mkdir()
+        (tmp_path / ".erenshor" / "config.local.toml").write_text('[variants.main]\ngame_files = "/old/copy"\n')
+        monkeypatch.chdir(tmp_path)
+
+        with pytest.raises(ConfigLoadError, match=r"variants -> main -> game_files"):
+            load_config()
+
     def test_load_missing_base_config_fails(self, tmp_path: Path, monkeypatch):
         """Test that loading fails if config.toml is missing."""
         # Create fake repo with .git but no config.toml
@@ -483,7 +495,6 @@ name = "Main Game"
 app_id = "2382520"
 unity_project = "/path/to/unity"
 editor_scripts = "/path/to/scripts"
-game_files = "/path/to/game"
 database_raw = "/path/to/raw.sqlite"
 database = "/path/to/db.sqlite"
 logs = "/path/to/logs"

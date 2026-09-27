@@ -19,7 +19,6 @@ operations, designed to work with wiki.gg (https://erenshor.wiki.gg).
 import hashlib
 from collections.abc import Sequence
 from dataclasses import dataclass, replace
-from datetime import UTC
 from pathlib import Path
 from typing import Any, Literal, NoReturn
 
@@ -487,31 +486,25 @@ class MediaWikiClient:
 
         result = self._request(params)
 
-        # Extract page content from response
-        pages = result.get("query", {}).get("pages", {})
+        query = result.get("query")
+        pages = query.get("pages") if isinstance(query, dict) else None
+        if not isinstance(pages, dict) or len(pages) != 1:
+            raise MediaWikiAPIError(f"Invalid page response for {title!r}: expected one page")
 
-        # Get first (and only) page from response
-        if not pages:
-            logger.warning(f"No page data returned for: {title}")
+        page = next(iter(pages.values()))
+        if not isinstance(page, dict):
+            raise MediaWikiAPIError(f"Invalid page response for {title!r}: malformed page")
+        if "missing" in page:
             return None
 
-        page_id = next(iter(pages.keys()))
-        page = pages[page_id]
-
-        # Check if page exists (missing pages have negative IDs)
-        if int(page_id) < 0:
-            logger.debug(f"Page doesn't exist: {title}")
-            return None
-
-        # Extract content from revision
         try:
-            content: str = page["revisions"][0]["slots"]["main"]["*"]
-            logger.debug(f"Fetched page: {title} ({len(content)} characters)")
-            return content
-
-        except (KeyError, IndexError) as e:
-            logger.error(f"Failed to extract content for {title}: {e}")
-            return None
+            content = page["revisions"][0]["slots"]["main"]["*"]
+            if not isinstance(content, str):
+                raise TypeError("revision content is not text")
+        except (KeyError, IndexError, TypeError) as error:
+            raise MediaWikiAPIError(f"Invalid page response for {title!r}: missing revision content") from error
+        logger.debug(f"Fetched page: {title} ({len(content)} characters)")
+        return content
 
     def expand_templates(self, text: str) -> str:
         """Expand wikitext through the parser and return the rendered result.
@@ -569,26 +562,94 @@ class MediaWikiClient:
 
             result = self._request(params)
 
-            # Extract content from response
-            pages = result.get("query", {}).get("pages", {})
+            query = result.get("query")
+            if not isinstance(query, dict):
+                raise MediaWikiAPIError(f"Invalid page response for {batch!r}: missing query")
+            normalized = query.get("normalized", [])
+            if not isinstance(normalized, list):
+                raise MediaWikiAPIError(f"Invalid page response for {batch!r}: malformed normalized titles")
+            aliases: dict[str, str] = {}
+            for entry in normalized:
+                if (
+                    not isinstance(entry, dict)
+                    or not isinstance(entry.get("from"), str)
+                    or not isinstance(entry.get("to"), str)
+                ):
+                    raise MediaWikiAPIError(f"Invalid page response for {batch!r}: malformed normalized title")
+                aliases[entry["from"]] = entry["to"]
+            pages = query.get("pages")
+            if not isinstance(pages, dict):
+                raise MediaWikiAPIError(f"Invalid page response for {batch!r}: missing pages")
 
-            for page_id, page in pages.items():
-                title = page.get("title", "")
-
-                # Check if page exists
-                if int(page_id) < 0:
-                    result_dict[title] = None
+            by_title: dict[str, str | None] = {}
+            for page in pages.values():
+                if not isinstance(page, dict) or not isinstance(page.get("title"), str):
+                    raise MediaWikiAPIError(f"Invalid page response for {batch!r}: malformed page")
+                title = page["title"]
+                if "missing" in page:
+                    by_title[title] = None
                     continue
 
-                # Extract content
                 try:
                     content = page["revisions"][0]["slots"]["main"]["*"]
-                    result_dict[title] = content
-                except (KeyError, IndexError):
-                    result_dict[title] = None
+                    if not isinstance(content, str):
+                        raise TypeError("revision content is not text")
+                except (KeyError, IndexError, TypeError) as error:
+                    raise MediaWikiAPIError(f"Invalid page response for {title!r}: missing revision content") from error
+                by_title[title] = content
 
-        logger.info(f"Fetched {len(result_dict)} pages ({sum(1 for v in result_dict.values() if v)} exist)")
+            for requested in batch:
+                normalized_title = aliases.get(requested, requested)
+                if normalized_title not in by_title:
+                    raise MediaWikiAPIError(f"Invalid page response for {requested!r}: page not returned")
+                result_dict[requested] = by_title[normalized_title]
         return result_dict
+
+    def get_page_revision_ids(self, titles: Sequence[str]) -> dict[str, int | None]:
+        """Return the current revision ID for each requested title.
+
+        A missing page has no revision ID. A malformed or incomplete response fails.
+        """
+        revisions: dict[str, int | None] = {}
+        for start in range(0, len(titles), self.batch_size):
+            batch = titles[start : start + self.batch_size]
+            result = self._request({"action": "query", "prop": "info", "titles": "|".join(batch)})
+            query = result.get("query")
+            if not isinstance(query, dict):
+                raise MediaWikiAPIError(f"Invalid revision response for {batch!r}: missing query")
+            normalized = query.get("normalized", [])
+            if not isinstance(normalized, list):
+                raise MediaWikiAPIError(f"Invalid revision response for {batch!r}: malformed normalized titles")
+            aliases: dict[str, str] = {}
+            for entry in normalized:
+                if (
+                    not isinstance(entry, dict)
+                    or not isinstance(entry.get("from"), str)
+                    or not isinstance(entry.get("to"), str)
+                ):
+                    raise MediaWikiAPIError(f"Invalid revision response for {batch!r}: malformed normalized title")
+                aliases[entry["from"]] = entry["to"]
+            pages = query.get("pages")
+            if not isinstance(pages, dict):
+                raise MediaWikiAPIError(f"Invalid revision response for {batch!r}: missing pages")
+            by_title: dict[str, int | None] = {}
+            for page in pages.values():
+                if not isinstance(page, dict) or not isinstance(page.get("title"), str):
+                    raise MediaWikiAPIError(f"Invalid revision response for {batch!r}: malformed page")
+                title = page["title"]
+                if "missing" in page:
+                    by_title[title] = None
+                    continue
+                revision = page.get("lastrevid")
+                if type(revision) is not int or revision <= 0:
+                    raise MediaWikiAPIError(f"Invalid revision response for {title!r}: missing lastrevid")
+                by_title[title] = revision
+            for title in batch:
+                normalized_title = aliases.get(title, title)
+                if normalized_title not in by_title:
+                    raise MediaWikiAPIError(f"Invalid revision response for {title!r}: page not returned")
+                revisions[title] = by_title[normalized_title]
+        return revisions
 
     def get_title_statuses(self, titles: Sequence[str]) -> dict[str, MediaWikiTitleStatus]:
         """Return normalized, redirect, and existence status for each title.
@@ -872,29 +933,38 @@ class MediaWikiClient:
             if not isinstance(start_timestamp, str) or not start_timestamp:
                 raise MediaWikiAPIError("Missing curtimestamp while fetching page snapshots")
 
-            pages = result.get("query", {}).get("pages", {})
+            query = result.get("query")
+            if not isinstance(query, dict):
+                raise MediaWikiAPIError(f"Invalid page snapshot response for {batch!r}: missing query")
+            normalized = query.get("normalized", [])
+            if not isinstance(normalized, list):
+                raise MediaWikiAPIError(f"Invalid page snapshot response for {batch!r}: malformed normalized titles")
+            aliases: dict[str, str] = {}
+            for entry in normalized:
+                if (
+                    not isinstance(entry, dict)
+                    or not isinstance(entry.get("from"), str)
+                    or not isinstance(entry.get("to"), str)
+                ):
+                    raise MediaWikiAPIError(f"Invalid page snapshot response for {batch!r}: malformed normalized title")
+                aliases[entry["from"]] = entry["to"]
+            pages = query.get("pages")
             if not isinstance(pages, dict):
-                raise MediaWikiAPIError("Invalid page snapshot response")
-            pages_by_title = {
-                page.get("title"): page
-                for page in pages.values()
-                if isinstance(page, dict) and isinstance(page.get("title"), str)
-            }
+                raise MediaWikiAPIError(f"Invalid page snapshot response for {batch!r}: missing pages")
+            pages_by_title: dict[str, dict[str, Any]] = {}
+            for page in pages.values():
+                if not isinstance(page, dict) or not isinstance(page.get("title"), str):
+                    raise MediaWikiAPIError(f"Invalid page snapshot response for {batch!r}: malformed page")
+                pages_by_title[page["title"]] = page
             for requested_title in batch:
-                page = pages_by_title.get(requested_title)
+                page = pages_by_title.get(aliases.get(requested_title, requested_title))
                 if page is None:
-                    snapshots[requested_title] = MediaWikiPageSnapshot(
-                        title=requested_title,
-                        source_text=None,
-                        revision=None,
-                        start_timestamp=start_timestamp,
+                    raise MediaWikiAPIError(
+                        f"Invalid page snapshot response for {requested_title!r}: page not returned"
                     )
-                    continue
 
-                page_id_value = page.get("pageid")
-                page_id = int(page_id_value) if page_id_value is not None else None
-                page_title = str(page.get("title", requested_title))
-                if page_id is None or page_id < 0 or page.get("missing") is True:
+                page_title = page["title"]
+                if "missing" in page:
                     snapshots[requested_title] = MediaWikiPageSnapshot(
                         title=page_title,
                         source_text=None,
@@ -902,6 +972,10 @@ class MediaWikiClient:
                         start_timestamp=start_timestamp,
                     )
                     continue
+
+                page_id = page.get("pageid")
+                if type(page_id) is not int or page_id <= 0:
+                    raise MediaWikiAPIError(f"Invalid page snapshot response for {requested_title!r}: missing page ID")
 
                 try:
                     raw_revision = page["revisions"][0]
@@ -915,7 +989,7 @@ class MediaWikiClient:
                         raise TypeError("revision source is not text")
                     revision = MediaWikiPageRevision(
                         title=page_title,
-                        page_id=int(page.get("pageid", page_id)),
+                        page_id=page_id,
                         revision_id=revision_id,
                         timestamp=revision_timestamp,
                         start_timestamp=start_timestamp,
@@ -1573,71 +1647,6 @@ class MediaWikiClient:
 
         logger.debug(f"Page {title}: {'exists' if exists else 'does not exist'}")
         return exists
-
-    def get_recent_changes(self, days: int = 30, limit: int = 500) -> dict[str, str]:
-        """Get pages that were recently modified with their modification timestamps.
-
-        Uses MediaWiki's recentchanges API to efficiently identify pages that
-        have been edited within the last N days, along with when they were last
-        modified. This enables smart cache invalidation by comparing modification
-        timestamps with fetch timestamps.
-
-        Args:
-            days: Number of days to look back (default: 30).
-            limit: Maximum number of results to return (default: 500, max: 500).
-
-        Returns:
-            Dictionary mapping page title to ISO 8601 timestamp of last modification.
-            If a page appears multiple times, only the most recent timestamp is kept.
-
-        Raises:
-            MediaWikiAPIError: If API request fails.
-
-        Example:
-            >>> client = MediaWikiClient(api_url="https://erenshor.wiki.gg/api.php")
-            >>> recent = client.get_recent_changes(days=30)
-            >>> print(f"{len(recent)} pages modified in last 30 days")
-            >>> for title, timestamp in list(recent.items())[:5]:
-            ...     print(f"{title}: {timestamp}")
-        """
-        logger.info(f"Fetching recent changes (last {days} days, limit {limit})")
-
-        # Calculate timestamp for N days ago (MediaWiki format: ISO 8601)
-        from datetime import datetime, timedelta
-
-        cutoff = datetime.now(UTC) - timedelta(days=days)
-        rc_start = cutoff.strftime("%Y-%m-%dT%H:%M:%SZ")
-
-        params = {
-            "action": "query",
-            "list": "recentchanges",
-            "rcstart": rc_start,
-            "rcprop": "title|timestamp",  # Get both title and timestamp
-            "rclimit": min(limit, 500),  # API max is 500
-            "rctype": "edit|new",  # Only edits and new pages, not logs
-            # No rcshow parameter = include ALL edits (bot, minor, anon, everything)
-        }
-
-        result = self._request(params)
-
-        # Extract page titles with timestamps
-        # If a page appears multiple times, keep the most recent timestamp
-        changes = result.get("query", {}).get("recentchanges", [])
-        page_timestamps: dict[str, str] = {}
-
-        for change in changes:
-            title = change.get("title")
-            timestamp = change.get("timestamp")
-
-            if not title or not timestamp:
-                continue
-
-            # Keep most recent timestamp for each page
-            if title not in page_timestamps or timestamp > page_timestamps[title]:
-                page_timestamps[title] = timestamp
-
-        logger.info(f"Found {len(page_timestamps)} pages modified in last {days} days")
-        return page_timestamps
 
     def upload_file(
         self,

@@ -272,6 +272,15 @@ class TestMediaWikiClientGetPage:
         )
         assert client.get_page("Item:NonExistent") is None
 
+    def test_get_page_rejects_missing_revision_content(self) -> None:
+        client, _ = _mock_client(
+            [{"query": {"pages": {"123": {"title": "Item:Sword", "pageid": 123}}}}],
+            clock=MockClock(),
+        )
+
+        with pytest.raises(MediaWikiAPIError, match=r"Item:Sword.*missing revision content"):
+            client.get_page("Item:Sword")
+
     def test_get_page_network_error(self) -> None:
         """Test network error handling."""
 
@@ -321,6 +330,27 @@ class TestMediaWikiClientGetPages:
         assert pages["Item:Shield"] == "Shield content"
         assert pages["Item:Missing"] is None
 
+    def test_get_pages_maps_normalized_title_to_request(self) -> None:
+        client, _ = _mock_client(
+            [
+                {
+                    "query": {
+                        "normalized": [{"from": "a_page", "to": "A page"}],
+                        "pages": {
+                            "7": {
+                                "pageid": 7,
+                                "title": "A page",
+                                "revisions": [{"slots": {"main": {"*": "Saved content"}}}],
+                            }
+                        },
+                    }
+                }
+            ],
+            clock=MockClock(),
+        )
+
+        assert client.get_pages(["a_page"]) == {"a_page": "Saved content"}
+
     def test_get_pages_empty_list(self) -> None:
         """Test batch fetch with empty list returns empty dict."""
         client, api = _mock_client([], clock=MockClock())
@@ -329,9 +359,67 @@ class TestMediaWikiClientGetPages:
 
     def test_get_pages_batching(self) -> None:
         """Test batch fetch splits large requests."""
-        client, api = _mock_client([{"query": {"pages": {}}}] * 3, batch_size=25, clock=MockClock())
-        client.get_pages([f"Page:{i}" for i in range(60)])
+        responses = [
+            {
+                "query": {
+                    "pages": {
+                        str(index): {
+                            "pageid": index,
+                            "title": f"Page:{index}",
+                            "revisions": [{"slots": {"main": {"*": "content"}}}],
+                        }
+                        for index in range(start, min(start + 25, 60))
+                    }
+                }
+            }
+            for start in (0, 25, 50)
+        ]
+        client, api = _mock_client(responses, batch_size=25, clock=MockClock())
+        assert len(client.get_pages([f"Page:{i}" for i in range(60)])) == 60
         assert len(api.requests) == 3
+
+    def test_get_pages_rejects_missing_revision_content(self) -> None:
+        client, _ = _mock_client(
+            [{"query": {"pages": {"123": {"title": "Item:Sword", "pageid": 123}}}}],
+            clock=MockClock(),
+        )
+
+        with pytest.raises(MediaWikiAPIError, match=r"Item:Sword.*missing revision content"):
+            client.get_pages(["Item:Sword"])
+
+    def test_revision_ids_resolve_normalized_and_missing_titles(self) -> None:
+        client, api = _mock_client(
+            [
+                {
+                    "query": {
+                        "normalized": [{"from": "a_page", "to": "A page"}],
+                        "pages": {
+                            "7": {"pageid": 7, "title": "A page", "lastrevid": 42},
+                            "-1": {"title": "Missing", "missing": ""},
+                        },
+                    }
+                }
+            ],
+            clock=MockClock(),
+        )
+
+        assert client.get_page_revision_ids(["a_page", "Missing"]) == {"a_page": 42, "Missing": None}
+        assert api.requests[0].query["prop"] == "info"
+
+    def test_revision_ids_reject_missing_page_data(self) -> None:
+        client, _ = _mock_client([{"query": {"pages": {}}}], clock=MockClock())
+
+        with pytest.raises(MediaWikiAPIError, match=r"A Page.*page not returned"):
+            client.get_page_revision_ids(["A Page"])
+
+    def test_revision_ids_reject_missing_last_revision(self) -> None:
+        client, _ = _mock_client(
+            [{"query": {"pages": {"7": {"pageid": 7, "title": "A Page"}}}}],
+            clock=MockClock(),
+        )
+
+        with pytest.raises(MediaWikiAPIError, match=r"A Page.*lastrevid"):
+            client.get_page_revision_ids(["A Page"])
 
     def test_get_page_snapshots_parses_source_revision_and_timestamp(self) -> None:
         """One response provides source, revision guard, and missing state for every title."""
@@ -376,6 +464,34 @@ class TestMediaWikiClientGetPages:
         assert request_params["format"] == "json"
         assert request_params["maxlag"] == "5"
         assert "formatversion" not in request_params
+
+    def test_get_page_snapshots_maps_normalized_title_to_request(self) -> None:
+        client, _ = _mock_client(
+            [
+                {
+                    "curtimestamp": "2026-09-27T12:01:00Z",
+                    "query": {
+                        "normalized": [{"from": "a_page", "to": "A page"}],
+                        "pages": {
+                            "7": {
+                                "pageid": 7,
+                                "title": "A page",
+                                "revisions": [
+                                    {
+                                        "revid": 42,
+                                        "timestamp": "2026-09-27T12:00:00Z",
+                                        "slots": {"main": {"*": "Saved content"}},
+                                    }
+                                ],
+                            }
+                        },
+                    },
+                }
+            ],
+            clock=MockClock(),
+        )
+
+        assert client.get_page_snapshots(["a_page"])["a_page"].source_text == "Saved content"
 
     """Test wiki page editing."""
 

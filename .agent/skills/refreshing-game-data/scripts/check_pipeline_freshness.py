@@ -16,6 +16,9 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+from erenshor.infrastructure.config import load_config
+from erenshor.infrastructure.steam.installation import GameInstallationError, find_game_installation
+
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -30,8 +33,14 @@ def main() -> int:
 
     v = args.variant
     root = args.repo_root / "variants" / v
+    try:
+        installation = find_game_installation(v, load_config().variants[v].app_id)
+    except GameInstallationError as error:
+        print(f"\n{error}", file=sys.stderr)
+        return 1
+    erenshor_data = installation.path / "Erenshor_Data"
     targets = {
-        "game files": root / "game" / "Erenshor_Data",
+        "game files": erenshor_data,
         "Unity ExportedProject": root / "unity" / "ExportedProject",
         "raw SQLite": root / f"erenshor-{v}-raw.sqlite",
         "clean SQLite": root / f"erenshor-{v}.sqlite",
@@ -53,14 +62,10 @@ def main() -> int:
     unity_mt = times["Unity ExportedProject"]
 
     if game_mt is None:
-        print(
-            f"\nNo game files present. Run `erenshor -V {v} extract download` first.",
-            file=sys.stderr,
-        )
+        print(f"\nGame files are missing: {erenshor_data}. Verify them in the Steam client.", file=sys.stderr)
         return 1
 
     # Asset counts (signal of content delta vs. metadata-only Steam patch)
-    erenshor_data = root / "game" / "Erenshor_Data"
     levels = list(erenshor_data.glob("level*"))
     sharedassets = list(erenshor_data.glob("sharedassets*.assets"))
     print(f"  asset counts: {len(levels)} levels, {len(sharedassets)} sharedassets bundles")

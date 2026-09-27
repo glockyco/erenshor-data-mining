@@ -70,6 +70,7 @@
         serializeSelection,
         deserializeSelection
     } from '$lib/types/selection';
+    import { buildEncounterTierByName } from '$lib/map-markers';
     import { buildSearchIndex, resolveHighlight, type SearchResult } from '$lib/map/search';
     import * as Drawer from '$lib/components/ui/drawer';
     import MapSidebar from '$lib/components/map/MapSidebar.svelte';
@@ -129,12 +130,22 @@
     // Cursor coordinate readout state
     let cursorCoordinates = $state<CursorCoordinates | null>(null);
 
+    const encounterTierByName = $derived(buildEncounterTierByName(
+        [
+            ...data.markers.enemiesEnemy,
+            ...data.markers.enemiesElite,
+            ...data.markers.enemiesBoss,
+            ...data.markers.npcs
+        ],
+        data.unlocatedEnemies
+    ));
+
     // Search index (built once from static data)
     const searchIndex = $derived(
         buildSearchIndex({
-            enemiesCommon: data.markers.enemiesCommon,
-            enemiesRare: data.markers.enemiesRare,
-            enemiesUnique: data.markers.enemiesUnique,
+            enemiesEnemy: data.markers.enemiesEnemy,
+            enemiesElite: data.markers.enemiesElite,
+            enemiesBoss: data.markers.enemiesBoss,
             unlocatedEnemies: data.unlocatedEnemies,
             npcs: data.markers.npcs,
             zones: data.zones,
@@ -180,9 +191,9 @@
             findEnemy: (name: string) =>
                 (
                     [
-                        ...data.markers.enemiesCommon,
-                        ...data.markers.enemiesRare,
-                        ...data.markers.enemiesUnique
+                        ...data.markers.enemiesEnemy,
+                        ...data.markers.enemiesElite,
+                        ...data.markers.enemiesBoss
                     ] as WorldEnemy[]
                 ).filter((m) => m.characters.some((c) => c.name === name)),
             findNpc: (name: string) =>
@@ -217,9 +228,9 @@
         const allMarkers: AnyWorldMarker[] = [
             ...data.markers.achievementTriggers,
             ...data.markers.doors,
-            ...data.markers.enemiesCommon,
-            ...data.markers.enemiesRare,
-            ...data.markers.enemiesUnique,
+            ...data.markers.enemiesEnemy,
+            ...data.markers.enemiesElite,
+            ...data.markers.enemiesBoss,
             ...data.markers.forges,
             ...data.markers.itemBags,
             ...data.markers.miningNodes,
@@ -627,7 +638,7 @@
             return;
         }
 
-        const viewport = deckInstance.getViewports?.()[0];
+        const viewport = currentViewport();
         if (!viewport?.unproject) {
             scaleBarState = null;
             if (retries > 0) {
@@ -662,8 +673,14 @@
         requestAnimationFrame(() => updateScaleBar(retries));
     }
 
+    // Deck.getViewports asserts until deck.gl has created its view manager,
+    // which happens asynchronously after construction.
+    function currentViewport() {
+        return deckInstance?.isInitialized ? deckInstance.getViewports()[0] : undefined;
+    }
+
     function updateWorldCursorCoordinates(screenX: number, screenY: number) {
-        const viewport = deckInstance?.getViewports?.()[0];
+        const viewport = currentViewport();
         if (!viewport?.unproject) {
             cursorCoordinates = null;
             return;
@@ -986,7 +1003,7 @@
     }
 
     // Update deck.gl layers
-    const SPAWN_MARKER_LAYER_IDS = ['enemies-common', 'enemies-rare', 'enemies-unique', 'npcs'];
+    const SPAWN_MARKER_LAYER_IDS = ['enemies-enemy', 'enemies-elite', 'enemies-boss', 'npcs'];
 
     function isSpawnMarker(object: unknown): object is WorldEnemy | WorldNpc {
         if (!object || typeof object !== 'object') return false;
@@ -1032,6 +1049,7 @@
                 zones: data.zones,
                 zoneConfigs: data.zoneConfigs
             },
+            encounterTierByName,
             effectiveZones,
             overrides: debugStore.overrides,
             draggingZone: debugStore.draggingZone,
@@ -1252,7 +1270,8 @@
                     minZoom: INITIAL_VIEW_STATE.minZoom,
                     maxZoom: INITIAL_VIEW_STATE.maxZoom
                 },
-                controller: { inertia: 500 },
+                // A pan stops where the drag ends. Inertia would carry a touch swipe past that point.
+                controller: { inertia: false },
                 layers,
                 onAfterRender: () => scheduleScaleBarUpdate(0),
                 getCursor: ({
@@ -1478,6 +1497,7 @@
             x={hoverPosition.x}
             y={hoverPosition.y}
             {zoneName}
+            {encounterTierByName}
         />
     {/if}
 
@@ -1490,6 +1510,7 @@
                 {selection}
                 {zoneName}
                 {searchIndex}
+                {encounterTierByName}
                 onClose={closeSelection}
                 onFocus={() => focusSelection(selection)}
                 onHoverSpawn={handleHoverSpawn}
@@ -1509,6 +1530,7 @@
                             {selection}
                             {zoneName}
                             {searchIndex}
+                            {encounterTierByName}
                             mode="drawer"
                             onClose={() => {
                                 mobilePopupOpen = false;
@@ -1555,6 +1577,7 @@
         index={searchIndex.entries}
         liveEntities={liveState.entities}
         liveZone={liveState.zone}
+        {encounterTierByName}
         onselect={handleSearchSelect}
         onliveselect={handleLiveSearchSelect}
         onclose={() => {}}

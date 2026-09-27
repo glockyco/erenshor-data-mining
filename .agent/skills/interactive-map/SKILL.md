@@ -31,12 +31,12 @@ and minor releases. Review major updates through the Dependency Dashboard.
 Two Worker services, one build, deployed canonical first by `maps deploy`:
 
 - `wrangler.jsonc` → `erenshor-maps-site` → `erenshor.compendiums.org`. Assets
-  are served without invoking the Worker. `src/site-worker.ts` handles only
+  are served without invoking the Worker. `src/maps/src/site-worker.ts` handles only
   `/api/game-version`, which `assets.run_worker_first` routes to it. Listing
   that path is required: with plain asset-first routing a static file at that
   path would shadow the endpoint and serve stale JSON.
 - `wrangler.legacy.jsonc` → `erenshor-maps` → `erenshor-maps.wowmuch1.workers.dev`.
-  `src/legacy-worker.ts` runs before assets because it routes on hostname, and
+  `src/maps/src/legacy-worker.ts` runs before assets because it routes on hostname, and
   keeps the legacy `/map` document plus its runtime resources same-origin for
   shipped companion overlays. Never rename this service.
 
@@ -44,13 +44,13 @@ Trailing-slash HTML paths (`/map/`, `/maps/{key}/`) answer with a same-origin
 relative `307` from the asset layer's `auto-trailing-slash` handling on both
 hosts. That is expected, not a bug.
 
-`src/worker-config.test.ts` asserts this split, so a config that merges the two
+`src/maps/src/worker-config.test.ts` asserts this split, so a config that merges the two
 services back together fails the suite rather than production.
 
 ## Architecture facts
 
 - DB used at runtime: `src/maps/static/db/erenshor.sqlite` (symlink to `variants/main/erenshor-main.sqlite`)
-- Variant builds still run frontend tests against that static DB path. Before `maps build -V <variant>`, save the current target, temporarily point the symlink at the variant clean DB, and restore the original target after the command—even when the build fails. Verify with `readlink src/maps/static/db/erenshor.sqlite`.
+- `maps dev` and `maps build` link the selected variant's clean DB at that path while they run, then restore the previous link, so `maps build -V <variant>` needs no manual link change. Both commands refuse to replace a regular file or directory at that path. Vitest reads a temporary fixture database, not that path.
 - `maps thumbnails` requires a running `maps dev` or `maps preview` server and a local Playwright Chromium installation (`pnpm exec playwright install chromium`, once per machine). Pass the actual server URL with `--url`; use `maps dev` when generating thumbnails from variant data.
 - `+page.server.ts` has `export const prerender = true` and delegates to the
   server-only world-data builder — server code also runs during `uv run erenshor maps build` (stdout visible in build output)
@@ -115,7 +115,9 @@ Run with: `node src/maps/debug-markers.js`
 ## Common failure modes
 
 **Marker missing from all buckets** → check DB query in `getSpawnPointMarkers`:
-- `spc.SpawnChance > 0` filters zero-chance entries
+- `cs.spawn_chance > 0 OR cs.source_script IS NOT NULL` filters zero-chance entries
+  that no script spawns
+- only `character_deduplications` rows with `is_map_visible = 1` produce markers
 - `isNpc = characters.every(c => c.isFriendly)` — a single `IsFriendly=1`
   character at a spawn point makes it an NPC marker
 
@@ -137,11 +139,10 @@ check the `hasVulnerable` guard
 ```bash
 # All data for a character's spawns
 sqlite3 variants/main/erenshor-main.sqlite "
-SELECT sp.StableKey, sp.IsEnabled, sp.Scene,
-       c.NPCName, c.Level, c.IsFriendly, c.Invulnerable,
-       c.IsCommon, c.IsRare, c.IsUnique, spc.SpawnChance
-FROM SpawnPoints sp
-JOIN SpawnPointCharacters spc ON spc.SpawnPointStableKey = sp.StableKey
-JOIN Characters c ON c.StableKey = spc.CharacterStableKey
-WHERE c.NPCName = 'Evadne the Corrupted';"
+SELECT cs.spawn_point_stable_key, cs.is_enabled, cs.scene,
+       c.display_name, c.level, c.is_friendly, c.invulnerable,
+       c.is_common, c.is_rare, c.is_unique, cs.spawn_chance, cs.source_script
+FROM map_character_spawns cs
+JOIN characters c ON c.stable_key = cs.character_stable_key
+WHERE c.display_name = 'Evadne the Corrupted';"
 ```

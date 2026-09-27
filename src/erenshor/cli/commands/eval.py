@@ -9,6 +9,9 @@ from pathlib import Path
 import typer
 from rich.console import Console
 
+from erenshor.cli.preconditions import require_preconditions
+from erenshor.cli.preconditions.checks.eval import eval_source
+
 app = typer.Typer(
     name="eval",
     help="Evaluate C# code via HotRepl",
@@ -19,6 +22,7 @@ console = Console()
 
 
 @app.command()
+@require_preconditions(eval_source)
 def run(
     ctx: typer.Context,
     code: str | None = typer.Argument(None, help="C# code to evaluate"),
@@ -27,17 +31,7 @@ def run(
     timeout: int = typer.Option(10000, "--timeout", help="Server-side timeout in ms"),
 ) -> None:
     """Evaluate a C# expression or script in the running game."""
-    if code and file:
-        console.print("[red]Provide either code argument or --file, not both.[/red]")
-        raise typer.Exit(code=1)
-    if not code and not file:
-        console.print("[red]Provide a code argument or --file.[/red]")
-        raise typer.Exit(code=1)
-
     if file:
-        if not file.exists():
-            console.print(f"[red]File not found: {file}[/red]")
-            raise typer.Exit(code=1)
         code = file.read_text()
 
     asyncio.run(_run(code, json_output=json_output, timeout_ms=timeout))  # type: ignore[arg-type]

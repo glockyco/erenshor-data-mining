@@ -67,11 +67,7 @@ def _create_armor_overview_generator(context: GeneratorContext) -> ArmorOverview
 
 
 def _create_zone_generator(context: GeneratorContext) -> ZonePageGenerator:
-    return ZonePageGenerator(
-        context,
-        output_dir=context.zone_output_dir,
-        zone_positions_path=context.zone_positions_path,
-    )
+    return ZonePageGenerator(context, output_dir=context.zone_output_dir)
 
 
 def _bind_registration(registration: GeneratorRegistration, context: GeneratorContext) -> GeneratorRegistration:

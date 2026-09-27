@@ -4,9 +4,9 @@
     import { goto } from '$app/navigation';
     import { onDestroy } from 'svelte';
     import { MAPS } from '$lib/maps';
-    import { Repository } from '$lib/database.default';
+    import { getBrowserRepository } from '$lib/database.default';
     import { type LatLngExpression, type Map as LeafletMap, type LeafletMouseEvent } from 'leaflet';
-    import type { Marker, EnemyMarker, NpcMarker } from '$lib/map-markers';
+    import { compareEncounterTier, type Marker, type EnemyMarker, type NpcMarker } from '$lib/map-markers';
     import Seo from '$lib/components/Seo.svelte';
     import ScaleBar from '$lib/components/map/ScaleBar.svelte';
     import CoordinateReadout from '$lib/components/map/CoordinateReadout.svelte';
@@ -169,8 +169,7 @@
             const worldSizeY = config.baseTilesY * config.tileSize;
 
             // Load and create markers
-            const repository = new Repository();
-            await repository.init();
+            const repository = await getBrowserRepository();
 
             // Get north bearing for this zone
             const northBearing = await repository.getZoneNorthBearing(currentMapName);
@@ -194,6 +193,7 @@
                 touchRotate: true, // Keep touch rotation enabled
                 shiftKeyRotate: true, // Enable shift+drag rotation
                 bearingSnap: 0, // Disable snapping to allow free rotation
+                inertia: false, // A pan stops where the drag ends
                 zoomControl: false // Disable default zoom control (we'll add it back in the right order)
             });
 
@@ -209,7 +209,11 @@
                 maxZoom: config.maxZoom
             }).addTo(map);
 
-            // Initialize WebSocket for player position
+            // Player position for the per-zone maps. Nothing in this repository
+            // serves port 18584. The retired InteractiveMapsCompanion mod does, and
+            // players who still run it keep live tracking here. This socket and its
+            // message format are kept indefinitely. The mod sends one JSON object
+            // per update: { scene, x, y, z, fx, fy, fz }.
             if (!webSocket) {
                 webSocket = new WebSocket('ws://localhost:18584');
 
@@ -218,15 +222,7 @@
                 };
 
                 webSocket.onmessage = (event) => {
-                    const message = JSON.parse(event.data);
-
-                    // Ignore new mod messages (they have a 'type' field)
-                    if (message.type) {
-                        return;
-                    }
-
-                    // Old mod format
-                    const { scene, x, y, z, fx, fy, fz } = message;
+                    const { scene, x, y, z, fx, fy, fz } = JSON.parse(event.data);
                     playerPosition = { scene, x, y, z, fx, fy, fz };
                 };
 
@@ -278,25 +274,15 @@
                 repository.getZoneLineMarkers(currentMapName)
             ]);
 
-            // Sort spawn points by rarity
+            // Sort spawn points by encounter tier.
             spawnPointMarkers.sort((a, b) => {
                 // Enemies always come before NPCs
                 if (a.category === 'enemy' && b.category === 'npc') return -1;
                 if (a.category === 'npc' && b.category === 'enemy') return 1;
 
-                // Sort enemies by rarity (unique > rare > common)
+                // Paint bosses last so the most notable encounters stay visible.
                 if (a.category === 'enemy' && b.category === 'enemy') {
-                    const rankA = (a as EnemyMarker).isUnique
-                        ? 2
-                        : (a as EnemyMarker).isRare
-                          ? 1
-                          : 0;
-                    const rankB = (b as EnemyMarker).isUnique
-                        ? 2
-                        : (b as EnemyMarker).isRare
-                          ? 1
-                          : 0;
-                    return rankA - rankB;
+                    return -compareEncounterTier(a.encounterTier, b.encounterTier);
                 }
 
                 return 0;
@@ -378,16 +364,16 @@
                         iconClass = 'fa-solid fa-question';
                         break;
                     case 'enemy':
-                        if ((marker as EnemyMarker).isUnique) {
+                        if ((marker as EnemyMarker).encounterTier === 'boss') {
                             color = 'black';
                             radius = 12;
-                            layer = 'Enemies (Unique)';
-                        } else if ((marker as EnemyMarker).isRare) {
+                            layer = 'Enemies (Boss)';
+                        } else if ((marker as EnemyMarker).encounterTier === 'elite') {
                             color = 'red';
-                            layer = 'Enemies (Rare)';
+                            layer = 'Enemies (Elite)';
                         } else {
                             color = 'blue';
-                            layer = 'Enemies (Common)';
+                            layer = 'Enemies (Enemy)';
                         }
                         iconClass = 'fa-solid fa-skull';
                         if (!(marker as EnemyMarker).isEnabled) color = 'gray';

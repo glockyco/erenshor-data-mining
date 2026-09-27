@@ -11,7 +11,7 @@ Tools for extracting Erenshor game data, building SQLite databases, publishing w
 ## What this repository provides
 
 - A Python CLI, `erenshor`, for extraction, publishing, map, mod, capture, and development workflows.
-- A game-data pipeline from Steam download to AssetRipper output, Unity batch export, raw SQLite, and clean SQLite.
+- A game-data pipeline from the Steam installation to AssetRipper output, Unity batch export, raw SQLite, and clean SQLite.
 - MediaWiki and Google Sheets publishing from the clean database.
 - A SvelteKit/deck.gl interactive map deployed with Wrangler to Cloudflare Workers.
 - BepInEx companion mods for live map integration, quest guidance, sprinting, screenshot cleanup, and map tile capture.
@@ -19,7 +19,7 @@ Tools for extracting Erenshor game data, building SQLite databases, publishing w
 Core data pipeline:
 
 ```text
-SteamCMD game files
+Steam client installation (CrossOver bottle)
   → AssetRipper Unity project
   → Unity batch export
       → raw SQLite database
@@ -78,8 +78,7 @@ Every `erenshor ...` command in this README assumes that shell.
 Three things the dev shell cannot supply, because they are licensed, interactive, or platform-specific:
 
 - Unity `2021.3.45f2`, installed through Unity Hub and activated with a Unity account. `extract export` refuses to run against any other version.
-- SteamCMD and a Steam account that owns Erenshor, for `extract download`. Not needed if `game_files` points at a copy of the game you already have installed.
-- CrossOver or another Windows runtime, for launching the game and its companion mods on macOS.
+- CrossOver with a Steam client bottle that has each variant you extract installed. The tooling finds a variant's installation by its Steam app ID and does not download game files itself. The same installation launches the game and its companion mods.
 
 Local config supplies machine-specific paths and credentials. Do not commit local credentials.
 
@@ -100,17 +99,12 @@ cp config.local.toml.example .erenshor/config.local.toml
 Common local values:
 
 ```toml
-[global.steam]
-username = "your_steam_username"
-
 [global.mediawiki]
 bot_username = "YourUsername@BotName"
 bot_password = "your_bot_password"
-
-[variants.main]
-# Rip an installation you already have instead of downloading a second copy.
-game_files = "$HOME/Library/Application Support/CrossOver/Bottles/Steam/drive_c/Program Files (x86)/Steam/steamapps/common/Erenshor"
 ```
+
+Game files are not configured. The CLI finds each variant's installation in the CrossOver Steam bottle by its Steam app ID. Set `CROSSOVER_BOTTLE` when several bottles exist. An unknown or removed configuration key is an error that names the key.
 
 AssetRipper needs no entry: the tracked config resolves it from PATH, which the dev shell populates.
 
@@ -146,7 +140,6 @@ installation:
 ```bash
 nix develop
 erenshor status
-erenshor extract download     # skip when game_files points at an existing install
 erenshor extract packages     # Editor NuGet dependencies, once per checkout
 erenshor extract rip
 erenshor extract export
@@ -240,10 +233,11 @@ erenshor config show
 ### Extract and build game data
 
 ```bash
-erenshor extract download
 erenshor extract rip
 erenshor extract export
+erenshor extract code-facts
 erenshor extract build
+erenshor extract changes      # what changed since the previous backed-up build
 ```
 
 ### Publish wiki output
@@ -300,10 +294,9 @@ erenshor mod thunderstore --dry-run
 
 Use `mod deploy --mod <id> --loader <bepinex|lunaris>` for one mod and
 `mod activate --loader <bepinex|lunaris>` to switch an installed loader without
-rebuilding. Standard CrossOver installs are resolved from `-V main`,
-`-V playtest`, or `-V demo`; non-standard installs use
-`[variants.<name>] game_install` in `.erenshor/config.local.toml`. See the
-`mod-pipeline` skill for package publication and proxy safety details.
+rebuilding. The installation is found in the CrossOver Steam bottle by the Steam
+app ID of `-V main`, `-V playtest`, or `-V demo`. See the `mod-pipeline` skill
+for package publication and proxy safety details.
 
 ### Capture map tiles
 
@@ -508,9 +501,11 @@ Confirm the game is running with `InteractiveMapCompanion` installed, then check
 ws://localhost:18585
 ```
 
-The legacy per-zone maps continue to accept player-position updates from retired
-`InteractiveMapsCompanion` installations on port `18584`. The current world map
-and `InteractiveMapCompanion` use port `18585`.
+The per-zone maps accept player-position updates on port `18584` from the
+retired `InteractiveMapsCompanion` mod. Nothing in this repository serves that
+port, but players who still run the mod keep live tracking, so the port and its
+message format are kept indefinitely. The world map and
+`InteractiveMapCompanion` use port `18585`.
 
 ## License
 

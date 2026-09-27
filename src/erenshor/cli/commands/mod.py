@@ -26,6 +26,15 @@ from erenshor.application.mods import local_workflow, release
 from erenshor.application.mods.artifacts import format_artifact_issues
 from erenshor.application.mods.catalog import LoaderName, lookup_mod
 from erenshor.application.process_session import read_process_identity
+from erenshor.cli.preconditions import require_preconditions
+from erenshor.cli.preconditions.checks.inputs import game_installation, program_available
+from erenshor.cli.preconditions.checks.mod import (
+    dev_tools_configured,
+    launch_installation,
+    mod_references,
+    mod_setup_source,
+)
+from erenshor.infrastructure.steam.installation import GameInstallationError
 
 if TYPE_CHECKING:
     from ..context import CLIContext
@@ -42,19 +51,18 @@ app = typer.Typer(
 
 console = Console()
 
-CROSSOVER_BOTTLES_ROOT = Path.home() / "Library/Application Support/CrossOver/Bottles"
-CROSSOVER_START = Path("/Applications/CrossOver.app/Contents/SharedSupport/CrossOver/bin/cxstart")
-LOADER_PROXY_CANDIDATES: dict[LoaderName, tuple[str, ...]] = {
-    "bepinex": (
-        "winhttp.bepinex.dll",
-        "winhttp.bepinex-backup.dll",
-        "winhttp.dll.bepinex-backup",
-    ),
-    "lunaris": ("winhttp.lunaris.dll",),
-}
+
+def _require_game_path(cli_ctx: CLIContext) -> Path:
+    """Return the selected variant's game installation or exit with the reason."""
+    try:
+        return local_workflow.get_game_path(cli_ctx)
+    except GameInstallationError as exc:
+        console.print(f"[red]Error: {exc}[/red]")
+        raise typer.Exit(1) from exc
 
 
 @app.command()
+@require_preconditions(mod_setup_source)
 def setup(
     ctx: typer.Context,
     mod: Annotated[str | None, typer.Option("--mod", help="Set up one mod (or all if not specified)")] = None,
@@ -80,6 +88,7 @@ def setup(
 
 
 @app.command(name="dev-setup")
+@require_preconditions(dev_tools_configured)
 def dev_setup(ctx: typer.Context) -> None:
     """Install development tools for mod hot reload and config editing.
 
@@ -99,16 +108,6 @@ def dev_setup(ctx: typer.Context) -> None:
     console.print()
 
     game_path = local_workflow.get_game_path(cli_ctx)
-    if not game_path:
-        console.print(f"[red]Error: game installation not found for variant {cli_ctx.variant!r}[/red]")
-        console.print("Install the selected Steam app or set [variants.<name>] game_install.")
-        raise typer.Exit(1)
-
-    bepinex_dir = game_path / "BepInEx"
-    if not bepinex_dir.exists():
-        console.print(f"[red]Error: BepInEx not installed at {bepinex_dir}[/red]")
-        console.print("Install BepInEx to your game first.")
-        raise typer.Exit(1)
 
     plugins_dir = local_workflow.bepinex_plugins_dir(game_path)
     plugins_dir.mkdir(parents=True, exist_ok=True)
@@ -118,9 +117,7 @@ def dev_setup(ctx: typer.Context) -> None:
     import tempfile
 
     dev_tools = cli_ctx.config.global_.bepinex_dev_tools
-    if dev_tools is None:
-        console.print("[red]Error: [global.bepinex_dev_tools] not configured in config.toml[/red]")
-        raise typer.Exit(1)
+    assert dev_tools is not None
 
     tools = [
         ("ScriptEngine", dev_tools.script_engine_url, "ScriptEngine.dll"),
@@ -139,8 +136,8 @@ def dev_setup(ctx: typer.Context) -> None:
             with urlopen(req, timeout=30) as resp:
                 zip_data = resp.read()
         except (HTTPError, URLError, TimeoutError) as e:
-            console.print(f"  [red]\u2717 Failed to download {name}: {e}[/red]")
-            continue
+            console.print(f"  [red]Failed to download {name}: {e}. Dev setup is incomplete.[/red]")
+            raise typer.Exit(1) from e
 
         # Extract DLL(s) from zip into plugins/
         with tempfile.TemporaryDirectory() as tmp:
@@ -153,6 +150,9 @@ def dev_setup(ctx: typer.Context) -> None:
                         target = plugins_dir / dll_filename
                         target.write_bytes(zf.read(entry))
                         console.print(f"  [green]\u2713[/green] {dll_filename}")
+        if not (plugins_dir / check_dll).exists():
+            console.print(f"  [red]{name} archive did not contain {check_dll}. Dev setup is incomplete.[/red]")
+            raise typer.Exit(1)
 
     console.print()
     console.print("[green]Dev setup complete![/green]")
@@ -166,6 +166,7 @@ def dev_setup(ctx: typer.Context) -> None:
 
 
 @app.command()
+@require_preconditions(program_available("dotnet"), mod_references)
 def build(
     ctx: typer.Context,
     mod: str | None = typer.Option(None, "--mod", help="Build specific mod (or all if not specified)"),
@@ -200,10 +201,7 @@ def build(
 def status(ctx: typer.Context) -> None:
     """Show native loader availability and the active loader for one variant."""
     cli_ctx: CLIContext = ctx.obj
-    game_path = local_workflow.get_game_path(cli_ctx)
-    if game_path is None:
-        console.print(f"[red]Error: game installation not found for variant {cli_ctx.variant!r}[/red]")
-        raise typer.Exit(1)
+    game_path = _require_game_path(cli_ctx)
     console.print()
     console.print(Panel.fit("[bold cyan]Mod Loader Status[/bold cyan]", border_style="cyan"))
     console.print(f"[dim]Variant: {cli_ctx.variant}[/dim]")
@@ -224,6 +222,7 @@ def status(ctx: typer.Context) -> None:
 
 
 @app.command()
+@require_preconditions(game_installation)
 def activate(
     ctx: typer.Context,
     loader: Annotated[LoaderName, typer.Option("--loader", help="Native loader to activate")],
@@ -231,9 +230,6 @@ def activate(
     """Activate BepInEx or Lunaris for the selected game variant."""
     cli_ctx: CLIContext = ctx.obj
     game_path = local_workflow.get_game_path(cli_ctx)
-    if game_path is None:
-        console.print(f"[red]Error: game installation not found for variant {cli_ctx.variant!r}[/red]")
-        raise typer.Exit(1)
     console.print()
     console.print(Panel.fit("[bold cyan]Activate Mod Loader[/bold cyan]", border_style="cyan"))
     console.print(f"[dim]Variant: {cli_ctx.variant}[/dim]")
@@ -259,6 +255,7 @@ def activate(
 
 
 @app.command()
+@require_preconditions(game_installation, program_available("dotnet"), mod_references)
 def deploy(
     ctx: typer.Context,
     mod: str | None = typer.Option(None, "--mod", help="Deploy specific mod (or all if not specified)"),
@@ -271,9 +268,6 @@ def deploy(
     """Build and deploy mods to an explicit loader directory."""
     cli_ctx: CLIContext = ctx.obj
     game_path = local_workflow.get_game_path(cli_ctx)
-    if game_path is None:
-        console.print(f"[red]Error: game installation not found for variant {cli_ctx.variant!r}[/red]")
-        raise typer.Exit(1)
     console.print()
     console.print(Panel.fit("[bold cyan]Mod Deploy[/bold cyan]", border_style="cyan"))
     console.print(f"[dim]Variant: {cli_ctx.variant}[/dim]")
@@ -335,6 +329,9 @@ def deploy(
 
 
 @app.command()
+@require_preconditions(
+    program_available("dotnet"), program_available("tcli", extra_dirs=(Path.home() / ".dotnet/tools",))
+)
 def thunderstore(
     ctx: typer.Context,
     mod: str | None = typer.Option(
@@ -392,6 +389,7 @@ def thunderstore(
 
 
 @app.command()
+@require_preconditions(program_available("dotnet"))
 def vault(
     ctx: typer.Context,
     mod: str | None = typer.Option(
@@ -444,6 +442,7 @@ def vault(
 
 
 @app.command()
+@require_preconditions(launch_installation)
 def launch(
     ctx: typer.Context,
     recover: Annotated[
@@ -495,11 +494,8 @@ def launch(
     console.print()
     try:
         plan = local_workflow.plan_launch(cli_ctx)
-        if plan.crossover_bottle is not None:
-            console.print(f"[dim]Launching through Steam in CrossOver bottle: {plan.crossover_bottle}[/dim]")
-            console.print(f"[dim]Steam URL: {plan.command[-1]}[/dim]")
-        else:
-            console.print(f"[dim]Executable: {plan.game_path / 'Erenshor.exe'}[/dim]")
+        console.print(f"[dim]Launching in CrossOver bottle: {plan.crossover_bottle}[/dim]")
+        console.print(f"[dim]Target: {plan.command[-1]}[/dim]")
         console.print()
         local_workflow.launch_game(cli_ctx)
     except (OSError, RuntimeError, ValueError) as exc:

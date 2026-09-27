@@ -7,7 +7,6 @@ injects process or remote clients at the boundary.
 
 from __future__ import annotations
 
-import contextlib
 import hashlib
 import json
 import os
@@ -356,49 +355,74 @@ def validate_thunderstore_package(package: Path, manifest: ThunderstoreManifest)
         raise ValueError("package CHANGELOG.md does not match build.changelog")
 
 
+def _calver_revision(version: str) -> int:
+    parts = version.split(".")
+    if len(parts) != 3 or not all(part.isdigit() for part in parts):
+        raise ValueError(f"malformed CalVer version: {version!r}")
+    return int(parts[2])
+
+
 def next_calver_revision(date_prefix: str, latest_version: str | None) -> str:
     """Return the next ``YYYY.MDD.R`` revision for a date prefix."""
-    revision = 0
-    if latest_version and latest_version.startswith(f"{date_prefix}."):
-        with contextlib.suppress(IndexError, ValueError):
-            revision = int(latest_version.split(".")[2]) + 1
-    return f"{date_prefix}.{revision}"
+    if latest_version is None or not latest_version.startswith(f"{date_prefix}."):
+        return f"{date_prefix}.0"
+    return f"{date_prefix}.{_calver_revision(latest_version) + 1}"
 
 
 def latest_calver_for_prefix(versions: Sequence[str], date_prefix: str) -> str | None:
-    """Select the highest revision for ``date_prefix`` independent of order."""
+    """Select the highest revision for ``date_prefix`` independent of order.
 
-    def revision(version: str) -> int:
-        try:
-            return int(version.split(".")[2])
-        except (IndexError, ValueError):
-            return -1
-
+    A version with the date prefix but a malformed revision raises, because
+    ignoring it could reuse a revision that is already published.
+    """
     matching = [version for version in versions if version.startswith(f"{date_prefix}.")]
-    return max(matching, key=revision) if matching else None
+    return max(matching, key=_calver_revision) if matching else None
 
 
 def get_vault_version(mod_ref: str, *, now: datetime | None = None) -> str:
     """Compute the next Vault CalVer version.
 
-    Vault's listing endpoint is intentionally best-effort, matching the manual
-    release workflow.  An unavailable listing starts the revision at zero.
+    The Vault answers 404 "Mod not found" for a mod it does not list yet, which
+    means nothing is published and the day's first revision is zero. Every
+    other failure raises: a revision derived from a listing that could not be
+    read may reuse a published version.
     """
     current = now or datetime.now(UTC)
     date_prefix = f"{current.year}.{current.month}{current.day:02d}"
     url = f"{VAULT_API_BASE}/mods/{mod_ref}/versions"
     request = Request(url, headers={"User-Agent": "erenshor-cli/1.0"})
-    versions: list[str] = []
     try:
         with urlopen(request, timeout=10) as resp:
-            data = json.loads(resp.read())
-        if isinstance(data, dict) and isinstance(data.get("versions"), list):
-            versions = [
-                str(value["version"]) for value in data["versions"] if isinstance(value, dict) and value.get("version")
-            ]
-    except (HTTPError, URLError, TimeoutError, OSError, UnicodeDecodeError, json.JSONDecodeError, KeyError, TypeError):
-        pass
-    return next_calver_revision(date_prefix, latest_calver_for_prefix(versions, date_prefix))
+            versions = _parse_vault_versions(json.loads(resp.read()))
+    except HTTPError as exc:
+        if exc.code != 404 or not _is_vault_mod_not_found(exc):
+            raise RuntimeError(f"Vault version lookup failed for {mod_ref}: {exc}") from exc
+        versions = []
+    except (URLError, TimeoutError, OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
+        raise RuntimeError(f"Vault version lookup failed for {mod_ref}: {exc}") from exc
+    try:
+        return next_calver_revision(date_prefix, latest_calver_for_prefix(versions, date_prefix))
+    except ValueError as exc:
+        raise RuntimeError(f"Vault version lookup failed for {mod_ref}: {exc}") from exc
+
+
+def _parse_vault_versions(data: object) -> list[str]:
+    if not isinstance(data, dict) or not isinstance(data.get("versions"), list):
+        raise ValueError("response has no versions list")
+    versions: list[str] = []
+    for entry in data["versions"]:
+        if not isinstance(entry, dict) or not isinstance(entry.get("version"), str) or not entry["version"]:
+            raise ValueError(f"version entry without a version string: {entry!r}")
+        versions.append(entry["version"])
+    return versions
+
+
+def _is_vault_mod_not_found(error: HTTPError) -> bool:
+    try:
+        body = json.loads(error.read())
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+        return False
+    return isinstance(body, dict) and body.get("error") == "Mod not found"
 
 
 def get_thunderstore_version(namespace: str, name: str, *, now: datetime | None = None) -> str:

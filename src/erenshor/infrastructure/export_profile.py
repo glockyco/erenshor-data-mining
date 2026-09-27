@@ -268,8 +268,8 @@ class ExportProfileRecorder:
                         (run_id,),
                     ).fetchone(),
                 )
-        except sqlite3.Error:
-            return False
+        except sqlite3.Error as error:
+            raise RuntimeError(f"Cannot read export profile store {db_path}: {error}") from error
         return status == ("running",)
 
     def _clear_active_run(self) -> None:

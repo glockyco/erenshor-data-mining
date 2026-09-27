@@ -1,6 +1,6 @@
 import type { Database, SqlJsStatic } from 'sql.js/dist/sql-wasm.js';
 
-import { Rarity } from './map-markers';
+import { mostNotableEnemyTier, type EncounterTier, type EnemyTier } from './map-markers';
 import type {
     AchievementTriggerMarker,
     CharacterDrop,
@@ -442,12 +442,10 @@ export class RepositoryBase {
                 rep.display_name AS Name,
                 rep.wiki_page_name AS WikiPageName,
                 rep.level AS Level,
-                rep.is_common AS IsCommon,
-                rep.is_rare AS IsRare,
-                rep.is_unique AS IsUnique
+                rep.encounter_tier AS EncounterTier
             FROM rep_groups rg
             JOIN characters rep ON rep.stable_key = rg.rep_stable_key
-            WHERE rep.is_friendly = 0
+            WHERE rep.encounter_tier != 'npc'
               AND NOT EXISTS (
                   SELECT 1
                   FROM character_deduplications d
@@ -474,11 +472,7 @@ export class RepositoryBase {
                 name: row.Name as string,
                 wikiPageName: row.WikiPageName as string | null,
                 level: row.Level as number,
-                effectiveRarity: row.IsUnique
-                    ? Rarity.unique
-                    : !!row.IsRare && !row.IsCommon
-                      ? Rarity.rare
-                      : Rarity.common
+                encounterTier: row.EncounterTier as EnemyTier
             });
         }
         stmt.free();
@@ -522,10 +516,7 @@ export class RepositoryBase {
                 MAX(cs.event_x)                   AS EventX,
                 MAX(cs.event_y)                   AS EventY,
                 MAX(cs.event_z)                   AS EventZ,
-                rep.is_common                   AS IsCommon,
-                rep.is_rare                     AS IsRare,
-                rep.is_unique                   AS IsUnique,
-                min(rep.is_friendly)            AS IsFriendly
+                rep.encounter_tier              AS EncounterTier
             FROM rep_groups rg
             JOIN characters rep ON rep.stable_key = rg.rep_stable_key
             JOIN character_deduplications d ON d.group_key = rg.group_key AND d.is_map_visible = 1
@@ -594,15 +585,7 @@ export class RepositoryBase {
                               z: row.EventZ as number
                           }
                         : null,
-                isCommon: !!row.IsCommon,
-                isRare: !!row.IsRare,
-                isUnique: !!row.IsUnique,
-                effectiveRarity: row.IsUnique
-                    ? Rarity.unique
-                    : !!row.IsRare && !row.IsCommon
-                      ? Rarity.rare
-                      : Rarity.common,
-                isFriendly: !!row.IsFriendly,
+                encounterTier: row.EncounterTier as EncounterTier,
                 isInvulnerable: !!row.Invulnerable,
                 isVendor: !!row.IsVendor,
                 hasDialog: !!row.HasDialog
@@ -624,7 +607,7 @@ export class RepositoryBase {
             characters
         } of spawnPointMap.values()) {
             const movement = buildMovementData(wanderRange, loopPatrol, patrolPath);
-            const isNpc = characters.every((c) => c.isFriendly);
+            const isNpc = characters.every((c) => c.encounterTier === 'npc');
             if (isNpc) {
                 markers.push(
                     this.getNpcMarker(
@@ -675,8 +658,8 @@ export class RepositoryBase {
             sortedCharacters
                 .map((character) => {
                     let tag = '';
-                    if (character.isUnique) tag += ' (Unique)';
-                    else if (character.isRare && !character.isCommon) tag += ' (Rare)';
+                    if (character.encounterTier === 'boss') tag = ' (Boss)';
+                    else if (character.encounterTier === 'elite') tag = ' (Elite)';
 
                     const spawnText = character.sourceScript
                         ? 'Dynamic event spawn'
@@ -690,8 +673,7 @@ export class RepositoryBase {
         const respawnInfo = this.getRespawnInfo(spawnDelay, isNightSpawn);
         const popupText = `${positionText}${characterLines}${disabledText}${respawnInfo}`;
 
-        const isUnique = characters.some((c) => c.isUnique);
-        const isRare = characters.some((c) => c.isRare && !c.isCommon);
+        const encounterTier = mostNotableEnemyTier(characters);
 
         return {
             stableKey: stableKey,
@@ -702,8 +684,7 @@ export class RepositoryBase {
             position: position,
             popup: popupText,
             isEnabled: isEnabled,
-            isUnique: isUnique,
-            isRare: isRare,
+            encounterTier,
             movement
         };
     }
@@ -1246,8 +1227,7 @@ export class RepositoryBase {
                     i.item_icon_name    AS iconName,
                     c.stable_key        AS characterStableKey,
                     c.npc_name          AS npcName,
-                    c.is_rare           AS isRare,
-                    c.is_unique         AS isUnique,
+                    c.encounter_tier    AS encounterTier,
                     ld.drop_probability AS dropProbability
                 FROM loot_drops ld
                 JOIN items i ON i.stable_key = ld.item_stable_key
@@ -1266,8 +1246,7 @@ export class RepositoryBase {
                     iconName: (row.iconName as string) ?? null,
                     characterStableKey: row.characterStableKey as string,
                     npcName: (row.npcName as string) ?? '',
-                    isRare: Boolean(row.isRare),
-                    isUnique: Boolean(row.isUnique),
+                    encounterTier: row.encounterTier as EncounterTier,
                     dropProbability: row.dropProbability as number
                 });
             }
@@ -1510,8 +1489,8 @@ export class RepositoryBase {
 
     async getZoneEnemyInfo(zoneName: string): Promise<{
         levelRange: { min: number; max: number } | null;
-        uniques: { name: string; wikiPageName: string | null; level: number }[];
-        rares: { name: string; wikiPageName: string | null; level: number }[];
+        bosses: { name: string; wikiPageName: string | null; level: number }[];
+        elites: { name: string; wikiPageName: string | null; level: number }[];
     }> {
         if (!this.db) throw new Error('DB not initialized');
 
@@ -1538,7 +1517,7 @@ export class RepositoryBase {
             SELECT MIN(c.level) as MinLevel, MAX(c.level) as MaxLevel
             FROM characters c
             WHERE c.stable_key IN (SELECT rep_stable_key FROM zone_reps)
-              AND c.is_friendly = 0
+              AND c.encounter_tier != 'npc'
             `,
             [zoneName]
         );
@@ -1554,8 +1533,8 @@ export class RepositoryBase {
         }
         levelStmt.free();
 
-        // Query unique enemies
-        const uniqueStmt = this.db.prepare(
+        // Query bosses
+        const bossStmt = this.db.prepare(
             `
             WITH rep_groups AS (
                 SELECT d.group_key, MIN(d.member_stable_key) AS rep_stable_key
@@ -1577,26 +1556,25 @@ export class RepositoryBase {
             SELECT c.display_name AS NPCName, c.wiki_page_name AS WikiPageName, c.level AS Level
             FROM characters c
             WHERE c.stable_key IN (SELECT rep_stable_key FROM zone_reps)
-              AND c.is_friendly = 0
-              AND c.is_unique = 1
+              AND c.encounter_tier = 'boss'
             ORDER BY c.level, c.display_name
             `,
             [zoneName]
         );
 
-        const uniques: { name: string; wikiPageName: string | null; level: number }[] = [];
-        while (uniqueStmt.step()) {
-            const row = uniqueStmt.getAsObject();
-            uniques.push({
+        const bosses: { name: string; wikiPageName: string | null; level: number }[] = [];
+        while (bossStmt.step()) {
+            const row = bossStmt.getAsObject();
+            bosses.push({
                 name: row.NPCName as string,
                 wikiPageName: row.WikiPageName as string | null,
                 level: row.Level as number
             });
         }
-        uniqueStmt.free();
+        bossStmt.free();
 
-        // Query rare enemies (exclude uniques)
-        const rareStmt = this.db.prepare(
+        // Query elites
+        const eliteStmt = this.db.prepare(
             `
             WITH rep_groups AS (
                 SELECT d.group_key, MIN(d.member_stable_key) AS rep_stable_key
@@ -1618,26 +1596,24 @@ export class RepositoryBase {
             SELECT c.display_name AS NPCName, c.wiki_page_name AS WikiPageName, c.level AS Level
             FROM characters c
             WHERE c.stable_key IN (SELECT rep_stable_key FROM zone_reps)
-              AND c.is_friendly = 0
-              AND c.is_rare = 1
-              AND c.is_unique = 0
+              AND c.encounter_tier = 'elite'
             ORDER BY c.level, c.display_name
             `,
             [zoneName]
         );
 
-        const rares: { name: string; wikiPageName: string | null; level: number }[] = [];
-        while (rareStmt.step()) {
-            const row = rareStmt.getAsObject();
-            rares.push({
+        const elites: { name: string; wikiPageName: string | null; level: number }[] = [];
+        while (eliteStmt.step()) {
+            const row = eliteStmt.getAsObject();
+            elites.push({
                 name: row.NPCName as string,
                 wikiPageName: row.WikiPageName as string | null,
                 level: row.Level as number
             });
         }
-        rareStmt.free();
+        eliteStmt.free();
 
-        return { levelRange, uniques, rares };
+        return { levelRange, bosses, elites };
     }
 
     getWorldStats(): { zones: number; classes: number; items: number; quests: number } {

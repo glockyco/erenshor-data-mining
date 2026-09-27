@@ -8,15 +8,11 @@ import pytest
 
 from erenshor.application.mods import local_workflow
 from erenshor.application.mods.artifacts import REQUIRED_DLLS
+from erenshor.infrastructure.steam.installation import GameInstallation
 
 
 def _ctx(tmp_path: Path) -> SimpleNamespace:
-    game = tmp_path / "game"
-    variant = SimpleNamespace(
-        app_id="2382520",
-        resolved_game_install=lambda _root: game,
-        resolved_game_files=lambda _root: game,
-    )
+    variant = SimpleNamespace(app_id="2382520")
     config = SimpleNamespace(
         variants={"main": variant},
         global_=SimpleNamespace(mods=SimpleNamespace(lunaris_lib_dir=str(tmp_path), lunaris_libs_url="unused")),
@@ -126,9 +122,14 @@ def test_launch_plan_and_runner_are_injected(tmp_path: Path, monkeypatch: pytest
     ctx = _ctx(tmp_path)
     game = tmp_path / "game"
     game.mkdir(parents=True)
-    executable = game / "Erenshor.exe"
-    executable.touch()
-    monkeypatch.setattr(local_workflow.sys, "platform", "linux")
+    crossover_start = tmp_path / "cxstart"
+    crossover_start.touch()
+    monkeypatch.setattr(local_workflow, "CROSSOVER_START", crossover_start)
+    monkeypatch.setattr(
+        local_workflow,
+        "find_game_installation",
+        lambda _variant, _app_id: GameInstallation(game, tmp_path / "appmanifest_2382520.acf", "Steam"),
+    )
     calls: list[tuple[Path, list[str], Path | None]] = []
 
     class FakeSession:
@@ -141,5 +142,6 @@ def test_launch_plan_and_runner_are_injected(tmp_path: Path, monkeypatch: pytest
 
     plan = local_workflow.launch_game(ctx, session_factory=FakeSession)
 
-    assert plan.command == (str(executable),)
-    assert calls == [(tmp_path / ".agent/state/game-session.json", [str(executable)], game)]
+    command = [str(crossover_start), "--bottle", "Steam", "--wait-children", "steam://rungameid/2382520"]
+    assert plan.command == tuple(command)
+    assert calls == [(tmp_path / ".agent/state/game-session.json", command, game)]

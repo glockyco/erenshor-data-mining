@@ -41,7 +41,7 @@ Use the CLI for all website workflows:
 
 ```bash
 uv run erenshor maps --help
-uv run erenshor maps dev      # Dev server; symlinks the variant DB
+uv run erenshor maps dev      # Dev server; links the variant DB while it runs
 uv run erenshor maps build    # Verify, build, and stamp provenance
 uv run erenshor maps preview  # Preview an existing fresh build
 uv run erenshor maps deploy   # Deploy an existing fresh build to both services
@@ -51,9 +51,9 @@ uv run erenshor maps check  # Lint, type-check, and run fixture-backed unit test
 uv run erenshor test maps   # Add a temporary fixture-backed prerender smoke
 ```
 
-Do not use `pnpm dev` directly. The CLI manages the database symlink for dev and
-copies the canonical clean database into `static/db/` during build. The Vitest
-phase creates a temporary deterministic SQLite fixture and does not read
+Do not use `pnpm dev` directly. The CLI links the selected variant database into
+`static/db/` while `maps dev` or `maps build` runs. The Vitest phase creates a
+temporary deterministic SQLite fixture and does not read
 `static/db/erenshor.sqlite`. The `test maps` prerender smoke writes to a temporary
 build directory and proves that `/`, `/map`, and `/maps/Stowaway` render from the
 same fixture.
@@ -61,8 +61,9 @@ same fixture.
 ## Data Flow
 
 The clean database (`erenshor-{variant}.sqlite`, built by `erenshor extract
-build`) is copied to `static/db/erenshor.sqlite` during `maps build`. The map
-reads spawn points, characters, zones, and other entity data from this database.
+build`) is linked to `static/db/erenshor.sqlite` during `maps build`, and the
+build output contains a copy of it. The map reads spawn points, characters,
+zones, and other entity data from this database.
 
 Live entity positions come from the InteractiveMapCompanion BepInEx mod via
 WebSocket.

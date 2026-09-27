@@ -357,8 +357,8 @@ def _parse_csproj_references(csproj_path: Path) -> list[Path]:
     try:
         tree = ET.parse(csproj_path)
         root = tree.getroot()
-    except ET.ParseError:
-        return []
+    except ET.ParseError as error:
+        raise ValueError(f"Project file is not valid XML: {csproj_path}: {error}") from error
 
     # Handle both namespaced and non-namespaced csproj formats
     # SDK-style csproj files typically don't have a namespace

@@ -67,40 +67,53 @@ class RipWorkflow:
     def run(self, request: RipRequest) -> RipResult:
         """Perform the rip and all deterministic post-processing.
 
-        Existing user UPM dependencies are captured before the old project is
-        removed.  AssetRipper then writes a new project, after which the Editor
-        scripts link, package copies, and manifest dependencies are restored.
+        AssetRipper writes into a staging directory next to the project. The
+        Editor scripts link, package copies, and manifest dependencies are
+        prepared there, and the staged project replaces the old one only after
+        every step succeeded. A failed rip therefore leaves the old project,
+        including its user-added UPM dependencies, in place.
         Exceptions are intentionally allowed to propagate to the CLI boundary.
         """
         prior_user_deps = self._snapshot_user_deps(request.unity_project_dir)
         if prior_user_deps:
             logger.info(f"Snapshotted {len(prior_user_deps)} user-added UPM deps to restore after rip")
-
-        if request.unity_project_dir.exists() or request.unity_project_dir.is_symlink():
-            logger.info(f"Removing old Unity project: {request.unity_project_dir}")
-            self._remove_path(request.unity_project_dir)
-
-        logger.info(f"Extracting Unity project: source={request.source_dir}, target={request.unity_project_dir}")
-        self._assetripper.extract(
-            source_dir=request.source_dir,
-            target_dir=request.unity_project_dir,
-            log_dir=request.logs_dir,
-            profile=request.profile,
-        )
-
-        editor_target = request.unity_project_dir / "ExportedProject" / "Assets" / "Editor"
-        self._replace_editor_link(editor_target, request.editor_source)
-
-        packages_target = request.unity_project_dir / "ExportedProject" / "Assets" / "Packages"
         if not request.packages_source.exists():
             raise FileNotFoundError(
                 f"Editor NuGet packages not found: {request.packages_source}\n"
                 "Run 'erenshor extract packages'. Without them the export scripts cannot compile."
             )
-        logger.info(f"Copying NuGet packages: {request.packages_source} -> {packages_target}")
-        shutil.copytree(request.packages_source, packages_target, dirs_exist_ok=True)
 
-        restored, added = self._restore_manifest(request.unity_project_dir, prior_user_deps)
+        staging_dir = request.unity_project_dir.with_name(f".{request.unity_project_dir.name}.rip")
+        if staging_dir.exists() or staging_dir.is_symlink():
+            logger.info(f"Removing staging directory left by an earlier rip: {staging_dir}")
+            self._remove_path(staging_dir)
+
+        try:
+            logger.info(f"Extracting Unity project: source={request.source_dir}, target={staging_dir}")
+            self._assetripper.extract(
+                source_dir=request.source_dir,
+                target_dir=staging_dir,
+                log_dir=request.logs_dir,
+                profile=request.profile,
+            )
+
+            editor_target = staging_dir / "ExportedProject" / "Assets" / "Editor"
+            self._replace_editor_link(editor_target, request.editor_source)
+
+            packages_target = staging_dir / "ExportedProject" / "Assets" / "Packages"
+            logger.info(f"Copying NuGet packages: {request.packages_source} -> {packages_target}")
+            shutil.copytree(request.packages_source, packages_target, dirs_exist_ok=True)
+
+            restored, added = self._restore_manifest(staging_dir, prior_user_deps)
+        except BaseException:
+            if staging_dir.exists() or staging_dir.is_symlink():
+                self._remove_path(staging_dir)
+            raise
+
+        if request.unity_project_dir.exists() or request.unity_project_dir.is_symlink():
+            logger.info(f"Replacing old Unity project: {request.unity_project_dir}")
+            self._remove_path(request.unity_project_dir)
+        staging_dir.rename(request.unity_project_dir)
         logger.info(f"Unity project extraction complete: {request.unity_project_dir}")
         return RipResult(
             unity_project_dir=request.unity_project_dir,
@@ -109,16 +122,36 @@ class RipWorkflow:
         )
 
     @staticmethod
-    def _snapshot_user_deps(unity_project_dir: Path) -> dict[str, str]:
-        manifest_path = unity_project_dir / "ExportedProject" / "Packages" / "manifest.json"
-        if not manifest_path.exists():
-            return {}
+    def _manifest_path(unity_project_dir: Path) -> Path:
+        return unity_project_dir / "ExportedProject" / "Packages" / "manifest.json"
+
+    @staticmethod
+    def _read_dependencies(manifest_path: Path) -> tuple[dict[str, object], dict[str, str]]:
+        """Read a UPM manifest, failing when it is absent or not a manifest."""
+        if not manifest_path.is_file():
+            raise FileNotFoundError(f"Unity package manifest not found: {manifest_path}")
         try:
             manifest = json.loads(manifest_path.read_text())
-        except json.JSONDecodeError as error:
-            logger.warning(f"Could not parse existing manifest, treating as empty: {error}")
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
+            raise ValueError(f"Unity package manifest is unreadable: {manifest_path}: {error}") from error
+        deps = manifest.get("dependencies") if isinstance(manifest, dict) else None
+        if not isinstance(deps, dict) or not all(
+            isinstance(key, str) and isinstance(value, str) for key, value in deps.items()
+        ):
+            raise ValueError(f"Unity package manifest has no dependencies object of strings: {manifest_path}")
+        return manifest, deps
+
+    @staticmethod
+    def _snapshot_user_deps(unity_project_dir: Path) -> dict[str, str]:
+        """Capture user-added dependencies from the project that the rip replaces.
+
+        No project means nothing to preserve. A project whose manifest is
+        missing or unreadable stops the rip, because its dependencies cannot
+        be told apart from having none.
+        """
+        if not unity_project_dir.exists():
             return {}
-        deps: dict[str, str] = manifest.get("dependencies", {})
+        _manifest, deps = RipWorkflow._read_dependencies(RipWorkflow._manifest_path(unity_project_dir))
         return {key: value for key, value in deps.items() if not key.startswith("com.unity.modules.")}
 
     @staticmethod
@@ -126,13 +159,8 @@ class RipWorkflow:
         unity_project_dir: Path,
         prior_user_deps: dict[str, str],
     ) -> tuple[tuple[str, ...], tuple[str, ...]]:
-        manifest_path = unity_project_dir / "ExportedProject" / "Packages" / "manifest.json"
-        if not manifest_path.exists():
-            logger.warning(f"Packages/manifest.json not found after rip: {manifest_path}")
-            return (), ()
-
-        manifest = json.loads(manifest_path.read_text())
-        deps: dict[str, str] = manifest.setdefault("dependencies", {})
+        manifest_path = RipWorkflow._manifest_path(unity_project_dir)
+        manifest, deps = RipWorkflow._read_dependencies(manifest_path)
         restored = {key: value for key, value in prior_user_deps.items() if key not in deps}
         deps.update(restored)
         required_added = {key: value for key, value in REQUIRED_UPM_PACKAGES.items() if key not in deps}

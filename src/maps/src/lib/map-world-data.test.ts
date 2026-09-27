@@ -1,14 +1,15 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { Repository } from './database.node';
+import { buildEncounterTierByName } from './map-markers';
 import { buildMapWorldData } from './map-world-data.server';
 
 const markerKeys = [
     'achievementTriggers',
     'doors',
-    'enemiesCommon',
-    'enemiesRare',
-    'enemiesUnique',
+    'enemiesEnemy',
+    'enemiesElite',
+    'enemiesBoss',
     'forges',
     'itemBags',
     'miningNodes',
@@ -29,13 +30,13 @@ describe('buildMapWorldData', () => {
 
         expect(Object.keys(data.markers)).toEqual(markerKeys);
         expect(data.markers.npcs.map((marker) => marker.stableKey)).toEqual(['spawn:stowaway-breena']);
-        expect(data.markers.enemiesCommon).toEqual([]);
-        expect(data.markers.enemiesRare).toEqual([]);
-        expect(data.markers.enemiesUnique.map((marker) => marker.stableKey)).toEqual([
+        expect(data.markers.enemiesEnemy).toEqual([]);
+        expect(data.markers.enemiesElite).toEqual([]);
+        expect(data.markers.enemiesBoss.map((marker) => marker.stableKey)).toEqual([
             'spawn:stowaway-enemy',
             'spawn:portal-enemy'
         ]);
-        expect(data.markers.enemiesUnique[0]).toMatchObject({
+        expect(data.markers.enemiesBoss[0]).toMatchObject({
             levelMin: 7,
             levelMax: 7,
             zone: 'Stowaway',
@@ -49,6 +50,18 @@ describe('buildMapWorldData', () => {
                 level: 12
             })
         ]);
+        const tiers = buildEncounterTierByName(
+            [
+                ...data.markers.enemiesEnemy,
+                ...data.markers.enemiesElite,
+                ...data.markers.enemiesBoss,
+                ...data.markers.npcs
+            ],
+            data.unlocatedEnemies
+        );
+        expect(tiers.get('Fixture Enemy')).toBe('boss');
+        expect(tiers.get('Runtime Enemy')).toBe('elite');
+        expect(tiers.has('Breena Carpenter')).toBe(false);
         expect(data.allItems).toHaveLength(6);
         expect(data.itemSources.map((source) => source.kind).sort()).toEqual([
             'bag',

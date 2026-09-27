@@ -5,15 +5,21 @@ import sqlite3
 from contextlib import closing
 from pathlib import Path
 from types import SimpleNamespace
+from typing import TYPE_CHECKING
 from unittest.mock import MagicMock, patch
 
+import httpx
 import pytest
 from typer.main import get_command
 from typer.testing import CliRunner
 
 from erenshor.cli.commands import extract
 from erenshor.infrastructure.export_profile import ExportProfileRecorder
+from erenshor.infrastructure.steam.installation import GameInstallation, GameInstallationError
 from erenshor.infrastructure.time import MockClock
+
+if TYPE_CHECKING:
+    from erenshor.cli.context import CLIContext
 
 
 class VariantStub:
@@ -21,9 +27,6 @@ class VariantStub:
 
     def __init__(self, root: Path) -> None:
         self.root = root
-
-    def resolved_game_files(self, repo_root: Path) -> Path:
-        return self.root / "game"
 
     def resolved_profiles(self, repo_root: Path) -> Path:
         return self.root / "profiles"
@@ -95,23 +98,16 @@ def test_profile_report_prints_latest_profile(tmp_path: Path) -> None:
     assert "Unity overhead before/after ExportBatch: 2000.00 ms" in result.stdout
 
 
-def _write_manifest(game_files: Path, app_id: str, build_id: str) -> None:
-    steamapps = game_files / "steamapps"
-    steamapps.mkdir(parents=True)
-    (steamapps / f"appmanifest_{app_id}.acf").write_text(f'"AppState"\n{{\n    "buildid" "{build_id}"\n}}\n')
-
-
 def test_open_profile_uses_variant_profile_root_and_metadata(tmp_path: Path) -> None:
     variant = VariantStub(tmp_path)
-    _write_manifest(variant.resolved_game_files(tmp_path), variant.app_id, "23789241")
     ctx = _context(tmp_path, variant)
 
     completed = MagicMock(stdout="abcdef0\n")
     with patch("erenshor.cli.commands.extract.subprocess.run", return_value=completed):
         profile = extract._open_profile(
             ctx,
-            variant,
             "extract export",
+            game_build_id="23789241",
             unity_version="2021.3.45f2",
             assetripper_version="1.2.3",
         )
@@ -247,9 +243,12 @@ def test_import_unity_profile_output_records_listener_spans(tmp_path: Path) -> N
     assert json.loads(row[3]) == {"calls": 100, "avg_ms": 30.0, "max_ms": 50.0}
 
 
-def _write_comparison_db(path: Path, *, include_new_rows: bool) -> None:
+def _write_comparison_db(path: Path, *, include_new_rows: bool, build_id: str | None) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(path) as connection:
+    with closing(sqlite3.connect(path)) as connection, connection:
+        if build_id is not None:
+            connection.execute("CREATE TABLE code_facts_meta (game_build_id TEXT)")
+            connection.execute("INSERT INTO code_facts_meta VALUES (?)", (build_id,))
         connection.executescript(
             """
             CREATE TABLE items (
@@ -309,37 +308,27 @@ def _write_comparison_db(path: Path, *, include_new_rows: bool) -> None:
             )
 
 
-def _comparison_context(tmp_path: Path, *, include_new_db: bool = True) -> SimpleNamespace:
-    base_variant = VariantStub(tmp_path / "main")
-    new_variant = VariantStub(tmp_path / "demo")
-    _write_comparison_db(base_variant.resolved_database(tmp_path), include_new_rows=False)
+def _comparison_context(
+    cli_context: CLIContext, tmp_path: Path, *, include_new_db: bool = True, new_build_id: str | None = "200"
+) -> CLIContext:
+    original = cli_context.config.variants["main"]
+    base = original.model_copy(update={"database": str(tmp_path / "main/database.sqlite")})
+    new = original.model_copy(update={"name": "Demo", "database": str(tmp_path / "demo/database.sqlite")})
+    _write_comparison_db(base.resolved_database(cli_context.repo_root), include_new_rows=False, build_id="100")
     if include_new_db:
-        _write_comparison_db(new_variant.resolved_database(tmp_path), include_new_rows=True)
-    return SimpleNamespace(
-        repo_root=tmp_path,
-        variant="main",
-        dry_run=False,
-        config=SimpleNamespace(variants={"main": base_variant, "demo": new_variant}),
-    )
+        _write_comparison_db(new.resolved_database(cli_context.repo_root), include_new_rows=True, build_id=new_build_id)
+    cli_context.config.variants.update({"main": base, "demo": new})
+    return cli_context
 
 
-def test_compare_variants_main_vs_demo_report_preserves_metrics(tmp_path: Path) -> None:
-    result = CliRunner().invoke(extract.app, ["compare-variants"], obj=_comparison_context(tmp_path))
+def test_compare_variants_reports_added_rows_per_table(cli_context: CLIContext, tmp_path: Path) -> None:
+    result = CliRunner().invoke(extract.app, ["compare-variants"], obj=_comparison_context(cli_context, tmp_path))
 
     assert result.exit_code == 0
-    assert "# Erenshor: Demo vs Main Comparison" in result.stdout
-    assert "| Zones | 1 | 2 | +1 |" in result.stdout
-    assert "| Items | 1 | 2 | +1 |" in result.stdout
-    assert "| Spells | 1 | 2 | +1 |" in result.stdout
-    assert "| Characters | 1 | 2 | +1 |" in result.stdout
-    assert "| Quests | 1 | 2 | +1 |" in result.stdout
-    assert "| Skills | 1 | 2 | +1 |" in result.stdout
-    assert "## New Zones (1)" in result.stdout
-    assert "## New Items (1)" in result.stdout
-    assert "## New Spells (1)" in result.stdout
-    assert "## New Characters/NPCs (1)" in result.stdout
-    assert "## New Quests (1)" in result.stdout
-    assert "New Vendor" in result.stdout
+    assert "main (build 100) → demo (build 200)" in result.stdout
+    assert "| items | 1 | 2 | 1 | 0 | 0 |" in result.stdout
+    assert "| characters | 1 | 2 | 1 | 0 | 0 |" in result.stdout
+    assert "object_name=char:new, display_name=New Vendor" in result.stdout
 
 
 def test_compare_variants_registers_options_and_help() -> None:
@@ -351,47 +340,188 @@ def test_compare_variants_registers_options_and_help() -> None:
     assert "Compare the clean databases" in command.help
 
 
-def test_compare_variants_rejects_unknown_variant(tmp_path: Path) -> None:
-    context = _comparison_context(tmp_path)
+def test_compare_variants_rejects_unknown_variant(cli_context: CLIContext, tmp_path: Path) -> None:
+    context = _comparison_context(cli_context, tmp_path)
     result = CliRunner().invoke(extract.app, ["compare-variants", "--base-variant", "unknown"], obj=context)
 
     assert result.exit_code == 1
     assert "Unknown variant 'unknown'" in result.output
 
 
-def test_compare_variants_rejects_missing_database(tmp_path: Path) -> None:
-    context = _comparison_context(tmp_path, include_new_db=False)
-    result = CliRunner().invoke(extract.app, ["compare-variants"], obj=context)
+def test_compare_variants_rejects_missing_database(cli_context: CLIContext, tmp_path: Path) -> None:
+    context = _comparison_context(cli_context, tmp_path, include_new_db=False)
+    output = tmp_path / "report.md"
+    result = CliRunner().invoke(extract.app, ["compare-variants", "--output", str(output)], obj=context)
 
     assert result.exit_code == 1
     assert "New database not found for variant 'demo'" in result.output
+    assert not output.exists()
 
 
-class LibraryVariantStub(VariantStub):
-    """A variant whose game_files points into a regular Steam library."""
+def test_compare_variants_rejects_database_without_build_provenance(cli_context: CLIContext, tmp_path: Path) -> None:
+    context = _comparison_context(cli_context, tmp_path, new_build_id=None)
+    result = CliRunner().invoke(extract.app, ["compare-variants"], obj=context)
 
-    def resolved_game_files(self, repo_root: Path) -> Path:
-        return self.root / "Steam" / "steamapps" / "common" / "Erenshor"
+    assert result.exit_code == 1
+    assert "has no build provenance" in result.output
+    assert "erenshor extract build" in result.output
 
 
-def test_read_build_id_from_downloaded_install(tmp_path: Path) -> None:
-    """`extract download` writes the manifest inside the install directory."""
+def test_packages_rejects_missing_manifest_before_restore(cli_context: CLIContext, tmp_path: Path) -> None:
+    cli_context.repo_root = tmp_path
+
+    with patch.object(extract, "restore_packages", side_effect=AssertionError("restore ran")):
+        result = CliRunner().invoke(extract.app, ["packages"], obj=cli_context)
+
+    assert result.exit_code == 1
+    assert "packages.config" in result.output
+    assert not (tmp_path / "src/Assets/Packages").exists()
+
+
+@pytest.mark.parametrize("installed", [False, True])
+def test_ide_setup_rejects_missing_game_assemblies_before_generation(
+    cli_context: CLIContext, tmp_path: Path, installed: bool
+) -> None:
+    editor = tmp_path / "UnityEditor"
+    editor.write_text("")
+    cli_context.config.global_.unity.path = str(editor)
+    scripts = tmp_path / "unity/ExportedProject/Assets/Scripts/Assembly-CSharp"
+    scripts.mkdir(parents=True)
+    game = tmp_path / "game"
+    (game / "Erenshor_Data/Managed").mkdir(parents=True)
+
+    def resolve(variant: str, app_id: str) -> GameInstallation:
+        if not installed:
+            raise GameInstallationError(f"Variant {variant!r} (Steam app {app_id}) is not installed")
+        return GameInstallation(game, tmp_path / "appmanifest.acf", "Steam")
+
+    with (
+        patch("erenshor.cli.preconditions.checks.extract.find_game_installation", resolve),
+        patch.object(extract.UnityPaths, "from_executable", return_value=object()),
+        patch.object(extract, "generate_game_scripts_csproj", side_effect=AssertionError("generation ran")),
+    ):
+        result = CliRunner().invoke(extract.app, ["ide-setup"], obj=cli_context)
+
+    assert result.exit_code == 1
+    assert ("No DLLs found" if installed else "is not installed") in result.output
+    assert not list(tmp_path.glob("**/*.csproj"))
+
+
+def test_build_id_comes_from_the_installation_manifest(tmp_path: Path) -> None:
+    manifest = tmp_path / "appmanifest_3090030.acf"
+    manifest.write_text('"AppState"\n{\n    "buildid" "20287269"\n}\n')
+
+    assert extract._installed_build_id(GameInstallation(tmp_path / "game", manifest, "Steam")) == "20287269"
+
+
+def test_manifest_without_build_id_is_named(tmp_path: Path) -> None:
+    manifest = tmp_path / "appmanifest_3090030.acf"
+    manifest.write_text('"AppState"\n{\n}\n')
+
+    with pytest.raises(GameInstallationError, match=r"appmanifest_3090030\.acf"):
+        extract._installed_build_id(GameInstallation(tmp_path / "game", manifest, "Steam"))
+
+
+def test_unreachable_build_feed_fails_publication_lookup(tmp_path: Path) -> None:
     variant = VariantStub(tmp_path)
-    _write_manifest(variant.resolved_game_files(tmp_path), variant.app_id, "20287268")
+    failure = httpx.ConnectError("SteamDB unreachable")
 
-    assert extract._read_build_id(_context(tmp_path, variant), variant) == "20287268"
-
-
-def test_read_build_id_from_steam_library_install(tmp_path: Path) -> None:
-    """A library install keeps its manifest two levels above the game directory."""
-    variant = LibraryVariantStub(tmp_path)
-    _write_manifest(tmp_path / "Steam", variant.app_id, "20287269")
-
-    assert extract._read_build_id(_context(tmp_path, variant), variant) == "20287269"
+    with patch.object(extract, "fetch_build_feed", side_effect=failure), pytest.raises(httpx.ConnectError):
+        extract._resolve_build_published_at(variant, "24405256")
 
 
-def test_read_build_id_without_manifest(tmp_path: Path) -> None:
-    """A missing manifest is reported as unknown rather than raising."""
+def test_build_outside_the_feed_window_has_no_publication_time(tmp_path: Path) -> None:
     variant = VariantStub(tmp_path)
 
-    assert extract._read_build_id(_context(tmp_path, variant), variant) is None
+    with patch.object(extract, "fetch_build_feed", return_value=[]):
+        assert extract._resolve_build_published_at(variant, "24405256") is None
+
+
+def _clean_db(path: Path, build_id: str, item_level: int) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with closing(sqlite3.connect(path)) as connection, connection:
+        connection.executescript(
+            f"""
+            CREATE TABLE code_facts_meta (game_build_id TEXT);
+            INSERT INTO code_facts_meta VALUES ('{build_id}');
+            CREATE TABLE items (stable_key TEXT PRIMARY KEY, item_level INTEGER);
+            INSERT INTO items VALUES ('item:sword', {item_level});
+            """
+        )
+    return path
+
+
+def _backup(backups: Path, build_id: str, *, item_level: int | None) -> None:
+    database = backups / f"build-{build_id}" / "database"
+    database.mkdir(parents=True)
+    (database / "erenshor-main-raw.sqlite").write_bytes(b"raw")
+    clean = None
+    if item_level is not None:
+        _clean_db(database / "erenshor-main.sqlite", build_id, item_level)
+        clean = "erenshor-main.sqlite"
+    metadata = {
+        "variant": "main",
+        "build_id": build_id,
+        "app_id": "2382520",
+        "created_at": "2026-01-01T00:00:00+00:00",
+        "database_path": "erenshor-main-raw.sqlite",
+        "database_size_bytes": 3,
+        "scripts_count": 1,
+        "scripts_size_bytes": 1,
+        "total_size_bytes": 4,
+        "clean_database_path": clean,
+    }
+    (backups / f"build-{build_id}" / "metadata.json").write_text(json.dumps(metadata))
+
+
+def _changes_context(cli_context: CLIContext, tmp_path: Path) -> tuple[CLIContext, Path]:
+    variant = cli_context.config.variants["main"]
+    current = variant.resolved_database(cli_context.repo_root)
+    current.unlink(missing_ok=True)
+    _clean_db(current, "300", 12)
+    return cli_context, variant.resolved_backups(cli_context.repo_root)
+
+
+def test_changes_default_to_the_newest_earlier_build(cli_context: CLIContext, tmp_path: Path) -> None:
+    context, backups = _changes_context(cli_context, tmp_path)
+    _backup(backups, "100", item_level=5)
+    _backup(backups, "200", item_level=10)
+    _backup(backups, "300", item_level=12)
+
+    result = CliRunner().invoke(extract.app, ["changes"], obj=context)
+
+    assert result.exit_code == 0, result.output
+    assert "main build 200 → main build 300" in result.stdout
+    assert "stable_key=item:sword: item_level: 10 → 12" in result.stdout
+
+
+def test_changes_since_an_explicit_build(cli_context: CLIContext, tmp_path: Path) -> None:
+    context, backups = _changes_context(cli_context, tmp_path)
+    _backup(backups, "100", item_level=5)
+    _backup(backups, "200", item_level=10)
+
+    result = CliRunner().invoke(extract.app, ["changes", "--since", "100"], obj=context)
+
+    assert result.exit_code == 0, result.output
+    assert "item_level: 5 → 12" in result.stdout
+
+
+def test_changes_name_a_backup_without_a_clean_database(cli_context: CLIContext, tmp_path: Path) -> None:
+    context, backups = _changes_context(cli_context, tmp_path)
+    _backup(backups, "200", item_level=None)
+
+    result = CliRunner().invoke(extract.app, ["changes"], obj=context)
+
+    assert result.exit_code == 1
+    assert "build-200" in result.output
+    assert "holds no clean database" in result.output
+
+
+def test_changes_without_an_earlier_build(cli_context: CLIContext, tmp_path: Path) -> None:
+    context, backups = _changes_context(cli_context, tmp_path)
+    _backup(backups, "300", item_level=12)
+
+    result = CliRunner().invoke(extract.app, ["changes"], obj=context)
+
+    assert result.exit_code == 1
+    assert "No earlier build is backed up" in result.output

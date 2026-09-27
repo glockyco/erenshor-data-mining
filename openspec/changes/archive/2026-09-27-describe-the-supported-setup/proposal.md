@@ -14,7 +14,7 @@ A contributor cannot tell which statement to trust, and an agent reading the rep
 ## Non-Goals
 
 - Changing runtime behaviour. Where a document and the code disagree, the code is correct unless stated otherwise in this proposal.
-- The three-variant design. `game_files` and `game_install` are separate keys for separate purposes and both remain.
+- The three-variant design.
 - Failure reporting, which `fail-loudly-on-partial-work` covers.
 - Removing the legacy per-zone map socket or the old-format handling it exists for. That surface is supported and kept indefinitely. Only the unreachable branch beside it goes.
 - Where game files live and what installs them. `single-game-installation` owns that, and this change follows it.

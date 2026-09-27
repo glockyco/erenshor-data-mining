@@ -29,7 +29,7 @@ healthy for shipped companion overlays and old-property monitoring.
 > `run_worker_first`, which made every canonical static request invoke the
 > Worker: 460,069 invocations in 24 hours, 99.65% of the account's total. The
 > hosts were split into two services by
-> `docs/plans/2026-08-08-maps-split-workers.md`. Every other decision here,
+> `docs/plans/archive/2026-08-08-maps-split-workers.md`. Every other decision here,
 > including the canonical origin, the URL scheme, and the legacy host and route
 > matrices, remains authoritative.
 

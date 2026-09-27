@@ -2,6 +2,8 @@
 
 from datetime import UTC, datetime
 
+import pytest
+
 from erenshor.infrastructure.steam.build_feed import parse_build_feed, resolve_build_published_at
 
 FEED_XML = """\
@@ -61,6 +63,11 @@ def test_unknown_build_id_does_not_use_nearest_timestamp() -> None:
     assert resolve_build_published_at(builds, "24362351") is None
 
 
-def test_parser_returns_empty_for_malformed_or_empty_documents() -> None:
-    assert parse_build_feed("") == []
-    assert parse_build_feed("<rss><channel>") == []
+@pytest.mark.parametrize("document", ["", "<rss><channel>"])
+def test_parser_rejects_documents_that_are_not_xml(document: str) -> None:
+    with pytest.raises(ValueError, match="SteamDB build feed is not valid XML"):
+        parse_build_feed(document)
+
+
+def test_parser_returns_no_builds_for_a_feed_without_items() -> None:
+    assert parse_build_feed("<rss><channel></channel></rss>") == []

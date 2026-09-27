@@ -1,7 +1,6 @@
 """Extract commands for data extraction pipeline.
 
 This module provides commands for managing the data extraction pipeline:
-- Downloading game files from Steam via SteamCMD
 - Extracting Unity projects via AssetRipper
 - Exporting game data to raw SQLite via Unity batch mode
 - Building the clean database from the raw export
@@ -10,10 +9,11 @@ This module provides commands for managing the data extraction pipeline:
 from __future__ import annotations
 
 import json
+import sqlite3
 import subprocess
 from collections.abc import Iterator
 from contextlib import contextmanager
-from datetime import UTC, datetime
+from datetime import UTC
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
@@ -26,6 +26,7 @@ from erenshor.application.extract.clean_database_workflow import (
     CleanDatabaseRequest,
     CleanDatabaseWorkflow,
 )
+from erenshor.application.extract.database_comparison import diff_databases, recorded_build_id, render_report
 from erenshor.application.extract.editor_packages import (
     PackageRestoreError,
     read_packages_config,
@@ -37,12 +38,12 @@ from erenshor.application.extract.export_workflow import (
     adapter_exit_code,
 )
 from erenshor.application.extract.rip_workflow import RipRequest, RipWorkflow
-from erenshor.application.extract.variant_comparison import generate_report, get_build_id
-from erenshor.application.services.backup_service import BackupService
+from erenshor.application.services.backup_service import BackupError, BackupService
 from erenshor.cli.preconditions import require_preconditions
-from erenshor.cli.preconditions.checks.database import raw_database_exists
+from erenshor.cli.preconditions.checks.database import database_exists, raw_database_exists
+from erenshor.cli.preconditions.checks.extract import comparison_databases, ide_sources
 from erenshor.cli.preconditions.checks.field_coverage import export_field_coverage_current
-from erenshor.cli.preconditions.checks.steam import game_files_exist, steam_credentials_exist
+from erenshor.cli.preconditions.checks.inputs import game_installation, required_path
 from erenshor.cli.preconditions.checks.unity import (
     editor_packages_restored,
     editor_scripts_linked,
@@ -60,7 +61,12 @@ from erenshor.infrastructure.csproj_generator import (
 )
 from erenshor.infrastructure.export_profile import ExportProfileRecorder, ExportProfileReport
 from erenshor.infrastructure.steam.build_feed import fetch_build_feed, resolve_build_published_at
-from erenshor.infrastructure.steam.steamcmd import SteamCMD
+from erenshor.infrastructure.steam.installation import (
+    GameInstallation,
+    GameInstallationError,
+    find_game_installation,
+    read_manifest_fields,
+)
 from erenshor.infrastructure.unity.batch_mode import UnityBatchMode
 
 if TYPE_CHECKING:
@@ -96,63 +102,29 @@ def _read_git_sha(repo_root: Path) -> str | None:
     return sha or None
 
 
-def _read_manifest_fields(cli_ctx: CLIContext, variant_config: Any, keys: set[str]) -> dict[str, str]:
-    """Read quoted scalar fields from the installed Steam app manifest.
-
-    Avoids a SteamCMD dependency: the ``.acf`` is a flat quoted key/value
-    format, and the fields we need are scalars at any nesting depth.
-    """
-    game_files_dir = Path(variant_config.resolved_game_files(cli_ctx.repo_root))
-    manifest_file = _find_app_manifest(game_files_dir, str(variant_config.app_id))
-    if manifest_file is None:
-        return {}
-    found: dict[str, str] = {}
-    try:
-        for line in manifest_file.read_text(encoding="utf-8").splitlines():
-            parts = line.split('"')
-            if len(parts) >= 4 and parts[1] in keys and parts[1] not in found:
-                found[parts[1]] = parts[3]
-    except OSError as e:
-        logger.debug(f"Could not read Steam app manifest: {e}")
-    return found
+def _game_installation(cli_ctx: CLIContext) -> GameInstallation:
+    """Return the selected variant's Steam client installation."""
+    return find_game_installation(cli_ctx.variant, cli_ctx.config.variants[cli_ctx.variant].app_id)
 
 
-def _find_app_manifest(game_files_dir: Path, app_id: str) -> Path | None:
-    """Locate the Steam app manifest for an installed game.
-
-    `extract download` writes a self-contained install whose manifest sits in
-    its own `steamapps/`. A regular Steam library instead installs to
-    `<library>/steamapps/common/<game>` and keeps the manifest two levels up,
-    which is the layout when `game_files` points at a copy you already play.
-    """
-    name = f"appmanifest_{app_id}.acf"
-    candidates = [game_files_dir / "steamapps" / name]
-    if game_files_dir.parent.name == "common" and game_files_dir.parent.parent.name == "steamapps":
-        candidates.append(game_files_dir.parent.parent / name)
-    return next((candidate for candidate in candidates if candidate.is_file()), None)
-
-
-def _read_build_id(cli_ctx: CLIContext, variant_config: Any) -> str | None:
-    """Read the installed Steam build ID without requiring SteamCMD itself."""
-    return _read_manifest_fields(cli_ctx, variant_config, {"buildid"}).get("buildid")
-
-
-def _resolve_build_published_at(variant_config: Any, build_id: str | None) -> str | None:
-    """Resolve an installed build's authoritative SteamDB publication time."""
+def _installed_build_id(installation: GameInstallation) -> str:
+    """Return the Steam build ID recorded in the installation's app manifest."""
+    build_id = read_manifest_fields(installation.manifest, {"buildid"}).get("buildid")
     if not build_id:
-        logger.warning("Could not resolve build publication time: installed Steam build ID is unavailable")
-        return None
-    try:
-        builds = fetch_build_feed(str(variant_config.app_id))
-        published_at = resolve_build_published_at(builds, build_id)
-    except Exception as exc:
-        logger.warning(f"Could not resolve build publication time from SteamDB feed: {exc}")
-        return None
+        raise GameInstallationError(f"Steam app manifest has no buildid: {installation.manifest}")
+    return build_id
+
+
+def _resolve_build_published_at(variant_config: Any, build_id: str) -> str | None:
+    """Resolve an installed build's authoritative SteamDB publication time.
+
+    A feed that cannot be fetched or parsed raises. A build that is not in the
+    feed window returns None, because the feed holds only recent builds.
+    """
+    builds = fetch_build_feed(str(variant_config.app_id))
+    published_at = resolve_build_published_at(builds, build_id)
     if published_at is None:
         logger.warning(f"SteamDB build feed does not contain installed build {build_id}")
-        return None
-    if published_at.tzinfo is None or published_at.utcoffset() is None:
-        logger.warning(f"SteamDB returned a timezone-less publication time for build {build_id}")
         return None
     return published_at.astimezone(UTC).isoformat()
 
@@ -165,9 +137,9 @@ def _profile_root(cli_ctx: CLIContext) -> Path:
 
 def _open_profile(
     cli_ctx: CLIContext,
-    variant_config: Any,
     command: str,
     *,
+    game_build_id: str,
     unity_version: str | None,
     assetripper_version: str | None,
 ) -> ExportProfileRecorder:
@@ -177,7 +149,7 @@ def _open_profile(
         root=profile_root,
         variant=cli_ctx.variant,
         command=command,
-        game_build_id=_read_build_id(cli_ctx, variant_config),
+        game_build_id=game_build_id,
         git_sha=_read_git_sha(cli_ctx.repo_root),
         unity_version=unity_version,
         assetripper_version=assetripper_version,
@@ -247,6 +219,7 @@ def profile_report(
 
 
 @app.command("compare-variants")
+@require_preconditions(comparison_databases)
 def compare_variants(
     ctx: typer.Context,
     base_variant: str = typer.Option(
@@ -270,119 +243,70 @@ def compare_variants(
         "--print",
         help="Print the report to stdout when --output is also supplied",
     ),
+    limit: int = typer.Option(50, "--limit", min=0, help="Rows listed per table and category (0 lists all)"),
 ) -> None:
-    """Compare the clean databases for two configured game variants."""
+    """Compare the clean databases of two configured game variants table by table."""
     cli_ctx: CLIContext = ctx.obj
     variants = cli_ctx.config.variants
-    for variant_name in (base_variant, new_variant):
-        if variant_name not in variants:
-            typer.echo(f"Error: Unknown variant '{variant_name}'", err=True)
-            raise typer.Exit(1)
+    base_db = variants[base_variant].resolved_database(cli_ctx.repo_root)
+    new_db = variants[new_variant].resolved_database(cli_ctx.repo_root)
 
-    if base_variant == new_variant:
-        typer.echo("Error: Base and new variants must be different", err=True)
-        raise typer.Exit(1)
+    try:
+        old_label = f"{base_variant} (build {recorded_build_id(base_db)})"
+        new_label = f"{new_variant} (build {recorded_build_id(new_db)})"
+        report = render_report(diff_databases(base_db, new_db), old_label, new_label, limit=limit)
+    except (ValueError, sqlite3.Error) as error:
+        typer.echo(f"Error: {error}", err=True)
+        raise typer.Exit(1) from error
+    _emit_report(report, output, print_report)
 
-    base_config = variants[base_variant]
-    new_config = variants[new_variant]
-    base_db = base_config.resolved_database(cli_ctx.repo_root)
-    new_db = new_config.resolved_database(cli_ctx.repo_root)
-    if not base_db.exists():
-        typer.echo(f"Error: Old database not found for variant '{base_variant}': {base_db}", err=True)
-        raise typer.Exit(1)
-    if not new_db.exists():
-        typer.echo(f"Error: New database not found for variant '{new_variant}': {new_db}", err=True)
-        raise typer.Exit(1)
 
-    report = generate_report(
-        base_variant,
-        new_variant,
-        base_db,
-        new_db,
-        get_build_id(base_config.resolved_backups(cli_ctx.repo_root)),
-        get_build_id(new_config.resolved_backups(cli_ctx.repo_root)),
-        output_path=output,
-    )
+@app.command("changes")
+@require_preconditions(database_exists)
+def changes(
+    ctx: typer.Context,
+    since: str | None = typer.Option(
+        None,
+        "--since",
+        help="Backed-up build to compare against (default: the newest earlier build)",
+    ),
+    output: Path | None = typer.Option(None, "--output", "-o", help="Write the report to this Markdown file"),
+    print_report: bool = typer.Option(
+        False, "--print", help="Print the report to stdout when --output is also supplied"
+    ),
+    limit: int = typer.Option(50, "--limit", min=0, help="Rows listed per table and category (0 lists all)"),
+) -> None:
+    """Report what changed in the clean database since an earlier game build."""
+    cli_ctx: CLIContext = ctx.obj
+    variant_config = cli_ctx.config.variants[cli_ctx.variant]
+    current_db = variant_config.resolved_database(cli_ctx.repo_root)
+    try:
+        current_build = recorded_build_id(current_db)
+        old_build, old_db = BackupService().baseline_clean_database(
+            variant_config.resolved_backups(cli_ctx.repo_root), current_build, since
+        )
+        report = render_report(
+            diff_databases(old_db, current_db),
+            f"{cli_ctx.variant} build {old_build}",
+            f"{cli_ctx.variant} build {current_build}",
+            limit=limit,
+        )
+    except (BackupError, ValueError, sqlite3.Error) as error:
+        typer.echo(f"Error: {error}", err=True)
+        raise typer.Exit(1) from error
+    _emit_report(report, output, print_report)
+
+
+def _emit_report(report: str, output: Path | None, print_report: bool) -> None:
     if output is not None:
+        output.write_text(report, encoding="utf-8")
         typer.echo(f"Report written to: {output}")
     if output is None or print_report:
         typer.echo(report, nl=False)
 
 
 @app.command()
-@require_preconditions(steam_credentials_exist)
-def download(
-    ctx: typer.Context,
-    validate: bool = typer.Option(
-        False,
-        "--validate",
-        help="Verify file integrity and redownload corrupted files (slower)",
-    ),
-) -> None:
-    """Download or update game files from Steam via SteamCMD.
-
-    Downloads the Erenshor game files for the selected variant using SteamCMD.
-    Automatically detects and downloads updates if a newer build is available.
-
-    Use --validate only if you suspect file corruption or extraction issues.
-    Validation checks all files against Steam's checksums and redownloads any
-    that don't match. This is slower but ensures complete file integrity.
-
-    Requires valid Steam credentials and game ownership.
-    """
-    cli_ctx: CLIContext = ctx.obj
-    variant_config = cli_ctx.config.variants[cli_ctx.variant]
-    game_files_dir = variant_config.resolved_game_files(cli_ctx.repo_root)
-
-    if cli_ctx.dry_run:
-        logger.info(f"[Dry-run] Would download/update game files: app_id={variant_config.app_id}, dir={game_files_dir}")
-        return
-
-    command_name = "extract download"
-    profile = _open_profile(
-        cli_ctx,
-        variant_config,
-        command_name,
-        unity_version=None,
-        assetripper_version=None,
-    )
-
-    try:
-        with _profile_command(profile, command_name, cli_ctx):
-            # Log what we're doing
-            if validate:
-                logger.info(
-                    f"Downloading game files with validation: variant={cli_ctx.variant}, app_id={variant_config.app_id}"
-                )
-                logger.info("File validation enabled - all files will be verified (slower)")
-            else:
-                logger.info(f"Downloading game files: variant={cli_ctx.variant}, app_id={variant_config.app_id}")
-
-            # Create SteamCMD wrapper
-            steam_config = cli_ctx.config.global_.steam
-            steamcmd = SteamCMD(
-                username=steam_config.username,
-                platform=steam_config.platform,
-            )
-
-            # Download/update game files
-            steamcmd.download(
-                app_id=variant_config.app_id,
-                install_dir=game_files_dir,
-                validate=validate,
-            )
-            profile.update_game_build_id(_read_build_id(cli_ctx, variant_config))
-
-            logger.info(f"Download complete: {game_files_dir}")
-            logger.info("Next: Run 'erenshor extract rip' to extract Unity project")
-
-    except Exception as e:
-        console.print(f"[red]Error during download: {e}[/red]")
-        logger.exception("Game download failed")
-        raise typer.Exit(1) from e
-
-
-@app.command()
+@require_preconditions(required_path("repo_root", "src/Assets/packages.config"))
 def packages(
     ctx: typer.Context,
     force: bool = typer.Option(False, "--force", help="Re-extract packages that are already present"),
@@ -426,7 +350,7 @@ def packages(
 
 
 @app.command()
-@require_preconditions(game_files_exist, editor_packages_restored)
+@require_preconditions(game_installation, editor_packages_restored)
 def rip(ctx: typer.Context) -> None:
     """Extract Unity project from game files via AssetRipper.
 
@@ -434,11 +358,13 @@ def rip(ctx: typer.Context) -> None:
     a Unity project structure. This allows access to game assets
     and ScriptableObjects for data mining.
 
-    Always performs fresh extraction, removing any existing Unity project.
+    Always performs a fresh extraction into a staging directory, then replaces
+    the existing Unity project. A failed extraction leaves the old project.
     """
     cli_ctx: CLIContext = ctx.obj
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
-    game_files_dir = variant_config.resolved_game_files(cli_ctx.repo_root)
+    installation = _game_installation(cli_ctx)
+    game_files_dir = installation.path
     unity_project_dir = variant_config.resolved_unity_project(cli_ctx.repo_root)
     logs_dir = variant_config.resolved_logs(cli_ctx.repo_root)
 
@@ -456,8 +382,8 @@ def rip(ctx: typer.Context) -> None:
     command_name = "extract rip"
     profile = _open_profile(
         cli_ctx,
-        variant_config,
         command_name,
+        game_build_id=_installed_build_id(installation),
         unity_version=None,
         assetripper_version=assetripper.get_version(),
     )
@@ -477,7 +403,7 @@ def rip(ctx: typer.Context) -> None:
             )
 
             # Generate .csproj for LSP support
-            _generate_ide_project_files(cli_ctx, variant_config, unity_project_dir, game_files_dir)
+            _generate_ide_project_files(unity_project_dir, installation.managed_dir)
 
             logger.info("Next: Run 'erenshor extract export' to export game data to SQLite")
 
@@ -489,6 +415,7 @@ def rip(ctx: typer.Context) -> None:
 
 @app.command()
 @require_preconditions(
+    game_installation,
     export_field_coverage_current,
     unity_project_exists,
     editor_scripts_linked,
@@ -515,6 +442,7 @@ def export(
     unity_project_dir = variant_config.resolved_unity_project(cli_ctx.repo_root)
     database_path = variant_config.resolved_database_raw(cli_ctx.repo_root)
     logs_dir = variant_config.resolved_logs(cli_ctx.repo_root)
+    build_id = _installed_build_id(_game_installation(cli_ctx))
 
     if cli_ctx.dry_run:
         logger.info(f"[Dry-run] Would export data to SQLite: unity={unity_project_dir}, raw_db={database_path}")
@@ -529,8 +457,8 @@ def export(
     command_name = "extract export"
     recorder = _open_profile(
         cli_ctx,
-        variant_config,
         command_name,
+        game_build_id=build_id,
         unity_version=unity.get_version(),
         assetripper_version=None,
     )
@@ -554,14 +482,8 @@ def export(
 
             def backup(database: Path) -> None:
                 console.print("[bold]Creating backup...[/bold]")
+                service = BackupService()
                 try:
-                    build_id = _read_build_id(cli_ctx, variant_config)
-                    if not build_id:
-                        build_id = datetime.now().strftime("backup-%Y%m%d-%H%M%S")
-                        logger.warning(f"Could not determine Steam build ID, using timestamp: {build_id}")
-                        console.print(f"[yellow]Using timestamp-based backup ID: {build_id}[/yellow]")
-
-                    service = BackupService()
                     stats = service.create_backup(
                         variant=cli_ctx.variant,
                         build_id=build_id,
@@ -570,12 +492,9 @@ def export(
                         backup_dir=variant_config.resolved_backups(cli_ctx.repo_root),
                         app_id=variant_config.app_id,
                     )
-                    service.display_backup_stats(stats)
-                except Exception as error:
-                    logger.error(f"Failed to create backup: {error}")
-                    console.print(f"[yellow]Warning: Backup creation failed: {error}[/yellow]")
-                    console.print("[yellow]Export succeeded but backup was not created.[/yellow]")
-                    console.print()
+                except (BackupError, OSError) as error:
+                    raise RuntimeError(f"The raw database was exported to {database}, but {error}") from error
+                service.display_backup_stats(stats)
 
             workflow = ExportWorkflow(
                 unity,
@@ -604,15 +523,16 @@ def export(
 
 
 @app.command()
-@require_preconditions(raw_database_exists)
+@require_preconditions(game_installation, raw_database_exists)
 def build(ctx: typer.Context) -> None:
     """Build the clean database from the raw export.
 
     Reads the raw SQLite database produced by 'extract export', applies
     mapping.json overrides, filters excluded entities and SimPlayers,
-    deduplicates identical characters, recomputes IsUnique per display
-    name group, and writes the clean database consumed by wiki, sheets,
-    and map.
+    deduplicates identical characters, computes one encounter tier per
+    deduplication group, and writes the clean database consumed by wiki,
+    sheets, and map. The clean database is then added to the backup of the game
+    build it records, so 'extract changes' can compare later builds with it.
 
     Does not require a fresh 'extract export' — re-running 'extract build'
     after changing build logic is much faster than a full re-export.
@@ -632,8 +552,8 @@ def build(ctx: typer.Context) -> None:
     command_name = "extract build"
     profile = _open_profile(
         cli_ctx,
-        variant_config,
         command_name,
+        game_build_id=_installed_build_id(_game_installation(cli_ctx)),
         unity_version=None,
         assetripper_version=None,
     )
@@ -648,6 +568,11 @@ def build(ctx: typer.Context) -> None:
                 )
             )
             logger.info(f"Clean database built: clean_db={result.clean_db_path}")
+            build_id = recorded_build_id(result.clean_db_path)
+            stored = BackupService().add_clean_database(
+                variant_config.resolved_backups(cli_ctx.repo_root), build_id, result.clean_db_path
+            )
+            logger.info(f"Clean database backed up for build {build_id}: {stored}")
             logger.info("Next: Run 'erenshor wiki generate' or 'erenshor sheets deploy'")
     except Exception as e:
         console.print(f"[red]Error during build: {e}[/red]")
@@ -656,7 +581,7 @@ def build(ctx: typer.Context) -> None:
 
 
 @app.command("code-facts")
-@require_preconditions(game_files_exist, raw_database_exists)
+@require_preconditions(game_installation, raw_database_exists)
 def code_facts(ctx: typer.Context) -> None:
     """Extract hardcoded game constants from the shipped assembly into the raw DB.
 
@@ -668,9 +593,8 @@ def code_facts(ctx: typer.Context) -> None:
     """
     cli_ctx: CLIContext = ctx.obj
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
-    assembly = (
-        variant_config.resolved_game_files(cli_ctx.repo_root) / "Erenshor_Data" / "Managed" / "Assembly-CSharp.dll"
-    )
+    installation = _game_installation(cli_ctx)
+    assembly = installation.managed_dir / "Assembly-CSharp.dll"
     raw_db_path = variant_config.resolved_database_raw(cli_ctx.repo_root)
 
     if cli_ctx.dry_run:
@@ -678,17 +602,17 @@ def code_facts(ctx: typer.Context) -> None:
         return
 
     command_name = "extract code-facts"
+    build_id = _installed_build_id(installation)
     profile = _open_profile(
         cli_ctx,
-        variant_config,
         command_name,
+        game_build_id=build_id,
         unity_version=None,
         assetripper_version=None,
     )
 
     try:
         with _profile_command(profile, command_name, cli_ctx):
-            build_id = _read_build_id(cli_ctx, variant_config)
             count = extract_code_facts(
                 cli_ctx.repo_root,
                 assembly,
@@ -704,57 +628,45 @@ def code_facts(ctx: typer.Context) -> None:
         raise typer.Exit(1) from e
 
 
-def _generate_ide_project_files(
-    cli_ctx: CLIContext, variant_config: Any, unity_project_dir: Path, game_files_dir: Path
-) -> None:
+def _generate_ide_project_files(unity_project_dir: Path, managed_dir: Path) -> None:
     """Generate .csproj and .sln files for LSP support.
 
     Creates project files that enable IDE features like "Find References"
     for the decompiled game scripts.
 
     Args:
-        cli_ctx: CLI context.
-        variant_config: Variant-specific configuration.
         unity_project_dir: Path to Unity project directory.
-        game_files_dir: Path to game files directory.
+        managed_dir: The installation's managed assembly directory.
+
+    Raises:
+        RuntimeError: If the project files cannot be generated. The Unity
+            project is already in place at that point.
     """
     scripts_dir = unity_project_dir / "ExportedProject" / "Assets" / "Scripts" / "Assembly-CSharp"
-    managed_dir = game_files_dir / "Erenshor_Data" / "Managed"
     plugins_dir = unity_project_dir / "ExportedProject" / "Assets" / "Plugins"
     solution_dir = unity_project_dir / "ExportedProject"
 
-    if not scripts_dir.exists():
-        logger.warning(f"Scripts directory not found, skipping IDE setup: {scripts_dir}")
-        return
-
-    if not managed_dir.exists():
-        logger.warning(f"Managed DLLs directory not found, skipping IDE setup: {managed_dir}")
-        return
-
     try:
-        # Generate .csproj
         csproj_path = generate_game_scripts_csproj(
             scripts_dir=scripts_dir,
             managed_dlls_dir=managed_dir,
             plugins_dir=plugins_dir,
         )
         logger.info(f"Generated project file for LSP support: {csproj_path}")
-
-        # Generate .sln
         sln_path = generate_solution_file(
             solution_dir=solution_dir,
             csproj_path=csproj_path,
         )
         logger.info(f"Generated solution file: {sln_path}")
-
-    except Exception as e:
-        # Log error but don't fail the rip
-        logger.warning(f"Failed to generate IDE project files: {e}")
-        console.print(f"[yellow]Warning: IDE setup failed: {e}[/yellow]")
-        console.print("[yellow]Rip succeeded but LSP support may not work.[/yellow]")
+    except (OSError, ValueError) as e:
+        raise RuntimeError(
+            f"The Unity project was extracted to {unity_project_dir}, but IDE project generation failed: {e}. "
+            "Run 'erenshor extract ide-setup' after fixing the cause."
+        ) from e
 
 
 @app.command("ide-setup")
+@require_preconditions(ide_sources)
 def ide_setup(ctx: typer.Context) -> None:
     """Generate IDE project files for all variants and mods.
 
@@ -800,26 +712,20 @@ def _generate_all_ide_project_files(cli_ctx: CLIContext) -> None:
     """
     variant_solutions: list[Path] = []
     editor_csproj_path: Path | None = None
+    failures: list[str] = []
 
     # Get Unity paths for Editor script references
     unity_config = cli_ctx.config.global_.unity
     unity_editor_path = unity_config.resolved_path(cli_ctx.repo_root)
 
-    try:
-        unity_paths = UnityPaths.from_executable(unity_editor_path)
-    except FileNotFoundError as e:
-        console.print(f"[red]Error:[/red] {e}")
-        console.print("[yellow]Unity Editor is required for IDE setup.[/yellow]")
-        raise typer.Exit(1) from e
+    unity_paths = UnityPaths(executable=unity_editor_path)
 
     # Process all variants - generate per-variant project files
     console.print("[bold]Generating variant project files:[/bold]")
     for variant_name, variant_config in cli_ctx.config.variants.items():
         unity_project_dir = variant_config.resolved_unity_project(cli_ctx.repo_root)
-        game_files_dir = variant_config.resolved_game_files(cli_ctx.repo_root)
 
         scripts_dir = unity_project_dir / "ExportedProject" / "Assets" / "Scripts" / "Assembly-CSharp"
-        managed_dir = game_files_dir / "Erenshor_Data" / "Managed"
         plugins_dir = unity_project_dir / "ExportedProject" / "Assets" / "Plugins"
         solution_dir = unity_project_dir / "ExportedProject"
         editor_dir = unity_project_dir / "ExportedProject" / "Assets" / "Editor"
@@ -829,13 +735,8 @@ def _generate_all_ide_project_files(cli_ctx: CLIContext) -> None:
             logger.info(f"Variant '{variant_name}' not extracted, skipping")
             console.print(f"  [dim]- {variant_name} (not extracted)[/dim]")
             continue
-
-        if not managed_dir.exists():
-            logger.warning(f"Variant '{variant_name}' missing Managed DLLs, skipping")
-            console.print(f"  [yellow]⚠[/yellow] {variant_name} (missing Managed DLLs)")
-            continue
-
         try:
+            managed_dir = find_game_installation(variant_name, variant_config.app_id).managed_dir
             # Generate .csproj for game scripts
             csproj_path = generate_game_scripts_csproj(
                 scripts_dir=scripts_dir,
@@ -859,9 +760,9 @@ def _generate_all_ide_project_files(cli_ctx: CLIContext) -> None:
                     # Track the first Editor csproj for root solution
                     if editor_csproj_path is None:
                         editor_csproj_path = editor_csproj
-                except Exception as e:
-                    logger.warning(f"Failed to generate Editor project for '{variant_name}': {e}")
-                    console.print(f"  [yellow]⚠[/yellow] Editor scripts: {e}")
+                except (OSError, ValueError) as e:
+                    failures.append(f"{variant_name} Editor scripts: {e}")
+                    console.print(f"  [red]✗[/red] Editor scripts: {e}")
 
             # Generate variant-specific .sln (includes both game scripts and Editor)
             additional_projects = [editor_csproj] if editor_csproj else None
@@ -874,9 +775,9 @@ def _generate_all_ide_project_files(cli_ctx: CLIContext) -> None:
             console.print(f"  [green]✓[/green] {sln_path.relative_to(cli_ctx.repo_root)}")
             variant_solutions.append(sln_path)
 
-        except Exception as e:
-            logger.warning(f"Failed to generate IDE files for variant '{variant_name}': {e}")
-            console.print(f"  [yellow]⚠[/yellow] {variant_name}: {e}")
+        except (OSError, ValueError) as e:
+            failures.append(f"{variant_name}: {e}")
+            console.print(f"  [red]✗[/red] {variant_name}: {e}")
 
     # Generate the root Editor scripts project from the selected variant's configured source.
     selected_variant_config = cli_ctx.config.variants[cli_ctx.variant]
@@ -914,9 +815,9 @@ def _generate_all_ide_project_files(cli_ctx: CLIContext) -> None:
                 )
                 logger.info(f"Generated: {root_editor_csproj}")
                 console.print(f"  [green]✓[/green] {root_editor_csproj.relative_to(cli_ctx.repo_root)}")
-            except Exception as e:
-                logger.warning(f"Failed to generate Editor scripts project: {e}")
-                console.print(f"  [yellow]⚠[/yellow] {e}")
+            except (OSError, ValueError) as e:
+                failures.append(f"root Editor scripts: {e}")
+                console.print(f"  [red]✗[/red] {e}")
 
     # Discover mod projects
     mods_dir = cli_ctx.repo_root / "src" / "mods"
@@ -941,6 +842,7 @@ def _generate_all_ide_project_files(cli_ctx: CLIContext) -> None:
 
     # Generate root solution with mods and Editor (game scripts excluded to save memory)
     if not all_mod_projects and not test_projects:
+        _raise_ide_failures(failures)
         console.print()
         console.print("[yellow]No mod or Editor projects found. Root solution not generated.[/yellow]")
         if variant_solutions:
@@ -962,6 +864,7 @@ def _generate_all_ide_project_files(cli_ctx: CLIContext) -> None:
         mod_projects=all_mod_projects,
         test_projects=test_projects,
     )
+    _raise_ide_failures(failures)
 
     console.print(f"  [green]✓[/green] {root_sln_path.relative_to(cli_ctx.repo_root)}")
     console.print()
@@ -982,3 +885,9 @@ def _generate_all_ide_project_files(cli_ctx: CLIContext) -> None:
     console.print()
     console.print("[dim]Tip: For Zed, use OmniSharp for cross-file Find References:[/dim]")
     console.print('[dim]  "languages": { "CSharp": { "language_servers": ["omnisharp", "!roslyn"] } }[/dim]')
+
+
+def _raise_ide_failures(failures: list[str]) -> None:
+    """Fail IDE setup after every project that could be generated was written."""
+    if failures:
+        raise RuntimeError("IDE project generation failed for:\n  " + "\n  ".join(failures))

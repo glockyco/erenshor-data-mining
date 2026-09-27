@@ -1,4 +1,6 @@
-FROM mediawiki:1.46
+# Pinned to the MediaWiki release line that erenshor.wiki.gg runs (1.43). The
+# extensions below are cloned from their REL1_43 branches to match it.
+FROM mediawiki:1.43
 
 RUN set -eux; \
     apt-get update; \

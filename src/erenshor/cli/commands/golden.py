@@ -62,7 +62,7 @@ console = Console()
 # regression test can verify per-scene correctness.
 #
 # Uses GROUP_CONCAT aggregate ORDER BY syntax for deterministic patrol paths.
-_MAP_SPAWN_POINTS_SQL = """
+MAP_SPAWN_POINTS_SQL = """
 WITH rep_groups AS (
     SELECT d.group_key, MIN(d.member_stable_key) AS rep_stable_key
     FROM character_deduplications d
@@ -92,10 +92,7 @@ SELECT
     rep.has_dialog                  AS HasDialog,
     rep.invulnerable                AS Invulnerable,
     sum(cs.spawn_chance)            AS SpawnChance,
-    rep.is_common                   AS IsCommon,
-    rep.is_rare                     AS IsRare,
-    rep.is_unique                   AS IsUnique,
-    min(rep.is_friendly)            AS IsFriendly
+    rep.encounter_tier              AS EncounterTier
 FROM rep_groups rg
 JOIN characters rep ON rep.stable_key = rg.rep_stable_key
 JOIN character_deduplications d ON d.group_key = rg.group_key AND d.is_map_visible = 1
@@ -109,7 +106,7 @@ ORDER BY cs.scene, cs.spawn_point_stable_key, rep.stable_key
 # Code facts are hardcoded game constants carried verbatim into the clean DB.
 # code_facts_meta (assembly sha + extraction timestamp) is deliberately
 # excluded — it is volatile and would reintroduce capture thrash.
-_CODE_FACTS_SQL = "SELECT fact_id, key, value, value_type FROM code_facts ORDER BY fact_id, key"
+CODE_FACTS_SQL = "SELECT fact_id, key, value, value_type FROM code_facts ORDER BY fact_id, key"
 
 
 _CAPTURED_FAMILIES = frozenset({"wiki", "sheets", "map", "code_facts"})
@@ -210,7 +207,7 @@ def _capture_map(db_path: Path, golden_map_dir: Path, dry_run: bool) -> int:
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     try:
-        cursor = conn.execute(_MAP_SPAWN_POINTS_SQL)
+        cursor = conn.execute(MAP_SPAWN_POINTS_SQL)
         rows = cursor.fetchall()
         if not rows:
             raise ValueError("Map spawn-points query returned no rows — is the DB populated?")
@@ -233,7 +230,7 @@ def _capture_code_facts(db_path: Path, golden_code_facts_dir: Path, dry_run: boo
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     try:
-        cursor = conn.execute(_CODE_FACTS_SQL)
+        cursor = conn.execute(CODE_FACTS_SQL)
         rows = cursor.fetchall()
         if not rows:
             raise ValueError("Code-facts query returned no rows — run 'erenshor extract code-facts'?")

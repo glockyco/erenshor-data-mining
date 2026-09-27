@@ -21,6 +21,21 @@ def save_zone_config(config_path: Path, config: dict[str, Any]) -> None:
     logger.info(f"Wrote zone config: {config_path}")
 
 
+def capture_variants(zone_key: str, zone: dict[str, Any]) -> list[str]:
+    """Return the capture variants a zone declares.
+
+    Tiles are written to one directory per zone, so a zone holds exactly one
+    captured variant. A missing or multi-variant declaration is a config error.
+    """
+    variants = zone.get("captureVariants")
+    if not isinstance(variants, list) or len(variants) != 1:
+        raise ValueError(
+            f"Zone {zone_key} must declare exactly one captureVariants entry, found {variants!r}. "
+            "Tiles are stored per zone, so a second variant would overwrite the first."
+        )
+    return variants
+
+
 def get_zone_keys(config: dict[str, Any], zones: list[str] | None = None) -> list[str]:
     """Return sorted zone keys, validating any explicit selection."""
     if zones:

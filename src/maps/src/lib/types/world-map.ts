@@ -105,8 +105,8 @@ export interface LayerVisibility {
     zoneBounds: boolean;
     zoneLabels: boolean;
     spawnPoints: boolean;
-    spawnPointsRare: boolean;
-    spawnPointsUnique: boolean;
+    spawnPointsElite: boolean;
+    spawnPointsBoss: boolean;
     characters: boolean;
     zoneLines: boolean;
     teleports: boolean;
@@ -129,8 +129,8 @@ export const DEFAULT_LAYER_VISIBILITY: LayerVisibility = {
     zoneBounds: false,
     zoneLabels: true,
     spawnPoints: true,
-    spawnPointsRare: true,
-    spawnPointsUnique: true,
+    spawnPointsElite: true,
+    spawnPointsBoss: true,
     characters: true,
     zoneLines: true,
     teleports: true,
@@ -153,8 +153,8 @@ export const DEFAULT_LAYER_VISIBILITY: LayerVisibility = {
 
 export interface ZoneEnemyInfo {
     levelRange: { min: number; max: number } | null;
-    uniques: { name: string; wikiPageName: string | null; level: number }[];
-    rares: { name: string; wikiPageName: string | null; level: number }[];
+    bosses: { name: string; wikiPageName: string | null; level: number }[];
+    elites: { name: string; wikiPageName: string | null; level: number }[];
 }
 
 export interface LevelRange {
@@ -200,9 +200,9 @@ export interface MapMarkerData {
     achievementTriggers: WorldAchievementTrigger[];
     npcs: WorldNpc[];
     doors: WorldDoor[];
-    enemiesCommon: WorldEnemy[];
-    enemiesRare: WorldEnemy[];
-    enemiesUnique: WorldEnemy[];
+    enemiesEnemy: WorldEnemy[];
+    enemiesElite: WorldEnemy[];
+    enemiesBoss: WorldEnemy[];
     forges: WorldForge[];
     itemBags: WorldItemBag[];
     miningNodes: WorldMiningNode[];

@@ -83,8 +83,8 @@ const LAYER_KEYS: Record<keyof LayerVisibility, string> = {
     zoneLabels: 'zlbl',
     // Enemies
     spawnPoints: 'sp',
-    spawnPointsRare: 'spr',
-    spawnPointsUnique: 'spu',
+    spawnPointsElite: 'spe',
+    spawnPointsBoss: 'spb',
     // NPCs
     characters: 'npc',
     // Zone connections

@@ -10,8 +10,8 @@ parent:
 
 Erenshor's data pipeline turns the current shipping build into reliable public
 artifacts: clean SQLite, wiki pages, sheets, maps, quest-guide data, and companion
-mods. The current focus is a safe Lua/Cargo wiki cutover that preserves production
-content and presentation while moving one entity type at a time.
+mods. The current focus is readiness for the next game patch, then the map, then a
+Stance-only trial of the Lua/Cargo wiki cutover.
 
 This overview is the steering source. It holds strategy, current focus, linked child
 artifacts, and standing gates by reference. Evidence belongs in audits, design in
@@ -19,15 +19,23 @@ specs, and executable work in plans.
 
 ## Current sequence
 
-1. Review and approve the render-parity, Cargo-schema, and deploy/sync specifications.
-2. Activate and execute the Cargo cutover foundation through all-seven sandbox
-   readiness, ending with zero converted production articles.
-3. Activate the article-cutover plan and convert Stance first.
-4. Continue Zone, Spell and Skill, Character, and Item only after each previous
-   slice's retirement gate passes.
-5. Keep Quest conversion deferred until its article strategy is approved.
-6. Resume later map UX and residual export work after the wiki path, or when an
-   external blocker makes an independent slice appropriate.
+1. Prepare for the next game patch: `fail-loudly-on-partial-work`, a
+   build-to-build change report, then `single-game-installation` and
+   `describe-the-supported-setup`.
+2. Map work: a browser smoke test in the maps gate, prerendered popup data
+   instead of the browser database download, live NPC identity, and service
+   discovery.
+3. Wiki: plan a Stance-only vertical slice as an OpenSpec change, with sizes and
+   limits measured again against the current build. Decide whether the other six
+   entity types follow after the slice passes its gates.
+4. Keep Quest conversion deferred until its article strategy is approved.
+5. Build the crawlable zone content layer after service discovery.
+
+## Planning system
+
+OpenSpec owns new work. A record in this directory moves to an OpenSpec change
+when work on it starts, after its facts are checked against the code again.
+Records that nobody picks up stay here unchanged.
 
 ## Wiki cutover
 
@@ -46,6 +54,9 @@ specs, and executable work in plans.
 - [`2026-07-11-wiki-article-cutover`](2026-07-11-wiki-article-cutover.md)
 - [`2026-07-31-wiki-quest-article-strategy`](2026-07-31-wiki-quest-article-strategy.md)
 
+The all-seven foundation is not the next wiki step. The Stance slice comes first
+and reuses the parts of these specifications that answer observed incidents.
+
 The archived
 [`2026-07-30-wiki-cutover-state-audit`](archive/2026-07-30-wiki-cutover-state-audit.md)
 is the dated production evidence baseline.
@@ -56,12 +67,14 @@ is the dated production evidence baseline.
   rebuilds the landing page and its TemplateStyles sheet. Independent of the Cargo
   cutover: it touches no entity article and no generated content.
 
-## Later map work
+## Map work
 
-- [`2026-06-27-map-annotations`](2026-06-27-map-annotations.md)
+- [`2026-08-05-live-npc-identity`](2026-08-05-live-npc-identity.md)
 - [`2026-07-30-map-service-discovery`](2026-07-30-map-service-discovery.md)
 - [`2026-07-04-maps-zones-content-layer`](2026-07-04-maps-zones-content-layer.md)
-- [`2026-06-28-map-search-deferred-ux`](2026-06-28-map-search-deferred-ux.md)
+
+Parked: [`2026-06-27-map-annotations`](2026-06-27-map-annotations.md) and
+[`2026-06-28-map-search-deferred-ux`](2026-06-28-map-search-deferred-ux.md).
 
 ## Residual and deferred work
 
@@ -83,9 +96,9 @@ is the dated production evidence baseline.
   [`2026-08-01-wiki-render-parity-gate`](2026-08-01-wiki-render-parity-gate.md).
   No production article converts while a required case is failed or
   `not_exercised`.
-- **Foundation before articles:** only the approved completion report from
-  [`2026-08-01-wiki-cargo-cutover-foundation`](2026-08-01-wiki-cargo-cutover-foundation.md)
-  can activate article conversion.
+- **Gates before articles:** a production article converts only under an approved
+  OpenSpec change that defines its render parity, deploy safety, and rollback
+  gates. The Stance slice is the first such change.
 - **Single shipping target:** wiki article deployment uses the current shipping build
   only. A non-shipping variant fails preflight.
 - **Per-type retirement:** follow
@@ -100,4 +113,4 @@ is the dated production evidence baseline.
 
 ## Navigation
 
-[`INDEX.md`](INDEX.md) is the generated complete planning tree.
+[`INDEX.md`](INDEX.md) lists every legacy planning record.

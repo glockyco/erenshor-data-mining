@@ -10,7 +10,7 @@ import pytest
 
 from erenshor.cli.context import CLIContext
 from erenshor.infrastructure.config.loader import get_repo_root
-from erenshor.infrastructure.config.schema import Config, MapsConfig, VariantConfig
+from erenshor.infrastructure.config.schema import Config, GlobalConfig, MapsConfig, UnityConfig, VariantConfig
 
 
 @pytest.fixture
@@ -34,7 +34,6 @@ def cli_context(tmp_path: Path) -> CLIContext:
         app_id="0",
         unity_project=str(tmp_path / "unity"),
         editor_scripts=str(tmp_path / "editor"),
-        game_files=str(tmp_path / "game"),
         database_raw=str(tmp_path / "raw.sqlite"),
         database=str(database_path),
         logs=str(tmp_path / "logs"),
@@ -48,7 +47,10 @@ def cli_context(tmp_path: Path) -> CLIContext:
     )
 
     return CLIContext(
-        config=Config(variants={"main": variant}),
+        config=Config(
+            global_=GlobalConfig(unity=UnityConfig(version="2021.3.45f2", path=str(tmp_path / "Unity"))),
+            variants={"main": variant},
+        ),
         variant="main",
         dry_run=False,
         repo_root=get_repo_root(),

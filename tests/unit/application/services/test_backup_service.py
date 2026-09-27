@@ -1,6 +1,5 @@
 """Tests for BackupService."""
 
-import contextlib
 import json
 from datetime import UTC, datetime
 from pathlib import Path
@@ -12,6 +11,24 @@ from erenshor.application.services import (
     BackupService,
     BackupValidationError,
 )
+
+
+def _metadata_json(database_path: str, clean_database_path: str | None = None) -> str:
+    """Serialize complete backup metadata naming the given database files."""
+    return json.dumps(
+        {
+            "variant": "main",
+            "build_id": "20370413",
+            "app_id": "2382520",
+            "created_at": "2026-01-01T00:00:00+00:00",
+            "database_path": database_path,
+            "database_size_bytes": 1,
+            "scripts_count": 1,
+            "scripts_size_bytes": 1,
+            "total_size_bytes": 2,
+            "clean_database_path": clean_database_path,
+        }
+    )
 
 
 class TestBackupService:
@@ -260,40 +277,75 @@ class TestBackupService:
                 app_id="2382520",
             )
 
-    def test_create_backup_atomic_on_failure(
+    def test_failed_backup_keeps_the_previous_backup_for_the_build(
         self,
         backup_service: BackupService,
         mock_database: Path,
+        mock_scripts: Path,
         tmp_path: Path,
     ):
-        """Test that failed backup doesn't leave partial backup."""
+        """A backup that fails validation must not destroy the good one."""
         backup_dir = tmp_path / "backups"
         build_id = "20370413"
+        backup_service.create_backup(
+            variant="main",
+            build_id=build_id,
+            database_path=mock_database,
+            scripts_path=mock_scripts,
+            backup_dir=backup_dir,
+            app_id="2382520",
+        )
+        backup_path = backup_dir / f"build-{build_id}"
+        previous_metadata = (backup_path / "metadata.json").read_text()
+        empty_scripts = tmp_path / "empty_scripts"
+        empty_scripts.mkdir()
 
-        # Create scripts directory that will cause failure
-        scripts_path = tmp_path / "scripts"
-        scripts_path.mkdir()
-        # Add a file that will cause copy to fail (simulate permission error)
-        # We'll just use a non-existent subdirectory as scripts_path
-        bad_scripts = tmp_path / "nonexistent"
-
-        with contextlib.suppress(BackupError):
+        with pytest.raises(BackupError, match="No script files found"):
             backup_service.create_backup(
                 variant="main",
                 build_id=build_id,
                 database_path=mock_database,
-                scripts_path=bad_scripts,
+                scripts_path=empty_scripts,
                 backup_dir=backup_dir,
                 app_id="2382520",
             )
 
-        # Verify no backup directory exists
-        backup_path = backup_dir / f"build-{build_id}"
-        assert not backup_path.exists()
+        assert (backup_path / "metadata.json").read_text() == previous_metadata
+        assert [path.name for path in backup_dir.iterdir()] == [f"build-{build_id}"]
 
-        # Verify no temp directory left behind
-        temp_path = backup_dir / f".backup-{build_id}.tmp"
-        assert not temp_path.exists()
+    def test_backup_restores_a_backup_left_aside_by_an_interrupted_replacement(
+        self,
+        backup_service: BackupService,
+        mock_database: Path,
+        mock_scripts: Path,
+        tmp_path: Path,
+    ):
+        """A crash between the two renames leaves the only good backup aside."""
+        backup_dir = tmp_path / "backups"
+        build_id = "20370413"
+        backup_service.create_backup(
+            variant="main",
+            build_id=build_id,
+            database_path=mock_database,
+            scripts_path=mock_scripts,
+            backup_dir=backup_dir,
+            app_id="2382520",
+        )
+        (backup_dir / f"build-{build_id}").rename(backup_dir / f".backup-{build_id}.old")
+        empty_scripts = tmp_path / "empty_scripts"
+        empty_scripts.mkdir()
+
+        with pytest.raises(BackupError):
+            backup_service.create_backup(
+                variant="main",
+                build_id=build_id,
+                database_path=mock_database,
+                scripts_path=empty_scripts,
+                backup_dir=backup_dir,
+                app_id="2382520",
+            )
+
+        assert [backup.build_id for backup in backup_service.list_backups(backup_dir)] == [build_id]
 
     def test_create_backup_skips_editor_scripts(
         self,
@@ -430,23 +482,23 @@ class TestBackupService:
         backups = backup_service.list_backups(backup_dir)
         assert backups == []
 
-    def test_list_backups_skips_invalid_metadata(
+    def test_list_backups_names_every_backup_without_readable_metadata(
         self,
         backup_service: BackupService,
         tmp_path: Path,
     ):
-        """Test that list_backups skips backups with invalid metadata."""
+        """A broken backup is reported, not silently left out of the list."""
         backup_dir = tmp_path / "backups"
         backup_dir.mkdir()
+        (backup_dir / "build-20370413").mkdir()
+        (backup_dir / "build-20370413" / "metadata.json").write_text("invalid json")
+        (backup_dir / "build-20370414").mkdir()
 
-        # Create backup with invalid metadata
-        invalid_backup = backup_dir / "build-20370413"
-        invalid_backup.mkdir()
-        (invalid_backup / "metadata.json").write_text("invalid json")
+        with pytest.raises(BackupValidationError) as error:
+            backup_service.list_backups(backup_dir)
 
-        # List should be empty (invalid backup skipped)
-        backups = backup_service.list_backups(backup_dir)
-        assert backups == []
+        assert "build-20370413" in str(error.value)
+        assert "build-20370414" in str(error.value)
 
     def test_format_size(self, backup_service: BackupService):
         """Test human-readable size formatting."""
@@ -504,7 +556,7 @@ class TestBackupService:
         backup_path.mkdir()
 
         # Create metadata
-        (backup_path / "metadata.json").write_text("{}")
+        (backup_path / "metadata.json").write_text(_metadata_json("erenshor.sqlite"))
 
         # Create empty database
         db_dir = backup_path / "database"
@@ -529,7 +581,7 @@ class TestBackupService:
         backup_path.mkdir()
 
         # Create metadata
-        (backup_path / "metadata.json").write_text("{}")
+        (backup_path / "metadata.json").write_text(_metadata_json("erenshor.sqlite"))
 
         # Create database
         db_dir = backup_path / "database"
@@ -542,3 +594,80 @@ class TestBackupService:
 
         with pytest.raises(BackupValidationError, match="No script files found"):
             backup_service._validate_backup(backup_path)
+
+
+class TestCleanDatabaseBackup:
+    """extract build adds the clean database to the installed build's backup."""
+
+    @pytest.fixture
+    def backup_service(self) -> BackupService:
+        return BackupService()
+
+    @pytest.fixture
+    def mock_database(self, tmp_path: Path) -> Path:
+        path = tmp_path / "erenshor-main-raw.sqlite"
+        path.write_bytes(b"raw database")
+        return path
+
+    @pytest.fixture
+    def mock_scripts(self, tmp_path: Path) -> Path:
+        path = tmp_path / "scripts"
+        path.mkdir()
+        (path / "Game.cs").write_text("// game")
+        return path
+
+    def _backup(self, service: BackupService, database: Path, scripts: Path, backup_dir: Path) -> Path:
+        service.create_backup(
+            variant="main",
+            build_id="20370413",
+            database_path=database,
+            scripts_path=scripts,
+            backup_dir=backup_dir,
+            app_id="2382520",
+        )
+        return backup_dir / "build-20370413"
+
+    def test_clean_database_joins_the_backup(
+        self, backup_service: BackupService, mock_database: Path, mock_scripts: Path, tmp_path: Path
+    ):
+        backup = self._backup(backup_service, mock_database, mock_scripts, tmp_path / "backups")
+        clean = tmp_path / "erenshor-main.sqlite"
+        clean.write_bytes(b"clean database")
+
+        stored = backup_service.add_clean_database(tmp_path / "backups", "20370413", clean)
+
+        assert stored.read_bytes() == b"clean database"
+        assert (backup / "database" / mock_database.name).exists()
+        [metadata] = backup_service.list_backups(tmp_path / "backups")
+        assert metadata.clean_database_path == "erenshor-main.sqlite"
+
+    def test_failed_copy_leaves_the_backup_unchanged(
+        self,
+        backup_service: BackupService,
+        mock_database: Path,
+        mock_scripts: Path,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        backup = self._backup(backup_service, mock_database, mock_scripts, tmp_path / "backups")
+        before = {path.relative_to(backup): path.read_bytes() for path in backup.rglob("*") if path.is_file()}
+        clean = tmp_path / "erenshor-main.sqlite"
+        clean.write_bytes(b"clean database")
+
+        def fail(*_args: object, **_kwargs: object) -> None:
+            raise OSError("disk full")
+
+        monkeypatch.setattr("erenshor.application.services.backup_service.shutil.copy2", fail)
+        with pytest.raises(BackupError, match="disk full"):
+            backup_service.add_clean_database(tmp_path / "backups", "20370413", clean)
+
+        after = {path.relative_to(backup): path.read_bytes() for path in backup.rglob("*") if path.is_file()}
+        assert after == before
+        assert [path.name for path in (tmp_path / "backups").iterdir()] == ["build-20370413"]
+
+    def test_build_without_a_backup_is_named(self, backup_service: BackupService, tmp_path: Path):
+        clean = tmp_path / "erenshor-main.sqlite"
+        clean.write_bytes(b"clean database")
+
+        with pytest.raises(BackupError, match="No backup for build 20370413"):
+            backup_service.add_clean_database(tmp_path / "backups", "20370413", clean)

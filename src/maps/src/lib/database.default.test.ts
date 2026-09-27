@@ -8,23 +8,28 @@ vi.mock('sql.js/dist/sql-wasm.js', () => ({
 	}))
 }));
 
-import { Repository } from './database.default';
+import { getBrowserRepository } from './database.default';
 
 afterEach(() => {
 	vi.unstubAllGlobals();
 	vi.restoreAllMocks();
 });
 
-describe('browser Repository', () => {
-	it('loads the database from the site root on nested routes', async () => {
-		const fetchMock = vi.fn(async () => new Response(new Uint8Array([1])));
+describe('getBrowserRepository', () => {
+	it('reports a failed download, then shares one download with every later consumer', async () => {
+		const fetchMock = vi
+			.fn()
+			.mockResolvedValueOnce(new Response('Not Found', { status: 404 }))
+			.mockResolvedValueOnce(new Response(new Uint8Array([1])));
 		vi.stubGlobal('fetch', fetchMock);
 		vi.stubGlobal('process', undefined);
 
-		const repository = new Repository();
-		await repository.init();
+		await expect(getBrowserRepository()).rejects.toThrow('/db/erenshor.sqlite failed with HTTP 404');
 
-		expect(fetchMock).toHaveBeenCalledOnce();
-		expect(fetchMock).toHaveBeenCalledWith('/db/erenshor.sqlite');
+		const [first, second] = await Promise.all([getBrowserRepository(), getBrowserRepository()]);
+		expect(second).toBe(first);
+		expect(await getBrowserRepository()).toBe(first);
+		expect(fetchMock).toHaveBeenCalledTimes(2);
+		expect(fetchMock).toHaveBeenLastCalledWith('/db/erenshor.sqlite');
 	});
 });

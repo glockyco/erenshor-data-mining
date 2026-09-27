@@ -10,7 +10,7 @@
         type SearchResponse
     } from '$lib/map/search';
     import { splitByMatchRange, type TextSegment } from '$lib/map/search/match-highlight';
-    import { Rarity } from '$lib/map-markers';
+    import { resolveLiveEncounterTier, type EnemyTier } from '$lib/map-markers';
     import type { EntityData } from '$lib/map/live/types';
     import * as Drawer from '$lib/components/ui/drawer';
     import Skull from '@lucide/svelte/icons/skull';
@@ -42,6 +42,7 @@
         index: IndexEntry[];
         liveEntities: EntityData[];
         liveZone: string | null;
+        encounterTierByName: ReadonlyMap<string, EnemyTier>;
         onselect: (result: SearchResult) => void;
         onliveselect: (entity: EntityData, zone: string) => void;
         onclose: () => void;
@@ -54,6 +55,7 @@
         index,
         liveEntities,
         liveZone,
+        encounterTierByName,
         onselect,
         onliveselect,
         onclose
@@ -162,8 +164,8 @@
         switch (result.type) {
             case 'enemy': {
                 const parts: string[] = [];
-                if (result.effectiveRarity === Rarity.unique) parts.push('Unique');
-                else if (result.effectiveRarity === Rarity.rare) parts.push('Rare');
+                if (result.encounterTier === 'boss') parts.push('Boss');
+                else if (result.encounterTier === 'elite') parts.push('Elite');
                 if (result.spawnCount === 0) {
                     parts.push('Location unknown');
                 } else {
@@ -225,11 +227,9 @@
     function getLiveResultSublabel(entity: EntityData): string {
         const parts: string[] = [getLiveEntityTypeLabel(entity)];
         if (entity.level != null) parts.push(`Lv ${entity.level}`);
-        // Rarity only meaningful for npc_enemy
-        if (entity.entityType === 'npc_enemy' && entity.rarity) {
-            const rarityLabel =
-                entity.rarity === 'boss' ? 'Boss' : entity.rarity === 'rare' ? 'Rare' : 'Common';
-            parts.push(rarityLabel);
+        if (entity.entityType === 'npc_enemy') {
+            const tier = resolveLiveEncounterTier(entity, encounterTierByName);
+            parts.push(tier === 'boss' ? 'Boss' : tier === 'elite' ? 'Elite' : 'Enemy');
         }
         // Class for player / simplayer
         if (entity.characterClass) parts.push(entity.characterClass);

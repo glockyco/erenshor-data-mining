@@ -11,10 +11,10 @@ from __future__ import annotations
 
 import json
 import re
-import shutil
-import subprocess
 from pathlib import Path
 from typing import Any
+
+from erenshor.application.dotnet_tool import run_dotnet_tool
 
 TOOL_PROJECT = Path("src") / "tools" / "ExportSurface"
 
@@ -57,34 +57,7 @@ def run_field_coverage(repo_root: Path, assembly: Path, manifest: Path) -> list[
     if not manifest.exists():
         raise FileNotFoundError(f"field-coverage manifest not found: {manifest}")
 
-    dotnet = shutil.which("dotnet")
-    if dotnet is None:
-        raise RuntimeError("dotnet SDK not found on PATH")
-
-    project = repo_root / TOOL_PROJECT
-    subprocess.run(
-        [dotnet, "build", str(project), "-c", "Release"],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    proc = subprocess.run(
-        [
-            dotnet,
-            "run",
-            "-c",
-            "Release",
-            "--no-build",
-            "--project",
-            str(project),
-            "--",
-            str(assembly),
-            str(manifest),
-        ],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    proc = run_dotnet_tool(repo_root / TOOL_PROJECT, [str(assembly), str(manifest)])
     if proc.returncode not in (0, 1):
         raise RuntimeError(
             f"ExportSurface failed (exit {proc.returncode}).\n"

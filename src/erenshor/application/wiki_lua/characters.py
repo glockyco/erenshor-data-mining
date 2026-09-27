@@ -168,7 +168,7 @@ def _character_record(
     _put(row, "factionChange", _format_faction_modifiers(character.faction_modifiers or []))
     _put(row, "zones", _format_zones(spawn_infos))
     _put(row, "coordinates", _format_coordinates(spawn_infos))
-    _put(row, "spawnChance", _format_spawn_chance(spawn_infos))
+    _put(row, "spawnChance", _format_spawn_chance(spawn_infos, character.encounter_tier))
     _put(row, "spawnType", _format_spawn_type(spawn_infos))
     _put(row, "respawn", _format_respawn(spawn_infos))
     _put(row, "dropRates", _format_drop_rates(loot_drops))
@@ -215,13 +215,7 @@ def _character_record(
 
 
 def _character_type(character: Character) -> str:
-    if character.is_friendly:
-        return "NPC"
-    if character.is_unique:
-        return "Boss"
-    if character.is_rare and not character.is_common:
-        return "Rare"
-    return "Enemy"
+    return "NPC" if character.encounter_tier == "npc" else character.encounter_tier.capitalize()
 
 
 def _format_faction(character: Character) -> LuaData | str:
@@ -299,8 +293,8 @@ def _format_coordinates(spawn_infos: list[CharacterSpawnInfo]) -> str:
     return ""
 
 
-def _format_spawn_chance(spawn_infos: list[CharacterSpawnInfo]) -> str:
-    if not spawn_infos or not any(info.is_rare or info.is_unique for info in spawn_infos):
+def _format_spawn_chance(spawn_infos: list[CharacterSpawnInfo], encounter_tier: str) -> str:
+    if not spawn_infos or (encounter_tier not in ("boss", "elite") and not any(info.is_rare for info in spawn_infos)):
         return ""
     by_zone: dict[str, list[float]] = {}
     for info in spawn_infos:

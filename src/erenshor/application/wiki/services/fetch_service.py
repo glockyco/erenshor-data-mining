@@ -1,7 +1,7 @@
-"""Wiki fetch service for downloading pages from MediaWiki.
+"""Download wiki pages and refresh local copies when their revisions change.
 
-This service handles fetching wiki pages from MediaWiki with smart cache invalidation
-based on recent changes timestamps.
+The fetch checks each title's current revision before reusing cached text.
+Missing wiki pages lose their local fetched copy so generation cannot reuse it.
 """
 
 from __future__ import annotations
@@ -150,104 +150,99 @@ class WikiFetchService:
                 errors=[],
             )
 
-        # Get recently changed pages with timestamps from wiki (if not force_refetch)
-        recent_changes: dict[str, str] = {}
-        if not force_refetch:
-            try:
-                logger.info("Checking for recently modified pages...")
-                recent_changes = self._wiki_client.get_recent_changes(days=30)
-                logger.info(f"Found {len(recent_changes)} recently modified pages")
-            except Exception as e:
-                logger.warning(f"Failed to get recent changes: {e}, fetching all uncached pages")
+        metadata_by_title = self._storage.get_metadata_by_titles(page_titles_list)
+        try:
+            revision_ids = {} if force_refetch else self._wiki_client.get_page_revision_ids(page_titles_list)
+        except MediaWikiAPIError as error:
+            message = f"Failed to check wiki page revisions: {error}"
+            logger.error(message)
+            return OperationResult(
+                total=total,
+                succeeded=0,
+                failed=total,
+                skipped=0,
+                warnings=warnings,
+                errors=[message],
+            )
 
-        # Filter out already-fetched pages using smart timestamp comparison
-        pages_to_fetch_titles = []
+        pages_to_fetch_titles: list[str] = []
         for page_title in page_titles_list:
-            metadata = self._storage.get_metadata_by_title(page_title)
+            if not force_refetch and revision_ids[page_title] is None:
+                metadata = metadata_by_title.get(page_title)
+                if not dry_run and (
+                    self._storage.has_fetched_by_title(page_title)
+                    or (metadata is not None and metadata.fetched_revision_id is not None)
+                ):
+                    self._storage.remove_fetched_by_title(page_title)
+                logger.debug(f"Skipping missing wiki page: {page_title}")
+                skipped += 1
+                continue
 
-            if force_refetch:
-                pages_to_fetch_titles.append(page_title)
-            elif not metadata:
-                logger.debug(f"Fetching uncached page: {page_title}")
-                pages_to_fetch_titles.append(page_title)
-            elif not metadata.fetched_at:
-                logger.debug(f"Fetching never-fetched page: {page_title}")
-                pages_to_fetch_titles.append(page_title)
-            else:
-                wiki_modified_at = recent_changes.get(page_title)
+            metadata = metadata_by_title.get(page_title)
+            if (
+                not force_refetch
+                and metadata is not None
+                and metadata.fetched_revision_id is not None
+                and metadata.fetched_revision_id == revision_ids[page_title]
+                and self._storage.has_fetched_by_title(page_title)
+            ):
+                logger.debug(f"Skipping up-to-date page: {page_title}")
+                skipped += 1
+                continue
 
-                if not wiki_modified_at:
-                    logger.debug(f"Skipping unmodified page: {page_title}")
-                    skipped += 1
-                elif wiki_modified_at > metadata.fetched_at:
-                    logger.debug(
-                        f"Re-fetching modified page: {page_title} "
-                        f"(wiki: {wiki_modified_at}, cached: {metadata.fetched_at})"
-                    )
-                    pages_to_fetch_titles.append(page_title)
-                else:
-                    logger.debug(
-                        f"Skipping up-to-date page: {page_title} "
-                        f"(wiki: {wiki_modified_at}, cached: {metadata.fetched_at})"
-                    )
-                    skipped += 1
+            pages_to_fetch_titles.append(page_title)
 
-        if skipped > 0:
-            logger.info(f"Skipping {skipped} already up-to-date pages")
+        if skipped:
+            logger.info(f"Skipping {skipped} unchanged or missing pages")
 
-        # Fetch pages in batches from MediaWiki
-        if not dry_run and pages_to_fetch_titles:
+        if dry_run:
+            succeeded = len(pages_to_fetch_titles)
+        elif pages_to_fetch_titles:
             try:
                 self._console.print("[dim]Fetching pages from MediaWiki...[/dim]")
-                fetched_pages = self._wiki_client.get_pages(pages_to_fetch_titles)
-                self._console.print(f"[dim]Fetched {len(fetched_pages)} pages[/dim]\n")
-
-                # Build page_title → stable_keys index once for metadata
+                snapshots = self._wiki_client.get_page_snapshots(pages_to_fetch_titles)
                 page_index = self._build_page_title_index()
-
-                # Save fetched pages to storage
                 for page_title in track(
                     pages_to_fetch_titles,
                     description="Saving pages",
                     total=len(pages_to_fetch_titles),
                 ):
-                    try:
-                        content = fetched_pages.get(page_title)
-
-                        if content:
-                            stable_keys = page_index.get(page_title, [])
-                            entity_names = [sk.split(":", 1)[-1] for sk in stable_keys]
-
-                            self._storage.save_fetched_by_title(
-                                page_title,
-                                stable_keys,
-                                content,
-                                entity_names,
-                            )
-                            succeeded += 1
-                        else:
+                    snapshot = snapshots[page_title]
+                    if snapshot.revision is None:
+                        try:
+                            self._storage.remove_fetched_by_title(page_title)
                             skipped += 1
+                        except Exception as error:
+                            message = f"Error removing fetched {page_title}: {error}"
+                            logger.error(message)
+                            errors.append(message)
+                            failed += 1
+                        continue
 
-                    except Exception as e:
-                        error_msg = f"Error saving {page_title}: {e}"
-                        logger.error(error_msg)
-                        errors.append(error_msg)
+                    if snapshot.source_text is None:
+                        raise MediaWikiAPIError(f"Page snapshot for {page_title!r} has a revision without content")
+                    try:
+                        stable_keys = page_index.get(page_title, [])
+                        entity_names = [key.split(":", 1)[-1] for key in stable_keys]
+                        self._storage.save_fetched_by_title(
+                            page_title,
+                            stable_keys,
+                            snapshot.source_text,
+                            entity_names,
+                            snapshot.revision.revision_id,
+                        )
+                        succeeded += 1
+                    except Exception as error:
+                        message = f"Error saving {page_title}: {error}"
+                        logger.error(message)
+                        errors.append(message)
                         failed += 1
-
-            except MediaWikiAPIError as e:
-                error_msg = f"Failed to fetch pages from MediaWiki: {e}"
-                logger.error(error_msg)
-                errors.append(error_msg)
-                return OperationResult(
-                    total=total,
-                    succeeded=0,
-                    failed=total,
-                    skipped=0,
-                    warnings=warnings,
-                    errors=[error_msg],
-                )
-        else:
-            succeeded = total
+                self._console.print(f"[dim]Fetched {succeeded} pages[/dim]\n")
+            except MediaWikiAPIError as error:
+                message = f"Failed to fetch pages from MediaWiki: {error}"
+                logger.error(message)
+                errors.append(message)
+                failed += len(pages_to_fetch_titles)
 
         # Display summary
         display_operation_summary(

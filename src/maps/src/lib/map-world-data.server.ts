@@ -135,7 +135,7 @@ export async function buildMapWorldData(
     // Add enemy info to zone positions
     const zonePositions: ZoneWorldPosition[] = zonePositionsBase.map((zone) => ({
         ...zone,
-        enemyInfo: zoneEnemyInfoMap.get(zone.key) ?? { levelRange: null, uniques: [], rares: [] }
+        enemyInfo: zoneEnemyInfoMap.get(zone.key) ?? { levelRange: null, bosses: [], elites: [] }
     }));
 
     // Calculate world bounds from all zone bounds
@@ -162,9 +162,9 @@ export async function buildMapWorldData(
     const itemBags: WorldItemBag[] = [];
     const miningNodes: WorldMiningNode[] = [];
     const secretPassages: WorldSecretPassage[] = [];
-    const enemiesCommon: WorldEnemy[] = [];
-    const enemiesRare: WorldEnemy[] = [];
-    const enemiesUnique: WorldEnemy[] = [];
+    const enemiesEnemy: WorldEnemy[] = [];
+    const enemiesElite: WorldEnemy[] = [];
+    const enemiesBoss: WorldEnemy[] = [];
     const teleports: WorldTeleport[] = [];
     const treasureLocs: WorldTreasureLoc[] = [];
     const water: WorldWater[] = [];
@@ -174,7 +174,7 @@ export async function buildMapWorldData(
     for (const zoneKey of zoneKeys) {
         const displayName = zoneConfigs[zoneKey].zoneName;
 
-        // Load spawn points (split by category and rarity for layer ordering)
+        // Load spawn points by category and encounter tier for layer ordering.
         const zoneSpawnPoints = await repo.getSpawnPointMarkers(zoneKey);
         for (const marker of zoneSpawnPoints) {
             const worldPos = transformToWorldOrThrow(
@@ -211,7 +211,7 @@ export async function buildMapWorldData(
                 );
             }
 
-            // NPC spawn points go with NPCs, enemy spawn points sorted by rarity
+            // NPC spawn points go with NPCs, enemy spawn points with their most notable tier.
             if (marker.category === 'npc') {
                 npcs.push({
                     ...marker,
@@ -233,12 +233,12 @@ export async function buildMapWorldData(
                     levelMin: Math.min(...levels),
                     levelMax: Math.max(...levels)
                 } as WorldEnemy;
-                if (enemyMarker.isUnique) {
-                    enemiesUnique.push(enemyMarker);
-                } else if (enemyMarker.isRare) {
-                    enemiesRare.push(enemyMarker);
+                if (enemyMarker.encounterTier === 'boss') {
+                    enemiesBoss.push(enemyMarker);
+                } else if (enemyMarker.encounterTier === 'elite') {
+                    enemiesElite.push(enemyMarker);
                 } else {
-                    enemiesCommon.push(enemyMarker);
+                    enemiesEnemy.push(enemyMarker);
                 }
             }
         }
@@ -273,8 +273,8 @@ export async function buildMapWorldData(
             // Get destination zone enemy info
             const destEnemyInfo = zoneEnemyInfoMap.get(marker.destinationZone) ?? {
                 levelRange: null,
-                uniques: [],
-                rares: []
+                bosses: [],
+                elites: []
             };
 
             zoneLines.push({
@@ -511,7 +511,7 @@ export async function buildMapWorldData(
     // distort the slider bounds.
     let enemyLevelMin = Infinity;
     let enemyLevelMax = -Infinity;
-    for (const enemies of [enemiesCommon, enemiesRare, enemiesUnique]) {
+    for (const enemies of [enemiesEnemy, enemiesElite, enemiesBoss]) {
         for (const enemy of enemies) {
             const hasVulnerable = enemy.characters.some((c) => !c.isInvulnerable);
             if (!hasVulnerable) continue;
@@ -527,7 +527,7 @@ export async function buildMapWorldData(
     // purposes, so they always pass the DataFilterExtension regardless of
     // slider position. levelMin/levelMax on WorldEnemy are filter-only;
     // character.level is the source of truth for display.
-    for (const enemies of [enemiesCommon, enemiesRare, enemiesUnique]) {
+    for (const enemies of [enemiesEnemy, enemiesElite, enemiesBoss]) {
         for (const enemy of enemies) {
             const allInvulnerable = enemy.characters.every((c) => c.isInvulnerable);
             if (!allInvulnerable) continue;
@@ -540,9 +540,9 @@ export async function buildMapWorldData(
     const enabledLast = (a: { isEnabled: boolean }, b: { isEnabled: boolean }) =>
         Number(a.isEnabled) - Number(b.isEnabled);
     npcs.sort(enabledLast);
-    enemiesCommon.sort(enabledLast);
-    enemiesRare.sort(enabledLast);
-    enemiesUnique.sort(enabledLast);
+    enemiesEnemy.sort(enabledLast);
+    enemiesElite.sort(enabledLast);
+    enemiesBoss.sort(enabledLast);
 
     // Preload searchable enemies whose runtime-selected spawn points cannot be
     // represented as map markers.
@@ -557,9 +557,9 @@ export async function buildMapWorldData(
         markers: {
             achievementTriggers,
             doors,
-            enemiesCommon,
-            enemiesRare,
-            enemiesUnique,
+            enemiesEnemy,
+            enemiesElite,
+            enemiesBoss,
             forges,
             itemBags,
             miningNodes,

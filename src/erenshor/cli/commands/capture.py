@@ -10,12 +10,14 @@ This module provides commands for capturing map tiles from the game:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import typer
-from loguru import logger
 from rich.console import Console
 from rich.table import Table
+
+from erenshor.cli.preconditions import require_preconditions
+from erenshor.cli.preconditions.checks.capture import capture_config, captured_masters
 
 if TYPE_CHECKING:
     from ..context import CLIContext
@@ -30,6 +32,7 @@ console = Console()
 
 
 @app.command()
+@require_preconditions(capture_config)
 def run(
     ctx: typer.Context,
     zones: list[str] | None = typer.Option(
@@ -80,12 +83,34 @@ def run(
     variants = [variant] if variant else None
     tile_output_dir = maps_source_dir / "static" / "tiles"
     orch = CaptureOrchestrator(cli_ctx.repo_root, config, state, tile_output_dir=tile_output_dir)
-    asyncio.run(orch.run(selected, variants=variants, force=force))
+    try:
+        report = asyncio.run(orch.run(selected, variants=variants, force=force))
+    except BaseException:
+        if orch.report.captured:
+            console.print(
+                f"[red]Capture stopped. {len(orch.report.captured)} zone variants were captured and tiled "
+                "before the error, so the tile set is partial.[/red]"
+            )
+        raise
 
-    console.print("[bold green]Capture pipeline complete[/bold green]")
+    for failure in report.failures:
+        console.print(f"[red]Failed: {failure.zone}/{failure.variant}: {failure.reason}[/red]")
+    if not report.complete:
+        console.print(
+            f"[red]Capture incomplete: {len(report.failures)} of "
+            f"{len(report.failures) + len(report.captured) + len(report.up_to_date)} zone variants failed. "
+            "The tile set is partial.[/red]"
+        )
+        raise typer.Exit(1)
+
+    console.print(
+        f"[bold green]Capture pipeline complete[/bold green]: {len(report.captured)} captured, "
+        f"{len(report.up_to_date)} up to date"
+    )
 
 
 @app.command()
+@require_preconditions(capture_config, captured_masters)
 def tile(
     ctx: typer.Context,
     zones: list[str] | None = typer.Option(
@@ -101,7 +126,12 @@ def tile(
     """
     from erenshor.application.capture.state import CaptureState
     from erenshor.application.capture.tile_generator import generate_tile_pyramid
-    from erenshor.application.capture.zone_config import CONFIG_RELATIVE_PATH, get_zone_keys, load_zone_config
+    from erenshor.application.capture.zone_config import (
+        CONFIG_RELATIVE_PATH,
+        capture_variants,
+        get_zone_keys,
+        load_zone_config,
+    )
 
     cli_ctx: CLIContext = ctx.obj
     maps_source_dir = cli_ctx.config.variants[cli_ctx.variant].maps.resolved_source_dir(cli_ctx.repo_root)
@@ -118,17 +148,9 @@ def tile(
     total_tiles = 0
     for zone_key in selected:
         zone_cfg = config[zone_key]
-        for variant in zone_cfg.get("captureVariants", ["clear"]):
-            variant_state = state.get_variant_state(zone_key, variant)
-            if not variant_state or not variant_state.get("masterPath"):
-                logger.warning(f"No captured master for {zone_key}/{variant}, skipping")
-                continue
-            master = cli_ctx.repo_root / variant_state["masterPath"]
-            if not master.exists():
-                console.print(f"[red]Error: master PNG missing: {master}[/red]")
-                console.print("  State says it exists but file is gone. Re-capture with:")
-                console.print(f"  uv run erenshor capture run --zones {zone_key} --variant {variant} --force")
-                raise typer.Exit(1)
+        for variant in capture_variants(zone_key, zone_cfg):
+            record = cast("dict[str, str]", state.get_variant_state(zone_key, variant))
+            master = cli_ctx.repo_root / record["masterPath"]
 
             count = generate_tile_pyramid(master, zone_key, variant, zone_cfg, tiles_dir)
             total_tiles += count

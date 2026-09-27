@@ -224,6 +224,8 @@ def processed_db(tmp_path):
                 "image_name": "Shivunax",
                 "is_wiki_generated": 1,
                 "is_map_visible": 1,
+                "expected_npc_name": None,
+                "encounter_tier": None,
             },
             "character:demented": {
                 "display_name": "Demented Malaroth",
@@ -231,6 +233,8 @@ def processed_db(tmp_path):
                 "image_name": "Demented Malaroth",
                 "is_wiki_generated": 1,
                 "is_map_visible": 1,
+                "expected_npc_name": None,
+                "encounter_tier": None,
             },
         },
         {"item:coin", "item:mal-food", "item:bad-food"},

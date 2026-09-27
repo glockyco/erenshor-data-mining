@@ -38,6 +38,7 @@ from erenshor.infrastructure.dependency_state import (
     locked_nuget_restore_commands,
     nix_updater_ownership_violations,
 )
+from erenshor.infrastructure.steam.installation import find_game_installation
 
 if TYPE_CHECKING:
     from erenshor.cli.context import CLIContext
@@ -348,9 +349,8 @@ def _main_data_paths(cli_ctx: CLIContext) -> tuple[Path, Path, Path]:
     root = cli_ctx.repo_root
     clean = _configured_path(main, "resolved_database", "database", root)
     raw = _configured_path(main, "resolved_database_raw", "database_raw", root)
-    game = _configured_path(main, "resolved_game_files", "game_files", root)
-    assembly = game / "Erenshor_Data" / "Managed" / "Assembly-CSharp.dll"
-    return clean, raw, assembly
+    installation = find_game_installation("main", str(cast("Any", main).app_id))
+    return clean, raw, installation.managed_dir / "Assembly-CSharp.dll"
 
 
 def _maps_paths(cli_ctx: CLIContext) -> tuple[Path, Path]:

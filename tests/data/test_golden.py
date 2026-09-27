@@ -28,6 +28,8 @@ from pathlib import Path
 
 import pytest
 
+from erenshor.cli.commands.golden import CODE_FACTS_SQL, MAP_SPAWN_POINTS_SQL
+
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
@@ -40,60 +42,6 @@ GOLDEN_CODE_FACTS_DIR = GOLDEN_DIR / "code_facts"
 
 QUERIES_DIR = REPO_ROOT / "src" / "erenshor" / "application" / "sheets" / "queries"
 DB_PATH = REPO_ROOT / "variants" / "main" / "erenshor-main.sqlite"
-
-# ---------------------------------------------------------------------------
-# Map spawn-points SQL (mirrors database.base.ts, all scenes)
-#
-# Uses GROUP_CONCAT aggregate ORDER BY syntax for deterministic patrol paths.
-# ---------------------------------------------------------------------------
-
-_MAP_SPAWN_POINTS_SQL = """
-WITH rep_groups AS (
-    SELECT d.group_key, MIN(d.member_stable_key) AS rep_stable_key
-    FROM character_deduplications d
-    WHERE d.is_map_visible = 1
-    GROUP BY d.group_key
-)
-SELECT
-    cs.scene                        AS Scene,
-    cs.spawn_point_stable_key       AS StableKey,
-    cs.x                            AS PositionX,
-    cs.y                            AS PositionY,
-    cs.z                            AS PositionZ,
-    cs.spawn_delay_4                AS SpawnDelay,
-    cs.is_enabled                   AS IsEnabled,
-    cs.night_spawn                  AS IsNightSpawn,
-    cs.random_wander_range          AS WanderRange,
-    cs.loop_patrol                  AS LoopPatrol,
-    (
-        SELECT GROUP_CONCAT(pp.x || ',' || pp.z, ';' ORDER BY pp.sequence_index)
-        FROM spawn_point_patrol_points pp
-        WHERE pp.spawn_point_stable_key = cs.spawn_point_stable_key
-    )                               AS PatrolPath,
-    rep.display_name                AS NPCName,
-    rep.stable_key                  AS CharacterStableKey,
-    rep.level                       AS Level,
-    rep.is_vendor                   AS IsVendor,
-    rep.has_dialog                  AS HasDialog,
-    rep.invulnerable                AS Invulnerable,
-    sum(cs.spawn_chance)            AS SpawnChance,
-    rep.is_common                   AS IsCommon,
-    rep.is_rare                     AS IsRare,
-    rep.is_unique                   AS IsUnique,
-    min(rep.is_friendly)            AS IsFriendly
-FROM rep_groups rg
-JOIN characters rep ON rep.stable_key = rg.rep_stable_key
-JOIN character_deduplications d ON d.group_key = rg.group_key AND d.is_map_visible = 1
-JOIN map_character_spawns cs ON cs.character_stable_key = d.member_stable_key
-WHERE cs.spawn_chance > 0
-  AND cs.spawn_point_stable_key IS NOT NULL
-GROUP BY cs.spawn_point_stable_key, rep.stable_key
-ORDER BY cs.scene, cs.spawn_point_stable_key, rep.stable_key
-"""
-
-# Code facts: hardcoded game constants carried verbatim into the clean DB.
-# Excludes code_facts_meta (volatile sha + timestamp) to avoid capture thrash.
-_CODE_FACTS_SQL = "SELECT fact_id, key, value, value_type FROM code_facts ORDER BY fact_id, key"
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -230,7 +178,7 @@ class TestMapGolden:
         conn = sqlite3.connect(DB_PATH)
         conn.row_factory = sqlite3.Row
         try:
-            cursor = conn.execute(_MAP_SPAWN_POINTS_SQL)
+            cursor = conn.execute(MAP_SPAWN_POINTS_SQL)
             rows = cursor.fetchall()
             headers = list(rows[0].keys()) if rows else []
             actual_rows = [headers, *_rows_to_strings([list(row) for row in rows])]
@@ -266,7 +214,7 @@ class TestCodeFactsGolden:
         conn = sqlite3.connect(DB_PATH)
         conn.row_factory = sqlite3.Row
         try:
-            cursor = conn.execute(_CODE_FACTS_SQL)
+            cursor = conn.execute(CODE_FACTS_SQL)
             rows = cursor.fetchall()
             headers = list(rows[0].keys()) if rows else []
             actual_rows = [headers, *_rows_to_strings([list(row) for row in rows])]

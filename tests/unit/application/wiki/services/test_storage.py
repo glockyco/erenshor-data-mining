@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from erenshor.application.wiki.services.storage import WikiStorage
+from erenshor.application.wiki.services.storage import WikiMetadataError, WikiStorage
 
 
 def test_save_generated_by_title_strips_trailing_line_whitespace(tmp_path: Path) -> None:
@@ -47,3 +47,36 @@ def test_read_generated_pages_rejects_missing_content_file(tmp_path: Path) -> No
 
     with pytest.raises(FileNotFoundError, match="Generated wiki content missing"):
         storage.read_generated_pages()
+
+
+def test_corrupt_metadata_fails_without_replacing_existing_content(tmp_path: Path) -> None:
+    storage = WikiStorage(tmp_path)
+    metadata_file = tmp_path / "metadata.json"
+    metadata_file.write_text("{bad json", encoding="utf-8")
+
+    with pytest.raises(WikiMetadataError, match=r"metadata\.json.*Expecting property name"):
+        storage.save_fetched_by_title("A Page", ["item:a_page"], "new content", ["A Page"], 12)
+
+    assert metadata_file.read_text(encoding="utf-8") == "{bad json"
+    assert storage.read_fetched_by_title("A Page") is None
+
+
+def test_malformed_metadata_entry_names_file_and_field(tmp_path: Path) -> None:
+    storage = WikiStorage(tmp_path)
+    (tmp_path / "metadata.json").write_text(
+        '{"A Page": {"page_title": "A Page", "stable_keys": [], "entity_names": [], "fetched_revision_id": "bad"}}',
+        encoding="utf-8",
+    )
+
+    with pytest.raises(WikiMetadataError, match=r"metadata\.json.*fetched_revision_id"):
+        storage.get_metadata_by_title("A Page")
+
+
+def test_fetched_revision_survives_metadata_round_trip(tmp_path: Path) -> None:
+    storage = WikiStorage(tmp_path)
+    storage.save_fetched_by_title("A Page", ["item:a_page"], "text", ["A Page"], 12)
+
+    metadata = WikiStorage(tmp_path).get_metadata_by_title("A Page")
+
+    assert metadata is not None
+    assert metadata.fetched_revision_id == 12

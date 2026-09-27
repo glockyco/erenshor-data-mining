@@ -1,9 +1,11 @@
 """Tests that exported gameplay fields are present in clean schemas."""
 
+import pytest
+
 from erenshor.application.processor.characters import (
     _CharData,
     _CharRow,
-    _derive_group_rarity,
+    _derive_encounter_tier,
     _SpawnRow,
 )
 from erenshor.application.processor.writer import Writer
@@ -13,16 +15,24 @@ def _table_columns(writer: Writer, table_name: str) -> set[str]:
     return {row[1] for row in writer._conn.execute(f"PRAGMA table_info({table_name})").fetchall()}
 
 
-def _char_data(*, unique: int = 0, spawns: list[_SpawnRow]) -> _CharData:
+def _char_data(
+    *,
+    boss_xp: float = 0.0,
+    level: int = 10,
+    friendly: int = 0,
+    override: str | None = None,
+    spawns: list[_SpawnRow],
+) -> _CharData:
     return _CharData(
         char=_CharRow(
-            raw={"IsUnique": unique, "IsRare": 0, "IsCommon": 0},
+            raw={"BossXpMultiplier": boss_xp, "Level": level, "IsFriendly": friendly},
             stable_key="character:test",
             display_name="Test",
             wiki_page_name="Test",
             image_name="Test",
             is_wiki_generated=1,
             is_map_visible=1,
+            encounter_tier_override=override,
         ),
         spawns=spawns,
     )
@@ -62,27 +72,50 @@ def _spawn(*, source_script: str | None, x: float) -> _SpawnRow:
     )
 
 
-def test_dynamic_only_group_uses_explicit_non_unique_flag() -> None:
+def _placements(count: int) -> list[_SpawnRow]:
+    return [_spawn(source_script=None, x=float(index)) for index in range(count)]
+
+
+def test_event_spawned_named_character_is_a_boss() -> None:
+    member = _char_data(boss_xp=3.0, spawns=[_spawn(source_script="ShivunaxEvent", x=1.0)])
+
+    assert _derive_encounter_tier([member]) == "boss"
+
+
+def test_named_character_at_several_placements_is_an_elite() -> None:
+    assert _derive_encounter_tier([_char_data(boss_xp=5.0, spawns=_placements(14))]) == "elite"
+
+
+def test_level_forty_raises_boss_xp_like_the_game() -> None:
+    assert _derive_encounter_tier([_char_data(level=42, spawns=_placements(20))]) == "elite"
+    assert _derive_encounter_tier([_char_data(level=39, spawns=_placements(20))]) == "enemy"
+
+
+def test_boss_xp_of_one_is_not_named() -> None:
+    assert _derive_encounter_tier([_char_data(boss_xp=1.0, spawns=_placements(3))]) == "enemy"
+
+
+def test_single_placement_is_a_boss_without_boss_xp() -> None:
+    member = _char_data(spawns=[*_placements(1), _spawn(source_script="SprinklesEvent", x=9.0)])
+
+    assert _derive_encounter_tier([member]) == "boss"
+
+
+def test_event_only_character_without_boss_xp_is_an_enemy() -> None:
     member = _char_data(spawns=[_spawn(source_script="SprinklesEvent", x=1.0)])
 
-    assert _derive_group_rarity([member]) == (0, 0)
+    assert _derive_encounter_tier([member]) == "enemy"
 
 
-def test_dynamic_only_group_preserves_explicit_unique_flag() -> None:
-    member = _char_data(unique=1, spawns=[_spawn(source_script="FernallaFightEvent", x=1.0)])
+def test_group_members_share_placements() -> None:
+    first = _char_data(boss_xp=4.0, spawns=_placements(1))
+    second = _char_data(boss_xp=4.0, spawns=[_spawn(source_script=None, x=7.0)])
 
-    assert _derive_group_rarity([member]) == (1, 0)
+    assert _derive_encounter_tier([first, second]) == "elite"
 
 
-def test_mixed_group_counts_only_ordinary_spawns() -> None:
-    member = _char_data(
-        spawns=[
-            _spawn(source_script=None, x=1.0),
-            _spawn(source_script="SprinklesEvent", x=2.0),
-        ]
-    )
-
-    assert _derive_group_rarity([member]) == (1, 0)
+def test_friendly_character_is_an_npc() -> None:
+    assert _derive_encounter_tier([_char_data(boss_xp=5.0, friendly=1, spawns=_placements(1))]) == "npc"
 
 
 def test_zone_gameplay_flag_columns_exist(tmp_path):
@@ -145,3 +178,14 @@ def test_character_base_combat_stat_columns_exist(tmp_path):
     assert "cannot_be_snared" in cols
 
     writer._conn.close()
+
+
+def test_mapping_override_replaces_the_derived_tier() -> None:
+    member = _char_data(friendly=1, override="enemy", spawns=_placements(3))
+
+    assert _derive_encounter_tier([member, member]) == "enemy"
+
+
+def test_override_must_cover_the_whole_group() -> None:
+    with pytest.raises(ValueError, match="disagree"):
+        _derive_encounter_tier([_char_data(override="enemy", spawns=_placements(1)), _char_data(spawns=_placements(1))])

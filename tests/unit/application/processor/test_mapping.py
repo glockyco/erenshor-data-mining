@@ -20,6 +20,7 @@ def _override(*, display_name: str, expected_npc_name: str | None) -> MappingOve
         expected_npc_name=expected_npc_name,
         is_wiki_generated=1,
         is_map_visible=1,
+        encounter_tier=None,
     )
 
 
@@ -70,3 +71,28 @@ def test_changed_pinned_game_name_is_rejected() -> None:
 
     with pytest.raises(ValueError, match="expected NPCName 'Guard', found 'Arcanist'"):
         validate_character_name_overrides(mapping, {"character:guard": "Arcanist"})
+
+
+def _write_rule(tmp_path: Path, **fields: object) -> Path:
+    path = tmp_path / "mapping.json"
+    rule = {"display_name": "Catnip", "wiki_page_name": "Catnip", "image_name": "Catnip", **fields}
+    path.write_text(json.dumps({"rules": {"character:catnip": rule}}))
+    return path
+
+
+def test_encounter_tier_override_is_loaded(tmp_path: Path) -> None:
+    characters, _ = load_mapping(_write_rule(tmp_path, encounter_tier="enemy", reason="Killed for a quest item."))
+
+    assert characters["character:catnip"]["encounter_tier"] == "enemy"
+
+
+@pytest.mark.parametrize(
+    ("fields", "message"),
+    [
+        ({"encounter_tier": "rare", "reason": "x"}, "must be one of"),
+        ({"encounter_tier": "enemy"}, "requires a 'reason'"),
+    ],
+)
+def test_invalid_encounter_tier_override_is_rejected(tmp_path: Path, fields: dict[str, object], message: str) -> None:
+    with pytest.raises(ValueError, match=message):
+        load_mapping(_write_rule(tmp_path, **fields))

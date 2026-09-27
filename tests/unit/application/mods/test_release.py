@@ -167,3 +167,31 @@ def test_vault_listing_validation_and_lunaris_plan(tmp_path: Path) -> None:
     assert plan.releases[0].listing.mod_ref == "sprint"
     assert plan.releases[0].dll.name == definition.dll_name
     assert plan.releases[0].changelog_version == "2099.101.0"
+
+
+def test_malformed_same_day_version_stops_revision_selection() -> None:
+    with pytest.raises(ValueError, match=r"malformed CalVer version: '2026\.716\.beta'"):
+        release.latest_calver_for_prefix(["2026.716.0", "2026.716.beta"], "2026.716")
+
+
+def test_vault_lookup_rejects_a_malformed_same_day_version(monkeypatch: pytest.MonkeyPatch) -> None:
+    class Listing:
+        def __enter__(self) -> Listing:
+            return self
+
+        def __exit__(self, *_args: object) -> None:
+            return None
+
+        def read(self) -> bytes:
+            return b'{"versions":[{"version":"2099.101.0"},{"version":"2099.101.x"}]}'
+
+    class FixedDate(release.datetime):
+        @classmethod
+        def now(cls, tz: Any = None) -> release.datetime:
+            return cls(2099, 1, 1, tzinfo=tz)
+
+    monkeypatch.setattr(release, "datetime", FixedDate)
+    monkeypatch.setattr(release, "urlopen", lambda *_args, **_kwargs: Listing())
+
+    with pytest.raises(RuntimeError, match=r"Vault version lookup failed for sprint: malformed CalVer"):
+        release.get_vault_version("sprint")

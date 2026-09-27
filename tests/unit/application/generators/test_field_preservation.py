@@ -739,7 +739,7 @@ class TestTemplateFormatting:
 |name=Goblin Scout
 |image=[[File:Goblin Scout.png|thumb]]
 |imagecaption=
-|type=
+|type=Elite
 |faction=Bandit
 |factionChange=+5 [[Bandits]]
 |zones=[[Darkwood Forest]]
@@ -770,7 +770,7 @@ class TestTemplateFormatting:
 
         # Manual edit fields should be preserved
         assert "A fearsome goblin" in result  # imagecaption (preserve)
-        assert "[[:Category:Characters|Enemy]]" in result  # type (prefer_manual - had value)
+        assert "|type=Elite\n" in result  # generated classification replaces stale type
 
         # Database-generated fields should be UPDATED from new wikitext
         assert "[[Darkwood Forest]]" in result  # zones (from DB, not old manual value)
@@ -783,6 +783,7 @@ class TestTemplateFormatting:
 
         # Should NOT have old manual values
         assert "[[Rottenfoot]]" not in result  # old zones
+        assert "[[:Category:Characters|Enemy]]" not in result
         assert "100.0 x 20.0 x 200.0" not in result  # old coordinates
         assert "Manual loot table" not in result  # old droprates
 

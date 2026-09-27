@@ -13,6 +13,7 @@ import type {
     WorldItemBag,
     ZoneWorldPosition
 } from '$lib/types/world-map';
+import { compareEncounterTier } from '$lib/map-markers';
 import type { ItemSourceRow, ItemSourceItemMeta, UnlocatedEnemy } from '$lib/map-markers';
 import type {
     SearchProvider,
@@ -109,9 +110,9 @@ export interface SearchIndex {
  * Called once at page load, rebuilt when live entities change.
  */
 export function buildSearchIndex(input: {
-    enemiesCommon: WorldEnemy[];
-    enemiesRare: WorldEnemy[];
-    enemiesUnique: WorldEnemy[];
+    enemiesEnemy: WorldEnemy[];
+    enemiesElite: WorldEnemy[];
+    enemiesBoss: WorldEnemy[];
     unlocatedEnemies: UnlocatedEnemy[];
     npcs: WorldNpc[];
     zones: ZoneWorldPosition[];
@@ -122,9 +123,9 @@ export function buildSearchIndex(input: {
     allItems: ItemSourceItemMeta[];
 }): SearchIndex {
     const enemyProvider = new EnemySearchProvider(
-        input.enemiesCommon,
-        input.enemiesRare,
-        input.enemiesUnique,
+        input.enemiesEnemy,
+        input.enemiesElite,
+        input.enemiesBoss,
         input.unlocatedEnemies
     );
     const npcProvider = new NpcSearchProvider(input.npcs);
@@ -132,9 +133,9 @@ export function buildSearchIndex(input: {
     const itemProvider = new ItemSearchProvider(
         input.itemSources,
         [
-            ...input.enemiesCommon,
-            ...input.enemiesRare,
-            ...input.enemiesUnique,
+            ...input.enemiesEnemy,
+            ...input.enemiesElite,
+            ...input.enemiesBoss,
             ...input.npcs
         ],
         input.miningNodes,
@@ -276,7 +277,7 @@ function sortCategoryMatches(category: SearchCategory, matches: SearchMatch[]): 
 /**
  * Sort results within each category bucket.
  *
- * Enemies: unique > rare > common, then alphabetically by name.
+ * Enemies: boss > elite > enemy, then alphabetically by name.
  * Items / NPCs / Zones: alphabetically by name.
  */
 function sortCategories(byCategory: Map<string, SearchMatch[]>): void {
@@ -290,7 +291,7 @@ function sortCategoryResults(cat: string, results: SearchMatch[]): void {
         results.sort((a, b) => {
             const ae = a.result as EnemySearchResult;
             const be = b.result as EnemySearchResult;
-            return ae.effectiveRarity - be.effectiveRarity || ae.name.localeCompare(be.name);
+            return compareEncounterTier(ae.encounterTier, be.encounterTier) || ae.name.localeCompare(be.name);
         });
     } else {
         results.sort((a, b) => sortName(a.result).localeCompare(sortName(b.result)));

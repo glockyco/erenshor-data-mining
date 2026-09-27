@@ -5,12 +5,13 @@ from __future__ import annotations
 import hashlib
 import json
 import sqlite3
-import subprocess
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, cast
 
 from loguru import logger
+
+from erenshor.application.dotnet_tool import run_dotnet_tool
 
 TOOL_PROJECT = Path("src") / "tools" / "CodeFacts"
 
@@ -23,32 +24,10 @@ def run_tool(repo_root: Path, assembly: Path, variant: str | None = None) -> dic
     specs = project / "specs" / "erenshor-facts.json"
     if not specs.exists():
         raise FileNotFoundError(f"fact specs not found: {specs}")
-    subprocess.run(
-        ["dotnet", "build", str(project), "-c", "Release"],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    command = [
-        "dotnet",
-        "run",
-        "-c",
-        "Release",
-        "--no-build",
-        "--project",
-        str(project),
-        "--",
-        str(assembly),
-        str(specs),
-    ]
+    args = [str(assembly), str(specs)]
     if variant is not None:
-        command.extend(["--variant", variant])
-    proc = subprocess.run(
-        command,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+        args.extend(["--variant", variant])
+    proc = run_dotnet_tool(project, args)
     if proc.returncode != 0:
         raise RuntimeError(
             f"CodeFacts analyzer failed (exit {proc.returncode}).\n"

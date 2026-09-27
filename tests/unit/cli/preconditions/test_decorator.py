@@ -8,7 +8,7 @@ import typer
 
 from erenshor.cli.context import CLIContext
 from erenshor.cli.preconditions.base import PreconditionResult
-from erenshor.cli.preconditions.decorator import _build_check_context, require_preconditions
+from erenshor.cli.preconditions.decorator import require_preconditions
 from erenshor.infrastructure.config.schema import (
     Config,
     GlobalConfig,
@@ -36,14 +36,11 @@ def minimal_config(tmp_path: Path) -> Config:
             paths=PathsConfig(
                 logs=".erenshor/logs",
                 state=".erenshor/state.json",
-                backups=".erenshor/backups",
             ),
             mediawiki=MediaWikiConfig(
                 api_url="https://wiki.example.com/api.php",
                 bot_username="TestBot",
-                bot_password_env="MEDIAWIKI_PASSWORD",
                 api_delay=1.0,
-                api_timeout=30.0,
                 api_batch_size=50,
             ),
         ),
@@ -54,7 +51,6 @@ def minimal_config(tmp_path: Path) -> Config:
                 app_id="2382520",
                 unity_project="variants/main/unity",
                 editor_scripts="src/Assets/Editor",
-                game_files="variants/main/game",
                 database_raw="variants/main/erenshor-main-raw.sqlite",
                 database="variants/main/erenshor-main.sqlite",
                 logs="variants/main/logs",
@@ -226,51 +222,6 @@ def test_decorator_with_no_checks(cli_context: CLIContext):
 
     result = test_command(mock_ctx)
     assert result == "success"
-
-
-def test_build_check_context():
-    """Test building check context from CLIContext."""
-    from erenshor.infrastructure.config.schema import Config
-
-    # Create minimal config
-    variant_config = Mock()
-    variant_config.resolved_database.return_value = Path("/db/test.sqlite")
-    variant_config.resolved_unity_project.return_value = Path("/unity/project")
-    variant_config.resolved_game_files.return_value = Path("/game/files")
-    variant_config.resolved_logs.return_value = Path("/logs")
-    variant_config.resolved_backups.return_value = Path("/backups")
-    variant_config.resolved_editor_scripts.return_value = Path("/editor/scripts")
-
-    maps_config = Mock()
-    maps_config.resolved_source_dir.return_value = Path("/maps")
-    maps_config.resolved_build_dir.return_value = Path("/maps/build")
-    maps_config.resolved_database_dir.return_value = Path("/maps/static/db")
-    variant_config.maps = maps_config
-    config = Mock(spec=Config)
-    config.variants = {"main": variant_config}
-
-    cli_ctx = CLIContext(
-        config=config,
-        variant="main",
-        dry_run=False,
-        repo_root=Path("/repo"),
-    )
-
-    context = _build_check_context(cli_ctx)
-
-    assert context["variant"] == "main"
-    assert context["repo_root"] == Path("/repo")
-    assert context["database_path"] == Path("/db/test.sqlite")
-    assert context["unity_project"] == Path("/unity/project")
-    assert context["game_dir"] == Path("/game/files")
-    assert context["logs_dir"] == Path("/logs")
-    assert context["backups_dir"] == Path("/backups")
-    assert context["editor_scripts_dir"] == Path("/editor/scripts")
-    assert context["maps_source_dir"] == Path("/maps")
-    assert context["build_dir"] == Path("/maps/build")
-    assert context["maps_db_path"] == Path("/maps/static/db/erenshor.sqlite")
-    assert context["config"] == config
-    assert context["dry_run"] is False
 
 
 def test_decorator_rejects_missing_context():

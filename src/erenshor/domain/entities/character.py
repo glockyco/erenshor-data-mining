@@ -17,7 +17,7 @@ class Character(BaseEntity):
     Characters include all non-player entities such as enemies, vendors, quest givers,
     and other friendly NPCs. The ObjectName field is used as the stable identifier.
 
-    All fields match the Unity export schema from the Characters table.
+    All fields match the clean database's characters table.
     """
 
     # Primary keys and identifiers
@@ -59,9 +59,7 @@ class Character(BaseEntity):
 
     # Character type flags
     is_prefab: int | None = Field(default=None, description="Is prefab (boolean)")
-    is_common: int | None = Field(default=None, description="Is common spawn (boolean)")
-    is_rare: int | None = Field(default=None, description="Is rare spawn (boolean)")
-    is_unique: int | None = Field(default=None, description="Is unique/boss (boolean)")
+    encounter_tier: str = Field(description="Stored encounter tier: npc, boss, elite, or enemy")
     is_friendly: int | None = Field(default=None, description="Is friendly (boolean)")
     is_npc: int | None = Field(default=None, description="Is NPC (boolean)")
     is_sim_player: int | None = Field(default=None, description="Is SimPlayer (boolean)")

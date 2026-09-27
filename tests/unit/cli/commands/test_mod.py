@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import io
+import os
 import stat
 import subprocess
 import zipfile
@@ -20,8 +22,17 @@ from erenshor.application.mods.artifacts import REQUIRED_DLLS, ArtifactIssue, Mo
 from erenshor.application.mods.catalog import artifact_specs, iter_mods, lookup_mod, public_mods
 from erenshor.application.process_session import ProcessIdentity
 from erenshor.cli.commands import mod as mod_command
+from erenshor.cli.context import CLIContext
+from erenshor.infrastructure.steam.installation import GameInstallation, GameInstallationError
 
-_DISCOVER_CROSSOVER_GAME_PATH = local_workflow.discover_crossover_game_path
+
+def _installed(monkeypatch: pytest.MonkeyPatch, game: Path, bottle: str = "Steam") -> None:
+    """Resolve every variant to ``game`` as if the Steam client installed it there."""
+    monkeypatch.setattr(
+        local_workflow,
+        "find_game_installation",
+        lambda _variant, _app_id: GameInstallation(game, game.parent.parent / "appmanifest.acf", bottle),
+    )
 
 
 def _mod(mod_id: str):
@@ -33,18 +44,26 @@ def _ctx(
     *,
     variant: str = "main",
     game_paths: dict[str, Path] | None = None,
-    game_installs: dict[str, Path | None] | None = None,
     mods_config: Any | None = None,
 ) -> SimpleNamespace:
     """Build the smallest CLI context needed by mod command helpers."""
     paths = game_paths or {variant: tmp_path / variant}
-    installs = game_installs or {}
     app_ids = {"main": "2382520", "playtest": "3090030", "demo": "2522260"}
     variants = {
         name: SimpleNamespace(
             app_id=app_ids.get(name, "0"),
-            resolved_game_files=lambda _root, path=path: path,
-            resolved_game_install=lambda _root, path=installs.get(name): path,
+            resolved_unity_project=lambda _root, path=path: path / "unity",
+            resolved_database=lambda _root, path=path: path / "clean.sqlite",
+            resolved_database_raw=lambda _root, path=path: path / "raw.sqlite",
+            resolved_logs=lambda _root, path=path: path / "logs",
+            resolved_backups=lambda _root, path=path: path / "backups",
+            resolved_editor_scripts=lambda _root, path=path: path / "editor",
+            resolved_wiki=lambda _root, path=path: path / "wiki",
+            maps=SimpleNamespace(
+                resolved_source_dir=lambda _root, path=path: path / "maps",
+                resolved_build_dir=lambda _root, path=path: path / "maps/build",
+                resolved_database_dir=lambda _root, path=path: path / "maps/db",
+            ),
         )
         for name, path in paths.items()
     }
@@ -57,14 +76,18 @@ def _ctx(
         variants=variants,
         global_=SimpleNamespace(mods=mods_config),
     )
-    cli_ctx = SimpleNamespace(config=config, variant=variant, repo_root=tmp_path)
+    cli_ctx = CLIContext(config=config, variant=variant, repo_root=tmp_path, dry_run=False)
     return SimpleNamespace(obj=cli_ctx)
 
 
 @pytest.fixture(autouse=True)
 def _disable_workstation_crossover_discovery(monkeypatch: pytest.MonkeyPatch) -> None:
     """Unit tests must never resolve or modify the developer's real game install."""
-    monkeypatch.setattr(local_workflow, "discover_crossover_game_path", lambda _app_id: None)
+
+    def not_installed(variant: str, app_id: str) -> GameInstallation:
+        raise GameInstallationError(f"Variant {variant!r} (Steam app {app_id}) is not installed")
+
+    monkeypatch.setattr(local_workflow, "find_game_installation", not_installed)
 
 
 def test_registry_inventory_declares_all_loader_targets_and_public_surface() -> None:
@@ -318,69 +341,20 @@ def test_deploy_target_routing_and_scripts_guard(tmp_path: Path) -> None:
         local_workflow.deploy_target_dir("lunaris", tmp_path, scripts=True)
 
 
-@pytest.mark.parametrize("variant", ["main", "playtest", "demo"])
-def test_game_path_uses_selected_variant(variant: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.delenv("ERENSHOR_GAME_PATH", raising=False)
-    game = tmp_path / variant
-    (game / "Erenshor_Data" / "Managed").mkdir(parents=True)
-    ctx = _ctx(tmp_path, variant=variant, game_paths={variant: game}).obj
-    assert local_workflow.get_game_path(ctx, allow_extracted=True) == game
-
-
-def test_game_path_configured_variant_install_precedes_global_environment(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+def test_mod_command_prints_the_ambiguity_instead_of_absence(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    configured = tmp_path / "playtest-install"
-    configured.mkdir()
-    environment = tmp_path / "main-install"
-    environment.mkdir()
-    ctx = _ctx(
-        tmp_path,
-        variant="playtest",
-        game_paths={"playtest": tmp_path / "extracted"},
-        game_installs={"playtest": configured},
-    ).obj
-    monkeypatch.setenv("ERENSHOR_GAME_PATH", str(environment))
+    def ambiguous(_variant: str, _app_id: str) -> GameInstallation:
+        raise GameInstallationError("Steam app 2382520 is installed in several CrossOver bottles")
 
-    assert local_workflow.get_game_path(ctx) == configured
+    monkeypatch.setattr(local_workflow, "find_game_installation", ambiguous)
 
+    with pytest.raises(typer.Exit):
+        mod_command.status(_ctx(tmp_path))
 
-@pytest.mark.parametrize(
-    ("variant", "app_id", "install_dir"),
-    [
-        ("main", "2382520", "Erenshor"),
-        ("playtest", "3090030", "Erenshor Playtest"),
-        ("demo", "2522260", "Erenshor Demo"),
-    ],
-)
-def test_crossover_discovery_uses_selected_steam_app(
-    variant: str,
-    app_id: str,
-    install_dir: str,
-    tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    bottles = tmp_path / "Bottles"
-    steamapps = bottles / "QA" / "drive_c/Program Files (x86)/Steam/steamapps"
-    game = steamapps / "common" / install_dir
-    (game / "Erenshor_Data" / "Managed").mkdir(parents=True)
-    manifest = steamapps / f"appmanifest_{app_id}.acf"
-    manifest.write_text(f'"AppState"\n{{\n\t"installdir"\t\t"{install_dir}"\n}}\n')
-    monkeypatch.setattr(local_workflow, "CROSSOVER_BOTTLES_ROOT", bottles)
-    monkeypatch.setattr(local_workflow.sys, "platform", "darwin")
-    monkeypatch.setenv("CROSSOVER_BOTTLE", "QA")
-
-    assert _DISCOVER_CROSSOVER_GAME_PATH(app_id) == game
-
-
-def test_game_path_environment_override_has_precedence(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    configured = tmp_path / "playtest"
-    (configured / "Erenshor_Data" / "Managed").mkdir(parents=True)
-    environment = tmp_path / "environment"
-    environment.mkdir()
-    ctx = _ctx(tmp_path, variant="playtest", game_paths={"playtest": configured}).obj
-    monkeypatch.setenv("ERENSHOR_GAME_PATH", str(environment))
-    assert local_workflow.get_game_path(ctx) == environment
+    output = capsys.readouterr().out
+    assert "several CrossOver bottles" in output
+    assert "not found" not in output
 
 
 def _write_loader_proxies(game: Path, *, active: str = "lunaris") -> None:
@@ -425,18 +399,6 @@ def test_loader_activation_rejects_conflicting_saved_proxies(tmp_path: Path) -> 
         local_workflow.activate_loader(game, "bepinex")
 
 
-def test_game_path_rejects_environment_override_for_another_steam_app(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    main = tmp_path / "main"
-    main.mkdir()
-    (main / "steam_appid.txt").write_text("2382520\n")
-    ctx = _ctx(tmp_path, variant="demo", game_paths={"demo": tmp_path / "demo"}).obj
-    monkeypatch.setenv("ERENSHOR_GAME_PATH", str(main))
-
-    assert local_workflow.get_game_path(ctx) is None
-
-
 def test_deploy_routes_explicit_loader_output(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     ctx = _ctx(tmp_path).obj
     game = tmp_path / "game"
@@ -444,6 +406,9 @@ def test_deploy_routes_explicit_loader_output(tmp_path: Path, monkeypatch: pytes
     output = local_workflow.mod_output_dir(ctx, "sprint", "bepinex")
     output.mkdir(parents=True)
     (output / "Sprint.dll").write_bytes(b"bepinex")
+    reference = tmp_path / _mod("sprint").directory / "lib/Assembly-CSharp.dll"
+    reference.parent.mkdir(parents=True)
+    reference.write_bytes(b"reference")
     calls: list[str] = []
     monkeypatch.setattr(local_workflow, "get_game_path", lambda _ctx: game)
     monkeypatch.setattr(
@@ -472,6 +437,9 @@ def test_bepinex_deploy_uses_thunderstore_runtime_layout(tmp_path: Path, monkeyp
     output.mkdir(parents=True)
     (output / "AdventureGuide.dll").write_bytes(b"plugin")
     (output / "ImGui.NET.dll").write_bytes(b"imgui")
+    reference = mod_dir / "lib/Assembly-CSharp.dll"
+    reference.parent.mkdir(parents=True)
+    reference.write_bytes(b"reference")
     thunderstore = mod_dir / "thunderstore"
     thunderstore.mkdir()
     (thunderstore / "icon.png").write_bytes(b"icon")
@@ -671,6 +639,12 @@ def _prepare_thunderstore_command(
     list[tuple[list[str], dict[str, Any]]],
 ]:
     ctx = _ctx(tmp_path).obj
+    tools = tmp_path / "tools"
+    tools.mkdir()
+    tcli = tools / "tcli"
+    tcli.write_text("#!/bin/sh\nexit 0\n")
+    tcli.chmod(0o755)
+    monkeypatch.setenv("PATH", f"{tools}{os.pathsep}{os.environ['PATH']}")
     manifests: dict[str, Any] = {}
     for mod_id in mod_ids:
         _mod_dir, manifest_path, _source = _thunderstore_fixture(tmp_path, mod_id)
@@ -981,6 +955,46 @@ def test_thunderstore_version_malformed_or_missing_latest_fails(
         release.get_thunderstore_version("WoW_Much", "Sprint")
 
 
+def test_vault_version_continues_after_latest_published_revision(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(release, "datetime", _FixedDate)
+    payload = b'{"versions":[{"version":"2099.101.0"},{"version":"2099.101.2"},{"version":"2098.1231.9"}]}'
+    monkeypatch.setattr(release, "urlopen", lambda *_args, **_kwargs: _Response(payload))
+
+    assert release.get_vault_version("sprint") == "2099.101.3"
+
+
+def test_vault_version_starts_at_zero_for_a_mod_the_vault_does_not_list(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(release, "datetime", _FixedDate)
+    not_found = HTTPError("https://example.invalid", 404, "Not Found", {}, io.BytesIO(b'{"error":"Mod not found"}'))
+    monkeypatch.setattr(release, "urlopen", lambda *_args, **_kwargs: (_ for _ in ()).throw(not_found))
+
+    assert release.get_vault_version("new-mod") == "2099.101.0"
+
+
+@pytest.mark.parametrize(
+    "failure",
+    [
+        HTTPError("https://example.invalid", 503, "unavailable", {}, io.BytesIO(b"")),
+        HTTPError("https://example.invalid", 404, "Not Found", {}, io.BytesIO(b"<html>moved</html>")),
+        URLError("offline"),
+        TimeoutError("timed out"),
+    ],
+)
+def test_unreachable_vault_does_not_produce_a_revision(monkeypatch: pytest.MonkeyPatch, failure: Exception) -> None:
+    monkeypatch.setattr(release, "urlopen", lambda *_args, **_kwargs: (_ for _ in ()).throw(failure))
+
+    with pytest.raises(RuntimeError, match="Vault version lookup failed for sprint"):
+        release.get_vault_version("sprint")
+
+
+@pytest.mark.parametrize("payload", [b"not-json", b"{}", b'{"versions":{}}', b'{"versions":[{"id":"x"}]}'])
+def test_malformed_vault_listing_does_not_produce_a_revision(monkeypatch: pytest.MonkeyPatch, payload: bytes) -> None:
+    monkeypatch.setattr(release, "urlopen", lambda *_args, **_kwargs: _Response(payload))
+
+    with pytest.raises(RuntimeError, match="Vault version lookup failed for sprint"):
+        release.get_vault_version("sprint")
+
+
 def test_exact_bepinex_build_and_tcli_argv_and_cwd(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     ctx, manifests, builds, calls = _prepare_thunderstore_command(tmp_path, monkeypatch, ["sprint"])
     token = "sentinel-token-not-for-output"
@@ -1241,8 +1255,8 @@ def test_setup_provisions_union_of_loader_references(tmp_path: Path, monkeypatch
         lunaris_libs_url="https://invalid.invalid/LunarisLibs.zip",
         resolved_lunaris_lib_dir=lambda _root: lunaris_lib,
     )
-    ctx = _ctx(tmp_path, game_paths={"main": game}, mods_config=mods_config)
-    monkeypatch.setenv("ERENSHOR_GAME_PATH", str(game))
+    ctx = _ctx(tmp_path, mods_config=mods_config)
+    _installed(monkeypatch, game)
 
     mod_command.setup(ctx)
 
@@ -1260,16 +1274,20 @@ def test_setup_provisions_union_of_loader_references(tmp_path: Path, monkeypatch
     assert (tmp_path / _mod("adventure-guide").directory / "lib/lunaris/ImGui.NET.dll").read_bytes() == b"ImGui.NET.dll"
 
 
-def test_setup_can_provision_one_bepinex_target_without_lunaris(tmp_path: Path) -> None:
+def test_setup_can_provision_one_bepinex_target_without_lunaris(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     game = tmp_path / "game"
     managed = game / "Erenshor_Data" / "Managed"
     managed.mkdir(parents=True)
     for dll_name in REQUIRED_DLLS:
         (managed / dll_name).write_bytes(b"game")
+
     bepinex_core = game / "BepInEx" / "core"
     bepinex_core.mkdir(parents=True)
     (bepinex_core / "0Harmony.dll").write_bytes(b"bepinex harmony")
-    ctx = _ctx(tmp_path, game_paths={"main": game})
+    ctx = _ctx(tmp_path)
+    _installed(monkeypatch, game)
 
     mod_command.setup(ctx, mod="map-tile-capture", loader="bepinex")
 
@@ -1278,6 +1296,28 @@ def test_setup_can_provision_one_bepinex_target_without_lunaris(tmp_path: Path) 
     assert (lib_dir / "bepinex" / "0Harmony.dll").read_bytes() == b"bepinex harmony"
     assert not (lib_dir / "lunaris").exists()
     assert not (tmp_path / _mod("sprint").directory / "lib").exists()
+
+
+def test_dev_setup_network_failure_does_not_report_completion(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    game = tmp_path / "game"
+    (game / "BepInEx").mkdir(parents=True)
+    ctx = _ctx(tmp_path)
+    ctx.obj.config.global_.bepinex_dev_tools = SimpleNamespace(
+        script_engine_url="https://invalid.example/ScriptEngine.zip",
+        config_manager_url="https://invalid.example/ConfigurationManager.zip",
+    )
+    monkeypatch.setattr(local_workflow, "get_game_path", lambda _ctx: game)
+    monkeypatch.setattr(mod_command, "urlopen", lambda *_args, **_kwargs: (_ for _ in ()).throw(URLError("offline")))
+
+    with pytest.raises(typer.Exit) as error:
+        mod_command.dev_setup(ctx)
+
+    assert error.value.exit_code == 1
+    output = capsys.readouterr().out
+    assert "ScriptEngine" in output and "offline" in output
+    assert "Dev setup complete" not in output
 
 
 def test_lunaris_shared_lib_sourced_only_from_resolved_lib_dir(tmp_path: Path) -> None:
@@ -1318,13 +1358,11 @@ def test_launch_uses_crossover_steam_protocol(tmp_path: Path, monkeypatch: pytes
     game.mkdir()
     crossover_start = tmp_path / "cxstart"
     crossover_start.touch()
-    ctx = _ctx(tmp_path, game_installs={"main": game})
+    ctx = _ctx(tmp_path)
+    _installed(monkeypatch, game)
     calls: list[tuple[list[str], bool]] = []
 
-    monkeypatch.delenv("CROSSOVER_BOTTLE", raising=False)
-    monkeypatch.setattr(local_workflow.sys, "platform", "darwin")
     monkeypatch.setattr(local_workflow, "CROSSOVER_START", crossover_start)
-    monkeypatch.setattr(local_workflow, "crossover_bottle_for_path", lambda _path: "Steam")
     monkeypatch.setattr(
         local_workflow,
         "launch_game",
@@ -1398,12 +1436,9 @@ def test_launch_applies_native_proxy_override_for_active_loader(
     (game / "winhttp.bepinex.dll").write_bytes(b"bepinex proxy")
     crossover_start = tmp_path / "cxstart"
     crossover_start.touch()
-    ctx = _ctx(tmp_path, game_installs={"main": game})
-
-    monkeypatch.delenv("CROSSOVER_BOTTLE", raising=False)
-    monkeypatch.setattr(local_workflow.sys, "platform", "darwin")
+    ctx = _ctx(tmp_path)
+    _installed(monkeypatch, game)
     monkeypatch.setattr(local_workflow, "CROSSOVER_START", crossover_start)
-    monkeypatch.setattr(local_workflow, "crossover_bottle_for_path", lambda _path: "Steam")
 
     plan = local_workflow.plan_launch(ctx.obj)
 

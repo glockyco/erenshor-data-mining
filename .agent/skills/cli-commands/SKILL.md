@@ -75,6 +75,51 @@ def action(ctx: typer.Context) -> None:
     # ... rest of command
 ```
 
+## Precondition coverage
+
+Declare `@require_preconditions` on a command that writes files, changes a
+database, publishes data, changes a game installation, or starts an external
+process. Check the inputs that the command needs before any state changes.
+Use a check in `cli/preconditions/checks/` and add a missing field to
+`_build_check_context` when necessary. A check returns its real cause in
+`PreconditionResult`. Remove the equivalent check from the command body so
+one condition has one owner. Do not declare an empty precondition list.
+For a command with an optional output, check the required inputs regardless
+of whether the user chooses to write the output.
+
+State-changing commands with declarations:
+
+- `capture run`, `capture tile`
+- `images process`, `images compare`, `images report --output`, `images upload`
+- `extract compare-variants --output`, `extract changes --output`, `extract packages`, `extract rip`,
+  `extract export`, `extract build`, `extract code-facts`, `extract ide-setup`
+- `golden capture`
+- `guide compile`, `guide export-mod`
+- `maps dev`, `maps preview`, `maps check`, `maps build`, `maps deploy`,
+  `maps thumbnails`
+- `mod setup`, `mod dev-setup`, `mod build`, `mod activate`, `mod deploy`,
+  `mod thunderstore`, `mod vault`, `mod launch`
+- `sheets deploy`
+- `wiki fetch`, `wiki generate-lua`, `wiki audit-links --output`,
+  `wiki inventory-templates`, `wiki generate`, `wiki sync-interface`,
+  `wiki deploy-interface`, `wiki rollback-interface`, `wiki deploy-repo-pages`,
+  `wiki review-overrides --output`, `wiki refresh-embedded`,
+  `wiki rollback-repo-pages`, `wiki deploy`
+- `eval run` checks the code argument or source file before contacting the game.
+
+The following commands deliberately have no declaration because they only
+read and report state: `backup list`, `capture status`, `capture budget`,
+`eval ping`, `eval complete`, `extract profile report`, `mod status`, and
+`sheets list`. `extract compare-variants`, `extract changes`, `images report`,
+`wiki audit-links`, and `wiki review-overrides` only read when no output
+is requested, but retain declarations for their output mode.
+`mod launch --inspect-pid` only reads, but shares the declaration with launch.
+
+`eval reset` and `eval watch` change remote REPL state, but have no local
+input dependency to check before connecting. The `test` commands run their
+own task-graph preflight before starting subprocesses and must not repeat
+those checks in the CLI decorator.
+
 ## Existing Commands
 
 - `extract` - Download, rip, export pipeline

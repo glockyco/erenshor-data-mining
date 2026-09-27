@@ -405,6 +405,30 @@
         "shape": "if (UnityEngine.Random.Range (0, 100) < num) { result = true; }"
       },
       "note": "Pins the final 0..99 roll against the accumulated counter, including 100% saturation."
+    },
+    {
+      "id": "character.boss_xp_level_floor",
+      "mode": "assert",
+      "type": "NPC",
+      "method": "Start",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (MyStats.Level >= 40 && Myself.BossXp < 2f) { GetComponent<Character> ().BossXp = 2f; }"
+      },
+      "note": "NPCs at level 40 or above get BossXp 2 at start-up. Re-implemented by the encounter tier in src/erenshor/application/processor/characters.py (effective BossXp)."
+    },
+    {
+      "id": "character.boss_consider_threshold",
+      "mode": "assert",
+      "type": "PlayerControl",
+      "method": "ConsiderOpponent",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (newTar.MyNPC != null && newTar.BossXp > 1f) { text2 += \" This opponent looks unique, and may have special abilities.\"; }"
+      },
+      "note": "The game calls an NPC with BossXp above 1 unique. Re-implemented by the boss and elite encounter tiers in src/erenshor/application/processor/characters.py."
     }
   ]
 }

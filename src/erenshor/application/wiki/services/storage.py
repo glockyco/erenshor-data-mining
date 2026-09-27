@@ -29,7 +29,9 @@ Example:
     >>> storage.save_fetched_by_title(
     ...     page_title="Cloth Sleeves",
     ...     stable_keys=["item:arm - 1 - cloth sleeves"],
-    ...     content="{{Item|...}}"
+    ...     content="{{Item|...}}",
+    ...     entity_names=["Cloth Sleeves"],
+    ...     revision_id=123
     ... )
     >>>
     >>> # Read fetched page by title
@@ -62,6 +64,10 @@ from loguru import logger
 from erenshor.application.wiki.services.helpers import normalise_generated_page_content
 
 
+class WikiMetadataError(Exception):
+    """Metadata could not be read or decoded."""
+
+
 @dataclass
 class PageMetadata:
     """Metadata for a wiki page (supports multi-entity pages).
@@ -77,6 +83,7 @@ class PageMetadata:
             (e.g., ["Cloth Sleeves"] or ["Hydrated"]).
         fetched_at: ISO timestamp when page was fetched from wiki.
         fetched_hash: SHA256 hash of fetched wiki content.
+        fetched_revision_id: Wiki revision ID of the cached text.
         generated_at: ISO timestamp when page was generated locally.
         generated_hash: SHA256 hash of generated content.
         deployed_at: ISO timestamp when page was deployed to wiki.
@@ -88,6 +95,7 @@ class PageMetadata:
     entity_names: list[str]
     fetched_at: str | None = None
     fetched_hash: str | None = None
+    fetched_revision_id: int | None = None
     generated_at: str | None = None
     generated_hash: str | None = None
     deployed_at: str | None = None
@@ -101,6 +109,7 @@ class PageMetadata:
             "entity_names": self.entity_names,
             "fetched_at": self.fetched_at,
             "fetched_hash": self.fetched_hash,
+            "fetched_revision_id": self.fetched_revision_id,
             "generated_at": self.generated_at,
             "generated_hash": self.generated_hash,
             "deployed_at": self.deployed_at,
@@ -109,13 +118,36 @@ class PageMetadata:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> PageMetadata:
-        """Create from dictionary after JSON deseriization."""
+        """Create page metadata from a JSON object."""
+        if not isinstance(data, dict):
+            raise ValueError("page metadata must be an object")
+        if not isinstance(data.get("page_title"), str):
+            raise ValueError("page_title must be text")
+        for field in ("stable_keys", "entity_names"):
+            values = data.get(field)
+            if not isinstance(values, list) or not all(isinstance(value, str) for value in values):
+                raise ValueError(f"{field} must be a list of text")
+        for field in (
+            "fetched_at",
+            "fetched_hash",
+            "generated_at",
+            "generated_hash",
+            "deployed_at",
+            "deployed_hash",
+        ):
+            value = data.get(field)
+            if value is not None and not isinstance(value, str):
+                raise ValueError(f"{field} must be text or null")
+        revision_id = data.get("fetched_revision_id")
+        if revision_id is not None and (type(revision_id) is not int or revision_id <= 0):
+            raise ValueError("fetched_revision_id must be a positive integer or null")
         return cls(
             page_title=data["page_title"],
             stable_keys=data["stable_keys"],
             entity_names=data["entity_names"],
             fetched_at=data.get("fetched_at"),
             fetched_hash=data.get("fetched_hash"),
+            fetched_revision_id=revision_id,
             generated_at=data.get("generated_at"),
             generated_hash=data.get("generated_hash"),
             deployed_at=data.get("deployed_at"),
@@ -163,7 +195,9 @@ class WikiStorage:
         >>> storage.save_fetched_by_title(
         ...     page_title="Iron Sword",
         ...     stable_keys=["item:iron sword"],
-        ...     content="{{Item|...}}"
+        ...     content="{{Item|...}}",
+        ...     entity_names=["Iron Sword"],
+        ...     revision_id=123
         ... )
         >>> content = storage.read_fetched_by_title("Iron Sword")
         >>> storage.save_generated_by_title(
@@ -192,16 +226,17 @@ class WikiStorage:
         logger.debug(f"WikiStorage initialized: {wiki_dir}")
 
     def _load_metadata(self) -> dict[str, PageMetadata]:
-        """Load metadata from JSON file."""
-        if not self._metadata_file.exists():
-            return {}
-
+        """Load metadata from JSON file, or fail if an existing file is invalid."""
         try:
-            data = json.loads(self._metadata_file.read_text(encoding="utf-8"))
+            with self._metadata_file.open(encoding="utf-8") as metadata_file:
+                data = json.load(metadata_file)
+            if not isinstance(data, dict):
+                raise ValueError("expected a JSON object")
             return {key: PageMetadata.from_dict(value) for key, value in data.items()}
-        except (json.JSONDecodeError, KeyError) as e:
-            logger.warning(f"Failed to load metadata: {e}, returning empty dict")
+        except FileNotFoundError:
             return {}
+        except (OSError, UnicodeError, ValueError, TypeError, KeyError, AttributeError) as error:
+            raise WikiMetadataError(f"Cannot read {self._metadata_file}: {error}") from error
 
     def _save_metadata(self, metadata: dict[str, PageMetadata]) -> None:
         """Save metadata to JSON file."""
@@ -227,6 +262,7 @@ class WikiStorage:
         stable_keys: list[str],
         content: str,
         entity_names: list[str],
+        revision_id: int,
     ) -> None:
         """Save fetched page from MediaWiki.
 
@@ -235,7 +271,10 @@ class WikiStorage:
             stable_keys: Stable identifiers for all entities on this page.
             content: Wiki page content (wikitext).
             entity_names: Human-readable names for all entities on this page.
+            revision_id: Revision ID returned with the fetched content.
         """
+        metadata = self._load_metadata()
+        existing = metadata.get(page_title)
         safe_filename = self._encode_page_title_for_filename(page_title)
         file_path = self._fetched_dir / f"{safe_filename}.txt"
         file_path.write_text(content, encoding="utf-8")
@@ -243,17 +282,13 @@ class WikiStorage:
         # Compute content hash
         content_hash = hashlib.sha256(content.encode("utf-8")).hexdigest()
 
-        metadata = self._load_metadata()
-
-        # Preserve existing metadata if it exists
-        existing = metadata.get(page_title)
-
         metadata[page_title] = PageMetadata(
             page_title=page_title,
             stable_keys=stable_keys,
             entity_names=entity_names,
             fetched_at=datetime.now().isoformat(),
             fetched_hash=content_hash,
+            fetched_revision_id=revision_id,
             # Preserve generation and deployment info
             generated_at=existing.generated_at if existing else None,
             generated_hash=existing.generated_hash if existing else None,
@@ -263,6 +298,23 @@ class WikiStorage:
         self._save_metadata(metadata)
 
         logger.debug(f"Saved fetched page: {page_title} ({len(stable_keys)} entities)")
+
+    def has_fetched_by_title(self, page_title: str) -> bool:
+        """Check whether the fetched page content exists locally."""
+        filename = self._encode_page_title_for_filename(page_title)
+        return (self._fetched_dir / f"{filename}.txt").is_file()
+
+    def remove_fetched_by_title(self, page_title: str) -> None:
+        """Remove stale fetched text and its revision after a wiki deletion."""
+        metadata = self._load_metadata()
+        existing = metadata.get(page_title)
+        filename = self._encode_page_title_for_filename(page_title)
+        (self._fetched_dir / f"{filename}.txt").unlink(missing_ok=True)
+        if existing is not None:
+            existing.fetched_at = None
+            existing.fetched_hash = None
+            existing.fetched_revision_id = None
+            self._save_metadata(metadata)
 
     def read_fetched_by_title(self, page_title: str) -> str | None:
         """Read fetched page content by title.
@@ -293,6 +345,7 @@ class WikiStorage:
             stable_keys: Stable identifiers for all entities on this page.
             content: Generated wiki page content (wikitext).
         """
+        metadata = self._load_metadata()
         safe_filename = self._encode_page_title_for_filename(page_title)
         file_path = self._generated_dir / f"{safe_filename}.txt"
         normalized_content = normalise_generated_page_content(content)
@@ -301,7 +354,6 @@ class WikiStorage:
         # Compute content hash
         content_hash = hashlib.sha256(normalized_content.encode("utf-8")).hexdigest()
 
-        metadata = self._load_metadata()
         content_changed = False
         entity_names = [stable_key.split(":", 1)[1].replace("_", " ").title() for stable_key in stable_keys]
 
@@ -395,6 +447,11 @@ class WikiStorage:
         """
         metadata = self._load_metadata()
         return metadata.get(page_title)
+
+    def get_metadata_by_titles(self, titles: Sequence[str]) -> dict[str, PageMetadata]:
+        """Read metadata once for the requested page titles."""
+        metadata = self._load_metadata()
+        return {title: metadata[title] for title in titles if title in metadata}
 
     def update_deployed(
         self,

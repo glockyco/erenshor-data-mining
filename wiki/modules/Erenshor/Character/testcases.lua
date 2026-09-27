@@ -142,6 +142,25 @@ function p.run()
 		"npc category emits"
 	)
 
+	for _, encounter in ipairs({
+		{ type = "Boss", category = "[[Category:Bosses]]" },
+		{ type = "Elite", category = "[[Category:Elites]]" },
+	}) do
+		local args = { stablekey = "character:a_grizzly_bear", type = encounter.type }
+		assertEqual(
+			Character.fieldValue(args, "A Grizzly Bear", "type"),
+			"[[Enemies|" .. encounter.type .. "]]",
+			encounter.type .. " type formats"
+		)
+		local categories = Character.statusText(args, "A Grizzly Bear")
+		assertContains(
+			categories,
+			"[[Category:Enemies]]",
+			encounter.type .. " enemy category emits"
+		)
+		assertContains(categories, encounter.category, encounter.type .. " category emits")
+	end
+
 	assertEqual(
 		Character.fieldValue({}, "Unknown Prototype", "name"),
 		"",

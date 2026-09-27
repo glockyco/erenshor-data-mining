@@ -22,11 +22,12 @@ from erenshor.infrastructure.config.schema import (
     MediaWikiConfig,
     ModsConfig,
     PathsConfig,
-    SteamConfig,
     UnityConfig,
     VariantConfig,
     VariantGoogleSheetsConfig,
 )
+
+UNITY = {"version": "2021.3.45f2", "path": "/Applications/Unity/Hub/Editor/2021.3.45f2/Unity.app"}
 
 
 class TestPathsConfig:
@@ -72,69 +73,27 @@ class TestPathsConfig:
         assert resolved.is_absolute()
 
 
-class TestSteamConfig:
-    """Tests for SteamConfig model."""
-
-    def test_default_values(self):
-        """Test that SteamConfig has correct default values."""
-        config = SteamConfig()
-        assert config.username == ""
-        assert config.platform == "windows"
-
-    def test_valid_platforms(self):
-        """Test that valid platform values are accepted."""
-        for platform in ["windows", "macos", "linux"]:
-            config = SteamConfig(platform=platform)
-            assert config.platform == platform
-
-    def test_invalid_platform_rejected(self):
-        """Test that invalid platform values are rejected."""
-        with pytest.raises(ValidationError) as exc_info:
-            SteamConfig(platform="invalid")
-
-        errors = exc_info.value.errors()
-        assert any("platform" in str(e["loc"]) for e in errors)
-
-    def test_custom_username(self):
-        """Test setting custom Steam username."""
-        config = SteamConfig(username="test_user")
-        assert config.username == "test_user"
-
-
 class TestUnityConfig:
     """Tests for UnityConfig model."""
-
-    def test_default_values(self):
-        """Test that UnityConfig has correct default values."""
-        config = UnityConfig()
-        assert config.version == "2021.3.45f2"
-        assert "/Unity" in config.path
-        assert config.timeout == 3600
 
     def test_timeout_constraints(self):
         """Test that timeout respects min/max constraints."""
         # Valid values
-        UnityConfig(timeout=60)  # Min
-        UnityConfig(timeout=3600)  # Default
-        UnityConfig(timeout=7200)  # Max
+        UnityConfig(**UNITY, timeout=60)  # Min
+        UnityConfig(**UNITY, timeout=3600)  # Default
+        UnityConfig(**UNITY, timeout=7200)  # Max
 
         # Too low
         with pytest.raises(ValidationError):
-            UnityConfig(timeout=59)
+            UnityConfig(**UNITY, timeout=59)
 
         # Too high
         with pytest.raises(ValidationError):
-            UnityConfig(timeout=7201)
-
-    def test_custom_path(self):
-        """Test setting custom Unity path."""
-        custom_path = "/custom/unity/Unity.app"
-        config = UnityConfig(path=custom_path)
-        assert config.path == custom_path
+            UnityConfig(**UNITY, timeout=7201)
 
     def test_resolved_path(self, tmp_path: Path):
         """Test resolved_path() method without validation."""
-        config = UnityConfig(path="$REPO_ROOT/Unity.app")
+        config = UnityConfig(version="2021.3.45f2", path="$REPO_ROOT/Unity.app")
         resolved = config.resolved_path(tmp_path, validate=False)
         assert resolved == tmp_path / "Unity.app"
         assert resolved.is_absolute()
@@ -143,7 +102,7 @@ class TestUnityConfig:
         """Test resolved_path() with validation raises error if path doesn't exist."""
         from erenshor.infrastructure.config.paths import PathResolutionError
 
-        config = UnityConfig(path="$REPO_ROOT/nonexistent/Unity.app")
+        config = UnityConfig(version="2021.3.45f2", path="$REPO_ROOT/nonexistent/Unity.app")
         with pytest.raises(PathResolutionError):
             config.resolved_path(tmp_path, validate=True)
 
@@ -152,20 +111,13 @@ class TestUnityConfig:
         unity_path = tmp_path / "Unity.app"
         unity_path.touch()
 
-        config = UnityConfig(path=str(unity_path))
+        config = UnityConfig(version="2021.3.45f2", path=str(unity_path))
         resolved = config.resolved_path(tmp_path, validate=True)
         assert resolved == unity_path
 
 
 class TestAssetRipperConfig:
     """Tests for AssetRipperConfig model."""
-
-    def test_default_values(self):
-        """Test that AssetRipperConfig has correct default values."""
-        config = AssetRipperConfig()
-        assert config.path == "AssetRipper.GUI.Free"  # Resolved on PATH
-        assert config.port == 8080
-        assert config.timeout == 3600
 
     def test_port_constraints(self):
         """Test that port respects min/max constraints."""
@@ -208,12 +160,12 @@ class TestAssetRipperConfig:
         """A name without a separator is resolved against PATH, not the repo root."""
         bin_dir = tmp_path / "bin"
         bin_dir.mkdir()
-        executable = bin_dir / "AssetRipper.GUI.Free"
+        executable = bin_dir / "AssetRipper"
         executable.touch()
         executable.chmod(0o755)
         monkeypatch.setenv("PATH", str(bin_dir))
 
-        config = AssetRipperConfig()
+        config = AssetRipperConfig(path="AssetRipper")
         assert config.resolved_path(tmp_path, validate=True) == executable
 
     def test_resolved_path_rejects_missing_bare_name(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
@@ -410,41 +362,10 @@ class TestLoggingConfig:
 class TestGlobalConfig:
     """Tests for GlobalConfig model."""
 
-    def test_default_factory_creates_nested_configs(self):
-        """Test that default_factory creates all nested configuration objects."""
-        config = GlobalConfig()
-
-        # Check that all nested configs are created
-        assert isinstance(config.paths, PathsConfig)
-        assert isinstance(config.steam, SteamConfig)
-        assert isinstance(config.unity, UnityConfig)
-        assert isinstance(config.assetripper, AssetRipperConfig)
-        assert isinstance(config.database, DatabaseConfig)
-        assert isinstance(config.mediawiki, MediaWikiConfig)
-        assert isinstance(config.google_sheets, GoogleSheetsConfig)
-        assert isinstance(config.behavior, BehaviorConfig)
-        assert isinstance(config.logging, LoggingConfig)
-
-    def test_custom_nested_values(self):
-        """Test creating GlobalConfig with custom nested values."""
-        config = GlobalConfig(
-            unity=UnityConfig(timeout=7200),
-            logging=LoggingConfig(level="debug"),
-        )
-        assert config.unity.timeout == 7200
-        assert config.logging.level == "debug"
-
-    def test_partial_override_preserves_defaults(self):
-        """Test that overriding one field doesn't affect other defaults."""
-        config = GlobalConfig(
-            unity=UnityConfig(timeout=7200)  # Override just timeout
-        )
-        # Unity timeout is overridden
-        assert config.unity.timeout == 7200
-        # But other Unity fields keep defaults
-        assert config.unity.version == "2021.3.45f2"
-        # Other top-level configs keep their defaults
-        assert config.logging.level == "info"
+    def test_unity_section_is_required(self):
+        """config.toml is the only source of the Unity version and path."""
+        with pytest.raises(ValidationError, match="unity"):
+            GlobalConfig()
 
 
 class TestVariantGoogleSheetsConfig:
@@ -532,7 +453,6 @@ class TestVariantConfig:
             "app_id",
             "unity_project",
             "editor_scripts",
-            "game_files",
             "database_raw",
             "database",
             "logs",
@@ -551,7 +471,6 @@ class TestVariantConfig:
             app_id="2382520",
             unity_project="$REPO_ROOT/variants/main/unity",
             editor_scripts="$REPO_ROOT/src/Assets/Editor",
-            game_files="$REPO_ROOT/variants/main/game",
             database_raw="$REPO_ROOT/variants/main/erenshor-raw.sqlite",
             database="$REPO_ROOT/variants/main/erenshor.sqlite",
             logs="$REPO_ROOT/variants/main/logs",
@@ -562,7 +481,6 @@ class TestVariantConfig:
         assert config.enabled is True  # Default
         assert config.description == ""  # Default
         assert config.images_output == ""  # Default
-        assert config.game_install == ""  # Auto-discovered or game_files fallback
         assert config.name == "Main Game"
         assert config.app_id == "2382520"
 
@@ -574,7 +492,6 @@ class TestVariantConfig:
             app_id="12345",
             unity_project="/path/to/unity",
             editor_scripts="/path/to/scripts",
-            game_files="/path/to/game",
             database_raw="/path/to/raw.sqlite",
             database="/path/to/db.sqlite",
             logs="/path/to/logs",
@@ -590,8 +507,6 @@ class TestVariantConfig:
             app_id="12345",
             unity_project="$REPO_ROOT/unity",
             editor_scripts="$REPO_ROOT/scripts",
-            game_files="$REPO_ROOT/game",
-            game_install="$HOME/Games/Erenshor",
             database_raw="$REPO_ROOT/raw.sqlite",
             database="$REPO_ROOT/db.sqlite",
             logs="$REPO_ROOT/logs",
@@ -602,8 +517,6 @@ class TestVariantConfig:
 
         assert config.resolved_unity_project(tmp_path) == tmp_path / "unity"
         assert config.resolved_editor_scripts(tmp_path) == tmp_path / "scripts"
-        assert config.resolved_game_files(tmp_path) == tmp_path / "game"
-        assert config.resolved_game_install(tmp_path) == Path.home() / "Games/Erenshor"
         assert config.resolved_database_raw(tmp_path) == tmp_path / "raw.sqlite"
         assert config.resolved_database(tmp_path) == tmp_path / "db.sqlite"
         assert config.resolved_logs(tmp_path) == tmp_path / "logs"
@@ -611,40 +524,27 @@ class TestVariantConfig:
         assert config.resolved_images_output(tmp_path) == tmp_path / "images"
         assert config.resolved_profiles(tmp_path) == tmp_path / "profiles"
 
-        config.game_install = ""
-        assert config.resolved_game_install(tmp_path) is None
-
 
 class TestConfig:
     """Tests for root Config model."""
 
-    def test_minimal_valid_config(self):
-        """Test creating minimal valid Config."""
-        config = Config()
-
-        # Check defaults
-        assert config.version == "0.3"
-        assert config.default_variant == "main"
-        assert isinstance(config.global_, GlobalConfig)
-        assert config.variants == {}
-
     def test_config_with_variants(self):
         """Test creating Config with variant configurations."""
         config = Config(
+            global_=GlobalConfig(unity=UnityConfig(**UNITY)),
             variants={
                 "main": VariantConfig(
                     name="Main Game",
                     app_id="2382520",
                     unity_project="/path/to/unity",
                     editor_scripts="/path/to/scripts",
-                    game_files="/path/to/game",
                     database_raw="/path/to/raw.sqlite",
                     database="/path/to/db.sqlite",
                     logs="/path/to/logs",
                     backups="/path/to/backups",
                     wiki="/path/to/wiki",
                 )
-            }
+            },
         )
 
         assert "main" in config.variants
@@ -657,7 +557,7 @@ class TestConfig:
         config_dict = {
             "version": "0.3",
             "default_variant": "main",
-            "global": {"logging": {"level": "debug"}},
+            "global": {"unity": UNITY, "logging": {"level": "debug"}},
             "variants": {},
         }
 
@@ -666,19 +566,19 @@ class TestConfig:
 
     def test_custom_default_variant(self):
         """Test setting custom default variant."""
-        config = Config(default_variant="playtest")
+        config = Config(global_=GlobalConfig(unity=UnityConfig(**UNITY)), default_variant="playtest")
         assert config.default_variant == "playtest"
 
     def test_multiple_variants(self):
         """Test config with multiple variants."""
         config = Config(
+            global_=GlobalConfig(unity=UnityConfig(**UNITY)),
             variants={
                 "main": VariantConfig(
                     name="Main",
                     app_id="1",
                     unity_project="/main/unity",
                     editor_scripts="/scripts",
-                    game_files="/main/game",
                     database_raw="/main/raw.sqlite",
                     database="/main/db.sqlite",
                     logs="/main/logs",
@@ -690,14 +590,13 @@ class TestConfig:
                     app_id="2",
                     unity_project="/playtest/unity",
                     editor_scripts="/scripts",
-                    game_files="/playtest/game",
                     database_raw="/playtest/raw.sqlite",
                     database="/playtest/db.sqlite",
                     logs="/playtest/logs",
                     backups="/playtest/backups",
                     wiki="/playtest/wiki",
                 ),
-            }
+            },
         )
 
         assert len(config.variants) == 2

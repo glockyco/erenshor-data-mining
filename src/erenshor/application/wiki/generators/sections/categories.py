@@ -129,7 +129,7 @@ class CategoryGenerator:
 
         Determines categories based on:
         1. Spawn locations → zone categories (via pre-built zone_link on CharacterSpawnInfo)
-        2. Character type (Enemy/Rare/Boss) → type category
+        2. Encounter tier (Enemy/Elite/Boss/NPC) → type category
         3. Vendor status → Vendor category
         """
         categories: list[str] = []
@@ -141,13 +141,14 @@ class CategoryGenerator:
         categories.extend(zone_page_titles)
 
         character = enriched.character
-        if character.is_friendly:
+        if character.encounter_tier == "npc":
             categories.append("Characters")
         else:
             categories.append("Enemies")
-
-            if character.is_unique:
+            if character.encounter_tier == "boss":
                 categories.append("Bosses")
+            elif character.encounter_tier == "elite":
+                categories.append("Elites")
 
         if character.is_vendor:
             categories.append("Vendors")

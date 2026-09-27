@@ -6,6 +6,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock
 
+import pytest
 from PIL import Image
 
 from erenshor.application.capture import orchestrator, zone_config
@@ -22,6 +23,16 @@ def test_zone_config_reads_explicit_nondefault_path(tmp_path: Path) -> None:
     config_path.write_text(json.dumps({"zone": {"sceneName": "Scene"}}), encoding="utf-8")
 
     assert load_zone_config(config_path) == {"zone": {"sceneName": "Scene"}}
+
+
+@pytest.mark.parametrize("declared", [None, [], ["clear", "open"]])
+def test_zone_must_declare_exactly_one_capture_variant(declared: list[str] | None) -> None:
+    zone: dict[str, object] = {"sceneName": "Scene"}
+    if declared is not None:
+        zone["captureVariants"] = declared
+
+    with pytest.raises(ValueError, match="Zone Scene must declare exactly one captureVariants entry"):
+        zone_config.capture_variants("Scene", zone)
 
 
 def test_capture_cli_uses_selected_variant_maps_source(tmp_path: Path, monkeypatch) -> None:

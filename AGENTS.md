@@ -44,7 +44,8 @@ cutover or deployment.
 | `wiki/`, `wiki-templates/` | Wiki source files and templates |
 | `quest_guides/` | Quest guide JSON (auto-generated + manual curation) |
 | `.agent/skills/` | Agent skill files (domain-specific knowledge) |
-| `docs/` | Design documents, PRDs, architecture analysis |
+| `docs/` | Pipeline architecture (`docs/architecture.md`), reference notes, legacy plans in `docs/plans/` |
+| `openspec/` | OpenSpec specifications and changes: the planning authority for new work |
 
 ## Databases
 
@@ -173,7 +174,7 @@ Package: `com.coplaydev.unity-mcp` (in `Packages/manifest.json`).
 
 Before starting multi-file work, list planned commits. Each commit is one
 logical change. Implement and commit sequentially. A commit that requires
-"and" to describe is two commits. Planning docs follow the global convention (`skill://planning-files`); implement plans **inline in the main working tree** — do not create git worktrees unless explicitly requested.
+"and" to describe is two commits. Plan new or resumed work as an OpenSpec change under `openspec/changes/` (see the `openspec-*` skills). A legacy record in `docs/plans/` moves to an OpenSpec change when work on it starts, after its facts are checked against the code. Implement plans **inline in the main working tree** — do not create git worktrees unless explicitly requested.
 
 ## Commit Standards
 
@@ -186,7 +187,14 @@ Conventional commits: `type(scope): description`
 
 ## Code Quality
 
-1. **Fail fast**: no fallback functionality that hides errors.
+1. **Fail fast**: no fallback functionality that hides errors. A failed
+   lookup, read, or measurement raises an error that names the operation,
+   the input, and the cause. It never becomes an empty result, `None`, or a
+   default value that means "nothing here". Return an empty result only when
+   the source was read and really contains nothing. A batch command
+   continues past a failed item, names every failure at the end, says that
+   its output is partial, and exits non-zero. Ambiguity (several matching
+   candidates) is an error of its own, distinct from absence.
 2. **No backward compatibility**: clean breaks when changing behavior.
 3. **Clean cuts**: remove old code entirely when refactoring.
 4. **Atomic commits**: one concept per commit.
@@ -259,6 +267,8 @@ Read the relevant skill before working in its domain. Skills are in `.agent/skil
 
 ## Session Completion
 
-If this session created or used a `docs/plans/` artifact for work that is now
-complete, run `omp-plans complete <slug>` before the final response so the
-implemented doc is archived and removed from the active planning index.
+When an OpenSpec change is fully implemented, archive it with
+`skill://openspec-archive-change`. When a legacy `docs/plans/` record is
+complete or replaced by an OpenSpec change, move it to `docs/plans/archive/`,
+set `status: implemented` and `archived: <date>` in its front matter, and
+remove its entry from `docs/plans/INDEX.md`.

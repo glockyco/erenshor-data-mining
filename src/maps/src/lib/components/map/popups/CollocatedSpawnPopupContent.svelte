@@ -2,7 +2,7 @@
     import Skull from '@lucide/svelte/icons/skull';
     import User from '@lucide/svelte/icons/user';
     import type { WorldEnemy, WorldNpc } from '$lib/types/world-map';
-    import { Rarity } from '$lib/map-markers';
+    import { compareEncounterTier } from '$lib/map-markers';
 
     interface Props {
         markers: (WorldEnemy | WorldNpc)[];
@@ -14,29 +14,23 @@
 
     function markerSummary(marker: WorldEnemy | WorldNpc): { first: string; more: number } {
         const sortedCharacters = [...marker.characters].sort((a, b) => {
-            const rarity = a.effectiveRarity - b.effectiveRarity;
-            return rarity !== 0 ? rarity : a.name.localeCompare(b.name);
+            const tierOrder = compareEncounterTier(a.encounterTier, b.encounterTier);
+            return tierOrder !== 0 ? tierOrder : a.name.localeCompare(b.name);
         });
         const [first, ...rest] = sortedCharacters.map((character) => character.name);
         return { first: first || 'Unnamed spawn', more: rest.length };
     }
 
-    function markerRarity(marker: WorldEnemy | WorldNpc): Rarity {
-        if (marker.characters.some((character) => character.effectiveRarity === Rarity.unique)) {
-            return Rarity.unique;
-        }
-        if (marker.characters.some((character) => character.effectiveRarity === Rarity.rare)) {
-            return Rarity.rare;
-        }
-        return Rarity.common;
+    function markerTier(marker: WorldEnemy | WorldNpc): 'boss' | 'elite' | 'enemy' | 'npc' {
+        return marker.category === 'npc' ? 'npc' : marker.encounterTier;
     }
 
     function iconClass(marker: WorldEnemy | WorldNpc): string {
         if (marker.category === 'npc') return 'text-sky-500';
-        switch (markerRarity(marker)) {
-            case Rarity.unique:
+        switch (markerTier(marker)) {
+            case 'boss':
                 return 'text-violet-700';
-            case Rarity.rare:
+            case 'elite':
                 return 'text-rose-600';
             default:
                 return 'text-amber-600';
@@ -47,8 +41,8 @@
         [...markers].sort((a, b) => {
             const category = (a.category === 'npc' ? 1 : 0) - (b.category === 'npc' ? 1 : 0);
             if (category !== 0) return category;
-            const rarity = markerRarity(a) - markerRarity(b);
-            if (rarity !== 0) return rarity;
+            const tierOrder = compareEncounterTier(markerTier(a), markerTier(b));
+            if (tierOrder !== 0) return tierOrder;
             return markerSummary(a).first.localeCompare(markerSummary(b).first);
         })
     );

@@ -329,14 +329,13 @@ class TestParseCsprojReferences:
         result = _parse_csproj_references(tmp_path / "nonexistent.csproj")
         assert result == []
 
-    def test_returns_empty_for_invalid_xml(self, tmp_path: Path) -> None:
-        """Test that empty list is returned for invalid XML."""
+    def test_invalid_xml_names_the_project_file(self, tmp_path: Path) -> None:
+        """A malformed project is an error, not a project without references."""
         csproj_path = tmp_path / "Test.csproj"
         csproj_path.write_text("not valid xml <<<<")
 
-        result = _parse_csproj_references(csproj_path)
-
-        assert result == []
+        with pytest.raises(ValueError, match=r"Test\.csproj"):
+            _parse_csproj_references(csproj_path)
 
     def test_returns_sorted_list(self, tmp_path: Path) -> None:
         """Test that results are sorted by name."""

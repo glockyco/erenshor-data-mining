@@ -1,7 +1,7 @@
 """Character processor for the Layer 2 pipeline.
 
 This is the most complex processor because characters have the most
-relationships and require deduplication and is_unique computation.
+relationships and require deduplication and encounter-tier computation.
 
 Processing steps (in order):
 1. Load all Characters rows from the raw DB, excluding SimPlayers, the
@@ -12,7 +12,7 @@ Processing steps (in order):
 5. Deduplicate all characters: group by identity key (all scalar fields +
    relationship sets). Compute stable dedup groups and write
    character_deduplications membership rows.
-6. Recompute is_unique and is_rare per group using all merged spawns.
+6. Compute the encounter tier per group using all merged spawns.
 7. Write characters, spawns, and all junction tables.
 
 Deduplication identity includes:
@@ -73,6 +73,7 @@ class _CharRow:
     image_name: str
     is_wiki_generated: int
     is_map_visible: int
+    encounter_tier_override: str | None = None
 
 
 @dataclass
@@ -174,7 +175,8 @@ _STAT_FIELDS = [
 ]
 
 _FLAG_FIELDS = [
-    # Only IsFriendly affects wiki output (NPC vs Enemy type label).
+    # IsFriendly separates NPCs from enemies. Vendor status is not part of the
+    # key: consumers read it over the whole group, like the vendor items.
     "IsFriendly",
 ]
 
@@ -192,24 +194,50 @@ def _dedup_key(d: _CharData) -> tuple[object, ...]:
     )
 
 
-def _derive_group_rarity(members: list[_CharData]) -> tuple[int, int]:
-    """Derive unique/rare flags without counting event summons as placements."""
-    ordinary_spawns = [
-        spawn
+# code-fact: character.boss_xp_level_floor
+_BOSS_XP_LEVEL = 40
+_BOSS_XP_FLOOR = 2.0
+# code-fact: character.boss_consider_threshold
+_BOSS_XP_THRESHOLD = 1.0
+
+
+def _effective_boss_xp(raw: dict[str, object]) -> float:
+    """Return the BossXp an NPC has after start-up, where level 40+ raises it to 2."""
+    boss_xp = float(cast("float | None", raw.get("BossXpMultiplier")) or 0.0)
+    level = int(cast("int | None", raw.get("Level")) or 0)
+    return max(boss_xp, _BOSS_XP_FLOOR) if level >= _BOSS_XP_LEVEL else boss_xp
+
+
+def _derive_encounter_tier(members: list[_CharData]) -> str:
+    """Classify a deduplication group as npc, boss, elite, or enemy.
+
+    Named characters (effective BossXp above the game's threshold) are bosses
+    at a single placement or when only events spawn them, and elites when the
+    game can place them at several spawn points. A character with exactly
+    one ordinary placement is a boss even without BossXp. A tier override in
+    mapping.json replaces the derived tier and must agree across the group.
+
+    Raises:
+        ValueError: If members of the group carry different tier overrides.
+    """
+    overrides = {member.char.encounter_tier_override for member in members} - {None}
+    if len(overrides) > 1 or (overrides and any(m.char.encounter_tier_override is None for m in members)):
+        keys = ", ".join(sorted(member.char.stable_key for member in members))
+        raise ValueError(f"mapping.json encounter_tier overrides disagree within one character group: {keys}")
+    if overrides:
+        return str(overrides.pop())
+    if any(bool(member.char.raw.get("IsFriendly")) for member in members):
+        return "npc"
+    placements = {
+        spawn.spawn_point_stable_key
         for member in members
         for spawn in member.spawns
         if spawn.spawn_point_stable_key is not None and spawn.source_script is None
-    ]
-    if ordinary_spawns:
-        is_unique = int(len(ordinary_spawns) == 1)
-        any_common = any(bool(spawn.is_common) for spawn in ordinary_spawns)
-        any_rare = any(bool(spawn.is_rare) for spawn in ordinary_spawns)
-    else:
-        is_unique = int(any(bool(member.char.raw.get("IsUnique")) for member in members))
-        any_common = any(bool(member.char.raw.get("IsCommon")) for member in members)
-        any_rare = any(bool(member.char.raw.get("IsRare")) for member in members)
-    is_rare = int(any_rare and not any_common)
-    return is_unique, is_rare
+    }
+    named = max(_effective_boss_xp(member.char.raw) for member in members) > _BOSS_XP_THRESHOLD
+    if named:
+        return "boss" if len(placements) <= 1 else "elite"
+    return "boss" if len(placements) == 1 else "enemy"
 
 
 def _load_rows(conn: sqlite3.Connection, sql: str, params: tuple[object, ...] = ()) -> list[dict[str, object]]:
@@ -365,12 +393,14 @@ def process_characters(
             image_name = override["image_name"].strip()
             is_wiki_generated = int(override["is_wiki_generated"])
             is_map_visible = int(override["is_map_visible"])
+            encounter_tier_override = override["encounter_tier"]
         else:
             display_name = npc_name.strip()
             wiki_page_name = npc_name.strip()
             image_name = npc_name.strip()
             is_wiki_generated = 1
             is_map_visible = 1
+            encounter_tier_override = None
         chars.append(
             _CharRow(
                 raw=row,
@@ -380,6 +410,7 @@ def process_characters(
                 image_name=image_name,
                 is_wiki_generated=is_wiki_generated,
                 is_map_visible=is_map_visible,
+                encounter_tier_override=encounter_tier_override,
             )
         )
 
@@ -741,8 +772,7 @@ def process_characters(
     logger.info(f"Characters: {len(groups)} dedup groups from {len(char_data)} characters")
 
     dedup_rows: list[dict[str, object]] = []
-    unique_group_count = 0
-    rare_group_count = 0
+    tier_counts: dict[str, int] = defaultdict(int)
     for members in groups.values():
         group_key = min(m.char.stable_key for m in members)
         for m in members:
@@ -755,17 +785,12 @@ def process_characters(
                 }
             )
 
-        is_unique, is_rare = _derive_group_rarity(members)
-        if is_unique:
-            unique_group_count += 1
-        if is_rare:
-            rare_group_count += 1
-
+        tier = _derive_encounter_tier(members)
+        tier_counts[tier] += 1
         for m in members:
-            m.char.raw["IsUnique"] = is_unique
-            m.char.raw["IsRare"] = is_rare
+            m.char.raw["EncounterTier"] = tier
 
-    logger.info(f"Characters: {unique_group_count} unique groups, {rare_group_count} rare groups after recomputation")
+    logger.info(f"Characters: encounter tiers per group {dict(sorted(tier_counts.items()))}")
 
     # ------------------------------------------------------------------
     # Step 6: Write characters
@@ -794,9 +819,7 @@ def process_characters(
             "aggressive_towards": r.get("AggressiveTowards"),
             "allies": r.get("Allies"),
             "is_prefab": r.get("IsPrefab"),
-            "is_common": r.get("IsCommon"),
-            "is_rare": r.get("IsRare"),
-            "is_unique": r.get("IsUnique"),
+            "encounter_tier": r["EncounterTier"],
             "is_friendly": r.get("IsFriendly"),
             "is_npc": r.get("IsNPC"),
             "is_vendor": r.get("IsVendor"),

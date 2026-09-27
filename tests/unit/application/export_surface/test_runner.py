@@ -36,8 +36,8 @@ def test_exit_2_raises_runtime_error(tmp_path: Path) -> None:
     (tmp_path / "dll.dll").write_bytes(b"")
     (tmp_path / "m.json").write_text('{"tracks_build": "x", "types": [], "fields": {}}')
     with (
-        patch("erenshor.application.export_surface.runner.subprocess.run") as mock_run,
-        patch("erenshor.application.export_surface.runner.shutil.which", return_value="dotnet"),
+        patch("erenshor.application.dotnet_tool.subprocess.run") as mock_run,
+        patch("erenshor.application.dotnet_tool.shutil.which", return_value="dotnet"),
     ):
         mock_run.side_effect = [
             _mock_proc(0),
@@ -52,8 +52,8 @@ def test_exit_0_returns_empty_findings(tmp_path: Path) -> None:
     (tmp_path / "m.json").write_text('{"tracks_build": "x", "types": [], "fields": {}}')
     envelope = {"type": "erenshor://export/field-coverage-drift", "status": 0, "detail": "clean", "findings": []}
     with (
-        patch("erenshor.application.export_surface.runner.subprocess.run") as mock_run,
-        patch("erenshor.application.export_surface.runner.shutil.which", return_value="dotnet"),
+        patch("erenshor.application.dotnet_tool.subprocess.run") as mock_run,
+        patch("erenshor.application.dotnet_tool.shutil.which", return_value="dotnet"),
     ):
         mock_run.side_effect = [
             _mock_proc(0),
@@ -76,8 +76,8 @@ def test_exit_1_returns_findings(tmp_path: Path) -> None:
         "findings": findings,
     }
     with (
-        patch("erenshor.application.export_surface.runner.subprocess.run") as mock_run,
-        patch("erenshor.application.export_surface.runner.shutil.which", return_value="dotnet"),
+        patch("erenshor.application.dotnet_tool.subprocess.run") as mock_run,
+        patch("erenshor.application.dotnet_tool.shutil.which", return_value="dotnet"),
     ):
         mock_run.side_effect = [
             _mock_proc(0),

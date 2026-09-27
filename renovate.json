@@ -29,6 +29,12 @@
       "enabled": false
     },
     {
+      "description": "Keep the local MediaWiki on the release line of erenshor.wiki.gg. The wiki-dev extensions are cloned from REL1_43 branches, and the stack must mirror the live wiki.",
+      "matchManagers": ["dockerfile"],
+      "matchPackageNames": ["mediawiki"],
+      "allowedVersions": "<1.44"
+    },
+    {
       "description": "Label JavaScript dependency updates",
       "matchManagers": ["npm"],
       "addLabels": ["javascript"]

@@ -31,8 +31,15 @@ class CharacterRepository(BaseRepository[Character]):
         """
         query = """
             WITH reps AS (
-                SELECT d.group_key, MIN(d.member_stable_key) AS rep_stable_key
+                -- A page shows one representative per deduplication group. The
+                -- group sells what any member sells, so vendor status is a group
+                -- property, like the vendor items the page lists.
+                SELECT
+                    d.group_key,
+                    MIN(d.member_stable_key) AS rep_stable_key,
+                    MAX(m.is_vendor) AS group_is_vendor
                 FROM character_deduplications d
+                JOIN characters m ON m.stable_key = d.member_stable_key
                 WHERE d.is_wiki_generated = 1
                 GROUP BY d.group_key
             )
@@ -56,12 +63,10 @@ class CharacterRepository(BaseRepository[Character]):
                 c.aggressive_towards,
                 c.allies,
                 c.is_prefab,
-                c.is_common,
-                c.is_rare,
-                c.is_unique,
+                c.encounter_tier,
                 c.is_friendly,
                 c.is_npc,
-                c.is_vendor,
+                r.group_is_vendor AS is_vendor,
                 c.is_mining_node,
                 c.has_stats,
                 c.has_dialog,

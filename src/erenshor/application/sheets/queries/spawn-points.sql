@@ -18,7 +18,7 @@ SELECT
     ROUND(cs.spawn_chance, 2) AS spawn_chance_percent,
     cs.is_common,
     cs.is_rare,
-    c.is_unique,
+    c.encounter_tier,
     cs.level_mod,
     cs.spawn_delay_1 AS spawn_delay_1_in_grp,
     ROUND(cs.spawn_delay_2, 2) AS spawn_delay_2_in_grp,

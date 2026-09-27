@@ -10,10 +10,10 @@ PURPOSE: Backups are for cross-version analysis, NOT for restoration:
 - Track game evolution over time
 
 Features:
-- Per-build ID backups (Steam build ID or timestamp fallback)
+- Per-build ID backups (Steam build ID)
 - Uncompressed format for easy diffing
 - Atomic operations (temp dir + rename)
-- Automatic overwrite of same build
+- Overwrite of same build only after the new backup is complete and valid
 - Disk usage calculation and reporting
 - Metadata tracking
 
@@ -57,11 +57,14 @@ class BackupMetadata:
         build_id: Steam build ID.
         app_id: Steam App ID.
         created_at: ISO 8601 timestamp of backup creation.
-        database_path: Name of database file in backup.
-        database_size_bytes: Size of database file.
+        database_path: Name of the raw database file in the backup.
+        database_size_bytes: Size of the raw database file.
         scripts_count: Number of C# script files backed up.
         scripts_size_bytes: Total size of all script files.
         total_size_bytes: Total backup size.
+        clean_database_path: Name of the clean database file, once
+            ``extract build`` has added it.
+        clean_database_size_bytes: Size of the clean database file.
     """
 
     variant: str
@@ -73,6 +76,8 @@ class BackupMetadata:
     scripts_count: int
     scripts_size_bytes: int
     total_size_bytes: int
+    clean_database_path: str | None = None
+    clean_database_size_bytes: int = 0
 
 
 @dataclass
@@ -112,7 +117,8 @@ class BackupService:
         ├── build-20370413/
         │   ├── metadata.json
         │   ├── database/
-        │   │   └── erenshor-main.sqlite
+        │   │   ├── erenshor-main-raw.sqlite   (extract export)
+        │   │   └── erenshor-main.sqlite       (extract build)
         │   └── scripts/
         │       └── (385 .cs files)
 
@@ -156,9 +162,10 @@ class BackupService:
     ) -> BackupStats:
         """Create backup for a specific build.
 
-        Creates an uncompressed backup of database and game scripts. Uses
-        atomic operations (temp dir + rename) to prevent partial backups.
-        Automatically overwrites existing backup for same build ID.
+        Creates an uncompressed backup of database and game scripts in a temp
+        directory and validates it there. An existing backup for the same
+        build ID is replaced only after the new backup is valid, so a failed
+        backup never destroys the previous one.
 
         Args:
             variant: Game variant (main, playtest, demo).
@@ -195,20 +202,8 @@ class BackupService:
         if not scripts_path.exists():
             raise BackupError(f"Scripts directory not found: {scripts_path}")
 
-        # Prepare paths
         backup_dir.mkdir(parents=True, exist_ok=True)
-        final_backup_path = backup_dir / f"build-{build_id}"
-        temp_backup_path = backup_dir / f".backup-{build_id}.tmp"
-
-        # Remove any existing temp directory (failed backup)
-        if temp_backup_path.exists():
-            logger.warning(f"Removing existing temp backup: {temp_backup_path}")
-            shutil.rmtree(temp_backup_path)
-
-        # Remove existing backup for same build (overwrite behavior)
-        if final_backup_path.exists():
-            logger.info(f"Overwriting existing backup for build {build_id}")
-            shutil.rmtree(final_backup_path)
+        final_backup_path, temp_backup_path = self._prepare_paths(backup_dir, build_id)
 
         try:
             # Create temp directory structure
@@ -263,33 +258,150 @@ class BackupService:
             metadata_path = temp_backup_path / "metadata.json"
             metadata_path.write_text(json.dumps(asdict(metadata), indent=2))
 
-            # Atomic rename (final step)
-            logger.debug("Renaming temp backup to final location")
-            temp_backup_path.rename(final_backup_path)
-
-            logger.info(f"Backup created successfully: {final_backup_path}")
-
-            # Validate backup
-            self._validate_backup(final_backup_path)
-
-            # Return stats
-            return BackupStats(
-                build_id=build_id,
-                database_files=1,
-                database_size=db_size,
-                script_files=scripts_count,
-                scripts_size=scripts_size,
-                total_size=total_size,
-                backup_path=final_backup_path,
-            )
-
+            self._validate_backup(temp_backup_path)
         except Exception as e:
-            # Cleanup temp directory on failure
             if temp_backup_path.exists():
                 logger.debug(f"Cleaning up failed backup: {temp_backup_path}")
                 shutil.rmtree(temp_backup_path)
-
             raise BackupError(f"Backup creation failed: {e}") from e
+
+        self._publish(temp_backup_path, final_backup_path)
+        logger.info(f"Backup created successfully: {final_backup_path}")
+        return BackupStats(
+            build_id=build_id,
+            database_files=1,
+            database_size=db_size,
+            script_files=scripts_count,
+            scripts_size=scripts_size,
+            total_size=total_size,
+            backup_path=final_backup_path,
+        )
+
+    @staticmethod
+    def _prepare_paths(backup_dir: Path, build_id: str) -> tuple[Path, Path]:
+        """Return the final and temporary paths of a build's backup.
+
+        Restores a backup that an interrupted replacement left aside, and
+        removes the temporary directory of a failed earlier attempt.
+        """
+        final_backup_path = backup_dir / f"build-{build_id}"
+        temp_backup_path = backup_dir / f".backup-{build_id}.tmp"
+        replaced_backup_path = backup_dir / f".backup-{build_id}.old"
+        if replaced_backup_path.exists():
+            if final_backup_path.exists():
+                shutil.rmtree(replaced_backup_path)
+            else:
+                logger.warning(f"Restoring backup left aside by an interrupted replacement: {replaced_backup_path}")
+                replaced_backup_path.rename(final_backup_path)
+        if temp_backup_path.exists():
+            logger.warning(f"Removing existing temp backup: {temp_backup_path}")
+            shutil.rmtree(temp_backup_path)
+        return final_backup_path, temp_backup_path
+
+    @staticmethod
+    def _publish(temp_backup_path: Path, final_backup_path: Path) -> None:
+        """Replace the final backup with a validated temporary one.
+
+        The previous backup stays aside until the new one is in place.
+        """
+        replaced_backup_path = final_backup_path.parent / f".{final_backup_path.name.replace('build-', 'backup-')}.old"
+        if final_backup_path.exists():
+            logger.info(f"Replacing existing backup {final_backup_path.name}")
+            final_backup_path.rename(replaced_backup_path)
+        try:
+            temp_backup_path.rename(final_backup_path)
+        except OSError as e:
+            if replaced_backup_path.exists():
+                replaced_backup_path.rename(final_backup_path)
+            shutil.rmtree(temp_backup_path)
+            raise BackupError(f"Backup publication failed: {e}") from e
+        if replaced_backup_path.exists():
+            shutil.rmtree(replaced_backup_path)
+
+    def add_clean_database(self, backup_dir: Path, build_id: str, clean_database_path: Path) -> Path:
+        """Add the clean database to the existing backup of ``build_id``.
+
+        The backup is copied to a temporary directory, extended, validated,
+        and then replaces the old one, so a failure leaves it unchanged.
+
+        Returns:
+            Path of the clean database inside the backup.
+
+        Raises:
+            BackupError: If the build has no backup, the clean database is
+                missing, or the copy fails.
+        """
+        if not clean_database_path.is_file():
+            raise BackupError(f"Clean database not found: {clean_database_path}")
+        final_backup_path, temp_backup_path = self._prepare_paths(backup_dir, build_id)
+        if not final_backup_path.is_dir():
+            raise BackupError(
+                f"No backup for build {build_id} at {final_backup_path}. "
+                "Run 'erenshor extract export' for this build first."
+            )
+        metadata = self._read_metadata(final_backup_path)
+        if clean_database_path.name == metadata.database_path:
+            raise BackupError(f"Clean database has the raw database's name: {clean_database_path.name}")
+        try:
+            shutil.copytree(final_backup_path, temp_backup_path)
+            destination = temp_backup_path / "database" / clean_database_path.name
+            shutil.copy2(clean_database_path, destination)
+            if metadata.clean_database_path is not None:
+                metadata.total_size_bytes -= metadata.clean_database_size_bytes
+            metadata.clean_database_path = clean_database_path.name
+            metadata.clean_database_size_bytes = destination.stat().st_size
+            metadata.total_size_bytes += metadata.clean_database_size_bytes
+            (temp_backup_path / "metadata.json").write_text(json.dumps(asdict(metadata), indent=2))
+            self._validate_backup(temp_backup_path)
+        except Exception as e:
+            if temp_backup_path.exists():
+                shutil.rmtree(temp_backup_path)
+            raise BackupError(f"Adding the clean database to {final_backup_path} failed: {e}") from e
+        self._publish(temp_backup_path, final_backup_path)
+        logger.info(f"Clean database added to backup: {final_backup_path}")
+        return final_backup_path / "database" / clean_database_path.name
+
+    def baseline_clean_database(
+        self, backup_dir: Path, current_build: str, since: str | None = None
+    ) -> tuple[str, Path]:
+        """Return the build and clean database to compare the current build with.
+
+        Args:
+            backup_dir: Base backup directory of the variant.
+            current_build: Build that the current clean database records.
+            since: Backed-up build to use. Without it, the newest backed-up
+                build other than ``current_build`` is used.
+
+        Raises:
+            BackupError: If the selected build has no backup or its backup
+                holds no clean database, or no earlier build is backed up.
+        """
+        if since is None:
+            earlier = sorted(
+                (backup for backup in self.list_backups(backup_dir) if backup.build_id != current_build),
+                key=lambda backup: int(backup.build_id) if backup.build_id.isdecimal() else -1,
+            )
+            if not earlier:
+                raise BackupError(f"No earlier build is backed up in {backup_dir}. Current build: {current_build}.")
+            since = earlier[-1].build_id
+        backup_path = backup_dir / f"build-{since}"
+        if not backup_path.is_dir():
+            raise BackupError(f"No backup for build {since} at {backup_path}")
+        metadata = self._read_metadata(backup_path)
+        if metadata.clean_database_path is None:
+            raise BackupError(
+                f"Backup {backup_path} holds no clean database. Build {since} has to be extracted "
+                "and built again with 'erenshor extract build' to compare against it."
+            )
+        return since, backup_path / "database" / metadata.clean_database_path
+
+    @staticmethod
+    def _read_metadata(backup_path: Path) -> BackupMetadata:
+        metadata_path = backup_path / "metadata.json"
+        try:
+            return BackupMetadata(**json.loads(metadata_path.read_text()))
+        except (OSError, json.JSONDecodeError, TypeError) as e:
+            raise BackupValidationError(f"{backup_path}: unreadable metadata: {e}") from e
 
     def _validate_backup(self, backup_path: Path) -> None:
         """Validate backup integrity.
@@ -307,27 +419,21 @@ class BackupService:
         """
         logger.debug(f"Validating backup: {backup_path}")
 
-        # Check metadata
-        metadata_path = backup_path / "metadata.json"
-        if not metadata_path.exists():
+        if not (backup_path / "metadata.json").exists():
             raise BackupValidationError("Metadata file missing")
+        metadata = self._read_metadata(backup_path)
 
-        try:
-            metadata_path.read_text()
-        except Exception as e:
-            raise BackupValidationError(f"Invalid metadata file: {e}") from e
-
-        # Check database
         db_dir = backup_path / "database"
-        if not db_dir.exists():
-            raise BackupValidationError("Database directory missing")
-
-        db_files = list(db_dir.glob("*.sqlite"))
-        if not db_files:
-            raise BackupValidationError("Database file missing")
-
-        if db_files[0].stat().st_size == 0:
-            raise BackupValidationError("Database file is empty")
+        named = [metadata.database_path]
+        if metadata.clean_database_path is not None:
+            named.append(metadata.clean_database_path)
+        for name in named:
+            database = db_dir / name
+            if not database.is_file():
+                raise BackupValidationError(f"Database file missing: {name}")
+            if database.stat().st_size == 0:
+                raise BackupValidationError(f"Database file is empty: {name}")
+        db_files = named
 
         # Check scripts
         scripts_dir = backup_path / "scripts"
@@ -452,13 +558,16 @@ class BackupService:
         """List all backups in directory.
 
         Reads metadata from all backup directories and returns as list.
-        Skips directories without valid metadata.
 
         Args:
             backup_dir: Base backup directory.
 
         Returns:
             List of BackupMetadata, sorted by build ID (newest first).
+
+        Raises:
+            BackupValidationError: If any backup directory lacks readable
+                metadata. Every broken backup is named.
 
         Example:
             >>> service = BackupService()
@@ -469,9 +578,10 @@ class BackupService:
         if not backup_dir.exists():
             return []
 
-        backups = []
+        backups: list[BackupMetadata] = []
+        broken: list[str] = []
 
-        for backup_path in backup_dir.iterdir():
+        for backup_path in sorted(backup_dir.iterdir()):
             if not backup_path.is_dir():
                 continue
 
@@ -479,19 +589,15 @@ class BackupService:
             if backup_path.name.startswith(".backup-"):
                 continue
 
-            # Read metadata
             metadata_path = backup_path / "metadata.json"
-            if not metadata_path.exists():
-                logger.warning(f"Skipping backup without metadata: {backup_path}")
-                continue
-
             try:
                 metadata_dict = json.loads(metadata_path.read_text())
-                metadata = BackupMetadata(**metadata_dict)
-                backups.append(metadata)
-            except Exception as e:
-                logger.warning(f"Failed to read backup metadata: {backup_path} - {e}")
-                continue
+                backups.append(BackupMetadata(**metadata_dict))
+            except (OSError, json.JSONDecodeError, TypeError) as e:
+                broken.append(f"{backup_path}: {e}")
+
+        if broken:
+            raise BackupValidationError("Backups without readable metadata:\n  " + "\n  ".join(broken))
 
         # Sort by build ID (descending - newest first)
         backups.sort(key=lambda b: b.build_id, reverse=True)

@@ -25,12 +25,13 @@
     import SearchNpcPopup from './popups/SearchNpcPopup.svelte';
     import SearchItemPopup from './popups/SearchItemPopup.svelte';
     import SearchNotFoundContent from './popups/SearchNotFoundContent.svelte';
-    import { Rarity } from '$lib/map-markers';
+    import { resolveLiveEncounterTier, type EnemyTier } from '$lib/map-markers';
 
     interface Props {
         selection: Selection;
         zoneName: string;
         searchIndex: SearchIndex | null;
+        encounterTierByName: ReadonlyMap<string, EnemyTier>;
         mode?: 'panel' | 'drawer';
         onClose: () => void;
         onFocus: () => void;
@@ -45,6 +46,7 @@
         selection,
         zoneName,
         searchIndex,
+        encounterTierByName,
         mode = 'panel',
         onClose,
         onFocus,
@@ -140,9 +142,8 @@
                     return ['Friendly NPC', level].filter(Boolean).join(' \u2022 ');
                 case 'npc_enemy': {
                     const parts = ['Enemy', level];
-                    if (entity.rarity && entity.rarity !== 'common') {
-                        parts.push(entity.rarity.charAt(0).toUpperCase() + entity.rarity.slice(1));
-                    }
+                    const tier = resolveLiveEncounterTier(entity, encounterTierByName);
+                    if (tier !== 'enemy') parts.push(tier === 'boss' ? 'Boss' : 'Elite');
                     return parts.filter(Boolean).join(' \u2022 ');
                 }
                 default:
@@ -167,8 +168,8 @@
             switch (r.type) {
                 case 'enemy': {
                     const parts: string[] = ['Enemy'];
-                    if (r.effectiveRarity === Rarity.unique) parts.push('Unique');
-                    else if (r.effectiveRarity === Rarity.rare) parts.push('Rare');
+                    if (r.encounterTier === 'boss') parts.push('Boss');
+                    else if (r.encounterTier === 'elite') parts.push('Elite');
                     if (r.spawnCount === 0) {
                         parts.push('Location unknown');
                     } else {
@@ -196,17 +197,15 @@
             case 'enemy':
             case 'npc': {
                 const m = marker as WorldEnemy | WorldNpc;
-                const uniques = m.characters.filter(
-                    (c) => c.effectiveRarity === Rarity.unique
-                ).length;
-                const rares = m.characters.filter((c) => c.effectiveRarity === Rarity.rare).length;
-                const commons = m.characters.filter(
-                    (c) => c.effectiveRarity === Rarity.common
-                ).length;
+                const bosses = m.characters.filter((c) => c.encounterTier === 'boss').length;
+                const elites = m.characters.filter((c) => c.encounterTier === 'elite').length;
+                const enemies = m.characters.filter((c) => c.encounterTier === 'enemy').length;
+                const npcs = m.characters.filter((c) => c.encounterTier === 'npc').length;
                 const parts: string[] = [];
-                if (uniques > 0) parts.push(`${uniques} unique`);
-                if (rares > 0) parts.push(`${rares} rare`);
-                if (commons > 0) parts.push(`${commons} common`);
+                if (bosses > 0) parts.push(`${bosses} boss${bosses === 1 ? '' : 'es'}`);
+                if (elites > 0) parts.push(`${elites} elite${elites === 1 ? '' : 's'}`);
+                if (enemies > 0) parts.push(`${enemies} enem${enemies === 1 ? 'y' : 'ies'}`);
+                if (npcs > 0) parts.push(`${npcs} NPC${npcs === 1 ? '' : 's'}`);
                 return parts.length > 0 ? parts.join(', ') : 'Empty';
             }
             case 'zone-line':
@@ -231,7 +230,7 @@
 
     function getBorderColorClass(): string {
         if (!selection) return 'border-l-gray-500';
-        return getSelectionBorderColor(selection);
+        return getSelectionBorderColor(selection, encounterTierByName);
     }
 
     const title = $derived(getTitle());
@@ -342,7 +341,7 @@
         {:else if selection.entity.entityType === 'pet'}
             <LivePetPopupContent entity={selection.entity} />
         {:else}
-            <LiveNpcPopupContent entity={selection.entity} />
+            <LiveNpcPopupContent entity={selection.entity} {encounterTierByName} />
         {/if}
         {#snippet footer()}
             {zoneName}

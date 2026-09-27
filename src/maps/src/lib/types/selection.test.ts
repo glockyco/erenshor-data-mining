@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import { serializeSelection, deserializeSelection } from './selection';
-import { Rarity } from '$lib/map-markers';
 import { buildSearchIndex } from '$lib/map/search';
 
 describe('serializeSelection', () => {
@@ -16,9 +15,9 @@ describe('serializeSelection', () => {
 
     it('restores wiki items without map sources as search results', () => {
         const searchIndex = buildSearchIndex({
-            enemiesCommon: [],
-            enemiesRare: [],
-            enemiesUnique: [],
+            enemiesEnemy: [],
+            enemiesElite: [],
+            enemiesBoss: [],
             unlocatedEnemies: [],
             npcs: [],
             zones: [],
@@ -54,16 +53,16 @@ describe('serializeSelection', () => {
 
     it('restores map-visible enemies without spawn markers', () => {
         const searchIndex = buildSearchIndex({
-            enemiesCommon: [],
-            enemiesRare: [],
-            enemiesUnique: [],
+            enemiesEnemy: [],
+            enemiesElite: [],
+            enemiesBoss: [],
             unlocatedEnemies: [
                 {
                     stableKey: 'character:runtime enemy',
                     name: 'Runtime Enemy',
                     wikiPageName: 'Runtime Enemy',
                     level: 12,
-                    effectiveRarity: Rarity.rare
+                    encounterTier: 'elite'
                 }
             ],
             npcs: [],
@@ -86,7 +85,7 @@ describe('serializeSelection', () => {
             result: {
                 type: 'enemy',
                 name: 'Runtime Enemy',
-                effectiveRarity: Rarity.rare,
+                encounterTier: 'elite',
                 spawnCount: 0,
                 zoneCount: 0
             }

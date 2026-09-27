@@ -61,14 +61,14 @@ def _notes_title(description: str, build_id: str) -> str | None:
 def parse_build_feed(xml: str) -> list[Build]:
     """Parse build entries from RSS XML, sorted newest first.
 
-    Invalid XML, empty documents, and individual items without a valid build
-    guid or publication date are ignored so one bad feed item does not discard
-    usable build records.
+    A document that is not valid XML raises ValueError. Individual items
+    without a valid build guid or publication date are ignored so one bad feed
+    item does not discard usable build records.
     """
     try:
         root = ET.fromstring(xml)
-    except ET.ParseError:
-        return []
+    except ET.ParseError as error:
+        raise ValueError(f"SteamDB build feed is not valid XML: {error}") from error
 
     builds: list[Build] = []
     for item in root.iter():

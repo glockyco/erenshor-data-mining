@@ -19,7 +19,7 @@ describe('computeChipCounts', () => {
         const matches: SearchMatch[] = [
             { result: { type: 'item', itemStableKey: 'a', itemName: 'A', iconName: null, wikiPageName: null, sourceCounts: { droppers: 1, vendors: 0, miningNodes: 0, fishingSpots: 0, itemBags: 0 }, zoneCount: 1, hasKnownSource: true }, matchRange: null },
             { result: { type: 'item', itemStableKey: 'b', itemName: 'B', iconName: null, wikiPageName: null, sourceCounts: { droppers: 1, vendors: 0, miningNodes: 0, fishingSpots: 0, itemBags: 0 }, zoneCount: 1, hasKnownSource: true }, matchRange: null },
-            { result: { type: 'enemy', name: 'Goblin', effectiveRarity: 2, spawnCount: 1, zoneCount: 1 }, matchRange: null }
+            { result: { type: 'enemy', name: 'Goblin', encounterTier: 'enemy', spawnCount: 1, zoneCount: 1 }, matchRange: null }
         ];
         const counts = computeChipCounts(responseFor(matches), 0);
         expect(counts.get('all')).toEqual({ visible: 3, total: 3, hasMore: false });
@@ -48,7 +48,7 @@ describe('computeChipCounts', () => {
                 result: {
                     type: 'enemy',
                     name: 'Goblin',
-                    effectiveRarity: 2,
+                    encounterTier: 'enemy',
                     spawnCount: 1,
                     zoneCount: 1
                 },

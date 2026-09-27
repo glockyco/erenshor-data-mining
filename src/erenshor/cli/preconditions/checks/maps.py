@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 import shutil
 import subprocess
@@ -81,31 +82,57 @@ def cloudflare_auth_configured(context: dict[str, Any]) -> PreconditionResult:
             message="Cloudflare API token configured",
         )
 
-    if shutil.which("pnpm") is not None:
-        try:
-            result = subprocess.run(
-                ["pnpm", "exec", "wrangler", "whoami"],
-                cwd=maps_source_dir,
-                check=False,
-                capture_output=True,
-                text=True,
-                timeout=30,
-            )
-            if result.returncode == 0:
-                return PreconditionResult(
-                    passed=True,
-                    check_name="cloudflare_auth_configured",
-                    message="Cloudflare wrangler login configured",
-                )
-        except (OSError, subprocess.SubprocessError):
-            pass
+    login_hint = (
+        "Set CLOUDFLARE_API_TOKEN (+ CLOUDFLARE_ACCOUNT_ID when required) "
+        f"or run `pnpm -C {maps_source_dir} exec wrangler login`."
+    )
+    if shutil.which("pnpm") is None:
+        return PreconditionResult(
+            passed=False,
+            check_name="cloudflare_auth_configured",
+            message="Cannot check the wrangler login: pnpm not found on PATH",
+            detail=f"The Nix development shell provides pnpm. {login_hint}",
+        )
 
+    # Plain `wrangler whoami` exits 0 even when nobody is logged in. With
+    # --json it exits non-zero and reports loggedIn false.
+    try:
+        result = subprocess.run(
+            ["pnpm", "exec", "wrangler", "whoami", "--json"],
+            cwd=maps_source_dir,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+    except (OSError, subprocess.SubprocessError) as error:
+        return PreconditionResult(
+            passed=False,
+            check_name="cloudflare_auth_configured",
+            message="Could not run `wrangler whoami`",
+            detail=f"{error}. {login_hint}",
+        )
+
+    if result.returncode == 0 and _wrangler_logged_in(result.stdout):
+        return PreconditionResult(
+            passed=True,
+            check_name="cloudflare_auth_configured",
+            message="Cloudflare wrangler login configured",
+        )
+
+    output = (result.stderr.strip() or result.stdout.strip()).splitlines()
+    last_line = output[-1] if output else "no output"
     return PreconditionResult(
         passed=False,
         check_name="cloudflare_auth_configured",
         message="Cloudflare authentication not configured",
-        detail=(
-            "Set CLOUDFLARE_API_TOKEN (+ CLOUDFLARE_ACCOUNT_ID when required) "
-            f"or run `pnpm -C {maps_source_dir} exec wrangler login`."
-        ),
+        detail=f"`wrangler whoami --json` exited {result.returncode}: {last_line}. {login_hint}",
     )
+
+
+def _wrangler_logged_in(stdout: str) -> bool:
+    try:
+        report = json.loads(stdout)
+    except json.JSONDecodeError:
+        return False
+    return isinstance(report, dict) and report.get("loggedIn") is True

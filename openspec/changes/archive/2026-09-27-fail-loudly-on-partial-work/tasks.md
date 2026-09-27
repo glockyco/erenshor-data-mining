@@ -1,0 +1,66 @@
+## 1. Baseline
+
+- [x] 1.1 Record a healthy end-to-end run of capture, image processing, wiki generation, and extract rip against valid inputs. Keep checksums of the outputs so later steps compare against a measurement. Recorded as old-code runs on build 24405256: rip scripts hash `05923bf6…`, wiki generate `79c9ca22…`, image selection 1891 of 1914, and the Stowaway master and tile pyramid.
+- [x] 1.2 Record the current `uv run erenshor test ci` result and the current count of commands carrying a precondition declaration. CI passed. At `fb2f12eb`, 16 commands carried a declaration.
+
+## 2. Capture reports what it did
+
+- [x] 2.1 Change `application/capture/orchestrator.py` so a failed zone is collected rather than skipped, and the run reports every failure.
+- [x] 2.2 Change `cli/commands/capture.py` so the completion message is emitted only when no zone failed, and a partial run exits non-zero and states that the output is partial.
+- [x] 2.3 Add a regression test proving one failing zone makes the command exit non-zero and name that zone.
+- [x] 2.4 Confirm a run with every zone valid produces output identical to the task 1.1 baseline. A live `capture run --zones Stowaway --force` exits 0 and writes the same 3072×2048 master and 129-tile pyramid. Two consecutive live captures differ in pixel values, because water, foliage, and the lighthouse beam animate, so a live master is not byte-stable. `capture tile` from the same master is byte-identical before and after the change.
+
+## 3. A failed image comparison is not `unchanged`
+
+- [x] 3.1 Change `application/services/image_registry.py` so a perceptual-hash failure raises instead of setting `change_type='unchanged'`, `is_changed=False`, and `similarity_score=1.0`.
+- [x] 3.2 Change the hash fallback that substitutes database values so it raises rather than reporting a stored value as a fresh measurement.
+- [x] 3.3 Add a regression test proving an image whose comparison raises is never selected as needing no upload.
+- [x] 3.4 Confirm an image run over valid inputs selects the same set as the task 1.1 baseline.
+
+## 4. Release versioning fails instead of restarting
+
+- [x] 4.1 Change `application/mods/release.py` so a failed vault version lookup raises a named error instead of returning an empty collection.
+- [x] 4.2 Keep the distinction between a reachable registry that reports nothing published and a lookup that failed.
+- [x] 4.3 Add a regression test proving an unreachable registry does not produce a revision number.
+
+## 5. A manifest that cannot be read is not rewritten
+
+- [x] 5.1 Change `application/extract/rip_workflow.py` so a missing or malformed dependency manifest raises and names the file, instead of returning an empty mapping.
+- [x] 5.2 Confirm the restore step that writes the manifest cannot run after a failed read.
+- [x] 5.3 Add a regression test for both the absent and the malformed manifest.
+
+## 6. Generation refuses to emit lossy output
+
+- [x] 6.1 Change `application/wiki/generators/pages/zones.py` so absent or unconfigured zone-position input fails instead of producing an empty key set.
+- [x] 6.2 Add a regression test proving wiki pages are not emitted without map links when that input is missing.
+
+## 7. Name the missing program
+
+- [x] 7.1 Change `infrastructure/assetripper/assetripper.py` so it needs no external `curl`: call the AssetRipper API through an HTTP client, and fail at once when the AssetRipper process exits, rather than returning `False` and waiting for the startup timeout.
+- [x] 7.2 Change the export-log monitor so a read error is reported with its cause rather than logged at debug and polled past.
+- [x] 7.3 Add a resolvability check with a named error to `application/code_facts/runner.py`, matching the one in `application/export_surface/runner.py`.
+- [x] 7.4 Convert raw subprocess failures in the maps helper into named errors identifying the program.
+- [x] 7.5 Add tests for each named failure.
+
+## 8. Ambiguity is distinct from absence
+
+- [x] 8.1 Change `application/mods/local_workflow.py` so several matching CrossOver installations raise and name every candidate, instead of warning and returning `None`.
+- [x] 8.2 Change the unreadable-manifest path so it names the record instead of reporting absence.
+- [x] 8.3 Preserve the subprocess cause in `cli/preconditions/checks/maps.py` rather than reporting a generic authentication failure.
+- [x] 8.4 Add tests for two matching bottles, an unreadable manifest, and no installation, asserting three distinct reports.
+
+## 9. Precondition coverage
+
+- [x] 9.1 Write down the rule that decides which commands declare preconditions, and list the commands that mutate state outside the process.
+- [x] 9.2 Add declarations to the `capture` and `images` command groups. Run the suite.
+- [x] 9.3 Add declarations to the `mod` command group, including build, deploy, activate, release, and launch. Run the suite.
+- [x] 9.4 Add declarations to the remaining `maps`, `wiki`, `guide`, `eval`, and `extract` commands that mutate state. Run the suite.
+- [x] 9.5 Record which commands were deliberately left undeclared because they only read, so the omissions are intentional and reviewable.
+
+## 10. Verification and documentation
+
+- [x] 10.1 Run each affected pipeline end to end against valid inputs and confirm byte-identical output against the task 1.1 baseline. Rip, wiki generate, image selection, and `capture tile` are byte-identical. Live capture is compared by shape only, as recorded in 2.4.
+- [x] 10.2 Run `uv run erenshor test ci` and compare against the task 1.2 result.
+- [x] 10.3 Document the failure rule where contributors will meet it, in present tense, describing the current behaviour only.
+- [x] 10.4 Run `openspec validate fail-loudly-on-partial-work --strict`.
+- [x] 10.5 Search the application and infrastructure packages for remaining handlers that convert a failure into a value, and either fix each or record why it is correct.

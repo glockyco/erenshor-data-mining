@@ -25,7 +25,6 @@ class CharacterSpawnInfo:
     z: float | None
     spawn_chance: float | None
     is_rare: bool
-    is_unique: bool
     level_mod: int = 0
     source_script: str | None = None
     event_x: float | None = None

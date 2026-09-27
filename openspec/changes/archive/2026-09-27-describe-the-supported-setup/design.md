@@ -44,7 +44,7 @@ The new mod held the old port for two days, entirely before it had a release pat
 
 ## Decisions
 
-**Where a document and the code disagree, the code wins, with two exceptions.** The exceptions are the `game_install` fallback and the tracked game-files default, where the documented intent is defensible and the resolution order may be the thing to correct. Both are recorded as questions rather than resolved by editing the prose to match whatever the code happens to do. Making a document agree with an accident is how the accident becomes a requirement.
+**Where a document and the code disagree, the code wins.** `single-game-installation` lands first and removes the `game_install` fallback and the tracked game-files default, so no configured game path remains to describe. When the documented intent is defensible and the code looks accidental, the disagreement is recorded as a question for the maintainer. It is not resolved by editing the prose to match whatever the code happens to do. Making a document agree with an accident is how the accident becomes a requirement.
 
 **The CLI imports the constants rather than the application layer losing them.** `local_workflow` already exports both names. The alternative, a new shared constants module, adds a module to hold two lines that already have an owner.
 
@@ -64,13 +64,13 @@ The new mod held the old port for two days, entirely before it had a release pat
 
 **Correcting `.env.example` may remove a variable somebody relies on.** → The package does not read them, so nothing that works today stops working. The four variables the package does read gain documentation they lack.
 
-**Deferring the legacy socket leaves a shim in place.** → It is recorded in the proposal with its file and line, and the README continues to describe it correctly, so nothing is hidden while the decision waits.
+**Keeping the legacy socket leaves a shim in place indefinitely.** → The code site and the README state which clients it serves and that it is kept indefinitely, so nothing is hidden.
 
 ## Migration Plan
 
 1. Correct the statements whose verdict is unambiguous: `.env.example`, the launch prerequisite, the stale architecture paths, and the duplicated constants.
 2. Add the path-reference check and let it find whatever the manual sweep missed.
-3. Record the tracked-configuration arrangement in a comment.
-4. Take the two deferred decisions to the maintainer, then reconcile the `game_install` documentation with whichever answer wins.
+3. Document the legacy player-position socket and remove its unreachable branch.
+4. Remove statements about previous behaviour from active documents.
 
 Rollback is per commit, and no step changes behaviour except the constant import, which is verified by the existing tests for launch and discovery.
