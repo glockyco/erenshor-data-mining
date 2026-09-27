@@ -1,14 +1,14 @@
 ## 1. Baseline
 
-- [ ] 1.1 Record a healthy end-to-end run of capture, image processing, wiki generation, and extract rip against valid inputs. Keep checksums of the outputs so later steps compare against a measurement.
-- [ ] 1.2 Record the current `uv run erenshor test ci` result and the current count of commands carrying a precondition declaration.
+- [x] 1.1 Record a healthy end-to-end run of capture, image processing, wiki generation, and extract rip against valid inputs. Keep checksums of the outputs so later steps compare against a measurement. Recorded as old-code runs on build 24405256: rip scripts hash `05923bf6…`, wiki generate `79c9ca22…`, image selection 1891 of 1914, and the Stowaway master and tile pyramid.
+- [x] 1.2 Record the current `uv run erenshor test ci` result and the current count of commands carrying a precondition declaration. CI passed. At `fb2f12eb`, 16 commands carried a declaration.
 
 ## 2. Capture reports what it did
 
 - [x] 2.1 Change `application/capture/orchestrator.py` so a failed zone is collected rather than skipped, and the run reports every failure.
 - [x] 2.2 Change `cli/commands/capture.py` so the completion message is emitted only when no zone failed, and a partial run exits non-zero and states that the output is partial.
 - [x] 2.3 Add a regression test proving one failing zone makes the command exit non-zero and name that zone.
-- [ ] 2.4 Confirm a run with every zone valid produces output identical to the task 1.1 baseline.
+- [x] 2.4 Confirm a run with every zone valid produces output identical to the task 1.1 baseline. A live `capture run --zones Stowaway --force` exits 0 and writes the same 3072×2048 master and 129-tile pyramid. Two consecutive live captures differ in pixel values, because water, foliage, and the lighthouse beam animate, so a live master is not byte-stable. `capture tile` from the same master is byte-identical before and after the change.
 
 ## 3. A failed image comparison is not `unchanged`
 
@@ -59,7 +59,7 @@
 
 ## 10. Verification and documentation
 
-- [ ] 10.1 Run each affected pipeline end to end against valid inputs and confirm byte-identical output against the task 1.1 baseline.
+- [x] 10.1 Run each affected pipeline end to end against valid inputs and confirm byte-identical output against the task 1.1 baseline. Rip, wiki generate, image selection, and `capture tile` are byte-identical. Live capture is compared by shape only, as recorded in 2.4.
 - [x] 10.2 Run `uv run erenshor test ci` and compare against the task 1.2 result.
 - [x] 10.3 Document the failure rule where contributors will meet it, in present tense, describing the current behaviour only.
 - [x] 10.4 Run `openspec validate fail-loudly-on-partial-work --strict`.
