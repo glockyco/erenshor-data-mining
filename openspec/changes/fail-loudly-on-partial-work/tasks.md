@@ -46,7 +46,7 @@
 
 - [ ] 8.1 Change `application/mods/local_workflow.py` so several matching CrossOver installations raise and name every candidate, instead of warning and returning `None`.
 - [ ] 8.2 Change the unreadable-manifest path so it names the record instead of reporting absence.
-- [ ] 8.3 Preserve the subprocess cause in `cli/preconditions/checks/maps.py` rather than reporting a generic authentication failure.
+- [x] 8.3 Preserve the subprocess cause in `cli/preconditions/checks/maps.py` rather than reporting a generic authentication failure.
 - [ ] 8.4 Add tests for two matching bottles, an unreadable manifest, and no installation, asserting three distinct reports.
 
 ## 9. Precondition coverage

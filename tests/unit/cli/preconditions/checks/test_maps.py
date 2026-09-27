@@ -1,5 +1,6 @@
 """Unit tests for maps precondition checks."""
 
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -126,3 +127,47 @@ def test_cloudflare_auth_configured_fails_without_token_or_wrangler(
 
     assert result.passed is False
     assert "CLOUDFLARE_API_TOKEN" in result.detail
+
+
+def _whoami(monkeypatch: pytest.MonkeyPatch, returncode: int, stdout: str, stderr: str = "") -> list[list[str]]:
+    monkeypatch.delenv("CLOUDFLARE_API_TOKEN", raising=False)
+    monkeypatch.setattr(maps.shutil, "which", lambda name: f"/usr/bin/{name}")
+    calls: list[list[str]] = []
+
+    def run(args: list[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        calls.append(args)
+        return subprocess.CompletedProcess(args, returncode, stdout=stdout, stderr=stderr)
+
+    monkeypatch.setattr(maps.subprocess, "run", run)
+    return calls
+
+
+def test_cloudflare_auth_passes_for_a_logged_in_wrangler(monkeypatch: pytest.MonkeyPatch) -> None:
+    _whoami(monkeypatch, 0, '{\n    "loggedIn": true,\n    "authType": "OAuth Token"\n}')
+
+    assert maps.cloudflare_auth_configured({"maps_source_dir": Path("configured/maps")}).passed is True
+
+
+def test_cloudflare_auth_fails_for_an_anonymous_wrangler(monkeypatch: pytest.MonkeyPatch) -> None:
+    calls = _whoami(monkeypatch, 1, '{"loggedIn":false}')
+
+    result = maps.cloudflare_auth_configured({"maps_source_dir": Path("configured/maps")})
+
+    assert result.passed is False
+    assert "exited 1" in result.detail
+    assert calls == [["pnpm", "exec", "wrangler", "whoami", "--json"]]
+
+
+def test_cloudflare_auth_reports_why_wrangler_could_not_run(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("CLOUDFLARE_API_TOKEN", raising=False)
+    monkeypatch.setattr(maps.shutil, "which", lambda name: f"/usr/bin/{name}")
+
+    def timeout(*_args: object, **_kwargs: object) -> None:
+        raise subprocess.TimeoutExpired("wrangler whoami", 30)
+
+    monkeypatch.setattr(maps.subprocess, "run", timeout)
+
+    result = maps.cloudflare_auth_configured({"maps_source_dir": Path("configured/maps")})
+
+    assert result.passed is False
+    assert "timed out after 30 seconds" in result.detail
