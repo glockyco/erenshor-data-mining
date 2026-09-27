@@ -1,5 +1,8 @@
 # Planning Index
 
+Legacy planning records. New work is planned in `openspec/changes/`. A record
+here moves to an OpenSpec change when work on it starts.
+
 ## active
 
 - **Wiki Lua Migration & Cargo Data Architecture** [spec] `2026-06-04-wiki-cargo-data-architecture` ← 2026-07-09-erenshor-planning-overview

@@ -113,4 +113,4 @@ Parked: [`2026-06-27-map-annotations`](2026-06-27-map-annotations.md) and
 
 ## Navigation
 
-[`INDEX.md`](INDEX.md) is the generated complete planning tree.
+[`INDEX.md`](INDEX.md) lists every legacy planning record.
