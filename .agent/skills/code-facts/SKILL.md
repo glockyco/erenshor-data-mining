@@ -57,8 +57,9 @@ strings, so the build ID is the one precise, publicly verifiable identifier for
 a game version. It rides here because this command is the last pipeline step
 that touches the shipped game files before the clean build, and both values are
 carried into the clean DB verbatim, where the maps site reads them for its
-data-provenance footer. If the feed is unavailable or the build has aged out
-of its window, publication time stores NULL. Consumers omit the provenance
+data-provenance footer. The command fails when the manifest has no build ID or
+the feed cannot be fetched or parsed. If the build has only aged out of the
+feed window, publication time stores NULL. Consumers then omit the provenance
 rather than rendering a fabricated local timestamp.
 
 Failure meanings:
