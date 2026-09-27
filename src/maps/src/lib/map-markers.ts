@@ -76,7 +76,6 @@ export type SpawnCharacter = {
     sourceScript: string | null;
     eventPosition: { x: number; y: number; z: number } | null;
     encounterTier: EncounterTier;
-    isFriendly: boolean;
     isInvulnerable: boolean;
     isVendor: boolean;
     hasDialog: boolean;

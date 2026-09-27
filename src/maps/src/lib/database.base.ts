@@ -445,7 +445,7 @@ export class RepositoryBase {
                 rep.encounter_tier AS EncounterTier
             FROM rep_groups rg
             JOIN characters rep ON rep.stable_key = rg.rep_stable_key
-            WHERE rep.is_friendly = 0
+            WHERE rep.encounter_tier != 'npc'
               AND NOT EXISTS (
                   SELECT 1
                   FROM character_deduplications d
@@ -516,8 +516,7 @@ export class RepositoryBase {
                 MAX(cs.event_x)                   AS EventX,
                 MAX(cs.event_y)                   AS EventY,
                 MAX(cs.event_z)                   AS EventZ,
-                rep.encounter_tier              AS EncounterTier,
-                min(rep.is_friendly)            AS IsFriendly
+                rep.encounter_tier              AS EncounterTier
             FROM rep_groups rg
             JOIN characters rep ON rep.stable_key = rg.rep_stable_key
             JOIN character_deduplications d ON d.group_key = rg.group_key AND d.is_map_visible = 1
@@ -587,7 +586,6 @@ export class RepositoryBase {
                           }
                         : null,
                 encounterTier: row.EncounterTier as EncounterTier,
-                isFriendly: !!row.IsFriendly,
                 isInvulnerable: !!row.Invulnerable,
                 isVendor: !!row.IsVendor,
                 hasDialog: !!row.HasDialog
@@ -609,7 +607,7 @@ export class RepositoryBase {
             characters
         } of spawnPointMap.values()) {
             const movement = buildMovementData(wanderRange, loopPatrol, patrolPath);
-            const isNpc = characters.every((c) => c.isFriendly);
+            const isNpc = characters.every((c) => c.encounterTier === 'npc');
             if (isNpc) {
                 markers.push(
                     this.getNpcMarker(
@@ -1519,7 +1517,7 @@ export class RepositoryBase {
             SELECT MIN(c.level) as MinLevel, MAX(c.level) as MaxLevel
             FROM characters c
             WHERE c.stable_key IN (SELECT rep_stable_key FROM zone_reps)
-              AND c.is_friendly = 0
+              AND c.encounter_tier != 'npc'
             `,
             [zoneName]
         );
@@ -1558,7 +1556,6 @@ export class RepositoryBase {
             SELECT c.display_name AS NPCName, c.wiki_page_name AS WikiPageName, c.level AS Level
             FROM characters c
             WHERE c.stable_key IN (SELECT rep_stable_key FROM zone_reps)
-              AND c.is_friendly = 0
               AND c.encounter_tier = 'boss'
             ORDER BY c.level, c.display_name
             `,
@@ -1599,7 +1596,6 @@ export class RepositoryBase {
             SELECT c.display_name AS NPCName, c.wiki_page_name AS WikiPageName, c.level AS Level
             FROM characters c
             WHERE c.stable_key IN (SELECT rep_stable_key FROM zone_reps)
-              AND c.is_friendly = 0
               AND c.encounter_tier = 'elite'
             ORDER BY c.level, c.display_name
             `,

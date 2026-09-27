@@ -92,8 +92,7 @@ SELECT
     rep.has_dialog                  AS HasDialog,
     rep.invulnerable                AS Invulnerable,
     sum(cs.spawn_chance)            AS SpawnChance,
-    rep.encounter_tier              AS EncounterTier,
-    min(rep.is_friendly)            AS IsFriendly
+    rep.encounter_tier              AS EncounterTier
 FROM rep_groups rg
 JOIN characters rep ON rep.stable_key = rg.rep_stable_key
 JOIN character_deduplications d ON d.group_key = rg.group_key AND d.is_map_visible = 1

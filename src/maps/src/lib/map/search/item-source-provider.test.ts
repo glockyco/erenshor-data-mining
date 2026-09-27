@@ -47,7 +47,6 @@ function makeEnemy(
                 sourceScript: null,
                 eventPosition: null,
                 encounterTier: 'enemy',
-                isFriendly: false,
                 isInvulnerable: false,
                 isVendor: false,
                 hasDialog: false
@@ -78,7 +77,6 @@ function makeNpc(
                 sourceScript: null,
                 eventPosition: null,
                 encounterTier: 'npc',
-                isFriendly: true,
                 isInvulnerable: false,
                 isVendor: false,
                 hasDialog: false
