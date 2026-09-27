@@ -6,7 +6,6 @@ services:
       MYSQL_USER: wiki
       MYSQL_PASSWORD: wiki
       MYSQL_ROOT_PASSWORD: root
-    command: --default-authentication-plugin=mysql_native_password
     volumes:
       - type: ${WIKI_DB_MOUNT_TYPE:-bind}
         source: ${WIKI_DB_MOUNT_SOURCE:-./db}
