@@ -26,16 +26,16 @@ def required_path(key: str, relative: str = "", *, kind: Literal["file", "direct
     return check
 
 
-def program_available(program: str) -> PreconditionCheck:
-    """Require a named executable on PATH before starting external work."""
+def program_available(program: str, *, extra_dirs: tuple[Path, ...] = ()) -> PreconditionCheck:
+    """Require a named executable before starting external work."""
 
     def check(context: dict[str, Any]) -> PreconditionResult:
-        if shutil.which(program) is None:
+        if shutil.which(program) is None and not any((directory / program).is_file() for directory in extra_dirs):
             return PreconditionResult(
                 False,
                 f"program_{program}",
                 f"{program} not found on PATH",
-                f"The Nix development shell provides {program}.",
+                f"Install {program} in the Nix development shell or add its tool directory to PATH.",
             )
         return PreconditionResult(True, f"program_{program}", f"{program} is available")
 

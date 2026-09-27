@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import io
+import os
 import stat
 import subprocess
 import zipfile
@@ -21,6 +22,7 @@ from erenshor.application.mods.artifacts import REQUIRED_DLLS, ArtifactIssue, Mo
 from erenshor.application.mods.catalog import artifact_specs, iter_mods, lookup_mod, public_mods
 from erenshor.application.process_session import ProcessIdentity
 from erenshor.cli.commands import mod as mod_command
+from erenshor.cli.context import CLIContext
 
 _DISCOVER_CROSSOVER_GAME_PATH = local_workflow.discover_crossover_game_path
 
@@ -45,6 +47,18 @@ def _ctx(
         name: SimpleNamespace(
             app_id=app_ids.get(name, "0"),
             resolved_game_files=lambda _root, path=path: path,
+            resolved_unity_project=lambda _root, path=path: path / "unity",
+            resolved_database=lambda _root, path=path: path / "clean.sqlite",
+            resolved_database_raw=lambda _root, path=path: path / "raw.sqlite",
+            resolved_logs=lambda _root, path=path: path / "logs",
+            resolved_backups=lambda _root, path=path: path / "backups",
+            resolved_editor_scripts=lambda _root, path=path: path / "editor",
+            resolved_wiki=lambda _root, path=path: path / "wiki",
+            maps=SimpleNamespace(
+                resolved_source_dir=lambda _root, path=path: path / "maps",
+                resolved_build_dir=lambda _root, path=path: path / "maps/build",
+                resolved_database_dir=lambda _root, path=path: path / "maps/db",
+            ),
             resolved_game_install=lambda _root, path=installs.get(name): path,
         )
         for name, path in paths.items()
@@ -58,7 +72,7 @@ def _ctx(
         variants=variants,
         global_=SimpleNamespace(mods=mods_config),
     )
-    cli_ctx = SimpleNamespace(config=config, variant=variant, repo_root=tmp_path)
+    cli_ctx = CLIContext(config=config, variant=variant, repo_root=tmp_path, dry_run=False)
     return SimpleNamespace(obj=cli_ctx)
 
 
@@ -507,6 +521,9 @@ def test_deploy_routes_explicit_loader_output(tmp_path: Path, monkeypatch: pytes
     output = local_workflow.mod_output_dir(ctx, "sprint", "bepinex")
     output.mkdir(parents=True)
     (output / "Sprint.dll").write_bytes(b"bepinex")
+    reference = tmp_path / _mod("sprint").directory / "lib/Assembly-CSharp.dll"
+    reference.parent.mkdir(parents=True)
+    reference.write_bytes(b"reference")
     calls: list[str] = []
     monkeypatch.setattr(local_workflow, "get_game_path", lambda _ctx: game)
     monkeypatch.setattr(
@@ -535,6 +552,9 @@ def test_bepinex_deploy_uses_thunderstore_runtime_layout(tmp_path: Path, monkeyp
     output.mkdir(parents=True)
     (output / "AdventureGuide.dll").write_bytes(b"plugin")
     (output / "ImGui.NET.dll").write_bytes(b"imgui")
+    reference = mod_dir / "lib/Assembly-CSharp.dll"
+    reference.parent.mkdir(parents=True)
+    reference.write_bytes(b"reference")
     thunderstore = mod_dir / "thunderstore"
     thunderstore.mkdir()
     (thunderstore / "icon.png").write_bytes(b"icon")
@@ -734,6 +754,12 @@ def _prepare_thunderstore_command(
     list[tuple[list[str], dict[str, Any]]],
 ]:
     ctx = _ctx(tmp_path).obj
+    tools = tmp_path / "tools"
+    tools.mkdir()
+    tcli = tools / "tcli"
+    tcli.write_text("#!/bin/sh\nexit 0\n")
+    tcli.chmod(0o755)
+    monkeypatch.setenv("PATH", f"{tools}{os.pathsep}{os.environ['PATH']}")
     manifests: dict[str, Any] = {}
     for mod_id in mod_ids:
         _mod_dir, manifest_path, _source = _thunderstore_fixture(tmp_path, mod_id)
@@ -1369,6 +1395,7 @@ def test_setup_can_provision_one_bepinex_target_without_lunaris(tmp_path: Path) 
     managed.mkdir(parents=True)
     for dll_name in REQUIRED_DLLS:
         (managed / dll_name).write_bytes(b"game")
+
     bepinex_core = game / "BepInEx" / "core"
     bepinex_core.mkdir(parents=True)
     (bepinex_core / "0Harmony.dll").write_bytes(b"bepinex harmony")
@@ -1381,6 +1408,28 @@ def test_setup_can_provision_one_bepinex_target_without_lunaris(tmp_path: Path) 
     assert (lib_dir / "bepinex" / "0Harmony.dll").read_bytes() == b"bepinex harmony"
     assert not (lib_dir / "lunaris").exists()
     assert not (tmp_path / _mod("sprint").directory / "lib").exists()
+
+
+def test_dev_setup_network_failure_does_not_report_completion(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    game = tmp_path / "game"
+    (game / "BepInEx").mkdir(parents=True)
+    ctx = _ctx(tmp_path)
+    ctx.obj.config.global_.bepinex_dev_tools = SimpleNamespace(
+        script_engine_url="https://invalid.example/ScriptEngine.zip",
+        config_manager_url="https://invalid.example/ConfigurationManager.zip",
+    )
+    monkeypatch.setattr(local_workflow, "get_game_path", lambda _ctx: game)
+    monkeypatch.setattr(mod_command, "urlopen", lambda *_args, **_kwargs: (_ for _ in ()).throw(URLError("offline")))
+
+    with pytest.raises(typer.Exit) as error:
+        mod_command.dev_setup(ctx)
+
+    assert error.value.exit_code == 1
+    output = capsys.readouterr().out
+    assert "ScriptEngine" in output and "offline" in output
+    assert "Dev setup complete" not in output
 
 
 def test_lunaris_shared_lib_sourced_only_from_resolved_lib_dir(tmp_path: Path) -> None:

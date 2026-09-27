@@ -10,12 +10,19 @@ import pytest
 import typer
 
 from erenshor.cli.commands import images
+from erenshor.cli.commands import mod as mod_command
 from erenshor.cli.preconditions.checks.capture import capture_config, captured_masters
 from erenshor.cli.preconditions.checks.inputs import (
     game_installation,
     program_available,
     required_path,
     wiki_credentials,
+)
+from erenshor.cli.preconditions.checks.mod import (
+    dev_tools_configured,
+    launch_installation,
+    mod_references,
+    mod_setup_source,
 )
 
 
@@ -102,3 +109,60 @@ def test_images_process_rejects_missing_textures_before_legacy_migration(
     assert "Texture2D" in capsys.readouterr().out
     assert legacy.is_dir()
     assert not (legacy.parent / "current").exists()
+
+
+def test_mod_setup_source_names_missing_managed_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    game = tmp_path / "game"
+    monkeypatch.setattr("erenshor.application.mods.local_workflow.get_game_path", lambda *_args, **_kwargs: game)
+    context = {"cli_ctx": object(), "variant": "main", "mod": "sprint", "loader": "lunaris"}
+    assert not mod_setup_source(context).passed
+    assert str(game / "Erenshor_Data/Managed") in str(mod_setup_source(context))
+    (game / "Erenshor_Data/Managed").mkdir(parents=True)
+    from erenshor.application.mods.artifacts import REQUIRED_DLLS
+
+    for name in REQUIRED_DLLS:
+        (game / "Erenshor_Data/Managed" / name).write_bytes(b"reference")
+    assert mod_setup_source(context).passed
+
+
+def test_mod_references_require_selected_build_inputs(tmp_path: Path) -> None:
+    context = {"cli_ctx": SimpleNamespace(repo_root=tmp_path), "mod": "sprint", "loader": "bepinex"}
+    assert not mod_references(context).passed
+    assert str(tmp_path / "src/mods/Sprint") in str(mod_references(context))
+    mod_dir = tmp_path / "src/mods/Sprint/lib"
+    mod_dir.mkdir(parents=True)
+    (mod_dir / "Assembly-CSharp.dll").write_bytes(b"reference")
+    assert mod_references(context).passed
+
+
+def test_dev_tools_preflight_refuses_missing_config_before_creating_dirs(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    game = tmp_path / "game"
+    (game / "BepInEx").mkdir(parents=True)
+    monkeypatch.setattr("erenshor.application.mods.local_workflow.get_game_path", lambda _ctx: game)
+    config = SimpleNamespace(global_=SimpleNamespace(bepinex_dev_tools=None))
+    context = {"cli_ctx": object(), "variant": "main", "config": config}
+    assert not dev_tools_configured(context).passed
+    assert "bepinex_dev_tools" in str(dev_tools_configured(context))
+    config.global_.bepinex_dev_tools = object()
+    assert dev_tools_configured(context).passed
+
+
+def test_launch_inspection_skips_installation_only_when_not_launching(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("erenshor.application.mods.local_workflow.get_game_path", lambda _ctx: None)
+    context = {"cli_ctx": object(), "variant": "demo", "recover": False, "inspect_pid": None}
+    assert not launch_installation(context).passed
+    assert "demo" in str(launch_installation(context))
+    context["recover"] = True
+    assert launch_installation(context).passed
+
+
+def test_mod_build_stops_before_compiler_when_references_missing(
+    cli_context: object, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setattr(mod_command.local_workflow, "build_mods", Mock(side_effect=AssertionError("build started")))
+    with pytest.raises(typer.Exit) as error:
+        mod_command.build(SimpleNamespace(obj=cli_context), mod="unknown", loader="bepinex")
+    assert error.value.exit_code == 1
+    assert "unknown" in capsys.readouterr().out

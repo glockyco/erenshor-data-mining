@@ -53,7 +53,7 @@
 
 - [ ] 9.1 Write down the rule that decides which commands declare preconditions, and list the commands that mutate state outside the process.
 - [x] 9.2 Add declarations to the `capture` and `images` command groups. Run the suite.
-- [ ] 9.3 Add declarations to the `mod` command group, including build, deploy, activate, release, and launch. Run the suite.
+- [x] 9.3 Add declarations to the `mod` command group, including build, deploy, activate, release, and launch. Run the suite.
 - [ ] 9.4 Add declarations to the remaining `maps`, `wiki`, `guide`, `eval`, and `extract` commands that mutate state. Run the suite.
 - [ ] 9.5 Record which commands were deliberately left undeclared because they only read, so the omissions are intentional and reviewable.
 
