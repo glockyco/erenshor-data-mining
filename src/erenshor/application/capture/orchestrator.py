@@ -12,6 +12,7 @@ from .constants import TILE_SIZE
 from .state import CaptureState, _sha256
 from .stitcher import stitch_chunks
 from .tile_generator import generate_tile_pyramid
+from .zone_config import capture_variants
 
 WS_PORT = 18586
 MAX_CHUNK_PX = 4096
@@ -106,7 +107,7 @@ class CaptureOrchestrator:
 
         for zone_key in zones:
             zc = self.config[zone_key]
-            zone_variants = variants or zc.get("captureVariants", ["open"])
+            zone_variants = variants or capture_variants(zone_key, zc)
 
             for variant in zone_variants:
                 master_path = master_dir / f"{zone_key}_{variant}.png"

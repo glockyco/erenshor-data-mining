@@ -3,6 +3,8 @@ from __future__ import annotations
 import math
 from typing import Any
 
+from .zone_config import capture_variants
+
 
 def estimate_tile_count(config: dict[str, Any]) -> dict[str, dict[str, int]]:
     """Estimate the total tile count per zone and a grand total.
@@ -17,7 +19,7 @@ def estimate_tile_count(config: dict[str, Any]) -> dict[str, dict[str, int]]:
         base_x: int = zc["baseTilesX"]
         base_y: int = zc["baseTilesY"]
         max_zoom: int = zc["maxZoom"]
-        variants: list[str] = zc.get("captureVariants", ["open"])
+        variants = capture_variants(zone_key, zc)
 
         if max(base_x, base_y) > 1:
             min_zoom = -math.ceil(math.log2(max(base_x, base_y)))

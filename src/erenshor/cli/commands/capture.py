@@ -121,7 +121,12 @@ def tile(
     """
     from erenshor.application.capture.state import CaptureState
     from erenshor.application.capture.tile_generator import generate_tile_pyramid
-    from erenshor.application.capture.zone_config import CONFIG_RELATIVE_PATH, get_zone_keys, load_zone_config
+    from erenshor.application.capture.zone_config import (
+        CONFIG_RELATIVE_PATH,
+        capture_variants,
+        get_zone_keys,
+        load_zone_config,
+    )
 
     cli_ctx: CLIContext = ctx.obj
     maps_source_dir = cli_ctx.config.variants[cli_ctx.variant].maps.resolved_source_dir(cli_ctx.repo_root)
@@ -139,7 +144,7 @@ def tile(
     failures: list[str] = []
     for zone_key in selected:
         zone_cfg = config[zone_key]
-        for variant in zone_cfg.get("captureVariants", ["clear"]):
+        for variant in capture_variants(zone_key, zone_cfg):
             variant_state = state.get_variant_state(zone_key, variant)
             if not variant_state or not variant_state.get("masterPath"):
                 failures.append(f"{zone_key}/{variant}: no captured master in the capture state")
