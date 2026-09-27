@@ -374,6 +374,68 @@ def test_crossover_discovery_uses_selected_steam_app(
     assert _DISCOVER_CROSSOVER_GAME_PATH(app_id) == game
 
 
+def _bottle(bottles: Path, name: str, app_id: str, manifest_text: str | None) -> Path:
+    steamapps = bottles / name / "drive_c/Program Files (x86)/Steam/steamapps"
+    game = steamapps / "common" / "Erenshor"
+    (game / "Erenshor_Data" / "Managed").mkdir(parents=True)
+    if manifest_text is not None:
+        (steamapps / f"appmanifest_{app_id}.acf").write_text(manifest_text)
+    return game
+
+
+def _discover_in(bottles: Path, monkeypatch: pytest.MonkeyPatch) -> Path | None:
+    monkeypatch.setattr(local_workflow, "CROSSOVER_BOTTLES_ROOT", bottles)
+    monkeypatch.setattr(local_workflow.sys, "platform", "darwin")
+    monkeypatch.delenv("CROSSOVER_BOTTLE", raising=False)
+    return _DISCOVER_CROSSOVER_GAME_PATH("2382520")
+
+
+def test_discovery_names_every_bottle_when_several_hold_the_game(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    manifest = '"AppState"\n{\n\t"installdir"\t\t"Erenshor"\n}\n'
+    first = _bottle(tmp_path / "Bottles", "Steam", "2382520", manifest)
+    second = _bottle(tmp_path / "Bottles", "Steam Copy", "2382520", manifest)
+
+    with pytest.raises(local_workflow.GameInstallationError, match="several CrossOver bottles") as error:
+        _discover_in(tmp_path / "Bottles", monkeypatch)
+
+    assert str(first) in str(error.value)
+    assert str(second) in str(error.value)
+
+
+def test_discovery_names_an_unusable_app_manifest(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    _bottle(tmp_path / "Bottles", "Steam", "2382520", '"AppState"\n{\n}\n')
+
+    with pytest.raises(local_workflow.GameInstallationError, match=r"appmanifest_2382520\.acf"):
+        _discover_in(tmp_path / "Bottles", monkeypatch)
+
+
+def test_discovery_reports_absence_when_no_bottle_holds_the_game(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _bottle(tmp_path / "Bottles", "Steam", "2382520", None)
+
+    assert _discover_in(tmp_path / "Bottles", monkeypatch) is None
+
+
+def test_mod_command_prints_the_ambiguity_instead_of_absence(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    def ambiguous(_app_id: str) -> Path:
+        raise local_workflow.GameInstallationError("Steam app 2382520 is installed in several CrossOver bottles")
+
+    monkeypatch.setattr(local_workflow, "discover_crossover_game_path", ambiguous)
+    monkeypatch.delenv("ERENSHOR_GAME_PATH", raising=False)
+
+    with pytest.raises(typer.Exit):
+        mod_command.status(_ctx(tmp_path))
+
+    output = capsys.readouterr().out
+    assert "several CrossOver bottles" in output
+    assert "not found" not in output
+
+
 def test_game_path_environment_override_has_precedence(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     configured = tmp_path / "playtest"
     (configured / "Erenshor_Data" / "Managed").mkdir(parents=True)

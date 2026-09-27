@@ -116,22 +116,31 @@ class LaunchPlan:
     crossover_bottle: str | None
 
 
-def _read_steam_install_dir(manifest: Path) -> str | None:
+class GameInstallationError(ValueError):
+    """Raised when discovery cannot determine the game installation."""
+
+
+def _read_steam_install_dir(manifest: Path) -> str:
     try:
         lines = manifest.read_text(encoding="utf-8").splitlines()
-    except OSError as exc:
-        logger.debug(f"Could not read Steam manifest {manifest}: {exc}")
-        return None
+    except (OSError, UnicodeDecodeError) as exc:
+        raise GameInstallationError(f"Cannot read Steam app manifest {manifest}: {exc}") from exc
     for line in lines:
         if '"installdir"' not in line:
             continue
         parts = line.split('"')
         if len(parts) >= 4 and parts[3]:
             return parts[3]
-    return None
+    raise GameInstallationError(f"Steam app manifest has no installdir: {manifest}")
 
 
 def discover_crossover_game_path(app_id: str) -> Path | None:
+    """Find the CrossOver installation of Steam app ``app_id``.
+
+    Returns None when no bottle has the app installed. Raises when a bottle's
+    app manifest cannot be read, or when several bottles have the app, because
+    each of those needs a different fix than a missing installation.
+    """
     if sys.platform != "darwin":
         return None
     bottle_name = os.environ.get("CROSSOVER_BOTTLE")
@@ -145,19 +154,18 @@ def discover_crossover_game_path(app_id: str) -> Path | None:
     for bottle_dir in bottle_dirs:
         steamapps = bottle_dir / "drive_c/Program Files (x86)/Steam/steamapps"
         manifest = steamapps / f"appmanifest_{app_id}.acf"
-        install_dir = _read_steam_install_dir(manifest) if manifest.is_file() else None
-        if install_dir:
-            candidate = steamapps / "common" / install_dir
-            if (candidate / "Erenshor_Data" / "Managed").is_dir():
-                matches.append(candidate)
-    if len(matches) == 1:
-        return matches[0]
+        if not manifest.is_file():
+            continue
+        candidate = steamapps / "common" / _read_steam_install_dir(manifest)
+        if (candidate / "Erenshor_Data" / "Managed").is_dir():
+            matches.append(candidate)
     if len(matches) > 1:
-        logger.warning(
-            f"Steam app {app_id} is installed in multiple CrossOver bottles; "
-            "set CROSSOVER_BOTTLE or the variant's game_install"
+        joined = "\n  ".join(str(match) for match in matches)
+        raise GameInstallationError(
+            f"Steam app {app_id} is installed in several CrossOver bottles:\n  {joined}\n"
+            "Set CROSSOVER_BOTTLE to the bottle to use."
         )
-    return None
+    return matches[0] if matches else None
 
 
 def crossover_bottle_for_path(game_path: Path) -> str | None:
@@ -756,6 +764,7 @@ __all__ = [
     "DeployPlan",
     "DeployResult",
     "DeploySelection",
+    "GameInstallationError",
     "LaunchPlan",
     "SetupResult",
     "activate_loader",

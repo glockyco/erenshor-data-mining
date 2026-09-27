@@ -54,6 +54,20 @@ LOADER_PROXY_CANDIDATES: dict[LoaderName, tuple[str, ...]] = {
 }
 
 
+def _require_game_path(cli_ctx: CLIContext) -> Path:
+    """Return the selected variant's game installation or exit with the reason."""
+    try:
+        game_path = local_workflow.get_game_path(cli_ctx)
+    except local_workflow.GameInstallationError as exc:
+        console.print(f"[red]Error: {exc}[/red]")
+        raise typer.Exit(1) from exc
+    if game_path is None:
+        console.print(f"[red]Error: game installation not found for variant {cli_ctx.variant!r}[/red]")
+        console.print("Install the selected Steam app or set [variants.<name>] game_install.")
+        raise typer.Exit(1)
+    return game_path
+
+
 @app.command()
 def setup(
     ctx: typer.Context,
@@ -98,11 +112,7 @@ def dev_setup(ctx: typer.Context) -> None:
     console.print(Panel.fit("[bold cyan]Mod Dev Setup[/bold cyan]", border_style="cyan"))
     console.print()
 
-    game_path = local_workflow.get_game_path(cli_ctx)
-    if not game_path:
-        console.print(f"[red]Error: game installation not found for variant {cli_ctx.variant!r}[/red]")
-        console.print("Install the selected Steam app or set [variants.<name>] game_install.")
-        raise typer.Exit(1)
+    game_path = _require_game_path(cli_ctx)
 
     bepinex_dir = game_path / "BepInEx"
     if not bepinex_dir.exists():
@@ -200,10 +210,7 @@ def build(
 def status(ctx: typer.Context) -> None:
     """Show native loader availability and the active loader for one variant."""
     cli_ctx: CLIContext = ctx.obj
-    game_path = local_workflow.get_game_path(cli_ctx)
-    if game_path is None:
-        console.print(f"[red]Error: game installation not found for variant {cli_ctx.variant!r}[/red]")
-        raise typer.Exit(1)
+    game_path = _require_game_path(cli_ctx)
     console.print()
     console.print(Panel.fit("[bold cyan]Mod Loader Status[/bold cyan]", border_style="cyan"))
     console.print(f"[dim]Variant: {cli_ctx.variant}[/dim]")
@@ -230,10 +237,7 @@ def activate(
 ) -> None:
     """Activate BepInEx or Lunaris for the selected game variant."""
     cli_ctx: CLIContext = ctx.obj
-    game_path = local_workflow.get_game_path(cli_ctx)
-    if game_path is None:
-        console.print(f"[red]Error: game installation not found for variant {cli_ctx.variant!r}[/red]")
-        raise typer.Exit(1)
+    game_path = _require_game_path(cli_ctx)
     console.print()
     console.print(Panel.fit("[bold cyan]Activate Mod Loader[/bold cyan]", border_style="cyan"))
     console.print(f"[dim]Variant: {cli_ctx.variant}[/dim]")
@@ -270,10 +274,7 @@ def deploy(
 ) -> None:
     """Build and deploy mods to an explicit loader directory."""
     cli_ctx: CLIContext = ctx.obj
-    game_path = local_workflow.get_game_path(cli_ctx)
-    if game_path is None:
-        console.print(f"[red]Error: game installation not found for variant {cli_ctx.variant!r}[/red]")
-        raise typer.Exit(1)
+    game_path = _require_game_path(cli_ctx)
     console.print()
     console.print(Panel.fit("[bold cyan]Mod Deploy[/bold cyan]", border_style="cyan"))
     console.print(f"[dim]Variant: {cli_ctx.variant}[/dim]")
