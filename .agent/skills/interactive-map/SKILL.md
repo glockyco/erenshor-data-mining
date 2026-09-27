@@ -54,9 +54,9 @@ services back together fails the suite rather than production.
 - `maps thumbnails` requires a running `maps dev` or `maps preview` server and a local Playwright Chromium installation (`pnpm exec playwright install chromium`, once per machine). Pass the actual server URL with `--url`; use `maps dev` when generating thumbnails from variant data.
 - `+page.server.ts` has `export const prerender = true` and delegates to the
   server-only world-data builder — server code also runs during `uv run erenshor maps build` (stdout visible in build output)
-- Enemy markers split into three arrays: `data.markers.enemiesCommon/Rare/Unique`
+- Enemy markers split into three arrays by encounter tier: `data.markers.enemiesEnemy/Elite/Boss`
 - NPC markers: `data.markers.npcs`
-- Bucket assignment: `isNpc = characters.every(c => c.isFriendly)`; else enemy sorted by `isUnique`/`isRare`
+- Bucket assignment: `isNpc = characters.every(c => c.encounterTier === 'npc')`; else the marker takes the most notable tier of its characters (boss, then elite, then enemy). The tier comes from `characters.encounter_tier` in the clean DB; see `docs/architecture.md`
 - Level filter: `DataFilterExtension` with `getFilterValue: d => [d.levelMin, d.levelMax]`
 
 ## window.__mapDebug hook
@@ -69,7 +69,7 @@ window.__mapDebug.findNpc('Name')    // → WorldNpc[]
 window.__mapDebug.markers            // → all marker arrays
 window.__mapDebug.levelFilter        // → [min, max] current slider state
 window.__mapDebug.levelRange         // → {min, max} overall range
-window.__mapDebug.layerVisibility    // → {spawnPoints, spawnPointsRare, ...}
+window.__mapDebug.layerVisibility    // → {spawnPoints, spawnPointsElite, spawnPointsBoss, ...}
 ```
 
 ## Playwright debug loop
@@ -92,7 +92,7 @@ const result = await page.evaluate(() => {
         levelFilter: d.levelFilter,
         enemies: d.findEnemy('Evadne the Corrupted').map(m => ({
             stableKey: m.stableKey, isEnabled: m.isEnabled,
-            isUnique: m.isUnique, levelMin: m.levelMin, levelMax: m.levelMax,
+            encounterTier: m.encounterTier, levelMin: m.levelMin, levelMax: m.levelMax,
         })),
     };
 });
@@ -118,17 +118,17 @@ Run with: `node src/maps/debug-markers.js`
 - `cs.spawn_chance > 0 OR cs.source_script IS NOT NULL` filters zero-chance entries
   that no script spawns
 - only `character_deduplications` rows with `is_map_visible = 1` produce markers
-- `isNpc = characters.every(c => c.isFriendly)` — a single `IsFriendly=1`
-  character at a spawn point makes it an NPC marker
+- `isNpc = characters.every(c => c.encounterTier === 'npc')` — a single
+  hostile character at a spawn point makes it an enemy marker
 
 **Marker present but invisible** → check:
-1. `layerVisibility.spawnPoints/spawnPointsRare/spawnPointsUnique` — layer toggled off
+1. `layerVisibility.spawnPoints/spawnPointsElite/spawnPointsBoss` — layer toggled off
 2. Level filter: `levelMin`/`levelMax` must overlap with `levelFilter`
    - `±Infinity` does NOT work as "always pass" in GLSL — `step(Infinity, finiteMax) = 0`
    - Invulnerable-only markers get `levelMax` clamped to `enemyLevelMax` so they always pass
 
-**Marker visible but wrong icon** → `getEnemyIconType` uses `isUnique`/`isRare` on
-`EnemyMarker` (marker-level flags), not `effectiveRarity` on `SpawnCharacter`
+**Marker visible but wrong icon** → `getEnemyIconType` uses the marker-level
+`encounterTier`, which is the most notable tier among the marker's characters
 
 **Level slider range distorted** → level-range calculation in
 `map-world-data.server.ts` skips markers where all characters are invulnerable;
@@ -140,8 +140,8 @@ check the `hasVulnerable` guard
 # All data for a character's spawns
 sqlite3 variants/main/erenshor-main.sqlite "
 SELECT cs.spawn_point_stable_key, cs.is_enabled, cs.scene,
-       c.display_name, c.level, c.is_friendly, c.invulnerable,
-       c.is_common, c.is_rare, c.is_unique, cs.spawn_chance, cs.source_script
+       c.display_name, c.level, c.encounter_tier, c.invulnerable,
+       cs.is_rare, cs.spawn_chance, cs.source_script
 FROM map_character_spawns cs
 JOIN characters c ON c.stable_key = cs.character_stable_key
 WHERE c.display_name = 'Evadne the Corrupted';"
