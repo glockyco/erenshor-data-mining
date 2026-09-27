@@ -194,6 +194,7 @@
                 touchRotate: true, // Keep touch rotation enabled
                 shiftKeyRotate: true, // Enable shift+drag rotation
                 bearingSnap: 0, // Disable snapping to allow free rotation
+                inertia: false, // A pan stops where the drag ends
                 zoomControl: false // Disable default zoom control (we'll add it back in the right order)
             });
 

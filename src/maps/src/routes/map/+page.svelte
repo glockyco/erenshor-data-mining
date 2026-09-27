@@ -1252,7 +1252,8 @@
                     minZoom: INITIAL_VIEW_STATE.minZoom,
                     maxZoom: INITIAL_VIEW_STATE.maxZoom
                 },
-                controller: { inertia: 500 },
+                // A pan stops where the drag ends. Inertia would carry a touch swipe past that point.
+                controller: { inertia: false },
                 layers,
                 onAfterRender: () => scheduleScaleBarUpdate(0),
                 getCursor: ({
