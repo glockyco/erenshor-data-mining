@@ -9,6 +9,7 @@ This module provides commands for managing the data extraction pipeline:
 from __future__ import annotations
 
 import json
+import sqlite3
 import subprocess
 from collections.abc import Iterator
 from contextlib import contextmanager
@@ -25,6 +26,7 @@ from erenshor.application.extract.clean_database_workflow import (
     CleanDatabaseRequest,
     CleanDatabaseWorkflow,
 )
+from erenshor.application.extract.database_comparison import diff_databases, recorded_build_id, render_report
 from erenshor.application.extract.editor_packages import (
     PackageRestoreError,
     read_packages_config,
@@ -36,10 +38,9 @@ from erenshor.application.extract.export_workflow import (
     adapter_exit_code,
 )
 from erenshor.application.extract.rip_workflow import RipRequest, RipWorkflow
-from erenshor.application.extract.variant_comparison import generate_report, recorded_build_id
 from erenshor.application.services.backup_service import BackupError, BackupService
 from erenshor.cli.preconditions import require_preconditions
-from erenshor.cli.preconditions.checks.database import raw_database_exists
+from erenshor.cli.preconditions.checks.database import database_exists, raw_database_exists
 from erenshor.cli.preconditions.checks.extract import comparison_databases, ide_sources
 from erenshor.cli.preconditions.checks.field_coverage import export_field_coverage_current
 from erenshor.cli.preconditions.checks.inputs import game_installation, required_path
@@ -242,19 +243,63 @@ def compare_variants(
         "--print",
         help="Print the report to stdout when --output is also supplied",
     ),
+    limit: int = typer.Option(50, "--limit", min=0, help="Rows listed per table and category (0 lists all)"),
 ) -> None:
-    """Compare the clean databases for two configured game variants."""
+    """Compare the clean databases of two configured game variants table by table."""
     cli_ctx: CLIContext = ctx.obj
     variants = cli_ctx.config.variants
     base_db = variants[base_variant].resolved_database(cli_ctx.repo_root)
     new_db = variants[new_variant].resolved_database(cli_ctx.repo_root)
 
     try:
-        report = generate_report(base_variant, new_variant, base_db, new_db, output_path=output)
-    except ValueError as error:
+        old_label = f"{base_variant} (build {recorded_build_id(base_db)})"
+        new_label = f"{new_variant} (build {recorded_build_id(new_db)})"
+        report = render_report(diff_databases(base_db, new_db), old_label, new_label, limit=limit)
+    except (ValueError, sqlite3.Error) as error:
         typer.echo(f"Error: {error}", err=True)
         raise typer.Exit(1) from error
+    _emit_report(report, output, print_report)
+
+
+@app.command("changes")
+@require_preconditions(database_exists)
+def changes(
+    ctx: typer.Context,
+    since: str | None = typer.Option(
+        None,
+        "--since",
+        help="Backed-up build to compare against (default: the newest earlier build)",
+    ),
+    output: Path | None = typer.Option(None, "--output", "-o", help="Write the report to this Markdown file"),
+    print_report: bool = typer.Option(
+        False, "--print", help="Print the report to stdout when --output is also supplied"
+    ),
+    limit: int = typer.Option(50, "--limit", min=0, help="Rows listed per table and category (0 lists all)"),
+) -> None:
+    """Report what changed in the clean database since an earlier game build."""
+    cli_ctx: CLIContext = ctx.obj
+    variant_config = cli_ctx.config.variants[cli_ctx.variant]
+    current_db = variant_config.resolved_database(cli_ctx.repo_root)
+    try:
+        current_build = recorded_build_id(current_db)
+        old_build, old_db = BackupService().baseline_clean_database(
+            variant_config.resolved_backups(cli_ctx.repo_root), current_build, since
+        )
+        report = render_report(
+            diff_databases(old_db, current_db),
+            f"{cli_ctx.variant} build {old_build}",
+            f"{cli_ctx.variant} build {current_build}",
+            limit=limit,
+        )
+    except (BackupError, ValueError, sqlite3.Error) as error:
+        typer.echo(f"Error: {error}", err=True)
+        raise typer.Exit(1) from error
+    _emit_report(report, output, print_report)
+
+
+def _emit_report(report: str, output: Path | None, print_report: bool) -> None:
     if output is not None:
+        output.write_text(report, encoding="utf-8")
         typer.echo(f"Report written to: {output}")
     if output is None or print_report:
         typer.echo(report, nl=False)

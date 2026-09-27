@@ -91,7 +91,7 @@ State-changing commands with declarations:
 
 - `capture run`, `capture tile`
 - `images process`, `images compare`, `images report --output`, `images upload`
-- `extract compare-variants --output`, `extract packages`, `extract rip`,
+- `extract compare-variants --output`, `extract changes --output`, `extract packages`, `extract rip`,
   `extract export`, `extract build`, `extract code-facts`, `extract ide-setup`
 - `golden capture`
 - `guide compile`, `guide export-mod`
@@ -110,7 +110,7 @@ State-changing commands with declarations:
 The following commands deliberately have no declaration because they only
 read and report state: `backup list`, `capture status`, `capture budget`,
 `eval ping`, `eval complete`, `extract profile report`, `mod status`, and
-`sheets list`. `extract compare-variants`, `images report`,
+`sheets list`. `extract compare-variants`, `extract changes`, `images report`,
 `wiki audit-links`, and `wiki review-overrides` only read when no output
 is requested, but retain declarations for their output mode.
 `mod launch --inspect-pid` only reads, but shares the declaration with launch.

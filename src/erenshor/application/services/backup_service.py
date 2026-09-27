@@ -361,6 +361,40 @@ class BackupService:
         logger.info(f"Clean database added to backup: {final_backup_path}")
         return final_backup_path / "database" / clean_database_path.name
 
+    def baseline_clean_database(
+        self, backup_dir: Path, current_build: str, since: str | None = None
+    ) -> tuple[str, Path]:
+        """Return the build and clean database to compare the current build with.
+
+        Args:
+            backup_dir: Base backup directory of the variant.
+            current_build: Build that the current clean database records.
+            since: Backed-up build to use. Without it, the newest backed-up
+                build other than ``current_build`` is used.
+
+        Raises:
+            BackupError: If the selected build has no backup or its backup
+                holds no clean database, or no earlier build is backed up.
+        """
+        if since is None:
+            earlier = sorted(
+                (backup for backup in self.list_backups(backup_dir) if backup.build_id != current_build),
+                key=lambda backup: int(backup.build_id) if backup.build_id.isdecimal() else -1,
+            )
+            if not earlier:
+                raise BackupError(f"No earlier build is backed up in {backup_dir}. Current build: {current_build}.")
+            since = earlier[-1].build_id
+        backup_path = backup_dir / f"build-{since}"
+        if not backup_path.is_dir():
+            raise BackupError(f"No backup for build {since} at {backup_path}")
+        metadata = self._read_metadata(backup_path)
+        if metadata.clean_database_path is None:
+            raise BackupError(
+                f"Backup {backup_path} holds no clean database. Build {since} has to be extracted "
+                "and built again with 'erenshor extract build' to compare against it."
+            )
+        return since, backup_path / "database" / metadata.clean_database_path
+
     @staticmethod
     def _read_metadata(backup_path: Path) -> BackupMetadata:
         metadata_path = backup_path / "metadata.json"

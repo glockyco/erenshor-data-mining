@@ -31,7 +31,7 @@ It finds the variant's installation by its Steam app ID, reports whether the Uni
 
 ## Canonical order
 
-`packages → rip → export → code-facts → build → validate → republish`. Each gate must pass before the next.
+`packages → rip → export → code-facts → build → review changes → validate → republish`. Each gate must pass before the next.
 
 ### 0. Restore the Editor's NuGet dependencies
 `erenshor extract packages` — writes `src/Assets/Packages` from `src/Assets/packages.config`, which the rip copies into the project. It is variant-independent, cached, and a no-op once restored, but a checkout without it cannot compile the export scripts, so `extract rip` refuses to run.
@@ -55,15 +55,22 @@ $G diff HEAD~1 --stat   # churn outside known fact targets = new mechanics to mo
 ### 4. Python build
 `erenshor -V {v} extract build` — produces clean DB. Watch the log for `mapping.json` warnings about new entities lacking overrides; add minimal entries and re-run. Schema/processor errors surface here — fix at the source under `src/erenshor/application/processor/`.
 
-### 5. Validate
+### 5. Review what the update changed
+`extract build` stores the clean database in `backups/build-<id>/`. Then run
+`erenshor -V {v} extract changes --output /tmp/changes-{v}.md` to compare it with the
+newest earlier backed-up build (or `--since <build-id>`). Read every changed table
+before republishing: a removed row or a changed stat is usually the story of the patch,
+and an unexpected one is usually a pipeline bug.
+
+### 6. Validate
 Run `pytest tests/integration -v` against this variant. **Do not** run `golden capture` on a non-main variant — see Variant safety rules. Then run `skill://auditing-spawn-coverage` — new event scripts in a patch silently widen the spawn-coverage gap and that skill is the gate that catches them before sheets/wiki/map ship.
 
-### 6. Republish only the variant-safe outputs
+### 7. Republish only the variant-safe outputs
 - **Sheets:** `erenshor -V {v} sheets deploy --all-sheets` (dry-run first with the global `--dry-run` flag).
 - **Local map:** `erenshor -V {v} maps build && erenshor -V {v} maps dev` (or `preview`). Keep `maps dev` in the foreground. It restores the prior database link when it stops.
 - **Guide compile / Wiki / Cloudflare map deploy:** see Variant safety rules.
 
-### 7. Tile capture for new zones
+### 8. Tile capture for new zones
 Compute the delta of `SELECT DISTINCT scene_name FROM zones` minus the keys of `zone-capture-config.json`. For each new scene, follow `skill://tile-capture` end-to-end: bounds discovery, config entry, `DISPLAY_NAMES`, `capture run`, verification, commit per zone. New zones also need a `zone-positions.json` entry — see `skill://interactive-map`.
 
 ## Timing and profiling refreshes

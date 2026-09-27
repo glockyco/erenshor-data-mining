@@ -321,25 +321,14 @@ def _comparison_context(
     return cli_context
 
 
-def test_compare_variants_main_vs_demo_report_preserves_metrics(cli_context: CLIContext, tmp_path: Path) -> None:
+def test_compare_variants_reports_added_rows_per_table(cli_context: CLIContext, tmp_path: Path) -> None:
     result = CliRunner().invoke(extract.app, ["compare-variants"], obj=_comparison_context(cli_context, tmp_path))
 
     assert result.exit_code == 0
-    assert "# Erenshor: Demo vs Main Comparison" in result.stdout
-    assert "**Old Variant**: main (Build 100)" in result.stdout
-    assert "**New Variant**: demo (Build 200)" in result.stdout
-    assert "| Zones | 1 | 2 | +1 |" in result.stdout
-    assert "| Items | 1 | 2 | +1 |" in result.stdout
-    assert "| Spells | 1 | 2 | +1 |" in result.stdout
-    assert "| Characters | 1 | 2 | +1 |" in result.stdout
-    assert "| Quests | 1 | 2 | +1 |" in result.stdout
-    assert "| Skills | 1 | 2 | +1 |" in result.stdout
-    assert "## New Zones (1)" in result.stdout
-    assert "## New Items (1)" in result.stdout
-    assert "## New Spells (1)" in result.stdout
-    assert "## New Characters/NPCs (1)" in result.stdout
-    assert "## New Quests (1)" in result.stdout
-    assert "New Vendor" in result.stdout
+    assert "main (build 100) → demo (build 200)" in result.stdout
+    assert "| items | 1 | 2 | 1 | 0 | 0 |" in result.stdout
+    assert "| characters | 1 | 2 | 1 | 0 | 0 |" in result.stdout
+    assert "object_name=char:new, display_name=New Vendor" in result.stdout
 
 
 def test_compare_variants_registers_options_and_help() -> None:
@@ -362,8 +351,7 @@ def test_compare_variants_rejects_unknown_variant(cli_context: CLIContext, tmp_p
 def test_compare_variants_rejects_missing_database(cli_context: CLIContext, tmp_path: Path) -> None:
     context = _comparison_context(cli_context, tmp_path, include_new_db=False)
     output = tmp_path / "report.md"
-    with patch.object(extract, "generate_report", side_effect=AssertionError("report ran")):
-        result = CliRunner().invoke(extract.app, ["compare-variants", "--output", str(output)], obj=context)
+    result = CliRunner().invoke(extract.app, ["compare-variants", "--output", str(output)], obj=context)
 
     assert result.exit_code == 1
     assert "New database not found for variant 'demo'" in result.output
@@ -447,3 +435,93 @@ def test_build_outside_the_feed_window_has_no_publication_time(tmp_path: Path) -
 
     with patch.object(extract, "fetch_build_feed", return_value=[]):
         assert extract._resolve_build_published_at(variant, "24405256") is None
+
+
+def _clean_db(path: Path, build_id: str, item_level: int) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with closing(sqlite3.connect(path)) as connection, connection:
+        connection.executescript(
+            f"""
+            CREATE TABLE code_facts_meta (game_build_id TEXT);
+            INSERT INTO code_facts_meta VALUES ('{build_id}');
+            CREATE TABLE items (stable_key TEXT PRIMARY KEY, item_level INTEGER);
+            INSERT INTO items VALUES ('item:sword', {item_level});
+            """
+        )
+    return path
+
+
+def _backup(backups: Path, build_id: str, *, item_level: int | None) -> None:
+    database = backups / f"build-{build_id}" / "database"
+    database.mkdir(parents=True)
+    (database / "erenshor-main-raw.sqlite").write_bytes(b"raw")
+    clean = None
+    if item_level is not None:
+        _clean_db(database / "erenshor-main.sqlite", build_id, item_level)
+        clean = "erenshor-main.sqlite"
+    metadata = {
+        "variant": "main",
+        "build_id": build_id,
+        "app_id": "2382520",
+        "created_at": "2026-01-01T00:00:00+00:00",
+        "database_path": "erenshor-main-raw.sqlite",
+        "database_size_bytes": 3,
+        "scripts_count": 1,
+        "scripts_size_bytes": 1,
+        "total_size_bytes": 4,
+        "clean_database_path": clean,
+    }
+    (backups / f"build-{build_id}" / "metadata.json").write_text(json.dumps(metadata))
+
+
+def _changes_context(cli_context: CLIContext, tmp_path: Path) -> tuple[CLIContext, Path]:
+    variant = cli_context.config.variants["main"]
+    current = variant.resolved_database(cli_context.repo_root)
+    current.unlink(missing_ok=True)
+    _clean_db(current, "300", 12)
+    return cli_context, variant.resolved_backups(cli_context.repo_root)
+
+
+def test_changes_default_to_the_newest_earlier_build(cli_context: CLIContext, tmp_path: Path) -> None:
+    context, backups = _changes_context(cli_context, tmp_path)
+    _backup(backups, "100", item_level=5)
+    _backup(backups, "200", item_level=10)
+    _backup(backups, "300", item_level=12)
+
+    result = CliRunner().invoke(extract.app, ["changes"], obj=context)
+
+    assert result.exit_code == 0, result.output
+    assert "main build 200 → main build 300" in result.stdout
+    assert "stable_key=item:sword: item_level: 10 → 12" in result.stdout
+
+
+def test_changes_since_an_explicit_build(cli_context: CLIContext, tmp_path: Path) -> None:
+    context, backups = _changes_context(cli_context, tmp_path)
+    _backup(backups, "100", item_level=5)
+    _backup(backups, "200", item_level=10)
+
+    result = CliRunner().invoke(extract.app, ["changes", "--since", "100"], obj=context)
+
+    assert result.exit_code == 0, result.output
+    assert "item_level: 5 → 12" in result.stdout
+
+
+def test_changes_name_a_backup_without_a_clean_database(cli_context: CLIContext, tmp_path: Path) -> None:
+    context, backups = _changes_context(cli_context, tmp_path)
+    _backup(backups, "200", item_level=None)
+
+    result = CliRunner().invoke(extract.app, ["changes"], obj=context)
+
+    assert result.exit_code == 1
+    assert "build-200" in result.output
+    assert "holds no clean database" in result.output
+
+
+def test_changes_without_an_earlier_build(cli_context: CLIContext, tmp_path: Path) -> None:
+    context, backups = _changes_context(cli_context, tmp_path)
+    _backup(backups, "300", item_level=12)
+
+    result = CliRunner().invoke(extract.app, ["changes"], obj=context)
+
+    assert result.exit_code == 1
+    assert "No earlier build is backed up" in result.output

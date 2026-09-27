@@ -235,7 +235,9 @@ erenshor config show
 ```bash
 erenshor extract rip
 erenshor extract export
+erenshor extract code-facts
 erenshor extract build
+erenshor extract changes      # what changed since the previous backed-up build
 ```
 
 ### Publish wiki output
