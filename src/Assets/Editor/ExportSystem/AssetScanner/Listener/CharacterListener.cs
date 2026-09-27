@@ -129,60 +129,6 @@ public class CharacterListener : IAssetScanListener<Character>
         _seenQuestCharacterRoles.Clear();
         _characterAEEventRecords.Clear();
 
-        _db.Execute(
-            @"
-            UPDATE Characters
-            SET IsCommon = 1
-            WHERE Guid IN
-            (
-                SELECT DISTINCT c.Guid
-                FROM Characters c
-                LEFT JOIN SpawnPointCharacters spc ON spc.CharacterStableKey = c.StableKey
-                WHERE NOT c.IsPrefab OR (spc.IsCommon AND spc.SpawnChance > 0)
-            );
-        "
-        );
-
-        _db.Execute(
-            @"
-            UPDATE Characters
-            SET IsRare = 1
-            WHERE Guid IN
-            (
-                SELECT DISTINCT c.Guid
-                FROM Characters c
-                JOIN SpawnPointCharacters spc ON spc.CharacterStableKey = c.StableKey
-                WHERE spc.IsRare AND spc.SpawnChance > 0
-                  AND NOT EXISTS (
-                      SELECT 1 FROM SpawnPointCharacters spc2
-                      WHERE spc2.CharacterStableKey = c.StableKey
-                        AND spc2.IsCommon = 1
-                        AND spc2.SpawnChance > 0
-                  )
-            );
-        "
-        );
-
-        _db.Execute(
-            @"
-            UPDATE Characters
-            SET IsUnique = 1
-            WHERE NPCName IN
-            (
-                SELECT NPCName
-                FROM
-                (
-                    SELECT count(DISTINCT spc.SpawnPointStableKey) AS spawnPointCount, count(DISTINCT c.Guid) AS instanceCount, *
-                    FROM Characters c
-                    LEFT JOIN SpawnPointCharacters spc ON spc.CharacterStableKey = c.StableKey
-                    WHERE NOT c.IsPrefab OR (spc.SpawnChance > 0)
-                    GROUP BY c.NPCName
-                )
-                WHERE ((IsPrefab AND spawnPointCount = 1) OR (NOT IsPrefab AND instanceCount = 1))
-            );
-        "
-        );
-
         // Populate QuestCompletionSources from all exported tables
         // This must run after all other listeners have created their tables
         PopulateQuestCompletionSources();
@@ -625,7 +571,6 @@ public class CharacterListener : IAssetScanListener<Character>
                     : null,
             Allies = character.Allies != null ? string.Join(", ", character.Allies) : null,
             IsPrefab = prefabType != PrefabAssetType.NotAPrefab,
-            IsUnique = false, // `IsUnique` is set in `OnScanFinished`.
             IsFriendly = new List<string>
             {
                 "DEBUG",

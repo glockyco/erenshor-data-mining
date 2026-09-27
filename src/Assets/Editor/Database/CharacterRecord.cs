@@ -27,9 +27,6 @@ public class CharacterRecord
     public string? Allies { get; set; } = string.Empty;
 
     public bool IsPrefab { get; set; }
-    public bool IsCommon { get; set; }
-    public bool IsRare { get; set; }
-    public bool IsUnique { get; set; }
     public bool IsFriendly { get; set; }
     public bool IsNPC { get; set; }
     public bool IsSimPlayer { get; set; }
