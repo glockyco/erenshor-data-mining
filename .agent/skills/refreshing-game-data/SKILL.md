@@ -111,11 +111,11 @@ Shared-output actions require an explicit variant gate before running:
 
 ## Session shutdown and recovery
 
-Keep `erenshor mod launch` and `erenshor -V {v} maps dev` in the foreground. Stop each command with one interrupt. Each command stops only the process group that it created. `maps dev` also restores the database link that existed when it started.
+Keep `erenshor mod launch` and `erenshor -V {v} maps dev` in the foreground. Stop each command with one interrupt. Each command stops only the processes that it created. For `mod launch` these are the CrossOver wrapper and every process that joined its process group while the wrapper ran, including the game itself, which can outlive the wrapper. `maps dev` also restores the database link that existed when it started.
 
 Do not search for processes by name, age, or port. Do not quit Unity Hub or its licensing service. They are not resources that this workflow owns.
 
-If `mod launch` reports a cleanup failure or leaves `.agent/state/game-session.json`, run `erenshor mod launch --recover`. Recovery compares the recorded PID, process group, start time, and command with the live process. It signals only an exact match. If it reports an identity mismatch, inspect the reported PID and the record. Do not signal the candidate automatically.
+If `mod launch` reports a cleanup failure or leaves `.agent/state/game-session.json`, run `erenshor mod launch --recover`. The record lists every owned process with its PID, process group, start time, and command. Recovery signals only a process whose current identity matches its entry exactly, so a reused PID is never signalled. A record of another schema is refused with instructions to inspect its PIDs.
 
 If you find a possible session process without an ownership record, run `erenshor mod launch --inspect-pid <pid>`. The command reports that PID's process group, start time, and command. It does not send a signal.
 
