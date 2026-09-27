@@ -15,7 +15,7 @@ The wiki, the map and the companion mod each decide what a boss is, and they dis
 ## What Changes
 
 - The clean database gains `characters.encounter_tier` with the values `npc`, `boss`, `elite`, and `enemy`. Effective BossXp is the prefab BossXp, raised to 2 at level 40 and above as the game's NPC start-up does.
-  - `npc`: friendly characters.
+  - `npc`: friendly characters, meaning a good faction that does not attack the player. The export no longer marks good-faction characters that attack the player as friendly.
   - `boss`: effective BossXp above 1 with at most one ordinary spawn placement (including only event spawns), or exactly one ordinary placement.
   - `elite`: effective BossXp above 1 with several ordinary spawn placements.
   - `enemy`: every other hostile character.
@@ -23,6 +23,7 @@ The wiki, the map and the companion mod each decide what a boss is, and they dis
 - The wiki type field shows Boss, Elite, Enemy, or NPC. Pages get Category:Bosses or Category:Elites.
 - The map labels, colours, sorts, and filters characters by tier instead of unique/rare. Live markers take the tier of the character with the same name when one exists.
 - The spawn-points sheet shows the tier.
+- A reviewed `encounter_tier` override in `mapping.json` covers characters that game data classifies wrongly.
 - A code fact pins the level-40 BossXp rule and the BossXp threshold of the consider text.
 
 ## Capabilities
