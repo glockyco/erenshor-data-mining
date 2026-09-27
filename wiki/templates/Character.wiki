@@ -54,7 +54,7 @@
             <format>{{#switch:{{{type|}}}
 | NPC    = [[:Category:Characters|NPC]]
 | Boss   = [[Enemies|Boss]]
-| Rare   = [[Enemies|Rare]]
+| Elite  = [[Enemies|Elite]]
 | Enemy  = [[Enemies|Enemy]]
 | {{{type|}}}
 }}</format>
@@ -102,7 +102,8 @@
         </group>
     </group>
 </infobox>{{#ifeq: {{NAMESPACENUMBER}} | 0 | {{#switch: {{{type|}}}
-| Boss                      = [[Category:Bosses]]
+| Boss                      = [[Category:Enemies]][[Category:Bosses]]
+| Elite                     = [[Category:Enemies]][[Category:Elites]]
 | NPC                       = [[Category:Characters]]
 | [[Simulated Players|Sim]] =
 | #default                  = [[Category:Enemies]]

@@ -121,7 +121,6 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
                 cs.event_y,
                 cs.event_z,
                 COALESCE(cs.is_rare, 0)  AS is_rare,
-                COALESCE(c.is_unique, 0) AS is_unique,
                 COALESCE(cs.level_mod, 0) AS level_mod
             FROM wiki_character_spawns cs
             JOIN characters c ON c.stable_key = cs.character_stable_key
@@ -167,7 +166,6 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
                         z=float(row["z"]) if row["z"] is not None else None,
                         spawn_chance=float(row["spawn_chance"]) if row["spawn_chance"] is not None else None,
                         is_rare=bool(row["is_rare"]),
-                        is_unique=bool(row["is_unique"]),
                         level_mod=int(row["level_mod"]),
                         source_script=(str(row["source_script"]) if row["source_script"] is not None else None),
                         event_x=float(row["event_x"]) if row["event_x"] is not None else None,

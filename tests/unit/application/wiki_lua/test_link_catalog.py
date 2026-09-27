@@ -84,6 +84,20 @@ def test_catalog_covers_all_semantic_kinds_and_uses_canonical_subtypes() -> None
     assert by_key["class:windblade"].name == "Windblade"
 
 
+def test_catalog_character_subtypes_follow_stored_tiers() -> None:
+    characters = [
+        make_character(stable_key=f"character:{tier}", wiki_page_name=tier.title(), encounter_tier=tier)
+        for tier in ("npc", "boss", "elite", "enemy")
+    ]
+    entries = _catalog_entries(characters=characters)
+    assert {entry.key: entry.subtype for entry in entries if entry.kind == "character"} == {
+        "character:npc": "NPC",
+        "character:boss": "Boss",
+        "character:elite": "Elite",
+        "character:enemy": "Enemy",
+    }
+
+
 def test_catalog_skips_only_null_pages() -> None:
     excluded = make_item(wiki_page_name=None)
     entries = _catalog_entries(items=[excluded])

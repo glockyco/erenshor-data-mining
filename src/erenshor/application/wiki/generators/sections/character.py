@@ -57,7 +57,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         faction_change = self._format_faction_modifiers(character.faction_modifiers or [])
         zones = self._format_zones(enriched.spawn_infos)
         coordinates = self._format_coordinates(enriched.spawn_infos)
-        spawn_chance = self._format_spawn_chance(enriched.spawn_infos)
+        spawn_chance = self._format_spawn_chance(enriched.spawn_infos, character.encounter_tier)
         spawn_type = self._format_spawn_type(enriched.spawn_infos)
         respawn = self._format_respawn(enriched.spawn_infos)
         guaranteed_drops, drop_rates = self._format_loot_drops(enriched.loot_drops, display_name)
@@ -93,23 +93,8 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         return self.normalize_wikitext(template_wikitext)
 
     def _format_enemy_type(self, character: Character) -> str:
-        """Classify character for the {{Character}} template type field.
-
-        Uses character-level flags, consistent with the map's effectiveRarity logic:
-          - is_friendly → NPC
-          - is_unique   → Boss
-          - is_rare and not is_common → Rare  (is_common overrides is_rare)
-          - else        → Enemy
-
-        Returns a plain string; the {{Character}} template handles display formatting.
-        """
-        if character.is_friendly:
-            return "NPC"
-        if character.is_unique:
-            return "Boss"
-        if character.is_rare and not character.is_common:
-            return "Rare"
-        return "Enemy"
+        """Use the character's stored encounter tier for the template type."""
+        return "NPC" if character.encounter_tier == "npc" else character.encounter_tier.capitalize()
 
     def _format_faction(self, character: Character) -> str:
         """Format faction field using pre-built link fields on the character entity."""
@@ -206,15 +191,11 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         x, y, z = next(iter(ordinary_coords))
         return f"{x:.1f} x {y:.1f} x {z:.1f}"
 
-    def _format_spawn_chance(self, spawn_infos: list[CharacterSpawnInfo]) -> str:
-        """Format spawn chance for wiki template using zone_link.display_name."""
-        if not spawn_infos:
-            return ""
-
-        any_rare = any(info.is_rare for info in spawn_infos)
-        any_unique = any(info.is_unique for info in spawn_infos)
-
-        if not (any_rare or any_unique):
+    def _format_spawn_chance(self, spawn_infos: list[CharacterSpawnInfo], encounter_tier: str) -> str:
+        """Show non-guaranteed chances for named encounters and rare placements."""
+        if not spawn_infos or (
+            encounter_tier not in ("boss", "elite") and not any(info.is_rare for info in spawn_infos)
+        ):
             return ""
 
         chances_by_zone: dict[str, list[float]] = {}

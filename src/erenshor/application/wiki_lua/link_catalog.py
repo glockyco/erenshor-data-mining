@@ -223,13 +223,7 @@ def _item_subtype(item: Item) -> str:
 
 
 def _character_subtype(character: Character) -> str:
-    if character.is_friendly:
-        return "NPC"
-    if character.is_unique:
-        return "Boss"
-    if character.is_rare and not character.is_common:
-        return "Rare"
-    return "Enemy"
+    return "NPC" if character.encounter_tier == "npc" else character.encounter_tier.capitalize()
 
 
 def _zone_subtype(zone: Zone) -> str:

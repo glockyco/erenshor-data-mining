@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+from dataclasses import replace
+
 from tests.unit.application.wiki_lua.fakes import make_character
 
+from erenshor.application.wiki.generators.sections.categories import CategoryGenerator
 from erenshor.application.wiki.generators.sections.character import CharacterSectionGenerator
 from erenshor.domain.enriched_data.character import EnrichedCharacterData
 from erenshor.domain.value_objects.loot import LootDropDisplayInfo
@@ -23,7 +26,6 @@ def _spawn(
         z=1151.0,
         spawn_chance=chance,
         is_rare=False,
-        is_unique=True,
         source_script=source_script,
     )
 
@@ -33,13 +35,49 @@ def _render(spawn_infos: list[CharacterSpawnInfo]) -> str:
         display_name="Faerie Trickster",
         npc_name="Faerie Trickster",
         wiki_page_name="Faerie Trickster",
-        is_unique=1,
-        is_common=0,
+        encounter_tier="boss",
     )
     return CharacterSectionGenerator().generate_template(
         EnrichedCharacterData(character=character, spawn_infos=spawn_infos, spells=[]),
         page_title="Faerie Trickster",
     )
+
+
+def test_elite_type_and_rare_placement_chance_are_independent() -> None:
+    character = make_character(encounter_tier="elite")
+    spawn = _spawn(chance=25.0, x=700.0)
+    content = CharacterSectionGenerator().generate_template(
+        EnrichedCharacterData(character=character, spawn_infos=[spawn], spells=[]),
+        page_title="Faerie Trickster",
+    )
+
+    assert "|type=Elite" in content
+    assert "|spawnchance=25%" in content
+
+
+def test_ordinary_enemy_shows_rare_placement_chance() -> None:
+    character = make_character(encounter_tier="enemy")
+    spawn = _spawn(chance=10.0, x=700.0)
+
+    content = CharacterSectionGenerator().generate_template(
+        EnrichedCharacterData(character=character, spawn_infos=[replace(spawn, is_rare=True)], spells=[]),
+        page_title="Faerie Trickster",
+    )
+
+    assert "|type=Enemy" in content
+    assert "|spawnchance=10%" in content
+
+
+def test_character_categories_follow_encounter_tier() -> None:
+    generator = CategoryGenerator()
+    for tier, expected in (
+        ("npc", ["Characters"]),
+        ("boss", ["Enemies", "Bosses"]),
+        ("elite", ["Enemies", "Elites"]),
+        ("enemy", ["Enemies"]),
+    ):
+        enriched = EnrichedCharacterData(character=make_character(encounter_tier=tier), spawn_infos=[], spells=[])
+        assert generator.generate_character_categories(enriched) == expected
 
 
 def test_dynamic_only_spawn_has_no_fabricated_chance() -> None:
@@ -83,8 +121,7 @@ def test_character_loot_drop_fields_render_rates_refs_and_guaranteed_pool() -> N
         display_name="Faerie Trickster",
         npc_name="Faerie Trickster",
         wiki_page_name="Faerie Trickster",
-        is_unique=1,
-        is_common=0,
+        encounter_tier="boss",
     )
     drops = [
         LootDropDisplayInfo(

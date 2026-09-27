@@ -32,7 +32,6 @@ def test_builds_character_data_with_spawn_loot_and_spell_summaries() -> None:
             z=3.75,
             spawn_chance=100.0,
             is_rare=False,
-            is_unique=False,
             level_mod=1,
         )
     ]
@@ -226,7 +225,7 @@ def test_faction_modifiers_keep_faction_kind_and_stable_key() -> None:
 
 
 def test_dynamic_spawn_omits_chance_but_keeps_coordinate() -> None:
-    character = make_character(is_unique=1, is_common=0)
+    character = make_character(encounter_tier="boss")
     spawn_infos = [
         CharacterSpawnInfo(
             zone_link=ZoneLink(page_title="Plane of Fernalla", display_name="Plane of Fernalla"),
@@ -236,7 +235,6 @@ def test_dynamic_spawn_omits_chance_but_keeps_coordinate() -> None:
             z=1151.0,
             spawn_chance=None,
             is_rare=False,
-            is_unique=True,
             source_script="SprinklesEvent",
         )
     ]
@@ -257,7 +255,7 @@ def test_dynamic_spawn_omits_chance_but_keeps_coordinate() -> None:
 
 
 def test_lua_dynamic_only_multiple_spawns_keep_all_coordinates() -> None:
-    character = make_character(is_unique=1, is_common=0)
+    character = make_character(encounter_tier="boss")
     spawn_infos = [
         CharacterSpawnInfo(
             zone_link=ZoneLink(page_title="Plane of Fernalla", display_name="Plane of Fernalla"),
@@ -267,7 +265,6 @@ def test_lua_dynamic_only_multiple_spawns_keep_all_coordinates() -> None:
             z=1151.0,
             spawn_chance=None,
             is_rare=False,
-            is_unique=True,
             source_script="SprinklesEvent",
         ),
         CharacterSpawnInfo(
@@ -278,7 +275,6 @@ def test_lua_dynamic_only_multiple_spawns_keep_all_coordinates() -> None:
             z=1151.0,
             spawn_chance=None,
             is_rare=False,
-            is_unique=True,
             source_script="SprinklesEvent",
         ),
     ]
@@ -297,7 +293,7 @@ def test_lua_dynamic_only_multiple_spawns_keep_all_coordinates() -> None:
 
 
 def test_lua_mixed_spawn_prefers_ordinary_coordinate_and_chance() -> None:
-    character = make_character(is_unique=1, is_common=0)
+    character = make_character(encounter_tier="boss")
     spawn_infos = [
         CharacterSpawnInfo(
             zone_link=ZoneLink(page_title="Plane of Fernalla", display_name="Plane of Fernalla"),
@@ -307,7 +303,6 @@ def test_lua_mixed_spawn_prefers_ordinary_coordinate_and_chance() -> None:
             z=1151.0,
             spawn_chance=25.0,
             is_rare=False,
-            is_unique=True,
         ),
         CharacterSpawnInfo(
             zone_link=ZoneLink(page_title="Plane of Fernalla", display_name="Plane of Fernalla"),
@@ -317,7 +312,6 @@ def test_lua_mixed_spawn_prefers_ordinary_coordinate_and_chance() -> None:
             z=1151.0,
             spawn_chance=None,
             is_rare=False,
-            is_unique=True,
             source_script="SprinklesEvent",
         ),
     ]
@@ -352,20 +346,39 @@ def test_lua_mixed_spawn_prefers_ordinary_coordinate_and_chance() -> None:
     assert "|Class=String" not in cargo_declare
 
 
-def test_character_type_prefers_npc_then_boss_then_rare() -> None:
-    npc = make_character(stable_key="character:npc", wiki_page_name="Helpful NPC", is_friendly=1, is_unique=1)
-    boss = make_character(stable_key="character:boss", wiki_page_name="Boss Page", is_friendly=0, is_unique=1)
-    rare = make_character(
-        stable_key="character:rare",
-        wiki_page_name="Rare Page",
-        is_friendly=0,
-        is_unique=0,
-        is_rare=1,
-        is_common=0,
+def test_enemy_rare_placement_keeps_its_spawn_chance() -> None:
+    character = make_character(encounter_tier="enemy")
+    spawn = CharacterSpawnInfo(
+        zone_link=ZoneLink(page_title="Blacksalt Strand", display_name="Blacksalt Strand"),
+        base_respawn=None,
+        x=1.0,
+        y=2.0,
+        z=3.0,
+        spawn_chance=10.0,
+        is_rare=True,
+    )
+    data = build_characters_data(
+        [character],
+        spawn_infos_by_character={character.stable_key: [spawn]},
+        loot_by_character={},
+        spells_by_character={},
+        spawn_rows_by_character={},
+        ability_usages_by_character={},
     )
 
+    record = data["characters"][character.stable_key]
+    assert record["type"] == "Enemy"
+    assert record["spawnChance"] == "10%"
+
+
+def test_character_type_uses_stored_encounter_tier() -> None:
+    npc = make_character(stable_key="character:npc", wiki_page_name="Helpful NPC", encounter_tier="npc")
+    boss = make_character(stable_key="character:boss", wiki_page_name="Boss Page", encounter_tier="boss")
+    elite = make_character(stable_key="character:elite", wiki_page_name="Elite Page", encounter_tier="elite")
+    enemy = make_character(stable_key="character:enemy", wiki_page_name="Enemy Page", encounter_tier="enemy")
+
     data = build_characters_data(
-        characters=[rare, boss, npc],
+        characters=[enemy, elite, boss, npc],
         spawn_infos_by_character={},
         loot_by_character={},
         spells_by_character={},
@@ -375,7 +388,8 @@ def test_character_type_prefers_npc_then_boss_then_rare() -> None:
 
     assert data["characters"]["character:npc"]["type"] == "NPC"
     assert data["characters"]["character:boss"]["type"] == "Boss"
-    assert data["characters"]["character:rare"]["type"] == "Rare"
+    assert data["characters"]["character:elite"]["type"] == "Elite"
+    assert data["characters"]["character:enemy"]["type"] == "Enemy"
 
 
 def test_generates_characters_module_from_repository_data() -> None:

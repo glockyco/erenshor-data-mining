@@ -237,7 +237,7 @@ DEFAULT_PRESERVATION_RULES: dict[str, dict[str, str]] = {
     "Character": {
         # Manual edit fields only
         "imagecaption": "preserve",  # Custom image captions
-        "type": "prefer_manual",  # NPC/Enemy/Boss classification (some manual, some DB)
+        "type": "override",  # Classification comes from the clean database
         # Location fields - prefer database but fallback to wiki if DB has no data
         "zones": "prefer_database",  # From coordinate (non-prefab), spawn point (prefab) or manual (fallback)
         "coordinates": "prefer_database",  # From coordinate (non-prefab), spawn point (prefab) or manual (fallback)

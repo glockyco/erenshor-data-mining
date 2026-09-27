@@ -10,6 +10,7 @@ class TestCharacterStableKey:
         """Prefab characters can have stable_key set from database."""
         character = Character(
             stable_key="character:dire wolf",
+            encounter_tier="enemy",
             object_name="Dire Wolf",
             npc_name="A Dire Wolf",
             is_prefab=1,
@@ -25,6 +26,7 @@ class TestCharacterStableKey:
         """Non-prefab characters have stable_key set from database."""
         character = Character(
             stable_key="character:town guard:azure:123.45:67.89:234.56",
+            encounter_tier="npc",
             object_name="Town Guard",
             npc_name="Guard Captain",
             is_prefab=0,
@@ -40,6 +42,7 @@ class TestCharacterStableKey:
         """stable_key is required and must be provided."""
         character = Character(
             stable_key="character:wandering merchant",
+            encounter_tier="npc",
             object_name="Wandering Merchant",
             npc_name="A Merchant",
             is_prefab=None,
@@ -55,6 +58,7 @@ class TestCharacterStableKey:
         """stable_key is set independently from coordinates."""
         character = Character(
             stable_key="character:mysterious npc:unknown:100.00:200.00:300.00",
+            encounter_tier="npc",
             object_name="Mysterious NPC",
             npc_name="???",
             is_prefab=0,
@@ -70,6 +74,7 @@ class TestCharacterStableKey:
         """stable_key is set independently, coordinates don't affect it."""
         character = Character(
             stable_key="character:static npc:temple:0.00:0.00:0.00",
+            encounter_tier="npc",
             object_name="Static NPC",
             npc_name="Statue",
             is_prefab=0,
@@ -85,6 +90,7 @@ class TestCharacterStableKey:
         """stable_key format is preserved as set."""
         character = Character(
             stable_key="character:precise npc:workshop:1.20:3.46:10.00",
+            encounter_tier="npc",
             object_name="Precise NPC",
             npc_name="Engineer",
             is_prefab=0,
@@ -100,6 +106,7 @@ class TestCharacterStableKey:
         """stable_key field allows None object_name (validated at database level)."""
         character = Character(
             stable_key="character:unnamed",
+            encounter_tier="enemy",
             object_name=None,
             npc_name="Unnamed",
             is_prefab=1,
@@ -111,6 +118,7 @@ class TestCharacterStableKey:
         """Prefab character stable_key format."""
         character = Character(
             stable_key="character:skeleton",
+            encounter_tier="enemy",
             object_name="Skeleton",
             npc_name="A Skeleton",
             is_prefab=1,
@@ -127,6 +135,7 @@ class TestCharacterStableKey:
         """Different characters have different stable_keys."""
         char1 = Character(
             stable_key="character:guard:city:10.00:20.00:30.00",
+            encounter_tier="npc",
             object_name="Guard",
             npc_name="Guard #1",
             is_prefab=0,
@@ -138,6 +147,7 @@ class TestCharacterStableKey:
 
         char2 = Character(
             stable_key="character:guard:city:40.00:50.00:60.00",
+            encounter_tier="npc",
             object_name="Guard",
             npc_name="Guard #2",
             is_prefab=0,

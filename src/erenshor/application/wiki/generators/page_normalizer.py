@@ -35,6 +35,7 @@ class PageNormalizer:
 
     GENERATED_CHARACTER_CATEGORIES: ClassVar[set[str]] = {
         "[[Category:Bosses]]",
+        "[[Category:Elites]]",
         "[[Category:Characters]]",
         "[[Category:Enemies]]",
         "[[Category:Vendors]]",

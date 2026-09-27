@@ -202,23 +202,27 @@ local function typeText(characterType)
 	if characterType == "NPC" then
 		return "[[:Category:Characters|NPC]]"
 	end
-	if characterType == "Boss" or characterType == "Rare" or characterType == "Enemy" then
+	if characterType == "Boss" or characterType == "Elite" or characterType == "Enemy" then
 		return Format.pageLink("Enemies", characterType)
 	end
 	return characterType
 end
 
 local function categoryForType(characterType)
-	if characterType == "Boss" then
-		return "[[Category:Bosses]]"
-	end
 	if characterType == "NPC" then
 		return "[[Category:Characters]]"
 	end
 	if characterType == "[[Simulated Players|Sim]]" then
 		return ""
 	end
-	return "[[Category:Enemies]]"
+	local categories = "[[Category:Enemies]]"
+	if characterType == "Boss" then
+		return categories .. "[[Category:Bosses]]"
+	end
+	if characterType == "Elite" then
+		return categories .. "[[Category:Elites]]"
+	end
+	return categories
 end
 
 local function mapLink(selector)
