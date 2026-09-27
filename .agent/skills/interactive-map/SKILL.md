@@ -115,7 +115,9 @@ Run with: `node src/maps/debug-markers.js`
 ## Common failure modes
 
 **Marker missing from all buckets** → check DB query in `getSpawnPointMarkers`:
-- `spc.SpawnChance > 0` filters zero-chance entries
+- `cs.spawn_chance > 0 OR cs.source_script IS NOT NULL` filters zero-chance entries
+  that no script spawns
+- only `character_deduplications` rows with `is_map_visible = 1` produce markers
 - `isNpc = characters.every(c => c.isFriendly)` — a single `IsFriendly=1`
   character at a spawn point makes it an NPC marker
 
@@ -137,11 +139,10 @@ check the `hasVulnerable` guard
 ```bash
 # All data for a character's spawns
 sqlite3 variants/main/erenshor-main.sqlite "
-SELECT sp.StableKey, sp.IsEnabled, sp.Scene,
-       c.NPCName, c.Level, c.IsFriendly, c.Invulnerable,
-       c.IsCommon, c.IsRare, c.IsUnique, spc.SpawnChance
-FROM SpawnPoints sp
-JOIN SpawnPointCharacters spc ON spc.SpawnPointStableKey = sp.StableKey
-JOIN Characters c ON c.StableKey = spc.CharacterStableKey
-WHERE c.NPCName = 'Evadne the Corrupted';"
+SELECT cs.spawn_point_stable_key, cs.is_enabled, cs.scene,
+       c.display_name, c.level, c.is_friendly, c.invulnerable,
+       c.is_common, c.is_rare, c.is_unique, cs.spawn_chance, cs.source_script
+FROM map_character_spawns cs
+JOIN characters c ON c.stable_key = cs.character_stable_key
+WHERE c.display_name = 'Evadne the Corrupted';"
 ```

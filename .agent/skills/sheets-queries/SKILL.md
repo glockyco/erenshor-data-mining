@@ -13,12 +13,11 @@ Sheets are generated from SQL queries against the SQLite database.
 
 ```sql
 SELECT
-    i.ItemName AS "Item Name",
-    i.ItemLevel AS "Level",
-    i.Value AS "Value"
-FROM Items i
-WHERE i.IsEnabled = 1
-ORDER BY i.ItemName
+    i.display_name AS 'Item Name',
+    i.item_level AS 'Level',
+    i.item_value AS 'Value'
+FROM items i
+ORDER BY i.display_name;
 ```
 
 2. **Deploy**: `uv run erenshor sheets deploy --sheets my-sheet`
@@ -32,16 +31,14 @@ ORDER BY i.ItemName
 
 ## Available Tables
 
-Core tables in the SQLite database:
-- Items, Characters, Spells, Skills
-- Quests, SpawnPoints, LootTables
-- Coordinates, Factions, Zones
+The clean database uses snake_case tables and columns, such as `items`,
+`characters`, `spells`, `zones`, `loot_drops`, and `map_character_spawns`.
+List the tables and columns from the database instead of from memory:
 
-Junction tables for relationships:
-- CharacterAttackSpells, CharacterBuffSpells
-- QuestRequiredItems, QuestRewards
-- ItemClasses, SpellClasses
-- SpawnPointCharacters
+```bash
+sqlite3 variants/main/erenshor-main.sqlite ".tables"
+sqlite3 variants/main/erenshor-main.sqlite "PRAGMA table_info(items);"
+```
 
 ## Existing Queries
 
@@ -56,5 +53,5 @@ Located in `src/erenshor/application/sheets/queries/`:
 uv run erenshor sheets list              # List available sheets
 uv run erenshor sheets deploy --all-sheets  # Deploy all sheets
 uv run erenshor sheets deploy --sheets X # Deploy specific sheet
-uv run erenshor sheets deploy --dry-run  # Preview without writing
+uv run erenshor --dry-run sheets deploy --all-sheets  # Preview without writing
 ```
