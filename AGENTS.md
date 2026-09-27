@@ -44,7 +44,7 @@ cutover or deployment.
 | `wiki/`, `wiki-templates/` | Wiki source files and templates |
 | `quest_guides/` | Quest guide JSON (auto-generated + manual curation) |
 | `.agent/skills/` | Agent skill files (domain-specific knowledge) |
-| `docs/` | Design documents, PRDs, architecture analysis, legacy plans in `docs/plans/` |
+| `docs/` | Pipeline architecture (`docs/architecture.md`), reference notes, legacy plans in `docs/plans/` |
 | `openspec/` | OpenSpec specifications and changes: the planning authority for new work |
 
 ## Databases
