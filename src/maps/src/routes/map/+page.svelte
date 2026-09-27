@@ -627,7 +627,7 @@
             return;
         }
 
-        const viewport = deckInstance.getViewports?.()[0];
+        const viewport = currentViewport();
         if (!viewport?.unproject) {
             scaleBarState = null;
             if (retries > 0) {
@@ -662,8 +662,14 @@
         requestAnimationFrame(() => updateScaleBar(retries));
     }
 
+    // Deck.getViewports asserts until deck.gl has created its view manager,
+    // which happens asynchronously after construction.
+    function currentViewport() {
+        return deckInstance?.isInitialized ? deckInstance.getViewports()[0] : undefined;
+    }
+
     function updateWorldCursorCoordinates(screenX: number, screenY: number) {
-        const viewport = deckInstance?.getViewports?.()[0];
+        const viewport = currentViewport();
         if (!viewport?.unproject) {
             cursorCoordinates = null;
             return;
