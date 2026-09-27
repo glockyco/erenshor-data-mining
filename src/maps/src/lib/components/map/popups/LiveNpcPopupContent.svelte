@@ -2,7 +2,7 @@
     import type { EntityData } from '$lib/map/live/types';
     import { liveState } from '$lib/map/live/stores.svelte';
     import { aggregateDropVariants, type AggregatedDrop } from '$lib/map/live/drop-variants';
-    import { Repository } from '$lib/database.default';
+    import { getBrowserRepository } from '$lib/database.default';
     import WikiLink from '$lib/components/map/WikiLink.svelte';
 
     interface Props {
@@ -22,8 +22,7 @@
     async function loadData() {
         isLoadingDrops = true;
         try {
-            const repo = new Repository();
-            await repo.init();
+            const repo = await getBrowserRepository();
 
             // The game tells us a name and a scene, never a stable key, and a
             // name can belong to several characters with different loot. Prefer
@@ -39,8 +38,6 @@
             );
             drops = aggregateDropVariants([...byCharacter.values()]);
             variantCount = candidates.length;
-
-            repo.close();
         } catch (err) {
             console.error('Failed to load NPC data:', err);
         } finally {

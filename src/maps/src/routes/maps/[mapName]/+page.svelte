@@ -4,7 +4,7 @@
     import { goto } from '$app/navigation';
     import { onDestroy } from 'svelte';
     import { MAPS } from '$lib/maps';
-    import { Repository } from '$lib/database.default';
+    import { getBrowserRepository } from '$lib/database.default';
     import { type LatLngExpression, type Map as LeafletMap, type LeafletMouseEvent } from 'leaflet';
     import type { Marker, EnemyMarker, NpcMarker } from '$lib/map-markers';
     import Seo from '$lib/components/Seo.svelte';
@@ -169,8 +169,7 @@
             const worldSizeY = config.baseTilesY * config.tileSize;
 
             // Load and create markers
-            const repository = new Repository();
-            await repository.init();
+            const repository = await getBrowserRepository();
 
             // Get north bearing for this zone
             const northBearing = await repository.getZoneNorthBearing(currentMapName);

@@ -3,7 +3,7 @@
     import type { WorldEnemy, WorldNpc, SpawnCharacter } from '$lib/types/world-map';
     import { Rarity } from '$lib/map-markers';
     import type { CharacterDrop, VendorItem } from '$lib/map-markers';
-    import { Repository } from '$lib/database.default';
+    import { getBrowserRepository } from '$lib/database.default';
     import WikiLink from '$lib/components/map/WikiLink.svelte';
 
     interface Props {
@@ -32,8 +32,7 @@
         characterDrops.clear();
         characterVendorItems.clear();
         try {
-            const repo = new Repository();
-            await repo.init();
+            const repo = await getBrowserRepository();
 
             const keys = marker.characters.map((char) => char.stableKey);
             const drops = await repo.getDropsForCharacters(keys);
@@ -49,8 +48,6 @@
                     );
                 }
             }
-
-            repo.close();
         } catch (err) {
             console.error('Failed to load spawn point data:', err);
             loadError = err instanceof Error ? err.message : 'Failed to load';
