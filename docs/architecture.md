@@ -29,6 +29,16 @@ name overrides, excludes entities, deduplicates characters, and computes
 derived columns. The clean schema uses snake_case tables and columns and is
 defined in `src/erenshor/application/processor/writer.py`.
 
+Every character gets one `encounter_tier`: `npc`, `boss`, `elite`, or `enemy`.
+Friendly characters (a good faction that does not attack the player) are
+`npc`. A hostile character whose effective BossXp is above 1 (the game raises
+it to 2 at level 40) is a `boss` at one spawn placement or when only events
+spawn it, and an `elite` at several placements. A hostile character with
+exactly one placement is a `boss` even without BossXp. Every other hostile
+character is an `enemy`. The wiki, the map, and the sheets read this column.
+A `mapping.json` rule can set `encounter_tier` with a `reason` when game data
+classifies a character wrongly.
+
 **Consumers.** The wiki generators, the Google Sheets queries, the interactive
 map, and the quest guide compiler read only the clean database. None of them
 reads the raw database or the Unity project.
