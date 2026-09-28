@@ -107,10 +107,11 @@ The maps preflight resolves `chromium.executablePath()` from the locked `playwri
 
 ## Migration Plan
 
-1. Land the browser smoke test first. It passes on the current code.
-2. Land the zone page prerender and the popup data change. Each keeps the page output the same, except for the two hidden items, and the smoke test passes after each.
-3. Move publication to the D1 route, remove the browser database and the service worker cache, and remove the static link in one cutover. Add the `.sqlite` request check in the same commit.
-4. Delete the local `src/maps/static/db` link. Run `maps build`, check the preview in a browser, and run `maps deploy`.
+1. Move publication to the D1 route and pass the database path explicitly (D4). The browser keeps fetching `/db/erenshor.sqlite`, now from the route. This comes first because the fixture build in CI has no static database file: only the route lets a fixture build serve its database to the current popups.
+2. Land the browser smoke test. It passes on the code of step 1.
+3. Land the zone page prerender and the popup data change. Each keeps the page output the same, except for the two hidden items, and the smoke test passes after each.
+4. Remove the browser database and the service worker cache. Add the `.sqlite` request check in the same commit.
+5. Run `maps build`, check the preview in a browser, and run `maps deploy`.
 
 Rollback: revert the cutover commits, run `maps build`, and run `maps deploy`. No data migration is involved.
 
