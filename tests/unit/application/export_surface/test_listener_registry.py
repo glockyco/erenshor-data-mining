@@ -42,6 +42,7 @@ EXPECTED_KEYS = {
     "loottables",
     "arenarounds",
     "itemdrops",
+    "specialworlddrops",
     "miningnodes",
     "spawnpoints",
     "treasurehunting",

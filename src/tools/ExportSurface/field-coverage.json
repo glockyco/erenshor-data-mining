@@ -32,7 +32,8 @@
     "Zoneline",
     "AEEvent",
     "AEEvent2",
-    "NPCFightEvent"
+    "NPCFightEvent",
+    "GameManager"
   ],
   "fields": {
     "AchievementTrigger": {
@@ -1939,9 +1940,9 @@
         "type": "UnityEngine.AudioClip"
       },
       "EssenceOfAmarion": {
-        "by": null,
-        "reason": "GameData.Misc UI/audio/effect singleton reference not exported",
-        "status": "ignored",
+        "by": "SpecialWorldDropListener",
+        "reason": null,
+        "status": "captured",
         "type": "Item"
       },
       "EtherealVaultMold": {
@@ -2107,15 +2108,15 @@
         "type": "UnityEngine.GameObject"
       },
       "Masks": {
-        "by": null,
-        "reason": "GameData.Misc UI/audio/effect singleton reference not exported",
-        "status": "ignored",
+        "by": "SpecialWorldDropListener",
+        "reason": null,
+        "status": "captured",
         "type": "System.Collections.Generic.List`1<Item>"
       },
       "MoloraiMask": {
-        "by": null,
-        "reason": "GameData.Misc UI/audio/effect singleton reference not exported",
-        "status": "ignored",
+        "by": "SpecialWorldDropListener",
+        "reason": null,
+        "status": "captured",
         "type": "Item"
       },
       "MoveItem": {
@@ -5459,6 +5460,326 @@
         "reason": "runtime behavior flag",
         "status": "ignored",
         "type": "System.Boolean"
+      }
+    },
+    "GameManager": {
+      "AscensionText": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "TMPro.TextMeshProUGUI"
+      },
+      "AscensionWindow": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "AutoEngageAttackOnSkill": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "AutoEngageDD": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "UnityEngine.UI.Toggle"
+      },
+      "BGMDel": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "BookUI": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "CommonWorldItems": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<Item>"
+      },
+      "ControlScheme": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "CosmeticButtonText": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "TMPro.TextMeshProUGUI"
+      },
+      "CosmeticWindow": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "CrystallizedBalance": {
+        "by": "SpecialWorldDropListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Item"
+      },
+      "DamageBalanceFactor": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "DemoBuild": {
+        "by": "SpecialWorldDropListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Boolean"
+      },
+      "DemoInit": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "DemonstrationMode": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "DevTeam": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "DropMasks": {
+        "by": "SpecialWorldDropListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Boolean"
+      },
+      "DynamicAud": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "DynamicAudioSources": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "Empty2": {
+        "by": "SpecialWorldDropListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Item"
+      },
+      "EscapeMenu": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "GameRant": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "GlobalChatShift": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "GuaranteeMine": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "Item"
+      },
+      "HKManager": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "HotkeyManager"
+      },
+      "HPBalanceFactor": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "InertDiamond": {
+        "by": "SpecialWorldDropListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Item"
+      },
+      "InvButtonText": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "TMPro.TextMeshProUGUI"
+      },
+      "InvItemPanel": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "JailedFromTutorial": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "Maps": {
+        "by": "SpecialWorldDropListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<Item>"
+      },
+      "NPCGlobalDamageMod": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "PPFX": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "UnityEngine.Rendering.PostProcessing.PostProcessProfile"
+      },
+      "Patron": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "Planar": {
+        "by": "SpecialWorldDropListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Item"
+      },
+      "PlanarShard": {
+        "by": "SpecialWorldDropListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Item"
+      },
+      "PlanningTable": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "PlayerSkills": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "UseSkill"
+      },
+      "PlayerSpells": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "CastSpell"
+      },
+      "PlayerStats": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "Stats"
+      },
+      "ResizingUI": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "RocFestMode": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "Sivak": {
+        "by": "SpecialWorldDropListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Item"
+      },
+      "SpawnTimeMod": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "SpecialLootBeam": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "TargetRing": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "TreasureLoc": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "UnityEngine.Vector3"
+      },
+      "TreasureZone": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "System.String"
+      },
+      "WikiTeam": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "WorldDropMolds": {
+        "by": "SpecialWorldDropListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<Item>"
+      },
+      "XPPot": {
+        "by": "SpecialWorldDropListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Item"
+      },
+      "ZoneName": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "TMPro.TextMeshProUGUI"
+      },
+      "announceCol": {
+        "by": null,
+        "reason": "GameManager runtime state, UI, or scene reference not exported",
+        "status": "ignored",
+        "type": "UnityEngine.Color32"
       }
     }
   }

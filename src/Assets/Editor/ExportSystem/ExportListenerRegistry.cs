@@ -328,6 +328,18 @@ public static class ExportListenerRegistry
                 context => context.RegisterComponentListener(new MiscListener(context.Database))
             ),
             new(
+                "specialworlddrops",
+                "Special World Drops",
+                ExportScanChannel.Component,
+                Array.Empty<string>(),
+                context =>
+                {
+                    var listener = new SpecialWorldDropListener(context.Database);
+                    context.RegisterComponentListener<GameManager>(listener);
+                    context.RegisterComponentListener<Misc>(listener);
+                }
+            ),
+            new(
                 "miningnodes",
                 "Mining Nodes",
                 ExportScanChannel.Component,
