@@ -4,9 +4,9 @@
     import { goto } from '$app/navigation';
     import { onDestroy } from 'svelte';
     import { MAPS } from '$lib/maps';
-    import { getBrowserRepository } from '$lib/database.default';
+    import type { PageData } from './$types';
     import { type LatLngExpression, type Map as LeafletMap, type LeafletMouseEvent } from 'leaflet';
-    import { compareEncounterTier, type Marker, type EnemyMarker, type NpcMarker } from '$lib/map-markers';
+    import type { Marker, EnemyMarker, NpcMarker } from '$lib/map-markers';
     import Seo from '$lib/components/Seo.svelte';
     import ScaleBar from '$lib/components/map/ScaleBar.svelte';
     import CoordinateReadout from '$lib/components/map/CoordinateReadout.svelte';
@@ -16,6 +16,9 @@
         type CursorCoordinates
     } from '$lib/map/cursor-coordinates';
     import { breadcrumbJsonLd, zoneMapJsonLd } from '$lib/seo/jsonld';
+
+    let { data }: { data: PageData } = $props();
+
     // Fix HTML-encoded ampersands from forum posts (e.g., Steam discussions)
     // This must run before any URL parsing to ensure $page.url is correct
     $effect(() => {
@@ -149,6 +152,7 @@
 
         // Mark as initializing IMMEDIATELY to prevent duplicate runs
         lastInitializedMapName = currentMapName;
+        const { northBearing, markers } = data;
 
         // Clean up previous map instance
         mapInstance?.remove();
@@ -168,11 +172,6 @@
             const worldSizeX = config.baseTilesX * config.tileSize;
             const worldSizeY = config.baseTilesY * config.tileSize;
 
-            // Load and create markers
-            const repository = await getBrowserRepository();
-
-            // Get north bearing for this zone
-            const northBearing = await repository.getZoneNorthBearing(currentMapName);
             // Convert from Unity rotation to Leaflet bearing
             // Unity Z-axis maps to down on our Leaflet map, so we need to flip
             trueNorthBearing = (180 - northBearing + 360) % 360;
@@ -246,63 +245,6 @@
                 };
             }
 
-            const [
-                achievementMarkers,
-                doorMarkers,
-                forgeMarkers,
-                itemBagMarkers,
-                miningNodeMarkers,
-                secretPassageMarkers,
-                spawnPointMarkers,
-                teleportMarkers,
-                treasureLocMarkers,
-                waterMarkers,
-                wishingWellMarkers,
-                zoneLineMarkers
-            ] = await Promise.all([
-                repository.getAchievementTriggerMarkers(currentMapName),
-                repository.getDoorMarkers(currentMapName),
-                repository.getForgeMarkers(currentMapName),
-                repository.getItemBagMarkers(currentMapName),
-                repository.getMiningNodeMarkers(currentMapName),
-                repository.getSecretPassageMarkers(currentMapName),
-                repository.getSpawnPointMarkers(currentMapName),
-                repository.getTeleportMarkers(currentMapName),
-                repository.getTreasureLocMarkers(currentMapName),
-                repository.getWaterMarkers(currentMapName),
-                repository.getWishingWellMarkers(currentMapName),
-                repository.getZoneLineMarkers(currentMapName)
-            ]);
-
-            // Sort spawn points by encounter tier.
-            spawnPointMarkers.sort((a, b) => {
-                // Enemies always come before NPCs
-                if (a.category === 'enemy' && b.category === 'npc') return -1;
-                if (a.category === 'npc' && b.category === 'enemy') return 1;
-
-                // Paint bosses last so the most notable encounters stay visible.
-                if (a.category === 'enemy' && b.category === 'enemy') {
-                    return -compareEncounterTier(a.encounterTier, b.encounterTier);
-                }
-
-                return 0;
-            });
-
-            const allMarkers: Marker[] = [
-                ...waterMarkers,
-                ...zoneLineMarkers,
-                ...secretPassageMarkers,
-                ...forgeMarkers,
-                ...teleportMarkers,
-                ...wishingWellMarkers,
-                ...doorMarkers,
-                ...miningNodeMarkers,
-                ...treasureLocMarkers,
-                ...itemBagMarkers,
-                ...achievementMarkers,
-                ...spawnPointMarkers
-            ];
-
             const layerGroups: { [key: string]: L.LayerGroup } = {};
             // eslint-disable-next-line svelte/prefer-svelte-reactivity -- pre-existing Leaflet code
             const markerMap = new Map<string, L.Marker>();
@@ -320,7 +262,7 @@
                 });
             }
 
-            allMarkers.forEach((marker) => {
+            markers.forEach((marker: Marker) => {
                 let color = 'white';
                 let radius = 8;
                 let layer = 'Default';
