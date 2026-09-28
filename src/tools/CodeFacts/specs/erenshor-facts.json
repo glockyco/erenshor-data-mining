@@ -197,6 +197,30 @@
       ]
     },
     {
+      "id": "loot.world_drop.masks_gate",
+      "mode": "assert",
+      "type": "LootTable",
+      "method": "InitLootTable",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BinaryOperatorExpression",
+        "shape": "Random.value < 0.001f && GameData.GM.DropMasks"
+      },
+      "note": "The mask roll is not scaled by the loot rate and needs the DropMasks flag. The special world drop build re-implements both."
+    },
+    {
+      "id": "loot.world_drop.empty2_gate",
+      "mode": "assert",
+      "type": "LootTable",
+      "method": "InitLootTable",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BinaryOperatorExpression",
+        "shape": "GameData.GM.DemoBuild && Random.value < 0.001f * num4"
+      },
+      "note": "The Empty2 roll happens only in the demo build. The special world drop build re-implements the DemoBuild gate."
+    },
+    {
       "id": "smithing.upgrade_ids",
       "mode": "extract",
       "type": "Smithing",

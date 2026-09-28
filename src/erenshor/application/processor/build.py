@@ -40,6 +40,7 @@ from .entities import (
     process_zones,
 )
 from .mapping import load_mapping, validate_character_name_overrides
+from .special_world_drops import process_special_world_drops
 from .writer import Writer
 
 
@@ -106,6 +107,9 @@ def build(
 
         logger.info("Processing class starting items...")
         process_class_starting_items(raw, writer, item_keys)
+
+        logger.info("Processing special world drops...")
+        process_special_world_drops(raw, writer, item_keys)
 
         logger.info("Processing spells...")
         process_spells(raw, writer, mapping)

@@ -1,16 +1,16 @@
 ## 1. Code facts (commit: `feat(code-facts): pin the essence roll and the mask split`)
 
-- [ ] 1.1 Add `loot.world_drop.essence_of_amarion` (`guarded_member_roll`) to `src/tools/CodeFacts/specs/erenshor-facts.json`. Verify that `uv run erenshor extract code-facts` extracts `rate=0.0045454544` and `min_level=0`.
-- [ ] 1.2 Add the `nested_branch_split` matcher to `src/tools/CodeFacts/Matchers.cs` and the `loot.world_drop.mask_split` fact. Verify that it extracts `range_min=0`, `range_max=100`, `cutoff=1`, and that the matcher fails when the configured members are swapped between branches.
-- [ ] 1.3 Add the `loot.world_drop.masks_gate` `node_shape` assert. Update `tests/data/test_code_facts_real.py` for the new facts. Verify with `uv run pytest tests/data/test_code_facts_real.py`.
+- [x] 1.1 Add `loot.world_drop.essence_of_amarion` (`guarded_member_roll`) to `src/tools/CodeFacts/specs/erenshor-facts.json`. Verify that `uv run erenshor extract code-facts` extracts `rate=0.0045454544` and `min_level=0`.
+- [x] 1.2 Add the `nested_branch_split` matcher to `src/tools/CodeFacts/Matchers.cs` and the `loot.world_drop.mask_split` fact. Verify that it extracts `range_min=0`, `range_max=100`, `cutoff=1`, and that the matcher fails when the configured members are swapped between branches.
+- [x] 1.3 Update `tests/data/test_code_facts_real.py` for the new facts. Verify with `uv run pytest tests/data/test_code_facts_real.py`. The `loot.world_drop.masks_gate` assert lands with its consumer in task 3.1, because the coverage test requires a consumer tag for every assert.
 
 ## 2. Export (commit: `feat(export): export the special world drop pools`)
 
-- [ ] 2.1 Read `skill://unity-export-system`. Add the `SpecialWorldDropItems` and `SpecialWorldDropFlags` records and a listener for the `GameManager` and `Misc` components, as design D1 describes. Verify with `uv run erenshor extract export` that the raw DB has 11 mold rows, 4 map rows, 15 mask rows, one row for each single-item pool, and the flags `DropMasks=1` and `DemoBuild=0`.
+- [x] 2.1 Read `skill://unity-export-system`. Add the `SpecialWorldDropItems` and `SpecialWorldDropFlags` records and a listener for the `GameManager` and `Misc` components, as design D1 describes. Verify with `uv run erenshor extract export` that the raw DB has 11 mold rows, 4 map rows, 15 mask rows, one row for each single-item pool, and the flags `DropMasks=1` and `DemoBuild=0`.
 
 ## 3. Clean build (commit: `feat(pipeline): derive special world drop chances`)
 
-- [ ] 3.1 Add `process_special_world_drops` and the `special_world_drops` clean table, as design D3 describes, with `# code-fact:` tags. Add unit tests for the pool share, a duplicated pool entry, the mask split arithmetic, the disabled-flag cases, and the failure for a pool without a fact. Verify that the clean DB lists Crystallized Balance at 0.05% above level 30.
+- [x] 3.1 Add `process_special_world_drops` and the `special_world_drops` clean table, as design D3 describes, with `# code-fact:` tags. Add unit tests for the pool share, a duplicated pool entry, the mask split arithmetic, the disabled-flag cases, and the failure for a pool without a fact. Verify that the clean DB lists Crystallized Balance at 0.05% above level 30.
 - [ ] 3.2 Run `uv run erenshor golden capture`. Show the golden diff to the user and commit it only after approval.
 
 ## 4. Consumers (one commit each)

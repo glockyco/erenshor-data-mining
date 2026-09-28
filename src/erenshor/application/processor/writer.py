@@ -492,6 +492,18 @@ CREATE TABLE item_drops (
     PRIMARY KEY (source_item_stable_key, dropped_item_stable_key)
 );
 
+-- Items that every loot-table kill can roll in addition to the killed
+-- character's table. drop_probability is the chance per kill in percent at
+-- the default loot rate. The killed character's level must exceed
+-- min_level_exclusive.
+CREATE TABLE special_world_drops (
+    item_stable_key         TEXT NOT NULL,
+    pool                    TEXT NOT NULL,
+    drop_probability        REAL NOT NULL,
+    min_level_exclusive     INTEGER NOT NULL,
+    PRIMARY KEY (item_stable_key, pool)
+);
+
 
 CREATE TABLE spell_created_items (
     source_item_stable_key   TEXT NOT NULL,
@@ -1398,6 +1410,9 @@ class Writer:
 
     def insert_item_drops(self, rows: list[dict[str, object]]) -> int:
         return self._insert("item_drops", rows)
+
+    def insert_special_world_drops(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("special_world_drops", rows)
 
     def insert_spell_created_items(self, rows: list[dict[str, object]]) -> int:
         return self._insert("spell_created_items", rows)
