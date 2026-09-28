@@ -16,7 +16,8 @@
 
 import { browser } from '$app/environment';
 import { pushState, replaceState } from '$app/navigation';
-import { DEFAULT_LAYER_VISIBILITY, type LayerVisibility } from '$lib/types/world-map';
+import type { LayerVisibility } from '$lib/types/world-map';
+import { serializeLayers } from './layer-url';
 
 // ============================================================================
 // Types
@@ -66,115 +67,6 @@ const VIEW_SYNC_DEBOUNCE_MS = 150;
 let lastSel: string | null = null;
 let isPassiveMode = false;
 let viewSyncTimer: ReturnType<typeof setTimeout> | null = null;
-
-// ============================================================================
-// Layer Serialization
-// ============================================================================
-
-/**
- * Layer key mappings for URL serialization.
- * Short keys for compact URLs.
- */
-const LAYER_KEYS: Record<keyof LayerVisibility, string> = {
-    // Terrain
-    tiles: 'tile',
-    worldMap: 'wm',
-    zoneBounds: 'zb',
-    zoneLabels: 'zlbl',
-    // Enemies
-    spawnPoints: 'sp',
-    spawnPointsElite: 'spe',
-    spawnPointsBoss: 'spb',
-    // NPCs
-    characters: 'npc',
-    // Zone connections
-    zoneLines: 'zl',
-    teleports: 'tp',
-    // Utilities
-    forges: 'forge',
-    wishingWells: 'well',
-    // Resources
-    miningNodes: 'mine',
-    water: 'fish',
-    itemBags: 'bag',
-    treasureLocs: 'tr',
-    // Secrets
-    doors: 'door',
-    secretPassages: 'sec',
-    achievementTriggers: 'ach',
-    // Movement overlays
-    showPatrols: 'pat',
-    showWanderRanges: 'wr'
-};
-
-const LAYER_KEYS_REVERSE: Record<string, keyof LayerVisibility> = Object.fromEntries(
-    Object.entries(LAYER_KEYS).map(([k, v]) => [v, k as keyof LayerVisibility])
-);
-
-function layersMatchDefaults(layers: LayerVisibility): boolean {
-    for (const key of Object.keys(DEFAULT_LAYER_VISIBILITY) as (keyof LayerVisibility)[]) {
-        if (layers[key] !== DEFAULT_LAYER_VISIBILITY[key]) {
-            return false;
-        }
-    }
-    return true;
-}
-
-function serializeLayers(layers: LayerVisibility): string | null {
-    if (layersMatchDefaults(layers)) {
-        return null;
-    }
-
-    const disabledDefaults: string[] = [];
-    const enabledNonDefaults: string[] = [];
-
-    for (const key of Object.keys(DEFAULT_LAYER_VISIBILITY) as (keyof LayerVisibility)[]) {
-        const isOn = layers[key];
-        const defaultOn = DEFAULT_LAYER_VISIBILITY[key];
-
-        if (isOn && !defaultOn) {
-            enabledNonDefaults.push(LAYER_KEYS[key]);
-        } else if (!isOn && defaultOn) {
-            disabledDefaults.push(LAYER_KEYS[key]);
-        }
-    }
-
-    if (disabledDefaults.length === 0 && enabledNonDefaults.length === 0) {
-        return null;
-    }
-
-    if (disabledDefaults.length > 0) {
-        return disabledDefaults.map((k) => `-${k}`).join(',');
-    }
-
-    return enabledNonDefaults.join(',');
-}
-
-function parseLayers(layerStr: string | null): LayerVisibility {
-    if (!layerStr) {
-        return { ...DEFAULT_LAYER_VISIBILITY };
-    }
-
-    const layers = { ...DEFAULT_LAYER_VISIBILITY };
-    const parts = layerStr.split(',').filter(Boolean);
-
-    for (const part of parts) {
-        if (part.startsWith('-')) {
-            const key = part.slice(1);
-            const layerKey = LAYER_KEYS_REVERSE[key];
-            if (layerKey) {
-                layers[layerKey] = false;
-            }
-        } else {
-            const layerKey = LAYER_KEYS_REVERSE[part];
-            if (layerKey) {
-                layers[layerKey] = true;
-            }
-        }
-    }
-
-    return layers;
-}
 
 // ============================================================================
 // Core Functions
@@ -294,13 +186,6 @@ export function parseUrlState(): ParsedUrlState | null {
         debug: params.get('debug') === 'true',
         levelFilter
     };
-}
-
-/**
- * Parse layer visibility from URL string.
- */
-export function parseLayerVisibility(layerStr: string | null): LayerVisibility {
-    return parseLayers(layerStr);
 }
 
 // ============================================================================

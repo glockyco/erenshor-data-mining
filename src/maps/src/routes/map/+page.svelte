@@ -48,13 +48,8 @@
         downloadJson,
         type DragInfo
     } from '$lib/map/debug';
-    import {
-        urlManager,
-        parseUrlState,
-        parseLayerVisibility,
-        getNormalizedSearch,
-        type UrlStateParams
-    } from '$lib/map/url-state';
+    import { urlManager, parseUrlState, getNormalizedSearch, type UrlStateParams } from '$lib/map/url-state';
+    import { parseLayerVisibility } from '$lib/map/layer-url';
     import {
         DEFAULT_LAYER_VISIBILITY,
         type LayerVisibility,
