@@ -24,6 +24,7 @@ Measurements from the current main database:
 - The database stays published at the same URL for consumers outside the site.
 - The spawn popup, the live-entity popup, and the zone pages show the same data as before, except for the items that the mapping hides.
 - A browser test protects the change before and after the cutover.
+- Every interface that shipped companion mods use keeps working: the `/map` document on both hosts, its `layers` and `sel` parameters with all keys that earlier versions wrote, the WebSocket protocols on ports 18584 and 18585, and `/db/erenshor.sqlite`. Commit `f08efcc4` restored the `spr` and `spu` layer keys after the encounter tier change had dropped them.
 
 **Non-Goals:**
 
@@ -86,6 +87,7 @@ The specs check:
 - `/map` has a canvas with a non-zero size.
 - `/map?sel=marker:spawn:stowaway-enemy` shows the fixture enemy's drops, and `/map?sel=marker:spawn:stowaway-breena` shows the fixture vendor stock.
 - `/maps/Stowaway` shows Leaflet markers for the fixture spawn points.
+- `/map?layers=-sp,-spr,-spu,-npc`, the query that shipped overlays load, hides the enemy, elite, boss, and NPC layers.
 - `/db/erenshor.sqlite` returns a body that starts with `SQLite format 3`.
 - After the cutover, a context-level request listener fails the run on any page or service worker request for a URL that ends in `.sqlite`.
 

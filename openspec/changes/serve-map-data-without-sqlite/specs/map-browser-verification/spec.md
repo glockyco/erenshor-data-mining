@@ -26,6 +26,11 @@ Defines the browser smoke test that the maps CI leaf runs, so that a runtime fai
 - **WHEN** any checked page raises an uncaught error
 - **THEN** the maps leaf fails and reports the page and the error text
 
+#### Scenario: The legacy overlay query stops working
+
+- **WHEN** `/map?layers=-sp,-spr,-spu,-npc` leaves any spawn layer visible
+- **THEN** the maps leaf fails and names the visible layer
+
 ### Requirement: The smoke test guards the published database
 
 The browser smoke test SHALL fail when any checked page or the service worker requests a `.sqlite` resource. It SHALL also fail when `/db/erenshor.sqlite` is not served as a valid SQLite database.

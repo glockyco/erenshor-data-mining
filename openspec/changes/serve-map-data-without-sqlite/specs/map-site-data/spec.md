@@ -4,6 +4,25 @@ Defines how the interactive map site delivers game data to the browser: the buil
 
 ## ADDED Requirements
 
+### Requirement: Legacy companion interfaces keep working
+
+Every interface that a shipped companion mod build uses SHALL keep its behavior: the `/map` document on both hosts with its `layers` and `sel` query parameters, including layer keys that earlier site versions wrote, the live-entity WebSocket messages on port 18585 for `/map`, the player-position WebSocket messages on port 18584 for `/maps/[mapName]`, and the `/db/erenshor.sqlite` resource.
+
+#### Scenario: A shipped overlay hides the spawn markers
+
+- **WHEN** a companion overlay loads `/map?layers=-sp,-spr,-spu,-npc` on either host
+- **THEN** the enemy, elite, boss, and NPC spawn layers are hidden
+
+#### Scenario: An older mod reports a live enemy with a rarity
+
+- **WHEN** the companion mod sends a live enemy with `rarity` set to `boss` or `rare` and no stored tier matches its name
+- **THEN** the map shows the enemy as a boss or an elite
+
+#### Scenario: The retired zone map mod sends a player position
+
+- **WHEN** a zone page receives a player-position message on port 18584
+- **THEN** the page shows the player marker at that position
+
 ### Requirement: The site publishes the clean database
 
 The map build output SHALL contain the selected variant's clean database at `/db/erenshor.sqlite`, byte-identical to the source file. The build output SHALL contain no other `.sqlite` file.
