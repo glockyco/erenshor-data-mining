@@ -21,6 +21,6 @@
 
 ## 5. Release
 
-- [ ] 5.1 Update the `code-facts`, `unity-export-system`, and `sheets-queries` skills and `docs/architecture.md` where they describe drop sources. Correct the Molorai Mask share in issue #274.
-- [ ] 5.2 Run `uv run erenshor test ci`. Deploy sheets, then build, check, and deploy maps. Leave the wiki deploy to a separate user decision.
-- [ ] 5.3 Close #274 with a summary. Archive the change.
+- [x] 5.1 Update the `code-facts`, `unity-export-system`, and `sheets-queries` skills and `docs/architecture.md` where they describe drop sources. Correct the Molorai Mask share in issue #274.
+- [x] 5.2 Run `uv run erenshor test ci`. Deploy sheets, then build, check, and deploy maps. Leave the wiki deploy to a separate user decision.
+- [x] 5.3 Close #274 with a summary. Archive the change.
