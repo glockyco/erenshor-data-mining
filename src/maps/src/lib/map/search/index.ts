@@ -85,6 +85,7 @@ export function itemResultSummaryParts(result: ItemSearchResult): string[] {
     push(c.miningNodes, 'mining node');
     push(c.fishingSpots, 'fishing spot');
     push(c.itemBags, 'item bag');
+    push(c.worldDrops, 'world drop');
     push(result.zoneCount, 'zone');
     return parts;
 }

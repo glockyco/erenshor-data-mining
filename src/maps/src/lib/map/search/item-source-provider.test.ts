@@ -5,6 +5,7 @@ import type {
     ItemMiningSource,
     ItemFishingSource,
     ItemBagSource,
+    ItemWorldDropSource,
     ItemSourceItemMeta
 } from '$lib/map-markers';
 import type {
@@ -265,7 +266,8 @@ describe('ItemSearchProvider', () => {
                 vendors: 0,
                 miningNodes: 0,
                 fishingSpots: 0,
-                itemBags: 0
+                itemBags: 0,
+                worldDrops: 0
             },
             zoneCount: 0
         });
@@ -316,7 +318,8 @@ describe('ItemSearchProvider', () => {
                 vendors: 0,
                 miningNodes: 0,
                 fishingSpots: 0,
-                itemBags: 0
+                itemBags: 0,
+                worldDrops: 0
             });
         }
     });
@@ -337,7 +340,8 @@ describe('ItemSearchProvider', () => {
             vendors: 1,
             miningNodes: 0,
             fishingSpots: 0,
-            itemBags: 0
+            itemBags: 0,
+            worldDrops: 0
         });
     });
 
@@ -382,7 +386,8 @@ describe('ItemSearchProvider', () => {
             vendors: 0,
             miningNodes: 1,
             fishingSpots: 0,
-            itemBags: 1
+            itemBags: 1,
+            worldDrops: 0
         });
         expect(provider.getSourcesForItem('item:resources')).toHaveLength(2);
         expect(provider.getSourcesForItem('item:resources').map((source) => source.kind)).toEqual([
@@ -450,6 +455,27 @@ describe('ItemSearchProvider', () => {
 
         expect(provider.getResult('item:mixed')?.zoneCount).toBe(2);
     });
+    it('knows the source of an item that only world drops yield, without a map location', () => {
+        const worldRow: ItemWorldDropSource = {
+            kind: 'world',
+            itemStableKey: 'item:balance',
+            displayName: 'Crystallized Balance',
+            wikiPageName: 'Crystallized Balance',
+            iconName: null,
+            pool: 'CrystallizedBalance',
+            dropProbability: 0.05,
+            minLevelExclusive: 30
+        };
+        const provider = new ItemSearchProvider([worldRow], [], [], [], []);
+
+        const result = provider.getResult('item:balance');
+        expect(result?.hasKnownSource).toBe(true);
+        expect(result?.sourceCounts.worldDrops).toBe(1);
+        expect(result?.zoneCount).toBe(0);
+        expect(provider.getMarkersForItem('item:balance')).toEqual([]);
+        expect(provider.resolveHighlight(result!)).toEqual({ type: 'none' });
+    });
+
     it('resolves highlight to positions of all dropper spawns', () => {
         const rows = [row('item:1', 'Gem', 'char:1', 'Goblin', 5)];
         const enemy1 = makeEnemy('sp:1', 'Duskenlight', 'Duskenlight', 'char:1', 'Goblin');
@@ -467,7 +493,8 @@ describe('ItemSearchProvider', () => {
                 vendors: 0,
                 miningNodes: 0,
                 fishingSpots: 0,
-                itemBags: 0
+                itemBags: 0,
+                worldDrops: 0
             },
             zoneCount: 2,
             hasKnownSource: true

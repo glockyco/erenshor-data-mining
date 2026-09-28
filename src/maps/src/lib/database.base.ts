@@ -1301,6 +1301,38 @@ export class RepositoryBase {
             stmt.free();
         }
 
+        {
+            const stmt = this.db.prepare(`
+                SELECT
+                    i.stable_key            AS itemStableKey,
+                    i.display_name          AS displayName,
+                    i.wiki_page_name        AS wikiPageName,
+                    i.item_icon_name        AS iconName,
+                    swd.pool                AS pool,
+                    swd.drop_probability    AS dropProbability,
+                    swd.min_level_exclusive AS minLevelExclusive
+                FROM special_world_drops swd
+                JOIN items i ON i.stable_key = swd.item_stable_key
+                WHERE i.is_map_visible = 1
+                ORDER BY i.display_name, swd.pool
+            `);
+
+            while (stmt.step()) {
+                const row = stmt.getAsObject();
+                rows.push({
+                    kind: 'world',
+                    itemStableKey: row.itemStableKey as string,
+                    displayName: row.displayName as string,
+                    wikiPageName: (row.wikiPageName as string) ?? null,
+                    iconName: (row.iconName as string) ?? null,
+                    pool: row.pool as string,
+                    dropProbability: row.dropProbability as number,
+                    minLevelExclusive: row.minLevelExclusive as number
+                });
+            }
+            stmt.free();
+        }
+
         return rows;
     }
 

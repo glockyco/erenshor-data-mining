@@ -209,6 +209,14 @@ CREATE TABLE loot_drops (
     PRIMARY KEY (character_stable_key, item_stable_key)
 );
 
+CREATE TABLE special_world_drops (
+    item_stable_key TEXT NOT NULL REFERENCES items(stable_key),
+    pool TEXT NOT NULL,
+    drop_probability REAL NOT NULL,
+    min_level_exclusive INTEGER NOT NULL,
+    PRIMARY KEY (item_stable_key, pool)
+);
+
 CREATE TABLE character_vendor_items (
     character_stable_key TEXT NOT NULL REFERENCES characters(stable_key),
     item_stable_key TEXT NOT NULL REFERENCES items(stable_key),
@@ -296,7 +304,8 @@ INSERT INTO items (
     ('item:fixture fish', 'Fixture Fish', 'Fixture Fish', 'fixture_fish', 5, 1),
     ('item:fixture bag', 'Fixture Bag Item', 'Fixture Bag Item', 'fixture_bag', 15, 1),
     ('item:fixture drop', 'Fixture Drop', 'Fixture Drop', 'fixture_drop', 30, 1),
-    ('item:furniture - enchanted smithy', 'Enchanted Smithy', 'Enchanted Smithy', 'enchanted_smithy', 250, 1);
+    ('item:furniture - enchanted smithy', 'Enchanted Smithy', 'Enchanted Smithy', 'enchanted_smithy', 250, 1),
+    ('item:fixture relic', 'Fixture Relic', 'Fixture Relic', 'fixture_relic', 40, 1);
 
 -- A loot table larger than any cap a query might reintroduce. These carry no
 -- wiki page, so they stay out of item search and the searchable-item counts
@@ -410,6 +419,10 @@ INSERT INTO character_vendor_quest_unlocks (character_stable_key, quest_stable_k
     ('character:breena carpenter', 'quest:vendor-unlock');
 INSERT INTO quest_variants (quest_stable_key, unlock_item_for_vendor_stable_key) VALUES
     ('quest:vendor-unlock', 'item:furniture - enchanted smithy');
+
+-- A relic whose only source is a special world drop, which has no map location.
+INSERT INTO special_world_drops (item_stable_key, pool, drop_probability, min_level_exclusive) VALUES
+    ('item:fixture relic', 'CrystallizedBalance', 0.05, 30);
 
 -- A build id and publish time distinct from any real one, so a fixture render
 -- can never be mistaken for a render of the live data.

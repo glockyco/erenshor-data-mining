@@ -16,7 +16,7 @@
 ## 4. Consumers (one commit each)
 
 - [x] 4.1 `feat(sheets): list special world drops`: add the world drop branch to `drop-chances.sql`. Verify the row count against `special_world_drops` with a dry run.
-- [ ] 4.2 `feat(maps): show special world drops in item search`: add the `world` source kind to `getItemSources`, the fixture, the search provider, and the item popup. Add a unit test for an item whose only source is a world drop. Extend the smoke test with that item. Verify in a browser that the Crystallized Balance search result shows the world drop.
+- [x] 4.2 `feat(maps): show special world drops in item search`: add the `world` source kind to `getItemSources`, the fixture, the search provider, and the item popup. Add a unit test for an item whose only source is a world drop. Extend the smoke test with that item. Verify in a browser that the Crystallized Balance search result shows the world drop.
 - [ ] 4.3 `feat(wiki): show special world drops on item pages`: add the world drop source to the item source assembly, the item section, the Lua item data, and the Cargo source types. Verify with `uv run erenshor wiki generate` that Crystallized Balance and Planar Shard list the world drop, and with the wiki-dev stack that the pages render.
 
 ## 5. Release

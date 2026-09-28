@@ -78,6 +78,8 @@
             case 'fishing':
             case 'bag':
                 return [source.marker];
+            case 'world':
+                return [];
         }
     }
 
@@ -247,6 +249,18 @@
         );
     });
 
+    const worldDrops = $derived(
+        sources
+            .filter((source) => source.kind === 'world')
+            .map((source) => source.row)
+            .sort((a, b) => b.dropProbability - a.dropProbability)
+    );
+
+    // Two significant digits: world drop chances range from 1% down to 0.002%.
+    function formatWorldDropChance(pct: number): string {
+        return `${Number(pct.toPrecision(2))}%`;
+    }
+
     function focusMarkers(markers: AnySourceMarker[]): void {
         if (markers.length > 0) onFocusSpawn(markers[0].stableKey);
     }
@@ -282,7 +296,7 @@
         </div>
     </div>
 
-    {#if result.hasKnownSource}
+    {#if allMarkers.length > 0}
         <!-- Focus all button -->
         <button
             type="button"
@@ -296,7 +310,7 @@
             <Crosshair class="h-3.5 w-3.5" />
             <span>Show all {allMarkers.length} location{allMarkers.length !== 1 ? 's' : ''}</span>
         </button>
-    {:else}
+    {:else if !result.hasKnownSource}
         <p class="border-t border-zinc-700 pt-3 text-center text-xs text-zinc-400">
             The map has no data on how to obtain this item.
         </p>
@@ -514,6 +528,22 @@
                     />
                 </button>
             {/each}
+        </div>
+    {/if}
+
+    {#if worldDrops.length > 0}
+        <!-- Special world drops -->
+        <div class="space-y-1 border-t border-zinc-700 pt-2">
+            <div class="text-xs uppercase tracking-wide text-zinc-500 mb-2">World drop</div>
+            {#each worldDrops as drop (drop.pool)}
+                <div class="flex justify-between gap-2 px-2 text-xs">
+                    <span class="text-zinc-300">
+                        {drop.minLevelExclusive > 0 ? `Any enemy above level ${drop.minLevelExclusive}` : 'Any enemy'}
+                    </span>
+                    <span class="shrink-0 text-zinc-500">{formatWorldDropChance(drop.dropProbability)} per kill</span>
+                </div>
+            {/each}
+            <div class="px-2 text-xs text-zinc-500">At the default loot rate.</div>
         </div>
     {/if}
 </div>

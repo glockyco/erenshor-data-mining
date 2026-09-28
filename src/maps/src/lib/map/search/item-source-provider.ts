@@ -1,12 +1,13 @@
 /**
  * Item search provider.
  *
- * Indexes every map-visible item acquisition source with a fixed map location:
- * drops, vendors, mining nodes, fishing spots, and item bags. A single search
- * result represents all resolved source locations for the item. Items are keyed
- * by stable key, not display name, because display names are not unique (e.g.
- * "Scribbles of a Mad Priest" has two distinct stable keys) — keying by name
- * would wrongly merge unrelated source sets.
+ * Indexes every map-visible item acquisition source: drops, vendors, mining
+ * nodes, fishing spots, and item bags, which have map locations, and special
+ * world drops, which every loot-table kill can roll and which therefore have
+ * none. A single search result represents all sources for the item. Items are
+ * keyed by stable key, not display name, because display names are not unique
+ * (e.g. "Scribbles of a Mad Priest" has two distinct stable keys) — keying by
+ * name would wrongly merge unrelated source sets.
  */
 
 import type {
@@ -23,7 +24,8 @@ import type {
     ItemVendorSource,
     ItemMiningSource,
     ItemFishingSource,
-    ItemBagSource
+    ItemBagSource,
+    ItemWorldDropSource
 } from '$lib/map-markers';
 import type {
     SearchProvider,
@@ -42,7 +44,8 @@ export type ResolvedItemSource =
     | { kind: 'vendor'; row: ItemVendorSource; markers: AnySpawnMarker[] }
     | { kind: 'mining'; row: ItemMiningSource; marker: WorldMiningNode }
     | { kind: 'fishing'; row: ItemFishingSource; marker: WorldWater }
-    | { kind: 'bag'; row: ItemBagSource; marker: WorldItemBag };
+    | { kind: 'bag'; row: ItemBagSource; marker: WorldItemBag }
+    | { kind: 'world'; row: ItemWorldDropSource };
 
 interface ItemEntry {
     result: ItemSearchResult;
@@ -148,6 +151,10 @@ export class ItemSearchProvider implements SearchProvider {
                         if (marker) sources.push({ kind: 'bag', row, marker });
                         break;
                     }
+                    case 'world': {
+                        sources.push({ kind: 'world', row });
+                        break;
+                    }
                 }
             }
 
@@ -156,6 +163,7 @@ export class ItemSearchProvider implements SearchProvider {
             const miningKeys = new Set<string>();
             const fishingKeys = new Set<string>();
             const bagKeys = new Set<string>();
+            let worldDrops = 0;
             const zoneSet = new Set<string>();
 
             for (const source of sources) {
@@ -171,9 +179,11 @@ export class ItemSearchProvider implements SearchProvider {
                 } else if (source.kind === 'fishing') {
                     fishingKeys.add(source.marker.stableKey);
                     zoneSet.add(source.marker.zone);
-                } else {
+                } else if (source.kind === 'bag') {
                     bagKeys.add(source.marker.stableKey);
                     zoneSet.add(source.marker.zone);
+                } else {
+                    worldDrops++;
                 }
             }
 
@@ -182,7 +192,8 @@ export class ItemSearchProvider implements SearchProvider {
                 vendors: vendorKeys.size,
                 miningNodes: miningKeys.size,
                 fishingSpots: fishingKeys.size,
-                itemBags: bagKeys.size
+                itemBags: bagKeys.size,
+                worldDrops
             };
 
             this.itemByStableKey.set(itemStableKey, {
@@ -239,7 +250,7 @@ export class ItemSearchProvider implements SearchProvider {
         for (const source of entry.sources) {
             if (source.kind === 'drop' || source.kind === 'vendor') {
                 for (const marker of source.markers) markerSet.add(marker);
-            } else {
+            } else if (source.kind !== 'world') {
                 markerSet.add(source.marker);
             }
         }

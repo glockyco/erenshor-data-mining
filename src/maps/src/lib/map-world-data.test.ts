@@ -62,13 +62,14 @@ describe('buildMapWorldData', () => {
         expect(tiers.get('Fixture Enemy')).toBe('boss');
         expect(tiers.get('Runtime Enemy')).toBe('elite');
         expect(tiers.has('Breena Carpenter')).toBe(false);
-        expect(data.allItems).toHaveLength(6);
+        expect(data.allItems).toHaveLength(7);
         expect([...new Set(data.itemSources.map((source) => source.kind))].sort()).toEqual([
             'bag',
             'drop',
             'fishing',
             'mining',
-            'vendor'
+            'vendor',
+            'world'
         ]);
         expect(close).toHaveBeenCalledTimes(1);
 

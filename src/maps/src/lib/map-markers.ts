@@ -142,12 +142,24 @@ export type ItemBagSource = ItemSourceItemMeta & {
     bagStableKey: string;
 };
 
+/**
+ * A special world drop: rolled on every loot-table kill in addition to the
+ * killed character's own table, so it has no map location.
+ */
+export type ItemWorldDropSource = ItemSourceItemMeta & {
+    kind: 'world';
+    pool: string;
+    dropProbability: number; // 0–100, per kill at the default loot rate
+    minLevelExclusive: number; // the killed character's level must exceed this
+};
+
 export type ItemSourceRow =
     | ItemDropSource
     | ItemVendorSource
     | ItemMiningSource
     | ItemFishingSource
-    | ItemBagSource;
+    | ItemBagSource
+    | ItemWorldDropSource;
 
 // Vendor item info (for popups)
 export type VendorItem = {

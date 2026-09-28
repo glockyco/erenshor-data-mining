@@ -94,7 +94,7 @@ describe('Repository', () => {
 
 	it('loads all searchable items and the quest-unlocked vendor item', async () => {
 		const items = await db.getAllItems();
-		expect(items).toHaveLength(6);
+		expect(items).toHaveLength(7);
 		expect(items.every((item) => (item.wikiPageName?.trim().length ?? 0) > 0)).toBe(true);
 		expect(items.find((item) => item.itemStableKey === 'item:furniture - enchanted smithy')).toEqual({
 			itemStableKey: 'item:furniture - enchanted smithy',
@@ -129,7 +129,8 @@ describe('Repository', () => {
 			'drop',
 			'fishing',
 			'mining',
-			'vendor'
+			'vendor',
+			'world'
 		]);
 		expect(rows.every((row) => row.itemStableKey.length > 0)).toBe(true);
 		expect(rows.every((row) => row.displayName.length > 0)).toBe(true);

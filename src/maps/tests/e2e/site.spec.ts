@@ -83,6 +83,14 @@ test('vendor popup lists direct and quest-unlocked stock', async ({ page }) => {
     await expect(page.getByText('Enchanted Smithy', { exact: true })).toBeVisible();
 });
 
+test('an item that only world drops yield shows its world drop source', async ({ page }) => {
+    await page.goto(`/map?sel=${encodeURIComponent('item:item:fixture relic')}`);
+
+    await expect(page.getByText('Any enemy above level 30')).toBeVisible();
+    await expect(page.getByText('0.05% per kill')).toBeVisible();
+    await expect(page.getByText('The map has no data on how to obtain this item.')).toHaveCount(0);
+});
+
 test('the layers query that shipped overlays load hides every spawn layer', async ({ page }) => {
     await page.goto('/map?layers=-sp%2C-spr%2C-spu%2C-npc');
 

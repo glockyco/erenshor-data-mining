@@ -40,6 +40,8 @@ export type ItemSourceCounts = {
     miningNodes: number;
     fishingSpots: number;
     itemBags: number;
+    /** Special world drop rolls, which have no map location */
+    worldDrops: number;
 };
 
 export type ItemSearchResult = {
