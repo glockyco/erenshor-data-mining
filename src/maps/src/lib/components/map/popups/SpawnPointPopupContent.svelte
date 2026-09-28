@@ -1,60 +1,15 @@
 <script lang="ts">
-    import { SvelteMap } from 'svelte/reactivity';
     import type { WorldEnemy, WorldNpc, SpawnCharacter } from '$lib/types/world-map';
     import { compareEncounterTier } from '$lib/map-markers';
-    import type { CharacterDrop, VendorItem } from '$lib/map-markers';
-    import { getBrowserRepository } from '$lib/database.default';
+    import type { CharacterDetails } from '$lib/map/character-details';
     import WikiLink from '$lib/components/map/WikiLink.svelte';
 
     interface Props {
         marker: WorldEnemy | WorldNpc;
+        characterDetails: CharacterDetails;
     }
 
-    let { marker }: Props = $props();
-
-    let characterDrops = new SvelteMap<string, CharacterDrop[]>();
-    let characterVendorItems = new SvelteMap<string, VendorItem[]>();
-    let isLoading = $state(true);
-    let loadError = $state<string | null>(null);
-
-    // Load drops and vendor items when component mounts
-    $effect(() => {
-        if (marker.characters.length > 0) {
-            loadData();
-        } else {
-            isLoading = false;
-        }
-    });
-
-    async function loadData() {
-        isLoading = true;
-        loadError = null;
-        characterDrops.clear();
-        characterVendorItems.clear();
-        try {
-            const repo = await getBrowserRepository();
-
-            const keys = marker.characters.map((char) => char.stableKey);
-            const drops = await repo.getDropsForCharacters(keys);
-            for (const key of keys) {
-                characterDrops.set(key, drops.get(key) ?? []);
-            }
-
-            for (const char of marker.characters) {
-                if (char.isVendor) {
-                    characterVendorItems.set(
-                        char.stableKey,
-                        await repo.getVendorItems(char.stableKey)
-                    );
-                }
-            }
-        } catch (err) {
-            console.error('Failed to load spawn point data:', err);
-            loadError = err instanceof Error ? err.message : 'Failed to load';
-        } finally {
-            isLoading = false;
-        }
-    }
+    let { marker, characterDetails }: Props = $props();
 
     // Format respawn time
     function formatRespawnTime(seconds: number | null): string {
@@ -139,6 +94,7 @@
     <!-- Characters -->
     <div class="space-y-3">
         {#each sortedCharacters as char (char.stableKey)}
+            {@const drops = characterDetails.drops.get(char.stableKey) ?? []}
             <div class="rounded bg-zinc-800 p-3">
                 <!-- Character header -->
                 <div class="flex items-start justify-between gap-2">
@@ -157,10 +113,8 @@
                 </div>
 
                 <!-- Vendor Items -->
-                {#if isLoading && char.isVendor}
-                    <div class="mt-2 text-xs text-zinc-500">Loading items...</div>
-                {:else if characterVendorItems.has(char.stableKey)}
-                    {@const items = characterVendorItems.get(char.stableKey) || []}
+                {#if char.isVendor}
+                    {@const items = characterDetails.vendorItems.get(char.stableKey) ?? []}
                     {#if items.length > 0}
                         <div class="mt-2 border-t border-zinc-700 pt-2">
                             <div class="text-xs text-zinc-500 uppercase tracking-wide mb-1">
@@ -183,29 +137,22 @@
                 {/if}
 
                 <!-- Drops -->
-                {#if isLoading}
-                    <div class="mt-2 text-xs text-zinc-500">Loading drops...</div>
-                {:else if loadError}
-                    <div class="mt-2 text-xs text-red-400">Error: {loadError}</div>
-                {:else if characterDrops.has(char.stableKey)}
-                    {@const drops = characterDrops.get(char.stableKey) || []}
-                    {#if drops.length > 0}
-                        <div class="mt-2 border-t border-zinc-700 pt-2">
-                            <div class="text-xs text-zinc-500 uppercase tracking-wide mb-1">
-                                Drops
-                            </div>
-                            <div class="space-y-0.5">
-                                {#each drops as drop, i (i)}
-                                    <div class="flex justify-between text-xs">
-                                        <span class="text-zinc-300">{drop.itemName}</span>
-                                        <span class="text-zinc-500"
-                                            >{formatDropChance(drop.dropProbability)}</span
-                                        >
-                                    </div>
-                                {/each}
-                            </div>
+                {#if drops.length > 0}
+                    <div class="mt-2 border-t border-zinc-700 pt-2">
+                        <div class="text-xs text-zinc-500 uppercase tracking-wide mb-1">
+                            Drops
                         </div>
-                    {/if}
+                        <div class="space-y-0.5">
+                            {#each drops as drop, i (i)}
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-zinc-300">{drop.itemName}</span>
+                                    <span class="text-zinc-500"
+                                        >{formatDropChance(drop.dropProbability)}</span
+                                    >
+                                </div>
+                            {/each}
+                        </div>
+                    </div>
                 {/if}
             </div>
         {/each}

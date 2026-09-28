@@ -66,6 +66,7 @@
         deserializeSelection
     } from '$lib/types/selection';
     import { buildEncounterTierByName } from '$lib/map-markers';
+    import { indexCharacterDetails } from '$lib/map/character-details';
     import { buildSearchIndex, resolveHighlight, type SearchResult } from '$lib/map/search';
     import * as Drawer from '$lib/components/ui/drawer';
     import MapSidebar from '$lib/components/map/MapSidebar.svelte';
@@ -134,6 +135,10 @@
         ],
         data.unlocatedEnemies
     ));
+
+    // Popup drops and vendor stock, indexed once from the item-source rows
+    // that the item search also reads.
+    const characterDetails = $derived(indexCharacterDetails(data.itemSources, data.charactersByName));
 
     // Search index (built once from static data)
     const searchIndex = $derived(
@@ -1506,6 +1511,7 @@
                 {zoneName}
                 {searchIndex}
                 {encounterTierByName}
+                {characterDetails}
                 onClose={closeSelection}
                 onFocus={() => focusSelection(selection)}
                 onHoverSpawn={handleHoverSpawn}
@@ -1526,6 +1532,7 @@
                             {zoneName}
                             {searchIndex}
                             {encounterTierByName}
+                            {characterDetails}
                             mode="drawer"
                             onClose={() => {
                                 mobilePopupOpen = false;

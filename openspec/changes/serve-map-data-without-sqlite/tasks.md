@@ -20,10 +20,10 @@
 
 ## 4. Popups from page data (commit: `feat(maps): build map popups from prerendered data`)
 
-- [ ] 4.1 Add `src/maps/src/lib/map/character-details.ts` with the drop and vendor indexes from design D3. Add Vitest tests against the fixture item sources that prove the drop order, the vendor union with quest-unlocked items, and the exclusion of an item that the mapping hides.
-- [ ] 4.2 Add the `charactersByName` query to the repository and the field to `buildMapWorldData`. Add `resolveLiveCandidates`. Add Vitest tests that prove the two `Fixture Enemy` entries and their scenes, the in-scene preference, and the fallback to all matches.
-- [ ] 4.3 Change `SpawnPointPopupContent.svelte` and `LiveNpcPopupContent.svelte` to use the indexes and remove their loading and error states. Verify that the smoke test still passes, and that in the real build the A Golden Spirit popup no longer lists "A Golden Ticket (1)".
-- [ ] 4.4 Record the raw and brotli size of the real `build/map/__data.json` before and after the change in the commit body.
+- [x] 4.1 Add `src/maps/src/lib/map/character-details.ts` with the drop and vendor indexes from design D3. Add Vitest tests against the fixture item sources that prove the drop order, the vendor union with quest-unlocked items, and the exclusion of an item that the mapping hides.
+- [x] 4.2 Add the `charactersByName` query to the repository and the field to `buildMapWorldData`. Add `resolveLiveCandidates`. Add Vitest tests that prove the two `Fixture Enemy` entries and their scenes, the in-scene preference, and the fallback to all matches.
+- [x] 4.3 Change `SpawnPointPopupContent.svelte` and `LiveNpcPopupContent.svelte` to use the indexes and remove their loading and error states. Verify that the smoke test still passes, and that in the real build the A Golden Spirit popup no longer lists "A Golden Ticket (1)".
+- [x] 4.4 Record the raw and brotli size of the real `build/map/__data.json` before and after the change in the commit body.
 
 ## 5. Stop the browser database (commit: `feat(maps): stop downloading the database in the browser`)
 

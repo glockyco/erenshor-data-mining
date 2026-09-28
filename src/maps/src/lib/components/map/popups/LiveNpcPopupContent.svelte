@@ -3,49 +3,25 @@
     import { resolveLiveEncounterTier, type EnemyTier } from '$lib/map-markers';
     import { liveState } from '$lib/map/live/stores.svelte';
     import { aggregateDropVariants, type AggregatedDrop } from '$lib/map/live/drop-variants';
-    import { getBrowserRepository } from '$lib/database.default';
+    import { resolveLiveCandidates, type CharacterDetails } from '$lib/map/character-details';
     import WikiLink from '$lib/components/map/WikiLink.svelte';
 
     interface Props {
         entity: EntityData;
         encounterTierByName: ReadonlyMap<string, EnemyTier>;
+        characterDetails: CharacterDetails;
     }
 
-    let { entity, encounterTierByName }: Props = $props();
+    let { entity, encounterTierByName, characterDetails }: Props = $props();
 
-    let drops = $state<AggregatedDrop[]>([]);
-    let variantCount = $state(0);
-    let isLoadingDrops = $state(true);
-
-    $effect(() => {
-        loadData();
-    });
-
-    async function loadData() {
-        isLoadingDrops = true;
-        try {
-            const repo = await getBrowserRepository();
-
-            // The game tells us a name and a scene, never a stable key, and a
-            // name can belong to several characters with different loot. Prefer
-            // the variants actually placed in this scene, and fall back to every
-            // match when none is placed here, which is what a dynamically
-            // spawned character looks like.
-            const matches = await repo.getCharactersByName(entity.name, liveState.zone);
-            const placed = matches.filter((match) => match.inScene);
-            const candidates = placed.length > 0 ? placed : matches;
-
-            const byCharacter = await repo.getDropsForCharacters(
-                candidates.map((candidate) => candidate.stableKey)
-            );
-            drops = aggregateDropVariants([...byCharacter.values()]);
-            variantCount = candidates.length;
-        } catch (err) {
-            console.error('Failed to load NPC data:', err);
-        } finally {
-            isLoadingDrops = false;
-        }
-    }
+    const candidates = $derived(
+        resolveLiveCandidates(characterDetails.charactersByName, entity.name, liveState.zone)
+    );
+    const drops = $derived(
+        aggregateDropVariants(
+            candidates.map((candidate) => characterDetails.drops.get(candidate.stableKey) ?? [])
+        )
+    );
 
     // A range wherever the candidates disagree, so the popup never states a
     // chance that none of them actually has.
@@ -79,14 +55,12 @@
     </div>
 
     <!-- Drops -->
-    {#if isLoadingDrops}
-        <div class="text-xs text-zinc-500">Loading drops...</div>
-    {:else if drops.length > 0}
+    {#if drops.length > 0}
         <div class="rounded bg-zinc-800 p-3">
             <div class="mb-2 text-xs uppercase tracking-wide text-zinc-500">Drops</div>
-            {#if variantCount > 1}
+            {#if candidates.length > 1}
                 <div class="mb-2 text-xs text-zinc-400">
-                    {variantCount} characters share this name and drop different things. Showing
+                    {candidates.length} characters share this name and drop different things. Showing
                     everything any of them can drop.
                 </div>
             {/if}

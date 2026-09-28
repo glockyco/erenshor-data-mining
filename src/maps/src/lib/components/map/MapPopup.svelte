@@ -26,12 +26,14 @@
     import SearchItemPopup from './popups/SearchItemPopup.svelte';
     import SearchNotFoundContent from './popups/SearchNotFoundContent.svelte';
     import { resolveLiveEncounterTier, type EnemyTier } from '$lib/map-markers';
+    import type { CharacterDetails } from '$lib/map/character-details';
 
     interface Props {
         selection: Selection;
         zoneName: string;
         searchIndex: SearchIndex | null;
         encounterTierByName: ReadonlyMap<string, EnemyTier>;
+        characterDetails: CharacterDetails;
         mode?: 'panel' | 'drawer';
         onClose: () => void;
         onFocus: () => void;
@@ -47,6 +49,7 @@
         zoneName,
         searchIndex,
         encounterTierByName,
+        characterDetails,
         mode = 'panel',
         onClose,
         onFocus,
@@ -341,7 +344,7 @@
         {:else if selection.entity.entityType === 'pet'}
             <LivePetPopupContent entity={selection.entity} />
         {:else}
-            <LiveNpcPopupContent entity={selection.entity} {encounterTierByName} />
+            <LiveNpcPopupContent entity={selection.entity} {encounterTierByName} {characterDetails} />
         {/if}
         {#snippet footer()}
             {zoneName}
@@ -351,9 +354,7 @@
     {@const marker = selection.marker}
     <PopupContainer {title} subtitle={categoryLabel} {borderColorClass} {mode} {onClose} {onFocus}>
         {#if marker.category === 'enemy' || marker.category === 'npc'}
-            {#key marker.stableKey}
-                <SpawnPointPopupContent marker={marker as WorldEnemy | WorldNpc} />
-            {/key}
+            <SpawnPointPopupContent marker={marker as WorldEnemy | WorldNpc} {characterDetails} />
         {:else if marker.category === 'zone-line'}
             <ZoneLinePopupContent marker={marker as WorldZoneLine} />
         {:else if marker.category === 'mining-node'}

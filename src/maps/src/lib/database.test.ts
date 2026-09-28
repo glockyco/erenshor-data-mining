@@ -58,81 +58,26 @@ describe('Repository', () => {
 		expect(await db.getZoneNorthBearing(DETAIL_ZONE)).toBe(0);
 	});
 
-	it('loads deterministic enemy and popup data for the fixture zone', async () => {
+	it('loads deterministic enemy data for the fixture zone', async () => {
 		expect(await db.getZoneEnemyInfo(DETAIL_ZONE)).toEqual({
 			levelRange: { min: 7, max: 7 },
 			bosses: [{ name: 'Fixture Enemy', wikiPageName: 'Fixture Enemy', level: 7 }],
 			elites: []
 		});
-		expect(await db.getCharactersByName('Fixture Enemy', DETAIL_ZONE)).toEqual([
-			{ stableKey: 'character:fixture enemy', inScene: true },
-			{ stableKey: 'character:fixture enemy twin', inScene: false }
-		]);
-		// Every drop, not the first ten: a cap here is indistinguishable from a
-		// short loot table, and 165 of the game's 728 characters with drops have
-		// more than ten. 'Fixture Drop' and 'Hoard Item 11' share a probability,
-		// so their order also pins the name tiebreaker.
-		expect(await db.getDropsForCharacter('character:fixture enemy')).toEqual([
-			{ itemName: 'Hoard Item 01', dropProbability: 90 },
-			{ itemName: 'Hoard Item 02', dropProbability: 80 },
-			{ itemName: 'Hoard Item 03', dropProbability: 70 },
-			{ itemName: 'Hoard Item 04', dropProbability: 60 },
-			{ itemName: 'Hoard Item 05', dropProbability: 50 },
-			{ itemName: 'Hoard Item 06', dropProbability: 40 },
-			{ itemName: 'Hoard Item 07', dropProbability: 30 },
-			{ itemName: 'Fixture Drop', dropProbability: 25 },
-			{ itemName: 'Hoard Item 11', dropProbability: 25 },
-			{ itemName: 'Hoard Item 08', dropProbability: 20 },
-			{ itemName: 'Hoard Item 09', dropProbability: 15 },
-			{ itemName: 'Hoard Item 10', dropProbability: 10 }
-		]);
 	});
 
-	it('batches drops for several characters in one query', async () => {
-		// The spawn popup asks for every character at a point at once. A crowded
-		// point hosts fourteen, so per-character queries made latency scale with
-		// how busy the spot is.
-		const drops = await db.getDropsForCharacters([
-			'character:fixture enemy',
-			'character:runtime enemy'
-		]);
-
-		// Same rows and same order as the single-character call, so the batched
-		// path cannot drift from it.
-		expect(drops.get('character:fixture enemy')).toEqual(
-			await db.getDropsForCharacter('character:fixture enemy')
-		);
-		// A character with no loot is absent rather than mapping to an empty list,
-		// so callers can tell "no drops" from "not asked".
-		expect(drops.has('character:runtime enemy')).toBe(false);
-		expect(await db.getDropsForCharacters([])).toEqual(new Map());
-	});
-
-	it('returns every character sharing a name, flagged by scene', async () => {
+	it('indexes every map-visible character by name with the scenes it is placed in', async () => {
 		// A name is not an identity: 39 map-visible names cover more than one
-		// character and 22 of those disagree on loot, so answering with one of them
-		// presents a guess as a fact.
-		expect(await db.getCharactersByName('Fixture Enemy', 'StowawayPortal')).toEqual([
-			{ stableKey: 'character:fixture enemy', inScene: false },
-			{ stableKey: 'character:fixture enemy twin', inScene: true }
-		]);
+		// character and 22 of those disagree on loot, so the index keeps them all.
+		const byName = await db.getCharactersByName();
 
-		// With no scene to prefer, no candidate is favoured over another.
-		expect(await db.getCharactersByName('Fixture Enemy')).toEqual([
-			{ stableKey: 'character:fixture enemy', inScene: false },
-			{ stableKey: 'character:fixture enemy twin', inScene: false }
+		expect(byName.get('Fixture Enemy')).toEqual([
+			{ stableKey: 'character:fixture enemy', scenes: ['Stowaway'] },
+			{ stableKey: 'character:fixture enemy twin', scenes: ['StowawayPortal'] }
 		]);
-
-		// An unrecognised scene behaves the same way. The live overlay takes its
-		// scene from whatever the companion mod reports, so a mod that reports
-		// something this database does not know must still yield every candidate
-		// rather than none.
-		expect(await db.getCharactersByName('Fixture Enemy', 'NotAScene')).toEqual([
-			{ stableKey: 'character:fixture enemy', inScene: false },
-			{ stableKey: 'character:fixture enemy twin', inScene: false }
-		]);
-
-		expect(await db.getCharactersByName('No Such Enemy', DETAIL_ZONE)).toEqual([]);
+		// An enemy that only a script spawns has no placement, but the live
+		// overlay can still report it.
+		expect(byName.get('Runtime Enemy')).toEqual([{ stableKey: 'character:runtime enemy', scenes: [] }]);
 	});
 
 	it('loads map-visible enemies without fixed spawn points', async () => {
@@ -174,10 +119,6 @@ describe('Repository', () => {
 				(source) => source.kind === 'drop' && source.characterStableKey === 'character:fixture enemy'
 			)
 		).toMatchObject({ kind: 'drop', encounterTier: 'boss' });
-		expect(await db.getVendorItems('character:breena carpenter')).toEqual([
-			{ name: 'Enchanted Smithy', price: 250 },
-			{ name: 'Fixture Key', price: 10 }
-		]);
 	});
 
 	it('loads every map-visible acquisition source kind', async () => {

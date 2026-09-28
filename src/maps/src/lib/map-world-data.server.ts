@@ -100,6 +100,7 @@ export type MapWorldDataRepository = Pick<RepositoryBase,
     | 'getWaterMarkers'
     | 'getItemSources'
     | 'getAllItems'
+    | 'getCharactersByName'
 > & {
     init(dbPath: string): Promise<void>;
     close(): void;
@@ -553,6 +554,10 @@ export async function buildMapWorldData(
     const itemSources = await repo.getItemSources();
     const allItems = await repo.getAllItems();
 
+    // Display-name index for the live-entity popup, which only knows a name
+    // and a scene. Popup drops and vendor stock come from itemSources.
+    const charactersByName = await repo.getCharactersByName();
+
     return {
         markers: {
             achievementTriggers,
@@ -578,7 +583,8 @@ export async function buildMapWorldData(
         levelRange: { min: enemyLevelMin, max: enemyLevelMax },
         unlocatedEnemies,
         itemSources,
-        allItems
+        allItems,
+        charactersByName
     };
     } finally {
         repo.close();

@@ -3,7 +3,6 @@ import type { Database, SqlJsStatic } from 'sql.js/dist/sql-wasm.js';
 import { mostNotableEnemyTier, type EncounterTier, type EnemyTier } from './map-markers';
 import type {
     AchievementTriggerMarker,
-    CharacterDrop,
     DoorMarker,
     EnemyMarker,
     ForgeMarker,
@@ -19,11 +18,11 @@ import type {
     TeleportMarker,
     TreasureLocMarker,
     UnlocatedEnemy,
-    VendorItem,
     WaterMarker,
     WishingWellMarker,
     ZoneLineMarker
 } from './map-markers';
+import type { LiveCandidate } from './map/character-details';
 
 function formatCoordinates(x: number, y: number, z: number): string {
     return `(X: ${x.toFixed(2)}, Y: ${y.toFixed(2)}, Z: ${z.toFixed(2)})`;
@@ -1089,94 +1088,6 @@ export class RepositoryBase {
     }
 
     /**
-     * Every drop a character can yield, most likely first.
-     *
-     * Deliberately uncapped. A truncated list is indistinguishable from a
-     * complete one, and 165 of the 728 characters with drops have more than ten,
-     * so a cap silently misinforms a quarter of the enemies anyone would look up.
-     * The popup body scrolls, so length costs nothing but scrolling, and the
-     * largest table in the game is 26 rows.
-     *
-     * Name breaks probability ties so the order is stable across renders.
-     */
-    async getDropsForCharacter(stableKey: string): Promise<CharacterDrop[]> {
-        if (!this.db) throw new Error('DB not initialized');
-
-        const stmt = this.db.prepare(
-            `
-            SELECT
-                i.display_name AS itemName,
-                ld.drop_probability AS dropProbability
-            FROM loot_drops ld
-            JOIN items i ON i.stable_key = ld.item_stable_key
-            WHERE ld.character_stable_key = ?
-            ORDER BY ld.drop_probability DESC, i.display_name
-        `,
-            [stableKey]
-        );
-
-        const drops: CharacterDrop[] = [];
-
-        while (stmt.step()) {
-            const row = stmt.getAsObject();
-            drops.push({
-                itemName: row.itemName as string,
-                dropProbability: row.dropProbability as number
-            });
-        }
-        stmt.free();
-        return drops;
-    }
-
-    /**
-     * Every drop for each of several characters, most likely first.
-     *
-     * One statement for the whole set. A spawn point can host fourteen
-     * characters, and querying them one at a time made popup latency scale with
-     * how crowded the spot is.
-     *
-     * Characters with no loot are absent from the result rather than mapping to
-     * an empty list, so a caller can still tell "no drops" from "not asked".
-     */
-    async getDropsForCharacters(stableKeys: string[]): Promise<Map<string, CharacterDrop[]>> {
-        if (!this.db) throw new Error('DB not initialized');
-
-        const drops = new Map<string, CharacterDrop[]>();
-        if (stableKeys.length === 0) return drops;
-
-        const placeholders = stableKeys.map(() => '?').join(', ');
-        const stmt = this.db.prepare(
-            `
-            SELECT
-                ld.character_stable_key AS characterStableKey,
-                i.display_name AS itemName,
-                ld.drop_probability AS dropProbability
-            FROM loot_drops ld
-            JOIN items i ON i.stable_key = ld.item_stable_key
-            WHERE ld.character_stable_key IN (${placeholders})
-            ORDER BY ld.character_stable_key, ld.drop_probability DESC, i.display_name
-        `,
-            stableKeys
-        );
-
-        while (stmt.step()) {
-            const row = stmt.getAsObject();
-            const key = row.characterStableKey as string;
-            let list = drops.get(key);
-            if (!list) {
-                list = [];
-                drops.set(key, list);
-            }
-            list.push({
-                itemName: row.itemName as string,
-                dropProbability: row.dropProbability as number
-            });
-        }
-        stmt.free();
-        return drops;
-    }
-
-    /**
      * Preload every item with a wiki page for the map item search. This includes
      * items whose acquisition sources are not represented by map markers.
      */
@@ -1393,98 +1304,54 @@ export class RepositoryBase {
         return rows;
     }
 
-    async getVendorItems(stableKey: string): Promise<VendorItem[]> {
-        if (!this.db) throw new Error('DB not initialized');
-
-        const stmt = this.db.prepare(
-            `
-            WITH vendor_items AS (
-                SELECT i.display_name AS ItemName, i.item_value AS ItemValue
-                FROM character_vendor_items cvi
-                JOIN items i ON i.stable_key = cvi.item_stable_key
-                WHERE cvi.character_stable_key = ?
-                UNION
-                SELECT i.display_name AS ItemName, i.item_value AS ItemValue
-                FROM character_vendor_quest_unlocks cvqu
-                JOIN quest_variants qv ON qv.quest_stable_key = cvqu.quest_stable_key
-                JOIN items i ON i.stable_key = qv.unlock_item_for_vendor_stable_key
-                WHERE cvqu.character_stable_key = ?
-            )
-            SELECT ItemName, ItemValue
-            FROM vendor_items
-            ORDER BY ItemName
-            `,
-            [stableKey, stableKey]
-        );
-
-        const items: VendorItem[] = [];
-
-        while (stmt.step()) {
-            const row = stmt.getAsObject();
-            items.push({
-                name: row.ItemName as string,
-                price: (row.ItemValue as number) ?? 0
-            });
-        }
-        stmt.free();
-        return items;
-    }
-
     /**
-     * Every map-visible character sharing a display name, with whether each one
-     * is placed in the given scene.
+     * Every map-visible character by display name, with the scenes that any
+     * member of its deduplication group is placed in.
      *
      * Names are not identities. 39 display names are worn by more than one
      * deduplicated character, and for 22 of those the characters drop different
-     * things -- `Molorai Archaeologist` covers four with four distinct loot
-     * tables. Returning one arbitrarily, as this did while it answered with a
-     * single row and `LIMIT 1`, presents one variant's loot as the whole truth.
-     *
-     * The scene flag lets a caller prefer the variants that actually exist where
-     * the player is standing, while still seeing the rest when the live zone
-     * holds no placed copy, which happens for dynamically spawned characters.
+     * things. The live popup uses the scenes to prefer the characters that
+     * actually exist where the player is standing.
      */
-    async getCharactersByName(
-        name: string,
-        scene: string | null = null
-    ): Promise<{ stableKey: string; inScene: boolean }[]> {
+    async getCharactersByName(): Promise<Map<string, LiveCandidate[]>> {
         if (!this.db) throw new Error('DB not initialized');
 
-        const stmt = this.db.prepare(
-            `
+        const stmt = this.db.prepare(`
             WITH reps AS (
                 SELECT d.group_key, MIN(d.member_stable_key) AS rep_stable_key
                 FROM character_deduplications d
                 WHERE d.is_map_visible = 1
                 GROUP BY d.group_key
             )
-            SELECT
+            SELECT DISTINCT
+                c.display_name AS Name,
                 c.stable_key AS StableKey,
-                EXISTS (
-                    SELECT 1
-                    FROM character_deduplications m
-                    JOIN map_character_spawns s
-                      ON s.character_stable_key = m.member_stable_key
-                    WHERE m.group_key = r.group_key AND s.scene = ?
-                ) AS InScene
+                s.scene AS Scene
             FROM reps r
             JOIN characters c ON c.stable_key = r.rep_stable_key
-            WHERE c.display_name = ?
-            ORDER BY c.stable_key
-            `,
-            [scene, name]
-        );
+            LEFT JOIN character_deduplications m ON m.group_key = r.group_key
+            LEFT JOIN map_character_spawns s ON s.character_stable_key = m.member_stable_key
+            ORDER BY c.display_name, c.stable_key, s.scene
+        `);
 
-        const matches: { stableKey: string; inScene: boolean }[] = [];
+        const byName = new Map<string, LiveCandidate[]>();
         while (stmt.step()) {
             const row = stmt.getAsObject();
-            matches.push({
-                stableKey: row.StableKey as string,
-                inScene: Boolean(row.InScene)
-            });
+            const name = row.Name as string;
+            const stableKey = row.StableKey as string;
+            const scene = row.Scene as string | null;
+
+            let candidates = byName.get(name);
+            if (!candidates) byName.set(name, (candidates = []));
+            let candidate = candidates.at(-1);
+            if (candidate?.stableKey !== stableKey) {
+                candidate = { stableKey, scenes: [] };
+                candidates.push(candidate);
+            }
+            if (scene !== null) candidate.scenes.push(scene);
         }
         stmt.free();
-        return matches;
+        return byName;
     }
 
     async getZoneEnemyInfo(zoneName: string): Promise<{
