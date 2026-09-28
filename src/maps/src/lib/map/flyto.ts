@@ -2,6 +2,14 @@ import { FLY_TO_CONFIG, INITIAL_VIEW_STATE } from './config';
 import { LinearInterpolator } from '@deck.gl/core';
 import { cubicInOut } from 'svelte/easing';
 
+/**
+ * The orthographic controller stores zoom as zoomX and zoomY and rebuilds
+ * `zoom` from them, so a transition must interpolate those two. Interpolating
+ * `zoom` alone lets zoomX and zoomY jump to their end values on the first
+ * frame, while only the target animates.
+ */
+const VIEW_PROPS = ['target', 'zoomX', 'zoomY'];
+
 // =============================================================================
 // Types
 // =============================================================================
@@ -161,7 +169,7 @@ export function flyTo(
             maxZoom: INITIAL_VIEW_STATE.maxZoom,
             transitionDuration: duration,
             transitionEasing: cubicInOut,
-            transitionInterpolator: new LinearInterpolator(['target', 'zoom'])
+            transitionInterpolator: new LinearInterpolator(VIEW_PROPS)
         }
     });
 }
@@ -183,7 +191,7 @@ export function resetView(
             ...INITIAL_VIEW_STATE,
             transitionDuration: duration,
             transitionEasing: cubicInOut,
-            transitionInterpolator: new LinearInterpolator(['target', 'zoom'])
+            transitionInterpolator: new LinearInterpolator(VIEW_PROPS)
         }
     });
 }
@@ -215,7 +223,7 @@ export function flyToBounds(
             maxZoom: INITIAL_VIEW_STATE.maxZoom,
             transitionDuration: duration,
             transitionEasing: cubicInOut,
-            transitionInterpolator: new LinearInterpolator(['target', 'zoom'])
+            transitionInterpolator: new LinearInterpolator(VIEW_PROPS)
         }
     });
 }

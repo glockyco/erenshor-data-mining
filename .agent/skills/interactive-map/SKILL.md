@@ -39,7 +39,11 @@ update, run `maps build` and `maps preview` and check these in a browser:
 2. Capture the load frames (a CDP screencast). The spinner is followed
    directly by the fitted view, with no frame at a different scale.
 3. Click a marker and time pointerup to popup. It stays well under 50 ms.
-4. Open a zone page (`/maps/Stowaway`) and check its markers, rotation, and a
+4. Search an enemy and sample the scale bar during the fly-to. The zoom
+   changes over the whole transition instead of jumping on the first frame.
+   deck.gl 9.4 made the orthographic controller interpolate `zoomX` and
+   `zoomY`, so a transition that lists only `zoom` snaps.
+5. Open a zone page (`/maps/Stowaway`) and check its markers, rotation, and a
    popup.
 
 ## Hosting topology
