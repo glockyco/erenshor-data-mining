@@ -11,7 +11,7 @@ Defines the browser smoke test that the maps CI leaf runs, so that a runtime fai
 #### Scenario: The site works
 
 - **WHEN** the maps leaf runs against a correct build
-- **THEN** `/`, `/map`, and `/maps/Stowaway` load without an uncaught page error and without a failed same-origin request
+- **THEN** `/`, `/map`, and `/maps/Stowaway` load without an uncaught page error and without a failed same-origin request, except for map tiles and item icons, which the fixture build does not contain
 - **AND** `/map` draws the world map canvas
 - **AND** `/maps/Stowaway` shows the fixture's spawn-point markers
 - **AND** the leaf passes

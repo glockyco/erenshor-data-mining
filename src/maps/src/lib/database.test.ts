@@ -175,14 +175,15 @@ describe('Repository', () => {
 			)
 		).toMatchObject({ kind: 'drop', encounterTier: 'boss' });
 		expect(await db.getVendorItems('character:breena carpenter')).toEqual([
-			{ name: 'Enchanted Smithy', price: 250 }
+			{ name: 'Enchanted Smithy', price: 250 },
+			{ name: 'Fixture Key', price: 10 }
 		]);
 	});
 
 	it('loads every map-visible acquisition source kind', async () => {
 		const rows = await db.getItemSources();
 
-		expect(rows.map((row) => row.kind).sort()).toEqual([
+		expect([...new Set(rows.map((row) => row.kind))].sort()).toEqual([
 			'bag',
 			'drop',
 			'fishing',

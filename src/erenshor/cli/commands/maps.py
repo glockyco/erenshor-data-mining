@@ -48,7 +48,7 @@ CHECK_COMMANDS: tuple[tuple[str, ...], ...] = (
     ("pnpm", "run", "check"),
     ("pnpm", "run", "test"),
 )
-PRERENDER_SMOKE_COMMAND = ("node", "scripts/test-prerender.mjs")
+BROWSER_SMOKE_COMMAND = ("pnpm", "run", "test:e2e")
 # The site build, its prebuild scripts, and the dev server read the clean
 # database from this variable. Nothing links the database into the source tree.
 MAPS_DATABASE_PATH_ENV = "ERENSHOR_MAPS_DATABASE_PATH"

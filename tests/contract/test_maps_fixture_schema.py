@@ -2,7 +2,7 @@
 
 The maps site is verified two different ways, against two different databases.
 Locally ``erenshor maps build`` prerenders against the real clean DB, which has
-every table. CI has no game data, so its prerender smoke builds against the
+every table. CI has no game data, so its browser smoke test builds against the
 hand-written fixture in ``src/maps/tests/fixtures/map-database.sql``, which
 carries only the subset the site reads.
 
@@ -14,7 +14,7 @@ actually produces, so the drift is caught by ``uv run pytest`` rather than by a
 red pipeline.
 
 A table missing from the fixture entirely is out of scope here and belongs to
-the prerender smoke, which renders the pages and fails when a loader queries
+the browser smoke test, which renders the pages and fails when a loader queries
 something the fixture does not have.
 """
 

@@ -681,13 +681,13 @@ def test_static_leaf_reports_all_checks_when_one_fails(tmp_path: Path, monkeypat
         (("pnpm", "run", "lint"), source),
         (("pnpm", "run", "check"), source),
         (("pnpm", "run", "test"), source),
-        (("node", "scripts/test-prerender.mjs"), source),
+        (("pnpm", "run", "test:e2e"), source),
     }
     assert [command["argv"] for command in result.commands] == [
         ["pnpm", "run", "lint"],
         ["pnpm", "run", "check"],
         ["pnpm", "run", "test"],
-        ["node", "scripts/test-prerender.mjs"],
+        ["pnpm", "run", "test:e2e"],
     ]
 
 
@@ -706,7 +706,7 @@ def test_maps_leaf_reports_all_results_when_a_static_check_fails(tmp_path: Path,
 
     assert result.status == "failed"
     assert result.exit_code == 1
-    assert ("node", "scripts/test-prerender.mjs") in calls
+    assert ("pnpm", "run", "test:e2e") in calls
     assert result.result_counts == {"commands": 4, "completed_commands": 4}
 
 
@@ -1046,32 +1046,26 @@ def test_invalid_pytest_report_validation_is_persisted_in_leaf_diagnostics(tmp_p
     assert "schema" in str(diagnostics["report_validation"])
 
 
-def test_maps_preflight_checks_toolchain_and_fixture_without_database(tmp_path: Path, monkeypatch: Any) -> None:
-    executable_calls: list[str] = []
-    directory_calls: list[str] = []
-    file_calls: list[str] = []
+def test_maps_preflight_names_the_install_command_when_chromium_does_not_launch(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    source = tmp_path / "maps"
+    (source / "node_modules").mkdir(parents=True)
+    (source / "tests" / "fixtures").mkdir(parents=True)
+    (source / "playwright.config.ts").write_text("")
+    (source / "tests" / "fixtures" / "map-database.sql").write_text("")
+    monkeypatch.setattr(test, "_executable", lambda name: test._Preflight(f"executable:{name}", True, "/bin/tool"))
     monkeypatch.setattr(
-        test,
-        "_executable",
-        lambda name: (executable_calls.append(name) or test._Preflight(f"executable:{name}", True, "/bin/tool")),
-    )
-    monkeypatch.setattr(
-        test,
-        "_directory",
-        lambda _path, label: (directory_calls.append(label) or test._Preflight(label, True, "present")),
-    )
-    monkeypatch.setattr(
-        test,
-        "_file",
-        lambda _path, label: (file_calls.append(label) or test._Preflight(label, True, "present")),
+        test.subprocess,
+        "run",
+        lambda argv, **_kwargs: subprocess.CompletedProcess(argv, 1, "", "Executable doesn't exist"),
     )
 
     checks = test._preflight_maps(_context(tmp_path, configured_maps=True))
 
-    assert all(check.ok for check in checks)
-    assert executable_calls == ["pnpm", "node"]
-    assert directory_calls == ["configured maps project", "maps node_modules"]
-    assert file_calls == ["maps prerender smoke", "maps fixture schema"]
+    failed = [check for check in checks if not check.ok]
+    assert [check.name for check in failed] == ["maps Playwright Chromium"]
+    assert "pnpm --dir src/maps exec playwright install chromium" in failed[0].detail
 
 
 def test_wiki_preflight_monkeypatches_api_and_browser_boundaries(tmp_path: Path, monkeypatch: Any) -> None:

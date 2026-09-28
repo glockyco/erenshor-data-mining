@@ -63,7 +63,7 @@ describe('buildMapWorldData', () => {
         expect(tiers.get('Runtime Enemy')).toBe('elite');
         expect(tiers.has('Breena Carpenter')).toBe(false);
         expect(data.allItems).toHaveLength(6);
-        expect(data.itemSources.map((source) => source.kind).sort()).toEqual([
+        expect([...new Set(data.itemSources.map((source) => source.kind))].sort()).toEqual([
             'bag',
             'drop',
             'fishing',

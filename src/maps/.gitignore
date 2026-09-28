@@ -211,3 +211,7 @@ static/items
 
 # Un-ignore our TypeScript source files in src/lib/
 !src/lib/
+
+# Playwright traces and reports from the smoke test
+/test-results
+/playwright-report

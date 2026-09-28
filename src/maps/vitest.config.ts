@@ -8,6 +8,8 @@ export default defineConfig({
 		},
 	},
 	test: {
+		// Playwright owns tests/e2e.
+		include: ['src/**/*.test.ts'],
 		globalSetup: ['./vitest.setup.ts'],
 	},
 });

@@ -148,6 +148,9 @@ jobs:
       - name: Install map dependencies
         run: nix develop --command pnpm install --frozen-lockfile
 
+      - name: Install Playwright Chromium
+        run: nix develop --command pnpm --dir src/maps exec playwright install --with-deps chromium
+
       - name: Run maps leaf
         run: nix develop --command erenshor test maps
 

@@ -48,14 +48,21 @@ uv run erenshor maps deploy   # Deploy an existing fresh build to both services
 uv run erenshor maps deploy --target site    # Canonical service only
 uv run erenshor maps deploy --target legacy  # Compatibility service only
 uv run erenshor maps check  # Lint, type-check, and run fixture-backed unit tests
-uv run erenshor test maps   # Add a temporary fixture-backed prerender smoke
+uv run erenshor test maps   # Add the fixture-backed browser smoke test
 ```
 
 Do not use `pnpm dev` directly. The CLI passes the selected variant database to
 the site through `ERENSHOR_MAPS_DATABASE_PATH` while `maps dev` or `maps build`
-runs. The Vitest phase creates a temporary deterministic SQLite fixture. The
-`test maps` prerender smoke writes to a temporary build directory and proves that
-`/`, `/map`, and `/maps/Stowaway` render from the same fixture.
+runs. The Vitest phase creates a temporary deterministic SQLite fixture.
+
+`test maps` also runs the Playwright smoke test in `tests/e2e/`.
+`scripts/serve-fixture-site.mjs` builds the site from the same fixture into
+temporary directories and serves it. The test loads `/`, `/map`, and
+`/maps/Stowaway` in Chromium and fails on a page error, a failed same-origin
+request, missing popup content, the legacy overlay layers query, or a missing
+published database. Install the browser once per machine with
+`pnpm --dir src/maps exec playwright install chromium`. Run the test alone with
+`pnpm --dir src/maps run test:e2e`.
 
 ## Data Flow
 

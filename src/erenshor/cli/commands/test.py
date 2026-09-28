@@ -457,6 +457,35 @@ def _playwright_chromium_available() -> tuple[bool, str]:
     return True, "Playwright Chromium launched"
 
 
+_MAPS_CHROMIUM_INSTALL = "pnpm --dir src/maps exec playwright install chromium"
+_MAPS_CHROMIUM_LAUNCH = (
+    "const { chromium } = await import('@playwright/test'); await (await chromium.launch()).close();"
+)
+
+
+def _maps_playwright_chromium(source: Path) -> _Preflight:
+    """Launch the Chromium build that the locked @playwright/test version expects.
+
+    The Python Playwright package can lock a different browser revision, so
+    the maps project checks its own.
+    """
+    name = "maps Playwright Chromium"
+    try:
+        result = subprocess.run(
+            ["node", "--input-type=module", "-e", _MAPS_CHROMIUM_LAUNCH],
+            cwd=source,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as error:
+        return _Preflight(name, False, f"{error}. Run `{_MAPS_CHROMIUM_INSTALL}`.")
+    if result.returncode != 0:
+        return _Preflight(name, False, f"Chromium does not launch. Run `{_MAPS_CHROMIUM_INSTALL}`.")
+    return _Preflight(name, True, "Chromium launched")
+
+
 def _preflight_wiki(cli_ctx: CLIContext) -> list[_Preflight]:
     root = cli_ctx.repo_root
     checks = [
@@ -498,8 +527,9 @@ def _preflight_maps(cli_ctx: CLIContext) -> list[_Preflight]:
             [
                 _directory(source, "configured maps project"),
                 _directory(node_modules, "maps node_modules"),
-                _file(source / "scripts/test-prerender.mjs", "maps prerender smoke"),
+                _file(source / "playwright.config.ts", "maps browser smoke"),
                 _file(source / "tests/fixtures/map-database.sql", "maps fixture schema"),
+                _maps_playwright_chromium(source),
             ]
         )
     return checks
@@ -1175,9 +1205,9 @@ def _run_static_leaf(cli_ctx: CLIContext) -> _LeafResult:
 
 
 def _run_maps_leaf(cli_ctx: CLIContext, source: Path) -> _LeafResult:
-    """Run independent maps checks and the isolated prerender smoke together."""
+    """Run independent maps checks and the fixture browser smoke together."""
     start = time.monotonic()
-    commands = (*maps.CHECK_COMMANDS, maps.PRERENDER_SMOKE_COMMAND)
+    commands = (*maps.CHECK_COMMANDS, maps.BROWSER_SMOKE_COMMAND)
     with ThreadPoolExecutor(max_workers=len(commands), thread_name_prefix="maps-check") as executor:
         futures = [executor.submit(_run_process, command, source) for command in commands]
         results = [future.result() for future in futures]

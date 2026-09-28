@@ -402,6 +402,10 @@ INSERT INTO loot_drops (character_stable_key, item_stable_key, drop_probability)
 INSERT INTO loot_drops (character_stable_key, item_stable_key, drop_probability) VALUES
     ('character:fixture enemy twin', 'item:hoard 01', 45),
     ('character:fixture enemy twin', 'item:hoard 12', 12);
+-- Breena sells one item directly and one after a quest, so the vendor list
+-- exercises both sides of its union.
+INSERT INTO character_vendor_items (character_stable_key, item_stable_key) VALUES
+    ('character:breena carpenter', 'item:fixture key');
 INSERT INTO character_vendor_quest_unlocks (character_stable_key, quest_stable_key) VALUES
     ('character:breena carpenter', 'quest:vendor-unlock');
 INSERT INTO quest_variants (quest_stable_key, unlock_item_for_vendor_stable_key) VALUES

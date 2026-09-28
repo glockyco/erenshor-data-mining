@@ -83,10 +83,10 @@ Add `src/maps/playwright.config.ts` and specs under `src/maps/tests/e2e/`. The `
 
 The specs check:
 
-- `/`, `/map`, and `/maps/Stowaway` raise no `pageerror` and have no failed same-origin request. Requests to `ws://localhost:18584` and `:18585` are cross-origin companion sockets and are not failures.
+- `/`, `/map`, and `/maps/Stowaway` raise no `pageerror` and have no failed same-origin request. Tiles under `/tiles/` and item icons under `/items/` are captured or generated assets that a CI fixture build does not contain, so they are exempt. Aborted requests are cancellations, not failures. Requests to `ws://localhost:18584` and `:18585` are cross-origin companion sockets.
 - `/map` has a canvas with a non-zero size.
 - `/map?sel=marker:spawn:stowaway-enemy` shows the fixture enemy's drops, and `/map?sel=marker:spawn:stowaway-breena` shows the fixture vendor stock.
-- `/maps/Stowaway` shows Leaflet markers for the fixture spawn points.
+- `/maps/Stowaway?marker=spawn:stowaway-enemy` opens the Leaflet popup of the fixture enemy.
 - `/map?layers=-sp,-spr,-spu,-npc`, the query that shipped overlays load, hides the enemy, elite, boss, and NPC layers.
 - `/db/erenshor.sqlite` returns a body that starts with `SQLite format 3`.
 - After the cutover, a context-level request listener fails the run on any page or service worker request for a URL that ends in `.sqlite`.
