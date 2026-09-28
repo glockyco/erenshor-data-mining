@@ -10,8 +10,9 @@ parent:
 
 Erenshor's data pipeline turns the current shipping build into reliable public
 artifacts: clean SQLite, wiki pages, sheets, maps, quest-guide data, and companion
-mods. The current focus is readiness for the next game patch, then the map, then a
-Stance-only trial of the Lua/Cargo wiki cutover.
+mod. Patch readiness and the map data cutover are done. The current focus is the
+hard-coded loot drops (#274), then a Stance-only trial of the Lua/Cargo wiki
+cutover.
 
 This overview is the steering source. It holds strategy, current focus, linked child
 artifacts, and standing gates by reference. Evidence belongs in audits, design in
@@ -19,15 +20,12 @@ specs, and executable work in plans.
 
 ## Current sequence
 
-1. Prepare for the next game patch: `fail-loudly-on-partial-work`, a
-   build-to-build change report, then `single-game-installation` and
-   `describe-the-supported-setup`.
-2. Map work: a browser smoke test in the maps gate, prerendered popup data
-   instead of the browser database download, live NPC identity, and service
-   discovery.
-3. Wiki: plan a Stance-only vertical slice as an OpenSpec change, with sizes and
+1. Model the hard-coded `LootTable` special drops (#274) as an OpenSpec change.
+   Its wiki deploy needs Category:Elites to exist first.
+2. Wiki: plan a Stance-only vertical slice as an OpenSpec change, with sizes and
    limits measured again against the current build. Decide whether the other six
    entity types follow after the slice passes its gates.
+3. Map follow-ups: live NPC identity and service discovery.
 4. Keep Quest conversion deferred until its article strategy is approved.
 5. Build the crawlable zone content layer after service discovery.
 
@@ -108,8 +106,8 @@ Parked: [`2026-06-27-map-annotations`](2026-06-27-map-annotations.md) and
   [`2026-07-31-wiki-quest-article-strategy`](2026-07-31-wiki-quest-article-strategy.md)
   is approved.
 - **Map compatibility:** future map changes retain the deployed legacy-host and
-  companion-overlay compatibility contract recorded in the archived map migration
-  plans.
+  companion-overlay compatibility contract. The `map-site-data` and
+  `map-browser-verification` specs state it, and the maps smoke test checks it.
 
 ## Navigation
 
