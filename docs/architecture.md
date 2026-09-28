@@ -39,6 +39,15 @@ character is an `enemy`. The wiki, the map, and the sheets read this column.
 A `mapping.json` rule can set `encounter_tier` with a `reason` when game data
 classifies a character wrongly.
 
+Item sources come from `loot_drops` (the killed character's own table),
+`item_drops` (items such as fossils that yield other items), and
+`special_world_drops`. The last table holds the rolls that every loot-table
+kill makes in addition to its own table, such as Crystallized Balance above
+level 30. The export reads their item pools from the `GameManager` and `Misc`
+components in `LoadScene`, and the `loot.world_drop.*` code facts supply each
+roll's chance, level gate, and the mask split. Each row states the chance per
+kill at the default loot rate.
+
 **Consumers.** The wiki generators, the Google Sheets queries, the interactive
 map, and the quest guide compiler read only the clean database. None of them
 reads the raw database or the Unity project.
