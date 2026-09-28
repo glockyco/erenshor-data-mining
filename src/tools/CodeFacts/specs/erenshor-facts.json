@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "deferred": [
-    "loot.common_world_items_substitution: `Random.Range(0, 10) > 8` in LootTable.InitLootTable swaps CommonDrop for CommonWorldItems, but int_comparisons on `Range` would also bind the masks `Random.Range(0, 100) > 1` in the same method - cannot bind unambiguously with current matchers; revisit when a scoped (per-statement) matcher exists.",
+    "loot.common_world_items_substitution: `Random.Range(0, 10) > 8` in LootTable.InitLootTable swaps CommonDrop for CommonWorldItems. The scoped nested_branch_split matcher can now bind it, but no consumer needs it: the Unity loot calculator models the swap as the 'A Common World Drop' row.",
     "auction.SimPlayersCantGet: boolean gate, no integer literal; sites AuctionHouse.ReplaceBag:94 and SimPlayer.cs:3283; consumed directly by the Phase 3 wiki derivation from the exported item flag",
     "auction.rare_markup_x20: AuctionHouse.GetItemList line 76 `num2 *= 20f` - float multiply inside RareItem if, no current matcher fits; add a scoped matcher when Phase 3 consumes it",
     "simplayer.gear_draw: SimPlayer.cs:3283 98% rare soft-reject + dynamic level bands relative to MyStats.Level - bounds are non-literal, revisit if ever needed",
@@ -164,6 +164,36 @@
       "keys": [
         "rate",
         "min_level"
+      ]
+    },
+    {
+      "id": "loot.world_drop.essence_of_amarion",
+      "mode": "extract",
+      "type": "LootTable",
+      "method": "InitLootTable",
+      "matcher": "guarded_member_roll",
+      "args": {
+        "member": "EssenceOfAmarion"
+      },
+      "keys": [
+        "rate",
+        "min_level"
+      ]
+    },
+    {
+      "id": "loot.world_drop.mask_split",
+      "mode": "extract",
+      "type": "LootTable",
+      "method": "InitLootTable",
+      "matcher": "nested_branch_split",
+      "args": {
+        "then": "Masks",
+        "else": "MoloraiMask"
+      },
+      "keys": [
+        "range_min",
+        "range_max",
+        "cutoff"
       ]
     },
     {

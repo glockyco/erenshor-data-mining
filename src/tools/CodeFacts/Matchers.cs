@@ -42,6 +42,7 @@ internal static class Runner
                     "statement_shape" => Matchers.StatementShape(method, fact),
                     "string_set" => Matchers.StringSet(method, fact),
                     "node_shape" => Matchers.NodeShape(method, fact),
+                    "nested_branch_split" => Matchers.NestedBranchSplit(method, fact),
                     _ => throw new InvalidDataException($"unknown matcher '{fact.Matcher}'"),
                 };
                 result.Facts.Add(
@@ -135,6 +136,68 @@ internal static class Matchers
             );
         return new() { ["rate"] = hits[0].Rate, ["min_level"] = hits[0].MinLevel };
     }
+
+    /// Binds the unique `if (Random.Range (a, b) > c)` statement whose then
+    /// branch adds args["then"] and whose else branch adds args["else"]. Emits
+    /// range_min (a), range_max (b), and cutoff (c) as integers. The binding is
+    /// scoped to that one statement, so other `Random.Range` comparisons in the
+    /// same method cannot bind.
+    public static Dictionary<string, string> NestedBranchSplit(
+        MethodDeclaration method,
+        FactSpec fact
+    )
+    {
+        string thenMember = fact.Args["then"];
+        string elseMember = fact.Args["else"];
+        var hits = new List<(int Min, int Max, int Cutoff)>();
+
+        foreach (var ifs in method.Descendants.OfType<IfElseStatement>())
+        {
+            if (
+                ifs.Condition
+                    is not BinaryOperatorExpression
+                    {
+                        Operator: BinaryOperatorType.GreaterThan,
+                        Left: InvocationExpression
+                        {
+                            Target: MemberReferenceExpression { MemberName: "Range" },
+                        } range,
+                        Right: PrimitiveExpression { Value: int cutoff },
+                    }
+                || range.Arguments.Count != 2
+                || range.Arguments.ElementAt(0) is not PrimitiveExpression { Value: int min }
+                || range.Arguments.ElementAt(1) is not PrimitiveExpression { Value: int max }
+            )
+                continue;
+            if (
+                !AddsMember(ifs.TrueStatement, thenMember)
+                || !AddsMember(ifs.FalseStatement, elseMember)
+            )
+                continue;
+            hits.Add((min, max, cutoff));
+        }
+
+        if (hits.Count != 1)
+            throw new InvalidDataException(
+                $"nested_branch_split('{thenMember}'/'{elseMember}') bound {hits.Count} times (need exactly 1)"
+            );
+        return new()
+        {
+            ["range_min"] = hits[0].Min.ToString(CultureInfo.InvariantCulture),
+            ["range_max"] = hits[0].Max.ToString(CultureInfo.InvariantCulture),
+            ["cutoff"] = hits[0].Cutoff.ToString(CultureInfo.InvariantCulture),
+        };
+    }
+
+    private static bool AddsMember(AstNode branch, string member) =>
+        !branch.IsNull
+        && branch
+            .Descendants.OfType<InvocationExpression>()
+            .Any(inv =>
+                inv.Target is MemberReferenceExpression { MemberName: "Add" }
+                && inv.Arguments.Count == 1
+                && NodeMentions(inv.Arguments.First(), member)
+            );
 
     /// All distinct string literals used in `==` comparisons in the method,
     /// in source order, joined with ','.

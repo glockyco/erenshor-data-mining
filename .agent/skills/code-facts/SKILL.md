@@ -36,6 +36,7 @@ Matchers (each binds **exactly once or throws** — no fuzzy fallback):
 | `statement_shape` | asserts exactly one normalized statement equals `args.statement` |
 | `node_shape` | asserts exactly one normalized AST node of `args.kind` equals `args.shape` |
 | `string_set` | asserts the `==`-literal set equals `args.strings` exactly |
+| `nested_branch_split` | `range_min`, `range_max`, `cutoff` of the one `if (Random.Range(a, b) > c)` whose then branch adds `args.then` and whose else branch adds `args.else` |
 
 **Specs pin the DECOMPILER's rendering, not the `.cs` reference files** (e.g.
 spaces before `[` / `(`). To get the exact text: run the analyzer and read the
