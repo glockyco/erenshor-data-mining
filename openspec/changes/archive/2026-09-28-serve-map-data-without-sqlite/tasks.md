@@ -33,7 +33,7 @@
 
 ## 6. Release
 
-- [ ] 6.1 Run `uv run erenshor test ci` and `uv run erenshor maps build`. Verify that `build/db/erenshor.sqlite` has the same SHA-256 as `variants/main/erenshor-main.sqlite`, and that the build contains no other `.sqlite` file.
-- [ ] 6.2 Check `maps preview` in a browser with a fresh profile: no `.sqlite` request on `/`, `/map`, and a zone page, working spawn and vendor popups, working zone markers, and the legacy overlay query.
-- [ ] 6.3 Run `uv run erenshor maps deploy`. Verify on both hosts that `/db/erenshor.sqlite` returns 200 with a SQLite body, that a spawn popup shows drops, and that the page makes no `.sqlite` request.
-- [ ] 6.4 Archive the change with `openspec archive serve-map-data-without-sqlite --yes`, and replace any placeholder Purpose in the new main specs.
+- [x] 6.1 Run `uv run erenshor test ci` and `uv run erenshor maps build`. Verify that `build/db/erenshor.sqlite` has the same SHA-256 as `variants/main/erenshor-main.sqlite`, and that the build contains no other `.sqlite` file.
+- [x] 6.2 Check `maps preview` in a browser with a fresh profile: no `.sqlite` request on `/`, `/map`, and a zone page, working spawn and vendor popups, working zone markers, and the legacy overlay query.
+- [x] 6.3 Run `uv run erenshor maps deploy`. Verify on both hosts that `/db/erenshor.sqlite` returns 200 with a SQLite body, that a spawn popup shows drops, and that the page makes no `.sqlite` request.
+- [x] 6.4 Archive the change with `openspec archive serve-map-data-without-sqlite --yes`, and replace any placeholder Purpose in the new main specs.

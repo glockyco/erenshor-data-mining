@@ -27,32 +27,6 @@ A long-running refresh command SHALL remain the authoritative owner of each proc
 - **THEN** the command terminates the server process that it created
 - **AND** no process from that server remains listening on its configured port
 
-### Requirement: Commands restore mutable state that they replace
-
-A command that temporarily replaces repository or workstation state SHALL record the prior state before mutation and restore that state on normal exit, interruption, and startup or runtime failure.
-
-#### Scenario: Database path contained an unmanaged regular file
-
-- **WHEN** `maps dev` finds a regular file where it would create the temporary database link
-- **THEN** the command refuses to overwrite the file
-- **AND** it leaves the file unchanged
-
-#### Scenario: Database link existed before startup
-
-- **WHEN** `maps dev` replaces an existing database symlink
-- **THEN** shutdown restores that exact prior symlink target
-
-#### Scenario: Database path was initially absent
-
-- **WHEN** `maps dev` creates a temporary database link at a previously absent path
-- **THEN** shutdown removes the temporary link and restores the absent state
-
-#### Scenario: Database link changes during the session
-
-- **WHEN** another actor replaces the temporary database link before `maps dev` shuts down
-- **THEN** shutdown reports the conflicting path
-- **AND** it does not overwrite the newer state
-
 ### Requirement: External applications retain their own lifecycle
 
 The refresh workflow SHALL NOT terminate an external application or service that it did not start and supervise.
