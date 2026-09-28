@@ -16,9 +16,9 @@ Defines the browser smoke test that the maps CI leaf runs, so that a runtime fai
 - **AND** `/maps/Stowaway` shows the fixture's spawn-point markers
 - **AND** the leaf passes
 
-#### Scenario: A spawn-point popup is broken
+#### Scenario: A popup is broken
 
-- **WHEN** the spawn-point popup of the fixture enemy does not show the fixture's drop items
+- **WHEN** the spawn-point popup of the fixture enemy does not show the fixture's drop items, or the fixture vendor's popup does not show its stock
 - **THEN** the maps leaf fails and names the missing content
 
 #### Scenario: A page raises an error
@@ -26,14 +26,19 @@ Defines the browser smoke test that the maps CI leaf runs, so that a runtime fai
 - **WHEN** any checked page raises an uncaught error
 - **THEN** the maps leaf fails and reports the page and the error text
 
-### Requirement: The smoke test detects database downloads
+### Requirement: The smoke test guards the published database
 
-The browser smoke test SHALL fail when any checked page or the service worker requests a `.sqlite` resource.
+The browser smoke test SHALL fail when any checked page or the service worker requests a `.sqlite` resource. It SHALL also fail when `/db/erenshor.sqlite` is not served as a valid SQLite database.
 
 #### Scenario: A page requests the database
 
 - **WHEN** a checked page requests a URL that ends in `.sqlite`
 - **THEN** the maps leaf fails and reports the URL
+
+#### Scenario: The published database is missing
+
+- **WHEN** `/db/erenshor.sqlite` does not return a body that starts with the SQLite file header
+- **THEN** the maps leaf fails
 
 ### Requirement: Chromium is a checked precondition
 
