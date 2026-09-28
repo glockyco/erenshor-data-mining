@@ -67,6 +67,7 @@
     } from '$lib/types/selection';
     import { buildEncounterTierByName } from '$lib/map-markers';
     import { indexCharacterDetails } from '$lib/map/character-details';
+    import { MAP_EVENT_RECOGNIZER_OPTIONS } from '$lib/map/interaction';
     import { buildSearchIndex, resolveHighlight, type SearchResult } from '$lib/map/search';
     import * as Drawer from '$lib/components/ui/drawer';
     import MapSidebar from '$lib/components/map/MapSidebar.svelte';
@@ -1272,6 +1273,7 @@
                 },
                 // A pan stops where the drag ends. Inertia would carry a touch swipe past that point.
                 controller: { inertia: false },
+                eventRecognizerOptions: MAP_EVENT_RECOGNIZER_OPTIONS,
                 layers,
                 onAfterRender: () => scheduleScaleBarUpdate(0),
                 getCursor: ({
