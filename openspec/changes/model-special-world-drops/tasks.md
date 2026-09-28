@@ -11,7 +11,7 @@
 ## 3. Clean build (commit: `feat(pipeline): derive special world drop chances`)
 
 - [x] 3.1 Add `process_special_world_drops` and the `special_world_drops` clean table, as design D3 describes, with `# code-fact:` tags. Add unit tests for the pool share, a duplicated pool entry, the mask split arithmetic, the disabled-flag cases, and the failure for a pool without a fact. Verify that the clean DB lists Crystallized Balance at 0.05% above level 30.
-- [ ] 3.2 Run `uv run erenshor golden capture`. Show the golden diff to the user and commit it only after approval.
+- [x] 3.2 Run `uv run erenshor golden capture`. Show the golden diff to the user and commit it only after approval.
 
 ## 4. Consumers (one commit each)
 
