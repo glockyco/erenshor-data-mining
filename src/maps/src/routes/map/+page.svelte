@@ -1250,6 +1250,27 @@
             // Create layers
             const layers = createLayers(buildLayerParams(iconAtlas));
 
+            // The first frames can draw into a default-sized canvas buffer
+            // before deck.gl measures the container. The canvas stays hidden
+            // behind the spinner until deck.gl has loaded and the buffer
+            // covers the laid-out canvas.
+            let deckLoaded = false;
+            const finishLoadingWhenCanvasSized = () => {
+                if (!deckLoaded || !isLoading) return;
+                const canvas = container.querySelector('canvas');
+                if (!canvas) return;
+                const rect = canvas.getBoundingClientRect();
+                if (
+                    rect.width <= 0 ||
+                    rect.height <= 0 ||
+                    canvas.width < Math.floor(rect.width) ||
+                    canvas.height < Math.floor(rect.height)
+                ) {
+                    return;
+                }
+                isLoading = false;
+            };
+
             // Initialize deck.gl
             deckInstance = new deckModules.Deck({
                 parent: container,
@@ -1275,7 +1296,14 @@
                 controller: { inertia: false },
                 eventRecognizerOptions: MAP_EVENT_RECOGNIZER_OPTIONS,
                 layers,
-                onAfterRender: () => scheduleScaleBarUpdate(0),
+                onLoad: () => {
+                    deckLoaded = true;
+                    finishLoadingWhenCanvasSized();
+                },
+                onAfterRender: () => {
+                    finishLoadingWhenCanvasSized();
+                    scheduleScaleBarUpdate(0);
+                },
                 getCursor: ({
                     isHovering,
                     isDragging
@@ -1390,8 +1418,6 @@
             scheduleScaleBarUpdate();
             container.addEventListener('pointermove', handleWorldPointerMove, { capture: true });
             container.addEventListener('pointerleave', handleWorldPointerLeave, { capture: true });
-
-            isLoading = false;
         } catch (err) {
             console.error('Failed to initialize deck.gl:', err);
             loadError = err instanceof Error ? err.message : 'Failed to load map';
@@ -1438,7 +1464,7 @@
     />
 
     <!-- Map container -->
-    <div bind:this={container} class="absolute inset-0"></div>
+    <div bind:this={container} class="absolute inset-0" class:invisible={isLoading}></div>
 
     <CoordinateReadout coordinates={cursorCoordinates} leftPx={scaleBarLeftPx} />
     <ScaleBar state={scaleBarState} leftPx={scaleBarLeftPx} />
