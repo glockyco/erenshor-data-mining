@@ -353,7 +353,7 @@ loader selection, runtime inspection, and ScriptEngine reloads.
 
 ## Interactive map
 
-The map website lives in `src/maps/` and is packaged as `erenshor-maps` in the pnpm workspace. It uses SvelteKit, deck.gl, Tailwind, bits-ui, and SQLite data loaded through sql.js in the browser, with prerendered route data for static builds.
+The map website lives in `src/maps/` and is packaged as `erenshor-maps` in the pnpm workspace. It uses SvelteKit, deck.gl, Tailwind, and bits-ui. The build reads the clean SQLite database through sql.js and prerenders every page's data, so the browser never downloads the database. The build also publishes the database unchanged at `/db/erenshor.sqlite` for other consumers.
 
 Live mode connects to `InteractiveMapCompanion` over WebSocket. The default local endpoint is:
 

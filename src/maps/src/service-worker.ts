@@ -7,7 +7,6 @@ import { version } from '$service-worker';
 
 const sw = self as unknown as ServiceWorkerGlobalScope;
 
-const DB_CACHE_NAME = `db-cache-${version}`;
 const TILES_CACHE_NAME = `tiles-cache-${version}`;
 
 // Zoom levels to pre-cache for offline map overview
@@ -73,11 +72,11 @@ sw.addEventListener('install', (event) => {
 sw.addEventListener('activate', (event) => {
     event.waitUntil(
         (async () => {
+            // Delete every other cache, including the database caches that
+            // earlier versions of this worker created.
             const keys = await caches.keys();
             await Promise.all(
-                keys
-                    .filter((key) => key !== DB_CACHE_NAME && key !== TILES_CACHE_NAME)
-                    .map((key) => caches.delete(key))
+                keys.filter((key) => key !== TILES_CACHE_NAME).map((key) => caches.delete(key))
             );
             await sw.clients.claim();
         })()
@@ -89,24 +88,6 @@ sw.addEventListener('fetch', (event) => {
 
     if (event.request.method !== 'GET') return;
     if (url.origin !== sw.location.origin) return;
-
-    // Database: cache-first
-    if (url.pathname.endsWith('.sqlite')) {
-        event.respondWith(
-            (async () => {
-                const cache = await caches.open(DB_CACHE_NAME);
-                const cached = await cache.match(event.request);
-                if (cached) return cached;
-
-                const response = await fetch(event.request);
-                if (response.ok) {
-                    cache.put(event.request, response.clone());
-                }
-                return response;
-            })()
-        );
-        return;
-    }
 
     // Tiles and world map image: cache-first
     if (

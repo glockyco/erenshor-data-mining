@@ -27,9 +27,9 @@
 
 ## 5. Stop the browser database (commit: `feat(maps): stop downloading the database in the browser`)
 
-- [ ] 5.1 Delete `src/maps/src/lib/database.default.ts` and its test. Remove the `.sqlite` fetch branch and `DB_CACHE_NAME` from `src/maps/src/service-worker.ts`. Verify that `pnpm run check` and `pnpm run test` pass, and that no client chunk in the build contains `sql-wasm`.
-- [ ] 5.2 Add the `.sqlite` request check to the smoke test. Verify that it fails when the old fetch path is restored temporarily, and passes without it.
-- [ ] 5.3 Update `src/maps/README.md`, the `interactive-map` skill, and `docs/architecture.md` where they describe the browser database. Verify with a search that no maintained file refers to `getBrowserRepository`.
+- [x] 5.1 Delete `src/maps/src/lib/database.default.ts` and its test. Remove the `.sqlite` fetch branch and `DB_CACHE_NAME` from `src/maps/src/service-worker.ts`. Verify that `pnpm run check` and `pnpm run test` pass, and that no client chunk in the build contains `sql-wasm`.
+- [x] 5.2 Add the `.sqlite` request check to the smoke test. Verify that it fails when the old fetch path is restored temporarily, and passes without it.
+- [x] 5.3 Update `src/maps/README.md`, the `interactive-map` skill, and `docs/architecture.md` where they describe the browser database. Verify with a search that no maintained file refers to `getBrowserRepository`.
 
 ## 6. Release
 

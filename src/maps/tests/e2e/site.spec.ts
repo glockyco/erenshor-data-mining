@@ -6,10 +6,14 @@ import { expect, test as base } from '@playwright/test';
  */
 const ASSETS_OUTSIDE_THE_FIXTURE = /^\/(tiles|items)\//;
 
-/** Every test fails on an uncaught page error or a failed same-origin request. */
+/**
+ * Every test fails on an uncaught page error, a failed same-origin request, or
+ * any page or service worker request for a database file. The site publishes
+ * the database for other consumers but never downloads it itself.
+ */
 const test = base.extend<{ pageProblems: string[] }>({
     pageProblems: [
-        async ({ page, baseURL }, use) => {
+        async ({ context, page, baseURL }, use) => {
             const origin = new URL(baseURL!).origin;
             const problems: string[] = [];
             const isChecked = (url: string) => {
@@ -17,6 +21,12 @@ const test = base.extend<{ pageProblems: string[] }>({
                 return parsed.origin === origin && !ASSETS_OUTSIDE_THE_FIXTURE.test(parsed.pathname);
             };
 
+            // The context also reports requests that the service worker makes.
+            context.on('request', (request) => {
+                if (new URL(request.url()).pathname.endsWith('.sqlite')) {
+                    problems.push(`${request.url()}: the site must not download the database`);
+                }
+            });
             page.on('pageerror', (error) => problems.push(`${page.url()}: ${error.message}`));
             page.on('requestfailed', (request) => {
                 const reason = request.failure()?.errorText;
