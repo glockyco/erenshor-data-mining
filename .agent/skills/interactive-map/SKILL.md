@@ -26,6 +26,22 @@ Never create a lockfile under `src/maps/` and never run an updater only from tha
 directory. Renovate owns routine map updates and groups compatible pnpm patch
 and minor releases. Review major updates through the Dependency Dashboard.
 
+### Renderer updates (deck.gl, luma.gl, Leaflet)
+
+Minor renderer releases change behavior that the unit tests cannot see,
+because they use stand-in layers and the fixture site has no tiles. deck.gl
+9.4 hid zone tiles below their `minZoom` when a TileLayer had no `extent`, and
+it drew one frame before it measured the canvas. Before you merge a renderer
+update, run `maps build` and `maps preview` and check these in a browser:
+
+1. On `/map` with `layers=-wm`, zoom from the fitted view to full zoom out.
+   Every zone keeps its tiles.
+2. Capture the load frames (a CDP screencast). The spinner is followed
+   directly by the fitted view, with no frame at a different scale.
+3. Click a marker and time pointerup to popup. It stays well under 50 ms.
+4. Open a zone page (`/maps/Stowaway`) and check its markers, rotation, and a
+   popup.
+
 ## Hosting topology
 
 Two Worker services, one build, deployed canonical first by `maps deploy`:
