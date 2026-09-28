@@ -8,7 +8,7 @@ from loguru import logger
 from erenshor.domain.entities.item import Item
 from erenshor.domain.entities.item_stats import ItemStats
 from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
-from erenshor.domain.value_objects.source_info import ObtainedFromInfo, UsedInInfo
+from erenshor.domain.value_objects.source_info import ObtainedFromInfo, UsedInInfo, WorldDropInfo
 from erenshor.domain.value_objects.wiki_link import ItemLink
 from erenshor.infrastructure.database.connection import DatabaseConnection
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
@@ -749,6 +749,26 @@ class ItemRepository(BaseRepository[Item]):
             ]
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve item-use sources for '{item_stable_key}': {e}") from e
+
+    def get_special_world_drops(self, item_stable_key: str) -> list[WorldDropInfo]:
+        """Return the special world drop rolls that yield an item, most likely first."""
+        query = """
+            SELECT drop_probability, min_level_exclusive
+            FROM special_world_drops
+            WHERE item_stable_key = ?
+            ORDER BY drop_probability DESC, min_level_exclusive, pool
+        """
+        try:
+            rows = self._execute_raw(query, (item_stable_key,))
+            return [
+                WorldDropInfo(
+                    probability=float(row["drop_probability"]),
+                    min_level_exclusive=int(row["min_level_exclusive"]),
+                )
+                for row in rows
+            ]
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve special world drops for '{item_stable_key}': {e}") from e
 
     def get_classes_starting_with_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
         """Return playable classes whose starting inventory includes an item."""

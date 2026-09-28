@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
     from erenshor.domain.value_objects.faction import FactionModifier
     from erenshor.domain.value_objects.loot import LootDropInfo
-    from erenshor.domain.value_objects.source_info import ObtainedFromInfo, UsedInInfo
+    from erenshor.domain.value_objects.source_info import ObtainedFromInfo, UsedInInfo, WorldDropInfo
     from erenshor.domain.value_objects.spawn import CharacterSpawnInfo, CharacterSpawnRow
     from erenshor.domain.value_objects.wiki_link import (
         AbilityLink,
@@ -43,6 +43,7 @@ class FakeItemRepository:
         smithing_sources: dict[str, list[UsedInInfo]] | None = None,
         item_use_sources: dict[str, list[ObtainedFromInfo]] | None = None,
         starting_sources: dict[str, list[ObtainedFromInfo]] | None = None,
+        world_drops: dict[str, list[WorldDropInfo]] | None = None,
         spell_teaching_items: dict[str, list[ItemLink]] | None = None,
         skill_teaching_items: dict[str, list[ItemLink]] | None = None,
         spell_effect_items: dict[str, list[ItemLink]] | None = None,
@@ -62,6 +63,7 @@ class FakeItemRepository:
         self._smithing_sources = smithing_sources or {}
         self._item_use_sources = item_use_sources or {}
         self._starting_sources = starting_sources or {}
+        self._world_drops = world_drops or {}
         self._spell_teaching_items = spell_teaching_items or {}
         self._skill_teaching_items = skill_teaching_items or {}
         self._spell_effect_items = spell_effect_items or {}
@@ -105,6 +107,9 @@ class FakeItemRepository:
 
     def get_classes_starting_with_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
         return self._starting_sources.get(item_stable_key, [])
+
+    def get_special_world_drops(self, item_stable_key: str) -> list[WorldDropInfo]:
+        return self._world_drops.get(item_stable_key, [])
 
     def get_obtainable_items_that_teach_spell(self, spell_stable_key: str) -> list[ItemLink]:
         return self._spell_teaching_items.get(spell_stable_key, [])

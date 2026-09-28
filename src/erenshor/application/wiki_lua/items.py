@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any, Protocol, cast
 from erenshor.application.wiki_lua.links import class_link_refs, link_ref
 from erenshor.application.wiki_lua.lua_writer import module_text
 from erenshor.domain.entities.item_kind import ItemKind, classify_item_kind
-from erenshor.domain.value_objects.source_info import ObtainedFromInfo, SourceInfo, UsedInInfo
+from erenshor.domain.value_objects.source_info import ObtainedFromInfo, SourceInfo, UsedInInfo, WorldDropInfo
 from erenshor.shared.game_constants import TIER_ORDER_MAP, TIER_SORT_DEFAULT
 
 if TYPE_CHECKING:
@@ -38,6 +38,8 @@ class ItemProvenanceItemRepository(Protocol):
     def get_recipes_rewarding_item(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
 
     def get_item_use_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
+
+    def get_special_world_drops(self, item_stable_key: str) -> list[WorldDropInfo]: ...
 
     def get_classes_starting_with_item(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
 
@@ -247,6 +249,15 @@ def build_item_sources_by_item(
             *zone_repo.get_fishing_waters_for_item(item_key),
             *zone_repo.get_item_bag_sources_for_item(item_key),
             *item_repo.get_classes_starting_with_item(item_key),
+            *(
+                ObtainedFromInfo(
+                    source_type="world_drop",
+                    source_key=None,
+                    probability=drop.probability,
+                    condition=drop.condition,
+                )
+                for drop in item_repo.get_special_world_drops(item_key)
+            ),
         ]
         sources_by_item[item_key] = SourceInfo(obtained_from=obtained_from, used_in=used_in)
     return sources_by_item

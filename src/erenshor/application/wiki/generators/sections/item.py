@@ -657,8 +657,12 @@ class ItemSectionGenerator(SectionGeneratorBase):
         return "<br>".join(result)
 
     def _format_drop_sources(self, enriched: EnrichedItemData) -> str:
-        """Format drop sources from pre-built WikiLink objects with probabilities."""
-        if not enriched.sources or not enriched.sources.drops:
+        """Format drop sources from pre-built WikiLink objects with probabilities.
+
+        Special world drops follow the named droppers as plain text, because
+        any loot-table kill above the level gate can roll them.
+        """
+        if not enriched.sources:
             return ""
         drop_data = [(link, prob) for link, prob in enriched.sources.drops if link.page_title is not None]
         drop_data.sort(key=lambda x: (-x[1], x[0]))
@@ -669,6 +673,12 @@ class ItemSectionGenerator(SectionGeneratorBase):
             if key not in seen:
                 seen.add(key)
                 result.append(f"{link!s} ({probability:.1f}%)")
+        for drop in enriched.sources.world_drops:
+            enemies = (
+                f"Any enemy above level {drop.min_level_exclusive}" if drop.min_level_exclusive > 0 else "Any enemy"
+            )
+            # Two significant digits: world drop chances run from 1% down to 0.002%.
+            result.append(f"{enemies} ({drop.probability:.2g}% per kill)")
         return "<br>".join(result)
 
     def _format_quest_sources(self, enriched: EnrichedItemData) -> tuple[str, str]:

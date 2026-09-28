@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 
 from erenshor.domain.value_objects.wiki_link import CharacterLink, ItemLink, QuestLink, WikiLink
 
-__all__ = ["ObtainedFromInfo", "SourceInfo", "UsedInInfo"]
+__all__ = ["ObtainedFromInfo", "SourceInfo", "UsedInInfo", "WorldDropInfo"]
 
 
 @dataclass(frozen=True)
@@ -27,6 +27,20 @@ class UsedInInfo:
     target_key: str
     quantity: int | None = None
     slot: int | None = None
+
+
+@dataclass(frozen=True)
+class WorldDropInfo:
+    """A special world drop roll that yields an item on any loot-table kill."""
+
+    # Chance per kill in percent at the default loot rate.
+    probability: float
+    # The killed character's level must exceed this. 0 means any level.
+    min_level_exclusive: int
+
+    @property
+    def condition(self) -> str | None:
+        return f"enemy level above {self.min_level_exclusive}" if self.min_level_exclusive > 0 else None
 
 
 @dataclass
@@ -62,6 +76,9 @@ class SourceInfo:
     # Items produced by using this item (e.g. a fossil's random pool):
     # (dropped_item_link, drop_probability, is_guaranteed).
     item_drops: list[tuple[ItemLink, float, bool]] = field(default_factory=list)
+
+    # Special world drops that any loot-table kill can roll.
+    world_drops: list[WorldDropInfo] = field(default_factory=list)
 
     # Unified item-owned obtainability rows with stable source identity.
     obtained_from: list[ObtainedFromInfo] = field(default_factory=list)

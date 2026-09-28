@@ -27,7 +27,7 @@ from tests.unit.application.wiki_lua.fakes import (
 
 from erenshor.application.wiki_lua.generation import generate_lua_data_modules
 from erenshor.application.wiki_lua.validation import LuaValidationResult
-from erenshor.domain.value_objects.source_info import ObtainedFromInfo, UsedInInfo
+from erenshor.domain.value_objects.source_info import ObtainedFromInfo, UsedInInfo, WorldDropInfo
 
 
 def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
@@ -168,6 +168,7 @@ def test_generation_wires_item_provenance_repositories(tmp_path: Path) -> None:
         crafting_material_sources={
             item.stable_key: [UsedInInfo(use_type="craft_material", target_key="item:copper_armor_mold")]
         },
+        world_drops={item.stable_key: [WorldDropInfo(probability=0.05, min_level_exclusive=30)]},
     )
     character_repo = FakeCharacterRepository(
         [make_character()],
@@ -201,6 +202,8 @@ def test_generation_wires_item_provenance_repositories(tmp_path: Path) -> None:
     item_shard_text = (tmp_path / "Erenshor" / "Data" / "Items" / "Weapons.lua").read_text(encoding="utf-8")
     assert '["obtainedFrom"] = {' in item_shard_text
     assert '["usedIn"] = {' in item_shard_text
+    assert '["type"] = "world_drop"' in item_shard_text
+    assert '["condition"] = "enemy level above 30"' in item_shard_text
     for removed in ("vendorSource", "source", "questSource", "relatedQuest", "componentFor", "containerDrops"):
         assert f'"{removed}"' not in item_shard_text
 

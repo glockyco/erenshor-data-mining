@@ -31,6 +31,7 @@ ITEM_OWNERSHIP_SOURCE_TYPES = {
     "item_drops": {"ObtainedFrom": {"item_use"}},
     "spell_created_items": {"ObtainedFrom": {"item_use"}},
     "class_starting_items": {"ObtainedFrom": {"starting"}},
+    "special_world_drops": {"ObtainedFrom": {"world_drop"}},
     "smithing_special_uses": {"UsedIn": {"upgrade_material", "blessing_removal_material"}},
 }
 
