@@ -29,6 +29,7 @@ from erenshor.cli.preconditions.checks.maps import (
     build_exists,
     build_matches_inputs,
     cloudflare_auth_configured,
+    no_static_database_files,
 )
 
 if TYPE_CHECKING:
@@ -48,6 +49,9 @@ CHECK_COMMANDS: tuple[tuple[str, ...], ...] = (
     ("pnpm", "run", "test"),
 )
 PRERENDER_SMOKE_COMMAND = ("node", "scripts/test-prerender.mjs")
+# The site build, its prebuild scripts, and the dev server read the clean
+# database from this variable. Nothing links the database into the source tree.
+MAPS_DATABASE_PATH_ENV = "ERENSHOR_MAPS_DATABASE_PATH"
 
 # The two hostnames are two Cloudflare services deployed from one build. The
 # canonical service owns erenshor.compendiums.org, the legacy service keeps
@@ -96,47 +100,12 @@ def _get_database_path(cli_ctx: CLIContext) -> Path:
     return variant_config.resolved_database(cli_ctx.repo_root)
 
 
-def _get_maps_db_path(cli_ctx: CLIContext) -> Path:
-    """Get the maps database path (symlink/copy target)."""
-    variant_config = cli_ctx.config.variants[cli_ctx.variant]
-    maps_db_dir = variant_config.maps.resolved_database_dir(cli_ctx.repo_root)
-    return maps_db_dir / "erenshor.sqlite"
-
-
-class DatabaseLinkTransaction:
-    """Temporarily replace a database symlink and restore its exact prior state."""
-
-    def __init__(self, source: Path, target: Path) -> None:
-        self.source = source
-        self.target = target
-        self._prior_target: Path | None = None
-        self._installed = False
-        self._temporary_target = source
-
-    def install(self) -> None:
-        if self.target.is_symlink():
-            self._prior_target = self.target.readlink()
-            self.target.unlink()
-        elif self.target.exists():
-            raise RuntimeError(f"refusing to replace regular file or directory: {self.target}")
-        self.target.symlink_to(self.source)
-        self._installed = True
-
-    def restore(self) -> None:
-        if not self._installed:
-            return
-        if not self.target.is_symlink() or self.target.readlink() != self._temporary_target:
-            raise RuntimeError(f"database link changed concurrently; refusing to overwrite: {self.target}")
-        self.target.unlink()
-        if self._prior_target is not None:
-            self.target.symlink_to(self._prior_target)
-
-
 @app.command()
 @require_preconditions(
     database_exists,
     database_valid,
     database_has_items,
+    no_static_database_files,
     program_available("pnpm"),
     required_path("maps_source_dir", kind="directory"),
     required_path("maps_source_dir", "node_modules", kind="directory"),
@@ -149,49 +118,40 @@ def dev(
         help="Port for development server",
     ),
 ) -> None:
-    """Start development server with symlinked database.
+    """Start the development server on the selected variant database.
 
-    Launches Vite development server for the interactive maps
-    website. Uses symlinked database for live updates during
-    development. Includes hot module reloading.
+    Launches the Vite development server for the interactive maps website.
+    Server loads read the database at request time, so a rebuilt database
+    shows after a page reload. Includes hot module reloading.
     """
     cli_ctx: CLIContext = ctx.obj
 
-    # Get paths
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
     maps_dir = variant_config.maps.resolved_source_dir(cli_ctx.repo_root)
-    maps_db_dir = variant_config.maps.resolved_database_dir(cli_ctx.repo_root)
     db_path = _get_database_path(cli_ctx)
-    maps_db_path = _get_maps_db_path(cli_ctx)
 
-    # Ensure maps db directory exists
-    maps_db_dir.mkdir(parents=True, exist_ok=True)
-
-    link = DatabaseLinkTransaction(db_path, maps_db_path)
     process: subprocess.Popen[bytes] | None = None
     previous_handlers: dict[signal.Signals, Any] = {}
     shutdown_requested = False
     try:
-        link.install()
         console.print()
         console.print(
             Panel.fit(
                 f"[bold cyan]Starting Maps Development Server[/bold cyan]\n"
                 f"Variant: {cli_ctx.variant}\n"
                 f"Port: {port}\n"
-                f"Database: {db_path}\n"
-                f"Maps DB: {maps_db_path} (symlinked)",
+                f"Database: {db_path}",
                 border_style="cyan",
             )
         )
         console.print()
-        console.print("[dim]Database changes will be reflected immediately (symlinked)[/dim]")
         console.print("[dim]Press Ctrl+C to stop the server[/dim]")
         console.print()
 
         process = subprocess.Popen(
             ["pnpm", "exec", "vite", "dev", "--port", str(port)],
             cwd=maps_dir,
+            env={**os.environ, MAPS_DATABASE_PATH_ENV: str(db_path)},
             start_new_session=True,
         )
 
@@ -223,7 +183,6 @@ def dev(
             except subprocess.TimeoutExpired:
                 os.killpg(process.pid, signal.SIGKILL)
                 process.wait()
-        link.restore()
 
 
 @app.command()
@@ -244,9 +203,7 @@ def preview(
 ) -> None:
     """Preview built site.
 
-    Serves the production build locally for testing before
-    deployment. Uses the built static files with copied
-    database.
+    Serves the production build locally for testing before deployment.
     """
     cli_ctx: CLIContext = ctx.obj
 
@@ -318,6 +275,7 @@ def check(ctx: typer.Context) -> None:
     database_exists,
     database_valid,
     database_has_items,
+    no_static_database_files,
     program_available("pnpm"),
     program_available("node"),
     required_path("maps_source_dir", kind="directory"),
@@ -336,19 +294,17 @@ def build(
 ) -> None:
     """Build the production site from the selected variant database.
 
-    Links the variant database into the static directory for the prebuild
-    scripts and the Vite build, then restores the previous link. Writes the
-    build sidecar that deploy uses to reject a stale build.
+    The prebuild scripts and the Vite build read the database path from
+    ERENSHOR_MAPS_DATABASE_PATH. Writes the build sidecar that deploy uses to
+    reject a stale build.
     """
     cli_ctx: CLIContext = ctx.obj
 
-    # Get paths
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
     maps_dir = variant_config.maps.resolved_source_dir(cli_ctx.repo_root)
-    maps_db_dir = variant_config.maps.resolved_database_dir(cli_ctx.repo_root)
     build_dir = variant_config.maps.resolved_build_dir(cli_ctx.repo_root)
     db_path = _get_database_path(cli_ctx)
-    maps_db_path = _get_maps_db_path(cli_ctx)
+    site_env = {**os.environ, MAPS_DATABASE_PATH_ENV: str(db_path)}
 
     try:
         build_info.validate_tile_files(maps_dir)
@@ -376,28 +332,17 @@ def build(
     )
     console.print()
 
-    # Prebuild scripts read the static database path, so it points at the
-    # selected variant only while this build runs.
-    link = DatabaseLinkTransaction(db_path, maps_db_path)
     try:
         if not skip_checks:
             logger.info("Running maps verification")
             _run_checks(maps_dir)
 
-        maps_db_dir.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Linking database: {maps_db_path} -> {db_path}")
-        link.install()
-
         logger.info("Running maps prebuild steps")
         _run(["node", "scripts/generate-og-image.mjs"], maps_dir)
-        _run(["node", "scripts/generate-item-icons.mjs", cli_ctx.variant], maps_dir)
+        _run(["node", "scripts/generate-item-icons.mjs", cli_ctx.variant], maps_dir, env=site_env)
 
         logger.info("Running Vite build")
-        _run(
-            ["pnpm", "exec", "vite", "build"],
-            maps_dir,
-            env={**os.environ, "ERENSHOR_MAPS_DATABASE_PATH": str(db_path)},
-        )
+        _run(["pnpm", "exec", "vite", "build"], maps_dir, env=site_env)
         hashes = build_info.compute_input_hashes(maps_source_dir=maps_dir, database_path=db_path)
         build_info.write_build_info(build_dir, hashes)
         console.print()
@@ -417,8 +362,6 @@ def build(
     except Exception as e:
         console.print(f"[red]Error during build: {e}[/red]")
         raise typer.Exit(1) from e
-    finally:
-        link.restore()
 
 
 @app.command()

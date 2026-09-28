@@ -206,7 +206,6 @@ vite.config.ts.timestamp-*
 
 .idea
 
-static/db
 static/tiles
 static/items
 

@@ -154,7 +154,6 @@ def _build_check_context(cli_ctx: CLIContext) -> dict[str, Any]:
         "editor_scripts_dir": variant_config.resolved_editor_scripts(cli_ctx.repo_root),
         "maps_source_dir": variant_config.maps.resolved_source_dir(cli_ctx.repo_root),
         "build_dir": variant_config.maps.resolved_build_dir(cli_ctx.repo_root),
-        "maps_db_path": variant_config.maps.resolved_database_dir(cli_ctx.repo_root) / "erenshor.sqlite",
         "images_dir": variant_config.resolved_unity_project(cli_ctx.repo_root).parent / "images",
         "wiki_dir": variant_config.resolved_wiki(cli_ctx.repo_root),
         "config": cli_ctx.config,

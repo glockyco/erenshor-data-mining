@@ -62,7 +62,6 @@ def _ctx(
             maps=SimpleNamespace(
                 resolved_source_dir=lambda _root, path=path: path / "maps",
                 resolved_build_dir=lambda _root, path=path: path / "maps/build",
-                resolved_database_dir=lambda _root, path=path: path / "maps/db",
             ),
         )
         for name, path in paths.items()

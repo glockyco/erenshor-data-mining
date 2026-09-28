@@ -439,8 +439,8 @@ class MapsConfig(ConfigModel):
     """Configuration for the interactive maps web application.
 
     The maps project is a SvelteKit application that displays game data
-    in an interactive map interface. It reads from a SQLite database
-    and deploys to Cloudflare Pages.
+    in an interactive map interface. Its build reads the variant's clean
+    database and deploys to Cloudflare Workers.
     """
 
     source_dir: str = Field(
@@ -450,10 +450,6 @@ class MapsConfig(ConfigModel):
     data_dir: str = Field(
         default="$REPO_ROOT/src/maps/static/data",
         description="Path to maps static/data directory for exported data files",
-    )
-    database_dir: str = Field(
-        default="$REPO_ROOT/src/maps/static/db",
-        description="Path to maps static/db directory for SQLite database",
     )
     build_dir: str = Field(
         default="$REPO_ROOT/src/maps/build",
@@ -475,12 +471,6 @@ class MapsConfig(ConfigModel):
         from .paths import resolve_path
 
         return resolve_path(self.data_dir, repo_root)
-
-    def resolved_database_dir(self, repo_root: Path) -> Path:
-        """Get resolved maps database directory path."""
-        from .paths import resolve_path
-
-        return resolve_path(self.database_dir, repo_root)
 
     def resolved_build_dir(self, repo_root: Path) -> Path:
         """Get resolved maps build directory path."""

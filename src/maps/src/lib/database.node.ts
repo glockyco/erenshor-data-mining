@@ -4,7 +4,7 @@ import { RepositoryBase } from '$lib/database.base';
 import initSqlJs from 'sql.js/dist/sql-wasm.js';
 
 export class Repository extends RepositoryBase {
-	async init(dbPath = 'static/db/erenshor.sqlite') {
+	async init(dbPath: string) {
 		if (!this.SQL) {
 			this.SQL = await initSqlJs({
 				locateFile: () => path.resolve('node_modules/sql.js/dist/sql-wasm.wasm')

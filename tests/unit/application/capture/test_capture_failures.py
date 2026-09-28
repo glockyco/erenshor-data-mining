@@ -30,7 +30,6 @@ def _context(tmp_path: Path) -> SimpleNamespace:
         wiki=str(tmp_path / "wiki"),
         maps=MapsConfig(
             source_dir=str(tmp_path / "maps"),
-            database_dir=str(tmp_path / "maps/db"),
             build_dir=str(tmp_path / "maps/build"),
         ),
     )

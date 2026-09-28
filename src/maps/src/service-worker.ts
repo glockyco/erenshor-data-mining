@@ -3,7 +3,7 @@
 /// <reference lib="esnext" />
 /// <reference lib="webworker" />
 
-import { files, version } from '$service-worker';
+import { version } from '$service-worker';
 
 const sw = self as unknown as ServiceWorkerGlobalScope;
 
@@ -21,21 +21,6 @@ interface TilesManifest {
             tiles: string[];
         }
     >;
-}
-
-async function precacheDatabase(): Promise<void> {
-    const dbFile = files.find((f) => f.endsWith('.sqlite'));
-    if (!dbFile) return;
-
-    try {
-        const cache = await caches.open(DB_CACHE_NAME);
-        const response = await fetch(dbFile);
-        if (response.ok) {
-            await cache.put(dbFile, response);
-        }
-    } catch {
-        // DB fetch failed, skip silently
-    }
 }
 
 async function precacheEssentialTiles(): Promise<void> {
@@ -79,7 +64,7 @@ async function precacheEssentialTiles(): Promise<void> {
 sw.addEventListener('install', (event) => {
     event.waitUntil(
         (async () => {
-            await Promise.all([precacheDatabase(), precacheEssentialTiles()]);
+            await precacheEssentialTiles();
             await sw.skipWaiting();
         })()
     );

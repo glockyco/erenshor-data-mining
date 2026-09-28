@@ -26,7 +26,7 @@ derived from it, and renaming it would break those shipped mods.
 
 - SvelteKit
 - deck.gl for map rendering
-- sql.js reading the static SQLite database from `static/db/`
+- sql.js reading the clean SQLite database at build time
 - Cloudflare Workers static assets
 
 ## Prerequisites
@@ -41,7 +41,7 @@ Use the CLI for all website workflows:
 
 ```bash
 uv run erenshor maps --help
-uv run erenshor maps dev      # Dev server; links the variant DB while it runs
+uv run erenshor maps dev      # Dev server on the selected variant database
 uv run erenshor maps build    # Verify, build, and stamp provenance
 uv run erenshor maps preview  # Preview an existing fresh build
 uv run erenshor maps deploy   # Deploy an existing fresh build to both services
@@ -51,19 +51,20 @@ uv run erenshor maps check  # Lint, type-check, and run fixture-backed unit test
 uv run erenshor test maps   # Add a temporary fixture-backed prerender smoke
 ```
 
-Do not use `pnpm dev` directly. The CLI links the selected variant database into
-`static/db/` while `maps dev` or `maps build` runs. The Vitest phase creates a
-temporary deterministic SQLite fixture and does not read
-`static/db/erenshor.sqlite`. The `test maps` prerender smoke writes to a temporary
-build directory and proves that `/`, `/map`, and `/maps/Stowaway` render from the
-same fixture.
+Do not use `pnpm dev` directly. The CLI passes the selected variant database to
+the site through `ERENSHOR_MAPS_DATABASE_PATH` while `maps dev` or `maps build`
+runs. The Vitest phase creates a temporary deterministic SQLite fixture. The
+`test maps` prerender smoke writes to a temporary build directory and proves that
+`/`, `/map`, and `/maps/Stowaway` render from the same fixture.
 
 ## Data Flow
 
-The clean database (`erenshor-{variant}.sqlite`, built by `erenshor extract
-build`) is linked to `static/db/erenshor.sqlite` during `maps build`, and the
-build output contains a copy of it. The map reads spawn points, characters,
-zones, and other entity data from this database.
+The build reads the clean database (`erenshor-{variant}.sqlite`, built by
+`erenshor extract build`) from `ERENSHOR_MAPS_DATABASE_PATH`. The map reads
+spawn points, characters, zones, and other entity data from this database. The
+prerendered route `src/routes/db/erenshor.sqlite/` publishes an unchanged copy
+at `/db/erenshor.sqlite`. A `.sqlite` file under `static/` stops `maps build`
+and `maps dev`, because it would collide with that route.
 
 Live entity positions come from the InteractiveMapCompanion BepInEx mod via
 WebSocket.

@@ -15,7 +15,7 @@ import initSqlJs from 'sql.js/dist/sql-wasm.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(__dirname, '..');
-const dbPath = resolve(projectRoot, 'static/db/erenshor.sqlite');
+const dbPath = process.env.ERENSHOR_MAPS_DATABASE_PATH;
 const outDir = resolve(projectRoot, 'static/items');
 
 // Unity Texture2D export path — resolve relative to repo root.
@@ -25,6 +25,10 @@ const variant = process.argv[2] ?? 'main';
 const textureDir = resolve(projectRoot, '..', '..', 'variants', variant, 'unity', 'ExportedProject', 'Assets', 'Texture2D');
 
 async function main() {
+    if (!dbPath) {
+        console.error('ERENSHOR_MAPS_DATABASE_PATH is not set. Run `erenshor maps build`.');
+        process.exit(1);
+    }
     if (!existsSync(dbPath)) {
         console.error(`DB not found: ${dbPath}`);
         process.exit(1);

@@ -16,7 +16,7 @@ Wire the per-subsystem pipelines into the right order and surface the variant-sc
 | Raw + clean SQLite | Yes | `variants/{v}/erenshor-{v}{-raw}.sqlite` |
 | Google Sheets | Yes, per-spreadsheet | each variant has its own `spreadsheet_id` in `config.toml` |
 | AdventureGuide `guide.json` | Input-variant scoped, single output | overwrites `quest_guides/guide.json` — only one variant ships at a time |
-| Interactive map build | Yes via `build_dir`; one build is deployed to both Worker services (`wrangler.jsonc` and `wrangler.legacy.jsonc`) | shared DB link `src/maps/static/db/erenshor.sqlite` points at the built variant only while `maps build` runs |
+| Interactive map build | Yes via `build_dir`; one build is deployed to both Worker services (`wrangler.jsonc` and `wrangler.legacy.jsonc`) | `maps build -V {v}` reads the variant database through `ERENSHOR_MAPS_DATABASE_PATH` and publishes it at `/db/erenshor.sqlite` |
 | Map tiles + `zone-capture-config.json` | **Shared** | tiles added for one variant are visible to all |
 | `mapping.json` | **Shared** | overrides apply across all variants |
 | MediaWiki | **Single target — `erenshor.wiki.gg`** | `wiki deploy -V playtest` overwrites main's pages |
@@ -67,7 +67,7 @@ Run `pytest tests/integration -v` against this variant. **Do not** run `golden c
 
 ### 7. Republish only the variant-safe outputs
 - **Sheets:** `erenshor -V {v} sheets deploy --all-sheets` (dry-run first with the global `--dry-run` flag).
-- **Local map:** `erenshor -V {v} maps build && erenshor -V {v} maps dev` (or `preview`). Keep `maps dev` in the foreground. It restores the prior database link when it stops.
+- **Local map:** `erenshor -V {v} maps build && erenshor -V {v} maps dev` (or `preview`). Keep `maps dev` in the foreground.
 - **Guide compile / Wiki / Cloudflare map deploy:** see Variant safety rules.
 
 ### 8. Tile capture for new zones
@@ -111,7 +111,7 @@ Shared-output actions require an explicit variant gate before running:
 
 ## Session shutdown and recovery
 
-Keep `erenshor mod launch` and `erenshor -V {v} maps dev` in the foreground. Stop each command with one interrupt. Each command stops only the processes that it created. For `mod launch` these are the CrossOver wrapper and every process that joined its process group while the wrapper ran, including the game itself, which can outlive the wrapper. `maps dev` also restores the database link that existed when it started.
+Keep `erenshor mod launch` and `erenshor -V {v} maps dev` in the foreground. Stop each command with one interrupt. Each command stops only the processes that it created. For `mod launch` these are the CrossOver wrapper and every process that joined its process group while the wrapper ran, including the game itself, which can outlive the wrapper.
 
 Do not search for processes by name, age, or port. Do not quit Unity Hub or its licensing service. They are not resources that this workflow owns.
 
@@ -123,7 +123,7 @@ If you find a possible session process without an ownership record, run `erensho
 
 | Symptom | Cause | Recovery |
 |---|---|---|
-| Map shows wrong content after `maps dev` reports a restoration failure | The database link changed while the command was active | Inspect the reported path and its current target. Restore the intended target only after you identify who changed it. |
+| `maps build` or `maps dev` reports a database file in the maps static assets | A `src/maps/static/db` link from an earlier version remains | Delete the reported path. The site publishes the database from a route. |
 | `extract export` produces unchanged data despite new game files | Forgot to re-rip; Unity scanned stale ExportedProject | re-rip, then re-export |
 | Wiki deploy from non-main variant overwrote main's pages | Variant safety rule ignored | `erenshor -V main wiki generate && erenshor -V main wiki deploy` |
 | `golden capture` from non-main variant broke main's tests | Capture writes to shared `tests/golden/` | `git checkout tests/golden/`, re-capture from main after main's DB is current |

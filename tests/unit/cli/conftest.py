@@ -41,7 +41,6 @@ def cli_context(tmp_path: Path) -> CLIContext:
         wiki=str(tmp_path / "wiki"),
         maps=MapsConfig(
             source_dir=str(tmp_path / "maps"),
-            database_dir=str(tmp_path / "maps" / "static" / "db"),
             build_dir=str(tmp_path / "maps" / "build"),
         ),
     )

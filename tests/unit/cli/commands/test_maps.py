@@ -43,7 +43,7 @@ def test_step_with_missing_program_names_it_and_runs_nothing(
 def _write_project(tmp_path: Path) -> tuple[Path, Path]:
     maps_dir = tmp_path / "maps"
     (maps_dir / "src").mkdir(parents=True)
-    (maps_dir / "static" / "db").mkdir(parents=True)
+    (maps_dir / "static").mkdir()
     tiles_dir = maps_dir / "static" / "tiles" / "TestZone" / "-1" / "0"
     tiles_dir.mkdir(parents=True)
     (maps_dir / "static" / "tiles" / "tiles-manifest.json").write_text(
@@ -72,11 +72,7 @@ def _ctx(tmp_path: Path, maps_dir: Path, database_path: Path, *, dry_run: bool =
         logs=str(tmp_path / "logs"),
         backups=str(tmp_path / "backups"),
         wiki=str(tmp_path / "wiki"),
-        maps=MapsConfig(
-            source_dir=str(maps_dir),
-            database_dir=str(maps_dir / "static" / "db"),
-            build_dir=str(maps_dir / "build"),
-        ),
+        maps=MapsConfig(source_dir=str(maps_dir), build_dir=str(maps_dir / "build")),
     )
     cli_context = CLIContext(
         config=Config(
@@ -90,7 +86,7 @@ def _ctx(tmp_path: Path, maps_dir: Path, database_path: Path, *, dry_run: bool =
     return SimpleNamespace(obj=cli_context)
 
 
-def test_dev_requires_dependencies_before_linking_database(
+def test_dev_requires_dependencies_before_starting_the_server(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
     maps_dir, database_path = _write_project(tmp_path)
@@ -103,26 +99,17 @@ def test_dev_requires_dependencies_before_linking_database(
 
     assert error.value.exit_code == 1
     assert "node_modules" in capsys.readouterr().out
-    assert not (maps_dir / "static/db/erenshor.sqlite").exists()
 
 
-def test_build_links_database_runs_verify_prebuild_then_build_and_restores_link(
-    tmp_path: Path, monkeypatch: Any
-) -> None:
+def test_build_runs_verify_prebuild_then_build_on_the_variant_database(tmp_path: Path, monkeypatch: Any) -> None:
     maps_dir, database_path = _write_project(tmp_path)
     ctx = _ctx(tmp_path, maps_dir, database_path)
-    staged_database = maps_dir / "static" / "db" / "erenshor.sqlite"
-    prior = tmp_path / "prior.sqlite"
-    prior.touch()
-    staged_database.symlink_to(prior)
     calls: list[list[str]] = []
-    environments: list[dict[str, str] | None] = []
+    database_paths: list[str | None] = []
 
     def fake_run(args: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
-        if args == ["node", "scripts/generate-item-icons.mjs", "main"]:
-            assert staged_database.read_bytes() == database_path.read_bytes()
         calls.append(args)
-        environments.append(kwargs.get("env"))
+        database_paths.append((kwargs.get("env") or {}).get(maps.MAPS_DATABASE_PATH_ENV))
         return subprocess.CompletedProcess(args=args, returncode=0)
 
     monkeypatch.setattr("erenshor.cli.commands.maps.subprocess.run", fake_run)
@@ -138,32 +125,32 @@ def test_build_links_database_runs_verify_prebuild_then_build_and_restores_link(
         ["node", "scripts/generate-item-icons.mjs", "main"],
         ["pnpm", "exec", "vite", "build"],
     ]
-    assert environments[-1] is not None
-    assert environments[-1]["ERENSHOR_MAPS_DATABASE_PATH"] == str(database_path)
-    # maps dev links this path next, so the build leaves the prior link and no copy.
-    assert staged_database.readlink() == prior
+    # The icon script and the site build both read the selected variant.
+    assert database_paths[-2:] == [str(database_path), str(database_path)]
+    assert not list((maps_dir / "static").rglob("*.sqlite"))
     expected = build_info.compute_input_hashes(maps_source_dir=maps_dir, database_path=database_path)
     assert build_info.read_build_info(maps_dir / "build") == expected
 
 
-def test_build_restores_link_when_vite_build_fails(tmp_path: Path, monkeypatch: Any) -> None:
+def test_build_refuses_a_database_left_in_the_static_assets(
+    tmp_path: Path, monkeypatch: Any, capsys: pytest.CaptureFixture[str]
+) -> None:
     maps_dir, database_path = _write_project(tmp_path)
+    stale = maps_dir / "static" / "db" / "erenshor.sqlite"
+    stale.parent.mkdir()
+    stale.symlink_to(database_path)
     ctx = _ctx(tmp_path, maps_dir, database_path)
-    staged_database = maps_dir / "static" / "db" / "erenshor.sqlite"
-    prior = tmp_path / "prior.sqlite"
-    prior.touch()
-    staged_database.symlink_to(prior)
-
-    def fake_run(args: list[str], **_kwargs: Any) -> subprocess.CompletedProcess[str]:
-        returncode = 1 if args[:3] == ["pnpm", "exec", "vite"] else 0
-        return subprocess.CompletedProcess(args=args, returncode=returncode)
-
-    monkeypatch.setattr("erenshor.cli.commands.maps.subprocess.run", fake_run)
+    monkeypatch.setattr(
+        "erenshor.cli.commands.maps.subprocess.run", lambda *_args, **_kwargs: pytest.fail("ran a build step")
+    )
 
     with pytest.raises(typer.Exit):
         maps.build(ctx)
 
-    assert staged_database.readlink() == prior
+    output = capsys.readouterr().out
+    assert "A database file remains in the maps static assets" in output
+    assert "erenshor.sqlite" in output
+    assert stale.is_symlink()
 
 
 def test_build_refuses_missing_tiles_before_frontend_checks(tmp_path: Path, monkeypatch: Any) -> None:
@@ -373,56 +360,6 @@ def test_deploy_dry_run_reports_both_services_without_invoking_wrangler(
     assert "--config wrangler.legacy.jsonc" in output
 
 
-def test_database_link_transaction_restores_prior_target(tmp_path: Path) -> None:
-    prior = tmp_path / "prior.sqlite"
-    selected = tmp_path / "selected.sqlite"
-    prior.touch()
-    selected.touch()
-    target = tmp_path / "erenshor.sqlite"
-    target.symlink_to(prior)
-    transaction = maps.DatabaseLinkTransaction(selected, target)
-    transaction.install()
-    assert target.readlink() == selected
-    transaction.restore()
-    assert target.readlink() == prior
-
-
-def test_database_link_transaction_removes_initially_absent_link(tmp_path: Path) -> None:
-    selected = tmp_path / "selected.sqlite"
-    selected.touch()
-    target = tmp_path / "erenshor.sqlite"
-    transaction = maps.DatabaseLinkTransaction(selected, target)
-    transaction.install()
-    transaction.restore()
-    assert not target.exists() and not target.is_symlink()
-
-
-@pytest.mark.parametrize("kind", ["file", "directory"])
-def test_database_link_transaction_refuses_unmanaged_path(tmp_path: Path, kind: str) -> None:
-    selected = tmp_path / "selected.sqlite"
-    selected.touch()
-    target = tmp_path / "erenshor.sqlite"
-    target.touch() if kind == "file" else target.mkdir()
-    with pytest.raises(RuntimeError, match=str(target)):
-        maps.DatabaseLinkTransaction(selected, target).install()
-    assert not target.is_symlink()
-
-
-def test_database_link_transaction_refuses_concurrent_replacement(tmp_path: Path) -> None:
-    selected = tmp_path / "selected.sqlite"
-    replacement = tmp_path / "replacement.sqlite"
-    selected.touch()
-    replacement.touch()
-    target = tmp_path / "erenshor.sqlite"
-    transaction = maps.DatabaseLinkTransaction(selected, target)
-    transaction.install()
-    target.unlink()
-    target.symlink_to(replacement)
-    with pytest.raises(RuntimeError, match="changed concurrently"):
-        transaction.restore()
-    assert target.readlink() == replacement
-
-
 class _FakeDevProcess:
     def __init__(self, outcome: int | BaseException) -> None:
         self.pid = 73
@@ -442,16 +379,18 @@ class _FakeDevProcess:
 
 def _run_dev_lifecycle(
     tmp_path: Path, monkeypatch: Any, outcome: int | BaseException
-) -> tuple[Path, Path, list[tuple[int, int]]]:
+) -> tuple[list[tuple[int, int]], dict[str, str]]:
     maps_dir, database_path = _write_project(tmp_path)
     ctx = _ctx(tmp_path, maps_dir, database_path)
-    target = maps_dir / "static/db/erenshor.sqlite"
-    prior = tmp_path / "prior.sqlite"
-    prior.touch()
-    target.symlink_to(prior)
     process = _FakeDevProcess(outcome)
     signals: list[tuple[int, int]] = []
-    monkeypatch.setattr(maps.subprocess, "Popen", lambda *_args, **_kwargs: process)
+    environment: dict[str, str] = {}
+
+    def popen(*_args: Any, **kwargs: Any) -> _FakeDevProcess:
+        environment.update(kwargs["env"])
+        return process
+
+    monkeypatch.setattr(maps.subprocess, "Popen", popen)
     monkeypatch.setattr(maps.signal, "signal", lambda *_args: maps.signal.SIG_DFL)
 
     def killpg(pid: int, sig: int) -> None:
@@ -464,33 +403,23 @@ def _run_dev_lifecycle(
     except typer.Exit:
         if not isinstance(outcome, int) or outcome == 0:
             raise
-    return target, prior, signals
+    return signals, environment
 
 
-def test_maps_dev_restores_link_after_normal_exit(tmp_path: Path, monkeypatch: Any) -> None:
-    target, prior, signals = _run_dev_lifecycle(tmp_path, monkeypatch, 0)
-    assert target.readlink() == prior
+def test_maps_dev_serves_the_variant_database_and_exits_cleanly(tmp_path: Path, monkeypatch: Any) -> None:
+    signals, environment = _run_dev_lifecycle(tmp_path, monkeypatch, 0)
+    assert environment[maps.MAPS_DATABASE_PATH_ENV] == str(tmp_path / "erenshor.sqlite")
     assert signals == []
 
 
-def test_maps_dev_restores_link_after_runtime_failure(tmp_path: Path, monkeypatch: Any) -> None:
-    target, prior, _signals = _run_dev_lifecycle(tmp_path, monkeypatch, 7)
-    assert target.readlink() == prior
-
-
-def test_maps_dev_terminates_child_and_restores_link_on_interruption(tmp_path: Path, monkeypatch: Any) -> None:
-    target, prior, signals = _run_dev_lifecycle(tmp_path, monkeypatch, KeyboardInterrupt())
-    assert target.readlink() == prior
+def test_maps_dev_terminates_child_on_interruption(tmp_path: Path, monkeypatch: Any) -> None:
+    signals, _environment = _run_dev_lifecycle(tmp_path, monkeypatch, KeyboardInterrupt())
     assert signals == [(73, maps.signal.SIGTERM)]
 
 
 def test_maps_dev_treats_signal_shutdown_as_expected(tmp_path: Path, monkeypatch: Any) -> None:
     maps_dir, database_path = _write_project(tmp_path)
     ctx = _ctx(tmp_path, maps_dir, database_path)
-    target = maps_dir / "static/db/erenshor.sqlite"
-    prior = tmp_path / "prior.sqlite"
-    prior.touch()
-    target.symlink_to(prior)
     handlers: dict[maps.signal.Signals, Any] = {}
 
     class SignalProcess(_FakeDevProcess):
@@ -515,5 +444,4 @@ def test_maps_dev_treats_signal_shutdown_as_expected(tmp_path: Path, monkeypatch
 
     maps.dev(ctx)
 
-    assert target.readlink() == prior
     assert process.returncode == -maps.signal.SIGTERM

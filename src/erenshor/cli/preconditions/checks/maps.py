@@ -72,6 +72,30 @@ def build_matches_inputs(context: dict[str, Any]) -> PreconditionResult:
     )
 
 
+def no_static_database_files(context: dict[str, Any]) -> PreconditionResult:
+    """Check that no SQLite file or link remains among the static assets.
+
+    The site publishes the database from a prerendered route. A static copy,
+    such as the link that earlier versions created at static/db, would shadow
+    that route in the dev server and collide with it in the build.
+    """
+    static_dir = Path(context["maps_source_dir"]) / "static"
+    stale = sorted(static_dir.rglob("*.sqlite")) if static_dir.is_dir() else []
+    if stale:
+        return PreconditionResult(
+            passed=False,
+            check_name="no_static_database_files",
+            message="A database file remains in the maps static assets",
+            detail="Delete " + ", ".join(str(path) for path in stale),
+        )
+
+    return PreconditionResult(
+        passed=True,
+        check_name="no_static_database_files",
+        message="No database file in the maps static assets",
+    )
+
+
 def cloudflare_auth_configured(context: dict[str, Any]) -> PreconditionResult:
     """Check that Cloudflare credentials are available for wrangler deploy."""
     maps_source_dir = Path(context["maps_source_dir"])

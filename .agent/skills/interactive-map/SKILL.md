@@ -49,8 +49,8 @@ services back together fails the suite rather than production.
 
 ## Architecture facts
 
-- DB used at runtime: `src/maps/static/db/erenshor.sqlite` (symlink to `variants/main/erenshor-main.sqlite`)
-- `maps dev` and `maps build` link the selected variant's clean DB at that path while they run, then restore the previous link, so `maps build -V <variant>` needs no manual link change. Both commands refuse to replace a regular file or directory at that path. Vitest reads a temporary fixture database, not that path.
+- Database: `maps dev` and `maps build` pass the selected variant's clean DB to the site through `ERENSHOR_MAPS_DATABASE_PATH`. Server loads and prebuild scripts read it from there, and the build fails when the variable is unset. Vitest and `test maps` use a temporary fixture database.
+- `src/maps/src/routes/db/erenshor.sqlite/+server.ts` publishes the clean DB unchanged at `/db/erenshor.sqlite`. Shipped companion overlays and unknown outside consumers may request it, so it stays published. Both commands refuse to run while a `.sqlite` file remains under `src/maps/static/`.
 - `maps thumbnails` requires a running `maps dev` or `maps preview` server and a local Playwright Chromium installation (`pnpm exec playwright install chromium`, once per machine). Pass the actual server URL with `--url`; use `maps dev` when generating thumbnails from variant data.
 - `+page.server.ts` has `export const prerender = true` and delegates to the
   server-only world-data builder — server code also runs during `uv run erenshor maps build` (stdout visible in build output)

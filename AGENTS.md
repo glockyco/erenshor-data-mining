@@ -56,7 +56,7 @@ Two SQLite databases per variant, both gitignored:
 | `variants/{variant}/erenshor-{variant}-raw.sqlite` | `extract export` (Unity batch mode) | Raw tables mirroring Unity assets |
 | `variants/{variant}/erenshor-{variant}.sqlite` | `extract build` (Python processor) | Clean tables consumed by wiki, maps, sheets, quest guides |
 
-The map website symlinks the clean DB: `src/maps/static/db/erenshor.sqlite` → `variants/main/erenshor-main.sqlite`.
+The map build reads the clean DB through `ERENSHOR_MAPS_DATABASE_PATH`, which `maps dev` and `maps build` set to the selected variant, and publishes it at `/db/erenshor.sqlite`.
 
 ```bash
 # List tables in the clean DB (main variant)

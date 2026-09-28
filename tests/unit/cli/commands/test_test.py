@@ -24,7 +24,7 @@ runner = CliRunner()
 
 def _context(tmp_path: Path, *, configured_maps: bool = False) -> CLIContext:
     if configured_maps:
-        maps = SimpleNamespace(source_dir=tmp_path / "maps", database_dir=tmp_path / "maps-db")
+        maps = SimpleNamespace(source_dir=tmp_path / "maps")
         variant = SimpleNamespace(maps=maps)
         config = SimpleNamespace(variants={"main": variant})
     else:
