@@ -58,7 +58,7 @@
       DebugInfo="true"
       Internalize="true"
       InputAssemblies="@(MergeAssemblies)"
-      LibraryPath="$(OutputPath);$(ProjectDir)lib"
+      LibraryPath="$(OutputPath);$(ProjectDir)lib;$(ProjectDir)lib/bepinex"
       TargetKind="Dll"
       OutputFile="$(OutputPath)$(TargetName)$(TargetExt)"
     />
