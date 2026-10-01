@@ -118,7 +118,10 @@ uv run erenshor mod deploy --mod <public-id> --loader lunaris
 ```
 
 Lunaris deploys the native DLL to `<game>/plugins`. Restart the game after a
-Lunaris deployment. `--scripts` is not valid for this loader.
+Lunaris deployment. `--scripts` is not valid for this loader. Lunaris does not
+run a plugin that was copied into `plugins` until it is enabled explicitly in
+its plugin installer. Until then `lunaris.log` reports only `Plugin found` for
+it. A plugin installed through the Vault browser is enabled by that install.
 
 Deploy all five native targets and activate Lunaris:
 
