@@ -82,10 +82,16 @@
       ]
     },
     {
-      "description": "Group deck.gl packages released as one suite",
+      "description": "Group deck.gl and the luma.gl packages it renders with, released as one suite",
       "groupName": "deck.gl",
       "matchManagers": ["npm"],
-      "matchPackageNames": ["/^@deck\\.gl\\//"]
+      "matchPackageNames": ["/^@deck\\.gl\\//", "/^@luma\\.gl\\//"]
+    },
+    {
+      "description": "deck.gl 9.4.0 with luma.gl 9.4.2 crashes the GPU process of Steam's embedded Chromium on Windows Direct3D 11 at the first ScatterplotLayer or LineLayer draw, which leaves the companion mod's in-game map white. Remove this rule when a newer release passes the in-game overlay check in the interactive-map skill.",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["/^@deck\\.gl\\//", "/^@luma\\.gl\\//"],
+      "allowedVersions": "<9.4.0"
     },
     {
       "description": "Group the VSTest-compatible xUnit toolchain",

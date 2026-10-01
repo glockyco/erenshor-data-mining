@@ -337,7 +337,7 @@ export function createLayers(params: CreateLayersParams): unknown[] {
             data: config.tileUrl,
             minZoom: config.minZoom,
             maxZoom: config.maxZoom,
-            // deck.gl 9.4 hides a TileLayer with minZoom but no extent below
+            // deck.gl hides a TileLayer with minZoom but no extent below
             // minZoom. The zone's world bounds are the extent of its tiles, and
             // they keep the lowest level visible when the map zooms out further.
             extent: [zone.bounds.minX, zone.bounds.minY, zone.bounds.maxX, zone.bounds.maxY],

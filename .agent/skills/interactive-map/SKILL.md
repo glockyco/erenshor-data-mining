@@ -30,9 +30,10 @@ and minor releases. Review major updates through the Dependency Dashboard.
 
 Minor renderer releases change behavior that the unit tests cannot see,
 because they use stand-in layers and the fixture site has no tiles. deck.gl
-9.4 hid zone tiles below their `minZoom` when a TileLayer had no `extent`, and
-it drew one frame before it measured the canvas. Before you merge a renderer
-update, run `maps build` and `maps preview` and check these in a browser:
+hides zone tiles below their `minZoom` when a TileLayer has no `extent`, and
+it can draw one frame before it measures the canvas. Before you merge a
+renderer update, run `maps build` and `maps preview` and check these in a
+browser:
 
 1. On `/map` with `layers=-wm`, zoom from the fitted view to full zoom out.
    Every zone keeps its tiles.
@@ -41,10 +42,22 @@ update, run `maps build` and `maps preview` and check these in a browser:
 3. Click a marker and time pointerup to popup. It stays well under 50 ms.
 4. Search an enemy and sample the scale bar during the fly-to. The zoom
    changes over the whole transition instead of jumping on the first frame.
-   deck.gl 9.4 made the orthographic controller interpolate `zoomX` and
-   `zoomY`, so a transition that lists only `zoom` snaps.
+   The orthographic controller interpolates `zoomX` and `zoomY`, so a
+   transition that lists only `zoom` snaps.
 5. Open a zone page (`/maps/Stowaway`) and check its markers, rotation, and a
    popup.
+6. Open `/map` in the companion mod's in-game overlay on Windows with a
+   hardware GPU. The overlay is Steam's embedded Chromium (CEF), which renders
+   WebGL through ANGLE on Direct3D 11. The map and its markers draw, and
+   `Steam/logs/cef_log.txt` has no `GPU process exited unexpectedly` line.
+   A desktop browser does not cover this check. deck.gl 9.4.0 with luma.gl
+   9.4.2 crashed that GPU process on the first ScatterplotLayer or LineLayer
+   draw and left the overlay map white.
+
+deck.gl stays on 9.3.11 and luma.gl on 9.3.6 until a newer release passes
+check 6. The root `package.json` pins luma.gl through `pnpm.overrides`,
+because deck.gl 9.3 accepts luma.gl 9.4, which fails its shader assertions.
+`renovate.json` holds both suites below 9.4.
 
 ## Hosting topology
 
