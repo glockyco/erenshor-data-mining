@@ -17,6 +17,7 @@ class PageNormalizer:
         "[[Category:Bosses]]",
         "[[Category:Elites]]",
         "[[Category:Characters]]",
+        "[[Category:Chests]]",
         "[[Category:Enemies]]",
         "[[Category:Vendors]]",
     }

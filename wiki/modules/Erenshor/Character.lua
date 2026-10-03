@@ -202,6 +202,9 @@ local function typeText(characterType)
 	if characterType == "NPC" then
 		return "[[:Category:Characters|NPC]]"
 	end
+	if characterType == "Chest" then
+		return "[[:Category:Chests|Chest]]"
+	end
 	if characterType == "Boss" or characterType == "Elite" or characterType == "Enemy" then
 		return Format.pageLink("Enemies", characterType)
 	end
@@ -211,6 +214,9 @@ end
 local function categoryForType(characterType)
 	if characterType == "NPC" then
 		return "[[Category:Characters]]"
+	end
+	if characterType == "Chest" then
+		return "[[Category:Chests]]"
 	end
 	if characterType == "[[Simulated Players|Sim]]" then
 		return ""

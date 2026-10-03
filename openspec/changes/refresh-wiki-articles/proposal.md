@@ -10,7 +10,8 @@ The bot last refreshed the live wiki articles on 2026-08-11. Of the 2,773 pages 
 - The `Weapons` and `Armor` refresh replaces everything after the first table on the page.
 - Skill cooldowns lose their fractions. Kick shows 13 seconds, but the game counts 800 ticks at 60 per second, 13.33 seconds.
 - `wiki deploy` writes without a base revision, keeps going after errors, and records no rollback data. It overwrites any edit made after the fetch.
-- Live lacks what the new pages need: `Category:Elites`, the Elite tier in `Template:Character`, `Template:StanceTooltip`, and `Module:Erenshor/Data/Stances`. Its link, spell, skill, and item data modules date from July and August.
+- Chests have combat tiers. The tier rule makes Braxonian Chest, Solunarian Chest, and the Vithean Chest rounds Enemy or Boss, because nothing in it knows the TreasureChest faction.
+- Live lacks what the new pages need: `Category:Elites`, `Category:Chests`, the Elite and Chest tiers in `Template:Character`, `Template:StanceTooltip`, and `Module:Erenshor/Data/Stances`. Its link, spell, skill, and item data modules date from July and August.
 
 ## What Changes
 
@@ -21,11 +22,12 @@ The bot last refreshed the live wiki articles on 2026-08-11. Of the 2,773 pages 
 - Stance pages merge generated values like the other entity pages.
 - The overview refresh replaces only the generated table.
 - Skill cooldowns keep fractions of a second, in the legacy and the Lua output.
+- Characters of the TreasureChest faction get the encounter tier `chest`. Their pages have the type Chest and `Category:Chests` instead of `Category:Enemies`, and the map shows them with their own marker and filter.
 - `wiki deploy` writes an article only while its live revision is the revision the page was generated from. It parses each new text on the wiki first, and it does not write a page whose parse shows a script error, a missing template, a missing category page, or a new link tracking category. It records each write with its rollback text, reports every conflict and blocked page, and fails if there is one. It stops at the first error that is not specific to one page. A dry run lists the planned changes by kind.
 - A repository-page deploy does not overwrite a page that another account changed, unless the maintainer accepts that page.
 - `Template:Character`, `Stance`, `Quest`, and `Zone` select their Lua branch only by exact `lua=1`, as `Template:Item` already does, so `stablekey` identifies an entity without changing the rendering. No page passes `lua=1`, so every page keeps its parameter infobox. The branches stay as the tested entry point of the Lua renderers until the article conversion moves them to the new data-backed templates. `Template:Ability` is copied from live into the repository.
 - **BREAKING**: `wiki deploy --from-dir`, `wiki deploy --legacy-article-deploy`, the unguarded edit call, and `wiki refresh-embedded --source-table` are removed. The source-table refresh served pages that store Cargo rows, and no page does.
-- The live wiki is refreshed: data modules, templates, and `Category:Elites` first, then canary pages, then every changed article.
+- The live wiki is refreshed: data modules, templates, `Category:Elites`, and `Category:Chests` first, then canary pages, then every changed article.
 
 ## Capabilities
 
@@ -35,11 +37,11 @@ The bot last refreshed the live wiki articles on 2026-08-11. Of the 2,773 pages 
 
 ### Modified Capabilities
 
-None. The generator already meets the `encounter-tiers` requirement for Elite pages. This change publishes it.
+- `encounter-tiers`: characters of the TreasureChest faction get the tier `chest`, with their own wiki category and map marker.
 
 ## Impact
 
-- Code: `src/erenshor/application/wiki/` (field preservation, generate and deploy services, zone generation, skill section), `src/erenshor/application/wiki_deploy/` (manifest, page deploy, refresh), `src/erenshor/application/wiki_lua/skills.py`, `src/erenshor/infrastructure/wiki/client.py`, `src/erenshor/cli/commands/wiki.py`, `wiki/templates/`, and their tests.
+- Code: `src/erenshor/application/processor/` (encounter tier), `src/erenshor/application/wiki/` (field preservation, generate and deploy services, zone generation, skill section, categories), `src/erenshor/application/wiki_deploy/` (manifest, page deploy, refresh, link audit), `src/erenshor/application/wiki_lua/skills.py`, `src/erenshor/infrastructure/wiki/client.py`, `src/erenshor/cli/commands/wiki.py`, `src/maps/` (chest markers), `wiki/templates/`, `wiki/modules/`, and their tests.
 - Removed: `wiki/zones/`, the zone output directory, `deploy_from_dir`, and `edit_page`.
 - Live wiki: about 2,700 bot-flagged article edits by WoWBot, at least two seconds apart, plus about 20 module, template, and category pages.
 - Golden baselines change, which needs approval at capture.

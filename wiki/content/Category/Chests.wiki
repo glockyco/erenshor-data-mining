@@ -1,0 +1,1 @@
+Treasure chests. The game makes each chest a character of the TreasureChest faction, so a chest page uses the character infobox. Some chests appear only after a boss fight, such as the Vithean Chest after each round of Vitheo's arena.

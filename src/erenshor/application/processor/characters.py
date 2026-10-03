@@ -199,6 +199,9 @@ _BOSS_XP_LEVEL = 40
 _BOSS_XP_FLOOR = 2.0
 # code-fact: character.boss_consider_threshold
 _BOSS_XP_THRESHOLD = 1.0
+# Character.Faction.TreasureChest: the faction of every chest that the game
+# spawns as a character, from Lost Treasure to the arena award chests.
+_CHEST_FACTION = "TreasureChest"
 
 
 def _effective_boss_xp(raw: dict[str, object]) -> float:
@@ -209,16 +212,18 @@ def _effective_boss_xp(raw: dict[str, object]) -> float:
 
 
 def _derive_encounter_tier(members: list[_CharData]) -> str:
-    """Classify a deduplication group as npc, boss, elite, or enemy.
+    """Classify a deduplication group as npc, chest, boss, elite, or enemy.
 
-    Named characters (effective BossXp above the game's threshold) are bosses
-    at a single placement or when only events spawn them, and elites when the
-    game can place them at several spawn points. A character with exactly
-    one ordinary placement is a boss even without BossXp. A tier override in
-    mapping.json replaces the derived tier and must agree across the group.
+    Characters of the TreasureChest faction are chests. Named characters
+    (effective BossXp above the game's threshold) are bosses at a single
+    placement or when only events spawn them, and elites when the game can
+    place them at several spawn points. A character with exactly one ordinary
+    placement is a boss even without BossXp. A tier override in mapping.json
+    replaces the derived tier and must agree across the group.
 
     Raises:
-        ValueError: If members of the group carry different tier overrides.
+        ValueError: If members of the group carry different tier overrides, or
+            if the group mixes chests and other characters.
     """
     overrides = {member.char.encounter_tier_override for member in members} - {None}
     if len(overrides) > 1 or (overrides and any(m.char.encounter_tier_override is None for m in members)):
@@ -226,6 +231,12 @@ def _derive_encounter_tier(members: list[_CharData]) -> str:
         raise ValueError(f"mapping.json encounter_tier overrides disagree within one character group: {keys}")
     if overrides:
         return str(overrides.pop())
+    chests = {member.char.raw.get("MyFaction") == _CHEST_FACTION for member in members}
+    if chests == {True}:
+        return "chest"
+    if True in chests:
+        keys = ", ".join(sorted(member.char.stable_key for member in members))
+        raise ValueError(f"Character group mixes {_CHEST_FACTION} characters with other characters: {keys}")
     if any(bool(member.char.raw.get("IsFriendly")) for member in members):
         return "npc"
     placements = {

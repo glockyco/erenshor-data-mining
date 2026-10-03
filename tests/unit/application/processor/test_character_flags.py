@@ -20,12 +20,13 @@ def _char_data(
     boss_xp: float = 0.0,
     level: int = 10,
     friendly: int = 0,
+    faction: str = "Evil",
     override: str | None = None,
     spawns: list[_SpawnRow],
 ) -> _CharData:
     return _CharData(
         char=_CharRow(
-            raw={"BossXpMultiplier": boss_xp, "Level": level, "IsFriendly": friendly},
+            raw={"BossXpMultiplier": boss_xp, "Level": level, "IsFriendly": friendly, "MyFaction": faction},
             stable_key="character:test",
             display_name="Test",
             wiki_page_name="Test",
@@ -116,6 +117,17 @@ def test_group_members_share_placements() -> None:
 
 def test_friendly_character_is_an_npc() -> None:
     assert _derive_encounter_tier([_char_data(boss_xp=5.0, friendly=1, spawns=_placements(1))]) == "npc"
+
+
+def test_treasure_chest_is_a_chest_although_one_placement_makes_a_boss() -> None:
+    assert _derive_encounter_tier([_char_data(faction="TreasureChest", spawns=_placements(1))]) == "chest"
+
+
+def test_group_that_mixes_chests_and_other_characters_fails() -> None:
+    chest = _char_data(faction="TreasureChest", spawns=_placements(1))
+
+    with pytest.raises(ValueError, match="mixes TreasureChest"):
+        _derive_encounter_tier([chest, _char_data(spawns=_placements(1))])
 
 
 def test_zone_gameplay_flag_columns_exist(tmp_path):

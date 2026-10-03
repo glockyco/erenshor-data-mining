@@ -133,6 +133,16 @@ class TestPageNormalizer:
         assert "[[Category:Enemies]]" in result
         assert "[[Category:Manual]]" in result
 
+    def test_normalize_replaces_combat_categories_of_a_chest(self, normalizer: PageNormalizer) -> None:
+        """A chest page that was a boss loses the boss and enemy categories."""
+        old_wikitext = "[[Category:Bosses]]\n[[Category:Enemies]]\nOld content"
+
+        result = normalizer.normalize(old_wikitext, "[[Category:Chests]]\nNew content")
+
+        assert "[[Category:Bosses]]" not in result
+        assert "[[Category:Enemies]]" not in result
+        assert "[[Category:Chests]]" in result
+
     def test_normalize_merge_deduplicates(self, normalizer: PageNormalizer) -> None:
         """Test merging deduplicates categories present in both old and new."""
         old_wikitext = "[[Category:Items]]\n[[Category:Manual]]\nContent"

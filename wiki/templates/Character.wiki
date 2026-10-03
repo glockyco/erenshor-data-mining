@@ -53,6 +53,7 @@
             <label>Type:</label>
             <format>{{#switch:{{{type|}}}
 | NPC    = [[:Category:Characters|NPC]]
+| Chest  = [[:Category:Chests|Chest]]
 | Boss   = [[Enemies|Boss]]
 | Elite  = [[Enemies|Elite]]
 | Enemy  = [[Enemies|Enemy]]
@@ -105,6 +106,7 @@
 | Boss                      = [[Category:Enemies]][[Category:Bosses]]
 | Elite                     = [[Category:Enemies]][[Category:Elites]]
 | NPC                       = [[Category:Characters]]
+| Chest                     = [[Category:Chests]]
 | [[Simulated Players|Sim]] =
 | #default                  = [[Category:Enemies]]
 }} }}}}</includeonly><noinclude>{{#cargo_declare:_table=Characters

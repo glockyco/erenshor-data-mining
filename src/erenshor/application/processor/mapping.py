@@ -51,7 +51,7 @@ class MappingOverride(TypedDict):
     encounter_tier: str | None
 
 
-ENCOUNTER_TIERS = frozenset({"npc", "boss", "elite", "enemy"})
+ENCOUNTER_TIERS = frozenset({"npc", "chest", "boss", "elite", "enemy"})
 
 
 class SpawnMappingOverride(TypedDict):

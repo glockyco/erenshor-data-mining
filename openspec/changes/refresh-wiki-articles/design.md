@@ -104,6 +104,14 @@ On 2026-10-03, 96 generated links pointed to 45 quest articles and 2 faction art
 
 Alternative: link only to articles that exist. Rejected: generation would then depend on the live wiki, and the red link asks a contributor for the article.
 
+### D10. Chests are a tier of their own
+
+Chests are characters of the TreasureChest faction: the four Lost Treasure chests, Braxonian Chest, Solunarian Chest, and the eight Vithean Chest rounds. The tier rule made them Enemy, and one Vithean round Boss, because a single placement makes a boss. The maintainer decided on 2026-10-03 that chests keep the character infobox and get the tier `chest`. A chest page has the type Chest and the category `Category:Chests` instead of `Category:Enemies`. The map shows chests with their own marker and filter. They stay markers of the enemy category, so that `sel=enemy:<name>` from the infobox map link still selects them.
+
+The chest infoboxes that an editor put on boss pages, such as Braxonian Chest on Frost, stay as the editor wrote them. The game spawns these chests when the boss dies, and the merge keeps every live root that matches no generated root (D2).
+
+Alternative: the tier `npc`. Rejected: the infobox would link the chest to the NPC selector of the map, and the chest is not a person.
+
 ## Risks / Trade-offs
 
 - [About 2,700 edits reach editors' watchlists] → The bot flag hides them from recent changes by default. The maintainer approves the full deploy after the canary.

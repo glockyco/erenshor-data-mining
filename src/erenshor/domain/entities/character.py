@@ -59,7 +59,7 @@ class Character(BaseEntity):
 
     # Character type flags
     is_prefab: int | None = Field(default=None, description="Is prefab (boolean)")
-    encounter_tier: str = Field(description="Stored encounter tier: npc, boss, elite, or enemy")
+    encounter_tier: str = Field(description="Stored encounter tier: npc, chest, boss, elite, or enemy")
     is_friendly: int | None = Field(default=None, description="Is friendly (boolean)")
     is_npc: int | None = Field(default=None, description="Is NPC (boolean)")
     is_sim_player: int | None = Field(default=None, description="Is SimPlayer (boolean)")

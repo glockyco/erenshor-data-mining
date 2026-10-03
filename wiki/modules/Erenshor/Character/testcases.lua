@@ -161,6 +161,18 @@ function p.run()
 		assertContains(categories, encounter.category, encounter.type .. " category emits")
 	end
 
+	local chestArgs = { stablekey = "character:a_grizzly_bear", type = "Chest" }
+	assertEqual(
+		Character.fieldValue(chestArgs, "A Grizzly Bear", "type"),
+		"[[:Category:Chests|Chest]]",
+		"chest type formats"
+	)
+	local chestCategories = Character.statusText(chestArgs, "A Grizzly Bear")
+	assertContains(chestCategories, "[[Category:Chests]]", "chest category emits")
+	if chestCategories:find("[[Category:Enemies]]", 1, true) then
+		error("chest is not an enemy: " .. chestCategories, 2)
+	end
+
 	assertEqual(
 		Character.fieldValue({}, "Unknown Prototype", "name"),
 		"",
