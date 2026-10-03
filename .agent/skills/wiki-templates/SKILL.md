@@ -35,6 +35,8 @@ Keep legacy articles, repository-owned pages, and interface gadgets on their sep
    Item `type`, `questsource`, and `relatedquest` merge by link target: a generated link replaces live links to the same page.
    Character `type` comes from the database. Character `zones`, `coordinates`, and `respawn` use database values when present.
    Character `imagecaption` and `location` are preserved. Ability and Stance `image` prefer manual values. Stance `imagecaption` is preserved.
+   Zone pages merge in the same way. Each `Zone` field other than `title` keeps its live value when that value is not blank.
+   Generated zone values fill new pages and blank fields only.
    See `src/erenshor/application/wiki/generators/field_preservation.py` for the other rules.
 
 4. Audit links and preview the intentional legacy deploy:

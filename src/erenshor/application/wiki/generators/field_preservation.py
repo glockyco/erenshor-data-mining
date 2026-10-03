@@ -366,15 +366,17 @@ DEFAULT_PRESERVATION_RULES: dict[str, dict[str, str]] = {
         "imagecaption": "preserve",  # Custom image captions
     },
     "Zone": {
-        # Manually uploaded assets
+        # Every field but the title belongs to editors once it has a value.
+        # Generated values fill new pages and blank fields only. Editors
+        # upload images, fill levels, and refine the type to Raid. They also
+        # correct the data: they remove zone lines that players cannot reach,
+        # add access by teleport, and link the map of each scene of a page.
         "image": "prefer_manual",
         "imagecaption": "prefer_manual",
-        # Filled once by editors, intentionally blank in generated output
         "level": "prefer_manual",
-        # prefer_manual: the wiki's Dungeon/Zone classification is kept;
-        # wikilink values are normalised to plain text before merge reaches here.
         "type": "prefer_manual",
-        # maplink, connects → default "override" (generated from DB)
+        "maplink": "prefer_manual",
+        "connects": "prefer_manual",
     },
 }
 

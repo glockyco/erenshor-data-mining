@@ -144,7 +144,6 @@ def _write_golden_csv(path: Path, rows: list[list[object]]) -> None:
 
 def _capture_wiki(
     generated_dir: Path,
-    zone_dir: Path,
     sample_spec_path: Path,
     golden_wiki_dir: Path,
     dry_run: bool,
@@ -158,14 +157,11 @@ def _capture_wiki(
     spec = load_representative_sample_spec(sample_spec_path)
     sources: list[tuple[Path, str]] = []
     for sample in spec.samples:
-        source = (
-            zone_dir / f"{sample.title.replace(' ', '_')}.txt"
-            if sample.generator == "zones"
-            else generated_dir / f"{quote(sample.title, safe='_-.')}.txt"
-        )
+        filename = f"{quote(sample.title, safe='_-.')}.txt"
+        source = generated_dir / filename
         if not source.is_file():
             raise FileNotFoundError(f"Representative wiki source missing for {sample.title!r}: {source}")
-        sources.append((source, f"{quote(sample.title, safe='_-.')}.txt"))
+        sources.append((source, filename))
 
     if not dry_run:
         parent = golden_wiki_dir.parent
@@ -317,16 +313,10 @@ def _validate_staged_baseline(
 
     for sample in spec.samples:
         staged_content = (staged_wiki_dir / f"{quote(sample.title, safe='_-.')}.txt").read_text(encoding="utf-8")
-        if sample.generator == "zones":
-            source_path = cli_ctx.repo_root / "wiki" / "zones" / f"{sample.title.replace(' ', '_')}.txt"
-            if not source_path.is_file():
-                raise ValueError(f"Representative zone output missing: {source_path}")
-            source_content = source_path.read_text(encoding="utf-8")
-        else:
-            try:
-                source_content = pages[sample.title]
-            except KeyError as exc:
-                raise ValueError(f"Representative wiki page missing: {sample.title!r}") from exc
+        try:
+            source_content = pages[sample.title]
+        except KeyError as exc:
+            raise ValueError(f"Representative wiki page missing: {sample.title!r}") from exc
         if staged_content != source_content:
             raise ValueError(f"Representative wiki snapshot changed while staging: {sample.title!r}")
         validate_representative_sample_content(sample, staged_content)
@@ -357,7 +347,6 @@ def _capture_candidate_families(
     target: Path,
     display_target: Path,
     generated_dir: Path,
-    repo_root: Path,
     db_path: Path,
     queries_dir: Path,
     map_base_url: str,
@@ -383,7 +372,6 @@ def _capture_candidate_families(
             "pages",
             lambda: _capture_wiki(
                 generated_dir,
-                repo_root / "wiki" / "zones",
                 target / "wiki-samples.json",
                 destinations["wiki"],
                 dry_run,
@@ -496,7 +484,6 @@ def capture(
                 target=golden_dir,
                 display_target=golden_dir,
                 generated_dir=generated_dir,
-                repo_root=repo_root,
                 db_path=db_path,
                 queries_dir=queries_dir,
                 map_base_url=variant_config.maps.base_url,
@@ -510,7 +497,6 @@ def capture(
                     target=staged,
                     display_target=golden_dir,
                     generated_dir=generated_dir,
-                    repo_root=repo_root,
                     db_path=db_path,
                     queries_dir=queries_dir,
                     map_base_url=variant_config.maps.base_url,

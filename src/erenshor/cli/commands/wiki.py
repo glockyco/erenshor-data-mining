@@ -220,7 +220,6 @@ def _create_wiki_composition(cli_ctx: CLIContext, *, with_client: bool) -> _Wiki
     storage = WikiStorage(variant_config.resolved_wiki(cli_ctx.repo_root))
     maps_source_dir = variant_config.maps.resolved_source_dir(cli_ctx.repo_root)
     zone_positions_path = maps_source_dir / "src" / "lib" / "data" / "zone-positions.json"
-    zone_output_dir = cli_ctx.repo_root / "wiki" / "zones"
     context = GeneratorContext(
         item_repo=ItemRepository(database),
         character_repo=CharacterRepository(database),
@@ -236,7 +235,6 @@ def _create_wiki_composition(cli_ctx: CLIContext, *, with_client: bool) -> _Wiki
         class_display=ClassDisplayNameService(database),
         maps_base_url=variant_config.maps.base_url,
         zone_positions_path=zone_positions_path,
-        zone_output_dir=zone_output_dir,
     )
     wiki_client = None
     try:

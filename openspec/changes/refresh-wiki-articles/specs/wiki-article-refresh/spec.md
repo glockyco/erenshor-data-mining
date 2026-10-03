@@ -93,12 +93,17 @@ Generation SHALL merge current generated values into every generated root templa
 
 ### Requirement: Zone pages merge into the live page
 
-Zone pages SHALL be generated from the fetched live page, like the other articles. The repository SHALL NOT hold a copy of a zone page.
+Zone pages SHALL be generated from the fetched live page, like the other articles. The repository SHALL NOT hold a copy of a zone page. Each `Zone` field other than `title` SHALL keep its live value when that value is not blank. A generated value SHALL fill only a blank field or a new page.
 
 #### Scenario: An editor changed a zone page
 
 - **WHEN** an editor added a paragraph to a zone page on the wiki and the page is fetched and regenerated
 - **THEN** the regenerated page holds that paragraph
+
+#### Scenario: An editor corrected the connections
+
+- **WHEN** an editor removed from the `connects` field a zone that players cannot reach, and the game data still has that zone line
+- **THEN** the regenerated page keeps the value of the editor
 
 ### Requirement: Overview refresh replaces only the generated table
 
@@ -120,7 +125,7 @@ Skill cooldowns SHALL be shown in seconds as ticks divided by 60, with up to two
 
 ### Requirement: Article writes depend on the revision they were generated from
 
-`wiki deploy` SHALL write a changed article only while the live page is at the revision that generation merged into. It SHALL create a page that had no live revision at generation only while the page still does not exist. Every other page SHALL be reported as a conflict and SHALL NOT be written.
+`wiki deploy` SHALL write a changed article only while the live page is at the revision that generation merged into. It SHALL create a page that had no live revision at generation only while the page still does not exist. Every other page SHALL be reported as a conflict and SHALL NOT be written. A page whose generated text equals its fetched text after page normalization (category order and position, blank lines, and line-end spaces) is not changed, and `wiki deploy` SHALL NOT write it.
 
 #### Scenario: An editor saved the page after the fetch
 
@@ -131,6 +136,11 @@ Skill cooldowns SHALL be shown in seconds as ticks divided by 60, with up to two
 
 - **WHEN** a page was generated without a fetched copy and exists on the wiki
 - **THEN** the deploy does not write it and reports it as a conflict
+
+#### Scenario: Categories above the infobox
+
+- **WHEN** the categories of a fetched zone page are above its infobox and generation changes no field of the page
+- **THEN** the deploy does not write the page
 
 ### Requirement: Each article passes a live parse before it is written
 

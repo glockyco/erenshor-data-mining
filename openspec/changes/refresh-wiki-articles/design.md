@@ -45,7 +45,13 @@ Alternative: an HTML comment with the key before each root. Rejected: hidden sta
 
 ### D3. Zone pages are articles
 
-The zone generator writes to the generated storage like the entity generator, and the generate service merges each zone page into its fetched live page. The zone-specific migration (`{{Dungeon}}` to `{{Zone}}`, plain-text `type`) stays. `wiki/zones/` and the zone output directory are removed. The old reason for repository authority, a generation without a fetch that produces bare stubs, is handled by D5: such a page can only be created, never overwrite a live page.
+The zone generator writes to the generated storage like the entity generator, and the generate service merges each zone page into its fetched live page. `wiki/zones/` and the zone output directory are removed. The old reason for repository authority, a generation without a fetch that produces bare stubs, is handled by D5: such a page can only be created, never overwrite a live page.
+
+Every `Zone` field except `title` is prefer-manual. Editors know more than the zone lines. The maintainer removed the zone lines that players cannot reach from Shivering Step and Shivering Tomb. Editors gave Reliquary Hall as the connection of the raid planes and linked both maps of Shivering Tomb. With `maplink` and `connects` as override, a refresh reverts each of these edits. Generated values fill new pages and blank fields, so a new zone line does not reach a page whose `connects` has a value.
+
+The zone migration (`{{Dungeon}}` to `{{Zone}}`, a linked `type`) and the legacy categories of the page normalizer go. No fetched page uses them, except four zone pages that carry an old category name as their own zone category. The normalizer would delete that category.
+
+Alternative: keep `connects` as override and derive it from the zone lines in both directions. Rejected: that gives the raid planes Reliquary Hall, but the zone lines that the maintainer removed are still in the data, and two of them are enabled.
 
 ### D4. Stance merge, overview table, cooldowns
 
@@ -55,7 +61,7 @@ The zone generator writes to the generated storage like the entity generator, an
 
 ### D5. Guarded article deploy
 
-For each page whose generated text differs from its fetched text:
+For each page whose generated text differs from its fetched text after page normalization:
 
 1. Read live revisions in batches of 50. A live revision that differs from the fetched revision is a conflict. A page fetched as missing must still be missing.
 2. Parse the new text on the wiki with `action=parse` (`prop=text|templates|categories`). A script error, a missing template, a category without a page, or a link tracking category that the live page lacks blocks the page.
@@ -63,6 +69,8 @@ For each page whose generated text differs from its fetched text:
 4. Checkpoint the manifest after each write. The rollback text is a copy of the fetched text under `variants/<variant>/wiki/rollback/`.
 
 The manifest uses the repository-page format with a new `article` upload stage, so `wiki rollback-repo-pages` restores articles with its existing revision check. Conflicts and blocked pages are collected and fail the command at the end. A login, assertion, or retry failure stops the run at once. The command keeps the client's request pacing and two seconds between writes, and uses the summary `Update game data from build <build>`.
+
+Page normalization sorts the categories at the bottom of the page, removes extra blank lines, and strips line-end spaces. A page that differs from its fetched text only in these ways has no data change. A write would only rearrange the text of the editors. After the zone merge, 34 of the 43 zone pages are such pages.
 
 Alternative: base the edit on a fresh snapshot, as `deploy-repo-pages` does. Rejected: the text was merged from the fetched revision, so a newer live revision means the merge is stale.
 
@@ -82,7 +90,7 @@ The migrations of retired templates go as well: the legacy template remover (`En
 2. Render canary pages through TemplateSandbox with the candidate `Template:Character`, and compare the HTML with the live render. Only pages of the Elite tier may differ. Deploy it, `Template:StanceTooltip`, and `Category:Elites`.
 3. Fetch, generate, and review the dry-run report with the maintainer. Fix the pages that generation names.
 4. Deploy about a dozen canary pages: one per template family, a multi-entity page, a zone page, and an overview. Check them in a browser.
-5. Deploy the rest. Fetch again and confirm that every generated page equals its live text.
+5. Deploy the rest. Fetch again and confirm that every generated page equals its live text after page normalization.
 
 ## Risks / Trade-offs
 

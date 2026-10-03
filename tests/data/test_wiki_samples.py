@@ -28,10 +28,7 @@ DATABASE_PATH = REPO_ROOT / "variants" / "main" / "erenshor-main.sqlite"
 
 
 def _content_path(sample: RepresentativePageSample) -> Path:
-    if sample.generator == "zones":
-        return REPO_ROOT / "wiki" / "zones" / f"{sample.title.replace(' ', '_')}.txt"
-    filename = f"{quote(sample.title, safe='_-.')}.txt"
-    return GENERATED_DIR / filename
+    return GENERATED_DIR / f"{quote(sample.title, safe='_-.')}.txt"
 
 
 def test_sample_spec_covers_every_generator_and_behavior_boundary() -> None:
@@ -46,32 +43,18 @@ def test_sample_pages_resolve_stable_identities_and_expected_shapes() -> None:
     spec = load_representative_sample_spec(SPEC_PATH)
     metadata = cast("dict[str, dict[str, object]]", json.loads(METADATA_PATH.read_text(encoding="utf-8")))
 
-    with closing(sqlite3.connect(DATABASE_PATH)) as connection:
-        for sample in spec.samples:
-            if sample.generator == "zones":
-                zone_rows = cast(
-                    "list[tuple[str]]",
-                    connection.execute(
-                        "SELECT stable_key FROM zones WHERE wiki_page_name = ? ORDER BY stable_key",
-                        (sample.title,),
-                    ).fetchall(),
-                )
-                assert zone_rows, f"Zone sample is missing from the clean database: {sample.title}"
-                observed_keys = tuple(row[0] for row in zone_rows)
-            else:
-                assert sample.title in metadata, f"Sample is missing from wiki metadata: {sample.title}"
-                raw_keys = metadata[sample.title]["stable_keys"]
-                assert isinstance(raw_keys, list)
-                key_values = cast("list[object]", raw_keys)
-                assert all(isinstance(key, str) for key in key_values)
-                observed_keys = tuple(cast("list[str]", key_values))
+    for sample in spec.samples:
+        assert sample.title in metadata, f"Sample is missing from wiki metadata: {sample.title}"
+        raw_keys = metadata[sample.title]["stable_keys"]
+        assert isinstance(raw_keys, list)
+        key_values = cast("list[object]", raw_keys)
+        assert all(isinstance(key, str) for key in key_values)
+        assert tuple(cast("list[str]", key_values)) == sample.stable_keys, sample.title
 
-            assert observed_keys == sample.stable_keys, sample.title
-
-            content_path = _content_path(sample)
-            assert content_path.is_file(), f"Representative output is missing: {content_path}"
-            content = content_path.read_text(encoding="utf-8")
-            validate_representative_sample_content(sample, content)
+        content_path = _content_path(sample)
+        assert content_path.is_file(), f"Representative output is missing: {content_path}"
+        content = content_path.read_text(encoding="utf-8")
+        validate_representative_sample_content(sample, content)
 
 
 def test_item_kind_samples_reach_the_declared_classifier_branches() -> None:

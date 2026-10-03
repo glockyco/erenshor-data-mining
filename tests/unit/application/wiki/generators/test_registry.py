@@ -6,11 +6,7 @@ import pytest
 
 from erenshor.application.wiki.generators.base import GeneratedPage, PageGenerator, PageMetadata
 from erenshor.application.wiki.generators.context import GeneratorContext
-from erenshor.application.wiki.generators.registry import (
-    GeneratorRegistration,
-    get_generators_by_name,
-    list_generators,
-)
+from erenshor.application.wiki.generators.registry import GeneratorRegistration, get_generators_by_name
 
 
 class MockItemGenerator(PageGenerator):
@@ -73,27 +69,16 @@ class TestGetGeneratorsByName:
     """Test get_generators_by_name function."""
 
     def test_get_all_generators(self, mock_context, mock_registry):
-        """Test getting all generators when no filter provided."""
-        pairs = get_generators_by_name(mock_context)
+        """Without a filter, every registered generator runs in registry order."""
+        generators = get_generators_by_name(mock_context)
 
-        assert len(pairs) == 2
-        assert isinstance(pairs[0][1], MockItemGenerator)
-        assert isinstance(pairs[1][1], MockCharacterGenerator)
+        assert [type(generator) for generator in generators] == [MockItemGenerator, MockCharacterGenerator]
 
     def test_get_filtered_generators(self, mock_context, mock_registry):
-        """Test filtering generators by name."""
-        pairs = get_generators_by_name(mock_context, ["items"])
+        """A filter selects only the named generators."""
+        generators = get_generators_by_name(mock_context, ["characters"])
 
-        assert len(pairs) == 1
-        assert isinstance(pairs[0][1], MockItemGenerator)
-
-    def test_get_multiple_filtered_generators(self, mock_context, mock_registry):
-        """Test filtering multiple generators."""
-        pairs = get_generators_by_name(mock_context, ["items", "characters"])
-
-        assert len(pairs) == 2
-        assert isinstance(pairs[0][1], MockItemGenerator)
-        assert isinstance(pairs[1][1], MockCharacterGenerator)
+        assert [type(generator) for generator in generators] == [MockCharacterGenerator]
 
     def test_invalid_generator_name(self, mock_context, mock_registry):
         """Test error when requesting unknown generator."""
@@ -104,44 +89,3 @@ class TestGetGeneratorsByName:
         """Test error when mixing valid and invalid names."""
         with pytest.raises(ValueError, match=r"Unknown generator.*weapons"):
             get_generators_by_name(mock_context, ["items", "weapons"])
-
-    def test_zone_output_dir_is_bound_from_context(self, monkeypatch, tmp_path):
-        """Zone output routing uses the composed repository path, not cwd."""
-        registration = GeneratorRegistration(
-            name="zones",
-            factory=lambda _context: Mock(),
-            description="Zone pages",
-            auto_deploy=False,
-        )
-        context = Mock(spec=GeneratorContext)
-        context.zone_output_dir = tmp_path / "repository" / "wiki" / "zones"
-        monkeypatch.setattr(
-            "erenshor.application.wiki.generators.registry.WIKI_GENERATORS",
-            [registration],
-        )
-
-        pairs = get_generators_by_name(context, ["zones"])
-
-        assert pairs[0][0].output_dir == context.zone_output_dir
-
-
-class TestListGenerators:
-    """Test list_generators function."""
-
-    def test_list_all_generators(self, mock_registry):
-        """Test listing all registered generators."""
-        generators = list_generators()
-
-        assert len(generators) == 2
-        assert generators[0] == ("items", "Item pages", True)
-        assert generators[1] == ("characters", "Character pages", True)
-
-    def test_empty_registry(self, monkeypatch):
-        """Test listing when registry is empty."""
-        monkeypatch.setattr(
-            "erenshor.application.wiki.generators.registry.WIKI_GENERATORS",
-            [],
-        )
-
-        generators = list_generators()
-        assert generators == []

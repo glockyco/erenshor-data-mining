@@ -18,13 +18,15 @@ if TYPE_CHECKING:
 
     from erenshor.application.wiki.generators.base import GeneratedPage
     from erenshor.application.wiki.generators.context import GeneratorContext
-    from erenshor.application.wiki.generators.registry import GeneratorRegistration
     from erenshor.application.wiki_lua.link_catalog import LinkCatalogEntry
 
-from erenshor.application.wiki.generators.field_preservation import FieldPreservationConfig, FieldPreservationHandler
+from erenshor.application.wiki.generators.field_preservation import (
+    ROOT_COMPANIONS,
+    FieldPreservationConfig,
+    FieldPreservationHandler,
+)
 from erenshor.application.wiki.generators.page_normalizer import PageNormalizer
 from erenshor.application.wiki.generators.registry import get_generators_by_name
-from erenshor.application.wiki.services.helpers import normalise_generated_page_content
 from erenshor.application.wiki.services.page import OperationResult
 from erenshor.application.wiki_deploy.link_audit import LinkTargets
 
@@ -91,98 +93,37 @@ class WikiGenerateService:
             f"generators={generator_names or 'all'})"
         )
 
-        # Get (registration, generator) pairs from registry
-        pairs = get_generators_by_name(self._context, generator_names)
-        logger.debug(f"Using {len(pairs)} generators")
+        generators = get_generators_by_name(self._context, generator_names)
+        logger.debug(f"Using {len(generators)} generators")
 
-        # Separate pages by destination: output_dir generators write directly to
-        # files (the generator handles its own field preservation); standard
-        # generators go through the service's preservation/normalization pipeline.
-        standard_pages: list[GeneratedPage] = []
-        file_pairs: list[tuple[GeneratorRegistration, GeneratedPage]] = []
-
-        for reg, generator in pairs:
+        generated_pages: list[GeneratedPage] = []
+        for generator in generators:
             logger.debug(f"Running generator: {generator.__class__.__name__}")
-            generated_pages = list(generator.generate_pages())
-            logger.debug(f"  Generated {len(generated_pages)} pages")
-            if reg.output_dir is not None:
-                file_pairs.extend((reg, page) for page in generated_pages)
-            else:
-                standard_pages.extend(generated_pages)
+            pages = list(generator.generate_pages())
+            logger.debug(f"  Generated {len(pages)} pages")
+            generated_pages.extend(pages)
 
-        logger.info(f"Total pages generated: {len(standard_pages)} standard, {len(file_pairs)} to output_dir")
+        logger.info(f"Total pages generated: {len(generated_pages)}")
 
         # Remove stale storage entries on full unfiltered generation
-        # (output_dir generators are not in storage, so exclude their titles)
         if not page_titles and not limit and not generator_names:
-            valid_titles = {p.title for p in standard_pages}
-            removed = self._storage.remove_stale_pages(valid_titles)
+            removed = self._storage.remove_stale_pages({page.title for page in generated_pages})
             if removed:
                 logger.info(f"Cleaned up {removed} stale pages")
 
-        # Filter standard pages by requested page titles
         if page_titles:
             page_titles_set = set(page_titles)
-            filtered = [p for p in standard_pages if p.title in page_titles_set]
+            filtered = [page for page in generated_pages if page.title in page_titles_set]
             logger.info(
-                f"Filtered to {len(filtered)} standard pages matching requested titles "
-                f"(out of {len(standard_pages)} total)"
+                f"Filtered to {len(filtered)} pages matching requested titles (out of {len(generated_pages)} total)"
             )
-            standard_pages = filtered
-            file_pairs = [(r, p) for r, p in file_pairs if p.title in page_titles_set]
+            generated_pages = filtered
 
-        # Apply limit to standard pages
         if limit:
-            standard_pages = standard_pages[:limit]
-            logger.info(f"Limited to {len(standard_pages)} standard pages")
+            generated_pages = generated_pages[:limit]
+            logger.info(f"Limited to {len(generated_pages)} pages")
 
-        # Write output_dir pages as plain .txt files (skip in dry-run)
-        if file_pairs and not dry_run:
-            self._write_file_pages(file_pairs)
-
-        # Process and save standard pages through the preservation/normalization pipeline.
-        # If there are no standard pages (e.g. zones-only run), return success directly
-        # rather than letting _process_generated_pages emit a misleading warning.
-        if not standard_pages:
-            if preflight is not None:
-                preflight(MappingProxyType({}))
-            file_count = len(file_pairs)
-            return OperationResult(
-                total=file_count,
-                succeeded=file_count,
-                failed=0,
-                skipped=0,
-                warnings=[],
-                errors=[],
-            )
-        return self._process_generated_pages(standard_pages, dry_run, preflight)
-
-    def _write_file_pages(
-        self,
-        file_pairs: list[tuple[GeneratorRegistration, GeneratedPage]],
-    ) -> None:
-        """Write output_dir pages as plain .txt files.
-
-        Generators with output_dir set handle their own field preservation and
-        normalization before yielding. This method just routes their output to
-        the configured directory, creating it if needed.
-
-        The filename convention: replace spaces with underscores and append .txt.
-        This matches MediaWiki's own URL-encoding convention.
-
-        Args:
-            file_pairs: (registration, page) pairs from output_dir generators.
-        """
-        for reg, page in file_pairs:
-            assert reg.output_dir is not None  # invariant: callers only pass output_dir pairs
-            output_dir = reg.output_dir
-            output_dir.mkdir(parents=True, exist_ok=True)
-            filename = page.title.replace(" ", "_") + ".txt"
-            dest = output_dir / filename
-            dest.write_text(normalise_generated_page_content(page.content), encoding="utf-8")
-            logger.debug(f"Wrote {page.title!r} to {dest}")
-
-        logger.info(f"Wrote {len(file_pairs)} pages to output directories")
+        return self._process_generated_pages(generated_pages, dry_run, preflight)
 
     def _process_generated_pages(
         self,
@@ -245,7 +186,7 @@ class WikiGenerateService:
                         merge = self._preservation_handler.merge_templates(
                             old_wikitext=existing,
                             new_wikitext=page_content,
-                            template_names=["Item", "Character", "Ability", "Stance"],
+                            template_names=list(ROOT_COMPANIONS),
                         )
                         warnings.extend(
                             f"{gen_page.title}: kept live root {root} that matches no generated entity"

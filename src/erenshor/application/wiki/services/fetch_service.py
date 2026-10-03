@@ -92,9 +92,7 @@ class WikiFetchService:
             f"generators={generator_names or 'all'})"
         )
 
-        # Get generators from registry
-        pairs = get_generators_by_name(self._context, generator_names)
-        generators = [gen for _, gen in pairs]
+        generators = get_generators_by_name(self._context, generator_names)
         logger.debug(f"Using {len(generators)} generators")
 
         # Collect page titles to fetch from all generators
