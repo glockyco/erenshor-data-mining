@@ -422,11 +422,11 @@ def test_deploy_repo_pages_checkpoint_journals_partial_failure(tmp_path: Path) -
 
 def test_safe_title_filename_is_injective_for_distinct_titles() -> None:
     """Distinct titles map to distinct rollback sidecar filenames (no lossy collision)."""
-    from erenshor.application.wiki_deploy.pages import _safe_title_filename
+    from erenshor.application.wiki_deploy.pages import rollback_filename
 
     # These collide under a "replace non-alnum with underscore" scheme.
-    first = _safe_title_filename("Template:Item/CargoDeclare")
-    second = _safe_title_filename("Template:Item:CargoDeclare")
+    first = rollback_filename("Template:Item/CargoDeclare")
+    second = rollback_filename("Template:Item:CargoDeclare")
 
     assert first != second
     # Filenames stay flat: title separators must not become path separators.

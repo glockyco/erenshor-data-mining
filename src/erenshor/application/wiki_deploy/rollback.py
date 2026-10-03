@@ -1,4 +1,4 @@
-"""Manifest-backed rollback for repo-owned wiki pages."""
+"""Manifest-backed rollback for deployed wiki pages."""
 
 from __future__ import annotations
 
@@ -38,7 +38,7 @@ class WikiRollbackClient(Protocol):
 
 @dataclass(frozen=True, slots=True)
 class RollbackResultEntry:
-    """Rollback result for one repo-owned page."""
+    """Rollback result for one deployed page."""
 
     title: str
     restored_revision_id: int | None
@@ -88,7 +88,7 @@ def rollback_repo_pages(
         rollback_text = (repo_root / entry.rollback_text_source).read_text(encoding="utf-8")
         base_revision = client.get_page_revision_metadata(entry.title, assertion=assertion, assert_user=assert_user)
         if base_revision is None:
-            raise ValueError(f"Cannot roll back missing repo-owned page: {entry.title}")
+            raise ValueError(f"Cannot roll back missing page: {entry.title}")
 
         if not force and base_revision.revision_id != entry.new_revision_id:
             raise ValueError(

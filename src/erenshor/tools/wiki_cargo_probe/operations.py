@@ -20,12 +20,14 @@ class ProbeRunContext:
     def create_page(self, title: str, content: str) -> None:
         if self.page_exists(title):
             raise RuntimeError("Refusing to overwrite existing probe page: " + title)
-        self.client.edit_page(
+        self.client.safe_create_page(
             title,
             content,
+            start_timestamp=self.client.get_edit_start_timestamp(assertion="user", assert_user=self.owner),
             summary="Create temporary Cargo storage probe",
-            create_only=True,
             bot=True,
+            assertion="user",
+            assert_user=self.owner,
         )
         self.created_pages.append(title)
 
@@ -34,7 +36,18 @@ class ProbeRunContext:
             self.create_page(template.title, template.content)
 
     def edit_existing_page(self, title: str, content: str, summary: str) -> None:
-        self.client.edit_page(title, content, summary=summary, create_only=False, no_create=True, bot=True)
+        base_revision = self.client.get_page_revision_metadata(title, assertion="user", assert_user=self.owner)
+        if base_revision is None:
+            raise RuntimeError("Probe page to edit does not exist: " + title)
+        self.client.safe_edit_page(
+            title,
+            content,
+            base_revision=base_revision,
+            summary=summary,
+            bot=True,
+            assertion="user",
+            assert_user=self.owner,
+        )
 
     def forget_created_page(self, title: str) -> None:
         self.created_pages.remove(title)

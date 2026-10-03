@@ -66,9 +66,9 @@ For each page whose generated text differs from its fetched text after page norm
 1. Read live revisions in batches of 50. A live revision that differs from the fetched revision is a conflict. A page fetched as missing must still be missing.
 2. Parse the new text on the wiki with `action=parse` (`prop=text|templates|categories`). A script error, a missing template, a category without a page, or a link tracking category that the live page lacks blocks the page.
 3. Write with `safe_edit_page`, whose base revision is the snapshot that equals the fetched revision, or with `safe_create_page`.
-4. Checkpoint the manifest after each write. The rollback text is a copy of the fetched text under `variants/<variant>/wiki/rollback/`.
+4. Checkpoint the manifest after each write. The rollback text is the live text at the fetched revision. Each run keeps its manifest and rollback texts under `variants/<variant>/wiki/article-deploys/<run>/`. After a write, the fetched copy becomes the saved text at the new revision, so a second run without a fetch plans nothing for that page.
 
-The manifest uses the repository-page format with a new `article` upload stage, so `wiki rollback-repo-pages` restores articles with its existing revision check. Conflicts and blocked pages are collected and fail the command at the end. A login, assertion, or retry failure stops the run at once. The command keeps the client's request pacing and two seconds between writes, and uses the summary `Update game data from build <build>`.
+The manifest uses the repository-page format with a new `article` upload stage, so `wiki rollback-repo-pages` restores articles with its existing revision check. Conflicts and blocked pages are collected and fail the command at the end. A page whose fetched text has no revision cannot be guarded and is reported as stale. A login, assertion, transport, or retry failure stops the run at once. The guarded writes of the client therefore keep transport failures apart from page failures. The command keeps the client's request pacing and two seconds between writes, and uses the summary `Update game data from build <build>`.
 
 Page normalization sorts the categories at the bottom of the page, removes extra blank lines, and strips line-end spaces. A page that differs from its fetched text only in these ways has no data change. A write would only rearrange the text of the editors. After the zone merge, 34 of the 43 zone pages are such pages.
 
@@ -80,7 +80,7 @@ Before the first write, `deploy-repo-pages` reads the user of each target's late
 
 ### D7. Removals
 
-`deploy_from_dir`, `--from-dir`, `--legacy-article-deploy`, `edit_page`, and `PageMetadata.should_deploy` go: D5 decides what to write. `refresh-embedded --source-table` and its item-owner null edits go: they reparsed item pages that store Cargo rows, and no page does after D2. The deploy-service tests that assert `edit_page` calls are replaced by tests that change the live revision between plan and write.
+`deploy_from_dir`, `--from-dir`, `--legacy-article-deploy`, `edit_page`, and `PageMetadata.should_deploy` go: D5 decides what to write. The remaining callers of `edit_page`, the image redirects and the Cargo probe, use the guarded writes. An image redirect no longer replaces an existing page. `refresh-embedded --source-table` and its item-owner null edits go: they reparsed item pages that store Cargo rows, and no page does after D2. The deploy-service tests that assert `edit_page` calls are replaced by tests that change the live revision between plan and write.
 
 The migrations of retired templates go as well: the legacy template remover (`Enemy`, `Pet`, `Consumable`, `Weapon`, `Armor`, `Auras`, `Enemy Stats`), the `Fancy-*` templates, and the quality tables of `Item/Weapon` and `Item/Armor`. No fetched page uses them, and a full regeneration without them gives the same bytes.
 

@@ -8,7 +8,7 @@ description: Fetch, generate, validate, deploy, and roll back Erenshor wiki arti
 Run commands from the repository root. Use `-V <variant>` on `erenshor` when the target is not `main`.
 Keep legacy articles, repository-owned pages, and interface gadgets on their separate deployment paths.
 
-## Legacy generated articles
+## Generated articles
 
 1. Fetch existing articles before generation so manual fields survive: `uv run erenshor wiki fetch`.
    Use `--pages-file pages.txt` to fetch only named pages.
@@ -41,17 +41,22 @@ Keep legacy articles, repository-owned pages, and interface gadgets on their sep
    Header cells compare by kind and text, not by attributes. Generation fails the page when no table or several tables match.
    See `src/erenshor/application/wiki/generators/field_preservation.py` for the other rules.
 
-4. Audit links and preview the intentional legacy deploy:
+4. Audit links, review the deploy plan, and deploy:
 
    ```bash
    uv run erenshor wiki audit-links
-   uv run erenshor --dry-run wiki deploy --legacy-article-deploy
-   uv run erenshor wiki deploy --legacy-article-deploy
+   uv run erenshor --dry-run wiki deploy
+   uv run erenshor wiki deploy --pages-file canaries.txt
+   uv run erenshor wiki deploy
    ```
 
-   `wiki deploy` refuses to run without `--legacy-article-deploy`, even for a dry run.
-   Its generated-storage path checks the live semantic-link catalog against the generated catalog.
-   If that catalog is stale, deploy repository-owned Lua data first. `--from-dir` bypasses this audit.
+   `wiki deploy` writes an article only while its live page is still at the fetched revision.
+   A page that changed or was deleted after the fetch is a conflict. Fetch and generate it again.
+   A page that differs from its fetched text only by page normalization is not written.
+   The deploy first checks the live semantic-link catalog. If that catalog is stale, deploy repository-owned Lua data first.
+   Each run writes a manifest and rollback text under `variants/<variant>/wiki/article-deploys/<run>/`.
+   Restore a run with `uv run erenshor wiki rollback-repo-pages --manifest <manifest>`.
+   The command fails when a page is a conflict or blocked, or when the run stops early. The manifest lists every written page.
 
 ## Lua data and repository-owned pages
 

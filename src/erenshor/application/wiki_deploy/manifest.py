@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Literal, cast
 
 ContentModel = Literal["Scribunto", "wikitext"]
-UploadStage = Literal["generated_data", "lua_module", "cargo_declaration", "template", "content_page"]
+UploadStage = Literal["generated_data", "lua_module", "cargo_declaration", "template", "content_page", "article"]
 DeployAction = Literal["unchanged", "created", "edited"]
 
 _CARGO_TABLE_RE = re.compile(r"_table\s*=\s*([A-Za-z_][A-Za-z0-9_]*)")
@@ -28,6 +28,7 @@ _STAGE_ORDER: dict[UploadStage, int] = {
     "cargo_declaration": 2,
     "template": 3,
     "content_page": 4,
+    "article": 5,
 }
 
 

@@ -7,7 +7,7 @@ Features:
 - Login with bot credentials
 - Fetch page content by title
 - Batch fetch multiple pages efficiently
-- Edit pages with new content
+- Edit and create pages with revision, timestamp, and assertion guards
 - CSRF token management
 - Rate limiting to avoid API throttling
 - Comprehensive error handling
@@ -181,10 +181,12 @@ class MediaWikiClient:
         >>> for title, content in pages.items():
         ...     print(f"{title}: {len(content)} characters")
 
-        >>> # Edit page
-        >>> client.edit_page(
+        >>> # Edit a page against the revision it was read at
+        >>> revision = client.get_page_revision_metadata("Item:Sword", assertion="bot")
+        >>> client.safe_edit_page(
         ...     title="Item:Sword",
         ...     content="{{Item|name=Sword|damage=10}}",
+        ...     base_revision=revision,
         ...     summary="Update item stats from database"
         ... )
     """
@@ -1305,102 +1307,6 @@ class MediaWikiClient:
             raise MediaWikiAPIError("Missing curtimestamp while fetching edit start timestamp")
         return start_timestamp
 
-    def edit_page(
-        self,
-        title: str,
-        content: str,
-        summary: str | None = None,
-        minor: bool | None = None,
-        bot: bool = True,
-        create_only: bool = False,
-        no_create: bool = False,
-        assertion: Literal["user", "bot"] | None = None,
-        assert_user: str | None = None,
-    ) -> None:
-        """Edit a wiki page with new content.
-
-        Requires authentication (call login() first). Uses CSRF token for security.
-
-        Args:
-            title: Page title to edit.
-            content: New page content (wikitext).
-            summary: Edit summary (defaults to self.edit_summary).
-            minor: Mark as minor edit (defaults to self.minor_edit).
-            bot: Mark as bot edit (requires bot permissions).
-            create_only: Only create page if it doesn't exist (fails if page exists).
-            no_create: Only edit existing page (fails if page doesn't exist).
-            assertion: Require the API session to be logged in as this user or bot.
-            assert_user: Require this exact username for the API session.
-
-        Raises:
-            MediaWikiEditError: If edit operation fails.
-            MediaWikiAPIError: If API request fails.
-
-        Example:
-            >>> client = MediaWikiClient(
-            ...     api_url="https://erenshor.wiki.gg/api.php",
-            ...     bot_username="MyBot@MyBot",
-            ...     bot_password="secret"
-            ... )
-            >>> client.login()
-            >>> client.edit_page(
-            ...     title="Item:Sword",
-            ...     content="{{Item|name=Sword|damage=10}}",
-            ...     summary="Update item stats from database"
-            ... )
-        """
-        if summary is None:
-            summary = self.edit_summary
-        if minor is None:
-            minor = self.minor_edit
-
-        if assertion not in (None, "user", "bot"):
-            raise ValueError(f"assertion must be 'user' or 'bot', got: {assertion}")
-        logger.info(f"Editing page: {title}")
-
-        # Get CSRF token
-        token = self.get_csrf_token()
-
-        # Build edit parameters
-        data = {
-            "action": "edit",
-            "title": title,
-            "text": content,
-            "summary": summary,
-            "token": token,
-        }
-
-        # Add optional flags
-        if minor:
-            data["minor"] = "1"
-        if bot:
-            data["bot"] = "1"
-        if create_only:
-            data["createonly"] = "1"
-        if no_create:
-            data["nocreate"] = "1"
-        if assertion is not None:
-            data["assert"] = assertion
-        if assert_user is not None:
-            data["assertuser"] = assert_user
-
-        try:
-            result = self._request({}, method="POST", data=data)
-
-            # Check edit result
-            edit_result = result.get("edit", {})
-
-            if edit_result.get("result") != "Success":
-                error = edit_result.get("error", "Unknown error")
-                logger.error(f"Edit failed for {title}: {error}")
-                raise MediaWikiEditError(f"Edit failed: {error}")
-
-            logger.info(f"Successfully edited page: {title}")
-
-        except MediaWikiAPIError as e:
-            logger.error(f"Edit request failed for {title}: {e}")
-            raise MediaWikiEditError(f"Failed to edit page '{title}': {e}") from e
-
     def safe_edit_page(
         self,
         title: str,
@@ -1562,8 +1468,11 @@ class MediaWikiClient:
         """Raise a safe-write-specific exception for known MediaWiki edit failures.
         ``operation`` is the present participle of the attempted action
         (``"editing"`` or ``"creating"``) so the surfaced message names what
-        actually failed.
+        actually failed. Network, authentication, and rate-limit failures are
+        not failures of the page, so they pass through unchanged.
         """
+        if isinstance(error, MediaWikiNetworkError | MediaWikiAuthenticationError | MediaWikiRateLimitError):
+            raise error
         if error.code == "editconflict":
             raise MediaWikiEditConflictError(
                 f"Edit conflict while safely {operation} page '{title}': {error}"

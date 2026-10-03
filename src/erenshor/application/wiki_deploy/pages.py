@@ -136,7 +136,7 @@ def deploy_repo_pages(
             old_revision_id = snapshot.revision.revision_id
             old_revision_timestamp = snapshot.revision.timestamp
             if rollback_root is not None:
-                rollback_path = rollback_root / f"{_safe_title_filename(entry.title)}.wiki"
+                rollback_path = rollback_root / rollback_filename(entry.title)
                 rollback_path.parent.mkdir(parents=True, exist_ok=True)
                 rollback_path.write_text(remote_text, encoding="utf-8")
                 rollback_text_source = rollback_path.relative_to(repo_root).as_posix()
@@ -222,14 +222,14 @@ def deploy_repo_pages(
     return RepoPageDeployResult(entries=tuple(result_entries))
 
 
-def _safe_title_filename(title: str) -> str:
-    """Return a deterministic, collision-free filename segment for a MediaWiki title.
+def rollback_filename(title: str) -> str:
+    """Return a deterministic, collision-free rollback file name for a MediaWiki title.
 
     Percent-encoding every reserved character keeps the mapping injective (distinct
     titles never share a sidecar file) and flat (title slashes do not become path
     separators), unlike a lossy "replace reserved runs with underscore" scheme.
     """
-    return quote(title, safe="")
+    return f"{quote(title, safe='')}.wiki"
 
 
 def build_deployed_manifest(manifest: RepoWikiPageManifest, result: RepoPageDeployResult) -> RepoWikiPageManifest:

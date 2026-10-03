@@ -493,22 +493,10 @@ class TestMediaWikiClientGetPages:
 
         assert client.get_page_snapshots(["a_page"])["a_page"].source_text == "Saved content"
 
-    """Test wiki page editing."""
+    """Test guarded page writes."""
 
-    def test_edit_page_success(self) -> None:
-        """Test successful page edit."""
-        client, api = _mock_client(
-            [
-                {"query": {"tokens": {"csrftoken": "test_csrf_token"}}},
-                {"edit": {"result": "Success"}},
-            ],
-            clock=MockClock(),
-        )
-        client.edit_page(title="Item:Sword", content="{{Item|name=Sword|damage=10}}", summary="Update item stats")
-        assert [request.method for request in api.requests] == ["GET", "POST"]
-
-    def test_edit_page_failure(self) -> None:
-        """Test edit failure handling."""
+    def test_safe_edit_page_reports_a_failed_edit_result(self) -> None:
+        """A non-success edit result is an edit failure, not a silent success."""
         client, _ = _mock_client(
             [
                 {"query": {"tokens": {"csrftoken": "test_csrf_token"}}},
@@ -516,21 +504,52 @@ class TestMediaWikiClientGetPages:
             ],
             clock=MockClock(),
         )
-        with pytest.raises(MediaWikiEditError, match="Edit failed"):
-            client.edit_page(title="Item:Sword", content="new content")
+        base_revision = MediaWikiPageRevision(
+            title="Item:Sword",
+            page_id=42,
+            revision_id=1234,
+            timestamp="2026-06-04T11:59:00Z",
+            start_timestamp="2026-06-04T12:00:00Z",
+        )
+        with pytest.raises(MediaWikiEditError, match="Safe edit failed"):
+            client.safe_edit_page(title="Item:Sword", content="new content", base_revision=base_revision)
 
-    def test_edit_page_uses_defaults(self) -> None:
-        """Test edit uses default summary and minor flag."""
+    def test_safe_create_page_uses_client_default_summary_and_minor_flag(self) -> None:
+        """A write without summary or minor flag takes the client defaults."""
         client, api = _mock_client(
-            [{"query": {"tokens": {"csrftoken": "test_csrf_token"}}}, {"edit": {"result": "Success"}}],
+            [
+                {"query": {"tokens": {"csrftoken": "test_csrf_token"}}},
+                {"edit": {"result": "Success", "newrevid": 7}},
+            ],
             edit_summary="Default summary",
             minor_edit=True,
             clock=MockClock(),
         )
-        client.edit_page(title="Item:Sword", content="new content")
+        client.safe_create_page(title="Item:Sword", content="new content", start_timestamp="2026-06-04T12:00:00Z")
         call_data = api.requests[-1].data
         assert call_data["summary"] == "Default summary"
         assert call_data["minor"] == "1"
+
+    def test_safe_edit_page_keeps_network_failures_distinct_from_edit_failures(self) -> None:
+        """A transport failure during a write is not a failure of the page."""
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            if request.method == "POST":
+                raise httpx.TimeoutException("Request timeout", request=request)
+            return httpx.Response(200, json={"query": {"tokens": {"csrftoken": "test_csrf_token"}}})
+
+        client = MediaWikiClient(
+            api_url="https://erenshor.wiki.gg/api.php", transport=httpx.MockTransport(handler), clock=MockClock()
+        )
+        base_revision = MediaWikiPageRevision(
+            title="Item:Sword",
+            page_id=42,
+            revision_id=1234,
+            timestamp="2026-06-04T11:59:00Z",
+            start_timestamp="2026-06-04T12:00:00Z",
+        )
+        with pytest.raises(MediaWikiNetworkError, match="Request timeout"):
+            client.safe_edit_page(title="Item:Sword", content="new content", base_revision=base_revision)
 
 
 class TestMediaWikiClientRevisionMetadata:

@@ -1,7 +1,7 @@
 """Shared helper functions for wiki services.
 
-This module contains common functionality used across WikiFetchService,
-WikiGenerateService, and WikiDeployService to avoid duplication.
+This module contains common functionality used across WikiFetchService
+and WikiGenerateService to avoid duplication.
 """
 
 from rich.console import Console

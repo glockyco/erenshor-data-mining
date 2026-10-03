@@ -1,20 +1,18 @@
 """Wiki commands for MediaWiki page management.
 
-This module provides commands for managing MediaWiki content through a three-stage
-workflow:
+Generated articles follow a three-stage workflow:
 
-1. fetch: Download existing pages from MediaWiki and cache locally
-2. generate: Create new pages from database, merge with fetched content, save locally
-3. deploy: Upload generated pages to MediaWiki
-
-This workflow enables reviewing content before deployment and interrupting/resuming
-at any stage.
+1. fetch: Download the live pages and their revisions.
+2. generate: Create pages from the clean database and merge each one into
+   its fetched page.
+3. deploy: Write each changed page while its live revision is still the
+   fetched revision.
 
 Example workflow:
-    $ erenshor wiki fetch --entity-type items
-    $ erenshor wiki generate --entity-type items
-    $ # Review generated files in variants/main/wiki/generated/
-    $ erenshor wiki deploy --entity-type items
+    $ erenshor wiki fetch
+    $ erenshor wiki generate
+    $ erenshor --dry-run wiki deploy
+    $ erenshor wiki deploy
 """
 
 import difflib
@@ -24,6 +22,7 @@ import uuid
 from collections import Counter
 from collections.abc import Collection, Mapping, Sequence
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Annotated, Literal
 
@@ -33,13 +32,19 @@ from rich.console import Console
 from rich.markup import escape
 from rich.panel import Panel
 
+from erenshor.application.extract.database_comparison import recorded_build_id
 from erenshor.application.wiki.generators.context import GeneratorContext
 from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
-from erenshor.application.wiki.services.deploy_service import WikiDeployService
 from erenshor.application.wiki.services.fetch_service import WikiFetchService
 from erenshor.application.wiki.services.generate_service import WikiGenerateService
 from erenshor.application.wiki.services.storage import WikiStorage
 from erenshor.application.wiki_deploy.article_identity import build_article_identity_map
+from erenshor.application.wiki_deploy.articles import (
+    ArticleDeployPlan,
+    ArticleDeployResult,
+    deploy_articles,
+    plan_article_deploy,
+)
 from erenshor.application.wiki_deploy.link_audit import (
     ERROR_CODES,
     FINDING_CODES,
@@ -85,7 +90,7 @@ from erenshor.cli.context import CLIContext
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import database_exists, database_has_items, database_valid
 from erenshor.cli.preconditions.checks.inputs import option_path, wiki_credentials
-from erenshor.cli.preconditions.checks.wiki import interface_admin_credentials, wiki_deploy_inputs, wiki_endpoint
+from erenshor.cli.preconditions.checks.wiki import interface_admin_credentials, wiki_endpoint
 from erenshor.infrastructure.database.connection import DatabaseConnection
 from erenshor.infrastructure.database.repositories.characters import CharacterRepository
 from erenshor.infrastructure.database.repositories.factions import FactionRepository
@@ -928,15 +933,7 @@ def generate(
             wiki_dir = variant_config.resolved_wiki(cli_ctx.repo_root)
             console.print("[bold]Next steps:[/bold]")
             console.print(f"  Review generated files: {wiki_dir / 'generated'}")
-            console.print("  These are legacy Python-generated articles. During the Lua/Cargo cutover the article")
-            console.print(
-                "  deploy is gated: deploy repo-owned Lua data and templates with "
-                "[cyan]erenshor wiki deploy-repo-pages[/cyan],"
-            )
-            console.print(
-                "  or deploy these legacy articles intentionally with "
-                "[cyan]erenshor wiki deploy --legacy-article-deploy[/cyan]."
-            )
+            console.print("  Review the deploy plan: [cyan]erenshor --dry-run wiki deploy[/cyan]")
             console.print()
 
     except Exception as e:
@@ -1506,7 +1503,7 @@ def rollback_repo_pages_command(
     ctx: typer.Context,
     manifest_path: Annotated[
         Path,
-        typer.Option("--manifest", help="Deployment manifest JSON produced by deploy-repo-pages."),
+        typer.Option("--manifest", help="Deployment manifest JSON produced by deploy-repo-pages or deploy."),
     ],
     summary: Annotated[
         str,
@@ -1521,7 +1518,7 @@ def rollback_repo_pages_command(
         typer.Option("--force", help="Restore even if a page changed since the deploy being rolled back."),
     ] = False,
 ) -> None:
-    """Restore repo-owned page text recorded in a deployment manifest."""
+    """Restore the page text recorded in a deploy-repo-pages or deploy manifest."""
     cli_ctx: CLIContext = ctx.obj
 
     manifest = read_repo_page_manifest(manifest_path)
@@ -1563,7 +1560,9 @@ def rollback_repo_pages_command(
     wiki_endpoint,
     wiki_credentials,
     option_path("pages_file"),
-    wiki_deploy_inputs,
+    database_exists,
+    database_valid,
+    database_has_items,
 )
 def deploy(
     ctx: typer.Context,
@@ -1571,108 +1570,113 @@ def deploy(
         None,
         "--limit",
         "-n",
-        help="Limit number of pages to deploy (for testing)",
+        help="Write at most this many articles.",
     ),
     pages_file: str | None = typer.Option(
         None,
         "--pages-file",
         help="File with page titles to deploy (one per line), or '-' for stdin. If not specified, deploys all pages.",
     ),
-    from_dir: str | None = typer.Option(
-        None,
-        "--from-dir",
-        help="Deploy .txt files from this directory instead of generated storage. Title derived from filename.",
-    ),
-    legacy_article_deploy: bool = typer.Option(
-        False,
-        "--legacy-article-deploy",
-        help="Allow the legacy Python-generated article deploy path during Lua cutover.",
-    ),
 ) -> None:
-    """Deploy legacy Python-generated article pages to MediaWiki."""
-    cli_ctx: CLIContext = ctx.obj
-    if not legacy_article_deploy:
-        console.print(
-            "[red]Legacy article deploy is disabled during Lua/Cargo cutover. "
-            "Use 'wiki deploy-repo-pages' for repo-owned Lua/templates, or pass "
-            "--legacy-article-deploy to run the old generated article deploy path intentionally.[/red]"
-        )
-        raise typer.Exit(1)
+    """Deploy generated articles that changed since their fetched revision.
 
+    Each article is written only while its live page is still at the revision
+    that generation merged into. A page that changed or was deleted after the
+    fetch is a conflict and is not written. Every written page goes into a
+    manifest that `wiki rollback-repo-pages` restores.
+    """
+    cli_ctx: CLIContext = ctx.obj
+    variant_config = cli_ctx.config.variants[cli_ctx.variant]
+    wiki_dir = variant_config.resolved_wiki(cli_ctx.repo_root)
+    storage = WikiStorage(wiki_dir)
     try:
         page_titles = _read_page_titles(pages_file) if pages_file else None
-        if from_dir:
-            with _create_wiki_composition(cli_ctx, with_client=True) as composition:
-                assert composition.wiki_client is not None
-                service = WikiDeployService(
-                    wiki_client=composition.wiki_client,
-                    storage=composition.storage,
-                )
-                console.print(
-                    "[yellow]Directory uploads are outside the generated-content gate. "
-                    "Run 'erenshor wiki audit-links' explicitly for generated storage.[/yellow]"
-                )
-                result = service.deploy_from_dir(
-                    source_dir=Path(from_dir),
-                    dry_run=cli_ctx.dry_run,
-                    limit=limit,
-                    page_titles=page_titles,
-                )
-        else:
-            with _create_wiki_composition(cli_ctx, with_client=True) as composition:
-                assert composition.wiki_client is not None
-                service = WikiDeployService(
-                    wiki_client=composition.wiki_client,
-                    storage=composition.storage,
-                )
-                if page_titles is not None:
-                    logger.info(f"Deploying {len(page_titles)} pages from {pages_file}")
+        plan = plan_article_deploy(storage, page_titles=page_titles, limit=limit)
+    except Exception as e:
+        console.print(f"[red]Unable to plan the article deploy: {escape(str(e))}[/red]")
+        raise typer.Exit(1) from e
 
-                console.print()
-                console.print(
-                    Panel.fit(
-                        f"[bold cyan]Deploying legacy generated wiki article pages[/bold cyan]\n"
-                        f"Variant: {cli_ctx.variant}\n"
-                        f"Dry-run: {cli_ctx.dry_run}\n"
-                        f"Pages: {'from ' + pages_file if pages_file else 'all'}",
-                        border_style="cyan",
-                    )
-                )
-                console.print()
-
-                def audit_deployment_pages(generated_pages: Mapping[str, str]) -> None:
-                    report = _run_link_audit(
-                        cli_ctx,
-                        generated_pages,
-                        online=True,
-                        include_live_pages=False,
-                        output_path=None if cli_ctx.dry_run else _default_link_audit_output(cli_ctx),
-                    )
-                    stale_catalog = any(finding.code == "live_link_catalog_stale" for finding in report.findings)
-                    if stale_catalog:
-                        raise ValueError(
-                            "Generated article deployment requires the live semantic-link catalog to match "
-                            "the generated catalog. Deploy repo-owned Lua/data pages first."
-                        )
-                    if report.has_errors:
-                        error_count = sum(1 for finding in report.findings if finding.severity == "error")
-                        raise ValueError(f"Semantic link audit found {error_count} blocking finding(s)")
-
-                result = service.deploy_all(
-                    dry_run=cli_ctx.dry_run,
-                    limit=limit,
-                    page_titles=page_titles,
-                    preflight=audit_deployment_pages,
-                )
-
-        if result.has_warnings():
-            logger.warning(f"Deployment completed with {len(result.warnings)} warnings")
-
-        if result.failed > 0:
-            logger.error(f"Deployment completed with {result.failed} failures")
+    _print_article_plan(plan)
+    writes = {article.title: article.generated_text for article in plan.writes}
+    if writes:
+        report = _run_link_audit(
+            cli_ctx,
+            writes,
+            online=True,
+            include_live_pages=False,
+            output_path=None if cli_ctx.dry_run else _default_link_audit_output(cli_ctx),
+        )
+        if any(finding.code == "live_link_catalog_stale" for finding in report.findings):
+            console.print(
+                "[red]The live semantic-link catalog differs from the generated catalog. "
+                "Deploy the repository Lua data pages first.[/red]"
+            )
+            raise typer.Exit(1)
+        if report.has_errors:
+            error_count = sum(1 for finding in report.findings if finding.severity == "error")
+            console.print(f"[red]Semantic link audit found {error_count} blocking finding(s).[/red]")
             raise typer.Exit(1)
 
-    except Exception as e:
-        console.print(f"[red]Error during wiki deployment: {e}[/red]")
-        logger.exception("Wiki deployment failed")
+    if cli_ctx.dry_run or not writes:
+        if plan.stale:
+            raise typer.Exit(1)
+        return
+
+    try:
+        build_id = recorded_build_id(variant_config.resolved_database(cli_ctx.repo_root))
+    except ValueError as e:
+        console.print(f"[red]{escape(str(e))}[/red]")
         raise typer.Exit(1) from e
+    run_dir = wiki_dir / "article-deploys" / datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+    manifest_path = run_dir / "manifest.json"
+
+    def checkpoint_manifest(manifest: RepoWikiPageManifest) -> None:
+        write_repo_page_manifest(manifest, manifest_path)
+
+    client = _create_mediawiki_client(cli_ctx)
+    try:
+        result = deploy_articles(
+            plan,
+            client=client,
+            storage=storage,
+            repo_root=cli_ctx.repo_root,
+            rollback_root=run_dir / "rollback",
+            summary=f"Update game data from build {build_id}",
+            checkpoint=checkpoint_manifest,
+        )
+    finally:
+        client.close()
+    write_repo_page_manifest(result.manifest, manifest_path)
+
+    _print_article_deploy_result(result, manifest_path)
+    if result.failed or plan.stale:
+        raise typer.Exit(1)
+
+
+def _print_article_plan(plan: ArticleDeployPlan) -> None:
+    """Print what the article deploy writes and the pages it cannot guard."""
+    console.print(
+        f"[bold]Article deploy plan[/bold] Edit: {plan.count('edit')} Create: {plan.count('create')} "
+        f"Unchanged: {plan.count('unchanged')} Stale: {len(plan.stale)}"
+    )
+    for issue in plan.stale:
+        console.print(f"[red]Stale[/red] {escape(issue.title)}: {escape(issue.reason)}")
+
+
+def _print_article_deploy_result(result: ArticleDeployResult, manifest_path: Path) -> None:
+    """Print the written pages, the pages that were not written, and why."""
+    console.print(
+        f"[green]Article deploy complete[/green] Edited: {result.count('edited')} "
+        f"Created: {result.count('created')} Unchanged: {len(result.unchanged)} "
+        f"Conflicts: {len(result.conflicts)} Blocked: {len(result.blocked)}"
+    )
+    console.print(f"Manifest: {manifest_path}", markup=False)
+    for issue in result.conflicts:
+        console.print(f"[yellow]Conflict[/yellow] {escape(issue.title)}: {escape(issue.reason)}")
+    for issue in result.blocked:
+        console.print(f"[red]Blocked[/red] {escape(issue.title)}: {escape(issue.reason)}")
+    if result.stopped is not None:
+        console.print(
+            f"[red]Deploy stopped:[/red] {escape(result.stopped)}. "
+            "The output is partial; the manifest lists every written page."
+        )

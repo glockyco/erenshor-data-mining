@@ -9,8 +9,13 @@ from typer.main import get_command
 from typer.testing import CliRunner
 
 from erenshor.application.wiki.services.page import OperationResult
+from erenshor.application.wiki.services.storage import WikiStorage
 from erenshor.application.wiki_deploy.link_audit import LinkAuditFinding, LinkAuditReport
-from erenshor.application.wiki_deploy.manifest import RepoWikiPageManifest, RepoWikiPageManifestEntry
+from erenshor.application.wiki_deploy.manifest import (
+    RepoWikiPageManifest,
+    RepoWikiPageManifestEntry,
+    read_repo_page_manifest,
+)
 from erenshor.application.wiki_deploy.override_classifier import ArticleOverrideClassification, OverrideFieldDecision
 from erenshor.application.wiki_deploy.override_migration import ArticleMigration, ArticleOverrideReview
 from erenshor.application.wiki_deploy.pages import RepoPageDeployResult, RepoPageDeployResultEntry
@@ -18,6 +23,7 @@ from erenshor.application.wiki_deploy.refresh import EmbeddedRefreshResult
 from erenshor.application.wiki_deploy.rollback import RollbackResult, RollbackResultEntry
 from erenshor.cli.commands import wiki
 from erenshor.cli.context import CLIContext
+from erenshor.infrastructure.wiki import MediaWikiPageRevision, MediaWikiPageSnapshot
 
 runner = CliRunner()
 
@@ -172,9 +178,6 @@ class TestWikiGenerateCommand:
 
         assert result.exit_code == 0
         mock_service.generate_all.assert_called_once()
-        # Generated articles are the legacy path; the next step must reflect the gated cutover.
-        assert "deploy-repo-pages" in result.output
-        assert "--legacy-article-deploy" in result.output
 
     @patch("erenshor.cli.commands.wiki.WikiGenerateService")
     @patch("erenshor.cli.commands.wiki._create_wiki_composition")
@@ -438,100 +441,6 @@ class TestWikiLinkAuditCommand:
             "catalog": service_arguments["link_catalog"],
         }
 
-    def test_generated_deploy_runs_online_audit_but_directory_upload_does_not(
-        self,
-        monkeypatch: pytest.MonkeyPatch,
-        mock_operation_result: OperationResult,
-        tmp_path: Path,
-        cli_context: CLIContext,
-    ) -> None:
-        import erenshor.cli.commands.wiki as wiki_command
-
-        service = MagicMock()
-
-        def deploy_all(**kwargs):
-            kwargs["preflight"]({"Generated": "exact content"})
-            return mock_operation_result
-
-        service.deploy_all.side_effect = deploy_all
-        service.deploy_from_dir.return_value = mock_operation_result
-        monkeypatch.setattr(
-            wiki_command,
-            "_create_wiki_composition",
-            lambda _ctx, **_: _mock_wiki_composition(),
-        )
-        monkeypatch.setattr(wiki_command, "WikiDeployService", lambda **_: service)
-        run_audit = MagicMock(return_value=self._report())
-        monkeypatch.setattr(wiki_command, "_run_link_audit", run_audit)
-
-        generated = runner.invoke(
-            wiki.app, ["deploy", "--legacy-article-deploy"], obj=replace(cli_context, dry_run=True)
-        )
-        assert generated.exit_code == 0
-        assert run_audit.call_args.args[1] == {"Generated": "exact content"}
-        assert run_audit.call_args.kwargs == {
-            "online": True,
-            "include_live_pages": False,
-            "output_path": None,
-        }
-
-        run_audit.reset_mock()
-        directory = runner.invoke(
-            wiki.app,
-            [
-                "deploy",
-                "--legacy-article-deploy",
-                "--from-dir",
-                str(tmp_path),
-            ],
-            obj=replace(cli_context, dry_run=True),
-        )
-        assert directory.exit_code == 0
-        run_audit.assert_not_called()
-        assert "audit-links" in directory.output
-
-    def test_generated_deploy_blocks_stale_live_link_catalog(
-        self,
-        monkeypatch: pytest.MonkeyPatch,
-        mock_operation_result: OperationResult,
-        cli_context: CLIContext,
-    ) -> None:
-        import erenshor.cli.commands.wiki as wiki_command
-
-        service = MagicMock()
-
-        def deploy_all(**kwargs):
-            kwargs["preflight"]({"Generated": "{{CharacterLink|stablekey=character:a}}"})
-            return mock_operation_result
-
-        service.deploy_all.side_effect = deploy_all
-        monkeypatch.setattr(
-            wiki_command,
-            "_create_wiki_composition",
-            lambda _ctx, **_: _mock_wiki_composition(),
-        )
-        monkeypatch.setattr(wiki_command, "WikiDeployService", lambda **_: service)
-        stale_catalog = LinkAuditFinding(
-            code="live_link_catalog_stale",
-            severity="warning",
-            source_page="Module:Erenshor/Data/Links",
-            kind=None,
-            stable_key=None,
-            supplied_target=None,
-            canonical_target=None,
-            message="stale",
-        )
-        monkeypatch.setattr(
-            wiki_command,
-            "_run_link_audit",
-            MagicMock(return_value=self._report(stale_catalog)),
-        )
-
-        result = runner.invoke(wiki.app, ["deploy", "--legacy-article-deploy"], obj=replace(cli_context, dry_run=True))
-
-        assert result.exit_code == 1
-        assert "live semantic-link catalog" in _unwrapped(result.output)
-
 
 class TestWikiInventoryTemplatesCommand:
     """Test wiki template inventory command."""
@@ -573,76 +482,99 @@ class TestWikiSyncInterfaceCommand:
 
 
 class TestWikiDeployCommand:
-    """Test wiki deploy command."""
+    """Test the guarded article deploy command."""
 
-    @patch("erenshor.cli.commands.wiki.WikiDeployService")
-    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
-    def test_deploy_success(
-        self, mock_create_composition, mock_deploy_service, mock_operation_result, cli_context: CLIContext
-    ):
-        """Test successful deploy."""
-        mock_service = MagicMock()
-        mock_service.deploy_all.return_value = mock_operation_result
-        mock_create_composition.return_value = _mock_wiki_composition()
-        mock_deploy_service.return_value = mock_service
+    @staticmethod
+    def _changed_page(storage: WikiStorage, title: str, revision: int = 10) -> None:
+        storage.save_fetched_by_title(title, [f"item:{title.lower()}"], "{{Item|value=1}}", [title], revision)
+        storage.save_generated_by_title(title, [f"item:{title.lower()}"], "{{Item|value=2}}\n")
 
-        result = runner.invoke(wiki.app, ["deploy", "--legacy-article-deploy"], obj=cli_context)
+    @staticmethod
+    def _storage(cli_context: CLIContext) -> WikiStorage:
+        return WikiStorage(cli_context.config.variants["main"].resolved_wiki(cli_context.repo_root))
 
-        assert result.exit_code == 0
-        mock_service.deploy_all.assert_called_once()
+    def test_dry_run_audits_the_planned_writes_without_logging_in(
+        self, monkeypatch: pytest.MonkeyPatch, cli_context: CLIContext
+    ) -> None:
+        import erenshor.cli.commands.wiki as wiki_command
 
-    @patch("erenshor.cli.commands.wiki.WikiDeployService")
-    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
-    def test_deploy_with_limit(
-        self, mock_create_composition, mock_deploy_service, mock_operation_result, cli_context: CLIContext
-    ):
-        """Test deploy with limit parameter."""
-        mock_service = MagicMock()
-        mock_service.deploy_all.return_value = mock_operation_result
-        mock_create_composition.return_value = _mock_wiki_composition()
-        mock_deploy_service.return_value = mock_service
+        self._changed_page(self._storage(cli_context), "Alpha")
+        run_audit = MagicMock(return_value=TestWikiLinkAuditCommand._report())
+        monkeypatch.setattr(wiki_command, "_run_link_audit", run_audit)
+        monkeypatch.setattr(
+            wiki_command, "_create_mediawiki_client", MagicMock(side_effect=AssertionError("dry run must not log in"))
+        )
 
-        result = runner.invoke(wiki.app, ["deploy", "--legacy-article-deploy", "--limit", "5"], obj=cli_context)
+        result = runner.invoke(wiki.app, ["deploy"], obj=replace(cli_context, dry_run=True))
 
         assert result.exit_code == 0
-        mock_service.deploy_all.assert_called_once()
+        assert "Edit: 1" in result.output
+        assert run_audit.call_args.args[1] == {"Alpha": "{{Item|value=2}}\n"}
+        assert run_audit.call_args.kwargs == {"online": True, "include_live_pages": False, "output_path": None}
 
-    @patch("erenshor.cli.commands.wiki.WikiDeployService")
-    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
-    def test_deploy_dry_run(
-        self, mock_create_composition, mock_deploy_service, mock_operation_result, cli_context: CLIContext
-    ):
-        """Test deploy in dry-run mode."""
-        mock_service = MagicMock()
-        mock_service.deploy_all.return_value = mock_operation_result
-        mock_create_composition.return_value = _mock_wiki_composition()
-        mock_deploy_service.return_value = mock_service
+    def test_stale_live_link_catalog_stops_the_deploy(self, monkeypatch: pytest.MonkeyPatch, cli_context: CLIContext):
+        import erenshor.cli.commands.wiki as wiki_command
 
-        result = runner.invoke(wiki.app, ["deploy", "--legacy-article-deploy"], obj=replace(cli_context, dry_run=True))
+        self._changed_page(self._storage(cli_context), "Alpha")
+        stale_catalog = LinkAuditFinding(
+            code="live_link_catalog_stale",
+            severity="warning",
+            source_page="Module:Erenshor/Data/Links",
+            kind=None,
+            stable_key=None,
+            supplied_target=None,
+            canonical_target=None,
+            message="stale",
+        )
+        monkeypatch.setattr(
+            wiki_command, "_run_link_audit", MagicMock(return_value=TestWikiLinkAuditCommand._report(stale_catalog))
+        )
 
-        assert result.exit_code == 0
-        mock_service.deploy_all.assert_called_once()
+        result = runner.invoke(wiki.app, ["deploy"], obj=replace(cli_context, dry_run=True))
 
-    @patch("erenshor.cli.commands.wiki.WikiDeployService")
-    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
-    def test_deploy_with_failures(
-        self,
-        mock_create_composition,
-        mock_deploy_service,
-        mock_operation_result_with_failures,
-        cli_context: CLIContext,
-    ):
-        """Test deploy that completes with failures."""
-        mock_service = MagicMock()
-        mock_service.deploy_all.return_value = mock_operation_result_with_failures
-        mock_create_composition.return_value = _mock_wiki_composition()
-        mock_deploy_service.return_value = mock_service
-
-        result = runner.invoke(wiki.app, ["deploy", "--legacy-article-deploy"], obj=cli_context)
-
-        # Should exit 1 with failures
         assert result.exit_code == 1
-        mock_service.deploy_all.assert_called_once()
+        assert "live semantic-link catalog" in _unwrapped(result.output)
+
+    def test_deploy_writes_a_manifest_and_fails_on_a_conflict(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, cli_context: CLIContext
+    ) -> None:
+        import erenshor.cli.commands.wiki as wiki_command
+
+        context = replace(cli_context, repo_root=tmp_path)
+        storage = self._storage(context)
+        self._changed_page(storage, "Alpha")
+        self._changed_page(storage, "Beta")
+
+        def snapshots(titles, assertion=None, assert_user=None):
+            live = {"Alpha": 10, "Beta": 11}
+            return {
+                title: MediaWikiPageSnapshot(
+                    title=title,
+                    source_text="{{Item|value=1}}",
+                    revision=MediaWikiPageRevision(
+                        title, 1, live[title], "2026-10-01T00:00:00Z", "2026-10-03T00:00:00Z"
+                    ),
+                    start_timestamp="2026-10-03T00:00:00Z",
+                )
+                for title in titles
+            }
+
+        client = MagicMock()
+        client.get_page_snapshots.side_effect = snapshots
+        client.safe_edit_page.return_value = 12
+        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", lambda _ctx: client)
+        monkeypatch.setattr(wiki_command, "_run_link_audit", MagicMock(return_value=TestWikiLinkAuditCommand._report()))
+        monkeypatch.setattr(wiki_command, "recorded_build_id", lambda _path: "123")
+        monkeypatch.setattr("erenshor.application.wiki_deploy.articles.time.sleep", lambda _seconds: None)
+
+        result = runner.invoke(wiki.app, ["deploy"], obj=context)
+
+        assert result.exit_code == 1
+        assert "Conflict Beta" in _unwrapped(result.output)
+        [manifest_path] = (tmp_path / "wiki" / "article-deploys").glob("*/manifest.json")
+        assert [entry.title for entry in read_repo_page_manifest(manifest_path).entries] == ["Alpha"]
+        assert client.safe_edit_page.call_args.kwargs["summary"] == "Update game data from build 123"
+        client.close.assert_called_once_with()
 
 
 class TestWikiDeployRepoCommand:
@@ -1049,15 +981,6 @@ class TestWikiDeployRepoCommand:
         assert [entry.title for entry in deploy.call_args.kwargs["manifest"].entries] == ["Module:Erenshor/Item"]
         assert deploy.call_args.kwargs["known_live_titles"] == {"Module:Erenshor/Data/Links"}
         authenticated.close.assert_called_once_with()
-
-    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
-    def test_legacy_deploy_requires_explicit_legacy_flag(self, mock_create_composition, cli_context: CLIContext):
-        """Test legacy generated article deploy is guarded during Lua cutover."""
-        result = runner.invoke(wiki.app, ["deploy"], obj=cli_context)
-
-        assert result.exit_code == 1
-        assert "--legacy-article-deploy" in result.output
-        mock_create_composition.assert_not_called()
 
     def test_deploy_reports_changed_cargo_declarations(
         self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, cli_context: CLIContext

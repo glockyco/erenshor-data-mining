@@ -62,6 +62,7 @@ from urllib.parse import quote
 from loguru import logger
 
 from erenshor.application.wiki.services.helpers import normalise_generated_page_content
+from erenshor.infrastructure.wiki.content import normalize_saved_text
 
 
 class WikiMetadataError(Exception):
@@ -153,32 +154,6 @@ class PageMetadata:
             deployed_at=data.get("deployed_at"),
             deployed_hash=data.get("deployed_hash"),
         )
-
-    def should_deploy(self) -> tuple[bool, str]:
-        """Check if page should be deployed based on metadata.
-
-        Returns:
-            Tuple of (should_deploy, reason)
-            - (True, "") if page should be deployed
-            - (False, reason) if page should be skipped with explanation
-        """
-        # Must have generated content
-        if self.generated_at is None:
-            return False, "not generated"
-
-        # Skip if not regenerated since last deployment
-        if self.deployed_at is not None and self.generated_at <= self.deployed_at:
-            return False, "not regenerated since deployment"
-
-        # Skip if older than fetched content (prevents overwriting wiki edits)
-        if self.fetched_at is not None and self.generated_at <= self.fetched_at:
-            return False, "older than fetched (fetch and regenerate first)"
-
-        # Skip if content unchanged
-        if self.generated_hash == self.deployed_hash:
-            return False, "content unchanged"
-
-        return True, ""
 
 
 class WikiStorage:
@@ -401,6 +376,10 @@ class WikiStorage:
 
         return file_path.read_text(encoding="utf-8")
 
+    def generated_path(self, page_title: str) -> Path:
+        """Return the file that holds the generated content of a page."""
+        return self._generated_dir / f"{self._encode_page_title_for_filename(page_title)}.txt"
+
     def list_generated_titles(self) -> tuple[str, ...]:
         """Return all generated article titles in deterministic order."""
         metadata = self._load_metadata()
@@ -453,30 +432,32 @@ class WikiStorage:
         metadata = self._load_metadata()
         return {title: metadata[title] for title in titles if title in metadata}
 
-    def update_deployed(
-        self,
-        page_title: str,
-        content: str,
-    ) -> None:
-        """Update deployment metadata after successful wiki upload.
+    def record_deployed(self, page_title: str, content: str, revision_id: int) -> None:
+        """Record that the live page now holds ``content`` at ``revision_id``.
 
-        Args:
-            page_title: MediaWiki page title that was deployed.
-            content: Content that was deployed.
+        The fetched copy becomes the text that MediaWiki saved, so the next
+        deploy plan compares against the live page, and the next fetch keeps
+        the copy while the live revision stays the same.
+
+        Raises:
+            WikiMetadataError: The page has no metadata.
         """
-        # Compute content hash
-        content_hash = hashlib.sha256(content.encode("utf-8")).hexdigest()
-
         metadata = self._load_metadata()
-        if page_title not in metadata:
-            logger.warning(f"Cannot update deployed metadata for unknown page: {page_title}")
-            return
+        existing = metadata.get(page_title)
+        if existing is None:
+            raise WikiMetadataError(f"Cannot record a deploy for unknown page: {page_title}")
 
-        metadata[page_title].deployed_at = datetime.now().isoformat()
-        metadata[page_title].deployed_hash = content_hash
-
+        saved_text = normalize_saved_text(content)
+        safe_filename = self._encode_page_title_for_filename(page_title)
+        (self._fetched_dir / f"{safe_filename}.txt").write_text(saved_text, encoding="utf-8")
+        now = datetime.now().isoformat()
+        existing.fetched_at = now
+        existing.fetched_hash = hashlib.sha256(saved_text.encode("utf-8")).hexdigest()
+        existing.fetched_revision_id = revision_id
+        existing.deployed_at = now
+        existing.deployed_hash = hashlib.sha256(content.encode("utf-8")).hexdigest()
         self._save_metadata(metadata)
-        logger.debug(f"Updated deployment metadata for: {page_title}")
+        logger.debug(f"Recorded deploy of {page_title} at revision {revision_id}")
 
     def clear_fetched(self) -> int:
         """Clear all fetched pages.

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -56,7 +57,7 @@ class _LoopbackHandler(BaseHTTPRequestHandler):
                 "headers": dict(self.headers),
             }
         )
-        self._respond({"edit": {"result": "Success"}})
+        self._respond({"edit": {"result": "Success", "newrevid": 2}})
 
     def _respond(self, payload: dict[str, Any], *, cookie: str | None = None) -> None:
         body = json.dumps(payload).encode("utf-8")
@@ -91,15 +92,17 @@ def test_mediawiki_client_preserves_loopback_session_encoding() -> None:
             request_policy=MediaWikiRequestPolicy(max_retries=0, jitter=0),
         ) as client:
             assert client.get_page(title) == "existing text"
-            # Seed the cached token so the public edit operation is exactly one POST
+            # Seed the cached token so the public write operation is exactly one POST
             # after the page GET; token acquisition is separately covered by unit tests.
             client._csrf_token = "csrf-token+/="
-            client.edit_page(
+            client.safe_create_page(
                 title,
                 "updated text & = / + %",
+                start_timestamp="2026-06-04T12:00:00Z",
                 summary="summary & details",
                 minor=False,
                 bot=False,
+                assertion="user",
             )
 
         requests = _LoopbackHandler.requests
@@ -124,6 +127,10 @@ def test_mediawiki_client_preserves_loopback_session_encoding() -> None:
             "title": [title],
             "text": ["updated text & = / + %"],
             "summary": ["summary & details"],
+            "createonly": ["1"],
+            "starttimestamp": ["2026-06-04T12:00:00Z"],
+            "md5": [hashlib.md5(b"updated text & = / + %", usedforsecurity=False).hexdigest()],
+            "assert": ["user"],
             "token": ["csrf-token+/="],
         }
         assert "text=updated+text+%26+%3D+%2F+%2B+%25" in post_request["body"]
