@@ -121,8 +121,6 @@ Control console output verbosity:
 
 ## Development
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for technical details.
-
 ```bash
 # Copy game and both loader references for compilation
 uv run erenshor mod setup

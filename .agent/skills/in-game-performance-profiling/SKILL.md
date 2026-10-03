@@ -1,135 +1,52 @@
 ---
 name: in-game-performance-profiling
-description: Measure live runtime costs inside the running game. Use when timing HotRepl snippets, cache invalidation paths, marker/nav/tracker updates, or comparing cold vs hot behavior.
+description: Use when measuring a live mod path in Erenshor, including marker updates, invalidation, and hot-versus-rebuild costs.
 ---
 
-# In-Game Performance Profiling
+# In-game performance profiling
 
-Use HotRepl to time the real runtime path in the running game, not an isolated
-microbenchmark. The job is to measure one named invalidation path with caches in
-a known state.
+Start HotRepl as described in `runtime-eval`. This skill covers timing only. Measure the method that the running game calls, not an isolated replacement.
 
-Read `runtime-eval` first for the basic HotRepl workflow. This skill only covers
-profiling patterns.
+## Prepare the measurement
 
-## What to measure
+1. Select one path and name its cache state: hot, forced rebuild, scene rebuild, or one gameplay delta.
+2. Look up game objects and private fields before starting the clock. Warm the hot path first.
+3. Trigger invalidation before each forced-rebuild sample. Do not time the invalidation unless it is the target.
+4. Run several samples, then report average, minimum, and maximum in milliseconds. Keep rendering, logging, and formatting outside the timed loop when they are not the target.
+5. For a mining, inventory, quest, or death regression, also measure the real game event or patch path. Calling a final consumer alone omits upstream work.
 
-Prefer narrow paths with clear names:
-- `QuestResolutionService.ResolveQuest(...)`
-- `ApplyChangeSet(...)` for inventory / quest / live-source deltas
-- `MarkerComputer.Recompute()` after a targeted invalidation
-- `NavigationEngine.Update(playerPos)` with and without forced re-resolve
-- full end-to-end path only when that is the actual question
+## Example: AdventureGuide marker update
 
-Say explicitly whether the path is:
-- cold
-- hot
-- single-delta incremental
-- scene rebuild / hard reset
-
-## Measurement rules
-
-1. Look up live objects once, outside the timed loop.
-2. Warm caches before measuring a hot path.
-3. Force invalidation explicitly before measuring a cold or delta path.
-4. Keep string building and formatting outside the timed body.
-5. Report `avg / min / max`, not one run.
-6. Use enough iterations to smooth noise, but keep the scenario realistic.
-7. Trigger the real adapter when possible (`LiveStateTracker`, tracker events,
-   inventory refresh), not only the final consumer.
-
-## Stable Stopwatch pattern
-
-Prefer a lambda helper over a local function. Mono's evaluator is more stable
-with lambdas in larger snippets.
-
-```bash
-uv run erenshor eval run --timeout 30000 '
-var sw = new System.Diagnostics.Stopwatch();
-System.Func<string, int, System.Action, string> measure = (name, iterations, action) => {
-    long min = long.MaxValue, max = 0, total = 0;
-    for (int i = 0; i < iterations; i++) {
-        sw.Restart();
-        action();
-        sw.Stop();
-        var t = sw.ElapsedTicks;
-        if (t < min) min = t;
-        if (t > max) max = t;
-        total += t;
-    }
-    double scale = 1000.0 / System.Diagnostics.Stopwatch.Frequency;
-    return name + ": avg=" + (total * scale / iterations).ToString("F3")
-        + " ms min=" + (min * scale).ToString("F3")
-        + " ms max=" + (max * scale).ToString("F3") + " ms";
-};
-measure("example", 20, () => { var x = 1 + 1; })
-'
-```
-
-## AdventureGuide setup pattern
-
-When no DebugAPI helper exists yet, reflect into the live plugin once.
+Enter a gameplay scene and enable world markers first. This measures `WorldMarkerSystem.Update` with a hot cache, then with `MarkSpawnDirty()` before each sample. The second series forces marker rebuilds, not a scene reload.
 
 ```bash
 uv run erenshor eval run --timeout 30000 '
 var plugin = UnityEngine.Resources.FindObjectsOfTypeAll<AdventureGuide.Plugin>().First();
-var bf = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
-var resolution = (AdventureGuide.Resolution.QuestResolutionService)plugin.GetType()
-    .GetField("_resolutionService", bf).GetValue(plugin);
-var marker = (AdventureGuide.Markers.MarkerComputer)plugin.GetType()
-    .GetField("_markerComputer", bf).GetValue(plugin);
-var nav = (AdventureGuide.Navigation.NavigationEngine)plugin.GetType()
-    .GetField("_navEngine", bf).GetValue(plugin);
-"ready"
-'
-```
-
-## Example: live-source invalidation
-
-This is the important gameplay-sensitive pattern: trigger a real delta, then
-measure the maintained-view update.
-
-```bash
-uv run erenshor eval run --timeout 30000 '
-var plugin = UnityEngine.Resources.FindObjectsOfTypeAll<AdventureGuide.Plugin>().First();
-var bf = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
-var live = (AdventureGuide.Markers.LiveStateTracker)plugin.GetType()
-    .GetField("_liveState", bf).GetValue(plugin);
-var marker = (AdventureGuide.Markers.MarkerComputer)plugin.GetType()
-    .GetField("_markerComputer", bf).GetValue(plugin);
-var mining = UnityEngine.Object.FindObjectsOfType<MiningNode>().FirstOrDefault();
-var sw = new System.Diagnostics.Stopwatch();
-System.Func<string, int, System.Action, string> measure = (name, iterations, action) => {
+var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+var runtime = plugin.GetType().GetField("_runtime", flags).GetValue(plugin);
+var markers = (AdventureGuide.Navigation.WorldMarkerSystem)runtime.GetType().GetField("_markers", flags).GetValue(runtime);
+if (GameData.PlayerControl == null || !markers.Enabled) throw new System.InvalidOperationException("Enter a gameplay scene and enable world markers");
+var scene = SceneManager.GetActiveScene().name;
+markers.Update(scene);
+System.Func<bool, string> profile = force => {
+    var sw = new System.Diagnostics.Stopwatch();
     long min = long.MaxValue, max = 0, total = 0;
-    for (int i = 0; i < iterations; i++) {
+    for (int i = 0; i < 12; i++) {
+        if (force) markers.MarkSpawnDirty();
         sw.Restart();
-        action();
+        markers.Update(scene);
         sw.Stop();
-        var t = sw.ElapsedTicks;
-        if (t < min) min = t;
-        if (t > max) max = t;
-        total += t;
+        long ticks = sw.ElapsedTicks;
+        if (ticks < min) min = ticks;
+        if (ticks > max) max = ticks;
+        total += ticks;
     }
-    double scale = 1000.0 / System.Diagnostics.Stopwatch.Frequency;
-    return name + ": avg=" + (total * scale / iterations).ToString("F3")
-        + " ms min=" + (min * scale).ToString("F3")
-        + " ms max=" + (max * scale).ToString("F3") + " ms";
+    double ms = 1000.0 / System.Diagnostics.Stopwatch.Frequency;
+    return (force ? "forced rebuild" : "hot") + ": avg=" + (total * ms / 12).ToString("F3")
+        + " ms min=" + (min * ms).ToString("F3") + " ms max=" + (max * ms).ToString("F3") + " ms";
 };
-measure("marker live delta", 10, () => {
-    var cs = mining != null ? live.OnMiningChanged(mining) : AdventureGuide.State.GuideChangeSet.None;
-    marker.ApplyGuideChangeSet(cs);
-    marker.Recompute();
-})
+profile(false) + "\n" + profile(true)
 '
 ```
 
-## Common pitfalls
-
-- Cold vs hot ambiguity. Always state cache state.
-- Measuring setup. Reflection and object lookup belong outside the loop.
-- Evaluator quirks. Prefer lambdas and straight-line code over local functions.
-- Timeout too low. Use `--timeout 30000` or higher for multi-iteration runs.
-- Mixing semantic and rendering costs. `MarkerComputer.Recompute()` is not the
-  same thing as `MarkerSystem.Update()`.
-- Measuring synthetic paths only. If the gameplay problem is mining or death,
-  trigger the real mining or death adapter.
+`WorldMarkerSystem.Update` also updates live marker positions. Do not describe this number as pure quest resolution. For a real spawn or death delta, time its Harmony patch path and the next marker update separately. Increase `--timeout` for a longer run, but keep the sample count realistic. If ScriptEngine reloads during measurement, repeat the setup because HotRepl resets stored variables.

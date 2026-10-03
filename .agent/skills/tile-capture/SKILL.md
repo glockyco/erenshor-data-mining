@@ -1,126 +1,30 @@
 ---
 name: tile-capture
-description: Capture and generate interactive-map tiles for Erenshor zones via the in-game MapTileCapture mod. Use when capturing or re-tiling zone maps, setting capture bounds for a new zone, managing the tile-count budget, or diagnosing dark, blank, or off-center captures.
+description: Use when capturing or re-tiling zone maps, setting new bounds, or diagnosing MapTileCapture output and tile budgets.
 ---
 
-# Tile Capture
+# Tile capture
 
-Capture and generate map tiles for all Erenshor zones using the native dual-loader
-MapTileCapture mod (BepInEx or Lunaris).
-Build and deploy it like any mod (`mod build --mod map-tile-capture --loader all`, then `mod deploy ... --loader bepinex`). Use BepInEx when you tune it at run time through HotRepl, and exit the game before you deploy.
+MapTileCapture is an internal native mod. Use `mod-pipeline` to build and deploy `map-tile-capture` for the chosen loader. For HotRepl tuning, use BepInEx and the `runtime-eval` procedure. Close the game before deployment.
 
-Mod constraints:
+## Capture and check
 
-- Both loader adapters expose the same tuning properties for HotRepl: `BackgroundR/G/B` (clear colour outside terrain), `IndoorDirectional*` and `IndoorAmbient*` (lighting for zones without sun), `DefaultStabilityFrames`, and `DefaultSceneLoadTimeoutSecs`.
-- Use Newtonsoft.Json. `System.Text.Json` does not exist on Unity's Mono. ILRepack merges Fleck, and Newtonsoft.Json only for BepInEx, because Lunaris supplies it.
-- `CaptureController` owns the `IDisposable` `GeometrySuppressor`. Unload must dispose it so that the temporary light and every suppressed object come back.
-- Change scenes with `GameData.SceneChange.ChangeScene()`, not `SceneManager.LoadScene()`, so that each zone gets its atmosphere and lighting.
+1. Deploy `map-tile-capture`, start the selected game, then run `uv run erenshor capture status`.
+2. Run `uv run erenshor capture budget` before producing tiles. Keep the total below Cloudflare's 20,000-file limit.
+3. Capture selected zones with `uv run erenshor capture run --zones ZoneName`. Repeat `--zones` for more zones. Use `--force` after changing bounds or lighting, because a valid master checksum otherwise skips recapture.
+4. Run `uv run erenshor capture status` again. If the command reports a partial set, fix every failed zone before publishing.
+5. Exit the game. To regenerate tiles from unchanged master PNGs without the game, run `uv run erenshor capture tile --zones ZoneName`.
 
-## Architecture
-- **MapTileCapture mod** — native BepInEx and Lunaris plugins share one runtime and
-  WebSocket server on port **18586**. Receives `capture_zone`, renders PNG chunks via
-  orthographic camera, reports back to Python.
-- **Python pipeline** — `src/erenshor/application/capture/`: orchestrator, tile_generator,
-  stitcher, zone_config, state, budget.
-- **Unload cleanup** — stop the active capture coroutine before disposing the WebSocket
-  server. The runtime unsubscribes scene-load callbacks, disposes geometry suppression
-  (restoring camera, renderer, canvas, lighting, fog, and time-scale state), and clears
-  queued messages; restarting the plugin must leave port 18586 available with no prior
-  capture state.
-- **Config** — `src/maps/src/lib/data/zone-capture-config.json` is the single source of truth
-  for zone spatial parameters.
+Each zone in `src/maps/src/lib/data/zone-capture-config.json` must declare exactly one `captureVariants` entry: `clear` or `open`. Tiles share one zone directory. A second variant would erase the first pyramid. `clear` hides Roof-layer roots; `open` retains them. An explicit `--variant` override must match the zone's declared variant.
 
-### Data Flow
+`capture tile` replaces the selected zone's entire tile directory. It removes obsolete zoom levels when settings shrink. Check the total from a complete retile against `capture budget`. Masters and status records live under `.erenshor/masters/` and `.erenshor/capture-state.json`.
 
-```
-uv run erenshor capture run
-  -> connects to mod (ws://localhost:18586)
-  -> for each zone x variant:
-     -> sends capture_zone with chunk grid
-     -> mod: loads scene via GameData.SceneChange.ChangeScene(), suppresses geometry,
-             creates temp sun (scenes lack day/night when loaded directly), renders chunks
-     -> Python: stitches chunks -> master.png -> tile pyramid (downscale only)
-     -> writes tiles to src/maps/static/tiles/{zone}/{z}/{x}/{y}.webp
-```
+## Set bounds for a new zone
 
-### CrossOver / Wine
-
-Mod runs inside Wine. Orchestrator converts macOS paths to `Z:\path` format via
-`_wine_path()` — transparent to CLI users.
-
-### Diagnosing Capture Issues
-
-For a BepInEx capture target, resolve the selected variant first and inspect that
-installation's log:
+1. Enter the zone in the running game. Probe only roots of the active scene. Persistent objects near world origin can distort bounds.
+2. Get the static mesh bounds through HotRepl:
 
 ```bash
-uv run erenshor -V playtest mod status
-grep -i "Map Tile Capture\|capture\|error\|exception" \
-  "<resolved-game-install>/BepInEx/LogOutput.log"
-```
-
-For a Lunaris target, inspect the Lunaris in-game log UI. The mod CLI resolves
-the installation from the selected variant's Steam app ID, so pass the intended
-`-V` flag.
-
-- **TypeLoadException**: Missing DLL in ILRepack merge — check `ILRepack.targets`.
-- **NullReferenceException from game code**: Expected (NPCDialogManager, SpawnPoint, etc. fail
-  without a player). Does not affect capture.
-- **Dark capture**: `GeometrySuppressor` directional light not created correctly.
-- **Blank/transparent capture**: `ChunkRenderer` camera flags not set.
-
-## CLI Commands
-
-```bash
-uv run erenshor capture run [--zones A] [--zones B] [--variant clear] [--force]
-uv run erenshor capture tile [--zones A]    # replace pyramids from existing masters, no game needed
-uv run erenshor capture status
-uv run erenshor capture budget
-uv run erenshor maps thumbnails [--zones A]  # needs dev/preview server running (see below)
-```
-
-`capture tile` removes each selected zone's existing output before writing the
-replacement pyramid. This is required when `maxZoom` or base dimensions shrink:
-overwriting only the new paths leaves obsolete zoom levels behind. Unselected
-zones are untouched.
-
-## Scene Lighting
-
-Scenes loaded directly lack a directional light (day/night system never initialises).
-`GeometrySuppressor` creates a temporary sun and ambient override, destroyed on `Dispose()`.
-Zones with `usingSun: false` in config get a separate indoor light profile — tunable via
-the native adapter's `Plugin` properties (`Plugin.BepInEx.cs` or `Plugin.Lunaris.cs`) or
-at runtime via HotRepl.
-
-## Tile Coordinate System
-
-- `z=0`: `baseTilesX × baseTilesY` tiles; each covers 256 world units
-- `z>0`: finer; `z<0`: coarser (2×2 combine, not master resize — preserves non-square aspect)
-- `x`: 0-indexed from west; `y`: negative — `y=-1` = southernmost row
-- `minZoom = -ceil(log2(max(baseTilesX, baseTilesY)))` when max > 1, else 0
-
-## Variants
-
-- `clear`: Roof layer removed from culling mask
-- `open`: full geometry
-- Zones with no Roof-layer objects: only `clear` generated; `open` marked `same_as_clear`
-
-## 20k File Limit
-
-Cloudflare/Wrangler hard limit ~20k files. The current configuration generates
-4,912 zone tiles. Managed via per-zone `maxZoom` (large zones: 0, medium: 1,
-small: 2) and skipping `open` for outdoor zones. Run `capture budget` before
-regenerating. Its total must equal the sum printed by `capture tile`; a mismatch
-means the preflight and generator have drifted.
-
-## Setting Bounds for a New Zone
-
-Use HotRepl — do not guess. Query scene-owned objects only to exclude DontDestroyOnLoad
-objects at the world origin that inflate bounds.
-
-```bash
-uv run erenshor eval run 'SceneManager.LoadScene("ZoneName");'; sleep 4
-
 uv run erenshor eval run '
 var scene = SceneManager.GetActiveScene();
 var bounds = new Bounds(); bool first = true; int n = 0;
@@ -136,57 +40,24 @@ string.Format("n={0} minX={1:F2} maxX={2:F2} minZ={3:F2} maxZ={4:F2}",
 '
 ```
 
-If outliers inflate the bounds, filter to within 100 world units of the median — see session
-history for the median-filter snippet.
+3. Check NPC spawn positions and zone-line landing positions in the selected variant's clean database. Static meshes alone can omit important map content:
 
-### Computing the origin
-
-- `baseTilesX = ceil(width / 256)`, `baseTilesY = ceil(depth / 256)` — add 1 if very tight
-- `originX = centerX - baseTilesX * 128`
-- `originY = centerZ - baseTilesY * 128`
-
-After capture, verify content is centered in the master:
-
-```bash
-uv run erenshor python -c "
-from PIL import Image
-img = Image.open('.erenshor/masters/ZoneName_clear.png').convert('RGB')
-w, h = img.size
-# Count non-background pixels using Pillow only (no numpy dependency)
-bg = (15, 18, 26)  # dark slate (0.06, 0.07, 0.10) * 255
-non_bg = [(x, y) for y in range(h) for x in range(w) if any(abs(img.getpixel((x,y))[i]-bg[i])>20 for i in range(3))]
-if non_bg:
-    xs, ys = zip(*non_bg)
-    print(f'content center ({(min(xs)+max(xs))//2},{(min(ys)+max(ys))//2}), image center ({w//2},{h//2})')
-"
+```sql
+SELECT MIN(x), MAX(x), MIN(z), MAX(z) FROM map_character_spawns WHERE scene = 'ZoneName';
+SELECT landing_position_x, landing_position_z FROM zone_lines
+ WHERE destination_zone_stable_key IN (SELECT stable_key FROM zones WHERE scene_name = 'ZoneName');
 ```
 
-Content center should be within ~50 px of image center.
+4. Include all three footprints. Inspect outlying meshes before discarding them, and pad the union by about 64 world units.
+5. With `tileSize: 256`, set `baseTilesX = ceil(width / 256)` and `baseTilesY = ceil(depth / 256)`. Set `originX = centerX - baseTilesX * 128` and `originY = centerZ - baseTilesY * 128`.
+6. Add the entry to `src/maps/src/lib/data/zone-capture-config.json` and its display name to `DISPLAY_NAMES` in `src/maps/src/lib/maps.ts`.
+7. Capture with `uv run erenshor capture run --zones ZoneName --force`. Inspect the master in `.erenshor/masters/` for clipping and centering. Adjust bounds and recapture if necessary.
+8. Start `uv run erenshor maps dev` in another terminal. Run `uv run erenshor maps thumbnails --zones ZoneName --url http://localhost:5173`, then stop the server.
 
-## Bounds must cover three things, not one
+## Diagnose a failed capture
 
-The capture footprint must contain the union of:
-1. **Static geometry** — the median-filtered `MeshRenderer` AABB above.
-2. **NPC spawn positions** — `SELECT MIN/MAX(x), MIN/MAX(z) FROM map_character_spawns WHERE scene = '<Zone>'` from the variant's clean DB. NPCs use `SkinnedMeshRenderer` and are frequently clustered outside the static-mesh footprint.
-3. **Zone-line landing points** — `SELECT landing_position_x, landing_position_z FROM zone_lines WHERE destination_zone_stable_key IN (SELECT stable_key FROM zones WHERE scene_name = '<Zone>')`. The portal landing spot must be visible on the master or the entry experience reads as off-map.
-
-Take the union of all three, pad by ~64 units, then compute `baseTilesX`/`baseTilesY`/`originX`/`originY`. Geometry-only bounds cut the western NPC cluster off PlaneOfBrax by ~1100 units in the 2026-05-18 playtest refresh.
-
-## Adding a New Zone
-
-1. Add entry to `zone-capture-config.json` (use HotRepl bounds above)
-2. Add display name to `DISPLAY_NAMES` in `src/maps/src/lib/maps.ts`
-3. `uv run erenshor capture run --zones NewZone`
-4. Start maps dev server, then generate thumbnails:
-   ```bash
-   uv run erenshor maps dev &  # default port 5173
-   uv run erenshor maps thumbnails --zones NewZone --url http://localhost:5173
-   ```
-5. Deploy: `uv run erenshor maps build && uv run erenshor maps deploy`
-
-## Known Issues
-
-- **Baked lightmap shadows**: Removing roofs leaves their baked shadows on floors. No fix
-  short of rebaking Unity lightmaps.
-- **Game NullReferenceExceptions**: Expected when loading scenes without a player
-  (NPCDialogManager, ZoneAnnounce, etc. fail in Start). Does not affect capture.
+- Run `uv run erenshor -V playtest mod status` with the intended variant. Check `BepInEx/LogOutput.log` for BepInEx or the in-game log UI for Lunaris.
+- For dark indoor zones, verify `usingSun: false`. Both adapters expose `IndoorDirectional*` and `IndoorAmbient*` through `MapTileCapture.Plugin` for HotRepl tuning. Outdoor zones use their scene sun.
+- For a blank master, inspect `ChunkRenderer` camera settings. For a type-load error, inspect `src/mods/MapTileCapture/ILRepack.targets` and redeploy a complete DLL.
+- When editing capture cleanup, stop the active coroutine before disposing the WebSocket server. Dispose `GeometrySuppressor` so it restores camera, renderer, canvas, lighting, fog, and time scale.
+- Load capture scenes through `GameData.SceneChange.ChangeScene()`, not `SceneManager.LoadScene()`. The former sets sun and atmosphere state for each zone.

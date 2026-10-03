@@ -1,251 +1,53 @@
 ---
 name: mod-pipeline
-description: BepInEx and Lunaris companion-mod setup, build, deploy, and local publication commands.
+description: Use when setting up mod references, building or deploying a native loader target, or preparing Thunderstore and Vault releases.
 ---
 
-# Companion Mod Pipeline
+# Companion mod pipeline
 
-This project builds every companion mod for both native loaders. BepInEx and
-Lunaris may coexist in the same game installation. Their plugin trees remain
-installed side by side, while the CLI atomically selects the active loader by
-switching the root `winhttp.dll` proxy:
+Run commands from the development shell. Use `-V main`, `-V playtest`, or `-V demo` before `mod` to select the installation. The CLI resolves the selected Steam app ID inside a CrossOver bottle. Set `CROSSOVER_BOTTLE` if several bottles contain that variant.
 
-- **BepInEx** installs to `<game>/BepInEx/plugins` (or `BepInEx/scripts` for
-  hot reload).
-- **Lunaris** installs to `<game>/plugins`, next to `Erenshor.exe`.
-- `mod deploy --loader <loader>` deploys that native target and activates its
-  loader. Restart the game before testing a newly selected loader.
-- `mod setup` provisions the references for both targets. It is not itself
-  loader-selectable.
+## Set up and select a loader
 
-Thunderstore and Vault are different distribution paths. **Thunderstore
-packages contain BepInEx artifacts. Vault releases contain Lunaris artifacts.**
-The public set is exactly:
+1. Close the game. Install BepInEx and Lunaris once if you need both targets.
+2. Run `uv run erenshor mod setup` to provision game references and both loader reference sets. Repeat after changing the game installation.
+3. Run `uv run erenshor -V playtest mod status` to check the selected installation, available loader proxies, and active loader.
+4. Use `uv run erenshor -V playtest mod activate --loader bepinex` or `--loader lunaris` when switching. Restart the game after switching.
 
-| Local id | Thunderstore package |
-| --- | --- |
-| `adventure-guide` | `WoW_Much/AdventureGuide` |
-| `interactive-map-companion` | `WoW_Much/InteractiveMapCompanion` |
-| `sprint` | `WoW_Much/Sprint` |
-| `justice-for-f7` | `WoW_Much/JusticeForF7` |
+Both plugin trees can remain installed. Activation replaces the root `winhttp.dll` from an installer-saved proxy. If activation rejects an unknown, conflicting, missing, or symlinked proxy, repair the loader installation. Do not replace `winhttp.dll` by hand.
 
-The registry's other mod (`map-tile-capture`) is internal and local-install
-only. It is not a Thunderstore or Vault release.
-
-## Local setup
-
-Run setup before the first build, and again after changing the game install:
+## Build, deploy, and inspect
 
 ```bash
-uv run erenshor mod setup
+uv run erenshor -V playtest mod build --mod adventure-guide --loader all
+uv run erenshor -V playtest mod deploy --mod adventure-guide --loader bepinex
+uv run erenshor -V playtest mod deploy --mod adventure-guide --loader lunaris
 ```
 
-Setup copies game references and the resolved loader references into each
-mod's `lib/` tree. Lunaris references come from the configured Lunaris library
-(or the cache downloaded by setup), not from BepInEx's copies.
+Use one `--loader` per deployment. `build --loader all` builds both targets but does not activate one. `deploy` builds again, copies the selected target, and activates its loader. Deployment without `--mod` requires an explicit loader because the registry defaults span both loaders.
 
-NuGet versions belong in `src/Directory.Packages.props`, not in a mod project.
-Each mod has separate BepInEx and Lunaris lockfiles. After a package change,
-restore both loader graphs with `--force-evaluate`. Then run
-`erenshor test dependency-state`. The `mod-development` skill contains the exact
-commands.
+- Public BepInEx deployment follows `thunderstore.toml` copy targets under `<game>/BepInEx/plugins/`. Internal `map-tile-capture` deploys its DLL directly there.
+- Lunaris deployment copies the native DLL into `<game>/plugins/`. Restart the game and enable a manually deployed plugin in the Lunaris plugin installer. A Vault-browser installation enables it during install. `Plugin found` alone does not mean enabled.
+- For BepInEx hot reload, first run `uv run erenshor mod dev-setup`. Then use `uv run erenshor mod deploy --mod adventure-guide --loader bepinex --scripts`. This copies the DLL and PDB to `BepInEx/scripts/`. Reload with F6 or use the reflection call in `runtime-eval`.
+- For BepInEx load failures, check `BepInEx/LogOutput.log` and the manifest's nested copy target. For Lunaris failures, check the in-game log UI and the enable state.
 
-`-V main`, `-V playtest`, and `-V demo` select the matching installation. Every
-command, including extraction, finds it the same way: the Steam client in a
-CrossOver bottle writes `appmanifest_<app_id>.acf`, and the CLI reads the
-installation directory from the manifest of the selected variant's app ID.
-`CROSSOVER_BOTTLE` limits the search to one bottle. Without it, exactly one
-bottle must contain the app. No path is configured per machine.
+`mod dev-setup` installs ScriptEngine and ConfigurationManager, not HotRepl. See `runtime-eval` for the separate HotRepl installation. `--scripts` does not support Lunaris.
 
-Resolution fails with a separate message when the variant is not installed,
-when several bottles contain it, when its manifest cannot be read, and when the
-installation lacks `Erenshor_Data/Managed`. A variant that is not installed
-cannot fall back to another variant's files, so `-V demo` never modifies main.
+## Thunderstore release (BepInEx)
 
-```bash
-uv run erenshor -V playtest mod setup
-uv run erenshor -V playtest mod status
-```
+The public mods are `adventure-guide`, `interactive-map-companion`, `sprint`, and `justice-for-f7`. `map-tile-capture` has no public release listing.
 
-## Loader-targeted build and deploy
+1. Install `tcli` with `dotnet tool install -g tcli` if it is absent.
+2. Run `uv run erenshor mod thunderstore --dry-run` to build and validate all four packages without uploading. A single-mod check uses `--mod adventure-guide --dry-run`.
+3. For an intentional upload, set a real `TCLI_AUTH_TOKEN` in the environment or local `.env`. Run `uv run erenshor mod thunderstore --mod adventure-guide`.
 
-`mod build --loader` accepts `default`, `bepinex`, `lunaris`, or `all`.
-`default` follows each registry entry's configured default. Use an explicit
-loader for reproducible local work. `all` builds both targets, but does not
-choose a deployment target. A deployment without `--mod` must specify one
-loader because one game process cannot activate mixed defaults.
+The CLI looks up the next version through Thunderstore. A network or malformed-response error stops the release. It checks declared package inputs, builds BepInEx, runs `tcli build`, inserts `build.changelog` as `CHANGELOG.md`, and validates the ZIP against `thunderstore.toml`. It checks input hashes again before `tcli publish --file` uploads that ZIP. A real upload requires exactly one public `--mod`. Never include a token in a logged command.
 
-Inspect or switch a prepared install without rebuilding mods:
+## Erenshor Vault release (Lunaris)
 
-```bash
-uv run erenshor -V playtest mod status
-uv run erenshor -V playtest mod activate --loader lunaris
-```
+1. Check the mod's `vault/vault.toml`, `vault/README.md`, `vault/CHANGELOG.md`, and `vault/icon.png`.
+2. Run `uv run erenshor mod vault --mod adventure-guide`. The CLI queries Vault versions and builds the Lunaris DLL with the next `YYYY.MDD.R` version embedded.
+3. If the command warns that the changelog's first version differs, correct the top entry before upload. The warning does not stop the build.
+4. Create the first listing at `erenshorvault.app/new-mod` from the listing fields and assets. For later versions, add the DLL as the main file, with no asset files. Enter the printed version and the top changelog entry.
 
-Activation requires the loader installers' saved proxies. Lunaris normally
-preserves BepInEx as `winhttp.bepinex-backup.dll`; the CLI also recognizes the
-established legacy backup names. It refuses unknown, conflicting, symlinked,
-or missing proxies instead of overwriting an unrelated `winhttp.dll`.
-
-### Native BepInEx
-
-```bash
-uv run erenshor mod build --mod <public-id> --loader bepinex
-uv run erenshor mod deploy --mod <public-id> --loader bepinex
-```
-
-BepInEx deployment follows each public mod's Thunderstore copy manifest, so
-local testing uses the same nested plugin layout and runtime dependencies as
-the package. Internal mods deploy their merged, loader-specific DLL directly
-to `<game>/BepInEx/plugins`. For ScriptEngine hot reload, deploy the same target
-with `--scripts` (BepInEx only):
-
-```bash
-uv run erenshor mod deploy --mod <public-id> --loader bepinex --scripts
-```
-
-Deploy all five native targets and activate BepInEx:
-
-```bash
-uv run erenshor -V playtest mod deploy --loader bepinex
-```
-
-### Native Lunaris
-
-```bash
-uv run erenshor mod build --mod <public-id> --loader lunaris
-uv run erenshor mod deploy --mod <public-id> --loader lunaris
-```
-
-Lunaris deploys the native DLL to `<game>/plugins`. Restart the game after a
-Lunaris deployment. `--scripts` is not valid for this loader. Lunaris does not
-run a plugin that was copied into `plugins` until it is enabled explicitly in
-its plugin installer. Until then `lunaris.log` reports only `Plugin found` for
-it. A plugin installed through the Vault browser is enabled by that install.
-
-Deploy all five native targets and activate Lunaris:
-
-```bash
-uv run erenshor -V playtest mod deploy --loader lunaris
-```
-
-Replace `<public-id>` with any registry id when working on an internal mod.
-Internal mods remain local-install only.
-
-Build outputs are isolated by loader under:
-
-```text
-src/mods/<ModName>/bin/<Configuration>/netstandard2.1/<loader>/
-```
-
-## Thunderstore: local package and optional upload
-
-The Thunderstore command is the only public-upload command. It packages the
-**BepInEx** build, validates the package locally, and never uses Lunaris
-artifacts. The command resolves the next package version through the
-Thunderstore version API. Network, HTTP, timeout, malformed-response, and
-schema errors are hard failures rather than silently choosing a version.
-
-Install the CLI once:
-
-```bash
-dotnet tool install -g tcli
-```
-
-A dry run with no `--mod` is the canonical local release check. It packages
-all four public mods and **never uploads**:
-
-```bash
-uv run erenshor mod thunderstore --dry-run
-```
-
-A dry run for one public mod is also available:
-
-```bash
-uv run erenshor mod thunderstore --mod adventure-guide --dry-run
-```
-
-A real upload requires exactly one public `--mod` and a non-placeholder
-`TCLI_AUTH_TOKEN` (export a real token or provide it through the repository's
-local `.env` loading):
-
-```bash
-uv run erenshor mod thunderstore --mod adventure-guide
-```
-
-The token is used only for the `tcli publish` subprocess. Do not put a token
-in a command copied into logs or documentation. Omitting `--mod` is allowed
-only with `--dry-run`. It is rejected for a real upload.
-
-Each selected mod is preflighted before any build. The pipeline then performs
-the explicit BepInEx build, runs `tcli build`, adds the declared
-`build.changelog` as the root `CHANGELOG.md` that current tcli versions omit,
-locates the expected package ZIP, validates its contents against the manifest
-allowlist, and only then publishes. The package must contain only the manifest,
-icon, README, changelog, and the exact declared copy targets. Game/runtime DLLs
-and unsafe paths are rejected. Manifest, changelog, and declared-input hashes
-are checked again immediately before upload, so a changed package input cannot
-be published accidentally.
-
-The exact upload command issued by the pipeline is:
-
-```text
-TCLI_AUTH_TOKEN=TOKEN tcli publish --file VALIDATED_ZIP --config-path MANIFEST
-```
-
-The token is supplied only through the subprocess environment. The validated
-ZIP is passed explicitly so `tcli publish` cannot rebuild and upload an
-unvalidated artifact.
-
-There is no GitHub Actions release or upload automation. Run the command
-locally when an upload is intentionally requested.
-
-## Vault: local Lunaris artifact and manual upload
-
-Vault releases use the **Lunaris** build, not the Thunderstore package. Prepare
-one public mod locally:
-
-```bash
-uv run erenshor mod vault --mod adventure-guide
-```
-
-The command computes the next Vault version, builds the Lunaris artifact, and
-prints the artifact and manual-upload information. Upload the resulting DLL
-(and the matching top entry from `vault/CHANGELOG.md`) through the Erenshor
-Vault website. The Vault write API is not automated. Keep this process manual.
-There is no GitHub Actions release workflow.
-
-Vault details:
-
-- Each public mod's `vault/` holds the listing: `vault.toml` (name, slug, short description, tag slugs, which resolve through `GET https://erenshorvault.app/api/tags`), `README.md` (full description), `CHANGELOG.md`, and `icon.png`.
-- The package ships only the mod DLL. Lunaris provides ImGui.NET, Newtonsoft.Json, and System.Numerics.Vectors.
-- Versions are `YYYY.MDD.R` (month without a leading zero, zero-padded day, revision per day), derived from `GET /api/mods/<slug>/versions`. `mod vault` bakes the version into the DLL with `-p:ModVersion`. Lunaris compares the `[LunarisPlugin]` version with the Vault's latest, so a stale in-DLL version shows a permanent "update available". The command also checks that `CHANGELOG.md` starts with that version.
-- Upload by hand: on the first release create the entry at `erenshorvault.app/new-mod` from `vault.toml`, `README.md`, and `icon.png`. For each version, add the DLL as the main file with no asset files, the printed version, and the top changelog entry. The write API (a personal access token) does not exist yet. When it does, `POST /api/mods/{mod_ref}/versions` with a bearer token replaces the manual step.
-
-## Troubleshooting
-
-- **Missing `lib/` references:** run `uv run erenshor mod setup` and verify the
-  game path and Lunaris library configuration.
-- **Wrong game variant:** run `mod status` with the intended `-V` flag. The
-  status names the installation found for that variant's Steam app ID, or the
-  reason none was found.
-- **Loader cannot activate:** install both loaders once and keep the backup
-  proxies their installers create. `mod status` reports the recognized active
-  and available proxies. The CLI will not overwrite an unknown `winhttp.dll`.
-- **BepInEx deployment not loading:** run `mod status`, then verify public mods
-  use the nested paths declared by their `thunderstore.toml` manifests and
-  inspect `BepInEx/LogOutput.log`. Internal mods install directly under
-  `BepInEx/plugins`.
-- **Lunaris deployment not loading:** verify the DLL is under the game's
-  top-level `plugins/` directory and restart the game.
-- **Thunderstore upload rejected:** rerun the dry run, verify the manifest's
-  declared inputs and copy targets, and use exactly one public `--mod` with a
-  real token for the upload.
-
-## Relevant files
-
-- `src/erenshor/cli/commands/mod.py` — setup, build, status, activation, deploy,
-  Thunderstore, and Vault command implementations
-- `src/mods/<ModName>/thunderstore.toml` — package manifest and declared build
-  inputs/copy targets
-- `src/mods/<ModName>/vault/vault.toml` — Vault listing metadata
+Vault upload is manual. The CLI does not call a Vault write API. Lunaris supplies ImGui.NET, Newtonsoft.Json, and System.Numerics.Vectors for AdventureGuide. Upload the Lunaris DLL, not a Thunderstore BepInEx ZIP. The embedded version matters because Lunaris compares it with the Vault version.
