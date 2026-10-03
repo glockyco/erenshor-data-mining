@@ -863,6 +863,8 @@ class TestWikiDeployRepoCommand:
         assert result.exit_code == 1
         output = _unwrapped(result.output)
         assert "Create: 0 Edit: 2 Unchanged: 0" in output
+        assert "Edit Template:Quest" in output
+        assert "Edit Template:Zone" in output
         assert "Drift Template:Quest: revision 77 by Admin differs from the repository" in output
         assert "Drift Template:Zone" not in output
 

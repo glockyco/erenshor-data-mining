@@ -1362,14 +1362,19 @@ def deploy_repo_pages_command(
         except ValueError as e:
             console.print(f"[red]{escape(str(e))}[/red]")
             raise typer.Exit(1) from e
-        actions = Counter(
-            repo_page_action(snapshots[entry.title], source_texts[entry.title]) for entry in manifest.entries
-        )
+        planned = {
+            entry.title: repo_page_action(snapshots[entry.title], source_texts[entry.title])
+            for entry in manifest.entries
+        }
+        actions = Counter(planned.values())
         scope = f" filtered by {pages_file}" if pages_file else ""
         console.print(
             f"[yellow]Dry run: {len(manifest.entries)} repo-owned pages in manifest{scope}[/yellow] "
             f"Create: {actions['created']} Edit: {actions['edited']} Unchanged: {actions['unchanged']}"
         )
+        for title, action in sorted(planned.items()):
+            if action != "unchanged":
+                console.print(f"  {'Create' if action == 'created' else 'Edit'} {escape(title)}", soft_wrap=True)
         _print_repo_page_drift(drift)
         if drift:
             raise typer.Exit(1)
