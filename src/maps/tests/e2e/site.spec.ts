@@ -63,8 +63,11 @@ test('world map draws its canvas from prerendered fixture data', async ({ page, 
 
     await page.goto('/map');
 
+    // The canvas stays hidden until deck.gl has measured it and drawn the
+    // fitted view. A cold WebGL start on a busy machine can exceed the
+    // default five seconds.
     const canvas = page.locator('canvas').first();
-    await expect(canvas).toBeVisible();
+    await expect(canvas).toBeVisible({ timeout: 20_000 });
     const box = await canvas.boundingBox();
     expect(box?.width).toBeGreaterThan(0);
     expect(box?.height).toBeGreaterThan(0);
