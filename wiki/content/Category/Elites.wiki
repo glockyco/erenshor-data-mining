@@ -1,0 +1,1 @@
+Elites are enemies that the game calls unique: when you consider one, the game says "This opponent looks unique, and may have special abilities." Unlike a [[:Category:Bosses|boss]], an elite can appear at several spawn points, so you may meet it in more than one place.
