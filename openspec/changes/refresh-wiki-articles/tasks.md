@@ -5,7 +5,7 @@
 ## 2. Merge by identity (one commit each)
 
 - [x] 2.1 `fix(wiki): merge preserved list fields by link target`: implement design D1 in `field_preservation.py`. Add behaviour tests for the Bag of Faerie Dust case, an editor-only link, plain text, and the `link=` and wikilink forms. Verify: a regenerated corpus has no merged field that links one page twice (228 pages today).
-- [ ] 2.2 `fix(wiki): list each source once per page and label`: implement design D1a in the section generators. Add tests for the three Highwayman Raider variants, variants with different chances, and the Fire and Ice guards. Verify: a regenerated corpus has no list field that repeats a page and label pair (130 `source` fields today).
+- [x] 2.2 `fix(wiki): list each source once per page and label`: implement design D1a in the section generators. Add tests for the three Highwayman Raider variants, variants with different chances, and the Fire and Ice guards. Verify: a regenerated corpus has no list field that repeats a page and label pair (130 `source` fields today).
 - [ ] 2.3 `fix(wiki): match preserved fields by stable key`: emit `stablekey` on `Character`, `Ability`, and `Stance` roots. Match roots by key, then by name, fail the page for ambiguous same-name roots with preserved values, and keep and list unmatched live roots. Add tests for reordered, added, and removed entities, an editor-added root, and the ambiguous case. Verify: regeneration keeps the Braxonian Chest infobox on Frost and lists the 15 pages with unmatched roots.
 
 ## 3. Generator fixes (one commit each)

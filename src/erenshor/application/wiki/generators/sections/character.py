@@ -10,20 +10,23 @@ Template structure:
 - {{Character}} template + category tags
 """
 
-from collections.abc import Sequence
-
 from loguru import logger
 
 from erenshor.application.wiki.generators.formatting import safe_str
+from erenshor.application.wiki.generators.link_lists import (
+    format_chance,
+    format_links,
+    format_visible_links,
+    group_by_page_and_label,
+)
 from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
 from erenshor.domain.enriched_data.character import EnrichedCharacterData
 from erenshor.domain.entities.character import Character
 from erenshor.domain.value_objects.faction import FactionModifier
 from erenshor.domain.value_objects.loot import LootDropDisplayInfo
 from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
-from erenshor.domain.value_objects.wiki_link import AbilityLink, FactionLink, ZoneLink
-
-WIKITEXT_LINE_SEPARATOR = "<br>"
+from erenshor.domain.value_objects.wiki_link import FactionLink, ZoneLink
+from erenshor.shared.game_constants import WIKITEXT_LINE_SEPARATOR
 
 
 class CharacterSectionGenerator(SectionGeneratorBase):
@@ -61,7 +64,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         spawn_type = self._format_spawn_type(enriched.spawn_infos)
         respawn = self._format_respawn(enriched.spawn_infos)
         guaranteed_drops, drop_rates = self._format_loot_drops(enriched.loot_drops, display_name)
-        spells = self._format_ability_links(enriched.spells)
+        spells = format_visible_links(enriched.spells)
         level_mod_min, level_mod_max = self._calculate_level_mod_range(enriched.spawn_infos)
 
         is_group_encounter = bool(character.group_encounter)
@@ -289,61 +292,37 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         loot_drops: list[LootDropDisplayInfo],
         character_display_name: str,
     ) -> tuple[str, str]:
-        """Format loot drops using pre-built item_link on each display row."""
-        if not loot_drops:
-            return ("", "")
+        """Format the guaranteed pool and the drop rates of a character.
 
-        guaranteed_entries: list[tuple[tuple[float, str], str]] = []
-        all_entries: list[tuple[tuple[float, str], str]] = []
+        Items that share a page and a label, such as variants of one item, form
+        one entry with their chance, or with the lowest and highest chance when
+        the chances differ. Entries are sorted by highest chance, then by name.
+        """
+        drops = [drop for drop in loot_drops if drop.item_link.page_title is not None and drop.drop_probability > 0]
+        drops.sort(key=lambda drop: (-drop.drop_probability, drop.item_link.display_name.lower(), str(drop.item_link)))
 
-        for drop in loot_drops:
-            item_link = drop.item_link
-            if item_link.page_title is None:
-                continue  # Excluded item — skip
-            if drop.drop_probability <= 0:
-                continue
-
-            display_name = item_link.display_name
-            probability_text = f"{drop.drop_probability:.1f}%"
-            entry_with_pct = f"{item_link} ({probability_text})"
-
-            refs: list[str] = []
-            if drop.is_visible:
-                refs.append(
-                    f"<ref>If {character_display_name} has {item_link} equipped, it is guaranteed to drop.</ref>"
-                )
-            if drop.item_unique:
-                refs.append(
+        rates: list[str] = []
+        for group in group_by_page_and_label(drops, lambda drop: drop.item_link):
+            item_link = group[0].item_link
+            entry = f"{item_link} ({format_chance([drop.drop_probability for drop in group], decimals=1)})"
+            if any(drop.is_visible for drop in group):
+                entry += f"<ref>If {character_display_name} has {item_link} equipped, it is guaranteed to drop.</ref>"
+            if any(drop.item_unique for drop in group):
+                entry += (
                     f"<ref>If the player is already holding {item_link} in their "
                     f"inventory, another will not drop.</ref>"
                 )
+            rates.append(entry)
 
-            if refs:
-                entry_with_pct += "".join(refs)
+        # The template labels the pool "Guaranteed One Of", so it needs two or more items.
+        pool = sorted(
+            (drop.item_link for drop in drops if drop.is_guaranteed),
+            key=lambda link: (link.display_name.lower(), str(link)),
+        )
+        pool_groups = group_by_page_and_label(pool, lambda link: link)
+        guaranteed = format_links(pool) if len(pool_groups) >= 2 else ""
 
-            sort_key = (-drop.drop_probability, display_name.lower())
-            all_entries.append((sort_key, entry_with_pct))
-
-            if drop.is_guaranteed:
-                guaranteed_entries.append(((0.0, display_name.lower()), str(item_link)))
-
-        def _join_entries(entries: Sequence[tuple[tuple[float, str], str]]) -> str:
-            if not entries:
-                return ""
-            sorted_entries = sorted(entries)
-            seen = set()
-            output = []
-            for _, entry_text in sorted_entries:
-                if entry_text not in seen:
-                    seen.add(entry_text)
-                    output.append(entry_text)
-            return WIKITEXT_LINE_SEPARATOR.join(output)
-
-        guaranteed_str = ""
-        if len(guaranteed_entries) >= 2:
-            guaranteed_str = _join_entries(guaranteed_entries)
-
-        return (guaranteed_str, _join_entries(all_entries))
+        return (guaranteed, WIKITEXT_LINE_SEPARATOR.join(rates))
 
     def _calculate_level_mod_range(
         self,
@@ -448,11 +427,3 @@ class CharacterSectionGenerator(SectionGeneratorBase):
             ),
             "spells": spells,
         }
-
-    def _format_ability_links(self, spells: list[AbilityLink]) -> str:
-        """Format pre-built AbilityLink objects as <br>-separated wikitext."""
-        if not spells:
-            return ""
-        visible = [link for link in spells if link.page_title is not None]
-        visible.sort()
-        return "<br>".join(str(link) for link in visible)
