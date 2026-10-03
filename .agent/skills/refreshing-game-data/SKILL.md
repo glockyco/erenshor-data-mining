@@ -1,144 +1,48 @@
 ---
 name: refreshing-game-data
-description: Order, gates, and per-consumer variant scope for refreshing a variant's data pipeline after a Steam game update. Use when a new Erenshor build needs to flow into raw/clean DBs, sheets, the interactive map, wiki, AdventureGuide, or tile capture.
+description: Refresh one Erenshor variant after a Steam update. Use from the new install through extraction, review, validation, and approved publication.
 ---
 
-# Refreshing a Variant After a Game Update
+# Refresh game data
 
-Wire the per-subsystem pipelines into the right order and surface the variant-scope cross-deploy hazards that are easy to get wrong. Subsystem mechanics live in the per-subsystem skills — start here, then follow the links.
+Run these steps from the repository root. Put `-V {v}` before the command group. Use the variant installed in the CrossOver Steam bottle. Do not publish a non-shipping variant to a shared destination.
 
-`erenshor -V {v} …` — the variant flag is **top-level** on the CLI; subcommand-local placement fails with `No such option: --variant`.
+## 1. Prepare the installed build
 
-## Variant scope of every consumer
+1. Update the selected variant in Steam. Run `uv run erenshor -V {v} status` to check the resolved installation and tools.
+2. Run `uv run erenshor extract packages` on a fresh checkout. It restores the Editor dependencies before the rip.
+3. Run `uv run erenshor -V {v} extract rip` for each new build. It replaces the Unity project only after a successful staged extraction. Do not infer freshness from directory modification times.
+4. Compare the new scripts with the preceding build's `variants/{v}/backups/build-{id}/scripts/`. Investigate changed mechanics outside the code-facts registry before publication.
 
-| Consumer | Variant-scoped? | Hazard |
-|---|---|---|
-| Raw + clean SQLite | Yes | `variants/{v}/erenshor-{v}{-raw}.sqlite` |
-| Google Sheets | Yes, per-spreadsheet | each variant has its own `spreadsheet_id` in `config.toml` |
-| AdventureGuide `guide.json` | Input-variant scoped, single output | overwrites `quest_guides/guide.json` — only one variant ships at a time |
-| Interactive map build | Yes via `build_dir`; one build is deployed to both Worker services (`wrangler.jsonc` and `wrangler.legacy.jsonc`) | `maps build -V {v}` reads the variant database through `ERENSHOR_MAPS_DATABASE_PATH` and publishes it at `/db/erenshor.sqlite` |
-| Map tiles + `zone-capture-config.json` | **Shared** | tiles added for one variant are visible to all |
-| `mapping.json` | **Shared** | overrides apply across all variants |
-| MediaWiki | **Single target — `erenshor.wiki.gg`** | `wiki deploy -V playtest` overwrites main's pages |
+If rip reports an unreadable old `Packages/manifest.json`, repair it before retrying. Rip must preserve manually added UPM dependencies. It also injects Newtonsoft.Json through `com.unity.nuget.newtonsoft-json`. Do not install another copy under `src/Assets/Packages`.
 
-## Preflight
+## 2. Export and build
 
-The Steam client in the CrossOver bottle installs and updates each variant. Update the game there first, then run the freshness check:
-```bash
-uv run python .agent/skills/refreshing-game-data/scripts/check_pipeline_freshness.py {v}
-```
-It finds the variant's installation by its Steam app ID, reports whether the Unity `ExportedProject` is stale relative to `Erenshor_Data` (re-rip needed), and prints the variant's current asset counts. A variant that is not installed in the bottle fails with its app ID.
+1. Run `uv run erenshor -V {v} extract export`. The command replaces the raw SQLite database and backs up the raw database and decompiled scripts by Steam build ID.
+2. If the pre-export field-coverage gate fails, reconcile `src/tools/ExportSurface/field-coverage.json` with the shipped DLL and listener types. Do not bypass the gate.
+3. If export exits 3, classify the findings in `variants/{v}/.export/dynamic-spawn-errors.json`. Follow `skill://auditing-spawn-coverage` and rerun export until it passes.
+4. Run `uv run erenshor -V {v} extract code-facts`. Resolve changed matcher bindings against the shipped assembly. Follow `skill://code-facts`.
+5. Run `uv run erenshor -V {v} extract build`. The build requires the code-facts tables. It writes the clean database and adds it to the build's backup.
+6. If the build rejects a stale `expected_npc_name`, review the new raw NPC name. Update or remove that `mapping.json` override, then rebuild. Fix processor errors at their source in `src/erenshor/application/processor/`.
 
-## Canonical order
+If Unity reports `Unity licensing validation failed`, open Unity Hub, wait for licensing, and retry export. If exported data still shows the old build, rerip and export before rebuilding.
 
-`packages → rip → export → code-facts → build → review changes → validate → republish`. Each gate must pass before the next.
+## 3. Review and validate
 
-### 0. Restore the Editor's NuGet dependencies
-`erenshor extract packages` — writes `src/Assets/Packages` from `src/Assets/packages.config`, which the rip copies into the project. It is variant-independent, cached, and a no-op once restored, but a checkout without it cannot compile the export scripts, so `extract rip` refuses to run.
+1. If an earlier clean backup exists, run `uv run erenshor -V {v} extract changes --limit 0`. Use `--since <build-id>` to select another backed-up build. Review removals and changed values, not only totals. Without an earlier backup, inspect the new clean database directly.
+2. For `main`, run `uv run erenshor -V main test data`. This command always reads main's database. For other variants, inspect the selected clean database and consumer previews. Follow `skill://auditing-spawn-coverage` for the post-build orphan and mapping-exclusion audits. Resolve new orphans before publishing sheets, wiki, or map.
+3. Run `uv run erenshor -V {v} wiki generate` before reviewing golden output. For the shipping variant, generate Lua modules with `uv run erenshor -V {v} wiki generate-lua`. `golden capture` writes one shared `tests/golden/` tree. Capture only with the maintainer's approval and with the variant used by the golden data checks. Review its diff before accepting it.
 
-### 1. Re-rip if stale
-`erenshor -V {v} extract rip` — runs AssetRipper into a staging directory next to the Unity project, recreates the `Assets/Editor` symlink and `Packages/` copy there, restores any user-added UPM deps + injects required ones (`com.unity.nuget.newtonsoft-json` today), and only then replaces the old project. A failed rip leaves the old project in place. The rip stops before changing anything when the old project's `Packages/manifest.json` is missing or unreadable, because its user-added deps could not be preserved. Newtonsoft comes from that UPM package alone: a second copy under `Assets/Packages` makes Unity reject both as duplicate precompiled assemblies. See `skill://unity-export-system` for the listener architecture.
+## 4. Review consumers before publication
 
-After re-ripping, commit the freshly-decompiled tree in its detached discovery repo and diff against the prior build to surface mechanics changes outside the code-facts registry (see `skill://code-facts`). The git-dir lives outside the work tree because `extract rip` replaces the whole Unity project directory; explicit flags need no `.git` inside the replaced dir, so history survives the rip:
-```bash
-G="git --git-dir=variants/{v}/decompile-history.git --work-tree=variants/{v}/unity/ExportedProject/Assets/Scripts/Assembly-CSharp"
-$G add -A && $G commit -m "game build <version>"
-$G diff HEAD~1 --stat   # churn outside known fact targets = new mechanics to model
-```
+| Consumer | Scope and action |
+| --- | --- |
+| Sheets | Each variant has its own spreadsheet ID. Preview with `uv run erenshor -V {v} --dry-run sheets deploy --all-sheets`. Publish with `uv run erenshor -V {v} sheets deploy --all-sheets` only after approval. |
+| Wiki | `erenshor.wiki.gg` is one shared target. Review local output. Publish the shipping variant only after approval. Use `skill://wiki-templates` to select pages for `wiki deploy-repo-pages`. |
+| AdventureGuide | `uv run erenshor -V {v} guide compile` replaces the shared `quest_guides/guide.json`. Compile the shipping variant before building the mod. |
+| Map | `uv run erenshor -V {v} maps build` reads that variant's clean database. Check with `uv run erenshor -V {v} maps preview`. After approval, deploy the shipping variant with `uv run erenshor -V {v} maps deploy` to both Workers. |
+| Tiles | Map tiles, `src/maps/src/lib/data/zone-capture-config.json`, `src/maps/src/lib/data/zone-positions.json`, and `mapping.json` are shared. Review cross-variant effects. |
 
-### 2. Unity batch export
-`erenshor -V {v} extract export` — writes raw SQLite. Compilation errors usually mean new content needs a listener field (see `skill://unity-export-system`). Unity license expiry (`Unity licensing validation failed`) is a recurring hands-on step: `open -a "Unity Hub"`, wait, retry.
+For new zones, follow `skill://tile-capture` to add capture bounds and tiles. Add the overview position using `skill://interactive-map`. Without a capture-config entry, the map omits the zone and its markers. Without an overview position, `/map` can fail. Restart the game between bounds discovery and `capture run` if auto-login waits for `MainCam`.
 
-### 3. Code facts
-`erenshor -V {v} extract code-facts` — extracts hardcoded game constants from the assembly into raw SQLite. Fails loudly if hardcoded game logic changed shape; re-derive the affected specs in src/tools/CodeFacts/specs/erenshor-facts.json (see the code-facts skill).
-
-### 4. Python build
-`erenshor -V {v} extract build` — produces clean DB. Watch the log for `mapping.json` warnings about new entities lacking overrides; add minimal entries and re-run. Schema/processor errors surface here — fix at the source under `src/erenshor/application/processor/`.
-
-### 5. Review what the update changed
-`extract build` stores the clean database in `backups/build-<id>/`. Then run
-`erenshor -V {v} extract changes --output /tmp/changes-{v}.md` to compare it with the
-newest earlier backed-up build (or `--since <build-id>`). Read every changed table
-before republishing: a removed row or a changed stat is usually the story of the patch,
-and an unexpected one is usually a pipeline bug.
-
-### 6. Validate
-Run `pytest tests/integration -v` against this variant. **Do not** run `golden capture` on a non-main variant — see Variant safety rules. Then run `skill://auditing-spawn-coverage` — new event scripts in a patch silently widen the spawn-coverage gap and that skill is the gate that catches them before sheets/wiki/map ship.
-
-### 7. Republish only the variant-safe outputs
-- **Sheets:** `erenshor -V {v} sheets deploy --all-sheets` (dry-run first with the global `--dry-run` flag).
-- **Local map:** `erenshor -V {v} maps build && erenshor -V {v} maps dev` (or `preview`). Keep `maps dev` in the foreground.
-- **Guide compile / Wiki / Cloudflare map deploy:** see Variant safety rules.
-
-### 8. Tile capture for new zones
-Compute the delta of `SELECT DISTINCT scene_name FROM zones` minus the keys of `zone-capture-config.json`. For each new scene, follow `skill://tile-capture` end-to-end: bounds discovery, config entry, `DISPLAY_NAMES`, `capture run`, verification, commit per zone. New zones also need a `zone-positions.json` entry — see `skill://interactive-map`.
-
-## Timing and profiling refreshes
-
-Extraction commands persist profile runs under `variants/{variant}/profiles/`.
-Use them to separate AssetRipper, Unity subprocess overhead,
-Unity C# export, listener `OnAssetFound`, listener `OnScanFinished`, code-facts,
-and clean build cost before optimizing.
-
-```bash
-uv run erenshor -V playtest extract profile report --latest
-```
-
-For slow Unity exports, rerun only the export with listener profiling:
-
-```bash
-uv run erenshor -V playtest extract export --profile
-```
-
-Compare `unity.batch_subprocess` against Unity's `[EXPORT_COMPLETE]` or
-`unity.ExportBatch` span. Large gaps before the C# export usually mean Unity
-license refresh, package restore, asset import, or script compilation rather
-than listener work. Use `listener.OnAssetFound.*` rows for per-asset extraction
-cost and `listener.OnScanFinished.*` rows for table creation/delete/insert cost.
-Open the `.trace.json` artifact in Perfetto when the nested timeline matters.
-
-## Variant safety rules
-
-Shared-output actions require an explicit variant gate before running:
-
-- `golden capture` writes to shared `tests/golden/`. During an intentional
-  playtest→main cutover, capture from `playtest` when the golden tests'
-  integration database also resolves to `playtest` (the Phase 3 cutover
-  workflow); otherwise capture from `main`.
-- `wiki deploy` overwrites `erenshor.wiki.gg` (single target across all variants).
-- `guide compile` overwrites the single `quest_guides/guide.json` embedded into the next AdventureGuide build.
-- `maps deploy` publishes one build to both Worker services, canonical first: `wrangler.jsonc` serves `erenshor.compendiums.org`, `wrangler.legacy.jsonc` keeps `erenshor-maps.wowmuch1.workers.dev` alive for shipped companion mods. Build/playtest locally, but deploy only the shipping variant.
-
-## Session shutdown and recovery
-
-Keep `erenshor mod launch` and `erenshor -V {v} maps dev` in the foreground. Stop each command with one interrupt. Each command stops only the processes that it created. For `mod launch` these are the CrossOver wrapper and every process that joined its process group while the wrapper ran, including the game itself, which can outlive the wrapper.
-
-Do not search for processes by name, age, or port. Do not quit Unity Hub or its licensing service. They are not resources that this workflow owns.
-
-If `mod launch` reports a cleanup failure or leaves `.agent/state/game-session.json`, run `erenshor mod launch --recover`. The record lists every owned process with its PID, process group, start time, and command. Recovery signals only a process whose current identity matches its entry exactly, so a reused PID is never signalled. A record of another schema is refused with instructions to inspect its PIDs.
-
-If you find a possible session process without an ownership record, run `erenshor mod launch --inspect-pid <pid>`. The command reports that PID's process group, start time, and command. It does not send a signal.
-
-## Recovering from common mistakes
-
-| Symptom | Cause | Recovery |
-|---|---|---|
-| `maps build` or `maps dev` reports a database file in the maps static assets | A `src/maps/static/db` link from an earlier version remains | Delete the reported path. The site publishes the database from a route. |
-| `extract export` produces unchanged data despite new game files | Forgot to re-rip; Unity scanned stale ExportedProject | re-rip, then re-export |
-| Wiki deploy from non-main variant overwrote main's pages | Variant safety rule ignored | `erenshor -V main wiki generate && erenshor -V main wiki deploy` |
-| `golden capture` from non-main variant broke main's tests | Capture writes to shared `tests/golden/` | `git checkout tests/golden/`, re-capture from main after main's DB is current |
-| Master tile clipped, NPC cluster cut off | Bounds computed from geometry alone | see `skill://tile-capture` "Setting Bounds for a New Zone" |
-| `/map` returns 500 after adding a new zone | Missing `zone-positions.json` entry | see `skill://interactive-map` |
-| `guide.json` shipped wrong variant's data | `guide compile` run for non-shipping variant | re-run for the shipping variant, rebuild AdventureGuide |
-
-## See also
-
-- `skill://auditing-spawn-coverage` — post-build orphan audit, gate for sheets/wiki/map deploy
-- `skill://unity-export-system` — listener and record architecture
-- `skill://tile-capture` — bounds discovery, capture mod, exclusion rules
-- `skill://interactive-map` — overview rendering, `zone-positions.json`, `north_bearing`, debug hooks
-- `skill://mod-pipeline` — dual-loader build/deploy and variant install resolution
-- `skill://runtime-eval` — HotRepl prerequisites and snippets
-- `skill://wiki-templates` — wiki page generation and field preservation
-- `skill://sheets-queries` — sheets query patterns
-- `references/incident-log.md` — dated session notes from prior refreshes
+Use `skill://sheets-queries` for sheet queries. The map keeps `/db/erenshor.sqlite` on both hosts. Do not create a database symlink in `src/maps/static/db`; the site publishes the database through its route. If the canonical Worker deploy succeeds and the legacy deploy fails, resume with `uv run erenshor -V {v} maps deploy --target legacy` after approval.
