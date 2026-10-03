@@ -206,11 +206,6 @@ DEFAULT_PRESERVATION_RULES: dict[str, dict[str, str]] = {
         # All other fields (including vendorsource, source, etc.) use "override" (default)
         # Most source fields are auto-generated from database, not manually researched
     },
-    # Fancy-* templates: All fields use default "override" behavior
-    # No manual content - everything comes from database
-    "Fancy-weapon": {},
-    "Fancy-armor": {},
-    "Fancy-charm": {},
     "Character": {
         # Manual edit fields only
         "imagecaption": "preserve",  # Custom image captions
@@ -284,7 +279,7 @@ class FieldPreservationConfig:
         """Get preservation rule for a specific template field.
 
         Args:
-            template_name: Template name (e.g., "Item", "Fancy-weapon")
+            template_name: Template name (e.g., "Item", "Character")
             field_name: Field name (e.g., "description", "damage")
 
         Returns:
@@ -397,7 +392,7 @@ class FieldPreservationHandler:
         """Apply preservation rules to merge old and new field values.
 
         Args:
-            template_name: Template name (e.g., "Item", "Fancy-weapon")
+            template_name: Template name (e.g., "Item", "Character")
             old_fields: Existing wiki field values
             new_fields: New database field values
             context: Additional context passed to handlers. Each handler also

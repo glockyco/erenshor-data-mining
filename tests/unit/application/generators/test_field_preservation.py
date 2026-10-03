@@ -472,19 +472,19 @@ class TestFieldPreservationHandler:
         config = FieldPreservationConfig(
             rules={
                 "Item": {"description": "preserve"},
-                "Fancy-weapon": {"damage": "preserve"},
+                "Character": {"level": "preserve"},
             }
         )
         handler = FieldPreservationHandler(config)
 
-        old_wikitext = "{{Item|description=Old item}}\n{{Fancy-weapon|damage=10}}"
-        new_wikitext = "{{Item|description=New item}}\n{{Fancy-weapon|damage=15}}"
+        old_wikitext = "{{Item|description=Old item}}\n{{Character|level=10}}"
+        new_wikitext = "{{Item|description=New item}}\n{{Character|level=15}}"
 
-        result = handler.merge_templates(old_wikitext, new_wikitext, ["Item", "Fancy-weapon"])
+        result = handler.merge_templates(old_wikitext, new_wikitext, ["Item", "Character"])
 
         # Both templates should have preserved fields
         assert "description=Old item" in result or "description = Old item" in result
-        assert "damage=10" in result or "damage = 10" in result
+        assert "level=10" in result or "level = 10" in result
 
     def test_get_config_returns_config_instance(self) -> None:
         """get_config should return the config instance."""
@@ -513,18 +513,6 @@ class TestDefaultRules:
     def test_item_template_preserves_othersource(self) -> None:
         """Item template should preserve othersource field."""
         assert DEFAULT_PRESERVATION_RULES["Item"]["othersource"] == "preserve"
-
-    def test_fancy_weapon_has_no_preservation_rules(self) -> None:
-        """Fancy-weapon template should have no preservation rules (all override)."""
-        assert DEFAULT_PRESERVATION_RULES["Fancy-weapon"] == {}
-
-    def test_fancy_armor_has_no_preservation_rules(self) -> None:
-        """Fancy-armor template should have no preservation rules (all override)."""
-        assert DEFAULT_PRESERVATION_RULES["Fancy-armor"] == {}
-
-    def test_fancy_charm_has_no_preservation_rules(self) -> None:
-        """Fancy-charm template should have no preservation rules (all override)."""
-        assert DEFAULT_PRESERVATION_RULES["Fancy-charm"] == {}
 
     def test_all_templates_have_valid_handler_names(self) -> None:
         """All rules should reference valid handler names."""
@@ -592,50 +580,6 @@ class TestIntegrationScenarios:
 
         # Categories should remain (not in template)
         assert "[[Category:Items]]" in result
-
-    def test_weapon_with_fancy_template_preservation(self) -> None:
-        """Full scenario: Weapon page with Fancy-weapon template."""
-        handler = FieldPreservationHandler()
-
-        old_wikitext = """{{Item
-|image=[[File:OldWeapon.png]]
-|othersource=Manual source
-|damage=10
-}}
-
-{{Fancy-weapon
-|name=Legendary Sword
-|description=Deals holy damage
-|damage=10
-|tier=0
-}}"""
-
-        new_wikitext = """{{Item
-|image=
-|othersource=
-|damage=15
-}}
-
-{{Fancy-weapon
-|name=
-|description=Generic weapon
-|damage=15
-|tier=0
-}}"""
-
-        result = handler.merge_templates(old_wikitext, new_wikitext, ["Item", "Fancy-weapon"])
-
-        # Item image preserved (prefer_manual)
-        assert "[[File:OldWeapon.png]]" in result
-        # Item othersource preserved
-        assert "Manual source" in result
-        # Fancy-weapon description OVERRIDDEN (no preservation)
-        assert "Generic weapon" in result
-        assert "Deals holy damage" not in result
-        # Fancy-weapon name OVERRIDDEN (no preservation)
-        assert "Legendary Sword" not in result
-        # Damage updated to 15 in both templates
-        assert result.count("15") == 2
 
 
 class TestTemplateFormatting:
