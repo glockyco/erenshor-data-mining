@@ -152,7 +152,7 @@ class ZonePageGenerator(PageGenerator):
                         old_wikitext=normalized,
                         new_wikitext=content,
                         template_names=["Zone"],
-                    )
+                    ).text
 
             logger.debug(f"Generated zone page: {wiki_name!r} (connections: {len(connections)}, map: {map_scene!r})")
 

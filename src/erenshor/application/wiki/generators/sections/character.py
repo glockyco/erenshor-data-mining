@@ -370,6 +370,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
 
         return {
             "name": display_name,
+            "stable_key": character.stable_key,
             "image": f"{image_name}.png",
             "imagecaption": "",
             "type": enemy_type,

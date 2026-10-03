@@ -18,7 +18,9 @@ from typing import Any, TypedDict, cast
 from erenshor.application.wiki.generators.field_preservation import (
     DEFAULT_PRESERVATION_RULES,
     LIST_SEPARATORS,
+    AmbiguousRootsError,
     FieldPreservationConfig,
+    FieldPreservationHandler,
     LinkListMerge,
     list_entries,
 )
@@ -65,6 +67,7 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
         ],
         "Character": [
             "name",
+            "stablekey",
             "image",
             "imagecaption",
             "type",
@@ -102,6 +105,7 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
         ],
         "Ability": [
             "title",
+            "stablekey",
             "image",
             "imagecaption",
             "description",
@@ -173,7 +177,9 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
         ],
         "Stance": [
             "title",
+            "stablekey",
             "image",
+            "imagecaption",
             "description",
             "switch_message",
             "max_hp_mod",
@@ -1287,9 +1293,12 @@ def _validate_structure(
                 if next_index is not None and _keyed_value(parser, templates[next_index]) in stance_keys:
                     owned_indices.update((index, next_index))
         elif schema == "character":
-            character_count = sum(key.startswith("character:") for key in expected_keys)
-            owned_indices.update(i for i, name in enumerate(names) if name == "Character")
-            owned_indices = set(sorted(owned_indices)[:character_count])
+            character_keys = {key for key in expected_keys if key.startswith("character:")}
+            owned_indices.update(
+                index
+                for index, (template, name) in enumerate(zip(templates, names, strict=True))
+                if name == "Character" and _keyed_value(parser, template) in character_keys
+            )
 
     for index, (template, name) in enumerate(zip(templates, names, strict=True)):
         if family_templates is not None and name not in family_templates:
@@ -1474,16 +1483,20 @@ def _validate_structure(
             )
 
     elif schema == "character":
-        character_roots = [template for template, name in zip(templates, names, strict=True) if name == "Character"]
-        character_keys = [key for key in expected_keys if key.startswith("character:")]
-        owned_roots = character_roots[: len(character_keys)] if character_keys else character_roots
-        if character_keys and len(owned_roots) != len(character_keys):
-            findings.add(
-                "required_schema",
-                parsed.title,
-                f"expected {len(character_keys)} Character roots, found {len(owned_roots)}",
-            )
-        for key in character_keys:
+        expected_character_keys = [key for key in expected_keys if key.startswith("character:")]
+        observed_character_keys = [
+            _keyed_value(parser, template)
+            for template, name in zip(templates, names, strict=True)
+            if name == "Character"
+        ]
+        for key in expected_character_keys:
+            count = observed_character_keys.count(key)
+            if count != 1:
+                findings.add(
+                    "required_schema",
+                    parsed.title,
+                    f"expected one Character root with stablekey {key!r}, found {count}",
+                )
             _entry_identity(findings, parsed.title, key, "character", catalog)
 
     elif schema == "zone":
@@ -1566,7 +1579,6 @@ def _validate_manual_overrides(
 ) -> None:
     if fetched is None:
         return
-    parser = TemplateParser()
     balance_error = _balanced_delimiters(fetched)
     if balance_error is not None:
         findings.add("manual_overrides", parsed.title, f"fetched content: {balance_error}")
@@ -1577,47 +1589,61 @@ def _validate_manual_overrides(
         findings.add("manual_overrides", parsed.title, f"fetched content is not parseable: {exc}")
         return
     config = FieldPreservationConfig(link_targets=link_targets)
+    handler = FieldPreservationHandler(config)
     merge = LinkListMerge(link_targets)
     by_name: dict[str, list[Any]] = {}
     for template in old_templates:
         by_name.setdefault(_canonical_template_name(_name(template)), []).append(template)
-    offsets: dict[str, int] = {}
-    for template, name in zip(parsed.templates, parsed.names, strict=True):
-        rules = DEFAULT_PRESERVATION_RULES.get(name)
-        if not rules:
+    for name, rules in DEFAULT_PRESERVATION_RULES.items():
+        new_roots = [template for template, root in zip(parsed.templates, parsed.names, strict=True) if root == name]
+        if not new_roots:
             continue
-        key = _canonical_template_name(name)
-        index = offsets.get(key, 0)
-        offsets[key] = index + 1
-        old_list = by_name.get(key, [])
-        if index >= len(old_list):
+        try:
+            pairs = handler.match_roots(name, by_name.get(_canonical_template_name(name), []), new_roots)
+        except AmbiguousRootsError as exc:
+            findings.add("manual_overrides", parsed.title, str(exc))
             continue
-        old_fields = parser.get_params(old_list[index])
-        new_fields = parser.get_params(template)
-        for field, rule in rules.items():
-            if rule not in {"preserve", "prefer_manual", "merge"}:
-                continue
-            old = old_fields.get(field, "")
-            actual = new_fields.get(field, "")
-            if rule == "merge":
-                # Every live entry stays, or a generated entry links its page.
-                separator = LIST_SEPARATORS[field]
-                kept = {merge.identity(entry) for entry in list_entries(actual, separator)}
-                lost = [entry for entry in list_entries(old, separator) if merge.identity(entry) not in kept]
-                if lost:
-                    findings.add(
-                        "manual_overrides",
-                        parsed.title,
-                        f"{name}.{field} violates merge: lost {lost!r} from {old!r}, got {actual!r}",
-                    )
-                continue
-            expected = config.get_handler(rule)(old, actual, {"template_name": name, "field_name": field})
-            if actual != expected:
+        for old_root, new_root in pairs:
+            _validate_root_overrides(findings, parsed.title, name, rules, old_root, new_root, config, merge)
+
+
+def _validate_root_overrides(
+    findings: _Findings,
+    page: str,
+    name: str,
+    rules: Mapping[str, str],
+    old_root: Any,
+    new_root: Any,
+    config: FieldPreservationConfig,
+    merge: LinkListMerge,
+) -> None:
+    parser = TemplateParser()
+    old_fields = parser.get_params(old_root)
+    new_fields = parser.get_params(new_root)
+    for field, rule in rules.items():
+        if rule not in {"preserve", "prefer_manual", "merge"}:
+            continue
+        old = old_fields.get(field, "")
+        actual = new_fields.get(field, "")
+        if rule == "merge":
+            # Every live entry stays, or a generated entry links its page.
+            separator = LIST_SEPARATORS[field]
+            kept = {merge.identity(entry) for entry in list_entries(actual, separator)}
+            lost = [entry for entry in list_entries(old, separator) if merge.identity(entry) not in kept]
+            if lost:
                 findings.add(
                     "manual_overrides",
-                    parsed.title,
-                    f"{name}.{field} violates {rule}: expected {expected!r}, got {actual!r}",
+                    page,
+                    f"{name}.{field} violates merge: lost {lost!r} from {old!r}, got {actual!r}",
                 )
+            continue
+        expected = config.get_handler(rule)(old, actual, {"template_name": name, "field_name": field})
+        if actual != expected:
+            findings.add(
+                "manual_overrides",
+                page,
+                f"{name}.{field} violates {rule}: expected {expected!r}, got {actual!r}",
+            )
 
 
 def _category_tag(value: str) -> str:

@@ -39,7 +39,9 @@ A generated list field SHALL show one entry for each pair of linked page and lab
 
 ### Requirement: Preserved fields follow the entity
 
-Every generated root template of an entity SHALL carry the entity's stable key in `stablekey`. Generation SHALL match a live root template to a generated one by stable key. A live root without a key SHALL match by entity name. When several unkeyed live roots share a name and any of them holds a preserved value, generation SHALL fail for that page and name it. A live root that matches no generated entity SHALL stay unchanged, and generation SHALL list it for review. Generation SHALL NOT delete it.
+Every generated root template of an entity SHALL carry the entity's stable key in `stablekey`. Generation SHALL match a live root template to a generated one by stable key. A live root without a key SHALL match a generated root with the same entity name. When several roots share a name, generation SHALL pair them so that the most field values agree. When several pairings agree equally well and give different pages, generation SHALL fail for that page, name it, and list the stable keys to add by hand. A live root that matches no generated entity SHALL stay unchanged, and generation SHALL list it for review. Generation SHALL NOT delete it.
+
+A merged root SHALL take the companion templates of its generated root, such as `ItemTooltip` or `SpellTooltip`. The generated companions SHALL replace the live companions of that root, also when prose or editor markup stands between the root and a companion.
 
 #### Scenario: Entities change order
 
@@ -51,10 +53,20 @@ Every generated root template of an entity SHALL carry the entity's stable key i
 - **WHEN** the live Frost page holds a Braxonian Chest character infobox that generation does not produce for Frost
 - **THEN** the infobox stays unchanged and the page is listed for review
 
-#### Scenario: Same-name roots with preserved content
+#### Scenario: Variants that share a name
 
-- **WHEN** a live page has two unkeyed character infoboxes with the same name and one of them has an image caption
-- **THEN** generation fails for that page and names it
+- **WHEN** a live page has two unkeyed Malignant Thoughts infoboxes and only the second one holds the coordinates of the second generated variant
+- **THEN** each infobox merges with the variant whose values it holds, and the coordinates stay with their variant
+
+#### Scenario: Same-name roots that no value tells apart
+
+- **WHEN** a live page has two unkeyed character infoboxes with the same name and the same values, only one of them has an image caption, and generation produces two entities with that name
+- **THEN** generation fails for that page and names the stable keys to add
+
+#### Scenario: A tooltip in an editor's table
+
+- **WHEN** an editor placed the `Item/Charm` companion of a charm inside a table
+- **THEN** the regenerated companion replaces it inside the table, and no second companion appears
 
 ### Requirement: Entity templates select their Lua branch only by `lua=1`
 

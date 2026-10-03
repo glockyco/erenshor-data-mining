@@ -31,7 +31,11 @@ The section generators build `source`, `droprates`, `guaranteeddrops`, `vendorso
 
 ### D2. Roots carry their stable key
 
-Generated `Character`, `Ability`, and `Stance` roots gain `stablekey=`, as `Item` roots already have. Matching uses the key. On the first refresh, live roots have no key, so they match by name. Same-name unkeyed roots match by position only when none of them holds a preserved value. Otherwise generation fails for the page and the maintainer fixes it by hand once. After the refresh, every root carries its key. A live root that matches nothing stays unchanged and is listed. This keeps editor additions such as the chest infobox on Frost, and it lists stale roots for a human to remove.
+Generated `Character`, `Ability`, and `Stance` roots gain `stablekey=`, as `Item` roots already have. Matching uses the key. On the first refresh, live roots have no key, so they match by name. When several roots share a name, every pairing of the largest size is scored by the number of fields whose live and generated values are equal. A live root holds the values that an earlier generation wrote for its entity, so its coordinates, level, and drops point to the right variant. The pairing with the best score wins. When several pairings reach the best score and merge to different pages, generation fails for the page, names the keys, and the maintainer adds them by hand once. After the refresh, every root carries its key. A live root that matches nothing stays unchanged and is listed. This keeps editor additions such as the chest infobox on Frost, and it lists stale roots for a human to remove.
+
+Pairing by position gives the same pages today, because the generator and the live pages list variants in the same order, but it breaks when that order changes. A rule that fails whenever the order of same-name roots could change the result stopped 15 pages, and the field values tell all of them apart. The scored pairing stops none of the current pages and does not depend on the order.
+
+Each root owns the companion templates after it: `ItemTooltip` and the `Item/<kind>` templates belong to `Item`, `SpellTooltip` and `SkillTooltip` to `Ability`, and `StanceTooltip` to `Stance`. A companion belongs to the nearest root of its template before it, also when prose or an editor's table stands between them. A merged root takes the companions of its generated root: they replace its first live companion in place, and its other live companions go. A generated root without a live root follows the last live root of its template and that root's companions. This replaces the ordinal reconciliation of ability tooltips and the positional replacement of item tooltips, which attach a companion to the wrong root once roots match by key.
 
 `Template:Character` selects its Lua branch when `stablekey` is present, so the key cannot be added while that selector stands. Character, Stance, Quest, and Zone switch to the selector of `Template:Item`: the Lua branch needs exact `lua=1` and a key. No live page passes `lua=1` or a key to these templates, so every page keeps its parameter infobox. The repository bodies of the Stance, Quest, and Zone parameter branches already equal their live templates. Of the four, only Character is deployed, because it also carries the Elite tier. `Template:Ability` is copied from live into `wiki/templates/` so that the repository owns every template the generated articles use.
 
@@ -70,6 +74,8 @@ Before the first write, `deploy-repo-pages` reads the user of each target's late
 
 `deploy_from_dir`, `--from-dir`, `--legacy-article-deploy`, `edit_page`, and `PageMetadata.should_deploy` go: D5 decides what to write. `refresh-embedded --source-table` and its item-owner null edits go: they reparsed item pages that store Cargo rows, and no page does after D2. The deploy-service tests that assert `edit_page` calls are replaced by tests that change the live revision between plan and write.
 
+The migrations of retired templates go as well: the legacy template remover (`Enemy`, `Pet`, `Consumable`, `Weapon`, `Armor`, `Auras`, `Enemy Stats`), the `Fancy-*` templates, and the quality tables of `Item/Weapon` and `Item/Armor`. No fetched page uses them, and a full regeneration without them gives the same bytes.
+
 ### D8. Rollout order
 
 1. Generate the Lua data and deploy `Data/Links`, `Data/Spells`, `Data/Skills`, `Data/Stances`, and `Data/Items` with its shards.
@@ -84,7 +90,7 @@ Before the first write, `deploy-repo-pages` reads the user of each target's late
 - [The parse gate doubles the requests] → It runs once per changed page. The full refresh takes about two hours at the current pacing.
 - [`Template:Character` is used by about 900 pages, so its edit queues a reparse of each] → The sandbox comparison shows no visible change before the deploy. The reparse runs in the job queue.
 - [An editor saves a page during the run] → That page is a conflict. Fetch and generate it again, then deploy it alone.
-- [Unkeyed same-name roots with preserved values need manual work] → Only the first refresh meets them. The review lists them.
+- [Same-name roots that no field value tells apart need manual work] → Generation names the page and the stable keys. None of the current pages needs it.
 
 ## Migration Plan
 

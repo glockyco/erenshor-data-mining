@@ -72,9 +72,9 @@ def _valid_corpus() -> tuple[dict[str, str], dict[str, WikiPageExpectation]]:
         + _template("ItemTooltip")
         + "\n\n[[Category:Items]]"
     )
-    character = _template("Character", name="Guard") + "\n\n[[Category:Characters]]"
+    character = _template("Character", name="Guard", stablekey="character:guard") + "\n\n[[Category:Characters]]"
     ability = (
-        _template("Ability", title="Flare")
+        _template("Ability", title="Flare", stablekey="spell:flare")
         + "\n\n"
         + _template("SpellTooltip", stablekey="spell:flare")
         + "\n\n[[Category:Abilities]]"

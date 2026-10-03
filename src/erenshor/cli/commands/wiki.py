@@ -30,6 +30,7 @@ from typing import Annotated, Literal
 import typer
 from loguru import logger
 from rich.console import Console
+from rich.markup import escape
 from rich.panel import Panel
 
 from erenshor.application.wiki.generators.context import GeneratorContext
@@ -918,9 +919,12 @@ def generate(
                 preflight=audit_generated_pages,
             )
 
-        # Show warnings and errors
+        # Show warnings and errors. Warnings name the live roots that generation
+        # kept because no generated entity matches them; a human reviews them.
         if result.has_warnings():
             logger.warning(f"Generation completed with {len(result.warnings)} warnings")
+            for warning in result.warnings:
+                console.print(f"[yellow]![/yellow] {escape(warning)}")
 
         if result.failed > 0:
             logger.error(f"Generation completed with {result.failed} failures")
