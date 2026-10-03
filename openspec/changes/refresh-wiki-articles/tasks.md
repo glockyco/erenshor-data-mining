@@ -1,6 +1,6 @@
-## 1. Entity templates (commit: `refactor(wiki): keep only the article infobox in entity templates`)
+## 1. Entity templates (commit: `refactor(wiki): select the entity Lua branches by lua=1`)
 
-- [ ] 1.1 Copy the live text of `Template:Ability`, `Template:Stance`, `Template:Quest`, and `Template:Zone` into `wiki/templates/`. Remove the key-selected Lua branch, the Cargo store calls, and the Cargo declaration from `wiki/templates/Character.wiki`, and the `lua=1` branch and the Cargo declaration from `wiki/templates/Item.wiki`. Document `stablekey` as an identity parameter in each template's documentation. Delete the stale copies `wiki/templates/Template_*.txt` after checking that nothing reads them. Verify: each adopted file equals its live text, and a TemplateSandbox render of a weapon, an armor, a general item, and an Enemy, Elite, Boss, and NPC character page matches the live HTML except for the Elite tier.
+- [ ] 1.1 Change the Lua-branch selector of `wiki/templates/Character.wiki`, `Stance.wiki`, `Quest.wiki`, and `Zone.wiki` to the exact `lua=1` check of `Item.wiki`. Copy the live text of `Template:Ability` into `wiki/templates/Ability.wiki`. Document `stablekey` as an identity parameter in the Character and Stance documentation. Add `lua=1` to the `wiki-dev` fixture pages that render these templates through Lua. Delete the stale copies `wiki/templates/Template_*.txt` after checking that nothing reads them. Verify: `Ability.wiki` equals its live text, the Stance, Quest, and Zone parameter branches equal their live templates, a TemplateSandbox render of Enemy, Boss, and NPC character pages matches the live HTML, a generated Elite page renders the Elite tier and its categories, and `uv run erenshor test wiki --warm` passes.
 
 ## 2. Merge by identity (one commit each)
 
@@ -32,7 +32,7 @@
 ## 6. Live refresh
 
 - [ ] 6.1 Run `uv run erenshor wiki generate-lua`, then deploy `Module:Erenshor/Data/Links`, `Data/Spells`, `Data/Skills`, `Data/Stances`, `Data/Items`, and the item shards with `wiki deploy-repo-pages --include-generated-data --pages-file <titles>`. Verify: a dry run first, then the live text of each module equals its generated file, and `{{StanceTooltip|stablekey=stance:aggressive}}` parses without an error.
-- [ ] 6.2 Add `wiki/content/Category/Elites.wiki`. Deploy it, `Template:Character`, `Template:Item`, and `Template:StanceTooltip` with `wiki deploy-repo-pages --include-templates --include-content-pages`. Verify: a dry run shows no drift, and the canary pages of task 1.1 render as the sandbox showed.
+- [ ] 6.2 Add `wiki/content/Category/Elites.wiki`. Deploy it, `Template:Character`, and `Template:StanceTooltip` with `wiki deploy-repo-pages --include-templates --include-content-pages`. Verify: a dry run shows no drift, and the canary pages of task 1.1 render as the sandbox showed.
 - [ ] 6.3 Run `uv run erenshor wiki fetch --force`, `uv run erenshor wiki generate`, and `uv run erenshor --dry-run wiki deploy`. Fix every page that generation names. Show the report to the maintainer and get the go-ahead for the canary.
 - [ ] 6.4 Deploy the canary pages with `wiki deploy --pages-file <canaries>`. Check each in a browser: infobox, tooltips, links, categories, and preserved prose.
 - [ ] 6.5 After the maintainer approves, deploy the remaining pages. Verify: a new fetch and generation show no difference between generated and live pages, `Category:Pages with script errors` is empty, and the Erenshor link tracking categories did not grow.

@@ -23,7 +23,7 @@ The bot last refreshed the live wiki articles on 2026-08-11. Of the 2,773 pages 
 - Skill cooldowns keep fractions of a second, in the legacy and the Lua output.
 - `wiki deploy` writes an article only while its live revision is the revision the page was generated from. It parses each new text on the wiki first, and it does not write a page whose parse shows a script error, a missing template, a missing category page, or a new link tracking category. It records each write with its rollback text, reports every conflict and blocked page, and fails if there is one. It stops at the first error that is not specific to one page. A dry run lists the planned changes by kind.
 - A repository-page deploy does not overwrite a page that another account changed, unless the maintainer accepts that page.
-- The repository's entity templates hold what live must run. `Stance`, `Quest`, `Zone`, and `Ability` come from live. `Character` and `Item` keep only their infobox paths: their Lua and Cargo branches go, because no page selects them and the data-backed templates will get new names. `stablekey` becomes an identity parameter that does not change the rendering.
+- `Template:Character`, `Stance`, `Quest`, and `Zone` select their Lua branch only by exact `lua=1`, as `Template:Item` already does, so `stablekey` identifies an entity without changing the rendering. No page passes `lua=1`, so every page keeps its parameter infobox. The branches stay as the tested entry point of the Lua renderers until the article conversion moves them to the new data-backed templates. `Template:Ability` is copied from live into the repository.
 - **BREAKING**: `wiki deploy --from-dir`, `wiki deploy --legacy-article-deploy`, the unguarded edit call, and `wiki refresh-embedded --source-table` are removed. The source-table refresh served pages that store Cargo rows, and no page does.
 - The live wiki is refreshed: data modules, templates, and `Category:Elites` first, then canary pages, then every changed article.
 
@@ -40,7 +40,7 @@ None. The generator already meets the `encounter-tiers` requirement for Elite pa
 ## Impact
 
 - Code: `src/erenshor/application/wiki/` (field preservation, generate and deploy services, zone generation, skill section), `src/erenshor/application/wiki_deploy/` (manifest, page deploy, refresh), `src/erenshor/application/wiki_lua/skills.py`, `src/erenshor/infrastructure/wiki/client.py`, `src/erenshor/cli/commands/wiki.py`, `wiki/templates/`, and their tests.
-- Removed: `wiki/zones/`, the zone output directory, `deploy_from_dir`, `edit_page`, and the Cargo branches of the Character and Item templates.
+- Removed: `wiki/zones/`, the zone output directory, `deploy_from_dir`, and `edit_page`.
 - Live wiki: about 2,700 bot-flagged article edits by WoWBot, at least two seconds apart, plus about 20 module, template, and category pages.
 - Golden baselines change, which needs approval at capture.
 - Non-goals: Cargo tables (`publish-wiki-cargo-data`), replacing hand-maintained tables, data-backed article templates, the quest article strategy (#288), the repository drafts in `wiki/*.txt` and `wiki/mechanics/`, the main page (#291), and legacy fields that are always blank (spell `effects`, skill `itemswitheffect`).

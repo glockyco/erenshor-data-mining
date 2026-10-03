@@ -87,7 +87,7 @@ Rules from the export audit:
 
 ### D7. Cargo leaves the article path
 
-The article templates no longer declare or store tables after `refresh-wiki-articles`. This change removes what remains: the store, declare, and query templates of the old design, `ArmorTable` and `WeaponTable`, the Cargo parts of `Template:Spell` and `Template:Skill`, the Lua row builders and `cargoStore` entry points, `Module:Erenshor/Cargo`, the Cargo storage probe, and the old fixtures. The deploy reports the live copies of removed pages for an administrator to delete, because the bot cannot delete.
+After `refresh-wiki-articles`, only calls with exact `lua=1` reach the Lua branches of the entity templates, and no page passes it. This change removes every Cargo part of the article path: the declarations and store calls in the `lua=1` branches of `Template:Item`, `Template:Character`, and `Template:Stance`, the Cargo parts of `Template:Spell` and `Template:Skill`, the store, declare, and query templates of the old design, `ArmorTable` and `WeaponTable`, the Lua row builders and `cargoStore` entry points, `Module:Erenshor/Cargo`, the Cargo storage probe, and the old fixtures. The Lua branches themselves stay for the article conversion. The deploy reports the live copies of removed pages for an administrator to delete, because the bot cannot delete.
 
 ## Risks / Trade-offs
 

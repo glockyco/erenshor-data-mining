@@ -33,7 +33,9 @@ The section generators build `source`, `droprates`, `guaranteeddrops`, `vendorso
 
 Generated `Character`, `Ability`, and `Stance` roots gain `stablekey=`, as `Item` roots already have. Matching uses the key. On the first refresh, live roots have no key, so they match by name. Same-name unkeyed roots match by position only when none of them holds a preserved value. Otherwise generation fails for the page and the maintainer fixes it by hand once. After the refresh, every root carries its key. A live root that matches nothing stays unchanged and is listed. This keeps editor additions such as the chest infobox on Frost, and it lists stale roots for a human to remove.
 
-`Template:Character` selects its Lua branch when `stablekey` is present, so the key cannot be added while that branch exists. The branch, its Cargo store calls, and the Cargo declaration go, as do the `lua=1` branch and the Cargo declaration of `Template:Item`. No page uses either branch, the Cargo tables never existed, and the data-backed article templates will use new names. `Template:Ability`, `Stance`, `Quest`, and `Zone` are copied from live into `wiki/templates/`. The repository versions of `Stance`, `Quest`, and `Zone` hold dual paths that were reverted on live in July and that nothing needs.
+`Template:Character` selects its Lua branch when `stablekey` is present, so the key cannot be added while that selector stands. Character, Stance, Quest, and Zone switch to the selector of `Template:Item`: the Lua branch needs exact `lua=1` and a key. No live page passes `lua=1` or a key to these templates, so every page keeps its parameter infobox. The repository bodies of the Stance, Quest, and Zone parameter branches already equal their live templates. Of the four, only Character is deployed, because it also carries the Elite tier. `Template:Ability` is copied from live into `wiki/templates/` so that the repository owns every template the generated articles use.
+
+The Lua branches stay. The local MediaWiki stack renders 35 fixture pages through them, and they are the entry point of the Lua renderers until the article conversion moves them to the new data-backed templates. Removing them now would rewrite the harness twice, once here and again for the Cargo storage pages. Their Cargo declarations and store calls go with `publish-wiki-cargo-data`.
 
 Alternative: an HTML comment with the key before each root. Rejected: hidden state in the page text that an editor can break without seeing it.
 
@@ -71,7 +73,7 @@ Before the first write, `deploy-repo-pages` reads the user of each target's late
 ### D8. Rollout order
 
 1. Generate the Lua data and deploy `Data/Links`, `Data/Spells`, `Data/Skills`, `Data/Stances`, and `Data/Items` with its shards.
-2. Render canary pages through TemplateSandbox with the candidate `Template:Character` and `Template:Item`, and compare the HTML with the live render. Only the Elite tier may differ. Deploy both, `Template:StanceTooltip`, and `Category:Elites`.
+2. Render canary pages through TemplateSandbox with the candidate `Template:Character`, and compare the HTML with the live render. Only pages of the Elite tier may differ. Deploy it, `Template:StanceTooltip`, and `Category:Elites`.
 3. Fetch, generate, and review the dry-run report with the maintainer. Fix the pages that generation names.
 4. Deploy about a dozen canary pages: one per template family, a multi-entity page, a zone page, and an overview. Check them in a browser.
 5. Deploy the rest. Fetch again and confirm that every generated page equals its live text.
@@ -80,7 +82,7 @@ Before the first write, `deploy-repo-pages` reads the user of each target's late
 
 - [About 2,700 edits reach editors' watchlists] → The bot flag hides them from recent changes by default. The maintainer approves the full deploy after the canary.
 - [The parse gate doubles the requests] → It runs once per changed page. The full refresh takes about two hours at the current pacing.
-- [`Template:Item` is used by about 1,500 pages, so its edit queues a reparse of each] → The sandbox comparison shows no visible change before the deploy. The reparse runs in the job queue.
+- [`Template:Character` is used by about 900 pages, so its edit queues a reparse of each] → The sandbox comparison shows no visible change before the deploy. The reparse runs in the job queue.
 - [An editor saves a page during the run] → That page is a conflict. Fetch and generate it again, then deploy it alone.
 - [Unkeyed same-name roots with preserved values need manual work] → Only the first refresh meets them. The review lists them.
 

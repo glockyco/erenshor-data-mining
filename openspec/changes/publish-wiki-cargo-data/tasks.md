@@ -1,7 +1,7 @@
 ## 1. Prerequisites
 
 - [ ] 1.1 The maintainer enables the `cargoadmin` grant for the `WoWMuch@InterfaceDeploy` bot password at Special:BotPasswords. Verify: the interface session's rights include `recreatecargodata`.
-- [ ] 1.2 `refresh-wiki-articles` is archived, so the guarded writes, the drift check, and entity templates without Cargo exist. Verify: `openspec list` no longer shows it as active.
+- [ ] 1.2 `refresh-wiki-articles` is archived, so the guarded writes, the drift check, and the `lua=1` selector of the entity templates exist. Verify: `openspec list` no longer shows it as active.
 
 ## 2. Data rules
 

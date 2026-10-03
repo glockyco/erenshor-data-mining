@@ -12,7 +12,7 @@ The current design stores Cargo rows from converted articles. No article is conv
 - `erenshor wiki cargo generate`, `deploy`, `verify`, and `create-tables` build the pages, deploy them with the guarded and drift-checked path, compare every live table with the expected rows, and create tables through the interface-admin session.
 - `{{ItemSource}}` and `{{SpawnPoint}}` let editors store their own rows, marked as community rows, in the same tables.
 - Documented query templates render zone rosters, class abilities by level, vendor stock, item sources, character drops, zone drops, quest data, faction effects, and sortable item, zone, quest, and boss lists. A hub page documents the tables, the templates, and the rules.
-- **BREAKING**: Cargo leaves the article path. The store and query templates, the Lua Cargo row builders and store entry points, the Cargo declarations of `Template:Spell` and `Template:Skill`, `Module:Erenshor/Cargo`, and the Cargo storage probe are removed. The local harness checks the storage pages instead.
+- **BREAKING**: Cargo leaves the article path. The Cargo declarations and store calls in the `lua=1` branches of the entity templates, the store and query templates, the Lua Cargo row builders and store entry points, the Cargo parts of `Template:Spell` and `Template:Skill`, `Module:Erenshor/Cargo`, and the Cargo storage probe are removed. The local harness checks the storage pages instead.
 
 ## Capabilities
 
@@ -30,5 +30,5 @@ None. Item sources keep listing special world drops, as `special-world-drops` re
 - Removed: `wiki/templates/` store, declare, and query templates of the article path, the Cargo parts of `wiki/modules/Erenshor/`, `src/erenshor/tools/wiki_cargo_probe/`, and `wiki-dev` fixtures for the old tables.
 - Live wiki: about 25 table templates, 50 to 60 storage pages, 15 query and community templates, and the hub page. Table creation is one privileged step per table.
 - Prerequisite: the maintainer enables the `cargoadmin` grant ("Create and delete data through the Cargo extension") for the `WoWMuch@InterfaceDeploy` bot password at Special:BotPasswords.
-- Depends on `refresh-wiki-articles`, which provides the guarded deploy, the drift check, and entity templates without Cargo.
+- Depends on `refresh-wiki-articles`, which provides the guarded deploy, the drift check, and entity templates whose Lua branch needs exact `lua=1`.
 - Non-goals: replacing the hand-maintained tables on pages (the next change uses these templates for that), data-backed article templates and article conversion, the size of the article data modules, the quest article strategy (#288), and Special:Drilldown, which the wiki does not install.

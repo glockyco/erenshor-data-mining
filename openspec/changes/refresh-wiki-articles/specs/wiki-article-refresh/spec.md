@@ -56,14 +56,19 @@ Every generated root template of an entity SHALL carry the entity's stable key i
 - **WHEN** a live page has two unkeyed character infoboxes with the same name and one of them has an image caption
 - **THEN** generation fails for that page and names it
 
-### Requirement: Entity infoboxes render only the article path
+### Requirement: Entity templates select their Lua branch only by `lua=1`
 
-`Template:Item`, `Template:Character`, `Template:Ability`, `Template:Stance`, `Template:Quest`, and `Template:Zone` SHALL render the infobox from their parameters. `stablekey` SHALL identify the entity and SHALL NOT change the rendering. These templates SHALL NOT store Cargo rows. The repository source of each template SHALL equal its live text after deployment.
+`Template:Item`, `Template:Character`, `Template:Stance`, `Template:Quest`, and `Template:Zone` SHALL render their parameter infobox unless a call passes exactly `lua=1` together with `stablekey`. `stablekey` alone SHALL identify the entity and SHALL NOT change the rendering. A call without `lua=1` SHALL store no Cargo row.
 
 #### Scenario: An infobox with a stable key
 
-- **WHEN** a character infobox passes `stablekey`
+- **WHEN** a character infobox passes `stablekey` and no `lua=1`
 - **THEN** it renders the same as without `stablekey` and stores no Cargo row
+
+#### Scenario: The Lua branch
+
+- **WHEN** a character infobox passes `lua=1` and a valid `stablekey`
+- **THEN** it renders the infobox from the Lua character data
 
 ### Requirement: Every generated entity takes current data
 
