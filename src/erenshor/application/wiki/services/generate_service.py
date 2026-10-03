@@ -180,6 +180,7 @@ class WikiGenerateService:
                 existing = self._storage.read_fetched_by_title(gen_page.title)
 
                 # Merge into the live page when it exists
+                kept_roots: tuple[str, ...] = ()
                 if existing:
                     if gen_page.title in _OVERVIEW_TITLES:
                         final_content = self._page_normalizer.normalize(
@@ -192,9 +193,10 @@ class WikiGenerateService:
                             new_wikitext=page_content,
                             template_names=list(ROOT_COMPANIONS),
                         )
+                        kept_roots = merge.kept_roots
                         warnings.extend(
                             f"{gen_page.title}: kept live root {root} that matches no generated entity"
-                            for root in merge.kept_roots
+                            for root in kept_roots
                         )
                         final_content = self._page_normalizer.normalize(merge.text, page_content)
                 else:
@@ -207,6 +209,7 @@ class WikiGenerateService:
                         gen_page.title,
                         gen_page.stable_keys,
                         final_content,
+                        kept_roots=kept_roots,
                     )
 
                 processed_content[gen_page.title] = final_content

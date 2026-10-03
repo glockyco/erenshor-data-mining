@@ -53,7 +53,7 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -87,6 +87,8 @@ class PageMetadata:
         fetched_revision_id: Wiki revision ID of the cached text.
         generated_at: ISO timestamp when page was generated locally.
         generated_hash: SHA256 hash of generated content.
+        kept_roots: Live root templates that generation kept unchanged because
+            they match no generated entity, as ``"<template>: <name>"``.
         deployed_at: ISO timestamp when page was deployed to wiki.
         deployed_hash: SHA256 hash of deployed content.
     """
@@ -99,6 +101,7 @@ class PageMetadata:
     fetched_revision_id: int | None = None
     generated_at: str | None = None
     generated_hash: str | None = None
+    kept_roots: list[str] = field(default_factory=list)
     deployed_at: str | None = None
     deployed_hash: str | None = None
 
@@ -113,6 +116,7 @@ class PageMetadata:
             "fetched_revision_id": self.fetched_revision_id,
             "generated_at": self.generated_at,
             "generated_hash": self.generated_hash,
+            "kept_roots": self.kept_roots,
             "deployed_at": self.deployed_at,
             "deployed_hash": self.deployed_hash,
         }
@@ -124,11 +128,11 @@ class PageMetadata:
             raise ValueError("page metadata must be an object")
         if not isinstance(data.get("page_title"), str):
             raise ValueError("page_title must be text")
-        for field in ("stable_keys", "entity_names"):
-            values = data.get(field)
+        for name in ("stable_keys", "entity_names", "kept_roots"):
+            values = data.get(name, [])
             if not isinstance(values, list) or not all(isinstance(value, str) for value in values):
-                raise ValueError(f"{field} must be a list of text")
-        for field in (
+                raise ValueError(f"{name} must be a list of text")
+        for name in (
             "fetched_at",
             "fetched_hash",
             "generated_at",
@@ -136,9 +140,9 @@ class PageMetadata:
             "deployed_at",
             "deployed_hash",
         ):
-            value = data.get(field)
+            value = data.get(name)
             if value is not None and not isinstance(value, str):
-                raise ValueError(f"{field} must be text or null")
+                raise ValueError(f"{name} must be text or null")
         revision_id = data.get("fetched_revision_id")
         if revision_id is not None and (type(revision_id) is not int or revision_id <= 0):
             raise ValueError("fetched_revision_id must be a positive integer or null")
@@ -151,6 +155,7 @@ class PageMetadata:
             fetched_revision_id=revision_id,
             generated_at=data.get("generated_at"),
             generated_hash=data.get("generated_hash"),
+            kept_roots=data.get("kept_roots", []),
             deployed_at=data.get("deployed_at"),
             deployed_hash=data.get("deployed_hash"),
         )
@@ -267,6 +272,7 @@ class WikiStorage:
             # Preserve generation and deployment info
             generated_at=existing.generated_at if existing else None,
             generated_hash=existing.generated_hash if existing else None,
+            kept_roots=existing.kept_roots if existing else [],
             deployed_at=existing.deployed_at if existing else None,
             deployed_hash=existing.deployed_hash if existing else None,
         )
@@ -312,6 +318,8 @@ class WikiStorage:
         page_title: str,
         stable_keys: list[str],
         content: str,
+        *,
+        kept_roots: Sequence[str] = (),
     ) -> None:
         """Save generated page.
 
@@ -319,6 +327,8 @@ class WikiStorage:
             page_title: MediaWiki page title.
             stable_keys: Stable identifiers for all entities on this page.
             content: Generated wiki page content (wikitext).
+            kept_roots: Live root templates that the merge kept because they
+                match no generated entity.
         """
         metadata = self._load_metadata()
         safe_filename = self._encode_page_title_for_filename(page_title)
@@ -341,6 +351,7 @@ class WikiStorage:
             metadata[page_title].entity_names = entity_names
             metadata[page_title].generated_at = datetime.now().isoformat()
             metadata[page_title].generated_hash = content_hash
+            metadata[page_title].kept_roots = list(kept_roots)
         else:
             logger.warning(f"Creating metadata for {page_title} without fetch info")
             metadata[page_title] = PageMetadata(
@@ -349,6 +360,7 @@ class WikiStorage:
                 entity_names=entity_names,
                 generated_at=datetime.now().isoformat(),
                 generated_hash=content_hash,
+                kept_roots=list(kept_roots),
             )
             content_changed = True  # New page counts as changed
 

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from io import StringIO
+from pathlib import Path
 from typing import cast
 from unittest.mock import MagicMock
 
@@ -12,6 +13,7 @@ from rich.console import Console
 
 from erenshor.application.wiki.generators.base import GeneratedPage, PageMetadata
 from erenshor.application.wiki.services.generate_service import WikiGenerateService
+from erenshor.application.wiki.services.storage import WikiStorage
 
 
 def _service() -> tuple[WikiGenerateService, MagicMock, MagicMock]:
@@ -120,3 +122,24 @@ def test_regenerated_zone_page_keeps_the_live_article_and_fills_blank_fields() -
     assert "|[[Illian Asboth]]\n" in page
     assert page.count("{{Zone Navbox}}") == 1
     assert "[[Category:Soluna's Landing]]" in page
+
+
+def test_generation_records_the_live_roots_that_match_no_generated_entity(tmp_path: Path) -> None:
+    storage = WikiStorage(tmp_path)
+    fetched = "{{Item\n|title=Frost\n}}\n\n{{Character\n|name=Braxonian Chest\n}}\n"
+    storage.save_fetched_by_title("Frost", ["item:frost"], fetched, ["Frost"], 10)
+    context = MagicMock()
+    context.storage = storage
+    service = WikiGenerateService(context=context, link_catalog=(), console=Console(file=StringIO()))
+    page = GeneratedPage(
+        title="Frost",
+        content="{{Item\n|title=Frost\n|stablekey=item:frost\n}}\n",
+        metadata=PageMetadata(summary="test"),
+        stable_keys=["item:frost"],
+    )
+
+    service._process_generated_pages([page], dry_run=False)
+
+    metadata = WikiStorage(tmp_path).get_metadata_by_title("Frost")
+    assert metadata is not None
+    assert metadata.kept_roots == ["Character: Braxonian Chest"]
