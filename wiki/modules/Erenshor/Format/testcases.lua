@@ -42,6 +42,9 @@ function p.run()
 	assertEqual(Format.signedStat(5), "+5", "positive stat includes sign")
 	assertEqual(Format.signedStat(-3), "-3", "negative stat keeps sign")
 	assertEqual(Format.resistLabel("fire"), "Fire Resist", "resist labels are title-cased")
+	assertEqual(Format.seconds(1), "1 second", "one second is singular")
+	assertEqual(Format.seconds(9), "9 seconds", "whole seconds have no decimals")
+	assertEqual(Format.seconds(13.33), "13.33 seconds", "fractional seconds keep their decimals")
 	assertEqual(
 		Format.categories({ "Items", "Weapons" }),
 		"[[Category:Items]][[Category:Weapons]]",

@@ -233,7 +233,7 @@ local function secondsText(value)
 	if number == nil or number == 0 then
 		return ""
 	end
-	return numberText(number) .. " seconds"
+	return Format.seconds(number)
 end
 
 local function castTimeText(spell)
@@ -262,7 +262,7 @@ local function durationText(spell)
 	if seconds == nil or seconds == 0 then
 		return ""
 	end
-	return numberText(seconds) .. " seconds"
+	return Format.seconds(seconds)
 end
 
 local function imageCaptionText(spell)

@@ -234,7 +234,7 @@ local function cooldownText(skill)
 	if seconds == nil or seconds == 0 then
 		return ""
 	end
-	return numberText(seconds) .. " seconds"
+	return Format.seconds(seconds)
 end
 
 local function selfOnlyText(skill)
