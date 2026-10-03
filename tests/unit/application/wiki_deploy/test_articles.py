@@ -15,6 +15,8 @@ from erenshor.infrastructure.wiki import (
     MediaWikiAssertionError,
     MediaWikiPageRevision,
     MediaWikiPageSnapshot,
+    MediaWikiParse,
+    MediaWikiParsedLink,
     MediaWikiPermissionError,
 )
 
@@ -32,6 +34,14 @@ class FakeWiki:
         self.next_revision = 1000
         self.writes: list[tuple[str, str, int | None, str | None]] = []
         self.failures: dict[str, Exception] = {}
+        self.parses: dict[str, MediaWikiParse] = {}
+        self.categories: dict[str, frozenset[str]] = {}
+
+    def get_page_categories(self, titles: Sequence[str]) -> dict[str, frozenset[str]]:
+        return {title: self.categories.get(title, frozenset()) for title in titles}
+
+    def parse_wikitext(self, title: str, text: str) -> MediaWikiParse:
+        return self.parses.get(title, MediaWikiParse(html="<p></p>", templates=(), categories=()))
 
     def _revision(self, title: str) -> MediaWikiPageRevision | None:
         if title not in self.pages:
@@ -215,3 +225,67 @@ def test_rollback_restores_a_deployed_article(storage: WikiStorage, tmp_path: Pa
     assert [entry.title for entry in rollback.entries] == ["Alpha"]
     assert wiki.writes[-1] == ("Alpha", "{{Item|title=Alpha|value=1}}", 1001, "Roll back")
     assert wiki.pages["Alpha"][1] == "{{Item|title=Alpha|value=1}}"
+
+
+def _parse(
+    html: str = "<p></p>",
+    templates: tuple[tuple[str, bool], ...] = (),
+    categories: tuple[tuple[str, bool], ...] = (),
+) -> MediaWikiParse:
+    return MediaWikiParse(
+        html=html,
+        templates=tuple(MediaWikiParsedLink(title, exists) for title, exists in templates),
+        categories=tuple(MediaWikiParsedLink(title, exists) for title, exists in categories),
+    )
+
+
+def _clean_pages(storage: WikiStorage, *titles: str) -> FakeWiki:
+    for title in titles:
+        _page(storage, title, f"{{{{Item|title={title}|value=2}}}}\n", fetched=f"{{{{Item|title={title}|value=1}}}}")
+    return FakeWiki({title: (10, f"{{{{Item|title={title}|value=1}}}}") for title in titles})
+
+
+def test_text_with_a_script_error_or_a_missing_template_is_blocked(storage: WikiStorage, tmp_path: Path) -> None:
+    wiki = _clean_pages(storage, "Alpha", "Beta", "Gamma")
+    wiki.parses["Alpha"] = _parse(
+        html='<strong class="error"><span class="scribunto-error mw-x">Lua error</span></strong>'
+    )
+    wiki.parses["Beta"] = _parse(templates=(("Template:Item", True), ("Template:Gone", False)))
+
+    result, _ = _deploy(storage, wiki, tmp_path)
+
+    assert [(issue.title, issue.reason) for issue in result.blocked] == [
+        ("Alpha", "script error"),
+        ("Beta", "missing template Template:Gone"),
+    ]
+    assert [title for title, *_ in wiki.writes] == ["Gamma"]
+
+
+def test_new_category_without_a_page_blocks_the_page(storage: WikiStorage, tmp_path: Path) -> None:
+    wiki = _clean_pages(storage, "Elite", "Editor")
+    wiki.parses["Elite"] = _parse(categories=(("Category:Characters", True), ("Category:Elites", False)))
+    # The live page is already in the red category, so the write does not make it worse.
+    wiki.parses["Editor"] = _parse(categories=(("Category:Old Zone", False),))
+    wiki.categories["Editor"] = frozenset({"Category:Old Zone"})
+
+    result, _ = _deploy(storage, wiki, tmp_path)
+
+    assert [(issue.title, issue.reason) for issue in result.blocked] == [
+        ("Elite", "category without a page: Category:Elites")
+    ]
+    assert [title for title, *_ in wiki.writes] == ["Editor"]
+
+
+def test_new_link_tracking_category_blocks_the_page(storage: WikiStorage, tmp_path: Path) -> None:
+    unresolved = "Category:Pages with unresolved Erenshor links"
+    wiki = _clean_pages(storage, "Alpha", "Beta")
+    wiki.parses["Alpha"] = _parse(categories=((unresolved, True),))
+    wiki.parses["Beta"] = _parse(categories=((unresolved, True),))
+    wiki.categories["Beta"] = frozenset({unresolved})
+
+    result, _ = _deploy(storage, wiki, tmp_path)
+
+    assert [(issue.title, issue.reason) for issue in result.blocked] == [
+        ("Alpha", f"new link tracking category: {unresolved}")
+    ]
+    assert [title for title, *_ in wiki.writes] == ["Beta"]

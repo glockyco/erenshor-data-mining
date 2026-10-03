@@ -145,6 +145,26 @@ class MediaWikiTitleStatus:
     exists: bool
 
 
+@dataclass(frozen=True, slots=True)
+class MediaWikiParsedLink:
+    """A page that a parsed text uses: a transcluded template or module, or a category."""
+
+    title: str
+    exists: bool
+
+
+@dataclass(frozen=True, slots=True)
+class MediaWikiParse:
+    """What MediaWiki reports when it parses a text under a title.
+
+    Category titles carry the ``Category:`` namespace and use spaces.
+    """
+
+    html: str
+    templates: tuple[MediaWikiParsedLink, ...]
+    categories: tuple[MediaWikiParsedLink, ...]
+
+
 class MediaWikiClient:
     """Client for MediaWiki API operations.
 
@@ -1007,6 +1027,75 @@ class MediaWikiClient:
                 )
 
         return snapshots
+
+    def parse_wikitext(self, title: str, text: str) -> MediaWikiParse:
+        """Parse ``text`` as the wikitext of ``title`` without saving it.
+
+        The result has the rendered HTML, every transcluded template and module,
+        and every category, each with whether its page exists.
+        """
+        data = {
+            "action": "parse",
+            "title": title,
+            "text": text,
+            "prop": "text|templates|categories",
+            "contentmodel": "wikitext",
+            "disablelimitreport": "1",
+            "formatversion": "2",
+        }
+        result = self._request({}, method="POST", data=data)
+        parse = result.get("parse")
+        if not isinstance(parse, dict) or not isinstance(parse.get("text"), str):
+            raise MediaWikiAPIError(f"Invalid parse response for {title!r}")
+        try:
+            templates = tuple(
+                MediaWikiParsedLink(title=str(template["title"]), exists=bool(template.get("exists", False)))
+                for template in parse.get("templates", [])
+            )
+            categories = tuple(
+                MediaWikiParsedLink(
+                    title="Category:" + str(category["category"]).replace("_", " "),
+                    exists=not bool(category.get("missing", False)),
+                )
+                for category in parse.get("categories", [])
+            )
+        except (KeyError, TypeError) as error:
+            raise MediaWikiAPIError(f"Invalid parse response for {title!r}: {error}") from error
+        return MediaWikiParse(html=parse["text"], templates=templates, categories=categories)
+
+    def get_page_categories(self, titles: Sequence[str]) -> dict[str, frozenset[str]]:
+        """Return the categories of each existing page, including hidden categories.
+
+        A missing page maps to no categories. Category titles carry the
+        ``Category:`` namespace.
+        """
+        categories: dict[str, set[str]] = {title: set() for title in titles}
+        for i in range(0, len(titles), self.batch_size):
+            batch = titles[i : i + self.batch_size]
+            params = {
+                "action": "query",
+                "titles": "|".join(batch),
+                "prop": "categories",
+                "cllimit": "max",
+                "formatversion": "2",
+            }
+            continue_params: dict[str, str] = {}
+            while True:
+                result = self._request(params | continue_params)
+                query = result.get("query", {})
+                normalized = {entry["from"]: entry["to"] for entry in query.get("normalized", [])}
+                requested_by_title: dict[str, list[str]] = {}
+                for requested in batch:
+                    requested_by_title.setdefault(normalized.get(requested, requested), []).append(requested)
+                for page in query.get("pages", []):
+                    page_categories = {str(category["title"]) for category in page.get("categories", [])}
+                    for requested in requested_by_title.get(page["title"], []):
+                        categories[requested].update(page_categories)
+                continuation = result.get("continue")
+                if not isinstance(continuation, dict):
+                    break
+                continue_params = {key: str(value) for key, value in continuation.items()}
+        return {title: frozenset(values) for title, values in categories.items()}
 
     def get_embeddedin_pages(
         self,

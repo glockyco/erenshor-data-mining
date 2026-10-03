@@ -23,6 +23,8 @@ from pathlib import Path
 import httpx
 import pytest
 
+from erenshor.application.wiki.services.storage import WikiStorage
+from erenshor.application.wiki_deploy.articles import deploy_articles, plan_article_deploy
 from erenshor.application.wiki_deploy.manifest import RepoWikiPageManifest, RepoWikiPageManifestEntry
 from erenshor.application.wiki_deploy.override_migration import review_article_overrides
 from erenshor.application.wiki_deploy.pages import build_deployed_manifest, deploy_repo_pages
@@ -275,6 +277,42 @@ def test_deploy_safe_edit_then_rollback_restores_previous_text(
         assert_user=BOT_USER,
     )
     assert wiki_client.get_page(title) == "return { v = 1 }"
+
+
+def test_article_deploy_parses_before_writing_and_blocks_a_new_red_category(
+    wiki_client: MediaWikiClient, pages: _PageScope, tmp_path: Path
+) -> None:
+    """A changed article is written; an article that adds a category without a page is blocked."""
+    written = pages.claim("ErenshorIT Article Written")
+    blocked = pages.claim("ErenshorIT Article Blocked")
+    storage = WikiStorage(tmp_path / "variants" / "main" / "wiki")
+    for title in (written, blocked):
+        start_timestamp = wiki_client.get_edit_start_timestamp(assertion="bot")
+        revision_id = wiki_client.safe_create_page(
+            title, "Old text.", start_timestamp=start_timestamp, summary="Integration setup", assertion="bot"
+        )
+        storage.save_fetched_by_title(title, [f"item:{title.casefold()}"], "Old text.", [title], revision_id)
+    storage.save_generated_by_title(written, [f"item:{written.casefold()}"], "New text.\n")
+    storage.save_generated_by_title(
+        blocked, [f"item:{blocked.casefold()}"], "New text.\n\n[[Category:ErenshorIT Missing Category]]\n"
+    )
+
+    result = deploy_articles(
+        plan_article_deploy(storage),
+        client=wiki_client,
+        storage=storage,
+        repo_root=tmp_path,
+        rollback_root=tmp_path / "rollback",
+        summary="Integration article deploy",
+        sleep=lambda _seconds: None,
+    )
+
+    assert [(issue.title, issue.reason) for issue in result.blocked] == [
+        (blocked, "category without a page: Category:ErenshorIT Missing Category")
+    ]
+    assert [entry.title for entry in result.manifest.entries] == [written]
+    assert wiki_client.get_page(written) == "New text."
+    assert wiki_client.get_page(blocked) == "Old text."
 
 
 def test_safe_edit_detects_conflict_on_stale_base_revision(wiki_client: MediaWikiClient, pages: _PageScope) -> None:

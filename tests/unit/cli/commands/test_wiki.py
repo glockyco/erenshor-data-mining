@@ -23,7 +23,7 @@ from erenshor.application.wiki_deploy.refresh import EmbeddedRefreshResult
 from erenshor.application.wiki_deploy.rollback import RollbackResult, RollbackResultEntry
 from erenshor.cli.commands import wiki
 from erenshor.cli.context import CLIContext
-from erenshor.infrastructure.wiki import MediaWikiPageRevision, MediaWikiPageSnapshot
+from erenshor.infrastructure.wiki import MediaWikiPageRevision, MediaWikiPageSnapshot, MediaWikiParse
 
 runner = CliRunner()
 
@@ -562,6 +562,8 @@ class TestWikiDeployCommand:
         client = MagicMock()
         client.get_page_snapshots.side_effect = snapshots
         client.safe_edit_page.return_value = 12
+        client.get_page_categories.return_value = {}
+        client.parse_wikitext.return_value = MediaWikiParse(html="<p></p>", templates=(), categories=())
         monkeypatch.setattr(wiki_command, "_create_mediawiki_client", lambda _ctx: client)
         monkeypatch.setattr(wiki_command, "_run_link_audit", MagicMock(return_value=TestWikiLinkAuditCommand._report()))
         monkeypatch.setattr(wiki_command, "recorded_build_id", lambda _path: "123")

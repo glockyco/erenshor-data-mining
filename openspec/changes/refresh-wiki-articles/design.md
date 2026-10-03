@@ -64,7 +64,7 @@ Alternative: keep `connects` as override and derive it from the zone lines in bo
 For each page whose generated text differs from its fetched text after page normalization:
 
 1. Read live revisions in batches of 50. A live revision that differs from the fetched revision is a conflict. A page fetched as missing must still be missing.
-2. Parse the new text on the wiki with `action=parse` (`prop=text|templates|categories`). A script error, a missing template, a category without a page, or a link tracking category that the live page lacks blocks the page.
+2. Parse the new text on the wiki with `action=parse` (`prop=text|templates|categories`). A script error or a missing template blocks the page. A category without a page, or one of the three Erenshor link tracking categories, blocks the page when the live page is not in that category. The live categories are read with the revisions, in the same batches. A write must not make a page worse, but it does not have to repair a red category that an editor added.
 3. Write with `safe_edit_page`, whose base revision is the snapshot that equals the fetched revision, or with `safe_create_page`.
 4. Checkpoint the manifest after each write. The rollback text is the live text at the fetched revision. Each run keeps its manifest and rollback texts under `variants/<variant>/wiki/article-deploys/<run>/`. After a write, the fetched copy becomes the saved text at the new revision, so a second run without a fetch plans nothing for that page.
 

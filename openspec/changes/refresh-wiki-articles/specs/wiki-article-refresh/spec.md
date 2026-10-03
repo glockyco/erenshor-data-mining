@@ -144,7 +144,7 @@ Skill cooldowns SHALL be shown in seconds as ticks divided by 60, with up to two
 
 ### Requirement: Each article passes a live parse before it is written
 
-Before it writes an article, `wiki deploy` SHALL parse the new text on the live wiki under the page title. It SHALL NOT write the page when the parse reports a script error, a missing template, a category without a page, or a link tracking category that the live page does not have. It SHALL report the page and the reason.
+Before it writes an article, `wiki deploy` SHALL parse the new text on the live wiki under the page title. It SHALL NOT write the page when the parse reports a script error or a missing template, or when it reports a category without a page or an Erenshor link tracking category that the live page is not in. It SHALL report the page and the reason.
 
 #### Scenario: A missing category page
 

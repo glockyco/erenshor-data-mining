@@ -53,6 +53,8 @@ Keep legacy articles, repository-owned pages, and interface gadgets on their sep
    `wiki deploy` writes an article only while its live page is still at the fetched revision.
    A page that changed or was deleted after the fetch is a conflict. Fetch and generate it again.
    A page that differs from its fetched text only by page normalization is not written.
+   Before each write, the deploy parses the new text on the wiki. A script error or a missing template blocks the page.
+   A new category without a page or a new Erenshor link tracking category also blocks it.
    The deploy first checks the live semantic-link catalog. If that catalog is stale, deploy repository-owned Lua data first.
    Each run writes a manifest and rollback text under `variants/<variant>/wiki/article-deploys/<run>/`.
    Restore a run with `uv run erenshor wiki rollback-repo-pages --manifest <manifest>`.

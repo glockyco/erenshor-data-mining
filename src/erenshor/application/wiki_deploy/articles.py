@@ -3,13 +3,15 @@
 Generation merges each article into the live revision that ``wiki fetch``
 saved. A write is safe only while the live page is still at that revision:
 a newer revision means the merge did not see an edit. The deploy therefore
-plans locally, reads the live revisions in batches, writes each changed
-article against its fetched revision, and reports every other page.
+plans locally, reads the live revisions in batches, parses each changed
+article on the wiki, writes it against its fetched revision, and reports
+every other page.
 """
 
 from __future__ import annotations
 
 import hashlib
+import re
 import time
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
@@ -17,6 +19,7 @@ from typing import TYPE_CHECKING, Literal, Protocol
 
 from erenshor.application.wiki.generators.page_normalizer import PageNormalizer
 from erenshor.application.wiki.services.helpers import normalise_generated_page_content
+from erenshor.application.wiki_deploy.link_audit_service import TRACKING_CATEGORIES
 from erenshor.application.wiki_deploy.manifest import RepoWikiPageManifest, RepoWikiPageManifestEntry
 from erenshor.application.wiki_deploy.pages import rollback_filename
 from erenshor.infrastructure.wiki import (
@@ -31,12 +34,13 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from erenshor.application.wiki.services.storage import WikiStorage
-    from erenshor.infrastructure.wiki import MediaWikiPageRevision, MediaWikiPageSnapshot
+    from erenshor.infrastructure.wiki import MediaWikiPageRevision, MediaWikiPageSnapshot, MediaWikiParse
 
 ArticleAction = Literal["edit", "create", "unchanged"]
 _WriteOutcome = Literal["requested", "skipped", "stop"]
 
 _NORMALIZER = PageNormalizer()
+_SCRIPT_ERROR = re.compile(r'class="[^"]*\bscribunto-error\b')
 
 
 class ArticleDeployClient(Protocol):
@@ -48,6 +52,10 @@ class ArticleDeployClient(Protocol):
         assertion: Literal["user", "bot"] | None = None,
         assert_user: str | None = None,
     ) -> dict[str, MediaWikiPageSnapshot]: ...
+
+    def get_page_categories(self, titles: Sequence[str]) -> dict[str, frozenset[str]]: ...
+
+    def parse_wikitext(self, title: str, text: str) -> MediaWikiParse: ...
 
     def safe_edit_page(
         self,
@@ -155,6 +163,28 @@ def has_data_change(fetched_text: str, generated_text: str) -> bool:
     return normalize_saved_text(normalized_fetched) != normalize_saved_text(generated_text)
 
 
+def parse_problems(parse: MediaWikiParse, live_categories: frozenset[str]) -> tuple[str, ...]:
+    """Return why a parsed article must not be written, or nothing.
+
+    A script error or a missing template blocks the page. A category without a
+    page, or an Erenshor link tracking category, blocks the page only when the
+    live page is not in that category already: the write must not make the
+    page worse, but it does not have to repair it.
+    """
+    problems: list[str] = []
+    if _SCRIPT_ERROR.search(parse.html):
+        problems.append("script error")
+    problems.extend(f"missing template {template.title}" for template in parse.templates if not template.exists)
+    for category in parse.categories:
+        if category.title in live_categories:
+            continue
+        if not category.exists:
+            problems.append(f"category without a page: {category.title}")
+        elif category.title in TRACKING_CATEGORIES:
+            problems.append(f"new link tracking category: {category.title}")
+    return tuple(problems)
+
+
 def plan_article_deploy(
     storage: WikiStorage,
     *,
@@ -227,9 +257,11 @@ def deploy_articles(
 ) -> ArticleDeployResult:
     """Write the planned articles that are still at their fetched revision.
 
-    Live revisions are read in batches. A page whose live revision differs
-    from its fetched revision, or a page planned for creation that exists, is
-    a conflict. A page that MediaWiki refuses is blocked. Both are collected,
+    Live revisions and categories are read in batches. A page whose live
+    revision differs from its fetched revision, or a page planned for creation
+    that exists, is a conflict. Each other page is parsed on the wiki first,
+    and a page with a parse problem (see ``parse_problems``) or a page that
+    MediaWiki refuses is blocked. Conflicts and blocked pages are collected,
     and the run continues. A failed assertion or a transport failure ends the
     run at once, because every later write would fail the same way.
 
@@ -244,13 +276,17 @@ def deploy_articles(
         batch = writes[start : start + batch_size]
         try:
             snapshots = client.get_page_snapshots([article.title for article in batch], assertion="bot")
+            live_categories = client.get_page_categories(
+                [article.title for article in batch if snapshots[article.title].revision is not None]
+            )
         except MediaWikiAPIError as error:
-            state.stopped = f"reading live revisions failed: {error}"
+            state.stopped = f"reading live pages failed: {error}"
             break
         for article in batch:
             outcome = _write_article(
                 article,
                 snapshots[article.title],
+                live_categories.get(article.title, frozenset()),
                 state=state,
                 client=client,
                 storage=storage,
@@ -279,6 +315,7 @@ def deploy_articles(
 def _write_article(
     article: PlannedArticle,
     snapshot: MediaWikiPageSnapshot,
+    live_categories: frozenset[str],
     *,
     state: _DeployState,
     client: ArticleDeployClient,
@@ -293,6 +330,14 @@ def _write_article(
     conflict = _live_conflict(article, live)
     if conflict is not None:
         state.conflicts.append(ArticleIssue(title, conflict))
+        return "skipped"
+    try:
+        problems = parse_problems(client.parse_wikitext(title, article.generated_text), live_categories)
+    except MediaWikiAPIError as error:
+        state.stopped = f"{title}: parsing failed: {error}"
+        return "stop"
+    if problems:
+        state.blocked.append(ArticleIssue(title, "; ".join(problems)))
         return "skipped"
 
     rollback_text_source: str | None = None
