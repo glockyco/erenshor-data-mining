@@ -122,7 +122,7 @@ Alternative: the tier `npc`. Rejected: the infobox would link the chest to the N
 
 ## Migration Plan
 
-The code changes land first and change only local output, with a golden review. The live order is D8. Each step has its own manifest. Roll back a step with `wiki rollback-repo-pages --manifest <file>`. Pages created by a step stay and are listed for an administrator.
+The code changes land first and change only local output. Generation validates every page, and the deploy dry run shows each planned change for review. The live order is D8. Each step has its own manifest. Roll back a step with `wiki rollback-repo-pages --manifest <file>`. Pages created by a step stay and are listed for an administrator.
 
 ## Open Questions
 

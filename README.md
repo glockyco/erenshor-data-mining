@@ -53,7 +53,7 @@ flowchart LR
 | `wiki` | Repository-owned wiki pages: Lua modules, templates, gadgets, zone and mechanics pages. |
 | `wiki-dev` | A local MediaWiki stack for testing wiki changes. |
 | `quest_guides` | Generated and curated quest guide data for AdventureGuide. |
-| `tests` | Unit, contract, system, data, and golden baseline tests. |
+| `tests` | Unit, contract, system, and data tests. |
 | `openspec` | Requirements (`specs/`) and the reasoning behind each change (`changes/`). |
 | `.agent/skills` | Step-by-step procedures for recurring work. |
 
@@ -83,8 +83,7 @@ Three things the shell cannot provide:
 | --- | --- |
 | `erenshor extract packages` | Restores the Unity editor packages, once per checkout. |
 | `erenshor extract rip` / `export` / `code-facts` / `build` | Runs the pipeline steps above. |
-| `erenshor extract changes` | Compares the clean database with the previous backed-up build. |
-| `erenshor golden capture` | Writes snapshots of published output to `tests/golden/`. Review the diff after every data change. |
+| `erenshor extract changes` | Compares the clean database with the previous backed-up build. Review its report after every data change. |
 | `erenshor wiki fetch` / `generate` | Fetches live articles and merges regenerated data into them. |
 | `erenshor wiki generate-lua` / `deploy-repo-pages` | Generates the Lua data modules and deploys repository-owned modules and templates with revision guards and rollback data. |
 | `erenshor sheets deploy` | Publishes the sheet queries. |
@@ -104,7 +103,7 @@ A new Steam build runs through backup, rip, export, code facts, and build, then 
 
 - Never edit the decompiled game scripts under `variants/<variant>/unity/ExportedProject/Assets/Scripts/`, other ripped assets, or the installed game.
 - Never edit generated output by hand: databases, `quest_guides/guide.json`, map builds, captured tiles, generated wiki pages, or mod metadata. Change the generator and regenerate.
-- Golden baselines and deploys to the wiki, the map, or the sheets need the maintainer's approval.
+- Deploys to the wiki, the map, or the sheets need the maintainer's approval. Review each deploy with its dry run first.
 - The live map keeps its legacy contract: `/map` with the `layers` and `sel` parameters on both hosts, WebSocket ports 18584 and 18585, and `/db/erenshor.sqlite`.
 
 ### Design principles

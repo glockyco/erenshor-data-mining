@@ -31,7 +31,7 @@ If Unity reports `Unity licensing validation failed`, open Unity Hub, wait for l
 
 1. If an earlier clean backup exists, run `uv run erenshor -V {v} extract changes --limit 0`. Use `--since <build-id>` to select another backed-up build. Review removals and changed values, not only totals. Without an earlier backup, inspect the new clean database directly.
 2. For `main`, run `uv run erenshor -V main test data`. This command always reads main's database. For other variants, inspect the selected clean database and consumer previews. Follow `skill://auditing-spawn-coverage` for the post-build orphan and mapping-exclusion audits. Resolve new orphans before publishing sheets, wiki, or map.
-3. Run `uv run erenshor -V {v} wiki generate` before reviewing golden output. For the shipping variant, generate Lua modules with `uv run erenshor -V {v} wiki generate-lua`. `golden capture` writes one shared `tests/golden/` tree. Capture only with the maintainer's approval and with the variant used by the golden data checks. Review its diff before accepting it.
+3. Run `uv run erenshor -V {v} wiki generate`. It validates every generated page and fails on a semantic error. For the shipping variant, generate Lua modules with `uv run erenshor -V {v} wiki generate-lua`.
 
 ## 4. Review consumers before publication
 

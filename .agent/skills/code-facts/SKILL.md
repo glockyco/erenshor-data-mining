@@ -14,7 +14,7 @@ Run `uv run erenshor -V {v} extract code-facts` after export and before the clea
 3. Edit `src/tools/CodeFacts/specs/erenshor-facts.json`. Use `extract` for values that enter the clean database and `assert` for structural rules implemented by consumers. Use `variants` only when the fact is variant-specific.
 4. If a matcher binds zero or multiple nodes, inspect the analyzer's error and the pinned decompiler rendering. `statement_shape` and `node_shape` compare normalized decompiled syntax, not text copied from the ripped `.cs` files. Add a narrowly scoped matcher when none can bind the real rule.
 5. Update affected Python or Lua consumers and their `# code-fact: <id>` or `-- code-fact: <id>` tags. Run `uv run erenshor -V {v} extract code-facts` again, then `uv run erenshor -V {v} extract build`.
-6. Review the resulting `tests/golden/code_facts/code_facts.csv` diff when a maintainer approves golden capture. An `assert` fact emits `ok`; extracted values appear by key. Do not capture a non-shipping variant into shared goldens without matching the golden checks to that variant.
+6. Review the `code_facts` rows in the report of `uv run erenshor -V {v} extract changes`. An `assert` fact emits `ok`, and extracted values appear by key.
 
 The registry also lists deferred facts. Check it before adding a spec. `tests/test_code_facts_coverage.py` checks tags in `src/erenshor/` and `wiki/modules/`: each tag must name a spec, and each `assert` spec needs a tagged consumer there. It does not scan C# tags.
 

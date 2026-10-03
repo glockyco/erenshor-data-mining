@@ -10,9 +10,9 @@ from rich.console import Console
 def normalise_generated_page_content(content: str) -> str:
     """Strip line-end spaces/tabs from generated page files.
 
-    MediaWiki ignores line-end whitespace, but git hooks reject it. Normalize at
-    generated-file boundaries so golden capture and exact golden comparisons
-    stay aligned.
+    MediaWiki renders a page the same without line-end whitespace. The article
+    deploy compares fetched and generated text after this normalization, so a
+    page that differs only in line-end whitespace is not written.
     """
     lines: list[str] = []
     for line in content.splitlines(keepends=True):

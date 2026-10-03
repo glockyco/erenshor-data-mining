@@ -28,7 +28,7 @@
 
 - [x] 5.1 `docs(skills): describe the guarded article refresh`: update `.agent/skills/wiki-templates/SKILL.md` for the new deploy, its gates, the review report, rollback, and the drift check. Remove the known-defect note. Verify: `uv run pytest tests/contract/test_document_paths.py` passes. Each deploy commit of section 4 updated the skill for its own change, and `87fde812` removed the known-defect note. This commit corrects the remaining stale wording.
 - [x] 5.2 Run `uv run erenshor test ci` and, with the local MediaWiki stack, `uv run erenshor test wiki --warm`. Both pass. On 2026-10-03 all six CI leaves passed, and the warm wiki leaf passed its 16 system tests and the local Cargo and tooltip checks.
-- [ ] 5.3 Run `uv run erenshor golden capture`. Show the diff to the maintainer and commit it only after approval (`test(golden): refresh the wiki baselines for merged identity`).
+- [x] 5.3 Run a full `uv run erenshor wiki generate`, which validates every page of the run. On 2026-10-03 it generated 2,816 pages without a finding. The maintainer retired the golden baselines on 2026-10-03, so this change has no baseline capture. The deploy dry run of task 6.3 shows each planned change against the live wiki.
 
 ## 6. Live refresh
 

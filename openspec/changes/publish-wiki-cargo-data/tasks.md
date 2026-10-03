@@ -42,6 +42,6 @@
 ## 8. Documentation and verification
 
 - [ ] 8.1 `docs(skills): describe the Cargo workflow`: add the generate, deploy, verify, and table-creation steps to `.agent/skills/wiki-templates/SKILL.md`, and the Cargo refresh to `.agent/skills/refreshing-game-data/SKILL.md`. Verify: `uv run pytest tests/contract/test_document_paths.py` passes.
-- [ ] 8.2 `test(golden): add the Cargo rows to the baselines`: include each table's generated rows in `golden capture`. Show the diff to the maintainer and commit it only after approval.
+- [ ] 8.2 Review the generated rows of each table with the maintainer before its first live deploy: the row counts, a sample of rows, and the `wiki cargo deploy` dry run. The golden baselines were retired on 2026-10-03, so no baseline holds the rows.
 - [ ] 8.3 Run `uv run erenshor test ci` and `uv run erenshor test wiki --warm`. Both pass.
 - [ ] 8.4 Close GitHub issue #115 with a summary and archive the change with `openspec archive publish-wiki-cargo-data --yes`.
