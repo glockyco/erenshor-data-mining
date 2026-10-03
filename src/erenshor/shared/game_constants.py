@@ -18,6 +18,7 @@ __all__ = [
     "TIER_STRING_MAP",
     "WEAPON_DELAY_PRECISION",
     "WIKITEXT_LINE_SEPARATOR",
+    "ticks_to_seconds",
 ]
 
 # Tick rates
@@ -35,6 +36,15 @@ Spells.SpellDurationInTicks uses this interval. Multiply by this value
 to get duration in seconds. The game runs TickEffects() every 180 frames
 (180 / 60 FPS = 3 seconds), where StatusEffect.Duration is decremented by 1.
 """
+
+
+def ticks_to_seconds(ticks: float) -> float:
+    """Return a duration in game ticks as seconds, rounded to two decimal places.
+
+    A skill cooldown of 800 ticks is 13.33 seconds.
+    """
+    return round(ticks / GAME_TICKS_PER_SECOND, 2)
+
 
 # Display formatting constants
 COORDINATE_PRECISION = 2

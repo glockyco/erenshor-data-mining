@@ -12,17 +12,15 @@ from typing import TYPE_CHECKING
 
 from loguru import logger
 
-from erenshor.application.wiki.generators.formatting import format_description, safe_str
+from erenshor.application.wiki.generators.formatting import format_description, safe_str, seconds_text
 from erenshor.application.wiki.generators.link_lists import format_links, format_visible_links
 from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
 from erenshor.domain.value_objects.wiki_link import ClassLink
+from erenshor.shared.game_constants import ticks_to_seconds
 
 if TYPE_CHECKING:
     from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
     from erenshor.domain.enriched_data.skill import EnrichedSkillData
-
-# Game constants for cooldown calculation
-GAME_TICKS_PER_SECOND = 60  # Game runs at 60 ticks per second
 
 
 class SkillSectionGenerator(SectionGeneratorBase):
@@ -207,25 +205,7 @@ class SkillSectionGenerator(SectionGeneratorBase):
         return context
 
     def _format_cooldown(self, cooldown: float | None) -> str:
-        """Format skill cooldown from ticks to human-readable duration string."""
-        if cooldown is None or cooldown == 0:
+        """Format a skill cooldown in ticks as seconds."""
+        if not cooldown:
             return ""
-
-        seconds = cooldown / GAME_TICKS_PER_SECOND
-        return self._seconds_to_duration(int(seconds))
-
-    def _seconds_to_duration(self, seconds: int) -> str:
-        """Convert seconds to human-readable duration string."""
-        if seconds == 0:
-            return ""
-
-        minutes = seconds // 60
-        secs = seconds % 60
-
-        if minutes > 0 and secs > 0:
-            return f"{minutes} minute{'s' if minutes != 1 else ''} {secs} second{'s' if secs != 1 else ''}"
-        if minutes > 0:
-            return f"{minutes} minute{'s' if minutes != 1 else ''}"
-        if secs > 0:
-            return f"{secs} second{'s' if secs != 1 else ''}"
-        return ""
+        return seconds_text(ticks_to_seconds(cooldown))

@@ -12,17 +12,15 @@ from typing import TYPE_CHECKING
 
 from loguru import logger
 
-from erenshor.application.wiki.generators.formatting import format_description, safe_str
+from erenshor.application.wiki.generators.formatting import format_description, safe_str, seconds_text
 from erenshor.application.wiki.generators.link_lists import format_visible_links
 from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
 from erenshor.domain.value_objects.wiki_link import ClassLink
+from erenshor.shared.game_constants import GAME_TICKS_PER_SECOND
 
 if TYPE_CHECKING:
     from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
     from erenshor.domain.enriched_data.spell import EnrichedSpellData
-
-# Game constants for cast time calculation
-GAME_TICKS_PER_SECOND = 60  # Game runs at 60 ticks per second
 
 
 class SpellSectionGenerator(SectionGeneratorBase):
@@ -212,8 +210,7 @@ class SpellSectionGenerator(SectionGeneratorBase):
         return f"{seconds} seconds"
 
     def _format_cooldown(self, cooldown: float | None) -> str:
-        """Format spell cooldown to human-readable string."""
-        if cooldown is None or cooldown == 0:
+        """Format a spell cooldown in seconds."""
+        if not cooldown:
             return ""
-
-        return f"{int(cooldown)} seconds"
+        return seconds_text(cooldown)

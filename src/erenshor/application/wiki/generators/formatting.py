@@ -102,6 +102,15 @@ def safe_str(value: object, zero_as_blank: bool = False) -> str:
     return str(value)
 
 
+def seconds_text(seconds: float) -> str:
+    """Format a duration in seconds as the wiki shows it, for example ``13.33 seconds``.
+
+    A whole number has no decimal places, as in the Lua display modules.
+    """
+    number: float = int(seconds) if seconds == int(seconds) else seconds
+    return f"{number} seconds"
+
+
 def format_ability_link(spell: Spell | None, fallback_stable_key: str) -> str:
     """Render a spell reference as a stable-keyed ``AbilityLink``.
 

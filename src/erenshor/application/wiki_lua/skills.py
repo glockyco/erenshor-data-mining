@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Protocol
 
 from erenshor.application.wiki_lua.links import link_refs, mapped_class_link_ref
 from erenshor.application.wiki_lua.lua_writer import module_text
+from erenshor.shared.game_constants import ticks_to_seconds
 
 if TYPE_CHECKING:
     from erenshor.domain.entities.skill import Skill
@@ -152,7 +153,7 @@ def _skill_record(
     for lua_key, attr in _BOOL_FIELD_MAP:
         _put_bool(record, lua_key, getattr(skill, attr))
     if skill.cooldown is not None:
-        _put_number(record, "cooldownSeconds", round(skill.cooldown / 60, 2))
+        _put_number(record, "cooldownSeconds", ticks_to_seconds(skill.cooldown))
     _put_list(record, "source", link_refs(teaching_items, "item"))
     _put_list(record, "itemsWithEffect", link_refs(items_with_effect, "item"))
     return record
