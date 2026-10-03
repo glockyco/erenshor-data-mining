@@ -815,6 +815,8 @@ FodyWeavers.xsd
 
 # Erenshor state and configuration
 .erenshor/
+# The game session record of `erenshor mod launch`
+/.agent/state/
 
 # Nix dev shell: direnv cache and `nix build` result symlinks
 .direnv/
