@@ -221,9 +221,17 @@ validation in order from the repository root:
 ```bash
 uv run erenshor wiki sync-interface     # refresh gitignored live interface mirror
 uv run python wiki-dev/import_pages.py  # import interface, modules, templates, pages
+uv run python wiki-dev/null_edit.py     # re-store Cargo rows, re-render fixture pages
 uv run python wiki-dev/smoke_test.py    # parse + Cargo structural checks
+uv run python wiki-dev/cargo_check.py   # Cargo row checks
 uv run python wiki-dev/parity_check.py  # rendered-style parity vs captured live baseline
 ```
+
+The import edits only changed pages. A page that uses a changed template or
+module can serve cached output until the MediaWiki job queue refreshes it, so
+the null edit refreshes every fixture page before the checks. `uv run erenshor
+test wiki --warm` runs the import, null edit, smoke, Cargo, and browser checks
+in this order.
 
 Run `uv run python wiki-dev/parity_check.py --capture` first (and after live
 styling changes) to refresh the gitignored baseline the check compares against.
@@ -239,11 +247,11 @@ uv run erenshor test wiki --clean-parity
 
 The command validates the warm wiki first, creates a uniquely named Docker
 Compose project on an ephemeral port, imports into fresh database, image, and
-runtime volumes, recreates Cargo tables, runs smoke and browser contracts, and
-compares deterministic acceptance snapshots. It always removes the isolated
-containers and volumes. The warm wiki must have the same managed page hashes,
-Cargo fixture rows, smoke outcomes, interface inventory, and browser counters
-before and after the run.
+runtime volumes, recreates Cargo tables, null-edits the fixture pages, runs
+smoke and browser contracts, and compares deterministic acceptance snapshots.
+It always removes the isolated containers and volumes. The warm wiki must have
+the same managed page hashes, Cargo fixture rows, smoke outcomes, interface
+inventory, and browser counters before and after the run.
 
 The comparison report is written to
 `artifacts/test-reports/wiki-clean-parity.json`. Warm and clean parity each run

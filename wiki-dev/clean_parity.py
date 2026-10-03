@@ -179,16 +179,16 @@ class CleanParityHarness:
                     "--recreate",
                 )
             )
-            self._run(
-                (
-                    "uv",
-                    "run",
-                    "python",
-                    "wiki-dev/null_edit.py",
-                    "--base-url",
-                    base_url,
-                )
+        self._run(
+            (
+                "uv",
+                "run",
+                "python",
+                "wiki-dev/null_edit.py",
+                "--base-url",
+                base_url,
             )
+        )
         self._run(("uv", "run", "python", "wiki-dev/smoke_test.py", "--base-url", base_url))
         self._run(("uv", "run", "python", "wiki-dev/cargo_check.py", "--base-url", base_url))
         test_environment = {
