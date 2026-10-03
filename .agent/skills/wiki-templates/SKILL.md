@@ -26,10 +26,15 @@ Keep legacy articles, repository-owned pages, and interface gadgets on their sep
    Generated pages go to `variants/<variant>/wiki/generated/`.
    Generation merges fetched content and runs a local semantic-link audit before reporting success.
 
-3. Review preserved fields. Item `image` and `imagecaption` prefer manual values, and `othersource` is preserved.
-   Item `type`, `questsource`, and `relatedquest` use `merge`. Character `type` comes from the database.
-   Character `zones`, `coordinates`, and `respawn` use database values when present.
-   Character `imagecaption` and `location` are preserved. Ability `image` prefers manual values.
+3. Review the merge output and the generation warnings.
+   A generated root replaces the live root with its `stablekey`, or the live root with its name when the live root has no key.
+   Same-name roots pair so that the most field values agree. A merged root takes the generated companion templates.
+   A live root that matches no generated entity stays unchanged, and generation lists it as a warning.
+   Generation fails a page when equal pairings give different pages. The error names the stable keys to add to the live roots.
+   Item `image` and `imagecaption` prefer manual values, and `othersource` is preserved.
+   Item `type`, `questsource`, and `relatedquest` merge by link target: a generated link replaces live links to the same page.
+   Character `type` comes from the database. Character `zones`, `coordinates`, and `respawn` use database values when present.
+   Character `imagecaption` and `location` are preserved. Ability and Stance `image` prefer manual values. Stance `imagecaption` is preserved.
    See `src/erenshor/application/wiki/generators/field_preservation.py` for the other rules.
 
 4. Audit links and preview the intentional legacy deploy:
@@ -43,10 +48,6 @@ Keep legacy articles, repository-owned pages, and interface gadgets on their sep
    `wiki deploy` refuses to run without `--legacy-article-deploy`, even for a dry run.
    Its generated-storage path checks the live semantic-link catalog against the generated catalog.
    If that catalog is stale, deploy repository-owned Lua data first. `--from-dir` bypasses this audit.
-
-**Known defect:** The Item `merge` rule deduplicates exact strings only.
-A link-format change can add the same `type`, `questsource`, or `relatedquest` value twice.
-Inspect those fields before legacy article deploys.
 
 ## Lua data and repository-owned pages
 
