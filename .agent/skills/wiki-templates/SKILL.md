@@ -1,108 +1,148 @@
 ---
 name: wiki-templates
-description: Work with MediaWiki page generation and templates. Use when creating wiki pages, modifying templates, or understanding the wiki deployment system.
+description: Fetch, generate, validate, deploy, and roll back Erenshor wiki articles, Lua modules, templates, and interface gadgets. Use when editing or publishing wiki content.
 ---
 
-# Wiki Template System
+# Wiki content workflow
 
-Generates MediaWiki pages from database entities using Jinja2 templates.
+Run commands from the repository root. Use `-V <variant>` on `erenshor` when the target is not `main`.
+Keep legacy articles, repository-owned pages, and interface gadgets on their separate deployment paths.
 
-## Architecture
+## Legacy generated articles
 
-```
-Database → Repository → Page Generator → Jinja2 Template → Wikitext
-```
+1. Fetch existing articles before generation so manual fields survive: `uv run erenshor wiki fetch`.
+   Use `--pages-file pages.txt` to fetch only named pages.
+   `--pages-file -` reads titles from stdin. A title file has one title per line.
+   Fetch compares saved and live revisions. Use `--force` to download unchanged pages again.
+   Fetched pages go to `variants/<variant>/wiki/fetched/`.
 
-## Workflow
+2. Generate articles from the clean database and inspect the generated text:
+
+   ```bash
+   uv run erenshor wiki generate
+   uv run erenshor wiki generate --pages-file pages.txt
+   ```
+
+   Generated pages go to `variants/<variant>/wiki/generated/`.
+   Generation merges fetched content and runs a local semantic-link audit before reporting success.
+
+3. Review preserved fields. Item `image` and `imagecaption` prefer manual values, and `othersource` is preserved.
+   Item `type`, `questsource`, and `relatedquest` use `merge`. Character `type` comes from the database.
+   Character `zones`, `coordinates`, and `respawn` use database values when present.
+   Character `imagecaption` and `location` are preserved. Ability `image` prefers manual values.
+   See `src/erenshor/application/wiki/generators/field_preservation.py` for the other rules.
+
+4. Audit links and preview the intentional legacy deploy:
+
+   ```bash
+   uv run erenshor wiki audit-links
+   uv run erenshor --dry-run wiki deploy --legacy-article-deploy
+   uv run erenshor wiki deploy --legacy-article-deploy
+   ```
+
+   `wiki deploy` refuses to run without `--legacy-article-deploy`, even for a dry run.
+   Its generated-storage path checks the live semantic-link catalog against the generated catalog.
+   If that catalog is stale, deploy repository-owned Lua data first. `--from-dir` bypasses this audit.
+
+**Known defect:** The Item `merge` rule deduplicates exact strings only.
+A link-format change can add the same `type`, `questsource`, or `relatedquest` value twice.
+Inspect those fields before legacy article deploys.
+
+## Lua data and repository-owned pages
+
+1. Regenerate database-backed Lua data after clean database changes: `uv run erenshor wiki generate-lua`.
+   Data modules are written under `variants/<variant>/wiki/lua/`.
+   Keep generated values deterministic and compatible with `mw.loadData()`: strings, numbers, booleans, and tables.
+
+2. Edit maintained Lua modules under `wiki/modules/Erenshor/` and templates under `wiki/templates/`.
+   For example, `wiki/modules/Erenshor/Item.lua` maps to `Module:Erenshor/Item`.
+   `wiki/templates/Item.wiki` maps to `Template:Item`.
+   Keep editor-supplied template parameters effective in the Lua display module.
+   Test public `p.<name>(frame)` entry points through the local Scribunto testcases.
+
+3. Select only the pages needed for a live deploy. The default selects maintained Lua modules only.
+   Opt in to templates, maintained content pages, and generated data explicitly:
+
+   ```bash
+   uv run erenshor --dry-run wiki deploy-repo-pages --include-templates
+   uv run erenshor wiki deploy-repo-pages --include-templates
+   uv run erenshor wiki deploy-repo-pages --include-generated-data --pages-file pages.txt
+   ```
+
+   `--include-generated-data` requires `--pages-file` with exact page titles.
+   The `--pages-file` filter also narrows other selected pages. Missing opt-in flags reject requested optional pages.
+   Deploy generated data before direct link consumers and Cargo declarations before templates.
+
+4. Keep the deploy manifest and its rollback sidecars. By default, the manifest is written in the selected variant's wiki directory.
+   Use `--manifest-output` for a distinct manifest for each deploy you may need to undo.
+   Deployment checks source hashes, saves old text, and guards edits with live revisions.
+   The default assertion is `bot`. Use `--assert-user <username>` to guard the account identity.
+   If a Cargo declaration changes, recreate its table and refresh dependent articles before checking rows.
+
+5. Roll back edits with their exact deployment manifest:
+
+   ```bash
+   uv run erenshor --dry-run wiki rollback-repo-pages --manifest <manifest.json>
+   uv run erenshor wiki rollback-repo-pages --manifest <manifest.json>
+   ```
+
+   Rollback refuses to overwrite later edits unless you pass `--force`.
+   Rollback leaves pages created by the deploy in place. Delete them manually if appropriate.
+
+## Interface gadgets and dependent pages
+
+1. Sync live `MediaWiki:` pages into the local preview before importing: `uv run erenshor wiki sync-interface`.
+   Maintain gadget sources and registration in `wiki/gadgets/gadgets.toml`.
+
+2. Set dedicated interface-admin credentials in the local configuration before a production deploy.
+   The content bot cannot edit `MediaWiki:` pages. Preview, deploy, or restore gadget source pages:
+
+   ```bash
+   uv run erenshor --dry-run wiki deploy-interface
+   uv run erenshor wiki deploy-interface
+   uv run erenshor wiki rollback-interface
+   ```
+
+   `deploy-interface` records its own manifest under `output/wiki-interface/`.
+   Rollback checks revisions and leaves newly created interface pages in place.
+
+3. After a module or template change, refresh pages that embed it:
+
+   ```bash
+   uv run erenshor wiki refresh-embedded --dependency-title Template:Item --namespace 0
+   uv run erenshor wiki refresh-embedded --source-table Items
+   uv run erenshor wiki refresh-embedded --page 'Example Page'
+   ```
+
+   Use at least one `--dependency-title`, `--source-table`, or `--page`.
+   A dependency title also requires at least one `--namespace`.
+   Use `wiki audit-links` to include live link checks. An error finding exits nonzero.
+
+## Local MediaWiki validation
+
+Use `wiki-dev/` for real parser and Cargo behavior. It uses upstream Cargo, not the live wiki.gg fork.
+Run from the repository root in this order:
 
 ```bash
-uv run erenshor wiki fetch      # Download existing pages from wiki
-uv run erenshor wiki generate   # Generate pages locally
-uv run erenshor wiki deploy     # Upload changes to wiki
+wiki-dev/bootstrap.sh
+uv run erenshor wiki sync-interface
+uv run python wiki-dev/import_pages.py
+uv run python wiki-dev/cargo_check.py --recreate
+uv run python wiki-dev/null_edit.py
+uv run python wiki-dev/cargo_check.py
+uv run python wiki-dev/smoke_test.py
 ```
 
-Generated pages: `variants/{variant}/wiki/generated/`
-Fetched pages: `variants/{variant}/wiki/fetched/`
+Recreate Cargo tables when declarations change or on a fresh stack.
+The recreate step exits before row checks. Null edits refill and refresh affected article rows.
+The smoke harness checks rendered pages through MediaWiki `action=parse`, not raw source-text comparison.
+For a regenerated article, copy its text to a temporary `.wiki` file under `wiki-dev/fixtures/pages/`, then reimport.
+Check its title through `action=parse` and inspect the parsed HTML. Remove the temporary fixture afterward:
 
-## Directory Structure
-
-```
-src/erenshor/application/wiki/generators/
-├── base.py              # Base generator class
-├── context.py           # Template context building
-├── field_preservation.py # Preserve manually-edited wiki fields
-├── formatting.py        # Wikitext formatting utilities
-├── pages/               # Page generators
-│   ├── entities.py      # Entity page generators
-│   ├── armor_overview.py
-│   └── weapons_overview.py
-├── sections/            # Page section generators
-└── templates/           # Jinja2 templates
-```
-
-## Jinja2 Templates
-
-Located in `generators/templates/`:
-
-**Items** (by type):
-- weapon.jinja2, armor.jinja2, charm.jinja2
-- consumable.jinja2, general.jinja2
-- skillbook.jinja2, spellscroll.jinja2
-- mold.jinja2, aura.jinja2, item.jinja2
-
-**Characters**:
-- character.jinja2
-
-**Abilities**:
-- ability.jinja2
-
-## Field Preservation
-
-The system preserves manually-edited fields from existing wiki pages.
-See `field_preservation.py` for the full preservation rules.
-
-Key preserved fields by template:
-- **Items**: `image`, `imagecaption` (prefer manual), `othersource`, `type`/`questsource`/`relatedquest` (merge)
-- **Characters**: `imagecaption` (preserve), `zones`/`coordinates`/`respawn`
-  (prefer database). `type` always uses the stored encounter tier.
-- **Abilities**: `image` (prefer manual)
-
-## Services
-
-Located in `src/erenshor/application/wiki/services/`:
-- Wiki fetch, generate, deploy orchestration
-- Page comparison and diff generation
-- Deployment batching
-
-## Common Tasks
-
-**Generate all pages**:
 ```bash
-uv run erenshor wiki generate
+curl --get 'http://localhost:8088/api.php' --data-urlencode 'action=parse' --data-urlencode 'page=<article title>' --data-urlencode 'prop=text' --data-urlencode 'format=json'
 ```
 
-**Generate specific pages from file**:
-```bash
-# Create pages.txt with one page title per line
-uv run erenshor wiki generate --pages-file pages.txt
+Use live TemplateSandbox for the final compatibility check with wiki.gg.
 
-# Or pipe from stdin
-echo "Sword of Flames" | uv run erenshor wiki generate --pages-file -
-```
-
-**Limit for testing**:
-```bash
-uv run erenshor wiki generate --limit 10
-```
-
-**Preview without deploying**:
-```bash
-uv run erenshor wiki generate
-ls variants/main/wiki/generated/
-```
-
-**Deploy with confirmation**:
-```bash
-uv run erenshor wiki deploy --dry-run  # Preview changes
-uv run erenshor wiki deploy            # Actually deploy
-```
+The wiki is moving to Cargo tables populated by bot-owned storage pages. An OpenSpec change will define that workflow.
