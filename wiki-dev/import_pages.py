@@ -115,7 +115,7 @@ def _discover_gadget_pages(root: Path, spec: GadgetSpec) -> list[PageSource]:
     ]
 
 
-def discover_pages(root: Path, *, include_clean_dependencies: bool = False) -> list[PageSource]:
+def discover_pages(root: Path) -> list[PageSource]:
     """Discover interface, gadget, module, template, and fixture pages."""
     spec = _load_gadget_spec(root)
     pages: list[PageSource] = []
@@ -158,7 +158,7 @@ def discover_pages(root: Path, *, include_clean_dependencies: bool = False) -> l
             pages.append(PageSource(title=title, path=path))
 
     dependency_templates_dir = root / "wiki-dev" / "fixtures" / "dependencies" / "templates"
-    if include_clean_dependencies and dependency_templates_dir.exists():
+    if dependency_templates_dir.exists():
         for path in sorted(dependency_templates_dir.rglob("*.wiki")):
             relative = path.relative_to(dependency_templates_dir).with_suffix("")
             title = "Template:" + "/".join(relative.parts).replace("_", " ")
@@ -615,15 +615,10 @@ def main() -> None:
         type=Path,
         help="Override managed state path for an isolated local wiki run",
     )
-    parser.add_argument(
-        "--include-clean-dependencies",
-        action="store_true",
-        help="Import development-only live-template dependencies into an isolated clean wiki",
-    )
     parser.add_argument("--dry-run", action="store_true", help="Print discovered pages without editing")
     args = parser.parse_args()
 
-    pages = discover_pages(args.root, include_clean_dependencies=args.include_clean_dependencies)
+    pages = discover_pages(args.root)
     if args.dry_run:
         current = build_manifest(args.root, pages)
         for title, entry in current.items():

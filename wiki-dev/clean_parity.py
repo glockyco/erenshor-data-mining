@@ -166,8 +166,6 @@ class CleanParityHarness:
         ]
         if manifest_file is not None:
             import_command.extend(("--manifest-file", str(manifest_file)))
-        if initialize_cargo:
-            import_command.append("--include-clean-dependencies")
         self._run(import_command)
         if initialize_cargo:
             self._run(

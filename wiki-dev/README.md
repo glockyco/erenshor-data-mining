@@ -159,15 +159,21 @@ performs no edits, deletes, or purges.
 Mappings:
 
 ```text
-wiki-dev/interface/MediaWiki/Common.css          -> MediaWiki:Common.css
-wiki-dev/interface/MediaWiki/Sidebar             -> MediaWiki:Sidebar
-wiki-dev/interface/MediaWiki/Gadget-foo.js       -> MediaWiki:Gadget-foo.js
-wiki/gadgets/foo.js                              -> MediaWiki:Gadget-foo.js (repo override)
-wiki/modules/Erenshor/Item.lua                   -> Module:Erenshor/Item
-wiki-dev/fixtures/modules/Erenshor/Data/Items.lua -> Module:Erenshor/Data/Items
-wiki/templates/Item.wiki                         -> Template:Item
-wiki-dev/fixtures/pages/Foo.wiki                 -> Foo
+wiki-dev/interface/MediaWiki/Common.css                 -> MediaWiki:Common.css
+wiki-dev/interface/MediaWiki/Sidebar                    -> MediaWiki:Sidebar
+wiki-dev/interface/MediaWiki/Gadget-foo.js              -> MediaWiki:Gadget-foo.js
+wiki/gadgets/foo.js                                     -> MediaWiki:Gadget-foo.js (repo override)
+wiki/modules/Erenshor/Item.lua                          -> Module:Erenshor/Item
+wiki-dev/fixtures/modules/Erenshor/Data/Items.lua       -> Module:Erenshor/Data/Items
+wiki/templates/Item.wiki                                -> Template:Item
+wiki-dev/fixtures/dependencies/templates/Item/Armor.wiki -> Template:Item/Armor
+wiki-dev/fixtures/pages/Foo.wiki                        -> Foo
 ```
+
+`wiki-dev/fixtures/dependencies/templates/` holds include-only copies of the
+live legacy item templates that the parameterized equipment renderer still
+needs. Every import manages them like the other fixture pages, so a new
+developer wiki and the clean parity wiki render the same equipment.
 
 ## Run smoke tests
 
@@ -238,12 +244,6 @@ compares deterministic acceptance snapshots. It always removes the isolated
 containers and volumes. The warm wiki must have the same managed page hashes,
 Cargo fixture rows, smoke outcomes, interface inventory, and browser counters
 before and after the run.
-
-`wiki-dev/fixtures/dependencies/templates/` contains include-only copies of the
-live legacy item templates still required by the parameterized equipment
-renderer. The clean harness imports these with
-`--include-clean-dependencies`. Ordinary warm imports do not manage or overwrite
-the live-template copies in the developer wiki.
 
 The comparison report is written to
 `artifacts/test-reports/wiki-clean-parity.json`. Warm and clean parity each run
