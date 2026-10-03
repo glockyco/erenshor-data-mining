@@ -72,6 +72,8 @@ The manifest uses the repository-page format with a new `article` upload stage, 
 
 Page normalization sorts the categories at the bottom of the page, removes extra blank lines, and strips line-end spaces. A page that differs from its fetched text only in these ways has no data change. A write would only rearrange the text of the editors. After the zone merge, 34 of the 43 zone pages are such pages.
 
+A dry run reads the live revision of each planned page and writes nothing to the wiki. It groups the planned writes by kind of change: new pages, encounter tiers, field values, links, stable keys, categories, and structure. Generated templates pair by name, entity name, and position. A field value compares with each link replaced by the page that the link catalog gives for it. The change from wikilinks to stable-key templates is therefore a link change, and a removed link is a value change. Generation records the live roots that the merge kept, and the report lists them. The full report goes to `variants/<variant>/wiki/deploy-plan.json`, and a conflict fails the dry run.
+
 Alternative: base the edit on a fresh snapshot, as `deploy-repo-pages` does. Rejected: the text was merged from the fetched revision, so a newer live revision means the merge is stale.
 
 ### D6. Drift check for repository pages

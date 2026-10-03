@@ -176,12 +176,22 @@ Before it writes an article, `wiki deploy` SHALL parse the new text on the live 
 
 ### Requirement: The deploy plan is reviewable
 
-A dry run of `wiki deploy` SHALL write nothing and SHALL report the pages it would write, grouped by kind of change (field values, encounter tiers, categories, links, structure), the unmatched live roots, and the pages that are conflicts.
+A dry run of `wiki deploy` SHALL NOT write to the wiki. It SHALL report the pages that it would write, grouped by kind of change (new pages, encounter tiers, field values, links, stable keys, categories, and structure), the live roots that generation kept because they match no generated entity, and the pages that are conflicts. Field values SHALL compare with link syntax ignored: a value whose links reach the same pages through other syntax is a link change. The dry run SHALL fail when a planned page is a conflict.
 
 #### Scenario: Tier changes
 
 - **WHEN** the dry run covers a page whose type changes from Rare to Elite
 - **THEN** the report lists that page under encounter tier changes
+
+#### Scenario: Link syntax only
+
+- **WHEN** a field changes from `[[The Brake]]` to `{{ZoneLink|stablekey=zone:brake}}`, and the link catalog places that key on `The Brake`
+- **THEN** the report lists the page under link changes and not under field value changes
+
+#### Scenario: A page changed after the fetch
+
+- **WHEN** a planned page has a newer live revision than its fetched revision
+- **THEN** the dry run names that page as a conflict and fails
 
 ### Requirement: Repository pages are not overwritten after another account's edit
 

@@ -1,5 +1,6 @@
 """Unit tests for wiki CLI commands."""
 
+import json
 from dataclasses import replace
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -493,29 +494,77 @@ class TestWikiDeployCommand:
     def _storage(cli_context: CLIContext) -> WikiStorage:
         return WikiStorage(cli_context.config.variants["main"].resolved_wiki(cli_context.repo_root))
 
-    def test_dry_run_audits_the_planned_writes_without_logging_in(
+    @staticmethod
+    def _stub_review(monkeypatch: pytest.MonkeyPatch, live_revisions: dict[str, int | None]) -> MagicMock:
+        import erenshor.cli.commands.wiki as wiki_command
+
+        readonly = MagicMock()
+        readonly.get_page_revision_ids.return_value = live_revisions
+        monkeypatch.setattr(wiki_command, "_create_readonly_mediawiki_client", lambda _ctx: readonly)
+        monkeypatch.setattr(wiki_command, "_build_link_audit_catalog", lambda _ctx: ())
+        monkeypatch.setattr(
+            wiki_command, "_create_mediawiki_client", MagicMock(side_effect=AssertionError("dry run must not log in"))
+        )
+        return readonly
+
+    def test_dry_run_reports_the_plan_and_audits_without_logging_in(
         self, monkeypatch: pytest.MonkeyPatch, cli_context: CLIContext
     ) -> None:
         import erenshor.cli.commands.wiki as wiki_command
 
-        self._changed_page(self._storage(cli_context), "Alpha")
+        storage = self._storage(cli_context)
+        fetched = "{{Character\n|name=Alpha\n|type=Rare\n}}\n{{Character\n|name=Alpha Chest\n}}"
+        storage.save_fetched_by_title("Alpha", ["character:alpha"], fetched, ["Alpha"], 10)
+        generated = (
+            "{{Character\n|name=Alpha\n|stablekey=character:alpha\n|type=Elite\n}}\n"
+            "{{Character\n|name=Alpha Chest\n}}\n"
+        )
+        storage.save_generated_by_title("Alpha", ["character:alpha"], generated, kept_roots=("Character: Alpha Chest",))
+        readonly = self._stub_review(monkeypatch, {"Alpha": 10})
         run_audit = MagicMock(return_value=TestWikiLinkAuditCommand._report())
         monkeypatch.setattr(wiki_command, "_run_link_audit", run_audit)
-        monkeypatch.setattr(
-            wiki_command, "_create_mediawiki_client", MagicMock(side_effect=AssertionError("dry run must not log in"))
-        )
 
         result = runner.invoke(wiki.app, ["deploy"], obj=replace(cli_context, dry_run=True))
 
         assert result.exit_code == 0
-        assert "Edit: 1" in result.output
-        assert run_audit.call_args.args[1] == {"Alpha": "{{Item|value=2}}\n"}
-        assert run_audit.call_args.kwargs == {"online": True, "include_live_pages": False, "output_path": None}
+        output = _unwrapped(result.output)
+        assert "Edit: 1" in output
+        assert "Alpha: Rare -> Elite" in output
+        assert "Kept live root Alpha: Character: Alpha Chest" in output
+        review = json.loads(
+            (cli_context.config.variants["main"].resolved_wiki(cli_context.repo_root) / "deploy-plan.json").read_text()
+        )
+        assert review["kinds"]["encounter tier"] == ["Alpha"]
+        assert review["kept_roots"] == {"Alpha": ["Character: Alpha Chest"]}
+        assert review["conflicts"] == {}
+        assert run_audit.call_args.args[1] == {"Alpha": generated}
+        assert run_audit.call_args.kwargs["online"] is True
+        assert run_audit.call_args.kwargs["output_path"] is None
+        readonly.close.assert_called_once_with()
+
+    def test_dry_run_fails_on_a_page_that_changed_after_the_fetch(
+        self, monkeypatch: pytest.MonkeyPatch, cli_context: CLIContext
+    ) -> None:
+        import erenshor.cli.commands.wiki as wiki_command
+
+        storage = self._storage(cli_context)
+        self._changed_page(storage, "Alpha")
+        self._changed_page(storage, "Beta")
+        self._stub_review(monkeypatch, {"Alpha": 10, "Beta": 11})
+        monkeypatch.setattr(wiki_command, "_run_link_audit", MagicMock(return_value=TestWikiLinkAuditCommand._report()))
+
+        result = runner.invoke(wiki.app, ["deploy"], obj=replace(cli_context, dry_run=True))
+
+        assert result.exit_code == 1
+        assert "Conflict Beta: changed after the fetch: live revision 11, fetched revision 10" in _unwrapped(
+            result.output
+        )
 
     def test_stale_live_link_catalog_stops_the_deploy(self, monkeypatch: pytest.MonkeyPatch, cli_context: CLIContext):
         import erenshor.cli.commands.wiki as wiki_command
 
         self._changed_page(self._storage(cli_context), "Alpha")
+        self._stub_review(monkeypatch, {"Alpha": 10})
         stale_catalog = LinkAuditFinding(
             code="live_link_catalog_stale",
             severity="warning",
@@ -565,6 +614,7 @@ class TestWikiDeployCommand:
         client.get_page_categories.return_value = {}
         client.parse_wikitext.return_value = MediaWikiParse(html="<p></p>", templates=(), categories=())
         monkeypatch.setattr(wiki_command, "_create_mediawiki_client", lambda _ctx: client)
+        monkeypatch.setattr(wiki_command, "_build_link_audit_catalog", lambda _ctx: ())
         monkeypatch.setattr(wiki_command, "_run_link_audit", MagicMock(return_value=TestWikiLinkAuditCommand._report()))
         monkeypatch.setattr(wiki_command, "recorded_build_id", lambda _path: "123")
         monkeypatch.setattr("erenshor.application.wiki_deploy.articles.time.sleep", lambda _seconds: None)

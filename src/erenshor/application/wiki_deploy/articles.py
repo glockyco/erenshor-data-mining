@@ -327,7 +327,7 @@ def _write_article(
     """Write one article if its live page is still the one that generation merged into."""
     title = article.title
     live = snapshot.revision
-    conflict = _live_conflict(article, live)
+    conflict = live_conflict(article, None if live is None else live.revision_id)
     if conflict is not None:
         state.conflicts.append(ArticleIssue(title, conflict))
         return "skipped"
@@ -387,17 +387,21 @@ def _write_article(
     return "requested"
 
 
-def _live_conflict(article: PlannedArticle, live: MediaWikiPageRevision | None) -> str | None:
-    """Return why the live page is not the page that generation merged into, or None."""
+def live_conflict(article: PlannedArticle, live_revision_id: int | None) -> str | None:
+    """Return why the live page is not the page that generation merged into, or None.
+
+    ``live_revision_id`` is the current revision of the page, or None when the
+    page does not exist.
+    """
     if article.action == "create":
-        if live is None:
+        if live_revision_id is None:
             return None
-        return f"exists at revision {live.revision_id} but was generated without its live text"
-    if live is None:
+        return f"exists at revision {live_revision_id} but was generated without its live text"
+    if live_revision_id is None:
         return "was deleted after the fetch"
-    if live.revision_id != article.fetched_revision_id:
+    if live_revision_id != article.fetched_revision_id:
         return (
-            f"changed after the fetch: live revision {live.revision_id}, fetched revision {article.fetched_revision_id}"
+            f"changed after the fetch: live revision {live_revision_id}, fetched revision {article.fetched_revision_id}"
         )
     return None
 

@@ -16,6 +16,7 @@ Example workflow:
 """
 
 import difflib
+import json
 import sys
 import tempfile
 import uuid
@@ -39,6 +40,7 @@ from erenshor.application.wiki.services.fetch_service import WikiFetchService
 from erenshor.application.wiki.services.generate_service import WikiGenerateService
 from erenshor.application.wiki.services.storage import WikiStorage
 from erenshor.application.wiki_deploy.article_identity import build_article_identity_map
+from erenshor.application.wiki_deploy.article_report import CHANGE_KINDS, ArticleDeployReport, build_article_report
 from erenshor.application.wiki_deploy.articles import (
     ArticleDeployPlan,
     ArticleDeployResult,
@@ -49,6 +51,7 @@ from erenshor.application.wiki_deploy.link_audit import (
     ERROR_CODES,
     FINDING_CODES,
     LinkAuditReport,
+    LinkTargets,
 )
 from erenshor.application.wiki_deploy.link_audit_service import LinkAuditService
 from erenshor.application.wiki_deploy.manifest import (
@@ -1584,6 +1587,11 @@ def deploy(
     that generation merged into. A page that changed or was deleted after the
     fetch is a conflict and is not written. Every written page goes into a
     manifest that `wiki rollback-repo-pages` restores.
+
+    A dry run writes nothing to the wiki. It groups the planned writes by kind
+    of change, lists the encounter tier changes, the live roots that generation
+    kept, and the conflicts, and saves the full report as deploy-plan.json in
+    the wiki directory of the variant.
     """
     cli_ctx: CLIContext = ctx.obj
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
@@ -1598,6 +1606,20 @@ def deploy(
 
     _print_article_plan(plan)
     writes = {article.title: article.generated_text for article in plan.writes}
+    review_failed = False
+    catalog = _build_link_audit_catalog(cli_ctx) if writes else ()
+    if cli_ctx.dry_run and writes:
+        readonly_client = _create_readonly_mediawiki_client(cli_ctx)
+        try:
+            live_revisions = readonly_client.get_page_revision_ids(list(writes))
+        finally:
+            readonly_client.close()
+        review = build_article_report(plan, storage, live_revisions, LinkTargets(catalog))
+        review_path = wiki_dir / "deploy-plan.json"
+        review_path.write_text(json.dumps(review.to_json(), indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        _print_article_report(review, review_path)
+        review_failed = bool(review.conflicts)
+
     if writes:
         report = _run_link_audit(
             cli_ctx,
@@ -1605,6 +1627,7 @@ def deploy(
             online=True,
             include_live_pages=False,
             output_path=None if cli_ctx.dry_run else _default_link_audit_output(cli_ctx),
+            catalog=catalog,
         )
         if any(finding.code == "live_link_catalog_stale" for finding in report.findings):
             console.print(
@@ -1618,7 +1641,7 @@ def deploy(
             raise typer.Exit(1)
 
     if cli_ctx.dry_run or not writes:
-        if plan.stale:
+        if plan.stale or review_failed:
             raise typer.Exit(1)
         return
 
@@ -1661,6 +1684,38 @@ def _print_article_plan(plan: ArticleDeployPlan) -> None:
     )
     for issue in plan.stale:
         console.print(f"[red]Stale[/red] {escape(issue.title)}: {escape(issue.reason)}")
+
+
+def _print_article_report(review: ArticleDeployReport, review_path: Path) -> None:
+    """Print the planned writes by kind of change, the kept live roots, and the conflicts."""
+    console.print("[bold]Planned writes by kind of change[/bold]")
+    for kind in CHANGE_KINDS:
+        console.print(f"  {kind}: {len(review.pages(kind))}")
+    console.print(f"  only links and stable keys: {len(review.invisible_pages())}")
+    tier_changes = [(change.title, tier) for change in review.changes for tier in change.tier_changes]
+    if tier_changes:
+        console.print(f"[bold]Encounter tier changes[/bold] ({len(tier_changes)})")
+        for title, tier in tier_changes:
+            label = title if tier.name == title else f"{title} ({tier.name})"
+            console.print(f"  {escape(label)}: {escape(tier.old)} -> {escape(tier.new)}")
+    field_pages = review.field_pages()
+    if field_pages:
+        console.print("[bold]Most changed field values[/bold]")
+        for field, titles in list(field_pages.items())[:15]:
+            console.print(f"  {escape(field)}: {len(titles)}")
+    structure = [change for change in review.changes if change.structure]
+    if structure:
+        console.print(f"[bold]Structure changes[/bold] ({len(structure)})")
+        for change in structure[:20]:
+            console.print(f"  {escape(change.title)}: {escape('; '.join(change.structure))}")
+        if len(structure) > 20:
+            console.print(f"  ... and {len(structure) - 20} more in the full report")
+    for change in review.changes:
+        for root in change.kept_roots:
+            console.print(f"[yellow]Kept live root[/yellow] {escape(change.title)}: {escape(root)}")
+    for issue in review.conflicts:
+        console.print(f"[yellow]Conflict[/yellow] {escape(issue.title)}: {escape(issue.reason)}")
+    console.print(f"Full report: {review_path}", markup=False)
 
 
 def _print_article_deploy_result(result: ArticleDeployResult, manifest_path: Path) -> None:

@@ -29,7 +29,7 @@ Keep legacy articles, repository-owned pages, and interface gadgets on their sep
 3. Review the merge output and the generation warnings.
    A generated root replaces the live root with its `stablekey`, or the live root with its name when the live root has no key.
    Same-name roots pair so that the most field values agree. A merged root takes the generated companion templates.
-   A live root that matches no generated entity stays unchanged, and generation lists it as a warning.
+   A live root that matches no generated entity stays unchanged. Generation lists it as a warning and records it for the deploy review.
    Generation fails a page when equal pairings give different pages. The error names the stable keys to add to the live roots.
    Item `image` and `imagecaption` prefer manual values, and `othersource` is preserved.
    Item `type`, `questsource`, and `relatedquest` merge by link target: a generated link replaces live links to the same page.
@@ -50,6 +50,10 @@ Keep legacy articles, repository-owned pages, and interface gadgets on their sep
    uv run erenshor wiki deploy
    ```
 
+   A dry run writes nothing to the wiki. It groups the planned writes by kind of change: new pages, encounter tiers, field values, links, stable keys, categories, and structure.
+   Field values compare with link syntax ignored. A value whose links reach the same pages through other syntax is a link change.
+   The dry run lists each encounter tier change, each live root that generation kept, and each conflict. It fails when a page is a conflict.
+   It saves the full report to `variants/<variant>/wiki/deploy-plan.json`.
    `wiki deploy` writes an article only while its live page is still at the fetched revision.
    A page that changed or was deleted after the fetch is a conflict. Fetch and generate it again.
    A page that differs from its fetched text only by page normalization is not written.

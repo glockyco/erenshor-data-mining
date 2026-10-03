@@ -24,6 +24,8 @@ from erenshor.application.wiki_lua.link_catalog import LinkCatalogEntry
 from erenshor.infrastructure.wiki.template_parser import TemplateParser
 
 if TYPE_CHECKING:
+    from mwparserfromhell.nodes import Node
+
     from erenshor.infrastructure.wiki.client import MediaWikiTitleStatus
 
 
@@ -344,13 +346,19 @@ class LinkTargets:
         """Return the title key that ``wikitext`` links, or None when it is not one link.
 
         ``wikitext`` is a link only when one semantic link template or one
-        wikilink is all of its non-blank content. A stable key that the catalog
-        does not hold has no known page, so its template is not a link.
+        wikilink is all of its non-blank content.
         """
         nodes = [node for node in TemplateParser().parse(wikitext).nodes if str(node).strip()]
         if len(nodes) != 1:
             return None
-        node = nodes[0]
+        return self.node_target(nodes[0])
+
+    def node_target(self, node: Node) -> str | None:
+        """Return the title key that one parsed node links, or None when it is not a link.
+
+        A stable key that the catalog does not hold has no known page, so its
+        template is not a link.
+        """
         if isinstance(node, Wikilink):
             title = str(node.title).strip().lstrip(":").strip()
             return _title_key(title) if title else None
