@@ -96,6 +96,14 @@ The migrations of retired templates go as well: the legacy template remover (`En
 4. Deploy about a dozen canary pages: one per template family, a multi-entity page, a zone page, and an overview. Check them in a browser.
 5. Deploy the rest. Fetch again and confirm that every generated page equals its live text after page normalization.
 
+### D9. Links to articles that people write
+
+Generated items and characters link to quests and factions with `QuestLink` and `FactionLink`. People write the quest, faction, and class articles (#288), and generation never creates one. The link audit therefore reports a generated link to such an article that does not exist as the warning `missing_manual_target_article`. The report names the article, so that a contributor can write it. A generated link to a missing item, ability, character, or zone article stays an error, and so does a link to an article that generation writes but the deploy leaves out.
+
+On 2026-10-03, 96 generated links pointed to 45 quest articles and 2 faction articles that do not exist. In 76 of the 82 pairs of source page and target, the live source page already named the target.
+
+Alternative: link only to articles that exist. Rejected: generation would then depend on the live wiki, and the red link asks a contributor for the article.
+
 ## Risks / Trade-offs
 
 - [About 2,700 edits reach editors' watchlists] → The bot flag hides them from recent changes by default. The maintainer approves the full deploy after the canary.

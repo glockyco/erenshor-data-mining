@@ -22,6 +22,7 @@ def test_all_finding_codes_and_severities_are_reported() -> None:
         entry("item:shared_a", "Shared", "Shared"),
         entry("item:shared_b", "Shared", "Shared"),
         entry("item:old", "Old", "Old"),
+        LinkCatalogEntry("quest:q", "quest", None, "Q", "Q", None),
     )
     statuses = {
         "Missing": MediaWikiTitleStatus("Missing", "Missing", None, False),
@@ -30,7 +31,7 @@ def test_all_finding_codes_and_severities_are_reported() -> None:
     report = audit_links(
         generated_pages={
             "A source": "{{ItemLink|stablekey=item:a|link=Wrong}}",
-            "B source": "{{ItemLink|stablekey=item:unknown|link=A}}",
+            "B source": "{{ItemLink|stablekey=item:unknown|link=A}} {{QuestLink|stablekey=quest:q}}",
             "C source": (
                 "{{ItemLink|stablekey=item:a|link=A}} {{ItemLink|Shared}} {{ItemLink|Missing}} {{ItemLink|Old}}"
             ),
@@ -49,6 +50,7 @@ def test_all_finding_codes_and_severities_are_reported() -> None:
         "missing_stable_key_data",
         "stable_key_target_mismatch",
         "missing_generated_target_article",
+        "missing_manual_target_article",
         "ambiguous_manual_semantic_link",
         "manual_red_link",
         "stale_manual_redirect",
@@ -59,6 +61,7 @@ def test_all_finding_codes_and_severities_are_reported() -> None:
         "missing_stable_key_data": "error",
         "stable_key_target_mismatch": "error",
         "missing_generated_target_article": "error",
+        "missing_manual_target_article": "warning",
         "ambiguous_manual_semantic_link": "warning",
         "manual_red_link": "warning",
         "stale_manual_redirect": "warning",
@@ -119,6 +122,24 @@ def test_effective_page_filter_and_limit_are_missing_planned_target_errors() -> 
     )
     assert [finding.code for finding in report.findings] == ["missing_generated_target_article"]
     assert report.findings[0].severity == "error"
+
+
+def test_missing_quest_article_is_a_red_link_unless_generation_owns_it() -> None:
+    catalog = (LinkCatalogEntry("quest:q", "quest", None, "Q", "Q", None),)
+    statuses = {"Q": MediaWikiTitleStatus("Q", "Q", None, False)}
+
+    def codes(known_generated_titles: set[str]) -> list[tuple[str, str]]:
+        report = audit_links(
+            generated_pages={"Source": "{{QuestLink|stablekey=quest:q}}"},
+            catalog_entries=catalog,
+            planned_titles={"Source"},
+            known_generated_titles=known_generated_titles,
+            title_statuses=statuses,
+        )
+        return [(finding.code, finding.severity) for finding in report.findings]
+
+    assert codes({"Source"}) == [("missing_manual_target_article", "warning")]
+    assert codes({"Source", "Q"}) == [("missing_generated_target_article", "error")]
 
 
 def test_offline_external_target_remains_unknown_until_remote_check() -> None:

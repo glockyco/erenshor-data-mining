@@ -50,6 +50,10 @@ Keep generated articles, repository-owned pages, and interface gadgets on their 
    uv run erenshor wiki deploy
    ```
 
+   `wiki audit-links` fails when a generated link points to an item, ability, character, or zone article that is neither live nor in the deploy.
+   People write the quest, faction, and class articles. A generated link to such an article that does not exist is a red link.
+   The audit lists it as the warning `missing_manual_target_article`, so that a contributor can write the article.
+
    A dry run writes nothing to the wiki. It groups the planned writes by kind of change: new pages, encounter tiers, field values, links, stable keys, categories, and structure.
    Field values compare with link syntax ignored. A value whose links reach the same pages through other syntax is a link change.
    The dry run lists each encounter tier change, each live root that generation kept, and each conflict. It fails when a page is a conflict.

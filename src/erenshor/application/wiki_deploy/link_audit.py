@@ -55,12 +55,18 @@ WARNING_CODES = frozenset(
     {
         "ambiguous_manual_semantic_link",
         "manual_red_link",
+        "missing_manual_target_article",
         "stale_manual_redirect",
         "live_link_catalog_stale",
         "runtime_tracking_category",
     }
 )
 FINDING_CODES = ERROR_CODES | WARNING_CODES
+
+# Families whose articles people write. Generated pages link to them, but
+# generation never creates one, so a missing article is a red link that asks a
+# contributor for the page. It is not a defect of the deployment.
+MANUAL_ARTICLE_KINDS = frozenset({"quest", "faction", "class"})
 
 _PREFIXES: Mapping[str, tuple[str, ...]] = {
     "item": ("item:",),
@@ -626,17 +632,16 @@ def audit_links(
                     findings.append(local_finding)
 
                 if occurrence.stable_key is not None:
-                    if occurrence.canonical_target is None:
+                    target = occurrence.canonical_target
+                    if target is None:
                         continue
-                    status = _status_for(title_statuses, occurrence.canonical_target)
-                    missing_target = not (
-                        _planned(planned_title_keys, occurrence.canonical_target) or _status_exists(status)
-                    )
-                    target_must_be_known = title_statuses is not None or _planned(
-                        known_generated_title_keys,
-                        occurrence.canonical_target,
-                    )
-                    if origin == "generated_output" and missing_target and target_must_be_known:
+                    status = _status_for(title_statuses, target)
+                    missing_target = not (_planned(planned_title_keys, target) or _status_exists(status))
+                    if origin != "generated_output" or not missing_target:
+                        continue
+                    if _planned(known_generated_title_keys, target) or (
+                        title_statuses is not None and occurrence.kind not in MANUAL_ARTICLE_KINDS
+                    ):
                         findings.append(
                             LinkAuditFinding(
                                 "missing_generated_target_article",
@@ -645,11 +650,23 @@ def audit_links(
                                 occurrence.kind,
                                 occurrence.stable_key,
                                 occurrence.supplied_target,
-                                occurrence.canonical_target,
-                                (
-                                    f"Generated semantic link target {occurrence.canonical_target!r} "
-                                    "is neither live nor planned for this deployment"
-                                ),
+                                target,
+                                f"Generated semantic link target {target!r} is neither live "
+                                "nor planned for this deployment",
+                            )
+                        )
+                    elif title_statuses is not None:
+                        findings.append(
+                            LinkAuditFinding(
+                                "missing_manual_target_article",
+                                "warning",
+                                source_page,
+                                occurrence.kind,
+                                occurrence.stable_key,
+                                occurrence.supplied_target,
+                                target,
+                                f"Generated semantic link target {target!r} is a {occurrence.kind} article "
+                                "that no one has written yet",
                             )
                         )
                     continue
