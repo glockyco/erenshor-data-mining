@@ -39,13 +39,6 @@ pre-commit:
       glob: "*.lua"
       run: scripts/with-dev-env.sh pnpm exec stylua --check {staged_files}
 
-    - name: plans docs
-      glob: "docs/plans/**/*.md"
-      run: omp-plans index && omp-plans check
-      stage_fixed: true
-      skip:
-        - run: "! command -v omp-plans"
-
     # gitleaks ships in the dev shell, so a missing binary is a broken
     # environment rather than a reason to push unscanned changes.
     - name: gitleaks

@@ -153,7 +153,7 @@ reason = "Keeper is placed via SpawnPoint; Skeletons is a runtime-populated List
 [[denied]]
 script = "Misc"
 fields = ["SivakayanSpectres"]
-reason = "category-c-pending: zone-wide random spawner; see docs/plans/2026-06-28-category-c-zone-random-spawns.md."
+reason = "category-c-pending: zone-wide random spawner; see GitHub issue #282."
 
 # --- Denied: non-Character GameObject fields ---
 
