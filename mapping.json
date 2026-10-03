@@ -2021,7 +2021,9 @@
     "character:molorai high archaelogist 3": {
       "wiki_page_name": "Molorai Archaeologist",
       "display_name": "Molorai Archaeologist",
-      "image_name": "Molorai Archaeologist Dusken"
+      "image_name": "Molorai Archaeologist Dusken",
+      "reason": "Reviewed as an elite: the named high variant (BossXp 4) among the ordinary Molorai Archaeologists of Duskenlight. It is not the boss of an area, so one placement must not make it a boss.",
+      "encounter_tier": "elite"
     },
     "character:molorai nightmistress": {
       "wiki_page_name": "Molorai Nightmistress",
@@ -4531,6 +4533,47 @@
       "mapping_type": "custom",
       "reason": "Monarch of the Flame summons it during the Chessboard event, and it fights as one of the event's bosses.",
       "encounter_tier": "boss"
+    },
+    "character:sivakayan emissary": {
+      "wiki_page_name": "Sivakayan Emissary",
+      "display_name": "Sivakayan Emissary",
+      "image_name": "Sivakayan Emissary",
+      "mapping_type": "custom",
+      "reason": "Reviewed as an elite: a named Sivakayan (BossXp 2) that shares its spawn point in Azynthi's Garden with a Sivakayan Bodyguard. It is not the boss of an area, so one placement must not make it a boss.",
+      "encounter_tier": "elite"
+    },
+    "character:crypt keeper": {
+      "wiki_page_name": "Crypt Keeper",
+      "display_name": "Crypt Keeper",
+      "image_name": "Crypt Keeper",
+      "mapping_type": "custom",
+      "reason": "Reviewed as an NPC: game data lists it as aggressive towards the player, but the review keeps the NPC type that the wiki already shows.",
+      "encounter_tier": "npc"
+    },
+    "character:ghostly figure:shiveringstep:701.36:24.78:439.97": {
+      "wiki_page_name": "Enterprising Spirit",
+      "display_name": "Enterprising Spirit",
+      "image_name": "Enterprising Spirit",
+      "mapping_type": "custom",
+      "reason": "Reviewed as an NPC: a vendor with dialog in Shivering Step. Game data lists it as aggressive towards the player.",
+      "encounter_tier": "npc"
+    },
+    "character:the hider:shiveringstep:668.70:45.25:549.83": {
+      "wiki_page_name": "The Hider",
+      "display_name": "The Hider",
+      "image_name": "The Hider",
+      "mapping_type": "custom",
+      "reason": "Reviewed as an NPC: an invulnerable character with dialog in Shivering Step. Game data lists it as aggressive towards the player.",
+      "encounter_tier": "npc"
+    },
+    "character:vitheo observer": {
+      "wiki_page_name": null,
+      "display_name": "Vitheo the Tactician",
+      "image_name": "Vitheo the Tactician",
+      "mapping_type": "excluded",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "reason": "Invulnerable stand-in that watches the arena rounds and never interacts with the player. VitheoFight destroys it when the final fight starts (ObserverSpawn), and VithArena spawns the Vitheo that players fight."
     }
   }
 }
