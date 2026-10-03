@@ -66,7 +66,15 @@ from erenshor.application.wiki_deploy.override_migration import (
     MissingArticleError,
     review_article_overrides,
 )
-from erenshor.application.wiki_deploy.pages import build_deployed_manifest, deploy_repo_pages
+from erenshor.application.wiki_deploy.pages import (
+    RepoPageDrift,
+    RepoPageDriftError,
+    build_deployed_manifest,
+    deploy_repo_pages,
+    find_drift,
+    read_repo_page_sources,
+    repo_page_action,
+)
 from erenshor.application.wiki_deploy.refresh import refresh_embedded_pages
 from erenshor.application.wiki_deploy.rollback import rollback_repo_pages
 from erenshor.application.wiki_interface.deploy import (
@@ -1264,8 +1272,24 @@ def deploy_repo_pages_command(
             help="Explicitly include maintained wiki content pages. Disabled by default.",
         ),
     ] = False,
+    accept_drift: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--accept-drift",
+            help=(
+                "Overwrite this page although another account made its latest revision. "
+                "Review its live text first. May be repeated."
+            ),
+        ),
+    ] = None,
 ) -> None:
-    """Deploy repo-owned wiki pages; generated data, content pages, and templates require opt-in."""
+    """Deploy repo-owned wiki pages; generated data, content pages, and templates require opt-in.
+
+    The deploy stops before its first write when another account made the latest
+    revision of a page whose live text differs from the repository. Copy that live
+    text into the repository, or name the page with --accept-drift. A dry run reads
+    the live pages, counts the planned changes, and names each such page.
+    """
     cli_ctx: CLIContext = ctx.obj
     if include_generated_data and not pages_file:
         console.print("[red]--include-generated-data requires --pages-file with explicit page titles[/red]")
@@ -1316,9 +1340,31 @@ def deploy_repo_pages_command(
         console.print("[yellow]No repo-owned wiki pages selected; no remote edits made[/yellow]")
         return
 
+    accepted = tuple(accept_drift or ())
     if cli_ctx.dry_run:
+        readonly_client = _create_readonly_mediawiki_client(cli_ctx)
+        try:
+            snapshots = readonly_client.get_page_snapshots([entry.title for entry in manifest.entries])
+            account = readonly_client.edit_account
+        finally:
+            readonly_client.close()
+        try:
+            source_texts = read_repo_page_sources(manifest, cli_ctx.repo_root)
+            drift = find_drift(manifest.entries, source_texts, snapshots, deploy_account=account, accepted=accepted)
+        except ValueError as e:
+            console.print(f"[red]{escape(str(e))}[/red]")
+            raise typer.Exit(1) from e
+        actions = Counter(
+            repo_page_action(snapshots[entry.title], source_texts[entry.title]) for entry in manifest.entries
+        )
         scope = f" filtered by {pages_file}" if pages_file else ""
-        console.print(f"[yellow]Dry run: {len(manifest.entries)} repo-owned pages in manifest{scope}[/yellow]")
+        console.print(
+            f"[yellow]Dry run: {len(manifest.entries)} repo-owned pages in manifest{scope}[/yellow] "
+            f"Create: {actions['created']} Edit: {actions['edited']} Unchanged: {actions['unchanged']}"
+        )
+        _print_repo_page_drift(drift)
+        if drift:
+            raise typer.Exit(1)
         return
 
     def checkpoint_manifest(checkpointed_manifest: RepoWikiPageManifest) -> None:
@@ -1339,7 +1385,14 @@ def deploy_repo_pages_command(
             include_generated_data=include_generated_data,
             include_content_pages=include_content_pages,
             known_live_titles=known_live_titles,
+            accept_drift=accepted,
         )
+    except RepoPageDriftError as e:
+        _print_repo_page_drift(e.drift)
+        raise typer.Exit(1) from e
+    except ValueError as e:
+        console.print(f"[red]Repo-owned page deploy failed: {escape(str(e))}[/red]")
+        raise typer.Exit(1) from e
     finally:
         client.close()
 
@@ -1356,6 +1409,17 @@ def deploy_repo_pages_command(
 
     changed_titles = {entry.title for entry in result.entries if entry.status != "unchanged"}
     _report_changed_cargo_declarations(manifest, changed_titles)
+
+
+def _print_repo_page_drift(drift: Sequence[RepoPageDrift]) -> None:
+    """Name each page that another account changed, and how to resolve it."""
+    for item in drift:
+        console.print(
+            f"[red]Drift[/red] {escape(item.title)}: revision {item.revision_id} by "
+            f"{escape(item.user or 'a hidden user')} differs from the repository"
+        )
+    if drift:
+        console.print("Copy the live text of each page into the repository, or review it and pass --accept-drift.")
 
 
 @app.command("review-overrides")

@@ -436,7 +436,20 @@ class TestMediaWikiClientGetPages:
                                     {
                                         "revid": 456,
                                         "timestamp": "2026-06-04T12:00:00Z",
+                                        "user": "Editor",
                                         "slots": {"main": {"*": "Sword content"}},
+                                    }
+                                ],
+                            },
+                            "124": {
+                                "pageid": 124,
+                                "title": "Item:Hidden",
+                                "revisions": [
+                                    {
+                                        "revid": 457,
+                                        "timestamp": "2026-06-04T12:01:00Z",
+                                        "userhidden": "",
+                                        "slots": {"main": {"*": "Hidden author"}},
                                     }
                                 ],
                             },
@@ -447,17 +460,22 @@ class TestMediaWikiClientGetPages:
             ],
             clock=MockClock(),
         )
-        snapshots = client.get_page_snapshots(["Item:Sword", "Item:Missing"], assertion="bot", assert_user="Bot")
+        snapshots = client.get_page_snapshots(
+            ["Item:Sword", "Item:Hidden", "Item:Missing"], assertion="bot", assert_user="Bot"
+        )
 
         assert isinstance(snapshots["Item:Sword"], MediaWikiPageSnapshot)
         assert snapshots["Item:Sword"].source_text == "Sword content"
         assert snapshots["Item:Sword"].revision is not None
         assert snapshots["Item:Sword"].revision.revision_id == 456
+        assert snapshots["Item:Sword"].revision.user == "Editor"
+        assert snapshots["Item:Hidden"].revision is not None
+        assert snapshots["Item:Hidden"].revision.user is None
         assert snapshots["Item:Sword"].start_timestamp == "2026-06-04T12:02:00Z"
         assert snapshots["Item:Missing"].source_text is None
         assert snapshots["Item:Missing"].revision is None
         request_params = api.requests[0].query
-        assert request_params["rvprop"] == "ids|timestamp|content|contentmodel"
+        assert request_params["rvprop"] == "ids|timestamp|user|content|contentmodel"
         assert request_params["curtimestamp"] == "1"
         assert request_params["assert"] == "bot"
         assert request_params["assertuser"] == "Bot"
@@ -480,6 +498,7 @@ class TestMediaWikiClientGetPages:
                                     {
                                         "revid": 42,
                                         "timestamp": "2026-09-27T12:00:00Z",
+                                        "user": "Editor",
                                         "slots": {"main": {"*": "Saved content"}},
                                     }
                                 ],
@@ -510,6 +529,7 @@ class TestMediaWikiClientGetPages:
             revision_id=1234,
             timestamp="2026-06-04T11:59:00Z",
             start_timestamp="2026-06-04T12:00:00Z",
+            user="ErenshorBot",
         )
         with pytest.raises(MediaWikiEditError, match="Safe edit failed"):
             client.safe_edit_page(title="Item:Sword", content="new content", base_revision=base_revision)
@@ -547,6 +567,7 @@ class TestMediaWikiClientGetPages:
             revision_id=1234,
             timestamp="2026-06-04T11:59:00Z",
             start_timestamp="2026-06-04T12:00:00Z",
+            user="ErenshorBot",
         )
         with pytest.raises(MediaWikiNetworkError, match="Request timeout"):
             client.safe_edit_page(title="Item:Sword", content="new content", base_revision=base_revision)
@@ -566,7 +587,9 @@ class TestMediaWikiClientRevisionMetadata:
                             "42": {
                                 "pageid": 42,
                                 "title": "Template:Item",
-                                "revisions": [{"revid": 1234, "timestamp": "2026-06-04T11:59:00Z"}],
+                                "revisions": [
+                                    {"revid": 1234, "timestamp": "2026-06-04T11:59:00Z", "user": "ErenshorBot"}
+                                ],
                             }
                         }
                     },
@@ -582,12 +605,13 @@ class TestMediaWikiClientRevisionMetadata:
             revision_id=1234,
             timestamp="2026-06-04T11:59:00Z",
             start_timestamp="2026-06-04T12:00:00Z",
+            user="ErenshorBot",
         )
         call_params = api.requests[0].query
         assert call_params["action"] == "query"
         assert call_params["titles"] == "Template:Item"
         assert call_params["prop"] == "revisions"
-        assert call_params["rvprop"] == "ids|timestamp"
+        assert call_params["rvprop"] == "ids|timestamp|user"
         assert call_params["curtimestamp"] == "1"
 
     def test_get_page_revision_metadata_returns_none_for_missing_page(self) -> None:
@@ -731,6 +755,7 @@ class TestMediaWikiClientSafeEditPage:
             revision_id=1234,
             timestamp="2026-06-04T11:59:00Z",
             start_timestamp="2026-06-04T12:00:00Z",
+            user="ErenshorBot",
         )
         new_revision_id = client.safe_edit_page(
             title="Template:Item",
@@ -774,6 +799,7 @@ class TestMediaWikiClientSafeEditPage:
             revision_id=1234,
             timestamp="2026-06-04T11:59:00Z",
             start_timestamp="2026-06-04T12:00:00Z",
+            user="ErenshorBot",
         )
         assert (
             client.safe_edit_page(
@@ -807,6 +833,7 @@ class TestMediaWikiClientSafeEditPage:
             revision_id=1234,
             timestamp="2026-06-04T11:59:00Z",
             start_timestamp="2026-06-04T12:00:00Z",
+            user="ErenshorBot",
         )
         with pytest.raises(MediaWikiEditError, match="Invalid token"):
             client.safe_edit_page(
@@ -832,6 +859,7 @@ class TestMediaWikiClientSafeEditPage:
             revision_id=1234,
             timestamp="2026-06-04T11:59:00Z",
             start_timestamp="2026-06-04T12:00:00Z",
+            user="ErenshorBot",
         )
         with pytest.raises(MediaWikiEditConflictError, match="Edit conflict"):
             client.safe_edit_page(title="Template:Item", content="new template source", base_revision=base_revision)
@@ -851,6 +879,7 @@ class TestMediaWikiClientSafeEditPage:
             revision_id=1234,
             timestamp="2026-06-04T11:59:00Z",
             start_timestamp="2026-06-04T12:00:00Z",
+            user="ErenshorBot",
         )
         with pytest.raises(MediaWikiAssertionError, match="Not logged in as a bot"):
             client.safe_edit_page(title="Template:Item", content="new template source", base_revision=base_revision)
@@ -870,6 +899,7 @@ class TestMediaWikiClientSafeEditPage:
             revision_id=1234,
             timestamp="2026-06-04T11:59:00Z",
             start_timestamp="2026-06-04T12:00:00Z",
+            user="ErenshorBot",
         )
         with pytest.raises(MediaWikiPermissionError, match="Permission denied"):
             client.safe_edit_page(title="Template:Item", content="new template source", base_revision=base_revision)
@@ -889,6 +919,7 @@ class TestMediaWikiClientSafeEditPage:
                 revision_id=1234,
                 timestamp="2026-06-04T11:59:00Z",
                 start_timestamp="2026-06-04T12:00:00Z",
+                user="ErenshorBot",
             )
 
             revision_id = client.safe_edit_page(

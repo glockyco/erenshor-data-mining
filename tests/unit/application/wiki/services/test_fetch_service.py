@@ -31,6 +31,7 @@ def _snapshot(title: str, revision_id: int, content: str) -> MediaWikiPageSnapsh
             revision_id=revision_id,
             timestamp="2026-09-27T12:00:00Z",
             start_timestamp="2026-09-27T12:00:00Z",
+            user="ErenshorBot",
         ),
         start_timestamp="2026-09-27T12:00:00Z",
     )

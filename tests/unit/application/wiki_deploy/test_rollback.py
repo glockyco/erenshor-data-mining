@@ -31,6 +31,7 @@ class RecordingRollbackClient:
             revision_id=self.current_revision_id,
             timestamp="2026-06-04T13:00:00Z",
             start_timestamp="2026-06-04T13:01:00Z",
+            user="ErenshorBot",
         )
 
     def safe_edit_page(

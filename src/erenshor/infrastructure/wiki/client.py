@@ -115,13 +115,18 @@ class MediaWikiRateLimitError(MediaWikiAPIError):
 
 @dataclass(frozen=True, slots=True)
 class MediaWikiPageRevision:
-    """Revision metadata used to guard conflict-safe MediaWiki edits."""
+    """Revision metadata used to guard conflict-safe MediaWiki edits.
+
+    ``user`` is the account that made the revision, or None when MediaWiki
+    hides it.
+    """
 
     title: str
     page_id: int
     revision_id: int
     timestamp: str
     start_timestamp: str
+    user: str | None
 
 
 @dataclass(frozen=True, slots=True)
@@ -163,6 +168,16 @@ class MediaWikiParse:
     html: str
     templates: tuple[MediaWikiParsedLink, ...]
     categories: tuple[MediaWikiParsedLink, ...]
+
+
+def _revision_user(raw_revision: dict[str, Any]) -> str | None:
+    """Return the account that made a revision, or None when MediaWiki hides it."""
+    if "userhidden" in raw_revision:
+        return None
+    user = raw_revision["user"]
+    if not isinstance(user, str) or not user:
+        raise TypeError("revision user is not text")
+    return user
 
 
 class MediaWikiClient:
@@ -299,6 +314,17 @@ class MediaWikiClient:
     def requestor(self) -> MediaWikiRequestor:
         """Return the borrowed request capability for specialized adapters."""
         return self._requestor
+
+    @property
+    def edit_account(self) -> str:
+        """Return the account that MediaWiki records for the edits of this client.
+
+        A bot-password login name is ``<account>@<bot name>``, and MediaWiki
+        records its edits under ``<account>``. A user name reads underscores as
+        spaces and starts with a capital letter.
+        """
+        account = self.bot_username.split("@", 1)[0].replace("_", " ").strip()
+        return account[:1].upper() + account[1:]
 
     def _request(
         self,
@@ -941,7 +967,7 @@ class MediaWikiClient:
                 "action": "query",
                 "titles": "|".join(batch),
                 "prop": "revisions",
-                "rvprop": "ids|timestamp|content|contentmodel",
+                "rvprop": "ids|timestamp|user|content|contentmodel",
                 "rvslots": "main",
                 "curtimestamp": "1",
             }
@@ -1015,6 +1041,7 @@ class MediaWikiClient:
                         revision_id=revision_id,
                         timestamp=revision_timestamp,
                         start_timestamp=start_timestamp,
+                        user=_revision_user(raw_revision),
                     )
                 except (KeyError, IndexError, TypeError, ValueError) as e:
                     raise MediaWikiAPIError(f"Invalid page snapshot response for '{requested_title}': {e}") from e
@@ -1331,7 +1358,7 @@ class MediaWikiClient:
             "action": "query",
             "titles": title,
             "prop": "revisions",
-            "rvprop": "ids|timestamp",
+            "rvprop": "ids|timestamp|user",
             "curtimestamp": "1",
         }
         if assertion is not None:
@@ -1361,6 +1388,7 @@ class MediaWikiClient:
             revision_timestamp = str(revision["timestamp"])
             revision_title = str(page["title"])
             revision_page_id = int(page.get("pageid", page_id))
+            revision_user = _revision_user(revision)
         except (KeyError, IndexError, TypeError, ValueError) as e:
             raise MediaWikiAPIError(f"Invalid revision metadata response for '{title}': {e}") from e
 
@@ -1370,6 +1398,7 @@ class MediaWikiClient:
             revision_id=revision_id,
             timestamp=revision_timestamp,
             start_timestamp=start_timestamp,
+            user=revision_user,
         )
 
     def get_edit_start_timestamp(

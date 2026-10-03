@@ -201,3 +201,13 @@ A dry run of `wiki deploy` SHALL NOT write to the wiki. It SHALL report the page
 
 - **WHEN** an administrator reverted a bot edit of `Template:Quest` and the repository source differs from the reverted text
 - **THEN** the deploy stops before its first write and names `Template:Quest`
+
+#### Scenario: An accepted page
+
+- **WHEN** the maintainer reviews the live text of `Template:Quest` and passes `--accept-drift Template:Quest`
+- **THEN** the deploy overwrites `Template:Quest`
+
+#### Scenario: Live text equal to the source
+
+- **WHEN** another account made the latest revision of a page whose live text equals the repository source
+- **THEN** the page is unchanged and the deploy continues

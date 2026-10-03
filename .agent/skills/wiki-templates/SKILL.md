@@ -89,6 +89,10 @@ Keep legacy articles, repository-owned pages, and interface gadgets on their sep
    `--include-generated-data` requires `--pages-file` with exact page titles.
    The `--pages-file` filter also narrows other selected pages. Missing opt-in flags reject requested optional pages.
    Deploy generated data before direct link consumers and Cargo declarations before templates.
+   Before the first write, the deploy stops when another account made the latest revision of a page whose live text differs from the repository.
+   The bot edits as the account part of `bot_username`, so edits by your own main account count as another account.
+   A dry run reads the live pages, counts the planned changes, and names each such page. Review each one.
+   Copy live text that the repository should keep into the source file. Pass `--accept-drift <title>` for a page to overwrite.
 
 4. Keep the deploy manifest and its rollback sidecars. By default, the manifest is written in the selected variant's wiki directory.
    Use `--manifest-output` for a distinct manifest for each deploy you may need to undo.

@@ -46,7 +46,7 @@ class FakeWiki:
     def _revision(self, title: str) -> MediaWikiPageRevision | None:
         if title not in self.pages:
             return None
-        return MediaWikiPageRevision(title, 7, self.pages[title][0], "2026-10-01T00:00:00Z", START)
+        return MediaWikiPageRevision(title, 7, self.pages[title][0], "2026-10-01T00:00:00Z", START, "ErenshorBot")
 
     def get_page_snapshots(
         self, titles: Sequence[str], assertion: str | None = None, assert_user: str | None = None

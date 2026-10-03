@@ -78,7 +78,9 @@ Alternative: base the edit on a fresh snapshot, as `deploy-repo-pages` does. Rej
 
 ### D6. Drift check for repository pages
 
-Before the first write, `deploy-repo-pages` reads the user of each target's latest revision. A page whose latest revision is by another account and whose text differs from the source is drift, and the deploy stops and names it. `--accept-drift <title>` overwrites one reviewed page. For a hand-written source, the maintainer copies the live text into the repository instead. The check needs no stored state, so it works on every machine.
+Before the first write, `deploy-repo-pages` reads the user of each target's latest revision in the same query as its text. A page whose latest revision is by another account and whose text differs from the source is drift, and the deploy stops and names it. The deploying account is the account of the bot login: a bot-password name `<account>@<bot>` edits as `<account>`. `--accept-drift <title>` overwrites one reviewed page. For a hand-written source, the maintainer copies the live text into the repository instead. A dry run reads the live pages, counts the planned changes, and names each drifted page. The check needs no stored state, so it works on every machine.
+
+Alternative: treat a live text that equals a committed version of the source as no drift. Rejected: an administrator who reverts a bot edit restores such a version, and the check exists to stop at that revert.
 
 ### D7. Removals
 

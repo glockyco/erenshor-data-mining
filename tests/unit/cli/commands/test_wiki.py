@@ -601,7 +601,7 @@ class TestWikiDeployCommand:
                     title=title,
                     source_text="{{Item|value=1}}",
                     revision=MediaWikiPageRevision(
-                        title, 1, live[title], "2026-10-01T00:00:00Z", "2026-10-03T00:00:00Z"
+                        title, 1, live[title], "2026-10-01T00:00:00Z", "2026-10-03T00:00:00Z", "ErenshorBot"
                     ),
                     start_timestamp="2026-10-03T00:00:00Z",
                 )
@@ -634,6 +634,39 @@ class TestWikiDeployCommand:
 
 class TestWikiDeployRepoCommand:
     """Test repo-owned wiki deploy command."""
+
+    @staticmethod
+    def _stub_live_pages(
+        monkeypatch: pytest.MonkeyPatch,
+        readonly: MagicMock,
+        live: dict[str, tuple[str, str]] | None = None,
+    ) -> MagicMock:
+        """Serve each source as ``source``, and each live page as ``(text, user)`` or missing."""
+        import erenshor.cli.commands.wiki as wiki_command
+
+        pages = live or {}
+
+        def snapshots(titles, assertion=None, assert_user=None):
+            result = {}
+            for title in titles:
+                if title not in pages:
+                    result[title] = MediaWikiPageSnapshot(title, None, None, "2026-10-03T00:00:00Z")
+                    continue
+                text, user = pages[title]
+                revision = MediaWikiPageRevision(title, 1, 77, "2026-10-01T00:00:00Z", "2026-10-03T00:00:00Z", user)
+                result[title] = MediaWikiPageSnapshot(title, text, revision, "2026-10-03T00:00:00Z")
+            return result
+
+        readonly.get_page_snapshots.side_effect = snapshots
+        readonly.edit_account = "ErenshorBot"
+        factory = MagicMock(return_value=readonly)
+        monkeypatch.setattr(wiki_command, "_create_readonly_mediawiki_client", factory)
+        monkeypatch.setattr(
+            wiki_command,
+            "read_repo_page_sources",
+            lambda manifest, _root: dict.fromkeys((entry.title for entry in manifest.entries), "source"),
+        )
+        return factory
 
     def test_deploy_repo_pages_writes_deployment_manifest(
         self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, cli_context: CLIContext
@@ -797,6 +830,52 @@ class TestWikiDeployRepoCommand:
         authenticated_client.assert_not_called()
         deploy.assert_not_called()
 
+    def test_dry_run_names_each_page_that_another_account_changed(
+        self, monkeypatch: pytest.MonkeyPatch, cli_context: CLIContext
+    ) -> None:
+        import erenshor.cli.commands.wiki as wiki_command
+
+        manifest = RepoWikiPageManifest(
+            entries=tuple(
+                RepoWikiPageManifestEntry(
+                    title=title,
+                    source_path=f"wiki/templates/{title.removeprefix('Template:')}.wiki",
+                    source_sha256="a" * 64,
+                    ownership_class="template",
+                    upload_stage="template",
+                    content_model="wikitext",
+                    declares_cargo_table=False,
+                    cargo_tables=(),
+                )
+                for title in ("Template:Quest", "Template:Zone")
+            )
+        )
+        monkeypatch.setattr(wiki_command, "build_repo_page_manifest", lambda *_args, **_kwargs: manifest)
+        self._stub_live_pages(
+            monkeypatch,
+            MagicMock(),
+            live={"Template:Quest": ("reverted", "Admin"), "Template:Zone": ("old", "ErenshorBot")},
+        )
+        monkeypatch.setattr(
+            wiki_command, "_create_mediawiki_client", MagicMock(side_effect=AssertionError("dry run must not log in"))
+        )
+        dry_run = replace(cli_context, dry_run=True)
+
+        result = runner.invoke(wiki.app, ["deploy-repo-pages", "--include-templates"], obj=dry_run)
+
+        assert result.exit_code == 1
+        output = _unwrapped(result.output)
+        assert "Create: 0 Edit: 2 Unchanged: 0" in output
+        assert "Drift Template:Quest: revision 77 by Admin differs from the repository" in output
+        assert "Drift Template:Zone" not in output
+
+        accepted = runner.invoke(
+            wiki.app, ["deploy-repo-pages", "--include-templates", "--accept-drift", "Template:Quest"], obj=dry_run
+        )
+
+        assert accepted.exit_code == 0
+        assert "Drift" not in _unwrapped(accepted.output)
+
     @pytest.mark.parametrize(
         ("title", "stage", "include_option", "error_text"),
         [
@@ -854,6 +933,7 @@ class TestWikiDeployRepoCommand:
             return manifest
 
         monkeypatch.setattr(wiki_command, "build_repo_page_manifest", fake_build_manifest)
+        self._stub_live_pages(monkeypatch, MagicMock())
 
         pages_file = tmp_path / "pages.txt"
         pages_file.write_text(f"{title}\n", encoding="utf-8")
@@ -944,7 +1024,7 @@ class TestWikiDeployRepoCommand:
         readonly.page_exists.return_value = True
         authenticated = MagicMock()
         monkeypatch.setattr(wiki_command, "build_repo_page_manifest", lambda *_args, **_kwargs: manifest)
-        monkeypatch.setattr(wiki_command, "_create_readonly_mediawiki_client", lambda _ctx: readonly)
+        readonly_factory = self._stub_live_pages(monkeypatch, readonly)
         create_client = MagicMock(return_value=authenticated)
         monkeypatch.setattr(wiki_command, "_create_mediawiki_client", create_client)
         deploy = MagicMock(return_value=RepoPageDeployResult(entries=()))
@@ -956,7 +1036,7 @@ class TestWikiDeployRepoCommand:
         assert result.exit_code == 0
         assert "Dry run" in result.output
         readonly.page_exists.assert_called_once_with("Module:Erenshor/Data/Links")
-        readonly.close.assert_called_once_with()
+        assert readonly.close.call_count == readonly_factory.call_count
         create_client.assert_not_called()
         deploy.assert_not_called()
 
@@ -997,7 +1077,7 @@ class TestWikiDeployRepoCommand:
         readonly.page_exists.return_value = False
         authenticated = MagicMock()
         monkeypatch.setattr(wiki_command, "build_repo_page_manifest", lambda *_args, **_kwargs: manifest)
-        monkeypatch.setattr(wiki_command, "_create_readonly_mediawiki_client", lambda _ctx: readonly)
+        readonly_factory = self._stub_live_pages(monkeypatch, readonly)
         create_client = MagicMock(return_value=authenticated)
         monkeypatch.setattr(wiki_command, "_create_mediawiki_client", create_client)
         deploy = MagicMock(return_value=RepoPageDeployResult(entries=()))
@@ -1016,6 +1096,7 @@ class TestWikiDeployRepoCommand:
         deploy.assert_not_called()
 
         readonly.reset_mock()
+        readonly_factory.reset_mock()
         readonly.page_exists.return_value = True
         accepted = runner.invoke(
             wiki.app, ["deploy-repo-pages", "--pages-file", str(pages_file)], obj=replace(cli_context, dry_run=True)
@@ -1024,7 +1105,7 @@ class TestWikiDeployRepoCommand:
         assert accepted.exit_code == 0
         assert "Dry run: 1 repo-owned pages" in accepted.output
         readonly.page_exists.assert_called_once_with("Module:Erenshor/Data/Links")
-        readonly.close.assert_called_once_with()
+        assert readonly.close.call_count == readonly_factory.call_count
         create_client.assert_not_called()
         deploy.assert_not_called()
 
