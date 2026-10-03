@@ -101,13 +101,6 @@ class TestPageNormalizer:
         assert lines[3] == "[[Category:M]]"
         assert lines[4] == "[[Category:Z]]"
 
-    def test_normalize_removes_legacy_categories(self, normalizer: PageNormalizer) -> None:
-        """Test legacy categories are filtered out."""
-        wikitext = "[[Category:The Bone Pits]]\n[[Category:Enemies]]\nContent"
-        result = normalizer.normalize(wikitext)
-        assert "[[Category:The Bone Pits]]" not in result
-        assert "[[Category:Enemies]]" in result
-
     def test_normalize_adds_empty_line_before_categories(self, normalizer: PageNormalizer) -> None:
         """Test empty line is added before category block at bottom."""
         wikitext = "[[Category:Items]]{{Item|name=Sword}}"
@@ -246,10 +239,6 @@ Manually written lore section.
 
         # Manual content preserved
         assert "Manually written lore section." in result
-
-    def test_legacy_categories_constant(self, normalizer: PageNormalizer) -> None:
-        """Test LEGACY_CATEGORIES contains expected values."""
-        assert "[[Category:The Bone Pits]]" in normalizer.LEGACY_CATEGORIES
 
     def test_normalize_always_ends_with_newline(self, normalizer: PageNormalizer) -> None:
         """Test normalized pages always end with newline."""

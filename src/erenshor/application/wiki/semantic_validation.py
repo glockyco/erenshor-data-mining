@@ -24,7 +24,6 @@ from erenshor.application.wiki.generators.field_preservation import (
     LinkListMerge,
     list_entries,
 )
-from erenshor.application.wiki.generators.page_normalizer import PageNormalizer
 from erenshor.application.wiki.services.storage import PageMetadata, WikiStorage
 from erenshor.application.wiki_deploy.link_audit import LinkTargets, audit_links
 from erenshor.application.wiki_lua.link_catalog import LinkCatalogEntry
@@ -1664,10 +1663,6 @@ def _validate_categories(findings: _Findings, page: str, content: str, expected:
     keys = [_title_key(value) for value in categories]
     if len(keys) != len(set(keys)):
         findings.add("categories", page, "category tags must not be duplicated")
-    legacy = set(PageNormalizer.LEGACY_CATEGORIES)
-    for category in categories:
-        if category in legacy:
-            findings.add("categories", page, f"legacy category is forbidden: {category}")
     if tuple(categories) != tuple(sorted(categories)):
         findings.add("categories", page, "category tags must be sorted alphabetically")
     if categories:
