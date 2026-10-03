@@ -313,11 +313,16 @@
                         } else if ((marker as EnemyMarker).encounterTier === 'elite') {
                             color = 'red';
                             layer = 'Enemies (Elite)';
+                        } else if ((marker as EnemyMarker).encounterTier === 'chest') {
+                            color = 'teal';
+                            layer = 'Chests';
                         } else {
                             color = 'blue';
                             layer = 'Enemies (Enemy)';
                         }
-                        iconClass = 'fa-solid fa-skull';
+                        iconClass = (marker as EnemyMarker).encounterTier === 'chest'
+                            ? 'fa-solid fa-vault'
+                            : 'fa-solid fa-skull';
                         if (!(marker as EnemyMarker).isEnabled) color = 'gray';
                         break;
                     case 'teleport':

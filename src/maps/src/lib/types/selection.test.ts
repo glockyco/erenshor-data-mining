@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { serializeSelection, deserializeSelection } from './selection';
+import { serializeSelection, deserializeSelection, getSelectionBorderColor } from './selection';
 import { buildSearchIndex } from '$lib/map/search';
+import type { WorldEnemy } from './world-map';
 
 describe('serializeSelection', () => {
     it('preserves not-found search URLs', () => {
@@ -18,6 +19,7 @@ describe('serializeSelection', () => {
             enemiesEnemy: [],
             enemiesElite: [],
             enemiesBoss: [],
+            enemiesChest: [],
             unlocatedEnemies: [],
             npcs: [],
             zones: [],
@@ -56,6 +58,7 @@ describe('serializeSelection', () => {
             enemiesEnemy: [],
             enemiesElite: [],
             enemiesBoss: [],
+            enemiesChest: [],
             unlocatedEnemies: [
                 {
                     stableKey: 'character:runtime enemy',
@@ -96,4 +99,41 @@ describe('serializeSelection', () => {
             )
         ).toEqual({ type: 'none' });
     });
+    it('restores chest search and spawn URLs without changing their enemy prefixes', () => {
+        const chest = {
+            category: 'enemy',
+            stableKey: 'spawn:stowaway-chest',
+            zone: 'Stowaway',
+            characters: [{ name: 'Fixture Chest', encounterTier: 'chest' }],
+            encounterTier: 'chest'
+        } as WorldEnemy;
+        const searchIndex = buildSearchIndex({
+            enemiesEnemy: [],
+            enemiesElite: [],
+            enemiesBoss: [],
+            enemiesChest: [chest],
+            unlocatedEnemies: [],
+            npcs: [],
+            zones: [],
+            miningNodes: [],
+            water: [],
+            itemBags: [],
+            itemSources: [],
+            allItems: []
+        });
+        const context = {
+            findMarkerByStableKey: (key: string) => key === chest.stableKey ? chest : null,
+            findZoneByKey: () => null,
+            searchIndex
+        };
+        const searched = deserializeSelection('enemy:Fixture Chest', context);
+        const spawned = deserializeSelection('marker:spawn:stowaway-chest', context);
+        expect(searched).toMatchObject({ type: 'search', result: { encounterTier: 'chest' } });
+        expect(spawned).toEqual({ type: 'marker', marker: chest });
+        expect(serializeSelection(searched)).toBe('enemy:Fixture Chest');
+        expect(serializeSelection(spawned)).toBe('marker:spawn:stowaway-chest');
+        expect(getSelectionBorderColor(searched, new Map())).toBe('border-l-teal-600');
+        expect(getSelectionBorderColor(spawned, new Map())).toBe('border-l-teal-600');
+    });
+
 });

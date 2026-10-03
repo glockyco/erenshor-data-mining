@@ -5,6 +5,7 @@
 
 import {
     Skull,
+    Vault,
     User,
     UserPlus,
     Cat,
@@ -22,6 +23,7 @@ import {
     Navigation2,
     type IconNode
 } from 'lucide';
+import type { EnemyTier } from '$lib/map-markers';
 import { LAYER_COLORS } from './config';
 
 // Icon size in the atlas (pixels)
@@ -41,7 +43,9 @@ const MARKER_ICONS: Record<string, { icon: IconNode; colorKey: keyof typeof LAYE
     enemy: { icon: Skull, colorKey: 'enemy' },
     'enemy-elite': { icon: Skull, colorKey: 'enemy-elite' },
     'enemy-boss': { icon: Skull, colorKey: 'enemy-boss' },
+    'enemy-chest': { icon: Vault, colorKey: 'enemy-chest' },
     'enemy-disabled': { icon: Skull, colorKey: 'disabled' },
+    'enemy-chest-disabled': { icon: Vault, colorKey: 'disabled' },
     // NPCs (friendly characters)
     npc: { icon: User, colorKey: 'npc' },
     'npc-disabled': { icon: User, colorKey: 'disabled' },
@@ -68,7 +72,8 @@ const MARKER_ICONS: Record<string, { icon: IconNode; colorKey: keyof typeof LAYE
     'npc-friendly-live': { icon: User, colorKey: 'npc-friendly-live' },
     'enemy-live': { icon: Skull, colorKey: 'enemy-live' },
     'enemy-elite-live': { icon: Skull, colorKey: 'enemy-elite-live' },
-    'enemy-boss-live': { icon: Skull, colorKey: 'enemy-boss-live' }
+    'enemy-boss-live': { icon: Skull, colorKey: 'enemy-boss-live' },
+    'enemy-chest-live': { icon: Vault, colorKey: 'enemy-chest-live' }
 };
 
 export type MarkerIconType = keyof typeof MARKER_ICONS;
@@ -186,16 +191,19 @@ export async function createIconAtlas(): Promise<IconAtlasResult> {
  */
 export function getEnemyIconType(marker: {
     isEnabled?: boolean;
-    encounterTier: 'boss' | 'elite' | 'enemy';
+    encounterTier: EnemyTier;
 }): MarkerIconType {
     if (marker.isEnabled === false) {
-        return 'enemy-disabled';
+        return marker.encounterTier === 'chest' ? 'enemy-chest-disabled' : 'enemy-disabled';
     }
     if (marker.encounterTier === 'boss') {
         return 'enemy-boss';
     }
     if (marker.encounterTier === 'elite') {
         return 'enemy-elite';
+    }
+    if (marker.encounterTier === 'chest') {
+        return 'enemy-chest';
     }
     return 'enemy';
 }

@@ -44,6 +44,7 @@
     function getTierClass(char: SpawnCharacter): string {
         if (char.encounterTier === 'boss') return 'bg-zinc-700 text-zinc-200';
         if (char.encounterTier === 'elite') return 'bg-red-900/50 text-red-300';
+        if (char.encounterTier === 'chest') return 'bg-teal-900/50 text-teal-300';
         return 'bg-blue-900/50 text-blue-300';
     }
 
@@ -106,7 +107,7 @@
                     </div>
                     <div class="flex flex-col items-end gap-1 shrink-0">
                         <span class="rounded px-1.5 py-0.5 text-xs {getTierClass(char)}">
-                            {char.encounterTier === 'npc' ? 'NPC' : char.encounterTier === 'boss' ? 'Boss' : char.encounterTier === 'elite' ? 'Elite' : 'Enemy'}
+                            {char.encounterTier === 'npc' ? 'NPC' : char.encounterTier === 'boss' ? 'Boss' : char.encounterTier === 'elite' ? 'Elite' : char.encounterTier === 'chest' ? 'Chest' : 'Enemy'}
                         </span>
                         <WikiLink pageName={char.wikiPageName} />
                     </div>

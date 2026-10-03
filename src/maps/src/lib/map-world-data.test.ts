@@ -10,6 +10,7 @@ const markerKeys = [
     'enemiesEnemy',
     'enemiesElite',
     'enemiesBoss',
+    'enemiesChest',
     'forges',
     'itemBags',
     'miningNodes',
@@ -36,13 +37,17 @@ describe('buildMapWorldData', () => {
             'spawn:stowaway-enemy',
             'spawn:portal-enemy'
         ]);
+        expect(data.markers.enemiesChest.map((marker) => marker.stableKey)).toEqual([
+            'spawn:stowaway-chest'
+        ]);
+        expect(data.markers.enemiesChest[0].encounterTier).toBe('chest');
         expect(data.markers.enemiesBoss[0]).toMatchObject({
             levelMin: 7,
             levelMax: 7,
             zone: 'Stowaway',
             zoneName: "Stowaway's Step"
         });
-        expect(data.levelRange).toEqual({ min: 7, max: 7 });
+        expect(data.levelRange).toEqual({ min: 7, max: 18 });
         expect(data.unlocatedEnemies).toEqual([
             expect.objectContaining({
                 stableKey: 'character:runtime enemy',
@@ -55,12 +60,14 @@ describe('buildMapWorldData', () => {
                 ...data.markers.enemiesEnemy,
                 ...data.markers.enemiesElite,
                 ...data.markers.enemiesBoss,
+                ...data.markers.enemiesChest,
                 ...data.markers.npcs
             ],
             data.unlocatedEnemies
         );
         expect(tiers.get('Fixture Enemy')).toBe('boss');
         expect(tiers.get('Runtime Enemy')).toBe('elite');
+        expect(tiers.get('Fixture Chest')).toBe('chest');
         expect(tiers.has('Breena Carpenter')).toBe(false);
         expect(data.allItems).toHaveLength(7);
         expect([...new Set(data.itemSources.map((source) => source.kind))].sort()).toEqual([

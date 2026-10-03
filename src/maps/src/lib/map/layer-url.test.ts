@@ -8,16 +8,17 @@ describe('layers URL parameter', () => {
             spawnPoints: false,
             spawnPointsElite: false,
             spawnPointsBoss: false,
-            characters: false
+            characters: false,
+            spawnPointsChest: true
         });
     });
 
     it('writes current keys and reads them back', () => {
-        const layers = { ...DEFAULT_LAYER_VISIBILITY, spawnPointsElite: false, spawnPointsBoss: false };
+        const layers = { ...DEFAULT_LAYER_VISIBILITY, spawnPointsElite: false, spawnPointsBoss: false, spawnPointsChest: false };
 
         const serialized = serializeLayers(layers);
 
-        expect(serialized).toBe('-spe,-spb');
+        expect(serialized).toBe('-spe,-spb,-spc');
         expect(parseLayerVisibility(serialized)).toEqual(layers);
     });
 });

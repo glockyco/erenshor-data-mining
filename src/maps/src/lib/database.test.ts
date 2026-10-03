@@ -38,6 +38,7 @@ describe('Repository', () => {
 			'achievement-trigger',
 			'door',
 			'enemy',
+			'enemy',
 			'forge',
 			'item-bag',
 			'mining-node',
@@ -62,7 +63,18 @@ describe('Repository', () => {
 		expect(await db.getZoneEnemyInfo(DETAIL_ZONE)).toEqual({
 			levelRange: { min: 7, max: 7 },
 			bosses: [{ name: 'Fixture Enemy', wikiPageName: 'Fixture Enemy', level: 7 }],
-			elites: []
+			elites: [],
+			chests: [{ name: 'Fixture Chest', wikiPageName: 'Fixture Chest', level: 18 }]
+		});
+	});
+
+	it('keeps chests in the character spawn category with their own tier', async () => {
+		const spawns = await db.getSpawnPointMarkers(DETAIL_ZONE);
+		expect(spawns.find((marker) => marker.stableKey === 'spawn:stowaway-chest')).toMatchObject({
+			category: 'enemy',
+			encounterTier: 'chest',
+			characters: [expect.objectContaining({ name: 'Fixture Chest', encounterTier: 'chest' })],
+			popup: expect.stringContaining('Chest @')
 		});
 	});
 

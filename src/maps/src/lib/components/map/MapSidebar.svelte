@@ -13,6 +13,7 @@
     import PanelLeftClose from '@lucide/svelte/icons/panel-left-close';
     import PanelLeftOpen from '@lucide/svelte/icons/panel-left-open';
     import Skull from '@lucide/svelte/icons/skull';
+    import Vault from '@lucide/svelte/icons/vault';
     import User from '@lucide/svelte/icons/user';
     import KeyRound from '@lucide/svelte/icons/key-round';
     import Flame from '@lucide/svelte/icons/flame';
@@ -76,6 +77,7 @@
         spawnPoints: rgbToHex(LAYER_COLORS.enemy),
         spawnPointsElite: rgbToHex(LAYER_COLORS['enemy-elite']),
         spawnPointsBoss: rgbToHex(LAYER_COLORS['enemy-boss']),
+        spawnPointsChest: rgbToHex(LAYER_COLORS['enemy-chest']),
         characters: rgbToHex(LAYER_COLORS.npc),
         zoneLines: rgbToHex(LAYER_COLORS['zone-line']),
         teleports: rgbToHex(LAYER_COLORS.teleport),
@@ -121,6 +123,12 @@
             icon: Skull,
             color: colors.spawnPoints,
             label: 'Enemy Spawn Points'
+        },
+        {
+            key: 'spawnPointsChest',
+            icon: Vault,
+            color: colors.spawnPointsChest,
+            label: 'Chest Spawn Points'
         }
     ];
 
@@ -185,8 +193,8 @@
         </button>
     </div>
 
-    <!-- Enemy Spawn Points -->
-    <SidebarSection title="Enemy Spawn Points">
+    <!-- Encounter Spawn Points -->
+    <SidebarSection title="Encounter Spawn Points">
         <LevelFilter
             label="Level"
             min={levelRange.min}
@@ -211,6 +219,12 @@
             checked={visibility.spawnPoints}
             color={colors.spawnPoints}
             onchange={handleToggle('spawnPoints')}
+        />
+        <LayerToggle
+            label="Chest"
+            checked={visibility.spawnPointsChest}
+            color={colors.spawnPointsChest}
+            onchange={handleToggle('spawnPointsChest')}
         />
     </SidebarSection>
 

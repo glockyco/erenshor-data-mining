@@ -144,9 +144,10 @@
                 case 'npc_friendly':
                     return ['Friendly NPC', level].filter(Boolean).join(' \u2022 ');
                 case 'npc_enemy': {
-                    const parts = ['Enemy', level];
                     const tier = resolveLiveEncounterTier(entity, encounterTierByName);
-                    if (tier !== 'enemy') parts.push(tier === 'boss' ? 'Boss' : 'Elite');
+                    const parts = [tier === 'chest' ? 'Chest' : 'Enemy', level];
+                    if (tier === 'boss') parts.push('Boss');
+                    else if (tier === 'elite') parts.push('Elite');
                     return parts.filter(Boolean).join(' \u2022 ');
                 }
                 default:
@@ -170,7 +171,7 @@
             const r = selection.result;
             switch (r.type) {
                 case 'enemy': {
-                    const parts: string[] = ['Enemy'];
+                    const parts: string[] = [r.encounterTier === 'chest' ? 'Chest' : 'Enemy'];
                     if (r.encounterTier === 'boss') parts.push('Boss');
                     else if (r.encounterTier === 'elite') parts.push('Elite');
                     if (r.spawnCount === 0) {
@@ -203,11 +204,13 @@
                 const bosses = m.characters.filter((c) => c.encounterTier === 'boss').length;
                 const elites = m.characters.filter((c) => c.encounterTier === 'elite').length;
                 const enemies = m.characters.filter((c) => c.encounterTier === 'enemy').length;
+                const chests = m.characters.filter((c) => c.encounterTier === 'chest').length;
                 const npcs = m.characters.filter((c) => c.encounterTier === 'npc').length;
                 const parts: string[] = [];
                 if (bosses > 0) parts.push(`${bosses} boss${bosses === 1 ? '' : 'es'}`);
                 if (elites > 0) parts.push(`${elites} elite${elites === 1 ? '' : 's'}`);
                 if (enemies > 0) parts.push(`${enemies} enem${enemies === 1 ? 'y' : 'ies'}`);
+                if (chests > 0) parts.push(`${chests} chest${chests === 1 ? '' : 's'}`);
                 if (npcs > 0) parts.push(`${npcs} NPC${npcs === 1 ? '' : 's'}`);
                 return parts.length > 0 ? parts.join(', ') : 'Empty';
             }

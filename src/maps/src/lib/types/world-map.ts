@@ -107,6 +107,7 @@ export interface LayerVisibility {
     spawnPoints: boolean;
     spawnPointsElite: boolean;
     spawnPointsBoss: boolean;
+    spawnPointsChest: boolean;
     characters: boolean;
     zoneLines: boolean;
     teleports: boolean;
@@ -131,6 +132,7 @@ export const DEFAULT_LAYER_VISIBILITY: LayerVisibility = {
     spawnPoints: true,
     spawnPointsElite: true,
     spawnPointsBoss: true,
+    spawnPointsChest: true,
     characters: true,
     zoneLines: true,
     teleports: true,
@@ -155,6 +157,7 @@ export interface ZoneEnemyInfo {
     levelRange: { min: number; max: number } | null;
     bosses: { name: string; wikiPageName: string | null; level: number }[];
     elites: { name: string; wikiPageName: string | null; level: number }[];
+    chests: { name: string; wikiPageName: string | null; level: number }[];
 }
 
 export interface LevelRange {
@@ -203,6 +206,7 @@ export interface MapMarkerData {
     enemiesEnemy: WorldEnemy[];
     enemiesElite: WorldEnemy[];
     enemiesBoss: WorldEnemy[];
+    enemiesChest: WorldEnemy[];
     forges: WorldForge[];
     itemBags: WorldItemBag[];
     miningNodes: WorldMiningNode[];

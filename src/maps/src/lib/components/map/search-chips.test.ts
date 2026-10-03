@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { emptySearchResponse, type SearchMatch, type SearchResponse } from '$lib/map/search';
+import { emptySearchResponse, searchResultCategory, type SearchMatch, type SearchResponse } from '$lib/map/search';
 import { computeChipCounts, formatChipCount, getAvailableCategories } from './search-chips';
 
 function responseFor(matches: SearchMatch[]): SearchResponse {
@@ -7,7 +7,7 @@ function responseFor(matches: SearchMatch[]): SearchResponse {
     response.matches = matches;
     response.total = matches.length;
     for (const match of matches) {
-        const category = response.categories[match.result.type];
+        const category = response.categories[searchResultCategory(match.result)];
         category.matches.push(match);
         category.total += 1;
     }
@@ -27,6 +27,17 @@ describe('computeChipCounts', () => {
         expect(counts.get('enemy')).toEqual({ visible: 1, total: 1, hasMore: false });
         expect(counts.get('npc')).toEqual({ visible: 0, total: 0, hasMore: false });
         expect(counts.get('zone')).toEqual({ visible: 0, total: 0, hasMore: false });
+    });
+
+    it('counts chests separately from enemies in category chips', () => {
+        const response = responseFor([
+            { result: { type: 'enemy', name: 'Fixture Chest', encounterTier: 'chest', spawnCount: 1, zoneCount: 1 }, matchRange: [0, 7] },
+            { result: { type: 'enemy', name: 'Fixture Enemy', encounterTier: 'enemy', spawnCount: 1, zoneCount: 1 }, matchRange: [0, 7] }
+        ]);
+        const counts = computeChipCounts(response, 0);
+        expect(counts.get('enemy')).toEqual({ visible: 1, total: 1, hasMore: false });
+        expect(counts.get('chest')).toEqual({ visible: 1, total: 1, hasMore: false });
+        expect(getAvailableCategories(counts)).toContain('chest');
     });
 
     it('sums category caps for the All pill', () => {

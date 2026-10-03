@@ -37,6 +37,7 @@
     function getTierClass(): string {
         if (tier === 'boss') return 'bg-zinc-700 text-zinc-200';
         if (tier === 'elite') return 'bg-red-900/50 text-red-300';
+        if (tier === 'chest') return 'bg-teal-900/50 text-teal-300';
         return 'bg-blue-900/50 text-blue-300';
     }
 </script>
@@ -46,7 +47,7 @@
     <div class="flex items-center justify-between">
         {#if entity.entityType === 'npc_enemy'}
             <span class="rounded px-1.5 py-0.5 text-xs {getTierClass()}">
-                {tier === 'boss' ? 'Boss' : tier === 'elite' ? 'Elite' : 'Enemy'}
+                {tier === 'boss' ? 'Boss' : tier === 'elite' ? 'Elite' : tier === 'chest' ? 'Chest' : 'Enemy'}
             </span>
         {:else}
             <div></div>
