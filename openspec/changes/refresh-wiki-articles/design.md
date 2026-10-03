@@ -56,7 +56,7 @@ Alternative: keep `connects` as override and derive it from the zone lines in bo
 ### D4. Stance merge, overview table, cooldowns
 
 - `Stance` joins the merged families with `image` as prefer-manual and `imagecaption` as preserve, matching the other entity templates.
-- The overview handler parses the old page, finds the table whose header row equals the generated header, and replaces that table node only. Zero or several such tables fail the page.
+- The overview handler parses the old page, finds the table whose header row equals the generated header, and replaces that table node only. Header cells compare by kind and text, so an editor can restyle them. Zero or several such tables fail the page. A generator that changes its columns must first change the header of the live table.
 - One duration formatter divides ticks by 60 and prints up to two decimals. The legacy skill section and the Lua skill data use it. The game's own spell tooltip prints `Cooldown: <seconds> sec`, so seconds are the reader's unit.
 
 ### D5. Guarded article deploy

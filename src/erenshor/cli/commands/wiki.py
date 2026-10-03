@@ -849,24 +849,21 @@ def generate(
 ) -> None:
     """Generate wiki pages locally.
 
-    Creates new wiki pages from database content, merges with fetched pages
-    (if available), preserves manually-edited fields, and removes legacy
-    templates. Generated pages are saved locally for review before deployment.
+    Generates the entity, overview, and zone articles from the clean database
+    and merges each article into its fetched live page. Generated roots take
+    the database values, except where a preservation rule keeps the value of
+    an editor. Overview pages take the new generated table. Text outside the
+    generated roots and tables stays.
 
     You can specify which pages to generate using --pages-file:
     - Generate from file: --pages-file pages.txt
     - Generate from stdin: --pages-file - < pages.txt
     - Generate all pages: (no --pages-file option)
 
-    Generates all entity types (items, characters, spells, skills) and groups
-    them by resolved page titles from the registry. Multi-entity pages (e.g.,
-    spell + skill sharing one page) are automatically handled.
-
     Generated pages are saved to variants/{variant}/wiki/generated/
 
-    You can review generated files before deploying them with:
-        $ cat variants/{variant}/wiki/generated/*.txt
-        $ git diff variants/{variant}/wiki/fetched/ variants/{variant}/wiki/generated/
+    You can compare generated files with the fetched pages before deploying them:
+        $ git diff --no-index variants/{variant}/wiki/fetched/ variants/{variant}/wiki/generated/
     """
     cli_ctx: CLIContext = ctx.obj
 

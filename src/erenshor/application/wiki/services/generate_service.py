@@ -25,10 +25,16 @@ from erenshor.application.wiki.generators.field_preservation import (
     FieldPreservationConfig,
     FieldPreservationHandler,
 )
+from erenshor.application.wiki.generators.overview_table import replace_generated_table
 from erenshor.application.wiki.generators.page_normalizer import PageNormalizer
+from erenshor.application.wiki.generators.pages.armor_overview import ArmorOverviewPageGenerator
+from erenshor.application.wiki.generators.pages.weapons_overview import WeaponsOverviewPageGenerator
 from erenshor.application.wiki.generators.registry import get_generators_by_name
 from erenshor.application.wiki.services.page import OperationResult
 from erenshor.application.wiki_deploy.link_audit import LinkTargets
+
+# Pages whose generated text is one table among the text of editors.
+_OVERVIEW_TITLES = frozenset({ArmorOverviewPageGenerator.PAGE_TITLE, WeaponsOverviewPageGenerator.PAGE_TITLE})
 
 
 class WikiGenerateService:
@@ -175,12 +181,10 @@ class WikiGenerateService:
 
                 # Merge into the live page when it exists
                 if existing:
-                    # Check if this is an overview page (Weapons, Armor)
-                    # These pages need special handling: preserve intro, replace table
-                    if gen_page.title in ["Weapons", "Armor"]:
-                        final_content = self._replace_overview_table(existing, page_content)
-                        # Normalize page
-                        final_content = self._page_normalizer.normalize(final_content, page_content)
+                    if gen_page.title in _OVERVIEW_TITLES:
+                        final_content = self._page_normalizer.normalize(
+                            replace_generated_table(existing, page_content), page_content
+                        )
                     else:
                         # Merge generated roots and companions; keep everything else
                         merge = self._preservation_handler.merge_templates(
@@ -242,49 +246,3 @@ class WikiGenerateService:
             warnings=warnings,
             errors=errors,
         )
-
-    def _replace_overview_table(self, old_wikitext: str, new_wikitext: str) -> str:
-        """Replace overview page wikitable while preserving intro text.
-
-        Overview pages (Weapons, Armor) have:
-        1. Manual intro paragraphs
-        2. Large wikitable with game data
-
-        We need to:
-        - Preserve the manual intro text
-        - Replace the entire wikitable with freshly generated content
-
-        Args:
-            old_wikitext: Existing page content (has manual intro + old table)
-            new_wikitext: New generated content (has fresh table)
-
-        Returns:
-            Updated wikitext with preserved intro and new table
-        """
-        # Find where the wikitable starts in old content
-        old_table_start = old_wikitext.find("{|")
-
-        if old_table_start == -1:
-            # No old table found, just return new content
-            logger.debug("No wikitable found in old content, using new content")
-            return new_wikitext
-
-        # Extract intro text (everything before the table)
-        intro_text = old_wikitext[:old_table_start].rstrip()
-
-        # Find the wikitable in new content
-        new_table_start = new_wikitext.find("{|")
-
-        if new_table_start == -1:
-            # No new table generated, keep old content
-            logger.warning("No wikitable in new content, keeping old content")
-            return old_wikitext
-
-        # Extract new table (everything from {| onwards)
-        new_table = new_wikitext[new_table_start:]
-
-        # Combine: intro + new table
-        result = f"{intro_text}\n\n{new_table}"
-
-        logger.debug("Replaced overview wikitable while preserving intro text")
-        return result

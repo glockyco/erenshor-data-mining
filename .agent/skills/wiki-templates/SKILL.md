@@ -37,6 +37,8 @@ Keep legacy articles, repository-owned pages, and interface gadgets on their sep
    Character `imagecaption` and `location` are preserved. Ability and Stance `image` prefer manual values. Stance `imagecaption` is preserved.
    Zone pages merge in the same way. Each `Zone` field other than `title` keeps its live value when that value is not blank.
    Generated zone values fill new pages and blank fields only.
+   On `Weapons` and `Armor`, generation replaces only the table whose header row equals the generated header.
+   Header cells compare by kind and text, not by attributes. Generation fails the page when no table or several tables match.
    See `src/erenshor/application/wiki/generators/field_preservation.py` for the other rules.
 
 4. Audit links and preview the intentional legacy deploy:
