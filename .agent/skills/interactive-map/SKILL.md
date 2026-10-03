@@ -91,7 +91,7 @@ services back together fails the suite rather than production.
   server-only world-data builder — server code also runs during `uv run erenshor maps build` (stdout visible in build output)
 - Enemy markers split into three arrays by encounter tier: `data.markers.enemiesEnemy/Elite/Boss`
 - NPC markers: `data.markers.npcs`
-- Bucket assignment: `isNpc = characters.every(c => c.encounterTier === 'npc')`; else the marker takes the most notable tier of its characters (boss, then elite, then enemy). The tier comes from `characters.encounter_tier` in the clean DB; see `docs/architecture.md`
+- Bucket assignment: `isNpc = characters.every(c => c.encounterTier === 'npc')`; else the marker takes the most notable tier of its characters (boss, then elite, then enemy). The tier comes from `characters.encounter_tier` in the clean DB; the README explains how it is derived
 - Level filter: `DataFilterExtension` with `getFilterValue: d => [d.levelMin, d.levelMax]`
 
 ## window.__mapDebug hook

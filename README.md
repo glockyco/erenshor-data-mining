@@ -1,512 +1,149 @@
-# Erenshor Data Mining & Companion Tools
+# Erenshor Data Mining
 
-Tools for extracting Erenshor game data, building SQLite databases, publishing wiki and spreadsheet data, maintaining the interactive map, and shipping BepInEx companion mods.
+Game data for the single-player MMORPG [Erenshor](https://store.steampowered.com/app/2382520/Erenshor/), extracted from the shipped build and published as a wiki, spreadsheets, an interactive map, and in-game companion mods.
 
-## Links
+[Wiki](https://erenshor.wiki.gg) · [Interactive map](https://erenshor.compendiums.org)
 
-- Erenshor on Steam: <https://store.steampowered.com/app/2382520/Erenshor/>
-- Wiki: <https://erenshor.wiki.gg>
-- Interactive map: <https://erenshor.compendiums.org>
+## What it publishes
 
-## What this repository provides
+- **Wiki** (`erenshor.wiki.gg`). Generated item, character, ability, and stance articles, Lua data modules for links and tooltips, and repository-owned templates. Editors write the prose. The pipeline owns the generated data.
+- **Google Sheets.** One tab per query in `src/erenshor/application/sheets/queries/`.
+- **Interactive map** (`erenshor.compendiums.org`). A SvelteKit and deck.gl site with every spawn, resource, and location, plus live positions from the companion mod.
+- **Companion mods.** AdventureGuide (quest guide and navigation), InteractiveMapCompanion (live map data), Sprint, and JusticeForF7. MapTileCapture is an internal tool. Each mod builds for BepInEx and Lunaris.
 
-- A Python CLI, `erenshor`, for extraction, publishing, map, mod, capture, and development workflows.
-- A game-data pipeline from the Steam installation to AssetRipper output, Unity batch export, raw SQLite, and clean SQLite.
-- MediaWiki and Google Sheets publishing from the clean database.
-- A SvelteKit/deck.gl interactive map deployed with Wrangler to Cloudflare Workers.
-- BepInEx companion mods for live map integration, quest guidance, sprinting, screenshot cleanup, and map tile capture.
+Every published fact comes from the clean database of the current shipping build.
 
-Core data pipeline:
+## How it works
 
-```text
-Steam client installation (CrossOver bottle)
-  → AssetRipper Unity project
-  → Unity batch export
-      → raw SQLite database
-      → exported images
-  → clean SQLite database
-      → MediaWiki pages
-      → Google Sheets
-      → interactive map data
+```mermaid
+flowchart LR
+  steam["Steam install<br/>(CrossOver bottle)"] -->|extract rip| unity["AssetRipper<br/>Unity project"]
+  unity -->|extract export| raw[("raw SQLite")]
+  dll["Assembly-CSharp.dll"] -->|extract code-facts| raw
+  raw -->|extract build| clean[("clean SQLite")]
+  clean --> wiki["Wiki"]
+  clean --> sheets["Sheets"]
+  clean --> maps["Map"]
+  clean --> guide["Quest guide"] --> mods["Mods"]
 ```
 
-Map and live integrations:
+1. **Rip and export.** `extract rip` turns the installed game into a Unity project with AssetRipper. `extract export` runs the editor scripts in `src/Assets/Editor/` in Unity batch mode. They write tables that mirror the Unity assets into `variants/<variant>/erenshor-<variant>-raw.sqlite`, without merging or filtering.
+2. **Code facts.** `extract code-facts` reads constants that the game hardcodes (drop chances, level gates, formulas) from the shipped assembly into the raw database. The clean build fails without them.
+3. **Clean build.** `extract build` applies `mapping.json` (display names, exclusions, overrides with a reason), deduplicates characters, derives columns, and writes `variants/<variant>/erenshor-<variant>.sqlite`. The schema lives in `src/erenshor/application/processor/writer.py`.
+4. **Consumers.** The wiki generators, the sheet queries, the map build, and the quest guide compiler read only the clean database.
 
-```text
-clean SQLite database
-  → interactive map data
+### Concepts worth knowing
 
-MapTileCapture
-  → map screenshots
-  → map tiles
-  → interactive map data
-
-InteractiveMapCompanion
-  → WebSocket live state
-  → interactive map data
-```
+- **Stable keys.** Every entity has a `stable_key` such as `item:head - 7 - arcanist cap`. Names and pages are not unique and never join data. Characters placed in a scene with a duplicate name get coordinates in their key.
+- **Variants.** `main` (Steam app 2382520), `playtest` (3090030), and `demo` (2522260) have separate installs, Unity projects, and databases. Select one with `-V`. The wiki publishes only the current shipping build.
+- **Encounter tiers.** Each character is `npc`, `enemy`, `elite`, or `boss`, derived in the clean build from faction, boss XP, and spawn placements. `mapping.json` can override a tier with a reason.
+- **Drop sources.** `loot_drops` holds each character's own table, `item_drops` holds items that yield items, and `special_world_drops` holds the rolls that every kill makes at the default loot rate.
+- **Spawn coverage.** Some spawns are scripted at run time. The dynamic-spawn catalog in `src/Assets/Editor/ExportSystem/AssetScanner/` classifies every spawning script, and the export fails when a new one is unclassified.
+- **Generated and written content.** On the wiki, the bot owns generated templates and data modules. Prose, notes, and strategy belong to editors and survive every refresh.
 
 ## Repository layout
 
-| Path | Purpose |
+| Path | What it holds |
 | --- | --- |
-| `src/erenshor/` | Python CLI and pipeline implementation. |
-| `src/Assets/Editor/` | Unity editor export scripts run during batch export. |
-| `src/maps/` | SvelteKit interactive map website. |
-| `src/mods/` | Native BepInEx/Lunaris companion mods and build/publish metadata. |
-| `quest_guides/` | Generated and curated quest-guide data consumed by AdventureGuide. |
-| `variants/` | Per-game-variant outputs: game files, Unity projects, databases, logs, backups, images, wiki output, and map data. |
-| `.erenshor/` | Local state, logs, and config overrides. Gitignored. |
-| `docs/` | Project notes, plans, and design docs. |
-
-## Requirements
-
-The `flake.nix` dev shell provides the whole command-line toolchain at the versions CI uses:
-
-- Python 3.14 with the `uv.lock` environment built reproducibly by uv2nix. `uv` remains the command runner and lockfile editor.
-- .NET SDK 9 and 10 for the native tools, mods, and their tests.
-- Node 22 and pnpm 10 for the map frontend workspace.
-- AssetRipper for `extract rip`.
-- `sqlite3` for ad-hoc database inspection.
-
-```bash
-nix develop           # or `direnv allow` once, with nix-direnv
-```
-
-Every `erenshor ...` command in this README assumes that shell.
-
-Three things the dev shell cannot supply, because they are licensed, interactive, or platform-specific:
-
-- Unity `2021.3.45f2`, installed through Unity Hub and activated with a Unity account. `extract export` refuses to run against any other version.
-- CrossOver with a Steam client bottle that has each variant you extract installed. The tooling finds a variant's installation by its Steam app ID and does not download game files itself. The same installation launches the game and its companion mods.
-
-Local config supplies machine-specific paths and credentials. Do not commit local credentials.
-
-## Configuration
-
-Configuration is layered:
-
-1. `config.toml` — project defaults, tracked in git.
-2. `.erenshor/config.local.toml` — local overrides, gitignored.
-
-Create the local config file before running workflows that need tool paths or credentials:
-
-```bash
-mkdir -p .erenshor
-cp config.local.toml.example .erenshor/config.local.toml
-```
-
-Common local values:
-
-```toml
-[global.mediawiki]
-bot_username = "YourUsername@BotName"
-bot_password = "your_bot_password"
-```
-
-Game files are not configured. The CLI finds each variant's installation in the CrossOver Steam bottle by its Steam app ID. Set `CROSSOVER_BOTTLE` when several bottles exist. An unknown or removed configuration key is an error that names the key.
-
-AssetRipper needs no entry: the tracked config resolves it from PATH, which the dev shell populates.
-
-The default variant is `main`. Use `--variant` or `-V` to target another variant:
-
-```bash
-erenshor --variant playtest status
-```
-
-Configured variants:
-
-| Variant | Steam app ID | Purpose |
-| --- | --- | --- |
-| `main` | `2382520` | Production release. |
-| `playtest` | `3090030` | Beta testing. |
-| `demo` | `2522260` | Free demo. |
-
-## Quick start
-
-Install the locked JavaScript dependencies and .NET tools explicitly. The Python
-environment is built from `uv.lock` when Nix realizes the development shell. The
-bootstrap app works outside an active dev shell and fails rather than rewriting a
-stale lockfile:
-
-```bash
-nix run .#bootstrap
-```
-
-Then enter the development shell and run the data pipeline. Unity editor packages
-remain an extraction-specific setup step because they require the external Unity
-installation:
-
-```bash
-nix develop
-erenshor status
-erenshor extract packages     # Editor NuGet dependencies, once per checkout
-erenshor extract rip
-erenshor extract export
-erenshor extract code-facts
-erenshor extract build
-```
-
-The clean database for the default variant is written to:
-
-```text
-variants/main/erenshor-main.sqlite
-```
-
-Run `erenshor --help` and `erenshor <group> --help` for the current command surface.
-
-## Dependency maintenance
-
-Renovate owns routine updates for Python, pnpm, NuGet, .NET tools, and GitHub
-Actions. A separate GitHub Actions workflow owns Nix flake updates because each
-Nix update must also synchronize the pnpm version supplied by the dev shell.
-These owners are exclusive. Do not enable Renovate's Nix manager or add another
-scheduled dependency updater.
-
-| Dependency graph | Version manifest | Authoritative lock or pin | Automated owner |
-| --- | --- | --- | --- |
-| Nix | `flake.nix` inputs | `flake.lock` | `update-nix-dependencies.yml` |
-| Python | `pyproject.toml` | `uv.lock` | Renovate |
-| pnpm workspace | Root and workspace `package.json` files | `pnpm-lock.yaml` | Renovate |
-| NuGet | `src/Directory.Packages.props` and project `PackageReference` items | Maintained `packages.lock.json` files | Renovate |
-| .NET tools | `.config/dotnet-tools.json` | Exact versions in the manifest | Renovate |
-| GitHub Actions | `.github/workflows/*.yml` | Full commit SHA with a release comment | Renovate |
-
-Use the root manifest for each graph. Do not add nested JavaScript lockfiles,
-inline NuGet versions, or a second copy of a package version. `src/Directory.Packages.props`
-owns NuGet versions. Each maintained .NET project owns its generated lockfile.
-Mod projects own one lockfile for each loader graph.
-
-For a manual update, change the owning manifest and regenerate only its
-corresponding lock state:
-
-```bash
-uv lock
-pnpm install --lockfile-only
-
-dotnet restore path/to/Project.csproj --force-evaluate
-# Mod projects have two independent restore graphs.
-dotnet restore src/mods/<Mod>/<Mod>.csproj -p:ModLoader=bepinex --force-evaluate
-dotnet restore src/mods/<Mod>/<Mod>.csproj -p:ModLoader=lunaris --force-evaluate
-
-nix flake update
-nix run .#sync-pnpm-version
-```
-
-Then run the locked dependency gate and the complete local CI contract:
-
-```bash
-erenshor test dependency-state
-erenshor test ci
-```
-
-Renovate groups compatible patch and minor updates by ecosystem. Major updates
-remain blocked until they are approved in the Dependency Dashboard. Security
-updates bypass the normal schedule and release-age delay, but they still require
-human review, a current branch, and a passing `CI Success` check. Automerge is
-disabled for every group.
-
-The private [`glockyco/dependency-automation`](https://github.com/glockyco/dependency-automation)
-control plane runs Nix updates for every managed repository. It mints one
-short-lived `glockyco-dependency-updater` GitHub App token scoped to this
-repository, regenerates `flake.lock` and the matching pnpm assertion, then opens
-one review-only pull request. Normal pull-request CI starts automatically, and
-the token is revoked when the job ends. This repository does not store the App
-private key or run a competing Nix scheduler.
-
-If an updater produces stale or conflicting lock state, do not edit the lockfile
-by hand. Run the matching command above, commit the complete regenerated lock
-state to the same updater branch, and rerun CI. Close a superseded Renovate pull
-request so Renovate can recreate it from the current base. For Nix failures,
-rerun the dedicated Nix workflow or run both Nix commands locally. Do not run a
-second Nix updater against the same branch.
-
-## Common workflows
-
-### Inspect local setup
-
-```bash
-erenshor status
-erenshor config show
-```
-
-### Extract and build game data
-
-```bash
-erenshor extract rip
-erenshor extract export
-erenshor extract code-facts
-erenshor extract build
-erenshor extract changes      # what changed since the previous backed-up build
-```
-
-### Publish wiki output
-
-```bash
-erenshor wiki fetch
-erenshor wiki generate
-erenshor wiki deploy
-```
-
-### Publish Google Sheets
-
-```bash
-erenshor sheets list
-erenshor sheets deploy
-```
-
-### Process and upload images
-
-```bash
-erenshor images process
-erenshor images compare
-erenshor images report
-erenshor images upload
-```
-
-### Run and deploy the interactive map
-
-```bash
-erenshor maps dev
-erenshor maps build
-erenshor maps preview
-erenshor maps deploy
-erenshor maps thumbnails
-```
-
-The CLI owns map development, verification, builds, and deployment. Use these
-commands instead of invoking workspace package scripts directly.
-
-### Build and deploy companion mods
-
-Every maintained mod has native BepInEx and Lunaris targets. Both loaders may
-remain installed in one game installation. Deployment activates exactly one by
-switching the root `winhttp.dll` proxy. Select the game variant with `-V`:
-
-```bash
-erenshor -V playtest mod setup
-erenshor -V playtest mod build --loader all
-erenshor -V playtest mod status
-erenshor -V playtest mod deploy --loader lunaris
-erenshor -V playtest mod deploy --loader bepinex
-erenshor mod thunderstore --dry-run
-```
-
-Use `mod deploy --mod <id> --loader <bepinex|lunaris>` for one mod and
-`mod activate --loader <bepinex|lunaris>` to switch an installed loader without
-rebuilding. The installation is found in the CrossOver Steam bottle by the Steam
-app ID of `-V main`, `-V playtest`, or `-V demo`. See the `mod-pipeline` skill
-for package publication and proxy safety details.
-
-### Capture map tiles
-
-```bash
-erenshor capture status
-erenshor capture budget
-erenshor capture run
-erenshor capture tile
-```
-
-### Compile AdventureGuide data
-
-```bash
-erenshor guide compile
-```
-
-The AdventureGuide mod embeds the compiled guide graph from `quest_guides/guide.json`.
-
-### Runtime C# REPL / HotRepl workflows
-
-HotRepl runs under BepInEx. With the game closed, select that loader and launch
-the default `main` variant through Steam. HotRepl remains installed between
-sessions, so it is not redeployed for each launch.
-
-```bash
-erenshor mod activate --loader bepinex
-erenshor mod launch
-erenshor eval ping
-erenshor eval run 'SceneManager.GetActiveScene().name'
-erenshor eval watch 'GameData.PlayerControl.transform.position'
-erenshor eval complete 'Camera.main.'
-erenshor eval reset
-```
-
-The `runtime-eval` skill documents current multi-assembly host installation,
-loader selection, runtime inspection, and ScriptEngine reloads.
-
-## Companion mods
-
-### Player-facing mods
-
-| Mod | Purpose |
-| --- | --- |
-| `AdventureGuide` | In-game quest guide, tracker overlay, navigation arrow, optional ground path, world markers, and per-character tracking state. |
-| `InteractiveMapCompanion` | Live entity tracking for the interactive map. Runs a local WebSocket server on port `18585` by default and can render the map as an in-game overlay. |
-| `Sprint` | Configurable sprint key, hold/toggle modes, and configurable speed multiplier. |
-| `JusticeForF7` | Extends the game’s F7 hide-UI mode to hide world-space UI such as nameplates, damage numbers, target rings, XP orbs, cast bars, and loot prompts. |
-
-### Internal mods
-
-| Mod | Purpose |
-| --- | --- |
-| `MapTileCapture` | Internal capture tool for rendering orthographic map screenshots used by the tile pipeline. |
-
-## Interactive map
-
-The map website lives in `src/maps/` and is packaged as `erenshor-maps` in the pnpm workspace. It uses SvelteKit, deck.gl, Tailwind, and bits-ui. The build reads the clean SQLite database through sql.js and prerenders every page's data, so the browser never downloads the database. The build also publishes the database unchanged at `/db/erenshor.sqlite` for other consumers.
-
-Live mode connects to `InteractiveMapCompanion` over WebSocket. The default local endpoint is:
-
-```text
-ws://localhost:18585
-```
-
-Tracked live entity types include the player, SimPlayers, pets, friendly NPCs, and enemies.
-
-## Development
-
-Install the mutable JavaScript and .NET dependencies, then enter the dev shell:
-
-```bash
-nix run .#bootstrap
-nix develop           # or `direnv allow` once, with nix-direnv
-```
-
-The dev shell builds the locked Python environment and pins the same toolchain
-versions CI uses. Update the flake and workflow together so local verification
-continues to predict CI.
-
-Install Git hooks:
-
-```bash
+| `src/erenshor` | The `erenshor` CLI: extraction, clean build, wiki, sheets, maps, mods, tests. |
+| `src/Assets/Editor` | Unity editor scripts for the raw export. |
+| `src/tools` | Native analyzers (CodeFacts, ExportSurface) and maintenance scripts. |
+| `src/maps` | The interactive map site. |
+| `src/mods` | The companion mods and their packaging. |
+| `wiki` | Repository-owned wiki pages: Lua modules, templates, gadgets, zone and mechanics pages. |
+| `wiki-dev` | A local MediaWiki stack for testing wiki changes. |
+| `quest_guides` | Generated and curated quest guide data for AdventureGuide. |
+| `tests` | Unit, contract, system, data, and golden baseline tests. |
+| `openspec` | Requirements (`specs/`) and the reasoning behind each change (`changes/`). |
+| `.agent/skills` | Step-by-step procedures for recurring work. |
+
+`variants/` (game files, Unity projects, databases, generated output) and `.erenshor/` (local configuration and logs) are not tracked.
+
+## Getting started
+
+The Nix flake's dev shell provides Python and uv, the .NET SDKs, Node and pnpm, AssetRipper, and `sqlite3`. With nix-direnv it loads in the working tree. Otherwise run `nix develop`. Every command below assumes the dev shell.
+
+```sh
+nix run .#bootstrap                  # locked JavaScript packages and .NET tools
 pnpm exec lefthook install --reset-hooks-path
+erenshor status                      # tool paths, installs, and database state
 ```
 
-Validate hook configuration and run hook groups directly:
+The shell never compiles a toolchain from source. If entering it starts a compiler, stop it and check `nix build --dry-run 'path:.#devShells.aarch64-darwin.default'`: the plan must not contain `swift`, `dotnet-vmr`, or `dotnet-stage0`.
 
-```bash
-pnpm exec lefthook validate
-pnpm exec lefthook run pre-commit
-pnpm exec lefthook run pre-push
+Three things the shell cannot provide:
+
+- **Unity 2021.3.45f2**, installed through Unity Hub. `extract export` refuses any other version.
+- **CrossOver with a Steam bottle** that has each variant installed. The CLI finds an install by its Steam app ID. Set `CROSSOVER_BOTTLE` when there are several bottles.
+- **Credentials.** Copy `config.local.toml.example` to `.erenshor/config.local.toml` and fill in the wiki bot and interface logins. The Google service account key path is set there too. The Thunderstore token goes into `.env` (see `.env.example`). `config.toml` holds the tracked defaults, and an unknown key is an error.
+
+## Common work
+
+| Command | What it does |
+| --- | --- |
+| `erenshor extract packages` | Restores the Unity editor packages, once per checkout. |
+| `erenshor extract rip` / `export` / `code-facts` / `build` | Runs the pipeline steps above. |
+| `erenshor extract changes` | Compares the clean database with the previous backed-up build. |
+| `erenshor golden capture` | Writes snapshots of published output to `tests/golden/`. Review the diff after every data change. |
+| `erenshor wiki fetch` / `generate` | Fetches live articles and merges regenerated data into them. |
+| `erenshor wiki generate-lua` / `deploy-repo-pages` | Generates the Lua data modules and deploys repository-owned modules and templates with revision guards and rollback data. |
+| `erenshor sheets deploy` | Publishes the sheet queries. |
+| `erenshor maps dev` / `build` / `preview` / `deploy` | Develops, verifies, and deploys the map. |
+| `erenshor mod build` / `deploy` / `thunderstore` | Builds, installs, and packages the mods. `-V` selects the game install, `--loader` the loader. |
+| `erenshor guide compile` | Compiles `quest_guides/guide.json` for AdventureGuide. |
+| `erenshor eval run '<C#>'` | Evaluates code in the running game through HotRepl. |
+| `erenshor capture run` | Captures map tiles through MapTileCapture. |
+
+Run every subsystem through `erenshor`, not through `pnpm`, `wrangler`, or `dotnet` directly. `erenshor <group> --help` lists the options.
+
+### Game updates
+
+A new Steam build runs through backup, rip, export, code facts, and build, then through the checks and deploys of each consumer. The [refreshing-game-data skill](.agent/skills/refreshing-game-data/SKILL.md) gives the order and the gates.
+
+### Rules for changes
+
+- Never edit the decompiled game scripts under `variants/<variant>/unity/ExportedProject/Assets/Scripts/`, other ripped assets, or the installed game.
+- Never edit generated output by hand: databases, `quest_guides/guide.json`, map builds, captured tiles, generated wiki pages, or mod metadata. Change the generator and regenerate.
+- Golden baselines and deploys to the wiki, the map, or the sheets need the maintainer's approval.
+- The live map keeps its legacy contract: `/map` with the `layers` and `sel` parameters on both hosts, WebSocket ports 18584 and 18585, and `/db/erenshor.sqlite`.
+
+## Testing
+
+```sh
+erenshor test ci                     # what CI runs: static checks, unit, contract, maps, mods
+erenshor test unit                   # one leaf
+erenshor -V main test release        # adds main data, clean wiki parity, real builds, package checks
 ```
 
-Hook jobs that need project tooling run through `scripts/with-dev-env.sh`, which
-enters the dev shell when the calling process is not already inside it. Git
-clients that are not shells — Fork, IDE integrations — invoke hooks with the
-bare session PATH, where `uv` does not exist and every job would fail with exit
-127. Add the wrapper to any new job that calls a dev-shell tool.
+`uv run pytest` alone is not CI. The maps leaf prerenders the site against the fixture database in `src/maps/tests/fixtures/`, which has a different schema from the real one, so a query that works against the real database can fail in CI. `erenshor test wiki` needs the local MediaWiki stack described in `wiki-dev/README.md`. Each leaf writes a report under `artifacts/test-reports/`.
 
-Gitleaks ships in the dev shell, so the pre-commit secret scan always runs
-rather than skipping itself; CI runs the same scan over the repository.
+## Dependencies
 
-Run independent static checks for the area you changed:
+| Graph | Versions | Lock |
+| --- | --- | --- |
+| Nix | `flake.nix` | `flake.lock` |
+| Python | `pyproject.toml` | `uv.lock` |
+| pnpm | `package.json` files | root `pnpm-lock.yaml` |
+| NuGet | `src/Directory.Packages.props` | each project's `packages.lock.json` |
+| .NET tools | `.config/dotnet-tools.json` | exact versions |
+| GitHub Actions | workflow `uses:` | full commit SHAs |
 
-```bash
-# Python
-uv run ruff format src/ tests/
-uv run ruff check src/ tests/
-uv run mypy src/
-
-# Lua modules
-pnpm exec stylua --check wiki/modules
-
-# C# formatting used by hooks
-bash src/mods/run-csharpier.sh
-```
-
-Run behavioral verification through the canonical task leaves:
-
-```bash
-erenshor test unit
-erenshor test unit --coverage
-erenshor test contract
-erenshor test maps
-erenshor test mods
-erenshor test wiki --warm
-erenshor -V main test data
-```
-
-Use the composites for the same disjoint leaves in parallel:
-
-```bash
-erenshor test ci
-erenshor -V main test release
-```
-
-`test ci` runs unit, contract, maps, and mods. `test release` adds the main data
-leaf, clean wiki parity, a real main-data map build, dual-loader mod builds, and
-Thunderstore package validation. Run clean wiki parity directly with
-`erenshor test wiki --clean-parity` when that isolated Docker gate is the
-only target. Every leaf checks its own prerequisites, rejects zero collected
-tests, and writes a structured report under `artifacts/test-reports/`.
-
-### Verification acceptance baseline
-
-Measured on 2026-07-24 on an Apple M2 macOS workstation. Fast-gate timings are
-the median of three runs after one warm-up. Environment-bound gates were run
-once. Every command writes machine-readable diagnostics under
-`artifacts/test-reports/`.
-
-| Gate | Canonical command | Required environment | Observed result | Duration | Report |
-| --- | --- | --- | --- | ---: | --- |
-| Unit | `erenshor test unit` | uv and `tests/unit/` | 1,672 passed | 24.14 s | `unit.json` |
-| Contract | `erenshor test contract` | uv, .NET 9, and the native analyzer projects | 3 pytest, 13 CodeFacts, and 14 ExportSurface tests passed | 21.20 s | `contract.json` and `native/contract/*.trx` |
-| Warm wiki | `erenshor test wiki --warm` | running local MediaWiki, its API, and Playwright Chromium | 189 managed pages plus API and browser acceptance passed | 38.11 s | `wiki.json` |
-| Local CI | `erenshor test ci` | unit, contract, maps, and mods prerequisites | all four disjoint leaves passed | 111.25 s | `ci.json` |
-| Clean wiki parity | `erenshor test wiki --clean-parity` | Docker, uv, curl, and Playwright Chromium | isolated 189-page import, Cargo, API, and browser parity passed | 334.02 s | `wiki.json` and `wiki-clean-parity.json` |
-| Main data | `erenshor -V main test data` | main raw and clean databases plus shipped `Assembly-CSharp.dll` | 142 passed | 172.45 s | `data.json` |
-| Main release | `erenshor -V main test release` | every leaf prerequisite plus provisioned dual-loader mod references | six leaves and three release actions passed | 537.36 s | `release.json` |
-
-The contract gate includes the production CodeFacts and ExportSurface analyzer
-projects. The data gate includes the dynamic-spawn and full-export database
-contracts. A new Unity batch export remains a separate post-update operation
-because it mutates the raw database and requires the configured Unity project.
-
-CI runs independent static-check jobs plus the unit leaf with XML coverage, the
-contract leaf, the hermetic maps leaf, and all maintained native mod tests. Main
-data, clean wiki parity, real release builds, package validation, and Unity
-exports remain explicit environment-bound gates.
+Renovate updates everything except Nix. The private `glockyco/dependency-automation` workflow updates Nix and the pnpm version in `flake.nix`, and opens a pull request. After a manual change, regenerate the lock (`uv lock`, `pnpm install --lockfile-only`, `dotnet restore --force-evaluate` once per mod loader, or `nix flake update` and `nix run .#sync-pnpm-version`) and run `erenshor test dependency-state`.
 
 ## Troubleshooting
 
-### Check setup first
+- **Setup.** `erenshor status` reports tool paths, installs, and database state. Logs are in `.erenshor/logs/` and `variants/<variant>/logs/`.
+- **Git hooks fail with exit 127.** Git clients without a shell call hooks without the dev shell. Hook jobs that need project tools run through `scripts/with-dev-env.sh`.
+- **Live map does not connect.** The game must run InteractiveMapCompanion, which serves `ws://localhost:18585`.
 
-```bash
-erenshor status
-```
+## Further reading
 
-This reports configured tool paths and database state.
-
-### Local logs
-
-```text
-.erenshor/logs/
-variants/{variant}/logs/
-variants/{variant}/logs/export_*.log
-```
-
-### AssetRipper or Unity paths are wrong
-
-Update `.erenshor/config.local.toml`, then rerun:
-
-```bash
-erenshor status
-```
-
-### Map live mode does not connect
-
-Confirm the game is running with `InteractiveMapCompanion` installed, then check that the map is connecting to:
-
-```text
-ws://localhost:18585
-```
-
-The per-zone maps accept player-position updates on port `18584` from the
-retired `InteractiveMapsCompanion` mod. Nothing in this repository serves that
-port, but players who still run the mod keep live tracking, so the port and its
-message format are kept indefinitely. The world map and
-`InteractiveMapCompanion` use port `18585`.
+- [`openspec/specs`](openspec/specs/) states what the pipeline and its outputs must do. Each change under [`openspec/changes`](openspec/changes/) records why it was made.
+- [`.agent/skills`](.agent/skills/) holds the procedures for game updates, exports, code facts, wiki, sheets, map, tile capture, mods, and runtime inspection.
+- Commit messages explain why each change exists.
 
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+Erenshor Data Mining is an unofficial fan project and is not affiliated with the developer of Erenshor.
