@@ -67,3 +67,24 @@ def test_generation_preflight_runs_only_after_all_pages_process() -> None:
     )
 
     assert events == ["first", "second", "preflight"]
+
+
+def test_regenerated_stance_page_takes_new_data_and_keeps_the_editor_image() -> None:
+    fetched = (
+        "{{Stance\n|title=Aggressive\n|image=[[File:Editor Aggressive.png|thumb]]\n|damage_mod=1.2\n}}\n\n"
+        "Editor notes.\n"
+    )
+    generated = (
+        "{{Stance\n|title=Aggressive\n|image=[[File:Aggressive.png|thumb]]\n|imagecaption=\n|damage_mod=1.4\n}}\n"
+    )
+    context = MagicMock()
+    context.storage.read_fetched_by_title.return_value = fetched
+    service = WikiGenerateService(context=context, link_catalog=(), console=Console(file=StringIO()))
+    seen: list[Mapping[str, str]] = []
+
+    service._process_generated_pages([_page("Aggressive", generated)], dry_run=True, preflight=seen.append)
+
+    page = seen[0]["Aggressive"]
+    assert "|damage_mod=1.4\n" in page
+    assert "|image=[[File:Editor Aggressive.png|thumb]]\n" in page
+    assert "Editor notes." in page

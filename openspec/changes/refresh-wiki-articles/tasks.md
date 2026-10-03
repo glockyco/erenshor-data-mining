@@ -10,7 +10,7 @@
 
 ## 3. Generator fixes (one commit each)
 
-- [ ] 3.1 `fix(wiki): refresh stance pages from data`: add `Stance` to the merged families with design D4 rules. Verify with a test that a changed stance modifier reaches the page.
+- [x] 3.1 `fix(wiki): refresh stance pages from data`: add `Stance` to the merged families with design D4 rules. Verify with a test that a changed stance modifier reaches the page.
 - [ ] 3.2 `fix(wiki): merge zone pages into the live page`: write zone pages to the generated storage, merge them with the fetched page, and delete `wiki/zones/` and the zone output directory. Replace `tests/unit/application/wiki/generators/test_zone_preservation.py` with tests that keep live prose. Verify: generation produces all 43 zone pages, and each keeps the prose of its fetched page.
 - [ ] 3.3 `fix(wiki): replace only the generated overview table`: implement design D4 for `Weapons` and `Armor`. Add tests with an introduction, a trailing notes section, a second table, and a page without the generated table. Verify: the regenerated `Armor` page keeps the text around its table.
 - [ ] 3.4 `fix(wiki): keep fractional skill cooldowns`: use one duration formatter in the legacy skill section and the Lua skill data. Add a test for 800 ticks shown as 13.33 seconds. Verify in game with HotRepl (`uv run erenshor eval`) that a used skill's hotkey cooldown starts at its tick value and falls by about 60 per second.

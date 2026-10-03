@@ -220,6 +220,10 @@ DEFAULT_PRESERVATION_RULES: dict[str, dict[str, str]] = {
     "Ability": {
         "image": "prefer_manual",  # Custom ability icons
     },
+    "Stance": {
+        "image": "prefer_manual",  # Custom stance icons
+        "imagecaption": "preserve",  # Custom image captions
+    },
     "Zone": {
         # Manually uploaded assets
         "image": "prefer_manual",

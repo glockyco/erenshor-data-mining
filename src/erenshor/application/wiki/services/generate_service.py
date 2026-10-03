@@ -249,7 +249,7 @@ class WikiGenerateService:
                         final_content = self._preservation_handler.merge_templates(
                             old_wikitext=existing,
                             new_wikitext=page_content,
-                            template_names=["Item", "Character", "Ability"],
+                            template_names=["Item", "Character", "Ability", "Stance"],
                         )
 
                         # Ability tooltip companions are keyed, generated cards that
