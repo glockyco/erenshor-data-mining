@@ -624,7 +624,10 @@ class TestWikiDeployCommand:
         assert result.exit_code == 1
         assert "Conflict Beta" in _unwrapped(result.output)
         [manifest_path] = (tmp_path / "wiki" / "article-deploys").glob("*/manifest.json")
-        assert [entry.title for entry in read_repo_page_manifest(manifest_path).entries] == ["Alpha"]
+        assert [(entry.title, entry.new_revision_id) for entry in read_repo_page_manifest(manifest_path).entries] == [
+            ("Alpha", 12),
+            ("Beta", None),
+        ]
         assert client.safe_edit_page.call_args.kwargs["summary"] == "Update game data from build 123"
         client.close.assert_called_once_with()
 

@@ -310,7 +310,7 @@ def test_article_deploy_parses_before_writing_and_blocks_a_new_red_category(
     assert [(issue.title, issue.reason) for issue in result.blocked] == [
         (blocked, "category without a page: Category:ErenshorIT Missing Category")
     ]
-    assert [entry.title for entry in result.manifest.entries] == [written]
+    assert {entry.title: entry.deploy_action for entry in result.manifest.entries} == {written: "edited", blocked: None}
     assert wiki_client.get_page(written) == "New text."
     assert wiki_client.get_page(blocked) == "Old text."
 

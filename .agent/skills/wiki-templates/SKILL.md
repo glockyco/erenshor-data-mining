@@ -62,7 +62,8 @@ Keep legacy articles, repository-owned pages, and interface gadgets on their sep
    The deploy first checks the live semantic-link catalog. If that catalog is stale, deploy repository-owned Lua data first.
    Each run writes a manifest and rollback text under `variants/<variant>/wiki/article-deploys/<run>/`.
    Restore a run with `uv run erenshor wiki rollback-repo-pages --manifest <manifest>`.
-   The command fails when a page is a conflict or blocked, or when the run stops early. The manifest lists every written page.
+   The command fails when a page is a conflict or blocked, or when the run stops early.
+   Before the first write, the manifest lists every planned page with its base revision. Each written page gets its new revision, and a rollback restores only those pages.
 
 ## Lua data and repository-owned pages
 

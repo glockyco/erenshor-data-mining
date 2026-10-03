@@ -14,7 +14,7 @@ import hashlib
 import re
 import time
 from collections.abc import Callable, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING, Literal, Protocol
 
 from erenshor.application.wiki.generators.page_normalizer import PageNormalizer
@@ -130,10 +130,11 @@ class ArticleDeployPlan:
 class ArticleDeployResult:
     """The outcome of an article deploy.
 
-    ``manifest`` lists every written page in the format that
-    ``wiki rollback-repo-pages`` restores. ``unchanged`` lists planned edits
-    that MediaWiki saved as no change. ``stopped`` names the error that ended
-    the run before the plan was complete.
+    ``manifest`` lists every planned page in the format of
+    ``wiki rollback-repo-pages``. A written page carries its new revision, and
+    a rollback restores only such pages. ``unchanged`` lists planned edits that
+    MediaWiki saved as no change. ``stopped`` names the error that ended the
+    run before the plan was complete.
     """
 
     manifest: RepoWikiPageManifest
@@ -232,14 +233,30 @@ def plan_article_deploy(
 
 @dataclass
 class _DeployState:
-    written: list[RepoWikiPageManifestEntry] = field(default_factory=list)
+    entries: list[RepoWikiPageManifestEntry]
+    positions: dict[str, int]
     unchanged: list[str] = field(default_factory=list)
     conflicts: list[ArticleIssue] = field(default_factory=list)
     blocked: list[ArticleIssue] = field(default_factory=list)
     stopped: str | None = None
 
     def manifest(self) -> RepoWikiPageManifest:
-        return RepoWikiPageManifest(entries=tuple(self.written))
+        return RepoWikiPageManifest(entries=tuple(self.entries))
+
+    def record_write(self, title: str, base: MediaWikiPageRevision | None, new_revision_id: int) -> None:
+        """Record a saved write in the manifest entry of ``title``."""
+        index = self.positions[title]
+        if base is not None and new_revision_id == base.revision_id:
+            # MediaWiki saved no change, so a rollback has nothing to restore.
+            self.entries[index] = replace(self.entries[index], deploy_action="unchanged")
+            self.unchanged.append(title)
+            return
+        self.entries[index] = replace(
+            self.entries[index],
+            old_revision_timestamp=None if base is None else base.timestamp,
+            new_revision_id=new_revision_id,
+            deploy_action="created" if base is None else "edited",
+        )
 
 
 def deploy_articles(
@@ -265,13 +282,17 @@ def deploy_articles(
     and the run continues. A failed assertion or a transport failure ends the
     run at once, because every later write would fail the same way.
 
-    Before each edit, the live text is saved as rollback text. After each
-    write, the manifest is checkpointed and the fetched copy becomes the
-    saved text at its new revision.
+    Before the first write, the manifest lists every planned page with its
+    base revision and rollback text, and it is checkpointed. After each write,
+    the entry of the page gets its new revision, the manifest is checkpointed
+    again, and the fetched copy becomes the saved text at the new revision.
     """
     pause = time.sleep if sleep is None else sleep
-    state = _DeployState()
     writes = plan.writes
+    entries = _prepare_manifest(writes, storage, repo_root, rollback_root)
+    state = _DeployState(entries=entries, positions={entry.title: index for index, entry in enumerate(entries)})
+    if checkpoint is not None:
+        checkpoint(state.manifest())
     for start in range(0, len(writes), batch_size):
         batch = writes[start : start + batch_size]
         try:
@@ -290,8 +311,6 @@ def deploy_articles(
                 state=state,
                 client=client,
                 storage=storage,
-                repo_root=repo_root,
-                rollback_root=rollback_root,
                 summary=summary,
             )
             if outcome == "stop":
@@ -312,6 +331,45 @@ def deploy_articles(
     )
 
 
+def _prepare_manifest(
+    writes: Sequence[PlannedArticle],
+    storage: WikiStorage,
+    repo_root: Path,
+    rollback_root: Path,
+) -> list[RepoWikiPageManifestEntry]:
+    """Return a manifest entry for each planned write, with its base revision and rollback text.
+
+    The deploy writes a page only while its live revision is the fetched
+    revision, so the fetched text is the text that a rollback restores.
+    """
+    rollback_root.mkdir(parents=True, exist_ok=True)
+    entries: list[RepoWikiPageManifestEntry] = []
+    for article in writes:
+        rollback_text_source: str | None = None
+        if article.action == "edit":
+            fetched_text = storage.read_fetched_by_title(article.title)
+            if fetched_text is None:
+                raise FileNotFoundError(f"Fetched wiki content missing for {article.title!r}")
+            rollback_path = rollback_root / rollback_filename(article.title)
+            rollback_path.write_text(fetched_text, encoding="utf-8")
+            rollback_text_source = rollback_path.relative_to(repo_root).as_posix()
+        entries.append(
+            RepoWikiPageManifestEntry(
+                title=article.title,
+                source_path=storage.generated_path(article.title).relative_to(repo_root).as_posix(),
+                source_sha256=hashlib.sha256(article.generated_text.encode("utf-8")).hexdigest(),
+                ownership_class="article",
+                upload_stage="article",
+                content_model="wikitext",
+                declares_cargo_table=False,
+                cargo_tables=(),
+                old_revision_id=article.fetched_revision_id,
+                rollback_text_source=rollback_text_source,
+            )
+        )
+    return entries
+
+
 def _write_article(
     article: PlannedArticle,
     snapshot: MediaWikiPageSnapshot,
@@ -320,8 +378,6 @@ def _write_article(
     state: _DeployState,
     client: ArticleDeployClient,
     storage: WikiStorage,
-    repo_root: Path,
-    rollback_root: Path,
     summary: str,
 ) -> _WriteOutcome:
     """Write one article if its live page is still the one that generation merged into."""
@@ -340,13 +396,6 @@ def _write_article(
         state.blocked.append(ArticleIssue(title, "; ".join(problems)))
         return "skipped"
 
-    rollback_text_source: str | None = None
-    if live is not None:
-        rollback_path = rollback_root / rollback_filename(title)
-        rollback_path.parent.mkdir(parents=True, exist_ok=True)
-        rollback_path.write_text(snapshot.source_text or "", encoding="utf-8")
-        rollback_text_source = rollback_path.relative_to(repo_root).as_posix()
-
     try:
         if live is not None:
             new_revision_id = client.safe_edit_page(
@@ -364,26 +413,7 @@ def _write_article(
         return _record_write_error(state, title, error)
 
     storage.record_deployed(title, article.generated_text, new_revision_id)
-    if live is not None and new_revision_id == live.revision_id:
-        state.unchanged.append(title)
-        return "requested"
-    state.written.append(
-        RepoWikiPageManifestEntry(
-            title=title,
-            source_path=storage.generated_path(title).relative_to(repo_root).as_posix(),
-            source_sha256=hashlib.sha256(article.generated_text.encode("utf-8")).hexdigest(),
-            ownership_class="article",
-            upload_stage="article",
-            content_model="wikitext",
-            declares_cargo_table=False,
-            cargo_tables=(),
-            old_revision_id=None if live is None else live.revision_id,
-            old_revision_timestamp=None if live is None else live.timestamp,
-            new_revision_id=new_revision_id,
-            rollback_text_source=rollback_text_source,
-            deploy_action="created" if live is None else "edited",
-        )
-    )
+    state.record_write(title, live, new_revision_id)
     return "requested"
 
 

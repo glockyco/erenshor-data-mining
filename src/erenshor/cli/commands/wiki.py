@@ -1585,8 +1585,9 @@ def deploy(
 
     Each article is written only while its live page is still at the revision
     that generation merged into. A page that changed or was deleted after the
-    fetch is a conflict and is not written. Every written page goes into a
-    manifest that `wiki rollback-repo-pages` restores.
+    fetch is a conflict and is not written. Before the first write, a manifest
+    lists every planned page with its base revision. Each written page gets its
+    new revision there, and `wiki rollback-repo-pages` restores the written pages.
 
     A dry run writes nothing to the wiki. It groups the planned writes by kind
     of change, lists the encounter tier changes, the live roots that generation
@@ -1733,5 +1734,5 @@ def _print_article_deploy_result(result: ArticleDeployResult, manifest_path: Pat
     if result.stopped is not None:
         console.print(
             f"[red]Deploy stopped:[/red] {escape(result.stopped)}. "
-            "The output is partial; the manifest lists every written page."
+            "The output is partial. The manifest records the new revision of each written page."
         )

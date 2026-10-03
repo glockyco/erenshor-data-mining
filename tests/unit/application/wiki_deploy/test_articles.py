@@ -139,11 +139,12 @@ def test_writes_only_pages_still_at_their_fetched_revision(storage: WikiStorage,
         ("Beta", "changed after the fetch: live revision 11, fetched revision 10")
     ]
     assert result.failed
-    [entry] = result.manifest.entries
-    assert (entry.title, entry.deploy_action) == ("Alpha", "edited")
-    assert (entry.old_revision_id, entry.new_revision_id) == (10, 1001)
-    assert entry.rollback_text_source is not None
-    assert (tmp_path / entry.rollback_text_source).read_text(encoding="utf-8") == "{{Item|title=Alpha|value=1}}"
+    alpha, beta = result.manifest.entries
+    assert (alpha.title, alpha.deploy_action) == ("Alpha", "edited")
+    assert (alpha.old_revision_id, alpha.new_revision_id) == (10, 1001)
+    assert alpha.rollback_text_source is not None
+    assert (tmp_path / alpha.rollback_text_source).read_text(encoding="utf-8") == "{{Item|title=Alpha|value=1}}"
+    assert (beta.title, beta.deploy_action, beta.new_revision_id) == ("Beta", None, None)
     # The fetched copy is the live page again, so a second plan has nothing to write.
     assert storage.get_metadata_by_title("Alpha").fetched_revision_id == 1001
     assert plan_article_deploy(storage, page_titles=["Alpha"]).writes == ()
@@ -155,7 +156,7 @@ def test_page_deleted_after_the_fetch_is_a_conflict(storage: WikiStorage, tmp_pa
     result, _ = _deploy(storage, FakeWiki({}), tmp_path)
 
     assert [(issue.title, issue.reason) for issue in result.conflicts] == [("Alpha", "was deleted after the fetch")]
-    assert result.manifest.entries == ()
+    assert [(entry.title, entry.new_revision_id) for entry in result.manifest.entries] == [("Alpha", None)]
 
 
 def test_creates_a_page_only_while_it_is_still_missing(storage: WikiStorage, tmp_path: Path) -> None:
@@ -166,7 +167,10 @@ def test_creates_a_page_only_while_it_is_still_missing(storage: WikiStorage, tmp
     result, _ = _deploy(storage, wiki, tmp_path)
 
     assert [(title, base) for title, _, base, _ in wiki.writes] == [("New", None)]
-    assert [entry.deploy_action for entry in result.manifest.entries] == ["created"]
+    assert [(entry.title, entry.deploy_action) for entry in result.manifest.entries] == [
+        ("New", "created"),
+        ("Taken", None),
+    ]
     assert [(issue.title, issue.reason) for issue in result.conflicts] == [
         ("Taken", "exists at revision 12 but was generated without its live text")
     ]
@@ -182,8 +186,16 @@ def test_lost_session_stops_the_run_and_keeps_the_written_pages(storage: WikiSto
 
     assert [title for title, *_ in wiki.writes] == ["Alpha"]
     assert result.stopped == "Beta: Assertion failed while safely editing page 'Beta'"
-    assert [entry.title for entry in result.manifest.entries] == ["Alpha"]
-    assert [entry.title for entry in checkpoints[-1].entries] == ["Alpha"]
+    # Before the first write, the manifest holds every planned page with its base revision and rollback text.
+    first = checkpoints[0].entries
+    assert [(entry.title, entry.old_revision_id, entry.new_revision_id) for entry in first] == [
+        ("Alpha", 10, None),
+        ("Beta", 10, None),
+        ("Gamma", 10, None),
+    ]
+    assert all((tmp_path / str(entry.rollback_text_source)).is_file() for entry in first)
+    written = [(entry.title, entry.new_revision_id) for entry in checkpoints[-1].entries]
+    assert written == [("Alpha", 1001), ("Beta", None), ("Gamma", None)]
 
 
 def test_refused_page_is_blocked_and_the_run_continues(storage: WikiStorage, tmp_path: Path) -> None:
@@ -213,9 +225,10 @@ def test_page_that_differs_only_by_normalization_is_not_written(storage: WikiSto
     assert not result.failed
 
 
-def test_rollback_restores_a_deployed_article(storage: WikiStorage, tmp_path: Path) -> None:
+def test_rollback_restores_only_the_written_articles(storage: WikiStorage, tmp_path: Path) -> None:
     _page(storage, "Alpha", "{{Item|title=Alpha|value=2}}\n", fetched="{{Item|title=Alpha|value=1}}")
-    wiki = FakeWiki({"Alpha": (10, "{{Item|title=Alpha|value=1}}")})
+    _page(storage, "Beta", "{{Item|title=Beta|value=2}}\n", fetched="{{Item|title=Beta|value=1}}")
+    wiki = FakeWiki({"Alpha": (10, "{{Item|title=Alpha|value=1}}"), "Beta": (11, "Editor text")})
     result, _ = _deploy(storage, wiki, tmp_path)
 
     rollback = rollback_repo_pages(
@@ -225,6 +238,7 @@ def test_rollback_restores_a_deployed_article(storage: WikiStorage, tmp_path: Pa
     assert [entry.title for entry in rollback.entries] == ["Alpha"]
     assert wiki.writes[-1] == ("Alpha", "{{Item|title=Alpha|value=1}}", 1001, "Roll back")
     assert wiki.pages["Alpha"][1] == "{{Item|title=Alpha|value=1}}"
+    assert wiki.pages["Beta"] == (11, "Editor text")
 
 
 def _parse(
