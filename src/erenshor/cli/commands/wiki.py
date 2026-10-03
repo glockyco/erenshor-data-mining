@@ -59,10 +59,7 @@ from erenshor.application.wiki_deploy.override_migration import (
     review_article_overrides,
 )
 from erenshor.application.wiki_deploy.pages import build_deployed_manifest, deploy_repo_pages
-from erenshor.application.wiki_deploy.refresh import (
-    refresh_embedded_pages,
-    refresh_item_owners_for_source_changes,
-)
+from erenshor.application.wiki_deploy.refresh import refresh_embedded_pages
 from erenshor.application.wiki_deploy.rollback import rollback_repo_pages
 from erenshor.application.wiki_interface.deploy import (
     InterfaceDeployPlan,
@@ -1438,13 +1435,6 @@ def refresh_embedded_command(
             help="Template or module title whose transcluding pages should be refreshed.",
         ),
     ] = None,
-    source_tables: Annotated[
-        list[str] | None,
-        typer.Option(
-            "--source-table",
-            help="Source data table whose item-owned Cargo pages should be reparsed.",
-        ),
-    ] = None,
     page_titles: Annotated[
         list[str] | None,
         typer.Option(
@@ -1464,11 +1454,10 @@ def refresh_embedded_command(
     """Force a link/Cargo refresh on pages that transclude the given templates/modules."""
     cli_ctx: CLIContext = ctx.obj
     dependency_titles = dependency_titles or []
-    source_tables = source_tables or []
     page_titles = page_titles or []
     namespaces = namespaces or []
-    if not dependency_titles and not source_tables and not page_titles:
-        console.print("[red]At least one dependency title, source table, or page is required.[/red]")
+    if not dependency_titles and not page_titles:
+        console.print("[red]At least one dependency title or page is required.[/red]")
         raise typer.Exit(1)
     if dependency_titles and not namespaces:
         console.print("[red]At least one --namespace is required with dependency titles.[/red]")
@@ -1476,8 +1465,8 @@ def refresh_embedded_command(
 
     if cli_ctx.dry_run:
         console.print(
-            f"[yellow]Dry run: would refresh pages for {len(dependency_titles)} dependencies, "
-            f"{len(source_tables)} source tables, and {len(set(page_titles))} explicit pages "
+            f"[yellow]Dry run: would refresh pages for {len(dependency_titles)} dependencies "
+            f"and {len(set(page_titles))} explicit pages "
             f"in namespaces {', '.join(str(namespace) for namespace in namespaces)}[/yellow]"
         )
         return
@@ -1504,15 +1493,6 @@ def refresh_embedded_command(
                     assertion="bot",
                     assert_user=assert_user,
                 )
-            )
-        if source_tables:
-            refreshed_titles.update(
-                refresh_item_owners_for_source_changes(
-                    client=client,
-                    changed_source_tables=tuple(source_tables),
-                    assertion="bot",
-                    assert_user=assert_user,
-                ).refreshed
             )
     finally:
         client.close()

@@ -115,11 +115,10 @@ Keep legacy articles, repository-owned pages, and interface gadgets on their sep
 
    ```bash
    uv run erenshor wiki refresh-embedded --dependency-title Template:Item --namespace 0
-   uv run erenshor wiki refresh-embedded --source-table Items
    uv run erenshor wiki refresh-embedded --page 'Example Page'
    ```
 
-   Use at least one `--dependency-title`, `--source-table`, or `--page`.
+   Use at least one `--dependency-title` or `--page`.
    A dependency title also requires at least one `--namespace`.
    Use `wiki audit-links` to include live link checks. An error finding exits nonzero.
 

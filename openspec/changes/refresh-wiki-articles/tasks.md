@@ -21,7 +21,7 @@
 - [ ] 4.2 `feat(wiki): parse each article on the wiki before writing it`: implement design D5 step 2. Add tests for a script error, a missing template, a category without a page, and a new tracking category. Verify: a test page with `[[Category:Elites]]` is blocked while the category page is missing.
 - [ ] 4.3 `feat(wiki): report the article deploy plan`: make `erenshor --dry-run wiki deploy` list the planned pages by kind of change, the unmatched roots, and the conflicts. Verify: a dry run against live reports the 113 tier changes and writes nothing.
 - [ ] 4.4 `feat(wiki): stop repo-page deploys at another account's edit`: implement design D6 with `--accept-drift`. Add tests for a reverted template, an accepted page, and a page whose live text equals the source. Verify: a dry run of `wiki deploy-repo-pages --include-templates` names every drifted template.
-- [ ] 4.5 `refactor(wiki): remove the source-table refresh`: delete `--source-table` and the item-owner null edits from `refresh-embedded`. Verify: `uv run erenshor wiki refresh-embedded --help` no longer offers it, and the remaining refresh tests pass.
+- [x] 4.5 `refactor(wiki): remove the source-table refresh`: delete `--source-table` and the item-owner null edits from `refresh-embedded`. Verify: `uv run erenshor wiki refresh-embedded --help` no longer offers it, and the remaining refresh tests pass.
 
 ## 5. Documentation and verification
 

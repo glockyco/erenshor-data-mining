@@ -49,7 +49,6 @@ class RepoWikiPageManifestEntry:
     new_revision_timestamp: str | None = None
     rollback_text_source: str | None = None
     deploy_action: DeployAction | None = None
-    null_edit_targets: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -295,7 +294,6 @@ def _entry_from_payload(raw_entry: dict[str, object]) -> RepoWikiPageManifestEnt
         new_revision_timestamp=_optional_str(raw_entry.get("new_revision_timestamp")),
         rollback_text_source=_optional_str(raw_entry.get("rollback_text_source")),
         deploy_action=_optional_deploy_action(raw_entry.get("deploy_action")),
-        null_edit_targets=tuple(str(title) for title in cast("list[object]", raw_entry["null_edit_targets"])),
     )
 
 

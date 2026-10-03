@@ -507,33 +507,6 @@ class TestMediaWikiClientGetPages:
         client.edit_page(title="Item:Sword", content="{{Item|name=Sword|damage=10}}", summary="Update item stats")
         assert [request.method for request in api.requests] == ["GET", "POST"]
 
-    def test_null_edit_pages_sends_guards_and_unchanged_content(self) -> None:
-        """Null edits reparse existing content under the requested API guards."""
-        client, api = _mock_client(
-            [
-                {
-                    "query": {
-                        "pages": {
-                            "123": {
-                                "pageid": 123,
-                                "title": "Item:Sword",
-                                "revisions": [{"slots": {"main": {"*": "unchanged source"}}}],
-                            }
-                        }
-                    }
-                },
-                {"query": {"tokens": {"csrftoken": "test_csrf_token"}}},
-                {"edit": {"result": "Success"}},
-            ],
-            clock=MockClock(),
-        )
-        assert client.null_edit_pages(("Item:Sword",), assertion="bot", assert_user="ErenshorBot") == ("Item:Sword",)
-        call_data = api.requests[-1].data
-        assert call_data["text"] == "unchanged source"
-        assert call_data["assert"] == "bot"
-        assert call_data["assertuser"] == "ErenshorBot"
-        assert call_data["nocreate"] == "1"
-
     def test_edit_page_failure(self) -> None:
         """Test edit failure handling."""
         client, _ = _mock_client(

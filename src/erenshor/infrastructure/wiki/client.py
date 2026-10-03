@@ -1006,33 +1006,6 @@ class MediaWikiClient:
 
         return snapshots
 
-    def null_edit_pages(
-        self,
-        titles: Sequence[str],
-        assertion: Literal["user", "bot"] | None = None,
-        assert_user: str | None = None,
-    ) -> tuple[str, ...]:
-        """Reparse existing pages with unchanged wikitext so Cargo rows refresh."""
-        if assertion not in (None, "user", "bot"):
-            raise ValueError(f"assertion must be 'user' or 'bot', got: {assertion}")
-        pages = self.get_pages(titles)
-        refreshed: list[str] = []
-        for title in titles:
-            content = pages.get(title)
-            if content is None:
-                raise MediaWikiAPIError(f"Cannot null-edit missing page: {title}")
-            self.edit_page(
-                title,
-                content,
-                summary="Refresh item-owned Cargo rows",
-                bot=True,
-                no_create=True,
-                assertion=assertion,
-                assert_user=assert_user,
-            )
-            refreshed.append(title)
-        return tuple(refreshed)
-
     def get_embeddedin_pages(
         self,
         title: str,
