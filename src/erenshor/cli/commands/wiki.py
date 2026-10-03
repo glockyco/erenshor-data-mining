@@ -918,8 +918,6 @@ def generate(
                     known_generated_titles=pages,
                     variant=cli_ctx.variant,
                 )
-                if report.link_audit is None:
-                    raise ValueError("Semantic validation ran without the link catalog")
                 _publish_link_audit(report.link_audit, None if cli_ctx.dry_run else _default_link_audit_output(cli_ctx))
                 if report.has_errors:
                     for finding in report.findings[:_SHOWN_FINDINGS]:

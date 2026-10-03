@@ -701,17 +701,6 @@ def page_expectation(title: str, stable_keys: Sequence[str], fetched_content: st
 
 
 @dataclass(frozen=True, slots=True)
-class PageContract:
-    """Derived ownership/schema facts, useful to integration callers."""
-
-    page: str
-    schema_kind: str
-    stable_keys: tuple[str, ...]
-    generated_templates: tuple[str, ...]
-    ownership: tuple[str, ...] = ()
-
-
-@dataclass(frozen=True, slots=True)
 class SemanticFinding:
     """One blocking semantic invariant violation."""
 
@@ -736,8 +725,8 @@ class SemanticValidationReport:
     ran over the same pages.
     """
 
-    findings: tuple[SemanticFinding, ...] = ()
-    link_audit: LinkAuditReport | None = None
+    findings: tuple[SemanticFinding, ...]
+    link_audit: LinkAuditReport
 
     @property
     def has_errors(self) -> bool:
@@ -750,147 +739,6 @@ class SemanticValidationReport:
         if self.has_errors:
             raise SemanticValidationError(self)
         return self
-
-
-@dataclass(frozen=True, slots=True)
-class GeneratedManualOwnershipEntry:
-    """Ownership classification for one selected generated-corpus page.
-
-    ``generated`` means the page has a generated template family (or one of
-    the generated overview schemas).  ``manual`` means no generated family is
-    present.  ``invalid`` is reserved for pages with semantic-validation
-    findings and is never folded into the manual count.
-    """
-
-    page: str
-    ownership: str
-    schema_kind: str
-    stable_keys: tuple[str, ...]
-    generated_templates: tuple[str, ...]
-    owned_templates: tuple[str, ...]
-    findings: tuple[SemanticFinding, ...] = ()
-
-    def __post_init__(self) -> None:
-        if self.ownership not in {"generated", "manual", "invalid"}:
-            raise ValueError(f"Unknown page ownership: {self.ownership!r}")
-        object.__setattr__(self, "stable_keys", tuple(self.stable_keys))
-        object.__setattr__(self, "generated_templates", tuple(self.generated_templates))
-        object.__setattr__(self, "owned_templates", tuple(self.owned_templates))
-        object.__setattr__(self, "findings", tuple(self.findings))
-
-    def to_dict(self) -> dict[str, object]:
-        """Return a deterministic JSON-compatible page record."""
-        return {
-            "page": self.page,
-            "ownership": self.ownership,
-            "schema": self.schema_kind,
-            "stable_keys": list(self.stable_keys),
-            "generated_templates": list(self.generated_templates),
-            "owned_templates": list(self.owned_templates),
-            "findings": [
-                {"code": finding.code, "page": finding.page, "detail": finding.detail} for finding in self.findings
-            ],
-        }
-
-
-@dataclass(frozen=True, slots=True)
-class GeneratedManualOwnershipReport:
-    """Deterministic generated/manual ownership results for selected pages."""
-
-    entries: tuple[GeneratedManualOwnershipEntry, ...] = ()
-
-    def __post_init__(self) -> None:
-        entries = tuple(sorted(self.entries, key=lambda entry: (entry.page.casefold(), entry.page)))
-        if len({entry.page for entry in entries}) != len(entries):
-            raise ValueError("Ownership report contains duplicate page entries")
-        object.__setattr__(self, "entries", entries)
-
-    @property
-    def total_pages(self) -> int:
-        return len(self.entries)
-
-    @property
-    def generated_pages(self) -> int:
-        return sum(entry.ownership == "generated" for entry in self.entries)
-
-    @property
-    def manual_pages(self) -> int:
-        return sum(entry.ownership == "manual" for entry in self.entries)
-
-    @property
-    def invalid_pages(self) -> int:
-        return sum(entry.ownership == "invalid" for entry in self.entries)
-
-    @property
-    def findings(self) -> tuple[SemanticFinding, ...]:
-        return tuple(finding for entry in self.entries for finding in entry.findings)
-
-    @property
-    def has_errors(self) -> bool:
-        return bool(self.findings)
-
-    def to_dict(self) -> dict[str, object]:
-        """Return stable counts and complete per-page ownership records."""
-        return {
-            "version": 1,
-            "counts": {
-                "total": self.total_pages,
-                "generated": self.generated_pages,
-                "manual": self.manual_pages,
-                "invalid": self.invalid_pages,
-            },
-            "pages": [entry.to_dict() for entry in self.entries],
-        }
-
-
-def build_generated_manual_ownership_report(
-    contracts: Collection[PageContract],
-    *,
-    validation_report: SemanticValidationReport | None = None,
-) -> GeneratedManualOwnershipReport:
-    """Classify selected pages from existing contracts and validation findings.
-
-    This boundary deliberately consumes :class:`PageContract` values produced
-    by semantic validation.  It does not read files, parse templates, or infer
-    ownership a second time.  Any finding for a selected page makes that page
-    ``invalid`` so validation failures cannot inflate the manual count.
-    """
-    findings_by_page: dict[str, list[SemanticFinding]] = {}
-    if validation_report is not None:
-        for finding in validation_report.findings:
-            findings_by_page.setdefault(finding.page, []).append(finding)
-
-    entries: list[GeneratedManualOwnershipEntry] = []
-    seen_pages: set[str] = set()
-    for contract in contracts:
-        if contract.page in seen_pages:
-            raise ValueError(f"Ownership report contains duplicate page {contract.page!r}")
-        seen_pages.add(contract.page)
-        page_findings = tuple(
-            sorted(
-                findings_by_page.get(contract.page, ()),
-                key=lambda finding: (finding.page.casefold(), finding.page, finding.code, finding.detail),
-            )
-        )
-        generated = bool(contract.generated_templates or contract.ownership)
-        if contract.schema_kind in {"armor_overview", "weapons_overview"}:
-            generated = True
-        entries.append(
-            GeneratedManualOwnershipEntry(
-                page=contract.page,
-                ownership="invalid" if page_findings else ("generated" if generated else "manual"),
-                schema_kind=contract.schema_kind,
-                stable_keys=contract.stable_keys,
-                generated_templates=contract.generated_templates,
-                owned_templates=contract.ownership,
-                findings=page_findings,
-            )
-        )
-    unknown_finding_pages = set(findings_by_page) - seen_pages
-    if unknown_finding_pages:
-        pages = ", ".join(sorted(unknown_finding_pages, key=lambda page: (page.casefold(), page)))
-        raise ValueError(f"Validation report contains findings for unselected pages: {pages}")
-    return GeneratedManualOwnershipReport(tuple(entries))
 
 
 @dataclass(frozen=True, slots=True)
@@ -913,7 +761,7 @@ class _Findings:
     def add(self, code: str, page: str, detail: str) -> None:
         self.items.append(SemanticFinding(code, page, detail))
 
-    def report(self, link_audit: LinkAuditReport | None = None) -> SemanticValidationReport:
+    def report(self, link_audit: LinkAuditReport) -> SemanticValidationReport:
         return SemanticValidationReport(
             tuple(sorted(self.items, key=lambda f: (f.page.casefold(), f.page, f.code, f.detail))),
             link_audit,
@@ -1076,28 +924,6 @@ def _schema_from_names(
     if kinds == {"zone"}:
         return "zone"
     return "overview" if not expected_keys else "entity"
-
-
-def derive_page_contract(
-    page: str,
-    content: str,
-    metadata: PageMetadata | None = None,
-    catalog_entries: Sequence[LinkCatalogEntry | Mapping[str, object]] = (),
-    *,
-    schema_kind: str | None = None,
-) -> PageContract:
-    """Derive page schema and generated families without integration dispatch."""
-    catalog = _catalog(catalog_entries)
-    keys = _stable_keys(WikiPageExpectation(page, metadata))
-    parsed = _parse_page(page, content)
-    schema = _schema_from_names(parsed.names, schema_kind, keys, catalog)
-    generated = tuple(
-        sorted({name for name in parsed.names if name in GENERATED_TEMPLATES}, key=lambda n: (n.casefold(), n))
-    )
-    expectation = WikiPageExpectation(page, metadata, schema_kind=schema_kind)
-    allowed = _expected_templates(expectation, parsed, catalog, schema)
-    ownership = tuple(sorted(allowed or set(generated), key=lambda n: (n.casefold(), n)))
-    return PageContract(page, schema, keys, generated, ownership)
 
 
 def _expected_templates(
@@ -1752,14 +1578,9 @@ __all__ = [
     "INVARIANT_CODES",
     "ITEM_COMPANIONS",
     "REQUIRED_TEMPLATE_FIELDS",
-    "GeneratedManualOwnershipEntry",
-    "GeneratedManualOwnershipReport",
-    "PageContract",
     "SemanticFinding",
     "SemanticValidationError",
     "SemanticValidationReport",
     "WikiPageExpectation",
-    "build_generated_manual_ownership_report",
-    "derive_page_contract",
     "validate_wiki_pages",
 ]
