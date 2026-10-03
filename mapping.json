@@ -3239,7 +3239,9 @@
     "character:twisted fernalla": {
       "wiki_page_name": "Fallen Fernalla",
       "display_name": "Fallen Fernalla",
-      "image_name": "Fallen Fernalla"
+      "image_name": "Fallen Fernalla",
+      "reason": "First form of the Fallen Fernalla fight in Blooming Sepulcher. FernallaFightEvent changes phase below 10% health and destroys this form in phase 3 without a kill, then spawns Final Fernalla, so this loot table never rolls.",
+      "loot_unreachable": true
     },
     "character:valrae cleary": {
       "wiki_page_name": "Valrae Cleary",

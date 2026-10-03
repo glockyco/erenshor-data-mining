@@ -230,6 +230,7 @@ def processed_db(tmp_path):
                 "is_map_visible": 1,
                 "expected_npc_name": None,
                 "encounter_tier": None,
+                "loot_unreachable": False,
             },
             "character:demented": {
                 "display_name": "Demented Malaroth",
@@ -239,6 +240,7 @@ def processed_db(tmp_path):
                 "is_map_visible": 1,
                 "expected_npc_name": None,
                 "encounter_tier": None,
+                "loot_unreachable": False,
             },
         },
         {"item:coin", "item:mal-food", "item:bad-food"},

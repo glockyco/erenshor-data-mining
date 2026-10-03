@@ -49,6 +49,7 @@ class MappingOverride(TypedDict):
     is_wiki_generated: int
     is_map_visible: int
     encounter_tier: str | None
+    loot_unreachable: bool
 
 
 ENCOUNTER_TIERS = frozenset({"npc", "chest", "boss", "elite", "enemy"})
@@ -119,6 +120,8 @@ def load_mapping(
     ``expected_npc_name`` pins the raw game name behind an intentional
     display-name override. ``encounter_tier`` replaces the derived tier for a
     character that game data classifies wrongly, and requires a ``reason``.
+    ``loot_unreachable`` drops the loot rows of a character that the game
+    never kills, and also requires a ``reason``.
     Other metadata fields such as ``mapping_type`` are ignored.
 
     Args:
@@ -186,6 +189,14 @@ def load_mapping(
                     errors.append(f"{stable_key}: 'encounter_tier' override requires a 'reason'")
                     continue
 
+            loot_unreachable = rule.get("loot_unreachable", False)
+            if not isinstance(loot_unreachable, bool):
+                errors.append(f"{stable_key}: 'loot_unreachable' must be true or false")
+                continue
+            if loot_unreachable and (not isinstance(rule.get("reason"), str) or not rule["reason"].strip()):
+                errors.append(f"{stable_key}: 'loot_unreachable' requires a 'reason'")
+                continue
+
             character_result[stable_key] = MappingOverride(
                 display_name=display_name,
                 wiki_page_name=wiki_page_name,
@@ -194,6 +205,7 @@ def load_mapping(
                 is_wiki_generated=int(rule.get("is_wiki_generated", 1)),
                 is_map_visible=int(rule.get("is_map_visible", 1)),
                 encounter_tier=encounter_tier,
+                loot_unreachable=loot_unreachable,
             )
 
     if errors:

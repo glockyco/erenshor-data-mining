@@ -1226,7 +1226,10 @@ def process_characters(
 
     # Loot drops
     ld_rows = _load_rows(raw, "SELECT * FROM LootDrops")
-    ld_rows = [r for r in ld_rows if r["CharacterStableKey"] in all_keys]
+    # A character that the game never kills, such as a boss phase that its
+    # fight script destroys, never rolls its loot table (mapping.json).
+    unreachable = {key for key, rule in mapping.items() if rule["loot_unreachable"]}
+    ld_rows = [r for r in ld_rows if r["CharacterStableKey"] in all_keys and r["CharacterStableKey"] not in unreachable]
     writer.insert_loot_drops(
         [
             {
