@@ -108,7 +108,7 @@ def storage(tmp_path: Path) -> WikiStorage:
 
 def _page(storage: WikiStorage, title: str, generated: str, fetched: str | None = None, revision: int = 10) -> None:
     if fetched is not None:
-        storage.save_fetched_by_title(title, [f"item:{title.lower()}"], fetched, [title], revision)
+        storage.save_fetched_by_title(title, [f"item:{title.lower()}"], fetched, revision)
     storage.save_generated_by_title(title, [f"item:{title.lower()}"], generated)
 
 

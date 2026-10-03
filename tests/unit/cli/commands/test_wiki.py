@@ -484,7 +484,7 @@ class TestWikiDeployCommand:
 
     @staticmethod
     def _changed_page(storage: WikiStorage, title: str, revision: int = 10) -> None:
-        storage.save_fetched_by_title(title, [f"item:{title.lower()}"], "{{Item|value=1}}", [title], revision)
+        storage.save_fetched_by_title(title, [f"item:{title.lower()}"], "{{Item|value=1}}", revision)
         storage.save_generated_by_title(title, [f"item:{title.lower()}"], "{{Item|value=2}}\n")
 
     @staticmethod
@@ -511,7 +511,7 @@ class TestWikiDeployCommand:
 
         storage = self._storage(cli_context)
         fetched = "{{Character\n|name=Alpha\n|type=Rare\n}}\n{{Character\n|name=Alpha Chest\n}}"
-        storage.save_fetched_by_title("Alpha", ["character:alpha"], fetched, ["Alpha"], 10)
+        storage.save_fetched_by_title("Alpha", ["character:alpha"], fetched, 10)
         generated = (
             "{{Character\n|name=Alpha\n|stablekey=character:alpha\n|type=Elite\n}}\n"
             "{{Character\n|name=Alpha Chest\n}}\n"

@@ -131,7 +131,7 @@ def test_regenerated_zone_page_keeps_the_live_article_and_fills_blank_fields() -
 def test_generation_records_the_live_roots_that_match_no_generated_entity(tmp_path: Path) -> None:
     storage = WikiStorage(tmp_path)
     fetched = "{{Item\n|title=Frost\n}}\n\n{{Character\n|name=Braxonian Chest\n}}\n"
-    storage.save_fetched_by_title("Frost", ["item:frost"], fetched, ["Frost"], 10)
+    storage.save_fetched_by_title("Frost", ["item:frost"], fetched, 10)
     context = MagicMock()
     context.storage = storage
     service = WikiGenerateService(context=context, link_catalog=(), console=Console(file=StringIO()))

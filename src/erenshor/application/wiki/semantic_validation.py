@@ -693,7 +693,7 @@ def page_expectation(title: str, stable_keys: Sequence[str], fetched_content: st
     schema_kind = f"{title.casefold()}_overview" if title in {"Armor", "Weapons"} else None
     return WikiPageExpectation(
         title=title,
-        metadata=PageMetadata(page_title=title, stable_keys=list(stable_keys), entity_names=[]),
+        metadata=PageMetadata(page_title=title, stable_keys=list(stable_keys)),
         fetched_content=fetched_content,
         ownership=(schema_kind,) if schema_kind is not None else (),
         schema_kind=schema_kind,

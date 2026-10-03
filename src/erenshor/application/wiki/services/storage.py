@@ -30,7 +30,6 @@ Example:
     ...     page_title="Cloth Sleeves",
     ...     stable_keys=["item:arm - 1 - cloth sleeves"],
     ...     content="{{Item|...}}",
-    ...     entity_names=["Cloth Sleeves"],
     ...     revision_id=123
     ... )
     >>>
@@ -80,8 +79,6 @@ class PageMetadata:
         page_title: MediaWiki page title (e.g., "Cloth Sleeves").
         stable_keys: List of stable identifiers contributing to this page
             (e.g., ["item:arm - 1 - cloth sleeves"] or ["spell:all - hydrated"]).
-        entity_names: List of human-readable entity names (parallel to stable_keys)
-            (e.g., ["Cloth Sleeves"] or ["Hydrated"]).
         fetched_at: ISO timestamp when page was fetched from wiki.
         fetched_hash: SHA256 hash of fetched wiki content.
         fetched_revision_id: Wiki revision ID of the cached text.
@@ -89,36 +86,28 @@ class PageMetadata:
         generated_hash: SHA256 hash of generated content.
         kept_roots: Live root templates that generation kept unchanged because
             they match no generated entity, as ``"<template>: <name>"``.
-        deployed_at: ISO timestamp when page was deployed to wiki.
-        deployed_hash: SHA256 hash of deployed content.
     """
 
     page_title: str
     stable_keys: list[str]
-    entity_names: list[str]
     fetched_at: str | None = None
     fetched_hash: str | None = None
     fetched_revision_id: int | None = None
     generated_at: str | None = None
     generated_hash: str | None = None
     kept_roots: list[str] = field(default_factory=list)
-    deployed_at: str | None = None
-    deployed_hash: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         return {
             "page_title": self.page_title,
             "stable_keys": self.stable_keys,
-            "entity_names": self.entity_names,
             "fetched_at": self.fetched_at,
             "fetched_hash": self.fetched_hash,
             "fetched_revision_id": self.fetched_revision_id,
             "generated_at": self.generated_at,
             "generated_hash": self.generated_hash,
             "kept_roots": self.kept_roots,
-            "deployed_at": self.deployed_at,
-            "deployed_hash": self.deployed_hash,
         }
 
     @classmethod
@@ -128,7 +117,7 @@ class PageMetadata:
             raise ValueError("page metadata must be an object")
         if not isinstance(data.get("page_title"), str):
             raise ValueError("page_title must be text")
-        for name in ("stable_keys", "entity_names", "kept_roots"):
+        for name in ("stable_keys", "kept_roots"):
             values = data.get(name, [])
             if not isinstance(values, list) or not all(isinstance(value, str) for value in values):
                 raise ValueError(f"{name} must be a list of text")
@@ -137,8 +126,6 @@ class PageMetadata:
             "fetched_hash",
             "generated_at",
             "generated_hash",
-            "deployed_at",
-            "deployed_hash",
         ):
             value = data.get(name)
             if value is not None and not isinstance(value, str):
@@ -149,15 +136,12 @@ class PageMetadata:
         return cls(
             page_title=data["page_title"],
             stable_keys=data["stable_keys"],
-            entity_names=data["entity_names"],
             fetched_at=data.get("fetched_at"),
             fetched_hash=data.get("fetched_hash"),
             fetched_revision_id=revision_id,
             generated_at=data.get("generated_at"),
             generated_hash=data.get("generated_hash"),
             kept_roots=data.get("kept_roots", []),
-            deployed_at=data.get("deployed_at"),
-            deployed_hash=data.get("deployed_hash"),
         )
 
 
@@ -176,7 +160,6 @@ class WikiStorage:
         ...     page_title="Iron Sword",
         ...     stable_keys=["item:iron sword"],
         ...     content="{{Item|...}}",
-        ...     entity_names=["Iron Sword"],
         ...     revision_id=123
         ... )
         >>> content = storage.read_fetched_by_title("Iron Sword")
@@ -241,7 +224,6 @@ class WikiStorage:
         page_title: str,
         stable_keys: list[str],
         content: str,
-        entity_names: list[str],
         revision_id: int,
     ) -> None:
         """Save fetched page from MediaWiki.
@@ -250,7 +232,6 @@ class WikiStorage:
             page_title: MediaWiki page title.
             stable_keys: Stable identifiers for all entities on this page.
             content: Wiki page content (wikitext).
-            entity_names: Human-readable names for all entities on this page.
             revision_id: Revision ID returned with the fetched content.
         """
         metadata = self._load_metadata()
@@ -265,16 +246,13 @@ class WikiStorage:
         metadata[page_title] = PageMetadata(
             page_title=page_title,
             stable_keys=stable_keys,
-            entity_names=entity_names,
             fetched_at=datetime.now().isoformat(),
             fetched_hash=content_hash,
             fetched_revision_id=revision_id,
-            # Preserve generation and deployment info
+            # Preserve generation info
             generated_at=existing.generated_at if existing else None,
             generated_hash=existing.generated_hash if existing else None,
             kept_roots=existing.kept_roots if existing else [],
-            deployed_at=existing.deployed_at if existing else None,
-            deployed_hash=existing.deployed_hash if existing else None,
         )
         self._save_metadata(metadata)
 
@@ -340,7 +318,6 @@ class WikiStorage:
         content_hash = hashlib.sha256(normalized_content.encode("utf-8")).hexdigest()
 
         content_changed = False
-        entity_names = [stable_key.split(":", 1)[1].replace("_", " ").title() for stable_key in stable_keys]
 
         if page_title in metadata:
             # Check if content actually changed
@@ -348,7 +325,6 @@ class WikiStorage:
             content_changed = old_hash != content_hash
 
             metadata[page_title].stable_keys = list(stable_keys)
-            metadata[page_title].entity_names = entity_names
             metadata[page_title].generated_at = datetime.now().isoformat()
             metadata[page_title].generated_hash = content_hash
             metadata[page_title].kept_roots = list(kept_roots)
@@ -357,7 +333,6 @@ class WikiStorage:
             metadata[page_title] = PageMetadata(
                 page_title=page_title,
                 stable_keys=list(stable_keys),
-                entity_names=entity_names,
                 generated_at=datetime.now().isoformat(),
                 generated_hash=content_hash,
                 kept_roots=list(kept_roots),
@@ -466,8 +441,6 @@ class WikiStorage:
         existing.fetched_at = now
         existing.fetched_hash = hashlib.sha256(saved_text.encode("utf-8")).hexdigest()
         existing.fetched_revision_id = revision_id
-        existing.deployed_at = now
-        existing.deployed_hash = hashlib.sha256(content.encode("utf-8")).hexdigest()
         self._save_metadata(metadata)
         logger.debug(f"Recorded deploy of {page_title} at revision {revision_id}")
 

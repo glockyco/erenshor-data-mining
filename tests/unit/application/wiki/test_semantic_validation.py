@@ -41,7 +41,7 @@ def _expectation(
 ) -> WikiPageExpectation:
     return WikiPageExpectation(
         title,
-        PageMetadata(title, keys, [title] * len(keys)),
+        PageMetadata(title, keys),
         fetched_content=fetched_content,
         expected_categories=categories,
         schema_kind=schema_kind,

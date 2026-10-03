@@ -291,7 +291,7 @@ def test_article_deploy_parses_before_writing_and_blocks_a_new_red_category(
         revision_id = wiki_client.safe_create_page(
             title, "Old text.", start_timestamp=start_timestamp, summary="Integration setup", assertion="bot"
         )
-        storage.save_fetched_by_title(title, [f"item:{title.casefold()}"], "Old text.", [title], revision_id)
+        storage.save_fetched_by_title(title, [f"item:{title.casefold()}"], "Old text.", revision_id)
     storage.save_generated_by_title(written, [f"item:{written.casefold()}"], "New text.\n")
     storage.save_generated_by_title(
         blocked, [f"item:{blocked.casefold()}"], "New text.\n\n[[Category:ErenshorIT Missing Category]]\n"

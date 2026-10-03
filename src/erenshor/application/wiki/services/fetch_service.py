@@ -220,13 +220,10 @@ class WikiFetchService:
                     if snapshot.source_text is None:
                         raise MediaWikiAPIError(f"Page snapshot for {page_title!r} has a revision without content")
                     try:
-                        stable_keys = page_index.get(page_title, [])
-                        entity_names = [key.split(":", 1)[-1] for key in stable_keys]
                         self._storage.save_fetched_by_title(
                             page_title,
-                            stable_keys,
+                            page_index.get(page_title, []),
                             snapshot.source_text,
-                            entity_names,
                             snapshot.revision.revision_id,
                         )
                         succeeded += 1
