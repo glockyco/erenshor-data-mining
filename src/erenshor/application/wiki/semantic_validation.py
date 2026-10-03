@@ -17,11 +17,14 @@ from typing import Any, TypedDict, cast
 
 from erenshor.application.wiki.generators.field_preservation import (
     DEFAULT_PRESERVATION_RULES,
-    FieldPreservationHandler,
+    LIST_SEPARATORS,
+    FieldPreservationConfig,
+    LinkListMerge,
+    list_entries,
 )
 from erenshor.application.wiki.generators.page_normalizer import PageNormalizer
 from erenshor.application.wiki.services.storage import PageMetadata, WikiStorage
-from erenshor.application.wiki_deploy.link_audit import audit_links
+from erenshor.application.wiki_deploy.link_audit import LinkTargets, audit_links
 from erenshor.application.wiki_lua.link_catalog import LinkCatalogEntry
 from erenshor.infrastructure.wiki.template_parser import TemplateParser
 
@@ -1555,15 +1558,12 @@ def _validate_ownership(
             )
 
 
-def _merge_parts(value: str) -> tuple[str, ...]:
-    if "<br>" in value:
-        return tuple(part.strip() for part in value.split("<br>") if part.strip())
-    if "," in value and "{{!}}" not in value:
-        return tuple(part.strip() for part in value.split(",") if part.strip())
-    return (value.strip(),) if value.strip() else ()
-
-
-def _validate_manual_overrides(findings: _Findings, parsed: _ParsedPage, fetched: str | None) -> None:
+def _validate_manual_overrides(
+    findings: _Findings,
+    parsed: _ParsedPage,
+    fetched: str | None,
+    link_targets: LinkTargets,
+) -> None:
     if fetched is None:
         return
     parser = TemplateParser()
@@ -1576,6 +1576,8 @@ def _validate_manual_overrides(findings: _Findings, parsed: _ParsedPage, fetched
     except Exception as exc:
         findings.add("manual_overrides", parsed.title, f"fetched content is not parseable: {exc}")
         return
+    config = FieldPreservationConfig(link_targets=link_targets)
+    merge = LinkListMerge(link_targets)
     by_name: dict[str, list[Any]] = {}
     for template in old_templates:
         by_name.setdefault(_canonical_template_name(_name(template)), []).append(template)
@@ -1592,21 +1594,29 @@ def _validate_manual_overrides(findings: _Findings, parsed: _ParsedPage, fetched
             continue
         old_fields = parser.get_params(old_list[index])
         new_fields = parser.get_params(template)
-        expected = FieldPreservationHandler().apply_preservation(name, old_fields, new_fields)
         for field, rule in rules.items():
             if rule not in {"preserve", "prefer_manual", "merge"}:
                 continue
+            old = old_fields.get(field, "")
             actual = new_fields.get(field, "")
             if rule == "merge":
-                old_parts = set(_merge_parts(old_fields.get(field, "")))
-                actual_parts = set(_merge_parts(actual))
-                if old_parts.issubset(actual_parts):
-                    continue
-            if actual != expected.get(field, ""):
+                # Every live entry stays, or a generated entry links its page.
+                separator = LIST_SEPARATORS[field]
+                kept = {merge.identity(entry) for entry in list_entries(actual, separator)}
+                lost = [entry for entry in list_entries(old, separator) if merge.identity(entry) not in kept]
+                if lost:
+                    findings.add(
+                        "manual_overrides",
+                        parsed.title,
+                        f"{name}.{field} violates merge: lost {lost!r} from {old!r}, got {actual!r}",
+                    )
+                continue
+            expected = config.get_handler(rule)(old, actual, {"template_name": name, "field_name": field})
+            if actual != expected:
                 findings.add(
                     "manual_overrides",
                     parsed.title,
-                    f"{name}.{field} violates {rule}: expected {expected.get(field, '')!r}, got {actual!r}",
+                    f"{name}.{field} violates {rule}: expected {expected!r}, got {actual!r}",
                 )
 
 
@@ -1720,6 +1730,7 @@ def validate_wiki_pages(
     """Validate a complete generated corpus without filesystem or network I/O."""
     findings = _Findings()
     catalog = _catalog(catalog_entries)
+    link_targets = LinkTargets(catalog_entries)
     expectation_map = expectations or {}
     pages: dict[str, str] = {}
     canonical_pages: dict[str, str] = {}
@@ -1767,7 +1778,7 @@ def validate_wiki_pages(
         _validate_identity_metadata(findings, page, expectation, catalog, schema)
         _validate_structure(findings, parsed, expectation, catalog, schema)
         _validate_ownership(findings, parsed, expectation, catalog, schema)
-        _validate_manual_overrides(findings, parsed, expectation.fetched_content)
+        _validate_manual_overrides(findings, parsed, expectation.fetched_content, link_targets)
         _validate_categories(findings, page, content, expectation.expected_categories)
     if catalog_entries:
         planned = tuple(planned_titles) if planned_titles is not None else tuple(pages)

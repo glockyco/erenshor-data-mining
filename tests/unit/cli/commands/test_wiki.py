@@ -413,12 +413,15 @@ class TestWikiLinkAuditCommand:
             return mock_operation_result
 
         service.generate_all.side_effect = generate_all
-        monkeypatch.setattr(
-            wiki_command,
-            "_create_wiki_composition",
-            lambda _ctx, **_: _mock_wiki_composition(),
-        )
-        monkeypatch.setattr(wiki_command, "WikiGenerateService", lambda **_: service)
+        composition = _mock_wiki_composition()
+        monkeypatch.setattr(wiki_command, "_create_wiki_composition", lambda _ctx, **_: composition)
+        service_arguments: dict[str, object] = {}
+
+        def create_service(**kwargs: object) -> MagicMock:
+            service_arguments.update(kwargs)
+            return service
+
+        monkeypatch.setattr(wiki_command, "WikiGenerateService", create_service)
         run_audit = MagicMock(return_value=self._report())
         monkeypatch.setattr(wiki_command, "_run_link_audit", run_audit)
 
@@ -426,11 +429,13 @@ class TestWikiLinkAuditCommand:
 
         assert result.exit_code == 0
         assert run_audit.call_args.args[1] == {"Generated": "exact content"}
+        # The audit checks the links against the catalog that the merge used.
         assert run_audit.call_args.kwargs == {
             "online": False,
             "include_live_pages": False,
             "output_path": None,
             "known_generated_titles": ("Generated",),
+            "catalog": service_arguments["link_catalog"],
         }
 
     def test_generated_deploy_runs_online_audit_but_directory_upload_does_not(

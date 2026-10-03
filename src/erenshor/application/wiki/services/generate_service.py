@@ -23,13 +23,15 @@ if TYPE_CHECKING:
     from erenshor.application.wiki.generators.base import GeneratedPage
     from erenshor.application.wiki.generators.context import GeneratorContext
     from erenshor.application.wiki.generators.registry import GeneratorRegistration
+    from erenshor.application.wiki_lua.link_catalog import LinkCatalogEntry
 
-from erenshor.application.wiki.generators.field_preservation import FieldPreservationHandler
+from erenshor.application.wiki.generators.field_preservation import FieldPreservationConfig, FieldPreservationHandler
 from erenshor.application.wiki.generators.legacy_template_remover import LegacyTemplateRemover
 from erenshor.application.wiki.generators.page_normalizer import PageNormalizer
 from erenshor.application.wiki.generators.registry import get_generators_by_name
 from erenshor.application.wiki.services.helpers import normalise_generated_page_content
 from erenshor.application.wiki.services.page import OperationResult
+from erenshor.application.wiki_deploy.link_audit import LinkTargets
 
 
 class WikiGenerateService:
@@ -38,15 +40,25 @@ class WikiGenerateService:
     def __init__(
         self,
         context: GeneratorContext,
+        link_catalog: Sequence[LinkCatalogEntry],
         console: Console | None = None,
     ) -> None:
-        """Initialize generate service with a shared generator context."""
+        """Initialize generate service with a shared generator context.
+
+        Args:
+            context: Repositories and storage shared by the generators.
+            link_catalog: Link catalog of the generated data. Merged list fields
+                identify their entries by the page that the catalog links.
+            console: Console for progress output.
+        """
         self._context = context
         self._storage = context.storage
         self._console = console or Console()
 
         # Handlers for preservation and normalization
-        self._preservation_handler = FieldPreservationHandler()
+        self._preservation_handler = FieldPreservationHandler(
+            FieldPreservationConfig(link_targets=LinkTargets(link_catalog))
+        )
         self._legacy_remover = LegacyTemplateRemover()
         self._page_normalizer = PageNormalizer()
 

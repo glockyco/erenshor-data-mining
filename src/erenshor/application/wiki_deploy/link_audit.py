@@ -18,6 +18,8 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, Literal
 
+from mwparserfromhell.nodes import Template, Wikilink
+
 from erenshor.application.wiki_lua.link_catalog import LinkCatalogEntry
 from erenshor.infrastructure.wiki.template_parser import TemplateParser
 
@@ -319,6 +321,59 @@ def _manual_candidates(index: _CatalogIndex, kind: str, target: str) -> tuple[Li
     return tuple(sorted(unique.values(), key=_entry_key))
 
 
+def _semantic_kind(template_name: str) -> str | None:
+    """Return the link kind of a semantic link template name, or None."""
+    folded = template_name.strip().casefold()
+    return next((kind for name, kind in SUPPORTED_TEMPLATES.items() if name.casefold() == folded), None)
+
+
+class LinkTargets:
+    """Resolve one link to the page that it links, through the link catalog.
+
+    A semantic link template with ``stablekey=`` links the catalog page of that
+    key. A manual semantic link links the page of its catalog matches when they
+    share one page, and its supplied target otherwise. A wikilink links its
+    title. Targets are title keys, so equal targets mean the same page and
+    section.
+    """
+
+    def __init__(self, catalog_entries: Sequence[LinkCatalogEntry | Mapping[str, object]]) -> None:
+        self._index = _build_catalog_index(catalog_entries)
+
+    def target(self, wikitext: str) -> str | None:
+        """Return the title key that ``wikitext`` links, or None when it is not one link.
+
+        ``wikitext`` is a link only when one semantic link template or one
+        wikilink is all of its non-blank content. A stable key that the catalog
+        does not hold has no known page, so its template is not a link.
+        """
+        nodes = [node for node in TemplateParser().parse(wikitext).nodes if str(node).strip()]
+        if len(nodes) != 1:
+            return None
+        node = nodes[0]
+        if isinstance(node, Wikilink):
+            title = str(node.title).strip().lstrip(":").strip()
+            return _title_key(title) if title else None
+        if isinstance(node, Template):
+            return self._template_target(node)
+        return None
+
+    def _template_target(self, template: Template) -> str | None:
+        kind = _semantic_kind(str(template.name))
+        if kind is None:
+            return None
+        named, positional = _parameter_values(template)
+        stable_key = _stable_key_from_values(named)
+        if stable_key is not None:
+            entry = self._index.entries_by_key.get(stable_key)
+            return _title_key(entry.page) if entry is not None and entry.kind == kind else None
+        supplied_target = _target_from_values(named, positional)
+        if supplied_target is None:
+            return None
+        pages = {_title_key(entry.page) for entry in _manual_candidates(self._index, kind, supplied_target)}
+        return pages.pop() if len(pages) == 1 else _title_key(supplied_target)
+
+
 def _occurrence_from_template(
     source_page: str,
     template_name: str,
@@ -421,14 +476,7 @@ def parse_link_occurrences(
     occurrences: list[LinkOccurrence] = []
     for template in code.filter_templates():
         template_name = str(template.name).strip()
-        kind = next(
-            (
-                mapped_kind
-                for known_name, mapped_kind in SUPPORTED_TEMPLATES.items()
-                if known_name.casefold() == template_name.casefold()
-            ),
-            None,
-        )
+        kind = _semantic_kind(template_name)
         if kind is None:
             continue
         occurrence, _ = _occurrence_from_template(source_page, template_name, kind, template, index, origin)
@@ -557,14 +605,7 @@ def audit_links(
             code = parser.parse(content)
             for template in code.filter_templates():
                 template_name = str(template.name).strip()
-                kind = next(
-                    (
-                        mapped
-                        for known, mapped in SUPPORTED_TEMPLATES.items()
-                        if known.casefold() == template_name.casefold()
-                    ),
-                    None,
-                )
+                kind = _semantic_kind(template_name)
                 if kind is None:
                     continue
                 occurrence, local_finding = _occurrence_from_template(
@@ -736,6 +777,7 @@ __all__ = [
     "LinkAuditFinding",
     "LinkAuditReport",
     "LinkOccurrence",
+    "LinkTargets",
     "audit_links",
     "catalog_sha256",
     "generated_content_sha256",

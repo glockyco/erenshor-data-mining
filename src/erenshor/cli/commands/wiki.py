@@ -22,7 +22,7 @@ import sys
 import tempfile
 import uuid
 from collections import Counter
-from collections.abc import Collection, Mapping
+from collections.abc import Collection, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Annotated, Literal
@@ -82,7 +82,7 @@ from erenshor.application.wiki_lua.generation import (
     item_shard_dir,
     planned_top_level_module_paths,
 )
-from erenshor.application.wiki_lua.link_catalog import LinkCatalogEntry, build_link_catalog_entries
+from erenshor.application.wiki_lua.link_catalog import LinkCatalogEntry
 from erenshor.cli.context import CLIContext
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import database_exists, database_has_items, database_valid
@@ -482,30 +482,8 @@ def _create_lua_repositories(
 
 def _build_link_audit_catalog(cli_ctx: CLIContext) -> tuple[LinkCatalogEntry, ...]:
     """Build semantic-link identities from the canonical read-only repositories."""
-    (
-        item_repo,
-        character_repo,
-        _spawn_repo,
-        _loot_repo,
-        spell_repo,
-        skill_repo,
-        stance_repo,
-        quest_repo,
-        zone_repo,
-        faction_repo,
-        class_display,
-    ) = _create_lua_repositories(cli_ctx)
-    return build_link_catalog_entries(
-        items=item_repo.get_items_for_link_catalog(),
-        characters=character_repo.get_characters_for_wiki_generation(),
-        quests=quest_repo.get_quests_for_wiki_generation(),
-        zones=zone_repo.get_all_zones(),
-        spells=spell_repo.get_spells_for_wiki_generation(),
-        skills=skill_repo.get_skills_for_wiki_generation(),
-        stances=stance_repo.get_all(),
-        factions=faction_repo.get_factions_for_wiki_generation(),
-        class_display=class_display,
-    )
+    with _create_wiki_composition(cli_ctx, with_client=False) as composition:
+        return composition.context.link_catalog_entries()
 
 
 def _default_link_audit_output(cli_ctx: CLIContext) -> Path:
@@ -540,16 +518,23 @@ def _run_link_audit(
     include_live_pages: bool,
     output_path: Path | None,
     known_generated_titles: Collection[str] | None = None,
+    catalog: Sequence[LinkCatalogEntry] | None = None,
 ) -> LinkAuditReport:
-    """Run one audit from canonical repositories and optional read-only live facts."""
+    """Run one audit from canonical repositories and optional read-only live facts.
+
+    ``catalog`` is the link catalog that generation used. Without it the audit
+    builds the catalog from the database.
+    """
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
     storage = WikiStorage(variant_config.resolved_wiki(cli_ctx.repo_root))
     if known_generated_titles is None:
         known_generated_titles = storage.list_generated_titles()
     complete_generated_titles = set(known_generated_titles) | set(generated_pages)
+    if catalog is None:
+        catalog = _build_link_audit_catalog(cli_ctx)
     client = _create_readonly_mediawiki_client(cli_ctx) if online else None
     try:
-        audit_service = LinkAuditService(_build_link_audit_catalog(cli_ctx), client=client)
+        audit_service = LinkAuditService(catalog, client=client)
         report = audit_service.audit(
             generated_pages=generated_pages,
             planned_titles=tuple(generated_pages),
@@ -906,7 +891,8 @@ def generate(
 
     try:
         with _create_wiki_composition(cli_ctx, with_client=False) as composition:
-            service = WikiGenerateService(context=composition.context)
+            link_catalog = composition.context.link_catalog_entries()
+            service = WikiGenerateService(context=composition.context, link_catalog=link_catalog)
 
             # Generate pages (all or specified) and audit the exact processed
             # snapshot before generation reports success.
@@ -918,6 +904,7 @@ def generate(
                     include_live_pages=False,
                     output_path=None if cli_ctx.dry_run else _default_link_audit_output(cli_ctx),
                     known_generated_titles=tuple(generated_pages),
+                    catalog=link_catalog,
                 )
                 if report.has_errors:
                     error_count = sum(1 for finding in report.findings if finding.severity == "error")

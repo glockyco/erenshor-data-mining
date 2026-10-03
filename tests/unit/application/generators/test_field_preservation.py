@@ -7,11 +7,35 @@ from erenshor.application.wiki.generators.field_preservation import (
     FieldPreservationConfig,
     FieldPreservationHandler,
     HandlerNotFoundError,
-    merge_handler,
+    LinkListMerge,
     override_handler,
     prefer_manual_handler,
     preserve_handler,
 )
+from erenshor.application.wiki_deploy.link_audit import LinkTargets
+from erenshor.application.wiki_lua.link_catalog import LinkCatalogEntry
+
+
+def _quest(key: str, name: str, page: str) -> LinkCatalogEntry:
+    return LinkCatalogEntry(key=key, kind="quest", subtype=None, name=name, page=page, image=None)
+
+
+QUESTS = (
+    _quest("quest:faerie dust for nylith valarro", "Faerie Dust for Nylith Valorro", "Faerie Dust for Nylith Valorro"),
+    _quest("quest:therevivalritual", "The Revival Plains Ritual", "The Revival Plains Ritual"),
+    _quest("quest:ripperquestline1", "Ripper's Questline (1)", "Ripper's Questline"),
+    _quest("quest:ripperquestline2", "Ripper's Questline (2)", "Ripper's Questline"),
+)
+DUST = "{{QuestLink|stablekey=quest:faerie dust for nylith valarro}}"
+RITUAL = "{{QuestLink|stablekey=quest:therevivalritual}}"
+
+
+def _merge(field: str, old: str, new: str) -> str:
+    return LinkListMerge(LinkTargets(QUESTS))(old, new, {"field_name": field})
+
+
+def _linked_handler() -> FieldPreservationHandler:
+    return FieldPreservationHandler(FieldPreservationConfig(link_targets=LinkTargets(QUESTS)))
 
 
 class TestBuiltInHandlers:
@@ -57,57 +81,53 @@ class TestBuiltInHandlers:
         result = prefer_manual_handler("", "", {})
         assert result == ""
 
-    def test_merge_handler_combines_values(self) -> None:
-        """merge_handler should combine old and new values."""
-        # <br>-separated lists - combine with <br>
-        result = merge_handler("Quest1<br>Quest2", "Quest3<br>Quest4", {})
-        assert result == "Quest1<br>Quest2<br>Quest3<br>Quest4"
 
-        # <br>-separated lists - deduplicates
-        result = merge_handler("Quest1<br>Quest2", "Quest2<br>Quest3", {})
-        assert result == "Quest1<br>Quest2<br>Quest3"
+class TestLinkListMerge:
+    """A merged list field links each page once."""
 
-        # Neither has separator - use <br> to combine (old first, then new)
-        result = merge_handler("{{QuestLink|Whispers of Wyland}}", "{{QuestLink|A Retired Locksmith}}", {})
-        assert result == "{{QuestLink|Whispers of Wyland}}<br>{{QuestLink|A Retired Locksmith}}"
+    def test_editor_and_generated_links_to_one_quest_keep_the_generated_form(self) -> None:
+        old = "{{QuestLink|Faerie Dust for Nylith Valorro}}<br>{{QuestLink|The Revival Plains Ritual}}"
+        new = f"{DUST}<br>{RITUAL}"
 
-        # Mixed separators - old has no separator, new has <br> - should use <br> for result
-        result = merge_handler("Quest1", "Quest2<br>Quest3", {})
-        assert result == "Quest1<br>Quest2<br>Quest3"
+        assert _merge("relatedquest", old, new) == new
 
-        # Comma-separated lists (like type field) - both have commas, use comma
-        result = merge_handler("[[Quest Items|Quest Item]], Other", "[[Consumables|Consumable]], Another", {})
-        assert result == "[[Quest Items|Quest Item]], Other, [[Consumables|Consumable]], Another"
+    def test_editor_links_and_text_without_a_generated_page_stay_in_live_order(self) -> None:
+        old = "Mentioned in a book<br>{{QuestLink|Editor Quest}}<br>{{QuestLink|The Revival Plains Ritual}}"
 
-        # Comma-separated lists - deduplicates
-        result = merge_handler("Type1, Type2", "Type2, Type3", {})
-        assert result == "Type1, Type2, Type3"
-
-        # Old empty -> use new
-        result = merge_handler("", "new", {})
-        assert result == "new"
-
-        # New empty -> use old
-        result = merge_handler("old", "", {})
-        assert result == "old"
-
-        # Non-list fields (no comma or <br>) - combine with <br>
-        result = merge_handler("Value1", "Value2", {})
-        assert result == "Value1<br>Value2"
-
-        # QuestLink with comma in display name - should use <br> separator (not split on internal comma)
-        result = merge_handler(
-            "{{QuestLink|link=The Mathers' Demise{{!}}The Mather's Demise, Part 3}}",
-            "{{QuestLink|link=The Mathers' Demise{{!}}The Mather's Demise}}",
-            {},
+        assert _merge("relatedquest", old, f"{RITUAL}<br>{DUST}") == (
+            f"Mentioned in a book<br>{{{{QuestLink|Editor Quest}}}}<br>{RITUAL}<br>{DUST}"
         )
-        expected = (
-            "{{QuestLink|link=The Mathers' Demise{{!}}The Mather's Demise, Part 3}}"
-            "<br>{{QuestLink|link=The Mathers' Demise{{!}}The Mather's Demise}}"
+
+    def test_link_parameter_and_wikilink_forms_match_their_page(self) -> None:
+        old = (
+            "{{QuestLink|link=The Revival Plains Ritual{{!}}Revival ritual}}<br>[[Faerie Dust for Nylith Valorro|Dust]]"
         )
-        assert result == expected
-        # Ensure it didn't break the QuestLink template by splitting on the comma
-        assert "}}, {{" not in result  # Should not have broken the template
+
+        assert _merge("questsource", old, f"{DUST}<br>{RITUAL}") == f"{RITUAL}<br>{DUST}"
+
+    def test_link_to_a_page_of_several_quests_takes_the_generated_quest(self) -> None:
+        new = "{{QuestLink|stablekey=quest:ripperquestline2}}"
+
+        assert _merge("relatedquest", "{{QuestLink|Ripper's Questline}}", new) == new
+
+    def test_comma_inside_a_link_label_does_not_split_the_entry(self) -> None:
+        old = "{{QuestLink|link=The Mathers' Demise{{!}}The Mather's Demise, Part 3}}"
+
+        assert _merge("relatedquest", old, RITUAL) == f"{old}<br>{RITUAL}"
+
+    def test_type_entries_merge_across_separators_into_one_comma_list(self) -> None:
+        old = "[[Quest Items|Quest Item]]<br>[[Crafting]]<br>[[Quest Items|Quest Item]], [[Crafting]]"
+
+        assert _merge("type", old, "[[Crafting]]") == "[[Quest Items|Quest Item]], [[Crafting]]"
+
+    def test_a_section_link_is_a_different_page(self) -> None:
+        old = "[[Consumables#Food|Food]], [[Consumables|Consumable]]"
+
+        assert _merge("type", old, "[[Consumables|Consumable]]") == old
+
+    def test_merge_rule_requires_link_targets(self) -> None:
+        with pytest.raises(HandlerNotFoundError, match="link targets"):
+            FieldPreservationHandler().apply_preservation("Item", {"type": "A"}, {"type": "B"})
 
 
 class TestFieldPreservationConfig:
@@ -330,7 +350,7 @@ class TestFieldPreservationHandler:
 
     def test_apply_preservation_with_default_rules(self) -> None:
         """apply_preservation should work with default Item rules."""
-        handler = FieldPreservationHandler()  # Uses default rules
+        handler = _linked_handler()
 
         old_fields = {
             "image": "Custom.png",
@@ -522,7 +542,7 @@ class TestIntegrationScenarios:
 
     def test_item_page_regeneration_preserves_manual_content(self) -> None:
         """Full scenario: Regenerating item page preserves manual edits."""
-        handler = FieldPreservationHandler()
+        handler = _linked_handler()
 
         # Original wiki page with manual content
         old_wikitext = """{{Item

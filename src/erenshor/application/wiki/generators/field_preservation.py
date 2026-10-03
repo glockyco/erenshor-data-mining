@@ -1,67 +1,48 @@
-"""Field preservation system for wiki template regeneration.
+"""Field preservation for wiki template regeneration.
 
-This module provides a system to preserve manually-edited fields when regenerating
-wiki pages from database content. It allows selective field preservation based on
-template-specific rules.
-
-Core concept: When regenerating wiki pages, some template fields should keep their
-existing values rather than being overwritten with fresh database values.
-
-Design principles (from Phase 3 feedback):
-- Keep it simple: 5 handlers (override, preserve, prefer_manual, prefer_database, custom)
-- Template-specific rules
-- Default behavior is override (always use new database value)
-- Configuration via Python dict (easy to migrate to TOML later)
+Regeneration merges freshly generated template fields into the live page. Each
+template field has a rule that decides between the live value and the generated
+value. Fields without a rule take the generated value.
 
 Handlers:
-- override: Always use new database value (default)
-- preserve: Always keep existing wiki value
-- prefer_manual: Use wiki value if non-empty, else database value
-- prefer_database: Use database value if non-empty, else wiki value
-- custom: Register your own handler function
+- override: use the generated value (default)
+- preserve: keep the live value
+- prefer_manual: keep the live value when it is not blank, else use the generated value
+- prefer_database: use the generated value when it is not blank, else keep the live value
+- merge: merge a list field by link target (see :class:`LinkListMerge`)
 
 Example:
-    >>> config = FieldPreservationConfig()
-    >>> handler = FieldPreservationHandler(config)
-    >>>
-    >>> # Old page has manual description, new page has database description
-    >>> old_fields = {"description": "Custom lore text", "damage": "10"}
-    >>> new_fields = {"description": "Generic item", "damage": "15"}
-    >>>
-    >>> # Apply preservation rules
-    >>> result = handler.apply_preservation("Item", old_fields, new_fields)
-    >>> print(result)
-    {'description': 'Custom lore text', 'damage': '15'}  # description preserved, damage updated
-
-Usage in page generators:
-    >>> parser = TemplateParser()
     >>> handler = FieldPreservationHandler()
-    >>>
-    >>> # Generate new page content
-    >>> new_wikitext = generate_item_page(item)
-    >>>
-    >>> # If old page exists, preserve fields
-    >>> if old_wikitext:
-    >>>     preserved = handler.merge_templates(
-    >>>         old_wikitext=old_wikitext,
-    >>>         new_wikitext=new_wikitext,
-    >>>         template_names=["Item"]
-    >>>     )
-    >>>     final_wikitext = preserved
-    >>> else:
-    >>>     final_wikitext = new_wikitext
+    >>> old_fields = {"imagecaption": "Custom caption", "level": "10"}
+    >>> new_fields = {"imagecaption": "", "level": "15"}
+    >>> handler.apply_preservation("Character", old_fields, new_fields)
+    {'imagecaption': 'Custom caption', 'level': '15'}
 """
 
 from collections.abc import Callable, Mapping
+from types import MappingProxyType
 from typing import Any
 
+import mwparserfromhell
 from loguru import logger
+from mwparserfromhell.nodes import Tag, Text
 
+from erenshor.application.wiki_deploy.link_audit import LinkTargets
 from erenshor.infrastructure.wiki.template_parser import TemplateParser
 
 # Type alias for handler functions
 # Signature: (old_value: str, new_value: str, context: dict[str, Any]) -> str
 PreservationHandler = Callable[[str, str, dict[str, Any]], str]
+
+# Separator of each list field that the merge rule handles. A comma list also
+# splits at top-level commas, so that live values in either style merge.
+LIST_SEPARATORS: Mapping[str, str] = MappingProxyType(
+    {
+        "type": ", ",
+        "questsource": "<br>",
+        "relatedquest": "<br>",
+    }
+)
 
 
 class FieldPreservationError(Exception):
@@ -140,79 +121,75 @@ def prefer_database_handler(old_value: str, new_value: str, context: dict[str, A
     return new_value if new_value and new_value.strip() else old_value
 
 
-def merge_handler(old_value: str, new_value: str, context: dict[str, Any]) -> str:
-    """Merge old and new values, combining both.
+def list_entries(value: str, separator: str) -> list[str]:
+    """Split a list field into its entries.
 
-    Useful for fields where both manual wiki content and database content should coexist.
-    For <br>-separated lists, deduplicates entries while preserving order.
-    For comma-separated lists, merges and deduplicates.
-
-    Args:
-        old_value: Existing wiki field value
-        new_value: New database value
-        context: Additional context (unused)
-
-    Returns:
-        Merged value with deduplicated entries
+    Entries are separated by top-level ``<br>`` tags. A comma list also splits
+    at top-level commas. Separators inside templates and links do not split.
     """
-    if not old_value or not old_value.strip():
-        return new_value
-    if not new_value or not new_value.strip():
-        return old_value
+    split_at_commas = separator == ", "
+    entries: list[str] = []
+    current: list[str] = []
+    for node in mwparserfromhell.parse(value).nodes:
+        if isinstance(node, Tag) and str(node.tag).strip().casefold() == "br":
+            entries.append("".join(current))
+            current = []
+        elif split_at_commas and isinstance(node, Text) and "," in node.value:
+            head, *tail = node.value.split(",")
+            current.append(head)
+            for part in tail:
+                entries.append("".join(current))
+                current = [part]
+        else:
+            current.append(str(node))
+    entries.append("".join(current))
+    return [entry.strip() for entry in entries if entry.strip()]
 
-    # Determine separator to use:
-    # - Use <br> if either value has <br>
-    # - Use comma only if BOTH values have commas AND neither has <br> AND we don't detect {{!}} (QuestLink pipe)
-    # - The {{!}} pattern indicates a QuestLink with display name override, which may contain commas
-    has_br = "<br>" in old_value or "<br>" in new_value
-    has_comma_in_old = "," in old_value
-    has_comma_in_new = "," in new_value
-    # Check if this looks like a QuestLink with display name (which may contain commas internally)
-    has_questlink_pipe = "{{!}}" in old_value or "{{!}}" in new_value
 
-    # Choose separator
-    if has_br:
-        # If either has <br>, use <br>
-        separator = "<br>"
-        old_items = (
-            [item.strip() for item in old_value.split("<br>") if item.strip()]
-            if "<br>" in old_value
-            else ([old_value.strip()] if old_value.strip() else [])
-        )
-        new_items = (
-            [item.strip() for item in new_value.split("<br>") if item.strip()]
-            if "<br>" in new_value
-            else ([new_value.strip()] if new_value.strip() else [])
-        )
-    elif (has_comma_in_old or has_comma_in_new) and not has_questlink_pipe:
-        # At least one has commas and no QuestLink pipes - likely comma-separated list like type field
-        # Use comma separator and split both on comma (treating single items as 1-item lists)
-        separator = ", "
-        old_items = (
-            [item.strip() for item in old_value.split(",") if item.strip()]
-            if "," in old_value
-            else ([old_value.strip()] if old_value.strip() else [])
-        )
-        new_items = (
-            [item.strip() for item in new_value.split(",") if item.strip()]
-            if "," in new_value
-            else ([new_value.strip()] if new_value.strip() else [])
-        )
-    else:
-        # Default to <br> (single values or QuestLink with comma in display name)
-        separator = "<br>"
-        old_items = [old_value.strip()] if old_value.strip() else []
-        new_items = [new_value.strip()] if new_value.strip() else []
+class LinkListMerge:
+    """Merge a live list field with its generated value by link target.
 
-    # Deduplicate while preserving order (old items first, then new items not in old)
-    seen = set()
-    merged = []
-    for item in old_items + new_items:
-        if item not in seen:
-            seen.add(item)
-            merged.append(item)
+    Each entry is identified by the page that it links, or by its text when it
+    is not a link. The result keeps the live order. The generated entries that
+    link a page take the place of the first live entry that links the same page,
+    and later live entries for that page are dropped. Live entries for other
+    pages and live text stay. Generated entries without a live counterpart
+    follow at the end. The result uses the separator of the field.
+    """
 
-    return separator.join(merged)
+    def __init__(self, link_targets: LinkTargets) -> None:
+        self._link_targets = link_targets
+
+    def identity(self, entry: str) -> tuple[str, str]:
+        """Return the page that ``entry`` links, or its whitespace-normalized text."""
+        target = self._link_targets.target(entry)
+        return ("link", target) if target is not None else ("text", " ".join(entry.split()))
+
+    def __call__(self, old_value: str, new_value: str, context: dict[str, Any]) -> str:
+        if not old_value.strip():
+            return new_value
+        if not new_value.strip():
+            return old_value
+        separator = LIST_SEPARATORS[context["field_name"]]
+        generated: dict[tuple[str, str], list[str]] = {}
+        for entry in list_entries(new_value, separator):
+            group = generated.setdefault(self.identity(entry), [])
+            if entry not in group:
+                group.append(entry)
+        merged: list[str] = []
+        placed: set[tuple[str, str]] = set()
+        for entry in list_entries(old_value, separator):
+            identity = self.identity(entry)
+            if identity in generated:
+                if identity not in placed:
+                    merged.extend(generated[identity])
+                    placed.add(identity)
+            elif entry not in merged:
+                merged.append(entry)
+        for identity, group in generated.items():
+            if identity not in placed:
+                merged.extend(group)
+        return separator.join(merged)
 
 
 # Default preservation rules per template
@@ -270,8 +247,7 @@ class FieldPreservationConfig:
 
     Example:
         >>> config = FieldPreservationConfig()
-        >>> rule = config.get_rule("Item", "description")
-        >>> print(rule)
+        >>> config.get_rule("Item", "othersource")
         'preserve'
     """
 
@@ -279,12 +255,16 @@ class FieldPreservationConfig:
         self,
         rules: dict[str, dict[str, str]] | None = None,
         handlers: dict[str, PreservationHandler] | None = None,
+        *,
+        link_targets: LinkTargets | None = None,
     ) -> None:
         """Initialize field preservation configuration.
 
         Args:
             rules: Template-specific preservation rules (defaults to DEFAULT_PRESERVATION_RULES)
             handlers: Custom handler registry (defaults to built-in handlers only)
+            link_targets: Link catalog resolver. The ``merge`` rule exists only with it,
+                because list entries merge by the page that they link.
         """
         self._rules = rules if rules is not None else DEFAULT_PRESERVATION_RULES.copy()
         self._handlers: dict[str, PreservationHandler] = {
@@ -292,8 +272,9 @@ class FieldPreservationConfig:
             "preserve": preserve_handler,
             "prefer_manual": prefer_manual_handler,
             "prefer_database": prefer_database_handler,
-            "merge": merge_handler,
         }
+        if link_targets is not None:
+            self._handlers["merge"] = LinkListMerge(link_targets)
         if handlers:
             self._handlers.update(handlers)
 
@@ -328,6 +309,8 @@ class FieldPreservationConfig:
             HandlerNotFoundError: If handler name is not registered
         """
         if handler_name not in self._handlers:
+            if handler_name == "merge":
+                raise HandlerNotFoundError("The merge handler needs link targets: pass link_targets to the config")
             raise HandlerNotFoundError(
                 f"Handler not found: {handler_name}. Available handlers: {', '.join(self._handlers.keys())}"
             )
@@ -388,11 +371,10 @@ class FieldPreservationHandler:
 
     Example:
         >>> handler = FieldPreservationHandler()
-        >>> old = {"description": "Manual text", "damage": "10"}
-        >>> new = {"description": "Database text", "damage": "15"}
-        >>> result = handler.apply_preservation("Item", old, new)
-        >>> print(result)
-        {'description': 'Manual text', 'damage': '15'}
+        >>> old = {"othersource": "Manual text", "buy": "10"}
+        >>> new = {"othersource": "", "buy": "15"}
+        >>> handler.apply_preservation("Item", old, new)
+        {'othersource': 'Manual text', 'buy': '15'}
     """
 
     def __init__(self, config: FieldPreservationConfig | None = None) -> None:
@@ -418,27 +400,25 @@ class FieldPreservationHandler:
             template_name: Template name (e.g., "Item", "Fancy-weapon")
             old_fields: Existing wiki field values
             new_fields: New database field values
-            context: Additional context passed to handlers
+            context: Additional context passed to handlers. Each handler also
+                receives ``template_name`` and ``field_name``.
 
         Returns:
-            Merged field dictionary with preservation rules applied
+            Merged field dictionary with preservation rules applied, in the
+            order of the new fields followed by fields only the old template has
 
         Example:
             >>> handler = FieldPreservationHandler()
-            >>> old = {"description": "Custom", "damage": "10"}
-            >>> new = {"description": "Default", "damage": "15", "level": "5"}
-            >>> result = handler.apply_preservation("Item", old, new)
-            >>> # description preserved, damage updated, level added
-            >>> print(result)
-            {'description': 'Custom', 'damage': '15', 'level': '5'}
+            >>> old = {"othersource": "Custom", "buy": "10"}
+            >>> new = {"othersource": "", "buy": "15", "sell": "5"}
+            >>> handler.apply_preservation("Item", old, new)
+            {'othersource': 'Custom', 'buy': '15', 'sell': '5'}
         """
         ctx = context if context is not None else {}
         ctx["template_name"] = template_name
 
         result: dict[str, str] = {}
-
-        # Get all field names from both old and new
-        all_fields = set(old_fields.keys()) | set(new_fields.keys())
+        all_fields = [*new_fields, *(field for field in old_fields if field not in new_fields)]
 
         logger.debug(f"Applying preservation for {template_name}: {len(all_fields)} fields")
 
@@ -446,11 +426,9 @@ class FieldPreservationHandler:
             old_value = old_fields.get(field_name, "")
             new_value = new_fields.get(field_name, "")
 
-            # Get preservation rule for this field
             rule_name = self._config.get_rule(template_name, field_name)
             handler = self._config.get_handler(rule_name)
-
-            # Apply handler
+            ctx["field_name"] = field_name
             result[field_name] = handler(old_value, new_value, ctx)
 
             if old_value != result[field_name]:

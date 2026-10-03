@@ -10,9 +10,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from erenshor.application.wiki_lua.link_catalog import build_link_catalog_entries
+
 if TYPE_CHECKING:
     from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
     from erenshor.application.wiki.services.storage import WikiStorage
+    from erenshor.application.wiki_lua.link_catalog import LinkCatalogEntry
     from erenshor.infrastructure.database.repositories.characters import CharacterRepository
     from erenshor.infrastructure.database.repositories.factions import FactionRepository
     from erenshor.infrastructure.database.repositories.items import ItemRepository
@@ -65,3 +68,17 @@ class GeneratorContext:
     maps_base_url: str
     zone_positions_path: Path
     zone_output_dir: Path | None = None
+
+    def link_catalog_entries(self) -> tuple[LinkCatalogEntry, ...]:
+        """Build the semantic link catalog that ``Module:Erenshor/Data/Links`` publishes."""
+        return build_link_catalog_entries(
+            items=self.item_repo.get_items_for_link_catalog(),
+            characters=self.character_repo.get_characters_for_wiki_generation(),
+            quests=self.quest_repo.get_quests_for_wiki_generation(),
+            zones=self.zone_repo.get_all_zones(),
+            spells=self.spell_repo.get_spells_for_wiki_generation(),
+            skills=self.skill_repo.get_skills_for_wiki_generation(),
+            stances=self.stance_repo.get_all(),
+            factions=self.faction_repo.get_factions_for_wiki_generation(),
+            class_display=self.class_display,
+        )

@@ -22,7 +22,7 @@ def generate_service():
     """
     context = Mock(spec=GeneratorContext)
     context.storage = Mock()
-    return WikiGenerateService(context=context)
+    return WikiGenerateService(context=context, link_catalog=())
 
 
 class TestFancyTableReplacement:
