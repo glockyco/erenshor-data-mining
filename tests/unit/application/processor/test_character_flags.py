@@ -277,3 +277,9 @@ def test_override_must_cover_the_whole_group() -> None:
             _NO_RAID,
             frozenset(),
         )
+
+
+def test_a_chessboard_piece_is_a_boss_without_boss_xp() -> None:
+    piece = _char_data(spawns=[_spawn(source_script="Chessboard", x=1.0)])
+
+    assert _derive_encounter_tier([piece], _NO_RAID, _scenes([piece])) == "boss"

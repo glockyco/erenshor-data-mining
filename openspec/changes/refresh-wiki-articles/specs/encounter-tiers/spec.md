@@ -2,7 +2,7 @@
 
 ### Requirement: Every character has one encounter tier
 
-The clean database SHALL store one encounter tier per character: `npc`, `chest`, `boss`, `elite`, or `enemy`. A character of the TreasureChest faction SHALL be `chest`, and a deduplication group that mixes chests and other characters SHALL fail the build. Members of one deduplication group SHALL share the tier computed from all their spawns. Friendly characters SHALL be `npc`. A character SHALL be friendly when its faction is a good faction and its AggressiveTowards list names neither Player nor PC. A raid scene SHALL be a scene whose PlanarMusicManager lists boss spawn points, or the scene of Vitheo's arena. A hostile character that spawns only in raid scenes SHALL be `boss` when the game names it as a raid boss, and `enemy` otherwise. The game names a raid boss when the character spawns at a PlanarMusicManager's BigBossSpawn or MidBossSpawns, or fights in an arena round that starts boss music (rounds 2, 5, 7, and 8). Elsewhere, the rule SHALL read the prefab BossXp, because the game raises the BossXp of every NPC of level 40 or higher. A hostile character SHALL be `boss` when its prefab BossXp is above 1 and it has at most one ordinary spawn placement, or when it has exactly one ordinary spawn placement. A hostile character with prefab BossXp above 1 and several ordinary placements SHALL be `elite`. Every other hostile character SHALL be `enemy`.
+The clean database SHALL store one encounter tier per character: `npc`, `chest`, `boss`, `elite`, or `enemy`. A character of the TreasureChest faction SHALL be `chest`, and a deduplication group that mixes chests and other characters SHALL fail the build. Members of one deduplication group SHALL share the tier computed from all their spawns. Friendly characters SHALL be `npc`. A character SHALL be friendly when its faction is a good faction and its AggressiveTowards list names neither Player nor PC. A hostile character that the Chessboard event script spawns SHALL be `boss`. A raid scene SHALL be a scene whose PlanarMusicManager lists boss spawn points, or the scene of Vitheo's arena. A hostile character that spawns only in raid scenes SHALL be `boss` when the game names it as a raid boss, and `enemy` otherwise. The game names a raid boss when the character spawns at a PlanarMusicManager's BigBossSpawn or MidBossSpawns, or fights in an arena round that starts boss music (rounds 2, 5, 7, and 8). Elsewhere, the rule SHALL read the prefab BossXp, because the game raises the BossXp of every NPC of level 40 or higher. A hostile character SHALL be `boss` when its prefab BossXp is above 1 and it has at most one ordinary spawn placement, or when it has exactly one ordinary spawn placement. A hostile character with prefab BossXp above 1 and several ordinary placements SHALL be `elite`. Every other hostile character SHALL be `enemy`.
 
 #### Scenario: Event-spawned boss
 
@@ -23,6 +23,11 @@ The clean database SHALL store one encounter tier per character: `npc`, `chest`,
 
 - **WHEN** a fight script in a raid plane spawns a character that no PlanarMusicManager list names
 - **THEN** its tier is `enemy`, whatever its BossXp
+
+#### Scenario: Chessboard piece
+
+- **WHEN** the Chessboard event spawns a class piece that has BossXp 0
+- **THEN** its tier is `boss`
 
 #### Scenario: Raid mid-boss
 

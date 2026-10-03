@@ -1209,9 +1209,7 @@
     "character:duelist of sivakaya": {
       "wiki_page_name": "Assassin of Sivakaya",
       "display_name": "Assassin of Sivakaya",
-      "image_name": "Assassin of Sivakaya",
-      "reason": "A piece of the Chessboard event in the Braxonian Desert. The event's pieces are its bosses, although the script does not mark them as bosses.",
-      "encounter_tier": "boss"
+      "image_name": "Assassin of Sivakaya"
     },
     "character:edwin ansegg": {
       "wiki_page_name": "Edwin Ansegg",
@@ -1235,8 +1233,7 @@
       "display_name": "Ember Acolyte",
       "image_name": "Ember Acolyte",
       "mapping_type": "custom",
-      "reason": "A piece of the Chessboard event in the Braxonian Desert. The event's pieces are its bosses, although the script does not mark them as bosses.",
-      "encounter_tier": "boss"
+      "reason": null
     },
     "character:endkio": {
       "wiki_page_name": "Kio the Darkbringer",
@@ -1608,8 +1605,7 @@
       "display_name": "Kingsman",
       "image_name": "Kingsman",
       "mapping_type": "custom",
-      "reason": "A piece of the Chessboard event in the Braxonian Desert. The event's pieces are its bosses, although the script does not mark them as bosses.",
-      "encounter_tier": "boss"
+      "reason": null
     },
     "character:kio the lightkeeper": {
       "wiki_page_name": "Kio the Light Keeper",
@@ -2298,8 +2294,7 @@
       "display_name": "Peon",
       "image_name": "Peon",
       "mapping_type": "custom",
-      "reason": "A piece of the Chessboard event in the Braxonian Desert. The event's pieces are its bosses, although the script does not mark them as bosses.",
-      "encounter_tier": "boss"
+      "reason": null
     },
     "character:percy ildia": {
       "wiki_page_name": "Dockhand Nelson",
@@ -2409,9 +2404,7 @@
     "character:reaver of sivakaya bkp": {
       "wiki_page_name": "Reaver of Sivakaya",
       "display_name": "Reaver of Sivakaya",
-      "image_name": "Reaver of Sivakaya",
-      "reason": "A piece of the Chessboard event in the Braxonian Desert. The event's pieces are its bosses, although the script does not mark them as bosses.",
-      "encounter_tier": "boss"
+      "image_name": "Reaver of Sivakaya"
     },
     "character:revan gavault:stowaway:431.79:69.90:535.47": {
       "wiki_page_name": "Revan Gavault",
@@ -4505,62 +4498,6 @@
       "is_wiki_generated": 0,
       "is_map_visible": 0
     },
-    "character:blazefiend": {
-      "wiki_page_name": "Blazefiend",
-      "display_name": "Blazefiend",
-      "image_name": "Blazefiend",
-      "mapping_type": "custom",
-      "reason": "A piece of the Chessboard event in the Braxonian Desert. The event's pieces are its bosses, although the script does not mark them as bosses.",
-      "encounter_tier": "boss"
-    },
-    "character:bowmistress of sivakaya": {
-      "wiki_page_name": "Bowmistress of Sivakaya",
-      "display_name": "Bowmistress of Sivakaya",
-      "image_name": "Bowmistress of Sivakaya",
-      "mapping_type": "custom",
-      "reason": "A piece of the Chessboard event in the Braxonian Desert. The event's pieces are its bosses, although the script does not mark them as bosses.",
-      "encounter_tier": "boss"
-    },
-    "character:candlekeeper": {
-      "wiki_page_name": "Candlekeeper",
-      "display_name": "Candlekeeper",
-      "image_name": "Candlekeeper",
-      "mapping_type": "custom",
-      "reason": "A piece of the Chessboard event in the Braxonian Desert. The event's pieces are its bosses, although the script does not mark them as bosses.",
-      "encounter_tier": "boss"
-    },
-    "character:arcanist of sivakaya": {
-      "wiki_page_name": "Grand Arcanist of Sivakaya",
-      "display_name": "Grand Arcanist of Sivakaya",
-      "image_name": "Grand Arcanist of Sivakaya",
-      "mapping_type": "custom",
-      "reason": "A piece of the Chessboard event in the Braxonian Desert. The event's pieces are its bosses, although the script does not mark them as bosses.",
-      "encounter_tier": "boss"
-    },
-    "character:warrior of sivakaya": {
-      "wiki_page_name": "High Paladin of Sivakaya",
-      "display_name": "High Paladin of Sivakaya",
-      "image_name": "High Paladin of Sivakaya",
-      "mapping_type": "custom",
-      "reason": "A piece of the Chessboard event in the Braxonian Desert. The event's pieces are its bosses, although the script does not mark them as bosses.",
-      "encounter_tier": "boss"
-    },
-    "character:druid of sivakaya": {
-      "wiki_page_name": "High Priestess of Sivakaya",
-      "display_name": "High Priestess of Sivakaya",
-      "image_name": "High Priestess of Sivakaya",
-      "mapping_type": "custom",
-      "reason": "A piece of the Chessboard event in the Braxonian Desert. The event's pieces are its bosses, although the script does not mark them as bosses.",
-      "encounter_tier": "boss"
-    },
-    "character:monarch of the flame": {
-      "wiki_page_name": "Monarch of the Flame",
-      "display_name": "Monarch of the Flame",
-      "image_name": "Monarch of the Flame",
-      "mapping_type": "custom",
-      "reason": "A piece of the Chessboard event in the Braxonian Desert. The event's pieces are its bosses, although the script does not mark them as bosses.",
-      "encounter_tier": "boss"
-    },
     "character:fearantula": {
       "wiki_page_name": "Fearantula",
       "display_name": "Fearantula",
@@ -4590,7 +4527,7 @@
       "display_name": "Hand of the King",
       "image_name": "Hand of the King",
       "mapping_type": "custom",
-      "reason": "A piece of the Chessboard event in the Braxonian Desert. The event's pieces are its bosses, although the script does not mark them as bosses.",
+      "reason": "Monarch of the Flame summons it during the Chessboard event, and it fights as one of the event's bosses.",
       "encounter_tier": "boss"
     }
   }

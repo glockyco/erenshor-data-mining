@@ -206,6 +206,11 @@ _CHEST_FACTION = "TreasureChest"
 # VithArena starts the mid-boss music for rounds 2, 5, and 7, and VitheoFight
 # starts the boss music for Vitheo in round 8. The other rounds have none.
 _ARENA_BOSS_ROUNDS = frozenset({2, 5, 7, 8})
+# Event scripts whose every spawned character is a boss. The Chessboard event
+# in the Braxonian Desert spawns one boss piece per class and a few named
+# pieces. dynamic-spawn-catalog.toml must classify each piece field, so a piece
+# that a game update adds gets a Chessboard spawn row and this tier.
+_BOSS_EVENT_SCRIPTS = frozenset({"Chessboard"})
 
 
 @dataclass(frozen=True)
@@ -269,7 +274,8 @@ def _spawn_scenes(raw: sqlite3.Connection, char_data: list[_CharData]) -> dict[s
 def _derive_encounter_tier(members: list[_CharData], raid: _RaidBosses, scenes: frozenset[str]) -> str:
     """Classify a deduplication group as npc, chest, boss, elite, or enemy.
 
-    Characters of the TreasureChest faction are chests. In a raid scene, the
+    Characters of the TreasureChest faction are chests. Characters that a boss
+    event script spawns (``_BOSS_EVENT_SCRIPTS``) are bosses. In a raid scene, the
     game names its bosses (``_RaidBosses``), and every other character is an
     enemy. Elsewhere, characters whose prefab BossXp is above the game's
     threshold are bosses at a single placement or when only events spawn them,
@@ -297,9 +303,11 @@ def _derive_encounter_tier(members: list[_CharData], raid: _RaidBosses, scenes: 
         raise ValueError(f"Character group mixes {_CHEST_FACTION} characters with other characters: {keys}")
     if any(bool(member.char.raw.get("IsFriendly")) for member in members):
         return "npc"
+    event_boss = any(spawn.source_script in _BOSS_EVENT_SCRIPTS for member in members for spawn in member.spawns)
     # The scenes include those of chained-spawn parents (_spawn_scenes).
-    if scenes and scenes <= raid.scenes:
-        return "boss" if any(member.char.stable_key in raid.characters for member in members) else "enemy"
+    if event_boss or (scenes and scenes <= raid.scenes):
+        raid_boss = any(member.char.stable_key in raid.characters for member in members)
+        return "boss" if event_boss or raid_boss else "enemy"
     placements = {
         spawn.spawn_point_stable_key
         for member in members
