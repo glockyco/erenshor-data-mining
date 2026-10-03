@@ -10,7 +10,14 @@ import pytest
 
 from erenshor.cli.context import CLIContext
 from erenshor.infrastructure.config.loader import get_repo_root
-from erenshor.infrastructure.config.schema import Config, GlobalConfig, MapsConfig, UnityConfig, VariantConfig
+from erenshor.infrastructure.config.schema import (
+    Config,
+    GlobalConfig,
+    MapsConfig,
+    MediaWikiConfig,
+    UnityConfig,
+    VariantConfig,
+)
 
 
 @pytest.fixture
@@ -45,9 +52,14 @@ def cli_context(tmp_path: Path) -> CLIContext:
         ),
     )
 
+    # A closed local port: a command that reaches a real MediaWiki client fails
+    # at once instead of reading the live wiki.
+    mediawiki = MediaWikiConfig(api_url="http://127.0.0.1:9/api.php")
     return CLIContext(
         config=Config(
-            global_=GlobalConfig(unity=UnityConfig(version="2021.3.45f2", path=str(tmp_path / "Unity"))),
+            global_=GlobalConfig(
+                unity=UnityConfig(version="2021.3.45f2", path=str(tmp_path / "Unity")), mediawiki=mediawiki
+            ),
             variants={"main": variant},
         ),
         variant="main",
