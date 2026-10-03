@@ -387,6 +387,30 @@ class TestMediaWikiClientGetPages:
         with pytest.raises(MediaWikiAPIError, match=r"Item:Sword.*missing revision content"):
             client.get_pages(["Item:Sword"])
 
+    def test_get_pages_requests_again_what_a_truncated_response_left_out(self) -> None:
+        client, api = _mock_client(
+            [
+                {
+                    "continue": {"rvcontinue": "8|80", "continue": "||"},
+                    "query": {
+                        "pages": {
+                            "7": {"pageid": 7, "title": "Big A", "revisions": [{"slots": {"main": {"*": "A"}}}]},
+                            "8": {"pageid": 8, "title": "Big B"},
+                        }
+                    },
+                },
+                {
+                    "query": {
+                        "pages": {"8": {"pageid": 8, "title": "Big B", "revisions": [{"slots": {"main": {"*": "B"}}}]}}
+                    }
+                },
+            ],
+            clock=MockClock(),
+        )
+
+        assert client.get_pages(["Big A", "Big B"]) == {"Big A": "A", "Big B": "B"}
+        assert api.requests[1].query["titles"] == "Big B"
+
     def test_revision_ids_resolve_normalized_and_missing_titles(self) -> None:
         client, api = _mock_client(
             [
@@ -511,6 +535,57 @@ class TestMediaWikiClientGetPages:
         )
 
         assert client.get_page_snapshots(["a_page"])["a_page"].source_text == "Saved content"
+
+    def test_get_page_snapshots_requests_again_what_a_truncated_response_left_out(self) -> None:
+        """A page that did not fit the result size limit comes from a second query."""
+
+        def page(page_id: int, title: str, revisions: list[dict[str, object]]) -> dict[str, object]:
+            return {"pageid": page_id, "title": title, "revisions": revisions}
+
+        def revision(revision_id: int, text: str) -> dict[str, object]:
+            return {
+                "revid": revision_id,
+                "timestamp": "2026-10-03T12:00:00Z",
+                "user": "WoWBot",
+                "slots": {"main": {"*": text}},
+            }
+
+        client, api = _mock_client(
+            [
+                {
+                    "curtimestamp": "2026-10-03T12:01:00Z",
+                    "continue": {"rvcontinue": "8|80", "continue": "||"},
+                    "query": {"pages": {"7": page(7, "Big A", [revision(70, "A")]), "8": page(8, "Big B", [])}},
+                },
+                {
+                    "curtimestamp": "2026-10-03T12:02:00Z",
+                    "query": {"pages": {"8": page(8, "Big B", [revision(80, "B")])}},
+                },
+            ],
+            clock=MockClock(),
+        )
+
+        snapshots = client.get_page_snapshots(["Big A", "Big B"])
+
+        assert snapshots["Big A"].source_text == "A"
+        assert snapshots["Big B"].source_text == "B"
+        assert snapshots["Big B"].start_timestamp == "2026-10-03T12:02:00Z"
+        assert api.requests[1].query["titles"] == "Big B"
+
+    def test_get_page_snapshots_fails_for_a_page_larger_than_the_result_limit(self) -> None:
+        client, _ = _mock_client(
+            [
+                {
+                    "curtimestamp": "2026-10-03T12:01:00Z",
+                    "continue": {"rvcontinue": "8|80", "continue": "||"},
+                    "query": {"pages": {"8": {"pageid": 8, "title": "Huge", "revisions": []}}},
+                }
+            ],
+            clock=MockClock(),
+        )
+
+        with pytest.raises(MediaWikiAPIError, match="larger than the API result limit"):
+            client.get_page_snapshots(["Huge"])
 
     """Test guarded page writes."""
 

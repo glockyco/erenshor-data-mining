@@ -568,7 +568,8 @@ class MediaWikiClient:
         """Fetch content of multiple wiki pages efficiently.
 
         Uses batch API requests to fetch multiple pages. Automatically handles
-        pagination if more than batch_size pages are requested.
+        pagination if more than batch_size pages are requested. Pages that a
+        response truncated at the API result size limit are requested again.
 
         Args:
             titles: List of page titles to fetch.
@@ -594,11 +595,10 @@ class MediaWikiClient:
         logger.info(f"Fetching {len(titles)} pages in batches of {self.batch_size}")
 
         result_dict: dict[str, str | None] = {}
-
-        # Process in batches
-        for i in range(0, len(titles), self.batch_size):
-            batch = titles[i : i + self.batch_size]
-            logger.debug(f"Fetching batch {i // self.batch_size + 1}: {len(batch)} pages")
+        pending = list(titles)
+        while pending:
+            batch = pending[: self.batch_size]
+            logger.debug(f"Fetching a batch of {len(batch)} pages")
 
             params = {
                 "action": "query",
@@ -629,13 +629,18 @@ class MediaWikiClient:
             if not isinstance(pages, dict):
                 raise MediaWikiAPIError(f"Invalid page response for {batch!r}: missing pages")
 
+            truncated = "continue" in result
             by_title: dict[str, str | None] = {}
+            left_out: set[str] = set()
             for page in pages.values():
                 if not isinstance(page, dict) or not isinstance(page.get("title"), str):
                     raise MediaWikiAPIError(f"Invalid page response for {batch!r}: malformed page")
                 title = page["title"]
                 if "missing" in page:
                     by_title[title] = None
+                    continue
+                if truncated and not page.get("revisions"):
+                    left_out.add(title)
                     continue
 
                 try:
@@ -646,11 +651,18 @@ class MediaWikiClient:
                     raise MediaWikiAPIError(f"Invalid page response for {title!r}: missing revision content") from error
                 by_title[title] = content
 
+            deferred: list[str] = []
             for requested in batch:
                 normalized_title = aliases.get(requested, requested)
+                if normalized_title in left_out:
+                    deferred.append(requested)
+                    continue
                 if normalized_title not in by_title:
                     raise MediaWikiAPIError(f"Invalid page response for {requested!r}: page not returned")
                 result_dict[requested] = by_title[normalized_title]
+            if len(deferred) == len(batch):
+                raise MediaWikiAPIError(f"Page response for {deferred[0]!r} is larger than the API result limit")
+            pending = deferred + pending[len(batch) :]
         return result_dict
 
     def get_page_revision_ids(self, titles: Sequence[str]) -> dict[str, int | None]:
@@ -954,6 +966,10 @@ class MediaWikiClient:
         ``start_timestamp`` is MediaWiki's ``curtimestamp`` from the same response
         as each page's source and revision. Missing pages are represented by a
         snapshot whose ``source_text`` and ``revision`` are ``None``.
+
+        MediaWiki truncates a response at its result size limit and returns the
+        pages that did not fit without revisions, together with a ``continue``
+        block. Those pages are requested again in a later query.
         """
         if assertion not in (None, "user", "bot"):
             raise ValueError(f"assertion must be 'user' or 'bot', got: {assertion}")
@@ -961,8 +977,9 @@ class MediaWikiClient:
             return {}
 
         snapshots: dict[str, MediaWikiPageSnapshot] = {}
-        for i in range(0, len(titles), self.batch_size):
-            batch = titles[i : i + self.batch_size]
+        pending = list(titles)
+        while pending:
+            batch = pending[: self.batch_size]
             params: dict[str, Any] = {
                 "action": "query",
                 "titles": "|".join(batch),
@@ -1004,6 +1021,8 @@ class MediaWikiClient:
                 if not isinstance(page, dict) or not isinstance(page.get("title"), str):
                     raise MediaWikiAPIError(f"Invalid page snapshot response for {batch!r}: malformed page")
                 pages_by_title[page["title"]] = page
+            truncated = "continue" in result
+            deferred: list[str] = []
             for requested_title in batch:
                 page = pages_by_title.get(aliases.get(requested_title, requested_title))
                 if page is None:
@@ -1024,6 +1043,9 @@ class MediaWikiClient:
                 page_id = page.get("pageid")
                 if type(page_id) is not int or page_id <= 0:
                     raise MediaWikiAPIError(f"Invalid page snapshot response for {requested_title!r}: missing page ID")
+                if truncated and not page.get("revisions"):
+                    deferred.append(requested_title)
+                    continue
 
                 try:
                     raw_revision = page["revisions"][0]
@@ -1052,6 +1074,11 @@ class MediaWikiClient:
                     start_timestamp=start_timestamp,
                     content_model=revision_content_model,
                 )
+            if len(deferred) == len(batch):
+                raise MediaWikiAPIError(
+                    f"Page snapshot response for {deferred[0]!r} is larger than the API result limit"
+                )
+            pending = deferred + pending[len(batch) :]
 
         return snapshots
 
