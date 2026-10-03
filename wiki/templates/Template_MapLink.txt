@@ -1,3 +1,0 @@
-{{#if:{{{zone|}}}|[https://erenshor.compendiums.org/map?sel=zone%3A{{{zone}}} Map]|—}}<noinclude>
-[[Category:Templates]]
-</noinclude>

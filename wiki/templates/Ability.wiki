@@ -1,0 +1,129 @@
+<noinclude>{{Ability
+|id=6827460
+|title={{PAGENAME}}
+|image=[[File:Aura Ancient Presence.png|thumb]]
+|imagecaption="You feel protection of the ancients"
+|description=Increase party damage shield, hitpoints, and stats
+|type=Beneficial
+|line=AuraDamageShield
+|classes=
+|TargetType=
+|target_type=
+|required_level=
+|manacost=
+|aggro=
+|is_taunt=False
+|casttime=
+|cooldown=
+|duration=12 seconds
+|duration_in_ticks=2 ticks
+|has_unstable_duration=False
+|is_instant_effect=False
+|is_reap_and_renew=False
+|is_sim_usable=False
+|range=30.0
+|max_level_target=
+|is_self_only=False
+|is_group_effect=False
+|is_applied_to_caster=False
+|damage_type=
+|resist_modifier=
+|target_damage=
+|target_healing=
+|caster_healing=
+|shield_amount=
+|pet_to_summon=
+|status_effect=
+|add_proc=
+|add_proc_chance=
+|has_lifetap=False
+|lifesteal=
+|damage_shield=40
+|hp=500
+|ac=
+|mana=
+|str=20
+|dex=20
+|end=20
+|agi=20
+|wis=20
+|int=20
+|cha=20
+|mr=
+|er=
+|vr=
+|pr=
+|haste=
+|resonance=
+|movement_speed=
+|atk_roll_modifier=
+|xp_bonus=
+|is_root=False
+|is_stun=False
+|is_charm=False
+|is_broken_on_damage=False
+|itemswitheffect={{ItemLink|Ancient Presence}}
+|source={{AbilityLink|Spell Scroll: Aetherstorm}}
+|used_by=[[Ancient Spectre]]<br>[[Botanist]]
+}}
+</noinclude>
+<includeonly><infobox type="Abilities">
+      <title source="title"/>
+      <image source="image"><caption source="imagecaption"/></image>
+
+      <data source="type"><label>Spell Type</label></data>
+      <data source="classes"><label>Classes</label></data>
+      <data source="description"><label>Effects</label></data>
+      <data source="effects"><label>Effects</label></data>
+      <data source="manacost"><label>Mana Cost</label></data>
+      <data source="casttime"><label>Casting Time</label></data>
+      <data source="duration"><label>Duration</label></data>
+      <data source="cooldown"><label>Cooldown</label></data>
+      <data source="damage_type"><label>Damage Type</label></data>
+      <data source="target_damage"><label>Target Damage</label></data>
+      <data source="bleed_damage_percent"><label>Bleed</label></data>
+      <data source="target_healing"><label>Target Healing</label></data>
+      <data source="caster_healing"><label>Caster Healing</label></data>
+      <data source="shield_amount"><label>Shield Amount</label></data>
+      <data source="aggro"><label>Aggro Generated</label></data>
+      <data source="lifesteal"><label>Lifesteal</label></data>
+      <data source="damage_shield"><label>Damage Shield</label></data>
+      <data source="status_effect"><label>Status Effect</label></data>
+      <data source="add_proc"><label>Proc</label></data>
+      <data source="add_proc_chance"><label>Proc Chance</label></data>
+      <data source="pet_to_summon"><label>Summons</label></data>
+
+      <group collapse="open">
+          <header>Stat Modifiers</header>
+          <data source="hp"><label>Health</label></data>
+          <data source="mana"><label>Mana</label></data>
+          <data source="ac"><label>Armor</label></data>
+          <data source="str"><label>Strength</label></data>
+          <data source="dex"><label>Dexterity</label></data>
+          <data source="end"><label>Endurance</label></data>
+          <data source="agi"><label>Agility</label></data>
+          <data source="wis"><label>Wisdom</label></data>
+          <data source="int"><label>Intelligence</label></data>
+          <data source="cha"><label>Charisma</label></data>
+          <data source="mr"><label>Magic Resist</label></data>
+          <data source="er"><label>Elemental Resist</label></data>
+          <data source="vr"><label>Void Resist</label></data>
+          <data source="pr"><label>Poison Resist</label></data>
+          <data source="haste"><label>Attack Speed</label></data>
+          <data source="resonance"><label>Resonance</label></data>
+          <data source="movement_speed"><label>Movement Speed</label></data>
+          <data source="atk_roll_modifier"><label>Attack Roll Modifier</label></data>
+          <data source="xp_bonus"><label>XP Bonus</label></data>
+      </group>
+
+      <group collapse="open">
+          <header>Acquisition</header>
+          <data source="source"><label>Taught by</label></data>
+          <data source="itemswitheffect"><label>Items with this effect</label></data>
+      </group>
+
+      <group collapse="closed">
+          <header>Used By</header>
+		  <data source="used_by"><label>Characters</label></data>
+      </group>
+  </infobox>{{#ifeq: {{NAMESPACENUMBER}} | 0 | [[Category:Abilities]]}}</includeonly>

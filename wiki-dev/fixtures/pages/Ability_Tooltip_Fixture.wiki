@@ -3,5 +3,5 @@
 {{SpellTooltip|stablekey=spell:minor_lightning}}
 {{Skill|stablekey=skill:backstab}}
 {{SkillTooltip|stablekey=skill:backstab}}
-{{Stance|stablekey=stance:aggressive}}
+{{Stance|lua=1|stablekey=stance:aggressive}}
 {{StanceTooltip|stablekey=stance:aggressive}}

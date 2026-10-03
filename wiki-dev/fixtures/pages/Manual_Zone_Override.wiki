@@ -1,4 +1,5 @@
 {{Zone
+|lua=1
 |stablekey=zone:PortAzure
 |title=Manual Zone Title
 |type=Dungeon

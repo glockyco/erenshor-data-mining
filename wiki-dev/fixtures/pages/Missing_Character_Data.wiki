@@ -1,1 +1,1 @@
-{{Character|stablekey=character:missing_character}}
+{{Character|lua=1|stablekey=character:missing_character}}

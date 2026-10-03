@@ -1,4 +1,4 @@
-<includeonly>{{#if:{{{stablekey|}}}|<infobox type="Stances">
+<includeonly>{{#if:{{#ifeq:{{{lua|}}}|1|{{{stablekey|}}}|}}|<infobox type="Stances">
     <title><default>{{#invoke:Erenshor/Stance|field|title}}</default></title>
     <image><default>{{#invoke:Erenshor/Stance|field|image}}</default><caption><default>{{#invoke:Erenshor/Stance|field|imagecaption}}</default></caption></image>
 
@@ -90,6 +90,8 @@ an em dash (—) to indicate no change.
 
 {| class="wikitable"
 ! Parameter !! Required !! Type !! Description
+|-
+| '''stablekey''' || No || string || The stance's stable key, such as <code>stance:aggressive</code>. It identifies the stance when the bot updates the page. Without <code>lua=1</code>, the key does not change the infobox. <code>lua=1</code> is reserved for the future data-backed articles.
 |-
 | '''title''' || Yes || string || Stance name (displayed as infobox title)
 |-

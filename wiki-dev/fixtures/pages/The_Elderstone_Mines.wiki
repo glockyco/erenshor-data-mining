@@ -1,1 +1,1 @@
-{{Zone|stablekey=zone:ElderstoneMines}}
+{{Zone|lua=1|stablekey=zone:ElderstoneMines}}

@@ -1,4 +1,5 @@
 {{Stance
+|lua=1
 |stablekey=stance:aggressive
 |title=Manual Stance Title
 |damage_mod=1.25

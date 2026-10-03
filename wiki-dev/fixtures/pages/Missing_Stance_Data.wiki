@@ -1,1 +1,1 @@
-{{Stance|stablekey=stance:missing}}
+{{Stance|lua=1|stablekey=stance:missing}}

@@ -1,4 +1,4 @@
-<includeonly>{{#if:{{{stablekey|}}}|<infobox type="Zone">
+<includeonly>{{#if:{{#ifeq:{{{lua|}}}|1|{{{stablekey|}}}|}}|<infobox type="Zone">
     <title><default>{{#invoke:Erenshor/Zone|field|name}}</default></title>
     <image><default>{{#invoke:Erenshor/Zone|field|image}}</default><caption><default>{{#invoke:Erenshor/Zone|field|imagecaption}}</default></caption></image>
     <data><label>Type</label><default>{{#invoke:Erenshor/Zone|field|type}}</default></data>

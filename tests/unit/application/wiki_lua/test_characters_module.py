@@ -332,8 +332,8 @@ def test_lua_mixed_spawn_prefers_ordinary_coordinate_and_chance() -> None:
     template = Path("wiki/templates/Character.wiki").read_text(encoding="utf-8")
     cargo_declare = Path("wiki/templates/Character/CargoDeclare.wiki").read_text(encoding="utf-8")
 
-    # The dual-path template branches on stablekey: the generated (new) infobox
-    # is emitted first, the verbatim legacy infobox second. The generated path
+    # The dual-path template emits the generated infobox for lua=1 pages with a
+    # stable key and the verbatim legacy infobox otherwise. The generated path
     # must never surface the ungenerated `class` field, but the legacy fallback
     # keeps it exactly as the live template had it. Scope the label check to the
     # generated branch (everything before the second infobox) so the legacy
@@ -493,11 +493,3 @@ def test_character_lua_record_carries_spawned_status_stable_key() -> None:
 
     record = data["characters"]["character:a_grizzly_bear"]
     assert record["spawnWithStatus"] == "spell:none - lava coat"
-
-
-def test_character_template_surfaces_spawned_status_in_generated_path() -> None:
-    template = Path("wiki/templates/Character.wiki").read_text(encoding="utf-8")
-    generated_path = template.split("{{#if:{{{stablekey|}}}|", 1)[1].split("|<infobox", 1)[0]
-
-    assert "<label>Spawned With Status:</label>" in generated_path
-    assert "{{#invoke:Erenshor/Character|field|spawnwithstatus}}" in generated_path

@@ -1,1 +1,1 @@
-{{Stance|stablekey=stance:taunting}}
+{{Stance|lua=1|stablekey=stance:taunting}}

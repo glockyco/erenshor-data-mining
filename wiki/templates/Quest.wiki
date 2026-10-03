@@ -1,4 +1,4 @@
-<includeonly>{{#if:{{{stablekey|}}}|<infobox type="Quest">
+<includeonly>{{#if:{{#ifeq:{{{lua|}}}|1|{{{stablekey|}}}|}}|<infobox type="Quest">
 	<title><default>{{#invoke:Erenshor/Quest|field|name}}</default></title>
 	<image><default>{{#invoke:Erenshor/Quest|field|image}}</default><caption><default>{{#invoke:Erenshor/Quest|field|imagecaption}}</default></caption></image>
 	<data><label>Location:</label><default>{{#invoke:Erenshor/Quest|field|location}}</default></data>

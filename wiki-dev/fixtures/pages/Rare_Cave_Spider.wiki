@@ -1,1 +1,1 @@
-{{Character|stablekey=character:rare_cave_spider}}
+{{Character|lua=1|stablekey=character:rare_cave_spider}}

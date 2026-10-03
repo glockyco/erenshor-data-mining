@@ -1,4 +1,4 @@
-<includeonly>{{#if:{{{stablekey|}}}|<infobox type="Character">
+<includeonly>{{#if:{{#ifeq:{{{lua|}}}|1|{{{stablekey|}}}|}}|<infobox type="Character">
     <title><default>{{#invoke:Erenshor/Character|field|name}}</default></title>
     <image><default>{{#invoke:Erenshor/Character|field|image}}</default><caption><default>{{#invoke:Erenshor/Character|field|imagecaption}}</default></caption></image>
     <group>

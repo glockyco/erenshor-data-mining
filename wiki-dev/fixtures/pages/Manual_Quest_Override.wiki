@@ -1,4 +1,5 @@
 {{Quest
+|lua=1
 |stablekey=quest:magical_sword
 |title=Manual Quest Title
 |location=Manual Location
