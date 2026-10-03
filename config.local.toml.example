@@ -189,6 +189,4 @@ enabled = true
 # - Check logs in .erenshor/logs/ for errors
 #
 # For more information, see:
-# - README.md - Installation and setup guide
-# - AGENTS.md - Working agreements and command map
-# - docs/ - Additional documentation
+# - README.md - Setup, commands, and how the pipeline works

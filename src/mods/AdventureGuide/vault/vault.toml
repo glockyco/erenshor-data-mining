@@ -3,7 +3,7 @@
 # Source of truth for the Vault mod listing. `erenshor mod vault --mod
 # adventure-guide` reads it, computes the next version, and builds the native
 # Lunaris DLL. Upload remains manual through erenshorvault.app because the
-# write API is not available. See AGENTS.md in this directory.
+# write API is not available. See the mod-pipeline skill.
 
 [mod]
 # POST /api/mods create fields.

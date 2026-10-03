@@ -107,6 +107,10 @@ A new Steam build runs through backup, rip, export, code facts, and build, then 
 - Golden baselines and deploys to the wiki, the map, or the sheets need the maintainer's approval.
 - The live map keeps its legacy contract: `/map` with the `layers` and `sel` parameters on both hosts, WebSocket ports 18584 and 18585, and `/db/erenshor.sqlite`.
 
+### Design principles
+
+Interfaces (wiki, map, mods) put evidence before decoration: show source, identity, state, and failure plainly. Use the host platform's conventions (MediaWiki, the web, the game) instead of a new visual language. Keep safe paths obvious: preview before mutation, fail before destructive actions. Target WCAG 2.2 AA with complete keyboard use.
+
 ## Testing
 
 ```sh

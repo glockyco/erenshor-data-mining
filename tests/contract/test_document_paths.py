@@ -12,12 +12,9 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 # Plans and archived OpenSpec changes are dated records and are not checked.
 ACTIVE_DOCUMENTS = (
     "README.md",
-    "AGENTS.md",
-    "PRODUCT.md",
     ".env.example",
     "config.toml",
     "config.local.toml.example",
-    "docs/*.md",
     ".agent/skills/**/*.md",
     "openspec/specs/**/*.md",
 )
@@ -27,7 +24,6 @@ TRACKED_ROOTS = (
     ".agent",
     ".config",
     ".github",
-    "docs",
     "nix",
     "openspec",
     "quest_guides",

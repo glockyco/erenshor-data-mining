@@ -4,10 +4,14 @@ context: |
   Erenshor is a solo-maintained, polyglot game-data and companion-tooling repository.
   Maintained systems use Python and uv, SvelteKit and pnpm, C# and NuGet, plus Nix flakes.
   Nix is the canonical development and CI toolchain. Language-native manifests define project dependencies.
-  Project workflows run through `uv run erenshor ...`; direct package-manager commands are only for dependency bootstrap and validation.
+  README.md describes the pipeline (Steam install, raw export, code facts, clean SQLite, wiki, sheets, map, mods) and its concepts.
+  Project workflows run through `uv run erenshor ...`. Direct package-manager commands are only for dependency bootstrap and validation.
   Prefer clean cutovers, one owner for each generated file, fail-closed automation, and no compatibility shims.
   Never modify shipped-game reference files, installed game files, generated data, or deployment outputs by hand.
-  Follow AGENTS.md and the relevant subsystem skill before implementation.
+  Golden baselines and deploys to the wiki, the map, or the sheets need the maintainer's approval.
+  The Nix dev shell must never compile a toolchain from source.
+  Fix every failing check you meet, including failures that predate the change.
+  Follow the relevant subsystem skill before implementation.
 
 rules:
   proposal:

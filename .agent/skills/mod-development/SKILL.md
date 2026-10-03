@@ -209,3 +209,17 @@ ignored.
 **Adding messages**: Add the DTO/factory in `Protocol/Messages.cs`, emit it from
 the owning runtime component, add serialization and behavior coverage, update
 the frontend consumer, and update `REQUIREMENTS.md`.
+
+## AdventureGuide
+
+AdventureGuide has BepInEx and Lunaris entry points over one shared runtime. Keep the UI and behaviour the same on both loaders unless the maintainer approves a difference.
+
+- `Plugin.BepInEx.cs` and `Plugin.Lunaris.cs` are thin adapters. Lifecycle, state, rendering, and cleanup stay in `Plugin.cs`.
+- The mod owns a private ImGui context, font atlas, input pump, and `CommandBuffer` renderer (`src/mods/AdventureGuide/src/Rendering/ImGuiRenderer.cs`). Lunaris supplies `ImGui.NET.dll` and `cimgui`. BepInEx uses the `ImGui.NET` NuGet package and ships its native files through `thunderstore.toml`. Never check in or load private ImGui binaries.
+- Roboto is an embedded resource loaded with `ImGui.MemAlloc` and `AddFontFromMemoryTTF`, not with `Lunaris.IGUI.ImGuiEx.RegisterFont`.
+- Draw from `Plugin.OnGUI()` through the private renderer, never from `OnImGuiDraw()`. The renderer sets `ImGui.SetCurrentContext` for the whole frame and restores the previous context in `finally`. Keep `ImGuiIO.DisplaySize` equal to the screen size.
+- Wrap window styling in `Theme.WindowStyleScope()`. Pair every `ImGui.Begin` with `ImGui.End` in `finally`, also when `Begin` returns false.
+- Do not work around Lunaris keyboard capture over Lunaris-owned windows in this mod. It affects every mod and belongs upstream.
+- Lunaris reloads a plugin when its DLL changes, so `OnDestroy()` must undo everything: scene and config handlers, Harmony patches, tracker, window and renderer resources, patch and debug statics, marker fonts, camera and overlap caches, and `GameData.PlayerTyping` if the mod set it. A running Playtest still needs a full restart to load a new Lunaris build.
+- Prefer `Config.Register<T>()` with `[Config]`, `[ConfigSection]`, and `[Keybind]`. Use the low-level `Read`/`Write`/`OnChanged` API only for the per-character dynamic keys. Lunaris docs: `https://mizukibelhi.github.io/Lunaris-Docs/`.
+- Focused checks: `uv run pytest tests/unit/mods/ -k adventure_guide tests/unit/cli/commands/test_mod.py` and `uv run erenshor mod build --mod adventure-guide --loader all`.

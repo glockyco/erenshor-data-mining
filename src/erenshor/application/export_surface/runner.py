@@ -3,7 +3,7 @@
 The C# tool (src/tools/ExportSurface) reads the shipped Assembly-CSharp.dll
 metadata via Mono.Cecil and diffs the public instance field surface of each
 in-scope game type against field-coverage.json. This module wraps the dotnet
-build+invoke so all workflow commands go through ``uv run`` (AGENTS.md):
+build+invoke so all workflow commands go through ``uv run``:
 ``dotnet`` appears only inside this subprocess, mirroring the code-facts runner.
 """
 

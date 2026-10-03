@@ -215,6 +215,13 @@ prints the artifact and manual-upload information. Upload the resulting DLL
 Vault website. The Vault write API is not automated. Keep this process manual.
 There is no GitHub Actions release workflow.
 
+Vault details:
+
+- Each public mod's `vault/` holds the listing: `vault.toml` (name, slug, short description, tag slugs, which resolve through `GET https://erenshorvault.app/api/tags`), `README.md` (full description), `CHANGELOG.md`, and `icon.png`.
+- The package ships only the mod DLL. Lunaris provides ImGui.NET, Newtonsoft.Json, and System.Numerics.Vectors.
+- Versions are `YYYY.MDD.R` (month without a leading zero, zero-padded day, revision per day), derived from `GET /api/mods/<slug>/versions`. `mod vault` bakes the version into the DLL with `-p:ModVersion`. Lunaris compares the `[LunarisPlugin]` version with the Vault's latest, so a stale in-DLL version shows a permanent "update available". The command also checks that `CHANGELOG.md` starts with that version.
+- Upload by hand: on the first release create the entry at `erenshorvault.app/new-mod` from `vault.toml`, `README.md`, and `icon.png`. For each version, add the DLL as the main file with no asset files, the printed version, and the top changelog entry. The write API (a personal access token) does not exist yet. When it does, `POST /api/mods/{mod_ref}/versions` with a bearer token replaces the manual step.
+
 ## Troubleshooting
 
 - **Missing `lib/` references:** run `uv run erenshor mod setup` and verify the

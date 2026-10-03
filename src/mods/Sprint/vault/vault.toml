@@ -3,7 +3,7 @@
 # Source of truth for the Vault mod listing. Used manually today (paste into
 # erenshorvault.app/new-mod, then Versions -> new); `erenshor mod vault --mod
 # sprint` reads it to build the DLL with the next version. See the mod-pipeline
-# skill and ../../AdventureGuide/vault/AGENTS.md for the upload workflow.
+# skill for the upload workflow.
 
 [mod]
 # POST /api/mods create fields.

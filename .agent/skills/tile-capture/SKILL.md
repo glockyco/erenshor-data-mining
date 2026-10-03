@@ -7,7 +7,14 @@ description: Capture and generate interactive-map tiles for Erenshor zones via t
 
 Capture and generate map tiles for all Erenshor zones using the native dual-loader
 MapTileCapture mod (BepInEx or Lunaris).
-For mod build/deploy and tunable constants, see `src/mods/MapTileCapture/AGENTS.md`.
+Build and deploy it like any mod (`mod build --mod map-tile-capture --loader all`, then `mod deploy ... --loader bepinex`). Use BepInEx when you tune it at run time through HotRepl, and exit the game before you deploy.
+
+Mod constraints:
+
+- Both loader adapters expose the same tuning properties for HotRepl: `BackgroundR/G/B` (clear colour outside terrain), `IndoorDirectional*` and `IndoorAmbient*` (lighting for zones without sun), `DefaultStabilityFrames`, and `DefaultSceneLoadTimeoutSecs`.
+- Use Newtonsoft.Json. `System.Text.Json` does not exist on Unity's Mono. ILRepack merges Fleck, and Newtonsoft.Json only for BepInEx, because Lunaris supplies it.
+- `CaptureController` owns the `IDisposable` `GeometrySuppressor`. Unload must dispose it so that the temporary light and every suppressed object come back.
+- Change scenes with `GameData.SceneChange.ChangeScene()`, not `SceneManager.LoadScene()`, so that each zone gets its atmosphere and lighting.
 
 ## Architecture
 - **MapTileCapture mod** — native BepInEx and Lunaris plugins share one runtime and
