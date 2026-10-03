@@ -6,6 +6,7 @@ fetched content, and preserving manual edits.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from types import MappingProxyType
 from typing import TYPE_CHECKING
 
@@ -18,6 +19,7 @@ if TYPE_CHECKING:
 
     from erenshor.application.wiki.generators.base import GeneratedPage
     from erenshor.application.wiki.generators.context import GeneratorContext
+    from erenshor.application.wiki.semantic_validation import WikiPageExpectation
     from erenshor.application.wiki_lua.link_catalog import LinkCatalogEntry
 
 from erenshor.application.wiki.generators.field_preservation import (
@@ -30,8 +32,24 @@ from erenshor.application.wiki.generators.page_normalizer import PageNormalizer
 from erenshor.application.wiki.generators.pages.armor_overview import ArmorOverviewPageGenerator
 from erenshor.application.wiki.generators.pages.weapons_overview import WeaponsOverviewPageGenerator
 from erenshor.application.wiki.generators.registry import get_generators_by_name
+from erenshor.application.wiki.semantic_validation import page_expectation
 from erenshor.application.wiki.services.page import OperationResult
 from erenshor.application.wiki_deploy.link_audit import LinkTargets
+
+# Pages whose generated text is one table among the text of editors.
+_OVERVIEW_TITLES = frozenset({ArmorOverviewPageGenerator.PAGE_TITLE, WeaponsOverviewPageGenerator.PAGE_TITLE})
+
+
+@dataclass(frozen=True, slots=True)
+class GeneratedCorpus:
+    """The pages of one generation run and the facts they were generated from.
+
+    Both mappings hold the same titles in title order.
+    """
+
+    pages: Mapping[str, str]
+    expectations: Mapping[str, WikiPageExpectation]
+
 
 # Pages whose generated text is one table among the text of editors.
 _OVERVIEW_TITLES = frozenset({ArmorOverviewPageGenerator.PAGE_TITLE, WeaponsOverviewPageGenerator.PAGE_TITLE})
@@ -72,7 +90,7 @@ class WikiGenerateService:
         limit: int | None = None,
         page_titles: list[str] | None = None,
         generator_names: list[str] | None = None,
-        preflight: Callable[[Mapping[str, str]], None] | None = None,
+        validate: Callable[[GeneratedCorpus], None] | None = None,
     ) -> OperationResult:
         """Generate wiki pages using registered generators.
 
@@ -87,8 +105,8 @@ class WikiGenerateService:
             limit: Maximum number of pages to generate (for testing).
             page_titles: If specified, only generate these specific page titles. If None, generate all pages.
             generator_names: Optional list of generator names to use. If None, use all registered generators.
-            preflight: Optional callback invoked with an immutable mapping of the exact
-                successfully processed standard page titles and content.
+            validate: Optional callback that checks the pages of the run. It
+                runs when every page succeeded, and an exception fails the run.
 
         Returns:
             OperationResult with summary statistics and warnings/errors.
@@ -129,13 +147,13 @@ class WikiGenerateService:
             generated_pages = generated_pages[:limit]
             logger.info(f"Limited to {len(generated_pages)} pages")
 
-        return self._process_generated_pages(generated_pages, dry_run, preflight)
+        return self._process_generated_pages(generated_pages, dry_run, validate)
 
     def _process_generated_pages(
         self,
         generated_pages: list[GeneratedPage],
         dry_run: bool,
-        preflight: Callable[[Mapping[str, str]], None] | None = None,
+        validate: Callable[[GeneratedCorpus], None] | None = None,
     ) -> OperationResult:
         """Process generated pages with preservation and normalization.
 
@@ -153,6 +171,7 @@ class WikiGenerateService:
         warnings: list[str] = []
         errors: list[str] = []
         processed_content: dict[str, str] = {}
+        expectations: dict[str, WikiPageExpectation] = {}
 
         self._console.print(f"\n[bold]Generating {total} wiki pages...[/bold]\n")
 
@@ -213,6 +232,7 @@ class WikiGenerateService:
                     )
 
                 processed_content[gen_page.title] = final_content
+                expectations[gen_page.title] = page_expectation(gen_page.title, gen_page.stable_keys, existing)
                 succeeded += 1
 
             except Exception as e:
@@ -222,9 +242,14 @@ class WikiGenerateService:
                 self._console.print(f"[red]✗[/red] {error_msg}")
                 failed += 1
 
-        if preflight is not None and failed == 0:
-            ordered_content = dict(sorted(processed_content.items(), key=lambda item: (item[0].casefold(), item[0])))
-            preflight(MappingProxyType(ordered_content))
+        if validate is not None and failed == 0:
+            titles = sorted(processed_content, key=lambda title: (title.casefold(), title))
+            validate(
+                GeneratedCorpus(
+                    pages=MappingProxyType({title: processed_content[title] for title in titles}),
+                    expectations=MappingProxyType({title: expectations[title] for title in titles}),
+                )
+            )
 
         # Display summary
         from erenshor.application.wiki.services.helpers import display_operation_summary

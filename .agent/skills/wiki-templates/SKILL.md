@@ -24,7 +24,8 @@ Keep generated articles, repository-owned pages, and interface gadgets on their 
    ```
 
    Generated pages go to `variants/<variant>/wiki/generated/`.
-   Generation merges fetched content and runs a local semantic-link audit before reporting success.
+   Generation merges fetched content, then validates every page of the run: page structure, stable keys, preserved fields, categories, and semantic links.
+   A validation finding fails the run, and the command prints the first findings. The offline link audit goes to `variants/<variant>/wiki/link-audit.json`.
 
 3. Review the merge output and the generation warnings.
    A generated root replaces the live root with its `stablekey`, or the live root with its name when the live root has no key.

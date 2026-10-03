@@ -1,8 +1,7 @@
-"""Focused tests for generated-page audit preflight selection."""
+"""Focused tests for page processing and the validation of a generation run."""
 
 from __future__ import annotations
 
-from collections.abc import Mapping
 from io import StringIO
 from pathlib import Path
 from typing import cast
@@ -12,7 +11,7 @@ import pytest
 from rich.console import Console
 
 from erenshor.application.wiki.generators.base import GeneratedPage, PageMetadata
-from erenshor.application.wiki.services.generate_service import WikiGenerateService
+from erenshor.application.wiki.services.generate_service import GeneratedCorpus, WikiGenerateService
 from erenshor.application.wiki.services.storage import WikiStorage
 
 
@@ -37,27 +36,32 @@ def _page(title: str, content: str) -> GeneratedPage:
     )
 
 
-def test_generation_preflight_gets_exact_immutable_processed_pages() -> None:
+def test_validation_gets_the_exact_pages_and_the_keys_they_were_generated_from() -> None:
     service, storage, _ = _service()
-    seen: list[Mapping[str, str]] = []
+    seen: list[GeneratedCorpus] = []
 
     result = service._process_generated_pages(
         [_page("Z page", "z"), _page("A page", "a")],
         dry_run=True,
-        preflight=seen.append,
+        validate=seen.append,
     )
 
     assert result.succeeded == 2
-    assert list(seen[0].items()) == [
+    corpus = seen[0]
+    assert list(corpus.pages.items()) == [
         ("A page", "normalized:a"),
         ("Z page", "normalized:z"),
     ]
+    assert {title: expectation.metadata.stable_keys for title, expectation in corpus.expectations.items()} == {
+        "A page": ["key:A page"],
+        "Z page": ["key:Z page"],
+    }
     with pytest.raises(TypeError):
-        cast("dict[str, str]", seen[0])["Other"] = "not allowed"
+        cast("dict[str, str]", corpus.pages)["Other"] = "not allowed"
     storage.save_generated_by_title.assert_not_called()
 
 
-def test_generation_preflight_runs_only_after_all_pages_process() -> None:
+def test_validation_runs_only_after_all_pages_process() -> None:
     service, _, normalizer = _service()
     events: list[str] = []
     normalizer.normalize.side_effect = lambda content: events.append(content) or content
@@ -65,10 +69,10 @@ def test_generation_preflight_runs_only_after_all_pages_process() -> None:
     service._process_generated_pages(
         [_page("A", "first"), _page("B", "second")],
         dry_run=True,
-        preflight=lambda _: events.append("preflight"),
+        validate=lambda _: events.append("validate"),
     )
 
-    assert events == ["first", "second", "preflight"]
+    assert events == ["first", "second", "validate"]
 
 
 def test_regenerated_stance_page_takes_new_data_and_keeps_the_editor_image() -> None:
@@ -82,11 +86,11 @@ def test_regenerated_stance_page_takes_new_data_and_keeps_the_editor_image() -> 
     context = MagicMock()
     context.storage.read_fetched_by_title.return_value = fetched
     service = WikiGenerateService(context=context, link_catalog=(), console=Console(file=StringIO()))
-    seen: list[Mapping[str, str]] = []
+    seen: list[GeneratedCorpus] = []
 
-    service._process_generated_pages([_page("Aggressive", generated)], dry_run=True, preflight=seen.append)
+    service._process_generated_pages([_page("Aggressive", generated)], dry_run=True, validate=seen.append)
 
-    page = seen[0]["Aggressive"]
+    page = seen[0].pages["Aggressive"]
     assert "|damage_mod=1.4\n" in page
     assert "|image=[[File:Editor Aggressive.png|thumb]]\n" in page
     assert "Editor notes." in page
@@ -109,11 +113,11 @@ def test_regenerated_zone_page_keeps_the_live_article_and_fills_blank_fields() -
     context = MagicMock()
     context.storage.read_fetched_by_title.return_value = fetched
     service = WikiGenerateService(context=context, link_catalog=(), console=Console(file=StringIO()))
-    seen: list[Mapping[str, str]] = []
+    seen: list[GeneratedCorpus] = []
 
-    service._process_generated_pages([_page("Soluna's Landing", generated)], dry_run=True, preflight=seen.append)
+    service._process_generated_pages([_page("Soluna's Landing", generated)], dry_run=True, validate=seen.append)
 
-    page = seen[0]["Soluna's Landing"]
+    page = seen[0].pages["Soluna's Landing"]
     assert "|maplink={{MapLink|zone=Soluna}}\n" in page
     assert "|connects=[[Loomingwood Forest]]\n" in page
     assert "|level=25-33\n" in page

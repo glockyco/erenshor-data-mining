@@ -9,6 +9,8 @@ import pytest
 from typer.main import get_command
 from typer.testing import CliRunner
 
+from erenshor.application.wiki.semantic_validation import page_expectation
+from erenshor.application.wiki.services.generate_service import GeneratedCorpus
 from erenshor.application.wiki.services.page import OperationResult
 from erenshor.application.wiki.services.storage import WikiStorage
 from erenshor.application.wiki_deploy.link_audit import LinkAuditFinding, LinkAuditReport
@@ -22,6 +24,7 @@ from erenshor.application.wiki_deploy.override_migration import ArticleMigration
 from erenshor.application.wiki_deploy.pages import RepoPageDeployResult, RepoPageDeployResultEntry
 from erenshor.application.wiki_deploy.refresh import EmbeddedRefreshResult
 from erenshor.application.wiki_deploy.rollback import RollbackResult, RollbackResultEntry
+from erenshor.application.wiki_lua.link_catalog import LinkCatalogEntry
 from erenshor.cli.commands import wiki
 from erenshor.cli.context import CLIContext
 from erenshor.infrastructure.wiki import MediaWikiPageRevision, MediaWikiPageSnapshot, MediaWikiParse
@@ -402,7 +405,7 @@ class TestWikiLinkAuditCommand:
         assert run_audit.call_args.kwargs["online"] is True
         assert run_audit.call_args.kwargs["include_live_pages"] is True
 
-    def test_generate_runs_offline_audit_on_exact_processed_pages(
+    def test_generate_fails_on_a_semantic_finding_and_names_it(
         self,
         monkeypatch: pytest.MonkeyPatch,
         mock_operation_result: OperationResult,
@@ -413,34 +416,28 @@ class TestWikiLinkAuditCommand:
         service = MagicMock()
 
         def generate_all(**kwargs):
-            kwargs["preflight"]({"Generated": "exact content"})
+            broken = "{{Item\n|title=Sword\n|stablekey=item:sword\n"
+            kwargs["validate"](
+                GeneratedCorpus(
+                    pages={"Sword": broken},
+                    expectations={"Sword": page_expectation("Sword", ["item:sword"], None)},
+                )
+            )
             return mock_operation_result
 
         service.generate_all.side_effect = generate_all
         composition = _mock_wiki_composition()
+        composition.context.link_catalog_entries.return_value = (
+            LinkCatalogEntry("item:sword", "item", "weapon", "Sword", "Sword", None),
+        )
         monkeypatch.setattr(wiki_command, "_create_wiki_composition", lambda _ctx, **_: composition)
-        service_arguments: dict[str, object] = {}
-
-        def create_service(**kwargs: object) -> MagicMock:
-            service_arguments.update(kwargs)
-            return service
-
-        monkeypatch.setattr(wiki_command, "WikiGenerateService", create_service)
-        run_audit = MagicMock(return_value=self._report())
-        monkeypatch.setattr(wiki_command, "_run_link_audit", run_audit)
+        monkeypatch.setattr(wiki_command, "WikiGenerateService", lambda **_: service)
 
         result = runner.invoke(wiki.app, ["generate"], obj=replace(cli_context, dry_run=True))
 
-        assert result.exit_code == 0
-        assert run_audit.call_args.args[1] == {"Generated": "exact content"}
-        # The audit checks the links against the catalog that the merge used.
-        assert run_audit.call_args.kwargs == {
-            "online": False,
-            "include_live_pages": False,
-            "output_path": None,
-            "known_generated_titles": ("Generated",),
-            "catalog": service_arguments["link_catalog"],
-        }
+        assert result.exit_code == 1
+        assert "[parseability] Sword" in result.output
+        assert "Semantic validation found" in result.output
 
 
 class TestWikiInventoryTemplatesCommand:

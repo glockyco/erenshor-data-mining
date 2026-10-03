@@ -25,7 +25,7 @@ from erenshor.application.wiki.generators.field_preservation import (
     list_entries,
 )
 from erenshor.application.wiki.services.storage import PageMetadata, WikiStorage
-from erenshor.application.wiki_deploy.link_audit import LinkTargets, audit_links
+from erenshor.application.wiki_deploy.link_audit import LinkAuditReport, LinkTargets, audit_links
 from erenshor.application.wiki_lua.link_catalog import LinkCatalogEntry
 from erenshor.infrastructure.wiki.template_parser import TemplateParser
 
@@ -688,6 +688,18 @@ class WikiPageExpectation:
         object.__setattr__(self, "ownership", tuple(self.ownership))
 
 
+def page_expectation(title: str, stable_keys: Sequence[str], fetched_content: str | None) -> WikiPageExpectation:
+    """Build the facts of one generated page from what generation produced it from."""
+    schema_kind = f"{title.casefold()}_overview" if title in {"Armor", "Weapons"} else None
+    return WikiPageExpectation(
+        title=title,
+        metadata=PageMetadata(page_title=title, stable_keys=list(stable_keys), entity_names=[]),
+        fetched_content=fetched_content,
+        ownership=(schema_kind,) if schema_kind is not None else (),
+        schema_kind=schema_kind,
+    )
+
+
 def derive_corpus_expectations(storage: WikiStorage, page_titles: Collection[str]) -> dict[str, WikiPageExpectation]:
     """Build metadata, fetched-content, and singleton-overview facts for a stored corpus."""
     expectations: dict[str, WikiPageExpectation] = {}
@@ -695,15 +707,7 @@ def derive_corpus_expectations(storage: WikiStorage, page_titles: Collection[str
         metadata = storage.get_metadata_by_title(title)
         if metadata is None:
             raise ValueError(f"Generated wiki metadata missing for {title!r}")
-        schema_kind = f"{title.casefold()}_overview" if title in {"Armor", "Weapons"} else None
-        ownership = (schema_kind,) if schema_kind is not None else ()
-        expectations[title] = WikiPageExpectation(
-            title=title,
-            metadata=metadata,
-            fetched_content=storage.read_fetched_by_title(title),
-            ownership=ownership,
-            schema_kind=schema_kind,
-        )
+        expectations[title] = page_expectation(title, metadata.stable_keys, storage.read_fetched_by_title(title))
     return expectations
 
 
@@ -751,9 +755,14 @@ class SemanticValidationError(ValueError):
 
 @dataclass(frozen=True, slots=True)
 class SemanticValidationReport:
-    """Deterministic validation results."""
+    """Deterministic validation results.
+
+    ``link_audit`` is the semantic-link audit that :func:`validate_wiki_pages`
+    ran over the same pages.
+    """
 
     findings: tuple[SemanticFinding, ...] = ()
+    link_audit: LinkAuditReport | None = None
 
     @property
     def has_errors(self) -> bool:
@@ -929,9 +938,10 @@ class _Findings:
     def add(self, code: str, page: str, detail: str) -> None:
         self.items.append(SemanticFinding(code, page, detail))
 
-    def report(self) -> SemanticValidationReport:
+    def report(self, link_audit: LinkAuditReport | None = None) -> SemanticValidationReport:
         return SemanticValidationReport(
-            tuple(sorted(self.items, key=lambda f: (f.page.casefold(), f.page, f.code, f.detail)))
+            tuple(sorted(self.items, key=lambda f: (f.page.casefold(), f.page, f.code, f.detail))),
+            link_audit,
         )
 
 
@@ -1801,20 +1811,19 @@ def validate_wiki_pages(
         _validate_ownership(findings, parsed, expectation, catalog, schema)
         _validate_manual_overrides(findings, parsed, expectation.fetched_content, link_targets)
         _validate_categories(findings, page, content, expectation.expected_categories)
-    if catalog_entries:
-        planned = tuple(planned_titles) if planned_titles is not None else tuple(pages)
-        known = tuple(known_generated_titles) if known_generated_titles is not None else tuple(pages)
-        audit = audit_links(
-            generated_pages=pages,
-            catalog_entries=tuple(catalog_entries),
-            planned_titles=planned,
-            known_generated_titles=known,
-            variant=variant,
-        )
-        for finding in audit.findings:
-            if finding.severity == "error":
-                findings.add("semantic_links", finding.source_page, f"{finding.code}: {finding.message}")
-    return findings.report()
+    planned = tuple(planned_titles) if planned_titles is not None else tuple(pages)
+    known = tuple(known_generated_titles) if known_generated_titles is not None else tuple(pages)
+    audit = audit_links(
+        generated_pages=pages,
+        catalog_entries=tuple(catalog_entries),
+        planned_titles=planned,
+        known_generated_titles=known,
+        variant=variant,
+    )
+    for finding in audit.findings:
+        if finding.severity == "error":
+            findings.add("semantic_links", finding.source_page, f"{finding.code}: {finding.message}")
+    return findings.report(audit)
 
 
 __all__ = [

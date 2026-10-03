@@ -35,9 +35,10 @@ from rich.panel import Panel
 
 from erenshor.application.extract.database_comparison import recorded_build_id
 from erenshor.application.wiki.generators.context import GeneratorContext
+from erenshor.application.wiki.semantic_validation import validate_wiki_pages
 from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
 from erenshor.application.wiki.services.fetch_service import WikiFetchService
-from erenshor.application.wiki.services.generate_service import WikiGenerateService
+from erenshor.application.wiki.services.generate_service import GeneratedCorpus, WikiGenerateService
 from erenshor.application.wiki.services.storage import WikiStorage
 from erenshor.application.wiki_deploy.article_identity import build_article_identity_map
 from erenshor.application.wiki_deploy.article_report import CHANGE_KINDS, ArticleDeployReport, build_article_report
@@ -124,6 +125,8 @@ app = typer.Typer(
 
 console = Console()
 
+# Semantic findings printed when generation fails. The rest are counted.
+_SHOWN_FINDINGS = 20
 _INTERFACE_ARTIFACT_ROOT = Path("output/wiki-interface")
 _INTERFACE_ROLLBACK_ROOT = Path("rollback")
 
@@ -503,8 +506,11 @@ def _default_link_audit_output(cli_ctx: CLIContext) -> Path:
     return variant_config.resolved_wiki(cli_ctx.repo_root) / "link-audit.json"
 
 
-def _print_link_audit_summary(report: LinkAuditReport, output_path: Path | None) -> None:
-    """Print deterministic per-code audit counts and report metadata."""
+def _publish_link_audit(report: LinkAuditReport, output_path: Path | None) -> None:
+    """Write the audit report when a path is given and print its per-code counts."""
+    if output_path is not None:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        report.write_json(output_path)
     console.print(
         Panel.fit(
             "[bold cyan]Semantic link audit[/bold cyan]\n"
@@ -559,10 +565,7 @@ def _run_link_audit(
         if client is not None:
             client.close()
 
-    if output_path is not None:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        report.write_json(output_path)
-    _print_link_audit_summary(report, output_path)
+    _publish_link_audit(report, output_path)
     return report
 
 
@@ -903,28 +906,35 @@ def generate(
             link_catalog = composition.context.link_catalog_entries()
             service = WikiGenerateService(context=composition.context, link_catalog=link_catalog)
 
-            # Generate pages (all or specified) and audit the exact processed
-            # snapshot before generation reports success.
-            def audit_generated_pages(generated_pages: Mapping[str, str]) -> None:
-                report = _run_link_audit(
-                    cli_ctx,
-                    generated_pages,
-                    online=False,
-                    include_live_pages=False,
-                    output_path=None if cli_ctx.dry_run else _default_link_audit_output(cli_ctx),
-                    known_generated_titles=tuple(generated_pages),
-                    catalog=link_catalog,
+            # Validate the exact pages of the run before generation reports
+            # success. Validation includes the offline semantic-link audit.
+            def validate_generated_corpus(corpus: GeneratedCorpus) -> None:
+                pages = tuple(corpus.pages)
+                report = validate_wiki_pages(
+                    corpus.pages,
+                    expectations=corpus.expectations,
+                    catalog_entries=link_catalog,
+                    planned_titles=pages,
+                    known_generated_titles=pages,
+                    variant=cli_ctx.variant,
                 )
+                if report.link_audit is None:
+                    raise ValueError("Semantic validation ran without the link catalog")
+                _publish_link_audit(report.link_audit, None if cli_ctx.dry_run else _default_link_audit_output(cli_ctx))
                 if report.has_errors:
-                    error_count = sum(1 for finding in report.findings if finding.severity == "error")
-                    raise ValueError(f"Semantic link audit found {error_count} blocking finding(s)")
+                    for finding in report.findings[:_SHOWN_FINDINGS]:
+                        console.print(f"[red]✗[/red] {escape(f'[{finding.code}] {finding.page}: {finding.detail}')}")
+                    hidden = len(report.findings) - _SHOWN_FINDINGS
+                    if hidden > 0:
+                        console.print(f"[red]… and {hidden} more[/red]")
+                    raise ValueError(f"Semantic validation found {len(report.findings)} blocking finding(s)")
 
             result = service.generate_all(
                 dry_run=cli_ctx.dry_run,
                 limit=limit,
                 page_titles=page_titles,
                 generator_names=generator,
-                preflight=audit_generated_pages,
+                validate=validate_generated_corpus,
             )
 
         # Show warnings and errors. Warnings name the live roots that generation
