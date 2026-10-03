@@ -60,6 +60,10 @@ def processed_db(tmp_path):
         CREATE TABLE ArenaRoundEnemies (
             ArenaRoundStableKey TEXT, SequenceIndex INTEGER, EnemyCharacterStableKey TEXT
         );
+        CREATE TABLE PlanarBosses (
+            StableKey TEXT PRIMARY KEY, Scene TEXT, Role TEXT, CharacterStableKey TEXT
+        );
+        INSERT INTO PlanarBosses VALUES ('Plane:character:boss', 'Plane', 'boss', 'character:boss');
         CREATE TABLE LootDrops (
             CharacterStableKey TEXT, ItemStableKey TEXT, DropProbability REAL,
             ExpectedPerKill REAL, DropCountDistribution TEXT, IsActual INTEGER,

@@ -41,6 +41,7 @@ EXPECTED_KEYS = {
     "classstartingitems",
     "loottables",
     "arenarounds",
+    "planarbosses",
     "itemdrops",
     "specialworlddrops",
     "miningnodes",

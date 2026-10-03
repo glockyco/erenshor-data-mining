@@ -112,6 +112,14 @@ The chest infoboxes that an editor put on boss pages, such as Braxonian Chest on
 
 Alternative: the tier `npc`. Rejected: the infobox would link the chest to the NPC selector of the map, and the chest is not a person.
 
+### D11. Raid bosses come from the game's boss markers
+
+The maintainer's review of 2026-10-03 found that summoned adds, such as the Constellations, Azynthian Corruptor, and Chosen Fawn, became Boss. The rule read the effective BossXp, and `NPC.cs:498` raises the BossXp of every NPC of level 40 or more to 2, so at that level "looks unique" in the consider text is true for every NPC. Below level 40, the prefab BossXp is a deliberate choice of the designers.
+
+The game names its raid bosses. In each plane, `PlanarMusicManager.BigBossSpawn` and `MidBossSpawns` list the spawn points that start the boss music, and the export records their characters in `PlanarBosses`. `VithArena` starts mid-boss music for rounds 2, 5, and 7, and `VitheoFight` starts boss music for Vitheo; code facts pin both. In a raid scene, Boss means those characters, and every other character is Enemy. Elsewhere, the rule reads the prefab BossXp. Syzygy and Faerie Trickster stay Enemy: the game adds Syzygy to the raid's loose adds and spawns the Trickster at Sprinkles' add positions.
+
+Alternative: HP, damage, or ability thresholds. Rejected: the Scorpling add has more HP than several mid-bosses, and balance patches move every threshold. Alternative: classify by fight script. Rejected: the same script spawns adds and bosses, and not every boss has one.
+
 ## Risks / Trade-offs
 
 - [About 2,700 edits reach editors' watchlists] → The bot flag hides them from recent changes by default. The maintainer approves the full deploy after the canary.
@@ -126,6 +134,4 @@ The code changes land first and change only local output. Generation validates e
 
 ## Open Questions
 
-The encounter-tier rule promotes level-40 adds, and task 6.3 waits for a decision. The maintainer's review of 2026-10-03 found that summoned adds, such as the Constellations, Azynthian Corruptor, and Chosen Fawn, became Boss. The rule reads the effective BossXp, and `NPC.cs:498` raises the BossXp of every NPC of level 40 or more to 2. At that level, "looks unique" in the consider text is true for every NPC, so 32 event or roaming characters became Boss and 16 became Elite. Below level 40, the prefab BossXp is a deliberate choice of the designers.
-
-The game marks raid bosses explicitly. In each plane, `PlanarMusicManager.BigBossSpawn` and `MidBossSpawns` list the spawn points that start the boss music. `VithArena` starts mid-boss music for rounds 2, 5, and 7, and `VitheoFight` starts boss music. The proposal: in the planes, Boss means those spawns and arena rounds, and every other character is Enemy. Elsewhere, the rule reads the prefab BossXp instead of the raised value. Boss phases that a fight script spawns, such as Syzygy and Faerie Trickster, take a reviewed override. A simulation on the current database turns 36 Boss and 27 Elite characters into Enemy, and turns Brax, God of Elements from Elite into Boss.
+None.

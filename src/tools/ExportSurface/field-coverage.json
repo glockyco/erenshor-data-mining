@@ -33,7 +33,8 @@
     "AEEvent",
     "AEEvent2",
     "NPCFightEvent",
-    "GameManager"
+    "GameManager",
+    "PlanarMusicManager"
   ],
   "fields": {
     "AchievementTrigger": {
@@ -5780,6 +5781,68 @@
         "reason": "GameManager runtime state, UI, or scene reference not exported",
         "status": "ignored",
         "type": "UnityEngine.Color32"
+      }
+    },
+    "PlanarMusicManager": {
+      "BGM": {
+        "by": null,
+        "reason": "audio playback component, not game data",
+        "status": "ignored",
+        "type": "UnityEngine.AudioSource"
+      },
+      "Pads": {
+        "by": null,
+        "reason": "background music clips, not game data",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<UnityEngine.AudioClip>"
+      },
+      "Miniboss": {
+        "by": null,
+        "reason": "mid-boss music clip, not game data",
+        "status": "ignored",
+        "type": "UnityEngine.AudioClip"
+      },
+      "Boss": {
+        "by": null,
+        "reason": "boss music clip, not game data",
+        "status": "ignored",
+        "type": "UnityEngine.AudioClip"
+      },
+      "BossEngaged": {
+        "by": null,
+        "reason": "runtime music state set during play",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "MinibossEngaged": {
+        "by": null,
+        "reason": "runtime music state set during play",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "TimerForPad": {
+        "by": null,
+        "reason": "music rotation timer, not game data",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "SVC": {
+        "by": null,
+        "reason": "volume control component, not game data",
+        "status": "ignored",
+        "type": "SoundVolumeControl"
+      },
+      "MidBossSpawns": {
+        "by": "PlanarMusicManagerListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<SpawnPoint>"
+      },
+      "BigBossSpawn": {
+        "by": "PlanarMusicManagerListener",
+        "reason": null,
+        "status": "captured",
+        "type": "SpawnPoint"
       }
     }
   }

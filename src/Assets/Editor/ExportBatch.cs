@@ -37,7 +37,7 @@ using Debug = UnityEngine.Debug;
 /// gameconstants, achievementtriggers, arenarounds, ascensions, books,
 /// characters, classes, classstartingitems, doors, forges, guildtopics,
 /// itembags, itemdrops, items, loottables, miningnodes, questactivations,
-/// quests, secretpassages, skills, spells, spawnpoints, stances,
+/// planarbosses, quests, secretpassages, skills, spells, spawnpoints, stances,
 /// teleportlocs, treasurehunting, treasurelocs, waters, wishingwells,
 /// worldfactions, zoneannounces, zoneatlasentries, zonelines
 ///

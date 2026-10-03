@@ -461,18 +461,6 @@
       "note": "Pins the final 0..99 roll against the accumulated counter, including 100% saturation."
     },
     {
-      "id": "character.boss_xp_level_floor",
-      "mode": "assert",
-      "type": "NPC",
-      "method": "Start",
-      "matcher": "node_shape",
-      "args": {
-        "kind": "IfElseStatement",
-        "shape": "if (MyStats.Level >= 40 && Myself.BossXp < 2f) { GetComponent<Character> ().BossXp = 2f; }"
-      },
-      "note": "NPCs at level 40 or above get BossXp 2 at start-up. Re-implemented by the encounter tier in src/erenshor/application/processor/characters.py (effective BossXp)."
-    },
-    {
       "id": "character.boss_consider_threshold",
       "mode": "assert",
       "type": "PlayerControl",
@@ -483,6 +471,53 @@
         "shape": "if (newTar.MyNPC != null && newTar.BossXp > 1f) { text2 += \" This opponent looks unique, and may have special abilities.\"; }"
       },
       "note": "The game calls an NPC with BossXp above 1 unique. Re-implemented by the boss and elite encounter tiers in src/erenshor/application/processor/characters.py."
+    },
+    {
+      "id": "arena.boss_music_round_2",
+      "mode": "assert",
+      "type": "VithArena",
+      "method": "CheckForGamepiece",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ UpdateSocialLog.LogAdd (new ChatLogLine (\"Your coin floats from your hand to Vitheo's, and he nods...\", ChatLogLine.LogType.BattleMechanicText, \"grey\")); UpdateSocialLog.LogAdd (new ChatLogLine (\"You've lost an item: \" + Coin2.ItemName, ChatLogLine.LogType.SystemMessages, \"green\")); SpawnPiece (Coin2Fight, 1); MusicMngr.ForceMidBossEngaged (); }"
+      },
+      "note": "Vitheo's arena starts boss music for these rounds only. Re-implemented by the arena boss rounds of the encounter tier in src/erenshor/application/processor/characters.py."
+    },
+    {
+      "id": "arena.boss_music_round_5",
+      "mode": "assert",
+      "type": "VithArena",
+      "method": "CheckForGamepiece",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ UpdateSocialLog.LogAdd (new ChatLogLine (\"Your coin floats from your hand to Vitheo's, and he nods...\", ChatLogLine.LogType.BattleMechanicText, \"grey\")); UpdateSocialLog.LogAdd (new ChatLogLine (\"You've lost an item: \" + Coin5.ItemName, ChatLogLine.LogType.SystemMessages, \"green\")); SpawnPiece (Coin5Fight, 4); MusicMngr.ForceMidBossEngaged (); }"
+      },
+      "note": "Vitheo's arena starts boss music for these rounds only. Re-implemented by the arena boss rounds of the encounter tier in src/erenshor/application/processor/characters.py."
+    },
+    {
+      "id": "arena.boss_music_round_7",
+      "mode": "assert",
+      "type": "VithArena",
+      "method": "CheckForGamepiece",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ UpdateSocialLog.LogAdd (new ChatLogLine (\"Your coin floats from your hand to Vitheo's, and he nods...\", ChatLogLine.LogType.BattleMechanicText, \"grey\")); UpdateSocialLog.LogAdd (new ChatLogLine (\"You've lost an item: \" + Coin7.ItemName, ChatLogLine.LogType.SystemMessages, \"green\")); SpawnPiece (Coin7Fight, 6); MusicMngr.ForceMidBossEngaged (); }"
+      },
+      "note": "Vitheo's arena starts boss music for these rounds only. Re-implemented by the arena boss rounds of the encounter tier in src/erenshor/application/processor/characters.py."
+    },
+    {
+      "id": "arena.boss_music_vitheo",
+      "mode": "assert",
+      "type": "VitheoFight",
+      "method": "CheckEngage",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "Arena.MusicMngr.ForceBossEngaged ();"
+      },
+      "note": "Vitheo's arena starts boss music for these rounds only. Re-implemented by the arena boss rounds of the encounter tier in src/erenshor/application/processor/characters.py."
     }
   ]
 }
