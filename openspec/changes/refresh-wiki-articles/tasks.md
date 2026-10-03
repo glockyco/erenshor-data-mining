@@ -25,7 +25,7 @@
 
 ## 5. Documentation and verification
 
-- [ ] 5.1 `docs(skills): describe the guarded article refresh`: update `.agent/skills/wiki-templates/SKILL.md` for the new deploy, its gates, the review report, rollback, and the drift check. Remove the known-defect note. Verify: `uv run pytest tests/contract/test_document_paths.py` passes.
+- [x] 5.1 `docs(skills): describe the guarded article refresh`: update `.agent/skills/wiki-templates/SKILL.md` for the new deploy, its gates, the review report, rollback, and the drift check. Remove the known-defect note. Verify: `uv run pytest tests/contract/test_document_paths.py` passes. Each deploy commit of section 4 updated the skill for its own change, and `87fde812` removed the known-defect note. This commit corrects the remaining stale wording.
 - [ ] 5.2 Run `uv run erenshor test ci` and, with the local MediaWiki stack, `uv run erenshor test wiki --warm`. Both pass.
 - [ ] 5.3 Run `uv run erenshor golden capture`. Show the diff to the maintainer and commit it only after approval (`test(golden): refresh the wiki baselines for merged identity`).
 

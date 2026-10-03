@@ -6,7 +6,7 @@ description: Fetch, generate, validate, deploy, and roll back Erenshor wiki arti
 # Wiki content workflow
 
 Run commands from the repository root. Use `-V <variant>` on `erenshor` when the target is not `main`.
-Keep legacy articles, repository-owned pages, and interface gadgets on their separate deployment paths.
+Keep generated articles, repository-owned pages, and interface gadgets on their separate deployment paths.
 
 ## Generated articles
 
@@ -59,7 +59,7 @@ Keep legacy articles, repository-owned pages, and interface gadgets on their sep
    A page that differs from its fetched text only by page normalization is not written.
    Before each write, the deploy parses the new text on the wiki. A script error or a missing template blocks the page.
    A new category without a page or a new Erenshor link tracking category also blocks it.
-   The deploy first checks the live semantic-link catalog. If that catalog is stale, deploy repository-owned Lua data first.
+   Before it writes, the deploy checks the live semantic-link catalog. If that catalog is stale, deploy repository-owned Lua data first.
    Each run writes a manifest and rollback text under `variants/<variant>/wiki/article-deploys/<run>/`.
    Restore a run with `uv run erenshor wiki rollback-repo-pages --manifest <manifest>`.
    The command fails when a page is a conflict or blocked, or when the run stops early.
@@ -165,4 +165,4 @@ curl --get 'http://localhost:8088/api.php' --data-urlencode 'action=parse' --dat
 
 Use live TemplateSandbox for the final compatibility check with wiki.gg.
 
-The wiki is moving to Cargo tables populated by bot-owned storage pages. An OpenSpec change will define that workflow.
+The wiki is moving to Cargo tables populated by bot-owned storage pages. The OpenSpec change `publish-wiki-cargo-data` defines that workflow.
