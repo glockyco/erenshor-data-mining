@@ -165,6 +165,11 @@ local function targetFor(kind, args)
 			or Args.resolve(args, "name", nil)
 			or Args.resolve(args, 1, nil)
 	end
+	if kind == "quest" then
+		-- questlink is the deprecated parameter of the old QuestLink template,
+		-- which live pages still use.
+		return Args.resolve(args, 1, nil) or Args.resolve(args, "questlink", nil)
+	end
 	return Args.resolve(args, 1, nil)
 end
 

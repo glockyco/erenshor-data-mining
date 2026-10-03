@@ -300,12 +300,18 @@ def _parameter_values(template: Any) -> tuple[dict[str, str], list[str]]:
     return named, positional
 
 
-def _target_from_values(named: Mapping[str, str], positional: Sequence[str]) -> str | None:
+def _target_from_values(kind: str, named: Mapping[str, str], positional: Sequence[str]) -> str | None:
+    """Return the page a link names, with the parameter order of Module:Erenshor/Link."""
     value = named.get("link")
     if value is None:
         value = named.get("page")
+    if value is None and kind == "item":
+        value = named.get("item", named.get("name"))
     if value is None and positional:
         value = positional[0]
+    if value is None and kind == "quest":
+        # The deprecated parameter of the old QuestLink template.
+        value = named.get("questlink")
     if value is None:
         return None
     # QuestLink's public compatibility syntax uses {{!}} inside |link=page|text.
@@ -381,7 +387,7 @@ class LinkTargets:
         if stable_key is not None:
             entry = self._index.entries_by_key.get(stable_key)
             return _title_key(entry.page) if entry is not None and entry.kind == kind else None
-        supplied_target = _target_from_values(named, positional)
+        supplied_target = _target_from_values(kind, named, positional)
         if supplied_target is None:
             return None
         pages = {_title_key(entry.page) for entry in _manual_candidates(self._index, kind, supplied_target)}
@@ -397,7 +403,7 @@ def _occurrence_from_template(
     origin: Origin,
 ) -> tuple[LinkOccurrence | None, LinkAuditFinding | None]:
     named, positional = _parameter_values(template)
-    supplied_target = _target_from_values(named, positional)
+    supplied_target = _target_from_values(kind, named, positional)
     stable_key = _stable_key_from_values(named)
     # A rendered page_title=None link is plain text and has no template. An
     # empty compatibility invocation is equivalent and is excluded here.

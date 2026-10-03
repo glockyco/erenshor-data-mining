@@ -106,6 +106,11 @@ class TestLinkListMerge:
 
         assert _merge("questsource", old, f"{DUST}<br>{RITUAL}") == f"{RITUAL}<br>{DUST}"
 
+    def test_deprecated_questlink_parameter_matches_its_page(self) -> None:
+        old = "{{QuestLink |questlink=The Revival Plains Ritual}}"
+
+        assert _merge("relatedquest", old, RITUAL) == RITUAL
+
     def test_link_to_a_page_of_several_quests_takes_the_generated_quest(self) -> None:
         new = "{{QuestLink|stablekey=quest:ripperquestline2}}"
 
