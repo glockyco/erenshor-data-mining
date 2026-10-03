@@ -239,7 +239,34 @@ def _load_raid_bosses(raw: sqlite3.Connection) -> _RaidBosses:
     )
 
 
-def _derive_encounter_tier(members: list[_CharData], raid: _RaidBosses) -> str:
+def _spawn_scenes(raw: sqlite3.Connection, char_data: list[_CharData]) -> dict[str, frozenset[str]]:
+    """Return the scenes each character spawns in, including chained spawns.
+
+    A chained child (for example a constellation that a fight summons) has no
+    spawn rows until the clean build expands the chain, so it takes the scenes
+    of its parents, transitively.
+    """
+    scenes: dict[str, set[str]] = {
+        d.char.stable_key: {spawn.scene for spawn in d.spawns if spawn.scene} for d in char_data
+    }
+    if not _table_exists(raw, "CharacterChainedSpawns"):
+        return {key: frozenset(value) for key, value in scenes.items()}
+    parents_of: dict[str, set[str]] = defaultdict(set)
+    for row in _load_rows(raw, "SELECT ParentStableKey, ChildStableKey FROM CharacterChainedSpawns"):
+        parents_of[str(row["ChildStableKey"])].add(str(row["ParentStableKey"]))
+    changed = True
+    while changed:
+        changed = False
+        for child, parents in parents_of.items():
+            inherited = set().union(*(scenes.get(parent, set()) for parent in parents))
+            target = scenes.setdefault(child, set())
+            if not inherited <= target:
+                target |= inherited
+                changed = True
+    return {key: frozenset(value) for key, value in scenes.items()}
+
+
+def _derive_encounter_tier(members: list[_CharData], raid: _RaidBosses, scenes: frozenset[str]) -> str:
     """Classify a deduplication group as npc, chest, boss, elite, or enemy.
 
     Characters of the TreasureChest faction are chests. In a raid scene, the
@@ -270,7 +297,7 @@ def _derive_encounter_tier(members: list[_CharData], raid: _RaidBosses) -> str:
         raise ValueError(f"Character group mixes {_CHEST_FACTION} characters with other characters: {keys}")
     if any(bool(member.char.raw.get("IsFriendly")) for member in members):
         return "npc"
-    scenes = {spawn.scene for member in members for spawn in member.spawns if spawn.scene}
+    # The scenes include those of chained-spawn parents (_spawn_scenes).
     if scenes and scenes <= raid.scenes:
         return "boss" if any(member.char.stable_key in raid.characters for member in members) else "enemy"
     placements = {
@@ -818,6 +845,7 @@ def process_characters(
 
     dedup_rows: list[dict[str, object]] = []
     raid_bosses = _load_raid_bosses(raw)
+    scenes_by_char = _spawn_scenes(raw, char_data)
     tier_counts: dict[str, int] = defaultdict(int)
     for members in groups.values():
         group_key = min(m.char.stable_key for m in members)
@@ -831,7 +859,8 @@ def process_characters(
                 }
             )
 
-        tier = _derive_encounter_tier(members, raid_bosses)
+        scenes = frozenset(scene for m in members for scene in scenes_by_char.get(m.char.stable_key, ()))
+        tier = _derive_encounter_tier(members, raid_bosses, scenes)
         tier_counts[tier] += 1
         for m in members:
             m.char.raw["EncounterTier"] = tier
