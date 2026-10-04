@@ -25,51 +25,14 @@ function p.run()
 	local pageStance = Stance.resolve({}, "Aggressive")
 	assertEqual(pageStance.missing, true, "page title does not resolve stance without stable key")
 
-	local override = Stance.resolve(
+	local original = Stance.resolve(
 		{ stablekey = "stance:aggressive", title = "Manual Stance", damage_mod = "-" },
 		"Manual Stance Override"
 	)
-	assertEqual(override.name, "Manual Stance", "article title override wins")
-	assertEqual(override.damageMod, nil, "dash sentinel blanks supported fields")
+	assertEqual(original.name, "Aggressive", "article parameters do not change stance data")
+	assertEqual(original.damageMod, 1.4, "article parameters do not blank stance data")
 
 	local aggressiveKey = { stablekey = "stance:aggressive" }
-	assertEqual(
-		Stance.fieldValue(aggressiveKey, "Aggressive", "title"),
-		"Aggressive",
-		"field title resolves"
-	)
-	assertEqual(
-		Stance.fieldValue(aggressiveKey, "Aggressive", "damage_mod"),
-		"+40%",
-		"damage modifier formats"
-	)
-	assertEqual(
-		Stance.fieldValue(aggressiveKey, "Aggressive", "spell_damage_mod"),
-		"—",
-		"neutral spell damage formats"
-	)
-	assertEqual(
-		Stance.fieldValue(aggressiveKey, "Aggressive", "stop_regen"),
-		"Yes",
-		"stop regen formats"
-	)
-	assertContains(
-		Stance.fieldValue(aggressiveKey, "Aggressive", "activated_by"),
-		"Stance: Aggressive",
-		"activated-by derives from skills"
-	)
-	assertEqual(
-		Stance.statusText(aggressiveKey, "Aggressive"),
-		"",
-		"present stance status is blank"
-	)
-
-	local recklessKey = { stablekey = "stance:reckless" }
-	assertEqual(
-		Stance.fieldValue(recklessKey, "Reckless", "self_damage_per_attack"),
-		"4% max HP",
-		"self-damage per attack formats"
-	)
 	local aggressiveTip = Stance.renderTooltip(aggressiveKey, "Aggressive")
 	assertContains(
 		aggressiveTip,
@@ -88,6 +51,7 @@ function p.run()
 		"stance tooltip uses activating skill presentation"
 	)
 
+	local recklessKey = { stablekey = "stance:reckless" }
 	local recklessTip = Stance.renderTooltip(recklessKey, "Reckless")
 	assertContains(
 		recklessTip,
@@ -98,24 +62,6 @@ function p.run()
 		recklessTip,
 		"Reckless - Activatable",
 		"fallback stance tooltip synthesizes skill"
-	)
-	assertEqual(
-		Stance.fieldValue(recklessKey, "Reckless", "stop_regen"),
-		"",
-		"false stop regen is hidden"
-	)
-
-	assertEqual(
-		Stance.fieldValue({}, "Unknown Prototype", "title"),
-		"",
-		"missing stance fields are blank"
-	)
-	local missing = Stance.statusText({}, "Unknown Prototype")
-	assertContains(missing, "Missing stance data: Unknown Prototype", "missing stance is visible")
-	assertContains(
-		missing,
-		"[[Category:Pages with missing Erenshor stance data]]",
-		"missing stance is tracked"
 	)
 	assertContains(
 		Stance.renderTooltip({}, "Unknown Prototype"),

@@ -40,7 +40,7 @@ def test_maps_interface_repo_and_fixture_pages_to_wiki_titles(tmp_path: Path) ->
     (root / "wiki-dev/interface/MediaWiki/Randompage").write_text("Random Page", encoding="utf-8")
     (root / "wiki-dev/interface/MediaWiki/Help-mediawiki").write_text("MediaWiki Help", encoding="utf-8")
     (root / "wiki-dev/interface/MediaWiki/Gadget-datatables.js").write_text("window.datatables = true;\n")
-    (root / "wiki/modules/Erenshor/Item.lua").write_text("return {}\n", encoding="utf-8")
+    (root / "wiki/modules/Erenshor/Link.lua").write_text("return {}\n", encoding="utf-8")
     (root / "wiki-dev/fixtures/modules/Erenshor/Data/Items.lua").write_text("return {}\n", encoding="utf-8")
     (root / "wiki-dev/fixtures/modules/Erenshor/Data/Items/Weapons.lua").write_text("return {}\n", encoding="utf-8")
     (root / "wiki/templates/Item.wiki").write_text(
@@ -64,7 +64,7 @@ def test_maps_interface_repo_and_fixture_pages_to_wiki_titles(tmp_path: Path) ->
         ("MediaWiki:Sidebar", "wiki-dev/interface/MediaWiki/Sidebar"),
         ("MediaWiki:Vector.css", "wiki-dev/interface/MediaWiki/Vector.css"),
         ("MediaWiki:Vector.js", "wiki-dev/interface/MediaWiki/Vector.js"),
-        ("Module:Erenshor/Item", "wiki/modules/Erenshor/Item.lua"),
+        ("Module:Erenshor/Link", "wiki/modules/Erenshor/Link.lua"),
         ("Module:Erenshor/Data/Items", "wiki-dev/fixtures/modules/Erenshor/Data/Items.lua"),
         ("Module:Erenshor/Data/Items/Weapons", "wiki-dev/fixtures/modules/Erenshor/Data/Items/Weapons.lua"),
         ("Template:Item", "wiki/templates/Item.wiki"),

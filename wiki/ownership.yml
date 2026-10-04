@@ -84,21 +84,18 @@ templates:
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Auras
     ownership: legacy_template
     cutover_blocking: false
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Book
     ownership: legacy_template
     cutover_blocking: false
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Book/doc
     ownership: documentation_template
     cutover_blocking: false
@@ -176,7 +173,6 @@ templates:
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Consumable/doc
     ownership: documentation_template
     cutover_blocking: false
@@ -237,21 +233,18 @@ templates:
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Enemy
     ownership: legacy_template
     cutover_blocking: false
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Enemy Stats
     ownership: legacy_template
     cutover_blocking: false
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Episode/doc
     ownership: documentation_template
     cutover_blocking: false
@@ -282,7 +275,6 @@ templates:
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Fancy-armor
     ownership: unknown
     cutover_blocking: false
@@ -408,140 +400,120 @@ templates:
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Item/Aura
     ownership: legacy_template
     cutover_blocking: false
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Item/Categories
     ownership: legacy_template
     cutover_blocking: false
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Item/Charm
     ownership: legacy_template
     cutover_blocking: false
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Item/CharmScaling
     ownership: legacy_template
     cutover_blocking: false
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Item/ClassRestrictions
     ownership: legacy_template
     cutover_blocking: false
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Item/Consumable
     ownership: legacy_template
     cutover_blocking: false
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Item/DPS
     ownership: legacy_template
     cutover_blocking: false
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Item/Description
     ownership: legacy_template
     cutover_blocking: false
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Item/General
     ownership: legacy_template
     cutover_blocking: false
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Item/Header
     ownership: legacy_template
     cutover_blocking: false
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Item/Mold
     ownership: legacy_template
     cutover_blocking: false
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Item/Proc
     ownership: legacy_template
     cutover_blocking: false
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Item/Resists
     ownership: legacy_template
     cutover_blocking: false
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Item/SkillBook
     ownership: legacy_template
     cutover_blocking: false
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Item/SpellDetails
     ownership: legacy_template
     cutover_blocking: false
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Item/SpellScroll
     ownership: legacy_template
     cutover_blocking: false
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Item/Stats
     ownership: legacy_template
     cutover_blocking: false
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Item/Vitals
     ownership: legacy_template
     cutover_blocking: false
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Item/Weapon
     ownership: legacy_template
     cutover_blocking: false
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Item/doc
     ownership: documentation_template
     cutover_blocking: false
@@ -685,7 +657,6 @@ templates:
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Main
     ownership: helper_template
     cutover_blocking: false
@@ -727,7 +698,6 @@ templates:
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Mold/doc
     ownership: documentation_template
     cutover_blocking: false
@@ -770,21 +740,18 @@ templates:
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Off-hand
     ownership: legacy_template
     cutover_blocking: false
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Pet
     ownership: legacy_template
     cutover_blocking: false
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Quest
     ownership: repo_owned_template
     cutover_blocking: true
@@ -903,7 +870,6 @@ templates:
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Stub
     ownership: helper_template
     cutover_blocking: false
@@ -1012,7 +978,6 @@ templates:
     transclusion_count: 0
     transclusion_continued: false
     examples: []
-    notes: superseded by Lua-backed public templates after cutover
   - title: Template:Zone
     ownership: repo_owned_template
     cutover_blocking: true

@@ -77,10 +77,11 @@ Keep generated articles, repository-owned pages, and interface gadgets on their 
    Keep generated values deterministic and compatible with `mw.loadData()`: strings, numbers, booleans, and tables.
 
 2. Edit maintained Lua modules under `wiki/modules/Erenshor/` and templates under `wiki/templates/`.
-   For example, `wiki/modules/Erenshor/Item.lua` maps to `Module:Erenshor/Item`.
+   For example, `wiki/modules/Erenshor/Link.lua` maps to `Module:Erenshor/Link`.
    `wiki/templates/Item.wiki` maps to `Template:Item`.
-   Keep editor-supplied template parameters effective in the Lua display module.
-   Test public `p.<name>(frame)` entry points through the local Scribunto testcases.
+   The legacy entity templates render from article parameters.
+   Spell, Skill, and Stance tooltips read generated data by stable key.
+   Test public Lua entry points through the local Scribunto testcases.
 
 3. Select only the pages needed for a live deploy. The default selects maintained Lua modules only.
    Opt in to templates, maintained content pages, and generated data explicitly:

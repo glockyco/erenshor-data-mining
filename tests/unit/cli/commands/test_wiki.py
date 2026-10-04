@@ -240,7 +240,7 @@ class TestWikiGenerateCommand:
         """Test generation receives the concrete faction and class services."""
         import erenshor.cli.commands.wiki as wiki_command
 
-        repositories = tuple(MagicMock(name=f"repo_{index}") for index in range(11))
+        repositories = tuple(MagicMock(name=f"repo_{index}") for index in range(9))
         generation = MagicMock(written_paths=[], validation_tools={})
         monkeypatch.setattr(wiki_command, "_create_lua_repositories", lambda _ctx: repositories)
         generate = MagicMock(return_value=generation)
@@ -250,8 +250,8 @@ class TestWikiGenerateCommand:
 
         assert result.exit_code == 0
         kwargs = generate.call_args.kwargs
-        assert kwargs["faction_repo"] is repositories[9]
-        assert kwargs["class_display"] is repositories[10]
+        assert kwargs["faction_repo"] is repositories[7]
+        assert kwargs["class_display"] is repositories[8]
 
     def test_lua_repository_factory_shares_one_read_only_database(
         self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
@@ -281,8 +281,6 @@ class TestWikiGenerateCommand:
         constructors = (
             "ItemRepository",
             "CharacterRepository",
-            "SpawnPointRepository",
-            "LootTableRepository",
             "SpellRepository",
             "SkillRepository",
             "StanceRepository",
@@ -318,22 +316,18 @@ class TestWikiGenerateCommand:
         assert "Dry run" in result.output
         for module in (
             "Items.lua",
-            "Characters.lua",
             "Links.lua",
             "Spells.lua",
             "Skills.lua",
-            "Quests.lua",
-            "Zones.lua",
             "Stances.lua",
         ):
             assert module in result.output
         wiki_root = cli_context.config.variants["main"].resolved_wiki(cli_context.repo_root)
         assert str(wiki_root / "lua/Erenshor/Data/Items.lua") in result.output
         assert str(wiki_root / "lua/Erenshor/Data/Items") in result.output
-        assert str(wiki_root / "lua/Erenshor/Data/Characters.lua") in result.output
         assert str(wiki_root / "lua/Erenshor/Data/Links.lua") in result.output
-        assert str(wiki_root / "lua/Erenshor/Data/Quests.lua") in result.output
-        assert str(wiki_root / "lua/Erenshor/Data/Zones.lua") in result.output
+        for removed in ("Characters.lua", "Quests.lua", "Zones.lua"):
+            assert removed not in result.output
 
 
 class TestWikiLinkAuditCommand:
@@ -1047,20 +1041,20 @@ class TestWikiDeployRepoCommand:
         assert deploy.call_args.kwargs["include_content_pages"] is False
         authenticated.close.assert_called_once_with()
 
-    def test_deploy_repo_pages_gates_item_on_live_catalog_and_selects_it(
+    def test_deploy_repo_pages_gates_link_search_on_live_catalog_and_selects_it(
         self,
         monkeypatch: pytest.MonkeyPatch,
         tmp_path: Path,
         cli_context: CLIContext,
     ):
-        """Test filtered Item deployment checks the live Links catalog before selection."""
+        """Filtered Link/Search deployment checks the live Links catalog before selection."""
         import erenshor.cli.commands.wiki as wiki_command
 
         manifest = RepoWikiPageManifest(
             entries=(
                 RepoWikiPageManifestEntry(
-                    title="Module:Erenshor/Item",
-                    source_path="wiki/modules/Erenshor/Item.lua",
+                    title="Module:Erenshor/Link/Search",
+                    source_path="wiki/modules/Erenshor/Link/Search.lua",
                     source_sha256="a" * 64,
                     ownership_class="lua_module",
                     upload_stage="lua_module",
@@ -1082,11 +1076,11 @@ class TestWikiDeployRepoCommand:
         monkeypatch.setattr(wiki_command, "write_repo_page_manifest", MagicMock())
 
         pages_file = tmp_path / "pages.txt"
-        pages_file.write_text("Module:Erenshor/Item\n", encoding="utf-8")
+        pages_file.write_text("Module:Erenshor/Link/Search\n", encoding="utf-8")
         rejected = runner.invoke(wiki.app, ["deploy-repo-pages", "--pages-file", str(pages_file)], obj=cli_context)
 
         assert rejected.exit_code == 1
-        assert "Module:Erenshor/Item requires" in rejected.output
+        assert "Module:Erenshor/Link/Search requires" in rejected.output
         assert "Module:Erenshor/Data/Links" in rejected.output
         readonly.page_exists.assert_called_once_with("Module:Erenshor/Data/Links")
         readonly.close.assert_called_once_with()
@@ -1111,7 +1105,7 @@ class TestWikiDeployRepoCommand:
         assert result.exit_code == 0
         create_client.assert_called_once()
         deploy.assert_called_once()
-        assert [entry.title for entry in deploy.call_args.kwargs["manifest"].entries] == ["Module:Erenshor/Item"]
+        assert [entry.title for entry in deploy.call_args.kwargs["manifest"].entries] == ["Module:Erenshor/Link/Search"]
         assert deploy.call_args.kwargs["known_live_titles"] == {"Module:Erenshor/Data/Links"}
         authenticated.close.assert_called_once_with()
 

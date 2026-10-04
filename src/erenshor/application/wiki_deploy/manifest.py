@@ -19,7 +19,6 @@ _DIRECT_DATA_LINK_CONSUMER_TITLES = frozenset(
         "Module:Erenshor/Link",
         "Module:Erenshor/AbilityLink",
         "Module:Erenshor/Link/Search",
-        "Module:Erenshor/Item",
     }
 )
 _STAGE_ORDER: dict[UploadStage, int] = {

@@ -7,13 +7,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
 
-from erenshor.application.wiki_lua.characters import (
-    CharacterDataRepository,
-    CharacterLootRepository,
-    CharacterSpawnRepository,
-    CharacterSpellRepository,
-    write_characters_module,
-)
 from erenshor.application.wiki_lua.items import (
     ItemDataRepository as ItemModuleDataRepository,
 )
@@ -26,6 +19,9 @@ from erenshor.application.wiki_lua.items import (
     write_items_modules,
 )
 from erenshor.application.wiki_lua.link_catalog import (
+    CharacterDataRepository as LinkCatalogCharacterRepository,
+)
+from erenshor.application.wiki_lua.link_catalog import (
     ClassDisplayNameService,
     FactionDataRepository,
     write_links_module,
@@ -33,7 +29,12 @@ from erenshor.application.wiki_lua.link_catalog import (
 from erenshor.application.wiki_lua.link_catalog import (
     ItemDataRepository as LinkCatalogItemDataRepository,
 )
-from erenshor.application.wiki_lua.quests import QuestDataRepository, write_quests_module
+from erenshor.application.wiki_lua.link_catalog import (
+    QuestDataRepository as LinkCatalogQuestRepository,
+)
+from erenshor.application.wiki_lua.link_catalog import (
+    ZoneDataRepository as LinkCatalogZoneRepository,
+)
 from erenshor.application.wiki_lua.skills import (
     SkillDataRepository as SkillModuleRepository,
 )
@@ -49,7 +50,6 @@ from erenshor.application.wiki_lua.spells import (
 )
 from erenshor.application.wiki_lua.stances import StanceDataRepository, write_stances_module
 from erenshor.application.wiki_lua.validation import LuaValidationResult, validate_lua_module
-from erenshor.application.wiki_lua.zones import ZoneDataRepository, write_zones_module
 
 
 class WikiItemRepository(
@@ -61,16 +61,16 @@ class WikiItemRepository(
     """Item repository contract needed by full Lua data generation."""
 
 
-class WikiCharacterRepository(CharacterDataRepository, ItemProvenanceCharacterRepository, Protocol):
-    """Character repository contract needed by full Lua data generation."""
+class WikiCharacterRepository(LinkCatalogCharacterRepository, ItemProvenanceCharacterRepository, Protocol):
+    """Character repository contract for links and item provenance."""
 
 
-class WikiQuestRepository(QuestDataRepository, ItemProvenanceQuestRepository, Protocol):
-    """Quest repository contract needed by full Lua data generation."""
+class WikiQuestRepository(LinkCatalogQuestRepository, ItemProvenanceQuestRepository, Protocol):
+    """Quest repository contract for links and item provenance."""
 
 
-class WikiZoneRepository(ZoneDataRepository, ItemProvenanceZoneRepository, Protocol):
-    """Zone repository contract needed for item provenance and zone modules."""
+class WikiZoneRepository(LinkCatalogZoneRepository, ItemProvenanceZoneRepository, Protocol):
+    """Zone repository contract for links and item provenance."""
 
 
 class WikiSpellItemRepository(
@@ -108,12 +108,9 @@ _DATA_SUBDIR = ("Erenshor", "Data")
 # Item shards under ``Erenshor/Data/Items`` are produced dynamically per item kind.
 TOP_LEVEL_DATA_MODULES: tuple[str, ...] = (
     "Items.lua",
-    "Characters.lua",
     "Links.lua",
     "Spells.lua",
     "Skills.lua",
-    "Quests.lua",
-    "Zones.lua",
     "Stances.lua",
 )
 
@@ -159,9 +156,6 @@ def generate_lua_data_modules(
     *,
     item_repo: WikiSpellItemRepository,
     character_repo: WikiSpellCharacterRepository,
-    spawn_repo: CharacterSpawnRepository,
-    loot_repo: CharacterLootRepository,
-    spell_usage_repo: CharacterSpellRepository,
     spell_repo: SpellDataRepository,
     skill_repo: SkillGenerationRepository,
     stance_repo: StanceDataRepository,
@@ -186,7 +180,6 @@ def generate_lua_data_modules(
             sources_by_item=item_sources_by_item,
             class_display_names=class_display_names,
         ),
-        write_characters_module(character_repo, spawn_repo, loot_repo, spell_usage_repo, output_root),
         write_links_module(
             item_repo,
             character_repo,
@@ -207,8 +200,6 @@ def generate_lua_data_modules(
             class_display_names=class_display_names,
         ),
         write_skills_module(skill_repo, output_root, item_repo),
-        write_quests_module(quest_repo, output_root),
-        write_zones_module(zone_repo, output_root),
         write_stances_module(stance_repo, output_root),
     ]
     _remove_stale_data_modules(output_root, written_paths)

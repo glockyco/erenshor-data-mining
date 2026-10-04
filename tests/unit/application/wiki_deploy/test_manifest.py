@@ -305,21 +305,6 @@ def test_resolver_selection_requires_data_links_dependency_or_known_live(tmp_pat
     ]
 
 
-def test_item_selection_requires_data_links_dependency_or_known_live(tmp_path: Path) -> None:
-    write_page(tmp_path, "wiki/modules/Erenshor/Item.lua", "return {}\n")
-    manifest = build_repo_page_manifest(tmp_path, variant="main")
-
-    with pytest.raises(ValueError, match="requires Module:Erenshor/Data/Links"):
-        select_repo_page_manifest(manifest, requested_titles={"Module:Erenshor/Item"})
-
-    selected = select_repo_page_manifest(
-        manifest,
-        requested_titles={"Module:Erenshor/Item"},
-        known_live_titles={"Module:Erenshor/Data/Links"},
-    )
-    assert [entry.title for entry in selected.entries] == ["Module:Erenshor/Item"]
-
-
 def test_resolver_dependency_accepts_earlier_data_links_or_known_live(tmp_path: Path) -> None:
     write_page(tmp_path, "variants/main/wiki/lua/Erenshor/Data/Links.lua", "return {}\n")
     write_page(tmp_path, "wiki/modules/Erenshor/Link.lua", "return {}\n")

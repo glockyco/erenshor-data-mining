@@ -317,7 +317,7 @@
       "args": {
         "statement": "ClickSpell.text = item.WeaponProcChance + \"% chance on ATTACK: \\n\" + item.WeaponProcOnHit.SpellName;"
       },
-      "note": "Weapon proc-trigger display wording (default ATTACK branch). Re-implemented by Module:Erenshor/Item (weaponProcTrigger / weaponEffect): shield -> bash, Bracer -> cast, else -> attack. Pins the exact wording string so a game-side rename stops the refresh instead of desyncing the Lua trigger table."
+      "note": "Weapon proc text uses ATTACK by default. EntityPageGenerator._extract_proc selects Attack, Bash, or Cast. The parameterized Item/Weapon tooltip prints the selected style. This assertion detects a game-side wording change."
     },
     {
       "id": "iteminfo.proc_trigger_bash",
@@ -328,7 +328,7 @@
       "args": {
         "statement": "ClickSpell.text = item.WeaponProcChance + \"% chance on BASH: \\n\" + item.WeaponProcOnHit.SpellName;"
       },
-      "note": "Weapon proc-trigger display wording (shield BASH branch). Same Lua re-implementation as iteminfo.proc_trigger_attack."
+      "note": "Weapon proc text uses BASH for shields. EntityPageGenerator._extract_proc selects Bash. The parameterized Item/Weapon tooltip prints the selected style."
     },
     {
       "id": "iteminfo.proc_trigger_cast",
@@ -339,7 +339,7 @@
       "args": {
         "statement": "ClickSpell.text = item.WeaponProcChance + \"% chance on CAST: \\n\" + item.WeaponProcOnHit.SpellName;"
       },
-      "note": "Weapon proc-trigger display wording (Bracer CAST branch). Same Lua re-implementation as iteminfo.proc_trigger_attack."
+      "note": "Weapon proc text uses CAST for bracers. EntityPageGenerator._extract_proc selects Cast. The parameterized Item/Weapon tooltip prints the selected style."
     },
     {
       "id": "ae.brax_escalation",

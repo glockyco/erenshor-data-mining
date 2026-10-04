@@ -160,7 +160,7 @@ wiki-dev/interface/MediaWiki/Common.css                 -> MediaWiki:Common.css
 wiki-dev/interface/MediaWiki/Sidebar                    -> MediaWiki:Sidebar
 wiki-dev/interface/MediaWiki/Gadget-foo.js              -> MediaWiki:Gadget-foo.js
 wiki/gadgets/foo.js                                     -> MediaWiki:Gadget-foo.js (repo override)
-wiki/modules/Erenshor/Item.lua                          -> Module:Erenshor/Item
+wiki/modules/Erenshor/Link.lua                          -> Module:Erenshor/Link
 wiki-dev/fixtures/modules/Erenshor/Data/Items.lua       -> Module:Erenshor/Data/Items
 wiki/templates/Item.wiki                                -> Template:Item
 wiki-dev/fixtures/dependencies/templates/Item/Armor.wiki -> Template:Item/Armor

@@ -1,7 +1,7 @@
 Smoke Page	Erenshor local Lua smoke marker
 Lua Foundation Smoke	PASS Erenshor Args testcases
 Lua Foundation Smoke	PASS Erenshor Format testcases
-Lua Item Smoke	PASS Erenshor Item testcases
+Lua Item Smoke	PASS Erenshor Item/ParameterizedTooltip testcases
 Ember Longsword	Ember Longsword
 Ember Longsword	Weapon
 Ember Longsword	item-tooltip-tier-2
@@ -23,7 +23,6 @@ Lucky Charm	View on the interactive map
 Magical Bag	View on the interactive map
 Scroll of Ember	View on the interactive map
 Sword Mastery Manual	View on the interactive map
-Lua Character Smoke	PASS Erenshor Character testcases
 Lua AbilityLink Smoke	PASS Erenshor AbilityLink testcases
 Lua AbilityLink Smoke	Minor Lightning
 Lua AbilityLink Smoke	Stance: Aggressive
@@ -111,9 +110,7 @@ Lua Link Smoke	data-erenshor-page="Manual Ability Target"
 Lua Link Smoke	data-erenshor-key="spell:minor&#95;lightning"
 Lua Link Smoke	Category:Pages_with_unresolved_Erenshor_links
 Lua Link Smoke	Category:Pages_with_mismatched_Erenshor_link_targets
-Lua Quest Smoke	PASS Erenshor Quest testcases
-Lua Zone Smoke	PASS Erenshor Zone testcases
-Lua Zone Smoke	zone%3APortAzure
+Map Link Smoke	zone%3APortAzure
 Lua Stance Smoke	PASS Erenshor Stance testcases
 Lua Spell Smoke	PASS Erenshor Spell testcases
 Lua Skill Smoke	PASS Erenshor Skill testcases

@@ -421,8 +421,6 @@ def _create_lua_repositories(
 ) -> tuple[
     ItemRepository,
     CharacterRepository,
-    SpawnPointRepository,
-    LootTableRepository,
     SpellRepository,
     SkillRepository,
     StanceRepository,
@@ -438,8 +436,6 @@ def _create_lua_repositories(
     return (
         ItemRepository(db_connection),
         CharacterRepository(db_connection),
-        SpawnPointRepository(db_connection),
-        LootTableRepository(db_connection),
         SpellRepository(db_connection),
         SkillRepository(db_connection),
         StanceRepository(db_connection),
@@ -666,8 +662,6 @@ def generate_lua(ctx: typer.Context) -> None:
         (
             item_repo,
             character_repo,
-            spawn_repo,
-            loot_repo,
             spell_repo,
             skill_repo,
             stance_repo,
@@ -679,9 +673,6 @@ def generate_lua(ctx: typer.Context) -> None:
         result = generate_lua_data_modules(
             item_repo=item_repo,
             character_repo=character_repo,
-            spawn_repo=spawn_repo,
-            loot_repo=loot_repo,
-            spell_usage_repo=spell_repo,
             spell_repo=spell_repo,
             skill_repo=skill_repo,
             stance_repo=stance_repo,
@@ -1145,7 +1136,6 @@ _DIRECT_DATA_LINK_CONSUMER_TITLES = frozenset(
         "Module:Erenshor/Link",
         "Module:Erenshor/AbilityLink",
         "Module:Erenshor/Link/Search",
-        "Module:Erenshor/Item",
     }
 )
 _DATA_LINKS_TITLE = "Module:Erenshor/Data/Links"
