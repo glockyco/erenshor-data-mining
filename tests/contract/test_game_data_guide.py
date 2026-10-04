@@ -1,4 +1,4 @@
-"""The Game data guide states what the generator and the repository do."""
+"""The Game Data guide states what the generator and the repository do."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from pathlib import Path
 from erenshor.application.wiki.generators.field_preservation import DEFAULT_PRESERVATION_RULES
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-GUIDE = REPO_ROOT / "wiki" / "content" / "Erenshor Wiki" / "Game data.wiki"
+GUIDE = REPO_ROOT / "wiki" / "content" / "Erenshor Wiki" / "Game Data.wiki"
 TEMPLATES_DIR = REPO_ROOT / "wiki" / "templates"
 
 # The guide states each preservation rule with one fixed label.
