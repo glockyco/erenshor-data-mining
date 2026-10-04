@@ -6,7 +6,7 @@
   <ItemGroup>
     <PackageVersion Include="BepInEx.Core" Version="5.4.21" />
     <PackageVersion Include="Fleck" Version="1.2.0" />
-    <PackageVersion Include="ILRepack.Lib.MSBuild.Task" Version="2.0.46" />
+    <PackageVersion Include="ILRepack.Lib.MSBuild.Task" Version="2.0.48" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageVersion Include="ImGui.NET" Version="1.91.6.1" />
     <PackageVersion Include="System.Numerics.Vectors" Version="4.6.1" />
