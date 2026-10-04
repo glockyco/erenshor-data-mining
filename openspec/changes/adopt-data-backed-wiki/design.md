@@ -110,7 +110,7 @@ After the last type, the merge engine (`field_preservation.py` and the passes ar
 
 ### D4. Legacy templates become parameter templates
 
-`Template:Item`, `Character`, `Ability`, `Stance`, `Quest`, `Zone`, and `MapLink` keep only their parameter rendering. The repository versions of Stance, Quest, Zone, and MapLink then equal the live pages. `Template:Character` keeps the Elite and Chest tiers that the refresh needs. Item and Character lose their live Lua branches in task 6.2. After that, these templates do not change again, so hand-written pages that use them keep working.
+`Template:Item`, `Character`, `Ability`, `Stance`, `Quest`, `Zone`, and `MapLink` keep only their parameter rendering. The repository versions of Stance, Quest, Zone, and MapLink then equal the live pages. `Template:Character` keeps the Elite and Chest tiers that the refresh needs. Item and Character lose their live Lua branches in task 6.2. After that, these templates change only in compatible ways: a fix to how a parameter renders, or a new optional parameter. They never lose or rename a parameter, so hand-written pages that use them keep working. The first such changes are the stance lifesteal fix (task 5.13) and the optional lifecycle parameters of task 5.12.
 
 The `lua=1` lock of `refresh-wiki-articles` D2 goes with the branches. Without a Lua branch, `stablekey` cannot switch a page to Lua.
 

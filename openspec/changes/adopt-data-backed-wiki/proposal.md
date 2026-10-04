@@ -12,7 +12,7 @@ This change writes the whole plan down in one place, removes everything that ser
   2. Publish complete Cargo tables: `publish-wiki-cargo-data`.
   3. Replace the hand-maintained tables with Cargo query templates: a change that this plan proposes when step 2 is done.
   4. Convert the articles to new data-backed templates, one type at a time: a change that this plan proposes when step 3 is done.
-- **BREAKING**: `Template:Item`, `Character`, `Ability`, `Stance`, `Quest`, `Zone`, and `MapLink` become plain parameter templates. They call no module, have no `lua=1` switch, and store no Cargo row. `stablekey` identifies an entity and does not change the rendering. `Template:Character` keeps the Elite and Chest tiers that the refresh needs. After this cleanup, these templates do not change again.
+- **BREAKING**: `Template:Item`, `Character`, `Ability`, `Stance`, `Quest`, `Zone`, and `MapLink` become plain parameter templates. They call no module, have no `lua=1` switch, and store no Cargo row. `stablekey` identifies an entity and does not change the rendering. `Template:Character` keeps the Elite and Chest tiers that the refresh needs. After this cleanup, these templates change only in compatible ways: they never lose or rename a parameter.
 - **BREAKING**: These parts of the old plans are removed:
   - The article Cargo path: declarations and stores in templates, the store and query templates, `ArmorTable`, `WeaponTable`, `AbilityClasses`, `Module:Erenshor/Cargo`, the `cargoStore` entry points, and the local article-row checks.
   - The templates `Spell` and `Skill`, the data path of `Template:ItemTooltip`, and the modules `Module:Erenshor/Item` and `Item/Tooltip`. No live page uses them: all 793 item tooltips render from their own parameters.
