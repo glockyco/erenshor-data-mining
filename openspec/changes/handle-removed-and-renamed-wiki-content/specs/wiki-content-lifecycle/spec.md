@@ -49,7 +49,8 @@ For a page that generation still produces, the wiki SHALL place known lifecycle 
 #### Scenario: A recorded removed spell is still exported
 
 - **WHEN** generation writes `Mana Burst` with a recorded removed state
-- **THEN** its ability infobox carries that state and the page shows the removed notice
+- **THEN** its ability infobox carries that state
+- **AND** the notice at the top of the page says that the spell is no longer in the game
 
 ### Requirement: Renamed content keeps old links working
 
@@ -94,7 +95,7 @@ The wiki SHALL mark a page about content that ships in the game files but that p
 #### Scenario: A character that no scene places
 
 - **WHEN** the facts file records `Queen Evadne` as unused
-- **THEN** her page says that she is in the game files but that players cannot meet her in the current game
+- **THEN** her page says that she is in the game files but does not appear anywhere in the current game
 - **AND** the page appears in `Category:Unused Content`
 
 ### Requirement: A split page points to its parts
@@ -106,3 +107,28 @@ When one old page describes content that the game now has as several entities wi
 - **WHEN** the facts file records `Braxonian Planar Guard` as split into `Braxonian Planar Guard (Fire)` and `Braxonian Planar Guard (Ice)`
 - **THEN** the old page lists and links both variants
 - **AND** the retired-page review reports the split as resolved once the page is live
+
+### Requirement: Reviewed dispositions are applied with guards
+
+The wiki tooling SHALL apply the pending notices, redirects, and disambiguation pages that the retired-page review reports, from the reviewed facts only. It SHALL write nothing while the review has an unexplained title or is incomplete. It SHALL skip a page that changed after the review read it, and it SHALL record each written page so that a rollback can restore it.
+
+#### Scenario: A dry run
+
+- **WHEN** a reviewer runs the apply command as a dry run
+- **THEN** it lists each pending page with its action and new text
+- **AND** it writes nothing
+
+#### Scenario: An editor changes a page during the run
+
+- **WHEN** a page changes after the review read it
+- **THEN** the command does not write that page and reports it
+
+#### Scenario: The review is not clean
+
+- **WHEN** the review reports an unexplained title
+- **THEN** the command stops before its first write
+
+#### Scenario: A rollback
+
+- **WHEN** a reviewer rolls back an applied run
+- **THEN** every written page returns to its text before the run
