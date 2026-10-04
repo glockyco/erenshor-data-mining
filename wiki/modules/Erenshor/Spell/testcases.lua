@@ -1,4 +1,5 @@
 local Spell = require("Module:Erenshor/Spell")
+local Tooltip = require("Module:Erenshor/Spell/Tooltip")
 local Common = require("Module:Erenshor/Ability/Common")
 
 local p = {}
@@ -70,6 +71,13 @@ function p.run()
 		"spell tooltip labels level scaling"
 	)
 	assertContains(minorTooltip, "25% chance to proc", "spell tooltip includes added proc chance")
+	local hydrated =
+		Tooltip.render({ stableKey = "spell:all - hydrated", name = "Hydrated", haste = 3 })
+	assertContains(
+		hydrated,
+		'Haste <span class="item-spell-positive">+3%</span>',
+		"haste uses the spell-details percent unit"
+	)
 	assertContains(minorTooltip, "[[Ancient Presence]]", "spell tooltip links the added proc")
 
 	local buffTip =

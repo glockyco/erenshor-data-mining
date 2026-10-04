@@ -42,7 +42,7 @@
 - [x] 5.6 `fix(wiki): show Range 1 on melee weapons`: the game shows `Range: 1` for every weapon that is not a wand or a bow. Verify: Rusty Shortsword shows `Range 1`, and wands and bows keep their ranges.
 - [x] 5.7 `fix(wiki): show the must-equip condition on click effects`: the game adds `Must Equip to Cast` when `MustBeEquippedToClick` is set. Verify: Wakeweaver shows the line, and an item without the flag does not.
 - [x] 5.8 `fix(wiki): show the item value on item tooltips`: the game shows the value, or `Unsellable` when the item has no value or cannot be sold. Verify: Molorai Bow shows 400, and Wakeweaver shows `Unsellable`.
-- [ ] 5.9 `fix(wiki): show haste as a percentage in spell tooltips`: the spell details window of the game shows `Haste +3%`. Verify: Hydrated shows `Haste +3%`.
+- [x] 5.9 `fix(wiki): show haste as a percentage in spell tooltips`: the spell details window of the game shows `Haste +3%`. Verify: Hydrated shows `Haste +3%`.
 - [x] 5.13 `fix(wiki): show stance lifesteal as a multiplier`: the game multiplies the lifesteal of the character by the stance value (`Stats.cs`), as it does with resonance, so 1.0 means no change. The Stance template showed `Lifesteal 1.0%` on every stance page. Verify: through TemplateSandbox, 1.0 shows `—`, 1.5 shows `+50%`, and 0.5 shows `-50%`.
 - [ ] 5.10 Generate, dry-run, and deploy tasks 5.3 to 5.9 and 5.13 after approval. Verify: the Expert and Hateful pages show their icons, and the checks of tasks 5.5 to 5.9 hold on the live wiki.
 - [ ] 5.11 Propose how the image pipeline uploads the 133 files that generated pages link to but that the wiki does not have (newer characters, chests, and summons). Verify: a change exists that lists the files and the source of each image.
