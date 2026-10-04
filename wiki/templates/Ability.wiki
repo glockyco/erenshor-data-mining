@@ -126,4 +126,4 @@
           <header>Used By</header>
 		  <data source="used_by"><label>Characters</label></data>
       </group>
-  </infobox>{{#ifeq: {{NAMESPACENUMBER}} | 0 | [[Category:Abilities]]}}</includeonly>
+  </infobox>{{#if:{{{historical_state|}}}|{{Historical Content|state={{{historical_state}}}|thing=ability|update={{{historical_update|}}}|date={{{historical_date|}}}|url={{{historical_url|}}}}}}}{{#ifeq: {{NAMESPACENUMBER}} | 0 | [[Category:Abilities]]}}</includeonly>

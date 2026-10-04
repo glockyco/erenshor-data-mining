@@ -1,0 +1,21 @@
+<includeonly>{{#switch:{{{state|}}}
+|removed=<div class="navbox" style="clear:both; box-sizing:border-box; border:1px solid #aaa; padding:4px; margin-top:1em; text-align:center; width:100%;">
+<div style="font-weight:bold; padding:2px; background: rgb(19, 55, 89);">Historical content</div>
+<p>This {{{thing|content}}} is no longer in the game.{{#if:{{{update|}}}| It was removed in the {{#if:{{{url|}}}|[{{{url}}} {{{update}}}]|{{{update}}}}} update{{#if:{{{date|}}}| ({{{date}}})}}.}}</p>
+</div>{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Removed Content]]}}
+|unobtainable=<div class="navbox" style="clear:both; box-sizing:border-box; border:1px solid #aaa; padding:4px; margin-top:1em; text-align:center; width:100%;">
+<div style="font-weight:bold; padding:2px; background: rgb(19, 55, 89);">Historical content</div>
+<p>This {{{thing|item}}} can no longer be obtained.{{#if:{{{update|}}}| It became unobtainable in the {{#if:{{{url|}}}|[{{{url}}} {{{update}}}]|{{{update}}}}} update{{#if:{{{date|}}}| ({{{date}}})}}.}}</p>
+</div>{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Unobtainable Content]]}}
+}}</includeonly><noinclude>
+== Historical content ==
+Use this notice on a page about content that was removed or can no longer be obtained. It leaves the rest of the page unchanged. Dates use month, day, and year, such as July 13, 2026.
+
+* <code>state</code>: <code>removed</code> or <code>unobtainable</code>.
+* <code>thing</code>: A lowercase noun, such as skill or item.
+* <code>update</code>: The update name, if known.
+* <code>date</code>: The update date, if known.
+* <code>url</code>: A link to the update's patch notes, if known.
+
+<pre>{{Historical Content|state=removed|thing=skill|update=Planar March|date=July 13, 2026|url=https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1837955055363541}}</pre>
+</noinclude>

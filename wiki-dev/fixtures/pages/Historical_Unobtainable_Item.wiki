@@ -1,0 +1,1 @@
+{{Item|title=Pristine Ceremonial Ring|type=Ring|historical_state=unobtainable}}
