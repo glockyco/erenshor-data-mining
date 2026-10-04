@@ -74,6 +74,7 @@ from erenshor.application.wiki_deploy.pages import (
 )
 from erenshor.application.wiki_deploy.refresh import refresh_embedded_pages
 from erenshor.application.wiki_deploy.render_check import RenderCheck
+from erenshor.application.wiki_deploy.retired_pages import RetiredPageReport, audit_retired_pages
 from erenshor.application.wiki_deploy.rollback import rollback_repo_pages
 from erenshor.application.wiki_interface.deploy import (
     InterfaceDeployPlan,
@@ -286,6 +287,7 @@ def _create_readonly_mediawiki_client(cli_ctx: CLIContext) -> MediaWikiClient:
         bot_username=wiki_config.bot_username,
         bot_password=wiki_config.bot_password,
         batch_size=50,
+        user_agent="erenshor-data-mining/1.0 (WoWMuch)",
     )
 
 
@@ -745,6 +747,54 @@ def audit_links_command(
         logger.exception("Semantic link audit failed")
         raise typer.Exit(1) from error
 
+    if report.has_errors:
+        raise typer.Exit(1)
+
+
+def _run_retired_audit(cli_ctx: CLIContext, storage: WikiStorage) -> RetiredPageReport:
+    """Read current articles and lifecycle facts for a complete live review."""
+    lifecycle = load_content_lifecycle(cli_ctx.repo_root / "content-lifecycle.json")
+    generated = storage.read_generated_pages()
+    client = _create_readonly_mediawiki_client(cli_ctx)
+    try:
+        report = audit_retired_pages(client, generated, lifecycle)
+    finally:
+        client.close()
+    console.print("[bold]Retired WoWBot pages[/bold]")
+    for page in report.pages:
+        console.print(
+            f"  {escape(page.title)} | key: {escape(page.stable_key or 'unknown')} | "
+            f"current: {escape(page.current_title or 'none')} | "
+            f"expected: {escape(page.expected)} | {escape(page.state)}"
+            + (f" | {escape(page.reason)}" if page.reason else "")
+        )
+    if report.reviewed_non_bot:
+        console.print("[bold]Reviewed pages not created by WoWBot[/bold]")
+        for page in report.reviewed_non_bot:
+            console.print(
+                f"  {escape(page.title)} | key: {escape(page.stable_key or 'unknown')} | "
+                f"current: {escape(page.current_title or 'none')} | "
+                f"expected: {escape(page.expected)} | {escape(page.state)}"
+                + (f" | {escape(page.reason)}" if page.reason else "")
+            )
+    console.print(
+        f"Created titles checked: {report.checked} | Retired: {len(report.pages)} | "
+        f"Pending: {report.pending} | Unexplained: {report.unexplained}"
+    )
+    return report
+
+
+@app.command("audit-retired-pages")
+@require_preconditions(wiki_endpoint)
+def audit_retired_pages_command(ctx: typer.Context) -> None:
+    """Review live pages created by WoWBot that generation no longer writes."""
+    cli_ctx: CLIContext = ctx.obj
+    variant = cli_ctx.config.variants[cli_ctx.variant]
+    try:
+        report = _run_retired_audit(cli_ctx, WikiStorage(variant.resolved_wiki(cli_ctx.repo_root)))
+    except Exception as error:
+        console.print(f"[red]Retired page review is incomplete: {escape(str(error))}[/red]")
+        raise typer.Exit(1) from error
     if report.has_errors:
         raise typer.Exit(1)
 
@@ -1514,6 +1564,18 @@ def deploy(
     _print_article_plan(plan)
     writes = {article.title: article.generated_text for article in plan.writes}
     review_failed = False
+    if cli_ctx.dry_run:
+        if page_titles is not None or limit is not None:
+            console.print(
+                "[yellow]Filtered dry run: retired pages were not reviewed. This is not a complete review.[/yellow]"
+            )
+        else:
+            try:
+                retirement = _run_retired_audit(cli_ctx, storage)
+            except Exception as error:
+                console.print(f"[red]Retired page review is incomplete: {escape(str(error))}[/red]")
+                raise typer.Exit(1) from error
+            review_failed = review_failed or retirement.has_errors
     catalog = _build_link_audit_catalog(cli_ctx) if writes else ()
     if cli_ctx.dry_run and writes:
         readonly_client = _create_readonly_mediawiki_client(cli_ctx)
@@ -1525,7 +1587,7 @@ def deploy(
         review_path = wiki_dir / "deploy-plan.json"
         review_path.write_text(json.dumps(review.to_json(), indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         _print_article_report(review, review_path)
-        review_failed = bool(review.conflicts)
+        review_failed = review_failed or bool(review.conflicts)
 
     if writes:
         report = _run_link_audit(

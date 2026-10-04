@@ -236,6 +236,7 @@ class MediaWikiClient:
         timeout: float = 30.0,
         clock: Clock | None = None,
         request_policy: MediaWikiRequestPolicy | None = None,
+        user_agent: str | None = None,
         *,
         transport: httpx.BaseTransport | None = None,
     ) -> None:
@@ -252,6 +253,7 @@ class MediaWikiClient:
             clock: Clock implementation for time operations (default: RealClock()).
             request_policy: Bounded retry/backoff policy for transient lag and
                 rate-limit responses (default: MediaWikiRequestPolicy()).
+            user_agent: User-Agent header for API requests when set.
 
         Raises:
             ValueError: If api_url doesn't end with /api.php or batch_size is invalid.
@@ -272,7 +274,7 @@ class MediaWikiClient:
         self.clock = clock if clock is not None else RealClock()
         self.request_policy = request_policy if request_policy is not None else MediaWikiRequestPolicy()
 
-        user_agent = f"{bot_username or 'ErenshorDataBot'}/0.3 (automated wiki updates) httpx"
+        user_agent = user_agent or f"{bot_username or 'ErenshorDataBot'}/0.3 (automated wiki updates) httpx"
         self._requestor = MediaWikiRequestor(
             api_url=api_url,
             policy=self.request_policy,
@@ -738,6 +740,59 @@ class MediaWikiClient:
                 revisions[title] = by_title[normalized_title]
         return revisions
 
+    def list_user_created_pages(self, username: str) -> tuple[str, ...]:
+        """List every article created by an account, including continued results."""
+        if not username.strip():
+            raise ValueError("A creator account is required")
+        titles: set[str] = set()
+        continuation: dict[str, str] = {}
+        seen: set[tuple[tuple[str, str], ...]] = set()
+        params = {
+            "action": "query",
+            "list": "usercontribs",
+            "ucuser": username,
+            "ucshow": "new",
+            "ucnamespace": "0",
+            "ucprop": "title|ids|user|flags",
+            "uclimit": "max",
+        }
+        while True:
+            result = self._request(params | continuation)
+            query = result.get("query")
+            entries = query.get("usercontribs") if isinstance(query, dict) else None
+            if not isinstance(entries, list):
+                raise MediaWikiAPIError("Incomplete user contributions response: missing contributions")
+            for entry in entries:
+                if (
+                    not isinstance(entry, dict)
+                    or not isinstance(entry.get("title"), str)
+                    or not entry["title"]
+                    or entry.get("user") != username
+                    or entry.get("ns") != 0
+                    or type(entry.get("pageid")) is not int
+                    or entry["pageid"] <= 0
+                    or type(entry.get("revid")) is not int
+                    or entry["revid"] <= 0
+                    or "new" not in entry
+                ):
+                    raise MediaWikiAPIError("Incomplete user contributions response: malformed creation")
+                titles.add(entry["title"])
+            raw_continue = result.get("continue")
+            if raw_continue is None:
+                break
+            if (
+                not isinstance(raw_continue, dict)
+                or not raw_continue
+                or not all(isinstance(key, str) and isinstance(value, str) for key, value in raw_continue.items())
+            ):
+                raise MediaWikiAPIError("Incomplete user contributions response: invalid continuation")
+            marker = tuple(sorted(raw_continue.items()))
+            if marker in seen:
+                raise MediaWikiAPIError("Incomplete user contributions response: repeated continuation")
+            seen.add(marker)
+            continuation = raw_continue
+        return self._deterministic_unique_titles(tuple(titles))
+
     def get_title_statuses(self, titles: Sequence[str]) -> dict[str, MediaWikiTitleStatus]:
         """Return normalized, redirect, and existence status for each title.
 
@@ -760,7 +815,7 @@ class MediaWikiClient:
                     "titles": "|".join(batch),
                 }
             )
-            query = result.get("query", {})
+            query = result.get("query")
             if not isinstance(query, dict):
                 raise MediaWikiAPIError("Invalid title status response: missing query object")
 
@@ -790,14 +845,16 @@ class MediaWikiClient:
                     raise MediaWikiAPIError("Invalid title status response: malformed redirect entry")
                 redirects[item["from"]] = item["to"]
 
-            pages = query.get("pages", {})
+            pages = query.get("pages")
             if not isinstance(pages, dict):
-                raise MediaWikiAPIError("Invalid title status response: pages must be an object")
+                raise MediaWikiAPIError("Invalid title status response: missing pages")
             existence: dict[str, bool] = {}
             for page in pages.values():
                 if not isinstance(page, dict) or not isinstance(page.get("title"), str):
                     raise MediaWikiAPIError("Invalid title status response: malformed page entry")
                 page_id = page.get("pageid")
+                if page_id is None and "missing" not in page:
+                    raise MediaWikiAPIError("Invalid title status response: missing page id")
                 exists = not bool(page.get("missing"))
                 if page_id is None:
                     exists = False
@@ -816,7 +873,9 @@ class MediaWikiClient:
                 while final_title not in seen_titles and final_title in redirects:
                     seen_titles.add(final_title)
                     final_title = redirects[final_title]
-                exists = existence.get(final_title, existence.get(normalized_title, existence.get(requested, False)))
+                if final_title not in existence:
+                    raise MediaWikiAPIError(f"Invalid title status response for {requested!r}: page not returned")
+                exists = existence[final_title]
                 statuses[requested] = MediaWikiTitleStatus(
                     requested=requested,
                     normalized=normalized_title,

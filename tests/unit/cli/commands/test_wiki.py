@@ -21,11 +21,17 @@ from erenshor.application.wiki_deploy.manifest import (
 )
 from erenshor.application.wiki_deploy.pages import RepoPageDeployResult, RepoPageDeployResultEntry
 from erenshor.application.wiki_deploy.refresh import EmbeddedRefreshResult
+from erenshor.application.wiki_deploy.retired_pages import RetiredPageReport
 from erenshor.application.wiki_deploy.rollback import RollbackResult, RollbackResultEntry
 from erenshor.application.wiki_lua.link_catalog import LinkCatalogEntry
 from erenshor.cli.commands import wiki
 from erenshor.cli.context import CLIContext
-from erenshor.infrastructure.wiki import MediaWikiPageRevision, MediaWikiPageSnapshot, MediaWikiParse
+from erenshor.infrastructure.wiki import (
+    MediaWikiPageRevision,
+    MediaWikiPageSnapshot,
+    MediaWikiParse,
+    MediaWikiTitleStatus,
+)
 
 runner = CliRunner()
 
@@ -465,11 +471,68 @@ class TestWikiDeployCommand:
         readonly = MagicMock()
         readonly.get_page_revision_ids.return_value = live_revisions
         monkeypatch.setattr(wiki_command, "_create_readonly_mediawiki_client", lambda _ctx: readonly)
+        monkeypatch.setattr(
+            wiki_command,
+            "_run_retired_audit",
+            lambda _ctx, _storage: RetiredPageReport(checked=0, pages=(), reviewed_non_bot=()),
+        )
         monkeypatch.setattr(wiki_command, "_build_link_audit_catalog", lambda _ctx: ())
         monkeypatch.setattr(
             wiki_command, "_create_mediawiki_client", MagicMock(side_effect=AssertionError("dry run must not log in"))
         )
         return readonly
+
+    def test_retired_audit_and_full_dry_run_report_blocking_findings(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, cli_context: CLIContext
+    ) -> None:
+        import erenshor.cli.commands.wiki as wiki_command
+
+        context = replace(cli_context, repo_root=tmp_path)
+        (tmp_path / "content-lifecycle.json").write_text(
+            json.dumps(
+                {
+                    "pages": {
+                        "Reckless": {
+                            "stable_key": "stance:reckless",
+                            "state": "removed",
+                            "thing": "stance",
+                            "update": None,
+                            "date": None,
+                            "patch_notes_url": None,
+                            "source": "game export",
+                        }
+                    },
+                    "renames": {},
+                }
+            ),
+            encoding="utf-8",
+        )
+        readonly = MagicMock()
+        readonly.list_user_created_pages.return_value = ("Reckless", "Mystery")
+        readonly.get_title_statuses.side_effect = lambda titles: {
+            title: MediaWikiTitleStatus(title, title, None, True) for title in titles
+        }
+        readonly.get_pages.side_effect = lambda titles: {
+            title: "{{Stance|stablekey=stance:reckless}}" if title == "Reckless" else "{{Item}}" for title in titles
+        }
+        factory = MagicMock(return_value=readonly)
+        monkeypatch.setattr(wiki_command, "_create_readonly_mediawiki_client", factory)
+
+        standalone = runner.invoke(wiki.app, ["audit-retired-pages"], obj=context)
+        assert standalone.exit_code == 1, standalone.exception
+        assert "Reckless" in standalone.output
+        assert "Mystery" in standalone.output
+        assert "Unexplained: 1" in _unwrapped(standalone.output)
+
+        full = runner.invoke(wiki.app, ["deploy"], obj=replace(context, dry_run=True))
+        assert full.exit_code == 1, full.exception
+        assert "Mystery" in full.output
+        assert factory.call_count == 2
+
+        filtered = runner.invoke(wiki.app, ["deploy", "--limit", "1"], obj=replace(context, dry_run=True))
+        assert filtered.exit_code == 0, filtered.output
+        assert "not a complete review" in _unwrapped(filtered.output)
+        assert factory.call_count == 2
 
     def test_dry_run_reports_the_plan_and_audits_without_logging_in(
         self, monkeypatch: pytest.MonkeyPatch, cli_context: CLIContext

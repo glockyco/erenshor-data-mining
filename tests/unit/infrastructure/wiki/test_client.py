@@ -1533,6 +1533,36 @@ class TestMediaWikiClientSemanticLinkReads:
         assert status.redirect_target == "Canonical"
         assert status.exists is True
 
+    def test_user_creations_follow_continuation_and_keep_only_bot_articles(self) -> None:
+        def contribution(title: str, revision: int) -> dict[str, Any]:
+            return {"title": title, "ns": 0, "user": "WoWBot", "pageid": revision, "revid": revision, "new": ""}
+
+        client, api = _mock_client(
+            [
+                {
+                    "continue": {"uccontinue": "next", "continue": "-||"},
+                    "query": {"usercontribs": [contribution("Old A", 1)]},
+                },
+                {"query": {"usercontribs": [contribution("Old B", 2), contribution("Old A", 1)]}},
+            ],
+            clock=MockClock(),
+        )
+        assert client.list_user_created_pages("WoWBot") == ("Old A", "Old B")
+        assert api.requests[0].query["list"] == "usercontribs"
+        assert api.requests[0].query["ucshow"] == "new"
+        assert api.requests[0].query["ucnamespace"] == "0"
+        assert api.requests[1].query["uccontinue"] == "next"
+
+    def test_user_creations_reject_incomplete_result(self) -> None:
+        client, _ = _mock_client([{"query": {"usercontribs": [{"title": "Old A", "ns": 0}]}}], clock=MockClock())
+        with pytest.raises(MediaWikiAPIError, match="Incomplete user contributions"):
+            client.list_user_created_pages("WoWBot")
+
+    def test_title_statuses_reject_missing_result(self) -> None:
+        client, _ = _mock_client([{"query": {"pages": {}}}], clock=MockClock())
+        with pytest.raises(MediaWikiAPIError, match="page not returned"):
+            client.get_title_statuses(["Old A"])
+
     def test_get_wanted_pages_exhausts_continuation_and_filters_unique_namespace(self) -> None:
         with _mediawiki_api_server(
             [
