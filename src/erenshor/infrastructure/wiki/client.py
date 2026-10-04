@@ -1082,12 +1082,16 @@ class MediaWikiClient:
 
         return snapshots
 
-    def parse_wikitext(self, title: str, text: str) -> MediaWikiParse:
-        """Parse ``text`` as the wikitext of ``title`` without saving it.
-
-        The result has the rendered HTML, every transcluded template and module,
-        and every category, each with whether its page exists.
-        """
+    def parse_wikitext(
+        self,
+        title: str,
+        text: str,
+        *,
+        sandbox_title: str | None = None,
+        sandbox_text: str | None = None,
+        sandbox_content_model: str | None = None,
+    ) -> MediaWikiParse:
+        """Parse text under its page title, optionally replacing one transcluded page."""
         data = {
             "action": "parse",
             "title": title,
@@ -1097,6 +1101,14 @@ class MediaWikiClient:
             "disablelimitreport": "1",
             "formatversion": "2",
         }
+        if sandbox_title is not None:
+            if sandbox_text is None or sandbox_content_model is None:
+                raise ValueError("Sandbox title requires text and a content model")
+            data["templatesandboxtitle"] = sandbox_title
+            data["templatesandboxtext"] = sandbox_text
+            data["templatesandboxcontentmodel"] = sandbox_content_model
+        elif sandbox_text is not None or sandbox_content_model is not None:
+            raise ValueError("Sandbox text and content model require a title")
         result = self._request({}, method="POST", data=data)
         parse = result.get("parse")
         if not isinstance(parse, dict) or not isinstance(parse.get("text"), str):

@@ -1006,6 +1006,37 @@ class TestMediaWikiClientSafeEditPage:
         assert revision_id == 1234
 
 
+class TestMediaWikiClientTemplateSandbox:
+    def test_parse_replaces_one_module_and_returns_render_dependencies(self) -> None:
+        client, api = _mock_client(
+            [
+                {
+                    "parse": {
+                        "text": "<p>new</p>",
+                        "templates": [{"title": "Template:Item", "exists": True}],
+                        "categories": [{"category": "Items"}],
+                    }
+                }
+            ],
+            clock=MockClock(),
+        )
+        parsed = client.parse_wikitext(
+            "Example",
+            "{{Item}}",
+            sandbox_title="Module:Erenshor/Item",
+            sandbox_text="return {}",
+            sandbox_content_model="Scribunto",
+        )
+        assert parsed.html == "<p>new</p>"
+        assert parsed.templates[0].title == "Template:Item"
+        assert parsed.categories[0].title == "Category:Items"
+        [request] = api.requests
+        assert request.data["prop"] == "text|templates|categories"
+        assert request.data["templatesandboxtitle"] == "Module:Erenshor/Item"
+        assert request.data["templatesandboxtext"] == "return {}"
+        assert request.data["templatesandboxcontentmodel"] == "Scribunto"
+
+
 class TestMediaWikiClientEmbeddedIn:
     """Test reverse transclusion dependency discovery."""
 

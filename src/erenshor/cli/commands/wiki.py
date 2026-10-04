@@ -66,10 +66,13 @@ from erenshor.application.wiki_deploy.pages import (
     build_deployed_manifest,
     deploy_repo_pages,
     find_drift,
+    prepare_repo_page_checks,
     read_repo_page_sources,
+    render_repo_page_checks,
     repo_page_action,
 )
 from erenshor.application.wiki_deploy.refresh import refresh_embedded_pages
+from erenshor.application.wiki_deploy.render_check import RenderCheck
 from erenshor.application.wiki_deploy.rollback import rollback_repo_pages
 from erenshor.application.wiki_interface.deploy import (
     InterfaceDeployPlan,
@@ -263,6 +266,7 @@ def _create_mediawiki_client(cli_ctx: CLIContext) -> MediaWikiClient:
         api_url=wiki_config.api_url,
         bot_username=credentials.username,
         bot_password=credentials.password,
+        batch_size=50,
     )
     client.login()
     return client
@@ -281,6 +285,7 @@ def _create_readonly_mediawiki_client(cli_ctx: CLIContext) -> MediaWikiClient:
         api_url=wiki_config.api_url,
         bot_username=wiki_config.bot_username,
         bot_password=wiki_config.bot_password,
+        batch_size=50,
     )
 
 
@@ -1132,46 +1137,6 @@ def rollback_interface_command(
             console.print(f"  {title}", markup=False)
 
 
-_DIRECT_DATA_LINK_CONSUMER_TITLES = frozenset(
-    {
-        "Module:Erenshor/Link",
-        "Module:Erenshor/AbilityLink",
-        "Module:Erenshor/Link/Search",
-    }
-)
-_DATA_LINKS_TITLE = "Module:Erenshor/Data/Links"
-
-
-def _manifest_requires_live_links(manifest: RepoWikiPageManifest) -> bool:
-    """Return whether a direct consumer lacks an earlier Links catalog page."""
-    earlier_titles: set[str] = set()
-    for entry in manifest.entries:
-        if entry.title in _DIRECT_DATA_LINK_CONSUMER_TITLES and _DATA_LINKS_TITLE not in earlier_titles:
-            return True
-        earlier_titles.add(entry.title)
-    return False
-
-
-def _candidate_repo_page_manifest(
-    manifest: RepoWikiPageManifest,
-    *,
-    requested_titles: set[str] | None,
-    include_templates: bool,
-    include_generated_data: bool,
-    include_content_pages: bool,
-) -> RepoWikiPageManifest:
-    """Apply CLI scope filters before the live catalog dependency check."""
-    entries = tuple(
-        entry
-        for entry in manifest.entries
-        if (include_templates or entry.upload_stage not in {"template", "cargo_declaration"})
-        and (include_generated_data or entry.upload_stage != "generated_data")
-        and (include_content_pages or entry.upload_stage != "content_page")
-        and (requested_titles is None or entry.title in requested_titles)
-    )
-    return RepoWikiPageManifest(entries=entries)
-
-
 @app.command("deploy-repo-pages")
 @require_preconditions(wiki_endpoint, wiki_credentials, option_path("pages_file"))
 def deploy_repo_pages_command(
@@ -1226,6 +1191,10 @@ def deploy_repo_pages_command(
             help="Explicitly include maintained wiki content pages. Disabled by default.",
         ),
     ] = False,
+    full_render_check: Annotated[
+        bool,
+        typer.Option("--full-render-check", help="Parse every main-namespace page that uses each changed page."),
+    ] = False,
     accept_drift: Annotated[
         list[str] | None,
         typer.Option(
@@ -1249,7 +1218,6 @@ def deploy_repo_pages_command(
         console.print("[red]--include-generated-data requires --pages-file with explicit page titles[/red]")
         raise typer.Exit(1)
     requested_titles = set(_read_page_titles(pages_file)) if pages_file else None
-    known_live_titles: set[str] = set()
     try:
         manifest = build_repo_page_manifest(
             cli_ctx.repo_root,
@@ -1259,27 +1227,12 @@ def deploy_repo_pages_command(
             include_content_pages=include_content_pages,
             requested_titles=requested_titles,
         )
-        candidate_manifest = _candidate_repo_page_manifest(
-            manifest,
-            requested_titles=requested_titles,
-            include_templates=include_templates,
-            include_generated_data=include_generated_data,
-            include_content_pages=include_content_pages,
-        )
-        if _manifest_requires_live_links(candidate_manifest):
-            readonly_client = _create_readonly_mediawiki_client(cli_ctx)
-            try:
-                if readonly_client.page_exists(_DATA_LINKS_TITLE):
-                    known_live_titles.add(_DATA_LINKS_TITLE)
-            finally:
-                readonly_client.close()
         manifest = select_repo_page_manifest(
             manifest,
             requested_titles=requested_titles,
             include_templates=include_templates,
             include_generated_data=include_generated_data,
             include_content_pages=include_content_pages,
-            known_live_titles=known_live_titles,
         )
     except Exception as e:
         console.print(f"[red]Unable to select repo-owned wiki pages: {e}[/red]")
@@ -1299,15 +1252,40 @@ def deploy_repo_pages_command(
         readonly_client = _create_readonly_mediawiki_client(cli_ctx)
         try:
             snapshots = readonly_client.get_page_snapshots([entry.title for entry in manifest.entries])
-            account = readonly_client.edit_account
+            source_texts = read_repo_page_sources(manifest, cli_ctx.repo_root)
+            drift = find_drift(
+                manifest.entries,
+                source_texts,
+                snapshots,
+                deploy_account=readonly_client.edit_account,
+                accepted=accepted,
+            )
+            live_modules: dict[str, str | None] = {}
+            manifest = prepare_repo_page_checks(manifest, source_texts, snapshots, readonly_client, live_modules)
+            catalog = (
+                {entry.key.casefold(): entry for entry in _build_link_audit_catalog(cli_ctx)}
+                if any(
+                    repo_page_action(snapshots[entry.title], source_texts[entry.title]) != "unchanged"
+                    for entry in manifest.entries
+                )
+                else {}
+            )
+            render_repo_page_checks(
+                manifest,
+                source_texts,
+                snapshots,
+                readonly_client,
+                catalog=catalog,
+                full=full_render_check,
+                dry_run=True,
+                live_modules=live_modules,
+                report=_print_repo_render_check,
+            )
+        except Exception as e:
+            console.print(f"[red]Repo-owned page dry run failed: {escape(str(e))}[/red]")
+            raise typer.Exit(1) from e
         finally:
             readonly_client.close()
-        try:
-            source_texts = read_repo_page_sources(manifest, cli_ctx.repo_root)
-            drift = find_drift(manifest.entries, source_texts, snapshots, deploy_account=account, accepted=accepted)
-        except ValueError as e:
-            console.print(f"[red]{escape(str(e))}[/red]")
-            raise typer.Exit(1) from e
         planned = {
             entry.title: repo_page_action(snapshots[entry.title], source_texts[entry.title])
             for entry in manifest.entries
@@ -1343,8 +1321,10 @@ def deploy_repo_pages_command(
             include_templates=include_templates,
             include_generated_data=include_generated_data,
             include_content_pages=include_content_pages,
-            known_live_titles=known_live_titles,
             accept_drift=accepted,
+            catalog={entry.key.casefold(): entry for entry in _build_link_audit_catalog(cli_ctx)},
+            full_render_check=full_render_check,
+            report_render=_print_repo_render_check,
         )
     except RepoPageDriftError as e:
         _print_repo_page_drift(e.drift)
@@ -1368,6 +1348,21 @@ def deploy_repo_pages_command(
 
     changed_titles = {entry.title for entry in result.entries if entry.status != "unchanged"}
     _report_changed_cargo_declarations(manifest, changed_titles)
+
+
+def _print_repo_render_check(result: RenderCheck) -> None:
+    """Show render coverage and visible differences for one changed page."""
+    status = " (provisional)" if result.provisional else ""
+    if not result.users:
+        console.print(f"  Render {escape(result.title)}: no main-namespace users{status}")
+        return
+    console.print(f"  Render {escape(result.title)}: checked {len(result.checked)} of {result.users} users{status}")
+    for difference in result.differences:
+        console.print(f"    Visible change on {escape(difference.title)}")
+        for line in difference.removed:
+            console.print(f"      - {escape(line)}")
+        for line in difference.added:
+            console.print(f"      + {escape(line)}")
 
 
 def _print_repo_page_drift(drift: Sequence[RepoPageDrift]) -> None:

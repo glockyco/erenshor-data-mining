@@ -62,6 +62,12 @@ class RecordingWikiClient:
                 )
         return snapshots
 
+    def get_pages(self, titles: list[str]) -> dict[str, str | None]:
+        return {title: self.pages.get(title) for title in titles}
+
+    def get_embeddedin_pages(self, title: str, namespaces: tuple[int, ...] = (0,)) -> tuple[str, ...]:
+        return ()
+
     def safe_edit_page(
         self,
         title: str,
@@ -188,7 +194,6 @@ def test_deploy_repo_pages_skips_unchanged_pages(tmp_path: Path) -> None:
         summary="Deploy repo-owned wiki pages",
         assertion="bot",
         assert_user="ErenshorBot",
-        known_live_titles={"Module:Erenshor/Data/Links"},
     )
 
     [entry] = result.entries
@@ -213,7 +218,6 @@ def test_deploy_repo_pages_treats_trailing_newline_difference_as_unchanged(tmp_p
         summary="Deploy repo-owned wiki pages",
         assertion="bot",
         assert_user="ErenshorBot",
-        known_live_titles={"Module:Erenshor/Data/Links"},
     )
     [entry] = result.entries
     assert entry.status == "unchanged"
@@ -235,7 +239,6 @@ def test_deploy_repo_pages_safe_edits_changed_pages(tmp_path: Path) -> None:
         summary="Deploy repo-owned wiki pages",
         assertion="bot",
         assert_user="ErenshorBot",
-        known_live_titles={"Module:Erenshor/Data/Links"},
         rollback_root=tmp_path / "rollback",
     )
 
@@ -271,7 +274,6 @@ def test_deploy_repo_pages_safe_creates_missing_pages(tmp_path: Path) -> None:
         summary="Deploy repo-owned wiki pages",
         assertion="bot",
         assert_user="ErenshorBot",
-        known_live_titles={"Module:Erenshor/Data/Links"},
     )
 
     [entry] = result.entries
@@ -306,7 +308,6 @@ def test_build_deployed_manifest_merges_deploy_results_into_entries(tmp_path: Pa
         client=client,
         summary="Deploy repo-owned wiki pages",
         assertion="bot",
-        known_live_titles={"Module:Erenshor/Data/Links"},
         rollback_root=tmp_path / "rollback",
     )
     deployed = build_deployed_manifest(manifest, result)
@@ -339,7 +340,6 @@ def test_deploy_repo_pages_aborts_on_stale_source_hash_before_writes(tmp_path: P
             client=client,
             summary="Deploy repo-owned wiki pages",
             assertion="bot",
-            known_live_titles={"Module:Erenshor/Data/Links"},
         )
     except ValueError as error:
         assert "Source hash mismatch" in str(error)

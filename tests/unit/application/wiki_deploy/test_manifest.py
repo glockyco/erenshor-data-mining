@@ -74,7 +74,6 @@ def test_select_repo_page_manifest_includes_templates_only_with_opt_in(tmp_path:
     selected = select_repo_page_manifest(
         manifest,
         include_templates=True,
-        known_live_titles={"Module:Erenshor/Data/Links"},
     )
 
     assert [entry.title for entry in selected.entries] == ["Module:Erenshor/Item", "Template:Item"]
@@ -280,56 +279,6 @@ def test_select_repo_page_manifest_enforces_independent_opt_ins(tmp_path: Path) 
     assert [entry.title for entry in selected.entries] == [
         "Module:Erenshor/Data/Links",
         "Category:Links",
-    ]
-
-
-def test_resolver_selection_requires_data_links_dependency_or_known_live(tmp_path: Path) -> None:
-    write_page(tmp_path, "wiki/modules/Erenshor/Link.lua", "return {}\n")
-    write_page(tmp_path, "wiki/modules/Erenshor/AbilityLink.lua", "return {}\n")
-    default_manifest = build_repo_page_manifest(tmp_path, variant="main")
-    with pytest.raises(ValueError, match="Generated data pages require explicit deployment opt-in"):
-        select_repo_page_manifest(default_manifest, requested_titles={"Module:Erenshor/Data/Links"})
-
-    manifest = build_repo_page_manifest(tmp_path, variant="main")
-    with pytest.raises(ValueError, match="requires Module:Erenshor/Data/Links"):
-        select_repo_page_manifest(manifest, requested_titles={"Module:Erenshor/Link"})
-
-    selected = select_repo_page_manifest(
-        manifest,
-        requested_titles={"Module:Erenshor/Link", "Module:Erenshor/AbilityLink"},
-        known_live_titles={"Module:Erenshor/Data/Links"},
-    )
-    assert [entry.title for entry in selected.entries] == [
-        "Module:Erenshor/AbilityLink",
-        "Module:Erenshor/Link",
-    ]
-
-
-def test_resolver_dependency_accepts_earlier_data_links_or_known_live(tmp_path: Path) -> None:
-    write_page(tmp_path, "variants/main/wiki/lua/Erenshor/Data/Links.lua", "return {}\n")
-    write_page(tmp_path, "wiki/modules/Erenshor/Link.lua", "return {}\n")
-    write_page(tmp_path, "wiki/modules/Erenshor/Link/Search.lua", "return {}\n")
-    manifest = build_repo_page_manifest(tmp_path, variant="main", include_generated_data=True)
-    selected = select_repo_page_manifest(
-        manifest,
-        requested_titles={"Module:Erenshor/Data/Links", "Module:Erenshor/Link", "Module:Erenshor/Link/Search"},
-        include_generated_data=True,
-    )
-    assert [entry.title for entry in selected.entries] == [
-        "Module:Erenshor/Data/Links",
-        "Module:Erenshor/Link",
-        "Module:Erenshor/Link/Search",
-    ]
-
-    live_manifest = build_repo_page_manifest(tmp_path, variant="main")
-    selected_live = select_repo_page_manifest(
-        live_manifest,
-        requested_titles={"Module:Erenshor/Link", "Module:Erenshor/Link/Search"},
-        known_live_titles={"Module:Erenshor/Data/Links"},
-    )
-    assert [entry.title for entry in selected_live.entries] == [
-        "Module:Erenshor/Link",
-        "Module:Erenshor/Link/Search",
     ]
 
 

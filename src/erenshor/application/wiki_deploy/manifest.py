@@ -14,13 +14,6 @@ UploadStage = Literal["generated_data", "lua_module", "cargo_declaration", "temp
 DeployAction = Literal["unchanged", "created", "edited"]
 
 _CARGO_TABLE_RE = re.compile(r"_table\s*=\s*([A-Za-z_][A-Za-z0-9_]*)")
-_DIRECT_DATA_LINK_CONSUMER_TITLES = frozenset(
-    {
-        "Module:Erenshor/Link",
-        "Module:Erenshor/AbilityLink",
-        "Module:Erenshor/Link/Search",
-    }
-)
 _STAGE_ORDER: dict[UploadStage, int] = {
     "generated_data": 0,
     "lua_module": 1,
@@ -155,7 +148,6 @@ def select_repo_page_manifest(
     include_templates: bool = False,
     include_generated_data: bool = False,
     include_content_pages: bool = False,
-    known_live_titles: set[str] | None = None,
 ) -> RepoWikiPageManifest:
     """Filter a manifest while enforcing each deployment safety gate."""
     requested_template_titles = {title for title in requested_titles or () if _is_template_title(title)}
@@ -194,7 +186,6 @@ def select_repo_page_manifest(
         include_templates=include_templates,
         include_generated_data=include_generated_data,
         include_content_pages=include_content_pages,
-        known_live_titles=known_live_titles,
     )
     return selected_manifest
 
@@ -205,15 +196,8 @@ def validate_repo_page_manifest_for_deploy(
     include_templates: bool = False,
     include_generated_data: bool = False,
     include_content_pages: bool = False,
-    known_live_titles: set[str] | None = None,
 ) -> None:
-    """Reject entries that were not explicitly enabled for deployment.
-
-    Resolver modules consume ``Data/Links``. The dependency check is pure: a
-    caller either includes that generated module earlier in this manifest or
-    passes its exact title in ``known_live_titles`` after an independent live
-    check. No network access is performed here.
-    """
+    """Reject entries that were not explicitly enabled for deployment."""
     if not include_templates:
         template_titles = [
             entry.title for entry in manifest.entries if entry.upload_stage in {"template", "cargo_declaration"}
@@ -230,25 +214,6 @@ def validate_repo_page_manifest_for_deploy(
         content_titles = [entry.title for entry in manifest.entries if entry.upload_stage == "content_page"]
         if content_titles:
             raise ValueError("Content pages require explicit deployment opt-in: " + ", ".join(sorted(content_titles)))
-
-    validate_repo_page_manifest_dependencies(manifest, known_live_titles=known_live_titles)
-
-
-def validate_repo_page_manifest_dependencies(
-    manifest: RepoWikiPageManifest,
-    *,
-    known_live_titles: set[str] | None = None,
-) -> None:
-    """Require direct consumers to have an earlier or known-live Links catalog."""
-    known_live = set(known_live_titles or ())
-    data_links_title = "Module:Erenshor/Data/Links"
-    earlier_titles: set[str] = set()
-    for entry in manifest.entries:
-        if entry.title in _DIRECT_DATA_LINK_CONSUMER_TITLES and data_links_title not in earlier_titles | known_live:
-            raise ValueError(
-                f"{entry.title} requires {data_links_title} earlier in the manifest or explicitly known live"
-            )
-        earlier_titles.add(entry.title)
 
 
 def _is_generated_data_title(title: str) -> bool:

@@ -9,16 +9,24 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Literal, Protocol
 from urllib.parse import quote
 
+from erenshor.application.wiki_deploy.dependencies import (
+    literal_dependencies,
+    needed_live_modules,
+    order_and_check_dependencies,
+)
 from erenshor.application.wiki_deploy.manifest import (
     DeployAction,
     RepoWikiPageManifest,
     RepoWikiPageManifestEntry,
     validate_repo_page_manifest_for_deploy,
 )
+from erenshor.application.wiki_deploy.render_check import RenderCheck, check_render
 from erenshor.infrastructure.wiki.content import normalize_saved_text
 
 if TYPE_CHECKING:
+    from erenshor.application.wiki_lua.link_catalog import LinkCatalogEntry
     from erenshor.infrastructure.wiki import MediaWikiPageRevision, MediaWikiPageSnapshot
+    from erenshor.infrastructure.wiki.client import MediaWikiParse
 
 EditAssertion = Literal["user", "bot"]
 
@@ -35,6 +43,20 @@ class WikiPageDeployClient(Protocol):
         assertion: EditAssertion | None = None,
         assert_user: str | None = None,
     ) -> dict[str, MediaWikiPageSnapshot]: ...
+
+    def get_pages(self, titles: Sequence[str]) -> dict[str, str | None]: ...
+
+    def get_embeddedin_pages(self, title: str, namespaces: Sequence[int] = (0,)) -> tuple[str, ...]: ...
+
+    def parse_wikitext(
+        self,
+        title: str,
+        text: str,
+        *,
+        sandbox_title: str | None = None,
+        sandbox_text: str | None = None,
+        sandbox_content_model: str | None = None,
+    ) -> MediaWikiParse: ...
 
     def safe_edit_page(
         self,
@@ -138,6 +160,102 @@ def find_drift(
     return tuple(drift)
 
 
+def prepare_repo_page_checks(
+    manifest: RepoWikiPageManifest,
+    source_texts: Mapping[str, str],
+    snapshots: Mapping[str, MediaWikiPageSnapshot],
+    client: WikiPageDeployClient,
+    live_modules: dict[str, str | None] | None = None,
+) -> RepoWikiPageManifest:
+    """Check transitive module dependencies and order the planned writes."""
+    changed = RepoWikiPageManifest(
+        entries=tuple(
+            entry
+            for entry in manifest.entries
+            if repo_page_action(snapshots[entry.title], source_texts[entry.title]) != "unchanged"
+        )
+    )
+    live = needed_live_modules({entry.title: source_texts[entry.title] for entry in changed.entries}, client)
+    live.update({title: snapshot.source_text for title, snapshot in snapshots.items() if title not in live})
+    if live_modules is not None:
+        live_modules.update(live)
+    ordered = order_and_check_dependencies(changed, source_texts, live)
+    positions = {entry.title: index for index, entry in enumerate(ordered.entries)}
+    stages = {
+        name: index
+        for index, name in enumerate(
+            ("generated_data", "lua_module", "cargo_declaration", "template", "content_page", "article")
+        )
+    }
+    return RepoWikiPageManifest(
+        entries=tuple(
+            sorted(
+                manifest.entries,
+                key=lambda entry: (stages[entry.upload_stage], positions.get(entry.title, len(positions)), entry.title),
+            )
+        )
+    )
+
+
+def render_repo_page_checks(
+    manifest: RepoWikiPageManifest,
+    source_texts: Mapping[str, str],
+    snapshots: Mapping[str, MediaWikiPageSnapshot],
+    client: WikiPageDeployClient,
+    *,
+    catalog: Mapping[str, LinkCatalogEntry],
+    full: bool = False,
+    dry_run: bool = False,
+    live_modules: Mapping[str, str | None] | None = None,
+    report: Callable[[RenderCheck], None] | None = None,
+) -> None:
+    """Check each changed module and template before its write or dry-run preview."""
+    live_cache: dict[str, MediaWikiParse] = {}
+    changed = {
+        entry.title
+        for entry in manifest.entries
+        if repo_page_action(snapshots[entry.title], source_texts[entry.title]) != "unchanged"
+    }
+
+    def depends_on_changed_module(root: str) -> bool:
+        visited: set[str] = {root}
+        pending = list(literal_dependencies(root, source_texts[root]))
+        while pending:
+            title = pending.pop()
+            if title in changed and title != root:
+                return True
+            if title in visited:
+                continue
+            visited.add(title)
+            text = (live_modules or {}).get(title)
+            if text is None and title in source_texts:
+                text = snapshots[title].source_text
+            if text is not None:
+                pending.extend(literal_dependencies(title, text))
+        return False
+
+    for entry in manifest.entries:
+        if entry.title not in changed or entry.upload_stage not in {
+            "generated_data",
+            "lua_module",
+            "cargo_declaration",
+            "template",
+        }:
+            continue
+        provisional = dry_run and depends_on_changed_module(entry.title)
+        result = check_render(
+            client,
+            entry.title,
+            source_texts[entry.title],
+            catalog=catalog,
+            live_cache=live_cache,
+            full=full,
+            provisional=provisional,
+        )
+        if report is not None:
+            report(result)
+
+
 @dataclass(frozen=True, slots=True)
 class RepoPageDeployResultEntry:
     """Deployment result for one manifest page."""
@@ -170,8 +288,10 @@ def deploy_repo_pages(
     include_templates: bool = False,
     include_generated_data: bool = False,
     include_content_pages: bool = False,
-    known_live_titles: set[str] | None = None,
     accept_drift: Collection[str] = (),
+    catalog: Mapping[str, LinkCatalogEntry] | None = None,
+    full_render_check: bool = False,
+    report_render: Callable[[RenderCheck], None] | None = None,
 ) -> RepoPageDeployResult:
     """Deploy changed manifest pages through the safe MediaWiki edit path.
 
@@ -190,7 +310,6 @@ def deploy_repo_pages(
         include_templates=include_templates,
         include_generated_data=include_generated_data,
         include_content_pages=include_content_pages,
-        known_live_titles=known_live_titles,
     )
     if not manifest.entries:
         return RepoPageDeployResult(entries=())
@@ -206,6 +325,7 @@ def deploy_repo_pages(
     )
     if drift:
         raise RepoPageDriftError(drift)
+    manifest = prepare_repo_page_checks(manifest, source_texts, snapshots, client)
 
     prepared_entries = []
     for entry in manifest.entries:
@@ -241,6 +361,7 @@ def deploy_repo_pages(
     if checkpoint is not None:
         checkpoint(prepared_manifest)
 
+    live_parse_cache: dict[str, MediaWikiParse] = {}
     result_entries: list[RepoPageDeployResultEntry] = []
     for entry, prepared_entry in zip(manifest.entries, prepared_manifest.entries, strict=True):
         snapshot = snapshots[entry.title]
@@ -258,6 +379,17 @@ def deploy_repo_pages(
                 )
             )
             continue
+        if entry.upload_stage in {"generated_data", "lua_module", "cargo_declaration", "template"}:
+            rendered = check_render(
+                client,
+                entry.title,
+                source_text,
+                catalog=catalog or {},
+                live_cache=live_parse_cache,
+                full=full_render_check,
+            )
+            if report_render is not None:
+                report_render(rendered)
 
         if remote_text is None:
             new_revision_id = client.safe_create_page(
@@ -300,6 +432,8 @@ def deploy_repo_pages(
                     rollback_text_source=prepared_entry.rollback_text_source,
                 )
             )
+        # A completed write can change the live render of another selected page.
+        live_parse_cache.clear()
 
         if checkpoint is not None:
             checkpoint(build_deployed_manifest(prepared_manifest, RepoPageDeployResult(entries=tuple(result_entries))))
