@@ -8,6 +8,18 @@ description: Fetch, generate, validate, deploy, and roll back Erenshor wiki arti
 Run commands from the repository root. Use `-V <variant>` on `erenshor` when the target is not `main`.
 Keep generated articles, repository-owned pages, and interface gadgets on their separate deployment paths.
 
+## Rules
+
+The plan for the wiki is the OpenSpec change `adopt-data-backed-wiki`. Read its `design.md` before any wiki change. Older plans, issues, and notes do not count.
+
+- Track wiki work only in OpenSpec. Do not open GitHub issues for wiki work.
+- The legacy templates `Item`, `Character`, `Ability`, `Stance`, `Quest`, `Zone`, and `MapLink` render only their parameters. They call no module and store no Cargo row. Do not add a Lua branch or a `lua=1` switch. `stablekey` is an identity, never a switch.
+- Data-backed rendering comes with new templates in step 4 of the plan, not with changes to the legacy templates.
+- Generated data lives on bot-owned pages: `Module:Erenshor/Data/*` and, with the Cargo work, `Erenshor Wiki:Cargo/*`. Articles do not store Cargo rows.
+- A fact the export misses goes into code facts or the export. A correction of how the export is read goes into `mapping.json` with a reason. A fact that editors add goes into a Cargo community row. Article parameters only present fields that people own.
+- Do not change the structure of a live data module in place. Publish the new structure under a new title, move the readers, then remove the old page.
+- Every live write needs approval after a dry run and the render check. The bot cannot delete pages. The plan's task group 9 lists the pages for an administrator.
+
 ## Generated articles
 
 1. Fetch existing articles before generation so manual fields survive: `uv run erenshor wiki fetch`.
@@ -94,7 +106,12 @@ Keep generated articles, repository-owned pages, and interface gadgets on their 
 
    `--include-generated-data` requires `--pages-file` with exact page titles.
    The `--pages-file` filter also narrows other selected pages. Missing opt-in flags reject requested optional pages.
-   Deploy generated data before direct link consumers and Cargo declarations before templates.
+   Generated data deploys before the modules that read it, modules deploy in dependency order, then templates, then content pages.
+   Before any write, the deploy checks dependencies: a module or template whose `#invoke`, `require`, or `mw.loadData` target is neither live nor written earlier in the run is blocked, and the output names both pages.
+   Before each module or template write, the render check parses pages that use it twice through `action=parse`, once as live and once with the new text through TemplateSandbox.
+   By default it selects pages that cover every template, filled parameter, `type` or `kind` value, and entity kind among the users. `--full-render-check` parses every user page.
+   A new script error or missing template blocks the write. The dry run lists every page whose visible text or categories change. Review that list before approving the deploy.
+   In a dry run, a page that depends on another page of the same run shows a provisional result. The real deploy checks it again directly before its write.
    Before the first write, the deploy stops when another account made the latest revision of a page whose live text differs from the repository.
    The bot edits as the account part of `bot_username`, so edits by your own main account count as another account.
    A dry run reads the live pages, counts the planned changes, and names each such page. Review each one.
@@ -104,7 +121,6 @@ Keep generated articles, repository-owned pages, and interface gadgets on their 
    Use `--manifest-output` for a distinct manifest for each deploy you may need to undo.
    Deployment checks source hashes, saves old text, and guards edits with live revisions.
    The default assertion is `bot`. Use `--assert-user <username>` to guard the account identity.
-   If a Cargo declaration changes, recreate its table and refresh dependent articles before checking rows.
 
 5. Roll back edits with their exact deployment manifest:
 
@@ -166,6 +182,4 @@ Check its title through `action=parse` and inspect the parsed HTML. Remove the t
 curl --get 'http://localhost:8088/api.php' --data-urlencode 'action=parse' --data-urlencode 'page=<article title>' --data-urlencode 'prop=text' --data-urlencode 'format=json'
 ```
 
-Use live TemplateSandbox for the final compatibility check with wiki.gg.
-
-The wiki is moving to Cargo tables populated by bot-owned storage pages. The OpenSpec change `publish-wiki-cargo-data` defines that workflow.
+Use the live render check of `wiki deploy-repo-pages` for the final compatibility check with wiki.gg. The local stack holds every generated data module, so it cannot show a module that is missing live.
