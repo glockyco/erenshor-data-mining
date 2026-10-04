@@ -134,7 +134,7 @@ Before it writes a module or template that main-namespace pages use, `wiki deplo
 
 ### Requirement: Every repository wiki file has a deploy path
 
-Each file under `wiki/` SHALL be a page source that `wiki deploy-repo-pages` or `wiki deploy-interface` deploys. The repository SHALL hold no copy of a page that people own and no generated output under `wiki/`. A check SHALL fail and name each file without a deploy path.
+Each file under `wiki/` SHALL be a page source that `wiki deploy-repo-pages` or `wiki deploy-interface` deploys, or a Scribunto `testcases` module that the local wiki stack runs. The repository SHALL hold no copy of a page that people own and no generated output under `wiki/`. A check SHALL fail and name each file without a deploy path.
 
 #### Scenario: A copy of a people-owned page is added
 

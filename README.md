@@ -50,7 +50,7 @@ flowchart LR
 | `src/tools` | Native analyzers (CodeFacts, ExportSurface) and maintenance scripts. |
 | `src/maps` | The interactive map site. |
 | `src/mods` | The companion mods and their packaging. |
-| `wiki` | Repository-owned wiki pages: Lua modules, templates, gadgets, zone and mechanics pages. |
+| `wiki` | Repository-owned wiki pages: Lua modules, templates, content pages, and gadgets. |
 | `wiki-dev` | A local MediaWiki stack for testing wiki changes. |
 | `quest_guides` | Generated and curated quest guide data for AdventureGuide. |
 | `tests` | Unit, contract, system, and data tests. |
