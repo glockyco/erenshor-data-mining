@@ -27,9 +27,12 @@ mapping.json schema (version 2.0):
     }
 
 Character keys start with "character:" and require display_name and
-image_name. Spawn keys start with "spawn:" or "trigger:" and only carry
-visibility flags. is_wiki_generated and is_map_visible default to 1 when
-absent in either rule type.
+image_name. Stance keys start with "stance:" and must not carry
+image_name: a stance has no icon in the game, and the stance processor
+takes the image of the skill that switches to it. Other entity keys require
+display_name and image_name. Spawn keys start with "spawn:" or "trigger:"
+and only carry visibility flags. is_wiki_generated and is_map_visible
+default to 1 when absent in any rule type.
 """
 
 from __future__ import annotations
@@ -44,7 +47,7 @@ from loguru import logger
 class MappingOverride(TypedDict):
     display_name: str
     wiki_page_name: str | None
-    image_name: str
+    image_name: str | None
     expected_npc_name: str | None
     is_wiki_generated: int
     is_map_visible: int
@@ -110,8 +113,10 @@ def load_mapping(
 
     Rules are split by key prefix: keys starting with "character:" are
     character overrides; keys starting with "spawn:" or "trigger:" are
-    spawn-location overrides. Character rules require display_name and
-    image_name; spawn rules only carry is_wiki_generated and is_map_visible.
+    spawn-location overrides. Stance rules must not set image_name, and
+    the image_name of their override is None. Other entity rules require
+    display_name and image_name. Spawn rules only carry is_wiki_generated
+    and is_map_visible.
 
     Stable keys in mapping.json are already lowercase and colon-separated
     (matching the StableKey values in the raw DB), so no normalisation is
@@ -174,7 +179,14 @@ def load_mapping(
             if display_name is None:
                 errors.append(f"{stable_key}: rule missing 'display_name'")
                 continue
-            if image_name is None:
+            if stable_key.startswith("stance:"):
+                if image_name is not None:
+                    errors.append(
+                        f"{stable_key}: a stance rule must not set 'image_name', because the stance "
+                        "takes the image of the skill that switches to it"
+                    )
+                    continue
+            elif image_name is None:
                 errors.append(f"{stable_key}: rule missing 'image_name'")
                 continue
             encounter_tier = rule.get("encounter_tier")

@@ -57,8 +57,6 @@ In an infobox that the bot makes, the bot replaces each field with the game data
 |-
 | Ability || <code>image</code> || Kept, filled when blank
 |-
-| Stance || <code>image</code> || Kept, filled when blank
-|-
 | Stance || <code>imagecaption</code> || Kept
 |-
 | Zone || <code>image</code> || Kept, filled when blank

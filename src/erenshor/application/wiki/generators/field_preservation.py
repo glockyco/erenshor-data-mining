@@ -362,7 +362,8 @@ DEFAULT_PRESERVATION_RULES: dict[str, dict[str, str]] = {
         "image": "prefer_manual",  # Custom ability icons
     },
     "Stance": {
-        "image": "prefer_manual",  # Custom stance icons
+        # The image is the icon of the skill that switches to the stance, so
+        # generation owns it ("override", the default).
         "imagecaption": "preserve",  # Custom image captions
     },
     "Zone": {

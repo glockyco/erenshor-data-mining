@@ -470,7 +470,10 @@ def process_characters(
         if override is not None:
             display_name = override["display_name"].strip()
             wiki_page_name = override["wiki_page_name"].strip() if override["wiki_page_name"] is not None else None
-            image_name = override["image_name"].strip()
+            override_image = override["image_name"]
+            if override_image is None:
+                raise ValueError(f"{sk}: character rule has no image_name")
+            image_name = override_image.strip()
             is_wiki_generated = int(override["is_wiki_generated"])
             is_map_visible = int(override["is_map_visible"])
             encounter_tier_override = override["encounter_tier"]
