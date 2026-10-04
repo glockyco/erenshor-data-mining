@@ -1,0 +1,148 @@
+The bot account [[User:WoWBot|WoWBot]] keeps the game data on this wiki current. After each Steam update of Erenshor, it reads the game files and updates the pages that show game data. This page explains which pages the bot maintains, what you can change on them, and how to report a wrong value.
+
+The game data on this wiki comes from Erenshor {{#invoke:Erenshor/Build|text}}.
+
+For everything else about editing this wiki, see the [[Erenshor Wiki:Community portal|community portal]].
+
+== How game data reaches the wiki ==
+After a game update:
+# An export tool reads the game files and writes their data to a database. Some rules exist only in the game code, for example the chances of world drops. The export reads them from the code.
+# The bot makes article text and Lua data modules from the database.
+# The bot writes a page only when its text changed. It does not write a page that someone edited after the bot read it. It does not write a page whose new text shows a script error.
+
+The same database feeds the [https://erenshor.compendiums.org interactive map]. The export tool and the bot are open source: [https://github.com/glockyco/erenshor-data-mining erenshor-data-mining].
+
+== Who maintains which pages ==
+{| class="wikitable"
+! Pages !! Maintained by !! What this means for you
+|-
+| Data modules under <code>Module:Erenshor/Data/</code> || the bot || Do not edit them. The next update replaces them.
+|-
+| The other [[Special:PrefixIndex/Module:Erenshor/|modules under <code>Module:Erenshor/</code>]], and the templates listed below || the project || Ask for a change on the [[Erenshor Wiki talk:Game data|talk page]]. An edit on the wiki stops the next update of that page until the change is copied into the project.
+|-
+| Item, character, ability, stance, and zone articles, and the overview tables on [[Weapons]] and [[Armor]] || the bot and you || The bot writes the infobox data and the overview tables. You write everything else. See the next section.
+|-
+| All other pages, for example guides, quests, classes, factions, lore, mechanics, and the main page || you || The bot does not edit them.
+|}
+
+== Editing an article that the bot maintains ==
+When the bot updates an article, it keeps all text outside the infoboxes. It also keeps each infobox that it does not make itself, for example a chest infobox that an editor added to a boss page. On vendor pages, the bot also updates the "Store inventory" table.
+
+In an infobox that the bot makes, the bot replaces each field with the game data, except for the fields in this table.
+
+{| class="wikitable"
+! Infobox !! Field !! Your value
+|-
+| Item || <code>image</code> || Kept, filled when blank
+|-
+| Item || <code>imagecaption</code> || Kept, filled when blank
+|-
+| Item || <code>othersource</code> || Kept
+|-
+| Item || <code>type</code> || Merged
+|-
+| Item || <code>questsource</code> || Merged
+|-
+| Item || <code>relatedquest</code> || Merged
+|-
+| Character || <code>imagecaption</code> || Kept
+|-
+| Character || <code>location</code> || Kept
+|-
+| Character || <code>zones</code> || Replaced, kept when the game has no value
+|-
+| Character || <code>coordinates</code> || Replaced, kept when the game has no value
+|-
+| Character || <code>respawn</code> || Replaced, kept when the game has no value
+|-
+| Ability || <code>image</code> || Kept, filled when blank
+|-
+| Stance || <code>image</code> || Kept, filled when blank
+|-
+| Stance || <code>imagecaption</code> || Kept
+|-
+| Zone || <code>image</code> || Kept, filled when blank
+|-
+| Zone || <code>imagecaption</code> || Kept, filled when blank
+|-
+| Zone || <code>level</code> || Kept, filled when blank
+|-
+| Zone || <code>type</code> || Kept, filled when blank
+|-
+| Zone || <code>maplink</code> || Kept, filled when blank
+|-
+| Zone || <code>connects</code> || Kept, filled when blank
+|}
+
+* '''Kept''': the bot does not change your value.
+* '''Kept, filled when blank''': the bot keeps your value. When the field is blank, the bot fills it from the game data.
+* '''Replaced, kept when the game has no value''': the game data replaces your value. When the game data has no value, the bot keeps yours.
+* '''Merged''': the field is a list. The bot adds its entries. When one of your entries links the same page as a bot entry, the bot entry replaces it. Your other entries stay.
+
+On character pages, the type (Boss, Elite, Enemy, NPC, or Chest) comes from the game data. To correct a type, report it.
+
+Each infobox that the bot makes has a <code>stablekey</code>. The key ties the infobox to one thing in the game, for example to one of several variants with the same name. Do not change or remove it.
+
+== When the game data is wrong or missing ==
+Do not correct a value that the bot writes. The next update replaces your correction. Report the value instead. The fix then goes into the export, so that every page and the interactive map show the correct value.
+
+{| class="wikitable"
+! What you found !! What to do
+|-
+| A wrong value, for example a wrong drop chance || Report it.
+|-
+| Something that the game does but the data does not show, for example a scripted spawn || Report it. The export can usually read it from the game code.
+|-
+| A wrong name or type, or two things that the data mixes up || Report it. The export corrects these in its mapping file.
+|-
+| A source of an item that the data does not list || Write it in the item's <code>othersource</code> field, and report it.
+|-
+| Strategy, notes, and explanations || Write them in the article text.
+|}
+
+=== How to report ===
+Write in the <code>#wiki-chat</code> channel of the [https://discord.gg/DxqZc5Dc9q Erenshor Discord], or on the [[Erenshor Wiki talk:Game data|talk page]] of this page. Name the page, the field, and what the game shows. A screenshot helps.
+
+== Links and tooltips ==
+Links to items, characters, abilities, quests, zones, factions, and classes use link templates. A link template shows the name with an icon. When you move the pointer over the link, a card shows the in-game tooltip.
+
+* To link a page by its name, write for example <code><nowiki>{{ItemLink|Ember Longsword}}</nowiki></code>.
+* When several things share one page, give the link a <code>stablekey</code>, for example <code><nowiki>{{QuestLink|stablekey=quest:whereswyland}}</nowiki></code>.
+* In the source editor, the '''Erenshor link''' button in the ''Insert'' group finds the correct template and key for you.
+
+The tooltip templates show the in-game tooltip on a page: [[Template:ItemTooltip|ItemTooltip]], [[Template:SpellTooltip|SpellTooltip]], [[Template:SkillTooltip|SkillTooltip]], and [[Template:StanceTooltip|StanceTooltip]].
+
+== Maintenance categories ==
+These hidden categories collect pages that need a fix.
+
+{| class="wikitable"
+! Category !! Pages !! What to do
+|-
+| [[:Category:Pages with script errors]] || {{PAGESINCATEGORY:Pages with script errors}} || A template or module failed on the page. Report it.
+|-
+| [[:Category:Pages with ambiguous Erenshor links]] || {{PAGESINCATEGORY:Pages with ambiguous Erenshor links}} || A link names a page that several things share. Give the link a <code>stablekey</code>. The '''Erenshor link''' button finds it.
+|-
+| [[:Category:Pages with unresolved Erenshor links]] || {{PAGESINCATEGORY:Pages with unresolved Erenshor links}} || A link has a <code>stablekey</code> that matches nothing in the game data, often because a game update renamed the thing. Choose the correct key with the '''Erenshor link''' button, or remove the key.
+|-
+| [[:Category:Pages with mismatched Erenshor link targets]] || {{PAGESINCATEGORY:Pages with mismatched Erenshor link targets}} || A link names a page that is not the page of its <code>stablekey</code>. Find out which of the two is correct, and remove the other.
+|}
+
+== Templates that the project maintains ==
+Each of these templates has its documentation on its own page.
+
+; Infoboxes
+: [[Template:Item|Item]], [[Template:Character|Character]], [[Template:Ability|Ability]], [[Template:Stance|Stance]], [[Template:Quest|Quest]], [[Template:Zone|Zone]]
+; Item tooltips and their parts
+: [[Template:ItemTooltip|ItemTooltip]], [[Template:Item/Weapon|Item/Weapon]], [[Template:Item/Armor|Item/Armor]], [[Template:Item/General|Item/General]], [[Template:Item/Aura|Item/Aura]], [[Template:Item/Charm|Item/Charm]], [[Template:Item/CharmScaling|Item/CharmScaling]], [[Template:Item/Consumable|Item/Consumable]], [[Template:Item/Mold|Item/Mold]], [[Template:Item/SkillBook|Item/SkillBook]], [[Template:Item/SpellScroll|Item/SpellScroll]], [[Template:Item/Header|Item/Header]], [[Template:Item/Stats|Item/Stats]], [[Template:Item/Resists|Item/Resists]], [[Template:Item/Vitals|Item/Vitals]], [[Template:Item/DPS|Item/DPS]], [[Template:Item/ClassRestrictions|Item/ClassRestrictions]], [[Template:Item/Categories|Item/Categories]], [[Template:Item/SpellDetails|Item/SpellDetails]], [[Template:SparkleIcon|SparkleIcon]]
+; Ability tooltips
+: [[Template:SpellTooltip|SpellTooltip]], [[Template:SkillTooltip|SkillTooltip]], [[Template:StanceTooltip|StanceTooltip]]
+; Links
+: [[Template:ItemLink|ItemLink]], [[Template:CharacterLink|CharacterLink]], [[Template:AbilityLink|AbilityLink]], [[Template:QuestLink|QuestLink]], [[Template:ZoneLink|ZoneLink]], [[Template:FactionLink|FactionLink]], [[Template:ClassLink|ClassLink]]
+; Other
+: [[Template:MapLink|MapLink]], [[Template:Zone Navbox|Zone Navbox]], [[Template:Gear/Slot|Gear/Slot]], [[Template:Smoke|Smoke]] (used by the project's tests)
+
+== For administrators ==
+* WoWBot is a bot account of [[User:WoWMuch|WoWMuch]]. Its edits are marked as bot edits.
+* When a bot edit is wrong, undo it and report it. The bot writes a page only when nobody changed it after the bot read it, so the next update starts from your version.
+
+[[Category:Erenshor Wiki]]
