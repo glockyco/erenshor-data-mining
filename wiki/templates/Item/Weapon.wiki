@@ -112,6 +112,7 @@
 -->{{Item/Categories
  |item_type=weapon
  |weapon_type={{{type|}}}
+ |two_handed={{{two_handed|}}}
  |range={{{range|}}}
  |proc_style={{{proc_style|}}}
  |proc_spell_name={{{proc_spell_name|}}}
@@ -130,6 +131,8 @@ Master template for displaying complete weapon tooltips. Combines header, stats,
 | '''name''' || Yes || Weapon name
 |-
 | '''type''' || Yes || Weapon slot: Primary, Secondary, Primary or Secondary, Primary - 2-Handed
+|-
+| '''two_handed''' || No || Set for two-handed melee weapons, staffs, and bows
 |-
 | '''tier''' || No || Quality tier: 0=Normal (default), 1=Blessed, 2=Godly
 |-

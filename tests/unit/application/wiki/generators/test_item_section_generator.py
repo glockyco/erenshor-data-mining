@@ -82,7 +82,8 @@ def test_weapon_tooltip_args_are_display_ready() -> None:
     result = generator.generate_template(enriched, "Oldenbow")
 
     assert "|image=Oldenbow.png" in result
-    assert "|type=Primary - 2-Handed" in result
+    assert "|type=Primary\n" in result
+    assert "|two_handed=True" in result
     assert "|range=25" in result
     assert "|proc_spell_name={{AbilityLink|stablekey=spell:ice_spear}}" in result
     assert "|proc_spell_icon=Ice Spear.png" in result
@@ -91,6 +92,26 @@ def test_weapon_tooltip_args_are_display_ready() -> None:
     assert "|proc_target_healing=\n" in result
     assert "|proc_shielding_amt=\n" in result
     assert "|proc_xp_bonus=\n" in result
+
+
+def test_two_handed_melee_keeps_game_label_and_category_flag() -> None:
+    item = Item(
+        stable_key="item:two_handed_sword",
+        item_name="Two-Handed Sword",
+        required_slot="Primary",
+        this_weapon_type="TwoHandMelee",
+        weapon_dly=2,
+    )
+    enriched = EnrichedItemData(
+        item=item,
+        stats=[ItemStats(item_stable_key=item.stable_key, quality="Standard", weapon_dmg=20)],
+        classes=[],
+    )
+
+    result = ItemSectionGenerator().generate_template(enriched, "Two-Handed Sword")
+
+    assert "|type=Primary - 2-Handed" in result
+    assert "|two_handed=True" in result
 
 
 def test_item_effect_selection_matches_game_click_priority() -> None:

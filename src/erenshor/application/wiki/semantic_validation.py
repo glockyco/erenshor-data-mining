@@ -201,6 +201,7 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
             "name",
             "slot",
             "type",
+            "two_handed",
             "relic",
             "str",
             "end",

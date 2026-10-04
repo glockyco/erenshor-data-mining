@@ -125,6 +125,9 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "type": self._weapon_type_display(item.required_slot, item.this_weapon_type)
             if kind == ItemKind.WEAPON
             else "",
+            "two_handed": "True"
+            if kind == ItemKind.WEAPON and item.this_weapon_type in ("TwoHandMelee", "TwoHandStaff", "TwoHandBow")
+            else "",
             "relic": "True" if item.relic else "",
             "damage": safe_str(stats.weapon_dmg) if stats.weapon_dmg else "",
             "delay": safe_str(item.weapon_dly) if item.weapon_dly else "",
@@ -169,7 +172,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         if slot == "PrimaryOrSecondary":
             slot = "Primary or Secondary"
         weapon_kind = (this_weapon_type if this_weapon_type is not None else "").strip()
-        two_handed = weapon_kind in ("TwoHandMelee", "TwoHandStaff", "TwoHandBow")
+        two_handed = weapon_kind in ("TwoHandMelee", "TwoHandStaff")
         if two_handed:
             slot += " - 2-Handed"
         return slot
