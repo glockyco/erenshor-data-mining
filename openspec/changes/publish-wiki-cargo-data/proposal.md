@@ -2,7 +2,7 @@
 
 The wiki runs Cargo, but no table exists, so editors cannot query game data. What they need sits in tables that editors keep by hand, and those tables fall behind the game. 54 NPC pages carry hand-copied vendor tables, and on 2026-07-16 the vendor-table tool found 37 of them stale or missing. On 2026-09-09 an editor had to add a missing summon spell to the Druid ability table. The `Quests` overview shows `?` for The Tragedy at Goodsoil, for which the export records no experience, gold, or item. Zone pages carry hand-written enemy lists, and the `Ability Books`, `Auras`, and `Zones` overviews repeat data the export already has. Only the maintainer can run the export pipeline, and editors who know a fact the export misses have no way to add it as queryable data.
 
-The current design stores Cargo rows from converted articles. No article is converted, so every table would stay incomplete until all of them are. Table creation needs the `recreatecargodata` right, and neither configured bot session holds it today (checked 2026-10-03).
+The July design stored Cargo rows from converted articles, so every table would have stayed incomplete until all articles converted. `adopt-data-backed-wiki` removed that article path. Table creation needs the `recreatecargodata` right, which the interface bot session holds since 2026-10-03.
 
 ## What Changes
 
@@ -12,7 +12,7 @@ The current design stores Cargo rows from converted articles. No article is conv
 - `erenshor wiki cargo generate`, `deploy`, `verify`, and `create-tables` build the pages, deploy them with the guarded and drift-checked path, compare every live table with the expected rows, and create tables through the interface-admin session.
 - `{{ItemSource}}` and `{{SpawnPoint}}` let editors store their own rows, marked as community rows, in the same tables.
 - Documented query templates render zone rosters, class abilities by level, vendor stock, item sources, character drops, zone drops, quest data, faction effects, and sortable item, zone, quest, and boss lists. A hub page documents the tables, the templates, and the rules.
-- **BREAKING**: Cargo leaves the article path. The Cargo declarations and store calls in the `lua=1` branches of the entity templates, the store and query templates, the Lua Cargo row builders and store entry points, the Cargo parts of `Template:Spell` and `Template:Skill`, `Module:Erenshor/Cargo`, and the Cargo storage probe are removed. The local harness checks the storage pages instead.
+- Articles store no Cargo rows. `adopt-data-backed-wiki` already removed the article path: the declarations and stores in the entity templates, the store and query templates, the Lua row builders, `Module:Erenshor/Cargo`, and the storage probe. The local harness checks the storage pages instead.
 
 ## Capabilities
 
@@ -27,8 +27,8 @@ None. Item sources keep listing special world drops, as `special-world-drops` re
 ## Impact
 
 - New: `src/erenshor/application/wiki_cargo/`, the `wiki cargo` commands, generated pages under `variants/<variant>/wiki/cargo/`, `Module:Erenshor/Query`, the query and community templates, and the hub page `Erenshor Wiki:Cargo`.
-- Removed: `wiki/templates/` store, declare, and query templates of the article path, the Cargo parts of `wiki/modules/Erenshor/`, `src/erenshor/tools/wiki_cargo_probe/`, and `wiki-dev` fixtures for the old tables.
+- Removed earlier by `adopt-data-backed-wiki`: the article-path Cargo templates and module, the storage probe, and their fixtures.
 - Live wiki: about 25 table templates, 50 to 60 storage pages, 15 query and community templates, and the hub page. Table creation is one privileged step per table.
-- Prerequisite: the maintainer enables the `cargoadmin` grant ("Create and delete data through the Cargo extension") for the `WoWMuch@InterfaceDeploy` bot password at Special:BotPasswords.
-- Depends on `refresh-wiki-articles`, which provides the guarded deploy, the drift check, and entity templates whose Lua branch needs exact `lua=1`.
+- Prerequisite: the `cargoadmin` grant ("Create and delete data through the Cargo extension") for the `WoWMuch@InterfaceDeploy` bot password. It was enabled on 2026-10-03.
+- Depends on `refresh-wiki-articles`, which provides the guarded deploy and the drift check, and on the plan `adopt-data-backed-wiki`, which orders the wiki work.
 - Non-goals: replacing the hand-maintained tables on pages (the next change uses these templates for that), data-backed article templates and article conversion, the size of the article data modules, the quest article strategy (#288), and Special:Drilldown, which the wiki does not install.

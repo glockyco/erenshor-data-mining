@@ -85,9 +85,9 @@ Rules from the export audit:
 - `wiki cargo verify` reads every table through the anonymous `cargoquery` API, normalizes each value by its type, and compares the rows whose `Origin` is not `community` with the expected rows.
 - `wiki cargo create-tables` logs in as the interface-admin session, requires `recreatecargodata`, and runs `cargorecreatetables` for each table that does not exist. For a table whose declaration changed, it creates a replacement table, fills it, and stops with the switch-in instructions. The next run verifies the switched table.
 
-### D7. Cargo leaves the article path
+### D7. No Cargo on the article path
 
-After `refresh-wiki-articles`, only calls with exact `lua=1` reach the Lua branches of the entity templates, and no page passes it. This change removes every Cargo part of the article path: the declarations and store calls in the `lua=1` branches of `Template:Item`, `Template:Character`, and `Template:Stance`, the Cargo parts of `Template:Spell` and `Template:Skill`, the store, declare, and query templates of the old design, `ArmorTable` and `WeaponTable`, the Lua row builders and `cargoStore` entry points, `Module:Erenshor/Cargo`, the Cargo storage probe, and the old fixtures. The Lua branches themselves stay for the article conversion. The deploy reports the live copies of removed pages for an administrator to delete, because the bot cannot delete.
+Articles and the legacy entity templates store no Cargo row. `adopt-data-backed-wiki` removed the July article path before this change: the declarations and store calls in the entity templates, the Cargo parts of `Template:Spell` and `Template:Skill`, the store, declare, and query templates, `ArmorTable` and `WeaponTable`, the Lua row builders and `cargoStore` entry points, `Module:Erenshor/Cargo`, the storage probe, and the old fixtures. The only table declarations live in `Template:Cargo/<Table>`. The live copies of the removed pages are on that plan's deletion list.
 
 ## Risks / Trade-offs
 

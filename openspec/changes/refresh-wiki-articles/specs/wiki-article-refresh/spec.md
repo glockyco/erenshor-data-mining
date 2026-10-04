@@ -68,20 +68,6 @@ A merged root SHALL take the companion templates of its generated root, such as 
 - **WHEN** an editor placed the `Item/Charm` companion of a charm inside a table
 - **THEN** the regenerated companion replaces it inside the table, and no second companion appears
 
-### Requirement: Entity templates select their Lua branch only by `lua=1`
-
-`Template:Item`, `Template:Character`, `Template:Stance`, `Template:Quest`, and `Template:Zone` SHALL render their parameter infobox unless a call passes exactly `lua=1` together with `stablekey`. `stablekey` alone SHALL identify the entity and SHALL NOT change the rendering. A call without `lua=1` SHALL store no Cargo row.
-
-#### Scenario: An infobox with a stable key
-
-- **WHEN** a character infobox passes `stablekey` and no `lua=1`
-- **THEN** it renders the same as without `stablekey` and stores no Cargo row
-
-#### Scenario: The Lua branch
-
-- **WHEN** a character infobox passes `lua=1` and a valid `stablekey`
-- **THEN** it renders the infobox from the Lua character data
-
 ### Requirement: Every generated entity takes current data
 
 Generation SHALL merge current generated values into every generated root template on a live page, including `Stance`, under that template's preservation rules.

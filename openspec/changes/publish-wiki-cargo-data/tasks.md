@@ -1,7 +1,7 @@
 ## 1. Prerequisites
 
-- [ ] 1.1 The maintainer enables the `cargoadmin` grant for the `WoWMuch@InterfaceDeploy` bot password at Special:BotPasswords. Verify: the interface session's rights include `recreatecargodata`.
-- [ ] 1.2 `refresh-wiki-articles` is archived, so the guarded writes, the drift check, and the `lua=1` selector of the entity templates exist. Verify: `openspec list` no longer shows it as active.
+- [x] 1.1 The `cargoadmin` grant is enabled for the `WoWMuch@InterfaceDeploy` bot password at Special:BotPasswords. Verify: the interface session's rights include `recreatecargodata`. Done on 2026-10-03: the session holds `recreatecargodata` and `deletecargodata`.
+- [ ] 1.2 `refresh-wiki-articles` is archived, so the guarded writes and the drift check exist. Verify: `openspec list` no longer shows it as active.
 
 ## 2. Data rules
 
@@ -37,11 +37,11 @@
 
 ## 7. Removal
 
-- [ ] 7.1 `refactor(wiki): remove Cargo from the article path`: delete what design D7 lists, with the tests and fixtures that only served it. Verify: `uv run erenshor test ci` passes, no repository file declares a table outside `Template:Cargo/`, and the deploy lists the live pages for an administrator to delete.
+- [ ] 7.1 Confirm that only `Template:Cargo/` sources declare tables and only storage pages store generated rows, as design D7 requires. Verify: `git grep -n '#cargo_declare\|#cargo_store' -- wiki` finds only `Template:Cargo/` sources.
 
 ## 8. Documentation and verification
 
 - [ ] 8.1 `docs(skills): describe the Cargo workflow`: add the generate, deploy, verify, and table-creation steps to `.agent/skills/wiki-templates/SKILL.md`, and the Cargo refresh to `.agent/skills/refreshing-game-data/SKILL.md`. Verify: `uv run pytest tests/contract/test_document_paths.py` passes.
 - [ ] 8.2 Review the generated rows of each table with the maintainer before its first live deploy: the row counts, a sample of rows, and the `wiki cargo deploy` dry run. The golden baselines were retired on 2026-10-03, so no baseline holds the rows.
 - [ ] 8.3 Run `uv run erenshor test ci` and `uv run erenshor test wiki --warm`. Both pass.
-- [ ] 8.4 Close GitHub issue #115 with a summary and archive the change with `openspec archive publish-wiki-cargo-data --yes`.
+- [ ] 8.4 Archive the change with `openspec archive publish-wiki-cargo-data --yes`.
