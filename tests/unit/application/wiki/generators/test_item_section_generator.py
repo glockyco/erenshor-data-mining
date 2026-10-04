@@ -136,6 +136,23 @@ def test_melee_range_matches_game_and_does_not_appear_without_attack_stats() -> 
     assert "|range=\n" in result
 
 
+def test_click_effect_requires_equipping_only_when_game_flag_is_set() -> None:
+    item = Item(
+        stable_key="item:back - 42 - wakeweaver",
+        item_name="Wakeweaver",
+        required_slot="Back",
+        item_effect_on_click_stable_key="spell:dru - predator's grace",
+        must_be_equipped_to_click=1,
+    )
+    stats = [ItemStats(item_stable_key=item.stable_key, quality="Standard", ac=100)]
+    enriched = EnrichedItemData(item=item, stats=stats, classes=[])
+    generator = ItemSectionGenerator()
+
+    assert "|must_equip=True" in generator.generate_template(enriched, "Wakeweaver")
+    unflagged = EnrichedItemData(item=item.model_copy(update={"must_be_equipped_to_click": 0}), stats=stats, classes=[])
+    assert "|must_equip=\n" in generator.generate_template(unflagged, "Wakeweaver")
+
+
 def test_item_effect_selection_matches_game_click_priority() -> None:
     generator = object.__new__(EntityPageGenerator)
     generator.context = SimpleNamespace(

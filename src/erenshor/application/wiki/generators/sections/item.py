@@ -129,6 +129,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             if kind == ItemKind.WEAPON and item.this_weapon_type in ("TwoHandMelee", "TwoHandStaff", "TwoHandBow")
             else "",
             "relic": "True" if item.relic else "",
+            "must_equip": "True" if item.must_be_equipped_to_click and item.item_effect_on_click_stable_key else "",
             "damage": safe_str(stats.weapon_dmg) if stats.weapon_dmg else "",
             "delay": safe_str(item.weapon_dly) if item.weapon_dly else "",
             "range": self._get_weapon_range(item, stats.weapon_dmg),

@@ -103,6 +103,7 @@ class ItemRepository(BaseRepository[Item]):
                 relic,
                 no_trade_no_destroy,
                 player_cannot_sell,
+                must_be_equipped_to_click,
                 rare_item,
                 is_auctionable,
                 book_title,
