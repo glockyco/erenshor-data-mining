@@ -58,6 +58,7 @@
 - [x] 5.18 Propose a change that records the game's own tooltip text for every item, spell, skill, and stance per game build through a runtime collector, and checks every wiki tooltip against it with the deliberate differences of design D14. Verify: `openspec validate --strict` passes for the new change.
   - Done on 2026-10-04: the change `capture-wiki-tooltip-parity` passes `openspec validate --strict`.
 - [ ] 5.19 Complete `capture-wiki-tooltip-parity`. Verify: the change is archived.
+- [ ] 5.20 `feat(tools): report renamed scene copies of excluded characters`: in `src/tools/audit_mapping_exclusions.py`, list for each excluded dead prefab the placed characters that share its object name under another name. Document the check in the `auditing-spawn-coverage` skill. Do this after task 5.14. Verify: the audit lists `Invader of Dreams` for `Dream Invader`, and `Bridgekeeper` and `Gatekeeper` for the two `Watchman` prefabs.
 
 ## 6. Step 2: publish complete Cargo tables
 
