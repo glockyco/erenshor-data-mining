@@ -167,43 +167,43 @@ an em dash (—) to indicate no change.
 
 ----
 
-==== Reckless Stance (extreme modifiers with self-damage) ====
+==== Expert Stance (physical and spell damage) ====
 
 '''Code:'''
 <pre>
 {{Stance
-|title=Reckless
-|image=[[File:Stance: Reckless.png|thumb]]
-|description=Deal 100% more melee and spell damage, but take 100% more damage from all incoming sources. This stance does 4% of your max HP in damage to you each time you swing your sword.
-|switch_message=shifts into a reckless combat stance
+|title=Expert
+|image=[[File:Stance: Expert.png|thumb]]
+|description=Gain a 33% increase to ALL damage dealt. Your focus on offense stops all natural health regeneration.
+|switch_message=shifts into an expert combat stance
 |max_hp_mod=1.0
-|damage_mod=2.0
-|damage_taken_mod=2.0
+|damage_mod=1.33
+|damage_taken_mod=1.0
 |proc_rate_mod=1.0
 |aggro_gen_mod=1.0
-|spell_damage_mod=1.0
-|self_damage_per_attack=4.0
+|spell_damage_mod=1.33
 |resonance_amount=1.0
-|activated_by={{AbilityLink|Stance: Reckless}}
+|stop_regen=1
+|activated_by={{AbilityLink|Stance: Expert}}
 }}
 </pre>
 
 '''Result:'''
 
 {{Stance
-|title=Reckless
-|image=[[File:Stance: Reckless.png|thumb]]
-|description=Deal 100% more melee and spell damage, but take 100% more damage from all incoming sources. This stance does 4% of your max HP in damage to you each time you swing your sword.
-|switch_message=shifts into a reckless combat stance
+|title=Expert
+|image=[[File:Stance: Expert.png|thumb]]
+|description=Gain a 33% increase to ALL damage dealt. Your focus on offense stops all natural health regeneration.
+|switch_message=shifts into an expert combat stance
 |max_hp_mod=1.0
-|damage_mod=2.0
-|damage_taken_mod=2.0
+|damage_mod=1.33
+|damage_taken_mod=1.0
 |proc_rate_mod=1.0
 |aggro_gen_mod=1.0
-|spell_damage_mod=1.0
-|self_damage_per_attack=4.0
+|spell_damage_mod=1.33
 |resonance_amount=1.0
-|activated_by={{AbilityLink|Stance: Reckless}}
+|stop_regen=1
+|activated_by={{AbilityLink|Stance: Expert}}
 }}
 
 ----
