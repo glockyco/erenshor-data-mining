@@ -86,3 +86,23 @@ A full article review SHALL list existing live pages created by WoWBot when curr
 
 - **WHEN** the review cannot confirm the live status or creator of a candidate page
 - **THEN** it reports that the review is incomplete instead of treating the missing result as no retired page
+
+### Requirement: Content that players cannot reach is marked unused
+
+The wiki SHALL mark a page about content that ships in the game files but that players cannot reach with a distinct `Historical Content` message. It SHALL not call that content removed. It SHALL place the page in `Category:Unused Content` and keep the rest of the page.
+
+#### Scenario: A character that no scene places
+
+- **WHEN** the facts file records `Queen Evadne` as unused
+- **THEN** her page says that she is in the game files but that players cannot meet her in the current game
+- **AND** the page appears in `Category:Unused Content`
+
+### Requirement: A split page points to its parts
+
+When one old page describes content that the game now has as several entities with their own pages, the wiki SHALL turn the old page into a disambiguation page that links each current page.
+
+#### Scenario: A guard with two variants
+
+- **WHEN** the facts file records `Braxonian Planar Guard` as split into `Braxonian Planar Guard (Fire)` and `Braxonian Planar Guard (Ice)`
+- **THEN** the old page lists and links both variants
+- **AND** the retired-page review reports the split as resolved once the page is live
