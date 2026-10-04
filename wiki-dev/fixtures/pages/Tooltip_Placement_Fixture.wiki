@@ -1,0 +1,9 @@
+= Tooltip placement fixture =
+{| style="width: 180px; border-collapse: collapse;"
+|-
+| style="text-align: right; padding: 0;" | {{ItemLink|Abyssal Plate}}
+|-
+| style="text-align: right; padding: 0;" | <span class="tooltip-next-row">Next table row</span>
+|}
+
+<div style="text-align: right;">{{ItemLink|Abyssal Plate|text=Right edge item}}</div>

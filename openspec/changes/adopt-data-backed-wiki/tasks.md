@@ -52,7 +52,8 @@
   - Done on 2026-10-04: the change `handle-removed-and-renamed-wiki-content` passes `openspec validate --strict`.
 - [ ] 5.14 Complete `handle-removed-and-renamed-wiki-content`. Verify: the change is archived.
 - [ ] 5.15 Complete `restore-missing-wiki-images`. Verify: the change is archived.
-- [ ] 5.16 `fix(wiki): open hover tooltips beside their link`: implement the placement of the requirement "Hover tooltips open beside their link" in `wiki/gadgets/item-tooltips.js` and `wiki/gadgets/erenshor.css`, and keep the delay of 300 ms. Add browser tests to `tests/system/wiki/test_wiki_semantic_tooltips.py` for the table, right-edge, and tall-tooltip scenarios. Verify: the tests pass on the local wiki, and after a dry run and approval the live wiki shows the placement on a drop table.
+- [x] 5.16 `fix(wiki): open hover tooltips beside their link`: implement the placement of the requirement "Hover tooltips open beside their link" in `wiki/gadgets/item-tooltips.js` and `wiki/gadgets/erenshor.css`, and keep the delay of 300 ms. Add browser tests to `tests/system/wiki/test_wiki_semantic_tooltips.py` for the table, right-edge, and tall-tooltip scenarios. Verify: the tests pass on the local wiki, and after a dry run and approval the live wiki shows the placement on a drop table.
+  - The local browser scenarios pass. Live verification waits for a separate, approved deploy.
 - [ ] 5.17 `test(wiki): cover tooltip keyboard, Escape, and touch behavior`: add browser tests for the keyboard and touch scenarios of the same requirement. Verify: the tests pass on the local wiki.
 - [ ] 5.18 Propose a change that records the game's own tooltip text for every item, spell, skill, and stance per game build through a runtime collector, and checks every wiki tooltip against it with the deliberate differences of design D14. Verify: `openspec validate --strict` passes for the new change.
 

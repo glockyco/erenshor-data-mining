@@ -784,6 +784,7 @@
   max-height: calc(100vh - var(--erenshor-tooltip-viewport-gutter) - var(--erenshor-tooltip-viewport-gutter));
   max-height: calc(100dvh - var(--erenshor-tooltip-viewport-gutter) - var(--erenshor-tooltip-viewport-gutter));
   overflow: hidden auto;
+  overscroll-behavior: contain;
   pointer-events: auto;
   user-select: none;
   contain: layout style paint;

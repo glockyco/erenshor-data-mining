@@ -640,7 +640,25 @@
 			const triggerRect = activeTarget.getBoundingClientRect();
 
 			overlay.style.maxWidth = Math.max( 0, viewport.width - ( gutter * 2 ) ) + 'px';
+			overlay.style.maxHeight = '';
 			let overlayRect = overlay.getBoundingClientRect();
+			const minimumLeft = viewport.left + gutter;
+			const maximumRight = viewport.right - gutter;
+			const right = triggerRect.right + gap;
+			const left = triggerRect.left - gap - overlayRect.width;
+
+			if ( right + overlayRect.width <= maximumRight || left >= minimumLeft ) {
+				const placeRight = right + overlayRect.width <= maximumRight;
+				overlay.style.maxHeight = Math.max( 0, viewport.height - ( gutter * 2 ) ) + 'px';
+				overlayRect = overlay.getBoundingClientRect();
+				const minimumTop = viewport.top + gutter;
+				const maximumTop = viewport.bottom - gutter - overlayRect.height;
+				overlay.style.left = ( placeRight ? right : left ) + 'px';
+				overlay.style.top = clamp( triggerRect.top, minimumTop, Math.max( minimumTop, maximumTop ) ) + 'px';
+				overlay.dataset.placement = placeRight ? 'right' : 'left';
+				return;
+			}
+
 			const naturalHeight = Math.max( overlay.scrollHeight, overlayRect.height );
 			const below = triggerRect.bottom + gap;
 			const roomBelow = Math.max( 0, viewport.bottom - below - gutter );
@@ -650,14 +668,10 @@
 			overlay.style.maxHeight = availableHeight + 'px';
 			overlayRect = overlay.getBoundingClientRect();
 
-			const minimumLeft = viewport.left + gutter;
 			const maximumLeft = viewport.right - gutter - overlayRect.width;
 			const centeredLeft = triggerRect.left + ( ( triggerRect.width - overlayRect.width ) / 2 );
-			const left = clamp( centeredLeft, minimumLeft, Math.max( minimumLeft, maximumLeft ) );
-			const top = placeBelow ? below : triggerRect.top - gap - overlayRect.height;
-
-			overlay.style.left = left + 'px';
-			overlay.style.top = top + 'px';
+			overlay.style.left = clamp( centeredLeft, minimumLeft, Math.max( minimumLeft, maximumLeft ) ) + 'px';
+			overlay.style.top = ( placeBelow ? below : triggerRect.top - gap - overlayRect.height ) + 'px';
 			overlay.dataset.placement = placeBelow ? 'below' : 'above';
 		}
 	}
