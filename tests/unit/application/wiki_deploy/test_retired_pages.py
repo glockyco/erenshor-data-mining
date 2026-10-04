@@ -12,7 +12,7 @@ from erenshor.application.wiki.lifecycle import (
     render_split_disambiguation,
 )
 from erenshor.application.wiki_deploy.retired_pages import audit_retired_pages
-from erenshor.infrastructure.wiki.client import MediaWikiTitleStatus
+from erenshor.infrastructure.wiki.client import MediaWikiPageRevision, MediaWikiPageSnapshot, MediaWikiTitleStatus
 
 
 def _lifecycle() -> ContentLifecycle:
@@ -41,7 +41,20 @@ def _client(pages: dict[str, str | None], created: tuple[str, ...]) -> MagicMock
         title: MediaWikiTitleStatus(title, title, None, pages.get(title, "generated target") is not None)
         for title in titles
     }
-    client.get_pages.side_effect = lambda titles: {title: pages[title] for title in titles}
+
+    def snapshots(titles: list[str]) -> dict[str, MediaWikiPageSnapshot]:
+        result = {}
+        for title in titles:
+            source = pages[title]
+            revision = (
+                MediaWikiPageRevision(title, 1, 10, "2026-10-04T00:00:00Z", "2026-10-04T01:00:00Z", "WoWBot")
+                if source is not None
+                else None
+            )
+            result[title] = MediaWikiPageSnapshot(title, source, revision, "2026-10-04T01:00:00Z")
+        return result
+
+    client.get_page_snapshots.side_effect = snapshots
     return client
 
 
@@ -173,10 +186,10 @@ def test_incomplete_title_or_source_results_fail_closed() -> None:
     with pytest.raises(ValueError, match="incomplete"):
         audit_retired_pages(client, {}, ContentLifecycle(pages={}, renames={}, splits={}))
     client.get_title_statuses.return_value = {"Lost": MediaWikiTitleStatus("Lost", "Lost", None, True)}
-    client.get_pages.side_effect = None
-    client.get_pages.return_value = {}
+    client.get_page_snapshots.side_effect = None
+    client.get_page_snapshots.return_value = {}
     with pytest.raises(ValueError, match="incomplete"):
         audit_retired_pages(client, {}, ContentLifecycle(pages={}, renames={}, splits={}))
-    client.get_pages.return_value = {"Lost": None}
+    client.get_page_snapshots.return_value = {"Lost": MediaWikiPageSnapshot("Lost", None, None, "now")}
     with pytest.raises(ValueError, match="source for 'Lost' is missing"):
         audit_retired_pages(client, {}, ContentLifecycle(pages={}, renames={}, splits={}))

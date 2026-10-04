@@ -11,7 +11,7 @@ from erenshor.infrastructure.wiki.template_parser import TemplateParser
 
 if TYPE_CHECKING:
     from erenshor.application.wiki.lifecycle import ContentLifecycle, LifecyclePage, LifecycleRename, LifecycleSplit
-    from erenshor.infrastructure.wiki.client import MediaWikiClient, MediaWikiTitleStatus
+    from erenshor.infrastructure.wiki.client import MediaWikiClient, MediaWikiPageSnapshot, MediaWikiTitleStatus
 
 RetiredState = Literal[
     "pending notice",
@@ -40,6 +40,7 @@ class RetiredPageReport:
     checked: int
     pages: tuple[RetiredPage, ...]
     reviewed_non_bot: tuple[RetiredPage, ...]
+    snapshots: Mapping[str, MediaWikiPageSnapshot]
 
     @property
     def pending(self) -> int:
@@ -243,14 +244,15 @@ def audit_retired_pages(
     check_titles = [
         title for title in candidates if statuses[title].exists or statuses[title].redirect_target is not None
     ]
-    sources = client.get_pages(check_titles)
-    if set(sources) != set(check_titles):
-        raise ValueError("Retired page review is incomplete: live page sources are missing")
+    snapshots = client.get_page_snapshots(check_titles)
+    if set(snapshots) != set(check_titles):
+        raise ValueError("Retired page review is incomplete: live page snapshots are missing")
 
     bot_pages: list[RetiredPage] = []
     other_pages: list[RetiredPage] = []
     for title in candidates:
-        live_source = sources.get(title)
+        snapshot = snapshots.get(title)
+        live_source = snapshot.source_text if snapshot is not None else None
         if live_source is None:
             if statuses[title].exists or statuses[title].redirect_target is not None:
                 raise ValueError(f"Retired page review is incomplete: source for {title!r} is missing")
@@ -260,6 +262,10 @@ def audit_retired_pages(
                 )
                 (bot_pages if title in created else other_pages).append(item)
             continue
+        if snapshot is None or snapshot.revision is None:
+            raise ValueError(f"Retired page review is incomplete: revision for {title!r} is missing")
         item = _classify(title, live_source, statuses[title], lifecycle, identities, parser, statuses)
         (bot_pages if title in created else other_pages).append(item)
-    return RetiredPageReport(checked=len(created), pages=tuple(bot_pages), reviewed_non_bot=tuple(other_pages))
+    return RetiredPageReport(
+        checked=len(created), pages=tuple(bot_pages), reviewed_non_bot=tuple(other_pages), snapshots=snapshots
+    )

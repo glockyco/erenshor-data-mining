@@ -34,7 +34,7 @@ from rich.panel import Panel
 
 from erenshor.application.extract.database_comparison import recorded_build_id
 from erenshor.application.wiki.generators.context import GeneratorContext
-from erenshor.application.wiki.lifecycle import load_content_lifecycle
+from erenshor.application.wiki.lifecycle import ContentLifecycle, load_content_lifecycle
 from erenshor.application.wiki.semantic_validation import validate_wiki_pages
 from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
 from erenshor.application.wiki.services.fetch_service import WikiFetchService
@@ -74,6 +74,7 @@ from erenshor.application.wiki_deploy.pages import (
 )
 from erenshor.application.wiki_deploy.refresh import refresh_embedded_pages
 from erenshor.application.wiki_deploy.render_check import RenderCheck
+from erenshor.application.wiki_deploy.retired_apply import apply_retired_edits, plan_retired_edits
 from erenshor.application.wiki_deploy.retired_pages import RetiredPageReport, audit_retired_pages
 from erenshor.application.wiki_deploy.rollback import rollback_repo_pages
 from erenshor.application.wiki_interface.deploy import (
@@ -751,9 +752,12 @@ def audit_links_command(
         raise typer.Exit(1)
 
 
-def _run_retired_audit(cli_ctx: CLIContext, storage: WikiStorage) -> RetiredPageReport:
+def _run_retired_audit(
+    cli_ctx: CLIContext, storage: WikiStorage, *, lifecycle: ContentLifecycle | None = None
+) -> RetiredPageReport:
     """Read current articles and lifecycle facts for a complete live review."""
-    lifecycle = load_content_lifecycle(cli_ctx.repo_root / "content-lifecycle.json")
+    if lifecycle is None:
+        lifecycle = load_content_lifecycle(cli_ctx.repo_root / "content-lifecycle.json")
     generated = storage.read_generated_pages()
     client = _create_readonly_mediawiki_client(cli_ctx)
     try:
@@ -796,6 +800,52 @@ def audit_retired_pages_command(ctx: typer.Context) -> None:
         console.print(f"[red]Retired page review is incomplete: {escape(str(error))}[/red]")
         raise typer.Exit(1) from error
     if report.has_errors:
+        raise typer.Exit(1)
+
+
+@app.command("apply-retired-pages")
+@require_preconditions(wiki_endpoint, wiki_credentials)
+def apply_retired_pages_command(ctx: typer.Context) -> None:
+    """Apply reviewed historical notices, redirects, and split pages with revision guards."""
+    cli_ctx: CLIContext = ctx.obj
+    wiki_dir = cli_ctx.config.variants[cli_ctx.variant].resolved_wiki(cli_ctx.repo_root)
+    try:
+        lifecycle = load_content_lifecycle(cli_ctx.repo_root / "content-lifecycle.json")
+        report = _run_retired_audit(cli_ctx, WikiStorage(wiki_dir), lifecycle=lifecycle)
+        edits = plan_retired_edits(report, lifecycle)
+    except Exception as error:
+        console.print(f"[red]Retired page review is incomplete: {escape(str(error))}[/red]")
+        raise typer.Exit(1) from error
+
+    actions = Counter(edit.action for edit in edits)
+    console.print(
+        f"Pending changes: notices {actions['notice']} | redirects {actions['redirect']} | "
+        f"disambiguation pages {actions['disambiguation']}"
+    )
+    if cli_ctx.dry_run:
+        for edit in edits:
+            console.print(f"{edit.title} ({edit.action})", markup=False)
+            console.print(edit.content, markup=False, soft_wrap=True)
+        return
+    if not edits:
+        return
+
+    run_dir = (
+        wiki_dir / "retired-page-deploys" / (datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid.uuid4().hex[:8])
+    )
+    client = _create_mediawiki_client(cli_ctx)
+    try:
+        result = apply_retired_edits(edits, repo_root=cli_ctx.repo_root, run_dir=run_dir, client=client)
+    finally:
+        client.close()
+    console.print(f"Manifest: {result.manifest_path}", markup=False)
+    for title in result.edited:
+        console.print(f"[green]Edited[/green] {escape(title)}")
+    for conflict in result.conflicts:
+        console.print(f"[yellow]Changed after review[/yellow] {escape(conflict)}")
+    if result.stopped:
+        console.print(f"[red]Stopped[/red] {escape(result.stopped)}")
+    if result.failed:
         raise typer.Exit(1)
 
 

@@ -21,7 +21,7 @@ from erenshor.application.wiki_deploy.manifest import (
 )
 from erenshor.application.wiki_deploy.pages import RepoPageDeployResult, RepoPageDeployResultEntry
 from erenshor.application.wiki_deploy.refresh import EmbeddedRefreshResult
-from erenshor.application.wiki_deploy.retired_pages import RetiredPageReport
+from erenshor.application.wiki_deploy.retired_pages import RetiredPage, RetiredPageReport
 from erenshor.application.wiki_deploy.rollback import RollbackResult, RollbackResultEntry
 from erenshor.application.wiki_lua.link_catalog import LinkCatalogEntry
 from erenshor.cli.commands import wiki
@@ -474,7 +474,7 @@ class TestWikiDeployCommand:
         monkeypatch.setattr(
             wiki_command,
             "_run_retired_audit",
-            lambda _ctx, _storage: RetiredPageReport(checked=0, pages=(), reviewed_non_bot=()),
+            lambda _ctx, _storage: RetiredPageReport(checked=0, pages=(), reviewed_non_bot=(), snapshots={}),
         )
         monkeypatch.setattr(wiki_command, "_build_link_audit_catalog", lambda _ctx: ())
         monkeypatch.setattr(
@@ -513,8 +513,14 @@ class TestWikiDeployCommand:
         readonly.get_title_statuses.side_effect = lambda titles: {
             title: MediaWikiTitleStatus(title, title, None, True) for title in titles
         }
-        readonly.get_pages.side_effect = lambda titles: {
-            title: "{{Stance|stablekey=stance:reckless}}" if title == "Reckless" else "{{Item}}" for title in titles
+        readonly.get_page_snapshots.side_effect = lambda titles: {
+            title: MediaWikiPageSnapshot(
+                title,
+                "{{Stance|stablekey=stance:reckless}}" if title == "Reckless" else "{{Item}}",
+                MediaWikiPageRevision(title, 1, 10, "2026-10-04T00:00:00Z", "2026-10-04T01:00:00Z", "WoWBot"),
+                "2026-10-04T01:00:00Z",
+            )
+            for title in titles
         }
         factory = MagicMock(return_value=readonly)
         monkeypatch.setattr(wiki_command, "_create_readonly_mediawiki_client", factory)
@@ -534,6 +540,79 @@ class TestWikiDeployCommand:
         assert filtered.exit_code == 0, filtered.output
         assert "not a complete review" in _unwrapped(filtered.output)
         assert factory.call_count == 2
+
+    def test_apply_retired_pages_dry_run_and_guarded_write(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, cli_context: CLIContext
+    ) -> None:
+        import erenshor.cli.commands.wiki as wiki_command
+
+        context = replace(cli_context, repo_root=tmp_path)
+        (tmp_path / "content-lifecycle.json").write_text(
+            json.dumps(
+                {
+                    "pages": {
+                        "Reckless": {
+                            "stable_key": "stance:reckless",
+                            "state": "removed",
+                            "thing": "stance",
+                            "update": None,
+                            "date": None,
+                            "patch_notes_url": None,
+                            "source": "game export",
+                        }
+                    },
+                    "renames": {},
+                    "splits": {},
+                }
+            ),
+            encoding="utf-8",
+        )
+        revision = MediaWikiPageRevision("Reckless", 1, 10, "2026-10-04T00:00:00Z", "2026-10-04T01:00:00Z", "WoWBot")
+        report = RetiredPageReport(
+            checked=1,
+            pages=(RetiredPage("Reckless", "stance:reckless", None, "removed notice", "pending notice"),),
+            reviewed_non_bot=(),
+            snapshots={
+                "Reckless": MediaWikiPageSnapshot(
+                    "Reckless", "{{Stance|title=Reckless}}", revision, revision.start_timestamp
+                )
+            },
+        )
+        audit = MagicMock(return_value=report)
+        monkeypatch.setattr(wiki_command, "_run_retired_audit", audit)
+        no_login = MagicMock(side_effect=AssertionError("dry run must not log in"))
+        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", no_login)
+
+        preview = runner.invoke(wiki.app, ["apply-retired-pages"], obj=replace(context, dry_run=True))
+        assert preview.exit_code == 0, preview.exception
+        assert "notices 1 | redirects 0 | disambiguation pages 0" in _unwrapped(preview.output)
+        assert "{{Historical Content|state=removed|thing=stance}}" in preview.output
+        assert "{{Stance|title=Reckless}}" in preview.output
+        assert not (tmp_path / "wiki" / "retired-page-deploys").exists()
+        no_login.assert_not_called()
+
+        audit.return_value = RetiredPageReport(
+            checked=2,
+            pages=(*report.pages, RetiredPage("Mystery", None, None, "review needed", "unexplained")),
+            reviewed_non_bot=(),
+            snapshots=report.snapshots,
+        )
+        blocked = runner.invoke(wiki.app, ["apply-retired-pages"], obj=context)
+        assert blocked.exit_code == 1
+        no_login.assert_not_called()
+        assert not (tmp_path / "wiki" / "retired-page-deploys").exists()
+
+        audit.return_value = report
+        writer = MagicMock()
+        writer.safe_edit_page.return_value = 11
+        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", lambda _ctx: writer)
+        applied = runner.invoke(wiki.app, ["apply-retired-pages"], obj=context)
+        assert applied.exit_code == 0, applied.exception
+        assert "Edited Reckless" in _unwrapped(applied.output)
+        assert writer.safe_edit_page.call_args.kwargs["base_revision"] == revision
+        assert writer.safe_edit_page.call_args.kwargs["summary"] == "Mark historical content"
+        [manifest_path] = (tmp_path / "wiki" / "retired-page-deploys").glob("*/manifest.json")
+        assert read_repo_page_manifest(manifest_path).entries[0].new_revision_id == 11
 
     def test_dry_run_reports_the_plan_and_audits_without_logging_in(
         self, monkeypatch: pytest.MonkeyPatch, cli_context: CLIContext
