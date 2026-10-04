@@ -249,6 +249,8 @@ A stance has no icon in the game. The skill book shows the icon of the skill tha
 
 On 2026-10-04 a check in the game found six defects: a bow label that also doubled the bow DPS, no `Range 1` on melee weapons, no `Must Equip to Cast`, no item value, no percent sign on haste, and a stance lifesteal multiplier shown as a percentage. Tasks 5.5 to 5.9 and 5.13 fix them.
 
+Hover tooltips open beside their link. On 2026-10-04 a comparison with Wowhead, warcraft.wiki.gg, the Path of Exile and Minecraft wikis, MediaWiki Page Previews, and the Afallon compendium showed three placements. A card below the link covers the next rows of a drop table, a card that follows the cursor covers its neighbours, and a card beside the link covers neither. The delay of 300 ms stays, because it lies in the usual range (Page Previews waits about 500 ms). None of the compared game wikis supports the keyboard or assistive technology, so the gadget keeps its own support and the spec states it.
+
 ### Failure handling and update grouping
 
 - The dependency check, the render check, and the size check fail closed. They name the page and the cause, and a dry run reports the same result without writing.

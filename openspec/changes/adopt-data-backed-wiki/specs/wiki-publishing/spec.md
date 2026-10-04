@@ -132,6 +132,37 @@ Before it writes a module or template that main-namespace pages use, `wiki deplo
 - **WHEN** a generated data module holds 5.1 MB of text and the limit is 4 MiB
 - **THEN** generation fails and names the module and its size
 
+### Requirement: Hover tooltips open beside their link
+
+The item and ability tooltip gadget SHALL open a tooltip beside its link: on the right when the viewport has room, otherwise on the left. It SHALL keep the tooltip inside the viewport, limit its height to the viewport, and let it scroll. Only when neither side has room SHALL the tooltip open above or below the link. Keyboard focus SHALL open the tooltip at once and name it in the link's `aria-describedby`. Escape SHALL close the tooltip without moving focus. On a touch screen, hover tooltips SHALL stay closed, so that a tap follows the link.
+
+#### Scenario: A link in a table
+
+- **WHEN** a reader hovers an item link in a table row and the viewport has room on the right
+- **THEN** the tooltip opens right of the link
+- **AND** it does not cover the next row of the table
+
+#### Scenario: A link near the right edge
+
+- **WHEN** the right side of the viewport has no room for the tooltip
+- **THEN** the tooltip opens left of the link
+
+#### Scenario: A tooltip taller than the viewport
+
+- **WHEN** a tooltip is taller than the viewport
+- **THEN** it stays inside the viewport and scrolls
+
+#### Scenario: Keyboard use
+
+- **WHEN** keyboard focus reaches an item link
+- **THEN** the tooltip opens and the link's `aria-describedby` names it
+- **AND** Escape closes the tooltip while focus stays on the link
+
+#### Scenario: Touch use
+
+- **WHEN** a reader taps an item link on a touch screen
+- **THEN** no tooltip opens and the tap follows the link
+
 ### Requirement: Requests follow the wiki's rate limits
 
 Wiki commands SHALL send their API requests one at a time with `maxlag`. A request whose action the wiki rate-limits for the logged-in account SHALL wait until the previous request of that action is at least the limit's period divided by its count, plus 10 percent, in the past. Other requests SHALL NOT wait. A `ratelimited` or `maxlag` response SHALL back off and retry.
