@@ -21,7 +21,7 @@
 
 ## 4. Step 0: verify the cleanup
 
-- [ ] 4.1 Run `uv run erenshor test ci` and `uv run erenshor test wiki --warm`. Both pass.
+- [x] 4.1 Run `uv run erenshor test ci` and `uv run erenshor test wiki --warm`. Both pass.
 - [ ] 4.2 Run `uv run erenshor wiki generate-lua`, a full `uv run erenshor wiki generate`, and `uv run erenshor --dry-run wiki deploy-repo-pages --include-templates --include-content-pages`. The dry run lists only intended pages, blocks none, and its render check shows no new script error. Review the report together before task 6.2 of `refresh-wiki-articles`.
 
 ## 5. Step 1: refresh the stale articles
