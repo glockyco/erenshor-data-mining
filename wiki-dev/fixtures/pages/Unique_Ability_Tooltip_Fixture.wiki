@@ -1,3 +1,2 @@
 = Unique Ability Tooltip Fixture =
-{{Spell|stablekey=spell:minor_lightning}}
 {{SpellTooltip|stablekey=spell:minor_lightning}}

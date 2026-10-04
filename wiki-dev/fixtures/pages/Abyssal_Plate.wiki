@@ -1,3 +1,27 @@
-{{Item|stablekey=item:abyssal_plate|lua=1}}
+{{Item|stablekey=item:abyssal_plate}}
 
-{{ItemTooltip|stablekey=item:abyssal_plate}}
+{{ItemTooltip
+|kind=Armor
+|stablekey=item:abyssal_plate
+|image=Abyssal Plate
+|name=Abyssal Plate
+|slot=Chest
+|armor=40
+|health=12
+|mana=3
+|str=4
+|end=5
+|dex=6
+|agi=7
+|int=8
+|wis=9
+|cha=10
+|res=11
+|magic=12
+|poison=13
+|elemental=14
+|void=15
+|paladin=True
+|proc_style=Worn
+|proc_spell_name=Minor Lightning
+}}

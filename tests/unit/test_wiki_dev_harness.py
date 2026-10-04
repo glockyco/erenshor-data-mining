@@ -43,7 +43,9 @@ def test_maps_interface_repo_and_fixture_pages_to_wiki_titles(tmp_path: Path) ->
     (root / "wiki/modules/Erenshor/Item.lua").write_text("return {}\n", encoding="utf-8")
     (root / "wiki-dev/fixtures/modules/Erenshor/Data/Items.lua").write_text("return {}\n", encoding="utf-8")
     (root / "wiki-dev/fixtures/modules/Erenshor/Data/Items/Weapons.lua").write_text("return {}\n", encoding="utf-8")
-    (root / "wiki/templates/Item.wiki").write_text("{{#invoke:Erenshor/Item|render}}\n", encoding="utf-8")
+    (root / "wiki/templates/Item.wiki").write_text(
+        '<includeonly><infobox type="Item"/></includeonly>\n', encoding="utf-8"
+    )
     (root / "wiki-dev/fixtures/pages/Sword_of_Flames.wiki").write_text("{{Item}}\n", encoding="utf-8")
 
     import_pages = load_script("wiki-dev/import_pages.py")
@@ -246,9 +248,9 @@ def test_null_edit_discovers_pages_from_render_fixture() -> None:
 
     titles = null_edit.load_titles(Path("wiki-dev/fixtures/smoke.tsv"))
 
-    assert titles[:3] == ["A Cat for a Deer", "A Grizzly Bear", "A Magical Sword in Port Azure"]
-    assert "Manual Item Override" in titles
-    assert "Captain Rowan" in titles
+    assert "Ember Longsword" in titles
+    assert "Abyssal Plate" in titles
+    assert "Semantic Tooltip Smoke" in titles
     assert len(titles) == len(set(titles))
 
 

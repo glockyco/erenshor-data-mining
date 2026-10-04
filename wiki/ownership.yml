@@ -36,7 +36,7 @@ templates:
       - Minor Regeneration
       - Ethereal Rending
       - Hydrated
-    notes: root public compatibility template for the Lua cutover
+    notes: parameter-only ability infobox
   - title: Template:Ability Books
     ownership: unknown
     cutover_blocking: false
@@ -121,7 +121,7 @@ templates:
       - Isabel Schegg
       - Cerbantias Flameward
       - Sparkles
-    notes: root public compatibility template for the Lua cutover
+    notes: parameter-only character infobox
   - title: Template:Character/doc
     ownership: documentation_template
     cutover_blocking: false
@@ -401,7 +401,7 @@ templates:
       - Bottomless Elixir
       - Satin Cloak
       - A Worm Eel
-    notes: root public compatibility template for the Lua cutover
+    notes: parameter-only item infobox
   - title: Template:Item/Armor
     ownership: legacy_template
     cutover_blocking: false
@@ -708,7 +708,7 @@ templates:
       - "Stowaway's Step"
       - Island Tomb
       - Silkengrass Meadowlands
-    notes: root public compatibility template for the Lua cutover
+    notes: parameter-only map link
   - title: Template:MessageBox
     ownership: helper_template
     cutover_blocking: false
@@ -801,7 +801,7 @@ templates:
       - Stowaway Registration
       - "Aragath's Imprisonment"
       - "Kio's Papers"
-    notes: root public compatibility template for the Lua cutover
+    notes: parameter-only quest infobox
   - title: Template:Quest/doc
     ownership: documentation_template
     cutover_blocking: false
@@ -1029,7 +1029,7 @@ templates:
       - Island Tomb
       - Silkengrass Meadowlands
       - Braxonian Desert
-    notes: root public compatibility template for the Lua cutover
+    notes: parameter-only zone infobox
   - title: Template:Zone Navbox
     ownership: navbox_template
     cutover_blocking: false

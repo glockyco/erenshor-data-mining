@@ -1,1 +1,0 @@
-{{Character|lua=1|stablekey=character:captain_rowan}}

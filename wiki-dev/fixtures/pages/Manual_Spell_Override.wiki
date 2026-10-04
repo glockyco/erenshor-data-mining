@@ -1,7 +1,0 @@
-{{Spell
-|stablekey=spell:minor_lightning
-|title=Manual Spell Title
-|casttime=Manual Cast
-|damage_type=-
-|source=Manual Spell Source
-}}

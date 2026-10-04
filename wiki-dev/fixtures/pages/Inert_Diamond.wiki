@@ -1,1 +1,0 @@
-{{Item|stablekey=item:template - inert diamond|lua=1}}

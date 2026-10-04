@@ -1,2 +1,0 @@
-{{Character|lua=1|stablekey=character:dire_wolf_young}}
-{{Character|lua=1|stablekey=character:dire_wolf_alpha}}

@@ -1,1 +1,0 @@
-{{Quest|lua=1|stablekey=quest:catfordeer}}
