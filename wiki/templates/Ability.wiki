@@ -67,7 +67,7 @@
 |used_by=[[Ancient Spectre]]<br>[[Botanist]]
 }}
 </noinclude>
-<includeonly><infobox type="Abilities">
+<includeonly>{{#if:{{{historical_state|}}}|{{Historical Content|state={{{historical_state}}}|thing=ability|update={{{historical_update|}}}|date={{{historical_date|}}}|url={{{historical_url|}}}}}}}<infobox type="Abilities">
       <title source="title"/>
       <image source="image"><caption source="imagecaption"/></image>
 
@@ -126,4 +126,4 @@
           <header>Used By</header>
 		  <data source="used_by"><label>Characters</label></data>
       </group>
-  </infobox>{{#if:{{{historical_state|}}}|{{Historical Content|state={{{historical_state}}}|thing=ability|update={{{historical_update|}}}|date={{{historical_date|}}}|url={{{historical_url|}}}}}}}{{#ifeq: {{NAMESPACENUMBER}} | 0 | [[Category:Abilities]]}}</includeonly>
+  </infobox>{{#ifeq: {{NAMESPACENUMBER}} | 0 | [[Category:Abilities]]}}</includeonly>

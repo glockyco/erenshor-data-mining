@@ -1,0 +1,31 @@
+{{Item
+|title=Historical Layout Item
+|stablekey=item:abyssal_plate
+|type=[[Armor|Chest]]
+|historical_state=unobtainable
+|vendorsource=[[Example Vendor]]
+|source=[[Example Enemy]]
+|othersource=No other known sources
+|classes=All
+|effects=Armor and health
+|damage=1
+|delay=3
+|dps=0.3
+|casttime=Instant
+|duration=10 seconds
+|cooldown=30 seconds
+|description=An example item with a historical notice.
+|buy=100
+|sell=50
+}}
+The item details stay beside the infobox.
+
+{{ItemTooltip
+|kind=Armor
+|stablekey=item:abyssal_plate
+|image=Abyssal Plate
+|name=Abyssal Plate
+|slot=Chest
+|armor=40
+|health=12
+}}

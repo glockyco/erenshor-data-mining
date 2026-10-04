@@ -1,4 +1,4 @@
-<includeonly><infobox type="Item">
+<includeonly>{{#if:{{{historical_state|}}}|{{Historical Content|state={{{historical_state}}}|thing=item|update={{{historical_update|}}}|date={{{historical_date|}}}|url={{{historical_url|}}}}}}}<infobox type="Item">
     <title source="title"/>
     <image source="image"><caption source="imagecaption"/></image>
     <data source="type"><label>Type</label></data>
@@ -40,7 +40,7 @@
     <data source="sell"><label>Sell</label></data>
     <data source="guaranteeddrops"><label>Provides one of</label></data>
     <data source="droprates"><label>Overall Item Chances</label></data>
-</infobox>{{#if:{{{historical_state|}}}|{{Historical Content|state={{{historical_state}}}|thing=item|update={{{historical_update|}}}|date={{{historical_date|}}}|url={{{historical_url|}}}}}}}{{#ifeq: {{NAMESPACENUMBER}} | 0 | [[Category:Items]]}}</includeonly><noinclude>
+</infobox>{{#ifeq: {{NAMESPACENUMBER}} | 0 | [[Category:Items]]}}</includeonly><noinclude>
 == Template:Item ==
 
 Infobox template for displaying item information on wiki pages.

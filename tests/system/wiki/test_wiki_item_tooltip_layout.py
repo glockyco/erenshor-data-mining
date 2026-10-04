@@ -49,3 +49,20 @@ def test_effect_lines_are_centered_in_the_card(browser_page: Page, title: str, s
 
     assert {line["selector"] for line in lines} == set(selectors)
     assert [line for line in lines if abs(line["offset"]) > 2] == []
+
+
+def test_historical_notice_does_not_push_item_tooltip_below_infobox(browser_page: Page) -> None:
+    browser_page.goto(f"{WIKI_BASE_URL}/index.php?title=Historical_Layout_Item", wait_until="domcontentloaded")
+    notice = browser_page.locator(".navbox").first
+    infobox = browser_page.locator(".portable-infobox").first
+    tooltip = browser_page.locator(".item-tooltip").first
+    tooltip.wait_for()
+
+    notice_box = notice.bounding_box()
+    infobox_box = infobox.bounding_box()
+    tooltip_box = tooltip.bounding_box()
+
+    assert notice_box is not None and infobox_box is not None and tooltip_box is not None
+    assert notice_box["y"] + notice_box["height"] <= infobox_box["y"]
+    assert tooltip_box["y"] < infobox_box["y"] + infobox_box["height"]
+    assert tooltip_box["x"] + tooltip_box["width"] <= infobox_box["x"]
