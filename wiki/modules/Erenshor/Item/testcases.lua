@@ -786,25 +786,6 @@ function p.run()
 		"generated item classes use canonical class page"
 	)
 
-	local cargo = Item.cargoArgs({ args = { stablekey = "item:abyssal_plate" } })
-	assertEqual(cargo.Armor, "40", "cargo store contains armor overview AC")
-	assertEqual(cargo.Classes, "Paladin,Warrior", "cargo store contains plain class names")
-	local classRender = Item.classLinks({ args = { "Paladin,Warrior" } })
-	assertContains(classRender, "erenshor-link--class", "classLinks renders semantic class links")
-	assertContains(classRender, "[[Paladin]]", "classLinks renders Paladin link")
-	assertEqual(
-		cargo.WornEffectKey,
-		"spell:minor_lightning",
-		"cargo store contains worn ability stable key"
-	)
-	local wornNotes = Item.overviewNotes({ args = { stablekey = "item:abyssal_plate" } })
-	assertContains(wornNotes, "Worn: ", "overview notes include worn prefix")
-	assertContains(
-		wornNotes,
-		"erenshor-link--ability",
-		"overview notes render semantic worn ability link"
-	)
-	assertContains(wornNotes, "[[Minor Lightning]]", "overview notes render worn ability page")
 	local wornTooltip = Item.renderTooltip(
 		{ stablekey = "item:abyssal_plate", quality = "Standard" },
 		"Abyssal Plate"
@@ -813,76 +794,6 @@ function p.run()
 	assertContains(wornTooltip, "+30", "item effect tooltip includes resonance value")
 	assertAbsent(wornTooltip, "24px", "item effect link omits its duplicate ability icon")
 
-	local weaponCargo = Item.cargoArgs({ args = { stablekey = "item:ember_longsword" } })
-	assertEqual(weaponCargo.WeaponType, "OneHandMelee", "cargo store contains weapon subtype")
-	assertEqual(weaponCargo.Damage, "18", "cargo store contains normal weapon damage")
-	assertEqual(weaponCargo.Delay, "2.5", "cargo store contains weapon delay")
-	assertEqual(
-		weaponCargo.WeaponProcKey,
-		"spell:ember_proc",
-		"cargo store contains weapon proc stable key"
-	)
-	assertEqual(weaponCargo.WeaponProcChance, "20", "cargo store contains weapon proc chance")
-	local procNotes = Item.overviewNotes({ args = { stablekey = "item:ember_longsword" } })
-	assertContains(
-		procNotes,
-		"erenshor-link--ability",
-		"overview notes render semantic weapon proc link"
-	)
-	assertContains(procNotes, "[[Ember Burst]]", "overview notes render weapon proc page")
-	assertContains(procNotes, "20% on attack", "overview notes render proc chance and trigger")
-	local scrollCargo = Item.cargoArgs({ args = { stablekey = "item:scroll_of_ember" } })
-	assertEqual(
-		scrollCargo.TeachesSpellKey,
-		"spell:ember",
-		"cargo store contains taught spell stable key"
-	)
-	local manualCargo = Item.cargoArgs({ args = { stablekey = "item:sword_mastery_manual" } })
-	assertEqual(
-		manualCargo.TeachesSkillKey,
-		"skill:sword_mastery",
-		"cargo store contains taught skill stable key"
-	)
-	local draughtCargo = Item.cargoArgs({ args = { stablekey = "item:healing_draught" } })
-	assertEqual(
-		draughtCargo.ClickEffectKey,
-		"spell:minor_heal",
-		"cargo store contains click effect stable key"
-	)
-	local auraCargo = Item.cargoArgs({ args = { stablekey = "item:ember_aura" } })
-	assertEqual(auraCargo.AuraKey, "spell:ancient_presence", "cargo store contains aura stable key")
-	local obtained = Item.cargoObtainedFromRows({ args = { stablekey = "item:magical_bag" } })
-	assertEqual(#obtained, 3, "obtainedFrom rows cover every source")
-	assertEqual(obtained[1].ItemKey, "item:magical_bag", "obtainedFrom carries item key")
-	assertEqual(obtained[1].SourceType, "drop", "obtainedFrom stores source type")
-	assertEqual(obtained[1].SourceKey, "character:a_grizzly_bear", "obtainedFrom stores source key")
-	assertEqual(obtained[1].Probability, "12.5", "obtainedFrom stores probability")
-	assertEqual(obtained[1].IsGuaranteed, "yes", "obtainedFrom stores guaranteed flag")
-	assertEqual(obtained[2].SourceType, "fishing", "obtainedFrom stores fishing source type")
-	assertEqual(
-		obtained[2].SourceKey,
-		"water:brake:287.10:7.50:247.80",
-		"obtainedFrom preserves the water identity"
-	)
-	assertEqual(obtained[2].SourceCondition, "day", "obtainedFrom stores fishing condition")
-	assertEqual(obtained[2].IsGuaranteed, "no", "obtainedFrom leaves fishing unguaranteed")
-	assertEqual(obtained[3].SourceType, "starting", "obtainedFrom stores starting source type")
-	assertEqual(obtained[3].SourceKey, "class:Arcanist", "obtainedFrom stores starting source key")
-	local used = Item.cargoUsedInRows({ args = { stablekey = "item:magical_bag" } })
-	assertEqual(#used, 2, "usedIn rows cover every usage")
-	assertEqual(used[1].ItemKey, "item:magical_bag", "usedIn carries item key")
-	assertEqual(used[1].UseType, "craft_material", "usedIn stores craft usage type")
-	assertEqual(
-		used[1].TargetKey,
-		"item:template - copper armor mold",
-		"usedIn stores craft target"
-	)
-	assertEqual(used[1].Quantity, "2", "usedIn stores craft quantity")
-	assertEqual(used[1].Slot, "1", "usedIn stores craft slot")
-	assertEqual(used[2].UseType, "quest_requirement", "usedIn stores quest usage type")
-	assertEqual(used[2].TargetKey, "quest:an ore for the forge", "usedIn stores quest target")
-	assertEqual(used[2].Quantity, "1", "usedIn stores quest quantity")
-	assertEqual(used[2].Slot, nil, "usedIn omits nullable quest slot")
 	assertEqual(
 		Item.fieldValue({ stablekey = "item:healing_draught" }, "Healing Draught", "disposable"),
 		"Yes",

@@ -3,7 +3,6 @@ local Link = require("Module:Erenshor/Link")
 local Format = require("Module:Erenshor/Format")
 local Tooltip = require("Module:Erenshor/Item/Tooltip")
 local Quality = require("Module:Erenshor/Item/Quality")
-local Cargo = require("Module:Erenshor/Cargo")
 
 local Index = mw.loadData("Module:Erenshor/Data/Items")
 local Links = mw.loadData("Module:Erenshor/Data/Links")
@@ -261,26 +260,7 @@ local function classText(classes, classLinks)
 	return tostring(classes)
 end
 
-local function classCargo(classes)
-	if classes == nil then
-		return ""
-	end
-	if type(classes) == "table" then
-		return table.concat(classes, ",")
-	end
-	return tostring(classes)
-end
-
 local hasValue
-
-local function standardStats(item)
-	for _, stats in ipairs(item.stats or {}) do
-		if stats.quality == "Standard" then
-			return stats
-		end
-	end
-	return (item.stats or {})[1] or {}
-end
 
 local function baseDps(item)
 	local damage = tonumber(item.damage)
@@ -337,42 +317,6 @@ local function abilityPage(stableKey)
 	return ability.page
 end
 
-local function percent(value)
-	local amount = tonumber(value)
-	if amount == nil then
-		return ""
-	end
-	return tostring(math.floor(amount))
-end
-
-local function weaponProcTrigger(item)
-	-- Faithful to ItemInfoWindow.cs: shields proc on bash, bracers on cast,
-	-- ordinary weapons on attack.
-	if item.shield then
-		-- code-fact: iteminfo.proc_trigger_bash
-		return "on bash"
-	end
-	if item.slot == "Bracer" then
-		-- code-fact: iteminfo.proc_trigger_cast
-		return "on cast"
-	end
-	-- code-fact: iteminfo.proc_trigger_attack
-	return "on attack"
-end
-
-local function procOverview(item)
-	if hasValue(item.weaponProc) and hasValue(item.weaponProcChance) then
-		return abilityPage(item.weaponProc), percent(item.weaponProcChance), weaponProcTrigger(item)
-	end
-	if hasValue(item.wandEffect) and hasValue(item.wandProcChance) then
-		return abilityPage(item.wandEffect), percent(item.wandProcChance), "on attack"
-	end
-	if hasValue(item.bowEffect) and hasValue(item.bowProcChance) then
-		return abilityPage(item.bowEffect), percent(item.bowProcChance), "on attack"
-	end
-	return nil, nil, nil
-end
-
 local function abilityLinkMarkup(page)
 	if isBlank(page) then
 		return ""
@@ -408,35 +352,6 @@ local function lineList(values)
 		end
 	end
 	return table.concat(out, "<br>")
-end
-
-function p.overviewNotes(frame)
-	-- The overview "Notes" cell coalesces an item's own proc/worn/click abilities
-	-- at display time from the Lua data module; Cargo stores the scalar ability
-	-- StableKeys (for reverse queries), never this rendered conflation.
-	local item = itemForStableKey(explicitStableKey(templateArgs(frame)))
-	if item == nil then
-		return ""
-	end
-	local notes = {}
-	local procPage, procChance, procTrigger = procOverview(item)
-	if hasValue(procPage) then
-		table.insert(
-			notes,
-			abilityLinkMarkup(procPage) .. ", " .. procChance .. "% " .. procTrigger
-		)
-	end
-	if hasValue(item.wornEffect) then
-		table.insert(notes, "Worn: " .. abilityLinkFromStableKey(item.wornEffect))
-	end
-	if hasValue(item.clickEffect) then
-		table.insert(notes, "On click: " .. abilityLinkFromStableKey(item.clickEffect))
-	end
-	local text = table.concat(notes, "<br>")
-	if frame ~= nil and frame.preprocess ~= nil then
-		return frame:preprocess(text)
-	end
-	return text
 end
 
 local function boolText(value)
@@ -641,75 +556,8 @@ function p.renderLink(args, pageTitle)
 	return Link.render(out)
 end
 
-local function cargoFields(item, pageTitle)
-	local stats = standardStats(item)
-	return {
-		{ "Page", pageTitle },
-		{ "StableKey", item.stableKey },
-		{ "Name", item.name },
-		{ "Type", item.type },
-		{ "Slot", item.slot },
-		{ "WeaponType", item.weaponType },
-		{ "ItemLevel", item.itemLevel },
-		{ "Damage", item.damage },
-		{ "Delay", item.weaponDelay },
-		{ "Armor", item.armor },
-		{ "HP", stats.hp },
-		{ "Mana", stats.mana },
-		{ "Str", stats.str },
-		{ "End", stats["end"] },
-		{ "Dex", stats.dex },
-		{ "Agi", stats.agi },
-		{ "Intellect", stats["int"] },
-		{ "Wis", stats.wis },
-		{ "Cha", stats.cha },
-		{ "Res", stats.res },
-		{ "MR", stats.mr },
-		{ "PR", stats.pr },
-		{ "ER", stats.er },
-		{ "VR", stats.vr },
-		{ "BuyValue", item.buyValue },
-		{ "SellValue", item.sellValue },
-		{ "Image", ensureImageFile(item.image, item.name) },
-		{ "Classes", classCargo(item.classes) },
-		{ "TeachesSpellKey", item.teachesSpell },
-		{ "TeachesSkillKey", item.teachesSkill },
-		{ "WeaponProcKey", item.weaponProc },
-		{ "WeaponProcChance", item.weaponProcChance },
-		{ "WandEffectKey", item.wandEffect },
-		{ "WandProcChance", item.wandProcChance },
-		{ "BowEffectKey", item.bowEffect },
-		{ "BowProcChance", item.bowProcChance },
-		{ "WornEffectKey", item.wornEffect },
-		{ "ClickEffectKey", item.clickEffect },
-		{ "SkillUseKey", item.skillUse },
-		{ "AuraKey", item.aura },
-		{ "Relic", item.relic },
-		{ "MustBeEquippedToClick", item.mustBeEquippedToClick },
-		{ "PlayerCannotSell", item.playerCannotSell },
-		{ "RareItem", item.rareItem },
-		{ "HasProc", hasValue(item.weaponProc) or hasValue(item.procEffect) },
-		{ "HasWornEffect", hasValue(item.wornEffect) },
-	}
-end
-
 function p.field(frame)
 	return p.fieldValue(templateArgs(frame), currentTitleText(), frame.args[1])
-end
-
-function p.classLinks(frame)
-	local value = frame.args[1]
-	if value == nil or isBlank(value) then
-		return ""
-	end
-	local links = {}
-	for class in string.gmatch(value, "[^,]+") do
-		local trimmed = mw.text.trim(class)
-		if not isBlank(trimmed) then
-			table.insert(links, Link.render({ kind = "class", page = trimmed }))
-		end
-	end
-	return table.concat(links, ", ")
 end
 
 function p.status(frame)
@@ -722,115 +570,6 @@ end
 
 function p.link(frame)
 	return p.renderLink(templateArgs(frame), currentTitleText())
-end
-
--- One Cargo ObtainedFrom row per stable-keyed item source.
-local function obtainedFromRows(item)
-	local rows = {}
-	if type(item.obtainedFrom) ~= "table" then
-		return rows
-	end
-	for _, source in ipairs(item.obtainedFrom) do
-		if type(source) == "table" and hasValue(source.type) then
-			table.insert(rows, {
-				{ "ItemKey", item.stableKey },
-				{ "SourceType", source.type },
-				{ "SourceKey", source.sourceKey },
-				{ "SourceText", source.sourceText },
-				{ "Probability", source.probability },
-				{ "IsGuaranteed", source.guaranteed == true },
-				{ "Quantity", source.quantity },
-				{ "SourceCondition", source.condition },
-				{ "Origin", "generated" },
-			})
-		end
-	end
-	return rows
-end
-
--- One Cargo UsedIn row per stable-keyed item usage.
-local function usedInRows(item)
-	local rows = {}
-	if type(item.usedIn) ~= "table" then
-		return rows
-	end
-	for _, use in ipairs(item.usedIn) do
-		if type(use) == "table" and hasValue(use.type) and hasValue(use.targetKey) then
-			table.insert(rows, {
-				{ "ItemKey", item.stableKey },
-				{ "UseType", use.type },
-				{ "TargetKey", use.targetKey },
-				{ "Quantity", use.quantity },
-				{ "Slot", use.slot },
-			})
-		end
-	end
-	return rows
-end
-
-function p.cargoArgs(frame)
-	local args = templateArgs(frame)
-	local pageTitle = currentTitleText()
-	local item = p.resolve(args, pageTitle)
-	if item.missing then
-		return {}
-	end
-	return Cargo.buildArgs("Items", cargoFields(item, pageTitle))
-end
-
-function p.cargoObtainedFromRows(frame)
-	local item = p.resolve(templateArgs(frame), currentTitleText())
-	local rows = {}
-	if not item.missing then
-		for _, fields in ipairs(obtainedFromRows(item)) do
-			table.insert(rows, Cargo.buildArgs("ObtainedFrom", fields))
-		end
-	end
-	return rows
-end
-
-function p.cargoObtainedFromStore(frame)
-	local item = p.resolve(templateArgs(frame), currentTitleText())
-	if item.missing then
-		return ""
-	end
-	for _, fields in ipairs(obtainedFromRows(item)) do
-		Cargo.store("ObtainedFrom", fields)
-	end
-	return ""
-end
-
-function p.cargoUsedInRows(frame)
-	local item = p.resolve(templateArgs(frame), currentTitleText())
-	local rows = {}
-	if not item.missing then
-		for _, fields in ipairs(usedInRows(item)) do
-			table.insert(rows, Cargo.buildArgs("UsedIn", fields))
-		end
-	end
-	return rows
-end
-
-function p.cargoUsedInStore(frame)
-	local item = p.resolve(templateArgs(frame), currentTitleText())
-	if item.missing then
-		return ""
-	end
-	for _, fields in ipairs(usedInRows(item)) do
-		Cargo.store("UsedIn", fields)
-	end
-	return ""
-end
-
-function p.cargoStore(frame)
-	local args = templateArgs(frame)
-	local pageTitle = currentTitleText()
-	local item = p.resolve(args, pageTitle)
-	if item.missing then
-		return ""
-	end
-	Cargo.store("Items", cargoFields(item, pageTitle))
-	return ""
 end
 
 return p

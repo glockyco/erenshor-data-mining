@@ -14,7 +14,6 @@
         <data><label>Spawn Type:</label><default>{{#invoke:Erenshor/Character|field|spawntype}}</default></data>
         <data><label>Base Level:</label><default>{{#invoke:Erenshor/Character|field|level}}</default></data>
         <data><label>Base Experience:</label><default>{{#invoke:Erenshor/Character|field|experience}}</default></data>
-        <data><label>Dropped by:</label><default>{{CharacterDroppedByQuery|stablekey={{{stablekey|}}}}}</default></data>
         <data><label>Guaranteed One Of:</label><default>{{#invoke:Erenshor/Character|field|guaranteeddrops}}</default></data>
         <data><label>Overall Drop Rates:</label><default>{{#invoke:Erenshor/Character|field|droprates}}</default></data>
     </group>
@@ -43,7 +42,7 @@
             <data><label>Void:</label><default>{{#invoke:Erenshor/Character|field|void}}</default></data>
         </group>
     </group>
-</infobox>{{#invoke:Erenshor/Character|cargoStore}}{{CharacterSpawnsStore|stablekey={{{stablekey|}}}}}{{CharacterAbilitiesStore|stablekey={{{stablekey|}}}}}{{#invoke:Erenshor/Character|status}}|<infobox type="Character">
+</infobox>{{#invoke:Erenshor/Character|status}}|<infobox type="Character">
     <title source="name"/>
     <image source="image">
         <caption source="imagecaption" />
@@ -109,30 +108,4 @@
 | Chest                     = [[Category:Chests]]
 | [[Simulated Players|Sim]] =
 | #default                  = [[Category:Enemies]]
-}} }}}}</includeonly><noinclude>{{#cargo_declare:_table=Characters
-|Page=Page
-|StableKey=String
-|Name=String
-|Type=String
-|Zones=List (,) of String
-|Level=Integer
-|BaseArmorPenPercentage=Float
-|BaseAttackRollModifier=Integer
-|CannotBeSnared=Boolean
-|FactionKey=String
-|HasDrops=Boolean
-|HasSpells=Boolean
-|MapSelector=String
-|CanNeverSeeInvis=Boolean
-|DPSDummy=Boolean
-|IsWyrm=Boolean
-|NoRun=Boolean
-|NeverAggro=Boolean
-|NoDmgCap=Boolean
-|CanPhantomStrike=Boolean
-|NoSelfHeal=Boolean
-|AggroRegardlessOfLOS=Boolean
-|IgnoreLOSForAggro=Boolean
-|SimPlayersIgnoreUntilOrdered=Boolean
-|Enrage=Float
-}}{{Documentation}}</noinclude>
+}} }}}}</includeonly><noinclude>{{Documentation}}</noinclude>

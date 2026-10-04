@@ -329,21 +329,6 @@ def test_lua_mixed_spawn_prefers_ordinary_coordinate_and_chance() -> None:
     assert record["spawnChance"] == "25%"
     assert record["coordinates"] == "700.0 x 24.6 x 1151.0"
     assert "spawnType" not in record
-    template = Path("wiki/templates/Character.wiki").read_text(encoding="utf-8")
-    cargo_declare = Path("wiki/templates/Character/CargoDeclare.wiki").read_text(encoding="utf-8")
-
-    # The dual-path template emits the generated infobox for lua=1 pages with a
-    # stable key and the verbatim legacy infobox otherwise. The generated path
-    # must never surface the ungenerated `class` field, but the legacy fallback
-    # keeps it exactly as the live template had it. Scope the label check to the
-    # generated branch (everything before the second infobox) so the legacy
-    # branch is allowed to retain `Class:`.
-    new_branch = template.split('<infobox type="Character">')[1]
-
-    assert "|field|class" not in template
-    assert "<label>Class:</label>" not in new_branch
-    assert "|Class=String" not in template
-    assert "|Class=String" not in cargo_declare
 
 
 def test_enemy_rare_placement_keeps_its_spawn_chance() -> None:

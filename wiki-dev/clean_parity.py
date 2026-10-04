@@ -152,7 +152,6 @@ class CleanParityHarness:
         compose_project: str,
         manifest_file: Path | None,
         report_file: Path,
-        initialize_cargo: bool = False,
     ) -> dict[str, int]:
         import_command = [
             "uv",
@@ -167,18 +166,6 @@ class CleanParityHarness:
         if manifest_file is not None:
             import_command.extend(("--manifest-file", str(manifest_file)))
         self._run(import_command)
-        if initialize_cargo:
-            self._run(
-                (
-                    "uv",
-                    "run",
-                    "python",
-                    "wiki-dev/cargo_check.py",
-                    "--base-url",
-                    base_url,
-                    "--recreate",
-                )
-            )
         self._run(
             (
                 "uv",
@@ -190,7 +177,6 @@ class CleanParityHarness:
             )
         )
         self._run(("uv", "run", "python", "wiki-dev/smoke_test.py", "--base-url", base_url))
-        self._run(("uv", "run", "python", "wiki-dev/cargo_check.py", "--base-url", base_url))
         test_environment = {
             "ERENSHOR_WIKI_BASE_URL": base_url,
             "ERENSHOR_WIKI_COMPOSE_PROJECT": compose_project,
@@ -259,7 +245,6 @@ class CleanParityHarness:
                 compose_project=self.clean_project,
                 manifest_file=self.work_directory / "clean-import-manifest.json",
                 report_file=self.work_directory / "clean-browser.json",
-                initialize_cargo=True,
             )
             clean_snapshot = capture_acceptance(self.root, self.clean_base_url, clean_browser)
             differences = compare_acceptance(warm_before, clean_snapshot)

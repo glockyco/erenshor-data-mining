@@ -1022,13 +1022,13 @@ class TestMediaWikiClientEmbeddedIn:
                         ]
                     },
                 },
-                {"query": {"embeddedin": [{"pageid": 3, "ns": 10, "title": "Template:WeaponTable"}]}},
+                {"query": {"embeddedin": [{"pageid": 3, "ns": 10, "title": "Template:ItemTooltip"}]}},
             ],
             clock=MockClock(),
         )
         pages = client.get_embeddedin_pages("Template:Item", namespaces=(0, 10), assertion="bot")
 
-        assert pages == ("Ember Longsword", "Abyssal Plate", "Template:WeaponTable")
+        assert pages == ("Ember Longsword", "Abyssal Plate", "Template:ItemTooltip")
         first_params = api.requests[0].query
         second_params = api.requests[1].query
         assert first_params["action"] == "query"

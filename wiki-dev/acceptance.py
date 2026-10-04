@@ -7,11 +7,10 @@ import hashlib
 import importlib.util
 import json
 import sys
-from collections.abc import Callable, Mapping
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from types import MappingProxyType, ModuleType
-from typing import Any
 
 import httpx
 
@@ -32,7 +31,6 @@ def _load_helper(filename: str) -> ModuleType:
 
 
 _import_pages = _load_helper("import_pages.py")
-_cargo_check = _load_helper("cargo_check.py")
 _smoke_mediawiki = _load_helper("smoke/mediawiki.py")
 _smoke_render = _load_helper("smoke/render.py")
 
@@ -42,8 +40,6 @@ _smoke_render = _load_helper("smoke/render.py")
 discover_pages = _import_pages.discover_pages
 query_remote_pages = _import_pages.query_remote_pages
 api_url = _import_pages.api_url
-RemotePage = _import_pages.RemotePage
-query_cargo_table = _cargo_check.query_cargo_table
 parse_page = _smoke_mediawiki.parse_page
 check_rendered_html = _smoke_render.check_rendered_html
 load_expectations = _smoke_render.load_expectations
@@ -56,7 +52,6 @@ class WikiAcceptanceSnapshot:
     managed_pages: Mapping[str, Mapping[str, str]]
     lua_modules: tuple[str, ...]
     interface_gadgets: tuple[str, ...]
-    cargo_rows: Mapping[str, tuple[Mapping[str, str], ...]]
     smoke_results: Mapping[str, str]
     browser_counters: Mapping[str, int]
 
@@ -65,16 +60,11 @@ class WikiAcceptanceSnapshot:
             str(title): MappingProxyType({str(k): str(v) for k, v in sorted(details.items())})
             for title, details in sorted(self.managed_pages.items())
         }
-        cargo = {
-            str(table): tuple(MappingProxyType({str(k): str(v) for k, v in sorted(row.items())}) for row in rows)
-            for table, rows in sorted(self.cargo_rows.items())
-        }
         smoke = {str(title): str(value) for title, value in sorted(self.smoke_results.items())}
         counters = {str(key): int(value) for key, value in sorted(self.browser_counters.items())}
         object.__setattr__(self, "managed_pages", MappingProxyType(managed))
         object.__setattr__(self, "lua_modules", tuple(sorted(self.lua_modules)))
         object.__setattr__(self, "interface_gadgets", tuple(sorted(self.interface_gadgets)))
-        object.__setattr__(self, "cargo_rows", MappingProxyType(cargo))
         object.__setattr__(self, "smoke_results", MappingProxyType(smoke))
         object.__setattr__(self, "browser_counters", MappingProxyType(counters))
 
@@ -90,7 +80,6 @@ class WikiAcceptanceSnapshot:
             "managed_pages": {title: dict(details) for title, details in self.managed_pages.items()},
             "lua_modules": list(self.lua_modules),
             "interface_gadgets": list(self.interface_gadgets),
-            "cargo_rows": {table: [dict(row) for row in rows] for table, rows in self.cargo_rows.items()},
             "smoke_results": dict(self.smoke_results),
             "browser_counters": dict(self.browser_counters),
         }
@@ -116,63 +105,8 @@ def _validate_browser_counters(browser: Mapping[str, int]) -> dict[str, int]:
     return counters
 
 
-_CARGO_SPECS: tuple[tuple[str, str, str, str], ...] = (
-    ("Items", "CARGO_ITEM_FIELDS", "load_cargo_item_expectations", "cargo_items.tsv"),
-    ("Characters", "CARGO_CHARACTER_FIELDS", "load_cargo_character_expectations", "cargo_characters.tsv"),
-    ("Spells", "CARGO_SPELL_FIELDS", "load_cargo_spell_expectations", "cargo_spells.tsv"),
-    ("Skills", "CARGO_SKILL_FIELDS", "load_cargo_skill_expectations", "cargo_skills.tsv"),
-    ("Stances", "CARGO_STANCE_FIELDS", "load_cargo_stance_expectations", "cargo_stances.tsv"),
-    (
-        "AbilityClasses",
-        "CARGO_ABILITY_CLASS_QUERY_FIELDS",
-        "load_cargo_ability_class_expectations",
-        "cargo_ability_classes.tsv",
-    ),
-    (
-        "ObtainedFrom",
-        "CARGO_OBTAINED_FROM_QUERY_FIELDS",
-        "load_cargo_obtained_from_expectations",
-        "cargo_obtained_from.tsv",
-    ),
-    ("UsedIn", "CARGO_USED_IN_QUERY_FIELDS", "load_cargo_used_in_expectations", "cargo_used_in.tsv"),
-    ("Spawns", "CARGO_SPAWN_QUERY_FIELDS", "load_cargo_spawn_expectations", "cargo_spawns.tsv"),
-    (
-        "CharacterAbilities",
-        "CARGO_CHARACTER_ABILITY_QUERY_FIELDS",
-        "load_cargo_character_ability_expectations",
-        "cargo_character_abilities.tsv",
-    ),
-)
-
-
-def _row_sort_key(row: Mapping[str, str]) -> tuple[tuple[str, str], ...]:
-    return tuple((str(key), str(value)) for key, value in sorted(row.items()))
-
-
-def _capture_cargo(
-    root: Path,
-    client: httpx.Client,
-    endpoint: str,
-) -> dict[str, tuple[Mapping[str, str], ...]]:
-    rows_by_table: dict[str, tuple[Mapping[str, str], ...]] = {}
-    fixture_root = root / "wiki-dev" / "fixtures"
-    for table, fields_name, loader_name, filename in _CARGO_SPECS:
-        fields = getattr(_cargo_check, fields_name)
-        loader: Callable[[Path], list[Any]] = getattr(_cargo_check, loader_name)
-        expected_pages = {expectation.page for expectation in loader(fixture_root / filename)}
-        rows = query_cargo_table(client, endpoint, table, tuple(fields))
-        selected = [
-            {str(key): str(value) for key, value in row.items()}
-            for row in rows
-            if isinstance(row, Mapping) and str(row.get("Page", "")) in expected_pages
-        ]
-        selected.sort(key=_row_sort_key)
-        rows_by_table[table] = tuple(selected)
-    return rows_by_table
-
-
 def capture_acceptance(root: Path, base_url: str, browser: Mapping[str, int]) -> WikiAcceptanceSnapshot:
-    """Capture managed pages, Cargo, smoke output, and browser counters locally."""
+    """Capture managed pages, smoke output, and browser counters locally."""
     pages = list(discover_pages(root))
     endpoint = api_url(base_url)
     counters = _validate_browser_counters(browser)
@@ -194,7 +128,6 @@ def capture_acceptance(root: Path, base_url: str, browser: Mapping[str, int]) ->
                 "content_model": state.content_model,
                 "sha256": hashlib.sha256(state.content.encode("utf-8")).hexdigest(),
             }
-        cargo_rows = _capture_cargo(root, client, endpoint)
         smoke_results: dict[str, str] = {}
         for title, expected in sorted(expectations.items()):
             result = check_rendered_html(title, parse_page(client, endpoint, title), expected)
@@ -210,7 +143,6 @@ def capture_acceptance(root: Path, base_url: str, browser: Mapping[str, int]) ->
         managed_pages=managed,
         lua_modules=tuple(page.title for page in pages if page.title.startswith("Module:")),
         interface_gadgets=tuple(page.title for page in pages if page.title.startswith("MediaWiki:")),
-        cargo_rows=cargo_rows,
         smoke_results=smoke_results,
         browser_counters=counters,
     )

@@ -429,8 +429,8 @@ def test_safe_title_filename_is_injective_for_distinct_titles() -> None:
     from erenshor.application.wiki_deploy.pages import rollback_filename
 
     # These collide under a "replace non-alnum with underscore" scheme.
-    first = rollback_filename("Template:Item/CargoDeclare")
-    second = rollback_filename("Template:Item:CargoDeclare")
+    first = rollback_filename("Template:Item/Quality")
+    second = rollback_filename("Template:Item:Quality")
 
     assert first != second
     # Filenames stay flat: title separators must not become path separators.

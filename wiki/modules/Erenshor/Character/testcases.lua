@@ -110,20 +110,6 @@ function p.run()
 	assertContains(dropRates, "[[Bear Meat]]", "drop rates include item page link")
 	local guaranteed = Character.fieldValue(bearKey, "A Grizzly Bear", "guaranteeddrops")
 	assertContains(guaranteed, "[[Bear Pelt]]", "guaranteed pool lists guaranteed items")
-	local spawnRows =
-		Character.cargoSpawnRows({ args = { stablekey = "character:a_grizzly_bear" } })
-	assertEqual(#spawnRows, 1, "cargo spawn rows cover generated locations")
-	assertEqual(
-		spawnRows[1].CharacterKey,
-		"character:a_grizzly_bear",
-		"spawn row carries owner key"
-	)
-	assertEqual(spawnRows[1].SpawnType, "normal", "spawn row carries source type")
-	local abilityRows =
-		Character.cargoCharacterAbilityRows({ args = { stablekey = "character:a_grizzly_bear" } })
-	assertEqual(#abilityRows, 1, "cargo ability rows exclude death-event messages")
-	assertEqual(abilityRows[1].AbilityKey, "spell:claw_swipe", "ability row carries stable key")
-	assertEqual(abilityRows[1].AbilityUsage, "attack", "ability row carries usage")
 	assertContains(
 		Character.statusText(bearKey, "A Grizzly Bear"),
 		"[[Category:Enemies]]",

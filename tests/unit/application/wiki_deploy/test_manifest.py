@@ -29,7 +29,7 @@ def test_build_repo_page_manifest_maps_only_maintained_sources_to_wiki_titles(tm
     write_page(tmp_path, "wiki/modules/Erenshor/Item/Tooltip.lua", "local Tooltip = {}\nreturn Tooltip\n")
     write_page(tmp_path, "wiki/modules/Erenshor/Item/testcases.lua", "return {}\n")
     write_page(tmp_path, "wiki/templates/Item.wiki", "<includeonly>{{#invoke:Erenshor/Item|field}}</includeonly>\n")
-    write_page(tmp_path, "wiki/templates/ArmorTable/Row.wiki", "<includeonly>|-</includeonly>\n")
+    write_page(tmp_path, "wiki/templates/Item/Quality.wiki", "<includeonly>|-</includeonly>\n")
     write_page(
         tmp_path,
         "variants/main/wiki/lua/Erenshor/Data/Items/Weapons.lua",
@@ -49,9 +49,9 @@ def test_build_repo_page_manifest_maps_only_maintained_sources_to_wiki_titles(tm
 
     template_manifest = build_repo_page_manifest(tmp_path, variant="main", include_templates=True)
     template_entries = {entry.title: entry for entry in template_manifest.entries}
-    assert {"Template:ArmorTable/Row", "Template:Item"} <= set(template_entries)
-    assert template_entries["Template:ArmorTable/Row"].source_path == "wiki/templates/ArmorTable/Row.wiki"
-    assert template_entries["Template:ArmorTable/Row"].content_model == "wikitext"
+    assert {"Template:Item/Quality", "Template:Item"} <= set(template_entries)
+    assert template_entries["Template:Item/Quality"].source_path == "wiki/templates/Item/Quality.wiki"
+    assert template_entries["Template:Item/Quality"].content_model == "wikitext"
 
 
 def test_select_repo_page_manifest_rejects_explicit_templates_without_opt_in(tmp_path: Path) -> None:
@@ -114,12 +114,11 @@ def test_build_repo_page_manifest_marks_real_cargo_declarations_only(tmp_path: P
     write_page(
         tmp_path,
         "wiki/templates/Item.wiki",
-        "<includeonly>{{#invoke:Erenshor/Item|cargoStore}}</includeonly>"
-        "<noinclude>{{#cargo_declare:\n_table=Items\n|Page=Page\n}}</noinclude>\n",
+        "<includeonly>Example</includeonly><noinclude>{{#cargo_declare:\n_table=Items\n|Page=Page\n}}</noinclude>\n",
     )
     write_page(
         tmp_path,
-        "wiki/templates/Item/CargoDeclare.wiki",
+        "wiki/templates/Cargo/Items/CargoDeclare.wiki",
         "<noinclude><pre>{{#cargo_declare:\n_table=Items\n|Page=Page\n}}</pre></noinclude>\n",
     )
 
@@ -129,14 +128,14 @@ def test_build_repo_page_manifest_marks_real_cargo_declarations_only(tmp_path: P
     assert entries["Template:Item"].declares_cargo_table is True
     assert entries["Template:Item"].cargo_tables == ("Items",)
     assert entries["Template:Item"].ownership_class == "cargo_declaration"
-    assert entries["Template:Item/CargoDeclare"].declares_cargo_table is False
-    assert entries["Template:Item/CargoDeclare"].cargo_tables == ()
-    assert entries["Template:Item/CargoDeclare"].ownership_class == "template"
+    assert entries["Template:Cargo/Items/CargoDeclare"].declares_cargo_table is False
+    assert entries["Template:Cargo/Items/CargoDeclare"].cargo_tables == ()
+    assert entries["Template:Cargo/Items/CargoDeclare"].ownership_class == "template"
 
 
 def test_build_repo_page_manifest_orders_uploads_safely(tmp_path: Path) -> None:
     """Upload order is Lua modules, Cargo declarations, then other templates."""
-    write_page(tmp_path, "wiki/templates/WeaponTable.wiki", "{{#cargo_query:tables=Items}}\n")
+    write_page(tmp_path, "wiki/templates/QueryTable.wiki", "{{#cargo_query:tables=Items}}\n")
     write_page(
         tmp_path,
         "wiki/templates/Item.wiki",
@@ -157,7 +156,7 @@ def test_build_repo_page_manifest_orders_uploads_safely(tmp_path: Path) -> None:
         "Module:Erenshor/Data/Items",
         "Module:Erenshor/Item",
         "Template:Item",
-        "Template:WeaponTable",
+        "Template:QueryTable",
         "Category:Links",
     ]
     assert [entry.upload_stage for entry in manifest.entries] == [

@@ -85,12 +85,6 @@ templates:
     transclusion_continued: false
     examples: []
     notes: superseded by Lua-backed public templates after cutover
-  - title: Template:ArmorTable
-    ownership: unknown
-    cutover_blocking: false
-    transclusion_count: 0
-    transclusion_continued: false
-    examples: []
   - title: Template:Auras
     ownership: legacy_template
     cutover_blocking: false
@@ -183,18 +177,6 @@ templates:
     transclusion_continued: false
     examples: []
     notes: superseded by Lua-backed public templates after cutover
-  - title: Template:Consumable/CargoDeclare
-    ownership: unknown
-    cutover_blocking: false
-    transclusion_count: 0
-    transclusion_continued: false
-    examples: []
-  - title: Template:Consumable/CargoStore
-    ownership: unknown
-    cutover_blocking: false
-    transclusion_count: 0
-    transclusion_continued: false
-    examples: []
   - title: Template:Consumable/doc
     ownership: documentation_template
     cutover_blocking: false
@@ -428,20 +410,6 @@ templates:
     examples: []
     notes: superseded by Lua-backed public templates after cutover
   - title: Template:Item/Aura
-    ownership: legacy_template
-    cutover_blocking: false
-    transclusion_count: 0
-    transclusion_continued: false
-    examples: []
-    notes: superseded by Lua-backed public templates after cutover
-  - title: Template:Item/CargoDeclare
-    ownership: legacy_template
-    cutover_blocking: false
-    transclusion_count: 0
-    transclusion_continued: false
-    examples: []
-    notes: superseded by Lua-backed public templates after cutover
-  - title: Template:Item/CargoStore
     ownership: legacy_template
     cutover_blocking: false
     transclusion_count: 0

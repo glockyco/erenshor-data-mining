@@ -1,7 +1,6 @@
 local Args = require("Module:Erenshor/Args")
 local Link = require("Module:Erenshor/Link")
 local Format = require("Module:Erenshor/Format")
-local Cargo = require("Module:Erenshor/Cargo")
 
 local Data = mw.loadData("Module:Erenshor/Data/Characters")
 
@@ -269,21 +268,6 @@ local function linkList(values)
 	return Link.join(values, "<br>")
 end
 
-local function zoneNames(values)
-	if type(values) ~= "table" then
-		return values or ""
-	end
-	local names = {}
-	for _, zone in ipairs(values) do
-		if type(zone) == "table" and zone.page ~= nil then
-			table.insert(names, zone.page)
-		elseif type(zone) == "string" then
-			table.insert(names, zone)
-		end
-	end
-	return table.concat(names, ",")
-end
-
 local function factionChangeList(values)
 	if type(values) ~= "table" then
 		return values
@@ -508,154 +492,12 @@ function p.statusText(args, pageTitle)
 	return categoryForType(character.type)
 end
 
-local function cargoFields(character, pageTitle)
-	return {
-		{ "Page", pageTitle },
-		{ "StableKey", character.stableKey },
-		{ "Name", character.name },
-		{ "Type", character.type },
-		{ "Zones", zoneNames(character.zones) },
-		{ "Level", character.level },
-		{ "BaseArmorPenPercentage", character.baseArmorPenPercentage },
-		{ "BaseAttackRollModifier", character.baseAttackRollModifier },
-		{ "CannotBeSnared", character.cannotBeSnared },
-		{
-			"FactionKey",
-			type(character.faction) == "table" and (character.faction.stablekey or "") or "",
-		},
-		{ "HasDrops", character.hasDrops },
-		{ "HasSpells", character.hasSpells },
-		{ "MapSelector", character.mapSelector },
-		{ "CanNeverSeeInvis", character.canNeverSeeInvis },
-		{ "DPSDummy", character.dpsDummy },
-		{ "IsWyrm", character.isWyrm },
-		{ "NoRun", character.noRun },
-		{ "NeverAggro", character.neverAggro },
-		{ "NoDmgCap", character.noDmgCap },
-		{ "CanPhantomStrike", character.canPhantomStrike },
-		{ "NoSelfHeal", character.noSelfHeal },
-		{ "AggroRegardlessOfLOS", character.aggroRegardlessOfLOS },
-		{ "IgnoreLOSForAggro", character.ignoreLOSForAggro },
-		{ "SimPlayersIgnoreUntilOrdered", character.simPlayersIgnoreUntilOrdered },
-		{ "Enrage", character.enrage },
-	}
-end
-
-local function spawnCargoRows(character)
-	local rows = {}
-	if type(character.spawns) ~= "table" then
-		return rows
-	end
-	for _, spawn in ipairs(character.spawns) do
-		if type(spawn) == "table" then
-			table.insert(rows, {
-				{ "CharacterKey", character.stableKey },
-				{ "Zone", spawn.zone },
-				{ "Scene", spawn.scene },
-				{ "X", spawn.x },
-				{ "Y", spawn.y },
-				{ "Z", spawn.z },
-				{ "SpawnChance", spawn.spawnChance },
-				{ "NightSpawn", spawn.nightSpawn },
-				{ "SpawnUponQuestComplete", spawn.spawnUponQuestComplete },
-				{ "LevelMod", spawn.levelMod },
-				{ "RareNpcChance", spawn.rareNpcChance },
-				{ "SpawnType", spawn.spawnType },
-				{ "Origin", spawn.origin },
-			})
-		end
-	end
-	return rows
-end
-
-local function characterAbilityCargoRows(character)
-	local rows = {}
-	if type(character.abilities) ~= "table" then
-		return rows
-	end
-	for _, ability in ipairs(character.abilities) do
-		if type(ability) == "table" and not isBlank(ability.ability) then
-			table.insert(rows, {
-				{ "CharacterKey", character.stableKey },
-				{ "AbilityKey", ability.ability },
-				{ "AbilityUsage", ability.usage },
-			})
-		end
-	end
-	return rows
-end
-
 function p.field(frame)
 	return p.fieldValue(templateArgs(frame), currentTitleText(), frame.args[1])
 end
 
 function p.status(frame)
 	return p.statusText(templateArgs(frame), currentTitleText())
-end
-
-function p.cargoArgs(frame)
-	local args = templateArgs(frame)
-	local pageTitle = currentTitleText()
-	local character = p.resolve(args, pageTitle)
-	if character.missing then
-		return {}
-	end
-	return Cargo.buildArgs("Characters", cargoFields(character, pageTitle))
-end
-
-function p.cargoSpawnRows(frame)
-	local character = p.resolve(templateArgs(frame), currentTitleText())
-	local rows = {}
-	if not character.missing then
-		for _, fields in ipairs(spawnCargoRows(character)) do
-			table.insert(rows, Cargo.buildArgs("Spawns", fields))
-		end
-	end
-	return rows
-end
-
-function p.cargoCharacterAbilityRows(frame)
-	local character = p.resolve(templateArgs(frame), currentTitleText())
-	local rows = {}
-	if not character.missing then
-		for _, fields in ipairs(characterAbilityCargoRows(character)) do
-			table.insert(rows, Cargo.buildArgs("CharacterAbilities", fields))
-		end
-	end
-	return rows
-end
-
-function p.cargoStore(frame)
-	local args = templateArgs(frame)
-	local pageTitle = currentTitleText()
-	local character = p.resolve(args, pageTitle)
-	if character.missing then
-		return ""
-	end
-	Cargo.store("Characters", cargoFields(character, pageTitle))
-	return ""
-end
-
-function p.cargoSpawnsStore(frame)
-	local character = p.resolve(templateArgs(frame), currentTitleText())
-	if character.missing then
-		return ""
-	end
-	for _, fields in ipairs(spawnCargoRows(character)) do
-		Cargo.store("Spawns", fields)
-	end
-	return ""
-end
-
-function p.cargoCharacterAbilitiesStore(frame)
-	local character = p.resolve(templateArgs(frame), currentTitleText())
-	if character.missing then
-		return ""
-	end
-	for _, fields in ipairs(characterAbilityCargoRows(character)) do
-		Cargo.store("CharacterAbilities", fields)
-	end
-	return ""
 end
 
 return p

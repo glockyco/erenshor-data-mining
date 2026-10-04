@@ -1,9 +1,7 @@
-<includeonly><!-- lua=1 opts a page into the Lua/Cargo stablekey rendering path reserved for the future article cutover. Generated articles omit it and render the legacy inline-param infobox, which builds the interactive-map link from the stablekey. -->{{#if:{{#ifeq:{{{lua|}}}|1|{{{stablekey|}}}|}}|<infobox type="Item">
+<includeonly><!-- lua=1 opts a page into the Lua stablekey rendering path. Generated articles omit it and render the legacy inline-param infobox, which builds the interactive-map link from the stablekey. -->{{#if:{{#ifeq:{{{lua|}}}|1|{{{stablekey|}}}|}}|<infobox type="Item">
     <title><default>{{#invoke:Erenshor/Item|field|name}}</default></title>
     <image><default>{{#invoke:Erenshor/Item|field|image}}</default><caption><default>{{#invoke:Erenshor/Item|field|imagecaption}}</default></caption></image>
     <data><label>Type</label><default>{{#invoke:Erenshor/Item|field|type}}</default></data>
-    <data><label>How to Obtain</label><default>{{ItemObtainedFromQuery|stablekey={{{stablekey|}}}}}</default></data>
-    <data><label>Used For</label><default>{{ItemUsedInQuery|stablekey={{{stablekey|}}}}}</default></data>
     <data><label>Other sources</label><default>{{#invoke:Erenshor/Item|field|othersource}}</default></data>
     <data><label>[[Crafting|Crafting recipe]]</label><default>{{#invoke:Erenshor/Item|field|craftsource}}</default></data>
     <data><label>[[Relic]]</label><default>{{#invoke:Erenshor/Item|field|relic}}</default></data>
@@ -30,7 +28,7 @@
     <data><label>Description</label><default>{{#invoke:Erenshor/Item|field|description}}</default></data>
     <data><label>Buy</label><default>{{#invoke:Erenshor/Item|field|buy}}</default></data>
     <data><label>Sell</label><default>{{#invoke:Erenshor/Item|field|sell}}</default></data>
-</infobox>{{#invoke:Erenshor/Item|cargoStore}}{{ItemObtainedFromStore|stablekey={{{stablekey|}}}}}{{ItemUsedInStore|stablekey={{{stablekey|}}}}}{{#invoke:Erenshor/Item|status}}{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Items]]}}|<infobox type="Item">
+</infobox>{{#invoke:Erenshor/Item|status}}{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Items]]}}|<infobox type="Item">
     <title source="title"/>
     <image source="image"><caption source="imagecaption"/></image>
     <data source="type"><label>Type</label></data>
@@ -71,55 +69,7 @@
     <data source="sell"><label>Sell</label></data>
     <data source="guaranteeddrops"><label>Provides one of</label></data>
     <data source="droprates"><label>Overall Item Chances</label></data>
-</infobox>{{#ifeq: {{NAMESPACENUMBER}} | 0 | [[Category:Items]]}}}}</includeonly><noinclude>{{#cargo_declare:
-_table=Items
-|Page=Page
-|StableKey=String
-|Name=String
-|Type=String
-|Slot=String
-|WeaponType=String
-|ItemLevel=Integer
-|Damage=Integer
-|Delay=Float
-|Armor=Integer
-|HP=Integer
-|Mana=Integer
-|Str=Integer
-|End=Integer
-|Dex=Integer
-|Agi=Integer
-|Intellect=Integer
-|Wis=Integer
-|Cha=Integer
-|Res=Integer
-|MR=Integer
-|PR=Integer
-|ER=Integer
-|VR=Integer
-|BuyValue=Integer
-|SellValue=Integer
-|Image=File
-|Classes=List (,) of String
-|TeachesSpellKey=String
-|TeachesSkillKey=String
-|WeaponProcKey=String
-|WeaponProcChance=Float
-|WandEffectKey=String
-|WandProcChance=Float
-|BowEffectKey=String
-|BowProcChance=Float
-|WornEffectKey=String
-|ClickEffectKey=String
-|SkillUseKey=String
-|AuraKey=String
-|Relic=Boolean
-|MustBeEquippedToClick=Boolean
-|PlayerCannotSell=Boolean
-|RareItem=Boolean
-|HasProc=Boolean
-|HasWornEffect=Boolean
-}}
+</infobox>{{#ifeq: {{NAMESPACENUMBER}} | 0 | [[Category:Items]]}}}}</includeonly><noinclude>
 == Template:Item ==
 
 Infobox template for displaying item information on wiki pages.
@@ -127,9 +77,8 @@ Infobox template for displaying item information on wiki pages.
 Item articles set inline parameters (the legacy rendering path). The '''Map''' row
 is generated automatically from <code>stablekey</code> and links to the item's
 location on the [https://erenshor.compendiums.org/map interactive map]. Passing
-<code>lua=1</code> switches the infobox to the Lua/Cargo rendering path reserved
-for the future article cutover; omit it for the legacy inline-param infobox
-described below.
+<code>lua=1</code> switches the infobox to the Lua rendering path; omit it
+for the legacy inline-param infobox described below.
 
 === Parameters ===
 
@@ -206,7 +155,7 @@ described below.
 |-
 | '''droprates''' || No || Drop rate information
 |-
-| '''lua''' || No || Set to <code>1</code> to render via the Lua/Cargo path (reserved for the future article cutover). Leave unset for the legacy infobox.
+| '''lua''' || No || Set to <code>1</code> to render via Lua. Leave unset for the legacy infobox.
 |}
 
 === Examples ===

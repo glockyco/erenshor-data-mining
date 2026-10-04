@@ -145,22 +145,19 @@ Keep generated articles, repository-owned pages, and interface gadgets on their 
 
 ## Local MediaWiki validation
 
-Use `wiki-dev/` for real parser and Cargo behavior. It uses upstream Cargo, not the live wiki.gg fork.
-Run from the repository root in this order:
+Use `wiki-dev/` to check the rendered pages through MediaWiki `action=parse`.
+Run these commands from the repository root:
 
 ```bash
 wiki-dev/bootstrap.sh
 uv run erenshor wiki sync-interface
 uv run python wiki-dev/import_pages.py
-uv run python wiki-dev/cargo_check.py --recreate
 uv run python wiki-dev/null_edit.py
-uv run python wiki-dev/cargo_check.py
 uv run python wiki-dev/smoke_test.py
 ```
 
-Recreate Cargo tables when declarations change or on a fresh stack.
-The recreate step exits before row checks. Null edits refill and refresh affected article rows.
-The smoke harness checks rendered pages through MediaWiki `action=parse`, not raw source-text comparison.
+Null edits refresh fixture pages after a module or template change.
+The smoke harness checks rendered pages through MediaWiki `action=parse`, not raw source text.
 For a regenerated article, copy its text to a temporary `.wiki` file under `wiki-dev/fixtures/pages/`, then reimport.
 Check its title through `action=parse` and inspect the parsed HTML. Remove the temporary fixture afterward:
 

@@ -35,12 +35,6 @@ Healing Draught	Healing: 150
 Magical Bag	General
 Magical Bag	item-tooltip-general
 Magical Bag	surprisingly roomy
-Magical Bag	How to Obtain
-Magical Bag	A Grizzly Bear
-Magical Bag	12.5%
-Magical Bag	Used For
-Magical Bag	item:template - copper armor mold
-Magical Bag	quest:an ore for the forge
 Bear Pelt	Bear Pelt
 Bear Claw	Bear Claw
 Bear Meat	Bear Meat
@@ -92,7 +86,6 @@ A Grizzly Bear	Category:Enemies
 A Grizzly Bear	erenshor-link--faction
 A Grizzly Bear	erenshor-link--zone
 A Grizzly Bear	erenshor-link--item
-A Grizzly Bear	Dropped by:
 A Grizzly Bear	Bear Pelt
 A Grizzly Bear	Bear Meat
 A Subterranean Magmite	A Subterranean Magmite
@@ -203,7 +196,6 @@ A Magical Sword in Port Azure	450
 A Magical Sword in Port Azure	Category:Quests
 A Cat for a Deer	A Cat for a Deer
 A Cat for a Deer	Rewards
-A Cat for a Deer	Nightmare Crystal
 Nightmare Crystal	Nightmare Crystal
 Manual Quest Override	Manual Quest Title
 Manual Quest Override	Manual Location
@@ -274,20 +266,6 @@ Manual Spell Override	Manual Cast
 Manual Spell Override	Manual Spell Source
 Missing Spell Data	Missing spell data: Missing Spell Data
 Missing Spell Data	Category:Pages_with_missing_Erenshor_spell_data
-Cargo ArmorTable Smoke	Abyssal Plate
-Cargo ArmorTable Smoke	Chest
-Cargo ArmorTable Smoke	40
-Cargo ArmorTable Smoke	12
-Cargo ArmorTable Smoke	15
-Cargo ArmorTable Smoke	Worn:
-Cargo ArmorTable Smoke	Minor Lightning
-Cargo ArmorTable Smoke	Paladin
-Cargo ArmorTable Smoke	Warrior
-Cargo WeaponTable Smoke	Ember Longsword
-Cargo WeaponTable Smoke	OneHandMelee
-Cargo WeaponTable Smoke	20% on attack
-Cargo WeaponTable Smoke	Paladin
-Cargo WeaponTable Smoke	Reaver
 Dire Wolf	Dire Wolf
 Dire Wolf	The Followers of Evil
 Dire Wolf	The Followers of Good
