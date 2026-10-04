@@ -40,8 +40,6 @@ def minimal_config(tmp_path: Path) -> Config:
             mediawiki=MediaWikiConfig(
                 api_url="https://wiki.example.com/api.php",
                 bot_username="TestBot",
-                api_delay=1.0,
-                api_batch_size=50,
             ),
         ),
         variants={

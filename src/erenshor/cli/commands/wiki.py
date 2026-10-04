@@ -110,7 +110,7 @@ from erenshor.infrastructure.database.repositories.spells import SpellRepository
 from erenshor.infrastructure.database.repositories.stances import StanceRepository
 from erenshor.infrastructure.database.repositories.zones import ZoneRepository
 from erenshor.infrastructure.wiki.client import MediaWikiClient
-from erenshor.infrastructure.wiki.rate_limit import MediaWikiRequestor, MediaWikiRequestPolicy
+from erenshor.infrastructure.wiki.rate_limit import MediaWikiRequestor
 
 app = typer.Typer(
     name="wiki",
@@ -298,7 +298,6 @@ def _create_interface_mediawiki_client(cli_ctx: CLIContext) -> MediaWikiClient:
         bot_username=credentials.username,
         bot_password=credentials.password,
         batch_size=wiki_config.upload_batch_size,
-        rate_limit_delay=wiki_config.upload_delay,
         edit_summary=wiki_config.upload_edit_summary,
         minor_edit=wiki_config.upload_minor_edit,
     )
@@ -874,16 +873,7 @@ def generate(
 
 @app.command("sync-interface")
 @require_preconditions(wiki_endpoint)
-def sync_interface(
-    ctx: typer.Context,
-    rate_limit_delay: Annotated[
-        float,
-        typer.Option(
-            help="Delay between live wiki API reads.",
-            min=0.0,
-        ),
-    ] = 1.0,
-) -> None:
+def sync_interface(ctx: typer.Context) -> None:
     """Sync live MediaWiki interface pages for local preview.
 
     Writes the gitignored local mirror to wiki-dev/interface and CSS assets to wiki-dev/images.
@@ -894,7 +884,6 @@ def sync_interface(
     wiki_config = cli_ctx.config.global_.mediawiki
     requestor = MediaWikiRequestor(
         api_url=wiki_config.api_url,
-        policy=MediaWikiRequestPolicy(read_delay=rate_limit_delay),
     )
     client = MediaWikiInterfaceClient(requestor)
     try:

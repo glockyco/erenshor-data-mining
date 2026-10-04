@@ -229,6 +229,14 @@ Alternatives considered:
 - One repository-owned hub. Rejected: a portal holds text that people write, so the repository cannot own it, and every edit by another administrator would stop the next deploy.
 - Keep `User:WoWBot` as the guide. Rejected: a bot's user page is not where editors look, and the main page is its only link.
 
+### D13. Request pacing follows the wiki
+
+Every MediaWiki request goes through one requestor, which is the only owner of pacing. It sends requests one at a time with `maxlag`, as the [MediaWiki API etiquette](https://www.mediawiki.org/wiki/API:Etiquette) asks. Reads get no artificial delay. An action that the wiki rate-limits for the account, such as `edit` or `purge`, is spaced by the limit that the wiki reports after login (`meta=userinfo&uiprop=ratelimits`) with a margin of 10 percent. On 2026-10-04 WoWBot had 90 edits and 30 purges per 60 seconds and no `noratelimit` right. An account with `noratelimit` gets no spacing. A `ratelimited` or `maxlag` response still backs off and retries.
+
+Before this decision, the requestor waited 1 second before every request, reads included, and the article deploy slept 2 more seconds after each write. A refresh of 2,700 articles took about 2 hours. It now takes about 40 minutes, which the edit limit sets. The configuration keys `api_delay`, `upload_delay`, and `api_batch_size` and the option `--rate-limit-delay` go, because the wiki's own limits replace them. `upload_batch_size` stays, as the page batch of the API reads.
+
+Alternative considered: keep fixed delays and lower them. Rejected: a fixed number is a guess that is too slow for one account and too fast for another, and it does not follow when the wiki changes its limits.
+
 ### Failure handling and update grouping
 
 - The dependency check, the render check, and the size check fail closed. They name the page and the cause, and a dry run reports the same result without writing.

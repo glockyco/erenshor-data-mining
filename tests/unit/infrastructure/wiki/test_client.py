@@ -136,7 +136,6 @@ class TestMediaWikiClientInitialization:
             bot_username="TestBot@TestBot",
             bot_password="testpass",
             batch_size=25,
-            rate_limit_delay=1.0,
             clock=MockClock(),
         )
 
@@ -144,7 +143,6 @@ class TestMediaWikiClientInitialization:
         assert client.bot_username == "TestBot@TestBot"
         assert client.bot_password == "testpass"
         assert client.batch_size == 25
-        assert client.rate_limit_delay == 1.0
 
     def test_init_invalid_api_url(self) -> None:
         """Test initialization fails with invalid API URL."""
@@ -169,7 +167,6 @@ class TestMediaWikiClientInitialization:
         assert client.bot_username == ""
         assert client.bot_password == ""
         assert client.batch_size == 25
-        assert client.rate_limit_delay == 1.0
         assert client.edit_summary == "Automated wiki update"
         assert client.minor_edit is True
 
@@ -202,6 +199,15 @@ class TestMediaWikiClientLogin:
             [
                 {"query": {"tokens": {"logintoken": "test_login_token"}}},
                 {"login": {"result": "Success"}},
+                {
+                    "query": {
+                        "userinfo": {
+                            "name": "TestBot",
+                            "rights": ["edit"],
+                            "ratelimits": {"edit": {"user": {"hits": 90, "seconds": 60}}},
+                        }
+                    }
+                },
             ],
             bot_username="TestBot@TestBot",
             bot_password="testpass",
@@ -210,10 +216,13 @@ class TestMediaWikiClientLogin:
 
         client.login()
 
-        assert [request.method for request in api.requests] == ["GET", "POST"]
+        assert [request.method for request in api.requests] == ["GET", "POST", "GET"]
         assert api.requests[0].query["format"] == "json"
         assert api.requests[0].query["maxlag"] == "5"
         assert "formatversion" not in api.requests[0].query
+        assert api.requests[2].query["meta"] == "userinfo"
+        assert api.requests[2].query["uiprop"] == "ratelimits|rights"
+        assert api.requests[2].query["assert"] == "user"
 
     def test_login_missing_credentials(self) -> None:
         """Test login fails when credentials not provided."""
@@ -1229,22 +1238,77 @@ class TestMediaWikiClientPageExists:
 
 
 class TestMediaWikiClientRateLimiting:
-    """Test rate limiting behavior."""
+    """Test the limits installed after authentication."""
 
-    def test_rate_limiting_applied(self) -> None:
-        """Test rate limiting delays requests."""
-        mock_clock = MockClock()
-        page_response = {"query": {"pages": {"1": {"revisions": [{"slots": {"main": {"*": "content"}}}]}}}}
-        client, _ = _mock_client(
-            [page_response] * 2,
-            rate_limit_delay=1.0,
-            clock=mock_clock,
+    def test_strictest_reported_bucket_paces_edits(self) -> None:
+        clock = MockClock()
+        client, api = _mock_client(
+            [
+                {"query": {"tokens": {"logintoken": "token"}}},
+                {"login": {"result": "Success"}},
+                {
+                    "query": {
+                        "userinfo": {
+                            "name": "WoWBot",
+                            "rights": ["edit", "purge"],
+                            "ratelimits": {
+                                "edit": {
+                                    "user": {"hits": 90, "seconds": 60},
+                                    "ip": {"hits": 100, "seconds": 60},
+                                },
+                                "purge": {"user": {"hits": 30, "seconds": 60}},
+                            },
+                        }
+                    }
+                },
+                {"parse": {"text": {"*": "ok"}}},
+                {"edit": {"result": "Success"}},
+                {"edit": {"result": "Success"}},
+            ],
+            bot_username="WoWBot@Deploy",
+            bot_password="secret",
+            clock=clock,
         )
-        client.get_page("Page1")
-        time_after_first = mock_clock.time()
-        mock_clock.advance(0.3)
-        client.get_page("Page2")
-        assert mock_clock.time() - time_after_first >= 1.0
+        client.login()
+        client._request({"action": "parse"}, method="POST", data={"text": "test"})
+        before = clock.time()
+        client._request({"action": "edit"}, method="POST", data={"text": "first"})
+        client._request({}, method="POST", data={"action": "edit", "text": "second"})
+        assert clock.time() - before >= 60 / 90 * 1.1
+        assert clock.time() - before < 0.734
+        assert [request.data.get("action", request.query.get("action")) for request in api.requests[3:]] == [
+            "parse",
+            "edit",
+            "edit",
+        ]
+
+    def test_noratelimit_right_skips_spacing(self) -> None:
+        clock = MockClock()
+        client, _ = _mock_client(
+            [
+                {"query": {"tokens": {"logintoken": "token"}}},
+                {"login": {"result": "Success"}},
+                {
+                    "query": {
+                        "userinfo": {
+                            "name": "WoWBot",
+                            "rights": ["edit", "noratelimit"],
+                            "ratelimits": {"edit": {"user": {"hits": 90, "seconds": 60}}},
+                        }
+                    }
+                },
+                {"edit": {"result": "Success"}},
+                {"edit": {"result": "Success"}},
+            ],
+            bot_username="WoWBot@Deploy",
+            bot_password="secret",
+            clock=clock,
+        )
+        client.login()
+        before = clock.time()
+        client._request({}, method="POST", data={"action": "edit"})
+        client._request({}, method="POST", data={"action": "edit"})
+        assert clock.time() == before
 
 
 class TestMediaWikiClientErrorHandling:
@@ -1313,7 +1377,7 @@ class TestMediaWikiClientCSRFToken:
 class TestMediaWikiClientRequestRetry:
     """Test bounded backoff retry for transient lag and rate-limit responses."""
 
-    _FAST_POLICY = MediaWikiRequestPolicy(read_delay=0.0, write_delay=0.0, base_backoff=1.0, jitter=0.0, max_retries=2)
+    _FAST_POLICY = MediaWikiRequestPolicy(base_backoff=1.0, jitter=0.0, max_retries=2)
 
     def test_request_retries_after_maxlag_error_then_succeeds(self) -> None:
         """A maxlag error is honored with a bounded wait, then the request succeeds."""

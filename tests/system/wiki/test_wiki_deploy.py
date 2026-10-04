@@ -33,7 +33,6 @@ from erenshor.infrastructure.wiki import (
     MediaWikiAssertionError,
     MediaWikiClient,
     MediaWikiEditConflictError,
-    MediaWikiRequestPolicy,
 )
 
 WIKI_BASE_URL = os.environ.get("ERENSHOR_WIKI_BASE_URL", "http://localhost:8088")
@@ -168,15 +167,10 @@ def wiki_client() -> Iterator[MediaWikiClient]:
 
     _ensure_deploy_bot()
 
-    # No inter-request pacing: the local harness has no rate limit and the suite
-    # should stay fast. Conflict-safety still comes from baserevid/starttimestamp.
-    policy = MediaWikiRequestPolicy(read_delay=0.0, write_delay=0.0)
     client = MediaWikiClient(
         api_url=API_URL,
         bot_username=BOT_USER,
         bot_password=BOT_PASSWORD,
-        rate_limit_delay=0.0,
-        request_policy=policy,
     )
     client.login()
     try:

@@ -25,7 +25,7 @@ from erenshor.infrastructure.wiki.rate_limit import (
     MediaWikiRequestPolicy,
     MediaWikiRetryableRequestError,
     MediaWikiUnretryableRequestError,
-    RequestKind,
+    RateLimit,
 )
 from erenshor.infrastructure.wiki.template_parser import (
     InvalidWikitextError,
@@ -55,7 +55,7 @@ __all__ = [
     "MediaWikiRetryableRequestError",
     "MediaWikiTitleStatus",
     "MediaWikiUnretryableRequestError",
-    "RequestKind",
+    "RateLimit",
     "TemplateNotFoundError",
     "TemplateParser",
     "TemplateParserError",

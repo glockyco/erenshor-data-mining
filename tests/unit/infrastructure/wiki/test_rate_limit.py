@@ -9,6 +9,7 @@ from erenshor.infrastructure.wiki.rate_limit import (
     MediaWikiRequestPolicy,
     MediaWikiRetryableRequestError,
     MediaWikiUnretryableRequestError,
+    RateLimit,
 )
 
 
@@ -16,13 +17,19 @@ class FakeHttpClient:
     def __init__(self, responses: list[httpx.Response]) -> None:
         self._responses = responses
         self.requests: list[tuple[str, dict[str, str], dict[str, str] | None]] = []
+        self.times: list[float] = []
+        self.clock: MockClock | None = None
 
     def get(self, url: str, *, params: dict[str, str]) -> httpx.Response:
+        if self.clock is not None:
+            self.times.append(self.clock.time())
         self.requests.append(("GET", params, None))
         return self._pop_response()
 
     def post(self, url: str, *, params: dict[str, str], data: dict[str, str] | None = None) -> httpx.Response:
         self.requests.append(("POST", params, data))
+        if self.clock is not None:
+            self.times.append(self.clock.time())
         return self._pop_response()
 
     def close(self) -> None:
@@ -49,11 +56,13 @@ def response(
 
 
 def make_requestor(client: FakeHttpClient, clock: MockClock | None = None) -> MediaWikiRequestor:
+    active_clock = clock if clock is not None else MockClock()
+    client.clock = active_clock
     return MediaWikiRequestor(
         api_url="https://erenshor.wiki.gg/api.php",
         http_client=client,
-        clock=clock or MockClock(),
-        policy=MediaWikiRequestPolicy(read_delay=1.0, write_delay=2.0, max_retries=3, jitter=0.0),
+        clock=active_clock,
+        policy=MediaWikiRequestPolicy(max_retries=3, jitter=0.0),
     )
 
 
@@ -99,16 +108,34 @@ def test_omits_maxlag_for_interactive_requests() -> None:
     assert client.requests[0][1] == {"action": "query", "format": "json", "formatversion": "2"}
 
 
-def test_serializes_requests_with_read_delay() -> None:
+def test_edits_use_reported_action_spacing_without_delaying_other_actions() -> None:
+    clock = MockClock()
+    client = FakeHttpClient([response() for _ in range(6)])
+    requestor = make_requestor(client, clock)
+    requestor.set_rate_limits({"edit": RateLimit(90, 60), "purge": RateLimit(30, 60)})
+
+    requestor.post({}, data={"action": "edit"})
+    requestor.get({"action": "query"})
+    requestor.get({"action": "query"})
+    requestor.post({}, data={"action": "parse"})
+    requestor.post({"action": "purge"})
+    requestor.post({}, data={"action": "edit"})
+
+    assert client.times[0:5] == [client.times[0]] * 5
+    assert client.times[5] - client.times[0] >= 60 / 90 * 1.1
+    assert client.times[5] - client.times[0] < 0.734
+
+
+def test_unlimited_account_actions_never_wait() -> None:
     clock = MockClock()
     client = FakeHttpClient([response(), response()])
     requestor = make_requestor(client, clock)
+    requestor.set_rate_limits({})
 
-    start = clock.time()
-    requestor.get({"action": "query"})
-    requestor.get({"action": "query"})
+    requestor.post({}, data={"action": "edit"})
+    requestor.post({}, data={"action": "edit"})
 
-    assert clock.time() - start >= 1.0
+    assert client.times[1] == client.times[0]
 
 
 def test_retries_http_429_after_retry_after_header() -> None:
@@ -150,16 +177,17 @@ def test_retries_api_ratelimited_error_with_exponential_backoff() -> None:
     client = FakeHttpClient(
         [
             response(json={"error": {"code": "ratelimited", "info": "Wait"}}),
-            response(json={"query": {"ok": True}}),
+            response(json={"edit": {"result": "Success"}}),
         ]
     )
     requestor = make_requestor(client, clock)
+    requestor.set_rate_limits({"edit": RateLimit(90, 60)})
 
-    result = requestor.get({"action": "query"})
+    result = requestor.post({}, data={"action": "edit"})
 
-    assert result == {"query": {"ok": True}}
+    assert result == {"edit": {"result": "Success"}}
     assert len(client.requests) == 2
-    assert clock.time() >= 5
+    assert client.times[1] - client.times[0] >= 5
 
 
 def test_does_not_retry_503_without_retry_signal() -> None:

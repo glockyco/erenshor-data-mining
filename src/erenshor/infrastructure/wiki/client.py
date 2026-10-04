@@ -18,7 +18,7 @@ operations, designed to work with wiki.gg (https://erenshor.wiki.gg).
 
 import hashlib
 from collections.abc import Sequence
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal, NoReturn
 
@@ -31,7 +31,7 @@ from erenshor.infrastructure.wiki.rate_limit import (
     MediaWikiRequestPolicy,
     MediaWikiRetryableRequestError,
     MediaWikiUnretryableRequestError,
-    RequestKind,
+    RateLimit,
 )
 
 
@@ -192,7 +192,6 @@ class MediaWikiClient:
         bot_username: Bot account username for authentication.
         bot_password: Bot account password for authentication.
         batch_size: Number of pages to fetch per batch request.
-        rate_limit_delay: Minimum delay between API requests (seconds).
         edit_summary: Default edit summary for page updates.
         minor_edit: Whether edits should be marked as minor by default.
 
@@ -232,7 +231,6 @@ class MediaWikiClient:
         bot_username: str = "",
         bot_password: str = "",
         batch_size: int = 25,
-        rate_limit_delay: float = 1.0,
         edit_summary: str = "Automated wiki update",
         minor_edit: bool = True,
         timeout: float = 30.0,
@@ -248,7 +246,6 @@ class MediaWikiClient:
             bot_username: Bot account username (format: "BotName@BotName").
             bot_password: Bot account password (bot password from Special:BotPasswords).
             batch_size: Number of pages to fetch per batch request (max 50).
-            rate_limit_delay: Minimum delay between API requests in seconds.
             edit_summary: Default edit summary for page updates.
             minor_edit: Whether edits should be marked as minor by default.
             timeout: HTTP request timeout in seconds.
@@ -269,15 +266,11 @@ class MediaWikiClient:
         self.bot_username = bot_username
         self.bot_password = bot_password
         self.batch_size = batch_size
-        self.rate_limit_delay = rate_limit_delay
         self.edit_summary = edit_summary
         self.minor_edit = minor_edit
         self.timeout = timeout
         self.clock = clock if clock is not None else RealClock()
-        base_policy = request_policy if request_policy is not None else MediaWikiRequestPolicy()
-        # MediaWikiClient historically used one delay for reads and writes;
-        # retain that behavior while delegating pacing and retries to the requestor.
-        self.request_policy = replace(base_policy, read_delay=rate_limit_delay, write_delay=rate_limit_delay)
+        self.request_policy = request_policy if request_policy is not None else MediaWikiRequestPolicy()
 
         user_agent = f"{bot_username or 'ErenshorDataBot'}/0.3 (automated wiki updates) httpx"
         self._requestor = MediaWikiRequestor(
@@ -341,8 +334,8 @@ class MediaWikiClient:
         params.setdefault("maxlag", str(self.request_policy.maxlag))
         try:
             if method == "GET":
-                return self._requestor.get(params, kind=RequestKind.READ)
-            return self._requestor.post(params, data=data, kind=RequestKind.WRITE)
+                return self._requestor.get(params)
+            return self._requestor.post(params, data=data)
         except httpx.TimeoutException as e:
             logger.error(f"MediaWiki API request timeout: {e}")
             raise MediaWikiNetworkError(f"Request timeout: {e}") from e
@@ -421,10 +414,44 @@ class MediaWikiClient:
                 raise MediaWikiAuthenticationError(f"Login failed: {reason}")
 
             logger.info("Successfully logged in to MediaWiki")
+            self._load_rate_limits()
 
         except MediaWikiAPIError as e:
             logger.error(f"Login request failed: {e}")
             raise MediaWikiAuthenticationError(f"Login failed: {e}") from e
+
+    def _load_rate_limits(self) -> None:
+        """Read the logged-in account's rate limits and rights."""
+        result = self._request({"action": "query", "meta": "userinfo", "uiprop": "ratelimits|rights", "assert": "user"})
+        query = result.get("query")
+        userinfo = query.get("userinfo") if isinstance(query, dict) else None
+        if not isinstance(userinfo, dict):
+            raise MediaWikiAuthenticationError("Invalid userinfo response: missing account")
+        rights = userinfo.get("rights")
+        if not isinstance(rights, list) or not all(isinstance(right, str) for right in rights):
+            raise MediaWikiAuthenticationError("Invalid userinfo response: missing rights")
+        limits: dict[str, RateLimit] = {}
+        if "noratelimit" not in rights:
+            raw_limits = userinfo.get("ratelimits")
+            if not isinstance(raw_limits, dict):
+                raise MediaWikiAuthenticationError("Invalid userinfo response: missing rate limits")
+            for action, buckets in raw_limits.items():
+                if not isinstance(action, str) or not isinstance(buckets, dict):
+                    raise MediaWikiAuthenticationError("Invalid userinfo response: invalid rate limits")
+                for bucket in buckets.values():
+                    if not isinstance(bucket, dict):
+                        raise MediaWikiAuthenticationError("Invalid userinfo response: invalid rate limit bucket")
+                    hits, seconds = bucket.get("hits"), bucket.get("seconds")
+                    if type(hits) is not int or type(seconds) is not int or hits <= 0 or seconds <= 0:
+                        raise MediaWikiAuthenticationError("Invalid userinfo response: invalid rate limit bucket")
+                    candidate = RateLimit(hits=hits, seconds=seconds)
+                    current = limits.get(action)
+                    if current is None or candidate.seconds / candidate.hits > current.seconds / current.hits:
+                        limits[action] = candidate
+        self._requestor.set_rate_limits(limits)
+        name = userinfo.get("name", self.edit_account)
+        summary = ", ".join(f"{action} {limit.hits}/{limit.seconds}s" for action, limit in sorted(limits.items()))
+        logger.info(f"Rate limits for {name}: {summary or 'none'}")
 
     def get_current_user_rights(
         self,

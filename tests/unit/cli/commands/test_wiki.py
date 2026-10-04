@@ -581,7 +581,6 @@ class TestWikiDeployCommand:
         monkeypatch.setattr(wiki_command, "_build_link_audit_catalog", lambda _ctx: ())
         monkeypatch.setattr(wiki_command, "_run_link_audit", MagicMock(return_value=TestWikiLinkAuditCommand._report()))
         monkeypatch.setattr(wiki_command, "recorded_build_id", lambda _path: "123")
-        monkeypatch.setattr("erenshor.application.wiki_deploy.articles.time.sleep", lambda _seconds: None)
 
         result = runner.invoke(wiki.app, ["deploy"], obj=context)
 

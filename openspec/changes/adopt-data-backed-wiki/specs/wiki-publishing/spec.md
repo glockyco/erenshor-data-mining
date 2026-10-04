@@ -132,6 +132,25 @@ Before it writes a module or template that main-namespace pages use, `wiki deplo
 - **WHEN** a generated data module holds 5.1 MB of text and the limit is 4 MiB
 - **THEN** generation fails and names the module and its size
 
+### Requirement: Requests follow the wiki's rate limits
+
+Wiki commands SHALL send their API requests one at a time with `maxlag`. A request whose action the wiki rate-limits for the logged-in account SHALL wait until the previous request of that action is at least the limit's period divided by its count, plus 10 percent, in the past. Other requests SHALL NOT wait. A `ratelimited` or `maxlag` response SHALL back off and retry.
+
+#### Scenario: Edits under a reported limit
+
+- **WHEN** the wiki reports 90 edits per 60 seconds for the account and a deploy writes two pages
+- **THEN** the second edit starts at least 0.73 seconds after the first
+
+#### Scenario: Reads are not delayed
+
+- **WHEN** a deploy parses a page right after reading another page
+- **THEN** the parse request does not wait
+
+#### Scenario: An account without limits
+
+- **WHEN** the account has the `noratelimit` right
+- **THEN** no request waits for a rate limit
+
 ### Requirement: Every repository wiki file has a deploy path
 
 Each file under `wiki/` SHALL be a page source that `wiki deploy-repo-pages` or `wiki deploy-interface` deploys, or a Scribunto `testcases` module that the local wiki stack runs. The repository SHALL hold no copy of a page that people own and no generated output under `wiki/`. A check SHALL fail and name each file without a deploy path.

@@ -67,10 +67,7 @@ bot_username = ""  # e.g., "WikiEditor@DataBot"
 bot_password = ""  # Get from Special:BotPasswords
 
 # API settings (rarely need changing)
-api_batch_size = 25
-api_delay = 1.0
 upload_batch_size = 10
-upload_delay = 1.0
 upload_edit_summary = "Automated wiki update"
 upload_minor_edit = true
 

@@ -122,7 +122,6 @@ def _deploy(storage: WikiStorage, wiki: FakeWiki, tmp_path: Path):
         rollback_root=tmp_path / "variants" / "main" / "wiki" / "article-deploys" / "run" / "rollback",
         summary="Update game data from build 1",
         checkpoint=checkpoints.append,
-        sleep=lambda _: None,
     )
     return result, checkpoints
 

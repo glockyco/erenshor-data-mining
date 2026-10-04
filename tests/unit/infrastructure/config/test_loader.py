@@ -314,9 +314,7 @@ class TestLoadConfig:
         assert config.global_.logging.level == "debug"
 
         # MediaWiki: partial override
-        assert config.global_.mediawiki.api_batch_size == 50  # Overridden
         assert config.global_.mediawiki.bot_username == "override_bot"  # Overridden
-        assert config.global_.mediawiki.api_delay == 1.0  # Preserved from base
 
         # Variants: main disabled, playtest added
         assert config.variants["main"].enabled is False  # Overridden

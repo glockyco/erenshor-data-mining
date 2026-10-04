@@ -12,7 +12,6 @@ from __future__ import annotations
 
 import hashlib
 import re
-import time
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING, Literal, Protocol
@@ -268,8 +267,6 @@ def deploy_articles(
     rollback_root: Path,
     summary: str,
     checkpoint: Callable[[RepoWikiPageManifest], None] | None = None,
-    write_interval: float = 2.0,
-    sleep: Callable[[float], None] | None = None,
     batch_size: int = 50,
 ) -> ArticleDeployResult:
     """Write the planned articles that are still at their fetched revision.
@@ -287,7 +284,6 @@ def deploy_articles(
     the entry of the page gets its new revision, the manifest is checkpointed
     again, and the fetched copy becomes the saved text at the new revision.
     """
-    pause = time.sleep if sleep is None else sleep
     writes = plan.writes
     entries = _prepare_manifest(writes, storage, repo_root, rollback_root)
     state = _DeployState(entries=entries, positions={entry.title: index for index, entry in enumerate(entries)})
@@ -315,10 +311,8 @@ def deploy_articles(
             )
             if outcome == "stop":
                 break
-            if outcome == "requested":
-                if checkpoint is not None:
-                    checkpoint(state.manifest())
-                pause(write_interval)
+            if outcome == "requested" and checkpoint is not None:
+                checkpoint(state.manifest())
         if state.stopped is not None:
             break
 

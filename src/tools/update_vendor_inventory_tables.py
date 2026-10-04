@@ -158,7 +158,6 @@ def main(argv: list[str] | None = None) -> int:
         api_url=config.api_url,
         bot_username=config.bot_username,
         bot_password=config.bot_password,
-        rate_limit_delay=1.0,
         timeout=60.0,
         edit_summary=EDIT_SUMMARY,
     )

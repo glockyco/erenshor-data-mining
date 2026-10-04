@@ -88,7 +88,6 @@ def test_mediawiki_client_preserves_loopback_session_encoding() -> None:
             api_url=api_url,
             bot_username="ContractBot",
             timeout=3.0,
-            rate_limit_delay=0,
             request_policy=MediaWikiRequestPolicy(max_retries=0, jitter=0),
         ) as client:
             assert client.get_page(title) == "existing text"

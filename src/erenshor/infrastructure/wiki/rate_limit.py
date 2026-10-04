@@ -5,7 +5,7 @@ from __future__ import annotations
 import random
 from collections.abc import Mapping
 from dataclasses import dataclass
-from enum import StrEnum
+from threading import Lock
 from typing import Any, Protocol, cast
 
 import httpx
@@ -42,11 +42,16 @@ class MediaWikiUnretryableRequestError(MediaWikiRequestError):
     """Raised when a MediaWiki request fails in a way that should not be retried."""
 
 
-class RequestKind(StrEnum):
-    """Request pacing class."""
+@dataclass(frozen=True, slots=True)
+class RateLimit:
+    """Maximum action requests allowed within a period."""
 
-    READ = "read"
-    WRITE = "write"
+    hits: int
+    seconds: int
+
+    def __post_init__(self) -> None:
+        if self.hits <= 0 or self.seconds <= 0:
+            raise ValueError("Rate-limit hits and seconds must be positive")
 
 
 @dataclass(frozen=True)
@@ -60,12 +65,10 @@ class MediaWikiDownload:
 
 @dataclass(frozen=True)
 class MediaWikiRequestPolicy:
-    """Rate-limit and retry settings for non-interactive MediaWiki jobs."""
+    """Retry settings for non-interactive MediaWiki jobs."""
 
     user_agent: str = "ErenshorWikiBot/0.4 (https://erenshor.wiki.gg) httpx"
     maxlag: int = 5
-    read_delay: float = 1.0
-    write_delay: float = 1.0
     max_retries: int = 6
     base_backoff: float = 5.0
     max_backoff: float = 120.0
@@ -120,7 +123,9 @@ class MediaWikiRequestor:
         self.api_url = api_url
         self.policy = policy or MediaWikiRequestPolicy()
         self.clock = clock or RealClock()
-        self._last_request_time: float | None = None
+        self._rate_limits: dict[str, RateLimit] = {}
+        self._last_action_time: dict[str, float] = {}
+        self._lock = Lock()
         self._formatversion = formatversion
         self._http_client: _ClientLike
         if http_client is None:
@@ -138,6 +143,12 @@ class MediaWikiRequestor:
             self._owns_http_client = False
         self._closed = False
 
+    def set_rate_limits(self, limits: Mapping[str, RateLimit]) -> None:
+        """Install the account's current per-action limits."""
+        with self._lock:
+            self._rate_limits = dict(limits)
+            self._last_action_time.clear()
+
     def close(self) -> None:
         """Close the owned HTTP client exactly once."""
         if self._owns_http_client and not self._closed:
@@ -148,23 +159,21 @@ class MediaWikiRequestor:
         self,
         params: Mapping[str, str],
         *,
-        kind: RequestKind = RequestKind.READ,
         noninteractive: bool = True,
     ) -> JsonObject:
         """Run a GET request under the shared MediaWiki policy."""
-        return self._request("GET", params=params, data=None, kind=kind, noninteractive=noninteractive)
+        return self._request("GET", params=params, data=None, noninteractive=noninteractive)
 
     def post(
         self,
         params: Mapping[str, str],
         *,
         data: Mapping[str, str] | None = None,
-        kind: RequestKind = RequestKind.WRITE,
         noninteractive: bool = True,
     ) -> JsonObject:
         """Run a POST request under the shared MediaWiki policy."""
         request_data = dict(data) if data is not None else None
-        return self._request("POST", params=params, data=request_data, kind=kind, noninteractive=noninteractive)
+        return self._request("POST", params=params, data=request_data, noninteractive=noninteractive)
 
     def post_files(
         self,
@@ -172,7 +181,6 @@ class MediaWikiRequestor:
         *,
         data: Mapping[str, Any] | None = None,
         files: Mapping[str, Any],
-        kind: RequestKind = RequestKind.WRITE,
         noninteractive: bool = True,
     ) -> JsonObject:
         """Run a multipart POST request under the shared MediaWiki policy."""
@@ -182,19 +190,13 @@ class MediaWikiRequestor:
             params=params,
             data=request_data,
             files=files,
-            kind=kind,
             noninteractive=noninteractive,
         )
 
-    def download(
-        self,
-        url: str,
-        *,
-        kind: RequestKind = RequestKind.READ,
-    ) -> MediaWikiDownload:
-        """Download bytes through the owned HTTP session and pacing policy."""
-        self._pace(kind)
-        response = self._http_client.get(url, params={})
+    def download(self, url: str) -> MediaWikiDownload:
+        """Download bytes through the owned HTTP session."""
+        with self._lock:
+            response = self._http_client.get(url, params={})
         return MediaWikiDownload(
             status_code=response.status_code,
             content_type=response.headers.get("content-type", ""),
@@ -208,14 +210,24 @@ class MediaWikiRequestor:
         params: Mapping[str, str],
         data: dict[str, Any] | None,
         files: Mapping[str, Any] | None = None,
-        kind: RequestKind,
         noninteractive: bool,
     ) -> JsonObject:
         request_params = self._params(params, noninteractive=noninteractive)
+        with self._lock:
+            return self._send_with_retries(method, request_params, data, files)
+
+    def _send_with_retries(
+        self,
+        method: str,
+        request_params: dict[str, str],
+        data: dict[str, Any] | None,
+        files: Mapping[str, Any] | None,
+    ) -> JsonObject:
+        action = data.get("action", request_params.get("action")) if data is not None else request_params.get("action")
         file_positions = _capture_file_positions(files)
         for attempt in range(self.policy.max_retries + 1):
             _restore_file_positions(file_positions)
-            self._pace(kind)
+            self._pace(action)
             response = self._send(method, request_params, data, files)
             retry_delay = self._retry_delay(response, attempt)
             if retry_delay is not None:
@@ -283,16 +295,17 @@ class MediaWikiRequestor:
             request_params.setdefault("maxlag", str(self.policy.maxlag))
         return request_params
 
-    def _pace(self, kind: RequestKind) -> None:
-        delay = self.policy.write_delay if kind is RequestKind.WRITE else self.policy.read_delay
-        if delay <= 0:
+    def _pace(self, action: str | None) -> None:
+        if action is None or (limit := self._rate_limits.get(action)) is None:
             return
         now = self.clock.time()
-        if self._last_request_time is not None:
-            elapsed = now - self._last_request_time
-            if elapsed < delay:
-                self.clock.sleep(delay - elapsed)
-        self._last_request_time = self.clock.time()
+        last = self._last_action_time.get(action)
+        if last is not None:
+            interval = limit.seconds / limit.hits * 1.1
+            if now - last < interval:
+                self.clock.sleep(interval - (now - last))
+                now = self.clock.time()
+        self._last_action_time[action] = now
 
     def _retry_delay(self, response: _ResponseLike, attempt: int) -> float | None:
         return retry_delay_for(
