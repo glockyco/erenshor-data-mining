@@ -64,4 +64,4 @@
 | Chest                     = [[Category:Chests]]
 | [[Simulated Players|Sim]] =
 | #default                  = [[Category:Enemies]]
-}} }}}</includeonly><noinclude>{{Documentation}}</noinclude>
+}} }}</includeonly><noinclude>{{Documentation}}</noinclude>
