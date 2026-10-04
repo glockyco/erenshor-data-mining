@@ -1389,7 +1389,7 @@
       "is_wiki_generated": 0,
       "is_map_visible": 0,
       "mapping_type": "dead_prefab",
-      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists."
+      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists. Its scene copy in Shivering Step is Gatekeeper, which differs only in name."
     },
     "character:gloopa": {
       "wiki_page_name": "Gloopa",
@@ -3123,7 +3123,7 @@
       "is_wiki_generated": 0,
       "is_map_visible": 0,
       "mapping_type": "dead_prefab",
-      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists."
+      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists. Its scene copy in Fernalla's Portal is Invader of Dreams, with the same loot at level 24."
     },
     "character:jinx": {
       "wiki_page_name": null,
@@ -3168,7 +3168,7 @@
       "is_wiki_generated": 0,
       "is_map_visible": 0,
       "mapping_type": "dead_prefab",
-      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists."
+      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists. The Shivering Step vendor that had this name in 2024 is now Enterprising Spirit."
     },
     "character:fernallagolem": {
       "wiki_page_name": null,
@@ -3333,7 +3333,7 @@
       "is_wiki_generated": 0,
       "is_map_visible": 0,
       "mapping_type": "dead_prefab",
-      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists."
+      "reason": "Dead prefab: no GUID references in scenes or prefabs. No spawn path exists. Its scene copy in Shivering Step is Bridgekeeper, which differs only in name."
     },
     "character:wintham mcshanth": {
       "wiki_page_name": "Wintham McShanth",

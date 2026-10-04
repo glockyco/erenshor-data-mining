@@ -54,13 +54,19 @@ For a page that generation still produces, the wiki SHALL place known lifecycle 
 
 ### Requirement: Renamed content keeps old links working
 
-When an entity retains its stable identity but changes page title, the wiki SHALL redirect the old title to the new title. It SHALL not label that old title as removed content.
+When an entity retains its stable identity but changes page title, or when the game shows a placed entity under another name, the wiki SHALL redirect the old or other title to the current title. It SHALL not label that title as removed or unused content.
 
 #### Scenario: The Reckless skill book changes title
 
 - **WHEN** `item:skillbook - stance - reckless` changes from `Skill Book: Reckless Stance` to `Skill Book: Reckless Strike`
 - **THEN** the old title redirects to `Skill Book: Reckless Strike`
 - **AND** the current item page remains the destination
+
+#### Scenario: Chat names a placed character by another name
+
+- **WHEN** the facts file records `Dream Invader` as a rename to `Invader of Dreams`
+- **THEN** `Dream Invader` redirects to `Invader of Dreams`
+- **AND** the review does not report `Dream Invader` as unused
 
 ### Requirement: Previously generated pages that lose generation are reported
 
@@ -112,6 +118,11 @@ When one old page describes content that the game now has as several entities wi
 - **WHEN** the facts file records `Braxonian Planar Guard` as split into `Braxonian Planar Guard (Fire)` and `Braxonian Planar Guard (Ice)`
 - **THEN** the old page lists and links both variants
 - **AND** the retired-page review reports the split as resolved once the page is live
+
+#### Scenario: Two prefabs that share one name
+
+- **WHEN** the facts file records `Watchman` as split into `Bridgekeeper` and `Gatekeeper`
+- **THEN** the old page lists and links both characters
 
 ### Requirement: Reviewed dispositions are applied with guards
 

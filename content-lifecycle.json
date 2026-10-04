@@ -34,7 +34,7 @@
       "update": null,
       "date": null,
       "patch_notes_url": null,
-      "source": "Clean DB retains an inert spell with required_level=-1, no spell_classes, no teaching item, and no NPC-use row. Its old wiki page says it is no longer in the game. No named removal update appears in the Steam news API."
+      "source": "Clean DB retains an inert spell with required_level=-1, no spell_classes, no teaching item, and no NPC-use row. Its old wiki page says it is no longer in the game. No named removal update appears in the Steam news API. The hidden /preview and /rocfest commands still put it on a preset level-15 Arcanist hotbar. They overwrite the character and the save files, so they are not a way to learn it in play."
     },
     "Spell Scroll: Mana Burst": {
       "stable_key": null,
@@ -99,15 +99,6 @@
       "patch_notes_url": null,
       "source": "Clean DB retains a crafting-reward row for this item. The wiki's crafting explanation says tier 2 crafting now gives a blessed item instead."
     },
-    "An Angry Spirit": {
-      "stable_key": "character:character_ghost_01 (1)",
-      "state": "unused",
-      "thing": "character",
-      "update": null,
-      "date": null,
-      "patch_notes_url": null,
-      "source": "mapping.json character:character_ghost_01 (1): dead prefab with no scene or prefab references and no spawn path."
-    },
     "Ancient Sentinel": {
       "stable_key": "character:ancient sentinel",
       "state": "unused",
@@ -115,7 +106,8 @@
       "update": null,
       "date": null,
       "patch_notes_url": null,
-      "source": "mapping.json character:ancient sentinel: dead prefab with no scene or prefab references and no spawn path."
+      "source": "No scene, prefab, asset, or spawn table refers to the prefab, and a scan of the live game found no reference to it. The game places Sentinel in The Blight instead, which differs only in name, health, and attack damage. Simulated-player chat says that ancient sentinel is in The Blight and names it as the source of Blight Crystals and Ancient Pottery Shard.",
+      "chat": true
     },
     "Bazxzoth": {
       "stable_key": "character:baxzxoth",
@@ -124,16 +116,7 @@
       "update": null,
       "date": null,
       "patch_notes_url": null,
-      "source": "mapping.json character:baxzxoth: dead prefab with no scene or prefab references and no spawn path."
-    },
-    "Dream Invader": {
-      "stable_key": "character:dream invader",
-      "state": "unused",
-      "thing": "character",
-      "update": null,
-      "date": null,
-      "patch_notes_url": null,
-      "source": "mapping.json character:dream invader: dead prefab with no scene or prefab references and no spawn path."
+      "source": "No scene, prefab, asset, or spawn table refers to the prefab, and a scan of the live game found no reference to it. Its knowledge-base entry has no zone and no loot, so chat names it only when a player asks for it."
     },
     "Fernalla's Guardian Golem": {
       "stable_key": "character:fernallagolem",
@@ -142,7 +125,7 @@
       "update": null,
       "date": null,
       "patch_notes_url": null,
-      "source": "mapping.json character:fernallagolem: dead prefab with no scene or prefab references and no spawn path."
+      "source": "No scene, prefab, asset, or spawn table refers to the prefab, and a scan of the live game found no reference to it. Its knowledge-base entry has no zone and no loot, so chat names it only when a player asks for it."
     },
     "Holy Corpse": {
       "stable_key": "character:holy corpse",
@@ -151,7 +134,8 @@
       "update": null,
       "date": null,
       "patch_notes_url": null,
-      "source": "mapping.json character:holy corpse: dead prefab with no scene or prefab references and no spawn path."
+      "source": "No scene, prefab, asset, or spawn table refers to the prefab, and a scan of the live game found no reference to it. Simulated-player chat says that holy corpse is in Fernalla's Revival Plains.",
+      "chat": true
     },
     "Queen Evadne": {
       "stable_key": "character:character_ancientqueen_01",
@@ -160,7 +144,8 @@
       "update": null,
       "date": null,
       "patch_notes_url": null,
-      "source": "mapping.json character:character_ancientqueen_01: dead prefab with no scene or prefab references and no spawn path."
+      "source": "No scene, prefab, asset, or spawn table refers to the prefab, and a scan of the live game found no reference to it. Simulated-player chat says that queen evadne is in The Braxonian Desert.",
+      "chat": true
     },
     "Summoned: Elder Dryad": {
       "stable_key": "character:summoned elder dryad",
@@ -169,16 +154,8 @@
       "update": null,
       "date": null,
       "patch_notes_url": null,
-      "source": "mapping.json character:summoned elder dryad: dead prefab with no scene or prefab references and no spawn path."
-    },
-    "Watchman": {
-      "stable_key": "character:watchman",
-      "state": "unused",
-      "thing": "character",
-      "update": null,
-      "date": null,
-      "patch_notes_url": null,
-      "source": "mapping.json character:watchman and character:gatekeeper both name Watchman and are dead prefabs with no scene or prefab references and no spawn path."
+      "source": "No scene, prefab, asset, or spawn table refers to the prefab, and a scan of the live game found no reference to it. No spell summons it. Simulated-player chat says that summoned elder dryad is in Duskenlight.",
+      "chat": true
     }
   },
   "renames": {
@@ -211,6 +188,16 @@
       "stable_key": "item:gen - raid rune of brax",
       "current_title": "Rune of Elements",
       "source": "Current clean DB maps the same item key to Rune of Elements."
+    },
+    "An Angry Spirit": {
+      "stable_key": "character:ghostly figure:shiveringstep:701.36:24.78:439.97",
+      "current_title": "Enterprising Spirit",
+      "source": "A player's page of 2024-10-12, with a screenshot, documented An Angry Spirit <Treasure Merchant> as a vendor in Shivering Step. NPC.cs builds that subtitle from the vendor description Treasure. The same Shivering Step vendor is now Enterprising Spirit. The prefab Character_Ghost_01 (1), a hostile ghost with the old name, has no reference in any asset and no spawn path."
+    },
+    "Dream Invader": {
+      "stable_key": "character:dream invader:fernallaportal:343.45:0.52:405.94",
+      "current_title": "Invader of Dreams",
+      "source": "The level-8 prefab Dream Invader has no reference in any asset and no spawn path. Its scene copy in Fernalla's Portal keeps the object name Dream Invader, is named Invader of Dreams at level 24, and has the same loot. Simulated-player chat uses the name dream invader for The Fernallan Portal and for seven of those drops."
     }
   },
   "splits": {
@@ -224,6 +211,17 @@
         "character:braxonian planar guardian ice"
       ],
       "source": "mapping.json excludes the dead base prefab with no spawn path. The clean DB generates the Fire and Ice variants with separate stable keys and pages."
+    },
+    "Watchman": {
+      "current_titles": [
+        "Bridgekeeper",
+        "Gatekeeper"
+      ],
+      "stable_keys": [
+        "character:watchman:shiveringstep:508.96:68.49:659.72",
+        "character:gatekeeper:shiveringstep:672.15:29.53:421.14"
+      ],
+      "source": "The prefabs Watchman and Gatekeeper are both named Watchman and have no reference in any asset. Their scene copies in Shivering Step match them in every exported field except the name: Bridgekeeper and Gatekeeper. The quest SHIVER-WATCHMAN is titled The Bridgekeeper. Simulated-player chat still says that watchman is in Shivering Step."
     }
   }
 }

@@ -113,7 +113,7 @@ When a game update removes or renames something, its page stays on the wiki. Old
 |-
 | It is in the game files, but nothing in the game spawns it || A box says this. If simulated players can still name it in chat, the box says that too. The page is in [[:Category:Unused Content]].
 |-
-| The game renamed it || The old title redirects to the page with the new name.
+| The game renamed it, or simulated players call it by another name || The other name redirects to the page with the current name.
 |-
 | The game now has several versions of it || The page under the old title links each version.
 |}

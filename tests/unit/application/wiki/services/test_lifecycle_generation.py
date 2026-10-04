@@ -246,6 +246,10 @@ def test_reviewed_split_links_both_current_variants() -> None:
             "Aura: Rising Shadows III": ["spell:aura - reaver 3"],
             "Aura: Rising Shadows IV": ["spell:aura - reaver 4"],
             "Rune of Elements": ["item:gen - raid rune of brax"],
+            "Enterprising Spirit": ["character:ghostly figure:shiveringstep:701.36:24.78:439.97"],
+            "Invader of Dreams": ["character:dream invader:fernallaportal:343.45:0.52:405.94"],
+            "Bridgekeeper": ["character:watchman:shiveringstep:508.96:68.49:659.72"],
+            "Gatekeeper": ["character:gatekeeper:shiveringstep:672.15:29.53:421.14"],
         },
         lifecycle,
     )
