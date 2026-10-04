@@ -162,7 +162,7 @@ Every template that generation writes into an article, and every template that a
 
 ### Requirement: The data guide states which fields keep an editor's value
 
-`Erenshor Wiki:Game data` SHALL list, for each template that generation writes, each field that keeps a value set by an editor when a refresh runs, and each field that merges such a value with the generated value. The list SHALL equal the preservation rules of the generator. A check SHALL fail when they differ and name the template and the field.
+`Erenshor Wiki:Game Data` SHALL list, for each template that generation writes, each field that keeps a value set by an editor when a refresh runs, and each field that merges such a value with the generated value. The list SHALL equal the preservation rules of the generator. A check SHALL fail when they differ and name the template and the field.
 
 #### Scenario: A preservation rule changes without the guide
 
@@ -171,7 +171,7 @@ Every template that generation writes into an article, and every template that a
 
 ### Requirement: The data guide names the live game build
 
-`Erenshor Wiki:Game data` SHALL show the game build id and its publish date of the live data modules. Its text SHALL read them from a generated data module, so a data deploy changes them without an edit of the guide.
+`Erenshor Wiki:Game Data` SHALL show the game build id and its publish date of the live data modules. Its text SHALL read them from a generated data module, so a data deploy changes them without an edit of the guide.
 
 #### Scenario: A new build is deployed
 

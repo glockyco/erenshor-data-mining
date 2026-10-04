@@ -2,7 +2,7 @@ The bot account [[User:WoWBot|WoWBot]] keeps the game data on this wiki current.
 
 The game data on this wiki comes from Erenshor {{#invoke:Erenshor/Build|text}}.
 
-For everything else about editing this wiki, see the [[Erenshor Wiki:Community portal|community portal]].
+For everything else about editing this wiki, see the [[Erenshor Wiki:Community Portal|community portal]].
 
 == How game data reaches the wiki ==
 After a game update:
@@ -18,7 +18,7 @@ The same database feeds the [https://erenshor.compendiums.org interactive map]. 
 |-
 | Data modules under <code>Module:Erenshor/Data/</code> || the bot || Do not edit them. The next update replaces them.
 |-
-| The other [[Special:PrefixIndex/Module:Erenshor/|modules under <code>Module:Erenshor/</code>]], and the templates listed below || the project || Ask for a change on the [[Erenshor Wiki talk:Game data|talk page]]. An edit on the wiki stops the next update of that page until the change is copied into the project.
+| The other [[Special:PrefixIndex/Module:Erenshor/|modules under <code>Module:Erenshor/</code>]], and the templates listed below || the project || Ask for a change on the [[Erenshor Wiki talk:Game Data|talk page]]. An edit on the wiki stops the next update of that page until the change is copied into the project.
 |-
 | Item, character, ability, stance, and zone articles, and the overview tables on [[Weapons]] and [[Armor]] || the bot and you || The bot writes the infobox data and the overview tables. You write everything else. See the next section.
 |-
@@ -101,7 +101,7 @@ Do not correct a value that the bot writes. The next update replaces your correc
 |}
 
 === How to report ===
-Write in the <code>#wiki-chat</code> channel of the [https://discord.gg/DxqZc5Dc9q Erenshor Discord], or on the [[Erenshor Wiki talk:Game data|talk page]] of this page. Name the page, the field, and what the game shows. A screenshot helps.
+Write in the <code>#wiki-chat</code> channel of the [https://discord.gg/DxqZc5Dc9q Erenshor Discord], or on the [[Erenshor Wiki talk:Game Data|talk page]] of this page. Name the page, the field, and what the game shows. A screenshot helps.
 
 == Links and tooltips ==
 Links to items, characters, abilities, quests, zones, factions, and classes use link templates. A link template shows the name with an icon. When you move the pointer over the link, a card shows the in-game tooltip.

@@ -1,4 +1,4 @@
 __HIDDENCAT__
 This hidden maintenance category collects pages with an Erenshor link whose name matches more than one thing in the game data, for example two quests with the same name.
 
-To fix a page, give each such link a <code>stablekey</code>. In the source editor, the '''Erenshor link''' button in the ''Insert'' group finds the correct key. See [[Erenshor Wiki:Game data#Maintenance categories]].
+To fix a page, give each such link a <code>stablekey</code>. In the source editor, the '''Erenshor link''' button in the ''Insert'' group finds the correct key. See [[Erenshor Wiki:Game Data#Maintenance categories]].

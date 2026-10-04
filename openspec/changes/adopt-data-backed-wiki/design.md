@@ -57,7 +57,7 @@ Alternative considered: render articles from Cargo queries only. Rejected on 202
 |---|---|---|
 | `Module:Erenshor/Data/*`, `Erenshor Wiki:Cargo/*`, `Template:Cargo/*` | bot | generation and deploy commands only |
 | modules, templates, content pages, and gadgets under `wiki/` | repository | `wiki deploy-repo-pages` and `wiki deploy-interface` |
-| article text, overrides of owned fields, community rows, hand-written pages, the main page, the sidebar, and the `Erenshor Wiki:Community portal` | people | editors |
+| article text, overrides of owned fields, community rows, hand-written pages, the main page, the sidebar, and the `Erenshor Wiki:Community Portal` | people | editors |
 
 The repository is the source of each repository-owned page. When another account edits such a page, the deploy stops at the drift check (`refresh-wiki-articles` D6), and the edit goes into the repository source. The lock boundary of every write is the revision that the write was planned against. Until step 4 converts a type, its articles are shared: generated parameters and text that people write sit in one page, and the refresh merges them.
 
@@ -177,7 +177,7 @@ Alternatives considered:
 - `.agent/skills/wiki-templates/SKILL.md` gives agents the binding rules and the procedures, and links this change. It holds no history.
 - `openspec/config.yaml` names this change in its context, so that every OpenSpec workflow sees it. Its design rules about dependency ecosystems become general rules.
 - No other plan document exists. When a decision changes, this change changes in the same commit as the code.
-- `Erenshor Wiki:Game data` (D12) explains the data, the ownership rules, and the procedures to editors. It describes the current state and holds no plan.
+- `Erenshor Wiki:Game Data` (D12) explains the data, the ownership rules, and the procedures to editors. It describes the current state and holds no plan.
 
 ### D10. Live writes and deletions
 
@@ -208,9 +208,9 @@ Each of the 19 open wiki issues was checked on 2026-10-03 against the code, the 
 
 Two pages, with one owner each. The PoE, WARFRAME, and Abiotic Factor wikis use the same split: a community portal that links everything, and a separate guide to the data pipeline.
 
-- `Erenshor Wiki:Community portal`, owned by people, is the entry point. It covers getting started, the rules and conventions (with the community templates that Kyrros maintains), things to do (wanted pages, the `Potentially Missing Wiki Data` project, the maintenance categories), discussion (its talk page and Discord `#wiki-chat`), the administrators, and a link to the data guide. A first version is drafted, reviewed by WoWMuch, and created from WoWMuch's account. After that, the community owns it, and the repository keeps no copy.
-- `Erenshor Wiki:Game data`, owned by the repository (`wiki/content/Erenshor Wiki/Game data.wiki`), is the data guide. It covers how data moves from the game build to the wiki and which build is live, who owns which pages (D2 in the words of an editor), the fields of each generated template that keep an editor's value at a refresh, where a fact that the export misses goes, how to report wrong data, the semantic link templates with the link picker and the tooltips, and the maintenance categories with what to do about each. `Erenshor Wiki:Cargo` of `publish-wiki-cargo-data` becomes its child page.
-- Reports of wrong data go to Discord `#wiki-chat` for discussion and to the talk page of `Erenshor Wiki:Game data` as the record. Confirmed work moves into OpenSpec.
+- `Erenshor Wiki:Community Portal`, owned by people, is the entry point. It covers getting started, the rules and conventions (with the community templates that Kyrros maintains), things to do (wanted pages, the `Potentially Missing Wiki Data` project, the maintenance categories), discussion (its talk page and Discord `#wiki-chat`), the administrators, and a link to the data guide. A first version is drafted, reviewed by WoWMuch, and created from WoWMuch's account. After that, the community owns it, and the repository keeps no copy.
+- `Erenshor Wiki:Game Data`, owned by the repository (`wiki/content/Erenshor Wiki/Game Data.wiki`), is the data guide. It covers how data moves from the game build to the wiki and which build is live, who owns which pages (D2 in the words of an editor), the fields of each generated template that keep an editor's value at a refresh, where a fact that the export misses goes, how to report wrong data, the semantic link templates with the link picker and the tooltips, and the maintenance categories with what to do about each. `Erenshor Wiki:Cargo` of `publish-wiki-cargo-data` becomes its child page.
+- Reports of wrong data go to Discord `#wiki-chat` for discussion and to the talk page of `Erenshor Wiki:Game Data` as the record. Confirmed work moves into OpenSpec.
 - `User:WoWBot` becomes a short card: what the bot is, who runs it, and a link to the data guide. The field table then exists only in the guide.
 - The sidebar gets a "Community" group with the portal, the data guide, and the recent changes. The main page's "Contribute" box links the portal and no longer links `Category:Unknown Item Source`. People own both pages, so WoWMuch makes these edits.
 

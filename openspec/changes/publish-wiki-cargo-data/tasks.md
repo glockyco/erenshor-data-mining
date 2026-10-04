@@ -33,7 +33,7 @@
 
 - [ ] 6.1 `feat(wiki): add Cargo query templates`: add `Module:Erenshor/Query` and the templates of design D5 with TemplateData and examples. Check that each name is free on the wiki first. Add Scribunto testcases and smoke checks in the local stack. Verify: each example renders on live through TemplateSandbox, and an ambiguous page name lists its keys.
 - [ ] 6.2 `feat(wiki): let editors add item sources and spawn points`: add `{{ItemSource}}` and `{{SpawnPoint}}` with key resolution and the tracking category. Verify in the local stack and on a live sandbox page: a valid row appears in the item source query marked as community, an unknown key stores nothing and adds the category, and a generated refresh keeps the community row.
-- [ ] 6.3 `docs(wiki): document the Cargo tables for editors`: write `wiki/content/Erenshor Wiki/Cargo.wiki` as design D3 describes, link it from `Erenshor Wiki:Game data` (`adopt-data-backed-wiki` design D12), and deploy it with the templates. Verify: every table and template is linked from the hub, and the data guide links the hub.
+- [ ] 6.3 `docs(wiki): document the Cargo tables for editors`: write `wiki/content/Erenshor Wiki/Cargo.wiki` as design D3 describes, link it from `Erenshor Wiki:Game Data` (`adopt-data-backed-wiki` design D12), and deploy it with the templates. Verify: every table and template is linked from the hub, and the data guide links the hub.
 
 ## 7. Removal
 

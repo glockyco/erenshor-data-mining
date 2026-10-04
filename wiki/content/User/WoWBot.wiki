@@ -1,5 +1,5 @@
 '''WoWBot''' is a bot account. It publishes the game data of Erenshor on this wiki. [[User:WoWMuch|WoWMuch]] runs it.
 
-[[Erenshor Wiki:Game data]] explains which pages the bot maintains, what you can change on them, and how to report a wrong value.
+[[Erenshor Wiki:Game Data]] explains which pages the bot maintains, what you can change on them, and how to report a wrong value.
 
 [[Category:Erenshor Wiki]]
