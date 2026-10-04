@@ -681,6 +681,7 @@ def generate_lua(ctx: typer.Context) -> None:
             faction_repo=faction_repo,
             class_display=class_display,
             output_root=output_root,
+            max_page_bytes=cli_ctx.config.global_.mediawiki.max_page_bytes,
         )
         for path in result.written_paths:
             console.print(f"[green]Wrote:[/green] {path}", soft_wrap=True)

@@ -10,7 +10,7 @@
 
 - [ ] 2.1 `feat(wiki): check repo-page dependencies before a deploy`: implement design D6. Add tests with a fake wiki: a template whose module loads a missing data module is blocked and named, a module and its new data module in one run pass, modules are written in dependency order, and a dry run reports the same result. Verify: the tests pass, and a dry run against live reports no blocked page.
 - [ ] 2.2 `feat(wiki): render repo pages through TemplateSandbox before writing`: implement design D7 with the coverage selection and a full-check option. Add tests with a fake wiki: a new script error blocks the write, a visible change is reported, the selection covers a feature that only one page has, the full option parses every page, and a page without users is reported. Verify: the tests pass, and a dry run against live reports each changed page with its selection.
-- [ ] 2.3 `feat(wiki): fail Lua data generation above the page size limit`: implement design D8 with `max_page_bytes` in `[global.mediawiki]`. Add a test with a module over the limit. Verify: the test passes, and `uv run erenshor wiki generate-lua` passes on the current data.
+- [x] 2.3 `feat(wiki): fail Lua data generation above the page size limit`: implement design D8 with `max_page_bytes` in `[global.mediawiki]`. Add a test with a module over the limit. Verify: the test passes, and `uv run erenshor wiki generate-lua` passes on the current data.
 
 ## 3. Step 0: write the plan down (one commit each, except 3.3)
 

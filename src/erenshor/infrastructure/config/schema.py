@@ -208,6 +208,11 @@ class MediaWikiConfig(ConfigModel):
         le=10.0,
         description="Delay in seconds between API requests to avoid rate limiting",
     )
+    max_page_bytes: int = Field(
+        default=4194304,
+        ge=1,
+        description="Maximum UTF-8 bytes in a wiki data module",
+    )
     upload_batch_size: int = Field(
         default=10,
         ge=1,

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import shutil
+import tempfile
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
@@ -164,49 +166,63 @@ def generate_lua_data_modules(
     output_root: Path,
     faction_repo: WikiFactionRepository,
     class_display: ClassDisplayNameService,
+    max_page_bytes: int,
     validate: LuaValidator = validate_lua_module,
 ) -> LuaDataModuleGenerationResult:
-    """Generate and validate all currently supported Lua data modules."""
+    """Generate Lua modules after checking that every page fits the wiki limit."""
     items = item_repo.get_items_for_wiki_generation()
     item_sources_by_item = build_item_sources_by_item(items, item_repo, character_repo, quest_repo, zone_repo)
     class_display_names = {
         internal_name: class_display.get_display_name(internal_name)
         for internal_name in class_display.get_all_internal_names()
     }
-    written_paths = [
-        *write_items_modules(
-            item_repo,
-            output_root,
-            sources_by_item=item_sources_by_item,
-            class_display_names=class_display_names,
-        ),
-        write_links_module(
-            item_repo,
-            character_repo,
-            quest_repo,
-            zone_repo,
-            spell_repo,
-            skill_repo,
-            stance_repo,
-            faction_repo,
-            class_display,
-            output_root,
-        ),
-        write_spells_module(
-            spell_repo,
-            output_root,
-            item_repo,
-            character_repo,
-            class_display_names=class_display_names,
-        ),
-        write_skills_module(skill_repo, output_root, item_repo),
-        write_stances_module(stance_repo, output_root),
-    ]
+    with tempfile.TemporaryDirectory(prefix="erenshor-wiki-lua-") as temporary:
+        staging_root = Path(temporary)
+        staged_paths = [
+            *write_items_modules(
+                item_repo,
+                staging_root,
+                sources_by_item=item_sources_by_item,
+                class_display_names=class_display_names,
+            ),
+            write_links_module(
+                item_repo,
+                character_repo,
+                quest_repo,
+                zone_repo,
+                spell_repo,
+                skill_repo,
+                stance_repo,
+                faction_repo,
+                class_display,
+                staging_root,
+            ),
+            write_spells_module(
+                spell_repo,
+                staging_root,
+                item_repo,
+                character_repo,
+                class_display_names=class_display_names,
+            ),
+            write_skills_module(skill_repo, staging_root, item_repo),
+            write_stances_module(stance_repo, staging_root),
+        ]
+        validation_tools: dict[Path, str] = {}
+        for path in staged_paths:
+            validation = validate(path)
+            output_path = output_root / path.relative_to(staging_root)
+            validation_tools[output_path] = validation.tool
+        for path in staged_paths:
+            size = path.stat().st_size
+            if size > max_page_bytes:
+                title = "Module:" + path.relative_to(staging_root).with_suffix("").as_posix()
+                raise ValueError(f"{title} is {size} bytes. Limit: {max_page_bytes} bytes.")
+        written_paths = []
+        for path in staged_paths:
+            output_path = output_root / path.relative_to(staging_root)
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(path, output_path)
+            written_paths.append(output_path)
     _remove_stale_data_modules(output_root, written_paths)
-
-    validation_tools: dict[Path, str] = {}
-    for path in written_paths:
-        validation = validate(path)
-        validation_tools[path] = validation.tool
 
     return LuaDataModuleGenerationResult(written_paths=written_paths, validation_tools=validation_tools)

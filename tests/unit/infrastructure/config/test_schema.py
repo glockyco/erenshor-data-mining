@@ -208,6 +208,7 @@ class TestMediaWikiConfig:
         assert config.bot_password == ""
         assert config.interface_username == ""
         assert config.interface_password == ""
+        assert config.max_page_bytes == 4194304
 
     def test_batch_size_constraints(self):
         """Test that batch sizes respect min/max constraints."""
@@ -224,6 +225,11 @@ class TestMediaWikiConfig:
         # Too high
         with pytest.raises(ValidationError):
             MediaWikiConfig(api_batch_size=51)
+
+    def test_page_limit_must_be_positive(self):
+        """A zero byte limit cannot hold a wiki page."""
+        with pytest.raises(ValidationError):
+            MediaWikiConfig(max_page_bytes=0)
 
     def test_delay_constraints(self):
         """Test that delays respect min/max constraints."""

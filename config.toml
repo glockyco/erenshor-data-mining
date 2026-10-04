@@ -31,6 +31,7 @@ enable_validation = true
 api_url = "https://erenshor.wiki.gg/api.php"
 api_batch_size = 25
 api_delay = 1.0
+max_page_bytes = 4194304
 upload_batch_size = 10
 upload_delay = 1.0
 upload_edit_summary = "Automated wiki update"

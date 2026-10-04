@@ -54,6 +54,7 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
         faction_repo=FakeFactionRepository(),
         class_display=FakeClassDisplayService(),
         output_root=tmp_path,
+        max_page_bytes=4194304,
         validate=record_validation,
     )
 
@@ -79,13 +80,9 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
         skills_path: "stylua",
         stances_path: "stylua",
     }
-    assert validated_paths == [
-        items_path,
-        item_shard_path,
-        links_path,
-        spells_path,
-        skills_path,
-        stances_path,
+    staging_root = validated_paths[0].parents[2]
+    assert [path.relative_to(staging_root) for path in validated_paths] == [
+        path.relative_to(tmp_path) for path in result.written_paths
     ]
     assert '"Weapons"' in items_path.read_text(encoding="utf-8")
     assert "item:sword_of_flames" in item_shard_path.read_text(encoding="utf-8")
@@ -130,6 +127,7 @@ def test_generation_validates_nonnull_blank_item_catalog_pages(tmp_path: Path) -
             faction_repo=FakeFactionRepository(),
             class_display=FakeClassDisplayService(),
             output_root=tmp_path,
+            max_page_bytes=4194304,
             validate=lambda path: LuaValidationResult(path=path, tool="stylua"),
         )
 
@@ -168,6 +166,7 @@ def test_generation_wires_item_provenance_repositories(tmp_path: Path) -> None:
         zone_repo=FakeZoneRepository([make_zone()], {}),
         faction_repo=FakeFactionRepository(),
         class_display=FakeClassDisplayService(),
+        max_page_bytes=4194304,
         output_root=tmp_path,
         validate=lambda path: LuaValidationResult(path=path, tool="stylua"),
     )
@@ -181,8 +180,8 @@ def test_generation_wires_item_provenance_repositories(tmp_path: Path) -> None:
         assert f'"{removed}"' not in item_shard_text
 
 
-def _run_generation(tmp_path: Path) -> object:
-    item_repo = FakeItemRepository(items=[make_item()], stats={}, classes={})
+def _run_generation(tmp_path: Path, *, max_page_bytes: int = 4194304, item_key: str = "item:sword_of_flames") -> object:
+    item_repo = FakeItemRepository(items=[make_item(stable_key=item_key)], stats={}, classes={})
     return generate_lua_data_modules(
         item_repo=item_repo,
         character_repo=FakeCharacterRepository([make_character()]),
@@ -194,6 +193,7 @@ def _run_generation(tmp_path: Path) -> object:
         faction_repo=FakeFactionRepository(),
         class_display=FakeClassDisplayService(),
         output_root=tmp_path,
+        max_page_bytes=max_page_bytes,
         validate=lambda path: LuaValidationResult(path=path, tool="stylua"),
     )
 
@@ -210,6 +210,27 @@ def test_generated_modules_are_byte_for_byte_deterministic(tmp_path: Path) -> No
     assert first_modules == second_modules
 
 
+def test_generation_rejects_oversize_module_without_changing_output(tmp_path: Path) -> None:
+    reference_root = tmp_path / "reference"
+    item_key = "item:épée"
+    _run_generation(reference_root, item_key=item_key)
+    module = reference_root / "Erenshor" / "Data" / "Items.lua"
+    size = module.stat().st_size
+    character_limit = len(module.read_text(encoding="utf-8"))
+    assert size > character_limit
+    output_root = tmp_path / "output"
+    data_dir = output_root / "Erenshor" / "Data"
+    data_dir.mkdir(parents=True)
+    existing_module = data_dir / "Items.lua"
+    existing_module.write_text("return { old = true }\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match=rf"Module:Erenshor/Data/Items is {size} bytes.*{character_limit} bytes"):
+        _run_generation(output_root, max_page_bytes=character_limit, item_key=item_key)
+
+    assert existing_module.read_text(encoding="utf-8") == "return { old = true }\n"
+    assert list(data_dir.rglob("*.lua")) == [existing_module]
+
+
 def test_generation_requires_faction_and_class_dependencies(tmp_path: Path) -> None:
     with pytest.raises(TypeError) as error:
         generate_lua_data_modules(
@@ -221,6 +242,7 @@ def test_generation_requires_faction_and_class_dependencies(tmp_path: Path) -> N
             quest_repo=FakeQuestRepository([make_quest()]),
             zone_repo=FakeZoneRepository([make_zone()], {}),
             output_root=tmp_path,
+            max_page_bytes=4194304,
             validate=lambda path: LuaValidationResult(path=path, tool="stylua"),
         )
 
