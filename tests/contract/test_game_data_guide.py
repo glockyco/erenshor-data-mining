@@ -20,6 +20,8 @@ RULE_BY_LABEL = {
 }
 _FIELD_ROW = re.compile(r"^\|\s*([A-Za-z]+)\s*\|\|\s*<code>([^<]+)</code>\s*\|\|\s*(.+?)\s*$", re.MULTILINE)
 _TEMPLATE_LINK = re.compile(r"\[\[Template:([^|\]]+)")
+_CATEGORY_TAG = re.compile(r"\[\[Category:([^|\]]+)\]\]")
+_CATEGORY_LINK = re.compile(r"\[\[:Category:([^|\]]+)\]\]")
 
 
 def _section(heading: str) -> str:
@@ -62,3 +64,13 @@ def test_guide_lists_every_repository_template() -> None:
         f"Templates missing from the guide: {sorted(owned - listed)}\n"
         f"Listed templates that do not exist: {sorted(listed - owned)}"
     )
+
+
+def test_guide_explains_every_historical_category() -> None:
+    notice = (TEMPLATES_DIR / "Historical Content.wiki").read_text(encoding="utf-8")
+    assigned = set(_CATEGORY_TAG.findall(notice))
+    assert assigned, "The notice template no longer assigns a category."
+
+    explained = set(_CATEGORY_LINK.findall(_section("Removed, renamed, and unused content")))
+
+    assert sorted(assigned - explained) == []

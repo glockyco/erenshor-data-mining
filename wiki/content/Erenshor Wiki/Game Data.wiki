@@ -101,6 +101,27 @@ Do not correct a value that the bot writes. The next update replaces your correc
 === How to report ===
 Write in the <code>#wiki-chat</code> channel of the [https://discord.gg/DxqZc5Dc9q Erenshor Discord], or on the [[Erenshor Wiki talk:Game Data|talk page]] of this page. Name the page, the field, and what the game shows. A screenshot helps.
 
+== Removed, renamed, and unused content ==
+When a game update removes or renames something, its page stays on the wiki. Older links still lead to it, and readers can see what changed. A box from [[Template:Historical Content|Historical Content]] at the top of the page tells readers what happened.
+
+{| class="wikitable"
+! What happened !! What the page shows
+|-
+| The game no longer has it || A box says that it is no longer in the game. When the patch notes name the update, the box links them. The page is in [[:Category:Removed Content]].
+|-
+| It is still in the game, but players can no longer get it || A box says that it can no longer be obtained. The page is in [[:Category:Unobtainable Content]].
+|-
+| It is in the game files, but it does not appear anywhere in the game || A box says this. The page is in [[:Category:Unused Content]].
+|-
+| The game renamed it || The old title redirects to the page with the new name.
+|-
+| The game now has several versions of it || The page under the old title links each version.
+|}
+
+The bot adds these boxes, redirects, and links from a list that the project keeps. To add a page to the list, [[#How to report|report it]] and name your source, for example the patch notes. On a page that the bot does not maintain, for example a quest, you can also add the box yourself.
+
+Do not delete these pages.
+
 == Links and tooltips ==
 Links to items, characters, abilities, quests, zones, factions, and classes use link templates. A link template shows the name with an icon. When you move the pointer over the link, a card shows the in-game tooltip.
 
