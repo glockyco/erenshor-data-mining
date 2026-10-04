@@ -212,7 +212,7 @@ Two pages, with one owner each. The PoE, WARFRAME, and Abiotic Factor wikis use 
 - `Erenshor Wiki:Game Data`, owned by the repository (`wiki/content/Erenshor Wiki/Game Data.wiki`), is the data guide. It covers how data moves from the game build to the wiki and which build is live, who owns which pages (D2 in the words of an editor), the fields of each generated template that keep an editor's value at a refresh, where a fact that the export misses goes, how to report wrong data, the semantic link templates with the link picker and the tooltips, and the maintenance categories with what to do about each. `Erenshor Wiki:Cargo` of `publish-wiki-cargo-data` becomes its child page.
 - Reports of wrong data go to Discord `#wiki-chat` for discussion and to the talk page of `Erenshor Wiki:Game Data` as the record. Confirmed work moves into OpenSpec.
 - `User:WoWBot` becomes a short card: what the bot is, who runs it, and a link to the data guide. The field table then exists only in the guide.
-- The sidebar gets a "Community" group with the portal, the data guide, and the recent changes. The main page's "Contribute" box links the portal and no longer links `Category:Unknown Item Source`. People own both pages, so WoWMuch makes these edits.
+- The sidebar gets a "Community" group with the portal, the data guide, and the wiki rules. The main page's "Contribute" box links the portal and no longer links `Category:Unknown Item Source`. People own both pages, so WoWMuch makes these edits.
 
 The guide must not go stale the way `User:WoWBot` did:
 
