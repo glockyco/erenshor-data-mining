@@ -1,8 +1,9 @@
+# wiki-content-lifecycle Specification
+
 ## Purpose
+Records what happens to wiki pages when game content is removed, renamed, split, unused, or still present but no longer obtainable. It keeps older links useful and makes retired pages visible to editors.
 
-Records what happens to wiki pages when game content is removed, renamed, or still present but no longer obtainable. It keeps older links useful and makes retired pages visible to editors.
-
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Removed content keeps its page and a clear notice
 
