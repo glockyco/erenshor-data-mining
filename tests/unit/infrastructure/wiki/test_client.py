@@ -1082,44 +1082,8 @@ class TestMediaWikiClientPurgePages:
         assert api.requests == []
 
 
-class TestMediaWikiClientDeletePage:
-    """Test wiki page deletion through the public Action API helper."""
-
-    def test_delete_page_posts_token_and_assertion_guard(self) -> None:
-        """Test delete helper sends CSRF, reason, and session assertion guards."""
-        with _mediawiki_api_server(
-            [
-                {"query": {"tokens": {"csrftoken": "delete_csrf_token"}}},
-                {"delete": {"title": "Project:CargoProbe/TemporaryPage", "reason": "Clean up probe"}},
-            ]
-        ) as (api_url, api):
-            client = MediaWikiClient(api_url=api_url, transport=api.transport, clock=MockClock())
-
-            deleted = client.delete_page(
-                "Project:CargoProbe/TemporaryPage",
-                reason="Clean up probe",
-                assertion="bot",
-                assert_user="ErenshorBot",
-            )
-
-        assert deleted == {"title": "Project:CargoProbe/TemporaryPage", "reason": "Clean up probe"}
-        assert len(api.requests) == 2
-        token_request, delete_request = api.requests
-        assert token_request.method == "GET"
-        assert token_request.query["action"] == "query"
-        assert token_request.query["meta"] == "tokens"
-        assert token_request.query["type"] == "csrf"
-        assert delete_request.method == "POST"
-        assert delete_request.data["action"] == "delete"
-        assert delete_request.data["title"] == "Project:CargoProbe/TemporaryPage"
-        assert delete_request.data["reason"] == "Clean up probe"
-        assert delete_request.data["token"] == "delete_csrf_token"
-        assert delete_request.data["assert"] == "bot"
-        assert delete_request.data["assertuser"] == "ErenshorBot"
-
-
 class TestMediaWikiClientCargoHelpers:
-    """Test Cargo extension helper requests used by the storage probe."""
+    """Test Cargo extension API requests."""
 
     def test_recreate_cargo_tables_posts_token_and_assertion_guard(self) -> None:
         """Test Cargo table recreation posts the template, CSRF token, and assertion guard."""
