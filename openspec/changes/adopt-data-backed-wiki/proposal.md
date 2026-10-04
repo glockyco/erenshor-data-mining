@@ -21,12 +21,16 @@ This change writes the whole plan down in one place, removes everything that ser
   - `override_classifier.py`, `override_migration.py`, and `wiki review-overrides`.
   - The Cargo storage probe.
   - The local test pages that pass `lua=1`.
+  - `wiki inventory-templates` and `wiki/ownership.yml`, the July cutover inventory.
+  - The repository copies of pages that people own: the main page and its stylesheet, the sidebar, `Raids`, `Zones`, the mechanics pages with two unpublished drafts, and their images.
   The Spell, Skill, Stance, and item tooltips and the semantic links keep working. The conversion of step 4 builds the new renderers and can reuse removed code from the history.
 - `wiki deploy-repo-pages` refuses a module or template whose required modules are neither live nor written earlier in the same run. Before it writes a module or template that live pages use, it renders those pages through TemplateSandbox: by default a selection that covers every template, filled parameter, `type` or `kind` value, and entity kind among them, and on request every page. A new script error blocks the write. The dry run lists every visible change for review.
 - `wiki generate-lua` fails when a data module is larger than the wiki's page size limit.
 - The README, the wiki skill, `wiki-dev/README.md`, the template documentation, `openspec/config.yaml`, and both active wiki changes describe only the current plan.
 - Each of the 19 open wiki issues is checked against the current code, data, and live wiki. Verified open work moves into this change or into the change that owns it. Each issue is then closed with a link to its new place or with the evidence that it is stale.
 - A task group of this change lists the live pages that only an administrator can delete, each with the condition for its deletion.
+- Contributors get one entry point. `Erenshor Wiki:Community portal`, owned by people, links getting started, rules, tasks, discussion, the administrators, and the data guide. `Erenshor Wiki:Game data`, owned by the repository, explains how game data reaches the wiki, which build is live, who owns which pages, which fields keep an editor's value, and how to report wrong data. Checks keep the guide's field table equal to the generator's rules, and the build comes from a generated data module. Both land before the article canary of the refresh.
+- Every file under `wiki/` is a page source that a deploy command writes. A check fails on any other file.
 
 ## Capabilities
 
@@ -40,9 +44,9 @@ None. The `lua=1` requirement of `refresh-wiki-articles` is corrected inside tha
 
 ## Impact
 
-- Code: `wiki/templates/`, `wiki/modules/Erenshor/`, `src/erenshor/application/wiki_lua/`, `src/erenshor/application/wiki_deploy/`, `src/erenshor/cli/commands/wiki.py`, `src/erenshor/tools/wiki_cargo_probe/`, `wiki-dev/`, `config.toml`, and their tests.
-- Live wiki: task 6.2 of `refresh-wiki-articles` deploys the cleaned pages, among them `Template:Character`, `Template:Item`, and `Template:ItemTooltip`, after a dry run, the render check, and approval. The pages that then have no user go on the deletion list of this change.
-- Other changes: `refresh-wiki-articles` loses the `lua=1` lock, and its task 6.2 deploys every cleaned page that differs. `publish-wiki-cargo-data` loses its `lua=1` prerequisite and its article-path removal, which this cleanup does.
+- Code: `wiki/`, `src/erenshor/application/wiki_lua/`, `src/erenshor/application/wiki_deploy/`, `src/erenshor/application/wiki_inventory/`, `src/erenshor/cli/commands/wiki.py`, `src/erenshor/tools/wiki_cargo_probe/`, `src/tools/`, `wiki-dev/`, `config.toml`, and their tests.
+- Live wiki: task 6.2 of `refresh-wiki-articles` deploys the cleaned pages, among them `Template:Character`, `Template:Item`, and `Template:ItemTooltip`, after a dry run, the render check, and approval. The data guide, `Module:Erenshor/Data/Build`, and a shorter `User:WoWBot` deploy the same way. WoWMuch creates the community portal and edits the sidebar and the main page. The pages that then have no user go on the deletion list of this change.
+- Other changes: `refresh-wiki-articles` loses the `lua=1` lock, its task 6.2 deploys every cleaned page that differs, and its canary waits for the contributor pages. `publish-wiki-cargo-data` loses its `lua=1` prerequisite and its article-path removal, which this cleanup does, and its Cargo hub becomes a child of the data guide.
 - GitHub: the 19 open wiki issues are closed after their verified work moves into OpenSpec. Issues of other areas stay open.
-- Migration boundary: the cleanup lands before task 6.2 of `refresh-wiki-articles`. Every live write needs approval after a dry run and the render check.
-- Non-goals: the work of steps 1 to 4, which their own changes do. The names of the new data-backed templates, which the conversion change decides. A redesign of the main page, which this plan lists as later wiki work.
+- Migration boundary: the cleanup lands before task 6.2 of `refresh-wiki-articles`, and the contributor pages before its task 6.4. Every live write needs approval after a dry run and the render check.
+- Non-goals: the work of steps 1 to 4, which their own changes do. The names of the new data-backed templates, which the conversion change decides. A redesign of the main page, the wiki rules, and a style guide, which belong to the people who own those pages.

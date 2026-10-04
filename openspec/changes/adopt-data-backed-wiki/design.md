@@ -7,6 +7,8 @@ See `proposal.md` for the motivation. The state on 2026-10-03:
 - Live parameter templates: `Template:Stance`, `Quest`, `Zone`, and `MapLink`. WoWBot deployed their Lua versions on 2026-07-14 and 2026-07-22, and WoWMuch reverted each deploy soon after. Those versions loaded data modules that did not exist live.
 - The repository still holds the July code, and the Lua `MapLink` fails live with "module 'Module:Erenshor/Data/Zones' not found". The two old Cargo tables `Item` and `Consumable` are empty.
 - `refresh-wiki-articles` is at task 6.2. `publish-wiki-cargo-data` waits for the `cargoadmin` grant. Issues #293 and #294 hold the conversion and the table replacement.
+- Contributors have no entry point. The Help namespace is empty, and the project namespace holds the unadapted Fandom `Wiki rules` of 2023 and Kyrros's hand-kept `Potentially Missing Wiki Data` project. The main page's "Contribute" box is the only path to `User:WoWBot`, and it links `Category:Unknown Item Source`, which nothing fills. `User:WoWBot` explains which infobox fields survive a refresh, but its table no longer matches the refresh: it keeps Character `type` and replaces Zone `maplink` and `connects`. The wiki has seven administrators, and Kyrros maintains community templates that no page documents.
+- The repository held copies of pages that people edit: the main page with its stylesheet, `MediaWiki:Sidebar`, `Raids`, `Zones`, five mechanics pages, and two images. No command deployed them, and the main page and `Raids` copies were already older than Roan's and LettersWords' live edits. A script under `src/tools/` rewrites the vendor tables of about 54 NPC pages outside `erenshor`, and its output was committed to `wiki/`.
 
 ## Goals / Non-Goals
 
@@ -55,9 +57,11 @@ Alternative considered: render articles from Cargo queries only. Rejected on 202
 |---|---|---|
 | `Module:Erenshor/Data/*`, `Erenshor Wiki:Cargo/*`, `Template:Cargo/*` | bot | generation and deploy commands only |
 | modules, templates, content pages, and gadgets under `wiki/` | repository | `wiki deploy-repo-pages` and `wiki deploy-interface` |
-| article text, overrides of owned fields, community rows, hand-written pages | people | editors |
+| article text, overrides of owned fields, community rows, hand-written pages, the main page, the sidebar, and the `Erenshor Wiki:Community portal` | people | editors |
 
 The repository is the source of each repository-owned page. When another account edits such a page, the deploy stops at the drift check (`refresh-wiki-articles` D6), and the edit goes into the repository source. The lock boundary of every write is the revision that the write was planned against. Until step 4 converts a type, its articles are shared: generated parameters and text that people write sit in one page, and the refresh merges them.
+
+The repository keeps no copy of a page that people own. Such a page changes on the wiki, by hand. Once steps 3 and 4 exist, a section of it can become template-maintained: a query template or a data-backed template call that people place in their page. A script or a repository copy never writes into it.
 
 Each kind of human input has one home:
 
@@ -83,7 +87,7 @@ An article parameter is not a home for a missing fact: only its own page shows i
 
 Step 0 lands before task 6.2, so that 6.2 deploys the cleaned pages once. Step 2 needs the `cargoadmin` grant for `WoWMuch@InterfaceDeploy` at Special:BotPasswords.
 
-Step 3 replaces these hand-maintained tables, found on 2026-10-03: the enemy tables on Port Azure and Abyssal Lake (zone rosters), the vendor tables on NPC pages such as Breena Carpenter (37 of 54 were stale or missing on 2026-07-16), the "Abilities and Spells" tables on the class pages and the Ability Books page, and the Zones and Quests overviews. It announces each replacement on the wiki first, keeps the notes that editors wrote (such as the notes column on Zones), and reviews each page, because it changes text that other people wrote.
+Step 3 replaces these tables, found on 2026-10-03: the enemy tables on Port Azure and Abyssal Lake (zone rosters), the vendor tables on NPC pages such as Breena Carpenter, the "Abilities and Spells" tables on the class pages and the Ability Books page, and the Zones and Quests overviews. Editors keep the zone, class, and overview tables by hand. The vendor tables of about 54 NPC pages are written by `src/tools/update_vendor_inventory_tables.py`, a script outside `erenshor` that found 37 of them stale or missing on 2026-07-16. Step 3 replaces them with the `Vendor stock` query template and deletes that script, `src/tools/generate_vendor_inventory_tables.py`, `src/erenshor/tools/vendor_inventory_tables.py`, and their tests. It announces each replacement on the wiki first, keeps the notes that editors wrote (such as the notes column on Zones), and reviews each page, because it changes text that other people wrote.
 
 Step 4 converts one type at a time: Stance, abilities, zones, characters, items. Quest pages stay hand-written and get the Cargo quest panel of step 2. For each type:
 
@@ -126,8 +130,12 @@ Alternatives considered:
 | `override_classifier.py`, `override_migration.py`, `wiki review-overrides` | They implement the July rule that every differing value is an override, which D2 replaces. |
 | `src/erenshor/tools/wiki_cargo_probe/` | It tested the July article storage. No task of the Cargo change uses it. |
 | `wiki-dev` pages that pass `lua=1` | They test only the removed branches. |
+| `wiki inventory-templates`, `src/erenshor/application/wiki_inventory/`, and `wiki/ownership.yml` | The inventory was the readiness checklist of the July cutover, with a `cutover_blocking` flag on each template. Nothing reads it. The data guide of D12 lists the repository's templates from `wiki/templates/`. |
+| The copies of people-owned pages: `wiki/Erenshor_Wiki.txt`, `wiki/Erenshor_Wiki.styles.css`, `wiki/MediaWiki_Sidebar.txt`, `wiki/Raids.txt`, `wiki/Zones.txt`, `wiki/mechanics/` with its images, and `wiki/images/` | No command deploys them, and two were already older than the live pages. The live pages are the source. The two unpublished mechanics drafts, `Critical Strikes` and `Chant Control and Resonance`, are dropped on 2026-10-04, and the history keeps them. |
 
 What stays: `Item/ParameterizedTooltip`, `Item/Quality`, `Ability/Common`, the Spell, Skill, and Stance tooltip paths, `Link`, `Link/Search`, `AbilityLink`, `Format`, `Args`, and the data modules that links and tooltips read (`Data/Items` with its shards, `Data/Links`, `Data/Skills`, `Data/Spells`, `Data/Stances`). Step 4 builds the new renderers and can reuse removed code from the history.
+
+Until step 3 deletes it, the vendor script writes its report to `variants/<variant>/wiki/` instead of `wiki/`, because the repository does not track generated output.
 
 ### D6. Dependency check before a repository-page deploy
 
@@ -166,6 +174,7 @@ Alternatives considered:
 - `.agent/skills/wiki-templates/SKILL.md` gives agents the binding rules and the procedures, and links this change. It holds no history.
 - `openspec/config.yaml` names this change in its context, so that every OpenSpec workflow sees it. Its design rules about dependency ecosystems become general rules.
 - No other plan document exists. When a decision changes, this change changes in the same commit as the code.
+- `Erenshor Wiki:Game data` (D12) explains the data, the ownership rules, and the procedures to editors. It describes the current state and holds no plan.
 
 ### D10. Live writes and deletions
 
@@ -191,6 +200,31 @@ Each of the 19 open wiki issues was checked on 2026-10-03 against the code, the 
 | #144 | done: the AdventureGuide mod and the Quests index | closed |
 | #139 | its work is the export of zone-wide random spawners, issue #282 | closed as a duplicate of #282 |
 | #91, #105, #291 | not part of this plan | stay on GitHub |
+
+### D12. One entry point for contributors
+
+Two pages, with one owner each. The PoE, WARFRAME, and Abiotic Factor wikis use the same split: a community portal that links everything, and a separate guide to the data pipeline.
+
+- `Erenshor Wiki:Community portal`, owned by people, is the entry point. It covers getting started, the rules and conventions (with the community templates that Kyrros maintains), things to do (wanted pages, the `Potentially Missing Wiki Data` project, the maintenance categories), discussion (its talk page and Discord `#wiki-chat`), the administrators, and a link to the data guide. A first version is drafted, reviewed by WoWMuch, and created from WoWMuch's account. After that, the community owns it, and the repository keeps no copy.
+- `Erenshor Wiki:Game data`, owned by the repository (`wiki/content/Erenshor Wiki/Game data.wiki`), is the data guide. It covers how data moves from the game build to the wiki and which build is live, who owns which pages (D2 in the words of an editor), the fields of each generated template that keep an editor's value at a refresh, where a fact that the export misses goes, how to report wrong data, the semantic link templates with the link picker and the tooltips, and the maintenance categories with what to do about each. `Erenshor Wiki:Cargo` of `publish-wiki-cargo-data` becomes its child page.
+- Reports of wrong data go to Discord `#wiki-chat` for discussion and to the talk page of `Erenshor Wiki:Game data` as the record. Confirmed work moves into OpenSpec.
+- `User:WoWBot` becomes a short card: what the bot is, who runs it, and a link to the data guide. The field table then exists only in the guide.
+- The sidebar gets a "Community" group with the portal, the data guide, and the recent changes. The main page's "Contribute" box links the portal and no longer links `Category:Unknown Item Source`. People own both pages, so WoWMuch makes these edits.
+
+The guide must not go stale the way `User:WoWBot` did:
+
+- A contract test compares the guide's field table with the preservation rules of the generator, so a rule change without a guide change fails CI. In step 4, the table and the test move to the owned fields of the data-backed templates.
+- The game build comes from a generated data module, `Module:Erenshor/Data/Build`, which holds `game_build_id` and its publish date from `code_facts_meta`. `Module:Erenshor/Build` renders it. A data deploy updates the module, so the guide shows the new build without an edit. The data-backed templates of step 4 name their build from the same module.
+- Each maintenance category page says what an editor does about a page in it, for example: add a `stablekey` with the link picker.
+
+After the refresh, the bot has created most of the item, character, and zone pages that Kyrros's project lists. WoWMuch tells Kyrros which lists the bot now covers, and offers a generated list of the pages that people must write: the quest, faction, and class pages that the link audit finds as red links. If Kyrros accepts, this plan adds a task that decides how the list is generated.
+
+Both pages land before task 6.4 of `refresh-wiki-articles`. The refresh changes about 2,700 articles, and editors who look for an explanation must find a correct one.
+
+Alternatives considered:
+
+- One repository-owned hub. Rejected: a portal holds text that people write, so the repository cannot own it, and every edit by another administrator would stop the next deploy.
+- Keep `User:WoWBot` as the guide. Rejected: a bot's user page is not where editors look, and the main page is its only link.
 
 ### Failure handling and update grouping
 

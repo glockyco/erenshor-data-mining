@@ -131,3 +131,35 @@ Before it writes a module or template that main-namespace pages use, `wiki deplo
 
 - **WHEN** a generated data module holds 5.1 MB of text and the limit is 4 MiB
 - **THEN** generation fails and names the module and its size
+
+### Requirement: Every repository wiki file has a deploy path
+
+Each file under `wiki/` SHALL be a page source that `wiki deploy-repo-pages` or `wiki deploy-interface` deploys. The repository SHALL hold no copy of a page that people own and no generated output under `wiki/`. A check SHALL fail and name each file without a deploy path.
+
+#### Scenario: A copy of a people-owned page is added
+
+- **WHEN** a commit adds `wiki/Raids.txt`
+- **THEN** the check fails and names `wiki/Raids.txt`
+
+#### Scenario: A deployed page source is added
+
+- **WHEN** a commit adds `wiki/content/Category/Example.wiki`
+- **THEN** the check passes, because `wiki deploy-repo-pages` deploys it as `Category:Example`
+
+### Requirement: The data guide states which fields keep an editor's value
+
+`Erenshor Wiki:Game data` SHALL list, for each template that generation writes, each field that keeps a value set by an editor when a refresh runs, and each field that merges such a value with the generated value. The list SHALL equal the preservation rules of the generator. A check SHALL fail when they differ and name the template and the field.
+
+#### Scenario: A preservation rule changes without the guide
+
+- **WHEN** generation starts to keep the Item field `description`, and the guide does not list it
+- **THEN** the check fails and names `Item` and `description`
+
+### Requirement: The data guide names the live game build
+
+`Erenshor Wiki:Game data` SHALL show the game build id and its publish date of the live data modules. Its text SHALL read them from a generated data module, so a data deploy changes them without an edit of the guide.
+
+#### Scenario: A new build is deployed
+
+- **WHEN** the data modules of build 24405256 replace those of an older build
+- **THEN** the guide shows build 24405256 without an edit to the guide's source
