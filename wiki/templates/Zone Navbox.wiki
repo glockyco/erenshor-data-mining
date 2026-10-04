@@ -1,0 +1,20 @@
+<div class="navbox" style="clear:both; box-sizing:border-box; border:1px solid #aaa; padding:4px; margin-top:1em; text-align:center; width:100%;">
+<div style="font-weight:bold; padding:2px; background: rgb(19, 55, 89);">[[Zones|Zones of Erenshor]]</div>
+{| style="width:100%;"
+|-
+! style="white-space:nowrap; padding-right:1em; vertical-align:top; text-align:left;" | Outdoor Zones
+| [[Azynthi's Garden]] · [[Blacksalt Strand]] · [[The Blight]] · [[Braxonian Desert]] · [[The Duskenlight Coast]] · [[Faerie's Brake]] · [[Fernalla's Revival Plains]] · [[Hidden Hills]] · [[Loomingwood Forest]] · [[Malaroth's Nesting Grounds]] · [[Port Azure]] · [[Reliquary Hall]] · [[Ripper's Keep]] · [[Rottenfoot]] · [[Silkengrass Meadowlands]] · [[Soluna's Landing]] · [[Stowaway's Step]] · [[Vitheo's Watch]] · [[Willowwatch Ridge]] · [[Windwashed Pass]]
+|-
+! style="white-space:nowrap; padding-right:1em; vertical-align:top; text-align:left;" | Dungeons
+| [[Abyssal Lake]] · [[Blooming Sepulcher]] · [[The Bonepits]] · [[The Elderstone Mines]] · [[Fallen Braxonia]] · [[Island Tomb]] · [[Jaws of Sivakaya]] · [[Lost Cellar]] · [[Mysterious Portal]] · [[Old Krakengard]] · [[Prielian Cascade]] · [[Prison]] · [[Rockshade Hold]] · [[Secluded Sanctuary]] · [[Underspine Hollow]] · [[Vitheo's Rest]]
+|-
+! style="white-space:nowrap; padding-right:1em; vertical-align:top; text-align:left;" | Raids
+| [[Brax's Plane of Elements]] · [[Plane of the Willow]] · [[Soluna's Celestial Plane]] · [[Vitheo's Plane of Valor]]
+|-
+! style="white-space:nowrap; padding-right:1em; vertical-align:top; text-align:left;" | Event Zones
+| [[Bellwain Island]] · [[Shivering Step]] · [[Shivering Tomb]]
+|}
+</div><noinclude>
+{{Documentation}}
+[[Category:Navigation templates]]
+</noinclude>

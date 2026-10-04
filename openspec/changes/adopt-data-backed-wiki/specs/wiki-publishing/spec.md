@@ -146,6 +146,20 @@ Each file under `wiki/` SHALL be a page source that `wiki deploy-repo-pages` or 
 - **WHEN** a commit adds `wiki/content/Category/Example.wiki`
 - **THEN** the check passes, because `wiki deploy-repo-pages` deploys it as `Category:Example`
 
+### Requirement: Generated articles call only repository templates
+
+Every template that generation writes into an article, and every template that a repository template calls outside its `<noinclude>` documentation, SHALL be a page source under `wiki/templates/`. A check SHALL fail and name each template that the repository does not own, with the template or generator that calls it.
+
+#### Scenario: A companion template is missing
+
+- **WHEN** generation writes `{{Item/General}}` into item articles and `wiki/templates/Item/General.wiki` does not exist
+- **THEN** the check fails and names `Item/General`
+
+#### Scenario: A repository template calls a template that the repository does not own
+
+- **WHEN** `Template:Item/Armor` calls `{{Item/Header}}` and `wiki/templates/Item/Header.wiki` does not exist
+- **THEN** the check fails and names `wiki/templates/Item/Armor.wiki` and `Template:Item/Header`
+
 ### Requirement: The data guide states which fields keep an editor's value
 
 `Erenshor Wiki:Game data` SHALL list, for each template that generation writes, each field that keeps a value set by an editor when a refresh runs, and each field that merges such a value with the generated value. The list SHALL equal the preservation rules of the generator. A check SHALL fail when they differ and name the template and the field.

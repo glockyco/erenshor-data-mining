@@ -181,17 +181,17 @@ def test_discovery_uses_unique_allowlisted_titles_and_includes_javascript(tmp_pa
     assert import_pages.page_content(javascript) == "window.tooltip = true;\n"
 
 
-def test_discovery_manages_live_template_dependencies(tmp_path: Path) -> None:
+def test_discovery_maps_nested_templates_to_subpages(tmp_path: Path) -> None:
     import_pages = load_import_pages()
     root = make_root(tmp_path)
-    dependency = root / "wiki-dev" / "fixtures" / "dependencies" / "templates" / "Item" / "Armor.wiki"
-    dependency.parent.mkdir(parents=True)
-    dependency.write_text("<includeonly>armor</includeonly>\n", encoding="utf-8")
+    template = root / "wiki" / "templates" / "Item" / "Armor.wiki"
+    template.parent.mkdir(parents=True, exist_ok=True)
+    template.write_text("<includeonly>armor</includeonly>\n", encoding="utf-8")
 
     pages = import_pages.discover_pages(root)
     source = next(page for page in pages if page.title == "Template:Item/Armor")
 
-    assert source.path == dependency
+    assert source.path == template
     assert source.content_model == "wikitext"
     assert import_pages.page_content(source) == "<includeonly>armor</includeonly>\n"
 

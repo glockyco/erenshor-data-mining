@@ -1,0 +1,154 @@
+<includeonly>{| class="item-tooltip item-tooltip-aura"
+|
+{{Item/Header
+ |icon=[[File:{{{image}}}|80px]]
+ |name={{{name}}}
+ |tier=0
+}}
+{| class="item-tooltip-body"
+|-
+| |
+<div class="item-tooltip-aura-container"><!--
+--><div class="item-tooltip-aura-type">Aura Item</div><!--
+--><div class="item-tooltip-aura-notes"><!--
+--><div>Auras effect entire party</div><!--
+--><div>Auras of same type do not stack</div><!--
+--></div><!--
+-->{{#if:{{{aura_spell_name|}}}|<div class="item-tooltip-aura-spell-name">{{{aura_spell_name}}}</div>}}<!--
+-->{{#if:{{{aura_spell_desc|}}}|<div class="item-tooltip-aura-spell-desc">{{{aura_spell_desc}}}</div>}}<!--
+--></div>
+|}
+|}<!--
+-->{{#if:{{{aura_spell_name|}}}|{{Item/SpellDetails
+ |worn=1
+ |spell_icon={{{aura_spell_icon|}}}
+ |spell_name={{{aura_spell_name}}}
+ |spell_level={{{aura_spell_level|}}}
+ |spell_duration_ticks={{{aura_spell_duration_ticks|}}}
+ |spell_type={{{aura_spell_type|}}}
+ |spell_line={{{aura_spell_line|}}}
+ |target_damage={{{aura_target_damage|}}}
+ |target_healing={{{aura_target_healing|}}}
+ |shielding_amt={{{aura_shielding_amt|}}}
+ |damage_type={{{aura_damage_type|}}}
+ |lifetap={{{aura_lifetap|}}}
+ |group_effect={{{aura_group_effect|}}}
+ |stun_target={{{aura_stun_target|}}}
+ |charm_target={{{aura_charm_target|}}}
+ |root_target={{{aura_root_target|}}}
+ |taunt_spell={{{aura_taunt_spell|}}}
+ |aggro={{{aura_aggro|}}}
+ |status_effect_name={{{aura_status_effect_name|}}}
+ |hp={{{aura_hp|}}}
+ |ac={{{aura_ac|}}}
+ |mana={{{aura_mana|}}}
+ |str={{{aura_str|}}}
+ |dex={{{aura_dex|}}}
+ |end={{{aura_end|}}}
+ |agi={{{aura_agi|}}}
+ |wis={{{aura_wis|}}}
+ |int={{{aura_int|}}}
+ |cha={{{aura_cha|}}}
+ |mr={{{aura_mr|}}}
+ |er={{{aura_er|}}}
+ |pr={{{aura_pr|}}}
+ |vr={{{aura_vr|}}}
+ |movement_speed={{{aura_movement_speed|}}}
+ |damage_shield={{{aura_damage_shield|}}}
+ |haste={{{aura_haste|}}}
+ |percent_lifesteal={{{aura_percent_lifesteal|}}}
+ |atk_roll_modifier={{{aura_atk_roll_modifier|}}}
+ |resonate_chance={{{aura_resonate_chance|}}}
+ |add_proc_name={{{aura_add_proc_name|}}}
+ |add_proc_chance={{{aura_add_proc_chance|}}}
+ |special_descriptor={{{aura_special_descriptor|}}}
+}}}}<!--
+-->{{Item/Categories
+ |item_type=aura
+ |aura_spell_name={{{aura_spell_name|}}}
+}}</includeonly><noinclude>
+== Template:Item/Aura ==
+
+Template for displaying aura item tooltips. Auras provide permanent party-wide buff effects.
+
+=== Parameters ===
+
+{| class="wikitable"
+! Parameter !! Required !! Description
+|-
+| '''image''' || Yes || Item icon image filename
+|-
+| '''name''' || Yes || Aura item name
+|-
+| '''aura_spell_name''' || No || Aura spell name (displayed in green)
+|-
+| '''aura_spell_desc''' || No || Aura spell description (from SpellDesc field)
+|-
+| '''aura_spell_icon''' || No || Spell icon image filename (displays in spell details)
+|-
+| '''aura_*''' || No || Various aura effect parameters (see Item/SpellDetails)
+|}
+
+=== Aura Mechanics ===
+
+* Auras affect the entire party
+* Auras of the same type do not stack
+* Effect is applied once item is acquired
+
+=== Example ===
+
+'''Code:'''
+<pre>
+{{Item/Aura
+|image=Aged Prism.png
+|name=Aged Prism
+|aura_spell_name=Aura: The Prism
+|aura_spell_desc=Increase party resists
+|aura_spell_icon=Aura: The Prism.png
+|aura_spell_level=22
+|aura_spell_duration_ticks=2
+|aura_spell_type=Beneficial
+|aura_spell_line=Aura_Buff_Resists
+|aura_mr=8
+|aura_er=8
+|aura_pr=8
+|aura_vr=8
+}}
+</pre>
+
+'''Result:'''
+
+{{Item/Aura
+|image=Aged Prism.png
+|name=Aged Prism
+|aura_spell_name=Aura: The Prism
+|aura_spell_desc=Increase party resists
+|aura_spell_icon=Aura: The Prism.png
+|aura_spell_level=22
+|aura_spell_duration_ticks=2
+|aura_spell_type=Beneficial
+|aura_spell_line=Aura_Buff_Resists
+|aura_mr=8
+|aura_er=8
+|aura_pr=8
+|aura_vr=8
+}}
+
+----
+
+=== Sub-templates Used ===
+
+* [[Template:Item/Header]] - Icon and name display
+* [[Template:Item/SpellDetails]] - Aura effect details (wiki convenience feature)
+* [[Template:Item/Categories]] - Auto-categorization
+
+----
+
+=== See Also ===
+
+* [[Template:Item/Consumable]] - Consumable tooltip
+* [[Template:Item/Armor]] - Armor tooltip
+* [[:Category:Auras]] - Auras category
+
+[[Category:Item Tooltip Templates]]
+</noinclude>

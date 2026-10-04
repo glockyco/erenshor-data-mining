@@ -1,0 +1,78 @@
+<includeonly>{{#if:{{{damage|}}}{{{delay|}}}|
+<div class="item-tooltip-dps">
+{{#ifeq:{{{type|}}}|Primary - 2-Handed|
+Base DPS: {{#expr: ceil( ({{{damage|0}}} / {{{delay|1}}}) * 2 ) }}
+|
+Base DPS: {{#expr: ceil( {{{damage|0}}} / {{{delay|1}}} ) }}
+}}
+</div>
+}}</includeonly><noinclude>
+== Template:Item/DPS ==
+
+Calculates and displays weapon DPS (Damage Per Second).
+
+=== DPS Calculation ===
+
+* '''Normal weapons:''' DPS = damage / delay
+* '''2-Handed weapons:''' DPS = (damage / delay) × 2
+* Result is rounded up (ceiling function)
+
+=== Parameters ===
+
+{| class="wikitable"
+! Parameter !! Required !! Description
+|-
+| '''damage''' || Yes || Weapon damage value
+|-
+| '''delay''' || Yes || Weapon attack delay in seconds
+|-
+| '''type''' || Yes || Weapon type (use "Primary - 2-Handed" for 2x damage modifier)
+|}
+
+=== Examples ===
+
+'''2-Handed Weapon:'''
+<pre>
+{{Item/DPS
+|damage=50
+|delay=3
+|type=Primary - 2-Handed
+}}
+</pre>
+
+'''Result:'''
+
+{{Item/DPS
+|damage=50
+|delay=3
+|type=Primary - 2-Handed
+}}
+
+----
+
+'''Normal Weapon:'''
+<pre>
+{{Item/DPS
+|damage=30
+|delay=2
+|type=Primary
+}}
+</pre>
+
+'''Result:'''
+
+{{Item/DPS
+|damage=30
+|delay=2
+|type=Primary
+}}
+
+----
+
+=== See Also ===
+
+* [[Template:Item/Stats]] - Stat modifiers including damage/delay
+* [[Template:Item/Weapon]] - Full weapon tooltip
+
+[[Category:Item Tooltip Templates]]
+</noinclude>

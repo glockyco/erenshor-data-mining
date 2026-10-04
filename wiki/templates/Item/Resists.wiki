@@ -1,0 +1,54 @@
+<includeonly><div class="item-tooltip-resists-column"><!--
+--><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Magic</span> <span class="item-tooltip-stat-value">+{{{magic|0}}}%</span></div><!--
+--><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Poison</span> <span class="item-tooltip-stat-value">+{{{poison|0}}}%</span></div><!--
+--><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Elemental</span> <span class="item-tooltip-stat-value">+{{{elemental|0}}}%</span></div><!--
+--><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Void</span> <span class="item-tooltip-stat-value">+{{{void|0}}}%</span></div><!--
+--></div></includeonly><noinclude>
+== Template:Item/Resists ==
+
+Displays the resistance modifiers section of an item tooltip (Magic/Poison/Elemental/Void).
+
+=== Parameters ===
+
+{| class="wikitable"
+! Parameter !! Default !! Description
+|-
+| '''magic''' || 0 || Magic resistance modifier (percentage)
+|-
+| '''poison''' || 0 || Poison resistance modifier (percentage)
+|-
+| '''elemental''' || 0 || Elemental resistance modifier (percentage)
+|-
+| '''void''' || 0 || Void resistance modifier (percentage)
+|}
+
+=== Example ===
+
+'''Code:'''
+<pre>
+{{Item/Resists
+|magic=5
+|poison=10
+|elemental=3
+|void=8
+}}
+</pre>
+
+'''Result:'''
+
+{{Item/Resists
+|magic=5
+|poison=10
+|elemental=3
+|void=8
+}}
+
+----
+
+=== See Also ===
+
+* [[Template:Item/Stats]] - Character stat modifiers
+* [[Template:Item/Vitals]] - Health/Mana/Armor display
+
+[[Category:Item Tooltip Templates]]
+</noinclude>

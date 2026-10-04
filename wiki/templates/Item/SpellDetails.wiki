@@ -48,4 +48,224 @@
 -->{{#if:{{{special_descriptor|}}}|<div class="item-spell-detail-row item-spell-special">{{{special_descriptor}}}</div>}}<!--
 -->{{#if:{{{xp_bonus|}}}|<div class="item-spell-detail-row item-spell-positive">XP Bonus: +{{{xp_bonus}}}%</div>}}<!--
 --></div><!--
---></div></includeonly>
+--></div></includeonly><noinclude>
+== Template:Item/SpellDetails ==
+
+Displays full spell details inline for item effects (procs, consumables, auras). This template handles all 40+ spell fields automatically, only showing relevant information.
+
+=== Parameters ===
+
+{| class="wikitable"
+! Parameter !! Description
+|-
+| '''spell_icon''' || Spell icon image filename (optional, displays on left)
+|-
+| '''spell_name''' || Spell name (default: "Spell Effect")
+|-
+| '''spell_level''' || Required level to use
+|-
+| '''spell_duration_ticks''' || Duration in ticks (×3 for seconds)
+|-
+| '''spell_type''' || Spell type (Damage, Heal, Buff, etc.)
+|-
+| '''spell_line''' || Spell line/school
+|-
+| '''target_damage''' || Damage dealt
+|-
+| '''target_healing''' || Healing amount
+|-
+| '''damage_type''' || Resist type
+|-
+| '''cast_time''' || Cast time in seconds
+|-
+| '''cooldown''' || Cooldown in seconds
+|-
+| '''spell_range''' || Range value
+|}
+
+Plus stat modifiers (hp, ac, mana, str, dex, end, agi, wis, int, cha, mr, er, pr, vr), special effects (movement_speed, damage_shield, haste, percent_lifesteal, atk_roll_modifier, resonate_chance), and crowd control flags (lifetap, group_effect, stun_target, charm_target, root_target, taunt_spell).
+
+=== Examples ===
+
+'''Direct Damage Proc (e.g., Cinder of Birth):'''
+<pre>
+{{Item/SpellDetails
+|spell_icon=Brax's Rage.png
+|spell_name=Brax's Rage
+|spell_level=25
+|spell_duration_ticks=0
+|spell_type=Damage
+|spell_line=Direct_Damage
+|target_damage=455
+|damage_type=Magic
+}}
+</pre>
+
+'''Result:'''
+
+{{Item/SpellDetails
+|spell_icon=Brax's Rage.png
+|spell_name=Brax's Rage
+|spell_level=25
+|spell_duration_ticks=0
+|spell_type=Damage
+|spell_line=Direct_Damage
+|target_damage=455
+|damage_type=Magic
+}}
+
+----
+
+'''Stun Proc with Status Effect (e.g., Old Buckler):'''
+<pre>
+{{Item/SpellDetails
+|spell_icon=Stun.png
+|spell_name=Stun
+|spell_level=1
+|spell_duration_ticks=3
+|spell_type=StatusEffect
+|spell_line=Stun
+|stun_target=1
+|damage_type=Magic
+}}
+</pre>
+
+'''Result:'''
+
+{{Item/SpellDetails
+|spell_icon=Stun.png
+|spell_name=Stun
+|spell_level=1
+|spell_duration_ticks=3
+|spell_type=StatusEffect
+|spell_line=Stun
+|stun_target=1
+|damage_type=Magic
+}}
+
+----
+
+'''Worn Haste Effect (e.g., Feathered Cape):'''
+<pre>
+{{Item/SpellDetails
+|spell_icon=Vitheo's Blessing of the Wind.png
+|spell_name=Vitheo's Blessing of the Wind
+|spell_level=20
+|spell_duration_ticks=2
+|spell_type=Beneficial
+|spell_line=Generic
+|ac=15
+|haste=10
+}}
+</pre>
+
+'''Result:'''
+
+{{Item/SpellDetails
+|spell_icon=Vitheo's Blessing of the Wind.png
+|spell_name=Vitheo's Blessing of the Wind
+|spell_level=20
+|spell_duration_ticks=2
+|spell_type=Beneficial
+|spell_line=Generic
+|ac=15
+|haste=10
+}}
+
+----
+
+'''Lifetap Damage Proc (e.g., Sableheart's Harness):'''
+<pre>
+{{Item/SpellDetails
+|spell_icon=Devour.png
+|spell_name=Devour
+|spell_level=36
+|spell_duration_ticks=0
+|spell_type=Damage
+|spell_line=Direct_Damage
+|target_damage=1455
+|lifetap=1
+|damage_type=Void
+}}
+</pre>
+
+'''Result:'''
+
+{{Item/SpellDetails
+|spell_icon=Devour.png
+|spell_name=Devour
+|spell_level=36
+|spell_duration_ticks=0
+|spell_type=Damage
+|spell_line=Direct_Damage
+|target_damage=1455
+|lifetap=1
+|damage_type=Void
+}}
+
+----
+
+'''Taunt Proc (e.g., Provoker):'''
+<pre>
+{{Item/SpellDetails
+|spell_icon=Glimpse of Truth.png
+|spell_name=Glimpse of Truth
+|spell_level=15
+|spell_duration_ticks=0
+|spell_type=Taunt
+|taunt_spell=1
+|aggro=2900
+|damage_type=Magic
+}}
+</pre>
+
+'''Result:'''
+
+{{Item/SpellDetails
+|spell_icon=Glimpse of Truth.png
+|spell_name=Glimpse of Truth
+|spell_level=15
+|spell_duration_ticks=0
+|spell_type=Taunt
+|taunt_spell=1
+|aggro=2900
+|damage_type=Magic
+}}
+
+----
+
+'''Buff with Multiple Stats (e.g., Minor Protection):'''
+<pre>
+{{Item/SpellDetails
+|spell_icon=Minor Protection.png
+|spell_name=Minor Protection
+|spell_level=5
+|spell_duration_ticks=300
+|spell_type=Beneficial
+|spell_line=Global_Buff
+|ac=35
+}}
+</pre>
+
+'''Result:'''
+
+{{Item/SpellDetails
+|spell_icon=Minor Protection.png
+|spell_name=Minor Protection
+|spell_level=5
+|spell_duration_ticks=300
+|spell_type=Beneficial
+|spell_line=Global_Buff
+|ac=35
+}}
+
+----
+
+=== See Also ===
+
+* [[Template:Item/Proc]] - Proc effect display
+* [[Template:Item/Aura]] - Aura item tooltip
+* [[Template:Item/Consumable]] - Consumable item tooltip
+
+[[Category:Item Tooltip Templates]]
+</noinclude>

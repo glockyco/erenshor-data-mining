@@ -1,0 +1,122 @@
+<includeonly>{| class="item-tooltip item-tooltip-charm"
+|
+{{Item/Header
+ |icon={{#ifeq:{{{tier|}}}|1|{{SparkleIcon|icon=[[File:{{{image}}}|80px]]|sparkle=Blue_Sparkle.gif|sparkle_size=80px}}|{{#ifeq:{{{tier|}}}|2|{{SparkleIcon|icon=[[File:{{{image}}}|80px]]|sparkle=Purple_Sparkle.gif|sparkle_size=80px}}|{{SparkleIcon|icon=[[File:{{{image}}}|80px]]|sparkle=blank.png|sparkle_size=0px}}}}}}
+ |name={{{name}}}
+ |tier={{{tier|0}}}
+}}
+{| class="item-tooltip-body"
+|-
+| |
+{{Item/CharmScaling
+ |strscaling={{{strscaling|}}}
+ |endscaling={{{endscaling|}}}
+ |dexscaling={{{dexscaling|}}}
+ |agiscaling={{{agiscaling|}}}
+ |intscaling={{{intscaling|}}}
+ |wisscaling={{{wisscaling|}}}
+ |chascaling={{{chascaling|}}}
+ |resistscaling={{{resistscaling|}}}
+ |mitigationscaling={{{mitigationscaling|}}}
+}}
+|-
+| |
+{{Item/ClassRestrictions
+ |arcanist={{{arcanist|}}}
+ |duelist={{{duelist|}}}
+ |druid={{{druid|}}}
+ |paladin={{{paladin|}}}
+ |reaver={{{reaver|}}}
+ |stormcaller={{{stormcaller|}}}
+}}
+|}
+|}
+{{Item/Categories
+ |item_type=charm
+}}</includeonly><noinclude>
+== Template:Item/Charm ==
+
+Master template for displaying complete charm tooltips. Charms modify how effectively your character utilizes stats through scaling modifiers.
+
+=== Parameters ===
+
+{| class="wikitable"
+! Parameter !! Required !! Description
+|-
+| '''image''' || Yes || Item icon image filename
+|-
+| '''name''' || Yes || Charm name
+|-
+| '''tier''' || No || Quality tier: 0=Normal (default), 1=Blessed, 2=Godly
+|-
+| '''strscaling''' || No || Strength scaling modifier
+|-
+| '''endscaling''' || No || Endurance scaling modifier
+|-
+| '''dexscaling''' || No || Dexterity scaling modifier
+|-
+| '''agiscaling''' || No || Agility scaling modifier
+|-
+| '''intscaling''' || No || Intelligence scaling modifier
+|-
+| '''wisscaling''' || No || Wisdom scaling modifier
+|-
+| '''chascaling''' || No || Charisma scaling modifier
+|-
+| '''resistscaling''' || No || Resist scaling modifier
+|-
+| '''mitigationscaling''' || No || Mitigation/Armor scaling modifier
+|-
+| '''arcanist, duelist, druid, paladin, reaver, stormcaller''' || No || Class restrictions (set to any value)
+|}
+
+=== Example ===
+
+'''Code:'''
+<pre>
+{{Item/Charm
+|image=Charm of Age.png
+|name=Charm of Age
+|tier=0
+|wisscaling=4
+|arcanist=1
+|duelist=1
+|druid=1
+|paladin=1
+|stormcaller=1
+}}
+</pre>
+
+'''Result:'''
+
+{{Item/Charm
+|image=Charm of Age.png
+|name=Charm of Age
+|tier=0
+|wisscaling=4
+|arcanist=1
+|duelist=1
+|druid=1
+|paladin=1
+|stormcaller=1
+}}
+
+----
+
+=== Sub-templates Used ===
+
+* [[Template:Item/Header]] - Icon and name display
+* [[Template:Item/CharmScaling]] - Scaling modifiers display
+* [[Template:Item/ClassRestrictions]] - Class usability
+* [[Template:Item/Categories]] - Auto-categorization
+
+----
+
+=== See Also ===
+
+* [[Template:Item/Weapon]] - Weapon tooltip
+* [[Template:Item/Armor]] - Armor tooltip
+* [[:Category:Charms]] - Charms category
+
+[[Category:Item Tooltip Templates]]
+</noinclude>

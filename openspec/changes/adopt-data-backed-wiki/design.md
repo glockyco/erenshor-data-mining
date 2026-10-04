@@ -63,6 +63,8 @@ The repository is the source of each repository-owned page. When another account
 
 The repository keeps no copy of a page that people own. Such a page changes on the wiki, by hand. Once steps 3 and 4 exist, a section of it can become template-maintained: a query template or a data-backed template call that people place in their page. A script or a repository copy never writes into it.
 
+Every template that a generated article calls, directly or through another template, is repository-owned. On 2026-10-04 that added 20 templates that WoWMuch had built on the wiki: the item companions (`Item/General`, `Item/Aura`, `Item/Charm`, `Item/CharmScaling`, `Item/Consumable`, `Item/Mold`, `Item/SkillBook`, `Item/SpellScroll`), the weapon and armor tooltips that `Item/ParameterizedTooltip` expands (`Item/Weapon`, `Item/Armor`) with their parts (`Item/Header`, `Item/Stats`, `Item/Resists`, `Item/Vitals`, `Item/DPS`, `Item/ClassRestrictions`, `Item/Categories`, `Item/SpellDetails`, `SparkleIcon`), and `Zone Navbox`. Their repository text equals the live text, so taking them over changed nothing live. The local wiki then tests the real templates instead of the outdated copies it kept in `wiki-dev/fixtures/dependencies/`.
+
 Each kind of human input has one home:
 
 | Input | Home |
@@ -132,6 +134,7 @@ Alternatives considered:
 | `wiki-dev` pages that pass `lua=1` | They test only the removed branches. |
 | `wiki inventory-templates`, `src/erenshor/application/wiki_inventory/`, and `wiki/ownership.yml` | The inventory was the readiness checklist of the July cutover, with a `cutover_blocking` flag on each template. Nothing reads it. The data guide of D12 lists the repository's templates from `wiki/templates/`. |
 | The copies of people-owned pages: `wiki/Erenshor_Wiki.txt`, `wiki/Erenshor_Wiki.styles.css`, `wiki/MediaWiki_Sidebar.txt`, `wiki/Raids.txt`, `wiki/Zones.txt`, `wiki/mechanics/` with its images, and `wiki/images/` | No command deploys them, and two were already older than the live pages. The live pages are the source. The two unpublished mechanics drafts, `Critical Strikes` and `Chant Control and Resonance`, are dropped on 2026-10-04, and the history keeps them. |
+| `wiki-dev/fixtures/dependencies/`, and the generator templates `weapon.jinja2` and `armor.jinja2` | The fixture copies of 11 item templates all differed from live, and the repository now owns the real templates. Nothing renders the two Jinja templates: weapon and armor pages get `ItemTooltip` with `kind`. |
 
 What stays: `Item/ParameterizedTooltip`, `Item/Quality`, `Ability/Common`, the Spell, Skill, and Stance tooltip paths, `Link`, `Link/Search`, `AbilityLink`, `Format`, `Args`, and the data modules that links and tooltips read (`Data/Items` with its shards, `Data/Links`, `Data/Skills`, `Data/Spells`, `Data/Stances`). Step 4 builds the new renderers and can reuse removed code from the history.
 

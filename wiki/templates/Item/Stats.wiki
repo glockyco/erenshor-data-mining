@@ -10,4 +10,101 @@
 -->{{#if:{{{damage|}}}|<div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Damage</span> <span class="item-tooltip-stat-value">{{{damage}}}</span></div>}}<!--
 -->{{#if:{{{delay|}}}|<div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Delay</span> <span class="item-tooltip-stat-value">{{{delay}}} sec</span></div>}}<!--
 -->{{#if:{{{range|}}}|<div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Range</span> <span class="item-tooltip-stat-value">{{{range}}}</span></div>}}<!--
---></div></includeonly>
+--></div></includeonly><noinclude>
+== Template:Item/Stats ==
+
+Displays the character stat modifiers section of an item tooltip (Str/End/Dex/Agi/Int/Wis/Cha/Res), plus optional weapon stats (Damage/Delay/Range).
+
+=== Parameters ===
+
+{| class="wikitable"
+! Parameter !! Default !! Description
+|-
+| '''str''' || 0 || Strength modifier
+|-
+| '''end''' || 0 || Endurance modifier
+|-
+| '''dex''' || 0 || Dexterity modifier
+|-
+| '''agi''' || 0 || Agility modifier
+|-
+| '''int''' || 0 || Intelligence modifier
+|-
+| '''wis''' || 0 || Wisdom modifier
+|-
+| '''cha''' || 0 || Charisma modifier
+|-
+| '''res''' || 0 || Resonance modifier
+|-
+| '''damage''' || (none) || Weapon damage (only shown if provided)
+|-
+| '''delay''' || (none) || Weapon delay in seconds (only shown if provided)
+|-
+| '''range''' || (none) || Weapon range (only shown if provided)
+|}
+
+=== Examples ===
+
+'''Armor (stats only):'''
+<pre>
+{{Item/Stats
+|str=10
+|end=15
+|dex=12
+|agi=8
+|int=5
+|wis=4
+|cha=6
+|res=10
+}}
+</pre>
+
+'''Result:'''
+
+{{Item/Stats
+|str=10
+|end=15
+|dex=12
+|agi=8
+|int=5
+|wis=4
+|cha=6
+|res=10
+}}
+
+----
+
+'''Weapon (with damage/delay):'''
+<pre>
+{{Item/Stats
+|str=20
+|end=10
+|int=20
+|wis=20
+|res=6
+|damage=30
+|delay=3.0
+}}
+</pre>
+
+'''Result:'''
+
+{{Item/Stats
+|str=20
+|end=10
+|int=20
+|wis=20
+|res=6
+|damage=30
+|delay=3.0
+}}
+
+----
+
+=== See Also ===
+
+* [[Template:Item/Vitals]] - Health/Mana/Armor display
+* [[Template:Item/Resists]] - Resistance percentages
+
+[[Category:Item Tooltip Templates]]
+</noinclude>

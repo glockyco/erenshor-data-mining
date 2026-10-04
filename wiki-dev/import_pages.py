@@ -157,13 +157,6 @@ def discover_pages(root: Path) -> list[PageSource]:
             title = "Template:" + "/".join(relative.parts).replace("_", " ")
             pages.append(PageSource(title=title, path=path))
 
-    dependency_templates_dir = root / "wiki-dev" / "fixtures" / "dependencies" / "templates"
-    if dependency_templates_dir.exists():
-        for path in sorted(dependency_templates_dir.rglob("*.wiki")):
-            relative = path.relative_to(dependency_templates_dir).with_suffix("")
-            title = "Template:" + "/".join(relative.parts).replace("_", " ")
-            pages.append(PageSource(title=title, path=path))
-
     fixture_pages_dir = root / "wiki-dev" / "fixtures" / "pages"
     if fixture_pages_dir.exists():
         for path in sorted(fixture_pages_dir.rglob("*.wiki")):

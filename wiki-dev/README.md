@@ -163,14 +163,9 @@ wiki/gadgets/foo.js                                     -> MediaWiki:Gadget-foo.
 wiki/modules/Erenshor/Link.lua                          -> Module:Erenshor/Link
 wiki-dev/fixtures/modules/Erenshor/Data/Items.lua       -> Module:Erenshor/Data/Items
 wiki/templates/Item.wiki                                -> Template:Item
-wiki-dev/fixtures/dependencies/templates/Item/Armor.wiki -> Template:Item/Armor
+wiki/templates/Item/Armor.wiki                          -> Template:Item/Armor
 wiki-dev/fixtures/pages/Foo.wiki                        -> Foo
 ```
-
-`wiki-dev/fixtures/dependencies/templates/` holds include-only copies of the
-live legacy item templates that the parameterized equipment renderer still
-needs. Every import manages them like the other fixture pages, so a new
-developer wiki and the clean parity wiki render the same equipment.
 
 ## Run smoke tests
 

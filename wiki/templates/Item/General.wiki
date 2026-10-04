@@ -1,0 +1,167 @@
+<includeonly>{| class="item-tooltip item-tooltip-general"
+|
+{{Item/Header
+ |icon=[[File:{{{image}}}|80px]]
+ |name={{{name}}}
+ |tier=0
+}}
+{| class="item-tooltip-body"
+|-
+| |
+{{#if:{{{description|}}}|<div class="item-tooltip-description">{{{description}}}<!--
+-->{{#ifeq:{{{effect_style|}}}|Activatable|<div class="item-tooltip-activatable-name">Activatable: {{{effect_spell_name|}}}</div><div class="item-tooltip-proc-usage">Right click or assign to hotkey to use.{{#if:{{{disposable|}}}|<br>Item Consumed Upon Use.}}</div>}}</div>}}
+|}
+|}<!--
+-->{{#if:{{{effect_spell_name|}}}|{{Item/SpellDetails
+ |worn=0
+ |proc_header={{#ifeq:{{{effect_style|}}}|Activatable|Activatable:|}}
+ |spell_icon={{{effect_spell_icon|}}}
+ |spell_name={{{effect_spell_name}}}
+ |spell_level={{{effect_spell_level|}}}
+ |spell_duration_ticks={{{effect_spell_duration_ticks|}}}
+ |spell_type={{{effect_spell_type|}}}
+ |spell_line={{{effect_spell_line|}}}
+ |target_damage={{{effect_target_damage|}}}
+ |damage_type={{{effect_damage_type|}}}
+ |cast_time={{{effect_cast_time|}}}
+ |lifetap={{{effect_lifetap|}}}
+ |group_effect={{{effect_group_effect|}}}
+ |stun_target={{{effect_stun_target|}}}
+ |charm_target={{{effect_charm_target|}}}
+ |root_target={{{effect_root_target|}}}
+ |taunt_spell={{{effect_taunt_spell|}}}
+ |aggro={{{effect_aggro|}}}
+ |status_effect_name={{{effect_status_effect_name|}}}
+ |hp={{{effect_hp|}}}
+ |ac={{{effect_ac|}}}
+ |mana={{{effect_mana|}}}
+ |str={{{effect_str|}}}
+ |dex={{{effect_dex|}}}
+ |end={{{effect_end|}}}
+ |agi={{{effect_agi|}}}
+ |wis={{{effect_wis|}}}
+ |int={{{effect_int|}}}
+ |cha={{{effect_cha|}}}
+ |mr={{{effect_mr|}}}
+ |er={{{effect_er|}}}
+ |pr={{{effect_pr|}}}
+ |vr={{{effect_vr|}}}
+ |movement_speed={{{effect_movement_speed|}}}
+ |damage_shield={{{effect_damage_shield|}}}
+ |haste={{{effect_haste|}}}
+ |percent_lifesteal={{{effect_percent_lifesteal|}}}
+ |atk_roll_modifier={{{effect_atk_roll_modifier|}}}
+ |resonate_chance={{{effect_resonate_chance|}}}
+ |add_proc_name={{{effect_add_proc_name|}}}
+ |add_proc_chance={{{effect_add_proc_chance|}}}
+ |special_descriptor={{{effect_special_descriptor|}}}
+}}}}<!--
+-->{{Item/Categories
+ |item_type=general
+ |effect_style={{{effect_style|}}}
+ |effect_spell_name={{{effect_spell_name|}}}
+}}</includeonly><noinclude>
+== Template:Item/General ==
+
+Template for displaying general/miscellaneous item tooltips (quest items, materials, currency, etc.). Supports optional activatable effects.
+
+=== Parameters ===
+
+{| class="wikitable"
+! Parameter !! Required !! Description
+|-
+| '''image''' || Yes || Item icon image filename
+|-
+| '''name''' || Yes || Item name
+|-
+| '''description''' || No || Item description/lore text
+|-
+| '''value''' || No || Item value in gold
+|-
+| '''stack_size''' || No || Maximum stack size
+|-
+| '''disposable''' || No || Set to any value if item is consumed on use
+|-
+| '''effect_style''' || No || Effect type: "Activatable" for click effects
+|-
+| '''effect_spell_name''' || No || If set, displays spell effect details
+|-
+| '''effect_*''' || No || Various effect parameters (see Item/SpellDetails)
+|}
+
+=== Examples ===
+
+==== Basic General Item ====
+
+'''Code:'''
+<pre>
+{{Item/General
+|image=Chunk of Copper Ore.png
+|name=Chunk of Copper Ore
+|description=A fancy metal ore.
+}}
+</pre>
+
+'''Result:'''
+
+{{Item/General
+|image=Chunk of Copper Ore.png
+|name=Chunk of Copper Ore
+|description=A fancy metal ore.
+}}
+
+----
+
+==== General Item with Activatable Effect (Keeper's Lantern) ====
+
+'''Code:'''
+<pre>
+{{Item/General
+|image=Keeper's Lantern.png
+|name=Keeper's Lantern
+|description=Rest a while in the glow of the flame, and allow the memory of its light to guide you home.
+|effect_style=Activatable
+|effect_spell_icon=Light of the Lantern.png
+|effect_spell_name=Light of the Lantern
+|effect_spell_level=25
+|effect_spell_type=Misc
+|effect_spell_line=Generic
+|effect_cast_time=2.7
+|effect_special_descriptor=Set respawn point. Use with caution!
+}}
+</pre>
+
+'''Result:'''
+
+{{Item/General
+|image=Keeper's Lantern.png
+|name=Keeper's Lantern
+|description=Rest a while in the glow of the flame, and allow the memory of its light to guide you home.
+|effect_style=Activatable
+|effect_spell_icon=Light of the Lantern.png
+|effect_spell_name=Light of the Lantern
+|effect_spell_level=25
+|effect_spell_type=Misc
+|effect_spell_line=Generic
+|effect_cast_time=2.7
+|effect_special_descriptor=Set respawn point. Use with caution!
+}}
+
+----
+
+=== Sub-templates Used ===
+
+* [[Template:Item/Header]] - Icon and name display
+* [[Template:Item/SpellDetails]] - Effect spell details (if effect present)
+* [[Template:Item/Categories]] - Auto-categorization
+
+----
+
+=== See Also ===
+
+* [[Template:Item/Mold]] - Crafting mold tooltip
+* [[Template:Item/Consumable]] - Consumable tooltip
+* [[:Category:Items]] - Items category
+
+[[Category:Item Tooltip Templates]]
+</noinclude>

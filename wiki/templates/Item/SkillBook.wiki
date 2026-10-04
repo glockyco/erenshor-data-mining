@@ -1,0 +1,103 @@
+<includeonly>{| class="item-tooltip item-tooltip-book"
+|
+{{Item/Header
+ |icon=[[File:{{{image}}}|80px]]
+ |name={{{name}}}
+ |tier=0
+}}
+{| class="item-tooltip-body"
+|-
+| |
+<div class="item-tooltip-book-container"><!--
+--><div class="item-tooltip-book-requirement">Required Level:</div><!--
+--><div class="item-tooltip-book-class-requirements"><!--
+-->{{#if:{{{arcanist_level|}}}|<div class="item-tooltip-book-class-req">Arcanist: {{{arcanist_level}}}</div>}}<!--
+-->{{#if:{{{druid_level|}}}|<div class="item-tooltip-book-class-req">Druid: {{{druid_level}}}</div>}}<!--
+-->{{#if:{{{paladin_level|}}}|<div class="item-tooltip-book-class-req">Paladin: {{{paladin_level}}}</div>}}<!--
+-->{{#if:{{{reaver_level|}}}|<div class="item-tooltip-book-class-req">Reaver: {{{reaver_level}}}</div>}}<!--
+-->{{#if:{{{stormcaller_level|}}}|<div class="item-tooltip-book-class-req">Stormcaller: {{{stormcaller_level}}}</div>}}<!--
+-->{{#if:{{{duelist_level|}}}|<div class="item-tooltip-book-class-req">Windblade: {{{duelist_level}}}</div>}}<!--
+-->{{#if:{{{skill_type|}}}|<div class="item-tooltip-book-detail">Skill Type: {{{skill_type}}}</div>}}<!--
+-->{{#if:{{{skill_desc|}}}|<div class="item-tooltip-book-description">{{{skill_desc}}}</div>}}<!--
+-->{{#if:{{{simplayers_autolearn|}}}|{{#ifeq:{{{simplayers_autolearn}}}|false|<div class="item-tooltip-book-warning">SimPlayers DO NOT automatically learn this skill!<br/>Hand this book to them to allow them to use it.</div>}}}}<!--
+--></div>
+|}
+|}
+{{Item/Categories
+ |item_type=skillbook
+}}</includeonly><noinclude>
+== Template:Item/SkillBook ==
+
+Template for displaying skill book tooltips. Skill books teach combat abilities to characters.
+
+=== Parameters ===
+
+{| class="wikitable"
+! Parameter !! Required !! Description
+|-
+| '''image''' || Yes || Item icon image filename
+|-
+| '''name''' || Yes || Skill book name
+|-
+| '''arcanist_level''' || No || Required level for Arcanist class
+|-
+| '''druid_level''' || No || Required level for Druid class
+|-
+| '''paladin_level''' || No || Required level for Paladin class
+|-
+| '''reaver_level''' || No || Required level for Reaver class
+|-
+| '''stormcaller_level''' || No || Required level for Stormcaller class
+|-
+| '''duelist_level''' || No || Required level for Windblade class
+|-
+| '''skill_type''' || No || Skill type (e.g., Combat, Utility)
+|-
+| '''skill_desc''' || No || Skill description
+|-
+| '''simplayers_autolearn''' || No || Set to "false" if SimPlayers don't auto-learn
+|}
+
+=== Example ===
+
+'''Code:'''
+<pre>
+{{Item/SkillBook
+|image=Skill Book: Kick.png
+|name=Skill Book: Kick
+|duelist_level=3
+|paladin_level=1
+|stormcaller_level=5
+|skill_type=Attack
+|skill_desc=Kick an enemy. Interrupts target's spells.
+}}
+</pre>
+
+'''Result:'''
+
+{{Item/SkillBook
+|image=Skill Book: Kick.png
+|name=Skill Book: Kick
+|duelist_level=3
+|paladin_level=1
+|stormcaller_level=5
+|skill_type=Attack
+|skill_desc=Kick an enemy. Interrupts target's spells.
+}}
+
+----
+
+=== Sub-templates Used ===
+
+* [[Template:Item/Header]] - Icon and name display
+* [[Template:Item/Categories]] - Auto-categorization
+
+----
+
+=== See Also ===
+
+* [[Template:Item/SpellScroll]] - Spell scroll tooltip
+* [[:Category:Skill Books]] - Skill Books category
+
+[[Category:Item Tooltip Templates]]
+</noinclude>
