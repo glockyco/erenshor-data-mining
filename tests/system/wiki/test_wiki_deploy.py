@@ -297,7 +297,6 @@ def test_article_deploy_parses_before_writing_and_blocks_a_new_red_category(
         repo_root=tmp_path,
         rollback_root=tmp_path / "rollback",
         summary="Integration article deploy",
-        sleep=lambda _seconds: None,
     )
 
     assert [(issue.title, issue.reason) for issue in result.blocked] == [
