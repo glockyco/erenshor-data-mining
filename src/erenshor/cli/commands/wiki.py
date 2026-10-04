@@ -15,7 +15,6 @@ Example workflow:
     $ erenshor wiki deploy
 """
 
-import difflib
 import json
 import sys
 import tempfile
@@ -40,7 +39,6 @@ from erenshor.application.wiki.services.class_display_service import ClassDispla
 from erenshor.application.wiki.services.fetch_service import WikiFetchService
 from erenshor.application.wiki.services.generate_service import GeneratedCorpus, WikiGenerateService
 from erenshor.application.wiki.services.storage import WikiStorage
-from erenshor.application.wiki_deploy.article_identity import build_article_identity_map
 from erenshor.application.wiki_deploy.article_report import CHANGE_KINDS, ArticleDeployReport, build_article_report
 from erenshor.application.wiki_deploy.articles import (
     ArticleDeployPlan,
@@ -61,11 +59,6 @@ from erenshor.application.wiki_deploy.manifest import (
     read_repo_page_manifest,
     select_repo_page_manifest,
     write_repo_page_manifest,
-)
-from erenshor.application.wiki_deploy.override_migration import (
-    ArticleOverrideReview,
-    MissingArticleError,
-    review_article_overrides,
 )
 from erenshor.application.wiki_deploy.pages import (
     RepoPageDrift,
@@ -413,44 +406,6 @@ def _report_changed_cargo_declarations(manifest: RepoWikiPageManifest, changed_t
         f"If the declared fields changed, recreate the table(s) via Special:CargoTables "
         f"(use a replacement table and 'Switch in' for no downtime).[/yellow]"
     )
-
-
-def _join_fields(fields: list[str]) -> str:
-    """Format a field list for a review report."""
-    return ", ".join(fields) if fields else "(none)"
-
-
-def _build_item_article_identities(cli_ctx: CLIContext) -> dict[str, tuple[str, ...]]:
-    """Build the authoritative Item article title -> stable keys map."""
-    item_repo = _create_item_repository(cli_ctx)
-    return build_article_identity_map(item_repo.get_items_for_wiki_generation())
-
-
-def _print_override_review(review: ArticleOverrideReview) -> None:
-    """Print one review-only override minimization report."""
-    if review.migration is None:
-        console.print(f"[bold]{review.title}[/bold]")
-        console.print(f"Skipped: {review.skipped_reason}", markup=False)
-        return
-
-    decisions = review.migration.classification.decisions
-    manual_overrides = [decision.field for decision in decisions if decision.decision == "preserved_manual_override"]
-    intentional_blanks = [decision.field for decision in decisions if decision.decision == "intentional_blank"]
-
-    console.print(f"[bold]{review.title}[/bold]")
-    console.print(f"Removed generated duplicates: {_join_fields(list(review.migration.removed_fields))}", markup=False)
-    console.print(f"Preserved manual overrides: {_join_fields(manual_overrides)}", markup=False)
-    console.print(f"Intentional blanks: {_join_fields(intentional_blanks)}", markup=False)
-
-    diff = difflib.unified_diff(
-        review.original_wikitext.splitlines(),
-        review.migration.minimized_wikitext.splitlines(),
-        fromfile=f"{review.title} (current)",
-        tofile=f"{review.title} (minimized)",
-        lineterm="",
-    )
-    for line in diff:
-        console.print(line, markup=False)
 
 
 def _create_item_repository(cli_ctx: CLIContext) -> ItemRepository:
@@ -1433,72 +1388,6 @@ def _print_repo_page_drift(drift: Sequence[RepoPageDrift]) -> None:
         )
     if drift:
         console.print("Copy the live text of each page into the repository, or review it and pass --accept-drift.")
-
-
-@app.command("review-overrides")
-@require_preconditions(
-    database_exists,
-    database_valid,
-    database_has_items,
-)
-def review_overrides_command(
-    ctx: typer.Context,
-    page_titles: Annotated[
-        list[str] | None,
-        typer.Option("--page", help="Article title to review. May be repeated."),
-    ] = None,
-    pages_file: Annotated[
-        str | None,
-        typer.Option("--pages-file", "-p", help="File containing article titles, one per line."),
-    ] = None,
-    limit: Annotated[
-        int | None,
-        typer.Option("--limit", "-n", help="Limit number of pages to review."),
-    ] = None,
-    template_names: Annotated[
-        list[str] | None,
-        typer.Option("--template", help="Root infobox template name. May be repeated."),
-    ] = None,
-    module: Annotated[
-        str,
-        typer.Option("--module", help="Lua presentation module exposing the field accessor."),
-    ] = "Erenshor/Item",
-) -> None:
-    """Review article infobox parameters that duplicate generated Lua values."""
-    cli_ctx: CLIContext = ctx.obj
-    article_identities = _build_item_article_identities(cli_ctx)
-    titles = list(page_titles or ())
-    if pages_file:
-        titles.extend(_read_page_titles(pages_file))
-    if not titles:
-        titles = sorted(article_identities)
-    if limit is not None:
-        titles = titles[:limit]
-
-    templates = tuple(template_names or ("Item",))
-    client = _create_mediawiki_client(cli_ctx)
-    try:
-        reviews = review_article_overrides(
-            client=client,
-            titles=tuple(titles),
-            template_names=templates,
-            module=module,
-            article_identities=article_identities,
-        )
-    except MissingArticleError as e:
-        console.print(f"[red]{e}[/red]")
-        raise typer.Exit(1) from e
-    finally:
-        client.close()
-
-    changed = sum(1 for review in reviews if review.changed)
-    skipped = sum(1 for review in reviews if review.migration is None)
-    console.print(
-        f"[green]Article override review complete[/green] "
-        f"Changed: {changed} Skipped: {skipped} Reviewed: {len(reviews)}"
-    )
-    for review in reviews:
-        _print_override_review(review)
 
 
 @app.command("refresh-embedded")

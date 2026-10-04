@@ -26,7 +26,6 @@ import pytest
 from erenshor.application.wiki.services.storage import WikiStorage
 from erenshor.application.wiki_deploy.articles import deploy_articles, plan_article_deploy
 from erenshor.application.wiki_deploy.manifest import RepoWikiPageManifest, RepoWikiPageManifestEntry
-from erenshor.application.wiki_deploy.override_migration import review_article_overrides
 from erenshor.application.wiki_deploy.pages import build_deployed_manifest, deploy_repo_pages
 from erenshor.application.wiki_deploy.refresh import refresh_embedded_pages
 from erenshor.application.wiki_deploy.rollback import rollback_repo_pages
@@ -414,37 +413,6 @@ def test_refresh_forces_dependent_link_update(wiki_client: MediaWikiClient, page
     assert _page_links(user) == ["ErenshorITTargetB"]
 
 
-def test_override_review_minimizes_article_params_through_lua(wiki_client: MediaWikiClient, pages: _PageScope) -> None:
-    """Override review compares article params against deployed Lua field accessors."""
-    title = pages.claim("ErenshorITOverrideItem")
-    start_timestamp = wiki_client.get_edit_start_timestamp(assertion="bot")
-    wiki_client.safe_create_page(
-        title=title,
-        content=(
-            "{{Item|stablekey=item:ember_longsword|type=Weapon|description=A custom flavor line|image=CustomEmber.png}}"
-        ),
-        start_timestamp=start_timestamp,
-        summary="Integration",
-        assertion="bot",
-    )
-
-    reviews = review_article_overrides(
-        client=wiki_client,
-        titles=(title,),
-        template_names=("Item",),
-        module="Erenshor/Item",
-    )
-
-    assert len(reviews) == 1
-    [review] = reviews
-    assert review.migration is not None
-    assert review.migration.removed_fields == ("type",)
-    assert review.migration.preserved_fields == ("description", "image")
-    assert "type=Weapon" not in review.migration.minimized_wikitext
-    assert "description=A custom flavor line" in review.migration.minimized_wikitext
-    assert "image=CustomEmber.png" in review.migration.minimized_wikitext
-
-
 def _deploy_module(wiki_client: MediaWikiClient, title: str, source_path: Path) -> None:
     """Push a repo Lua module file to the harness so tests exercise the current source."""
     content = source_path.read_text(encoding="utf-8")
@@ -458,42 +426,6 @@ def _deploy_module(wiki_client: MediaWikiClient, title: str, source_path: Path) 
         wiki_client.safe_edit_page(
             title=title, content=content, base_revision=base, summary="Integration", assertion="bot"
         )
-
-
-def test_override_review_removes_overridable_params_without_accessors(
-    wiki_client: MediaWikiClient, pages: _PageScope
-) -> None:
-    """Override review resolves every overridable root param, not just display fields."""
-    repo_root = Path(__file__).resolve().parents[3]
-    _deploy_module(wiki_client, "Module:Erenshor/Item", repo_root / "wiki" / "modules" / "Erenshor" / "Item.lua")
-
-    title = pages.claim("ErenshorITOverrideContract")
-    start_timestamp = wiki_client.get_edit_start_timestamp(assertion="bot")
-    wiki_client.safe_create_page(
-        title=title,
-        content=(
-            "{{Item|stablekey=item:ember_longsword|title=Ember Longsword|slot=Primary"
-            "|itemlevel=12|description=A custom flavor line}}"
-        ),
-        start_timestamp=start_timestamp,
-        summary="Integration",
-        assertion="bot",
-    )
-
-    reviews = review_article_overrides(
-        client=wiki_client,
-        titles=(title,),
-        template_names=("Item",),
-        module="Erenshor/Item",
-    )
-
-    [review] = reviews
-    assert review.migration is not None
-    # title/slot/itemlevel duplicate generated data and must be removable even though
-    # they are override-only params without a display accessor.
-    assert review.migration.removed_fields == ("title", "slot", "itemlevel")
-    assert review.migration.preserved_fields == ("description",)
-    assert "description=A custom flavor line" in review.migration.minimized_wikitext
 
 
 @pytest.mark.parametrize(
