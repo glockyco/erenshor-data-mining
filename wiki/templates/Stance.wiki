@@ -19,7 +19,7 @@
         <header>Special Effects</header>
         <data source="self_damage_per_attack"><label>Self Damage per Attack</label><format>{{{self_damage_per_attack|}}}% max HP</format></data>
         <data source="self_damage_per_cast"><label>Self Damage per Cast</label><format>{{{self_damage_per_cast|}}}</format></data>
-        <data source="lifesteal_amount"><label>Lifesteal</label><format>{{{lifesteal_amount|}}}%</format></data>
+        <data source="lifesteal_amount"><label>Lifesteal</label><format>{{#ifexpr: {{{lifesteal_amount|1}}} = 1 | — |{{#ifexpr: {{{lifesteal_amount|1}}} > 1 |+}}{{#expr: ({{{lifesteal_amount|1}}} - 1) * 100 round 0}}%}}</format></data>
         <data source="resonance_amount"><label>Resonance</label><format>{{#ifexpr: {{{resonance_amount|1}}} = 1 | — |{{#ifexpr: {{{resonance_amount|1}}} > 1 |+}}{{#expr: ({{{resonance_amount|1}}} - 1) * 100 round 0}}%}}</format></data>
         <data source="stop_regen"><label>Stops Regeneration</label><format>{{#ifeq:{{{stop_regen|}}}|1|Yes}}</format></data>
     </group>
@@ -74,7 +74,7 @@ an em dash (—) to indicate no change.
 |-
 | '''self_damage_per_cast''' || No || float || HP lost per spell cast
 |-
-| '''lifesteal_amount''' || No || float || Lifesteal percentage per hit
+| '''lifesteal_amount''' || No || float || Lifesteal multiplier (same format as combat modifiers)
 |-
 | '''resonance_amount''' || No || float || Resonance multiplier (same format as combat modifiers)
 |-
@@ -275,7 +275,7 @@ Percentages are rounded to the nearest integer.
 
 * '''Self Damage per Attack''': Displayed as "X% max HP" (value is already in percentage points)
 * '''Self Damage per Cast''': Displayed as raw value (flat HP cost)
-* '''Lifesteal''': Displayed as "X%"
+* '''Lifesteal''': Multiplier, same conversion as combat modifiers
 * '''Resonance''': Multiplier, same conversion as combat modifiers
 * '''Stops Regeneration''': Shows "Yes" when value is 1, hidden when 0 or blank
 

@@ -247,7 +247,7 @@ A wiki tooltip shows the lines of the game window that it copies: the item windo
 
 A stance has no icon in the game. The skill book shows the icon of the skill that switches to the stance, and the stance page uses that icon. Generation derives it from the skill and owns it on the page, because no person chooses it. A stance that no skill switches to cannot be entered and gets no page. Reckless is the only such stance: the Planar March update (2026-07-13) removed its skill, and `SkillDB.RecklessStance` is never read.
 
-On 2026-10-04 a check in the game found five defects: a bow label that also doubled the bow DPS, no `Range 1` on melee weapons, no `Must Equip to Cast`, no item value, and no percent sign on haste. Tasks 5.3 to 5.9 fix them.
+On 2026-10-04 a check in the game found six defects: a bow label that also doubled the bow DPS, no `Range 1` on melee weapons, no `Must Equip to Cast`, no item value, no percent sign on haste, and a stance lifesteal multiplier shown as a percentage. Tasks 5.5 to 5.9 and 5.13 fix them.
 
 ### Failure handling and update grouping
 
