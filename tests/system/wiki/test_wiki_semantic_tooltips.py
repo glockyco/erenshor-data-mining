@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 from pathlib import Path
 
 import httpx
@@ -204,3 +205,49 @@ def test_tooltips_cover_keyed_unique_ambiguous_and_item_paths(wiki_page: Page) -
     expect(overlay).to_have_attribute("data-state", "ready")
     expect(overlay).to_contain_text("Abyssal Plate")
     expect(overlay).to_contain_text("Armor")
+
+
+def test_keyboard_focus_names_tooltip_and_escape_keeps_focus(placement_page: Page) -> None:
+    link = placement_page.locator("table .erenshor-link--item > a[href*='/index.php/']")
+    overlay = _overlay(placement_page)
+    link.focus()
+    assert overlay.is_visible()
+    assert overlay.get_attribute("id") in (link.get_attribute("aria-describedby") or "").split()
+    expect(overlay).to_have_attribute("data-state", "ready")
+    link.press("Escape")
+    expect(overlay).to_be_hidden()
+    assert link.evaluate("(element) => document.activeElement === element")
+    assert overlay.get_attribute("id") not in (link.get_attribute("aria-describedby") or "").split()
+
+
+def test_touch_tap_does_not_open_tooltip_and_follows_link(placement_page: Page) -> None:
+    browser = placement_page.context.browser
+    assert browser is not None
+    touch_context = browser.new_context(
+        viewport={"width": 1440, "height": 1000},
+        has_touch=True,
+        is_mobile=True,
+    )
+    try:
+        touch_page = touch_context.new_page()
+        touch_page.goto(f"{WIKI_BASE_URL}/index.php?title=Tooltip_Placement_Fixture")
+        overlay = _overlay(touch_page)
+        overlay.wait_for(state="attached")
+        assert touch_page.evaluate("matchMedia('(pointer: coarse)').matches")
+        expect(overlay).to_be_hidden()
+        touch_page.evaluate(
+            """() => {
+                const overlay = document.querySelector('#erenshor-tooltip');
+                new MutationObserver(() => {
+                    if (!overlay.hidden) {
+                        sessionStorage.setItem('tooltip-opened-on-tap', 'yes');
+                    }
+                }).observe(overlay, { attributes: true, attributeFilter: ['hidden'] });
+            }"""
+        )
+        touch_page.locator(".erenshor-link--item > a[href*='/index.php/']", has_text="Right edge item").tap()
+        expect(touch_page).to_have_url(re.compile(r"/index\.php/Abyssal_Plate$"))
+        assert touch_page.evaluate("sessionStorage.getItem('tooltip-opened-on-tap')") is None
+        expect(_overlay(touch_page)).to_be_hidden()
+    finally:
+        touch_context.close()

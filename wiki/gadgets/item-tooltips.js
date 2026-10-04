@@ -58,6 +58,7 @@
 		let hoverTarget = null;
 		let focusTarget = null;
 		let focusElement = null;
+		let touchFocusTarget = null;
 		let activeTarget = null;
 		let activeRequestKey = null;
 		let hoverTimer = null;
@@ -69,6 +70,15 @@
 		document.body.appendChild( overlay );
 		document.addEventListener( 'pointerover', onPointerOver );
 		document.addEventListener( 'pointerout', onPointerOut );
+		document.addEventListener( 'pointerdown', function ( event ) {
+			touchFocusTarget = event.pointerType === 'touch' ? semanticLinkFromEvent( event ) : null;
+		}, true );
+		document.addEventListener( 'pointercancel', function () {
+			touchFocusTarget = null;
+		}, true );
+		document.addEventListener( 'click', function () {
+			touchFocusTarget = null;
+		}, true );
 		document.addEventListener( 'focusin', onFocusIn );
 		document.addEventListener( 'focusout', onFocusOut );
 		document.addEventListener( 'keydown', onKeyDown );
@@ -145,7 +155,7 @@
 
 		function onFocusIn( event ) {
 			const target = semanticLinkFromEvent( event );
-			if ( !target ) {
+			if ( !target || target === touchFocusTarget ) {
 				return;
 			}
 
@@ -176,6 +186,7 @@
 		}
 
 		function onKeyDown( event ) {
+			touchFocusTarget = null;
 			if ( event.key === 'Escape' && activeTarget ) {
 				hideActive();
 				return;
