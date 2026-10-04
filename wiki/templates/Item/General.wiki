@@ -3,6 +3,7 @@
 {{Item/Header
  |icon=[[File:{{{image}}}|80px]]
  |name={{{name}}}
+ |value={{{value|}}}
  |tier=0
 }}
 {| class="item-tooltip-body"
@@ -76,7 +77,7 @@ Template for displaying general/miscellaneous item tooltips (quest items, materi
 |-
 | '''description''' || No || Item description/lore text
 |-
-| '''value''' || No || Item value in gold
+| '''value''' || No || Item value in gold, or "Unsellable"
 |-
 | '''stack_size''' || No || Maximum stack size
 |-

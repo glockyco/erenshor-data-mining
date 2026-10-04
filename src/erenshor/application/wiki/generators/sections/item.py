@@ -130,6 +130,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             else "",
             "relic": "True" if item.relic else "",
             "must_equip": "True" if item.must_be_equipped_to_click and item.item_effect_on_click_stable_key else "",
+            "value": self._item_window_value(item),
             "damage": safe_str(stats.weapon_dmg) if stats.weapon_dmg else "",
             "delay": safe_str(item.weapon_dly) if item.weapon_dly else "",
             "range": self._get_weapon_range(item, stats.weapon_dmg),
@@ -153,6 +154,11 @@ class ItemSectionGenerator(SectionGeneratorBase):
         context.update(self._legacy_class_flags(enriched.classes))
         context.update(self._build_proc_tooltip_context(enriched))
         return context
+
+    def _item_window_value(self, item: Item) -> str:
+        if item.item_value is not None and item.item_value > 0 and not item.no_trade_no_destroy:
+            return safe_str(item.item_value)
+        return "Unsellable"
 
     def _normal_stats(self, enriched: EnrichedItemData) -> ItemStats:
         for stats in enriched.stats:
@@ -229,6 +235,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         return {
             "image": f"{image_name}.png" if image_name else f"{page_title}.png",
             "name": display_name,
+            "value": self._item_window_value(item),
             "tier": "0",
             "strscaling": format_scaling(stat.str_scaling),
             "endscaling": format_scaling(stat.end_scaling),
@@ -255,6 +262,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         aura_context = {
             "image": f"{image_name}.png" if image_name else "",
             "name": display_name,
+            "value": self._item_window_value(item),
             "description": format_description(safe_str(item.lore)) if item.lore else "",
             **spell_details,
         }
@@ -283,6 +291,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         spellscroll_context = {
             "image": f"{image_name}.png" if image_name else "",
             "name": display_name,
+            "value": self._item_window_value(item),
             "arcanist_level": class_level("Arcanist"),
             "druid_level": class_level("Druid"),
             "duelist_level": class_level("Duelist"),
@@ -315,6 +324,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         skillbook_context = {
             "image": f"{image_name}.png" if image_name else "",
             "name": display_name,
+            "value": self._item_window_value(item),
             "duelist_level": level_str(skill.duelist_required_level) if skill else "",
             "druid_level": level_str(skill.druid_required_level) if skill else "",
             "arcanist_level": level_str(skill.arcanist_required_level) if skill else "",
@@ -343,6 +353,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         consumable_context = {
             "image": f"{image_name}.png" if image_name else "",
             "name": display_name,
+            "value": self._item_window_value(item),
             "description": format_description(safe_str(item.lore)) if item.lore else "",
             "disposable": "True" if item.disposable else "",
             **spell_details,
@@ -372,6 +383,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         mold_context = {
             "image": f"{image_name}.png" if image_name else "",
             "name": display_name,
+            "value": self._item_window_value(item),
             "description": format_description(safe_str(item.lore)) if item.lore else "",
             "ingredients": ingredients,
             "rewards": rewards,
@@ -401,9 +413,9 @@ class ItemSectionGenerator(SectionGeneratorBase):
 
         general_context = {
             "image": f"{image_name}.png" if image_name else "",
+            "value": self._item_window_value(item),
             "name": display_name,
             "description": format_description(safe_str(item.lore)) if item.lore else "",
-            "value": safe_str(item.item_value) if item.item_value else "",
             "stack_size": "",
             "disposable": "True" if item.disposable else "",
             **spell_details,

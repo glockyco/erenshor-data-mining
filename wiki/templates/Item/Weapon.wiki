@@ -3,6 +3,7 @@
 {{Item/Header
  |icon={{#ifeq:{{{tier|}}}|1|{{SparkleIcon|icon=[[File:{{{image}}}|80px]]|sparkle=Blue_Sparkle.gif|sparkle_size=80px}}|{{#ifeq:{{{tier|}}}|2|{{SparkleIcon|icon=[[File:{{{image}}}|80px]]|sparkle=Purple_Sparkle.gif|sparkle_size=80px}}|{{SparkleIcon|icon=[[File:{{{image}}}|80px]]|sparkle=blank.png|sparkle_size=0px}}}}}}
  |name={{{name}}}
+ |value={{{value|}}}
  |tier={{{tier|0}}}
  |type=[[Weapons#{{{type}}}|{{{type}}}]]{{#if:{{{relic|}}}|&#32;- Relic Item}}
 }}
@@ -129,6 +130,8 @@ Master template for displaying complete weapon tooltips. Combines header, stats,
 | '''image''' || Yes || Item icon image filename
 |-
 | '''name''' || Yes || Weapon name
+|-
+| '''value''' || No || Item value in gold, or "Unsellable"
 |-
 | '''type''' || Yes || Weapon slot: Primary, Secondary, Primary or Secondary, Primary - 2-Handed
 |-

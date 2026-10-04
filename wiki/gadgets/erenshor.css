@@ -91,6 +91,8 @@
 .item-tooltip-name-cell {
   width: 100%;
   padding: 10px;
+  position: relative;
+  padding-top: 24px;
   text-align: center;
   vertical-align: middle;
 }
@@ -140,6 +142,25 @@
   color: #ffd700;
   font-weight: bold;
   margin: 3px 0 0 0;
+}
+
+.item-tooltip-value {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  color: #ffd700;
+  font-size: 0.85em;
+  line-height: 1;
+}
+
+.item-tooltip-coin {
+  display: inline-block;
+  width: 0.7em;
+  height: 0.7em;
+  margin-left: 0.25em;
+  border: 1px solid #b8860b;
+  border-radius: 50%;
+  background: #ffd700;
 }
 
 /* ============================================================================

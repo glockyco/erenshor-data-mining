@@ -153,6 +153,30 @@ def test_click_effect_requires_equipping_only_when_game_flag_is_set() -> None:
     assert "|must_equip=\n" in generator.generate_template(unflagged, "Wakeweaver")
 
 
+def test_item_window_value_uses_no_trade_flag_not_vendor_sell_restriction() -> None:
+    generator = ItemSectionGenerator()
+    bow = Item(stable_key="item:molorai_bow", item_name="Molorai Bow", required_slot="Primary", item_value=400)
+    stats = [ItemStats(item_stable_key=bow.stable_key, quality="Standard", weapon_dmg=23)]
+    assert "|value=400\n" in generator.generate_template(
+        EnrichedItemData(item=bow, stats=stats, classes=[]), "Molorai Bow"
+    )
+
+    restricted = bow.model_copy(update={"item_value": 5000, "no_trade_no_destroy": 1})
+    assert "|value=Unsellable\n" in generator.generate_template(
+        EnrichedItemData(item=restricted, stats=stats, classes=[]), "Restricted Bow"
+    )
+
+    vendor_only = bow.model_copy(update={"player_cannot_sell": 1})
+    assert "|value=400\n" in generator.generate_template(
+        EnrichedItemData(item=vendor_only, stats=stats, classes=[]), "Vendor Restricted Bow"
+    )
+
+    wakeweaver = Item(stable_key="item:wakeweaver", item_name="Wakeweaver", required_slot="Back", item_value=0)
+    assert "|value=Unsellable\n" in generator.generate_template(
+        EnrichedItemData(item=wakeweaver, stats=stats, classes=[]), "Wakeweaver"
+    )
+
+
 def test_item_effect_selection_matches_game_click_priority() -> None:
     generator = object.__new__(EntityPageGenerator)
     generator.context = SimpleNamespace(

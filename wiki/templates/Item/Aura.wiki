@@ -3,6 +3,7 @@
 {{Item/Header
  |icon=[[File:{{{image}}}|80px]]
  |name={{{name}}}
+ |value={{{value|}}}
  |tier=0
 }}
 {| class="item-tooltip-body"
@@ -79,6 +80,8 @@ Template for displaying aura item tooltips. Auras provide permanent party-wide b
 | '''image''' || Yes || Item icon image filename
 |-
 | '''name''' || Yes || Aura item name
+|-
+| '''value''' || No || Item value in gold, or "Unsellable"
 |-
 | '''aura_spell_name''' || No || Aura spell name (displayed in green)
 |-

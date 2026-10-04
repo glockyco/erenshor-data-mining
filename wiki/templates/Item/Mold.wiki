@@ -3,6 +3,7 @@
 {{Item/Header
  |icon=[[File:{{{image}}}|80px]]
  |name={{{name}}}
+ |value={{{value|}}}
  |tier=0
 }}
 {| class="item-tooltip-body"
@@ -34,6 +35,8 @@ Template for displaying crafting mold tooltips.
 | '''image''' || Yes || Item icon image filename
 |-
 | '''name''' || Yes || Mold name
+|-
+| '''value''' || No || Item value in gold, or "Unsellable"
 |-
 | '''description''' || No || Flavor text
 |-

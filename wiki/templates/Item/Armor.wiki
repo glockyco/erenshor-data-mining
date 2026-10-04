@@ -3,6 +3,7 @@
 {{Item/Header
  |icon={{#ifeq:{{{tier|}}}|1|{{SparkleIcon|icon=[[File:{{{image}}}|80px]]|sparkle=Blue_Sparkle.gif|sparkle_size=80px}}|{{#ifeq:{{{tier|}}}|2|{{SparkleIcon|icon=[[File:{{{image}}}|80px]]|sparkle=Purple_Sparkle.gif|sparkle_size=80px}}|{{SparkleIcon|icon=[[File:{{{image}}}|80px]]|sparkle=blank.png|sparkle_size=0px}}}}}}
  |name={{{name}}}
+ |value={{{value|}}}
  |tier={{{tier|0}}}
  |type=Slot: [[Armor#{{{slot}}}|{{{slot}}}]]{{#if:{{{relic|}}}|&#32;- Relic Item}}
 }}
@@ -119,6 +120,8 @@ Master template for displaying complete armor tooltips. Combines header, stats, 
 | '''image''' || Yes || Item icon image filename
 |-
 | '''name''' || Yes || Armor name
+|-
+| '''value''' || No || Item value in gold, or "Unsellable"
 |-
 | '''slot''' || Yes || Armor slot: Head, Neck, Ring, Hand, Chest, Arm, Bracer, Leg, Waist, Foot, Back
 |-

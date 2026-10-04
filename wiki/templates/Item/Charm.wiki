@@ -3,6 +3,7 @@
 {{Item/Header
  |icon={{#ifeq:{{{tier|}}}|1|{{SparkleIcon|icon=[[File:{{{image}}}|80px]]|sparkle=Blue_Sparkle.gif|sparkle_size=80px}}|{{#ifeq:{{{tier|}}}|2|{{SparkleIcon|icon=[[File:{{{image}}}|80px]]|sparkle=Purple_Sparkle.gif|sparkle_size=80px}}|{{SparkleIcon|icon=[[File:{{{image}}}|80px]]|sparkle=blank.png|sparkle_size=0px}}}}}}
  |name={{{name}}}
+ |value={{{value|}}}
  |tier={{{tier|0}}}
 }}
 {| class="item-tooltip-body"
@@ -46,6 +47,8 @@ Master template for displaying complete charm tooltips. Charms modify how effect
 | '''image''' || Yes || Item icon image filename
 |-
 | '''name''' || Yes || Charm name
+|-
+| '''value''' || No || Item value in gold, or "Unsellable"
 |-
 | '''tier''' || No || Quality tier: 0=Normal (default), 1=Blessed, 2=Godly
 |-

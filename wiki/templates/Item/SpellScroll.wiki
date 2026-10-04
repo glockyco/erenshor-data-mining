@@ -3,6 +3,7 @@
 {{Item/Header
  |icon=[[File:{{{image}}}|80px]]
  |name={{{name}}}
+ |value={{{value|}}}
  |tier=0
 }}
 {| class="item-tooltip-body"
@@ -38,6 +39,8 @@ Template for displaying spell scroll tooltips. Spell scrolls teach spells to cha
 | '''image''' || Yes || Item icon image filename
 |-
 | '''name''' || Yes || Spell scroll name
+|-
+| '''value''' || No || Item value in gold, or "Unsellable"
 |-
 | '''arcanist_level''' || No || Required level for Arcanist class
 |-
