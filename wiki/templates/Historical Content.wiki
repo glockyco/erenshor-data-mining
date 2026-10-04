@@ -1,11 +1,11 @@
 <includeonly>{{#switch:{{{state|}}}
 |removed=<div class="navbox" style="clear:both; box-sizing:border-box; border:1px solid #aaa; padding:4px; margin-top:1em; text-align:center; width:100%;">
 <div style="font-weight:bold; padding:2px; background: rgb(19, 55, 89);">Historical Content</div>
-<p>This {{{thing|content}}} is no longer in the game.{{#if:{{{update|}}}| It was removed in the {{#if:{{{url|}}}|[{{{url}}} {{{update}}}]|{{{update}}}}} update{{#if:{{{date|}}}| ({{{date}}})}}.}}</p>
+<p>This {{{thing|content}}} is no longer in the game.{{#if:{{{update|}}}|&#32;It was removed in the {{#if:{{{url|}}}|[{{{url}}} {{{update}}}]|{{{update}}}}} update{{#if:{{{date|}}}|&#32;({{{date}}})}}.}}</p>
 </div>{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Removed Content]]}}
 |unobtainable=<div class="navbox" style="clear:both; box-sizing:border-box; border:1px solid #aaa; padding:4px; margin-top:1em; text-align:center; width:100%;">
 <div style="font-weight:bold; padding:2px; background: rgb(19, 55, 89);">Historical Content</div>
-<p>This {{{thing|item}}} can no longer be obtained.{{#if:{{{update|}}}| It became unobtainable in the {{#if:{{{url|}}}|[{{{url}}} {{{update}}}]|{{{update}}}}} update{{#if:{{{date|}}}| ({{{date}}})}}.}}</p>
+<p>This {{{thing|item}}} can no longer be obtained.{{#if:{{{update|}}}|&#32;It became unobtainable in the {{#if:{{{url|}}}|[{{{url}}} {{{update}}}]|{{{update}}}}} update{{#if:{{{date|}}}|&#32;({{{date}}})}}.}}</p>
 </div>{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Unobtainable Content]]}}
 |unused=<div class="navbox" style="clear:both; box-sizing:border-box; border:1px solid #aaa; padding:4px; margin-top:1em; text-align:center; width:100%;">
 <div style="font-weight:bold; padding:2px; background: rgb(19, 55, 89);">Historical Content</div>
