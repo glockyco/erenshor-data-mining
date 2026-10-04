@@ -1,1 +1,0 @@
-{{Item|stablekey=item:bear_pelt|lua=1}}

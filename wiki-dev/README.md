@@ -1,15 +1,14 @@
 # Local wiki development stack
 
-This directory contains the local MediaWiki stack used to test the Lua data-module and Cargo migration before touching the live wiki.
+This directory contains the local MediaWiki stack used to check repository-owned pages before deployment.
 
 ## What this stack is for
 
 - Rendering repo-owned templates and Scribunto modules through real MediaWiki.
 - Running local smoke tests with `action=parse`.
-- Exercising Cargo storage/query behaviour.
 - Proving null-edit refresh behaviour before production deployment.
 
-It is not a production wiki and it is not intended to exactly reproduce wiki.gg's LIBRARIAN fork. It builds upstream Cargo as a close local compatibility layer. Final pre-production validation still happens with live TemplateSandbox on erenshor.wiki.gg.
+It is not a production wiki. It builds upstream Cargo to match the live extension interface. Final validation uses live TemplateSandbox on erenshor.wiki.gg.
 
 ## Included skins and extensions
 
@@ -53,11 +52,9 @@ world map plate, so the image raises it to 32 MB.
 
 The live wiki is MediaWiki 1.43.6 with Classic Vector, Scribunto,
 TemplateSandbox, Gadgets/DataTables, PortableInfobox, and LIBRARIAN 4.21.0
-(wiki.gg's fork of Cargo, which registers the same `#cargo_*` parser
-functions). Local upstream Cargo is the documented compatibility layer for
-LIBRARIAN, and local PortableInfobox is the same `Universal-Omega/PortableInfobox`
-build the live wiki runs. Neither is a substitute for final live
-TemplateSandbox validation.
+(wiki.gg's fork of Cargo). Local upstream Cargo provides the compatible parser
+functions. Local PortableInfobox uses the same `Universal-Omega/PortableInfobox`
+build as the live wiki. Use live TemplateSandbox for the final check.
 
 ## Bootstrap the stack
 
@@ -159,14 +156,15 @@ performs no edits, deletes, or purges.
 Mappings:
 
 ```text
-wiki-dev/interface/MediaWiki/Common.css          -> MediaWiki:Common.css
-wiki-dev/interface/MediaWiki/Sidebar             -> MediaWiki:Sidebar
-wiki-dev/interface/MediaWiki/Gadget-foo.js       -> MediaWiki:Gadget-foo.js
-wiki/gadgets/foo.js                              -> MediaWiki:Gadget-foo.js (repo override)
-wiki/modules/Erenshor/Item.lua                   -> Module:Erenshor/Item
-wiki-dev/fixtures/modules/Erenshor/Data/Items.lua -> Module:Erenshor/Data/Items
-wiki/templates/Item.wiki                         -> Template:Item
-wiki-dev/fixtures/pages/Foo.wiki                 -> Foo
+wiki-dev/interface/MediaWiki/Common.css                 -> MediaWiki:Common.css
+wiki-dev/interface/MediaWiki/Sidebar                    -> MediaWiki:Sidebar
+wiki-dev/interface/MediaWiki/Gadget-foo.js              -> MediaWiki:Gadget-foo.js
+wiki/gadgets/foo.js                                     -> MediaWiki:Gadget-foo.js (repo override)
+wiki/modules/Erenshor/Link.lua                          -> Module:Erenshor/Link
+wiki-dev/fixtures/modules/Erenshor/Data/Items.lua       -> Module:Erenshor/Data/Items
+wiki/templates/Item.wiki                                -> Template:Item
+wiki/templates/Item/Armor.wiki                          -> Template:Item/Armor
+wiki-dev/fixtures/pages/Foo.wiki                        -> Foo
 ```
 
 ## Run smoke tests
@@ -181,11 +179,9 @@ The default `wiki-dev/fixtures/smoke.tsv` renders `Smoke Page` through `action=p
 
 ## Visual parity gate
 
-The smoke harness proves pages parse and store Cargo rows; it does not prove
-they *render* like the live wiki. The parity gate closes that gap. It renders
-representative local pages in real Chromium (via Playwright) and asserts their
-computed styles and DOM classes against a baseline captured from live parser
-output and live ResourceLoader stylesheets.
+The smoke harness checks whether pages parse. The parity gate checks how they
+render against the live wiki. It uses Chromium to compare computed styles and
+DOM classes against a baseline from live parser output and stylesheets.
 
 ```bash
 # Refresh the baseline from live MediaWiki API output and live CSS.
@@ -215,9 +211,15 @@ validation in order from the repository root:
 ```bash
 uv run erenshor wiki sync-interface     # refresh gitignored live interface mirror
 uv run python wiki-dev/import_pages.py  # import interface, modules, templates, pages
-uv run python wiki-dev/smoke_test.py    # parse + Cargo structural checks
+uv run python wiki-dev/null_edit.py     # refresh fixture pages after imports
+uv run python wiki-dev/smoke_test.py    # parse fixture pages
 uv run python wiki-dev/parity_check.py  # rendered-style parity vs captured live baseline
 ```
+
+The import edits only changed pages. A page that uses a changed template or
+module can serve cached output until the MediaWiki job queue refreshes it.
+The null edit refreshes every fixture page before the checks. `uv run erenshor
+test wiki --warm` runs the import, null edit, smoke, and browser checks in this order.
 
 Run `uv run python wiki-dev/parity_check.py --capture` first (and after live
 styling changes) to refresh the gitignored baseline the check compares against.
@@ -231,19 +233,13 @@ matches the warm developer wiki:
 uv run erenshor test wiki --clean-parity
 ```
 
-The command validates the warm wiki first, creates a uniquely named Docker
-Compose project on an ephemeral port, imports into fresh database, image, and
-runtime volumes, recreates Cargo tables, runs smoke and browser contracts, and
-compares deterministic acceptance snapshots. It always removes the isolated
-containers and volumes. The warm wiki must have the same managed page hashes,
-Cargo fixture rows, smoke outcomes, interface inventory, and browser counters
-before and after the run.
-
-`wiki-dev/fixtures/dependencies/templates/` contains include-only copies of the
-live legacy item templates still required by the parameterized equipment
-renderer. The clean harness imports these with
-`--include-clean-dependencies`. Ordinary warm imports do not manage or overwrite
-the live-template copies in the developer wiki.
+The command validates the warm wiki first and creates an isolated Docker
+Compose project on an ephemeral port. It imports into fresh database, image,
+and runtime volumes, refreshes fixture pages, and runs the smoke and browser
+contracts. It compares deterministic acceptance snapshots, then removes the
+isolated containers and volumes. The warm wiki must have the same managed page
+hashes, smoke outcomes, interface inventory, and browser counters before and
+after the run.
 
 The comparison report is written to
 `artifacts/test-reports/wiki-clean-parity.json`. Warm and clean parity each run

@@ -5,7 +5,8 @@ export const ENCOUNTER_TIER_ORDER = {
     boss: 0,
     elite: 1,
     enemy: 2,
-    npc: 3
+    chest: 3,
+    npc: 4
 } as const;
 
 export type EncounterTier = keyof typeof ENCOUNTER_TIER_ORDER;
@@ -21,7 +22,7 @@ export function mostNotableEnemyTier(characters: readonly { encounterTier: Encou
         if (encounterTier === 'npc') continue;
         if (!best || compareEncounterTier(encounterTier, best) < 0) best = encounterTier;
     }
-    if (!best) throw new Error('Enemy marker has no hostile characters');
+    if (!best) throw new Error('Encounter marker has no non-NPC characters');
     return best;
 }
 

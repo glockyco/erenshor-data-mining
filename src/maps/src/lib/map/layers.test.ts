@@ -98,6 +98,7 @@ const emptyMarkers: LayerData['markers'] = {
     enemiesEnemy: [],
     enemiesElite: [],
     enemiesBoss: [],
+    enemiesChest: [],
     forges: [],
     itemBags: [],
     miningNodes: [],
@@ -201,6 +202,7 @@ describe('createLayers ordering', () => {
             'zone-labels',
             'zone-line-connections',
             'zone-line-destinations',
+            'enemies-chest',
             'enemies-enemy',
             'npcs',
             'enemies-elite',
@@ -220,6 +222,7 @@ describe('createLayers ordering', () => {
 
     it('paints elites and bosses above ordinary enemies and NPCs', () => {
         const list = ids(createLayers(baseParams()));
+        expect(list.indexOf('enemies-chest')).toBeLessThan(list.indexOf('enemies-enemy'));
         expect(list.indexOf('enemies-enemy')).toBeLessThan(list.indexOf('enemies-elite'));
         expect(list.indexOf('npcs')).toBeLessThan(list.indexOf('enemies-elite'));
         expect(list.indexOf('enemies-elite')).toBeLessThan(list.indexOf('enemies-boss'));
@@ -249,9 +252,11 @@ describe('createLayers visibility filtering', () => {
             spawnPoints: false,
             spawnPointsElite: false,
             spawnPointsBoss: false,
+            spawnPointsChest: false,
             characters: false
         };
         const list = ids(createLayers(baseParams({ layerVisibility: vis })));
+        expect(list).not.toContain('enemies-chest');
         expect(list).not.toContain('enemies-enemy');
         expect(list).not.toContain('enemies-elite');
         expect(list).not.toContain('enemies-boss');
@@ -284,6 +289,25 @@ describe('createLayers update triggers', () => {
         ]);
         const triggers = common.props.updateTriggers as { filterRange: unknown };
         expect(triggers.filterRange).toBe(levelFilter);
+    });
+
+    it('renders chest markers with their own icon and the enemy level filter', () => {
+        const chest = makeEnemy({ encounterTier: 'chest' });
+        const layers = createLayers(baseParams({
+            data: {
+                markers: { ...emptyMarkers, enemiesChest: [chest] },
+                zones: [zone],
+                zoneConfigs: { Test: zoneConfig }
+            }
+        }));
+        const chestLayer = byId(layers, 'enemies-chest');
+        expect(chestLayer.props.data).toEqual([chest]);
+        expect((chestLayer.props.getIcon as (marker: WorldEnemy) => string)(chest)).toBe('enemy-chest');
+        expect((chestLayer.props.getIcon as (marker: WorldEnemy) => string)({
+            ...chest,
+            isEnabled: false
+        })).toBe('enemy-chest-disabled');
+        expect((chestLayer.props.getFilterValue as (marker: WorldEnemy) => number[])(chest)).toEqual([5, 10]);
     });
 
     it('recomputes marker positions when overrides change', () => {
@@ -350,11 +374,16 @@ describe('createLayers positioning', () => {
             rarity: 'boss'
         };
         const unknown: EntityData = { ...known, id: 3, name: 'Unknown Boss' };
+        const chest: EntityData = { ...known, id: 4, name: 'Fixture Chest' };
         const layers = createLayers(baseParams({
-            encounterTierByName: new Map([['Alpha Wolf', 'elite']]),
-            live: { connectionState: 'connected', zone: 'Test', entities: [known, unknown] }
+            encounterTierByName: new Map([['Alpha Wolf', 'elite'], ['Fixture Chest', 'chest']]),
+            live: { connectionState: 'connected', zone: 'Test', entities: [known, unknown, chest] }
         }));
 
+        const chestLayer = byId(layers, 'live-enemies-chest');
+        expect(chestLayer.props.data).toEqual([chest]);
+        expect((chestLayer.props.getIcon as (entity: EntityData) => string)(chest)).toBe('enemy-chest-live');
+        expect((chestLayer.props.getSize as (entity: EntityData) => number)(chest)).toBe(20);
         const elite = byId(layers, 'live-enemies-elite');
         expect(elite.props.data).toEqual([known]);
         expect((elite.props.getIcon as (entity: EntityData) => string)(known)).toBe('enemy-elite-live');

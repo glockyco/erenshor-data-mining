@@ -1,2 +1,4 @@
 __HIDDENCAT__
-This hidden maintenance category tracks pages containing Erenshor semantic links whose stable keys cannot be resolved.
+This hidden maintenance category collects pages with an Erenshor link whose <code>stablekey</code> matches nothing in the game data. Often a game update renamed the thing.
+
+To fix a page, choose the correct key with the '''Erenshor link''' button in the ''Insert'' group of the source editor, or remove the key. See [[Erenshor Wiki:Game Data#Maintenance categories]].

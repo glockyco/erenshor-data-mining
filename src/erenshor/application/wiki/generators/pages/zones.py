@@ -2,17 +2,11 @@
 
 Generates individual wiki pages for each zone (grouped by wiki_page_name so
 Mysterious Portal's three instances produce a single page).
-
-Pages are written to the explicitly composed repository wiki zones directory
-rather than the standard WikiStorage. The generator handles its own field
-preservation so manually-edited fields (level, image, prose, tables) survive
-regeneration.
 """
 
 from __future__ import annotations
 
 import json
-import re
 from collections.abc import Iterator
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -20,7 +14,6 @@ from typing import TYPE_CHECKING
 from loguru import logger
 
 from erenshor.application.wiki.generators.base import GeneratedPage, PageGenerator, PageMetadata
-from erenshor.application.wiki.generators.field_preservation import FieldPreservationHandler
 
 if TYPE_CHECKING:
     from erenshor.application.wiki.generators.context import GeneratorContext
@@ -50,31 +43,12 @@ class ZonePageGenerator(PageGenerator):
     """Generates individual wiki pages for all zones.
 
     Groups zones by wiki_page_name so Mysterious Portal's three distinct scene
-    names sharing one page produces a single output file.
-
-    Field preservation reads the existing on-disk output file (the authoritative
-    source of hand-curated content) and falls back to fetched wiki storage when
-    no output file exists yet (e.g. first generation of a new zone). Reading
-    from fetched storage alone was insufficient: fetched pages are only present
-    after ``wiki fetch``, so a generate-without-fetch run would clobber curated
-    content with bare template stubs.
-
-    Output: ``{output_dir}/{Title_With_Spaces_As_Underscores}.txt``
+    names sharing one page produces a single page. The generate service merges
+    each page into its fetched live page, like every other article.
     """
 
-    def __init__(
-        self,
-        context: GeneratorContext,
-        output_dir: Path | None = None,
-    ) -> None:
+    def __init__(self, context: GeneratorContext) -> None:
         super().__init__(context)
-        self._preservation_handler = FieldPreservationHandler()
-
-        if output_dir is None:
-            output_dir = context.zone_output_dir
-        if not isinstance(output_dir, Path):
-            raise ValueError("Zone generator requires an explicit output directory")
-        self._output_dir = output_dir
         self._map_keys = load_map_keys(context.zone_positions_path)
 
     def get_pages_to_fetch(self) -> list[str]:
@@ -120,39 +94,6 @@ class ZonePageGenerator(PageGenerator):
                     "map_scene": map_scene,
                 },
             )
-
-            # Apply field preservation from the existing on-disk output file
-            # (the authoritative source of hand-curated content), falling back
-            # to fetched wiki storage when no output file exists yet (e.g.
-            # first generation of a new zone, or after a clean checkout).
-            # Reading from fetched storage alone was a bug: fetched pages are
-            # only present after `wiki fetch`, so a generate-without-fetch run
-            # would clobber curated content with bare template stubs.
-            on_disk_path = self._output_dir / f"{wiki_name.replace(' ', '_')}.txt"
-            existing = on_disk_path.read_text(encoding="utf-8") if on_disk_path.exists() else None
-            if existing is None:
-                existing = self.context.storage.read_fetched_by_title(wiki_name)
-            if existing:
-                # Redirect pages have no template to merge against.
-                if existing.strip().startswith("#REDIRECT"):
-                    logger.debug(f"Skipping field preservation for redirect page: {wiki_name!r}")
-                else:
-                    # Normalise {{Dungeon|...}} → {{Zone|...}} so dungeon pages are
-                    # migrated to the unified template. Field names overlap in both.
-                    normalized = existing.replace("{{Dungeon", "{{Zone")
-                    # Strip wikilinks from |type= (e.g. [[Zones#Dungeons|Dungeon]] → Dungeon)
-                    # so prefer_manual retains the classification in plain-text form,
-                    # which Template:Zone's #ifeq requires for category injection.
-                    normalized = re.sub(
-                        r"(\|type=)\[\[[^\]]*\|([^\]]+)\]\]",
-                        r"\1\2",
-                        normalized,
-                    )
-                    content = self._preservation_handler.merge_templates(
-                        old_wikitext=normalized,
-                        new_wikitext=content,
-                        template_names=["Zone"],
-                    )
 
             logger.debug(f"Generated zone page: {wiki_name!r} (connections: {len(connections)}, map: {map_scene!r})")
 

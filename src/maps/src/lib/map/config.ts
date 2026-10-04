@@ -24,6 +24,7 @@ export const LAYER_COLORS = {
     enemy: [217, 119, 6] as [number, number, number], // amber-600 (enemy)
     'enemy-elite': [225, 29, 72] as [number, number, number], // rose-600 (elite)
     'enemy-boss': [109, 40, 217] as [number, number, number], // violet-700 (boss)
+    'enemy-chest': [13, 148, 136] as [number, number, number], // teal-600 (chest)
     // NPCs (friendly characters)
     npc: [14, 165, 233] as [number, number, number], // sky-500
     // Zone connections
@@ -50,7 +51,8 @@ export const LAYER_COLORS = {
     'npc-friendly-live': [16, 185, 129] as [number, number, number], // emerald-500 - FRIENDLY
     'enemy-live': [249, 115, 22] as [number, number, number], // orange-500 - THREAT
     'enemy-elite-live': [239, 68, 68] as [number, number, number], // red-500 - HIGH THREAT
-    'enemy-boss-live': [24, 24, 27] as [number, number, number] // zinc-900 - BOSS (iconic black)
+    'enemy-boss-live': [24, 24, 27] as [number, number, number], // zinc-900 - BOSS (iconic black)
+    'enemy-chest-live': [20, 184, 166] as [number, number, number] // teal-500 (chest)
 } as const;
 
 /**
@@ -124,6 +126,7 @@ export const MARKER_BORDER_COLORS: Record<string, string> = {
     enemy: 'border-l-amber-600',
     'enemy-elite': 'border-l-rose-600',
     'enemy-boss': 'border-l-violet-700',
+    'enemy-chest': 'border-l-teal-600',
     forge: 'border-l-orange-500',
     'item-bag': 'border-l-yellow-500',
     'mining-node': 'border-l-gray-400',

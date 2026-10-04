@@ -101,13 +101,6 @@ class TestPageNormalizer:
         assert lines[3] == "[[Category:M]]"
         assert lines[4] == "[[Category:Z]]"
 
-    def test_normalize_removes_legacy_categories(self, normalizer: PageNormalizer) -> None:
-        """Test legacy categories are filtered out."""
-        wikitext = "[[Category:The Bone Pits]]\n[[Category:Enemies]]\nContent"
-        result = normalizer.normalize(wikitext)
-        assert "[[Category:The Bone Pits]]" not in result
-        assert "[[Category:Enemies]]" in result
-
     def test_normalize_adds_empty_line_before_categories(self, normalizer: PageNormalizer) -> None:
         """Test empty line is added before category block at bottom."""
         wikitext = "[[Category:Items]]{{Item|name=Sword}}"
@@ -139,6 +132,16 @@ class TestPageNormalizer:
         assert "[[Category:Elites]]" not in result
         assert "[[Category:Enemies]]" in result
         assert "[[Category:Manual]]" in result
+
+    def test_normalize_replaces_combat_categories_of_a_chest(self, normalizer: PageNormalizer) -> None:
+        """A chest page that was a boss loses the boss and enemy categories."""
+        old_wikitext = "[[Category:Bosses]]\n[[Category:Enemies]]\nOld content"
+
+        result = normalizer.normalize(old_wikitext, "[[Category:Chests]]\nNew content")
+
+        assert "[[Category:Bosses]]" not in result
+        assert "[[Category:Enemies]]" not in result
+        assert "[[Category:Chests]]" in result
 
     def test_normalize_merge_deduplicates(self, normalizer: PageNormalizer) -> None:
         """Test merging deduplicates categories present in both old and new."""
@@ -246,10 +249,6 @@ Manually written lore section.
 
         # Manual content preserved
         assert "Manually written lore section." in result
-
-    def test_legacy_categories_constant(self, normalizer: PageNormalizer) -> None:
-        """Test LEGACY_CATEGORIES contains expected values."""
-        assert "[[Category:The Bone Pits]]" in normalizer.LEGACY_CATEGORIES
 
     def test_normalize_always_ends_with_newline(self, normalizer: PageNormalizer) -> None:
         """Test normalized pages always end with newline."""

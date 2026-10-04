@@ -149,6 +149,9 @@ __pycache__/
 # Distribution / packaging
 .Python
 build/
+# Case-insensitive checkouts match build/ against Scribunto module subpages
+# such as Module:Erenshor/Build/testcases.
+!wiki/modules/**/Build/
 develop-eggs/
 dist/
 downloads/
@@ -815,6 +818,8 @@ FodyWeavers.xsd
 
 # Erenshor state and configuration
 .erenshor/
+# The game session record of `erenshor mod launch`
+/.agent/state/
 
 # Nix dev shell: direnv cache and `nix build` result symlinks
 .direnv/

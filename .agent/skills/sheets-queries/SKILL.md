@@ -26,6 +26,7 @@ description: Add, revise, preview, or deploy SQL-backed Google Sheets tabs. Use 
    Replace `items` with the file stem.
    Repeat `--sheets` to select more tabs.
    The dry run executes and formats SQL but does not publish.
+   `uv run pytest tests/contract/test_sheet_queries.py` runs every query against the empty clean schema. CI runs it too, so a renamed or dropped column fails there.
 5. After approval to publish, run `uv run erenshor sheets deploy --sheets items`.
    Use `uv run erenshor sheets deploy --all-sheets` only when publishing all tabs is intended.
 

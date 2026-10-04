@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Protocol
 
 from erenshor.application.wiki_lua.links import class_link_refs, link_refs
 from erenshor.application.wiki_lua.lua_writer import module_text
+from erenshor.shared.game_constants import ticks_to_seconds
 
 if TYPE_CHECKING:
     from erenshor.domain.entities.spell import Spell
@@ -240,7 +241,7 @@ def _spell_record(
     for lua_key, attr in _BOOL_FIELD_MAP:
         _put_bool(record, lua_key, getattr(spell, attr))
     if spell.spell_charge_time is not None:
-        _put_number(record, "castTimeSeconds", round(spell.spell_charge_time / 60, 2))
+        _put_number(record, "castTimeSeconds", ticks_to_seconds(spell.spell_charge_time))
     if spell.spell_duration_in_ticks is not None:
         _put_number(record, "durationSeconds", spell.spell_duration_in_ticks * 3)
     _put_list(record, "source", link_refs(teaching_items, "item"))

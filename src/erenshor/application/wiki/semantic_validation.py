@@ -13,15 +13,19 @@ from collections import Counter
 from collections.abc import Collection, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from types import MappingProxyType
-from typing import Any, TypedDict, cast
+from typing import Any, cast
 
 from erenshor.application.wiki.generators.field_preservation import (
     DEFAULT_PRESERVATION_RULES,
+    LIST_SEPARATORS,
+    AmbiguousRootsError,
+    FieldPreservationConfig,
     FieldPreservationHandler,
+    LinkListMerge,
+    list_entries,
 )
-from erenshor.application.wiki.generators.page_normalizer import PageNormalizer
-from erenshor.application.wiki.services.storage import PageMetadata, WikiStorage
-from erenshor.application.wiki_deploy.link_audit import audit_links
+from erenshor.application.wiki.services.storage import PageMetadata
+from erenshor.application.wiki_deploy.link_audit import LinkAuditReport, LinkTargets, audit_links
 from erenshor.application.wiki_lua.link_catalog import LinkCatalogEntry
 from erenshor.infrastructure.wiki.template_parser import TemplateParser
 
@@ -62,6 +66,7 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
         ],
         "Character": [
             "name",
+            "stablekey",
             "image",
             "imagecaption",
             "type",
@@ -99,6 +104,7 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
         ],
         "Ability": [
             "title",
+            "stablekey",
             "image",
             "imagecaption",
             "description",
@@ -170,7 +176,9 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
         ],
         "Stance": [
             "title",
+            "stablekey",
             "image",
+            "imagecaption",
             "description",
             "switch_message",
             "max_hp_mod",
@@ -680,48 +688,16 @@ class WikiPageExpectation:
         object.__setattr__(self, "ownership", tuple(self.ownership))
 
 
-def derive_corpus_expectations(storage: WikiStorage, page_titles: Collection[str]) -> dict[str, WikiPageExpectation]:
-    """Build metadata, fetched-content, and singleton-overview facts for a stored corpus."""
-    expectations: dict[str, WikiPageExpectation] = {}
-    for title in page_titles:
-        metadata = storage.get_metadata_by_title(title)
-        if metadata is None:
-            raise ValueError(f"Generated wiki metadata missing for {title!r}")
-        schema_kind = f"{title.casefold()}_overview" if title in {"Armor", "Weapons"} else None
-        ownership = (schema_kind,) if schema_kind is not None else ()
-        expectations[title] = WikiPageExpectation(
-            title=title,
-            metadata=metadata,
-            fetched_content=storage.read_fetched_by_title(title),
-            ownership=ownership,
-            schema_kind=schema_kind,
-        )
-    return expectations
-
-
-@dataclass(frozen=True, slots=True)
-class PageContract:
-    """Derived ownership/schema facts, useful to integration callers."""
-
-    page: str
-    schema_kind: str
-    stable_keys: tuple[str, ...]
-    generated_templates: tuple[str, ...]
-    ownership: tuple[str, ...] = ()
-
-
-class SemanticManifestEntry(TypedDict):
-    title: str
-    stable_keys: list[str]
-    schema: str
-    generated_templates: list[str]
-    categories: list[str]
-    semantic_links: list[str]
-
-
-class SemanticManifest(TypedDict):
-    version: int
-    pages: list[SemanticManifestEntry]
+def page_expectation(title: str, stable_keys: Sequence[str], fetched_content: str | None) -> WikiPageExpectation:
+    """Build the facts of one generated page from what generation produced it from."""
+    schema_kind = f"{title.casefold()}_overview" if title in {"Armor", "Weapons"} else None
+    return WikiPageExpectation(
+        title=title,
+        metadata=PageMetadata(page_title=title, stable_keys=list(stable_keys)),
+        fetched_content=fetched_content,
+        ownership=(schema_kind,) if schema_kind is not None else (),
+        schema_kind=schema_kind,
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -743,9 +719,14 @@ class SemanticValidationError(ValueError):
 
 @dataclass(frozen=True, slots=True)
 class SemanticValidationReport:
-    """Deterministic validation results."""
+    """Deterministic validation results.
 
-    findings: tuple[SemanticFinding, ...] = ()
+    ``link_audit`` is the semantic-link audit that :func:`validate_wiki_pages`
+    ran over the same pages.
+    """
+
+    findings: tuple[SemanticFinding, ...]
+    link_audit: LinkAuditReport
 
     @property
     def has_errors(self) -> bool:
@@ -758,147 +739,6 @@ class SemanticValidationReport:
         if self.has_errors:
             raise SemanticValidationError(self)
         return self
-
-
-@dataclass(frozen=True, slots=True)
-class GeneratedManualOwnershipEntry:
-    """Ownership classification for one selected generated-corpus page.
-
-    ``generated`` means the page has a generated template family (or one of
-    the generated overview schemas).  ``manual`` means no generated family is
-    present.  ``invalid`` is reserved for pages with semantic-validation
-    findings and is never folded into the manual count.
-    """
-
-    page: str
-    ownership: str
-    schema_kind: str
-    stable_keys: tuple[str, ...]
-    generated_templates: tuple[str, ...]
-    owned_templates: tuple[str, ...]
-    findings: tuple[SemanticFinding, ...] = ()
-
-    def __post_init__(self) -> None:
-        if self.ownership not in {"generated", "manual", "invalid"}:
-            raise ValueError(f"Unknown page ownership: {self.ownership!r}")
-        object.__setattr__(self, "stable_keys", tuple(self.stable_keys))
-        object.__setattr__(self, "generated_templates", tuple(self.generated_templates))
-        object.__setattr__(self, "owned_templates", tuple(self.owned_templates))
-        object.__setattr__(self, "findings", tuple(self.findings))
-
-    def to_dict(self) -> dict[str, object]:
-        """Return a deterministic JSON-compatible page record."""
-        return {
-            "page": self.page,
-            "ownership": self.ownership,
-            "schema": self.schema_kind,
-            "stable_keys": list(self.stable_keys),
-            "generated_templates": list(self.generated_templates),
-            "owned_templates": list(self.owned_templates),
-            "findings": [
-                {"code": finding.code, "page": finding.page, "detail": finding.detail} for finding in self.findings
-            ],
-        }
-
-
-@dataclass(frozen=True, slots=True)
-class GeneratedManualOwnershipReport:
-    """Deterministic generated/manual ownership results for selected pages."""
-
-    entries: tuple[GeneratedManualOwnershipEntry, ...] = ()
-
-    def __post_init__(self) -> None:
-        entries = tuple(sorted(self.entries, key=lambda entry: (entry.page.casefold(), entry.page)))
-        if len({entry.page for entry in entries}) != len(entries):
-            raise ValueError("Ownership report contains duplicate page entries")
-        object.__setattr__(self, "entries", entries)
-
-    @property
-    def total_pages(self) -> int:
-        return len(self.entries)
-
-    @property
-    def generated_pages(self) -> int:
-        return sum(entry.ownership == "generated" for entry in self.entries)
-
-    @property
-    def manual_pages(self) -> int:
-        return sum(entry.ownership == "manual" for entry in self.entries)
-
-    @property
-    def invalid_pages(self) -> int:
-        return sum(entry.ownership == "invalid" for entry in self.entries)
-
-    @property
-    def findings(self) -> tuple[SemanticFinding, ...]:
-        return tuple(finding for entry in self.entries for finding in entry.findings)
-
-    @property
-    def has_errors(self) -> bool:
-        return bool(self.findings)
-
-    def to_dict(self) -> dict[str, object]:
-        """Return stable counts and complete per-page ownership records."""
-        return {
-            "version": 1,
-            "counts": {
-                "total": self.total_pages,
-                "generated": self.generated_pages,
-                "manual": self.manual_pages,
-                "invalid": self.invalid_pages,
-            },
-            "pages": [entry.to_dict() for entry in self.entries],
-        }
-
-
-def build_generated_manual_ownership_report(
-    contracts: Collection[PageContract],
-    *,
-    validation_report: SemanticValidationReport | None = None,
-) -> GeneratedManualOwnershipReport:
-    """Classify selected pages from existing contracts and validation findings.
-
-    This boundary deliberately consumes :class:`PageContract` values produced
-    by semantic validation.  It does not read files, parse templates, or infer
-    ownership a second time.  Any finding for a selected page makes that page
-    ``invalid`` so validation failures cannot inflate the manual count.
-    """
-    findings_by_page: dict[str, list[SemanticFinding]] = {}
-    if validation_report is not None:
-        for finding in validation_report.findings:
-            findings_by_page.setdefault(finding.page, []).append(finding)
-
-    entries: list[GeneratedManualOwnershipEntry] = []
-    seen_pages: set[str] = set()
-    for contract in contracts:
-        if contract.page in seen_pages:
-            raise ValueError(f"Ownership report contains duplicate page {contract.page!r}")
-        seen_pages.add(contract.page)
-        page_findings = tuple(
-            sorted(
-                findings_by_page.get(contract.page, ()),
-                key=lambda finding: (finding.page.casefold(), finding.page, finding.code, finding.detail),
-            )
-        )
-        generated = bool(contract.generated_templates or contract.ownership)
-        if contract.schema_kind in {"armor_overview", "weapons_overview"}:
-            generated = True
-        entries.append(
-            GeneratedManualOwnershipEntry(
-                page=contract.page,
-                ownership="invalid" if page_findings else ("generated" if generated else "manual"),
-                schema_kind=contract.schema_kind,
-                stable_keys=contract.stable_keys,
-                generated_templates=contract.generated_templates,
-                owned_templates=contract.ownership,
-                findings=page_findings,
-            )
-        )
-    unknown_finding_pages = set(findings_by_page) - seen_pages
-    if unknown_finding_pages:
-        pages = ", ".join(sorted(unknown_finding_pages, key=lambda page: (page.casefold(), page)))
-        raise ValueError(f"Validation report contains findings for unselected pages: {pages}")
-    return GeneratedManualOwnershipReport(tuple(entries))
 
 
 @dataclass(frozen=True, slots=True)
@@ -921,9 +761,10 @@ class _Findings:
     def add(self, code: str, page: str, detail: str) -> None:
         self.items.append(SemanticFinding(code, page, detail))
 
-    def report(self) -> SemanticValidationReport:
+    def report(self, link_audit: LinkAuditReport) -> SemanticValidationReport:
         return SemanticValidationReport(
-            tuple(sorted(self.items, key=lambda f: (f.page.casefold(), f.page, f.code, f.detail)))
+            tuple(sorted(self.items, key=lambda f: (f.page.casefold(), f.page, f.code, f.detail))),
+            link_audit,
         )
 
 
@@ -1083,28 +924,6 @@ def _schema_from_names(
     if kinds == {"zone"}:
         return "zone"
     return "overview" if not expected_keys else "entity"
-
-
-def derive_page_contract(
-    page: str,
-    content: str,
-    metadata: PageMetadata | None = None,
-    catalog_entries: Sequence[LinkCatalogEntry | Mapping[str, object]] = (),
-    *,
-    schema_kind: str | None = None,
-) -> PageContract:
-    """Derive page schema and generated families without integration dispatch."""
-    catalog = _catalog(catalog_entries)
-    keys = _stable_keys(WikiPageExpectation(page, metadata))
-    parsed = _parse_page(page, content)
-    schema = _schema_from_names(parsed.names, schema_kind, keys, catalog)
-    generated = tuple(
-        sorted({name for name in parsed.names if name in GENERATED_TEMPLATES}, key=lambda n: (n.casefold(), n))
-    )
-    expectation = WikiPageExpectation(page, metadata, schema_kind=schema_kind)
-    allowed = _expected_templates(expectation, parsed, catalog, schema)
-    ownership = tuple(sorted(allowed or set(generated), key=lambda n: (n.casefold(), n)))
-    return PageContract(page, schema, keys, generated, ownership)
 
 
 def _expected_templates(
@@ -1284,9 +1103,12 @@ def _validate_structure(
                 if next_index is not None and _keyed_value(parser, templates[next_index]) in stance_keys:
                     owned_indices.update((index, next_index))
         elif schema == "character":
-            character_count = sum(key.startswith("character:") for key in expected_keys)
-            owned_indices.update(i for i, name in enumerate(names) if name == "Character")
-            owned_indices = set(sorted(owned_indices)[:character_count])
+            character_keys = {key for key in expected_keys if key.startswith("character:")}
+            owned_indices.update(
+                index
+                for index, (template, name) in enumerate(zip(templates, names, strict=True))
+                if name == "Character" and _keyed_value(parser, template) in character_keys
+            )
 
     for index, (template, name) in enumerate(zip(templates, names, strict=True)):
         if family_templates is not None and name not in family_templates:
@@ -1471,16 +1293,20 @@ def _validate_structure(
             )
 
     elif schema == "character":
-        character_roots = [template for template, name in zip(templates, names, strict=True) if name == "Character"]
-        character_keys = [key for key in expected_keys if key.startswith("character:")]
-        owned_roots = character_roots[: len(character_keys)] if character_keys else character_roots
-        if character_keys and len(owned_roots) != len(character_keys):
-            findings.add(
-                "required_schema",
-                parsed.title,
-                f"expected {len(character_keys)} Character roots, found {len(owned_roots)}",
-            )
-        for key in character_keys:
+        expected_character_keys = [key for key in expected_keys if key.startswith("character:")]
+        observed_character_keys = [
+            _keyed_value(parser, template)
+            for template, name in zip(templates, names, strict=True)
+            if name == "Character"
+        ]
+        for key in expected_character_keys:
+            count = observed_character_keys.count(key)
+            if count != 1:
+                findings.add(
+                    "required_schema",
+                    parsed.title,
+                    f"expected one Character root with stablekey {key!r}, found {count}",
+                )
             _entry_identity(findings, parsed.title, key, "character", catalog)
 
     elif schema == "zone":
@@ -1555,18 +1381,14 @@ def _validate_ownership(
             )
 
 
-def _merge_parts(value: str) -> tuple[str, ...]:
-    if "<br>" in value:
-        return tuple(part.strip() for part in value.split("<br>") if part.strip())
-    if "," in value and "{{!}}" not in value:
-        return tuple(part.strip() for part in value.split(",") if part.strip())
-    return (value.strip(),) if value.strip() else ()
-
-
-def _validate_manual_overrides(findings: _Findings, parsed: _ParsedPage, fetched: str | None) -> None:
+def _validate_manual_overrides(
+    findings: _Findings,
+    parsed: _ParsedPage,
+    fetched: str | None,
+    link_targets: LinkTargets,
+) -> None:
     if fetched is None:
         return
-    parser = TemplateParser()
     balance_error = _balanced_delimiters(fetched)
     if balance_error is not None:
         findings.add("manual_overrides", parsed.title, f"fetched content: {balance_error}")
@@ -1576,38 +1398,62 @@ def _validate_manual_overrides(findings: _Findings, parsed: _ParsedPage, fetched
     except Exception as exc:
         findings.add("manual_overrides", parsed.title, f"fetched content is not parseable: {exc}")
         return
+    config = FieldPreservationConfig(link_targets=link_targets)
+    handler = FieldPreservationHandler(config)
+    merge = LinkListMerge(link_targets)
     by_name: dict[str, list[Any]] = {}
     for template in old_templates:
         by_name.setdefault(_canonical_template_name(_name(template)), []).append(template)
-    offsets: dict[str, int] = {}
-    for template, name in zip(parsed.templates, parsed.names, strict=True):
-        rules = DEFAULT_PRESERVATION_RULES.get(name)
-        if not rules:
+    for name, rules in DEFAULT_PRESERVATION_RULES.items():
+        new_roots = [template for template, root in zip(parsed.templates, parsed.names, strict=True) if root == name]
+        if not new_roots:
             continue
-        key = _canonical_template_name(name)
-        index = offsets.get(key, 0)
-        offsets[key] = index + 1
-        old_list = by_name.get(key, [])
-        if index >= len(old_list):
+        try:
+            pairs = handler.match_roots(name, by_name.get(_canonical_template_name(name), []), new_roots)
+        except AmbiguousRootsError as exc:
+            findings.add("manual_overrides", parsed.title, str(exc))
             continue
-        old_fields = parser.get_params(old_list[index])
-        new_fields = parser.get_params(template)
-        expected = FieldPreservationHandler().apply_preservation(name, old_fields, new_fields)
-        for field, rule in rules.items():
-            if rule not in {"preserve", "prefer_manual", "merge"}:
-                continue
-            actual = new_fields.get(field, "")
-            if rule == "merge":
-                old_parts = set(_merge_parts(old_fields.get(field, "")))
-                actual_parts = set(_merge_parts(actual))
-                if old_parts.issubset(actual_parts):
-                    continue
-            if actual != expected.get(field, ""):
+        for old_root, new_root in pairs:
+            _validate_root_overrides(findings, parsed.title, name, rules, old_root, new_root, config, merge)
+
+
+def _validate_root_overrides(
+    findings: _Findings,
+    page: str,
+    name: str,
+    rules: Mapping[str, str],
+    old_root: Any,
+    new_root: Any,
+    config: FieldPreservationConfig,
+    merge: LinkListMerge,
+) -> None:
+    parser = TemplateParser()
+    old_fields = parser.get_params(old_root)
+    new_fields = parser.get_params(new_root)
+    for field, rule in rules.items():
+        if rule not in {"preserve", "prefer_manual", "merge"}:
+            continue
+        old = old_fields.get(field, "")
+        actual = new_fields.get(field, "")
+        if rule == "merge":
+            # Every live entry stays, or a generated entry links its page.
+            separator = LIST_SEPARATORS[field]
+            kept = {merge.identity(entry) for entry in list_entries(actual, separator)}
+            lost = [entry for entry in list_entries(old, separator) if merge.identity(entry) not in kept]
+            if lost:
                 findings.add(
                     "manual_overrides",
-                    parsed.title,
-                    f"{name}.{field} violates {rule}: expected {expected.get(field, '')!r}, got {actual!r}",
+                    page,
+                    f"{name}.{field} violates merge: lost {lost!r} from {old!r}, got {actual!r}",
                 )
+            continue
+        expected = config.get_handler(rule)(old, actual, {"template_name": name, "field_name": field})
+        if actual != expected:
+            findings.add(
+                "manual_overrides",
+                page,
+                f"{name}.{field} violates {rule}: expected {expected!r}, got {actual!r}",
+            )
 
 
 def _category_tag(value: str) -> str:
@@ -1628,10 +1474,6 @@ def _validate_categories(findings: _Findings, page: str, content: str, expected:
     keys = [_title_key(value) for value in categories]
     if len(keys) != len(set(keys)):
         findings.add("categories", page, "category tags must not be duplicated")
-    legacy = set(PageNormalizer.LEGACY_CATEGORIES)
-    for category in categories:
-        if category in legacy:
-            findings.add("categories", page, f"legacy category is forbidden: {category}")
     if tuple(categories) != tuple(sorted(categories)):
         findings.add("categories", page, "category tags must be sorted alphabetically")
     if categories:
@@ -1654,60 +1496,6 @@ def _validate_categories(findings: _Findings, page: str, content: str, expected:
             )
 
 
-def build_semantic_manifest(
-    generated_pages: Mapping[str, str],
-    *,
-    expectations: Mapping[str, WikiPageExpectation | PageMetadata | Mapping[str, object]],
-    catalog_entries: Sequence[LinkCatalogEntry | Mapping[str, object]],
-) -> SemanticManifest:
-    """Build a deterministic, presentation-independent manifest for a generated corpus."""
-    catalog = _catalog(catalog_entries)
-    entries: list[SemanticManifestEntry] = []
-    for title in sorted(generated_pages, key=lambda value: (value.casefold(), value)):
-        if title not in expectations:
-            raise ValueError(f"Semantic manifest expectation missing for {title!r}")
-        content = generated_pages[title]
-        expectation = _metadata_for(title, expectations[title])
-        parsed = _parse_page(title, content)
-        stable_keys = _stable_keys(expectation)
-        schema = _schema_from_names(parsed.names, expectation.schema_kind, stable_keys, catalog)
-        generated_templates = sorted(
-            {name for name in parsed.names if name in GENERATED_TEMPLATES},
-            key=lambda value: (value.casefold(), value),
-        )
-        entries.append(
-            {
-                "title": title,
-                "stable_keys": list(stable_keys),
-                "schema": schema,
-                "generated_templates": generated_templates,
-                "categories": sorted(
-                    (category[2:-2] for category in _extract_categories(content)),
-                    key=lambda value: (value.casefold(), value),
-                ),
-                "semantic_links": _semantic_link_inventory(content),
-            }
-        )
-    return {"version": 1, "pages": entries}
-
-
-def _semantic_link_inventory(content: str) -> list[str]:
-    parser = TemplateParser()
-    code = parser.parse(content)
-    links: list[str] = []
-    for template in code.filter_templates(recursive=True):
-        name = _name(template)
-        if name not in SEMANTIC_LINK_TEMPLATES:
-            continue
-        params = _params(parser, template)
-        for parameter in ("stablekey", "link", "1"):
-            value = params.get(parameter, "").strip()
-            if value:
-                links.append(f"{name}:{parameter}:{value}")
-                break
-    return sorted(links, key=lambda value: (value.casefold(), value))
-
-
 def validate_wiki_pages(
     generated_pages: Mapping[str, str],
     *,
@@ -1720,6 +1508,7 @@ def validate_wiki_pages(
     """Validate a complete generated corpus without filesystem or network I/O."""
     findings = _Findings()
     catalog = _catalog(catalog_entries)
+    link_targets = LinkTargets(catalog_entries)
     expectation_map = expectations or {}
     pages: dict[str, str] = {}
     canonical_pages: dict[str, str] = {}
@@ -1767,22 +1556,21 @@ def validate_wiki_pages(
         _validate_identity_metadata(findings, page, expectation, catalog, schema)
         _validate_structure(findings, parsed, expectation, catalog, schema)
         _validate_ownership(findings, parsed, expectation, catalog, schema)
-        _validate_manual_overrides(findings, parsed, expectation.fetched_content)
+        _validate_manual_overrides(findings, parsed, expectation.fetched_content, link_targets)
         _validate_categories(findings, page, content, expectation.expected_categories)
-    if catalog_entries:
-        planned = tuple(planned_titles) if planned_titles is not None else tuple(pages)
-        known = tuple(known_generated_titles) if known_generated_titles is not None else tuple(pages)
-        audit = audit_links(
-            generated_pages=pages,
-            catalog_entries=tuple(catalog_entries),
-            planned_titles=planned,
-            known_generated_titles=known,
-            variant=variant,
-        )
-        for finding in audit.findings:
-            if finding.severity == "error":
-                findings.add("semantic_links", finding.source_page, f"{finding.code}: {finding.message}")
-    return findings.report()
+    planned = tuple(planned_titles) if planned_titles is not None else tuple(pages)
+    known = tuple(known_generated_titles) if known_generated_titles is not None else tuple(pages)
+    audit = audit_links(
+        generated_pages=pages,
+        catalog_entries=tuple(catalog_entries),
+        planned_titles=planned,
+        known_generated_titles=known,
+        variant=variant,
+    )
+    for finding in audit.findings:
+        if finding.severity == "error":
+            findings.add("semantic_links", finding.source_page, f"{finding.code}: {finding.message}")
+    return findings.report(audit)
 
 
 __all__ = [
@@ -1790,18 +1578,9 @@ __all__ = [
     "INVARIANT_CODES",
     "ITEM_COMPANIONS",
     "REQUIRED_TEMPLATE_FIELDS",
-    "GeneratedManualOwnershipEntry",
-    "GeneratedManualOwnershipReport",
-    "PageContract",
     "SemanticFinding",
-    "SemanticManifest",
-    "SemanticManifestEntry",
     "SemanticValidationError",
     "SemanticValidationReport",
     "WikiPageExpectation",
-    "build_generated_manual_ownership_report",
-    "build_semantic_manifest",
-    "derive_corpus_expectations",
-    "derive_page_contract",
     "validate_wiki_pages",
 ]

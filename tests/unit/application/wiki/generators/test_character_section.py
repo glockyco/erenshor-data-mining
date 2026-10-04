@@ -75,6 +75,7 @@ def test_character_categories_follow_encounter_tier() -> None:
         ("boss", ["Enemies", "Bosses"]),
         ("elite", ["Enemies", "Elites"]),
         ("enemy", ["Enemies"]),
+        ("chest", ["Chests"]),
     ):
         enriched = EnrichedCharacterData(character=make_character(encounter_tier=tier), spawn_infos=[], spells=[])
         assert generator.generate_character_categories(enriched) == expected

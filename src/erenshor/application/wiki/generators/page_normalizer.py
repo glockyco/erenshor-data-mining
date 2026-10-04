@@ -13,30 +13,11 @@ from typing import ClassVar
 class PageNormalizer:
     """Normalize wiki page content."""
 
-    LEGACY_CATEGORIES: ClassVar[set[str]] = {
-        "[[Category:Duskenlight Coast]]",
-        "[[Category:Duskenlight_Coast]]",
-        "[[Category:Elderstone Mines]]",
-        "[[Category:Loomingwood]]",
-        "[[Category:The Bone Pits]]",
-        "[[Category:Silkengrass_Meadowlands]]",
-        "[[Category: Bosses]]",
-        "[[Category: Enemies]]",
-        "[[Category: Abyssal Lake]]",
-        "[[Category: Faerie's Brake]]",
-        "[[Category: Fernalla's Revival Plains]]",
-        "[[Category: Hidden Hills]]",
-        "[[Category: Island Tomb]]",
-        "[[Category: Old Krakengard]]",
-        "[[Category: Soluna's Landing]]",
-        "[[Category: Stowaway's Step]]",
-        "[[Category: Vendors]]",
-    }
-
     GENERATED_CHARACTER_CATEGORIES: ClassVar[set[str]] = {
         "[[Category:Bosses]]",
         "[[Category:Elites]]",
         "[[Category:Characters]]",
+        "[[Category:Chests]]",
         "[[Category:Enemies]]",
         "[[Category:Vendors]]",
     }
@@ -66,9 +47,6 @@ class PageNormalizer:
                 if cat not in seen:
                     seen.add(cat)
                     categories.append(cat)
-
-        # Filter out legacy categories
-        categories = [cat for cat in categories if cat not in self.LEGACY_CATEGORIES]
 
         # Sort categories alphabetically
         categories.sort()

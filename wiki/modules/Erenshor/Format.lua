@@ -95,6 +95,17 @@ function p.resistLabel(resist)
 	return text:sub(1, 1):upper() .. text:sub(2) .. " Resist"
 end
 
+-- A duration in seconds as the infobox shows it: "1 second", "9 seconds",
+-- "13.33 seconds". A whole number has no decimal places.
+function p.seconds(value)
+	local number = tonumber(value)
+	if number == nil then
+		return ""
+	end
+	local text = number == math.floor(number) and tostring(math.floor(number)) or tostring(number)
+	return text .. (number == 1 and " second" or " seconds")
+end
+
 function p.categories(categories)
 	if categories == nil then
 		return ""

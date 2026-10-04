@@ -97,17 +97,23 @@
     "character:1 - memory of defeat": {
       "wiki_page_name": "A Protected Memory",
       "display_name": "A Protected Memory",
-      "image_name": "A Protected Memory"
+      "image_name": "A Protected Memory",
+      "reason": "Reviewed as not a boss: an add, an event creature, or a tutorial enemy that the BossXp or single-placement rule would otherwise make a boss.",
+      "encounter_tier": "enemy"
     },
     "character:2 - memory of the order": {
       "wiki_page_name": "A Protected Memory",
       "display_name": "A Protected Memory",
-      "image_name": "A Protected Memory"
+      "image_name": "A Protected Memory",
+      "reason": "Reviewed as not a boss: an add, an event creature, or a tutorial enemy that the BossXp or single-placement rule would otherwise make a boss.",
+      "encounter_tier": "enemy"
     },
     "character:3 - memory of the gift": {
       "wiki_page_name": "A Protected Memory",
       "display_name": "A Protected Memory",
-      "image_name": "A Protected Memory"
+      "image_name": "A Protected Memory",
+      "reason": "Reviewed as not a boss: an add, an event creature, or a tutorial enemy that the BossXp or single-placement rule would otherwise make a boss.",
+      "encounter_tier": "enemy"
     },
     "character:24 - sivakayan spectre": {
       "wiki_page_name": "Sivakayan Shadow",
@@ -1290,7 +1296,9 @@
     "character:final fernalla 1": {
       "wiki_page_name": "Fallen Fernalla",
       "display_name": "Fallen Fernalla",
-      "image_name": "Fallen Fernalla"
+      "image_name": "Fallen Fernalla",
+      "reason": "A later phase of a boss fight: the fight script spawns it in place of the boss, so it keeps the boss tier.",
+      "encounter_tier": "boss"
     },
     "character:flamewell:braxonia:86.83:59.42:593.95": {
       "wiki_page_name": "Braxonian Flame Well",
@@ -1394,19 +1402,25 @@
       "wiki_page_name": "Gloopa",
       "display_name": "Gloopa (Half)",
       "expected_npc_name": "Gloopa",
-      "image_name": "Gloopa"
+      "image_name": "Gloopa",
+      "reason": "A later phase of a boss fight: the fight script spawns it in place of the boss, so it keeps the boss tier.",
+      "encounter_tier": "boss"
     },
     "character:gloopa quarter": {
       "wiki_page_name": "Gloopa",
       "display_name": "Gloopa (Quarter)",
       "expected_npc_name": "Gloopa",
-      "image_name": "Gloopa"
+      "image_name": "Gloopa",
+      "reason": "A later phase of a boss fight: the fight script spawns it in place of the boss, so it keeps the boss tier.",
+      "encounter_tier": "boss"
     },
     "character:gloopa quarter loot": {
       "wiki_page_name": "Gloopa",
       "display_name": "Gloopa (Quarter)",
       "expected_npc_name": "Gloopa",
-      "image_name": "Gloopa"
+      "image_name": "Gloopa",
+      "reason": "A later phase of a boss fight: the fight script spawns it in place of the boss, so it keeps the boss tier.",
+      "encounter_tier": "boss"
     },
     "character:golden spirit": {
       "wiki_page_name": "A Golden Spirit",
@@ -1678,22 +1692,30 @@
     "character:linkedspider1 (1):shiveringtomb2:-63.47:-68.65:93.79": {
       "wiki_page_name": "Soul Linked Spider",
       "display_name": "Soul Linked Spider",
-      "image_name": "Soul Linked Spider"
+      "image_name": "Soul Linked Spider",
+      "reason": "Reviewed as not a boss: an add, an event creature, or a tutorial enemy that the BossXp or single-placement rule would otherwise make a boss.",
+      "encounter_tier": "enemy"
     },
     "character:linkedspider1 (2):shiveringtomb2:-92.22:-68.65:93.79": {
       "wiki_page_name": "Soul Linked Spider",
       "display_name": "Soul Linked Spider",
-      "image_name": "Soul Linked Spider"
+      "image_name": "Soul Linked Spider",
+      "reason": "Reviewed as not a boss: an add, an event creature, or a tutorial enemy that the BossXp or single-placement rule would otherwise make a boss.",
+      "encounter_tier": "enemy"
     },
     "character:linkedspider1 (3):shiveringtomb2:-92.22:-68.65:123.04": {
       "wiki_page_name": "Soul Linked Spider",
       "display_name": "Soul Linked Spider",
-      "image_name": "Soul Linked Spider"
+      "image_name": "Soul Linked Spider",
+      "reason": "Reviewed as not a boss: an add, an event creature, or a tutorial enemy that the BossXp or single-placement rule would otherwise make a boss.",
+      "encounter_tier": "enemy"
     },
     "character:linkedspider1:shiveringtomb2:-63.47:-68.65:123.29": {
       "wiki_page_name": "Soul Linked Spider",
       "display_name": "Soul Linked Spider",
-      "image_name": "Soul Linked Spider"
+      "image_name": "Soul Linked Spider",
+      "reason": "Reviewed as not a boss: an add, an event creature, or a tutorial enemy that the BossXp or single-placement rule would otherwise make a boss.",
+      "encounter_tier": "enemy"
     },
     "character:lost sea giant": {
       "wiki_page_name": "A Lost Sea Giant",
@@ -1733,28 +1755,32 @@
       "display_name": "Malignant Thoughts",
       "image_name": "Malignant Thoughts",
       "mapping_type": "custom",
-      "reason": null
+      "reason": "Reviewed as not a boss: an add, an event creature, or a tutorial enemy that the BossXp or single-placement rule would otherwise make a boss.",
+      "encounter_tier": "enemy"
     },
     "character:malignant dream (2):fernallaportal:336.65:1.90:401.30": {
       "wiki_page_name": "Malignant Thoughts",
       "display_name": "Malignant Thoughts",
       "image_name": "Malignant Thoughts",
       "mapping_type": "custom",
-      "reason": null
+      "reason": "Reviewed as not a boss: an add, an event creature, or a tutorial enemy that the BossXp or single-placement rule would otherwise make a boss.",
+      "encounter_tier": "enemy"
     },
     "character:malignant dream (3):fernallaportal:326.78:1.90:530.37": {
       "wiki_page_name": "Malignant Thoughts",
       "display_name": "Malignant Thoughts",
       "image_name": "Malignant Thoughts",
       "mapping_type": "custom",
-      "reason": null
+      "reason": "Reviewed as not a boss: an add, an event creature, or a tutorial enemy that the BossXp or single-placement rule would otherwise make a boss.",
+      "encounter_tier": "enemy"
     },
     "character:malignant dream:fernallaportal:346.22:1.90:420.41": {
       "wiki_page_name": "Malignant Thoughts",
       "display_name": "Malignant Thoughts",
       "image_name": "Malignant Thoughts",
       "mapping_type": "custom",
-      "reason": null
+      "reason": "Reviewed as not a boss: an add, an event creature, or a tutorial enemy that the BossXp or single-placement rule would otherwise make a boss.",
+      "encounter_tier": "enemy"
     },
     "character:margie reever": {
       "wiki_page_name": "Margie Reever",
@@ -1995,7 +2021,9 @@
     "character:molorai high archaelogist 3": {
       "wiki_page_name": "Molorai Archaeologist",
       "display_name": "Molorai Archaeologist",
-      "image_name": "Molorai Archaeologist Dusken"
+      "image_name": "Molorai Archaeologist Dusken",
+      "reason": "Reviewed as an elite: the named high variant (BossXp 4) among the ordinary Molorai Archaeologists of Duskenlight. It is not the boss of an area, so one placement must not make it a boss.",
+      "encounter_tier": "elite"
     },
     "character:molorai nightmistress": {
       "wiki_page_name": "Molorai Nightmistress",
@@ -2167,14 +2195,16 @@
       "display_name": "Nightmarian Hound",
       "image_name": "Nightmarian Hound",
       "mapping_type": "custom",
-      "reason": null
+      "reason": "Reviewed as not a boss: an add, an event creature, or a tutorial enemy that the BossXp or single-placement rule would otherwise make a boss.",
+      "encounter_tier": "enemy"
     },
     "character:nightmarian hound:fernallaportal:214.84:2.78:588.39": {
       "wiki_page_name": "Nightmarian Hound",
       "display_name": "Nightmarian Hound",
       "image_name": "Nightmarian Hound",
       "mapping_type": "custom",
-      "reason": null
+      "reason": "Reviewed as not a boss: an add, an event creature, or a tutorial enemy that the BossXp or single-placement rule would otherwise make a boss.",
+      "encounter_tier": "enemy"
     },
     "character:nightmarian knight": {
       "wiki_page_name": "Nightmarian Knight",
@@ -2612,14 +2642,18 @@
     "character:skeleton captain": {
       "wiki_page_name": "A Skeleton Captain",
       "display_name": "A Skeleton Captain",
-      "image_name": "A Skeleton Captain"
+      "image_name": "A Skeleton Captain",
+      "reason": "A named boss that the game places at several spawn points, all enabled. Several placements alone would make it an enemy.",
+      "encounter_tier": "boss"
     },
     "character:skeleton captain 1": {
       "wiki_page_name": null,
       "display_name": "A Skeleton Captain",
       "image_name": "A Skeleton Captain",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "A named boss that the game places at several spawn points, all enabled. Several placements alone would make it an enemy.",
+      "encounter_tier": "boss"
     },
     "character:sm_chr_bartender_01": {
       "wiki_page_name": null,
@@ -3207,7 +3241,9 @@
     "character:twisted fernalla": {
       "wiki_page_name": "Fallen Fernalla",
       "display_name": "Fallen Fernalla",
-      "image_name": "Fallen Fernalla"
+      "image_name": "Fallen Fernalla",
+      "reason": "First form of the Fallen Fernalla fight in Blooming Sepulcher. FernallaFightEvent changes phase below 10% health and destroys this form in phase 3 without a kill, then spawns Final Fernalla, so this loot table never rolls.",
+      "loot_unreachable": true
     },
     "character:valrae cleary": {
       "wiki_page_name": "Valrae Cleary",
@@ -4361,30 +4397,9 @@
       "display_name": "Island Tomb",
       "image_name": "Island Tomb"
     },
-    "stance:aggressive": {
-      "wiki_page_name": "Aggressive",
-      "display_name": "Aggressive",
-      "image_name": "Stance: Aggressive"
-    },
-    "stance:defensive": {
-      "wiki_page_name": "Defensive",
-      "display_name": "Defensive",
-      "image_name": "Stance: Defensive"
-    },
     "stance:normal": {
       "wiki_page_name": "Normal",
-      "display_name": "Normal",
-      "image_name": "Stance: Normal"
-    },
-    "stance:reckless": {
-      "wiki_page_name": "Reckless",
-      "display_name": "Reckless",
-      "image_name": "Stance: Reckless"
-    },
-    "stance:taunting": {
-      "wiki_page_name": "Taunting",
-      "display_name": "Taunting",
-      "image_name": "Stance: Taunting"
+      "display_name": "Normal"
     },
     "spawn:ripperportal:301.20:0.05:433.77": {
       "is_wiki_generated": 0,
@@ -4465,6 +4480,79 @@
     "spawn:shiveringtomb2:-5.18:-68.35:335.97": {
       "is_wiki_generated": 0,
       "is_map_visible": 0
+    },
+    "character:fearantula": {
+      "wiki_page_name": "Fearantula",
+      "display_name": "Fearantula",
+      "image_name": "Fearantula",
+      "mapping_type": "custom",
+      "reason": "A named boss that the game places at several spawn points, all enabled. Several placements alone would make it an enemy.",
+      "encounter_tier": "boss"
+    },
+    "character:brackish crocodile whelp:1": {
+      "wiki_page_name": "A Brackish Croc Whelp",
+      "display_name": "A Brackish Croc Whelp",
+      "image_name": "A Brackish Croc Whelp",
+      "mapping_type": "custom",
+      "reason": "Reviewed as not a boss: an add, an event creature, or a tutorial enemy that the BossXp or single-placement rule would otherwise make a boss.",
+      "encounter_tier": "enemy"
+    },
+    "character:rattlewrists": {
+      "wiki_page_name": "Rattlewrists",
+      "display_name": "Rattlewrists",
+      "image_name": "Rattlewrists",
+      "mapping_type": "custom",
+      "reason": "Reviewed as not a boss: an add, an event creature, or a tutorial enemy that the BossXp or single-placement rule would otherwise make a boss.",
+      "encounter_tier": "enemy"
+    },
+    "character:kingsman 1": {
+      "wiki_page_name": "Hand of the King",
+      "display_name": "Hand of the King",
+      "image_name": "Hand of the King",
+      "mapping_type": "custom",
+      "reason": "Monarch of the Flame summons it during the Chessboard event, and it fights as one of the event's bosses.",
+      "encounter_tier": "boss"
+    },
+    "character:sivakayan emissary": {
+      "wiki_page_name": "Sivakayan Emissary",
+      "display_name": "Sivakayan Emissary",
+      "image_name": "Sivakayan Emissary",
+      "mapping_type": "custom",
+      "reason": "Reviewed as an elite: a named Sivakayan (BossXp 2) that shares its spawn point in Azynthi's Garden with a Sivakayan Bodyguard. It is not the boss of an area, so one placement must not make it a boss.",
+      "encounter_tier": "elite"
+    },
+    "character:crypt keeper": {
+      "wiki_page_name": "Crypt Keeper",
+      "display_name": "Crypt Keeper",
+      "image_name": "Crypt Keeper",
+      "mapping_type": "custom",
+      "reason": "Reviewed as an NPC: game data lists it as aggressive towards the player, but the review keeps the NPC type that the wiki already shows.",
+      "encounter_tier": "npc"
+    },
+    "character:ghostly figure:shiveringstep:701.36:24.78:439.97": {
+      "wiki_page_name": "Enterprising Spirit",
+      "display_name": "Enterprising Spirit",
+      "image_name": "Enterprising Spirit",
+      "mapping_type": "custom",
+      "reason": "Reviewed as an NPC: a vendor with dialog in Shivering Step. Game data lists it as aggressive towards the player.",
+      "encounter_tier": "npc"
+    },
+    "character:the hider:shiveringstep:668.70:45.25:549.83": {
+      "wiki_page_name": "The Hider",
+      "display_name": "The Hider",
+      "image_name": "The Hider",
+      "mapping_type": "custom",
+      "reason": "Reviewed as an NPC: an invulnerable character with dialog in Shivering Step. Game data lists it as aggressive towards the player.",
+      "encounter_tier": "npc"
+    },
+    "character:vitheo observer": {
+      "wiki_page_name": null,
+      "display_name": "Vitheo the Tactician",
+      "image_name": "Vitheo the Tactician",
+      "mapping_type": "excluded",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "reason": "Invulnerable stand-in that watches the arena rounds and never interacts with the player. VitheoFight destroys it when the final fight starts (ObserverSpawn), and VithArena spawns the Vitheo that players fight."
     }
   }
 }

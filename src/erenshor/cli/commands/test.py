@@ -493,8 +493,8 @@ def _preflight_wiki(cli_ctx: CLIContext) -> list[_Preflight]:
         _executable("docker"),
         _directory(root / "wiki-dev", "wiki-dev"),
         _file(root / "wiki-dev/import_pages.py", "wiki-dev/import_pages.py"),
+        _file(root / "wiki-dev/null_edit.py", "wiki-dev/null_edit.py"),
         _file(root / "wiki-dev/smoke_test.py", "wiki-dev/smoke_test.py"),
-        _file(root / "wiki-dev/cargo_check.py", "wiki-dev/cargo_check.py"),
         _directory(root / "tests/system/wiki", "tests/system/wiki"),
     ]
     reachable, detail = _wiki_api_reachable()
@@ -1226,14 +1226,19 @@ def _run_maps_leaf(cli_ctx: CLIContext, source: Path) -> _LeafResult:
 
 
 def _run_wiki_leaf(cli_ctx: CLIContext) -> _LeafResult:
-    """Import and smoke the local wiki, then enforce structured pytest counts."""
+    """Import and refresh the local wiki, smoke it, then enforce structured pytest counts.
+
+    The null edit refreshes every fixture page after import, so checks do not
+    read output cached before a template or module changed.
+    """
     start = time.monotonic()
     base = _WIKI_BASE_URL
     setup_commands = (
         ("python", "wiki-dev/import_pages.py", "--base-url", base, "--root", str(cli_ctx.repo_root)),
+        ("python", "wiki-dev/null_edit.py", "--base-url", base),
         ("python", "wiki-dev/smoke_test.py", "--base-url", base),
-        ("python", "wiki-dev/cargo_check.py", "--base-url", base),
     )
+    total_commands = len(setup_commands) + 1
     setup_results: list[_CommandResult] = []
     for command in setup_commands:
         result = _run_process(command, cli_ctx.repo_root)
@@ -1249,7 +1254,7 @@ def _run_wiki_leaf(cli_ctx: CLIContext) -> _LeafResult:
             exit_code=failed.exit_code,
             duration_seconds=_duration(start),
             prerequisites=[],
-            result_counts={"commands": 4, "completed_commands": len(setup_results)},
+            result_counts={"commands": total_commands, "completed_commands": len(setup_results)},
             commands=[_command_json(item) for item in setup_results],
         )
 
@@ -1260,7 +1265,7 @@ def _run_wiki_leaf(cli_ctx: CLIContext) -> _LeafResult:
         exit_code=pytest_result.exit_code,
         duration_seconds=_duration(start),
         prerequisites=[],
-        result_counts={**pytest_result.result_counts, "commands": 4, "completed_commands": 4},
+        result_counts={**pytest_result.result_counts, "commands": total_commands, "completed_commands": total_commands},
         commands=[
             *[_command_json(item) for item in setup_results],
             *pytest_result.commands,

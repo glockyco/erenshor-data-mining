@@ -23,8 +23,9 @@ from pathlib import Path
 import httpx
 import pytest
 
+from erenshor.application.wiki.services.storage import WikiStorage
+from erenshor.application.wiki_deploy.articles import deploy_articles, plan_article_deploy
 from erenshor.application.wiki_deploy.manifest import RepoWikiPageManifest, RepoWikiPageManifestEntry
-from erenshor.application.wiki_deploy.override_migration import review_article_overrides
 from erenshor.application.wiki_deploy.pages import build_deployed_manifest, deploy_repo_pages
 from erenshor.application.wiki_deploy.refresh import refresh_embedded_pages
 from erenshor.application.wiki_deploy.rollback import rollback_repo_pages
@@ -32,7 +33,6 @@ from erenshor.infrastructure.wiki import (
     MediaWikiAssertionError,
     MediaWikiClient,
     MediaWikiEditConflictError,
-    MediaWikiRequestPolicy,
 )
 
 WIKI_BASE_URL = os.environ.get("ERENSHOR_WIKI_BASE_URL", "http://localhost:8088")
@@ -167,15 +167,10 @@ def wiki_client() -> Iterator[MediaWikiClient]:
 
     _ensure_deploy_bot()
 
-    # No inter-request pacing: the local harness has no rate limit and the suite
-    # should stay fast. Conflict-safety still comes from baserevid/starttimestamp.
-    policy = MediaWikiRequestPolicy(read_delay=0.0, write_delay=0.0)
     client = MediaWikiClient(
         api_url=API_URL,
         bot_username=BOT_USER,
         bot_password=BOT_PASSWORD,
-        rate_limit_delay=0.0,
-        request_policy=policy,
     )
     client.login()
     try:
@@ -277,6 +272,42 @@ def test_deploy_safe_edit_then_rollback_restores_previous_text(
     assert wiki_client.get_page(title) == "return { v = 1 }"
 
 
+def test_article_deploy_parses_before_writing_and_blocks_a_new_red_category(
+    wiki_client: MediaWikiClient, pages: _PageScope, tmp_path: Path
+) -> None:
+    """A changed article is written; an article that adds a category without a page is blocked."""
+    written = pages.claim("ErenshorIT Article Written")
+    blocked = pages.claim("ErenshorIT Article Blocked")
+    storage = WikiStorage(tmp_path / "variants" / "main" / "wiki")
+    for title in (written, blocked):
+        start_timestamp = wiki_client.get_edit_start_timestamp(assertion="bot")
+        revision_id = wiki_client.safe_create_page(
+            title, "Old text.", start_timestamp=start_timestamp, summary="Integration setup", assertion="bot"
+        )
+        storage.save_fetched_by_title(title, [f"item:{title.casefold()}"], "Old text.", revision_id)
+    storage.save_generated_by_title(written, [f"item:{written.casefold()}"], "New text.\n")
+    storage.save_generated_by_title(
+        blocked, [f"item:{blocked.casefold()}"], "New text.\n\n[[Category:ErenshorIT Missing Category]]\n"
+    )
+
+    result = deploy_articles(
+        plan_article_deploy(storage),
+        client=wiki_client,
+        storage=storage,
+        repo_root=tmp_path,
+        rollback_root=tmp_path / "rollback",
+        summary="Integration article deploy",
+        sleep=lambda _seconds: None,
+    )
+
+    assert [(issue.title, issue.reason) for issue in result.blocked] == [
+        (blocked, "category without a page: Category:ErenshorIT Missing Category")
+    ]
+    assert {entry.title: entry.deploy_action for entry in result.manifest.entries} == {written: "edited", blocked: None}
+    assert wiki_client.get_page(written) == "New text."
+    assert wiki_client.get_page(blocked) == "Old text."
+
+
 def test_safe_edit_detects_conflict_on_stale_base_revision(wiki_client: MediaWikiClient, pages: _PageScope) -> None:
     """An edit against a base revision that has since changed fails closed as a conflict."""
     title = pages.claim("Module:ErenshorIT/Conflict")
@@ -374,108 +405,3 @@ def test_refresh_forces_dependent_link_update(wiki_client: MediaWikiClient, page
     assert user in result.refreshed
     # The forced link update re-parsed the dependent so its stored links follow the template change.
     assert _page_links(user) == ["ErenshorITTargetB"]
-
-
-def test_override_review_minimizes_article_params_through_lua(wiki_client: MediaWikiClient, pages: _PageScope) -> None:
-    """Override review compares article params against deployed Lua field accessors."""
-    title = pages.claim("ErenshorITOverrideItem")
-    start_timestamp = wiki_client.get_edit_start_timestamp(assertion="bot")
-    wiki_client.safe_create_page(
-        title=title,
-        content=(
-            "{{Item|stablekey=item:ember_longsword|type=Weapon|description=A custom flavor line|image=CustomEmber.png}}"
-        ),
-        start_timestamp=start_timestamp,
-        summary="Integration",
-        assertion="bot",
-    )
-
-    reviews = review_article_overrides(
-        client=wiki_client,
-        titles=(title,),
-        template_names=("Item",),
-        module="Erenshor/Item",
-    )
-
-    assert len(reviews) == 1
-    [review] = reviews
-    assert review.migration is not None
-    assert review.migration.removed_fields == ("type",)
-    assert review.migration.preserved_fields == ("description", "image")
-    assert "type=Weapon" not in review.migration.minimized_wikitext
-    assert "description=A custom flavor line" in review.migration.minimized_wikitext
-    assert "image=CustomEmber.png" in review.migration.minimized_wikitext
-
-
-def _deploy_module(wiki_client: MediaWikiClient, title: str, source_path: Path) -> None:
-    """Push a repo Lua module file to the harness so tests exercise the current source."""
-    content = source_path.read_text(encoding="utf-8")
-    base = wiki_client.get_page_revision_metadata(title, assertion="bot")
-    if base is None:
-        start = wiki_client.get_edit_start_timestamp(assertion="bot")
-        wiki_client.safe_create_page(
-            title=title, content=content, start_timestamp=start, summary="Integration", assertion="bot"
-        )
-    else:
-        wiki_client.safe_edit_page(
-            title=title, content=content, base_revision=base, summary="Integration", assertion="bot"
-        )
-
-
-def test_override_review_removes_overridable_params_without_accessors(
-    wiki_client: MediaWikiClient, pages: _PageScope
-) -> None:
-    """Override review resolves every overridable root param, not just display fields."""
-    repo_root = Path(__file__).resolve().parents[3]
-    _deploy_module(wiki_client, "Module:Erenshor/Item", repo_root / "wiki" / "modules" / "Erenshor" / "Item.lua")
-
-    title = pages.claim("ErenshorITOverrideContract")
-    start_timestamp = wiki_client.get_edit_start_timestamp(assertion="bot")
-    wiki_client.safe_create_page(
-        title=title,
-        content=(
-            "{{Item|stablekey=item:ember_longsword|title=Ember Longsword|slot=Primary"
-            "|itemlevel=12|description=A custom flavor line}}"
-        ),
-        start_timestamp=start_timestamp,
-        summary="Integration",
-        assertion="bot",
-    )
-
-    reviews = review_article_overrides(
-        client=wiki_client,
-        titles=(title,),
-        template_names=("Item",),
-        module="Erenshor/Item",
-    )
-
-    [review] = reviews
-    assert review.migration is not None
-    # title/slot/itemlevel duplicate generated data and must be removable even though
-    # they are override-only params without a display accessor.
-    assert review.migration.removed_fields == ("title", "slot", "itemlevel")
-    assert review.migration.preserved_fields == ("description",)
-    assert "description=A custom flavor line" in review.migration.minimized_wikitext
-
-
-@pytest.mark.parametrize(
-    ("module", "stable_key", "field_name", "expected"),
-    [
-        ("Erenshor/Character", "character:a_grizzly_bear", "title", "A Grizzly Bear"),
-        ("Erenshor/Character", "character:a_grizzly_bear", "strength", "23"),
-        ("Erenshor/Quest", "quest:magical_sword", "title", "A Magical Sword in Port Azure"),
-        ("Erenshor/Zone", "zone:PortAzure", "title", "Port Azure"),
-    ],
-)
-def test_overridable_param_resolves_without_display_accessor(
-    wiki_client: MediaWikiClient, module: str, stable_key: str, field_name: str, expected: str
-) -> None:
-    """Every overridable root param resolves to its generated value, not a Scribunto error."""
-    repo_root = Path(__file__).resolve().parents[3]
-    _deploy_module(wiki_client, f"Module:{module}", repo_root / "wiki" / "modules" / f"{module}.lua")
-
-    rendered = wiki_client.expand_templates(
-        "{{#invoke:" + module + "|field|stablekey=" + stable_key + "|1=" + field_name + "}}"
-    )
-
-    assert rendered == expected

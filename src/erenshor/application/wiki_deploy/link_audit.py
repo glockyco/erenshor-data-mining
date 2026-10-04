@@ -18,10 +18,14 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, Literal
 
+from mwparserfromhell.nodes import Template, Wikilink
+
 from erenshor.application.wiki_lua.link_catalog import LinkCatalogEntry
 from erenshor.infrastructure.wiki.template_parser import TemplateParser
 
 if TYPE_CHECKING:
+    from mwparserfromhell.nodes import Node
+
     from erenshor.infrastructure.wiki.client import MediaWikiTitleStatus
 
 
@@ -51,12 +55,18 @@ WARNING_CODES = frozenset(
     {
         "ambiguous_manual_semantic_link",
         "manual_red_link",
+        "missing_manual_target_article",
         "stale_manual_redirect",
         "live_link_catalog_stale",
         "runtime_tracking_category",
     }
 )
 FINDING_CODES = ERROR_CODES | WARNING_CODES
+
+# Families whose articles people write. Generated pages link to them, but
+# generation never creates one, so a missing article is a red link that asks a
+# contributor for the page. It is not a defect of the deployment.
+MANUAL_ARTICLE_KINDS = frozenset({"quest", "faction", "class"})
 
 _PREFIXES: Mapping[str, tuple[str, ...]] = {
     "item": ("item:",),
@@ -290,12 +300,18 @@ def _parameter_values(template: Any) -> tuple[dict[str, str], list[str]]:
     return named, positional
 
 
-def _target_from_values(named: Mapping[str, str], positional: Sequence[str]) -> str | None:
+def _target_from_values(kind: str, named: Mapping[str, str], positional: Sequence[str]) -> str | None:
+    """Return the page a link names, with the parameter order of Module:Erenshor/Link."""
     value = named.get("link")
     if value is None:
         value = named.get("page")
+    if value is None and kind == "item":
+        value = named.get("item", named.get("name"))
     if value is None and positional:
         value = positional[0]
+    if value is None and kind == "quest":
+        # The deprecated parameter of the old QuestLink template.
+        value = named.get("questlink")
     if value is None:
         return None
     # QuestLink's public compatibility syntax uses {{!}} inside |link=page|text.
@@ -319,6 +335,65 @@ def _manual_candidates(index: _CatalogIndex, kind: str, target: str) -> tuple[Li
     return tuple(sorted(unique.values(), key=_entry_key))
 
 
+def _semantic_kind(template_name: str) -> str | None:
+    """Return the link kind of a semantic link template name, or None."""
+    folded = template_name.strip().casefold()
+    return next((kind for name, kind in SUPPORTED_TEMPLATES.items() if name.casefold() == folded), None)
+
+
+class LinkTargets:
+    """Resolve one link to the page that it links, through the link catalog.
+
+    A semantic link template with ``stablekey=`` links the catalog page of that
+    key. A manual semantic link links the page of its catalog matches when they
+    share one page, and its supplied target otherwise. A wikilink links its
+    title. Targets are title keys, so equal targets mean the same page and
+    section.
+    """
+
+    def __init__(self, catalog_entries: Sequence[LinkCatalogEntry | Mapping[str, object]]) -> None:
+        self._index = _build_catalog_index(catalog_entries)
+
+    def target(self, wikitext: str) -> str | None:
+        """Return the title key that ``wikitext`` links, or None when it is not one link.
+
+        ``wikitext`` is a link only when one semantic link template or one
+        wikilink is all of its non-blank content.
+        """
+        nodes = [node for node in TemplateParser().parse(wikitext).nodes if str(node).strip()]
+        if len(nodes) != 1:
+            return None
+        return self.node_target(nodes[0])
+
+    def node_target(self, node: Node) -> str | None:
+        """Return the title key that one parsed node links, or None when it is not a link.
+
+        A stable key that the catalog does not hold has no known page, so its
+        template is not a link.
+        """
+        if isinstance(node, Wikilink):
+            title = str(node.title).strip().lstrip(":").strip()
+            return _title_key(title) if title else None
+        if isinstance(node, Template):
+            return self._template_target(node)
+        return None
+
+    def _template_target(self, template: Template) -> str | None:
+        kind = _semantic_kind(str(template.name))
+        if kind is None:
+            return None
+        named, positional = _parameter_values(template)
+        stable_key = _stable_key_from_values(named)
+        if stable_key is not None:
+            entry = self._index.entries_by_key.get(stable_key)
+            return _title_key(entry.page) if entry is not None and entry.kind == kind else None
+        supplied_target = _target_from_values(kind, named, positional)
+        if supplied_target is None:
+            return None
+        pages = {_title_key(entry.page) for entry in _manual_candidates(self._index, kind, supplied_target)}
+        return pages.pop() if len(pages) == 1 else _title_key(supplied_target)
+
+
 def _occurrence_from_template(
     source_page: str,
     template_name: str,
@@ -328,7 +403,7 @@ def _occurrence_from_template(
     origin: Origin,
 ) -> tuple[LinkOccurrence | None, LinkAuditFinding | None]:
     named, positional = _parameter_values(template)
-    supplied_target = _target_from_values(named, positional)
+    supplied_target = _target_from_values(kind, named, positional)
     stable_key = _stable_key_from_values(named)
     # A rendered page_title=None link is plain text and has no template. An
     # empty compatibility invocation is equivalent and is excluded here.
@@ -421,14 +496,7 @@ def parse_link_occurrences(
     occurrences: list[LinkOccurrence] = []
     for template in code.filter_templates():
         template_name = str(template.name).strip()
-        kind = next(
-            (
-                mapped_kind
-                for known_name, mapped_kind in SUPPORTED_TEMPLATES.items()
-                if known_name.casefold() == template_name.casefold()
-            ),
-            None,
-        )
+        kind = _semantic_kind(template_name)
         if kind is None:
             continue
         occurrence, _ = _occurrence_from_template(source_page, template_name, kind, template, index, origin)
@@ -557,14 +625,7 @@ def audit_links(
             code = parser.parse(content)
             for template in code.filter_templates():
                 template_name = str(template.name).strip()
-                kind = next(
-                    (
-                        mapped
-                        for known, mapped in SUPPORTED_TEMPLATES.items()
-                        if known.casefold() == template_name.casefold()
-                    ),
-                    None,
-                )
+                kind = _semantic_kind(template_name)
                 if kind is None:
                     continue
                 occurrence, local_finding = _occurrence_from_template(
@@ -577,17 +638,16 @@ def audit_links(
                     findings.append(local_finding)
 
                 if occurrence.stable_key is not None:
-                    if occurrence.canonical_target is None:
+                    target = occurrence.canonical_target
+                    if target is None:
                         continue
-                    status = _status_for(title_statuses, occurrence.canonical_target)
-                    missing_target = not (
-                        _planned(planned_title_keys, occurrence.canonical_target) or _status_exists(status)
-                    )
-                    target_must_be_known = title_statuses is not None or _planned(
-                        known_generated_title_keys,
-                        occurrence.canonical_target,
-                    )
-                    if origin == "generated_output" and missing_target and target_must_be_known:
+                    status = _status_for(title_statuses, target)
+                    missing_target = not (_planned(planned_title_keys, target) or _status_exists(status))
+                    if origin != "generated_output" or not missing_target:
+                        continue
+                    if _planned(known_generated_title_keys, target) or (
+                        title_statuses is not None and occurrence.kind not in MANUAL_ARTICLE_KINDS
+                    ):
                         findings.append(
                             LinkAuditFinding(
                                 "missing_generated_target_article",
@@ -596,11 +656,23 @@ def audit_links(
                                 occurrence.kind,
                                 occurrence.stable_key,
                                 occurrence.supplied_target,
-                                occurrence.canonical_target,
-                                (
-                                    f"Generated semantic link target {occurrence.canonical_target!r} "
-                                    "is neither live nor planned for this deployment"
-                                ),
+                                target,
+                                f"Generated semantic link target {target!r} is neither live "
+                                "nor planned for this deployment",
+                            )
+                        )
+                    elif title_statuses is not None:
+                        findings.append(
+                            LinkAuditFinding(
+                                "missing_manual_target_article",
+                                "warning",
+                                source_page,
+                                occurrence.kind,
+                                occurrence.stable_key,
+                                occurrence.supplied_target,
+                                target,
+                                f"Generated semantic link target {target!r} is a {occurrence.kind} article "
+                                "that no one has written yet",
                             )
                         )
                     continue
@@ -736,6 +808,7 @@ __all__ = [
     "LinkAuditFinding",
     "LinkAuditReport",
     "LinkOccurrence",
+    "LinkTargets",
     "audit_links",
     "catalog_sha256",
     "generated_content_sha256",

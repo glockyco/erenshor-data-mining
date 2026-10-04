@@ -4,10 +4,12 @@
         emptySearchResponse,
         searchMarkers,
         itemResultSummaryParts,
+        searchResultCategory,
         type SearchResult,
         type SearchMatch,
         type IndexEntry,
-        type SearchResponse
+        type SearchResponse,
+        type SearchCategory
     } from '$lib/map/search';
     import { splitByMatchRange, type TextSegment } from '$lib/map/search/match-highlight';
     import { resolveLiveEncounterTier, type EnemyTier } from '$lib/map-markers';
@@ -15,6 +17,7 @@
     import * as Drawer from '$lib/components/ui/drawer';
     import Skull from '@lucide/svelte/icons/skull';
     import User from '@lucide/svelte/icons/user';
+    import Vault from '@lucide/svelte/icons/vault';
     import MapIcon from '@lucide/svelte/icons/map';
     import Radio from '@lucide/svelte/icons/radio';
     import Package from '@lucide/svelte/icons/package';
@@ -138,8 +141,9 @@
     }
 
     // Category display config for static results
-    const categoryLabels: Record<SearchResult['type'], string> = {
+    const categoryLabels: Record<SearchCategory, string> = {
         enemy: 'Enemies',
+        chest: 'Chests',
         npc: 'NPCs',
         zone: 'Zones',
         item: 'Items'
@@ -148,14 +152,14 @@
     // staticCategoryOrder controls display grouping in MapSearch.svelte;
     // categoryOrder (in index.ts) controls interleaving priority within
     // buildSearchIndex. Both set items first.
-    const staticCategoryOrder: SearchResult['type'][] = ['item', 'enemy', 'npc', 'zone'];
+    const staticCategoryOrder: SearchCategory[] = ['item', 'enemy', 'chest', 'npc', 'zone'];
 
     function groupStaticByCategory(
         items: SearchMatch[]
-    ): [SearchResult['type'], SearchMatch[]][] {
-        const groups: Partial<Record<SearchResult['type'], SearchMatch[]>> = {};
+    ): [SearchCategory, SearchMatch[]][] {
+        const groups: Partial<Record<SearchCategory, SearchMatch[]>> = {};
         for (const item of items) {
-            (groups[item.result.type] ??= []).push(item);
+            (groups[searchResultCategory(item.result)] ??= []).push(item);
         }
         return staticCategoryOrder.filter((cat) => groups[cat]).map((cat) => [cat, groups[cat]!]);
     }
@@ -166,6 +170,7 @@
                 const parts: string[] = [];
                 if (result.encounterTier === 'boss') parts.push('Boss');
                 else if (result.encounterTier === 'elite') parts.push('Elite');
+                else if (result.encounterTier === 'chest') parts.push('Chest');
                 if (result.spawnCount === 0) {
                     parts.push('Location unknown');
                 } else {
@@ -219,7 +224,7 @@
             case 'npc_friendly':
                 return 'Friendly NPC';
             case 'npc_enemy':
-                return 'Enemy';
+                return resolveLiveEncounterTier(entity, encounterTierByName) === 'chest' ? 'Chest' : 'Enemy';
         }
     }
 
@@ -229,7 +234,7 @@
         if (entity.level != null) parts.push(`Lv ${entity.level}`);
         if (entity.entityType === 'npc_enemy') {
             const tier = resolveLiveEncounterTier(entity, encounterTierByName);
-            parts.push(tier === 'boss' ? 'Boss' : tier === 'elite' ? 'Elite' : 'Enemy');
+            if (tier !== 'chest') parts.push(tier === 'boss' ? 'Boss' : tier === 'elite' ? 'Elite' : 'Enemy');
         }
         // Class for player / simplayer
         if (entity.characterClass) parts.push(entity.characterClass);
@@ -317,7 +322,7 @@
         <Command.Input
             bind:value={query}
             autofocus
-            placeholder="Search enemies, NPCs, zones..."
+            placeholder="Search enemies, chests, NPCs, zones..."
             class="flex h-12 w-full bg-transparent text-sm text-white placeholder:text-zinc-500
                    outline-none disabled:cursor-not-allowed disabled:opacity-50"
         />
@@ -406,7 +411,9 @@
                                            text-sm text-zinc-300 cursor-pointer
                                            aria-selected:bg-zinc-700 aria-selected:text-white"
                                 >
-                                    {#if result.type === 'enemy'}
+                                    {#if result.type === 'enemy' && result.encounterTier === 'chest'}
+                                        <Vault class="h-4 w-4 shrink-0 text-teal-500" />
+                                    {:else if result.type === 'enemy'}
                                         <Skull class="h-4 w-4 shrink-0 text-amber-500" />
                                     {:else if result.type === 'npc'}
                                         <User class="h-4 w-4 shrink-0 text-sky-500" />
@@ -447,7 +454,9 @@
                                            text-sm text-muted cursor-pointer
                                            aria-selected:bg-zinc-700 aria-selected:text-white"
                                 >
-                                    {#if result.type === 'enemy'}
+                                    {#if result.type === 'enemy' && result.encounterTier === 'chest'}
+                                        <Vault class="h-4 w-4 shrink-0 text-teal-500" />
+                                    {:else if result.type === 'enemy'}
                                         <Skull class="h-4 w-4 shrink-0 text-amber-500" />
                                     {:else if result.type === 'npc'}
                                         <User class="h-4 w-4 shrink-0 text-sky-500" />

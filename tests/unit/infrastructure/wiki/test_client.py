@@ -136,7 +136,6 @@ class TestMediaWikiClientInitialization:
             bot_username="TestBot@TestBot",
             bot_password="testpass",
             batch_size=25,
-            rate_limit_delay=1.0,
             clock=MockClock(),
         )
 
@@ -144,7 +143,6 @@ class TestMediaWikiClientInitialization:
         assert client.bot_username == "TestBot@TestBot"
         assert client.bot_password == "testpass"
         assert client.batch_size == 25
-        assert client.rate_limit_delay == 1.0
 
     def test_init_invalid_api_url(self) -> None:
         """Test initialization fails with invalid API URL."""
@@ -169,7 +167,6 @@ class TestMediaWikiClientInitialization:
         assert client.bot_username == ""
         assert client.bot_password == ""
         assert client.batch_size == 25
-        assert client.rate_limit_delay == 1.0
         assert client.edit_summary == "Automated wiki update"
         assert client.minor_edit is True
 
@@ -202,6 +199,15 @@ class TestMediaWikiClientLogin:
             [
                 {"query": {"tokens": {"logintoken": "test_login_token"}}},
                 {"login": {"result": "Success"}},
+                {
+                    "query": {
+                        "userinfo": {
+                            "name": "TestBot",
+                            "rights": ["edit"],
+                            "ratelimits": {"edit": {"user": {"hits": 90, "seconds": 60}}},
+                        }
+                    }
+                },
             ],
             bot_username="TestBot@TestBot",
             bot_password="testpass",
@@ -210,10 +216,13 @@ class TestMediaWikiClientLogin:
 
         client.login()
 
-        assert [request.method for request in api.requests] == ["GET", "POST"]
+        assert [request.method for request in api.requests] == ["GET", "POST", "GET"]
         assert api.requests[0].query["format"] == "json"
         assert api.requests[0].query["maxlag"] == "5"
         assert "formatversion" not in api.requests[0].query
+        assert api.requests[2].query["meta"] == "userinfo"
+        assert api.requests[2].query["uiprop"] == "ratelimits|rights"
+        assert api.requests[2].query["assert"] == "user"
 
     def test_login_missing_credentials(self) -> None:
         """Test login fails when credentials not provided."""
@@ -387,6 +396,30 @@ class TestMediaWikiClientGetPages:
         with pytest.raises(MediaWikiAPIError, match=r"Item:Sword.*missing revision content"):
             client.get_pages(["Item:Sword"])
 
+    def test_get_pages_requests_again_what_a_truncated_response_left_out(self) -> None:
+        client, api = _mock_client(
+            [
+                {
+                    "continue": {"rvcontinue": "8|80", "continue": "||"},
+                    "query": {
+                        "pages": {
+                            "7": {"pageid": 7, "title": "Big A", "revisions": [{"slots": {"main": {"*": "A"}}}]},
+                            "8": {"pageid": 8, "title": "Big B"},
+                        }
+                    },
+                },
+                {
+                    "query": {
+                        "pages": {"8": {"pageid": 8, "title": "Big B", "revisions": [{"slots": {"main": {"*": "B"}}}]}}
+                    }
+                },
+            ],
+            clock=MockClock(),
+        )
+
+        assert client.get_pages(["Big A", "Big B"]) == {"Big A": "A", "Big B": "B"}
+        assert api.requests[1].query["titles"] == "Big B"
+
     def test_revision_ids_resolve_normalized_and_missing_titles(self) -> None:
         client, api = _mock_client(
             [
@@ -436,7 +469,20 @@ class TestMediaWikiClientGetPages:
                                     {
                                         "revid": 456,
                                         "timestamp": "2026-06-04T12:00:00Z",
+                                        "user": "Editor",
                                         "slots": {"main": {"*": "Sword content"}},
+                                    }
+                                ],
+                            },
+                            "124": {
+                                "pageid": 124,
+                                "title": "Item:Hidden",
+                                "revisions": [
+                                    {
+                                        "revid": 457,
+                                        "timestamp": "2026-06-04T12:01:00Z",
+                                        "userhidden": "",
+                                        "slots": {"main": {"*": "Hidden author"}},
                                     }
                                 ],
                             },
@@ -447,17 +493,22 @@ class TestMediaWikiClientGetPages:
             ],
             clock=MockClock(),
         )
-        snapshots = client.get_page_snapshots(["Item:Sword", "Item:Missing"], assertion="bot", assert_user="Bot")
+        snapshots = client.get_page_snapshots(
+            ["Item:Sword", "Item:Hidden", "Item:Missing"], assertion="bot", assert_user="Bot"
+        )
 
         assert isinstance(snapshots["Item:Sword"], MediaWikiPageSnapshot)
         assert snapshots["Item:Sword"].source_text == "Sword content"
         assert snapshots["Item:Sword"].revision is not None
         assert snapshots["Item:Sword"].revision.revision_id == 456
+        assert snapshots["Item:Sword"].revision.user == "Editor"
+        assert snapshots["Item:Hidden"].revision is not None
+        assert snapshots["Item:Hidden"].revision.user is None
         assert snapshots["Item:Sword"].start_timestamp == "2026-06-04T12:02:00Z"
         assert snapshots["Item:Missing"].source_text is None
         assert snapshots["Item:Missing"].revision is None
         request_params = api.requests[0].query
-        assert request_params["rvprop"] == "ids|timestamp|content|contentmodel"
+        assert request_params["rvprop"] == "ids|timestamp|user|content|contentmodel"
         assert request_params["curtimestamp"] == "1"
         assert request_params["assert"] == "bot"
         assert request_params["assertuser"] == "Bot"
@@ -480,6 +531,7 @@ class TestMediaWikiClientGetPages:
                                     {
                                         "revid": 42,
                                         "timestamp": "2026-09-27T12:00:00Z",
+                                        "user": "Editor",
                                         "slots": {"main": {"*": "Saved content"}},
                                     }
                                 ],
@@ -493,49 +545,61 @@ class TestMediaWikiClientGetPages:
 
         assert client.get_page_snapshots(["a_page"])["a_page"].source_text == "Saved content"
 
-    """Test wiki page editing."""
+    def test_get_page_snapshots_requests_again_what_a_truncated_response_left_out(self) -> None:
+        """A page that did not fit the result size limit comes from a second query."""
 
-    def test_edit_page_success(self) -> None:
-        """Test successful page edit."""
-        client, api = _mock_client(
-            [
-                {"query": {"tokens": {"csrftoken": "test_csrf_token"}}},
-                {"edit": {"result": "Success"}},
-            ],
-            clock=MockClock(),
-        )
-        client.edit_page(title="Item:Sword", content="{{Item|name=Sword|damage=10}}", summary="Update item stats")
-        assert [request.method for request in api.requests] == ["GET", "POST"]
+        def page(page_id: int, title: str, revisions: list[dict[str, object]]) -> dict[str, object]:
+            return {"pageid": page_id, "title": title, "revisions": revisions}
 
-    def test_null_edit_pages_sends_guards_and_unchanged_content(self) -> None:
-        """Null edits reparse existing content under the requested API guards."""
+        def revision(revision_id: int, text: str) -> dict[str, object]:
+            return {
+                "revid": revision_id,
+                "timestamp": "2026-10-03T12:00:00Z",
+                "user": "WoWBot",
+                "slots": {"main": {"*": text}},
+            }
+
         client, api = _mock_client(
             [
                 {
-                    "query": {
-                        "pages": {
-                            "123": {
-                                "pageid": 123,
-                                "title": "Item:Sword",
-                                "revisions": [{"slots": {"main": {"*": "unchanged source"}}}],
-                            }
-                        }
-                    }
+                    "curtimestamp": "2026-10-03T12:01:00Z",
+                    "continue": {"rvcontinue": "8|80", "continue": "||"},
+                    "query": {"pages": {"7": page(7, "Big A", [revision(70, "A")]), "8": page(8, "Big B", [])}},
                 },
-                {"query": {"tokens": {"csrftoken": "test_csrf_token"}}},
-                {"edit": {"result": "Success"}},
+                {
+                    "curtimestamp": "2026-10-03T12:02:00Z",
+                    "query": {"pages": {"8": page(8, "Big B", [revision(80, "B")])}},
+                },
             ],
             clock=MockClock(),
         )
-        assert client.null_edit_pages(("Item:Sword",), assertion="bot", assert_user="ErenshorBot") == ("Item:Sword",)
-        call_data = api.requests[-1].data
-        assert call_data["text"] == "unchanged source"
-        assert call_data["assert"] == "bot"
-        assert call_data["assertuser"] == "ErenshorBot"
-        assert call_data["nocreate"] == "1"
 
-    def test_edit_page_failure(self) -> None:
-        """Test edit failure handling."""
+        snapshots = client.get_page_snapshots(["Big A", "Big B"])
+
+        assert snapshots["Big A"].source_text == "A"
+        assert snapshots["Big B"].source_text == "B"
+        assert snapshots["Big B"].start_timestamp == "2026-10-03T12:02:00Z"
+        assert api.requests[1].query["titles"] == "Big B"
+
+    def test_get_page_snapshots_fails_for_a_page_larger_than_the_result_limit(self) -> None:
+        client, _ = _mock_client(
+            [
+                {
+                    "curtimestamp": "2026-10-03T12:01:00Z",
+                    "continue": {"rvcontinue": "8|80", "continue": "||"},
+                    "query": {"pages": {"8": {"pageid": 8, "title": "Huge", "revisions": []}}},
+                }
+            ],
+            clock=MockClock(),
+        )
+
+        with pytest.raises(MediaWikiAPIError, match="larger than the API result limit"):
+            client.get_page_snapshots(["Huge"])
+
+    """Test guarded page writes."""
+
+    def test_safe_edit_page_reports_a_failed_edit_result(self) -> None:
+        """A non-success edit result is an edit failure, not a silent success."""
         client, _ = _mock_client(
             [
                 {"query": {"tokens": {"csrftoken": "test_csrf_token"}}},
@@ -543,21 +607,54 @@ class TestMediaWikiClientGetPages:
             ],
             clock=MockClock(),
         )
-        with pytest.raises(MediaWikiEditError, match="Edit failed"):
-            client.edit_page(title="Item:Sword", content="new content")
+        base_revision = MediaWikiPageRevision(
+            title="Item:Sword",
+            page_id=42,
+            revision_id=1234,
+            timestamp="2026-06-04T11:59:00Z",
+            start_timestamp="2026-06-04T12:00:00Z",
+            user="ErenshorBot",
+        )
+        with pytest.raises(MediaWikiEditError, match="Safe edit failed"):
+            client.safe_edit_page(title="Item:Sword", content="new content", base_revision=base_revision)
 
-    def test_edit_page_uses_defaults(self) -> None:
-        """Test edit uses default summary and minor flag."""
+    def test_safe_create_page_uses_client_default_summary_and_minor_flag(self) -> None:
+        """A write without summary or minor flag takes the client defaults."""
         client, api = _mock_client(
-            [{"query": {"tokens": {"csrftoken": "test_csrf_token"}}}, {"edit": {"result": "Success"}}],
+            [
+                {"query": {"tokens": {"csrftoken": "test_csrf_token"}}},
+                {"edit": {"result": "Success", "newrevid": 7}},
+            ],
             edit_summary="Default summary",
             minor_edit=True,
             clock=MockClock(),
         )
-        client.edit_page(title="Item:Sword", content="new content")
+        client.safe_create_page(title="Item:Sword", content="new content", start_timestamp="2026-06-04T12:00:00Z")
         call_data = api.requests[-1].data
         assert call_data["summary"] == "Default summary"
         assert call_data["minor"] == "1"
+
+    def test_safe_edit_page_keeps_network_failures_distinct_from_edit_failures(self) -> None:
+        """A transport failure during a write is not a failure of the page."""
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            if request.method == "POST":
+                raise httpx.TimeoutException("Request timeout", request=request)
+            return httpx.Response(200, json={"query": {"tokens": {"csrftoken": "test_csrf_token"}}})
+
+        client = MediaWikiClient(
+            api_url="https://erenshor.wiki.gg/api.php", transport=httpx.MockTransport(handler), clock=MockClock()
+        )
+        base_revision = MediaWikiPageRevision(
+            title="Item:Sword",
+            page_id=42,
+            revision_id=1234,
+            timestamp="2026-06-04T11:59:00Z",
+            start_timestamp="2026-06-04T12:00:00Z",
+            user="ErenshorBot",
+        )
+        with pytest.raises(MediaWikiNetworkError, match="Request timeout"):
+            client.safe_edit_page(title="Item:Sword", content="new content", base_revision=base_revision)
 
 
 class TestMediaWikiClientRevisionMetadata:
@@ -574,7 +671,9 @@ class TestMediaWikiClientRevisionMetadata:
                             "42": {
                                 "pageid": 42,
                                 "title": "Template:Item",
-                                "revisions": [{"revid": 1234, "timestamp": "2026-06-04T11:59:00Z"}],
+                                "revisions": [
+                                    {"revid": 1234, "timestamp": "2026-06-04T11:59:00Z", "user": "ErenshorBot"}
+                                ],
                             }
                         }
                     },
@@ -590,12 +689,13 @@ class TestMediaWikiClientRevisionMetadata:
             revision_id=1234,
             timestamp="2026-06-04T11:59:00Z",
             start_timestamp="2026-06-04T12:00:00Z",
+            user="ErenshorBot",
         )
         call_params = api.requests[0].query
         assert call_params["action"] == "query"
         assert call_params["titles"] == "Template:Item"
         assert call_params["prop"] == "revisions"
-        assert call_params["rvprop"] == "ids|timestamp"
+        assert call_params["rvprop"] == "ids|timestamp|user"
         assert call_params["curtimestamp"] == "1"
 
     def test_get_page_revision_metadata_returns_none_for_missing_page(self) -> None:
@@ -739,6 +839,7 @@ class TestMediaWikiClientSafeEditPage:
             revision_id=1234,
             timestamp="2026-06-04T11:59:00Z",
             start_timestamp="2026-06-04T12:00:00Z",
+            user="ErenshorBot",
         )
         new_revision_id = client.safe_edit_page(
             title="Template:Item",
@@ -782,6 +883,7 @@ class TestMediaWikiClientSafeEditPage:
             revision_id=1234,
             timestamp="2026-06-04T11:59:00Z",
             start_timestamp="2026-06-04T12:00:00Z",
+            user="ErenshorBot",
         )
         assert (
             client.safe_edit_page(
@@ -815,6 +917,7 @@ class TestMediaWikiClientSafeEditPage:
             revision_id=1234,
             timestamp="2026-06-04T11:59:00Z",
             start_timestamp="2026-06-04T12:00:00Z",
+            user="ErenshorBot",
         )
         with pytest.raises(MediaWikiEditError, match="Invalid token"):
             client.safe_edit_page(
@@ -840,6 +943,7 @@ class TestMediaWikiClientSafeEditPage:
             revision_id=1234,
             timestamp="2026-06-04T11:59:00Z",
             start_timestamp="2026-06-04T12:00:00Z",
+            user="ErenshorBot",
         )
         with pytest.raises(MediaWikiEditConflictError, match="Edit conflict"):
             client.safe_edit_page(title="Template:Item", content="new template source", base_revision=base_revision)
@@ -859,6 +963,7 @@ class TestMediaWikiClientSafeEditPage:
             revision_id=1234,
             timestamp="2026-06-04T11:59:00Z",
             start_timestamp="2026-06-04T12:00:00Z",
+            user="ErenshorBot",
         )
         with pytest.raises(MediaWikiAssertionError, match="Not logged in as a bot"):
             client.safe_edit_page(title="Template:Item", content="new template source", base_revision=base_revision)
@@ -878,6 +983,7 @@ class TestMediaWikiClientSafeEditPage:
             revision_id=1234,
             timestamp="2026-06-04T11:59:00Z",
             start_timestamp="2026-06-04T12:00:00Z",
+            user="ErenshorBot",
         )
         with pytest.raises(MediaWikiPermissionError, match="Permission denied"):
             client.safe_edit_page(title="Template:Item", content="new template source", base_revision=base_revision)
@@ -897,6 +1003,7 @@ class TestMediaWikiClientSafeEditPage:
                 revision_id=1234,
                 timestamp="2026-06-04T11:59:00Z",
                 start_timestamp="2026-06-04T12:00:00Z",
+                user="ErenshorBot",
             )
 
             revision_id = client.safe_edit_page(
@@ -906,6 +1013,37 @@ class TestMediaWikiClientSafeEditPage:
             )
 
         assert revision_id == 1234
+
+
+class TestMediaWikiClientTemplateSandbox:
+    def test_parse_replaces_one_module_and_returns_render_dependencies(self) -> None:
+        client, api = _mock_client(
+            [
+                {
+                    "parse": {
+                        "text": "<p>new</p>",
+                        "templates": [{"title": "Template:Item", "exists": True}],
+                        "categories": [{"category": "Items"}],
+                    }
+                }
+            ],
+            clock=MockClock(),
+        )
+        parsed = client.parse_wikitext(
+            "Example",
+            "{{Item}}",
+            sandbox_title="Module:Erenshor/Item",
+            sandbox_text="return {}",
+            sandbox_content_model="Scribunto",
+        )
+        assert parsed.html == "<p>new</p>"
+        assert parsed.templates[0].title == "Template:Item"
+        assert parsed.categories[0].title == "Category:Items"
+        [request] = api.requests
+        assert request.data["prop"] == "text|templates|categories"
+        assert request.data["templatesandboxtitle"] == "Module:Erenshor/Item"
+        assert request.data["templatesandboxtext"] == "return {}"
+        assert request.data["templatesandboxcontentmodel"] == "Scribunto"
 
 
 class TestMediaWikiClientEmbeddedIn:
@@ -924,13 +1062,13 @@ class TestMediaWikiClientEmbeddedIn:
                         ]
                     },
                 },
-                {"query": {"embeddedin": [{"pageid": 3, "ns": 10, "title": "Template:WeaponTable"}]}},
+                {"query": {"embeddedin": [{"pageid": 3, "ns": 10, "title": "Template:ItemTooltip"}]}},
             ],
             clock=MockClock(),
         )
         pages = client.get_embeddedin_pages("Template:Item", namespaces=(0, 10), assertion="bot")
 
-        assert pages == ("Ember Longsword", "Abyssal Plate", "Template:WeaponTable")
+        assert pages == ("Ember Longsword", "Abyssal Plate", "Template:ItemTooltip")
         first_params = api.requests[0].query
         second_params = api.requests[1].query
         assert first_params["action"] == "query"
@@ -984,44 +1122,8 @@ class TestMediaWikiClientPurgePages:
         assert api.requests == []
 
 
-class TestMediaWikiClientDeletePage:
-    """Test wiki page deletion through the public Action API helper."""
-
-    def test_delete_page_posts_token_and_assertion_guard(self) -> None:
-        """Test delete helper sends CSRF, reason, and session assertion guards."""
-        with _mediawiki_api_server(
-            [
-                {"query": {"tokens": {"csrftoken": "delete_csrf_token"}}},
-                {"delete": {"title": "Project:CargoProbe/TemporaryPage", "reason": "Clean up probe"}},
-            ]
-        ) as (api_url, api):
-            client = MediaWikiClient(api_url=api_url, transport=api.transport, clock=MockClock())
-
-            deleted = client.delete_page(
-                "Project:CargoProbe/TemporaryPage",
-                reason="Clean up probe",
-                assertion="bot",
-                assert_user="ErenshorBot",
-            )
-
-        assert deleted == {"title": "Project:CargoProbe/TemporaryPage", "reason": "Clean up probe"}
-        assert len(api.requests) == 2
-        token_request, delete_request = api.requests
-        assert token_request.method == "GET"
-        assert token_request.query["action"] == "query"
-        assert token_request.query["meta"] == "tokens"
-        assert token_request.query["type"] == "csrf"
-        assert delete_request.method == "POST"
-        assert delete_request.data["action"] == "delete"
-        assert delete_request.data["title"] == "Project:CargoProbe/TemporaryPage"
-        assert delete_request.data["reason"] == "Clean up probe"
-        assert delete_request.data["token"] == "delete_csrf_token"
-        assert delete_request.data["assert"] == "bot"
-        assert delete_request.data["assertuser"] == "ErenshorBot"
-
-
 class TestMediaWikiClientCargoHelpers:
-    """Test Cargo extension helper requests used by the storage probe."""
+    """Test Cargo extension API requests."""
 
     def test_recreate_cargo_tables_posts_token_and_assertion_guard(self) -> None:
         """Test Cargo table recreation posts the template, CSRF token, and assertion guard."""
@@ -1136,22 +1238,77 @@ class TestMediaWikiClientPageExists:
 
 
 class TestMediaWikiClientRateLimiting:
-    """Test rate limiting behavior."""
+    """Test the limits installed after authentication."""
 
-    def test_rate_limiting_applied(self) -> None:
-        """Test rate limiting delays requests."""
-        mock_clock = MockClock()
-        page_response = {"query": {"pages": {"1": {"revisions": [{"slots": {"main": {"*": "content"}}}]}}}}
-        client, _ = _mock_client(
-            [page_response] * 2,
-            rate_limit_delay=1.0,
-            clock=mock_clock,
+    def test_strictest_reported_bucket_paces_edits(self) -> None:
+        clock = MockClock()
+        client, api = _mock_client(
+            [
+                {"query": {"tokens": {"logintoken": "token"}}},
+                {"login": {"result": "Success"}},
+                {
+                    "query": {
+                        "userinfo": {
+                            "name": "WoWBot",
+                            "rights": ["edit", "purge"],
+                            "ratelimits": {
+                                "edit": {
+                                    "user": {"hits": 90, "seconds": 60},
+                                    "ip": {"hits": 100, "seconds": 60},
+                                },
+                                "purge": {"user": {"hits": 30, "seconds": 60}},
+                            },
+                        }
+                    }
+                },
+                {"parse": {"text": {"*": "ok"}}},
+                {"edit": {"result": "Success"}},
+                {"edit": {"result": "Success"}},
+            ],
+            bot_username="WoWBot@Deploy",
+            bot_password="secret",
+            clock=clock,
         )
-        client.get_page("Page1")
-        time_after_first = mock_clock.time()
-        mock_clock.advance(0.3)
-        client.get_page("Page2")
-        assert mock_clock.time() - time_after_first >= 1.0
+        client.login()
+        client._request({"action": "parse"}, method="POST", data={"text": "test"})
+        before = clock.time()
+        client._request({"action": "edit"}, method="POST", data={"text": "first"})
+        client._request({}, method="POST", data={"action": "edit", "text": "second"})
+        assert clock.time() - before >= 60 / 90 * 1.1
+        assert clock.time() - before < 0.734
+        assert [request.data.get("action", request.query.get("action")) for request in api.requests[3:]] == [
+            "parse",
+            "edit",
+            "edit",
+        ]
+
+    def test_noratelimit_right_skips_spacing(self) -> None:
+        clock = MockClock()
+        client, _ = _mock_client(
+            [
+                {"query": {"tokens": {"logintoken": "token"}}},
+                {"login": {"result": "Success"}},
+                {
+                    "query": {
+                        "userinfo": {
+                            "name": "WoWBot",
+                            "rights": ["edit", "noratelimit"],
+                            "ratelimits": {"edit": {"user": {"hits": 90, "seconds": 60}}},
+                        }
+                    }
+                },
+                {"edit": {"result": "Success"}},
+                {"edit": {"result": "Success"}},
+            ],
+            bot_username="WoWBot@Deploy",
+            bot_password="secret",
+            clock=clock,
+        )
+        client.login()
+        before = clock.time()
+        client._request({}, method="POST", data={"action": "edit"})
+        client._request({}, method="POST", data={"action": "edit"})
+        assert clock.time() == before
 
 
 class TestMediaWikiClientErrorHandling:
@@ -1220,7 +1377,7 @@ class TestMediaWikiClientCSRFToken:
 class TestMediaWikiClientRequestRetry:
     """Test bounded backoff retry for transient lag and rate-limit responses."""
 
-    _FAST_POLICY = MediaWikiRequestPolicy(read_delay=0.0, write_delay=0.0, base_backoff=1.0, jitter=0.0, max_retries=2)
+    _FAST_POLICY = MediaWikiRequestPolicy(base_backoff=1.0, jitter=0.0, max_retries=2)
 
     def test_request_retries_after_maxlag_error_then_succeeds(self) -> None:
         """A maxlag error is honored with a bounded wait, then the request succeeds."""

@@ -1,0 +1,304 @@
+"""Tests for the guarded deployment of generated wiki articles."""
+
+from __future__ import annotations
+
+from collections.abc import Sequence
+from pathlib import Path
+from typing import TYPE_CHECKING
+
+import pytest
+
+from erenshor.application.wiki.services.storage import WikiStorage
+from erenshor.application.wiki_deploy.articles import deploy_articles, plan_article_deploy
+from erenshor.application.wiki_deploy.rollback import rollback_repo_pages
+from erenshor.infrastructure.wiki import (
+    MediaWikiAssertionError,
+    MediaWikiPageRevision,
+    MediaWikiPageSnapshot,
+    MediaWikiParse,
+    MediaWikiParsedLink,
+    MediaWikiPermissionError,
+)
+
+if TYPE_CHECKING:
+    from erenshor.application.wiki_deploy.manifest import RepoWikiPageManifest
+
+START = "2026-10-03T12:00:00Z"
+
+
+class FakeWiki:
+    """A live wiki: each page has a revision and saved text."""
+
+    def __init__(self, pages: dict[str, tuple[int, str]]) -> None:
+        self.pages = dict(pages)
+        self.next_revision = 1000
+        self.writes: list[tuple[str, str, int | None, str | None]] = []
+        self.failures: dict[str, Exception] = {}
+        self.parses: dict[str, MediaWikiParse] = {}
+        self.categories: dict[str, frozenset[str]] = {}
+
+    def get_page_categories(self, titles: Sequence[str]) -> dict[str, frozenset[str]]:
+        return {title: self.categories.get(title, frozenset()) for title in titles}
+
+    def parse_wikitext(self, title: str, text: str) -> MediaWikiParse:
+        return self.parses.get(title, MediaWikiParse(html="<p></p>", templates=(), categories=()))
+
+    def _revision(self, title: str) -> MediaWikiPageRevision | None:
+        if title not in self.pages:
+            return None
+        return MediaWikiPageRevision(title, 7, self.pages[title][0], "2026-10-01T00:00:00Z", START, "ErenshorBot")
+
+    def get_page_snapshots(
+        self, titles: Sequence[str], assertion: str | None = None, assert_user: str | None = None
+    ) -> dict[str, MediaWikiPageSnapshot]:
+        return {
+            title: MediaWikiPageSnapshot(
+                title=title,
+                source_text=self.pages[title][1] if title in self.pages else None,
+                revision=self._revision(title),
+                start_timestamp=START,
+            )
+            for title in titles
+        }
+
+    def get_page_revision_metadata(
+        self, title: str, assertion: str | None = None, assert_user: str | None = None
+    ) -> MediaWikiPageRevision | None:
+        return self._revision(title)
+
+    def safe_edit_page(
+        self,
+        title: str,
+        content: str,
+        base_revision: MediaWikiPageRevision,
+        summary: str | None = None,
+        minor: bool | None = None,
+        bot: bool = True,
+        assertion: str = "bot",
+        assert_user: str | None = None,
+    ) -> int:
+        return self._save(title, content, base_revision.revision_id, summary)
+
+    def safe_create_page(
+        self,
+        title: str,
+        content: str,
+        start_timestamp: str,
+        summary: str | None = None,
+        minor: bool | None = None,
+        bot: bool = True,
+        assertion: str = "bot",
+        assert_user: str | None = None,
+    ) -> int:
+        return self._save(title, content, None, summary)
+
+    def _save(self, title: str, content: str, base_revision_id: int | None, summary: str | None) -> int:
+        if title in self.failures:
+            raise self.failures[title]
+        self.writes.append((title, content, base_revision_id, summary))
+        self.next_revision += 1
+        self.pages[title] = (self.next_revision, content.rstrip())
+        return self.next_revision
+
+
+@pytest.fixture
+def storage(tmp_path: Path) -> WikiStorage:
+    return WikiStorage(tmp_path / "variants" / "main" / "wiki")
+
+
+def _page(storage: WikiStorage, title: str, generated: str, fetched: str | None = None, revision: int = 10) -> None:
+    if fetched is not None:
+        storage.save_fetched_by_title(title, [f"item:{title.lower()}"], fetched, revision)
+    storage.save_generated_by_title(title, [f"item:{title.lower()}"], generated)
+
+
+def _deploy(storage: WikiStorage, wiki: FakeWiki, tmp_path: Path):
+    checkpoints: list[RepoWikiPageManifest] = []
+    result = deploy_articles(
+        plan_article_deploy(storage),
+        client=wiki,
+        storage=storage,
+        repo_root=tmp_path,
+        rollback_root=tmp_path / "variants" / "main" / "wiki" / "article-deploys" / "run" / "rollback",
+        summary="Update game data from build 1",
+        checkpoint=checkpoints.append,
+    )
+    return result, checkpoints
+
+
+def test_writes_only_pages_still_at_their_fetched_revision(storage: WikiStorage, tmp_path: Path) -> None:
+    _page(storage, "Alpha", "{{Item|title=Alpha|value=2}}\n", fetched="{{Item|title=Alpha|value=1}}")
+    _page(storage, "Beta", "{{Item|title=Beta|value=2}}\n", fetched="{{Item|title=Beta|value=1}}")
+    wiki = FakeWiki({"Alpha": (10, "{{Item|title=Alpha|value=1}}"), "Beta": (11, "{{Item|title=Beta|value=9}}")})
+
+    result, _ = _deploy(storage, wiki, tmp_path)
+
+    assert wiki.writes == [("Alpha", "{{Item|title=Alpha|value=2}}\n", 10, "Update game data from build 1")]
+    assert [(issue.title, issue.reason) for issue in result.conflicts] == [
+        ("Beta", "changed after the fetch: live revision 11, fetched revision 10")
+    ]
+    assert result.failed
+    alpha, beta = result.manifest.entries
+    assert (alpha.title, alpha.deploy_action) == ("Alpha", "edited")
+    assert (alpha.old_revision_id, alpha.new_revision_id) == (10, 1001)
+    assert alpha.rollback_text_source is not None
+    assert (tmp_path / alpha.rollback_text_source).read_text(encoding="utf-8") == "{{Item|title=Alpha|value=1}}"
+    assert (beta.title, beta.deploy_action, beta.new_revision_id) == ("Beta", None, None)
+    # The fetched copy is the live page again, so a second plan has nothing to write.
+    assert storage.get_metadata_by_title("Alpha").fetched_revision_id == 1001
+    assert plan_article_deploy(storage, page_titles=["Alpha"]).writes == ()
+
+
+def test_page_deleted_after_the_fetch_is_a_conflict(storage: WikiStorage, tmp_path: Path) -> None:
+    _page(storage, "Alpha", "{{Item|title=Alpha|value=2}}\n", fetched="{{Item|title=Alpha|value=1}}")
+
+    result, _ = _deploy(storage, FakeWiki({}), tmp_path)
+
+    assert [(issue.title, issue.reason) for issue in result.conflicts] == [("Alpha", "was deleted after the fetch")]
+    assert [(entry.title, entry.new_revision_id) for entry in result.manifest.entries] == [("Alpha", None)]
+
+
+def test_creates_a_page_only_while_it_is_still_missing(storage: WikiStorage, tmp_path: Path) -> None:
+    _page(storage, "New", "{{Item|title=New}}\n")
+    _page(storage, "Taken", "{{Item|title=Taken}}\n")
+    wiki = FakeWiki({"Taken": (12, "Editor text")})
+
+    result, _ = _deploy(storage, wiki, tmp_path)
+
+    assert [(title, base) for title, _, base, _ in wiki.writes] == [("New", None)]
+    assert [(entry.title, entry.deploy_action) for entry in result.manifest.entries] == [
+        ("New", "created"),
+        ("Taken", None),
+    ]
+    assert [(issue.title, issue.reason) for issue in result.conflicts] == [
+        ("Taken", "exists at revision 12 but was generated without its live text")
+    ]
+
+
+def test_lost_session_stops_the_run_and_keeps_the_written_pages(storage: WikiStorage, tmp_path: Path) -> None:
+    for title in ("Alpha", "Beta", "Gamma"):
+        _page(storage, title, f"{{{{Item|title={title}|value=2}}}}\n", fetched=f"{{{{Item|title={title}|value=1}}}}")
+    wiki = FakeWiki({title: (10, f"{{{{Item|title={title}|value=1}}}}") for title in ("Alpha", "Beta", "Gamma")})
+    wiki.failures["Beta"] = MediaWikiAssertionError("Assertion failed while safely editing page 'Beta'")
+
+    result, checkpoints = _deploy(storage, wiki, tmp_path)
+
+    assert [title for title, *_ in wiki.writes] == ["Alpha"]
+    assert result.stopped == "Beta: Assertion failed while safely editing page 'Beta'"
+    # Before the first write, the manifest holds every planned page with its base revision and rollback text.
+    first = checkpoints[0].entries
+    assert [(entry.title, entry.old_revision_id, entry.new_revision_id) for entry in first] == [
+        ("Alpha", 10, None),
+        ("Beta", 10, None),
+        ("Gamma", 10, None),
+    ]
+    assert all((tmp_path / str(entry.rollback_text_source)).is_file() for entry in first)
+    written = [(entry.title, entry.new_revision_id) for entry in checkpoints[-1].entries]
+    assert written == [("Alpha", 1001), ("Beta", None), ("Gamma", None)]
+
+
+def test_refused_page_is_blocked_and_the_run_continues(storage: WikiStorage, tmp_path: Path) -> None:
+    for title in ("Alpha", "Beta"):
+        _page(storage, title, f"{{{{Item|title={title}|value=2}}}}\n", fetched=f"{{{{Item|title={title}|value=1}}}}")
+    wiki = FakeWiki({title: (10, f"{{{{Item|title={title}|value=1}}}}") for title in ("Alpha", "Beta")})
+    wiki.failures["Alpha"] = MediaWikiPermissionError("Permission denied while safely editing page 'Alpha'")
+
+    result, _ = _deploy(storage, wiki, tmp_path)
+
+    assert [issue.title for issue in result.blocked] == ["Alpha"]
+    assert [title for title, *_ in wiki.writes] == ["Beta"]
+    assert result.stopped is None
+
+
+def test_page_that_differs_only_by_normalization_is_not_written(storage: WikiStorage, tmp_path: Path) -> None:
+    fetched = "[[Category:Zones]]\n{{Zone\n|title=Alpha\n}}\nEditor prose.  \n"
+    _page(storage, "Alpha", "{{Zone\n|title=Alpha\n}}\nEditor prose.\n\n[[Category:Zones]]\n", fetched=fetched)
+    wiki = FakeWiki({"Alpha": (10, fetched)})
+
+    plan = plan_article_deploy(storage)
+    result, _ = _deploy(storage, wiki, tmp_path)
+
+    assert plan.count("unchanged") == 1
+    assert plan.writes == ()
+    assert wiki.writes == []
+    assert not result.failed
+
+
+def test_rollback_restores_only_the_written_articles(storage: WikiStorage, tmp_path: Path) -> None:
+    _page(storage, "Alpha", "{{Item|title=Alpha|value=2}}\n", fetched="{{Item|title=Alpha|value=1}}")
+    _page(storage, "Beta", "{{Item|title=Beta|value=2}}\n", fetched="{{Item|title=Beta|value=1}}")
+    wiki = FakeWiki({"Alpha": (10, "{{Item|title=Alpha|value=1}}"), "Beta": (11, "Editor text")})
+    result, _ = _deploy(storage, wiki, tmp_path)
+
+    rollback = rollback_repo_pages(
+        manifest=result.manifest, repo_root=tmp_path, client=wiki, summary="Roll back", assertion="bot"
+    )
+
+    assert [entry.title for entry in rollback.entries] == ["Alpha"]
+    assert wiki.writes[-1] == ("Alpha", "{{Item|title=Alpha|value=1}}", 1001, "Roll back")
+    assert wiki.pages["Alpha"][1] == "{{Item|title=Alpha|value=1}}"
+    assert wiki.pages["Beta"] == (11, "Editor text")
+
+
+def _parse(
+    html: str = "<p></p>",
+    templates: tuple[tuple[str, bool], ...] = (),
+    categories: tuple[tuple[str, bool], ...] = (),
+) -> MediaWikiParse:
+    return MediaWikiParse(
+        html=html,
+        templates=tuple(MediaWikiParsedLink(title, exists) for title, exists in templates),
+        categories=tuple(MediaWikiParsedLink(title, exists) for title, exists in categories),
+    )
+
+
+def _clean_pages(storage: WikiStorage, *titles: str) -> FakeWiki:
+    for title in titles:
+        _page(storage, title, f"{{{{Item|title={title}|value=2}}}}\n", fetched=f"{{{{Item|title={title}|value=1}}}}")
+    return FakeWiki({title: (10, f"{{{{Item|title={title}|value=1}}}}") for title in titles})
+
+
+def test_text_with_a_script_error_or_a_missing_template_is_blocked(storage: WikiStorage, tmp_path: Path) -> None:
+    wiki = _clean_pages(storage, "Alpha", "Beta", "Gamma")
+    wiki.parses["Alpha"] = _parse(
+        html='<strong class="error"><span class="scribunto-error mw-x">Lua error</span></strong>'
+    )
+    wiki.parses["Beta"] = _parse(templates=(("Template:Item", True), ("Template:Gone", False)))
+
+    result, _ = _deploy(storage, wiki, tmp_path)
+
+    assert [(issue.title, issue.reason) for issue in result.blocked] == [
+        ("Alpha", "script error"),
+        ("Beta", "missing template Template:Gone"),
+    ]
+    assert [title for title, *_ in wiki.writes] == ["Gamma"]
+
+
+def test_new_category_without_a_page_blocks_the_page(storage: WikiStorage, tmp_path: Path) -> None:
+    wiki = _clean_pages(storage, "Elite", "Editor")
+    wiki.parses["Elite"] = _parse(categories=(("Category:Characters", True), ("Category:Elites", False)))
+    # The live page is already in the red category, so the write does not make it worse.
+    wiki.parses["Editor"] = _parse(categories=(("Category:Old Zone", False),))
+    wiki.categories["Editor"] = frozenset({"Category:Old Zone"})
+
+    result, _ = _deploy(storage, wiki, tmp_path)
+
+    assert [(issue.title, issue.reason) for issue in result.blocked] == [
+        ("Elite", "category without a page: Category:Elites")
+    ]
+    assert [title for title, *_ in wiki.writes] == ["Editor"]
+
+
+def test_new_link_tracking_category_blocks_the_page(storage: WikiStorage, tmp_path: Path) -> None:
+    unresolved = "Category:Pages with unresolved Erenshor links"
+    wiki = _clean_pages(storage, "Alpha", "Beta")
+    wiki.parses["Alpha"] = _parse(categories=((unresolved, True),))
+    wiki.parses["Beta"] = _parse(categories=((unresolved, True),))
+    wiki.categories["Beta"] = frozenset({unresolved})
+
+    result, _ = _deploy(storage, wiki, tmp_path)
+
+    assert [(issue.title, issue.reason) for issue in result.blocked] == [
+        ("Alpha", f"new link tracking category: {unresolved}")
+    ]
+    assert [title for title, *_ in wiki.writes] == ["Beta"]

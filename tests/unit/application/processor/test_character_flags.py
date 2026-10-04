@@ -6,6 +6,7 @@ from erenshor.application.processor.characters import (
     _CharData,
     _CharRow,
     _derive_encounter_tier,
+    _RaidBosses,
     _SpawnRow,
 )
 from erenshor.application.processor.writer import Writer
@@ -15,17 +16,25 @@ def _table_columns(writer: Writer, table_name: str) -> set[str]:
     return {row[1] for row in writer._conn.execute(f"PRAGMA table_info({table_name})").fetchall()}
 
 
+_NO_RAID = _RaidBosses(scenes=frozenset(), characters=frozenset())
+
+
+def _scenes(members: list[_CharData]) -> frozenset[str]:
+    return frozenset(spawn.scene for member in members for spawn in member.spawns if spawn.scene)
+
+
 def _char_data(
     *,
     boss_xp: float = 0.0,
     level: int = 10,
     friendly: int = 0,
+    faction: str = "Evil",
     override: str | None = None,
     spawns: list[_SpawnRow],
 ) -> _CharData:
     return _CharData(
         char=_CharRow(
-            raw={"BossXpMultiplier": boss_xp, "Level": level, "IsFriendly": friendly},
+            raw={"BossXpMultiplier": boss_xp, "Level": level, "IsFriendly": friendly, "MyFaction": faction},
             stable_key="character:test",
             display_name="Test",
             wiki_page_name="Test",
@@ -79,43 +88,118 @@ def _placements(count: int) -> list[_SpawnRow]:
 def test_event_spawned_named_character_is_a_boss() -> None:
     member = _char_data(boss_xp=3.0, spawns=[_spawn(source_script="ShivunaxEvent", x=1.0)])
 
-    assert _derive_encounter_tier([member]) == "boss"
+    assert _derive_encounter_tier([member], _NO_RAID, _scenes([member])) == "boss"
 
 
 def test_named_character_at_several_placements_is_an_elite() -> None:
-    assert _derive_encounter_tier([_char_data(boss_xp=5.0, spawns=_placements(14))]) == "elite"
+    assert (
+        _derive_encounter_tier(
+            [_char_data(boss_xp=5.0, spawns=_placements(14))],
+            _NO_RAID,
+            _scenes([_char_data(boss_xp=5.0, spawns=_placements(14))]),
+        )
+        == "elite"
+    )
 
 
-def test_level_forty_raises_boss_xp_like_the_game() -> None:
-    assert _derive_encounter_tier([_char_data(level=42, spawns=_placements(20))]) == "elite"
-    assert _derive_encounter_tier([_char_data(level=39, spawns=_placements(20))]) == "enemy"
+def test_level_forty_alone_does_not_make_a_character_unique() -> None:
+    assert (
+        _derive_encounter_tier(
+            [_char_data(level=42, spawns=_placements(20))],
+            _NO_RAID,
+            _scenes([_char_data(level=42, spawns=_placements(20))]),
+        )
+        == "enemy"
+    )
+    assert (
+        _derive_encounter_tier(
+            [_char_data(level=42, spawns=[_spawn(source_script="Fight", x=1.0)])],
+            _NO_RAID,
+            _scenes([_char_data(level=42, spawns=[_spawn(source_script="Fight", x=1.0)])]),
+        )
+        == "enemy"
+    )
+
+
+def test_in_a_raid_scene_only_the_named_raid_bosses_are_bosses() -> None:
+    raid = _RaidBosses(scenes=frozenset({"Test"}), characters=frozenset({"character:test"}))
+    add = _char_data(boss_xp=3.0, spawns=[_spawn(source_script="Fight", x=1.0)])
+    add.char.stable_key = "character:add"
+
+    assert (
+        _derive_encounter_tier([_char_data(spawns=_placements(2))], raid, _scenes([_char_data(spawns=_placements(2))]))
+        == "boss"
+    )
+    assert _derive_encounter_tier([add], raid, _scenes([add])) == "enemy"
+
+
+def test_a_chained_add_takes_the_raid_scene_of_its_parent() -> None:
+    raid = _RaidBosses(scenes=frozenset({"Test"}), characters=frozenset())
+    chained = _char_data(boss_xp=3.0, spawns=[])
+
+    assert _derive_encounter_tier([chained], _NO_RAID, frozenset()) == "boss"
+    assert _derive_encounter_tier([chained], raid, frozenset({"Test"})) == "enemy"
 
 
 def test_boss_xp_of_one_is_not_named() -> None:
-    assert _derive_encounter_tier([_char_data(boss_xp=1.0, spawns=_placements(3))]) == "enemy"
+    assert (
+        _derive_encounter_tier(
+            [_char_data(boss_xp=1.0, spawns=_placements(3))],
+            _NO_RAID,
+            _scenes([_char_data(boss_xp=1.0, spawns=_placements(3))]),
+        )
+        == "enemy"
+    )
 
 
 def test_single_placement_is_a_boss_without_boss_xp() -> None:
     member = _char_data(spawns=[*_placements(1), _spawn(source_script="SprinklesEvent", x=9.0)])
 
-    assert _derive_encounter_tier([member]) == "boss"
+    assert _derive_encounter_tier([member], _NO_RAID, _scenes([member])) == "boss"
 
 
 def test_event_only_character_without_boss_xp_is_an_enemy() -> None:
     member = _char_data(spawns=[_spawn(source_script="SprinklesEvent", x=1.0)])
 
-    assert _derive_encounter_tier([member]) == "enemy"
+    assert _derive_encounter_tier([member], _NO_RAID, _scenes([member])) == "enemy"
 
 
 def test_group_members_share_placements() -> None:
     first = _char_data(boss_xp=4.0, spawns=_placements(1))
     second = _char_data(boss_xp=4.0, spawns=[_spawn(source_script=None, x=7.0)])
 
-    assert _derive_encounter_tier([first, second]) == "elite"
+    assert _derive_encounter_tier([first, second], _NO_RAID, _scenes([first, second])) == "elite"
 
 
 def test_friendly_character_is_an_npc() -> None:
-    assert _derive_encounter_tier([_char_data(boss_xp=5.0, friendly=1, spawns=_placements(1))]) == "npc"
+    assert (
+        _derive_encounter_tier(
+            [_char_data(boss_xp=5.0, friendly=1, spawns=_placements(1))],
+            _NO_RAID,
+            _scenes([_char_data(boss_xp=5.0, friendly=1, spawns=_placements(1))]),
+        )
+        == "npc"
+    )
+
+
+def test_treasure_chest_is_a_chest_although_one_placement_makes_a_boss() -> None:
+    assert (
+        _derive_encounter_tier(
+            [_char_data(faction="TreasureChest", spawns=_placements(1))],
+            _NO_RAID,
+            _scenes([_char_data(faction="TreasureChest", spawns=_placements(1))]),
+        )
+        == "chest"
+    )
+
+
+def test_group_that_mixes_chests_and_other_characters_fails() -> None:
+    chest = _char_data(faction="TreasureChest", spawns=_placements(1))
+
+    with pytest.raises(ValueError, match="mixes TreasureChest"):
+        _derive_encounter_tier(
+            [chest, _char_data(spawns=_placements(1))], _NO_RAID, _scenes([chest, _char_data(spawns=_placements(1))])
+        )
 
 
 def test_zone_gameplay_flag_columns_exist(tmp_path):
@@ -183,9 +267,19 @@ def test_character_base_combat_stat_columns_exist(tmp_path):
 def test_mapping_override_replaces_the_derived_tier() -> None:
     member = _char_data(friendly=1, override="enemy", spawns=_placements(3))
 
-    assert _derive_encounter_tier([member, member]) == "enemy"
+    assert _derive_encounter_tier([member, member], _NO_RAID, _scenes([member, member])) == "enemy"
 
 
 def test_override_must_cover_the_whole_group() -> None:
     with pytest.raises(ValueError, match="disagree"):
-        _derive_encounter_tier([_char_data(override="enemy", spawns=_placements(1)), _char_data(spawns=_placements(1))])
+        _derive_encounter_tier(
+            [_char_data(override="enemy", spawns=_placements(1)), _char_data(spawns=_placements(1))],
+            _NO_RAID,
+            frozenset(),
+        )
+
+
+def test_a_chessboard_piece_is_a_boss_without_boss_xp() -> None:
+    piece = _char_data(spawns=[_spawn(source_script="Chessboard", x=1.0)])
+
+    assert _derive_encounter_tier([piece], _NO_RAID, _scenes([piece])) == "boss"

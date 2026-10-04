@@ -51,6 +51,7 @@
                 const m = marker as WorldEnemy;
                 if (m.encounterTier === 'boss') return 'border-l-violet-700';
                 if (m.encounterTier === 'elite') return 'border-l-rose-600';
+                if (m.encounterTier === 'chest') return 'border-l-teal-600';
                 return 'border-l-amber-600';
             }
             case 'npc':
@@ -92,7 +93,7 @@
 
     type TooltipContent = { name: string; detail: string; warning?: string };
 
-    // Get enemy spawn tooltip content
+    // Get encounter spawn tooltip content
     function getEnemyContent(m: WorldEnemy): TooltipContent {
         const chars = m.characters;
         if (chars.length === 0) {
@@ -103,7 +104,8 @@
         const mostNotable = sorted[0];
         const tierLabel = mostNotable.encounterTier === 'boss'
             ? 'Boss'
-            : mostNotable.encounterTier === 'elite' ? 'Elite' : '';
+            : mostNotable.encounterTier === 'elite' ? 'Elite'
+                : mostNotable.encounterTier === 'chest' ? 'Chest' : '';
         const respawn = formatRespawnTime(m.spawnDelay);
         const night = m.isNightSpawn ? '🌙 23:00-7:00' : '';
         const warning = !m.isEnabled ? '(Initially) Disabled' : undefined;
@@ -117,7 +119,7 @@
             };
         }
 
-        // Multiple enemies: show the most notable tier and count.
+        // Multiple characters show the most notable tier and count.
         const others = chars.length - 1;
         const parts = [tierLabel, `+${others} more`, night, respawn].filter(Boolean);
         return {
@@ -225,9 +227,10 @@
                 return { name: entity.name, detail: parts.join(' • ') };
             }
             case 'npc_enemy': {
-                const parts = ['Enemy', level];
                 const tier = resolveLiveEncounterTier(entity, encounterTierByName);
-                if (tier !== 'enemy') parts.push(tier === 'boss' ? 'Boss' : 'Elite');
+                const parts = [tier === 'chest' ? 'Chest' : 'Enemy', level];
+                if (tier === 'boss') parts.push('Boss');
+                else if (tier === 'elite') parts.push('Elite');
                 return { name: entity.name, detail: parts.filter(Boolean).join(' • ') };
             }
             default:

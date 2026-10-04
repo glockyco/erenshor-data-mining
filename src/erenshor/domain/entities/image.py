@@ -155,8 +155,6 @@ class ImageMetadata:
     def should_upload(self) -> tuple[bool, str]:
         """Check if image should be uploaded to wiki.
 
-        Follows the same logic pattern as PageMetadata.should_deploy() from wiki storage.
-
         Returns:
             Tuple of (should_upload, reason):
             - (True, "") if image should be uploaded

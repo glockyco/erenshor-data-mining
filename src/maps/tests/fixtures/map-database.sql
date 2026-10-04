@@ -337,13 +337,15 @@ INSERT INTO characters (
     -- else and lives in another scene. 39 map-visible names in the real data are
     -- worn by more than one character, and 22 of those disagree on loot, so
     -- resolving a live NPC by name alone has to cope with this.
-    ('character:fixture enemy twin', 'Fixture Enemy', 'Fixture Enemy', 'Fixture Enemy', 7, 0, 0, 0, 0, 'boss');
+    ('character:fixture enemy twin', 'Fixture Enemy', 'Fixture Enemy', 'Fixture Enemy', 7, 0, 0, 0, 0, 'boss'),
+    ('character:fixture chest', 'Fixture Chest', 'Fixture Chest', 'Fixture Chest', 18, 0, 0, 0, 0, 'chest');
 
 INSERT INTO character_deduplications (group_key, member_stable_key, is_map_visible) VALUES
     ('character-group:breena', 'character:breena carpenter', 1),
     ('character-group:fixture-enemy', 'character:fixture enemy', 1),
     ('character-group:runtime-enemy', 'character:runtime enemy', 1),
-    ('character-group:fixture-enemy-twin', 'character:fixture enemy twin', 1);
+    ('character-group:fixture-enemy-twin', 'character:fixture enemy twin', 1),
+    ('character-group:fixture-chest', 'character:fixture chest', 1);
 
 INSERT INTO map_character_spawns (
     character_stable_key, spawn_point_stable_key, scene, x, y, z, spawn_delay_4,
@@ -352,7 +354,8 @@ INSERT INTO map_character_spawns (
 ) VALUES
     ('character:breena carpenter', 'spawn:stowaway-breena', 'Stowaway', 200, 0, 300, 30, 1, 0, 0, 0, 100, NULL, NULL, NULL, NULL),
     ('character:fixture enemy', 'spawn:stowaway-enemy', 'Stowaway', 220, 0, 320, 45, 1, 0, 5, 0, 100, NULL, NULL, NULL, NULL),
-    ('character:fixture enemy twin', 'spawn:portal-enemy', 'StowawayPortal', 40, 0, 60, 45, 1, 0, 5, 0, 100, NULL, NULL, NULL, NULL);
+    ('character:fixture enemy twin', 'spawn:portal-enemy', 'StowawayPortal', 40, 0, 60, 45, 1, 0, 5, 0, 100, NULL, NULL, NULL, NULL),
+    ('character:fixture chest', 'spawn:stowaway-chest', 'Stowaway', 225, 0, 325, 45, 1, 0, 0, 0, 100, NULL, NULL, NULL, NULL);
 
 INSERT INTO achievement_triggers (stable_key, scene, x, y, z, achievement_name) VALUES
     ('achievement:stowaway-fixture', 'Stowaway', 240, 0, 340, 'Fixture Achievement');

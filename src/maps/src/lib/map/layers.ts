@@ -95,6 +95,7 @@ export interface LayerData {
         | 'enemiesEnemy'
         | 'enemiesElite'
         | 'enemiesBoss'
+        | 'enemiesChest'
         | 'forges'
         | 'itemBags'
         | 'miningNodes'
@@ -266,7 +267,7 @@ export function createLayers(params: CreateLayersParams): unknown[] {
         worldPosition: [number, number];
         zone: string;
         isEnabled?: boolean;
-        encounterTier?: 'boss' | 'elite' | 'enemy';
+        encounterTier?: EnemyTier;
     };
     const createIconLayer = (
         id: string,
@@ -505,6 +506,29 @@ export function createLayers(params: CreateLayersParams): unknown[] {
             filterRange: levelFilter
         }
     });
+    const enemiesChestLayer = new IconLayer({
+        id: 'enemies-chest',
+        data: data.markers.enemiesChest,
+        iconAtlas: atlas.atlas,
+        iconMapping: atlas.mapping,
+        getPosition: (d: WorldEnemy) => getMarkerPosition(d),
+        getIcon: (d: WorldEnemy) => getEnemyIconType(d),
+        getSize: ICON_SIZE.base,
+        sizeUnits: 'pixels',
+        sizeMinPixels: ICON_SIZE.min,
+        sizeMaxPixels: ICON_SIZE.max,
+        pickable: true,
+        extensions: [levelFilterExt],
+        getFilterValue: (d: WorldEnemy) => [d.levelMin, d.levelMax],
+        filterRange: [
+            [-Infinity, levelFilter[1]],
+            [levelFilter[0], Infinity]
+        ],
+        updateTriggers: {
+            getPosition: [overrides],
+            filterRange: levelFilter
+        }
+    });
     const enemiesEliteLayer = new IconLayer({
         id: 'enemies-elite',
         data: data.markers.enemiesElite,
@@ -567,6 +591,7 @@ export function createLayers(params: CreateLayersParams): unknown[] {
                 const tier = resolveLiveEncounterTier(entity, encounterTierByName);
                 if (tier === 'boss') return 'enemy-boss-live';
                 if (tier === 'elite') return 'enemy-elite-live';
+                if (tier === 'chest') return 'enemy-chest-live';
                 return 'enemy-live';
             }
             default:
@@ -588,6 +613,7 @@ export function createLayers(params: CreateLayersParams): unknown[] {
                 const tier = resolveLiveEncounterTier(entity, encounterTierByName);
                 if (tier === 'boss') return ICON_SIZE.base * 1.5;
                 if (tier === 'elite') return ICON_SIZE.base * 1.25;
+                if (tier === 'chest') return ICON_SIZE.base;
                 return ICON_SIZE.base;
             }
             default:
@@ -644,9 +670,8 @@ export function createLayers(params: CreateLayersParams): unknown[] {
     }
 
     // === LIVE ENTITIES (priority-ordered, bottom to top) ===
-    // Split by entity type to ensure important entities render on top.
-    // Player is always most visible, followed by threats (boss > elite > enemy),
-    // then allies (simplayers), companions (pets), and background NPCs.
+    // Place the player above boss, elite, enemy, and chest encounters.
+    // Allies, pets, and friendly NPCs render beneath them.
 
     const liveNpcFriendlyLayer = createLiveEntityLayer(
         'live-npc-friendly',
@@ -660,6 +685,10 @@ export function createLayers(params: CreateLayersParams): unknown[] {
         (e) => e.entityType === 'simplayer'
     );
 
+    const liveEnemiesChestLayer = createLiveEntityLayer(
+        'live-enemies-chest',
+        (e) => e.entityType === 'npc_enemy' && resolveLiveEncounterTier(e, encounterTierByName) === 'chest'
+    );
     const liveEnemiesEnemyLayer = createLiveEntityLayer(
         'live-enemies-enemy',
         (e) => e.entityType === 'npc_enemy' && resolveLiveEncounterTier(e, encounterTierByName) === 'enemy'
@@ -873,7 +902,7 @@ export function createLayers(params: CreateLayersParams): unknown[] {
     }
 
     // === GLOBAL MOVEMENT OVERLAY LAYERS ===
-    // Shown for all enemies/NPCs when the sidebar toggles are enabled.
+    // Shown for all character spawn markers when sidebar toggles are enabled.
     // Uses white/muted colors to stay visually distinct from the yellow/blue selection overlay.
     // Built below the per-selection layers in the stack so the selected entity always paints on top.
 
@@ -882,6 +911,7 @@ export function createLayers(params: CreateLayersParams): unknown[] {
 
     const allSpawnMarkers = [
         ...data.markers.enemiesEnemy,
+        ...data.markers.enemiesChest,
         ...data.markers.enemiesElite,
         ...data.markers.enemiesBoss,
         ...data.markers.npcs
@@ -1051,6 +1081,7 @@ export function createLayers(params: CreateLayersParams): unknown[] {
         // Event connector lines sit beneath spawn icons
         eventAnchorLinesLayer,
         // Enemy-tier spawns
+        vis.spawnPointsChest && enemiesChestLayer,
         vis.spawnPoints && enemiesEnemyLayer,
         // NPCs
         vis.characters && npcsLayer,
@@ -1077,6 +1108,7 @@ export function createLayers(params: CreateLayersParams): unknown[] {
         liveNpcFriendlyLayer,
         livePetsLayer,
         liveSimPlayersLayer,
+        liveEnemiesChestLayer,
         liveEnemiesEnemyLayer,
         liveEnemiesEliteLayer,
         liveEnemiesBossLayer,

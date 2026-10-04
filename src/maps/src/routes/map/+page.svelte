@@ -132,6 +132,7 @@
             ...data.markers.enemiesEnemy,
             ...data.markers.enemiesElite,
             ...data.markers.enemiesBoss,
+            ...data.markers.enemiesChest,
             ...data.markers.npcs
         ],
         data.unlocatedEnemies
@@ -147,6 +148,7 @@
             enemiesEnemy: data.markers.enemiesEnemy,
             enemiesElite: data.markers.enemiesElite,
             enemiesBoss: data.markers.enemiesBoss,
+            enemiesChest: data.markers.enemiesChest,
             unlocatedEnemies: data.unlocatedEnemies,
             npcs: data.markers.npcs,
             zones: data.zones,
@@ -194,7 +196,8 @@
                     [
                         ...data.markers.enemiesEnemy,
                         ...data.markers.enemiesElite,
-                        ...data.markers.enemiesBoss
+                        ...data.markers.enemiesBoss,
+                        ...data.markers.enemiesChest
                     ] as WorldEnemy[]
                 ).filter((m) => m.characters.some((c) => c.name === name)),
             findNpc: (name: string) =>
@@ -232,6 +235,7 @@
             ...data.markers.enemiesEnemy,
             ...data.markers.enemiesElite,
             ...data.markers.enemiesBoss,
+            ...data.markers.enemiesChest,
             ...data.markers.forges,
             ...data.markers.itemBags,
             ...data.markers.miningNodes,

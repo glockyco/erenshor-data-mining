@@ -735,8 +735,8 @@ def test_wiki_leaf_uses_exact_setup_and_pytest_commands(tmp_path: Path, monkeypa
             ),
             tmp_path,
         ),
+        (("python", "wiki-dev/null_edit.py", "--base-url", "http://localhost:8088"), tmp_path),
         (("python", "wiki-dev/smoke_test.py", "--base-url", "http://localhost:8088"), tmp_path),
-        (("python", "wiki-dev/cargo_check.py", "--base-url", "http://localhost:8088"), tmp_path),
     ]
     pytest_command, pytest_cwd = calls[3]
     assert pytest_cwd == tmp_path

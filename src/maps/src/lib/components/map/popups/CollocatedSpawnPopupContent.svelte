@@ -2,7 +2,7 @@
     import Skull from '@lucide/svelte/icons/skull';
     import User from '@lucide/svelte/icons/user';
     import type { WorldEnemy, WorldNpc } from '$lib/types/world-map';
-    import { compareEncounterTier } from '$lib/map-markers';
+    import { compareEncounterTier, type EncounterTier } from '$lib/map-markers';
 
     interface Props {
         markers: (WorldEnemy | WorldNpc)[];
@@ -21,7 +21,7 @@
         return { first: first || 'Unnamed spawn', more: rest.length };
     }
 
-    function markerTier(marker: WorldEnemy | WorldNpc): 'boss' | 'elite' | 'enemy' | 'npc' {
+    function markerTier(marker: WorldEnemy | WorldNpc): EncounterTier {
         return marker.category === 'npc' ? 'npc' : marker.encounterTier;
     }
 
@@ -32,6 +32,8 @@
                 return 'text-violet-700';
             case 'elite':
                 return 'text-rose-600';
+            case 'chest':
+                return 'text-teal-600';
             default:
                 return 'text-amber-600';
         }

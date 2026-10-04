@@ -70,6 +70,8 @@ def _apply_mapping(
 
     Adds display_name, wiki_page_name, image_name, is_wiki_generated, and
     is_map_visible to each row. wiki_page_name may be None (no wiki page).
+    An override without image_name (a stance rule) keeps the default name,
+    which the stance processor replaces.
     """
     result = []
     for row in rows:
@@ -81,7 +83,8 @@ def _apply_mapping(
             row["wiki_page_name"] = (
                 override["wiki_page_name"].strip() if override["wiki_page_name"] is not None else None
             )
-            row["image_name"] = override["image_name"].strip()
+            override_image = override["image_name"]
+            row["image_name"] = override_image.strip() if override_image is not None else default_name.strip()
             row["is_wiki_generated"] = int(override["is_wiki_generated"])
             row["is_map_visible"] = int(override["is_map_visible"])
         else:
@@ -451,8 +454,15 @@ def process_skills(
     raw: sqlite3.Connection,
     writer: Writer,
     mapping: dict[str, MappingOverride],
-) -> set[str]:
-    """Process Skills table. Returns set of included stable keys."""
+) -> dict[str, str]:
+    """Process Skills table.
+
+    Returns the image name of the skill that switches to each stance, keyed by
+    the stance's stable key.
+
+    Raises:
+        ValueError: If two skills switch to the same stance with different images.
+    """
     rows = _rows(raw, "SELECT * FROM Skills")
     logger.info(f"Skills: {len(rows)} raw")
 
@@ -462,7 +472,19 @@ def process_skills(
     # Require2H has a digit that breaks generic snake_case conversion.
     rows = _rename_cols(rows, {"Require2H": "require_2h"})
     writer.insert_skills(rows)
-    return {str(r["stable_key"]) for r in rows}
+
+    stance_images: dict[str, str] = {}
+    for row in rows:
+        stance_key = row["stance_to_use_stable_key"]
+        if stance_key is None:
+            continue
+        image_name = str(row["image_name"])
+        previous = stance_images.setdefault(str(stance_key), image_name)
+        if previous != image_name:
+            raise ValueError(
+                f"{stance_key}: two skills switch to this stance with images {previous!r} and {image_name!r}"
+            )
+    return stance_images
 
 
 # ---------------------------------------------------------------------------
@@ -474,14 +496,35 @@ def process_stances(
     raw: sqlite3.Connection,
     writer: Writer,
     mapping: dict[str, MappingOverride],
+    stance_images: dict[str, str],
 ) -> set[str]:
-    """Process Stances table. Returns set of included stable keys."""
+    """Process Stances table. Returns set of included stable keys.
+
+    A stance has no icon in the game. The skill book shows the icon of the
+    skill that switches to the stance, so each stance takes that image from
+    ``stance_images``. A stance that no skill switches to cannot be entered:
+    it gets no image and no wiki page, which the clean DB records as a NULL
+    ``wiki_page_name`` and ``is_wiki_generated = 0``, as mapping rules do.
+    """
     rows = _rows(raw, "SELECT * FROM Stances")
     logger.info(f"Stances: {len(rows)} raw")
 
     # DisplayName is the natural name for stances
     rows = _apply_mapping(rows, "StableKey", "DisplayName", mapping)
     logger.info(f"Stances: {len(rows)} after mapping")
+
+    unreachable: list[str] = []
+    for row in rows:
+        image_name = stance_images.get(str(row["StableKey"]))
+        if image_name is None:
+            row["image_name"] = ""
+            row["wiki_page_name"] = None
+            row["is_wiki_generated"] = 0
+            unreachable.append(str(row["StableKey"]))
+        else:
+            row["image_name"] = image_name
+    if unreachable:
+        logger.info(f"Stances without a skill that switches to them (no wiki page): {', '.join(unreachable)}")
 
     rows = _rename_cols(rows)
     writer.insert_stances(rows)

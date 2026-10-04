@@ -659,6 +659,7 @@ export class RepositoryBase {
                     let tag = '';
                     if (character.encounterTier === 'boss') tag = ' (Boss)';
                     else if (character.encounterTier === 'elite') tag = ' (Elite)';
+                    else if (character.encounterTier === 'chest') tag = ' (Chest)';
 
                     const spawnText = character.sourceScript
                         ? 'Dynamic event spawn'
@@ -667,12 +668,12 @@ export class RepositoryBase {
                 })
                 .join('<br>');
 
-        const positionText = `Enemy @ ${formatCoordinates(coordinates.x, coordinates.y, coordinates.z)}`;
-        const disabledText = isEnabled ? '' : '<br><br>This enemy is (initially) disabled.';
+        const encounterTier = mostNotableEnemyTier(characters);
+        const kind = encounterTier === 'chest' ? 'Chest' : 'Enemy';
+        const positionText = `${kind} @ ${formatCoordinates(coordinates.x, coordinates.y, coordinates.z)}`;
+        const disabledText = isEnabled ? '' : `<br><br>This ${kind.toLowerCase()} is (initially) disabled.`;
         const respawnInfo = this.getRespawnInfo(spawnDelay, isNightSpawn);
         const popupText = `${positionText}${characterLines}${disabledText}${respawnInfo}`;
-
-        const encounterTier = mostNotableEnemyTier(characters);
 
         return {
             stableKey: stableKey,
@@ -1390,6 +1391,7 @@ export class RepositoryBase {
         levelRange: { min: number; max: number } | null;
         bosses: { name: string; wikiPageName: string | null; level: number }[];
         elites: { name: string; wikiPageName: string | null; level: number }[];
+        chests: { name: string; wikiPageName: string | null; level: number }[];
     }> {
         if (!this.db) throw new Error('DB not initialized');
 
@@ -1416,7 +1418,7 @@ export class RepositoryBase {
             SELECT MIN(c.level) as MinLevel, MAX(c.level) as MaxLevel
             FROM characters c
             WHERE c.stable_key IN (SELECT rep_stable_key FROM zone_reps)
-              AND c.encounter_tier != 'npc'
+              AND c.encounter_tier IN ('boss', 'elite', 'enemy')
             `,
             [zoneName]
         );
@@ -1512,7 +1514,41 @@ export class RepositoryBase {
         }
         eliteStmt.free();
 
-        return { levelRange, bosses, elites };
+        const chestStmt = this.db.prepare(
+            `
+            WITH rep_groups AS (
+                SELECT d.group_key, MIN(d.member_stable_key) AS rep_stable_key
+                FROM character_deduplications d
+                WHERE d.is_map_visible = 1
+                GROUP BY d.group_key
+            ),
+            zone_groups AS (
+                SELECT DISTINCT d.group_key
+                FROM character_deduplications d
+                JOIN map_character_spawns cs ON cs.character_stable_key = d.member_stable_key
+                WHERE cs.scene = ? AND d.is_map_visible = 1
+            )
+            SELECT c.display_name AS NPCName, c.wiki_page_name AS WikiPageName, c.level AS Level
+            FROM characters c
+            JOIN rep_groups rg ON rg.rep_stable_key = c.stable_key
+            JOIN zone_groups zg ON zg.group_key = rg.group_key
+            WHERE c.encounter_tier = 'chest'
+            ORDER BY c.level, c.display_name
+            `,
+            [zoneName]
+        );
+        const chests: { name: string; wikiPageName: string | null; level: number }[] = [];
+        while (chestStmt.step()) {
+            const row = chestStmt.getAsObject();
+            chests.push({
+                name: row.NPCName as string,
+                wikiPageName: row.WikiPageName as string | null,
+                level: row.Level as number
+            });
+        }
+        chestStmt.free();
+
+        return { levelRange, bosses, elites, chests };
     }
 
     getWorldStats(): { zones: number; classes: number; items: number; quests: number } {

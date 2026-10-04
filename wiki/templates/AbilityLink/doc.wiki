@@ -46,6 +46,22 @@ AbilityLink keeps the destination as an ordinary page link. The planned generali
 | When set to <code>1</code>, render only the linked ability image.
 |}
 
+== Examples ==
+
+{| class="wikitable"
+! Example !! Template call !! Output
+|-
+| An ability without parameters || <code><nowiki>{{AbilityLink|Theft of Life}}</nowiki></code> || {{AbilityLink|Theft of Life}}
+|-
+| A different link || <code><nowiki>{{AbilityLink|Focus|link=Theft of Life}}</nowiki></code> || {{AbilityLink|Focus|link=Theft of Life}}
+|-
+| A different text || <code><nowiki>{{AbilityLink|Glare of Soluna|text=Custom Text}}</nowiki></code> || {{AbilityLink|Glare of Soluna|text=Custom Text}}
+|-
+| A different image || <code><nowiki>{{AbilityLink|Tangle|image=Eyestalk Wand.png}}</nowiki></code> || {{AbilityLink|Tangle|image=Eyestalk Wand.png}}
+|-
+| The icon only, inside text || <code><nowiki>Use {{AbilityLink|Backstab|imageonly=1}} for extra damage</nowiki></code> || Use {{AbilityLink|Backstab|imageonly=1}} for extra damage
+|}
+
 <templatedata>
 {
   "description": "Renders a spell, skill, or stance icon and page link.",

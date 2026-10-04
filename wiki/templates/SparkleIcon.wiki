@@ -1,0 +1,81 @@
+<includeonly><div style="position: relative; width: 80px;"><div style="position: absolute; left: 0px; top: 0px; padding: 0;">[[File:{{{sparkle}}}|{{{sparkle_size}}}]]</div>{{{icon}}}</div></includeonly><noinclude>
+== Template:SparkleIcon ==
+
+Displays an item icon with an optional sparkle overlay for quality tiers.
+
+=== Parameters ===
+
+{| class="wikitable"
+! Parameter !! Required !! Default !! Description
+|-
+| '''icon''' || Yes || || The item icon (full <nowiki>[[File:...]]</nowiki> syntax)
+|-
+| '''sparkle''' || Yes || || Sparkle overlay image filename (Blue_Sparkle.gif, Purple_Sparkle.gif, or blank.png)
+|-
+| '''sparkle_size''' || Yes || || Size of the sparkle overlay (e.g., 80px)
+|}
+
+=== Examples ===
+
+'''Normal item (no sparkle - use blank.png):'''
+<pre>
+{{SparkleIcon
+|icon=[[File:Copper_Sword.png|80px]]
+|sparkle=blank.png
+|sparkle_size=0px
+}}
+</pre>
+
+'''Result:'''
+
+{{SparkleIcon
+|icon=[[File:Copper_Sword.png|80px]]
+|sparkle=blank.png
+|sparkle_size=0px
+}}
+
+----
+
+'''Blessed item (blue sparkle):'''
+<pre>
+{{SparkleIcon
+|icon=[[File:Copper_Sword.png|80px]]
+|sparkle=Blue_Sparkle.gif
+|sparkle_size=80px
+}}
+</pre>
+
+'''Result:'''
+
+{{SparkleIcon
+|icon=[[File:Copper_Sword.png|80px]]
+|sparkle=Blue_Sparkle.gif
+|sparkle_size=80px
+}}
+
+----
+
+'''Godly item (purple sparkle):'''
+<pre>
+{{SparkleIcon
+|icon=[[File:Copper_Sword.png|80px]]
+|sparkle=Purple_Sparkle.gif
+|sparkle_size=80px
+}}
+</pre>
+
+'''Result:'''
+
+{{SparkleIcon
+|icon=[[File:Copper_Sword.png|80px]]
+|sparkle=Purple_Sparkle.gif
+|sparkle_size=80px
+}}
+
+=== See Also ===
+
+* [[Template:Item/Header]] - Uses this template for tier sparkles
+* [[Template:Gear/Slot]] - Similar sparkle overlay pattern
+
+[[Category:Item Tooltip Templates]]
+</noinclude>

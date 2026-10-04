@@ -1,1 +1,0 @@
-"""Cargo storage probe package."""

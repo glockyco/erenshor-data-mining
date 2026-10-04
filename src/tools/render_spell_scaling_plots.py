@@ -1705,8 +1705,8 @@ def parse_args() -> argparse.Namespace:
     _ = parser.add_argument(
         "--output-dir",
         type=Path,
-        default=Path("wiki/mechanics/images"),
-        help="directory for generated PNGs (default: wiki/mechanics/images)",
+        default=Path("variants/main/wiki/mechanics/images"),
+        help="directory for generated PNGs (default: variants/main/wiki/mechanics/images)",
     )
     return parser.parse_args()
 

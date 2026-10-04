@@ -9,7 +9,6 @@ timeout = 7200
 level = "debug"
 
 [global.mediawiki]
-api_batch_size = 50
 bot_username = "override_bot"
 
 [variants.main]

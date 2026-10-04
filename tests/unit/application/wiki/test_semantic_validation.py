@@ -8,14 +8,8 @@ import pytest
 
 from erenshor.application.wiki.semantic_validation import (
     REQUIRED_TEMPLATE_FIELDS,
-    PageContract,
-    SemanticFinding,
     SemanticValidationError,
-    SemanticValidationReport,
     WikiPageExpectation,
-    build_generated_manual_ownership_report,
-    build_semantic_manifest,
-    derive_page_contract,
     validate_wiki_pages,
 )
 from erenshor.application.wiki.services.storage import PageMetadata
@@ -47,7 +41,7 @@ def _expectation(
 ) -> WikiPageExpectation:
     return WikiPageExpectation(
         title,
-        PageMetadata(title, keys, [title] * len(keys)),
+        PageMetadata(title, keys),
         fetched_content=fetched_content,
         expected_categories=categories,
         schema_kind=schema_kind,
@@ -72,9 +66,9 @@ def _valid_corpus() -> tuple[dict[str, str], dict[str, WikiPageExpectation]]:
         + _template("ItemTooltip")
         + "\n\n[[Category:Items]]"
     )
-    character = _template("Character", name="Guard") + "\n\n[[Category:Characters]]"
+    character = _template("Character", name="Guard", stablekey="character:guard") + "\n\n[[Category:Characters]]"
     ability = (
-        _template("Ability", title="Flare")
+        _template("Ability", title="Flare", stablekey="spell:flare")
         + "\n\n"
         + _template("SpellTooltip", stablekey="spell:flare")
         + "\n\n[[Category:Abilities]]"
@@ -116,9 +110,6 @@ def test_mixed_corpus_passes_and_report_is_immutable_and_deterministic() -> None
 
     assert not report.has_errors
     assert report.findings == ()
-    assert (
-        derive_page_contract("Sword", pages["Sword"], expectations["Sword"].metadata, _catalog()).schema_kind == "item"
-    )
     with pytest.raises(SemanticValidationError):
         _validate(
             {**pages, "Sword": pages["Sword"].replace("stablekey=item:sword", "stablekey=item:missing")}, expectations
@@ -205,48 +196,6 @@ def test_each_invariant_family_blocks_a_plausible_mutation(family: str, mutate) 
     assert any(finding.code == family for finding in report.findings)
 
 
-def test_generated_manual_ownership_report_covers_pages_deterministically() -> None:
-    contracts = (
-        PageContract("Manual", "overview", (), ()),
-        PageContract("Generated", "item", ("item:sword",), ("Item",), ("Item",)),
-        PageContract("Broken", "item", ("item:broken",), ("Item",), ("Item",)),
-        PageContract("Armor", "armor_overview", (), ()),
-    )
-    validation = SemanticValidationReport((SemanticFinding("generated_manual_ownership", "Broken", "unowned Item"),))
-
-    report = build_generated_manual_ownership_report(tuple(reversed(contracts)), validation_report=validation)
-    assert report.entries == tuple(sorted(report.entries, key=lambda entry: (entry.page.casefold(), entry.page)))
-    assert report.total_pages == 4
-    assert report.generated_pages == 2
-    assert report.manual_pages == 1
-    assert report.invalid_pages == 1
-    assert report.generated_pages + report.manual_pages + report.invalid_pages == report.total_pages
-    broken = next(entry for entry in report.entries if entry.page == "Broken")
-    assert broken.ownership == "invalid"
-    assert [(finding.code, finding.detail) for finding in broken.findings] == [
-        ("generated_manual_ownership", "unowned Item")
-    ]
-    assert report.to_dict() == {
-        "version": 1,
-        "counts": {"total": 4, "generated": 2, "manual": 1, "invalid": 1},
-        "pages": [entry.to_dict() for entry in report.entries],
-    }
-
-
-def test_generated_manual_ownership_report_rejects_duplicate_pages() -> None:
-    contract = PageContract("Sword", "item", (), ("Item",), ("Item",))
-    with pytest.raises(ValueError, match="duplicate page"):
-        build_generated_manual_ownership_report((contract, contract))
-
-
-def test_generated_manual_ownership_report_rejects_unselected_findings() -> None:
-    contract = PageContract("Sword", "item", (), ("Item",), ("Item",))
-    validation = SemanticValidationReport((SemanticFinding("title_inventory", "Missing", "not selected"),))
-
-    with pytest.raises(ValueError, match="findings for unselected pages: Missing"):
-        build_generated_manual_ownership_report((contract,), validation_report=validation)
-
-
 def test_prefer_manual_sentinel_is_compared_using_existing_handler() -> None:
     pages, expectations = _valid_corpus()
     old = expectations["Sword"].fetched_content
@@ -258,24 +207,6 @@ def test_prefer_manual_sentinel_is_compared_using_existing_handler() -> None:
     pages["Sword"] = pages["Sword"].replace("|othersource=Editor source", "|othersource=-")
 
     assert not _validate(pages, expectations).has_errors
-
-
-def test_semantic_manifest_records_identity_shape_categories_and_links() -> None:
-    pages, expectations = _valid_corpus()
-
-    manifest = build_semantic_manifest(pages, expectations=expectations, catalog_entries=_catalog())
-
-    entries = {entry["title"]: entry for entry in manifest["pages"]}
-    assert manifest["version"] == 1
-    assert entries["Sword"] == {
-        "title": "Sword",
-        "stable_keys": ["item:sword"],
-        "schema": "item",
-        "generated_templates": ["Item", "ItemTooltip"],
-        "categories": ["Category:Items"],
-        "semantic_links": [],
-    }
-    assert entries["Equipment"]["semantic_links"] == ["ItemLink:1:Sword"]
 
 
 def test_malformed_fetched_content_fails_without_ownership_false_positive() -> None:

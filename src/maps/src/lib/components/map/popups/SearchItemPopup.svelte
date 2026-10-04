@@ -352,6 +352,11 @@
                                                 class="rounded px-1 py-0.5 text-[10px]
                                                        bg-indigo-900/50 text-indigo-300"
                                             >Elite</span>
+                                        {:else if dropper.row.encounterTier === 'chest'}
+                                            <span
+                                                class="rounded px-1 py-0.5 text-[10px]
+                                                       bg-teal-900/50 text-teal-300"
+                                            >Chest</span>
                                         {/if}
                                     </div>
                                     <div class="flex flex-wrap items-center gap-x-1 text-zinc-500">

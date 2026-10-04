@@ -194,31 +194,100 @@ def _dedup_key(d: _CharData) -> tuple[object, ...]:
     )
 
 
-# code-fact: character.boss_xp_level_floor
-_BOSS_XP_LEVEL = 40
-_BOSS_XP_FLOOR = 2.0
 # code-fact: character.boss_consider_threshold
 _BOSS_XP_THRESHOLD = 1.0
+# Character.Faction.TreasureChest: the faction of every chest that the game
+# spawns as a character, from Lost Treasure to the arena award chests.
+_CHEST_FACTION = "TreasureChest"
+# code-fact: arena.boss_music_round_2
+# code-fact: arena.boss_music_round_5
+# code-fact: arena.boss_music_round_7
+# code-fact: arena.boss_music_vitheo
+# VithArena starts the mid-boss music for rounds 2, 5, and 7, and VitheoFight
+# starts the boss music for Vitheo in round 8. The other rounds have none.
+_ARENA_BOSS_ROUNDS = frozenset({2, 5, 7, 8})
+# Event scripts whose every spawned character is a boss. The Chessboard event
+# in the Braxonian Desert spawns one boss piece per class and a few named
+# pieces. dynamic-spawn-catalog.toml must classify each piece field, so a piece
+# that a game update adds gets a Chessboard spawn row and this tier.
+_BOSS_EVENT_SCRIPTS = frozenset({"Chessboard"})
 
 
-def _effective_boss_xp(raw: dict[str, object]) -> float:
-    """Return the BossXp an NPC has after start-up, where level 40+ raises it to 2."""
-    boss_xp = float(cast("float | None", raw.get("BossXpMultiplier")) or 0.0)
-    level = int(cast("int | None", raw.get("Level")) or 0)
-    return max(boss_xp, _BOSS_XP_FLOOR) if level >= _BOSS_XP_LEVEL else boss_xp
+@dataclass(frozen=True)
+class _RaidBosses:
+    """The raid scenes and the characters that the game names as their bosses.
+
+    Each raid plane's PlanarMusicManager lists its big-boss and mid-boss spawn
+    points, and Vitheo's arena starts boss music for some of its rounds.
+    """
+
+    scenes: frozenset[str]
+    characters: frozenset[str]
 
 
-def _derive_encounter_tier(members: list[_CharData]) -> str:
-    """Classify a deduplication group as npc, boss, elite, or enemy.
+def _load_raid_bosses(raw: sqlite3.Connection) -> _RaidBosses:
+    """Read the planar boss lists and the arena boss rounds of the raw export."""
+    planar = _load_rows(raw, "SELECT Scene, CharacterStableKey FROM PlanarBosses")
+    arena = _load_rows(
+        raw,
+        "SELECT r.Scene, r.RoundIndex, e.EnemyCharacterStableKey FROM ArenaRounds r "
+        "JOIN ArenaRoundEnemies e ON e.ArenaRoundStableKey = r.StableKey",
+    )
+    if not planar:
+        raise ValueError("The raw export has no PlanarBosses rows; run extract export")
+    return _RaidBosses(
+        scenes=frozenset(str(row["Scene"]) for row in [*planar, *arena]),
+        characters=frozenset(
+            [str(row["CharacterStableKey"]) for row in planar]
+            + [str(row["EnemyCharacterStableKey"]) for row in arena if row["RoundIndex"] in _ARENA_BOSS_ROUNDS]
+        ),
+    )
 
-    Named characters (effective BossXp above the game's threshold) are bosses
-    at a single placement or when only events spawn them, and elites when the
-    game can place them at several spawn points. A character with exactly
-    one ordinary placement is a boss even without BossXp. A tier override in
-    mapping.json replaces the derived tier and must agree across the group.
+
+def _spawn_scenes(raw: sqlite3.Connection, char_data: list[_CharData]) -> dict[str, frozenset[str]]:
+    """Return the scenes each character spawns in, including chained spawns.
+
+    A chained child (for example a constellation that a fight summons) has no
+    spawn rows until the clean build expands the chain, so it takes the scenes
+    of its parents, transitively.
+    """
+    scenes: dict[str, set[str]] = {
+        d.char.stable_key: {spawn.scene for spawn in d.spawns if spawn.scene} for d in char_data
+    }
+    if not _table_exists(raw, "CharacterChainedSpawns"):
+        return {key: frozenset(value) for key, value in scenes.items()}
+    parents_of: dict[str, set[str]] = defaultdict(set)
+    for row in _load_rows(raw, "SELECT ParentStableKey, ChildStableKey FROM CharacterChainedSpawns"):
+        parents_of[str(row["ChildStableKey"])].add(str(row["ParentStableKey"]))
+    changed = True
+    while changed:
+        changed = False
+        for child, parents in parents_of.items():
+            inherited = set().union(*(scenes.get(parent, set()) for parent in parents))
+            target = scenes.setdefault(child, set())
+            if not inherited <= target:
+                target |= inherited
+                changed = True
+    return {key: frozenset(value) for key, value in scenes.items()}
+
+
+def _derive_encounter_tier(members: list[_CharData], raid: _RaidBosses, scenes: frozenset[str]) -> str:
+    """Classify a deduplication group as npc, chest, boss, elite, or enemy.
+
+    Characters of the TreasureChest faction are chests. Characters that a boss
+    event script spawns (``_BOSS_EVENT_SCRIPTS``) are bosses. In a raid scene, the
+    game names its bosses (``_RaidBosses``), and every other character is an
+    enemy. Elsewhere, characters whose prefab BossXp is above the game's
+    threshold are bosses at a single placement or when only events spawn them,
+    and elites when the game can place them at several spawn points. A
+    character with exactly one ordinary placement is a boss even without
+    BossXp. The game raises the BossXp of every NPC of level 40 or more, so
+    the rule reads the prefab value. A tier override in mapping.json replaces
+    the derived tier and must agree across the group.
 
     Raises:
-        ValueError: If members of the group carry different tier overrides.
+        ValueError: If members of the group carry different tier overrides, or
+            if the group mixes chests and other characters.
     """
     overrides = {member.char.encounter_tier_override for member in members} - {None}
     if len(overrides) > 1 or (overrides and any(m.char.encounter_tier_override is None for m in members)):
@@ -226,16 +295,27 @@ def _derive_encounter_tier(members: list[_CharData]) -> str:
         raise ValueError(f"mapping.json encounter_tier overrides disagree within one character group: {keys}")
     if overrides:
         return str(overrides.pop())
+    chests = {member.char.raw.get("MyFaction") == _CHEST_FACTION for member in members}
+    if chests == {True}:
+        return "chest"
+    if True in chests:
+        keys = ", ".join(sorted(member.char.stable_key for member in members))
+        raise ValueError(f"Character group mixes {_CHEST_FACTION} characters with other characters: {keys}")
     if any(bool(member.char.raw.get("IsFriendly")) for member in members):
         return "npc"
+    event_boss = any(spawn.source_script in _BOSS_EVENT_SCRIPTS for member in members for spawn in member.spawns)
+    # The scenes include those of chained-spawn parents (_spawn_scenes).
+    if event_boss or (scenes and scenes <= raid.scenes):
+        raid_boss = any(member.char.stable_key in raid.characters for member in members)
+        return "boss" if event_boss or raid_boss else "enemy"
     placements = {
         spawn.spawn_point_stable_key
         for member in members
         for spawn in member.spawns
         if spawn.spawn_point_stable_key is not None and spawn.source_script is None
     }
-    named = max(_effective_boss_xp(member.char.raw) for member in members) > _BOSS_XP_THRESHOLD
-    if named:
+    boss_xp = max(float(cast("float | None", member.char.raw.get("BossXpMultiplier")) or 0.0) for member in members)
+    if boss_xp > _BOSS_XP_THRESHOLD:
         return "boss" if len(placements) <= 1 else "elite"
     return "boss" if len(placements) == 1 else "enemy"
 
@@ -390,7 +470,10 @@ def process_characters(
         if override is not None:
             display_name = override["display_name"].strip()
             wiki_page_name = override["wiki_page_name"].strip() if override["wiki_page_name"] is not None else None
-            image_name = override["image_name"].strip()
+            override_image = override["image_name"]
+            if override_image is None:
+                raise ValueError(f"{sk}: character rule has no image_name")
+            image_name = override_image.strip()
             is_wiki_generated = int(override["is_wiki_generated"])
             is_map_visible = int(override["is_map_visible"])
             encounter_tier_override = override["encounter_tier"]
@@ -772,6 +855,8 @@ def process_characters(
     logger.info(f"Characters: {len(groups)} dedup groups from {len(char_data)} characters")
 
     dedup_rows: list[dict[str, object]] = []
+    raid_bosses = _load_raid_bosses(raw)
+    scenes_by_char = _spawn_scenes(raw, char_data)
     tier_counts: dict[str, int] = defaultdict(int)
     for members in groups.values():
         group_key = min(m.char.stable_key for m in members)
@@ -785,7 +870,8 @@ def process_characters(
                 }
             )
 
-        tier = _derive_encounter_tier(members)
+        scenes = frozenset(scene for m in members for scene in scenes_by_char.get(m.char.stable_key, ()))
+        tier = _derive_encounter_tier(members, raid_bosses, scenes)
         tier_counts[tier] += 1
         for m in members:
             m.char.raw["EncounterTier"] = tier
@@ -1143,7 +1229,10 @@ def process_characters(
 
     # Loot drops
     ld_rows = _load_rows(raw, "SELECT * FROM LootDrops")
-    ld_rows = [r for r in ld_rows if r["CharacterStableKey"] in all_keys]
+    # A character that the game never kills, such as a boss phase that its
+    # fight script destroys, never rolls its loot table (mapping.json).
+    unreachable = {key for key, rule in mapping.items() if rule["loot_unreachable"]}
+    ld_rows = [r for r in ld_rows if r["CharacterStableKey"] in all_keys and r["CharacterStableKey"] not in unreachable]
     writer.insert_loot_drops(
         [
             {

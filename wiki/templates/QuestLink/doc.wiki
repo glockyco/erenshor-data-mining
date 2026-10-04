@@ -16,6 +16,8 @@ The link picker may supply <code>stablekey</code>. This is the exact advanced qu
 
 QuestLink renders text only. It has no image or image-only mode.
 
+Older pages use <code>questlink</code> for the quest page. It still works, but it is deprecated. Use the first positional parameter in new links.
+
 == Parameters ==
 
 {| class="wikitable"
@@ -33,6 +35,21 @@ QuestLink renders text only. It has no image or image-only mode.
 |-
 | <code>text</code>
 | Visible link text.
+|-
+| <code>questlink</code>
+| Deprecated. Quest page, as in the first positional parameter.
+|}
+
+== Examples ==
+
+{| class="wikitable"
+! Template call !! Output
+|-
+| <code><nowiki>{{QuestLink|Percy's Seaspice}}</nowiki></code> || {{QuestLink|Percy's Seaspice}}
+|-
+| <code><nowiki>{{QuestLink|link=Wally's Moongill}}</nowiki></code> || {{QuestLink|link=Wally's Moongill}}
+|-
+| <code><nowiki>{{QuestLink|questlink=Bear Meat for Fredrick}}</nowiki></code> (deprecated) || {{QuestLink|questlink=Bear Meat for Fredrick}}
 |}
 
 <templatedata>
@@ -59,13 +76,20 @@ QuestLink renders text only. It has no image or image-only mode.
       "label": "Display text",
       "description": "Visible text shown for the quest link.",
       "type": "string"
+    },
+    "questlink": {
+      "label": "Quest (deprecated)",
+      "description": "Quest page, as in the first positional parameter.",
+      "type": "wiki-page-name",
+      "deprecated": "Use the first positional parameter."
     }
   },
   "paramOrder": [
     "1",
     "stablekey",
     "link",
-    "text"
+    "text",
+    "questlink"
   ],
   "format": "block"
 }

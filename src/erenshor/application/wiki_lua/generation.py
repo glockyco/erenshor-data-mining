@@ -2,18 +2,14 @@
 
 from __future__ import annotations
 
+import shutil
+import tempfile
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
 
-from erenshor.application.wiki_lua.characters import (
-    CharacterDataRepository,
-    CharacterLootRepository,
-    CharacterSpawnRepository,
-    CharacterSpellRepository,
-    write_characters_module,
-)
+from erenshor.application.wiki_lua.build import BuildDataRepository, write_build_module
 from erenshor.application.wiki_lua.items import (
     ItemDataRepository as ItemModuleDataRepository,
 )
@@ -26,6 +22,9 @@ from erenshor.application.wiki_lua.items import (
     write_items_modules,
 )
 from erenshor.application.wiki_lua.link_catalog import (
+    CharacterDataRepository as LinkCatalogCharacterRepository,
+)
+from erenshor.application.wiki_lua.link_catalog import (
     ClassDisplayNameService,
     FactionDataRepository,
     write_links_module,
@@ -33,7 +32,12 @@ from erenshor.application.wiki_lua.link_catalog import (
 from erenshor.application.wiki_lua.link_catalog import (
     ItemDataRepository as LinkCatalogItemDataRepository,
 )
-from erenshor.application.wiki_lua.quests import QuestDataRepository, write_quests_module
+from erenshor.application.wiki_lua.link_catalog import (
+    QuestDataRepository as LinkCatalogQuestRepository,
+)
+from erenshor.application.wiki_lua.link_catalog import (
+    ZoneDataRepository as LinkCatalogZoneRepository,
+)
 from erenshor.application.wiki_lua.skills import (
     SkillDataRepository as SkillModuleRepository,
 )
@@ -49,7 +53,6 @@ from erenshor.application.wiki_lua.spells import (
 )
 from erenshor.application.wiki_lua.stances import StanceDataRepository, write_stances_module
 from erenshor.application.wiki_lua.validation import LuaValidationResult, validate_lua_module
-from erenshor.application.wiki_lua.zones import ZoneDataRepository, write_zones_module
 
 
 class WikiItemRepository(
@@ -61,16 +64,16 @@ class WikiItemRepository(
     """Item repository contract needed by full Lua data generation."""
 
 
-class WikiCharacterRepository(CharacterDataRepository, ItemProvenanceCharacterRepository, Protocol):
-    """Character repository contract needed by full Lua data generation."""
+class WikiCharacterRepository(LinkCatalogCharacterRepository, ItemProvenanceCharacterRepository, Protocol):
+    """Character repository contract for links and item provenance."""
 
 
-class WikiQuestRepository(QuestDataRepository, ItemProvenanceQuestRepository, Protocol):
-    """Quest repository contract needed by full Lua data generation."""
+class WikiQuestRepository(LinkCatalogQuestRepository, ItemProvenanceQuestRepository, Protocol):
+    """Quest repository contract for links and item provenance."""
 
 
-class WikiZoneRepository(ZoneDataRepository, ItemProvenanceZoneRepository, Protocol):
-    """Zone repository contract needed for item provenance and zone modules."""
+class WikiZoneRepository(LinkCatalogZoneRepository, ItemProvenanceZoneRepository, Protocol):
+    """Zone repository contract for links and item provenance."""
 
 
 class WikiSpellItemRepository(
@@ -108,13 +111,11 @@ _DATA_SUBDIR = ("Erenshor", "Data")
 # Item shards under ``Erenshor/Data/Items`` are produced dynamically per item kind.
 TOP_LEVEL_DATA_MODULES: tuple[str, ...] = (
     "Items.lua",
-    "Characters.lua",
     "Links.lua",
     "Spells.lua",
     "Skills.lua",
-    "Quests.lua",
-    "Zones.lua",
     "Stances.lua",
+    "Build.lua",
 )
 
 
@@ -157,11 +158,9 @@ def _remove_stale_data_modules(output_root: Path, written_paths: list[Path]) -> 
 
 def generate_lua_data_modules(
     *,
+    build_repo: BuildDataRepository,
     item_repo: WikiSpellItemRepository,
     character_repo: WikiSpellCharacterRepository,
-    spawn_repo: CharacterSpawnRepository,
-    loot_repo: CharacterLootRepository,
-    spell_usage_repo: CharacterSpellRepository,
     spell_repo: SpellDataRepository,
     skill_repo: SkillGenerationRepository,
     stance_repo: StanceDataRepository,
@@ -170,52 +169,64 @@ def generate_lua_data_modules(
     output_root: Path,
     faction_repo: WikiFactionRepository,
     class_display: ClassDisplayNameService,
+    max_page_bytes: int,
     validate: LuaValidator = validate_lua_module,
 ) -> LuaDataModuleGenerationResult:
-    """Generate and validate all currently supported Lua data modules."""
+    """Generate Lua modules after checking that every page fits the wiki limit."""
     items = item_repo.get_items_for_wiki_generation()
     item_sources_by_item = build_item_sources_by_item(items, item_repo, character_repo, quest_repo, zone_repo)
     class_display_names = {
         internal_name: class_display.get_display_name(internal_name)
         for internal_name in class_display.get_all_internal_names()
     }
-    written_paths = [
-        *write_items_modules(
-            item_repo,
-            output_root,
-            sources_by_item=item_sources_by_item,
-            class_display_names=class_display_names,
-        ),
-        write_characters_module(character_repo, spawn_repo, loot_repo, spell_usage_repo, output_root),
-        write_links_module(
-            item_repo,
-            character_repo,
-            quest_repo,
-            zone_repo,
-            spell_repo,
-            skill_repo,
-            stance_repo,
-            faction_repo,
-            class_display,
-            output_root,
-        ),
-        write_spells_module(
-            spell_repo,
-            output_root,
-            item_repo,
-            character_repo,
-            class_display_names=class_display_names,
-        ),
-        write_skills_module(skill_repo, output_root, item_repo),
-        write_quests_module(quest_repo, output_root),
-        write_zones_module(zone_repo, output_root),
-        write_stances_module(stance_repo, output_root),
-    ]
+    with tempfile.TemporaryDirectory(prefix="erenshor-wiki-lua-") as temporary:
+        staging_root = Path(temporary)
+        staged_paths = [
+            *write_items_modules(
+                item_repo,
+                staging_root,
+                sources_by_item=item_sources_by_item,
+                class_display_names=class_display_names,
+            ),
+            write_links_module(
+                item_repo,
+                character_repo,
+                quest_repo,
+                zone_repo,
+                spell_repo,
+                skill_repo,
+                stance_repo,
+                faction_repo,
+                class_display,
+                staging_root,
+            ),
+            write_spells_module(
+                spell_repo,
+                staging_root,
+                item_repo,
+                character_repo,
+                class_display_names=class_display_names,
+            ),
+            write_skills_module(skill_repo, staging_root, item_repo),
+            write_stances_module(stance_repo, staging_root),
+            write_build_module(build_repo, staging_root),
+        ]
+        validation_tools: dict[Path, str] = {}
+        for path in staged_paths:
+            validation = validate(path)
+            output_path = output_root / path.relative_to(staging_root)
+            validation_tools[output_path] = validation.tool
+        for path in staged_paths:
+            size = path.stat().st_size
+            if size > max_page_bytes:
+                title = "Module:" + path.relative_to(staging_root).with_suffix("").as_posix()
+                raise ValueError(f"{title} is {size} bytes. Limit: {max_page_bytes} bytes.")
+        written_paths = []
+        for path in staged_paths:
+            output_path = output_root / path.relative_to(staging_root)
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(path, output_path)
+            written_paths.append(output_path)
     _remove_stale_data_modules(output_root, written_paths)
-
-    validation_tools: dict[Path, str] = {}
-    for path in written_paths:
-        validation = validate(path)
-        validation_tools[path] = validation.tool
 
     return LuaDataModuleGenerationResult(written_paths=written_paths, validation_tools=validation_tools)

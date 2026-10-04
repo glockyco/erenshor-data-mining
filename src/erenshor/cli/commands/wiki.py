@@ -1,48 +1,56 @@
 """Wiki commands for MediaWiki page management.
 
-This module provides commands for managing MediaWiki content through a three-stage
-workflow:
+Generated articles follow a three-stage workflow:
 
-1. fetch: Download existing pages from MediaWiki and cache locally
-2. generate: Create new pages from database, merge with fetched content, save locally
-3. deploy: Upload generated pages to MediaWiki
-
-This workflow enables reviewing content before deployment and interrupting/resuming
-at any stage.
+1. fetch: Download the live pages and their revisions.
+2. generate: Create pages from the clean database and merge each one into
+   its fetched page.
+3. deploy: Write each changed page while its live revision is still the
+   fetched revision.
 
 Example workflow:
-    $ erenshor wiki fetch --entity-type items
-    $ erenshor wiki generate --entity-type items
-    $ # Review generated files in variants/main/wiki/generated/
-    $ erenshor wiki deploy --entity-type items
+    $ erenshor wiki fetch
+    $ erenshor wiki generate
+    $ erenshor --dry-run wiki deploy
+    $ erenshor wiki deploy
 """
 
-import difflib
+import json
 import sys
 import tempfile
 import uuid
 from collections import Counter
-from collections.abc import Collection, Mapping
+from collections.abc import Collection, Mapping, Sequence
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Annotated, Literal
 
 import typer
 from loguru import logger
 from rich.console import Console
+from rich.markup import escape
 from rich.panel import Panel
 
+from erenshor.application.extract.database_comparison import recorded_build_id
 from erenshor.application.wiki.generators.context import GeneratorContext
+from erenshor.application.wiki.semantic_validation import validate_wiki_pages
 from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
-from erenshor.application.wiki.services.deploy_service import WikiDeployService
 from erenshor.application.wiki.services.fetch_service import WikiFetchService
-from erenshor.application.wiki.services.generate_service import WikiGenerateService
+from erenshor.application.wiki.services.generate_service import GeneratedCorpus, WikiGenerateService
 from erenshor.application.wiki.services.storage import WikiStorage
-from erenshor.application.wiki_deploy.article_identity import build_article_identity_map
+from erenshor.application.wiki_deploy.article_report import CHANGE_KINDS, ArticleDeployReport, build_article_report
+from erenshor.application.wiki_deploy.articles import (
+    ArticleDeployPlan,
+    ArticleDeployResult,
+    deploy_articles,
+    plan_article_deploy,
+)
 from erenshor.application.wiki_deploy.link_audit import (
     ERROR_CODES,
     FINDING_CODES,
     LinkAuditReport,
+    LinkTargets,
 )
 from erenshor.application.wiki_deploy.link_audit_service import LinkAuditService
 from erenshor.application.wiki_deploy.manifest import (
@@ -52,16 +60,19 @@ from erenshor.application.wiki_deploy.manifest import (
     select_repo_page_manifest,
     write_repo_page_manifest,
 )
-from erenshor.application.wiki_deploy.override_migration import (
-    ArticleOverrideReview,
-    MissingArticleError,
-    review_article_overrides,
+from erenshor.application.wiki_deploy.pages import (
+    RepoPageDrift,
+    RepoPageDriftError,
+    build_deployed_manifest,
+    deploy_repo_pages,
+    find_drift,
+    prepare_repo_page_checks,
+    read_repo_page_sources,
+    render_repo_page_checks,
+    repo_page_action,
 )
-from erenshor.application.wiki_deploy.pages import build_deployed_manifest, deploy_repo_pages
-from erenshor.application.wiki_deploy.refresh import (
-    refresh_embedded_pages,
-    refresh_item_owners_for_source_changes,
-)
+from erenshor.application.wiki_deploy.refresh import refresh_embedded_pages
+from erenshor.application.wiki_deploy.render_check import RenderCheck
 from erenshor.application.wiki_deploy.rollback import rollback_repo_pages
 from erenshor.application.wiki_interface.deploy import (
     InterfaceDeployPlan,
@@ -75,20 +86,19 @@ from erenshor.application.wiki_interface.manifest import (
     write_interface_deploy_manifest,
 )
 from erenshor.application.wiki_interface.sync import MediaWikiInterfaceClient, sync_interface_pages
-from erenshor.application.wiki_inventory.api import FixtureDirectoryTransport, MediaWikiInventoryClient
-from erenshor.application.wiki_inventory.templates import render_ownership_manifest, template_inventory_from_api
 from erenshor.application.wiki_lua.generation import (
     generate_lua_data_modules,
     item_shard_dir,
     planned_top_level_module_paths,
 )
-from erenshor.application.wiki_lua.link_catalog import LinkCatalogEntry, build_link_catalog_entries
+from erenshor.application.wiki_lua.link_catalog import LinkCatalogEntry
 from erenshor.cli.context import CLIContext
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import database_exists, database_has_items, database_valid
 from erenshor.cli.preconditions.checks.inputs import option_path, wiki_credentials
-from erenshor.cli.preconditions.checks.wiki import interface_admin_credentials, wiki_deploy_inputs, wiki_endpoint
+from erenshor.cli.preconditions.checks.wiki import interface_admin_credentials, wiki_endpoint
 from erenshor.infrastructure.database.connection import DatabaseConnection
+from erenshor.infrastructure.database.repositories.build_metadata import BuildMetadataRepository
 from erenshor.infrastructure.database.repositories.characters import CharacterRepository
 from erenshor.infrastructure.database.repositories.factions import FactionRepository
 from erenshor.infrastructure.database.repositories.items import ItemRepository
@@ -100,7 +110,7 @@ from erenshor.infrastructure.database.repositories.spells import SpellRepository
 from erenshor.infrastructure.database.repositories.stances import StanceRepository
 from erenshor.infrastructure.database.repositories.zones import ZoneRepository
 from erenshor.infrastructure.wiki.client import MediaWikiClient
-from erenshor.infrastructure.wiki.rate_limit import MediaWikiRequestor, MediaWikiRequestPolicy
+from erenshor.infrastructure.wiki.rate_limit import MediaWikiRequestor
 
 app = typer.Typer(
     name="wiki",
@@ -110,6 +120,8 @@ app = typer.Typer(
 
 console = Console()
 
+# Semantic findings printed when generation fails. The rest are counted.
+_SHOWN_FINDINGS = 20
 _INTERFACE_ARTIFACT_ROOT = Path("output/wiki-interface")
 _INTERFACE_ROLLBACK_ROOT = Path("rollback")
 
@@ -219,7 +231,6 @@ def _create_wiki_composition(cli_ctx: CLIContext, *, with_client: bool) -> _Wiki
     storage = WikiStorage(variant_config.resolved_wiki(cli_ctx.repo_root))
     maps_source_dir = variant_config.maps.resolved_source_dir(cli_ctx.repo_root)
     zone_positions_path = maps_source_dir / "src" / "lib" / "data" / "zone-positions.json"
-    zone_output_dir = cli_ctx.repo_root / "wiki" / "zones"
     context = GeneratorContext(
         item_repo=ItemRepository(database),
         character_repo=CharacterRepository(database),
@@ -235,7 +246,6 @@ def _create_wiki_composition(cli_ctx: CLIContext, *, with_client: bool) -> _Wiki
         class_display=ClassDisplayNameService(database),
         maps_base_url=variant_config.maps.base_url,
         zone_positions_path=zone_positions_path,
-        zone_output_dir=zone_output_dir,
     )
     wiki_client = None
     try:
@@ -255,6 +265,7 @@ def _create_mediawiki_client(cli_ctx: CLIContext) -> MediaWikiClient:
         api_url=wiki_config.api_url,
         bot_username=credentials.username,
         bot_password=credentials.password,
+        batch_size=50,
     )
     client.login()
     return client
@@ -273,6 +284,7 @@ def _create_readonly_mediawiki_client(cli_ctx: CLIContext) -> MediaWikiClient:
         api_url=wiki_config.api_url,
         bot_username=wiki_config.bot_username,
         bot_password=wiki_config.bot_password,
+        batch_size=50,
     )
 
 
@@ -286,7 +298,6 @@ def _create_interface_mediawiki_client(cli_ctx: CLIContext) -> MediaWikiClient:
         bot_username=credentials.username,
         bot_password=credentials.password,
         batch_size=wiki_config.upload_batch_size,
-        rate_limit_delay=wiki_config.upload_delay,
         edit_summary=wiki_config.upload_edit_summary,
         minor_edit=wiki_config.upload_minor_edit,
     )
@@ -400,44 +411,6 @@ def _report_changed_cargo_declarations(manifest: RepoWikiPageManifest, changed_t
     )
 
 
-def _join_fields(fields: list[str]) -> str:
-    """Format a field list for a review report."""
-    return ", ".join(fields) if fields else "(none)"
-
-
-def _build_item_article_identities(cli_ctx: CLIContext) -> dict[str, tuple[str, ...]]:
-    """Build the authoritative Item article title -> stable keys map."""
-    item_repo = _create_item_repository(cli_ctx)
-    return build_article_identity_map(item_repo.get_items_for_wiki_generation())
-
-
-def _print_override_review(review: ArticleOverrideReview) -> None:
-    """Print one review-only override minimization report."""
-    if review.migration is None:
-        console.print(f"[bold]{review.title}[/bold]")
-        console.print(f"Skipped: {review.skipped_reason}", markup=False)
-        return
-
-    decisions = review.migration.classification.decisions
-    manual_overrides = [decision.field for decision in decisions if decision.decision == "preserved_manual_override"]
-    intentional_blanks = [decision.field for decision in decisions if decision.decision == "intentional_blank"]
-
-    console.print(f"[bold]{review.title}[/bold]")
-    console.print(f"Removed generated duplicates: {_join_fields(list(review.migration.removed_fields))}", markup=False)
-    console.print(f"Preserved manual overrides: {_join_fields(manual_overrides)}", markup=False)
-    console.print(f"Intentional blanks: {_join_fields(intentional_blanks)}", markup=False)
-
-    diff = difflib.unified_diff(
-        review.original_wikitext.splitlines(),
-        review.migration.minimized_wikitext.splitlines(),
-        fromfile=f"{review.title} (current)",
-        tofile=f"{review.title} (minimized)",
-        lineterm="",
-    )
-    for line in diff:
-        console.print(line, markup=False)
-
-
 def _create_item_repository(cli_ctx: CLIContext) -> ItemRepository:
     """Create an item repository for local Lua data generation."""
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
@@ -451,8 +424,6 @@ def _create_lua_repositories(
 ) -> tuple[
     ItemRepository,
     CharacterRepository,
-    SpawnPointRepository,
-    LootTableRepository,
     SpellRepository,
     SkillRepository,
     StanceRepository,
@@ -460,6 +431,7 @@ def _create_lua_repositories(
     ZoneRepository,
     FactionRepository,
     ClassDisplayNameService,
+    BuildMetadataRepository,
 ]:
     """Create repositories for local Lua data generation from one read-only connection."""
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
@@ -468,8 +440,6 @@ def _create_lua_repositories(
     return (
         ItemRepository(db_connection),
         CharacterRepository(db_connection),
-        SpawnPointRepository(db_connection),
-        LootTableRepository(db_connection),
         SpellRepository(db_connection),
         SkillRepository(db_connection),
         StanceRepository(db_connection),
@@ -477,35 +447,14 @@ def _create_lua_repositories(
         ZoneRepository(db_connection),
         FactionRepository(db_connection),
         ClassDisplayNameService(db_connection),
+        BuildMetadataRepository(db_connection),
     )
 
 
 def _build_link_audit_catalog(cli_ctx: CLIContext) -> tuple[LinkCatalogEntry, ...]:
     """Build semantic-link identities from the canonical read-only repositories."""
-    (
-        item_repo,
-        character_repo,
-        _spawn_repo,
-        _loot_repo,
-        spell_repo,
-        skill_repo,
-        stance_repo,
-        quest_repo,
-        zone_repo,
-        faction_repo,
-        class_display,
-    ) = _create_lua_repositories(cli_ctx)
-    return build_link_catalog_entries(
-        items=item_repo.get_items_for_link_catalog(),
-        characters=character_repo.get_characters_for_wiki_generation(),
-        quests=quest_repo.get_quests_for_wiki_generation(),
-        zones=zone_repo.get_all_zones(),
-        spells=spell_repo.get_spells_for_wiki_generation(),
-        skills=skill_repo.get_skills_for_wiki_generation(),
-        stances=stance_repo.get_all(),
-        factions=faction_repo.get_factions_for_wiki_generation(),
-        class_display=class_display,
-    )
+    with _create_wiki_composition(cli_ctx, with_client=False) as composition:
+        return composition.context.link_catalog_entries()
 
 
 def _default_link_audit_output(cli_ctx: CLIContext) -> Path:
@@ -513,8 +462,11 @@ def _default_link_audit_output(cli_ctx: CLIContext) -> Path:
     return variant_config.resolved_wiki(cli_ctx.repo_root) / "link-audit.json"
 
 
-def _print_link_audit_summary(report: LinkAuditReport, output_path: Path | None) -> None:
-    """Print deterministic per-code audit counts and report metadata."""
+def _publish_link_audit(report: LinkAuditReport, output_path: Path | None) -> None:
+    """Write the audit report when a path is given and print its per-code counts."""
+    if output_path is not None:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        report.write_json(output_path)
     console.print(
         Panel.fit(
             "[bold cyan]Semantic link audit[/bold cyan]\n"
@@ -540,16 +492,23 @@ def _run_link_audit(
     include_live_pages: bool,
     output_path: Path | None,
     known_generated_titles: Collection[str] | None = None,
+    catalog: Sequence[LinkCatalogEntry] | None = None,
 ) -> LinkAuditReport:
-    """Run one audit from canonical repositories and optional read-only live facts."""
+    """Run one audit from canonical repositories and optional read-only live facts.
+
+    ``catalog`` is the link catalog that generation used. Without it the audit
+    builds the catalog from the database.
+    """
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
     storage = WikiStorage(variant_config.resolved_wiki(cli_ctx.repo_root))
     if known_generated_titles is None:
         known_generated_titles = storage.list_generated_titles()
     complete_generated_titles = set(known_generated_titles) | set(generated_pages)
+    if catalog is None:
+        catalog = _build_link_audit_catalog(cli_ctx)
     client = _create_readonly_mediawiki_client(cli_ctx) if online else None
     try:
-        audit_service = LinkAuditService(_build_link_audit_catalog(cli_ctx), client=client)
+        audit_service = LinkAuditService(catalog, client=client)
         report = audit_service.audit(
             generated_pages=generated_pages,
             planned_titles=tuple(generated_pages),
@@ -562,10 +521,7 @@ def _run_link_audit(
         if client is not None:
             client.close()
 
-    if output_path is not None:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        report.write_json(output_path)
-    _print_link_audit_summary(report, output_path)
+    _publish_link_audit(report, output_path)
     return report
 
 
@@ -711,8 +667,6 @@ def generate_lua(ctx: typer.Context) -> None:
         (
             item_repo,
             character_repo,
-            spawn_repo,
-            loot_repo,
             spell_repo,
             skill_repo,
             stance_repo,
@@ -720,13 +674,11 @@ def generate_lua(ctx: typer.Context) -> None:
             zone_repo,
             faction_repo,
             class_display,
+            build_repo,
         ) = _create_lua_repositories(cli_ctx)
         result = generate_lua_data_modules(
             item_repo=item_repo,
             character_repo=character_repo,
-            spawn_repo=spawn_repo,
-            loot_repo=loot_repo,
-            spell_usage_repo=spell_repo,
             spell_repo=spell_repo,
             skill_repo=skill_repo,
             stance_repo=stance_repo,
@@ -734,7 +686,9 @@ def generate_lua(ctx: typer.Context) -> None:
             zone_repo=zone_repo,
             faction_repo=faction_repo,
             class_display=class_display,
+            build_repo=build_repo,
             output_root=output_root,
+            max_page_bytes=cli_ctx.config.global_.mediawiki.max_page_bytes,
         )
         for path in result.written_paths:
             console.print(f"[green]Wrote:[/green] {path}", soft_wrap=True)
@@ -791,50 +745,6 @@ def audit_links_command(
         raise typer.Exit(1)
 
 
-@app.command("inventory-templates")
-@require_preconditions(wiki_endpoint, option_path("fixture_dir", kind="directory"))
-def inventory_templates(
-    ctx: typer.Context,
-    output: Path = typer.Option(
-        Path("wiki/ownership.yml"),
-        "--output",
-        "-o",
-        help="Path to write the template ownership manifest.",
-    ),
-    fixture_dir: Path | None = typer.Option(
-        None,
-        "--fixture-dir",
-        help="Replay recorded MediaWiki API fixtures instead of calling the live wiki.",
-    ),
-) -> None:
-    """Inventory production templates and write the ownership manifest."""
-    cli_ctx: CLIContext = ctx.obj
-    wiki_config = cli_ctx.config.global_.mediawiki
-    transport = FixtureDirectoryTransport(fixture_dir) if fixture_dir is not None else None
-    requestor = (
-        None
-        if transport is not None
-        else MediaWikiRequestor(
-            api_url=wiki_config.api_url,
-            policy=MediaWikiRequestPolicy(read_delay=wiki_config.api_delay),
-        )
-    )
-    client = MediaWikiInventoryClient(transport=transport, requestor=requestor)
-
-    try:
-        manifest = render_ownership_manifest(template_inventory_from_api(client))
-        output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(manifest, encoding="utf-8")
-        console.print(f"[green]Wrote template ownership manifest:[/green] {output}", soft_wrap=True)
-    except Exception as e:
-        console.print(f"[red]Error during template inventory: {e}[/red]")
-        logger.exception("Template inventory failed")
-        raise typer.Exit(1) from e
-    finally:
-        if requestor is not None:
-            requestor.close()
-
-
 @app.command()
 @require_preconditions(
     database_exists,
@@ -865,24 +775,21 @@ def generate(
 ) -> None:
     """Generate wiki pages locally.
 
-    Creates new wiki pages from database content, merges with fetched pages
-    (if available), preserves manually-edited fields, and removes legacy
-    templates. Generated pages are saved locally for review before deployment.
+    Generates the entity, overview, and zone articles from the clean database
+    and merges each article into its fetched live page. Generated roots take
+    the database values, except where a preservation rule keeps the value of
+    an editor. Overview pages take the new generated table. Text outside the
+    generated roots and tables stays.
 
     You can specify which pages to generate using --pages-file:
     - Generate from file: --pages-file pages.txt
     - Generate from stdin: --pages-file - < pages.txt
     - Generate all pages: (no --pages-file option)
 
-    Generates all entity types (items, characters, spells, skills) and groups
-    them by resolved page titles from the registry. Multi-entity pages (e.g.,
-    spell + skill sharing one page) are automatically handled.
-
     Generated pages are saved to variants/{variant}/wiki/generated/
 
-    You can review generated files before deploying them with:
-        $ cat variants/{variant}/wiki/generated/*.txt
-        $ git diff variants/{variant}/wiki/fetched/ variants/{variant}/wiki/generated/
+    You can compare generated files with the fetched pages before deploying them:
+        $ git diff --no-index variants/{variant}/wiki/fetched/ variants/{variant}/wiki/generated/
     """
     cli_ctx: CLIContext = ctx.obj
 
@@ -906,34 +813,44 @@ def generate(
 
     try:
         with _create_wiki_composition(cli_ctx, with_client=False) as composition:
-            service = WikiGenerateService(context=composition.context)
+            link_catalog = composition.context.link_catalog_entries()
+            service = WikiGenerateService(context=composition.context, link_catalog=link_catalog)
 
-            # Generate pages (all or specified) and audit the exact processed
-            # snapshot before generation reports success.
-            def audit_generated_pages(generated_pages: Mapping[str, str]) -> None:
-                report = _run_link_audit(
-                    cli_ctx,
-                    generated_pages,
-                    online=False,
-                    include_live_pages=False,
-                    output_path=None if cli_ctx.dry_run else _default_link_audit_output(cli_ctx),
-                    known_generated_titles=tuple(generated_pages),
+            # Validate the exact pages of the run before generation reports
+            # success. Validation includes the offline semantic-link audit.
+            def validate_generated_corpus(corpus: GeneratedCorpus) -> None:
+                pages = tuple(corpus.pages)
+                report = validate_wiki_pages(
+                    corpus.pages,
+                    expectations=corpus.expectations,
+                    catalog_entries=link_catalog,
+                    planned_titles=pages,
+                    known_generated_titles=pages,
+                    variant=cli_ctx.variant,
                 )
+                _publish_link_audit(report.link_audit, None if cli_ctx.dry_run else _default_link_audit_output(cli_ctx))
                 if report.has_errors:
-                    error_count = sum(1 for finding in report.findings if finding.severity == "error")
-                    raise ValueError(f"Semantic link audit found {error_count} blocking finding(s)")
+                    for finding in report.findings[:_SHOWN_FINDINGS]:
+                        console.print(f"[red]✗[/red] {escape(f'[{finding.code}] {finding.page}: {finding.detail}')}")
+                    hidden = len(report.findings) - _SHOWN_FINDINGS
+                    if hidden > 0:
+                        console.print(f"[red]… and {hidden} more[/red]")
+                    raise ValueError(f"Semantic validation found {len(report.findings)} blocking finding(s)")
 
             result = service.generate_all(
                 dry_run=cli_ctx.dry_run,
                 limit=limit,
                 page_titles=page_titles,
                 generator_names=generator,
-                preflight=audit_generated_pages,
+                validate=validate_generated_corpus,
             )
 
-        # Show warnings and errors
+        # Show warnings and errors. Warnings name the live roots that generation
+        # kept because no generated entity matches them; a human reviews them.
         if result.has_warnings():
             logger.warning(f"Generation completed with {len(result.warnings)} warnings")
+            for warning in result.warnings:
+                console.print(f"[yellow]![/yellow] {escape(warning)}")
 
         if result.failed > 0:
             logger.error(f"Generation completed with {result.failed} failures")
@@ -945,15 +862,7 @@ def generate(
             wiki_dir = variant_config.resolved_wiki(cli_ctx.repo_root)
             console.print("[bold]Next steps:[/bold]")
             console.print(f"  Review generated files: {wiki_dir / 'generated'}")
-            console.print("  These are legacy Python-generated articles. During the Lua/Cargo cutover the article")
-            console.print(
-                "  deploy is gated: deploy repo-owned Lua data and templates with "
-                "[cyan]erenshor wiki deploy-repo-pages[/cyan],"
-            )
-            console.print(
-                "  or deploy these legacy articles intentionally with "
-                "[cyan]erenshor wiki deploy --legacy-article-deploy[/cyan]."
-            )
+            console.print("  Review the deploy plan: [cyan]erenshor --dry-run wiki deploy[/cyan]")
             console.print()
 
     except Exception as e:
@@ -964,16 +873,7 @@ def generate(
 
 @app.command("sync-interface")
 @require_preconditions(wiki_endpoint)
-def sync_interface(
-    ctx: typer.Context,
-    rate_limit_delay: Annotated[
-        float,
-        typer.Option(
-            help="Delay between live wiki API reads.",
-            min=0.0,
-        ),
-    ] = 1.0,
-) -> None:
+def sync_interface(ctx: typer.Context) -> None:
     """Sync live MediaWiki interface pages for local preview.
 
     Writes the gitignored local mirror to wiki-dev/interface and CSS assets to wiki-dev/images.
@@ -984,7 +884,6 @@ def sync_interface(
     wiki_config = cli_ctx.config.global_.mediawiki
     requestor = MediaWikiRequestor(
         api_url=wiki_config.api_url,
-        policy=MediaWikiRequestPolicy(read_delay=rate_limit_delay),
     )
     client = MediaWikiInterfaceClient(requestor)
     try:
@@ -1186,47 +1085,6 @@ def rollback_interface_command(
             console.print(f"  {title}", markup=False)
 
 
-_DIRECT_DATA_LINK_CONSUMER_TITLES = frozenset(
-    {
-        "Module:Erenshor/Link",
-        "Module:Erenshor/AbilityLink",
-        "Module:Erenshor/Link/Search",
-        "Module:Erenshor/Item",
-    }
-)
-_DATA_LINKS_TITLE = "Module:Erenshor/Data/Links"
-
-
-def _manifest_requires_live_links(manifest: RepoWikiPageManifest) -> bool:
-    """Return whether a direct consumer lacks an earlier Links catalog page."""
-    earlier_titles: set[str] = set()
-    for entry in manifest.entries:
-        if entry.title in _DIRECT_DATA_LINK_CONSUMER_TITLES and _DATA_LINKS_TITLE not in earlier_titles:
-            return True
-        earlier_titles.add(entry.title)
-    return False
-
-
-def _candidate_repo_page_manifest(
-    manifest: RepoWikiPageManifest,
-    *,
-    requested_titles: set[str] | None,
-    include_templates: bool,
-    include_generated_data: bool,
-    include_content_pages: bool,
-) -> RepoWikiPageManifest:
-    """Apply CLI scope filters before the live catalog dependency check."""
-    entries = tuple(
-        entry
-        for entry in manifest.entries
-        if (include_templates or entry.upload_stage not in {"template", "cargo_declaration"})
-        and (include_generated_data or entry.upload_stage != "generated_data")
-        and (include_content_pages or entry.upload_stage != "content_page")
-        and (requested_titles is None or entry.title in requested_titles)
-    )
-    return RepoWikiPageManifest(entries=entries)
-
-
 @app.command("deploy-repo-pages")
 @require_preconditions(wiki_endpoint, wiki_credentials, option_path("pages_file"))
 def deploy_repo_pages_command(
@@ -1281,14 +1139,33 @@ def deploy_repo_pages_command(
             help="Explicitly include maintained wiki content pages. Disabled by default.",
         ),
     ] = False,
+    full_render_check: Annotated[
+        bool,
+        typer.Option("--full-render-check", help="Parse every main-namespace page that uses each changed page."),
+    ] = False,
+    accept_drift: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--accept-drift",
+            help=(
+                "Overwrite this page although another account made its latest revision. "
+                "Review its live text first. May be repeated."
+            ),
+        ),
+    ] = None,
 ) -> None:
-    """Deploy repo-owned wiki pages; generated data, content pages, and templates require opt-in."""
+    """Deploy repo-owned wiki pages; generated data, content pages, and templates require opt-in.
+
+    The deploy stops before its first write when another account made the latest
+    revision of a page whose live text differs from the repository. Copy that live
+    text into the repository, or name the page with --accept-drift. A dry run reads
+    the live pages, counts the planned changes, and names each such page.
+    """
     cli_ctx: CLIContext = ctx.obj
     if include_generated_data and not pages_file:
         console.print("[red]--include-generated-data requires --pages-file with explicit page titles[/red]")
         raise typer.Exit(1)
     requested_titles = set(_read_page_titles(pages_file)) if pages_file else None
-    known_live_titles: set[str] = set()
     try:
         manifest = build_repo_page_manifest(
             cli_ctx.repo_root,
@@ -1298,27 +1175,12 @@ def deploy_repo_pages_command(
             include_content_pages=include_content_pages,
             requested_titles=requested_titles,
         )
-        candidate_manifest = _candidate_repo_page_manifest(
-            manifest,
-            requested_titles=requested_titles,
-            include_templates=include_templates,
-            include_generated_data=include_generated_data,
-            include_content_pages=include_content_pages,
-        )
-        if _manifest_requires_live_links(candidate_manifest):
-            readonly_client = _create_readonly_mediawiki_client(cli_ctx)
-            try:
-                if readonly_client.page_exists(_DATA_LINKS_TITLE):
-                    known_live_titles.add(_DATA_LINKS_TITLE)
-            finally:
-                readonly_client.close()
         manifest = select_repo_page_manifest(
             manifest,
             requested_titles=requested_titles,
             include_templates=include_templates,
             include_generated_data=include_generated_data,
             include_content_pages=include_content_pages,
-            known_live_titles=known_live_titles,
         )
     except Exception as e:
         console.print(f"[red]Unable to select repo-owned wiki pages: {e}[/red]")
@@ -1328,14 +1190,67 @@ def deploy_repo_pages_command(
         manifest_output = (
             cli_ctx.config.variants[cli_ctx.variant].resolved_wiki(cli_ctx.repo_root) / "deploy-manifest.json"
         )
+    manifest_output = manifest_output.resolve()
 
     if not manifest.entries:
         console.print("[yellow]No repo-owned wiki pages selected; no remote edits made[/yellow]")
         return
 
+    accepted = tuple(accept_drift or ())
     if cli_ctx.dry_run:
+        readonly_client = _create_readonly_mediawiki_client(cli_ctx)
+        try:
+            snapshots = readonly_client.get_page_snapshots([entry.title for entry in manifest.entries])
+            source_texts = read_repo_page_sources(manifest, cli_ctx.repo_root)
+            drift = find_drift(
+                manifest.entries,
+                source_texts,
+                snapshots,
+                deploy_account=readonly_client.edit_account,
+                accepted=accepted,
+            )
+            live_modules: dict[str, str | None] = {}
+            manifest = prepare_repo_page_checks(manifest, source_texts, snapshots, readonly_client, live_modules)
+            catalog = (
+                {entry.key.casefold(): entry for entry in _build_link_audit_catalog(cli_ctx)}
+                if any(
+                    repo_page_action(snapshots[entry.title], source_texts[entry.title]) != "unchanged"
+                    for entry in manifest.entries
+                )
+                else {}
+            )
+            render_repo_page_checks(
+                manifest,
+                source_texts,
+                snapshots,
+                readonly_client,
+                catalog=catalog,
+                full=full_render_check,
+                dry_run=True,
+                live_modules=live_modules,
+                report=_print_repo_render_check,
+            )
+        except Exception as e:
+            console.print(f"[red]Repo-owned page dry run failed: {escape(str(e))}[/red]")
+            raise typer.Exit(1) from e
+        finally:
+            readonly_client.close()
+        planned = {
+            entry.title: repo_page_action(snapshots[entry.title], source_texts[entry.title])
+            for entry in manifest.entries
+        }
+        actions = Counter(planned.values())
         scope = f" filtered by {pages_file}" if pages_file else ""
-        console.print(f"[yellow]Dry run: {len(manifest.entries)} repo-owned pages in manifest{scope}[/yellow]")
+        console.print(
+            f"[yellow]Dry run: {len(manifest.entries)} repo-owned pages in manifest{scope}[/yellow] "
+            f"Create: {actions['created']} Edit: {actions['edited']} Unchanged: {actions['unchanged']}"
+        )
+        for title, action in sorted(planned.items()):
+            if action != "unchanged":
+                console.print(f"  {'Create' if action == 'created' else 'Edit'} {escape(title)}", soft_wrap=True)
+        _print_repo_page_drift(drift)
+        if drift:
+            raise typer.Exit(1)
         return
 
     def checkpoint_manifest(checkpointed_manifest: RepoWikiPageManifest) -> None:
@@ -1355,8 +1270,17 @@ def deploy_repo_pages_command(
             include_templates=include_templates,
             include_generated_data=include_generated_data,
             include_content_pages=include_content_pages,
-            known_live_titles=known_live_titles,
+            accept_drift=accepted,
+            catalog={entry.key.casefold(): entry for entry in _build_link_audit_catalog(cli_ctx)},
+            full_render_check=full_render_check,
+            report_render=_print_repo_render_check,
         )
+    except RepoPageDriftError as e:
+        _print_repo_page_drift(e.drift)
+        raise typer.Exit(1) from e
+    except ValueError as e:
+        console.print(f"[red]Repo-owned page deploy failed: {escape(str(e))}[/red]")
+        raise typer.Exit(1) from e
     finally:
         client.close()
 
@@ -1375,70 +1299,30 @@ def deploy_repo_pages_command(
     _report_changed_cargo_declarations(manifest, changed_titles)
 
 
-@app.command("review-overrides")
-@require_preconditions(
-    database_exists,
-    database_valid,
-    database_has_items,
-)
-def review_overrides_command(
-    ctx: typer.Context,
-    page_titles: Annotated[
-        list[str] | None,
-        typer.Option("--page", help="Article title to review. May be repeated."),
-    ] = None,
-    pages_file: Annotated[
-        str | None,
-        typer.Option("--pages-file", "-p", help="File containing article titles, one per line."),
-    ] = None,
-    limit: Annotated[
-        int | None,
-        typer.Option("--limit", "-n", help="Limit number of pages to review."),
-    ] = None,
-    template_names: Annotated[
-        list[str] | None,
-        typer.Option("--template", help="Root infobox template name. May be repeated."),
-    ] = None,
-    module: Annotated[
-        str,
-        typer.Option("--module", help="Lua presentation module exposing the field accessor."),
-    ] = "Erenshor/Item",
-) -> None:
-    """Review article infobox parameters that duplicate generated Lua values."""
-    cli_ctx: CLIContext = ctx.obj
-    article_identities = _build_item_article_identities(cli_ctx)
-    titles = list(page_titles or ())
-    if pages_file:
-        titles.extend(_read_page_titles(pages_file))
-    if not titles:
-        titles = sorted(article_identities)
-    if limit is not None:
-        titles = titles[:limit]
+def _print_repo_render_check(result: RenderCheck) -> None:
+    """Show render coverage and visible differences for one changed page."""
+    status = " (provisional)" if result.provisional else ""
+    if not result.users:
+        console.print(f"  Render {escape(result.title)}: no main-namespace users{status}")
+        return
+    console.print(f"  Render {escape(result.title)}: checked {len(result.checked)} of {result.users} users{status}")
+    for difference in result.differences:
+        console.print(f"    Visible change on {escape(difference.title)}")
+        for line in difference.removed:
+            console.print(f"      - {escape(line)}")
+        for line in difference.added:
+            console.print(f"      + {escape(line)}")
 
-    templates = tuple(template_names or ("Item",))
-    client = _create_mediawiki_client(cli_ctx)
-    try:
-        reviews = review_article_overrides(
-            client=client,
-            titles=tuple(titles),
-            template_names=templates,
-            module=module,
-            article_identities=article_identities,
+
+def _print_repo_page_drift(drift: Sequence[RepoPageDrift]) -> None:
+    """Name each page that another account changed, and how to resolve it."""
+    for item in drift:
+        console.print(
+            f"[red]Drift[/red] {escape(item.title)}: revision {item.revision_id} by "
+            f"{escape(item.user or 'a hidden user')} differs from the repository"
         )
-    except MissingArticleError as e:
-        console.print(f"[red]{e}[/red]")
-        raise typer.Exit(1) from e
-    finally:
-        client.close()
-
-    changed = sum(1 for review in reviews if review.changed)
-    skipped = sum(1 for review in reviews if review.migration is None)
-    console.print(
-        f"[green]Article override review complete[/green] "
-        f"Changed: {changed} Skipped: {skipped} Reviewed: {len(reviews)}"
-    )
-    for review in reviews:
-        _print_override_review(review)
+    if drift:
+        console.print("Copy the live text of each page into the repository, or review it and pass --accept-drift.")
 
 
 @app.command("refresh-embedded")
@@ -1450,13 +1334,6 @@ def refresh_embedded_command(
         typer.Option(
             "--dependency-title",
             help="Template or module title whose transcluding pages should be refreshed.",
-        ),
-    ] = None,
-    source_tables: Annotated[
-        list[str] | None,
-        typer.Option(
-            "--source-table",
-            help="Source data table whose item-owned Cargo pages should be reparsed.",
         ),
     ] = None,
     page_titles: Annotated[
@@ -1478,11 +1355,10 @@ def refresh_embedded_command(
     """Force a link/Cargo refresh on pages that transclude the given templates/modules."""
     cli_ctx: CLIContext = ctx.obj
     dependency_titles = dependency_titles or []
-    source_tables = source_tables or []
     page_titles = page_titles or []
     namespaces = namespaces or []
-    if not dependency_titles and not source_tables and not page_titles:
-        console.print("[red]At least one dependency title, source table, or page is required.[/red]")
+    if not dependency_titles and not page_titles:
+        console.print("[red]At least one dependency title or page is required.[/red]")
         raise typer.Exit(1)
     if dependency_titles and not namespaces:
         console.print("[red]At least one --namespace is required with dependency titles.[/red]")
@@ -1490,8 +1366,8 @@ def refresh_embedded_command(
 
     if cli_ctx.dry_run:
         console.print(
-            f"[yellow]Dry run: would refresh pages for {len(dependency_titles)} dependencies, "
-            f"{len(source_tables)} source tables, and {len(set(page_titles))} explicit pages "
+            f"[yellow]Dry run: would refresh pages for {len(dependency_titles)} dependencies "
+            f"and {len(set(page_titles))} explicit pages "
             f"in namespaces {', '.join(str(namespace) for namespace in namespaces)}[/yellow]"
         )
         return
@@ -1519,15 +1395,6 @@ def refresh_embedded_command(
                     assert_user=assert_user,
                 )
             )
-        if source_tables:
-            refreshed_titles.update(
-                refresh_item_owners_for_source_changes(
-                    client=client,
-                    changed_source_tables=tuple(source_tables),
-                    assertion="bot",
-                    assert_user=assert_user,
-                ).refreshed
-            )
     finally:
         client.close()
 
@@ -1540,7 +1407,7 @@ def rollback_repo_pages_command(
     ctx: typer.Context,
     manifest_path: Annotated[
         Path,
-        typer.Option("--manifest", help="Deployment manifest JSON produced by deploy-repo-pages."),
+        typer.Option("--manifest", help="Deployment manifest JSON produced by deploy-repo-pages or deploy."),
     ],
     summary: Annotated[
         str,
@@ -1555,7 +1422,7 @@ def rollback_repo_pages_command(
         typer.Option("--force", help="Restore even if a page changed since the deploy being rolled back."),
     ] = False,
 ) -> None:
-    """Restore repo-owned page text recorded in a deployment manifest."""
+    """Restore the page text recorded in a deploy-repo-pages or deploy manifest."""
     cli_ctx: CLIContext = ctx.obj
 
     manifest = read_repo_page_manifest(manifest_path)
@@ -1597,7 +1464,9 @@ def rollback_repo_pages_command(
     wiki_endpoint,
     wiki_credentials,
     option_path("pages_file"),
-    wiki_deploy_inputs,
+    database_exists,
+    database_valid,
+    database_has_items,
 )
 def deploy(
     ctx: typer.Context,
@@ -1605,108 +1474,166 @@ def deploy(
         None,
         "--limit",
         "-n",
-        help="Limit number of pages to deploy (for testing)",
+        help="Write at most this many articles.",
     ),
     pages_file: str | None = typer.Option(
         None,
         "--pages-file",
         help="File with page titles to deploy (one per line), or '-' for stdin. If not specified, deploys all pages.",
     ),
-    from_dir: str | None = typer.Option(
-        None,
-        "--from-dir",
-        help="Deploy .txt files from this directory instead of generated storage. Title derived from filename.",
-    ),
-    legacy_article_deploy: bool = typer.Option(
-        False,
-        "--legacy-article-deploy",
-        help="Allow the legacy Python-generated article deploy path during Lua cutover.",
-    ),
 ) -> None:
-    """Deploy legacy Python-generated article pages to MediaWiki."""
-    cli_ctx: CLIContext = ctx.obj
-    if not legacy_article_deploy:
-        console.print(
-            "[red]Legacy article deploy is disabled during Lua/Cargo cutover. "
-            "Use 'wiki deploy-repo-pages' for repo-owned Lua/templates, or pass "
-            "--legacy-article-deploy to run the old generated article deploy path intentionally.[/red]"
-        )
-        raise typer.Exit(1)
+    """Deploy generated articles that changed since their fetched revision.
 
+    Each article is written only while its live page is still at the revision
+    that generation merged into. A page that changed or was deleted after the
+    fetch is a conflict and is not written. Before the first write, a manifest
+    lists every planned page with its base revision. Each written page gets its
+    new revision there, and `wiki rollback-repo-pages` restores the written pages.
+
+    A dry run writes nothing to the wiki. It groups the planned writes by kind
+    of change, lists the encounter tier changes, the live roots that generation
+    kept, and the conflicts, and saves the full report as deploy-plan.json in
+    the wiki directory of the variant.
+    """
+    cli_ctx: CLIContext = ctx.obj
+    variant_config = cli_ctx.config.variants[cli_ctx.variant]
+    wiki_dir = variant_config.resolved_wiki(cli_ctx.repo_root)
+    storage = WikiStorage(wiki_dir)
     try:
         page_titles = _read_page_titles(pages_file) if pages_file else None
-        if from_dir:
-            with _create_wiki_composition(cli_ctx, with_client=True) as composition:
-                assert composition.wiki_client is not None
-                service = WikiDeployService(
-                    wiki_client=composition.wiki_client,
-                    storage=composition.storage,
-                )
-                console.print(
-                    "[yellow]Directory uploads are outside the generated-content gate. "
-                    "Run 'erenshor wiki audit-links' explicitly for generated storage.[/yellow]"
-                )
-                result = service.deploy_from_dir(
-                    source_dir=Path(from_dir),
-                    dry_run=cli_ctx.dry_run,
-                    limit=limit,
-                    page_titles=page_titles,
-                )
-        else:
-            with _create_wiki_composition(cli_ctx, with_client=True) as composition:
-                assert composition.wiki_client is not None
-                service = WikiDeployService(
-                    wiki_client=composition.wiki_client,
-                    storage=composition.storage,
-                )
-                if page_titles is not None:
-                    logger.info(f"Deploying {len(page_titles)} pages from {pages_file}")
+        plan = plan_article_deploy(storage, page_titles=page_titles, limit=limit)
+    except Exception as e:
+        console.print(f"[red]Unable to plan the article deploy: {escape(str(e))}[/red]")
+        raise typer.Exit(1) from e
 
-                console.print()
-                console.print(
-                    Panel.fit(
-                        f"[bold cyan]Deploying legacy generated wiki article pages[/bold cyan]\n"
-                        f"Variant: {cli_ctx.variant}\n"
-                        f"Dry-run: {cli_ctx.dry_run}\n"
-                        f"Pages: {'from ' + pages_file if pages_file else 'all'}",
-                        border_style="cyan",
-                    )
-                )
-                console.print()
+    _print_article_plan(plan)
+    writes = {article.title: article.generated_text for article in plan.writes}
+    review_failed = False
+    catalog = _build_link_audit_catalog(cli_ctx) if writes else ()
+    if cli_ctx.dry_run and writes:
+        readonly_client = _create_readonly_mediawiki_client(cli_ctx)
+        try:
+            live_revisions = readonly_client.get_page_revision_ids(list(writes))
+        finally:
+            readonly_client.close()
+        review = build_article_report(plan, storage, live_revisions, LinkTargets(catalog))
+        review_path = wiki_dir / "deploy-plan.json"
+        review_path.write_text(json.dumps(review.to_json(), indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        _print_article_report(review, review_path)
+        review_failed = bool(review.conflicts)
 
-                def audit_deployment_pages(generated_pages: Mapping[str, str]) -> None:
-                    report = _run_link_audit(
-                        cli_ctx,
-                        generated_pages,
-                        online=True,
-                        include_live_pages=False,
-                        output_path=None if cli_ctx.dry_run else _default_link_audit_output(cli_ctx),
-                    )
-                    stale_catalog = any(finding.code == "live_link_catalog_stale" for finding in report.findings)
-                    if stale_catalog:
-                        raise ValueError(
-                            "Generated article deployment requires the live semantic-link catalog to match "
-                            "the generated catalog. Deploy repo-owned Lua/data pages first."
-                        )
-                    if report.has_errors:
-                        error_count = sum(1 for finding in report.findings if finding.severity == "error")
-                        raise ValueError(f"Semantic link audit found {error_count} blocking finding(s)")
-
-                result = service.deploy_all(
-                    dry_run=cli_ctx.dry_run,
-                    limit=limit,
-                    page_titles=page_titles,
-                    preflight=audit_deployment_pages,
-                )
-
-        if result.has_warnings():
-            logger.warning(f"Deployment completed with {len(result.warnings)} warnings")
-
-        if result.failed > 0:
-            logger.error(f"Deployment completed with {result.failed} failures")
+    if writes:
+        report = _run_link_audit(
+            cli_ctx,
+            writes,
+            online=True,
+            include_live_pages=False,
+            output_path=None if cli_ctx.dry_run else _default_link_audit_output(cli_ctx),
+            catalog=catalog,
+        )
+        if any(finding.code == "live_link_catalog_stale" for finding in report.findings):
+            console.print(
+                "[red]The live semantic-link catalog differs from the generated catalog. "
+                "Deploy the repository Lua data pages first.[/red]"
+            )
+            raise typer.Exit(1)
+        if report.has_errors:
+            error_count = sum(1 for finding in report.findings if finding.severity == "error")
+            console.print(f"[red]Semantic link audit found {error_count} blocking finding(s).[/red]")
             raise typer.Exit(1)
 
-    except Exception as e:
-        console.print(f"[red]Error during wiki deployment: {e}[/red]")
-        logger.exception("Wiki deployment failed")
+    if cli_ctx.dry_run or not writes:
+        if plan.stale or review_failed:
+            raise typer.Exit(1)
+        return
+
+    try:
+        build_id = recorded_build_id(variant_config.resolved_database(cli_ctx.repo_root))
+    except ValueError as e:
+        console.print(f"[red]{escape(str(e))}[/red]")
         raise typer.Exit(1) from e
+    run_dir = wiki_dir / "article-deploys" / datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+    manifest_path = run_dir / "manifest.json"
+
+    def checkpoint_manifest(manifest: RepoWikiPageManifest) -> None:
+        write_repo_page_manifest(manifest, manifest_path)
+
+    client = _create_mediawiki_client(cli_ctx)
+    try:
+        result = deploy_articles(
+            plan,
+            client=client,
+            storage=storage,
+            repo_root=cli_ctx.repo_root,
+            rollback_root=run_dir / "rollback",
+            summary=f"Update game data from build {build_id}",
+            checkpoint=checkpoint_manifest,
+        )
+    finally:
+        client.close()
+    write_repo_page_manifest(result.manifest, manifest_path)
+
+    _print_article_deploy_result(result, manifest_path)
+    if result.failed or plan.stale:
+        raise typer.Exit(1)
+
+
+def _print_article_plan(plan: ArticleDeployPlan) -> None:
+    """Print what the article deploy writes and the pages it cannot guard."""
+    console.print(
+        f"[bold]Article deploy plan[/bold] Edit: {plan.count('edit')} Create: {plan.count('create')} "
+        f"Unchanged: {plan.count('unchanged')} Stale: {len(plan.stale)}"
+    )
+    for issue in plan.stale:
+        console.print(f"[red]Stale[/red] {escape(issue.title)}: {escape(issue.reason)}")
+
+
+def _print_article_report(review: ArticleDeployReport, review_path: Path) -> None:
+    """Print the planned writes by kind of change, the kept live roots, and the conflicts."""
+    console.print("[bold]Planned writes by kind of change[/bold]")
+    for kind in CHANGE_KINDS:
+        console.print(f"  {kind}: {len(review.pages(kind))}")
+    console.print(f"  only links and stable keys: {len(review.invisible_pages())}")
+    tier_changes = [(change.title, tier) for change in review.changes for tier in change.tier_changes]
+    if tier_changes:
+        console.print(f"[bold]Encounter tier changes[/bold] ({len(tier_changes)})")
+        for title, tier in tier_changes:
+            label = title if tier.name == title else f"{title} ({tier.name})"
+            console.print(f"  {escape(label)}: {escape(tier.old)} -> {escape(tier.new)}")
+    field_pages = review.field_pages()
+    if field_pages:
+        console.print("[bold]Most changed field values[/bold]")
+        for field, titles in list(field_pages.items())[:15]:
+            console.print(f"  {escape(field)}: {len(titles)}")
+    structure = [change for change in review.changes if change.structure]
+    if structure:
+        console.print(f"[bold]Structure changes[/bold] ({len(structure)})")
+        for change in structure[:20]:
+            console.print(f"  {escape(change.title)}: {escape('; '.join(change.structure))}")
+        if len(structure) > 20:
+            console.print(f"  ... and {len(structure) - 20} more in the full report")
+    for change in review.changes:
+        for root in change.kept_roots:
+            console.print(f"[yellow]Kept live root[/yellow] {escape(change.title)}: {escape(root)}")
+    for issue in review.conflicts:
+        console.print(f"[yellow]Conflict[/yellow] {escape(issue.title)}: {escape(issue.reason)}")
+    console.print(f"Full report: {review_path}", markup=False)
+
+
+def _print_article_deploy_result(result: ArticleDeployResult, manifest_path: Path) -> None:
+    """Print the written pages, the pages that were not written, and why."""
+    console.print(
+        f"[green]Article deploy complete[/green] Edited: {result.count('edited')} "
+        f"Created: {result.count('created')} Unchanged: {len(result.unchanged)} "
+        f"Conflicts: {len(result.conflicts)} Blocked: {len(result.blocked)}"
+    )
+    console.print(f"Manifest: {manifest_path}", markup=False)
+    for issue in result.conflicts:
+        console.print(f"[yellow]Conflict[/yellow] {escape(issue.title)}: {escape(issue.reason)}")
+    for issue in result.blocked:
+        console.print(f"[red]Blocked[/red] {escape(issue.title)}: {escape(issue.reason)}")
+    if result.stopped is not None:
+        console.print(
+            f"[red]Deploy stopped:[/red] {escape(result.stopped)}. "
+            "The output is partial. The manifest records the new revision of each written page."
+        )

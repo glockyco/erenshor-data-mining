@@ -21,6 +21,7 @@ def _override(*, display_name: str, expected_npc_name: str | None) -> MappingOve
         is_wiki_generated=1,
         is_map_visible=1,
         encounter_tier=None,
+        loot_unreachable=False,
     )
 
 
@@ -96,3 +97,22 @@ def test_encounter_tier_override_is_loaded(tmp_path: Path) -> None:
 def test_invalid_encounter_tier_override_is_rejected(tmp_path: Path, fields: dict[str, object], message: str) -> None:
     with pytest.raises(ValueError, match=message):
         load_mapping(_write_rule(tmp_path, **fields))
+
+
+def test_unreachable_loot_requires_a_reason(tmp_path: Path) -> None:
+    characters, _ = load_mapping(_write_rule(tmp_path, loot_unreachable=True, reason="Destroyed by its fight."))
+    assert characters["character:catnip"]["loot_unreachable"] is True
+
+    with pytest.raises(ValueError, match="'loot_unreachable' requires a 'reason'"):
+        load_mapping(_write_rule(tmp_path, loot_unreachable=True))
+
+
+def test_a_stance_rule_cannot_set_the_image(tmp_path: Path) -> None:
+    path = tmp_path / "mapping.json"
+    path.write_text(json.dumps({"rules": {"stance:normal": {"display_name": "Normal", "wiki_page_name": "Normal"}}}))
+    rules, _ = load_mapping(path)
+    assert rules["stance:normal"]["image_name"] is None
+
+    path.write_text(json.dumps({"rules": {"stance:normal": {"display_name": "Normal", "image_name": "Normal"}}}))
+    with pytest.raises(ValueError, match="must not set 'image_name'"):
+        load_mapping(path)

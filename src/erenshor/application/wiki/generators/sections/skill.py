@@ -8,21 +8,19 @@ assembly is handled by PageGenerator classes.
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 from loguru import logger
 
-from erenshor.application.wiki.generators.formatting import format_description, safe_str
+from erenshor.application.wiki.generators.formatting import format_description, safe_str, seconds_text
+from erenshor.application.wiki.generators.link_lists import format_links, format_visible_links
 from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
-from erenshor.domain.value_objects.wiki_link import ClassLink, WikiLink
+from erenshor.domain.value_objects.wiki_link import ClassLink
+from erenshor.shared.game_constants import ticks_to_seconds
 
 if TYPE_CHECKING:
     from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
     from erenshor.domain.enriched_data.skill import EnrichedSkillData
-
-# Game constants for cooldown calculation
-GAME_TICKS_PER_SECOND = 60  # Game runs at 60 ticks per second
 
 
 class SkillSectionGenerator(SectionGeneratorBase):
@@ -117,23 +115,8 @@ class SkillSectionGenerator(SectionGeneratorBase):
 
         # Pre-built links from enriched DTO
         pet_to_summon = str(enriched.spawn_on_use) if enriched.spawn_on_use else ""
-        status_effect = str(enriched.effect_to_apply) if enriched.effect_to_apply else ""
-        activated_stance = str(enriched.activated_stance) if enriched.activated_stance else ""
-        cast_on_target = str(enriched.cast_on_target) if enriched.cast_on_target else ""
-
-        # Combine effects
-        effects_parts = []
-        seen_effects: set[str] = set()
-        if status_effect and status_effect not in seen_effects:
-            effects_parts.append(status_effect)
-            seen_effects.add(status_effect)
-        if activated_stance and activated_stance not in seen_effects:
-            effects_parts.append(activated_stance)
-            seen_effects.add(activated_stance)
-        if cast_on_target and cast_on_target not in seen_effects:
-            effects_parts.append(cast_on_target)
-            seen_effects.add(cast_on_target)
-        effects = "<br>".join(effects_parts)
+        effect_links = (enriched.effect_to_apply, enriched.activated_stance, enriched.cast_on_target)
+        effects = format_links(link for link in effect_links if link is not None)
 
         skill_type = skill.type_of_skill or "Passive"
         cast_time = ""
@@ -144,7 +127,7 @@ class SkillSectionGenerator(SectionGeneratorBase):
         damage_type = safe_str(skill.damage_type) if skill_type == "Attack" else ""
 
         # teaching_items are pre-built ItemLink objects
-        source = self._format_wiki_links(enriched.teaching_items)
+        source = format_visible_links(enriched.teaching_items)
 
         display_name = skill.display_name or skill.skill_name or page_title
 
@@ -222,34 +205,7 @@ class SkillSectionGenerator(SectionGeneratorBase):
         return context
 
     def _format_cooldown(self, cooldown: float | None) -> str:
-        """Format skill cooldown from ticks to human-readable duration string."""
-        if cooldown is None or cooldown == 0:
+        """Format a skill cooldown in ticks as seconds."""
+        if not cooldown:
             return ""
-
-        seconds = cooldown / GAME_TICKS_PER_SECOND
-        return self._seconds_to_duration(int(seconds))
-
-    def _seconds_to_duration(self, seconds: int) -> str:
-        """Convert seconds to human-readable duration string."""
-        if seconds == 0:
-            return ""
-
-        minutes = seconds // 60
-        secs = seconds % 60
-
-        if minutes > 0 and secs > 0:
-            return f"{minutes} minute{'s' if minutes != 1 else ''} {secs} second{'s' if secs != 1 else ''}"
-        if minutes > 0:
-            return f"{minutes} minute{'s' if minutes != 1 else ''}"
-        if secs > 0:
-            return f"{secs} second{'s' if secs != 1 else ''}"
-        return ""
-
-    def _format_wiki_links(self, links: Sequence[WikiLink]) -> str:
-        """Format a list of WikiLink objects as wikitext separated by <br>."""
-        if not links:
-            return ""
-
-        visible: list[WikiLink] = [link for link in links if link.page_title is not None]
-        visible.sort()
-        return "<br>".join(str(link) for link in visible)
+        return seconds_text(ticks_to_seconds(cooldown))

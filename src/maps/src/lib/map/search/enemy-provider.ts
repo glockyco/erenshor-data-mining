@@ -29,12 +29,13 @@ export class EnemySearchProvider implements SearchProvider {
         enemiesEnemy: WorldEnemy[],
         enemiesElite: WorldEnemy[],
         enemiesBoss: WorldEnemy[],
+        enemiesChest: WorldEnemy[],
         unlocatedEnemies: UnlocatedEnemy[]
     ) {
         this.enemyByName = new Map();
         this.unlocatedByName = new Map();
 
-        for (const enemies of [enemiesEnemy, enemiesElite, enemiesBoss]) {
+        for (const enemies of [enemiesEnemy, enemiesElite, enemiesBoss, enemiesChest]) {
             for (const marker of enemies) {
                 const seen = new Set<string>();
                 for (const char of marker.characters) {

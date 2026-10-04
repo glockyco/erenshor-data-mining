@@ -1,0 +1,446 @@
+<includeonly>{| class="item-tooltip item-tooltip-armor"
+|
+{{Item/Header
+ |icon={{#ifeq:{{{tier|}}}|1|{{SparkleIcon|icon=[[File:{{{image}}}|80px]]|sparkle=Blue_Sparkle.gif|sparkle_size=80px}}|{{#ifeq:{{{tier|}}}|2|{{SparkleIcon|icon=[[File:{{{image}}}|80px]]|sparkle=Purple_Sparkle.gif|sparkle_size=80px}}|{{SparkleIcon|icon=[[File:{{{image}}}|80px]]|sparkle=blank.png|sparkle_size=0px}}}}}}
+ |name={{{name}}}
+ |tier={{{tier|0}}}
+ |type=Slot: [[Armor#{{{slot}}}|{{{slot}}}]]{{#if:{{{relic|}}}|&#32;- Relic Item}}
+}}
+{| class="item-tooltip-body"
+|-
+| |
+<div class="item-tooltip-two-column"><!--
+--><div class="item-tooltip-left-column"><!--
+--><div class="item-tooltip-section-header">Item Stats</div><!--
+-->{{Item/Stats
+ |str={{{str|0}}}
+ |end={{{end|0}}}
+ |dex={{{dex|0}}}
+ |agi={{{agi|0}}}
+ |int={{{int|0}}}
+ |wis={{{wis|0}}}
+ |cha={{{cha|0}}}
+ |res={{{res|0}}}
+}}<!--
+--></div><!--
+--><div class="item-tooltip-right-column"><!--
+--><div class="item-tooltip-section-header">Vitals</div><!--
+-->{{Item/Vitals
+ |health={{{health|0}}}
+ |mana={{{mana|0}}}
+ |armor={{{armor|0}}}
+}}<!--
+--><div class="item-tooltip-resists-section"><!--
+--><div class="item-tooltip-section-header">Resists</div><!--
+-->{{Item/Resists
+ |magic={{{magic|0}}}
+ |poison={{{poison|0}}}
+ |elemental={{{elemental|0}}}
+ |void={{{void|0}}}
+}}<!--
+--></div><!--
+--></div><!--
+--></div>
+{{#if:{{{description|}}}|<div class="item-tooltip-description">{{{description|}}}<!--
+-->{{#ifeq:{{{proc_style|}}}|Activatable|<div class="item-tooltip-activatable-name">Activatable: {{{proc_spell_name|}}}</div><div class="item-tooltip-proc-usage">Right click or assign to hotkey to use.</div>}}<!--
+-->{{#ifeq:{{{proc_style|}}}|Worn|<div class="item-tooltip-worn-name">Worn Effect: {{{proc_spell_name|}}}</div><div class="item-tooltip-proc-usage">Effect applied once item is equipped.</div>}}</div>}}
+{{Item/ClassRestrictions
+ |arcanist={{{arcanist|}}}
+ |duelist={{{duelist|}}}
+ |druid={{{druid|}}}
+ |paladin={{{paladin|}}}
+ |reaver={{{reaver|}}}
+ |stormcaller={{{stormcaller|}}}
+}}
+|}
+|}<!--
+-->{{#if:{{{proc_spell_name|}}}|{{Item/SpellDetails
+ |worn={{#ifeq:{{{proc_style|}}}|Worn|1|0}}
+ |proc_header={{#ifeq:{{{proc_style|}}}|Worn|Worn Effect:|{{#ifeq:{{{proc_style|}}}|Activatable|Activatable:|{{#if:{{{proc_chance|}}}|{{{proc_chance}}}% chance on CAST:|}}}}}}
+ |spell_icon={{{proc_spell_icon|}}}
+ |spell_name={{{proc_spell_name}}}
+ |spell_level={{{proc_spell_level|}}}
+ |spell_duration_ticks={{{proc_spell_duration_ticks|}}}
+ |spell_type={{{proc_spell_type|}}}
+ |spell_line={{{proc_spell_line|}}}
+ |target_damage={{{proc_target_damage|}}}
+ |target_healing={{{proc_target_healing|}}}
+ |shielding_amt={{{proc_shielding_amt|}}}
+ |damage_type={{{proc_damage_type|}}}
+ |cast_time={{{proc_cast_time|}}}
+ |lifetap={{{proc_lifetap|}}}
+ |group_effect={{{proc_group_effect|}}}
+ |stun_target={{{proc_stun_target|}}}
+ |charm_target={{{proc_charm_target|}}}
+ |root_target={{{proc_root_target|}}}
+ |taunt_spell={{{proc_taunt_spell|}}}
+ |aggro={{{proc_aggro|}}}
+ |status_effect_name={{{proc_status_effect_name|}}}
+ |hp={{{proc_hp|}}}
+ |ac={{{proc_ac|}}}
+ |mana={{{proc_mana|}}}
+ |str={{{proc_str|}}}
+ |dex={{{proc_dex|}}}
+ |end={{{proc_end|}}}
+ |agi={{{proc_agi|}}}
+ |wis={{{proc_wis|}}}
+ |int={{{proc_int|}}}
+ |cha={{{proc_cha|}}}
+ |mr={{{proc_mr|}}}
+ |er={{{proc_er|}}}
+ |pr={{{proc_pr|}}}
+ |vr={{{proc_vr|}}}
+ |movement_speed={{{proc_movement_speed|}}}
+ |damage_shield={{{proc_damage_shield|}}}
+ |haste={{{proc_haste|}}}
+ |percent_lifesteal={{{proc_percent_lifesteal|}}}
+ |atk_roll_modifier={{{proc_atk_roll_modifier|}}}
+ |resonate_chance={{{proc_resonate_chance|}}}
+ |add_proc_name={{{proc_add_proc_name|}}}
+ |add_proc_chance={{{proc_add_proc_chance|}}}
+ |special_descriptor={{{proc_special_descriptor|}}}
+ |xp_bonus={{{proc_xp_bonus|}}}
+}}}}<!--
+-->{{Item/Categories
+ |item_type=armor
+ |slot={{{slot|}}}
+ |proc_style={{{proc_style|}}}
+ |proc_spell_name={{{proc_spell_name|}}}
+}}</includeonly><noinclude>
+== Template:Item/Armor ==
+
+Master template for displaying complete armor tooltips. Combines header, stats, vitals, resists, class restrictions, and optional proc effects.
+
+=== Parameters ===
+
+{| class="wikitable"
+! Parameter !! Required !! Description
+|-
+| '''image''' || Yes || Item icon image filename
+|-
+| '''name''' || Yes || Armor name
+|-
+| '''slot''' || Yes || Armor slot: Head, Neck, Ring, Hand, Chest, Arm, Bracer, Leg, Waist, Foot, Back
+|-
+| '''tier''' || No || Quality tier: 0=Normal (default), 1=Blessed, 2=Godly
+|-
+| '''relic''' || No || Set to any value for relic items
+|-
+| '''str, end, dex, agi, int, wis, cha''' || No || Stat modifiers (default: 0)
+|-
+| '''res''' || No || Resonance modifier (default: 0)
+|-
+| '''health, mana, armor''' || No || Vital modifiers (default: 0)
+|-
+| '''magic, poison, elemental, void''' || No || Resist modifiers (default: 0)
+|-
+| '''description''' || No || Flavor text
+|-
+| '''arcanist, duelist, druid, paladin, reaver, stormcaller''' || No || Class restrictions (set to any value)
+|-
+| '''proc_style''' || No || Worn, Activatable, or Cast (for bracers)
+|-
+| '''proc_chance''' || No || Proc chance percentage (for Cast style bracers)
+|-
+| '''proc_spell_name''' || No || If set, displays spell effect details
+|-
+| '''proc_*''' || No || Various proc parameters (see Item/SpellDetails)
+|}
+
+=== Examples ===
+
+==== Basic Armor (No Proc) ====
+
+'''Code:'''
+<pre>
+{{Item/Armor
+|image=Cloth Hood.png
+|name=Cloth Hood
+|slot=Head
+|tier=0
+|armor=2
+|description=A Cloth Hood
+|arcanist=1
+|duelist=1
+|druid=1
+|paladin=1
+|stormcaller=1
+}}
+</pre>
+
+'''Result:'''
+
+{{Item/Armor
+|image=Cloth Hood.png
+|name=Cloth Hood
+|slot=Head
+|tier=0
+|armor=2
+|description=A Cloth Hood
+|arcanist=1
+|duelist=1
+|druid=1
+|paladin=1
+|stormcaller=1
+}}
+
+----
+
+==== Bracer with Cast Proc (Stinging Bracer) ====
+
+'''Code:'''
+<pre>
+{{Item/Armor
+|image=Stinging Bracer.png
+|name=Stinging Bracer
+|slot=Bracer
+|tier=0
+|int=5
+|wis=5
+|cha=5
+|health=5
+|mana=5
+|armor=5
+|magic=3
+|void=3
+|description=It leaks venom
+|druid=1
+|arcanist=1
+|stormcaller=1
+|proc_style=Cast
+|proc_chance=10
+|proc_spell_icon=Stun.png
+|proc_spell_name=Stun
+|proc_spell_level=3
+|proc_spell_duration_ticks=3
+|proc_spell_type=StatusEffect
+|proc_spell_line=Stun
+|proc_damage_type=Magic
+|proc_cast_time=45.0
+|proc_cooldown=14.0
+|proc_spell_range=30.0
+|proc_stun_target=True
+|proc_aggro=500
+}}
+</pre>
+
+'''Result:'''
+
+{{Item/Armor
+|image=Stinging Bracer.png
+|name=Stinging Bracer
+|slot=Bracer
+|tier=0
+|int=5
+|wis=5
+|cha=5
+|health=5
+|mana=5
+|armor=5
+|magic=3
+|void=3
+|description=It leaks venom
+|druid=1
+|arcanist=1
+|stormcaller=1
+|proc_style=Cast
+|proc_chance=10
+|proc_spell_icon=Stun.png
+|proc_spell_name=Stun
+|proc_spell_level=3
+|proc_spell_duration_ticks=3
+|proc_spell_type=StatusEffect
+|proc_spell_line=Stun
+|proc_damage_type=Magic
+|proc_cast_time=45.0
+|proc_cooldown=14.0
+|proc_spell_range=30.0
+|proc_stun_target=True
+|proc_aggro=500
+}}
+
+----
+
+==== Cape with Worn Effect (Feathered Cape) ====
+
+'''Code:'''
+<pre>
+{{Item/Armor
+|image=Feathered Cape.png
+|name=Feathered Cape
+|slot=Back
+|relic=1
+|tier=0
+|int=8
+|wis=8
+|cha=4
+|health=175
+|mana=100
+|armor=25
+|magic=3
+|poison=3
+|elemental=3
+|void=3
+|description=It's not really made of feathers, but it looks like it from a distance.
+|arcanist=1
+|duelist=1
+|druid=1
+|paladin=1
+|stormcaller=1
+|proc_style=Worn
+|proc_spell_icon=Vitheo's Blessing of the Wind.png
+|proc_spell_name=Vitheo's Blessing of the Wind
+|proc_spell_duration_ticks=2
+|proc_spell_type=Beneficial
+|proc_spell_line=Generic
+|proc_damage_type=Physical
+|proc_cast_time=60.0
+|proc_spell_range=30.0
+|proc_ac=15
+|proc_dex=10
+|proc_agi=10
+|proc_haste=10.0
+}}
+</pre>
+
+'''Result:'''
+
+{{Item/Armor
+|image=Feathered Cape.png
+|name=Feathered Cape
+|slot=Back
+|relic=1
+|tier=0
+|int=8
+|wis=8
+|cha=4
+|health=175
+|mana=100
+|armor=25
+|magic=3
+|poison=3
+|elemental=3
+|void=3
+|description=It's not really made of feathers, but it looks like it from a distance.
+|arcanist=1
+|duelist=1
+|druid=1
+|paladin=1
+|stormcaller=1
+|proc_style=Worn
+|proc_spell_icon=Vitheo's Blessing of the Wind.png
+|proc_spell_name=Vitheo's Blessing of the Wind
+|proc_spell_duration_ticks=2
+|proc_spell_type=Beneficial
+|proc_spell_line=Generic
+|proc_damage_type=Physical
+|proc_cast_time=60.0
+|proc_spell_range=30.0
+|proc_ac=15
+|proc_dex=10
+|proc_agi=10
+|proc_haste=10.0
+}}
+
+----
+
+==== Belt with Activatable Effect (Sableheart's Harness) ====
+
+'''Code:'''
+<pre>
+{{Item/Armor
+|image=Sableheart's Harness.png
+|name=Sableheart's Harness
+|slot=Waist
+|relic=1
+|tier=0
+|str=8
+|end=8
+|dex=8
+|agi=8
+|res=5
+|health=500
+|mana=250
+|armor=35
+|description=Worn by a once magnificent dragon
+|arcanist=1
+|duelist=1
+|druid=1
+|paladin=1
+|stormcaller=1
+|proc_style=Activatable
+|proc_spell_icon=Devour.png
+|proc_spell_name=Devour
+|proc_spell_level=29
+|proc_spell_type=Damage
+|proc_spell_line=Direct_Damage
+|proc_target_damage=1455
+|proc_damage_type=Void
+|proc_cast_time=180.0
+|proc_cooldown=5.0
+|proc_spell_range=30.0
+|proc_lifetap=True
+|proc_aggro=255
+}}
+</pre>
+
+'''Result:'''
+
+{{Item/Armor
+|image=Sableheart's Harness.png
+|name=Sableheart's Harness
+|slot=Waist
+|relic=1
+|tier=0
+|str=8
+|end=8
+|dex=8
+|agi=8
+|res=5
+|health=500
+|mana=250
+|armor=35
+|description=Worn by a once magnificent dragon
+|arcanist=1
+|duelist=1
+|druid=1
+|paladin=1
+|stormcaller=1
+|proc_style=Activatable
+|proc_spell_icon=Devour.png
+|proc_spell_name=Devour
+|proc_spell_level=29
+|proc_spell_type=Damage
+|proc_spell_line=Direct_Damage
+|proc_target_damage=1455
+|proc_damage_type=Void
+|proc_cast_time=180.0
+|proc_cooldown=5.0
+|proc_spell_range=30.0
+|proc_lifetap=True
+|proc_aggro=255
+}}
+
+----
+
+=== Sub-templates Used ===
+
+* [[Template:Item/Header]] - Icon and name display
+* [[Template:Item/Stats]] - Stat modifiers
+* [[Template:Item/Vitals]] - Health, mana, armor
+* [[Template:Item/Resists]] - Resist modifiers
+* [[Template:Item/Description]] - Flavor text
+* [[Template:Item/ClassRestrictions]] - Class usability
+* [[Template:Item/SpellDetails]] - Proc spell effects
+* [[Template:Item/Categories]] - Auto-categorization
+
+----
+
+=== See Also ===
+
+* [[Template:Item/Weapon]] - Weapon tooltip
+* [[Template:Item/Charm]] - Charm tooltip
+* [[:Category:Armor]] - Armor category
+
+[[Category:Item Tooltip Templates]]
+</noinclude>

@@ -8,21 +8,19 @@ assembly is handled by PageGenerator classes.
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 from loguru import logger
 
-from erenshor.application.wiki.generators.formatting import format_description, safe_str
+from erenshor.application.wiki.generators.formatting import format_description, safe_str, seconds_text
+from erenshor.application.wiki.generators.link_lists import format_visible_links
 from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
-from erenshor.domain.value_objects.wiki_link import ClassLink, WikiLink
+from erenshor.domain.value_objects.wiki_link import ClassLink
+from erenshor.shared.game_constants import GAME_TICKS_PER_SECOND
 
 if TYPE_CHECKING:
     from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
     from erenshor.domain.enriched_data.spell import EnrichedSpellData
-
-# Game constants for cast time calculation
-GAME_TICKS_PER_SECOND = 60  # Game runs at 60 ticks per second
 
 
 class SpellSectionGenerator(SectionGeneratorBase):
@@ -111,9 +109,9 @@ class SpellSectionGenerator(SectionGeneratorBase):
         display_name = spell.display_name or spell.spell_name or page_title
 
         # Items with effect and teaching items are already ItemLink objects
-        itemswitheffect = self._format_wiki_links(enriched.items_with_effect)
-        source = self._format_wiki_links(enriched.teaching_items)
-        used_by = self._format_wiki_links(enriched.used_by_characters)
+        itemswitheffect = format_visible_links(enriched.items_with_effect)
+        source = format_visible_links(enriched.teaching_items)
+        used_by = format_visible_links(enriched.used_by_characters)
 
         context: dict[str, str] = {
             "title": display_name,
@@ -212,21 +210,7 @@ class SpellSectionGenerator(SectionGeneratorBase):
         return f"{seconds} seconds"
 
     def _format_cooldown(self, cooldown: float | None) -> str:
-        """Format spell cooldown to human-readable string."""
-        if cooldown is None or cooldown == 0:
+        """Format a spell cooldown in seconds."""
+        if not cooldown:
             return ""
-
-        return f"{int(cooldown)} seconds"
-
-    def _format_wiki_links(self, links: Sequence[WikiLink]) -> str:
-        """Format a list of WikiLink objects as wikitext separated by <br>.
-
-        Filters out links with no page_title (excluded entities), sorts by display
-        name, and joins with <br>.
-        """
-        if not links:
-            return ""
-
-        visible: list[WikiLink] = [link for link in links if link.page_title is not None]
-        visible.sort()
-        return "<br>".join(str(link) for link in visible)
+        return seconds_text(cooldown)

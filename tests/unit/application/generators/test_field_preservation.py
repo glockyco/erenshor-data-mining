@@ -4,14 +4,39 @@ import pytest
 
 from erenshor.application.wiki.generators.field_preservation import (
     DEFAULT_PRESERVATION_RULES,
+    AmbiguousRootsError,
     FieldPreservationConfig,
     FieldPreservationHandler,
     HandlerNotFoundError,
-    merge_handler,
+    LinkListMerge,
     override_handler,
     prefer_manual_handler,
     preserve_handler,
 )
+from erenshor.application.wiki_deploy.link_audit import LinkTargets
+from erenshor.application.wiki_lua.link_catalog import LinkCatalogEntry
+
+
+def _quest(key: str, name: str, page: str) -> LinkCatalogEntry:
+    return LinkCatalogEntry(key=key, kind="quest", subtype=None, name=name, page=page, image=None)
+
+
+QUESTS = (
+    _quest("quest:faerie dust for nylith valarro", "Faerie Dust for Nylith Valorro", "Faerie Dust for Nylith Valorro"),
+    _quest("quest:therevivalritual", "The Revival Plains Ritual", "The Revival Plains Ritual"),
+    _quest("quest:ripperquestline1", "Ripper's Questline (1)", "Ripper's Questline"),
+    _quest("quest:ripperquestline2", "Ripper's Questline (2)", "Ripper's Questline"),
+)
+DUST = "{{QuestLink|stablekey=quest:faerie dust for nylith valarro}}"
+RITUAL = "{{QuestLink|stablekey=quest:therevivalritual}}"
+
+
+def _merge(field: str, old: str, new: str) -> str:
+    return LinkListMerge(LinkTargets(QUESTS))(old, new, {"field_name": field})
+
+
+def _linked_handler() -> FieldPreservationHandler:
+    return FieldPreservationHandler(FieldPreservationConfig(link_targets=LinkTargets(QUESTS)))
 
 
 class TestBuiltInHandlers:
@@ -57,57 +82,58 @@ class TestBuiltInHandlers:
         result = prefer_manual_handler("", "", {})
         assert result == ""
 
-    def test_merge_handler_combines_values(self) -> None:
-        """merge_handler should combine old and new values."""
-        # <br>-separated lists - combine with <br>
-        result = merge_handler("Quest1<br>Quest2", "Quest3<br>Quest4", {})
-        assert result == "Quest1<br>Quest2<br>Quest3<br>Quest4"
 
-        # <br>-separated lists - deduplicates
-        result = merge_handler("Quest1<br>Quest2", "Quest2<br>Quest3", {})
-        assert result == "Quest1<br>Quest2<br>Quest3"
+class TestLinkListMerge:
+    """A merged list field links each page once."""
 
-        # Neither has separator - use <br> to combine (old first, then new)
-        result = merge_handler("{{QuestLink|Whispers of Wyland}}", "{{QuestLink|A Retired Locksmith}}", {})
-        assert result == "{{QuestLink|Whispers of Wyland}}<br>{{QuestLink|A Retired Locksmith}}"
+    def test_editor_and_generated_links_to_one_quest_keep_the_generated_form(self) -> None:
+        old = "{{QuestLink|Faerie Dust for Nylith Valorro}}<br>{{QuestLink|The Revival Plains Ritual}}"
+        new = f"{DUST}<br>{RITUAL}"
 
-        # Mixed separators - old has no separator, new has <br> - should use <br> for result
-        result = merge_handler("Quest1", "Quest2<br>Quest3", {})
-        assert result == "Quest1<br>Quest2<br>Quest3"
+        assert _merge("relatedquest", old, new) == new
 
-        # Comma-separated lists (like type field) - both have commas, use comma
-        result = merge_handler("[[Quest Items|Quest Item]], Other", "[[Consumables|Consumable]], Another", {})
-        assert result == "[[Quest Items|Quest Item]], Other, [[Consumables|Consumable]], Another"
+    def test_editor_links_and_text_without_a_generated_page_stay_in_live_order(self) -> None:
+        old = "Mentioned in a book<br>{{QuestLink|Editor Quest}}<br>{{QuestLink|The Revival Plains Ritual}}"
 
-        # Comma-separated lists - deduplicates
-        result = merge_handler("Type1, Type2", "Type2, Type3", {})
-        assert result == "Type1, Type2, Type3"
-
-        # Old empty -> use new
-        result = merge_handler("", "new", {})
-        assert result == "new"
-
-        # New empty -> use old
-        result = merge_handler("old", "", {})
-        assert result == "old"
-
-        # Non-list fields (no comma or <br>) - combine with <br>
-        result = merge_handler("Value1", "Value2", {})
-        assert result == "Value1<br>Value2"
-
-        # QuestLink with comma in display name - should use <br> separator (not split on internal comma)
-        result = merge_handler(
-            "{{QuestLink|link=The Mathers' Demise{{!}}The Mather's Demise, Part 3}}",
-            "{{QuestLink|link=The Mathers' Demise{{!}}The Mather's Demise}}",
-            {},
+        assert _merge("relatedquest", old, f"{RITUAL}<br>{DUST}") == (
+            f"Mentioned in a book<br>{{{{QuestLink|Editor Quest}}}}<br>{RITUAL}<br>{DUST}"
         )
-        expected = (
-            "{{QuestLink|link=The Mathers' Demise{{!}}The Mather's Demise, Part 3}}"
-            "<br>{{QuestLink|link=The Mathers' Demise{{!}}The Mather's Demise}}"
+
+    def test_link_parameter_and_wikilink_forms_match_their_page(self) -> None:
+        old = (
+            "{{QuestLink|link=The Revival Plains Ritual{{!}}Revival ritual}}<br>[[Faerie Dust for Nylith Valorro|Dust]]"
         )
-        assert result == expected
-        # Ensure it didn't break the QuestLink template by splitting on the comma
-        assert "}}, {{" not in result  # Should not have broken the template
+
+        assert _merge("questsource", old, f"{DUST}<br>{RITUAL}") == f"{RITUAL}<br>{DUST}"
+
+    def test_deprecated_questlink_parameter_matches_its_page(self) -> None:
+        old = "{{QuestLink |questlink=The Revival Plains Ritual}}"
+
+        assert _merge("relatedquest", old, RITUAL) == RITUAL
+
+    def test_link_to_a_page_of_several_quests_takes_the_generated_quest(self) -> None:
+        new = "{{QuestLink|stablekey=quest:ripperquestline2}}"
+
+        assert _merge("relatedquest", "{{QuestLink|Ripper's Questline}}", new) == new
+
+    def test_comma_inside_a_link_label_does_not_split_the_entry(self) -> None:
+        old = "{{QuestLink|link=The Mathers' Demise{{!}}The Mather's Demise, Part 3}}"
+
+        assert _merge("relatedquest", old, RITUAL) == f"{old}<br>{RITUAL}"
+
+    def test_type_entries_merge_across_separators_into_one_comma_list(self) -> None:
+        old = "[[Quest Items|Quest Item]]<br>[[Crafting]]<br>[[Quest Items|Quest Item]], [[Crafting]]"
+
+        assert _merge("type", old, "[[Crafting]]") == "[[Quest Items|Quest Item]], [[Crafting]]"
+
+    def test_a_section_link_is_a_different_page(self) -> None:
+        old = "[[Consumables#Food|Food]], [[Consumables|Consumable]]"
+
+        assert _merge("type", old, "[[Consumables|Consumable]]") == old
+
+    def test_merge_rule_requires_link_targets(self) -> None:
+        with pytest.raises(HandlerNotFoundError, match="link targets"):
+            FieldPreservationHandler().apply_preservation("Item", {"type": "A"}, {"type": "B"})
 
 
 class TestFieldPreservationConfig:
@@ -330,7 +356,7 @@ class TestFieldPreservationHandler:
 
     def test_apply_preservation_with_default_rules(self) -> None:
         """apply_preservation should work with default Item rules."""
-        handler = FieldPreservationHandler()  # Uses default rules
+        handler = _linked_handler()
 
         old_fields = {
             "image": "Custom.png",
@@ -374,7 +400,7 @@ class TestFieldPreservationHandler:
         old_wikitext = "{{Item|image=Custom.png|othersource=Manual|damage=10}}"
         new_wikitext = "{{Item|image=|othersource=|damage=15|level=5}}"
 
-        result = handler.merge_templates(old_wikitext, new_wikitext, ["Item"])
+        result = handler.merge_templates(old_wikitext, new_wikitext, ["Item"]).text
 
         # Parse result to check fields
         from erenshor.infrastructure.wiki.template_parser import TemplateParser
@@ -400,7 +426,7 @@ class TestFieldPreservationHandler:
         old_wikitext = "Some manual text without templates"
         new_wikitext = "{{Item|name=Sword|damage=10}}"
 
-        result = handler.merge_templates(old_wikitext, new_wikitext, ["Item"])
+        result = handler.merge_templates(old_wikitext, new_wikitext, ["Item"]).text
 
         # Should append new template to old wikitext (preserving manual text)
         assert "Some manual text without templates" in result
@@ -414,23 +440,10 @@ class TestFieldPreservationHandler:
         old_wikitext = "{{Item|name=Sword|damage=10}}\nManual content"
         new_wikitext = "Some text without templates"
 
-        result = handler.merge_templates(old_wikitext, new_wikitext, ["Item"])
+        result = handler.merge_templates(old_wikitext, new_wikitext, ["Item"]).text
 
         # Should return old wikitext unchanged (preserving everything)
         assert result == old_wikitext
-
-    def test_merge_templates_removes_old_templates_without_generated_entities(self) -> None:
-        handler = FieldPreservationHandler()
-        old_wikitext = (
-            "{{Character|name=Current|level=9}}\n\n{{Character|name=Renamed|level=11}}\n\n== Notes ==\nManual content"
-        )
-        new_wikitext = "{{Character|name=Current|level=9}}"
-
-        result = handler.merge_templates(old_wikitext, new_wikitext, ["Character"])
-
-        assert result.count("{{Character") == 1
-        assert "name=Renamed" not in result
-        assert "Manual content" in result
 
     def test_merge_templates_preserves_non_template_content(self) -> None:
         """merge_templates should preserve non-template content from old page."""
@@ -439,7 +452,7 @@ class TestFieldPreservationHandler:
         old_wikitext = "{{Item|othersource=Old}}\n\nSome manual wiki text\n\n[[Category:Items]]"
         new_wikitext = "{{Item|othersource=New}}"
 
-        result = handler.merge_templates(old_wikitext, new_wikitext, ["Item"])
+        result = handler.merge_templates(old_wikitext, new_wikitext, ["Item"]).text
 
         # Should preserve manual content from old page
         assert "Some manual wiki text" in result
@@ -452,19 +465,19 @@ class TestFieldPreservationHandler:
         config = FieldPreservationConfig(
             rules={
                 "Item": {"description": "preserve"},
-                "Fancy-weapon": {"damage": "preserve"},
+                "Character": {"level": "preserve"},
             }
         )
         handler = FieldPreservationHandler(config)
 
-        old_wikitext = "{{Item|description=Old item}}\n{{Fancy-weapon|damage=10}}"
-        new_wikitext = "{{Item|description=New item}}\n{{Fancy-weapon|damage=15}}"
+        old_wikitext = "{{Item|description=Old item}}\n{{Character|level=10}}"
+        new_wikitext = "{{Item|description=New item}}\n{{Character|level=15}}"
 
-        result = handler.merge_templates(old_wikitext, new_wikitext, ["Item", "Fancy-weapon"])
+        result = handler.merge_templates(old_wikitext, new_wikitext, ["Item", "Character"]).text
 
         # Both templates should have preserved fields
         assert "description=Old item" in result or "description = Old item" in result
-        assert "damage=10" in result or "damage = 10" in result
+        assert "level=10" in result or "level = 10" in result
 
     def test_get_config_returns_config_instance(self) -> None:
         """get_config should return the config instance."""
@@ -494,18 +507,6 @@ class TestDefaultRules:
         """Item template should preserve othersource field."""
         assert DEFAULT_PRESERVATION_RULES["Item"]["othersource"] == "preserve"
 
-    def test_fancy_weapon_has_no_preservation_rules(self) -> None:
-        """Fancy-weapon template should have no preservation rules (all override)."""
-        assert DEFAULT_PRESERVATION_RULES["Fancy-weapon"] == {}
-
-    def test_fancy_armor_has_no_preservation_rules(self) -> None:
-        """Fancy-armor template should have no preservation rules (all override)."""
-        assert DEFAULT_PRESERVATION_RULES["Fancy-armor"] == {}
-
-    def test_fancy_charm_has_no_preservation_rules(self) -> None:
-        """Fancy-charm template should have no preservation rules (all override)."""
-        assert DEFAULT_PRESERVATION_RULES["Fancy-charm"] == {}
-
     def test_all_templates_have_valid_handler_names(self) -> None:
         """All rules should reference valid handler names."""
         valid_handlers = {"override", "preserve", "prefer_manual", "prefer_database", "merge"}
@@ -522,7 +523,7 @@ class TestIntegrationScenarios:
 
     def test_item_page_regeneration_preserves_manual_content(self) -> None:
         """Full scenario: Regenerating item page preserves manual edits."""
-        handler = FieldPreservationHandler()
+        handler = _linked_handler()
 
         # Original wiki page with manual content
         old_wikitext = """{{Item
@@ -552,7 +553,7 @@ class TestIntegrationScenarios:
 [[Category:Items]]
 [[Category:Weapons]]"""
 
-        result = handler.merge_templates(old_wikitext, new_wikitext, ["Item"])
+        result = handler.merge_templates(old_wikitext, new_wikitext, ["Item"]).text
 
         # Manual content should be preserved (prefer_manual)
         assert "[[File:Sword.png]]" in result
@@ -573,50 +574,6 @@ class TestIntegrationScenarios:
         # Categories should remain (not in template)
         assert "[[Category:Items]]" in result
 
-    def test_weapon_with_fancy_template_preservation(self) -> None:
-        """Full scenario: Weapon page with Fancy-weapon template."""
-        handler = FieldPreservationHandler()
-
-        old_wikitext = """{{Item
-|image=[[File:OldWeapon.png]]
-|othersource=Manual source
-|damage=10
-}}
-
-{{Fancy-weapon
-|name=Legendary Sword
-|description=Deals holy damage
-|damage=10
-|tier=0
-}}"""
-
-        new_wikitext = """{{Item
-|image=
-|othersource=
-|damage=15
-}}
-
-{{Fancy-weapon
-|name=
-|description=Generic weapon
-|damage=15
-|tier=0
-}}"""
-
-        result = handler.merge_templates(old_wikitext, new_wikitext, ["Item", "Fancy-weapon"])
-
-        # Item image preserved (prefer_manual)
-        assert "[[File:OldWeapon.png]]" in result
-        # Item othersource preserved
-        assert "Manual source" in result
-        # Fancy-weapon description OVERRIDDEN (no preservation)
-        assert "Generic weapon" in result
-        assert "Deals holy damage" not in result
-        # Fancy-weapon name OVERRIDDEN (no preservation)
-        assert "Legendary Sword" not in result
-        # Damage updated to 15 in both templates
-        assert result.count("15") == 2
-
 
 class TestTemplateFormatting:
     """Tests for template formatting preservation (multiline, field order)."""
@@ -625,14 +582,14 @@ class TestTemplateFormatting:
         """merge_templates should preserve multiline template formatting."""
         handler = FieldPreservationHandler()
 
-        old_wikitext = """{{Enemy
+        old_wikitext = """{{Character
 |name=Test NPC
 |type=NPC
 |level=5
 |health=100
 }}"""
 
-        new_wikitext = """{{Enemy
+        new_wikitext = """{{Character
 |name=Test NPC
 |image=[[File:Test.png|thumb]]
 |imagecaption=
@@ -663,7 +620,7 @@ class TestTemplateFormatting:
 |void=0
 }}"""
 
-        result = handler.merge_templates(old_wikitext, new_wikitext, ["Enemy"])
+        result = handler.merge_templates(old_wikitext, new_wikitext, ["Character"]).text
 
         # Should have newlines between fields (not compacted to single line)
         assert "\n|name=" in result
@@ -679,14 +636,14 @@ class TestTemplateFormatting:
         """merge_templates should preserve field order from new template."""
         handler = FieldPreservationHandler()
 
-        old_wikitext = """{{Enemy
+        old_wikitext = """{{Character
 |name=Test
 |type=NPC
 |zones=Forest
 |level=5
 }}"""
 
-        new_wikitext = """{{Enemy
+        new_wikitext = """{{Character
 |name=Test
 |image=[[File:Test.png|thumb]]
 |imagecaption=
@@ -699,7 +656,7 @@ class TestTemplateFormatting:
 |health=200
 }}"""
 
-        result = handler.merge_templates(old_wikitext, new_wikitext, ["Enemy"])
+        result = handler.merge_templates(old_wikitext, new_wikitext, ["Character"]).text
 
         # Extract field order from result
         lines = [line for line in result.split("\n") if line.startswith("|")]
@@ -766,7 +723,7 @@ class TestTemplateFormatting:
 |void=0
 }}"""
 
-        result = handler.merge_templates(old_wikitext, new_wikitext, ["Character"])
+        result = handler.merge_templates(old_wikitext, new_wikitext, ["Character"]).text
 
         # Manual edit fields should be preserved
         assert "A fearsome goblin" in result  # imagecaption (preserve)
@@ -811,6 +768,214 @@ class TestTemplateFormatting:
 |level=22
 }}"""
 
-        result = handler.merge_templates(old_wikitext, new_wikitext, ["Character"])
+        result = handler.merge_templates(old_wikitext, new_wikitext, ["Character"]).text
 
         assert "|location=A small campfire area west of the Goodsoil refugee tents\n" in result
+
+
+def _character(name: str, key: str | None = None, **fields: str) -> str:
+    parts = [f"|name={name}"]
+    if key is not None:
+        parts.append(f"|stablekey={key}")
+    parts.extend(f"|{field}={value}" for field, value in fields.items())
+    return "{{Character\n" + "\n".join(parts) + "\n}}"
+
+
+class TestRootIdentity:
+    """Preserved fields follow the entity, not the position of its root."""
+
+    def test_reordered_entities_keep_their_preserved_fields(self) -> None:
+        old = (
+            _character("Wolf", "character:wolf", imagecaption="Grey")
+            + "\n\n"
+            + _character("Bear", "character:bear", imagecaption="Brown")
+        )
+        new = (
+            _character("Bear", "character:bear", imagecaption="", level="9")
+            + "\n\n"
+            + _character("Wolf", "character:wolf", imagecaption="", level="4")
+        )
+
+        merge = FieldPreservationHandler().merge_templates(old, new, ["Character"])
+
+        assert merge.text == (
+            _character("Wolf", "character:wolf", imagecaption="Grey", level="4")
+            + "\n\n"
+            + _character("Bear", "character:bear", imagecaption="Brown", level="9")
+        )
+        assert merge.kept_roots == ()
+
+    def test_unkeyed_live_roots_match_by_name_and_take_the_key(self) -> None:
+        old = _character("Bear", imagecaption="Brown") + "\n\n" + _character("Wolf", imagecaption="Grey")
+        new = (
+            _character("Wolf", "character:wolf", imagecaption="")
+            + "\n\n"
+            + _character("Bear", "character:bear", imagecaption="")
+        )
+
+        text = FieldPreservationHandler().merge_templates(old, new, ["Character"]).text
+
+        assert text == (
+            _character("Bear", "character:bear", imagecaption="Brown")
+            + "\n\n"
+            + _character("Wolf", "character:wolf", imagecaption="Grey")
+        )
+
+    def test_added_entity_follows_the_last_root_and_its_companion(self) -> None:
+        old = (
+            "{{Item\n|title=Charm A\n|stablekey=item:a\n}}\nText about A.\n{{Item/Charm|name=A}}\n\n[[Category:Charms]]"
+        )
+        new = (
+            "{{Item\n|title=Charm A\n|stablekey=item:a\n}}\n{{Item/Charm|name=A}}\n\n"
+            "{{Item\n|title=Charm B\n|stablekey=item:b\n}}\n{{Item/Charm|name=B}}"
+        )
+
+        text = FieldPreservationHandler().merge_templates(old, new, ["Item"]).text
+
+        assert text == (
+            "{{Item\n|title=Charm A\n|stablekey=item:a\n}}\nText about A.\n{{Item/Charm|name=A}}\n\n"
+            "{{Item\n|title=Charm B\n|stablekey=item:b\n}}\n{{Item/Charm|name=B}}\n\n[[Category:Charms]]"
+        )
+
+    def test_live_root_without_generated_entity_stays_and_is_listed(self) -> None:
+        chest = _character("Braxonian Chest", imagecaption="Opened with a key")
+        old = "{{Item\n|title=Frost\n}}\n{{Item/General|name=Frost}}\n\n" + chest + "\n\nEditor notes."
+        new = "{{Item\n|title=Frost\n|stablekey=item:frost\n}}\n{{Item/General|name=Frost}}"
+
+        merge = FieldPreservationHandler().merge_templates(old, new, ["Item", "Character"])
+
+        assert chest in merge.text
+        assert "Editor notes." in merge.text
+        assert "|stablekey=item:frost" in merge.text
+        assert merge.kept_roots == ("Character: Braxonian Chest",)
+
+    def test_same_name_roots_with_different_preserved_values_fail_the_page(self) -> None:
+        old = _character("A Raider", imagecaption="Camp guard") + "\n\n" + _character("A Raider", imagecaption="")
+        new = (
+            _character("A Raider", "character:raider 1", imagecaption="")
+            + "\n\n"
+            + _character("A Raider", "character:raider 2", imagecaption="")
+        )
+
+        with pytest.raises(AmbiguousRootsError, match="character:raider 1, character:raider 2"):
+            FieldPreservationHandler().merge_templates(old, new, ["Character"])
+
+    def test_same_name_roots_with_equal_preserved_values_pair_by_position(self) -> None:
+        old = (
+            _character("A Raider", imagecaption="Camp guard")
+            + "\n\n"
+            + _character("A Raider", imagecaption="Camp guard")
+        )
+        new = (
+            _character("A Raider", "character:raider 1", imagecaption="")
+            + "\n\n"
+            + _character("A Raider", "character:raider 2", imagecaption="")
+        )
+
+        text = FieldPreservationHandler().merge_templates(old, new, ["Character"]).text
+
+        assert text == (
+            _character("A Raider", "character:raider 1", imagecaption="Camp guard")
+            + "\n\n"
+            + _character("A Raider", "character:raider 2", imagecaption="Camp guard")
+        )
+
+    def test_same_name_roots_without_preserved_values_pair_by_position(self) -> None:
+        old = _character("A Raider", level="3") + "\n\n" + _character("A Raider", level="4")
+        new = (
+            _character("A Raider", "character:raider 1", level="5")
+            + "\n\n"
+            + _character("A Raider", "character:raider 2", level="6")
+        )
+
+        assert FieldPreservationHandler().merge_templates(old, new, ["Character"]).text == new
+
+    def test_same_name_roots_pair_with_the_entity_whose_data_they_hold(self) -> None:
+        old = (
+            _character("A Raider", imagecaption="North camp", coordinates="1 x 1 x 1")
+            + "\n\n"
+            + _character("A Raider", imagecaption="South camp", coordinates="2 x 2 x 2")
+        )
+        new = (
+            _character("A Raider", "character:raider south", imagecaption="", coordinates="2 x 2 x 2")
+            + "\n\n"
+            + _character("A Raider", "character:raider north", imagecaption="", coordinates="1 x 1 x 1")
+        )
+
+        text = FieldPreservationHandler().merge_templates(old, new, ["Character"]).text
+
+        assert text == (
+            _character("A Raider", "character:raider north", imagecaption="North camp", coordinates="1 x 1 x 1")
+            + "\n\n"
+            + _character("A Raider", "character:raider south", imagecaption="South camp", coordinates="2 x 2 x 2")
+        )
+
+    def test_a_live_root_keeps_its_value_away_from_a_variant_it_does_not_describe(self) -> None:
+        old = _character("A Dream", coordinates="3 x 3 x 3")
+        new = (
+            _character("A Dream", "character:dream 1", coordinates="")
+            + "\n\n"
+            + _character("A Dream", "character:dream 3", coordinates="3 x 3 x 3")
+        )
+
+        text = FieldPreservationHandler().merge_templates(old, new, ["Character"]).text
+
+        assert text == (
+            _character("A Dream", "character:dream 3", coordinates="3 x 3 x 3")
+            + "\n\n"
+            + _character("A Dream", "character:dream 1", coordinates="")
+        )
+
+
+class TestRootCompanions:
+    """A merged root takes the companions of its generated root."""
+
+    @pytest.mark.parametrize(
+        ("root", "companion", "key"),
+        [
+            ("Ability", "SpellTooltip", "spell:flame bolt"),
+            ("Ability", "SkillTooltip", "skill:kick"),
+            ("Stance", "StanceTooltip", "stance:aggressive"),
+        ],
+    )
+    def test_companion_follows_its_root_and_the_merge_is_idempotent(self, root: str, companion: str, key: str) -> None:
+        old = f"{{{{{root}\n|title=Name\n}}}}\n\nEditor prose.\n\n{{{{{companion}|stablekey=stale}}}}"
+        new = f"{{{{{root}\n|title=Name\n|stablekey={key}\n}}}}\n{{{{{companion}|stablekey={key}}}}}"
+        handler = _linked_handler()
+
+        first = handler.merge_templates(old, new, [root]).text
+        second = handler.merge_templates(first, new, [root]).text
+
+        assert first == (
+            f"{{{{{root}\n|title=Name\n|stablekey={key}\n}}}}\n\nEditor prose.\n\n{{{{{companion}|stablekey={key}}}}}"
+        )
+        assert second == first
+
+    def test_missing_companion_is_inserted_after_its_root_and_extra_companions_go(self) -> None:
+        old = (
+            "{{Ability\n|title=A\n}}\n\nProse A.\n\n"
+            "{{Ability\n|title=B\n}}\n{{SpellTooltip|stablekey=spell:b}}\n{{SpellTooltip|stablekey=spell:b}}"
+        )
+        new = (
+            "{{Ability\n|title=A\n|stablekey=spell:a\n}}\n{{SpellTooltip|stablekey=spell:a}}\n\n"
+            "{{Ability\n|title=B\n|stablekey=spell:b\n}}\n{{SpellTooltip|stablekey=spell:b}}"
+        )
+
+        text = _linked_handler().merge_templates(old, new, ["Ability"]).text
+
+        assert text.count("{{SpellTooltip|stablekey=spell:b}}") == 1
+        assert text.startswith(
+            "{{Ability\n|title=A\n|stablekey=spell:a\n}}\n{{SpellTooltip|stablekey=spell:a}}\n\nProse A."
+        )
+
+    def test_companion_inside_editor_markup_is_replaced_in_place(self) -> None:
+        layout = '{| style="width:50%;"\n| style="vertical-align:top;" |\n'
+        old = "{{Item\n|title=Charm\n}}\n\n" + layout + "{{Item/Charm|name=Old}}\n|}\n\nNotes."
+        new = "{{Item\n|title=Charm\n|stablekey=item:charm\n}}\n{{Item/Charm|name=New}}"
+
+        text = _linked_handler().merge_templates(old, new, ["Item"]).text
+
+        assert (
+            text
+            == "{{Item\n|title=Charm\n|stablekey=item:charm\n}}\n\n" + layout + "{{Item/Charm|name=New}}\n|}\n\nNotes."
+        )

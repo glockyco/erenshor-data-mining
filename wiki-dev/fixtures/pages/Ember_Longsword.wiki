@@ -1,5 +1,25 @@
-{{Item|stablekey=item:ember_longsword|lua=1}}
+{{Item|stablekey=item:ember_longsword}}
 
-{{ItemTooltip|stablekey=item:ember_longsword}}
+{{ItemTooltip
+|kind=Weapon
+|stablekey=item:ember_longsword
+|image=Ember Longsword
+|name=Ember Longsword
+|slot=Primary
+|type=OneHandMelee
+|damage=18
+|delay=2.5
+|str=5
+|dex=2
+|magic=3
+|relic=True
+|duelist=True
+|paladin=True
+|reaver=True
+|description=A blade wreathed in embers that never cool.
+|proc_style=Attack
+|proc_chance=20
+|proc_spell_name=Ember Burst
+}}
 
 {{ItemLink|stablekey=item:ember_longsword}}

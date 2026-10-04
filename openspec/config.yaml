@@ -8,17 +8,18 @@ context: |
   Project workflows run through `uv run erenshor ...`. Direct package-manager commands are only for dependency bootstrap and validation.
   Prefer clean cutovers, one owner for each generated file, fail-closed automation, and no compatibility shims.
   Never modify shipped-game reference files, installed game files, generated data, or deployment outputs by hand.
-  Golden baselines and deploys to the wiki, the map, or the sheets need the maintainer's approval.
+  Deploys to the wiki, the map, or the sheets need the maintainer's approval.
   The Nix dev shell must never compile a toolchain from source.
   Fix every failing check you meet, including failures that predate the change.
   Follow the relevant subsystem skill before implementation.
+  Wiki work follows the plan in the change `adopt-data-backed-wiki`. Read its design before any wiki change, and track wiki work only in OpenSpec.
 
 rules:
   proposal:
     - State the architectural problem, goals, non-goals, and migration boundary.
   design:
-    - Define one authoritative owner and one lock boundary for each dependency ecosystem.
-    - Explain failure handling, update grouping, and branch-protection behavior.
+    - Name the owner of each changed artifact, page, or file kind, and the boundary that guards its writes.
+    - Explain failure handling and how updates are grouped and rolled back.
   specs:
     - Express observable repository and automation contracts with testable scenarios.
   tasks:

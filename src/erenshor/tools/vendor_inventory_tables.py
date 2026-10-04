@@ -25,7 +25,7 @@ from urllib.parse import quote
 
 DEFAULT_DATABASE = Path("variants/main/erenshor-main.sqlite")
 DEFAULT_FETCHED_DIR = Path("variants/main/wiki/fetched")
-DEFAULT_OUTPUT = Path("wiki/vendor_inventory_tables.generated.wiki")
+DEFAULT_OUTPUT = Path("variants/main/wiki/vendor_inventory_tables.wiki")
 
 INVENTORY_QUERY = """
 WITH inventory_sources AS (

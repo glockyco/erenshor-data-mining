@@ -1,2 +1,4 @@
 __HIDDENCAT__
-This hidden maintenance category tracks pages whose explicit Erenshor semantic link targets differ from their catalog targets.
+This hidden maintenance category collects pages with an Erenshor link that names a page other than the page of its <code>stablekey</code>.
+
+To fix a page, find out which of the two is correct, and remove the other from the link. See [[Erenshor Wiki:Game Data#Maintenance categories]].

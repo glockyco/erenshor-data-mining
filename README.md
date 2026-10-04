@@ -6,7 +6,7 @@ Game data for the single-player MMORPG [Erenshor](https://store.steampowered.com
 
 ## What it publishes
 
-- **Wiki** (`erenshor.wiki.gg`). Generated item, character, ability, and stance articles, Lua data modules for links and tooltips, and repository-owned templates. Editors write the prose. The pipeline owns the generated data.
+- **Wiki** (`erenshor.wiki.gg`). Generated item, character, ability, stance, and zone articles, Lua data modules for links and tooltips, and repository-owned modules and templates. Editors write the prose. The pipeline owns the generated data. The OpenSpec change [`adopt-data-backed-wiki`](openspec/changes/adopt-data-backed-wiki/) holds the plan: bot-owned data modules and Cargo tables, data-backed templates, and articles that hold only what people write.
 - **Google Sheets.** One tab per query in `src/erenshor/application/sheets/queries/`.
 - **Interactive map** (`erenshor.compendiums.org`). A SvelteKit and deck.gl site with every spawn, resource, and location, plus live positions from the companion mod.
 - **Companion mods.** AdventureGuide (quest guide and navigation), InteractiveMapCompanion (live map data), Sprint, and JusticeForF7. MapTileCapture is an internal tool. Each mod builds for BepInEx and Lunaris.
@@ -39,7 +39,7 @@ flowchart LR
 - **Encounter tiers.** Each character is `npc`, `enemy`, `elite`, or `boss`, derived in the clean build from faction, boss XP, and spawn placements. `mapping.json` can override a tier with a reason.
 - **Drop sources.** `loot_drops` holds each character's own table, `item_drops` holds items that yield items, and `special_world_drops` holds the rolls that every kill makes at the default loot rate.
 - **Spawn coverage.** Some spawns are scripted at run time. The dynamic-spawn catalog in `src/Assets/Editor/ExportSystem/AssetScanner/` classifies every spawning script, and the export fails when a new one is unclassified.
-- **Generated and written content.** On the wiki, the bot owns generated templates and data modules. Prose, notes, and strategy belong to editors and survive every refresh.
+- **Generated and written content.** On the wiki, the bot owns the data modules and, with the Cargo work, the storage pages. Prose, notes, and strategy belong to editors and survive every refresh. A fact the export misses goes into code facts or `mapping.json`, so every consumer sees it, not into one article's parameters.
 
 ## Repository layout
 
@@ -50,10 +50,10 @@ flowchart LR
 | `src/tools` | Native analyzers (CodeFacts, ExportSurface) and maintenance scripts. |
 | `src/maps` | The interactive map site. |
 | `src/mods` | The companion mods and their packaging. |
-| `wiki` | Repository-owned wiki pages: Lua modules, templates, gadgets, zone and mechanics pages. |
+| `wiki` | Repository-owned wiki pages: Lua modules, templates, content pages, and gadgets. |
 | `wiki-dev` | A local MediaWiki stack for testing wiki changes. |
 | `quest_guides` | Generated and curated quest guide data for AdventureGuide. |
-| `tests` | Unit, contract, system, data, and golden baseline tests. |
+| `tests` | Unit, contract, system, and data tests. |
 | `openspec` | Requirements (`specs/`) and the reasoning behind each change (`changes/`). |
 | `.agent/skills` | Step-by-step procedures for recurring work. |
 
@@ -83,8 +83,7 @@ Three things the shell cannot provide:
 | --- | --- |
 | `erenshor extract packages` | Restores the Unity editor packages, once per checkout. |
 | `erenshor extract rip` / `export` / `code-facts` / `build` | Runs the pipeline steps above. |
-| `erenshor extract changes` | Compares the clean database with the previous backed-up build. |
-| `erenshor golden capture` | Writes snapshots of published output to `tests/golden/`. Review the diff after every data change. |
+| `erenshor extract changes` | Compares the clean database with the previous backed-up build. Review its report after every data change. |
 | `erenshor wiki fetch` / `generate` | Fetches live articles and merges regenerated data into them. |
 | `erenshor wiki generate-lua` / `deploy-repo-pages` | Generates the Lua data modules and deploys repository-owned modules and templates with revision guards and rollback data. |
 | `erenshor sheets deploy` | Publishes the sheet queries. |
@@ -104,7 +103,7 @@ A new Steam build runs through backup, rip, export, code facts, and build, then 
 
 - Never edit the decompiled game scripts under `variants/<variant>/unity/ExportedProject/Assets/Scripts/`, other ripped assets, or the installed game.
 - Never edit generated output by hand: databases, `quest_guides/guide.json`, map builds, captured tiles, generated wiki pages, or mod metadata. Change the generator and regenerate.
-- Golden baselines and deploys to the wiki, the map, or the sheets need the maintainer's approval.
+- Deploys to the wiki, the map, or the sheets need the maintainer's approval. Review each deploy with its dry run first.
 - The live map keeps its legacy contract: `/map` with the `layers` and `sel` parameters on both hosts, WebSocket ports 18584 and 18585, and `/db/erenshor.sqlite`.
 
 ### Design principles

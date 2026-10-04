@@ -1,5 +1,6 @@
 """Unit tests for wiki CLI commands."""
 
+import json
 from dataclasses import replace
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -8,16 +9,23 @@ import pytest
 from typer.main import get_command
 from typer.testing import CliRunner
 
+from erenshor.application.wiki.semantic_validation import page_expectation
+from erenshor.application.wiki.services.generate_service import GeneratedCorpus
 from erenshor.application.wiki.services.page import OperationResult
+from erenshor.application.wiki.services.storage import WikiStorage
 from erenshor.application.wiki_deploy.link_audit import LinkAuditFinding, LinkAuditReport
-from erenshor.application.wiki_deploy.manifest import RepoWikiPageManifest, RepoWikiPageManifestEntry
-from erenshor.application.wiki_deploy.override_classifier import ArticleOverrideClassification, OverrideFieldDecision
-from erenshor.application.wiki_deploy.override_migration import ArticleMigration, ArticleOverrideReview
+from erenshor.application.wiki_deploy.manifest import (
+    RepoWikiPageManifest,
+    RepoWikiPageManifestEntry,
+    read_repo_page_manifest,
+)
 from erenshor.application.wiki_deploy.pages import RepoPageDeployResult, RepoPageDeployResultEntry
 from erenshor.application.wiki_deploy.refresh import EmbeddedRefreshResult
 from erenshor.application.wiki_deploy.rollback import RollbackResult, RollbackResultEntry
+from erenshor.application.wiki_lua.link_catalog import LinkCatalogEntry
 from erenshor.cli.commands import wiki
 from erenshor.cli.context import CLIContext
+from erenshor.infrastructure.wiki import MediaWikiPageRevision, MediaWikiPageSnapshot, MediaWikiParse
 
 runner = CliRunner()
 
@@ -172,9 +180,6 @@ class TestWikiGenerateCommand:
 
         assert result.exit_code == 0
         mock_service.generate_all.assert_called_once()
-        # Generated articles are the legacy path; the next step must reflect the gated cutover.
-        assert "deploy-repo-pages" in result.output
-        assert "--legacy-article-deploy" in result.output
 
     @patch("erenshor.cli.commands.wiki.WikiGenerateService")
     @patch("erenshor.cli.commands.wiki._create_wiki_composition")
@@ -235,7 +240,7 @@ class TestWikiGenerateCommand:
         """Test generation receives the concrete faction and class services."""
         import erenshor.cli.commands.wiki as wiki_command
 
-        repositories = tuple(MagicMock(name=f"repo_{index}") for index in range(11))
+        repositories = tuple(MagicMock(name=f"repo_{index}") for index in range(10))
         generation = MagicMock(written_paths=[], validation_tools={})
         monkeypatch.setattr(wiki_command, "_create_lua_repositories", lambda _ctx: repositories)
         generate = MagicMock(return_value=generation)
@@ -245,8 +250,9 @@ class TestWikiGenerateCommand:
 
         assert result.exit_code == 0
         kwargs = generate.call_args.kwargs
-        assert kwargs["faction_repo"] is repositories[9]
-        assert kwargs["class_display"] is repositories[10]
+        assert kwargs["faction_repo"] is repositories[7]
+        assert kwargs["class_display"] is repositories[8]
+        assert kwargs["build_repo"] is repositories[9]
 
     def test_lua_repository_factory_shares_one_read_only_database(
         self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
@@ -276,8 +282,6 @@ class TestWikiGenerateCommand:
         constructors = (
             "ItemRepository",
             "CharacterRepository",
-            "SpawnPointRepository",
-            "LootTableRepository",
             "SpellRepository",
             "SkillRepository",
             "StanceRepository",
@@ -285,6 +289,7 @@ class TestWikiGenerateCommand:
             "ZoneRepository",
             "FactionRepository",
             "ClassDisplayNameService",
+            "BuildMetadataRepository",
         )
         constructor_connections: list[object] = []
 
@@ -313,22 +318,18 @@ class TestWikiGenerateCommand:
         assert "Dry run" in result.output
         for module in (
             "Items.lua",
-            "Characters.lua",
             "Links.lua",
             "Spells.lua",
             "Skills.lua",
-            "Quests.lua",
-            "Zones.lua",
             "Stances.lua",
         ):
             assert module in result.output
         wiki_root = cli_context.config.variants["main"].resolved_wiki(cli_context.repo_root)
         assert str(wiki_root / "lua/Erenshor/Data/Items.lua") in result.output
         assert str(wiki_root / "lua/Erenshor/Data/Items") in result.output
-        assert str(wiki_root / "lua/Erenshor/Data/Characters.lua") in result.output
         assert str(wiki_root / "lua/Erenshor/Data/Links.lua") in result.output
-        assert str(wiki_root / "lua/Erenshor/Data/Quests.lua") in result.output
-        assert str(wiki_root / "lua/Erenshor/Data/Zones.lua") in result.output
+        for removed in ("Characters.lua", "Quests.lua", "Zones.lua"):
+            assert removed not in result.output
 
 
 class TestWikiLinkAuditCommand:
@@ -398,7 +399,7 @@ class TestWikiLinkAuditCommand:
         assert run_audit.call_args.kwargs["online"] is True
         assert run_audit.call_args.kwargs["include_live_pages"] is True
 
-    def test_generate_runs_offline_audit_on_exact_processed_pages(
+    def test_generate_fails_on_a_semantic_finding_and_names_it(
         self,
         monkeypatch: pytest.MonkeyPatch,
         mock_operation_result: OperationResult,
@@ -409,150 +410,28 @@ class TestWikiLinkAuditCommand:
         service = MagicMock()
 
         def generate_all(**kwargs):
-            kwargs["preflight"]({"Generated": "exact content"})
+            broken = "{{Item\n|title=Sword\n|stablekey=item:sword\n"
+            kwargs["validate"](
+                GeneratedCorpus(
+                    pages={"Sword": broken},
+                    expectations={"Sword": page_expectation("Sword", ["item:sword"], None)},
+                )
+            )
             return mock_operation_result
 
         service.generate_all.side_effect = generate_all
-        monkeypatch.setattr(
-            wiki_command,
-            "_create_wiki_composition",
-            lambda _ctx, **_: _mock_wiki_composition(),
+        composition = _mock_wiki_composition()
+        composition.context.link_catalog_entries.return_value = (
+            LinkCatalogEntry("item:sword", "item", "weapon", "Sword", "Sword", None),
         )
+        monkeypatch.setattr(wiki_command, "_create_wiki_composition", lambda _ctx, **_: composition)
         monkeypatch.setattr(wiki_command, "WikiGenerateService", lambda **_: service)
-        run_audit = MagicMock(return_value=self._report())
-        monkeypatch.setattr(wiki_command, "_run_link_audit", run_audit)
 
         result = runner.invoke(wiki.app, ["generate"], obj=replace(cli_context, dry_run=True))
 
-        assert result.exit_code == 0
-        assert run_audit.call_args.args[1] == {"Generated": "exact content"}
-        assert run_audit.call_args.kwargs == {
-            "online": False,
-            "include_live_pages": False,
-            "output_path": None,
-            "known_generated_titles": ("Generated",),
-        }
-
-    def test_generated_deploy_runs_online_audit_but_directory_upload_does_not(
-        self,
-        monkeypatch: pytest.MonkeyPatch,
-        mock_operation_result: OperationResult,
-        tmp_path: Path,
-        cli_context: CLIContext,
-    ) -> None:
-        import erenshor.cli.commands.wiki as wiki_command
-
-        service = MagicMock()
-
-        def deploy_all(**kwargs):
-            kwargs["preflight"]({"Generated": "exact content"})
-            return mock_operation_result
-
-        service.deploy_all.side_effect = deploy_all
-        service.deploy_from_dir.return_value = mock_operation_result
-        monkeypatch.setattr(
-            wiki_command,
-            "_create_wiki_composition",
-            lambda _ctx, **_: _mock_wiki_composition(),
-        )
-        monkeypatch.setattr(wiki_command, "WikiDeployService", lambda **_: service)
-        run_audit = MagicMock(return_value=self._report())
-        monkeypatch.setattr(wiki_command, "_run_link_audit", run_audit)
-
-        generated = runner.invoke(
-            wiki.app, ["deploy", "--legacy-article-deploy"], obj=replace(cli_context, dry_run=True)
-        )
-        assert generated.exit_code == 0
-        assert run_audit.call_args.args[1] == {"Generated": "exact content"}
-        assert run_audit.call_args.kwargs == {
-            "online": True,
-            "include_live_pages": False,
-            "output_path": None,
-        }
-
-        run_audit.reset_mock()
-        directory = runner.invoke(
-            wiki.app,
-            [
-                "deploy",
-                "--legacy-article-deploy",
-                "--from-dir",
-                str(tmp_path),
-            ],
-            obj=replace(cli_context, dry_run=True),
-        )
-        assert directory.exit_code == 0
-        run_audit.assert_not_called()
-        assert "audit-links" in directory.output
-
-    def test_generated_deploy_blocks_stale_live_link_catalog(
-        self,
-        monkeypatch: pytest.MonkeyPatch,
-        mock_operation_result: OperationResult,
-        cli_context: CLIContext,
-    ) -> None:
-        import erenshor.cli.commands.wiki as wiki_command
-
-        service = MagicMock()
-
-        def deploy_all(**kwargs):
-            kwargs["preflight"]({"Generated": "{{CharacterLink|stablekey=character:a}}"})
-            return mock_operation_result
-
-        service.deploy_all.side_effect = deploy_all
-        monkeypatch.setattr(
-            wiki_command,
-            "_create_wiki_composition",
-            lambda _ctx, **_: _mock_wiki_composition(),
-        )
-        monkeypatch.setattr(wiki_command, "WikiDeployService", lambda **_: service)
-        stale_catalog = LinkAuditFinding(
-            code="live_link_catalog_stale",
-            severity="warning",
-            source_page="Module:Erenshor/Data/Links",
-            kind=None,
-            stable_key=None,
-            supplied_target=None,
-            canonical_target=None,
-            message="stale",
-        )
-        monkeypatch.setattr(
-            wiki_command,
-            "_run_link_audit",
-            MagicMock(return_value=self._report(stale_catalog)),
-        )
-
-        result = runner.invoke(wiki.app, ["deploy", "--legacy-article-deploy"], obj=replace(cli_context, dry_run=True))
-
         assert result.exit_code == 1
-        assert "live semantic-link catalog" in _unwrapped(result.output)
-
-
-class TestWikiInventoryTemplatesCommand:
-    """Test wiki template inventory command."""
-
-    def test_inventory_templates_writes_manifest_from_recorded_fixtures(self, tmp_path: Path, cli_context: CLIContext):
-        """Test template inventory writes ownership manifest from recorded API fixtures."""
-        output_path = tmp_path / "ownership.yml"
-
-        result = runner.invoke(
-            wiki.app,
-            [
-                "inventory-templates",
-                "--fixture-dir",
-                "tests/fixtures/wiki_inventory",
-                "--output",
-                str(output_path),
-            ],
-            obj=cli_context,
-        )
-
-        assert result.exit_code == 0
-        manifest = output_path.read_text(encoding="utf-8")
-        assert "title: Template:Item" in manifest
-        assert "ownership: repo_owned_template" in manifest
-        assert "cutover_blocking: true" in manifest
-        assert "Wrote template ownership manifest" in result.output
+        assert "[parseability] Sword" in result.output
+        assert "Semantic validation found" in result.output
 
 
 class TestWikiSyncInterfaceCommand:
@@ -568,80 +447,195 @@ class TestWikiSyncInterfaceCommand:
 
 
 class TestWikiDeployCommand:
-    """Test wiki deploy command."""
+    """Test the guarded article deploy command."""
 
-    @patch("erenshor.cli.commands.wiki.WikiDeployService")
-    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
-    def test_deploy_success(
-        self, mock_create_composition, mock_deploy_service, mock_operation_result, cli_context: CLIContext
-    ):
-        """Test successful deploy."""
-        mock_service = MagicMock()
-        mock_service.deploy_all.return_value = mock_operation_result
-        mock_create_composition.return_value = _mock_wiki_composition()
-        mock_deploy_service.return_value = mock_service
+    @staticmethod
+    def _changed_page(storage: WikiStorage, title: str, revision: int = 10) -> None:
+        storage.save_fetched_by_title(title, [f"item:{title.lower()}"], "{{Item|value=1}}", revision)
+        storage.save_generated_by_title(title, [f"item:{title.lower()}"], "{{Item|value=2}}\n")
 
-        result = runner.invoke(wiki.app, ["deploy", "--legacy-article-deploy"], obj=cli_context)
+    @staticmethod
+    def _storage(cli_context: CLIContext) -> WikiStorage:
+        return WikiStorage(cli_context.config.variants["main"].resolved_wiki(cli_context.repo_root))
 
-        assert result.exit_code == 0
-        mock_service.deploy_all.assert_called_once()
+    @staticmethod
+    def _stub_review(monkeypatch: pytest.MonkeyPatch, live_revisions: dict[str, int | None]) -> MagicMock:
+        import erenshor.cli.commands.wiki as wiki_command
 
-    @patch("erenshor.cli.commands.wiki.WikiDeployService")
-    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
-    def test_deploy_with_limit(
-        self, mock_create_composition, mock_deploy_service, mock_operation_result, cli_context: CLIContext
-    ):
-        """Test deploy with limit parameter."""
-        mock_service = MagicMock()
-        mock_service.deploy_all.return_value = mock_operation_result
-        mock_create_composition.return_value = _mock_wiki_composition()
-        mock_deploy_service.return_value = mock_service
+        readonly = MagicMock()
+        readonly.get_page_revision_ids.return_value = live_revisions
+        monkeypatch.setattr(wiki_command, "_create_readonly_mediawiki_client", lambda _ctx: readonly)
+        monkeypatch.setattr(wiki_command, "_build_link_audit_catalog", lambda _ctx: ())
+        monkeypatch.setattr(
+            wiki_command, "_create_mediawiki_client", MagicMock(side_effect=AssertionError("dry run must not log in"))
+        )
+        return readonly
 
-        result = runner.invoke(wiki.app, ["deploy", "--legacy-article-deploy", "--limit", "5"], obj=cli_context)
+    def test_dry_run_reports_the_plan_and_audits_without_logging_in(
+        self, monkeypatch: pytest.MonkeyPatch, cli_context: CLIContext
+    ) -> None:
+        import erenshor.cli.commands.wiki as wiki_command
 
-        assert result.exit_code == 0
-        mock_service.deploy_all.assert_called_once()
+        storage = self._storage(cli_context)
+        fetched = "{{Character\n|name=Alpha\n|type=Rare\n}}\n{{Character\n|name=Alpha Chest\n}}"
+        storage.save_fetched_by_title("Alpha", ["character:alpha"], fetched, 10)
+        generated = (
+            "{{Character\n|name=Alpha\n|stablekey=character:alpha\n|type=Elite\n}}\n"
+            "{{Character\n|name=Alpha Chest\n}}\n"
+        )
+        storage.save_generated_by_title("Alpha", ["character:alpha"], generated, kept_roots=("Character: Alpha Chest",))
+        readonly = self._stub_review(monkeypatch, {"Alpha": 10})
+        run_audit = MagicMock(return_value=TestWikiLinkAuditCommand._report())
+        monkeypatch.setattr(wiki_command, "_run_link_audit", run_audit)
 
-    @patch("erenshor.cli.commands.wiki.WikiDeployService")
-    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
-    def test_deploy_dry_run(
-        self, mock_create_composition, mock_deploy_service, mock_operation_result, cli_context: CLIContext
-    ):
-        """Test deploy in dry-run mode."""
-        mock_service = MagicMock()
-        mock_service.deploy_all.return_value = mock_operation_result
-        mock_create_composition.return_value = _mock_wiki_composition()
-        mock_deploy_service.return_value = mock_service
-
-        result = runner.invoke(wiki.app, ["deploy", "--legacy-article-deploy"], obj=replace(cli_context, dry_run=True))
+        result = runner.invoke(wiki.app, ["deploy"], obj=replace(cli_context, dry_run=True))
 
         assert result.exit_code == 0
-        mock_service.deploy_all.assert_called_once()
+        output = _unwrapped(result.output)
+        assert "Edit: 1" in output
+        assert "Alpha: Rare -> Elite" in output
+        assert "Kept live root Alpha: Character: Alpha Chest" in output
+        review = json.loads(
+            (cli_context.config.variants["main"].resolved_wiki(cli_context.repo_root) / "deploy-plan.json").read_text()
+        )
+        assert review["kinds"]["encounter tier"] == ["Alpha"]
+        assert review["kept_roots"] == {"Alpha": ["Character: Alpha Chest"]}
+        assert review["conflicts"] == {}
+        assert run_audit.call_args.args[1] == {"Alpha": generated}
+        assert run_audit.call_args.kwargs["online"] is True
+        assert run_audit.call_args.kwargs["output_path"] is None
+        readonly.close.assert_called_once_with()
 
-    @patch("erenshor.cli.commands.wiki.WikiDeployService")
-    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
-    def test_deploy_with_failures(
-        self,
-        mock_create_composition,
-        mock_deploy_service,
-        mock_operation_result_with_failures,
-        cli_context: CLIContext,
-    ):
-        """Test deploy that completes with failures."""
-        mock_service = MagicMock()
-        mock_service.deploy_all.return_value = mock_operation_result_with_failures
-        mock_create_composition.return_value = _mock_wiki_composition()
-        mock_deploy_service.return_value = mock_service
+    def test_dry_run_fails_on_a_page_that_changed_after_the_fetch(
+        self, monkeypatch: pytest.MonkeyPatch, cli_context: CLIContext
+    ) -> None:
+        import erenshor.cli.commands.wiki as wiki_command
 
-        result = runner.invoke(wiki.app, ["deploy", "--legacy-article-deploy"], obj=cli_context)
+        storage = self._storage(cli_context)
+        self._changed_page(storage, "Alpha")
+        self._changed_page(storage, "Beta")
+        self._stub_review(monkeypatch, {"Alpha": 10, "Beta": 11})
+        monkeypatch.setattr(wiki_command, "_run_link_audit", MagicMock(return_value=TestWikiLinkAuditCommand._report()))
 
-        # Should exit 1 with failures
+        result = runner.invoke(wiki.app, ["deploy"], obj=replace(cli_context, dry_run=True))
+
         assert result.exit_code == 1
-        mock_service.deploy_all.assert_called_once()
+        assert "Conflict Beta: changed after the fetch: live revision 11, fetched revision 10" in _unwrapped(
+            result.output
+        )
+
+    def test_stale_live_link_catalog_stops_the_deploy(self, monkeypatch: pytest.MonkeyPatch, cli_context: CLIContext):
+        import erenshor.cli.commands.wiki as wiki_command
+
+        self._changed_page(self._storage(cli_context), "Alpha")
+        self._stub_review(monkeypatch, {"Alpha": 10})
+        stale_catalog = LinkAuditFinding(
+            code="live_link_catalog_stale",
+            severity="warning",
+            source_page="Module:Erenshor/Data/Links",
+            kind=None,
+            stable_key=None,
+            supplied_target=None,
+            canonical_target=None,
+            message="stale",
+        )
+        monkeypatch.setattr(
+            wiki_command, "_run_link_audit", MagicMock(return_value=TestWikiLinkAuditCommand._report(stale_catalog))
+        )
+
+        result = runner.invoke(wiki.app, ["deploy"], obj=replace(cli_context, dry_run=True))
+
+        assert result.exit_code == 1
+        assert "live semantic-link catalog" in _unwrapped(result.output)
+
+    def test_deploy_writes_a_manifest_and_fails_on_a_conflict(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, cli_context: CLIContext
+    ) -> None:
+        import erenshor.cli.commands.wiki as wiki_command
+
+        context = replace(cli_context, repo_root=tmp_path)
+        storage = self._storage(context)
+        self._changed_page(storage, "Alpha")
+        self._changed_page(storage, "Beta")
+
+        def snapshots(titles, assertion=None, assert_user=None):
+            live = {"Alpha": 10, "Beta": 11}
+            return {
+                title: MediaWikiPageSnapshot(
+                    title=title,
+                    source_text="{{Item|value=1}}",
+                    revision=MediaWikiPageRevision(
+                        title, 1, live[title], "2026-10-01T00:00:00Z", "2026-10-03T00:00:00Z", "ErenshorBot"
+                    ),
+                    start_timestamp="2026-10-03T00:00:00Z",
+                )
+                for title in titles
+            }
+
+        client = MagicMock()
+        client.get_page_snapshots.side_effect = snapshots
+        client.safe_edit_page.return_value = 12
+        client.get_page_categories.return_value = {}
+        client.parse_wikitext.return_value = MediaWikiParse(html="<p></p>", templates=(), categories=())
+        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", lambda _ctx: client)
+        monkeypatch.setattr(wiki_command, "_build_link_audit_catalog", lambda _ctx: ())
+        monkeypatch.setattr(wiki_command, "_run_link_audit", MagicMock(return_value=TestWikiLinkAuditCommand._report()))
+        monkeypatch.setattr(wiki_command, "recorded_build_id", lambda _path: "123")
+
+        result = runner.invoke(wiki.app, ["deploy"], obj=context)
+
+        assert result.exit_code == 1
+        assert "Conflict Beta" in _unwrapped(result.output)
+        [manifest_path] = (tmp_path / "wiki" / "article-deploys").glob("*/manifest.json")
+        assert [(entry.title, entry.new_revision_id) for entry in read_repo_page_manifest(manifest_path).entries] == [
+            ("Alpha", 12),
+            ("Beta", None),
+        ]
+        assert client.safe_edit_page.call_args.kwargs["summary"] == "Update game data from build 123"
+        client.close.assert_called_once_with()
 
 
 class TestWikiDeployRepoCommand:
     """Test repo-owned wiki deploy command."""
+
+    @pytest.fixture(autouse=True)
+    def _catalog(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        import erenshor.cli.commands.wiki as wiki_command
+
+        monkeypatch.setattr(wiki_command, "_build_link_audit_catalog", lambda _ctx: ())
+
+    @staticmethod
+    def _stub_live_pages(
+        monkeypatch: pytest.MonkeyPatch,
+        readonly: MagicMock,
+        live: dict[str, tuple[str, str]] | None = None,
+    ) -> MagicMock:
+        """Serve each source as ``source``, and each live page as ``(text, user)`` or missing."""
+        import erenshor.cli.commands.wiki as wiki_command
+
+        pages = live or {}
+
+        def snapshots(titles, assertion=None, assert_user=None):
+            result = {}
+            for title in titles:
+                if title not in pages:
+                    result[title] = MediaWikiPageSnapshot(title, None, None, "2026-10-03T00:00:00Z")
+                    continue
+                text, user = pages[title]
+                revision = MediaWikiPageRevision(title, 1, 77, "2026-10-01T00:00:00Z", "2026-10-03T00:00:00Z", user)
+                result[title] = MediaWikiPageSnapshot(title, text, revision, "2026-10-03T00:00:00Z")
+            return result
+
+        readonly.get_page_snapshots.side_effect = snapshots
+        readonly.edit_account = "ErenshorBot"
+        factory = MagicMock(return_value=readonly)
+        monkeypatch.setattr(wiki_command, "_create_readonly_mediawiki_client", factory)
+        monkeypatch.setattr(
+            wiki_command,
+            "read_repo_page_sources",
+            lambda manifest, _root: dict.fromkeys((entry.title for entry in manifest.entries), "source"),
+        )
+        return factory
 
     def test_deploy_repo_pages_writes_deployment_manifest(
         self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, cli_context: CLIContext
@@ -720,6 +714,46 @@ class TestWikiDeployRepoCommand:
         assert entry.new_revision_id == 11
         assert entry.rollback_text_source == "rollback/Module_Erenshor_Item.wiki"
 
+    def test_deploy_repo_pages_resolves_relative_manifest_output(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, cli_context: CLIContext
+    ):
+        """A relative manifest path gives an absolute rollback root, so rollback sources resolve."""
+        import erenshor.cli.commands.wiki as wiki_command
+
+        manifest = RepoWikiPageManifest(
+            entries=(
+                RepoWikiPageManifestEntry(
+                    title="Module:Erenshor/Format",
+                    source_path="wiki/modules/Erenshor/Format.lua",
+                    source_sha256="abc",
+                    ownership_class="lua_module",
+                    upload_stage="lua_module",
+                    content_model="Scribunto",
+                    declares_cargo_table=False,
+                    cargo_tables=(),
+                ),
+            )
+        )
+        deploy_kwargs: dict[str, object] = {}
+
+        def fake_deploy_repo_pages(**kwargs):
+            deploy_kwargs.update(kwargs)
+            return RepoPageDeployResult(entries=())
+
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.setattr(wiki_command, "build_repo_page_manifest", lambda *_args, **_kwargs: manifest)
+        monkeypatch.setattr(wiki_command, "_create_readonly_mediawiki_client", lambda _ctx: MagicMock())
+        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", lambda _ctx: FakeDeployClient())
+        monkeypatch.setattr(wiki_command, "deploy_repo_pages", fake_deploy_repo_pages)
+        monkeypatch.setattr(wiki_command, "write_repo_page_manifest", lambda *_args: None)
+
+        result = runner.invoke(
+            wiki.app, ["deploy-repo-pages", "--manifest-output", "runs/manifest.json"], obj=cli_context
+        )
+
+        assert result.exit_code == 0, result.output
+        assert deploy_kwargs["rollback_root"] == tmp_path / "runs" / "rollback"
+
     def test_deploy_repo_pages_passes_explicit_scope_flags(
         self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, cli_context: CLIContext
     ):
@@ -772,7 +806,6 @@ class TestWikiDeployRepoCommand:
                 "include_templates": False,
                 "include_generated_data": True,
                 "include_content_pages": True,
-                "known_live_titles": set(),
             }
         ]
         assert "no remote edits" in result.output
@@ -804,6 +837,54 @@ class TestWikiDeployRepoCommand:
         readonly_client.assert_not_called()
         authenticated_client.assert_not_called()
         deploy.assert_not_called()
+
+    def test_dry_run_names_each_page_that_another_account_changed(
+        self, monkeypatch: pytest.MonkeyPatch, cli_context: CLIContext
+    ) -> None:
+        import erenshor.cli.commands.wiki as wiki_command
+
+        manifest = RepoWikiPageManifest(
+            entries=tuple(
+                RepoWikiPageManifestEntry(
+                    title=title,
+                    source_path=f"wiki/templates/{title.removeprefix('Template:')}.wiki",
+                    source_sha256="a" * 64,
+                    ownership_class="template",
+                    upload_stage="template",
+                    content_model="wikitext",
+                    declares_cargo_table=False,
+                    cargo_tables=(),
+                )
+                for title in ("Template:Quest", "Template:Zone")
+            )
+        )
+        monkeypatch.setattr(wiki_command, "build_repo_page_manifest", lambda *_args, **_kwargs: manifest)
+        self._stub_live_pages(
+            monkeypatch,
+            MagicMock(),
+            live={"Template:Quest": ("reverted", "Admin"), "Template:Zone": ("old", "ErenshorBot")},
+        )
+        monkeypatch.setattr(
+            wiki_command, "_create_mediawiki_client", MagicMock(side_effect=AssertionError("dry run must not log in"))
+        )
+        dry_run = replace(cli_context, dry_run=True)
+
+        result = runner.invoke(wiki.app, ["deploy-repo-pages", "--include-templates"], obj=dry_run)
+
+        assert result.exit_code == 1
+        output = _unwrapped(result.output)
+        assert "Create: 0 Edit: 2 Unchanged: 0" in output
+        assert "Edit Template:Quest" in output
+        assert "Edit Template:Zone" in output
+        assert "Drift Template:Quest: revision 77 by Admin differs from the repository" in output
+        assert "Drift Template:Zone" not in output
+
+        accepted = runner.invoke(
+            wiki.app, ["deploy-repo-pages", "--include-templates", "--accept-drift", "Template:Quest"], obj=dry_run
+        )
+
+        assert accepted.exit_code == 0
+        assert "Drift" not in _unwrapped(accepted.output)
 
     @pytest.mark.parametrize(
         ("title", "stage", "include_option", "error_text"),
@@ -862,6 +943,7 @@ class TestWikiDeployRepoCommand:
             return manifest
 
         monkeypatch.setattr(wiki_command, "build_repo_page_manifest", fake_build_manifest)
+        self._stub_live_pages(monkeypatch, MagicMock())
 
         pages_file = tmp_path / "pages.txt"
         pages_file.write_text(f"{title}\n", encoding="utf-8")
@@ -883,176 +965,9 @@ class TestWikiDeployRepoCommand:
         )
         assert accepted.exit_code == 0
         assert "Dry run: 1 repo-owned pages" in accepted.output
+        if stage != "content_page":
+            assert "no main-namespace users" in accepted.output
         assert build_calls[1]["requested_titles"] == {title}
-
-    def test_deploy_repo_pages_rejects_unsafe_resolver_before_mutation(
-        self,
-        monkeypatch: pytest.MonkeyPatch,
-        tmp_path: Path,
-        cli_context: CLIContext,
-    ):
-        """Test a resolver cannot deploy when the Links catalog is neither selected nor live."""
-        import erenshor.cli.commands.wiki as wiki_command
-
-        manifest = RepoWikiPageManifest(
-            entries=(
-                RepoWikiPageManifestEntry(
-                    title="Module:Erenshor/Link",
-                    source_path="wiki/modules/Erenshor/Link.lua",
-                    source_sha256="a" * 64,
-                    ownership_class="lua_module",
-                    upload_stage="lua_module",
-                    content_model="Scribunto",
-                    declares_cargo_table=False,
-                    cargo_tables=(),
-                ),
-            )
-        )
-        readonly = MagicMock()
-        readonly.page_exists.return_value = False
-        monkeypatch.setattr(wiki_command, "build_repo_page_manifest", lambda *_args, **_kwargs: manifest)
-        monkeypatch.setattr(wiki_command, "_create_readonly_mediawiki_client", lambda _ctx: readonly)
-        deploy = MagicMock(side_effect=AssertionError("unsafe manifest reached deployment"))
-        monkeypatch.setattr(wiki_command, "deploy_repo_pages", deploy)
-
-        pages_file = tmp_path / "pages.txt"
-        pages_file.write_text("Module:Erenshor/Link\n", encoding="utf-8")
-        result = runner.invoke(wiki.app, ["deploy-repo-pages", "--pages-file", str(pages_file)], obj=cli_context)
-
-        assert result.exit_code == 1
-        assert "Module:Erenshor/Link requires" in result.output
-        assert "Module:Erenshor/Data/Links" in result.output
-        readonly.page_exists.assert_called_once_with("Module:Erenshor/Data/Links")
-        readonly.close.assert_called_once_with()
-        deploy.assert_not_called()
-
-    def test_deploy_repo_pages_accepts_live_catalog_and_dry_run_does_not_login_or_edit(
-        self,
-        monkeypatch: pytest.MonkeyPatch,
-        cli_context: CLIContext,
-    ):
-        """Test a live read-only catalog permits resolver selection without dry-run mutation."""
-        import erenshor.cli.commands.wiki as wiki_command
-
-        manifest = RepoWikiPageManifest(
-            entries=(
-                RepoWikiPageManifestEntry(
-                    title="Module:Erenshor/Link",
-                    source_path="wiki/modules/Erenshor/Link.lua",
-                    source_sha256="a" * 64,
-                    ownership_class="lua_module",
-                    upload_stage="lua_module",
-                    content_model="Scribunto",
-                    declares_cargo_table=False,
-                    cargo_tables=(),
-                ),
-            )
-        )
-        readonly = MagicMock()
-        readonly.page_exists.return_value = True
-        authenticated = MagicMock()
-        monkeypatch.setattr(wiki_command, "build_repo_page_manifest", lambda *_args, **_kwargs: manifest)
-        monkeypatch.setattr(wiki_command, "_create_readonly_mediawiki_client", lambda _ctx: readonly)
-        create_client = MagicMock(return_value=authenticated)
-        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", create_client)
-        deploy = MagicMock(return_value=RepoPageDeployResult(entries=()))
-        monkeypatch.setattr(wiki_command, "deploy_repo_pages", deploy)
-        monkeypatch.setattr(wiki_command, "write_repo_page_manifest", MagicMock())
-
-        result = runner.invoke(wiki.app, ["deploy-repo-pages"], obj=replace(cli_context, dry_run=True))
-
-        assert result.exit_code == 0
-        assert "Dry run" in result.output
-        readonly.page_exists.assert_called_once_with("Module:Erenshor/Data/Links")
-        readonly.close.assert_called_once_with()
-        create_client.assert_not_called()
-        deploy.assert_not_called()
-
-        result = runner.invoke(wiki.app, ["deploy-repo-pages"], obj=cli_context)
-
-        assert result.exit_code == 0
-        create_client.assert_called_once()
-        deploy.assert_called_once()
-        assert deploy.call_args.kwargs["known_live_titles"] == {"Module:Erenshor/Data/Links"}
-        assert deploy.call_args.kwargs["include_generated_data"] is False
-        assert deploy.call_args.kwargs["include_content_pages"] is False
-        authenticated.close.assert_called_once_with()
-
-    def test_deploy_repo_pages_gates_item_on_live_catalog_and_selects_it(
-        self,
-        monkeypatch: pytest.MonkeyPatch,
-        tmp_path: Path,
-        cli_context: CLIContext,
-    ):
-        """Test filtered Item deployment checks the live Links catalog before selection."""
-        import erenshor.cli.commands.wiki as wiki_command
-
-        manifest = RepoWikiPageManifest(
-            entries=(
-                RepoWikiPageManifestEntry(
-                    title="Module:Erenshor/Item",
-                    source_path="wiki/modules/Erenshor/Item.lua",
-                    source_sha256="a" * 64,
-                    ownership_class="lua_module",
-                    upload_stage="lua_module",
-                    content_model="Scribunto",
-                    declares_cargo_table=False,
-                    cargo_tables=(),
-                ),
-            )
-        )
-        readonly = MagicMock()
-        readonly.page_exists.return_value = False
-        authenticated = MagicMock()
-        monkeypatch.setattr(wiki_command, "build_repo_page_manifest", lambda *_args, **_kwargs: manifest)
-        monkeypatch.setattr(wiki_command, "_create_readonly_mediawiki_client", lambda _ctx: readonly)
-        create_client = MagicMock(return_value=authenticated)
-        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", create_client)
-        deploy = MagicMock(return_value=RepoPageDeployResult(entries=()))
-        monkeypatch.setattr(wiki_command, "deploy_repo_pages", deploy)
-        monkeypatch.setattr(wiki_command, "write_repo_page_manifest", MagicMock())
-
-        pages_file = tmp_path / "pages.txt"
-        pages_file.write_text("Module:Erenshor/Item\n", encoding="utf-8")
-        rejected = runner.invoke(wiki.app, ["deploy-repo-pages", "--pages-file", str(pages_file)], obj=cli_context)
-
-        assert rejected.exit_code == 1
-        assert "Module:Erenshor/Item requires" in rejected.output
-        assert "Module:Erenshor/Data/Links" in rejected.output
-        readonly.page_exists.assert_called_once_with("Module:Erenshor/Data/Links")
-        readonly.close.assert_called_once_with()
-        deploy.assert_not_called()
-
-        readonly.reset_mock()
-        readonly.page_exists.return_value = True
-        accepted = runner.invoke(
-            wiki.app, ["deploy-repo-pages", "--pages-file", str(pages_file)], obj=replace(cli_context, dry_run=True)
-        )
-
-        assert accepted.exit_code == 0
-        assert "Dry run: 1 repo-owned pages" in accepted.output
-        readonly.page_exists.assert_called_once_with("Module:Erenshor/Data/Links")
-        readonly.close.assert_called_once_with()
-        create_client.assert_not_called()
-        deploy.assert_not_called()
-
-        result = runner.invoke(wiki.app, ["deploy-repo-pages", "--pages-file", str(pages_file)], obj=cli_context)
-
-        assert result.exit_code == 0
-        create_client.assert_called_once()
-        deploy.assert_called_once()
-        assert [entry.title for entry in deploy.call_args.kwargs["manifest"].entries] == ["Module:Erenshor/Item"]
-        assert deploy.call_args.kwargs["known_live_titles"] == {"Module:Erenshor/Data/Links"}
-        authenticated.close.assert_called_once_with()
-
-    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
-    def test_legacy_deploy_requires_explicit_legacy_flag(self, mock_create_composition, cli_context: CLIContext):
-        """Test legacy generated article deploy is guarded during Lua cutover."""
-        result = runner.invoke(wiki.app, ["deploy"], obj=cli_context)
-
-        assert result.exit_code == 1
-        assert "--legacy-article-deploy" in result.output
-        mock_create_composition.assert_not_called()
 
     def test_deploy_reports_changed_cargo_declarations(
         self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, cli_context: CLIContext
@@ -1108,157 +1023,6 @@ class TestWikiDeployRepoCommand:
         assert "Cargo" in result.output
         assert "Items" in result.output
         assert "Special:CargoTables" in result.output
-
-
-class TestWikiReviewOverridesCommand:
-    """Test review-only article override minimization command."""
-
-    def test_review_overrides_fetches_pages_and_prints_review_report(
-        self, monkeypatch: pytest.MonkeyPatch, cli_context: CLIContext
-    ):
-        """Test review command delegates live review and reports removals, preserved fields, and diffs."""
-        import erenshor.cli.commands.wiki as wiki_command
-
-        client = FakeDeployClient()
-        calls = []
-        migration = ArticleMigration(
-            title="Ember Longsword",
-            minimized_wikitext="{{Item|stablekey=item:ember|source=Custom drop}}",
-            classification=ArticleOverrideClassification(
-                title="Ember Longsword",
-                decisions=(
-                    OverrideFieldDecision(
-                        field="type",
-                        article_value="Weapon",
-                        generated_value="Weapon",
-                        decision="removed_generated_duplicate",
-                        reason="value matches generated data",
-                    ),
-                    OverrideFieldDecision(
-                        field="source",
-                        article_value="Custom drop",
-                        generated_value="Quest",
-                        decision="preserved_manual_override",
-                        reason="value diverges from generated data",
-                    ),
-                    OverrideFieldDecision(
-                        field="imagecaption",
-                        article_value="-",
-                        generated_value="A sword",
-                        decision="intentional_blank",
-                        reason="documented blank sentinel",
-                    ),
-                ),
-            ),
-            removed_fields=("type",),
-            preserved_fields=("source", "imagecaption"),
-        )
-        review = ArticleOverrideReview(
-            title="Ember Longsword",
-            original_wikitext="{{Item|stablekey=item:ember|type=Weapon|source=Custom drop|imagecaption=-}}",
-            migration=migration,
-        )
-
-        def fake_create_client(cli_ctx):
-            calls.append(("create_client", cli_ctx.variant))
-            return client
-
-        def fake_review_article_overrides(**kwargs):
-            calls.append(("review", kwargs))
-            return (review,)
-
-        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", fake_create_client)
-        monkeypatch.setattr(wiki_command, "review_article_overrides", fake_review_article_overrides)
-        monkeypatch.setattr(
-            wiki_command, "_build_item_article_identities", lambda cli_ctx: {"Ember Longsword": ("item:ember",)}
-        )
-
-        result = runner.invoke(
-            wiki.app,
-            [
-                "review-overrides",
-                "--page",
-                "Ember Longsword",
-                "--template",
-                "Item",
-                "--module",
-                "Erenshor/Item",
-            ],
-            obj=cli_context,
-        )
-
-        assert result.exit_code == 0
-        assert "Ember Longsword" in result.output
-        assert "Removed generated duplicates: type" in result.output
-        assert "Preserved manual overrides: source" in result.output
-        assert "Intentional blanks: imagecaption" in result.output
-        assert "-{{Item|stablekey=item:ember|type=Weapon|source=Custom drop|imagecaption=-}}" in result.output
-        assert "+{{Item|stablekey=item:ember|source=Custom drop}}" in result.output
-        assert client.closed is True
-        _, kwargs = calls[1]
-        assert kwargs["client"] is client
-        assert kwargs["titles"] == ("Ember Longsword",)
-        assert kwargs["template_names"] == ("Item",)
-        assert kwargs["module"] == "Erenshor/Item"
-        assert kwargs["article_identities"] == {"Ember Longsword": ("item:ember",)}
-        assert calls[0] == ("create_client", "main")
-        assert calls[1][0] == "review"
-
-    def test_review_overrides_reports_skipped_pages(self, monkeypatch: pytest.MonkeyPatch, cli_context: CLIContext):
-        """Test ambiguous identity pages are reported instead of minimized."""
-        import erenshor.cli.commands.wiki as wiki_command
-
-        client = FakeDeployClient()
-        skipped = ArticleOverrideReview(
-            title="A Lost Poem",
-            original_wikitext="{{Item|title=A Lost Poem (1)}}",
-            migration=None,
-            skipped_reason="ambiguous identity: 2 stable keys mapped to page",
-        )
-
-        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", lambda cli_ctx: client)
-        monkeypatch.setattr(
-            wiki_command, "_build_item_article_identities", lambda cli_ctx: {"A Lost Poem": ("item:1", "item:2")}
-        )
-        monkeypatch.setattr(wiki_command, "review_article_overrides", lambda **kwargs: (skipped,))
-
-        result = runner.invoke(wiki.app, ["review-overrides", "--page", "A Lost Poem"], obj=cli_context)
-
-        assert result.exit_code == 0
-        assert "Skipped: 1" in result.output
-        assert "A Lost Poem" in result.output
-        assert "Skipped: ambiguous identity: 2 stable keys mapped to page" in result.output
-        assert client.closed is True
-
-    def test_review_overrides_defaults_to_identity_map_titles_with_limit(
-        self, monkeypatch: pytest.MonkeyPatch, cli_context: CLIContext
-    ):
-        """Test review command can audit repo-mapped item pages without a manual page list."""
-        import erenshor.cli.commands.wiki as wiki_command
-
-        client = FakeDeployClient()
-        calls = []
-        identities = {
-            "B Item": ("item:b",),
-            "A Item": ("item:a",),
-            "C Item": ("item:c",),
-        }
-
-        def fake_review_article_overrides(**kwargs):
-            calls.append(kwargs)
-            return ()
-
-        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", lambda cli_ctx: client)
-        monkeypatch.setattr(wiki_command, "_build_item_article_identities", lambda cli_ctx: identities)
-        monkeypatch.setattr(wiki_command, "review_article_overrides", fake_review_article_overrides)
-
-        result = runner.invoke(wiki.app, ["review-overrides", "--limit", "2"], obj=cli_context)
-
-        assert result.exit_code == 0
-        [kwargs] = calls
-        assert kwargs["titles"] == ("A Item", "B Item")
-        assert kwargs["article_identities"] is identities
-        assert client.closed is True
 
 
 class FakeDeployClient:
@@ -1370,27 +1134,15 @@ class TestWikiRefreshEmbeddedCommand:
     def test_refresh_embedded_deduplicates_combined_refresh_results(
         self, monkeypatch: pytest.MonkeyPatch, cli_context: CLIContext
     ):
-        """Dependency and source refreshes share one final refreshed-page count."""
+        """Dependency and explicit-page refreshes share one final refreshed-page count."""
         import erenshor.cli.commands.wiki as wiki_command
 
         client = FakeDeployClient()
-        calls = []
-
         monkeypatch.setattr(wiki_command, "_create_mediawiki_client", lambda cli_ctx: client)
-
-        def fake_refresh_embedded_pages(**kwargs):
-            calls.append(("embedded", kwargs))
-            return EmbeddedRefreshResult(requested=("A", "B"), refreshed=("A", "B"))
-
-        def fake_refresh_item_owners_for_source_changes(**kwargs):
-            calls.append(("owners", kwargs))
-            return EmbeddedRefreshResult(requested=("B", "C"), refreshed=("B", "C"))
-
-        monkeypatch.setattr(wiki_command, "refresh_embedded_pages", fake_refresh_embedded_pages)
         monkeypatch.setattr(
             wiki_command,
-            "refresh_item_owners_for_source_changes",
-            fake_refresh_item_owners_for_source_changes,
+            "refresh_embedded_pages",
+            lambda **kwargs: EmbeddedRefreshResult(requested=("A", "B"), refreshed=("A", "B")),
         )
 
         result = runner.invoke(
@@ -1401,44 +1153,16 @@ class TestWikiRefreshEmbeddedCommand:
                 "Template:Item",
                 "--namespace",
                 "0",
-                "--source-table",
-                "loot_drops",
+                "--page",
+                "B",
+                "--page",
+                "C",
             ],
             obj=cli_context,
         )
 
         assert result.exit_code == 0
         assert "Refreshed: 3" in result.output
-        assert [kind for kind, _ in calls] == ["embedded", "owners"]
-        assert client.closed is True
-
-    def test_refresh_embedded_reparses_item_owners_for_source_table(
-        self, monkeypatch: pytest.MonkeyPatch, cli_context: CLIContext
-    ):
-        """Source-table mode refreshes item-owned Cargo pages without embeddedin namespaces."""
-        import erenshor.cli.commands.wiki as wiki_command
-
-        client = FakeDeployClient()
-        calls = []
-
-        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", lambda cli_ctx: client)
-
-        def fake_refresh_item_owners_for_source_changes(**kwargs):
-            calls.append(kwargs)
-            return EmbeddedRefreshResult(requested=("Ember Longsword",), refreshed=("Ember Longsword",))
-
-        monkeypatch.setattr(
-            wiki_command,
-            "refresh_item_owners_for_source_changes",
-            fake_refresh_item_owners_for_source_changes,
-        )
-
-        result = runner.invoke(wiki.app, ["refresh-embedded", "--source-table", "loot_drops"], obj=cli_context)
-
-        assert result.exit_code == 0
-        assert "Refreshed: 1" in result.output
-        assert calls[0]["changed_source_tables"] == ("loot_drops",)
-        assert calls[0]["assertion"] == "bot"
         assert client.closed is True
 
 

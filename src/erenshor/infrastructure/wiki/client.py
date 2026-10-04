@@ -7,7 +7,7 @@ Features:
 - Login with bot credentials
 - Fetch page content by title
 - Batch fetch multiple pages efficiently
-- Edit pages with new content
+- Edit and create pages with revision, timestamp, and assertion guards
 - CSRF token management
 - Rate limiting to avoid API throttling
 - Comprehensive error handling
@@ -18,7 +18,7 @@ operations, designed to work with wiki.gg (https://erenshor.wiki.gg).
 
 import hashlib
 from collections.abc import Sequence
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal, NoReturn
 
@@ -31,7 +31,7 @@ from erenshor.infrastructure.wiki.rate_limit import (
     MediaWikiRequestPolicy,
     MediaWikiRetryableRequestError,
     MediaWikiUnretryableRequestError,
-    RequestKind,
+    RateLimit,
 )
 
 
@@ -115,13 +115,18 @@ class MediaWikiRateLimitError(MediaWikiAPIError):
 
 @dataclass(frozen=True, slots=True)
 class MediaWikiPageRevision:
-    """Revision metadata used to guard conflict-safe MediaWiki edits."""
+    """Revision metadata used to guard conflict-safe MediaWiki edits.
+
+    ``user`` is the account that made the revision, or None when MediaWiki
+    hides it.
+    """
 
     title: str
     page_id: int
     revision_id: int
     timestamp: str
     start_timestamp: str
+    user: str | None
 
 
 @dataclass(frozen=True, slots=True)
@@ -145,6 +150,36 @@ class MediaWikiTitleStatus:
     exists: bool
 
 
+@dataclass(frozen=True, slots=True)
+class MediaWikiParsedLink:
+    """A page that a parsed text uses: a transcluded template or module, or a category."""
+
+    title: str
+    exists: bool
+
+
+@dataclass(frozen=True, slots=True)
+class MediaWikiParse:
+    """What MediaWiki reports when it parses a text under a title.
+
+    Category titles carry the ``Category:`` namespace and use spaces.
+    """
+
+    html: str
+    templates: tuple[MediaWikiParsedLink, ...]
+    categories: tuple[MediaWikiParsedLink, ...]
+
+
+def _revision_user(raw_revision: dict[str, Any]) -> str | None:
+    """Return the account that made a revision, or None when MediaWiki hides it."""
+    if "userhidden" in raw_revision:
+        return None
+    user = raw_revision["user"]
+    if not isinstance(user, str) or not user:
+        raise TypeError("revision user is not text")
+    return user
+
+
 class MediaWikiClient:
     """Client for MediaWiki API operations.
 
@@ -157,7 +192,6 @@ class MediaWikiClient:
         bot_username: Bot account username for authentication.
         bot_password: Bot account password for authentication.
         batch_size: Number of pages to fetch per batch request.
-        rate_limit_delay: Minimum delay between API requests (seconds).
         edit_summary: Default edit summary for page updates.
         minor_edit: Whether edits should be marked as minor by default.
 
@@ -181,10 +215,12 @@ class MediaWikiClient:
         >>> for title, content in pages.items():
         ...     print(f"{title}: {len(content)} characters")
 
-        >>> # Edit page
-        >>> client.edit_page(
+        >>> # Edit a page against the revision it was read at
+        >>> revision = client.get_page_revision_metadata("Item:Sword", assertion="bot")
+        >>> client.safe_edit_page(
         ...     title="Item:Sword",
         ...     content="{{Item|name=Sword|damage=10}}",
+        ...     base_revision=revision,
         ...     summary="Update item stats from database"
         ... )
     """
@@ -195,7 +231,6 @@ class MediaWikiClient:
         bot_username: str = "",
         bot_password: str = "",
         batch_size: int = 25,
-        rate_limit_delay: float = 1.0,
         edit_summary: str = "Automated wiki update",
         minor_edit: bool = True,
         timeout: float = 30.0,
@@ -211,7 +246,6 @@ class MediaWikiClient:
             bot_username: Bot account username (format: "BotName@BotName").
             bot_password: Bot account password (bot password from Special:BotPasswords).
             batch_size: Number of pages to fetch per batch request (max 50).
-            rate_limit_delay: Minimum delay between API requests in seconds.
             edit_summary: Default edit summary for page updates.
             minor_edit: Whether edits should be marked as minor by default.
             timeout: HTTP request timeout in seconds.
@@ -232,15 +266,11 @@ class MediaWikiClient:
         self.bot_username = bot_username
         self.bot_password = bot_password
         self.batch_size = batch_size
-        self.rate_limit_delay = rate_limit_delay
         self.edit_summary = edit_summary
         self.minor_edit = minor_edit
         self.timeout = timeout
         self.clock = clock if clock is not None else RealClock()
-        base_policy = request_policy if request_policy is not None else MediaWikiRequestPolicy()
-        # MediaWikiClient historically used one delay for reads and writes;
-        # retain that behavior while delegating pacing and retries to the requestor.
-        self.request_policy = replace(base_policy, read_delay=rate_limit_delay, write_delay=rate_limit_delay)
+        self.request_policy = request_policy if request_policy is not None else MediaWikiRequestPolicy()
 
         user_agent = f"{bot_username or 'ErenshorDataBot'}/0.3 (automated wiki updates) httpx"
         self._requestor = MediaWikiRequestor(
@@ -278,6 +308,17 @@ class MediaWikiClient:
         """Return the borrowed request capability for specialized adapters."""
         return self._requestor
 
+    @property
+    def edit_account(self) -> str:
+        """Return the account that MediaWiki records for the edits of this client.
+
+        A bot-password login name is ``<account>@<bot name>``, and MediaWiki
+        records its edits under ``<account>``. A user name reads underscores as
+        spaces and starts with a capital letter.
+        """
+        account = self.bot_username.split("@", 1)[0].replace("_", " ").strip()
+        return account[:1].upper() + account[1:]
+
     def _request(
         self,
         params: dict[str, Any],
@@ -293,8 +334,8 @@ class MediaWikiClient:
         params.setdefault("maxlag", str(self.request_policy.maxlag))
         try:
             if method == "GET":
-                return self._requestor.get(params, kind=RequestKind.READ)
-            return self._requestor.post(params, data=data, kind=RequestKind.WRITE)
+                return self._requestor.get(params)
+            return self._requestor.post(params, data=data)
         except httpx.TimeoutException as e:
             logger.error(f"MediaWiki API request timeout: {e}")
             raise MediaWikiNetworkError(f"Request timeout: {e}") from e
@@ -373,10 +414,44 @@ class MediaWikiClient:
                 raise MediaWikiAuthenticationError(f"Login failed: {reason}")
 
             logger.info("Successfully logged in to MediaWiki")
+            self._load_rate_limits()
 
         except MediaWikiAPIError as e:
             logger.error(f"Login request failed: {e}")
             raise MediaWikiAuthenticationError(f"Login failed: {e}") from e
+
+    def _load_rate_limits(self) -> None:
+        """Read the logged-in account's rate limits and rights."""
+        result = self._request({"action": "query", "meta": "userinfo", "uiprop": "ratelimits|rights", "assert": "user"})
+        query = result.get("query")
+        userinfo = query.get("userinfo") if isinstance(query, dict) else None
+        if not isinstance(userinfo, dict):
+            raise MediaWikiAuthenticationError("Invalid userinfo response: missing account")
+        rights = userinfo.get("rights")
+        if not isinstance(rights, list) or not all(isinstance(right, str) for right in rights):
+            raise MediaWikiAuthenticationError("Invalid userinfo response: missing rights")
+        limits: dict[str, RateLimit] = {}
+        if "noratelimit" not in rights:
+            raw_limits = userinfo.get("ratelimits")
+            if not isinstance(raw_limits, dict):
+                raise MediaWikiAuthenticationError("Invalid userinfo response: missing rate limits")
+            for action, buckets in raw_limits.items():
+                if not isinstance(action, str) or not isinstance(buckets, dict):
+                    raise MediaWikiAuthenticationError("Invalid userinfo response: invalid rate limits")
+                for bucket in buckets.values():
+                    if not isinstance(bucket, dict):
+                        raise MediaWikiAuthenticationError("Invalid userinfo response: invalid rate limit bucket")
+                    hits, seconds = bucket.get("hits"), bucket.get("seconds")
+                    if type(hits) is not int or type(seconds) is not int or hits <= 0 or seconds <= 0:
+                        raise MediaWikiAuthenticationError("Invalid userinfo response: invalid rate limit bucket")
+                    candidate = RateLimit(hits=hits, seconds=seconds)
+                    current = limits.get(action)
+                    if current is None or candidate.seconds / candidate.hits > current.seconds / current.hits:
+                        limits[action] = candidate
+        self._requestor.set_rate_limits(limits)
+        name = userinfo.get("name", self.edit_account)
+        summary = ", ".join(f"{action} {limit.hits}/{limit.seconds}s" for action, limit in sorted(limits.items()))
+        logger.info(f"Rate limits for {name}: {summary or 'none'}")
 
     def get_current_user_rights(
         self,
@@ -520,7 +595,8 @@ class MediaWikiClient:
         """Fetch content of multiple wiki pages efficiently.
 
         Uses batch API requests to fetch multiple pages. Automatically handles
-        pagination if more than batch_size pages are requested.
+        pagination if more than batch_size pages are requested. Pages that a
+        response truncated at the API result size limit are requested again.
 
         Args:
             titles: List of page titles to fetch.
@@ -546,11 +622,10 @@ class MediaWikiClient:
         logger.info(f"Fetching {len(titles)} pages in batches of {self.batch_size}")
 
         result_dict: dict[str, str | None] = {}
-
-        # Process in batches
-        for i in range(0, len(titles), self.batch_size):
-            batch = titles[i : i + self.batch_size]
-            logger.debug(f"Fetching batch {i // self.batch_size + 1}: {len(batch)} pages")
+        pending = list(titles)
+        while pending:
+            batch = pending[: self.batch_size]
+            logger.debug(f"Fetching a batch of {len(batch)} pages")
 
             params = {
                 "action": "query",
@@ -581,13 +656,18 @@ class MediaWikiClient:
             if not isinstance(pages, dict):
                 raise MediaWikiAPIError(f"Invalid page response for {batch!r}: missing pages")
 
+            truncated = "continue" in result
             by_title: dict[str, str | None] = {}
+            left_out: set[str] = set()
             for page in pages.values():
                 if not isinstance(page, dict) or not isinstance(page.get("title"), str):
                     raise MediaWikiAPIError(f"Invalid page response for {batch!r}: malformed page")
                 title = page["title"]
                 if "missing" in page:
                     by_title[title] = None
+                    continue
+                if truncated and not page.get("revisions"):
+                    left_out.add(title)
                     continue
 
                 try:
@@ -598,11 +678,18 @@ class MediaWikiClient:
                     raise MediaWikiAPIError(f"Invalid page response for {title!r}: missing revision content") from error
                 by_title[title] = content
 
+            deferred: list[str] = []
             for requested in batch:
                 normalized_title = aliases.get(requested, requested)
+                if normalized_title in left_out:
+                    deferred.append(requested)
+                    continue
                 if normalized_title not in by_title:
                     raise MediaWikiAPIError(f"Invalid page response for {requested!r}: page not returned")
                 result_dict[requested] = by_title[normalized_title]
+            if len(deferred) == len(batch):
+                raise MediaWikiAPIError(f"Page response for {deferred[0]!r} is larger than the API result limit")
+            pending = deferred + pending[len(batch) :]
         return result_dict
 
     def get_page_revision_ids(self, titles: Sequence[str]) -> dict[str, int | None]:
@@ -906,6 +993,10 @@ class MediaWikiClient:
         ``start_timestamp`` is MediaWiki's ``curtimestamp`` from the same response
         as each page's source and revision. Missing pages are represented by a
         snapshot whose ``source_text`` and ``revision`` are ``None``.
+
+        MediaWiki truncates a response at its result size limit and returns the
+        pages that did not fit without revisions, together with a ``continue``
+        block. Those pages are requested again in a later query.
         """
         if assertion not in (None, "user", "bot"):
             raise ValueError(f"assertion must be 'user' or 'bot', got: {assertion}")
@@ -913,13 +1004,14 @@ class MediaWikiClient:
             return {}
 
         snapshots: dict[str, MediaWikiPageSnapshot] = {}
-        for i in range(0, len(titles), self.batch_size):
-            batch = titles[i : i + self.batch_size]
+        pending = list(titles)
+        while pending:
+            batch = pending[: self.batch_size]
             params: dict[str, Any] = {
                 "action": "query",
                 "titles": "|".join(batch),
                 "prop": "revisions",
-                "rvprop": "ids|timestamp|content|contentmodel",
+                "rvprop": "ids|timestamp|user|content|contentmodel",
                 "rvslots": "main",
                 "curtimestamp": "1",
             }
@@ -956,6 +1048,8 @@ class MediaWikiClient:
                 if not isinstance(page, dict) or not isinstance(page.get("title"), str):
                     raise MediaWikiAPIError(f"Invalid page snapshot response for {batch!r}: malformed page")
                 pages_by_title[page["title"]] = page
+            truncated = "continue" in result
+            deferred: list[str] = []
             for requested_title in batch:
                 page = pages_by_title.get(aliases.get(requested_title, requested_title))
                 if page is None:
@@ -976,6 +1070,9 @@ class MediaWikiClient:
                 page_id = page.get("pageid")
                 if type(page_id) is not int or page_id <= 0:
                     raise MediaWikiAPIError(f"Invalid page snapshot response for {requested_title!r}: missing page ID")
+                if truncated and not page.get("revisions"):
+                    deferred.append(requested_title)
+                    continue
 
                 try:
                     raw_revision = page["revisions"][0]
@@ -993,6 +1090,7 @@ class MediaWikiClient:
                         revision_id=revision_id,
                         timestamp=revision_timestamp,
                         start_timestamp=start_timestamp,
+                        user=_revision_user(raw_revision),
                     )
                 except (KeyError, IndexError, TypeError, ValueError) as e:
                     raise MediaWikiAPIError(f"Invalid page snapshot response for '{requested_title}': {e}") from e
@@ -1003,35 +1101,94 @@ class MediaWikiClient:
                     start_timestamp=start_timestamp,
                     content_model=revision_content_model,
                 )
+            if len(deferred) == len(batch):
+                raise MediaWikiAPIError(
+                    f"Page snapshot response for {deferred[0]!r} is larger than the API result limit"
+                )
+            pending = deferred + pending[len(batch) :]
 
         return snapshots
 
-    def null_edit_pages(
+    def parse_wikitext(
         self,
-        titles: Sequence[str],
-        assertion: Literal["user", "bot"] | None = None,
-        assert_user: str | None = None,
-    ) -> tuple[str, ...]:
-        """Reparse existing pages with unchanged wikitext so Cargo rows refresh."""
-        if assertion not in (None, "user", "bot"):
-            raise ValueError(f"assertion must be 'user' or 'bot', got: {assertion}")
-        pages = self.get_pages(titles)
-        refreshed: list[str] = []
-        for title in titles:
-            content = pages.get(title)
-            if content is None:
-                raise MediaWikiAPIError(f"Cannot null-edit missing page: {title}")
-            self.edit_page(
-                title,
-                content,
-                summary="Refresh item-owned Cargo rows",
-                bot=True,
-                no_create=True,
-                assertion=assertion,
-                assert_user=assert_user,
+        title: str,
+        text: str,
+        *,
+        sandbox_title: str | None = None,
+        sandbox_text: str | None = None,
+        sandbox_content_model: str | None = None,
+    ) -> MediaWikiParse:
+        """Parse text under its page title, optionally replacing one transcluded page."""
+        data = {
+            "action": "parse",
+            "title": title,
+            "text": text,
+            "prop": "text|templates|categories",
+            "contentmodel": "wikitext",
+            "disablelimitreport": "1",
+            "formatversion": "2",
+        }
+        if sandbox_title is not None:
+            if sandbox_text is None or sandbox_content_model is None:
+                raise ValueError("Sandbox title requires text and a content model")
+            data["templatesandboxtitle"] = sandbox_title
+            data["templatesandboxtext"] = sandbox_text
+            data["templatesandboxcontentmodel"] = sandbox_content_model
+        elif sandbox_text is not None or sandbox_content_model is not None:
+            raise ValueError("Sandbox text and content model require a title")
+        result = self._request({}, method="POST", data=data)
+        parse = result.get("parse")
+        if not isinstance(parse, dict) or not isinstance(parse.get("text"), str):
+            raise MediaWikiAPIError(f"Invalid parse response for {title!r}")
+        try:
+            templates = tuple(
+                MediaWikiParsedLink(title=str(template["title"]), exists=bool(template.get("exists", False)))
+                for template in parse.get("templates", [])
             )
-            refreshed.append(title)
-        return tuple(refreshed)
+            categories = tuple(
+                MediaWikiParsedLink(
+                    title="Category:" + str(category["category"]).replace("_", " "),
+                    exists=not bool(category.get("missing", False)),
+                )
+                for category in parse.get("categories", [])
+            )
+        except (KeyError, TypeError) as error:
+            raise MediaWikiAPIError(f"Invalid parse response for {title!r}: {error}") from error
+        return MediaWikiParse(html=parse["text"], templates=templates, categories=categories)
+
+    def get_page_categories(self, titles: Sequence[str]) -> dict[str, frozenset[str]]:
+        """Return the categories of each existing page, including hidden categories.
+
+        A missing page maps to no categories. Category titles carry the
+        ``Category:`` namespace.
+        """
+        categories: dict[str, set[str]] = {title: set() for title in titles}
+        for i in range(0, len(titles), self.batch_size):
+            batch = titles[i : i + self.batch_size]
+            params = {
+                "action": "query",
+                "titles": "|".join(batch),
+                "prop": "categories",
+                "cllimit": "max",
+                "formatversion": "2",
+            }
+            continue_params: dict[str, str] = {}
+            while True:
+                result = self._request(params | continue_params)
+                query = result.get("query", {})
+                normalized = {entry["from"]: entry["to"] for entry in query.get("normalized", [])}
+                requested_by_title: dict[str, list[str]] = {}
+                for requested in batch:
+                    requested_by_title.setdefault(normalized.get(requested, requested), []).append(requested)
+                for page in query.get("pages", []):
+                    page_categories = {str(category["title"]) for category in page.get("categories", [])}
+                    for requested in requested_by_title.get(page["title"], []):
+                        categories[requested].update(page_categories)
+                continuation = result.get("continue")
+                if not isinstance(continuation, dict):
+                    break
+                continue_params = {key: str(value) for key, value in continuation.items()}
+        return {title: frozenset(values) for title, values in categories.items()}
 
     def get_embeddedin_pages(
         self,
@@ -1134,33 +1291,6 @@ class MediaWikiClient:
             )
         logger.info(f"Purged {len(purged)} pages (force_link_update={force_link_update})")
         return tuple(purged)
-
-    def delete_page(
-        self,
-        title: str,
-        reason: str,
-        assertion: Literal["user", "bot"] | None = None,
-        assert_user: str | None = None,
-    ) -> dict[str, Any]:
-        """Delete a wiki page through the Action API and return the delete payload."""
-        if assertion not in (None, "user", "bot"):
-            raise ValueError(f"assertion must be 'user' or 'bot', got: {assertion}")
-        data = {
-            "action": "delete",
-            "title": title,
-            "token": self.get_csrf_token(),
-            "reason": reason,
-            "formatversion": "2",
-        }
-        if assertion is not None:
-            data["assert"] = assertion
-        if assert_user is not None:
-            data["assertuser"] = assert_user
-        result = self._request({}, method="POST", data=data)
-        delete_result = result.get("delete", {})
-        if not isinstance(delete_result, dict):
-            raise MediaWikiAPIError(f"Invalid delete response for '{title}': {result}")
-        return delete_result
 
     def recreate_cargo_tables(
         self,
@@ -1267,7 +1397,7 @@ class MediaWikiClient:
             "action": "query",
             "titles": title,
             "prop": "revisions",
-            "rvprop": "ids|timestamp",
+            "rvprop": "ids|timestamp|user",
             "curtimestamp": "1",
         }
         if assertion is not None:
@@ -1297,6 +1427,7 @@ class MediaWikiClient:
             revision_timestamp = str(revision["timestamp"])
             revision_title = str(page["title"])
             revision_page_id = int(page.get("pageid", page_id))
+            revision_user = _revision_user(revision)
         except (KeyError, IndexError, TypeError, ValueError) as e:
             raise MediaWikiAPIError(f"Invalid revision metadata response for '{title}': {e}") from e
 
@@ -1306,6 +1437,7 @@ class MediaWikiClient:
             revision_id=revision_id,
             timestamp=revision_timestamp,
             start_timestamp=start_timestamp,
+            user=revision_user,
         )
 
     def get_edit_start_timestamp(
@@ -1331,102 +1463,6 @@ class MediaWikiClient:
         if not isinstance(start_timestamp, str) or not start_timestamp:
             raise MediaWikiAPIError("Missing curtimestamp while fetching edit start timestamp")
         return start_timestamp
-
-    def edit_page(
-        self,
-        title: str,
-        content: str,
-        summary: str | None = None,
-        minor: bool | None = None,
-        bot: bool = True,
-        create_only: bool = False,
-        no_create: bool = False,
-        assertion: Literal["user", "bot"] | None = None,
-        assert_user: str | None = None,
-    ) -> None:
-        """Edit a wiki page with new content.
-
-        Requires authentication (call login() first). Uses CSRF token for security.
-
-        Args:
-            title: Page title to edit.
-            content: New page content (wikitext).
-            summary: Edit summary (defaults to self.edit_summary).
-            minor: Mark as minor edit (defaults to self.minor_edit).
-            bot: Mark as bot edit (requires bot permissions).
-            create_only: Only create page if it doesn't exist (fails if page exists).
-            no_create: Only edit existing page (fails if page doesn't exist).
-            assertion: Require the API session to be logged in as this user or bot.
-            assert_user: Require this exact username for the API session.
-
-        Raises:
-            MediaWikiEditError: If edit operation fails.
-            MediaWikiAPIError: If API request fails.
-
-        Example:
-            >>> client = MediaWikiClient(
-            ...     api_url="https://erenshor.wiki.gg/api.php",
-            ...     bot_username="MyBot@MyBot",
-            ...     bot_password="secret"
-            ... )
-            >>> client.login()
-            >>> client.edit_page(
-            ...     title="Item:Sword",
-            ...     content="{{Item|name=Sword|damage=10}}",
-            ...     summary="Update item stats from database"
-            ... )
-        """
-        if summary is None:
-            summary = self.edit_summary
-        if minor is None:
-            minor = self.minor_edit
-
-        if assertion not in (None, "user", "bot"):
-            raise ValueError(f"assertion must be 'user' or 'bot', got: {assertion}")
-        logger.info(f"Editing page: {title}")
-
-        # Get CSRF token
-        token = self.get_csrf_token()
-
-        # Build edit parameters
-        data = {
-            "action": "edit",
-            "title": title,
-            "text": content,
-            "summary": summary,
-            "token": token,
-        }
-
-        # Add optional flags
-        if minor:
-            data["minor"] = "1"
-        if bot:
-            data["bot"] = "1"
-        if create_only:
-            data["createonly"] = "1"
-        if no_create:
-            data["nocreate"] = "1"
-        if assertion is not None:
-            data["assert"] = assertion
-        if assert_user is not None:
-            data["assertuser"] = assert_user
-
-        try:
-            result = self._request({}, method="POST", data=data)
-
-            # Check edit result
-            edit_result = result.get("edit", {})
-
-            if edit_result.get("result") != "Success":
-                error = edit_result.get("error", "Unknown error")
-                logger.error(f"Edit failed for {title}: {error}")
-                raise MediaWikiEditError(f"Edit failed: {error}")
-
-            logger.info(f"Successfully edited page: {title}")
-
-        except MediaWikiAPIError as e:
-            logger.error(f"Edit request failed for {title}: {e}")
-            raise MediaWikiEditError(f"Failed to edit page '{title}': {e}") from e
 
     def safe_edit_page(
         self,
@@ -1589,8 +1625,11 @@ class MediaWikiClient:
         """Raise a safe-write-specific exception for known MediaWiki edit failures.
         ``operation`` is the present participle of the attempted action
         (``"editing"`` or ``"creating"``) so the surfaced message names what
-        actually failed.
+        actually failed. Network, authentication, and rate-limit failures are
+        not failures of the page, so they pass through unchanged.
         """
+        if isinstance(error, MediaWikiNetworkError | MediaWikiAuthenticationError | MediaWikiRateLimitError):
+            raise error
         if error.code == "editconflict":
             raise MediaWikiEditConflictError(
                 f"Edit conflict while safely {operation} page '{title}': {error}"

@@ -1,0 +1,150 @@
+<includeonly>{| class="item-tooltip item-tooltip-consumable"
+|
+{{Item/Header
+ |icon=[[File:{{{image}}}|80px]]
+ |name={{{name}}}
+ |tier=0
+}}
+{| class="item-tooltip-body"
+|-
+| |
+<div class="item-tooltip-consumable-container"><!--
+-->{{#if:{{{effect_spell_name|}}}|<div class="item-tooltip-consumable-type">Activatable: {{{effect_spell_name}}}</div>}}<!--
+-->{{#if:{{{description|}}}|<div class="item-tooltip-description">{{{description}}}</div>}}<!--
+-->{{#if:{{{disposable|}}}|<div class="item-tooltip-consumable-usage">Item Consumed Upon Use.</div>}}<!--
+--><div class="item-tooltip-consumable-usage">Right click or assign to hotkey to use.</div><!--
+--></div>
+|}
+|}<!--
+-->{{#if:{{{effect_spell_name|}}}|{{Item/SpellDetails
+ |worn=0
+ |spell_icon={{{effect_spell_icon|}}}
+ |spell_name={{{effect_spell_name}}}
+ |spell_level={{{effect_spell_level|}}}
+ |spell_duration_ticks={{{effect_spell_duration_ticks|}}}
+ |spell_type={{{effect_spell_type|}}}
+ |spell_line={{{effect_spell_line|}}}
+ |target_damage={{{effect_target_damage|}}}
+ |target_healing={{{effect_target_healing|}}}
+ |shielding_amt={{{effect_shielding_amt|}}}
+ |damage_type={{{effect_damage_type|}}}
+ |cast_time={{{effect_cast_time|}}}
+ |lifetap={{{effect_lifetap|}}}
+ |group_effect={{{effect_group_effect|}}}
+ |stun_target={{{effect_stun_target|}}}
+ |charm_target={{{effect_charm_target|}}}
+ |root_target={{{effect_root_target|}}}
+ |taunt_spell={{{effect_taunt_spell|}}}
+ |aggro={{{effect_aggro|}}}
+ |status_effect_name={{{effect_status_effect_name|}}}
+ |hp={{{effect_hp|}}}
+ |ac={{{effect_ac|}}}
+ |mana={{{effect_mana|}}}
+ |str={{{effect_str|}}}
+ |dex={{{effect_dex|}}}
+ |end={{{effect_end|}}}
+ |agi={{{effect_agi|}}}
+ |wis={{{effect_wis|}}}
+ |int={{{effect_int|}}}
+ |cha={{{effect_cha|}}}
+ |mr={{{effect_mr|}}}
+ |er={{{effect_er|}}}
+ |pr={{{effect_pr|}}}
+ |vr={{{effect_vr|}}}
+ |movement_speed={{{effect_movement_speed|}}}
+ |damage_shield={{{effect_damage_shield|}}}
+ |haste={{{effect_haste|}}}
+ |percent_lifesteal={{{effect_percent_lifesteal|}}}
+ |atk_roll_modifier={{{effect_atk_roll_modifier|}}}
+ |resonate_chance={{{effect_resonate_chance|}}}
+ |add_proc_name={{{effect_add_proc_name|}}}
+ |add_proc_chance={{{effect_add_proc_chance|}}}
+ |special_descriptor={{{effect_special_descriptor|}}}
+ |xp_bonus={{{effect_xp_bonus|}}}
+}}}}<!--
+-->{{Item/Categories
+ |item_type=consumable
+}}</includeonly><noinclude>
+== Template:Item/Consumable ==
+
+Template for displaying consumable item tooltips (potions, food, scrolls, etc.).
+
+=== Parameters ===
+
+{| class="wikitable"
+! Parameter !! Required !! Description
+|-
+| '''image''' || Yes || Item icon image filename
+|-
+| '''name''' || Yes || Consumable name
+|-
+| '''description''' || No || Flavor text
+|-
+| '''disposable''' || No || Set to any value if item is consumed on use
+|-
+| '''effect_spell_name''' || No || If set, displays spell effect details
+|-
+| '''effect_*''' || No || Various effect parameters (see Item/SpellDetails)
+|}
+
+=== Consumable Types ===
+
+* '''Disposable''' - Item is consumed when used (potions, food)
+* '''Permanent''' - Effect is applied permanently (stat books, tokens)
+
+=== Example ===
+
+'''Code:'''
+<pre>
+{{Item/Consumable
+|image=Breaded Island Fin.png
+|name=Breaded Island Fin
+|description=A rare fish that dwells near islands, now covered in bread crumbs and cooked
+|disposable=1
+|effect_spell_name=Nourished
+|effect_spell_icon=Nourished.png
+|effect_spell_level=1
+|effect_spell_duration_ticks=166
+|effect_spell_type=Beneficial
+|effect_spell_line=Generic
+|effect_hp=25
+|effect_mana=25
+|effect_movement_speed=1
+}}
+</pre>
+
+'''Result:'''
+
+{{Item/Consumable
+|image=Breaded Island Fin.png
+|name=Breaded Island Fin
+|description=A rare fish that dwells near islands, now covered in bread crumbs and cooked
+|disposable=1
+|effect_spell_name=Nourished
+|effect_spell_icon=Nourished.png
+|effect_spell_level=1
+|effect_spell_duration_ticks=166
+|effect_spell_type=Beneficial
+|effect_spell_line=Generic
+|effect_hp=25
+|effect_mana=25
+|effect_movement_speed=1
+}}
+
+----
+
+=== Sub-templates Used ===
+
+* [[Template:Item/Header]] - Icon and name display
+* [[Template:Item/SpellDetails]] - Effect information
+* [[Template:Item/Categories]] - Auto-categorization
+
+----
+
+=== See Also ===
+
+* [[Template:Item/Aura]] - Aura tooltip
+* [[:Category:Consumables]] - Consumables category
+
+[[Category:Item Tooltip Templates]]
+</noinclude>

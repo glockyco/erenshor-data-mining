@@ -9,34 +9,19 @@ if [ "$#" -eq 0 ]; then
 	exit 0
 fi
 
-mod_dirs=()
+tool_manifest="$repo_root/.config/dotnet-tools.json"
+if [ ! -f "$tool_manifest" ]; then
+	echo "Missing CSharpier tool manifest: $tool_manifest" >&2
+	exit 1
+fi
 
-add_mod_dir() {
-	local candidate="$1"
-	local existing
-	for existing in "${mod_dirs[@]:-}"; do
-		if [ "$existing" = "$candidate" ]; then
-			return
-		fi
-	done
-	mod_dirs+=("$candidate")
-}
-
+files=()
 for path in "$@"; do
 	case "$path" in
 		src/mods/*/*.cs)
-			if [ ! -f "$repo_root/$path" ]; then
-				continue
+			if [ -f "$repo_root/$path" ]; then
+				files+=("$path")
 			fi
-			mod_name=${path#src/mods/}
-			mod_name=${mod_name%%/*}
-			mod_dir="$repo_root/src/mods/$mod_name"
-			tool_manifest="$mod_dir/.config/dotnet-tools.json"
-			if [ ! -f "$tool_manifest" ]; then
-				echo "Missing CSharpier tool manifest: $tool_manifest" >&2
-				exit 1
-			fi
-			add_mod_dir "$mod_dir"
 			;;
 		*)
 			echo "Unsupported path for csharpier hook: $path" >&2
@@ -45,26 +30,10 @@ for path in "$@"; do
 	esac
 done
 
-for mod_dir in "${mod_dirs[@]}"; do
-	mod_name=${mod_dir##*/}
-	mod_files=()
-	for path in "$@"; do
-		case "$path" in
-			src/mods/$mod_name/*)
-				if [ -f "$repo_root/$path" ]; then
-					mod_files+=("${path#src/mods/$mod_name/}")
-				fi
-				;;
-		esac
-	done
+if [ "${#files[@]}" -eq 0 ]; then
+	exit 0
+fi
 
-	if [ "${#mod_files[@]}" -eq 0 ]; then
-		continue
-	fi
-
-	(
-		cd "$mod_dir"
-		dotnet tool restore --verbosity quiet
-		dotnet csharpier "${mod_files[@]}"
-	)
-done
+cd "$repo_root"
+dotnet tool restore --verbosity quiet
+dotnet csharpier "${files[@]}"

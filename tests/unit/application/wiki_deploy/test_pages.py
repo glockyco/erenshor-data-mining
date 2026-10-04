@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from erenshor.application.wiki_deploy.manifest import RepoWikiPageManifest, build_repo_page_manifest
-from erenshor.application.wiki_deploy.pages import build_deployed_manifest, deploy_repo_pages
+from erenshor.application.wiki_deploy.pages import RepoPageDriftError, build_deployed_manifest, deploy_repo_pages
 from erenshor.infrastructure.wiki import MediaWikiPageRevision
 from erenshor.infrastructure.wiki.client import MediaWikiPageSnapshot
 
@@ -20,8 +20,11 @@ def write_page(root: Path, relative_path: str, content: str) -> None:
 
 
 class RecordingWikiClient:
-    def __init__(self, pages: dict[str, str | None]) -> None:
+    edit_account = "ErenshorBot"
+
+    def __init__(self, pages: dict[str, str | None], users: dict[str, str] | None = None) -> None:
         self.pages = pages
+        self.users = users or {}
         self.snapshot_requests: list[tuple[list[str], str | None, str | None]] = []
         self.safe_edits: list[tuple[str, str, MediaWikiPageRevision, str, str, str | None]] = []
         self.safe_creates: list[tuple[str, str, str, str, str, str | None]] = []
@@ -53,10 +56,17 @@ class RecordingWikiClient:
                         revision_id=200,
                         timestamp="2026-06-04T12:00:00Z",
                         start_timestamp="2026-06-04T12:02:00Z",
+                        user=self.users.get(title, self.edit_account),
                     ),
                     start_timestamp="2026-06-04T12:02:00Z",
                 )
         return snapshots
+
+    def get_pages(self, titles: list[str]) -> dict[str, str | None]:
+        return {title: self.pages.get(title) for title in titles}
+
+    def get_embeddedin_pages(self, title: str, namespaces: tuple[int, ...] = (0,)) -> tuple[str, ...]:
+        return ()
 
     def safe_edit_page(
         self,
@@ -184,7 +194,6 @@ def test_deploy_repo_pages_skips_unchanged_pages(tmp_path: Path) -> None:
         summary="Deploy repo-owned wiki pages",
         assertion="bot",
         assert_user="ErenshorBot",
-        known_live_titles={"Module:Erenshor/Data/Links"},
     )
 
     [entry] = result.entries
@@ -209,7 +218,6 @@ def test_deploy_repo_pages_treats_trailing_newline_difference_as_unchanged(tmp_p
         summary="Deploy repo-owned wiki pages",
         assertion="bot",
         assert_user="ErenshorBot",
-        known_live_titles={"Module:Erenshor/Data/Links"},
     )
     [entry] = result.entries
     assert entry.status == "unchanged"
@@ -231,7 +239,6 @@ def test_deploy_repo_pages_safe_edits_changed_pages(tmp_path: Path) -> None:
         summary="Deploy repo-owned wiki pages",
         assertion="bot",
         assert_user="ErenshorBot",
-        known_live_titles={"Module:Erenshor/Data/Links"},
         rollback_root=tmp_path / "rollback",
     )
 
@@ -267,7 +274,6 @@ def test_deploy_repo_pages_safe_creates_missing_pages(tmp_path: Path) -> None:
         summary="Deploy repo-owned wiki pages",
         assertion="bot",
         assert_user="ErenshorBot",
-        known_live_titles={"Module:Erenshor/Data/Links"},
     )
 
     [entry] = result.entries
@@ -302,7 +308,6 @@ def test_build_deployed_manifest_merges_deploy_results_into_entries(tmp_path: Pa
         client=client,
         summary="Deploy repo-owned wiki pages",
         assertion="bot",
-        known_live_titles={"Module:Erenshor/Data/Links"},
         rollback_root=tmp_path / "rollback",
     )
     deployed = build_deployed_manifest(manifest, result)
@@ -335,7 +340,6 @@ def test_deploy_repo_pages_aborts_on_stale_source_hash_before_writes(tmp_path: P
             client=client,
             summary="Deploy repo-owned wiki pages",
             assertion="bot",
-            known_live_titles={"Module:Erenshor/Data/Links"},
         )
     except ValueError as error:
         assert "Source hash mismatch" in str(error)
@@ -422,13 +426,63 @@ def test_deploy_repo_pages_checkpoint_journals_partial_failure(tmp_path: Path) -
 
 def test_safe_title_filename_is_injective_for_distinct_titles() -> None:
     """Distinct titles map to distinct rollback sidecar filenames (no lossy collision)."""
-    from erenshor.application.wiki_deploy.pages import _safe_title_filename
+    from erenshor.application.wiki_deploy.pages import rollback_filename
 
     # These collide under a "replace non-alnum with underscore" scheme.
-    first = _safe_title_filename("Template:Item/CargoDeclare")
-    second = _safe_title_filename("Template:Item:CargoDeclare")
+    first = rollback_filename("Template:Item/Quality")
+    second = rollback_filename("Template:Item:Quality")
 
     assert first != second
     # Filenames stay flat: title separators must not become path separators.
     assert "/" not in first
     assert "/" not in second
+
+
+def _template_deploy(tmp_path: Path, client: RecordingWikiClient, accept_drift: tuple[str, ...] = ()):
+    checkpoints: list[RepoWikiPageManifest] = []
+    result = deploy_repo_pages(
+        manifest=build_repo_page_manifest(tmp_path, variant="main", include_templates=True),
+        repo_root=tmp_path,
+        client=client,
+        summary="Deploy repo-owned wiki pages",
+        assertion="bot",
+        include_templates=True,
+        rollback_root=tmp_path / "rollback",
+        checkpoint=checkpoints.append,
+        accept_drift=accept_drift,
+    )
+    return result, checkpoints
+
+
+def test_a_template_that_another_account_reverted_stops_the_deploy_before_any_write(tmp_path: Path) -> None:
+    write_page(tmp_path, "wiki/templates/Quest.wiki", "{{Quest|lua=1}}\n")
+    write_page(tmp_path, "wiki/templates/Zone.wiki", "{{Zone|lua=1}}\n")
+    client = RecordingWikiClient(
+        {"Template:Quest": "{{Quest}} reverted", "Template:Zone": "{{Zone}} old"}, users={"Template:Quest": "Admin"}
+    )
+
+    with pytest.raises(RepoPageDriftError, match=r"Template:Quest \(revision 200 by Admin\)") as raised:
+        _template_deploy(tmp_path, client)
+
+    assert [item.title for item in raised.value.drift] == ["Template:Quest"]
+    assert client.safe_edits == []
+    assert not (tmp_path / "rollback").exists()
+
+
+def test_an_accepted_page_is_overwritten(tmp_path: Path) -> None:
+    write_page(tmp_path, "wiki/templates/Quest.wiki", "{{Quest|lua=1}}\n")
+    client = RecordingWikiClient({"Template:Quest": "{{Quest}} reverted"}, users={"Template:Quest": "Admin"})
+
+    result, _ = _template_deploy(tmp_path, client, accept_drift=("Template:Quest",))
+
+    assert [(entry.title, entry.status) for entry in result.entries] == [("Template:Quest", "edited")]
+
+
+def test_a_page_that_another_account_left_equal_to_the_source_is_not_drift(tmp_path: Path) -> None:
+    write_page(tmp_path, "wiki/templates/Quest.wiki", "{{Quest|lua=1}}\n")
+    client = RecordingWikiClient({"Template:Quest": "{{Quest|lua=1}}"}, users={"Template:Quest": "Admin"})
+
+    result, _ = _template_deploy(tmp_path, client)
+
+    assert [(entry.title, entry.status) for entry in result.entries] == [("Template:Quest", "unchanged")]
+    assert client.safe_edits == []

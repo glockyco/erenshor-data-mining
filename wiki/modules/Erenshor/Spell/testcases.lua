@@ -36,118 +36,14 @@ function p.run()
 	local pageSpell = Spell.resolve({}, "Minor Lightning")
 	assertEqual(pageSpell.missing, true, "page title does not resolve spell without stable key")
 
-	local override = Spell.resolve(
+	local original = Spell.resolve(
 		{ stablekey = "spell:minor_lightning", title = "Manual Spell", damage_type = "-" },
 		"Manual Spell Override"
 	)
-	assertEqual(override.name, "Manual Spell", "article title override wins")
-	assertEqual(override.damageType, nil, "dash sentinel blanks supported fields")
+	assertEqual(original.name, "Minor Lightning", "article parameters do not change spell data")
+	assertEqual(original.damageType, "Magic", "article parameters do not blank spell data")
 
 	local minor = { stablekey = "spell:minor_lightning" }
-	assertEqual(
-		Spell.fieldValue(minor, "Minor Lightning", "title"),
-		"Minor Lightning",
-		"field title resolves"
-	)
-	assertEqual(
-		Spell.fieldValue(minor, "Minor Lightning", "image"),
-		"Minor Lightning.png",
-		"image formats"
-	)
-	assertEqual(
-		Spell.fieldValue(minor, "Minor Lightning", "imagecaption"),
-		"You are overcome by electricity.",
-		"image caption formats from player message"
-	)
-	local classes = Spell.fieldValue(minor, "Minor Lightning", "classes")
-	assertContains(classes, "erenshor-link--class", "classes render semantic class links")
-	assertContains(classes, "Druid", "classes include Druid")
-	assertContains(classes, "Stormcaller", "classes include Stormcaller")
-	assertContains(
-		classes,
-		'data-erenshor-key="class:duelist"',
-		"generated spell classes carry stable class identity"
-	)
-	assertContains(
-		classes,
-		'data-erenshor-page="Windblade"',
-		"generated spell classes use canonical class page"
-	)
-	assertEqual(Spell.fieldValue(minor, "Minor Lightning", "manacost"), "30", "mana formats")
-	assertEqual(
-		Spell.fieldValue(minor, "Minor Lightning", "casttime"),
-		"2.3 seconds",
-		"cast time formats"
-	)
-	assertEqual(
-		Spell.fieldValue(minor, "Minor Lightning", "cooldown"),
-		"8 seconds",
-		"cooldown formats"
-	)
-	assertEqual(
-		Spell.fieldValue(minor, "Minor Lightning", "duration"),
-		"",
-		"zero duration is hidden"
-	)
-	assertEqual(
-		Spell.fieldValue(minor, "Minor Lightning", "damage_type"),
-		"Magic",
-		"damage type formats"
-	)
-	assertEqual(
-		Spell.fieldValue(minor, "Minor Lightning", "target_damage"),
-		"85",
-		"target damage formats"
-	)
-	assertEqual(Spell.fieldValue(minor, "Minor Lightning", "aggro"), "60", "aggro formats")
-	local itemsWithEffect = Spell.fieldValue(minor, "Minor Lightning", "itemswitheffect")
-	assertContains(
-		itemsWithEffect,
-		"erenshor-link--item",
-		"items with effect render semantic item links"
-	)
-	assertContains(itemsWithEffect, "[[Abyssal Plate]]", "items with effect include Abyssal Plate")
-	assertContains(
-		itemsWithEffect,
-		"[[Healing Draught]]",
-		"items with effect include Healing Draught"
-	)
-	local source = Spell.fieldValue(minor, "Minor Lightning", "source")
-	assertContains(source, "erenshor-link--item", "source renders semantic item link")
-	assertContains(source, "[[Scroll of Ember]]", "source includes teaching item")
-	local usedBy = Spell.fieldValue(minor, "Minor Lightning", "used_by")
-	assertContains(usedBy, "erenshor-link--character", "used by renders semantic character link")
-	assertContains(usedBy, "[[Rare Cave Spider]]", "used by includes caster page")
-	local pet = Spell.fieldValue(minor, "Minor Lightning", "pet_to_summon")
-	assertContains(pet, "erenshor-link--character", "pet summon renders semantic character link")
-	assertContains(pet, "[[A Grizzly Bear]]", "pet summon includes character page")
-	assertEqual(Spell.statusText(minor, "Minor Lightning"), "", "present spell status is blank")
-
-	local buff = { stablekey = "spell:ancient_presence" }
-	assertEqual(
-		Spell.fieldValue(buff, "Ancient Presence", "duration"),
-		"12 seconds",
-		"duration in seconds"
-	)
-	assertEqual(
-		Spell.fieldValue(buff, "Ancient Presence", "damage_shield"),
-		"40",
-		"stat effect formats"
-	)
-
-	assertEqual(
-		Spell.fieldValue({}, "Unknown Spell", "title"),
-		"",
-		"missing spell fields are blank"
-	)
-	local missing = Spell.statusText({}, "Unknown Spell")
-	assertContains(missing, "Missing spell data: Unknown Spell", "missing spell is visible")
-	assertContains(
-		missing,
-		"[[Category:Pages with missing Erenshor spell data]]",
-		"missing spell is tracked"
-	)
-
 	local minorTooltip = Spell.renderTooltip(minor, "Minor Lightning")
 	assertContains(minorTooltip, "Spell Level: 6", "spell tooltip includes item-detail level")
 	assertContains(
@@ -239,57 +135,6 @@ function p.run()
 		"",
 		"missing page spell tooltip is silent"
 	)
-
-	local cargo = Spell.cargoArgs({ args = { stablekey = "spell:minor_lightning" } })
-	assertEqual(cargo.Name, "Minor Lightning", "spell cargo row name")
-	assertEqual(cargo.Type, "AE", "spell cargo row type")
-	assertEqual(cargo.Line, "Direct_Damage", "spell cargo row line")
-	assertEqual(cargo.RequiredLevel, "6", "spell cargo row required level")
-	assertEqual(cargo.ManaCost, "30", "spell cargo row mana cost")
-	assertEqual(cargo.CastTimeSeconds, "2.33", "spell cargo row cast time in seconds")
-	assertEqual(cargo.CooldownSeconds, "8", "spell cargo row cooldown in seconds")
-	assertEqual(cargo.CastRange, "30", "spell cargo row range")
-	assertEqual(cargo.DamageType, "Magic", "spell cargo row damage type")
-	assertEqual(cargo.TargetDamage, "85", "spell cargo row target damage")
-	assertEqual(cargo.Aggro, "60", "spell cargo row aggro")
-	assertEqual(cargo.SimUsable, "yes", "spell cargo row true boolean casts to yes")
-	assertEqual(cargo.SelfOnly, "no", "spell cargo row false boolean casts to no")
-	assertEqual(
-		cargo.PetToSummonKey,
-		"character:a_grizzly_bear",
-		"spell cargo row stores the pet stable key"
-	)
-	assertEqual(cargo.GrantInvisibility, nil, "spell cargo row omits absent boolean flags")
-
-	local classRows = Spell.cargoClassRows({ args = { stablekey = "spell:minor_lightning" } })
-	assertEqual(#classRows, 3, "spell emits one AbilityClasses row per class")
-	assertEqual(
-		classRows[1].AbilityKey,
-		"spell:minor_lightning",
-		"class row carries the stable key"
-	)
-	assertEqual(classRows[1].Class, "Druid", "first class row is Druid")
-	assertEqual(classRows[1].RequiredLevel, "6", "class row broadcasts the spell required level")
-	assertEqual(classRows[2].Class, "Duelist", "second class row is Duelist")
-	assertEqual(classRows[3].Class, "Stormcaller", "third class row is Stormcaller")
-
-	local noClassRows = Spell.cargoClassRows({ args = { stablekey = "spell:ancient_presence" } })
-	assertEqual(#noClassRows, 0, "a spell with no classes emits no AbilityClasses rows")
-
-	-- Multi-entity: two spells share a display name but are distinct stable keys, so
-	-- one page can store two independent Spells rows keyed by StableKey, not Name.
-	local lesser = Spell.cargoArgs({ args = { stablekey = "spell:flame_bolt" } })
-	local greater = Spell.cargoArgs({ args = { stablekey = "spell:flame_bolt_greater" } })
-	assertEqual(lesser.Name, "Flame Bolt", "lesser flame bolt name")
-	assertEqual(greater.Name, "Flame Bolt", "greater flame bolt shares the display name")
-	assertEqual(lesser.StableKey, "spell:flame_bolt", "lesser flame bolt stable key")
-	assertEqual(
-		greater.StableKey,
-		"spell:flame_bolt_greater",
-		"greater flame bolt distinct stable key"
-	)
-	assertEqual(lesser.TargetDamage, "50", "lesser flame bolt damage")
-	assertEqual(greater.TargetDamage, "130", "greater flame bolt damage")
 
 	return "PASS Erenshor Spell testcases"
 end

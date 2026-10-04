@@ -1,0 +1,55 @@
+<includeonly><div class="item-tooltip-classes">
+{{#if:{{{arcanist|}}}|<span class="item-tooltip-class">Arcanist</span>}}{{#if:{{{druid|}}}|<span class="item-tooltip-class">Druid</span>}}{{#if:{{{paladin|}}}|<span class="item-tooltip-class">Paladin</span>}}{{#if:{{{reaver|}}}|<span class="item-tooltip-class">Reaver</span>}}{{#if:{{{stormcaller|}}}|<span class="item-tooltip-class">Stormcaller</span>}}{{#if:{{{duelist|}}}|<span class="item-tooltip-class">Windblade</span>}}
+</div></includeonly><noinclude>
+== Template:Item/ClassRestrictions ==
+
+Displays which classes can equip this item.
+
+=== Parameters ===
+
+All parameters are optional. Set to any value to show that class.
+
+{| class="wikitable"
+! Parameter !! Description
+|-
+| '''arcanist''' || Set to any value to show "Arcanist"
+|-
+| '''druid''' || Set to any value to show "Druid"
+|-
+| '''paladin''' || Set to any value to show "Paladin"
+|-
+| '''reaver''' || Set to any value to show "Reaver"
+|-
+| '''stormcaller''' || Set to any value to show "Stormcaller"
+|-
+| '''duelist''' || Set to any value to show "Windblade"
+|}
+
+=== Example ===
+
+'''Code:'''
+<pre>
+{{Item/ClassRestrictions
+|arcanist=yes
+|druid=yes
+|stormcaller=yes
+}}
+</pre>
+
+'''Result:'''
+
+{{Item/ClassRestrictions
+|arcanist=yes
+|druid=yes
+|stormcaller=yes
+}}
+
+----
+
+=== See Also ===
+
+* [[Template:Item/Weapon]] - Full weapon tooltip
+* [[Template:Item/Armor]] - Full armor tooltip
+
+[[Category:Item Tooltip Templates]]
+</noinclude>

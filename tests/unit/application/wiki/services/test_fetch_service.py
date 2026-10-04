@@ -31,6 +31,7 @@ def _snapshot(title: str, revision_id: int, content: str) -> MediaWikiPageSnapsh
             revision_id=revision_id,
             timestamp="2026-09-27T12:00:00Z",
             start_timestamp="2026-09-27T12:00:00Z",
+            user="ErenshorBot",
         ),
         start_timestamp="2026-09-27T12:00:00Z",
     )
@@ -62,7 +63,7 @@ def test_page_edited_after_fetch_is_refetched(tmp_path: Path) -> None:
 
 def test_unchanged_page_skips_content_download(tmp_path: Path) -> None:
     service, storage, client = _fetch_service(tmp_path)
-    storage.save_fetched_by_title("A Page", ["item:a_page"], "Cached text", ["A Page"], 42)
+    storage.save_fetched_by_title("A Page", ["item:a_page"], "Cached text", 42)
     client.get_page_revision_ids.return_value = {"A Page": 42}
 
     result = service._fetch_pages_bulk(["A Page"], dry_run=False)
@@ -74,7 +75,7 @@ def test_unchanged_page_skips_content_download(tmp_path: Path) -> None:
 
 def test_missing_local_copy_is_refetched_even_with_matching_revision(tmp_path: Path) -> None:
     service, storage, client = _fetch_service(tmp_path)
-    storage.save_fetched_by_title("A Page", ["item:a_page"], "Old text", ["A Page"], 42)
+    storage.save_fetched_by_title("A Page", ["item:a_page"], "Old text", 42)
     storage.clear_fetched()
     client.get_page_revision_ids.return_value = {"A Page": 42}
     client.get_page_snapshots.return_value = {"A Page": _snapshot("A Page", 42, "Current text")}
@@ -87,7 +88,7 @@ def test_missing_local_copy_is_refetched_even_with_matching_revision(tmp_path: P
 
 def test_legacy_cache_without_revision_is_refetched(tmp_path: Path) -> None:
     service, storage, client = _fetch_service(tmp_path)
-    storage.save_fetched_by_title("A Page", ["item:a_page"], "Stale text", ["A Page"], 41)
+    storage.save_fetched_by_title("A Page", ["item:a_page"], "Stale text", 41)
 
     metadata_file = tmp_path / "metadata.json"
     data = json.loads(metadata_file.read_text(encoding="utf-8"))
@@ -104,7 +105,7 @@ def test_legacy_cache_without_revision_is_refetched(tmp_path: Path) -> None:
 
 def test_deleted_page_discards_cached_text_before_generation(tmp_path: Path) -> None:
     service, storage, client = _fetch_service(tmp_path)
-    storage.save_fetched_by_title("A Page", ["item:a_page"], "Removed text", ["A Page"], 42)
+    storage.save_fetched_by_title("A Page", ["item:a_page"], "Removed text", 42)
     client.get_page_revision_ids.return_value = {"A Page": None}
 
     result = service._fetch_pages_bulk(["A Page"], dry_run=False)
@@ -129,7 +130,7 @@ def test_missing_page_never_downloads_content(tmp_path: Path) -> None:
 
 def test_deleted_page_is_refetched_if_recreated(tmp_path: Path) -> None:
     service, storage, client = _fetch_service(tmp_path)
-    storage.save_fetched_by_title("A Page", ["item:a_page"], "Removed text", ["A Page"], 42)
+    storage.save_fetched_by_title("A Page", ["item:a_page"], "Removed text", 42)
     client.get_page_revision_ids.return_value = {"A Page": None}
     assert service._fetch_pages_bulk(["A Page"], dry_run=False).skipped == 1
 
@@ -153,7 +154,7 @@ def test_corrupt_metadata_stops_fetch_and_names_input(tmp_path: Path) -> None:
 
 def test_force_refetch_downloads_unchanged_page(tmp_path: Path) -> None:
     service, storage, client = _fetch_service(tmp_path)
-    storage.save_fetched_by_title("A Page", ["item:a_page"], "Old text", ["A Page"], 42)
+    storage.save_fetched_by_title("A Page", ["item:a_page"], "Old text", 42)
     client.get_page_snapshots.return_value = {"A Page": _snapshot("A Page", 42, "Current text")}
 
     result = service._fetch_pages_bulk(["A Page"], dry_run=False, force_refetch=True)
@@ -167,7 +168,7 @@ def test_failed_revision_lookup_does_not_reuse_cached_page(tmp_path: Path) -> No
     from erenshor.infrastructure.wiki.client import MediaWikiAPIError
 
     service, storage, client = _fetch_service(tmp_path)
-    storage.save_fetched_by_title("A Page", ["item:a_page"], "Old text", ["A Page"], 42)
+    storage.save_fetched_by_title("A Page", ["item:a_page"], "Old text", 42)
     client.get_page_revision_ids.side_effect = MediaWikiAPIError("wiki unavailable")
 
     result = service._fetch_pages_bulk(["A Page"], dry_run=False)

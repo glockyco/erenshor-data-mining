@@ -34,7 +34,6 @@ def test_weapon_page_uses_single_lua_item_tooltip() -> None:
     assert "|damage=10" in result
     assert "|stablekey=item:ember_longsword" in result
     assert "{{Item/Weapon" not in result
-    assert "{{Fancy-weapon" not in result
     assert result.count("{{ItemTooltip") == 1
 
 

@@ -1,8 +1,0 @@
-<includeonly><infobox type="Zone">
-    <title source="title"/>
-    <image source="image"><caption source="imagecaption"/></image>
-    <data source="type"><label>Type</label></data>
-    <data source="level"><label>Level</label></data>
-    <data source="maplink"><label>Interactive Map</label></data>
-    <data source="connects"><label>Connects to</label></data>
-</infobox>{{#ifeq: {{NAMESPACENUMBER}} | 0 | [[Category:Zones]]{{#ifeq: {{{type|}}} | Dungeon | [[Category:Dungeons]]}}}}</includeonly><noinclude>{{Documentation}}</noinclude>

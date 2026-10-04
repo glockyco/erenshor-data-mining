@@ -115,10 +115,10 @@ def build(
         process_spells(raw, writer, mapping)
 
         logger.info("Processing skills...")
-        process_skills(raw, writer, mapping)
+        stance_images = process_skills(raw, writer, mapping)
 
         logger.info("Processing stances...")
-        process_stances(raw, writer, mapping)
+        process_stances(raw, writer, mapping, stance_images)
 
         logger.info("Processing quests...")
         process_quests(raw, writer, mapping)

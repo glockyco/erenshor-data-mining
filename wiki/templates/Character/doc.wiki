@@ -10,6 +10,7 @@ locations for the character.
 == Syntax ==
 <pre>
 {{Character
+|stablekey=
 |name=
 |image=
 |imagecaption=
@@ -52,13 +53,15 @@ locations for the character.
 {| class="wikitable"
 ! Parameter !! Source !! Description
 |-
+| <code>stablekey</code> || Auto || The character's stable key. Captain Kilkay has the key <code>character:guard captain azure</code>. The bot uses the key to identify characters when it updates a page. The key does not change the infobox.
+|-
 | <code>name</code> || Auto || Character display name. Also drives the interactive map search link.
 |-
 | <code>image</code> || Auto || Image in <code><nowiki>[[File:Name.png|thumb]]</nowiki></code> format.
 |-
 | <code>imagecaption</code> || '''Manual''' || Optional caption below the character image.
 |-
-| <code>type</code> || Auto (manual override accepted) || Character classification: <code>NPC</code>, <code>Boss</code>, <code>Rare</code>, or <code>Enemy</code>. Controls page category and map link prefix.
+| <code>type</code> || Auto (manual override accepted) || Encounter tier: <code>NPC</code>, <code>Chest</code>, <code>Enemy</code>, <code>Elite</code>, or <code>Boss</code>. Controls page category and map link prefix.
 |-
 | <code>faction</code> || Auto || Faction wiki link.
 |-
@@ -102,6 +105,7 @@ locations for the character.
 == Example ==
 <pre>
 {{Character
+|stablekey=character:aetherfiend
 |name=Aetherfiend
 |image=[[File:Aetherfiend.png|thumb]]
 |imagecaption=

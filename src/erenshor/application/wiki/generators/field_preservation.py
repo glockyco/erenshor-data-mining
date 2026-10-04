@@ -1,79 +1,201 @@
-"""Field preservation system for wiki template regeneration.
+"""Field preservation for wiki template regeneration.
 
-This module provides a system to preserve manually-edited fields when regenerating
-wiki pages from database content. It allows selective field preservation based on
-template-specific rules.
-
-Core concept: When regenerating wiki pages, some template fields should keep their
-existing values rather than being overwritten with fresh database values.
-
-Design principles (from Phase 3 feedback):
-- Keep it simple: 5 handlers (override, preserve, prefer_manual, prefer_database, custom)
-- Template-specific rules
-- Default behavior is override (always use new database value)
-- Configuration via Python dict (easy to migrate to TOML later)
+Regeneration merges freshly generated template fields into the live page. Each
+template field has a rule that decides between the live value and the generated
+value. Fields without a rule take the generated value.
 
 Handlers:
-- override: Always use new database value (default)
-- preserve: Always keep existing wiki value
-- prefer_manual: Use wiki value if non-empty, else database value
-- prefer_database: Use database value if non-empty, else wiki value
-- custom: Register your own handler function
+- override: use the generated value (default)
+- preserve: keep the live value
+- prefer_manual: keep the live value when it is not blank, else use the generated value
+- prefer_database: use the generated value when it is not blank, else keep the live value
+- merge: merge a list field by link target (see :class:`LinkListMerge`)
 
 Example:
-    >>> config = FieldPreservationConfig()
-    >>> handler = FieldPreservationHandler(config)
-    >>>
-    >>> # Old page has manual description, new page has database description
-    >>> old_fields = {"description": "Custom lore text", "damage": "10"}
-    >>> new_fields = {"description": "Generic item", "damage": "15"}
-    >>>
-    >>> # Apply preservation rules
-    >>> result = handler.apply_preservation("Item", old_fields, new_fields)
-    >>> print(result)
-    {'description': 'Custom lore text', 'damage': '15'}  # description preserved, damage updated
-
-Usage in page generators:
-    >>> parser = TemplateParser()
     >>> handler = FieldPreservationHandler()
-    >>>
-    >>> # Generate new page content
-    >>> new_wikitext = generate_item_page(item)
-    >>>
-    >>> # If old page exists, preserve fields
-    >>> if old_wikitext:
-    >>>     preserved = handler.merge_templates(
-    >>>         old_wikitext=old_wikitext,
-    >>>         new_wikitext=new_wikitext,
-    >>>         template_names=["Item"]
-    >>>     )
-    >>>     final_wikitext = preserved
-    >>> else:
-    >>>     final_wikitext = new_wikitext
+    >>> old_fields = {"imagecaption": "Custom caption", "level": "10"}
+    >>> new_fields = {"imagecaption": "", "level": "15"}
+    >>> handler.apply_preservation("Character", old_fields, new_fields)
+    {'imagecaption': 'Custom caption', 'level': '15'}
 """
 
-from collections.abc import Callable, Mapping
+import math
+from collections.abc import Callable, Iterator, Mapping, Sequence
+from dataclasses import dataclass
+from itertools import permutations
+from types import MappingProxyType
 from typing import Any
 
+import mwparserfromhell
 from loguru import logger
+from mwparserfromhell.nodes import Node, Tag, Template, Text
+from mwparserfromhell.wikicode import Wikicode
 
+from erenshor.application.wiki_deploy.link_audit import LinkTargets
 from erenshor.infrastructure.wiki.template_parser import TemplateParser
 
 # Type alias for handler functions
 # Signature: (old_value: str, new_value: str, context: dict[str, Any]) -> str
 PreservationHandler = Callable[[str, str, dict[str, Any]], str]
 
+# Separator of each list field that the merge rule handles. A comma list also
+# splits at top-level commas, so that live values in either style merge.
+LIST_SEPARATORS: Mapping[str, str] = MappingProxyType(
+    {
+        "type": ", ",
+        "questsource": "<br>",
+        "relatedquest": "<br>",
+    }
+)
+
+# Field that names the entity of each root template. Live roots without a
+# stable key match generated roots by this name.
+ROOT_NAME_FIELDS: Mapping[str, str] = MappingProxyType(
+    {
+        "Item": "title",
+        "Character": "name",
+        "Ability": "title",
+        "Stance": "title",
+        "Zone": "title",
+    }
+)
+
 
 class FieldPreservationError(Exception):
     """Base exception for field preservation errors."""
-
-    pass
 
 
 class HandlerNotFoundError(FieldPreservationError):
     """Raised when a handler name is not registered."""
 
-    pass
+
+class AmbiguousRootsError(FieldPreservationError):
+    """Raised when live root templates cannot be matched to generated roots safely."""
+
+
+@dataclass(frozen=True)
+class TemplateMerge:
+    """A live page with generated root templates merged into it.
+
+    Attributes:
+        text: The merged page text.
+        kept_roots: Live roots that match no generated root, as
+            ``"<template>: <name>"``. They stay unchanged for a human to review.
+    """
+
+    text: str
+    kept_roots: tuple[str, ...]
+
+
+# Companion templates that belong to the root before them. Generation owns
+# them: a merged root takes the companions of its generated root.
+ROOT_COMPANIONS: Mapping[str, frozenset[str]] = MappingProxyType(
+    {
+        "Item": frozenset(
+            {
+                "ItemTooltip",
+                "Item/Aura",
+                "Item/Charm",
+                "Item/Consumable",
+                "Item/General",
+                "Item/Mold",
+                "Item/SkillBook",
+                "Item/SpellScroll",
+            }
+        ),
+        "Character": frozenset(),
+        "Ability": frozenset({"SpellTooltip", "SkillTooltip"}),
+        "Stance": frozenset({"StanceTooltip"}),
+        "Zone": frozenset(),
+    }
+)
+
+
+@dataclass(frozen=True)
+class _RootBlock:
+    """A top-level root template and the companions that follow it."""
+
+    root: Template
+    companions: tuple[Template, ...]
+
+
+def _root_blocks(code: Wikicode, template_name: str) -> list[_RootBlock]:
+    """Return the top-level roots of one template with their companions.
+
+    A companion belongs to the nearest root of its template before it, even
+    when prose stands between them or editor markup such as a table holds the
+    companion. Companions before the first root belong to no block.
+    """
+    companion_names = ROOT_COMPANIONS[template_name]
+    top_level = {id(node) for node in code.nodes}
+    roots: list[Template] = []
+    companions: dict[int, list[Template]] = {}
+    for template in code.filter_templates():
+        name = str(template.name).strip()
+        if name == template_name and id(template) in top_level:
+            roots.append(template)
+            companions[id(template)] = []
+        elif name in companion_names and roots:
+            companions[id(roots[-1])].append(template)
+    return [_RootBlock(root, tuple(companions[id(root)])) for root in roots]
+
+
+def _block_end(code: Wikicode, block: _RootBlock) -> Node:
+    """Return the top-level node that ends a block: its last companion, or the markup that holds it."""
+    if not block.companions:
+        return block.root
+    last = block.companions[-1]
+    return last if any(node is last for node in code.nodes) else code.get_ancestors(last)[0]
+
+
+def _companions_text(block: _RootBlock) -> str:
+    """Return the companions of a block as text that follows its root, or an empty string."""
+    return "".join(f"\n{companion}" for companion in block.companions)
+
+
+def _param(template: Template, name: str) -> str | None:
+    """Return the stripped value of a template parameter, or None when it is blank or absent."""
+    if not template.has(name):
+        return None
+    value = str(template.get(name).value).strip()
+    return value or None
+
+
+def _root_label(template: Template, template_name: str) -> str:
+    """Return the entity name that a root template shows, for messages."""
+    return _param(template, ROOT_NAME_FIELDS[template_name]) or "(unnamed)"
+
+
+def _root_name_key(template: Template, template_name: str) -> str:
+    """Return the name of a root template, normalized for matching."""
+    return " ".join((_param(template, ROOT_NAME_FIELDS[template_name]) or "").split()).casefold()
+
+
+# Same-name roots pair by trying every pairing. Groups that need more pairings
+# than this fail and need stable keys by hand.
+_MAX_SAME_NAME_PAIRINGS = 40_320
+
+
+def _agreeing_fields(old_fields: Mapping[str, str], new_fields: Mapping[str, str]) -> int:
+    """Count the generated fields whose live value is the same and not blank."""
+    return sum(
+        1
+        for field, value in new_fields.items()
+        if (normalized := " ".join(value.split())) and normalized == " ".join(old_fields.get(field, "").split())
+    )
+
+
+def _largest_pairings(olds: int, news: int) -> Iterator[tuple[tuple[int, int], ...]]:
+    """Yield every pairing of ``min(olds, news)`` roots as ``(old index, new index)`` tuples.
+
+    The pairing by position comes first.
+    """
+    if olds <= news:
+        for chosen in permutations(range(news), olds):
+            yield tuple(zip(range(olds), chosen, strict=True))
+    else:
+        for chosen in permutations(range(olds), news):
+            yield tuple(zip(chosen, range(news), strict=True))
 
 
 # Built-in handlers
@@ -140,79 +262,75 @@ def prefer_database_handler(old_value: str, new_value: str, context: dict[str, A
     return new_value if new_value and new_value.strip() else old_value
 
 
-def merge_handler(old_value: str, new_value: str, context: dict[str, Any]) -> str:
-    """Merge old and new values, combining both.
+def list_entries(value: str, separator: str) -> list[str]:
+    """Split a list field into its entries.
 
-    Useful for fields where both manual wiki content and database content should coexist.
-    For <br>-separated lists, deduplicates entries while preserving order.
-    For comma-separated lists, merges and deduplicates.
-
-    Args:
-        old_value: Existing wiki field value
-        new_value: New database value
-        context: Additional context (unused)
-
-    Returns:
-        Merged value with deduplicated entries
+    Entries are separated by top-level ``<br>`` tags. A comma list also splits
+    at top-level commas. Separators inside templates and links do not split.
     """
-    if not old_value or not old_value.strip():
-        return new_value
-    if not new_value or not new_value.strip():
-        return old_value
+    split_at_commas = separator == ", "
+    entries: list[str] = []
+    current: list[str] = []
+    for node in mwparserfromhell.parse(value).nodes:
+        if isinstance(node, Tag) and str(node.tag).strip().casefold() == "br":
+            entries.append("".join(current))
+            current = []
+        elif split_at_commas and isinstance(node, Text) and "," in node.value:
+            head, *tail = node.value.split(",")
+            current.append(head)
+            for part in tail:
+                entries.append("".join(current))
+                current = [part]
+        else:
+            current.append(str(node))
+    entries.append("".join(current))
+    return [entry.strip() for entry in entries if entry.strip()]
 
-    # Determine separator to use:
-    # - Use <br> if either value has <br>
-    # - Use comma only if BOTH values have commas AND neither has <br> AND we don't detect {{!}} (QuestLink pipe)
-    # - The {{!}} pattern indicates a QuestLink with display name override, which may contain commas
-    has_br = "<br>" in old_value or "<br>" in new_value
-    has_comma_in_old = "," in old_value
-    has_comma_in_new = "," in new_value
-    # Check if this looks like a QuestLink with display name (which may contain commas internally)
-    has_questlink_pipe = "{{!}}" in old_value or "{{!}}" in new_value
 
-    # Choose separator
-    if has_br:
-        # If either has <br>, use <br>
-        separator = "<br>"
-        old_items = (
-            [item.strip() for item in old_value.split("<br>") if item.strip()]
-            if "<br>" in old_value
-            else ([old_value.strip()] if old_value.strip() else [])
-        )
-        new_items = (
-            [item.strip() for item in new_value.split("<br>") if item.strip()]
-            if "<br>" in new_value
-            else ([new_value.strip()] if new_value.strip() else [])
-        )
-    elif (has_comma_in_old or has_comma_in_new) and not has_questlink_pipe:
-        # At least one has commas and no QuestLink pipes - likely comma-separated list like type field
-        # Use comma separator and split both on comma (treating single items as 1-item lists)
-        separator = ", "
-        old_items = (
-            [item.strip() for item in old_value.split(",") if item.strip()]
-            if "," in old_value
-            else ([old_value.strip()] if old_value.strip() else [])
-        )
-        new_items = (
-            [item.strip() for item in new_value.split(",") if item.strip()]
-            if "," in new_value
-            else ([new_value.strip()] if new_value.strip() else [])
-        )
-    else:
-        # Default to <br> (single values or QuestLink with comma in display name)
-        separator = "<br>"
-        old_items = [old_value.strip()] if old_value.strip() else []
-        new_items = [new_value.strip()] if new_value.strip() else []
+class LinkListMerge:
+    """Merge a live list field with its generated value by link target.
 
-    # Deduplicate while preserving order (old items first, then new items not in old)
-    seen = set()
-    merged = []
-    for item in old_items + new_items:
-        if item not in seen:
-            seen.add(item)
-            merged.append(item)
+    Each entry is identified by the page that it links, or by its text when it
+    is not a link. The result keeps the live order. The generated entries that
+    link a page take the place of the first live entry that links the same page,
+    and later live entries for that page are dropped. Live entries for other
+    pages and live text stay. Generated entries without a live counterpart
+    follow at the end. The result uses the separator of the field.
+    """
 
-    return separator.join(merged)
+    def __init__(self, link_targets: LinkTargets) -> None:
+        self._link_targets = link_targets
+
+    def identity(self, entry: str) -> tuple[str, str]:
+        """Return the page that ``entry`` links, or its whitespace-normalized text."""
+        target = self._link_targets.target(entry)
+        return ("link", target) if target is not None else ("text", " ".join(entry.split()))
+
+    def __call__(self, old_value: str, new_value: str, context: dict[str, Any]) -> str:
+        if not old_value.strip():
+            return new_value
+        if not new_value.strip():
+            return old_value
+        separator = LIST_SEPARATORS[context["field_name"]]
+        generated: dict[tuple[str, str], list[str]] = {}
+        for entry in list_entries(new_value, separator):
+            group = generated.setdefault(self.identity(entry), [])
+            if entry not in group:
+                group.append(entry)
+        merged: list[str] = []
+        placed: set[tuple[str, str]] = set()
+        for entry in list_entries(old_value, separator):
+            identity = self.identity(entry)
+            if identity in generated:
+                if identity not in placed:
+                    merged.extend(generated[identity])
+                    placed.add(identity)
+            elif entry not in merged:
+                merged.append(entry)
+        for identity, group in generated.items():
+            if identity not in placed:
+                merged.extend(group)
+        return separator.join(merged)
 
 
 # Default preservation rules per template
@@ -229,11 +347,6 @@ DEFAULT_PRESERVATION_RULES: dict[str, dict[str, str]] = {
         # All other fields (including vendorsource, source, etc.) use "override" (default)
         # Most source fields are auto-generated from database, not manually researched
     },
-    # Fancy-* templates: All fields use default "override" behavior
-    # No manual content - everything comes from database
-    "Fancy-weapon": {},
-    "Fancy-armor": {},
-    "Fancy-charm": {},
     "Character": {
         # Manual edit fields only
         "imagecaption": "preserve",  # Custom image captions
@@ -248,16 +361,23 @@ DEFAULT_PRESERVATION_RULES: dict[str, dict[str, str]] = {
     "Ability": {
         "image": "prefer_manual",  # Custom ability icons
     },
+    "Stance": {
+        # The image is the icon of the skill that switches to the stance, so
+        # generation owns it ("override", the default).
+        "imagecaption": "preserve",  # Custom image captions
+    },
     "Zone": {
-        # Manually uploaded assets
+        # Every field but the title belongs to editors once it has a value.
+        # Generated values fill new pages and blank fields only. Editors
+        # upload images, fill levels, and refine the type to Raid. They also
+        # correct the data: they remove zone lines that players cannot reach,
+        # add access by teleport, and link the map of each scene of a page.
         "image": "prefer_manual",
         "imagecaption": "prefer_manual",
-        # Filled once by editors, intentionally blank in generated output
         "level": "prefer_manual",
-        # prefer_manual: the wiki's Dungeon/Zone classification is kept;
-        # wikilink values are normalised to plain text before merge reaches here.
         "type": "prefer_manual",
-        # maplink, connects → default "override" (generated from DB)
+        "maplink": "prefer_manual",
+        "connects": "prefer_manual",
     },
 }
 
@@ -270,8 +390,7 @@ class FieldPreservationConfig:
 
     Example:
         >>> config = FieldPreservationConfig()
-        >>> rule = config.get_rule("Item", "description")
-        >>> print(rule)
+        >>> config.get_rule("Item", "othersource")
         'preserve'
     """
 
@@ -279,12 +398,16 @@ class FieldPreservationConfig:
         self,
         rules: dict[str, dict[str, str]] | None = None,
         handlers: dict[str, PreservationHandler] | None = None,
+        *,
+        link_targets: LinkTargets | None = None,
     ) -> None:
         """Initialize field preservation configuration.
 
         Args:
             rules: Template-specific preservation rules (defaults to DEFAULT_PRESERVATION_RULES)
             handlers: Custom handler registry (defaults to built-in handlers only)
+            link_targets: Link catalog resolver. The ``merge`` rule exists only with it,
+                because list entries merge by the page that they link.
         """
         self._rules = rules if rules is not None else DEFAULT_PRESERVATION_RULES.copy()
         self._handlers: dict[str, PreservationHandler] = {
@@ -292,8 +415,9 @@ class FieldPreservationConfig:
             "preserve": preserve_handler,
             "prefer_manual": prefer_manual_handler,
             "prefer_database": prefer_database_handler,
-            "merge": merge_handler,
         }
+        if link_targets is not None:
+            self._handlers["merge"] = LinkListMerge(link_targets)
         if handlers:
             self._handlers.update(handlers)
 
@@ -303,7 +427,7 @@ class FieldPreservationConfig:
         """Get preservation rule for a specific template field.
 
         Args:
-            template_name: Template name (e.g., "Item", "Fancy-weapon")
+            template_name: Template name (e.g., "Item", "Character")
             field_name: Field name (e.g., "description", "damage")
 
         Returns:
@@ -328,6 +452,8 @@ class FieldPreservationConfig:
             HandlerNotFoundError: If handler name is not registered
         """
         if handler_name not in self._handlers:
+            if handler_name == "merge":
+                raise HandlerNotFoundError("The merge handler needs link targets: pass link_targets to the config")
             raise HandlerNotFoundError(
                 f"Handler not found: {handler_name}. Available handlers: {', '.join(self._handlers.keys())}"
             )
@@ -388,11 +514,10 @@ class FieldPreservationHandler:
 
     Example:
         >>> handler = FieldPreservationHandler()
-        >>> old = {"description": "Manual text", "damage": "10"}
-        >>> new = {"description": "Database text", "damage": "15"}
-        >>> result = handler.apply_preservation("Item", old, new)
-        >>> print(result)
-        {'description': 'Manual text', 'damage': '15'}
+        >>> old = {"othersource": "Manual text", "buy": "10"}
+        >>> new = {"othersource": "", "buy": "15"}
+        >>> handler.apply_preservation("Item", old, new)
+        {'othersource': 'Manual text', 'buy': '15'}
     """
 
     def __init__(self, config: FieldPreservationConfig | None = None) -> None:
@@ -415,30 +540,28 @@ class FieldPreservationHandler:
         """Apply preservation rules to merge old and new field values.
 
         Args:
-            template_name: Template name (e.g., "Item", "Fancy-weapon")
+            template_name: Template name (e.g., "Item", "Character")
             old_fields: Existing wiki field values
             new_fields: New database field values
-            context: Additional context passed to handlers
+            context: Additional context passed to handlers. Each handler also
+                receives ``template_name`` and ``field_name``.
 
         Returns:
-            Merged field dictionary with preservation rules applied
+            Merged field dictionary with preservation rules applied, in the
+            order of the new fields followed by fields only the old template has
 
         Example:
             >>> handler = FieldPreservationHandler()
-            >>> old = {"description": "Custom", "damage": "10"}
-            >>> new = {"description": "Default", "damage": "15", "level": "5"}
-            >>> result = handler.apply_preservation("Item", old, new)
-            >>> # description preserved, damage updated, level added
-            >>> print(result)
-            {'description': 'Custom', 'damage': '15', 'level': '5'}
+            >>> old = {"othersource": "Custom", "buy": "10"}
+            >>> new = {"othersource": "", "buy": "15", "sell": "5"}
+            >>> handler.apply_preservation("Item", old, new)
+            {'othersource': 'Custom', 'buy': '15', 'sell': '5'}
         """
         ctx = context if context is not None else {}
         ctx["template_name"] = template_name
 
         result: dict[str, str] = {}
-
-        # Get all field names from both old and new
-        all_fields = set(old_fields.keys()) | set(new_fields.keys())
+        all_fields = [*new_fields, *(field for field in old_fields if field not in new_fields)]
 
         logger.debug(f"Applying preservation for {template_name}: {len(all_fields)} fields")
 
@@ -446,11 +569,9 @@ class FieldPreservationHandler:
             old_value = old_fields.get(field_name, "")
             new_value = new_fields.get(field_name, "")
 
-            # Get preservation rule for this field
             rule_name = self._config.get_rule(template_name, field_name)
             handler = self._config.get_handler(rule_name)
-
-            # Apply handler
+            ctx["field_name"] = field_name
             result[field_name] = handler(old_value, new_value, ctx)
 
             if old_value != result[field_name]:
@@ -464,128 +585,202 @@ class FieldPreservationHandler:
         new_wikitext: str,
         template_names: list[str],
         context: dict[str, Any] | None = None,
-    ) -> str:
-        """Merge new templates into existing page, preserving all manual content.
+    ) -> TemplateMerge:
+        """Merge generated root templates and their companions into the live page.
 
-        This method starts with old_wikitext (which has templates + manual content) and
-        updates only the specified templates in place. Everything else (manual sections,
-        categories, etc.) is preserved.
+        Each generated root replaces the live root of the same entity, with the
+        preservation rules applied to their fields. A live root is the same
+        entity when it carries the same ``stablekey``. A live root without a key
+        is the same entity when its name is the same, because live pages
+        predate the keys. Several roots with one name pair so that the most
+        field values agree. When several pairings agree equally well and merge
+        to different pages, the page fails, because a live value could reach
+        the wrong entity.
 
-        Args:
-            old_wikitext: Existing wiki page (templates + manual content)
-            new_wikitext: Freshly generated templates (just templates, no manual content)
-            template_names: List of template names to merge (e.g., ["Item"])
-            context: Additional context passed to handlers
+        A merged root takes the companions of its generated root: they replace
+        its first live companion, or follow the root when it has none, and its
+        other live companions go. A generated root without a live root follows
+        the last live root of its template and that root's companions, or the
+        end of the page. A live root that matches no generated root stays
+        unchanged with its companions and is reported in ``kept_roots``. Text
+        outside roots and companions stays unchanged.
 
-        Returns:
-            Old wikitext with templates updated, all manual content preserved
-
-        Example:
-            >>> handler = FieldPreservationHandler()
-            >>> old = "{{Item|description=Manual|damage=10}}\\n\\n== Notes ==\\nManual content."
-            >>> new = "{{Item|description=Auto|damage=15|level=5}}"
-            >>> result = handler.merge_templates(old, new, ["Item"])
-            >>> # Result: Updated Item template + preserved Notes section
+        Raises:
+            AmbiguousRootsError: Live roots cannot be matched safely.
         """
-        logger.debug(f"Merging {len(template_names)} templates into existing page")
-
-        # Parse old page (contains everything: templates + manual content)
         old_code = self._parser.parse(old_wikitext)
-
-        # Parse new templates to extract their content
         new_code = self._parser.parse(new_wikitext)
-        new_templates_found = self._parser.find_templates(new_code, template_names)
+        kept_roots: list[str] = []
 
-        if not new_templates_found:
-            logger.debug("No new templates found, returning old wikitext as-is")
-            return old_wikitext
-
-        # Build list of new templates grouped by template name
-        new_template_map: dict[str, list[Any]] = {}
-        for tmpl in new_templates_found:
-            tmpl_name = str(tmpl.name).strip()
-            if tmpl_name in template_names:
-                if tmpl_name not in new_template_map:
-                    new_template_map[tmpl_name] = []
-                new_template_map[tmpl_name].append(tmpl)
-
-        # For each template type, merge fields
         for template_name in template_names:
-            # Find templates in old page
-            old_templates = self._parser.find_templates(old_code, [template_name])
+            old_blocks = _root_blocks(old_code, template_name)
+            new_blocks = _root_blocks(new_code, template_name)
+            pairs = self.match_roots(
+                template_name,
+                [block.root for block in old_blocks],
+                [block.root for block in new_blocks],
+                context,
+            )
+            old_by_root = {id(block.root): block for block in old_blocks}
+            new_by_root = {id(block.root): block for block in new_blocks}
+            paired_old = {id(old_root) for old_root, _ in pairs}
+            paired_new = {id(new_root) for _, new_root in pairs}
 
-            # Get new templates for this name
-            new_tmpls = new_template_map.get(template_name, [])
-            if not new_tmpls:
-                logger.debug(f"No new templates for {template_name}, skipping")
-                continue
+            # Insert first: the anchor node may be replaced below.
+            added = "".join(
+                f"\n\n{self._format_root(template_name, block.root)}{_companions_text(block)}"
+                for block in new_blocks
+                if id(block.root) not in paired_new
+            )
+            if added and old_blocks:
+                old_code.insert(old_code.index(_block_end(old_code, old_blocks[-1])) + 1, added)
+            elif added:
+                old_code.append(added)
 
-            if not old_templates:
-                # Templates don't exist in old page, append all to end
-                logger.debug(
-                    f"Template {template_name} not found in old page, appending {len(new_tmpls)} new templates"
+            for old_root, new_root in pairs:
+                old_block, new_block = old_by_root[id(old_root)], new_by_root[id(new_root)]
+                merged_root = self._parser.generate_template(
+                    template_name,
+                    self._merged_fields(
+                        template_name,
+                        self._parser.get_params(old_root),
+                        self._parser.get_params(new_root),
+                        context,
+                    ),
+                    inline=False,
                 )
-
-                for new_tmpl in new_tmpls:
-                    # Extract fields from new template
-                    new_fields = self._parser.get_params(new_tmpl)
-
-                    # Generate formatted template
-                    formatted_template = self._parser.generate_template(
-                        template_name,
-                        new_fields,
-                        inline=False,
-                    )
-
-                    old_code.append(f"\n\n{formatted_template}")
-                continue
-
-            # Match old and new templates by position (order in which they appear)
-            # Process pairs in order: (old[0], new[0]), (old[1], new[1]), etc.
-            for i, new_tmpl in enumerate(new_tmpls):
-                new_fields = self._parser.get_params(new_tmpl)
-
-                if i < len(old_templates):
-                    # Have matching old template at same position, merge fields
-                    old_tmpl = old_templates[i]
-                    old_fields = self._parser.get_params(old_tmpl)
-
-                    # Apply preservation rules
-                    preserved_fields = self.apply_preservation(template_name, old_fields, new_fields, context)
-
-                    # Preserve field order from new template (from Jinja2 template order)
-                    ordered_preserved = {k: preserved_fields[k] for k in new_fields if k in preserved_fields}
-
-                    # Generate properly formatted template from merged fields
-                    formatted_template = self._parser.generate_template(
-                        template_name,
-                        ordered_preserved,
-                        inline=False,  # Multi-line format
-                    )
-
-                    # Replace template in old_code (preserving everything else)
-                    self._parser.replace_template(old_code, old_tmpl, formatted_template)
+                if old_block.companions:
+                    first, *stale = old_block.companions
+                    for companion in stale:
+                        old_code.replace(companion, "")
+                    old_code.replace(first, _companions_text(new_block).removeprefix("\n"))
+                    old_code.replace(old_root, merged_root)
                 else:
-                    # More new templates than old, append extras to end
-                    logger.debug(f"Extra new template {template_name} at position {i}, appending")
-                    formatted_template = self._parser.generate_template(
-                        template_name,
-                        new_fields,
-                        inline=False,
-                    )
-                    old_code.append(f"\n\n{formatted_template}")
+                    old_code.replace(old_root, merged_root + _companions_text(new_block))
 
-            # Generated templates have authoritative cardinality. If entities
-            # split or disappear, retaining unmatched old templates silently
-            # keeps stale generated records on the page.
-            for stale_tmpl in old_templates[len(new_tmpls) :]:
-                logger.debug(f"Removing stale {template_name} template")
-                self._parser.remove_template(old_code, stale_tmpl)
+            kept_roots.extend(
+                f"{template_name}: {_root_label(block.root, template_name)}"
+                for block in old_blocks
+                if id(block.root) not in paired_old
+            )
 
-        # Render modified old page (templates updated, manual content preserved)
-        result = self._parser.render(old_code)
-        logger.debug(f"Merged templates into existing page successfully ({len(result)} characters)")
-        return result
+        return TemplateMerge(text=self._parser.render(old_code), kept_roots=tuple(kept_roots))
+
+    def _format_root(self, template_name: str, root: Template) -> str:
+        return self._parser.generate_template(template_name, self._parser.get_params(root), inline=False)
+
+    def _merged_fields(
+        self,
+        template_name: str,
+        old_fields: Mapping[str, str],
+        new_fields: Mapping[str, str],
+        context: dict[str, Any] | None,
+    ) -> dict[str, str]:
+        """Return the fields of a merged root: the generated fields after the preservation rules."""
+        preserved = self.apply_preservation(template_name, old_fields, new_fields, context)
+        return {field: preserved[field] for field in new_fields}
+
+    def match_roots(
+        self,
+        template_name: str,
+        old_roots: Sequence[Template],
+        new_roots: Sequence[Template],
+        context: dict[str, Any] | None = None,
+    ) -> list[tuple[Template, Template]]:
+        """Pair live roots with generated roots of one template.
+
+        A live root with a ``stablekey`` pairs with the generated root of that
+        key. Live roots without a key pair with generated roots of the same
+        name. When several roots share a name, they pair so that the most
+        field values agree, because a live root holds the data that an earlier
+        generation wrote for its entity.
+
+        Raises:
+            AmbiguousRootsError: Two live roots carry one key, or several
+                pairings of same-name roots agree equally well and merge to
+                different pages.
+        """
+        old_by_key: dict[str, Template] = {}
+        for old_root in old_roots:
+            key = _param(old_root, "stablekey")
+            if key is None:
+                continue
+            if key in old_by_key:
+                raise AmbiguousRootsError(f"Two live {template_name} roots carry the stable key {key!r}")
+            old_by_key[key] = old_root
+
+        pairs: list[tuple[Template, Template]] = []
+        unmatched_new: dict[str, list[Template]] = {}
+        for new_root in new_roots:
+            key = _param(new_root, "stablekey")
+            if key is not None and key in old_by_key:
+                pairs.append((old_by_key.pop(key), new_root))
+            else:
+                unmatched_new.setdefault(_root_name_key(new_root, template_name), []).append(new_root)
+
+        unkeyed_old: dict[str, list[Template]] = {}
+        for old_root in old_roots:
+            if _param(old_root, "stablekey") is None:
+                unkeyed_old.setdefault(_root_name_key(old_root, template_name), []).append(old_root)
+
+        for name, news in unmatched_new.items():
+            pairs.extend(self._pair_same_name(template_name, unkeyed_old.get(name, []), news, context))
+        return pairs
+
+    def _pair_same_name(
+        self,
+        template_name: str,
+        olds: Sequence[Template],
+        news: Sequence[Template],
+        context: dict[str, Any] | None,
+    ) -> list[tuple[Template, Template]]:
+        """Pair same-name live and generated roots so that the most field values agree.
+
+        Every pairing of the largest possible size is scored by the number of
+        fields whose live and generated values are equal and not blank. When
+        several pairings reach the best score, they must merge to the same page.
+        """
+        if not olds or not news:
+            return []
+        if len(olds) == 1 and len(news) == 1:
+            return [(olds[0], news[0])]
+        if math.perm(max(len(olds), len(news)), min(len(olds), len(news))) > _MAX_SAME_NAME_PAIRINGS:
+            raise self._ambiguous(template_name, news, "are too many to pair")
+
+        old_fields = [self._parser.get_params(old_root) for old_root in olds]
+        new_fields = [self._parser.get_params(new_root) for new_root in news]
+        agreement = [[_agreeing_fields(old, new) for new in new_fields] for old in old_fields]
+        best_score = -1
+        best: list[tuple[tuple[int, int], ...]] = []
+        for pairing in _largest_pairings(len(olds), len(news)):
+            score = sum(agreement[old][new] for old, new in pairing)
+            if score > best_score:
+                best_score, best = score, [pairing]
+            elif score == best_score:
+                best.append(pairing)
+
+        def page(pairing: tuple[tuple[int, int], ...]) -> tuple[object, ...]:
+            partner = {new: old for old, new in pairing}
+            merged = tuple(
+                tuple(self._merged_fields(template_name, old_fields[partner[new]], fields, context).items())
+                if new in partner
+                else tuple(fields.items())
+                for new, fields in enumerate(new_fields)
+            )
+            kept = tuple(sorted(str(olds[old]) for old in range(len(olds)) if old not in partner.values()))
+            return (merged, kept)
+
+        if len({page(pairing) for pairing in best}) > 1:
+            raise self._ambiguous(template_name, news, "agree equally well with several entities")
+        return [(olds[old], news[new]) for old, new in best[0]]
+
+    @staticmethod
+    def _ambiguous(template_name: str, news: Sequence[Template], reason: str) -> AmbiguousRootsError:
+        keys = ", ".join(_param(new_root, "stablekey") or "(no key)" for new_root in news)
+        return AmbiguousRootsError(
+            f"The unkeyed {template_name} roots named {_root_label(news[0], template_name)!r} {reason}. "
+            f"Add the right stable key to each live root by hand: {keys}"
+        )
 
     def get_config(self) -> FieldPreservationConfig:
         """Get the preservation configuration.

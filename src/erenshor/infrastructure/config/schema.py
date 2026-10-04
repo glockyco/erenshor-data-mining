@@ -196,29 +196,16 @@ class MediaWikiConfig(ConfigModel):
         default="https://erenshor.wiki.gg/api.php",
         description="MediaWiki API endpoint URL",
     )
-    api_batch_size: int = Field(
-        default=25,
+    max_page_bytes: int = Field(
+        default=4194304,
         ge=1,
-        le=50,
-        description="Number of pages to fetch per API request (1-50)",
-    )
-    api_delay: float = Field(
-        default=1.0,
-        ge=0.0,
-        le=10.0,
-        description="Delay in seconds between API requests to avoid rate limiting",
+        description="Maximum UTF-8 bytes in a wiki data module",
     )
     upload_batch_size: int = Field(
         default=10,
         ge=1,
         le=50,
         description="Maximum pages to upload in one batch",
-    )
-    upload_delay: float = Field(
-        default=1.0,
-        ge=0.0,
-        le=10.0,
-        description="Delay in seconds between uploads to avoid rate limiting",
     )
     upload_edit_summary: str = Field(
         default="Automated wiki update",

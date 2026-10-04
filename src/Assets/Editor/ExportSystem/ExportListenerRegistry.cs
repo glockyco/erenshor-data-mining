@@ -321,6 +321,19 @@ public static class ExportListenerRegistry
                     )
             ),
             new(
+                "planarbosses",
+                "Planar Bosses",
+                ExportScanChannel.Component,
+                Array.Empty<string>(),
+                context =>
+                    context.RegisterComponentListener(
+                        new PlanarMusicManagerListener(
+                            context.Database,
+                            context.CharacterKeyResolver
+                        )
+                    )
+            ),
+            new(
                 "itemdrops",
                 "Item Drops",
                 ExportScanChannel.Component,

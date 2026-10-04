@@ -38,7 +38,7 @@ export type {
     ItemSearchResult
 } from './types';
 
-export type SearchCategory = SearchResult['type'];
+export type SearchCategory = SearchResult['type'] | 'chest';
 
 export interface SearchCategoryResult {
     matches: SearchMatch[];
@@ -59,17 +59,22 @@ export interface SearchResponse {
     hasMore: boolean;
 }
 
-const SEARCH_CATEGORIES: SearchCategory[] = ['item', 'enemy', 'npc', 'zone'];
+const SEARCH_CATEGORIES: SearchCategory[] = ['item', 'enemy', 'chest', 'npc', 'zone'];
 
 export function emptySearchResponse(): SearchResponse {
     const categories: Record<SearchCategory, SearchCategoryResult> = {
         item: { matches: [], total: 0, hasMore: false },
         enemy: { matches: [], total: 0, hasMore: false },
+        chest: { matches: [], total: 0, hasMore: false },
         npc: { matches: [], total: 0, hasMore: false },
         zone: { matches: [], total: 0, hasMore: false }
     };
 
     return { matches: [], categories, total: 0, hasMore: false };
+}
+
+export function searchResultCategory(result: SearchResult): SearchCategory {
+    return result.type === 'enemy' && result.encounterTier === 'chest' ? 'chest' : result.type;
 }
 
 export function itemResultSummaryParts(result: ItemSearchResult): string[] {
@@ -114,6 +119,7 @@ export function buildSearchIndex(input: {
     enemiesEnemy: WorldEnemy[];
     enemiesElite: WorldEnemy[];
     enemiesBoss: WorldEnemy[];
+    enemiesChest: WorldEnemy[];
     unlocatedEnemies: UnlocatedEnemy[];
     npcs: WorldNpc[];
     zones: ZoneWorldPosition[];
@@ -127,6 +133,7 @@ export function buildSearchIndex(input: {
         input.enemiesEnemy,
         input.enemiesElite,
         input.enemiesBoss,
+        input.enemiesChest,
         input.unlocatedEnemies
     );
     const npcProvider = new NpcSearchProvider(input.npcs);
@@ -137,6 +144,7 @@ export function buildSearchIndex(input: {
             ...input.enemiesEnemy,
             ...input.enemiesElite,
             ...input.enemiesBoss,
+            ...input.enemiesChest,
             ...input.npcs
         ],
         input.miningNodes,
@@ -180,16 +188,18 @@ export function searchMarkers(query: string, index: IndexEntry[], limit = 20): S
     const entriesByCategory: Record<SearchCategory, IndexEntry[]> = {
         item: [],
         enemy: [],
+        chest: [],
         npc: [],
         zone: []
     };
     for (const entry of index) {
-        entriesByCategory[entry.result.type].push(entry);
+        entriesByCategory[searchResultCategory(entry.result)].push(entry);
     }
 
     const categories: Record<SearchCategory, SearchCategoryResult> = {
         item: getCategoryResults('item'),
         enemy: getCategoryResults('enemy'),
+        chest: getCategoryResults('chest'),
         npc: getCategoryResults('npc'),
         zone: getCategoryResults('zone')
     };
@@ -219,7 +229,7 @@ export function searchMarkers(query: string, index: IndexEntry[], limit = 20): S
     const fuzzyByCategory = new Map<string, SearchMatch[]>();
 
     for (const match of matches) {
-        const cat = match.result.type;
+        const cat = searchResultCategory(match.result);
         let bucket: Map<string, SearchMatch[]>;
         if (match.matchRange === null) {
             bucket = fuzzyByCategory;
@@ -278,7 +288,7 @@ function sortCategoryMatches(category: SearchCategory, matches: SearchMatch[]): 
 /**
  * Sort results within each category bucket.
  *
- * Enemies: boss > elite > enemy, then alphabetically by name.
+ * Enemies: boss > elite > enemy, then alphabetically by name. Chests are separate.
  * Items / NPCs / Zones: alphabetically by name.
  */
 function sortCategories(byCategory: Map<string, SearchMatch[]>): void {
@@ -288,7 +298,7 @@ function sortCategories(byCategory: Map<string, SearchMatch[]>): void {
 }
 
 function sortCategoryResults(cat: string, results: SearchMatch[]): void {
-    if (cat === 'enemy') {
+    if (cat === 'enemy' || cat === 'chest') {
         results.sort((a, b) => {
             const ae = a.result as EnemySearchResult;
             const be = b.result as EnemySearchResult;
@@ -319,8 +329,9 @@ function interleave(
     const categoryOrder: Record<string, number> = {
         item: 0,
         enemy: 1,
-        npc: 2,
-        zone: 3
+        chest: 2,
+        npc: 3,
+        zone: 4
     };
     const categories = [...byCategory.entries()].sort(
         ([a], [b]) => (categoryOrder[a] ?? 99) - (categoryOrder[b] ?? 99)

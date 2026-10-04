@@ -1,0 +1,72 @@
+<includeonly><div class="item-tooltip-charm-container"><!--
+--><div class="item-tooltip-charm-label">Charm Item</div><!--
+--><div class="item-tooltip-charm-modifiers">Class modifiers:<!--
+-->{{#if:{{{strscaling|}}}|<br/>Physicality: +{{{strscaling}}} / 40}}<!--
+-->{{#if:{{{endscaling|}}}|<br/>Hardiness: +{{{endscaling}}} / 40}}<!--
+-->{{#if:{{{dexscaling|}}}|<br/>Finesse: +{{{dexscaling}}} / 40}}<!--
+-->{{#if:{{{agiscaling|}}}|<br/>Defense: +{{{agiscaling}}} / 40}}<!--
+-->{{#if:{{{intscaling|}}}|<br/>Arcanism: +{{{intscaling}}} / 40}}<!--
+-->{{#if:{{{wisscaling|}}}|<br/>Restoration: +{{{wisscaling}}} / 40}}<!--
+-->{{#if:{{{chascaling|}}}|<br/>Mind: +{{{chascaling}}} / 40}}<!--
+-->{{#if:{{{resistscaling|}}}|<br/>Resist Scaling: {{{resistscaling}}} / 40}}<!--
+-->{{#if:{{{mitigationscaling|}}}|<br/>Mitigation Scaling: +{{{mitigationscaling}}}%}}<!--
+--></div><!--
+--><div class="item-tooltip-charm-explanation">Charms do not increase stats, they modify how effectively your character utilizes stats.</div><!--
+--></div></includeonly><noinclude>
+== Template:Item/CharmScaling ==
+
+Displays charm scaling modifiers. Only shows scaling types that are provided.
+
+=== Parameters ===
+
+All parameters are optional.
+
+{| class="wikitable"
+! Parameter !! Description
+|-
+| '''strscaling''' || Strength scaling modifier (0-40)
+|-
+| '''endscaling''' || Endurance scaling modifier (0-40)
+|-
+| '''dexscaling''' || Dexterity scaling modifier (0-40)
+|-
+| '''agiscaling''' || Agility scaling modifier (0-40)
+|-
+| '''intscaling''' || Intelligence scaling modifier (0-40)
+|-
+| '''wisscaling''' || Wisdom scaling modifier (0-40)
+|-
+| '''chascaling''' || Charisma scaling modifier (0-40)
+|-
+| '''resistscaling''' || Resist scaling modifier (0-40, no + sign)
+|-
+| '''mitigationscaling''' || Mitigation scaling modifier (shown as %)
+|}
+
+=== Example ===
+
+'''Code:'''
+<pre>
+{{Item/CharmScaling
+|strscaling=5
+|endscaling=3
+|intscaling=10
+}}
+</pre>
+
+'''Result:'''
+
+{{Item/CharmScaling
+|strscaling=5
+|endscaling=3
+|intscaling=10
+}}
+
+----
+
+=== See Also ===
+
+* [[Template:Item/Charm]] - Full charm tooltip
+
+[[Category:Item Tooltip Templates]]
+</noinclude>

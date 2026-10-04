@@ -1,0 +1,10 @@
+{{Character
+|stablekey=character:captain_rowan
+|name=Keyed Elite Fixture
+|image=Keyed Elite Fixture.png
+|type=Elite
+|faction=Keyed Faction
+|level=31
+|health=777
+|zones=Keyed Zone
+}}

@@ -1,7 +1,0 @@
-{{Quest
-|stablekey=quest:magical_sword
-|title=Manual Quest Title
-|location=Manual Location
-|factionchanges=-
-|items=Manual Reward
-}}

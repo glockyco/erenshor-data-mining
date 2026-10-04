@@ -377,7 +377,7 @@ def upload(
         # Dry-run to preview
         erenshor images upload --changed-only --dry-run
     """
-    from erenshor.infrastructure.wiki.client import MediaWikiAPIError, MediaWikiClient
+    from erenshor.infrastructure.wiki.client import MediaWikiAPIError, MediaWikiClient, MediaWikiEditConflictError
 
     console = Console()
     cli_ctx: CLIContext = ctx.obj
@@ -556,7 +556,7 @@ def upload(
             progress.advance(task)
 
     # Create redirect pages for sanitized filenames
-    redirect_stats = {"created": 0, "failed": 0}
+    redirect_stats = {"created": 0, "existing": 0, "failed": 0}
     redirect_errors: list[tuple[str, str]] = []  # (original_name, error_message)
 
     if redirects_to_create:
@@ -587,14 +587,19 @@ def upload(
                     redirect_content = f"#REDIRECT [[{redirect_target}]]"
 
                     try:
-                        client.edit_page(
+                        client.safe_create_page(
                             title=redirect_title,
                             content=redirect_content,
+                            start_timestamp=client.get_edit_start_timestamp(assertion="bot"),
                             summary="Automated redirect for sanitized filename",
                             minor=True,
                             bot=True,
+                            assertion="bot",
                         )
                         redirect_stats["created"] += 1
+                    except MediaWikiEditConflictError:
+                        # The page exists: an earlier run created it, or it holds other text.
+                        redirect_stats["existing"] += 1
                     except MediaWikiAPIError as e:
                         redirect_stats["failed"] += 1
                         error_msg = str(e)
@@ -606,6 +611,8 @@ def upload(
             # Print redirect summary
             console.print()
             console.print(f"[green]✓ Redirects created: {redirect_stats['created']}[/green]")
+            if redirect_stats["existing"] > 0:
+                console.print(f"[dim]Redirect pages already present: {redirect_stats['existing']}[/dim]")
             if redirect_stats["failed"] > 0:
                 console.print(f"[red]✗ Redirects failed: {redirect_stats['failed']}[/red]")
                 console.print()

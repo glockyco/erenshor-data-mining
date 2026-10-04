@@ -4,7 +4,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 from erenshor.cli.preconditions.checks.inputs import option_path
-from erenshor.cli.preconditions.checks.wiki import interface_admin_credentials, wiki_deploy_inputs, wiki_endpoint
+from erenshor.cli.preconditions.checks.wiki import interface_admin_credentials, wiki_endpoint
 
 
 def test_option_path_requires_supplied_file_and_accepts_stdin(tmp_path: Path) -> None:
@@ -30,13 +30,3 @@ def test_wiki_endpoint_and_admin_credentials_preserve_missing_inputs() -> None:
     assert "interface-admin" in str(interface_admin_credentials(context))
     wiki.interface_username, wiki.interface_password = "admin", "secret"
     assert interface_admin_credentials(context).passed
-
-
-def test_wiki_deploy_checks_generated_database_or_selected_directory(tmp_path: Path) -> None:
-    context = {"database_path": tmp_path / "missing.sqlite", "from_dir": None}
-    assert not wiki_deploy_inputs(context).passed
-    assert str(context["database_path"]) in str(wiki_deploy_inputs(context))
-    source = tmp_path / "articles"
-    source.mkdir()
-    context["from_dir"] = str(source)
-    assert wiki_deploy_inputs(context).passed

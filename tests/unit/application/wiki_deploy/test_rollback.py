@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -30,6 +31,7 @@ class RecordingRollbackClient:
             revision_id=self.current_revision_id,
             timestamp="2026-06-04T13:00:00Z",
             start_timestamp="2026-06-04T13:01:00Z",
+            user="ErenshorBot",
         )
 
     def safe_edit_page(
@@ -209,3 +211,23 @@ def test_rollback_reports_created_pages_for_manual_deletion(tmp_path: Path) -> N
     assert result.created_titles == ("Module:Erenshor/Data/Items",)
     # The created page is never edited back to anything.
     assert [edit[0] for edit in client.safe_edits] == ["Template:Item"]
+
+
+def test_rollback_skips_pages_that_a_stopped_deploy_never_wrote(tmp_path: Path) -> None:
+    """A prepared entry without a new revision was never written, so rollback leaves its page alone."""
+    _write_rollback_text(tmp_path)
+    [entry] = _edited_manifest().entries
+    manifest = RepoWikiPageManifest(entries=(replace(entry, new_revision_id=None),))
+    client = RecordingRollbackClient(current_revision_id=777)
+
+    result = rollback_repo_pages(
+        manifest=manifest,
+        repo_root=tmp_path,
+        client=client,
+        summary="Rollback repo-owned wiki deploy",
+        assertion="bot",
+    )
+
+    assert result.entries == ()
+    assert client.revision_requests == []
+    assert client.safe_edits == []

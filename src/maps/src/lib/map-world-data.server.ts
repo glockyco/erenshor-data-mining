@@ -136,7 +136,7 @@ export async function buildMapWorldData(
     // Add enemy info to zone positions
     const zonePositions: ZoneWorldPosition[] = zonePositionsBase.map((zone) => ({
         ...zone,
-        enemyInfo: zoneEnemyInfoMap.get(zone.key) ?? { levelRange: null, bosses: [], elites: [] }
+        enemyInfo: zoneEnemyInfoMap.get(zone.key) ?? { levelRange: null, bosses: [], elites: [], chests: [] }
     }));
 
     // Calculate world bounds from all zone bounds
@@ -166,6 +166,7 @@ export async function buildMapWorldData(
     const enemiesEnemy: WorldEnemy[] = [];
     const enemiesElite: WorldEnemy[] = [];
     const enemiesBoss: WorldEnemy[] = [];
+    const enemiesChest: WorldEnemy[] = [];
     const teleports: WorldTeleport[] = [];
     const treasureLocs: WorldTreasureLoc[] = [];
     const water: WorldWater[] = [];
@@ -238,6 +239,8 @@ export async function buildMapWorldData(
                     enemiesBoss.push(enemyMarker);
                 } else if (enemyMarker.encounterTier === 'elite') {
                     enemiesElite.push(enemyMarker);
+                } else if (enemyMarker.encounterTier === 'chest') {
+                    enemiesChest.push(enemyMarker);
                 } else {
                     enemiesEnemy.push(enemyMarker);
                 }
@@ -275,7 +278,8 @@ export async function buildMapWorldData(
             const destEnemyInfo = zoneEnemyInfoMap.get(marker.destinationZone) ?? {
                 levelRange: null,
                 bosses: [],
-                elites: []
+                elites: [],
+                chests: []
             };
 
             zoneLines.push({
@@ -506,13 +510,11 @@ export async function buildMapWorldData(
         }
     }
 
-    // Compute overall enemy level range for filter bounds
-    // Compute level range from non-invulnerable characters only, so that
-    // placeholder levels (e.g. level 99 on invulnerable guards) do not
-    // distort the slider bounds.
+    // Compute level filter bounds for hostile and chest spawn markers.
+    // Ignore invulnerable characters so placeholder levels do not distort the slider.
     let enemyLevelMin = Infinity;
     let enemyLevelMax = -Infinity;
-    for (const enemies of [enemiesEnemy, enemiesElite, enemiesBoss]) {
+    for (const enemies of [enemiesEnemy, enemiesElite, enemiesBoss, enemiesChest]) {
         for (const enemy of enemies) {
             const hasVulnerable = enemy.characters.some((c) => !c.isInvulnerable);
             if (!hasVulnerable) continue;
@@ -520,7 +522,7 @@ export async function buildMapWorldData(
             enemyLevelMax = Math.max(enemyLevelMax, enemy.levelMax);
         }
     }
-    // Fallback if no vulnerable enemies found
+    // Fallback if no vulnerable encounters are found
     if (!isFinite(enemyLevelMin)) enemyLevelMin = 1;
     if (!isFinite(enemyLevelMax)) enemyLevelMax = 100;
 
@@ -528,7 +530,7 @@ export async function buildMapWorldData(
     // purposes, so they always pass the DataFilterExtension regardless of
     // slider position. levelMin/levelMax on WorldEnemy are filter-only;
     // character.level is the source of truth for display.
-    for (const enemies of [enemiesEnemy, enemiesElite, enemiesBoss]) {
+    for (const enemies of [enemiesEnemy, enemiesElite, enemiesBoss, enemiesChest]) {
         for (const enemy of enemies) {
             const allInvulnerable = enemy.characters.every((c) => c.isInvulnerable);
             if (!allInvulnerable) continue;
@@ -544,9 +546,10 @@ export async function buildMapWorldData(
     enemiesEnemy.sort(enabledLast);
     enemiesElite.sort(enabledLast);
     enemiesBoss.sort(enabledLast);
+    enemiesChest.sort(enabledLast);
 
-    // Preload searchable enemies whose runtime-selected spawn points cannot be
-    // represented as map markers.
+    // Preload searchable characters whose runtime-selected spawn points cannot
+    // be represented as map markers.
     const unlocatedEnemies = await repo.getUnlocatedEnemies();
 
     // Preload item metadata and acquisition sources for the map search index
@@ -565,6 +568,7 @@ export async function buildMapWorldData(
             enemiesEnemy,
             enemiesElite,
             enemiesBoss,
+            enemiesChest,
             forges,
             itemBags,
             miningNodes,

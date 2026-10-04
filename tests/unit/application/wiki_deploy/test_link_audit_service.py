@@ -61,9 +61,13 @@ class FakeClient:
         self.mutated = True
         raise AssertionError("link audit must not login")
 
-    def edit_page(self, *args: object, **kwargs: object) -> None:
+    def safe_edit_page(self, *args: object, **kwargs: object) -> int:
         self.mutated = True
         raise AssertionError("link audit must not edit")
+
+    def safe_create_page(self, *args: object, **kwargs: object) -> int:
+        self.mutated = True
+        raise AssertionError("link audit must not create pages")
 
 
 def test_offline_audit_does_not_need_or_call_a_client() -> None:

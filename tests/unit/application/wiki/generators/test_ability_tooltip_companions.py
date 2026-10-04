@@ -1,4 +1,4 @@
-"""Focused contracts for generated legacy ability companion templates."""
+"""Focused contracts for generated ability and stance roots and their companions."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ def _render(template_name: str, **context: str) -> str:
     return ItemSectionGenerator().render_template(template_name, context)
 
 
-def test_ability_template_keeps_unkeyed_root_and_appends_keyed_spell_companion() -> None:
+def test_ability_template_keys_its_root_and_appends_keyed_spell_companion() -> None:
     text = _render(
         "ability.jinja2",
         title="Minor Lightning",
@@ -23,7 +23,7 @@ def test_ability_template_keeps_unkeyed_root_and_appends_keyed_spell_companion()
     root = text[:root_end]
     companion = text[root_end:].strip()
     assert root.startswith("{{Ability")
-    assert "stablekey" not in root
+    assert "|stablekey=spell:minor_lightning\n" in root
     assert companion == "{{SpellTooltip|stablekey=spell:minor_lightning}}"
 
 
@@ -40,7 +40,7 @@ def test_ability_template_emits_skill_companion_for_skill_context() -> None:
     assert text.count("{{SpellTooltip") == 0
 
 
-def test_stance_template_keeps_unkeyed_root_and_appends_one_keyed_companion() -> None:
+def test_stance_template_keys_its_root_and_appends_one_keyed_companion() -> None:
     text = _render(
         "stance.jinja2",
         title="Aggressive",
@@ -51,7 +51,7 @@ def test_stance_template_keeps_unkeyed_root_and_appends_one_keyed_companion() ->
     root = text[:root_end]
     companion = text[root_end:].strip()
     assert root.startswith("{{Stance")
-    assert "stablekey" not in root
+    assert "|stablekey=stance:aggressive\n" in root
     assert companion == "{{StanceTooltip|stablekey=stance:aggressive}}"
 
 

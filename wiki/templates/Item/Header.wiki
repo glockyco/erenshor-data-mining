@@ -1,0 +1,62 @@
+<includeonly>{| class="item-tooltip-header"
+|-
+| class="item-tooltip-icon-cell" | {{{icon|}}}
+| class="item-tooltip-name-cell" | <div class="item-tooltip-name item-tooltip-tier-{{{tier|0}}}">{{{name|}}}</div><!--
+-->{{#if:{{{type|}}}|<div class="item-tooltip-type">{{{type}}}</div>}}<!--
+-->{{#if:{{{relic|}}}|<div class="item-tooltip-relic">Relic Item</div>}}
+|}</includeonly><noinclude>
+== Template:Item/Header ==
+
+Displays the header section of an item tooltip, including:
+* Item icon with quality tier sparkle effect
+* Item name with tier-based coloring
+* Item type/slot
+* Relic flag (if applicable)
+
+=== Parameters ===
+
+{| class="wikitable"
+! Parameter !! Required !! Default !! Description
+|-
+| '''icon''' || Yes || || The item icon image (use {{tl|SparkleIcon}} for quality tiers)
+|-
+| '''name''' || Yes || || The display name of the item
+|-
+| '''tier''' || No || 0 || Quality tier: 0 = Normal (white), 1 = Blessed (cyan), 2 = Godly (purple)
+|-
+| '''type''' || No || || Item type or slot (e.g., "Primary - 2-Handed", "Chest")
+|-
+| '''relic''' || No || || Set to any value to display "Relic Item" tag
+|}
+
+=== Example ===
+
+'''Code:'''
+<pre>
+{{Item/Header
+|icon=[[File:Copper Sword.png|80px]]
+|name=Blessed Copper Sword
+|tier=1
+|type=Primary - 1-Handed
+}}
+</pre>
+
+'''Result:'''
+
+{{Item/Header
+|icon=[[File:Copper Sword.png|80px]]
+|name=Blessed Copper Sword
+|tier=1
+|type=Primary - 1-Handed
+}}
+
+----
+
+=== See Also ===
+
+* [[Template:Item/Weapon]] - Full weapon tooltip
+* [[Template:Item/Armor]] - Full armor tooltip
+* [[Template:SparkleIcon]] - Icon with quality sparkle effect
+
+[[Category:Item Tooltip Templates]]
+</noinclude>

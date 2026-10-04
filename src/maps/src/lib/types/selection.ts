@@ -137,6 +137,7 @@ function getSearchBorderColor(result: SearchResult): string {
         case 'enemy':
             if (result.encounterTier === 'boss') return 'border-l-violet-700';
             if (result.encounterTier === 'elite') return 'border-l-rose-600';
+            if (result.encounterTier === 'chest') return 'border-l-teal-600';
             return 'border-l-amber-600';
         case 'npc':
             return 'border-l-sky-500';
@@ -151,6 +152,7 @@ function getMarkerBorderColor(marker: AnyWorldMarker): string {
     if (marker.category === 'enemy') {
         if (marker.encounterTier === 'boss') return 'border-l-violet-700';
         if (marker.encounterTier === 'elite') return 'border-l-rose-600';
+        if (marker.encounterTier === 'chest') return 'border-l-teal-600';
         return 'border-l-amber-600';
     }
 
@@ -172,10 +174,13 @@ function getLiveEntityBorderColor(entity: EntityData, encounterTierByName: Reado
             return 'border-l-fuchsia-500';
         case 'npc_friendly':
             return 'border-l-emerald-500';
-        case 'npc_enemy':
-            if (resolveLiveEncounterTier(entity, encounterTierByName) === 'boss') return 'border-l-zinc-900';
-            if (resolveLiveEncounterTier(entity, encounterTierByName) === 'elite') return 'border-l-red-500';
+        case 'npc_enemy': {
+            const tier = resolveLiveEncounterTier(entity, encounterTierByName);
+            if (tier === 'boss') return 'border-l-zinc-900';
+            if (tier === 'elite') return 'border-l-red-500';
+            if (tier === 'chest') return 'border-l-teal-500';
             return 'border-l-orange-500';
+        }
         default:
             return 'border-l-gray-400';
     }

@@ -198,48 +198,28 @@ class TestMediaWikiConfig:
         """Test that MediaWikiConfig has correct default values."""
         config = MediaWikiConfig()
         assert "erenshor.wiki.gg" in config.api_url
-        assert config.api_batch_size == 25
-        assert config.api_delay == 1.0
         assert config.upload_batch_size == 10
-        assert config.upload_delay == 1.0
         assert config.upload_edit_summary == "Automated wiki update"
         assert config.upload_minor_edit is True
         assert config.bot_username == ""
         assert config.bot_password == ""
         assert config.interface_username == ""
         assert config.interface_password == ""
+        assert config.max_page_bytes == 4194304
 
     def test_batch_size_constraints(self):
-        """Test that batch sizes respect min/max constraints."""
-        # Valid values
-        MediaWikiConfig(api_batch_size=1)  # Min
-        MediaWikiConfig(api_batch_size=50)  # Max
-        MediaWikiConfig(upload_batch_size=1)  # Min
-        MediaWikiConfig(upload_batch_size=50)  # Max
-
-        # Too low
+        """Test that upload batch sizes respect min/max constraints."""
+        MediaWikiConfig(upload_batch_size=1)
+        MediaWikiConfig(upload_batch_size=50)
         with pytest.raises(ValidationError):
-            MediaWikiConfig(api_batch_size=0)
-
-        # Too high
+            MediaWikiConfig(upload_batch_size=0)
         with pytest.raises(ValidationError):
-            MediaWikiConfig(api_batch_size=51)
+            MediaWikiConfig(upload_batch_size=51)
 
-    def test_delay_constraints(self):
-        """Test that delays respect min/max constraints."""
-        # Valid values
-        MediaWikiConfig(api_delay=0.0)  # Min
-        MediaWikiConfig(api_delay=10.0)  # Max
-        MediaWikiConfig(upload_delay=0.0)  # Min
-        MediaWikiConfig(upload_delay=10.0)  # Max
-
-        # Too low
+    def test_page_limit_must_be_positive(self):
+        """A zero byte limit cannot hold a wiki page."""
         with pytest.raises(ValidationError):
-            MediaWikiConfig(api_delay=-0.1)
-
-        # Too high
-        with pytest.raises(ValidationError):
-            MediaWikiConfig(upload_delay=10.1)
+            MediaWikiConfig(max_page_bytes=0)
 
     def test_custom_credentials(self):
         """Test setting custom bot credentials."""

@@ -23,7 +23,7 @@ export function computeChipCounts(
     liveTotal = liveCount
 ): Map<string, ChipCount> {
     const counts = new Map<string, ChipCount>();
-    const staticCategories: SearchCategory[] = ['item', 'enemy', 'npc', 'zone'];
+    const staticCategories: SearchCategory[] = ['item', 'enemy', 'chest', 'npc', 'zone'];
     const staticVisible = staticCategories.reduce(
         (sum, category) => sum + response.categories[category].matches.length,
         0
@@ -71,6 +71,7 @@ export const CHIP_CONFIG: { key: Category; label: string }[] = [
     { key: 'live', label: 'Live' },
     { key: 'item', label: 'Items' },
     { key: 'enemy', label: 'Enemies' },
+    { key: 'chest', label: 'Chests' },
     { key: 'npc', label: 'NPCs' },
     { key: 'zone', label: 'Zones' }
 ];

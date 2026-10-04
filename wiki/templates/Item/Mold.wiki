@@ -1,0 +1,85 @@
+<includeonly>{| class="item-tooltip item-tooltip-crafting"
+|
+{{Item/Header
+ |icon=[[File:{{{image}}}|80px]]
+ |name={{{name}}}
+ |tier=0
+}}
+{| class="item-tooltip-body"
+|-
+| |
+<div class="item-tooltip-crafting-container"><!--
+-->{{#if:{{{ingredients|}}}|<div class="item-tooltip-crafting-ingredients"><div class="item-tooltip-crafting-header">Ingredients:</div>{{{ingredients}}}</div>}}<!--
+-->{{#if:{{{rewards|}}}|<div class="item-tooltip-crafting-rewards"><div class="item-tooltip-crafting-header">Creates:</div>{{{rewards}}}</div>}}<!--
+-->{{#if:{{{station|}}}|<div class="item-tooltip-muted">Requires: {{{station}}}</div>}}<!--
+--><div class="item-tooltip-crafting-notes"><!--
+--><div>Note: Ingredients MUST be exact quantities</div><!--
+--><div>Use CTRL + CLICK to separate stacks.</div><!--
+--></div><!--
+--></div>
+|}
+|}
+{{Item/Categories
+ |item_type=mold
+}}</includeonly><noinclude>
+== Template:Item/Mold ==
+
+Template for displaying crafting mold tooltips.
+
+=== Parameters ===
+
+{| class="wikitable"
+! Parameter !! Required !! Description
+|-
+| '''image''' || Yes || Item icon image filename
+|-
+| '''name''' || Yes || Mold name
+|-
+| '''description''' || No || Flavor text
+|-
+| '''ingredients''' || No || Required ingredients (formatted list)
+|-
+| '''rewards''' || No || Created items (formatted list)
+|-
+| '''station''' || No || Required crafting station
+|}
+
+=== Example ===
+
+'''Code:'''
+<pre>
+{{Item/Mold
+|image=Mold: A Ceremonial Ring.png
+|name=Mold: A Ceremonial Ring
+|ingredients=1x [[Chunk of Copper Ore]]<br/>1x [[Sivakayan Horn]]<br/>1x [[Luminstone]]<br/>1x [[Sivakrux]]
+|rewards=1x [[Ceremonial Ring]]
+|station=Forge
+}}
+</pre>
+
+'''Result:'''
+
+{{Item/Mold
+|image=Mold: A Ceremonial Ring.png
+|name=Mold: A Ceremonial Ring
+|ingredients=1x [[Chunk of Copper Ore]]<br/>1x [[Sivakayan Horn]]<br/>1x [[Luminstone]]<br/>1x [[Sivakrux]]
+|rewards=1x [[Ceremonial Ring]]
+|station=Forge
+}}
+
+----
+
+=== Sub-templates Used ===
+
+* [[Template:Item/Header]] - Icon and name display
+* [[Template:Item/Categories]] - Auto-categorization
+
+----
+
+=== See Also ===
+
+* [[Template:Item/General]] - General item tooltip
+* [[:Category:Molds]] - Molds category
+
+[[Category:Item Tooltip Templates]]
+</noinclude>

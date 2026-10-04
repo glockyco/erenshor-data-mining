@@ -21,6 +21,7 @@ from loguru import logger
 
 from erenshor.application.wiki.generators.formatting import format_description, safe_str
 from erenshor.application.wiki.generators.item_type_display import build_item_types
+from erenshor.application.wiki.generators.link_lists import format_chance_links, format_links, format_visible_links
 from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
 from erenshor.domain.entities.item_kind import ItemKind, classify_item_kind
 from erenshor.domain.value_objects.wiki_link import AbilityLink
@@ -623,56 +624,42 @@ class ItemSectionGenerator(SectionGeneratorBase):
         if not enriched.sources or not enriched.sources.item_drops:
             return ""
         pool = [
-            (link.display_name.lower(), str(link))
+            link
             for link, _probability, is_guaranteed in enriched.sources.item_drops
             if is_guaranteed and link.page_title is not None
         ]
-        pool.sort(key=lambda entry: entry[0])
-        return "<br>".join(markup for _, markup in pool)
+        pool.sort(key=lambda link: link.display_name.lower())
+        return format_links(pool)
 
     def _format_drop_rates(self, enriched: EnrichedItemData) -> str:
         """Format container drop rates from pre-built ItemLink objects."""
         if not enriched.sources or not enriched.sources.item_drops:
             return ""
         rates = [
-            f"{link!s} ({probability:.0f}%)"
+            (link, probability)
             for link, probability, _is_guaranteed in enriched.sources.item_drops
             if link.page_title is not None
         ]
-        return "<br>".join(rates)
+        return format_chance_links(rates, decimals=0)
 
     def _format_vendor_sources(self, enriched: EnrichedItemData) -> str:
         """Format vendor sources from pre-built CharacterLink objects."""
         if not enriched.sources or not enriched.sources.vendors:
             return ""
-        visible = [link for link in enriched.sources.vendors if link.page_title is not None]
-        visible.sort()
-        seen: set[str] = set()
-        result = []
-        for link in visible:
-            s = str(link)
-            if s not in seen:
-                seen.add(s)
-                result.append(s)
-        return "<br>".join(result)
+        return format_visible_links(enriched.sources.vendors)
 
     def _format_drop_sources(self, enriched: EnrichedItemData) -> str:
         """Format drop sources from pre-built WikiLink objects with probabilities.
 
-        Special world drops follow the named droppers as plain text, because
-        any loot-table kill above the level gate can roll them.
+        Droppers that share a page and a label form one entry, highest chance
+        first. Special world drops follow the named droppers as plain text,
+        because any loot-table kill above the level gate can roll them.
         """
         if not enriched.sources:
             return ""
         drop_data = [(link, prob) for link, prob in enriched.sources.drops if link.page_title is not None]
         drop_data.sort(key=lambda x: (-x[1], x[0]))
-        seen: set[tuple[str, float]] = set()
-        result = []
-        for link, probability in drop_data:
-            key = (str(link), probability)
-            if key not in seen:
-                seen.add(key)
-                result.append(f"{link!s} ({probability:.1f}%)")
+        result = [format_chance_links(drop_data, decimals=1)] if drop_data else []
         for drop in enriched.sources.world_drops:
             enemies = (
                 f"Any enemy above level {drop.min_level_exclusive}" if drop.min_level_exclusive > 0 else "Any enemy"
@@ -685,28 +672,10 @@ class ItemSectionGenerator(SectionGeneratorBase):
         """Format quest reward and requirement sources from pre-built QuestLink objects."""
         if not enriched.sources:
             return ("", "")
-
-        reward_links = [link for link in enriched.sources.quest_rewards if link.page_title is not None]
-        reward_links.sort()
-        seen_r: set[str] = set()
-        rewards_result = []
-        for link in reward_links:
-            s = str(link)
-            if s not in seen_r:
-                seen_r.add(s)
-                rewards_result.append(s)
-
-        req_links = [link for link in enriched.sources.quest_requirements if link.page_title is not None]
-        req_links.sort()
-        seen_q: set[str] = set()
-        reqs_result = []
-        for link in req_links:
-            s = str(link)
-            if s not in seen_q:
-                seen_q.add(s)
-                reqs_result.append(s)
-
-        return ("<br>".join(rewards_result), "<br>".join(reqs_result))
+        return (
+            format_visible_links(enriched.sources.quest_rewards),
+            format_visible_links(enriched.sources.quest_requirements),
+        )
 
     def _format_crafting_sources(self, enriched: EnrichedItemData) -> tuple[str, str]:
         """Format crafting sources from pre-built ItemLink tuples."""

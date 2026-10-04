@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Null-edit local wiki fixture pages so Cargo rows and parser output refresh."""
+"""Null-edit local wiki fixture pages to refresh parser output."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ def api_url(base_url: str) -> str:
 
 
 def load_titles(*paths: Path) -> list[str]:
-    """Load unique article titles from rendered and Cargo smoke fixtures."""
+    """Load unique article titles from smoke fixtures."""
     titles: set[str] = set()
     for path in paths:
         titles.update(_load_first_column(path))
@@ -100,7 +100,7 @@ def page_source(client: httpx.Client, endpoint: str, title: str) -> tuple[str, s
 
 
 def null_edit_page(client: httpx.Client, endpoint: str, token: str, title: str) -> None:
-    """Submit the current page source unchanged to refresh parser/Cargo state."""
+    """Submit the current page source unchanged to refresh parser state."""
     content, timestamp = page_source(client, endpoint, title)
     response = client.post(
         endpoint,
@@ -158,27 +158,9 @@ def main() -> None:
     parser.add_argument("--username", default="WikiSysop", help="Local wiki username")
     parser.add_argument("--password", default="DevWikiPassword-2026", help="Local wiki password")
     parser.add_argument("--smoke", type=Path, default=Path("wiki-dev/fixtures/smoke.tsv"))
-    parser.add_argument("--cargo-items", type=Path, default=Path("wiki-dev/fixtures/cargo_items.tsv"))
-    parser.add_argument("--cargo-characters", type=Path, default=Path("wiki-dev/fixtures/cargo_characters.tsv"))
-    parser.add_argument("--cargo-spells", type=Path, default=Path("wiki-dev/fixtures/cargo_spells.tsv"))
-    parser.add_argument("--cargo-skills", type=Path, default=Path("wiki-dev/fixtures/cargo_skills.tsv"))
-    parser.add_argument("--cargo-stances", type=Path, default=Path("wiki-dev/fixtures/cargo_stances.tsv"))
-    parser.add_argument(
-        "--cargo-ability-classes",
-        type=Path,
-        default=Path("wiki-dev/fixtures/cargo_ability_classes.tsv"),
-    )
     args = parser.parse_args()
 
-    titles = load_titles(
-        args.smoke,
-        args.cargo_items,
-        args.cargo_characters,
-        args.cargo_spells,
-        args.cargo_skills,
-        args.cargo_stances,
-        args.cargo_ability_classes,
-    )
+    titles = load_titles(args.smoke)
     endpoint = api_url(args.base_url)
     with httpx.Client(timeout=30.0) as client:
         login(client, endpoint, args.username, args.password)

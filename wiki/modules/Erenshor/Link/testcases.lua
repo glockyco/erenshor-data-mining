@@ -376,6 +376,8 @@ function p.run()
 	assertContains(quest, "erenshor-link erenshor-link--quest", "quest link has semantic class")
 	assertNotContains(quest, "[[File:", "quest link has no synthetic icon")
 	assertContains(quest, "[[Reward Quest]]", "quest link has page link")
+	local legacyQuest = Link.render({ kind = "quest", questlink = "Reward Quest" })
+	assertContains(legacyQuest, "[[Reward Quest]]", "legacy questlink parameter links its page")
 
 	local character = Link.render({ kind = "character", page = "A Grizzly Bear" })
 	assertContains(

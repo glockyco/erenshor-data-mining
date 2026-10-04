@@ -150,8 +150,8 @@ class SectionGeneratorBase(ABC):
             TemplateRenderError: If rendering fails
 
         Example:
-            >>> context = {"name": "Sword", "damage": 10}
-            >>> wikitext = self.render_template("weapon.jinja2", context)
+            >>> context = {"name": "Sword", "image": "Sword.png"}
+            >>> wikitext = self.render_template("item.jinja2", context)
         """
         try:
             template = self._jinja_env.get_template(template_name)

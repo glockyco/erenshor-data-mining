@@ -1,34 +1,4 @@
-<includeonly>{{#if:{{{stablekey|}}}|<infobox type="Stances">
-    <title><default>{{#invoke:Erenshor/Stance|field|title}}</default></title>
-    <image><default>{{#invoke:Erenshor/Stance|field|image}}</default><caption><default>{{#invoke:Erenshor/Stance|field|imagecaption}}</default></caption></image>
-
-    <data><label>Description</label><default>{{#invoke:Erenshor/Stance|field|description}}</default></data>
-    <data><label>Switch Message</label><default>{{#invoke:Erenshor/Stance|field|switch_message}}</default></data>
-
-    <group collapse="open">
-        <header>Combat Modifiers</header>
-        <data><label>Physical Damage</label><default>{{#invoke:Erenshor/Stance|field|damage_mod}}</default></data>
-        <data><label>Spell Damage</label><default>{{#invoke:Erenshor/Stance|field|spell_damage_mod}}</default></data>
-        <data><label>Damage Taken</label><default>{{#invoke:Erenshor/Stance|field|damage_taken_mod}}</default></data>
-        <data><label>Max HP</label><default>{{#invoke:Erenshor/Stance|field|max_hp_mod}}</default></data>
-        <data><label>Proc Rate</label><default>{{#invoke:Erenshor/Stance|field|proc_rate_mod}}</default></data>
-        <data><label>Aggro Generation</label><default>{{#invoke:Erenshor/Stance|field|aggro_gen_mod}}</default></data>
-    </group>
-
-    <group collapse="open">
-        <header>Special Effects</header>
-        <data><label>Self Damage per Attack</label><default>{{#invoke:Erenshor/Stance|field|self_damage_per_attack}}</default></data>
-        <data><label>Self Damage per Cast</label><default>{{#invoke:Erenshor/Stance|field|self_damage_per_cast}}</default></data>
-        <data><label>Lifesteal</label><default>{{#invoke:Erenshor/Stance|field|lifesteal_amount}}</default></data>
-        <data><label>Resonance</label><default>{{#invoke:Erenshor/Stance|field|resonance_amount}}</default></data>
-        <data><label>Stops Regeneration</label><default>{{#invoke:Erenshor/Stance|field|stop_regen}}</default></data>
-    </group>
-
-    <group collapse="open">
-        <header>Acquisition</header>
-        <data><label>Activated by</label><default>{{#invoke:Erenshor/Stance|field|activated_by}}</default></data>
-    </group>
-</infobox>{{#invoke:Erenshor/Stance|cargoStore}}{{#invoke:Erenshor/Stance|status}}{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Stances]]}}|<infobox type="Stances">
+<includeonly><infobox type="Stances">
     <title source="title"/>
     <image source="image"><caption source="imagecaption"/></image>
 
@@ -49,7 +19,7 @@
         <header>Special Effects</header>
         <data source="self_damage_per_attack"><label>Self Damage per Attack</label><format>{{{self_damage_per_attack|}}}% max HP</format></data>
         <data source="self_damage_per_cast"><label>Self Damage per Cast</label><format>{{{self_damage_per_cast|}}}</format></data>
-        <data source="lifesteal_amount"><label>Lifesteal</label><format>{{{lifesteal_amount|}}}%</format></data>
+        <data source="lifesteal_amount"><label>Lifesteal</label><format>{{#ifexpr: {{{lifesteal_amount|1}}} = 1 | — |{{#ifexpr: {{{lifesteal_amount|1}}} > 1 |+}}{{#expr: ({{{lifesteal_amount|1}}} - 1) * 100 round 0}}%}}</format></data>
         <data source="resonance_amount"><label>Resonance</label><format>{{#ifexpr: {{{resonance_amount|1}}} = 1 | — |{{#ifexpr: {{{resonance_amount|1}}} > 1 |+}}{{#expr: ({{{resonance_amount|1}}} - 1) * 100 round 0}}%}}</format></data>
         <data source="stop_regen"><label>Stops Regeneration</label><format>{{#ifeq:{{{stop_regen|}}}|1|Yes}}</format></data>
     </group>
@@ -58,24 +28,7 @@
         <header>Acquisition</header>
         <data source="activated_by"><label>Activated by</label></data>
     </group>
-</infobox>{{#ifeq: {{NAMESPACENUMBER}} | 0 | [[Category:Stances]]}}}}</includeonly><noinclude>{{#cargo_declare:_table=Stances
-|StableKey=String
-|Page=Page
-|Name=String
-|Image=File
-|MaxHpMod=Float
-|DamageMod=Float
-|ProcRateMod=Float
-|DamageTakenMod=Float
-|SelfDamagePerAttack=Float
-|AggroGenMod=Float
-|SpellDamageMod=Float
-|SelfDamagePerCast=Float
-|LifestealAmount=Float
-|ResonanceAmount=Float
-|StopRegen=Boolean
-}}
-
+</infobox>{{#ifeq: {{NAMESPACENUMBER}} | 0 | [[Category:Stances]]}}</includeonly><noinclude>
 == Template:Stance ==
 
 Infobox template for displaying combat stance information. Stances are toggleable
@@ -121,7 +74,7 @@ an em dash (—) to indicate no change.
 |-
 | '''self_damage_per_cast''' || No || float || HP lost per spell cast
 |-
-| '''lifesteal_amount''' || No || float || Lifesteal percentage per hit
+| '''lifesteal_amount''' || No || float || Lifesteal multiplier (same format as combat modifiers)
 |-
 | '''resonance_amount''' || No || float || Resonance multiplier (same format as combat modifiers)
 |-
@@ -214,43 +167,43 @@ an em dash (—) to indicate no change.
 
 ----
 
-==== Reckless Stance (extreme modifiers with self-damage) ====
+==== Expert Stance (physical and spell damage) ====
 
 '''Code:'''
 <pre>
 {{Stance
-|title=Reckless
-|image=[[File:Stance: Reckless.png|thumb]]
-|description=Deal 100% more melee and spell damage, but take 100% more damage from all incoming sources. This stance does 4% of your max HP in damage to you each time you swing your sword.
-|switch_message=shifts into a reckless combat stance
+|title=Expert
+|image=[[File:Stance: Expert.png|thumb]]
+|description=Gain a 33% increase to ALL damage dealt. Your focus on offense stops all natural health regeneration.
+|switch_message=shifts into an expert combat stance
 |max_hp_mod=1.0
-|damage_mod=2.0
-|damage_taken_mod=2.0
+|damage_mod=1.33
+|damage_taken_mod=1.0
 |proc_rate_mod=1.0
 |aggro_gen_mod=1.0
-|spell_damage_mod=1.0
-|self_damage_per_attack=4.0
+|spell_damage_mod=1.33
 |resonance_amount=1.0
-|activated_by={{AbilityLink|Stance: Reckless}}
+|stop_regen=1
+|activated_by={{AbilityLink|Stance: Expert}}
 }}
 </pre>
 
 '''Result:'''
 
 {{Stance
-|title=Reckless
-|image=[[File:Stance: Reckless.png|thumb]]
-|description=Deal 100% more melee and spell damage, but take 100% more damage from all incoming sources. This stance does 4% of your max HP in damage to you each time you swing your sword.
-|switch_message=shifts into a reckless combat stance
+|title=Expert
+|image=[[File:Stance: Expert.png|thumb]]
+|description=Gain a 33% increase to ALL damage dealt. Your focus on offense stops all natural health regeneration.
+|switch_message=shifts into an expert combat stance
 |max_hp_mod=1.0
-|damage_mod=2.0
-|damage_taken_mod=2.0
+|damage_mod=1.33
+|damage_taken_mod=1.0
 |proc_rate_mod=1.0
 |aggro_gen_mod=1.0
-|spell_damage_mod=1.0
-|self_damage_per_attack=4.0
+|spell_damage_mod=1.33
 |resonance_amount=1.0
-|activated_by={{AbilityLink|Stance: Reckless}}
+|stop_regen=1
+|activated_by={{AbilityLink|Stance: Expert}}
 }}
 
 ----
@@ -322,7 +275,7 @@ Percentages are rounded to the nearest integer.
 
 * '''Self Damage per Attack''': Displayed as "X% max HP" (value is already in percentage points)
 * '''Self Damage per Cast''': Displayed as raw value (flat HP cost)
-* '''Lifesteal''': Displayed as "X%"
+* '''Lifesteal''': Multiplier, same conversion as combat modifiers
 * '''Resonance''': Multiplier, same conversion as combat modifiers
 * '''Stops Regeneration''': Shows "Yes" when value is 1, hidden when 0 or blank
 

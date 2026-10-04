@@ -1,0 +1,49 @@
+<includeonly><div class="item-tooltip-vitals-column"><!--
+--><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Health</span> <span class="item-tooltip-stat-value">{{{health|0}}}</span></div><!--
+--><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Mana</span> <span class="item-tooltip-stat-value">{{{mana|0}}}</span></div><!--
+--><div class="item-tooltip-stats-row"><span class="item-tooltip-stat-label">Armor</span> <span class="item-tooltip-stat-value">{{{armor|0}}}</span></div><!--
+--></div></includeonly><noinclude>
+== Template:Item/Vitals ==
+
+Displays the vitals section (Health, Mana, Armor) of an item tooltip.
+
+=== Parameters ===
+
+{| class="wikitable"
+! Parameter !! Default !! Description
+|-
+| '''health''' || 0 || Health modifier
+|-
+| '''mana''' || 0 || Mana modifier
+|-
+| '''armor''' || 0 || Armor (AC) modifier
+|}
+
+=== Example ===
+
+'''Code:'''
+<pre>
+{{Item/Vitals
+|health=50
+|mana=25
+|armor=10
+}}
+</pre>
+
+'''Result:'''
+
+{{Item/Vitals
+|health=50
+|mana=25
+|armor=10
+}}
+
+----
+
+=== See Also ===
+
+* [[Template:Item/Stats]] - Character stat modifiers
+* [[Template:Item/Resists]] - Resistance percentages
+
+[[Category:Item Tooltip Templates]]
+</noinclude>

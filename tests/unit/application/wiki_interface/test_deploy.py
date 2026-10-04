@@ -67,6 +67,7 @@ class FakeInterfaceClient:
                 revision_id=page.revision_id,
                 timestamp=page.timestamp,
                 start_timestamp="2026-07-13T00:00:00Z",
+                user="ErenshorBot",
             )
             result[title] = MediaWikiPageSnapshot(title, page.text, revision, "2026-07-13T00:00:00Z")
         return result

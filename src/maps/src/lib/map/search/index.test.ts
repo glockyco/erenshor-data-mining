@@ -27,7 +27,7 @@ function item(name: string, stableKey: string): IndexEntry {
     };
 }
 
-function enemy(name: string, encounterTier: 'boss' | 'elite' | 'enemy' = 'enemy'): IndexEntry {
+function enemy(name: string, encounterTier: WorldEnemy['encounterTier'] = 'enemy'): IndexEntry {
     return {
         searchText: name.toLowerCase(),
         result: {
@@ -116,12 +116,16 @@ describe('searchMarkers', () => {
         const entries = [
             enemy('Wolf', 'enemy'),
             enemy('Wolf Champion', 'elite'),
-            enemy('Wolf King', 'boss')
+            enemy('Wolf King', 'boss'),
+            enemy('Wolf Cache', 'chest')
         ];
         const names = searchMarkers('wolf', entries).categories.enemy.matches.map((match) =>
             match.result.type === 'enemy' ? match.result.name : ''
         );
         expect(names).toEqual(['Wolf King', 'Wolf Champion', 'Wolf']);
+        expect(searchMarkers('wolf', entries).categories.chest.matches.map((match) =>
+            match.result.type === 'enemy' ? match.result.name : ''
+        )).toEqual(['Wolf Cache']);
     });
 
     it('does not index friendly characters at a mixed enemy spawn', () => {
@@ -132,7 +136,7 @@ describe('searchMarkers', () => {
                 { name: 'Wolf', encounterTier: 'elite' }
             ]
         } as WorldEnemy;
-        const provider = new EnemySearchProvider([marker], [], [], []);
+        const provider = new EnemySearchProvider([marker], [], [], [], []);
 
         expect(provider.buildIndex().map((entry) => entry.result.type === 'enemy' ? entry.result.name : '')).toEqual(['Wolf']);
         expect(provider.getResult('Wolf')?.encounterTier).toBe('elite');
