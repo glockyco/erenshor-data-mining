@@ -1,0 +1,13 @@
+{{ItemTooltip
+|kind=Armor
+|stablekey=item:effect_lines_fixture
+|image=Effect Lines Cloak
+|name=Effect Lines Cloak
+|slot=Back
+|armor=10
+|description=A cloak that tests how the effect lines line up.
+|paladin=True
+|proc_style=Activatable
+|proc_spell_name=Minor Lightning
+|must_equip=True
+}}

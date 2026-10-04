@@ -172,6 +172,8 @@ Semantic Tooltip Smoke	Ambiguous positional ability
 Semantic Tooltip Smoke	Abyssal Plate
 Tooltip Placement Fixture	Next table row
 Tooltip Placement Fixture	Right edge item
+Item Effect Lines Fixture	Must Equip to Cast
+Item Effect Lines Fixture	Right click or assign to hotkey to use.
 Historical Removed Skill	This skill is no longer in the game.
 Historical Removed Skill	Planar March
 Historical Removed Skill	July 13, 2026

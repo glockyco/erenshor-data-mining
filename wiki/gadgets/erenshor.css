@@ -549,15 +549,22 @@
   color: #a7abba;
   padding-top: 8px;
   line-height: 1.2;
+  text-align: center;
 }
 
-/* Worn/Activatable effect name in main tooltip */
+/* Worn/Activatable effect lines in the main tooltip. The game centers them
+   like the description above, and they show even without a description. */
 .item-tooltip-worn-name,
 .item-tooltip-activatable-name {
   color: #16EC00;
   font-weight: 600;
   margin-top: 8px;
   line-height: 1.2;
+  text-align: center;
+}
+
+.item-tooltip .item-spell-flag {
+  text-align: center;
 }
 
 /* ============================================================================
