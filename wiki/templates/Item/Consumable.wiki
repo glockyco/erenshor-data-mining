@@ -13,7 +13,6 @@
 -->{{#if:{{{effect_spell_name|}}}|<div class="item-tooltip-consumable-type">Activatable: {{{effect_spell_name}}}</div>}}<!--
 -->{{#if:{{{description|}}}|<div class="item-tooltip-description">{{{description}}}</div>}}<!--
 -->{{#if:{{{disposable|}}}|<div class="item-tooltip-consumable-usage">Item Consumed Upon Use.</div>}}<!--
---><div class="item-tooltip-consumable-usage">Right click or assign to hotkey to use.</div><!--
 --></div>
 |}
 |}<!--

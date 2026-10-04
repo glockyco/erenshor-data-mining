@@ -10,7 +10,7 @@
 |-
 | |
 {{#if:{{{description|}}}|<div class="item-tooltip-description">{{{description}}}<!--
--->{{#ifeq:{{{effect_style|}}}|Activatable|<div class="item-tooltip-activatable-name">Activatable: {{{effect_spell_name|}}}</div><div class="item-tooltip-proc-usage">Right click or assign to hotkey to use.{{#if:{{{disposable|}}}|<br>Item Consumed Upon Use.}}</div>}}</div>}}
+-->{{#ifeq:{{{effect_style|}}}|Activatable|<div class="item-tooltip-activatable-name">Activatable: {{{effect_spell_name|}}}</div>{{#if:{{{disposable|}}}|<div class="item-tooltip-proc-usage">Item Consumed Upon Use.</div>}}}}</div>}}
 |}
 |}<!--
 -->{{#if:{{{effect_spell_name|}}}|{{Item/SpellDetails

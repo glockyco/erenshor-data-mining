@@ -36,7 +36,7 @@ selectors => selectors.flatMap(selector =>
     [
         (
             "Item_Effect_Lines_Fixture",
-            [".item-tooltip-activatable-name", ".item-tooltip .item-spell-flag", ".item-tooltip-proc-usage"],
+            [".item-tooltip-activatable-name", ".item-tooltip .item-spell-flag"],
         ),
         ("Abyssal_Plate", [".item-tooltip-worn-name", ".item-tooltip-proc-usage"]),
     ],
