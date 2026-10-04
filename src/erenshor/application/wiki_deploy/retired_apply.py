@@ -17,6 +17,7 @@ from erenshor.application.wiki_deploy.manifest import (
 )
 from erenshor.application.wiki_deploy.pages import rollback_filename
 from erenshor.infrastructure.wiki import MediaWikiAPIError, MediaWikiEditConflictError
+from erenshor.infrastructure.wiki.template_parser import TemplateParser
 
 if TYPE_CHECKING:
     from erenshor.application.wiki.lifecycle import ContentLifecycle, LifecyclePage
@@ -75,7 +76,22 @@ def _historical_notice(fact: LifecyclePage) -> str:
         params.append(f"date={release.strftime('%B')} {release.day}, {release.year}")
     if fact.patch_notes_url is not None:
         params.append(f"url={fact.patch_notes_url}")
-    return "{{Historical Content|" + "|".join(params) + "}}\n"
+    if fact.chat:
+        params.append("chat=yes")
+    return "{{Historical Content|" + "|".join(params) + "}}"
+
+
+def _with_notice(title: str, source: str, notice: str) -> str:
+    """Replace the page's one historical notice, or put the notice on the first line."""
+    parser = TemplateParser()
+    code = parser.parse(source)
+    existing = parser.find_templates(code, ("Historical Content",))
+    if len(existing) > 1:
+        raise ValueError(f"{title!r} has more than one historical notice")
+    if not existing:
+        return f"{notice}\n{source}"
+    code.replace(existing[0], notice)
+    return str(code)
 
 
 def plan_retired_edits(report: RetiredPageReport, lifecycle: ContentLifecycle) -> tuple[PendingRetiredEdit, ...]:
@@ -94,7 +110,7 @@ def plan_retired_edits(report: RetiredPageReport, lifecycle: ContentLifecycle) -
             if fact is None:
                 raise ValueError(f"No reviewed notice exists for {page.title!r}")
             action: RetiredAction = "notice"
-            content = _historical_notice(fact) + snapshot.source_text
+            content = _with_notice(page.title, snapshot.source_text, _historical_notice(fact))
         elif page.state == "pending redirect":
             rename = lifecycle.renames.get(page.title)
             if rename is None:

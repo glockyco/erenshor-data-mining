@@ -85,6 +85,33 @@ def test_planned_notice_redirect_and_split_text() -> None:
     assert planned["Old Guard"] == "Old Guard may refer to:\n\n* [[Fire Guard]]\n* [[Ice Guard]]\n\n__DISAMBIG__\n"
 
 
+def test_outdated_notice_is_replaced_instead_of_repeated() -> None:
+    fact = LifecyclePage("Holy Corpse", None, "unused", "character", None, None, None, "Chat names it", chat=True)
+    lifecycle = ContentLifecycle(pages={"Holy Corpse": fact}, renames={}, splits={})
+    text = "{{Historical Content|state=unused|thing=character}}\n{{Character|name=Holy Corpse}}\n\n[[Category:Enemies]]"
+    report = RetiredPageReport(
+        checked=1,
+        pages=(
+            RetiredPage(
+                "Holy Corpse", None, None, "unused notice", "pending notice", "The notice has an outdated chat."
+            ),
+        ),
+        reviewed_non_bot=(),
+        snapshots={
+            "Holy Corpse": MediaWikiPageSnapshot(
+                "Holy Corpse", text, _revision("Holy Corpse", 10), "2026-10-04T01:00:00Z"
+            )
+        },
+    )
+
+    [edit] = plan_retired_edits(report, lifecycle)
+
+    assert edit.content == (
+        "{{Historical Content|state=unused|thing=character|chat=yes}}\n"
+        "{{Character|name=Holy Corpse}}\n\n[[Category:Enemies]]"
+    )
+
+
 def test_unclean_or_incomplete_review_cannot_plan_a_write(tmp_path: Path) -> None:
     lifecycle, report = _review()
     unclean = RetiredPageReport(

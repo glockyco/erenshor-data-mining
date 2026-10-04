@@ -94,24 +94,25 @@ def _rename_state(
 def _notice_state(title: str, key: str | None, source: str, page: LifecyclePage, parser: TemplateParser) -> RetiredPage:
     expected = f"{page.state} notice"
 
-    def invalid(reason: str) -> RetiredPage:
-        return RetiredPage(title, key, None, expected, "unexplained", reason)
+    def outdated(reason: str) -> RetiredPage:
+        return RetiredPage(title, key, None, expected, "pending notice", reason)
 
     notices = parser.find_templates(parser.parse(source), ("Historical Content",))
     if not notices:
         return RetiredPage(title, key, None, expected, "pending notice")
     if len(notices) != 1:
-        return invalid("The page has more than one historical notice.")
+        return RetiredPage(title, key, None, expected, "unexplained", "The page has more than one historical notice.")
     notice = notices[0]
     for param, wanted in (
         ("state", page.state),
         ("thing", page.thing),
         ("update", page.update),
         ("url", page.patch_notes_url),
+        ("chat", "yes" if page.chat else None),
     ):
         actual = parser.get_param(notice, param)
         if (actual or "").strip() != (wanted or ""):
-            return invalid(f"The notice has an incorrect {param}.")
+            return outdated(f"The notice has an outdated {param}.")
     written_date = parser.get_param(notice, "date")
     try:
         notice_date = (
@@ -120,9 +121,9 @@ def _notice_state(title: str, key: str | None, source: str, page: LifecyclePage,
             else None
         )
     except ValueError:
-        return invalid("The notice has an invalid date.")
+        return outdated("The notice has an invalid date.")
     if notice_date != (date.fromisoformat(page.date) if page.date else None):
-        return invalid("The notice has an incorrect date.")
+        return outdated("The notice has an outdated date.")
     return RetiredPage(title, key, None, expected, "marked")
 
 

@@ -163,9 +163,25 @@ def test_unexplained_and_invalid_dispositions_fail() -> None:
     assert report.has_errors and report.unexplained == 1
     assert report.pages[0].title == "Mystery"
 
-    client = _client({"Reckless": "{{Historical Content|state=unobtainable}}"}, ("Reckless",))
+    two_notices = "{{Historical Content|state=removed|thing=stance}}\n{{Historical Content|state=removed|thing=stance}}"
+    client = _client({"Reckless": two_notices}, ("Reckless",))
     report = audit_retired_pages(client, {}, ContentLifecycle(pages=_lifecycle().pages, renames={}, splits={}))
-    assert report.has_errors and report.pages[0].reason == "The notice has an incorrect state."
+    assert report.has_errors and report.pages[0].reason == "The page has more than one historical notice."
+
+
+def test_notice_that_differs_from_the_facts_is_pending_until_it_matches() -> None:
+    fact = LifecyclePage("Queen Evadne", None, "unused", "character", None, None, None, "Chat names her", chat=True)
+    lifecycle = ContentLifecycle(pages={"Queen Evadne": fact}, renames={}, splits={})
+    pages = {"Queen Evadne": "{{Historical Content|state=unused|thing=character}}\n{{Character|name=Queen Evadne}}"}
+    client = _client(pages, ("Queen Evadne",))
+    outdated = audit_retired_pages(client, {}, lifecycle)
+    assert (outdated.pages[0].state, outdated.pages[0].reason) == ("pending notice", "The notice has an outdated chat.")
+    assert not outdated.has_errors
+
+    pages["Queen Evadne"] = (
+        "{{Historical Content|state=unused|thing=character|chat=yes}}\n{{Character|name=Queen Evadne}}"
+    )
+    assert audit_retired_pages(client, {}, lifecycle).pages[0].state == "marked"
 
 
 def test_unreviewed_rename_names_matching_generated_identity() -> None:

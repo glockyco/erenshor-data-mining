@@ -115,7 +115,7 @@ When one old page describes content that the game now has as several entities wi
 
 ### Requirement: Reviewed dispositions are applied with guards
 
-The wiki tooling SHALL apply the pending notices, redirects, and disambiguation pages that the retired-page review reports, from the reviewed facts only. It SHALL write nothing while the review has an unexplained title or is incomplete. It SHALL skip a page that changed after the review read it, and it SHALL record each written page so that a rollback can restore it.
+The wiki tooling SHALL apply the pending notices, redirects, and disambiguation pages that the retired-page review reports, from the reviewed facts only. When a live notice differs from the facts, it SHALL replace that notice and not add a second one. It SHALL write nothing while the review has an unexplained title or is incomplete. It SHALL skip a page that changed after the review read it, and it SHALL record each written page so that a rollback can restore it.
 
 #### Scenario: A dry run
 
@@ -127,6 +127,12 @@ The wiki tooling SHALL apply the pending notices, redirects, and disambiguation 
 
 - **WHEN** a page changes after the review read it
 - **THEN** the command does not write that page and reports it
+
+#### Scenario: The facts change a live notice
+
+- **WHEN** the facts add the chat flag to a page that already has the unused notice
+- **THEN** the review reports the notice as pending
+- **AND** the command replaces that notice, so the page keeps exactly one
 
 #### Scenario: The review is not clean
 

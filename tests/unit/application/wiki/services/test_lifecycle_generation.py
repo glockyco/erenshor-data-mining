@@ -100,6 +100,21 @@ def test_generated_skill_notice_uses_its_recorded_noun() -> None:
     assert _fields(text, "Ability")["historical_thing"] == "skill"
 
 
+def test_generated_page_cannot_carry_the_chat_flag() -> None:
+    lifecycle = ContentLifecycle(
+        pages={
+            "Quiet Golem": LifecyclePage(
+                "Quiet Golem", "item:golem", "unused", "item", None, None, None, "Chat names it", chat=True
+            )
+        },
+        renames={},
+        splits={},
+    )
+
+    with pytest.raises(ValueError, match="chat flag applies only to pages that generation does not write"):
+        apply_lifecycle_fields("Quiet Golem", ["item:golem"], "{{Item|stablekey=item:golem}}", lifecycle)
+
+
 def test_lifecycle_does_not_mark_an_unrelated_root_on_the_same_article() -> None:
     lifecycle = load_content_lifecycle(ROOT / "content-lifecycle.json")
     original = (
@@ -153,9 +168,13 @@ def test_planar_march_date_is_readable_on_matching_root() -> None:
         ("date", "2026-02-30", "malformed date"),
         ("patch_notes_url", "http://example.org/notes", "https link"),
         ("date", None, "update requires a date"),
+        ("chat", True, "chat applies only to unused content"),
+        ("chat", False, "chat must be true when present"),
     ],
 )
-def test_invalid_lifecycle_fact_names_its_entry(tmp_path: Path, field: str, value: str | None, message: str) -> None:
+def test_invalid_lifecycle_fact_names_its_entry(
+    tmp_path: Path, field: str, value: str | bool | None, message: str
+) -> None:
     path = tmp_path / "content-lifecycle.json"
     fact = {
         "stable_key": "item:ring",
