@@ -131,7 +131,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "relic": "True" if item.relic else "",
             "damage": safe_str(stats.weapon_dmg) if stats.weapon_dmg else "",
             "delay": safe_str(item.weapon_dly) if item.weapon_dly else "",
-            "range": self._get_weapon_range(item),
+            "range": self._get_weapon_range(item, stats.weapon_dmg),
             "str": safe_str(stats.str_),
             "end": safe_str(stats.end_),
             "dex": safe_str(stats.dex),
@@ -177,12 +177,14 @@ class ItemSectionGenerator(SectionGeneratorBase):
             slot += " - 2-Handed"
         return slot
 
-    def _get_weapon_range(self, item: Item) -> str:
-        if item.is_wand and item.wand_range and item.wand_range > 0:
-            return str(item.wand_range)
-        if item.is_bow and item.bow_range and item.bow_range > 0:
-            return str(item.bow_range)
-        return ""
+    def _get_weapon_range(self, item: Item, damage: int | None) -> str:
+        if not (damage or item.weapon_dly):
+            return ""
+        if item.is_wand:
+            return safe_str(item.wand_range or 0)
+        if item.is_bow:
+            return safe_str(item.bow_range or 0)
+        return "1"
 
     def _legacy_class_flags(self, class_names: list[str]) -> dict[str, str]:
         flagged = {name.lower() for name in class_names}

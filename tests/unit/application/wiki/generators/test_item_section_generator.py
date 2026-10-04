@@ -114,6 +114,28 @@ def test_two_handed_melee_keeps_game_label_and_category_flag() -> None:
     assert "|two_handed=True" in result
 
 
+def test_melee_range_matches_game_and_does_not_appear_without_attack_stats() -> None:
+    sword = Item(
+        stable_key="item:weap - 1 - rusty sword",
+        item_name="Rusty Shortsword",
+        required_slot="PrimaryOrSecondary",
+        this_weapon_type="OneHandMelee",
+        weapon_dly=1.25,
+    )
+    stats = [ItemStats(item_stable_key=sword.stable_key, quality="Standard", weapon_dmg=3)]
+    result = ItemSectionGenerator().generate_template(
+        EnrichedItemData(item=sword, stats=stats, classes=[]), "Rusty Shortsword"
+    )
+    assert "|range=1\n" in result
+
+    armor = sword.model_copy(update={"required_slot": "Chest", "weapon_dly": 0})
+    no_damage = [ItemStats(item_stable_key=sword.stable_key, quality="Standard", weapon_dmg=0)]
+    result = ItemSectionGenerator().generate_template(
+        EnrichedItemData(item=armor, stats=no_damage, classes=[]), "Rusty Shortsword"
+    )
+    assert "|range=\n" in result
+
+
 def test_item_effect_selection_matches_game_click_priority() -> None:
     generator = object.__new__(EntityPageGenerator)
     generator.context = SimpleNamespace(
