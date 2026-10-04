@@ -503,6 +503,7 @@ class TestWikiDeployCommand:
                         }
                     },
                     "renames": {},
+                    "splits": {},
                 }
             ),
             encoding="utf-8",

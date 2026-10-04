@@ -15,6 +15,7 @@ from erenshor.application.wiki.generators.base import GeneratedPage, PageMetadat
 from erenshor.application.wiki.lifecycle import (
     apply_lifecycle_fields,
     load_content_lifecycle,
+    render_split_disambiguation,
     validate_generated_lifecycle,
 )
 from erenshor.application.wiki.services.generate_service import GeneratedCorpus, WikiGenerateService
@@ -97,6 +98,15 @@ def test_lifecycle_does_not_mark_an_unrelated_root_on_the_same_article() -> None
     assert roots[1]["historical_state"] == "removed"
 
 
+def test_renamed_spell_does_not_gain_an_item_former_name_field() -> None:
+    lifecycle = load_content_lifecycle(ROOT / "content-lifecycle.json")
+    content = "{{Ability|title=Aura: Rising Shadows I|stablekey=spell:aura - reaver 1}}"
+
+    result = apply_lifecycle_fields("Aura: Rising Shadows I", ["spell:aura - reaver 1"], content, lifecycle)
+
+    assert result == content
+
+
 def test_full_generation_rejects_a_revived_old_title() -> None:
     lifecycle = load_content_lifecycle(ROOT / "content-lifecycle.json")
     with pytest.raises(ValueError, match="Skill Book: Reckless Stance: renamed title is still generated"):
@@ -138,7 +148,7 @@ def test_invalid_lifecycle_fact_names_its_entry(tmp_path: Path, field: str, valu
         "source": "Reviewed notes",
     }
     fact[field] = value
-    path.write_text(json.dumps({"pages": {"Old Ring": fact}, "renames": {}}), encoding="utf-8")
+    path.write_text(json.dumps({"pages": {"Old Ring": fact}, "renames": {}, "splits": {}}), encoding="utf-8")
 
     with pytest.raises(ValueError, match=f"pages\\['Old Ring'\\].*{message}"):
         load_content_lifecycle(path)
@@ -167,9 +177,104 @@ def test_a_title_cannot_be_both_removed_and_renamed(tmp_path: Path) -> None:
                         "source": "Current game data",
                     }
                 },
+                "splits": {},
             }
         ),
         encoding="utf-8",
     )
     with pytest.raises(ValueError, match=r"Old Ring.*both a page and a rename"):
+        load_content_lifecycle(path)
+
+
+def test_reviewed_split_links_both_current_variants() -> None:
+    lifecycle = load_content_lifecycle(ROOT / "content-lifecycle.json")
+    split = lifecycle.splits["Braxonian Planar Guard"]
+    assert split.stable_keys == (
+        "character:braxonian planar guardian fire",
+        "character:braxonian planar guardian ice",
+    )
+    assert render_split_disambiguation(split) == (
+        "Braxonian Planar Guard may refer to:\n\n"
+        "* [[Braxonian Planar Guard (Fire)]]\n"
+        "* [[Braxonian Planar Guard (Ice)]]\n\n__DISAMBIG__\n"
+    )
+    validate_generated_lifecycle(
+        {
+            "Braxonian Planar Guard (Fire)": [split.stable_keys[0]],
+            "Braxonian Planar Guard (Ice)": [split.stable_keys[1]],
+            "Skill Book: Reckless Strike": ["item:skillbook - stance - reckless"],
+            "Aura: Rising Shadows I": ["spell:aura - reaver 1"],
+            "Aura: Rising Shadows II": ["spell:aura - reaver 2"],
+            "Aura: Rising Shadows III": ["spell:aura - reaver 3"],
+            "Aura: Rising Shadows IV": ["spell:aura - reaver 4"],
+            "Rune of Elements": ["item:gen - raid rune of brax"],
+        },
+        lifecycle,
+    )
+
+
+@pytest.mark.parametrize(
+    ("titles", "keys", "message"),
+    [
+        ([], [], "nonempty list"),
+        (["Fire", "Fire"], ["character:fire", "character:ice"], "contains duplicates"),
+        (["Fire", "Ice"], ["character:fire"], "match current_titles count"),
+    ],
+)
+def test_split_requires_distinct_targets_and_matching_keys(
+    tmp_path: Path, titles: list[str], keys: list[str], message: str
+) -> None:
+    path = tmp_path / "content-lifecycle.json"
+    path.write_text(
+        json.dumps(
+            {
+                "pages": {},
+                "renames": {},
+                "splits": {
+                    "Old Guard": {
+                        "current_titles": titles,
+                        "stable_keys": keys,
+                        "source": "Current game data",
+                    }
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match=message):
+        load_content_lifecycle(path)
+
+
+@pytest.mark.parametrize("other_mapping", ["pages", "renames"])
+def test_split_title_cannot_also_be_a_page_or_rename(tmp_path: Path, other_mapping: str) -> None:
+    path = tmp_path / "content-lifecycle.json"
+    data: dict[str, dict[str, object]] = {
+        "pages": {},
+        "renames": {},
+        "splits": {
+            "Old Guard": {
+                "current_titles": ["Fire", "Ice"],
+                "stable_keys": ["character:fire", "character:ice"],
+                "source": "Current game data",
+            }
+        },
+    }
+    if other_mapping == "pages":
+        data["pages"]["Old Guard"] = {
+            "stable_key": None,
+            "state": "unused",
+            "thing": "character",
+            "update": None,
+            "date": None,
+            "patch_notes_url": None,
+            "source": "Current game data",
+        }
+    else:
+        data["renames"]["Old Guard"] = {
+            "stable_key": "character:fire",
+            "current_title": "Fire",
+            "source": "Current game data",
+        }
+    path.write_text(json.dumps(data), encoding="utf-8")
+    with pytest.raises(ValueError, match=r"Old Guard.*also a page or rename"):
         load_content_lifecycle(path)

@@ -98,6 +98,87 @@
       "date": null,
       "patch_notes_url": null,
       "source": "Clean DB retains a crafting-reward row for this item. The wiki's crafting explanation says tier 2 crafting now gives a blessed item instead."
+    },
+    "An Angry Spirit": {
+      "stable_key": "character:character_ghost_01 (1)",
+      "state": "unused",
+      "thing": "character",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "mapping.json character:character_ghost_01 (1): dead prefab with no scene or prefab references and no spawn path."
+    },
+    "Ancient Sentinel": {
+      "stable_key": "character:ancient sentinel",
+      "state": "unused",
+      "thing": "character",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "mapping.json character:ancient sentinel: dead prefab with no scene or prefab references and no spawn path."
+    },
+    "Bazxzoth": {
+      "stable_key": "character:baxzxoth",
+      "state": "unused",
+      "thing": "character",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "mapping.json character:baxzxoth: dead prefab with no scene or prefab references and no spawn path."
+    },
+    "Dream Invader": {
+      "stable_key": "character:dream invader",
+      "state": "unused",
+      "thing": "character",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "mapping.json character:dream invader: dead prefab with no scene or prefab references and no spawn path."
+    },
+    "Fernalla's Guardian Golem": {
+      "stable_key": "character:fernallagolem",
+      "state": "unused",
+      "thing": "character",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "mapping.json character:fernallagolem: dead prefab with no scene or prefab references and no spawn path."
+    },
+    "Holy Corpse": {
+      "stable_key": "character:holy corpse",
+      "state": "unused",
+      "thing": "character",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "mapping.json character:holy corpse: dead prefab with no scene or prefab references and no spawn path."
+    },
+    "Queen Evadne": {
+      "stable_key": "character:character_ancientqueen_01",
+      "state": "unused",
+      "thing": "character",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "mapping.json character:character_ancientqueen_01: dead prefab with no scene or prefab references and no spawn path."
+    },
+    "Summoned: Elder Dryad": {
+      "stable_key": "character:summoned elder dryad",
+      "state": "unused",
+      "thing": "character",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "mapping.json character:summoned elder dryad: dead prefab with no scene or prefab references and no spawn path."
+    },
+    "Watchman": {
+      "stable_key": "character:watchman",
+      "state": "unused",
+      "thing": "character",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "mapping.json character:watchman and character:gatekeeper both name Watchman and are dead prefabs with no scene or prefab references and no spawn path."
     }
   },
   "renames": {
@@ -105,6 +186,44 @@
       "stable_key": "item:skillbook - stance - reckless",
       "current_title": "Skill Book: Reckless Strike",
       "source": "Current clean DB maps the same stable item key to Skill Book: Reckless Strike. The old wiki page remains at Skill Book: Reckless Stance."
+    },
+    "Aura: Falling Shadow": {
+      "stable_key": "spell:aura - reaver 1",
+      "current_title": "Aura: Rising Shadows I",
+      "source": "Current clean DB maps the same spell key to Aura: Rising Shadows I."
+    },
+    "Aura: Looming Void": {
+      "stable_key": "spell:aura - reaver 2",
+      "current_title": "Aura: Rising Shadows II",
+      "source": "Current clean DB maps the same spell key to Aura: Rising Shadows II."
+    },
+    "Aura: End of Life": {
+      "stable_key": "spell:aura - reaver 3",
+      "current_title": "Aura: Rising Shadows III",
+      "source": "Current clean DB maps the same spell key to Aura: Rising Shadows III."
+    },
+    "Aura: Evacuate Soul": {
+      "stable_key": "spell:aura - reaver 4",
+      "current_title": "Aura: Rising Shadows IV",
+      "source": "Current clean DB maps the same spell key to Aura: Rising Shadows IV."
+    },
+    "Rune of Brax": {
+      "stable_key": "item:gen - raid rune of brax",
+      "current_title": "Rune of Elements",
+      "source": "Current clean DB maps the same item key to Rune of Elements."
+    }
+  },
+  "splits": {
+    "Braxonian Planar Guard": {
+      "current_titles": [
+        "Braxonian Planar Guard (Fire)",
+        "Braxonian Planar Guard (Ice)"
+      ],
+      "stable_keys": [
+        "character:braxonian planar guardian fire",
+        "character:braxonian planar guardian ice"
+      ],
+      "source": "mapping.json excludes the dead base prefab with no spawn path. The clean DB generates the Fire and Ice variants with separate stable keys and pages."
     }
   }
 }

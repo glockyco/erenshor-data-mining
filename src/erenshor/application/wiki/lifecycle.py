@@ -1,4 +1,4 @@
-"""Reviewed lifecycle facts for existing and renamed wiki pages."""
+"""Reviewed lifecycle facts for historical, renamed, and split wiki pages."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from urllib.parse import urlsplit
 
 import mwparserfromhell
 
-LifecycleState = Literal["removed", "unobtainable"]
+LifecycleState = Literal["removed", "unobtainable", "unused"]
 _DATE_PATTERN = re.compile(r"\d{4}-\d{2}-\d{2}\Z")
 
 
@@ -39,9 +39,18 @@ class LifecycleRename:
 
 
 @dataclass(frozen=True, slots=True)
+class LifecycleSplit:
+    old_title: str
+    current_titles: tuple[str, ...]
+    stable_keys: tuple[str, ...]
+    source: str
+
+
+@dataclass(frozen=True, slots=True)
 class ContentLifecycle:
     pages: Mapping[str, LifecyclePage]
     renames: Mapping[str, LifecycleRename]
+    splits: Mapping[str, LifecycleSplit]
 
 
 def _required_string(value: object, entry: str, field: str) -> str:
@@ -65,11 +74,12 @@ def _record(value: object, entry: str, fields: set[str]) -> dict[str, object]:
 def load_content_lifecycle(path: Path) -> ContentLifecycle:
     """Read reviewed facts and reject malformed or contradictory records."""
     data = json.loads(path.read_text(encoding="utf-8"))
-    root = _record(data, str(path), {"pages", "renames"})
+    root = _record(data, str(path), {"pages", "renames", "splits"})
     raw_pages = root["pages"]
     raw_renames = root["renames"]
-    if not isinstance(raw_pages, dict) or not isinstance(raw_renames, dict):
-        raise ValueError(f"{path}: pages and renames must be objects")
+    raw_splits = root["splits"]
+    if not isinstance(raw_pages, dict) or not isinstance(raw_renames, dict) or not isinstance(raw_splits, dict):
+        raise ValueError(f"{path}: pages, renames, and splits must be objects")
 
     pages: dict[str, LifecyclePage] = {}
     for title, value in raw_pages.items():
@@ -81,7 +91,7 @@ def load_content_lifecycle(path: Path) -> ContentLifecycle:
             {"stable_key", "state", "thing", "update", "date", "patch_notes_url", "source"},
         )
         state = cast("LifecycleState", record["state"])
-        if state not in ("removed", "unobtainable"):
+        if state not in ("removed", "unobtainable", "unused"):
             raise ValueError(f"{entry}: unknown state {state!r}")
         stable_key = _optional_string(record["stable_key"], entry, "stable_key")
         thing = _required_string(record["thing"], entry, "thing")
@@ -118,7 +128,35 @@ def load_content_lifecycle(path: Path) -> ContentLifecycle:
         source = _required_string(record["source"], entry, "source")
         renames[old_title] = LifecycleRename(old_title, stable_key, current_title, source)
 
-    return ContentLifecycle(MappingProxyType(pages), MappingProxyType(renames))
+    splits: dict[str, LifecycleSplit] = {}
+    for old_title, value in raw_splits.items():
+        entry = f"splits[{old_title!r}]"
+        _required_string(old_title, entry, "old_title")
+        record = _record(value, entry, {"current_titles", "stable_keys", "source"})
+        if old_title in pages or old_title in renames:
+            raise ValueError(f"{entry}: title is also a page or rename")
+        raw_titles = record["current_titles"]
+        raw_keys = record["stable_keys"]
+        if not isinstance(raw_titles, list) or not raw_titles:
+            raise ValueError(f"{entry}: current_titles must be a nonempty list")
+        titles = tuple(_required_string(title, entry, "current_titles") for title in raw_titles)
+        if len(set(titles)) != len(titles):
+            raise ValueError(f"{entry}: current_titles contains duplicates")
+        if not isinstance(raw_keys, list) or len(raw_keys) != len(titles):
+            raise ValueError(f"{entry}: stable_keys must match current_titles count")
+        keys = tuple(_required_string(key, entry, "stable_keys") for key in raw_keys)
+        if old_title in titles:
+            raise ValueError(f"{entry}: old title cannot be a current title")
+        source = _required_string(record["source"], entry, "source")
+        splits[old_title] = LifecycleSplit(old_title, titles, keys, source)
+
+    return ContentLifecycle(MappingProxyType(pages), MappingProxyType(renames), MappingProxyType(splits))
+
+
+def render_split_disambiguation(split: LifecycleSplit) -> str:
+    """Render a former title with links to every current variant."""
+    variants = "\n".join(f"* [[{title}]]" for title in split.current_titles)
+    return f"{split.old_title} may refer to:\n\n{variants}\n\n__DISAMBIG__\n"
 
 
 def validate_generated_lifecycle(pages: Mapping[str, Sequence[str]], lifecycle: ContentLifecycle) -> None:
@@ -132,6 +170,12 @@ def validate_generated_lifecycle(pages: Mapping[str, Sequence[str]], lifecycle: 
             raise ValueError(f"{old_title}: renamed title is still generated")
         if rename.stable_key not in pages.get(rename.current_title, ()):
             raise ValueError(f"{old_title}: {rename.current_title} does not generate {rename.stable_key}")
+    for old_title, split in lifecycle.splits.items():
+        if old_title in pages:
+            raise ValueError(f"{old_title}: split title is still generated")
+        for title, key in zip(split.current_titles, split.stable_keys, strict=True):
+            if key not in pages.get(title, ()):
+                raise ValueError(f"{old_title}: {title} does not generate {key}")
 
 
 def apply_lifecycle_fields(title: str, stable_keys: Sequence[str], content: str, lifecycle: ContentLifecycle) -> str:
@@ -140,7 +184,7 @@ def apply_lifecycle_fields(title: str, stable_keys: Sequence[str], content: str,
     former_names = [
         rename.old_title
         for rename in lifecycle.renames.values()
-        if rename.current_title == title and rename.stable_key in stable_keys
+        if rename.current_title == title and rename.stable_key.startswith("item:") and rename.stable_key in stable_keys
     ]
     if fact is None and not former_names:
         return content

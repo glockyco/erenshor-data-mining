@@ -7,11 +7,15 @@
 <div style="font-weight:bold; padding:2px; background: rgb(19, 55, 89);">Historical content</div>
 <p>This {{{thing|item}}} can no longer be obtained.{{#if:{{{update|}}}| It became unobtainable in the {{#if:{{{url|}}}|[{{{url}}} {{{update}}}]|{{{update}}}}} update{{#if:{{{date|}}}| ({{{date}}})}}.}}</p>
 </div>{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Unobtainable Content]]}}
+|unused=<div class="navbox" style="clear:both; box-sizing:border-box; border:1px solid #aaa; padding:4px; margin-top:1em; text-align:center; width:100%;">
+<div style="font-weight:bold; padding:2px; background: rgb(19, 55, 89);">Historical content</div>
+<p>This {{{thing|character}}} is in the game files, but players can't meet it in the current game.</p>
+</div>{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Unused Content]]}}
 }}</includeonly><noinclude>
 == Historical content ==
-Use this notice on a page about content that was removed or can no longer be obtained. It leaves the rest of the page unchanged. Dates use month, day, and year, such as July 13, 2026.
+Use this notice on a page about removed content, an item that can no longer be obtained, or unused content. It leaves the rest of the page unchanged. Dates use month, day, and year, such as July 13, 2026.
 
-* <code>state</code>: <code>removed</code> or <code>unobtainable</code>.
+* <code>state</code>: <code>removed</code>, <code>unobtainable</code>, or <code>unused</code>.
 * <code>thing</code>: A lowercase noun, such as skill or item.
 * <code>update</code>: The update name, if known.
 * <code>date</code>: The update date, if known.

@@ -3090,13 +3090,13 @@
       "reason": "Player-triggered spawn at treasure marker position via PlayerControl.LeftClick(). No fixed world placement."
     },
     "character:trick target": {
-      "wiki_page_name": null,
+      "wiki_page_name": "Trick Target",
       "display_name": "Trick Target",
       "image_name": "Trick Target",
-      "is_wiki_generated": 0,
+      "is_wiki_generated": 1,
       "is_map_visible": 0,
       "mapping_type": "dynamic_spawn",
-      "reason": "Combat-triggered spawn at a random NavMesh point via NPC.cs/PlayerCombat.cs. No loot or dialog content."
+      "reason": "Combat-triggered spawn at a random NavMesh point via NPC.cs/PlayerCombat.cs. Keep its existing wiki page; no fixed world placement for the map."
     },
     "character:ancient sentinel": {
       "wiki_page_name": null,

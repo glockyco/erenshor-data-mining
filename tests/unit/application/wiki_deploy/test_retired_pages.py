@@ -24,6 +24,7 @@ def _lifecycle() -> ContentLifecycle:
             )
         },
         renames={"Skill Book: Old": LifecycleRename("Skill Book: Old", "item:book", "Skill Book: New", "identity")},
+        splits={},
     )
 
 
@@ -61,7 +62,7 @@ def test_rename_uses_stable_key_and_reports_pending_then_resolved() -> None:
     pages = {"Skill Book: Old": "{{Item|stablekey=item:book}}"}
     client = _client(pages, ("Skill Book: Old",))
     generated = {"Skill Book: New": "{{Item|stablekey=item:book}}"}
-    lifecycle = ContentLifecycle(pages={}, renames=_lifecycle().renames)
+    lifecycle = ContentLifecycle(pages={}, renames=_lifecycle().renames, splits={})
     pending = audit_retired_pages(client, generated, lifecycle)
     assert (pending.pages[0].current_title, pending.pages[0].state) == ("Skill Book: New", "pending redirect")
 
@@ -82,7 +83,7 @@ def test_rename_uses_stable_key_and_reports_pending_then_resolved() -> None:
 def test_removed_notice_is_pending_then_marked() -> None:
     pages = {"Reckless": "{{Ability|stablekey=skill:reckless}}"}
     client = _client(pages, ("Reckless",))
-    lifecycle = ContentLifecycle(pages=_lifecycle().pages, renames={})
+    lifecycle = ContentLifecycle(pages=_lifecycle().pages, renames={}, splits={})
     assert audit_retired_pages(client, {}, lifecycle).pages[0].state == "pending notice"
     pages["Reckless"] += (
         "\n{{Historical Content|state=removed|thing=stance|update=Planar March"
@@ -95,12 +96,12 @@ def test_removed_notice_is_pending_then_marked() -> None:
 
 def test_unexplained_and_invalid_dispositions_fail() -> None:
     client = _client({"Mystery": "{{Item|stablekey=item:unknown}}"}, ("Mystery",))
-    report = audit_retired_pages(client, {}, ContentLifecycle(pages={}, renames={}))
+    report = audit_retired_pages(client, {}, ContentLifecycle(pages={}, renames={}, splits={}))
     assert report.has_errors and report.unexplained == 1
     assert report.pages[0].title == "Mystery"
 
     client = _client({"Reckless": "{{Historical Content|state=unobtainable}}"}, ("Reckless",))
-    report = audit_retired_pages(client, {}, ContentLifecycle(pages=_lifecycle().pages, renames={}))
+    report = audit_retired_pages(client, {}, ContentLifecycle(pages=_lifecycle().pages, renames={}, splits={}))
     assert report.has_errors and report.pages[0].reason == "The notice has an incorrect state."
 
 
@@ -109,7 +110,7 @@ def test_unreviewed_rename_names_matching_generated_identity() -> None:
     report = audit_retired_pages(
         client,
         {"New Book": "{{Item|stablekey=item:book}}"},
-        ContentLifecycle(pages={}, renames={}),
+        ContentLifecycle(pages={}, renames={}, splits={}),
     )
     assert report.pages[0].current_title == "New Book"
     assert report.pages[0].state == "unexplained"
@@ -120,12 +121,12 @@ def test_incomplete_title_or_source_results_fail_closed() -> None:
     client.get_title_statuses.side_effect = None
     client.get_title_statuses.return_value = {}
     with pytest.raises(ValueError, match="incomplete"):
-        audit_retired_pages(client, {}, ContentLifecycle(pages={}, renames={}))
+        audit_retired_pages(client, {}, ContentLifecycle(pages={}, renames={}, splits={}))
     client.get_title_statuses.return_value = {"Lost": MediaWikiTitleStatus("Lost", "Lost", None, True)}
     client.get_pages.side_effect = None
     client.get_pages.return_value = {}
     with pytest.raises(ValueError, match="incomplete"):
-        audit_retired_pages(client, {}, ContentLifecycle(pages={}, renames={}))
+        audit_retired_pages(client, {}, ContentLifecycle(pages={}, renames={}, splits={}))
     client.get_pages.return_value = {"Lost": None}
     with pytest.raises(ValueError, match="source for 'Lost' is missing"):
-        audit_retired_pages(client, {}, ContentLifecycle(pages={}, renames={}))
+        audit_retired_pages(client, {}, ContentLifecycle(pages={}, renames={}, splits={}))
