@@ -5,6 +5,7 @@ from dataclasses import replace
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+import click
 import pytest
 from typer.main import get_command
 from typer.testing import CliRunner
@@ -47,8 +48,11 @@ def _configured_wiki_accounts(cli_context: CLIContext) -> None:
 
 
 def _unwrapped(output: str) -> str:
-    """Return console output with Rich's line wrapping collapsed to single spaces."""
-    return " ".join(output.split())
+    """Return console output without Rich's styling, with line wrapping collapsed to single spaces.
+
+    Typer forces a styled terminal when ``GITHUB_ACTIONS`` is set, so CI output carries ANSI codes.
+    """
+    return " ".join(click.unstyle(output).split())
 
 
 def _mock_wiki_composition() -> MagicMock:
