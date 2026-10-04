@@ -4397,40 +4397,9 @@
       "display_name": "Island Tomb",
       "image_name": "Island Tomb"
     },
-    "stance:aggressive": {
-      "wiki_page_name": "Aggressive",
-      "display_name": "Aggressive",
-      "image_name": "Stance: Aggressive"
-    },
-    "stance:defensive": {
-      "wiki_page_name": "Defensive",
-      "display_name": "Defensive",
-      "image_name": "Stance: Defensive"
-    },
-    "stance:expert": {
-      "wiki_page_name": "Expert",
-      "display_name": "Expert",
-      "image_name": "Stance: Expert"
-    },
-    "stance:hateful": {
-      "wiki_page_name": "Hateful",
-      "display_name": "Hateful",
-      "image_name": "Stance: Hateful"
-    },
     "stance:normal": {
       "wiki_page_name": "Normal",
-      "display_name": "Normal",
-      "image_name": "Stance: Normal"
-    },
-    "stance:reckless": {
-      "wiki_page_name": "Reckless",
-      "display_name": "Reckless",
-      "image_name": "Stance: Reckless"
-    },
-    "stance:taunting": {
-      "wiki_page_name": "Taunting",
-      "display_name": "Taunting",
-      "image_name": "Stance: Taunting"
+      "display_name": "Normal"
     },
     "spawn:ripperportal:301.20:0.05:433.77": {
       "is_wiki_generated": 0,

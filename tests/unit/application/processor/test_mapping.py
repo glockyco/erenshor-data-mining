@@ -105,3 +105,14 @@ def test_unreachable_loot_requires_a_reason(tmp_path: Path) -> None:
 
     with pytest.raises(ValueError, match="'loot_unreachable' requires a 'reason'"):
         load_mapping(_write_rule(tmp_path, loot_unreachable=True))
+
+
+def test_a_stance_rule_cannot_set_the_image(tmp_path: Path) -> None:
+    path = tmp_path / "mapping.json"
+    path.write_text(json.dumps({"rules": {"stance:normal": {"display_name": "Normal", "wiki_page_name": "Normal"}}}))
+    rules, _ = load_mapping(path)
+    assert rules["stance:normal"]["image_name"] is None
+
+    path.write_text(json.dumps({"rules": {"stance:normal": {"display_name": "Normal", "image_name": "Normal"}}}))
+    with pytest.raises(ValueError, match="must not set 'image_name'"):
+        load_mapping(path)
