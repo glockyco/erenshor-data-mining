@@ -10,10 +10,18 @@ from typing import TYPE_CHECKING, Literal
 from erenshor.infrastructure.wiki.template_parser import TemplateParser
 
 if TYPE_CHECKING:
-    from erenshor.application.wiki.lifecycle import ContentLifecycle, LifecyclePage, LifecycleRename
+    from erenshor.application.wiki.lifecycle import ContentLifecycle, LifecyclePage, LifecycleRename, LifecycleSplit
     from erenshor.infrastructure.wiki.client import MediaWikiClient, MediaWikiTitleStatus
 
-RetiredState = Literal["pending notice", "pending redirect", "marked", "redirect", "unexplained"]
+RetiredState = Literal[
+    "pending notice",
+    "pending redirect",
+    "pending disambiguation",
+    "marked",
+    "redirect",
+    "disambiguation",
+    "unexplained",
+]
 _ROOTS = ("Item", "Ability", "Stance", "Character", "Zone")
 
 
@@ -117,7 +125,7 @@ def _notice_state(title: str, key: str | None, source: str, page: LifecyclePage,
     return RetiredPage(title, key, None, expected, "marked")
 
 
-def _removed_state(
+def _historical_state(
     title: str,
     key: str | None,
     source: str,
@@ -133,13 +141,45 @@ def _removed_state(
 
     if key is not None and page.stable_key is not None and key != page.stable_key:
         return invalid("The live stable key differs from the reviewed key.")
-    if page.state != "removed":
+    if page.state not in ("removed", "unused"):
         return invalid("An unobtainable page still needs a generated article.")
     if destinations:
         return invalid("The stable key now belongs to a different generated title.")
     if status.redirect_target is not None:
-        return invalid("A removed page must keep its article, not redirect.")
+        return invalid("A historical page must keep its article, not redirect.")
     return _notice_state(title, key, source, page, parser)
+
+
+def _split_state(
+    title: str,
+    key: str | None,
+    source: str,
+    status: MediaWikiTitleStatus,
+    split: LifecycleSplit,
+    identities: Mapping[str, set[str]],
+    statuses: Mapping[str, MediaWikiTitleStatus],
+    parser: TemplateParser,
+) -> RetiredPage:
+    expected = "disambiguation"
+    current = ", ".join(split.current_titles)
+    stable_key = key or ", ".join(split.stable_keys)
+
+    def invalid(reason: str) -> RetiredPage:
+        return RetiredPage(title, stable_key, current, expected, "unexplained", reason)
+
+    for target, target_key in zip(split.current_titles, split.stable_keys, strict=True):
+        if identities.get(target_key) != {target}:
+            return invalid(f"The reviewed key does not identify {target}.")
+        if not statuses[target].exists:
+            return invalid(f"The reviewed target {target} is not live.")
+    if status.redirect_target is not None:
+        return invalid("A split page must link every variant, not redirect.")
+    code = parser.parse(source)
+    links = {str(link.title).replace("_", " ").strip() for link in code.filter_wikilinks()}
+    roots = parser.find_templates(code, _ROOTS)
+    if roots or not set(split.current_titles).issubset(links):
+        return RetiredPage(title, stable_key, current, expected, "pending disambiguation")
+    return RetiredPage(title, stable_key, current, expected, "disambiguation")
 
 
 def _classify(
@@ -158,13 +198,16 @@ def _classify(
     key = next(iter(keys)) if len(keys) == 1 else recorded_key if not keys else None
     destinations = {target for live_key in keys for target in identities.get(live_key, ()) if target != title}
     current_title = next(iter(destinations)) if len(destinations) == 1 else rename.current_title if rename else None
+    split = lifecycle.splits.get(title)
+    if split:
+        return _split_state(title, key, source, status, split, identities, statuses, parser)
 
     if len(keys) > 1:
         return RetiredPage(title, None, None, "review needed", "unexplained", "The page has several stable keys.")
     if rename:
         return _rename_state(title, key, status, rename, identities, statuses[rename.current_title].exists)
     if recorded_page:
-        return _removed_state(title, key, source, status, recorded_page, destinations, parser)
+        return _historical_state(title, key, source, status, recorded_page, destinations, parser)
     if status.redirect_target is not None:
         current_title = status.redirect_target
     return RetiredPage(
@@ -187,9 +230,12 @@ def audit_retired_pages(
 
     created = set(client.list_user_created_pages(creator))
     retired = created - generated_pages.keys()
-    reviewed = (set(lifecycle.pages) | set(lifecycle.renames)) - generated_pages.keys()
+    reviewed = (set(lifecycle.pages) | set(lifecycle.renames) | set(lifecycle.splits)) - generated_pages.keys()
     candidates = sorted(retired | reviewed, key=lambda title: (title.casefold(), title))
     targets = {lifecycle.renames[title].current_title for title in candidates if title in lifecycle.renames}
+    targets.update(
+        target for title in candidates if title in lifecycle.splits for target in lifecycle.splits[title].current_titles
+    )
     query_titles = sorted(set(candidates) | targets, key=lambda title: (title.casefold(), title))
     statuses = client.get_title_statuses(query_titles)
     if set(statuses) != set(query_titles):

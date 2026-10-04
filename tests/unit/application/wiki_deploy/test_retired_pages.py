@@ -4,7 +4,13 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from erenshor.application.wiki.lifecycle import ContentLifecycle, LifecyclePage, LifecycleRename
+from erenshor.application.wiki.lifecycle import (
+    ContentLifecycle,
+    LifecyclePage,
+    LifecycleRename,
+    LifecycleSplit,
+    render_split_disambiguation,
+)
 from erenshor.application.wiki_deploy.retired_pages import audit_retired_pages
 from erenshor.infrastructure.wiki.client import MediaWikiTitleStatus
 
@@ -92,6 +98,50 @@ def test_removed_notice_is_pending_then_marked() -> None:
     report = audit_retired_pages(client, {}, lifecycle)
     assert report.pages[0].state == "marked"
     assert report.pending == 0
+
+
+def test_unused_page_has_pending_and_marked_states() -> None:
+    fact = LifecyclePage("Queen Evadne", None, "unused", "character", None, None, None, "No live spawn")
+    lifecycle = ContentLifecycle(pages={"Queen Evadne": fact}, renames={}, splits={})
+    pages = {"Queen Evadne": "{{Character|name=Queen Evadne}}"}
+    client = _client(pages, ("Queen Evadne",))
+    pending = audit_retired_pages(client, {}, lifecycle)
+    assert pending.pages[0].expected == "unused notice"
+    assert pending.pages[0].state == "pending notice"
+
+    pages["Queen Evadne"] += "\n{{Historical Content|state=unused|thing=character}}"
+    marked = audit_retired_pages(client, {}, lifecycle)
+    assert marked.pages[0].state == "marked"
+    assert marked.unexplained == 0
+
+
+def test_split_requires_both_links_without_an_infobox() -> None:
+    split = LifecycleSplit("Old Guard", ("Fire Guard", "Ice Guard"), ("character:fire", "character:ice"), "split")
+    lifecycle = ContentLifecycle(pages={}, renames={}, splits={"Old Guard": split})
+    pages = {"Old Guard": "{{Character|name=Old Guard}}"}
+    client = _client(pages, ("Old Guard",))
+    generated = {
+        "Fire Guard": "{{Character|stablekey=character:fire}}",
+        "Ice Guard": "{{Character|stablekey=character:ice}}",
+    }
+    pending = audit_retired_pages(client, generated, lifecycle)
+    assert pending.pages[0].state == "pending disambiguation"
+    assert pending.pages[0].current_title == "Fire Guard, Ice Guard"
+
+    pages["Old Guard"] = render_split_disambiguation(split)
+    resolved = audit_retired_pages(client, generated, lifecycle)
+    assert resolved.pages[0].state == "disambiguation"
+    assert resolved.pending == 0
+
+    pages["Old Guard"] += "{{Character|name=Old Guard}}"
+    assert audit_retired_pages(client, generated, lifecycle).pages[0].state == "pending disambiguation"
+    pages["Old Guard"] = render_split_disambiguation(split)
+    client.get_title_statuses.side_effect = lambda titles: {
+        title: MediaWikiTitleStatus(title, title, None, title != "Ice Guard") for title in titles
+    }
+    missing_target = audit_retired_pages(client, generated, lifecycle)
+    assert missing_target.pages[0].state == "unexplained"
+    assert missing_target.pages[0].reason == "The reviewed target Ice Guard is not live."
 
 
 def test_unexplained_and_invalid_dispositions_fail() -> None:
