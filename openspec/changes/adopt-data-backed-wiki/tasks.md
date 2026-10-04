@@ -34,7 +34,7 @@
 
 ## 5. Step 1: refresh the stale articles
 
-- [ ] 5.1 Complete tasks 6.2 to 7.1 of `refresh-wiki-articles`. Verify: the change is archived.
+- [x] 5.1 Complete tasks 6.2 to 7.1 of `refresh-wiki-articles`. Verify: the change is archived.
 - [ ] 5.2 After task 6.5 of `refresh-wiki-articles`, WoWMuch tells Kyrros which lists of `Erenshor Wiki:Potentially Missing Wiki Data` the bot now covers, and offers a generated list of the quest, faction, and class pages that people must write (design D12). Verify: Kyrros has answered. If Kyrros accepts, a task for how the list is generated is added to this change.
 
 ## 6. Step 2: publish complete Cargo tables
