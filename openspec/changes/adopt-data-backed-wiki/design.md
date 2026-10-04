@@ -220,7 +220,7 @@ The guide must not go stale the way `User:WoWBot` did:
 - The game build comes from a generated data module, `Module:Erenshor/Data/Build`, which holds `game_build_id` and its publish date from `code_facts_meta`. `Module:Erenshor/Build` renders it. A data deploy updates the module, so the guide shows the new build without an edit. The data-backed templates of step 4 name their build from the same module.
 - Each maintenance category page says what an editor does about a page in it, for example: add a `stablekey` with the link picker.
 
-After the refresh, the bot has created most of the item, character, and zone pages that Kyrros's project lists. WoWMuch tells Kyrros which lists the bot now covers, and offers a generated list of the pages that people must write: the quest, faction, and class pages that the link audit finds as red links. If Kyrros accepts, this plan adds a task that decides how the list is generated.
+After the refresh, the bot has created most of the item, character, and zone pages that Kyrros's project lists. On 2026-10-04 it was decided not to contact Kyrros about this. His project page stays as it is, and this plan generates no list of missing pages.
 
 Both pages land before task 6.4 of `refresh-wiki-articles`. The refresh changes about 2,700 articles, and editors who look for an explanation must find a correct one.
 
