@@ -4407,6 +4407,16 @@
       "display_name": "Defensive",
       "image_name": "Stance: Defensive"
     },
+    "stance:expert": {
+      "wiki_page_name": "Expert",
+      "display_name": "Expert",
+      "image_name": "Stance: Expert"
+    },
+    "stance:hateful": {
+      "wiki_page_name": "Hateful",
+      "display_name": "Hateful",
+      "image_name": "Stance: Hateful"
+    },
     "stance:normal": {
       "wiki_page_name": "Normal",
       "display_name": "Normal",
