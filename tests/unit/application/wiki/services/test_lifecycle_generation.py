@@ -13,6 +13,8 @@ from rich.console import Console
 
 from erenshor.application.wiki.generators.base import GeneratedPage, PageMetadata
 from erenshor.application.wiki.lifecycle import (
+    ContentLifecycle,
+    LifecyclePage,
     apply_lifecycle_fields,
     load_content_lifecycle,
     render_split_disambiguation,
@@ -61,6 +63,7 @@ def test_generated_pages_receive_reviewed_fields_and_keep_editor_prose() -> None
     assert result.succeeded == 4
     generated = seen[0].pages
     assert _fields(generated["Mana Burst"], "Ability")["historical_state"] == "removed"
+    assert _fields(generated["Mana Burst"], "Ability")["historical_thing"] == "spell"
     assert "Editor notes." in generated["Mana Burst"]
     assert _fields(generated["Pristine Ceremonial Ring"], "Item")["historical_state"] == "unobtainable"
     assert _fields(generated["Skill Book: Reckless Strike"], "Item")["aka"] == "Skill Book: Reckless Stance"
@@ -79,6 +82,22 @@ def test_generated_pages_receive_reviewed_fields_and_keep_editor_prose() -> None
         & generated.keys()
     )
     storage.save_generated_by_title.assert_not_called()
+
+
+def test_generated_skill_notice_uses_its_recorded_noun() -> None:
+    lifecycle = ContentLifecycle(
+        pages={
+            "Old Skill": LifecyclePage(
+                "Old Skill", "skill:old", "removed", "skill", None, None, None, "Reviewed removal"
+            )
+        },
+        renames={},
+        splits={},
+    )
+
+    text = apply_lifecycle_fields("Old Skill", ["skill:old"], "{{Ability|stablekey=skill:old}}", lifecycle)
+
+    assert _fields(text, "Ability")["historical_thing"] == "skill"
 
 
 def test_lifecycle_does_not_mark_an_unrelated_root_on_the_same_article() -> None:

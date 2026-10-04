@@ -202,6 +202,8 @@ def apply_lifecycle_fields(title: str, stable_keys: Sequence[str], content: str,
         if fact is not None and key == fact.stable_key:
             matched_fact = True
             template.add("historical_state", fact.state)
+            if name == "Ability":
+                template.add("historical_thing", fact.thing)
             if fact.update is not None:
                 template.add("historical_update", fact.update)
             if fact.date is not None:

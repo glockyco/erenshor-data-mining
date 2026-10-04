@@ -67,7 +67,7 @@
 |used_by=[[Ancient Spectre]]<br>[[Botanist]]
 }}
 </noinclude>
-<includeonly>{{#if:{{{historical_state|}}}|{{Historical Content|state={{{historical_state}}}|thing=ability|update={{{historical_update|}}}|date={{{historical_date|}}}|url={{{historical_url|}}}}}}}<infobox type="Abilities">
+<includeonly>{{#if:{{{historical_state|}}}|{{Historical Content|state={{{historical_state}}}|thing={{{historical_thing|ability}}}|update={{{historical_update|}}}|date={{{historical_date|}}}|url={{{historical_url|}}}}}}}<infobox type="Abilities">
       <title source="title"/>
       <image source="image"><caption source="imagecaption"/></image>
 
