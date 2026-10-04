@@ -828,6 +828,8 @@ FodyWeavers.xsd
 
 # Pipeline working directories
 variants/
+# Interface deploy manifests and rollback copies of live interface pages
+/output/
 
 # Export artifacts
 *.sqlite
