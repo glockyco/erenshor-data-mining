@@ -1,1 +1,9 @@
 {{Historical Content|state=unused|thing=character}}
+{{Character
+|name=Historical Unused Character
+|type=Enemy
+|faction=[[The Followers of Evil]]
+|level=25
+|health=32500
+}}
+The character details stay beside the infobox.
