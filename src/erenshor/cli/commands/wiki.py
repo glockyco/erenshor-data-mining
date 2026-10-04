@@ -315,7 +315,10 @@ def _interface_artifact_root(cli_ctx: CLIContext) -> Path:
 
 
 def _resolve_interface_manifest_path(cli_ctx: CLIContext, path: Path) -> Path:
-    """Resolve an interface manifest within the dedicated artifact root."""
+    """Resolve an interface manifest within the dedicated artifact root.
+
+    A path outside that root is a usage error of the ``--manifest`` option.
+    """
     root = cli_ctx.repo_root.resolve()
     artifact_root = _interface_artifact_root(cli_ctx)
     try:
@@ -326,11 +329,11 @@ def _resolve_interface_manifest_path(cli_ctx: CLIContext, path: Path) -> Path:
     try:
         resolved.relative_to(artifact_root)
     except ValueError as error:
-        raise ValueError(
-            "Interface manifest path must be inside the repository root and the dedicated interface artifact root"
+        raise typer.BadParameter(
+            f"must be a file below {_INTERFACE_ARTIFACT_ROOT}", param_hint="'--manifest'"
         ) from error
     if resolved == artifact_root:
-        raise ValueError("Interface manifest path must name a file below the dedicated interface artifact root")
+        raise typer.BadParameter(f"must name a file below {_INTERFACE_ARTIFACT_ROOT}", param_hint="'--manifest'")
     return resolved
 
 

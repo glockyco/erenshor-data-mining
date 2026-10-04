@@ -1338,16 +1338,15 @@ class TestWikiInterfaceDeployCommands:
 
         assert wiki_command._interface_assert_user(cli_ctx) == assert_user
 
-    def test_manifest_path_must_stay_inside_repo(self, tmp_path: Path) -> None:
-        from types import SimpleNamespace
+    def test_manifest_path_outside_the_artifact_root_is_a_usage_error(
+        self, tmp_path: Path, cli_context: CLIContext
+    ) -> None:
+        result = runner.invoke(
+            wiki.app, ["deploy-interface", "--manifest", str(tmp_path / "outside.json")], obj=cli_context
+        )
 
-        import erenshor.cli.commands.wiki as wiki_command
-
-        cli_ctx = SimpleNamespace(repo_root=tmp_path / "repo")
-        cli_ctx.repo_root.mkdir()
-
-        with pytest.raises(ValueError, match="inside the repository root"):
-            wiki_command._resolve_interface_manifest_path(cli_ctx, tmp_path / "outside.json")
+        assert result.exit_code == 2
+        assert "Invalid value for '--manifest'" in _unwrapped(result.output)
 
     def test_manifest_path_rejects_source_spec_and_rollback_aliases(self, tmp_path: Path) -> None:
         from types import SimpleNamespace
