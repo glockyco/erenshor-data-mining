@@ -740,6 +740,46 @@ class TestWikiDeployRepoCommand:
         assert entry.new_revision_id == 11
         assert entry.rollback_text_source == "rollback/Module_Erenshor_Item.wiki"
 
+    def test_deploy_repo_pages_resolves_relative_manifest_output(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, cli_context: CLIContext
+    ):
+        """A relative manifest path gives an absolute rollback root, so rollback sources resolve."""
+        import erenshor.cli.commands.wiki as wiki_command
+
+        manifest = RepoWikiPageManifest(
+            entries=(
+                RepoWikiPageManifestEntry(
+                    title="Module:Erenshor/Format",
+                    source_path="wiki/modules/Erenshor/Format.lua",
+                    source_sha256="abc",
+                    ownership_class="lua_module",
+                    upload_stage="lua_module",
+                    content_model="Scribunto",
+                    declares_cargo_table=False,
+                    cargo_tables=(),
+                ),
+            )
+        )
+        deploy_kwargs: dict[str, object] = {}
+
+        def fake_deploy_repo_pages(**kwargs):
+            deploy_kwargs.update(kwargs)
+            return RepoPageDeployResult(entries=())
+
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.setattr(wiki_command, "build_repo_page_manifest", lambda *_args, **_kwargs: manifest)
+        monkeypatch.setattr(wiki_command, "_create_readonly_mediawiki_client", lambda _ctx: MagicMock())
+        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", lambda _ctx: FakeDeployClient())
+        monkeypatch.setattr(wiki_command, "deploy_repo_pages", fake_deploy_repo_pages)
+        monkeypatch.setattr(wiki_command, "write_repo_page_manifest", lambda *_args: None)
+
+        result = runner.invoke(
+            wiki.app, ["deploy-repo-pages", "--manifest-output", "runs/manifest.json"], obj=cli_context
+        )
+
+        assert result.exit_code == 0, result.output
+        assert deploy_kwargs["rollback_root"] == tmp_path / "runs" / "rollback"
+
     def test_deploy_repo_pages_passes_explicit_scope_flags(
         self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, cli_context: CLIContext
     ):

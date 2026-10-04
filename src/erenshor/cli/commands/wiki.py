@@ -1242,6 +1242,7 @@ def deploy_repo_pages_command(
         manifest_output = (
             cli_ctx.config.variants[cli_ctx.variant].resolved_wiki(cli_ctx.repo_root) / "deploy-manifest.json"
         )
+    manifest_output = manifest_output.resolve()
 
     if not manifest.entries:
         console.print("[yellow]No repo-owned wiki pages selected; no remote edits made[/yellow]")
