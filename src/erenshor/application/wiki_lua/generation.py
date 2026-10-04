@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
 
+from erenshor.application.wiki_lua.build import BuildDataRepository, write_build_module
 from erenshor.application.wiki_lua.items import (
     ItemDataRepository as ItemModuleDataRepository,
 )
@@ -114,6 +115,7 @@ TOP_LEVEL_DATA_MODULES: tuple[str, ...] = (
     "Spells.lua",
     "Skills.lua",
     "Stances.lua",
+    "Build.lua",
 )
 
 
@@ -156,6 +158,7 @@ def _remove_stale_data_modules(output_root: Path, written_paths: list[Path]) -> 
 
 def generate_lua_data_modules(
     *,
+    build_repo: BuildDataRepository,
     item_repo: WikiSpellItemRepository,
     character_repo: WikiSpellCharacterRepository,
     spell_repo: SpellDataRepository,
@@ -206,6 +209,7 @@ def generate_lua_data_modules(
             ),
             write_skills_module(skill_repo, staging_root, item_repo),
             write_stances_module(stance_repo, staging_root),
+            write_build_module(build_repo, staging_root),
         ]
         validation_tools: dict[Path, str] = {}
         for path in staged_paths:

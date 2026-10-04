@@ -98,6 +98,7 @@ from erenshor.cli.preconditions.checks.database import database_exists, database
 from erenshor.cli.preconditions.checks.inputs import option_path, wiki_credentials
 from erenshor.cli.preconditions.checks.wiki import interface_admin_credentials, wiki_endpoint
 from erenshor.infrastructure.database.connection import DatabaseConnection
+from erenshor.infrastructure.database.repositories.build_metadata import BuildMetadataRepository
 from erenshor.infrastructure.database.repositories.characters import CharacterRepository
 from erenshor.infrastructure.database.repositories.factions import FactionRepository
 from erenshor.infrastructure.database.repositories.items import ItemRepository
@@ -431,6 +432,7 @@ def _create_lua_repositories(
     ZoneRepository,
     FactionRepository,
     ClassDisplayNameService,
+    BuildMetadataRepository,
 ]:
     """Create repositories for local Lua data generation from one read-only connection."""
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
@@ -446,6 +448,7 @@ def _create_lua_repositories(
         ZoneRepository(db_connection),
         FactionRepository(db_connection),
         ClassDisplayNameService(db_connection),
+        BuildMetadataRepository(db_connection),
     )
 
 
@@ -672,6 +675,7 @@ def generate_lua(ctx: typer.Context) -> None:
             zone_repo,
             faction_repo,
             class_display,
+            build_repo,
         ) = _create_lua_repositories(cli_ctx)
         result = generate_lua_data_modules(
             item_repo=item_repo,
@@ -683,6 +687,7 @@ def generate_lua(ctx: typer.Context) -> None:
             zone_repo=zone_repo,
             faction_repo=faction_repo,
             class_display=class_display,
+            build_repo=build_repo,
             output_root=output_root,
             max_page_bytes=cli_ctx.config.global_.mediawiki.max_page_bytes,
         )

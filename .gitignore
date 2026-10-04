@@ -149,6 +149,9 @@ __pycache__/
 # Distribution / packaging
 .Python
 build/
+# Case-insensitive checkouts match build/ against Scribunto module subpages
+# such as Module:Erenshor/Build/testcases.
+!wiki/modules/**/Build/
 develop-eggs/
 dist/
 downloads/

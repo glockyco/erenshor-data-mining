@@ -27,6 +27,11 @@ from erenshor.application.wiki_lua.validation import LuaValidationResult
 from erenshor.domain.value_objects.source_info import ObtainedFromInfo, UsedInInfo, WorldDropInfo
 
 
+class FakeBuildRepository:
+    def get_build_metadata(self) -> tuple[str, str]:
+        return "24405256", "2026-07-27T12:34:56+00:00"
+
+
 def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
     item = make_item()
     character = make_character()
@@ -44,6 +49,7 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
         return LuaValidationResult(path=path, tool="stylua")
 
     result = generate_lua_data_modules(
+        build_repo=FakeBuildRepository(),
         item_repo=item_repo,
         character_repo=character_repo,
         spell_repo=FakeSpellRepository([spell]),
@@ -58,6 +64,7 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
         validate=record_validation,
     )
 
+    build_path = tmp_path / "Erenshor" / "Data" / "Build.lua"
     items_path = tmp_path / "Erenshor" / "Data" / "Items.lua"
     item_shard_path = tmp_path / "Erenshor" / "Data" / "Items" / "Weapons.lua"
     links_path = tmp_path / "Erenshor" / "Data" / "Links.lua"
@@ -71,8 +78,10 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
         spells_path,
         skills_path,
         stances_path,
+        build_path,
     ]
     assert result.validation_tools == {
+        build_path: "stylua",
         items_path: "stylua",
         item_shard_path: "stylua",
         links_path: "stylua",
@@ -84,6 +93,9 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
     assert [path.relative_to(staging_root) for path in validated_paths] == [
         path.relative_to(tmp_path) for path in result.written_paths
     ]
+    assert build_path.read_text(encoding="utf-8") == (
+        'return {\n  ["gameBuildId"] = "24405256",\n  ["publishedAt"] = "2026-07-27T12:34:56+00:00",\n}\n'
+    )
     assert '"Weapons"' in items_path.read_text(encoding="utf-8")
     assert "item:sword_of_flames" in item_shard_path.read_text(encoding="utf-8")
     links_text = links_path.read_text(encoding="utf-8")
@@ -117,6 +129,7 @@ def test_generation_validates_nonnull_blank_item_catalog_pages(tmp_path: Path) -
 
     with pytest.raises(ValueError, match="Blank link catalog page"):
         generate_lua_data_modules(
+            build_repo=FakeBuildRepository(),
             item_repo=item_repo,
             character_repo=FakeCharacterRepository([make_character()]),
             spell_repo=FakeSpellRepository([make_spell()]),
@@ -157,6 +170,7 @@ def test_generation_wires_item_provenance_repositories(tmp_path: Path) -> None:
     )
 
     generate_lua_data_modules(
+        build_repo=FakeBuildRepository(),
         item_repo=item_repo,
         character_repo=character_repo,
         spell_repo=FakeSpellRepository([make_spell()]),
@@ -183,6 +197,7 @@ def test_generation_wires_item_provenance_repositories(tmp_path: Path) -> None:
 def _run_generation(tmp_path: Path, *, max_page_bytes: int = 4194304, item_key: str = "item:sword_of_flames") -> object:
     item_repo = FakeItemRepository(items=[make_item(stable_key=item_key)], stats={}, classes={})
     return generate_lua_data_modules(
+        build_repo=FakeBuildRepository(),
         item_repo=item_repo,
         character_repo=FakeCharacterRepository([make_character()]),
         spell_repo=FakeSpellRepository([make_spell()]),
@@ -234,6 +249,7 @@ def test_generation_rejects_oversize_module_without_changing_output(tmp_path: Pa
 def test_generation_requires_faction_and_class_dependencies(tmp_path: Path) -> None:
     with pytest.raises(TypeError) as error:
         generate_lua_data_modules(
+            build_repo=FakeBuildRepository(),
             item_repo=FakeItemRepository(items=[make_item()], stats={}, classes={}),
             character_repo=FakeCharacterRepository([make_character()]),
             spell_repo=FakeSpellRepository([make_spell()]),
