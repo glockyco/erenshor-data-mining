@@ -1,0 +1,110 @@
+{
+  "pages": {
+    "Reckless": {
+      "stable_key": "stance:reckless",
+      "state": "removed",
+      "thing": "stance",
+      "update": "Planar March",
+      "date": "2026-07-13",
+      "patch_notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1837955055363541",
+      "source": "Planar March live patch notes: Reckless Stance removed. No current skill activates stance:reckless."
+    },
+    "Stance: Reckless": {
+      "stable_key": null,
+      "state": "removed",
+      "thing": "skill",
+      "update": "Planar March",
+      "date": "2026-07-13",
+      "patch_notes_url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1837955055363541",
+      "source": "Planar March live patch notes: Reckless Stance removed and Reckless Strike added. Current skills have no Stance: Reckless page."
+    },
+    "Mana Burst": {
+      "stable_key": "spell:arc - manaburst",
+      "state": "removed",
+      "thing": "spell",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "Clean DB retains an inert spell with required_level=-1, no spell_classes, no teaching item, and no NPC-use row. Its old wiki page says it is no longer in the game. No named removal update appears in the Steam news API."
+    },
+    "Mana Call": {
+      "stable_key": "spell:arc - manacall",
+      "state": "removed",
+      "thing": "spell",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "Clean DB retains an inert spell with required_level=-1, no spell_classes, no teaching item, and no NPC-use row. Its old wiki page says it is no longer in the game. No named removal update appears in the Steam news API."
+    },
+    "Spell Scroll: Mana Burst": {
+      "stable_key": null,
+      "state": "removed",
+      "thing": "item",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "Old wiki article exists, but the scroll is absent from current clean DB items, vendors, drops, and teaching items. No named removal update appears in the Steam news API."
+    },
+    "Spell Scroll: Mana Call": {
+      "stable_key": null,
+      "state": "removed",
+      "thing": "item",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "Old wiki article exists, but the scroll is absent from current clean DB items, vendors, drops, and teaching items. No named removal update appears in the Steam news API."
+    },
+    "Spell Scroll: Mana Flood": {
+      "stable_key": null,
+      "state": "removed",
+      "thing": "item",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "Old wiki article exists, but the scroll is absent from current clean DB items, vendors, drops, and teaching items. No named removal update appears in the Steam news API."
+    },
+    "Spell Scroll: Mana Charge": {
+      "stable_key": "item:spell scroll - mana charge",
+      "state": "unobtainable",
+      "thing": "item",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "Clean DB retains the item and its Mana Charge teaching link, but has no vendor, drop, starting-item, crafting, dialog, or spell-created source. The old wiki article says it is no longer obtainable."
+    },
+    "Charged Soul Gem (Aragath)": {
+      "stable_key": "item:quest - charged soul gem aragath",
+      "state": "unobtainable",
+      "thing": "item",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "Clean DB retains the item, but has no vendor, drop, starting-item, crafting, dialog, or spell-created source. The old wiki article says it is no longer obtainable."
+    },
+    "Pristine Ceremonial Ring": {
+      "stable_key": "item:ring - 14 - ancient ceremonial ring 1",
+      "state": "unobtainable",
+      "thing": "item",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "Clean DB retains a crafting-reward row for this item. The wiki's crafting explanation says ancient coal now creates a blessed item instead."
+    },
+    "Unusual Copper Sceptre": {
+      "stable_key": "item:wand - bronzesceptre 1",
+      "state": "unobtainable",
+      "thing": "item",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "Clean DB retains a crafting-reward row for this item. The wiki's crafting explanation says tier 2 crafting now gives a blessed item instead."
+    }
+  },
+  "renames": {
+    "Skill Book: Reckless Stance": {
+      "stable_key": "item:skillbook - stance - reckless",
+      "current_title": "Skill Book: Reckless Strike",
+      "source": "Current clean DB maps the same stable item key to Skill Book: Reckless Strike. The old wiki page remains at Skill Book: Reckless Stance."
+    }
+  }
+}

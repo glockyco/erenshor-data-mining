@@ -24,6 +24,7 @@ def _service() -> tuple[WikiGenerateService, MagicMock, MagicMock]:
     service._storage = storage
     service._page_normalizer = normalizer
     service._console = Console(file=StringIO())
+    service._lifecycle = None
     return service, storage, normalizer
 
 

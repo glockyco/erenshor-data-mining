@@ -19,6 +19,7 @@ if TYPE_CHECKING:
 
     from erenshor.application.wiki.generators.base import GeneratedPage
     from erenshor.application.wiki.generators.context import GeneratorContext
+    from erenshor.application.wiki.lifecycle import ContentLifecycle
     from erenshor.application.wiki.semantic_validation import WikiPageExpectation
     from erenshor.application.wiki_lua.link_catalog import LinkCatalogEntry
 
@@ -32,6 +33,7 @@ from erenshor.application.wiki.generators.page_normalizer import PageNormalizer
 from erenshor.application.wiki.generators.pages.armor_overview import ArmorOverviewPageGenerator
 from erenshor.application.wiki.generators.pages.weapons_overview import WeaponsOverviewPageGenerator
 from erenshor.application.wiki.generators.registry import get_generators_by_name
+from erenshor.application.wiki.lifecycle import apply_lifecycle_fields, validate_generated_lifecycle
 from erenshor.application.wiki.semantic_validation import page_expectation
 from erenshor.application.wiki.services.page import OperationResult
 from erenshor.application.wiki_deploy.link_audit import LinkTargets
@@ -63,6 +65,7 @@ class WikiGenerateService:
         context: GeneratorContext,
         link_catalog: Sequence[LinkCatalogEntry],
         console: Console | None = None,
+        lifecycle: ContentLifecycle | None = None,
     ) -> None:
         """Initialize generate service with a shared generator context.
 
@@ -71,11 +74,13 @@ class WikiGenerateService:
             link_catalog: Link catalog of the generated data. Merged list fields
                 identify their entries by the page that the catalog links.
             console: Console for progress output.
+            lifecycle: Reviewed page states and renames to place in generated roots.
         """
         self._context = context
         self._storage = context.storage
         self._console = console or Console()
 
+        self._lifecycle = lifecycle
         # Handlers for preservation and normalization
         self._preservation_handler = FieldPreservationHandler(
             FieldPreservationConfig(link_targets=LinkTargets(link_catalog))
@@ -128,6 +133,8 @@ class WikiGenerateService:
             generated_pages.extend(pages)
 
         logger.info(f"Total pages generated: {len(generated_pages)}")
+        if self._lifecycle is not None and not page_titles and not limit and not generator_names:
+            validate_generated_lifecycle({page.title: page.stable_keys for page in generated_pages}, self._lifecycle)
 
         # Remove stale storage entries on full unfiltered generation
         if not page_titles and not limit and not generator_names:
@@ -194,6 +201,10 @@ class WikiGenerateService:
             try:
                 # Get generated content
                 page_content = gen_page.content
+                if self._lifecycle is not None:
+                    page_content = apply_lifecycle_fields(
+                        gen_page.title, gen_page.stable_keys, page_content, self._lifecycle
+                    )
 
                 # Fetch existing content for preservation
                 existing = self._storage.read_fetched_by_title(gen_page.title)

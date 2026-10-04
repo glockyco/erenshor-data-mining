@@ -34,6 +34,7 @@ from rich.panel import Panel
 
 from erenshor.application.extract.database_comparison import recorded_build_id
 from erenshor.application.wiki.generators.context import GeneratorContext
+from erenshor.application.wiki.lifecycle import load_content_lifecycle
 from erenshor.application.wiki.semantic_validation import validate_wiki_pages
 from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
 from erenshor.application.wiki.services.fetch_service import WikiFetchService
@@ -817,7 +818,8 @@ def generate(
     try:
         with _create_wiki_composition(cli_ctx, with_client=False) as composition:
             link_catalog = composition.context.link_catalog_entries()
-            service = WikiGenerateService(context=composition.context, link_catalog=link_catalog)
+            lifecycle = load_content_lifecycle(cli_ctx.repo_root / "content-lifecycle.json")
+            service = WikiGenerateService(context=composition.context, link_catalog=link_catalog, lifecycle=lifecycle)
 
             # Validate the exact pages of the run before generation reports
             # success. Validation includes the offline semantic-link audit.
