@@ -1,10 +1,10 @@
 <includeonly>{{#ifeq:{{NAMESPACENUMBER}}|0|<!--
 -->{{#ifeq:{{{item_type|}}}|weapon|[[Category:Weapons]]<!--
 -->{{#if:{{{range|}}}|{{#ifexpr:{{{range}}}>1|[[Category:Ranged Weapons]]}}}}<!--
--->{{#ifeq:{{{weapon_type|}}}|Primary - 2-Handed|[[Category:2-Handed Weapons]]}}<!--
+-->{{#if:{{{two_handed|}}}|[[Category:2-Handed Weapons]]|<!--
 -->{{#ifeq:{{{weapon_type|}}}|Primary|[[Category:Primary Weapons]]}}<!--
 -->{{#ifeq:{{{weapon_type|}}}|Primary or Secondary|[[Category:Primary or Secondary Weapons]]}}<!--
--->{{#ifeq:{{{weapon_type|}}}|Secondary|[[Category:Off-Hand Equipment]]}}}}<!--
+-->{{#ifeq:{{{weapon_type|}}}|Secondary|[[Category:Off-Hand Equipment]]}}}}}}<!--
 -->{{#ifeq:{{{item_type|}}}|armor|[[Category:Armor]]<!--
 -->{{#ifeq:{{{slot|}}}|Charm|[[Category:Charms]]}}<!--
 -->{{#ifeq:{{{slot|}}}|Head|[[Category:Head Armor]]}}<!--
@@ -51,6 +51,8 @@ Auto-assigns categories based on item properties. Only applies in main namespace
 |-
 | '''weapon_type''' || For weapons || Slot type: Primary, Secondary, Primary or Secondary, Primary - 2-Handed
 |-
+| '''two_handed''' || For two-handed weapons || Set for two-handed melee weapons, staffs, and bows. Excludes slot categories.
+|-
 | '''slot''' || For armor || Armor slot: Head, Neck, Ring, Hand, Chest, Arm, Bracer, Leg, Waist, Foot, Back, Charm
 |-
 | '''range''' || For ranged || Weapon range (>1 adds to Ranged Weapons category)
@@ -69,7 +71,7 @@ Auto-assigns categories based on item properties. Only applies in main namespace
 {| class="wikitable"
 ! item_type !! Categories Added
 |-
-| weapon || Weapons + slot-specific + ranged if applicable
+| weapon || Weapons + 2-Handed Weapons or a slot category + ranged if applicable
 |-
 | armor || Armor + slot-specific
 |-
@@ -113,6 +115,7 @@ In addition to the item-type categories above, items are also placed into spell-
 {{Item/Categories
 |item_type=weapon
 |weapon_type=Primary - 2-Handed
+|two_handed=True
 }}
 </pre>
 

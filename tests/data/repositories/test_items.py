@@ -89,6 +89,7 @@ def test_item_entities_include_item_flags(item_repo: ItemRepository):
     assert any(item.is_auctionable == 1 for item in items)
     assert any(item.is_auctionable == 0 for item in items)
     assert any(item.player_cannot_sell == 1 for item in items)
+    assert any(item.must_be_equipped_to_click == 1 for item in items)
 
 
 def test_get_item_stats_orders_all_quality_tiers(tmp_path: Path):

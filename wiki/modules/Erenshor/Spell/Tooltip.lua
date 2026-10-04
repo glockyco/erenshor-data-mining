@@ -23,9 +23,8 @@ local FLAGS = {
 	{ key = "root", label = "Roots Target" },
 }
 
--- Stat-modifier percent suffixes for the spell tooltip (SpellbookSlot: only
--- lifesteal carries a %, haste does not).
-local MOD_SUFFIX = { lifesteal = "%" }
+-- Stat-modifier percent suffixes follow the item's spell-details window.
+local MOD_SUFFIX = { lifesteal = "%", haste = "%" }
 
 -- "X sec" with C#-style number formatting (2.0 -> "2", 1.5 -> "1.5").
 local function seconds(value)

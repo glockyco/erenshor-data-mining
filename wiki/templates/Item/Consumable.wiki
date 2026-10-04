@@ -3,6 +3,7 @@
 {{Item/Header
  |icon=[[File:{{{image}}}|80px]]
  |name={{{name}}}
+ |value={{{value|}}}
  |tier=0
 }}
 {| class="item-tooltip-body"
@@ -77,6 +78,8 @@ Template for displaying consumable item tooltips (potions, food, scrolls, etc.).
 | '''image''' || Yes || Item icon image filename
 |-
 | '''name''' || Yes || Consumable name
+|-
+| '''value''' || No || Item value in gold, or "Unsellable"
 |-
 | '''description''' || No || Flavor text
 |-

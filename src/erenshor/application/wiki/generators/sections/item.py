@@ -125,10 +125,15 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "type": self._weapon_type_display(item.required_slot, item.this_weapon_type)
             if kind == ItemKind.WEAPON
             else "",
+            "two_handed": "True"
+            if kind == ItemKind.WEAPON and item.this_weapon_type in ("TwoHandMelee", "TwoHandStaff", "TwoHandBow")
+            else "",
             "relic": "True" if item.relic else "",
+            "must_equip": "True" if item.must_be_equipped_to_click and item.item_effect_on_click_stable_key else "",
+            "value": self._item_window_value(item),
             "damage": safe_str(stats.weapon_dmg) if stats.weapon_dmg else "",
             "delay": safe_str(item.weapon_dly) if item.weapon_dly else "",
-            "range": self._get_weapon_range(item),
+            "range": self._get_weapon_range(item, stats.weapon_dmg),
             "str": safe_str(stats.str_),
             "end": safe_str(stats.end_),
             "dex": safe_str(stats.dex),
@@ -150,6 +155,11 @@ class ItemSectionGenerator(SectionGeneratorBase):
         context.update(self._build_proc_tooltip_context(enriched))
         return context
 
+    def _item_window_value(self, item: Item) -> str:
+        if item.item_value is not None and item.item_value > 0 and not item.no_trade_no_destroy:
+            return safe_str(item.item_value)
+        return "Unsellable"
+
     def _normal_stats(self, enriched: EnrichedItemData) -> ItemStats:
         for stats in enriched.stats:
             if stats.quality == "Standard":
@@ -169,17 +179,19 @@ class ItemSectionGenerator(SectionGeneratorBase):
         if slot == "PrimaryOrSecondary":
             slot = "Primary or Secondary"
         weapon_kind = (this_weapon_type if this_weapon_type is not None else "").strip()
-        two_handed = weapon_kind in ("TwoHandMelee", "TwoHandStaff", "TwoHandBow")
+        two_handed = weapon_kind in ("TwoHandMelee", "TwoHandStaff")
         if two_handed:
             slot += " - 2-Handed"
         return slot
 
-    def _get_weapon_range(self, item: Item) -> str:
-        if item.is_wand and item.wand_range and item.wand_range > 0:
-            return str(item.wand_range)
-        if item.is_bow and item.bow_range and item.bow_range > 0:
-            return str(item.bow_range)
-        return ""
+    def _get_weapon_range(self, item: Item, damage: int | None) -> str:
+        if not (damage or item.weapon_dly):
+            return ""
+        if item.is_wand:
+            return safe_str(item.wand_range or 0)
+        if item.is_bow:
+            return safe_str(item.bow_range or 0)
+        return "1"
 
     def _legacy_class_flags(self, class_names: list[str]) -> dict[str, str]:
         flagged = {name.lower() for name in class_names}
@@ -223,6 +235,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         return {
             "image": f"{image_name}.png" if image_name else f"{page_title}.png",
             "name": display_name,
+            "value": self._item_window_value(item),
             "tier": "0",
             "strscaling": format_scaling(stat.str_scaling),
             "endscaling": format_scaling(stat.end_scaling),
@@ -249,6 +262,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         aura_context = {
             "image": f"{image_name}.png" if image_name else "",
             "name": display_name,
+            "value": self._item_window_value(item),
             "description": format_description(safe_str(item.lore)) if item.lore else "",
             **spell_details,
         }
@@ -277,6 +291,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         spellscroll_context = {
             "image": f"{image_name}.png" if image_name else "",
             "name": display_name,
+            "value": self._item_window_value(item),
             "arcanist_level": class_level("Arcanist"),
             "druid_level": class_level("Druid"),
             "duelist_level": class_level("Duelist"),
@@ -309,6 +324,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         skillbook_context = {
             "image": f"{image_name}.png" if image_name else "",
             "name": display_name,
+            "value": self._item_window_value(item),
             "duelist_level": level_str(skill.duelist_required_level) if skill else "",
             "druid_level": level_str(skill.druid_required_level) if skill else "",
             "arcanist_level": level_str(skill.arcanist_required_level) if skill else "",
@@ -337,6 +353,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         consumable_context = {
             "image": f"{image_name}.png" if image_name else "",
             "name": display_name,
+            "value": self._item_window_value(item),
             "description": format_description(safe_str(item.lore)) if item.lore else "",
             "disposable": "True" if item.disposable else "",
             **spell_details,
@@ -366,6 +383,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         mold_context = {
             "image": f"{image_name}.png" if image_name else "",
             "name": display_name,
+            "value": self._item_window_value(item),
             "description": format_description(safe_str(item.lore)) if item.lore else "",
             "ingredients": ingredients,
             "rewards": rewards,
@@ -395,9 +413,9 @@ class ItemSectionGenerator(SectionGeneratorBase):
 
         general_context = {
             "image": f"{image_name}.png" if image_name else "",
+            "value": self._item_window_value(item),
             "name": display_name,
             "description": format_description(safe_str(item.lore)) if item.lore else "",
-            "value": safe_str(item.item_value) if item.item_value else "",
             "stack_size": "",
             "disposable": "True" if item.disposable else "",
             **spell_details,

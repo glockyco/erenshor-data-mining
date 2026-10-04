@@ -82,7 +82,8 @@ def test_weapon_tooltip_args_are_display_ready() -> None:
     result = generator.generate_template(enriched, "Oldenbow")
 
     assert "|image=Oldenbow.png" in result
-    assert "|type=Primary - 2-Handed" in result
+    assert "|type=Primary\n" in result
+    assert "|two_handed=True" in result
     assert "|range=25" in result
     assert "|proc_spell_name={{AbilityLink|stablekey=spell:ice_spear}}" in result
     assert "|proc_spell_icon=Ice Spear.png" in result
@@ -91,6 +92,89 @@ def test_weapon_tooltip_args_are_display_ready() -> None:
     assert "|proc_target_healing=\n" in result
     assert "|proc_shielding_amt=\n" in result
     assert "|proc_xp_bonus=\n" in result
+
+
+def test_two_handed_melee_keeps_game_label_and_category_flag() -> None:
+    item = Item(
+        stable_key="item:two_handed_sword",
+        item_name="Two-Handed Sword",
+        required_slot="Primary",
+        this_weapon_type="TwoHandMelee",
+        weapon_dly=2,
+    )
+    enriched = EnrichedItemData(
+        item=item,
+        stats=[ItemStats(item_stable_key=item.stable_key, quality="Standard", weapon_dmg=20)],
+        classes=[],
+    )
+
+    result = ItemSectionGenerator().generate_template(enriched, "Two-Handed Sword")
+
+    assert "|type=Primary - 2-Handed" in result
+    assert "|two_handed=True" in result
+
+
+def test_melee_range_matches_game_and_does_not_appear_without_attack_stats() -> None:
+    sword = Item(
+        stable_key="item:weap - 1 - rusty sword",
+        item_name="Rusty Shortsword",
+        required_slot="PrimaryOrSecondary",
+        this_weapon_type="OneHandMelee",
+        weapon_dly=1.25,
+    )
+    stats = [ItemStats(item_stable_key=sword.stable_key, quality="Standard", weapon_dmg=3)]
+    result = ItemSectionGenerator().generate_template(
+        EnrichedItemData(item=sword, stats=stats, classes=[]), "Rusty Shortsword"
+    )
+    assert "|range=1\n" in result
+
+    armor = sword.model_copy(update={"required_slot": "Chest", "weapon_dly": 0})
+    no_damage = [ItemStats(item_stable_key=sword.stable_key, quality="Standard", weapon_dmg=0)]
+    result = ItemSectionGenerator().generate_template(
+        EnrichedItemData(item=armor, stats=no_damage, classes=[]), "Rusty Shortsword"
+    )
+    assert "|range=\n" in result
+
+
+def test_click_effect_requires_equipping_only_when_game_flag_is_set() -> None:
+    item = Item(
+        stable_key="item:back - 42 - wakeweaver",
+        item_name="Wakeweaver",
+        required_slot="Back",
+        item_effect_on_click_stable_key="spell:dru - predator's grace",
+        must_be_equipped_to_click=1,
+    )
+    stats = [ItemStats(item_stable_key=item.stable_key, quality="Standard", ac=100)]
+    enriched = EnrichedItemData(item=item, stats=stats, classes=[])
+    generator = ItemSectionGenerator()
+
+    assert "|must_equip=True" in generator.generate_template(enriched, "Wakeweaver")
+    unflagged = EnrichedItemData(item=item.model_copy(update={"must_be_equipped_to_click": 0}), stats=stats, classes=[])
+    assert "|must_equip=\n" in generator.generate_template(unflagged, "Wakeweaver")
+
+
+def test_item_window_value_uses_no_trade_flag_not_vendor_sell_restriction() -> None:
+    generator = ItemSectionGenerator()
+    bow = Item(stable_key="item:molorai_bow", item_name="Molorai Bow", required_slot="Primary", item_value=400)
+    stats = [ItemStats(item_stable_key=bow.stable_key, quality="Standard", weapon_dmg=23)]
+    assert "|value=400\n" in generator.generate_template(
+        EnrichedItemData(item=bow, stats=stats, classes=[]), "Molorai Bow"
+    )
+
+    restricted = bow.model_copy(update={"item_value": 5000, "no_trade_no_destroy": 1})
+    assert "|value=Unsellable\n" in generator.generate_template(
+        EnrichedItemData(item=restricted, stats=stats, classes=[]), "Restricted Bow"
+    )
+
+    vendor_only = bow.model_copy(update={"player_cannot_sell": 1})
+    assert "|value=400\n" in generator.generate_template(
+        EnrichedItemData(item=vendor_only, stats=stats, classes=[]), "Vendor Restricted Bow"
+    )
+
+    wakeweaver = Item(stable_key="item:wakeweaver", item_name="Wakeweaver", required_slot="Back", item_value=0)
+    assert "|value=Unsellable\n" in generator.generate_template(
+        EnrichedItemData(item=wakeweaver, stats=stats, classes=[]), "Wakeweaver"
+    )
 
 
 def test_item_effect_selection_matches_game_click_priority() -> None:

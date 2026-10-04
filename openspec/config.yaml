@@ -7,12 +7,6 @@ context: |
   README.md describes the pipeline (Steam install, raw export, code facts, clean SQLite, wiki, sheets, map, mods) and its concepts.
   Project workflows run through `uv run erenshor ...`. Direct package-manager commands are only for dependency bootstrap and validation.
   Prefer clean cutovers, one owner for each generated file, fail-closed automation, and no compatibility shims.
-  Never modify shipped-game reference files, installed game files, generated data, or deployment outputs by hand.
-  Deploys to the wiki, the map, or the sheets need the maintainer's approval.
-  The Nix dev shell must never compile a toolchain from source.
-  Fix every failing check you meet, including failures that predate the change.
-  Follow the relevant subsystem skill before implementation.
-  Wiki work follows the plan in the change `adopt-data-backed-wiki`. Read its design before any wiki change, and track wiki work only in OpenSpec.
 
 rules:
   proposal:

@@ -3,6 +3,7 @@
 {{Item/Header
  |icon={{#ifeq:{{{tier|}}}|1|{{SparkleIcon|icon=[[File:{{{image}}}|80px]]|sparkle=Blue_Sparkle.gif|sparkle_size=80px}}|{{#ifeq:{{{tier|}}}|2|{{SparkleIcon|icon=[[File:{{{image}}}|80px]]|sparkle=Purple_Sparkle.gif|sparkle_size=80px}}|{{SparkleIcon|icon=[[File:{{{image}}}|80px]]|sparkle=blank.png|sparkle_size=0px}}}}}}
  |name={{{name}}}
+ |value={{{value|}}}
  |tier={{{tier|0}}}
  |type=Slot: [[Armor#{{{slot}}}|{{{slot}}}]]{{#if:{{{relic|}}}|&#32;- Relic Item}}
 }}
@@ -41,9 +42,9 @@
 --></div><!--
 --></div><!--
 --></div>
-{{#if:{{{description|}}}|<div class="item-tooltip-description">{{{description|}}}<!--
--->{{#ifeq:{{{proc_style|}}}|Activatable|<div class="item-tooltip-activatable-name">Activatable: {{{proc_spell_name|}}}</div><div class="item-tooltip-proc-usage">Right click or assign to hotkey to use.</div>}}<!--
--->{{#ifeq:{{{proc_style|}}}|Worn|<div class="item-tooltip-worn-name">Worn Effect: {{{proc_spell_name|}}}</div><div class="item-tooltip-proc-usage">Effect applied once item is equipped.</div>}}</div>}}
+{{#if:{{{description|}}}|<div class="item-tooltip-description">{{{description|}}}</div>}}<!--
+-->{{#ifeq:{{{proc_style|}}}|Activatable|<div class="item-tooltip-activatable-name">Activatable: {{{proc_spell_name|}}}</div>{{#if:{{{must_equip|}}}|<div class="item-spell-flag">Must Equip to Cast</div>}}<div class="item-tooltip-proc-usage">Right click or assign to hotkey to use.</div>}}<!--
+-->{{#ifeq:{{{proc_style|}}}|Worn|<div class="item-tooltip-worn-name">Worn Effect: {{{proc_spell_name|}}}</div><div class="item-tooltip-proc-usage">Effect applied once item is equipped.</div>}}
 {{Item/ClassRestrictions
  |arcanist={{{arcanist|}}}
  |duelist={{{duelist|}}}
@@ -120,6 +121,8 @@ Master template for displaying complete armor tooltips. Combines header, stats, 
 |-
 | '''name''' || Yes || Armor name
 |-
+| '''value''' || No || Item value in gold, or "Unsellable"
+|-
 | '''slot''' || Yes || Armor slot: Head, Neck, Ring, Hand, Chest, Arm, Bracer, Leg, Waist, Foot, Back
 |-
 | '''tier''' || No || Quality tier: 0=Normal (default), 1=Blessed, 2=Godly
@@ -139,6 +142,8 @@ Master template for displaying complete armor tooltips. Combines header, stats, 
 | '''arcanist, duelist, druid, paladin, reaver, stormcaller''' || No || Class restrictions (set to any value)
 |-
 | '''proc_style''' || No || Worn, Activatable, or Cast (for bracers)
+|-
+| '''must_equip''' || No || Show "Must Equip to Cast" under an activatable effect
 |-
 | '''proc_chance''' || No || Proc chance percentage (for Cast style bracers)
 |-

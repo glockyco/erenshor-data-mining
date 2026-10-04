@@ -199,9 +199,12 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
             "kind",
             "image",
             "name",
+            "value",
             "slot",
             "type",
+            "two_handed",
             "relic",
+            "must_equip",
             "str",
             "end",
             "dex",
@@ -278,6 +281,7 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
         "Item/Weapon": [
             "image",
             "name",
+            "value",
             "type",
             "relic",
             "tier",
@@ -357,6 +361,7 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
         "Item/Armor": [
             "image",
             "name",
+            "value",
             "slot",
             "relic",
             "tier",
@@ -433,6 +438,7 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
         "Item/Charm": [
             "image",
             "name",
+            "value",
             "tier",
             "strscaling",
             "endscaling",
@@ -453,6 +459,7 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
         "Item/Consumable": [
             "image",
             "name",
+            "value",
             "description",
             "disposable",
             "effect_spell_icon",
@@ -556,6 +563,7 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
         "Item/Aura": [
             "image",
             "name",
+            "value",
             "description",
             "aura_spell_icon",
             "aura_spell_name",
@@ -602,10 +610,11 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
             "aura_add_proc_chance",
             "aura_special_descriptor",
         ],
-        "Item/Mold": ["image", "name", "description", "ingredients", "rewards", "station"],
+        "Item/Mold": ["image", "name", "value", "description", "ingredients", "rewards", "station"],
         "Item/SkillBook": [
             "image",
             "name",
+            "value",
             "duelist_level",
             "druid_level",
             "arcanist_level",
@@ -619,6 +628,7 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
         "Item/SpellScroll": [
             "image",
             "name",
+            "value",
             "arcanist_level",
             "druid_level",
             "duelist_level",

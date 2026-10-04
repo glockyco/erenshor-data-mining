@@ -105,6 +105,10 @@ A new Steam build runs through backup, rip, export, code facts, and build, then 
 - Never edit generated output by hand: databases, `quest_guides/guide.json`, map builds, captured tiles, generated wiki pages, or mod metadata. Change the generator and regenerate.
 - Deploys to the wiki, the map, or the sheets need the maintainer's approval. Review each deploy with its dry run first.
 - The live map keeps its legacy contract: `/map` with the `layers` and `sel` parameters on both hosts, WebSocket ports 18584 and 18585, and `/db/erenshor.sqlite`.
+- The Nix dev shell must never compile a toolchain from source.
+- Fix every failing check you meet, including failures that predate the change.
+- Follow the relevant subsystem skill before implementing a change.
+- Wiki work follows the plan in the OpenSpec change `adopt-data-backed-wiki`. Read its design before any wiki change, and track wiki work only in OpenSpec.
 
 ### Design principles
 
