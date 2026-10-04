@@ -88,15 +88,20 @@ A full article review SHALL list existing live pages created by WoWBot when curr
 - **WHEN** the review cannot confirm the live status or creator of a candidate page
 - **THEN** it reports that the review is incomplete instead of treating the missing result as no retired page
 
-### Requirement: Content that players cannot reach is marked unused
+### Requirement: Content that nothing spawns is marked unused
 
-The wiki SHALL mark a page about content that ships in the game files but that players cannot reach with a distinct `Historical Content` message. It SHALL not call that content removed. It SHALL place the page in `Category:Unused Content` and keep the rest of the page.
+The wiki SHALL mark a page about content that ships in the game files but that nothing in the current game spawns with a distinct `Historical Content` message. It SHALL not call that content removed. When simulated players can still name the content in chat, the message SHALL say so. It SHALL place the page in `Category:Unused Content` and keep the rest of the page.
 
-#### Scenario: A character that no scene places
+#### Scenario: A character that nothing spawns
 
 - **WHEN** the facts file records `Queen Evadne` as unused
-- **THEN** her page says that she is in the game files but does not appear anywhere in the current game
+- **THEN** her page says that she is in the game files but that nothing in the current game spawns her
 - **AND** the page appears in `Category:Unused Content`
+
+#### Scenario: A character that chat still names
+
+- **WHEN** the facts file records `Ancient Sentinel` as unused and named in chat
+- **THEN** its page also says that simulated players can still name it in chat
 
 ### Requirement: A split page points to its parts
 

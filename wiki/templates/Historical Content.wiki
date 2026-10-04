@@ -9,7 +9,7 @@
 </div>{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Unobtainable Content]]}}
 |unused=<div class="navbox" style="clear:both; box-sizing:border-box; border:1px solid #aaa; padding:4px; margin:1em 0; text-align:center; width:100%;">
 <div style="font-weight:bold; padding:2px; background: rgb(19, 55, 89);">Historical Content</div>
-<p>This {{{thing|character}}} is in the game files, but it does not appear anywhere in the current game.</p>
+<p>This {{{thing|character}}} is in the game files, but nothing in the current game spawns it.{{#if:{{{chat|}}}|&#32;Simulated players can still name it in chat.}}</p>
 </div>{{#ifeq:{{NAMESPACENUMBER}}|0|[[Category:Unused Content]]}}
 }}</includeonly><noinclude>
 == Historical Content ==
@@ -20,6 +20,7 @@ Use this notice on a page about removed content, an item that can no longer be o
 * <code>update</code>: The update name, if known.
 * <code>date</code>: The update date, if known.
 * <code>url</code>: A link to the update's patch notes, if known.
+* <code>chat</code>: <code>yes</code> on unused content that simulated players can still name in chat.
 
 <pre>{{Historical Content|state=removed|thing=skill|update=Planar March|date=July 13, 2026|url=https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1837955055363541}}</pre>
 </noinclude>

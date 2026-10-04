@@ -1,4 +1,4 @@
-{{Historical Content|state=unused|thing=character}}
+{{Historical Content|state=unused|thing=character|chat=yes}}
 {{Character
 |name=Historical Unused Character
 |type=Enemy

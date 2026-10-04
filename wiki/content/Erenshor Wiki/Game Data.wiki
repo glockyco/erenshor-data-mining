@@ -111,7 +111,7 @@ When a game update removes or renames something, its page stays on the wiki. Old
 |-
 | It is still in the game, but players can no longer get it || A box says that it can no longer be obtained. The page is in [[:Category:Unobtainable Content]].
 |-
-| It is in the game files, but it does not appear anywhere in the game || A box says this. The page is in [[:Category:Unused Content]].
+| It is in the game files, but nothing in the game spawns it || A box says this. If simulated players can still name it in chat, the box says that too. The page is in [[:Category:Unused Content]].
 |-
 | The game renamed it || The old title redirects to the page with the new name.
 |-
