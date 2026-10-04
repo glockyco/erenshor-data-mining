@@ -86,8 +86,6 @@ from erenshor.application.wiki_interface.manifest import (
     write_interface_deploy_manifest,
 )
 from erenshor.application.wiki_interface.sync import MediaWikiInterfaceClient, sync_interface_pages
-from erenshor.application.wiki_inventory.api import FixtureDirectoryTransport, MediaWikiInventoryClient
-from erenshor.application.wiki_inventory.templates import render_ownership_manifest, template_inventory_from_api
 from erenshor.application.wiki_lua.generation import (
     generate_lua_data_modules,
     item_shard_dir,
@@ -741,50 +739,6 @@ def audit_links_command(
 
     if report.has_errors:
         raise typer.Exit(1)
-
-
-@app.command("inventory-templates")
-@require_preconditions(wiki_endpoint, option_path("fixture_dir", kind="directory"))
-def inventory_templates(
-    ctx: typer.Context,
-    output: Path = typer.Option(
-        Path("wiki/ownership.yml"),
-        "--output",
-        "-o",
-        help="Path to write the template ownership manifest.",
-    ),
-    fixture_dir: Path | None = typer.Option(
-        None,
-        "--fixture-dir",
-        help="Replay recorded MediaWiki API fixtures instead of calling the live wiki.",
-    ),
-) -> None:
-    """Inventory production templates and write the ownership manifest."""
-    cli_ctx: CLIContext = ctx.obj
-    wiki_config = cli_ctx.config.global_.mediawiki
-    transport = FixtureDirectoryTransport(fixture_dir) if fixture_dir is not None else None
-    requestor = (
-        None
-        if transport is not None
-        else MediaWikiRequestor(
-            api_url=wiki_config.api_url,
-            policy=MediaWikiRequestPolicy(read_delay=wiki_config.api_delay),
-        )
-    )
-    client = MediaWikiInventoryClient(transport=transport, requestor=requestor)
-
-    try:
-        manifest = render_ownership_manifest(template_inventory_from_api(client))
-        output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(manifest, encoding="utf-8")
-        console.print(f"[green]Wrote template ownership manifest:[/green] {output}", soft_wrap=True)
-    except Exception as e:
-        console.print(f"[red]Error during template inventory: {e}[/red]")
-        logger.exception("Template inventory failed")
-        raise typer.Exit(1) from e
-    finally:
-        if requestor is not None:
-            requestor.close()
 
 
 @app.command()

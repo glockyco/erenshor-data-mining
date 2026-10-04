@@ -432,33 +432,6 @@ class TestWikiLinkAuditCommand:
         assert "Semantic validation found" in result.output
 
 
-class TestWikiInventoryTemplatesCommand:
-    """Test wiki template inventory command."""
-
-    def test_inventory_templates_writes_manifest_from_recorded_fixtures(self, tmp_path: Path, cli_context: CLIContext):
-        """Test template inventory writes ownership manifest from recorded API fixtures."""
-        output_path = tmp_path / "ownership.yml"
-
-        result = runner.invoke(
-            wiki.app,
-            [
-                "inventory-templates",
-                "--fixture-dir",
-                "tests/fixtures/wiki_inventory",
-                "--output",
-                str(output_path),
-            ],
-            obj=cli_context,
-        )
-
-        assert result.exit_code == 0
-        manifest = output_path.read_text(encoding="utf-8")
-        assert "title: Template:Item" in manifest
-        assert "ownership: repo_owned_template" in manifest
-        assert "cutover_blocking: true" in manifest
-        assert "Wrote template ownership manifest" in result.output
-
-
 class TestWikiSyncInterfaceCommand:
     """Test wiki interface sync command."""
 
