@@ -16,11 +16,13 @@ Example workflow:
 """
 
 import json
+import sqlite3
 import sys
 import tempfile
 import uuid
 from collections import Counter
 from collections.abc import Collection, Mapping, Sequence
+from contextlib import closing
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -33,8 +35,9 @@ from rich.markup import escape
 from rich.panel import Panel
 
 from erenshor.application.extract.database_comparison import recorded_build_id
+from erenshor.application.wiki.chat_knowledge import load_chat_knowledge
 from erenshor.application.wiki.generators.context import GeneratorContext
-from erenshor.application.wiki.lifecycle import ContentLifecycle, load_content_lifecycle
+from erenshor.application.wiki.lifecycle import ContentLifecycle, load_content_lifecycle, with_chat_knowledge
 from erenshor.application.wiki.semantic_validation import validate_wiki_pages
 from erenshor.application.wiki.services.class_display_service import ClassDisplayNameService
 from erenshor.application.wiki.services.fetch_service import WikiFetchService
@@ -752,12 +755,20 @@ def audit_links_command(
         raise typer.Exit(1)
 
 
+def _load_retired_lifecycle(cli_ctx: CLIContext) -> ContentLifecycle:
+    """Read the lifecycle facts, with the chat flag that the clean knowledge base gives."""
+    lifecycle = load_content_lifecycle(cli_ctx.repo_root / "content-lifecycle.json")
+    database = cli_ctx.config.variants[cli_ctx.variant].resolved_database(cli_ctx.repo_root)
+    with closing(sqlite3.connect(f"file:{database}?mode=ro", uri=True)) as clean:
+        return with_chat_knowledge(lifecycle, load_chat_knowledge(clean))
+
+
 def _run_retired_audit(
     cli_ctx: CLIContext, storage: WikiStorage, *, lifecycle: ContentLifecycle | None = None
 ) -> RetiredPageReport:
     """Read current articles and lifecycle facts for a complete live review."""
     if lifecycle is None:
-        lifecycle = load_content_lifecycle(cli_ctx.repo_root / "content-lifecycle.json")
+        lifecycle = _load_retired_lifecycle(cli_ctx)
     generated = storage.read_generated_pages()
     client = _create_readonly_mediawiki_client(cli_ctx)
     try:
@@ -789,7 +800,7 @@ def _run_retired_audit(
 
 
 @app.command("audit-retired-pages")
-@require_preconditions(wiki_endpoint)
+@require_preconditions(wiki_endpoint, database_exists, database_valid)
 def audit_retired_pages_command(ctx: typer.Context) -> None:
     """Review live pages created by WoWBot that generation no longer writes."""
     cli_ctx: CLIContext = ctx.obj
@@ -804,13 +815,13 @@ def audit_retired_pages_command(ctx: typer.Context) -> None:
 
 
 @app.command("apply-retired-pages")
-@require_preconditions(wiki_endpoint, wiki_credentials)
+@require_preconditions(wiki_endpoint, wiki_credentials, database_exists, database_valid)
 def apply_retired_pages_command(ctx: typer.Context) -> None:
     """Apply reviewed historical notices, redirects, and split pages with revision guards."""
     cli_ctx: CLIContext = ctx.obj
     wiki_dir = cli_ctx.config.variants[cli_ctx.variant].resolved_wiki(cli_ctx.repo_root)
     try:
-        lifecycle = load_content_lifecycle(cli_ctx.repo_root / "content-lifecycle.json")
+        lifecycle = _load_retired_lifecycle(cli_ctx)
         report = _run_retired_audit(cli_ctx, WikiStorage(wiki_dir), lifecycle=lifecycle)
         edits = plan_retired_edits(report, lifecycle)
     except Exception as error:

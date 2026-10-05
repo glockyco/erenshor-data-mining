@@ -106,8 +106,7 @@
       "update": null,
       "date": null,
       "patch_notes_url": null,
-      "source": "No scene, prefab, asset, or spawn table refers to the prefab, and a scan of the live game found no reference to it. The game places Sentinel in The Blight instead, which differs only in name, health, and attack damage. Simulated-player chat says that ancient sentinel is in The Blight and names it as the source of Blight Crystals and Ancient Pottery Shard.",
-      "chat": true
+      "source": "No scene, prefab, asset, or spawn table refers to the prefab, and a scan of the live game found no reference to it. The game places Sentinel in The Blight instead, which differs only in name, health, and attack damage. Simulated-player chat says that ancient sentinel is in The Blight and names it as the source of Blight Crystals and Ancient Pottery Shard."
     },
     "Bazxzoth": {
       "stable_key": "character:baxzxoth",
@@ -134,8 +133,7 @@
       "update": null,
       "date": null,
       "patch_notes_url": null,
-      "source": "No scene, prefab, asset, or spawn table refers to the prefab, and a scan of the live game found no reference to it. Simulated-player chat says that holy corpse is in Fernalla's Revival Plains.",
-      "chat": true
+      "source": "No scene, prefab, asset, or spawn table refers to the prefab, and a scan of the live game found no reference to it. Simulated-player chat says that holy corpse is in Fernalla's Revival Plains."
     },
     "Queen Evadne": {
       "stable_key": "character:character_ancientqueen_01",
@@ -144,8 +142,7 @@
       "update": null,
       "date": null,
       "patch_notes_url": null,
-      "source": "No scene, prefab, asset, or spawn table refers to the prefab, and a scan of the live game found no reference to it. Simulated-player chat says that queen evadne is in The Braxonian Desert.",
-      "chat": true
+      "source": "No scene, prefab, asset, or spawn table refers to the prefab, and a scan of the live game found no reference to it. Simulated-player chat says that queen evadne is in The Braxonian Desert."
     },
     "Summoned: Elder Dryad": {
       "stable_key": "character:summoned elder dryad",
@@ -154,8 +151,7 @@
       "update": null,
       "date": null,
       "patch_notes_url": null,
-      "source": "No scene, prefab, asset, or spawn table refers to the prefab, and a scan of the live game found no reference to it. No spell summons it. Simulated-player chat says that summoned elder dryad is in Duskenlight.",
-      "chat": true
+      "source": "No scene, prefab, asset, or spawn table refers to the prefab, and a scan of the live game found no reference to it. No spell summons it. Simulated-player chat says that summoned elder dryad is in Duskenlight."
     }
   },
   "renames": {

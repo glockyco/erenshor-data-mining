@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-import sqlite3
-from contextlib import closing
 from pathlib import Path
 
 import pytest
 
+from erenshor.application.processor.writer import Writer
 from erenshor.cli.context import CLIContext
 from erenshor.infrastructure.config.loader import get_repo_root
 from erenshor.infrastructure.config.schema import (
@@ -26,15 +25,16 @@ def cli_context(tmp_path: Path) -> CLIContext:
 
     Commands guarded by ``@require_preconditions`` refuse to run without an
     existing, readable clean database that holds items. Point the variant at a
-    throwaway database so those guards pass on their own terms instead of being
-    disabled, and keep every other variant path inside the temporary directory
-    so a command can never touch real variant state.
+    throwaway database with the real clean schema and one item, so those guards
+    pass on their own terms instead of being disabled and commands read the
+    tables they expect. Every other variant path stays inside the temporary
+    directory, so a command can never touch real variant state.
     """
     database_path = tmp_path / "erenshor-test.sqlite"
-    with closing(sqlite3.connect(database_path)) as connection:
-        connection.execute("CREATE TABLE items (id INTEGER PRIMARY KEY)")
-        connection.execute("INSERT INTO items (id) VALUES (1)")
-        connection.commit()
+    writer = Writer(database_path)
+    writer.create_schema()
+    writer.insert_items([{"stable_key": "item:test", "display_name": "Test Item", "image_name": "Test Item"}])
+    writer.conn.close()
 
     variant = VariantConfig(
         name="Main",

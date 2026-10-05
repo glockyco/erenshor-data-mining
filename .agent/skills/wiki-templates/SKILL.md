@@ -136,7 +136,7 @@ The plan for the wiki is the OpenSpec change `adopt-data-backed-wiki`. Read its 
 
 `content-lifecycle.json` records what happened to content that a wiki page still names. `openspec/specs/wiki-content-lifecycle/spec.md` holds the rules.
 
-- `pages` gives a page the state `removed`, `unobtainable`, or `unused`, with its `source` evidence. Generation shows the notice of `Template:Historical Content` on that page.
+- `pages` gives a page the state `removed`, `unobtainable`, or `unused`, with its `source` evidence. Generation shows the notice of `Template:Historical Content` on that page. The notice of an unused page also says that simulated players can name it in chat when its knowledge entry has a zone. The file holds no chat flag: the retired-page commands read it from the clean database.
 - `renames` sends an old title to the current title of the same stable key. `apply-retired-pages` writes the redirect.
 - `splits` lists the current titles of one old page. `apply-retired-pages` writes a disambiguation page.
 

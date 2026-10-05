@@ -11,6 +11,7 @@ import mwparserfromhell
 import pytest
 from rich.console import Console
 
+from erenshor.application.wiki.chat_knowledge import ChatKnowledge, KnowledgeEntry
 from erenshor.application.wiki.generators.base import GeneratedPage, PageMetadata
 from erenshor.application.wiki.lifecycle import (
     ContentLifecycle,
@@ -19,6 +20,7 @@ from erenshor.application.wiki.lifecycle import (
     load_content_lifecycle,
     render_split_disambiguation,
     validate_generated_lifecycle,
+    with_chat_knowledge,
 )
 from erenshor.application.wiki.services.generate_service import GeneratedCorpus, WikiGenerateService
 
@@ -100,21 +102,6 @@ def test_generated_skill_notice_uses_its_recorded_noun() -> None:
     assert _fields(text, "Ability")["historical_thing"] == "skill"
 
 
-def test_generated_page_cannot_carry_the_chat_flag() -> None:
-    lifecycle = ContentLifecycle(
-        pages={
-            "Quiet Golem": LifecyclePage(
-                "Quiet Golem", "item:golem", "unused", "item", None, None, None, "Chat names it", chat=True
-            )
-        },
-        renames={},
-        splits={},
-    )
-
-    with pytest.raises(ValueError, match="chat flag applies only to pages that generation does not write"):
-        apply_lifecycle_fields("Quiet Golem", ["item:golem"], "{{Item|stablekey=item:golem}}", lifecycle)
-
-
 def test_lifecycle_does_not_mark_an_unrelated_root_on_the_same_article() -> None:
     lifecycle = load_content_lifecycle(ROOT / "content-lifecycle.json")
     original = (
@@ -168,8 +155,7 @@ def test_planar_march_date_is_readable_on_matching_root() -> None:
         ("date", "2026-02-30", "malformed date"),
         ("patch_notes_url", "http://example.org/notes", "https link"),
         ("date", None, "update requires a date"),
-        ("chat", True, "chat applies only to unused content"),
-        ("chat", False, "chat must be true when present"),
+        ("chat", True, "expected fields"),
     ],
 )
 def test_invalid_lifecycle_fact_names_its_entry(
@@ -190,6 +176,36 @@ def test_invalid_lifecycle_fact_names_its_entry(
 
     with pytest.raises(ValueError, match=f"pages\\['Old Ring'\\].*{message}"):
         load_content_lifecycle(path)
+
+
+def test_chat_flag_marks_only_unused_pages_whose_character_chat_names_unprompted() -> None:
+    def page(title: str, key: str | None, state: str) -> LifecyclePage:
+        return LifecyclePage(title, key, state, "character", None, None, None, "source")  # type: ignore[arg-type]
+
+    def entry(position: int, name: str, zone: str | None, key: str) -> KnowledgeEntry:
+        return KnowledgeEntry(position, name, zone, 10, False, f"NPCs/{name}", (), (key,))
+
+    lifecycle = ContentLifecycle(
+        pages={
+            "Holy Corpse": page("Holy Corpse", "character:holy corpse", "unused"),
+            "Bazxzoth": page("Bazxzoth", "character:baxzxoth", "unused"),
+            "Reckless": page("Reckless", "stance:reckless", "removed"),
+            "Nameless": page("Nameless", None, "unused"),
+        },
+        renames={},
+        splits={},
+    )
+    knowledge = ChatKnowledge(
+        [
+            entry(0, "Holy Corpse", "Fernalla's Revival Plains", "character:holy corpse"),
+            entry(1, "Bazxzoth", None, "character:baxzxoth"),
+            entry(2, "Reckless", "Somewhere", "stance:reckless"),
+        ]
+    )
+
+    flags = {title: fact.chat for title, fact in with_chat_knowledge(lifecycle, knowledge).pages.items()}
+
+    assert flags == {"Holy Corpse": True, "Bazxzoth": False, "Reckless": False, "Nameless": False}
 
 
 def test_a_title_cannot_be_both_removed_and_renamed(tmp_path: Path) -> None:

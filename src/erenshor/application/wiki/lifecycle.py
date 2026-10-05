@@ -5,14 +5,17 @@ from __future__ import annotations
 import json
 import re
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date
 from pathlib import Path
 from types import MappingProxyType
-from typing import Literal, cast
+from typing import TYPE_CHECKING, Literal, cast
 from urllib.parse import urlsplit
 
 import mwparserfromhell
+
+if TYPE_CHECKING:
+    from erenshor.application.wiki.chat_knowledge import ChatKnowledge
 
 LifecycleState = Literal["removed", "unobtainable", "unused"]
 _DATE_PATTERN = re.compile(r"\d{4}-\d{2}-\d{2}\Z")
@@ -28,6 +31,8 @@ class LifecyclePage:
     date: str | None
     patch_notes_url: str | None
     source: str
+    # Not read from content-lifecycle.json: with_chat_knowledge sets it from
+    # the knowledge base that simulated-player chat answers from.
     chat: bool = False
 
 
@@ -93,7 +98,6 @@ def load_content_lifecycle(path: Path) -> ContentLifecycle:
             value,
             entry,
             {"stable_key", "state", "thing", "update", "date", "patch_notes_url", "source"},
-            frozenset({"chat"}),
         )
         state = cast("LifecycleState", record["state"])
         if state not in ("removed", "unobtainable", "unused"):
@@ -117,14 +121,7 @@ def load_content_lifecycle(path: Path) -> ContentLifecycle:
             if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password:
                 raise ValueError(f"{entry}: patch_notes_url must be an https link")
         source = _required_string(record["source"], entry, "source")
-        chat = "chat" in record
-        if chat and record["chat"] is not True:
-            raise ValueError(f"{entry}: chat must be true when present")
-        if chat and state != "unused":
-            raise ValueError(f"{entry}: chat applies only to unused content")
-        pages[title] = LifecyclePage(
-            title, stable_key, state, thing, update, release_date, patch_notes_url, source, chat
-        )
+        pages[title] = LifecyclePage(title, stable_key, state, thing, update, release_date, patch_notes_url, source)
 
     renames: dict[str, LifecycleRename] = {}
     for old_title, value in raw_renames.items():
@@ -165,6 +162,20 @@ def load_content_lifecycle(path: Path) -> ContentLifecycle:
     return ContentLifecycle(MappingProxyType(pages), MappingProxyType(renames), MappingProxyType(splits))
 
 
+def with_chat_knowledge(lifecycle: ContentLifecycle, knowledge: ChatKnowledge) -> ContentLifecycle:
+    """Set the chat flag of each unused page whose character chat names without being asked."""
+    pages = {
+        title: replace(
+            page,
+            chat=page.state == "unused"
+            and page.stable_key is not None
+            and any(entry.named_unprompted for entry in knowledge.entries_for_character(page.stable_key)),
+        )
+        for title, page in lifecycle.pages.items()
+    }
+    return replace(lifecycle, pages=MappingProxyType(pages))
+
+
 def render_split_disambiguation(split: LifecycleSplit) -> str:
     """Render a former title with links to every current variant."""
     variants = "\n".join(f"* [[{title}]]" for title in split.current_titles)
@@ -202,8 +213,6 @@ def apply_lifecycle_fields(title: str, stable_keys: Sequence[str], content: str,
         return content
     if fact is not None and (fact.stable_key is None or fact.stable_key not in stable_keys):
         raise ValueError(f"{title}: recorded lifecycle identity conflicts with generated page")
-    if fact is not None and fact.chat:
-        raise ValueError(f"{title}: the chat flag applies only to pages that generation does not write")
 
     code = mwparserfromhell.parse(content)
     matched_fact = False
