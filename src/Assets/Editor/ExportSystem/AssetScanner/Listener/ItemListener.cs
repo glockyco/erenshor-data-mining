@@ -412,8 +412,10 @@ public class ItemListener : IAssetScanListener<Item>
     }
 
     /// <summary>
-    /// Creates CraftingRewardRecords from an item's template rewards.
-    /// Counts duplicate rewards to determine quantities.
+    /// Creates one CraftingRewardRecord for each entry of an item's template
+    /// rewards, in list order. RewardSlot is the list index plus one, so slot 1
+    /// is TemplateRewards[0], the only reward that the forge awards. Each entry
+    /// is one item. A missing entry keeps its slot number but gets no row.
     /// </summary>
     private List<CraftingRewardRecord> CreateCraftingRewardRecords(Item item)
     {
@@ -423,34 +425,21 @@ public class ItemListener : IAssetScanListener<Item>
             return records;
 
         var recipeItemStableKey = StableKeyGenerator.ForItem(item);
-
-        // Count occurrences to determine quantities (using stable keys)
-        var rewardCounts = new Dictionary<string, int>();
-        foreach (var reward in item.TemplateRewards)
+        for (var index = 0; index < item.TemplateRewards.Count; index++)
         {
-            if (reward != null && !string.IsNullOrEmpty(reward.name))
-            {
-                var rewardStableKey = StableKeyGenerator.ForItem(reward);
-                if (!rewardCounts.ContainsKey(rewardStableKey))
-                    rewardCounts[rewardStableKey] = 0;
-                rewardCounts[rewardStableKey]++;
-            }
-        }
-
-        // Create records with slot numbers
-        int slot = 1;
-        foreach (var kvp in rewardCounts)
-        {
+            var reward = item.TemplateRewards[index];
+            if (reward == null || string.IsNullOrEmpty(reward.name))
+                continue;
             records.Add(
                 new CraftingRewardRecord
                 {
                     RecipeItemStableKey = recipeItemStableKey,
-                    RewardSlot = slot,
-                    RewardItemStableKey = kvp.Key,
-                    RewardQuantity = kvp.Value,
+                    RewardSlot = index + 1,
+                    RewardItemStableKey = StableKeyGenerator.ForItem(reward),
+                    // code-fact: smithing.empty_slot_resets_quantity
+                    RewardQuantity = 1,
                 }
             );
-            slot++;
         }
 
         return records;

@@ -366,9 +366,13 @@ def process_items(
     )
     writer.insert_crafting_recipes(recipe_rows)
 
-    # CraftingRewards. The forge awards only the first reward of a template
-    # (Smithing.DoSuccess), so a later reward slot is no crafting result.
+    # CraftingRewards. Slot 1 is TemplateRewards[0], the only reward that the
+    # forge awards (Smithing.DoSuccess), so a later slot is no crafting result.
+    # The forge gives one item: Combine empties the component slots first, and
+    # an emptied slot resets its quantity to 1. The fuel sets only the quality
+    # of equipment.
     # code-fact: smithing.awards_first_template_reward
+    # code-fact: smithing.empty_slot_resets_quantity
     reward_rows = _rows(raw, "SELECT * FROM CraftingRewards WHERE RewardSlot = 1")
     reward_rows = _filter_junction(reward_rows, "RecipeItemStableKey", valid)
     reward_rows = _rename_cols(

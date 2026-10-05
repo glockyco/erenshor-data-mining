@@ -243,6 +243,17 @@
       "note": "The forge always awards the first reward of a template, and the fuel sets only its quality. The processor keeps only reward slot 1 as a crafting result."
     },
     {
+      "id": "smithing.empty_slot_resets_quantity",
+      "mode": "assert",
+      "type": "ItemIcon",
+      "method": "UpdateSlotImage",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "Quantity = 1;"
+      },
+      "note": "Combine empties the component slots before DoSuccess, and an emptied slot resets its quantity to 1, so the forge gives one reward item. The Unity export writes each template reward as one item."
+    },
+    {
       "id": "chat.random_name_requires_zone",
       "mode": "assert",
       "type": "KnowledgeDatabase",

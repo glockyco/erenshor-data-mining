@@ -3,9 +3,7 @@
 using SQLite;
 
 /// <summary>
-/// Represents a crafting recipe reward.
-/// Normalizes Item.TemplateRewards (List&lt;Item&gt;) into a proper relational structure
-/// with explicit quantities and slot positions.
+/// One entry of Item.TemplateRewards (List&lt;Item&gt;), keyed by its list position.
 /// </summary>
 [Table("CraftingRewards")]
 public class CraftingRewardRecord
@@ -20,8 +18,8 @@ public class CraftingRewardRecord
     public string RecipeItemStableKey { get; set; } = string.Empty;
 
     /// <summary>
-    /// The slot position of this reward (1-based).
-    /// Preserves the order from Item.TemplateRewards list.
+    /// The list position of this entry plus one. Slot 1 is TemplateRewards[0],
+    /// the only reward that the forge awards.
     /// </summary>
     [Indexed(Name = "CraftingRewards_Primary_IDX", Order = 2, Unique = true)]
     public int RewardSlot { get; set; }
@@ -33,8 +31,7 @@ public class CraftingRewardRecord
     public string RewardItemStableKey { get; set; } = string.Empty;
 
     /// <summary>
-    /// The quantity of this reward item granted.
-    /// Extracted by counting duplicates in Item.TemplateRewards list.
+    /// The number of items in this entry. Each list entry is one item.
     /// </summary>
     public int RewardQuantity { get; set; }
 }
