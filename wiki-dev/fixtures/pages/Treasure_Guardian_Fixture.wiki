@@ -1,0 +1,11 @@
+{{Character
+|name=Ancient Horror
+|stablekey=character:ancient horror
+|image=[[File:Ancient Horror.png|thumb]]
+|type=Elite
+|zones=[[Hidden Hills]]
+|spawntype=[[Treasure Hunting|Treasure hunt]]
+|level=Scales with the player's level
+}}
+
+{{TreasureGuardianStats|stablekey=character:ancient horror}}

@@ -103,7 +103,7 @@ ROOT_COMPANIONS: Mapping[str, frozenset[str]] = MappingProxyType(
                 "Item/SpellScroll",
             }
         ),
-        "Character": frozenset(),
+        "Character": frozenset({"TreasureGuardianStats"}),
         "Ability": frozenset({"SpellTooltip", "SkillTooltip"}),
         "Stance": frozenset({"StanceTooltip"}),
         "Zone": frozenset(),

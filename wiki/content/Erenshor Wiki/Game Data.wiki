@@ -155,6 +155,8 @@ Each of these templates has its documentation on its own page.
 : [[Template:ItemTooltip|ItemTooltip]], [[Template:Item/Weapon|Item/Weapon]], [[Template:Item/Armor|Item/Armor]], [[Template:Item/General|Item/General]], [[Template:Item/Aura|Item/Aura]], [[Template:Item/Charm|Item/Charm]], [[Template:Item/CharmScaling|Item/CharmScaling]], [[Template:Item/Consumable|Item/Consumable]], [[Template:Item/Mold|Item/Mold]], [[Template:Item/SkillBook|Item/SkillBook]], [[Template:Item/SpellScroll|Item/SpellScroll]], [[Template:Item/Header|Item/Header]], [[Template:Item/Stats|Item/Stats]], [[Template:Item/Resists|Item/Resists]], [[Template:Item/Vitals|Item/Vitals]], [[Template:Item/DPS|Item/DPS]], [[Template:Item/ClassRestrictions|Item/ClassRestrictions]], [[Template:Item/Categories|Item/Categories]], [[Template:Item/SpellDetails|Item/SpellDetails]], [[Template:SparkleIcon|SparkleIcon]]
 ; Ability tooltips
 : [[Template:SpellTooltip|SpellTooltip]], [[Template:SkillTooltip|SkillTooltip]], [[Template:StanceTooltip|StanceTooltip]]
+; Character parts
+: [[Template:TreasureGuardianStats|TreasureGuardianStats]]
 ; Links
 : [[Template:ItemLink|ItemLink]], [[Template:CharacterLink|CharacterLink]], [[Template:AbilityLink|AbilityLink]], [[Template:QuestLink|QuestLink]], [[Template:ZoneLink|ZoneLink]], [[Template:FactionLink|FactionLink]], [[Template:ClassLink|ClassLink]]
 ; Other

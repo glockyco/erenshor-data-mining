@@ -1020,6 +1020,21 @@ CREATE TABLE treasure_chest_possible_spawns (
     PRIMARY KEY (chest_character_stable_key, treasure_location_stable_key)
 );
 
+-- One row per number of waves that a dug-up treasure chest has spawned.
+-- strike_break_chance is the chance that a strike then breaks the chest open.
+-- Every strike rolls for that first, also while guardians are alive. A strike
+-- that does not break the chest starts the next wave of next_wave_guardians_min
+-- to next_wave_guardians_max guardians after next_wave_delay_seconds, but only
+-- when no guardian is alive. The next_wave columns are NULL in the last row,
+-- where every strike breaks the chest.
+CREATE TABLE treasure_chest_waves (
+    waves_spawned            INTEGER PRIMARY KEY,
+    strike_break_chance      REAL NOT NULL,
+    next_wave_guardians_min  INTEGER,
+    next_wave_guardians_max  INTEGER,
+    next_wave_delay_seconds  REAL
+);
+
 -- One row per guardian and player level: the stats of that guardian when a
 -- player of that level strikes a dug-up treasure chest. Every stat is a
 -- range, because the game rolls them. attack is the base damage per hit and
@@ -1440,6 +1455,9 @@ class Writer:
 
     def insert_treasure_guardian_scaling(self, rows: list[dict[str, object]]) -> int:
         return self._insert("treasure_guardian_scaling", rows)
+
+    def insert_treasure_chest_waves(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("treasure_chest_waves", rows)
 
     def insert_character_ae_events(self, rows: list[dict[str, object]]) -> int:
         return self._insert("character_ae_events", rows)

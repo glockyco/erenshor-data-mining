@@ -197,3 +197,52 @@ def test_character_loot_drop_fields_render_rates_refs_and_guaranteed_pool() -> N
     )
     assert "|guaranteedrolls=" not in no_pool_content
     assert "|guaranteeddrops=\n|droprates=" in no_pool_content
+
+
+def _treasure_site(zone: str, role: str) -> CharacterSpawnInfo:
+    return CharacterSpawnInfo(
+        zone_link=ZoneLink(page_title=zone, display_name=zone),
+        base_respawn=None,
+        x=None,
+        y=None,
+        z=None,
+        spawn_chance=None,
+        is_rare=False,
+        treasure_role="guardian" if role == "guardian" else "chest",
+    )
+
+
+def test_treasure_guardian_scales_with_the_player_and_takes_its_stats_table() -> None:
+    character = make_character(
+        stable_key="character:ancient horror", display_name="Ancient Horror", encounter_tier="elite"
+    )
+    content = CharacterSectionGenerator().generate_template(
+        EnrichedCharacterData(
+            character=character,
+            spawn_infos=[_treasure_site("The Blight", "guardian"), _treasure_site("Hidden Hills", "guardian")],
+            spells=[],
+        ),
+        page_title="Ancient Horror",
+    )
+
+    assert "|zones=[[Hidden Hills]]<br>[[The Blight]]\n|coordinates=\n" in content
+    assert "|spawntype=[[Treasure Hunting|Treasure hunt]]\n" in content
+    assert "|level=Scales with the player's level\n" in content
+    assert "|health=\n" in content
+    assert "|ac=\n" in content
+    assert "|magic=\n" in content
+    assert content.endswith("|spells=\n}}\n\n{{TreasureGuardianStats|stablekey=character:ancient horror}}\n")
+
+
+def test_treasure_chest_keeps_its_level_but_shows_no_combat_stats() -> None:
+    character = make_character(display_name="Lost Treasure (1-10)", encounter_tier="chest", treasure_chest=1)
+    content = CharacterSectionGenerator().generate_template(
+        EnrichedCharacterData(character=character, spawn_infos=[_treasure_site("Hidden Hills", "chest")], spells=[]),
+        page_title="Lost Treasure (1-10)",
+    )
+
+    assert "|spawntype=[[Treasure Hunting|Treasure hunt]]\n" in content
+    assert "|level=12\n" in content
+    assert "|health=\n" in content
+    assert "|poison=\n" in content
+    assert "TreasureGuardianStats" not in content

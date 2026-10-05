@@ -69,6 +69,24 @@ _GUARDIAN_HAND_SET_RESIST_PER_LEVEL = 5
 # code-fact: npc.level_variance
 _LEVEL_VARIANCE_BELOW = 35
 
+# A strike on the chest rolls Random.Range(0, 10) and breaks the chest open
+# when the roll exceeds the durability. The durability starts at 15 and
+# drops by 3 with each wave that spawns.
+# code-fact: treasure.chest_break_roll
+_BREAK_ROLLS = range(10)
+# code-fact: treasure.chest_durability_start
+_CHEST_DURABILITY_START = 15
+# code-fact: treasure.chest_durability_per_wave
+_CHEST_DURABILITY_PER_WAVE = 3
+# code-fact: treasure.wave_size
+_WAVE_GUARDIANS = range(3, 5)
+# The ground rumbles for 300 ticks, counted down at 60 per second, before a
+# wave appears.
+# code-fact: treasure.wave_delay_start
+_WAVE_DELAY_TICKS = 300.0
+# code-fact: treasure.wave_delay_rate
+_WAVE_DELAY_TICKS_PER_SECOND = 60.0
+
 _TREASURE_EVENT_SCRIPT = "TreasureChestEvent"
 
 
@@ -190,8 +208,45 @@ def chest_can_be_dug_in(zone_min_reading_level: int | None, dig_level_high: int)
     return zone_min_reading_level is not None and zone_min_reading_level < dig_level_high
 
 
+def strike_break_chance(waves_spawned: int) -> float:
+    """The chance that a strike breaks the chest open after this many waves."""
+    durability = _CHEST_DURABILITY_START - _CHEST_DURABILITY_PER_WAVE * waves_spawned
+    return sum(1 for roll in _BREAK_ROLLS if roll > durability) / len(_BREAK_ROLLS)
+
+
+def chest_wave_rows() -> list[dict[str, object]]:
+    """One row for each number of waves a chest can have spawned.
+
+    Every strike rolls for the break first, also while guardians are alive.
+    A strike that does not break the chest starts the next wave only when no
+    guardian is alive, and the last row is the first one at which a strike
+    always breaks the chest, so no wave follows it.
+    """
+    rows: list[dict[str, object]] = []
+    waves_spawned = 0
+    while True:
+        chance = strike_break_chance(waves_spawned)
+        last = chance >= 1
+        rows.append(
+            {
+                "waves_spawned": waves_spawned,
+                "strike_break_chance": chance,
+                "next_wave_guardians_min": None if last else _WAVE_GUARDIANS.start,
+                "next_wave_guardians_max": None if last else _WAVE_GUARDIANS.stop - 1,
+                "next_wave_delay_seconds": None if last else _WAVE_DELAY_TICKS / _WAVE_DELAY_TICKS_PER_SECOND,
+            }
+        )
+        if last:
+            return rows
+        waves_spawned += 1
+
+
 def load_guardians(conn: sqlite3.Connection) -> list[GuardianProfile]:
-    """The guardians that the treasure chests spawn, from the clean database."""
+    """The guardians that the treasure chests spawn, from the clean database.
+
+    Each guardian of a wave is a random entry of the chest's guardian list.
+    """
+    # code-fact: treasure.guardian_pick
     rows = conn.execute(
         """
         SELECT DISTINCT c.stable_key, c.stats_starts_before_npc, c.hand_set_resistances,
@@ -219,7 +274,7 @@ def load_guardians(conn: sqlite3.Connection) -> list[GuardianProfile]:
 
 
 def process_treasure(raw: sqlite3.Connection, writer: Writer) -> None:
-    """Write the treasure zones, the possible chest sites, and the guardian scaling."""
+    """Write the treasure zones, the possible chest sites, the chest waves, and the guardian scaling."""
     hunting: list[dict[str, object]] = [
         {
             "zone_name": row["ZoneName"],
@@ -261,6 +316,8 @@ def process_treasure(raw: sqlite3.Connection, writer: Writer) -> None:
                 }
             )
     writer.insert_treasure_chest_possible_spawns(sites)
+    waves = chest_wave_rows()
+    writer.insert_treasure_chest_waves(waves)
 
     constants = load_spawn_constants(writer.conn)
     guardians = load_guardians(writer.conn)
@@ -271,6 +328,6 @@ def process_treasure(raw: sqlite3.Connection, writer: Writer) -> None:
     ]
     writer.insert_treasure_guardian_scaling(scaling)
     logger.info(
-        f"Treasure: {len(hunting)} zones, {len(sites)} possible chest sites, "
+        f"Treasure: {len(hunting)} zones, {len(sites)} possible chest sites, up to {len(waves) - 1} waves, "
         f"{len(guardians)} guardians scaled for player levels 1-{PLAYER_LEVEL_CAP}"
     )

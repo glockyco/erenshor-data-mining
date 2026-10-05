@@ -694,6 +694,158 @@
         "statement": "CurrentAC = Mathf.RoundToInt ((float)CurrentAC * CharacterClass.MitigationBonus);"
       },
       "note": "NPC AC is multiplied by the MitigationBonus of the character's class. Re-implemented by armor_class in src/erenshor/application/processor/npc_spawn.py and by CharacterListener (EffectiveAC)."
+    },
+    {
+      "id": "treasure.chest_durability_start",
+      "mode": "assert",
+      "type": "TreasureChestEvent",
+      "field": "ChestDurability",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "VariableInitializer",
+        "shape": "ChestDurability = 15"
+      },
+      "note": "A dug-up treasure chest starts with a durability of 15. Re-implemented by strike_break_chance in src/erenshor/application/processor/treasure.py."
+    },
+    {
+      "id": "treasure.chest_break_roll",
+      "mode": "assert",
+      "type": "TreasureChestEvent",
+      "method": "SpawnGuardians",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (Random.Range (0, 10) > ChestDurability) { GetComponent<Stats> ().CurrentHP = -999; Object.Instantiate (GameData.Misc.DigFX, Lid.transform.position, Lid.transform.rotation); GameData.PlayerAud.PlayOneShot (GameData.Misc.DigSFX, GameData.PlayerAud.volume * GameData.SFXVol * GameData.MasterVol); Lid.SetActive (value: false); UpdateSocialLog.LogAdd (new ChatLogLine (\"The chest breaks open!\", ChatLogLine.LogType.BattleMechanicText, \"yellow\")); return; }"
+      },
+      "note": "Every strike on the chest first rolls 0 to 9 and breaks the chest open when the roll exceeds its durability, also while guardians are alive. Re-implemented by strike_break_chance in src/erenshor/application/processor/treasure.py."
+    },
+    {
+      "id": "treasure.wave_blocked_while_guarded",
+      "mode": "assert",
+      "type": "TreasureChestEvent",
+      "method": "SpawnGuardians",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (LiveGuardians.Count > 0 || rumbleTimer > 0f) { UpdateSocialLog.LogAdd (new ChatLogLine (\"The nearby guardians are protecting the chest...\", ChatLogLine.LogType.BattleMechanicText, \"yellow\")); return; }"
+      },
+      "note": "A strike that does not break the chest starts no wave while guardians are alive or the ground still rumbles. Stated by wiki/modules/Erenshor/TreasureGuardian.lua."
+    },
+    {
+      "id": "treasure.wave_delay_start",
+      "mode": "assert",
+      "type": "TreasureChestEvent",
+      "method": "SpawnGuardians",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "rumbleTimer = 300f;"
+      },
+      "note": "A strike that starts a wave sets the rumble timer to 300 ticks. Re-implemented by chest_wave_rows in src/erenshor/application/processor/treasure.py."
+    },
+    {
+      "id": "treasure.wave_delay_rate",
+      "mode": "assert",
+      "type": "TreasureChestEvent",
+      "method": "Update",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "rumbleTimer -= 60f * Time.deltaTime;"
+      },
+      "note": "The rumble timer counts down 60 ticks per second, so a wave appears 5 seconds after the strike. Re-implemented by chest_wave_rows in src/erenshor/application/processor/treasure.py."
+    },
+    {
+      "id": "treasure.chest_durability_per_wave",
+      "mode": "assert",
+      "type": "TreasureChestEvent",
+      "method": "SpawnGuardiansCont",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "ChestDurability -= 3;"
+      },
+      "note": "Each wave that spawns lowers the chest's durability by 3. Re-implemented by strike_break_chance in src/erenshor/application/processor/treasure.py."
+    },
+    {
+      "id": "treasure.wave_size",
+      "mode": "assert",
+      "type": "TreasureChestEvent",
+      "method": "SpawnGuardiansCont",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "VariableDeclarationStatement",
+        "shape": "int a = Random.Range (3, 5);"
+      },
+      "note": "Each wave holds 3 or 4 guardians. Re-implemented by chest_wave_rows in src/erenshor/application/processor/treasure.py."
+    },
+    {
+      "id": "treasure.guardian_pick",
+      "mode": "assert",
+      "type": "TreasureChestEvent",
+      "method": "SpawnGuardiansCont",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "VariableDeclarationStatement",
+        "shape": "GameObject gameObject = Object.Instantiate (Guardians [Random.Range (0, Guardians.Count)], position, base.transform.rotation);"
+      },
+      "note": "Each guardian of a wave is a random entry of the chest's Guardians list, exported as chained spawns. Re-implemented by load_guardians in src/erenshor/application/processor/treasure.py."
+    },
+    {
+      "id": "treasure.chest_immune.damage",
+      "mode": "assert",
+      "type": "Character",
+      "method": "DamageMe",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (isNPC && MyNPC.TreasureChest) { return -6; }"
+      },
+      "note": "Melee and other direct damage to an NPC with TreasureChest set does nothing. Re-implemented by the character infobox, which shows no combat stats for such a chest."
+    },
+    {
+      "id": "treasure.chest_immune.magic",
+      "mode": "assert",
+      "type": "Character",
+      "method": "MagicDamageMe",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (isNPC && MyNPC.TreasureChest) { return -6; }"
+      },
+      "note": "Magic damage to an NPC with TreasureChest set does nothing. Re-implemented by the character infobox, which shows no combat stats for such a chest."
+    },
+    {
+      "id": "treasure.chest_immune.bleed",
+      "mode": "assert",
+      "type": "Character",
+      "method": "BleedDamageMe",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (isNPC && MyNPC.TreasureChest) { return -6; }"
+      },
+      "note": "Bleed damage to an NPC with TreasureChest set does nothing. Re-implemented by the character infobox, which shows no combat stats for such a chest."
+    },
+    {
+      "id": "treasure.strike_melee",
+      "mode": "assert",
+      "type": "PlayerCombat",
+      "method": "HandleDamageResult",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "target.MyNPC.MyChestEvent.SpawnGuardians (myStats.Level);"
+      },
+      "note": "A player's melee hit on a treasure chest calls SpawnGuardians with the player's level. Stated by wiki/modules/Erenshor/TreasureGuardian.lua."
+    },
+    {
+      "id": "treasure.strike_bolt",
+      "mode": "assert",
+      "type": "WandBolt",
+      "method": "DeliverDamage",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (num == -6 && TargetChar != null && TargetChar.isNPC && TargetChar.MyNPC.MyChestEvent != null) { TargetChar.MyNPC.MyChestEvent.SpawnGuardians (GameData.PlayerStats.Level); Object.Destroy (base.gameObject); return; }"
+      },
+      "note": "A wand bolt or arrow that hits a treasure chest calls SpawnGuardians with the player's level. Stated by wiki/modules/Erenshor/TreasureGuardian.lua."
     }
   ]
 }

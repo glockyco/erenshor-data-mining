@@ -250,7 +250,7 @@ class TestWikiGenerateCommand:
         """Test generation receives the concrete faction and class services."""
         import erenshor.cli.commands.wiki as wiki_command
 
-        repositories = tuple(MagicMock(name=f"repo_{index}") for index in range(10))
+        repositories = tuple(MagicMock(name=f"repo_{index}") for index in range(11))
         generation = MagicMock(written_paths=[], validation_tools={})
         monkeypatch.setattr(wiki_command, "_create_lua_repositories", lambda _ctx: repositories)
         generate = MagicMock(return_value=generation)
@@ -263,6 +263,7 @@ class TestWikiGenerateCommand:
         assert kwargs["faction_repo"] is repositories[7]
         assert kwargs["class_display"] is repositories[8]
         assert kwargs["build_repo"] is repositories[9]
+        assert kwargs["treasure_repo"] is repositories[10]
 
     def test_lua_repository_factory_shares_one_read_only_database(
         self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
@@ -300,6 +301,7 @@ class TestWikiGenerateCommand:
             "FactionRepository",
             "ClassDisplayNameService",
             "BuildMetadataRepository",
+            "TreasureRepository",
         )
         constructor_connections: list[object] = []
 

@@ -25,11 +25,23 @@ from tests.unit.application.wiki_lua.fakes import (
 from erenshor.application.wiki_lua.generation import generate_lua_data_modules
 from erenshor.application.wiki_lua.validation import LuaValidationResult
 from erenshor.domain.value_objects.source_info import ObtainedFromInfo, UsedInInfo, WorldDropInfo
+from erenshor.domain.value_objects.treasure import ChestWave, GuardianScaling, TreasureGuardian
 
 
 class FakeBuildRepository:
     def get_build_metadata(self) -> tuple[str, str]:
         return "24405256", "2026-07-27T12:34:56+00:00"
+
+
+class FakeTreasureRepository:
+    def get_treasure_guardians(self) -> list[TreasureGuardian]:
+        return [TreasureGuardian("character:ancient horror", "Ancient Horror", "Ancient Horror")]
+
+    def get_guardian_scaling(self) -> list[GuardianScaling]:
+        return [GuardianScaling("character:ancient horror", 1, 2, 4, 858, 858, 3, 3, 147, 147, 30, 60, 2, 4)]
+
+    def get_chest_waves(self) -> list[ChestWave]:
+        return [ChestWave(0, 0.0, 3, 4, 5.0), ChestWave(1, 1.0, None, None, None)]
 
 
 def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
@@ -50,6 +62,7 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
 
     result = generate_lua_data_modules(
         build_repo=FakeBuildRepository(),
+        treasure_repo=FakeTreasureRepository(),
         item_repo=item_repo,
         character_repo=character_repo,
         spell_repo=FakeSpellRepository([spell]),
@@ -71,6 +84,7 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
     spells_path = tmp_path / "Erenshor" / "Data" / "Spells.lua"
     skills_path = tmp_path / "Erenshor" / "Data" / "Skills.lua"
     stances_path = tmp_path / "Erenshor" / "Data" / "Stances.lua"
+    treasure_path = tmp_path / "Erenshor" / "Data" / "TreasureGuardians.lua"
     assert result.written_paths == [
         items_path,
         item_shard_path,
@@ -79,6 +93,7 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
         skills_path,
         stances_path,
         build_path,
+        treasure_path,
     ]
     assert result.validation_tools == {
         build_path: "stylua",
@@ -88,6 +103,7 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
         spells_path: "stylua",
         skills_path: "stylua",
         stances_path: "stylua",
+        treasure_path: "stylua",
     }
     staging_root = validated_paths[0].parents[2]
     assert [path.relative_to(staging_root) for path in validated_paths] == [
@@ -130,6 +146,7 @@ def test_generation_validates_nonnull_blank_item_catalog_pages(tmp_path: Path) -
     with pytest.raises(ValueError, match="Blank link catalog page"):
         generate_lua_data_modules(
             build_repo=FakeBuildRepository(),
+            treasure_repo=FakeTreasureRepository(),
             item_repo=item_repo,
             character_repo=FakeCharacterRepository([make_character()]),
             spell_repo=FakeSpellRepository([make_spell()]),
@@ -171,6 +188,7 @@ def test_generation_wires_item_provenance_repositories(tmp_path: Path) -> None:
 
     generate_lua_data_modules(
         build_repo=FakeBuildRepository(),
+        treasure_repo=FakeTreasureRepository(),
         item_repo=item_repo,
         character_repo=character_repo,
         spell_repo=FakeSpellRepository([make_spell()]),
@@ -198,6 +216,7 @@ def _run_generation(tmp_path: Path, *, max_page_bytes: int = 4194304, item_key: 
     item_repo = FakeItemRepository(items=[make_item(stable_key=item_key)], stats={}, classes={})
     return generate_lua_data_modules(
         build_repo=FakeBuildRepository(),
+        treasure_repo=FakeTreasureRepository(),
         item_repo=item_repo,
         character_repo=FakeCharacterRepository([make_character()]),
         spell_repo=FakeSpellRepository([make_spell()]),
@@ -250,6 +269,7 @@ def test_generation_requires_faction_and_class_dependencies(tmp_path: Path) -> N
     with pytest.raises(TypeError) as error:
         generate_lua_data_modules(
             build_repo=FakeBuildRepository(),
+            treasure_repo=FakeTreasureRepository(),
             item_repo=FakeItemRepository(items=[make_item()], stats={}, classes={}),
             character_repo=FakeCharacterRepository([make_character()]),
             spell_repo=FakeSpellRepository([make_spell()]),

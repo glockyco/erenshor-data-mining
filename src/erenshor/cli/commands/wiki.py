@@ -122,6 +122,7 @@ from erenshor.infrastructure.database.repositories.skills import SkillRepository
 from erenshor.infrastructure.database.repositories.spawn_points import SpawnPointRepository
 from erenshor.infrastructure.database.repositories.spells import SpellRepository
 from erenshor.infrastructure.database.repositories.stances import StanceRepository
+from erenshor.infrastructure.database.repositories.treasure import TreasureRepository
 from erenshor.infrastructure.database.repositories.zones import ZoneRepository
 from erenshor.infrastructure.wiki import MediaWikiAPIError
 from erenshor.infrastructure.wiki.client import MediaWikiClient
@@ -451,6 +452,7 @@ def _create_lua_repositories(
     FactionRepository,
     ClassDisplayNameService,
     BuildMetadataRepository,
+    TreasureRepository,
 ]:
     """Create repositories for local Lua data generation from one read-only connection."""
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
@@ -467,6 +469,7 @@ def _create_lua_repositories(
         FactionRepository(db_connection),
         ClassDisplayNameService(db_connection),
         BuildMetadataRepository(db_connection),
+        TreasureRepository(db_connection),
     )
 
 
@@ -694,6 +697,7 @@ def generate_lua(ctx: typer.Context) -> None:
             faction_repo,
             class_display,
             build_repo,
+            treasure_repo,
         ) = _create_lua_repositories(cli_ctx)
         result = generate_lua_data_modules(
             item_repo=item_repo,
@@ -706,6 +710,7 @@ def generate_lua(ctx: typer.Context) -> None:
             faction_repo=faction_repo,
             class_display=class_display,
             build_repo=build_repo,
+            treasure_repo=treasure_repo,
             output_root=output_root,
             max_page_bytes=cli_ctx.config.global_.mediawiki.max_page_bytes,
         )

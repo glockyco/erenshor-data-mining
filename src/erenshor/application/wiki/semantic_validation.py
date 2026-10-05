@@ -642,6 +642,7 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
         "SpellTooltip": ["stablekey"],
         "SkillTooltip": ["stablekey"],
         "StanceTooltip": ["stablekey"],
+        "TreasureGuardianStats": ["stablekey"],
     }
 )
 
@@ -653,10 +654,11 @@ REQUIRED_TEMPLATE_FIELDS: Mapping[str, tuple[str, ...]] = MappingProxyType(
 ROOT_TEMPLATES = frozenset(("Item", "Character", "Ability", "Stance", "Zone"))
 ITEM_COMPANIONS = frozenset(name for name in REQUIRED_TEMPLATE_FIELDS if name.startswith("Item/")) | {"ItemTooltip"}
 ABILITY_COMPANIONS = frozenset(("SpellTooltip", "SkillTooltip", "StanceTooltip"))
+CHARACTER_COMPANIONS = frozenset(("TreasureGuardianStats",))
 SEMANTIC_LINK_TEMPLATES = frozenset(
     ("ItemLink", "AbilityLink", "CharacterLink", "QuestLink", "ZoneLink", "FactionLink", "ClassLink")
 )
-GENERATED_TEMPLATES = ROOT_TEMPLATES | ITEM_COMPANIONS | ABILITY_COMPANIONS | {"Zone Navbox"}
+GENERATED_TEMPLATES = ROOT_TEMPLATES | ITEM_COMPANIONS | ABILITY_COMPANIONS | CHARACTER_COMPANIONS | {"Zone Navbox"}
 
 _ITEM_COMPANION_BY_SUBTYPE: Mapping[str, frozenset[str]] = MappingProxyType(
     {
@@ -965,7 +967,7 @@ def _expected_templates(
             else:
                 allowed.update(("Ability", "SpellTooltip" if key.startswith("spell:") else "SkillTooltip"))
         elif entry.kind == "character":
-            allowed.add("Character")
+            allowed.update(("Character", *CHARACTER_COMPANIONS))
         elif entry.kind == "zone":
             allowed.update(("Zone", "Zone Navbox"))
         elif entry.kind == "class":
@@ -979,7 +981,7 @@ def _expected_templates(
             elif value == "stance":
                 allowed.update({"Stance", "StanceTooltip"})
             elif value == "character":
-                allowed.add("Character")
+                allowed.update(("Character", *CHARACTER_COMPANIONS))
             elif value == "zone":
                 allowed.update(("Zone", "Zone Navbox"))
             elif value in {"overview", "wikitable"}:
@@ -1060,7 +1062,7 @@ def _validate_structure(
         "item": ROOT_TEMPLATES & {"Item"} | ITEM_COMPANIONS,
         "ability": {"Ability", *ABILITY_COMPANIONS},
         "stance": {"Stance", "StanceTooltip"},
-        "character": {"Character"},
+        "character": {"Character", *CHARACTER_COMPANIONS},
         "zone": {"Zone", "Zone Navbox"},
     }.get(schema)
     expected_keys = _stable_keys(expectation)

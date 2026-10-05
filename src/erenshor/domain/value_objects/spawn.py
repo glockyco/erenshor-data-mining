@@ -1,10 +1,15 @@
 """Value objects for spawn system."""
 
 from dataclasses import dataclass
+from typing import Literal
 
 from erenshor.domain.value_objects.wiki_link import ZoneLink
 
-__all__ = ["CharacterSpawnInfo", "CharacterSpawnRow"]
+__all__ = ["CharacterSpawnInfo", "TreasureRole"]
+
+# How a character appears on a treasure hunt: as the chest dug up at a site,
+# or as a guardian that striking that chest spawns.
+TreasureRole = Literal["chest", "guardian"]
 
 
 @dataclass(frozen=True)
@@ -16,6 +21,9 @@ class CharacterSpawnInfo:
 
     The zone_link is a pre-built ZoneLink constructed by the repository
     from JOIN columns. Section generators call str(zone_link) to render it.
+
+    A treasure hunt site has a treasure_role and no position: the character
+    can appear in the zone at any of several dig sites.
     """
 
     zone_link: ZoneLink
@@ -30,25 +38,4 @@ class CharacterSpawnInfo:
     event_x: float | None = None
     event_y: float | None = None
     event_z: float | None = None
-
-
-@dataclass(frozen=True)
-class CharacterSpawnRow:
-    """Complete generated spawn row stored in the character-owned Cargo table."""
-
-    character_key: str
-    zone: str | None
-    scene: str | None
-    x: float | None
-    y: float | None
-    z: float | None
-    spawn_chance: float | None
-    night_spawn: bool | None
-    spawn_upon_quest_complete: str | None
-    level_mod: int | None
-    rare_npc_chance: int | None
-    spawn_type: str
-    event_x: float | None = None
-    event_y: float | None = None
-    event_z: float | None = None
-    origin: str = "generated"
+    treasure_role: TreasureRole | None = None

@@ -52,6 +52,7 @@ from erenshor.application.wiki_lua.spells import (
     write_spells_module,
 )
 from erenshor.application.wiki_lua.stances import StanceDataRepository, write_stances_module
+from erenshor.application.wiki_lua.treasure import TreasureDataRepository, write_treasure_guardians_module
 from erenshor.application.wiki_lua.validation import LuaValidationResult, validate_lua_module
 
 
@@ -116,6 +117,7 @@ TOP_LEVEL_DATA_MODULES: tuple[str, ...] = (
     "Skills.lua",
     "Stances.lua",
     "Build.lua",
+    "TreasureGuardians.lua",
 )
 
 
@@ -166,6 +168,7 @@ def generate_lua_data_modules(
     stance_repo: StanceDataRepository,
     quest_repo: WikiQuestRepository,
     zone_repo: WikiZoneRepository,
+    treasure_repo: TreasureDataRepository,
     output_root: Path,
     faction_repo: WikiFactionRepository,
     class_display: ClassDisplayNameService,
@@ -210,6 +213,7 @@ def generate_lua_data_modules(
             write_skills_module(skill_repo, staging_root, item_repo),
             write_stances_module(stance_repo, staging_root),
             write_build_module(build_repo, staging_root),
+            write_treasure_guardians_module(treasure_repo, staging_root),
         ]
         validation_tools: dict[Path, str] = {}
         for path in staged_paths:

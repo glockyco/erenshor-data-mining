@@ -31,6 +31,11 @@ from erenshor.shared.game_constants import WIKITEXT_LINE_SEPARATOR
 # The label of a guaranteed pool that rolls more than once: "Guaranteed Two Of".
 _ROLL_WORDS = {2: "Two", 3: "Three", 4: "Four", 5: "Five"}
 
+_TREASURE_HUNT_SPAWN_TYPE = "[[Treasure Hunting|Treasure hunt]]"
+_SCALES_WITH_PLAYER_LEVEL = "Scales with the player's level"
+# The template that renders the stats of a treasure guardian by player level.
+TREASURE_GUARDIAN_STATS_TEMPLATE = "TreasureGuardianStats"
+
 
 class CharacterSectionGenerator(SectionGeneratorBase):
     """Generator for character wiki sections.
@@ -75,6 +80,15 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         variance_min = 0 if is_group_encounter else -1
         variance_max = 0 if is_group_encounter else 1
 
+        # A treasure guardian gets its level and stats from the player who
+        # strikes the chest, so its prefab values mean nothing.
+        scales_with_player = any(info.treasure_role == "guardian" for info in enriched.spawn_infos)
+        # A treasure chest never takes damage, so it has no combat stats.
+        # code-fact: treasure.chest_immune.damage
+        # code-fact: treasure.chest_immune.magic
+        # code-fact: treasure.chest_immune.bleed
+        has_combat_stats = not scales_with_player and not character.treasure_chest
+
         context = self._build_character_template_context(
             character=character,
             display_name=display_name,
@@ -95,9 +109,14 @@ class CharacterSectionGenerator(SectionGeneratorBase):
             level_mod_max=level_mod_max,
             variance_min=variance_min,
             variance_max=variance_max,
+            level=_SCALES_WITH_PLAYER_LEVEL if scales_with_player else safe_str(character.level),
+            has_combat_stats=has_combat_stats,
         )
 
         template_wikitext = self.render_template("character.jinja2", context)
+        if scales_with_player:
+            companion = f"{{{{{TREASURE_GUARDIAN_STATS_TEMPLATE}|stablekey={character.stable_key}}}}}"
+            template_wikitext = f"{template_wikitext.rstrip()}\n\n{companion}\n"
         return self.normalize_wikitext(template_wikitext)
 
     def _format_enemy_type(self, character: Character) -> str:
@@ -240,8 +259,10 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         return WIKITEXT_LINE_SEPARATOR.join(formatted_chances)
 
     def _format_spawn_type(self, spawn_infos: list[CharacterSpawnInfo]) -> str:
+        if spawn_infos and all(info.treasure_role is not None for info in spawn_infos):
+            return _TREASURE_HUNT_SPAWN_TYPE
         has_dynamic = any(info.source_script is not None for info in spawn_infos)
-        has_ordinary = any(info.source_script is None for info in spawn_infos)
+        has_ordinary = any(info.source_script is None and info.treasure_role is None for info in spawn_infos)
         if has_dynamic and not has_ordinary:
             return "Event spawn"
         return ""
@@ -371,6 +392,8 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         level_mod_max: int,
         variance_min: int,
         variance_max: int,
+        level: str,
+        has_combat_stats: bool,
     ) -> dict[str, str]:
         """Build context for {{Character}} template."""
         xp_multiplier = character.boss_xp_multiplier if character.boss_xp_multiplier else 1.0
@@ -380,11 +403,16 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         def _format_resistance(
             base_val: int | None, min_val: int | None, max_val: int | None, hand_set: int | None
         ) -> str:
+            if not has_combat_stats:
+                return ""
             if hand_set:
                 return safe_str(base_val)
             min_r = min_val or 0
             max_r = max_val or 0
             return f"{min_r}-{max_r}" if min_r != max_r else str(min_r)
+
+        def _stat(value: int | None) -> str:
+            return safe_str(value) if has_combat_stats else ""
 
         return {
             "name": display_name,
@@ -405,22 +433,22 @@ class CharacterSectionGenerator(SectionGeneratorBase):
             "guaranteed_drops": guaranteed_drops,
             "guaranteed_rolls": guaranteed_rolls,
             "drop_rates": drop_rates,
-            "level": safe_str(character.level),
+            "level": level,
             "level_mod_min": str(level_mod_min),
             "level_mod_max": str(level_mod_max),
             "variance_min": str(variance_min),
             "variance_max": str(variance_max),
             "xp_multiplier": str(xp_multiplier),
-            "health": safe_str(character.effective_hp),
-            "mana": safe_str(character.base_mana),
-            "ac": safe_str(character.effective_ac),
-            "strength": safe_str(character.base_str),
-            "endurance": safe_str(character.base_end),
-            "dexterity": safe_str(character.base_dex),
-            "agility": safe_str(character.base_agi),
-            "intelligence": safe_str(character.base_int),
-            "wisdom": safe_str(character.base_wis),
-            "charisma": safe_str(character.base_cha),
+            "health": _stat(character.effective_hp),
+            "mana": _stat(character.base_mana),
+            "ac": _stat(character.effective_ac),
+            "strength": _stat(character.base_str),
+            "endurance": _stat(character.base_end),
+            "dexterity": _stat(character.base_dex),
+            "agility": _stat(character.base_agi),
+            "intelligence": _stat(character.base_int),
+            "wisdom": _stat(character.base_wis),
+            "charisma": _stat(character.base_cha),
             "magic": _format_resistance(
                 character.base_mr,
                 character.effective_min_mr,

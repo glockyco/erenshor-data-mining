@@ -770,31 +770,34 @@
       "image_name": "Grayleigh Hawke"
     },
     "character:ancient demon": {
-      "wiki_page_name": null,
+      "wiki_page_name": "Ancient Demon",
       "display_name": "Ancient Demon",
       "image_name": "Ancient Demon",
-      "mapping_type": "excluded",
-      "reason": "Excluded from wiki",
-      "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "mapping_type": "dynamic_spawn",
+      "reason": "Spawned in waves when the player strikes a dug-up treasure chest (TreasureChestEvent.SpawnGuardians). The map shows the dig sites instead of a spawn point. Elite, not boss: the game spawns it at any of 55 dig sites, 3 or 4 at a time, so it is no single unique encounter (decided on 2026-10-05).",
+      "is_wiki_generated": 1,
+      "is_map_visible": 0,
+      "encounter_tier": "elite"
     },
     "character:ancient horror": {
-      "wiki_page_name": null,
+      "wiki_page_name": "Ancient Horror",
       "display_name": "Ancient Horror",
       "image_name": "Ancient Horror",
-      "mapping_type": "excluded",
-      "reason": "Excluded from wiki",
-      "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "mapping_type": "dynamic_spawn",
+      "reason": "Spawned in waves when the player strikes a dug-up treasure chest (TreasureChestEvent.SpawnGuardians). The map shows the dig sites instead of a spawn point. Elite, not boss: the game spawns it at any of 55 dig sites, 3 or 4 at a time, so it is no single unique encounter (decided on 2026-10-05).",
+      "is_wiki_generated": 1,
+      "is_map_visible": 0,
+      "encounter_tier": "elite"
     },
     "character:ancient skeleton": {
-      "wiki_page_name": null,
+      "wiki_page_name": "Ancient Skeleton",
       "display_name": "Ancient Skeleton",
       "image_name": "Ancient Skeleton",
-      "mapping_type": "excluded",
-      "reason": "Excluded from wiki",
-      "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "mapping_type": "dynamic_spawn",
+      "reason": "Spawned in waves when the player strikes a dug-up treasure chest (TreasureChestEvent.SpawnGuardians). The map shows the dig sites instead of a spawn point. Elite, not boss: the game spawns it at any of 55 dig sites, 3 or 4 at a time, so it is no single unique encounter (decided on 2026-10-05).",
+      "is_wiki_generated": 1,
+      "is_map_visible": 0,
+      "encounter_tier": "elite"
     },
     "character:ancient canine": {
       "wiki_page_name": "Ancient Canine",
