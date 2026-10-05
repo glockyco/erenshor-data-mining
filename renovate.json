@@ -35,6 +35,12 @@
       "allowedVersions": "<1.44"
     },
     {
+      "description": "Keep the local MediaWiki database on the major version of erenshor.wiki.gg, which runs MySQL 8.0. The local stack must mirror the live wiki.",
+      "matchManagers": ["docker-compose"],
+      "matchPackageNames": ["mysql"],
+      "allowedVersions": "<9"
+    },
+    {
       "description": "Label JavaScript dependency updates",
       "matchManagers": ["npm"],
       "addLabels": ["javascript"]
