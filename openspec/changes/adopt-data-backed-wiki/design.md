@@ -265,6 +265,18 @@ The knowledge base is what chat says, not a description of the characters. The e
 
 After each game update, the audit compares both sources with the placed characters. It lists each dead prefab with the placed characters that share its object name, and each name that chat can say without being asked but that no wiki-visible character carries. A reviewer then records a rename, a split, or an unused page in `content-lifecycle.json`. The chat sentence of an unused notice follows from the knowledge base, not from a hand-set flag.
 
+### D16. Treasure hunting
+
+Reading a treasure map picks a zone from a pool that grows with the reading level: three zones, six above level 20, and nine above level 30. Digging at the marked site spawns one of four chests, chosen by the level at the time of digging: below 10, 10 to 19, 20 to 29, and 30 or more. Each strike on the chest spawns a wave of 3 or 4 guardians, and `TreasureChestEvent.SetGuardianStats` sets their level, health, attack, and swing delay from the striking player's level. `NPC.Start` and `Stats.Start` then run as for any NPC. These rules are assert code facts.
+
+Both `Start` methods have the default execution order, so Unity calls them in the order of the components on the GameObject. On build 24405256, 784 prefabs list `Stats` first and 274 list `NPC` first. The order decides which level the resists and the attack floor see, and whether `DamageBalanceFactor` applies before or after the floor. On 2026-10-05 this was checked in game: with the level set to 20 and the attack to 0 before `Start`, the three guardians and four ordinary prefabs of both orders reached the attack that the order predicts in each of 46 spawns. The export records the order, and the clean build computes spawned stats with it.
+
+Decided on 2026-10-05:
+
+- The map shows the encounter on the 55 dig sites: the chest by digging level, the reading level a map needs to point there, and the three guardians with wiki links. Searching a chest or guardian name, or the wiki's map link, highlights the dig sites. The guardians get no rows in `character_spawns`, so the AdventureGuide gets no targets that the player cannot find. The map's level filter keeps a dig site when a guardian there can have a level in the range.
+- The guardians' infoboxes list the zones of the treasure data with the spawn type `[[Treasure Hunting|Treasure hunt]]` and the level "Scales with the player's level". Their stats come from `treasure_guardian_scaling`, which the clean build computes by guardian and player level 1 to 35, published as a data module that one shared template renders on the three pages. This replaces formulas in Lua, so the game formulas are re-implemented once.
+- A guarded one-time edit corrects the chest pages, which tie the chest to the reading level, and another replaces the legacy `{{Enemy}}` and `{{Enemy Stats}}` blocks of the guardian pages.
+
 ### Failure handling and update grouping
 
 - The dependency check, the render check, and the size check fail closed. They name the page and the cause, and a dry run reports the same result without writing.
