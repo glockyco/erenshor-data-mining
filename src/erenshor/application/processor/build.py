@@ -39,6 +39,7 @@ from .entities import (
     process_world_tables,
     process_zones,
 )
+from .knowledge_base import process_knowledge_base
 from .mapping import load_mapping, validate_character_name_overrides
 from .special_world_drops import process_special_world_drops
 from .writer import Writer
@@ -125,6 +126,9 @@ def build(
 
         logger.info("Processing characters...")
         process_characters(raw, writer, mapping, item_keys, spawn_mapping)
+
+        logger.info("Processing the chat knowledge base...")
+        process_knowledge_base(raw, writer)
 
         logger.info("Processing AE event mutations...")
         from erenshor.domain.constants.ae_event_mutations import AE_EVENT_MUTATIONS

@@ -31,6 +31,7 @@ EXPECTED_KEYS = {
     "spells",
     "stances",
     "guildtopics",
+    "knowledgeentries",
     "worldfactions",
     "zoneatlasentries",
     "items",

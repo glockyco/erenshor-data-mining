@@ -232,6 +232,16 @@ public static class ExportListenerRegistry
                     )
             ),
             new(
+                "knowledgeentries",
+                "Knowledge Entries",
+                ExportScanChannel.ScriptableObject,
+                Array.Empty<string>(),
+                context =>
+                    context.RegisterScriptableObjectListener(
+                        new KnowledgeDatabaseListener(context.Database)
+                    )
+            ),
+            new(
                 "worldfactions",
                 "World Factions",
                 ExportScanChannel.ScriptableObject,

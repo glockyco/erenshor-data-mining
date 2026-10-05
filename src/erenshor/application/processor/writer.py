@@ -1188,6 +1188,37 @@ CREATE TABLE character_quest_manager_quests (
 );
 
 -- -------------------------------------------------------------------------
+-- Knowledge base of simulated-player chat, as the game ships it. Chat reads
+-- the entries in position order, and an entry can be stale. zone_name is the
+-- zone display name that chat says, or NULL when the entry has none.
+-- -------------------------------------------------------------------------
+
+CREATE TABLE knowledge_entries (
+    position        INTEGER PRIMARY KEY,
+    npc_name        TEXT NOT NULL,
+    zone_name       TEXT,
+    level           INTEGER NOT NULL,
+    is_boss         INTEGER NOT NULL,
+    prefab_path     TEXT NOT NULL
+);
+
+CREATE TABLE knowledge_entry_drops (
+    entry_position  INTEGER NOT NULL REFERENCES knowledge_entries (position),
+    position        INTEGER NOT NULL,
+    item_name       TEXT NOT NULL,
+    PRIMARY KEY (entry_position, position)
+);
+
+-- Every prefab character that matches the prefab file name in prefab_path,
+-- the NPC name, and the level of an entry. Twin prefabs link both keys, and
+-- an entry whose prefab no longer exists links none.
+CREATE TABLE knowledge_entry_characters (
+    entry_position        INTEGER NOT NULL REFERENCES knowledge_entries (position),
+    character_stable_key  TEXT NOT NULL REFERENCES characters (stable_key),
+    PRIMARY KEY (entry_position, character_stable_key)
+);
+
+-- -------------------------------------------------------------------------
 -- Coordinates view (mirrors raw DB view, updated to snake_case tables)
 -- -------------------------------------------------------------------------
 
@@ -1458,6 +1489,15 @@ class Writer:
 
     def insert_character_deduplications(self, rows: list[dict[str, object]]) -> int:
         return self._insert("character_deduplications", rows)
+
+    def insert_knowledge_entries(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("knowledge_entries", rows)
+
+    def insert_knowledge_entry_drops(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("knowledge_entry_drops", rows)
+
+    def insert_knowledge_entry_characters(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("knowledge_entry_characters", rows)
 
     def insert_character_spawns(self, rows: list[dict[str, object]]) -> int:
         return self._insert("character_spawns", rows)

@@ -34,7 +34,9 @@
     "AEEvent2",
     "NPCFightEvent",
     "GameManager",
-    "PlanarMusicManager"
+    "PlanarMusicManager",
+    "KnowledgeDatabaseAsset",
+    "KnowledgeDatabaseAsset/Entry"
   ],
   "fields": {
     "AchievementTrigger": {
@@ -5843,6 +5845,70 @@
         "reason": null,
         "status": "captured",
         "type": "SpawnPoint"
+      }
+    },
+    "KnowledgeDatabaseAsset": {
+      "Entries": {
+        "by": "KnowledgeDatabaseListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<KnowledgeDatabaseAsset/Entry>"
+      }
+    },
+    "KnowledgeDatabaseAsset/Entry": {
+      "Drops": {
+        "by": "KnowledgeDatabaseListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<System.String>"
+      },
+      "IsBoss": {
+        "by": "KnowledgeDatabaseListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Boolean"
+      },
+      "Level": {
+        "by": "KnowledgeDatabaseListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Int32"
+      },
+      "NPCName": {
+        "by": "KnowledgeDatabaseListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.String"
+      },
+      "NPCQuestTurnins": {
+        "by": null,
+        "reason": "KnowledgeDatabase copies it into KnowledgeEntry, and no game code reads the copy; the quest export holds quest givers and turn-ins",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<Quest>"
+      },
+      "PrefabPath": {
+        "by": "KnowledgeDatabaseListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.String"
+      },
+      "QuestItemsIGive": {
+        "by": null,
+        "reason": "chat only adds the item names to its search words (KnowledgeDatabase.BuildMeaningfulWords); the quest export holds quest items",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<Item>"
+      },
+      "QuestsIGive": {
+        "by": null,
+        "reason": "KnowledgeDatabase copies it into KnowledgeEntry, and no game code reads the copy; the quest export holds quest givers and turn-ins",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<Quest>"
+      },
+      "ZoneThisLootIsFrom": {
+        "by": "KnowledgeDatabaseListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.String"
       }
     }
   }

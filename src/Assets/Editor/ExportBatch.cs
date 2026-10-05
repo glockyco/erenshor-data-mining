@@ -36,10 +36,11 @@ using Debug = UnityEngine.Debug;
 /// Available entity types:
 /// gameconstants, achievementtriggers, arenarounds, ascensions, books,
 /// characters, classes, classstartingitems, doors, forges, guildtopics,
-/// itembags, itemdrops, items, loottables, miningnodes, questactivations,
-/// planarbosses, quests, secretpassages, skills, spells, spawnpoints, stances,
-/// teleportlocs, treasurehunting, treasurelocs, waters, wishingwells,
-/// worldfactions, zoneannounces, zoneatlasentries, zonelines
+/// itembags, itemdrops, items, knowledgeentries, loottables, miningnodes,
+/// questactivations, planarbosses, quests, secretpassages, skills, spells,
+/// spawnpoints, specialworlddrops, stances, teleportlocs, treasurehunting,
+/// treasurelocs, waters, wishingwells, worldfactions, zoneannounces,
+/// zoneatlasentries, zonelines
 ///
 /// The `spawnpoints` export includes both classic SpawnPoint components and
 /// trigger-based SpawnPointTrigger encounter spawners.

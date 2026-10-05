@@ -22,6 +22,14 @@ public class AssetScanner
         MethodInfo
     > _onAssetFoundMethodCache = new();
 
+    // The game references these assets from scenes or other assets instead of
+    // loading them through Resources, so Resources.LoadAll does not return them.
+    private static readonly Type[] DirectlyReferencedScriptableObjectTypes =
+    {
+        typeof(Class),
+        typeof(KnowledgeDatabaseAsset),
+    };
+
     public AssetScanner(AssetScanProfiler profiler = null)
     {
         _profiler = profiler ?? AssetScanProfiler.Disabled;
@@ -165,25 +173,29 @@ public class AssetScanner
                 }
             );
             var assets = new List<ScriptableObject>(resourceAssets);
+            var seen = new HashSet<ScriptableObject>(resourceAssets);
 
-            string[] guids = Array.Empty<string>();
             _profiler.Measure(
                 "scanner.shared",
                 "scriptable_object_find_assets",
                 () =>
                 {
-                    guids = AssetDatabase.FindAssets("t:Class");
+                    foreach (var type in DirectlyReferencedScriptableObjectTypes)
+                    {
+                        foreach (var guid in AssetDatabase.FindAssets($"t:{type.Name}"))
+                        {
+                            var path = AssetDatabase.GUIDToAssetPath(guid);
+                            if (
+                                AssetDatabase.LoadAssetAtPath(path, type) is ScriptableObject asset
+                                && seen.Add(asset)
+                            )
+                            {
+                                assets.Add(asset);
+                            }
+                        }
+                    }
                 }
             );
-            foreach (var guid in guids)
-            {
-                var path = AssetDatabase.GUIDToAssetPath(guid);
-                var asset = AssetDatabase.LoadAssetAtPath<Class>(path);
-                if (asset != null)
-                {
-                    assets.Add(asset);
-                }
-            }
 
             int total = assets.Count;
             int current = 0;
