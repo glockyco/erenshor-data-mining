@@ -13,10 +13,10 @@ Run `uv run erenshor -V {v} extract code-facts` after export and before the clea
 2. Re-derive each affected value or rule from the new shipped code. Check both the spec and every consumer that implements that rule. Do not change a spec only to silence a binding error.
 3. Edit `src/tools/CodeFacts/specs/erenshor-facts.json`. Use `extract` for values that enter the clean database and `assert` for structural rules implemented by consumers. Use `variants` only when the fact is variant-specific.
 4. If a matcher binds zero or multiple nodes, inspect the analyzer's error and the pinned decompiler rendering. `statement_shape` and `node_shape` compare normalized decompiled syntax, not text copied from the ripped `.cs` files. Add a narrowly scoped matcher when none can bind the real rule.
-5. Update affected Python or Lua consumers and their `# code-fact: <id>` or `-- code-fact: <id>` tags. Run `uv run erenshor -V {v} extract code-facts` again, then `uv run erenshor -V {v} extract build`.
+5. Update affected Python, Lua, or C# export consumers and their `# code-fact: <id>`, `-- code-fact: <id>`, or `// code-fact: <id>` tags. Run `uv run erenshor -V {v} extract code-facts` again, then `uv run erenshor -V {v} extract build`.
 6. Review the `code_facts` rows in the report of `uv run erenshor -V {v} extract changes`. An `assert` fact emits `ok`, and extracted values appear by key.
 
-The registry also lists deferred facts. Check it before adding a spec. `tests/test_code_facts_coverage.py` checks tags in `src/erenshor/` and `wiki/modules/`: each tag must name a spec, and each `assert` spec needs a tagged consumer there. It does not scan C# tags.
+The registry also lists deferred facts. Check it before adding a spec. `tests/contract/tools/test_code_facts_coverage.py` checks tags in `src/erenshor/`, `wiki/modules/`, and the C# export under `src/Assets/Editor/`: each tag must name a spec, and each `assert` spec needs a tagged consumer there.
 
 ## Failure recovery
 

@@ -1,22 +1,23 @@
 """Every code-fact reference in the codebase must name a real spec id,
-and every assert-mode spec must be referenced by at least one consumer."""
+and every assert-mode spec must be referenced by at least one consumer.
+
+A consumer is the code that re-implements a game rule: the Python pipeline,
+the wiki's Lua modules, or the C# export under `src/Assets/Editor`."""
 
 import json
 import re
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 SPECS = REPO_ROOT / "src" / "tools" / "CodeFacts" / "specs" / "erenshor-facts.json"
-REF = re.compile(r"(?:#|--)\s*code-fact:\s*([a-z0-9_.]+)")
-SCAN_ROOTS = ["src/erenshor", "wiki/modules"]
+REF = re.compile(r"(?:#|--|//)\s*code-fact:\s*([a-z0-9_.]+)")
+SCAN_ROOTS = {"src/erenshor": ".py", "wiki/modules": ".lua", "src/Assets/Editor": ".cs"}
 
 
 def _references() -> dict[str, list[str]]:
     refs: dict[str, list[str]] = {}
-    for root in SCAN_ROOTS:
-        for path in (REPO_ROOT / root).rglob("*"):
-            if path.suffix not in {".py", ".lua"}:
-                continue
+    for root, suffix in SCAN_ROOTS.items():
+        for path in (REPO_ROOT / root).rglob(f"*{suffix}"):
             for m in REF.finditer(path.read_text(errors="ignore")):
                 refs.setdefault(m.group(1), []).append(str(path.relative_to(REPO_ROOT)))
     return refs

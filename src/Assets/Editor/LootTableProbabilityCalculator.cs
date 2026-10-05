@@ -319,6 +319,8 @@ public class LootTableProbabilityCalculator
         return resultDict;
     }
 
+    // Re-implements the guaranteed rolls of LootTable.InitLootTable.
+    // code-fact: loot.guarantee_one_drop
     private static void ApplyGuaranteedDropDistributions(
         LootTable lootTable,
         Dictionary<string, double[]> resultDict,
