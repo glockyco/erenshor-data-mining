@@ -80,21 +80,26 @@ The check SHALL accept only three intentional wiki differences: separate equipme
 - **WHEN** a wiki tooltip adds an unexplained fact or changes a non-excluded tone
 - **THEN** the check names the difference and fails
 
-### Requirement: Article publication requires current-build parity
+### Requirement: Tooltip input publication requires current-build parity
 
-The article deploy command, including its dry run, SHALL fail before any article write if a planned article write exists and the selected build has no complete, passing tooltip parity report for its current game evidence, generated articles, data modules, and tooltip sources. A report from a different build or changed inputs SHALL not pass this gate. This gate SHALL not replace the existing live render, revision, and link checks. The parity check SHALL run locally and SHALL not write to the live wiki.
+A deploy command, including its dry run, SHALL fail before its first write if it plans to write a tooltip input and the selected build has no complete, passing tooltip parity report for its current game evidence, generated articles, data modules, and tooltip sources. A tooltip input SHALL be any page whose source the report hashes: a generated article, a generated data module, or a maintained tooltip module or template. A report from a different build or changed inputs SHALL not pass this gate. This gate SHALL not replace the existing live render, revision, and link checks. The parity check SHALL run locally and SHALL not write to the live wiki.
 
 #### Scenario: A changed tooltip template has not been checked
 
-- **WHEN** a tooltip template changes after a passing report and an article deploy is planned
-- **THEN** the deploy refuses the stale report and writes no article
+- **WHEN** a tooltip template changes after a passing report and a deploy plans to write it
+- **THEN** the deploy refuses the stale report and writes no page
+
+#### Scenario: A data module changes after the report
+
+- **WHEN** a new spell data module differs from the module that the passing report hashed, and `wiki deploy-repo-pages` plans to write it
+- **THEN** the dry run and the real deploy refuse the stale report before the first write
 
 #### Scenario: A mismatch remains after a game update
 
-- **WHEN** current-build parity finds an unexplained difference and a deploy is planned
+- **WHEN** current-build parity finds an unexplained difference and a deploy plans to write a tooltip input
 - **THEN** the dry run and the real deploy fail and name the report
 
-#### Scenario: Nothing needs publication
+#### Scenario: A deploy writes no tooltip input
 
-- **WHEN** the article deploy has no planned writes
+- **WHEN** a deploy plans only a guide page, a gadget, or no write at all
 - **THEN** it does not require a new parity report
