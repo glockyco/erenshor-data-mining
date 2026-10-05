@@ -1,5 +1,7 @@
 from types import SimpleNamespace
 
+import pytest
+
 from erenshor.application.wiki.generators.pages.entities import EntityPageGenerator
 from erenshor.application.wiki.generators.sections.item import ItemSectionGenerator
 from erenshor.domain.enriched_data.item import EnrichedItemData
@@ -177,7 +179,7 @@ def test_item_window_value_uses_no_trade_flag_not_vendor_sell_restriction() -> N
     )
 
 
-def test_item_effect_selection_matches_game_click_priority() -> None:
+def _proc_generator() -> EntityPageGenerator:
     generator = object.__new__(EntityPageGenerator)
     generator.context = SimpleNamespace(
         spell_repo=SimpleNamespace(
@@ -190,6 +192,42 @@ def test_item_effect_selection_matches_game_click_priority() -> None:
             )
         )
     )
+    return generator
+
+
+def test_weapon_proc_trigger_follows_the_item_window() -> None:
+    generator = _proc_generator()
+
+    def style(required_slot: str, shield: int) -> str:
+        item = Item(
+            stable_key=f"item:{required_slot.lower()}",
+            item_name=required_slot,
+            required_slot=required_slot,
+            shield=shield,
+            weapon_proc_on_hit_stable_key="spell:stun",
+            weapon_proc_chance=10,
+        )
+        proc = generator._extract_proc(item)
+        assert proc is not None
+        return proc.proc_style
+
+    assert style("Primary", 0) == "Attack"
+    assert style("Secondary", 1) == "Bash"
+    assert style("Bracer", 0) == "Cast"
+
+    ring = Item(
+        stable_key="item:proc_ring",
+        item_name="Proc Ring",
+        required_slot="Ring",
+        weapon_proc_on_hit_stable_key="spell:stun",
+        weapon_proc_chance=10,
+    )
+    with pytest.raises(ValueError, match="item:proc_ring: the item window shows no trigger"):
+        generator._extract_proc(ring)
+
+
+def test_item_effect_selection_matches_game_click_priority() -> None:
+    generator = _proc_generator()
     item = Item(
         stable_key="item:helmet_of_clarity",
         display_name="Helmet of Clarity",

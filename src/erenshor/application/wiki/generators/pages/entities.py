@@ -248,7 +248,23 @@ class EntityPageGenerator(PageGenerator):
             )
 
         if item.weapon_proc_on_hit_stable_key and (item.weapon_proc_chance or 0) > 0:
-            style = "Bash" if item.shield else "Attack" if is_weapon_slot else "Cast"
+            # code-fact: iteminfo.proc_trigger_attack
+            # code-fact: iteminfo.proc_trigger_bash
+            # code-fact: iteminfo.proc_trigger_cast
+            # ItemInfoWindow.DisplayItem labels a weapon proc CAST on a bracer,
+            # BASH on a shield, and ATTACK on any other weapon. It shows no
+            # label in any other slot, so such an item needs a review.
+            if item.required_slot == "Bracer":
+                style = "Cast"
+            elif item.shield:
+                style = "Bash"
+            elif is_weapon_slot:
+                style = "Attack"
+            else:
+                raise ValueError(
+                    f"{item.stable_key}: the item window shows no trigger for a weapon proc "
+                    f"in slot {item.required_slot}"
+                )
             chance = str(int(item.weapon_proc_chance)) if item.weapon_proc_chance is not None else "0"
             return _make_proc(item.weapon_proc_on_hit_stable_key, chance, style)
 
