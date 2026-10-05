@@ -117,8 +117,8 @@ The plan for the wiki is the OpenSpec change `adopt-data-backed-wiki`. Read its 
    A dry run reads the live pages, counts the planned changes, and names each such page. Review each one.
    Copy live text that the repository should keep into the source file. Pass `--accept-drift <title>` for a page to overwrite.
 
-4. Keep the deploy manifest and its rollback sidecars. By default, the manifest is written in the selected variant's wiki directory.
-   Use `--manifest-output` for a distinct manifest for each deploy you may need to undo.
+4. Keep the deploy manifest and its rollback sidecars. Each deploy writes them to a new `repo-page-deploys/<UTC time>-<id>/` directory in the selected variant's wiki directory.
+   Pass that run's `manifest.json` to `wiki rollback-repo-pages --manifest` to undo the deploy. `--manifest-output` chooses another path.
    Deployment checks source hashes, saves old text, and guards edits with live revisions.
    The default assertion is `bot`. Use `--assert-user <username>` to guard the account identity.
 

@@ -901,6 +901,50 @@ class TestWikiDeployRepoCommand:
         assert result.exit_code == 0, result.output
         assert deploy_kwargs["rollback_root"] == tmp_path / "runs" / "rollback"
 
+    def test_deploy_repo_pages_keeps_each_default_run_apart(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, cli_context: CLIContext
+    ):
+        """A deploy without --manifest-output never overwrites the rollback record of an earlier deploy."""
+        import erenshor.cli.commands.wiki as wiki_command
+
+        manifest = RepoWikiPageManifest(
+            entries=(
+                RepoWikiPageManifestEntry(
+                    title="Module:Erenshor/Format",
+                    source_path="wiki/modules/Erenshor/Format.lua",
+                    source_sha256="abc",
+                    ownership_class="lua_module",
+                    upload_stage="lua_module",
+                    content_model="Scribunto",
+                    declares_cargo_table=False,
+                    cargo_tables=(),
+                ),
+            )
+        )
+        rollback_roots: list[Path] = []
+        manifest_paths: list[Path] = []
+
+        def fake_deploy_repo_pages(**kwargs):
+            rollback_roots.append(kwargs["rollback_root"])
+            return RepoPageDeployResult(entries=())
+
+        monkeypatch.setattr(wiki_command, "build_repo_page_manifest", lambda *_args, **_kwargs: manifest)
+        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", lambda _ctx: FakeDeployClient())
+        monkeypatch.setattr(wiki_command, "deploy_repo_pages", fake_deploy_repo_pages)
+        monkeypatch.setattr(
+            wiki_command, "write_repo_page_manifest", lambda _manifest, path: manifest_paths.append(path)
+        )
+
+        for _ in range(2):
+            result = runner.invoke(wiki.app, ["deploy-repo-pages"], obj=cli_context)
+            assert result.exit_code == 0, result.output
+
+        runs = tmp_path / "wiki" / "repo-page-deploys"
+        first, second = manifest_paths
+        assert first != second
+        assert {first.parent.parent, second.parent.parent} == {runs}
+        assert rollback_roots == [first.parent / "rollback", second.parent / "rollback"]
+
     def test_deploy_repo_pages_passes_explicit_scope_flags(
         self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, cli_context: CLIContext
     ):

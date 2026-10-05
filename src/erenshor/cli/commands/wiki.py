@@ -1218,7 +1218,13 @@ def deploy_repo_pages_command(
     ] = None,
     manifest_output: Annotated[
         Path | None,
-        typer.Option("--manifest-output", help="Path for the deployment manifest JSON."),
+        typer.Option(
+            "--manifest-output",
+            help=(
+                "Path for the deployment manifest JSON. The rollback sources go to a rollback directory beside it. "
+                "Default: a new repo-page-deploys/<UTC time>-<id>/manifest.json in the variant's wiki directory."
+            ),
+        ),
     ] = None,
     include_templates: Annotated[
         bool,
@@ -1292,9 +1298,9 @@ def deploy_repo_pages_command(
         raise typer.Exit(1) from e
 
     if manifest_output is None:
-        manifest_output = (
-            cli_ctx.config.variants[cli_ctx.variant].resolved_wiki(cli_ctx.repo_root) / "deploy-manifest.json"
-        )
+        run_id = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid.uuid4().hex[:8]
+        wiki_dir = cli_ctx.config.variants[cli_ctx.variant].resolved_wiki(cli_ctx.repo_root)
+        manifest_output = wiki_dir / "repo-page-deploys" / run_id / "manifest.json"
     manifest_output = manifest_output.resolve()
 
     if not manifest.entries:
