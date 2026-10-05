@@ -53,7 +53,7 @@ Columns that hold an entity's stable key end in `Key`. Chances are percentages f
 | `ItemClasses` | item and class | ItemKey, ClassKey | `item_classes` |
 | `ItemEffects` | item and effect role | EffectType (teaches, proc, worn, click, aura, wand, bow, skill), AbilityKey, Chance | `items` |
 | `Characters` | character | Tier, Level, FactionKey, IsVendor, health, mana, armor, resists | `characters` |
-| `Spawns` | wiki-visible placement or possible treasure location | CharacterKey, ZoneKey, X, Y, Z, SpawnChance, IsRare, NightOnly, QuestGateKey, SpawnType, Origin | `wiki_character_spawns`, `treasure_chest_possible_spawns` |
+| `Spawns` | wiki-visible placement, or possible treasure location of a chest or of a guardian that the chest spawns | CharacterKey, ZoneKey, X, Y, Z, SpawnChance, IsRare, NightOnly, QuestGateKey, SpawnType, Origin | `wiki_character_spawns`, `treasure_chest_possible_spawns`, and for guardians `character_chained_spawns` of `TreasureChestEvent` |
 | `CharacterAbilities` | character, ability, and use | CharacterKey, AbilityKey, AbilityUse | the `character_*_spells` and `character_attack_skills` tables |
 | `CharacterFactionEffects` | character and faction | CharacterKey, FactionKey, StandingChange | `character_faction_modifiers` |
 | `Spells`, `Skills`, `Stances` | ability | the queryable scalar columns of each type | `spells`, `skills`, `stances` |
