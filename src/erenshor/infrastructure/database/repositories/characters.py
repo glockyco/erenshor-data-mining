@@ -147,6 +147,7 @@ class CharacterRepository(BaseRepository[Character]):
                 c.mobile,
                 c.group_encounter,
                 c.treasure_chest,
+                c.guaranteed_drop_rolls,
                 c.do_not_leave_corpse,
                 c.set_achievement_on_defeat,
                 c.set_achievement_on_spawn,

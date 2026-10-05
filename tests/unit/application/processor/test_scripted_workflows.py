@@ -71,6 +71,7 @@ def processed_db(tmp_path):
             IsLegendary INTEGER, IsUltraRare INTEGER, IsUnique INTEGER, IsVisible INTEGER,
             Zone TEXT
         );
+        CREATE TABLE CharacterLootTables (CharacterStableKey TEXT PRIMARY KEY, NumberOfGuaranteedDrops INTEGER);
         CREATE TABLE CharacterDialogs (
             CharacterStableKey TEXT, DialogIndex INTEGER, DialogText TEXT, Keywords TEXT,
             GiveItemStableKey TEXT, AssignQuestStableKey TEXT, CompleteQuestStableKey TEXT,

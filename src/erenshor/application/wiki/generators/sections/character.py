@@ -28,6 +28,9 @@ from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
 from erenshor.domain.value_objects.wiki_link import FactionLink, ZoneLink
 from erenshor.shared.game_constants import WIKITEXT_LINE_SEPARATOR
 
+# The label of a guaranteed pool that rolls more than once: "Guaranteed Two Of".
+_ROLL_WORDS = {2: "Two", 3: "Three", 4: "Four", 5: "Five"}
+
 
 class CharacterSectionGenerator(SectionGeneratorBase):
     """Generator for character wiki sections.
@@ -64,6 +67,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         spawn_type = self._format_spawn_type(enriched.spawn_infos)
         respawn = self._format_respawn(enriched.spawn_infos)
         guaranteed_drops, drop_rates = self._format_loot_drops(enriched.loot_drops, display_name)
+        guaranteed_rolls = self._format_guaranteed_rolls(character.guaranteed_drop_rolls, guaranteed_drops)
         spells = format_visible_links(enriched.spells)
         level_mod_min, level_mod_max = self._calculate_level_mod_range(enriched.spawn_infos)
 
@@ -84,6 +88,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
             spawn_type=spawn_type,
             respawn=respawn,
             guaranteed_drops=guaranteed_drops,
+            guaranteed_rolls=guaranteed_rolls,
             drop_rates=drop_rates,
             spells=spells,
             level_mod_min=level_mod_min,
@@ -324,6 +329,18 @@ class CharacterSectionGenerator(SectionGeneratorBase):
 
         return (guaranteed, WIKITEXT_LINE_SEPARATOR.join(rates))
 
+    def _format_guaranteed_rolls(self, rolls: int | None, guaranteed_drops: str) -> str:
+        """Name how many items the game picks from the guaranteed pool when that is more than one.
+
+        ``LootTable.InitLootTable`` rolls the pool ``NumberOfGuaranteedDrops``
+        times and retries a roll that picks an item already dropped. The
+        template reads an empty value as one.
+        """
+        # code-fact: loot.guarantee_one_drop
+        if not guaranteed_drops or rolls is None or rolls <= 1:
+            return ""
+        return _ROLL_WORDS.get(rolls, str(rolls))
+
     def _calculate_level_mod_range(
         self,
         spawn_infos: list[CharacterSpawnInfo],
@@ -347,6 +364,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         spawn_type: str,
         respawn: str,
         guaranteed_drops: str,
+        guaranteed_rolls: str,
         drop_rates: str,
         spells: str,
         level_mod_min: int,
@@ -385,6 +403,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
             "spawn_type": spawn_type,
             "respawn": respawn,
             "guaranteed_drops": guaranteed_drops,
+            "guaranteed_rolls": guaranteed_rolls,
             "drop_rates": drop_rates,
             "level": safe_str(character.level),
             "level_mod_min": str(level_mod_min),

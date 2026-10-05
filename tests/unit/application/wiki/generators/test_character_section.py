@@ -179,3 +179,21 @@ def test_character_loot_drop_fields_render_rates_refs_and_guaranteed_pool() -> N
     )
     guaranteed = guaranteed_content.split("|guaranteeddrops=", 1)[1].split("\n", 1)[0]
     assert guaranteed == "{{ItemLink|Alpha Armor}}<br>{{ItemLink|Beta Blade}}"
+    assert "|guaranteedrolls=" not in guaranteed_content
+
+    two_rolls = character.model_copy(update={"guaranteed_drop_rolls": 2})
+    rolled_content = CharacterSectionGenerator().generate_template(
+        EnrichedCharacterData(character=two_rolls, spawn_infos=[], spells=[], loot_drops=two_guaranteed),
+        page_title="Faerie Trickster",
+    )
+    assert "|guaranteeddrops={{ItemLink|Alpha Armor}}<br>{{ItemLink|Beta Blade}}\n|guaranteedrolls=Two\n" in (
+        rolled_content
+    )
+
+    # Without a shown pool there is nothing for the label to describe.
+    no_pool_content = CharacterSectionGenerator().generate_template(
+        EnrichedCharacterData(character=two_rolls, spawn_infos=[], spells=[], loot_drops=drops),
+        page_title="Faerie Trickster",
+    )
+    assert "|guaranteedrolls=" not in no_pool_content
+    assert "|guaranteeddrops=\n|droprates=" in no_pool_content

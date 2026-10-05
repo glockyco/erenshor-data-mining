@@ -30,7 +30,7 @@
         <data source="spawnType"><label>Spawn Type:</label></data>
         <data source="level"><label>Base Level:</label></data>
         <data source="experience"><label>Base Experience:</label></data>
-        <data source="guaranteeddrops"><label>Guaranteed One Of:</label></data>
+        <data source="guaranteeddrops"><label>Guaranteed {{#if:{{{guaranteedrolls|}}}|{{{guaranteedrolls}}}|One}} Of:</label></data>
         <data source="droprates"><label>Overall Drop Rates:</label></data>
     </group>
     <group collapse="open">

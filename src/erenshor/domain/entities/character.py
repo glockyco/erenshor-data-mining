@@ -176,6 +176,9 @@ class Character(BaseEntity):
 
     # Special flags
     treasure_chest: int | None = Field(default=None, description="Is treasure chest (boolean)")
+    guaranteed_drop_rolls: int | None = Field(
+        default=None, description="Items picked from the guaranteed loot pool; None without a loot table"
+    )
     do_not_leave_corpse: int | None = Field(default=None, description="No corpse on death (boolean)")
 
     # Achievements

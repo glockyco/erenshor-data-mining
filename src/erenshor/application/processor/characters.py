@@ -454,10 +454,12 @@ def process_characters(
     char_rows = _load_rows(
         raw,
         """
-        SELECT * FROM Characters
-        WHERE COALESCE(ObjectName, '') != ''
-          AND COALESCE(IsSimPlayer, 0) = 0
-          AND ObjectName != 'Player'
+        SELECT c.*, lt.NumberOfGuaranteedDrops
+        FROM Characters c
+        LEFT JOIN CharacterLootTables lt ON lt.CharacterStableKey = c.StableKey
+        WHERE COALESCE(c.ObjectName, '') != ''
+          AND COALESCE(c.IsSimPlayer, 0) = 0
+          AND c.ObjectName != 'Player'
     """,
     )
     logger.info(f"Characters: {len(char_rows)} after initial filter (SimPlayer/Player/blank)")
@@ -996,6 +998,7 @@ def process_characters(
             "mobile": r.get("Mobile"),
             "group_encounter": r.get("GroupEncounter"),
             "treasure_chest": r.get("TreasureChest"),
+            "guaranteed_drop_rolls": r.get("NumberOfGuaranteedDrops"),
             "do_not_leave_corpse": r.get("DoNotLeaveCorpse"),
             "set_achievement_on_defeat": r.get("SetAchievementOnDefeat"),
             "set_achievement_on_spawn": r.get("SetAchievementOnSpawn"),

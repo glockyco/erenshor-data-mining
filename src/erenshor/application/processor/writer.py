@@ -903,6 +903,9 @@ CREATE TABLE characters (
     mobile                      INTEGER,
     group_encounter             INTEGER,
     treasure_chest              INTEGER,
+    -- How many items LootTable.InitLootTable picks from the guaranteed pool.
+    -- NULL when the character has no loot table.
+    guaranteed_drop_rolls       INTEGER,
     do_not_leave_corpse         INTEGER,
     set_achievement_on_defeat   TEXT,
     set_achievement_on_spawn    TEXT,

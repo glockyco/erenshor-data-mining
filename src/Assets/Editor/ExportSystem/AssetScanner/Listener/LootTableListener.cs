@@ -13,6 +13,7 @@ public class LootTableListener : IAssetScanListener<LootTable>
     private readonly SQLiteConnection _db;
     private readonly CharacterStableKeyResolver _characterKeyResolver;
     private readonly List<LootTableRecord> _records = new();
+    private readonly Dictionary<string, CharacterLootTableRecord> _tables = new();
     private readonly LootTableProbabilityCalculator _probabilityCalculator = new();
 
     public LootTableListener(SQLiteConnection db, CharacterStableKeyResolver characterKeyResolver)
@@ -24,12 +25,16 @@ public class LootTableListener : IAssetScanListener<LootTable>
     public void OnScanFinished()
     {
         _db.CreateTable<LootTableRecord>();
+        _db.CreateTable<CharacterLootTableRecord>();
         _db.RunInTransaction(() =>
         {
             _db.DeleteAll<LootTableRecord>();
+            _db.DeleteAll<CharacterLootTableRecord>();
             _db.InsertAll(_records);
+            _db.InsertAll(_tables.Values);
         });
         _records.Clear();
+        _tables.Clear();
     }
 
     public void OnAssetFound(LootTable asset)
@@ -76,6 +81,20 @@ public class LootTableListener : IAssetScanListener<LootTable>
         }
 
         var characterStableKey = _characterKeyResolver.GetStableKey(character);
+        if (_tables.ContainsKey(characterStableKey))
+        {
+            Debug.LogWarning(
+                $"[{GetType().Name}] Second LootTable for '{characterStableKey}' on {lootTable.gameObject.name}: keeping the roll count of the first"
+            );
+        }
+        else
+        {
+            _tables[characterStableKey] = new CharacterLootTableRecord
+            {
+                CharacterStableKey = characterStableKey,
+                NumberOfGuaranteedDrops = lootTable.NumberOfGuaranteedDrops,
+            };
+        }
 
         var records = new List<LootTableRecord>();
 

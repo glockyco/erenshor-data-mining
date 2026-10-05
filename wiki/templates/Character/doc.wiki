@@ -79,7 +79,9 @@ locations for the character.
 |-
 | <code>respawn</code> || Auto || Base respawn time.
 |-
-| <code>guaranteeddrops</code> || Auto || Items with 100% drop rate (shown only when two or more exist).
+| <code>guaranteeddrops</code> || Auto || The items that the character always drops one of (shown only when there are two or more).
+|-
+| <code>guaranteedrolls</code> || Auto || How many different items the character drops from that list, as a word such as <code>Two</code>. Empty means one. Only characters that drop more than one have it.
 |-
 | <code>droprates</code> || Auto || All loot drops sorted by probability.
 |-

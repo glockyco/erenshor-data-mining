@@ -13,7 +13,8 @@
 |spawntype={{ spawn_type }}
 |respawn={{ respawn }}
 |guaranteeddrops={{ guaranteed_drops }}
-|droprates={{ drop_rates }}
+{% if guaranteed_rolls %}|guaranteedrolls={{ guaranteed_rolls }}
+{% endif %}|droprates={{ drop_rates }}
 |level={{ level }}
 |levelmodmin={{ level_mod_min }}
 |levelmodmax={{ level_mod_max }}
