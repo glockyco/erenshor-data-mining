@@ -194,6 +194,11 @@
       "stable_key": "character:dream invader:fernallaportal:343.45:0.52:405.94",
       "current_title": "Invader of Dreams",
       "source": "The level-8 prefab Dream Invader has no reference in any asset and no spawn path. Its scene copy in Fernalla's Portal keeps the object name Dream Invader, is named Invader of Dreams at level 24, and has the same loot. Simulated-player chat uses the name dream invader for The Fernallan Portal and for seven of those drops."
+    },
+    "Cecil Threbb": {
+      "stable_key": "character:cecil threbb",
+      "current_title": "Torin Much",
+      "source": "The July 23, 2026 patch renamed the map turn-in NPC Cecil Threbb to Torin Much (https://steamcommunity.com/games/2382520/announcements/detail/686386184730968750). The prefab Cecil Threbb now carries the NPC name Torin Much. The live page Cecil Threbb already redirects to Torin Much. Simulated-player chat still says that cecil threbb is in Stowaway's Step, from its entry for the prefab Wally Waldorf, which kept the old name."
     }
   },
   "splits": {

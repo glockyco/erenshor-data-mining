@@ -266,6 +266,7 @@ def test_reviewed_split_links_both_current_variants() -> None:
             "Invader of Dreams": ["character:dream invader:fernallaportal:343.45:0.52:405.94"],
             "Bridgekeeper": ["character:watchman:shiveringstep:508.96:68.49:659.72"],
             "Gatekeeper": ["character:gatekeeper:shiveringstep:672.15:29.53:421.14"],
+            "Torin Much": ["character:cecil threbb"],
         },
         lifecycle,
     )
