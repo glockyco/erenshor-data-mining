@@ -269,7 +269,13 @@ After each game update, the audit compares both sources with the placed characte
 
 Reading a treasure map picks a zone from a pool that grows with the reading level: three zones, six above level 20, and nine above level 30. Digging at the marked site spawns one of four chests, chosen by the level at the time of digging: below 10, 10 to 19, 20 to 29, and 30 or more. Each strike on the chest spawns a wave of 3 or 4 guardians, and `TreasureChestEvent.SetGuardianStats` sets their level, health, attack, and swing delay from the striking player's level. `NPC.Start` and `Stats.Start` then run as for any NPC. These rules are assert code facts.
 
-Both `Start` methods have the default execution order, so Unity calls them in the order of the components on the GameObject. On build 24405256, 784 prefabs list `Stats` first and 274 list `NPC` first. The order decides which level the resists and the attack floor see, and whether `DamageBalanceFactor` applies before or after the floor. On 2026-10-05 this was checked in game: with the level set to 20 and the attack to 0 before `Start`, the three guardians and four ordinary prefabs of both orders reached the attack that the order predicts in each of 46 spawns. The export records the order, and the clean build computes spawned stats with it.
+Both `Start` methods have the default execution order, so the order in which Unity creates the components decides which runs first. That order decides which level the resists and the attack floor see, and whether `DamageBalanceFactor` applies before or after the floor. Checked in game on 2026-10-05, it depends on how the character comes alive:
+
+- A prefab that a spawn point or an event instantiates starts its components in the order of the GameObject's component list. With the level set to 20 and the attack to 0 before `Start`, three guardians and four ordinary prefabs of both orders reached the predicted attack in 46 spawns, and four unmodified prefabs in 24 more. On build 24405256, 784 prefabs list `Stats` first and 274 list `NPC` first.
+- A scene character that is active when its scene loads starts its components in the order of their local file IDs, which AssetRipper keeps from the build and which differs from the component list for 163 of 300 such characters. Six NPCs of Stowaway, among them Staggy Garth and Amethi Plazzo, whose file IDs and lists disagree, reached the attack of their file ID order.
+- A scene character that starts inactive and is activated later, as a claimed room of the Reliquary is, starts its components in the reverse order of their file IDs. The Braxonian Flame Well, a pocket vendor whose file IDs and list disagree, and the training dummies of both orders behaved so.
+
+The export records the component list, the file ID order, and whether a scene character is active at load, and the clean build derives the start order from them.
 
 Decided on 2026-10-05:
 
