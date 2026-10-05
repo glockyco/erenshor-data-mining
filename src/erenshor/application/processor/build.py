@@ -42,6 +42,7 @@ from .entities import (
 from .knowledge_base import process_knowledge_base
 from .mapping import load_mapping, validate_character_name_overrides
 from .special_world_drops import process_special_world_drops
+from .treasure import process_treasure
 from .writer import Writer
 
 
@@ -126,6 +127,9 @@ def build(
 
         logger.info("Processing characters...")
         process_characters(raw, writer, mapping, item_keys, spawn_mapping)
+
+        logger.info("Processing treasure hunting...")
+        process_treasure(raw, writer)
 
         logger.info("Processing the chat knowledge base...")
         process_knowledge_base(raw, writer)

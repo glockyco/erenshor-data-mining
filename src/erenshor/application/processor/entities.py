@@ -149,7 +149,6 @@ def process_world_tables(raw: sqlite3.Connection, writer: Writer) -> None:
         ("SELECT * FROM Ascensions", writer.insert_ascensions, {}),
         ("SELECT * FROM Books", writer.insert_books, {}),
         ("SELECT * FROM GuildTopics", writer.insert_guild_topics, {}),
-        ("SELECT * FROM TreasureHunting", writer.insert_treasure_hunting, {}),
         (
             "SELECT * FROM SpawnPointEssentialLinks",
             writer.insert_spawnpoint_essential_links,

@@ -566,6 +566,54 @@
       "note": "Vitheo's arena starts boss music for these rounds only. Re-implemented by the arena boss rounds of the encounter tier in src/erenshor/application/processor/characters.py."
     },
     {
+      "id": "treasure.guardian_stats",
+      "mode": "assert",
+      "type": "TreasureChestEvent",
+      "method": "SetGuardianStats",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ stats.Level = attackerLevel + Random.Range (-3, 2); if (stats.Level < 3) { stats.Level = 3; } if (stats.Level <= 10) { stats.BaseHP = stats.Level * 200; } else if (stats.Level < 15) { stats.BaseHP = stats.Level * 300; } else if (stats.Level < 20) { stats.BaseHP = stats.Level * 450; } else if (stats.Level < 25) { stats.BaseHP = stats.Level * 550; } else if (stats.Level < 30) { stats.BaseHP = stats.Level * 700; } else if (stats.Level < 34) { stats.BaseHP = stats.Level * 1000; } else { stats.BaseHP = stats.Level * 2000; } stats.CurrentMaxHP = stats.BaseHP; stats.CurrentHP = stats.CurrentMaxHP; stats.BaseAC = stats.Level * 13; stats.BaseMR = stats.Level * 5; stats.BaseER = stats.Level * 5; stats.BaseVR = stats.Level * 5; stats.BasePR = stats.Level * 5; if (stats.Level < 30) { npc.BaseAtkDmg = Mathf.RoundToInt (stats.Level - Random.Range (0, 3)); } else { npc.BaseAtkDmg = Mathf.RoundToInt ((float)stats.Level * 1.5f); } stats.BaseMHAtkDelay = 150 - stats.Level; stats.BaseAC = level * 20; stats.CurrentAC = stats.BaseAC; }"
+      },
+      "note": "A treasure guardian gets a level from the player's level -3 to +1, at least 3, base HP from a level bracket, and a base attack and swing delay from that level. Re-implemented by guardian_base_hp, guardian_base_attacks, and guardian_outcomes in src/erenshor/application/processor/treasure.py. The AC and resists set here are replaced later (npc.ac_per_level, npc.start_attack_floor)."
+    },
+    {
+      "id": "treasure.zone_pool_by_level",
+      "mode": "assert",
+      "type": "TreasureHunting",
+      "method": "SetTreasureZone",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (GameData.PlayerStats.Level > 30) { maxExclusive = 9; } else if (GameData.PlayerStats.Level > 20) { maxExclusive = 6; }"
+      },
+      "note": "Reading a treasure map picks from 3 zones, from 6 above level 20, and from 9 above level 30. Re-implemented by _min_reading_level in src/erenshor/application/processor/treasure.py."
+    },
+    {
+      "id": "treasure.chest_tier_by_level",
+      "mode": "assert",
+      "type": "PlayerControl",
+      "method": "LeftClick",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (hitInfo.transform.tag == \"Treasure\" && !flag && Vector3.Distance (base.transform.position, hitInfo.transform.position) < 5f) { GameObject original = GameData.Misc.TreasureChest0_10; if (Myself.MyStats.Level >= 10 && Myself.MyStats.Level < 20) { original = GameData.Misc.TreasureChest10_20; } if (Myself.MyStats.Level >= 20 && Myself.MyStats.Level < 30) { original = GameData.Misc.TreasureChest20_30; } if (Myself.MyStats.Level >= 30) { original = GameData.Misc.TreasureChest30_35; } Object.Instantiate (original, hitInfo.transform.position, hitInfo.transform.rotation); Object.Instantiate (GameData.Misc.DigFX, hitInfo.transform.position, hitInfo.transform.rotation); GameData.PlayerAud.PlayOneShot (GameData.Misc.DigSFX, GameData.PlayerAud.volume * GameData.SFXVol * GameData.MasterVol); GameData.GM.GetComponent<TreasureHunting> ().ResetTreasureHunt (); hitInfo.transform.gameObject.SetActive (value: false); }"
+      },
+      "note": "Digging spawns the 0-10 chest below level 10, the 10-20 chest at 10-19, the 20-30 chest at 20-29, and the 30-35 chest from level 30. Re-implemented by CHEST_DIG_LEVELS in src/erenshor/application/processor/treasure.py."
+    },
+    {
+      "id": "npc.level_variance",
+      "mode": "assert",
+      "type": "NPC",
+      "method": "Start",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (!SimPlayer && !GroupEncounter && MyStats.Level < 35) { if (Random.Range (0, 10) > 7) { MyStats.Level--; } else if (Random.Range (0, 10) > 7) { MyStats.Level++; } }"
+      },
+      "note": "An NPC below level 35 that is no simulated player and no group encounter starts one level lower (20%) or higher (16%). Re-implemented by guardian_outcomes in src/erenshor/application/processor/treasure.py."
+    },
+    {
       "id": "npc.balance_hp",
       "mode": "assert",
       "type": "NPC",
@@ -600,6 +648,18 @@
         "shape": "if (Myself.MyNPC.HardSetAC == 0) { CurrentAC = Level * 15 + seAC; } else { CurrentAC = Myself.MyNPC.HardSetAC + seAC; }"
       },
       "note": "An NPC without hand-set AC has AC 15 x level. Re-implemented by CharacterListener (EffectiveAC) and armor_class in src/erenshor/application/processor/npc_spawn.py."
+    },
+    {
+      "id": "player.level_cap",
+      "mode": "assert",
+      "type": "Stats",
+      "method": "DoLevelUp",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BinaryOperatorExpression",
+        "shape": "Level < 35"
+      },
+      "note": "The player stops levelling at 35. treasure_guardian_scaling has one row per player level up to that cap."
     },
     {
       "id": "npc.start_attack_floor",

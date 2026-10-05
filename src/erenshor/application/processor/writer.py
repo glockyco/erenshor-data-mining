@@ -290,12 +290,15 @@ CREATE TABLE guild_topics (
     resource_name           TEXT
 );
 
+-- min_reading_level: the lowest player level whose treasure map can point to
+-- the zone, or NULL when no map can.
 CREATE TABLE treasure_hunting (
     zone_name               TEXT PRIMARY KEY NOT NULL,
     zone_display_name       TEXT,
     is_pickable_always      INTEGER,
     is_pickable_greater_20  INTEGER,
-    is_pickable_greater_30  INTEGER
+    is_pickable_greater_30  INTEGER,
+    min_reading_level       INTEGER
 );
 
 -- -------------------------------------------------------------------------
@@ -1003,6 +1006,8 @@ CREATE TABLE spawnpoint_essential_links (
     PRIMARY KEY (source_spawn_point_stable_key, essential_spawn_point_stable_key)
 );
 
+-- level_min/level_max: the dig levels [level_min, level_max) that spawn the
+-- chest at the site.
 CREATE TABLE treasure_chest_possible_spawns (
     chest_character_stable_key  TEXT NOT NULL REFERENCES characters (stable_key),
     treasure_location_stable_key TEXT NOT NULL REFERENCES treasure_locations (stable_key),
@@ -1013,6 +1018,28 @@ CREATE TABLE treasure_chest_possible_spawns (
     y                            REAL,
     z                            REAL,
     PRIMARY KEY (chest_character_stable_key, treasure_location_stable_key)
+);
+
+-- One row per guardian and player level: the stats of that guardian when a
+-- player of that level strikes a dug-up treasure chest. Every stat is a
+-- range, because the game rolls them. attack is the base damage per hit and
+-- attack_delay the base swing delay in 1/60 s.
+CREATE TABLE treasure_guardian_scaling (
+    guardian_character_stable_key TEXT NOT NULL REFERENCES characters (stable_key),
+    player_level                  INTEGER NOT NULL,
+    level_min                     INTEGER NOT NULL,
+    level_max                     INTEGER NOT NULL,
+    health_min                    INTEGER NOT NULL,
+    health_max                    INTEGER NOT NULL,
+    attack_min                    INTEGER NOT NULL,
+    attack_max                    INTEGER NOT NULL,
+    attack_delay_min              INTEGER NOT NULL,
+    attack_delay_max              INTEGER NOT NULL,
+    ac_min                        INTEGER NOT NULL,
+    ac_max                        INTEGER NOT NULL,
+    resist_min                    INTEGER NOT NULL,
+    resist_max                    INTEGER NOT NULL,
+    PRIMARY KEY (guardian_character_stable_key, player_level)
 );
 
 CREATE TABLE character_ae_events (
@@ -1410,6 +1437,9 @@ class Writer:
 
     def insert_treasure_chest_possible_spawns(self, rows: list[dict[str, object]]) -> int:
         return self._insert("treasure_chest_possible_spawns", rows)
+
+    def insert_treasure_guardian_scaling(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("treasure_guardian_scaling", rows)
 
     def insert_character_ae_events(self, rows: list[dict[str, object]]) -> int:
         return self._insert("character_ae_events", rows)
