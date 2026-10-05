@@ -33,16 +33,16 @@ internal static class Runner
                 continue;
             try
             {
-                var method = FindMethod(decompiler, fact);
+                var scope = FindMember(decompiler, fact);
                 var values = fact.Matcher switch
                 {
-                    "guarded_member_roll" => Matchers.GuardedMemberRoll(method, fact),
-                    "string_constants" => Matchers.StringConstants(method, fact),
-                    "int_comparisons" => Matchers.IntComparisons(method, fact),
-                    "statement_shape" => Matchers.StatementShape(method, fact),
-                    "string_set" => Matchers.StringSet(method, fact),
-                    "node_shape" => Matchers.NodeShape(method, fact),
-                    "nested_branch_split" => Matchers.NestedBranchSplit(method, fact),
+                    "guarded_member_roll" => Matchers.GuardedMemberRoll(scope, fact),
+                    "string_constants" => Matchers.StringConstants(scope, fact),
+                    "int_comparisons" => Matchers.IntComparisons(scope, fact),
+                    "statement_shape" => Matchers.StatementShape(scope, fact),
+                    "string_set" => Matchers.StringSet(scope, fact),
+                    "node_shape" => Matchers.NodeShape(scope, fact),
+                    "nested_branch_split" => Matchers.NestedBranchSplit(scope, fact),
                     _ => throw new InvalidDataException($"unknown matcher '{fact.Matcher}'"),
                 };
                 result.Facts.Add(
@@ -59,17 +59,33 @@ internal static class Runner
         return result;
     }
 
-    private static MethodDeclaration FindMethod(CSharpDecompiler decompiler, FactSpec fact)
+    /// Binds the member that a fact names: the one method named `method`, or
+    /// the one field declaration that declares the variable named `field`.
+    /// The decompiler renders an initializer that the compiler moved into the
+    /// constructor back on its field, so a field scope pins the initial value.
+    private static EntityDeclaration FindMember(CSharpDecompiler decompiler, FactSpec fact)
     {
+        if ((fact.Method is null) == (fact.Field is null))
+            throw new InvalidDataException("a fact names exactly one of method and field");
         SyntaxTree tree = decompiler.DecompileType(new FullTypeName(fact.Type));
-        var matches = tree
-            .Descendants.OfType<MethodDeclaration>()
-            .Where(m => m.Name == fact.Method)
-            .ToList();
+        List<EntityDeclaration> matches = fact.Method is not null
+            ? tree
+                .Descendants.OfType<MethodDeclaration>()
+                .Where(m => m.Name == fact.Method)
+                .Cast<EntityDeclaration>()
+                .ToList()
+            : tree
+                .Descendants.OfType<FieldDeclaration>()
+                .Where(f => f.Variables.Any(v => v.Name == fact.Field))
+                .Cast<EntityDeclaration>()
+                .ToList();
         if (matches.Count != 1)
+        {
+            string kind = fact.Method is not null ? "method" : "field";
             throw new InvalidDataException(
-                $"method {fact.Type}::{fact.Method} bound {matches.Count} times (need exactly 1)"
+                $"{kind} {fact.Type}::{fact.Method ?? fact.Field} bound {matches.Count} times (need exactly 1)"
             );
+        }
         return matches[0];
     }
 
@@ -90,14 +106,14 @@ internal static class Matchers
     /// `* expr`). Emits rate (literal as invariant string) and min_level
     /// (from a `Level > N` conjunct, else "0").
     public static Dictionary<string, string> GuardedMemberRoll(
-        MethodDeclaration method,
+        EntityDeclaration scope,
         FactSpec fact
     )
     {
         string member = fact.Args["member"];
         var hits = new List<(string Rate, string MinLevel)>();
 
-        foreach (var ifs in method.Descendants.OfType<IfElseStatement>())
+        foreach (var ifs in scope.Descendants.OfType<IfElseStatement>())
         {
             bool addsMember = ifs
                 .TrueStatement.Descendants.OfType<InvocationExpression>()
@@ -141,9 +157,9 @@ internal static class Matchers
     /// branch adds args["then"] and whose else branch adds args["else"]. Emits
     /// range_min (a), range_max (b), and cutoff (c) as integers. The binding is
     /// scoped to that one statement, so other `Random.Range` comparisons in the
-    /// same method cannot bind.
+    /// same member cannot bind.
     public static Dictionary<string, string> NestedBranchSplit(
-        MethodDeclaration method,
+        EntityDeclaration scope,
         FactSpec fact
     )
     {
@@ -151,7 +167,7 @@ internal static class Matchers
         string elseMember = fact.Args["else"];
         var hits = new List<(int Min, int Max, int Cutoff)>();
 
-        foreach (var ifs in method.Descendants.OfType<IfElseStatement>())
+        foreach (var ifs in scope.Descendants.OfType<IfElseStatement>())
         {
             if (
                 ifs.Condition
@@ -199,14 +215,11 @@ internal static class Matchers
                 && NodeMentions(inv.Arguments.First(), member)
             );
 
-    /// All distinct string literals used in `==` comparisons in the method,
+    /// All distinct string literals used in `==` comparisons in the member,
     /// in source order, joined with ','.
-    public static Dictionary<string, string> StringConstants(
-        MethodDeclaration method,
-        FactSpec fact
-    )
+    public static Dictionary<string, string> StringConstants(EntityDeclaration scope, FactSpec fact)
     {
-        var strings = method
+        var strings = scope
             .Descendants.OfType<BinaryOperatorExpression>()
             .Where(b => b.Operator == BinaryOperatorType.Equality)
             .SelectMany(b => new[] { b.Left, b.Right })
@@ -225,12 +238,12 @@ internal static class Matchers
     /// `key` = `op int[,op int...]`. Requires at least one comparison
     /// (a member with both a lower and an upper bound yields two entries);
     /// zero comparisons throws.
-    public static Dictionary<string, string> IntComparisons(MethodDeclaration method, FactSpec fact)
+    public static Dictionary<string, string> IntComparisons(EntityDeclaration scope, FactSpec fact)
     {
         var values = new Dictionary<string, string>();
         foreach (var (memberName, key) in fact.Args)
         {
-            var cmps = method
+            var cmps = scope
                 .Descendants.OfType<BinaryOperatorExpression>()
                 .Where(b =>
                     (
@@ -258,17 +271,17 @@ internal static class Matchers
         return values;
     }
 
-    /// Assert mode. Asserts the method contains EXACTLY ONE statement whose
+    /// Assert mode. Asserts the member contains EXACTLY ONE statement whose
     /// whitespace-normalized text equals args["statement"]. One statement, not
     /// a body snapshot: stable under the pinned decompiler and immune to edits
     /// in neighboring statements. The spec arg MUST match the DECOMPILER's
     /// rendering (e.g. `Foo.Add (Bar [Baz (0)]);` — note the spaces the
     /// decompiler emits before `(`/`[`), not the original source spelling.
     /// Binding zero or multiple times throws (lands in errors[] -> exit 1).
-    public static Dictionary<string, string> StatementShape(MethodDeclaration method, FactSpec fact)
+    public static Dictionary<string, string> StatementShape(EntityDeclaration scope, FactSpec fact)
     {
         string wanted = Normalize(fact.Args["statement"]);
-        int count = method
+        int count = scope
             .Descendants.OfType<ExpressionStatement>()
             .Count(s => Normalize(s.ToString()) == wanted);
         if (count != 1)
@@ -278,14 +291,15 @@ internal static class Matchers
         return new();
     }
 
-    /// Assert mode. Asserts the method contains EXACTLY ONE AST node of
+    /// Assert mode. Asserts the member contains EXACTLY ONE AST node of
     /// args["kind"] whose whitespace-normalized text equals args["shape"].
-    /// Unlike statement_shape, this pins compound nodes such as for/do loops.
-    public static Dictionary<string, string> NodeShape(MethodDeclaration method, FactSpec fact)
+    /// Unlike statement_shape, this pins compound nodes such as for/do loops,
+    /// and in a field scope the initializer (kind `VariableInitializer`).
+    public static Dictionary<string, string> NodeShape(EntityDeclaration scope, FactSpec fact)
     {
         string kind = fact.Args["kind"];
         string wanted = Normalize(fact.Args["shape"]);
-        var candidates = method
+        var candidates = scope
             .DescendantsAndSelf.Where(node => node.GetType().Name == kind)
             .Select(node => Normalize(node.ToString()))
             .ToList();
@@ -304,16 +318,16 @@ internal static class Matchers
         return new();
     }
 
-    /// Assert mode. Asserts the method's set of `==`-compared string literals
+    /// Assert mode. Asserts the member's set of `==`-compared string literals
     /// EQUALS the expected set in args["strings"] (comma-separated) exactly.
     /// Reuses the StringConstants collector, so it only sees literals that
     /// participate in `==` comparisons; literals that are merely ASSIGNED are
     /// invisible here (pin those with statement_shape instead). A mismatch in
     /// either direction throws (lands in errors[] -> exit 1).
-    public static Dictionary<string, string> StringSet(MethodDeclaration method, FactSpec fact)
+    public static Dictionary<string, string> StringSet(EntityDeclaration scope, FactSpec fact)
     {
         var expected = fact.Args["strings"].Split(',').ToHashSet();
-        var actual = StringConstants(method, fact)["strings"].Split(',').ToHashSet();
+        var actual = StringConstants(scope, fact)["strings"].Split(',').ToHashSet();
         if (!expected.SetEquals(actual))
             throw new InvalidDataException(
                 $"string_set mismatch: expected [{string.Join(",", expected.Order())}], "

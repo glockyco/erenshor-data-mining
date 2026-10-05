@@ -3,15 +3,19 @@ using System.Text.Json.Serialization;
 
 namespace CodeFacts;
 
+/// A fact binds one member of `type`: the method named `method`, or the field
+/// declaration that declares the variable named `field`. Exactly one of the
+/// two is set.
 internal sealed record FactSpec(
     [property: JsonPropertyName("id")] string Id,
     [property: JsonPropertyName("mode")] string Mode,
     [property: JsonPropertyName("type")] string Type,
-    [property: JsonPropertyName("method")] string Method,
+    [property: JsonPropertyName("method")] string? Method,
     [property: JsonPropertyName("matcher")] string Matcher,
     [property: JsonPropertyName("args")] Dictionary<string, string> Args,
     [property: JsonPropertyName("keys")] List<string>? Keys,
-    [property: JsonPropertyName("variants")] List<string>? Variants
+    [property: JsonPropertyName("variants")] List<string>? Variants,
+    [property: JsonPropertyName("field")] string? Field = null
 );
 
 internal sealed record SpecsFile(

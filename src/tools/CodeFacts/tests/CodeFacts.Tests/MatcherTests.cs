@@ -302,6 +302,82 @@ public sealed class MatcherTests
         }
     }
 
+    [Fact]
+    public void Runner_binds_a_field_initializer()
+    {
+        var result = RunFacts(FieldFact("SingletonB = \"b\""));
+
+        var fact = Assert.Single(result.Facts);
+        Assert.Equal("fixture.singleton_default", fact.Id);
+        Assert.Empty(result.Errors);
+        Assert.True(result.Ok);
+    }
+
+    [Fact]
+    public void Runner_rejects_a_changed_field_initializer()
+    {
+        var result = RunFacts(FieldFact("SingletonB = \"c\""));
+
+        Assert.Empty(result.Facts);
+        Assert.Contains(result.Errors, error => error.StartsWith("fixture.singleton_default:"));
+        Assert.False(result.Ok);
+    }
+
+    [Fact]
+    public void Runner_rejects_a_fact_naming_a_method_and_a_field()
+    {
+        var result = RunFacts(
+            new
+            {
+                id = "fixture.ambiguous",
+                mode = "assert",
+                type = "FixtureLib.FixtureLoot",
+                method = "Combine",
+                field = "SingletonB",
+                matcher = "node_shape",
+                args = new Dictionary<string, string>
+                {
+                    ["kind"] = "VariableInitializer",
+                    ["shape"] = "SingletonB = \"b\"",
+                },
+            }
+        );
+
+        Assert.Equal(
+            ["fixture.ambiguous: a fact names exactly one of method and field"],
+            result.Errors
+        );
+    }
+
+    private static object FieldFact(string shape) =>
+        new
+        {
+            id = "fixture.singleton_default",
+            mode = "assert",
+            type = "FixtureLib.FixtureLoot",
+            field = "SingletonB",
+            matcher = "node_shape",
+            args = new Dictionary<string, string>
+            {
+                ["kind"] = "VariableInitializer",
+                ["shape"] = shape,
+            },
+        };
+
+    private static RunResult RunFacts(params object[] facts)
+    {
+        var specsPath = Path.Combine(Path.GetTempPath(), $"code-facts-{Guid.NewGuid():N}.json");
+        try
+        {
+            File.WriteAllText(specsPath, JsonSerializer.Serialize(new { schema = 1, facts }));
+            return Runner.Run(typeof(FixtureLoot).Assembly.Location, specsPath, "main");
+        }
+        finally
+        {
+            File.Delete(specsPath);
+        }
+    }
+
     private static FactSpec Fact(
         string id,
         string mode,
