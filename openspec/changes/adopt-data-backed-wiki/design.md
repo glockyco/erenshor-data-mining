@@ -108,7 +108,7 @@ Step 4 also has to settle these known points:
 
 After the last type, the merge engine (`field_preservation.py` and the passes around it), the Jinja article templates, and the full-article refresh go. The guarded deploy stays for stubs and template-call edits.
 
-The remaining work follows this order, decided on 2026-10-05. Small data fixes come first, because each corrects a live page or an input of a later step: the crafting rule (task 5.21), the audit of renamed copies (task 5.20), and the export of the chat knowledge base (tasks 5.22 to 5.24). The missing images (task 5.15) and the tooltip check (task 5.19) follow. The C# tooling majors of the dependency dashboard come before step 2, because the code facts of task 6.2 depend on that tooling. Steps 2, 3, and 4 follow, and then the other dependency majors.
+The remaining work follows this order, decided on 2026-10-05. Small data fixes come first, because each corrects a live page or an input of a later step: the crafting rule (task 5.21, done the same day), the audit of renamed copies (task 5.20), the export of the chat knowledge base (tasks 5.22 to 5.24), and the forge quantity and guaranteed roll count that task 5.21 brought to light (tasks 5.25 and 5.26). The missing images (task 5.15) and the tooltip check (task 5.19) follow. The C# tooling majors of the dependency dashboard come before step 2, because the code facts of task 6.2 depend on that tooling. Steps 2, 3, and 4 follow, and then the other dependency majors.
 
 The local wiki stack stays on MySQL 8, because the live wiki runs MySQL 8.0.45. A Renovate rule holds the `mysql` image of `wiki-dev/compose.yml` at 8.x.
 

@@ -88,7 +88,7 @@
       "update": null,
       "date": null,
       "patch_notes_url": null,
-      "source": "Clean DB retains a crafting-reward row for this item. The wiki's crafting explanation says ancient coal now creates a blessed item instead."
+      "source": "The ceremonial ring mold lists this ring as its second reward, but the forge always awards the first reward of a template (code fact smithing.awards_first_template_reward), and ancient coal only makes that ring blessed. No vendor, drop, quest, or other source gives it."
     },
     "Unusual Copper Sceptre": {
       "stable_key": "item:wand - bronzesceptre 1",
@@ -97,7 +97,7 @@
       "update": null,
       "date": null,
       "patch_notes_url": null,
-      "source": "Clean DB retains a crafting-reward row for this item. The wiki's crafting explanation says tier 2 crafting now gives a blessed item instead."
+      "source": "The bronze sceptre mold lists this sceptre as its second reward, but the forge always awards the first reward of a template (code fact smithing.awards_first_template_reward), and better fuel only makes that sceptre blessed. No vendor, drop, quest, or other source gives it."
     },
     "Ancient Sentinel": {
       "stable_key": "character:ancient sentinel",
