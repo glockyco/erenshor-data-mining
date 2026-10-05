@@ -88,10 +88,13 @@ public class CharacterRecord
     public int BaseAttackRollModifier { get; set; }
     public bool CannotBeSnared { get; set; }
 
+    // Asset name of Stats.CharacterClass, or null when unset. Stats.Start
+    // then uses EffectDB.DefaultClass.
+    public string? ClassResourceName { get; set; }
+
     // Calculated/Effective Stats for NPCs
     public int EffectiveHP { get; set; }
     public int EffectiveAC { get; set; }
-    public int EffectiveBaseAtkDmg { get; set; }
     public float EffectiveAttackAbility { get; set; }
     public int EffectiveMinMR { get; set; }
     public int EffectiveMaxMR { get; set; }
@@ -132,6 +135,11 @@ public class CharacterRecord
 
     // NPC Combat Mechanics
     public bool HandSetResistances { get; set; }
+
+    // Unity calls Start in component order, so this decides whether
+    // Stats.Start (resists, attack floor) runs before NPC.Start (level
+    // variance, DamageBalanceFactor).
+    public bool StatsStartsBeforeNPC { get; set; }
     public int HardSetAC { get; set; }
     public int BaseAtkDmg { get; set; }
     public int OHAtkDmg { get; set; }

@@ -1,17 +1,20 @@
 #nullable enable
 
+using System;
 using System.Collections.Generic;
 using SQLite;
 using UnityEngine;
 
 /// <summary>
-/// Exports game constants from GameData static fields.
+/// Exports game constants from GameData static fields and from the
+/// GameManager component in LoadScene.
 /// These values affect game mechanics and differ between variants.
 /// </summary>
-public class GameConstantListener : IAssetScanListener<Object>
+public class GameConstantListener : IAssetScanListener<GameManager>
 {
     private readonly SQLiteConnection _db;
     private readonly List<GameConstantRecord> _records = new();
+    private int _gameManagerCount;
 
     public GameConstantListener(SQLiteConnection db)
     {
@@ -60,6 +63,14 @@ public class GameConstantListener : IAssetScanListener<Object>
 
     public void OnScanFinished()
     {
+        // A moved or duplicated GameManager would silently drop or double its constants.
+        if (_gameManagerCount != 1)
+        {
+            throw new InvalidOperationException(
+                $"Expected exactly one GameManager component, found {_gameManagerCount}"
+            );
+        }
+
         _db.CreateTable<GameConstantRecord>();
         _db.RunInTransaction(() =>
         {
@@ -69,9 +80,14 @@ public class GameConstantListener : IAssetScanListener<Object>
         _records.Clear();
     }
 
-    public void OnAssetFound(Object asset)
+    public void OnAssetFound(GameManager manager)
     {
-        // This listener doesn't scan assets - all work is done in OnScanStarted
+        _gameManagerCount++;
+        AddConstant(
+            "DamageBalanceFactor",
+            manager.DamageBalanceFactor,
+            "NPC melee damage multiplier applied at spawn"
+        );
     }
 
     private void AddConstant(string key, float value, string? description = null)

@@ -5533,9 +5533,9 @@
         "type": "Item"
       },
       "DamageBalanceFactor": {
-        "by": null,
-        "reason": "GameManager runtime state, UI, or scene reference not exported",
-        "status": "ignored",
+        "by": "GameConstantListener",
+        "reason": null,
+        "status": "captured",
         "type": "System.Single"
       },
       "DemoBuild": {

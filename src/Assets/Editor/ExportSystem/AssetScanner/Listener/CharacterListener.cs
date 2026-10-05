@@ -496,6 +496,7 @@ public class CharacterListener : IAssetScanListener<Character>
         _characterAEEventRecords.AddRange(CreateAEEventRecords(characterRecord.StableKey, asset));
     }
 
+    // code-fact: npc.balance_hp
     private static int CalculateNpcEffectiveHP(int baseHp, int level)
     {
         int effectiveHp = Mathf.RoundToInt((float)baseHp * GameData.ServerHPMod);
@@ -649,6 +650,10 @@ public class CharacterListener : IAssetScanListener<Character>
 
             // NPC Combat Mechanics
             record.HandSetResistances = npc.HandSetResistances;
+            var components = character.GetComponents<Component>();
+            record.StatsStartsBeforeNPC =
+                stats != null
+                && System.Array.IndexOf(components, stats) < System.Array.IndexOf(components, npc);
             record.HardSetAC = npc.HardSetAC;
             record.BaseAtkDmg = npc.BaseAtkDmg;
             record.OHAtkDmg = npc.OHAtkDmg;
@@ -709,6 +714,8 @@ public class CharacterListener : IAssetScanListener<Character>
             record.BaseArmorPenPercentage = stats.BaseArmorPenPercentage;
             record.BaseAttackRollModifier = stats.BaseAttackRollModifier;
             record.CannotBeSnared = stats.CannotBeSnared;
+            record.ClassResourceName =
+                stats.CharacterClass != null ? stats.CharacterClass.name : null;
             // code-fact: character.base_xp_per_level
             record.BaseXpMin = stats.Level * 6;
             record.BaseXpMax = record.BaseXpMin + stats.Level * 5;
@@ -720,6 +727,7 @@ public class CharacterListener : IAssetScanListener<Character>
                 if (!npc.HandSetResistances)
                 {
                     // NPCs without HandSetResistances use calculated resistance ranges
+                    // code-fact: npc.base_resists
                     record.EffectiveMinMR = Mathf.RoundToInt(stats.Level * 0.5f);
                     record.EffectiveMaxMR = Mathf.RoundToInt(stats.Level * 1.2f);
                     record.EffectiveMinER = Mathf.RoundToInt(stats.Level * 0.5f);
@@ -738,11 +746,9 @@ public class CharacterListener : IAssetScanListener<Character>
                     record.EffectiveMinVR = record.EffectiveMaxVR = stats.BaseVR;
                 }
 
-                // BaseAtkDmg is set to at least Level for NPCs
-                record.EffectiveBaseAtkDmg = Mathf.Max(npc.BaseAtkDmg, stats.Level);
-
                 // Calculate effective AC for NPCs
-                int baseAC = npc.HardSetAC > 0 ? npc.HardSetAC : stats.Level * 15;
+                // code-fact: npc.ac_per_level
+                int baseAC = npc.HardSetAC != 0 ? npc.HardSetAC : stats.Level * 15;
 
                 var testDummy = character.GetComponent<TestDummy>();
                 if (testDummy != null && testDummy.HandSetAC > 0)
@@ -757,6 +763,7 @@ public class CharacterListener : IAssetScanListener<Character>
                     mitigationBonus = stats.CharacterClass.MitigationBonus;
                 }
 
+                // code-fact: npc.ac_class_mitigation
                 record.EffectiveAC = Mathf.RoundToInt(baseAC * mitigationBonus);
 
                 // Calculate effective HP using NPC.ApplyBalanceAdjustments() semantics:
@@ -783,7 +790,6 @@ public class CharacterListener : IAssetScanListener<Character>
                 record.EffectiveMinER = record.EffectiveMaxER = stats.BaseER;
                 record.EffectiveMinPR = record.EffectiveMaxPR = stats.BasePR;
                 record.EffectiveMinVR = record.EffectiveMaxVR = stats.BaseVR;
-                record.EffectiveBaseAtkDmg = npc?.BaseAtkDmg ?? 0;
                 record.EffectiveAC = 0;
                 record.EffectiveHP = 0;
                 record.EffectiveAttackAbility = 0;

@@ -219,6 +219,18 @@ def processed_db(tmp_path):
     )
     writer = Writer(clean_path)
     writer.create_schema()
+    writer.insert_game_constants(
+        [
+            {"key": key, "value": value, "value_type": "float", "description": None}
+            for key, value in (
+                ("ServerHPMod", "1"),
+                ("HPScale", "1.3"),
+                ("Under35HPScale", "1.75"),
+                ("Under8HPScale", "1.1"),
+                ("DamageBalanceFactor", "1.1"),
+            )
+        ]
+    )
     process_characters(
         raw,
         writer,

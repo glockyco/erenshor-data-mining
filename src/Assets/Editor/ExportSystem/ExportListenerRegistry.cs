@@ -118,9 +118,12 @@ public static class ExportListenerRegistry
             new(
                 "gameconstants",
                 "Game Constants",
-                ExportScanChannel.Null,
+                ExportScanChannel.Component,
                 Array.Empty<string>(),
-                context => context.RegisterNullListener(new GameConstantListener(context.Database))
+                context =>
+                    context.RegisterComponentListener<GameManager>(
+                        new GameConstantListener(context.Database)
+                    )
             ),
             new(
                 "teleportlocs",

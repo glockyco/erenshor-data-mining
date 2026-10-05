@@ -40,6 +40,8 @@ from typing import TYPE_CHECKING, cast
 
 from loguru import logger
 
+from .npc_spawn import load_spawn_constants, spawn_attack
+
 if TYPE_CHECKING:
     from .mapping import MappingOverride, SpawnMappingOverride
     from .writer import Writer
@@ -884,6 +886,25 @@ def process_characters(
     # Step 6: Write characters
     # ------------------------------------------------------------------
 
+    constants = load_spawn_constants(writer.conn)
+
+    def _effective_base_attack(r: dict[str, object]) -> int:
+        """Base attack after NPC.Start and Stats.Start, at the prefab's level."""
+        if not r.get("HasStats"):
+            return 0
+        base_attack = int(cast("int", r.get("BaseAtkDmg") or 0))
+        if not r.get("IsNPC"):
+            return base_attack
+        level = int(cast("int", r["Level"]))
+        return spawn_attack(
+            base_attack,
+            level,
+            level,
+            stats_starts_first=bool(r.get("StatsStartsBeforeNPC")),
+            floors_at_level=not r.get("HandSetResistances"),
+            damage_balance_factor=constants.damage_balance_factor,
+        )
+
     def _char_row(d: _CharData) -> dict[str, object]:
         r = d.char.raw
         return {
@@ -961,9 +982,10 @@ def process_characters(
             "base_armor_pen_percentage": r.get("BaseArmorPenPercentage"),
             "base_attack_roll_modifier": r.get("BaseAttackRollModifier"),
             "cannot_be_snared": r.get("CannotBeSnared"),
+            "class_resource_name": r.get("ClassResourceName"),
             "effective_hp": r.get("EffectiveHP"),
             "effective_ac": r.get("EffectiveAC"),
-            "effective_base_atk_dmg": r.get("EffectiveBaseAtkDmg"),
+            "effective_base_atk_dmg": _effective_base_attack(r),
             "effective_attack_ability": r.get("EffectiveAttackAbility"),
             "effective_min_mr": r.get("EffectiveMinMR"),
             "effective_max_mr": r.get("EffectiveMaxMR"),
@@ -982,6 +1004,7 @@ def process_characters(
             "proc_on_hit_stable_key": r.get("ProcOnHitStableKey"),
             "proc_on_hit_chance": r.get("ProcOnHitChance"),
             "hand_set_resistances": r.get("HandSetResistances"),
+            "stats_starts_before_npc": r.get("StatsStartsBeforeNPC"),
             "hard_set_ac": r.get("HardSetAC"),
             "base_atk_dmg": r.get("BaseAtkDmg"),
             "oh_atk_dmg": r.get("OHAtkDmg"),

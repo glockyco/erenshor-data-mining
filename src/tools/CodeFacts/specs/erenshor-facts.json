@@ -564,6 +564,76 @@
         "statement": "Arena.MusicMngr.ForceBossEngaged ();"
       },
       "note": "Vitheo's arena starts boss music for these rounds only. Re-implemented by the arena boss rounds of the encounter tier in src/erenshor/application/processor/characters.py."
+    },
+    {
+      "id": "npc.balance_hp",
+      "mode": "assert",
+      "type": "NPC",
+      "method": "ApplyBalanceAdjustments",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ MyStats.BaseHP = Mathf.RoundToInt ((float)MyStats.BaseHP * GameData.ServerHPMod); MyStats.BaseHP = Mathf.RoundToInt ((float)MyStats.BaseHP * GameData.HPScale); if (MyStats.Level <= 36 && MyStats.Level > 7) { MyStats.BaseHP = Mathf.RoundToInt ((float)MyStats.BaseHP * GameData.Under35HPScale); } else if (MyStats.Level <= 7) { MyStats.BaseHP = Mathf.RoundToInt ((float)MyStats.BaseHP * GameData.Under8HPScale); } if (MyStats.BaseHP <= 0) { MyStats.BaseHP = 1; } MyStats.CurrentMaxHP = MyStats.BaseHP; MyStats.CurrentHP = MyStats.CurrentMaxHP; }"
+      },
+      "note": "NPC base HP is scaled by ServerHPMod and HPScale, then by Under35HPScale at levels 8-36 or Under8HPScale up to level 7. Re-implemented by CharacterListener.CalculateNpcEffectiveHP and balanced_hp in src/erenshor/application/processor/npc_spawn.py."
+    },
+    {
+      "id": "npc.base_resists",
+      "mode": "assert",
+      "type": "Stats",
+      "method": "ReturnBaseResitances",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "ReturnStatement",
+        "shape": "return Mathf.RoundToInt ((float)Level * UnityEngine.Random.Range (0.5f, 1.2f));"
+      },
+      "note": "An NPC without hand-set resistances rolls each resist as level x 0.5 to 1.2. Re-implemented by CharacterListener (EffectiveMin/MaxMR) and resist_range in src/erenshor/application/processor/npc_spawn.py."
+    },
+    {
+      "id": "npc.ac_per_level",
+      "mode": "assert",
+      "type": "Stats",
+      "method": "CalcStats",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (Myself.MyNPC.HardSetAC == 0) { CurrentAC = Level * 15 + seAC; } else { CurrentAC = Myself.MyNPC.HardSetAC + seAC; }"
+      },
+      "note": "An NPC without hand-set AC has AC 15 x level. Re-implemented by CharacterListener (EffectiveAC) and armor_class in src/erenshor/application/processor/npc_spawn.py."
+    },
+    {
+      "id": "npc.start_attack_floor",
+      "mode": "assert",
+      "type": "Stats",
+      "method": "Start",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (Myself.isNPC && GetComponent<SimPlayer> () == null && !GetComponent<NPC> ().HandSetResistances) { BaseMR = ReturnBaseResitances (Level); BaseER = ReturnBaseResitances (Level); BasePR = ReturnBaseResitances (Level); BaseVR = ReturnBaseResitances (Level); if (GetComponent<NPC> ().BaseAtkDmg < Level) { GetComponent<NPC> ().BaseAtkDmg = Level; } }"
+      },
+      "note": "Stats.Start rolls an NPC's resists and raises its base attack to its level, unless the NPC has hand-set resistances. Unity calls Stats.Start and NPC.Start in component order, which the export records as StatsStartsBeforeNPC. Re-implemented by spawn_attack and resist_level in src/erenshor/application/processor/npc_spawn.py."
+    },
+    {
+      "id": "npc.start_damage_balance",
+      "mode": "assert",
+      "type": "NPC",
+      "method": "Start",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "BaseAtkDmg = Mathf.RoundToInt ((float)BaseAtkDmg * GameData.GM.DamageBalanceFactor);"
+      },
+      "note": "NPC.Start multiplies the base attack by GameManager.DamageBalanceFactor (exported as a game constant), with a minimum of 1. Re-implemented by spawn_attack in src/erenshor/application/processor/npc_spawn.py."
+    },
+    {
+      "id": "npc.ac_class_mitigation",
+      "mode": "assert",
+      "type": "Stats",
+      "method": "CalcStats",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "CurrentAC = Mathf.RoundToInt ((float)CurrentAC * CharacterClass.MitigationBonus);"
+      },
+      "note": "NPC AC is multiplied by the MitigationBonus of the character's class. Re-implemented by armor_class in src/erenshor/application/processor/npc_spawn.py and by CharacterListener (EffectiveAC)."
     }
   ]
 }
