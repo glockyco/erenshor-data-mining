@@ -144,6 +144,14 @@ The plan for the wiki is the OpenSpec change `adopt-data-backed-wiki`. Read its 
 2. Record each unexplained page in `content-lifecycle.json`. Use the renamed copies of `skill://auditing-spawn-coverage` for characters. Never record a state that the game files do not show.
 3. Run `uv run erenshor --dry-run wiki apply-retired-pages`, review each planned notice, redirect, and disambiguation page, and apply them only after approval. Each run keeps a rollback manifest in `retired-page-deploys/` in the variant's wiki directory.
 
+## One-time edits of text that people own
+
+Generation never rewrites prose or templates outside the generated roots. When such text is wrong, or when a page must give up a legacy template before generation can add its root, write a reviewed one-time edit.
+
+1. Write a TOML file under the variant's wiki directory, never in the repository, because it quotes text that people wrote. Each `[[pages]]` entry has a `title`, an edit `summary`, and one or more `[[pages.replace]]` entries with the exact `old` live text and its `new` text.
+2. Run `uv run erenshor --dry-run wiki apply-page-edits <file>`. Each `old` text must occur exactly once on the live page. The dry run prints a diff for each page and parses the new text: a script error, a missing template, or a new category without a page blocks the run.
+3. Apply it only after approval: `uv run erenshor wiki apply-page-edits <file>`. Each write is guarded by the revision that the run read, and the run keeps a rollback manifest in `page-edit-deploys/` in the variant's wiki directory. Restore it with `wiki rollback-repo-pages --manifest`.
+
 ## Interface gadgets and dependent pages
 
 1. Sync live `MediaWiki:` pages into the local preview before importing: `uv run erenshor wiki sync-interface`.

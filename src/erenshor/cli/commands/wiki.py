@@ -15,6 +15,7 @@ Example workflow:
     $ erenshor wiki deploy
 """
 
+import difflib
 import json
 import sqlite3
 import sys
@@ -50,6 +51,7 @@ from erenshor.application.wiki_deploy.articles import (
     deploy_articles,
     plan_article_deploy,
 )
+from erenshor.application.wiki_deploy.guarded_edits import apply_guarded_edits
 from erenshor.application.wiki_deploy.link_audit import (
     ERROR_CODES,
     FINDING_CODES,
@@ -63,6 +65,12 @@ from erenshor.application.wiki_deploy.manifest import (
     read_repo_page_manifest,
     select_repo_page_manifest,
     write_repo_page_manifest,
+)
+from erenshor.application.wiki_deploy.page_edits import (
+    PageEditError,
+    load_page_edit_requests,
+    plan_page_edits,
+    render_problems,
 )
 from erenshor.application.wiki_deploy.pages import (
     RepoPageDrift,
@@ -115,6 +123,7 @@ from erenshor.infrastructure.database.repositories.spawn_points import SpawnPoin
 from erenshor.infrastructure.database.repositories.spells import SpellRepository
 from erenshor.infrastructure.database.repositories.stances import StanceRepository
 from erenshor.infrastructure.database.repositories.zones import ZoneRepository
+from erenshor.infrastructure.wiki import MediaWikiAPIError
 from erenshor.infrastructure.wiki.client import MediaWikiClient
 from erenshor.infrastructure.wiki.rate_limit import MediaWikiRequestor
 
@@ -847,6 +856,60 @@ def apply_retired_pages_command(ctx: typer.Context) -> None:
     client = _create_mediawiki_client(cli_ctx)
     try:
         result = apply_retired_edits(edits, repo_root=cli_ctx.repo_root, run_dir=run_dir, client=client)
+    finally:
+        client.close()
+    console.print(f"Manifest: {result.manifest_path}", markup=False)
+    for title in result.edited:
+        console.print(f"[green]Edited[/green] {escape(title)}")
+    for conflict in result.conflicts:
+        console.print(f"[yellow]Changed after review[/yellow] {escape(conflict)}")
+    if result.stopped:
+        console.print(f"[red]Stopped[/red] {escape(result.stopped)}")
+    if result.failed:
+        raise typer.Exit(1)
+
+
+@app.command("apply-page-edits")
+@require_preconditions(wiki_endpoint, wiki_credentials)
+def apply_page_edits_command(
+    ctx: typer.Context,
+    edits_file: Annotated[
+        Path,
+        typer.Argument(help="TOML file of reviewed edits: pages with a title, a summary, and exact text replacements."),
+    ],
+) -> None:
+    """Apply reviewed one-time text edits of live pages with revision guards."""
+    cli_ctx: CLIContext = ctx.obj
+    wiki_dir = cli_ctx.config.variants[cli_ctx.variant].resolved_wiki(cli_ctx.repo_root)
+    reader = _create_readonly_mediawiki_client(cli_ctx)
+    try:
+        edits = plan_page_edits(load_page_edit_requests(edits_file), reader)
+        problems = {edit.title: render_problems(edit, reader) for edit in edits}
+    except (OSError, PageEditError, MediaWikiAPIError) as error:
+        console.print(f"[red]Page edits cannot be planned: {escape(str(error))}[/red]")
+        raise typer.Exit(1) from error
+    finally:
+        reader.close()
+
+    for edit in edits:
+        console.print(f"[bold]{escape(edit.title)}[/bold] | {escape(edit.summary)}")
+        diff = difflib.unified_diff(
+            edit.original.splitlines(), edit.content.splitlines(), "live", "planned", n=0, lineterm=""
+        )
+        console.print("\n".join(diff), markup=False, soft_wrap=True)
+        for problem in problems[edit.title]:
+            console.print(f"[red]Blocked[/red] {escape(problem)}")
+    if any(problems.values()):
+        raise typer.Exit(1)
+    if cli_ctx.dry_run:
+        return
+
+    run_dir = (
+        wiki_dir / "page-edit-deploys" / (datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid.uuid4().hex[:8])
+    )
+    client = _create_mediawiki_client(cli_ctx)
+    try:
+        result = apply_guarded_edits(edits, repo_root=cli_ctx.repo_root, run_dir=run_dir, client=client)
     finally:
         client.close()
     console.print(f"Manifest: {result.manifest_path}", markup=False)
