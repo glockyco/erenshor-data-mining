@@ -60,11 +60,16 @@
   - Done on 2026-10-04: the change `capture-wiki-tooltip-parity` passes `openspec validate --strict`.
 - [ ] 5.19 Complete `capture-wiki-tooltip-parity`. Verify: the change is archived.
 - [ ] 5.20 `feat(tools): report renamed scene copies of excluded characters`: in `src/tools/audit_mapping_exclusions.py`, list for each excluded dead prefab the placed characters that share its object name under another name. Document the check in the `auditing-spawn-coverage` skill. Do this after task 5.14. Verify: the audit lists `Invader of Dreams` for `Dream Invader`, and `Bridgekeeper` and `Gatekeeper` for the two `Watchman` prefabs.
+- [ ] 5.21 `fix(pipeline): count only the first template reward as a crafting result`: the forge always awards `TemplateRewards[0]` (`Smithing.cs` `DoSuccess`), and the fuel sets only the quality. Record that rule as a code fact, and make the processor keep only the reward in slot 1 as a crafting source. Add a test with a template that has two rewards. Then generate, dry-run, and deploy the three affected articles after approval. Verify: the clean database names no slot-2 reward as a crafting result, and the live pages `Pristine Ceremonial Ring`, `Unusual Copper Sceptre`, and `Hardened Copper Sword` show no crafting recipe.
+- [ ] 5.22 `feat(export): export the knowledge base of simulated-player chat`: export the entries of `KnowledgeDatabaseHolder` (name, zone, level, boss flag, drops, and prefab path) into the raw database, and carry them into the clean database by character stable key. Verify: the clean database holds 892 entries, and `Dream Invader` has the zone `The Fernallan Portal` and ten drops.
+- [ ] 5.23 `feat(tools): report chat names that no placed character carries`: extend the audit of task 5.20 with the knowledge base of task 5.22 (design D15). List each name that chat can say without being asked, and that no wiki-visible character carries, with its prefab and the placed copies that share its object name. Document the check in the `auditing-spawn-coverage` skill. Verify: on the current build, the audit lists the six unused characters with their chat state and lists no name for which the facts record a rename or a split.
+- [ ] 5.24 `refactor(wiki): derive the chat flag of unused pages from the knowledge base`: replace the `chat` field of `content-lifecycle.json` with the rule of design D15, read from the clean database. Update the loader, the audit, the apply command, and their tests. Verify: the audit finds the chat flag on `Ancient Sentinel`, `Holy Corpse`, `Queen Evadne`, and `Summoned: Elder Dryad` only, and a dry run of `wiki apply-retired-pages` plans no change.
+- Order of the remaining work (design D3): 5.21, 5.20, 5.22 to 5.24, 5.15, 5.19, the C# tooling majors of the dependency dashboard, group 6, groups 7 and 8, then the other dependency majors.
 
 ## 6. Step 2: publish complete Cargo tables
 
 - [x] 6.1 The `cargoadmin` grant is enabled for `WoWMuch@InterfaceDeploy` at Special:BotPasswords. Verify: the interface session holds `recreatecargodata`. Done on 2026-10-03: the session holds `recreatecargodata` and `deletecargodata`.
-- [ ] 6.2 Propose and complete a change that adds code facts and processor mappings for the four open item mechanics of design D11, before task 5.4 of `publish-wiki-cargo-data`. Verify: the clean database holds each mechanic, and the change is archived.
+- [ ] 6.2 Propose and complete a change that adds code facts and processor mappings for the four open item mechanics of design D11, before task 5.4 of `publish-wiki-cargo-data`. Update the C# tooling majors of the dependency dashboard first (`icsharpcode.decompiler`, `microsoft.codeanalysis.csharp`, `csharpier`, and the .NET test tooling), because the code facts depend on that tooling. Verify: the clean database holds each mechanic, and the change is archived.
 - [ ] 6.3 Complete `publish-wiki-cargo-data`. Verify: the change is archived.
 
 ## 7. Step 3: replace the hand-maintained tables
@@ -85,12 +90,18 @@
 ## 9. Live pages for an administrator to delete
 
 - [ ] 9.1 `Module:Erenshor/Data/AbilityLinks`, after task 6.2 of `refresh-wiki-articles` deploys `Module:Erenshor/AbilityLink`. Verify: `list=embeddedin` is empty before the deletion.
+  - Condition met on 2026-10-05: no page transcludes it.
 - [ ] 9.2 `Module:Erenshor/Cargo`, after that deploy removes it from the Spell, Skill, and Stance modules. Same verification.
+  - Condition met on 2026-10-05: no page transcludes it.
 - [ ] 9.3 `Module:Erenshor/Item`, `Item/Tooltip`, `Character`, `Quest`, and `Zone`, and their live testcases pages, after that deploy. Same verification.
-- [ ] 9.4 `Template:Spell`, `Skill`, `ArmorTable`, `WeaponTable`, `AbilityClasses`, the five store and four query templates, and their subpages. Same verification.
+  - Condition met on 2026-10-05: no page transcludes any of the five modules.
+- [ ] 9.4 `Template:Spell`, `Skill`, `ArmorTable`, `WeaponTable`, `AbilityClasses`, and the old Cargo templates with their subpages. Same verification.
+  - Condition met on 2026-10-05: no page transcludes the five templates or any of the 16 old Cargo templates: `Template:Character/CargoDeclare`, `Character/CargoStore`, `Character/DroppedByQueryRow`, `CharacterAbilitiesStore`, `CharacterDroppedByQuery`, `CharacterSpawnsStore`, `Item/CargoDeclare`, `Item/CargoStore`, `Item/ObtainedFromQueryRow`, `Item/UsedInQueryRow`, `ItemObtainedFromQuery`, `ItemObtainedFromStore`, `ItemUsedInQuery`, `ItemUsedInStore`, `Quest/RewardsQueryRow`, and `QuestRewardsQuery`.
 - [ ] 9.5 The Cargo tables `Item` and `Consumable` at Special:CargoTables. Verify: Special:CargoTables no longer lists them.
+  - Condition met on 2026-10-05: both tables are empty, and no live template or module calls `#cargo_store`, `#cargo_declare`, or `#cargo_query`.
 - [ ] 9.6 The six `SpellScroll*` files and `Kingsman_GP.png` (#97, #98), after the five pages that use `SpellScrollPurple.png` or `SpellScrollYellow.png` use the current images, and after a full scan finds no other `*_GP` file in use. Verify: `list=imageusage` is empty before each deletion.
 - [ ] 9.7 `Category:Unknown Item Source`, after task 3.8 removes the main page's link to it. Nothing fills it. Verify: the category holds no page and no page links it.
+  - Condition met on 2026-10-05: the category holds no page, and no page links it.
 
 ## 10. Close
 

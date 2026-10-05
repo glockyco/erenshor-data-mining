@@ -108,9 +108,13 @@ Step 4 also has to settle these known points:
 
 After the last type, the merge engine (`field_preservation.py` and the passes around it), the Jinja article templates, and the full-article refresh go. The guarded deploy stays for stubs and template-call edits.
 
+The remaining work follows this order, decided on 2026-10-05. Small data fixes come first, because each corrects a live page or an input of a later step: the crafting rule (task 5.21), the audit of renamed copies (task 5.20), and the export of the chat knowledge base (tasks 5.22 to 5.24). The missing images (task 5.15) and the tooltip check (task 5.19) follow. The C# tooling majors of the dependency dashboard come before step 2, because the code facts of task 6.2 depend on that tooling. Steps 2, 3, and 4 follow, and then the other dependency majors.
+
+The local wiki stack stays on MySQL 8, because the live wiki runs MySQL 8.0.45. A Renovate rule holds the `mysql` image of `wiki-dev/compose.yml` at 8.x.
+
 ### D4. Legacy templates become parameter templates
 
-`Template:Item`, `Character`, `Ability`, `Stance`, `Quest`, `Zone`, and `MapLink` keep only their parameter rendering. The repository versions of Stance, Quest, Zone, and MapLink then equal the live pages. `Template:Character` keeps the Elite and Chest tiers that the refresh needs. Item and Character lose their live Lua branches in task 6.2. After that, these templates change only in compatible ways: a fix to how a parameter renders, or a new optional parameter. They never lose or rename a parameter, so hand-written pages that use them keep working. The first such changes are the stance lifesteal fix (task 5.13) and the optional lifecycle parameters of task 5.12.
+`Template:Item`, `Character`, `Ability`, `Stance`, `Quest`, `Zone`, and `MapLink` keep only their parameter rendering. The repository versions of Stance, Quest, Zone, and MapLink then equal the live pages. `Template:Character` keeps the Elite and Chest tiers that the refresh needs. Item and Character lose their live Lua branches in task 6.2. After that, these templates change only in compatible ways: a fix to how a parameter renders, or a new optional parameter. They never lose or rename a parameter, so hand-written pages that use them keep working. The first such changes are the stance lifesteal fix (task 5.13), the optional lifecycle parameters of task 5.12, and the map row of `Template:Character`, which shows its link only when `zones` has a value, because the map has no marker for a character without a spawn.
 
 The `lua=1` lock of `refresh-wiki-articles` D2 goes with the branches. Without a Lua branch, `stablekey` cannot switch a page to Lua.
 
@@ -192,7 +196,7 @@ Each of the 19 open wiki issues was checked on 2026-10-03 against the code, the 
 | #293, #294 | current decisions | D3, steps 4 and 3 |
 | #115 Cargo setup | superseded | `publish-wiki-cargo-data` |
 | #288 quest strategy | decided on 2026-10-03 | D3: quest pages stay hand-written, with the Cargo quest panel |
-| #285 deferred item mechanics | the global world-drop pool is modeled. Smithing merge and Planar Shard blessing removal are `ItemUses` of `publish-wiki-cargo-data` task 5.4. Four are open: the Chessboard Candlekeeper mold conversion (`Chessboard.cs:107-112`), the Time Stone scene gate (`SpellVessel.cs:2277-2284`), the Braxonian Flame Well quality ritual (`TradeWindow.cs:156-239`), and the 1-in-20 fished Map (`Fishing.cs:69-74`) | a change that adds code facts and processor mappings for the four, before `ItemSources` and `ItemUses` go live (task 6.2) |
+| #285 deferred item mechanics | the global world-drop pool is modeled. Smithing merge and Planar Shard blessing removal are `ItemUses` of `publish-wiki-cargo-data` task 5.4. Four are open: the Chessboard Candlekeeper mold conversion (`Chessboard.cs:107-112`), the Time Stone scene gate (`SpellVessel.cs:2277-2284`), the Braxonian Flame Well quality ritual (`TradeWindow.cs:175-255`, called at line 321), and the 1-in-20 fished Map (`Fishing.cs:69-74`) | a change that adds code facts and processor mappings for the four, before `ItemSources` and `ItemUses` go live (task 6.2) |
 | #299 zone categories | four generated zone categories are redirects and six have no page | categories use the zone page titles (task 3.4) |
 | #110 categories | item and character categories exist. Spell, skill, and stance pages get none | D3, step 4 |
 | #113 item ID | `items.item_db_index` exists, no page shows it | D3, step 4 |
@@ -250,6 +254,14 @@ A stance has no icon in the game. The skill book shows the icon of the skill tha
 On 2026-10-04 a check in the game found six defects: a bow label that also doubled the bow DPS, no `Range 1` on melee weapons, no `Must Equip to Cast`, no item value, no percent sign on haste, and a stance lifesteal multiplier shown as a percentage. Tasks 5.5 to 5.9 and 5.13 fix them.
 
 Hover tooltips open beside their link. On 2026-10-04 a comparison with Wowhead, warcraft.wiki.gg, the Path of Exile and Minecraft wikis, MediaWiki Page Previews, and the Afallon compendium showed three placements. A card below the link covers the next rows of a drop table, a card that follows the cursor covers its neighbours, and a card beside the link covers neither. The delay of 300 ms stays, because it lies in the usual range (Page Previews waits about 500 ms). None of the compared game wikis supports the keyboard or assistive technology, so the gadget keeps its own support and the spec states it.
+
+### D15. Characters that the game shows under other names
+
+A built scene keeps no link to the prefab that a placed character came from. An audit that looks only for references to a prefab therefore reports a renamed scene copy as an unused prefab. On 2026-10-04 this made three of nine pages look unused: `An Angry Spirit` and `Dream Invader` name characters that the game places under other names, and both `Watchman` prefabs are in Shivering Step as `Bridgekeeper` and `Gatekeeper`.
+
+Simulated-player chat is a second way that the game shows a name. Its knowledge base, `KnowledgeDatabaseHolder`, holds one entry for each NPC prefab, with its zone, level, and drops. Chat names an entry without being asked when the entry has a zone, because random guild questions pick only such entries. Chat also names it as the source of an item when it is the first entry that drops the item. Chat names any entry when a player asks for it by name.
+
+After each game update, the audit compares both sources with the placed characters. It lists each dead prefab with the placed characters that share its object name, and each name that chat can say without being asked but that no wiki-visible character carries. A reviewer then records a rename, a split, or an unused page in `content-lifecycle.json`. The chat sentence of an unused notice follows from the knowledge base, not from a hand-set flag.
 
 ### Failure handling and update grouping
 
