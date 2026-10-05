@@ -47,3 +47,58 @@ def test_renamed_copies_list_only_other_names_of_unspawned_excluded_prefabs() ->
     assert [(copy["prefab_stable_key"], copy["name"], copy["scene"]) for copy in copies] == [
         ("character:watchman", "Bridgekeeper", "ShiveringStep")
     ]
+
+
+def test_unclaimed_chat_names_skip_carried_renamed_and_quiet_names() -> None:
+    from erenshor.application.wiki.chat_knowledge import ChatKnowledge, KnowledgeEntry
+    from erenshor.application.wiki.lifecycle import ContentLifecycle, LifecyclePage, LifecycleRename
+
+    audit = load_audit()
+    db = sqlite3.connect(":memory:")
+    db.execute(
+        "CREATE TABLE characters (stable_key TEXT, object_name TEXT, npc_name TEXT, display_name TEXT, "
+        "scene TEXT, is_prefab INTEGER, is_wiki_generated INTEGER)"
+    )
+    db.executemany(
+        "INSERT INTO characters VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [
+            ("character:brute", "Summoned Brute", "Summoned: Brute", "Summoned: Brute", None, 1, 1),
+            ("character:holy corpse", "Holy Corpse", "Holy Corpse", "Holy Corpse", None, 1, 0),
+            ("character:wally", "Wally Waldorf", "Cecil Threbb", "Cecil Threbb", None, 1, 0),
+            ("character:wally:stowaway:1", "Wally Waldorf", "Wally Waldorf", "Wally Waldorf", "Stowaway", 0, 1),
+        ],
+    )
+
+    def entry(position: int, name: str, zone: str | None, key: str) -> KnowledgeEntry:
+        return KnowledgeEntry(position, name, zone, 10, False, f"NPCs/{name}", (), (key,))
+
+    knowledge = ChatKnowledge(
+        [
+            entry(0, "Summoned: Brute", "Duskenlight", "character:brute"),
+            entry(1, "Dream Invader", "The Fernallan Portal", "character:dream invader"),
+            entry(2, "Bazxzoth", None, "character:baxzxoth"),
+            entry(3, "Holy Corpse", "Fernalla's Revival Plains", "character:holy corpse"),
+            entry(4, "Cecil Threbb", "Stowaway's Step", "character:wally"),
+        ]
+    )
+    lifecycle = ContentLifecycle(
+        pages={
+            "Holy Corpse": LifecyclePage(
+                "Holy Corpse", "character:holy corpse", "unused", "character", None, None, None, "source"
+            )
+        },
+        renames={
+            "Dream Invader": LifecycleRename("Dream Invader", "character:dream invader:1", "Invader of Dreams", "s")
+        },
+        splits={},
+    )
+
+    unclaimed = audit.find_unclaimed_chat_names(db, knowledge, lifecycle)
+
+    assert [(name["name"], name["lifecycle_state"]) for name in unclaimed] == [
+        ("Holy Corpse", "unused"),
+        ("Cecil Threbb", None),
+    ]
+    assert unclaimed[1]["placed_copies"] == [
+        {"stable_key": "character:wally:stowaway:1", "name": "Wally Waldorf", "scene": "Stowaway"}
+    ]

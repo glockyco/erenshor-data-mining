@@ -243,6 +243,30 @@
       "note": "The forge always awards the first reward of a template, and the fuel sets only its quality. The processor keeps only reward slot 1 as a crafting result."
     },
     {
+      "id": "chat.random_name_requires_zone",
+      "mode": "assert",
+      "type": "KnowledgeDatabase",
+      "method": "GetRandomNPCName",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BinaryOperatorExpression",
+        "shape": "knowledgeEntry == null || string.IsNullOrEmpty (knowledgeEntry.NPCName) || (float)knowledgeEntry.NPCLevel > _levelRange.y || (float)knowledgeEntry.NPCLevel < _levelRange.x || string.IsNullOrEmpty (knowledgeEntry.NPCZoneName)"
+      },
+      "note": "Simulated-player chat names a knowledge entry without being asked only when the entry has a name and a zone. Re-implemented in src/erenshor/application/wiki/chat_knowledge.py."
+    },
+    {
+      "id": "chat.item_source_is_first_entry",
+      "mode": "assert",
+      "type": "KnowledgeDatabase",
+      "method": "GetKnowledgeByItem",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (item.NPCLoot.Contains (_itemName)) { return item; }"
+      },
+      "note": "Chat names the first knowledge entry whose drops list an item as the source of that item. Re-implemented in src/erenshor/application/wiki/chat_knowledge.py."
+    },
+    {
       "id": "auction.updateah_gates",
       "mode": "extract",
       "type": "AuctionHouse",
