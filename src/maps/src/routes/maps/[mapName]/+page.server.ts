@@ -80,7 +80,13 @@ export const load: PageServerLoad = async ({ params }) => {
             ...spawnPointMarkers
         ];
 
-        return { northBearing, markers };
+        const levels = markers.flatMap((marker) =>
+            marker.category === 'treasure-loc' ? [marker.levelMin, marker.levelMax]
+                : marker.category === 'enemy'
+                    ? marker.characters.filter((c) => !c.isInvulnerable).map((c) => c.level)
+                    : []
+        );
+        return { northBearing, markers, levelRange: { min: Math.min(1, ...levels), max: Math.max(1, ...levels) } };
     } finally {
         repo.close();
     }

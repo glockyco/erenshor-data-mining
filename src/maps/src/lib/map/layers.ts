@@ -34,6 +34,7 @@ import type {
     MapMarkerData,
     WorldEnemy,
     WorldNpc,
+    WorldTreasureLoc,
     ZoneWorldPosition,
     ZoneConfig
 } from '../types/world-map';
@@ -714,11 +715,29 @@ export function createLayers(params: CreateLayersParams): unknown[] {
         'mining-node'
     );
     const itemBagsLayer = createIconLayer('item-bags', data.markers.itemBags, 'item-bag');
-    const treasureLocsLayer = createIconLayer(
-        'treasure-locs',
-        data.markers.treasureLocs,
-        'treasure-loc'
-    );
+    const treasureLocsLayer = new IconLayer({
+        id: 'treasure-locs',
+        data: data.markers.treasureLocs,
+        iconAtlas: atlas.atlas,
+        iconMapping: atlas.mapping,
+        getPosition: (d: WorldTreasureLoc) => getMarkerPosition(d),
+        getIcon: () => 'treasure-loc',
+        getSize: ICON_SIZE.base,
+        sizeUnits: 'pixels',
+        sizeMinPixels: ICON_SIZE.min,
+        sizeMaxPixels: ICON_SIZE.max,
+        pickable: true,
+        extensions: [levelFilterExt],
+        getFilterValue: (d: WorldTreasureLoc) => [d.levelMin, d.levelMax],
+        filterRange: [
+            [-Infinity, levelFilter[1]],
+            [levelFilter[0], Infinity]
+        ],
+        updateTriggers: {
+            getPosition: [overrides],
+            filterRange: levelFilter
+        }
+    });
 
     // Collectible layers
     const achievementTriggersLayer = createIconLayer(

@@ -7,6 +7,7 @@ import type {
 } from '$lib/types/world-map';
 import { DEFAULT_LAYER_VISIBILITY } from '$lib/types/world-map';
 import type { EntityData } from '$lib/map/live/types';
+import { levelsOverlap } from '$lib/map-markers';
 import { adjustMarkerPosition } from '$lib/map/debug/position-service';
 import { transformEntityToWorld } from '$lib/map/coordinate-transform';
 import {
@@ -308,6 +309,25 @@ describe('createLayers update triggers', () => {
             isEnabled: false
         })).toBe('enemy-chest-disabled');
         expect((chestLayer.props.getFilterValue as (marker: WorldEnemy) => number[])(chest)).toEqual([5, 10]);
+    });
+
+    it('filters treasure sites by guardian overlap, including slider boundaries', () => {
+        const filter: [number, number] = [1, 10];
+        const layer = byId(createLayers(baseParams({ levelFilter: filter })), 'treasure-locs');
+        const value = layer.props.getFilterValue as (site: { levelMin: number; levelMax: number }) => [number, number];
+        const range = layer.props.filterRange as [[number, number], [number, number]];
+        for (const [levelMin, levelMax, visible] of [
+            [2, 36, true], [17, 36, false], [27, 36, false],
+            [10, 36, true], [1, 1, true], [0, 0, false]
+        ] as const) {
+            const [min, max] = value({ levelMin, levelMax });
+            const passesDeckFilter = min >= range[0][0] && min <= range[0][1]
+                && max >= range[1][0] && max <= range[1][1];
+            expect(passesDeckFilter).toBe(visible);
+            expect(levelsOverlap(levelMin, levelMax, filter)).toBe(visible);
+        }
+        expect(levelsOverlap(27, 36, [36, 36])).toBe(true);
+        expect(levelsOverlap(27, 36, [37, 40])).toBe(false);
     });
 
     it('recomputes marker positions when overrides change', () => {

@@ -22,6 +22,7 @@
     import LivePetPopupContent from './popups/LivePetPopupContent.svelte';
     import LiveNpcPopupContent from './popups/LiveNpcPopupContent.svelte';
     import SearchEnemyPopup from './popups/SearchEnemyPopup.svelte';
+    import SearchTreasurePopup from './popups/SearchTreasurePopup.svelte';
     import SearchNpcPopup from './popups/SearchNpcPopup.svelte';
     import SearchItemPopup from './popups/SearchItemPopup.svelte';
     import SearchNotFoundContent from './popups/SearchNotFoundContent.svelte';
@@ -177,7 +178,7 @@
                     if (r.spawnCount === 0) {
                         parts.push('Location unknown');
                     } else {
-                        parts.push(`${r.spawnCount} spawn${r.spawnCount !== 1 ? 's' : ''}`);
+                        parts.push(`${r.spawnCount} ${r.locationKind === 'dig-site' ? 'dig site' : 'spawn'}${r.spawnCount !== 1 ? 's' : ''}`);
                         parts.push(`${r.zoneCount} zone${r.zoneCount !== 1 ? 's' : ''}`);
                     }
                     return parts.join(' \u2022 ');
@@ -250,6 +251,12 @@
         return searchIndex.enemyProvider.getMarkers(selection.result.name);
     });
 
+    const searchTreasureSites = $derived(
+        selection?.type === 'search' && selection.result.type === 'enemy' && searchIndex
+            ? searchIndex.enemyProvider.getTreasureSites(selection.result.name)
+            : []
+    );
+
     const searchUnlocatedEnemies = $derived.by(() => {
         if (selection?.type !== 'search' || selection.result.type !== 'enemy' || !searchIndex)
             return [];
@@ -284,7 +291,9 @@
         {onClose}
         {onFocus}
     >
-        {#if result.type === 'enemy'}
+        {#if result.type === 'enemy' && searchTreasureSites.length > 0}
+            <SearchTreasurePopup name={result.name} sites={searchTreasureSites} {onHoverSpawn} {onSelectSpawn} {onFocusAll} />
+        {:else if result.type === 'enemy'}
             <SearchEnemyPopup
                 name={result.name}
                 markers={searchEnemyMarkers}

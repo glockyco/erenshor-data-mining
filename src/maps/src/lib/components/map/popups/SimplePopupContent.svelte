@@ -8,6 +8,7 @@
         WorldAchievementTrigger
     } from '$lib/types/world-map';
     import WikiLink from '$lib/components/map/WikiLink.svelte';
+    import TreasureEncounterContent from '../TreasureEncounterContent.svelte';
 
     interface Props {
         marker: AnyWorldMarker;
@@ -37,10 +38,7 @@
         <WikiLink pageName="Wishing_Well" />
     </div>
 {:else if marker.category === 'treasure-loc'}
-    <div class="space-y-2">
-        <div class="text-sm text-zinc-300">A location where treasure can be found.</div>
-        <WikiLink pageName="Treasure_Hunting" />
-    </div>
+    <TreasureEncounterContent {marker} />
 {:else if marker.category === 'achievement-trigger'}
     {@const m = marker as WorldAchievementTrigger}
     <div class="space-y-2">

@@ -522,6 +522,10 @@ export async function buildMapWorldData(
             enemyLevelMax = Math.max(enemyLevelMax, enemy.levelMax);
         }
     }
+    for (const site of treasureLocs) {
+        enemyLevelMin = Math.min(enemyLevelMin, site.levelMin);
+        enemyLevelMax = Math.max(enemyLevelMax, site.levelMax);
+    }
     // Fallback if no vulnerable encounters are found
     if (!isFinite(enemyLevelMin)) enemyLevelMin = 1;
     if (!isFinite(enemyLevelMax)) enemyLevelMax = 100;

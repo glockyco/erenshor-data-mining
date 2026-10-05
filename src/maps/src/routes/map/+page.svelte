@@ -100,7 +100,7 @@
     let autoFollowEnabled = $state(false);
     const AUTO_FOLLOW_KEY = 'erenshor-map-auto-follow';
 
-    // Level filter state (enemies only)
+    // Level filter state (enemy spawns and treasure guardians)
     // Use untrack() to explicitly capture initial value without creating reactive dependency
     let levelFilter = $state<[number, number]>(
         untrack(() => [data.levelRange.min, data.levelRange.max])
@@ -150,6 +150,7 @@
             enemiesBoss: data.markers.enemiesBoss,
             enemiesChest: data.markers.enemiesChest,
             unlocatedEnemies: data.unlocatedEnemies,
+            treasureLocs: data.markers.treasureLocs,
             npcs: data.markers.npcs,
             zones: data.zones,
             miningNodes: data.markers.miningNodes,
@@ -406,7 +407,7 @@
 
     function handleSelectSpawn(stableKey: string): void {
         const marker = findMarkerByStableKey(stableKey);
-        if (!marker || (marker.category !== 'enemy' && marker.category !== 'npc')) return;
+        if (!marker || (marker.category !== 'enemy' && marker.category !== 'npc' && marker.category !== 'treasure-loc')) return;
         applySelection({ type: 'marker', marker });
     }
 

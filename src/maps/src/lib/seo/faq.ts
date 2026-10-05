@@ -132,7 +132,7 @@ export const FAQ_ITEMS: FaqItem[] = [
                 text: 'Treasure Map',
                 href: 'https://erenshor.wiki.gg/wiki/Treasure_Map'
             },
-            ' is consumed when you right-click it to start a treasure hunt. The hunt randomly selects one of up to nine eligible zones, with the available pool determined by your current level. Enter that zone to reveal the exact coordinates, then dig up the chest and defeat its level-scaled guardians. Only one hunt can be active: starting another overwrites it, and failing the event loses the treasure. If you have more maps than you want to hunt, you can instead complete the repeatable Maps for Prichard quest: ',
+            ' is consumed when you right-click it to start a hunt, replacing any active hunt. The reading player’s level determines the random zone pool: three zones at any level, six at level 21 or higher, and nine at level 31 or higher. Enter the chosen zone to reveal the coordinates. The player’s level when digging selects the chest. Melee, wand, and bow hits do not damage it: a hit starts a wave of three or four level-scaled guardians if none are alive and no wave is pending. The chest cannot break before three waves have spawned. After waves three, four, five, and six, each hit has a 30%, 60%, 90%, and 100% chance to break it open, even while guardians are alive. For spare maps, the repeatable Maps for Prichard quest is another option: ',
             {
                 text: 'Prichard Zemoro',
                 href: 'https://erenshor.wiki.gg/wiki/Prichard_Zemoro'

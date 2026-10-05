@@ -21,6 +21,7 @@ describe('serializeSelection', () => {
             enemiesBoss: [],
             enemiesChest: [],
             unlocatedEnemies: [],
+            treasureLocs: [],
             npcs: [],
             zones: [],
             miningNodes: [],
@@ -68,6 +69,7 @@ describe('serializeSelection', () => {
                     encounterTier: 'elite'
                 }
             ],
+            treasureLocs: [],
             npcs: [],
             zones: [],
             miningNodes: [],
@@ -113,6 +115,7 @@ describe('serializeSelection', () => {
             enemiesBoss: [],
             enemiesChest: [chest],
             unlocatedEnemies: [],
+            treasureLocs: [],
             npcs: [],
             zones: [],
             miningNodes: [],

@@ -11,6 +11,7 @@ import type {
     WorldMiningNode,
     WorldWater,
     WorldItemBag,
+    WorldTreasureLoc,
     ZoneWorldPosition
 } from '$lib/types/world-map';
 import { compareEncounterTier } from '$lib/map-markers';
@@ -121,6 +122,7 @@ export function buildSearchIndex(input: {
     enemiesBoss: WorldEnemy[];
     enemiesChest: WorldEnemy[];
     unlocatedEnemies: UnlocatedEnemy[];
+    treasureLocs: WorldTreasureLoc[];
     npcs: WorldNpc[];
     zones: ZoneWorldPosition[];
     miningNodes: WorldMiningNode[];
@@ -134,7 +136,8 @@ export function buildSearchIndex(input: {
         input.enemiesElite,
         input.enemiesBoss,
         input.enemiesChest,
-        input.unlocatedEnemies
+        input.unlocatedEnemies,
+        input.treasureLocs
     );
     const npcProvider = new NpcSearchProvider(input.npcs);
     const zoneProvider = new ZoneSearchProvider(input.zones);

@@ -136,7 +136,7 @@ describe('searchMarkers', () => {
                 { name: 'Wolf', encounterTier: 'elite' }
             ]
         } as WorldEnemy;
-        const provider = new EnemySearchProvider([marker], [], [], [], []);
+        const provider = new EnemySearchProvider([marker], [], [], [], [], []);
 
         expect(provider.buildIndex().map((entry) => entry.result.type === 'enemy' ? entry.result.name : '')).toEqual(['Wolf']);
         expect(provider.getResult('Wolf')?.encounterTier).toBe('elite');

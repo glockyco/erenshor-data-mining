@@ -111,6 +111,42 @@ test('zone map shows fixture spawn points', async ({ page, request }) => {
     await expect(page.locator('.leaflet-popup-content')).toContainText('Fixture Enemy');
 });
 
+test('a wiki chest link highlights only eligible treasure sites and opens their encounter', async ({ page }) => {
+    await page.goto('/map?sel=enemy:Lost%20Treasure%20(1-10)');
+    await expect(page.getByRole('button', { name: 'Show all 1 dig site', exact: true })).toBeVisible();
+    await expect(page.getByText('Hidden Hills', { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Dig site 1 · Guardians 2–36', exact: true }).click();
+    await expect(page.getByText('Reading level: any level', { exact: true })).toBeVisible();
+    for (const name of ['Lost Treasure (1-10)', 'Lost Treasure (10-20)', 'Lost Treasure (20-30)', 'Lost Treasure (30+)']) {
+        await expect(page.getByRole('link', { name, exact: true })).toBeVisible();
+    }
+    for (const name of ['Ancient Skeleton', 'Ancient Horror', 'Ancient Demon']) {
+        await expect(page.getByRole('link', { name, exact: true })).toHaveAttribute('href', `https://erenshor.wiki.gg/wiki/${encodeURIComponent(name)}`);
+    }
+    await expect(page.getByText('1–9:', { exact: false })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Treasure Hunting', exact: true })).toBeVisible();
+});
+
+test('a high-reading-level dig site only offers reachable chests', async ({ page }) => {
+    await page.goto('/map?sel=marker:treasure:blight-fixture');
+    await expect(page.getByText('Reading level: 31 or higher', { exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Lost Treasure (30+)', exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Lost Treasure (1-10)', exact: true })).toHaveCount(0);
+    await expect(page.getByText('Level 27–36', { exact: false })).toHaveCount(3);
+});
+
+test('guardian links resolve every treasure site', async ({ page }) => {
+    await page.goto('/map?sel=enemy:Ancient%20Horror');
+    await expect(page.getByRole('button', { name: 'Show all 3 dig sites', exact: true })).toBeVisible();
+});
+
+test('the legacy zone popup includes the treasure encounter', async ({ page }) => {
+    await page.goto('/maps/Stowaway?marker=treasure:stowaway-fixture');
+    await expect(page.locator('.leaflet-popup-content')).toContainText('Reading level: 21 or higher');
+    await expect(page.locator('.leaflet-popup-content')).toContainText('21–29: Lost Treasure (20-30)');
+    await expect(page.locator('.leaflet-popup-content')).toContainText('Ancient Demon: Level 17–36');
+});
+
 test('the clean database is published unchanged', async ({ request }) => {
     const response = await request.get('/db/erenshor.sqlite');
 

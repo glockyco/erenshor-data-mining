@@ -3,6 +3,9 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { getMapsDatabasePath } from './database-path.server';
 import { Repository } from './database.node';
 import { MAPS } from './maps';
+import { buildSearchIndex } from './map/search';
+import { deserializeSelection } from './types/selection';
+import type { WorldTreasureLoc } from './types/world-map';
 
 const DETAIL_ZONE = 'Stowaway';
 
@@ -146,5 +149,64 @@ describe('Repository', () => {
 		]);
 		expect(rows.every((row) => row.itemStableKey.length > 0)).toBe(true);
 		expect(rows.every((row) => row.displayName.length > 0)).toBe(true);
+	});
+	it('derives reachable chest levels and guardian ranges from reading eligibility', async () => {
+		const [hidden] = await db.getTreasureLocMarkers('Hidden');
+		const [stowaway] = await db.getTreasureLocMarkers('Stowaway');
+		const [blight] = await db.getTreasureLocMarkers('Blight');
+		expect(hidden.minReadingLevel).toBe(1);
+		expect(hidden.chests.map((c) => [c.name, c.digLevelMin, c.digLevelMax])).toEqual([
+			['Lost Treasure (1-10)', 1, 9],
+			['Lost Treasure (10-20)', 10, 19],
+			['Lost Treasure (20-30)', 20, 29],
+			['Lost Treasure (30+)', 30, 35]
+		]);
+		expect(stowaway.minReadingLevel).toBe(21);
+		expect(stowaway.chests.map((c) => [c.digLevelMin, c.digLevelMax])).toEqual([[21, 29], [30, 35]]);
+		expect(blight.minReadingLevel).toBe(31);
+		expect(blight.chests.map((c) => [c.name, c.digLevelMin, c.digLevelMax])).toEqual([
+			['Lost Treasure (30+)', 31, 35]
+		]);
+		for (const [site, min] of [[hidden, 2], [stowaway, 17], [blight, 27]] as const) {
+			expect([site.levelMin, site.levelMax]).toEqual([min, 36]);
+			expect(site.guardians.map((g) => [g.name, g.wikiPageName, g.levelMin, g.levelMax])).toEqual([
+				['Ancient Demon', 'Ancient Demon', min, 36],
+				['Ancient Horror', 'Ancient Horror', min, 36],
+				['Ancient Skeleton', 'Ancient Skeleton', min, 36]
+			]);
+		}
+	});
+
+	it('finds only a chest’s possible sites and every guardian site', async () => {
+		const sites: WorldTreasureLoc[] = (await Promise.all(['Hidden', 'Stowaway', 'Blight'].map(async (zone) =>
+			(await db.getTreasureLocMarkers(zone)).map((marker) => ({
+				...marker, zone, zoneName: zone,
+				worldPosition: [marker.position.x, marker.position.y] as [number, number]
+			}))
+		))).flat();
+		const searchIndex = buildSearchIndex({
+			enemiesEnemy: [], enemiesElite: [], enemiesBoss: [], enemiesChest: [],
+			unlocatedEnemies: await db.getUnlocatedEnemies(), treasureLocs: sites,
+			npcs: [], zones: [], miningNodes: [], water: [], itemBags: [], itemSources: [], allItems: []
+		});
+		const provider = searchIndex.enemyProvider;
+		for (const [name, expectedKeys] of [
+			['Lost Treasure (1-10)', ['treasure:hidden-fixture']],
+			['Lost Treasure (10-20)', ['treasure:hidden-fixture']],
+			['Lost Treasure (20-30)', ['treasure:hidden-fixture', 'treasure:stowaway-fixture']],
+			['Lost Treasure (30+)', sites.map((site) => site.stableKey)],
+			...['Ancient Demon', 'Ancient Horror', 'Ancient Skeleton'].map((name) =>
+				[name, sites.map((site) => site.stableKey)] as const)
+		] as const) {
+			const result = provider.getResult(name);
+			expect(result).not.toBeNull();
+			expect(result?.spawnCount).toBe(expectedKeys.length);
+			expect(provider.buildIndex().some((entry) => entry.searchText === name.toLowerCase())).toBe(true);
+			expect(provider.resolveHighlight(result!)).toMatchObject({ type: 'positions', stableKeys: expectedKeys });
+			expect(provider.getUnlocated(name)).toEqual([]);
+			expect(deserializeSelection(`enemy:${name}`, {
+				findMarkerByStableKey: () => null, findZoneByKey: () => null, searchIndex
+			})).toEqual({ type: 'search', result });
+		}
 	});
 });

@@ -157,6 +157,34 @@ CREATE TABLE treasure_locations (
     z REAL NOT NULL
 );
 
+CREATE TABLE treasure_hunting (
+    zone_name TEXT PRIMARY KEY NOT NULL,
+    min_reading_level INTEGER
+);
+
+CREATE TABLE treasure_chest_possible_spawns (
+    chest_character_stable_key TEXT NOT NULL REFERENCES characters(stable_key),
+    treasure_location_stable_key TEXT NOT NULL REFERENCES treasure_locations(stable_key),
+    level_min INTEGER NOT NULL,
+    level_max INTEGER NOT NULL,
+    PRIMARY KEY (chest_character_stable_key, treasure_location_stable_key)
+);
+
+CREATE TABLE character_chained_spawns (
+    parent_stable_key TEXT NOT NULL,
+    child_stable_key TEXT NOT NULL,
+    source_script TEXT NOT NULL,
+    PRIMARY KEY (parent_stable_key, child_stable_key, source_script)
+);
+
+CREATE TABLE treasure_guardian_scaling (
+    guardian_character_stable_key TEXT NOT NULL REFERENCES characters(stable_key),
+    player_level INTEGER NOT NULL,
+    level_min INTEGER NOT NULL,
+    level_max INTEGER NOT NULL,
+    PRIMARY KEY (guardian_character_stable_key, player_level)
+);
+
 CREATE TABLE waters (
     stable_key TEXT PRIMARY KEY,
     scene TEXT NOT NULL,
@@ -431,3 +459,54 @@ INSERT INTO special_world_drops (item_stable_key, pool, drop_probability, min_le
 -- can never be mistaken for a render of the live data.
 INSERT INTO code_facts_meta (assembly_sha256, extracted_at, game_build_id, game_build_published_at) VALUES
     ('fixture-sha', '2020-01-02T03:04:05+00:00', '10000001', '2020-01-01T00:00:00+00:00');
+
+-- Treasure encounters have no fixed character spawn points.
+INSERT INTO characters (
+    stable_key, display_name, npc_name, wiki_page_name, level, is_vendor, has_dialog,
+    invulnerable, is_friendly, encounter_tier
+) VALUES
+    ('character:treasurechest 0-10 1', 'Lost Treasure (1-10)', 'Lost Treasure', 'Lost Treasure (1-10)', 1, 0, 0, 0, 0, 'chest'),
+    ('character:treasurechest 10-20 1', 'Lost Treasure (10-20)', 'Lost Treasure', 'Lost Treasure (10-20)', 10, 0, 0, 0, 0, 'chest'),
+    ('character:treasurechest 20-30 1', 'Lost Treasure (20-30)', 'Lost Treasure', 'Lost Treasure (20-30)', 20, 0, 0, 0, 0, 'chest'),
+    ('character:treasurechest 30-35', 'Lost Treasure (30+)', 'Lost Treasure', 'Lost Treasure (30+)', 30, 0, 0, 0, 0, 'chest'),
+    ('character:ancient skeleton', 'Ancient Skeleton', 'Ancient Skeleton', 'Ancient Skeleton', 1, 0, 0, 0, 0, 'enemy'),
+    ('character:ancient horror', 'Ancient Horror', 'Ancient Horror', 'Ancient Horror', 1, 0, 0, 0, 0, 'enemy'),
+    ('character:ancient demon', 'Ancient Demon', 'Ancient Demon', 'Ancient Demon', 1, 0, 0, 0, 0, 'enemy');
+
+INSERT INTO character_deduplications (group_key, member_stable_key, is_map_visible)
+SELECT 'character-group:' || stable_key, stable_key, 0 FROM characters
+WHERE stable_key LIKE 'character:treasurechest%' OR stable_key LIKE 'character:ancient %';
+
+INSERT INTO treasure_locations (stable_key, scene, x, y, z) VALUES
+    ('treasure:hidden-fixture', 'Hidden', 100, 0, 100),
+    ('treasure:blight-fixture', 'Blight', 100, 0, 100);
+INSERT INTO treasure_hunting (zone_name, min_reading_level) VALUES
+    ('Stowaway', 21), ('Hidden', 1), ('Blight', 31);
+
+INSERT INTO treasure_chest_possible_spawns (chest_character_stable_key, treasure_location_stable_key, level_min, level_max)
+SELECT c.stable_key, tl.stable_key,
+    CASE c.stable_key WHEN 'character:treasurechest 0-10 1' THEN 1
+        WHEN 'character:treasurechest 10-20 1' THEN 10
+        WHEN 'character:treasurechest 20-30 1' THEN 20 ELSE 30 END,
+    CASE c.stable_key WHEN 'character:treasurechest 0-10 1' THEN 10
+        WHEN 'character:treasurechest 10-20 1' THEN 20
+        WHEN 'character:treasurechest 20-30 1' THEN 30 ELSE 999 END
+FROM characters c CROSS JOIN treasure_locations tl
+WHERE c.stable_key LIKE 'character:treasurechest%'
+    AND (tl.scene = 'Hidden'
+        OR (tl.scene = 'Stowaway' AND c.stable_key IN ('character:treasurechest 20-30 1', 'character:treasurechest 30-35'))
+        OR (tl.scene = 'Blight' AND c.stable_key = 'character:treasurechest 30-35'));
+
+INSERT INTO character_chained_spawns (parent_stable_key, child_stable_key, source_script)
+SELECT chest.stable_key, guardian.stable_key, 'TreasureChestEvent'
+FROM characters chest CROSS JOIN characters guardian
+WHERE chest.stable_key LIKE 'character:treasurechest%' AND guardian.stable_key LIKE 'character:ancient %';
+
+-- Real boundary samples. Level 20 must not leak into a level-21 site's range,
+-- nor level 30 into a level-31 site; the level-35 maximum is inclusive.
+WITH samples(player_level, level_min, level_max) AS (
+    VALUES (1, 2, 4), (20, 16, 22), (21, 17, 23), (30, 26, 32), (31, 27, 33), (35, 31, 36)
+)
+INSERT INTO treasure_guardian_scaling (guardian_character_stable_key, player_level, level_min, level_max)
+SELECT c.stable_key, samples.player_level, samples.level_min, samples.level_max
+FROM characters c CROSS JOIN samples WHERE c.stable_key LIKE 'character:ancient %';

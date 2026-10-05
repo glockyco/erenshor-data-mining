@@ -2,11 +2,13 @@
     import { browser } from '$app/environment';
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
-    import { onDestroy } from 'svelte';
+    import { onDestroy, untrack } from 'svelte';
     import { MAPS } from '$lib/maps';
     import type { PageData } from './$types';
     import { type LatLngExpression, type Map as LeafletMap, type LeafletMouseEvent } from 'leaflet';
     import type { Marker, EnemyMarker, NpcMarker } from '$lib/map-markers';
+    import { levelsOverlap } from '$lib/map-markers';
+    import LevelFilter from '$lib/components/map/LevelFilter.svelte';
     import Seo from '$lib/components/Seo.svelte';
     import ScaleBar from '$lib/components/map/ScaleBar.svelte';
     import CoordinateReadout from '$lib/components/map/CoordinateReadout.svelte';
@@ -88,6 +90,21 @@
     const SCALE_BAR_GAP = 24;
     const SCALE_BAR_BOTTOM = 22;
     const SCALE_BAR_MAX_WIDTH = 120;
+    let levelFilter = $state<[number, number]>(untrack(() => [data.levelRange.min, data.levelRange.max]));
+    let filteredMarkers = $state.raw<{ marker: Marker; leafletMarker: L.Marker; group: L.LayerGroup }[]>([]);
+
+    $effect(() => {
+        for (const { marker, leafletMarker, group } of filteredMarkers) {
+            const levels = marker.category === 'enemy'
+                ? marker.characters.filter((c) => !c.isInvulnerable).map((c) => c.level)
+                : [];
+            const visible = marker.category === 'treasure-loc'
+                ? levelsOverlap(marker.levelMin, marker.levelMax, levelFilter)
+                : levels.length === 0 || levelsOverlap(Math.min(...levels), Math.max(...levels), levelFilter);
+            if (visible) group.addLayer(leafletMarker);
+            else group.removeLayer(leafletMarker);
+        }
+    });
 
     function updateScaleBar(map: LeafletMap | null = mapInstance) {
         if (!map) {
@@ -262,6 +279,7 @@
                 });
             }
 
+            const filterable: typeof filteredMarkers = [];
             markers.forEach((marker: Marker) => {
                 let color = 'white';
                 let radius = 8;
@@ -365,6 +383,7 @@
 
                 if (marker.popup) {
                     m.bindPopup(marker.popup);
+                    if (marker.category === 'treasure-loc') m.bindTooltip(marker.popup);
                 }
 
                 markerMap.set(marker.stableKey, m);
@@ -390,6 +409,9 @@
                     layerGroups[layer] = L.layerGroup();
                 }
                 layerGroups[layer].addLayer(m);
+                if (marker.category === 'enemy' || marker.category === 'treasure-loc') {
+                    filterable.push({ marker, leafletMarker: m, group: layerGroups[layer] });
+                }
             });
 
             // Add layer control
@@ -502,6 +524,8 @@
             mapInstance = map;
             updateScaleBar(map);
             stableKeyToMarker = markerMap;
+            levelFilter = [data.levelRange.min, data.levelRange.max];
+            filteredMarkers = filterable;
         });
     });
 
@@ -616,6 +640,9 @@
     <h1 class="sr-only">{config.zoneName} – Erenshor Zone Map</h1>
     <div class="relative h-screen w-screen">
         <div bind:this={mapContainer} class="h-full w-full"></div>
+        <div class="absolute bottom-12 left-1/2 z-[1000] w-64 -translate-x-1/2 rounded-lg bg-zinc-900/95 px-4 py-2 text-center">
+            <LevelFilter label="Encounter levels" min={data.levelRange.min} max={data.levelRange.max} value={levelFilter} onchange={(value) => levelFilter = value} />
+        </div>
         <CoordinateReadout coordinates={cursorCoordinates} />
         <ScaleBar state={scaleBarState} />
     </div>

@@ -174,7 +174,7 @@
                 if (result.spawnCount === 0) {
                     parts.push('Location unknown');
                 } else {
-                    parts.push(`${result.spawnCount} spawn${result.spawnCount !== 1 ? 's' : ''}`);
+                    parts.push(`${result.spawnCount} ${result.locationKind === 'dig-site' ? 'dig site' : 'spawn'}${result.spawnCount !== 1 ? 's' : ''}`);
                     parts.push(`${result.zoneCount} zone${result.zoneCount !== 1 ? 's' : ''}`);
                 }
                 return parts.join(' · ');

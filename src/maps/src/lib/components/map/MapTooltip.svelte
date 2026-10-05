@@ -14,6 +14,7 @@
     import { getSelectionBorderColor } from '$lib/types/selection';
     import { calculateTooltipPosition } from '$lib/utils/tooltip';
     import { compareEncounterTier, resolveLiveEncounterTier, type EnemyTier } from '$lib/map-markers';
+    import TreasureEncounterContent from './TreasureEncounterContent.svelte';
 
     interface Props {
         selection: Selection;
@@ -311,6 +312,9 @@
     style="left: {position.left}px; top: {position.top}px;"
 >
     <div class="text-sm font-medium text-white">{content.name}</div>
+    {#if selection?.type === 'marker' && selection.marker.category === 'treasure-loc'}
+        <TreasureEncounterContent marker={selection.marker} />
+    {/if}
     {#if content.detail}
         <div class="text-xs text-zinc-400">{content.detail}</div>
     {/if}

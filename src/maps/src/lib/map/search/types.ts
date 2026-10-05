@@ -18,6 +18,7 @@ export type EnemySearchResult = {
     encounterTier: EnemyTier;
     spawnCount: number;
     zoneCount: number;
+    locationKind?: 'dig-site';
 };
 
 export type NpcSearchResult = {

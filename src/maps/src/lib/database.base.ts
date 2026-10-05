@@ -460,6 +460,17 @@ export class RepositoryBase {
                   FROM spells sp
                   WHERE sp.pet_to_summon_stable_key = rep.stable_key
               )
+              AND NOT EXISTS (
+                  SELECT 1 FROM treasure_chest_possible_spawns ts
+                  WHERE ts.chest_character_stable_key = rep.stable_key
+              )
+              AND NOT EXISTS (
+                  SELECT 1 FROM character_chained_spawns chain
+                  JOIN treasure_chest_possible_spawns ts
+                    ON ts.chest_character_stable_key = chain.parent_stable_key
+                  WHERE chain.source_script = 'TreasureChestEvent'
+                    AND chain.child_stable_key = rep.stable_key
+              )
             ORDER BY rep.display_name, rep.stable_key
         `);
 
@@ -751,41 +762,96 @@ export class RepositoryBase {
     async getTreasureLocMarkers(mapName: string): Promise<TreasureLocMarker[]> {
         if (!this.db) throw new Error('DB not initialized');
 
-        const stmt = this.db.prepare(
-            `
-            SELECT
-                tl.stable_key AS StableKey,
-                tl.x AS PositionX,
-                tl.y AS PositionY,
-                tl.z AS PositionZ
+        const guardiansStmt = this.db.prepare(`
+            SELECT tl.stable_key AS SiteKey, c.stable_key AS StableKey,
+                   c.display_name AS Name, c.wiki_page_name AS WikiPageName,
+                   MIN(gs.level_min) AS LevelMin, MAX(gs.level_max) AS LevelMax
             FROM treasure_locations tl
+            JOIN treasure_hunting th ON th.zone_name = tl.scene
+            JOIN treasure_chest_possible_spawns ts ON ts.treasure_location_stable_key = tl.stable_key
+            JOIN character_chained_spawns chain ON chain.parent_stable_key = ts.chest_character_stable_key
+                AND chain.source_script = 'TreasureChestEvent'
+            JOIN characters c ON c.stable_key = chain.child_stable_key
+            JOIN treasure_guardian_scaling gs ON gs.guardian_character_stable_key = c.stable_key
+                AND gs.player_level BETWEEN th.min_reading_level AND 35
             WHERE tl.scene = ?
-        `,
-            [mapName]
-        );
+                AND MAX(ts.level_min, th.min_reading_level, 1) <= MIN(ts.level_max - 1, 35)
+            GROUP BY tl.stable_key, c.stable_key
+            ORDER BY tl.stable_key, c.display_name, c.stable_key
+        `, [mapName]);
+        const guardiansBySite = new Map<string, TreasureLocMarker['guardians']>();
+        while (guardiansStmt.step()) {
+            const row = guardiansStmt.getAsObject();
+            const siteKey = row.SiteKey as string;
+            const guardians = guardiansBySite.get(siteKey) ?? [];
+            guardians.push({
+                stableKey: row.StableKey as string,
+                name: row.Name as string,
+                wikiPageName: row.WikiPageName as string | null,
+                levelMin: row.LevelMin as number,
+                levelMax: row.LevelMax as number
+            });
+            guardiansBySite.set(siteKey, guardians);
+        }
+        guardiansStmt.free();
 
-        const markers: TreasureLocMarker[] = [];
-
+        const stmt = this.db.prepare(`
+            SELECT tl.stable_key AS StableKey, tl.x AS PositionX, tl.y AS PositionY, tl.z AS PositionZ,
+                   th.min_reading_level AS MinReadingLevel,
+                   c.stable_key AS ChestKey, c.display_name AS ChestName, c.wiki_page_name AS WikiPageName,
+                   MAX(ts.level_min, th.min_reading_level, 1) AS DigLevelMin,
+                   MIN(ts.level_max - 1, 35) AS DigLevelMax
+            FROM treasure_locations tl
+            JOIN treasure_hunting th ON th.zone_name = tl.scene
+            JOIN treasure_chest_possible_spawns ts ON ts.treasure_location_stable_key = tl.stable_key
+            JOIN characters c ON c.stable_key = ts.chest_character_stable_key
+            WHERE tl.scene = ?
+                AND MAX(ts.level_min, th.min_reading_level, 1) <= MIN(ts.level_max - 1, 35)
+            ORDER BY tl.stable_key, DigLevelMin, c.stable_key
+        `, [mapName]);
+        const markers = new Map<string, TreasureLocMarker>();
         while (stmt.step()) {
             const row = stmt.getAsObject();
-
-            const positionText = `Lost Treasure @ ${formatCoordinates(row.PositionX as number, row.PositionY as number, row.PositionZ as number)}`;
-            const treasureHuntingText = `<br><br>See <a href='https://erenshor.wiki.gg/wiki/Treasure_Hunting'>Treasure Hunting</a> on the Erenshor Wiki.`;
-
-            const popupText = `${positionText}${treasureHuntingText}`;
-
-            markers.push({
-                stableKey: row.StableKey as string,
-                category: 'treasure-loc',
-                position: {
-                    x: row.PositionX as number,
-                    y: row.PositionZ as number
-                },
-                popup: popupText
+            const stableKey = row.StableKey as string;
+            let marker = markers.get(stableKey);
+            if (!marker) {
+                const guardians = guardiansBySite.get(stableKey) ?? [];
+                if (guardians.length === 0) throw new Error(`Missing treasure guardian scaling: ${stableKey}`);
+                marker = {
+                    stableKey,
+                    category: 'treasure-loc',
+                    position: { x: row.PositionX as number, y: row.PositionZ as number },
+                    minReadingLevel: row.MinReadingLevel as number,
+                    chests: [],
+                    guardians,
+                    levelMin: Math.min(...guardians.map((g) => g.levelMin)),
+                    levelMax: Math.max(...guardians.map((g) => g.levelMax)),
+                    popup: `Lost Treasure @ ${formatCoordinates(row.PositionX as number, row.PositionY as number, row.PositionZ as number)}`
+                };
+                markers.set(stableKey, marker);
+            }
+            marker.chests.push({
+                stableKey: row.ChestKey as string,
+                name: row.ChestName as string,
+                wikiPageName: row.WikiPageName as string | null,
+                digLevelMin: row.DigLevelMin as number,
+                digLevelMax: row.DigLevelMax as number
             });
         }
         stmt.free();
-        return markers;
+        for (const marker of markers.values()) {
+            const readingLevel = marker.minReadingLevel === 1 ? 'any level' : `${marker.minReadingLevel} or higher`;
+            marker.popup += `<br><br>Reading level: ${readingLevel}<br><br>Chest by player digging level:<br>`;
+            marker.popup += marker.chests.map((c) =>
+                `${c.digLevelMin}–${c.digLevelMax}: ${formatWikiLink(c.name, c.wikiPageName)}`
+            ).join('<br>');
+            marker.popup += '<br><br>Guardians (scale with the player):<br>';
+            marker.popup += marker.guardians.map((g) =>
+                `${formatWikiLink(g.name, g.wikiPageName)}: Level ${g.levelMin}–${g.levelMax}`
+            ).join('<br>');
+            marker.popup += `<br><br>${formatWikiLink('Treasure Hunting', 'Treasure_Hunting')}`;
+        }
+        return [...markers.values()];
     }
 
     async getWaterMarkers(mapName: string): Promise<WaterMarker[]> {

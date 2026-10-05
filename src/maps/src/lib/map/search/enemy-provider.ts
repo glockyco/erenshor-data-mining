@@ -7,7 +7,7 @@
 
 import { mostNotableEnemyTier } from '$lib/map-markers';
 import type { UnlocatedEnemy } from '$lib/map-markers';
-import type { WorldEnemy } from '$lib/types/world-map';
+import type { WorldEnemy, WorldTreasureLoc } from '$lib/types/world-map';
 import type {
     SearchProvider,
     IndexEntry,
@@ -24,13 +24,15 @@ export class EnemySearchProvider implements SearchProvider {
     readonly enemyByName: Map<string, WorldEnemy[]>;
     /** Name → map-visible enemies whose spawn point is runtime-selected. */
     readonly unlocatedByName: Map<string, UnlocatedEnemy[]>;
+    readonly treasureByName = new Map<string, WorldTreasureLoc[]>();
 
     constructor(
         enemiesEnemy: WorldEnemy[],
         enemiesElite: WorldEnemy[],
         enemiesBoss: WorldEnemy[],
         enemiesChest: WorldEnemy[],
-        unlocatedEnemies: UnlocatedEnemy[]
+        unlocatedEnemies: UnlocatedEnemy[],
+        treasureLocs: WorldTreasureLoc[]
     ) {
         this.enemyByName = new Map();
         this.unlocatedByName = new Map();
@@ -51,6 +53,13 @@ export class EnemySearchProvider implements SearchProvider {
                 }
             }
         }
+        for (const marker of treasureLocs) {
+            for (const name of new Set([...marker.chests, ...marker.guardians].map((c) => c.name))) {
+                const sites = this.treasureByName.get(name) ?? [];
+                sites.push(marker);
+                this.treasureByName.set(name, sites);
+            }
+        }
 
         for (const enemy of unlocatedEnemies) {
             const existing = this.unlocatedByName.get(enemy.name);
@@ -61,6 +70,17 @@ export class EnemySearchProvider implements SearchProvider {
 
     getResult(name: string): EnemySearchResult | null {
         const markers = this.enemyByName.get(name) ?? [];
+        const sites = this.getTreasureSites(name);
+        if (sites.length > 0) {
+            return {
+                type: 'enemy',
+                name,
+                encounterTier: sites.some((site) => site.chests.some((c) => c.name === name)) ? 'chest' : 'enemy',
+                spawnCount: sites.length,
+                locationKind: 'dig-site',
+                zoneCount: new Set(sites.map((site) => site.zone)).size
+            };
+        }
         if (markers.length > 0) {
             const zones = new Set(markers.map((marker) => marker.zone));
             const characters = markers.flatMap((marker) =>
@@ -90,7 +110,7 @@ export class EnemySearchProvider implements SearchProvider {
 
     buildIndex(): IndexEntry[] {
         const entries: IndexEntry[] = [];
-        const names = new Set([...this.enemyByName.keys(), ...this.unlocatedByName.keys()]);
+        const names = new Set([...this.enemyByName.keys(), ...this.unlocatedByName.keys(), ...this.treasureByName.keys()]);
 
         for (const name of names) {
             const result = this.getResult(name);
@@ -104,7 +124,7 @@ export class EnemySearchProvider implements SearchProvider {
     resolveHighlight(result: SearchResult): ResolvedHighlight {
         if (result.type !== 'enemy') return { type: 'none' };
 
-        const markers = this.enemyByName.get(result.name);
+        const markers = this.treasureByName.get(result.name) ?? this.enemyByName.get(result.name);
         if (!markers || markers.length === 0) return { type: 'none' };
 
         return {
@@ -121,5 +141,9 @@ export class EnemySearchProvider implements SearchProvider {
     /** Get all enemy markers for a given character name (for popup rendering) */
     getMarkers(name: string): WorldEnemy[] {
         return this.enemyByName.get(name) ?? [];
+    }
+
+    getTreasureSites(name: string): WorldTreasureLoc[] {
+        return this.treasureByName.get(name) ?? [];
     }
 }

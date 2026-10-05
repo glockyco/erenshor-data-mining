@@ -12,6 +12,11 @@ export const ENCOUNTER_TIER_ORDER = {
 export type EncounterTier = keyof typeof ENCOUNTER_TIER_ORDER;
 export type EnemyTier = Exclude<EncounterTier, 'npc'>;
 
+/** Inclusive encounter ranges overlap the slider, including either boundary. */
+export function levelsOverlap(levelMin: number, levelMax: number, filter: [number, number]): boolean {
+    return levelMin <= filter[1] && levelMax >= filter[0];
+}
+
 export function compareEncounterTier(a: EncounterTier, b: EncounterTier): number {
     return ENCOUNTER_TIER_ORDER[a] - ENCOUNTER_TIER_ORDER[b];
 }
@@ -227,8 +232,19 @@ export type TeleportMarker = BaseMarker & {
     teleportItemWikiPageName: string | null;
 };
 
+export type TreasureCharacter = {
+    stableKey: string;
+    name: string;
+    wikiPageName: string | null;
+};
+
 export type TreasureLocMarker = BaseMarker & {
     category: 'treasure-loc';
+    minReadingLevel: number;
+    chests: (TreasureCharacter & { digLevelMin: number; digLevelMax: number })[];
+    guardians: (TreasureCharacter & { levelMin: number; levelMax: number })[];
+    levelMin: number;
+    levelMax: number;
 };
 
 export type WaterMarker = BaseMarker & {

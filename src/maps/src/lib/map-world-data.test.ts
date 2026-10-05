@@ -47,7 +47,12 @@ describe('buildMapWorldData', () => {
             zone: 'Stowaway',
             zoneName: "Stowaway's Step"
         });
-        expect(data.levelRange).toEqual({ min: 7, max: 18 });
+        expect(data.levelRange).toEqual({ min: 2, max: 36 });
+        expect(data.markers.treasureLocs.map((site) => [site.zone, site.minReadingLevel, site.levelMin, site.levelMax])).toEqual(expect.arrayContaining([
+            ['Hidden', 1, 2, 36],
+            ['Blight', 31, 27, 36],
+            ['Stowaway', 21, 17, 36]
+        ]));
         expect(data.unlocatedEnemies).toEqual([
             expect.objectContaining({
                 stableKey: 'character:runtime enemy',
