@@ -8,6 +8,11 @@ currently excluded are potential false positives — they may belong on
 the wiki even if they lack a spawn (map visibility is a separate
 question).
 
+It also lists each excluded prefab without a spawn whose object name a
+placed character carries under another name. A built scene keeps no link
+to the prefab of a placed character, so such a prefab can look unused
+while the game places a renamed copy of it.
+
 Usage:
     uv run python src/tools/audit_mapping_exclusions.py [--variant playtest]
     uv run python src/tools/audit_mapping_exclusions.py --json
@@ -53,6 +58,16 @@ class MappingRule(TypedDict, total=False):
     is_map_visible: int
     mapping_type: str
     reason: str | None
+
+
+class RenamedCopy(TypedDict):
+    prefab_stable_key: str
+    prefab_name: str
+    object_name: str
+    stable_key: str
+    name: str
+    scene: str | None
+    is_wiki_generated: int
 
 
 def find_clean_db(variant: str) -> Path:
@@ -150,6 +165,49 @@ def enrich_with_mapping(
     return evidence
 
 
+def find_renamed_copies(db: sqlite3.Connection, excluded_keys: list[str]) -> list[RenamedCopy]:
+    """List placed characters that share the object name of an excluded, unspawned prefab under another name."""
+    if not excluded_keys:
+        return []
+    placeholders = ",".join("?" * len(excluded_keys))
+    rows = db.execute(
+        f"""
+        SELECT
+            prefab.stable_key AS prefab_stable_key,
+            prefab.npc_name AS prefab_name,
+            prefab.object_name,
+            placed.stable_key,
+            placed.npc_name AS name,
+            placed.scene,
+            placed.is_wiki_generated
+        FROM characters prefab
+        JOIN characters placed
+            ON placed.object_name = prefab.object_name
+            AND placed.is_prefab = 0
+            AND placed.npc_name IS NOT prefab.npc_name
+        WHERE prefab.stable_key IN ({placeholders})
+            AND prefab.is_prefab = 1
+            AND NOT EXISTS (
+                SELECT 1 FROM character_spawns cs WHERE cs.character_stable_key = prefab.stable_key
+            )
+        ORDER BY prefab.npc_name, prefab.stable_key, placed.npc_name, placed.stable_key
+        """,
+        excluded_keys,
+    ).fetchall()
+    return [
+        {
+            "prefab_stable_key": r["prefab_stable_key"],
+            "prefab_name": r["prefab_name"],
+            "object_name": r["object_name"],
+            "stable_key": r["stable_key"],
+            "name": r["name"],
+            "scene": r["scene"],
+            "is_wiki_generated": r["is_wiki_generated"],
+        }
+        for r in rows
+    ]
+
+
 def has_content(e: ExclusionEvidence) -> bool:
     return e["loot_count"] > 0 or e["vendor_count"] > 0 or bool(e["has_dialog"]) or e["spawn_count"] > 0
 
@@ -193,6 +251,7 @@ def _format_flags(e: ExclusionEvidence) -> str:
 def print_report(
     evidence: list[ExclusionEvidence],
     missing_from_db: list[tuple[str, str | None]],
+    renamed_copies: list[RenamedCopy],
 ) -> None:
     with_content = [e for e in evidence if has_content(e)]
     no_content = [e for e in evidence if not has_content(e)]
@@ -231,6 +290,15 @@ def print_report(
                 print(f"    {_format_flags(e)}")
             print()
 
+    if renamed_copies:
+        print(f"--- Excluded prefabs placed under another name ({len(renamed_copies)}) ---")
+        print("  Record a rename or a split in content-lifecycle.json when a wiki page names the prefab.")
+        for copy in renamed_copies:
+            visibility = "" if copy["is_wiki_generated"] else " (not on the wiki)"
+            print(f"  {copy['prefab_name']:40s} | {copy['prefab_stable_key']}")
+            print(f"    placed as {copy['name']} in {copy['scene'] or '?'}{visibility} | {copy['stable_key']}")
+        print()
+
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -260,6 +328,7 @@ def main() -> int:
 
     evidence = query_evidence(db, excluded_keys)
     evidence = enrich_with_mapping(evidence, excluded_rules)
+    renamed_copies = find_renamed_copies(db, excluded_keys)
 
     db.close()
 
@@ -276,11 +345,13 @@ def main() -> int:
                 {
                     "excluded_in_db": evidence,
                     "missing_from_db": [{"stable_key": sk, "display_name": dn} for sk, dn in missing_from_db],
+                    "renamed_copies": renamed_copies,
                     "summary": {
                         "total_rules": len(excluded_keys),
                         "found_in_db": len(evidence),
                         "missing_from_db": len(missing_from_db),
                         "with_content": sum(1 for e in evidence if has_content(e)),
+                        "renamed_copies": len(renamed_copies),
                     },
                 },
                 indent=2,
@@ -288,7 +359,7 @@ def main() -> int:
             )
         )
     else:
-        print_report(evidence, missing_from_db)
+        print_report(evidence, missing_from_db, renamed_copies)
 
     return 0
 

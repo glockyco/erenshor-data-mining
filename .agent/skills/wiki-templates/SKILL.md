@@ -132,6 +132,18 @@ The plan for the wiki is the OpenSpec change `adopt-data-backed-wiki`. Read its 
    Rollback refuses to overwrite later edits unless you pass `--force`.
    Rollback leaves pages created by the deploy in place. Delete them manually if appropriate.
 
+## Removed, renamed, and unused content
+
+`content-lifecycle.json` records what happened to content that a wiki page still names. `openspec/specs/wiki-content-lifecycle/spec.md` holds the rules.
+
+- `pages` gives a page the state `removed`, `unobtainable`, or `unused`, with its `source` evidence. Generation shows the notice of `Template:Historical Content` on that page.
+- `renames` sends an old title to the current title of the same stable key. `apply-retired-pages` writes the redirect.
+- `splits` lists the current titles of one old page. `apply-retired-pages` writes a disambiguation page.
+
+1. After a game update, run `uv run erenshor wiki audit-retired-pages`. It lists each live page that WoWBot created and generation no longer writes. An unexplained page, one with no record, makes it fail. A pending page has a record that is not live yet.
+2. Record each unexplained page in `content-lifecycle.json`. Use the renamed copies of `skill://auditing-spawn-coverage` for characters. Never record a state that the game files do not show.
+3. Run `uv run erenshor --dry-run wiki apply-retired-pages`, review each planned notice, redirect, and disambiguation page, and apply them only after approval. Each run keeps a rollback manifest in `retired-page-deploys/` in the variant's wiki directory.
+
 ## Interface gadgets and dependent pages
 
 1. Sync live `MediaWiki:` pages into the local preview before importing: `uv run erenshor wiki sync-interface`.
