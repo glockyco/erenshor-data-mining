@@ -1644,12 +1644,16 @@ def deploy(
                 raise typer.Exit(1) from error
             review_failed = review_failed or retirement.has_errors
     catalog = _build_link_audit_catalog(cli_ctx) if writes else ()
-    if cli_ctx.dry_run and writes:
-        readonly_client = _create_readonly_mediawiki_client(cli_ctx)
-        try:
-            live_revisions = readonly_client.get_page_revision_ids(list(writes))
-        finally:
-            readonly_client.close()
+    if cli_ctx.dry_run:
+        # Write the report on every dry run, so an older report never remains
+        # for a plan that no longer has its writes.
+        live_revisions: dict[str, int | None] = {}
+        if writes:
+            readonly_client = _create_readonly_mediawiki_client(cli_ctx)
+            try:
+                live_revisions = readonly_client.get_page_revision_ids(list(writes))
+            finally:
+                readonly_client.close()
         review = build_article_report(plan, storage, live_revisions, LinkTargets(catalog))
         review_path = wiki_dir / "deploy-plan.json"
         review_path.write_text(json.dumps(review.to_json(), indent=2, ensure_ascii=False) + "\n", encoding="utf-8")

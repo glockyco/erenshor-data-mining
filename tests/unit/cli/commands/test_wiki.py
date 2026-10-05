@@ -653,6 +653,18 @@ class TestWikiDeployCommand:
         assert run_audit.call_args.kwargs["output_path"] is None
         readonly.close.assert_called_once_with()
 
+        # Once nothing is left to write, the next dry run replaces the old report.
+        storage.save_generated_by_title("Alpha", ["character:alpha"], fetched, kept_roots=())
+        again = runner.invoke(wiki.app, ["deploy"], obj=replace(cli_context, dry_run=True))
+
+        assert again.exit_code == 0, again.output
+        assert "Edit: 0" in _unwrapped(again.output)
+        review = json.loads(
+            (cli_context.config.variants["main"].resolved_wiki(cli_context.repo_root) / "deploy-plan.json").read_text()
+        )
+        assert review["kinds"]["encounter tier"] == []
+        assert review["kept_roots"] == {}
+
     def test_dry_run_fails_on_a_page_that_changed_after_the_fetch(
         self, monkeypatch: pytest.MonkeyPatch, cli_context: CLIContext
     ) -> None:
