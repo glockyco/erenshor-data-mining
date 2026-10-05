@@ -1,10 +1,10 @@
 ## Context
 
-See `proposal.md` for the problem. The supplied inventory says 118 files, but its 117 `File:` rows are the complete verified input. Of these, 116 names match `characters.image_name` in the main clean database. `Underspine Hollow.png` belongs to a zone page. No row matches an item, spell, skill, or stance image. The table below is the authoritative input to this change until a new live scan replaces it.
+See `proposal.md` for the problem. The first inventory listed 117 files. A live scan on 2026-10-05 of the image fields of all 2,816 generated pages, with `{{PAGENAME}}` and `{{PAGENAMEE}}` expanded, found 120 missing files: the 117 and three new ones, `Trick Target.png`, `Wandering Gladiator.png`, and `Prielian Cascade.png`. The six pages that carry the unused notice of `content-lifecycle.json` add six more files, because generation does not write those pages. Of the 126 files, 124 names match `characters.image_name` in the main clean database. `Underspine Hollow.png` and `Prielian Cascade.png` belong to zone pages. No row matches an item, spell, skill, or stance image. The table below is the authoritative input to this change until a new live scan replaces it.
 
 `images process` reads the icon fields of items, spells, and skills. It takes their PNGs from the exported `Texture2D` directory and stores processed images in `variants/main/images/current/` with metadata in `variants/main/images/registry.db`. `images compare` classifies changes, and `images upload` uploads selected or changed registry images. Discovery never reads characters or zones. The registry currently has 1,515 item, 348 spell, and 51 skill rows, and no character row. It does not contain a source for any file in this inventory.
 
-The source check compared all 117 names with exported `Texture2D/*.png` and `Sprite/*.asset` names, ignoring case. None is a matching portrait sprite. Character rows have no icon column. Nine missing summons have a spell whose icon is present in game data, but that icon depicts the spell, not a portrait of its creature. `UnderspineMap.png` and its sprite asset exist, but that is a map graphic, not the `Underspine Hollow.png` image that an editor put in the zone infobox.
+The source check compared the first 117 names with exported `Texture2D/*.png` and `Sprite/*.asset` names, ignoring case. None is a matching portrait sprite. Character rows have no icon column. Nine missing summons have a spell whose icon is present in game data, but that icon depicts the spell, not a portrait of its creature. `UnderspineMap.png` and its sprite asset exist, but that is a map graphic, not the `Underspine Hollow.png` image that an editor put in the zone infobox.
 
 ## Goals / Non-Goals
 
@@ -17,14 +17,14 @@ The source check compared all 117 names with exported `Texture2D/*.png` and `Spr
 **Non-Goals:**
 
 - Change infobox image names to make a source easier to find.
-- Use `UnderspineMap.png` as a replacement for the existing zone illustration without editor approval.
+- Use a map sprite such as `UnderspineMap.png` as a replacement for a zone illustration without editor approval.
 - Reprocess every icon or redesign the existing icon pipeline.
 
 ## Decisions
 
 ### D1. Image source inventory
 
-Each table row is one missing file, not one character record. The 93 character rows include people, creatures, and scene props that the game models as characters. The 10 chest or receptacle rows and 13 summon rows are subclasses of those character records. The remaining row is a zone. There are no item or spell or skill files in this list. The database `image_name` gives the file stem, while `wiki_page_name` gives the article. A file may serve several pages or several infoboxes.
+Each table row is one missing file, not one character record. The 101 character rows include people, creatures, and scene props that the game models as characters. Six of them belong to pages with the unused notice: their prefabs are under `Resources/NPCs`, but nothing in the current game spawns them. The 10 chest or receptacle rows and 13 summon rows are subclasses of those character records. `Summoned: Elder Dryad.png` is a character row, because no spell summons that creature. The remaining two rows are zones. There are no item or spell or skill files in this list. The database `image_name` gives the file stem, while `wiki_page_name` gives the article. A file may serve several pages or several infoboxes.
 
 `In-game model or scene` means the game contains a character or scene object, not a usable PNG. It does **not** mean that a capture implementation already works. The chosen source is a reviewed capture from the running game. A person can supply a better screenshot if the model cannot be captured well.
 
@@ -147,10 +147,19 @@ Each table row is one missing file, not one character record. The 93 character r
 | Warded Shadow.png | character | In-game model or scene. No matching portrait sprite. |
 | Ward of the Forest.png | character | In-game model or scene. No matching portrait sprite. |
 | Ward of Siraethe.png | character | In-game model or scene. No matching portrait sprite. |
+| Trick Target.png | character | In-game model or scene. No matching portrait sprite. |
+| Wandering Gladiator.png | character | In-game model or scene. No matching portrait sprite. |
+| Prielian Cascade.png | other (zone) | Editor image or zone screenshot. The zone page names it with `{{PAGENAME}}.png`. |
+| Ancient Sentinel.png | character (unused page) | Prefab under `Resources/NPCs`. No matching portrait sprite. |
+| Bazxzoth.png | character (unused page) | Prefab under `Resources/NPCs`. No matching portrait sprite. |
+| Fernalla's Guardian Golem.png | character (unused page) | Prefab under `Resources/NPCs`. No matching portrait sprite. |
+| Holy Corpse.png | character (unused page) | Prefab under `Resources/NPCs`. No matching portrait sprite. |
+| Queen Evadne.png | character (unused page) | Prefab under `Resources/NPCs`. No matching portrait sprite. |
+| Summoned: Elder Dryad.png | character (unused page) | Prefab under `Resources/NPCs`. No matching portrait sprite. |
 
 ### D2. Existing image pipeline and ownership
 
-The bot owns processed game icons and reviewed model captures. The source icons and character objects come from the installed game. The AssetRipper export is read-only. Editors own the zone illustration and may replace any bot capture with a better screenshot. A new bot-generated portrait needs a selected game object, a reviewed PNG, a source record, and an exact destination file title.
+The bot owns processed game icons and reviewed model captures. The source icons and character objects come from the installed game. The AssetRipper export is read-only. Editors own the zone illustrations and may replace any bot capture with a better screenshot. A new bot-generated portrait needs a selected game object, a reviewed PNG, a source record, and an exact destination file title.
 
 The current upload command deduplicates by `image_name`, uses registry upload state, sanitizes colons, and creates redirects for altered titles. It uploads with `ignore_warnings=True`. The capture upload path must check the live file and redirect target before each write and refuse to replace existing bytes. A targeted missing-file batch is separate from an all-icons upload. The contract is the file title used by the article, even when a sanitized destination requires a redirect.
 
@@ -162,7 +171,7 @@ The chest files need no separate uploads for each boss. `Braxonian Chest.png` al
 
 `MapTileCapture` gives a scene loader, a WebSocket request loop, a render texture to PNG path, and cleanup patterns. It is not an entity camera. Its map camera looks straight down from world height 1000 and its suppressor hides characters, particles, nameplates, and canvases. A portrait mode needs a separate request and rendering path, not a change that turns map tiles into portraits.
 
-A generated manifest contains the target file name, entity stable key, scene or prefab source, game build, and camera preset. Each missing file appears once. The manifest picks one visible instance when several records share an image name. It identifies both Training Dummy variants separately. It must handle event-only objects and summons that are not naturally present in a loaded scene. Probe representatives through HotRepl: a normal NPC, a chest, a summon, a scene prop, Faith, and both Training Dummy variants. For each, inspect renderers, bounds, pose, materials, effects, and the scene or spawn step. An object without useful renderers goes to an editor review list, not a blank file.
+A generated manifest contains the target file name, entity stable key, scene or prefab source, game build, and camera preset. Each missing file appears once. The manifest picks one visible instance when several records share an image name. It identifies both Training Dummy variants separately. It must handle event-only objects and summons that are not naturally present in a loaded scene. Every NPC prefab under `Resources/NPCs` loads without a scene, as the game's own `Resources.LoadAll<GameObject>("NPCs")` shows, so the six unused characters can be captured from their prefabs. A character whose object exists only in a scene, such as `Enterprising Spirit`, needs that scene. Probe representatives through HotRepl: a normal NPC, a chest, a summon, a scene prop, Faith, both Training Dummy variants, and one unused prefab. For each, inspect renderers, bounds, pose, materials, effects, and the scene or spawn step. An object without useful renderers goes to an editor review list, not a blank file.
 
 Use a dedicated temporary camera with one fixed angle, projection, and lighting preset. Render at 1024 × 1024 pixels, then crop the subject with a consistent margin. Frame the combined visible renderer bounds. Pause or set a neutral idle pose, then wait for stable materials and animation. Render only the target with transparent pixels outside its silhouette. Hide the player, other actors, UI, target rings, names, and distracting scene geometry without hiding useful target effects. Keep the alpha channel in the final PNG. Store the image, manifest entry, and a contact sheet together for human review. Reject clipped, dark, empty, or wrong-model output.
 
@@ -178,16 +187,16 @@ Existing `image` parameters contain rendered wikitext such as `[[File:Faith.png|
 
 Check real uploaded bytes, not merely the existence of a file description page. MediaWiki's `#ifexist:File:...` returns true for a redirect page with no image. `#ifexist:Media:...` may express file existence, but its shared-repository behavior and expensive parser limit need a host check. Verify an uploaded file, a missing file, a redirect to a file, and a redirect to a missing file in the local stack and on the live wiki before selecting the template expression. If the available parser expression cannot make this distinction or exceeds the page limit, use a generated missing-file list and a template parameter that is refreshed from verified file status instead. The resulting categories must still meet the same observable contract.
 
-Rebuild the manifest from generated pages and the live missing-file scan before each capture run. The bot captures only its approved manifest, then produces a contact sheet and source record for review. A second approval follows a targeted dry run against the live file titles. Before every upload, check the title and any redirect target again, skip files that exist, and report the owner. Do not use `--force` or overwrite warnings for this route. Once uploaded, purge affected pages and confirm their missing-image categories clear.
+Rebuild the manifest before each capture run from three inputs: the generated pages, the pages that `content-lifecycle.json` marks as unused, and the live missing-file scan. Expand `{{PAGENAME}}` and `{{PAGENAMEE}}` in image fields before the scan. The unused pages are not generated, so they get no `imagefile` parameter and join no `Needs Image` category. The manifest reads them from the facts file instead. The bot captures only its approved manifest, then produces a contact sheet and source record for review. A second approval follows a targeted dry run against the live file titles. Before every upload, check the title and any redirect target again, skip files that exist, and report the owner. Do not use `--force` or overwrite warnings for this route. Once uploaded, purge affected pages and confirm their missing-image categories clear.
 
-The zone file stays with editors. `Underspine Hollow.png` is not a model capture. Do not replace it with `UnderspineMap.png` or change its article image field.
+The zone files stay with editors. `Underspine Hollow.png` and `Prielian Cascade.png` are not model captures. Do not replace either with a map sprite such as `UnderspineMap.png`, and do not change the image field of either zone page.
 
 ## Risks / Trade-offs
 
 - Game models can render differently outside their scene. Some prefabs depend on lighting, animation, equipment, or effects that need a live scene. A representative capture and image review must prove each route.
 - One file name can refer to several game records. Pick a representative object by stable key and review it, rather than silently taking the first database row.
 - A title can gain an editor upload between inventory and deployment. Recheck exact titles and redirects immediately before each write. On conflict, skip and report, not overwrite.
-- The 117-file list is a snapshot. Rebuild a live inventory before work and compare file counts and identities. A new game build may add files or remove pages.
+- The 126-row list is a snapshot. Rebuild a live inventory before work and compare file counts and identities. A new game build may add files or remove pages.
 
 ## Migration Plan
 
@@ -195,7 +204,7 @@ The zone file stays with editors. `Underspine Hollow.png` is not a model capture
 2. Build the manifest and a separate capture mode. Validate its output against known good files and a representative object from each kind.
 3. Run captures into an untracked staging directory. Review the source records and contact sheet. Reject bad images before the bot sees the approved set.
 4. Scan the live wiki again and run a targeted dry run. Review file names, redirects, source images, and any existing files. Get approval for each live batch.
-5. Upload only missing approved files. Verify the files and each affected page, including chest boxes on boss pages, the two Training Dummy variants, and Faith. The zone remains on the editor list.
+5. Upload only missing approved files. Verify the files and each affected page, including chest boxes on boss pages, the two Training Dummy variants, Faith, and the six unused pages. Both zone files remain on the editor list.
 
 If a batch produces a wrong new file, stop it. An administrator removes an unwanted new file. Do not edit pages to conceal a failed upload.
 

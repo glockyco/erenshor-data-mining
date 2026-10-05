@@ -31,7 +31,7 @@ Character, item, and stance infoboxes SHALL add a hidden, kind-specific `Needs I
 
 ### Requirement: Missing images have a source
 
-The image workflow SHALL list every image file named by a generated page that the wiki does not have. It SHALL show the file title, every page that uses it, its entity kind, and its source. An empty result SHALL mean that every named file exists, not that a source search returned no rows.
+The image workflow SHALL list every image file that the wiki does not have and that a generated page or a page with the unused notice names. It SHALL show the file title, every page that uses it, its entity kind, and its source. An empty result SHALL mean that every named file exists, not that a source search returned no rows.
 
 #### Scenario: A generated character has no portrait
 
@@ -42,6 +42,11 @@ The image workflow SHALL list every image file named by a generated page that th
 
 - **WHEN** a boss page also holds a chest infobox that names a missing chest image
 - **THEN** the report keeps the chest file and the boss page among its uses
+
+#### Scenario: A page with the unused notice has no image
+
+- **WHEN** `Queen Evadne` carries the unused notice and names a missing image
+- **THEN** the report names the file and page and selects her prefab for capture
 
 ### Requirement: Game icons are not substitutes for character images
 
@@ -96,7 +101,7 @@ Before each upload, the workflow SHALL check the exact file title against the li
 - **WHEN** a generated page names `Summoned: Brute.png`
 - **THEN** the uploaded file or its redirect makes that exact name resolve to the reviewed creature image
 
-### Requirement: People keep their chosen zone image
+### Requirement: People keep their chosen zone images
 
 A missing image on a zone page SHALL remain the editors' work. The workflow SHALL NOT upload a different map sprite as its image or change the zone page's image field. Editors MAY replace any bot-captured character image with a better screenshot.
 
