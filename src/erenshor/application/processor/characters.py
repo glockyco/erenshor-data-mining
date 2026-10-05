@@ -49,6 +49,8 @@ from .npc_spawn import (
     load_spawn_constants,
     resist_range,
     spawn_attack,
+    start_order,
+    starts_before,
 )
 
 if TYPE_CHECKING:
@@ -249,6 +251,16 @@ def _resist_columns(resists: dict[str, tuple[int, int]]) -> dict[str, object]:
     return columns
 
 
+def _stats_starts_first(r: dict[str, object]) -> bool:
+    """Whether Stats.Start runs before NPC.Start on this character (design D16)."""
+    order = start_order(
+        cast("str | None", r.get("StartComponentsListed")),
+        cast("str | None", r.get("StartComponentsByFileId")),
+        cast("bool | None", r.get("IsActiveAtLoad")),
+    )
+    return starts_before(order, "Stats", "NPC")
+
+
 def _effective_stats(
     r: dict[str, object], constants: SpawnConstants, mitigations: Mapping[str, float]
 ) -> dict[str, object]:
@@ -283,7 +295,7 @@ def _effective_stats(
             base_attack,
             level,
             level,
-            stats_starts_first=bool(r.get("StatsStartsBeforeNPC")),
+            stats_starts_first=_stats_starts_first(r),
             floors_at_level=not r.get("HandSetResistances"),
             damage_balance_factor=constants.damage_balance_factor,
         ),
@@ -1054,7 +1066,7 @@ def process_characters(
             "proc_on_hit_stable_key": r.get("ProcOnHitStableKey"),
             "proc_on_hit_chance": r.get("ProcOnHitChance"),
             "hand_set_resistances": r.get("HandSetResistances"),
-            "stats_starts_before_npc": r.get("StatsStartsBeforeNPC"),
+            "stats_starts_before_npc": _stats_starts_first(r),
             "hard_set_ac": r.get("HardSetAC"),
             "base_atk_dmg": r.get("BaseAtkDmg"),
             "oh_atk_dmg": r.get("OHAtkDmg"),

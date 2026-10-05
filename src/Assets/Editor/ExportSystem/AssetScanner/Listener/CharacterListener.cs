@@ -496,6 +496,14 @@ public class CharacterListener : IAssetScanListener<Character>
         _characterAEEventRecords.AddRange(CreateAEEventRecords(characterRecord.StableKey, asset));
     }
 
+    private static string StartComponentName(Component component) =>
+        component switch
+        {
+            NPC => "NPC",
+            Stats => "Stats",
+            _ => "TestDummy",
+        };
+
     private CharacterRecord CreateCharacterRecord(Character character, string stableKey)
     {
         var npc = character.GetComponent<NPC>();
@@ -630,10 +638,28 @@ public class CharacterListener : IAssetScanListener<Character>
 
             // NPC Combat Mechanics
             record.HandSetResistances = npc.HandSetResistances;
-            var components = character.GetComponents<Component>();
-            record.StatsStartsBeforeNPC =
-                stats != null
-                && System.Array.IndexOf(components, stats) < System.Array.IndexOf(components, npc);
+            var startComponents = character
+                .GetComponents<Component>()
+                .Where(component =>
+                    component is NPC || component is Stats || component is TestDummy
+                )
+                .ToList();
+            record.StartComponentsListed = string.Join(
+                ",",
+                startComponents.Select(StartComponentName)
+            );
+            if (prefabType == PrefabAssetType.NotAPrefab)
+            {
+                record.StartComponentsByFileId = string.Join(
+                    ",",
+                    startComponents
+                        .OrderBy(component =>
+                            GlobalObjectId.GetGlobalObjectIdSlow(component).targetObjectId
+                        )
+                        .Select(StartComponentName)
+                );
+                record.IsActiveAtLoad = character.gameObject.activeInHierarchy;
+            }
             record.HardSetAC = npc.HardSetAC;
             record.BaseAtkDmg = npc.BaseAtkDmg;
             record.OHAtkDmg = npc.OHAtkDmg;

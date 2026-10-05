@@ -8,6 +8,8 @@ from erenshor.application.processor.npc_spawn import (
     attack_ability,
     balanced_hp,
     spawn_attack,
+    start_order,
+    starts_before,
 )
 
 CONSTANTS = SpawnConstants(
@@ -72,3 +74,18 @@ def test_a_training_dummy_with_hand_set_ac_ignores_level_and_class() -> None:
     assert armor_class(10, 0, 1.1, test_dummy_hand_set_ac=400) == 400
     assert armor_class(10, 0, 1.1, test_dummy_hand_set_ac=0) == 165
     assert armor_class(10, 50, 1.0) == 50
+
+
+def test_instantiated_prefabs_start_in_component_list_order() -> None:
+    order = start_order("Stats,NPC", None, None)
+
+    assert starts_before(order, "Stats", "NPC")
+
+
+def test_scene_characters_start_in_file_id_order_and_reverse_it_when_activated_later() -> None:
+    # Observed in game on 2026-10-05: Amethi Plazzo lists Stats first but its
+    # file IDs put NPC first, and it started NPC first. A pocket vendor of the
+    # Reliquary with the same orders, activated with its room, started Stats first.
+    assert not starts_before(start_order("Stats,NPC", "NPC,Stats", True), "Stats", "NPC")
+    assert starts_before(start_order("Stats,NPC", "NPC,Stats", False), "Stats", "NPC")
+    assert start_order("NPC,Stats,TestDummy", "NPC,Stats,TestDummy", False) == ("TestDummy", "Stats", "NPC")

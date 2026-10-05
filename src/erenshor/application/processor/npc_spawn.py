@@ -3,10 +3,10 @@
 ``NPC.Start`` rolls the level variance, applies ``DamageBalanceFactor`` to the
 base attack, and scales HP. ``Stats.Start`` rolls the resists and raises the
 base attack to the level. Both scripts have the default execution order, so
-Unity calls their ``Start`` in the order of the components on the GameObject,
-which differs between prefabs (exported as ``stats_starts_before_npc``). That
-order decides which level the resists and the attack floor see, and whether
-the balance factor applies before or after the floor.
+the order in which Unity creates a character's components decides which
+``Start`` runs first (``start_order``). That order decides which level the
+resists and the attack floor see, and whether the balance factor applies
+before or after the floor.
 """
 
 from __future__ import annotations
@@ -118,6 +118,26 @@ def spawn_attack(
     if floors_at_level and attack < level_after:
         attack = level_after
     return attack
+
+
+def start_order(listed: str | None, by_file_id: str | None, active_at_load: bool | None) -> tuple[str, ...]:
+    """The order in which Unity runs ``Start`` on a character's NPC, Stats, and TestDummy.
+
+    An instantiated prefab starts its components in component list order. A
+    scene character starts them in local file ID order when it is active at
+    load, and in the reverse order when a script activates it later. In-game
+    checks of design D16 of the change adopt-data-backed-wiki established
+    these three cases, which are engine behavior rather than game code.
+    """
+    if by_file_id is None:
+        return tuple(listed.split(",")) if listed else ()
+    order = tuple(by_file_id.split(","))
+    return order if active_at_load else order[::-1]
+
+
+def starts_before(order: tuple[str, ...], first: str, second: str) -> bool:
+    """Whether ``first`` starts before ``second`` in a start order."""
+    return first in order and second in order and order.index(first) < order.index(second)
 
 
 def resist_level(level_before: int, level_after: int, *, stats_starts_first: bool) -> int:

@@ -127,10 +127,13 @@ public class CharacterRecord
     // NPC Combat Mechanics
     public bool HandSetResistances { get; set; }
 
-    // Unity calls Start in component order, so this decides whether
-    // Stats.Start (resists, attack floor) runs before NPC.Start (level
-    // variance, DamageBalanceFactor).
-    public bool StatsStartsBeforeNPC { get; set; }
+    // The facts that decide the order in which Unity runs Start on the NPC,
+    // Stats, and TestDummy components (design D16 of adopt-data-backed-wiki):
+    // their names in component list order, in local file ID order for a
+    // scene character, and whether a scene character is active at load.
+    public string? StartComponentsListed { get; set; }
+    public string? StartComponentsByFileId { get; set; }
+    public bool? IsActiveAtLoad { get; set; }
     public int HardSetAC { get; set; }
     public int BaseAtkDmg { get; set; }
     public int OHAtkDmg { get; set; }
