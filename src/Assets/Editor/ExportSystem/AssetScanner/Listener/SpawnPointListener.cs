@@ -65,6 +65,11 @@ public class SpawnPointListener : IAssetScanListener<SpawnPoint>
 
     public void OnAssetFound(SpawnPoint asset)
     {
+        // A prefab asset holds no placement. The scan exports the placed
+        // copies from the scenes.
+        if (asset.gameObject.scene.name == null)
+            return;
+
         var scene = asset.gameObject.scene.name;
         var x = asset.transform.position.x;
         var y = asset.transform.position.y;

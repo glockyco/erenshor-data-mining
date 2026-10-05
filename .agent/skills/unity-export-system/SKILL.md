@@ -29,3 +29,4 @@ Use `StableKeyGenerator` for entity keys. Do not join entities by display name. 
 - If the field-coverage gate fails, inspect `src/tools/ExportSurface/field-coverage.json` and the listener named in the error. A removed or retyped shipped field requires a source change, not only a manifest edit.
 - If Unity reports a licensing failure, open Unity Hub and retry export after the license is ready.
 - If export exits 3, use the dynamic-spawn error envelope. Do not run the clean build on this failed raw export.
+- If export fails with listener errors, the Unity log names each listener, asset, and exception. The raw database stays unchanged. Fix the listener: a placement listener skips a component on a prefab asset, because the scan exports the placed copies from the scenes.

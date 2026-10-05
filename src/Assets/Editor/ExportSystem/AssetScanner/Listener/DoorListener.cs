@@ -30,6 +30,11 @@ public class DoorListener : IAssetScanListener<Door>
 
     public void OnAssetFound(Door asset)
     {
+        // A prefab asset holds no placement. The scan exports the placed
+        // copies from the scenes.
+        if (asset.gameObject.scene.name == null)
+            return;
+
         Debug.Log($"[{GetType().Name}] Found: {asset.name} ({asset.GetType().Name})");
 
         _records.Add(CreateRecord(asset));

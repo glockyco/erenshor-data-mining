@@ -206,7 +206,19 @@ public class AssetScannerExporterWindow : EditorWindow
         }
         _elapsedSeconds = _stopwatch.Elapsed.TotalSeconds;
         _isScanning = false;
-        _status = _cancelRequested ? "Cancelled" : "Done";
+        var errors = _activeScanner.ListenerErrors.Count;
+        if (_cancelRequested)
+        {
+            _status = "Cancelled";
+        }
+        else if (errors > 0)
+        {
+            _status = $"Incomplete: {errors} listener error(s), see the console";
+        }
+        else
+        {
+            _status = "Done";
+        }
         Repaint();
     }
 

@@ -30,6 +30,14 @@ public class AssetScanner
         typeof(KnowledgeDatabaseAsset),
     };
 
+    private readonly List<string> _listenerErrors = new();
+
+    /// <summary>
+    /// Every exception that a listener threw during the last scan, with the
+    /// listener and the asset. A scan with errors exported incomplete data.
+    /// </summary>
+    public IReadOnlyList<string> ListenerErrors => _listenerErrors;
+
     public AssetScanner(AssetScanProfiler profiler = null)
     {
         _profiler = profiler ?? AssetScanProfiler.Disabled;
@@ -143,6 +151,8 @@ public class AssetScanner
         const float maxFrameTimeMs = 10f;
         Stopwatch stopwatch = new Stopwatch();
 
+        _listenerErrors.Clear();
+
         // --- Notify Scan Started ---
         foreach (
             var listenerMap in new[]
@@ -234,7 +244,7 @@ public class AssetScanner
                             }
                             catch (Exception ex)
                             {
-                                Debug.LogError($"ScriptableObject listener error: {ex}");
+                                RecordListenerError(listenerObj, asset, ex);
                             }
                         }
                     }
@@ -433,7 +443,7 @@ public class AssetScanner
                             }
                             catch (Exception ex)
                             {
-                                Debug.LogError($"GameObject listener error: {ex}");
+                                RecordListenerError(listenerObj, go, ex);
                             }
                         }
                     }
@@ -482,7 +492,7 @@ public class AssetScanner
                             }
                             catch (Exception ex)
                             {
-                                Debug.LogError($"Component listener error: {ex}");
+                                RecordListenerError(listenerObj, comp, ex);
                             }
                         }
                     }
@@ -532,5 +542,31 @@ public class AssetScanner
                 }
             }
         }
+    }
+
+    private void RecordListenerError(object listenerObj, Object asset, Exception ex)
+    {
+        var cause = ex is TargetInvocationException { InnerException: { } inner } ? inner : ex;
+        var message =
+            $"{listenerObj.GetType().Name} on {DescribeAsset(asset)}: "
+            + $"{cause.GetType().Name}: {cause.Message}";
+        _listenerErrors.Add(message);
+        Debug.LogError($"Listener error: {message}\n{cause}");
+    }
+
+    private static string DescribeAsset(Object asset)
+    {
+        var gameObject = asset switch
+        {
+            Component component => component.gameObject,
+            GameObject go => go,
+            _ => null,
+        };
+        var path = AssetDatabase.GetAssetPath(asset);
+        if (string.IsNullOrEmpty(path) && gameObject != null)
+        {
+            path = gameObject.scene.path;
+        }
+        return gameObject != null ? $"{path} ({gameObject.name})" : path;
     }
 }

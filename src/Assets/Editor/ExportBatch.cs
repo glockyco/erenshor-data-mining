@@ -127,6 +127,15 @@ public static class ExportBatch
                 // Execute scan synchronously
                 ExecuteScanSynchronously(scanner, args.logLevel);
 
+                // A listener exception leaves its rows out of the export.
+                if (scanner.ListenerErrors.Count > 0)
+                {
+                    throw new InvalidOperationException(
+                        $"{scanner.ListenerErrors.Count} listener error(s) left the export incomplete:\n"
+                            + string.Join("\n", scanner.ListenerErrors)
+                    );
+                }
+
                 // Check dynamic spawn coverage gate
                 if (_dynamicSpawnListener != null)
                 {
