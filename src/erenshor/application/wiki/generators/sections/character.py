@@ -243,7 +243,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         has_dynamic = any(info.source_script is not None for info in spawn_infos)
         has_ordinary = any(info.source_script is None for info in spawn_infos)
         if has_dynamic and not has_ordinary:
-            return "Dynamic event spawn"
+            return "Event spawn"
         return ""
 
     def _format_respawn(self, spawn_infos: list[CharacterSpawnInfo]) -> str:

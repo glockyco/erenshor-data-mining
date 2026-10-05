@@ -21,6 +21,7 @@ locations for the character.
 |coordinates=
 |location=
 |spawnchance=
+|spawntype=
 |respawn=
 |guaranteeddrops=
 |droprates=
@@ -76,6 +77,8 @@ locations for the character.
 | <code>location</code> || '''Manual''' || Plain-text description of where to find the character, such as <code>Near the zone-in</code> or <code>By the bank in Port Azure</code>. Never overwritten by the bot.
 |-
 | <code>spawnchance</code> || Auto || Spawn chance percentage. Only shown for rare/unique characters.
+|-
+| <code>spawntype</code> || Auto || <code>Event spawn</code> when only an event spawns the character. The older spelling <code>spawnType</code> still works.
 |-
 | <code>respawn</code> || Auto || Base respawn time.
 |-

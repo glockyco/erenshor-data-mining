@@ -27,7 +27,7 @@
 
     // Format spawn chance (0-100 range from database)
     function formatSpawnChance(chance: number | null): string {
-        if (chance === null) return 'Dynamic event spawn';
+        if (chance === null) return 'Event spawn';
         return `${chance.toFixed(1)}% spawn`;
     }
 

@@ -152,7 +152,7 @@
                                     {:else}
                                         {@const source = marker.characters.find((c) => c.name === name)?.sourceScript}
                                         {#if source}
-                                            <span class="text-zinc-300">Dynamic event spawn</span>
+                                            <span class="text-zinc-300">Event spawn</span>
                                             <span>·</span>
                                         {/if}
                                     {/if}

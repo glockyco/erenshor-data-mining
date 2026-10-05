@@ -135,7 +135,7 @@
                                         <span>·</span>
                                     {/if}
                                     {#if getSpawnSource(marker)}
-                                        <span class="text-zinc-300">Dynamic event spawn</span>
+                                        <span class="text-zinc-300">Event spawn</span>
                                         <span>·</span>
                                     {/if}
                                     <span>{formatRespawnTime(marker.spawnDelay, !!getSpawnSource(marker))} respawn</span>

@@ -27,7 +27,7 @@
         <data source="location"><label>Location:</label></data>
         <data source="respawn"><label>Base Respawn:</label></data>
         <data source="spawnchance"><label>Spawn Chance:</label></data>
-        <data source="spawnType"><label>Spawn Type:</label></data>
+        <data source="spawntype"><label>Spawn Type:</label><default>{{{spawnType|}}}</default></data>
         <data source="level"><label>Base Level:</label></data>
         <data source="experience"><label>Base Experience:</label></data>
         <data source="guaranteeddrops"><label>Guaranteed {{#if:{{{guaranteedrolls|}}}|{{{guaranteedrolls}}}|One}} Of:</label></data>

@@ -662,7 +662,7 @@ export class RepositoryBase {
                     else if (character.encounterTier === 'chest') tag = ' (Chest)';
 
                     const spawnText = character.sourceScript
-                        ? 'Dynamic event spawn'
+                        ? 'Event spawn'
                         : `${(character.spawnChance ?? 0).toFixed(1)}%`;
                     return `${formatWikiLink(character.name, character.wikiPageName)} (${spawnText})${tag}`;
                 })

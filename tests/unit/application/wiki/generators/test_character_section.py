@@ -86,7 +86,7 @@ def test_dynamic_only_spawn_has_no_fabricated_chance() -> None:
 
     assert "|spawnchance=" in content
     assert "|spawnchance=1%" not in content
-    assert "|spawntype=Dynamic event spawn" in content
+    assert "|spawntype=Event spawn" in content
     assert "|coordinates=1124.2 x 24.6 x 1151.0" in content
     assert "SprinklesEvent" not in content
 
