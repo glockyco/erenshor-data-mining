@@ -1,6 +1,14 @@
 from __future__ import annotations
 
-from erenshor.application.processor.npc_spawn import SpawnConstants, balanced_hp, spawn_attack
+import pytest
+
+from erenshor.application.processor.npc_spawn import (
+    SpawnConstants,
+    armor_class,
+    attack_ability,
+    balanced_hp,
+    spawn_attack,
+)
 
 CONSTANTS = SpawnConstants(
     server_hp_mod=1.0, hp_scale=1.3, under35_hp_scale=1.75, under8_hp_scale=1.1, damage_balance_factor=1.1
@@ -49,3 +57,18 @@ def test_balanced_hp_switches_multiplier_between_levels_7_and_8_and_after_36() -
     assert balanced_hp(600, 8, CONSTANTS) == 1365
     assert balanced_hp(600, 36, CONSTANTS) == 1365
     assert balanced_hp(600, 37, CONSTANTS) == 780
+
+
+def test_attack_ability_bonus_starts_at_level_20_and_tops_out_at_level_40() -> None:
+    assert attack_ability(19, 1.0) == 820
+    assert attack_ability(20, 1.0) == 860
+    assert attack_ability(30, 1.0) == pytest.approx(1260 * 1.165, rel=1e-6)
+    assert attack_ability(40, 1.0) == pytest.approx(1660 * 1.33, rel=1e-6)
+    assert attack_ability(50, 1.0) == pytest.approx(2060 * 1.33, rel=1e-6)
+    assert attack_ability(1, 1.5) == 150
+
+
+def test_a_training_dummy_with_hand_set_ac_ignores_level_and_class() -> None:
+    assert armor_class(10, 0, 1.1, test_dummy_hand_set_ac=400) == 400
+    assert armor_class(10, 0, 1.1, test_dummy_hand_set_ac=0) == 165
+    assert armor_class(10, 50, 1.0) == 50

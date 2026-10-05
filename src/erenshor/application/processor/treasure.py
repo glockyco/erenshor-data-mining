@@ -21,6 +21,7 @@ from .npc_spawn import (
     balanced_hp,
     class_mitigation,
     f32,
+    load_class_mitigations,
     load_spawn_constants,
     resist_level,
     resist_range,
@@ -260,6 +261,7 @@ def load_guardians(conn: sqlite3.Connection) -> list[GuardianProfile]:
     ).fetchall()
     if not rows:
         raise ValueError("no treasure chest links to a guardian in character_chained_spawns")
+    mitigations = load_class_mitigations(conn)
     return [
         GuardianProfile(
             stable_key=row["stable_key"],
@@ -267,7 +269,7 @@ def load_guardians(conn: sqlite3.Connection) -> list[GuardianProfile]:
             hand_set_resistances=bool(row["hand_set_resistances"]),
             level_varies=not row["group_encounter"],
             hard_set_ac=int(row["hard_set_ac"] or 0),
-            mitigation_bonus=class_mitigation(conn, row["class_resource_name"]),
+            mitigation_bonus=class_mitigation(mitigations, row["class_resource_name"]),
         )
         for row in rows
     ]

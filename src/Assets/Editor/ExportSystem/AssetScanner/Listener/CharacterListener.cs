@@ -496,26 +496,6 @@ public class CharacterListener : IAssetScanListener<Character>
         _characterAEEventRecords.AddRange(CreateAEEventRecords(characterRecord.StableKey, asset));
     }
 
-    // code-fact: npc.balance_hp
-    private static int CalculateNpcEffectiveHP(int baseHp, int level)
-    {
-        int effectiveHp = Mathf.RoundToInt((float)baseHp * GameData.ServerHPMod);
-        effectiveHp = Mathf.RoundToInt((float)effectiveHp * GameData.HPScale);
-        if (level <= 36 && level > 7)
-        {
-            effectiveHp = Mathf.RoundToInt((float)effectiveHp * GameData.Under35HPScale);
-        }
-        else if (level <= 7)
-        {
-            effectiveHp = Mathf.RoundToInt((float)effectiveHp * GameData.Under8HPScale);
-        }
-        if (effectiveHp <= 0)
-        {
-            effectiveHp = 1;
-        }
-        return effectiveHp;
-    }
-
     private CharacterRecord CreateCharacterRecord(Character character, string stableKey)
     {
         var npc = character.GetComponent<NPC>();
@@ -721,79 +701,8 @@ public class CharacterListener : IAssetScanListener<Character>
             record.BaseXpMax = record.BaseXpMin + stats.Level * 5;
             record.BossXpMultiplier = character.BossXp;
 
-            // Calculate effective stats based on game logic
-            if (npc != null && simPlayer == null)
-            {
-                if (!npc.HandSetResistances)
-                {
-                    // NPCs without HandSetResistances use calculated resistance ranges
-                    // code-fact: npc.base_resists
-                    record.EffectiveMinMR = Mathf.RoundToInt(stats.Level * 0.5f);
-                    record.EffectiveMaxMR = Mathf.RoundToInt(stats.Level * 1.2f);
-                    record.EffectiveMinER = Mathf.RoundToInt(stats.Level * 0.5f);
-                    record.EffectiveMaxER = Mathf.RoundToInt(stats.Level * 1.2f);
-                    record.EffectiveMinPR = Mathf.RoundToInt(stats.Level * 0.5f);
-                    record.EffectiveMaxPR = Mathf.RoundToInt(stats.Level * 1.2f);
-                    record.EffectiveMinVR = Mathf.RoundToInt(stats.Level * 0.5f);
-                    record.EffectiveMaxVR = Mathf.RoundToInt(stats.Level * 1.2f);
-                }
-                else
-                {
-                    // NPCs with HandSetResistances use fixed prefab values
-                    record.EffectiveMinMR = record.EffectiveMaxMR = stats.BaseMR;
-                    record.EffectiveMinER = record.EffectiveMaxER = stats.BaseER;
-                    record.EffectiveMinPR = record.EffectiveMaxPR = stats.BasePR;
-                    record.EffectiveMinVR = record.EffectiveMaxVR = stats.BaseVR;
-                }
-
-                // Calculate effective AC for NPCs
-                // code-fact: npc.ac_per_level
-                int baseAC = npc.HardSetAC != 0 ? npc.HardSetAC : stats.Level * 15;
-
-                var testDummy = character.GetComponent<TestDummy>();
-                if (testDummy != null && testDummy.HandSetAC > 0)
-                {
-                    baseAC = testDummy.HandSetAC;
-                }
-
-                // Apply CharacterClass MitigationBonus if set, otherwise use DefaultNPC (1.0)
-                float mitigationBonus = 1.0f; // Default for NPCs
-                if (stats.CharacterClass != null)
-                {
-                    mitigationBonus = stats.CharacterClass.MitigationBonus;
-                }
-
-                // code-fact: npc.ac_class_mitigation
-                record.EffectiveAC = Mathf.RoundToInt(baseAC * mitigationBonus);
-
-                // Calculate effective HP using NPC.ApplyBalanceAdjustments() semantics:
-                // stepwise ServerHPMod -> HPScale -> Under35HPScale (Level 8-36) or Under8HPScale (Level <= 7) rounding, then clamp.
-                record.EffectiveHP = CalculateNpcEffectiveHP(stats.BaseHP, stats.Level);
-
-                // Calculate effective attack ability for NPCs
-                float baseAttackAbility = 100 + (stats.Level - 1) * 40;
-                if (stats.Level >= 20)
-                {
-                    float levelProgress = Mathf.Clamp01((stats.Level - 20f) / 20f);
-                    float smoothBonus =
-                        3f * levelProgress * levelProgress
-                        - 2f * levelProgress * levelProgress * levelProgress;
-                    float bonusMultiplier = 0.33f * smoothBonus;
-                    baseAttackAbility += baseAttackAbility * bonusMultiplier;
-                }
-                record.EffectiveAttackAbility = baseAttackAbility * npc.ArmorPenMult;
-            }
-            else
-            {
-                // SimPlayers and non-NPCs use their base resistance values
-                record.EffectiveMinMR = record.EffectiveMaxMR = stats.BaseMR;
-                record.EffectiveMinER = record.EffectiveMaxER = stats.BaseER;
-                record.EffectiveMinPR = record.EffectiveMaxPR = stats.BasePR;
-                record.EffectiveMinVR = record.EffectiveMaxVR = stats.BaseVR;
-                record.EffectiveAC = 0;
-                record.EffectiveHP = 0;
-                record.EffectiveAttackAbility = 0;
-            }
+            var testDummy = character.GetComponent<TestDummy>();
+            record.TestDummyHandSetAC = testDummy != null ? (int?)testDummy.HandSetAC : null;
         }
 
         var factionStrings = new List<string>();

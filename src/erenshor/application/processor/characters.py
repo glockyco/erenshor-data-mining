@@ -40,10 +40,22 @@ from typing import TYPE_CHECKING, cast
 
 from loguru import logger
 
-from .npc_spawn import load_spawn_constants, spawn_attack
+from .npc_spawn import (
+    armor_class,
+    attack_ability,
+    balanced_hp,
+    class_mitigation,
+    load_class_mitigations,
+    load_spawn_constants,
+    resist_range,
+    spawn_attack,
+)
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from .mapping import MappingOverride, SpawnMappingOverride
+    from .npc_spawn import SpawnConstants
     from .writer import Writer
 
 
@@ -144,6 +156,8 @@ class _CharData:
     vendor_item_keys: frozenset[str] = frozenset()
     quest_manager_quest_keys: frozenset[str] = frozenset()
     dialog_quest_keys: frozenset[tuple[str | None, str | None]] = frozenset()
+    # Stats after spawning, by clean column (_effective_stats)
+    effective: dict[str, object] = field(default_factory=dict)
 
 
 # ---------------------------------------------------------------------------
@@ -156,8 +170,6 @@ _STAT_FIELDS = [
     # prefabs that differ only in hidden stats get merged.
     "Level",
     "BossXpMultiplier",
-    "EffectiveHP",
-    "EffectiveAC",
     "BaseMana",
     "BaseStr",
     "BaseEnd",
@@ -166,14 +178,18 @@ _STAT_FIELDS = [
     "BaseInt",
     "BaseWis",
     "BaseCha",
-    "EffectiveMinMR",
-    "EffectiveMaxMR",
-    "EffectiveMinER",
-    "EffectiveMaxER",
-    "EffectiveMinPR",
-    "EffectiveMaxPR",
-    "EffectiveMinVR",
-    "EffectiveMaxVR",
+]
+_EFFECTIVE_STAT_FIELDS = [
+    "effective_hp",
+    "effective_ac",
+    "effective_min_mr",
+    "effective_max_mr",
+    "effective_min_er",
+    "effective_max_er",
+    "effective_min_pr",
+    "effective_max_pr",
+    "effective_min_vr",
+    "effective_max_vr",
 ]
 
 _FLAG_FIELDS = [
@@ -185,7 +201,7 @@ _FLAG_FIELDS = [
 
 def _dedup_key(d: _CharData) -> tuple[object, ...]:
     raw = d.char.raw
-    stats = tuple(raw.get(f) for f in _STAT_FIELDS)
+    stats = tuple(raw.get(f) for f in _STAT_FIELDS) + tuple(d.effective.get(f) for f in _EFFECTIVE_STAT_FIELDS)
     flags = tuple(raw.get(f) for f in _FLAG_FIELDS)
     return (
         d.char.display_name,
@@ -213,6 +229,67 @@ _ARENA_BOSS_ROUNDS = frozenset({2, 5, 7, 8})
 # pieces. dynamic-spawn-catalog.toml must classify each piece field, so a piece
 # that a game update adds gets a Chessboard spawn row and this tier.
 _BOSS_EVENT_SCRIPTS = frozenset({"Chessboard"})
+
+# The four resists by clean column suffix, with the raw column of their base value.
+_RESIST_COLUMNS = (("mr", "BaseMR"), ("er", "BaseER"), ("pr", "BasePR"), ("vr", "BaseVR"))
+_EFFECTIVE_INT_COLUMNS = (
+    "effective_hp",
+    "effective_ac",
+    "effective_base_atk_dmg",
+    *(f"effective_{bound}_{name}" for name, _ in _RESIST_COLUMNS for bound in ("min", "max")),
+)
+
+
+def _resist_columns(resists: dict[str, tuple[int, int]]) -> dict[str, object]:
+    """The effective resist columns from each resist's lowest and highest value."""
+    columns: dict[str, object] = {}
+    for name, (low, high) in resists.items():
+        columns[f"effective_min_{name}"] = low
+        columns[f"effective_max_{name}"] = high
+    return columns
+
+
+def _effective_stats(
+    r: dict[str, object], constants: SpawnConstants, mitigations: Mapping[str, float]
+) -> dict[str, object]:
+    """Stats after NPC.Start, Stats.Start, and CalcStats, at the prefab's level."""
+    base_resists = {name: int(cast("int", r.get(column) or 0)) for name, column in _RESIST_COLUMNS}
+    if not r.get("HasStats"):
+        return dict.fromkeys(_EFFECTIVE_INT_COLUMNS, 0) | {"effective_attack_ability": 0.0}
+    base_attack = int(cast("int", r.get("BaseAtkDmg") or 0))
+    if not r.get("IsNPC"):
+        resists = {name: (value, value) for name, value in base_resists.items()}
+        return {
+            "effective_hp": 0,
+            "effective_ac": 0,
+            "effective_base_atk_dmg": base_attack,
+            "effective_attack_ability": 0.0,
+            **_resist_columns(resists),
+        }
+    level = int(cast("int", r["Level"]))
+    if r.get("HandSetResistances"):
+        resists = {name: (value, value) for name, value in base_resists.items()}
+    else:
+        resists = dict.fromkeys(base_resists, resist_range(level))
+    return {
+        "effective_hp": balanced_hp(int(cast("int", r.get("BaseHP") or 0)), level, constants),
+        "effective_ac": armor_class(
+            level,
+            int(cast("int", r.get("HardSetAC") or 0)),
+            class_mitigation(mitigations, cast("str | None", r.get("ClassResourceName"))),
+            test_dummy_hand_set_ac=cast("int | None", r.get("TestDummyHandSetAC")),
+        ),
+        "effective_base_atk_dmg": spawn_attack(
+            base_attack,
+            level,
+            level,
+            stats_starts_first=bool(r.get("StatsStartsBeforeNPC")),
+            floors_at_level=not r.get("HandSetResistances"),
+            damage_balance_factor=constants.damage_balance_factor,
+        ),
+        "effective_attack_ability": attack_ability(level, float(cast("float", r.get("ArmorPenMult") or 0.0))),
+        **_resist_columns(resists),
+    }
 
 
 @dataclass(frozen=True)
@@ -824,6 +901,8 @@ def process_characters(
     # ------------------------------------------------------------------
     # Step 4: Build _CharData objects
     # ------------------------------------------------------------------
+    constants = load_spawn_constants(writer.conn)
+    mitigations = load_class_mitigations(writer.conn)
     char_data: list[_CharData] = []
     for c in chars:
         sk = c.stable_key
@@ -846,6 +925,7 @@ def process_characters(
                 vendor_item_keys=vendor_items.get(sk, frozenset()),
                 quest_manager_quest_keys=qm_quests.get(sk, frozenset()),
                 dialog_quest_keys=dialog_quest_by_char.get(sk, frozenset()),
+                effective=_effective_stats(c.raw, constants, mitigations),
             )
         )
 
@@ -885,25 +965,6 @@ def process_characters(
     # ------------------------------------------------------------------
     # Step 6: Write characters
     # ------------------------------------------------------------------
-
-    constants = load_spawn_constants(writer.conn)
-
-    def _effective_base_attack(r: dict[str, object]) -> int:
-        """Base attack after NPC.Start and Stats.Start, at the prefab's level."""
-        if not r.get("HasStats"):
-            return 0
-        base_attack = int(cast("int", r.get("BaseAtkDmg") or 0))
-        if not r.get("IsNPC"):
-            return base_attack
-        level = int(cast("int", r["Level"]))
-        return spawn_attack(
-            base_attack,
-            level,
-            level,
-            stats_starts_first=bool(r.get("StatsStartsBeforeNPC")),
-            floors_at_level=not r.get("HandSetResistances"),
-            damage_balance_factor=constants.damage_balance_factor,
-        )
 
     def _char_row(d: _CharData) -> dict[str, object]:
         r = d.char.raw
@@ -983,18 +1044,7 @@ def process_characters(
             "base_attack_roll_modifier": r.get("BaseAttackRollModifier"),
             "cannot_be_snared": r.get("CannotBeSnared"),
             "class_resource_name": r.get("ClassResourceName"),
-            "effective_hp": r.get("EffectiveHP"),
-            "effective_ac": r.get("EffectiveAC"),
-            "effective_base_atk_dmg": _effective_base_attack(r),
-            "effective_attack_ability": r.get("EffectiveAttackAbility"),
-            "effective_min_mr": r.get("EffectiveMinMR"),
-            "effective_max_mr": r.get("EffectiveMaxMR"),
-            "effective_min_er": r.get("EffectiveMinER"),
-            "effective_max_er": r.get("EffectiveMaxER"),
-            "effective_min_pr": r.get("EffectiveMinPR"),
-            "effective_max_pr": r.get("EffectiveMaxPR"),
-            "effective_min_vr": r.get("EffectiveMinVR"),
-            "effective_max_vr": r.get("EffectiveMaxVR"),
+            **d.effective,
             "pet_spell_stable_key": r.get("PetSpellStableKey"),
             "spawn_with_status_stable_key": r.get("SpawnWithStatusStableKey"),
             "group_hot_spell_stable_key": r.get("GroupHotSpellStableKey"),

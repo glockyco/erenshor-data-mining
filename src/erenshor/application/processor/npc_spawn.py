@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     import sqlite3
+    from collections.abc import Mapping
 
 # code-fact: npc.ac_per_level
 AC_PER_LEVEL = 15
@@ -132,17 +133,44 @@ def resist_range(level: int) -> tuple[int, int]:
     )
 
 
-def armor_class(level: int, hard_set_ac: int, mitigation_bonus: float) -> int:
-    """NPC AC from ``Stats.CalcStats`` without status effects."""
+def armor_class(
+    level: int, hard_set_ac: int, mitigation_bonus: float, test_dummy_hand_set_ac: int | None = None
+) -> int:
+    """NPC AC from ``Stats.CalcStats`` without status effects.
+
+    A training dummy with a hand-set AC overwrites the computed AC with it,
+    after the class mitigation.
+    """
+    # code-fact: npc.test_dummy_ac
+    if test_dummy_hand_set_ac:
+        return test_dummy_hand_set_ac
     base = hard_set_ac if hard_set_ac != 0 else level * AC_PER_LEVEL
     # code-fact: npc.ac_class_mitigation
     return scale(base, mitigation_bonus)
 
 
-def class_mitigation(conn: sqlite3.Connection, class_resource_name: str | None) -> float:
+def attack_ability(level: int, armor_pen_mult: float) -> float:
+    """NPC AttackAbility from ``Stats.CalcStats``, in the game's single precision."""
+    # code-fact: npc.attack_ability
+    ability = f32(float(100 + (level - 1) * 40))
+    if level >= 20:
+        progress = min(max(f32(f32(float(level) - 20.0) / 20.0), 0.0), 1.0)
+        cubic = f32(f32(f32(2.0 * progress) * progress) * progress)
+        smooth = f32(f32(f32(3.0 * progress) * progress) - cubic)
+        ability = f32(ability + f32(ability * f32(f32(0.33) * smooth)))
+    return f32(ability * f32(armor_pen_mult))
+
+
+def load_class_mitigations(conn: sqlite3.Connection) -> dict[str, float]:
+    """The MitigationBonus of each class, by its asset name."""
+    return {
+        str(name): float(bonus) for name, bonus in conn.execute("SELECT resource_name, mitigation_bonus FROM classes")
+    }
+
+
+def class_mitigation(mitigations: Mapping[str, float], class_resource_name: str | None) -> float:
     """MitigationBonus of a character's class, or of the default class when it has none."""
     name = class_resource_name or DEFAULT_CLASS_RESOURCE_NAME
-    row = conn.execute("SELECT mitigation_bonus FROM classes WHERE resource_name = ?", (name,)).fetchone()
-    if row is None:
+    if name not in mitigations:
         raise ValueError(f"the clean classes table has no class {name!r}")
-    return float(row[0])
+    return mitigations[name]

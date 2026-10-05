@@ -92,18 +92,9 @@ public class CharacterRecord
     // then uses EffectDB.DefaultClass.
     public string? ClassResourceName { get; set; }
 
-    // Calculated/Effective Stats for NPCs
-    public int EffectiveHP { get; set; }
-    public int EffectiveAC { get; set; }
-    public float EffectiveAttackAbility { get; set; }
-    public int EffectiveMinMR { get; set; }
-    public int EffectiveMaxMR { get; set; }
-    public int EffectiveMinER { get; set; }
-    public int EffectiveMaxER { get; set; }
-    public int EffectiveMinPR { get; set; }
-    public int EffectiveMaxPR { get; set; }
-    public int EffectiveMinVR { get; set; }
-    public int EffectiveMaxVR { get; set; }
+    // TestDummy.HandSetAC, or null without a TestDummy component. The clean
+    // build computes every effective stat from these facts.
+    public int? TestDummyHandSetAC { get; set; }
 
     // NPC properties
     // Spells and skills are stored in junction tables:

@@ -623,7 +623,7 @@
         "kind": "BlockStatement",
         "shape": "{ MyStats.BaseHP = Mathf.RoundToInt ((float)MyStats.BaseHP * GameData.ServerHPMod); MyStats.BaseHP = Mathf.RoundToInt ((float)MyStats.BaseHP * GameData.HPScale); if (MyStats.Level <= 36 && MyStats.Level > 7) { MyStats.BaseHP = Mathf.RoundToInt ((float)MyStats.BaseHP * GameData.Under35HPScale); } else if (MyStats.Level <= 7) { MyStats.BaseHP = Mathf.RoundToInt ((float)MyStats.BaseHP * GameData.Under8HPScale); } if (MyStats.BaseHP <= 0) { MyStats.BaseHP = 1; } MyStats.CurrentMaxHP = MyStats.BaseHP; MyStats.CurrentHP = MyStats.CurrentMaxHP; }"
       },
-      "note": "NPC base HP is scaled by ServerHPMod and HPScale, then by Under35HPScale at levels 8-36 or Under8HPScale up to level 7. Re-implemented by CharacterListener.CalculateNpcEffectiveHP and balanced_hp in src/erenshor/application/processor/npc_spawn.py."
+      "note": "NPC base HP is scaled by ServerHPMod and HPScale, then by Under35HPScale at levels 8-36 or Under8HPScale up to level 7. Re-implemented by balanced_hp in src/erenshor/application/processor/npc_spawn.py."
     },
     {
       "id": "npc.base_resists",
@@ -635,7 +635,7 @@
         "kind": "ReturnStatement",
         "shape": "return Mathf.RoundToInt ((float)Level * UnityEngine.Random.Range (0.5f, 1.2f));"
       },
-      "note": "An NPC without hand-set resistances rolls each resist as level x 0.5 to 1.2. Re-implemented by CharacterListener (EffectiveMin/MaxMR) and resist_range in src/erenshor/application/processor/npc_spawn.py."
+      "note": "An NPC without hand-set resistances rolls each resist as level x 0.5 to 1.2. Re-implemented by resist_range in src/erenshor/application/processor/npc_spawn.py."
     },
     {
       "id": "npc.ac_per_level",
@@ -647,7 +647,7 @@
         "kind": "IfElseStatement",
         "shape": "if (Myself.MyNPC.HardSetAC == 0) { CurrentAC = Level * 15 + seAC; } else { CurrentAC = Myself.MyNPC.HardSetAC + seAC; }"
       },
-      "note": "An NPC without hand-set AC has AC 15 x level. Re-implemented by CharacterListener (EffectiveAC) and armor_class in src/erenshor/application/processor/npc_spawn.py."
+      "note": "An NPC without hand-set AC has AC 15 x level. Re-implemented by armor_class in src/erenshor/application/processor/npc_spawn.py."
     },
     {
       "id": "player.level_cap",
@@ -693,7 +693,7 @@
       "args": {
         "statement": "CurrentAC = Mathf.RoundToInt ((float)CurrentAC * CharacterClass.MitigationBonus);"
       },
-      "note": "NPC AC is multiplied by the MitigationBonus of the character's class. Re-implemented by armor_class in src/erenshor/application/processor/npc_spawn.py and by CharacterListener (EffectiveAC)."
+      "note": "NPC AC is multiplied by the MitigationBonus of the character's class. Re-implemented by armor_class in src/erenshor/application/processor/npc_spawn.py."
     },
     {
       "id": "treasure.chest_durability_start",
@@ -846,6 +846,30 @@
         "shape": "if (num == -6 && TargetChar != null && TargetChar.isNPC && TargetChar.MyNPC.MyChestEvent != null) { TargetChar.MyNPC.MyChestEvent.SpawnGuardians (GameData.PlayerStats.Level); Object.Destroy (base.gameObject); return; }"
       },
       "note": "A wand bolt or arrow that hits a treasure chest calls SpawnGuardians with the player's level. Stated by wiki/modules/Erenshor/TreasureGuardian.lua."
+    },
+    {
+      "id": "npc.attack_ability",
+      "mode": "assert",
+      "type": "Stats",
+      "method": "CalcStats",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if ((Myself != null && !Myself.isNPC) || GetComponent<SimPlayer> () != null) { AttackAbility = (float)Level * 10f + (float)CurrentDex * 1.5f + (float)CurrentDex * ((float)DexScaleMod / 10f); } else { float num9 = 100 + (Level - 1) * 40; if (Level >= 20) { float num10 = Mathf.Clamp01 (((float)Level - 20f) / 20f); float num11 = 3f * num10 * num10 - 2f * num10 * num10 * num10; float num12 = 0.33f * num11; num9 += num9 * num12; } num9 = ((!(Myself.MyNPC != null)) ? (num9 * GetComponent<NPC> ().ArmorPenMult) : (num9 * Myself.MyNPC.ArmorPenMult)); AttackAbility = num9; }"
+      },
+      "note": "An NPC's AttackAbility is 100 + 40 per level above 1, raised by up to 33% on a smoothstep from level 20 to 40, times ArmorPenMult. Re-implemented by attack_ability in src/erenshor/application/processor/npc_spawn.py."
+    },
+    {
+      "id": "npc.test_dummy_ac",
+      "mode": "assert",
+      "type": "TestDummy",
+      "method": "Start",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (HandSetAC != 0) { MyStats.BaseAC = HandSetAC; MyStats.CurrentAC = HandSetAC; }"
+      },
+      "note": "A training dummy with a hand-set AC overwrites its computed AC with it. Re-implemented by armor_class in src/erenshor/application/processor/npc_spawn.py."
     }
   ]
 }
