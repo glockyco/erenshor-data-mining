@@ -366,8 +366,10 @@ def process_items(
     )
     writer.insert_crafting_recipes(recipe_rows)
 
-    # CraftingRewards
-    reward_rows = _rows(raw, "SELECT * FROM CraftingRewards")
+    # CraftingRewards. The forge awards only the first reward of a template
+    # (Smithing.DoSuccess), so a later reward slot is no crafting result.
+    # code-fact: smithing.awards_first_template_reward
+    reward_rows = _rows(raw, "SELECT * FROM CraftingRewards WHERE RewardSlot = 1")
     reward_rows = _filter_junction(reward_rows, "RecipeItemStableKey", valid)
     reward_rows = _rename_cols(
         reward_rows,

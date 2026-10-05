@@ -100,8 +100,12 @@ def test_process_items_loads_player_gates_and_writes_flags(tmp_path):
             ("item:zero", "Zero", "ZERO", 0, 5, 0, "Head"),
         ],
     )
-    for table in ("ItemStats", "ItemClasses", "CraftingRecipes", "CraftingRewards", "ItemDrops"):
+    for table in ("ItemStats", "ItemClasses", "CraftingRecipes", "ItemDrops"):
         raw.execute(f"CREATE TABLE {table} (placeholder TEXT)")
+    raw.execute(
+        "CREATE TABLE CraftingRewards ("
+        "RecipeItemStableKey TEXT, RewardSlot INTEGER, RewardItemStableKey TEXT, RewardQuantity INTEGER)"
+    )
 
     writer = Writer(tmp_path / "test.sqlite")
     writer.create_schema()

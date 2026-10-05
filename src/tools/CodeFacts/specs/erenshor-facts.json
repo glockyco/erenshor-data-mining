@@ -232,6 +232,17 @@
       ]
     },
     {
+      "id": "smithing.awards_first_template_reward",
+      "mode": "assert",
+      "type": "Smithing",
+      "method": "DoSuccess",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "Components [0].MyItem = Template.MyItem.TemplateRewards [0];"
+      },
+      "note": "The forge always awards the first reward of a template, and the fuel sets only its quality. The processor keeps only reward slot 1 as a crafting result."
+    },
+    {
       "id": "auction.updateah_gates",
       "mode": "extract",
       "type": "AuctionHouse",
