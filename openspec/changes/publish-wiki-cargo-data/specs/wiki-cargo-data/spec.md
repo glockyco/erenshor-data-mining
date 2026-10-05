@@ -23,6 +23,11 @@ For each table, the rows that the pipeline generates SHALL equal the rows that t
 - **WHEN** the tables are verified on the current main build
 - **THEN** the item sources hold a world drop row for Crystallized Balance at 0.05% per kill above level 30
 
+#### Scenario: A template with two rewards
+
+- **WHEN** a crafting template lists a second reward that the forge never awards
+- **THEN** the item sources hold no crafting row for that second reward
+
 ### Requirement: Generated rows do not depend on articles
 
 Generated rows SHALL be stored only by bot-owned storage pages. No article SHALL store a generated row. Each storage page SHALL state that it is generated and SHALL link the documentation hub.
@@ -48,7 +53,7 @@ Each table SHALL have one declaration, generated from the schema together with i
 
 ### Requirement: Values are plain data and keys resolve
 
-Stored values SHALL hold no wiki markup. A column whose value is an entity's stable key SHALL end in `Key`, and every such value SHALL match a row of `Entities`, which holds the kind, name, page, and image of each entity. Generation SHALL fail on a value that breaks either rule and name its table, row, and column.
+Stored values SHALL hold no wiki markup. A column whose value is an entity's stable key SHALL end in `Key`, and every such value SHALL match a row of `Entities`, which holds the kind, name, page, image, and lifecycle state of each entity. Generation SHALL fail on a value that breaks either rule and name its table, row, and column.
 
 #### Scenario: A link in a value
 
@@ -59,6 +64,16 @@ Stored values SHALL hold no wiki markup. A column whose value is an entity's sta
 
 - **WHEN** an editor joins `Spawns.CharacterKey` to `Entities.StableKey`
 - **THEN** every spawn row has a character name and, when the character has an article, its page
+
+### Requirement: Entities carry their lifecycle state
+
+`Entities` SHALL hold, for each entity whose stable key `content-lifecycle.json` records, its state: `removed`, `unobtainable`, or `unused`. It SHALL hold no state for any other entity.
+
+#### Scenario: An unobtainable item
+
+- **WHEN** the facts file records `Pristine Ceremonial Ring` as unobtainable
+- **THEN** its `Entities` row holds the state `unobtainable`
+- **AND** a query can leave the item out of a list of items that players can get
 
 ### Requirement: Editors can add rows
 

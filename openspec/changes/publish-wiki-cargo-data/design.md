@@ -8,7 +8,8 @@ See `proposal.md`. The facts that shape the approach, checked on 2026-10-03:
 - The WoWMuch account holds `recreatecargodata`, but neither BotPassword session does. The live grant list offers `cargoadmin` (create and delete Cargo data) and `cargobasic` (queries).
 - Players learn spells and skills only by using an item that teaches them (`ItemIcon.KnownSpells.Add` and `KnownSkills.Add`). 63 class-flagged spells have no teaching item. They include aura and consumable effects and spells without a required level.
 - A vendor sells at `round(ItemValue)` (`GameData.CurSellVal`) and adds the `UnlockItemForVendor` item of each completed quest in `QuestRewardsForSale`, which the export holds as `character_vendor_quest_unlocks` and `quest_variants.unlock_item_for_vendor_stable_key`. Selling with the sell button pays `round(ItemValue × 0.65) + 1` gold but logs the amount without the extra 1. Selling a stack pays `round(ItemValue × 0.65)` per item.
-- `loot_drops` holds 345 rows for the placeholder `A Common World Drop`, which is not an item. Three event spawns of `FernallaPortalEvent` have no zone. `RareNPCChance` above 100 means the rare spawn always wins, and the clean `spawn_chance` already accounts for it.
+- `loot_drops` holds 345 rows for the placeholder `A Common World Drop`, which is not an item. Three spawn rows of `FernallaPortalEvent` have no zone: they come from `EVENTSPAWNER.prefab`, an asset that nothing places, while the two spawners in `FernallaPortal.unity` produce zoned rows for the same characters. `RareNPCChance` above 100 means the rare spawn always wins, and the clean `spawn_chance` already accounts for it.
+- The forge always awards the first reward of a template (`Smithing.cs` `DoSuccess` uses `TemplateRewards[0]`), and the fuel sets only the quality. Three templates list a second reward that no player can craft.
 
 ## Goals / Non-Goals
 
@@ -46,7 +47,7 @@ Columns that hold an entity's stable key end in `Key`. Chances are percentages f
 
 | Table | One row per | Main columns | Source |
 |---|---|---|---|
-| `Entities` | item, character, spell, skill, stance, zone, quest, faction, or class | StableKey, Kind, Name, Page, Image | the clean entity tables, with the link catalog's naming rules |
+| `Entities` | item, character, spell, skill, stance, zone, quest, faction, or class | StableKey, Kind, Name, Page, Image, Lifecycle | the clean entity tables, with the link catalog's naming rules, and `content-lifecycle.json` |
 | `Items` | item | ItemType, Slot, WeaponType, Level, BuyValue, SellValue, flags | `items` |
 | `ItemStats` | item and quality | Quality, damage, delay, armor, attributes, resists | `item_stats` |
 | `ItemClasses` | item and class | ItemKey, ClassKey | `item_classes` |
@@ -70,9 +71,11 @@ Columns that hold an entity's stable key end in `Key`. Chances are percentages f
 Rules from the export audit:
 
 - Loot chances are the pipeline's chance per kill at the default loot rate. The drop flags carry the game's conditions: guaranteed drops, unique items that do not drop while the player holds one, and worn items. The `A Common World Drop` placeholder rows are not items. The hub describes the common world drop instead.
-- `SellValue` states the gold for selling one item. Its exact rule follows the in-game check of task 2.4.
+- `SellValue` states the gold for selling one item. Its exact rule follows the in-game check of task 2.3.
 - A class abilities list shows only abilities that an item teaches, because players learn abilities no other way. `AbilityClasses` still holds every class flag of the game.
-- The three event spawns without a zone are resolved in the clean build or published without a zone, never dropped.
+- The three zone-less event spawns come from an unplaced prefab asset and are dropped in the clean build (task 2.1). Every published spawn row has a zone.
+- A crafting source is only the first reward of a template, because the forge awards no other. The clean build applies this rule (`adopt-data-backed-wiki` task 5.21), and `ItemSources` reads it from there.
+- `Lifecycle` holds `removed`, `unobtainable`, or `unused` for each entity whose stable key `content-lifecycle.json` records, and is empty otherwise. Query templates use it to leave such entities out of lists or to mark them.
 
 ### D5. Query templates are Lua over Cargo
 

@@ -1,17 +1,18 @@
 ## 1. Prerequisites
 
 - [x] 1.1 The `cargoadmin` grant is enabled for the `WoWMuch@InterfaceDeploy` bot password at Special:BotPasswords. Verify: the interface session's rights include `recreatecargodata`. Done on 2026-10-03: the session holds `recreatecargodata` and `deletecargodata`.
-- [ ] 1.2 `refresh-wiki-articles` is archived, so the guarded writes and the drift check exist. Verify: `openspec list` no longer shows it as active.
+- [x] 1.2 `refresh-wiki-articles` is archived, so the guarded writes and the drift check exist. Verify: `openspec list` no longer shows it as active.
+  - Done on 2026-10-04: the change is archived as `openspec/changes/archive/2026-10-04-refresh-wiki-articles`.
 
 ## 2. Data rules
 
-- [ ] 2.1 `fix(pipeline): place the Fernalla portal event spawns in their zone`: give the three `FernallaPortalEvent` spawn rows the zone of the event, or publish them as zone-less rows with a reason. Add a test. Verify: no wiki-visible spawn row lacks a zone without a reason.
+- [ ] 2.1 `fix(pipeline): drop the spawn rows of the unplaced Fernalla event spawner`: the three zone-less `FernallaPortalEvent` rows come from `Resources/npcs/fernallanportal/EVENTSPAWNER.prefab`, which no scene, prefab, or asset refers to. The spawners that `FernallaPortal.unity` places already produce zoned rows for the same three characters. Exclude spawn rows of an event script that sits on an unplaced prefab asset, and add a test. Verify: no wiki-visible spawn row lacks a zone, and the Nightmarian Arcanist, Hound, and Knight keep their rows in Fernalla's Portal.
 - [ ] 2.2 Confirm in game with HotRepl (`uv run erenshor eval`) that a newly created character of each class knows no spell or skill until it uses a teaching item. Record the result in design D4. This decides that class lists come from teaching items.
 - [ ] 2.3 Confirm in game with HotRepl the gold received for selling one item with the sell button and for selling a stack. Record the rule in design D4 and in the `SellValue` documentation.
 
 ## 3. Schema and commands (one commit each)
 
-- [ ] 3.1 `feat(wiki): define the Cargo schema and its generation`: add `src/erenshor/application/wiki_cargo/` with the schema model, the D1 checks, the D2 escaper, the D3 sharding and page rendering, and the `Entities` and `Spawns` builders. Add tests for each failure rule, for escaping, and for stable shard assignment. Verify: the tests pass, and the generated `Spawns` rows equal the wiki-visible spawn rows of the clean database.
+- [ ] 3.1 `feat(wiki): define the Cargo schema and its generation`: add `src/erenshor/application/wiki_cargo/` with the schema model, the D1 checks, the D2 escaper, the D3 sharding and page rendering, and the `Entities` and `Spawns` builders. `Entities` reads its `Lifecycle` column from `content-lifecycle.json`. Add tests for each failure rule, for escaping, for stable shard assignment, and for a lifecycle state. Verify: the tests pass, the generated `Spawns` rows equal the wiki-visible spawn rows of the clean database, and `Entities` gives `Pristine Ceremonial Ring` the state `unobtainable`.
 - [ ] 3.2 `feat(wiki): add the wiki cargo commands`: add `generate`, `deploy`, `verify`, and `create-tables` (design D6), the manifest stages, and the preconditions. Add tests with a fake wiki: a missing grant fails before any change, `verify` names a differing row, `deploy` saves only changed pages and stops while a table is missing, and drift stops the deploy. Verify: the tests pass and `uv run erenshor wiki cargo --help` lists the four commands.
 - [ ] 3.3 `test(wiki-dev): check the Cargo slice in the local stack`: import the generated table templates and storage pages into `wiki-dev`, recreate the tables, and check the row counts and sample rows against the schema. Verify: `uv run erenshor test wiki --warm` passes.
 
@@ -25,7 +26,7 @@
 - [ ] 5.1 `feat(wiki): publish items to Cargo`: `Items`, `ItemStats`, `ItemClasses`, and `ItemEffects`. Verify: every equippable item has a stats row for each quality of `item_stats`.
 - [ ] 5.2 `feat(wiki): publish characters to Cargo`: `Characters`, `CharacterAbilities`, `CharacterFactionEffects`, and `Factions`. Verify: row counts equal their source tables.
 - [ ] 5.3 `feat(wiki): publish abilities to Cargo`: `Spells`, `Skills`, `Stances`, and `AbilityClasses`. Verify: every class ability with a teaching item resolves to that item through `ItemEffects`.
-- [ ] 5.4 `feat(wiki): publish item sources and uses to Cargo`: `ItemSources` and `ItemUses` with every source type of design D4. Verify: Breena Carpenter has 7 base items and 14 quest-unlocked items, and Crystallized Balance has its world drop row.
+- [ ] 5.4 `feat(wiki): publish item sources and uses to Cargo`: `ItemSources` and `ItemUses` with every source type of design D4. This waits for task 5.21 of `adopt-data-backed-wiki`, which fixes the crafting rule in the clean database. Verify: Breena Carpenter has 7 base items and 14 quest-unlocked items, Crystallized Balance has its world drop row, and no crafting row names `Pristine Ceremonial Ring`, `Unusual Copper Sceptre`, or `Hardened Copper Sword`.
 - [ ] 5.5 `feat(wiki): publish zones and quests to Cargo`: `Zones`, `ZoneConnections`, `Quests`, `QuestRoles`, `QuestPrerequisites`, and `QuestFactionEffects`. Compare the hostile level ranges with the levels on the live `Zones` page and explain each difference. Verify: Secure Port Azure lists Captain Kilkay as the giver with his keyword.
 - [ ] 5.6 Review the full schema and its generated documentation with the maintainer, because a later change to a created table needs a sysop. Then deploy, create, and verify the remaining tables on live. Verify: `wiki cargo verify` reports no difference for any table.
 
