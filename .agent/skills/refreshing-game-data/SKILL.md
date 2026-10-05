@@ -39,7 +39,7 @@ If Unity reports `Unity licensing validation failed`, open Unity Hub, wait for l
 | --- | --- |
 | Sheets | Each variant has its own spreadsheet ID. Preview with `uv run erenshor -V {v} --dry-run sheets deploy --all-sheets`. Publish with `uv run erenshor -V {v} sheets deploy --all-sheets` only after approval. |
 | Wiki | `erenshor.wiki.gg` is one shared target. Review local output. Publish the shipping variant only after approval. Use `skill://wiki-templates` to select pages for `wiki deploy-repo-pages`. |
-| AdventureGuide | `uv run erenshor -V {v} guide compile` replaces the shared `quest_guides/guide.json`. Compile the shipping variant before building the mod. |
+| AdventureGuide | `uv run erenshor -V {v} guide compile` replaces the shared `quest_guides/guide.json`. `uv run erenshor -V {v} guide export-mod` replaces `quest_guides/quest-guide.json`, which the mod embeds. Run both for the shipping variant and commit both files before building the mod. |
 | Map | `uv run erenshor -V {v} maps build` reads that variant's clean database. Check with `uv run erenshor -V {v} maps preview`. After approval, deploy the shipping variant with `uv run erenshor -V {v} maps deploy` to both Workers. |
 | Tiles | Map tiles, `src/maps/src/lib/data/zone-capture-config.json`, `src/maps/src/lib/data/zone-positions.json`, and `mapping.json` are shared. Review cross-variant effects. |
 

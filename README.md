@@ -89,7 +89,7 @@ Three things the shell cannot provide:
 | `erenshor sheets deploy` | Publishes the sheet queries. |
 | `erenshor maps dev` / `build` / `preview` / `deploy` | Develops, verifies, and deploys the map. |
 | `erenshor mod build` / `deploy` / `thunderstore` | Builds, installs, and packages the mods. `-V` selects the game install, `--loader` the loader. |
-| `erenshor guide compile` | Compiles `quest_guides/guide.json` for AdventureGuide. |
+| `erenshor guide compile` / `export-mod` | Writes `quest_guides/guide.json` (dense guide data) and `quest_guides/quest-guide.json` (the file AdventureGuide embeds). |
 | `erenshor eval run '<C#>'` | Evaluates code in the running game through HotRepl. |
 | `erenshor capture run` | Captures map tiles through MapTileCapture. |
 
