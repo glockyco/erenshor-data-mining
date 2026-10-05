@@ -536,8 +536,11 @@ public class CharacterListener : IAssetScanListener<Character>
         }
         else
         {
+            // The local file ID of the object in its scene file stays the same
+            // between Unity sessions, unlike GetInstanceID.
             var sceneName = character.gameObject.scene.name;
-            guid = $"scene:{sceneName}:{character.gameObject.GetInstanceID()}";
+            var fileId = GlobalObjectId.GetGlobalObjectIdSlow(character.gameObject).targetObjectId;
+            guid = $"scene:{sceneName}:{fileId}";
         }
 
         var record = new CharacterRecord
