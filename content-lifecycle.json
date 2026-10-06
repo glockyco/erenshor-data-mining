@@ -152,6 +152,60 @@
       "date": null,
       "patch_notes_url": null,
       "source": "No scene, prefab, asset, or spawn table refers to the prefab, and a scan of the live game found no reference to it. No spell summons it. Simulated-player chat says that summoned elder dryad is in Duskenlight."
+    },
+    "Hidden Hills Receptacle": {
+      "stable_key": "character:receptacle-hidden:reliquary:291.14:1.06:328.61",
+      "state": "unused",
+      "thing": "character",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "The Reliquary scene places it inactive, and no component of the scene and no game script turns it on. In game on 2026-10-06, with all six runes in the planning table and the planning desk built, it stayed inactive."
+    },
+    "Ripparian Receptacle": {
+      "stable_key": "character:receptacle-ripper:reliquary:258.39:1.06:328.61",
+      "state": "unused",
+      "thing": "character",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "The Reliquary scene places it inactive, and no component of the scene and no game script turns it on. In game on 2026-10-06, with all six runes in the planning table and the planning desk built, it stayed inactive."
+    },
+    "Braxonian Receptacle": {
+      "stable_key": "character:receptacle-sand:reliquary:291.14:1.06:367.86",
+      "state": "unused",
+      "thing": "character",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "The Reliquary scene places it inactive, and no component of the scene and no game script turns it on. In game on 2026-10-06, with all six runes in the planning table and the planning desk built, it stayed inactive."
+    },
+    "Silkengrass Receptacle": {
+      "stable_key": "character:receptacle-silken:reliquary:291.14:1.06:348.36",
+      "state": "unused",
+      "thing": "character",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "The Reliquary scene places it inactive, and no component of the scene and no game script turns it on. In game on 2026-10-06, with all six runes in the planning table and the planning desk built, it stayed inactive."
+    },
+    "Solunarian Receptacle": {
+      "stable_key": "character:receptacle-soluna:reliquary:258.39:1.06:367.86",
+      "state": "unused",
+      "thing": "character",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "The Reliquary scene places it inactive, and no component of the scene and no game script turns it on. In game on 2026-10-06, with all six runes in the planning table and the planning desk built, it stayed inactive."
+    },
+    "Windwashed Receptacle": {
+      "stable_key": "character:receptacle-wind:reliquary:258.39:1.06:348.36",
+      "state": "unused",
+      "thing": "character",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "The Reliquary scene places it inactive, and no component of the scene and no game script turns it on. In game on 2026-10-06, with all six runes in the planning table and the planning desk built, it stayed inactive."
     }
   },
   "renames": {

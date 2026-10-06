@@ -4536,6 +4536,60 @@
       "is_wiki_generated": 0,
       "is_map_visible": 0,
       "reason": "Invulnerable stand-in that watches the arena rounds and never interacts with the player. VitheoFight destroys it when the final fight starts (ObserverSpawn), and VithArena spawns the Vitheo that players fight."
+    },
+    "character:receptacle-hidden:reliquary:291.14:1.06:328.61": {
+      "wiki_page_name": null,
+      "display_name": "Hidden Hills Receptacle",
+      "image_name": "Hidden Hills Receptacle",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "exclude",
+      "reason": "Placed in the Reliquary but inactive at load, and nothing in the scene or the game code turns it on. The rune portals of the planning table hold only zone lines. In game on 2026-10-06, with all six runes placed and the planning desk built, every rune receptacle stayed inactive."
+    },
+    "character:receptacle-ripper:reliquary:258.39:1.06:328.61": {
+      "wiki_page_name": null,
+      "display_name": "Ripparian Receptacle",
+      "image_name": "Ripparian Receptacle",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "exclude",
+      "reason": "Placed in the Reliquary but inactive at load, and nothing in the scene or the game code turns it on. The rune portals of the planning table hold only zone lines. In game on 2026-10-06, with all six runes placed and the planning desk built, every rune receptacle stayed inactive."
+    },
+    "character:receptacle-sand:reliquary:291.14:1.06:367.86": {
+      "wiki_page_name": null,
+      "display_name": "Braxonian Receptacle",
+      "image_name": "Braxonian Receptacle",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "exclude",
+      "reason": "Placed in the Reliquary but inactive at load, and nothing in the scene or the game code turns it on. The rune portals of the planning table hold only zone lines. In game on 2026-10-06, with all six runes placed and the planning desk built, every rune receptacle stayed inactive."
+    },
+    "character:receptacle-silken:reliquary:291.14:1.06:348.36": {
+      "wiki_page_name": null,
+      "display_name": "Silkengrass Receptacle",
+      "image_name": "Silkengrass Receptacle",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "exclude",
+      "reason": "Placed in the Reliquary but inactive at load, and nothing in the scene or the game code turns it on. The rune portals of the planning table hold only zone lines. In game on 2026-10-06, with all six runes placed and the planning desk built, every rune receptacle stayed inactive."
+    },
+    "character:receptacle-soluna:reliquary:258.39:1.06:367.86": {
+      "wiki_page_name": null,
+      "display_name": "Solunarian Receptacle",
+      "image_name": "Solunarian Receptacle",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "exclude",
+      "reason": "Placed in the Reliquary but inactive at load, and nothing in the scene or the game code turns it on. The rune portals of the planning table hold only zone lines. In game on 2026-10-06, with all six runes placed and the planning desk built, every rune receptacle stayed inactive."
+    },
+    "character:receptacle-wind:reliquary:258.39:1.06:348.36": {
+      "wiki_page_name": null,
+      "display_name": "Windwashed Receptacle",
+      "image_name": "Windwashed Receptacle",
+      "is_wiki_generated": 0,
+      "is_map_visible": 0,
+      "mapping_type": "exclude",
+      "reason": "Placed in the Reliquary but inactive at load, and nothing in the scene or the game code turns it on. The rune portals of the planning table hold only zone lines. In game on 2026-10-06, with all six runes placed and the planning desk built, every rune receptacle stayed inactive."
     }
   }
 }
