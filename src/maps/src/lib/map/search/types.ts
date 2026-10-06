@@ -49,7 +49,7 @@ export type ItemSearchResult = {
     type: 'item';
     itemStableKey: string;
     itemName: string;
-    iconName: string | null;
+    iconHash: string | null;
     wikiPageName: string | null;
     sourceCounts: ItemSourceCounts;
     zoneCount: number; // unique zones containing any source location

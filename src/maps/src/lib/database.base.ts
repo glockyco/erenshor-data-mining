@@ -1193,7 +1193,7 @@ export class RepositoryBase {
                 stable_key     AS itemStableKey,
                 display_name   AS displayName,
                 wiki_page_name AS wikiPageName,
-                item_icon_name AS iconName
+                image_hash     AS iconHash
             FROM items
             WHERE wiki_page_name IS NOT NULL
               AND TRIM(wiki_page_name) != ''
@@ -1207,7 +1207,7 @@ export class RepositoryBase {
                 itemStableKey: row.itemStableKey as string,
                 displayName: row.displayName as string,
                 wikiPageName: row.wikiPageName as string,
-                iconName: (row.iconName as string) ?? null
+                iconHash: (row.iconHash as string) ?? null
             });
         }
         stmt.free();
@@ -1229,7 +1229,7 @@ export class RepositoryBase {
                     i.stable_key        AS itemStableKey,
                     i.display_name      AS displayName,
                     i.wiki_page_name    AS wikiPageName,
-                    i.item_icon_name    AS iconName,
+                    i.image_hash        AS iconHash,
                     c.stable_key        AS characterStableKey,
                     c.npc_name          AS npcName,
                     c.encounter_tier    AS encounterTier,
@@ -1248,7 +1248,7 @@ export class RepositoryBase {
                     itemStableKey: row.itemStableKey as string,
                     displayName: row.displayName as string,
                     wikiPageName: (row.wikiPageName as string) ?? null,
-                    iconName: (row.iconName as string) ?? null,
+                    iconHash: (row.iconHash as string) ?? null,
                     characterStableKey: row.characterStableKey as string,
                     npcName: (row.npcName as string) ?? '',
                     encounterTier: row.encounterTier as EncounterTier,
@@ -1264,7 +1264,7 @@ export class RepositoryBase {
                     i.stable_key        AS itemStableKey,
                     i.display_name      AS displayName,
                     i.wiki_page_name    AS wikiPageName,
-                    i.item_icon_name    AS iconName,
+                    i.image_hash        AS iconHash,
                     c.stable_key        AS characterStableKey,
                     c.npc_name          AS npcName,
                     i.item_value        AS price
@@ -1277,7 +1277,7 @@ export class RepositoryBase {
                     i.stable_key        AS itemStableKey,
                     i.display_name      AS displayName,
                     i.wiki_page_name    AS wikiPageName,
-                    i.item_icon_name    AS iconName,
+                    i.image_hash        AS iconHash,
                     c.stable_key        AS characterStableKey,
                     c.npc_name          AS npcName,
                     i.item_value        AS price
@@ -1296,7 +1296,7 @@ export class RepositoryBase {
                     itemStableKey: row.itemStableKey as string,
                     displayName: row.displayName as string,
                     wikiPageName: (row.wikiPageName as string) ?? null,
-                    iconName: (row.iconName as string) ?? null,
+                    iconHash: (row.iconHash as string) ?? null,
                     characterStableKey: row.characterStableKey as string,
                     npcName: (row.npcName as string) ?? '',
                     price: (row.price as number) ?? 0
@@ -1311,7 +1311,7 @@ export class RepositoryBase {
                     i.stable_key             AS itemStableKey,
                     i.display_name           AS displayName,
                     i.wiki_page_name        AS wikiPageName,
-                    i.item_icon_name        AS iconName,
+                    i.image_hash            AS iconHash,
                     mi.mining_node_stable_key AS nodeStableKey,
                     mi.drop_chance           AS dropChance
                 FROM mining_node_items mi
@@ -1327,7 +1327,7 @@ export class RepositoryBase {
                     itemStableKey: row.itemStableKey as string,
                     displayName: row.displayName as string,
                     wikiPageName: (row.wikiPageName as string) ?? null,
-                    iconName: (row.iconName as string) ?? null,
+                    iconHash: (row.iconHash as string) ?? null,
                     nodeStableKey: row.nodeStableKey as string,
                     dropChance: (row.dropChance as number) ?? 0
                 });
@@ -1341,7 +1341,7 @@ export class RepositoryBase {
                     i.stable_key        AS itemStableKey,
                     i.display_name      AS displayName,
                     i.wiki_page_name    AS wikiPageName,
-                    i.item_icon_name    AS iconName,
+                    i.image_hash        AS iconHash,
                     wf.water_stable_key AS waterStableKey,
                     wf.type             AS fishType,
                     wf.drop_chance      AS dropChance
@@ -1358,7 +1358,7 @@ export class RepositoryBase {
                     itemStableKey: row.itemStableKey as string,
                     displayName: row.displayName as string,
                     wikiPageName: (row.wikiPageName as string) ?? null,
-                    iconName: (row.iconName as string) ?? null,
+                    iconHash: (row.iconHash as string) ?? null,
                     waterStableKey: row.waterStableKey as string,
                     period: row.fishType === 'NightFishable' ? 'night' : 'day',
                     dropChance: (row.dropChance as number) ?? 0
@@ -1373,7 +1373,7 @@ export class RepositoryBase {
                     i.stable_key        AS itemStableKey,
                     i.display_name      AS displayName,
                     i.wiki_page_name    AS wikiPageName,
-                    i.item_icon_name    AS iconName,
+                    i.image_hash        AS iconHash,
                     ib.stable_key       AS bagStableKey
                 FROM item_bags ib
                 JOIN items i ON i.stable_key = ib.item_stable_key
@@ -1388,7 +1388,7 @@ export class RepositoryBase {
                     itemStableKey: row.itemStableKey as string,
                     displayName: row.displayName as string,
                     wikiPageName: (row.wikiPageName as string) ?? null,
-                    iconName: (row.iconName as string) ?? null,
+                    iconHash: (row.iconHash as string) ?? null,
                     bagStableKey: row.bagStableKey as string
                 });
             }
@@ -1401,7 +1401,7 @@ export class RepositoryBase {
                     i.stable_key            AS itemStableKey,
                     i.display_name          AS displayName,
                     i.wiki_page_name        AS wikiPageName,
-                    i.item_icon_name        AS iconName,
+                    i.image_hash            AS iconHash,
                     swd.pool                AS pool,
                     swd.drop_probability    AS dropProbability,
                     swd.min_level_exclusive AS minLevelExclusive
@@ -1418,7 +1418,7 @@ export class RepositoryBase {
                     itemStableKey: row.itemStableKey as string,
                     displayName: row.displayName as string,
                     wikiPageName: (row.wikiPageName as string) ?? null,
-                    iconName: (row.iconName as string) ?? null,
+                    iconHash: (row.iconHash as string) ?? null,
                     pool: row.pool as string,
                     dropProbability: row.dropProbability as number,
                     minLevelExclusive: row.minLevelExclusive as number

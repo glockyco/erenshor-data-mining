@@ -21,7 +21,7 @@ CREATE TABLE items (
     stable_key TEXT PRIMARY KEY,
     display_name TEXT NOT NULL,
     wiki_page_name TEXT,
-    item_icon_name TEXT,
+    image_hash TEXT,
     item_value INTEGER NOT NULL,
     is_map_visible INTEGER NOT NULL
 );
@@ -329,7 +329,7 @@ INSERT INTO classes (class_name) VALUES ('Nightblade'), ('Paladin');
 INSERT INTO quests (stable_key) VALUES ('quest:vendor-unlock'), ('quest:fixture-secondary');
 
 INSERT INTO items (
-    stable_key, display_name, wiki_page_name, item_icon_name, item_value, is_map_visible
+    stable_key, display_name, wiki_page_name, image_hash, item_value, is_map_visible
 ) VALUES
     ('item:fixture key', 'Fixture Key', 'Fixture Key', 'fixture_key', 10, 1),
     ('item:fixture ore', 'Fixture Ore', 'Fixture Ore', 'fixture_ore', 20, 1),
@@ -344,7 +344,7 @@ INSERT INTO items (
 -- wiki page, so they stay out of item search and the searchable-item counts
 -- while still exercising the drop list.
 INSERT INTO items (
-    stable_key, display_name, wiki_page_name, item_icon_name, item_value, is_map_visible
+    stable_key, display_name, wiki_page_name, image_hash, item_value, is_map_visible
 ) VALUES
     ('item:hoard 01', 'Hoard Item 01', NULL, NULL, 1, 0),
     ('item:hoard 02', 'Hoard Item 02', NULL, NULL, 1, 0),

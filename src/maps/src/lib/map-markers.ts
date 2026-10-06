@@ -143,7 +143,7 @@ export type ItemSourceItemMeta = {
     itemStableKey: string;
     displayName: string;
     wikiPageName: string | null;
-    iconName: string | null;
+    iconHash: string | null;
 };
 
 export type ItemDropSource = ItemSourceItemMeta & {

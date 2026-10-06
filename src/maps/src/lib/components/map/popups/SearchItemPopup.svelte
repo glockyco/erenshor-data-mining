@@ -288,8 +288,8 @@
 <div class="space-y-4">
     <!-- Summary -->
     <div class="relative flex items-center justify-center">
-        {#if result.iconName}
-            <img src={`/items/${result.iconName}.w48.webp`} alt="" class="h-12 w-12" />
+        {#if result.iconHash}
+            <img src={`/items/${result.iconHash}.w48.webp`} alt="" class="h-12 w-12" />
         {/if}
         <div class="absolute right-0">
             <WikiLink pageName={result.wikiPageName} />

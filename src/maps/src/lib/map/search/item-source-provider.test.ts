@@ -99,7 +99,7 @@ function row(
         itemStableKey,
         displayName,
         wikiPageName: displayName,
-        iconName: null,
+        iconHash: null,
         characterStableKey: charStableKey,
         npcName,
         encounterTier: 'enemy',
@@ -121,7 +121,7 @@ function vendorRow(
         itemStableKey,
         displayName,
         wikiPageName: displayName,
-        iconName: null,
+        iconHash: null,
         characterStableKey: charStableKey,
         npcName,
         price,
@@ -141,7 +141,7 @@ function miningRow(
         itemStableKey,
         displayName,
         wikiPageName: displayName,
-        iconName: null,
+        iconHash: null,
         nodeStableKey,
         dropChance,
         ...opts
@@ -161,7 +161,7 @@ function fishingRow(
         itemStableKey,
         displayName,
         wikiPageName: displayName,
-        iconName: null,
+        iconHash: null,
         waterStableKey,
         period,
         dropChance,
@@ -180,7 +180,7 @@ function bagRow(
         itemStableKey,
         displayName,
         wikiPageName: displayName,
-        iconName: null,
+        iconHash: null,
         bagStableKey,
         ...opts
     };
@@ -252,7 +252,7 @@ describe('ItemSearchProvider', () => {
                 itemStableKey: 'item:quest-only',
                 displayName: 'Quest Reward',
                 wikiPageName: 'Quest Reward',
-                iconName: 'quest-reward'
+                iconHash: 'quest-reward'
             }
         ];
         const provider = new ItemSearchProvider([], [], [], [], [], allItems);
@@ -461,7 +461,7 @@ describe('ItemSearchProvider', () => {
             itemStableKey: 'item:balance',
             displayName: 'Crystallized Balance',
             wikiPageName: 'Crystallized Balance',
-            iconName: null,
+            iconHash: null,
             pool: 'CrystallizedBalance',
             dropProbability: 0.05,
             minLevelExclusive: 30
@@ -486,7 +486,7 @@ describe('ItemSearchProvider', () => {
             type: 'item',
             itemStableKey: 'item:1',
             itemName: 'Gem',
-            iconName: null,
+            iconHash: null,
             wikiPageName: null,
             sourceCounts: {
                 droppers: 1,

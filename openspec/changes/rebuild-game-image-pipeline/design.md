@@ -185,11 +185,11 @@ Alternatives considered:
 
 ### D9. The map builds icons from the catalog
 
-`erenshor maps build` writes each map-visible item's icon from its catalog picture with Pillow:
-- WebP at 20 and 48 px, fitted within the square and keeping its proportions
+`erenshor maps build` and `erenshor maps dev` write each map-visible item's icon from its catalog picture with Pillow:
+- WebP at 20 and 48 px, fitted within the square at its own proportions and centred
 - under `static/items/<pixel-hash>.w20.webp` and `.w48.webp`
 
-The clean database's `entity_images` gives the map each item's pixel hash, so the consumers address icons by hash. A changed picture gets a new URL, and an unchanged one is never rebuilt. `generate-item-icons.mjs` and its `sharp` dependency go away. Following the decision memory, this dependency removal is checked in a browser like any map change.
+The items' `image_hash` column gives the map each item's picture, so the consumers address icons by hash. A changed picture gets a new URL, an unchanged one keeps its files, and the files of pictures that no map-visible item shows any more are removed. `maps dev` builds them too, because the development server reads a rebuilt database at once and would otherwise ask for icons that do not exist yet. The build's data hash covers the icons, because their names come from the database. `generate-item-icons.mjs` goes away. `sharp` stays, because the favicon, social image, thumbnail, and transparent icon scripts use it. Following the decision memory, the map change is checked in a browser.
 
 **Owner:** the map build.
 
@@ -213,7 +213,7 @@ The clean database's `entity_images` gives the map each item's pixel hash, so th
    - the 13 corrected icons
    - zero remaining create or update verdicts in a second dry run
 6. Rebuild and deploy the map. Check its item icons in the browser.
-7. Remove the old commands, `registry.db`, `icon-background.png`, and the Node icon script. Update the `refreshing-game-data` skill, the Game Data guide, and the README.
+7. Remove the old commands, `registry.db`, and `icon-background.png`. Update the `refreshing-game-data` skill, the Game Data guide, and the README.
 8. Hand the deletion list to an administrator: the retired copies and the 86 orphans.
 
 **Rollback:** `images publish --revert <stamp>` restores every file version and moves retired files back. The repository deploy's rollback restores the templates and modules.

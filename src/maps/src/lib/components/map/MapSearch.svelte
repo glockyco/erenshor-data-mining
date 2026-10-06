@@ -417,8 +417,8 @@
                                         <Skull class="h-4 w-4 shrink-0 text-amber-500" />
                                     {:else if result.type === 'npc'}
                                         <User class="h-4 w-4 shrink-0 text-sky-500" />
-                                    {:else if result.type === 'item' && result.iconName}
-                                        <img src={`/items/${result.iconName}.w20.webp`} alt="" class="h-5 w-5 shrink-0" />
+                                    {:else if result.type === 'item' && result.iconHash}
+                                        <img src={`/items/${result.iconHash}.w20.webp`} alt="" class="h-5 w-5 shrink-0" />
                                     {:else if result.type === 'item'}
                                         <Package class="h-4 w-4 shrink-0 text-emerald-500" />
                                     {:else}
@@ -460,8 +460,8 @@
                                         <Skull class="h-4 w-4 shrink-0 text-amber-500" />
                                     {:else if result.type === 'npc'}
                                         <User class="h-4 w-4 shrink-0 text-sky-500" />
-                                    {:else if result.type === 'item' && result.iconName}
-                                        <img src={`/items/${result.iconName}.w20.webp`} alt="" class="h-5 w-5 shrink-0" />
+                                    {:else if result.type === 'item' && result.iconHash}
+                                        <img src={`/items/${result.iconHash}.w20.webp`} alt="" class="h-5 w-5 shrink-0" />
                                     {:else if result.type === 'item'}
                                         <Package class="h-4 w-4 shrink-0 text-emerald-500" />
                                     {:else}

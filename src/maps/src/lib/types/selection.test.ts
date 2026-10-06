@@ -33,7 +33,7 @@ describe('serializeSelection', () => {
                     itemStableKey: 'item:quest-only',
                     displayName: 'Quest Reward',
                     wikiPageName: 'Quest Reward',
-                    iconName: null
+                    iconHash: null
                 }
             ]
         });

@@ -16,11 +16,12 @@
   - Add tests for the scenarios of the `game-image-catalog` spec: a shifted sprite name, a missing texture, unchanged margins, a texture shared by many items, equal pixels from two textures, a determinism rebuild, an encoder-only change, provenance, a changed or repeated portrait capture, and the stance title.
   - Verify: two builds of one export write byte-identical catalog files and tables. The 35 spell scrolls of texture `8_5` share one picture, and the clean database lists every one of the 118 approved portraits.
   - Done on 2026-10-06: the build catalogues 1,273 icon pictures from 1,299 textures, because 26 pairs of textures have equal pixels, plus 111 portraits from the 118 approvals and the hotbar frame, under 2,012 wiki titles. Two builds wrote identical files and tables. 36 items share the picture of `8_5`. All 118 approved titles are listed, the six of the unused pages included. The first build stopped on two titles that named two pictures each, and `mapping.json` now gives the Vitheo artifact and the Group Regrowth effect their own image names. Generation changes only the Vitheo artifact's tooltip. `approved.json` records each approval's build and preset, so approvals of different builds coexist. Generators and the catalog share `image_file_title`.
-- [ ] 2.2 `feat(maps): build item icons from the image catalog`:
-  - `erenshor maps build` writes each map-visible item's icon from its catalog picture as WebP at 20 and 48 px, named by pixel hash, fitted within the square at its own proportions (design D9).
-  - The map's consumers address icons by the pixel hash from the clean database. Remove `src/maps/scripts/generate-item-icons.mjs` and the `sharp` dependency.
+- [x] 2.2 `feat(maps): build item icons from the image catalog`:
+  - `erenshor maps build` and `maps dev` write each map-visible item's icon from its catalog picture as WebP at 20 and 48 px, named by pixel hash, fitted within the square at its own proportions (design D9).
+  - The map's consumers address icons by the pixel hash from the clean database. Remove `src/maps/scripts/generate-item-icons.mjs`. `sharp` stays for the other image scripts.
   - Add tests for rebuilding on a changed hash and keeping files on an unchanged one.
   - Verify: the map unit and browser tests pass, and in a browser the map search shows the branch for Thorned Branch and the seed for the Willow Seeds.
+  - Done on 2026-10-06: the build wrote 1,064 icons for the 1,514 map-visible items, one per picture, and removed the 2,180 files named by texture. The 183 unit tests and 12 browser tests passed. In the preview, the search showed the seed for all five Willow Seeds and the branch for Thorned Branch, and the item popup showed the branch at 48 px. `maps dev` builds the icons too, and `sharp` stays for the other image scripts.
 
 ## 3. Draw icon frames on the wiki
 

@@ -22,6 +22,7 @@ from rich.console import Console
 from rich.panel import Panel
 
 from erenshor.application.maps import build_info
+from erenshor.application.maps.item_icons import build_item_icons
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import database_exists, database_has_items, database_valid
 from erenshor.cli.preconditions.checks.inputs import program_available, required_path
@@ -100,6 +101,17 @@ def _get_database_path(cli_ctx: CLIContext) -> Path:
     return variant_config.resolved_database(cli_ctx.repo_root)
 
 
+def _build_item_icons(cli_ctx: CLIContext, maps_dir: Path, db_path: Path) -> None:
+    """Build the item icons of the database's pictures from the variant's image catalog."""
+    images_dir = cli_ctx.config.variants[cli_ctx.variant].resolved_images_output(cli_ctx.repo_root)
+    try:
+        result = build_item_icons(db_path, images_dir, maps_dir / "static" / "items")
+    except FileNotFoundError as error:
+        console.print(f"[red]Error: {error}. Rebuild the database with `erenshor extract build`.[/red]")
+        raise typer.Exit(1) from error
+    logger.info(f"Item icons: {result.written} built, {result.kept} kept, {result.removed} removed")
+
+
 @app.command()
 @require_preconditions(
     database_exists,
@@ -120,15 +132,17 @@ def dev(
 ) -> None:
     """Start the development server on the selected variant database.
 
-    Launches the Vite development server for the interactive maps website.
-    Server loads read the database at request time, so a rebuilt database
-    shows after a page reload. Includes hot module reloading.
+    Launches the Vite development server for the interactive maps website
+    after building the item icons of the database. Server loads read the
+    database at request time, so a rebuilt database shows after a page reload.
+    Includes hot module reloading.
     """
     cli_ctx: CLIContext = ctx.obj
 
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
     maps_dir = variant_config.maps.resolved_source_dir(cli_ctx.repo_root)
     db_path = _get_database_path(cli_ctx)
+    _build_item_icons(cli_ctx, maps_dir, db_path)
 
     process: subprocess.Popen[bytes] | None = None
     previous_handlers: dict[signal.Signals, Any] = {}
@@ -339,7 +353,7 @@ def build(
 
         logger.info("Running maps prebuild steps")
         _run(["node", "scripts/generate-og-image.mjs"], maps_dir)
-        _run(["node", "scripts/generate-item-icons.mjs", cli_ctx.variant], maps_dir, env=site_env)
+        _build_item_icons(cli_ctx, maps_dir, db_path)
 
         logger.info("Running Vite build")
         _run(["pnpm", "exec", "vite", "build"], maps_dir, env=site_env)

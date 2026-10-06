@@ -55,8 +55,8 @@ def _write_project(tmp_path: Path) -> tuple[Path, Path]:
     (maps_dir / "src" / "app.ts").write_text("export const ok = true;\n")
     database_path = tmp_path / "erenshor.sqlite"
     with closing(sqlite3.connect(database_path)) as connection:
-        connection.execute("CREATE TABLE items (id INTEGER PRIMARY KEY)")
-        connection.execute("INSERT INTO items (id) VALUES (1)")
+        connection.execute("CREATE TABLE items (id INTEGER PRIMARY KEY, image_hash TEXT, is_map_visible INTEGER)")
+        connection.execute("INSERT INTO items (id, image_hash, is_map_visible) VALUES (1, NULL, 1)")
         connection.commit()
     return maps_dir, database_path
 
@@ -122,11 +122,10 @@ def test_build_runs_verify_prebuild_then_build_on_the_variant_database(tmp_path:
         ["pnpm", "run", "check"],
         ["pnpm", "run", "test"],
         ["node", "scripts/generate-og-image.mjs"],
-        ["node", "scripts/generate-item-icons.mjs", "main"],
         ["pnpm", "exec", "vite", "build"],
     ]
-    # The icon script and the site build both read the selected variant.
-    assert database_paths[-2:] == [str(database_path), str(database_path)]
+    # The site build reads the selected variant.
+    assert database_paths[-1] == str(database_path)
     assert not list((maps_dir / "static").rglob("*.sqlite"))
     expected = build_info.compute_input_hashes(maps_source_dir=maps_dir, database_path=database_path)
     assert build_info.read_build_info(maps_dir / "build") == expected
@@ -225,7 +224,6 @@ def test_build_can_reuse_completed_checks_without_repeating_them(tmp_path: Path,
     assert calls == [
         ["node", "scripts/generate-tiles-manifest.js"],
         ["node", "scripts/generate-og-image.mjs"],
-        ["node", "scripts/generate-item-icons.mjs", "main"],
         ["pnpm", "exec", "vite", "build"],
     ]
 

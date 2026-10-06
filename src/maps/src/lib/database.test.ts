@@ -136,7 +136,7 @@ describe('Repository', () => {
 			itemStableKey: 'item:furniture - enchanted smithy',
 			displayName: 'Enchanted Smithy',
 			wikiPageName: 'Enchanted Smithy',
-			iconName: 'enchanted_smithy'
+			iconHash: 'enchanted_smithy'
 		});
 
 		const sources = await db.getItemSources();

@@ -201,7 +201,7 @@ export class ItemSearchProvider implements SearchProvider {
                     type: 'item',
                     itemStableKey,
                     itemName: item.displayName,
-                    iconName: item.iconName,
+                    iconHash: item.iconHash,
                     wikiPageName: item.wikiPageName,
                     sourceCounts,
                     zoneCount: zoneSet.size,

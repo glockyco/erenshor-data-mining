@@ -11,7 +11,7 @@ function item(name: string, stableKey: string): IndexEntry {
             type: 'item',
             itemStableKey: stableKey,
             itemName: name,
-            iconName: null,
+            iconHash: null,
             wikiPageName: null,
             sourceCounts: {
                 droppers: 1,

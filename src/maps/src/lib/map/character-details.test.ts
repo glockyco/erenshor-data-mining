@@ -23,7 +23,7 @@ function drop(displayName: string, dropProbability: number): ItemDropSource {
         itemStableKey: `item:${displayName}`,
         displayName,
         wikiPageName: null,
-        iconName: null,
+        iconHash: null,
         characterStableKey: 'character:hoarder',
         npcName: 'Hoarder',
         encounterTier: 'enemy',
