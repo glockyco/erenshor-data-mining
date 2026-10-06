@@ -30,6 +30,8 @@ from erenshor.application.wiki_interface.gadgets import (
 
 MANIFEST_SCHEMA_VERSION = 1
 MANIFEST_RELATIVE_PATH = Path("wiki-dev/runtime/import_pages.manifest.json")
+FILE_FIXTURES_RELATIVE_PATH = Path("wiki-dev/fixtures/files")
+FILE_STATE_RELATIVE_PATH = Path("wiki-dev/runtime/import_files.state.json")
 REMOTE_QUERY_BATCH_SIZE = 50
 CONTENT_MODELS = frozenset({"css", "javascript", "json", "Scribunto", "vue", "wikitext"})
 _SHA256_PATTERN = re.compile(r"[0-9a-f]{64}")
@@ -162,6 +164,15 @@ def discover_pages(root: Path) -> list[PageSource]:
         for path in sorted(fixture_pages_dir.rglob("*.wiki")):
             relative = path.relative_to(fixture_pages_dir).with_suffix("")
             title = "/".join(relative.parts).replace("_", " ")
+            pages.append(PageSource(title=title, path=path))
+
+    # File description pages without an upload, such as a redirect to a
+    # missing file. The directory names the namespace, because a colon is not
+    # portable in a file name.
+    fixture_file_pages_dir = root / "wiki-dev" / "fixtures" / "file-pages"
+    if fixture_file_pages_dir.exists():
+        for path in sorted(fixture_file_pages_dir.glob("*.wiki")):
+            title = "File:" + path.with_suffix("").name.replace("_", " ")
             pages.append(PageSource(title=title, path=path))
 
     pages.extend(definition_pages)
@@ -463,6 +474,95 @@ def purge_page(client: httpx.Client, endpoint: str, token: str, title: str) -> N
         raise RuntimeError(f"Purge failed for {title}: {payload['error']}")
 
 
+class FileSource(NamedTuple):
+    """A local fixture file and the MediaWiki file title that it is uploaded under."""
+
+    title: str
+    path: Path
+
+
+def discover_files(root: Path) -> list[FileSource]:
+    """Discover fixture files, which parse cases use as uploaded images."""
+    files_dir = root / FILE_FIXTURES_RELATIVE_PATH
+    if not files_dir.exists():
+        return []
+    return [
+        FileSource(title="File:" + path.name.replace("_", " "), path=path)
+        for path in sorted(files_dir.iterdir())
+        if path.is_file()
+    ]
+
+
+def query_file_sha1(client: httpx.Client, endpoint: str, titles: Sequence[str]) -> dict[str, str | None]:
+    """Return the SHA-1 of the current upload under each file title, or None without one."""
+    result: dict[str, str | None] = {}
+    for start in range(0, len(titles), REMOTE_QUERY_BATCH_SIZE):
+        batch = titles[start : start + REMOTE_QUERY_BATCH_SIZE]
+        response = client.get(
+            endpoint,
+            params={
+                "action": "query",
+                "titles": "|".join(batch),
+                "prop": "imageinfo",
+                "iiprop": "sha1",
+                "format": "json",
+                "formatversion": "2",
+            },
+        )
+        response.raise_for_status()
+        for page in response.json()["query"]["pages"]:
+            info = page.get("imageinfo")
+            result[str(page["title"])] = str(info[0]["sha1"]) if info else None
+    return result
+
+
+def upload_file(client: httpx.Client, endpoint: str, token: str, source: FileSource) -> None:
+    """Upload one fixture file over any older upload of the same title."""
+    with source.path.open("rb") as handle:
+        response = client.post(
+            endpoint,
+            data={
+                "action": "upload",
+                "filename": source.title.removeprefix("File:"),
+                "comment": "Local dev wiki fixture file",
+                "ignorewarnings": "1",
+                "token": token,
+                "format": "json",
+            },
+            files={"file": (source.path.name, handle, "application/octet-stream")},
+        )
+    response.raise_for_status()
+    payload = response.json()
+    if payload.get("upload", {}).get("result") != "Success":
+        raise RuntimeError(f"Upload failed for {source.title}: {payload}")
+
+
+def reconcile_files(
+    client: httpx.Client, endpoint: str, token: str, files: Sequence[FileSource], state_file: Path
+) -> tuple[tuple[str, ...], tuple[str, ...], tuple[str, ...]]:
+    """Upload fixture files whose bytes changed, and delete the uploads of removed ones.
+
+    Returns the uploaded, unchanged, and deleted file titles.
+    """
+    previous: list[str] = json.loads(state_file.read_text(encoding="utf-8")) if state_file.exists() else []
+    current = [source.title for source in files]
+    remote = query_file_sha1(client, endpoint, current) if current else {}
+    uploaded: list[str] = []
+    unchanged: list[str] = []
+    for source in files:
+        if remote.get(source.title) == hashlib.sha1(source.path.read_bytes()).hexdigest():
+            unchanged.append(source.title)
+        else:
+            upload_file(client, endpoint, token, source)
+            uploaded.append(source.title)
+    deleted = [title for title in previous if title not in current]
+    for title in deleted:
+        delete_page(client, endpoint, token, title)
+    state_file.parent.mkdir(parents=True, exist_ok=True)
+    state_file.write_text(json.dumps(current, indent=2) + "\n", encoding="utf-8")
+    return tuple(uploaded), tuple(unchanged), tuple(deleted)
+
+
 def query_remote_pages(
     client: httpx.Client,
     endpoint: str,
@@ -612,17 +712,28 @@ def main() -> None:
     args = parser.parse_args()
 
     pages = discover_pages(args.root)
+    files = discover_files(args.root)
     if args.dry_run:
         current = build_manifest(args.root, pages)
         for title, entry in current.items():
             print(f"{title}\t{entry.source_path}\t{entry.content_model}\t{entry.sha256}")
-        print(f"Managed pages: {len(current)}")
+        for source in files:
+            print(f"{source.title}\t{source.path.relative_to(args.root)}\tfile")
+        print(f"Managed pages: {len(current)}. Managed files: {len(files)}")
         return
 
     endpoint = api_url(args.base_url)
     with httpx.Client(timeout=30.0) as client:
         login(client, endpoint, args.username, args.password)
         token = csrf_token(client, endpoint)
+        # Upload the files first, so that the pages that the import purges
+        # parse with the files already in place.
+        file_state = (
+            args.manifest_file.parent / FILE_STATE_RELATIVE_PATH.name
+            if args.manifest_file is not None
+            else args.root / FILE_STATE_RELATIVE_PATH
+        )
+        uploaded, unchanged_files, deleted_files = reconcile_files(client, endpoint, token, files, file_state)
         report = reconcile_pages(
             client,
             endpoint,
@@ -633,6 +744,8 @@ def main() -> None:
         )
 
     for action, titles in (
+        ("Uploaded", uploaded),
+        ("Deleted file", deleted_files),
         ("Created", report.created),
         ("Updated", report.updated),
         ("Deleted", report.deleted),
@@ -644,7 +757,9 @@ def main() -> None:
         f"Managed pages: {len(pages)}. "
         f"Created {len(report.created)}, updated {len(report.updated)}, "
         f"unchanged {len(report.unchanged)}, deleted {len(report.deleted)}, "
-        f"purged {len(report.purged)}."
+        f"purged {len(report.purged)}. "
+        f"Managed files: {len(files)}. Uploaded {len(uploaded)}, unchanged {len(unchanged_files)}, "
+        f"deleted {len(deleted_files)}."
     )
 
 

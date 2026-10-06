@@ -165,7 +165,15 @@ wiki-dev/fixtures/modules/Erenshor/Data/Items.lua       -> Module:Erenshor/Data/
 wiki/templates/Item.wiki                                -> Template:Item
 wiki/templates/Item/Armor.wiki                          -> Template:Item/Armor
 wiki-dev/fixtures/pages/Foo.wiki                        -> Foo
+wiki-dev/fixtures/file-pages/Foo.png.wiki               -> File:Foo.png (description page, no upload)
+wiki-dev/fixtures/files/Foo.png                         -> File:Foo.png (uploaded file)
 ```
+
+The importer uploads each file under `wiki-dev/fixtures/files/` before it imports
+the pages, and uploads it again when its bytes change. It records the uploaded
+titles in `wiki-dev/runtime/import_files.state.json` and deletes the upload of a
+file that left the directory. Parse cases use these files as images that exist,
+and the file pages as description pages or redirects without an image.
 
 ## Run smoke tests
 
@@ -175,7 +183,7 @@ From the repository root:
 uv run python wiki-dev/smoke_test.py
 ```
 
-The default `wiki-dev/fixtures/smoke.tsv` renders `Smoke Page` through `action=parse` and verifies text returned by `Module:Erenshor/Smoke` through `Template:Smoke`.
+The default `wiki-dev/fixtures/smoke.tsv` renders `Smoke Page` through `action=parse` and verifies text returned by `Module:Erenshor/Smoke` through `Template:Smoke`. An expectation that starts with `!` names text that must be absent, such as a category that a page must not join.
 
 ## Visual parity gate
 

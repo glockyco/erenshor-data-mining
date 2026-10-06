@@ -50,14 +50,21 @@ FORBIDDEN_CATEGORY_PREFIXES = (
 
 
 def check_rendered_html(title: str, html: str, expected: list[str]) -> SmokeResult:
-    """Check that expected strings are present and parser errors are absent."""
-    missing = [needle for needle in expected if needle not in html]
+    """Check that expected strings are present and parser errors are absent.
+
+    An expectation that starts with ``!`` names text that must be absent, such
+    as a category that the page must not join.
+    """
+    required = [needle for needle in expected if not needle.startswith("!")]
+    absent = [needle[1:] for needle in expected if needle.startswith("!")]
+    missing = [needle for needle in required if needle not in html]
+    missing.extend(f"unexpected: {needle}" for needle in absent if needle in html)
     missing.extend(message for marker, message in FORBIDDEN_HTML_MARKERS if marker in html)
     missing.extend(message for pattern, message in FORBIDDEN_HTML_PATTERNS if pattern.search(html))
     missing.extend(
         message
         for marker, message in FORBIDDEN_CATEGORY_PREFIXES
-        if marker in html and not any(marker in needle for needle in expected)
+        if marker in html and not any(marker in needle for needle in required)
     )
     return SmokeResult(title=title, ok=not missing, missing=missing)
 

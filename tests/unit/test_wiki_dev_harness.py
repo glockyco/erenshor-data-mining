@@ -23,6 +23,12 @@ def test_maps_interface_repo_and_fixture_pages_to_wiki_titles(tmp_path: Path) ->
     (root / "wiki-dev/interface/MediaWiki").mkdir(parents=True)
     (root / "wiki-dev/fixtures/modules/Erenshor/Data/Items").mkdir(parents=True)
     (root / "wiki-dev/fixtures/pages").mkdir(parents=True)
+    (root / "wiki-dev/fixtures/file-pages").mkdir(parents=True)
+    (root / "wiki-dev/fixtures/files").mkdir(parents=True)
+    (root / "wiki-dev/fixtures/file-pages/Missing_Portrait.png.wiki").write_text(
+        "#REDIRECT [[File:Absent.png]]\n", encoding="utf-8"
+    )
+    (root / "wiki-dev/fixtures/files/Uploaded_Portrait.png").write_bytes(b"\x89PNG")
 
     (root / "wiki-dev/interface/theme-shim.css").write_text(":root { --wiki-content-border-color: #866806; }\n")
     (root / "wiki-dev/interface/theme-shim.js").write_text(
@@ -69,12 +75,16 @@ def test_maps_interface_repo_and_fixture_pages_to_wiki_titles(tmp_path: Path) ->
         ("Module:Erenshor/Data/Items/Weapons", "wiki-dev/fixtures/modules/Erenshor/Data/Items/Weapons.lua"),
         ("Template:Item", "wiki/templates/Item.wiki"),
         ("Sword of Flames", "wiki-dev/fixtures/pages/Sword_of_Flames.wiki"),
+        ("File:Missing Portrait.png", "wiki-dev/fixtures/file-pages/Missing_Portrait.png.wiki"),
     ]
     common_css = pages[0]
     assert common_css.content.startswith(":root { --wiki-content-border-color: #866806; }\n")
     assert common_css.content.endswith("body { color: white; }\n")
     common_js = pages[1]
     assert common_js.content.startswith("document.documentElement.classList.add('theme-dark');\n")
+    assert [
+        (source.title, source.path.relative_to(root).as_posix()) for source in import_pages.discover_files(root)
+    ] == [("File:Uploaded Portrait.png", "wiki-dev/fixtures/files/Uploaded_Portrait.png")]
 
 
 def test_discover_pages_fails_when_interface_mirror_is_missing(tmp_path: Path) -> None:
@@ -120,6 +130,21 @@ def test_smoke_check_accepts_all_expected_text() -> None:
 
     assert result.ok is True
     assert result.missing == []
+
+
+def test_smoke_check_rejects_text_that_must_be_absent() -> None:
+    render = load_script("wiki-dev/smoke/render.py")
+    expected = ["Rendered character", "!Category:Needs_Character_Image"]
+
+    with_category = render.check_rendered_html(
+        title="Faith", html="<p>Rendered character</p>\nCategory:Needs_Character_Image", expected=expected
+    )
+    without_category = render.check_rendered_html(
+        title="Faith", html="<p>Rendered character</p>\nCategory:Characters", expected=expected
+    )
+
+    assert with_category.missing == ["unexpected: Category:Needs_Character_Image"]
+    assert without_category.ok is True
 
 
 def test_smoke_check_rejects_parser_health_markers() -> None:
