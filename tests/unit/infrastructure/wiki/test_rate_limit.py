@@ -14,7 +14,7 @@ from erenshor.infrastructure.wiki.rate_limit import (
 
 
 class FakeHttpClient:
-    def __init__(self, responses: list[httpx.Response]) -> None:
+    def __init__(self, responses: list[httpx.Response | Exception]) -> None:
         self._responses = responses
         self.requests: list[tuple[str, dict[str, str], dict[str, str] | None]] = []
         self.times: list[float] = []
@@ -38,7 +38,10 @@ class FakeHttpClient:
     def _pop_response(self) -> httpx.Response:
         if not self._responses:
             raise AssertionError("unexpected HTTP request")
-        return self._responses.pop(0)
+        answer = self._responses.pop(0)
+        if isinstance(answer, Exception):
+            raise answer
+        return answer
 
 
 def response(
@@ -132,6 +135,30 @@ def test_a_download_does_not_retry_a_missing_file() -> None:
     requestor = make_requestor(client)
 
     assert requestor.download("https://erenshor.wiki.gg/images/logo.png").status_code == 404
+
+
+def test_a_dropped_connection_repeats_a_read() -> None:
+    client = FakeHttpClient([httpx.ReadError("Connection reset by peer"), response()])
+    requestor = make_requestor(client)
+
+    assert requestor.post({"action": "parse"}, data={"action": "parse", "text": "x"}) == {"query": {}}
+    assert len(client.requests) == 2
+
+
+def test_a_dropped_connection_does_not_repeat_a_write() -> None:
+    client = FakeHttpClient([httpx.ReadError("Connection reset by peer"), response()])
+    requestor = make_requestor(client)
+
+    with pytest.raises(httpx.ReadError):
+        requestor.post({"action": "edit"}, data={"action": "edit", "text": "x"})
+    assert len(client.requests) == 1
+
+
+def test_a_download_repeats_after_a_dropped_connection() -> None:
+    client = FakeHttpClient([httpx.ReadError("Connection reset by peer"), _image_response(200)])
+    requestor = make_requestor(client)
+
+    assert requestor.download("https://erenshor.wiki.gg/images/logo.png").content == b"image-bytes"
 
 
 def test_omits_maxlag_for_interactive_requests() -> None:

@@ -17,6 +17,9 @@ JsonObject = dict[str, Any]
 # The answers of a file server that a download retries.
 _TRANSIENT_DOWNLOAD_STATUSES = frozenset({429, 502, 503, 504})
 
+# The API actions that only read, which a dropped connection can safely repeat.
+_READ_ACTIONS = frozenset({"query", "parse", "expandtemplates", "compare", "opensearch", "cargoquery"})
+
 
 class MediaWikiRequestError(RuntimeError):
     """Base error for MediaWiki request policy failures."""
@@ -201,11 +204,18 @@ class MediaWikiRequestor:
 
         A file server answers overload with 429 or a bare 502, 503, or 504, so
         a download retries those with the policy's backoff, or after the
-        ``Retry-After`` that the server names. The last answer is returned.
+        ``Retry-After`` that the server names, and a dropped connection with
+        the backoff. The last answer is returned.
         """
         with self._lock:
             for attempt in range(self.policy.max_retries + 1):
-                response = self._http_client.get(url, params={})
+                try:
+                    response = self._http_client.get(url, params={})
+                except httpx.TransportError:
+                    if attempt == self.policy.max_retries:
+                        raise
+                    self.clock.sleep(_backoff_delay(attempt, self.policy))
+                    continue
                 if response.status_code not in _TRANSIENT_DOWNLOAD_STATUSES or attempt == self.policy.max_retries:
                     break
                 self.clock.sleep(_retry_after_or_backoff(response.headers, attempt, self.policy))
@@ -240,7 +250,15 @@ class MediaWikiRequestor:
         for attempt in range(self.policy.max_retries + 1):
             _restore_file_positions(file_positions)
             self._pace(action)
-            response = self._send(method, request_params, data, files)
+            try:
+                response = self._send(method, request_params, data, files)
+            except httpx.TransportError:
+                # A dropped connection loses no write only for a request that
+                # writes nothing, so only reads are sent again.
+                if action not in _READ_ACTIONS or attempt == self.policy.max_retries:
+                    raise
+                self.clock.sleep(_backoff_delay(attempt, self.policy))
+                continue
             retry_delay = self._retry_delay(response, attempt)
             if retry_delay is not None:
                 if attempt == self.policy.max_retries:
