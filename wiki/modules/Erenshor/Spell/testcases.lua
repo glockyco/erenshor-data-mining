@@ -19,6 +19,12 @@ local function assertContains(actual, expected, label)
 	end
 end
 
+local function assertNotContains(actual, unexpected, label)
+	if string.find(actual, unexpected, 1, true) ~= nil then
+		error(string.format("%s: expected output not to contain %s", label, unexpected), 2)
+	end
+end
+
 function p.run()
 	local ok, err = pcall(Common.standaloneTooltipRoot, "item", "spell:bad")
 	assertEqual(ok, false, "unsupported standalone tooltip identity is rejected")
@@ -49,19 +55,15 @@ function p.run()
 	assertContains(minorTooltip, "Spell Level: 6", "spell tooltip includes item-detail level")
 	assertContains(
 		minorTooltip,
-		'class="erenshor-icon erenshor-icon--ability"',
-		"spell tooltip draws hotbar slot"
+		'class="erenshor-icon erenshor-icon--bare"',
+		"spell tooltip shows the bare icon of the item window's spell details"
 	)
 	assertContains(
 		minorTooltip,
 		"[[File:Minor Lightning.png|48x48px]]",
 		"spell tooltip fits art at 48 px"
 	)
-	assertContains(
-		minorTooltip,
-		"[[File:Hotbar Frame.png|48x48px|link=|alt=]]",
-		"spell tooltip overlays nonlinked frame"
-	)
+	assertNotContains(minorTooltip, "Hotbar Frame.png", "spell tooltip draws no frame")
 	assertContains(
 		minorTooltip,
 		"Spell Line: Direct_Damage",

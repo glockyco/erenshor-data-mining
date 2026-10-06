@@ -30,7 +30,7 @@ function p.run(frame)
 		end,
 	}
 	for _, size in ipairs({ 80, 48, 24 }) do
-		for _, kind in ipairs({ "item", "ability" }) do
+		for _, kind in ipairs({ "item", "ability", "window", "bare" }) do
 			local markup = Icon.render(fakeFrame, {
 				file = "Thorned Branch.png",
 				kind = kind,
@@ -62,23 +62,30 @@ function p.run(frame)
 					assertContains(markup, side .. ":" .. inset .. "px", "rounded ring inset")
 				end
 				assertNotContains(markup, "Hotbar Frame.png", "items have no hotbar bezel")
+			elseif kind == "bare" then
+				assertNotContains(markup, "Hotbar Frame.png", "a bare icon has no frame")
+				assertNotContains(markup, "erenshor-icon-well", "a bare icon has no well")
 			else
-				assertContains(markup, 'class="erenshor-icon-frame"', "ability overlay")
+				assertContains(markup, 'class="erenshor-icon-frame"', "hotbar frame layer")
 				assertContains(
 					markup,
 					"[[File:Hotbar Frame.png|" .. size .. "x" .. size .. "px|link=|alt=]]",
 					"nonlinked hotbar frame"
 				)
-				assertNotContains(markup, "erenshor-icon-well", "abilities have no item well")
+				assertNotContains(markup, "erenshor-icon-well", "hotbar frames have no item well")
 				local art = string.find(markup, "erenshor-icon-art", 1, true)
 				local overlay = string.find(markup, "erenshor-icon-frame", 1, true)
-				if art >= overlay then
+				-- Later layers draw above earlier ones: the hotbar draws its frame over
+				-- the art, and the item window draws the art over its frame.
+				if kind == "ability" and art >= overlay then
 					error("Hotbar frame must follow art so it draws above it", 2)
+				elseif kind == "window" and overlay >= art then
+					error("Item window art must follow its frame so it draws above it", 2)
 				end
 			end
 		end
 	end
-	if stylesheetCalls ~= 6 then
+	if stylesheetCalls ~= 12 then
 		error("Every icon render must include TemplateStyles", 2)
 	end
 	local unlinked =

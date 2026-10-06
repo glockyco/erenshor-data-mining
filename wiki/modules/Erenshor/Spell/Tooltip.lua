@@ -61,7 +61,7 @@ function Tooltip.render(spell)
 			:addClass("item-spell-details-icon")
 			:wikitext(Icon.render(mw.getCurrentFrame(), {
 				file = tostring(spell.image) .. ".png",
-				kind = "ability",
+				kind = "bare",
 				size = 48,
 			}))
 	end

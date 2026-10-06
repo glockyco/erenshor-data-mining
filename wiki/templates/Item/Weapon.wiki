@@ -1,7 +1,7 @@
 <includeonly>{| class="item-tooltip item-tooltip-weapon"
 |
 {{Item/Header
- |icon={{#ifeq:{{{tier|}}}|1|{{SparkleIcon|icon={{Icon|{{{image}}}|kind=item|size=80}}|sparkle=Blue_Sparkle.gif|sparkle_size=80px}}|{{#ifeq:{{{tier|}}}|2|{{SparkleIcon|icon={{Icon|{{{image}}}|kind=item|size=80}}|sparkle=Purple_Sparkle.gif|sparkle_size=80px}}|{{SparkleIcon|icon={{Icon|{{{image}}}|kind=item|size=80}}|sparkle=blank.png|sparkle_size=0px}}}}}}
+ |icon={{#ifeq:{{{tier|}}}|1|{{SparkleIcon|icon={{Icon|{{{image}}}|kind=window|size=80}}|sparkle=Blue_Sparkle.gif|sparkle_size=80px}}|{{#ifeq:{{{tier|}}}|2|{{SparkleIcon|icon={{Icon|{{{image}}}|kind=window|size=80}}|sparkle=Purple_Sparkle.gif|sparkle_size=80px}}|{{SparkleIcon|icon={{Icon|{{{image}}}|kind=window|size=80}}|sparkle=blank.png|sparkle_size=0px}}}}}}
  |name={{{name}}}
  |value={{{value|}}}
  |tier={{{tier|0}}}
