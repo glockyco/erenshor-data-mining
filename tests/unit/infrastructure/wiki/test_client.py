@@ -1794,6 +1794,25 @@ class TestMediaWikiClientSemanticLinkReads:
 
         assert api.requests[-1].data["title"] == "File:Copy.png"
 
+    def test_a_deletion_after_the_session_expired_logs_in_again_and_succeeds(self) -> None:
+        client, api = _mock_client(
+            [
+                {"query": {"tokens": {"csrftoken": "stale"}}},
+                {"error": {"code": "assertuserfailed", "info": "You are no longer logged in."}},
+                {"query": {"tokens": {"csrftoken": "fresh"}}},
+                {"delete": {"title": "File:Copy.png", "reason": "Copy", "logid": 7}},
+            ],
+            clock=MockClock(),
+        )
+        logins: list[bool] = []
+        client.login = lambda: logins.append(True)  # type: ignore[method-assign]
+
+        client.delete_page("File:Copy.png", "Copy of File:Original.png")
+
+        assert logins == [True]
+        assert api.requests[1].data["assert"] == "user"
+        assert api.requests[-1].data["token"] == "fresh"
+
     def test_file_versions_come_newest_first_with_their_urls(self) -> None:
         version = {"sha1": "new", "user": "WoWBot", "comment": "Build 2", "timestamp": "2026-10-07T00:00:00Z"}
         older = {"sha1": "old", "user": "Ulor", "comment": "", "timestamp": "2026-01-01T00:00:00Z"}

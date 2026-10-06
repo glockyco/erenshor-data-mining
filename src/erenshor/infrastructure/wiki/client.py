@@ -2118,8 +2118,7 @@ class MediaWikiClient:
         Needs the ``delete`` right, which a bot password of an administrator
         has with the delete grant.
         """
-        data = {"action": "delete", "title": title, "reason": reason, "token": self.get_csrf_token()}
-        result = self._request({"action": "delete"}, method="POST", data=data)
+        result = self._request_as_user({"action": "delete", "title": title, "reason": reason})
         deleted = result.get("delete")
         if not isinstance(deleted, dict) or "logid" not in deleted:
             raise MediaWikiAPIError(f"Unexpected delete response: {result}")
@@ -2127,9 +2126,31 @@ class MediaWikiClient:
 
     def undelete_page(self, title: str, reason: str) -> None:
         """Restore every deleted revision of a page, and of a file page every deleted version of its file."""
-        data = {"action": "undelete", "title": title, "reason": reason, "token": self.get_csrf_token()}
-        result = self._request({"action": "undelete"}, method="POST", data=data)
+        result = self._request_as_user({"action": "undelete", "title": title, "reason": reason})
         restored = result.get("undelete")
         if not isinstance(restored, dict) or not isinstance(restored.get("title"), str):
             raise MediaWikiAPIError(f"Unexpected undelete response: {result}")
         logger.info(f"Restored {title}")
+
+    def _request_as_user(self, data: dict[str, str]) -> dict[str, Any]:
+        """Post an action that needs the logged-in account, logging in again once if the session expired.
+
+        A client that waits idle for a long time, such as the deletion account
+        during the uploads of a publication, loses its session, and MediaWiki
+        then treats its requests as anonymous. The ``assert=user`` check turns
+        that into ``assertuserfailed`` instead of a denied permission.
+        """
+        for attempt in range(2):
+            try:
+                return self._request(
+                    {"action": data["action"]},
+                    method="POST",
+                    data=data | {"assert": "user", "token": self.get_csrf_token()},
+                )
+            except MediaWikiAPIError as error:
+                if error.code != "assertuserfailed" or attempt:
+                    raise
+                logger.warning("The session expired; logging in again")
+                self._csrf_token = None
+                self.login()
+        raise AssertionError("unreachable")
