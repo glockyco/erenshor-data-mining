@@ -18,6 +18,9 @@ wfLoadExtension( 'TemplateStyles' );
 wfLoadExtension( 'TemplateStylesExtender' );
 # InputBox backs the create-page form on the main page. Bundled with core.
 wfLoadExtension( 'InputBox' );
+# Cite renders the <ref> footnotes of generated articles, as on the live wiki.
+# Bundled with core.
+wfLoadExtension( 'Cite' );
 # NoTitle supplies __NOTITLE__ and EmbedVideo supplies <evlplayer>. Both are
 # used by the main page on the live wiki, so the local preview needs them to
 # render that page faithfully rather than leaking markup as literal text.
