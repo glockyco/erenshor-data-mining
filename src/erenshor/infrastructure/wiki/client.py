@@ -151,6 +151,16 @@ class MediaWikiTitleStatus:
 
 
 @dataclass(frozen=True, slots=True)
+class _ResolvedTitle:
+    """A requested title with its normalized form, redirect target, and the final page of a query."""
+
+    requested: str
+    normalized: str
+    redirect_target: str | None
+    page: dict[str, Any]
+
+
+@dataclass(frozen=True, slots=True)
 class MediaWikiParsedLink:
     """A page that a parsed text uses: a transcluded template or module, or a category."""
 
@@ -800,17 +810,50 @@ class MediaWikiClient:
         ``normalized`` and ``redirects`` response maps are reconciled locally so
         callers retain the exact requested title as the result key.
         """
-        if not titles:
-            return {}
-
-        requested_titles = list(dict.fromkeys(titles))
         statuses: dict[str, MediaWikiTitleStatus] = {}
+        for resolved in self._resolve_titles(titles, "info"):
+            page = resolved.page
+            page_id = page.get("pageid")
+            if page_id is None and "missing" not in page:
+                raise MediaWikiAPIError("Invalid title status response: missing page id")
+            exists = not bool(page.get("missing"))
+            if page_id is None:
+                exists = False
+            else:
+                try:
+                    exists = exists and int(page_id) >= 0
+                except (TypeError, ValueError) as error:
+                    raise MediaWikiAPIError("Invalid title status response: malformed page id") from error
+            statuses[resolved.requested] = MediaWikiTitleStatus(
+                requested=resolved.requested,
+                normalized=resolved.normalized,
+                redirect_target=resolved.redirect_target,
+                exists=exists,
+            )
+        return statuses
+
+    def get_uploaded_files(self, titles: Sequence[str]) -> frozenset[str]:
+        """Return the requested ``File:`` titles whose file has uploaded bytes.
+
+        A redirect counts when its final target has an upload. A file
+        description page without an upload does not count.
+        """
+        return frozenset(
+            resolved.requested
+            for resolved in self._resolve_titles(titles, "imageinfo")
+            if resolved.page.get("imageinfo")
+        )
+
+    def _resolve_titles(self, titles: Sequence[str], prop: str) -> list[_ResolvedTitle]:
+        """Query ``prop`` for each title and follow normalization and redirects to its final page."""
+        resolved: list[_ResolvedTitle] = []
+        requested_titles = list(dict.fromkeys(titles))
         for start in range(0, len(requested_titles), self.batch_size):
             batch = requested_titles[start : start + self.batch_size]
             result = self._request(
                 {
                     "action": "query",
-                    "prop": "info",
+                    "prop": prop,
                     "redirects": "1",
                     "titles": "|".join(batch),
                 }
@@ -818,52 +861,17 @@ class MediaWikiClient:
             query = result.get("query")
             if not isinstance(query, dict):
                 raise MediaWikiAPIError("Invalid title status response: missing query object")
-
-            normalized: dict[str, str] = {}
-            raw_normalized = query.get("normalized", [])
-            if not isinstance(raw_normalized, list):
-                raise MediaWikiAPIError("Invalid title status response: normalized must be a list")
-            for item in raw_normalized:
-                if (
-                    not isinstance(item, dict)
-                    or not isinstance(item.get("from"), str)
-                    or not isinstance(item.get("to"), str)
-                ):
-                    raise MediaWikiAPIError("Invalid title status response: malformed normalized entry")
-                normalized[item["from"]] = item["to"]
-
-            redirects: dict[str, str] = {}
-            raw_redirects = query.get("redirects", [])
-            if not isinstance(raw_redirects, list):
-                raise MediaWikiAPIError("Invalid title status response: redirects must be a list")
-            for item in raw_redirects:
-                if (
-                    not isinstance(item, dict)
-                    or not isinstance(item.get("from"), str)
-                    or not isinstance(item.get("to"), str)
-                ):
-                    raise MediaWikiAPIError("Invalid title status response: malformed redirect entry")
-                redirects[item["from"]] = item["to"]
+            normalized = self._title_map(query, "normalized")
+            redirects = self._title_map(query, "redirects")
 
             pages = query.get("pages")
             if not isinstance(pages, dict):
                 raise MediaWikiAPIError("Invalid title status response: missing pages")
-            existence: dict[str, bool] = {}
+            pages_by_title: dict[str, dict[str, Any]] = {}
             for page in pages.values():
                 if not isinstance(page, dict) or not isinstance(page.get("title"), str):
                     raise MediaWikiAPIError("Invalid title status response: malformed page entry")
-                page_id = page.get("pageid")
-                if page_id is None and "missing" not in page:
-                    raise MediaWikiAPIError("Invalid title status response: missing page id")
-                exists = not bool(page.get("missing"))
-                if page_id is None:
-                    exists = False
-                else:
-                    try:
-                        exists = exists and int(page_id) >= 0
-                    except (TypeError, ValueError) as error:
-                        raise MediaWikiAPIError("Invalid title status response: malformed page id") from error
-                existence[page["title"]] = exists
+                pages_by_title[page["title"]] = page
 
             for requested in batch:
                 normalized_title = normalized.get(requested, requested)
@@ -873,17 +881,34 @@ class MediaWikiClient:
                 while final_title not in seen_titles and final_title in redirects:
                     seen_titles.add(final_title)
                     final_title = redirects[final_title]
-                if final_title not in existence:
+                if final_title not in pages_by_title:
                     raise MediaWikiAPIError(f"Invalid title status response for {requested!r}: page not returned")
-                exists = existence[final_title]
-                statuses[requested] = MediaWikiTitleStatus(
-                    requested=requested,
-                    normalized=normalized_title,
-                    redirect_target=final_title if initial_redirect_target is not None else None,
-                    exists=exists,
+                resolved.append(
+                    _ResolvedTitle(
+                        requested=requested,
+                        normalized=normalized_title,
+                        redirect_target=final_title if initial_redirect_target is not None else None,
+                        page=pages_by_title[final_title],
+                    )
                 )
+        return resolved
 
-        return statuses
+    @staticmethod
+    def _title_map(query: dict[str, Any], key: str) -> dict[str, str]:
+        """Read a ``normalized`` or ``redirects`` list of a query response as a map."""
+        entries = query.get(key, [])
+        if not isinstance(entries, list):
+            raise MediaWikiAPIError(f"Invalid title status response: {key} must be a list")
+        mapping: dict[str, str] = {}
+        for item in entries:
+            if (
+                not isinstance(item, dict)
+                or not isinstance(item.get("from"), str)
+                or not isinstance(item.get("to"), str)
+            ):
+                raise MediaWikiAPIError(f"Invalid title status response: malformed {key} entry")
+            mapping[item["from"]] = item["to"]
+        return mapping
 
     @staticmethod
     def _deterministic_unique_titles(titles: Sequence[str]) -> tuple[str, ...]:

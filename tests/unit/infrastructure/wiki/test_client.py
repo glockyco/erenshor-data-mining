@@ -1563,6 +1563,41 @@ class TestMediaWikiClientSemanticLinkReads:
         with pytest.raises(MediaWikiAPIError, match="page not returned"):
             client.get_title_statuses(["Old A"])
 
+    def test_uploaded_files_follow_redirects_and_ignore_description_pages(self) -> None:
+        client, api = _mock_client(
+            [
+                {
+                    "query": {
+                        "normalized": [{"from": "File:Lower_case.png", "to": "File:Lower case.png"}],
+                        "redirects": [
+                            {"from": "File:Lower case.png", "to": "File:Uploaded.png"},
+                            {"from": "File:Dangling.png", "to": "File:Gone.png"},
+                        ],
+                        "pages": {
+                            "1": {"pageid": 1, "title": "File:Uploaded.png", "imageinfo": [{"user": "Editor"}]},
+                            "2": {"pageid": 2, "title": "File:Description only.png", "imagerepository": ""},
+                            "-1": {"title": "File:Gone.png", "missing": ""},
+                            "-2": {"title": "File:Missing.png", "missing": ""},
+                        },
+                    }
+                }
+            ],
+            clock=MockClock(),
+        )
+
+        uploaded = client.get_uploaded_files(
+            [
+                "File:Uploaded.png",
+                "File:Lower_case.png",
+                "File:Description only.png",
+                "File:Dangling.png",
+                "File:Missing.png",
+            ]
+        )
+
+        assert uploaded == {"File:Uploaded.png", "File:Lower_case.png"}
+        assert api.requests[0].query["prop"] == "imageinfo"
+
     def test_get_wanted_pages_exhausts_continuation_and_filters_unique_namespace(self) -> None:
         with _mediawiki_api_server(
             [
