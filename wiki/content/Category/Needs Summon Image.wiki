@@ -1,6 +1,6 @@
 __HIDDENCAT__
 This hidden maintenance category collects pages whose infobox names a picture of a summoned creature that the wiki does not have yet. The icon of the spell that summons it is a different image.
 
-To fill a gap, upload an in-game picture of the creature under the exact file name that the infobox names. See [[Erenshor Wiki:Game Data#Maintenance categories]].
+To fill a gap, upload an in-game picture of the creature under the exact file name that the infobox names. See [[Erenshor Wiki:Game Data#Images]].
 
 [[Category:Needs Image]]

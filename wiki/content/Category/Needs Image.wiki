@@ -1,4 +1,4 @@
 __HIDDENCAT__
-This hidden maintenance category collects pages whose infobox names an image that the wiki does not have yet. Its subcategories sort the pages by the kind of image they need.
+This hidden maintenance category collects pages whose character infobox names a picture that the wiki does not have yet. Its subcategories sort the pages by the kind of picture they need: a character, a chest, or a summoned creature.
 
-To fill a gap, upload the image under the exact file name that the infobox names. A page leaves the category once the file exists and the page is refreshed. See [[Erenshor Wiki:Game Data#Maintenance categories]].
+To fill a gap, upload a picture from the game under the exact file name that the infobox names. A page leaves the category once the file exists and the page is refreshed. The project also renders missing pictures from the game's 3D models and uploads them after a review, so a gap may close on its own. See [[Erenshor Wiki:Game Data#Images]].

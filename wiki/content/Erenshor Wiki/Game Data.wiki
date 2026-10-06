@@ -127,6 +127,14 @@ Links to items, characters, abilities, quests, zones, factions, and classes use 
 
 The tooltip templates show the in-game tooltip on a page: [[Template:ItemTooltip|ItemTooltip]], [[Template:SpellTooltip|SpellTooltip]], [[Template:SkillTooltip|SkillTooltip]], and [[Template:StanceTooltip|StanceTooltip]].
 
+== Images ==
+Item, ability, and stance icons come from the game files. The bot uploads them after each game update.
+
+The game files hold no pictures of characters. When an infobox names a character picture that the wiki does not have, the page joins a hidden [[#Maintenance categories|maintenance category]]. The project renders such pictures from the game's 3D models: each shows the character alone on a transparent background, and a person reviews every picture before the bot uploads it. The description page of a rendered picture says that it is one. The bot uploads a rendered picture only to a file that has no image, so it never replaces your upload.
+
+* To show a better picture, for example an in-game screenshot, upload it as a new version of the same file.
+* Zone pictures belong to the editors. The bot does not render or upload them.
+
 == Maintenance categories ==
 These hidden categories collect pages that need a fix.
 
