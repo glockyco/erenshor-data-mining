@@ -1,5 +1,4 @@
 {{Item
 |title=Image Tracking Item Uploaded
-|image=[[File:Image Tracking Fixture.png]]
 |imagefile=Image Tracking Fixture.png
 }}

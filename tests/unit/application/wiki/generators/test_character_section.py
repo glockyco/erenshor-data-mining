@@ -319,3 +319,18 @@ def test_furnishing_spawn_type_holds_beside_an_ordinary_spawn() -> None:
     content = _render([_placed("Port Azure", None), _placed("Reliquary Hall", _furniture("Wood Training Set"))])
 
     assert "|spawntype=Reliquary furniture: {{ItemLink|stablekey=item:wood training set}}\n" in content
+
+
+def test_a_summoned_creature_marks_its_image_as_a_summon_image() -> None:
+    summon = CharacterSectionGenerator().generate_template(
+        EnrichedCharacterData(
+            character=make_character(display_name="Summoned: Treant", image_name="Summoned: Treant", is_summon=1),
+            spawn_infos=[],
+            spells=[],
+        ),
+        page_title="Summoned: Treant",
+    )
+    character = _render([])
+
+    assert "|image=[[File:Summoned: Treant.png|thumb]]\n|imagefile=Summoned: Treant.png\n|imagekind=summon\n" in summon
+    assert "|imagekind=\n" in character

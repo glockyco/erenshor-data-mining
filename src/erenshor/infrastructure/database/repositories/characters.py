@@ -150,6 +150,9 @@ class CharacterRepository(BaseRepository[Character]):
                 c.mobile,
                 c.group_encounter,
                 c.treasure_chest,
+                EXISTS (
+                    SELECT 1 FROM spells s WHERE s.pet_to_summon_stable_key = c.stable_key
+                ) AS is_summon,
                 c.guaranteed_drop_rolls,
                 c.do_not_leave_corpse,
                 c.set_achievement_on_defeat,

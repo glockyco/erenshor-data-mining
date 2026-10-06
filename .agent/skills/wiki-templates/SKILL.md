@@ -44,10 +44,11 @@ The plan for the wiki is the OpenSpec change `adopt-data-backed-wiki`. Read its 
    Same-name roots pair so that the most field values agree. A merged root takes the generated companion templates.
    A live root that matches no generated entity stays unchanged. Generation lists it as a warning and records it for the deploy review.
    Generation fails a page when equal pairings give different pages. The error names the stable keys to add to the live roots.
-   Item `image` and `imagecaption` prefer manual values, and `othersource` is preserved.
+   Generation owns item icons, which the tooltip templates show. Item `othersource` is preserved.
    Item `type`, `questsource`, and `relatedquest` merge by link target: a generated link replaces live links to the same page.
    Character `type` comes from the database. Character `zones`, `coordinates`, and `respawn` use database values when present.
-   Character `imagecaption` and `location` are preserved. Ability and Stance `image` prefer manual values. Stance `imagecaption` is preserved.
+   Character `imagecaption` and `location` are preserved. Ability `image` prefers manual values. Generation owns the Character and Stance `image`, and Stance `imagecaption` is preserved.
+   Character, Item, and Stance infoboxes carry `imagefile`, the bare title of the image that the page shows, so that a missing file puts the page into a hidden `Needs Image` category. Character infoboxes of summoned creatures also carry `imagekind=summon`.
    Zone pages merge in the same way. Each `Zone` field other than `title` keeps its live value when that value is not blank.
    Generated zone values fill new pages and blank fields only.
    On `Weapons` and `Armor`, generation replaces only the table whose header row equals the generated header.

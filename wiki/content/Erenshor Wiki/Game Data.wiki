@@ -33,10 +33,6 @@ In an infobox that the bot makes, the bot replaces each field with the game data
 {| class="wikitable"
 ! Infobox !! Field !! Your value
 |-
-| Item || <code>image</code> || Kept, filled when blank
-|-
-| Item || <code>imagecaption</code> || Kept, filled when blank
-|-
 | Item || <code>othersource</code> || Kept
 |-
 | Item || <code>type</code> || Merged

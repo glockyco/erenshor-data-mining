@@ -145,7 +145,6 @@ class TestFieldPreservationConfig:
 
         # Check Item template has expected rules
         item_rules = config.get_template_rules("Item")
-        assert item_rules["image"] == "prefer_manual"
         assert item_rules["othersource"] == "preserve"
         assert item_rules["type"] == "merge"
         assert item_rules["questsource"] == "merge"
@@ -178,7 +177,6 @@ class TestFieldPreservationConfig:
         """get_rule should return explicit rule when configured."""
         config = FieldPreservationConfig()
 
-        assert config.get_rule("Item", "image") == "prefer_manual"
         assert config.get_rule("Item", "othersource") == "preserve"
         assert config.get_rule("Item", "type") == "merge"
 
@@ -359,16 +357,12 @@ class TestFieldPreservationHandler:
         handler = _linked_handler()
 
         old_fields = {
-            "image": "Custom.png",
-            "imagecaption": "Old caption",
             "othersource": "Manual source",
             "type": "[[Quest Items|Quest Item]]",
             "questsource": "{{QuestLink|Old Quest}}",
             "damage": "10",
         }
         new_fields = {
-            "image": "",
-            "imagecaption": "",
             "othersource": "",
             "type": "[[Consumables|Consumable]]",
             "questsource": "{{QuestLink|New Quest}}",
@@ -376,10 +370,6 @@ class TestFieldPreservationHandler:
         }
 
         result = handler.apply_preservation("Item", old_fields, new_fields)
-
-        # Image uses prefer_manual -> keeps old if non-empty
-        assert result["image"] == "Custom.png"
-        assert result["imagecaption"] == "Old caption"
 
         # Othersource uses preserve -> always keeps old
         assert result["othersource"] == "Manual source"
@@ -397,8 +387,8 @@ class TestFieldPreservationHandler:
         """merge_templates should merge a single template's fields."""
         handler = FieldPreservationHandler()
 
-        old_wikitext = "{{Item|image=Custom.png|othersource=Manual|damage=10}}"
-        new_wikitext = "{{Item|image=|othersource=|damage=15|level=5}}"
+        old_wikitext = "{{Item|othersource=Manual|damage=10}}"
+        new_wikitext = "{{Item|othersource=|damage=15|level=5}}"
 
         result = handler.merge_templates(old_wikitext, new_wikitext, ["Item"]).text
 
@@ -410,8 +400,6 @@ class TestFieldPreservationHandler:
         template = parser.find_template(code, ["Item"])
         params = parser.get_params(template)
 
-        # Image preserved (prefer_manual rule - old is non-empty)
-        assert params["image"] == "Custom.png"
         # Othersource preserved (preserve rule)
         assert params["othersource"] == "Manual"
         # Damage updated (override rule)
@@ -490,12 +478,6 @@ class TestFieldPreservationHandler:
 class TestDefaultRules:
     """Tests for DEFAULT_PRESERVATION_RULES."""
 
-    def test_item_template_has_manual_content_rules(self) -> None:
-        """Item template should have prefer_manual for images."""
-        item_rules = DEFAULT_PRESERVATION_RULES["Item"]
-        assert item_rules["image"] == "prefer_manual"
-        assert item_rules["imagecaption"] == "prefer_manual"
-
     def test_item_template_has_merge_rules(self) -> None:
         """Item template should merge quest-related fields."""
         item_rules = DEFAULT_PRESERVATION_RULES["Item"]
@@ -527,8 +509,6 @@ class TestIntegrationScenarios:
 
         # Original wiki page with manual content
         old_wikitext = """{{Item
-|image=[[File:Sword.png]]
-|imagecaption=Custom image caption
 |othersource=Found in treasure chest
 |type=[[Quest Items|Quest Item]]
 |questsource={{QuestLink|Manual Quest}}
@@ -541,8 +521,6 @@ class TestIntegrationScenarios:
 
         # Fresh page generated from database
         new_wikitext = """{{Item
-|image=
-|imagecaption=
 |othersource=
 |type=[[Consumables|Consumable]]
 |questsource={{QuestLink|Database Quest}}
@@ -554,10 +532,6 @@ class TestIntegrationScenarios:
 [[Category:Weapons]]"""
 
         result = handler.merge_templates(old_wikitext, new_wikitext, ["Item"]).text
-
-        # Manual content should be preserved (prefer_manual)
-        assert "[[File:Sword.png]]" in result
-        assert "Custom image caption" in result
 
         # Othersource should be preserved
         assert "Found in treasure chest" in result

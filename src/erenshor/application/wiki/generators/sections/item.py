@@ -39,6 +39,12 @@ if TYPE_CHECKING:
 _LEGACY_CLASS_PARAMS = ("arcanist", "duelist", "druid", "paladin", "reaver", "stormcaller")
 
 
+def item_image_file(item: Item) -> str:
+    """The file title of an item's icon, which its tooltip shows and its infobox checks."""
+    name = item.image_name or item.display_name or item.item_name or ""
+    return f"{name}.png" if name else ""
+
+
 class ItemSectionGenerator(SectionGeneratorBase):
     """Generator for item wiki sections.
 
@@ -59,9 +65,9 @@ class ItemSectionGenerator(SectionGeneratorBase):
         logger.debug(f"Generating template for item: {item.item_name} (kind: {kind})")
 
         if kind in (ItemKind.WEAPON, ItemKind.ARMOR):
-            template_wikitext = self._generate_equipment_page(enriched, page_title, kind)
+            template_wikitext = self._generate_equipment_page(enriched, kind)
         elif kind == ItemKind.CHARM:
-            template_wikitext = self._generate_charm_page(enriched, page_title)
+            template_wikitext = self._generate_charm_page(enriched)
         elif kind == ItemKind.AURA:
             template_wikitext = self._generate_aura_page(enriched)
         elif kind == ItemKind.SPELL_SCROLL:
@@ -91,7 +97,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
     # Equipment (parameterized quality tooltip)
     # ------------------------------------------------------------------
 
-    def _generate_equipment_page(self, enriched: EnrichedItemData, page_title: str, kind: ItemKind) -> str:
+    def _generate_equipment_page(self, enriched: EnrichedItemData, kind: ItemKind) -> str:
         if not enriched.stats:
             item = enriched.item
             raise ValueError(
@@ -100,13 +106,11 @@ class ItemSectionGenerator(SectionGeneratorBase):
             )
         item_context = self._build_item_infobox_context(enriched)
         item_template = self.render_template("item.jinja2", item_context)
-        tooltip_context = self._build_parameterized_tooltip_context(enriched, page_title, kind)
+        tooltip_context = self._build_parameterized_tooltip_context(enriched, kind)
         tooltip_template = self.render_template("item_tooltip.jinja2", tooltip_context)
         return f"{item_template}\n\n{tooltip_template}"
 
-    def _build_parameterized_tooltip_context(
-        self, enriched: EnrichedItemData, page_title: str, kind: ItemKind
-    ) -> dict[str, str]:
+    def _build_parameterized_tooltip_context(self, enriched: EnrichedItemData, kind: ItemKind) -> dict[str, str]:
         """Build the Standard/base parameter contract consumed by ItemTooltip.
 
         Values are display-ready: they match what the legacy generator wrote
@@ -119,7 +123,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
 
         context: dict[str, str] = {
             "kind": "Weapon" if kind == ItemKind.WEAPON else "Armor",
-            "image": f"{page_title}.png",
+            "image": item_image_file(item),
             "name": self._format_long_item_name(display_name),
             "slot": safe_str(item.required_slot),
             "type": self._weapon_type_display(item.required_slot, item.this_weapon_type)
@@ -211,17 +215,17 @@ class ItemSectionGenerator(SectionGeneratorBase):
     # Non-equipment kinds (legacy templates)
     # ------------------------------------------------------------------
 
-    def _generate_charm_page(self, enriched: EnrichedItemData, page_title: str) -> str:
+    def _generate_charm_page(self, enriched: EnrichedItemData) -> str:
         stats = enriched.stats
         item_context = self._build_item_infobox_context(enriched)
         item_template = self.render_template("item.jinja2", item_context)
         if stats:
-            charm_context = self._build_charm_context(enriched, page_title, stats[0])
+            charm_context = self._build_charm_context(enriched, stats[0])
             charm_template = self.render_template("charm.jinja2", charm_context)
             return f"{item_template}\n\n{charm_template}"
         return item_template
 
-    def _build_charm_context(self, enriched: EnrichedItemData, page_title: str, stat: ItemStats) -> dict[str, str]:
+    def _build_charm_context(self, enriched: EnrichedItemData, stat: ItemStats) -> dict[str, str]:
         item = enriched.item
 
         def format_scaling(value: float | None) -> str:
@@ -230,10 +234,8 @@ class ItemSectionGenerator(SectionGeneratorBase):
             return str(round(value))
 
         display_name = item.display_name or item.item_name or ""
-        image_name = item.image_name or display_name
-
         return {
-            "image": f"{image_name}.png" if image_name else f"{page_title}.png",
+            "image": item_image_file(item),
             "name": display_name,
             "value": self._item_window_value(item),
             "tier": "0",
@@ -255,12 +257,10 @@ class ItemSectionGenerator(SectionGeneratorBase):
         item_template = self.render_template("item.jinja2", item_context)
 
         display_name = item.display_name or item.item_name or ""
-        image_name = item.image_name or display_name
-
         spell_details = self._build_spell_details_context(enriched.aura_spell, prefix="aura")
 
         aura_context = {
-            "image": f"{image_name}.png" if image_name else "",
+            "image": item_image_file(item),
             "name": display_name,
             "value": self._item_window_value(item),
             "description": format_description(safe_str(item.lore)) if item.lore else "",
@@ -278,8 +278,6 @@ class ItemSectionGenerator(SectionGeneratorBase):
         item_template = self.render_template("item.jinja2", item_context)
 
         display_name = item.display_name or item.item_name or ""
-        image_name = item.image_name or display_name
-
         # Reading a scroll is gated on the scroll's own class restrictions, not on
         # the taught spell's UsedBy list (which only drives SimPlayer behaviour).
         scroll_classes = enriched.classes
@@ -289,7 +287,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             return required_level if class_name in scroll_classes else ""
 
         spellscroll_context = {
-            "image": f"{image_name}.png" if image_name else "",
+            "image": item_image_file(item),
             "name": display_name,
             "value": self._item_window_value(item),
             "arcanist_level": class_level("Arcanist"),
@@ -314,7 +312,6 @@ class ItemSectionGenerator(SectionGeneratorBase):
         item_template = self.render_template("item.jinja2", item_context)
 
         display_name = item.display_name or item.item_name or ""
-        image_name = item.image_name or display_name
 
         def level_str(val: int | None) -> str:
             if val is None or val == 0:
@@ -322,7 +319,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             return str(val)
 
         skillbook_context = {
-            "image": f"{image_name}.png" if image_name else "",
+            "image": item_image_file(item),
             "name": display_name,
             "value": self._item_window_value(item),
             "duelist_level": level_str(skill.duelist_required_level) if skill else "",
@@ -345,13 +342,11 @@ class ItemSectionGenerator(SectionGeneratorBase):
         item_template = self.render_template("item.jinja2", item_context)
 
         display_name = item.display_name or item.item_name or ""
-        image_name = item.image_name or display_name
-
         effect_spell = enriched.proc.spell if enriched.proc else None
         spell_details = self._build_spell_details_context(effect_spell, prefix="effect")
 
         consumable_context = {
-            "image": f"{image_name}.png" if image_name else "",
+            "image": item_image_file(item),
             "name": display_name,
             "value": self._item_window_value(item),
             "description": format_description(safe_str(item.lore)) if item.lore else "",
@@ -368,8 +363,6 @@ class ItemSectionGenerator(SectionGeneratorBase):
         item_template = self.render_template("item.jinja2", item_context)
 
         display_name = item.display_name or item.item_name or ""
-        image_name = item.image_name or display_name
-
         ingredients = ""
         rewards = ""
         if enriched.sources:
@@ -381,7 +374,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
                 rewards = str(link)
 
         mold_context = {
-            "image": f"{image_name}.png" if image_name else "",
+            "image": item_image_file(item),
             "name": display_name,
             "value": self._item_window_value(item),
             "description": format_description(safe_str(item.lore)) if item.lore else "",
@@ -399,8 +392,6 @@ class ItemSectionGenerator(SectionGeneratorBase):
         item_template = self.render_template("item.jinja2", item_context)
 
         display_name = item.display_name or item.item_name or ""
-        image_name = item.image_name or display_name
-
         spell = enriched.proc.spell if enriched.proc else None
         spell_details = self._build_spell_details_context(spell, prefix="effect")
 
@@ -412,7 +403,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             spell_details["effect_chance"] = ""
 
         general_context = {
-            "image": f"{image_name}.png" if image_name else "",
+            "image": item_image_file(item),
             "value": self._item_window_value(item),
             "name": display_name,
             "description": format_description(safe_str(item.lore)) if item.lore else "",
@@ -621,6 +612,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         return {
             "title": display_name,
             "stablekey": item.stable_key,
+            "imagefile": item_image_file(item),
             "type": item_type,
             "vendorsource": vendor_sources,
             "source": drop_sources,

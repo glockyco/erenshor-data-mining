@@ -336,9 +336,7 @@ class LinkListMerge:
 # Default preservation rules per template
 DEFAULT_PRESERVATION_RULES: dict[str, dict[str, str]] = {
     "Item": {
-        # Manual content that editors add
-        "image": "prefer_manual",  # Custom images
-        "imagecaption": "prefer_manual",  # Custom captions
+        # Generation owns the item's icon, which the tooltip template shows.
         "othersource": "preserve",  # Manually-added sources that don't fit other categories
         # Fields that benefit from merging manual and database values
         "type": "merge",  # Combine manual types with database types
