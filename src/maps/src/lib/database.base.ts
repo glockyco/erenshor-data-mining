@@ -518,6 +518,7 @@ export class RepositoryBase {
                 rep.wiki_page_name              AS WikiPageName,
                 rep.stable_key                  AS CharacterStableKey,
                 rep.level                       AS Level,
+                rep.level_scales_with_player    AS LevelScalesWithPlayer,
                 rep.is_vendor                   AS IsVendor,
                 rep.has_dialog                  AS HasDialog,
                 rep.invulnerable                AS Invulnerable,
@@ -585,6 +586,7 @@ export class RepositoryBase {
                 wikiPageName: row.WikiPageName as string | null,
                 stableKey: row.CharacterStableKey as string,
                 level: (row.Level as number) ?? 1,
+                levelScalesWithPlayer: !!row.LevelScalesWithPlayer,
                 spawnChance: (row.SpawnChance as number | null) ?? null,
                 sourceScript: (row.SourceScript as string | null) ?? null,
                 eventPosition:

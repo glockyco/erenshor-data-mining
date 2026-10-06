@@ -80,14 +80,11 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         variance_min = 0 if is_group_encounter else -1
         variance_max = 0 if is_group_encounter else 1
 
-        # A treasure guardian gets its level and stats from the player who
-        # strikes the chest, so its prefab values mean nothing.
-        scales_with_player = any(info.treasure_role == "guardian" for info in enriched.spawn_infos)
         # A treasure chest never takes damage, so it has no combat stats.
         # code-fact: treasure.chest_immune.damage
         # code-fact: treasure.chest_immune.magic
         # code-fact: treasure.chest_immune.bleed
-        has_combat_stats = not scales_with_player and not character.treasure_chest
+        has_combat_stats = not character.treasure_chest
 
         context = self._build_character_template_context(
             character=character,
@@ -109,15 +106,46 @@ class CharacterSectionGenerator(SectionGeneratorBase):
             level_mod_max=level_mod_max,
             variance_min=variance_min,
             variance_max=variance_max,
-            level=_SCALES_WITH_PLAYER_LEVEL if scales_with_player else safe_str(character.level),
+            level=_SCALES_WITH_PLAYER_LEVEL if character.level_scales_with_player else safe_str(character.level),
             has_combat_stats=has_combat_stats,
         )
 
         template_wikitext = self.render_template("character.jinja2", context)
-        if scales_with_player:
+        if any(info.treasure_role == "guardian" for info in enriched.spawn_infos):
             companion = f"{{{{{TREASURE_GUARDIAN_STATS_TEMPLATE}|stablekey={character.stable_key}}}}}"
             template_wikitext = f"{template_wikitext.rstrip()}\n\n{companion}\n"
         return self.normalize_wikitext(template_wikitext)
+
+    def _format_ac(self, character: Character) -> str:
+        """The AC, and for a training dummy with a hand-set AC, when that AC applies.
+
+        An AC that depends on the player's level shows as that many times it.
+        A dummy spawns with the AC that its stats give, because Stats.Start
+        recalculates the hand-set AC away.
+        """
+        computed = (
+            f"{character.ac_per_player_level} × the player's level"
+            if character.ac_per_player_level is not None
+            else safe_str(character.effective_ac)
+        )
+        hand_set = character.test_dummy_hand_set_ac
+        if not hand_set:
+            return computed
+        # code-fact: test_dummy.recording_ac
+        # code-fact: test_dummy.reset_ac
+        # code-fact: npc.status_effect_recalc.add
+        # code-fact: npc.status_effect_recalc.add_caster
+        # code-fact: npc.status_effect_recalc.add_duration
+        # code-fact: npc.status_effect_recalc.add_no_checks
+        # code-fact: npc.status_effect_recalc.remove
+        # code-fact: npc.status_effect_expiry
+        # code-fact: test_dummy.delete_key_recalc
+        return (
+            f"{computed}, or {hand_set} in a DPS recording<ref>A training dummy gets {hand_set} AC when a DPS "
+            "recording starts and again when it resets afterward. It keeps that AC until a status effect lands "
+            "on it or wears off or the player presses Delete. Each of these recalculates its AC as "
+            f"{computed}.</ref>"
+        )
 
     def _format_enemy_type(self, character: Character) -> str:
         """Use the character's stored encounter tier for the template type."""
@@ -400,16 +428,10 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         if xp_multiplier == 0.0:
             xp_multiplier = 1.0
 
-        def _format_resistance(
-            base_val: int | None, min_val: int | None, max_val: int | None, hand_set: int | None
-        ) -> str:
-            if not has_combat_stats:
+        def _format_resistance(min_val: int | None, max_val: int | None) -> str:
+            if not has_combat_stats or min_val is None or max_val is None:
                 return ""
-            if hand_set:
-                return safe_str(base_val)
-            min_r = min_val or 0
-            max_r = max_val or 0
-            return f"{min_r}-{max_r}" if min_r != max_r else str(min_r)
+            return f"{min_val}-{max_val}" if min_val != max_val else str(min_val)
 
         def _stat(value: int | None) -> str:
             return safe_str(value) if has_combat_stats else ""
@@ -441,7 +463,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
             "xp_multiplier": str(xp_multiplier),
             "health": _stat(character.effective_hp),
             "mana": _stat(character.base_mana),
-            "ac": _stat(character.effective_ac),
+            "ac": self._format_ac(character) if has_combat_stats else "",
             "strength": _stat(character.base_str),
             "endurance": _stat(character.base_end),
             "dexterity": _stat(character.base_dex),
@@ -449,29 +471,9 @@ class CharacterSectionGenerator(SectionGeneratorBase):
             "intelligence": _stat(character.base_int),
             "wisdom": _stat(character.base_wis),
             "charisma": _stat(character.base_cha),
-            "magic": _format_resistance(
-                character.base_mr,
-                character.effective_min_mr,
-                character.effective_max_mr,
-                character.hand_set_resistances,
-            ),
-            "poison": _format_resistance(
-                character.base_pr,
-                character.effective_min_pr,
-                character.effective_max_pr,
-                character.hand_set_resistances,
-            ),
-            "elemental": _format_resistance(
-                character.base_er,
-                character.effective_min_er,
-                character.effective_max_er,
-                character.hand_set_resistances,
-            ),
-            "void": _format_resistance(
-                character.base_vr,
-                character.effective_min_vr,
-                character.effective_max_vr,
-                character.hand_set_resistances,
-            ),
+            "magic": _format_resistance(character.effective_min_mr, character.effective_max_mr),
+            "poison": _format_resistance(character.effective_min_pr, character.effective_max_pr),
+            "elemental": _format_resistance(character.effective_min_er, character.effective_max_er),
+            "void": _format_resistance(character.effective_min_vr, character.effective_max_vr),
             "spells": spells,
         }

@@ -140,6 +140,58 @@ def starts_before(order: tuple[str, ...], first: str, second: str) -> bool:
     return first in order and second in order and order.index(first) < order.index(second)
 
 
+# code-fact: player.level_cap
+PLAYER_LEVEL_CAP = 35
+
+# code-fact: test_dummy.start_takes_player_level
+# code-fact: test_dummy.start_level_cap
+_TRAINING_DUMMY_LEVEL_CAP = 42
+
+
+def training_dummy_level(prefab_level: int) -> int | None:
+    """The level that ``TestDummy.Start`` gives a training dummy, or None for the player's level.
+
+    A dummy below level 42 takes the player's level, and one above takes 42.
+    ``TestDummy.FixedUpdate`` keeps that level afterwards.
+    """
+    # code-fact: test_dummy.follows_player_level
+    if prefab_level < _TRAINING_DUMMY_LEVEL_CAP:
+        return None
+    return _TRAINING_DUMMY_LEVEL_CAP
+
+
+@dataclass(frozen=True, slots=True)
+class StartLevels:
+    """The level that ``NPC.Start`` and ``Stats.Start`` see, and the level after every Start."""
+
+    npc: int
+    stats: int
+    final: int
+
+
+def start_levels(order: tuple[str, ...], prefab_level: int, player_level: int | None) -> StartLevels:
+    """The levels of a character that starts in this order, for a player of this level.
+
+    A Start that runs before ``TestDummy.Start`` sees the prefab level, and
+    one that runs after it sees the level that ``TestDummy.Start`` gives.
+    The random level variance of ``NPC.Start`` is left out, as for every
+    effective stat. ``player_level`` is needed only for a training dummy
+    that takes the player's level.
+    """
+    if "TestDummy" not in order:
+        return StartLevels(prefab_level, prefab_level, prefab_level)
+    final = training_dummy_level(prefab_level)
+    if final is None:
+        if player_level is None:
+            raise ValueError(f"a training dummy of level {prefab_level} takes the player's level, which is not given")
+        final = player_level
+    return StartLevels(
+        npc=final if starts_before(order, "TestDummy", "NPC") else prefab_level,
+        stats=final if starts_before(order, "TestDummy", "Stats") else prefab_level,
+        final=final,
+    )
+
+
 def resist_level(level_before: int, level_after: int, *, stats_starts_first: bool) -> int:
     """The level that ``Stats.Start`` rolls the resists from."""
     return level_before if stats_starts_first else level_after
@@ -153,17 +205,8 @@ def resist_range(level: int) -> tuple[int, int]:
     )
 
 
-def armor_class(
-    level: int, hard_set_ac: int, mitigation_bonus: float, test_dummy_hand_set_ac: int | None = None
-) -> int:
-    """NPC AC from ``Stats.CalcStats`` without status effects.
-
-    A training dummy with a hand-set AC overwrites the computed AC with it,
-    after the class mitigation.
-    """
-    # code-fact: npc.test_dummy_ac
-    if test_dummy_hand_set_ac:
-        return test_dummy_hand_set_ac
+def armor_class(level: int, hard_set_ac: int, mitigation_bonus: float) -> int:
+    """NPC AC from ``Stats.CalcStats`` without status effects."""
     base = hard_set_ac if hard_set_ac != 0 else level * AC_PER_LEVEL
     # code-fact: npc.ac_class_mitigation
     return scale(base, mitigation_bonus)

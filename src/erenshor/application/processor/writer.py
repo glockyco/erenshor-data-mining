@@ -844,6 +844,13 @@ CREATE TABLE characters (
     shout_trigger_keyword       TEXT,
     destroy_on_death            INTEGER,
     level                       INTEGER,
+    -- 1 when the game sets the level from the player's level: treasure
+    -- guardians, and training dummies below level 42. Then level is only the
+    -- prefab value, and an effective stat that depends on the player's level
+    -- is NULL.
+    level_scales_with_player    INTEGER NOT NULL,
+    -- When the AC depends on the player's level as this many times it.
+    ac_per_player_level         INTEGER,
     base_xp_min                 REAL,
     base_xp_max                 REAL,
     boss_xp_multiplier          REAL,
@@ -892,6 +899,9 @@ CREATE TABLE characters (
     proc_on_hit_chance          REAL,
     hand_set_resistances        INTEGER,
     stats_starts_before_npc     INTEGER,
+    -- TestDummy.HandSetAC: NULL without a TestDummy component, 0 without a
+    -- hand-set AC.
+    test_dummy_hand_set_ac      INTEGER,
     hard_set_ac                 INTEGER,
     base_atk_dmg                INTEGER,
     oh_atk_dmg                  INTEGER,

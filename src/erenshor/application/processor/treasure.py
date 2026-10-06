@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING
 from loguru import logger
 
 from .npc_spawn import (
+    PLAYER_LEVEL_CAP,
     SpawnConstants,
     armor_class,
     balanced_hp,
@@ -34,9 +35,6 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
 
     from .writer import Writer
-
-# code-fact: player.level_cap
-PLAYER_LEVEL_CAP = 35
 
 # code-fact: treasure.zone_pool_by_level
 # A map read above level 20 adds the zones flagged IsPickableGreater20, and a
@@ -88,7 +86,8 @@ _WAVE_DELAY_TICKS = 300.0
 # code-fact: treasure.wave_delay_rate
 _WAVE_DELAY_TICKS_PER_SECOND = 60.0
 
-_TREASURE_EVENT_SCRIPT = "TreasureChestEvent"
+# The script that spawns the guardians of a dug-up chest (character_chained_spawns).
+TREASURE_EVENT_SCRIPT = "TreasureChestEvent"
 
 
 @dataclass(frozen=True, slots=True)
@@ -257,7 +256,7 @@ def load_guardians(conn: sqlite3.Connection) -> list[GuardianProfile]:
         WHERE ccs.source_script = ?
         ORDER BY c.stable_key
         """,
-        (_TREASURE_EVENT_SCRIPT,),
+        (TREASURE_EVENT_SCRIPT,),
     ).fetchall()
     if not rows:
         raise ValueError("no treasure chest links to a guardian in character_chained_spawns")

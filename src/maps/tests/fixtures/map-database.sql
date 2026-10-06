@@ -32,6 +32,7 @@ CREATE TABLE characters (
     npc_name TEXT NOT NULL,
     wiki_page_name TEXT,
     level INTEGER NOT NULL,
+    level_scales_with_player INTEGER NOT NULL DEFAULT 0,
     is_vendor INTEGER NOT NULL,
     has_dialog INTEGER NOT NULL,
     invulnerable INTEGER NOT NULL,
@@ -463,15 +464,15 @@ INSERT INTO code_facts_meta (assembly_sha256, extracted_at, game_build_id, game_
 -- Treasure encounters have no fixed character spawn points.
 INSERT INTO characters (
     stable_key, display_name, npc_name, wiki_page_name, level, is_vendor, has_dialog,
-    invulnerable, is_friendly, encounter_tier
+    invulnerable, is_friendly, encounter_tier, level_scales_with_player
 ) VALUES
-    ('character:treasurechest 0-10 1', 'Lost Treasure (1-10)', 'Lost Treasure', 'Lost Treasure (1-10)', 1, 0, 0, 0, 0, 'chest'),
-    ('character:treasurechest 10-20 1', 'Lost Treasure (10-20)', 'Lost Treasure', 'Lost Treasure (10-20)', 10, 0, 0, 0, 0, 'chest'),
-    ('character:treasurechest 20-30 1', 'Lost Treasure (20-30)', 'Lost Treasure', 'Lost Treasure (20-30)', 20, 0, 0, 0, 0, 'chest'),
-    ('character:treasurechest 30-35', 'Lost Treasure (30+)', 'Lost Treasure', 'Lost Treasure (30+)', 30, 0, 0, 0, 0, 'chest'),
-    ('character:ancient skeleton', 'Ancient Skeleton', 'Ancient Skeleton', 'Ancient Skeleton', 1, 0, 0, 0, 0, 'enemy'),
-    ('character:ancient horror', 'Ancient Horror', 'Ancient Horror', 'Ancient Horror', 1, 0, 0, 0, 0, 'enemy'),
-    ('character:ancient demon', 'Ancient Demon', 'Ancient Demon', 'Ancient Demon', 1, 0, 0, 0, 0, 'enemy');
+    ('character:treasurechest 0-10 1', 'Lost Treasure (1-10)', 'Lost Treasure', 'Lost Treasure (1-10)', 1, 0, 0, 0, 0, 'chest', 0),
+    ('character:treasurechest 10-20 1', 'Lost Treasure (10-20)', 'Lost Treasure', 'Lost Treasure (10-20)', 10, 0, 0, 0, 0, 'chest', 0),
+    ('character:treasurechest 20-30 1', 'Lost Treasure (20-30)', 'Lost Treasure', 'Lost Treasure (20-30)', 20, 0, 0, 0, 0, 'chest', 0),
+    ('character:treasurechest 30-35', 'Lost Treasure (30+)', 'Lost Treasure', 'Lost Treasure (30+)', 30, 0, 0, 0, 0, 'chest', 0),
+    ('character:ancient skeleton', 'Ancient Skeleton', 'Ancient Skeleton', 'Ancient Skeleton', 1, 0, 0, 0, 0, 'enemy', 1),
+    ('character:ancient horror', 'Ancient Horror', 'Ancient Horror', 'Ancient Horror', 1, 0, 0, 0, 0, 'enemy', 1),
+    ('character:ancient demon', 'Ancient Demon', 'Ancient Demon', 'Ancient Demon', 1, 0, 0, 0, 0, 'enemy', 1);
 
 INSERT INTO character_deduplications (group_key, member_stable_key, is_map_visible)
 SELECT 'character-group:' || stable_key, stable_key, 0 FROM characters

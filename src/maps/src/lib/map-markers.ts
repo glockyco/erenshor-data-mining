@@ -77,7 +77,10 @@ export type SpawnCharacter = {
     name: string;
     wikiPageName: string | null;
     stableKey: string;
+    /** The prefab level, which the game replaces when levelScalesWithPlayer is set. */
     level: number;
+    /** The game sets the level from the player's level, as for training dummies below level 42. */
+    levelScalesWithPlayer: boolean;
     spawnChance: number | null;
     sourceScript: string | null;
     eventPosition: { x: number; y: number; z: number } | null;
@@ -86,6 +89,18 @@ export type SpawnCharacter = {
     isVendor: boolean;
     hasDialog: boolean;
 };
+
+/** The level of spawn characters as players read it: "Level 5", "Level 3–8", or that it scales. */
+export function formatSpawnLevels(
+    characters: Pick<SpawnCharacter, 'level' | 'levelScalesWithPlayer'>[]
+): string {
+    const fixed = characters.filter((c) => !c.levelScalesWithPlayer).map((c) => c.level);
+    if (fixed.length === 0) return "Scales with the player's level";
+    const min = Math.min(...fixed);
+    const max = Math.max(...fixed);
+    const range = min === max ? `Level ${min}` : `Level ${min}–${max}`;
+    return fixed.length < characters.length ? `${range}, or scales with the player's level` : range;
+}
 
 // Movement data for patrol paths and wander ranges
 export type MovementData = {

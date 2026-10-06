@@ -41,6 +41,8 @@ from typing import TYPE_CHECKING, cast
 from loguru import logger
 
 from .npc_spawn import (
+    PLAYER_LEVEL_CAP,
+    StartLevels,
     armor_class,
     attack_ability,
     balanced_hp,
@@ -49,9 +51,12 @@ from .npc_spawn import (
     load_spawn_constants,
     resist_range,
     spawn_attack,
+    start_levels,
     start_order,
     starts_before,
+    training_dummy_level,
 )
+from .treasure import TREASURE_EVENT_SCRIPT
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -234,12 +239,21 @@ _BOSS_EVENT_SCRIPTS = frozenset({"Chessboard"})
 
 # The four resists by clean column suffix, with the raw column of their base value.
 _RESIST_COLUMNS = (("mr", "BaseMR"), ("er", "BaseER"), ("pr", "BasePR"), ("vr", "BaseVR"))
-_EFFECTIVE_INT_COLUMNS = (
+_EFFECTIVE_COLUMNS = (
     "effective_hp",
     "effective_ac",
     "effective_base_atk_dmg",
+    "effective_attack_ability",
     *(f"effective_{bound}_{name}" for name, _ in _RESIST_COLUMNS for bound in ("min", "max")),
 )
+
+# code-fact: test_dummy.name
+_TRAINING_DUMMY_NAME = "Training Dummy"
+
+
+def _training_dummy_display_name(hand_set_ac: int) -> str:
+    """The wiki and the map name each kind of training dummy by its hand-set AC."""
+    return f"{_TRAINING_DUMMY_NAME} ({hand_set_ac} AC)" if hand_set_ac else _TRAINING_DUMMY_NAME
 
 
 def _resist_columns(resists: dict[str, tuple[int, int]]) -> dict[str, object]:
@@ -251,57 +265,113 @@ def _resist_columns(resists: dict[str, tuple[int, int]]) -> dict[str, object]:
     return columns
 
 
-def _stats_starts_first(r: dict[str, object]) -> bool:
-    """Whether Stats.Start runs before NPC.Start on this character (design D16)."""
-    order = start_order(
+def _start_order(r: dict[str, object]) -> tuple[str, ...]:
+    """The order in which Unity starts this character's components."""
+    return start_order(
         cast("str | None", r.get("StartComponentsListed")),
         cast("str | None", r.get("StartComponentsByFileId")),
         cast("bool | None", r.get("IsActiveAtLoad")),
     )
-    return starts_before(order, "Stats", "NPC")
 
 
-def _effective_stats(
-    r: dict[str, object], constants: SpawnConstants, mitigations: Mapping[str, float]
+def _spawned_stats(
+    r: dict[str, object],
+    order: tuple[str, ...],
+    levels: StartLevels,
+    constants: SpawnConstants,
+    mitigations: Mapping[str, float],
 ) -> dict[str, object]:
-    """Stats after NPC.Start, Stats.Start, and CalcStats, at the prefab's level."""
+    """The effective stats of an NPC that starts in this order and whose Start methods see these levels."""
     base_resists = {name: int(cast("int", r.get(column) or 0)) for name, column in _RESIST_COLUMNS}
-    if not r.get("HasStats"):
-        return dict.fromkeys(_EFFECTIVE_INT_COLUMNS, 0) | {"effective_attack_ability": 0.0}
-    base_attack = int(cast("int", r.get("BaseAtkDmg") or 0))
-    if not r.get("IsNPC"):
-        resists = {name: (value, value) for name, value in base_resists.items()}
-        return {
-            "effective_hp": 0,
-            "effective_ac": 0,
-            "effective_base_atk_dmg": base_attack,
-            "effective_attack_ability": 0.0,
-            **_resist_columns(resists),
-        }
-    level = int(cast("int", r["Level"]))
     if r.get("HandSetResistances"):
         resists = {name: (value, value) for name, value in base_resists.items()}
     else:
-        resists = dict.fromkeys(base_resists, resist_range(level))
+        resists = dict.fromkeys(base_resists, resist_range(levels.stats))
     return {
-        "effective_hp": balanced_hp(int(cast("int", r.get("BaseHP") or 0)), level, constants),
+        "effective_hp": balanced_hp(int(cast("int", r.get("BaseHP") or 0)), levels.npc, constants),
+        # CalcStats runs after the last level change: in TestDummy.Start, and
+        # in Stats.Start when that runs later.
+        # code-fact: test_dummy.start_recalc
+        # code-fact: npc.start_recalc
         "effective_ac": armor_class(
-            level,
+            levels.final,
             int(cast("int", r.get("HardSetAC") or 0)),
             class_mitigation(mitigations, cast("str | None", r.get("ClassResourceName"))),
-            test_dummy_hand_set_ac=cast("int | None", r.get("TestDummyHandSetAC")),
         ),
         "effective_base_atk_dmg": spawn_attack(
-            base_attack,
-            level,
-            level,
-            stats_starts_first=_stats_starts_first(r),
+            int(cast("int", r.get("BaseAtkDmg") or 0)),
+            levels.stats,
+            levels.stats,
+            stats_starts_first=starts_before(order, "Stats", "NPC"),
             floors_at_level=not r.get("HandSetResistances"),
             damage_balance_factor=constants.damage_balance_factor,
         ),
-        "effective_attack_ability": attack_ability(level, float(cast("float", r.get("ArmorPenMult") or 0.0))),
+        "effective_attack_ability": attack_ability(levels.final, float(cast("float", r.get("ArmorPenMult") or 0.0))),
         **_resist_columns(resists),
     }
+
+
+def _fixed(values: list[object]) -> object:
+    """The value when every player level gives the same one, else None."""
+    return values[0] if all(value == values[0] for value in values) else None
+
+
+def _effective_stats(
+    r: dict[str, object],
+    constants: SpawnConstants,
+    mitigations: Mapping[str, float],
+    *,
+    is_treasure_guardian: bool,
+) -> dict[str, object]:
+    """Stats after NPC.Start, Stats.Start, and CalcStats, at the level that each of them sees.
+
+    A stat that depends on the player's level has no fixed value and is None:
+    every stat of a treasure guardian, and each stat of a training dummy that
+    a Start computes after ``TestDummy.Start`` gave it the player's level.
+    ``ac_per_player_level`` is set when the AC is exactly that many times the
+    player's level.
+    """
+    if not r.get("HasStats"):
+        no_stats: dict[str, object] = dict.fromkeys(_EFFECTIVE_COLUMNS, 0)
+        return no_stats | {"level_scales_with_player": 0, "ac_per_player_level": None}
+    if not r.get("IsNPC"):
+        base_resists = {name: int(cast("int", r.get(column) or 0)) for name, column in _RESIST_COLUMNS}
+        return {
+            "effective_hp": 0,
+            "effective_ac": 0,
+            "effective_base_atk_dmg": int(cast("int", r.get("BaseAtkDmg") or 0)),
+            "effective_attack_ability": 0.0,
+            **_resist_columns({name: (value, value) for name, value in base_resists.items()}),
+            "level_scales_with_player": 0,
+            "ac_per_player_level": None,
+        }
+    if is_treasure_guardian:
+        # SetGuardianStats sets the level and the stats from the player's
+        # level before any Start runs (treasure_guardian_scaling).
+        # code-fact: treasure.guardian_stats
+        unfixed: dict[str, object] = dict.fromkeys(_EFFECTIVE_COLUMNS)
+        return unfixed | {"level_scales_with_player": 1, "ac_per_player_level": None}
+    order = _start_order(r)
+    level = int(cast("int", r["Level"]))
+    if r.get("TestDummyHandSetAC") and not starts_before(order, "TestDummy", "Stats"):
+        # TestDummy.Start gives the hand-set AC and Stats.Start recalculates
+        # it away when it runs later, as for every dummy so far. A dummy that
+        # keeps its hand-set AC from spawn needs its own infobox text.
+        # code-fact: npc.test_dummy_ac
+        raise ValueError(
+            f"{r['StableKey']}: training dummy starts TestDummy after Stats, so it spawns with its hand-set AC"
+        )
+    if "TestDummy" not in order or training_dummy_level(level) is not None:
+        stats = _spawned_stats(r, order, start_levels(order, level, None), constants, mitigations)
+        return stats | {"level_scales_with_player": 0, "ac_per_player_level": None}
+    by_player_level = [
+        _spawned_stats(r, order, start_levels(order, level, player_level), constants, mitigations)
+        for player_level in range(1, PLAYER_LEVEL_CAP + 1)
+    ]
+    stats = {column: _fixed([row[column] for row in by_player_level]) for column in _EFFECTIVE_COLUMNS}
+    acs = [cast("int", row["effective_ac"]) for row in by_player_level]
+    linear = all(ac == acs[0] * player_level for player_level, ac in enumerate(acs, start=1))
+    return stats | {"level_scales_with_player": 1, "ac_per_player_level": acs[0] if linear else None}
 
 
 @dataclass(frozen=True)
@@ -571,9 +641,12 @@ def process_characters(
             is_map_visible = int(override["is_map_visible"])
             encounter_tier_override = override["encounter_tier"]
         else:
-            display_name = npc_name.strip()
-            wiki_page_name = npc_name.strip()
-            image_name = npc_name.strip()
+            hand_set_ac = row.get("TestDummyHandSetAC")
+            if hand_set_ac is not None:
+                display_name = _training_dummy_display_name(int(cast("int", hand_set_ac)))
+                wiki_page_name = image_name = _TRAINING_DUMMY_NAME
+            else:
+                display_name = wiki_page_name = image_name = npc_name.strip()
             is_wiki_generated = 1
             is_map_visible = 1
             encounter_tier_override = None
@@ -915,6 +988,18 @@ def process_characters(
     # ------------------------------------------------------------------
     constants = load_spawn_constants(writer.conn)
     mitigations = load_class_mitigations(writer.conn)
+    guardian_keys = (
+        frozenset(
+            str(row["ChildStableKey"])
+            for row in _load_rows(
+                raw,
+                "SELECT ChildStableKey FROM CharacterChainedSpawns WHERE SourceScript = ?",
+                (TREASURE_EVENT_SCRIPT,),
+            )
+        )
+        if _table_exists(raw, "CharacterChainedSpawns")
+        else frozenset()
+    )
     char_data: list[_CharData] = []
     for c in chars:
         sk = c.stable_key
@@ -937,7 +1022,7 @@ def process_characters(
                 vendor_item_keys=vendor_items.get(sk, frozenset()),
                 quest_manager_quest_keys=qm_quests.get(sk, frozenset()),
                 dialog_quest_keys=dialog_quest_by_char.get(sk, frozenset()),
-                effective=_effective_stats(c.raw, constants, mitigations),
+                effective=_effective_stats(c.raw, constants, mitigations, is_treasure_guardian=sk in guardian_keys),
             )
         )
 
@@ -1066,7 +1151,8 @@ def process_characters(
             "proc_on_hit_stable_key": r.get("ProcOnHitStableKey"),
             "proc_on_hit_chance": r.get("ProcOnHitChance"),
             "hand_set_resistances": r.get("HandSetResistances"),
-            "stats_starts_before_npc": _stats_starts_first(r),
+            "stats_starts_before_npc": starts_before(_start_order(r), "Stats", "NPC"),
+            "test_dummy_hand_set_ac": r.get("TestDummyHandSetAC"),
             "hard_set_ac": r.get("HardSetAC"),
             "base_atk_dmg": r.get("BaseAtkDmg"),
             "oh_atk_dmg": r.get("OHAtkDmg"),

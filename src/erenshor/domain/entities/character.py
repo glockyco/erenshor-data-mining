@@ -92,7 +92,13 @@ class Character(BaseEntity):
     destroy_on_death: int | None = Field(default=None, description="Destroy on death (boolean)")
 
     # Base stats
-    level: int | None = Field(default=None, description="Character level")
+    level: int | None = Field(default=None, description="Prefab level")
+    level_scales_with_player: int = Field(
+        default=0, description="The game sets the level from the player's level (boolean)"
+    )
+    ac_per_player_level: int | None = Field(
+        default=None, description="The AC as this many times the player's level, when it depends on it"
+    )
     base_xp_min: float | None = Field(default=None, description="Min XP received when killed (before multipliers)")
     base_xp_max: float | None = Field(default=None, description="Max XP received when killed (before multipliers)")
     boss_xp_multiplier: float | None = Field(default=None, description="XP multiplier")
@@ -125,7 +131,7 @@ class Character(BaseEntity):
     base_attack_roll_modifier: int | None = Field(default=None, description="Base attack roll modifier")
     cannot_be_snared: int | None = Field(default=None, description="Cannot be snared (boolean)")
 
-    # Effective stats (calculated)
+    # Effective stats (calculated). None when the stat depends on the player's level.
     effective_hp: int | None = Field(default=None, description="Calculated HP")
     effective_ac: int | None = Field(default=None, description="Calculated AC")
     effective_base_atk_dmg: int | None = Field(default=None, description="Calculated base damage")
@@ -155,6 +161,9 @@ class Character(BaseEntity):
     # Stat overrides
     hand_set_resistances: int | None = Field(default=None, description="Uses manually set resistances (boolean)")
     hard_set_ac: int | None = Field(default=None, description="Uses manually set AC value")
+    test_dummy_hand_set_ac: int | None = Field(
+        default=None, description="Hand-set AC of a training dummy: None without TestDummy, 0 without one"
+    )
 
     # Damage properties
     base_atk_dmg: int | None = Field(default=None, description="Base attack damage")

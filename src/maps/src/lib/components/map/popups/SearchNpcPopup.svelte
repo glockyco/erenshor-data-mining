@@ -1,6 +1,7 @@
 <script lang="ts">
     import { SvelteMap } from 'svelte/reactivity';
     import type { WorldNpc } from '$lib/types/world-map';
+    import { formatSpawnLevels } from '$lib/map-markers';
     import WikiLink from '$lib/components/map/WikiLink.svelte';
     import Crosshair from '@lucide/svelte/icons/crosshair';
 
@@ -14,19 +15,13 @@
 
     let { name, markers, onHoverSpawn, onFocusSpawn, onFocusAll }: Props = $props();
 
-    // Overall level range (across all characters on all matching markers)
-    const levelRange = $derived.by(() => {
-        const levels = markers.flatMap((m) => m.characters.map((c) => c.level));
-        const min = Math.min(...levels);
-        const max = Math.max(...levels);
-        return min === max ? `Level ${min}` : `Level ${min}–${max}`;
-    });
+    // Overall level (across all characters on all matching markers)
+    const levelRange = $derived(formatSpawnLevels(markers.flatMap((m) => m.characters)));
 
     // Whether level varies across locations (show per-row if so)
-    const levelVaries = $derived.by(() => {
-        const levels = new Set(markers.flatMap((m) => m.characters.map((c) => c.level)));
-        return levels.size > 1;
-    });
+    const levelVaries = $derived(
+        new Set(markers.map((m) => formatSpawnLevels(m.characters))).size > 1
+    );
 
     function getSpawnSource(marker: WorldNpc): string | null {
         return marker.characters.find((c) => c.name === name)?.sourceScript ?? null;
@@ -124,13 +119,8 @@
                             <div class="min-w-0 flex-1">
                                 <div class="flex flex-wrap items-center gap-x-1 text-zinc-500">
                                     {#if levelVaries}
-                                        {@const markerLevels = marker.characters.map(
-                                            (c) => c.level
-                                        )}
-                                        {@const minLv = Math.min(...markerLevels)}
-                                        {@const maxLv = Math.max(...markerLevels)}
                                         <span class="text-zinc-300">
-                                            Lv {minLv === maxLv ? minLv : `${minLv}–${maxLv}`}
+                                            {formatSpawnLevels(marker.characters)}
                                         </span>
                                         <span>·</span>
                                     {/if}

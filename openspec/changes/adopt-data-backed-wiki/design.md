@@ -286,21 +286,23 @@ Decided on 2026-10-05:
 
 ### D17. Training dummies
 
-A training dummy carries a `TestDummy` component beside `NPC` and `Stats`. `TestDummy.Start` sets the dummy's level to the player's level when it is below 42 and to 42 when it is above, recomputes its stats, and gives it its hand-set AC. `TestDummy.FixedUpdate` keeps the level at the player's level. The hand-set AC returns when a DPS recording starts and when the dummy resets after one, and `Stats.CalcStats` replaces it with 15 × the level whenever a status effect lands on the dummy or wears off. These rules are assert code facts.
+A training dummy carries a `TestDummy` component beside `NPC` and `Stats`. `TestDummy.Start` sets the dummy's level to the player's level when it is below 42 and to 42 when it is above, recomputes its stats, and gives it its hand-set AC. `TestDummy.FixedUpdate` keeps the level at the player's level. The hand-set AC returns when a DPS recording starts and when the dummy resets after one. `Stats.CalcStats` replaces it with 15 × the level whenever a status effect lands on the dummy or wears off, and whenever the player presses Delete. These rules are assert code facts.
+
+Every dummy with a hand-set AC starts `Stats` after `TestDummy`, and `Stats.Start` recalculates the hand-set AC away, so the dummy spawns with the AC of its level. In game on 2026-10-06 at player level 20, a 400 AC dummy had AC 300 until it was hit, 400 after the hit, and 300 again after a status effect landed on it. The clean build stops when a dummy would keep its hand-set AC from spawn, because the infobox text does not describe that case.
 
 `NPC.Start` and `Stats.Start` see the prefab level when they start before `TestDummy` and the player's level when they start after it, in the start order of D16. A stat that one of them computes from the player's level has no fixed value, and the clean database leaves it empty. In game on 2026-10-05, at player levels 5 and 20, the Stone Training dummies, which start `TestDummy` first, had 143,000,000 and 227,499,984 health, and the Wood Training dummy, which starts `NPC` first, had 143,000,000 at both.
 
 Decided on 2026-10-05:
 
-- The wiki and the map name each kind by its hand-set AC: Training Dummy, Training Dummy (400 AC), Training Dummy (800 AC), and Training Dummy (1000 AC). The game calls every dummy Training Dummy when it starts, and only the 400 and 800 AC kinds carry their AC in their NPC name.
+- The wiki and the map name each kind by its hand-set AC: Training Dummy, Training Dummy (400 AC), Training Dummy (800 AC), and Training Dummy (1000 AC). The game calls every dummy Training Dummy when it starts, and only the 400 and 800 AC kinds carry their AC in their NPC name. The clean build derives the names from the hand-set AC, and every kind shows `Training Dummy.png`, because all dummies share one model.
 - The infobox shows "Scales with the player's level" as the level, the health only where it is fixed, and the AC with when it applies, as 15 × the player's level where no hand-set AC applies. The map shows the level the same way. Dummies are NPC markers, which the level filter never hides.
 - `characters.level_scales_with_player` marks every character whose level the game sets from the player's level, the treasure guardians of D16 included, so that the wiki and the map read one flag.
 
 ### D18. Reliquary furnishings
 
-The Reliquary has 8 rooms. At its planning table the player puts one furniture set into each room, and `PlanningTable.CheckRoomAndBuild` turns on the child of the room whose name is the set's `EquipmentToActivate`. Every room has the same children, so each furnishing NPC can stand at its spot in any of the 8 rooms. Until 2026-10-05, 94 mapping entries without reasons showed some furnishings in all 8 rooms, others in one, and the Braxonian Flame Well in none.
+The Reliquary has 8 rooms. At its planning table the player puts one furniture set into each room, and `PlanningTable.CheckRoomAndBuild` turns on the child of the room whose name is the set's `EquipmentToActivate`. Every room has the same children, so each furnishing NPC can stand at its spot in any of the 8 rooms. Until 2026-10-05, 95 mapping entries without reasons showed some furnishings in all 8 rooms, others in one, and the Braxonian Flame Well in none. Task 5.34 removed the 3 of them that only restated a training dummy's name.
 
-Decided on 2026-10-05: the export records which planning-table room and furnishing hold each scene character, and the clean build links the furnishing to its furniture item. Every furnishing NPC appears at its spot in all 8 rooms, like the dig sites of D16, and the map popup and the infobox say that it appears when the player places the linked furniture set in a room. A rule replaces the 94 entries.
+Decided on 2026-10-05: the export records which planning-table room and furnishing hold each scene character, and the clean build links the furnishing to its furniture item. Every furnishing NPC appears at its spot in all 8 rooms, like the dig sites of D16, and the map popup and the infobox say that it appears when the player places the linked furniture set in a room. A rule replaces the remaining 92 entries.
 
 ### Failure handling and update grouping
 

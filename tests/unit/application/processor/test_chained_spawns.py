@@ -18,7 +18,8 @@ def clean_db(tmp_path):
 
 def _insert_character(conn, stable_key, display_name):
     conn.execute(
-        "INSERT INTO characters (stable_key, display_name, image_name, encounter_tier) VALUES (?, ?, ?, 'enemy')",
+        "INSERT INTO characters (stable_key, display_name, image_name, encounter_tier, level_scales_with_player)"
+        " VALUES (?, ?, ?, 'enemy', 0)",
         (stable_key, display_name, display_name),
     )
 

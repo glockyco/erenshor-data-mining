@@ -120,6 +120,9 @@ ignore = [
     "PLR0915", # Too many statements
     "TC003",   # Move standard library import into type-checking block (false positive for runtime-needed imports)
 ]
+# Player-facing wiki text writes products with the multiplication sign, as the
+# wiki's own templates do.
+allowed-confusables = ["×"]
 
 [tool.ruff.format]
 quote-style = "double"

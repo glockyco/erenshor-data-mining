@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { WorldEnemy, WorldNpc, SpawnCharacter } from '$lib/types/world-map';
-    import { compareEncounterTier } from '$lib/map-markers';
+    import { compareEncounterTier, formatSpawnLevels } from '$lib/map-markers';
     import type { CharacterDetails } from '$lib/map/character-details';
     import WikiLink from '$lib/components/map/WikiLink.svelte';
 
@@ -102,7 +102,7 @@
                     <div class="min-w-0 flex-1">
                         <div class="font-medium text-white">{char.name}</div>
                         <div class="text-xs text-zinc-400">
-                            Level {char.level} &bull; {formatSpawnSource(char)}
+                            {formatSpawnLevels([char])} &bull; {formatSpawnSource(char)}
                         </div>
                     </div>
                     <div class="flex flex-col items-end gap-1 shrink-0">

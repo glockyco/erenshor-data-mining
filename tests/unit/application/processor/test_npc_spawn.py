@@ -4,12 +4,15 @@ import pytest
 
 from erenshor.application.processor.npc_spawn import (
     SpawnConstants,
+    StartLevels,
     armor_class,
     attack_ability,
     balanced_hp,
     spawn_attack,
+    start_levels,
     start_order,
     starts_before,
+    training_dummy_level,
 )
 
 CONSTANTS = SpawnConstants(
@@ -70,10 +73,24 @@ def test_attack_ability_bonus_starts_at_level_20_and_tops_out_at_level_40() -> N
     assert attack_ability(1, 1.5) == 150
 
 
-def test_a_training_dummy_with_hand_set_ac_ignores_level_and_class() -> None:
-    assert armor_class(10, 0, 1.1, test_dummy_hand_set_ac=400) == 400
-    assert armor_class(10, 0, 1.1, test_dummy_hand_set_ac=0) == 165
+def test_hard_set_ac_replaces_the_level_and_the_class_scales_it() -> None:
     assert armor_class(10, 50, 1.0) == 50
+    assert armor_class(10, 0, 1.1) == 165
+
+
+def test_a_training_dummy_takes_the_player_level_below_42_and_42_above() -> None:
+    assert training_dummy_level(1) is None
+    assert training_dummy_level(41) is None
+    assert training_dummy_level(42) == 42
+    assert training_dummy_level(50) == 42
+
+
+def test_a_start_after_the_training_dummy_sees_the_level_it_gave() -> None:
+    assert start_levels(("TestDummy", "Stats", "NPC"), 1, 20) == StartLevels(npc=20, stats=20, final=20)
+    assert start_levels(("NPC", "Stats", "TestDummy"), 1, 20) == StartLevels(npc=1, stats=1, final=20)
+    assert start_levels(("Stats", "NPC"), 7, None) == StartLevels(npc=7, stats=7, final=7)
+    with pytest.raises(ValueError, match="takes the player's level"):
+        start_levels(("TestDummy", "Stats", "NPC"), 1, None)
 
 
 def test_instantiated_prefabs_start_in_component_list_order() -> None:

@@ -659,7 +659,7 @@
         "kind": "BinaryOperatorExpression",
         "shape": "Level < 35"
       },
-      "note": "The player stops levelling at 35. treasure_guardian_scaling has one row per player level up to that cap."
+      "note": "The player stops levelling at 35. The clean build computes the stats that follow the player's level, of treasure guardians and training dummies, for each player level up to that cap."
     },
     {
       "id": "npc.start_attack_floor",
@@ -869,7 +869,200 @@
         "kind": "IfElseStatement",
         "shape": "if (HandSetAC != 0) { MyStats.BaseAC = HandSetAC; MyStats.CurrentAC = HandSetAC; }"
       },
-      "note": "A training dummy with a hand-set AC overwrites its computed AC with it. Re-implemented by armor_class in src/erenshor/application/processor/npc_spawn.py."
+      "note": "TestDummy.Start gives a training dummy its hand-set AC. Every dummy so far starts Stats later, which recalculates it away, and the clean build stops when a dummy would keep it from spawn."
+    },
+    {
+      "id": "test_dummy.start_takes_player_level",
+      "mode": "assert",
+      "type": "TestDummy",
+      "method": "Start",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (MyStats.Level < 42) { MyStats.Level = GameData.PlayerStats.Level; }"
+      },
+      "note": "TestDummy.Start sets a training dummy below level 42 to the player's level. Re-implemented by training_dummy_level in src/erenshor/application/processor/npc_spawn.py."
+    },
+    {
+      "id": "test_dummy.start_level_cap",
+      "mode": "assert",
+      "type": "TestDummy",
+      "method": "Start",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (MyStats.Level > 42) { MyStats.Level = 42; }"
+      },
+      "note": "TestDummy.Start sets a training dummy above level 42 to 42. Re-implemented by training_dummy_level in src/erenshor/application/processor/npc_spawn.py."
+    },
+    {
+      "id": "test_dummy.name",
+      "mode": "assert",
+      "type": "TestDummy",
+      "method": "Start",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "base.transform.name = \"Training Dummy\";"
+      },
+      "note": "TestDummy.Start names every training dummy Training Dummy. The clean build names each kind after it, adding the hand-set AC."
+    },
+    {
+      "id": "test_dummy.follows_player_level",
+      "mode": "assert",
+      "type": "TestDummy",
+      "method": "FixedUpdate",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (MyStats.Level != GameData.PlayerStats.Level) { if (MyStats.Level < 42) { MyStats.Level = GameData.PlayerStats.Level; } if (MyStats.Level > 42) { MyStats.Level = 42; } base.transform.name = \"Training Dummy\"; }"
+      },
+      "note": "TestDummy.FixedUpdate keeps a training dummy below level 42 at the player's level. Re-implemented by training_dummy_level in src/erenshor/application/processor/npc_spawn.py."
+    },
+    {
+      "id": "test_dummy.recording_ac",
+      "mode": "assert",
+      "type": "TestDummy",
+      "method": "FixedUpdate",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (MyStats.CurrentHP < MyStats.CurrentMaxHP && T == 0f && cooldown <= 0f) { T = 3600f; UpdateSocialLog.LogAdd (new ChatLogLine (\"DPS Recording Started - 60 seconds remaining!\", ChatLogLine.LogType.SystemMessages, \"yellow\")); if (HandSetAC != 0) { MyStats.BaseAC = HandSetAC; MyStats.CurrentAC = HandSetAC; } }"
+      },
+      "note": "A training dummy that takes damage while idle starts a DPS recording and gets its hand-set AC. Stated by the AC note of the character infobox."
+    },
+    {
+      "id": "test_dummy.reset_ac",
+      "mode": "assert",
+      "type": "TestDummy",
+      "method": "FixedUpdate",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (cooldown <= 0f) { StatusEffect[] statusEffects = MyStats.StatusEffects; foreach (StatusEffect obj in statusEffects) { obj.Effect = null; obj.Duration = 0f; obj.fromPlayer = false; } UpdateSocialLog.LogAdd (new ChatLogLine (\"READY\", ChatLogLine.LogType.SystemMessages, \"yellow\")); MyStats.CalcStats (); MyStats.CurrentHP = MyStats.CurrentMaxHP; if (HandSetAC != 0) { MyStats.BaseAC = HandSetAC; MyStats.CurrentAC = HandSetAC; } }"
+      },
+      "note": "A training dummy resets after its cooldown, recalculates its stats, and gets its hand-set AC again. Stated by the AC note of the character infobox."
+    },
+    {
+      "id": "npc.status_effect_recalc.add",
+      "mode": "assert",
+      "type": "Stats",
+      "method": "AddStatusEffect",
+      "parameters": [
+        "Spell",
+        "bool",
+        "int"
+      ],
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "CalcStats ();",
+        "count": "3"
+      },
+      "note": "AddStatusEffect(Spell, bool, int) recalculates the stats on each of its three ways to land an effect. Stated by the training dummy AC note of the character infobox."
+    },
+    {
+      "id": "npc.status_effect_recalc.add_caster",
+      "mode": "assert",
+      "type": "Stats",
+      "method": "AddStatusEffect",
+      "parameters": [
+        "Spell",
+        "bool",
+        "int",
+        "Character"
+      ],
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "CalcStats ();",
+        "count": "3"
+      },
+      "note": "AddStatusEffect(Spell, bool, int, Character) recalculates the stats on each of its three ways to land an effect. Stated by the training dummy AC note of the character infobox."
+    },
+    {
+      "id": "npc.status_effect_recalc.add_duration",
+      "mode": "assert",
+      "type": "Stats",
+      "method": "AddStatusEffect",
+      "parameters": [
+        "Spell",
+        "bool",
+        "int",
+        "Character",
+        "float"
+      ],
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "CalcStats ();",
+        "count": "3"
+      },
+      "note": "AddStatusEffect(Spell, bool, int, Character, float) recalculates the stats on each of its three ways to land an effect. Stated by the training dummy AC note of the character infobox."
+    },
+    {
+      "id": "npc.status_effect_recalc.add_no_checks",
+      "mode": "assert",
+      "type": "Stats",
+      "method": "AddStatusEffectNoChecks",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "CalcStats ();"
+      },
+      "note": "AddStatusEffectNoChecks recalculates the stats after landing an effect. Stated by the training dummy AC note of the character infobox."
+    },
+    {
+      "id": "npc.status_effect_recalc.remove",
+      "mode": "assert",
+      "type": "Stats",
+      "method": "RemoveStatusEffect",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "CalcStats ();"
+      },
+      "note": "RemoveStatusEffect recalculates the stats after removing an effect. Stated by the training dummy AC note of the character infobox."
+    },
+    {
+      "id": "npc.status_effect_expiry",
+      "mode": "assert",
+      "type": "Stats",
+      "method": "TickEffects",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (StatusEffects [i].Duration <= 0f && StatusEffects [i].Effect != null) { RemoveStatusEffect (i); }"
+      },
+      "note": "TickEffects removes a status effect when its duration runs out, through RemoveStatusEffect. Stated by the training dummy AC note of the character infobox."
+    },
+    {
+      "id": "test_dummy.delete_key_recalc",
+      "mode": "assert",
+      "type": "Stats",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (Input.GetKeyDown (KeyCode.Delete) && GetComponent<TestDummy> () != null) { CalcStats (); }"
+      },
+      "note": "Pressing Delete recalculates the stats of every training dummy in the scene. Stated by the training dummy AC note of the character infobox."
+    },
+    {
+      "id": "test_dummy.start_recalc",
+      "mode": "assert",
+      "type": "TestDummy",
+      "method": "Start",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "MyStats.CalcStats ();"
+      },
+      "note": "TestDummy.Start recalculates the stats after it sets the level, so the AC follows the level it gives. Consumed by _spawned_stats in src/erenshor/application/processor/characters.py."
+    },
+    {
+      "id": "npc.start_recalc",
+      "mode": "assert",
+      "type": "Stats",
+      "method": "Start",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "CalcStats ();"
+      },
+      "note": "Stats.Start recalculates the stats, which replaces an AC that TestDummy.Start set by hand when Stats.Start runs later. Consumed by _spawned_stats and _effective_stats in src/erenshor/application/processor/characters.py."
     }
   ]
 }

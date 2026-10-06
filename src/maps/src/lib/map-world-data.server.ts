@@ -224,6 +224,15 @@ export async function buildMapWorldData(
                     worldPatrolWaypoints
                 } as WorldNpc);
             } else {
+                // The level filter reads each character's own level. A hostile
+                // character whose level follows the player has none, and needs
+                // a filter range of its own, as the dig sites have.
+                const scaling = marker.characters.find((c) => c.levelScalesWithPlayer);
+                if (scaling) {
+                    throw new Error(
+                        `${scaling.stableKey}: hostile spawn whose level follows the player has no level filter range`
+                    );
+                }
                 const levels = marker.characters.map((c) => c.level);
                 const enemyMarker = {
                     ...marker,

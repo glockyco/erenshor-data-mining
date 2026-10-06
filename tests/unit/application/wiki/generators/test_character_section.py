@@ -214,7 +214,14 @@ def _treasure_site(zone: str, role: str) -> CharacterSpawnInfo:
 
 def test_treasure_guardian_scales_with_the_player_and_takes_its_stats_table() -> None:
     character = make_character(
-        stable_key="character:ancient horror", display_name="Ancient Horror", encounter_tier="elite"
+        stable_key="character:ancient horror",
+        display_name="Ancient Horror",
+        encounter_tier="elite",
+        level_scales_with_player=1,
+        effective_hp=None,
+        effective_ac=None,
+        effective_min_mr=None,
+        effective_max_mr=None,
     )
     content = CharacterSectionGenerator().generate_template(
         EnrichedCharacterData(
@@ -246,3 +253,31 @@ def test_treasure_chest_keeps_its_level_but_shows_no_combat_stats() -> None:
     assert "|health=\n" in content
     assert "|poison=\n" in content
     assert "TreasureGuardianStats" not in content
+
+
+def _training_dummy(**overrides: object) -> str:
+    character = make_character(display_name="Training Dummy (400 AC)", encounter_tier="npc", **overrides)
+    return CharacterSectionGenerator().generate_template(
+        EnrichedCharacterData(character=character, spawn_infos=[], spells=[]), page_title="Training Dummy"
+    )
+
+
+def test_training_dummy_ac_follows_the_player_level_without_a_hand_set_ac() -> None:
+    content = _training_dummy(
+        level_scales_with_player=1, effective_ac=None, ac_per_player_level=15, test_dummy_hand_set_ac=0
+    )
+
+    assert "|level=Scales with the player's level\n" in content
+    assert "|ac=15 × the player's level\n" in content
+
+
+def test_training_dummy_hand_set_ac_says_when_it_applies() -> None:
+    following = _training_dummy(
+        level_scales_with_player=1, effective_ac=None, ac_per_player_level=15, test_dummy_hand_set_ac=400
+    )
+    fixed = _training_dummy(level=42, effective_ac=630, test_dummy_hand_set_ac=1000)
+
+    assert "|ac=15 × the player's level, or 400 in a DPS recording<ref>A training dummy gets 400 AC" in following
+    assert "recalculates its AC as 15 × the player's level.</ref>\n" in following
+    assert "|ac=630, or 1000 in a DPS recording<ref>" in fixed
+    assert "recalculates its AC as 630.</ref>\n" in fixed
