@@ -99,6 +99,41 @@ def test_download_uses_the_owned_http_session() -> None:
     assert client.requests == [("GET", {}, None)]
 
 
+def _image_response(status_code: int, headers: dict[str, str] | None = None) -> httpx.Response:
+    return httpx.Response(
+        status_code,
+        content=b"image-bytes" if status_code == 200 else b"<html>busy</html>",
+        headers=headers,
+        request=httpx.Request("GET", "https://erenshor.wiki.gg/images/logo.png"),
+    )
+
+
+def test_a_download_waits_out_an_overloaded_file_server() -> None:
+    clock = MockClock()
+    client = FakeHttpClient([_image_response(503), _image_response(429, {"Retry-After": "30"}), _image_response(200)])
+    requestor = make_requestor(client, clock)
+
+    result = requestor.download("https://erenshor.wiki.gg/images/logo.png")
+
+    assert result.content == b"image-bytes"
+    assert [later - earlier for earlier, later in zip(client.times, client.times[1:], strict=False)] == [5.0, 30.0]
+
+
+def test_a_download_returns_the_last_answer_when_the_server_stays_unavailable() -> None:
+    client = FakeHttpClient([_image_response(503) for _ in range(4)])
+    requestor = make_requestor(client)
+
+    assert requestor.download("https://erenshor.wiki.gg/images/logo.png").status_code == 503
+    assert len(client.requests) == 4
+
+
+def test_a_download_does_not_retry_a_missing_file() -> None:
+    client = FakeHttpClient([_image_response(404)])
+    requestor = make_requestor(client)
+
+    assert requestor.download("https://erenshor.wiki.gg/images/logo.png").status_code == 404
+
+
 def test_omits_maxlag_for_interactive_requests() -> None:
     client = FakeHttpClient([response()])
     requestor = make_requestor(client)

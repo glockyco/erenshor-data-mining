@@ -14,6 +14,9 @@ from erenshor.infrastructure.time import Clock, RealClock
 
 JsonObject = dict[str, Any]
 
+# The answers of a file server that a download retries.
+_TRANSIENT_DOWNLOAD_STATUSES = frozenset({429, 502, 503, 504})
+
 
 class MediaWikiRequestError(RuntimeError):
     """Base error for MediaWiki request policy failures."""
@@ -194,9 +197,18 @@ class MediaWikiRequestor:
         )
 
     def download(self, url: str) -> MediaWikiDownload:
-        """Download bytes through the owned HTTP session."""
+        """Download bytes through the owned HTTP session.
+
+        A file server answers overload with 429 or a bare 502, 503, or 504, so
+        a download retries those with the policy's backoff, or after the
+        ``Retry-After`` that the server names. The last answer is returned.
+        """
         with self._lock:
-            response = self._http_client.get(url, params={})
+            for attempt in range(self.policy.max_retries + 1):
+                response = self._http_client.get(url, params={})
+                if response.status_code not in _TRANSIENT_DOWNLOAD_STATUSES or attempt == self.policy.max_retries:
+                    break
+                self.clock.sleep(_retry_after_or_backoff(response.headers, attempt, self.policy))
         return MediaWikiDownload(
             status_code=response.status_code,
             content_type=response.headers.get("content-type", ""),
