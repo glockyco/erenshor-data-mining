@@ -212,6 +212,45 @@ public sealed class MatcherTests
     }
 
     [Fact]
+    public void StatementShape_binds_a_statement_that_several_branches_make()
+    {
+        var result = Matchers.StatementShape(
+            Method("Recalculate"),
+            Fact(
+                "fixture.recalculate",
+                "assert",
+                "Recalculate",
+                "statement_shape",
+                new() { ["statement"] = "Level++;", ["count"] = "2" },
+                null
+            )
+        );
+
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public void StatementShape_rejects_a_repeated_statement_without_its_count()
+    {
+        var error = Assert.Throws<InvalidDataException>(
+            () =>
+                Matchers.StatementShape(
+                    Method("Recalculate"),
+                    Fact(
+                        "fixture.recalculate",
+                        "assert",
+                        "Recalculate",
+                        "statement_shape",
+                        new() { ["statement"] = "Level++;" },
+                        null
+                    )
+                )
+        );
+
+        Assert.StartsWith("statement_shape bound 2 times (need exactly 1)", error.Message);
+    }
+
+    [Fact]
     public void NodeShape_rejects_wrong_node_shape()
     {
         Assert.Throws<InvalidDataException>(
@@ -348,6 +387,42 @@ public sealed class MatcherTests
             result.Errors
         );
     }
+
+    [Fact]
+    public void Runner_binds_the_overload_named_by_its_parameter_types()
+    {
+        var result = RunFacts(ScaleFact("return value * factor;", ["int", "int"]));
+
+        Assert.Empty(result.Errors);
+        Assert.Equal("fixture.scale", Assert.Single(result.Facts).Id);
+    }
+
+    [Fact]
+    public void Runner_rejects_an_overloaded_method_without_parameter_types()
+    {
+        var result = RunFacts(ScaleFact("return value * 2;", null));
+
+        Assert.Equal(
+            ["fixture.scale: method FixtureLib.FixtureLoot::Scale bound 2 times (need exactly 1)"],
+            result.Errors
+        );
+    }
+
+    private static object ScaleFact(string shape, string[]? parameters) =>
+        new
+        {
+            id = "fixture.scale",
+            mode = "assert",
+            type = "FixtureLib.FixtureLoot",
+            method = "Scale",
+            parameters,
+            matcher = "node_shape",
+            args = new Dictionary<string, string>
+            {
+                ["kind"] = "ReturnStatement",
+                ["shape"] = shape,
+            },
+        };
 
     private static object FieldFact(string shape) =>
         new

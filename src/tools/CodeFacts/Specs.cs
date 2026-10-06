@@ -5,7 +5,7 @@ namespace CodeFacts;
 
 /// A fact binds one member of `type`: the method named `method`, or the field
 /// declaration that declares the variable named `field`. Exactly one of the
-/// two is set.
+/// two is set. `parameters` picks one overload of an overloaded method.
 internal sealed record FactSpec(
     [property: JsonPropertyName("id")] string Id,
     [property: JsonPropertyName("mode")] string Mode,
@@ -15,7 +15,8 @@ internal sealed record FactSpec(
     [property: JsonPropertyName("args")] Dictionary<string, string> Args,
     [property: JsonPropertyName("keys")] List<string>? Keys,
     [property: JsonPropertyName("variants")] List<string>? Variants,
-    [property: JsonPropertyName("field")] string? Field = null
+    [property: JsonPropertyName("field")] string? Field = null,
+    [property: JsonPropertyName("parameters")] List<string>? Parameters = null
 );
 
 internal sealed record SpecsFile(

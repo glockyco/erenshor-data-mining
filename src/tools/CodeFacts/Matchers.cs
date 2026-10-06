@@ -61,17 +61,21 @@ internal static class Runner
 
     /// Binds the member that a fact names: the one method named `method`, or
     /// the one field declaration that declares the variable named `field`.
+    /// `parameters` picks one overload of a method by the decompiler's
+    /// rendering of its parameter types, for example `["Spell", "bool", "int"]`.
     /// The decompiler renders an initializer that the compiler moved into the
     /// constructor back on its field, so a field scope pins the initial value.
     private static EntityDeclaration FindMember(CSharpDecompiler decompiler, FactSpec fact)
     {
         if ((fact.Method is null) == (fact.Field is null))
             throw new InvalidDataException("a fact names exactly one of method and field");
+        if (fact.Parameters is not null && fact.Method is null)
+            throw new InvalidDataException("parameters select a method overload, not a field");
         SyntaxTree tree = decompiler.DecompileType(new FullTypeName(fact.Type));
         List<EntityDeclaration> matches = fact.Method is not null
             ? tree
                 .Descendants.OfType<MethodDeclaration>()
-                .Where(m => m.Name == fact.Method)
+                .Where(m => m.Name == fact.Method && HasParameters(m, fact.Parameters))
                 .Cast<EntityDeclaration>()
                 .ToList()
             : tree
@@ -81,13 +85,20 @@ internal static class Runner
                 .ToList();
         if (matches.Count != 1)
         {
-            string kind = fact.Method is not null ? "method" : "field";
+            string member = fact.Method is not null
+                ? $"method {fact.Type}::{fact.Method}"
+                    + (fact.Parameters is null ? "" : $"({string.Join(", ", fact.Parameters)})")
+                : $"field {fact.Type}::{fact.Field}";
             throw new InvalidDataException(
-                $"{kind} {fact.Type}::{fact.Method ?? fact.Field} bound {matches.Count} times (need exactly 1)"
+                $"{member} bound {matches.Count} times (need exactly 1)"
             );
         }
         return matches[0];
     }
+
+    private static bool HasParameters(MethodDeclaration method, List<string>? parameters) =>
+        parameters is null
+        || method.Parameters.Select(p => p.Type.ToString()).SequenceEqual(parameters);
 
     private static bool AppliesToVariant(FactSpec fact, string? activeVariant)
     {
@@ -271,22 +282,27 @@ internal static class Matchers
         return values;
     }
 
-    /// Assert mode. Asserts the member contains EXACTLY ONE statement whose
-    /// whitespace-normalized text equals args["statement"]. One statement, not
-    /// a body snapshot: stable under the pinned decompiler and immune to edits
-    /// in neighboring statements. The spec arg MUST match the DECOMPILER's
-    /// rendering (e.g. `Foo.Add (Bar [Baz (0)]);` — note the spaces the
-    /// decompiler emits before `(`/`[`), not the original source spelling.
-    /// Binding zero or multiple times throws (lands in errors[] -> exit 1).
+    /// Assert mode. Asserts the member contains exactly args["count"] statements
+    /// (default 1) whose whitespace-normalized text equals args["statement"].
+    /// Statements, not a body snapshot: stable under the pinned decompiler and
+    /// immune to edits in neighboring statements. A count pins a call that
+    /// several branches make, such as the recalculation after each way a status
+    /// effect can land. The spec arg MUST match the DECOMPILER's rendering
+    /// (e.g. `Foo.Add (Bar [Baz (0)]);` — note the spaces the decompiler emits
+    /// before `(`/`[`), not the original source spelling. Any other number of
+    /// bindings throws (lands in errors[] -> exit 1).
     public static Dictionary<string, string> StatementShape(EntityDeclaration scope, FactSpec fact)
     {
         string wanted = Normalize(fact.Args["statement"]);
-        int count = scope
+        int expected = fact.Args.TryGetValue("count", out string? count)
+            ? int.Parse(count, CultureInfo.InvariantCulture)
+            : 1;
+        int bound = scope
             .Descendants.OfType<ExpressionStatement>()
             .Count(s => Normalize(s.ToString()) == wanted);
-        if (count != 1)
+        if (bound != expected)
             throw new InvalidDataException(
-                $"statement_shape bound {count} times (need exactly 1): {fact.Args["statement"]}"
+                $"statement_shape bound {bound} times (need exactly {expected}): {fact.Args["statement"]}"
             );
         return new();
     }

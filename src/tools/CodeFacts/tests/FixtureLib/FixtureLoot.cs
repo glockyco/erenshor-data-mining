@@ -60,5 +60,24 @@ namespace FixtureLib
         {
             return level > 0 && level < 40 && value > 0;
         }
+
+        public int Scale(int value)
+        {
+            return value * 2;
+        }
+
+        public int Scale(int value, int factor)
+        {
+            return value * factor;
+        }
+
+        public void Recalculate(bool again)
+        {
+            Level++;
+            if (again)
+            {
+                Level++;
+            }
+        }
     }
 }
