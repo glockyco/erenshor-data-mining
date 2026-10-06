@@ -112,11 +112,7 @@ class FakeWiki:
                 "t",
                 f"u:{title}",
             )
-        redirects = {
-            title: target
-            for title, text in self.pages.items()
-            if title not in self.files and (target := _target(text)) is not None
-        }
+        redirects = {title: target for title, text in self.pages.items() if (target := _target(text)) is not None}
         return LiveWiki(files, redirects, frozenset(title for title in self.pages if title not in redirects))
 
     def download(self, url: str) -> bytes:
@@ -566,3 +562,39 @@ def test_a_revert_restores_replaced_bytes_deleted_copies_orphans_and_redirects(s
     assert wiki.pages["File:Spell Scroll: Annihilate.png"] == "#REDIRECT [[File:Spell Scroll Annihilate.png]]"
     assert wiki.shows_a_picture("File:Spell Scroll: Annihilate.png")
     assert "File:Spell Scroll- Aetherstorm.png" in wiki.files
+
+
+def test_a_file_whose_description_page_redirects_gets_its_description(setup: Any) -> None:
+    pictures, wiki, cache, tmp_path = setup
+    pictures.add(SCROLL, "File:A Collection of Notes.png")
+    wiki.put_file("File:A collection of notes.png", OLD, user=OPERATOR, comment="")
+    wiki.files["File:A Collection of Notes.png"] = [_Version(SCROLL, BOT, "Game picture")]
+    wiki.put_redirect("File:A Collection of Notes.png", "File:A collection of notes.png")
+    catalog = pictures.build()
+
+    plan = _plan(catalog, wiki, cache)
+    run = RunRecord(tmp_path / "run")
+    execute(plan, catalog, wiki, wiki, run, "Publish")
+
+    assert _verdicts(plan)["File:A Collection of Notes.png"] == "describe"
+    assert "{{License|Game}}" in wiki.pages["File:A Collection of Notes.png"]
+    assert _verdicts(_plan(catalog, wiki, cache))["File:A Collection of Notes.png"] == "unchanged"
+    revert(RunRecord.load(run.directory), wiki, wiki, RunRecord(tmp_path / "revert"), OWNERS, "Revert")
+    assert wiki.pages["File:A Collection of Notes.png"] == "#REDIRECT [[File:A collection of notes.png]]"
+
+
+def test_a_copy_that_hides_its_redirect_to_a_planned_title_is_deleted(setup: Any) -> None:
+    pictures, wiki, cache, tmp_path = setup
+    medal = _png((30, 60, 200, 255))
+    pictures.add(medal, "File:Azure Loyalty Medal.png")
+    wiki.put_file("File:Azure Loyalty Medal.png", medal)
+    wiki.put_file("File:Azure Loyalty Medal .png", OLD)
+    wiki.put_redirect("File:Azure Loyalty Medal .png", "File:Azure Loyalty Medal.png")
+    wiki.used.add("File:Azure Loyalty Medal .png")
+
+    plan = _plan(pictures.build(), wiki, cache)
+    execute(plan, pictures.build(), wiki, wiki, RunRecord(tmp_path / "run"), "Publish")
+
+    assert _verdicts(plan)["File:Azure Loyalty Medal .png"] == "retire"
+    assert "File:Azure Loyalty Medal .png" not in wiki.files
+    assert wiki.shows_a_picture("File:Azure Loyalty Medal .png")

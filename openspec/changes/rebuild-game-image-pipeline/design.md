@@ -98,7 +98,7 @@ For each title, the planner reads the listing entry at the title, and at the pag
 
 The first live plan, on 2026-10-06, needed no download. The contact sheets download the live pictures they show, once each.
 
-Redirects are judged by the page they name, because MediaWiki shows a file through one file redirect only. A title that redirects to another redirect shows nothing on the wiki, and the plan points it at the file.
+Redirects are judged by the page they name, because MediaWiki shows a file through one file redirect only. A title can hold both a file and a redirect page, a leftover of the old pipeline, and then the file wins: a project copy whose page redirects to a planned title is retired, and the picture's own file gets its description instead of the redirect. A title that redirects to another redirect shows nothing on the wiki, and the plan points it at the file.
 
 Verdicts:
 
@@ -109,6 +109,7 @@ Verdicts:
 | unchanged | the file has the picture, or the redirect names the picture's file | nothing |
 | redirect | the title should redirect to the picture's file and does not | create or retarget the redirect |
 | retire | the title holds a copy that the project uploaded | delete it and redirect the title (D6) |
+| describe | the picture's file holds the picture, but its description page is a redirect | write the picture's description |
 | conflict | someone else's file, or a page without a file, holds the title | report it |
 
 Besides the verdicts, the plan lists the orphans: the bot account's files that no title produces and no page shows (`list=imageusage` with redirects followed), with the redirects that name them. The operator's files that nothing shows are listed apart, as unused, and stay (D6). A dry run writes the plan and contact sheets: one row per changing picture, with the new picture beside up to three live pictures that its titles show now.

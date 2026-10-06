@@ -11,6 +11,9 @@ rebuild-game-image-pipeline):
 - ``redirect``: the title should redirect to the picture's file and does not
 - ``retire``: the title holds a copy that the project uploaded, which the run
   deletes so that the title can redirect to the picture's file
+- ``describe``: the title holds the picture's file, but its description page
+  is a redirect left by the old pipeline, which sends readers of the file page
+  elsewhere, so the run writes the picture's description
 - ``conflict``: someone else uploaded the file at the title, or the title holds
   a page that is not a redirect, so the bot leaves it alone
 
@@ -60,8 +63,8 @@ __all__ = [
     "write_contact_sheets",
 ]
 
-Verdict = Literal["create", "update", "unchanged", "redirect", "retire", "conflict"]
-VERDICTS: tuple[Verdict, ...] = ("create", "update", "unchanged", "redirect", "retire", "conflict")
+Verdict = Literal["create", "update", "unchanged", "redirect", "retire", "describe", "conflict"]
+VERDICTS: tuple[Verdict, ...] = ("create", "update", "unchanged", "redirect", "retire", "describe", "conflict")
 
 # The order in which the entities of a shared picture give the picture's file its title.
 _ENTITY_ORDER = ("item", "spell", "skill", "stance", "character")
@@ -301,6 +304,13 @@ def plan_publication(
         if title != files[image_hash] and copy is not None and planner.owned(copy):
             for source in named_by.get(title, ()):
                 titles.setdefault(source, image_hash)
+    # A copy of the project at a title that no page names for a picture, whose
+    # description page redirects to a planned title, hides that redirect: the
+    # file wins over its page, so pages that name the title show the copy.
+    for title, target in live.redirects.items():
+        copy = live.files.get(title)
+        if title not in titles and target in titles and copy is not None and planner.owned(copy):
+            titles[title] = titles[target]
     planned = tuple(planner.verdict(title, titles[title], files[titles[title]]) for title in sorted(titles))
 
     unproduced = [
@@ -443,6 +453,8 @@ class _Planner:
             if live is None:
                 return planned("create", "the file is missing", duplicate)
             if self.holds(picture, live):
+                if target is not None:
+                    return planned("describe", f"the file's description page redirects to {target}")
                 return planned("unchanged", "the file has the picture")
             if self.owned(live):
                 # An earlier version of the file may hold the picture's bytes already.

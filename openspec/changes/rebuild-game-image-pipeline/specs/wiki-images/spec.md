@@ -2,7 +2,7 @@
 
 ### Requirement: Publishing plans against one listing of the live wiki
 
-Publishing SHALL read the live wiki's files in one listing that gives each file's hash, latest uploader, and upload comment. It SHALL give every catalog title one verdict: create, update, unchanged, redirect, conflict, retire, or orphan. A dry run SHALL write nothing and SHALL show the count of each verdict and a contact sheet of every picture that would change, with the live and the new picture side by side.
+Publishing SHALL read the live wiki's files in one listing that gives each file's hash, latest uploader, and upload comment. It SHALL give every catalog title one verdict: create, update, unchanged, redirect, retire, describe, or conflict, and list the orphans. A dry run SHALL write nothing and SHALL show the count of each verdict and a contact sheet of every picture that would change, with the live and the new picture side by side.
 
 #### Scenario: A game update changes two icons
 
@@ -86,6 +86,16 @@ When a title that the catalog makes a redirect holds a file whose latest version
 
 - **WHEN** a title redirects to a redirect of the picture's file
 - **THEN** the plan points the title at the file itself
+
+#### Scenario: A copy that hides its redirect
+
+- **WHEN** `File:Azure Loyalty Medal .png` holds a bot copy and its description page redirects to the picture's file `File:Azure Loyalty Medal.png`
+- **THEN** the run deletes the copy, so pages that name the title show the picture
+
+#### Scenario: A picture's file whose description page is a redirect
+
+- **WHEN** `File:A Collection of Notes.png` holds the picture but its description page redirects to an old copy
+- **THEN** the run writes the picture's description in place of the redirect
 
 #### Scenario: A redirect that no page names
 

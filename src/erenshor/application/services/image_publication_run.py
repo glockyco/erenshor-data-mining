@@ -151,6 +151,10 @@ def execute(
             uploaded = _upload(item, catalog, writer, record)
             if not uploaded and item.verdict == "create":
                 missing_files.add(item.title)
+            if uploaded and item.verdict == "update" and item.redirect_target is not None:
+                _describe(item, catalog, writer, record, summary)
+        elif item.verdict == "describe":
+            _describe(item, catalog, writer, record, summary)
 
     def has_file(item: PlannedTitle) -> bool:
         if item.file is None or item.file in missing_files:
@@ -172,6 +176,22 @@ def execute(
 
 def _skipped(item: PlannedTitle, action: str, reason: str) -> dict[str, Any]:
     return {"title": item.title, "action": action, "done": False, "reason": reason}
+
+
+def _describe(item: PlannedTitle, catalog: Catalog, writer: PublishWriter, record: RunRecord, summary: str) -> None:
+    """Replace a redirect on the description page of the picture's file with the picture's description."""
+    page = writer.get_page_snapshots([item.title])[item.title]
+    current_target = _redirect_target(page.source_text or "")
+    if page.revision is None or current_target is None or not _same_title(current_target, item.redirect_target):
+        record.add(_skipped(item, "describe", "the page changed since the plan"))
+        return
+    text = description(catalog.pictures[item.image_hash], catalog.game_build)
+    try:
+        writer.safe_edit_page(item.title, text, page.revision, summary=summary)
+    except MediaWikiAPIError as error:
+        record.add(_skipped(item, "describe", f"the edit failed: {error}"))
+        return
+    record.add({"title": item.title, "action": "describe", "done": True, "text": text, "old_text": page.source_text})
 
 
 def _current(writer: PublishWriter, title: str) -> MediaWikiFileVersion | None:
@@ -368,6 +388,8 @@ def revert(
             continue
         elif action == "redirect" and entry.get("old_text") is not None:
             _restore_redirect(entry, writer, record, summary)
+        elif action == "describe":
+            _restore_description(entry, writer, record, summary)
         elif action in ("create", "redirect"):
             record.add({"title": title, "action": f"keep {action}", "done": False, "reason": "the run created it"})
 
@@ -455,3 +477,18 @@ def _restore_redirect(entry: dict[str, Any], writer: PublishWriter, record: RunR
         record.add({"title": title, "action": "revert redirect", "done": False, "reason": str(error)})
         return
     record.add({"title": title, "action": "revert redirect", "done": True})
+
+
+def _restore_description(entry: dict[str, Any], writer: PublishWriter, record: RunRecord, summary: str) -> None:
+    """Put a description page's earlier text back, while it still holds the description that the run wrote."""
+    title = str(entry["title"])
+    page = writer.get_page_snapshots([title])[title]
+    if page.revision is None or page.source_text != entry["text"]:
+        record.add({"title": title, "action": "revert describe", "done": False, "reason": "the page changed since"})
+        return
+    try:
+        writer.safe_edit_page(title, str(entry["old_text"]), page.revision, summary=summary)
+    except MediaWikiAPIError as error:
+        record.add({"title": title, "action": "revert describe", "done": False, "reason": str(error)})
+        return
+    record.add({"title": title, "action": "revert describe", "done": True})
