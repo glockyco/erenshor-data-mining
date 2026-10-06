@@ -1,0 +1,5 @@
+{{Item
+|title=Image Tracking Item
+|image=[[File:Image Tracking Item.png]]
+|imagefile=Image Tracking Item.png
+}}

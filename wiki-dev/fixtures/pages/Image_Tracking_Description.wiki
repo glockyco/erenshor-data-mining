@@ -1,0 +1,6 @@
+{{Character
+|name=Image Tracking Description
+|image=[[File:Image Tracking Description.png|thumb]]
+|imagefile=Image Tracking Description.png
+|type=NPC
+}}

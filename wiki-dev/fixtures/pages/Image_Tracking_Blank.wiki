@@ -1,0 +1,5 @@
+{{Character
+|name=Image Tracking Blank
+|image=
+|type=NPC
+}}

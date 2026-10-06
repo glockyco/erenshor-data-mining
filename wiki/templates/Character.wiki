@@ -64,4 +64,10 @@
 | Chest                     = [[Category:Chests]]
 | [[Simulated Players|Sim]] =
 | #default                  = [[Category:Enemies]]
+}}{{#if: {{#if: {{{imagefile|}}} | {{#ifexist: Media:{{{imagefile}}} || missing }} | {{#if: {{{image|}}} || missing }} }}
+| [[Category:Needs {{#switch: {{{imagekind|}}}
+  | chest    = Chest
+  | summon   = Summon
+  | #default = {{#ifeq: {{{type|}}} | Chest | Chest | Character }}
+  }} Image]]
 }} }}</includeonly><noinclude>{{Documentation}}</noinclude>

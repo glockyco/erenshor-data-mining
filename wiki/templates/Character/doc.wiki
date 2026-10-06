@@ -62,6 +62,10 @@ locations for the character.
 |-
 | <code>imagecaption</code> || '''Manual''' || Optional caption below the character image.
 |-
+| <code>imagefile</code> || Auto || The bare file title that <code>image</code> shows, such as <code>Name.png</code>. When the file has no upload, the page joins a hidden [[:Category:Needs Image|Needs Image]] category. Without it, only an empty <code>image</code> joins one.
+|-
+| <code>imagekind</code> || Auto || <code>chest</code> or <code>summon</code> puts a missing image into [[:Category:Needs Chest Image]] or [[:Category:Needs Summon Image]]. Without it, a <code>Chest</code> type uses the chest category and every other character [[:Category:Needs Character Image]].
+|-
 | <code>type</code> || Auto (manual override accepted) || Encounter tier: <code>NPC</code>, <code>Chest</code>, <code>Enemy</code>, <code>Elite</code>, or <code>Boss</code>. Controls page category and map link prefix.
 |-
 | <code>faction</code> || Auto || Faction wiki link.

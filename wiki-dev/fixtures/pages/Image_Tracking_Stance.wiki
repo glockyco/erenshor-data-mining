@@ -1,0 +1,5 @@
+{{Stance
+|title=Image Tracking Stance
+|image=[[File:Image Tracking Stance.png|thumb]]
+|imagefile=Image Tracking Stance.png
+}}

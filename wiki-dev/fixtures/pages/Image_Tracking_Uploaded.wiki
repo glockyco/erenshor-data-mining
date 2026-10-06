@@ -1,0 +1,6 @@
+{{Character
+|name=Image Tracking Uploaded
+|image=[[File:Image Tracking Fixture.png|thumb]]
+|imagefile=Image Tracking Fixture.png
+|type=NPC
+}}

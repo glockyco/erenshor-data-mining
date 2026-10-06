@@ -40,7 +40,7 @@
     <data source="sell"><label>Sell</label></data>
     <data source="guaranteeddrops"><label>Provides one of</label></data>
     <data source="droprates"><label>Overall Item Chances</label></data>
-</infobox>{{#ifeq: {{NAMESPACENUMBER}} | 0 | [[Category:Items]]}}</includeonly><noinclude>
+</infobox>{{#ifeq: {{NAMESPACENUMBER}} | 0 | [[Category:Items]]{{#if: {{#if: {{{imagefile|}}} | {{#ifexist: Media:{{{imagefile}}} || missing }} | {{#if: {{{image|}}} || missing }} }} | [[Category:Needs Item Image]] }} }}</includeonly><noinclude>
 == Template:Item ==
 
 Infobox template for displaying item information on wiki pages.
@@ -70,6 +70,8 @@ when the bot updates its page. It also supplies the interactive-map link in the 
 | '''image''' || Yes || Item icon: <code><nowiki>[[File:Item Name.png]]</nowiki></code>
 |-
 | '''imagecaption''' || No || Caption for the image
+|-
+| '''imagefile''' || No || The bare file title that '''image''' shows, such as <code>Item Name.png</code>. When the file has no upload, the page joins the hidden [[:Category:Needs Item Image]]. Without it, only an empty '''image''' joins that category.
 |-
 | '''type''' || Yes || Item type link, e.g., <code><nowiki>[[Weapons|Weapon]]</nowiki></code>
 |-

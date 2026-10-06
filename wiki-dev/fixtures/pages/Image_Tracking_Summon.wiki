@@ -1,0 +1,7 @@
+{{Character
+|name=Image Tracking Summon
+|image=[[File:Image Tracking Summon.png|thumb]]
+|imagefile=Image Tracking Summon.png
+|imagekind=summon
+|type=Enemy
+}}
