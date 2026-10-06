@@ -107,6 +107,7 @@ from erenshor.application.wiki_lua.generation import (
 )
 from erenshor.application.wiki_lua.link_catalog import LinkCatalogEntry
 from erenshor.cli.context import CLIContext
+from erenshor.cli.mediawiki import create_readonly_mediawiki_client
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import database_exists, database_has_items, database_valid
 from erenshor.cli.preconditions.checks.inputs import option_path, wiki_credentials
@@ -291,18 +292,6 @@ def _interface_assert_user(cli_ctx: CLIContext) -> str:
     """Return the owning username asserted for interface BotPassword sessions."""
     login_name = cli_ctx.config.global_.mediawiki.interface_username.strip()
     return login_name.partition("@")[0]
-
-
-def _create_readonly_mediawiki_client(cli_ctx: CLIContext) -> MediaWikiClient:
-    """Create an anonymous client for read-only manifest dependency checks."""
-    wiki_config = cli_ctx.config.global_.mediawiki
-    return MediaWikiClient(
-        api_url=wiki_config.api_url,
-        bot_username=wiki_config.bot_username,
-        bot_password=wiki_config.bot_password,
-        batch_size=50,
-        user_agent="erenshor-data-mining/1.0 (WoWMuch)",
-    )
 
 
 def _create_interface_mediawiki_client(cli_ctx: CLIContext) -> MediaWikiClient:
@@ -528,7 +517,7 @@ def _run_link_audit(
     complete_generated_titles = set(known_generated_titles) | set(generated_pages)
     if catalog is None:
         catalog = _build_link_audit_catalog(cli_ctx)
-    client = _create_readonly_mediawiki_client(cli_ctx) if online else None
+    client = create_readonly_mediawiki_client(cli_ctx) if online else None
     try:
         audit_service = LinkAuditService(catalog, client=client)
         report = audit_service.audit(
@@ -784,7 +773,7 @@ def _run_retired_audit(
     if lifecycle is None:
         lifecycle = _load_retired_lifecycle(cli_ctx)
     generated = storage.read_generated_pages()
-    client = _create_readonly_mediawiki_client(cli_ctx)
+    client = create_readonly_mediawiki_client(cli_ctx)
     try:
         report = audit_retired_pages(client, generated, lifecycle)
     finally:
@@ -886,7 +875,7 @@ def apply_page_edits_command(
     """Apply reviewed one-time text edits of live pages with revision guards."""
     cli_ctx: CLIContext = ctx.obj
     wiki_dir = cli_ctx.config.variants[cli_ctx.variant].resolved_wiki(cli_ctx.repo_root)
-    reader = _create_readonly_mediawiki_client(cli_ctx)
+    reader = create_readonly_mediawiki_client(cli_ctx)
     try:
         edits = plan_page_edits(load_page_edit_requests(edits_file), reader)
         problems = {edit.title: render_problems(edit, reader) for edit in edits}
@@ -1388,7 +1377,7 @@ def deploy_repo_pages_command(
 
     accepted = tuple(accept_drift or ())
     if cli_ctx.dry_run:
-        readonly_client = _create_readonly_mediawiki_client(cli_ctx)
+        readonly_client = create_readonly_mediawiki_client(cli_ctx)
         try:
             snapshots = readonly_client.get_page_snapshots([entry.title for entry in manifest.entries])
             source_texts = read_repo_page_sources(manifest, cli_ctx.repo_root)
@@ -1717,7 +1706,7 @@ def deploy(
         # for a plan that no longer has its writes.
         live_revisions: dict[str, int | None] = {}
         if writes:
-            readonly_client = _create_readonly_mediawiki_client(cli_ctx)
+            readonly_client = create_readonly_mediawiki_client(cli_ctx)
             try:
                 live_revisions = readonly_client.get_page_revision_ids(list(writes))
             finally:

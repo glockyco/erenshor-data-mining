@@ -476,7 +476,7 @@ class TestWikiDeployCommand:
 
         readonly = MagicMock()
         readonly.get_page_revision_ids.return_value = live_revisions
-        monkeypatch.setattr(wiki_command, "_create_readonly_mediawiki_client", lambda _ctx: readonly)
+        monkeypatch.setattr(wiki_command, "create_readonly_mediawiki_client", lambda _ctx: readonly)
         monkeypatch.setattr(
             wiki_command,
             "_run_retired_audit",
@@ -529,7 +529,7 @@ class TestWikiDeployCommand:
             for title in titles
         }
         factory = MagicMock(return_value=readonly)
-        monkeypatch.setattr(wiki_command, "_create_readonly_mediawiki_client", factory)
+        monkeypatch.setattr(wiki_command, "create_readonly_mediawiki_client", factory)
 
         standalone = runner.invoke(wiki.app, ["audit-retired-pages"], obj=context)
         assert standalone.exit_code == 1, standalone.exception
@@ -790,7 +790,7 @@ class TestWikiDeployRepoCommand:
         readonly.get_page_snapshots.side_effect = snapshots
         readonly.edit_account = "ErenshorBot"
         factory = MagicMock(return_value=readonly)
-        monkeypatch.setattr(wiki_command, "_create_readonly_mediawiki_client", factory)
+        monkeypatch.setattr(wiki_command, "create_readonly_mediawiki_client", factory)
         monkeypatch.setattr(
             wiki_command,
             "read_repo_page_sources",
@@ -852,7 +852,7 @@ class TestWikiDeployRepoCommand:
             calls.append(("write_manifest", deployed_manifest, path))
 
         monkeypatch.setattr(wiki_command, "build_repo_page_manifest", fake_build_manifest)
-        monkeypatch.setattr(wiki_command, "_create_readonly_mediawiki_client", lambda _ctx: readonly)
+        monkeypatch.setattr(wiki_command, "create_readonly_mediawiki_client", lambda _ctx: readonly)
         monkeypatch.setattr(wiki_command, "_create_mediawiki_client", fake_create_client)
         monkeypatch.setattr(wiki_command, "deploy_repo_pages", fake_deploy_repo_pages)
         monkeypatch.setattr(wiki_command, "write_repo_page_manifest", fake_write_manifest)
@@ -903,7 +903,7 @@ class TestWikiDeployRepoCommand:
 
         monkeypatch.chdir(tmp_path)
         monkeypatch.setattr(wiki_command, "build_repo_page_manifest", lambda *_args, **_kwargs: manifest)
-        monkeypatch.setattr(wiki_command, "_create_readonly_mediawiki_client", lambda _ctx: MagicMock())
+        monkeypatch.setattr(wiki_command, "create_readonly_mediawiki_client", lambda _ctx: MagicMock())
         monkeypatch.setattr(wiki_command, "_create_mediawiki_client", lambda _ctx: FakeDeployClient())
         monkeypatch.setattr(wiki_command, "deploy_repo_pages", fake_deploy_repo_pages)
         monkeypatch.setattr(wiki_command, "write_repo_page_manifest", lambda *_args: None)
@@ -1028,7 +1028,7 @@ class TestWikiDeployRepoCommand:
         authenticated_client = MagicMock(side_effect=AssertionError("login must not run"))
         deploy = MagicMock(side_effect=AssertionError("deployment must not run"))
         monkeypatch.setattr(wiki_command, "build_repo_page_manifest", build_manifest)
-        monkeypatch.setattr(wiki_command, "_create_readonly_mediawiki_client", readonly_client)
+        monkeypatch.setattr(wiki_command, "create_readonly_mediawiki_client", readonly_client)
         monkeypatch.setattr(wiki_command, "_create_mediawiki_client", authenticated_client)
         monkeypatch.setattr(wiki_command, "deploy_repo_pages", deploy)
 
