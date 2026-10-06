@@ -13,6 +13,7 @@ from erenshor.application.wiki_deploy.dependencies import (
     literal_dependencies,
     needed_live_dependencies,
     order_and_check_dependencies,
+    transcluded_titles,
 )
 from erenshor.application.wiki_deploy.manifest import (
     RENDER_CHECKED_STAGES,
@@ -225,6 +226,8 @@ def render_repo_page_checks(
     def depends_on_changed_page(root: str) -> bool:
         visited: set[str] = {root}
         pending = list(literal_dependencies(root, source_texts[root]))
+        if not root.startswith("Module:"):
+            pending.extend(title for title in transcluded_titles(source_texts[root]) if title in changed)
         while pending:
             title = pending.pop()
             if title in changed and title != root:

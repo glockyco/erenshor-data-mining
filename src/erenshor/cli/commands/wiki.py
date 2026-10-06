@@ -1485,6 +1485,8 @@ def _print_repo_render_check(result: RenderCheck) -> None:
         console.print(f"  Render {escape(result.title)}: no main-namespace users{status}")
         return
     console.print(f"  Render {escape(result.title)}: checked {len(result.checked)} of {result.users} users{status}")
+    for problem in result.problems:
+        console.print(f"    [yellow]Unchecked until its dependencies are written:[/yellow] {escape(problem)}")
     for difference in result.differences:
         console.print(f"    Visible change on {escape(difference.title)}")
         for line in difference.removed:

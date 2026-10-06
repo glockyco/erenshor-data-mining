@@ -19,6 +19,8 @@ _LUA_STYLES_TABLE = re.compile(
     r"\bextensionTag\s*(?:\(\s*)?\{\s*name\s*=\s*(['\"])templatestyles\1\s*,\s*"
     r"args\s*=\s*\{[^{}]*?\bsrc\s*=\s*(['\"])([^'\"]+)\2",
 )
+_TRANSCLUSION = re.compile(r"(?<!\{)\{\{\s*([^{}|#\n][^{}|\n]*?)\s*(?=\||\}\})")
+_LITERAL_TEXT = re.compile(r"<pre\b.*?</pre>|<nowiki\b.*?</nowiki>|<!--.*?-->", re.IGNORECASE | re.DOTALL)
 
 
 def _stylesheet_title(source: str) -> str:
@@ -52,12 +54,38 @@ def literal_dependencies(title: str, text: str) -> tuple[str, ...]:
     return tuple(sorted(modules | stylesheets))
 
 
+def transcluded_titles(text: str) -> tuple[str, ...]:
+    """The pages that wikitext transcludes by literal name, outside ``<pre>``, ``<nowiki>``, and comments.
+
+    A name without a namespace is a template, and a leading colon names a page
+    of the main namespace. Parser functions and magic words come out as titles
+    that no repository page has, so callers match the result against their
+    own pages.
+    """
+    titles: set[str] = set()
+    for match in _TRANSCLUSION.finditer(_LITERAL_TEXT.sub("", text)):
+        name = " ".join(match.group(1).replace("_", " ").split())
+        if name.startswith(":"):
+            name = name[1:].strip()
+        elif ":" not in name:
+            name = f"Template:{name}"
+        if name:
+            titles.add(name[:1].upper() + name[1:])
+    return tuple(sorted(titles))
+
+
 def order_and_check_dependencies(
     manifest: RepoWikiPageManifest,
     source_texts: Mapping[str, str],
     live_texts: Mapping[str, str | None],
 ) -> RepoWikiPageManifest:
-    """Fail on a missing dependency or cycle and order dependencies before their users inside each stage."""
+    """Fail on a missing dependency or cycle and order dependencies before their users inside each stage.
+
+    A wikitext page of the run that transcludes another page of the run comes
+    after it too. Such an edge only orders: a transclusion that is missing is
+    left to the render check, and one that closes a cycle, as documentation
+    examples can, is ignored.
+    """
     by_title = {entry.title: entry for entry in manifest.entries}
     ordered: list[RepoWikiPageManifestEntry] = []
     visiting: set[str] = set()
@@ -81,6 +109,15 @@ def order_and_check_dependencies(
                 raise ValueError(f"{root} needs missing page {dependency}")
             else:
                 visit_live(dependency, root)
+        if title in by_title and not title.startswith("Module:"):
+            for dependency in transcluded_titles(text):
+                planned = by_title.get(dependency)
+                if (
+                    planned is not None
+                    and dependency not in visiting
+                    and stage_rank(planned.upload_stage) <= stage_rank(by_title[title].upload_stage)
+                ):
+                    visit(dependency, root)
         visiting.remove(title)
         completed.add(title)
         if title in by_title:

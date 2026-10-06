@@ -24,11 +24,20 @@ class RenderDifference:
 
 @dataclass(frozen=True, slots=True)
 class RenderCheck:
+    """The render check of one page.
+
+    A provisional check is a dry run's check of a page that depends on another
+    page of the same deploy, which the sandbox cannot show. Its ``problems``
+    are reported instead of blocking, and the real deploy checks the page
+    again directly before its write.
+    """
+
     title: str
     users: int
     checked: tuple[str, ...]
     differences: tuple[RenderDifference, ...]
     provisional: bool = False
+    problems: tuple[str, ...] = ()
 
 
 class RenderCheckError(ValueError):
@@ -139,7 +148,8 @@ def check_render(
 
     The sandbox replaces ``title`` with ``new_text`` of ``content_model``. A
     missing page in ``written_before``, which a dry-run deploy writes before
-    this page, does not block it.
+    this page, does not block it. A provisional check reports a new script
+    error or missing template instead of raising it.
     """
     from typing import cast
 
@@ -171,6 +181,7 @@ def check_render(
             texts[user] = text
     selected = select_render_pages(texts, catalog, full=full)
     differences: list[RenderDifference] = []
+    provisional_problems: list[str] = []
     for user in selected:
         live = live_cache.get(user)
         if live is None:
@@ -191,7 +202,10 @@ def check_render(
         problems = ["script error" for _ in new_errors - old_errors]
         problems.extend(f"missing template {missing}" for missing in sorted(new_missing - old_missing - written_before))
         if problems:
-            raise RenderCheckError(f"{title} blocked on {user}: {', '.join(problems)}")
+            if not provisional:
+                raise RenderCheckError(f"{title} blocked on {user}: {', '.join(problems)}")
+            provisional_problems.append(f"{user}: {', '.join(problems)}")
+            continue
         old_lines, new_lines = old_html.lines(), new_html.lines()
         old_categories = {category.title for category in live.categories}
         new_categories = {category.title for category in sandbox.categories}
@@ -204,4 +218,4 @@ def check_render(
                 f"Category:{category.removeprefix('Category:')}" for category in sorted(new_categories - old_categories)
             )
             differences.append(RenderDifference(user, removed, added))
-    return RenderCheck(title, len(users), selected, tuple(differences), provisional)
+    return RenderCheck(title, len(users), selected, tuple(differences), provisional, tuple(provisional_problems))

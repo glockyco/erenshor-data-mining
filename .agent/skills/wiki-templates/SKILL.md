@@ -114,7 +114,8 @@ The plan for the wiki is the OpenSpec change `adopt-data-backed-wiki`. Read its 
    Before each module or template write, the render check parses pages that use it twice through `action=parse`, once as live and once with the new text through TemplateSandbox.
    By default it selects pages that cover every template, filled parameter, `type` or `kind` value, and entity kind among the users. `--full-render-check` parses every user page.
    A new script error or missing template blocks the write. The dry run lists every page whose visible text or categories change. Review that list before approving the deploy.
-   In a dry run, a page that depends on another page of the same run shows a provisional result. The real deploy checks it again directly before its write.
+   In a dry run, a page that depends on another page of the same run shows a provisional result: its script errors and missing templates are listed as unchecked instead of blocking, because the sandbox cannot load pages that the run has not written. The real deploy checks it again directly before its write.
+   The render check sandboxes one page at a time. When a change removes something that a live page still uses, such as a module function, deploy the pages that stop using it first and the removal in a second run.
    Before the first write, the deploy stops when another account made the latest revision of a page whose live text differs from the repository.
    The bot edits as the account part of `bot_username`, so edits by your own main account count as another account.
    A dry run reads the live pages, counts the planned changes, and names each such page. Review each one.

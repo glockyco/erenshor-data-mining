@@ -241,6 +241,49 @@ def test_dry_run_provisional_for_same_run_dependency(tmp_path: Path) -> None:
     assert wiki.writes == []
 
 
+def test_dry_run_reports_a_script_error_of_a_page_whose_dependency_the_run_writes(tmp_path: Path) -> None:
+    source(tmp_path, "wiki/modules/Erenshor/Icon.lua", "return {}")
+    source(tmp_path, "wiki/modules/Erenshor/Link.lua", "return require('Module:Erenshor/Icon')")
+    wiki = Wiki({"Module:Erenshor/Link": "return {}", "Example": "{{Item}}"}, {"Module:Erenshor/Link": ("Example",)})
+    # The sandbox cannot load the new module that the deploy writes first.
+    wiki.sandbox_html = '<strong class="scribunto-error">Lua error: module not found</strong>'
+    manifest = build_repo_page_manifest(tmp_path, variant="main", include_templates=True)
+    sources = read_repo_page_sources(manifest, tmp_path)
+    snapshots = wiki.get_page_snapshots([entry.title for entry in manifest.entries])
+    ordered = prepare_repo_page_checks(manifest, sources, snapshots, wiki)
+    reports = []
+
+    render_repo_page_checks(ordered, sources, snapshots, wiki, catalog={}, dry_run=True, report=reports.append)
+
+    link = next(report for report in reports if report.title == "Module:Erenshor/Link")
+    assert link.problems == ("Example: script error",)
+
+
+def test_a_template_that_transcludes_a_new_template_of_the_run_comes_after_it(tmp_path: Path) -> None:
+    source(tmp_path, "wiki/templates/Gear/Slot.wiki", "{{Icon|Branch.png|kind=item|size=60}}")
+    source(
+        tmp_path,
+        "wiki/templates/Icon.wiki",
+        "<includeonly>frame</includeonly><noinclude><pre>{{Icon|x}}</pre></noinclude>",
+    )
+    wiki = Wiki({})
+
+    deploy(tmp_path, wiki)
+
+    # By title alone Gear/Slot comes first and shows a missing template until Icon is written.
+    assert wiki.writes == ["Template:Icon", "Template:Gear/Slot"]
+
+
+def test_documentation_examples_that_transclude_each_other_do_not_stop_the_deploy(tmp_path: Path) -> None:
+    source(tmp_path, "wiki/templates/Item/Header.wiki", "header<noinclude>{{SparkleIcon|icon=x}}</noinclude>")
+    source(tmp_path, "wiki/templates/SparkleIcon.wiki", "sparkle<noinclude>{{Item/Header}}</noinclude>")
+    wiki = Wiki({})
+
+    deploy(tmp_path, wiki)
+
+    assert sorted(wiki.writes) == ["Template:Item/Header", "Template:SparkleIcon"]
+
+
 STYLESHEET_TEMPLATE = '<templatestyles src="Template:Item/styles.css" />{{#if:{{{name|}}}|{{{name}}}}}'
 
 
