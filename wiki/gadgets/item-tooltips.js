@@ -383,7 +383,7 @@
 			const detachedPresentation = presentation.cloneNode( true );
 			stripLinks( detachedPresentation );
 			normalizeInlineWidths( detachedPresentation );
-			return detachedPresentation;
+			return withPageStyles( parsedDocument, detachedPresentation );
 		}
 
 		function extractAbilityTooltip( parsedDocument, stableKey ) {
@@ -406,7 +406,20 @@
 			const detachedCard = card.cloneNode( true );
 			stripLinks( detachedCard );
 			normalizeInlineWidths( detachedCard );
-			return detachedCard;
+			return withPageStyles( parsedDocument, detachedCard );
+		}
+
+		// TemplateStyles scopes its rules to .mw-parser-output and emits each
+		// stylesheet once beside the content, so a card lifted out of a parsed
+		// page needs both to keep the styles of templates such as Icon.
+		function withPageStyles( parsedDocument, presentation ) {
+			const wrapper = parsedDocument.createElement( 'div' );
+			wrapper.className = 'mw-parser-output';
+			parsedDocument.querySelectorAll( 'style' ).forEach( function ( style ) {
+				wrapper.appendChild( style.cloneNode( true ) );
+			} );
+			wrapper.appendChild( presentation );
+			return wrapper;
 		}
 
 		function selectPresentation( parsedDocument, cards, spec ) {
