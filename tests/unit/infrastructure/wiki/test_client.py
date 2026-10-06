@@ -1719,13 +1719,23 @@ class TestMediaWikiClientSemanticLinkReads:
         with pytest.raises(MediaWikiAPIError, match="file listing response: repeated continuation"):
             client.list_files()
 
-    def test_file_pages_resolve_redirects_to_their_final_target(self) -> None:
+    def test_file_redirects_name_the_page_they_point_at_not_the_end_of_a_chain(self) -> None:
         client, api = _mock_client(
             [
-                {"query": {"allpages": [{"ns": 6, "title": "File:Stance: Aggressive.png"}]}},
                 {
                     "query": {
-                        "redirects": [{"from": "File:Stance: Aggressive.png", "to": "File:Stance Aggressive.png"}],
+                        "allpages": [
+                            {"ns": 6, "title": "File:Stance: Aggressive.png"},
+                            {"ns": 6, "title": "File:Stance Aggressive (old).png"},
+                        ]
+                    }
+                },
+                {
+                    "query": {
+                        "redirects": [
+                            {"from": "File:Stance: Aggressive.png", "to": "File:Stance Aggressive (old).png"},
+                            {"from": "File:Stance Aggressive (old).png", "to": "File:Stance Aggressive.png"},
+                        ],
                         "pages": {"1": {"pageid": 1, "ns": 6, "title": "File:Stance Aggressive.png"}},
                     }
                 },
@@ -1743,7 +1753,11 @@ class TestMediaWikiClientSemanticLinkReads:
 
         pages = client.list_file_pages()
 
-        assert pages.redirects == {"File:Stance: Aggressive.png": "File:Stance Aggressive.png"}
+        # MediaWiki shows a file through one redirect, so the first hop is what counts.
+        assert pages.redirects == {
+            "File:Stance: Aggressive.png": "File:Stance Aggressive (old).png",
+            "File:Stance Aggressive (old).png": "File:Stance Aggressive.png",
+        }
         assert pages.pages == {"File:Stance Aggressive.png", "File:Description only.png"}
         assert [api.requests[0].query["apfilterredir"], api.requests[2].query["apfilterredir"]] == [
             "redirects",
@@ -1763,19 +1777,22 @@ class TestMediaWikiClientSemanticLinkReads:
 
         assert client.is_file_used("File:Faith.png") is used
 
-    def test_a_move_that_should_leave_no_redirect_fails_when_it_leaves_one(self) -> None:
-        client, api = _mock_client(
-            [
-                {"query": {"tokens": {"csrftoken": "token"}}},
-                {"move": {"from": "File:Copy.png", "to": "File:Retired Copy.png", "redirectcreated": ""}},
-            ],
-            clock=MockClock(),
-        )
+    @pytest.mark.parametrize(
+        ("call", "answer"),
+        [
+            ("delete_page", {"delete": {"title": "File:Copy.png", "reason": "Copy"}}),
+            ("undelete_page", {"undelete": {"revisions": 0}}),
+        ],
+    )
+    def test_a_deletion_or_restore_that_the_answer_does_not_confirm_fails(
+        self, call: str, answer: dict[str, Any]
+    ) -> None:
+        client, api = _mock_client([{"query": {"tokens": {"csrftoken": "token"}}}, answer], clock=MockClock())
 
-        with pytest.raises(MediaWikiAPIError, match="lacks suppressredirect"):
-            client.move_page("File:Copy.png", "File:Retired Copy.png", "Retire a copy", leave_redirect=False)
+        with pytest.raises(MediaWikiAPIError, match=f"Unexpected {call.removesuffix('_page')} response"):
+            getattr(client, call)("File:Copy.png", "Copy of File:Original.png")
 
-        assert api.requests[-1].data["noredirect"] == "1"
+        assert api.requests[-1].data["title"] == "File:Copy.png"
 
     def test_file_versions_come_newest_first_with_their_urls(self) -> None:
         version = {"sha1": "new", "user": "WoWBot", "comment": "Build 2", "timestamp": "2026-10-07T00:00:00Z"}

@@ -2112,26 +2112,24 @@ class MediaWikiClient:
         logger.info(f"Successfully uploaded: File:{filename}")
         return upload_result
 
-    def move_page(self, source: str, target: str, reason: str, *, leave_redirect: bool) -> None:
-        """Move a page with its talk page, leaving a redirect at ``source`` only when asked.
+    def delete_page(self, title: str, reason: str) -> None:
+        """Delete a page. Deleting a file page deletes every version of its file.
 
-        Moving a file page moves the file. A move without a redirect needs the
-        ``suppressredirect`` right; one that leaves a redirect anyway fails.
+        Needs the ``delete`` right, which a bot password of an administrator
+        has with the delete grant.
         """
-        data = {
-            "action": "move",
-            "from": source,
-            "to": target,
-            "reason": reason,
-            "movetalk": "1",
-            "token": self.get_csrf_token(),
-        }
-        if not leave_redirect:
-            data["noredirect"] = "1"
-        result = self._request({"action": "move"}, method="POST", data=data)
-        move = result.get("move")
-        if not isinstance(move, dict) or not isinstance(move.get("from"), str) or not isinstance(move.get("to"), str):
-            raise MediaWikiAPIError(f"Unexpected move response: {result}")
-        if not leave_redirect and "redirectcreated" in move:
-            raise MediaWikiAPIError(f"Moving {source} left a redirect, so the account lacks suppressredirect")
-        logger.info(f"Moved {source} → {target}")
+        data = {"action": "delete", "title": title, "reason": reason, "token": self.get_csrf_token()}
+        result = self._request({"action": "delete"}, method="POST", data=data)
+        deleted = result.get("delete")
+        if not isinstance(deleted, dict) or "logid" not in deleted:
+            raise MediaWikiAPIError(f"Unexpected delete response: {result}")
+        logger.info(f"Deleted {title}")
+
+    def undelete_page(self, title: str, reason: str) -> None:
+        """Restore every deleted revision of a page, and of a file page every deleted version of its file."""
+        data = {"action": "undelete", "title": title, "reason": reason, "token": self.get_csrf_token()}
+        result = self._request({"action": "undelete"}, method="POST", data=data)
+        restored = result.get("undelete")
+        if not isinstance(restored, dict) or not isinstance(restored.get("title"), str):
+            raise MediaWikiAPIError(f"Unexpected undelete response: {result}")
+        logger.info(f"Restored {title}")

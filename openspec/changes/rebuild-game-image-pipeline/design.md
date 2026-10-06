@@ -75,7 +75,7 @@ Alternatives considered:
 
 ### D3. Ownership and conflicts from the latest version's uploader
 
-A file is the project's when one of its accounts uploaded the latest version: the bot account, or the operator account that runs it. The CLI takes both from the account part of the configured bot and interface usernames, so they need no setting of their own. The listing's `user` field answers this for every file at once.
+A file is the project's when one of its accounts uploaded the latest version: the bot account, or the operator account that runs it. The CLI takes both from the account part of the configured bot, interface, and deletion usernames, so they need no setting of their own. The listing's `user` field answers this for every file at once.
 
 The operator account is included because of evidence from the first live plan of 2026-10-06. 103 of the files that publishing must replace or retire had WoWMuch as their latest uploader. Every one was byte-identical to an output of the old pipeline: 150 × 150 frame composites uploaded with empty comments in bulk runs in June and September 2025, before WoWBot existed. That includes `Spell Scroll Meditative Trance.png`, which this design first called the one editor conflict. Under a bot-only rule they would all have kept their baked frame and shown a double frame inside the new slot markup. The user chose to treat every upload of the operator's account as the project's.
 
@@ -108,12 +108,12 @@ Verdicts:
 | update | the project's file at the picture's file title has other pixels | new version |
 | unchanged | the file has the picture, or the redirect names the picture's file | nothing |
 | redirect | the title should redirect to the picture's file and does not | create or retarget the redirect |
-| retire | the title holds a copy that the project uploaded | move it aside (D6) |
+| retire | the title holds a copy that the project uploaded | delete it and redirect the title (D6) |
 | conflict | someone else's file, or a page without a file, holds the title | report it |
 
-Besides the verdicts, the plan reports orphans: files of the project that no title produces and no page shows (`list=imageusage` with redirects followed). It lists the retired files that await deletion and those whose page lacks the deletion notice. A dry run writes the plan and contact sheets: one row per changing picture, with the new picture beside up to three live pictures that its titles show now.
+Besides the verdicts, the plan lists the orphans: the bot account's files that no title produces and no page shows (`list=imageusage` with redirects followed), with the redirects that name them. The operator's files that nothing shows are listed apart, as unused, and stay (D6). A dry run writes the plan and contact sheets: one row per changing picture, with the new picture beside up to three live pictures that its titles show now.
 
-The first live plan counted 1,269 updates, 622 retirements, 242 redirects, 199 unchanged titles, 2 creates, no conflicts, and 100 orphans.
+The first live plan counted 1,269 updates, 622 retirements, 242 redirects, 199 unchanged titles, 2 creates, and 4 conflicts. Of 100 unused files of the project, 79 were the bot's orphans and 21 the operator's.
 
 ### D5. One file per picture, named after a stable user
 
@@ -124,21 +124,29 @@ Every picture has one file. Its title, by preference:
 
 Within each group the order is item, spell, skill, stance, character, then title. A title with a colon cannot hold a file, so it competes through its upload title without the colon. That upload title joins the plan whenever the wiki has a page there, so that its copy becomes the file or retires.
 
-Every other title of the picture is a redirect that names the file directly (spec: "One file holds each picture"). When that entity drops the picture, the bot moves the file to the next title in the same order and leaves no redirect behind. Pages name entity titles, so they keep resolving.
+Every other title of the picture is a redirect that names the file directly (spec: "One file holds each picture"). When the entity that names the file drops the picture, the next plan gives the picture a file at the next title and points the other titles there; the old file then shows on no page, and the run after deletes it as an orphan. Pages name entity titles, so they keep resolving.
 
 Alternatives considered:
 - Game-asset titles like Warcraft Wiki's: the export's sprite names are not stable (`4_7` against the runtime's `4`), and they mean nothing to readers.
 - Copies per entity, as today: each copy needs its own upload when a shared picture changes. With frames out of the files, an item and a spell that share a texture would hold two copies of one picture.
 
-### D6. Retiring copies without an administrator
+### D6. Copies and orphans are deleted with the operator's administrator account
 
-A title that should redirect may hold a copy that the project uploaded. The bot then:
+The bot account cannot delete. The operator is an administrator of the wiki, so a bot password of the operator's account with only the delete grant deletes for publishing (`deletion_username` and `deletion_password`, set only in `.erenshor/config.local.toml`). Before a run that deletes, the CLI logs it in and checks that it has the `delete` and `undelete` rights.
 
-1. moves the copy to `File:Retired <title>` with `suppressredirect`
-2. creates the redirect at the freed title at once
-3. adds `{{Delete}}` to the retired file's description page; the live `Template:Delete` puts it into `Category:Candidates for deletion`
+A title that should redirect may hold a copy that the project uploaded. The run then:
 
-All writes stay within WoWBot's rights. A copy whose latest version someone else uploaded is a conflict, not a retirement, and so is a copy whose retired title is taken. The run record and the plan list every retired file, so an administrator can delete them in one pass. The first migration moves 622 copies. At 8 moves per minute that takes about 80 minutes once, and later runs retire only what a game update makes redundant.
+1. points every other redirect that names the copy at the picture's file, which the redirect step does for catalog titles and the plan adds for any other redirect, because MediaWiki follows one file redirect
+2. deletes the copy
+3. creates the redirect at the freed title at once
+
+The bot's orphans go last, each with the redirects that name it. Before each deletion the run reads the file again, and it keeps an orphan that a page has started to show. Files of the operator that nothing shows are listed as unused and stay, because the operator also uploads by hand: on 2026-10-06 they were 20 composites of the old pipeline and `Raids.png`, a picture that the operator composed of the four rune icons.
+
+A copy whose latest version someone else uploaded is a conflict, not a deletion.
+
+Alternatives considered:
+- Moving each copy to `File:Retired <title>` with `{{Delete}}` for an administrator, the first design, which stayed within the bot's rights. It needed 622 moves at 8 per minute, 622 notice edits, and a later deletion pass, three log entries per file instead of one.
+- Deleting through the operator's browser session. A bot password keeps the run record and the checks of every other write.
 
 ### D7. The wiki draws the frames
 
@@ -171,11 +179,11 @@ Alternatives considered:
 
 **Write order of a real run:**
 1. uploads: creates and updates
-2. redirects to the pictures' files, which also take the titles with a colon off the copies that are about to move
-3. each retirement, followed at once by the redirect at its freed title, so a title that pages show goes without a picture only for the moment between the two writes
-4. `{{Delete}}` notices, also for retired files of earlier runs that lack one
+2. redirects to the pictures' files, which also take the titles with a colon off the copies that are about to go
+3. each copy's deletion, followed at once by the redirect at its freed title, so a title that pages show goes without a picture only for the moment between the two writes
+4. the orphans' deletions with their redirects
 
-A redirect or retirement whose picture's file could not be uploaded is skipped, so the run never points a title at a missing file.
+A redirect or deletion whose picture's file could not be uploaded is skipped, so the run never points a title at a missing file.
 
 **Before each write**, the run reads the title again: the file's latest version for an upload or a move, and the page for a redirect, because the file history of a redirect title is its target's. A title that changed since the plan is skipped and reported.
 
@@ -184,16 +192,16 @@ A redirect or retirement whose picture's file could not be uploaded is skipped, 
 - It confirms through the stashed `filekey` only when every warning is expected. Anything else, such as `duplicate-archive` for bytes that an administrator deleted, is skipped and reported.
 - The upload comment carries the picture's hash, kind, source asset, and the game build. A new file's description says how the picture was made, under `== Licensing ==` with `{{License|Game}}`, the wiki's notice for the game's pictures.
 
-**Run record:** every write appends to `run.json` at once, with the old and new SHA-1 of an upload, the retired title of a move, and the old text of a changed redirect. A rerun plans from the live wiki again, so an interruption costs nothing.
+**Run record:** every write appends to `run.json` at once, with the old and new SHA-1 of an upload, the SHA-1 and description of a deleted copy, the redirects deleted with an orphan, and the old text of a changed redirect. A rerun plans from the live wiki again, so an interruption costs nothing.
 
 **Rollback:**
-- The bot lacks `filerevert` and `delete`. Before an update overwrites a file, the run saves the live bytes into its record.
-- `images publish --revert <stamp>` uploads the saved bytes again where the run's version is still the latest. It points each retired title back at its retired file and removes the deletion notice. It restores a changed redirect, pointed straight at the retired file when it named a retired title, because MediaWiki does not follow two file redirects.
-- A move cannot be undone, because moving the file back would need the redirect at its title deleted. Created files and created redirects stay too, and the revert lists them.
+- The bot lacks `filerevert`. Before an update overwrites a file, the run saves the live bytes into its record, and before it deletes a copy, the copy's description.
+- `images publish --revert <stamp>` uploads the saved bytes again where the run's version is still the latest. It undeletes each deleted copy, whose file then shows again, and puts its description back in place of the redirect, which stays the newest revision after the undeletion. It undeletes the orphans with their redirects, and restores each changed redirect.
+- Created files and created redirects stay, and the revert lists them.
 
 `images capture` and `images approve` stay. `upload-captures` goes away, because publish covers portraits.
 
-**Owner:** `images publish` is the only writer of files and file redirects. It writes only the titles of its plan.
+**Owner:** `images publish` is the only writer of files and file redirects, and the only deleter of files. It writes and deletes only the titles of its plan.
 
 ### D9. The map builds icons from the catalog
 
@@ -209,7 +217,8 @@ The items' `image_hash` column gives the map each item's picture, so the consume
 
 - [Native textures are larger than the 150 px composites: 172.7 MB against about 66 MB today] → Pages show thumbnails that MediaWiki renders once and caches. File pages show the full picture, which the 1024 × 1024 textures make sharper.
 - [A page that embeds an icon file directly, outside the templates, shows the bare picture without a frame] → The Game Data guide documents the icon module as the way to show a game icon. A scan lists main-namespace pages that embed icon files directly, so editors can see them.
-- [The first migration takes long: about 1,270 uploads and 622 moves at 8 per minute] → The run record makes it resumable, and it runs once. Later runs touch only what changed.
+- [The first migration takes long: about 1,270 uploads, 622 deletions, and about 870 redirect edits] → The run record makes it resumable, and it runs once. Later runs touch only what changed.
+- [A deletion removes a file that something still needed] → Deletions touch only the project's copies at titles that redirect to the picture, and the bot's files that no page shows when the run reaches them. The revert undeletes them.
 - [`css-sanitizer` may reject a property on the live wiki that the local stack accepted] → The local stack runs the same TemplateStyles and TemplateStylesExtender. The repository deploy's render check parses the stylesheet against the live wiki before any write.
 - [An editor may edit a redirect page into a file description] → The planner treats any non-redirect page without a file at a redirect title as a conflict and reports it.
 - [A retirement moves a file that a page embeds by its old title] → The redirect at the old title is created in the same run, and a failed redirect is retried before the run ends. The run record names every unfinished pair.
@@ -226,6 +235,6 @@ The items' `image_hash` column gives the map each item's picture, so the consume
    - zero remaining create or update verdicts in a second dry run
 6. Rebuild and deploy the map. Check its item icons in the browser.
 7. Remove the old commands, `registry.db`, and `icon-background.png`. Update the `refreshing-game-data` skill, the Game Data guide, and the README.
-8. Hand the deletion list to an administrator: the retired copies and the 86 orphans.
+8. Decide with WoWMuch about the operator's unused files that the plan lists.
 
-**Rollback:** `images publish --revert <stamp>` restores every file version and moves retired files back. The repository deploy's rollback restores the templates and modules.
+**Rollback:** `images publish --revert <stamp>` restores every replaced file version and undeletes every deleted file. The repository deploy's rollback restores the templates and modules.

@@ -64,6 +64,7 @@
   - Add tests for a title that changes after the plan, an unexpected warning, a rerun after an interruption, and a revert.
   - Verify: the tests pass, and a publish against the local wiki stack, a rerun, and a revert leave the local files as the plan says.
   - Done on 2026-10-06: against the local stack, set up like the old pipeline with 150 px copies of Stone of Arcanism, Aura: Aracnism, and Azure Willow Seed, a publish updated two files, retired the spell's copy, and wrote the redirects and the deletion notice. A second plan found every title unchanged, and every title rendered an image. The revert uploaded the replaced bytes again, pointed the retired title back at its retired file, and removed the notice. The local runs changed the design in three places (D6, D8). Each retirement now writes its redirect at once, after the redirects to the pictures' files, where the first order left titles without a picture for the length of all moves. A redirect write reads the page, because the file history of a redirect title is its target's. Updates and reverts accept `duplicateversions`. `upload-captures` and `Approval.batch` are gone, and `model_image_upload` became `model_image_approval`.
+  - Changed on 2026-10-06 after the review: the operator is an administrator and asked for deletions through a bot password, so a run deletes copies and the bot's orphans with that account instead of moving copies to `Retired` titles with `{{Delete}}` (design D6), and `move_page` gave way to `delete_page` and `undelete_page`. The plan also points redirects outside the catalog that name a deleted copy at the picture's file, which the live plan found four of.
 
 ## 5. Migrate the live wiki
 
@@ -72,7 +73,7 @@
   - a fresh parse of an item, a spell, and a skill page shows the frames
   - the 13 corrected icons show the game's pictures
   - a second dry run plans no create or update
-  - the retired files are in `Category:Candidates for deletion`
+  - the deleted copies' titles and the redirects that named them show the pictures' files
 - [ ] 5.3 Rebuild and dry-run the map deploy, and deploy it with approval. Verify in a browser that the site's item icons show the catalog pictures, the 12 corrected ones included.
 
 ## 6. Remove the old pipeline
@@ -84,4 +85,4 @@
 
   Update the README's pipeline description. Verify: no source, test, skill, or document refers to the removed commands or files, and the unit and contract tests pass.
   - Done on 2026-10-06, before the migration, because the publication no longer needs the registry: ownership comes from the uploader alone (design D3). The commands, the three services, their domain entities, `needs_redirect`, the background images, and the `imagehash` dependency are gone, and the dev shell builds without it. The README never described the old pipeline. No source, test, skill, or guide refers to the removed pieces, and the 1,975 unit and contract tests pass. The local `variants/main/images/registry.db` and `current/` are unused data now.
-- [ ] 6.2 Add the deletion list of the run record to group 9 of `adopt-data-backed-wiki`, with the retired copies and the orphans of the plan, for an administrator. Verify: the task names the list, and each listed file has an empty `list=imageusage` result when the list is recorded.
+- [ ] 6.2 Decide with WoWMuch about the operator's unused files that the plan lists, which the bot never deletes as orphans: 20 composites of the old pipeline and `Raids.png` on 2026-10-06. Delete the approved ones with the deletion account and record them. Verify: each deleted file has an empty `list=imageusage` result before its deletion.

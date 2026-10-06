@@ -9,8 +9,8 @@ rebuild-game-image-pipeline):
   its latest version, so a new version is uploaded
 - ``unchanged``: the title shows the picture already
 - ``redirect``: the title should redirect to the picture's file and does not
-- ``retire``: the title holds a copy that the project uploaded, which moves
-  aside so the title can redirect to the picture's file
+- ``retire``: the title holds a copy that the project uploaded, which the run
+  deletes so that the title can redirect to the picture's file
 - ``conflict``: someone else uploaded the file at the title, or the title holds
   a page that is not a redirect, so the bot leaves it alone
 
@@ -19,7 +19,8 @@ redirects to it. A file is the project's when one of its accounts uploaded the
 latest version (design D3). Pixels are compared without downloads where the
 listing settles it: equal bytes, a different size, or the picture's hash in the
 upload comment of the project's own version. Only the remaining files are
-downloaded, once, into a cache keyed by their SHA-1.
+downloaded, once, into a cache keyed by their SHA-1. The bot's files that no
+title produces and no page shows are orphans, which the run deletes.
 """
 
 from __future__ import annotations
@@ -46,7 +47,6 @@ if TYPE_CHECKING:
     from erenshor.infrastructure.wiki import MediaWikiFile
 
 __all__ = [
-    "RETIRED_PREFIX",
     "Catalog",
     "LivePictureCache",
     "LiveWiki",
@@ -62,7 +62,6 @@ __all__ = [
 
 Verdict = Literal["create", "update", "unchanged", "redirect", "retire", "conflict"]
 VERDICTS: tuple[Verdict, ...] = ("create", "update", "unchanged", "redirect", "retire", "conflict")
-RETIRED_PREFIX = "File:Retired "
 
 # The order in which the entities of a shared picture give the picture's file its title.
 _ENTITY_ORDER = ("item", "spell", "skill", "stance", "character")
@@ -208,8 +207,8 @@ class PlannedTitle:
     ``file`` is the title of the picture's file, which every other title of the
     picture redirects to, or None when no title of the picture can hold it.
     ``live_sha1`` and ``live_user`` describe the file at the title when the plan
-    was made, and ``redirect_target`` the target of its redirect. ``warnings``
-    are the upload warnings that the verdict expects.
+    was made, and ``redirect_target`` the page that its redirect names.
+    ``warnings`` are the upload warnings that the verdict expects.
     """
 
     title: str
@@ -222,65 +221,69 @@ class PlannedTitle:
     redirect_target: str | None = None
     warnings: tuple[str, ...] = ()
 
-    @property
-    def retired_title(self) -> str:
-        return RETIRED_PREFIX + self.title.removeprefix("File:")
-
 
 @dataclass(frozen=True, slots=True)
 class Orphan:
-    """A file of the project that no title produces and no page shows."""
+    """A file that the bot uploaded, that no title produces, and that no page shows.
+
+    ``redirects`` are the File redirects that name it, which no page uses
+    either and which go with it.
+    """
 
     title: str
-    user: str
+    sha1: str
     timestamp: str
+    redirects: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
 class PublishPlan:
-    """The verdict of every title, the orphans, and the retired files that await deletion.
+    """The verdict of every title, and the orphans that the run deletes.
 
-    ``untagged`` names the retired files whose description page lacks the
-    deletion notice.
+    ``unused`` names the files of the other project accounts that no title
+    produces and no page shows. The bot leaves them to their uploader.
     """
 
     titles: tuple[PlannedTitle, ...]
     orphans: tuple[Orphan, ...]
-    retired: tuple[str, ...]
-    untagged: tuple[str, ...]
+    unused: tuple[str, ...]
 
     def counts(self) -> dict[str, int]:
         return {verdict: sum(item.verdict == verdict for item in self.titles) for verdict in VERDICTS}
+
+    @property
+    def deletes(self) -> bool:
+        """Whether a run of the plan deletes anything, which needs the deletion account."""
+        return bool(self.orphans) or any(item.verdict == "retire" for item in self.titles)
 
     def to_json(self) -> dict[str, Any]:
         return {
             "counts": self.counts(),
             "titles": [asdict(item) for item in self.titles],
             "orphans": [asdict(orphan) for orphan in self.orphans],
-            "retired": list(self.retired),
-            "untagged": list(self.untagged),
+            "unused": list(self.unused),
         }
 
 
 def plan_publication(
     catalog: Catalog,
     live: LiveWiki,
+    bot: str,
     owners: Collection[str],
     pictures: LivePictureCache,
     is_used: Callable[[str], bool],
-    delete_tagged: Callable[[Sequence[str]], Collection[str]],
 ) -> PublishPlan:
     """Give every title one verdict against one listing of the wiki.
 
     Args:
         catalog: The pictures and titles of the clean build.
         live: The listing of the wiki.
-        owners: The accounts whose uploads are the project's.
+        bot: The bot account, whose orphans the run deletes.
+        owners: The accounts whose uploads are the project's, the bot included.
         pictures: The bytes and pixel hashes of live files.
         is_used: Whether a page shows a file, directly or through a redirect.
-        delete_tagged: Which of the given retired files carry the deletion notice.
     """
-    planner = _Planner(catalog, live, frozenset(owners), pictures)
+    planner = _Planner(catalog, live, frozenset({bot, *owners}), pictures)
     titles = planner.titles()
     files = {image_hash: planner.choose_file(image_hash, members) for image_hash, members in _by_picture(titles)}
     # A picture's file may take a title that no page names, such as the upload
@@ -288,28 +291,32 @@ def plan_publication(
     for image_hash, file_title in files.items():
         if file_title is not None:
             titles.setdefault(file_title, image_hash)
+    # A copy that goes takes the redirects that name it along, so they point at
+    # the picture's file instead, because MediaWiki follows one file redirect.
+    named_by: dict[str, list[str]] = defaultdict(list)
+    for source, target in live.redirects.items():
+        named_by[target].append(source)
+    for title, image_hash in list(titles.items()):
+        copy = live.files.get(title)
+        if title != files[image_hash] and copy is not None and planner.owned(copy):
+            for source in named_by.get(title, ()):
+                titles.setdefault(source, image_hash)
     planned = tuple(planner.verdict(title, titles[title], files[titles[title]]) for title in sorted(titles))
 
-    retiring = {item.retired_title for item in planned if item.verdict == "retire"}
-    retired_before = sorted(
-        title
+    unproduced = [
+        (title, file)
         for title, file in live.files.items()
-        if title.startswith(RETIRED_PREFIX) and file.user in planner.owners and title not in titles
-    )
-    tagged = set(delete_tagged(retired_before))
+        if title not in titles and planner.owned(file) and not is_used(title)
+    ]
     orphans = tuple(
-        Orphan(title, file.user or "", file.timestamp)
-        for title, file in live.files.items()
-        if title not in titles
-        and not title.startswith(RETIRED_PREFIX)
-        and file.user in planner.owners
-        and not is_used(title)
+        Orphan(title, file.sha1, file.timestamp, tuple(sorted(set(named_by.get(title, ())) - titles.keys())))
+        for title, file in unproduced
+        if file.user == bot
     )
     return PublishPlan(
         titles=planned,
         orphans=orphans,
-        retired=tuple(sorted(retiring | set(retired_before))),
-        untagged=tuple(title for title in retired_before if title not in tagged),
+        unused=tuple(title for title, file in unproduced if file.user != bot),
     )
 
 
@@ -342,7 +349,7 @@ class _Planner:
 
         A title with a colon cannot hold a file, so the old pipeline uploaded
         to the title without it and redirected. Such an upload title joins the
-        plan, so that its copy is retired or becomes the picture's file.
+        plan, so that its copy goes or becomes the picture's file.
         """
         titles = dict(self.catalog.titles)
         for title, image_hash in self.catalog.titles.items():
@@ -443,8 +450,6 @@ class _Planner:
             return planned("conflict", f"{live.user} uploaded the file")
         if live is not None:
             if self.owned(live):
-                if self.live.has_page(RETIRED_PREFIX + title.removeprefix("File:")):
-                    return planned("conflict", "the title of its retired copy is taken")
                 return planned("retire", f"a copy of the picture belongs at {file_title}")
             return planned("conflict", f"{live.user} uploaded a file here")
         if target is not None:

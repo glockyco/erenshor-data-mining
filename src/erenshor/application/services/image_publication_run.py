@@ -1,19 +1,20 @@
 """Carrying out a publication plan and reverting a run (design D8 of rebuild-game-image-pipeline).
 
 A run writes uploads first, then redirects to the pictures' files, then each
-retirement followed at once by the redirect that replaces it, and deletion
-notices last. Before each write it reads the title again, and it skips a title
-that changed since the plan, so the bot never replaces something that someone
-else wrote meanwhile. An upload never ignores MediaWiki's warnings up front:
-when the wiki answers only with warnings that the verdict expects, the run
-confirms the stashed upload, and otherwise it skips the title.
+copy's deletion followed at once by the redirect that replaces it, and the
+orphans' deletions last. Before each write it reads the title again, and it
+skips a title that changed since the plan, so the bot never replaces something
+that someone else wrote meanwhile. An upload never ignores MediaWiki's warnings
+up front: when the wiki answers only with warnings that the verdict expects,
+the run confirms the stashed upload, and otherwise it skips the title. The bot
+account uploads and edits; an administrator's account with the delete grant
+deletes.
 
 Every write goes to ``run.json`` the moment it happens, with the bytes that an
-update replaced, so a stopped run loses nothing and a later revert can restore
-what the run changed. The bot cannot delete or revert files, so a revert
-uploads the replaced bytes again, points a retired copy's title back at the
-retired file, and restores a redirect it changed. Created files and created
-redirects stay, and the revert lists them.
+update replaced and the description of a deleted copy, so a stopped run loses
+nothing and a later revert can restore what the run changed. A revert uploads
+the replaced bytes again, restores deleted files, and restores a redirect it
+changed. Created files and created redirects stay, and the revert lists them.
 """
 
 from __future__ import annotations
@@ -29,25 +30,32 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from pathlib import Path
 
-    from erenshor.application.services.image_publication import Catalog, Picture, PlannedTitle, PublishPlan
+    from erenshor.application.services.image_publication import (
+        Catalog,
+        Orphan,
+        Picture,
+        PlannedTitle,
+        PublishPlan,
+    )
     from erenshor.infrastructure.wiki.client import (
         MediaWikiFileVersion,
         MediaWikiPageRevision,
         MediaWikiPageSnapshot,
     )
 
-__all__ = ["DELETE_NOTICE", "PublishWriter", "RunRecord", "comment", "description", "execute", "revert"]
+__all__ = ["PageDeleter", "PublishWriter", "RunRecord", "comment", "description", "execute", "revert"]
 
-DELETE_NOTICE = "{{Delete}}"
 _REDIRECT = re.compile(r"^\s*#REDIRECT\s*\[\[\s*:?\s*([^\]|]+?)\s*(?:\|[^\]]*)?\]\]", re.IGNORECASE)
 
 
 class PublishWriter(Protocol):
-    """The reads and writes of the wiki that a run needs."""
+    """The reads and writes of the bot account that a run needs."""
 
     def get_file_versions(self, title: str, limit: int = 50) -> tuple[MediaWikiFileVersion, ...]: ...
 
     def get_page_snapshots(self, titles: Sequence[str]) -> dict[str, MediaWikiPageSnapshot]: ...
+
+    def is_file_used(self, title: str) -> bool: ...
 
     def download(self, url: str) -> bytes: ...
 
@@ -57,13 +65,19 @@ class PublishWriter(Protocol):
 
     def confirm_upload(self, filekey: str, filename: str, comment: str, text: str = "") -> dict[str, Any]: ...
 
-    def move_page(self, source: str, target: str, reason: str, *, leave_redirect: bool) -> None: ...
-
     def safe_create_page(self, title: str, content: str, start_timestamp: str, summary: str | None = None) -> int: ...
 
     def safe_edit_page(
         self, title: str, content: str, base_revision: MediaWikiPageRevision, summary: str | None = None
     ) -> int: ...
+
+
+class PageDeleter(Protocol):
+    """The deletions of an administrator's account that a run and its revert need."""
+
+    def delete_page(self, title: str, reason: str) -> None: ...
+
+    def undelete_page(self, title: str, reason: str) -> None: ...
 
 
 def comment(picture: Picture, game_build: str) -> str:
@@ -110,15 +124,27 @@ class RunRecord:
         temporary.replace(path)
 
 
-def execute(plan: PublishPlan, catalog: Catalog, writer: PublishWriter, record: RunRecord, summary: str) -> None:
+def execute(
+    plan: PublishPlan,
+    catalog: Catalog,
+    writer: PublishWriter,
+    deleter: PageDeleter | None,
+    record: RunRecord,
+    summary: str,
+) -> None:
     """Carry out a plan so that no title that a page shows goes without a picture for long.
 
     Uploads come first. Then every title that should redirect to a picture's
     file does, which also takes the titles with a colon off the copies that
-    are about to move. Then each copy is retired and its title redirects to
-    the picture's file at once. Deletion notices come last. A title whose
-    picture's file could not be uploaded is left as it is.
+    are about to go. Then each copy is deleted and its title redirects to the
+    picture's file at once. The orphans go last. A title whose picture's file
+    could not be uploaded is left as it is.
+
+    Raises:
+        ValueError: If the plan deletes and no deleter is given.
     """
+    if plan.deletes and deleter is None:
+        raise ValueError("The plan deletes copies or orphans, which needs the deletion account")
     missing_files: set[str] = set()
     for item in plan.titles:
         if item.verdict in ("create", "update"):
@@ -135,13 +161,13 @@ def execute(plan: PublishPlan, catalog: Catalog, writer: PublishWriter, record: 
     for item in plan.titles:
         if item.verdict == "redirect" and has_file(item):
             _redirect(item, writer, record, summary)
-    retired: list[str] = []
+    if deleter is None:
+        return
     for item in plan.titles:
-        if item.verdict == "retire" and has_file(item) and _retire(item, writer, record, summary):
-            retired.append(item.retired_title)
+        if item.verdict == "retire" and has_file(item) and _delete_copy(item, writer, deleter, record, summary):
             _redirect(item, writer, record, summary)
-    for title in [*retired, *plan.untagged]:
-        _tag(title, writer, record, summary)
+    for orphan in plan.orphans:
+        _delete_orphan(orphan, writer, deleter, record, summary)
 
 
 def _skipped(item: PlannedTitle, action: str, reason: str) -> dict[str, Any]:
@@ -201,23 +227,57 @@ def _upload(item: PlannedTitle, catalog: Catalog, writer: PublishWriter, record:
     return True
 
 
-def _retire(item: PlannedTitle, writer: PublishWriter, record: RunRecord, summary: str) -> bool:
+def _delete_copy(
+    item: PlannedTitle, writer: PublishWriter, deleter: PageDeleter, record: RunRecord, summary: str
+) -> bool:
     current = _current(writer, item.title)
     if current is None or current.sha1 != item.live_sha1:
         record.add(_skipped(item, "retire", "the file changed since the plan"))
         return False
-    if writer.get_page_snapshots([item.retired_title])[item.retired_title].source_text is not None:
-        record.add(_skipped(item, "retire", f"{item.retired_title} exists"))
-        return False
-    reason = f"{summary}: one file holds the picture, {item.file}"
+    page = writer.get_page_snapshots([item.title])[item.title]
     try:
-        writer.move_page(item.title, item.retired_title, reason, leave_redirect=False)
+        deleter.delete_page(item.title, f"{summary}: a copy of {item.file}, which holds the picture")
     except MediaWikiAPIError as error:
-        record.add(_skipped(item, "retire", f"the move failed: {error}"))
+        record.add(_skipped(item, "retire", f"the deletion failed: {error}"))
         return False
-    entry = {"title": item.title, "action": "retire", "done": True, "retired": item.retired_title, "file": item.file}
-    record.add(entry)
+    record.add(
+        {
+            "title": item.title,
+            "action": "retire",
+            "done": True,
+            "sha1": current.sha1,
+            "file": item.file,
+            "description": page.source_text,
+        }
+    )
     return True
+
+
+def _delete_orphan(
+    orphan: Orphan, writer: PublishWriter, deleter: PageDeleter, record: RunRecord, summary: str
+) -> None:
+    entry: dict[str, Any] = {"title": orphan.title, "action": "orphan", "done": False}
+    current = _current(writer, orphan.title)
+    if current is None or current.sha1 != orphan.sha1:
+        record.add(entry | {"reason": "the file changed since the plan"})
+        return
+    if writer.is_file_used(orphan.title):
+        record.add(entry | {"reason": "a page shows the file since the plan"})
+        return
+    redirects = [
+        title
+        for title, page in writer.get_page_snapshots(orphan.redirects).items()
+        if _same_title(_redirect_target(page.source_text or "") or "", orphan.title)
+    ]
+    reason = f"{summary}: nothing produces the file and no page shows it"
+    try:
+        deleter.delete_page(orphan.title, reason)
+        for title in redirects:
+            deleter.delete_page(title, reason)
+    except MediaWikiAPIError as error:
+        record.add(entry | {"reason": f"the deletion failed: {error}"})
+        return
+    record.add(entry | {"done": True, "sha1": current.sha1, "redirects": redirects})
 
 
 def _redirect(item: PlannedTitle, writer: PublishWriter, record: RunRecord, summary: str) -> None:
@@ -253,22 +313,6 @@ def _redirect(item: PlannedTitle, writer: PublishWriter, record: RunRecord, summ
     )
 
 
-def _tag(title: str, writer: PublishWriter, record: RunRecord, summary: str) -> None:
-    page = writer.get_page_snapshots([title])[title]
-    text = page.source_text or ""
-    if DELETE_NOTICE in text:
-        return
-    try:
-        if page.revision is None:
-            writer.safe_create_page(title, DELETE_NOTICE, page.start_timestamp, summary=summary)
-        else:
-            writer.safe_edit_page(title, f"{DELETE_NOTICE}\n{text}", page.revision, summary=summary)
-    except MediaWikiAPIError as error:
-        record.add({"title": title, "action": "tag", "done": False, "reason": f"the edit failed: {error}"})
-        return
-    record.add({"title": title, "action": "tag", "done": True})
-
-
 def _redirect_target(text: str) -> str | None:
     match = _REDIRECT.match(text)
     return match.group(1) if match else None
@@ -288,32 +332,44 @@ def _same_title(left: str, right: str | None) -> bool:
     return normal(left) == normal(right)
 
 
-def revert(run: RunRecord, writer: PublishWriter, record: RunRecord, owners: Sequence[str], summary: str) -> None:
-    """Undo what a run changed, where the bot's rights allow it.
+def revert(
+    run: RunRecord,
+    writer: PublishWriter,
+    deleter: PageDeleter | None,
+    record: RunRecord,
+    owners: Sequence[str],
+    summary: str,
+) -> None:
+    """Undo what a run changed.
 
     An update is undone by uploading the replaced bytes again, while the
-    file's latest version is still the run's. A retirement is undone by
-    pointing the title at the retired file and removing its deletion notice.
-    A changed redirect gets its earlier text back, pointed at the retired file
-    when it named a title that the run retired, because MediaWiki follows one
-    file redirect only. Created files and created redirects stay and are listed.
+    file's latest version is still the run's. A deleted copy is restored, and
+    its description replaces the redirect that the run wrote at its title. An
+    orphan is restored with its redirects. A changed redirect gets its earlier
+    text back. Created files and created redirects stay and are listed.
+
+    Raises:
+        ValueError: If the run deleted something and no deleter is given.
     """
     done = [entry for entry in run.entries if entry.get("done")]
-    retired = {str(entry["title"]): str(entry["retired"]) for entry in done if entry["action"] == "retire"}
+    if deleter is None and any(entry["action"] in ("retire", "orphan") for entry in done):
+        raise ValueError("The run deleted copies or orphans, which only the deletion account restores")
+    restored = {str(entry["title"]) for entry in done if entry["action"] == "retire"}
     for entry in done:
         title = str(entry["title"])
         action = entry["action"]
         if action == "update":
             _revert_update(entry, run.directory, writer, record, owners, summary)
-        elif action == "retire":
-            _point_at(title, retired[title], str(entry["file"]), writer, record, summary)
-            _untag(retired[title], writer, record, summary)
-        elif action == "redirect" and title in retired:
+        elif action == "retire" and deleter is not None:
+            _restore_copy(entry, writer, deleter, record, summary)
+        elif action == "orphan" and deleter is not None:
+            _restore_orphan(entry, deleter, record, summary)
+        elif action == "redirect" and title in restored:
             continue
         elif action == "redirect" and entry.get("old_text") is not None:
-            _restore_redirect(entry, retired, writer, record, summary)
+            _restore_redirect(entry, writer, record, summary)
         elif action in ("create", "redirect"):
-            record.add({"title": title, "action": f"keep {action}", "done": False, "reason": "the bot cannot delete"})
+            record.add({"title": title, "action": f"keep {action}", "done": False, "reason": "the run created it"})
 
 
 def _revert_update(
@@ -349,54 +405,52 @@ def _revert_update(
     record.add({"title": title, "action": "revert update", "done": True, "sha1": entry["old_sha1"]})
 
 
-def _point_at(title: str, target: str, expected: str, writer: PublishWriter, record: RunRecord, summary: str) -> None:
+def _restore_copy(
+    entry: dict[str, Any], writer: PublishWriter, deleter: PageDeleter, record: RunRecord, summary: str
+) -> None:
+    """Restore a deleted copy at its title, where the run left a redirect to the picture's file.
+
+    Undeleting brings back the copy's file and its revisions, which are older
+    than the redirect, so the redirect stays the page's text until the copy's
+    description replaces it.
+    """
+    title = str(entry["title"])
     page = writer.get_page_snapshots([title])[title]
-    current = _redirect_target(page.source_text or "")
-    if page.revision is None or current is None or not _same_title(current, expected):
+    if page.source_text is not None and not _same_title(_redirect_target(page.source_text) or "", str(entry["file"])):
         record.add({"title": title, "action": "revert retire", "done": False, "reason": "the page changed since"})
         return
     try:
-        writer.safe_edit_page(title, f"#REDIRECT [[{target}]]", page.revision, summary=summary)
+        deleter.undelete_page(title, summary)
+        restored = writer.get_page_snapshots([title])[title]
+        if restored.revision is not None and entry.get("description") is not None:
+            writer.safe_edit_page(title, str(entry["description"]), restored.revision, summary=summary)
     except MediaWikiAPIError as error:
         record.add({"title": title, "action": "revert retire", "done": False, "reason": str(error)})
         return
-    record.add({"title": title, "action": "revert retire", "done": True, "target": target})
+    record.add({"title": title, "action": "revert retire", "done": True})
 
 
-def _untag(title: str, writer: PublishWriter, record: RunRecord, summary: str) -> None:
-    page = writer.get_page_snapshots([title])[title]
-    text = page.source_text or ""
-    if page.revision is None or DELETE_NOTICE not in text:
-        return
-    remaining = (
-        text.replace(f"{DELETE_NOTICE}\n", "", 1)
-        if f"{DELETE_NOTICE}\n" in text
-        else text.replace(DELETE_NOTICE, "", 1)
-    )
+def _restore_orphan(entry: dict[str, Any], deleter: PageDeleter, record: RunRecord, summary: str) -> None:
+    title = str(entry["title"])
     try:
-        writer.safe_edit_page(title, remaining, page.revision, summary=summary)
+        deleter.undelete_page(title, summary)
+        for redirect in entry.get("redirects", ()):
+            deleter.undelete_page(str(redirect), summary)
     except MediaWikiAPIError as error:
-        record.add({"title": title, "action": "revert tag", "done": False, "reason": str(error)})
+        record.add({"title": title, "action": "revert orphan", "done": False, "reason": str(error)})
         return
-    record.add({"title": title, "action": "revert tag", "done": True})
+    record.add({"title": title, "action": "revert orphan", "done": True})
 
 
-def _restore_redirect(
-    entry: dict[str, Any], retired: dict[str, str], writer: PublishWriter, record: RunRecord, summary: str
-) -> None:
+def _restore_redirect(entry: dict[str, Any], writer: PublishWriter, record: RunRecord, summary: str) -> None:
     title = str(entry["title"])
     page = writer.get_page_snapshots([title])[title]
     current = _redirect_target(page.source_text or "")
     if page.revision is None or current is None or not _same_title(current, str(entry["target"])):
         record.add({"title": title, "action": "revert redirect", "done": False, "reason": "the page changed since"})
         return
-    old_text = str(entry["old_text"])
-    old_target = _redirect_target(old_text)
-    for retired_title, retired_file in retired.items():
-        if old_target is not None and _same_title(old_target, retired_title):
-            old_text = f"#REDIRECT [[{retired_file}]]"
     try:
-        writer.safe_edit_page(title, old_text, page.revision, summary=summary)
+        writer.safe_edit_page(title, str(entry["old_text"]), page.revision, summary=summary)
     except MediaWikiAPIError as error:
         record.add({"title": title, "action": "revert redirect", "done": False, "reason": str(error)})
         return

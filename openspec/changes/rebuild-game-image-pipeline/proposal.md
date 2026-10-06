@@ -37,8 +37,8 @@ Updating the wiki's game images has always meant re-uploading nearly everything,
   - Sprite sheets are not used: individual files keep their own history and licensing, and HTTP/2 removed the request cost that once justified sheets.
   - Portrait capture, review, and approval keep their current flow.
 - **Migration boundary:** one cutover.
-  - The migration uploads about 1,270 native pictures, then moves the old pipeline's 622 other copies aside so their titles can become redirects (first plan, 2026-10-06). WoWBot has the `movefile` and `suppressredirect` rights, so the moves need no administrator.
-  - The retired copies and the project's files that nothing produces and no page shows (100 in the first plan, most under older spellings of current titles) go on a deletion list for an administrator.
+  - The migration uploads about 1,270 native pictures, then deletes the old pipeline's 622 other copies so their titles can become redirects (first plan, 2026-10-06). The operator, an administrator, deletes through a bot password with only the delete grant.
+  - The bot's files that nothing produces and no page shows go too, 79 in the first plan, most under older spellings of current titles. The operator's 21 such files stay for the operator to decide.
   - The icon templates and modules switch to the slot markup in the same deploy as the new files.
 - **Affected systems:**
   - The Unity export's item, spell, and skill records and listeners, and the clean build's processor and schema

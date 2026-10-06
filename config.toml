@@ -38,6 +38,10 @@ bot_password = ""
 # Dedicated interface-admin credentials; set only in .erenshor/config.local.toml.
 interface_username = ""
 interface_password = ""
+# An administrator's bot password with only the delete grant, for the deletions
+# of images publish; set only in .erenshor/config.local.toml.
+deletion_username = ""
+deletion_password = ""
 
 [global.google_sheets]
 credentials_file = "$HOME/.config/erenshor/google-credentials.json"

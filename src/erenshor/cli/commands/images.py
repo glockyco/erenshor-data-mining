@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import shutil
 import sqlite3
-from contextlib import closing
+from contextlib import closing, contextmanager
 from pathlib import Path
 from typing import TYPE_CHECKING, Annotated
 
@@ -28,7 +28,7 @@ from erenshor.cli.preconditions.checks.database import database_exists, database
 from erenshor.cli.preconditions.checks.inputs import required_path, wiki_credentials
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Iterator
 
     from erenshor.application.services.image_publication_run import RunRecord
     from erenshor.cli.context import CLIContext
@@ -288,11 +288,15 @@ def approve_captures(
     console.print(f"[green]✓[/green] {len(approval.images)} approved captures in {approval_path}")
 
 
-def _project_accounts(cli_ctx: CLIContext) -> tuple[str, ...]:
-    """The accounts whose uploads are the project's: the bot and the interface account's user."""
+def _project_accounts(cli_ctx: CLIContext) -> tuple[str, tuple[str, ...]]:
+    """The bot account, and every account whose uploads are the project's: the bot and the operator's.
+
+    The operator's account is the user of the interface and deletion bot passwords.
+    """
     wiki_config = cli_ctx.config.global_.mediawiki
-    usernames = (wiki_config.bot_username, wiki_config.interface_username)
-    return tuple(dict.fromkeys(name.partition("@")[0] for name in usernames if name))
+    bot = wiki_config.bot_username.partition("@")[0]
+    usernames = (wiki_config.bot_username, wiki_config.interface_username, wiki_config.deletion_username)
+    return bot, tuple(dict.fromkeys(name.partition("@")[0] for name in usernames if name))
 
 
 @app.command("publish")
@@ -301,7 +305,7 @@ def publish(
     ctx: typer.Context,
     revert_stamp: Annotated[
         str | None,
-        typer.Option("--revert", help="Undo the publish run with this stamp, as far as the bot's rights allow"),
+        typer.Option("--revert", help="Undo the publish run with this stamp"),
     ] = None,
 ) -> None:
     """Publish the picture catalog to the wiki, one file per picture.
@@ -309,12 +313,13 @@ def publish(
     Lists the wiki's files once and gives every file title that a page names a
     verdict: create, update, unchanged, redirect, retire, or conflict. Every
     other title of a picture redirects to its file, and a copy that the
-    project uploaded moves to "Retired <title>" with a deletion notice. A file
-    whose latest version someone else uploaded is a conflict and stays. Writes
-    the plan and contact sheets of every changing picture to
-    images/publish/<stamp>/. With the root --dry-run option, stops there.
-    Otherwise writes uploads, retirements, redirects, and deletion notices,
-    checking each title again first, and records every write in run.json.
+    project uploaded is deleted. A file whose latest version someone else
+    uploaded is a conflict and stays. The bot's files that nothing produces and
+    no page shows are orphans and are deleted too. Writes the plan and contact
+    sheets of every changing picture to images/publish/<stamp>/. With the root
+    --dry-run option, stops there. Otherwise uploads with the bot account,
+    deletes with the deletion account, checks each title again first, and
+    records every write in run.json.
 
     Examples:
         erenshor --dry-run images publish
@@ -330,14 +335,14 @@ def publish(
         plan_publication,
         write_contact_sheets,
     )
-    from erenshor.application.services.image_publication_run import DELETE_NOTICE, RunRecord, execute, revert
+    from erenshor.application.services.image_publication_run import RunRecord, execute, revert
 
     console = Console()
     cli_ctx: CLIContext = ctx.obj
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
     publish_dir = variant_config.resolved_images_output(cli_ctx.repo_root) / "publish"
     run_dir = publish_dir / datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
-    owners = _project_accounts(cli_ctx)
+    bot, owners = _project_accounts(cli_ctx)
 
     if revert_stamp is not None:
         reverted = RunRecord.load(publish_dir / revert_stamp)
@@ -350,9 +355,10 @@ def publish(
             console.print("[yellow]Dry run: nothing was written.[/yellow]")
             return
         record = RunRecord(run_dir)
-        with closing(_bot_client(cli_ctx)) as writer:
+        deletes = any(entry["action"] in ("retire", "orphan") for entry in done)
+        with closing(_bot_client(cli_ctx)) as writer, _deletion_client(cli_ctx, console, needed=deletes) as deleter:
             writer.login()
-            revert(reverted, writer, record, owners, f"Revert the picture publication of {revert_stamp}")
+            revert(reverted, writer, deleter, record, owners, f"Revert the picture publication of {revert_stamp}")
         _print_record(console, record)
         return
 
@@ -362,12 +368,7 @@ def publish(
         file_pages = reader.list_file_pages()
         live = LiveWiki({file.title: file for file in files}, file_pages.redirects, file_pages.pages)
         pictures = LivePictureCache(reader.download, publish_dir / "live")
-
-        def delete_tagged(titles: Sequence[str]) -> set[str]:
-            snapshots = reader.get_page_snapshots(titles)
-            return {title for title, page in snapshots.items() if DELETE_NOTICE in (page.source_text or "")}
-
-        plan = plan_publication(catalog, live, owners, pictures, reader.is_file_used, delete_tagged)
+        plan = plan_publication(catalog, live, bot, owners, pictures, reader.is_file_used)
         sheets = write_contact_sheets(plan, catalog, live, pictures, run_dir)
         pictures.save()
     (run_dir / "plan.json").write_text(json.dumps(plan.to_json(), indent=2, ensure_ascii=False) + "\n")
@@ -382,10 +383,16 @@ def publish(
         for item in conflicts:
             table.add_row(item.title, item.reason)
         console.print(table)
-    console.print(
-        f"{len(plan.orphans)} orphans that nothing produces and no page shows, "
-        f"{len(plan.retired)} retired files for deletion, {len(plan.untagged)} without a deletion notice"
-    )
+    if plan.orphans:
+        table = Table(title=f"Orphans of {bot}: the run deletes them with the redirects that name them")
+        table.add_column("File", style="cyan")
+        table.add_column("Uploaded", style="dim")
+        table.add_column("Redirects", style="dim")
+        for orphan in plan.orphans:
+            table.add_row(orphan.title, orphan.timestamp[:10], ", ".join(orphan.redirects))
+        console.print(table)
+    if plan.unused:
+        console.print(f"{len(plan.unused)} files of the operator that nothing produces or shows stay: see plan.json")
     console.print(f"Plan: {run_dir / 'plan.json'}")
     console.print(f"Contact sheets: {len(sheets)} under {run_dir}")
     if cli_ctx.dry_run:
@@ -393,9 +400,9 @@ def publish(
         return
 
     record = RunRecord(run_dir)
-    with closing(_bot_client(cli_ctx)) as writer:
+    with closing(_bot_client(cli_ctx)) as writer, _deletion_client(cli_ctx, console, needed=plan.deletes) as deleter:
         writer.login()
-        execute(plan, catalog, writer, record, "Publish the game's pictures")
+        execute(plan, catalog, writer, deleter, record, "Publish the game's pictures")
     _print_record(console, record)
 
 
@@ -409,6 +416,42 @@ def _bot_client(cli_ctx: CLIContext) -> MediaWikiClient:
         bot_password=wiki_config.bot_password,
         batch_size=50,
     )
+
+
+@contextmanager
+def _deletion_client(cli_ctx: CLIContext, console: Console, *, needed: bool) -> Iterator[MediaWikiClient | None]:
+    """A logged-in client of the deletion account when the work deletes, after checking its rights.
+
+    Exits before any write when the account is not configured or lacks the
+    delete or undelete right.
+    """
+    from erenshor.infrastructure.wiki.client import MediaWikiClient
+
+    if not needed:
+        yield None
+        return
+    wiki_config = cli_ctx.config.global_.mediawiki
+    if not wiki_config.deletion_username.strip() or not wiki_config.deletion_password:
+        console.print(
+            "[red]This run deletes files, which needs an administrator's bot password with the delete grant. "
+            "Set [global.mediawiki].deletion_username and deletion_password in .erenshor/config.local.toml.[/red]"
+        )
+        raise typer.Exit(1)
+    client = MediaWikiClient(
+        api_url=wiki_config.api_url,
+        bot_username=wiki_config.deletion_username,
+        bot_password=wiki_config.deletion_password,
+        batch_size=50,
+    )
+    try:
+        client.login()
+        missing = {"delete", "undelete"} - client.get_current_user_rights(assertion="user")
+        if missing:
+            console.print(f"[red]The deletion account lacks the right {', '.join(sorted(missing))}.[/red]")
+            raise typer.Exit(1)
+        yield client
+    finally:
+        client.close()
 
 
 def _print_record(console: Console, record: RunRecord) -> None:

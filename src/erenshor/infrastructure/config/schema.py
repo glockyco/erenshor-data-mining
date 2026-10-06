@@ -237,6 +237,20 @@ class MediaWikiConfig(ConfigModel):
             ".erenshor/config.local.toml; never use bot_password as a fallback)"
         ),
     )
+    deletion_username: str = Field(
+        default="",
+        description=(
+            "Bot password username of an administrator with the delete grant, used only for deletions "
+            "(set only in .erenshor/config.local.toml)"
+        ),
+    )
+    deletion_password: str = Field(
+        default="",
+        description=(
+            "Bot password of an administrator with the delete grant, used only for deletions "
+            "(set only in .erenshor/config.local.toml)"
+        ),
+    )
 
 
 class GoogleSheetsConfig(ConfigModel):

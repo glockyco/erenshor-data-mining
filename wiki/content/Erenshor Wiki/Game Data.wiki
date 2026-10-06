@@ -130,7 +130,7 @@ The tooltip templates show the in-game tooltip on a page: [[Template:ItemTooltip
 == Images ==
 Item, ability, and stance icons are the game's own pictures, uploaded unchanged after each game update. They carry no frame: [[Template:Icon]] draws the game's item slot or hotbar frame around an icon wherever a template shows one, so use it to show an icon in your own text. Large infobox pictures show without a frame.
 
-Each picture has one file. When several items, spells, or skills share a picture, every other name redirects to that file, so all of them show the same file and a game update changes it once. Old copies of a picture move to a title that starts with "Retired" and carry a deletion notice for an administrator.
+Each picture has one file. When several items, spells, or skills share a picture, every other name redirects to that file, so all of them show the same file and a game update changes it once. Old copies of a picture that the bot or its operator uploaded are deleted, and so are the bot's files that no page shows any more.
 
 The game files hold no pictures of characters. When an infobox names a character picture that the wiki does not have, the page joins a hidden [[#Maintenance categories|maintenance category]]. The project renders such pictures from the game's 3D models: each shows the character alone on a transparent background, and a person reviews every picture before the bot uploads it. The description page of a rendered picture says that it is one.
 

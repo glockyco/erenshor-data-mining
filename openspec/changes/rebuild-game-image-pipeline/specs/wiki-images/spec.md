@@ -68,34 +68,43 @@ Each distinct picture SHALL have one file. Every other entity title that uses th
 - **WHEN** a game update changes a picture that 35 items use
 - **THEN** the bot uploads one new file version, and all 35 titles show it
 
-### Requirement: Copies of a picture are retired without an administrator
+### Requirement: Copies of a picture are deleted
 
-When a title that the catalog makes a redirect holds a file that the bot owns, publishing SHALL move that file to a retired title without leaving a redirect, create the redirect at the freed title, and list the retired file for deletion by an administrator. It SHALL NOT retire a file whose latest version someone else uploaded.
+When a title that the catalog makes a redirect holds a file whose latest version the project uploaded, publishing SHALL delete that file with the operator's administrator account and create the redirect at the freed title at once. Every other File redirect that names the deleted copy SHALL then name the picture's file. Publishing SHALL NOT delete a file whose latest version someone else uploaded.
 
 #### Scenario: An identical copy from the old pipeline
 
-- **WHEN** `File:Spell Scroll: Annihilate.png` holds a bot copy of a picture whose file has another title
-- **THEN** the bot moves the copy to its retired title and makes the scroll's title a redirect to the picture's file
-- **AND** the retired file appears on the deletion list
+- **WHEN** `File:Spell Scroll Annihilate.png` holds a bot copy of a picture whose file has another title
+- **THEN** the run deletes the copy and makes the title a redirect to the picture's file
 
-#### Scenario: A title with a colon during a retirement
+#### Scenario: A title with a colon during a deletion
 
-- **WHEN** `File:Spell Scroll: Annihilate.png` redirects to a bot copy that the run retires
-- **THEN** the run points the title at the picture's file before it moves the copy, so the title shows a picture throughout
+- **WHEN** `File:Spell Scroll: Annihilate.png` redirects to a bot copy that the run deletes
+- **THEN** the run points the title at the picture's file before it deletes the copy, so the title shows a picture throughout
 
 #### Scenario: A redirect through another redirect
 
 - **WHEN** a title redirects to a redirect of the picture's file
 - **THEN** the plan points the title at the file itself
 
-### Requirement: Files nothing produces are reported
+#### Scenario: A redirect that no page names
 
-Publishing SHALL report every bot-owned file that no catalog title produces and no page uses, as an orphan for deletion by an administrator. It SHALL NOT report a file that a page still uses.
+- **WHEN** `File:RoyalCarapace.png` redirects to a copy that the run deletes, and no catalog title is `File:RoyalCarapace.png`
+- **THEN** the run points it at the picture's file
+
+### Requirement: The bot's files that nothing produces are deleted
+
+Publishing SHALL delete every file whose latest version the bot account uploaded, that no catalog title produces, and that no page shows, together with the File redirects that name it, and the dry run SHALL list each one before. It SHALL NOT delete a file that a page shows when the run reaches it, and it SHALL NOT delete a file of another account as an orphan.
 
 #### Scenario: An icon under an old spelling
 
 - **WHEN** `File:Spell_Scroll-_Aetherstorm.png` is a bot file, the catalog produces `File:Spell Scroll Aetherstorm.png`, and no page uses the old file
-- **THEN** publishing reports the old file as an orphan
+- **THEN** the run deletes the old file
+
+#### Scenario: The operator's own upload that no page shows
+
+- **WHEN** the operator uploaded `File:Raids.png` by hand and no page shows it
+- **THEN** the plan lists it as unused and the run leaves it alone
 
 ### Requirement: The wiki draws the frames of game icons
 
