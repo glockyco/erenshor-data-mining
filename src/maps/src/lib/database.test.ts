@@ -46,6 +46,7 @@ describe('Repository', () => {
 			'item-bag',
 			'mining-node',
 			'npc',
+			'npc',
 			'secret-passage',
 			'teleport',
 			'treasure-loc',
@@ -81,6 +82,26 @@ describe('Repository', () => {
 		});
 	});
 
+	it('names the furniture set of a Reliquary furnishing instead of calling it disabled', async () => {
+		const spawns = await db.getSpawnPointMarkers(DETAIL_ZONE);
+		const dummy = spawns.find((marker) => marker.stableKey === 'spawn:stowaway-dummy');
+
+		expect(dummy).toMatchObject({
+			category: 'npc',
+			isEnabled: false,
+			characters: [
+				expect.objectContaining({
+					name: 'Fixture Dummy',
+					furniture: { name: 'Wood Training Set', wikiPageName: 'Wood Training Set' }
+				})
+			]
+		});
+		expect(dummy?.popup).toContain(
+			"Appears when the player places the <a href='https://erenshor.wiki.gg/wiki/Wood%20Training%20Set'>Wood Training Set</a> in this room."
+		);
+		expect(dummy?.popup).not.toContain('disabled');
+	});
+
 	it('indexes every map-visible character by name with the scenes it is placed in', async () => {
 		// A name is not an identity: 39 map-visible names cover more than one
 		// character and 22 of those disagree on loot, so the index keeps them all.
@@ -109,7 +130,7 @@ describe('Repository', () => {
 
 	it('loads all searchable items and the quest-unlocked vendor item', async () => {
 		const items = await db.getAllItems();
-		expect(items).toHaveLength(7);
+		expect(items).toHaveLength(8);
 		expect(items.every((item) => (item.wikiPageName?.trim().length ?? 0) > 0)).toBe(true);
 		expect(items.find((item) => item.itemStableKey === 'item:furniture - enchanted smithy')).toEqual({
 			itemStableKey: 'item:furniture - enchanted smithy',

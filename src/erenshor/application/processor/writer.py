@@ -984,6 +984,10 @@ CREATE TABLE character_spawns (
     trigger_bounds_extents_x REAL,
     trigger_bounds_extents_y REAL,
     trigger_bounds_extents_z REAL,
+    -- The furniture set whose placement in a room of the Reliquary's planning
+    -- table turns on this directly placed character. The character stands at
+    -- its spot only in the rooms that hold the set.
+    furniture_item_stable_key TEXT REFERENCES items (stable_key),
     PRIMARY KEY (character_stable_key, spawn_point_stable_key, is_directly_placed)
 );
 

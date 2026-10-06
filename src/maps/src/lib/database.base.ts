@@ -1,6 +1,11 @@
 import type { Database, SqlJsStatic } from 'sql.js/dist/sql-wasm.js';
 
-import { mostNotableEnemyTier, type EncounterTier, type EnemyTier } from './map-markers';
+import {
+    isFurnishingSpawn,
+    mostNotableEnemyTier,
+    type EncounterTier,
+    type EnemyTier
+} from './map-markers';
 import type {
     AchievementTriggerMarker,
     DoorMarker,
@@ -31,6 +36,13 @@ function formatCoordinates(x: number, y: number, z: number): string {
 function formatWikiLink(label: string, pageName: string | null): string {
     if (!pageName) return label;
     return `<a href='https://erenshor.wiki.gg/wiki/${encodeURIComponent(pageName)}'>${label}</a>`;
+}
+
+// The planning table places a furnishing in a Reliquary room only while the room holds its set.
+function furnitureText(character: SpawnCharacter): string {
+    if (!character.furniture) return '';
+    const set = formatWikiLink(character.furniture.name, character.furniture.wikiPageName);
+    return `<br>Appears when the player places the ${set} in this room.`;
 }
 
 // Parse patrol path string "x1,z1;x2,z2;..." into local coordinate pairs [x, z]
@@ -121,12 +133,13 @@ export class RepositoryBase {
             '<br><br>' +
             sortedCharacters
                 .map((character) => {
-                    return formatWikiLink(character.name, character.wikiPageName);
+                    return `${formatWikiLink(character.name, character.wikiPageName)}${furnitureText(character)}`;
                 })
                 .join('<br>');
 
         const positionText = `NPC @ ${formatCoordinates(coordinates.x, coordinates.y, coordinates.z)}`;
-        const disabledInfo = isEnabled ? '' : '<br><br>This NPC is (initially) disabled.';
+        const disabledInfo =
+            isEnabled || isFurnishingSpawn(characters) ? '' : '<br><br>This NPC is (initially) disabled.';
         const respawnInfo = this.getRespawnInfo(spawnDelay, isNightSpawn);
 
         const popupText = `${positionText}${characterLines}${disabledInfo}${respawnInfo}`.trim();
@@ -527,11 +540,14 @@ export class RepositoryBase {
                 MAX(cs.event_x)                   AS EventX,
                 MAX(cs.event_y)                   AS EventY,
                 MAX(cs.event_z)                   AS EventZ,
+                MAX(fi.display_name)              AS FurnitureName,
+                MAX(fi.wiki_page_name)            AS FurnitureWikiPageName,
                 rep.encounter_tier              AS EncounterTier
             FROM rep_groups rg
             JOIN characters rep ON rep.stable_key = rg.rep_stable_key
             JOIN character_deduplications d ON d.group_key = rg.group_key AND d.is_map_visible = 1
             JOIN map_character_spawns cs ON cs.character_stable_key = d.member_stable_key
+            LEFT JOIN items fi ON fi.stable_key = cs.furniture_item_stable_key
             WHERE cs.scene = ?
               AND (cs.spawn_chance > 0 OR cs.source_script IS NOT NULL)
               AND cs.spawn_point_stable_key IS NOT NULL
@@ -600,7 +616,14 @@ export class RepositoryBase {
                 encounterTier: row.EncounterTier as EncounterTier,
                 isInvulnerable: !!row.Invulnerable,
                 isVendor: !!row.IsVendor,
-                hasDialog: !!row.HasDialog
+                hasDialog: !!row.HasDialog,
+                furniture:
+                    row.FurnitureName != null
+                        ? {
+                              name: row.FurnitureName as string,
+                              wikiPageName: (row.FurnitureWikiPageName as string | null) ?? null
+                          }
+                        : null
             });
         }
 
@@ -677,14 +700,17 @@ export class RepositoryBase {
                     const spawnText = character.sourceScript
                         ? 'Event spawn'
                         : `${(character.spawnChance ?? 0).toFixed(1)}%`;
-                    return `${formatWikiLink(character.name, character.wikiPageName)} (${spawnText})${tag}`;
+                    return `${formatWikiLink(character.name, character.wikiPageName)} (${spawnText})${tag}${furnitureText(character)}`;
                 })
                 .join('<br>');
 
         const encounterTier = mostNotableEnemyTier(characters);
         const kind = encounterTier === 'chest' ? 'Chest' : 'Enemy';
         const positionText = `${kind} @ ${formatCoordinates(coordinates.x, coordinates.y, coordinates.z)}`;
-        const disabledText = isEnabled ? '' : `<br><br>This ${kind.toLowerCase()} is (initially) disabled.`;
+        const disabledText =
+            isEnabled || isFurnishingSpawn(characters)
+                ? ''
+                : `<br><br>This ${kind.toLowerCase()} is (initially) disabled.`;
         const respawnInfo = this.getRespawnInfo(spawnDelay, isNightSpawn);
         const popupText = `${positionText}${characterLines}${disabledText}${respawnInfo}`;
 

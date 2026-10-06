@@ -304,6 +304,13 @@ The Reliquary has 8 rooms. At its planning table the player puts one furniture s
 
 Decided on 2026-10-05: the export records which planning-table room and furnishing hold each scene character, and the clean build links the furnishing to its furniture item. Every furnishing NPC appears at its spot in all 8 rooms, like the dig sites of D16, and the map popup and the infobox say that it appears when the player places the linked furniture set in a room. A rule replaces the remaining 92 entries.
 
+The export finds 120 characters in 13 furnishings of the 8 rooms, and none in the statue slots. The clean build records each one's furniture set in `character_spawns.furniture_item_stable_key`, and it stops when a furnishing has no set or two sets build it, or when a statue furnishing holds a character.
+
+Decided on 2026-10-06:
+
+- The infobox's Spawn Type reads "Reliquary furniture:" followed by the linked sets, which stays true for an infobox that also covers an ordinary spawn, such as the plain training dummy of Port Azure. The map popup says "Appears when the player places the Wood Training Set in this room." with a link, instead of "(Initially) Disabled".
+- The six rune receptacles (Braxonian, Hidden Hills, Ripparian, Silkengrass, Solunarian, and Windwashed) are unused content. They are root objects of the Reliquary scene, inactive at load, and no component of the scene and no game script turns them on. The rune portals that the planning table opens hold only the zone lines to their zones. In game on 2026-10-06, with all six runes in the planning table and the planning desk built, every receptacle stayed inactive, while the Wood Training Set and the Celestine Portal turned on their furnishings. `content-lifecycle.json` records the six pages as unused, and their mapping entries hide them from the map and from generation.
+
 ### Failure handling and update grouping
 
 - The dependency check, the render check, and the size check fail closed. They name the page and the cause, and a dry run reports the same result without writing.

@@ -56,6 +56,7 @@ from .npc_spawn import (
     starts_before,
     training_dummy_level,
 )
+from .planning import furniture_items_by_character
 from .treasure import TREASURE_EVENT_SCRIPT
 
 if TYPE_CHECKING:
@@ -143,6 +144,9 @@ class _SpawnRow:
     trigger_bounds_extents_x: float | None = None
     trigger_bounds_extents_y: float | None = None
     trigger_bounds_extents_z: float | None = None
+    # The furniture set whose placement in a room of the planning table turns
+    # on this directly placed character.
+    furniture_item_stable_key: str | None = None
 
 
 @dataclass
@@ -674,6 +678,7 @@ def process_characters(
     # Load directly-placed characters (they have coordinates in Characters table
     # but no SpawnPoint — their scene/X/Y/Z IS the spawn location)
     direct_spawn_by_char: dict[str, _SpawnRow] = {}
+    furniture_by_char = furniture_items_by_character(raw) if _table_exists(raw, "PlanningTableCharacters") else {}
     for row in char_rows:
         sk = str(row["StableKey"])
         if sk not in all_keys:
@@ -709,6 +714,7 @@ def process_characters(
                 is_rare=None,
                 is_wiki_generated=None,
                 is_map_visible=None,
+                furniture_item_stable_key=furniture_by_char.get(sk),
             )
 
     # Load spawn-point based spawns
@@ -778,6 +784,7 @@ def process_characters(
                 is_rare=cast("int | None", r.get("IsRare")),
                 is_wiki_generated=spawn_override["is_wiki_generated"] if spawn_override else None,
                 is_map_visible=spawn_override["is_map_visible"] if spawn_override else None,
+                furniture_item_stable_key=furniture_by_char.get(sk) if r.get("IsDirectlyPlaced") else None,
             )
         )
 
@@ -1236,6 +1243,7 @@ def process_characters(
                     "trigger_bounds_extents_x": s.trigger_bounds_extents_x,
                     "trigger_bounds_extents_y": s.trigger_bounds_extents_y,
                     "trigger_bounds_extents_z": s.trigger_bounds_extents_z,
+                    "furniture_item_stable_key": s.furniture_item_stable_key,
                 }
             )
     writer.insert_character_spawns(spawn_out)

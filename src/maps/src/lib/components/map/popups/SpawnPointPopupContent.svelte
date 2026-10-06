@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { WorldEnemy, WorldNpc, SpawnCharacter } from '$lib/types/world-map';
-    import { compareEncounterTier, formatSpawnLevels } from '$lib/map-markers';
+    import { compareEncounterTier, formatSpawnLevels, isFurnishingSpawn } from '$lib/map-markers';
     import type { CharacterDetails } from '$lib/map/character-details';
     import WikiLink from '$lib/components/map/WikiLink.svelte';
 
@@ -64,7 +64,7 @@
         <div class="text-xs text-zinc-400">
             Respawns {formatRespawnTime(marker.spawnDelay)}
         </div>
-        {#if !marker.isEnabled}
+        {#if !marker.isEnabled && !isFurnishingSpawn(marker.characters)}
             <div class="text-xs text-amber-400">(Initially) Disabled</div>
         {/if}
     </div>
@@ -104,6 +104,19 @@
                         <div class="text-xs text-zinc-400">
                             {formatSpawnLevels([char])} &bull; {formatSpawnSource(char)}
                         </div>
+                        {#if char.furniture}
+                            <div class="text-xs text-zinc-400">
+                                Appears when the player places the
+                                {#if char.furniture.wikiPageName}
+                                    <a
+                                        class="text-blue-400 hover:underline"
+                                        href="https://erenshor.wiki.gg/wiki/{encodeURIComponent(
+                                            char.furniture.wikiPageName
+                                        )}">{char.furniture.name}</a
+                                    >
+                                {:else}{char.furniture.name}{/if} in this room.
+                            </div>
+                        {/if}
                     </div>
                     <div class="flex flex-col items-end gap-1 shrink-0">
                         <span class="rounded px-1.5 py-0.5 text-xs {getTierClass(char)}">

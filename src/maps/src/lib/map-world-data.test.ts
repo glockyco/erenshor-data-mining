@@ -30,7 +30,11 @@ describe('buildMapWorldData', () => {
         const data = await buildMapWorldData({ repository });
 
         expect(Object.keys(data.markers)).toEqual(markerKeys);
-        expect(data.markers.npcs.map((marker) => marker.stableKey)).toEqual(['spawn:stowaway-breena']);
+        // Disabled markers come first so that enabled ones render on top.
+        expect(data.markers.npcs.map((marker) => marker.stableKey)).toEqual([
+            'spawn:stowaway-dummy',
+            'spawn:stowaway-breena'
+        ]);
         expect(data.markers.enemiesEnemy).toEqual([]);
         expect(data.markers.enemiesElite).toEqual([]);
         expect(data.markers.enemiesBoss.map((marker) => marker.stableKey)).toEqual([
@@ -74,7 +78,7 @@ describe('buildMapWorldData', () => {
         expect(tiers.get('Runtime Enemy')).toBe('elite');
         expect(tiers.get('Fixture Chest')).toBe('chest');
         expect(tiers.has('Breena Carpenter')).toBe(false);
-        expect(data.allItems).toHaveLength(7);
+        expect(data.allItems).toHaveLength(8);
         expect([...new Set(data.itemSources.map((source) => source.kind))].sort()).toEqual([
             'bag',
             'drop',

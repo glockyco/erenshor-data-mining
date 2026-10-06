@@ -67,7 +67,8 @@ CREATE TABLE map_character_spawns (
     source_script TEXT,
     event_x REAL,
     event_y REAL,
-    event_z REAL
+    event_z REAL,
+    furniture_item_stable_key TEXT REFERENCES items(stable_key)
 );
 
 CREATE TABLE spawn_point_patrol_points (
@@ -336,6 +337,7 @@ INSERT INTO items (
     ('item:fixture bag', 'Fixture Bag Item', 'Fixture Bag Item', 'fixture_bag', 15, 1),
     ('item:fixture drop', 'Fixture Drop', 'Fixture Drop', 'fixture_drop', 30, 1),
     ('item:furniture - enchanted smithy', 'Enchanted Smithy', 'Enchanted Smithy', 'enchanted_smithy', 250, 1),
+    ('item:furniture - wood training', 'Wood Training Set', 'Wood Training Set', 'wood_training', 300, 1),
     ('item:fixture relic', 'Fixture Relic', 'Fixture Relic', 'fixture_relic', 40, 1);
 
 -- A loot table larger than any cap a query might reintroduce. These carry no
@@ -369,24 +371,28 @@ INSERT INTO characters (
     -- worn by more than one character, and 22 of those disagree on loot, so
     -- resolving a live NPC by name alone has to cope with this.
     ('character:fixture enemy twin', 'Fixture Enemy', 'Fixture Enemy', 'Fixture Enemy', 7, 0, 0, 0, 0, 'boss'),
-    ('character:fixture chest', 'Fixture Chest', 'Fixture Chest', 'Fixture Chest', 18, 0, 0, 0, 0, 'chest');
+    ('character:fixture chest', 'Fixture Chest', 'Fixture Chest', 'Fixture Chest', 18, 0, 0, 0, 0, 'chest'),
+    -- A furnishing of a Reliquary room, which stands only while the room holds its set.
+    ('character:fixture dummy', 'Fixture Dummy', 'Fixture Dummy', 'Fixture Dummy', 1, 0, 0, 0, 0, 'npc');
 
 INSERT INTO character_deduplications (group_key, member_stable_key, is_map_visible) VALUES
     ('character-group:breena', 'character:breena carpenter', 1),
     ('character-group:fixture-enemy', 'character:fixture enemy', 1),
     ('character-group:runtime-enemy', 'character:runtime enemy', 1),
     ('character-group:fixture-enemy-twin', 'character:fixture enemy twin', 1),
-    ('character-group:fixture-chest', 'character:fixture chest', 1);
+    ('character-group:fixture-chest', 'character:fixture chest', 1),
+    ('character-group:fixture-dummy', 'character:fixture dummy', 1);
 
 INSERT INTO map_character_spawns (
     character_stable_key, spawn_point_stable_key, scene, x, y, z, spawn_delay_4,
     is_enabled, night_spawn, random_wander_range, loop_patrol, spawn_chance,
-    source_script, event_x, event_y, event_z
+    source_script, event_x, event_y, event_z, furniture_item_stable_key
 ) VALUES
-    ('character:breena carpenter', 'spawn:stowaway-breena', 'Stowaway', 200, 0, 300, 30, 1, 0, 0, 0, 100, NULL, NULL, NULL, NULL),
-    ('character:fixture enemy', 'spawn:stowaway-enemy', 'Stowaway', 220, 0, 320, 45, 1, 0, 5, 0, 100, NULL, NULL, NULL, NULL),
-    ('character:fixture enemy twin', 'spawn:portal-enemy', 'StowawayPortal', 40, 0, 60, 45, 1, 0, 5, 0, 100, NULL, NULL, NULL, NULL),
-    ('character:fixture chest', 'spawn:stowaway-chest', 'Stowaway', 225, 0, 325, 45, 1, 0, 0, 0, 100, NULL, NULL, NULL, NULL);
+    ('character:breena carpenter', 'spawn:stowaway-breena', 'Stowaway', 200, 0, 300, 30, 1, 0, 0, 0, 100, NULL, NULL, NULL, NULL, NULL),
+    ('character:fixture enemy', 'spawn:stowaway-enemy', 'Stowaway', 220, 0, 320, 45, 1, 0, 5, 0, 100, NULL, NULL, NULL, NULL, NULL),
+    ('character:fixture enemy twin', 'spawn:portal-enemy', 'StowawayPortal', 40, 0, 60, 45, 1, 0, 5, 0, 100, NULL, NULL, NULL, NULL, NULL),
+    ('character:fixture chest', 'spawn:stowaway-chest', 'Stowaway', 225, 0, 325, 45, 1, 0, 0, 0, 100, NULL, NULL, NULL, NULL, NULL),
+    ('character:fixture dummy', 'spawn:stowaway-dummy', 'Stowaway', 210, 0, 310, NULL, 0, 0, 0, 0, 100, NULL, NULL, NULL, NULL, 'item:furniture - wood training');
 
 INSERT INTO achievement_triggers (stable_key, scene, x, y, z, achievement_name) VALUES
     ('achievement:stowaway-fixture', 'Stowaway', 240, 0, 340, 'Fixture Achievement');

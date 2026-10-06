@@ -347,6 +347,16 @@ public static class ExportListenerRegistry
                     )
             ),
             new(
+                "planningtable",
+                "Planning Table",
+                ExportScanChannel.Component,
+                Array.Empty<string>(),
+                context =>
+                    context.RegisterComponentListener(
+                        new PlanningTableListener(context.Database, context.CharacterKeyResolver)
+                    )
+            ),
+            new(
                 "itemdrops",
                 "Item Drops",
                 ExportScanChannel.Component,

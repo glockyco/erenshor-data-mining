@@ -6,7 +6,7 @@ from loguru import logger
 
 from erenshor.domain.entities.spawn_point import SpawnPoint
 from erenshor.domain.value_objects.spawn import CharacterSpawnInfo, TreasureRole
-from erenshor.domain.value_objects.wiki_link import ZoneLink
+from erenshor.domain.value_objects.wiki_link import ItemLink, ZoneLink
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
 
 # The zones where a player meets a character on a treasure hunt: a chest at
@@ -49,6 +49,18 @@ def _zone_link(row: Any) -> ZoneLink:
     return ZoneLink(page_title=zone_wiki, display_name=zone_display, stable_key=str(row["zone_stable_key"]))
 
 
+def _furniture_link(row: Any) -> ItemLink | None:
+    """The furniture set that places a furnishing of the Reliquary's planning table, if any."""
+    if row["furniture_stable_key"] is None:
+        return None
+    return ItemLink(
+        page_title=str(row["furniture_wiki_page_name"]) if row["furniture_wiki_page_name"] else None,
+        display_name=str(row["furniture_display_name"]),
+        image_name=str(row["furniture_image_name"]) if row["furniture_image_name"] else None,
+        stable_key=str(row["furniture_stable_key"]),
+    )
+
+
 class SpawnPointRepository(BaseRepository[SpawnPoint]):
     """Repository for spawn-point-specific database queries.
 
@@ -89,10 +101,15 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
                 cs.event_y,
                 cs.event_z,
                 COALESCE(cs.is_rare, 0)  AS is_rare,
-                COALESCE(cs.level_mod, 0) AS level_mod
+                COALESCE(cs.level_mod, 0) AS level_mod,
+                fi.stable_key       AS furniture_stable_key,
+                fi.display_name     AS furniture_display_name,
+                fi.wiki_page_name   AS furniture_wiki_page_name,
+                fi.image_name       AS furniture_image_name
             FROM wiki_character_spawns cs
             JOIN characters c ON c.stable_key = cs.character_stable_key
             LEFT JOIN zones z ON z.stable_key = cs.zone_stable_key
+            LEFT JOIN items fi ON fi.stable_key = cs.furniture_item_stable_key
             WHERE cs.character_stable_key IN (
                 SELECT d.member_stable_key
                 FROM character_deduplications d
@@ -124,6 +141,7 @@ class SpawnPointRepository(BaseRepository[SpawnPoint]):
                     event_x=float(row["event_x"]) if row["event_x"] is not None else None,
                     event_y=float(row["event_y"]) if row["event_y"] is not None else None,
                     event_z=float(row["event_z"]) if row["event_z"] is not None else None,
+                    furniture=_furniture_link(row),
                 )
                 for row in rows
             ]

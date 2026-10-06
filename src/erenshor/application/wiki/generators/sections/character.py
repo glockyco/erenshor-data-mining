@@ -289,6 +289,12 @@ class CharacterSectionGenerator(SectionGeneratorBase):
     def _format_spawn_type(self, spawn_infos: list[CharacterSpawnInfo]) -> str:
         if spawn_infos and all(info.treasure_role is not None for info in spawn_infos):
             return _TREASURE_HUNT_SPAWN_TYPE
+        # A furnishing stands at its spot in the Reliquary's rooms that hold its
+        # furniture set. The label scopes the sets to the Reliquary, so it stays
+        # true when the character also stands elsewhere.
+        furniture = sorted({info.furniture for info in spawn_infos if info.furniture is not None})
+        if furniture:
+            return "Reliquary furniture: " + ", ".join(str(link) for link in furniture)
         has_dynamic = any(info.source_script is not None for info in spawn_infos)
         has_ordinary = any(info.source_script is None and info.treasure_role is None for info in spawn_infos)
         if has_dynamic and not has_ordinary:

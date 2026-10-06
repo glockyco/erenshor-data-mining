@@ -1063,6 +1063,54 @@
         "statement": "CalcStats ();"
       },
       "note": "Stats.Start recalculates the stats, which replaces an AC that TestDummy.Start set by hand when Stats.Start runs later. Consumed by _spawned_stats and _effective_stats in src/erenshor/application/processor/characters.py."
+    },
+    {
+      "id": "planning.build_gate",
+      "mode": "assert",
+      "type": "PlanningTable",
+      "method": "CheckRoomAndBuild",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (!_slot.MyItem.FurnitureSet && !(_slot.MyItem == GameData.PlayerInv.Empty)) { return; }"
+      },
+      "note": "The planning table builds a room only for a furniture set or an empty slot, and leaves it as it was for any other item. Consumed by furniture_items_by_character in src/erenshor/application/processor/planning.py."
+    },
+    {
+      "id": "planning.build_furnishing",
+      "mode": "assert",
+      "type": "PlanningTable",
+      "method": "CheckRoomAndBuild",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "ForeachStatement",
+        "shape": "foreach (GameObject _child in _children) { if (_child.transform.name == _slot.MyItem.EquipmentToActivate) { _child.SetActive (value: true); } else { _child.SetActive (value: false); } }"
+      },
+      "note": "Building a room turns on the child whose name is the furniture set's EquipmentToActivate and turns off the others. Consumed by furniture_items_by_character in src/erenshor/application/processor/planning.py."
+    },
+    {
+      "id": "planning.room_layouts",
+      "mode": "assert",
+      "type": "PlanningTable",
+      "method": "CaptureRoomLayouts",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ for (int i = 0; i < L1.childCount; i++) { L1Children.Add (L1.GetChild (i).gameObject); } for (int j = 0; j < L2.childCount; j++) { L2Children.Add (L2.GetChild (j).gameObject); } for (int k = 0; k < L3.childCount; k++) { L3Children.Add (L3.GetChild (k).gameObject); } for (int l = 0; l < L4.childCount; l++) { L4Children.Add (L4.GetChild (l).gameObject); } for (int m = 0; m < R1.childCount; m++) { R1Children.Add (R1.GetChild (m).gameObject); } for (int n = 0; n < R2.childCount; n++) { R2Children.Add (R2.GetChild (n).gameObject); } for (int num = 0; num < R3.childCount; num++) { R3Children.Add (R3.GetChild (num).gameObject); } for (int num2 = 0; num2 < R4.childCount; num2++) { R4Children.Add (R4.GetChild (num2).gameObject); } for (int num3 = 0; num3 < StatueFR.childCount; num3++) { StatueFRChildren.Add (StatueFR.GetChild (num3).gameObject); } for (int num4 = 0; num4 < StatueFL.childCount; num4++) { StatueFLChildren.Add (StatueFL.GetChild (num4).gameObject); } for (int num5 = 0; num5 < StatueBR.childCount; num5++) { StatueBRChildren.Add (StatueBR.GetChild (num5).gameObject); } for (int num6 = 0; num6 < StatueBL.childCount; num6++) { StatueBLChildren.Add (StatueBL.GetChild (num6).gameObject); } }"
+      },
+      "note": "The planning table collects the children of the eight room slots and the four statue slots as the furnishings that a build toggles. Mirrored by PlanningTableListener in src/Assets/Editor/ExportSystem/AssetScanner/Listener/PlanningTableListener.cs."
+    },
+    {
+      "id": "planning.builds",
+      "mode": "assert",
+      "type": "PlanningTable",
+      "method": "ExecuteBuild",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BlockStatement",
+        "shape": "{ CheckRoomAndBuild (GameData.PlanningUI.L1, L1Children); yield return null; CheckRoomAndBuild (GameData.PlanningUI.L2, L2Children); yield return null; CheckRoomAndBuild (GameData.PlanningUI.L3, L3Children); yield return null; CheckRoomAndBuild (GameData.PlanningUI.L4, L4Children); yield return null; CheckRoomAndBuild (GameData.PlanningUI.R1, R1Children); yield return null; CheckRoomAndBuild (GameData.PlanningUI.R2, R2Children); yield return null; CheckRoomAndBuild (GameData.PlanningUI.R3, R3Children); yield return null; CheckRoomAndBuild (GameData.PlanningUI.R4, R4Children); yield return null; Soluna.SetActive (value: false); Ripper.SetActive (value: false); Hidden.SetActive (value: false); Silkengrass.SetActive (value: false); Braxonian.SetActive (value: false); Windwashed.SetActive (value: false); OpenClosePortals (GameData.PlanningUI.Rune1.MyItem, Rune1); yield return null; OpenClosePortals (GameData.PlanningUI.Rune2.MyItem, Rune2); yield return null; OpenClosePortals (GameData.PlanningUI.Rune3.MyItem, Rune3); yield return null; OpenClosePortals (GameData.PlanningUI.Rune4.MyItem, Rune4); yield return null; OpenClosePortals (GameData.PlanningUI.Rune5.MyItem, Rune5); yield return null; OpenClosePortals (GameData.PlanningUI.Rune6.MyItem, Rune6); CheckRoomAndBuild (GameData.PlanningUI.StatueBL, StatueBLChildren); yield return null; CheckRoomAndBuild (GameData.PlanningUI.StatueBR, StatueBRChildren); yield return null; CheckRoomAndBuild (GameData.PlanningUI.StatueFL, StatueFLChildren); yield return null; CheckRoomAndBuild (GameData.PlanningUI.StatueFR, StatueFRChildren); yield return null; DoRaidPortals (); }"
+      },
+      "note": "A build of the planning table builds each of the eight rooms from its own furnishings, opens the rune portals, builds the statues, and opens the raid portals. Consumed by src/erenshor/application/processor/planning.py, which places furnishings in every room."
     }
   ]
 }

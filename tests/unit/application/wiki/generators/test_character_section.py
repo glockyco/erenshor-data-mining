@@ -281,3 +281,41 @@ def test_training_dummy_hand_set_ac_says_when_it_applies() -> None:
     assert "recalculates its AC as 15 × the player's level.</ref>\n" in following
     assert "|ac=630, or 1000 in a DPS recording<ref>" in fixed
     assert "recalculates its AC as 630.</ref>\n" in fixed
+
+
+def _placed(zone: str, furniture: ItemLink | None) -> CharacterSpawnInfo:
+    return CharacterSpawnInfo(
+        zone_link=ZoneLink(page_title=zone, display_name=zone),
+        base_respawn=None,
+        x=1.0,
+        y=2.0,
+        z=3.0,
+        spawn_chance=100.0,
+        is_rare=False,
+        furniture=furniture,
+    )
+
+
+def _furniture(name: str) -> ItemLink:
+    return ItemLink(page_title=name, display_name=name, stable_key=f"item:{name.lower()}")
+
+
+def test_furnishing_spawn_type_names_every_furniture_set_once() -> None:
+    content = _render(
+        [
+            _placed("Reliquary Hall", _furniture("Wood Bank Set")),
+            _placed("Reliquary Hall", _furniture("Loomingwood Market Set")),
+            _placed("Reliquary Hall", _furniture("Wood Bank Set")),
+        ]
+    )
+
+    assert (
+        "|spawntype=Reliquary furniture: {{ItemLink|stablekey=item:loomingwood market set}}, "
+        "{{ItemLink|stablekey=item:wood bank set}}\n"
+    ) in content
+
+
+def test_furnishing_spawn_type_holds_beside_an_ordinary_spawn() -> None:
+    content = _render([_placed("Port Azure", None), _placed("Reliquary Hall", _furniture("Wood Training Set"))])
+
+    assert "|spawntype=Reliquary furniture: {{ItemLink|stablekey=item:wood training set}}\n" in content

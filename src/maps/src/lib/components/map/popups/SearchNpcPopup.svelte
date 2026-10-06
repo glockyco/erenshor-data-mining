@@ -1,7 +1,7 @@
 <script lang="ts">
     import { SvelteMap } from 'svelte/reactivity';
     import type { WorldNpc } from '$lib/types/world-map';
-    import { formatSpawnLevels } from '$lib/map-markers';
+    import { formatSpawnLevels, isFurnishingSpawn } from '$lib/map-markers';
     import WikiLink from '$lib/components/map/WikiLink.svelte';
     import Crosshair from '@lucide/svelte/icons/crosshair';
 
@@ -29,6 +29,10 @@
 
     function getSpawnChance(marker: WorldNpc): number | null {
         return marker.characters.find((c) => c.name === name)?.spawnChance ?? null;
+    }
+
+    function getFurniture(marker: WorldNpc): string | null {
+        return marker.characters.find((c) => c.name === name)?.furniture?.name ?? null;
     }
 
     // Group markers by zone, sorted by spawn count descending, then by spawn
@@ -128,6 +132,10 @@
                                         <span class="text-zinc-300">Event spawn</span>
                                         <span>·</span>
                                     {/if}
+                                    {#if getFurniture(marker)}
+                                        <span class="text-zinc-300">{getFurniture(marker)}</span>
+                                        <span>·</span>
+                                    {/if}
                                     <span>{formatRespawnTime(marker.spawnDelay, !!getSpawnSource(marker))} respawn</span>
                                     {#if marker.isNightSpawn}
                                         <span
@@ -137,7 +145,7 @@
                                             Night
                                         </span>
                                     {/if}
-                                    {#if !marker.isEnabled}
+                                    {#if !marker.isEnabled && !isFurnishingSpawn(marker.characters)}
                                         <span
                                             class="rounded px-1 py-0.5 text-[10px]
 										       bg-amber-900/50 text-amber-300"

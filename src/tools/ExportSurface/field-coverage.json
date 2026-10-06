@@ -36,7 +36,9 @@
     "GameManager",
     "PlanarMusicManager",
     "KnowledgeDatabaseAsset",
-    "KnowledgeDatabaseAsset/Entry"
+    "KnowledgeDatabaseAsset/Entry",
+    "PlanningTable",
+    "TestDummy"
   ],
   "fields": {
     "AchievementTrigger": {
@@ -5909,6 +5911,274 @@
         "reason": null,
         "status": "captured",
         "type": "System.String"
+      }
+    },
+    "PlanningTable": {
+      "MyTransform": {
+        "by": null,
+        "reason": "the table's own transform, used for the distance check that closes the planning window",
+        "status": "ignored",
+        "type": "UnityEngine.Transform"
+      },
+      "L1": {
+        "by": "PlanningTableListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "L2": {
+        "by": "PlanningTableListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "L3": {
+        "by": "PlanningTableListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "L4": {
+        "by": "PlanningTableListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "R1": {
+        "by": "PlanningTableListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "R2": {
+        "by": "PlanningTableListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "R3": {
+        "by": "PlanningTableListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "R4": {
+        "by": "PlanningTableListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "L1Children": {
+        "by": null,
+        "reason": "runtime list that CaptureRoomLayouts fills from the children of L1",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "L2Children": {
+        "by": null,
+        "reason": "runtime list that CaptureRoomLayouts fills from the children of L2",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "L3Children": {
+        "by": null,
+        "reason": "runtime list that CaptureRoomLayouts fills from the children of L3",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "L4Children": {
+        "by": null,
+        "reason": "runtime list that CaptureRoomLayouts fills from the children of L4",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "R1Children": {
+        "by": null,
+        "reason": "runtime list that CaptureRoomLayouts fills from the children of R1",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "R2Children": {
+        "by": null,
+        "reason": "runtime list that CaptureRoomLayouts fills from the children of R2",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "R3Children": {
+        "by": null,
+        "reason": "runtime list that CaptureRoomLayouts fills from the children of R3",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "R4Children": {
+        "by": null,
+        "reason": "runtime list that CaptureRoomLayouts fills from the children of R4",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "Soluna": {
+        "by": null,
+        "reason": "rune portal that a rune opens at a rune slot, holding the zone line to its zone",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "Hidden": {
+        "by": null,
+        "reason": "rune portal that a rune opens at a rune slot, holding the zone line to its zone",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "Ripper": {
+        "by": null,
+        "reason": "rune portal that a rune opens at a rune slot, holding the zone line to its zone",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "Silkengrass": {
+        "by": null,
+        "reason": "rune portal that a rune opens at a rune slot, holding the zone line to its zone",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "Braxonian": {
+        "by": null,
+        "reason": "rune portal that a rune opens at a rune slot, holding the zone line to its zone",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "Windwashed": {
+        "by": null,
+        "reason": "rune portal that a rune opens at a rune slot, holding the zone line to its zone",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "Rune1": {
+        "by": null,
+        "reason": "runtime rune slot position that Start copies from a rune portal",
+        "status": "ignored",
+        "type": "UnityEngine.Vector3"
+      },
+      "Rune2": {
+        "by": null,
+        "reason": "runtime rune slot position that Start copies from a rune portal",
+        "status": "ignored",
+        "type": "UnityEngine.Vector3"
+      },
+      "Rune3": {
+        "by": null,
+        "reason": "runtime rune slot position that Start copies from a rune portal",
+        "status": "ignored",
+        "type": "UnityEngine.Vector3"
+      },
+      "Rune4": {
+        "by": null,
+        "reason": "runtime rune slot position that Start copies from a rune portal",
+        "status": "ignored",
+        "type": "UnityEngine.Vector3"
+      },
+      "Rune5": {
+        "by": null,
+        "reason": "runtime rune slot position that Start copies from a rune portal",
+        "status": "ignored",
+        "type": "UnityEngine.Vector3"
+      },
+      "Rune6": {
+        "by": null,
+        "reason": "runtime rune slot position that Start copies from a rune portal",
+        "status": "ignored",
+        "type": "UnityEngine.Vector3"
+      },
+      "StatueFR": {
+        "by": "PlanningTableListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "StatueFL": {
+        "by": "PlanningTableListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "StatueBR": {
+        "by": "PlanningTableListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "StatueBL": {
+        "by": "PlanningTableListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "StatueFRChildren": {
+        "by": null,
+        "reason": "runtime list that CaptureRoomLayouts fills from the children of StatueFR",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "StatueFLChildren": {
+        "by": null,
+        "reason": "runtime list that CaptureRoomLayouts fills from the children of StatueFL",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "StatueBRChildren": {
+        "by": null,
+        "reason": "runtime list that CaptureRoomLayouts fills from the children of StatueBR",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "StatueBLChildren": {
+        "by": null,
+        "reason": "runtime list that CaptureRoomLayouts fills from the children of StatueBL",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "BraxPort": {
+        "by": null,
+        "reason": "raid portal that a planar item opens, without a character for the export to place",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "FernPort": {
+        "by": null,
+        "reason": "raid portal that a planar item opens, without a character for the export to place",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "VithPort": {
+        "by": null,
+        "reason": "raid portal that a planar item opens, without a character for the export to place",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "SolPort": {
+        "by": null,
+        "reason": "raid portal that a planar item opens, without a character for the export to place",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      }
+    },
+    "TestDummy": {
+      "Dmg": {
+        "by": null,
+        "reason": "runtime damage total of a DPS recording",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "maxHP": {
+        "by": null,
+        "reason": "runtime copy of the maximum health that Start takes",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "HandSetAC": {
+        "by": "CharacterListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Int32"
       }
     }
   }

@@ -72,6 +72,12 @@ export type UnlocatedEnemy = {
     encounterTier: EnemyTier;
 };
 
+/** A furniture set of the Reliquary's planning table, with its wiki page. */
+export type FurnitureSet = {
+    name: string;
+    wikiPageName: string | null;
+};
+
 // Character info for spawn points (characters that can spawn at a location)
 export type SpawnCharacter = {
     name: string;
@@ -88,7 +94,17 @@ export type SpawnCharacter = {
     isInvulnerable: boolean;
     isVendor: boolean;
     hasDialog: boolean;
+    /** The furniture set whose placement in a room of the Reliquary's planning table turns this character on. */
+    furniture: FurnitureSet | null;
 };
+
+/**
+ * Whether the planning table explains why every character of a spawn starts disabled: each is
+ * a furnishing that stands in a Reliquary room only while the room holds its furniture set.
+ */
+export function isFurnishingSpawn(characters: readonly Pick<SpawnCharacter, 'furniture'>[]): boolean {
+    return characters.length > 0 && characters.every((c) => c.furniture !== null);
+}
 
 /** The level of spawn characters as players read it: "Level 5", "Level 3–8", or that it scales. */
 export function formatSpawnLevels(

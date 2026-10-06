@@ -1,6 +1,6 @@
 <script lang="ts">
     import { SvelteMap } from 'svelte/reactivity';
-    import type { UnlocatedEnemy } from '$lib/map-markers';
+    import { isFurnishingSpawn, type UnlocatedEnemy } from '$lib/map-markers';
     import type { WorldEnemy } from '$lib/types/world-map';
     import WikiLink from '$lib/components/map/WikiLink.svelte';
     import Crosshair from '@lucide/svelte/icons/crosshair';
@@ -165,7 +165,7 @@
                                             Night
                                         </span>
                                     {/if}
-                                    {#if !marker.isEnabled}
+                                    {#if !marker.isEnabled && !isFurnishingSpawn(marker.characters)}
                                         <span
                                             class="rounded px-1 py-0.5 text-[10px]
 										       bg-amber-900/50 text-amber-300"

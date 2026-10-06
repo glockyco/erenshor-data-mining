@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from typing import Literal
 
-from erenshor.domain.value_objects.wiki_link import ZoneLink
+from erenshor.domain.value_objects.wiki_link import ItemLink, ZoneLink
 
 __all__ = ["CharacterSpawnInfo", "TreasureRole"]
 
@@ -23,7 +23,8 @@ class CharacterSpawnInfo:
     from JOIN columns. Section generators call str(zone_link) to render it.
 
     A treasure hunt site has a treasure_role and no position: the character
-    can appear in the zone at any of several dig sites.
+    can appear in the zone at any of several dig sites. A furnishing of the
+    Reliquary's planning table names the furniture set that places it.
     """
 
     zone_link: ZoneLink
@@ -39,3 +40,4 @@ class CharacterSpawnInfo:
     event_y: float | None = None
     event_z: float | None = None
     treasure_role: TreasureRole | None = None
+    furniture: ItemLink | None = None
