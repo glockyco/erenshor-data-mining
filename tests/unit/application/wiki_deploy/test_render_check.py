@@ -37,6 +37,7 @@ class Wiki:
         self.users = users or {}
         self.writes: list[str] = []
         self.parsed: list[tuple[str, str | None]] = []
+        self.sandbox_models: list[str | None] = []
         self.sandbox_html = "<p>new</p>"
         self.live_categories: tuple[MediaWikiParsedLink, ...] = ()
         self.sandbox_categories: tuple[MediaWikiParsedLink, ...] = ()
@@ -74,6 +75,8 @@ class Wiki:
         sandbox_content_model: str | None = None,
     ) -> MediaWikiParse:
         self.parsed.append((title, sandbox_title))
+        if sandbox_title is not None:
+            self.sandbox_models.append(sandbox_content_model)
         return MediaWikiParse(
             self.sandbox_html if sandbox_title else "<p>old</p>",
             self.sandbox_templates if sandbox_title else (),
@@ -118,7 +121,7 @@ def deploy(root: Path, wiki: Wiki, **options: object) -> None:
 def test_missing_data_module_blocks_template_and_names_both(tmp_path: Path) -> None:
     source(tmp_path, "wiki/templates/MapLink.wiki", "{{#invoke:Erenshor/Zone|map}}")
     wiki = Wiki({"Module:Erenshor/Zone": "local data = mw.loadData('Module:Erenshor/Data/Zones')"})
-    with pytest.raises(ValueError, match="Template:MapLink needs missing module Module:Erenshor/Data/Zones"):
+    with pytest.raises(ValueError, match="Template:MapLink needs missing page Module:Erenshor/Data/Zones"):
         deploy(tmp_path, wiki)
     assert wiki.writes == []
 
@@ -172,7 +175,7 @@ def test_category_change_reports_removed_added_categories() -> None:
     wiki.sandbox_html = "<p>old</p>"
     wiki.live_categories = (MediaWikiParsedLink("Category:Old", True),)
     wiki.sandbox_categories = (MediaWikiParsedLink("Category:New", True),)
-    report = check_render(wiki, "Template:Item", "new", catalog={}, live_cache={})
+    report = check_render(wiki, "Template:Item", "new", content_model="wikitext", catalog={}, live_cache={})
     [change] = report.differences
     assert change.removed == ("Category:Old",)
     assert change.added == ("Category:New",)
@@ -181,7 +184,7 @@ def test_category_change_reports_removed_added_categories() -> None:
 def test_hidden_html_difference_is_not_reported() -> None:
     wiki = Wiki({"Example": "{{Item}}"}, {"Template:Item": ("Example",)})
     wiki.sandbox_html = '<p>old</p><span style="display: none">internal change</span>'
-    report = check_render(wiki, "Template:Item", "new", catalog={}, live_cache={})
+    report = check_render(wiki, "Template:Item", "new", content_model="wikitext", catalog={}, live_cache={})
     assert report.differences == ()
 
 
@@ -194,10 +197,10 @@ def test_default_selection_includes_unique_aura_kind() -> None:
 
 def test_full_render_check_parses_every_user_and_no_users_are_reported() -> None:
     wiki = Wiki({"A": "{{Item}}", "B": "{{Item}}"}, {"Template:Item": ("A", "B")})
-    full = check_render(wiki, "Template:Item", "new", catalog={}, live_cache={}, full=True)
+    full = check_render(wiki, "Template:Item", "new", content_model="wikitext", catalog={}, live_cache={}, full=True)
     assert full.checked == ("A", "B")
     assert wiki.parsed == [("A", None), ("A", "Template:Item"), ("B", None), ("B", "Template:Item")]
-    empty = check_render(wiki, "Template:New", "new", catalog={}, live_cache={})
+    empty = check_render(wiki, "Template:New", "new", content_model="wikitext", catalog={}, live_cache={})
     assert empty.users == 0 and empty.checked == ()
 
 
@@ -233,5 +236,54 @@ def test_dry_run_provisional_for_same_run_dependency(tmp_path: Path) -> None:
     ordered = prepare_repo_page_checks(manifest, sources, snapshots, wiki)
     reports = []
     render_repo_page_checks(ordered, sources, snapshots, wiki, catalog={}, dry_run=True, report=reports.append)
+    assert next(report for report in reports if report.title == "Template:Item").provisional
+    assert wiki.writes == []
+
+
+STYLESHEET_TEMPLATE = '<templatestyles src="Template:Item/styles.css" />{{#if:{{{name|}}}|{{{name}}}}}'
+
+
+def test_stylesheet_writes_before_the_template_that_loads_it(tmp_path: Path) -> None:
+    source(tmp_path, "wiki/templates/Item.wiki", STYLESHEET_TEMPLATE)
+    source(tmp_path, "wiki/templates/Item/styles.css", ".pi-image { color: red; }")
+    wiki = Wiki({})
+    deploy(tmp_path, wiki)
+    # By title alone the template would come first and load a missing stylesheet.
+    assert wiki.writes == ["Template:Item/styles.css", "Template:Item"]
+
+
+def test_template_with_a_missing_stylesheet_stops_the_deploy(tmp_path: Path) -> None:
+    source(tmp_path, "wiki/templates/Item.wiki", STYLESHEET_TEMPLATE)
+    wiki = Wiki({})
+    with pytest.raises(ValueError, match=r"Template:Item needs missing page Template:Item/styles\.css"):
+        deploy(tmp_path, wiki)
+    assert wiki.writes == []
+
+
+def test_stylesheet_renders_its_users_as_sanitized_css(tmp_path: Path) -> None:
+    source(tmp_path, "wiki/templates/Item/styles.css", ".pi-image { color: blue; }")
+    wiki = Wiki(
+        {"Template:Item/styles.css": ".pi-image { color: red; }", "Example": "{{Item}}"},
+        {"Template:Item/styles.css": ("Example",)},
+    )
+    wiki.sandbox_html = "<p>old</p>"
+    deploy(tmp_path, wiki)
+    assert wiki.sandbox_models == ["sanitized-css"]
+    assert wiki.writes == ["Template:Item/styles.css"]
+
+
+def test_dry_run_accepts_a_stylesheet_that_the_same_deploy_creates(tmp_path: Path) -> None:
+    source(tmp_path, "wiki/templates/Item.wiki", STYLESHEET_TEMPLATE)
+    source(tmp_path, "wiki/templates/Item/styles.css", ".pi-image { color: red; }")
+    wiki = Wiki({"Template:Item": "old", "Example": "{{Item}}"}, {"Template:Item": ("Example",)})
+    # Live, the stylesheet does not exist yet, so the sandboxed template finds it missing.
+    wiki.sandbox_templates = (MediaWikiParsedLink("Template:Item/styles.css", False),)
+    manifest = build_repo_page_manifest(tmp_path, variant="main", include_templates=True)
+    sources = read_repo_page_sources(manifest, tmp_path)
+    snapshots = wiki.get_page_snapshots([entry.title for entry in manifest.entries])
+    ordered = prepare_repo_page_checks(manifest, sources, snapshots, wiki)
+    reports = []
+    render_repo_page_checks(ordered, sources, snapshots, wiki, catalog={}, dry_run=True, report=reports.append)
+    assert [entry.title for entry in ordered.entries] == ["Template:Item/styles.css", "Template:Item"]
     assert next(report for report in reports if report.title == "Template:Item").provisional
     assert wiki.writes == []

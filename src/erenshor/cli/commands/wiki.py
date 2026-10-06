@@ -1388,8 +1388,8 @@ def deploy_repo_pages_command(
                 deploy_account=readonly_client.edit_account,
                 accepted=accepted,
             )
-            live_modules: dict[str, str | None] = {}
-            manifest = prepare_repo_page_checks(manifest, source_texts, snapshots, readonly_client, live_modules)
+            live_dependencies: dict[str, str | None] = {}
+            manifest = prepare_repo_page_checks(manifest, source_texts, snapshots, readonly_client, live_dependencies)
             catalog = (
                 {entry.key.casefold(): entry for entry in _build_link_audit_catalog(cli_ctx)}
                 if any(
@@ -1406,7 +1406,7 @@ def deploy_repo_pages_command(
                 catalog=catalog,
                 full=full_render_check,
                 dry_run=True,
-                live_modules=live_modules,
+                live_dependencies=live_dependencies,
                 report=_print_repo_render_check,
             )
         except Exception as e:

@@ -132,6 +132,21 @@ def test_build_repo_page_manifest_marks_real_cargo_declarations_only(tmp_path: P
     assert entries["Template:Cargo/Items/CargoDeclare"].ownership_class == "template"
 
 
+def test_build_repo_page_manifest_keeps_stylesheets_as_sanitized_css_templates(tmp_path: Path) -> None:
+    """A TemplateStyles stylesheet keeps its .css title and needs the template opt-in."""
+    write_page(tmp_path, "wiki/templates/Character.wiki", '<templatestyles src="Template:Character/styles.css" />\n')
+    write_page(tmp_path, "wiki/templates/Character/styles.css", ".pi-image { color: red; }\n")
+
+    manifest = build_repo_page_manifest(tmp_path, variant="main", include_templates=True)
+
+    entries = {entry.title: entry for entry in manifest.entries}
+    stylesheet = entries["Template:Character/styles.css"]
+    assert (stylesheet.content_model, stylesheet.upload_stage) == ("sanitized-css", "template")
+    assert entries["Template:Character"].content_model == "wikitext"
+    with pytest.raises(ValueError, match="Template pages require --include-templates"):
+        select_repo_page_manifest(manifest, requested_titles={"Template:Character/styles.css"})
+
+
 def test_build_repo_page_manifest_orders_uploads_safely(tmp_path: Path) -> None:
     """Upload order is Lua modules, Cargo declarations, then other templates."""
     write_page(tmp_path, "wiki/templates/QueryTable.wiki", "{{#cargo_query:tables=Items}}\n")

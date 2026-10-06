@@ -11,13 +11,15 @@ from urllib.parse import quote
 
 from erenshor.application.wiki_deploy.dependencies import (
     literal_dependencies,
-    needed_live_modules,
+    needed_live_dependencies,
     order_and_check_dependencies,
 )
 from erenshor.application.wiki_deploy.manifest import (
+    RENDER_CHECKED_STAGES,
     DeployAction,
     RepoWikiPageManifest,
     RepoWikiPageManifestEntry,
+    stage_rank,
     validate_repo_page_manifest_for_deploy,
 )
 from erenshor.application.wiki_deploy.render_check import RenderCheck, check_render
@@ -165,9 +167,9 @@ def prepare_repo_page_checks(
     source_texts: Mapping[str, str],
     snapshots: Mapping[str, MediaWikiPageSnapshot],
     client: WikiPageDeployClient,
-    live_modules: dict[str, str | None] | None = None,
+    live_dependencies: dict[str, str | None] | None = None,
 ) -> RepoWikiPageManifest:
-    """Check transitive module dependencies and order the planned writes."""
+    """Check transitive dependencies and order the planned writes."""
     changed = RepoWikiPageManifest(
         entries=tuple(
             entry
@@ -175,23 +177,21 @@ def prepare_repo_page_checks(
             if repo_page_action(snapshots[entry.title], source_texts[entry.title]) != "unchanged"
         )
     )
-    live = needed_live_modules({entry.title: source_texts[entry.title] for entry in changed.entries}, client)
+    live = needed_live_dependencies({entry.title: source_texts[entry.title] for entry in changed.entries}, client)
     live.update({title: snapshot.source_text for title, snapshot in snapshots.items() if title not in live})
-    if live_modules is not None:
-        live_modules.update(live)
+    if live_dependencies is not None:
+        live_dependencies.update(live)
     ordered = order_and_check_dependencies(changed, source_texts, live)
     positions = {entry.title: index for index, entry in enumerate(ordered.entries)}
-    stages = {
-        name: index
-        for index, name in enumerate(
-            ("generated_data", "lua_module", "cargo_declaration", "template", "content_page", "article")
-        )
-    }
     return RepoWikiPageManifest(
         entries=tuple(
             sorted(
                 manifest.entries,
-                key=lambda entry: (stages[entry.upload_stage], positions.get(entry.title, len(positions)), entry.title),
+                key=lambda entry: (
+                    stage_rank(entry.upload_stage),
+                    positions.get(entry.title, len(positions)),
+                    entry.title,
+                ),
             )
         )
     )
@@ -206,10 +206,15 @@ def render_repo_page_checks(
     catalog: Mapping[str, LinkCatalogEntry],
     full: bool = False,
     dry_run: bool = False,
-    live_modules: Mapping[str, str | None] | None = None,
+    live_dependencies: Mapping[str, str | None] | None = None,
     report: Callable[[RenderCheck], None] | None = None,
 ) -> None:
-    """Check each changed module and template before its write or dry-run preview."""
+    """Check each changed module, stylesheet, and template before its write or dry-run preview.
+
+    The manifest is in write order. A page that a dependency changed in the
+    same deploy renders provisionally, and a dependency that the deploy
+    creates before the page is not missing.
+    """
     live_cache: dict[str, MediaWikiParse] = {}
     changed = {
         entry.title
@@ -217,7 +222,7 @@ def render_repo_page_checks(
         if repo_page_action(snapshots[entry.title], source_texts[entry.title]) != "unchanged"
     }
 
-    def depends_on_changed_module(root: str) -> bool:
+    def depends_on_changed_page(root: str) -> bool:
         visited: set[str] = {root}
         pending = list(literal_dependencies(root, source_texts[root]))
         while pending:
@@ -227,33 +232,32 @@ def render_repo_page_checks(
             if title in visited:
                 continue
             visited.add(title)
-            text = (live_modules or {}).get(title)
+            text = (live_dependencies or {}).get(title)
             if text is None and title in source_texts:
                 text = snapshots[title].source_text
             if text is not None:
                 pending.extend(literal_dependencies(title, text))
         return False
 
+    written_before: set[str] = set()
     for entry in manifest.entries:
-        if entry.title not in changed or entry.upload_stage not in {
-            "generated_data",
-            "lua_module",
-            "cargo_declaration",
-            "template",
-        }:
+        if entry.title not in changed:
             continue
-        provisional = dry_run and depends_on_changed_module(entry.title)
-        result = check_render(
-            client,
-            entry.title,
-            source_texts[entry.title],
-            catalog=catalog,
-            live_cache=live_cache,
-            full=full,
-            provisional=provisional,
-        )
-        if report is not None:
-            report(result)
+        if entry.upload_stage in RENDER_CHECKED_STAGES:
+            result = check_render(
+                client,
+                entry.title,
+                source_texts[entry.title],
+                content_model=entry.content_model,
+                catalog=catalog,
+                live_cache=live_cache,
+                full=full,
+                provisional=dry_run and depends_on_changed_page(entry.title),
+                written_before=frozenset(written_before) if dry_run else frozenset(),
+            )
+            if report is not None:
+                report(result)
+        written_before.add(entry.title)
 
 
 @dataclass(frozen=True, slots=True)
@@ -379,11 +383,12 @@ def deploy_repo_pages(
                 )
             )
             continue
-        if entry.upload_stage in {"generated_data", "lua_module", "cargo_declaration", "template"}:
+        if entry.upload_stage in RENDER_CHECKED_STAGES:
             rendered = check_render(
                 client,
                 entry.title,
                 source_text,
+                content_model=entry.content_model,
                 catalog=catalog or {},
                 live_cache=live_parse_cache,
                 full=full_render_check,

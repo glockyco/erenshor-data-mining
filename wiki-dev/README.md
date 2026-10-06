@@ -164,6 +164,7 @@ wiki/modules/Erenshor/Link.lua                          -> Module:Erenshor/Link
 wiki-dev/fixtures/modules/Erenshor/Data/Items.lua       -> Module:Erenshor/Data/Items
 wiki/templates/Item.wiki                                -> Template:Item
 wiki/templates/Item/Armor.wiki                          -> Template:Item/Armor
+wiki/templates/Character/styles.css                     -> Template:Character/styles.css (sanitized-css)
 wiki-dev/fixtures/pages/Foo.wiki                        -> Foo
 wiki-dev/fixtures/file-pages/Foo.png.wiki               -> File:Foo.png (description page, no upload)
 wiki-dev/fixtures/files/Foo.png                         -> File:Foo.png (uploaded file)

@@ -1,4 +1,4 @@
-"""Order repository pages and check literal module dependencies against live pages."""
+"""Order repository pages and check the pages that they load by literal title against live pages."""
 
 from __future__ import annotations
 
@@ -6,26 +6,36 @@ import re
 from collections.abc import Mapping, Sequence
 from typing import Protocol
 
-from erenshor.application.wiki_deploy.manifest import RepoWikiPageManifest, RepoWikiPageManifestEntry
+from erenshor.application.wiki_deploy.manifest import RepoWikiPageManifest, RepoWikiPageManifestEntry, stage_rank
 
 _INVOKE = re.compile(r"\{\{\s*#invoke\s*:\s*([^|{}]+)\s*\|", re.IGNORECASE)
 _LUA_LOAD = re.compile(r"\b(?:require|mw\.loadData)\s*\(\s*(['\"])(Module:[^'\"]+)\1\s*\)")
-_STAGES = ("generated_data", "lua_module", "cargo_declaration", "template", "content_page", "article")
+_TEMPLATE_STYLES = re.compile(r"<templatestyles\s+src\s*=\s*([\"']?)([^\"'>]+?)\1\s*/?>", re.IGNORECASE)
+
+
+def _stylesheet_title(source: str) -> str:
+    """The page that a ``<templatestyles src>`` names: TemplateStyles assumes Template: without a namespace."""
+    name = source.strip().replace("_", " ")
+    namespace, separator, _ = name.partition(":")
+    return name if separator and namespace and "/" not in namespace else f"Template:{name}"
 
 
 def literal_dependencies(title: str, text: str) -> tuple[str, ...]:
-    """Find literal module titles in a Lua module or wikitext page."""
+    """The pages that a page loads by literal title.
+
+    A Lua module loads modules through ``require`` and ``mw.loadData``. A
+    wikitext page loads modules through ``#invoke`` and TemplateStyles
+    stylesheets through ``<templatestyles src>``.
+    """
     if title.startswith("Module:"):
         return tuple(sorted({match.group(2).strip().replace("_", " ") for match in _LUA_LOAD.finditer(text)}))
-    return tuple(
-        sorted(
-            {
-                name if name.startswith("Module:") else f"Module:{name}"
-                for match in _INVOKE.finditer(text)
-                if (name := match.group(1).strip().replace("_", " "))
-            }
-        )
-    )
+    modules = {
+        name if name.startswith("Module:") else f"Module:{name}"
+        for match in _INVOKE.finditer(text)
+        if (name := match.group(1).strip().replace("_", " "))
+    }
+    stylesheets = {_stylesheet_title(match.group(2)) for match in _TEMPLATE_STYLES.finditer(text)}
+    return tuple(sorted(modules | stylesheets))
 
 
 def order_and_check_dependencies(
@@ -33,9 +43,8 @@ def order_and_check_dependencies(
     source_texts: Mapping[str, str],
     live_texts: Mapping[str, str | None],
 ) -> RepoWikiPageManifest:
-    """Fail on a missing dependency or cycle and order modules inside each stage."""
+    """Fail on a missing dependency or cycle and order dependencies before their users inside each stage."""
     by_title = {entry.title: entry for entry in manifest.entries}
-    stage = {name: index for index, name in enumerate(_STAGES)}
     ordered: list[RepoWikiPageManifestEntry] = []
     visiting: set[str] = set()
     completed: set[str] = set()
@@ -45,17 +54,17 @@ def order_and_check_dependencies(
         if title in completed:
             return
         if title in visiting:
-            raise ValueError(f"{root} has a module dependency cycle at {title}")
+            raise ValueError(f"{root} has a dependency cycle at {title}")
         visiting.add(title)
         text = source_texts[title] if title in by_title else live_texts.get(title)
         if text is None:
-            raise ValueError(f"{root} needs missing module {title}")
+            raise ValueError(f"{root} needs missing page {title}")
         for dependency in literal_dependencies(title, text):
             planned = by_title.get(dependency)
-            if planned is not None and stage[planned.upload_stage] <= stage[by_title[root].upload_stage]:
+            if planned is not None and stage_rank(planned.upload_stage) <= stage_rank(by_title[root].upload_stage):
                 visit(dependency, root)
             elif dependency not in written and live_texts.get(dependency) is None:
-                raise ValueError(f"{root} needs missing module {dependency}")
+                raise ValueError(f"{root} needs missing page {dependency}")
             else:
                 visit_live(dependency, root)
         visiting.remove(title)
@@ -74,11 +83,11 @@ def order_and_check_dependencies(
             return
         text = live_texts.get(title)
         if text is None:
-            raise ValueError(f"{root} needs missing module {title}")
+            raise ValueError(f"{root} needs missing page {title}")
         live_visiting.add(title)
         for dependency in literal_dependencies(title, text):
             if dependency in by_title and (
-                stage[by_title[dependency].upload_stage] <= stage[by_title[root].upload_stage]
+                stage_rank(by_title[dependency].upload_stage) <= stage_rank(by_title[root].upload_stage)
             ):
                 visit(dependency, root)
             else:
@@ -91,8 +100,8 @@ def order_and_check_dependencies(
     return RepoWikiPageManifest(entries=tuple(ordered))
 
 
-def needed_live_modules(source_texts: Mapping[str, str], client: object) -> dict[str, str | None]:
-    """Fetch transitive live modules in batches, including missing titles."""
+def needed_live_dependencies(source_texts: Mapping[str, str], client: object) -> dict[str, str | None]:
+    """Fetch the transitive live dependencies in batches, including missing titles."""
     from typing import cast
 
     class _Reader(Protocol):

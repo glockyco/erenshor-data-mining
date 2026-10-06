@@ -92,6 +92,8 @@ The plan for the wiki is the OpenSpec change `adopt-data-backed-wiki`. Read its 
 2. Edit maintained Lua modules under `wiki/modules/Erenshor/` and templates under `wiki/templates/`.
    For example, `wiki/modules/Erenshor/Link.lua` maps to `Module:Erenshor/Link`.
    `wiki/templates/Item.wiki` maps to `Template:Item`.
+   A template's CSS goes in a TemplateStyles stylesheet: `wiki/templates/Character/styles.css` maps to `Template:Character/styles.css` with the `sanitized-css` content model, and the template loads it with `<templatestyles src="Template:Character/styles.css" />`.
+   The deploy treats the stylesheet as a dependency of the template, like an `#invoke` module: it writes the stylesheet first and stops a template whose stylesheet is missing.
    The legacy entity templates render from article parameters.
    Spell, Skill, and Stance tooltips read generated data by stable key.
    Test public Lua entry points through the local Scribunto testcases.

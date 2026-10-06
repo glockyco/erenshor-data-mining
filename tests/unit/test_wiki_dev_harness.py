@@ -52,6 +52,8 @@ def test_maps_interface_repo_and_fixture_pages_to_wiki_titles(tmp_path: Path) ->
     (root / "wiki/templates/Item.wiki").write_text(
         '<includeonly><infobox type="Item"/></includeonly>\n', encoding="utf-8"
     )
+    (root / "wiki/templates/Item").mkdir()
+    (root / "wiki/templates/Item/styles.css").write_text(".pi-image { color: red; }\n", encoding="utf-8")
     (root / "wiki-dev/fixtures/pages/Sword_of_Flames.wiki").write_text("{{Item}}\n", encoding="utf-8")
 
     import_pages = load_script("wiki-dev/import_pages.py")
@@ -74,6 +76,7 @@ def test_maps_interface_repo_and_fixture_pages_to_wiki_titles(tmp_path: Path) ->
         ("Module:Erenshor/Data/Items", "wiki-dev/fixtures/modules/Erenshor/Data/Items.lua"),
         ("Module:Erenshor/Data/Items/Weapons", "wiki-dev/fixtures/modules/Erenshor/Data/Items/Weapons.lua"),
         ("Template:Item", "wiki/templates/Item.wiki"),
+        ("Template:Item/styles.css", "wiki/templates/Item/styles.css"),
         ("Sword of Flames", "wiki-dev/fixtures/pages/Sword_of_Flames.wiki"),
         ("File:Missing Portrait.png", "wiki-dev/fixtures/file-pages/Missing_Portrait.png.wiki"),
     ]
@@ -82,6 +85,7 @@ def test_maps_interface_repo_and_fixture_pages_to_wiki_titles(tmp_path: Path) ->
     assert common_css.content.endswith("body { color: white; }\n")
     common_js = pages[1]
     assert common_js.content.startswith("document.documentElement.classList.add('theme-dark');\n")
+    assert next(page for page in pages if page.title == "Template:Item/styles.css").content_model == "sanitized-css"
     assert [
         (source.title, source.path.relative_to(root).as_posix()) for source in import_pages.discover_files(root)
     ] == [("File:Uploaded Portrait.png", "wiki-dev/fixtures/files/Uploaded_Portrait.png")]

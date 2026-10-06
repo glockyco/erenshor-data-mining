@@ -128,12 +128,19 @@ def check_render(
     title: str,
     new_text: str,
     *,
+    content_model: str,
     catalog: Mapping[str, LinkCatalogEntry],
     live_cache: dict[str, MediaWikiParse],
     full: bool = False,
     provisional: bool = False,
+    written_before: frozenset[str] = frozenset(),
 ) -> RenderCheck:
-    """Parse selected users twice and reject regressions in their renders."""
+    """Parse selected users twice and reject regressions in their renders.
+
+    The sandbox replaces ``title`` with ``new_text`` of ``content_model``. A
+    missing page in ``written_before``, which a dry-run deploy writes before
+    this page, does not block it.
+    """
     from typing import cast
 
     class _Reader(Protocol):
@@ -174,7 +181,7 @@ def check_render(
             texts[user],
             sandbox_title=title,
             sandbox_text=new_text,
-            sandbox_content_model="Scribunto" if title.startswith("Module:") else "wikitext",
+            sandbox_content_model=content_model,
         )
         old_html, new_html = _html(live), _html(sandbox)
         old_errors = {" ".join(error.split()) for error in old_html.errors if error.strip()}
@@ -182,7 +189,7 @@ def check_render(
         old_missing = {template.title for template in live.templates if not template.exists}
         new_missing = {template.title for template in sandbox.templates if not template.exists}
         problems = ["script error" for _ in new_errors - old_errors]
-        problems.extend(f"missing template {missing}" for missing in sorted(new_missing - old_missing))
+        problems.extend(f"missing template {missing}" for missing in sorted(new_missing - old_missing - written_before))
         if problems:
             raise RenderCheckError(f"{title} blocked on {user}: {', '.join(problems)}")
         old_lines, new_lines = old_html.lines(), new_html.lines()

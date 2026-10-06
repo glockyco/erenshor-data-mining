@@ -9,19 +9,35 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Literal, cast
 
-ContentModel = Literal["Scribunto", "wikitext"]
+ContentModel = Literal["Scribunto", "sanitized-css", "wikitext"]
 UploadStage = Literal["generated_data", "lua_module", "cargo_declaration", "template", "content_page", "article"]
 DeployAction = Literal["unchanged", "created", "edited"]
 
 _CARGO_TABLE_RE = re.compile(r"_table\s*=\s*([A-Za-z_][A-Za-z0-9_]*)")
-_STAGE_ORDER: dict[UploadStage, int] = {
-    "generated_data": 0,
-    "lua_module": 1,
-    "cargo_declaration": 2,
-    "template": 3,
-    "content_page": 4,
-    "article": 5,
-}
+_CONTENT_MODELS: tuple[ContentModel, ...] = ("Scribunto", "sanitized-css", "wikitext")
+
+# The deploy order. A page loads pages of earlier stages, and pages of its own
+# stage that the dependency check orders before it, such as the TemplateStyles
+# stylesheet of a template.
+UPLOAD_STAGES: tuple[UploadStage, ...] = (
+    "generated_data",
+    "lua_module",
+    "cargo_declaration",
+    "template",
+    "content_page",
+    "article",
+)
+# The stages that a deploy includes only with --include-templates.
+TEMPLATE_STAGES: frozenset[UploadStage] = frozenset({"cargo_declaration", "template"})
+# The stages whose pages other pages load, so a deploy renders their users first.
+RENDER_CHECKED_STAGES: frozenset[UploadStage] = frozenset(
+    {"generated_data", "lua_module", "cargo_declaration", "template"}
+)
+
+
+def stage_rank(stage: UploadStage) -> int:
+    """The position of a stage in the deploy order."""
+    return UPLOAD_STAGES.index(stage)
 
 
 @dataclass(frozen=True, slots=True)
@@ -137,7 +153,7 @@ def build_repo_page_manifest(
             )
         )
 
-    entries.sort(key=lambda entry: (_STAGE_ORDER[entry.upload_stage], entry.title))
+    entries.sort(key=lambda entry: (stage_rank(entry.upload_stage), entry.title))
     return RepoWikiPageManifest(entries=tuple(entries))
 
 
@@ -174,7 +190,7 @@ def select_repo_page_manifest(
     selected_entries = tuple(
         entry
         for entry in manifest.entries
-        if (include_templates or entry.upload_stage not in {"template", "cargo_declaration"})
+        if (include_templates or entry.upload_stage not in TEMPLATE_STAGES)
         and (include_generated_data or entry.upload_stage != "generated_data")
         and (include_content_pages or entry.upload_stage != "content_page")
     )
@@ -199,9 +215,7 @@ def validate_repo_page_manifest_for_deploy(
 ) -> None:
     """Reject entries that were not explicitly enabled for deployment."""
     if not include_templates:
-        template_titles = [
-            entry.title for entry in manifest.entries if entry.upload_stage in {"template", "cargo_declaration"}
-        ]
+        template_titles = [entry.title for entry in manifest.entries if entry.upload_stage in TEMPLATE_STAGES]
         if template_titles:
             raise ValueError("Template pages require explicit deployment opt-in: " + ", ".join(sorted(template_titles)))
     if not include_generated_data:
@@ -263,13 +277,13 @@ def _entry_from_payload(raw_entry: dict[str, object]) -> RepoWikiPageManifestEnt
 
 
 def _upload_stage(value: str) -> UploadStage:
-    if value not in _STAGE_ORDER:
+    if value not in UPLOAD_STAGES:
         raise ValueError(f"Unknown wiki deploy upload stage: {value}")
     return value  # type: ignore[return-value]
 
 
 def _content_model(value: str) -> ContentModel:
-    if value not in ("Scribunto", "wikitext"):
+    if value not in _CONTENT_MODELS:
         raise ValueError(f"Unknown wiki deploy content model: {value}")
     return value  # type: ignore[return-value]
 
@@ -379,15 +393,35 @@ def _template_entries(
     source_root: Path,
     requested_titles: set[str] | None = None,
 ) -> list[RepoWikiPageManifestEntry]:
+    """Templates from ``wiki/templates/<Name>.wiki`` and their TemplateStyles
+    stylesheets from ``wiki/templates/<Name>/styles.css``, which keep their
+    ``.css`` suffix in the title and the ``sanitized-css`` content model."""
     if not source_root.exists():
         return []
 
     entries: list[RepoWikiPageManifestEntry] = []
-    for path in source_root.rglob("*.wiki"):
-        if not path.is_file():
+    for path in sorted(source_root.rglob("*")):
+        if not path.is_file() or path.suffix not in {".wiki", ".css"}:
             continue
-        relative_template = path.relative_to(source_root).with_suffix("")
-        title = "Template:" + "/".join(relative_template.parts)
+        relative = path.relative_to(source_root)
+        if path.suffix == ".css":
+            title = "Template:" + "/".join(relative.parts)
+            if requested_titles is not None and title not in requested_titles:
+                continue
+            entries.append(
+                _entry(
+                    root=root,
+                    path=path,
+                    title=title,
+                    content_model="sanitized-css",
+                    ownership_class="template",
+                    upload_stage="template",
+                    declares_cargo_table=False,
+                    cargo_tables=(),
+                )
+            )
+            continue
+        title = "Template:" + "/".join(relative.with_suffix("").parts)
         if requested_titles is not None and title not in requested_titles:
             continue
         content = path.read_text(encoding="utf-8")

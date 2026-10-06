@@ -33,7 +33,7 @@ MANIFEST_RELATIVE_PATH = Path("wiki-dev/runtime/import_pages.manifest.json")
 FILE_FIXTURES_RELATIVE_PATH = Path("wiki-dev/fixtures/files")
 FILE_STATE_RELATIVE_PATH = Path("wiki-dev/runtime/import_files.state.json")
 REMOTE_QUERY_BATCH_SIZE = 50
-CONTENT_MODELS = frozenset({"css", "javascript", "json", "Scribunto", "vue", "wikitext"})
+CONTENT_MODELS = frozenset({"css", "javascript", "json", "sanitized-css", "Scribunto", "vue", "wikitext"})
 _SHA256_PATTERN = re.compile(r"[0-9a-f]{64}")
 
 REQUIRED_INTERFACE_FILES = frozenset(
@@ -158,6 +158,10 @@ def discover_pages(root: Path) -> list[PageSource]:
             relative = path.relative_to(templates_dir).with_suffix("")
             title = "Template:" + "/".join(relative.parts).replace("_", " ")
             pages.append(PageSource(title=title, path=path))
+        # TemplateStyles stylesheets keep their .css suffix in the title.
+        for path in sorted(templates_dir.rglob("*.css")):
+            title = "Template:" + "/".join(path.relative_to(templates_dir).parts).replace("_", " ")
+            pages.append(PageSource(title=title, path=path, content_model="sanitized-css"))
 
     fixture_pages_dir = root / "wiki-dev" / "fixtures" / "pages"
     if fixture_pages_dir.exists():
