@@ -20,7 +20,7 @@ def _character(
     scene: str | None = None,
     is_enabled: bool = True,
     is_wiki_generated: bool = True,
-    spawn_scenes: tuple[str, ...] = (),
+    spawn_points: tuple[tuple[str, float, float, float], ...] = (),
     is_summon: bool = False,
 ) -> CharacterSource:
     placed = resources_path is None and scene is not None
@@ -28,13 +28,14 @@ def _character(
         stable_key=stable_key,
         image_name=image_name,
         object_name=image_name,
+        npc_name=image_name,
         scene=scene if placed else None,
         position=(1.0, 2.0, 3.0) if placed else None,
         is_prefab=not placed,
         is_enabled=is_enabled,
         is_wiki_generated=is_wiki_generated,
         resources_path=resources_path,
-        spawn_scenes=spawn_scenes,
+        spawn_points=spawn_points,
         is_summon=is_summon,
     )
 
@@ -92,22 +93,27 @@ def test_a_placed_character_or_a_scene_prefab_is_the_source_without_a_resources_
     }
     characters = [
         # Faith's prefab is outside Resources, and a FaithEvent of the scene references it.
-        _character("character:faith", "Faith", spawn_scenes=("PlaneOfSoluna",)),
+        _character(
+            "character:faith",
+            "Faith",
+            spawn_points=(("PlaneOfSoluna", 361.9, 327.1, 1346.7), ("PlaneOfSoluna", 275.6, 327.1, 1346.7)),
+        ),
         _character("character:dummy:reliquary:1", "Training Dummy (1000 AC)", scene="Reliquary", is_enabled=False),
     ]
 
     manifest = build_manifest(page_image_uses(pages), characters, _uploaded(), "24405256")
 
     sources = {entry.file: entry.source for entry in manifest.entries}
-    assert (sources["Faith.png"].scene, sources["Faith.png"].object_name, sources["Faith.png"].position) == (
+    # The player lands at Faith's first spawn point while the scene loads.
+    faith = sources["Faith.png"]
+    assert (faith.scene, faith.object_name, faith.position, faith.landing) == (
         "PlaneOfSoluna",
         "Faith",
         None,
+        (361.9, 327.1, 1346.7),
     )
-    assert (sources["Training Dummy (1000 AC).png"].scene, sources["Training Dummy (1000 AC).png"].position) == (
-        "Reliquary",
-        (1.0, 2.0, 3.0),
-    )
+    dummy = sources["Training Dummy (1000 AC).png"]
+    assert (dummy.scene, dummy.position, dummy.landing) == ("Reliquary", (1.0, 2.0, 3.0), (1.0, 2.0, 3.0))
 
 
 def test_a_file_without_a_game_object_is_listed_apart() -> None:

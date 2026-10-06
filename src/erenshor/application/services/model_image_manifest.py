@@ -50,13 +50,14 @@ class CharacterSource:
     stable_key: str
     image_name: str
     object_name: str | None
+    npc_name: str | None
     scene: str | None
     position: tuple[float, float, float] | None
     is_prefab: bool
     is_enabled: bool
     is_wiki_generated: bool
     resources_path: str | None
-    spawn_scenes: tuple[str, ...]
+    spawn_points: tuple[tuple[str, float, float, float], ...]  # (scene, x, y, z)
     is_summon: bool
 
 
@@ -65,15 +66,19 @@ class CaptureSource:
     """Where the capture finds the game object.
 
     A ``resources_path`` loads the prefab without a scene. Otherwise the
-    capture loads ``scene`` and takes the character named ``object_name``: the
-    one at ``position`` when it is placed in the scene, or else the prefab that
-    the scene references.
+    capture lands the player at ``landing`` in ``scene`` and takes the
+    character of that name: the one nearest ``position`` when the scene places
+    it, or else the prefab that the scene references. A placed character
+    answers to ``object_name`` until it starts and to ``npc_name`` after,
+    because ``NPC.Start`` renames it.
     """
 
     resources_path: str | None
     scene: str | None
     object_name: str | None
+    npc_name: str | None
     position: tuple[float, float, float] | None
+    landing: tuple[float, float, float] | None
 
 
 @dataclass(frozen=True, slots=True)
@@ -117,7 +122,9 @@ class ModelImageManifest:
                         "resources_path": entry.source.resources_path,
                         "scene": entry.source.scene,
                         "object_name": entry.source.object_name,
+                        "npc_name": entry.source.npc_name,
                         "position": list(entry.source.position) if entry.source.position else None,
+                        "landing": list(entry.source.landing) if entry.source.landing else None,
                     },
                     "pages": list(entry.pages),
                 }
@@ -190,16 +197,34 @@ def unused_page_image_uses(unused: Mapping[str, str], characters: Sequence[Chara
 def capture_source(character: CharacterSource) -> CaptureSource | None:
     """Where a capture finds the character's game object, or None when nothing locates it."""
     if character.resources_path:
-        return CaptureSource(resources_path=character.resources_path, scene=None, object_name=None, position=None)
+        return CaptureSource(
+            resources_path=character.resources_path,
+            scene=None,
+            object_name=None,
+            npc_name=None,
+            position=None,
+            landing=None,
+        )
     if not character.object_name:
         return None
-    if not character.is_prefab and character.scene:
+    if not character.is_prefab and character.scene and character.position:
         return CaptureSource(
-            resources_path=None, scene=character.scene, object_name=character.object_name, position=character.position
+            resources_path=None,
+            scene=character.scene,
+            object_name=character.object_name,
+            npc_name=character.npc_name,
+            position=character.position,
+            landing=character.position,
         )
-    if character.spawn_scenes:
+    if character.spawn_points:
+        scene, x, y, z = character.spawn_points[0]
         return CaptureSource(
-            resources_path=None, scene=character.spawn_scenes[0], object_name=character.object_name, position=None
+            resources_path=None,
+            scene=scene,
+            object_name=character.object_name,
+            npc_name=character.npc_name,
+            position=None,
+            landing=(x, y, z),
         )
     return None
 
@@ -270,14 +295,18 @@ def build_manifest(
 
 def load_character_sources(clean: sqlite3.Connection) -> list[CharacterSource]:
     """Read every character of the clean database with the facts that locate its game object."""
-    spawn_scenes: dict[str, set[str]] = defaultdict(set)
-    for stable_key, scene in clean.execute(
-        "SELECT character_stable_key, scene FROM character_spawns WHERE scene IS NOT NULL"
+    spawn_points: dict[str, list[tuple[str, float, float, float]]] = defaultdict(list)
+    for stable_key, scene, x, y, z in clean.execute(
+        """
+        SELECT character_stable_key, scene, x, y, z FROM character_spawns
+        WHERE scene IS NOT NULL AND x IS NOT NULL AND y IS NOT NULL AND z IS NOT NULL
+        ORDER BY scene, x, y, z
+        """
     ):
-        spawn_scenes[stable_key].add(scene)
+        spawn_points[stable_key].append((scene, x, y, z))
     rows = clean.execute(
         """
-        SELECT c.stable_key, c.image_name, c.object_name, c.scene, c.x, c.y, c.z,
+        SELECT c.stable_key, c.image_name, c.object_name, c.npc_name, c.scene, c.x, c.y, c.z,
                c.is_prefab, c.is_enabled, c.is_wiki_generated, c.resources_path,
                EXISTS (SELECT 1 FROM spells s WHERE s.pet_to_summon_stable_key = c.stable_key)
         FROM characters c
@@ -289,19 +318,21 @@ def load_character_sources(clean: sqlite3.Connection) -> list[CharacterSource]:
             stable_key=stable_key,
             image_name=image_name,
             object_name=object_name,
+            npc_name=npc_name,
             scene=scene,
             position=(x, y, z) if x is not None and y is not None and z is not None else None,
             is_prefab=bool(is_prefab),
             is_enabled=bool(is_enabled),
             is_wiki_generated=bool(is_wiki_generated),
             resources_path=resources_path,
-            spawn_scenes=tuple(sorted(spawn_scenes.get(stable_key, ()))),
+            spawn_points=tuple(spawn_points.get(stable_key, ())),
             is_summon=bool(is_summon),
         )
         for (
             stable_key,
             image_name,
             object_name,
+            npc_name,
             scene,
             x,
             y,
