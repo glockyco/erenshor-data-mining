@@ -74,7 +74,8 @@
   - the 13 corrected icons show the game's pictures
   - a second dry run plans no create or update
   - the deleted copies' titles and the redirects that named them show the pictures' files
-- [ ] 5.3 Rebuild and dry-run the map deploy, and deploy it with approval. Verify in a browser that the site's item icons show the catalog pictures, the 12 corrected ones included.
+- [x] 5.3 Rebuild and dry-run the map deploy, and deploy it with approval. Verify in a browser that the site's item icons show the catalog pictures, the 12 corrected ones included.
+  - Done on 2026-10-06 with approval: the map rebuilt with all 1,064 icons kept and deployed to both services (site version `9df0626c`, legacy version `8bf95c51`). On the live site the search shows the branch for Thorned Branch, the seed for all five Willow Seeds, and Royal Carapace's icon, none broken.
 
 ## 6. Remove the old pipeline
 
