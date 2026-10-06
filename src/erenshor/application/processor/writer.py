@@ -809,6 +809,7 @@ CREATE TABLE characters (
     y                           REAL,
     z                           REAL,
     guid                        TEXT,
+    resources_path              TEXT,
     my_world_faction_stable_key TEXT,
     my_faction                  TEXT,
     aggro_range                 REAL,

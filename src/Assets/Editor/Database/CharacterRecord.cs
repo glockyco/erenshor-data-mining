@@ -16,6 +16,10 @@ public class CharacterRecord
     public float? Z { get; set; }
 
     public string Guid { get; set; } = string.Empty; // Unity GUID (internal use only)
+
+    // The path that Resources.Load takes for a prefab under a Resources folder,
+    // such as "npcs/A Grizzly Bear". Null for scene objects and other prefabs.
+    public string? ResourcesPath { get; set; }
     public string? ObjectName { get; set; } = string.Empty;
     public string NPCName { get; set; } = string.Empty;
 

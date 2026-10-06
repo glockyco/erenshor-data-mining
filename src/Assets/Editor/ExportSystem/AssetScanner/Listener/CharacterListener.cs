@@ -571,6 +571,23 @@ public class CharacterListener : IAssetScanListener<Character>
             : $"unsaved:{asset.name}";
     }
 
+    /// <summary>
+    /// The path that Resources.Load takes for an asset: the part after the last
+    /// Resources folder, without the file extension. Null outside Resources.
+    /// </summary>
+    private static string? ResourcesPath(string assetPath)
+    {
+        const string folder = "/Resources/";
+        var start = assetPath.LastIndexOf(folder, System.StringComparison.Ordinal);
+        if (start < 0)
+        {
+            return null;
+        }
+        var path = assetPath.Substring(start + folder.Length);
+        var extension = System.IO.Path.GetExtension(path);
+        return path.Substring(0, path.Length - extension.Length);
+    }
+
     private CharacterRecord CreateCharacterRecord(Character character, string stableKey)
     {
         var npc = character.GetComponent<NPC>();
@@ -584,11 +601,13 @@ public class CharacterListener : IAssetScanListener<Character>
         var modifyFactions = character.GetComponents<ModifyFaction>();
 
         string guid;
+        string? resourcesPath = null;
         var prefabType = PrefabUtility.GetPrefabAssetType(character.gameObject);
         if (prefabType != PrefabAssetType.NotAPrefab)
         {
             var prefabPath = AssetDatabase.GetAssetPath(character.gameObject);
             guid = AssetDatabase.AssetPathToGUID(prefabPath);
+            resourcesPath = ResourcesPath(prefabPath);
         }
         else
         {
@@ -616,6 +635,7 @@ public class CharacterListener : IAssetScanListener<Character>
                     ? character.transform.position.z
                     : (float?)null,
             Guid = guid,
+            ResourcesPath = resourcesPath,
             ObjectName = character.gameObject != null ? character.gameObject.name : null,
             ModelKey = ModelKey(character),
             MyWorldFactionStableKey =

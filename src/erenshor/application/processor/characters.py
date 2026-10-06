@@ -1103,6 +1103,7 @@ def process_characters(
             "y": r.get("Y"),
             "z": r.get("Z"),
             "guid": r.get("Guid"),
+            "resources_path": r.get("ResourcesPath"),
             "my_world_faction_stable_key": r.get("MyWorldFactionStableKey"),
             "my_faction": r.get("MyFaction"),
             "aggro_range": r.get("AggroRange"),
