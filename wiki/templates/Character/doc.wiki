@@ -58,7 +58,7 @@ locations for the character.
 |-
 | <code>name</code> || Auto || Character display name. Also drives the interactive map search link.
 |-
-| <code>image</code> || Auto || Image in <code><nowiki>[[File:Name.png|thumb]]</nowiki></code> format.
+| <code>image</code> || Auto || Image in <code><nowiki>[[File:Name.png|thumb]]</nowiki></code> format. A picture with a transparent background shows on a slate surface, set in [[Template:Character/styles.css]], so dark subjects stay readable.
 |-
 | <code>imagecaption</code> || '''Manual''' || Optional caption below the character image.
 |-

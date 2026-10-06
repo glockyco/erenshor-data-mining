@@ -1,0 +1,7 @@
+/* Character pictures rendered from the game's models have a transparent
+   background, and some subjects are almost black. A mid slate surface behind
+   the picture keeps them readable on the dark theme. It shows only through
+   transparent pixels, so screenshots look as before. */
+.pi-type-Character .pi-image-thumbnail {
+	background-color: #313e59;
+}

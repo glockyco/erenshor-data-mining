@@ -79,6 +79,20 @@ The capture workflow SHALL read a manifest of missing file titles and game entit
 - **WHEN** a capture is cancelled after it changes lighting or hides other characters
 - **THEN** the game restores its lighting, characters, camera, and UI
 
+### Requirement: Rendered pictures stay readable on the wiki's theme
+
+A rendered character picture SHALL keep its transparent background. The character infobox SHALL show it on a surface that keeps very dark and very bright subjects readable on the wiki's theme. The surface SHALL show only through transparent pixels, so an opaque screenshot looks unchanged.
+
+#### Scenario: A black subject on the dark theme
+
+- **WHEN** a character infobox shows the transparent render of an almost black subject, such as a constellation
+- **THEN** its silhouette stands out from the surface behind it
+
+#### Scenario: An editor screenshot in the same infobox
+
+- **WHEN** a character infobox shows an opaque screenshot
+- **THEN** the screenshot looks as it did before the surface existed
+
 ### Requirement: Bot uploads need human review
 
 The bot SHALL upload only images in a set approved after visual review. The review SHALL show each file's title, subject, build, camera preset, and image. An unapproved or failed image SHALL remain unpublished.

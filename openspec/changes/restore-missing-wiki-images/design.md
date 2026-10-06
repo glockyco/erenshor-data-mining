@@ -201,6 +201,14 @@ Decided on 2026-10-06: the export records the model of each character, the meshe
 
 Decided on the same day: the seven receptacles share one model. One capture becomes `Portal Receptacle.png`, and a reviewed one-time edit points the image of the six unused rune receptacle pages at that file, so that no identical file is uploaded six more times.
 
+### D6. Rendered pictures keep their transparency and sit on a slate surface
+
+Decided on 2026-10-06 after a survey of game wikis. Game wikis show NPCs in two ways. The RuneScape wikis, Minecraft, and Valheim show isolated subjects with a transparent background, and both RuneScape image policies require it: "All images showing items, objects, scenery or NPCs should have transparency" ([OSRS policy](https://oldschool.runescape.wiki/w/RuneScape:Images_and_media_policy#Transparency)). Warcraft Wiki, Guild Wars 2, UESP, and the EverQuest-style wikis show in-game screenshots with the scene inside the file, and their quality depends on each shot. Guild Wars 2 asks for no outlines and no names over heads, and for a margin of about 50 px ([GW2 formatting](https://wiki.guildwars2.com/wiki/Guild_Wars_2_Wiki:Image_formatting)).
+
+With a transparent picture, readability depends on the surface behind it. Both RuneScape wikis paint their dark infobox a mid slate, `#313e59`, on which their Dark beast reads well. The near-black infoboxes of Minecraft and Valheim lose the black Enderman and the Greydwarf's torso. Erenshor's wiki is dark-only (`MediaWiki:Theme-definitions` defines `dark` alone), and its infobox image cell is near-black, so the black constellations, Syzygy, and the Azynthian Shadow were barely legible in a mockup.
+
+The rendered pictures therefore keep their transparency, which keeps them reusable and free of a theme colour. `Template:Character/styles.css`, a TemplateStyles stylesheet that the Character template loads, gives `.pi-type-Character .pi-image-thumbnail` the background `#313e59`. It shows only through transparent pixels, so editors' screenshots look unchanged and the renders read as cards beside them. A flat colour beat a radial gradient, because it can extend to the edges of the image cell or the infobox later without new images and looks the same behind images of any size. An outline around the subject, which Guild Wars 2 rules out, and a backdrop baked into the files were rejected. On a visible surface the 16 px crop margin of preset `portrait-1` looked cramped, so preset `portrait-2` crops with a margin of 5% of the subject's larger side.
+
 ## Risks / Trade-offs
 
 - Game models can render differently outside their scene. Some prefabs depend on lighting, animation, equipment, or effects that need a live scene. A representative capture and image review must prove each route.

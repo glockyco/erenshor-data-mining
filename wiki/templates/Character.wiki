@@ -1,4 +1,4 @@
-<includeonly><infobox type="Character">
+<includeonly><templatestyles src="Template:Character/styles.css" /><infobox type="Character">
     <title source="name"/>
     <image source="image">
         <caption source="imagecaption" />
