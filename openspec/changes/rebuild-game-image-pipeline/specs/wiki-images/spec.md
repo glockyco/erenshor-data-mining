@@ -108,17 +108,27 @@ Publishing SHALL delete every file whose latest version the bot account uploaded
 
 ### Requirement: The wiki draws the frames of game icons
 
-Icon files SHALL be the game's pictures without frames. Every template and module that shows an item, spell, skill, or stance icon SHALL draw its frame as the game does, at every size it uses. An item SHALL sit in a slot whose ring is the game's vertical gradient. A spell or skill SHALL lie under the game's hotbar frame. An icon SHALL fit within the slot's outer square, keep its proportions, and never extend past it.
+Icon files SHALL be the game's pictures without frames. Every template and module that shows an item, spell, skill, or stance icon SHALL draw it as the game draws it at that place: an item in a gear slot or a link SHALL sit in an inventory slot whose ring is the game's vertical gradient, a spell, skill, or stance link SHALL lie under the game's hotbar frame, an item tooltip header SHALL show the icon over the hotbar frame as the game's item window does, and the spell details of a tooltip SHALL show the spell icon without a frame. An icon SHALL fit within the slot's outer square, keep its proportions, and never extend past it.
 
 #### Scenario: An item tooltip
 
 - **WHEN** an item's tooltip header shows its icon at 80 px
+- **THEN** the icon lies over the hotbar frame, as in the game's item window
+
+#### Scenario: An item in a gear slot
+
+- **WHEN** a gear slot shows an item's icon at 60 px
 - **THEN** the icon sits in a slot whose ring runs from light grey at the top through blue to grey-teal at the bottom
+
+#### Scenario: The spell details of a tooltip
+
+- **WHEN** a spell tooltip or an item's spell details show the spell's icon at 48 px
+- **THEN** the icon shows without a frame, as in the game's item window
 
 #### Scenario: A texture wider than tall
 
 - **WHEN** an item's texture is 501 × 486 pixels
-- **THEN** the wiki shows it within the slot's square at its own proportions
+- **THEN** the wiki shows it within the icon's square at its own proportions
 
 #### Scenario: A spell link in running text
 

@@ -151,10 +151,18 @@ Alternatives considered:
 ### D7. The wiki draws the frames
 
 **Stylesheet and module:**
-- One TemplateStyles stylesheet, `Template:Icon/styles.css`, defines the item slot and the hotbar frame.
-- One Lua module, `Module:Erenshor/Icon`, renders an icon for a kind (`item` or `ability`) and a size, and `Template:Icon` wraps it for wikitext. Every icon goes through it: the `Item/*` headers, `Gear/Slot`, `Item/SpellDetails`, `SparkleIcon`, `Erenshor/Link`, and `Erenshor/Spell/Tooltip`.
+- One TemplateStyles stylesheet, `Template:Icon/styles.css`, defines the item slot and the layers of the hotbar frame.
+- One Lua module, `Module:Erenshor/Icon`, renders an icon for a kind and a size, and `Template:Icon` wraps it for wikitext. Every icon goes through it: the `Item/*` headers, `Gear/Slot`, `Item/SpellDetails`, `SparkleIcon`, `Erenshor/Link`, and `Erenshor/Spell/Tooltip`.
 - The large pictures of the infoboxes stay bare. In the game a frame surrounds an icon in a slot, and the infobox shows the picture itself, so the frame belongs to the icon sizes. `Format.fileLink` served only icons and goes away.
 - The module loads the stylesheet through `frame:extensionTag`. Deploying reads such literal calls in Lua as dependencies and uploads every sanitized-CSS page in a new first stage, `stylesheet`, because modules as well as templates load stylesheets and modules deploy before templates.
+
+**Kinds, as the game draws each place:** the scene of the game's UI decides, read from the exported `LoadScene`.
+- `item`, the inventory slot: gear slots and item links.
+- `ability`, the hotbar slots, where `ma_frame` lies over the icon: spell, skill, and stance links.
+- `window`, the item window's header, where `ma_frame` (`ItemInfo/BG (1)`) lies behind the 64 px `ItemIcon`, which the code fills at full size: the item tooltip headers.
+- `bare`, the item window's spell details, whose 48 px `SpellDetailsImage` has no frame: the spell details and the standalone spell tooltips.
+
+The first deploy gave the tooltip headers the inventory slot and the spell details the hotbar frame, the frames measured on the inventory and the hotbar. A review asked whether the spell details really carry a frame in the game, and the scene showed that the item window draws neither.
 
 **Item slot:**
 - The ring is a background gradient with the measured stops at 75% opacity.
@@ -165,9 +173,11 @@ Alternatives considered:
 
 **Hotbar frame:**
 - `ma_frame` is published once as a bot file, `File:Hotbar Frame.png`. It is a catalog picture of kind `frame`, taken from the export like an icon.
-- The module lays it over the spell art at 100% of the slot.
+- The module lays it over the art for `ability`, and under the art for `window`, at 100% of the square.
 
 **Sparkle:** `SparkleIcon` draws its sparkle after the icon, so the sparkle stays above the positioned slot. The sparkle has no link and lets clicks through to the icon, and so does the hotbar frame.
+
+**Hover cards:** TemplateStyles scopes its rules to `.mw-parser-output` and emits a stylesheet once beside the content. The hover gadget lifts a card out of a parsed page, so it mounts the card in a `.mw-parser-output` wrapper with the parsed page's stylesheets.
 
 Alternatives considered:
 - Baking the frames into the files is how the 150 px composites came to need a full re-upload for any frame change, and why an item and a spell that share a texture cannot share a file.
