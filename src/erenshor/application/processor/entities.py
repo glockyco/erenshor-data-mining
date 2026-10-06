@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import re
 import sqlite3
+from pathlib import PurePosixPath
 from typing import TYPE_CHECKING, cast
 
 from loguru import logger
@@ -58,6 +59,28 @@ def _rows(conn: sqlite3.Connection, sql: str, params: tuple[object, ...] = ()) -
     cur = conn.execute(sql, params)
     cols = [d[0] for d in cur.description]
     return [dict(zip(cols, row, strict=False)) for row in cur.fetchall()]
+
+
+_ICON_TEXTURES = PurePosixPath("Assets/Texture2D")
+
+
+def _name_icons_by_texture(rows: list[dict[str, object]], texture_column: str, name_column: str) -> None:
+    """Name each icon by the file of the texture that its sprite draws.
+
+    The export records the project path of that texture, because sprite and
+    texture names differ in some sprite families. Consumers open the icon as
+    ``Assets/Texture2D/<name>.png``, so a texture elsewhere fails the build.
+    A row without the texture column has no icon.
+    """
+    for row in rows:
+        texture = row.pop(texture_column, None)
+        if texture is None:
+            row[name_column] = None
+            continue
+        path = PurePosixPath(str(texture))
+        if path.parent != _ICON_TEXTURES or path.suffix != ".png":
+            raise ValueError(f"{row['stable_key']}: icon texture {texture} is not a PNG file in {_ICON_TEXTURES}")
+        row[name_column] = path.stem
 
 
 def _apply_mapping(
@@ -321,6 +344,7 @@ def process_items(
 
     # 'Unique' is a SQL reserved word — rename to is_unique (boolean 0/1)
     rows = _rename_cols(rows, {"Unique": "is_unique"})
+    _name_icons_by_texture(rows, "item_icon_texture", "item_icon_name")
     for row in rows:
         row["is_auctionable"] = int(
             derive_is_auctionable(
@@ -433,6 +457,7 @@ def process_spells(
     logger.info(f"Spells: {len(rows)} after mapping")
 
     rows = _rename_cols(rows)
+    _name_icons_by_texture(rows, "spell_icon_texture", "spell_icon_name")
     writer.insert_spells(rows)
     valid = {str(r["stable_key"]) for r in rows}
 
@@ -476,6 +501,7 @@ def process_skills(
 
     # Require2H has a digit that breaks generic snake_case conversion.
     rows = _rename_cols(rows, {"Require2H": "require_2h"})
+    _name_icons_by_texture(rows, "skill_icon_texture", "skill_icon_name")
     writer.insert_skills(rows)
 
     stance_images: dict[str, str] = {}

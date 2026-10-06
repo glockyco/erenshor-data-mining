@@ -87,7 +87,9 @@ class Skill(BaseEntity):
 
     # Visual/Audio
     skill_anim_name: str | None = Field(default=None, description="Animation name")
-    skill_icon_name: str | None = Field(default=None, description="Icon asset name")
+    skill_icon_name: str | None = Field(
+        default=None, description="File name, without extension, of the texture in Assets/Texture2D that the icon draws"
+    )
 
     # Usage tracking
     player_uses: str | None = Field(default=None, description="Message shown in combat log when used by player")

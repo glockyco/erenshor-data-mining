@@ -56,13 +56,6 @@ public class SpellListener : IAssetScanListener<Spell>
             );
         }
 
-        string? spellIconName = null;
-        if (spell.SpellIcon != null)
-        {
-            var path = AssetDatabase.GetAssetPath(spell.SpellIcon);
-            spellIconName = System.IO.Path.GetFileNameWithoutExtension(path);
-        }
-
         return new SpellRecord
         {
             // --- Core Identification ---
@@ -174,7 +167,7 @@ public class SpellListener : IAssetScanListener<Spell>
             // --- Visual/Audio ---
             SpellChargeFXIndex = spell.SpellChargeFXIndex,
             SpellResolveFXIndex = spell.SpellResolveFXIndex,
-            SpellIconName = spellIconName,
+            SpellIconTexture = IconTextures.PathOf(spell.SpellIcon, $"spell {spell.name}"),
             ShakeDur = spell.ShakeDur,
             ShakeAmp = spell.ShakeAmp,
             ColorR = spell.color.r,

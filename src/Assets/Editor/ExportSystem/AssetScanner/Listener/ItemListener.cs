@@ -112,13 +112,6 @@ public class ItemListener : IAssetScanListener<Item>
             bowAttackSound = System.IO.Path.GetFileNameWithoutExtension(path);
         }
 
-        string? itemIconName = null;
-        if (item.ItemIcon != null)
-        {
-            var path = AssetDatabase.GetAssetPath(item.ItemIcon);
-            itemIconName = System.IO.Path.GetFileNameWithoutExtension(path);
-        }
-
         var itemRecord = new ItemRecord
         {
             // --- Core Identification ---
@@ -220,7 +213,7 @@ public class ItemListener : IAssetScanListener<Item>
 
             // --- Visuals & Sound ---
             AttackSoundName = attackSound,
-            ItemIconName = itemIconName,
+            ItemIconTexture = IconTextures.PathOf(item.ItemIcon, $"item {item.name}"),
             EquipmentToActivate = item.EquipmentToActivate,
             //ShoulderTrimL = item.ShoulderTrimL,
             //ShoulderTrimR = item.ShoulderTrimR,

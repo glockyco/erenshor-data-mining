@@ -106,7 +106,7 @@ public class ItemRecord
 
     // --- Visuals & Sound ---
     public string? AttackSoundName { get; set; } = string.Empty; // Name of the AudioClip
-    public string? ItemIconName { get; set; } = string.Empty; // Name of the Sprite for the icon
+    public string? ItemIconTexture { get; set; } // Project path of the texture that the icon sprite draws
     public string EquipmentToActivate { get; set; } = string.Empty; // String identifier for visual equipment
 
     //public string ShoulderTrimL { get; set; }

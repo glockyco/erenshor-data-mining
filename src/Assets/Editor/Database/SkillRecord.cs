@@ -65,7 +65,7 @@ public class SkillRecord
 
     // --- Visual/Audio ---
     public string SkillAnimName { get; set; } = string.Empty; // From Skill.SkillAnimName
-    public string? SkillIconName { get; set; } = string.Empty; // From Skill.SkillIcon.name
+    public string? SkillIconTexture { get; set; } // Project path of the texture that Skill.SkillIcon draws
 
     // --- Text ---
     public string PlayerUses { get; set; } = string.Empty; // From Skill.PlayerUses

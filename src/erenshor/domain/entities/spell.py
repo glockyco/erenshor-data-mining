@@ -150,7 +150,9 @@ class Spell(BaseEntity):
     # Visual effects
     spell_charge_fx_index: int | None = Field(default=None, description="Charge VFX index")
     spell_resolve_fx_index: int | None = Field(default=None, description="Resolve VFX index")
-    spell_icon_name: str | None = Field(default=None, description="Icon asset name")
+    spell_icon_name: str | None = Field(
+        default=None, description="File name, without extension, of the texture in Assets/Texture2D that the icon draws"
+    )
     shake_dur: float | None = Field(default=None, description="Screen shake duration")
     shake_amp: float | None = Field(default=None, description="Screen shake amplitude")
     color_r: float | None = Field(default=None, description="Effect red channel")

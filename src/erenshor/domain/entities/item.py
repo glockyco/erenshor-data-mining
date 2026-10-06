@@ -129,7 +129,9 @@ class Item(BaseEntity):
 
     # Audio/Visual
     attack_sound_name: str | None = Field(default=None, description="Attack sound effect")
-    item_icon_name: str | None = Field(default=None, description="Icon asset name")
+    item_icon_name: str | None = Field(
+        default=None, description="File name, without extension, of the texture in Assets/Texture2D that the icon draws"
+    )
 
     # Equipment interactions
     equipment_to_activate: str | None = Field(default=None, description="Which model to show when equipped")
