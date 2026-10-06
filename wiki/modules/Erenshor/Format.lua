@@ -4,12 +4,6 @@ local function isBlank(value)
 	return value == nil or tostring(value):match("^%s*$") ~= nil
 end
 
-local function appendNonBlank(parts, value)
-	if not isBlank(value) then
-		table.insert(parts, tostring(value))
-	end
-end
-
 function p.escape(value)
 	if value == nil then
 		return ""
@@ -32,25 +26,6 @@ function p.pageLink(page, label)
 	end
 
 	return string.format("[[%s|%s]]", tostring(page), tostring(label))
-end
-
-function p.fileLink(file, options)
-	if isBlank(file) then
-		return ""
-	end
-
-	options = options or {}
-	local parts = { string.format("[[File:%s", tostring(file)) }
-	appendNonBlank(parts, options.size)
-	if not isBlank(options.alt) then
-		table.insert(parts, "alt=" .. tostring(options.alt))
-	end
-	if not isBlank(options.link) then
-		table.insert(parts, "link=" .. tostring(options.link))
-	end
-	appendNonBlank(parts, options.caption)
-
-	return table.concat(parts, "|") .. "]]"
 end
 
 function p.classList(classes)

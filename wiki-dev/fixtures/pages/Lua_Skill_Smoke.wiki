@@ -1,1 +1,3 @@
 {{#invoke:Erenshor/Skill/testcases|run}}
+
+{{AbilityLink|stablekey=skill:backstab}}

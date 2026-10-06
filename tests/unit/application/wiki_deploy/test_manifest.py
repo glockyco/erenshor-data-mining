@@ -141,7 +141,7 @@ def test_build_repo_page_manifest_keeps_stylesheets_as_sanitized_css_templates(t
 
     entries = {entry.title: entry for entry in manifest.entries}
     stylesheet = entries["Template:Character/styles.css"]
-    assert (stylesheet.content_model, stylesheet.upload_stage) == ("sanitized-css", "template")
+    assert (stylesheet.content_model, stylesheet.upload_stage) == ("sanitized-css", "stylesheet")
     assert entries["Template:Character"].content_model == "wikitext"
     with pytest.raises(ValueError, match="Template pages require --include-templates"):
         select_repo_page_manifest(manifest, requested_titles={"Template:Character/styles.css"})
@@ -156,6 +156,7 @@ def test_build_repo_page_manifest_orders_uploads_safely(tmp_path: Path) -> None:
         "<noinclude>{{#cargo_declare:\n_table=Items\n|Page=Page\n}}</noinclude>\n",
     )
     write_page(tmp_path, "wiki/modules/Erenshor/Item.lua", "local p = {}\nreturn p\n")
+    write_page(tmp_path, "wiki/templates/Item/styles.css", ".item-icon { display: inline-block; }\n")
     write_page(tmp_path, "variants/main/wiki/lua/Erenshor/Data/Items.lua", "return {}\n")
     write_page(tmp_path, "wiki/content/Category/Links.wiki", "__HIDDENCAT__\n")
     manifest = build_repo_page_manifest(
@@ -167,6 +168,7 @@ def test_build_repo_page_manifest_orders_uploads_safely(tmp_path: Path) -> None:
     )
 
     assert [entry.title for entry in manifest.entries] == [
+        "Template:Item/styles.css",
         "Module:Erenshor/Data/Items",
         "Module:Erenshor/Item",
         "Template:Item",
@@ -174,6 +176,7 @@ def test_build_repo_page_manifest_orders_uploads_safely(tmp_path: Path) -> None:
         "Category:Links",
     ]
     assert [entry.upload_stage for entry in manifest.entries] == [
+        "stylesheet",
         "generated_data",
         "lua_module",
         "cargo_declaration",

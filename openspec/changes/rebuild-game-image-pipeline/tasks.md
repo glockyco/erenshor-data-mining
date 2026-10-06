@@ -24,9 +24,9 @@
 
 ## 3. Draw icon frames on the wiki
 
-- [ ] 3.1 `feat(wiki): draw game icon frames like the game`:
+- [x] 3.1 `feat(wiki): draw game icon frames like the game`:
   - Add `Module:Erenshor/Icon` and `Template:Icon/styles.css` with the item slot and the hotbar frame of design D7.
-  - Switch every icon site to them: the `Item/*` headers, `Gear/Slot`, `Item/SpellDetails`, `SparkleIcon` (the sparkle draws above the slot), `Erenshor/Link`, `Erenshor/Spell/Tooltip`, `Erenshor/Format`, and the Ability and Stance infobox images.
+  - Switch every icon site to them: the `Item/*` headers, `Gear/Slot`, `Item/SpellDetails`, `SparkleIcon` (the sparkle draws above the slot), `Erenshor/Link`, and `Erenshor/Spell/Tooltip`. The large infobox pictures stay bare (design D7).
   - Add Lua test cases for the item and spell markup at every size, and smoke expectations for an item, a spell, and a skill page in the local stack. Document the module and the parameters of the changed templates.
   - Verify in the local stack's browser, with catalog pictures uploaded locally:
     - The ring runs from `#fdffff` through `#01aaff` at 50% to `#688f9d`, at 75% opacity, with a 3.5% inset of at least 1 px.
@@ -34,6 +34,7 @@
     - Spells lie under `ma_frame`.
     - The Blessed sparkle shows above the slot.
     - The local smoke test passes.
+  - Done on 2026-10-06: in Chromium on the local stack, the computed ring matched the measured stops, the insets were 3 px at 80, 2 px at 60, and 1 px at 24, and the branch rendered at 80 × 78, 60 × 58, and 24 × 23, centred. Florablast and the spell, skill, and stance links lie under the hotbar frame, the Blessed sparkle shows above the slot without a link, and a click on a 24 px spell icon opens the spell. The smoke test passed all 51 pages. Deploying gained the `stylesheet` stage for stylesheets that modules load, `Format.fileLink` lost its last caller and was removed, and a link whose entity has no image keeps its text link.
 
 ## 4. Publish against the live wiki
 

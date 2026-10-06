@@ -44,9 +44,9 @@ Updating the wiki's game images has always meant re-uploading nearly everything,
   - The Unity export's item, spell, and skill records and listeners, and the clean build's processor and schema
   - `src/erenshor/application/services/image_*`, `model_image_upload.py`, and `cli/commands/images.py`
   - The MediaWiki client
-  - Wiki templates `Item/*`, `Gear/Slot`, `SparkleIcon`, and `Item/SpellDetails`
-  - Lua modules `Erenshor/Link`, `Erenshor/Format`, and `Erenshor/Spell/Tooltip`
-  - Infobox image fields
+  - Wiki templates `Item/*`, `Gear/Slot`, `SparkleIcon`, and `Item/SpellDetails`, and a new `Template:Icon`
+  - Lua modules `Erenshor/Link`, `Erenshor/Format`, and `Erenshor/Spell/Tooltip`, and a new `Erenshor/Icon`
+  - The wiki deploy's stages and dependency check, which learn stylesheets that Lua modules load
   - The map's icon build and its consumers
   - The `refreshing-game-data` skill and the Game Data guide
 - **Ordering:**

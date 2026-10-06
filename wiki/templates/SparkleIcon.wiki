@@ -1,14 +1,14 @@
-<includeonly><div style="position: relative; width: 80px;"><div style="position: absolute; left: 0px; top: 0px; padding: 0;">[[File:{{{sparkle}}}|{{{sparkle_size}}}]]</div>{{{icon}}}</div></includeonly><noinclude>
+<includeonly><div style="position: relative; width: 80px;">{{{icon}}}<div style="position: absolute; left: 0px; top: 0px; padding: 0; pointer-events: none;">[[File:{{{sparkle}}}|{{{sparkle_size}}}|link=]]</div></div></includeonly><noinclude>
 == Template:SparkleIcon ==
 
-Displays an item icon with an optional sparkle overlay for quality tiers.
+Displays a framed item icon with an optional sparkle overlay for quality tiers. The sparkle draws above the slot, has no file link, and lets clicks reach the icon below.
 
 === Parameters ===
 
 {| class="wikitable"
 ! Parameter !! Required !! Default !! Description
 |-
-| '''icon''' || Yes || || The item icon (full <nowiki>[[File:...]]</nowiki> syntax)
+| '''icon''' || Yes || || The framed item icon from <nowiki>{{Icon|filename.png|kind=item|size=80}}</nowiki>
 |-
 | '''sparkle''' || Yes || || Sparkle overlay image filename (Blue_Sparkle.gif, Purple_Sparkle.gif, or blank.png)
 |-
@@ -20,7 +20,7 @@ Displays an item icon with an optional sparkle overlay for quality tiers.
 '''Normal item (no sparkle - use blank.png):'''
 <pre>
 {{SparkleIcon
-|icon=[[File:Copper_Sword.png|80px]]
+|icon={{Icon|Copper_Sword.png|kind=item|size=80}}
 |sparkle=blank.png
 |sparkle_size=0px
 }}
@@ -29,7 +29,7 @@ Displays an item icon with an optional sparkle overlay for quality tiers.
 '''Result:'''
 
 {{SparkleIcon
-|icon=[[File:Copper_Sword.png|80px]]
+|icon={{Icon|Copper_Sword.png|kind=item|size=80}}
 |sparkle=blank.png
 |sparkle_size=0px
 }}
@@ -39,7 +39,7 @@ Displays an item icon with an optional sparkle overlay for quality tiers.
 '''Blessed item (blue sparkle):'''
 <pre>
 {{SparkleIcon
-|icon=[[File:Copper_Sword.png|80px]]
+|icon={{Icon|Copper_Sword.png|kind=item|size=80}}
 |sparkle=Blue_Sparkle.gif
 |sparkle_size=80px
 }}
@@ -48,7 +48,7 @@ Displays an item icon with an optional sparkle overlay for quality tiers.
 '''Result:'''
 
 {{SparkleIcon
-|icon=[[File:Copper_Sword.png|80px]]
+|icon={{Icon|Copper_Sword.png|kind=item|size=80}}
 |sparkle=Blue_Sparkle.gif
 |sparkle_size=80px
 }}
@@ -58,7 +58,7 @@ Displays an item icon with an optional sparkle overlay for quality tiers.
 '''Godly item (purple sparkle):'''
 <pre>
 {{SparkleIcon
-|icon=[[File:Copper_Sword.png|80px]]
+|icon={{Icon|Copper_Sword.png|kind=item|size=80}}
 |sparkle=Purple_Sparkle.gif
 |sparkle_size=80px
 }}
@@ -67,7 +67,7 @@ Displays an item icon with an optional sparkle overlay for quality tiers.
 '''Result:'''
 
 {{SparkleIcon
-|icon=[[File:Copper_Sword.png|80px]]
+|icon={{Icon|Copper_Sword.png|kind=item|size=80}}
 |sparkle=Purple_Sparkle.gif
 |sparkle_size=80px
 }}

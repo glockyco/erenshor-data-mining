@@ -11,6 +11,7 @@
 -- Permitted conveniences: applied status effects and added procs render as links.
 
 local Common = require("Module:Erenshor/Ability/Common")
+local Icon = require("Module:Erenshor/Icon")
 
 local Tooltip = {}
 
@@ -58,7 +59,11 @@ function Tooltip.render(spell)
 		headerRow
 			:tag("div")
 			:addClass("item-spell-details-icon")
-			:wikitext("[[File:" .. tostring(spell.image) .. ".png|48px]]")
+			:wikitext(Icon.render(mw.getCurrentFrame(), {
+				file = tostring(spell.image) .. ".png",
+				kind = "ability",
+				size = 48,
+			}))
 	end
 	headerRow
 		:tag("div")

@@ -135,7 +135,9 @@ All writes stay within WoWBot's rights. A copy whose latest version an editor up
 
 **Stylesheet and module:**
 - One TemplateStyles stylesheet, `Template:Icon/styles.css`, defines the item slot and the hotbar frame.
-- One Lua module, `Module:Erenshor/Icon`, renders an icon for a kind and a size. Every caller goes through it: the `Item/*` headers, `Gear/Slot`, `Item/SpellDetails`, `Erenshor/Link`, `Erenshor/Spell/Tooltip`, `Erenshor/Format`, and the infobox images.
+- One Lua module, `Module:Erenshor/Icon`, renders an icon for a kind (`item` or `ability`) and a size, and `Template:Icon` wraps it for wikitext. Every icon goes through it: the `Item/*` headers, `Gear/Slot`, `Item/SpellDetails`, `SparkleIcon`, `Erenshor/Link`, and `Erenshor/Spell/Tooltip`.
+- The large pictures of the infoboxes stay bare. In the game a frame surrounds an icon in a slot, and the infobox shows the picture itself, so the frame belongs to the icon sizes. `Format.fileLink` served only icons and goes away.
+- The module loads the stylesheet through `frame:extensionTag`. Deploying reads such literal calls in Lua as dependencies and uploads every sanitized-CSS page in a new first stage, `stylesheet`, because modules as well as templates load stylesheets and modules deploy before templates.
 
 **Item slot:**
 - The ring is a background gradient with the measured stops at 75% opacity.
@@ -148,7 +150,7 @@ All writes stay within WoWBot's rights. A copy whose latest version an editor up
 - `ma_frame` is published once as a bot file, `File:Hotbar Frame.png`. It is a catalog picture of kind `frame`, taken from the export like an icon.
 - The module lays it over the spell art at 100% of the slot.
 
-**Sparkle:** `SparkleIcon` draws its sparkle after the icon, so the sparkle stays above the positioned slot.
+**Sparkle:** `SparkleIcon` draws its sparkle after the icon, so the sparkle stays above the positioned slot. The sparkle has no link and lets clicks through to the icon, and so does the hotbar frame.
 
 Alternatives considered:
 - Baking the frames into the files is how the 150 px composites came to need a full re-upload for any frame change, and why an item and a spell that share a texture cannot share a file.

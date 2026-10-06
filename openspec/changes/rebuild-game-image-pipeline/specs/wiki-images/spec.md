@@ -101,6 +101,11 @@ Icon files SHALL be the game's pictures without frames. Every template and modul
 - **WHEN** a page links a spell with its icon at 24 px
 - **THEN** the spell's art shows under the game's hotbar frame
 
+#### Scenario: An infobox picture
+
+- **WHEN** an Ability infobox shows its spell's picture at full size
+- **THEN** the picture shows without a frame, because the game frames icons in slots, not pictures
+
 ## MODIFIED Requirements
 
 ### Requirement: Bot uploads need human review

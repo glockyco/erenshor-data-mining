@@ -3,3 +3,5 @@
 {{#invoke:Erenshor/Args/testcases|run}}
 
 {{#invoke:Erenshor/Format/testcases|run}}
+
+{{#invoke:Erenshor/Icon/testcases|run}}

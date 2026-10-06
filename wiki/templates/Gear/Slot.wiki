@@ -4,9 +4,9 @@
   data-erenshor-page="{{{link|{{{1|{{{item}}}}}}}}}"
   {{#if:{{{quality|}}}|data-erenshor-quality="{{{quality}}}"|}}
 ><span style="position:relative; display:inline-block;">
-[[File:{{{image|{{{1|{{{item}}}}}}}}}{{#if:{{{image|}}}||.png}}|60x60px|link={{{link|{{{1|{{{item}}}}}}}}}]]
+{{Icon|{{{image|{{{1|{{{item}}}}}}}}}{{#if:{{{image|}}}||.png}}|kind=item|size=60|link={{{link|{{{1|{{{item}}}}}}}}}}}
 {{#if:{{{quality|}}}|
-{{#switch:{{{quality}}}|Blessed=<span style="position:absolute; top:0; left:0;">[[File:Blue_Sparkle.gif|60x60px|link={{{link|{{{1|{{{item}}}}}}}}}]]</span>|Ascended=<span style="position:absolute; top:0; left:0;">[[File:Purple_Sparkle.gif|60x60px|link={{{link|{{{1|{{{item}}}}}}}}}]]</span>}}
+{{#switch:{{{quality}}}|Blessed=<span style="position:absolute; top:0; left:0; pointer-events:none;">[[File:Blue_Sparkle.gif|60x60px|link=]]</span>|Ascended=<span style="position:absolute; top:0; left:0; pointer-events:none;">[[File:Purple_Sparkle.gif|60x60px|link=]]</span>}}
 }}
 </span></span></includeonly><noinclude>
 == Template:Gear/Slot ==
@@ -23,7 +23,7 @@ Displays a single equipment item with an optional quality indicator. The default
 | Item name. Used for the link target and image filename unless overridden.
 |-
 | <code>image</code>
-| Image filename without an extension. Defaults to the item name.
+| Image filename including its extension. Defaults to the item name with <code>.png</code>.
 |-
 | <code>link</code>
 | Link target. Defaults to the item name. The hover tooltip is loaded from this page.
@@ -54,7 +54,7 @@ Displays a single equipment item with an optional quality indicator. The default
 
 === Technical notes ===
 
-* Images are displayed at 60 by 60 pixels.
+* Native artwork is fitted within a 60 by 60 pixel item slot drawn by [[Template:Icon]], keeping its proportions.
 * <code>Blessed</code> uses <code>Blue_Sparkle.gif</code>. <code>Ascended</code> uses <code>Purple_Sparkle.gif</code>.
 * An image supplied through <code>image</code> must include its extension.
 * The original image link remains clickable when its tooltip is open.

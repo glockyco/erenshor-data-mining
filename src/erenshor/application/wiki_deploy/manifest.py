@@ -10,16 +10,18 @@ from pathlib import Path
 from typing import Literal, cast
 
 ContentModel = Literal["Scribunto", "sanitized-css", "wikitext"]
-UploadStage = Literal["generated_data", "lua_module", "cargo_declaration", "template", "content_page", "article"]
+UploadStage = Literal[
+    "stylesheet", "generated_data", "lua_module", "cargo_declaration", "template", "content_page", "article"
+]
 DeployAction = Literal["unchanged", "created", "edited"]
 
 _CARGO_TABLE_RE = re.compile(r"_table\s*=\s*([A-Za-z_][A-Za-z0-9_]*)")
 _CONTENT_MODELS: tuple[ContentModel, ...] = ("Scribunto", "sanitized-css", "wikitext")
 
-# The deploy order. A page loads pages of earlier stages, and pages of its own
-# stage that the dependency check orders before it, such as the TemplateStyles
-# stylesheet of a template.
+# Stylesheets go first because Lua modules as well as templates load them.
+# Other pages load earlier stages or dependencies ordered within their own stage.
 UPLOAD_STAGES: tuple[UploadStage, ...] = (
+    "stylesheet",
     "generated_data",
     "lua_module",
     "cargo_declaration",
@@ -28,10 +30,10 @@ UPLOAD_STAGES: tuple[UploadStage, ...] = (
     "article",
 )
 # The stages that a deploy includes only with --include-templates.
-TEMPLATE_STAGES: frozenset[UploadStage] = frozenset({"cargo_declaration", "template"})
+TEMPLATE_STAGES: frozenset[UploadStage] = frozenset({"stylesheet", "cargo_declaration", "template"})
 # The stages whose pages other pages load, so a deploy renders their users first.
 RENDER_CHECKED_STAGES: frozenset[UploadStage] = frozenset(
-    {"generated_data", "lua_module", "cargo_declaration", "template"}
+    {"stylesheet", "generated_data", "lua_module", "cargo_declaration", "template"}
 )
 
 
@@ -414,8 +416,8 @@ def _template_entries(
                     path=path,
                     title=title,
                     content_model="sanitized-css",
-                    ownership_class="template",
-                    upload_stage="template",
+                    ownership_class="stylesheet",
+                    upload_stage="stylesheet",
                     declares_cargo_table=False,
                     cargo_tables=(),
                 )

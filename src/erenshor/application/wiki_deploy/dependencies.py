@@ -11,6 +11,14 @@ from erenshor.application.wiki_deploy.manifest import RepoWikiPageManifest, Repo
 _INVOKE = re.compile(r"\{\{\s*#invoke\s*:\s*([^|{}]+)\s*\|", re.IGNORECASE)
 _LUA_LOAD = re.compile(r"\b(?:require|mw\.loadData)\s*\(\s*(['\"])(Module:[^'\"]+)\1\s*\)")
 _TEMPLATE_STYLES = re.compile(r"<templatestyles\s+src\s*=\s*([\"']?)([^\"'>]+?)\1\s*/?>", re.IGNORECASE)
+_LUA_STYLES_POSITIONAL = re.compile(
+    r"\bextensionTag\s*\(\s*(['\"])templatestyles\1\s*,\s*(['\"])[^'\"]*\2\s*,\s*"
+    r"\{[^{}]*?\bsrc\s*=\s*(['\"])([^'\"]+)\3",
+)
+_LUA_STYLES_TABLE = re.compile(
+    r"\bextensionTag\s*(?:\(\s*)?\{\s*name\s*=\s*(['\"])templatestyles\1\s*,\s*"
+    r"args\s*=\s*\{[^{}]*?\bsrc\s*=\s*(['\"])([^'\"]+)\2",
+)
 
 
 def _stylesheet_title(source: str) -> str:
@@ -23,12 +31,18 @@ def _stylesheet_title(source: str) -> str:
 def literal_dependencies(title: str, text: str) -> tuple[str, ...]:
     """The pages that a page loads by literal title.
 
-    A Lua module loads modules through ``require`` and ``mw.loadData``. A
-    wikitext page loads modules through ``#invoke`` and TemplateStyles
-    stylesheets through ``<templatestyles src>``.
+    A Lua module loads modules through ``require`` and ``mw.loadData`` and
+    stylesheets through literal ``extensionTag`` calls. A wikitext page loads
+    modules through ``#invoke`` and stylesheets through ``<templatestyles src>``.
     """
     if title.startswith("Module:"):
-        return tuple(sorted({match.group(2).strip().replace("_", " ") for match in _LUA_LOAD.finditer(text)}))
+        modules = {match.group(2).strip().replace("_", " ") for match in _LUA_LOAD.finditer(text)}
+        stylesheets = {
+            _stylesheet_title(match.group(group))
+            for pattern, group in ((_LUA_STYLES_POSITIONAL, 4), (_LUA_STYLES_TABLE, 3))
+            for match in pattern.finditer(text)
+        }
+        return tuple(sorted(modules | stylesheets))
     modules = {
         name if name.startswith("Module:") else f"Module:{name}"
         for match in _INVOKE.finditer(text)

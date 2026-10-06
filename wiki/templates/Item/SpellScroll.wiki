@@ -1,7 +1,7 @@
 <includeonly>{| class="item-tooltip item-tooltip-book"
 |
 {{Item/Header
- |icon=[[File:{{{image}}}|80px]]
+ |icon={{Icon|{{{image}}}|kind=item|size=80}}
  |name={{{name}}}
  |value={{{value|}}}
  |tier=0

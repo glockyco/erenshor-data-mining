@@ -49,6 +49,21 @@ function p.run()
 	assertContains(minorTooltip, "Spell Level: 6", "spell tooltip includes item-detail level")
 	assertContains(
 		minorTooltip,
+		'class="erenshor-icon erenshor-icon--ability"',
+		"spell tooltip draws hotbar slot"
+	)
+	assertContains(
+		minorTooltip,
+		"[[File:Minor Lightning.png|48x48px]]",
+		"spell tooltip fits art at 48 px"
+	)
+	assertContains(
+		minorTooltip,
+		"[[File:Hotbar Frame.png|48x48px|link=|alt=]]",
+		"spell tooltip overlays nonlinked frame"
+	)
+	assertContains(
+		minorTooltip,
 		"Spell Line: Direct_Damage",
 		"spell tooltip includes item-detail line"
 	)

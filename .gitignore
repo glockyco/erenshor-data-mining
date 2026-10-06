@@ -110,8 +110,9 @@ fabric.properties
 .AppleDouble
 .LSOverride
 
-# Icon must end with two \r
-Icon
+# The macOS folder icon file is named Icon followed by a carriage return.
+# The bracket keeps git from stripping that carriage return as trailing space.
+Icon[]
 
 
 # Thumbnails

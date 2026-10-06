@@ -198,6 +198,7 @@ uv run python wiki-dev/smoke_test.py
 
 Null edits refresh fixture pages after a module or template change.
 The smoke harness checks rendered pages through MediaWiki `action=parse`, not raw source text.
+Format Lua with `scripts/with-dev-env.sh pnpm exec stylua <files>`. The commit hook runs `stylua --check` on staged Lua files.
 For a regenerated article, copy its text to a temporary `.wiki` file under `wiki-dev/fixtures/pages/`, then reimport.
 Check its title through `action=parse` and inspect the parsed HTML. Remove the temporary fixture afterward:
 

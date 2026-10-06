@@ -1,0 +1,24 @@
+<includeonly>{{#invoke:Erenshor/Icon|main}}</includeonly><noinclude>
+== Template:Icon ==
+Draws the game's item ring or hotbar frame around a native icon texture. Artwork keeps its proportions inside the square; transparent margins remain visible. Use this for icons, not large infobox pictures.
+
+=== Parameters ===
+{| class="wikitable"
+! Parameter !! Required !! Description
+|-
+| <code>1</code> || Yes || File title including its extension, without <code>File:</code>.
+|-
+| <code>kind</code> || Yes || <code>item</code> for an item slot; <code>ability</code> for a spell, skill, or stance with the hotbar frame.
+|-
+| <code>size</code> || Yes || Positive integer side length in pixels, without <code>px</code>.
+|-
+| <code>link</code> || No || Page title to open. An explicitly empty value disables the link; omission opens the file page.
+|-
+| <code>alt</code> || No || Alternative text for the artwork.
+|}
+
+<pre>{{Icon|Thorned Branch.png|kind=item|size=80|link=Thorned Branch|alt=Thorned Branch}}</pre>
+<pre>{{Icon|Florablast.png|kind=ability|size=24|link=Florablast}}</pre>
+
+Lua callers use <code>Icon.render(frame, { file = "Thorned Branch.png", kind = "item", size = 80, link = "Thorned Branch" })</code> from [[Module:Erenshor/Icon]]. The module loads [[Template:Icon/styles.css]] once per page through TemplateStyles. Missing files, unknown kinds, and invalid sizes are script errors.
+</noinclude>

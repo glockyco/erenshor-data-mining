@@ -19,6 +19,7 @@
 |description=A blade wreathed in embers that never cool.
 |proc_style=Attack
 |proc_chance=20
+|proc_spell_icon=Ember Burst.png
 |proc_spell_name=Ember Burst
 }}
 

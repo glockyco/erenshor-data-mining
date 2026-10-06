@@ -42,6 +42,8 @@ function p.run()
 		"[[File:Abyssal Plate.png|24x24px|alt=Abyssal Plate|link=Abyssal Plate]]",
 		"item link has icon"
 	)
+	assertContains(item, 'class="erenshor-icon erenshor-icon--item"', "item link draws item slot")
+	assertContains(item, "top:1px", "24 px item link has one pixel ring")
 
 	local itemFacts = Link.itemRecord("item:abyssal_plate")
 	assertEqual(itemFacts.page, "Abyssal Plate", "itemRecord retains item shard facts")
@@ -370,6 +372,21 @@ function p.run()
 		"[[File:Minor Lightning.png|24x24px|link=Minor Lightning]]",
 		"ability link has icon"
 	)
+	assertContains(
+		ability,
+		'class="erenshor-icon erenshor-icon--ability"',
+		"spell link draws hotbar slot"
+	)
+	assertContains(
+		ability,
+		"[[File:Hotbar Frame.png|24x24px|link=|alt=]]",
+		"spell link has nonlinked frame"
+	)
+	for _, key in ipairs({ "skill:backstab", "stance:aggressive" }) do
+		local icon = Link.render({ kind = "ability", stablekey = key })
+		assertContains(icon, "erenshor-icon--ability", "skill and stance use hotbar frame")
+		assertContains(icon, "Hotbar Frame.png", "skill and stance have overlay")
+	end
 	assertContains(ability, "[[Minor Lightning]]", "ability link has page link")
 
 	local quest = Link.render({ kind = "quest", page = "Reward Quest" })

@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+from erenshor.application.wiki_deploy.dependencies import literal_dependencies
 from erenshor.application.wiki_deploy.manifest import build_repo_page_manifest
 from erenshor.application.wiki_deploy.pages import (
     deploy_repo_pages,
@@ -286,4 +287,66 @@ def test_dry_run_accepts_a_stylesheet_that_the_same_deploy_creates(tmp_path: Pat
     render_repo_page_checks(ordered, sources, snapshots, wiki, catalog={}, dry_run=True, report=reports.append)
     assert [entry.title for entry in ordered.entries] == ["Template:Item/styles.css", "Template:Item"]
     assert next(report for report in reports if report.title == "Template:Item").provisional
+    assert wiki.writes == []
+
+
+@pytest.mark.parametrize(
+    "call",
+    [
+        "frame:extensionTag('templatestyles', '', { src = 'Template:Icon/styles.css' })",
+        'frame:extensionTag("templatestyles", "", { src = "Icon/styles.css" })',
+        "frame:extensionTag({ name = 'templatestyles', args = { src = 'Template:Icon/styles.css' } })",
+        'frame:extensionTag { name = "templatestyles", args = { src = "Template:Icon/styles.css" } }',
+        "frame:extensionTag(\n 'templatestyles', '', {\n src = 'Template:Icon/styles.css'\n })",
+    ],
+)
+def test_lua_literal_templatestyles_dependency(call: str) -> None:
+    assert literal_dependencies("Module:Erenshor/Icon", call) == ("Template:Icon/styles.css",)
+
+
+def test_lua_stylesheets_join_module_dependencies_and_deduplicate() -> None:
+    text = """
+    local Args = require("Module:Erenshor/Args")
+    frame:extensionTag('templatestyles', '', { src = 'Template:Icon/styles.css' })
+    frame:extensionTag({ name = 'templatestyles', args = { src = 'Template:Icon/styles.css' } })
+    """
+    assert literal_dependencies("Module:Erenshor/Icon", text) == (
+        "Module:Erenshor/Args",
+        "Template:Icon/styles.css",
+    )
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "frame:extensionTag('templatestyles', '', { src = stylesheet })",
+        "frame:extensionTag({ name = tag, args = { src = 'Template:Icon/styles.css' } })",
+        "frame:extensionTag('ref', '', { src = 'Template:Icon/styles.css' })",
+    ],
+)
+def test_lua_dynamic_stylesheet_or_other_tag_has_no_literal_dependency(text: str) -> None:
+    assert literal_dependencies("Module:Erenshor/Icon", text) == ()
+
+
+def test_stylesheet_writes_before_the_lua_module_that_loads_it(tmp_path: Path) -> None:
+    source(
+        tmp_path,
+        "wiki/modules/Erenshor/Icon.lua",
+        "frame:extensionTag('templatestyles', '', { src = 'Template:Icon/styles.css' })",
+    )
+    source(tmp_path, "wiki/templates/Icon/styles.css", ".erenshor-icon { display: inline-block; }")
+    wiki = Wiki({})
+    deploy(tmp_path, wiki)
+    assert wiki.writes == ["Template:Icon/styles.css", "Module:Erenshor/Icon"]
+
+
+def test_lua_module_with_a_missing_stylesheet_stops_the_deploy(tmp_path: Path) -> None:
+    source(
+        tmp_path,
+        "wiki/modules/Erenshor/Icon.lua",
+        "frame:extensionTag({ name = 'templatestyles', args = { src = 'Template:Icon/styles.css' } })",
+    )
+    wiki = Wiki({})
+    with pytest.raises(ValueError, match=r"Module:Erenshor/Icon needs missing page Template:Icon/styles\.css"):
+        deploy(tmp_path, wiki)
     assert wiki.writes == []

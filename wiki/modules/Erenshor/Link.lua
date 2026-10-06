@@ -1,6 +1,7 @@
 local Args = require("Module:Erenshor/Args")
 local Format = require("Module:Erenshor/Format")
 local Quality = require("Module:Erenshor/Item/Quality")
+local Icon = require("Module:Erenshor/Icon")
 
 local LinkData
 local ItemIndex
@@ -344,10 +345,16 @@ local function renderResolved(kind, args, result)
 	if kind == "item" then
 		local quality = resolveItemQuality(args)
 		local image = result.image or page or text
-		local imageLink = Format.fileLink(
-			ensureImageFile(image, page or text),
-			{ alt = text, size = "24x24px", link = page }
-		)
+		local imageLink = ""
+		if not isBlank(image) then
+			imageLink = Icon.render(mw.getCurrentFrame(), {
+				file = ensureImageFile(image, page or text),
+				kind = "item",
+				alt = text,
+				size = 24,
+				link = page,
+			})
+		end
 		local body
 		if Args.bool(args, "imageonly", false) then
 			body = imageLink
@@ -357,8 +364,15 @@ local function renderResolved(kind, args, result)
 		return wrap(kind, args, body, page, quality, result.resolvedKey or result.requestedKey)
 	elseif kind == "ability" then
 		local image = result.image or text
-		local imageLink =
-			Format.fileLink(ensureImageFile(image, text), { size = "24x24px", link = page })
+		local imageLink = ""
+		if not isBlank(image) then
+			imageLink = Icon.render(mw.getCurrentFrame(), {
+				file = ensureImageFile(image, text),
+				kind = "ability",
+				size = 24,
+				link = page,
+			})
+		end
 		local body = '<span style="color:#fff;text-shadow:1px 1px 10px red, 1px 1px 10px orange;">'
 			.. imageLink
 		if Args.resolve(args, "imageonly", nil) ~= "1" then

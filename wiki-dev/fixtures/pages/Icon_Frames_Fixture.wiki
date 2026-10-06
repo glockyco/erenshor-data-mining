@@ -1,0 +1,15 @@
+= Native game icon frames =
+
+== Item tooltip headers: 80 px ==
+<div id="icon-frame-branch">{{Item/Header|icon={{Icon|Thorned Branch.png|kind=item|size=80|link=Thorned Branch}}|name=Thorned Branch}}</div>
+<div id="icon-frame-blessed">{{Item/Header|icon={{SparkleIcon|icon={{Icon|Thorned Branch.png|kind=item|size=80|link=Thorned Branch}}|sparkle=Blue_Sparkle.gif|sparkle_size=80px}}|name=Thorned Branch|tier=1}}</div>
+<div id="icon-frame-armguard">{{Item/Header|icon={{Icon|Solunarian Armguard.png|kind=item|size=80|link=Solunarian Armguard}}|name=Solunarian Armguard}}</div>
+
+== Gear slots: 60 px ==
+<div id="icon-frame-gear">{{Gear/Slot|Thorned Branch}} {{Gear/Slot|Solunarian Armguard|quality=Blessed}}</div>
+
+== Spell details: 48 px ==
+<div id="icon-frame-details">{{Item/SpellDetails|spell_icon=Florablast.png|spell_name=Florablast}}</div>
+
+== Running text links: 24 px ==
+<div id="icon-frame-links">{{ItemLink|Thorned Branch}} {{AbilityLink|Florablast}} {{AbilityLink|stablekey=skill:backstab}} {{AbilityLink|stablekey=stance:aggressive}}</div>

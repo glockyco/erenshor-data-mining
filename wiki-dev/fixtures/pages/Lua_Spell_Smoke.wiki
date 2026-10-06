@@ -1,1 +1,3 @@
 {{#invoke:Erenshor/Spell/testcases|run}}
+
+{{SpellTooltip|stablekey=spell:minor_lightning}}

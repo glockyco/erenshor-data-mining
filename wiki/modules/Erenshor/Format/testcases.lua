@@ -28,11 +28,6 @@ function p.run()
 		"page link with label"
 	)
 	assertEqual(
-		Format.fileLink("Sword.png", { alt = "Sword of Flames", size = "32x32px" }),
-		"[[File:Sword.png|32x32px|alt=Sword of Flames]]",
-		"file link includes size and alt text"
-	)
-	assertEqual(
 		Format.classList({ "Warrior", "Paladin" }),
 		"[[Warrior]] / [[Paladin]]",
 		"class list links classes"
