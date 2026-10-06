@@ -105,10 +105,11 @@ Step 4 also has to settle these known points:
 - 361 character keys contain coordinates. When an update moves such a spawn, its key changes, and the reconciler must edit that page.
 - The ability templates emit categories for spells, skills, and stances, which the legacy generator never did (from #110).
 - The item template shows `item_db_index`, the ID that the in-game `/additem` command uses (from #113).
+- Template:Character shows fewer stats than generation writes: mana, the seven attributes, the XP multiplier, and the level variance stay hidden, and its Base Experience and class rows are never filled. Decided on 2026-10-05 to settle this with the character template of this step.
 
 After the last type, the merge engine (`field_preservation.py` and the passes around it), the Jinja article templates, and the full-article refresh go. The guarded deploy stays for stubs and template-call edits.
 
-The remaining work follows this order, decided on 2026-10-05. Small data fixes come first, because each corrects a live page or an input of a later step: the crafting rule (task 5.21, done the same day), the audit of renamed copies (task 5.20), the export of the chat knowledge base (tasks 5.22 to 5.24), and the forge quantity and guaranteed roll count that task 5.21 brought to light (tasks 5.25 and 5.26). The missing images (task 5.15) and the tooltip check (task 5.19) follow. The C# tooling majors of the dependency dashboard come before step 2, because the code facts of task 6.2 depend on that tooling. Steps 2, 3, and 4 follow, and then the other dependency majors.
+The remaining work follows this order, decided on 2026-10-05. Small data fixes come first, because each corrects a live page or an input of a later step: the crafting rule (task 5.21, done the same day), the audit of renamed copies (task 5.20), the export of the chat knowledge base (tasks 5.22 to 5.24), and the forge quantity and guaranteed roll count that task 5.21 brought to light (tasks 5.25 and 5.26). Treasure hunting (tasks 5.29 to 5.32, D16) and the fixes it brought to light follow: the effective stats and start order of NPCs (tasks 5.33 and 5.35), the training dummies (task 5.34, D17), and the Reliquary furnishings (task 5.36, D18). The missing images (task 5.15) and the tooltip check (task 5.19) follow. The C# tooling majors of the dependency dashboard come before step 2, because the code facts of task 6.2 depend on that tooling. Steps 2, 3, and 4 follow, and then the other dependency majors.
 
 The local wiki stack stays on MySQL 8, because the live wiki runs MySQL 8.0.45. A Renovate rule holds the `mysql` image of `wiki-dev/compose.yml` at 8.x.
 
@@ -282,6 +283,24 @@ Decided on 2026-10-05:
 - The map shows the encounter on the 55 dig sites: the chest by digging level, the reading level a map needs to point there, and the three guardians with wiki links. Searching a chest or guardian name, or the wiki's map link, highlights the dig sites. The guardians get no rows in `character_spawns`, so the AdventureGuide gets no targets that the player cannot find. The map's level filter keeps a dig site when a guardian there can have a level in the range.
 - The guardians' infoboxes list the zones of the treasure data with the spawn type `[[Treasure Hunting|Treasure hunt]]` and the level "Scales with the player's level". Their stats come from `treasure_guardian_scaling`, which the clean build computes by guardian and player level 1 to 35, published as a data module that one shared template renders on the three pages. This replaces formulas in Lua, so the game formulas are re-implemented once.
 - A guarded one-time edit corrects the chest pages, which tie the chest to the reading level, and another replaces the legacy `{{Enemy}}` and `{{Enemy Stats}}` blocks of the guardian pages.
+
+### D17. Training dummies
+
+A training dummy carries a `TestDummy` component beside `NPC` and `Stats`. `TestDummy.Start` sets the dummy's level to the player's level when it is below 42 and to 42 when it is above, recomputes its stats, and gives it its hand-set AC. `TestDummy.FixedUpdate` keeps the level at the player's level. The hand-set AC returns when a DPS recording starts and when the dummy resets after one, and `Stats.CalcStats` replaces it with 15 × the level whenever a status effect lands on the dummy or wears off. These rules are assert code facts.
+
+`NPC.Start` and `Stats.Start` see the prefab level when they start before `TestDummy` and the player's level when they start after it, in the start order of D16. A stat that one of them computes from the player's level has no fixed value, and the clean database leaves it empty. In game on 2026-10-05, at player levels 5 and 20, the Stone Training dummies, which start `TestDummy` first, had 143,000,000 and 227,499,984 health, and the Wood Training dummy, which starts `NPC` first, had 143,000,000 at both.
+
+Decided on 2026-10-05:
+
+- The wiki and the map name each kind by its hand-set AC: Training Dummy, Training Dummy (400 AC), Training Dummy (800 AC), and Training Dummy (1000 AC). The game calls every dummy Training Dummy when it starts, and only the 400 and 800 AC kinds carry their AC in their NPC name.
+- The infobox shows "Scales with the player's level" as the level, the health only where it is fixed, and the AC with when it applies, as 15 × the player's level where no hand-set AC applies. The map shows the level the same way. Dummies are NPC markers, which the level filter never hides.
+- `characters.level_scales_with_player` marks every character whose level the game sets from the player's level, the treasure guardians of D16 included, so that the wiki and the map read one flag.
+
+### D18. Reliquary furnishings
+
+The Reliquary has 8 rooms. At its planning table the player puts one furniture set into each room, and `PlanningTable.CheckRoomAndBuild` turns on the child of the room whose name is the set's `EquipmentToActivate`. Every room has the same children, so each furnishing NPC can stand at its spot in any of the 8 rooms. Until 2026-10-05, 94 mapping entries without reasons showed some furnishings in all 8 rooms, others in one, and the Braxonian Flame Well in none.
+
+Decided on 2026-10-05: the export records which planning-table room and furnishing hold each scene character, and the clean build links the furnishing to its furniture item. Every furnishing NPC appears at its spot in all 8 rooms, like the dig sites of D16, and the map popup and the infobox say that it appears when the player places the linked furniture set in a room. A rule replaces the 94 entries.
 
 ### Failure handling and update grouping
 
