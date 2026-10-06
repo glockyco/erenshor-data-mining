@@ -219,7 +219,7 @@ The items' `image_hash` column gives the map each item's picture, so the consume
 1. Export and build: the listeners record icon texture paths, and the clean build writes the catalog. Check that the 13 entities resolve to the right textures and that a rebuild is byte-identical.
 2. Deploy the icon stylesheet, module, and template changes to the local stack. Verify every icon site against the mockup measurements in a browser.
 3. Publish once with `--dry-run`. Review the verdict counts, the conflicts, and the contact sheet of updates with WoWMuch.
-4. Deploy the templates and modules, upload `File:Hotbar Frame.png`, then run publish. Templates and files change in one session, because the old 150 px files inside the new slot markup would draw two frames.
+4. Run publish, then deploy the templates and modules, and `Module:Erenshor/Format` in a second deploy after the new `Erenshor/Link`. Templates and files change in one session. Publishing comes first: it takes over two hours, and for that time the native icons show bare under the old templates, which reads better than old 150 px files with a second frame inside the new slot markup, and `File:Hotbar Frame.png` exists before the templates draw it. The render check sandboxes one page at a time, so the removal of `Format.fileLink` cannot be checked in the same deploy as the `Link` that stops calling it.
 5. Verify live:
    - a fresh parse of an item, a spell, and a skill page
    - the 13 corrected icons

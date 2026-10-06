@@ -68,7 +68,7 @@
 ## 5. Migrate the live wiki
 
 - [ ] 5.1 Run `uv run erenshor --dry-run images publish` against the live wiki and review it with WoWMuch: the verdict counts, every conflict, the orphans, the retirements, and the contact sheet of updates. Verify: WoWMuch approves the plan, or the review leads to fixes and a new dry run.
-- [ ] 5.2 Dry-run the repository deploy of the stylesheet, the module, and the changed templates and modules. With approval, deploy them and run `uv run erenshor images publish` in the same session (design D8). Verify live:
+- [ ] 5.2 With approval, run `uv run erenshor images publish`, then deploy the stylesheet, the icon module, and the changed templates, modules, and guide in the same session, and `Module:Erenshor/Format` in a second deploy once the new `Erenshor/Link`, which no longer calls `Format.fileLink`, is live (design D8). Publishing comes first, because it takes over two hours: the native icons then show bare under the old templates for that time, rather than the old composites showing a second frame inside the new slots, and `File:Hotbar Frame.png` exists before any template draws it. Verify live:
   - a fresh parse of an item, a spell, and a skill page shows the frames
   - the 13 corrected icons show the game's pictures
   - a second dry run plans no create or update
