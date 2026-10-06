@@ -255,7 +255,6 @@ class WikiWriter(Protocol):
         comment: str,
         text: str = "",
         ignore_warnings: bool = False,
-        bot: bool = True,
     ) -> dict[str, Any]: ...
 
     def get_edit_start_timestamp(self) -> str: ...

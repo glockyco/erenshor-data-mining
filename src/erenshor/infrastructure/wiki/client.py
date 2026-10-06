@@ -17,7 +17,7 @@ operations, designed to work with wiki.gg (https://erenshor.wiki.gg).
 """
 
 import hashlib
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal, NoReturn
@@ -103,12 +103,16 @@ class MediaWikiPermissionError(MediaWikiEditError):
 class MediaWikiUploadWarningError(MediaWikiAPIError):
     """Raised when MediaWiki answers an upload with warnings instead of storing it.
 
-    ``warnings`` maps each warning, such as ``exists`` or ``duplicate``, to its detail.
+    ``warnings`` maps each warning, such as ``exists`` or ``duplicate``, to its
+    detail. ``filekey`` names the stashed upload, which ``confirm_upload`` can
+    publish without sending the file again, or is None when MediaWiki stashed
+    nothing.
     """
 
-    def __init__(self, warnings: Mapping[str, Any]) -> None:
+    def __init__(self, warnings: Mapping[str, Any], filekey: str | None = None) -> None:
         super().__init__(f"Upload warnings: {dict(warnings)}", code="warnings")
         self.warnings = dict(warnings)
+        self.filekey = filekey
 
 
 class MediaWikiRateLimitError(MediaWikiAPIError):
@@ -171,6 +175,48 @@ class MediaWikiFileUpload:
 
 
 @dataclass(frozen=True, slots=True)
+class MediaWikiFile:
+    """The current version of an uploaded file.
+
+    ``title`` carries the ``File:`` namespace and uses spaces. ``user`` and
+    ``comment`` are None when MediaWiki hides them.
+    """
+
+    title: str
+    sha1: str
+    user: str | None
+    comment: str | None
+    size: int
+    width: int
+    height: int
+    timestamp: str
+    url: str
+
+
+@dataclass(frozen=True, slots=True)
+class MediaWikiFileVersion:
+    """One version in a file's history, newest first in a listing."""
+
+    sha1: str
+    user: str | None
+    comment: str | None
+    timestamp: str
+    url: str
+
+
+@dataclass(frozen=True, slots=True)
+class MediaWikiFilePages:
+    """The pages of the File namespace.
+
+    ``redirects`` maps each redirect page to its target. ``pages`` holds every
+    other existing page, with or without an uploaded file.
+    """
+
+    redirects: Mapping[str, str]
+    pages: frozenset[str]
+
+
+@dataclass(frozen=True, slots=True)
 class _ResolvedTitle:
     """A requested title with its normalized form, redirect target, and the final page of a query."""
 
@@ -208,6 +254,54 @@ def _revision_user(raw_revision: dict[str, Any]) -> str | None:
     if not isinstance(user, str) or not user:
         raise TypeError("revision user is not text")
     return user
+
+
+def _hidden_or_text(entry: Mapping[str, Any], key: str) -> str | None:
+    """Return a text field of a file entry, or None when MediaWiki hides it."""
+    if f"{key}hidden" in entry:
+        return None
+    value = entry.get(key)
+    if not isinstance(value, str):
+        raise MediaWikiAPIError(f"Invalid file response: missing {key}")
+    return value
+
+
+def _file_version(entry: object, title: str) -> MediaWikiFileVersion:
+    """Read one version of a file from an ``imageinfo`` or ``allimages`` entry."""
+    if not isinstance(entry, dict):
+        raise MediaWikiAPIError(f"Invalid file response for {title!r}: malformed version")
+    sha1, timestamp, url = entry.get("sha1"), entry.get("timestamp"), entry.get("url")
+    if not isinstance(sha1, str) or not sha1 or not isinstance(timestamp, str) or not isinstance(url, str):
+        raise MediaWikiAPIError(f"Invalid file response for {title!r}: missing hash, time, or URL")
+    return MediaWikiFileVersion(
+        sha1=sha1,
+        user=_hidden_or_text(entry, "user"),
+        comment=_hidden_or_text(entry, "comment"),
+        timestamp=timestamp,
+        url=url,
+    )
+
+
+def _listed_file(entry: object) -> MediaWikiFile:
+    """Read the current version of a file from an ``allimages`` entry."""
+    if not isinstance(entry, dict) or not isinstance(entry.get("title"), str):
+        raise MediaWikiAPIError("Invalid file listing response: malformed file")
+    title = entry["title"]
+    version = _file_version(entry, title)
+    size, width, height = entry.get("size"), entry.get("width"), entry.get("height")
+    if type(size) is not int or type(width) is not int or type(height) is not int:
+        raise MediaWikiAPIError(f"Invalid file listing response for {title!r}: missing size")
+    return MediaWikiFile(
+        title=title,
+        sha1=version.sha1,
+        user=version.user,
+        comment=version.comment,
+        size=size,
+        width=width,
+        height=height,
+        timestamp=version.timestamp,
+        url=version.url,
+    )
 
 
 class MediaWikiClient:
@@ -770,13 +864,39 @@ class MediaWikiClient:
                 revisions[title] = by_title[normalized_title]
         return revisions
 
+    def _query_continued(self, params: Mapping[str, Any], what: str) -> Iterator[dict[str, Any]]:
+        """Yield each response of a query, following its continuation to the end.
+
+        Every request repeats ``params`` with the whole ``continue`` object of
+        the previous response, as the API asks. A malformed or repeated
+        continuation fails and names ``what``, so a listing is never silently
+        incomplete.
+        """
+        continuation: dict[str, str] = {}
+        seen: set[tuple[tuple[str, str], ...]] = set()
+        while True:
+            result = self._request(dict(params) | continuation)
+            yield result
+            raw_continue = result.get("continue")
+            if raw_continue is None:
+                return
+            if (
+                not isinstance(raw_continue, dict)
+                or not raw_continue
+                or not all(isinstance(key, str) and isinstance(value, str | int) for key, value in raw_continue.items())
+            ):
+                raise MediaWikiAPIError(f"Incomplete {what} response: invalid continuation")
+            continuation = {key: str(value) for key, value in raw_continue.items()}
+            marker = tuple(sorted(continuation.items()))
+            if marker in seen:
+                raise MediaWikiAPIError(f"Incomplete {what} response: repeated continuation")
+            seen.add(marker)
+
     def list_user_created_pages(self, username: str) -> tuple[str, ...]:
         """List every article created by an account, including continued results."""
         if not username.strip():
             raise ValueError("A creator account is required")
         titles: set[str] = set()
-        continuation: dict[str, str] = {}
-        seen: set[tuple[tuple[str, str], ...]] = set()
         params = {
             "action": "query",
             "list": "usercontribs",
@@ -786,8 +906,7 @@ class MediaWikiClient:
             "ucprop": "title|ids|user|flags",
             "uclimit": "max",
         }
-        while True:
-            result = self._request(params | continuation)
+        for result in self._query_continued(params, "user contributions"):
             query = result.get("query")
             entries = query.get("usercontribs") if isinstance(query, dict) else None
             if not isinstance(entries, list):
@@ -807,20 +926,6 @@ class MediaWikiClient:
                 ):
                     raise MediaWikiAPIError("Incomplete user contributions response: malformed creation")
                 titles.add(entry["title"])
-            raw_continue = result.get("continue")
-            if raw_continue is None:
-                break
-            if (
-                not isinstance(raw_continue, dict)
-                or not raw_continue
-                or not all(isinstance(key, str) and isinstance(value, str) for key, value in raw_continue.items())
-            ):
-                raise MediaWikiAPIError("Incomplete user contributions response: invalid continuation")
-            marker = tuple(sorted(raw_continue.items()))
-            if marker in seen:
-                raise MediaWikiAPIError("Incomplete user contributions response: repeated continuation")
-            seen.add(marker)
-            continuation = raw_continue
         return self._deterministic_unique_titles(tuple(titles))
 
     def get_title_statuses(self, titles: Sequence[str]) -> dict[str, MediaWikiTitleStatus]:
@@ -888,6 +993,106 @@ class MediaWikiClient:
         if not isinstance(query, dict) or not isinstance(query.get("allimages"), list):
             raise MediaWikiAPIError("Invalid file hash response: missing allimages")
         return tuple(sorted(str(image["title"]) for image in query["allimages"] if isinstance(image, dict)))
+
+    def list_files(self) -> tuple[MediaWikiFile, ...]:
+        """Return the current version of every uploaded file, in title order."""
+        params = {
+            "action": "query",
+            "list": "allimages",
+            "aiprop": "sha1|user|comment|size|timestamp|url",
+            "ailimit": "max",
+        }
+        files: dict[str, MediaWikiFile] = {}
+        for result in self._query_continued(params, "file listing"):
+            query = result.get("query")
+            entries = query.get("allimages") if isinstance(query, dict) else None
+            if not isinstance(entries, list):
+                raise MediaWikiAPIError("Incomplete file listing response: missing allimages")
+            for entry in entries:
+                file = _listed_file(entry)
+                files[file.title] = file
+        return tuple(files[title] for title in sorted(files))
+
+    def list_file_pages(self) -> MediaWikiFilePages:
+        """Return the redirects, with their final targets, and the other existing pages of the File namespace.
+
+        The ``allpages`` generator cannot resolve redirects, so the redirect
+        pages are listed first and then resolved by title.
+        """
+        redirect_titles = self._list_page_titles(6, "redirects")
+        redirects = {
+            resolved.requested: resolved.redirect_target
+            for resolved in self._resolve_titles(redirect_titles, "info")
+            if resolved.redirect_target is not None
+        }
+        return MediaWikiFilePages(redirects=redirects, pages=frozenset(self._list_page_titles(6, "nonredirects")))
+
+    def _list_page_titles(self, namespace: int, filterredir: Literal["redirects", "nonredirects"]) -> tuple[str, ...]:
+        """Return the titles of every redirect or every other page of a namespace."""
+        params = {
+            "action": "query",
+            "list": "allpages",
+            "apnamespace": str(namespace),
+            "apfilterredir": filterredir,
+            "aplimit": "max",
+        }
+        titles: list[str] = []
+        for result in self._query_continued(params, "page listing"):
+            query = result.get("query")
+            entries = query.get("allpages") if isinstance(query, dict) else None
+            if not isinstance(entries, list):
+                raise MediaWikiAPIError("Incomplete page listing response: missing allpages")
+            for entry in entries:
+                if not isinstance(entry, dict) or not isinstance(entry.get("title"), str):
+                    raise MediaWikiAPIError("Incomplete page listing response: malformed page")
+                titles.append(entry["title"])
+        return tuple(titles)
+
+    def is_file_used(self, title: str) -> bool:
+        """Return whether a page shows the file, directly or through a redirect to it.
+
+        A redirect that no page uses does not count as a use.
+        """
+        params = {"action": "query", "list": "imageusage", "iutitle": title, "iulimit": "max", "iuredirect": "1"}
+        for result in self._query_continued(params, "image usage"):
+            query = result.get("query")
+            entries = query.get("imageusage") if isinstance(query, dict) else None
+            if not isinstance(entries, list):
+                raise MediaWikiAPIError("Incomplete image usage response: missing imageusage")
+            for entry in entries:
+                if not isinstance(entry, dict):
+                    raise MediaWikiAPIError("Incomplete image usage response: malformed use")
+                if "redirect" not in entry or entry.get("redirlinks"):
+                    return True
+        return False
+
+    def get_file_versions(self, title: str, limit: int = 50) -> tuple[MediaWikiFileVersion, ...]:
+        """Return up to ``limit`` versions of a file, newest first, or none for a page without a file."""
+        result = self._request(
+            {
+                "action": "query",
+                "prop": "imageinfo",
+                "titles": title,
+                "iiprop": "sha1|user|comment|timestamp|url",
+                "iilimit": str(limit),
+            }
+        )
+        query = result.get("query")
+        pages = query.get("pages") if isinstance(query, dict) else None
+        if not isinstance(pages, dict) or len(pages) != 1:
+            raise MediaWikiAPIError(f"Invalid file history response for {title!r}")
+        page = next(iter(pages.values()))
+        info = page.get("imageinfo", []) if isinstance(page, dict) else None
+        if not isinstance(info, list):
+            raise MediaWikiAPIError(f"Invalid file history response for {title!r}: malformed imageinfo")
+        return tuple(_file_version(entry, title) for entry in info)
+
+    def download(self, url: str) -> bytes:
+        """Return the bytes at a URL of the wiki, such as a file's ``url``."""
+        response = self._requestor.download(url)
+        if response.status_code != 200:
+            raise MediaWikiNetworkError(f"HTTP {response.status_code} downloading {url}")
+        return response.content
 
     def _resolve_titles(
         self, titles: Sequence[str], prop: str, extra: Mapping[str, str] | None = None
@@ -971,15 +1176,13 @@ class MediaWikiClient:
         pages are consumed.
         """
         titles: list[str] = []
-        continue_params: dict[str, str] = {}
         params: dict[str, Any] = {
             "action": "query",
             "list": "querypage",
             "qppage": "Wantedpages",
             "qplimit": "max",
         }
-        while True:
-            result = self._request(params | continue_params)
+        for result in self._query_continued(params, "WantedPages"):
             query = result.get("query", {})
             querypage = query.get("querypage", []) if isinstance(query, dict) else []
             entries = querypage.get("results", []) if isinstance(querypage, dict) else querypage
@@ -994,10 +1197,6 @@ class MediaWikiClient:
                     raise MediaWikiAPIError("Invalid WantedPages response: malformed namespace") from error
                 if entry_namespace == namespace:
                     titles.append(entry["title"])
-            continuation = result.get("continue")
-            if not isinstance(continuation, dict):
-                break
-            continue_params = {key: str(value) for key, value in continuation.items()}
         return self._deterministic_unique_titles(titles)
 
     def get_linking_pages_by_title(
@@ -1826,78 +2025,56 @@ class MediaWikiClient:
         comment: str,
         text: str = "",
         ignore_warnings: bool = False,
-        bot: bool = True,
     ) -> dict[str, Any]:
         """Upload a file to the wiki.
 
-        Requires authentication (call login() first). Uses CSRF token for security.
-
-        Args:
-            file_path: Path to the file on disk.
-            filename: Target filename on wiki (e.g., "Sword.png").
-            comment: Upload comment/summary.
-            text: Wiki text for the file description page.
-            ignore_warnings: Ignore API warnings (e.g., duplicate files).
-            bot: Mark as bot upload (requires bot permissions).
+        Requires authentication (call login() first). ``comment`` belongs to
+        this file version, while MediaWiki uses ``text`` only as the description
+        page of a new file.
 
         Returns:
-            API response dict containing upload result.
+            The ``upload`` object of the API response.
 
         Raises:
-            MediaWikiAPIError: If upload fails or not authenticated.
+            MediaWikiUploadWarningError: MediaWiki answered with warnings and
+                stashed the file; ``confirm_upload`` can publish it.
+            MediaWikiAPIError: If the upload fails.
             FileNotFoundError: If file_path doesn't exist.
-
-        Example:
-            >>> client = MediaWikiClient(
-            ...     api_url="https://erenshor.wiki.gg/api.php",
-            ...     bot_username="MyBot@MyBot",
-            ...     bot_password="secret"
-            ... )
-            >>> client.login()
-            >>> client.upload_file(
-            ...     file_path="/path/to/sword.png",
-            ...     filename="Sword.png",
-            ...     comment="Upload sword icon",
-            ...     text="{{ImageMetadata|type=item}}"
-            ... )
         """
-
-        # Check file exists
         if not Path(file_path).exists():
             raise FileNotFoundError(f"File not found: {file_path}")
-
         logger.info(f"Uploading file: {file_path} → File:{filename}")
+        data = {"action": "upload", "filename": filename, "comment": comment, "text": text}
+        if ignore_warnings:
+            data["ignorewarnings"] = "1"
+        with Path(file_path).open("rb") as handle:
+            return self._post_upload(filename, data, {"file": (filename, handle, "image/png")})
 
-        # Get CSRF token
-        token = self.get_csrf_token()
+    def confirm_upload(self, filekey: str, filename: str, comment: str, text: str = "") -> dict[str, Any]:
+        """Publish a stashed upload, accepting the warnings MediaWiki gave for it.
 
-        # Prepare upload data
+        Call this only after judging the warnings of the ``MediaWikiUploadWarningError``
+        that carried ``filekey``: the confirmation waives every warning.
+        """
+        logger.info(f"Confirming stashed upload {filekey} → File:{filename}")
         data = {
             "action": "upload",
+            "filekey": filekey,
             "filename": filename,
             "comment": comment,
             "text": text,
-            "token": token,
-            "format": "json",
+            "ignorewarnings": "1",
         }
+        return self._post_upload(filename, data, None)
 
-        if ignore_warnings:
-            data["ignorewarnings"] = "1"
-
-        if bot:
-            data["bot"] = "1"
-
-        # Open file and upload
+    def _post_upload(self, filename: str, data: dict[str, str], files: Mapping[str, Any] | None) -> dict[str, Any]:
+        """Send an upload request and return its ``upload`` object, or raise its warnings or error."""
+        data = data | {"token": self.get_csrf_token()}
         try:
-            with Path(file_path).open("rb") as f:
-                files = {"file": (filename, f, "image/png")}
-
-                result = self._requestor.post_files(
-                    {"action": "upload"},
-                    data=data,
-                    files=files,
-                )
-
+            if files is None:
+                result = self._requestor.post({"action": "upload"}, data=data)
+            else:
+                result = self._requestor.post_files({"action": "upload"}, data=data, files=files)
         except MediaWikiRetryableRequestError as e:
             attempts = e.attempts or (self.request_policy.max_retries + 1)
             raise MediaWikiRateLimitError(f"MediaWiki request exhausted retries after {attempts} attempts") from e
@@ -1911,29 +2088,42 @@ class MediaWikiClient:
             raise MediaWikiAPIError(
                 f"Upload failed ({error_code}): {error_info}", code=error_code, info=error_info
             ) from e
-
-        except httpx.TimeoutException as e:
-            logger.error(f"Timeout during upload: {e}")
-            raise MediaWikiNetworkError(f"Network error during upload: {e}") from e
-
-        except httpx.NetworkError as e:
-            logger.error(f"Network error during upload: {e}")
-            raise MediaWikiNetworkError(f"Network error during upload: {e}") from e
-
         except httpx.RequestError as e:
             logger.error(f"Network error during upload: {e}")
             raise MediaWikiNetworkError(f"Network error during upload: {e}") from e
-        # Check upload result
-        upload_result: dict[str, Any] = result.get("upload", {})
+        upload_result = result.get("upload")
+        if not isinstance(upload_result, dict):
+            raise MediaWikiAPIError(f"Unexpected upload response: {result}")
+        if upload_result.get("result") == "Warning" and isinstance(upload_result.get("warnings"), dict):
+            filekey = upload_result.get("filekey")
+            logger.warning(f"Upload warnings for File:{filename}: {upload_result['warnings']}")
+            raise MediaWikiUploadWarningError(upload_result["warnings"], filekey if isinstance(filekey, str) else None)
         if upload_result.get("result") != "Success":
-            # Handle warnings
-            if "warnings" in upload_result and not ignore_warnings:
-                warnings = upload_result["warnings"]
-                logger.error(f"Upload warnings: {warnings}")
-                raise MediaWikiUploadWarningError(warnings)
-
             logger.error(f"Unexpected upload response: {result}")
             raise MediaWikiAPIError(f"Unexpected upload response: {result}")
-
         logger.info(f"Successfully uploaded: File:{filename}")
         return upload_result
+
+    def move_page(self, source: str, target: str, reason: str, *, leave_redirect: bool) -> None:
+        """Move a page with its talk page, leaving a redirect at ``source`` only when asked.
+
+        Moving a file page moves the file. A move without a redirect needs the
+        ``suppressredirect`` right; one that leaves a redirect anyway fails.
+        """
+        data = {
+            "action": "move",
+            "from": source,
+            "to": target,
+            "reason": reason,
+            "movetalk": "1",
+            "token": self.get_csrf_token(),
+        }
+        if not leave_redirect:
+            data["noredirect"] = "1"
+        result = self._request({"action": "move"}, method="POST", data=data)
+        move = result.get("move")
+        if not isinstance(move, dict) or not isinstance(move.get("from"), str) or not isinstance(move.get("to"), str):
+            raise MediaWikiAPIError(f"Unexpected move response: {result}")
+        if not leave_redirect and "redirectcreated" in move:
+            raise MediaWikiAPIError(f"Moving {source} left a redirect, so the account lacks suppressredirect")
+        logger.info(f"Moved {source} → {target}")

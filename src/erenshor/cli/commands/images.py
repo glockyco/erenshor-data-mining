@@ -879,7 +879,6 @@ def upload(
                         comment="Automated icon upload",
                         text="",
                         ignore_warnings=True,
-                        bot=True,
                     )
 
                     # Mark as uploaded in registry (store sanitized filename)

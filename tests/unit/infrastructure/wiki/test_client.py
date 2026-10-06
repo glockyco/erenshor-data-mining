@@ -1656,6 +1656,156 @@ class TestMediaWikiClientSemanticLinkReads:
         assert raised.value.warnings == {"exists": "Faith.png", "duplicate": ["Star.png"]}
         assert "ignorewarnings" not in api.requests[-1].data
 
+    def test_a_warned_upload_keeps_its_stash_key_and_confirming_publishes_it(self, tmp_path: Path) -> None:
+        image = tmp_path / "Thorned Branch.png"
+        image.write_bytes(b"png")
+        client, api = _mock_client(
+            [
+                {"query": {"tokens": {"csrftoken": "token"}}},
+                {"upload": {"result": "Warning", "warnings": {"exists": "Thorned_Branch.png"}, "filekey": "k1.png"}},
+                {"upload": {"result": "Success", "filename": "Thorned_Branch.png"}},
+            ],
+            clock=MockClock(),
+        )
+
+        with pytest.raises(MediaWikiUploadWarningError) as raised:
+            client.upload_file(str(image), "Thorned Branch.png", "Icon update")
+        client.confirm_upload(raised.value.filekey or "", "Thorned Branch.png", "Icon update")
+
+        assert raised.value.filekey == "k1.png"
+        confirmation = api.requests[-1].data
+        assert (confirmation["filekey"], confirmation["ignorewarnings"], "file" in confirmation) == (
+            "k1.png",
+            "1",
+            False,
+        )
+
+    def test_the_file_listing_follows_continuation_and_reads_hidden_uploaders(self) -> None:
+        def entry(title: str, **extra: Any) -> dict[str, Any]:
+            return {
+                "title": title,
+                "sha1": "ab12",
+                "size": 1024,
+                "width": 256,
+                "height": 256,
+                "timestamp": "2026-10-06T12:00:00Z",
+                "url": f"https://erenshor.wiki.gg/images/{title[5:]}",
+                **extra,
+            }
+
+        client, api = _mock_client(
+            [
+                {
+                    "continue": {"aicontinue": "Faith.png", "continue": "-||"},
+                    "query": {"allimages": [entry("File:Block.png", user="WoWBot", comment="Build 1")]},
+                },
+                {"query": {"allimages": [entry("File:Faith.png", userhidden="", comment="")]}},
+            ],
+            clock=MockClock(),
+        )
+
+        files = client.list_files()
+
+        assert [(file.title, file.user, file.comment) for file in files] == [
+            ("File:Block.png", "WoWBot", "Build 1"),
+            ("File:Faith.png", None, ""),
+        ]
+        assert api.requests[1].query["aicontinue"] == "Faith.png"
+
+    def test_the_file_listing_rejects_a_repeated_continuation(self) -> None:
+        page = {"continue": {"aicontinue": "A.png", "continue": "-||"}, "query": {"allimages": []}}
+        client, _ = _mock_client([page, page], clock=MockClock())
+
+        with pytest.raises(MediaWikiAPIError, match="file listing response: repeated continuation"):
+            client.list_files()
+
+    def test_file_pages_resolve_redirects_to_their_final_target(self) -> None:
+        client, api = _mock_client(
+            [
+                {"query": {"allpages": [{"ns": 6, "title": "File:Stance: Aggressive.png"}]}},
+                {
+                    "query": {
+                        "redirects": [{"from": "File:Stance: Aggressive.png", "to": "File:Stance Aggressive.png"}],
+                        "pages": {"1": {"pageid": 1, "ns": 6, "title": "File:Stance Aggressive.png"}},
+                    }
+                },
+                {
+                    "query": {
+                        "allpages": [
+                            {"ns": 6, "title": "File:Stance Aggressive.png"},
+                            {"ns": 6, "title": "File:Description only.png"},
+                        ]
+                    }
+                },
+            ],
+            clock=MockClock(),
+        )
+
+        pages = client.list_file_pages()
+
+        assert pages.redirects == {"File:Stance: Aggressive.png": "File:Stance Aggressive.png"}
+        assert pages.pages == {"File:Stance Aggressive.png", "File:Description only.png"}
+        assert [api.requests[0].query["apfilterredir"], api.requests[2].query["apfilterredir"]] == [
+            "redirects",
+            "nonredirects",
+        ]
+
+    @pytest.mark.parametrize(
+        ("uses", "used"),
+        [
+            ([{"pageid": 5, "ns": 6, "title": "File:Old name.png", "redirect": ""}], False),
+            ([{"ns": 6, "title": "File:Old name.png", "redirect": "", "redirlinks": [{"title": "Faith"}]}], True),
+            ([{"pageid": 7, "ns": 0, "title": "Faith"}], True),
+        ],
+    )
+    def test_a_file_is_used_by_pages_but_not_by_a_bare_redirect(self, uses: list[dict[str, Any]], used: bool) -> None:
+        client, _ = _mock_client([{"query": {"imageusage": uses}}], clock=MockClock())
+
+        assert client.is_file_used("File:Faith.png") is used
+
+    def test_a_move_that_should_leave_no_redirect_fails_when_it_leaves_one(self) -> None:
+        client, api = _mock_client(
+            [
+                {"query": {"tokens": {"csrftoken": "token"}}},
+                {"move": {"from": "File:Copy.png", "to": "File:Retired Copy.png", "redirectcreated": ""}},
+            ],
+            clock=MockClock(),
+        )
+
+        with pytest.raises(MediaWikiAPIError, match="lacks suppressredirect"):
+            client.move_page("File:Copy.png", "File:Retired Copy.png", "Retire a copy", leave_redirect=False)
+
+        assert api.requests[-1].data["noredirect"] == "1"
+
+    def test_file_versions_come_newest_first_with_their_urls(self) -> None:
+        version = {"sha1": "new", "user": "WoWBot", "comment": "Build 2", "timestamp": "2026-10-07T00:00:00Z"}
+        older = {"sha1": "old", "user": "Ulor", "comment": "", "timestamp": "2026-01-01T00:00:00Z"}
+        client, _ = _mock_client(
+            [
+                {
+                    "query": {
+                        "pages": {
+                            "1": {
+                                "title": "File:Block.png",
+                                "imageinfo": [
+                                    version | {"url": "https://example.test/Block.png"},
+                                    older | {"url": "https://example.test/archive/Block.png"},
+                                ],
+                            }
+                        }
+                    }
+                }
+            ],
+            clock=MockClock(),
+        )
+
+        versions = client.get_file_versions("File:Block.png")
+
+        assert [(item.sha1, item.user, item.url) for item in versions] == [
+            ("new", "WoWBot", "https://example.test/Block.png"),
+            ("old", "Ulor", "https://example.test/archive/Block.png"),
+        ]
+
     def test_get_wanted_pages_exhausts_continuation_and_filters_unique_namespace(self) -> None:
         with _mediawiki_api_server(
             [

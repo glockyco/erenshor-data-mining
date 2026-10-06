@@ -36,13 +36,16 @@
 
 ## 4. Publish against the live wiki
 
-- [ ] 4.1 `feat(wiki): read and write files the way publishing needs`: add to the MediaWiki client:
+- [x] 4.1 `feat(wiki): read and write files the way publishing needs`: add to the MediaWiki client:
   - a listing of every file with its SHA-1, latest uploader, upload comment, and size, through `list=allimages` with continuation
+  - a listing of the File namespace's redirects with their final targets and of its other pages
   - an image-usage check through `list=imageusage`
   - a file move with `suppressredirect`
   - an upload that returns the wiki's warnings and the stash `filekey`, and a confirmation through that `filekey`
+  - a file's version history and the download of a version, which a revert re-uploads
 
   Add client tests with recorded responses, including continuation and a warning that an upload does not expect. Verify: the listing of the live wiki reads every file, 3,127 on 2026-10-06, and the tests pass.
+  - Done on 2026-10-06: the client lists files and File pages, checks image use, moves pages, confirms stashed uploads, and reads file versions. One helper follows every continuation and fails on a malformed or repeated one; the user-contribution and wanted-page listings use it too. The live wiki refuses `redirects` with the `allpages` generator, so the File pages are listed as redirects and other pages and the redirects are resolved by title. Anonymous, the live listing read 3,236 files (the 3,127 of the morning and the 109 portrait uploads) in 4.5 s, and 379 file redirects and 3,236 other File pages in 3.7 s. `upload_file` no longer sends `bot`, which the upload API does not have.
 - [ ] 4.2 `feat(images): plan publication against one listing of the live wiki`:
   - Plan every catalog title with the verdicts, the pixel comparison, the title choice, and the retirements of design D4 to D6.
   - Write the plan and the contact sheet of creates and updates to `variants/<variant>/images/publish/<stamp>/`.

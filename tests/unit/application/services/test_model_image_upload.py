@@ -57,7 +57,6 @@ class FakeWiki:
         comment: str,
         text: str = "",
         ignore_warnings: bool = False,
-        bot: bool = True,
     ) -> dict[str, Any]:
         assert not ignore_warnings
         if filename in self.upload_warnings:
