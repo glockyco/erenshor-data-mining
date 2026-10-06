@@ -33,6 +33,9 @@ RESPONSE_TIMEOUT_SECS = 180.0
 DARK_LUMINANCE = 0.08
 # Alpha above which a pixel shows the subject, as the mod frames it.
 SUBJECT_ALPHA = 32
+# The surface behind character pictures on the wiki (Template:Character/styles.css),
+# so that the review shows each capture as readers will see it.
+WIKI_SURFACE = (49, 62, 89)
 
 _UNSAFE_FILE_CHARACTERS = re.compile(r'[<>:"/\\|?*]')
 
@@ -277,7 +280,7 @@ def write_contact_sheet(run: PortraitRun, png_dir: Path, output: Path, columns: 
     for index, result in enumerate(run.results):
         x = (index % columns) * cell
         y = header + (index // columns) * (cell + caption)
-        tile = Image.new("RGB", (cell, cell), (88, 104, 130))
+        tile = Image.new("RGB", (cell, cell), WIKI_SURFACE)
         if result.png is not None:
             with Image.open(png_dir / result.png) as image:
                 portrait = image.convert("RGBA")

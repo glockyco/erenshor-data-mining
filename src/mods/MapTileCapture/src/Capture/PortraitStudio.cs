@@ -125,18 +125,42 @@ internal static class PortraitStudio
         camera.targetTexture = target;
 
         // The first render finds the subject in a frame that holds its bounds.
-        // The second aims the camera at it and narrows the view to fill the frame.
+        // Effects join the framing when they stay close to the meshes, such
+        // as a smoke head; effects that spread far, such as a light beam or a
+        // field of sparkles, run off the edge like a photo crop. Each further
+        // render aims the camera at the subject and narrows the view to fill
+        // the frame, until the subject leaves the crop margin on every side;
+        // perspective makes one correction fall slightly short.
         foreach (var effect in effects)
             effect.enabled = meshes.Count == 0;
-        var framed = PortraitImage.Matte(
-            Render(camera, target, readback, Color.black),
-            Render(camera, target, readback, Color.white)
-        );
-        var subjectBox =
-            PortraitImage.AlphaBox(framed, size, size, PortraitPreset.SubjectAlpha)
-            ?? throw new PortraitException("The subject left no visible pixel.");
+        var subjectBox = RenderSubject(camera, target, readback, size);
         bool clipped = PortraitImage.TouchesBorder(subjectBox, size, size);
-        AimAt(camera, subjectBox, size);
+        if (meshes.Count > 0 && effects.Count > 0)
+        {
+            foreach (var effect in effects)
+                effect.enabled = true;
+            var withEffects = RenderSubject(camera, target, readback, size);
+            bool close =
+                !PortraitImage.TouchesBorder(withEffects, size, size)
+                && PortraitImage.StaysClose(
+                    withEffects,
+                    subjectBox,
+                    PortraitPreset.EffectFramingGrowth
+                );
+            if (close)
+                subjectBox = withEffects;
+            else
+                foreach (var effect in effects)
+                    effect.enabled = false;
+        }
+        for (int aim = 0; aim < PortraitPreset.MaxAims; aim++)
+        {
+            AimAt(camera, subjectBox, size);
+            subjectBox = RenderSubject(camera, target, readback, size);
+            if (PortraitImage.HasMargin(subjectBox, Margin(subjectBox), size, size))
+                break;
+        }
+        clipped |= PortraitImage.TouchesBorder(subjectBox, size, size);
 
         foreach (var effect in effects)
             effect.enabled = true;
@@ -147,8 +171,8 @@ internal static class PortraitStudio
         var portraitBox =
             PortraitImage.AlphaBox(portrait, size, size, PortraitPreset.SubjectAlpha)
             ?? throw new PortraitException("The subject left no visible pixel.");
-        var crop = PortraitImage.Expand(portraitBox, PortraitPreset.CropMargin, size, size);
-        var pixels = PortraitImage.Crop(portrait, size, crop);
+        var crop = PortraitImage.MarginCrop(portraitBox, Margin(portraitBox), size, size);
+        var pixels = PortraitImage.Crop(portrait, size, size, crop);
 
         var output = new Texture2D(crop.Width, crop.Height, TextureFormat.RGBA32, false);
         cleanup.Push(() => Object.Destroy(output));
@@ -366,6 +390,26 @@ internal static class PortraitStudio
         light.intensity = intensity;
         light.cullingMask = 1 << PortraitPreset.StudioLayer;
         light.shadows = LightShadows.None;
+    }
+
+    /// <summary>The crop margin around a subject box: a fraction of its larger side.</summary>
+    private static int Margin(PixelBox box) =>
+        (int)Math.Round(Math.Max(box.Width, box.Height) * PortraitPreset.CropMarginFraction);
+
+    /// <summary>Renders the subject over black and over white and returns the box of its visible pixels.</summary>
+    private static PixelBox RenderSubject(
+        Camera camera,
+        RenderTexture target,
+        Texture2D readback,
+        int size
+    )
+    {
+        var matte = PortraitImage.Matte(
+            Render(camera, target, readback, Color.black),
+            Render(camera, target, readback, Color.white)
+        );
+        return PortraitImage.AlphaBox(matte, size, size, PortraitPreset.SubjectAlpha)
+            ?? throw new PortraitException("The subject left no visible pixel.");
     }
 
     /// <summary>

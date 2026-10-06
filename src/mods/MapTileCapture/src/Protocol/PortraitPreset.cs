@@ -7,7 +7,7 @@ namespace MapTileCapture.Protocol;
 /// </summary>
 public static class PortraitPreset
 {
-    public const string Name = "portrait-1";
+    public const string Name = "portrait-2";
 
     /// <summary>Width and height of each render, in pixels.</summary>
     public const int RenderSize = 1024;
@@ -29,10 +29,19 @@ public static class PortraitPreset
     public const float CameraPitch = -12f;
 
     /// <summary>
-    /// Space around the subject once the second render frames it, as a
-    /// factor of the subject's larger side.
+    /// The frame of the second render as a factor of the subject's larger
+    /// side. It leaves room for <see cref="CropMarginFraction"/> on each side.
     /// </summary>
-    public const float FrameMargin = 1.08f;
+    public const float FrameMargin = 1.16f;
+
+    /// <summary>How often a capture may re-aim the camera to frame the subject.</summary>
+    public const int MaxAims = 3;
+
+    /// <summary>
+    /// Effects join the framing of a subject with meshes when they grow its
+    /// frame by at most this factor in width and in height.
+    /// </summary>
+    public const float EffectFramingGrowth = 1.35f;
 
     public const float KeyLightIntensity = 1.0f;
     public const float KeyLightPitch = 35f;
@@ -48,6 +57,10 @@ public static class PortraitPreset
     /// <summary>Alpha above which a pixel belongs to the subject's box.</summary>
     public const byte SubjectAlpha = 32;
 
-    /// <summary>Transparent pixels kept around the subject in the output.</summary>
-    public const int CropMargin = 16;
+    /// <summary>
+    /// Transparent space kept around the subject in the output, as a fraction
+    /// of the subject's larger side, so that the wiki's surface frames every
+    /// subject alike.
+    /// </summary>
+    public const float CropMarginFraction = 0.05f;
 }

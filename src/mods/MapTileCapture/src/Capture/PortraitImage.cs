@@ -80,27 +80,51 @@ public static class PortraitImage
     public static bool TouchesBorder(PixelBox box, int width, int height) =>
         box.MinX == 0 || box.MinY == 0 || box.MaxX == width - 1 || box.MaxY == height - 1;
 
-    /// <summary>The box grown by <paramref name="margin"/> pixels on each side, within the image.</summary>
-    public static PixelBox Expand(PixelBox box, int margin, int width, int height) =>
+    /// <summary>Whether the box leaves at least <paramref name="margin"/> pixels to every edge of the image.</summary>
+    public static bool HasMargin(PixelBox box, int margin, int width, int height) =>
+        box.MinX >= margin
+        && box.MinY >= margin
+        && box.MaxX <= width - 1 - margin
+        && box.MaxY <= height - 1 - margin;
+
+    /// <summary>
+    /// Whether <paramref name="outer"/> grows <paramref name="inner"/> by at
+    /// most <paramref name="growth"/> times in width and in height.
+    /// </summary>
+    public static bool StaysClose(PixelBox outer, PixelBox inner, float growth) =>
+        outer.Width <= inner.Width * growth && outer.Height <= inner.Height * growth;
+
+    /// <summary>
+    /// The crop that keeps <paramref name="margin"/> pixels around the box.
+    /// On a side where the box reaches the edge of the image, something runs
+    /// off the frame, so the crop ends at that edge like a photo crop. On the
+    /// other sides the crop may reach past the image, which pads it with
+    /// transparent pixels.
+    /// </summary>
+    public static PixelBox MarginCrop(PixelBox box, int margin, int width, int height) =>
         new(
-            Math.Max(0, box.MinX - margin),
-            Math.Max(0, box.MinY - margin),
-            Math.Min(width - 1, box.MaxX + margin),
-            Math.Min(height - 1, box.MaxY + margin)
+            box.MinX == 0 ? 0 : box.MinX - margin,
+            box.MinY == 0 ? 0 : box.MinY - margin,
+            box.MaxX == width - 1 ? width - 1 : box.MaxX + margin,
+            box.MaxY == height - 1 ? height - 1 : box.MaxY + margin
         );
 
-    /// <summary>The pixels of the box, as a buffer of the box's size.</summary>
-    public static byte[] Crop(byte[] rgba, int width, PixelBox box)
+    /// <summary>The pixels of the crop, as a buffer of its size, transparent where it reaches past the image.</summary>
+    public static byte[] Crop(byte[] rgba, int width, int height, PixelBox crop)
     {
-        var cropped = new byte[box.Width * box.Height * 4];
-        for (int row = 0; row < box.Height; row++)
+        var cropped = new byte[crop.Width * crop.Height * 4];
+        int firstX = Math.Max(0, crop.MinX);
+        int lastX = Math.Min(width - 1, crop.MaxX);
+        if (firstX > lastX)
+            return cropped;
+        for (int y = Math.Max(0, crop.MinY); y <= Math.Min(height - 1, crop.MaxY); y++)
         {
             Buffer.BlockCopy(
                 rgba,
-                (((box.MinY + row) * width) + box.MinX) * 4,
+                ((y * width) + firstX) * 4,
                 cropped,
-                row * box.Width * 4,
-                box.Width * 4
+                (((y - crop.MinY) * crop.Width) + (firstX - crop.MinX)) * 4,
+                (lastX - firstX + 1) * 4
             );
         }
         return cropped;
