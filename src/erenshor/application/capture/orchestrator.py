@@ -12,6 +12,7 @@ from .constants import TILE_SIZE
 from .state import CaptureState, _sha256
 from .stitcher import stitch_chunks
 from .tile_generator import generate_tile_pyramid
+from .wine import from_wine_path, wine_path
 from .zone_config import capture_variants
 
 WS_PORT = 18586
@@ -181,7 +182,7 @@ class CaptureOrchestrator:
             msg_type = resp.get("type")
 
             if msg_type == "chunk_complete":
-                path = _from_wine_path(resp["path"])
+                path = from_wine_path(resp["path"])
                 chunk_paths.append(path)
                 logger.debug(f"  chunk {resp['chunkIndex']} complete: {path}")
 
@@ -266,25 +267,9 @@ def build_chunk_grid(zc: dict[str, Any], output_dir: Path) -> list[dict[str, Any
                     "worldHeight": ch,
                     "pixelWidth": px_w,
                     "pixelHeight": px_h,
-                    "outputPath": _wine_path(output_dir / f"chunk_{idx}.png"),
+                    "outputPath": wine_path(output_dir / f"chunk_{idx}.png"),
                 }
             )
             idx += 1
 
     return chunks
-
-
-def _wine_path(p: Path) -> str:
-    """Convert a macOS absolute path to a Wine Z:\\ path for CrossOver."""
-    absolute = str(p.resolve())
-    # CrossOver/Wine maps Z:\ to the macOS root filesystem
-    return "Z:" + absolute.replace("/", "\\")
-
-
-def _from_wine_path(wine_path: str) -> Path:
-    """Convert a Wine Z:\\ path back to a macOS Path."""
-    # Strip Z: prefix and convert backslashes
-    if wine_path.startswith("Z:") or wine_path.startswith("z:"):
-        return Path(wine_path[2:].replace("\\", "/"))
-    # Already a POSIX path
-    return Path(wine_path)

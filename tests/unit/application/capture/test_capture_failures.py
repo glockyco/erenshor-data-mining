@@ -12,6 +12,7 @@ import typer
 from PIL import Image
 
 from erenshor.application.capture import orchestrator
+from erenshor.application.capture.wine import from_wine_path
 from erenshor.cli.commands import capture as capture_command
 from erenshor.cli.context import CLIContext
 from erenshor.infrastructure.config.schema import Config, GlobalConfig, MapsConfig, UnityConfig, VariantConfig
@@ -66,7 +67,7 @@ class _FakeMod:
         self._responses = []
         if outcome == "ok":
             for chunk in request["chunks"]:
-                path = orchestrator._from_wine_path(chunk["outputPath"])
+                path = from_wine_path(chunk["outputPath"])
                 Image.new("RGBA", (chunk["pixelWidth"], chunk["pixelHeight"]), (10, 20, 30, 255)).save(path)
                 self._responses.append(
                     {"type": "chunk_complete", "chunkIndex": chunk["index"], "path": chunk["outputPath"]}
