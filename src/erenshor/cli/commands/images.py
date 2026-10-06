@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 import shutil
+import sqlite3
+from contextlib import closing
 from pathlib import Path
 from typing import TYPE_CHECKING, Annotated
 
@@ -22,6 +24,16 @@ from rich.table import Table
 from erenshor.application.services.image_comparator import ImageComparator
 from erenshor.application.services.image_processor import ImageProcessor
 from erenshor.application.services.image_registry import ImageComparisonError, ImageRegistry, ImageRegistryError
+from erenshor.application.services.model_image_manifest import (
+    build_manifest,
+    load_character_sources,
+    load_game_build,
+    page_image_uses,
+    unused_page_image_uses,
+)
+from erenshor.application.wiki.lifecycle import load_content_lifecycle
+from erenshor.application.wiki.services.storage import WikiStorage
+from erenshor.cli.mediawiki import create_readonly_mediawiki_client
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import database_exists, database_valid
 from erenshor.cli.preconditions.checks.inputs import required_path, wiki_credentials
@@ -330,6 +342,80 @@ def report(
     else:
         console.print(f"[red]Error: Unknown format '{format}' (use 'table' or 'json')[/red]")
         raise typer.Exit(1)
+
+
+def _model_capture_dir(cli_ctx: CLIContext) -> Path:
+    """The untracked directory of the model capture manifest and its captures."""
+    variant_config = cli_ctx.config.variants[cli_ctx.variant]
+    return variant_config.resolved_unity_project(cli_ctx.repo_root).parent / "images" / "model-captures"
+
+
+@app.command("manifest")
+@require_preconditions(database_exists, database_valid)
+def manifest(ctx: typer.Context) -> None:
+    """List the character images that the wiki lacks, with the game object to capture for each.
+
+    Reads the character infoboxes of the generated pages and the unused pages of
+    content-lifecycle.json, asks the wiki which files have no upload, and writes
+    the manifest to images/model-captures/manifest.json of the variant. Reads the
+    wiki only. With the root --dry-run option, writes nothing.
+
+    Examples:
+        erenshor wiki generate
+        erenshor images manifest
+    """
+    console = Console()
+    cli_ctx: CLIContext = ctx.obj
+    variant_config = cli_ctx.config.variants[cli_ctx.variant]
+
+    lifecycle = load_content_lifecycle(cli_ctx.repo_root / "content-lifecycle.json")
+    unused = {
+        title: page.stable_key
+        for title, page in lifecycle.pages.items()
+        if page.state == "unused" and page.thing == "character" and page.stable_key is not None
+    }
+    pages = WikiStorage(variant_config.resolved_wiki(cli_ctx.repo_root)).read_generated_pages()
+    if not pages:
+        console.print("[red]No generated pages. Run 'erenshor wiki generate' first.[/red]")
+        raise typer.Exit(1)
+    database = variant_config.resolved_database(cli_ctx.repo_root)
+    with closing(sqlite3.connect(f"file:{database}?mode=ro", uri=True)) as clean:
+        characters = load_character_sources(clean)
+        game_build = load_game_build(clean)
+    uses = [*page_image_uses(pages), *unused_page_image_uses(unused, characters)]
+    client = create_readonly_mediawiki_client(cli_ctx)
+    try:
+        result = build_manifest(uses, characters, client.get_uploaded_files, game_build)
+    finally:
+        client.close()
+
+    table = Table(title=f"Missing character images, game build {result.game_build}")
+    table.add_column("File", style="cyan")
+    table.add_column("Kind", style="magenta")
+    table.add_column("Stable key")
+    table.add_column("Source")
+    table.add_column("Pages", style="dim")
+    for entry in result.entries:
+        source = entry.source
+        where = source.resources_path or f"{source.scene}: {source.object_name}"
+        table.add_row(entry.file, entry.kind, entry.stable_key, where, ", ".join(entry.pages))
+    console.print(table)
+    for heading, files in (
+        ("No game object found", result.unsourced),
+        ("Editors' zone images, not captured", result.editor_files),
+    ):
+        if files:
+            console.print(f"[bold]{heading}:[/bold]")
+            for file in files:
+                console.print(f"  {file.file} ({', '.join(file.pages)})")
+
+    if cli_ctx.dry_run:
+        console.print("[yellow]Dry run: the manifest was not written.[/yellow]")
+        return
+    output = _model_capture_dir(cli_ctx) / "manifest.json"
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(result.to_json(), indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    console.print(f"[green]✓[/green] {len(result.entries)} captures in {output}")
 
 
 def _deployment_list_for_stable_keys(registry: ImageRegistry, stable_keys: list[str]) -> dict[str, ImageMetadata]:
