@@ -131,6 +131,7 @@
 - [ ] 9.7 `Category:Unknown Item Source`, after task 3.8 removes the main page's link to it. Nothing fills it. Verify: the category holds no page and no page links it.
   - Condition met on 2026-10-05: the category holds no page, and no page links it.
 - [ ] 9.8 `Category:Needs Item Image` and `Category:Needs Stance Image`, which the first deploy of the missing-image tracking created before only character images were tracked (design D4 of `restore-missing-wiki-images`). Delete them after the templates and the article deploy remove the item and stance checks. Verify: neither category holds a page, and no page links either.
+  - Condition met on 2026-10-06: neither category holds a page, and no page links either.
 
 ## 10. Close
 
