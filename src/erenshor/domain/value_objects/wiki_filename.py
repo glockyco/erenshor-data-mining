@@ -5,7 +5,6 @@ from __future__ import annotations
 __all__ = [
     "MEDIAWIKI_PROHIBITED_CHARS",
     "image_file_title",
-    "needs_redirect",
     "sanitize_wiki_filename",
     "upload_file_title",
 ]
@@ -31,11 +30,6 @@ def sanitize_wiki_filename(filename: str) -> str:
     for character, replacement in MEDIAWIKI_PROHIBITED_CHARS.items():
         sanitized = sanitized.replace(character, replacement)
     return " ".join(sanitized.split()).strip()
-
-
-def needs_redirect(original: str, sanitized: str) -> bool:
-    """Return whether sanitization changed the requested file-title base."""
-    return original != sanitized
 
 
 def image_file_title(*names: str | None) -> str:

@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from erenshor.domain.entities.image import ImageMetadata
-from erenshor.domain.value_objects.wiki_filename import needs_redirect, sanitize_wiki_filename
+from erenshor.domain.value_objects.wiki_filename import sanitize_wiki_filename, upload_file_title
 
 
 @pytest.mark.parametrize(
@@ -16,21 +15,17 @@ from erenshor.domain.value_objects.wiki_filename import needs_redirect, sanitize
         (":|#<>[]{}", ""),
     ],
 )
-def test_sanitize_wiki_filename_removes_mediawiki_syntax(
-    original: str,
-    expected: str,
-) -> None:
+def test_sanitize_wiki_filename_removes_mediawiki_syntax(original: str, expected: str) -> None:
     assert sanitize_wiki_filename(original) == expected
-    assert needs_redirect(original, expected) is (original != expected)
 
 
-def test_image_metadata_derives_the_upload_filename_from_domain_policy() -> None:
-    metadata = ImageMetadata(
-        stable_key="spell:ancient-presence",
-        entity_type="spell",
-        entity_name="Ancient Presence",
-        image_name="Aura: Ancient Presence",
-        source_icon_name="ancient-presence",
-    )
-
-    assert metadata.expected_wiki_filename == "Aura Ancient Presence.png"
+@pytest.mark.parametrize(
+    ("title", "expected"),
+    [
+        ("Aura: Ancient Presence.png", "Aura Ancient Presence.png"),
+        ("Summoned: Brute.png", "Summoned Brute.png"),
+        ("Thorned Branch.png", "Thorned Branch.png"),
+    ],
+)
+def test_an_upload_title_drops_what_file_names_forbid_and_keeps_the_extension(title: str, expected: str) -> None:
+    assert upload_file_title(title) == expected

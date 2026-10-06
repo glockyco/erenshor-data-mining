@@ -10,7 +10,6 @@ import pytest
 import typer
 
 from erenshor.cli.commands import eval as eval_command
-from erenshor.cli.commands import images
 from erenshor.cli.commands import mod as mod_command
 from erenshor.cli.preconditions.checks.capture import capture_config, captured_masters
 from erenshor.cli.preconditions.checks.eval import eval_source
@@ -95,22 +94,6 @@ def test_capture_masters_require_all_selected_masters(tmp_path: Path) -> None:
     state_path.parent.mkdir(parents=True)
     state_path.write_text('{"zones": {"One": {"clear": {"masterPath": "One.png"}}}}')
     assert captured_masters(context).passed
-
-
-def test_images_process_rejects_missing_textures_before_legacy_migration(
-    cli_context: object, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, capsys: pytest.CaptureFixture[str]
-) -> None:
-    variant = cli_context.config.variants[cli_context.variant]
-    unity = variant.resolved_unity_project(cli_context.repo_root)
-    legacy = unity.parent / "images/processed"
-    legacy.mkdir(parents=True)
-    monkeypatch.setattr(images, "ImageRegistry", Mock(side_effect=AssertionError("work started")))
-    with pytest.raises(typer.Exit) as error:
-        images.process(SimpleNamespace(obj=cli_context), force=False)
-    assert error.value.exit_code == 1
-    assert "Texture2D" in capsys.readouterr().out
-    assert legacy.is_dir()
-    assert not (legacy.parent / "current").exists()
 
 
 def test_mod_setup_source_names_missing_managed_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

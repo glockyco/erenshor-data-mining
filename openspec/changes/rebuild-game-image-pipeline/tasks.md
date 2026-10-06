@@ -77,10 +77,11 @@
 
 ## 6. Remove the old pipeline
 
-- [ ] 6.1 `refactor(images): remove the old icon pipeline`: remove the following and their tests:
+- [x] 6.1 `refactor(images): remove the old icon pipeline`: remove the following and their tests:
   - `erenshor images process`, `compare`, `report`, and `upload`
   - `ImageRegistry`, `ImageComparator`, `ImageProcessor`, and the `image_versions` registry
   - `images/icon-background.png`
 
   Update the README's pipeline description. Verify: no source, test, skill, or document refers to the removed commands or files, and the unit and contract tests pass.
+  - Done on 2026-10-06, before the migration, because the publication no longer needs the registry: ownership comes from the uploader alone (design D3). The commands, the three services, their domain entities, `needs_redirect`, the background images, and the `imagehash` dependency are gone, and the dev shell builds without it. The README never described the old pipeline. No source, test, skill, or guide refers to the removed pieces, and the 1,975 unit and contract tests pass. The local `variants/main/images/registry.db` and `current/` are unused data now.
 - [ ] 6.2 Add the deletion list of the run record to group 9 of `adopt-data-backed-wiki`, with the retired copies and the orphans of the plan, for an administrator. Verify: the task names the list, and each listed file has an empty `list=imageusage` result when the list is recorded.
