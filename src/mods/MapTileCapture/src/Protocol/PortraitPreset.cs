@@ -7,7 +7,7 @@ namespace MapTileCapture.Protocol;
 /// </summary>
 public static class PortraitPreset
 {
-    public const string Name = "portrait-2";
+    public const string Name = "portrait-3";
 
     /// <summary>Width and height of each render, in pixels.</summary>
     public const int RenderSize = 1024;
@@ -38,10 +38,13 @@ public static class PortraitPreset
     public const int MaxAims = 3;
 
     /// <summary>
-    /// Effects join the framing of a subject with meshes when they grow its
-    /// frame by at most this factor in width and in height.
+    /// An effect joins the framing of a subject with meshes when it alone
+    /// grows the frame of the meshes by at most this factor in width and in
+    /// height. Measured on the captured subjects, flames, smoke, and debris on
+    /// the subject grow it by at most 1.48, while scattered cubes, embers, and
+    /// swirls grow it by 1.56 or more, and beams run off the frame.
     /// </summary>
-    public const float EffectFramingGrowth = 1.35f;
+    public const float EffectFramingGrowth = 1.5f;
 
     public const float KeyLightIntensity = 1.0f;
     public const float KeyLightPitch = 35f;

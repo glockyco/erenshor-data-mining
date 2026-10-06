@@ -83,8 +83,8 @@ internal static class PortraitStudio
                 "The subject has no renderer that the player's camera shows."
             );
 
-        // Meshes frame the subject. Effects frame it only when it has no mesh,
-        // because effects such as dust or sparks can spread far from it.
+        // The first frame holds the bounds of the meshes, or of the effects
+        // when the subject has no mesh.
         var framing = meshes.Count > 0 ? meshes : effects;
         var bounds = framing[0].bounds;
         foreach (var renderer in framing)
@@ -125,37 +125,51 @@ internal static class PortraitStudio
         camera.targetTexture = target;
 
         // The first render finds the subject in a frame that holds its bounds.
-        // Effects join the framing when they stay close to the meshes, such
-        // as a smoke head; effects that spread far, such as a light beam or a
-        // field of sparkles, run off the edge like a photo crop. Each further
-        // render aims the camera at the subject and narrows the view to fill
-        // the frame, until the subject leaves the crop margin on every side;
-        // perspective makes one correction fall slightly short.
+        // Each effect joins the framing when it alone stays close to the
+        // meshes, such as a burning head or a sword's flame. It is measured in
+        // a frame with room for that growth on any one side, so the frame's
+        // edge cannot cut it short. Effects that spread far, such as a light
+        // beam or a field of sparkles, show only within the crop, like a photo
+        // crop. Each further render aims the camera at the framed subject and
+        // narrows the view to fill the frame, until the subject leaves the
+        // crop margin on every side; perspective makes one correction fall
+        // slightly short.
         foreach (var effect in effects)
             effect.enabled = meshes.Count == 0;
         var subjectBox = RenderSubject(camera, target, readback, size);
         bool clipped = PortraitImage.TouchesBorder(subjectBox, size, size);
         if (meshes.Count > 0 && effects.Count > 0)
         {
+            AimAt(
+                camera,
+                subjectBox,
+                size,
+                PortraitPreset.FrameMargin * ((2f * PortraitPreset.EffectFramingGrowth) - 1f)
+            );
+            var meshBox = RenderSubject(camera, target, readback, size);
+            var close = new List<Renderer>();
             foreach (var effect in effects)
+            {
                 effect.enabled = true;
-            var withEffects = RenderSubject(camera, target, readback, size);
-            bool close =
-                !PortraitImage.TouchesBorder(withEffects, size, size)
-                && PortraitImage.StaysClose(
-                    withEffects,
-                    subjectBox,
-                    PortraitPreset.EffectFramingGrowth
-                );
-            if (close)
-                subjectBox = withEffects;
-            else
-                foreach (var effect in effects)
-                    effect.enabled = false;
+                var withEffect = RenderSubject(camera, target, readback, size);
+                effect.enabled = false;
+                if (
+                    !PortraitImage.TouchesBorder(withEffect, size, size)
+                    && PortraitImage.StaysClose(
+                        withEffect,
+                        meshBox,
+                        PortraitPreset.EffectFramingGrowth
+                    )
+                )
+                    close.Add(effect);
+            }
+            foreach (var effect in close)
+                effect.enabled = true;
+            subjectBox = RenderSubject(camera, target, readback, size);
         }
         for (int aim = 0; aim < PortraitPreset.MaxAims; aim++)
         {
-            AimAt(camera, subjectBox, size);
+            AimAt(camera, subjectBox, size, PortraitPreset.FrameMargin);
             subjectBox = RenderSubject(camera, target, readback, size);
             if (PortraitImage.HasMargin(subjectBox, Margin(subjectBox), size, size))
                 break;
@@ -168,10 +182,7 @@ internal static class PortraitStudio
             Render(camera, target, readback, Color.black),
             Render(camera, target, readback, Color.white)
         );
-        var portraitBox =
-            PortraitImage.AlphaBox(portrait, size, size, PortraitPreset.SubjectAlpha)
-            ?? throw new PortraitException("The subject left no visible pixel.");
-        var crop = PortraitImage.MarginCrop(portraitBox, Margin(portraitBox), size, size);
+        var crop = PortraitImage.MarginCrop(subjectBox, Margin(subjectBox), size, size);
         var pixels = PortraitImage.Crop(portrait, size, size, crop);
 
         var output = new Texture2D(crop.Width, crop.Height, TextureFormat.RGBA32, false);
@@ -413,17 +424,17 @@ internal static class PortraitStudio
     }
 
     /// <summary>
-    /// Turns the camera toward the middle of the subject's box and narrows the
-    /// view until the box, with the frame margin, fills the frame.
+    /// Turns the camera toward the middle of the subject's box and sets the
+    /// view so that the box, grown by <paramref name="frame"/>, fills the frame.
     /// </summary>
-    private static void AimAt(Camera camera, PixelBox box, int size)
+    private static void AimAt(Camera camera, PixelBox box, int size, float frame)
     {
         var centre = new Vector3(
             (box.MinX + box.MaxX + 1) * 0.5f / size,
             (box.MinY + box.MaxY + 1) * 0.5f / size,
             0f
         );
-        float extent = Mathf.Max(box.Width, box.Height) / (float)size * PortraitPreset.FrameMargin;
+        float extent = Mathf.Max(box.Width, box.Height) / (float)size * frame;
         var ray = camera.ViewportPointToRay(centre);
         camera.transform.rotation = Quaternion.LookRotation(ray.direction, Vector3.up);
         float halfAngle = Mathf.Atan(Mathf.Tan(camera.fieldOfView * 0.5f * Mathf.Deg2Rad) * extent);

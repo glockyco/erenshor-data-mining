@@ -43,6 +43,16 @@ public class PortraitImageTests
     }
 
     [Fact]
+    public void Matte_KeepsTheHueAndBrightnessOfAColouredGlow()
+    {
+        // A green additive glow adds 120 to the green channel: over white
+        // only green saturates, so red and blue differ by the full 255.
+        var matte = PortraitImage.Matte(Pixel(0, 120, 0), Pixel(255, 255, 255));
+
+        Assert.Equal(Pixel(0, 255, 0, 120), matte);
+    }
+
+    [Fact]
     public void Matte_RejectsRendersOfDifferentSizes()
     {
         Assert.Throws<ArgumentException>(() => PortraitImage.Matte(new byte[8], new byte[4]));

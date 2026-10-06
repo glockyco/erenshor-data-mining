@@ -27,11 +27,14 @@ public static class PortraitImage
 {
     /// <summary>
     /// The subject with its alpha, from two renders of it over black and over
-    /// white. A pixel that both renders show alike is opaque. The more the
-    /// background shows through, the more the renders differ, so one minus the
-    /// largest channel difference is the pixel's coverage. That also holds for
-    /// additive effects, which never write alpha themselves. The colour is the
-    /// render over black divided by that coverage.
+    /// white. Where the subject covers a pixel with normal blending, both
+    /// renders differ by the same amount in every channel: one minus that
+    /// difference is its coverage. An additive effect adds light instead, so
+    /// it differs least in the channels of its colour. The smallest channel
+    /// difference therefore gives coloured glows their brightness as alpha,
+    /// where the largest would erase a pure green glow, and it leaves normal
+    /// pixels unchanged. The colour is the render over black divided by the
+    /// coverage.
     /// </summary>
     public static byte[] Matte(byte[] overBlack, byte[] overWhite)
     {
@@ -41,9 +44,9 @@ public static class PortraitImage
         var matte = new byte[overBlack.Length];
         for (int i = 0; i < overBlack.Length; i += 4)
         {
-            int difference = 0;
+            int difference = 255;
             for (int channel = 0; channel < 3; channel++)
-                difference = Math.Max(difference, overWhite[i + channel] - overBlack[i + channel]);
+                difference = Math.Min(difference, overWhite[i + channel] - overBlack[i + channel]);
             int alpha = Math.Min(255, Math.Max(0, 255 - difference));
             if (alpha == 0)
                 continue;
