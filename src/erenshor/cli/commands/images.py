@@ -594,7 +594,13 @@ def approve_captures(
 
 @app.command("upload-captures")
 @require_preconditions(required_path("images_dir", "model-captures/approved.json"), wiki_credentials)
-def upload_captures(ctx: typer.Context) -> None:
+def upload_captures(
+    ctx: typer.Context,
+    files: Annotated[
+        list[str] | None,
+        typer.Option("--file", help="Upload only this approved file title; repeat for more"),
+    ] = None,
+) -> None:
     """Upload the approved captures whose files the wiki lacks.
 
     Reads the live wiki for each approved file title. A title with an image,
@@ -602,11 +608,13 @@ def upload_captures(ctx: typer.Context) -> None:
     whose image the wiki holds under another name, or that another file of the
     batch uploads, becomes a redirect. Every other capture is uploaded, under a
     name without a colon when its title has one, with a redirect from the title.
-    Each write checks its title again first and never replaces an image. With the
-    root --dry-run option, shows the plan and writes nothing.
+    Each write checks its title again first and never replaces an image. With
+    --file, the batch is only the named approved files. With the root --dry-run
+    option, shows the plan and writes nothing.
 
     Examples:
         erenshor --dry-run images upload-captures
+        erenshor --dry-run images upload-captures --file "Faith.png" --file "Summoned: Treant.png"
         erenshor images upload-captures
     """
     from datetime import UTC, datetime
@@ -624,6 +632,12 @@ def upload_captures(ctx: typer.Context) -> None:
     cli_ctx: CLIContext = ctx.obj
     capture_dir = _model_capture_dir(cli_ctx)
     approval = Approval.from_json(json.loads((capture_dir / APPROVAL_FILE).read_text(encoding="utf-8")))
+    if files:
+        try:
+            approval = approval.batch(files)
+        except ValueError as error:
+            console.print(f"[red]{error}[/red]")
+            raise typer.Exit(1) from error
     approved_dir = capture_dir / "approved"
 
     reader = create_readonly_mediawiki_client(cli_ctx)

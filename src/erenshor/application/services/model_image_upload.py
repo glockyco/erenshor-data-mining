@@ -95,6 +95,19 @@ class Approval:
             ),
         )
 
+    def batch(self, files: Sequence[str]) -> Approval:
+        """The approval of only ``files``, for an upload batch; each must be approved."""
+        approved = {image.file for image in self.images}
+        unapproved = [file for file in files if file not in approved]
+        if unapproved:
+            raise ValueError(f"Not approved: {', '.join(unapproved)}")
+        selected = set(files)
+        return Approval(
+            game_build=self.game_build,
+            preset=self.preset,
+            images=tuple(image for image in self.images if image.file in selected),
+        )
+
 
 def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()

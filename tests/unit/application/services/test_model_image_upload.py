@@ -84,6 +84,16 @@ def test_an_editor_image_is_skipped_and_its_uploader_named(tmp_path: Path) -> No
     assert (wiki.uploaded, wiki.created) == ([], [])
 
 
+def test_a_batch_plans_only_its_files_and_refuses_an_unapproved_one(tmp_path: Path) -> None:
+    approval = _approval(tmp_path, {"Faith.png": b"faith", "Zenith.png": b"zenith"})
+
+    plan = plan_uploads(approval.batch(["Zenith.png"]), tmp_path, FakeWiki())
+
+    assert [(item.file, item.action) for item in plan] == [("Zenith.png", "upload")]
+    with pytest.raises(ValueError, match=r"Not approved: Opus\.png"):
+        approval.batch(["Zenith.png", "Opus.png"])
+
+
 def test_a_title_with_a_colon_uploads_without_it_and_redirects(tmp_path: Path) -> None:
     approval = _approval(tmp_path, {"Summoned: Treant.png": b"treant"})
     wiki = FakeWiki()
