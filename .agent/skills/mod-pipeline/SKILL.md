@@ -38,7 +38,7 @@ Use one `--loader` per deployment. `build --loader all` builds both targets but 
 The public mods are `adventure-guide`, `interactive-map-companion`, `sprint`, and `justice-for-f7`. `map-tile-capture` has no public release listing.
 
 1. Install `tcli` with `dotnet tool install -g tcli` if it is absent.
-2. Run `uv run erenshor mod thunderstore --dry-run` to build and validate all four packages without uploading. A single-mod check uses `--mod adventure-guide --dry-run`.
+2. Run `uv run erenshor --dry-run mod thunderstore` to build and validate all four packages without uploading. A single-mod check uses `uv run erenshor --dry-run mod thunderstore --mod adventure-guide`.
 3. For an intentional upload, set a real `TCLI_AUTH_TOKEN` in the environment or local `.env`. Run `uv run erenshor mod thunderstore --mod adventure-guide`.
 
 The CLI looks up the next version through Thunderstore. A network or malformed-response error stops the release. It checks declared package inputs, builds BepInEx, runs `tcli build`, inserts `build.changelog` as `CHANGELOG.md`, and validates the ZIP against `thunderstore.toml`. It checks input hashes again before `tcli publish --file` uploads that ZIP. A real upload requires exactly one public `--mod`. Never include a token in a logged command.

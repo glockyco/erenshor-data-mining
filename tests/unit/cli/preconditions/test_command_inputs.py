@@ -106,7 +106,7 @@ def test_images_process_rejects_missing_textures_before_legacy_migration(
     legacy.mkdir(parents=True)
     monkeypatch.setattr(images, "ImageRegistry", Mock(side_effect=AssertionError("work started")))
     with pytest.raises(typer.Exit) as error:
-        images.process(SimpleNamespace(obj=cli_context), force=False, dry_run=False)
+        images.process(SimpleNamespace(obj=cli_context), force=False)
     assert error.value.exit_code == 1
     assert "Texture2D" in capsys.readouterr().out
     assert legacy.is_dir()

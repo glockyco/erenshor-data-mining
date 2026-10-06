@@ -110,7 +110,7 @@ COMPOSITE_TASKS = ("ci", "release")
 _RELEASE_COMMANDS: tuple[tuple[str, ...], ...] = (
     ("erenshor", "-V", "main", "maps", "build", "--skip-checks"),
     ("erenshor", "-V", "main", "mod", "build", "--loader", "all"),
-    ("erenshor", "-V", "main", "mod", "thunderstore", "--dry-run"),
+    ("erenshor", "-V", "main", "--dry-run", "mod", "thunderstore"),
 )
 
 

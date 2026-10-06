@@ -25,7 +25,7 @@ switching, then restart before testing. The canonical local Thunderstore check
 packages all four public mods without uploading:
 
 ```bash
-uv run erenshor mod thunderstore --dry-run
+uv run erenshor --dry-run mod thunderstore
 ```
 
 A real upload requires exactly one `--mod interactive-map-companion` and a

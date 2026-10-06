@@ -63,7 +63,7 @@ The canonical local Thunderstore check packages all four public BepInEx mods
 without uploading:
 
 ```bash
-uv run erenshor mod thunderstore --dry-run
+uv run erenshor --dry-run mod thunderstore
 ```
 
 A real upload requires exactly one `--mod justice-for-f7` and a

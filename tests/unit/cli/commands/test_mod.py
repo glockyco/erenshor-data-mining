@@ -692,7 +692,7 @@ def test_internal_mod_rejected_before_build_or_tcli(tmp_path: Path, monkeypatch:
     monkeypatch.setattr(mod_command.subprocess, "run", lambda *_args, **_kwargs: pytest.fail("ran tcli"))
 
     with pytest.raises(typer.Exit):
-        mod_command.thunderstore(SimpleNamespace(obj=ctx), mod="map-tile-capture", dry_run=True)
+        mod_command.thunderstore(SimpleNamespace(obj=replace(ctx, dry_run=True)), mod="map-tile-capture")
 
 
 def test_real_upload_requires_exactly_one_mod_and_non_placeholder_token(
@@ -709,10 +709,10 @@ def test_real_upload_requires_exactly_one_mod_and_non_placeholder_token(
     monkeypatch.setattr(mod_command.subprocess, "run", lambda *_args, **_kwargs: pytest.fail("ran tcli"))
 
     with pytest.raises(typer.Exit):
-        mod_command.thunderstore(SimpleNamespace(obj=ctx), mod=None, dry_run=False)
+        mod_command.thunderstore(SimpleNamespace(obj=ctx), mod=None)
     monkeypatch.setenv("TCLI_AUTH_TOKEN", "your_token_here")
     with pytest.raises(typer.Exit):
-        mod_command.thunderstore(SimpleNamespace(obj=ctx), mod="sprint", dry_run=False)
+        mod_command.thunderstore(SimpleNamespace(obj=ctx), mod="sprint")
 
 
 def test_tcli_missing_is_rejected_before_build(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -725,12 +725,12 @@ def test_tcli_missing_is_rejected_before_build(tmp_path: Path, monkeypatch: pyte
     )
 
     with pytest.raises(typer.Exit):
-        mod_command.thunderstore(SimpleNamespace(obj=ctx), mod="sprint", dry_run=True)
+        mod_command.thunderstore(SimpleNamespace(obj=replace(ctx, dry_run=True)), mod="sprint")
 
 
 def test_dry_run_builds_all_public_mods_and_never_publishes(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     ctx, _manifests, builds, calls = _prepare_thunderstore_command(tmp_path, monkeypatch, list(PUBLIC_THUNDERSTORE_IDS))
-    mod_command.thunderstore(ctx, mod=None, dry_run=True)
+    mod_command.thunderstore(SimpleNamespace(obj=replace(ctx.obj, dry_run=True)), mod=None)
 
     expected = [definition.mod_id for definition in public_mods() if definition.thunderstore_id is not None]
     assert [mod_id for mod_id, _loader, _kwargs in builds] == expected
@@ -753,7 +753,7 @@ def test_all_selected_releases_are_preflighted_before_any_build(
     monkeypatch.setattr(mod_command.subprocess, "run", lambda *_args, **_kwargs: pytest.fail("ran tcli"))
 
     with pytest.raises(typer.Exit):
-        mod_command.thunderstore(SimpleNamespace(obj=ctx), mod=None, dry_run=True)
+        mod_command.thunderstore(SimpleNamespace(obj=replace(ctx, dry_run=True)), mod=None)
     assert builds == []
 
 
@@ -998,7 +998,7 @@ def test_exact_bepinex_build_and_tcli_argv_and_cwd(tmp_path: Path, monkeypatch: 
     ctx, manifests, builds, calls = _prepare_thunderstore_command(tmp_path, monkeypatch, ["sprint"])
     token = "sentinel-token-not-for-output"
     monkeypatch.setenv("TCLI_AUTH_TOKEN", token)
-    mod_command.thunderstore(ctx, mod="sprint", dry_run=False)
+    mod_command.thunderstore(ctx, mod="sprint")
 
     assert builds == [("sprint", "bepinex", {"version": "2099.101.0"})]
     manifest_path = next(iter(manifests))
@@ -1031,7 +1031,7 @@ def test_real_sprint_publishes_once_after_validated_zip_without_printing_token(
     ctx, _manifests, builds, calls = _prepare_thunderstore_command(tmp_path, monkeypatch, ["sprint"])
     token = "sentinel-auth-token"
     monkeypatch.setenv("TCLI_AUTH_TOKEN", token)
-    mod_command.thunderstore(ctx, mod="sprint", dry_run=False)
+    mod_command.thunderstore(ctx, mod="sprint")
 
     assert len(builds) == 1
     assert [args[1] for args, _kwargs in calls] == ["build", "publish"]
@@ -1050,7 +1050,7 @@ def test_static_input_changed_during_build_aborts_before_tcli(tmp_path: Path, mo
     monkeypatch.setattr(local_workflow, "build_mods", build_and_mutate)
 
     with pytest.raises(typer.Exit):
-        mod_command.thunderstore(ctx, mod="sprint", dry_run=True)
+        mod_command.thunderstore(SimpleNamespace(obj=replace(ctx.obj, dry_run=True)), mod="sprint")
 
     assert builds == [("sprint", "bepinex", {"version": "2099.101.0"})]
     assert calls == []
@@ -1071,7 +1071,7 @@ def test_changed_input_aborts_publish(tmp_path: Path, monkeypatch: pytest.Monkey
         _tcli_runner(manifests, calls, after_build=mutate),
     )
     with pytest.raises(typer.Exit):
-        mod_command.thunderstore(ctx, mod="sprint", dry_run=False)
+        mod_command.thunderstore(ctx, mod="sprint")
     assert [args[1] for args, _kwargs in calls] == ["build"]
     assert builds == [("sprint", "bepinex", {"version": "2099.101.0"})]
 
@@ -1088,7 +1088,7 @@ def test_tcli_build_nonzero_aborts_before_publish(
         _tcli_runner(manifests, calls, build_returncode=build_returncode),
     )
     with pytest.raises(typer.Exit):
-        mod_command.thunderstore(ctx, mod="sprint", dry_run=False)
+        mod_command.thunderstore(ctx, mod="sprint")
     assert [args[1] for args, _kwargs in calls] == ["build"]
 
 
@@ -1100,7 +1100,7 @@ def test_tcli_launch_error_is_reported(tmp_path: Path, monkeypatch: pytest.Monke
         lambda *_args, **_kwargs: (_ for _ in ()).throw(FileNotFoundError("tcli disappeared")),
     )
     with pytest.raises(typer.Exit):
-        mod_command.thunderstore(ctx, mod="sprint", dry_run=True)
+        mod_command.thunderstore(SimpleNamespace(obj=replace(ctx.obj, dry_run=True)), mod="sprint")
 
 
 def test_tcli_publish_nonzero_is_reported(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -1112,7 +1112,7 @@ def test_tcli_publish_nonzero_is_reported(tmp_path: Path, monkeypatch: pytest.Mo
         _tcli_runner(manifests, calls, publish_returncode=1),
     )
     with pytest.raises(typer.Exit):
-        mod_command.thunderstore(ctx, mod="sprint", dry_run=False)
+        mod_command.thunderstore(ctx, mod="sprint")
     assert [args[1] for args, _kwargs in calls] == ["build", "publish"]
 
 

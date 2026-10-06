@@ -57,7 +57,6 @@ app = typer.Typer(help="Image processing operations")
 def process(
     ctx: typer.Context,
     force: Annotated[bool, typer.Option("--force", help="Reprocess all images")] = False,
-    dry_run: Annotated[bool, typer.Option("--dry-run", help="Preview without processing")] = False,
 ) -> None:
     """Process game images with version tracking and registry integration.
 
@@ -72,10 +71,11 @@ def process(
         erenshor images process --force
 
         # Preview what would be processed
-        erenshor images process --dry-run
+        erenshor --dry-run images process
     """
     console = Console()
     cli_ctx: CLIContext = ctx.obj
+    dry_run = cli_ctx.dry_run
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
 
     # Setup paths
@@ -441,7 +441,6 @@ def _deployment_list_for_stable_keys(registry: ImageRegistry, stable_keys: list[
 def upload(
     ctx: typer.Context,
     changed_only: Annotated[bool, typer.Option("--changed-only", help="Upload only changed images")] = False,
-    dry_run: Annotated[bool, typer.Option("--dry-run", help="Preview without uploading")] = False,
     force: Annotated[bool, typer.Option("--force", help="Re-upload existing images")] = False,
     stable_keys: Annotated[
         list[str] | None,
@@ -461,12 +460,13 @@ def upload(
         erenshor images upload --changed-only
 
         # Dry-run to preview
-        erenshor images upload --changed-only --dry-run
+        erenshor --dry-run images upload --changed-only
     """
     from erenshor.infrastructure.wiki.client import MediaWikiAPIError, MediaWikiClient, MediaWikiEditConflictError
 
     console = Console()
     cli_ctx: CLIContext = ctx.obj
+    dry_run = cli_ctx.dry_run
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
 
     # Check bot credentials

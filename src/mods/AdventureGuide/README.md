@@ -31,7 +31,7 @@ There is no GitHub release automation. The canonical local Thunderstore check
 packages all four public mods without uploading:
 
 ```bash
-uv run erenshor mod thunderstore --dry-run
+uv run erenshor --dry-run mod thunderstore
 ```
 
 A real Thunderstore upload requires exactly one `--mod adventure-guide` and a

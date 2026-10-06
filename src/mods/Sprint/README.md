@@ -54,7 +54,7 @@ For the canonical local Thunderstore release check, package all four public
 mods without uploading:
 
 ```bash
-uv run erenshor mod thunderstore --dry-run
+uv run erenshor --dry-run mod thunderstore
 ```
 
 A real upload requires exactly one `--mod sprint` and a non-placeholder

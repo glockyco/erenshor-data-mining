@@ -339,7 +339,6 @@ def thunderstore(
         "--mod",
         help="Publish one mod; omit only with --dry-run to package all public mods",
     ),
-    dry_run: bool = typer.Option(False, "--dry-run", help="Build the package but don't upload"),
 ) -> None:
     """Package and optionally publish BepInEx mods to Thunderstore."""
     cli_ctx: CLIContext = ctx.obj
@@ -351,7 +350,7 @@ def thunderstore(
         plan = release.plan_thunderstore(
             cli_ctx,
             mod,
-            dry_run=dry_run,
+            dry_run=cli_ctx.dry_run,
             token=token,
             tcli_available=release.check_tcli_available,
             version_lookup=release.get_thunderstore_version,
@@ -368,7 +367,7 @@ def thunderstore(
         packages = release.package_thunderstore(built_plan, runner=subprocess.run)
         for package in packages:
             console.print(f"  [green]✓ Package validated[/green] [dim]{package.path}[/dim]")
-        if dry_run:
+        if cli_ctx.dry_run:
             console.print()
             console.print("[yellow]Dry run — not uploading.[/yellow]")
             console.print()
