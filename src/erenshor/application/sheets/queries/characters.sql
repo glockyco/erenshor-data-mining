@@ -6,9 +6,12 @@ SELECT
     f.faction_desc AS my_world_faction,
     c.my_faction,
     c.level,
-    -- Effective Combat Stats (calculated runtime values players encounter)
+    c.level_scales_with_player,
+    -- Effective Combat Stats (calculated runtime values players encounter,
+    -- empty where they follow the player's level)
     c.effective_hp,
     c.effective_ac,
+    c.ac_per_player_level,
     c.effective_attack_ability,
     c.effective_base_atk_dmg,
     c.effective_min_mr,
@@ -100,6 +103,7 @@ SELECT
     c.invulnerable,
     c.can_never_see_invis,
     c.dps_dummy,
+    c.test_dummy_hand_set_ac,
     c.is_wyrm,
     c.no_run,
     c.never_aggro,

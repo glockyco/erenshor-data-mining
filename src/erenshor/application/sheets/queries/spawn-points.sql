@@ -13,6 +13,7 @@ SELECT
         ELSE 'normal'
     END AS spawn_type,
     cs.is_enabled,
+    cs.furniture_item_stable_key,
     c.stable_key AS character_stable_key,
     c.display_name,
     ROUND(cs.spawn_chance, 2) AS spawn_chance_percent,
