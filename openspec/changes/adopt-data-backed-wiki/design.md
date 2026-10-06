@@ -294,7 +294,7 @@ Every dummy with a hand-set AC starts `Stats` after `TestDummy`, and `Stats.Star
 
 Decided on 2026-10-05:
 
-- The wiki and the map name each kind by its hand-set AC: Training Dummy, Training Dummy (400 AC), Training Dummy (800 AC), and Training Dummy (1000 AC). The game calls every dummy Training Dummy when it starts, and only the 400 and 800 AC kinds carry their AC in their NPC name. The clean build derives the names from the hand-set AC, and every kind shows `Training Dummy.png`, because all dummies share one model.
+- The wiki and the map name each kind by its hand-set AC: Training Dummy, Training Dummy (400 AC), Training Dummy (800 AC), and Training Dummy (1000 AC). The game calls every dummy Training Dummy when it starts, and only the 400 and 800 AC kinds carry their AC in their NPC name. The clean build derives the names from the hand-set AC. The dummies of the Wood and Stone Training Sets share one mesh and material and show `Training Dummy.png`. The Expert Training Set's 1000 AC dummy has its own mesh and material, so it needs its own image, which the missing-images work of task 5.15 gives it.
 - The infobox shows "Scales with the player's level" as the level, the health only where it is fixed, and the AC with when it applies, as 15 × the player's level where no hand-set AC applies. The map shows the level the same way. Dummies are NPC markers, which the level filter never hides.
 - `characters.level_scales_with_player` marks every character whose level the game sets from the player's level, the treasure guardians of D16 included, so that the wiki and the map read one flag.
 

@@ -62,10 +62,11 @@ The image workflow SHALL use a game's item, spell, or skill icon as the matching
 
 The capture workflow SHALL read a manifest of missing file titles and game entities. It SHALL record the game build and camera preset for each output. It SHALL render each subject at 1024 × 1024 pixels, crop it with a consistent margin, and save one transparent PNG per file. The output SHALL show the right subject without UI, another character, a clipped model, or a blank image. An unsuccessful capture SHALL be reported, not uploaded. The workflow SHALL restore game state after success, failure, or cancellation.
 
-#### Scenario: Two dummy variants share a page
+#### Scenario: Kinds with different models share a page
 
-- **WHEN** the manifest includes `Training Dummy (400 AC).png` and `Training Dummy (800 AC).png`
-- **THEN** the workflow produces two separately named images of the matching variants
+- **WHEN** the Training Dummy page holds the plain, 400 AC, and 800 AC kinds, which share one model, and the 1000 AC kind, which has its own
+- **THEN** the first three show `Training Dummy.png`
+- **AND** the manifest captures `Training Dummy (1000 AC).png` from the Expert Training Set's dummy
 
 #### Scenario: A capture fails
 
