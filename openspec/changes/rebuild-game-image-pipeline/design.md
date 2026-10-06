@@ -1,0 +1,211 @@
+# Design
+
+## Context
+
+See proposal.md for the motivation. Facts measured on 2026-10-06 that shape the approach:
+
+- **The export records names, not references.**
+  - The Unity export writes `ItemIcon.name`, `SpellIcon.name`, and `SkillIcon.name`, the sprite object names of the ripped project. `ImageProcessor` and `generate-item-icons.mjs` open `Texture2D/<name>.png`.
+  - AssetRipper names a sprite and its texture independently. In the `4_*` family they are one number apart: the sprite `4_7` references `4_8.png`. 13 entities show the wrong picture, and the clean database holds no other link between an entity and its texture.
+  - In game, Thorned Branch's sprite is named `4` and draws the 501 × 486 branch texture.
+- **Runtime sprites show their whole texture.** Through HotRepl, all 1,299 icon sprites of items, spells, and skills have a rect equal to their texture. None is packed in an atlas, and 314 are not square. The 1,296 distinct icon textures total 172.7 MB, 133 KB on average, and the largest is 1024 × 1024.
+- **How the game builds an item slot:**
+  - The slot is an `Image` of `ActionBar_Slot_Border_Big`, a 124 × 124 texture with a 2 px opaque edge, drawn with the material `ITEM ICON`.
+  - That shader's exported source is a stub. Rendered in game, it draws a ring 3.5% of the slot's width at 75% opacity, with a linear vertical gradient from `#fdffff` at the top through `#01aaff` at 50% to `#688f9d` at the bottom. It ignores the `Image` tint, so every window shows the same ring.
+  - The ring's inside is transparent and shows the semi-transparent `UI_OUTLINE` window panels.
+  - The icon is a child `Image` as large as the slot, drawn over the ring, with `preserveAspect` off.
+- **How the game builds a hotbar slot:** it draws the sprite `ma_frame` (62 × 63), the spell art at the slot's size, and `ma_frame` again over the art.
+- **The live wiki:**
+  - The wiki holds 3,127 files and 2,418 distinct SHA-1s.
+  - WoWBot has `apihighlimits`, `movefile`, and `suppressredirect`, but not `delete`, `filerevert`, or `purge`.
+  - Its rate limits list no `upload` bucket. `move` is limited to 8 per 60 s and `edit` to 90 per 60 s.
+  - Past bot sessions uploaded about one file a second.
+  - Anonymous `list=allimages` read all 3,127 files in seven requests within four seconds.
+- **MediaWiki's upload rules:** uploading identical bytes is refused with `fileexists-no-change` even with `ignorewarnings`. `comment` belongs to the file version and `text` only to the first upload. `ignorewarnings` waives every warning, so a client must judge the warnings itself.
+
+## Goals / Non-Goals
+
+**Goals:**
+- One owner for each image artifact, with a write boundary that refuses anything outside its plan.
+- A publish run's network cost is about one listing plus the writes it plans.
+- Each publish step can run again safely.
+
+**Non-Goals:**
+- No parallel uploads. The API etiquette asks for serial writes, and serial writes already take minutes once publishing diffs.
+- No re-rendering of portraits when the game changes. Capture stays an explicit step that is reviewed.
+
+## Decisions
+
+### D1. The export records each icon's referenced texture
+
+The item, spell, and skill listeners record `AssetDatabase.GetAssetPath(icon.texture)`, the texture path in the ripped project, next to the sprite name. The clean build resolves pictures only through that path. A missing texture fails the build and names the entity (spec: "Icons resolve through the game's sprite references").
+
+Alternatives considered:
+- Parsing `Sprite/<name>.asset` and the `.meta` GUIDs in Python works, but repeats Unity's own reference resolution outside Unity, and breaks when AssetRipper changes its YAML.
+- Keeping the name join and adding a correction table repairs a symptom; the next game update can shift other families.
+
+**Owner:** the Unity export listeners and the clean build's icon processor.
+
+### D2. A content-addressed catalog in the clean build
+
+The clean build writes the picture files to `variants/<variant>/images/catalog/<pixel-hash>.png`, plus three tables in the clean database:
+
+- `images`: the pixel hash, kind (`icon` or `portrait`), width, height, file SHA-1, game build, and producer (export, or capture preset and approval)
+- `image_sources`: the source assets of each picture
+- `entity_images`: each entity's stable key, its picture, and the wiki file title it names
+
+- **The pixel hash** is SHA-256 over the width, the height, and the RGBA bytes, so it ignores encoding.
+- **The PNG encoding is pinned:** RGBA, a fixed zlib level, no optimisation pass, and no ancillary chunks. So a rebuild without game changes writes identical bytes, and the file SHA-1 is stable (spec: "Picture bytes are deterministic").
+- **Approved portraits enter through `approved.json`.** The clean build reads it and checks each PNG against its approved hash. `images approve` keeps writing that record. A portrait capture that reproduces an approved pixel hash needs no new review.
+- **Titles:**
+  - An entity's title comes from its `image_name`, the same rule the generators use today, so no page changes.
+  - A title with a colon gets an upload title without it, as `upload_title` does today.
+
+Alternatives considered:
+- Keeping `registry.db` as a separate store duplicates state that the build can derive. That state is also what went stale.
+- Files named by entity in the catalog would need one copy per entity again.
+
+**Owner:** the clean build. `images approve` owns `approved.json`, as today.
+
+### D3. Ownership and conflicts from the latest version's uploader
+
+A file is the bot's when the configured bot account uploaded its latest version. The listing's `user` field answers this for every file at once.
+
+An editor's latest version makes the title a conflict:
+- The plan names the file and the editor, and the bot never writes it.
+- The editor keeps the picture until they or the bot operator resolve it.
+- Today exactly one icon title is in that state: `Spell_Scroll_Meditative_Trance.png`, uploaded by WoWMuch.
+
+An upload comment is not used as the ownership signal, because editors can copy comments; it serves only as provenance.
+
+Alternative considered: a list of titles with editor overrides would repeat what the wiki already records.
+
+### D4. The plan compares pixels with as few downloads as possible
+
+For each catalog title, the planner reads the listing entry at the title and at its redirect target:
+
+1. **Same bytes.** If the live SHA-1 equals the catalog file's SHA-1, the title is unchanged.
+2. **Recorded hash.** If the live version is the bot's and its upload comment names the catalog's pixel hash, the title is unchanged.
+3. **Bytes differ.** Otherwise the planner downloads the live file once and compares pixel hashes. This is needed only for files the old pipeline uploaded, so the first run after the cutover downloads about 1,900 files of about 35 KB, and later runs download none.
+
+Verdicts:
+
+| Verdict | When | Action |
+|---|---|---|
+| create | the title is missing | upload |
+| update | the bot's file has other pixels | new version, or retire it (D6) when the picture must move |
+| unchanged | same pixels | nothing |
+| redirect | the catalog makes the title a redirect and the page is not one yet | create the redirect |
+| conflict | an editor uploaded the latest version | report it |
+| retire | a bot copy that must become a redirect | move it aside (D6) |
+| orphan | a bot file that no catalog title produces and no page uses (`list=imageusage` empty) | report it |
+
+The plan of a dry run is the run record's first half: the verdict of every title, and a contact sheet of the live and new picture of every create and update.
+
+### D5. One file per picture, named after a stable user
+
+Every picture has one file. Its title:
+- is the uploadable title of one entity that uses the picture
+- prefers a title that holds the picture live already, so the migration moves as little as possible
+- otherwise follows the order item, spell, skill, stance, character, then the title.
+
+Every other entity title is a redirect to that file (spec: "One file holds each picture"). When that entity drops the picture, the bot moves the file to the next title in the same order and leaves no redirect behind. Pages name entity titles, so they keep resolving.
+
+Alternatives considered:
+- Game-asset titles like Warcraft Wiki's: the export's sprite names are not stable (`4_7` against the runtime's `4`), and they mean nothing to readers.
+- Copies per entity, as today: each copy needs its own upload when a shared picture changes. With frames out of the files, an item and a spell that share a texture would hold two copies of one picture.
+
+### D6. Retiring copies without an administrator
+
+A title the catalog makes a redirect may hold a bot copy. The bot then:
+
+1. moves the copy to `File:Retired <title>` with `suppressredirect`
+2. creates the redirect at the freed title
+3. adds `{{Delete}}` to the retired file's description page; the live `Template:Delete` puts it into `Category:Candidates for deletion`.
+
+All writes stay within WoWBot's rights. A copy whose latest version an editor uploaded is a conflict, not a retirement. The run record lists every retired file, so an administrator can delete them in one pass. The first migration moves roughly 700 copies. At 8 moves per minute that takes about 90 minutes once, and later runs retire only what a game update makes redundant.
+
+### D7. The wiki draws the frames
+
+**Stylesheet and module:**
+- One TemplateStyles stylesheet, `Template:Icon/styles.css`, defines the item slot and the hotbar frame.
+- One Lua module, `Module:Erenshor/Icon`, renders an icon for a kind and a size. Every caller goes through it: the `Item/*` headers, `Gear/Slot`, `Item/SpellDetails`, `Erenshor/Link`, `Erenshor/Spell/Tooltip`, `Erenshor/Format`, and the infobox images.
+
+**Item slot:**
+- The ring is a background gradient with the measured stops at 75% opacity.
+- The inner well is a dark gradient: `#282a42`, `#333a41` at 50%, and `#35464b`, sampled from the inventory screenshot that the old frame came from.
+- The well is inset by 3.5% of the slot, and by at least 1 px.
+- The icon is an absolutely positioned layer as large as the slot, centred, at its own proportions.
+- The local mockup of 2026-10-06 matched the game's own renders at 80, 48, 32, and 24 px.
+
+**Hotbar frame:**
+- `ma_frame` is published once as a bot file, `File:Hotbar Frame.png`. It is a catalog picture of kind `frame`, taken from the export like an icon.
+- The module lays it over the spell art at 100% of the slot.
+
+**Sparkle:** `SparkleIcon` draws its sparkle after the icon, so the sparkle stays above the positioned slot.
+
+Alternatives considered:
+- Baking the frames into the files is how the 150 px composites came to need a full re-upload for any frame change, and why an item and a spell that share a texture cannot share a file.
+- An `<img>` overlay for the item ring would need a second request, while a CSS gradient draws it exactly.
+
+### D8. One publish command with a resumable run record
+
+`erenshor images publish` reads the clean database and the catalog files, lists the wiki once, and plans. With the root `--dry-run`, it writes the plan and the contact sheet to `variants/<variant>/images/publish/<stamp>/` and stops.
+
+**Write order of a real run:**
+1. uploads: creates and updates
+2. retirements
+3. redirects
+4. `{{Delete}}` tags
+
+**Before each write**, the run re-reads the title, as `upload-captures` does today. A title that changed since the plan is skipped and reported.
+
+**Uploads:**
+- An upload never sets `ignorewarnings` up front. On a warning, the run compares the warning set with the one its verdict expects: `exists` for an update, and `duplicate` when the plan knows of a retiring copy with the same bytes.
+- It confirms through the stashed `filekey` only on a match; anything else is skipped and reported.
+- The upload comment carries the build, the kind, the source asset, and the pixel hash.
+
+**Run record:** every write appends to `run.json` (title, verdict, old SHA-1 and revision, new SHA-1 and revision). A rerun plans from the live wiki again, so an interruption costs nothing.
+
+**Rollback:**
+- The bot lacks `filerevert`. Before an update overwrites a file, the run saves the live bytes into its record.
+- `images publish --revert <stamp>` re-uploads them for the titles whose latest version is still the bot's, and moves retired files back.
+
+`images capture` and `images approve` stay. `upload-captures` goes away, because publish covers portraits.
+
+**Owner:** `images publish` is the only writer of files and file redirects. It refuses to write a title outside its plan.
+
+### D9. The map builds icons from the catalog
+
+`erenshor maps build` writes each map-visible item's icon from its catalog picture with Pillow:
+- WebP at 20 and 48 px, fitted within the square and keeping its proportions
+- under `static/items/<pixel-hash>.w20.webp` and `.w48.webp`
+
+The clean database's `entity_images` gives the map each item's pixel hash, so the consumers address icons by hash. A changed picture gets a new URL, and an unchanged one is never rebuilt. `generate-item-icons.mjs` and its `sharp` dependency go away. Following the decision memory, this dependency removal is checked in a browser like any map change.
+
+**Owner:** the map build.
+
+## Risks / Trade-offs
+
+- [Native textures are larger than the 150 px composites: 172.7 MB against about 66 MB today] → Pages show thumbnails that MediaWiki renders once and caches. File pages show the full picture, which the 1024 × 1024 textures make sharper.
+- [A page that embeds an icon file directly, outside the templates, shows the bare picture without a frame] → The Game Data guide documents the icon module as the way to show a game icon. A scan lists main-namespace pages that embed icon files directly, so editors can see them.
+- [The first migration takes long: about 1,300 uploads, roughly 1,900 comparison downloads, and roughly 700 moves at 8 per minute] → The run record makes it resumable, and it runs once. Later runs touch only what changed.
+- [`css-sanitizer` may reject a property on the live wiki that the local stack accepted] → The local stack runs the same TemplateStyles and TemplateStylesExtender. The repository deploy's render check parses the stylesheet against the live wiki before any write.
+- [An editor may edit a redirect page into a file description] → The planner treats any non-redirect page without a file at a redirect title as a conflict and reports it.
+- [A retirement moves a file that a page embeds by its old title] → The redirect at the old title is created in the same run, and a failed redirect is retried before the run ends. The run record names every unfinished pair.
+
+## Migration Plan
+
+1. Export and build: the listeners record icon texture paths, and the clean build writes the catalog. Check that the 13 entities resolve to the right textures and that a rebuild is byte-identical.
+2. Deploy the icon stylesheet, module, and template changes to the local stack. Verify every icon site against the mockup measurements in a browser.
+3. Publish once with `--dry-run`. Review the verdict counts, the conflicts, and the contact sheet of updates with WoWMuch.
+4. Deploy the templates and modules, upload `File:Hotbar Frame.png`, then run publish. Templates and files change in one session, because the old 150 px files inside the new slot markup would draw two frames.
+5. Verify live:
+   - a fresh parse of an item, a spell, and a skill page
+   - the 13 corrected icons
+   - zero remaining create or update verdicts in a second dry run
+6. Rebuild and deploy the map. Check its item icons in the browser.
+7. Remove the old commands, `registry.db`, `icon-background.png`, and the Node icon script. Update the `refreshing-game-data` skill, the Game Data guide, and the README.
+8. Hand the deletion list to an administrator: the retired copies and the 86 orphans.
+
+**Rollback:** `images publish --revert <stamp>` restores every file version and moves retired files back. The repository deploy's rollback restores the templates and modules.

@@ -1,0 +1,76 @@
+# Tasks
+
+## 1. Resolve icons through the game's references
+
+- [ ] 1.1 `feat(export): record the texture that each icon sprite references`: in `ItemListener`, `SpellListener`, and `SkillListener`, record the asset path of the icon sprite's texture next to the sprite name, in `ItemRecord`, `SpellRecord`, and `SkillRecord`, and classify the fields in `src/tools/ExportSurface/field-coverage.json` (design D1). Verify: after `uv run erenshor extract export`, the raw rows name `4_8.png` for Thorned Branch and `4_3.png` for the five Willow Seeds, and every item, spell, and skill with an icon has a texture path.
+- [ ] 1.2 `fix(pipeline): resolve icon pictures through the referenced texture`: carry the texture paths into the clean database and make every consumer that opens an icon file use them. A missing texture fails the build and names the entity and the texture. Add processor tests for the shifted `4_*` family and for a missing texture. Verify: after `uv run erenshor extract build`, the 13 entities of the proposal resolve to the textures that the game draws, and the unit and contract tests pass.
+
+## 2. Build the image catalog
+
+- [ ] 2.1 `feat(images): catalogue game pictures by pixel hash`:
+  - The clean build writes `images`, `image_sources`, and `entity_images`, and the PNG files under `variants/<variant>/images/catalog/`, with the pinned encoding of design D2.
+  - Icons come from their textures unchanged. `ma_frame` enters as a picture of kind `frame`. Approved portraits enter from `approved.json` after their hash check.
+  - Each entity gets its wiki title: the stance through its activating skill, and a colon title with its upload title.
+  - Add tests for the scenarios of the `game-image-catalog` spec: a shifted sprite name, a missing texture, unchanged margins, a texture shared by many items, equal pixels from two textures, a determinism rebuild, an encoder-only change, provenance, a changed or repeated portrait capture, and the stance title.
+  - Verify: two builds of one export write byte-identical catalog files and tables. The 35 spell scrolls of texture `8_5` share one picture, and the clean database lists every one of the 118 approved portraits.
+- [ ] 2.2 `feat(maps): build item icons from the image catalog`:
+  - `erenshor maps build` writes each map-visible item's icon from its catalog picture as WebP at 20 and 48 px, named by pixel hash, fitted within the square at its own proportions (design D9).
+  - The map's consumers address icons by the pixel hash from the clean database. Remove `src/maps/scripts/generate-item-icons.mjs` and the `sharp` dependency.
+  - Add tests for rebuilding on a changed hash and keeping files on an unchanged one.
+  - Verify: the map unit and browser tests pass, and in a browser the map search shows the branch for Thorned Branch and the seed for the Willow Seeds.
+
+## 3. Draw icon frames on the wiki
+
+- [ ] 3.1 `feat(wiki): draw game icon frames like the game`:
+  - Add `Module:Erenshor/Icon` and `Template:Icon/styles.css` with the item slot and the hotbar frame of design D7.
+  - Switch every icon site to them: the `Item/*` headers, `Gear/Slot`, `Item/SpellDetails`, `SparkleIcon` (the sparkle draws above the slot), `Erenshor/Link`, `Erenshor/Spell/Tooltip`, `Erenshor/Format`, and the Ability and Stance infobox images.
+  - Add Lua test cases for the item and spell markup at every size, and smoke expectations for an item, a spell, and a skill page in the local stack. Document the module and the parameters of the changed templates.
+  - Verify in the local stack's browser, with catalog pictures uploaded locally:
+    - The ring runs from `#fdffff` through `#01aaff` at 50% to `#688f9d`, at 75% opacity, with a 3.5% inset of at least 1 px.
+    - The 501 × 486 branch keeps its proportions inside the square.
+    - Spells lie under `ma_frame`.
+    - The Blessed sparkle shows above the slot.
+    - The local smoke test passes.
+
+## 4. Publish against the live wiki
+
+- [ ] 4.1 `feat(wiki): read and write files the way publishing needs`: add to the MediaWiki client:
+  - a listing of every file with its SHA-1, latest uploader, upload comment, and size, through `list=allimages` with continuation
+  - an image-usage check through `list=imageusage`
+  - a file move with `suppressredirect`
+  - an upload that returns the wiki's warnings and the stash `filekey`, and a confirmation through that `filekey`
+
+  Add client tests with recorded responses, including continuation and a warning that an upload does not expect. Verify: the listing of the live wiki reads every file, 3,127 on 2026-10-06, and the tests pass.
+- [ ] 4.2 `feat(images): plan publication against one listing of the live wiki`:
+  - Plan every catalog title with the verdicts, the pixel comparison, the title choice, and the retirements of design D4 to D6.
+  - Write the plan and the contact sheet of creates and updates to `variants/<variant>/images/publish/<stamp>/`.
+  - `erenshor --dry-run images publish` prints the verdict counts, conflicts, and orphans.
+  - Add tests for the scenarios of the `wiki-images` spec: two changed icons, an interrupted run, the same pixels in another encoding, an editor's newer version, a new item sharing a picture, a changed shared picture, an identical copy to retire, an icon under an old spelling, and a title with a colon.
+  - Verify: a dry run against the live wiki lists `Spell_Scroll_Meditative_Trance.png` as a conflict uploaded by WoWMuch, Thorned Branch as an update, and `Spell_Scroll-_Aetherstorm.png` as an orphan.
+- [ ] 4.3 `feat(images): publish a plan with a resumable run record`:
+  - `erenshor images publish` carries out the plan in the write order of design D8. Before each write it checks the title again, and it confirms an upload only on the warning its verdict expects.
+  - Every upload records its provenance in the comment, and a new file gets a description with the game's copyright notice. A retired file gets `{{Delete}}`.
+  - Every write goes to `run.json`, with the replaced bytes saved for `--revert`.
+  - Remove `images upload-captures`, which publish replaces, and update the `refreshing-game-data` skill and the Images section of the Game Data guide for the new commands, one file per picture, and how an editor's replacement is kept.
+  - Add tests for a title that changes after the plan, an unexpected warning, a rerun after an interruption, and a revert.
+  - Verify: the tests pass, and a publish against the local wiki stack, a rerun, and a revert leave the local files as the plan says.
+
+## 5. Migrate the live wiki
+
+- [ ] 5.1 Run `uv run erenshor --dry-run images publish` against the live wiki and review it with WoWMuch: the verdict counts, every conflict, the orphans, the retirements, and the contact sheet of updates. Verify: WoWMuch approves the plan, or the review leads to fixes and a new dry run.
+- [ ] 5.2 Dry-run the repository deploy of the stylesheet, the module, and the changed templates and modules. With approval, deploy them and run `uv run erenshor images publish` in the same session (design D8). Verify live:
+  - a fresh parse of an item, a spell, and a skill page shows the frames
+  - the 13 corrected icons show the game's pictures
+  - a second dry run plans no create or update
+  - the retired files are in `Category:Candidates for deletion`
+- [ ] 5.3 Rebuild and dry-run the map deploy, and deploy it with approval. Verify in a browser that the site's item icons show the catalog pictures, the 12 corrected ones included.
+
+## 6. Remove the old pipeline
+
+- [ ] 6.1 `refactor(images): remove the old icon pipeline`: remove the following and their tests:
+  - `erenshor images process`, `compare`, `report`, and `upload`
+  - `ImageRegistry`, `ImageComparator`, `ImageProcessor`, and the `image_versions` registry
+  - `images/icon-background.png`
+
+  Update the README's pipeline description. Verify: no source, test, skill, or document refers to the removed commands or files, and the unit and contract tests pass.
+- [ ] 6.2 Add the deletion list of the run record to group 9 of `adopt-data-backed-wiki`, with the retired copies and the 86 orphans, for an administrator. Verify: the task names the list, and each listed file has an empty `list=imageusage` result when the list is recorded.
