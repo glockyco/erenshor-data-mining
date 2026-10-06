@@ -1017,12 +1017,16 @@ CREATE TABLE spawnpoint_essential_links (
 );
 
 -- level_min/level_max: the dig levels [level_min, level_max) that spawn the
--- chest at the site.
+-- chest at the site. player_level_min/player_level_max: the player levels,
+-- inclusive, at which digging at the site brings up the chest, after the
+-- zone's lowest reading level and the level cap.
 CREATE TABLE treasure_chest_possible_spawns (
     chest_character_stable_key  TEXT NOT NULL REFERENCES characters (stable_key),
     treasure_location_stable_key TEXT NOT NULL REFERENCES treasure_locations (stable_key),
     level_min                    INTEGER NOT NULL,
     level_max                    INTEGER NOT NULL,
+    player_level_min             INTEGER NOT NULL,
+    player_level_max             INTEGER NOT NULL,
     scene                        TEXT,
     x                            REAL,
     y                            REAL,

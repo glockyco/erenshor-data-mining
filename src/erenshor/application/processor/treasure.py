@@ -199,13 +199,19 @@ def min_reading_level(always: bool, greater_20: bool, greater_30: bool) -> int |
     return None
 
 
-def chest_can_be_dug_in(zone_min_reading_level: int | None, dig_level_high: int) -> bool:
-    """Whether a chest dug below ``dig_level_high`` can lie in a zone with this lowest reading level.
+def dig_levels(zone_min_reading_level: int | None, dig_low: int, dig_high: int) -> tuple[int, int] | None:
+    """The player levels at which digging in a zone brings up a chest of the dig levels [low, high).
 
     The player reads the map first and digs later, at the same or a higher
-    level, so some reading level below ``dig_level_high`` must reach the zone.
+    level, so the lowest such level is the higher of the chest's lowest dig
+    level and the zone's lowest reading level. None when no player level
+    reaches the chest in the zone.
     """
-    return zone_min_reading_level is not None and zone_min_reading_level < dig_level_high
+    if zone_min_reading_level is None:
+        return None
+    low = max(dig_low, zone_min_reading_level)
+    high = min(dig_high - 1, PLAYER_LEVEL_CAP)
+    return (low, high) if low <= high else None
 
 
 def strike_break_chance(waves_spawned: int) -> float:
@@ -302,7 +308,8 @@ def process_treasure(raw: sqlite3.Connection, writer: Writer) -> None:
     ).fetchall()
     for chest_key, dig_low, dig_high in CHEST_DIG_LEVELS:
         for row in locations:
-            if not chest_can_be_dug_in(row["min_reading_level"], dig_high):
+            levels = dig_levels(row["min_reading_level"], dig_low, dig_high)
+            if levels is None:
                 continue
             sites.append(
                 {
@@ -310,6 +317,8 @@ def process_treasure(raw: sqlite3.Connection, writer: Writer) -> None:
                     "treasure_location_stable_key": row["stable_key"],
                     "level_min": dig_low,
                     "level_max": dig_high,
+                    "player_level_min": levels[0],
+                    "player_level_max": levels[1],
                     "scene": row["scene"],
                     "x": row["x"],
                     "y": row["y"],

@@ -764,20 +764,20 @@ export class RepositoryBase {
     async getTreasureLocMarkers(mapName: string): Promise<TreasureLocMarker[]> {
         if (!this.db) throw new Error('DB not initialized');
 
+        // The clean build gives the player levels at which a site brings up
+        // each chest, and the guardians scale with the player who digs.
         const guardiansStmt = this.db.prepare(`
             SELECT tl.stable_key AS SiteKey, c.stable_key AS StableKey,
                    c.display_name AS Name, c.wiki_page_name AS WikiPageName,
                    MIN(gs.level_min) AS LevelMin, MAX(gs.level_max) AS LevelMax
             FROM treasure_locations tl
-            JOIN treasure_hunting th ON th.zone_name = tl.scene
             JOIN treasure_chest_possible_spawns ts ON ts.treasure_location_stable_key = tl.stable_key
             JOIN character_chained_spawns chain ON chain.parent_stable_key = ts.chest_character_stable_key
                 AND chain.source_script = 'TreasureChestEvent'
             JOIN characters c ON c.stable_key = chain.child_stable_key
             JOIN treasure_guardian_scaling gs ON gs.guardian_character_stable_key = c.stable_key
-                AND gs.player_level BETWEEN th.min_reading_level AND 35
+                AND gs.player_level BETWEEN ts.player_level_min AND ts.player_level_max
             WHERE tl.scene = ?
-                AND MAX(ts.level_min, th.min_reading_level, 1) <= MIN(ts.level_max - 1, 35)
             GROUP BY tl.stable_key, c.stable_key
             ORDER BY tl.stable_key, c.display_name, c.stable_key
         `, [mapName]);
@@ -801,14 +801,13 @@ export class RepositoryBase {
             SELECT tl.stable_key AS StableKey, tl.x AS PositionX, tl.y AS PositionY, tl.z AS PositionZ,
                    th.min_reading_level AS MinReadingLevel,
                    c.stable_key AS ChestKey, c.display_name AS ChestName, c.wiki_page_name AS WikiPageName,
-                   MAX(ts.level_min, th.min_reading_level, 1) AS DigLevelMin,
-                   MIN(ts.level_max - 1, 35) AS DigLevelMax
+                   ts.player_level_min AS DigLevelMin,
+                   ts.player_level_max AS DigLevelMax
             FROM treasure_locations tl
             JOIN treasure_hunting th ON th.zone_name = tl.scene
             JOIN treasure_chest_possible_spawns ts ON ts.treasure_location_stable_key = tl.stable_key
             JOIN characters c ON c.stable_key = ts.chest_character_stable_key
             WHERE tl.scene = ?
-                AND MAX(ts.level_min, th.min_reading_level, 1) <= MIN(ts.level_max - 1, 35)
             ORDER BY tl.stable_key, DigLevelMin, c.stable_key
         `, [mapName]);
         const markers = new Map<string, TreasureLocMarker>();

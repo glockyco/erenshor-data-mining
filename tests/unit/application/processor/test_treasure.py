@@ -6,7 +6,7 @@ from erenshor.application.processor.npc_spawn import SpawnConstants
 from erenshor.application.processor.treasure import (
     CHEST_DIG_LEVELS,
     GuardianProfile,
-    chest_can_be_dug_in,
+    dig_levels,
     guardian_outcomes,
     guardian_scaling_row,
     min_reading_level,
@@ -101,19 +101,19 @@ def test_reading_pools_open_above_levels_20_and_30() -> None:
 @pytest.mark.parametrize(
     ("zone_min_reading_level", "chests"),
     [
-        (1, ["0-10", "10-20", "20-30", "30-35"]),
+        (1, {"0-10": (1, 9), "10-20": (10, 19), "20-30": (20, 29), "30-35": (30, 35)}),
         # A map read at 21 points to these zones, and the player digs at 21 or later.
-        (21, ["20-30", "30-35"]),
-        (31, ["30-35"]),
-        (None, []),
+        (21, {"20-30": (21, 29), "30-35": (30, 35)}),
+        (31, {"30-35": (31, 35)}),
+        (None, {}),
     ],
 )
 def test_chest_follows_the_digging_level_after_the_reading_level(
-    zone_min_reading_level: int | None, chests: list[str]
+    zone_min_reading_level: int | None, chests: dict[str, tuple[int, int]]
 ) -> None:
-    dug = [
-        key.removeprefix("character:treasurechest ").removesuffix(" 1")
-        for key, _, high in CHEST_DIG_LEVELS
-        if chest_can_be_dug_in(zone_min_reading_level, high)
-    ]
+    dug = {
+        key.removeprefix("character:treasurechest ").removesuffix(" 1"): levels
+        for key, low, high in CHEST_DIG_LEVELS
+        if (levels := dig_levels(zone_min_reading_level, low, high)) is not None
+    }
     assert dug == chests

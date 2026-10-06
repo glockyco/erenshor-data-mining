@@ -168,6 +168,8 @@ CREATE TABLE treasure_chest_possible_spawns (
     treasure_location_stable_key TEXT NOT NULL REFERENCES treasure_locations(stable_key),
     level_min INTEGER NOT NULL,
     level_max INTEGER NOT NULL,
+    player_level_min INTEGER NOT NULL,
+    player_level_max INTEGER NOT NULL,
     PRIMARY KEY (chest_character_stable_key, treasure_location_stable_key)
 );
 
@@ -484,19 +486,17 @@ INSERT INTO treasure_locations (stable_key, scene, x, y, z) VALUES
 INSERT INTO treasure_hunting (zone_name, min_reading_level) VALUES
     ('Stowaway', 21), ('Hidden', 1), ('Blight', 31);
 
-INSERT INTO treasure_chest_possible_spawns (chest_character_stable_key, treasure_location_stable_key, level_min, level_max)
-SELECT c.stable_key, tl.stable_key,
-    CASE c.stable_key WHEN 'character:treasurechest 0-10 1' THEN 1
-        WHEN 'character:treasurechest 10-20 1' THEN 10
-        WHEN 'character:treasurechest 20-30 1' THEN 20 ELSE 30 END,
-    CASE c.stable_key WHEN 'character:treasurechest 0-10 1' THEN 10
-        WHEN 'character:treasurechest 10-20 1' THEN 20
-        WHEN 'character:treasurechest 20-30 1' THEN 30 ELSE 999 END
-FROM characters c CROSS JOIN treasure_locations tl
-WHERE c.stable_key LIKE 'character:treasurechest%'
-    AND (tl.scene = 'Hidden'
-        OR (tl.scene = 'Stowaway' AND c.stable_key IN ('character:treasurechest 20-30 1', 'character:treasurechest 30-35'))
-        OR (tl.scene = 'Blight' AND c.stable_key = 'character:treasurechest 30-35'));
+INSERT INTO treasure_chest_possible_spawns (
+    chest_character_stable_key, treasure_location_stable_key, level_min, level_max,
+    player_level_min, player_level_max
+) VALUES
+    ('character:treasurechest 0-10 1', 'treasure:hidden-fixture', 0, 10, 1, 9),
+    ('character:treasurechest 10-20 1', 'treasure:hidden-fixture', 10, 20, 10, 19),
+    ('character:treasurechest 20-30 1', 'treasure:hidden-fixture', 20, 30, 20, 29),
+    ('character:treasurechest 30-35', 'treasure:hidden-fixture', 30, 999, 30, 35),
+    ('character:treasurechest 20-30 1', 'treasure:stowaway-fixture', 20, 30, 21, 29),
+    ('character:treasurechest 30-35', 'treasure:stowaway-fixture', 30, 999, 30, 35),
+    ('character:treasurechest 30-35', 'treasure:blight-fixture', 30, 999, 31, 35);
 
 INSERT INTO character_chained_spawns (parent_stable_key, child_stable_key, source_script)
 SELECT chest.stable_key, guardian.stable_key, 'TreasureChestEvent'
