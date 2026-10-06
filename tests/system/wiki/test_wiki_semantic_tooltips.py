@@ -8,7 +8,7 @@ from pathlib import Path
 
 import httpx
 import pytest
-from playwright.sync_api import Locator, Page, expect
+from playwright.sync_api import Locator, Page, Route, expect
 
 WIKI_BASE_URL = os.environ.get("ERENSHOR_WIKI_BASE_URL", "http://localhost:8088")
 API_URL = f"{WIKI_BASE_URL}/api.php"
@@ -253,3 +253,24 @@ def test_touch_tap_does_not_open_tooltip_and_follows_link(placement_page: Page) 
         expect(_overlay(touch_page)).to_be_hidden()
     finally:
         touch_context.close()
+
+
+def test_a_rate_limited_preview_waits_and_loads(wiki_page: Page) -> None:
+    refused: list[str] = []
+
+    def throttle_first_parse(route: Route) -> None:
+        if "action=parse" in route.request.url and not refused:
+            refused.append(route.request.url)
+            route.fulfill(
+                status=429,
+                headers={"Retry-After": "1", "Content-Type": "application/json"},
+                body='{"error":{"code":"ratelimited","info":"API or search ratelimit exceeded"}}',
+            )
+        else:
+            route.continue_()
+
+    wiki_page.route("**/api.php?*", throttle_first_parse)
+    wiki_page.locator(".erenshor-link--item", has_text="Abyssal Plate").hover()
+
+    expect(_overlay(wiki_page)).to_have_attribute("data-state", "ready", timeout=10000)
+    assert len(refused) == 1

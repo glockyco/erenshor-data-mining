@@ -6,6 +6,19 @@
 	const HOVER_INTENT_DELAY = 300;
 	const COARSE_POINTER_QUERY = '(pointer: coarse)';
 	const KNOWN_MISSING_CODES = new Set( [ 'invalidtitle', 'missingtitle', 'nosuchpageid' ] );
+	// The wiki answers a burst of requests with HTTP 429 and a Retry-After; a
+	// tooltip waits it out a few times before it reports the preview as unavailable.
+	const RATE_LIMIT_RETRIES = 3;
+	const RATE_LIMIT_MAX_WAIT = 15000;
+
+	function rateLimitDelay( code, result ) {
+		const xhr = result && result.xhr;
+		if ( code !== 'ratelimited' && !( xhr && xhr.status === 429 ) ) {
+			return null;
+		}
+		const seconds = Number( xhr && xhr.getResponseHeader( 'Retry-After' ) );
+		return Math.min( RATE_LIMIT_MAX_WAIT, Number.isFinite( seconds ) && seconds > 0 ? seconds * 1000 : 2000 );
+	}
 	const CANONICAL_QUALITIES = [
 		'Standard',
 		'Improved +1',
@@ -337,19 +350,29 @@
 			};
 
 			const request = new Promise( function ( resolve, reject ) {
-				api.get( params ).then( function ( response ) {
-					try {
-						resolve( extractTooltip( response, spec ) );
-					} catch ( error ) {
-						reject( error );
-					}
-				}, function ( code ) {
-					if ( KNOWN_MISSING_CODES.has( code ) ) {
-						resolve( null );
-					} else {
+				function attempt( retriesLeft ) {
+					api.get( params ).then( function ( response ) {
+						try {
+							resolve( extractTooltip( response, spec ) );
+						} catch ( error ) {
+							reject( error );
+						}
+					}, function ( code, result ) {
+						if ( KNOWN_MISSING_CODES.has( code ) ) {
+							resolve( null );
+							return;
+						}
+						const delay = rateLimitDelay( code, result );
+						if ( delay !== null && retriesLeft > 0 ) {
+							setTimeout( function () {
+								attempt( retriesLeft - 1 );
+							}, delay );
+							return;
+						}
 						reject( new Error( 'Unable to load semantic tooltip.' ) );
-					}
-				} );
+					} );
+				}
+				attempt( RATE_LIMIT_RETRIES );
 			} );
 
 			cache.set( spec.cacheKey, request );
