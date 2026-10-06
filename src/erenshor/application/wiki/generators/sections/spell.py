@@ -15,6 +15,7 @@ from loguru import logger
 from erenshor.application.wiki.generators.formatting import format_description, safe_str, seconds_text
 from erenshor.application.wiki.generators.link_lists import format_visible_links
 from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
+from erenshor.domain.value_objects.wiki_filename import image_file_title
 from erenshor.domain.value_objects.wiki_link import ClassLink
 from erenshor.shared.game_constants import GAME_TICKS_PER_SECOND
 
@@ -94,7 +95,7 @@ class SpellSectionGenerator(SectionGeneratorBase):
 
         cast_time_str = self._format_cast_time(spell.spell_charge_time)
 
-        image = f"{spell.image_name}.png" if spell.image_name else ""
+        image = image_file_title(spell.image_name)
 
         # status_effect_link deliberately remains a StandardLink: it is an
         # ordinary status-effect page link rather than a generated ability link.

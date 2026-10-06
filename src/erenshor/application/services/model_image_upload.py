@@ -22,6 +22,7 @@ import shutil
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Literal, Protocol
 
+from erenshor.domain.value_objects.capture_approval import Approval, ApprovedImage
 from erenshor.domain.value_objects.wiki_filename import sanitize_wiki_filename
 from erenshor.infrastructure.wiki import MediaWikiEditError, MediaWikiUploadWarningError
 
@@ -31,8 +32,6 @@ if TYPE_CHECKING:
 
     from erenshor.infrastructure.wiki import MediaWikiFileUpload
 
-APPROVAL_FILE = "approved.json"
-
 
 class LiveFiles(Protocol):
     """The reads of the live wiki that an upload plan needs."""
@@ -40,73 +39,6 @@ class LiveFiles(Protocol):
     def get_file_uploads(self, titles: Sequence[str]) -> dict[str, MediaWikiFileUpload]: ...
 
     def find_files_by_sha1(self, sha1: str) -> tuple[str, ...]: ...
-
-
-@dataclass(frozen=True, slots=True)
-class ApprovedImage:
-    """A reviewed capture that may go to the wiki under ``file``."""
-
-    file: str
-    png: str
-    sha256: str
-    stable_key: str
-    kind: str
-    pages: tuple[str, ...]
-
-
-@dataclass(frozen=True, slots=True)
-class Approval:
-    game_build: str
-    preset: str
-    images: tuple[ApprovedImage, ...]
-
-    def to_json(self) -> dict[str, Any]:
-        return {
-            "game_build": self.game_build,
-            "preset": self.preset,
-            "images": [
-                {
-                    "file": image.file,
-                    "png": image.png,
-                    "sha256": image.sha256,
-                    "stable_key": image.stable_key,
-                    "kind": image.kind,
-                    "pages": list(image.pages),
-                }
-                for image in self.images
-            ],
-        }
-
-    @classmethod
-    def from_json(cls, data: Mapping[str, Any]) -> Approval:
-        return cls(
-            game_build=str(data["game_build"]),
-            preset=str(data["preset"]),
-            images=tuple(
-                ApprovedImage(
-                    file=str(image["file"]),
-                    png=str(image["png"]),
-                    sha256=str(image["sha256"]),
-                    stable_key=str(image["stable_key"]),
-                    kind=str(image["kind"]),
-                    pages=tuple(image["pages"]),
-                )
-                for image in data["images"]
-            ),
-        )
-
-    def batch(self, files: Sequence[str]) -> Approval:
-        """The approval of only ``files``, for an upload batch; each must be approved."""
-        approved = {image.file for image in self.images}
-        unapproved = [file for file in files if file not in approved]
-        if unapproved:
-            raise ValueError(f"Not approved: {', '.join(unapproved)}")
-        selected = set(files)
-        return Approval(
-            game_build=self.game_build,
-            preset=self.preset,
-            images=tuple(image for image in self.images if image.file in selected),
-        )
 
 
 def _sha256(path: Path) -> str:
@@ -123,14 +55,13 @@ def approve(
 ) -> Approval:
     """Approve the accepted captures of ``files`` and copy them to ``approved_dir``.
 
-    Earlier approvals of other files stay, and a new approval of a file
-    replaces its earlier one. A capture that the review rejected, that failed,
-    or whose bytes changed since the review cannot be approved.
+    Earlier approvals of other files stay, also of other builds, and a new
+    approval of a file replaces its earlier one. A capture that the review
+    rejected, that failed, or whose bytes changed since the review cannot be
+    approved.
     """
     if captures["preset"] != manifest["camera_preset"] or captures["game_build"] != manifest["game_build"]:
         raise ValueError("The captures and the manifest are of different builds or presets.")
-    if previous is not None and (previous.preset, previous.game_build) != (captures["preset"], captures["game_build"]):
-        raise ValueError("The earlier approvals are of another build or preset.")
     results = {result["file"]: result for result in captures["results"]}
     pages = {entry["file"]: tuple(entry["pages"]) for entry in manifest["entries"]}
     approved = {image.file: image for image in (previous.images if previous else ())}
@@ -152,12 +83,10 @@ def approve(
             stable_key=str(result["stable_key"]),
             kind=str(result["kind"]),
             pages=pages.get(file, ()),
+            game_build=str(captures["game_build"]),
+            preset=str(captures["preset"]),
         )
-    return Approval(
-        game_build=str(captures["game_build"]),
-        preset=str(captures["preset"]),
-        images=tuple(sorted(approved.values(), key=lambda image: image.file)),
-    )
+    return Approval(images=tuple(sorted(approved.values(), key=lambda image: image.file)))
 
 
 def upload_title(file: str) -> str:
@@ -227,20 +156,19 @@ def plan_uploads(approval: Approval, approved_dir: Path, live: LiveFiles) -> lis
     return plan
 
 
-def description(image: ApprovedImage, approval: Approval) -> str:
+def description(image: ApprovedImage) -> str:
     """The file description page of an uploaded capture."""
     subject = f"[[{image.pages[0]}]]" if image.pages else "a character"
     return (
-        f"Rendered from the in-game model of {subject} (game build {approval.game_build}, "
-        f"capture preset {approval.preset}). An in-game screenshot may replace it."
+        f"Rendered from the in-game model of {subject} (game build {image.game_build}, "
+        f"capture preset {image.preset}). An in-game screenshot may replace it."
     )
 
 
-def write_record(path: Path, approval: Approval, results: Sequence[Mapping[str, Any]]) -> None:
+def write_record(path: Path, results: Sequence[Mapping[str, Any]]) -> None:
     """Record what an upload run wrote, for its review and for a rollback."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    record = {"game_build": approval.game_build, "preset": approval.preset, "results": list(results)}
-    path.write_text(json.dumps(record, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    path.write_text(json.dumps({"results": list(results)}, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
 class WikiWriter(Protocol):
@@ -263,7 +191,7 @@ class WikiWriter(Protocol):
 
 
 def execute_uploads(
-    plan: Sequence[PlannedWrite], writer: WikiWriter, approved_dir: Path, approval: Approval, summary: str
+    plan: Sequence[PlannedWrite], writer: WikiWriter, approved_dir: Path, summary: str
 ) -> list[dict[str, Any]]:
     """Carry out the plan, checking each title again just before its write.
 
@@ -296,7 +224,7 @@ def execute_uploads(
                     str(approved_dir / item.image.png),
                     target.removeprefix("File:"),
                     summary,
-                    text=description(item.image, approval),
+                    text=description(item.image),
                     ignore_warnings=False,
                 )
             except MediaWikiUploadWarningError as warning:

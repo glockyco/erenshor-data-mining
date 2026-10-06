@@ -18,6 +18,7 @@ from typing import Protocol
 from loguru import logger
 
 from erenshor.application.processor.build import build as build_clean_db
+from erenshor.application.processor.pictures import CATALOG_DIRECTORY, prune_catalog
 
 
 class CleanDatabaseBuilder(Protocol):
@@ -29,6 +30,8 @@ class CleanDatabaseBuilder(Protocol):
         raw_db_path: Path,
         clean_db_path: Path,
         mapping_json_path: Path,
+        export_dir: Path,
+        images_dir: Path,
     ) -> None: ...
 
 
@@ -43,6 +46,8 @@ class CleanDatabaseRequest:
     raw_db_path: Path
     clean_db_path: Path
     mapping_json_path: Path
+    export_dir: Path
+    images_dir: Path
 
 
 @dataclass(frozen=True, slots=True)
@@ -63,7 +68,10 @@ class CleanDatabaseWorkflow:
 
         The existing clean database is untouched until the builder returns and
         its staged output has been validated.  Any builder or publication error
-        removes the staged file and propagates to the caller.
+        removes the staged file and propagates to the caller.  The builder only
+        adds picture files to the catalog, so a failed build leaves every file
+        that the published database references.  After publication, the catalog
+        files that the new database does not reference are removed.
         """
         request.clean_db_path.parent.mkdir(parents=True, exist_ok=True)
         staged_path = self._make_staged_path(request.clean_db_path)
@@ -74,10 +82,14 @@ class CleanDatabaseWorkflow:
                 raw_db_path=request.raw_db_path,
                 clean_db_path=staged_path,
                 mapping_json_path=request.mapping_json_path,
+                export_dir=request.export_dir,
+                images_dir=request.images_dir,
             )
             self._validate_staged_output(staged_path)
             staged_path.replace(request.clean_db_path)
             logger.info(f"Clean DB published: {request.clean_db_path}")
+            removed = prune_catalog(request.images_dir / CATALOG_DIRECTORY, request.clean_db_path)
+            logger.info(f"Picture catalog: removed {removed} files that the database no longer references")
             return CleanDatabaseResult(clean_db_path=request.clean_db_path)
         finally:
             if staged_path.is_dir():

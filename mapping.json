@@ -2,7 +2,7 @@
   "metadata": {
     "schema_version": "2.0",
     "created_at": "2025-09-21T15:44:48.853024Z",
-    "updated_at": "2026-08-11T17:34:03Z"
+    "updated_at": "2026-10-06T18:40:00Z"
   },
   "rules": {
     "character:arenachest 1": {
@@ -3952,6 +3952,20 @@
       "is_map_visible": 0,
       "mapping_type": "exclude",
       "reason": "Placed in the Reliquary but inactive at load, and nothing in the scene or the game code turns it on. The rune portals of the planning table hold only zone lines. In game on 2026-10-06, with all six runes placed and the planning desk built, every rune receptacle stayed inactive."
+    },
+    "item:gen - a strange artifact (vith)": {
+      "wiki_page_name": "A Strange Artifact",
+      "display_name": "A Strange Artifact",
+      "image_name": "A Strange Artifact (Vitheo)",
+      "mapping_type": "custom",
+      "reason": "Two items share the page A Strange Artifact but draw different icons: the one fished in the Plane of Fernalla keeps the page's image, and this one, fished in the Plane of Vitheo, needs its own"
+    },
+    "spell:dru - group regrowth (effect)": {
+      "wiki_page_name": "Group Regrowth",
+      "display_name": "Group Regrowth",
+      "image_name": "Group Regrowth (effect)",
+      "mapping_type": "custom",
+      "reason": "The effect of Group Regrowth shares the cast spell's page but draws the Regrowth flower icon, not the cast spell's"
     }
   }
 }

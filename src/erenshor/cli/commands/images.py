@@ -552,7 +552,8 @@ def approve_captures(
         erenshor images approve --all --exclude "Planar Flame Energy.png"
         erenshor images approve --file "Faith.png"
     """
-    from erenshor.application.services.model_image_upload import APPROVAL_FILE, Approval, approve
+    from erenshor.application.services.model_image_upload import approve
+    from erenshor.domain.value_objects.capture_approval import APPROVAL_FILE, Approval
 
     console = Console()
     cli_ctx: CLIContext = ctx.obj
@@ -619,13 +620,8 @@ def upload_captures(
     """
     from datetime import UTC, datetime
 
-    from erenshor.application.services.model_image_upload import (
-        APPROVAL_FILE,
-        Approval,
-        execute_uploads,
-        plan_uploads,
-        write_record,
-    )
+    from erenshor.application.services.model_image_upload import execute_uploads, plan_uploads, write_record
+    from erenshor.domain.value_objects.capture_approval import APPROVAL_FILE, Approval
     from erenshor.infrastructure.wiki.client import MediaWikiClient
 
     console = Console()
@@ -649,7 +645,7 @@ def upload_captures(
     finally:
         reader.close()
 
-    table = Table(title=f"Capture uploads, game build {approval.game_build}, preset {approval.preset}")
+    table = Table(title="Capture uploads")
     table.add_column("File", style="cyan")
     table.add_column("Action", style="magenta")
     table.add_column("Target")
@@ -672,12 +668,12 @@ def upload_captures(
     )
     try:
         writer.login()
-        results = execute_uploads(plan, writer, approved_dir, approval, "Upload a reviewed capture of the game's model")
+        results = execute_uploads(plan, writer, approved_dir, "Upload a reviewed capture of the game's model")
     finally:
         writer.close()
     stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     record_path = capture_dir / "uploads" / f"{stamp}.json"
-    write_record(record_path, approval, results)
+    write_record(record_path, results)
     for result in results:
         console.print(f"  {result['action']:8} {result['file']} {result.get('reason', '')}")
     console.print(f"[green]✓[/green] Record: {record_path}")

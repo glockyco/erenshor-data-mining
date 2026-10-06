@@ -531,8 +531,10 @@ def build(ctx: typer.Context) -> None:
     mapping.json overrides, filters excluded entities and SimPlayers,
     deduplicates identical characters, computes one encounter tier per
     deduplication group, and writes the clean database consumed by wiki,
-    sheets, and map. The clean database is then added to the backup of the game
-    build it records, so 'extract changes' can compare later builds with it.
+    sheets, and map. It catalogues every icon texture and approved portrait
+    capture by pixel hash under images/catalog/ of the variant. The clean
+    database is then added to the backup of the game build it records, so
+    'extract changes' can compare later builds with it.
 
     Does not require a fresh 'extract export' — re-running 'extract build'
     after changing build logic is much faster than a full re-export.
@@ -565,6 +567,8 @@ def build(ctx: typer.Context) -> None:
                     raw_db_path=raw_db_path,
                     clean_db_path=clean_db_path,
                     mapping_json_path=mapping_json_path,
+                    export_dir=variant_config.resolved_unity_project(cli_ctx.repo_root) / "ExportedProject",
+                    images_dir=variant_config.resolved_images_output(cli_ctx.repo_root),
                 )
             )
             logger.info(f"Clean database built: clean_db={result.clean_db_path}")

@@ -15,6 +15,8 @@ Processing order:
     8. Stances                (no dependencies)
     9. Quests                 (depends on items, factions)
    10. Characters             (depends on all above)
+   11. Pictures               (depends on the entity tables; reads the
+                               export's textures and the approved captures)
 
 Each step logs the entity counts so progress is visible.
 """
@@ -41,6 +43,7 @@ from .entities import (
 )
 from .knowledge_base import process_knowledge_base
 from .mapping import load_mapping, validate_character_name_overrides
+from .pictures import process_pictures
 from .special_world_drops import process_special_world_drops
 from .treasure import process_treasure
 from .writer import Writer
@@ -50,6 +53,8 @@ def build(
     raw_db_path: Path,
     clean_db_path: Path,
     mapping_json_path: Path,
+    export_dir: Path,
+    images_dir: Path,
 ) -> None:
     """Build the clean database from the raw export.
 
@@ -58,11 +63,16 @@ def build(
         clean_db_path: Path where the clean database will be written
             (``database``).  Any existing file at this path is removed.
         mapping_json_path: Path to ``mapping.json``.
+        export_dir: The ripped Unity project (``ExportedProject``), whose
+            textures hold the icons.
+        images_dir: The variant's image directory, which holds the approved
+            portrait captures and receives the picture catalog.
 
     Raises:
         FileNotFoundError: If ``raw_db_path`` or ``mapping_json_path``
-            does not exist.
-        ValueError: If ``mapping.json`` is malformed.
+            does not exist, or an icon texture or approved capture is missing.
+        ValueError: If ``mapping.json`` is malformed, an approved capture
+            changed, or one wiki file title would name two pictures.
         sqlite3.Error: If the raw database cannot be opened.
     """
     if not raw_db_path.exists():
@@ -133,6 +143,9 @@ def build(
 
         logger.info("Processing the chat knowledge base...")
         process_knowledge_base(raw, writer)
+
+        logger.info("Processing pictures...")
+        process_pictures(raw, writer, export_dir, images_dir)
 
         logger.info("Processing AE event mutations...")
         from erenshor.domain.constants.ae_event_mutations import AE_EVENT_MUTATIONS

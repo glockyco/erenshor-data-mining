@@ -8,12 +8,11 @@ from typing import Any
 import pytest
 
 from erenshor.application.services.model_image_upload import (
-    Approval,
-    ApprovedImage,
     approve,
     execute_uploads,
     plan_uploads,
 )
+from erenshor.domain.value_objects.capture_approval import Approval, ApprovedImage
 from erenshor.infrastructure.wiki import MediaWikiFileUpload, MediaWikiUploadWarningError
 
 
@@ -29,9 +28,18 @@ def _approval(directory: Path, images: dict[str, bytes]) -> Approval:
         name = file.replace(":", "_")
         sha256 = _png(directory, name, content)
         approved.append(
-            ApprovedImage(file, name, sha256, f"character:{file}", "character", (file.removesuffix(".png"),))
+            ApprovedImage(
+                file,
+                name,
+                sha256,
+                f"character:{file}",
+                "character",
+                (file.removesuffix(".png"),),
+                "24405256",
+                "portrait-1",
+            )
         )
-    return Approval(game_build="24405256", preset="portrait-1", images=tuple(approved))
+    return Approval(images=tuple(approved))
 
 
 class FakeWiki:
@@ -79,7 +87,7 @@ def test_an_editor_image_is_skipped_and_its_uploader_named(tmp_path: Path) -> No
     plan = plan_uploads(approval, tmp_path, wiki)
 
     assert [(item.action, item.reason) for item in plan] == [("skip", "exists as File:Faith.png, uploaded by Biridian")]
-    assert execute_uploads(plan, wiki, tmp_path, approval, "summary")[0]["action"] == "skip"
+    assert execute_uploads(plan, wiki, tmp_path, "summary")[0]["action"] == "skip"
     assert (wiki.uploaded, wiki.created) == ([], [])
 
 
@@ -98,7 +106,7 @@ def test_a_title_with_a_colon_uploads_without_it_and_redirects(tmp_path: Path) -
     wiki = FakeWiki()
 
     plan = plan_uploads(approval, tmp_path, wiki)
-    execute_uploads(plan, wiki, tmp_path, approval, "summary")
+    execute_uploads(plan, wiki, tmp_path, "summary")
 
     assert [(item.action, item.target) for item in plan] == [("upload", "File:Summoned Treant.png")]
     assert wiki.uploaded == ["Summoned Treant.png"]
@@ -114,7 +122,7 @@ def test_an_image_that_the_wiki_or_the_batch_holds_becomes_a_redirect(tmp_path: 
     wiki.by_sha1[hashlib.sha1(b"shadow", usedforsecurity=False).hexdigest()] = ("File:Skeleton.png",)
 
     plan = plan_uploads(approval, tmp_path, wiki)
-    execute_uploads(plan, wiki, tmp_path, approval, "summary")
+    execute_uploads(plan, wiki, tmp_path, "summary")
 
     assert [(item.file, item.action, item.target) for item in plan] == [
         ("Braxonian Chest.png", "upload", "File:Braxonian Chest.png"),
@@ -137,7 +145,7 @@ def test_an_image_that_appears_after_the_plan_is_not_replaced(tmp_path: Path) ->
     wiki.uploads["File:Faith.png"] = MediaWikiFileUpload("File:Faith.png", "Editor", "abc")
     wiki.upload_warnings["Zenith.png"] = {"exists": "Zenith.png"}
 
-    results = execute_uploads(plan, wiki, tmp_path, approval, "summary")
+    results = execute_uploads(plan, wiki, tmp_path, "summary")
 
     assert [(result["file"], result["action"], result["reason"]) for result in results] == [
         ("Faith.png", "skip", "exists since the plan, uploaded by Editor"),
@@ -186,3 +194,17 @@ def test_a_rejected_capture_cannot_be_approved(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match=r"Opus\.png was rejected in the review"):
         approve(captures, manifest, staging, tmp_path / "approved", ["Opus.png"])
     assert not (tmp_path / "approved" / "Opus.png").exists()
+
+
+def test_a_new_build_approves_a_capture_and_keeps_the_approvals_of_an_earlier_build(tmp_path: Path) -> None:
+    captures, manifest, staging = _review(tmp_path)
+    earlier = approve(captures, manifest, staging, tmp_path / "approved", ["Faith.png"])
+    captures["game_build"] = manifest["game_build"] = "25000000"
+    captures["results"][1]["status"] = "accepted"
+
+    approval = approve(captures, manifest, staging, tmp_path / "approved", ["Opus.png"], earlier)
+
+    assert [(image.file, image.game_build) for image in approval.images] == [
+        ("Faith.png", "24405256"),
+        ("Opus.png", "25000000"),
+    ]

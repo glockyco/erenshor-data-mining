@@ -66,12 +66,12 @@ The catalog SHALL record, for each picture, the game build, its kind, its source
 
 ### Requirement: Rendered portraits enter after review
 
-A rendered portrait SHALL enter the catalog only when a review approved it, bound to the pixel hash it was approved with. A capture whose pixels differ from its approved hash SHALL NOT enter the catalog. A new capture with the same pixels as an approved one SHALL keep that approval.
+A rendered portrait SHALL enter the catalog only when a review approved it, bound to the hash of the bytes it was approved with. An approved copy whose bytes differ from that hash SHALL fail the build and name the file, because only a review replaces an approved copy. A new capture with the same pixels as an approved one SHALL keep the same picture.
 
-#### Scenario: A capture changes after approval
+#### Scenario: An approved copy changes
 
-- **WHEN** an approved portrait file is replaced by a capture with different pixels
-- **THEN** the catalog leaves the portrait out until a review approves the new capture
+- **WHEN** an approved portrait file is overwritten outside a review
+- **THEN** the build fails and names the file
 
 #### Scenario: A repeat capture of an unchanged model
 

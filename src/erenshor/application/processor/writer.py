@@ -360,6 +360,39 @@ CREATE TABLE factions (
 );
 
 -- -------------------------------------------------------------------------
+-- Pictures: every game picture that the wiki or the map shows, once each
+-- -------------------------------------------------------------------------
+
+-- A picture is identified by the SHA-256 of its width, height, and RGBA
+-- pixels, so its identity does not depend on how a PNG file encodes it. Its
+-- file is images/catalog/<image_hash>.png of the variant.
+CREATE TABLE images (
+    image_hash      TEXT PRIMARY KEY NOT NULL,
+    kind            TEXT NOT NULL CHECK (kind IN ('icon', 'portrait', 'frame')),
+    width           INTEGER NOT NULL,
+    height          INTEGER NOT NULL,
+    file_sha1       TEXT NOT NULL,
+    file_bytes      INTEGER NOT NULL,
+    capture_preset  TEXT,
+    approved_build  TEXT
+);
+
+-- Where a picture came from: the export's texture asset path of an icon or
+-- frame, or the approved capture of a portrait. Textures with equal pixels
+-- share one picture.
+CREATE TABLE image_sources (
+    image_hash  TEXT NOT NULL REFERENCES images (image_hash),
+    source      TEXT NOT NULL,
+    PRIMARY KEY (image_hash, source)
+);
+
+-- Every wiki file title that a wiki page names for a picture.
+CREATE TABLE image_titles (
+    title       TEXT PRIMARY KEY NOT NULL,
+    image_hash  TEXT NOT NULL REFERENCES images (image_hash)
+);
+
+-- -------------------------------------------------------------------------
 -- Items
 -- -------------------------------------------------------------------------
 
@@ -371,6 +404,7 @@ CREATE TABLE items (
     display_name                    TEXT NOT NULL,
     wiki_page_name                  TEXT,
     image_name                      TEXT NOT NULL,
+    image_hash                      TEXT REFERENCES images (image_hash),
     is_wiki_generated               INTEGER NOT NULL DEFAULT 1,
     is_map_visible                  INTEGER NOT NULL DEFAULT 1,
     lore                            TEXT,
@@ -527,6 +561,7 @@ CREATE TABLE spells (
     display_name                        TEXT NOT NULL,
     wiki_page_name                      TEXT,
     image_name                          TEXT NOT NULL,
+    image_hash                          TEXT REFERENCES images (image_hash),
     is_wiki_generated                   INTEGER NOT NULL DEFAULT 1,
     is_map_visible                      INTEGER NOT NULL DEFAULT 1,
     spell_desc                          TEXT,
@@ -634,6 +669,7 @@ CREATE TABLE skills (
     display_name                TEXT NOT NULL,
     wiki_page_name              TEXT,
     image_name                  TEXT NOT NULL,
+    image_hash                  TEXT REFERENCES images (image_hash),
     is_wiki_generated           INTEGER NOT NULL DEFAULT 1,
     is_map_visible              INTEGER NOT NULL DEFAULT 1,
     skill_desc                  TEXT,
@@ -687,6 +723,7 @@ CREATE TABLE stances (
     display_name            TEXT NOT NULL,
     wiki_page_name          TEXT,
     image_name              TEXT NOT NULL,
+    image_hash              TEXT REFERENCES images (image_hash),
     is_wiki_generated       INTEGER NOT NULL DEFAULT 1,
     is_map_visible          INTEGER NOT NULL DEFAULT 1,
     max_hp_mod              REAL,
@@ -802,6 +839,7 @@ CREATE TABLE characters (
     display_name                TEXT NOT NULL,
     wiki_page_name              TEXT,
     image_name                  TEXT NOT NULL,
+    image_hash                  TEXT REFERENCES images (image_hash),
     is_wiki_generated           INTEGER NOT NULL DEFAULT 1,
     is_map_visible              INTEGER NOT NULL DEFAULT 1,
     scene                       TEXT,
@@ -1498,6 +1536,15 @@ class Writer:
 
     def insert_items(self, rows: list[dict[str, object]]) -> int:
         return self._insert("items", rows)
+
+    def insert_images(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("images", rows)
+
+    def insert_image_sources(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("image_sources", rows)
+
+    def insert_image_titles(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("image_titles", rows)
 
     def insert_item_stats(self, rows: list[dict[str, object]]) -> int:
         return self._insert("item_stats", rows)

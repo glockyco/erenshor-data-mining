@@ -48,24 +48,30 @@ Alternatives considered:
 
 ### D2. A content-addressed catalog in the clean build
 
-The clean build writes the picture files to `variants/<variant>/images/catalog/<pixel-hash>.png`, plus three tables in the clean database:
+The clean build copies each picture's file to `variants/<variant>/images/catalog/<pixel-hash>.png` and writes three tables to the clean database:
 
-- `images`: the pixel hash, kind (`icon` or `portrait`), width, height, file SHA-1, game build, and producer (export, or capture preset and approval)
-- `image_sources`: the source assets of each picture
-- `entity_images`: each entity's stable key, its picture, and the wiki file title it names
+- `images`: each picture's pixel hash, kind (`icon`, `portrait`, or `frame`), width, height, file SHA-1 and size, and for a portrait its capture preset and approval build
+- `image_sources`: the source of each picture, a texture path of the export or an approved capture
+- `image_titles`: every wiki file title that a page names, with its picture
+
+Items, spells, skills, stances, and characters get an `image_hash` column that references `images`.
 
 - **The pixel hash** is SHA-256 over the width, the height, and the RGBA bytes, so it ignores encoding.
-- **The PNG encoding is pinned:** RGBA, a fixed zlib level, no optimisation pass, and no ancillary chunks. So a rebuild without game changes writes identical bytes, and the file SHA-1 is stable (spec: "Picture bytes are deterministic").
-- **Approved portraits enter through `approved.json`.** The clean build reads it and checks each PNG against its approved hash. `images approve` keeps writing that record. A portrait capture that reproduces an approved pixel hash needs no new review.
+- **The catalog keeps the source bytes.** An icon's file is its texture as the export wrote it, and a portrait's file is its approved copy, so nothing is re-encoded. A rebuild of one export writes byte-identical files and rows (spec: "Picture bytes are deterministic"). When a new export encodes an unchanged texture differently, only the file SHA-1 changes, and publishing compares pixels (D4).
+- **Approved portraits enter through `approved.json`.** The build checks each approved copy against the SHA-256 it was approved with and fails on a mismatch, because only a review replaces an approved copy. Each approval records its own game build and preset, so approvals of different builds coexist, and a capture that reproduces approved pixels keeps the same picture. `images approve` keeps writing the record, now a domain value object shared by the build and the uploader.
+- **The hotbar frame** (`ma_frame`, design D7) is no entity's icon, so the build names its texture and its title `Hotbar Frame.png`, and fails when a game update removes it.
 - **Titles:**
-  - An entity's title comes from its `image_name`, the same rule the generators use today, so no page changes.
-  - A title with a colon gets an upload title without it, as `upload_title` does today.
+  - An entity's title comes from its image name by the same rule the generators use, `image_file_title`, which both now share. An icon's title counts when its entity has a generated page. A character has a picture only through an approved portrait, approved for a page that names it, so a character's title counts whenever it has a picture. That covers the pages marked unused, which have no generated page.
+  - A title with a colon keeps its exact name. Publishing uploads it without the colon and redirects (D5).
+  - A title that would name two pictures fails the build and names both entities. The first build found two: the items A Strange Artifact fished in the Planes of Fernalla and Vitheo, and the cast and effect spells of Group Regrowth. Each pair shares a page but draws different icons, so the second item and the effect get their own image names in `mapping.json`.
+- **Files go before rows.** The build writes a picture's file only when it is missing or differs, through a temporary file, and only adds files. After a new database is published, the files it no longer references are removed. A failed build therefore leaves every file that the published database references.
 
 Alternatives considered:
 - Keeping `registry.db` as a separate store duplicates state that the build can derive. That state is also what went stale.
+- Re-encoding every picture with pinned settings would make the bytes independent of the exporter, but would change every file on the first run, when the pixel comparison already ignores encoding.
 - Files named by entity in the catalog would need one copy per entity again.
 
-**Owner:** the clean build. `images approve` owns `approved.json`, as today.
+**Owner:** the clean build writes the catalog files and tables. `images approve` owns `approved.json`.
 
 ### D3. Ownership and conflicts from the latest version's uploader
 

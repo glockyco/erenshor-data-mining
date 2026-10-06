@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-__all__ = ["MEDIAWIKI_PROHIBITED_CHARS", "needs_redirect", "sanitize_wiki_filename"]
+__all__ = ["MEDIAWIKI_PROHIBITED_CHARS", "image_file_title", "needs_redirect", "sanitize_wiki_filename"]
 
 # Characters with MediaWiki title or wikitext semantics that cannot remain in
 # uploaded file-title bases. Extensions are added by callers after sanitizing.
@@ -30,3 +30,16 @@ def sanitize_wiki_filename(filename: str) -> str:
 def needs_redirect(original: str, sanitized: str) -> bool:
     """Return whether sanitization changed the requested file-title base."""
     return original != sanitized
+
+
+def image_file_title(*names: str | None) -> str:
+    """Return the file title that a page names for an entity's picture.
+
+    The title is the first non-empty name with ``.png``, or ``""`` when every
+    name is empty. Callers pass the entity's image name first, then the
+    names that stand in for it.
+    """
+    for name in names:
+        if name:
+            return f"{name}.png"
+    return ""

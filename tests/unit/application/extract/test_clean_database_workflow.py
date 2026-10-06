@@ -19,12 +19,16 @@ def _request(tmp_path: Path) -> CleanDatabaseRequest:
         raw_db_path=tmp_path / "database_raw.sqlite",
         clean_db_path=tmp_path / "database.sqlite",
         mapping_json_path=tmp_path / "mapping.json",
+        export_dir=tmp_path / "ExportedProject",
+        images_dir=tmp_path / "images",
     )
 
 
-def _write_sqlite(path: Path) -> None:
+def _write_sqlite(path: Path, image_hashes: tuple[str, ...] = ()) -> None:
     with sqlite3.connect(path) as connection:
         connection.execute("CREATE TABLE built (id INTEGER PRIMARY KEY)")
+        connection.execute("CREATE TABLE images (image_hash TEXT PRIMARY KEY)")
+        connection.executemany("INSERT INTO images VALUES (?)", [(image_hash,) for image_hash in image_hashes])
 
 
 def test_success_passes_resolved_inputs_and_publishes_only_builder_output(tmp_path: Path) -> None:
@@ -49,6 +53,8 @@ def test_success_passes_resolved_inputs_and_publishes_only_builder_output(tmp_pa
             "raw_db_path": request.raw_db_path,
             "clean_db_path": calls[0]["clean_db_path"],
             "mapping_json_path": request.mapping_json_path,
+            "export_dir": request.export_dir,
+            "images_dir": request.images_dir,
         }
     ]
     assert not list(tmp_path.glob(".database.sqlite.*.tmp"))
@@ -123,3 +129,35 @@ def test_request_and_result_are_immutable(tmp_path: Path) -> None:
         request.raw_db_path = tmp_path / "other.sqlite"  # type: ignore[misc]
     with pytest.raises(FrozenInstanceError):
         result.clean_db_path = tmp_path / "other.sqlite"  # type: ignore[misc]
+
+
+def test_publication_prunes_the_catalog_files_that_the_new_database_does_not_reference(tmp_path: Path) -> None:
+    request = _request(tmp_path)
+    catalog = request.images_dir / "catalog"
+    catalog.mkdir(parents=True)
+    (catalog / "kept.png").write_bytes(b"kept")
+    (catalog / "gone.png").write_bytes(b"gone")
+
+    def builder(**kwargs: object) -> None:
+        staged_path = kwargs["clean_db_path"]
+        assert isinstance(staged_path, Path)
+        _write_sqlite(staged_path, ("kept",))
+
+    CleanDatabaseWorkflow(builder).run(request)
+
+    assert sorted(path.name for path in catalog.iterdir()) == ["kept.png"]
+
+
+def test_a_failed_build_leaves_every_catalog_file(tmp_path: Path) -> None:
+    request = _request(tmp_path)
+    catalog = request.images_dir / "catalog"
+    catalog.mkdir(parents=True)
+    (catalog / "kept.png").write_bytes(b"kept")
+
+    def builder(**_: object) -> None:
+        raise RuntimeError("build failed")
+
+    with pytest.raises(RuntimeError, match="build failed"):
+        CleanDatabaseWorkflow(builder).run(request)
+
+    assert [path.name for path in catalog.iterdir()] == ["kept.png"]
