@@ -386,10 +386,13 @@ CREATE TABLE image_sources (
     PRIMARY KEY (image_hash, source)
 );
 
--- Every wiki file title that a wiki page names for a picture.
+-- Every wiki file title that a wiki page names for a picture, with the first
+-- entity that names it in the order item, spell, skill, stance, character.
+-- The hotbar frame's title names no entity.
 CREATE TABLE image_titles (
     title       TEXT PRIMARY KEY NOT NULL,
-    image_hash  TEXT NOT NULL REFERENCES images (image_hash)
+    image_hash  TEXT NOT NULL REFERENCES images (image_hash),
+    stable_key  TEXT
 );
 
 -- -------------------------------------------------------------------------

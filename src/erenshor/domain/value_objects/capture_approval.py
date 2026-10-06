@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping, Sequence
+    from collections.abc import Mapping
 
 __all__ = ["APPROVAL_FILE", "Approval", "ApprovedImage"]
 
@@ -75,12 +75,3 @@ class Approval:
     @classmethod
     def from_json(cls, data: Mapping[str, Any]) -> Approval:
         return cls(images=tuple(ApprovedImage.from_json(image) for image in data["images"]))
-
-    def batch(self, files: Sequence[str]) -> Approval:
-        """The approval of only ``files``, for an upload batch; each must be approved."""
-        approved = {image.file for image in self.images}
-        unapproved = [file for file in files if file not in approved]
-        if unapproved:
-            raise ValueError(f"Not approved: {', '.join(unapproved)}")
-        selected = set(files)
-        return Approval(images=tuple(image for image in self.images if image.file in selected))

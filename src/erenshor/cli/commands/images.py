@@ -40,8 +40,12 @@ from erenshor.cli.preconditions.checks.inputs import required_path, wiki_credent
 from erenshor.domain.value_objects.wiki_filename import needs_redirect, sanitize_wiki_filename
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from erenshor.application.services.image_publication_run import RunRecord
     from erenshor.cli.context import CLIContext
     from erenshor.domain.entities.image import ImageMetadata
+    from erenshor.infrastructure.wiki.client import MediaWikiClient
 
 __all__ = ["app"]
 
@@ -552,7 +556,7 @@ def approve_captures(
         erenshor images approve --all --exclude "Planar Flame Energy.png"
         erenshor images approve --file "Faith.png"
     """
-    from erenshor.application.services.model_image_upload import approve
+    from erenshor.application.services.model_image_approval import approve
     from erenshor.domain.value_objects.capture_approval import APPROVAL_FILE, Approval
 
     console = Console()
@@ -593,90 +597,138 @@ def approve_captures(
     console.print(f"[green]✓[/green] {len(approval.images)} approved captures in {approval_path}")
 
 
-@app.command("upload-captures")
-@require_preconditions(required_path("images_dir", "model-captures/approved.json"), wiki_credentials)
-def upload_captures(
+def _project_accounts(cli_ctx: CLIContext) -> tuple[str, ...]:
+    """The accounts whose uploads are the project's: the bot and the interface account's user."""
+    wiki_config = cli_ctx.config.global_.mediawiki
+    usernames = (wiki_config.bot_username, wiki_config.interface_username)
+    return tuple(dict.fromkeys(name.partition("@")[0] for name in usernames if name))
+
+
+@app.command("publish")
+@require_preconditions(database_exists, database_valid, wiki_credentials)
+def publish(
     ctx: typer.Context,
-    files: Annotated[
-        list[str] | None,
-        typer.Option("--file", help="Upload only this approved file title; repeat for more"),
+    revert_stamp: Annotated[
+        str | None,
+        typer.Option("--revert", help="Undo the publish run with this stamp, as far as the bot's rights allow"),
     ] = None,
 ) -> None:
-    """Upload the approved captures whose files the wiki lacks.
+    """Publish the picture catalog to the wiki, one file per picture.
 
-    Reads the live wiki for each approved file title. A title with an image,
-    directly or through a redirect, is skipped and its uploader named. A title
-    whose image the wiki holds under another name, or that another file of the
-    batch uploads, becomes a redirect. Every other capture is uploaded, under a
-    name without a colon when its title has one, with a redirect from the title.
-    Each write checks its title again first and never replaces an image. With
-    --file, the batch is only the named approved files. With the root --dry-run
-    option, shows the plan and writes nothing.
+    Lists the wiki's files once and gives every file title that a page names a
+    verdict: create, update, unchanged, redirect, retire, or conflict. Every
+    other title of a picture redirects to its file, and a copy that the
+    project uploaded moves to "Retired <title>" with a deletion notice. A file
+    whose latest version someone else uploaded is a conflict and stays. Writes
+    the plan and contact sheets of every changing picture to
+    images/publish/<stamp>/. With the root --dry-run option, stops there.
+    Otherwise writes uploads, retirements, redirects, and deletion notices,
+    checking each title again first, and records every write in run.json.
 
     Examples:
-        erenshor --dry-run images upload-captures
-        erenshor --dry-run images upload-captures --file "Faith.png" --file "Summoned: Treant.png"
-        erenshor images upload-captures
+        erenshor --dry-run images publish
+        erenshor images publish
+        erenshor images publish --revert 20261006T200000Z
     """
     from datetime import UTC, datetime
 
-    from erenshor.application.services.model_image_upload import execute_uploads, plan_uploads, write_record
-    from erenshor.domain.value_objects.capture_approval import APPROVAL_FILE, Approval
-    from erenshor.infrastructure.wiki.client import MediaWikiClient
+    from erenshor.application.services.image_publication import (
+        LivePictureCache,
+        LiveWiki,
+        load_catalog,
+        plan_publication,
+        write_contact_sheets,
+    )
+    from erenshor.application.services.image_publication_run import DELETE_NOTICE, RunRecord, execute, revert
 
     console = Console()
     cli_ctx: CLIContext = ctx.obj
-    capture_dir = _model_capture_dir(cli_ctx)
-    approval = Approval.from_json(json.loads((capture_dir / APPROVAL_FILE).read_text(encoding="utf-8")))
-    if files:
-        try:
-            approval = approval.batch(files)
-        except ValueError as error:
-            console.print(f"[red]{error}[/red]")
-            raise typer.Exit(1) from error
-    approved_dir = capture_dir / "approved"
+    variant_config = cli_ctx.config.variants[cli_ctx.variant]
+    publish_dir = variant_config.resolved_images_output(cli_ctx.repo_root) / "publish"
+    run_dir = publish_dir / datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+    owners = _project_accounts(cli_ctx)
 
-    reader = create_readonly_mediawiki_client(cli_ctx)
-    try:
-        plan = plan_uploads(approval, approved_dir, reader)
-    except ValueError as error:
-        console.print(f"[red]{error}[/red]")
-        raise typer.Exit(1) from error
-    finally:
-        reader.close()
+    if revert_stamp is not None:
+        reverted = RunRecord.load(publish_dir / revert_stamp)
+        done = [entry for entry in reverted.entries if entry.get("done")]
+        if not done:
+            console.print(f"[red]The run {revert_stamp} recorded no write.[/red]")
+            raise typer.Exit(1)
+        console.print(f"{len(done)} writes of run {revert_stamp} to undo")
+        if cli_ctx.dry_run:
+            console.print("[yellow]Dry run: nothing was written.[/yellow]")
+            return
+        record = RunRecord(run_dir)
+        with closing(_bot_client(cli_ctx)) as writer:
+            writer.login()
+            revert(reverted, writer, record, owners, f"Revert the picture publication of {revert_stamp}")
+        _print_record(console, record)
+        return
 
-    table = Table(title="Capture uploads")
-    table.add_column("File", style="cyan")
-    table.add_column("Action", style="magenta")
-    table.add_column("Target")
-    table.add_column("Reason", style="dim")
-    for item in plan:
-        table.add_row(item.file, item.action, item.target or "", item.reason)
-    console.print(table)
-    counts = {action: sum(item.action == action for item in plan) for action in ("upload", "redirect", "skip")}
-    console.print(f"{counts['upload']} uploads, {counts['redirect']} redirects, {counts['skip']} skipped")
+    catalog = load_catalog(variant_config.resolved_database(cli_ctx.repo_root), publish_dir.parent)
+    with closing(create_readonly_mediawiki_client(cli_ctx)) as reader:
+        files = reader.list_files()
+        file_pages = reader.list_file_pages()
+        live = LiveWiki({file.title: file for file in files}, file_pages.redirects, file_pages.pages)
+        pictures = LivePictureCache(reader.download, publish_dir / "live")
+
+        def delete_tagged(titles: Sequence[str]) -> set[str]:
+            snapshots = reader.get_page_snapshots(titles)
+            return {title for title, page in snapshots.items() if DELETE_NOTICE in (page.source_text or "")}
+
+        plan = plan_publication(catalog, live, owners, pictures, reader.is_file_used, delete_tagged)
+        sheets = write_contact_sheets(plan, catalog, live, pictures, run_dir)
+        pictures.save()
+    (run_dir / "plan.json").write_text(json.dumps(plan.to_json(), indent=2, ensure_ascii=False) + "\n")
+
+    counts = plan.counts()
+    console.print(", ".join(f"{count} {verdict}" for verdict, count in counts.items()))
+    conflicts = [item for item in plan.titles if item.verdict == "conflict"]
+    if conflicts:
+        table = Table(title="Conflicts: the bot leaves these titles alone")
+        table.add_column("Title", style="cyan")
+        table.add_column("Reason", style="dim")
+        for item in conflicts:
+            table.add_row(item.title, item.reason)
+        console.print(table)
+    console.print(
+        f"{len(plan.orphans)} orphans that nothing produces and no page shows, "
+        f"{len(plan.retired)} retired files for deletion, {len(plan.untagged)} without a deletion notice"
+    )
+    console.print(f"Plan: {run_dir / 'plan.json'}")
+    console.print(f"Contact sheets: {len(sheets)} under {run_dir}")
     if cli_ctx.dry_run:
         console.print("[yellow]Dry run: nothing was written.[/yellow]")
         return
 
+    record = RunRecord(run_dir)
+    with closing(_bot_client(cli_ctx)) as writer:
+        writer.login()
+        execute(plan, catalog, writer, record, "Publish the game's pictures")
+    _print_record(console, record)
+
+
+def _bot_client(cli_ctx: CLIContext) -> MediaWikiClient:
+    from erenshor.infrastructure.wiki.client import MediaWikiClient
+
     wiki_config = cli_ctx.config.global_.mediawiki
-    writer = MediaWikiClient(
+    return MediaWikiClient(
         api_url=wiki_config.api_url,
         bot_username=wiki_config.bot_username,
         bot_password=wiki_config.bot_password,
         batch_size=50,
     )
-    try:
-        writer.login()
-        results = execute_uploads(plan, writer, approved_dir, "Upload a reviewed capture of the game's model")
-    finally:
-        writer.close()
-    stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
-    record_path = capture_dir / "uploads" / f"{stamp}.json"
-    write_record(record_path, results)
-    for result in results:
-        console.print(f"  {result['action']:8} {result['file']} {result.get('reason', '')}")
-    console.print(f"[green]✓[/green] Record: {record_path}")
+
+
+def _print_record(console: Console, record: RunRecord) -> None:
+    from collections import Counter
+
+    done = Counter(str(entry["action"]) for entry in record.entries if entry.get("done"))
+    console.print("Written: " + (", ".join(f"{count} {action}" for action, count in sorted(done.items())) or "nothing"))
+    for entry in record.entries:
+        if not entry.get("done"):
+            console.print(f"  [yellow]skipped[/yellow] {entry['action']} {entry['title']}: {entry.get('reason', '')}")
+    console.print(f"[green]✓[/green] Record: {record.directory / 'run.json'}")
 
 
 def _deployment_list_for_stable_keys(registry: ImageRegistry, stable_keys: list[str]) -> dict[str, ImageMetadata]:

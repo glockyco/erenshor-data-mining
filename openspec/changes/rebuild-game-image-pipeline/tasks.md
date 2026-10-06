@@ -49,19 +49,21 @@
 
   Add client tests with recorded responses, including continuation and a warning that an upload does not expect. Verify: the listing of the live wiki reads every file, 3,127 on 2026-10-06, and the tests pass.
   - Done on 2026-10-06: the client lists files and File pages, checks image use, moves pages, confirms stashed uploads, and reads file versions. One helper follows every continuation and fails on a malformed or repeated one; the user-contribution and wanted-page listings use it too. The live wiki refuses `redirects` with the `allpages` generator, so the File pages are listed as redirects and other pages and the redirects are resolved by title. Anonymous, the live listing read 3,236 files (the 3,127 of the morning and the 109 portrait uploads) in 4.5 s, and 379 file redirects and 3,236 other File pages in 3.7 s. `upload_file` no longer sends `bot`, which the upload API does not have.
-- [ ] 4.2 `feat(images): plan publication against one listing of the live wiki`:
+- [x] 4.2 `feat(images): plan publication against one listing of the live wiki`:
   - Plan every catalog title with the verdicts, the pixel comparison, the title choice, and the retirements of design D4 to D6.
   - Write the plan and the contact sheet of creates and updates to `variants/<variant>/images/publish/<stamp>/`.
   - `erenshor --dry-run images publish` prints the verdict counts, conflicts, and orphans.
   - Add tests for the scenarios of the `wiki-images` spec: two changed icons, an interrupted run, the same pixels in another encoding, an editor's newer version, a new item sharing a picture, a changed shared picture, an identical copy to retire, an icon under an old spelling, and a title with a colon.
-  - Verify: a dry run against the live wiki lists `Spell_Scroll_Meditative_Trance.png` as a conflict uploaded by WoWMuch, Thorned Branch as an update, and `Spell_Scroll-_Aetherstorm.png` as an orphan.
-- [ ] 4.3 `feat(images): publish a plan with a resumable run record`:
+  - Verify: a dry run against the live wiki lists Thorned Branch as an update and `Spell_Scroll-_Aetherstorm.png` as an orphan, and names the uploader of every conflict.
+  - Done on 2026-10-06: `erenshor --dry-run images publish` planned the live wiki in 433 s: 1,269 updates, 622 retirements, 242 redirects, 199 unchanged titles, 2 creates (the hotbar frame and the Vitheo artifact), and 4 conflicts, with 100 orphans (79 WoWBot, 21 WoWMuch) and 32 contact sheets. Thorned Branch is an update, `Spell Scroll- Aetherstorm.png` an orphan, and `Spell Scroll Meditative Trance.png` a retirement, because it is an output of the old pipeline that WoWMuch uploaded before WoWBot existed, like 102 other files (design D3). The 4 conflicts are the two summons whose upload titles hold Snedn's and Ulor's pictures. The listing settles every pixel comparison without a download, by bytes or size. Live redirects are judged by the page they name, because MediaWiki follows one file redirect, which a local parse confirmed.
+- [x] 4.3 `feat(images): publish a plan with a resumable run record`:
   - `erenshor images publish` carries out the plan in the write order of design D8. Before each write it checks the title again, and it confirms an upload only on the warning its verdict expects.
   - Every upload records its provenance in the comment, and a new file gets a description with the game's copyright notice. A retired file gets `{{Delete}}`.
   - Every write goes to `run.json`, with the replaced bytes saved for `--revert`.
   - Remove `images upload-captures`, which publish replaces, and update the `refreshing-game-data` skill and the Images section of the Game Data guide for the new commands, one file per picture, and how an editor's replacement is kept.
   - Add tests for a title that changes after the plan, an unexpected warning, a rerun after an interruption, and a revert.
   - Verify: the tests pass, and a publish against the local wiki stack, a rerun, and a revert leave the local files as the plan says.
+  - Done on 2026-10-06: against the local stack, set up like the old pipeline with 150 px copies of Stone of Arcanism, Aura: Aracnism, and Azure Willow Seed, a publish updated two files, retired the spell's copy, and wrote the redirects and the deletion notice. A second plan found every title unchanged, and every title rendered an image. The revert uploaded the replaced bytes again, pointed the retired title back at its retired file, and removed the notice. The local runs changed the design in three places (D6, D8). Each retirement now writes its redirect at once, after the redirects to the pictures' files, where the first order left titles without a picture for the length of all moves. A redirect write reads the page, because the file history of a redirect title is its target's. Updates and reverts accept `duplicateversions`. `upload-captures` and `Approval.batch` are gone, and `model_image_upload` became `model_image_approval`.
 
 ## 5. Migrate the live wiki
 
@@ -81,4 +83,4 @@
   - `images/icon-background.png`
 
   Update the README's pipeline description. Verify: no source, test, skill, or document refers to the removed commands or files, and the unit and contract tests pass.
-- [ ] 6.2 Add the deletion list of the run record to group 9 of `adopt-data-backed-wiki`, with the retired copies and the 86 orphans, for an administrator. Verify: the task names the list, and each listed file has an empty `list=imageusage` result when the list is recorded.
+- [ ] 6.2 Add the deletion list of the run record to group 9 of `adopt-data-backed-wiki`, with the retired copies and the orphans of the plan, for an administrator. Verify: the task names the list, and each listed file has an empty `list=imageusage` result when the list is recorded.

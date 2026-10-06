@@ -26,13 +26,18 @@ Publishing SHALL NOT upload a picture whose pixels equal those of the live file 
 
 ### Requirement: The bot updates only the files it owns
 
-The bot SHALL update a file only when the bot account uploaded its latest version. A file whose latest version someone else uploaded SHALL be a conflict: the plan SHALL name the file and its uploader, and the bot SHALL NOT overwrite it. An upload SHALL be confirmed only when the wiki's warning is the expected one for that verdict.
+The bot SHALL update a file only when the bot account or the operator account that runs it uploaded its latest version. A file whose latest version someone else uploaded SHALL be a conflict: the plan SHALL name the file and its uploader, and the bot SHALL NOT overwrite it. An upload SHALL be confirmed only when the wiki's warnings are among those expected for that verdict.
 
 #### Scenario: An editor improved a bot icon
 
 - **WHEN** an editor uploaded a new version of a bot icon and the game later changes that icon
 - **THEN** the plan reports a conflict naming the file and the editor
 - **AND** the editor's version stays the latest version
+
+#### Scenario: An icon that the old pipeline uploaded under the operator's account
+
+- **WHEN** the operator's account uploaded the latest version of an icon before the bot account existed
+- **THEN** the plan updates or retires that file like one of the bot's
 
 #### Scenario: An unexpected warning
 
@@ -51,7 +56,7 @@ Every bot upload SHALL carry an upload comment with the game build, the picture'
 
 ### Requirement: One file holds each picture
 
-Each distinct picture SHALL have one file. Every other entity title that uses the picture SHALL be a file redirect to it, so that every title a page names keeps resolving. When the entity that names a file no longer uses the picture, the bot SHALL move the file to a title that still uses it and leave a redirect only where a page needs one.
+Each distinct picture SHALL have one file. Every other entity title that uses the picture SHALL be a file redirect that names that file directly, because MediaWiki shows a file through one redirect only, so that every title a page names keeps resolving. When the entity that names a file no longer uses the picture, the bot SHALL move the file to a title that still uses it and leave a redirect only where a page needs one.
 
 #### Scenario: Two items share a picture
 
@@ -72,6 +77,16 @@ When a title that the catalog makes a redirect holds a file that the bot owns, p
 - **WHEN** `File:Spell Scroll: Annihilate.png` holds a bot copy of a picture whose file has another title
 - **THEN** the bot moves the copy to its retired title and makes the scroll's title a redirect to the picture's file
 - **AND** the retired file appears on the deletion list
+
+#### Scenario: A title with a colon during a retirement
+
+- **WHEN** `File:Spell Scroll: Annihilate.png` redirects to a bot copy that the run retires
+- **THEN** the run points the title at the picture's file before it moves the copy, so the title shows a picture throughout
+
+#### Scenario: A redirect through another redirect
+
+- **WHEN** a title redirects to a redirect of the picture's file
+- **THEN** the plan points the title at the file itself
 
 ### Requirement: Files nothing produces are reported
 

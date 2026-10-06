@@ -208,8 +208,10 @@ class MediaWikiFileVersion:
 class MediaWikiFilePages:
     """The pages of the File namespace.
 
-    ``redirects`` maps each redirect page to its target. ``pages`` holds every
-    other existing page, with or without an uploaded file.
+    ``redirects`` maps each redirect page to the page it names. MediaWiki
+    shows a file through one file redirect only, so a redirect to another
+    redirect shows nothing. ``pages`` holds every other existing page, with or
+    without an uploaded file.
     """
 
     redirects: Mapping[str, str]
@@ -218,12 +220,17 @@ class MediaWikiFilePages:
 
 @dataclass(frozen=True, slots=True)
 class _ResolvedTitle:
-    """A requested title with its normalized form, redirect target, and the final page of a query."""
+    """A requested title with its normalized form, redirect targets, and the final page of a query.
+
+    ``redirect_target`` is the final page of a redirect chain and ``first_target``
+    the page that the redirect names.
+    """
 
     requested: str
     normalized: str
     redirect_target: str | None
     page: dict[str, Any]
+    first_target: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -1014,16 +1021,16 @@ class MediaWikiClient:
         return tuple(files[title] for title in sorted(files))
 
     def list_file_pages(self) -> MediaWikiFilePages:
-        """Return the redirects, with their final targets, and the other existing pages of the File namespace.
+        """Return the redirects, with the page that each names, and the other existing pages of the File namespace.
 
         The ``allpages`` generator cannot resolve redirects, so the redirect
         pages are listed first and then resolved by title.
         """
         redirect_titles = self._list_page_titles(6, "redirects")
         redirects = {
-            resolved.requested: resolved.redirect_target
+            resolved.requested: resolved.first_target
             for resolved in self._resolve_titles(redirect_titles, "info")
-            if resolved.redirect_target is not None
+            if resolved.first_target is not None
         }
         return MediaWikiFilePages(redirects=redirects, pages=frozenset(self._list_page_titles(6, "nonredirects")))
 
@@ -1141,6 +1148,7 @@ class MediaWikiClient:
                         requested=requested,
                         normalized=normalized_title,
                         redirect_target=final_title if initial_redirect_target is not None else None,
+                        first_target=initial_redirect_target,
                         page=pages_by_title[final_title],
                     )
                 )

@@ -152,11 +152,14 @@ def process_pictures(raw: sqlite3.Connection, writer: Writer, export_dir: Path, 
     _link_stances(conn)
     _link_characters(conn, portraits)
 
-    titles = _titles(conn)
-    if titles.setdefault(HOTBAR_FRAME_TITLE, (frame_hash, "the hotbar frame"))[0] != frame_hash:
+    titles: dict[str, tuple[str, str | None]] = dict(_titles(conn))
+    if titles.setdefault(HOTBAR_FRAME_TITLE, (frame_hash, None))[0] != frame_hash:
         raise ValueError(f"{HOTBAR_FRAME_TITLE} names the hotbar frame and {titles[HOTBAR_FRAME_TITLE][1]}")
     writer.insert_image_titles(
-        [{"title": title, "image_hash": image_hash} for title, (image_hash, _) in sorted(titles.items())]
+        [
+            {"title": title, "image_hash": image_hash, "stable_key": stable_key}
+            for title, (image_hash, stable_key) in sorted(titles.items())
+        ]
     )
     kinds = {
         kind: sum(picture.kind == kind for picture in catalog.pictures.values())

@@ -2,7 +2,13 @@
 
 from __future__ import annotations
 
-__all__ = ["MEDIAWIKI_PROHIBITED_CHARS", "image_file_title", "needs_redirect", "sanitize_wiki_filename"]
+__all__ = [
+    "MEDIAWIKI_PROHIBITED_CHARS",
+    "image_file_title",
+    "needs_redirect",
+    "sanitize_wiki_filename",
+    "upload_file_title",
+]
 
 # Characters with MediaWiki title or wikitext semantics that cannot remain in
 # uploaded file-title bases. Extensions are added by callers after sanitizing.
@@ -43,3 +49,13 @@ def image_file_title(*names: str | None) -> str:
         if name:
             return f"{name}.png"
     return ""
+
+
+def upload_file_title(title: str) -> str:
+    """Return the title that an upload of the file ``title`` takes.
+
+    MediaWiki forbids colons and other characters in uploaded file names, so
+    they are dropped from the name and the extension is kept.
+    """
+    stem, dot, extension = title.rpartition(".")
+    return f"{sanitize_wiki_filename(stem)}{dot}{extension}" if dot else sanitize_wiki_filename(title)
