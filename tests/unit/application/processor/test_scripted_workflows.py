@@ -20,7 +20,7 @@ def processed_db(tmp_path):
             StableKey TEXT PRIMARY KEY, ObjectName TEXT, NPCName TEXT,
             IsSimPlayer INTEGER, Scene TEXT, X REAL, Y REAL, Z REAL,
             IsEnabled INTEGER, IsCommon INTEGER, IsRare INTEGER, IsUnique INTEGER,
-            IsFriendly INTEGER
+            IsFriendly INTEGER, ModelKey TEXT NOT NULL DEFAULT ''
         );
         CREATE TABLE SpawnPoints (
             StableKey TEXT, Scene TEXT, X REAL, Y REAL, Z REAL,

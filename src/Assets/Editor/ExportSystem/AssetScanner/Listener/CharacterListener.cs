@@ -504,6 +504,73 @@ public class CharacterListener : IAssetScanListener<Character>
             _ => "TestDummy",
         };
 
+    /// <summary>
+    /// A key of the model that a character shows: a SHA-256 over the mesh and the
+    /// materials of every mesh and skinned mesh renderer in its hierarchy that is
+    /// on, where every object from the renderer up to the character is active.
+    /// Particle effects such as the target ring and switched-off helpers such as
+    /// the aggro sphere do not count. Each asset is named by its GUID and local
+    /// file ID, so two characters with equal keys show the same model.
+    /// </summary>
+    private static string ModelKey(Character character)
+    {
+        var parts = new List<string>();
+        foreach (var renderer in character.GetComponentsInChildren<Renderer>(true))
+        {
+            if (!renderer.enabled || !ActiveUpTo(renderer.transform, character.transform))
+            {
+                continue;
+            }
+            Mesh? mesh;
+            if (renderer is SkinnedMeshRenderer skinned)
+            {
+                mesh = skinned.sharedMesh;
+            }
+            else if (renderer is MeshRenderer)
+            {
+                var filter = renderer.GetComponent<MeshFilter>();
+                mesh = filter != null ? filter.sharedMesh : null;
+            }
+            else
+            {
+                continue;
+            }
+            var materials = string.Join(",", renderer.sharedMaterials.Select(AssetId));
+            parts.Add($"{AssetId(mesh)}|{materials}");
+        }
+        parts.Sort(System.StringComparer.Ordinal);
+        using var sha = System.Security.Cryptography.SHA256.Create();
+        var digest = sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(string.Join("\n", parts)));
+        return string.Concat(digest.Select(b => b.ToString("x2")));
+    }
+
+    private static bool ActiveUpTo(Transform transform, Transform root)
+    {
+        for (var current = transform; current != root; current = current.parent)
+        {
+            if (!current.gameObject.activeSelf)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static string AssetId(Object? asset)
+    {
+        if (asset == null)
+        {
+            return "none";
+        }
+        return AssetDatabase.TryGetGUIDAndLocalFileIdentifier(
+            asset,
+            out var assetGuid,
+            out long localId
+        )
+            ? $"{assetGuid}:{localId}"
+            : $"unsaved:{asset.name}";
+    }
+
     private CharacterRecord CreateCharacterRecord(Character character, string stableKey)
     {
         var npc = character.GetComponent<NPC>();
@@ -550,6 +617,7 @@ public class CharacterListener : IAssetScanListener<Character>
                     : (float?)null,
             Guid = guid,
             ObjectName = character.gameObject != null ? character.gameObject.name : null,
+            ModelKey = ModelKey(character),
             MyWorldFactionStableKey =
                 character.MyWorldFaction != null
                     ? StableKeyGenerator.ForFaction(character.MyWorldFaction)

@@ -19,6 +19,10 @@ public class CharacterRecord
     public string? ObjectName { get; set; } = string.Empty;
     public string NPCName { get; set; } = string.Empty;
 
+    // The model the character shows: a SHA-256 over the meshes and materials of
+    // the renderers that are on in its hierarchy. Equal keys show the same model.
+    public string ModelKey { get; set; } = string.Empty;
+
     public string? MyWorldFactionStableKey { get; set; } = string.Empty;
     public string MyFaction { get; set; } = string.Empty;
     public float AggroRange { get; set; }

@@ -136,6 +136,7 @@ Each table row is one missing file, not one character record. The 101 character 
 | Undying Light.png | character | In-game model or scene. No matching portrait sprite. |
 | Underspine Hollow.png | other (zone) | Editor image or zone screenshot. `UnderspineMap.png` is a different map sprite. |
 | Training Dummy (1000 AC).png | character | In-game model of the Expert Training Set in a Reliquary room. No matching portrait sprite. |
+| Vithean Chest (Round 8).png | chest | In-game model of the eighth arena chest, which is golden while the seven others are blue. No matching portrait sprite. |
 | Tojokom.png | character | In-game model or scene. No matching portrait sprite. |
 | Vithean Myrmidon.png | character | In-game model or scene. No matching portrait sprite. |
 | Vithean Executioner.png | character | In-game model or scene. No matching portrait sprite. |
@@ -194,7 +195,7 @@ The zone files stay with editors. `Underspine Hollow.png` and `Prielian Cascade.
 
 ### D5. Image titles follow the model
 
-Decided on 2026-10-06: the export records the model of each character, the meshes and materials of the renderers of its scene object or prefab. When a wiki page holds several kinds of a character, kinds that share a model share one image title, and a kind whose model differs from the others of its page gets its display name as its image title. The training dummies show the case: the plain, 400 AC, and 800 AC kinds keep `Training Dummy.png`, and the 1000 AC kind gets `Training Dummy (1000 AC).png`. The rule may change titles on other pages with several infoboxes, so the article dry run lists each such page for review. The build stops when two kinds with different models share a display name, because no title tells them apart. A character whose look the game changes at runtime, such as an NPC that equipment dresses, needs a check before the rule covers it.
+Decided on 2026-10-06: the export records the model of each character, the meshes and materials of the renderers of its scene object or prefab. When a wiki page holds several kinds of a character, kinds that share a model share one image title, and a kind whose model differs from the others of its page gets its display name as its image title. The training dummies show the case: the plain, 400 AC, and 800 AC kinds keep `Training Dummy.png`, and the 1000 AC kind gets `Training Dummy (1000 AC).png`. The rule may change titles on other pages with several infoboxes, so the article dry run lists each such page for review. The export found one more such page: the eighth Vithean chest is golden while the seven others are blue, so it gets `Vithean Chest (Round 8).png`. An editor-added chest box on the page of Vitheo the Tactician, whose round is the eighth, shows `Vithean Chest.png`, so the editors decide whether it should show the golden chest. The build stops when two kinds with different models share a display name, because no title tells them apart. A character whose look the game changes at runtime, such as an NPC that equipment dresses, needs a check before the rule covers it.
 
 Decided on the same day: the seven receptacles share one model. One capture becomes `Portal Receptacle.png`, and a reviewed one-time edit points the image of the six unused rune receptacle pages at that file, so that no identical file is uploaded six more times.
 

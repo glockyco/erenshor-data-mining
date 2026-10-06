@@ -40,6 +40,7 @@ from typing import TYPE_CHECKING, cast
 
 from loguru import logger
 
+from .model_images import PageCharacter, model_image_names
 from .npc_spawn import (
     PLAYER_LEVEL_CAP,
     StartLevels,
@@ -667,7 +668,23 @@ def process_characters(
             )
         )
 
-    logger.info(f"Characters: {len(chars)} after mapping")
+    # Kinds on one wiki page that show another model than the page's get their
+    # own image title (design D5 of restore-missing-wiki-images).
+    model_images = model_image_names(
+        PageCharacter(
+            stable_key=c.stable_key,
+            wiki_page_name=c.wiki_page_name,
+            display_name=c.display_name,
+            model_key=str(c.raw["ModelKey"]),
+        )
+        for c in chars
+        if c.wiki_page_name is not None and c.is_wiki_generated
+    )
+    for c in chars:
+        if c.stable_key in model_images:
+            c.image_name = model_images[c.stable_key]
+
+    logger.info(f"Characters: {len(chars)} after mapping, {len(model_images)} with an image of their own model")
     all_keys: set[str] = {c.stable_key for c in chars}
 
     # ------------------------------------------------------------------
