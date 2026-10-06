@@ -2,9 +2,7 @@ using System.Collections;
 using MapTileCapture.Protocol;
 using MapTileCapture.Server;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace MapTileCapture.Capture;
 
@@ -39,7 +37,7 @@ internal sealed class CaptureController : IDisposable
     private CaptureZoneRequest? _activeRequest;
     private Coroutine? _activeCoroutine;
     private GeometrySuppressor? _suppressor;
-    private UnityEngine.Events.UnityAction<Scene, LoadSceneMode>? _sceneLoadedHandler;
+    private SceneChangeOperation? _sceneChange;
     private bool _cancelRequested;
     private bool _disposed;
 
@@ -68,59 +66,17 @@ internal sealed class CaptureController : IDisposable
             _activeCoroutine = null;
         }
 
-        UnsubscribeSceneLoaded();
+        _sceneChange?.Dispose();
+        _sceneChange = null;
         _suppressor?.Dispose();
         _suppressor = null;
         TransitionToIdle();
     }
 
-    /// <summary>
-    /// Called every frame from Plugin.Update(). Drains inbound messages and drives the state machine.
-    /// </summary>
-    public void Tick()
-    {
-        if (_disposed)
-            return;
+    /// <summary>Whether a zone capture runs.</summary>
+    public bool IsBusy => _activeCoroutine != null;
 
-        while (_server.TryDequeue() is { } json)
-            HandleMessage(json);
-    }
-
-    private void HandleMessage(string json)
-    {
-        try
-        {
-            var obj = JObject.Parse(json);
-            var messageType = obj["type"]?.ToString();
-
-            if (messageType == null)
-            {
-                _logger.LogWarning("Received message without 'type' field");
-                return;
-            }
-
-            switch (messageType)
-            {
-                case "capture_zone":
-                    HandleCaptureZone(json);
-                    break;
-
-                case "cancel_capture":
-                    HandleCancelCapture();
-                    break;
-
-                default:
-                    _logger.LogWarning($"Unknown message type: {messageType}");
-                    break;
-            }
-        }
-        catch (JsonException ex)
-        {
-            _logger.LogError($"Failed to parse inbound message: {ex.Message}");
-        }
-    }
-
-    private void HandleCaptureZone(string json)
+    public void HandleCaptureZone(string json)
     {
         if (_state != State.Idle)
         {
@@ -140,7 +96,22 @@ internal sealed class CaptureController : IDisposable
         _activeCoroutine = _coroutineHost.StartCoroutine(CaptureCoroutine(request));
     }
 
-    private void HandleCancelCapture()
+    /// <summary>Answers a capture_zone request that another capture blocks.</summary>
+    public void Reject(string json, string reason)
+    {
+        CaptureZoneRequest? request = null;
+        try
+        {
+            request = JsonConvert.DeserializeObject<CaptureZoneRequest>(json, JsonSettings);
+        }
+        catch (JsonException)
+        {
+            // The error below still answers the request.
+        }
+        SendError(request?.Zone ?? "unknown", request?.Variant ?? "unknown", reason);
+    }
+
+    public void Cancel()
     {
         if (_state == State.Idle)
             return;
@@ -154,14 +125,12 @@ internal sealed class CaptureController : IDisposable
         try
         {
             // --- Auto-login (if player is not yet in-world) ---
-            // MainCam lives in DontDestroyOnLoad after login. Its absence means
-            // we are still on the main menu or character select screen.
-            if (GameObject.Find("MainCam") == null)
+            if (!GameSession.InWorld)
             {
                 _state = State.LoggingIn;
                 _logger.LogInfo("MainCam not found — attempting auto-login.");
-                yield return EnsureInWorldCoroutine();
-                if (GameObject.Find("MainCam") == null)
+                yield return GameSession.EnsureInWorld(_logger);
+                if (!GameSession.InWorld)
                 {
                     SendError(
                         request.Zone,
@@ -178,65 +147,28 @@ internal sealed class CaptureController : IDisposable
             _state = State.Loading;
             _logger.LogInfo($"Loading scene '{request.SceneName}' for zone '{request.Zone}'");
 
-            bool sceneLoaded = false;
-            _sceneLoadedHandler = (scene, mode) =>
-            {
-                if (scene.name == request.SceneName)
-                    sceneLoaded = true;
-            };
-            SceneManager.sceneLoaded += _sceneLoadedHandler;
-
-            // Use GameData.SceneChange.ChangeScene instead of raw SceneManager.LoadScene.
-            // ChangeScene sets GameData.usingSun, enables or disables the Sun light,
-            // and calls AtmosphereColors.ForceColors() for outdoor zones — all before
-            // the new scene loads, so ZoneAnnounce.Start() sees the correct state.
-            // This prevents atmosphere contamination between sequential zone captures.
-            if (GameData.SceneChange == null)
-            {
-                UnsubscribeSceneLoaded();
-                SendError(
-                    request.Zone,
-                    request.Variant,
-                    "GameData.SceneChange is null — player must be fully in-world before capturing."
-                );
-                TransitionToIdle();
-                yield break;
-            }
-
-            GameData.SceneChange.ChangeScene(request.SceneName, Vector3.zero, request.UsingSun, 0f);
-
-            // Wait for scene to finish loading, with timeout
             float timeout =
                 request.SceneLoadTimeoutSecs > 0
                     ? request.SceneLoadTimeoutSecs
                     : MapTileCaptureSettings.DefaultSceneLoadTimeoutSecs;
-            float elapsed = 0f;
-            while (!sceneLoaded)
+            var loading = new SceneChangeOperation();
+            _sceneChange = loading;
+            yield return loading.Run(
+                request.SceneName,
+                Vector3.zero,
+                request.UsingSun,
+                0f,
+                timeout,
+                () => _cancelRequested
+            );
+            _sceneChange = null;
+            if (!loading.Loaded)
             {
-                if (_cancelRequested)
-                {
-                    UnsubscribeSceneLoaded();
-                    TransitionToIdle();
-                    yield break;
-                }
-
-                elapsed += Time.unscaledDeltaTime;
-                if (elapsed > timeout)
-                {
-                    UnsubscribeSceneLoaded();
-                    SendError(
-                        request.Zone,
-                        request.Variant,
-                        $"Scene load timed out after {timeout}s"
-                    );
-                    TransitionToIdle();
-                    yield break;
-                }
-
-                yield return null;
+                if (loading.Error != null)
+                    SendError(request.Zone, request.Variant, loading.Error);
+                TransitionToIdle();
+                yield break;
             }
-
-            UnsubscribeSceneLoaded();
 
             // --- Stabilizing ---
             _state = State.Stabilizing;
@@ -343,123 +275,12 @@ internal sealed class CaptureController : IDisposable
         }
         finally
         {
-            UnsubscribeSceneLoaded();
+            _sceneChange?.Dispose();
+            _sceneChange = null;
             _suppressor?.Dispose();
             _suppressor = null;
             TransitionToIdle();
         }
-    }
-
-    /// <summary>
-    /// Drives the game through its login flow so captures can proceed without
-    /// requiring the player to manually navigate the menus.
-    ///
-    /// Handles two starting states:
-    ///   "Menu"      — clicks the Login button to load the character select screen
-    ///   "LoadScene" — selects character slot 0, waits for sim data, enters world
-    ///
-    /// On completion (success or timeout) the caller checks whether MainCam is
-    /// present to determine whether the login succeeded.
-    /// </summary>
-    private IEnumerator EnsureInWorldCoroutine()
-    {
-        string scene = SceneManager.GetActiveScene().name;
-        _logger.LogInfo($"EnsureInWorld: current scene = '{scene}'");
-
-        // From the main menu: load the character select screen.
-        // The Login button calls SceneManager.LoadScene("LoadScene") — replicate
-        // that directly rather than simulating a UI click.
-        if (scene == "Menu")
-        {
-            _logger.LogInfo("On Menu — loading character select screen.");
-            SceneManager.LoadScene("LoadScene");
-
-            float t = 0f;
-            while (SceneManager.GetActiveScene().name != "LoadScene")
-            {
-                t += Time.unscaledDeltaTime;
-                if (t > 30f)
-                {
-                    _logger.LogError("Timed out waiting for LoadScene.");
-                    yield break;
-                }
-                yield return null;
-            }
-
-            // Give MonoBehaviours two frames to run their Start() callbacks.
-            yield return null;
-            yield return null;
-        }
-
-        // On the character select screen: pick slot 0 and enter the world.
-        if (SceneManager.GetActiveScene().name == "LoadScene")
-        {
-            var charSelect = UnityEngine.Object.FindObjectOfType<CharSelectManager>();
-            if (charSelect == null)
-            {
-                _logger.LogError("CharSelectManager not found on LoadScene.");
-                yield break;
-            }
-
-            _logger.LogInfo("Selecting character slot 0.");
-            charSelect.SelectSlot(0);
-
-            // CharSelectManager.Update() enables EnterWorld only once
-            // LoadedSimplayers == true and the selected slot has a character name.
-            _logger.LogInfo("Waiting for character data to load...");
-            float t = 0f;
-            while (
-                !(
-                    GameData.SimMngr?.LoadedSimplayers == true
-                    && GameData.CurrentCharacterSlot?.CharName?.Length > 0
-                )
-            )
-            {
-                t += Time.unscaledDeltaTime;
-                if (t > 60f)
-                {
-                    _logger.LogError("Timed out waiting for character data.");
-                    yield break;
-                }
-                yield return null;
-            }
-
-            if (GameData.CurrentCharacterSlot!.CharName.Length == 0)
-            {
-                _logger.LogError("Character slot 0 is empty — cannot enter world.");
-                yield break;
-            }
-
-            _logger.LogInfo($"Entering world as '{GameData.CurrentCharacterSlot.CharName}'.");
-            charSelect.EnterWorld.onClick.Invoke();
-        }
-
-        // Wait for the player to land in a game zone. MainCam appears in
-        // DontDestroyOnLoad once the world scene has loaded and the player spawned.
-        _logger.LogInfo("Waiting for MainCam...");
-        float inWorldTimeout = 60f;
-        float inWorldElapsed = 0f;
-        while (GameObject.Find("MainCam") == null)
-        {
-            inWorldElapsed += Time.unscaledDeltaTime;
-            if (inWorldElapsed > inWorldTimeout)
-            {
-                _logger.LogError("Timed out waiting for MainCam after login.");
-                yield break;
-            }
-            yield return null;
-        }
-
-        _logger.LogInfo("Player is in-world.");
-    }
-
-    private void UnsubscribeSceneLoaded()
-    {
-        if (_sceneLoadedHandler == null)
-            return;
-
-        SceneManager.sceneLoaded -= _sceneLoadedHandler;
-        _sceneLoadedHandler = null;
     }
 
     private void TransitionToIdle()

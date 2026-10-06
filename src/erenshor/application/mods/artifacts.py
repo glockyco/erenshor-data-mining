@@ -27,6 +27,8 @@ _REQUIRED_DLLS = (
     "UnityEngine.TextRenderingModule.dll",
     "UnityEngine.AIModule.dll",
     "UnityEngine.PhysicsModule.dll",
+    "UnityEngine.AnimationModule.dll",
+    "UnityEngine.AudioModule.dll",
     "UnityEngine.ImageConversionModule.dll",
     "UnityEngine.ParticleSystemModule.dll",
     "UnityEngine.TerrainModule.dll",

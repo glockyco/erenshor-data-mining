@@ -17,7 +17,6 @@ def test_locked_restore_commands_cover_each_lock_graph_with_loader_properties() 
     locked_targets = tuple(target for target in MAINTAINED_DOTNET_RESTORE_TARGETS if target.lock_file is not None)
 
     assert len(commands) == len(locked_targets)
-    assert len(commands) == 19
     for command, target in zip(commands, locked_targets, strict=True):
         assert command[:3] == ("dotnet", "restore", target.project)
         assert command[3:5] == ("--locked-mode", "--force-evaluate")

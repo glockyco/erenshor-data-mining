@@ -45,6 +45,10 @@ MAINTAINED_DOTNET_RESTORE_TARGETS = (
         lock_file="src/mods/JusticeForF7/tests/JusticeForF7.Tests/packages.lock.json",
     ),
     DotnetRestoreTarget(
+        project="src/mods/MapTileCapture/tests/MapTileCapture.Tests/MapTileCapture.Tests.csproj",
+        lock_file="src/mods/MapTileCapture/tests/MapTileCapture.Tests/packages.lock.json",
+    ),
+    DotnetRestoreTarget(
         project="src/mods/Sprint/tests/Sprint.Tests/Sprint.Tests.csproj",
         lock_file="src/mods/Sprint/tests/Sprint.Tests/packages.lock.json",
     ),

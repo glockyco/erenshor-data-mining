@@ -571,6 +571,12 @@ _NATIVE_TEST_PROJECTS: tuple[_NativeTestProject, ...] = (
         required_ignored_references=(),
     ),
     _NativeTestProject(
+        name="MapTileCapture",
+        project=Path("src/mods/MapTileCapture/tests/MapTileCapture.Tests/MapTileCapture.Tests.csproj"),
+        default_loader="bepinex",
+        required_ignored_references=(),
+    ),
+    _NativeTestProject(
         name="LoaderAdapters",
         project=Path("src/mods/tests/LoaderAdapter.Tests/LoaderAdapter.Tests.csproj"),
         default_loader="bepinex",

@@ -108,6 +108,26 @@
       <HintPath>lib/UnityEngine.ParticleSystemModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <!-- UnityEngine.AnimationModule — Animator: portraits freeze the animation -->
+    <Reference Include="UnityEngine.AnimationModule">
+      <HintPath>lib/UnityEngine.AnimationModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- UnityEngine.AudioModule — AudioSource: portraits remove sounds -->
+    <Reference Include="UnityEngine.AudioModule">
+      <HintPath>lib/UnityEngine.AudioModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- UnityEngine.AIModule — NavMeshAgent: portraits remove navigation -->
+    <Reference Include="UnityEngine.AIModule">
+      <HintPath>lib/UnityEngine.AIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- UnityEngine.PhysicsModule — Rigidbody: portraits remove physics -->
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>lib/UnityEngine.PhysicsModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
 
   <!-- Loader-provided references (copied via erenshor mod setup) -->

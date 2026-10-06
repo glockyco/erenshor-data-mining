@@ -816,6 +816,10 @@ def test_mods_leaf_uses_each_exact_native_project_argv_and_repository_cwd(tmp_pa
         ),
         (
             "bepinex",
+            tmp_path / "src/mods/MapTileCapture/tests/MapTileCapture.Tests/MapTileCapture.Tests.csproj",
+        ),
+        (
+            "bepinex",
             tmp_path / "src/mods/tests/LoaderAdapter.Tests/LoaderAdapter.Tests.csproj",
         ),
     ]
@@ -835,6 +839,7 @@ def test_mods_leaf_uses_each_exact_native_project_argv_and_repository_cwd(tmp_pa
         "InteractiveMapCompanion",
         "Sprint",
         "JusticeForF7",
+        "MapTileCapture",
         "LoaderAdapters",
     ]
 
@@ -852,7 +857,7 @@ def test_mods_leaf_retains_each_native_report(tmp_path: Path, monkeypatch: Any) 
     result = test._run_leaf(_context(tmp_path), "mods")
 
     assert result.status == "passed"
-    assert len(report_paths) == len(test._NATIVE_TEST_PROJECTS) == 5
+    assert len(report_paths) == len(test._NATIVE_TEST_PROJECTS)
     assert len(set(report_paths)) == len(report_paths)
     assert all(path.exists() for path in report_paths)
     assert report_paths[0] == tmp_path / "artifacts/test-reports/native/mods/AdventureGuide.trx"
