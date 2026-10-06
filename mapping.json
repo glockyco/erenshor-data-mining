@@ -3902,7 +3902,7 @@
     "character:receptacle-hidden:reliquary:291.14:1.06:328.61": {
       "wiki_page_name": null,
       "display_name": "Hidden Hills Receptacle",
-      "image_name": "Hidden Hills Receptacle",
+      "image_name": "Portal Receptacle",
       "is_wiki_generated": 0,
       "is_map_visible": 0,
       "mapping_type": "exclude",
@@ -3911,7 +3911,7 @@
     "character:receptacle-ripper:reliquary:258.39:1.06:328.61": {
       "wiki_page_name": null,
       "display_name": "Ripparian Receptacle",
-      "image_name": "Ripparian Receptacle",
+      "image_name": "Portal Receptacle",
       "is_wiki_generated": 0,
       "is_map_visible": 0,
       "mapping_type": "exclude",
@@ -3920,7 +3920,7 @@
     "character:receptacle-sand:reliquary:291.14:1.06:367.86": {
       "wiki_page_name": null,
       "display_name": "Braxonian Receptacle",
-      "image_name": "Braxonian Receptacle",
+      "image_name": "Portal Receptacle",
       "is_wiki_generated": 0,
       "is_map_visible": 0,
       "mapping_type": "exclude",
@@ -3929,7 +3929,7 @@
     "character:receptacle-silken:reliquary:291.14:1.06:348.36": {
       "wiki_page_name": null,
       "display_name": "Silkengrass Receptacle",
-      "image_name": "Silkengrass Receptacle",
+      "image_name": "Portal Receptacle",
       "is_wiki_generated": 0,
       "is_map_visible": 0,
       "mapping_type": "exclude",
@@ -3938,7 +3938,7 @@
     "character:receptacle-soluna:reliquary:258.39:1.06:367.86": {
       "wiki_page_name": null,
       "display_name": "Solunarian Receptacle",
-      "image_name": "Solunarian Receptacle",
+      "image_name": "Portal Receptacle",
       "is_wiki_generated": 0,
       "is_map_visible": 0,
       "mapping_type": "exclude",
@@ -3947,7 +3947,7 @@
     "character:receptacle-wind:reliquary:258.39:1.06:348.36": {
       "wiki_page_name": null,
       "display_name": "Windwashed Receptacle",
-      "image_name": "Windwashed Receptacle",
+      "image_name": "Portal Receptacle",
       "is_wiki_generated": 0,
       "is_map_visible": 0,
       "mapping_type": "exclude",
