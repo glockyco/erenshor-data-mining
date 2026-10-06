@@ -1,8 +1,10 @@
+# game-image-catalog Specification
+
 ## Purpose
 
 Identify, extract, and catalogue every game picture that the wiki or the map shows, so that each consumer shows the picture the game shows and can tell exactly which pictures changed between builds.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Icons resolve through the game's sprite references
 
@@ -62,7 +64,7 @@ The catalog SHALL record, for each picture, the game build, its kind, its source
 #### Scenario: A reader asks where an icon came from
 
 - **WHEN** the catalog lists the Florablast icon
-- **THEN** it shows the game build, the kind `spell`, and the texture asset it was taken from
+- **THEN** it shows the game build, the kind `icon`, and the texture asset it was taken from
 
 ### Requirement: Rendered portraits enter after review
 
