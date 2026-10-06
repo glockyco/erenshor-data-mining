@@ -418,6 +418,110 @@ def manifest(ctx: typer.Context) -> None:
     console.print(f"[green]✓[/green] {len(result.entries)} captures in {output}")
 
 
+@app.command("capture")
+@require_preconditions(required_path("images_dir", "model-captures/manifest.json"))
+def capture(
+    ctx: typer.Context,
+    files: Annotated[
+        list[str] | None,
+        typer.Option("--file", help="Capture only this file title of the manifest; repeat for more"),
+    ] = None,
+) -> None:
+    """Capture the manifest's missing character images in the running game for review.
+
+    Needs the game running with the MapTileCapture mod. Sends each manifest
+    entry to the mod, reviews each portrait, and writes the PNGs, captures.json,
+    and contact-sheet.png to images/model-captures/staging/ of the variant,
+    replacing the previous staging set. At the end the mod returns the player to
+    where the batch started. With the root --dry-run option, lists the captures
+    and writes nothing.
+
+    Examples:
+        erenshor --dry-run images capture
+        erenshor images capture --file "Faith.png"
+    """
+    import asyncio
+
+    import websockets
+
+    from erenshor.application.capture.portraits import (
+        WS_PORT,
+        PortraitRun,
+        capture_portraits,
+        portrait_requests,
+        write_contact_sheet,
+    )
+
+    console = Console()
+    cli_ctx: CLIContext = ctx.obj
+    capture_dir = _model_capture_dir(cli_ctx)
+    manifest_data = json.loads((capture_dir / "manifest.json").read_text(encoding="utf-8"))
+    try:
+        requests = portrait_requests(manifest_data, files or ())
+    except ValueError as error:
+        console.print(f"[red]{error}[/red]")
+        raise typer.Exit(1) from error
+
+    by_scene: dict[str, int] = {}
+    for request in requests:
+        by_scene[request.scene or "no scene (Resources)"] = by_scene.get(request.scene or "no scene (Resources)", 0) + 1
+    console.print(
+        f"[bold]{len(requests)} portraits[/bold], game build {manifest_data['game_build']}, "
+        f"preset {manifest_data['camera_preset']}"
+    )
+    for scene, count in by_scene.items():
+        console.print(f"  {scene}: {count}")
+    if cli_ctx.dry_run:
+        console.print("[yellow]Dry run: nothing was captured or written.[/yellow]")
+        return
+
+    staging = capture_dir / "staging"
+    png_dir = staging / "png"
+    if staging.exists():
+        shutil.rmtree(staging)
+    png_dir.mkdir(parents=True)
+    results_path = staging / "captures.json"
+    run = PortraitRun(game_build=manifest_data["game_build"], preset=manifest_data["camera_preset"])
+
+    printed = 0
+
+    def record(progress: PortraitRun) -> None:
+        nonlocal printed
+        results_path.write_text(json.dumps(progress.to_json(), indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        for result in progress.results[printed:]:
+            console.print(f"  {result.status:8} {result.file} {'; '.join(result.reasons + result.warnings)}".rstrip())
+        printed = len(progress.results)
+
+    async def run_batch() -> PortraitRun:
+        try:
+            connection = await websockets.connect(f"ws://localhost:{WS_PORT}", max_size=None)
+        except OSError as error:
+            raise ConnectionError(
+                f"Cannot connect to the MapTileCapture mod on port {WS_PORT}. Is the game running with the mod?"
+            ) from error
+        async with connection:
+            return await capture_portraits(connection, requests, png_dir, run, record)
+
+    try:
+        asyncio.run(run_batch())
+    except ConnectionError as error:
+        console.print(f"[red]{error}[/red]")
+        raise typer.Exit(1) from error
+    write_contact_sheet(run, png_dir, staging / "contact-sheet.png")
+
+    counts = {status: sum(result.status == status for result in run.results) for status in ("accepted", "rejected")}
+    failed = len(run.results) - counts["accepted"] - counts["rejected"]
+    console.print(
+        f"{counts['accepted']} accepted, {counts['rejected']} rejected, {failed} failed. "
+        f"Review {staging / 'contact-sheet.png'}"
+    )
+    if not run.returned:
+        console.print("[yellow]The mod did not confirm that the player is back where the batch started.[/yellow]")
+    if run.interrupted:
+        console.print(f"[red]Interrupted at {run.interrupted}; {len(run.not_captured)} files not captured.[/red]")
+        raise typer.Exit(1)
+
+
 def _deployment_list_for_stable_keys(registry: ImageRegistry, stable_keys: list[str]) -> dict[str, ImageMetadata]:
     deployment_dict: dict[str, ImageMetadata] = {}
     missing_stable_keys = []
