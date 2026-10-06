@@ -280,22 +280,3 @@ def test_item_source_lists_world_drops_with_level_gate_and_small_chances() -> No
     result = ItemSectionGenerator().generate_template(enriched, "Crystallized Balance")
 
     assert "|source=Any enemy above level 30 (0.05% per kill)<br>Any enemy (0.002% per kill)\n" in result
-
-
-def test_item_infobox_checks_the_icon_that_its_tooltip_shows() -> None:
-    # The page title differs from the icon's file, as for an item page that a
-    # quest of the same name forces to disambiguate.
-    item = Item(
-        stable_key="item:stardust",
-        display_name="Stardust",
-        item_name="Stardust",
-        image_name="Stardust Item",
-        required_slot="General",
-    )
-
-    result = ItemSectionGenerator().generate_template(
-        EnrichedItemData(item=item, stats=[], classes=[]), "Stardust (Item)"
-    )
-
-    assert "|imagefile=Stardust Item.png\n" in result
-    assert "|image=Stardust Item.png\n" in result

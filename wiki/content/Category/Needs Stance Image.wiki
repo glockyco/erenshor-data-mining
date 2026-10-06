@@ -1,6 +1,0 @@
-__HIDDENCAT__
-This hidden maintenance category collects pages whose stance infobox names an icon that the wiki does not have yet.
-
-To fill a gap, upload the stance's icon from the game under the exact file name that the infobox names. See [[Erenshor Wiki:Game Data#Maintenance categories]].
-
-[[Category:Needs Image]]

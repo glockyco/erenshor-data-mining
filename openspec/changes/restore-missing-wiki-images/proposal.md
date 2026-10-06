@@ -4,7 +4,7 @@ Generated wiki pages name image files that do not exist on the wiki. Their infob
 
 ## What Changes
 
-- Add hidden, kind-specific `Needs Image` categories to character, stance, and item infoboxes when their image files do not exist. The categories make missing images visible to editors.
+- Add hidden, kind-specific `Needs Image` categories to character infoboxes when their image files do not exist. The categories make missing images visible to editors. Item, spell, skill, and stance icons come from the game's icon export, so their infoboxes check nothing.
 - Build a repeatable in-game capture mode for character models, summons, chests, and receptacles. A manifest names each file, entity, game build, and camera preset. A temporary camera renders at 1024 × 1024 pixels with fixed lighting, then crops a transparent PNG around the subject.
 - Give image titles by model: kinds on one page that share a model share an image, and a kind with its own model gets its own title. The export records each character's model for this.
 - Keep icons and portraits separate. Use the existing icon pipeline only when the entity has a matching game icon. Do not use a spell's summon icon as a portrait of its creature.
@@ -23,7 +23,7 @@ None. Article ownership and field preservation remain as specified by the wiki p
 
 ## Impact
 
-- Code: the model export of `CharacterListener` and the image titles of the clean build, `wiki/templates/Character.wiki`, `wiki/templates/Item.wiki`, `wiki/templates/Stance.wiki`, their generated infobox inputs, `wiki/content/Category/`, `src/mods/MapTileCapture/` or a dedicated capture mod, the image CLI and service, and focused tests.
+- Code: the model export of `CharacterListener` and the image titles of the clean build, `wiki/templates/Character.wiki`, its generated infobox inputs, `wiki/content/Category/`, `src/mods/MapTileCapture/` or a dedicated capture mod, the image CLI and service, and focused tests.
 - Read-only inputs: `variants/main/erenshor-main.sqlite` and the AssetRipper export under `variants/main/unity/ExportedProject/Assets`.
 - Live wiki: the new categories deploy after a dry run and render check. The missing character-derived files of a fresh live scan upload in reviewed batches, among them the images of the unused pages. The six unused rune receptacle pages point at `Portal Receptacle.png` instead of six copies. Two zone files remain with editors. No existing file is overwritten by the bot.
 - Boundary: this change does not rewrite chest infoboxes on boss pages or replace editor images. It does not take ownership of editor-supplied zone photographs.

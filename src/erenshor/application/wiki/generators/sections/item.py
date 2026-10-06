@@ -40,7 +40,7 @@ _LEGACY_CLASS_PARAMS = ("arcanist", "duelist", "druid", "paladin", "reaver", "st
 
 
 def item_image_file(item: Item) -> str:
-    """The file title of an item's icon, which its tooltip shows and its infobox checks."""
+    """The file title of an item's icon, which its tooltip template shows."""
     name = item.image_name or item.display_name or item.item_name or ""
     return f"{name}.png" if name else ""
 
@@ -612,7 +612,6 @@ class ItemSectionGenerator(SectionGeneratorBase):
         return {
             "title": display_name,
             "stablekey": item.stable_key,
-            "imagefile": item_image_file(item),
             "type": item_type,
             "vendorsource": vendor_sources,
             "source": drop_sources,

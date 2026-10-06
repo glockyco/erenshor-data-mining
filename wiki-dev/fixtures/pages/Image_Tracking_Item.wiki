@@ -1,4 +1,0 @@
-{{Item
-|title=Image Tracking Item
-|imagefile=Image Tracking Item.png
-}}

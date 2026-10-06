@@ -141,7 +141,7 @@ These hidden categories collect pages that need a fix.
 |-
 | [[:Category:Pages with mismatched Erenshor link targets]] || {{PAGESINCATEGORY:Pages with mismatched Erenshor link targets}} || A link names a page that is not the page of its <code>stablekey</code>. Find out which of the two is correct, and remove the other.
 |-
-| [[:Category:Needs Image]] || {{PAGESINCATEGORY:Needs Image}} || An infobox names an image that the wiki does not have yet. Its subcategories sort the pages by kind: character, chest, summon, item, and stance. Upload a picture or icon from the game under the exact file name that the infobox names. The page leaves the category once the file exists.
+| [[:Category:Needs Image]] || {{PAGESINCATEGORY:Needs Image}} || A character infobox names an image that the wiki does not have yet. Its subcategories sort the pages by kind: character, chest, and summon. Upload a picture from the game under the exact file name that the infobox names. The page leaves the category once the file exists.
 |}
 
 == Templates that the project maintains ==

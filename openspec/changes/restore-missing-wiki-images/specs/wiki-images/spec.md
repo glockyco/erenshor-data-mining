@@ -4,9 +4,9 @@ Track missing images on generated pages, capture game models consistently, and u
 
 ## ADDED Requirements
 
-### Requirement: Infoboxes identify missing images by kind
+### Requirement: Character infoboxes identify missing images by kind
 
-Character, item, and stance infoboxes SHALL add a hidden, kind-specific `Needs Image` category to a main-namespace page when the named image file has no uploaded image, including when its file description page or redirect exists. They SHALL NOT add that category when the image exists. Character infoboxes SHALL distinguish chest, summon, and other character images. Empty image fields of character and stance infoboxes SHALL also be tracked. An item's icon is the one that its tooltip template shows, so the item infobox checks that file. A later upload SHALL remove the page from the category when the page is refreshed.
+Character infoboxes SHALL add a hidden, kind-specific `Needs Image` category to a main-namespace page when the named image file has no uploaded image, including when its file description page or redirect exists. They SHALL NOT add that category when the image exists. They SHALL distinguish chest, summon, and other character images. Empty image fields SHALL also be tracked. Item, spell, skill, and stance icons come from the game's icon export, so their infoboxes SHALL NOT add a `Needs Image` category. A later upload SHALL remove the page from the category when the page is refreshed.
 
 #### Scenario: A missing chest appears on a boss page
 
@@ -14,10 +14,10 @@ Character, item, and stance infoboxes SHALL add a hidden, kind-specific `Needs I
 - **THEN** Frost is in `Category:Needs Chest Image`
 - **AND** its chest infobox remains on the page
 
-#### Scenario: An item's icon exists
+#### Scenario: An exported icon is not an image request
 
-- **WHEN** the icon file that an item's tooltip template shows exists on the wiki
-- **THEN** its page is not in `Category:Needs Item Image`
+- **WHEN** an item, spell, skill, or stance page shows an icon from the game's icon export
+- **THEN** its infobox adds no `Needs Image` category
 
 #### Scenario: A file description exists without image bytes
 

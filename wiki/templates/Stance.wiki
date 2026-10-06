@@ -28,7 +28,7 @@
         <header>Acquisition</header>
         <data source="activated_by"><label>Activated by</label></data>
     </group>
-</infobox>{{#ifeq: {{NAMESPACENUMBER}} | 0 | [[Category:Stances]]{{#if: {{#if: {{{imagefile|}}} | {{#ifexist: Media:{{{imagefile}}} || missing }} | {{#if: {{{image|}}} || missing }} }} | [[Category:Needs Stance Image]] }} }}</includeonly><noinclude>
+</infobox>{{#ifeq: {{NAMESPACENUMBER}} | 0 | [[Category:Stances]]}}</includeonly><noinclude>
 == Template:Stance ==
 
 Infobox template for displaying combat stance information. Stances are toggleable
@@ -49,8 +49,6 @@ an em dash (—) to indicate no change.
 | '''image''' || Yes || wikitext || Stance icon: <code><nowiki>[[File:Stance Name.png|thumb]]</nowiki></code>
 |-
 | '''imagecaption''' || No || string || Caption for the image
-|-
-| '''imagefile''' || No || string || The bare file title that '''image''' shows, such as <code>Stance Name.png</code>. When the file has no upload, the page joins the hidden [[:Category:Needs Stance Image]]. Without it, only an empty '''image''' joins that category.
 |-
 | '''description''' || No || string || Stance description / flavor text
 |-
