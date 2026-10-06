@@ -7,6 +7,7 @@ real loopback contract lives under tests/contract.
 
 import hashlib
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs
 
@@ -21,12 +22,14 @@ from erenshor.infrastructure.wiki import (
     MediaWikiClient,
     MediaWikiEditConflictError,
     MediaWikiEditError,
+    MediaWikiFileUpload,
     MediaWikiNetworkError,
     MediaWikiPageRevision,
     MediaWikiPermissionError,
     MediaWikiRateLimitError,
     MediaWikiRequestPolicy,
     MediaWikiTitleStatus,
+    MediaWikiUploadWarningError,
 )
 from erenshor.infrastructure.wiki.client import MediaWikiPageSnapshot
 
@@ -1597,6 +1600,61 @@ class TestMediaWikiClientSemanticLinkReads:
 
         assert uploaded == {"File:Uploaded.png", "File:Lower_case.png"}
         assert api.requests[0].query["prop"] == "imageinfo"
+
+    def test_file_uploads_name_the_final_file_its_uploader_and_hash(self) -> None:
+        client, api = _mock_client(
+            [
+                {
+                    "query": {
+                        "redirects": [{"from": "File:Stance: Aggressive.png", "to": "File:Stance Aggressive.png"}],
+                        "pages": {
+                            "1": {
+                                "pageid": 1,
+                                "title": "File:Stance Aggressive.png",
+                                "imageinfo": [{"user": "WoWBot", "sha1": "ab12"}],
+                            },
+                            "-1": {"title": "File:Faith.png", "missing": ""},
+                        },
+                    }
+                }
+            ],
+            clock=MockClock(),
+        )
+
+        uploads = client.get_file_uploads(["File:Stance: Aggressive.png", "File:Faith.png"])
+
+        assert uploads == {
+            "File:Stance: Aggressive.png": MediaWikiFileUpload("File:Stance Aggressive.png", "WoWBot", "ab12")
+        }
+        assert api.requests[0].query["iiprop"] == "user|sha1"
+
+    def test_files_by_sha1_list_every_title_with_that_image(self) -> None:
+        client, api = _mock_client(
+            [{"query": {"allimages": [{"title": "File:Vithean Chest.png"}, {"title": "File:Braxonian Chest.png"}]}}],
+            clock=MockClock(),
+        )
+
+        titles = client.find_files_by_sha1("ab12")
+
+        assert titles == ("File:Braxonian Chest.png", "File:Vithean Chest.png")
+        assert (api.requests[0].query["list"], api.requests[0].query["aisha1"]) == ("allimages", "ab12")
+
+    def test_upload_warnings_reach_the_caller_one_by_one(self, tmp_path: Path) -> None:
+        image = tmp_path / "Faith.png"
+        image.write_bytes(b"png")
+        client, api = _mock_client(
+            [
+                {"query": {"tokens": {"csrftoken": "token"}}},
+                {"upload": {"result": "Warning", "warnings": {"exists": "Faith.png", "duplicate": ["Star.png"]}}},
+            ],
+            clock=MockClock(),
+        )
+
+        with pytest.raises(MediaWikiUploadWarningError) as raised:
+            client.upload_file(str(image), "Faith.png", "Upload a capture")
+
+        assert raised.value.warnings == {"exists": "Faith.png", "duplicate": ["Star.png"]}
+        assert "ignorewarnings" not in api.requests[-1].data
 
     def test_get_wanted_pages_exhausts_continuation_and_filters_unique_namespace(self) -> None:
         with _mediawiki_api_server(

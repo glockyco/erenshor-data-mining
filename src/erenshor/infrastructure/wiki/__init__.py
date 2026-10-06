@@ -10,6 +10,7 @@ from erenshor.infrastructure.wiki.client import (
     MediaWikiClient,
     MediaWikiEditConflictError,
     MediaWikiEditError,
+    MediaWikiFileUpload,
     MediaWikiNetworkError,
     MediaWikiPageRevision,
     MediaWikiPageSnapshot,
@@ -18,6 +19,7 @@ from erenshor.infrastructure.wiki.client import (
     MediaWikiPermissionError,
     MediaWikiRateLimitError,
     MediaWikiTitleStatus,
+    MediaWikiUploadWarningError,
 )
 from erenshor.infrastructure.wiki.rate_limit import (
     MediaWikiRequestError,
@@ -42,6 +44,7 @@ __all__ = [
     "MediaWikiClient",
     "MediaWikiEditConflictError",
     "MediaWikiEditError",
+    "MediaWikiFileUpload",
     "MediaWikiNetworkError",
     "MediaWikiPageRevision",
     "MediaWikiPageSnapshot",
@@ -55,6 +58,7 @@ __all__ = [
     "MediaWikiRetryableRequestError",
     "MediaWikiTitleStatus",
     "MediaWikiUnretryableRequestError",
+    "MediaWikiUploadWarningError",
     "RateLimit",
     "TemplateNotFoundError",
     "TemplateParser",

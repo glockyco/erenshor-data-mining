@@ -522,6 +522,153 @@ def capture(
         raise typer.Exit(1)
 
 
+@app.command("approve")
+@require_preconditions(
+    required_path("images_dir", "model-captures/manifest.json"),
+    required_path("images_dir", "model-captures/staging/captures.json"),
+)
+def approve_captures(
+    ctx: typer.Context,
+    files: Annotated[
+        list[str] | None,
+        typer.Option("--file", help="Approve this captured file title; repeat for more"),
+    ] = None,
+    every_accepted: Annotated[
+        bool, typer.Option("--all", help="Approve every capture that the review accepted")
+    ] = False,
+    excluded: Annotated[
+        list[str] | None,
+        typer.Option("--exclude", help="With --all, leave this file title out; repeat for more"),
+    ] = None,
+) -> None:
+    """Approve reviewed captures for upload.
+
+    Copies each approved PNG out of the staging set to images/model-captures/approved/
+    and records its file title and SHA-256 in approved.json. Only captures that the
+    review accepted can be approved. With the root --dry-run option, lists the
+    approvals and writes nothing.
+
+    Examples:
+        erenshor images approve --all --exclude "Planar Flame Energy.png"
+        erenshor images approve --file "Faith.png"
+    """
+    from erenshor.application.services.model_image_upload import APPROVAL_FILE, Approval, approve
+
+    console = Console()
+    cli_ctx: CLIContext = ctx.obj
+    capture_dir = _model_capture_dir(cli_ctx)
+    captures = json.loads((capture_dir / "staging" / "captures.json").read_text(encoding="utf-8"))
+    manifest_data = json.loads((capture_dir / "manifest.json").read_text(encoding="utf-8"))
+    if every_accepted == bool(files):
+        console.print("[red]Name files with --file, or approve every accepted capture with --all.[/red]")
+        raise typer.Exit(1)
+    selected = list(files or ())
+    if every_accepted:
+        skipped = set(excluded or ())
+        selected = [
+            result["file"]
+            for result in captures["results"]
+            if result["status"] == "accepted" and result["file"] not in skipped
+        ]
+    console.print(f"[bold]{len(selected)} captures to approve[/bold]")
+    for file in selected:
+        console.print(f"  {file}")
+    if cli_ctx.dry_run:
+        console.print("[yellow]Dry run: nothing was approved.[/yellow]")
+        return
+
+    approval_path = capture_dir / APPROVAL_FILE
+    previous = (
+        Approval.from_json(json.loads(approval_path.read_text(encoding="utf-8"))) if approval_path.exists() else None
+    )
+    try:
+        approval = approve(
+            captures, manifest_data, capture_dir / "staging" / "png", capture_dir / "approved", selected, previous
+        )
+    except ValueError as error:
+        console.print(f"[red]{error}[/red]")
+        raise typer.Exit(1) from error
+    approval_path.write_text(json.dumps(approval.to_json(), indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    console.print(f"[green]✓[/green] {len(approval.images)} approved captures in {approval_path}")
+
+
+@app.command("upload-captures")
+@require_preconditions(required_path("images_dir", "model-captures/approved.json"), wiki_credentials)
+def upload_captures(ctx: typer.Context) -> None:
+    """Upload the approved captures whose files the wiki lacks.
+
+    Reads the live wiki for each approved file title. A title with an image,
+    directly or through a redirect, is skipped and its uploader named. A title
+    whose image the wiki holds under another name, or that another file of the
+    batch uploads, becomes a redirect. Every other capture is uploaded, under a
+    name without a colon when its title has one, with a redirect from the title.
+    Each write checks its title again first and never replaces an image. With the
+    root --dry-run option, shows the plan and writes nothing.
+
+    Examples:
+        erenshor --dry-run images upload-captures
+        erenshor images upload-captures
+    """
+    from datetime import UTC, datetime
+
+    from erenshor.application.services.model_image_upload import (
+        APPROVAL_FILE,
+        Approval,
+        execute_uploads,
+        plan_uploads,
+        write_record,
+    )
+    from erenshor.infrastructure.wiki.client import MediaWikiClient
+
+    console = Console()
+    cli_ctx: CLIContext = ctx.obj
+    capture_dir = _model_capture_dir(cli_ctx)
+    approval = Approval.from_json(json.loads((capture_dir / APPROVAL_FILE).read_text(encoding="utf-8")))
+    approved_dir = capture_dir / "approved"
+
+    reader = create_readonly_mediawiki_client(cli_ctx)
+    try:
+        plan = plan_uploads(approval, approved_dir, reader)
+    except ValueError as error:
+        console.print(f"[red]{error}[/red]")
+        raise typer.Exit(1) from error
+    finally:
+        reader.close()
+
+    table = Table(title=f"Capture uploads, game build {approval.game_build}, preset {approval.preset}")
+    table.add_column("File", style="cyan")
+    table.add_column("Action", style="magenta")
+    table.add_column("Target")
+    table.add_column("Reason", style="dim")
+    for item in plan:
+        table.add_row(item.file, item.action, item.target or "", item.reason)
+    console.print(table)
+    counts = {action: sum(item.action == action for item in plan) for action in ("upload", "redirect", "skip")}
+    console.print(f"{counts['upload']} uploads, {counts['redirect']} redirects, {counts['skip']} skipped")
+    if cli_ctx.dry_run:
+        console.print("[yellow]Dry run: nothing was written.[/yellow]")
+        return
+
+    wiki_config = cli_ctx.config.global_.mediawiki
+    writer = MediaWikiClient(
+        api_url=wiki_config.api_url,
+        bot_username=wiki_config.bot_username,
+        bot_password=wiki_config.bot_password,
+        batch_size=50,
+    )
+    try:
+        writer.login()
+        results = execute_uploads(plan, writer, approved_dir, approval, "Upload a reviewed capture of the game's model")
+    finally:
+        writer.close()
+    stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+    record_path = capture_dir / "uploads" / f"{stamp}.json"
+    write_record(record_path, approval, results)
+    for result in results:
+        console.print(f"  {result['action']:8} {result['file']} {result.get('reason', '')}")
+    console.print(f"[green]✓[/green] Record: {record_path}")
+
+
 def _deployment_list_for_stable_keys(registry: ImageRegistry, stable_keys: list[str]) -> dict[str, ImageMetadata]:
     deployment_dict: dict[str, ImageMetadata] = {}
     missing_stable_keys = []

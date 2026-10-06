@@ -17,7 +17,7 @@ operations, designed to work with wiki.gg (https://erenshor.wiki.gg).
 """
 
 import hashlib
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal, NoReturn
@@ -100,6 +100,17 @@ class MediaWikiPermissionError(MediaWikiEditError):
     """Raised when MediaWiki rejects an edit due to page or account permissions."""
 
 
+class MediaWikiUploadWarningError(MediaWikiAPIError):
+    """Raised when MediaWiki answers an upload with warnings instead of storing it.
+
+    ``warnings`` maps each warning, such as ``exists`` or ``duplicate``, to its detail.
+    """
+
+    def __init__(self, warnings: Mapping[str, Any]) -> None:
+        super().__init__(f"Upload warnings: {dict(warnings)}", code="warnings")
+        self.warnings = dict(warnings)
+
+
 class MediaWikiRateLimitError(MediaWikiAPIError):
     """Raised when rate limit is exceeded.
 
@@ -148,6 +159,15 @@ class MediaWikiTitleStatus:
     normalized: str
     redirect_target: str | None
     exists: bool
+
+
+@dataclass(frozen=True, slots=True)
+class MediaWikiFileUpload:
+    """The current upload of a file: the file's final title after redirects, its uploader, and its SHA-1."""
+
+    title: str
+    user: str
+    sha1: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -838,13 +858,40 @@ class MediaWikiClient:
         A redirect counts when its final target has an upload. A file
         description page without an upload does not count.
         """
-        return frozenset(
-            resolved.requested
-            for resolved in self._resolve_titles(titles, "imageinfo")
-            if resolved.page.get("imageinfo")
-        )
+        return frozenset(self.get_file_uploads(titles))
 
-    def _resolve_titles(self, titles: Sequence[str], prop: str) -> list[_ResolvedTitle]:
+    def get_file_uploads(self, titles: Sequence[str]) -> dict[str, MediaWikiFileUpload]:
+        """Return the current upload of each requested ``File:`` title that has one.
+
+        A redirect resolves to its final target, whose upload counts. Titles
+        without uploaded bytes are absent from the result.
+        """
+        uploads: dict[str, MediaWikiFileUpload] = {}
+        for resolved in self._resolve_titles(titles, "imageinfo", {"iiprop": "user|sha1"}):
+            info = resolved.page.get("imageinfo")
+            if not info:
+                continue
+            latest = info[0]
+            if not isinstance(latest, dict):
+                raise MediaWikiAPIError(f"Invalid image info for {resolved.requested!r}")
+            uploads[resolved.requested] = MediaWikiFileUpload(
+                title=str(resolved.page["title"]),
+                user=str(latest.get("user", "")),
+                sha1=str(latest.get("sha1", "")),
+            )
+        return uploads
+
+    def find_files_by_sha1(self, sha1: str) -> tuple[str, ...]:
+        """Return the titles of the files whose current upload has the given SHA-1."""
+        result = self._request({"action": "query", "list": "allimages", "aisha1": sha1, "ailimit": "max"})
+        query = result.get("query")
+        if not isinstance(query, dict) or not isinstance(query.get("allimages"), list):
+            raise MediaWikiAPIError("Invalid file hash response: missing allimages")
+        return tuple(sorted(str(image["title"]) for image in query["allimages"] if isinstance(image, dict)))
+
+    def _resolve_titles(
+        self, titles: Sequence[str], prop: str, extra: Mapping[str, str] | None = None
+    ) -> list[_ResolvedTitle]:
         """Query ``prop`` for each title and follow normalization and redirects to its final page."""
         resolved: list[_ResolvedTitle] = []
         requested_titles = list(dict.fromkeys(titles))
@@ -856,6 +903,7 @@ class MediaWikiClient:
                     "prop": prop,
                     "redirects": "1",
                     "titles": "|".join(batch),
+                    **(extra or {}),
                 }
             )
             query = result.get("query")
@@ -1882,7 +1930,7 @@ class MediaWikiClient:
             if "warnings" in upload_result and not ignore_warnings:
                 warnings = upload_result["warnings"]
                 logger.error(f"Upload warnings: {warnings}")
-                raise MediaWikiAPIError(f"Upload warnings: {warnings}")
+                raise MediaWikiUploadWarningError(warnings)
 
             logger.error(f"Unexpected upload response: {result}")
             raise MediaWikiAPIError(f"Unexpected upload response: {result}")
