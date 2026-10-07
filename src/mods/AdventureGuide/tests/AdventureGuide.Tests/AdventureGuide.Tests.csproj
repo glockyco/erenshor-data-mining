@@ -38,6 +38,7 @@
     <Compile Include="../../src/State/TrackerPruningPolicy.cs" Link="State/TrackerPruningPolicy.cs" />
     <Compile Include="../../src/State/InventoryCountPolicy.cs" Link="State/InventoryCountPolicy.cs" />
     <Compile Include="../../src/State/QuestMirrorPolicy.cs" Link="State/QuestMirrorPolicy.cs" />
+    <Compile Include="../../src/Patches/DeathObservationPolicy.cs" Link="Patches/DeathObservationPolicy.cs" />
     <Compile Include="../../src/Navigation/NavigationPolicy.cs" Link="Navigation/NavigationPolicy.cs" />
     <Compile Include="../../src/Navigation/BillboardUpdatePolicy.cs" Link="Navigation/BillboardUpdatePolicy.cs" />
     <Compile Include="../../src/Navigation/DirectPlacementPolicy.cs" Link="Navigation/DirectPlacementPolicy.cs" />

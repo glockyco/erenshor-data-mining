@@ -23,6 +23,9 @@ internal static class DeathPatch
     [HarmonyPostfix]
     private static void Postfix(Character __instance)
     {
+        if (!DeathObservationPolicy.ShouldObserve(__instance.Alive))
+            return;
+
         var npc = __instance.GetComponent<NPC>();
         if (npc == null)
             return;
