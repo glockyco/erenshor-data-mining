@@ -101,11 +101,12 @@ internal static class GameSession
         }
 
         // Wait for the player to land in a game zone. MainCam appears in
-        // DontDestroyOnLoad once the world scene has loaded and the player spawned.
+        // DontDestroyOnLoad while the character select scene is still active,
+        // so the zone counts only once it is the active scene.
         logger.LogInfo("Waiting for MainCam...");
         float inWorldTimeout = 60f;
         float inWorldElapsed = 0f;
-        while (!InWorld)
+        while (!InWorld || SceneManager.GetActiveScene().name is "Menu" or "LoadScene")
         {
             inWorldElapsed += Time.unscaledDeltaTime;
             if (inWorldElapsed > inWorldTimeout)
