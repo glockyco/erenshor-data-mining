@@ -7,7 +7,7 @@ namespace MapTileCapture.Protocol;
 /// </summary>
 public static class PortraitPreset
 {
-    public const string Name = "portrait-3";
+    public const string Name = "portrait-4";
 
     /// <summary>Width and height of each render, in pixels.</summary>
     public const int RenderSize = 1024;
@@ -46,13 +46,28 @@ public static class PortraitPreset
     /// </summary>
     public const float EffectFramingGrowth = 1.5f;
 
-    public const float KeyLightIntensity = 1.0f;
-    public const float KeyLightPitch = 35f;
-    public const float KeyLightYaw = 40f;
-    public const float FillLightIntensity = 0.35f;
-    public const float FillLightPitch = 10f;
-    public const float FillLightYaw = -60f;
-    public const float AmbientLevel = 0.45f;
+    /// <summary>
+    /// The sun's direction toward the subject: turned from the camera's
+    /// direction and raised, in degrees. Its colour and the ambient light are
+    /// the game's day colours of AtmosphereColors.
+    /// </summary>
+    public const float SunPitch = 35f;
+    public const float SunYaw = 40f;
+
+    /// <summary>The sun's intensity at 12:00, measured in Port Azure on build 24405256.</summary>
+    public const float SunIntensity = 0.82f;
+
+    /// <summary>
+    /// The game's default graphics options, which MainMenu applies to the
+    /// colour grading and the bloom of the player's camera when the player has
+    /// not changed them.
+    /// </summary>
+    public const float Saturation = 82f;
+    public const float Contrast = 30f;
+    public const float ColourTemperature = 9f;
+    public const float Brightness = 0f;
+    public const float BloomIntensity = 1f;
+    public const float BloomDiffusion = 5f;
 
     /// <summary>Seconds that looping effects run before the render.</summary>
     public const float EffectSeconds = 1.5f;

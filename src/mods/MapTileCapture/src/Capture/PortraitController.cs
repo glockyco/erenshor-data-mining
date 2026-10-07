@@ -197,7 +197,7 @@ internal sealed class PortraitController : IDisposable
             if (mainCam == null)
                 throw new PortraitException("MainCam disappeared before the capture.");
 
-            var result = PortraitStudio.Capture(subject, mainCam.cullingMask, request.OutputPath);
+            var result = PortraitStudio.Capture(subject, mainCam, request.OutputPath);
             _logger.LogInfo($"Captured {request.File} from {result.ObjectName}");
             var message = new
             {

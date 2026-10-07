@@ -53,6 +53,25 @@ public class PortraitImageTests
     }
 
     [Fact]
+    public void Graded_TakesTheCoverageOfTheMatteAndTheColourOfTheGradedRender()
+    {
+        // An edge covers half the pixel: the matte gives alpha 128, and the
+        // graded render over black holds half of the graded colour (200, 60, 20).
+        var graded = PortraitImage.Graded(Pixel(250, 0, 0, 128), Pixel(100, 30, 10));
+
+        Assert.Equal(Pixel(199, 59, 19, 128), graded);
+    }
+
+    [Fact]
+    public void Graded_LeavesTheBackgroundClearWhereTheEffectsDrewOnIt()
+    {
+        // An outline or a bloom halo reaches past the silhouette into the background.
+        var graded = PortraitImage.Graded(Pixel(0, 0, 0, 0), Pixel(40, 40, 40));
+
+        Assert.Equal(Pixel(0, 0, 0, 0), graded);
+    }
+
+    [Fact]
     public void Matte_RejectsRendersOfDifferentSizes()
     {
         Assert.Throws<ArgumentException>(() => PortraitImage.Matte(new byte[8], new byte[4]));

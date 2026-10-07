@@ -57,6 +57,35 @@ public static class PortraitImage
         return matte;
     }
 
+    /// <summary>
+    /// The matte with the colours of a render through the game's image
+    /// effects over black. The effects grade the background too and darken
+    /// silhouette edges, so the coverage comes from the plain renders of the
+    /// matte, and only the colour from the graded render, divided by that
+    /// coverage. The grading keeps black black, so a partly covered pixel of
+    /// the graded render holds the graded colour times its coverage.
+    /// </summary>
+    public static byte[] Graded(byte[] matte, byte[] gradedOverBlack)
+    {
+        if (matte.Length != gradedOverBlack.Length || matte.Length % 4 != 0)
+            throw new ArgumentException(
+                "The matte and the graded render must be RGBA32 buffers of one size."
+            );
+
+        var graded = new byte[matte.Length];
+        for (int i = 0; i < matte.Length; i += 4)
+        {
+            int alpha = matte[i + 3];
+            if (alpha == 0)
+                continue;
+            for (int channel = 0; channel < 3; channel++)
+                graded[i + channel] = (byte)
+                    Math.Min(255, gradedOverBlack[i + channel] * 255 / alpha);
+            graded[i + 3] = (byte)alpha;
+        }
+        return graded;
+    }
+
     /// <summary>The smallest box of the pixels whose alpha exceeds <paramref name="threshold"/>, or null.</summary>
     public static PixelBox? AlphaBox(byte[] rgba, int width, int height, byte threshold)
     {

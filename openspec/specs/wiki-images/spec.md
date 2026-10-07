@@ -61,13 +61,18 @@ The image workflow SHALL use a game's item, spell, or skill icon as the matching
 
 ### Requirement: Captures are repeatable and reviewable
 
-The capture workflow SHALL read the manifest of character models. It SHALL record the game build and camera preset for each output. It SHALL render each subject at 1024 × 1024 pixels, crop it with a consistent margin, and save one transparent PNG per file. The output SHALL show the right subject without UI, another character, a clipped model, or a blank image. An unsuccessful capture SHALL be reported, not uploaded. The workflow SHALL restore game state after success, failure, or cancellation.
+The capture workflow SHALL read the manifest of character models. It SHALL record the game build and camera preset for each output. It SHALL render each subject at 1024 × 1024 pixels as the player's camera shows it in an outdoor zone at midday: in the game's day sun and ambient light, through the camera's image effects at the game's default graphics options. It SHALL crop each render with a consistent margin and save one transparent PNG per file. The output SHALL show the right subject without UI, another character, a clipped model, or a blank image. An unsuccessful capture SHALL be reported, not uploaded. The workflow SHALL restore game state after success, failure, or cancellation.
 
 #### Scenario: Kinds with different models share a page
 
 - **WHEN** the Training Dummy page holds the plain, 400 AC, and 800 AC kinds, which share one model, and the 1000 AC kind, which has its own
 - **THEN** the first three show `Training Dummy.png`
 - **AND** the manifest captures `Training Dummy (1000 AC).png` from the Expert Training Set's dummy
+
+#### Scenario: A capture shows the game's colours
+
+- **WHEN** the Fernallan Sister Hailey is captured
+- **THEN** her robe shows the saturated orange that the player's camera shows in Port Azure at noon, not the duller texture colour
 
 #### Scenario: A capture fails
 

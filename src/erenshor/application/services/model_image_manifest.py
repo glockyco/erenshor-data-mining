@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 # The camera, light, and framing that a capture uses. A change to the capture
 # mode's preset needs a new name, so that captures of different presets are
 # never mixed in one review.
-CAMERA_PRESET = "portrait-3"
+CAMERA_PRESET = "portrait-4"
 
 
 @dataclass(frozen=True, slots=True)

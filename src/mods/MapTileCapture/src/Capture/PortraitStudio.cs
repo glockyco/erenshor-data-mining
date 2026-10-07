@@ -1,7 +1,9 @@
+using System.Reflection;
 using MapTileCapture.Protocol;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.PostProcessing;
 using Object = UnityEngine.Object;
 
 namespace MapTileCapture.Capture;
@@ -28,27 +30,31 @@ internal sealed class PortraitResult
 }
 
 /// <summary>
-/// Renders one character alone, as the player's camera shows it, to a PNG with
-/// a transparent background (design D3 of restore-missing-wiki-images).
+/// Renders one character alone, as the player's camera shows it in an outdoor
+/// zone at midday, to a PNG with a transparent background (design D3 of
+/// restore-missing-wiki-images).
 ///
 /// A copy of the subject goes on a layer that only a temporary camera renders,
 /// so the scene, the player, other characters, and the UI never appear, and
 /// nothing in the scene needs hiding. Scene lights stop lighting that layer
-/// while two lights of the preset and a flat ambient light the copy. Every
-/// change to game state is undone, and every temporary object destroyed, when
-/// the capture ends, whether it succeeds or fails.
+/// while the sun and the flat ambient light of the game's day light the copy,
+/// and the camera passes the colour through the image effects of the player's
+/// camera at the game's default graphics options. Every change to game state
+/// is undone, and every temporary object destroyed, when the capture ends,
+/// whether it succeeds or fails.
 /// </summary>
 internal static class PortraitStudio
 {
     private static readonly Vector3 StudioPosition = new(0f, 5000f, 0f);
 
-    public static PortraitResult Capture(
-        GameObject source,
-        int playerCullingMask,
-        string outputPath
-    )
+    public static PortraitResult Capture(GameObject source, Camera playerCamera, string outputPath)
     {
         using var cleanup = new CleanupStack();
+        var atmosphere =
+            GameData.Atmos
+            ?? throw new PortraitException(
+                "The game's day lighting, AtmosphereColors, is not loaded."
+            );
 
         // Instantiated under an inactive parent, the copy runs no Awake or Start.
         var studio = new GameObject("PortraitStudio");
@@ -64,9 +70,9 @@ internal static class PortraitStudio
 
         ShowAsGameStartsIt(subject);
         RemoveBehaviour(subject);
-        KeepWhatThePlayerSees(subject, playerCullingMask);
+        KeepWhatThePlayerSees(subject, playerCamera.cullingMask);
 
-        LightOnlyWithPreset(cleanup);
+        LightOnlyWithPreset(cleanup, atmosphere.Afternoon);
         studio.SetActive(true);
         Pose(subject);
 
@@ -97,21 +103,9 @@ internal static class PortraitStudio
             subject.transform.rotation
             * Quaternion.Euler(PortraitPreset.CameraPitch, PortraitPreset.CameraYaw, 0f)
             * Vector3.forward;
-        var camera = CreateCamera(cleanup, bounds, direction);
-        CreateLight(
-            cleanup,
-            direction,
-            PortraitPreset.KeyLightIntensity,
-            PortraitPreset.KeyLightPitch,
-            PortraitPreset.KeyLightYaw
-        );
-        CreateLight(
-            cleanup,
-            direction,
-            PortraitPreset.FillLightIntensity,
-            PortraitPreset.FillLightPitch,
-            PortraitPreset.FillLightYaw
-        );
+        var camera = CreateCamera(cleanup, bounds, direction, playerCamera);
+        var look = AddGameLook(cleanup, camera, playerCamera);
+        CreateSun(cleanup, direction, atmosphere.SunDay);
 
         int size = PortraitPreset.RenderSize;
         var target = new RenderTexture(size, size, 24, RenderTextureFormat.ARGB32)
@@ -181,10 +175,15 @@ internal static class PortraitStudio
 
         foreach (var effect in effects)
             effect.enabled = true;
-        var portrait = PortraitImage.Matte(
+        var matte = PortraitImage.Matte(
             Render(camera, target, readback, Color.black),
             Render(camera, target, readback, Color.white)
         );
+        look.Enabled = true;
+        // The effects start, and the volume blends, on their first render.
+        Render(camera, target, readback, Color.black);
+        var portrait = PortraitImage.Graded(matte, Render(camera, target, readback, Color.black));
+        look.Enabled = false;
         var crop = PortraitImage.MarginCrop(subjectBox, Margin(subjectBox), size, size);
         var pixels = PortraitImage.Crop(portrait, size, size, crop);
 
@@ -302,7 +301,12 @@ internal static class PortraitStudio
             part.gameObject.layer = PortraitPreset.StudioLayer;
     }
 
-    private static void LightOnlyWithPreset(CleanupStack cleanup)
+    /// <summary>
+    /// Keeps the scene's lights off the studio layer and lights it with the
+    /// flat ambient of the game's day, which AtmosphereColors sets in outdoor
+    /// zones from 7:00 to 17:00, without fog.
+    /// </summary>
+    private static void LightOnlyWithPreset(CleanupStack cleanup, Color dayAmbient)
     {
         foreach (var light in Object.FindObjectsOfType<Light>())
         {
@@ -327,11 +331,7 @@ internal static class PortraitStudio
             RenderSettings.fog = fog;
         });
         RenderSettings.ambientMode = AmbientMode.Flat;
-        RenderSettings.ambientLight = new Color(
-            PortraitPreset.AmbientLevel,
-            PortraitPreset.AmbientLevel,
-            PortraitPreset.AmbientLevel
-        );
+        RenderSettings.ambientLight = dayAmbient;
         RenderSettings.ambientIntensity = 1f;
         RenderSettings.fog = false;
     }
@@ -365,10 +365,17 @@ internal static class PortraitStudio
         }
     }
 
-    private static Camera CreateCamera(CleanupStack cleanup, Bounds bounds, Vector3 direction)
+    /// <summary>A camera of the studio layer that renders as the player's camera does, still inactive.</summary>
+    private static Camera CreateCamera(
+        CleanupStack cleanup,
+        Bounds bounds,
+        Vector3 direction,
+        Camera playerCamera
+    )
     {
         var holder = new GameObject("PortraitCamera");
         cleanup.Push(() => Object.Destroy(holder));
+        holder.SetActive(false);
         float radius = Mathf.Max(bounds.extents.magnitude, 0.01f);
         float distance =
             radius / Mathf.Sin(PortraitPreset.FieldOfView * 0.5f * Mathf.Deg2Rad) * 1.05f;
@@ -382,26 +389,122 @@ internal static class PortraitStudio
         camera.fieldOfView = PortraitPreset.FieldOfView;
         camera.nearClipPlane = Mathf.Max(0.01f, distance - (radius * 2f));
         camera.farClipPlane = distance + (radius * 2f);
-        camera.allowHDR = false;
+        // HDR lets bright effects bloom, as on the player's camera.
+        camera.allowHDR = playerCamera.allowHDR;
         camera.allowMSAA = true;
         return camera;
     }
 
-    private static void CreateLight(
-        CleanupStack cleanup,
-        Vector3 direction,
-        float intensity,
-        float pitch,
-        float yaw
-    )
+    /// <summary>
+    /// Gives the studio camera the image effects of the player's camera, in
+    /// its order: the post-processing stack, then the vibrance boost and the
+    /// toon outline. The stack takes the player's profile at the game's default
+    /// graphics options, from a volume that only the studio camera sees, so
+    /// the player's own settings do not change the capture. The effects start
+    /// off, and the camera's object turns on.
+    /// </summary>
+    private static GameLook AddGameLook(CleanupStack cleanup, Camera camera, Camera playerCamera)
     {
-        var holder = new GameObject("PortraitLight");
+        var playerLayer =
+            playerCamera.GetComponent<PostProcessLayer>()
+            ?? throw new PortraitException("The player's camera has no post-processing layer.");
+        var playerVolume =
+            playerCamera.GetComponent<PostProcessVolume>()
+            ?? throw new PortraitException("The player's camera has no post-processing volume.");
+        var playerVibrance =
+            playerCamera.GetComponent<VibranceEffect>()
+            ?? throw new PortraitException("The player's camera has no vibrance effect.");
+        var playerOutline =
+            playerCamera.GetComponent<ScreenSpaceOutlineEffect>()
+            ?? throw new PortraitException("The player's camera has no outline effect.");
+
+        // PostProcessLayer keeps its shaders and textures in a private field.
+        var resources = (PostProcessResources)
+            typeof(PostProcessLayer)
+                .GetField("m_Resources", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .GetValue(playerLayer);
+        var holder = camera.gameObject;
+        var layer = holder.AddComponent<PostProcessLayer>();
+        layer.Init(resources);
+        layer.volumeLayer = 1 << PortraitPreset.StudioLayer;
+        layer.volumeTrigger = holder.transform;
+        layer.antialiasingMode = PostProcessLayer.Antialiasing.None;
+
+        var profile = Object.Instantiate(playerVolume.profile);
+        cleanup.Push(() => Object.Destroy(profile));
+        if (profile.TryGetSettings(out ColorGrading grading))
+        {
+            grading.saturation.value = PortraitPreset.Saturation;
+            grading.contrast.value = PortraitPreset.Contrast;
+            grading.temperature.value = PortraitPreset.ColourTemperature;
+            grading.brightness.value = PortraitPreset.Brightness;
+        }
+        if (profile.TryGetSettings(out Bloom bloom))
+        {
+            bloom.intensity.value = PortraitPreset.BloomIntensity;
+            bloom.diffusion.value = PortraitPreset.BloomDiffusion;
+        }
+        var volumeHolder = new GameObject("PortraitLook") { layer = PortraitPreset.StudioLayer };
+        cleanup.Push(() =>
+        {
+            // Off at once, so that no camera blends the volume in the frames before its destruction.
+            volumeHolder.SetActive(false);
+            Object.Destroy(volumeHolder);
+        });
+        var volume = volumeHolder.AddComponent<PostProcessVolume>();
+        volume.isGlobal = true;
+        volume.sharedProfile = profile;
+
+        // The effects take the shaders and strengths of the player's.
+        var vibrance = holder.AddComponent<VibranceEffect>();
+        vibrance.vibranceShader = playerVibrance.vibranceShader;
+        vibrance.saturation = playerVibrance.saturation;
+        var outline = holder.AddComponent<ScreenSpaceOutlineEffect>();
+        outline.outlineShader = playerOutline.outlineShader;
+        outline.threshold = playerOutline.threshold;
+        outline.minColorDiff = playerOutline.minColorDiff;
+        outline.darkeningFactor = playerOutline.darkeningFactor;
+        outline.outlineIntensity = playerOutline.outlineIntensity;
+        outline.outlineOffset = playerOutline.outlineOffset;
+        outline.sharpnessMultiplier = playerOutline.sharpnessMultiplier;
+
+        var look = new GameLook(layer, vibrance, outline) { Enabled = false };
+        holder.SetActive(true);
+        return look;
+    }
+
+    /// <summary>The image effects of the player's camera on the studio camera, which renders the colour with them.</summary>
+    private sealed class GameLook
+    {
+        private readonly Behaviour[] _effects;
+
+        public GameLook(params Behaviour[] effects) => _effects = effects;
+
+        public bool Enabled
+        {
+            set
+            {
+                foreach (var effect in _effects)
+                    effect.enabled = value;
+            }
+        }
+    }
+
+    /// <summary>
+    /// The sun of the game's day, in its colour of AtmosphereColors.SunDay and
+    /// its strength at noon, from the preset's direction toward the subject.
+    /// </summary>
+    private static void CreateSun(CleanupStack cleanup, Vector3 direction, Color colour)
+    {
+        var holder = new GameObject("PortraitSun");
         cleanup.Push(() => Object.Destroy(holder));
         holder.transform.rotation =
-            Quaternion.LookRotation(-direction) * Quaternion.Euler(pitch, yaw, 0f);
+            Quaternion.LookRotation(-direction)
+            * Quaternion.Euler(PortraitPreset.SunPitch, PortraitPreset.SunYaw, 0f);
         var light = holder.AddComponent<Light>();
         light.type = LightType.Directional;
-        light.intensity = intensity;
+        light.color = colour;
+        light.intensity = PortraitPreset.SunIntensity;
         light.cullingMask = 1 << PortraitPreset.StudioLayer;
         light.shadows = LightShadows.None;
     }

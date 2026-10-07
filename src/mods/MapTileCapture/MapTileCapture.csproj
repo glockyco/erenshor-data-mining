@@ -123,6 +123,11 @@
       <HintPath>lib/UnityEngine.AIModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <!-- Unity.Postprocessing.Runtime — portraits pass through the game's post-processing -->
+    <Reference Include="Unity.Postprocessing.Runtime">
+      <HintPath>lib/Unity.Postprocessing.Runtime.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <!-- UnityEngine.PhysicsModule — Rigidbody: portraits remove physics -->
     <Reference Include="UnityEngine.PhysicsModule">
       <HintPath>lib/UnityEngine.PhysicsModule.dll</HintPath>

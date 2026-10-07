@@ -33,6 +33,7 @@ _REQUIRED_DLLS = (
     "UnityEngine.ParticleSystemModule.dll",
     "UnityEngine.TerrainModule.dll",
     "Unity.TextMeshPro.dll",
+    "Unity.Postprocessing.Runtime.dll",
     "com.rlabrecque.steamworks.net.dll",
 )
 REQUIRED_DLLS = _REQUIRED_DLLS
