@@ -388,7 +388,7 @@ public sealed class TrackerWindow
             if (quest == null)
                 continue;
 
-            DrawQuestEntry(quest, questKey, i);
+            DrawQuestEntry(quest, questKey);
         }
 
         // Record bounds for next frame's backdrop with per-side padding
@@ -418,7 +418,7 @@ public sealed class TrackerWindow
         ImGui.EndChild();
     }
 
-    private void DrawQuestEntry(QuestEntry quest, string questKey, int index)
+    private void DrawQuestEntry(QuestEntry quest, string questKey)
     {
         var anim = GetOrDefaultAnim(questKey);
         float now = UnityEngine.Time.realtimeSinceStartup;
@@ -443,7 +443,7 @@ public sealed class TrackerWindow
                 entryAlpha = elapsed / FadeInDuration;
         }
 
-        ImGui.PushID(index);
+        ImGui.PushID(questKey);
 
         if (entryAlpha < 1f)
             ImGui.PushStyleVar(ImGuiStyleVar.Alpha, entryAlpha);
