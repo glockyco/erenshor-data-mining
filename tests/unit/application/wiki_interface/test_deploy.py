@@ -235,11 +235,28 @@ def test_prepares_all_sidecars_and_checkpoints_before_first_mutation(tmp_path: P
         rollback_root=tmp_path / "rollback",
         checkpoint=checkpoint,
     )
-    assert len(checkpoints) == 4  # prepared plus CSS, JS, definition
+    assert len(checkpoints) == 4  # prepared plus definition, CSS, JS
+
+
+def test_a_new_gadget_is_registered_before_the_pages_that_load_it_change(tmp_path: Path) -> None:
+    _repo(tmp_path)
+    pages = _pages("* unrelated[ResourceLoader]|other.js\n")
+    del pages["MediaWiki:Gadget-first.css"]
+    client = FakeInterfaceClient(pages)
+
+    deploy_interface_pages(
+        plan_interface_pages(tmp_path, client),
+        repo_root=tmp_path,
+        client=client,
+        summary="deploy",
+        rollback_root=tmp_path / "rollback",
+        checkpoint=lambda _manifest: None,
+    )
+
     assert [title for title, _ in client.writes] == [
         "MediaWiki:Gadget-first.css",
-        "MediaWiki:Gadget-second.js",
         "MediaWiki:Gadgets-definition",
+        "MediaWiki:Gadget-second.js",
     ]
 
 
@@ -250,7 +267,7 @@ def test_definition_reconciliation_owns_only_managed_lines_and_removes_duplicate
         "* first[ResourceLoader]|stale.css\n* first[ResourceLoader]|duplicate.css\n"
     )
     client = FakeInterfaceClient(_pages(definition))
-    result = deploy_interface_pages(
+    deploy_interface_pages(
         plan_interface_pages(tmp_path, client),
         repo_root=tmp_path,
         client=client,
@@ -262,7 +279,6 @@ def test_definition_reconciliation_owns_only_managed_lines_and_removes_duplicate
     assert "# keep\n" in uploaded
     assert uploaded.count("* first[") == 1
     assert "* second[ResourceLoader]|second.js\n" in uploaded
-    assert result.manifest.entries[-1].title == "MediaWiki:Gadgets-definition"
 
 
 def test_partial_failure_leaves_last_checkpoint_as_safe_rollback_journal(tmp_path: Path) -> None:
@@ -281,16 +297,17 @@ def test_partial_failure_leaves_last_checkpoint_as_safe_rollback_journal(tmp_pat
             rollback_root=tmp_path / "rollback",
             checkpoint=checkpoints.append,
         )
-    assert len(checkpoints) == 3
     journal = checkpoints[-1]
     assert error.value.manifest == journal
     assert journal.rollback_root == "rollback"
-    assert journal.entries[0].new_revision_id is not None
-    assert journal.entries[1].mutation_state == "ambiguous"
-    assert journal.entries[1].deploy_action == "edited"
-    assert journal.entries[1].rollback_text_sha256 == hashlib.sha256(b"old js\n").hexdigest()
-    assert journal.entries[1].deployed_text_sha256 == hashlib.sha256(b"console.log('x');").hexdigest()
-    assert journal.entries[2].new_revision_id is None
+    entries = {entry.title: entry for entry in journal.entries}
+    assert entries["MediaWiki:Gadgets-definition"].new_revision_id is not None
+    assert entries["MediaWiki:Gadget-first.css"].new_revision_id is not None
+    failed = entries["MediaWiki:Gadget-second.js"]
+    assert failed.mutation_state == "ambiguous"
+    assert failed.deploy_action == "edited"
+    assert failed.rollback_text_sha256 == hashlib.sha256(b"old js\n").hexdigest()
+    assert failed.deployed_text_sha256 == hashlib.sha256(b"console.log('x');").hexdigest()
 
 
 def test_rollback_refuses_revision_conflict_and_reverse_restores(tmp_path: Path) -> None:
@@ -311,9 +328,9 @@ def test_rollback_refuses_revision_conflict_and_reverse_restores(tmp_path: Path)
     # Force restores in reverse deployment order and uses each current revision.
     restored = rollback_interface_pages(result.manifest, tmp_path, client, "rollback", force=True)
     assert restored.restored_titles == (
-        "MediaWiki:Gadgets-definition",
         "MediaWiki:Gadget-second.js",
         "MediaWiki:Gadget-first.css",
+        "MediaWiki:Gadgets-definition",
     )
     assert [title for title, _ in client.writes[-3:]] == list(restored.restored_titles)
 

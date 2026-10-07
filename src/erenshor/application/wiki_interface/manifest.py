@@ -296,8 +296,6 @@ def _validate_manifest(manifest: InterfaceDeployManifest) -> None:
                 if entry.old_revision_id is not None or entry.rollback_text_source is not None:
                     raise ValueError(f"ambiguous created entry {entry.title} has prior-page rollback state")
 
-    if not manifest.entries or manifest.entries[-1].title != _DEFINITION_TITLE:
-        raise ValueError(f"interface deploy manifest must end with {_DEFINITION_TITLE}")
     if sum(entry.title == _DEFINITION_TITLE for entry in manifest.entries) != 1:
         raise ValueError(f"interface deploy manifest must contain {_DEFINITION_TITLE} exactly once")
 

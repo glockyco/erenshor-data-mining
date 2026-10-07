@@ -157,7 +157,13 @@ def plan_interface_pages(
     client: InterfaceDeployClient,
     assert_user: str | None = None,
 ) -> InterfaceDeployPlan:
-    """Snapshot every allowlisted source and registration page in one batch."""
+    """Snapshot every allowlisted source and registration page in one batch.
+
+    The deploy writes in plan order: new gadget pages, then the definition,
+    then the changed pages. So a new gadget's page exists before the definition
+    registers it, and the definition registers it before a page that loads it
+    changes, and no reader gets a gadget that asks for an unknown module.
+    """
     root = repo_root.resolve()
     spec = load_gadget_spec(root)
     source_pages = gadget_source_pages(spec, root)
@@ -206,18 +212,18 @@ def plan_interface_pages(
     definition_action: DeployAction = (
         "unchanged" if normalize_saved_text(definition_text) == normalize_saved_text(new_definition) else "edited"
     )
-    entries.append(
-        InterfaceDeployPlanEntry(
-            title=DEFINITION_TITLE,
-            source_path=definition_path.relative_to(root).as_posix(),
-            source_sha256=definition_hash,
-            content_model="wikitext",
-            planned_action=definition_action,
-            new_text=new_definition,
-            snapshot=definition_snapshot,
-        )
+    definition_entry = InterfaceDeployPlanEntry(
+        title=DEFINITION_TITLE,
+        source_path=definition_path.relative_to(root).as_posix(),
+        source_sha256=definition_hash,
+        content_model="wikitext",
+        planned_action=definition_action,
+        new_text=new_definition,
+        snapshot=definition_snapshot,
     )
-    return InterfaceDeployPlan(entries=tuple(entries), assert_user=assert_user)
+    created = [entry for entry in entries if entry.planned_action == "created"]
+    others = [entry for entry in entries if entry.planned_action != "created"]
+    return InterfaceDeployPlan(entries=(*created, definition_entry, *others), assert_user=assert_user)
 
 
 def deploy_interface_pages(
@@ -485,7 +491,7 @@ def _validated_plan_texts(
         (DEFINITION_TITLE, "wiki/gadgets/gadgets.toml", "wikitext")
     ]
     actual_layout = [(entry.title, entry.source_path, entry.content_model) for entry in plan.entries]
-    if actual_layout != expected_layout:
+    if sorted(actual_layout) != sorted(expected_layout):
         raise InterfaceSourceDriftError("Interface deployment plan no longer matches the repository gadget allowlist")
 
     titles = [entry.title for entry in plan.entries]
