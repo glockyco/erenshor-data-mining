@@ -463,6 +463,7 @@ public sealed class WorldMarkerSystem
             {
                 Position = pos,
                 DisplayName = displayName,
+                CharacterKey = stableKey,
                 LiveSpawnPoint = info.LiveSpawnPoint,
                 TrackedNPC = info.LiveNPC,
                 LiveMiningNode = info.LiveMiningNode,
@@ -670,7 +671,7 @@ public sealed class WorldMarkerSystem
 
             float distance = Vector3.Distance(playerPos, m.Position);
 
-            if (m.RespawnOnly)
+            if (m.RespawnOnly || m.SharedNames != null)
             {
                 if (!UpdateRespawnOnlyMarker(ref m, instance, distance))
                 {
@@ -908,9 +909,54 @@ public sealed class WorldMarkerSystem
         if (entry.LiveSpawnPoint != null)
             _questSpawnPoints.Add(entry.LiveSpawnPoint.GetInstanceID());
 
-        if (_intentIndex.TryGetValue(key, out int existingIdx))
+        int? absencePointId = SharedSpawnMarkerPolicy.AbsencePointId(
+            entry.Type,
+            entry.LiveSpawnPoint != null ? entry.LiveSpawnPoint.GetInstanceID() : null
+        );
+        var intentKey = absencePointId.HasValue ? new IntentKey(absencePointId.Value) : key;
+
+        if (_intentIndex.TryGetValue(intentKey, out int existingIdx))
         {
             var existing = _markers[existingIdx];
+            if (
+                absencePointId.HasValue
+                && entry.CharacterKey != null
+                && existing.CharacterKey != null
+            )
+            {
+                if (
+                    existing.SharedNames != null
+                    || !string.Equals(
+                        existing.CharacterKey,
+                        entry.CharacterKey,
+                        System.StringComparison.OrdinalIgnoreCase
+                    )
+                )
+                {
+                    existing.SharedNames ??= new SharedSpawnMarkerNames(
+                        existing.CharacterKey,
+                        existing.DisplayName
+                    );
+                    existing.SharedNames.Add(entry.CharacterKey, entry.DisplayName);
+                    existing.DisplayName = existing.SharedNames.DisplayName;
+                    existing.TargetNpcName = null;
+                }
+                if (MarkerDecision.ShouldReplace(existing.QuestType, entry.QuestType))
+                {
+                    existing.QuestType = entry.QuestType;
+                    existing.QuestSubText = entry.QuestSubText;
+                }
+                if (existing.Type == MarkerType.NightSpawn)
+                    SetNightText(ref existing);
+                else
+                    SetRespawnTimer(
+                        ref existing,
+                        SpawnPointBridge.GetRespawnSeconds(existing.LiveSpawnPoint!),
+                        RespawnDueText
+                    );
+                _markers[existingIdx] = existing;
+                return;
+            }
             if (MarkerDecision.ShouldReplace(existing.Type, entry.Type))
             {
                 entry.Position = existing.Position;
@@ -919,7 +965,7 @@ public sealed class WorldMarkerSystem
             return;
         }
 
-        _intentIndex[key] = _markers.Count;
+        _intentIndex[intentKey] = _markers.Count;
         _markers.Add(entry);
     }
 
@@ -950,13 +996,14 @@ public sealed class WorldMarkerSystem
     }
 
     /// <summary>
-    /// Identity of a marker intent: a character at a spawn position (rounded
-    /// to centimeters), or a step location by its stable key. A struct key
-    /// avoids formatting a string per spawn on every rebuild.
+    /// Identity of a marker intent: an empty live spawn point, a character at
+    /// a spawn position (rounded to centimeters), or a step's stable key.
+    /// A struct key avoids formatting a string per spawn on every rebuild.
     /// </summary>
     private readonly struct IntentKey : System.IEquatable<IntentKey>
     {
         private readonly string _key;
+        private readonly int _spawnPointId;
         private readonly int _x,
             _y,
             _z;
@@ -964,16 +1011,24 @@ public sealed class WorldMarkerSystem
         public IntentKey(string key)
             : this(key, 0f, 0f, 0f) { }
 
+        public IntentKey(int spawnPointId)
+            : this("", 0f, 0f, 0f)
+        {
+            _spawnPointId = spawnPointId;
+        }
+
         public IntentKey(string key, float x, float y, float z)
         {
             _key = key;
+            _spawnPointId = 0;
             _x = Mathf.RoundToInt(x * 100f);
             _y = Mathf.RoundToInt(y * 100f);
             _z = Mathf.RoundToInt(z * 100f);
         }
 
         public bool Equals(IntentKey other) =>
-            _x == other._x
+            _spawnPointId == other._spawnPointId
+            && _x == other._x
             && _y == other._y
             && _z == other._z
             && string.Equals(_key, other._key, System.StringComparison.OrdinalIgnoreCase);
@@ -981,7 +1036,11 @@ public sealed class WorldMarkerSystem
         public override bool Equals(object? obj) => obj is IntentKey other && Equals(other);
 
         public override int GetHashCode() =>
-            System.StringComparer.OrdinalIgnoreCase.GetHashCode(_key) ^ (_x * 397) ^ (_y * 17) ^ _z;
+            System.StringComparer.OrdinalIgnoreCase.GetHashCode(_key)
+            ^ _spawnPointId
+            ^ (_x * 397)
+            ^ (_y * 17)
+            ^ _z;
     }
 }
 
@@ -995,6 +1054,9 @@ public struct MarkerEntry
     public Vector3 Position;
     public MarkerType Type;
     public string DisplayName;
+
+    internal string? CharacterKey;
+    internal SharedSpawnMarkerNames? SharedNames;
     public string? TargetKey;
     public string? SubText;
 

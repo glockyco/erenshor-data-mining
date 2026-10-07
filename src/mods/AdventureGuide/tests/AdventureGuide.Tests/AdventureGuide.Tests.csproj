@@ -45,6 +45,7 @@
     <Compile Include="../../src/Navigation/DirectPlacementPolicy.cs" Link="Navigation/DirectPlacementPolicy.cs" />
     <Compile Include="../../src/Navigation/MarkerType.cs" Link="Navigation/MarkerType.cs" />
     <Compile Include="../../src/Navigation/MarkerDecision.cs" Link="Navigation/MarkerDecision.cs" />
+    <Compile Include="../../src/Navigation/SharedSpawnMarkerPolicy.cs" Link="Navigation/SharedSpawnMarkerPolicy.cs" />
     <Compile Include="../../src/Navigation/MarkerFadePolicy.cs" Link="Navigation/MarkerFadePolicy.cs" />
     <Compile Include="../../src/Navigation/GameMarkerPolicy.cs" Link="Navigation/GameMarkerPolicy.cs" />
     <Compile Include="../../src/Navigation/MarkerTextFormatter.cs" Link="Navigation/MarkerTextFormatter.cs" />
