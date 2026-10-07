@@ -220,6 +220,21 @@ public sealed class GuideConfigTests
         config.Dispose();
     }
 
+    [Theory]
+    [InlineData(-1f, -1f)]
+    [InlineData(-0.5f, 0.5f)]
+    [InlineData(0f, 0.5f)]
+    [InlineData(0.05f, 0.5f)]
+    [InlineData(0.5f, 0.5f)]
+    [InlineData(4f, 4f)]
+    [InlineData(5f, 4f)]
+    public void UiScale_changes_preserve_auto_or_clamp_to_usable_sizes(float value, float expected)
+    {
+        using var config = new GuideConfig(new RecordingGuideConfigBackend());
+        config.UiScale.Value = value;
+        Assert.Equal(expected, config.UiScale.Value);
+    }
+
     [Fact]
     public void Dispose_releases_every_entry_and_backend_exactly_once()
     {

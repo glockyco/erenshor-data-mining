@@ -58,6 +58,7 @@
     <Compile Include="../../src/UI/LayoutResetState.cs" Link="UI/LayoutResetState.cs" />
     <Compile Include="../../src/UI/ThemeMetrics.cs" Link="UI/ThemeMetrics.cs" />
     <Compile Include="../../src/UI/ZoneLineLabels.cs" Link="UI/ZoneLineLabels.cs" />
+    <Compile Include="../../src/UI/UiScalePolicy.cs" Link="UI/UiScalePolicy.cs" />
   </ItemGroup>
 
   <ItemGroup>

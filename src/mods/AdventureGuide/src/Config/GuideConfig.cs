@@ -79,10 +79,12 @@ public sealed class GuideConfig : IDisposable
             "General",
             "UiScale",
             -1f,
-            "UI scale factor. Affects font size and element spacing. Set to -1 to auto-detect from screen resolution.",
+            "UI scale factor for fonts and spacing: 0.5 to 4, or -1 to auto-detect from screen resolution.",
             min: -1f,
             max: 4f
         );
+        UiScale.SettingChanged += ValidateUiScale;
+        ValidateUiScale(this, EventArgs.Empty);
         HistoryMaxSize = Bind(
             "General",
             "HistoryMaxSize",
@@ -245,10 +247,18 @@ public sealed class GuideConfig : IDisposable
 
     public void Dispose()
     {
+        UiScale.SettingChanged -= ValidateUiScale;
         foreach (var entry in _entries)
             entry.Dispose();
         _entries.Clear();
         _backend.Dispose();
+    }
+
+    private void ValidateUiScale(object? sender, EventArgs e)
+    {
+        float normalized = UiScalePolicy.Normalize(UiScale.Value);
+        if (!normalized.Equals(UiScale.Value))
+            UiScale.Value = normalized;
     }
 
     private IConfigValue<T> Bind<T>(
