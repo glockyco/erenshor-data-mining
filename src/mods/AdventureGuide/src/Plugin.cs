@@ -147,7 +147,6 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
                 _window.Draw();
                 _tracker!.Draw(_inGameplay);
                 _arrow!.Draw();
-                _config.LayoutResetRequested = false;
             };
 
             DebugAPI.Data = _data;
@@ -387,7 +386,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
         if (scale < 0f)
             scale = DetectUiScale();
         _config.ResolvedUiScale = scale;
-        _config.LayoutResetRequested = true;
+        _config.LayoutResetGeneration++;
         _imgui?.SetScale(scale);
     }
 
@@ -395,7 +394,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
     {
         if (!_config!.ResetWindowLayout.Value)
             return;
-        _config.LayoutResetRequested = true;
+        _config.LayoutResetGeneration++;
         _imgui?.ClearWindowState();
         _config.ResetWindowLayout.Value = false;
     }

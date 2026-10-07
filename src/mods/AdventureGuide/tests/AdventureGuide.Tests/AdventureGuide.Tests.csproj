@@ -55,6 +55,7 @@
     <Compile Include="../../src/UI/TrackerVisibilityPolicy.cs" Link="UI/TrackerVisibilityPolicy.cs" />
     <Compile Include="../../src/UI/TypingFlagSync.cs" Link="UI/TypingFlagSync.cs" />
     <Compile Include="../../src/UI/StepCountPolicy.cs" Link="UI/StepCountPolicy.cs" />
+    <Compile Include="../../src/UI/LayoutResetState.cs" Link="UI/LayoutResetState.cs" />
   </ItemGroup>
 
   <ItemGroup>

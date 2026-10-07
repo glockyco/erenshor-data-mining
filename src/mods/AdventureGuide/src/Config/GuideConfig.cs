@@ -17,11 +17,8 @@ public sealed class GuideConfig : IDisposable
     /// <summary>Current resolved UI scale factor. Set by Plugin.</summary>
     internal float ResolvedUiScale { get; set; } = 1f;
 
-    /// <summary>
-    /// When true, windows re-apply their default size on the next frame.
-    /// Set by Plugin on layout reset or scale change; cleared after draw.
-    /// </summary>
-    internal bool LayoutResetRequested { get; set; }
+    /// <summary>Incremented on layout reset or scale change; each window applies it once.</summary>
+    internal long LayoutResetGeneration { get; set; }
 
     // ── User-facing: General ─────────────────────────────────────────
 

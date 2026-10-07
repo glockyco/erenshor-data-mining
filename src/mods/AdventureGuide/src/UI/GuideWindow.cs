@@ -24,6 +24,7 @@ public sealed class GuideWindow
     private readonly GuideConfig _config;
 
     private bool _visible;
+    private LayoutResetState _layoutReset;
 
     public bool Visible => _visible;
 
@@ -61,7 +62,8 @@ public sealed class GuideWindow
         if (!_visible)
             return;
 
-        var cond = _config.LayoutResetRequested ? ImGuiCond.Always : ImGuiCond.FirstUseEver;
+        var generation = _config.LayoutResetGeneration;
+        var cond = _layoutReset.IsPending(generation) ? ImGuiCond.Always : ImGuiCond.FirstUseEver;
         var scale = _config.ResolvedUiScale;
         var display = Theme.DisplaySize();
         ImGui.SetNextWindowSize(new Vector2(780f * scale, 530f * scale), cond);
@@ -81,6 +83,7 @@ public sealed class GuideWindow
                 ImGuiWindowFlags.NoCollapse
             );
             windowStarted = true;
+            _layoutReset.Applied(generation);
             if (beginOpen)
                 DrawTabBar();
 

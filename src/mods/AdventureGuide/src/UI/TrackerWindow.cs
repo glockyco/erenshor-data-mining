@@ -42,6 +42,7 @@ public sealed class TrackerWindow
     private readonly GuideWindow _guide;
     private readonly GuideConfig _config;
     private bool _visible = true;
+    private LayoutResetState _layoutReset;
 
     // Animation state — owned by this window, not TrackerState
     private readonly Dictionary<string, EntryAnimation> _animations = new(
@@ -217,7 +218,8 @@ public sealed class TrackerWindow
         if (_sorted.Count == 0 && _fadingOut.Count == 0)
             return;
 
-        var cond = _config.LayoutResetRequested ? ImGuiCond.Always : ImGuiCond.FirstUseEver;
+        var generation = _config.LayoutResetGeneration;
+        var cond = _layoutReset.IsPending(generation) ? ImGuiCond.Always : ImGuiCond.FirstUseEver;
         var scale = _config.ResolvedUiScale;
         var display = Theme.DisplaySize();
         ImGui.SetNextWindowSize(new Vector2(DefaultWidth * scale, DefaultHeight * scale), cond);
@@ -281,6 +283,7 @@ public sealed class TrackerWindow
             else
                 beginOpen = ImGui.Begin("Quest Tracker###Tracker", ref _visible, flags);
             windowStarted = true;
+            _layoutReset.Applied(generation);
 
             if (beginOpen)
             {
