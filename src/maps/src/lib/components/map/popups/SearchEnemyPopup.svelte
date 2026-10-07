@@ -3,6 +3,7 @@
     import { isFurnishingSpawn, type UnlocatedEnemy } from '$lib/map-markers';
     import type { WorldEnemy } from '$lib/types/world-map';
     import WikiLink from '$lib/components/map/WikiLink.svelte';
+    import CharacterPortrait from '$lib/components/map/CharacterPortrait.svelte';
     import Crosshair from '@lucide/svelte/icons/crosshair';
 
     interface Props {
@@ -15,6 +16,12 @@
     }
 
     let { name, markers, unlocated, onHoverSpawn, onFocusSpawn, onFocusAll }: Props = $props();
+    const portraitHashes = $derived(
+        [...new Set([
+            ...markers.flatMap((marker) => marker.characters.filter((c) => c.name === name).map((c) => c.portraitHash)),
+            ...unlocated.filter((c) => c.name === name).map((c) => c.portraitHash)
+        ])].filter((hash): hash is string => hash !== null)
+    );
 
     // Overall level range from the searched character across all spawn points
     const levelRange = $derived.by(() => {
@@ -97,6 +104,13 @@
 </script>
 
 <div class="space-y-4">
+    {#if portraitHashes.length > 0}
+        <div class="flex flex-wrap items-center justify-center gap-2">
+            {#each portraitHashes as hash (hash)}
+                <CharacterPortrait {hash} />
+            {/each}
+        </div>
+    {/if}
     <!-- Summary -->
     <div class="flex items-center justify-between">
         {#if levelRange}

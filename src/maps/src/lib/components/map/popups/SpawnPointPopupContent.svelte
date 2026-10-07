@@ -3,6 +3,7 @@
     import { compareEncounterTier, formatSpawnLevels, isFurnishingSpawn } from '$lib/map-markers';
     import type { CharacterDetails } from '$lib/map/character-details';
     import WikiLink from '$lib/components/map/WikiLink.svelte';
+    import CharacterPortrait from '$lib/components/map/CharacterPortrait.svelte';
 
     interface Props {
         marker: WorldEnemy | WorldNpc;
@@ -97,6 +98,11 @@
         {#each sortedCharacters as char (char.stableKey)}
             {@const drops = characterDetails.drops.get(char.stableKey) ?? []}
             <div class="rounded bg-zinc-800 p-3">
+                {#if char.portraitHash}
+                    <div class="mb-2">
+                        <CharacterPortrait hash={char.portraitHash} />
+                    </div>
+                {/if}
                 <!-- Character header -->
                 <div class="flex items-start justify-between gap-2">
                     <div class="min-w-0 flex-1">

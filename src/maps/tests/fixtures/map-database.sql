@@ -31,6 +31,7 @@ CREATE TABLE characters (
     display_name TEXT NOT NULL,
     npc_name TEXT NOT NULL,
     wiki_page_name TEXT,
+    image_hash TEXT,
     level INTEGER NOT NULL,
     level_scales_with_player INTEGER NOT NULL DEFAULT 0,
     is_vendor INTEGER NOT NULL,
@@ -374,6 +375,10 @@ INSERT INTO characters (
     ('character:fixture chest', 'Fixture Chest', 'Fixture Chest', 'Fixture Chest', 18, 0, 0, 0, 0, 'chest'),
     -- A furnishing of a Reliquary room, which stands only while the room holds its set.
     ('character:fixture dummy', 'Fixture Dummy', 'Fixture Dummy', 'Fixture Dummy', 1, 0, 0, 0, 0, 'npc');
+
+-- Two identities sharing a render should display one portrait in their name popup.
+UPDATE characters SET image_hash = 'fixture_enemy'
+WHERE stable_key IN ('character:fixture enemy', 'character:fixture enemy twin');
 
 INSERT INTO character_deduplications (group_key, member_stable_key, is_map_visible) VALUES
     ('character-group:breena', 'character:breena carpenter', 1),

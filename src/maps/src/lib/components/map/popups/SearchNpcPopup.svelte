@@ -3,6 +3,7 @@
     import type { WorldNpc } from '$lib/types/world-map';
     import { formatSpawnLevels, isFurnishingSpawn } from '$lib/map-markers';
     import WikiLink from '$lib/components/map/WikiLink.svelte';
+    import CharacterPortrait from '$lib/components/map/CharacterPortrait.svelte';
     import Crosshair from '@lucide/svelte/icons/crosshair';
 
     interface Props {
@@ -14,6 +15,11 @@
     }
 
     let { name, markers, onHoverSpawn, onFocusSpawn, onFocusAll }: Props = $props();
+    const portraitHashes = $derived(
+        [...new Set(markers.flatMap((marker) =>
+            marker.characters.filter((c) => c.name === name).map((c) => c.portraitHash)
+        ))].filter((hash): hash is string => hash !== null)
+    );
 
     // Overall level (across all characters on all matching markers)
     const levelRange = $derived(formatSpawnLevels(markers.flatMap((m) => m.characters)));
@@ -79,6 +85,13 @@
 </script>
 
 <div class="space-y-4">
+    {#if portraitHashes.length > 0}
+        <div class="flex flex-wrap items-center justify-center gap-2">
+            {#each portraitHashes as hash (hash)}
+                <CharacterPortrait {hash} />
+            {/each}
+        </div>
+    {/if}
     <!-- Summary -->
     <div class="flex items-center justify-between">
         <div class="text-sm text-zinc-300">{levelRange}</div>

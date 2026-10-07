@@ -208,6 +208,7 @@ vite.config.ts.timestamp-*
 
 static/tiles
 static/items
+static/characters
 
 # Un-ignore our TypeScript source files in src/lib/
 !src/lib/

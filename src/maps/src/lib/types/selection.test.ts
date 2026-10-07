@@ -65,6 +65,7 @@ describe('serializeSelection', () => {
                     stableKey: 'character:runtime enemy',
                     name: 'Runtime Enemy',
                     wikiPageName: 'Runtime Enemy',
+                    portraitHash: null,
                     level: 12,
                     encounterTier: 'elite'
                 }

@@ -30,6 +30,14 @@ Keep this route for shipped companions and other database consumers.
 Remove any `.sqlite` under `src/maps/static/` if `maps dev` or `maps build` rejects a conflicting static file.
 Rebuild when `maps preview` or `maps deploy` reports stale inputs.
 
+`maps dev` and `maps build` generate catalog-backed WebP sets incrementally:
+item icons under `static/items` (20 px search, 48 px item popup) and approved
+character portraits under `static/characters` (96 px and 192 px for 1x/2x).
+Portraits sit centred above the text in character popups and spawn cards, leaving
+the narrow popup's full width for details. Files use the catalog pixel hash,
+shared pictures share files, and stale files are removed. A character with no
+portrait leaves no image slot; the map never uses wiki pictures as a fallback.
+
 The smoke test covers `/`, `/map`, `/maps/Stowaway`, marker popups, legacy `layers` query state, and the published database.
 It fails on site-initiated `.sqlite` requests.
 Extend it when changing a companion-facing URL or database contract.

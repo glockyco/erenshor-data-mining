@@ -45,6 +45,12 @@ function furnitureText(character: SpawnCharacter): string {
     return `<br>Appears when the player places the ${set} in this room.`;
 }
 
+function portraitHtml(hash: string | null): string {
+    if (!hash) return '';
+    const url = `/characters/${encodeURIComponent(hash)}`;
+    return `<img src="${url}.w96.webp" srcset="${url}.w96.webp 1x, ${url}.w192.webp 2x" alt="" width="96" height="96" style="display:block;margin:0 auto 8px;object-fit:contain">`;
+}
+
 // Parse patrol path string "x1,z1;x2,z2;..." into local coordinate pairs [x, z]
 // Note: z becomes y on the 2D map (game Y is height, ignored)
 function parsePatrolPath(patrolPath: string | null): [number, number][] | null {
@@ -133,7 +139,7 @@ export class RepositoryBase {
             '<br><br>' +
             sortedCharacters
                 .map((character) => {
-                    return `${formatWikiLink(character.name, character.wikiPageName)}${furnitureText(character)}`;
+                    return `${portraitHtml(character.portraitHash)}${formatWikiLink(character.name, character.wikiPageName)}${furnitureText(character)}`;
                 })
                 .join('<br>');
 
@@ -453,6 +459,7 @@ export class RepositoryBase {
                 rep.stable_key AS StableKey,
                 rep.display_name AS Name,
                 rep.wiki_page_name AS WikiPageName,
+                rep.image_hash AS PortraitHash,
                 rep.level AS Level,
                 rep.encounter_tier AS EncounterTier
             FROM rep_groups rg
@@ -494,6 +501,7 @@ export class RepositoryBase {
                 stableKey: row.StableKey as string,
                 name: row.Name as string,
                 wikiPageName: row.WikiPageName as string | null,
+                portraitHash: (row.PortraitHash as string | null) ?? null,
                 level: row.Level as number,
                 encounterTier: row.EncounterTier as EnemyTier
             });
@@ -529,6 +537,7 @@ export class RepositoryBase {
                  ORDER BY pp.sequence_index)     AS PatrolPath,
                 rep.display_name                AS NPCName,
                 rep.wiki_page_name              AS WikiPageName,
+                rep.image_hash                  AS PortraitHash,
                 rep.stable_key                  AS CharacterStableKey,
                 rep.level                       AS Level,
                 rep.level_scales_with_player    AS LevelScalesWithPlayer,
@@ -600,6 +609,7 @@ export class RepositoryBase {
             spawnPointMap.get(stableKey)!.characters.push({
                 name: row.NPCName as string,
                 wikiPageName: row.WikiPageName as string | null,
+                portraitHash: (row.PortraitHash as string | null) ?? null,
                 stableKey: row.CharacterStableKey as string,
                 level: (row.Level as number) ?? 1,
                 levelScalesWithPlayer: !!row.LevelScalesWithPlayer,
@@ -700,7 +710,7 @@ export class RepositoryBase {
                     const spawnText = character.sourceScript
                         ? 'Event spawn'
                         : `${(character.spawnChance ?? 0).toFixed(1)}%`;
-                    return `${formatWikiLink(character.name, character.wikiPageName)} (${spawnText})${tag}${furnitureText(character)}`;
+                    return `${portraitHtml(character.portraitHash)}${formatWikiLink(character.name, character.wikiPageName)} (${spawnText})${tag}${furnitureText(character)}`;
                 })
                 .join('<br>');
 

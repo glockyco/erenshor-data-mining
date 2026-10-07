@@ -42,6 +42,7 @@ function makeEnemy(
             {
                 name: charName,
                 wikiPageName: null,
+                portraitHash: null,
                 stableKey: charStableKey,
                 level: 10,
                 spawnChance: 100,
@@ -72,6 +73,7 @@ function makeNpc(
             {
                 name: charName,
                 wikiPageName: null,
+                portraitHash: null,
                 stableKey: charStableKey,
                 level: 5,
                 spawnChance: 100,

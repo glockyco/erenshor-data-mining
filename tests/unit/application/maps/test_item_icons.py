@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 from PIL import Image
 
-from erenshor.application.maps.item_icons import build_item_icons
+from erenshor.application.maps.catalog_images import build_item_icons
 
 
 def _database(path: Path, items: list[tuple[str, str | None, int]]) -> Path:

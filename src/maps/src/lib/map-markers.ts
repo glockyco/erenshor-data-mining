@@ -68,6 +68,7 @@ export type UnlocatedEnemy = {
     stableKey: string;
     name: string;
     wikiPageName: string | null;
+    portraitHash: string | null;
     level: number;
     encounterTier: EnemyTier;
 };
@@ -82,6 +83,7 @@ export type FurnitureSet = {
 export type SpawnCharacter = {
     name: string;
     wikiPageName: string | null;
+    portraitHash: string | null;
     stableKey: string;
     /** The prefab level, which the game replaces when levelScalesWithPlayer is set. */
     level: number;

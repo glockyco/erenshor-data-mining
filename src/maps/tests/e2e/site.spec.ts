@@ -1,10 +1,10 @@
 import { expect, test as base } from '@playwright/test';
 
 /**
- * Map tiles and item icons are captured or generated assets that the fixture
- * build does not contain, so a request for one is not a site failure.
+ * Map tiles, item icons, and character portraits are captured or generated assets
+ * that the fixture build does not contain, so a request for one is not a site failure.
  */
-const ASSETS_OUTSIDE_THE_FIXTURE = /^\/(tiles|items)\//;
+const ASSETS_OUTSIDE_THE_FIXTURE = /^\/(tiles|items|characters)\//;
 
 /**
  * Every test fails on an uncaught page error, a failed same-origin request, or
@@ -78,6 +78,25 @@ test('spawn popup lists the fixture drops', async ({ page }) => {
 
     await expect(page.getByText('Fixture Drop', { exact: true })).toBeVisible();
 });
+
+test('shared character portraits use density variants in search and spawn popups', async ({ page }) => {
+    await page.goto('/map?sel=enemy:Fixture%20Enemy');
+    const portrait = page.locator('img[src="/characters/fixture_enemy.w96.webp"]');
+    await expect(portrait).toHaveCount(1);
+    await expect(portrait).toHaveAttribute('srcset', '/characters/fixture_enemy.w96.webp 1x, /characters/fixture_enemy.w192.webp 2x');
+    await page.goto('/map?sel=marker:spawn:stowaway-enemy');
+    await expect(portrait).toHaveCount(1);
+});
+
+test('a character without a portrait leaves no image slot or wiki fallback', async ({ page }) => {
+    await page.goto('/map?sel=npc:Breena%20Carpenter');
+    await expect(page.getByRole('link', { name: 'Wiki', exact: true })).toHaveAttribute('href', 'https://erenshor.wiki.gg/wiki/Breena%20Carpenter');
+    await expect(page.locator('img[src*="/characters/"], img[src*="wiki.gg"]')).toHaveCount(0);
+    await page.goto('/map?sel=marker:spawn:stowaway-breena');
+    await expect(page.getByText('Fixture Key', { exact: true })).toBeVisible();
+    await expect(page.locator('img[src*="/characters/"], img[src*="wiki.gg"]')).toHaveCount(0);
+});
+
 
 test('vendor popup lists direct and quest-unlocked stock', async ({ page }) => {
     await page.goto('/map?sel=marker:spawn:stowaway-breena');

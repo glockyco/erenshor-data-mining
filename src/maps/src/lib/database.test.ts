@@ -82,6 +82,17 @@ describe('Repository', () => {
 		});
 	});
 
+	it('loads catalog portraits for spawn characters and omits missing portraits', async () => {
+		const spawns = await db.getSpawnPointMarkers(DETAIL_ZONE);
+		const enemy = spawns.find((marker) => marker.stableKey === 'spawn:stowaway-enemy');
+		const npc = spawns.find((marker) => marker.stableKey === 'spawn:stowaway-breena');
+
+		expect(enemy?.characters[0].portraitHash).toBe('fixture_enemy');
+		expect(enemy?.popup).toContain('/characters/fixture_enemy.w192.webp 2x');
+		expect(npc?.characters[0].portraitHash).toBeNull();
+		expect(npc?.popup).not.toContain('<img');
+	});
+
 	it('names the furniture set of a Reliquary furnishing instead of calling it disabled', async () => {
 		const spawns = await db.getSpawnPointMarkers(DETAIL_ZONE);
 		const dummy = spawns.find((marker) => marker.stableKey === 'spawn:stowaway-dummy');
@@ -122,6 +133,7 @@ describe('Repository', () => {
 				stableKey: 'character:runtime enemy',
 				name: 'Runtime Enemy',
 				wikiPageName: 'Runtime Enemy',
+				portraitHash: null,
 				level: 12,
 				encounterTier: 'elite'
 			}

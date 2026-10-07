@@ -57,6 +57,8 @@ def _write_project(tmp_path: Path) -> tuple[Path, Path]:
     with closing(sqlite3.connect(database_path)) as connection:
         connection.execute("CREATE TABLE items (id INTEGER PRIMARY KEY, image_hash TEXT, is_map_visible INTEGER)")
         connection.execute("INSERT INTO items (id, image_hash, is_map_visible) VALUES (1, NULL, 1)")
+        connection.execute("CREATE TABLE characters (stable_key TEXT PRIMARY KEY, image_hash TEXT)")
+        connection.execute("CREATE TABLE character_deduplications (member_stable_key TEXT, is_map_visible INTEGER)")
         connection.commit()
     return maps_dir, database_path
 
