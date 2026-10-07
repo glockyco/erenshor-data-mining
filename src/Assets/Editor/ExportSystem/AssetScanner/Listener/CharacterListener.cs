@@ -573,7 +573,7 @@ public class CharacterListener : IAssetScanListener<Character>
 
     /// <summary>
     /// The path that Resources.Load takes for an asset: the part after the last
-    /// Resources folder, without the file extension. Null outside Resources.
+    /// Resources folder, ending in the prefab's own name. Null outside Resources.
     /// </summary>
     private static string? ResourcesPath(string assetPath)
     {
@@ -584,8 +584,69 @@ public class CharacterListener : IAssetScanListener<Character>
             return null;
         }
         var path = assetPath.Substring(start + folder.Length);
-        var extension = System.IO.Path.GetExtension(path);
-        return path.Substring(0, path.Length - extension.Length);
+        var directory = path.Substring(0, path.LastIndexOf('/') + 1);
+        var name = SerializedRootName(assetPath) ?? System.IO.Path.GetFileNameWithoutExtension(path);
+        return directory + name;
+    }
+
+    /// <summary>
+    /// The name of a prefab's root object as its file stores it. The game loads
+    /// a prefab by this name. AssetRipper names the file after it with some
+    /// characters replaced or trimmed, such as the comma of "Astral, Guardian of
+    /// Stars", and the editor renames the root after the file, so only the file
+    /// text keeps the name. Null when the file holds no root.
+    /// </summary>
+    private static string? SerializedRootName(string assetPath)
+    {
+        var names = new Dictionary<string, string>();
+        string? rootObject = null;
+        string? blockClass = null;
+        string? blockId = null;
+        string? blockObject = null;
+        foreach (var rawLine in System.IO.File.ReadLines(assetPath))
+        {
+            // A block starts with "--- !u!<class id> &<file id>": 1 is a GameObject,
+            // 4 a Transform, 224 a RectTransform.
+            if (rawLine.StartsWith("--- !u!", System.StringComparison.Ordinal))
+            {
+                var header = rawLine.Substring("--- !u!".Length).Split(' ');
+                blockClass = header[0];
+                blockId = header.Length > 1 ? header[1].TrimStart('&') : null;
+                blockObject = null;
+                continue;
+            }
+            var line = rawLine.Trim();
+            if (blockClass == "1" && blockId != null && line.StartsWith("m_Name: ", System.StringComparison.Ordinal))
+            {
+                names[blockId] = YamlScalar(line.Substring("m_Name: ".Length));
+            }
+            else if (blockClass is "4" or "224")
+            {
+                if (line.StartsWith("m_GameObject: {fileID: ", System.StringComparison.Ordinal))
+                {
+                    blockObject = line.Substring("m_GameObject: {fileID: ".Length).TrimEnd('}');
+                }
+                else if (line == "m_Father: {fileID: 0}")
+                {
+                    rootObject = blockObject;
+                }
+            }
+        }
+        return rootObject != null && names.TryGetValue(rootObject, out var name) ? name : null;
+    }
+
+    /// <summary>A YAML scalar without its quotes, as Unity writes names that need them.</summary>
+    private static string YamlScalar(string value)
+    {
+        if (value.Length >= 2 && value[0] == '\'' && value[value.Length - 1] == '\'')
+        {
+            return value.Substring(1, value.Length - 2).Replace("''", "'");
+        }
+        if (value.Length >= 2 && value[0] == '"' && value[value.Length - 1] == '"')
+        {
+            return value.Substring(1, value.Length - 2).Replace("\\\"", "\"").Replace("\\\\", "\\");
+        }
+        return value;
     }
 
     private CharacterRecord CreateCharacterRecord(Character character, string stableKey)
