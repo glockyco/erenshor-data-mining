@@ -31,7 +31,7 @@ pre-commit:
       run: scripts/with-dev-env.sh pnpm --filter erenshor-maps lint
 
     - name: csharpier
-      glob: "src/mods/**/*.cs"
+      glob: "*.cs"
       run: scripts/with-dev-env.sh bash src/mods/run-csharpier.sh {staged_files}
       stage_fixed: true
 

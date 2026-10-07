@@ -18,7 +18,7 @@ fi
 files=()
 for path in "$@"; do
 	case "$path" in
-		src/mods/*/*.cs)
+		*.cs)
 			if [ -f "$repo_root/$path" ]; then
 				files+=("$path")
 			fi
