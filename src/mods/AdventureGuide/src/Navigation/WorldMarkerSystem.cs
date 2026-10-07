@@ -447,7 +447,7 @@ public sealed class WorldMarkerSystem
             var staticPos = new Vector3(sp.X, sp.Y, sp.Z) + Vector3.up * StaticHeightOffset;
             var key = new IntentKey(stableKey, sp.X, sp.Y, sp.Z);
 
-            var info = _bridge.GetState(sp.X, sp.Y, sp.Z, displayName);
+            var info = _bridge.GetState(sp.X, sp.Y, sp.Z, stableKey, displayName);
 
             // Use live NPC position when available (NPCs drift from placed position)
             var pos = info.LiveNPC != null ? GetMarkerPosition(info.LiveNPC) : staticPos;
@@ -458,6 +458,7 @@ public sealed class WorldMarkerSystem
                 LiveSpawnPoint = info.LiveSpawnPoint,
                 TrackedNPC = info.LiveNPC,
                 LiveMiningNode = info.LiveMiningNode,
+                TargetNpcName = info.TargetName,
                 QuestType = questType,
                 QuestSubText = questSubText,
             };
@@ -724,7 +725,7 @@ public sealed class WorldMarkerSystem
     {
         var sp = m.LiveSpawnPoint!;
 
-        bool isAlive = SpawnPointBridge.IsTargetAlive(sp, m.DisplayName);
+        bool isAlive = SpawnPointBridge.IsTargetAlive(sp, m.TargetNpcName ?? m.DisplayName);
 
         if (isAlive && m.Type != m.QuestType)
         {
@@ -985,6 +986,12 @@ public struct MarkerEntry
 
     /// <summary>Quest sub-text to restore when NPC respawns.</summary>
     public string? QuestSubText;
+
+    /// <summary>
+    /// NPCName the quest target spawns with at <see cref="LiveSpawnPoint"/>;
+    /// it can differ from <see cref="DisplayName"/>.
+    /// </summary>
+    public string? TargetNpcName;
 
     /// <summary>
     /// Respawn timer without a quest target (ShowAllRespawnTimers). It has

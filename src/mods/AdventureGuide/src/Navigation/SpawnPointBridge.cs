@@ -52,12 +52,20 @@ public sealed class SpawnPointBridge
         public readonly MiningNode? LiveMiningNode;
         public readonly float RespawnSeconds;
 
+        /// <summary>
+        /// NPCName the target spawns with at <see cref="LiveSpawnPoint"/>: the
+        /// matching spawn-table prefab's NPCName, else the guide's display
+        /// name. Null without a SpawnPoint.
+        /// </summary>
+        public readonly string? TargetName;
+
         public SpawnInfo(
             SpawnState state,
             SpawnPoint? liveSP = null,
             NPC? liveNPC = null,
             MiningNode? miningNode = null,
-            float respawnSeconds = 0f
+            float respawnSeconds = 0f,
+            string? targetName = null
         )
         {
             State = state;
@@ -65,6 +73,7 @@ public sealed class SpawnPointBridge
             LiveNPC = liveNPC;
             LiveMiningNode = miningNode;
             RespawnSeconds = respawnSeconds;
+            TargetName = targetName;
         }
     }
 
@@ -106,7 +115,12 @@ public sealed class SpawnPointBridge
     // null when the table names several NPCs.
     private readonly Dictionary<int, string?> _spawnTableNames = new();
 
-    // Directly-placed NPC cache: name (lowercase) → list of NPC references.
+    // (SpawnPoint instance ID, character stable key) → the NPCName that
+    // character's prefab spawns with at the point, or null when the point's
+    // spawn table has no such prefab.
+    private readonly Dictionary<(int SpawnPoint, string StableKey), string?> _targetNames = new();
+
+    // Directly-placed NPC cache: trimmed lowercase name → list of NPC references.
     // Built once per Rebuild from FindObjectsOfType. Destroyed NPCs become
     // Unity-null between rebuilds, filtered at lookup time.
     private readonly Dictionary<string, List<NPC>> _npcByName = new();
@@ -135,6 +149,7 @@ public sealed class SpawnPointBridge
         _restoredRespawns.Clear();
         _lastSpawnedNames.Clear();
         _spawnTableNames.Clear();
+        _targetNames.Clear();
         _npcByName.Clear();
         _indexedRegistrations = 0;
     }
@@ -156,6 +171,7 @@ public sealed class SpawnPointBridge
         _index.Clear();
         _spawnPoints.Clear();
         _spawnTableNames.Clear();
+        _targetNames.Clear();
 
         // A SpawnPoint registers with SpawnPointManager only in its Start.
         // Index the active components directly, so the index holds every point
@@ -187,7 +203,7 @@ public sealed class SpawnPointBridge
         {
             if (npc == null || string.IsNullOrEmpty(npc.NPCName))
                 continue;
-            var nameKey = npc.NPCName.ToLowerInvariant();
+            var nameKey = npc.NPCName.Trim().ToLowerInvariant();
             if (!_npcByName.TryGetValue(nameKey, out var list))
             {
                 list = new List<NPC>();
@@ -228,12 +244,12 @@ public sealed class SpawnPointBridge
     /// Look up the live state for a static spawn at the given position.
     /// Returns the spawn state and live SpawnPoint reference (if found).
     /// </summary>
-    public SpawnInfo GetState(float x, float y, float z, string expectedNPCName)
+    public SpawnInfo GetState(float x, float y, float z, string stableKey, string expectedNPCName)
     {
         var key = new PosKey(x, y, z);
 
         if (_index.TryGetValue(key, out var sp))
-            return ClassifySpawnPoint(sp, expectedNPCName);
+            return ClassifySpawnPoint(sp, ResolveTargetName(sp, stableKey, expectedNPCName));
 
         // No SpawnPoint at this position — directly-placed NPC.
         // Search active NPCs by name + proximity since directly-placed NPCs
@@ -322,11 +338,50 @@ public sealed class SpawnPointBridge
     {
         return sp.MyNPCAlive
             && sp.SpawnedNPC != null
-            && string.Equals(
-                sp.SpawnedNPC.NPCName,
-                expectedName,
-                System.StringComparison.OrdinalIgnoreCase
-            );
+            && SpawnPointPolicy.IsTargetName(sp.SpawnedNPC.NPCName, expectedName);
+    }
+
+    /// <summary>
+    /// NPCName a character spawns with at a SpawnPoint. Guide data names
+    /// characters by display name, which can differ from the NPCName the game
+    /// gives the spawned NPC ("Gloopa (Quarter)" spawns as "Gloopa"), so the
+    /// name comes from the prefab in the point's spawn table whose stable key
+    /// matches. Falls back to the display name when no prefab matches.
+    /// </summary>
+    private string ResolveTargetName(SpawnPoint sp, string stableKey, string displayName)
+    {
+        var key = (sp.GetInstanceID(), stableKey);
+        if (!_targetNames.TryGetValue(key, out var name))
+        {
+            var normalized = Data.CharacterStableKey.Normalize(stableKey);
+            name =
+                FindPrefabNpcName(sp.CommonSpawns, normalized)
+                ?? FindPrefabNpcName(sp.RareSpawns, normalized);
+            _targetNames[key] = name;
+        }
+        return name ?? displayName;
+    }
+
+    /// <summary>
+    /// NPCName of the prefab whose stable key, derived like the export
+    /// pipeline and EntityRegistry do, equals <paramref name="stableKey"/>.
+    /// </summary>
+    private static string? FindPrefabNpcName(List<GameObject>? spawns, string stableKey)
+    {
+        if (spawns == null)
+            return null;
+        foreach (var prefab in spawns)
+        {
+            if (prefab == null)
+                continue;
+            var prefabKey = Data.CharacterStableKey.FromObjectName(prefab.name);
+            if (!string.Equals(prefabKey, stableKey, System.StringComparison.OrdinalIgnoreCase))
+                continue;
+            var npc = prefab.GetComponent<NPC>();
+            if (npc != null && !string.IsNullOrWhiteSpace(npc.NPCName))
+                return npc.NPCName;
+        }
+        return null;
     }
 
     /// <summary>
@@ -339,16 +394,42 @@ public sealed class SpawnPointBridge
         return tickRate > 0f ? sp.actualSpawnDelay / tickRate : 0f;
     }
 
-    private SpawnInfo ClassifySpawnPoint(SpawnPoint sp, string expectedNPCName)
+    private SpawnInfo ClassifySpawnPoint(SpawnPoint sp, string targetName)
     {
-        return GetPhase(sp, expectedNPCName) switch
+        return GetPhase(sp, targetName) switch
         {
-            SpawnPointPhase.TargetAlive => new SpawnInfo(SpawnState.Alive, sp, sp.SpawnedNPC),
-            SpawnPointPhase.OtherAlive => new SpawnInfo(SpawnState.OtherAlive, sp),
-            SpawnPointPhase.Withheld => new SpawnInfo(SpawnState.Withheld, sp),
-            SpawnPointPhase.NightLocked => new SpawnInfo(SpawnState.NightLocked, sp),
-            SpawnPointPhase.Populating => new SpawnInfo(SpawnState.Populating, sp),
-            _ => new SpawnInfo(SpawnState.Dead, sp, respawnSeconds: GetRespawnSeconds(sp)),
+            SpawnPointPhase.TargetAlive => new SpawnInfo(
+                SpawnState.Alive,
+                sp,
+                sp.SpawnedNPC,
+                targetName: targetName
+            ),
+            SpawnPointPhase.OtherAlive => new SpawnInfo(
+                SpawnState.OtherAlive,
+                sp,
+                targetName: targetName
+            ),
+            SpawnPointPhase.Withheld => new SpawnInfo(
+                SpawnState.Withheld,
+                sp,
+                targetName: targetName
+            ),
+            SpawnPointPhase.NightLocked => new SpawnInfo(
+                SpawnState.NightLocked,
+                sp,
+                targetName: targetName
+            ),
+            SpawnPointPhase.Populating => new SpawnInfo(
+                SpawnState.Populating,
+                sp,
+                targetName: targetName
+            ),
+            _ => new SpawnInfo(
+                SpawnState.Dead,
+                sp,
+                respawnSeconds: GetRespawnSeconds(sp),
+                targetName: targetName
+            ),
         };
     }
 
@@ -411,7 +492,7 @@ public sealed class SpawnPointBridge
     /// </summary>
     private NPC? FindDirectlyPlacedNPC(float x, float y, float z, string expectedName)
     {
-        if (!_npcByName.TryGetValue(expectedName.ToLowerInvariant(), out var candidates))
+        if (!_npcByName.TryGetValue(expectedName.Trim().ToLowerInvariant(), out var candidates))
             return null;
 
         var target = new Vector3(x, y, z);

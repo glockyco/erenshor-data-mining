@@ -210,7 +210,7 @@ public sealed class EntityRegistry
                 FindPrefabName(spawnPoint.CommonSpawns, npc.NPCName)
                 ?? FindPrefabName(spawnPoint.RareSpawns, npc.NPCName);
             if (prefabName != null)
-                return "character:" + prefabName.Trim().ToLowerInvariant();
+                return CharacterStableKey.FromObjectName(prefabName);
         }
 
         // Directly placed NPC — use GameObject name
@@ -220,7 +220,7 @@ public sealed class EntityRegistry
         const string cloneSuffix = "(Clone)";
         if (objName.EndsWith(cloneSuffix, System.StringComparison.Ordinal))
             objName = objName.Substring(0, objName.Length - cloneSuffix.Length);
-        return "character:" + objName.Trim().ToLowerInvariant();
+        return CharacterStableKey.FromObjectName(objName);
     }
 
     /// <summary>

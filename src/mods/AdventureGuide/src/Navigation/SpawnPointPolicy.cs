@@ -73,6 +73,17 @@ internal static class SpawnPointPolicy
     /// </summary>
     public static bool IsNightSpawnHour(int hour) => hour > 22 || hour < 4;
 
+    /// <summary>
+    /// Whether a spawned NPC's NPCName names the expected target. Ignores case
+    /// and surrounding whitespace: several NPCNames end in a space.
+    /// </summary>
+    public static bool IsTargetName(string? npcName, string expectedName) =>
+        npcName != null
+        && npcName
+            .AsSpan()
+            .Trim()
+            .Equals(expectedName.AsSpan().Trim(), System.StringComparison.OrdinalIgnoreCase);
+
     public static SpawnPointPhase Classify(in SpawnPointFacts facts)
     {
         if (facts.AnyAlive)

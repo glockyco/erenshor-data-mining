@@ -14,6 +14,7 @@
 - Fix texture and material leaks in the world marker fonts and the ground path, and keep less font atlas data in memory.
 - Lower the guide's memory peak when the game starts.
 - Log a window drawing error that repeats every frame once in full, then once a minute.
+- Show quest markers over quest NPCs whose in-game name differs from the guide's, such as the Vithean chests, Gloopa, the Braxonian Planar Guards, and the Reliquary receptacles.
 
 ## v2026.718.0
 

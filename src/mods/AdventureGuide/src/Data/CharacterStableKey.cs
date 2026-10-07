@@ -25,4 +25,11 @@ internal static class CharacterStableKey
         var baseKey = key.Substring(0, lastColon);
         return baseKey.IndexOf(':') >= 0 ? baseKey : key;
     }
+
+    /// <summary>
+    /// Stable key for a character prefab or scene object name, in the export
+    /// pipeline's character:{name} format: trimmed and lowercased.
+    /// </summary>
+    public static string FromObjectName(string objectName) =>
+        "character:" + objectName.Trim().ToLowerInvariant();
 }

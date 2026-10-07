@@ -1,3 +1,4 @@
+using AdventureGuide.Data;
 using AdventureGuide.Navigation;
 
 namespace AdventureGuide.Tests;
@@ -108,5 +109,36 @@ public sealed class RespawnPolicyTests
         Assert.Equal("~1:00", RespawnTimerText.WithName(null, "~1:00"));
         Assert.Equal("~1:00", RespawnTimerText.WithName("", "~1:00"));
         Assert.Equal("Goblin Scout\n~1:00", RespawnTimerText.WithName("Goblin Scout", "~1:00"));
+    }
+
+    [Theory]
+    [InlineData("Chosen Fawn ", "Chosen Fawn")]
+    [InlineData("Kio The Darkbringer", "Kio the Darkbringer")]
+    public void Target_name_ignores_case_and_surrounding_spaces(string npcName, string expected)
+    {
+        Assert.True(SpawnPointPolicy.IsTargetName(npcName, expected));
+    }
+
+    [Fact]
+    public void Target_name_does_not_match_other_npcs()
+    {
+        // The guide's display name can carry a suffix the game's NPCName lacks;
+        // the bridge resolves the NPCName from the spawn table's prefab instead.
+        Assert.False(SpawnPointPolicy.IsTargetName("Gloopa", "Gloopa (Quarter)"));
+        Assert.False(SpawnPointPolicy.IsTargetName(null, "Gloopa"));
+    }
+
+    [Fact]
+    public void Object_names_map_to_export_stable_keys()
+    {
+        // StableKeyGenerator.ForCharacter trims and lowercases object names.
+        Assert.Equal(
+            "character:braxonian planar guardian fire",
+            CharacterStableKey.FromObjectName(" Braxonian Planar Guardian Fire ")
+        );
+        Assert.Equal(
+            "character:arenachest 1",
+            CharacterStableKey.Normalize(CharacterStableKey.FromObjectName("ArenaChest 1"))
+        );
     }
 }

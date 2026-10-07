@@ -95,7 +95,7 @@ public static class DebugAPI
                 System.StringComparison.OrdinalIgnoreCase
             )
                 ? displayName
-                : "character:" + displayName.Trim().ToLowerInvariant();
+                : CharacterStableKey.FromObjectName(displayName);
             int count = Entities.CountAlive(key);
             return $"{key}: {count} alive";
         }
