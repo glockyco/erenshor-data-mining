@@ -476,12 +476,17 @@ public sealed class QuestDetailPanel
                 }
                 else
                 {
-                    string label = $"To {line.DestinationDisplay} ({distance:F0}m)";
+                    string label = ZoneLineLabels.Selectable(
+                        line.DestinationDisplay,
+                        distance,
+                        step.Order,
+                        i
+                    );
 
                     if (isActive)
                         ImGui.PushStyleColor(ImGuiCol.Text, Theme.QuestActive);
 
-                    if (ImGui.Selectable($"{label}##zl_{step.Order}_{i}"))
+                    if (ImGui.Selectable(label))
                         _nav.PinZoneLine(line);
 
                     if (isActive)
