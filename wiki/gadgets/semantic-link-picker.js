@@ -33,6 +33,7 @@
 	} ) );
 	const CORE_MODULES = [
 		'mediawiki.api',
+		'ext.gadget.erenshor-api',
 		'jquery.textSelection',
 		'oojs-ui-core',
 		'oojs-ui-widgets',
@@ -759,7 +760,7 @@
 		SemanticLinkDialog.prototype.requestResults = function ( query, kind, cacheKey, serial ) {
 			const invocation = '{{#invoke:Erenshor/Link/Search|query|q=' + encodeURIComponent( query ) +
 				'|kind=' + encodeURIComponent( kind ) + '}}';
-			this.api.get( {
+			mw.libs.erenshorApi.get( this.api, {
 				action: 'expandtemplates',
 				text: invocation,
 				prop: 'wikitext',

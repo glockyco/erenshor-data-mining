@@ -1,9 +1,14 @@
-owned_names = ["erenshor", "item-tooltips", "semantic-link-picker"]
+owned_names = ["erenshor", "erenshor-api", "item-tooltips", "semantic-link-picker"]
 
 [[gadgets]]
 name = "erenshor"
 options = ["ResourceLoader", "default", "hidden", "type=styles"]
 sources = ["erenshor.css"]
+
+[[gadgets]]
+name = "erenshor-api"
+options = ["ResourceLoader", "hidden", "dependencies=mediawiki.api"]
+sources = ["erenshor-api.js"]
 
 [[gadgets]]
 name = "item-tooltips"

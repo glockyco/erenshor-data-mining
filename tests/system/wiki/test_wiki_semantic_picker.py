@@ -9,7 +9,7 @@ from html import unescape
 
 import httpx
 import pytest
-from playwright.sync_api import Locator, Page, expect
+from playwright.sync_api import Locator, Page, Route, expect
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 WIKI_BASE_URL = os.environ.get("ERENSHOR_WIKI_BASE_URL", "http://localhost:8088")
@@ -25,7 +25,7 @@ def _picker_harness_ready() -> bool:
             params={
                 "action": "query",
                 "titles": (
-                    "MediaWiki:Gadget-semantic-link-picker-core.js|"
+                    "MediaWiki:Gadget-erenshor-api.js|MediaWiki:Gadget-semantic-link-picker-core.js|"
                     "MediaWiki:Gadget-semantic-link-picker.js|Lua AbilityLink Smoke"
                 ),
                 "format": "json",
@@ -37,7 +37,7 @@ def _picker_harness_ready() -> bool:
         pages = response.json()["query"]["pages"]
     except (httpx.HTTPError, KeyError, TypeError, ValueError):
         return False
-    return len(pages) == 3 and all("missing" not in page for page in pages)
+    return len(pages) == 4 and all("missing" not in page for page in pages)
 
 
 @pytest.fixture
@@ -201,6 +201,30 @@ def test_source_picker_inserts_exact_duplicate_and_escapes_label(wiki_page: Page
 
     generated = wiki_page.locator("#wpTextbox1").input_value()
     assert "A | B }}" in _render_wikitext(generated)
+
+
+def test_source_picker_waits_out_the_wiki_rate_limit(wiki_page: Page) -> None:
+    refused: list[str] = []
+
+    def throttle_first_search(route: Route) -> None:
+        if "action=expandtemplates" in route.request.url and not refused:
+            refused.append(route.request.url)
+            route.fulfill(
+                status=429,
+                headers={"Retry-After": "1", "Content-Type": "application/json"},
+                body='{"error":{"code":"ratelimited","info":"API or search ratelimit exceeded"}}',
+            )
+        else:
+            route.continue_()
+
+    wiki_page.route("**/api.php?*", throttle_first_search)
+    _open_source_editor(wiki_page)
+    _set_source_selection(wiki_page, "Flame Bolt", 0, len("Flame Bolt"))
+    _open_source_picker(wiki_page)
+    dialog = _active_dialog(wiki_page)
+
+    expect(dialog.locator('[role="option"][data-erenshor-key="spell:flame_bolt"]')).to_be_visible(timeout=10000)
+    assert len(refused) == 1
 
 
 def test_visual_picker_replaces_exact_link_identity(wiki_page: Page) -> None:
