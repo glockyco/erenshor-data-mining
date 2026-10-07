@@ -297,6 +297,7 @@ def deploy_repo_pages(
     include_content_pages: bool = False,
     accept_drift: Collection[str] = (),
     catalog: Mapping[str, LinkCatalogEntry] | None = None,
+    render_check: bool = False,
     full_render_check: bool = False,
     report_render: Callable[[RenderCheck], None] | None = None,
 ) -> RepoPageDeployResult:
@@ -386,7 +387,7 @@ def deploy_repo_pages(
                 )
             )
             continue
-        if entry.upload_stage in RENDER_CHECKED_STAGES:
+        if (render_check or full_render_check) and entry.upload_stage in RENDER_CHECKED_STAGES:
             rendered = check_render(
                 client,
                 entry.title,

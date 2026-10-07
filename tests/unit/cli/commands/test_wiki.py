@@ -1165,6 +1165,7 @@ class TestWikiDeployRepoCommand:
                 "--pages-file",
                 str(pages_file),
                 include_option,
+                "--render-check",
             ],
             obj=replace(cli_context, dry_run=True),
         )

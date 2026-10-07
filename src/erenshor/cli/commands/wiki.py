@@ -1318,9 +1318,19 @@ def deploy_repo_pages_command(
             help="Explicitly include maintained wiki content pages. Disabled by default.",
         ),
     ] = False,
+    render_check: Annotated[
+        bool,
+        typer.Option(
+            "--render-check",
+            help=(
+                "Before each module, template, or stylesheet write, parse a sample of the pages that use it, "
+                "once live and once with the new text, and stop on a new script error or missing template."
+            ),
+        ),
+    ] = False,
     full_render_check: Annotated[
         bool,
-        typer.Option("--full-render-check", help="Parse every main-namespace page that uses each changed page."),
+        typer.Option("--full-render-check", help="Like --render-check, but parse every page that uses each page."),
     ] = False,
     accept_drift: Annotated[
         list[str] | None,
@@ -1338,7 +1348,9 @@ def deploy_repo_pages_command(
     The deploy stops before its first write when another account made the latest
     revision of a page whose live text differs from the repository. Copy that live
     text into the repository, or name the page with --accept-drift. A dry run reads
-    the live pages, counts the planned changes, and names each such page.
+    the live pages, counts the planned changes, and names each such page. The
+    render check parses pages that use each changed page, which takes minutes for
+    a large deploy, so it runs only with --render-check or --full-render-check.
     """
     cli_ctx: CLIContext = ctx.obj
     if include_generated_data and not pages_file:
@@ -1390,25 +1402,26 @@ def deploy_repo_pages_command(
             )
             live_dependencies: dict[str, str | None] = {}
             manifest = prepare_repo_page_checks(manifest, source_texts, snapshots, readonly_client, live_dependencies)
-            catalog = (
-                {entry.key.casefold(): entry for entry in _build_link_audit_catalog(cli_ctx)}
-                if any(
-                    repo_page_action(snapshots[entry.title], source_texts[entry.title]) != "unchanged"
-                    for entry in manifest.entries
+            if render_check or full_render_check:
+                catalog = (
+                    {entry.key.casefold(): entry for entry in _build_link_audit_catalog(cli_ctx)}
+                    if any(
+                        repo_page_action(snapshots[entry.title], source_texts[entry.title]) != "unchanged"
+                        for entry in manifest.entries
+                    )
+                    else {}
                 )
-                else {}
-            )
-            render_repo_page_checks(
-                manifest,
-                source_texts,
-                snapshots,
-                readonly_client,
-                catalog=catalog,
-                full=full_render_check,
-                dry_run=True,
-                live_dependencies=live_dependencies,
-                report=_print_repo_render_check,
-            )
+                render_repo_page_checks(
+                    manifest,
+                    source_texts,
+                    snapshots,
+                    readonly_client,
+                    catalog=catalog,
+                    full=full_render_check,
+                    dry_run=True,
+                    live_dependencies=live_dependencies,
+                    report=_print_repo_render_check,
+                )
         except Exception as e:
             console.print(f"[red]Repo-owned page dry run failed: {escape(str(e))}[/red]")
             raise typer.Exit(1) from e
@@ -1450,7 +1463,12 @@ def deploy_repo_pages_command(
             include_generated_data=include_generated_data,
             include_content_pages=include_content_pages,
             accept_drift=accepted,
-            catalog={entry.key.casefold(): entry for entry in _build_link_audit_catalog(cli_ctx)},
+            catalog=(
+                {entry.key.casefold(): entry for entry in _build_link_audit_catalog(cli_ctx)}
+                if render_check or full_render_check
+                else None
+            ),
+            render_check=render_check,
             full_render_check=full_render_check,
             report_render=_print_repo_render_check,
         )

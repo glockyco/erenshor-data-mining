@@ -148,7 +148,7 @@ def test_new_script_error_blocks_write_and_names_user(tmp_path: Path) -> None:
     wiki = Wiki({"Template:Item": "old", "Example": "{{Item}}"}, {"Template:Item": ("Example",)})
     wiki.sandbox_html = '<strong class="scribunto-error">Lua error</strong>'
     with pytest.raises(RenderCheckError, match="Template:Item blocked on Example: script error"):
-        deploy(tmp_path, wiki)
+        deploy(tmp_path, wiki, render_check=True)
     assert wiki.writes == []
 
 
@@ -157,7 +157,7 @@ def test_new_missing_template_blocks_write(tmp_path: Path) -> None:
     wiki = Wiki({"Template:Item": "old", "Example": "{{Item}}"}, {"Template:Item": ("Example",)})
     wiki.sandbox_templates = (MediaWikiParsedLink("Template:Missing", False),)
     with pytest.raises(RenderCheckError, match="Template:Item blocked on Example: missing template Template:Missing"):
-        deploy(tmp_path, wiki)
+        deploy(tmp_path, wiki, render_check=True)
     assert wiki.writes == []
 
 
@@ -165,7 +165,7 @@ def test_visible_change_reports_removed_added_lines(tmp_path: Path) -> None:
     source(tmp_path, "wiki/templates/Item.wiki", "new")
     wiki = Wiki({"Template:Item": "old", "Example": "{{Item}}"}, {"Template:Item": ("Example",)})
     reports = []
-    deploy(tmp_path, wiki, report_render=reports.append)
+    deploy(tmp_path, wiki, render_check=True, report_render=reports.append)
     [change] = reports[0].differences
     assert (change.title, change.removed, change.added) == ("Example", ("old",), ("new",))
     assert wiki.writes == ["Template:Item"]
@@ -311,7 +311,7 @@ def test_stylesheet_renders_its_users_as_sanitized_css(tmp_path: Path) -> None:
         {"Template:Item/styles.css": ("Example",)},
     )
     wiki.sandbox_html = "<p>old</p>"
-    deploy(tmp_path, wiki)
+    deploy(tmp_path, wiki, render_check=True)
     assert wiki.sandbox_models == ["sanitized-css"]
     assert wiki.writes == ["Template:Item/styles.css"]
 
@@ -393,3 +393,13 @@ def test_lua_module_with_a_missing_stylesheet_stops_the_deploy(tmp_path: Path) -
     with pytest.raises(ValueError, match=r"Module:Erenshor/Icon needs missing page Template:Icon/styles\.css"):
         deploy(tmp_path, wiki)
     assert wiki.writes == []
+
+
+def test_a_deploy_without_the_render_check_parses_nothing(tmp_path: Path) -> None:
+    source(tmp_path, "wiki/templates/Item.wiki", "new")
+    wiki = Wiki({"Template:Item": "old", "Example": "{{Item}}"}, {"Template:Item": ("Example",)})
+
+    deploy(tmp_path, wiki)
+
+    assert wiki.parsed == []
+    assert wiki.writes == ["Template:Item"]

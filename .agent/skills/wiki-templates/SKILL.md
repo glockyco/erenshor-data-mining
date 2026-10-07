@@ -18,7 +18,7 @@ The plan for the wiki is the OpenSpec change `adopt-data-backed-wiki`. Read its 
 - Generated data lives on bot-owned pages: `Module:Erenshor/Data/*` and, with the Cargo work, `Erenshor Wiki:Cargo/*`. Articles do not store Cargo rows.
 - A fact the export misses goes into code facts or the export. A correction of how the export is read goes into `mapping.json` with a reason. A fact that editors add goes into a Cargo community row. Article parameters only present fields that people own.
 - Do not change the structure of a live data module in place. Publish the new structure under a new title, move the readers, then remove the old page.
-- Every live write needs approval after a dry run and the render check. The bot cannot delete pages. The plan's task group 9 lists the pages for an administrator.
+- Every live write needs approval after a dry run. The bot cannot delete pages; publishing images deletes with the deletion account. The plan's task group 9 lists the pages for an administrator.
 
 ## Generated articles
 
@@ -111,11 +111,11 @@ The plan for the wiki is the OpenSpec change `adopt-data-backed-wiki`. Read its 
    The `--pages-file` filter also narrows other selected pages. Missing opt-in flags reject requested optional pages.
    Generated data deploys before the modules that read it, modules deploy in dependency order, then templates, then content pages.
    Before any write, the deploy checks dependencies: a module or template whose `#invoke`, `require`, or `mw.loadData` target is neither live nor written earlier in the run is blocked, and the output names both pages.
-   Before each module or template write, the render check parses pages that use it twice through `action=parse`, once as live and once with the new text through TemplateSandbox.
-   By default it selects pages that cover every template, filled parameter, `type` or `kind` value, and entity kind among the users. `--full-render-check` parses every user page.
+   `--render-check` parses pages that use each changed module, template, or stylesheet twice through `action=parse`, once as live and once with the new text through TemplateSandbox. It is off by default because it takes minutes for a large deploy: use it for a risky module change. A change of templates alone is quicker to check in the local stack and by parsing a few live pages after the write.
+   It selects pages that cover every template, filled parameter, `type` or `kind` value, and entity kind among the users. `--full-render-check` parses every user page.
    A new script error or missing template blocks the write. The dry run lists every page whose visible text or categories change. Review that list before approving the deploy.
    In a dry run, a page that depends on another page of the same run shows a provisional result: its script errors and missing templates are listed as unchecked instead of blocking, because the sandbox cannot load pages that the run has not written. The real deploy checks it again directly before its write.
-   The render check sandboxes one page at a time. When a change removes something that a live page still uses, such as a module function, deploy the pages that stop using it first and the removal in a second run.
+   The render check sandboxes one page at a time. When a change removes something that a live page still uses, such as a module function or a parameter value, deploy the pages that stop using it first and the removal in a second run. Without the check nothing catches the wrong order, so plan the passes.
    Before the first write, the deploy stops when another account made the latest revision of a page whose live text differs from the repository.
    The bot edits as the account part of `bot_username`, so edits by your own main account count as another account.
    A dry run reads the live pages, counts the planned changes, and names each such page. Review each one.
@@ -207,4 +207,4 @@ Check its title through `action=parse` and inspect the parsed HTML. Remove the t
 curl --get 'http://localhost:8088/api.php' --data-urlencode 'action=parse' --data-urlencode 'page=<article title>' --data-urlencode 'prop=text' --data-urlencode 'format=json'
 ```
 
-Use the live render check of `wiki deploy-repo-pages` for the final compatibility check with wiki.gg. The local stack holds every generated data module, so it cannot show a module that is missing live.
+Use `wiki deploy-repo-pages --render-check` for the final compatibility check with wiki.gg when a deploy is risky. The local stack holds every generated data module, so it cannot show a module that is missing live.
