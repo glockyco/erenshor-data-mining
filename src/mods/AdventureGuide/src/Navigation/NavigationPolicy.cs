@@ -27,6 +27,12 @@ public static class NavigationPolicy
     public static bool IsCrossZone(string destinationScene, string currentScene) =>
         !string.Equals(destinationScene, currentScene, StringComparison.OrdinalIgnoreCase);
 
+    public static bool ShouldLoadCharacter(string scene, int boundSlot, int? currentSlot) =>
+        scene != "Menu"
+        && scene != "LoadScene"
+        && currentSlot.HasValue
+        && currentSlot.Value != boundSlot;
+
     /// <summary>
     /// Resolve a fixed-position step to its loader-neutral target description.
     /// </summary>

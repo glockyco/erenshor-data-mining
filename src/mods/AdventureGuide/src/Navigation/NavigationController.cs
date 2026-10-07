@@ -229,6 +229,18 @@ public sealed class NavigationController
         SavePerCharacter();
     }
 
+    /// <summary>Hide navigation without erasing the outgoing character's save.</summary>
+    public void SuspendForMenu()
+    {
+        SavePerCharacter();
+        ResetTargetState();
+        _originQuestKey = null;
+        _originStepOrder = 0;
+        _navQuestEntry = null;
+        _navStepEntry = null;
+        _boundSlotIndex = -1;
+    }
+
     // ── Per-character persistence ─────────────────────────────────
 
     /// <summary>
@@ -238,16 +250,23 @@ public sealed class NavigationController
     /// </summary>
     public void LoadPerCharacter(GuideConfig config, string currentScene)
     {
+        if (
+            !NavigationPolicy.ShouldLoadCharacter(
+                currentScene,
+                _boundSlotIndex,
+                GameData.CurrentCharacterSlot?.index
+            )
+        )
+            return;
         var slot = GameData.CurrentCharacterSlot;
         if (slot == null)
             return;
 
-        // Same character — in-memory state is authoritative
-        if (slot.index == _boundSlotIndex)
-            return;
-
         // Switching characters: save outgoing state before rebinding
         SavePerCharacter();
+        ResetTargetState();
+        _originQuestKey = null;
+        _originStepOrder = 0;
 
         _boundSlotIndex = slot.index;
         _navQuestEntry = config.BindPerCharacter(slot.index, "NavQuest", "");

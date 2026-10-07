@@ -362,7 +362,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
         if (!_inGameplay)
         {
             _window?.Hide();
-            _nav?.Clear();
+            _nav?.SuspendForMenu();
             ClearImGuiCaptureState();
         }
         _markers?.OnSceneLoaded();
