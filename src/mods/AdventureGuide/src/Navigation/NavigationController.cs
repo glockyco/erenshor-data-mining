@@ -446,7 +446,7 @@ public sealed class NavigationController
         string currentScene
     )
     {
-        Clear();
+        ResetTargetState();
 
         // Same zone: set a Zone target so UI shows this step as active.
         // Update() handles this by setting distance=0, direction=zero.
