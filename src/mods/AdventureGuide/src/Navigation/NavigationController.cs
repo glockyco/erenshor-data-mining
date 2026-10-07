@@ -28,6 +28,7 @@ public sealed class NavigationController
     private Vector3 _lastCrossZoneCalcPos;
     private string? _navigationScene;
     private bool _cachedRouteLocked;
+    private readonly UnroutableRoute _unroutableRoute = new();
     private const float CrossZoneRecalcDistance = 10f;
 
     // ── Multi-source navigation state ─────────────────────────────
@@ -216,8 +217,7 @@ public sealed class NavigationController
     {
         _pinnedZoneLine = zoneLine;
         // Force recalculation on next update
-        _cachedZoneLine = null;
-        _lastCrossZoneCalcPos = Vector3.zero;
+        InvalidateCrossZoneCache();
     }
 
     /// <summary>End the navigation session entirely.</summary>
@@ -335,6 +335,7 @@ public sealed class NavigationController
         _cachedZoneLine = null;
         _lastCrossZoneCalcPos = Vector3.zero;
         ZoneLineWaypoint = null;
+        _unroutableRoute.Clear();
     }
 
     private bool ObserveScene(string currentScene)
@@ -1109,6 +1110,12 @@ public sealed class NavigationController
 
     private void UpdateCrossZoneRouting(string currentScene, Vector3 playerPos)
     {
+        if (_unroutableRoute.Matches(currentScene, Target!.Scene))
+        {
+            Distance = 0f;
+            Direction = Vector3.zero;
+            return;
+        }
         // Only re-evaluate zone line selection when player moves significantly
         // to avoid per-frame CalculatePath calls on all zone line candidates
         bool needsRecalc =
@@ -1142,6 +1149,8 @@ public sealed class NavigationController
 
                 // Use zone graph to find the correct next hop toward the target
                 var route = _zoneGraph.FindRoute(currentScene, Target!.Scene);
+                if (route == null)
+                    _unroutableRoute.Remember(currentScene, Target.Scene);
                 var nextHopZoneKey = route?.NextHopZoneKey;
 
                 if (nextHopZoneKey != null)
@@ -1188,7 +1197,10 @@ public sealed class NavigationController
         if (ZoneLineWaypoint != null)
             UpdateDistanceAndDirection(ZoneLineWaypoint.Position, playerPos);
         else
-            UpdateDistanceAndDirection(Target!.Position, playerPos);
+        {
+            Distance = 0f;
+            Direction = Vector3.zero;
+        }
     }
 
     // ── Spawn resolution ───────────────────────────────────────────
