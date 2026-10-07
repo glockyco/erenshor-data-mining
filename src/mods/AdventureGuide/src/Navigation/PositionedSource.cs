@@ -11,6 +11,15 @@ public readonly struct PositionedSource
     public float Y { get; }
     public float Z { get; }
 
+    /// <summary>
+    /// A water key names the center of a water volume, not a fishing spot:
+    /// Salted Strand's volume spans 16 km and is centered off the map. The
+    /// player fishes anywhere along the zone's water, so the source has a
+    /// zone but no destination. Mining nodes and ground pickups are objects
+    /// at their position.
+    /// </summary>
+    public bool IsZoneWide => Kind == "water";
+
     private PositionedSource(string kind, string scene, float x, float y, float z)
     {
         Kind = kind;

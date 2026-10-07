@@ -30,6 +30,17 @@ public sealed class PositionedSourceTests
     }
 
     [Theory]
+    [InlineData("mining:hidden:1:2:3", false)]
+    [InlineData("itembag:hidden:1:2:3", false)]
+    [InlineData("water:saltedstrand:-7351.00:-53.00:-7277.75", true)]
+    public void Only_water_sources_lack_a_destination(string key, bool zoneWide)
+    {
+        // Water keys name a water volume's center, which can lie off the map.
+        Assert.True(PositionedSource.TryParse(key, out var parsed));
+        Assert.Equal(zoneWide, parsed.IsZoneWide);
+    }
+
+    [Theory]
     [InlineData(null)]
     [InlineData("mining::1:2:3")]
     [InlineData("mining:Hidden:1:2")]

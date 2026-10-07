@@ -384,22 +384,29 @@ internal static class TrackerSorter
     )
     {
         if (PositionedSource.TryParse(key, out var positioned))
-            return string.Equals(
-                positioned.Scene,
-                currentScene,
-                System.StringComparison.OrdinalIgnoreCase
-            )
-                ? new SourceDistance(
-                    NavigationPolicy.EuclideanDistance(
-                        playerPos.x,
-                        playerPos.y,
-                        playerPos.z,
-                        positioned.X,
-                        positioned.Y,
-                        positioned.Z
-                    )
+        {
+            if (
+                !string.Equals(
+                    positioned.Scene,
+                    currentScene,
+                    System.StringComparison.OrdinalIgnoreCase
                 )
-                : SourceDistance.None;
+            )
+                return SourceDistance.None;
+            // Fishing works along any of the zone's water: no distance.
+            if (positioned.IsZoneWide)
+                return new SourceDistance(float.MaxValue, "Fishing");
+            return new SourceDistance(
+                NavigationPolicy.EuclideanDistance(
+                    playerPos.x,
+                    playerPos.y,
+                    playerPos.z,
+                    positioned.X,
+                    positioned.Y,
+                    positioned.Z
+                )
+            );
+        }
 
         if (!data.CharacterSpawns.TryGetValue(key, out var spawns) || spawns.Count == 0)
             return SourceDistance.None;

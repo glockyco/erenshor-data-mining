@@ -354,9 +354,11 @@ public sealed class NavigationController
 
     private void ReResolveForScene(string currentScene)
     {
+        // Travel destinations stay fixed; a fishing zone target is an item
+        // source like any other and may give way to the new scene's sources.
         if (
             Target == null
-            || Target.TargetKind == NavigationTarget.Kind.Zone
+            || (Target.TargetKind == NavigationTarget.Kind.Zone && _allItemSources.Count == 0)
             || _resolvedStep == null
             || _resolvedStep.Location != null
         )
@@ -972,6 +974,7 @@ public sealed class NavigationController
         float bestRespawn = float.MaxValue;
         bool bestMined = true;
         var bestKind = NavigationTarget.Kind.Character;
+        string? zoneWideKey = null;
 
         foreach (var sourceKey in _activeSourceKeys)
         {
@@ -985,6 +988,12 @@ public sealed class NavigationController
                     )
                 )
                     continue;
+                // Fishing has no destination; it is decided after the loop.
+                if (positioned.IsZoneWide)
+                {
+                    zoneWideKey ??= sourceKey;
+                    continue;
+                }
                 var position = new Vector3(positioned.X, positioned.Y, positioned.Z);
                 var node =
                     positioned.Kind == "mining" ? _miningTracker.FindAtPosition(position) : null;
@@ -1059,9 +1068,19 @@ public sealed class NavigationController
             }
         }
 
+        // Fishing here wins, as the tracker ranks it ("available right
+        // here"): the zone itself is the target, so the step shows as
+        // navigated without an arrow.
+        if (zoneWideKey != null)
+        {
+            bestScene = currentScene;
+            bestPosition = Vector3.zero;
+            bestSourceKey = zoneWideKey;
+            bestKind = NavigationTarget.Kind.Zone;
+        }
         // If no source is currently alive, retain the existing character
         // winner so per-frame tracking can use that character's respawn.
-        if (bestScene == null && preferLiveCharacters)
+        else if (bestScene == null && preferLiveCharacters)
             return Target != null;
 
         if (bestScene == null)
@@ -1112,8 +1131,12 @@ public sealed class NavigationController
                 {
                     Consider(
                         positioned.Scene,
-                        new Vector3(positioned.X, positioned.Y, positioned.Z),
-                        NavigationTarget.Kind.Position,
+                        positioned.IsZoneWide
+                            ? Vector3.zero
+                            : new Vector3(positioned.X, positioned.Y, positioned.Z),
+                        positioned.IsZoneWide
+                            ? NavigationTarget.Kind.Zone
+                            : NavigationTarget.Kind.Position,
                         sourceKey
                     );
                 }
