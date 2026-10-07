@@ -58,6 +58,9 @@ internal static class PortraitStudio
         var subject = Object.Instantiate(source, studio.transform);
         subject.transform.localPosition = Vector3.zero;
         subject.transform.localRotation = Quaternion.identity;
+        // A character that its scene keeps off until an event, or a disabled
+        // duplicate of one, is captured as the game shows it once it is on.
+        subject.SetActive(true);
 
         ShowAsGameStartsIt(subject);
         RemoveBehaviour(subject);
