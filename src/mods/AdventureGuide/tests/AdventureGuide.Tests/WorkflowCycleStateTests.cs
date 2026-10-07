@@ -241,6 +241,18 @@ public sealed class WorkflowCycleStateTests
     }
 
     [Fact]
+    public void Trigger_contact_margin_grows_the_bounds_on_every_side()
+    {
+        // The fee is taken when the player's collider first touches the box,
+        // with the player's pivot still outside the exported bounds.
+        var bounds = TestData.WorkflowQuest().WorkflowCycle!.Trigger.Location;
+
+        Assert.True(bounds.Contains(12.9f, 4f, 22f, margin: 1f));
+        Assert.True(bounds.Contains(12f, 4.9f, 22.9f, margin: 1f));
+        Assert.False(bounds.Contains(13.1f, 4f, 22f, margin: 1f));
+    }
+
+    [Fact]
     public void Obtainability_skips_locked_seller_variants()
     {
         var quest = TestData.WorkflowQuest();

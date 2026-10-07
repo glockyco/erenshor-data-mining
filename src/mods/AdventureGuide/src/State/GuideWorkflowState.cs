@@ -72,6 +72,12 @@ public sealed class GuideWorkflowState
 
     private const float EvaluationInterval = 0.25f;
 
+    // Encounter triggers take the fee in OnTriggerEnter, when the player's
+    // collider first touches the trigger box. The player's pivot is then still
+    // up to one collider radius (0.4 m) plus one physics step (about 0.25 m at
+    // run speed) outside the exported bounds.
+    private const float TriggerContactMargin = 1f;
+
     public event Action<QuestEntry>? Changed;
     public event Action<QuestEntry>? CycleReset;
 
@@ -181,7 +187,8 @@ public sealed class GuideWorkflowState
                 && trigger.Location.Contains(
                     playerPosition.Value.x,
                     playerPosition.Value.y,
-                    playerPosition.Value.z
+                    playerPosition.Value.z,
+                    TriggerContactMargin
                 );
             bool wasLatched = runtime.Cycle.TriggerLatched;
             if (runtime.Cycle.ObserveInventory(current, atTrigger))

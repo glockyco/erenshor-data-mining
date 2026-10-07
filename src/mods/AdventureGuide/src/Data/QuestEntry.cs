@@ -454,13 +454,17 @@ public sealed class WorkflowLocation
     [JsonProperty("bounds")]
     public WorkflowBounds? Bounds { get; set; }
 
-    public bool Contains(float x, float y, float z)
+    /// <summary>
+    /// Whether a point lies within the exported trigger bounds grown by
+    /// <paramref name="margin"/> on every side.
+    /// </summary>
+    public bool Contains(float x, float y, float z, float margin = 0f)
     {
         if (Bounds == null)
             return false;
-        return Math.Abs(x - Bounds.Center.X) <= Bounds.Extents.X
-            && Math.Abs(y - Bounds.Center.Y) <= Bounds.Extents.Y
-            && Math.Abs(z - Bounds.Center.Z) <= Bounds.Extents.Z;
+        return Math.Abs(x - Bounds.Center.X) <= Bounds.Extents.X + margin
+            && Math.Abs(y - Bounds.Center.Y) <= Bounds.Extents.Y + margin
+            && Math.Abs(z - Bounds.Center.Z) <= Bounds.Extents.Z + margin;
     }
 }
 
