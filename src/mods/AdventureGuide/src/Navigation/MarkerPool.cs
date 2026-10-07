@@ -136,8 +136,6 @@ public sealed class MarkerInstance
     // Icon fades 100-150m. Sub-text fades earlier: 60-80m.
     private const float IconFadeStart = 100f;
     private const float IconFadeEnd = 150f;
-    private const float SubFadeStart = 60f;
-    private const float SubFadeEnd = 80f;
 
     // ── Glyph + color lookup ────────────────────────────────────
     // Every marker type uses the configured IconSize. Glyphs are stored as
@@ -246,7 +244,7 @@ public sealed class MarkerInstance
     public void SetAlpha(float distance)
     {
         float iconAlpha = ComputeFade(distance, IconFadeStart, IconFadeEnd);
-        float subAlpha = ComputeFade(distance, SubFadeStart, SubFadeEnd);
+        float subAlpha = MarkerFadePolicy.SubTextAlpha(distance);
 
         if (iconAlpha != _iconAlpha)
         {

@@ -660,10 +660,19 @@ public sealed class WorldMarkerSystem
         {
             var m = _markers[i];
             var instance = _pool.Get(i);
+            // Track live positions before deciding whether sub-text is visible.
+            if (!m.RespawnOnly && m.TargetKey != null)
+            {
+                NPC? tracked = m.LiveSpawnPoint?.SpawnedNPC ?? m.TrackedNPC;
+                if (tracked != null)
+                    m.Position = GetMarkerPosition(tracked);
+            }
+
+            float distance = Vector3.Distance(playerPos, m.Position);
 
             if (m.RespawnOnly)
             {
-                if (!UpdateRespawnOnlyMarker(ref m, instance))
+                if (!UpdateRespawnOnlyMarker(ref m, instance, distance))
                 {
                     _markers[i] = m;
                     continue;
@@ -671,28 +680,17 @@ public sealed class WorldMarkerSystem
             }
             else
             {
-                // Live NPC position tracking (alive markers only).
-                // Each marker tracks its own NPC instance — SpawnPoint-based
-                // markers read from sp.SpawnedNPC (updates on respawn),
-                // directly-placed markers use the stored TrackedNPC ref.
-                if (m.TargetKey != null)
-                {
-                    NPC? tracked = m.LiveSpawnPoint?.SpawnedNPC ?? m.TrackedNPC;
-                    if (tracked != null)
-                        m.Position = GetMarkerPosition(tracked);
-                }
-
                 // Per-frame spawn state: update timers and detect alive/dead transitions
                 if (m.LiveMiningNode != null)
-                    UpdateMiningMarkerState(ref m, instance, m.LiveMiningNode);
+                    UpdateMiningMarkerState(ref m, instance, m.LiveMiningNode, distance);
                 else if (m.LiveSpawnPoint != null)
-                    UpdateSpawnMarkerState(ref m, instance);
+                    UpdateSpawnMarkerState(ref m, instance, distance);
             }
 
             instance.SetPosition(m.Position);
 
             // Distance fade — MarkerInstance handles separate icon/sub-text ramps
-            instance.SetAlpha(Vector3.Distance(playerPos, m.Position));
+            instance.SetAlpha(distance);
 
             _markers[i] = m; // write back mutated state
         }
@@ -703,7 +701,11 @@ public sealed class WorldMarkerSystem
     /// living NPC again: the marker hides until the rebuild that the spawn
     /// triggers drops it.
     /// </summary>
-    private static bool UpdateRespawnOnlyMarker(ref MarkerEntry m, MarkerInstance instance)
+    private static bool UpdateRespawnOnlyMarker(
+        ref MarkerEntry m,
+        MarkerInstance instance,
+        float distance
+    )
     {
         var sp = m.LiveSpawnPoint;
         if (sp == null || (sp.MyNPCAlive && sp.SpawnedNPC != null))
@@ -713,13 +715,14 @@ public sealed class WorldMarkerSystem
         }
 
         if (m.Type == MarkerType.NightSpawn)
-            RefreshNightText(ref m, instance);
+            RefreshNightText(ref m, instance, distance);
         else
             RefreshRespawnTimer(
                 ref m,
                 instance,
                 SpawnPointBridge.GetRespawnSeconds(sp),
-                RespawnDueText
+                RespawnDueText,
+                distance
             );
         return true;
     }
@@ -729,7 +732,7 @@ public sealed class WorldMarkerSystem
     /// state. Handles alive↔dead transitions immediately and keeps respawn
     /// and night text current.
     /// </summary>
-    private void UpdateSpawnMarkerState(ref MarkerEntry m, MarkerInstance instance)
+    private void UpdateSpawnMarkerState(ref MarkerEntry m, MarkerInstance instance, float distance)
     {
         var sp = m.LiveSpawnPoint!;
 
@@ -769,19 +772,21 @@ public sealed class WorldMarkerSystem
                 ref m,
                 instance,
                 SpawnPointBridge.GetRespawnSeconds(sp),
-                RespawnDueText
+                RespawnDueText,
+                distance
             );
         }
         else if (m.Type == MarkerType.NightSpawn)
         {
-            RefreshNightText(ref m, instance);
+            RefreshNightText(ref m, instance, distance);
         }
     }
 
     private void UpdateMiningMarkerState(
         ref MarkerEntry m,
         MarkerInstance instance,
-        MiningNode node
+        MiningNode node,
+        float distance
     )
     {
         bool isMined = SpawnPointBridge.IsMiningNodeMined(node);
@@ -811,7 +816,8 @@ public sealed class WorldMarkerSystem
                 ref m,
                 instance,
                 SpawnPointBridge.GetMiningNodeRespawnSeconds(node),
-                RegenerationDueText
+                RegenerationDueText,
+                distance
             );
         }
     }
@@ -848,11 +854,12 @@ public sealed class WorldMarkerSystem
         ref MarkerEntry m,
         MarkerInstance instance,
         float seconds,
-        string dueText
+        string dueText,
+        float distance
     )
     {
         int shown = RespawnTimerText.DisplaySeconds(seconds);
-        if (shown == m.ShownValue)
+        if (!MarkerFadePolicy.ShouldRefreshSubText(distance, shown, m.ShownValue))
             return;
         m.ShownValue = shown;
         m.SubText = RespawnTimerText.WithName(
@@ -863,12 +870,12 @@ public sealed class WorldMarkerSystem
     }
 
     /// <summary>Rewrite the game time only when its minute changes.</summary>
-    private static void RefreshNightText(ref MarkerEntry m, MarkerInstance instance)
+    private static void RefreshNightText(ref MarkerEntry m, MarkerInstance instance, float distance)
     {
         int hour = GameData.Time.hour;
         int minute = GameData.Time.min;
         int shown = hour * 60 + minute;
-        if (shown == m.ShownValue)
+        if (!MarkerFadePolicy.ShouldRefreshSubText(distance, shown, m.ShownValue))
             return;
         m.ShownValue = shown;
         m.SubText = RespawnTimerText.WithName(
