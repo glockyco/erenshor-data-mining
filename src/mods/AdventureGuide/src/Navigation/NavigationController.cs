@@ -1165,11 +1165,14 @@ public sealed class NavigationController
             Direction = Vector3.zero;
             return;
         }
-        // Only re-evaluate zone line selection when player moves significantly
-        // to avoid per-frame CalculatePath calls on all zone line candidates
-        bool needsRecalc =
-            _cachedZoneLine == null
-            || Vector3.Distance(_lastCrossZoneCalcPos, playerPos) > CrossZoneRecalcDistance;
+        // Missing waypoints must be restored even when the cached line and
+        // player position are unchanged. Failed routes are memoized above.
+        bool needsRecalc = CrossZoneWaypointPolicy.ShouldRecalculate(
+            _cachedZoneLine != null,
+            ZoneLineWaypoint != null,
+            (_lastCrossZoneCalcPos - playerPos).sqrMagnitude,
+            CrossZoneRecalcDistance * CrossZoneRecalcDistance
+        );
 
         if (needsRecalc)
         {

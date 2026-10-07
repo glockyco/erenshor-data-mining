@@ -5,6 +5,15 @@ namespace AdventureGuide.Tests;
 public sealed class CrossZoneWaypointTests
 {
     [Fact]
+    public void Missing_waypoint_recalculates_with_a_cached_line_and_stationary_player()
+    {
+        Assert.True(CrossZoneWaypointPolicy.ShouldRecalculate(true, false, 0f, 100f));
+        Assert.True(CrossZoneWaypointPolicy.ShouldRecalculate(false, true, 0f, 100f));
+        Assert.False(CrossZoneWaypointPolicy.ShouldRecalculate(true, true, 100f, 100f));
+        Assert.True(CrossZoneWaypointPolicy.ShouldRecalculate(true, true, 100.1f, 100f));
+    }
+
+    [Fact]
     public void Leaving_and_returning_resets_waypoint_even_at_same_position()
     {
         Assert.True(CrossZoneWaypointPolicy.SceneChanged("Hidden", "Stowaway"));
