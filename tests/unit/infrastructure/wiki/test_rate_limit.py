@@ -155,6 +155,20 @@ def test_a_dropped_connection_does_not_repeat_a_write() -> None:
     assert len(client.requests) == 1
 
 
+@pytest.mark.parametrize(("action", "attempts"), [("query", 2), ("edit", 1)])
+def test_a_gateway_error_repeats_a_read_but_not_a_write(action: str, attempts: int) -> None:
+    client = FakeHttpClient([response(502, json={}), response()])
+    requestor = make_requestor(client)
+
+    try:
+        result = requestor.post({"action": action}, data={"action": action})
+    except MediaWikiUnretryableRequestError:
+        result = None
+
+    assert len(client.requests) == attempts
+    assert result == ({"query": {}} if action == "query" else None)
+
+
 def test_a_download_repeats_after_a_dropped_connection() -> None:
     client = FakeHttpClient([httpx.ReadError("Connection reset by peer"), _image_response(200)])
     requestor = make_requestor(client)
@@ -251,16 +265,6 @@ def test_retries_api_ratelimited_error_with_exponential_backoff() -> None:
     assert result == {"edit": {"result": "Success"}}
     assert len(client.requests) == 2
     assert client.times[1] - client.times[0] >= 5
-
-
-def test_does_not_retry_503_without_retry_signal() -> None:
-    client = FakeHttpClient([response(503, json={"error": "backend timeout"})])
-    requestor = make_requestor(client)
-
-    with pytest.raises(MediaWikiUnretryableRequestError, match="HTTP 503"):
-        requestor.get({"action": "query"})
-
-    assert len(client.requests) == 1
 
 
 def test_fails_after_bounded_retries() -> None:

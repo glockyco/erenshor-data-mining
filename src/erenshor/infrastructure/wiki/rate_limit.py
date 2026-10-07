@@ -288,6 +288,15 @@ class MediaWikiRequestor:
                 self.clock.sleep(api_retry_delay)
                 continue
             if 500 <= response.status_code < 600:
+                # A gateway error loses no write only for a request that writes
+                # nothing, so only reads are sent again.
+                if (
+                    response.status_code in _TRANSIENT_DOWNLOAD_STATUSES
+                    and action in _READ_ACTIONS
+                    and attempt < self.policy.max_retries
+                ):
+                    self.clock.sleep(_retry_after_or_backoff(response.headers, attempt, self.policy))
+                    continue
                 raise MediaWikiUnretryableRequestError(
                     f"HTTP {response.status_code} from MediaWiki API", status_code=response.status_code
                 )
