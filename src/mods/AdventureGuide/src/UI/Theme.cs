@@ -62,18 +62,19 @@ public static class Theme
         public void Dispose() => PopWindowStyle();
     }
 
-    internal static WindowStyleScopeToken WindowStyleScope()
+    internal static WindowStyleScopeToken WindowStyleScope(float scale)
     {
-        PushWindowStyle();
+        PushWindowStyle(scale);
         return default;
     }
 
     /// <summary>
     /// Push the Adventure Guide's scoped ImGui style baseline.
-    /// Lunaris owns the global ImGui context, so never rely on its process-wide defaults.
+    /// Applied only inside the guide's private ImGui context.
     /// </summary>
-    public static void PushWindowStyle()
+    public static void PushWindowStyle(float scale)
     {
+        var metrics = ThemeMetrics.For(scale);
         ImGui.PushStyleColor(ImGuiCol.WindowBg, Background);
         ImGui.PushStyleColor(ImGuiCol.ChildBg, Surface);
         ImGui.PushStyleColor(ImGuiCol.Button, Rgba(0.26f, 0.59f, 0.98f, 0.40f));
@@ -95,12 +96,18 @@ public static class Theme
         ImGui.PushStyleVar(ImGuiStyleVar.PopupRounding, 0f);
         ImGui.PushStyleVar(ImGuiStyleVar.ScrollbarRounding, 0f);
         ImGui.PushStyleVar(ImGuiStyleVar.GrabRounding, 0f);
-        ImGui.PushStyleVar(ImGuiStyleVar.TabRounding, 4f);
-        ImGui.PushStyleVar(ImGuiStyleVar.ChildBorderSize, 1f);
+        ImGui.PushStyleVar(ImGuiStyleVar.TabRounding, metrics.TabRounding);
+        ImGui.PushStyleVar(ImGuiStyleVar.ChildBorderSize, metrics.ChildBorderSize);
         ImGui.PushStyleVar(ImGuiStyleVar.FrameBorderSize, 0f);
-        ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(4f, 3f));
-        ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, new Vector2(8f, 4f));
-        ImGui.PushStyleVar(ImGuiStyleVar.IndentSpacing, IndentWidth);
+        ImGui.PushStyleVar(
+            ImGuiStyleVar.FramePadding,
+            new Vector2(metrics.FramePaddingX, metrics.FramePaddingY)
+        );
+        ImGui.PushStyleVar(
+            ImGuiStyleVar.ItemSpacing,
+            new Vector2(metrics.ItemSpacingX, metrics.ItemSpacingY)
+        );
+        ImGui.PushStyleVar(ImGuiStyleVar.IndentSpacing, metrics.IndentSpacing);
         ImGui.PushStyleVar(ImGuiStyleVar.SelectableTextAlign, new Vector2(0f, 0f));
     }
 

@@ -201,9 +201,9 @@ public sealed class QuestDetailPanel
 
         _visited.Clear();
         _visited.Add(quest.StableKey);
-        ImGui.Indent(Theme.IndentWidth);
+        ImGui.Indent();
         DrawSteps(quest, _visited);
-        ImGui.Unindent(Theme.IndentWidth);
+        ImGui.Unindent();
     }
 
     /// <summary>
@@ -403,7 +403,7 @@ public sealed class QuestDetailPanel
             return;
         }
 
-        ImGui.Indent(Theme.IndentWidth);
+        ImGui.Indent();
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
 
         const int maxVisible = 4;
@@ -423,7 +423,7 @@ public sealed class QuestDetailPanel
         }
 
         ImGui.PopStyleColor();
-        ImGui.Unindent(Theme.IndentWidth);
+        ImGui.Unindent();
 
         DrawTips(step, quest);
     }
@@ -433,7 +433,7 @@ public sealed class QuestDetailPanel
         QuestStep step
     )
     {
-        ImGui.Indent(Theme.IndentWidth);
+        ImGui.Indent();
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
 
         string header = $"{alternatives.Count} zone connections";
@@ -461,14 +461,14 @@ public sealed class QuestDetailPanel
                                 var entry = _data.GetByDBName(questDBName);
                                 if (entry == null)
                                     continue;
-                                ImGui.Indent(Theme.IndentWidth);
+                                ImGui.Indent();
                                 if (
                                     ImGui.Selectable(
                                         $"Requires: \"{entry.DisplayName}\"##rq_{step.Order}_{i}_{questDBName}"
                                     )
                                 )
                                     _state.SelectQuest(entry);
-                                ImGui.Unindent(Theme.IndentWidth);
+                                ImGui.Unindent();
                             }
                             break; // show only the first group
                         }
@@ -499,7 +499,7 @@ public sealed class QuestDetailPanel
         }
 
         ImGui.PopStyleColor();
-        ImGui.Unindent(Theme.IndentWidth);
+        ImGui.Unindent();
     }
 
     private void DrawSource(
@@ -614,7 +614,7 @@ public sealed class QuestDetailPanel
         if (visited.Count > MaxSubQuestDepth || visited.Contains(subQuest.StableKey))
             return;
 
-        ImGui.Indent(Theme.IndentWidth);
+        ImGui.Indent();
 
         // "Open quest" link
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.QuestActive);
@@ -627,7 +627,7 @@ public sealed class QuestDetailPanel
         DrawSteps(subQuest, visited);
         visited.Remove(subQuest.StableKey);
 
-        ImGui.Unindent(Theme.IndentWidth);
+        ImGui.Unindent();
     }
 
     /// <summary>
@@ -676,7 +676,7 @@ public sealed class QuestDetailPanel
         if (step.Tips == null || step.Tips.Count == 0)
             return;
 
-        ImGui.Indent(Theme.IndentWidth);
+        ImGui.Indent();
         if (ImGui.TreeNode(_questDisplay[quest].Steps[step].TipsLabel))
         {
             ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
@@ -685,7 +685,7 @@ public sealed class QuestDetailPanel
             ImGui.PopStyleColor();
             ImGui.TreePop();
         }
-        ImGui.Unindent(Theme.IndentWidth);
+        ImGui.Unindent();
     }
 
     // ── Rewards ─────────────────────────────────────────────────────
@@ -702,7 +702,7 @@ public sealed class QuestDetailPanel
         if (!ImGui.CollapsingHeader("Rewards", ImGuiTreeNodeFlags.DefaultOpen))
             return;
 
-        ImGui.Indent(Theme.IndentWidth);
+        ImGui.Indent();
 
         foreach (var line in _rewardLines)
         {
@@ -713,7 +713,7 @@ public sealed class QuestDetailPanel
                 ImGui.PopStyleColor();
         }
 
-        ImGui.Unindent(Theme.IndentWidth);
+        ImGui.Unindent();
     }
 
     private static bool HasAnyRewards(RewardInfo r) =>
@@ -752,7 +752,7 @@ public sealed class QuestDetailPanel
         if (!ImGui.CollapsingHeader("Prerequisites", flags))
             return;
 
-        ImGui.Indent(Theme.IndentWidth);
+        ImGui.Indent();
         foreach (var prereq in filtered)
         {
             bool completed = IsPrerequisiteCompleted(prereq.Prerequisite);
@@ -767,7 +767,7 @@ public sealed class QuestDetailPanel
             }
             ImGui.PopStyleColor();
         }
-        ImGui.Unindent(Theme.IndentWidth);
+        ImGui.Unindent();
     }
 
     /// <summary>

@@ -231,7 +231,7 @@ public sealed class TrackerWindow
         // All elements occupy space in both modes to prevent layout jumps.
         int extraColors = 0;
         var windowStarted = false;
-        using var style = Theme.WindowStyleScope();
+        using var style = Theme.WindowStyleScope(scale);
         try
         {
             if (_compact)
@@ -261,7 +261,7 @@ public sealed class TrackerWindow
                     new CimguiNative.Vec2(_contentMin.X, _contentMin.Y),
                     new CimguiNative.Vec2(_contentMax.X, _contentMax.Y),
                     tint,
-                    CompactTintRounding,
+                    CompactTintRounding * scale,
                     DrawFlagsRoundCornersAll
                 );
             }
@@ -340,9 +340,9 @@ public sealed class TrackerWindow
     private void DrawHeaderBar()
     {
         DrawSortButton("Px##tsort", TrackerSortMode.Proximity, "Sort by proximity");
-        ImGui.SameLine(0, 2);
+        ImGui.SameLine(0, 2f * _config.ResolvedUiScale);
         DrawSortButton("Lv##tsort", TrackerSortMode.Level, "Sort by level");
-        ImGui.SameLine(0, 2);
+        ImGui.SameLine(0, 2f * _config.ResolvedUiScale);
         DrawSortButton("Az##tsort", TrackerSortMode.Alphabetical, "Sort alphabetically");
 
         ImGui.Separator();
@@ -404,12 +404,16 @@ public sealed class TrackerWindow
         // When content fits, subtract trailing item spacing; when
         // scrolling, use the child's visible bottom edge directly.
         float visibleBottom = childPos.Y + childHeight;
+        float scale = _config.ResolvedUiScale;
         float bottomY =
             contentBottom.Y <= visibleBottom
-                ? contentBottom.Y - itemSpacing + CompactPadBottom
-                : visibleBottom + CompactPadBottom;
-        _contentMin = new Vector2(childPos.X - CompactPadLeft, childPos.Y - CompactPadTop);
-        _contentMax = new Vector2(childPos.X + childWidth + CompactPadRight, bottomY);
+                ? contentBottom.Y - itemSpacing + CompactPadBottom * scale
+                : visibleBottom + CompactPadBottom * scale;
+        _contentMin = new Vector2(
+            childPos.X - CompactPadLeft * scale,
+            childPos.Y - CompactPadTop * scale
+        );
+        _contentMax = new Vector2(childPos.X + childWidth + CompactPadRight * scale, bottomY);
 
         ImGui.EndChild();
     }
@@ -565,11 +569,11 @@ public sealed class TrackerWindow
 
     private static void DrawCurrentStep(TrackerRow row)
     {
-        ImGui.Indent(Theme.IndentWidth);
+        ImGui.Indent();
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
         ImGui.TextWrapped(row.StepText);
         ImGui.PopStyleColor();
-        ImGui.Unindent(Theme.IndentWidth);
+        ImGui.Unindent();
     }
 
     // ── Prerequisites ────────────────────────────────────────────────
@@ -579,7 +583,7 @@ public sealed class TrackerWindow
         if (row.PrerequisiteLabel == null)
             return;
 
-        ImGui.Indent(Theme.IndentWidth);
+        ImGui.Indent();
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
         ImGui.PushStyleVar(ImGuiStyleVar.Alpha, 0.6f);
 
@@ -588,7 +592,7 @@ public sealed class TrackerWindow
 
         ImGui.PopStyleVar();
         ImGui.PopStyleColor();
-        ImGui.Unindent(Theme.IndentWidth);
+        ImGui.Unindent();
     }
 
     // ── Row cache ────────────────────────────────────────────────────

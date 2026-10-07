@@ -114,9 +114,9 @@ public sealed class QuestListPanel
 
         ImGui.SameLine();
         DrawSortButton("Az", QuestSortMode.Alphabetical, "Sort alphabetically");
-        ImGui.SameLine(0, 2);
+        ImGui.SameLine(0, ImGui.GetStyle().ItemSpacing.X * 0.25f);
         DrawSortButton("Lv", QuestSortMode.ByLevel, "Sort by level");
-        ImGui.SameLine(0, 2);
+        ImGui.SameLine(0, ImGui.GetStyle().ItemSpacing.X * 0.25f);
         DrawSortButton("Zn", QuestSortMode.ByZone, "Sort by zone");
 
         ImGui.Spacing();

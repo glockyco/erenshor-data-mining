@@ -73,7 +73,7 @@ public sealed class GuideWindow
             new Vector2(0.5f, 0.5f)
         );
 
-        using var style = Theme.WindowStyleScope();
+        using var style = Theme.WindowStyleScope(scale);
         var windowStarted = false;
         try
         {
