@@ -86,6 +86,30 @@ def test_every_model_is_captured_whether_or_not_a_page_shows_it() -> None:
     ]
 
 
+def test_a_prefab_that_the_game_spawns_is_captured_before_one_that_nothing_spawns() -> None:
+    # Two prefabs show Prestigio Valusha. Port Azure spawns the second; the
+    # first is an unused version whose body the game never turns on.
+    characters = [
+        _character(
+            "character:prestigio valusha",
+            "Prestigio Valusha.png",
+            wiki_page="Prestigio Valusha",
+            resources_path="npcs/port azure npcs/Prestigio Valusha",
+        ),
+        _character(
+            "character:prestigio valusha 1",
+            "Prestigio Valusha.png",
+            wiki_page="Prestigio Valusha",
+            resources_path="npcs/port azure npcs/Prestigio Valusha 1",
+            spawn_points=(("Azure", 221.2, 26.0, 193.5),),
+        ),
+    ]
+
+    manifest = build_manifest(characters, {}, "24405256")
+
+    assert [entry.source.resources_path for entry in manifest.entries] == ["npcs/port azure npcs/Prestigio Valusha 1"]
+
+
 def test_a_placed_character_or_a_scene_prefab_is_the_source_without_a_resources_prefab() -> None:
     characters = [
         # Faith's prefab is outside Resources, and a FaithEvent of the scene references it.

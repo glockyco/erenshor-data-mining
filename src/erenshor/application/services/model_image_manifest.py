@@ -152,16 +152,19 @@ def capture_source(character: CharacterSource) -> CaptureSource | None:
     return None
 
 
-def _capture_rank(character: CharacterSource) -> tuple[bool, int, str]:
-    """Prefer a character of a generated page, then a prefab that loads
-    without a scene, then a placed character that is on at load."""
+def _capture_rank(character: CharacterSource) -> tuple[bool, int, bool, str]:
+    """Prefer a character of a generated page, then a prefab that loads without
+    a scene, then a placed character that is on at load. Among equals, a
+    character that the game spawns comes before a prefab that nothing spawns,
+    which may be an unused version of the model."""
     if character.resources_path:
         source = 0
     elif not character.is_prefab and character.scene:
         source = 1 if character.is_enabled else 2
     else:
         source = 3
-    return not character.is_wiki_generated, source, character.stable_key
+    spawned = bool(character.spawn_points) or not character.is_prefab
+    return not character.is_wiki_generated, source, not spawned, character.stable_key
 
 
 def _sorted_pages(pages: Iterable[str]) -> tuple[str, ...]:
