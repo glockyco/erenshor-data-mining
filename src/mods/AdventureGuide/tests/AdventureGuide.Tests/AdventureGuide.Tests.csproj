@@ -54,6 +54,7 @@
     <Compile Include="../../src/Navigation/RespawnTimerText.cs" Link="Navigation/RespawnTimerText.cs" />
     <Compile Include="../../src/UI/TrackerVisibilityPolicy.cs" Link="UI/TrackerVisibilityPolicy.cs" />
     <Compile Include="../../src/UI/TypingFlagSync.cs" Link="UI/TypingFlagSync.cs" />
+    <Compile Include="../../src/UI/StepCountPolicy.cs" Link="UI/StepCountPolicy.cs" />
   </ItemGroup>
 
   <ItemGroup>

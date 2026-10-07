@@ -1084,15 +1084,11 @@ public sealed class QuestDetailPanel
         };
 
         // Collect steps: have/need counts change only with the state version.
-        if (
-            (step.Action is "collect" or "obtain")
-            && step.TargetKey != null
-            && step.Quantity.HasValue
-        )
+        if (StepCountPolicy.ShowsInventoryCount(step))
         {
-            int have = _state.CountItem(step.TargetKey);
+            int have = _state.CountItem(step.TargetKey!);
             display.Text += $" ({have}/{step.Quantity})";
-            display.HasRequiredQuantity = have >= step.Quantity.Value;
+            display.HasRequiredQuantity = have >= step.Quantity!.Value;
         }
 
         // Step suffix: zone (for non-collect) and level, dot-separated.

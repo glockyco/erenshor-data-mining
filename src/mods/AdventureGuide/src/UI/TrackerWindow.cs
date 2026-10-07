@@ -665,10 +665,10 @@ public sealed class TrackerWindow
 
     private string FormatStepText(QuestEntry quest, QuestStep step)
     {
-        if (step.Quantity.HasValue && step.TargetKey != null)
+        if (StepCountPolicy.ShowsInventoryCount(step))
         {
-            int have = _state.CountItem(step.TargetKey);
-            int need = step.Quantity.Value;
+            int have = _state.CountItem(step.TargetKey!);
+            int need = step.Quantity!.Value;
             return $"{step.Description} ({have}/{need})";
         }
 
