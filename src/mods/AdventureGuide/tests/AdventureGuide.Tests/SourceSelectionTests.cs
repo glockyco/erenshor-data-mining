@@ -6,6 +6,15 @@ namespace AdventureGuide.Tests;
 public sealed class SourceSelectionTests
 {
     [Fact]
+    public void Initial_character_resolution_keeps_static_fallback_but_live_rescan_skips_absent_npcs()
+    {
+        Assert.True(SourceSelectionPolicy.ShouldConsiderCharacter(false, false));
+        Assert.True(SourceSelectionPolicy.ShouldConsiderCharacter(false, true));
+        Assert.True(SourceSelectionPolicy.ShouldConsiderCharacter(true, true));
+        Assert.False(SourceSelectionPolicy.ShouldConsiderCharacter(true, false));
+    }
+
+    [Fact]
     public void Alive_source_beats_nearer_mined_node() =>
         Assert.True(SourceSelectionPolicy.IsBetter(false, 1000f, 0f, true, 1f, 1f));
 

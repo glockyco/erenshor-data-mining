@@ -714,9 +714,13 @@ public sealed class NavigationController
     private void UpdateClosestActiveSource(string currentScene, Vector3 playerPos)
     {
         var quest = _data.GetByRuntimeKey(Target!.QuestKey);
-        var step = quest?.Steps?.Find(s => s.Order == Target.StepOrder);
-        if (quest != null && step != null)
-            ResolveClosestActiveSource(quest, step, currentScene);
+        if (quest != null && _resolvedStep != null)
+            ResolveClosestActiveSource(
+                quest,
+                _resolvedStep,
+                currentScene,
+                preferLiveCharacters: true
+            );
     }
 
     /// <summary>
@@ -953,7 +957,12 @@ public sealed class NavigationController
     /// Resolve the closest spawn among all active source keys and set as Target.
     /// Used both for initial target creation and periodic re-evaluation.
     /// </summary>
-    private bool ResolveClosestActiveSource(QuestEntry quest, QuestStep step, string currentScene)
+    private bool ResolveClosestActiveSource(
+        QuestEntry quest,
+        QuestStep step,
+        string currentScene,
+        bool preferLiveCharacters = false
+    )
     {
         var playerPos = GetPlayerPosition() ?? Vector3.zero;
         string? bestScene = null;
@@ -1012,6 +1021,9 @@ public sealed class NavigationController
 
             if (!_data.CharacterSpawns.TryGetValue(sourceKey, out var spawns))
                 continue;
+            var npc = preferLiveCharacters ? _entities.FindClosest(sourceKey, playerPos) : null;
+            if (!SourceSelectionPolicy.ShouldConsiderCharacter(preferLiveCharacters, npc != null))
+                continue;
             foreach (var spawn in spawns)
             {
                 if (
@@ -1022,7 +1034,6 @@ public sealed class NavigationController
                     )
                 )
                     continue;
-                var npc = _entities.FindClosest(sourceKey, playerPos);
                 var position =
                     npc != null ? npc.transform.position : new Vector3(spawn.X, spawn.Y, spawn.Z);
                 float distance = (position - playerPos).sqrMagnitude;
@@ -1047,6 +1058,11 @@ public sealed class NavigationController
                 }
             }
         }
+
+        // If no source is currently alive, retain the existing character
+        // winner so per-frame tracking can use that character's respawn.
+        if (bestScene == null && preferLiveCharacters)
+            return Target != null;
 
         if (bestScene == null)
         {

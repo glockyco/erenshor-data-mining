@@ -3,6 +3,9 @@ namespace AdventureGuide.Navigation;
 /// <summary>Unmined sources beat mined nodes; exhausted nodes use respawn order.</summary>
 public static class SourceSelectionPolicy
 {
+    public static bool ShouldConsiderCharacter(bool preferLiveCharacters, bool hasLiveNpc) =>
+        !preferLiveCharacters || hasLiveNpc;
+
     public static bool IsBetter(
         bool mined,
         float distance,
