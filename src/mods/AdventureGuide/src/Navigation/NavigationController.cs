@@ -1224,9 +1224,11 @@ public sealed class NavigationController
                 _cachedRouteLocked = routeIsLocked;
                 if (bestLine != null)
                 {
-                    string displayText = routeIsLocked
-                        ? $"To: {bestLine.DestinationDisplay}\nRequires: Complete \"{GetZoneLineLockReason(bestLine)}\""
-                        : $"To: {bestLine.DestinationDisplay}";
+                    string displayText = ZoneLineText.Format(
+                        bestLine.DestinationDisplay,
+                        routeIsLocked,
+                        routeIsLocked ? GetZoneLineLockReason(bestLine) : null
+                    );
                     ZoneLineWaypoint = MakeTarget(
                         NavigationTarget.Kind.ZoneLine,
                         new Vector3(bestLine.X, bestLine.Y, bestLine.Z),

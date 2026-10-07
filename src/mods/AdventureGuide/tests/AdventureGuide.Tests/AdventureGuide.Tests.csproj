@@ -47,6 +47,7 @@
     <Compile Include="../../src/Navigation/UnroutableRoute.cs" Link="Navigation/UnroutableRoute.cs" />
     <Compile Include="../../src/Navigation/CorpsePriorityPolicy.cs" Link="Navigation/CorpsePriorityPolicy.cs" />
     <Compile Include="../../src/Navigation/NavigationCompletionPolicy.cs" Link="Navigation/NavigationCompletionPolicy.cs" />
+    <Compile Include="../../src/Navigation/ZoneLineText.cs" Link="Navigation/ZoneLineText.cs" />
     <Compile Include="../../src/Navigation/BillboardUpdatePolicy.cs" Link="Navigation/BillboardUpdatePolicy.cs" />
     <Compile Include="../../src/Navigation/DirectPlacementPolicy.cs" Link="Navigation/DirectPlacementPolicy.cs" />
     <Compile Include="../../src/Navigation/MarkerType.cs" Link="Navigation/MarkerType.cs" />
