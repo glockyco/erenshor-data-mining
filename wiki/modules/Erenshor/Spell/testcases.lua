@@ -55,13 +55,13 @@ function p.run()
 	assertContains(minorTooltip, "Spell Level: 6", "spell tooltip includes item-detail level")
 	assertContains(
 		minorTooltip,
-		'class="erenshor-icon erenshor-icon--bare"',
-		"spell tooltip shows the bare icon of the item window's spell details"
+		'class="erenshor-icon erenshor-icon--ability"',
+		"spell tooltip draws the black border"
 	)
 	assertContains(
 		minorTooltip,
-		"[[File:Minor Lightning.png|48x48px]]",
-		"spell tooltip fits art at 48 px"
+		"[[File:Minor Lightning.png|42x42px]]",
+		"spell tooltip fits art inside the 48 px border"
 	)
 	assertNotContains(minorTooltip, "Hotbar Frame.png", "spell tooltip draws no frame")
 	assertContains(

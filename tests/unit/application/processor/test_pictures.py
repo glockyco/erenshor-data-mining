@@ -12,7 +12,7 @@ import pytest
 from PIL import Image
 
 from erenshor.application.pictures import identify
-from erenshor.application.processor.pictures import HOTBAR_FRAME_TEXTURE, process_pictures, prune_catalog
+from erenshor.application.processor.pictures import process_pictures, prune_catalog
 from erenshor.application.processor.writer import Writer
 
 
@@ -35,7 +35,6 @@ class _Build:
         self.raw.execute("CREATE TABLE Skills (StableKey TEXT, SkillIconTexture TEXT)")
         self.writer = Writer(tmp_path / "clean.sqlite")
         self.writer.create_schema()
-        self.texture(HOTBAR_FRAME_TEXTURE, _png((90, 90, 90, 255)))
 
     def texture(self, path: str, data: bytes) -> str:
         target = self.export / path

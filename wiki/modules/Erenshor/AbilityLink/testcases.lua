@@ -74,7 +74,7 @@ function p.run()
 	assertContains(rendered, 'data-erenshor-kind="ability"', "rendered link has kind data")
 	assertContains(
 		rendered,
-		"[[File:Minor Lightning.png|24x24px|link=Minor Lightning]]",
+		"[[File:Minor Lightning.png|22x22px|link=Minor Lightning]]",
 		"rendered link contains image"
 	)
 	assertContains(rendered, "[[Minor Lightning]]", "rendered link contains page link")
@@ -83,7 +83,7 @@ function p.run()
 	assertContains(imageOnly, "erenshor-link--ability", "image-only link has semantic wrapper")
 	assertContains(
 		imageOnly,
-		"[[File:Minor Lightning.png|24x24px|link=Minor Lightning]]",
+		"[[File:Minor Lightning.png|22x22px|link=Minor Lightning]]",
 		"image-only link contains image"
 	)
 	assertNotContains(imageOnly, "[[Minor Lightning]]", "image-only link hides text")

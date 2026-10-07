@@ -4,7 +4,6 @@ Each picture enters once, identified by the hash of its pixels:
 
 - the icon of each item, spell, and skill, from the texture that its sprite
   draws, which the export records
-- the hotbar frame, which the game draws over spell and skill icons
 - each rendered portrait that a capture review approved
 
 The build copies each picture's file to the catalog directory under its hash,
@@ -35,20 +34,12 @@ if TYPE_CHECKING:
 
 __all__ = [
     "CATALOG_DIRECTORY",
-    "HOTBAR_FRAME_TEXTURE",
-    "HOTBAR_FRAME_TITLE",
     "process_pictures",
     "prune_catalog",
 ]
 
 CATALOG_DIRECTORY = "catalog"
 CAPTURES_DIRECTORY = "model-captures"
-
-# The hotbar draws the sprite ma_frame over a spell's or skill's icon. No
-# exported entity references this UI sprite, so its texture is named here, and
-# a game update that renames it fails the build.
-HOTBAR_FRAME_TEXTURE = "Assets/Texture2D/ma_frame.png"
-HOTBAR_FRAME_TITLE = "Hotbar Frame.png"
 
 # The clean table, raw table, and raw texture column of each kind of icon.
 _ICON_TABLES = (
@@ -132,10 +123,6 @@ def process_pictures(raw: sqlite3.Connection, writer: Writer, export_dir: Path, 
                 raise FileNotFoundError(f"{stable_key}: icon texture {texture} is missing from the export")
             links.append((catalog.add(texture, path, "icon"), stable_key))
 
-    frame_path = export_dir / HOTBAR_FRAME_TEXTURE
-    if not frame_path.is_file():
-        raise FileNotFoundError(f"The hotbar frame {HOTBAR_FRAME_TEXTURE} is missing from the export")
-    frame_hash = catalog.add(HOTBAR_FRAME_TEXTURE, frame_path, "frame")
     portraits = _add_portraits(catalog, images_dir / CAPTURES_DIRECTORY)
 
     # The entity tables reference the pictures, so the pictures go in first.
@@ -152,23 +139,15 @@ def process_pictures(raw: sqlite3.Connection, writer: Writer, export_dir: Path, 
     _link_stances(conn)
     _link_characters(conn, portraits)
 
-    titles: dict[str, tuple[str, str | None]] = dict(_titles(conn))
-    if titles.setdefault(HOTBAR_FRAME_TITLE, (frame_hash, None))[0] != frame_hash:
-        raise ValueError(f"{HOTBAR_FRAME_TITLE} names the hotbar frame and {titles[HOTBAR_FRAME_TITLE][1]}")
+    titles = _titles(conn)
     writer.insert_image_titles(
         [
             {"title": title, "image_hash": image_hash, "stable_key": stable_key}
             for title, (image_hash, stable_key) in sorted(titles.items())
         ]
     )
-    kinds = {
-        kind: sum(picture.kind == kind for picture in catalog.pictures.values())
-        for kind in ("icon", "portrait", "frame")
-    }
-    logger.info(
-        f"Pictures: {kinds['icon']} icons, {kinds['portrait']} portraits, {kinds['frame']} frame, "
-        f"{len(titles)} wiki file titles"
-    )
+    kinds = {kind: sum(picture.kind == kind for picture in catalog.pictures.values()) for kind in ("icon", "portrait")}
+    logger.info(f"Pictures: {kinds['icon']} icons, {kinds['portrait']} portraits, {len(titles)} wiki file titles")
 
 
 def _link_stances(conn: sqlite3.Connection) -> None:

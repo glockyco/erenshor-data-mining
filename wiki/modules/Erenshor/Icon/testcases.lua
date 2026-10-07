@@ -30,7 +30,7 @@ function p.run(frame)
 		end,
 	}
 	for _, size in ipairs({ 80, 48, 24 }) do
-		for _, kind in ipairs({ "item", "ability", "window", "bare" }) do
+		for _, kind in ipairs({ "item", "ability" }) do
 			local markup = Icon.render(fakeFrame, {
 				file = "Thorned Branch.png",
 				kind = kind,
@@ -46,46 +46,44 @@ function p.run(frame)
 			)
 			assertContains(markup, "width:" .. size .. "px", "slot width")
 			assertContains(markup, "height:" .. size .. "px", "slot height")
+			-- An ability's black border is 8 px of 150, rounded, and at least 1 px.
+			local border = kind == "ability" and (size == 80 and 4 or size == 48 and 3 or 1) or 0
+			local inner = size - 2 * border
 			assertContains(
 				markup,
 				"[[File:Thorned Branch.png|"
-					.. size
+					.. inner
 					.. "x"
-					.. size
+					.. inner
 					.. "px|alt=Branch|link=Thorned Branch]]",
 				"fitted linked artwork"
 			)
+			assertNotContains(markup, "Hotbar Frame.png", "no hotbar frame")
 			if kind == "item" then
 				local inset = size == 80 and 3 or size == 48 and 2 or 1
 				assertContains(markup, 'class="erenshor-icon-well"', "item dark well")
 				for _, side in ipairs({ "top", "right", "bottom", "left" }) do
 					assertContains(markup, side .. ":" .. inset .. "px", "rounded ring inset")
 				end
-				assertNotContains(markup, "Hotbar Frame.png", "items have no hotbar bezel")
-			elseif kind == "bare" then
-				assertNotContains(markup, "Hotbar Frame.png", "a bare icon has no frame")
-				assertNotContains(markup, "erenshor-icon-well", "a bare icon has no well")
 			else
-				assertContains(markup, 'class="erenshor-icon-frame"', "hotbar frame layer")
+				assertNotContains(markup, "erenshor-icon-well", "abilities have no item well")
 				assertContains(
 					markup,
-					"[[File:Hotbar Frame.png|" .. size .. "x" .. size .. "px|link=|alt=]]",
-					"nonlinked hotbar frame"
+					"top:"
+						.. border
+						.. "px;left:"
+						.. border
+						.. "px;width:"
+						.. inner
+						.. "px;height:"
+						.. inner
+						.. "px",
+					"art inside the black border"
 				)
-				assertNotContains(markup, "erenshor-icon-well", "hotbar frames have no item well")
-				local art = string.find(markup, "erenshor-icon-art", 1, true)
-				local overlay = string.find(markup, "erenshor-icon-frame", 1, true)
-				-- Later layers draw above earlier ones: the hotbar draws its frame over
-				-- the art, and the item window draws the art over its frame.
-				if kind == "ability" and art >= overlay then
-					error("Hotbar frame must follow art so it draws above it", 2)
-				elseif kind == "window" and overlay >= art then
-					error("Item window art must follow its frame so it draws above it", 2)
-				end
 			end
 		end
 	end
-	if stylesheetCalls ~= 12 then
+	if stylesheetCalls ~= 6 then
 		error("Every icon render must include TemplateStyles", 2)
 	end
 	local unlinked =

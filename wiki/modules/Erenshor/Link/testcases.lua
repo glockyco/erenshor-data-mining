@@ -369,23 +369,17 @@ function p.run()
 	)
 	assertContains(
 		ability,
-		"[[File:Minor Lightning.png|24x24px|link=Minor Lightning]]",
-		"ability link has icon"
+		"[[File:Minor Lightning.png|22x22px|link=Minor Lightning]]",
+		"ability link has icon inside its border"
 	)
 	assertContains(
 		ability,
 		'class="erenshor-icon erenshor-icon--ability"',
-		"spell link draws hotbar slot"
-	)
-	assertContains(
-		ability,
-		"[[File:Hotbar Frame.png|24x24px|link=|alt=]]",
-		"spell link has nonlinked frame"
+		"spell link draws the black border"
 	)
 	for _, key in ipairs({ "skill:backstab", "stance:aggressive" }) do
 		local icon = Link.render({ kind = "ability", stablekey = key })
-		assertContains(icon, "erenshor-icon--ability", "skill and stance use hotbar frame")
-		assertContains(icon, "Hotbar Frame.png", "skill and stance have overlay")
+		assertContains(icon, "erenshor-icon--ability", "skill and stance use the black border")
 	end
 	assertContains(ability, "[[Minor Lightning]]", "ability link has page link")
 

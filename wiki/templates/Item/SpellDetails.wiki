@@ -1,6 +1,6 @@
 <includeonly><div class="item-spell-details"><!--
 --><div class="item-spell-details-header-row"><!--
--->{{#if:{{{spell_icon|}}}|<div class="item-spell-details-icon">{{Icon|{{{spell_icon}}}|kind=bare|size=48}}</div>}}<!--
+-->{{#if:{{{spell_icon|}}}|<div class="item-spell-details-icon">{{Icon|{{{spell_icon}}}|kind=ability|size=48}}</div>}}<!--
 --><div class="item-spell-details-name-cell"><!--
 -->{{#if:{{{proc_header|}}}|<div class="item-spell-details-proc-header">{{{proc_header}}}</div>}}<!--
 --><div class="item-spell-details-header">{{#if:{{{spell_name|}}}|{{{spell_name}}}|Spell Effect}}</div><!--
@@ -58,7 +58,7 @@ Displays full spell details inline for item effects (procs, consumables, auras).
 {| class="wikitable"
 ! Parameter !! Description
 |-
-| '''spell_icon''' || Spell icon filename including its extension (optional). [[Template:Icon]] shows the native artwork at 48 px on the left without a frame, as the game's item window does.
+| '''spell_icon''' || Spell icon filename including its extension (optional). [[Template:Icon]] shows the native artwork at 48 px on the left in a black border.
 |-
 | '''spell_name''' || Spell name (default: "Spell Effect")
 |-

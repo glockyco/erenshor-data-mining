@@ -20,7 +20,7 @@ Displays the header section of an item tooltip, including:
 {| class="wikitable"
 ! Parameter !! Required !! Default !! Description
 |-
-| '''icon''' || Yes || || The framed item icon from <nowiki>{{Icon|filename.png|kind=window|size=80}}</nowiki> (use {{tl|SparkleIcon}} for quality tiers)
+| '''icon''' || Yes || || The framed item icon from <nowiki>{{Icon|filename.png|kind=item|size=80}}</nowiki> (use {{tl|SparkleIcon}} for quality tiers)
 |-
 | '''name''' || Yes || || The display name of the item
 |-
@@ -38,7 +38,7 @@ Displays the header section of an item tooltip, including:
 '''Code:'''
 <pre>
 {{Item/Header
-|icon={{Icon|Copper Sword.png|kind=window|size=80}}
+|icon={{Icon|Copper Sword.png|kind=item|size=80}}
 |name=Blessed Copper Sword
 |tier=1
 |type=Primary - 1-Handed
@@ -48,7 +48,7 @@ Displays the header section of an item tooltip, including:
 '''Result:'''
 
 {{Item/Header
-|icon={{Icon|Copper Sword.png|kind=window|size=80}}
+|icon={{Icon|Copper Sword.png|kind=item|size=80}}
 |name=Blessed Copper Sword
 |tier=1
 |type=Primary - 1-Handed

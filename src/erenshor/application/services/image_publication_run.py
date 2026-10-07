@@ -92,11 +92,6 @@ def description(picture: Picture, game_build: str) -> str:
             f"Rendered from the game's model (game build {picture.approved_build}, capture preset "
             f"{picture.capture_preset}) and approved after review. An in-game screenshot may replace it."
         )
-    elif picture.kind == "frame":
-        made = (
-            f"The game's hotbar frame, from the texture {picture.source} of game build {game_build}, "
-            "unchanged. The wiki draws it over spell and skill icons."
-        )
     else:
         made = f"The game's icon, from the texture {picture.source} of game build {game_build}, unchanged."
     return f"== Summary ==\n{made}\n\n== Licensing ==\n{{{{License|Game}}}}\n"

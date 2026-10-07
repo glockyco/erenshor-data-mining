@@ -205,8 +205,8 @@ def test_tooltips_cover_keyed_unique_ambiguous_and_item_paths(wiki_page: Page) -
     expect(overlay).to_have_attribute("data-state", "ready")
     expect(overlay).to_contain_text("Abyssal Plate")
     expect(overlay).to_contain_text("Armor")
-    # The popup keeps the TemplateStyles of the icon, which layers the art over its frame.
-    expect(overlay.locator(".erenshor-icon--window .erenshor-icon-frame").first).to_have_css("position", "absolute")
+    # The popup keeps the TemplateStyles of the icon, which places the item slot's well.
+    expect(overlay.locator(".erenshor-icon--item .erenshor-icon-well").first).to_have_css("position", "absolute")
 
 
 def test_keyboard_focus_names_tooltip_and_escape_keeps_focus(placement_page: Page) -> None:

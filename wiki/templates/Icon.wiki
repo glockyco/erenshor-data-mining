@@ -1,6 +1,6 @@
 <includeonly>{{#invoke:Erenshor/Icon|main}}</includeonly><noinclude>
 == Template:Icon ==
-Draws a native icon texture with the frame that the game draws around it at that place. Artwork keeps its proportions inside the square; transparent margins remain visible. Use this for icons, not large infobox pictures.
+Draws a native icon texture in its frame: items in a slot with a blue gradient ring, spells, skills, and stances in a black border. Artwork keeps its proportions inside the square; transparent margins remain visible. Use this for icons, not large infobox pictures.
 
 === Parameters ===
 {| class="wikitable"
@@ -8,7 +8,7 @@ Draws a native icon texture with the frame that the game draws around it at that
 |-
 | <code>1</code> || Yes || File title including its extension, without <code>File:</code>.
 |-
-| <code>kind</code> || Yes || <code>item</code>: an inventory slot, a ring and a dark well behind the icon. <code>ability</code>: the hotbar, the hotbar frame over a spell, skill, or stance icon. <code>window</code>: the item window's header, the icon over the hotbar frame. <code>bare</code>: the item window's spell details, the icon alone.
+| <code>kind</code> || Yes || <code>item</code>: a slot with a blue gradient ring and a dark well behind the icon. <code>ability</code>: a black border around a spell, skill, or stance icon.
 |-
 | <code>size</code> || Yes || Positive integer side length in pixels, without <code>px</code>.
 |-

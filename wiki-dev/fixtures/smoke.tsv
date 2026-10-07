@@ -221,20 +221,16 @@ File:Image Tracking Uploaded Redirect.png	Image Tracking Fixture.png
 File:Image Tracking Description.png	A file description page without an upload
 # Icon textures are bare game artwork; the wiki draws their frames.
 Lua Foundation Smoke	PASS Erenshor Icon testcases
-Ember Longsword	erenshor-icon erenshor-icon--window
-Ember Longsword	class="erenshor-icon-frame"
-Ember Longsword	erenshor-icon erenshor-icon--bare
+Ember Longsword	erenshor-icon erenshor-icon--item
+Ember Longsword	erenshor-icon erenshor-icon--ability
 Lua Link Smoke	erenshor-icon erenshor-icon--item
 Lua Link Smoke	erenshor-icon erenshor-icon--ability
-Lua Link Smoke	class="erenshor-icon-frame"
-Ability Tooltip Fixture	erenshor-icon erenshor-icon--bare
-Lua Spell Smoke	erenshor-icon erenshor-icon--bare
+Ability Tooltip Fixture	erenshor-icon erenshor-icon--ability
+Lua Spell Smoke	erenshor-icon erenshor-icon--ability
 Lua Skill Smoke	erenshor-icon erenshor-icon--ability
-Lua Skill Smoke	class="erenshor-icon-frame"
 Icon Frames Fixture	erenshor-icon erenshor-icon--item
 Icon Frames Fixture	erenshor-icon erenshor-icon--ability
 Icon Frames Fixture	class="erenshor-icon-well"
-Icon Frames Fixture	class="erenshor-icon-frame"
 Icon Frames Fixture	width:80px;height:80px
 Icon Frames Fixture	width:60px;height:60px
 Icon Frames Fixture	width:48px;height:48px

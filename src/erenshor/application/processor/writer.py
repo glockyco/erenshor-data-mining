@@ -368,7 +368,7 @@ CREATE TABLE factions (
 -- file is images/catalog/<image_hash>.png of the variant.
 CREATE TABLE images (
     image_hash      TEXT PRIMARY KEY NOT NULL,
-    kind            TEXT NOT NULL CHECK (kind IN ('icon', 'portrait', 'frame')),
+    kind            TEXT NOT NULL CHECK (kind IN ('icon', 'portrait')),
     width           INTEGER NOT NULL,
     height          INTEGER NOT NULL,
     file_sha1       TEXT NOT NULL,
@@ -377,9 +377,9 @@ CREATE TABLE images (
     approved_build  TEXT
 );
 
--- Where a picture came from: the export's texture asset path of an icon or
--- frame, or the approved capture of a portrait. Textures with equal pixels
--- share one picture.
+-- Where a picture came from: the export's texture asset path of an icon, or
+-- the approved capture of a portrait. Textures with equal pixels share one
+-- picture.
 CREATE TABLE image_sources (
     image_hash  TEXT NOT NULL REFERENCES images (image_hash),
     source      TEXT NOT NULL,
@@ -388,11 +388,10 @@ CREATE TABLE image_sources (
 
 -- Every wiki file title that a wiki page names for a picture, with the first
 -- entity that names it in the order item, spell, skill, stance, character.
--- The hotbar frame's title names no entity.
 CREATE TABLE image_titles (
     title       TEXT PRIMARY KEY NOT NULL,
     image_hash  TEXT NOT NULL REFERENCES images (image_hash),
-    stable_key  TEXT
+    stable_key  TEXT NOT NULL
 );
 
 -- -------------------------------------------------------------------------

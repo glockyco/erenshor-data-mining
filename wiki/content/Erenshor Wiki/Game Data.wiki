@@ -128,7 +128,7 @@ Links to items, characters, abilities, quests, zones, factions, and classes use 
 The tooltip templates show the in-game tooltip on a page: [[Template:ItemTooltip|ItemTooltip]], [[Template:SpellTooltip|SpellTooltip]], [[Template:SkillTooltip|SkillTooltip]], and [[Template:StanceTooltip|StanceTooltip]].
 
 == Images ==
-Item, ability, and stance icons are the game's own pictures, uploaded unchanged after each game update. They carry no frame: [[Template:Icon]] draws an icon the way the game does at that place, in an item slot, under the hotbar frame, or as in the item window, so use it to show an icon in your own text. Large infobox pictures show without a frame.
+Item, ability, and stance icons are the game's own pictures, uploaded unchanged after each game update. They carry no frame: [[Template:Icon]] draws items in a slot with a blue gradient ring and spells, skills, and stances in a black border, so use it to show an icon in your own text. Large infobox pictures show without a frame.
 
 Each picture has one file. When several items, spells, or skills share a picture, every other name redirects to that file, so all of them show the same file and a game update changes it once. Old copies of a picture that the bot or its operator uploaded are deleted, and so are the bot's files that no page shows any more.
 
@@ -169,7 +169,7 @@ Each of these templates has its documentation on its own page.
 ; Links
 : [[Template:ItemLink|ItemLink]], [[Template:CharacterLink|CharacterLink]], [[Template:AbilityLink|AbilityLink]], [[Template:QuestLink|QuestLink]], [[Template:ZoneLink|ZoneLink]], [[Template:FactionLink|FactionLink]], [[Template:ClassLink|ClassLink]]
 ; Other
-: [[Template:Icon|Icon]] (an icon framed as the game frames it), [[Template:MapLink|MapLink]], [[Template:Zone Navbox|Zone Navbox]], [[Template:Historical Content|Historical Content]], [[Template:Gear/Slot|Gear/Slot]], [[Template:Smoke|Smoke]] (used by the project's tests)
+: [[Template:Icon|Icon]] (an icon in its frame), [[Template:MapLink|MapLink]], [[Template:Zone Navbox|Zone Navbox]], [[Template:Historical Content|Historical Content]], [[Template:Gear/Slot|Gear/Slot]], [[Template:Smoke|Smoke]] (used by the project's tests)
 
 == For administrators ==
 * WoWBot is a bot account of [[User:WoWMuch|WoWMuch]]. Its edits are marked as bot edits.

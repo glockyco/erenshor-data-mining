@@ -95,14 +95,13 @@ class Catalog:
     """The pictures of a clean build and the file titles that pages name for them.
 
     ``titles`` maps each ``File:`` title to its picture's hash and
-    ``entities`` to the stable key of the first entity that names it, or None
-    for the hotbar frame.
+    ``entities`` to the stable key of the first entity that names it.
     """
 
     game_build: str
     pictures: Mapping[str, Picture]
     titles: Mapping[str, str]
-    entities: Mapping[str, str | None]
+    entities: Mapping[str, str]
 
 
 def load_catalog(clean_db: Path, images_dir: Path) -> Catalog:
@@ -348,7 +347,7 @@ class _Planner:
         self.live = live
         self.owners = owners
         self.pictures = pictures
-        self.entities: dict[str, str | None] = dict(catalog.entities)
+        self.entities: dict[str, str] = dict(catalog.entities)
         self.picture_of: dict[str, str] = {}
         self._by_sha1: dict[str, list[str]] = defaultdict(list)
         for title, file in live.files.items():
