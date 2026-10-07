@@ -875,6 +875,49 @@ class TestWikiDeployRepoCommand:
         assert entry.new_revision_id == 11
         assert entry.rollback_text_source == "rollback/Module_Erenshor_Item.wiki"
 
+    def test_a_deploy_that_fails_after_a_write_names_the_page_and_the_rollback(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, cli_context: CLIContext
+    ):
+        import erenshor.cli.commands.wiki as wiki_command
+
+        def entry(title: str, action: str | None) -> RepoWikiPageManifestEntry:
+            return RepoWikiPageManifestEntry(
+                title=title,
+                source_path="x",
+                source_sha256="abc",
+                ownership_class="lua_module",
+                upload_stage="lua_module",
+                content_model="Scribunto",
+                declares_cargo_table=False,
+                cargo_tables=(),
+                deploy_action=action,
+            )
+
+        manifest = RepoWikiPageManifest(
+            entries=(entry("Template:Icon/styles.css", None), entry("Module:Erenshor/Icon", None))
+        )
+
+        def fail_after_one_write(**kwargs):
+            kwargs["checkpoint"](
+                RepoWikiPageManifest(entries=(entry("Template:Icon/styles.css", "edited"), manifest.entries[1]))
+            )
+            raise ValueError("Module:Erenshor/Icon blocked on Queen's Fang: script error")
+
+        monkeypatch.setattr(wiki_command, "build_repo_page_manifest", lambda *_args, **_kwargs: manifest)
+        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", lambda _ctx: FakeDeployClient())
+        monkeypatch.setattr(wiki_command, "deploy_repo_pages", fail_after_one_write)
+        manifest_output = tmp_path / "manifest.json"
+
+        result = runner.invoke(
+            wiki.app, ["deploy-repo-pages", "--manifest-output", str(manifest_output)], obj=cli_context
+        )
+
+        assert result.exit_code == 1, result.output
+        lines = result.output.splitlines()
+        assert "Repo-owned page deploy failed: Module:Erenshor/Icon blocked on Queen's Fang: script error" in lines
+        assert "1 pages were written before the failure: Template:Icon/styles.css" in lines
+        assert f"Restore them with: uv run erenshor wiki rollback-repo-pages --manifest {manifest_output}" in lines
+
     def test_deploy_repo_pages_resolves_relative_manifest_output(
         self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, cli_context: CLIContext
     ):

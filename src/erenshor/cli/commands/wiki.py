@@ -1445,8 +1445,11 @@ def deploy_repo_pages_command(
             raise typer.Exit(1)
         return
 
+    checkpoints: list[RepoWikiPageManifest] = []
+
     def checkpoint_manifest(checkpointed_manifest: RepoWikiPageManifest) -> None:
         write_repo_page_manifest(checkpointed_manifest, manifest_output)
+        checkpoints.append(checkpointed_manifest)
 
     client = _create_mediawiki_client(cli_ctx)
     try:
@@ -1475,8 +1478,9 @@ def deploy_repo_pages_command(
     except RepoPageDriftError as e:
         _print_repo_page_drift(e.drift)
         raise typer.Exit(1) from e
-    except ValueError as e:
-        console.print(f"[red]Repo-owned page deploy failed: {escape(str(e))}[/red]")
+    except (ValueError, MediaWikiAPIError) as e:
+        console.print(f"[red]Repo-owned page deploy failed: {escape(str(e))}[/red]", soft_wrap=True)
+        _print_partial_deploy(checkpoints[-1] if checkpoints else None, manifest_output)
         raise typer.Exit(1) from e
     finally:
         client.close()
@@ -1494,6 +1498,28 @@ def deploy_repo_pages_command(
 
     changed_titles = {entry.title for entry in result.entries if entry.status != "unchanged"}
     _report_changed_cargo_declarations(manifest, changed_titles)
+
+
+def _print_partial_deploy(checkpoint: RepoWikiPageManifest | None, manifest_output: Path) -> None:
+    """Name the pages that a failed deploy wrote before it stopped, and the command that restores them.
+
+    The deploy checkpoints its manifest after every write, so the last
+    checkpoint records exactly the pages that are live now.
+    """
+    written = [
+        entry.title
+        for entry in (checkpoint.entries if checkpoint else ())
+        if entry.deploy_action in ("created", "edited")
+    ]
+    if not written:
+        console.print("No page was written.")
+        return
+    console.print(
+        f"[yellow]{len(written)} pages were written before the failure:[/yellow] {', '.join(written)}", soft_wrap=True
+    )
+    console.print(
+        f"Restore them with: uv run erenshor wiki rollback-repo-pages --manifest {manifest_output}", soft_wrap=True
+    )
 
 
 def _print_repo_render_check(result: RenderCheck) -> None:

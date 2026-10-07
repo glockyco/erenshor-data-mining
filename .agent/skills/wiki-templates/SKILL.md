@@ -18,7 +18,8 @@ The plan for the wiki is the OpenSpec change `adopt-data-backed-wiki`. Read its 
 - Generated data lives on bot-owned pages: `Module:Erenshor/Data/*` and, with the Cargo work, `Erenshor Wiki:Cargo/*`. Articles do not store Cargo rows.
 - A fact the export misses goes into code facts or the export. A correction of how the export is read goes into `mapping.json` with a reason. A fact that editors add goes into a Cargo community row. Article parameters only present fields that people own.
 - Do not change the structure of a live data module in place. Publish the new structure under a new title, move the readers, then remove the old page.
-- Every live write needs approval after a dry run. The bot cannot delete pages; publishing images deletes with the deletion account. The plan's task group 9 lists the pages for an administrator.
+- Every live write needs approval after a dry run. Read the dry run's whole output before asking: `grep` drops the lines that Rich wraps and the warnings it was not written for. The bot cannot delete pages; publishing images deletes with the deletion account. The plan's task group 9 lists the pages for an administrator.
+- Show a visible change to the user as a screenshot of the local wiki before the live deploy. Code, a spec, or the game's UI is not the user's taste.
 
 ## Generated articles
 
@@ -125,6 +126,9 @@ The plan for the wiki is the OpenSpec change `adopt-data-backed-wiki`. Read its 
    Pass that run's `manifest.json` to `wiki rollback-repo-pages --manifest` to undo the deploy. `--manifest-output` chooses another path.
    Deployment checks source hashes, saves old text, and guards edits with live revisions.
    The default assertion is `bot`. Use `--assert-user <username>` to guard the account identity.
+   A deploy that fails after its first write names the pages it wrote and prints the rollback command for its manifest. Run it, or finish the deploy, before anything else.
+
+   After the deploy, pages show the new templates once the job queue rerenders them. To check sooner, parse a page's wikitext (`action=parse` with `text=`); `action=parse` with `page=` returns the parser cache. Purge the users of a changed module when readers must see it at once.
 
 5. Roll back edits with their exact deployment manifest:
 
