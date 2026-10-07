@@ -5,6 +5,10 @@ title that a page names one verdict (design D4 of the change
 rebuild-game-image-pipeline):
 
 - ``create``: the picture's file is missing, so it is uploaded
+- ``move``: the picture's file is missing at its title, and a file of the
+  project at a title outside the catalog holds the picture, so the run moves
+  that file with its history and leaves a redirect at the old title (design D6
+  of name-pictures-by-role)
 - ``update``: the picture's file holds other pixels and the project uploaded
   its latest version, so a new version is uploaded
 - ``unchanged``: the title shows the picture already
@@ -22,8 +26,10 @@ redirects to it. A file is the project's when one of its accounts uploaded the
 latest version (design D3). Pixels are compared without downloads where the
 listing settles it: equal bytes, a different size, or the picture's hash in the
 upload comment of the project's own version. Only the remaining files are
-downloaded, once, into a cache keyed by their SHA-1. The bot's files that no
-title produces and no page shows are orphans, which the run deletes.
+downloaded, once, into a cache keyed by their SHA-1. Every File redirect that
+names a moved file or a deleted copy is pointed at the picture's file, because
+MediaWiki follows one file redirect. The bot's files that no title produces,
+no move takes, and no page shows are orphans, which the run deletes.
 """
 
 from __future__ import annotations
@@ -31,6 +37,7 @@ from __future__ import annotations
 import hashlib
 import io
 import json
+import re
 import sqlite3
 from collections import defaultdict
 from dataclasses import asdict, dataclass
@@ -42,6 +49,7 @@ from PIL import Image, ImageDraw, UnidentifiedImageError
 from erenshor.application.pictures import identify
 from erenshor.application.processor.pictures import CATALOG_DIRECTORY
 from erenshor.application.services.model_image_manifest import load_game_build
+from erenshor.domain.value_objects.wiki_filename import picture_subject
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Collection, Iterable, Mapping, Sequence
@@ -62,8 +70,11 @@ __all__ = [
     "write_contact_sheets",
 ]
 
-Verdict = Literal["create", "update", "unchanged", "redirect", "retire", "describe", "conflict"]
-VERDICTS: tuple[Verdict, ...] = ("create", "update", "unchanged", "redirect", "retire", "describe", "conflict")
+Verdict = Literal["create", "update", "unchanged", "move", "redirect", "retire", "describe", "conflict"]
+VERDICTS: tuple[Verdict, ...] = ("create", "update", "unchanged", "move", "redirect", "retire", "describe", "conflict")
+
+# The picture hash that the project's upload comments record (``image_publication_run.comment``).
+_COMMENT_HASH = re.compile(r"^Game picture ([0-9a-f]{64}) ")
 
 # The order in which the entities of a shared picture give the picture's file its title.
 _ENTITY_ORDER = ("item", "spell", "skill", "stance", "character")
@@ -213,7 +224,9 @@ class PlannedTitle:
     picture redirects to, or None when no title of the picture can hold it.
     ``live_sha1`` and ``live_user`` describe the file at the title when the plan
     was made, and ``redirect_target`` the page that its redirect names.
-    ``warnings`` are the upload warnings that the verdict expects.
+    ``warnings`` are the upload warnings that the verdict expects. A move names
+    the title that the file leaves in ``source`` and its SHA-1 in
+    ``source_sha1``.
     """
 
     title: str
@@ -225,6 +238,8 @@ class PlannedTitle:
     live_user: str | None = None
     redirect_target: str | None = None
     warnings: tuple[str, ...] = ()
+    source: str | None = None
+    source_sha1: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -290,17 +305,32 @@ def plan_publication(
     """
     planner = _Planner(catalog, live, frozenset({bot, *owners}), pictures)
     titles = planner.titles()
-    files = {image_hash: planner.choose_file(image_hash, members) for image_hash, members in _by_picture(titles)}
+    members_of = dict(_by_picture(titles))
+    files = {image_hash: planner.choose_file(image_hash, members) for image_hash, members in members_of.items()}
+    named_by: dict[str, list[str]] = defaultdict(list)
+    for source, target in live.redirects.items():
+        named_by[target].append(source)
+    # A picture whose file would be uploaded new takes the project's file that
+    # holds it at a title outside the catalog instead, so the file keeps its
+    # history and its old title becomes a redirect.
+    for image_hash in sorted(files):
+        file_title = files[image_hash]
+        if file_title is None or file_title in live.files or file_title in live.redirects:
+            continue
+        holder = planner.move_source(image_hash, titles, named_by)
+        if holder is not None:
+            files[image_hash] = planner.move_target(image_hash, members_of[image_hash], holder)
     # A picture's file may stay at a title that no page names any more, the
     # target of a title's redirect, so the plan keeps it too.
     for image_hash, file_title in files.items():
         if file_title is not None:
             titles.setdefault(file_title, image_hash)
-    # A copy that goes takes the redirects that name it along, so they point at
-    # the picture's file instead, because MediaWiki follows one file redirect.
-    named_by: dict[str, list[str]] = defaultdict(list)
-    for source, target in live.redirects.items():
-        named_by[target].append(source)
+    # A copy that goes and a file that moves take the redirects that name them
+    # along, so they point at the picture's file instead, because MediaWiki
+    # follows one file redirect.
+    for source, (_, image_hash) in planner.moves.items():
+        for redirect in named_by.get(source, ()):
+            titles.setdefault(redirect, image_hash)
     for title, image_hash in list(titles.items()):
         copy = live.files.get(title)
         if title != files[image_hash] and copy is not None and planner.owned(copy):
@@ -318,7 +348,7 @@ def plan_publication(
     unproduced = [
         (title, file)
         for title, file in live.files.items()
-        if title not in titles and planner.owned(file) and not is_used(title)
+        if title not in titles and title not in planner.moves and planner.owned(file) and not is_used(title)
     ]
     orphans = tuple(
         Orphan(title, file.sha1, file.timestamp, tuple(sorted(set(named_by.get(title, ())) - titles.keys())))
@@ -355,6 +385,20 @@ class _Planner:
         self._by_sha1: dict[str, list[str]] = defaultdict(list)
         for title, file in live.files.items():
             self._by_sha1[file.sha1].append(title)
+        # The project's files that hold each picture by their bytes or by the
+        # picture hash in their upload comment, and the moves that the plan makes.
+        by_sha1 = {picture.sha1: image_hash for image_hash, picture in catalog.pictures.items()}
+        self._holders: dict[str, list[str]] = defaultdict(list)
+        for title, file in live.files.items():
+            if file.user not in owners:
+                continue
+            match = _COMMENT_HASH.match(file.comment or "")
+            named = (by_sha1.get(file.sha1), match.group(1) if match else None)
+            held = {image_hash for image_hash in named if image_hash is not None and image_hash in catalog.pictures}
+            for image_hash in held:
+                self._holders[image_hash].append(title)
+        self.moves: dict[str, tuple[str, str]] = {}
+        self.moved_to: dict[str, str] = {}
 
     def titles(self) -> dict[str, str]:
         """The catalog's titles, each mapped to its picture's hash."""
@@ -364,6 +408,38 @@ class _Planner:
 
     def owned(self, file: MediaWikiFile) -> bool:
         return file.user in self.owners
+
+    def move_source(self, image_hash: str, titles: Mapping[str, str], named_by: Mapping[str, list[str]]) -> str | None:
+        """The project's file that holds the picture at a title outside the catalog and no other move takes.
+
+        Of several, the one that the most redirects name goes first, then the
+        first title.
+        """
+        candidates = [
+            title for title in self._holders.get(image_hash, ()) if title not in titles and title not in self.moves
+        ]
+        candidates.sort(key=lambda title: (-len(named_by.get(title, ())), title))
+        return candidates[0] if candidates else None
+
+    def move_target(self, image_hash: str, members: Sequence[str], source: str) -> str:
+        """The missing title of the picture that a moved file takes, and the move recorded.
+
+        The title whose subject the old title names goes first, so a file
+        keeps its subject, then the order of ``choose_file``.
+        """
+        subject = picture_subject(source.removeprefix("File:").rpartition(".")[0])
+        missing = [title for title in members if not self.live.has_page(title)]
+        target = min(
+            missing,
+            key=lambda title: (
+                title.removeprefix("File:").rpartition(" ")[0] != subject,
+                _entity_rank(self.entities.get(title)),
+                title,
+            ),
+        )
+        self.moves[source] = (target, image_hash)
+        self.moved_to[target] = source
+        return target
 
     def holds(self, picture: Picture, file: MediaWikiFile) -> bool:
         """Whether a live file has the picture's pixels."""
@@ -437,6 +513,17 @@ class _Planner:
             return planned("conflict", "no title of the picture can hold its file")
         duplicate = ("duplicate",) if any(other != title for other in self._by_sha1.get(picture.sha1, ())) else ()
         if title == file_title:
+            if live is None and title in self.moved_to:
+                source = self.moved_to[title]
+                return PlannedTitle(
+                    title,
+                    "move",
+                    image_hash,
+                    file_title,
+                    f"the project's file of the picture is at {source}",
+                    source=source,
+                    source_sha1=self.live.files[source].sha1,
+                )
             if live is None:
                 return planned("create", "the file is missing", duplicate)
             if self.holds(picture, live):
@@ -475,12 +562,17 @@ def write_contact_sheets(
 ) -> list[Path]:
     """Draw every picture that the plan changes beside what its titles show live.
 
+    A picture changes when the plan uploads it, or when a title that shows
+    another file now redirects to it or loses its copy. A move or a redirect
+    from a title that shows nothing changes no picture that a page shows.
     Each row shows one picture: its title and change counts, the new picture,
     and up to three distinct live pictures that its titles show now.
     """
     changing: dict[str, list[PlannedTitle]] = defaultdict(list)
     for item in plan.titles:
-        if item.verdict in ("create", "update", "redirect", "retire"):
+        current = live.shown(item.title)
+        replaced = current is not None and current.sha1 != catalog.pictures[item.image_hash].sha1
+        if item.verdict in ("create", "update") or (item.verdict in ("redirect", "retire") and replaced):
             changing[item.image_hash].append(item)
     rows = []
     for image_hash, items in sorted(changing.items(), key=lambda entry: entry[1][0].file or ""):

@@ -2112,6 +2112,23 @@ class MediaWikiClient:
         logger.info(f"Successfully uploaded: File:{filename}")
         return upload_result
 
+    def move_page(self, from_title: str, to_title: str, reason: str, *, leave_redirect: bool = True) -> None:
+        """Move a page, and of a file page its file with every version.
+
+        Moving a file needs the ``movefile`` right, and moving without a
+        redirect the ``suppressredirect`` right. MediaWiki moves over an
+        existing page only when it is a redirect to ``from_title`` with one
+        revision, which is what a move back after a move finds.
+        """
+        data = {"action": "move", "from": from_title, "to": to_title, "reason": reason}
+        if not leave_redirect:
+            data["noredirect"] = "1"
+        result = self._request_as_user(data)
+        moved = result.get("move")
+        if not isinstance(moved, dict) or moved.get("to") != to_title.replace("_", " "):
+            raise MediaWikiAPIError(f"Unexpected move response: {result}")
+        logger.info(f"Moved {from_title} to {to_title}")
+
     def delete_page(self, title: str, reason: str) -> None:
         """Delete a page. Deleting a file page deletes every version of its file.
 

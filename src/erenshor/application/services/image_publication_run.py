@@ -1,20 +1,21 @@
 """Carrying out a publication plan and reverting a run (design D8 of rebuild-game-image-pipeline).
 
-A run writes uploads first, then redirects to the pictures' files, then each
-copy's deletion followed at once by the redirect that replaces it, and the
-orphans' deletions last. Before each write it reads the title again, and it
-skips a title that changed since the plan, so the bot never replaces something
-that someone else wrote meanwhile. An upload never ignores MediaWiki's warnings
-up front: when the wiki answers only with warnings that the verdict expects,
-the run confirms the stashed upload, and otherwise it skips the title. The bot
-account uploads and edits; an administrator's account with the delete grant
-deletes.
+A run moves files first, then uploads, then writes redirects to the pictures'
+files, then deletes each copy followed at once by the redirect that replaces
+it, and deletes the orphans last. Before each write it reads the title again,
+and it skips a title that changed since the plan, so the bot never replaces
+something that someone else wrote meanwhile. An upload never ignores
+MediaWiki's warnings up front: when the wiki answers only with warnings that
+the verdict expects, the run confirms the stashed upload, and otherwise it
+skips the title. The bot account moves, uploads, and edits; an administrator's
+account with the delete grant deletes.
 
 Every write goes to ``run.json`` the moment it happens, with the bytes that an
 update replaced and the description of a deleted copy, so a stopped run loses
 nothing and a later revert can restore what the run changed. A revert uploads
-the replaced bytes again, restores deleted files, and restores a redirect it
-changed. Created files and created redirects stay, and the revert lists them.
+the replaced bytes again, restores deleted files, restores a redirect it
+changed, and moves a moved file back without a redirect. Created files and
+created redirects stay, and the revert lists them.
 """
 
 from __future__ import annotations
@@ -43,7 +44,7 @@ if TYPE_CHECKING:
         MediaWikiPageSnapshot,
     )
 
-__all__ = ["PageDeleter", "PublishWriter", "RunRecord", "comment", "description", "execute", "revert"]
+__all__ = ["PageDeleter", "PublishWriter", "RunRecord", "comment", "description", "execute", "move", "revert"]
 
 _REDIRECT = re.compile(r"^\s*#REDIRECT\s*\[\[\s*:?\s*([^\]|]+?)\s*(?:\|[^\]]*)?\]\]", re.IGNORECASE)
 
@@ -64,6 +65,8 @@ class PublishWriter(Protocol):
     ) -> dict[str, Any]: ...
 
     def confirm_upload(self, filekey: str, filename: str, comment: str, text: str = "") -> dict[str, Any]: ...
+
+    def move_page(self, from_title: str, to_title: str, reason: str, *, leave_redirect: bool = True) -> None: ...
 
     def safe_create_page(self, title: str, content: str, start_timestamp: str, summary: str | None = None) -> int: ...
 
@@ -129,11 +132,13 @@ def execute(
 ) -> None:
     """Carry out a plan so that no title that a page shows goes without a picture for long.
 
-    Uploads come first. Then every title that should redirect to a picture's
+    Moves come first, and each is followed at once by the redirects that named
+    its old title, so they stop leading through a redirect within seconds.
+    Then uploads. Then every other title that should redirect to a picture's
     file does, which also takes the old titles that redirect to a copy off it
-    before the copy goes. Then each copy is deleted and its title redirects to the
-    picture's file at once. The orphans go last. A title whose picture's file
-    could not be uploaded is left as it is.
+    before the copy goes. Then each copy is deleted and its title redirects to
+    the picture's file at once. The orphans go last. A title whose picture's
+    file could not be moved or uploaded is left as it is.
 
     Raises:
         ValueError: If the plan deletes and no deleter is given.
@@ -141,6 +146,20 @@ def execute(
     if plan.deletes and deleter is None:
         raise ValueError("The plan deletes copies or orphans, which needs the deletion account")
     missing_files: set[str] = set()
+    followers: dict[str, list[PlannedTitle]] = {}
+    for item in plan.titles:
+        if item.verdict == "redirect" and item.redirect_target is not None:
+            followers.setdefault(item.redirect_target, []).append(item)
+    followed: set[str] = set()
+    for item in plan.titles:
+        if item.verdict != "move":
+            continue
+        if not move(item, writer, record, summary):
+            missing_files.add(item.title)
+            continue
+        for follower in followers.get(str(item.source), ()):
+            _redirect(follower, writer, record, summary)
+            followed.add(follower.title)
     for item in plan.titles:
         if item.verdict in ("create", "update"):
             uploaded = _upload(item, catalog, writer, record)
@@ -158,7 +177,7 @@ def execute(
         return True
 
     for item in plan.titles:
-        if item.verdict == "redirect" and has_file(item):
+        if item.verdict == "redirect" and item.title not in followed and has_file(item):
             _redirect(item, writer, record, summary)
     if deleter is None:
         return
@@ -192,6 +211,34 @@ def _describe(item: PlannedTitle, catalog: Catalog, writer: PublishWriter, recor
 def _current(writer: PublishWriter, title: str) -> MediaWikiFileVersion | None:
     versions = writer.get_file_versions(title, limit=1)
     return versions[0] if versions else None
+
+
+def move(item: PlannedTitle, writer: PublishWriter, record: RunRecord, summary: str) -> bool:
+    """Move the file at ``item.source`` to ``item.title`` with its history, leaving a redirect at the old title.
+
+    The move goes ahead only while the old title holds the planned file and the
+    new title has no page. Returns whether the new title holds the file.
+    """
+    source = str(item.source)
+    current = _current(writer, source)
+    if current is None or current.sha1 != item.source_sha1:
+        record.add(_skipped(item, "move", f"the file at {source} changed since the plan"))
+        return False
+    page = writer.get_page_snapshots([item.title])[item.title]
+    if page.source_text is not None or _current(writer, item.title) is not None:
+        record.add(_skipped(item, "move", "the title gained a page since the plan"))
+        return False
+    try:
+        writer.move_page(source, item.title, f"{summary}: {item.reason}")
+    except MediaWikiAPIError as error:
+        record.add(_skipped(item, "move", f"the move failed: {error}"))
+        return False
+    moved = _current(writer, item.title)
+    record.add({"title": item.title, "action": "move", "done": True, "source": source, "sha1": item.source_sha1})
+    if moved is None or moved.sha1 != item.source_sha1:
+        record.add(_skipped(item, "move", "the moved file does not have the planned SHA-1"))
+        return False
+    return True
 
 
 def _upload(item: PlannedTitle, catalog: Catalog, writer: PublishWriter, record: RunRecord) -> bool:
@@ -361,7 +408,9 @@ def revert(
     file's latest version is still the run's. A deleted copy is restored, and
     its description replaces the redirect that the run wrote at its title. An
     orphan is restored with its redirects. A changed redirect gets its earlier
-    text back. Created files and created redirects stay and are listed.
+    text back. Created files and created redirects stay and are listed. A moved
+    file goes back to its old title without a redirect, after the redirects
+    that named the old title name it again, so no redirect is left behind.
 
     Raises:
         ValueError: If the run deleted something and no deleter is given.
@@ -387,6 +436,25 @@ def revert(
             _restore_description(entry, writer, record, summary)
         elif action in ("create", "redirect"):
             record.add({"title": title, "action": f"keep {action}", "done": False, "reason": "the run created it"})
+    for entry in reversed(done):
+        if entry["action"] == "move":
+            _revert_move(entry, writer, record, summary)
+
+
+def _revert_move(entry: dict[str, Any], writer: PublishWriter, record: RunRecord, summary: str) -> None:
+    """Move a moved file back over the redirect that its move left, while both are as the run left them."""
+    title, source = str(entry["title"]), str(entry["source"])
+    current = _current(writer, title)
+    left = writer.get_page_snapshots([source])[source].source_text
+    if current is None or current.sha1 != entry["sha1"] or not _same_title(_redirect_target(left or "") or "", title):
+        record.add({"title": title, "action": "revert move", "done": False, "reason": "the file changed since"})
+        return
+    try:
+        writer.move_page(title, source, summary, leave_redirect=False)
+    except MediaWikiAPIError as error:
+        record.add({"title": title, "action": "revert move", "done": False, "reason": str(error)})
+        return
+    record.add({"title": title, "action": "revert move", "done": True, "source": source})
 
 
 def _revert_update(

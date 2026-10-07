@@ -368,15 +368,18 @@ def publish(
     """Publish the picture catalog to the wiki, one file per picture.
 
     Lists the wiki's files once and gives every file title that a page names a
-    verdict: create, update, unchanged, redirect, retire, or conflict. Every
-    other title of a picture redirects to its file, and a copy that the
-    project uploaded is deleted. A file whose latest version someone else
-    uploaded is a conflict and stays. The bot's files that nothing produces and
-    no page shows are orphans and are deleted too. Writes the plan and contact
-    sheets of every changing picture to images/publish/<stamp>/. With the root
-    --dry-run option, stops there. Otherwise uploads with the bot account,
-    deletes with the deletion account, checks each title again first, and
-    records every write in run.json.
+    verdict: create, update, unchanged, move, redirect, retire, describe, or
+    conflict. Every other title of a picture redirects to its file, and a copy
+    that the project uploaded is deleted. A file of the project that holds a
+    picture at an old title moves to the picture's title with its history,
+    and the redirects that named the old title follow it. A file whose latest
+    version someone else uploaded is a conflict and stays. The bot's files that
+    nothing produces and no page shows are orphans and are deleted too. Writes
+    the plan and contact sheets of every changing picture to
+    images/publish/<stamp>/. With the root --dry-run option, stops there.
+    Otherwise moves and uploads with the bot account, deletes with the
+    deletion account, checks each title again first, and records every write
+    in run.json.
 
     Examples:
         erenshor --dry-run images publish
@@ -432,6 +435,14 @@ def publish(
 
     counts = plan.counts()
     console.print(", ".join(f"{count} {verdict}" for verdict, count in counts.items()))
+    moves = [item for item in plan.titles if item.verdict == "move"]
+    if moves:
+        table = Table(title="Moves: each file keeps its history, and its old title redirects to it")
+        table.add_column("Old title", style="dim")
+        table.add_column("New title", style="cyan")
+        for item in moves:
+            table.add_row(str(item.source), item.title)
+        console.print(table)
     conflicts = [item for item in plan.titles if item.verdict == "conflict"]
     if conflicts:
         table = Table(title="Conflicts: the bot leaves these titles alone")

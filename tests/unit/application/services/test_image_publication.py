@@ -186,6 +186,19 @@ class FakeWiki:
         self._wrote()
         return self.revisions[title]
 
+    def move_page(self, from_title: str, to_title: str, reason: str, *, leave_redirect: bool = True) -> None:
+        """Move a file and its page; MediaWiki moves over a page only when it is a one-revision redirect back."""
+        if to_title in self.pages and not (
+            _target(self.pages[to_title]) == from_title and self.revisions[to_title] == 1
+        ):
+            raise MediaWikiEditError(f"{to_title} exists")
+        self.files[to_title] = self.files.pop(from_title)
+        self.pages[to_title] = self.pages.pop(from_title)
+        self.revisions[to_title] = self.revisions.pop(from_title)
+        if leave_redirect:
+            self._write_page(from_title, f"#REDIRECT [[{to_title}]]")
+        self._wrote()
+
     # Deletions of the administrator
 
     def delete_page(self, title: str, reason: str) -> None:
@@ -597,3 +610,70 @@ def test_a_title_shows_the_file_that_its_redirect_names() -> None:
 
     assert live.shown("File:Summoned: Treant.png") is file
     assert live.shown("File:Faith.png") is None
+
+
+def _antidote(pictures: _Catalog, wiki: FakeWiki) -> None:
+    """A spell's file at its plain title, with an item's old title redirecting to it, and the two role titles."""
+    pictures.add(SCROLL, "File:Spell Scroll Antidote icon.png", kind="item")
+    pictures.add(SCROLL, "File:Antidote icon.png", kind="spell")
+    wiki.put_file("File:Antidote.png", _png((40, 200, 40, 128)))
+    wiki.put_file("File:Antidote.png", SCROLL)
+    wiki.put_redirect("File:Spell Scroll Antidote.png", "File:Antidote.png")
+
+
+def test_a_file_whose_title_changes_moves_with_its_history_and_its_redirects_follow(setup: Any) -> None:
+    pictures, wiki, cache, tmp_path = setup
+    _antidote(pictures, wiki)
+    wiki.watched = ("File:Antidote.png",)
+    catalog = pictures.build()
+
+    plan = _plan(catalog, wiki, cache)
+    execute(plan, catalog, wiki, wiki, RunRecord(tmp_path / "run"), "Publish")
+
+    assert _verdicts(plan) == {
+        "File:Antidote icon.png": "move",
+        "File:Spell Scroll Antidote icon.png": "redirect",
+        "File:Spell Scroll Antidote.png": "redirect",
+    }
+    assert (plan.orphans, wiki.uploads) == ((), 0)
+    assert len(wiki.files["File:Antidote icon.png"]) == 2
+    for title in ("File:Antidote.png", "File:Spell Scroll Antidote.png", "File:Spell Scroll Antidote icon.png"):
+        assert wiki.pages[title] == "#REDIRECT [[File:Antidote icon.png]]"
+    assert wiki.dark == set()
+    assert set(_verdicts(_plan(catalog, wiki, cache)).values()) == {"unchanged"}
+
+
+def test_the_file_that_most_redirects_name_moves_and_another_copy_goes(setup: Any) -> None:
+    pictures, wiki, cache, tmp_path = setup
+    _antidote(pictures, wiki)
+    wiki.put_file("File:Antidote (copy).png", SCROLL)
+    catalog = pictures.build()
+
+    plan = _plan(catalog, wiki, cache)
+    execute(plan, catalog, wiki, wiki, RunRecord(tmp_path / "run"), "Publish")
+
+    assert [item.source for item in plan.titles if item.verdict == "move"] == ["File:Antidote.png"]
+    assert [orphan.title for orphan in plan.orphans] == ["File:Antidote (copy).png"]
+    assert "File:Antidote (copy).png" in wiki.archive
+
+
+def test_an_editors_file_that_holds_the_picture_is_never_moved(setup: Any) -> None:
+    pictures, wiki, cache, _ = setup
+    faith = _png((250, 200, 250, 255))
+    pictures.add(faith, "File:Faith render.png", kind="character")
+    wiki.put_file("File:Faith.png", faith, user="Ulor", comment="")
+
+    assert _verdicts(_plan(pictures.build(), wiki, cache)) == {"File:Faith render.png": "create"}
+
+
+def test_a_reverted_move_puts_the_file_back_without_a_redirect_and_restores_its_redirects(setup: Any) -> None:
+    pictures, wiki, cache, tmp_path = setup
+    _antidote(pictures, wiki)
+    run = _run(pictures.build(), wiki, cache, tmp_path / "run")
+
+    revert(RunRecord.load(run.directory), wiki, wiki, RunRecord(tmp_path / "revert"), OWNERS, "Revert")
+
+    assert len(wiki.files["File:Antidote.png"]) == 2
+    assert "File:Antidote icon.png" not in wiki.pages
+    assert wiki.pages["File:Spell Scroll Antidote.png"] == "#REDIRECT [[File:Antidote.png]]"
+    assert wiki.shows_a_picture("File:Spell Scroll Antidote.png")

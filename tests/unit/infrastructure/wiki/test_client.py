@@ -1813,6 +1813,24 @@ class TestMediaWikiClientSemanticLinkReads:
         assert api.requests[1].data["assert"] == "user"
         assert api.requests[-1].data["token"] == "fresh"
 
+    def test_a_move_sends_noredirect_only_without_a_redirect_and_fails_unless_the_answer_names_the_target(
+        self,
+    ) -> None:
+        client, api = _mock_client(
+            [
+                {"query": {"tokens": {"csrftoken": "token"}}},
+                {"move": {"from": "File:Faith.png", "to": "File:Faith render.png"}},
+                {"move": {"from": "File:Faith render.png", "to": "File:Elsewhere.png"}},
+            ],
+            clock=MockClock(),
+        )
+
+        client.move_page("File:Faith.png", "File:Faith_render.png", "Rename")
+        assert "noredirect" not in api.requests[-1].data
+        with pytest.raises(MediaWikiAPIError, match="Unexpected move response"):
+            client.move_page("File:Faith render.png", "File:Faith.png", "Revert", leave_redirect=False)
+        assert api.requests[-1].data["noredirect"] == "1"
+
     def test_file_versions_come_newest_first_with_their_urls(self) -> None:
         version = {"sha1": "new", "user": "WoWBot", "comment": "Build 2", "timestamp": "2026-10-07T00:00:00Z"}
         older = {"sha1": "old", "user": "Ulor", "comment": "", "timestamp": "2026-01-01T00:00:00Z"}
