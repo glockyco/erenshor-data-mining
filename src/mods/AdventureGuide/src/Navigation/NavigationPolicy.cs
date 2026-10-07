@@ -23,6 +23,10 @@ public record struct FixedPositionTargetSpec(
 /// <summary>Pure policies used to resolve fixed-position navigation targets.</summary>
 public static class NavigationPolicy
 {
+    /// <summary>Zone travel ends at the destination, not the departure line.</summary>
+    public static bool IsCrossZone(string destinationScene, string currentScene) =>
+        !string.Equals(destinationScene, currentScene, StringComparison.OrdinalIgnoreCase);
+
     /// <summary>
     /// Resolve a fixed-position step to its loader-neutral target description.
     /// </summary>

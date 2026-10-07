@@ -411,33 +411,15 @@ public sealed class NavigationController
         if (zoneKey == null)
             return false;
 
-        var playerPos = GetPlayerPosition() ?? Vector3.zero;
-        var zoneLine = FindClosestZoneLine(zoneKey, currentScene, playerPos);
-
-        if (zoneLine != null)
-        {
-            Target = MakeTarget(
-                NavigationTarget.Kind.ZoneLine,
-                new Vector3(zoneLine.X, zoneLine.Y, zoneLine.Z),
-                $"To: {zoneLine.DestinationDisplay}",
-                currentScene,
-                questDBName,
-                stepOrder,
-                sourceId
-            );
-        }
-        else
-        {
-            Target = MakeTarget(
-                NavigationTarget.Kind.Zone,
-                Vector3.zero,
-                displayName,
-                scene,
-                questDBName,
-                stepOrder,
-                sourceId
-            );
-        }
+        Target = MakeTarget(
+            NavigationTarget.Kind.Zone,
+            Vector3.zero,
+            displayName,
+            scene,
+            questDBName,
+            stepOrder,
+            sourceId
+        );
         return true;
     }
 
@@ -757,35 +739,16 @@ public sealed class NavigationController
         if (destScene == null)
             return false;
 
-        // Try direct zone line first (same-scene or adjacent zone)
-        var playerPos = GetPlayerPosition() ?? Vector3.zero;
-        var zoneLine = FindClosestZoneLine(destZoneKey, currentScene, playerPos);
-
-        if (zoneLine != null)
-        {
-            // Direct accessible route exists
-            Target = MakeTarget(
-                NavigationTarget.Kind.ZoneLine,
-                new Vector3(zoneLine.X, zoneLine.Y, zoneLine.Z),
-                $"To: {zoneLine.DestinationDisplay}",
-                currentScene,
-                quest.RuntimeKey,
-                step.Order
-            );
-        }
-        else
-        {
-            // No direct zone line — set target in the destination zone and let
-            // UpdateCrossZoneRouting handle multi-hop pathfinding via ZoneGraph.
-            Target = MakeTarget(
-                NavigationTarget.Kind.Zone,
-                Vector3.zero,
-                step.TargetName ?? destScene,
-                destScene,
-                quest.RuntimeKey,
-                step.Order
-            );
-        }
+        // The destination remains authoritative after arrival; zone lines are
+        // only intermediate waypoints, including for adjacent destinations.
+        Target = MakeTarget(
+            NavigationTarget.Kind.Zone,
+            Vector3.zero,
+            step.TargetName ?? destScene,
+            destScene,
+            quest.RuntimeKey,
+            step.Order
+        );
         return true;
     }
 

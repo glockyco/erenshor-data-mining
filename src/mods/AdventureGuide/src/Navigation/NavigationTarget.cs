@@ -77,5 +77,5 @@ public sealed class NavigationTarget
 
     /// <summary>True when the target is in a different scene than the player.</summary>
     public bool IsCrossZone(string currentScene) =>
-        !string.Equals(Scene, currentScene, System.StringComparison.OrdinalIgnoreCase);
+        NavigationPolicy.IsCrossZone(Scene, currentScene);
 }
