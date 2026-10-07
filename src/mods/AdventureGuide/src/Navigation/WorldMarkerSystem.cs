@@ -38,6 +38,11 @@ public sealed class WorldMarkerSystem
         System.StringComparer.OrdinalIgnoreCase
     );
     private string _lastScene = "";
+
+    // Set by every scene load, including a reload of the scene already shown
+    // (death respawn or recall inside the bind zone). The scene name alone
+    // cannot detect such a reload, but it replaces every SpawnPoint and NPC.
+    private bool _sceneLoaded = true;
     private bool _enabled;
     private bool _configDirty;
     private bool _spawnDirty;
@@ -95,7 +100,7 @@ public sealed class WorldMarkerSystem
         // ensuring fresh corpse/chest data regardless of marker visibility.
 
         int hour = GameData.Time.hour;
-        bool sceneChanged = currentScene != _lastScene;
+        bool sceneChanged = _sceneLoaded || currentScene != _lastScene;
         bool hourChanged = hour != _lastHour;
         bool stateChanged = _state.Version != _lastStateVersion;
         bool needsRebuild =
@@ -110,7 +115,10 @@ public sealed class WorldMarkerSystem
         {
             _lastScene = currentScene;
             if (sceneChanged)
+            {
+                _sceneLoaded = false;
                 _bridge.Rebuild();
+            }
             RebuildMarkers(currentScene);
         }
 
@@ -123,11 +131,17 @@ public sealed class WorldMarkerSystem
     public void MarkSpawnDirty() => _spawnDirty = true;
 
     /// <summary>
-    /// Deactivate all markers on scene load. Prevents NamePlate components
-    /// from referencing destroyed cameras on menu scenes. Markers are
-    /// rebuilt on the next Update in gameplay scenes.
+    /// Drop every marker on scene load. The loaded scene replaces all
+    /// SpawnPoints and NPCs the markers reference, so the next gameplay
+    /// Update re-indexes the scene before it builds markers again.
     /// </summary>
-    public void OnSceneLoaded() => _pool.DeactivateAll();
+    public void OnSceneLoaded()
+    {
+        _pool.DeactivateAll();
+        _markers.Clear();
+        _intentIndex.Clear();
+        _sceneLoaded = true;
+    }
 
     public void Destroy()
     {

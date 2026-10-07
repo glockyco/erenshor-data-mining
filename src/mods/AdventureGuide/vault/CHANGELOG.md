@@ -1,5 +1,9 @@
 # Changelog
 
+## v2026.1007.0
+
+- Fix world markers showing living NPCs as dead after the current zone reloads, for example when you respawn or recall inside your bind zone.
+
 ## v2026.718.0
 
 - Fix error spam in the log after returning to the main menu.
