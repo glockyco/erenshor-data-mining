@@ -100,7 +100,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
             _trackerState = new TrackerState();
             _trackerState.LoadFromConfig(_config);
 
-            var uiScale = _config.UiScale.Value >= 0f ? _config.UiScale.Value : 1f;
+            var uiScale = UiScalePolicy.Resolve(_config.UiScale.Value, Screen.height);
             _config.ResolvedUiScale = uiScale;
             _imgui = new ImGuiRenderer(_logger) { UiScale = uiScale, IniPath = _iniPath };
             if (!_imgui.Init())
@@ -352,7 +352,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         if (_config!.UiScale.Value < 0f && scene.name != "Menu" && scene.name != "LoadScene")
-            _config.UiScale.Value = DetectUiScale();
+            OnUiScaleChanged(this, EventArgs.Empty);
         CameraCache.Invalidate();
         GameWindowOverlap.Reset();
         _inGameplay = scene.name != "Menu" && scene.name != "LoadScene";
@@ -382,9 +382,9 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
 
     private void OnUiScaleChanged(object sender, EventArgs e)
     {
-        var scale = _config!.UiScale.Value;
-        if (scale < 0f)
-            scale = DetectUiScale();
+        var scale = UiScalePolicy.Resolve(_config!.UiScale.Value, Screen.height);
+        if (scale == _config.ResolvedUiScale)
+            return;
         _config.ResolvedUiScale = scale;
         _config.LayoutResetGeneration++;
         _imgui?.SetScale(scale);
@@ -525,11 +525,5 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
         DebugAPI.Entities = null;
         DebugAPI.GroundPath = null;
         DebugAPI.Markers = null;
-    }
-
-    private static float DetectUiScale()
-    {
-        const float referenceHeight = 1080f;
-        return Mathf.Clamp(Screen.height / referenceHeight, 0.5f, 4f);
     }
 }
