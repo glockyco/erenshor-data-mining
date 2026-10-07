@@ -113,11 +113,11 @@ public sealed class QuestListPanel
             _filter.FilterMode = (QuestFilterMode)_filterIndex;
 
         ImGui.SameLine();
-        DrawSortButton("Az", QuestSortMode.Alphabetical, "Sort alphabetically");
+        DrawSortButton("Az##sort", QuestSortMode.Alphabetical, "Sort alphabetically");
         ImGui.SameLine(0, ImGui.GetStyle().ItemSpacing.X * 0.25f);
-        DrawSortButton("Lv", QuestSortMode.ByLevel, "Sort by level");
+        DrawSortButton("Lv##sort", QuestSortMode.ByLevel, "Sort by level");
         ImGui.SameLine(0, ImGui.GetStyle().ItemSpacing.X * 0.25f);
-        DrawSortButton("Zn", QuestSortMode.ByZone, "Sort by zone");
+        DrawSortButton("Zn##sort", QuestSortMode.ByZone, "Sort by zone");
 
         ImGui.Spacing();
     }
@@ -128,7 +128,7 @@ public sealed class QuestListPanel
         if (active)
             ImGui.PushStyleColor(ImGuiCol.Button, Theme.Accent);
 
-        if (ImGui.SmallButton(label + "##sort"))
+        if (ImGui.SmallButton(label))
             _filter.SortMode = mode;
 
         if (active)
