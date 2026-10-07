@@ -20,6 +20,10 @@ public sealed class QuestListPanel
     private string _searchBuf = string.Empty;
     private readonly List<QuestEntry> _sorted = new();
 
+    // Row label and ImGui ID per quest. Both derive from static guide data,
+    // so each is formatted once instead of on every frame for every row.
+    private readonly Dictionary<QuestEntry, RowText> _rowText = new();
+
     // Dirty-checking: skip re-filter/sort when nothing changed
     private int _lastFilterVersion = -1;
     private int _lastStateVersion = -1;
@@ -214,8 +218,9 @@ public sealed class QuestListPanel
             _sorted.Sort(CompareQuests);
         }
 
+        float markerWidth = QuestListMarkerColumnWidth();
         foreach (var quest in _sorted)
-            DrawQuestEntry(quest);
+            DrawQuestEntry(quest, markerWidth);
 
         return _sorted.Count;
     }
@@ -345,7 +350,7 @@ public sealed class QuestListPanel
         return false;
     }
 
-    private void DrawQuestEntry(QuestEntry quest)
+    private void DrawQuestEntry(QuestEntry quest, float markerWidth)
     {
         bool isSelected = string.Equals(
             quest.RuntimeKey,
@@ -358,11 +363,7 @@ public sealed class QuestListPanel
             ImGui.PushStyleColor(ImGuiCol.Button, Theme.Accent);
 
         bool isTracked = _tracker.Enabled && _tracker.IsTracked(quest.RuntimeKey);
-        bool isRepeatable = quest.Flags is { Repeatable: true };
-        string suffix = isRepeatable ? " [R]" : "";
-        string label = quest.LevelEstimate?.Recommended is int lvl
-            ? $"{lvl, 2}  {quest.DisplayName}{suffix}"
-            : $"    {quest.DisplayName}{suffix}";
+        var text = GetRowText(quest);
 
         ImGui.PushStyleColor(ImGuiCol.Text, statusColor);
 
@@ -373,12 +374,7 @@ public sealed class QuestListPanel
             ImGui.GetTextLineHeight()
         );
         ImGui.SetCursorPos(new Vector2(0f, contentStart.Y));
-        bool clicked = ImGui.Selectable(
-            "##" + quest.RuntimeKey,
-            isSelected,
-            ImGuiSelectableFlags.None,
-            rowSize
-        );
+        bool clicked = ImGui.Selectable(text.Id, isSelected, ImGuiSelectableFlags.None, rowSize);
         bool rowHovered = ImGui.IsItemHovered();
         rowAfter = ImGui.GetCursorPos();
 
@@ -386,14 +382,13 @@ public sealed class QuestListPanel
             _state.SelectQuest(quest);
 
         var markerStart = QuestListMarkerStartX(contentStart.X);
-        var markerWidth = QuestListMarkerColumnWidth();
         if (isTracked)
         {
             ImGui.SetCursorPos(new Vector2(markerStart, contentStart.Y));
             ImGui.TextUnformatted(QuestTrackedMarker);
         }
         ImGui.SetCursorPos(new Vector2(markerStart + markerWidth, contentStart.Y));
-        ImGui.TextUnformatted(label);
+        ImGui.TextUnformatted(text.Label);
         ImGui.SetCursorPos(rowAfter);
 
         // Tooltip on hover: zone + status + level
@@ -421,4 +416,30 @@ public sealed class QuestListPanel
     }
 
     private uint GetQuestColor(QuestEntry quest) => Theme.GetQuestColor(_state, quest);
+
+    private RowText GetRowText(QuestEntry quest)
+    {
+        if (_rowText.TryGetValue(quest, out var text))
+            return text;
+
+        string suffix = quest.Flags is { Repeatable: true } ? " [R]" : "";
+        string label = quest.LevelEstimate?.Recommended is int lvl
+            ? $"{lvl, 2}  {quest.DisplayName}{suffix}"
+            : $"    {quest.DisplayName}{suffix}";
+        text = new RowText(label, "##" + quest.RuntimeKey);
+        _rowText[quest] = text;
+        return text;
+    }
+
+    private readonly struct RowText
+    {
+        public readonly string Label;
+        public readonly string Id;
+
+        public RowText(string label, string id)
+        {
+            Label = label;
+            Id = id;
+        }
+    }
 }

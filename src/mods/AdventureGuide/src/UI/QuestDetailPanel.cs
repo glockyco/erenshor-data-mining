@@ -18,6 +18,19 @@ public sealed class QuestDetailPanel
     private readonly TrackerState _tracker;
     private readonly GuideConfig _config;
 
+    // Rebuilt only when selection or quest/inventory/workflow state changes.
+    // Pre-cache closed trees too, so opening a tree does not allocate.
+    private readonly Dictionary<QuestEntry, QuestDisplayCache> _questDisplay = new();
+    private readonly HashSet<string> _visited = new();
+    private readonly List<string> _acquisitionLines = new();
+    private readonly List<string> _completionLines = new();
+    private readonly List<(string Text, bool Secondary)> _rewardLines = new();
+    private readonly List<(Prerequisite Prerequisite, string Label)> _prerequisites = new();
+    private HashSet<string>? _stepTreeQuestKeys;
+    private string? _cachedQuestKey;
+    private int _cachedVersion = -1;
+    private string? _levelZoneLine;
+
     /// <summary>Max sub-quest nesting depth to prevent runaway recursion.</summary>
     private const int MaxSubQuestDepth = 5;
 
@@ -38,6 +51,13 @@ public sealed class QuestDetailPanel
 
     public void Draw()
     {
+        if (_cachedQuestKey != _state.SelectedQuestKey || _cachedVersion != _state.Version)
+        {
+            _cachedQuestKey = _state.SelectedQuestKey;
+            _cachedVersion = _state.Version;
+            RebuildDisplayCache();
+        }
+
         if (_state.SelectedQuestKey == null)
         {
             ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
@@ -96,55 +116,19 @@ public sealed class QuestDetailPanel
         DrawLevelZoneLine(quest);
 
         // All acquisition sources (not just dialog)
-        if (quest.Acquisition != null)
+        foreach (var line in _acquisitionLines)
         {
-            foreach (var acq in quest.Acquisition)
-            {
-                ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-                string? line = acq.Method switch
-                {
-                    "dialog" when acq.SourceName != null => $"Given by: {acq.SourceName}",
-                    "item_read" when acq.SourceName != null => $"Read: {acq.SourceName}",
-                    "zone_entry" when acq.SourceName != null => $"Enter: {acq.SourceName}",
-                    "quest_chain" when acq.SourceName != null => $"Chain from: {acq.SourceName}",
-                    _ => acq.SourceName != null ? $"From: {acq.SourceName}" : null,
-                };
-                if (line != null)
-                {
-                    if (acq.ZoneName != null && acq.Method == "dialog")
-                        line += $" ({acq.ZoneName})";
-                    ImGui.Text(line);
-                }
-                ImGui.PopStyleColor();
-            }
+            ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+            ImGui.Text(line);
+            ImGui.PopStyleColor();
         }
 
         // Turn-in location
-        if (quest.Completion != null)
+        foreach (var line in _completionLines)
         {
-            foreach (var comp in quest.Completion)
-            {
-                if (comp.SourceName == null && comp.ZoneName == null)
-                    continue;
-                ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-                string? turnIn = comp.Method switch
-                {
-                    "item_turnin" or "dialog" when comp.SourceName != null =>
-                        $"Turn in to: {comp.SourceName}",
-                    "zone" when comp.SourceName != null => $"Complete at: {comp.SourceName}",
-                    _ when comp.SourceName != null => $"Complete: {comp.SourceName}",
-                    _ => null,
-                };
-                if (turnIn == null)
-                {
-                    ImGui.PopStyleColor();
-                    continue;
-                }
-                if (comp.ZoneName != null && comp.Method is "item_turnin" or "dialog")
-                    turnIn += $" ({comp.ZoneName})";
-                ImGui.Text(turnIn);
-                ImGui.PopStyleColor();
-            }
+            ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+            ImGui.Text(line);
+            ImGui.PopStyleColor();
         }
 
         // Description
@@ -159,34 +143,13 @@ public sealed class QuestDetailPanel
         ImGui.Spacing();
     }
 
-    private static void DrawLevelZoneLine(QuestEntry quest)
+    private void DrawLevelZoneLine(QuestEntry quest)
     {
-        int? level = quest.LevelEstimate?.Recommended;
-        string? zone = quest.ZoneContext;
-        bool repeatable = quest.Flags is { Repeatable: true };
-
-        if (level == null && zone == null && !repeatable)
+        if (_levelZoneLine == null)
             return;
 
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-
-        string meta = "";
-        if (level != null)
-            meta = $"Lv {level}";
-        if (zone != null)
-        {
-            if (meta.Length > 0)
-                meta += "  \u00b7  ";
-            meta += zone;
-        }
-        if (repeatable)
-        {
-            if (meta.Length > 0)
-                meta += "  \u00b7  ";
-            meta += "Repeatable";
-        }
-
-        ImGui.Text(meta);
+        ImGui.Text(_levelZoneLine);
 
         // Tooltip: show all steps with their levels, mark the driving step
         if (ImGui.IsItemHovered() && quest.Steps is { Count: > 0 })
@@ -236,9 +199,10 @@ public sealed class QuestDetailPanel
         if (!ImGui.CollapsingHeader("Objectives", ImGuiTreeNodeFlags.DefaultOpen))
             return;
 
-        var visited = new HashSet<string> { quest.StableKey };
+        _visited.Clear();
+        _visited.Add(quest.StableKey);
         ImGui.Indent(Theme.IndentWidth);
-        DrawSteps(quest, visited);
+        DrawSteps(quest, _visited);
         ImGui.Unindent(Theme.IndentWidth);
     }
 
@@ -254,7 +218,7 @@ public sealed class QuestDetailPanel
 
         ImGui.PushID(quest.RuntimeKey);
 
-        int currentStepIndex = StepProgress.GetCurrentStepIndex(quest, _state, _data);
+        int currentStepIndex = _questDisplay[quest].CurrentStepIndex;
         string? prevOrGroup = null;
 
         for (int i = 0; i < quest.Steps.Count; i++)
@@ -305,7 +269,7 @@ public sealed class QuestDetailPanel
             StepState.Current => Theme.QuestActive,
             _ => Theme.TextPrimary,
         };
-        string text = $"{step.Order}. {step.Description}";
+        var display = _questDisplay[quest].Steps[step];
 
         // Collect steps: show have/need count and override color
         // when items are in hand, regardless of step pointer position.
@@ -315,9 +279,7 @@ public sealed class QuestDetailPanel
             && step.Quantity.HasValue
         )
         {
-            int have = _state.CountItem(step.TargetKey);
-            text += $" ({have}/{step.Quantity})";
-            if (have >= step.Quantity.Value)
+            if (display.HasRequiredQuantity)
                 color = Theme.QuestCompleted;
         }
 
@@ -329,31 +291,13 @@ public sealed class QuestDetailPanel
                 color = Theme.QuestCompleted;
         }
 
-        // Step suffix: zone (for non-collect) and level, dot-separated
-        if (step.LevelEstimate?.Recommended is int stepLvl)
-        {
-            // Non-collect steps show zone since there's no source list below
-            if (
-                (step.Action is not "collect" and not "obtain" and not "read")
-                && step.LevelEstimate.Factors is { Count: > 0 }
-            )
-                text += $"  \u00b7  {step.LevelEstimate.Factors[0].Name}";
-            text += $"  \u00b7  Lv {stepLvl}";
-        }
-        else if (
-            (step.Action is not "collect" and not "obtain" and not "read")
-            && step.LevelEstimate?.Factors is { Count: > 0 }
-        )
-        {
-            // Zone without level
-            text += $"  \u00b7  {step.LevelEstimate.Factors[0].Name}";
-        }
+        // Step suffix (zone and level) is cached with the have/need count.
 
         // [NAV] button first (fixed width), then step text
         DrawNavButton(step, quest);
 
         ImGui.PushStyleColor(ImGuiCol.Text, color);
-        ImGui.Text(text);
+        ImGui.Text(display.Text);
         ImGui.PopStyleColor();
 
         // Drop/vendor sources and tips for collect steps
@@ -361,7 +305,7 @@ public sealed class QuestDetailPanel
 
         // Sub-quest tree for complete_quest steps: show the target
         // quest's steps inline so the player sees what they need to do.
-        DrawSubQuestSteps(step, visited);
+        DrawSubQuestSteps(step, quest, visited);
 
         // Show alternative zone lines when cross-zone navigating this step
         if (_nav.IsNavigating(quest.RuntimeKey, step.Order))
@@ -381,35 +325,17 @@ public sealed class QuestDetailPanel
         if (step.TargetKey == null)
             return;
 
-        // Check if this step has a navigable target with known position.
         // Character targets need spawn data; item targets need at least one
-        // source with spawn data or a scene.
-        bool navigable;
-        if (step.TargetType == "item")
-        {
-            var item = FindRequiredItem(quest, step);
-            navigable = item?.Sources?.Exists(s => HasNavigableSource(s)) == true;
-        }
-        else if (step.TargetType == "character")
-        {
-            navigable = step.TargetKey != null && _data.CharacterSpawns.ContainsKey(step.TargetKey);
-        }
-        else if (step.TargetType == "zone")
-        {
-            navigable = step.ZoneName != null || step.TargetKey != null;
-        }
-        else
-        {
-            navigable = false;
-        }
-
+        // available source with spawn data or a scene.
+        var display = _questDisplay[quest].Steps[step];
+        bool navigable = display.Navigable;
         bool isActive = _nav.IsNavigating(quest.RuntimeKey, step.Order);
 
         if (!navigable)
         {
             ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
             ImGui.PushStyleVar(ImGuiStyleVar.Alpha, 0.4f);
-            ImGui.SmallButton($"[NAV]##{step.Order}");
+            ImGui.SmallButton(display.NavLabel);
             ImGui.PopStyleVar();
             ImGui.PopStyleColor();
 
@@ -427,7 +353,7 @@ public sealed class QuestDetailPanel
         if (isActive)
             ImGui.PushStyleColor(ImGuiCol.Button, Theme.QuestActive);
 
-        if (ImGui.SmallButton($"[NAV]##{step.Order}"))
+        if (ImGui.SmallButton(display.NavLabel))
         {
             if (isActive)
                 _nav.Clear();
@@ -456,6 +382,7 @@ public sealed class QuestDetailPanel
     /// Show obtainability sources sorted by level (easiest first), with levels
     /// and counts inline. Sources arrive pre-sorted and pre-aggregated from
     /// the pipeline. Collapses beyond 4 sources behind a TreeNode.
+    /// Available sources and their display labels are cached per state version.
     /// </summary>
     private void DrawStepSources(QuestStep step, QuestEntry quest, HashSet<string> visited)
     {
@@ -464,15 +391,15 @@ public sealed class QuestDetailPanel
             || step.TargetName == null
         )
         {
-            DrawTips(step);
+            DrawTips(step, quest);
             return;
         }
 
-        var item = FindRequiredItem(quest, step);
-        var visibleSources = item?.Sources?.FindAll(IsSourceAvailable);
-        if (visibleSources == null || visibleSources.Count == 0)
+        var display = _questDisplay[quest].Steps[step];
+        var visibleSources = display.VisibleSources;
+        if (visibleSources.Count == 0)
         {
-            DrawTips(step);
+            DrawTips(step, quest);
             return;
         }
 
@@ -487,11 +414,7 @@ public sealed class QuestDetailPanel
 
         if (visibleSources.Count > maxVisible)
         {
-            int remaining = visibleSources.Count - maxVisible;
-            int minLv = visibleSources[maxVisible].Level ?? 0;
-            int maxLv = visibleSources[^1].Level ?? minLv;
-            string range = minLv == maxLv ? $"Lv {minLv}" : $"Lv {minLv}-{maxLv}";
-            if (ImGui.TreeNode($"{remaining} more sources ({range})##{step.Order}"))
+            if (ImGui.TreeNode(display.MoreSourcesLabel!))
             {
                 for (int i = maxVisible; i < visibleSources.Count; i++)
                     DrawSource(visibleSources[i], quest, step, visited);
@@ -502,7 +425,7 @@ public sealed class QuestDetailPanel
         ImGui.PopStyleColor();
         ImGui.Unindent(Theme.IndentWidth);
 
-        DrawTips(step);
+        DrawTips(step, quest);
     }
 
     private void DrawZoneLineAlternatives(
@@ -590,28 +513,8 @@ public sealed class QuestDetailPanel
         if (!IsSourceAvailable(src))
             return;
         // Consistent format: {what}  ·  {where}  ·  Lv {N}
-        string what = src.Type switch
-        {
-            "drop" => $"Drops from: {src.Name}",
-            "vendor" when !string.IsNullOrWhiteSpace(src.Instruction) =>
-                $"{src.Instruction}  ·  {src.Name}",
-            "vendor" => $"Buy from: {src.Name}",
-            "dialog_give" => $"Given by: {src.Name}",
-            "fishing" => "Fishing",
-            "mining" => "Mining",
-            "pickup" => "Found in world",
-            "crafting" => $"Crafted from: {src.Name}",
-            "quest_reward" => $"Quest reward: {src.Name}",
-            "ingredient" => $"Ingredient: {src.Name}"
-                + (src.NodeCount is int qty ? $" x{qty}" : ""),
-            "item_use" => $"Use: {src.Name}",
-            _ => src.Name ?? src.Type,
-        };
-        string label = what;
-        if (src.Zone != null)
-            label += $"  \u00b7  {src.Zone}";
-        if (src.Level is int lv)
-            label += $"  \u00b7  Lv {lv}";
+        var display = _questDisplay[quest].Steps[step].Sources[(src, depth)];
+        string label = display.Label;
 
         // Quest reward with a resolvable sub-quest: render its steps inline
         if (src.Type == "quest_reward" && src.QuestKey != null)
@@ -623,7 +526,7 @@ public sealed class QuestDetailPanel
                 && !visited.Contains(subQuest.StableKey)
             )
             {
-                DrawQuestRewardTree(src, subQuest, label, step, visited);
+                DrawQuestRewardTree(subQuest, display, visited);
                 return;
             }
         }
@@ -634,7 +537,7 @@ public sealed class QuestDetailPanel
 
         if (hasChildren)
         {
-            if (ImGui.TreeNode($"{label}##src_{step.Order}_{depth}_{src.Type}_{src.Name}"))
+            if (ImGui.TreeNode(display.ChildrenLabel))
             {
                 // Quest reward fallback: still show "Open quest" link
                 if (src.Type == "quest_reward" && src.QuestKey != null)
@@ -643,11 +546,7 @@ public sealed class QuestDetailPanel
                     if (target != null)
                     {
                         ImGui.PushStyleColor(ImGuiCol.Text, Theme.QuestActive);
-                        if (
-                            ImGui.Selectable(
-                                $"Open quest: {target.DisplayName}##goto_{step.Order}_{src.QuestKey}"
-                            )
-                        )
+                        if (ImGui.Selectable(display.OpenQuestLabel!))
                         {
                             _state.SelectQuest(target);
                         }
@@ -660,7 +559,7 @@ public sealed class QuestDetailPanel
                 ImGui.TreePop();
             }
         }
-        else if (src.MakeSourceId() is string sourceId)
+        else if (display.SourceId is string sourceId)
         {
             // Navigable source: highlight when in the active source set.
             // Gold = auto-selected, cyan = manually toggled.
@@ -673,7 +572,7 @@ public sealed class QuestDetailPanel
                 ImGui.PushStyleColor(ImGuiCol.Text, color);
             }
 
-            if (ImGui.Selectable($"{label}##src_{step.Order}_{sourceId}"))
+            if (ImGui.Selectable(display.SelectableLabel!))
                 _nav.ToggleSource(sourceId, _state.CurrentZone);
 
             if (isActive)
@@ -704,7 +603,7 @@ public sealed class QuestDetailPanel
     /// as an indented sub-tree. Shows an "Open quest" link and the full
     /// step list with NAV buttons, sources, and tips.
     /// </summary>
-    private void DrawSubQuestSteps(QuestStep step, HashSet<string> visited)
+    private void DrawSubQuestSteps(QuestStep step, QuestEntry quest, HashSet<string> visited)
     {
         if (step.Action != "complete_quest" || step.TargetKey == null)
             return;
@@ -719,11 +618,7 @@ public sealed class QuestDetailPanel
 
         // "Open quest" link
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.QuestActive);
-        if (
-            ImGui.Selectable(
-                $"Open quest: {subQuest.DisplayName}##cq_{step.Order}_{step.TargetKey}"
-            )
-        )
+        if (ImGui.Selectable(_questDisplay[quest].Steps[step].SubQuestLabel!))
             _state.SelectQuest(subQuest);
         ImGui.PopStyleColor();
 
@@ -741,10 +636,8 @@ public sealed class QuestDetailPanel
     /// steps with full treatment (NAV buttons, sources, tips).
     /// </summary>
     private void DrawQuestRewardTree(
-        ItemSource src,
         QuestEntry subQuest,
-        string label,
-        QuestStep parentStep,
+        SourceDisplayCache display,
         HashSet<string> visited
     )
     {
@@ -754,7 +647,7 @@ public sealed class QuestDetailPanel
         if (isCompleted)
             ImGui.PushStyleColor(ImGuiCol.Text, Theme.QuestCompleted);
 
-        bool open = ImGui.TreeNodeEx($"{label}##sqt_{parentStep.Order}_{src.QuestKey}", flags);
+        bool open = ImGui.TreeNodeEx(display.QuestTreeLabel!, flags);
 
         if (isCompleted)
             ImGui.PopStyleColor();
@@ -764,11 +657,7 @@ public sealed class QuestDetailPanel
 
         // "Open quest" link — jump to the full quest detail page
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.QuestActive);
-        if (
-            ImGui.Selectable(
-                $"Open quest: {subQuest.DisplayName}##goto_{parentStep.Order}_{src.QuestKey}"
-            )
-        )
+        if (ImGui.Selectable(display.OpenQuestLabel!))
         {
             _state.SelectQuest(subQuest);
         }
@@ -782,13 +671,13 @@ public sealed class QuestDetailPanel
         ImGui.TreePop();
     }
 
-    private void DrawTips(QuestStep step)
+    private void DrawTips(QuestStep step, QuestEntry quest)
     {
         if (step.Tips == null || step.Tips.Count == 0)
             return;
 
         ImGui.Indent(Theme.IndentWidth);
-        if (ImGui.TreeNode($"Tips##{step.Order}"))
+        if (ImGui.TreeNode(_questDisplay[quest].Steps[step].TipsLabel))
         {
             ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
             foreach (var tip in step.Tips)
@@ -815,61 +704,13 @@ public sealed class QuestDetailPanel
 
         ImGui.Indent(Theme.IndentWidth);
 
-        if (r.XP > 0)
-            ImGui.Text($"{r.XP} XP");
-        if (r.Gold > 0)
-            ImGui.Text($"{r.Gold} Gold");
-        if (r.ItemName != null)
-            ImGui.Text(r.ItemName);
-
-        // Vendor item unlock
-        if (r.VendorUnlock != null)
-            ImGui.Text($"Unlocks {r.VendorUnlock.ItemName} at {r.VendorUnlock.VendorName}");
-
-        // Zone line unlocks
-        if (r.UnlockedZoneLines != null)
+        foreach (var line in _rewardLines)
         {
-            foreach (var zl in r.UnlockedZoneLines)
-            {
-                string text = $"Opens path from {zl.FromZone} to {zl.ToZone}";
-                if (zl.CoRequirements is { Count: > 0 })
-                    text += $" (also requires {string.Join(", ", zl.CoRequirements)})";
-                ImGui.Text(text);
-            }
-        }
-
-        // Character spawn unlocks
-        if (r.UnlockedCharacters != null)
-        {
-            foreach (var ch in r.UnlockedCharacters)
-            {
-                string text =
-                    ch.Zone != null ? $"Enables {ch.Name} in {ch.Zone}" : $"Enables {ch.Name}";
-                ImGui.Text(text);
-            }
-        }
-
-        // Next quest in chain
-        if (r.NextQuestName != null)
-        {
-            ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-            ImGui.Text($"Next: {r.NextQuestName}");
-            ImGui.PopStyleColor();
-        }
-
-        if (r.FactionEffects != null)
-        {
-            foreach (var fe in r.FactionEffects)
-            {
-                var sign = fe.Amount >= 0 ? "+" : "";
-                ImGui.Text($"{fe.FactionName}: {sign}{fe.Amount}");
-            }
-        }
-        if (r.AlsoCompletes != null && r.AlsoCompletes.Count > 0)
-        {
-            ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-            ImGui.Text($"Also completes: {string.Join(", ", r.AlsoCompletes)}");
-            ImGui.PopStyleColor();
+            if (line.Secondary)
+                ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+            ImGui.Text(line.Text);
+            if (line.Secondary)
+                ImGui.PopStyleColor();
         }
 
         ImGui.Unindent(Theme.IndentWidth);
@@ -890,18 +731,9 @@ public sealed class QuestDetailPanel
 
     private void DrawPrerequisites(QuestEntry quest)
     {
-        if (quest.Prerequisites == null || quest.Prerequisites.Count == 0)
-            return;
-
-        // Filter out prerequisites already visible in the step tree
-        // (quest_reward sources and complete_quest targets).
-        var treeKeys = CollectStepTreeQuestKeys(quest);
-        var filtered = new List<Prerequisite>();
-        foreach (var p in quest.Prerequisites)
-        {
-            if (!treeKeys.Contains(p.QuestKey))
-                filtered.Add(p);
-        }
+        // Prerequisites already visible in the step tree are filtered at
+        // cache rebuild (quest_reward sources and complete_quest targets).
+        var filtered = _prerequisites;
         if (filtered.Count == 0)
             return;
 
@@ -909,7 +741,7 @@ public sealed class QuestDetailPanel
         bool anyIncomplete = false;
         foreach (var p in filtered)
         {
-            if (!IsPrerequisiteCompleted(p))
+            if (!IsPrerequisiteCompleted(p.Prerequisite))
             {
                 anyIncomplete = true;
                 break;
@@ -923,15 +755,13 @@ public sealed class QuestDetailPanel
         ImGui.Indent(Theme.IndentWidth);
         foreach (var prereq in filtered)
         {
-            bool completed = IsPrerequisiteCompleted(prereq);
+            bool completed = IsPrerequisiteCompleted(prereq.Prerequisite);
             var color = completed ? Theme.QuestCompleted : Theme.TextPrimary;
-            string label =
-                prereq.Item != null ? $"{prereq.QuestName} ({prereq.Item})" : prereq.QuestName;
 
             ImGui.PushStyleColor(ImGuiCol.Text, color);
-            if (ImGui.Selectable($"{label}##prereq_{prereq.QuestKey}"))
+            if (ImGui.Selectable(prereq.Label))
             {
-                var target = _data.GetByStableKey(prereq.QuestKey);
+                var target = _data.GetByStableKey(prereq.Prerequisite.QuestKey);
                 if (target != null)
                     _state.SelectQuest(target);
             }
@@ -943,6 +773,7 @@ public sealed class QuestDetailPanel
     /// <summary>
     /// Collect quest stable keys that are already visible in the step tree:
     /// complete_quest step targets and quest_reward item sources.
+    /// Called once per display-cache rebuild, not during frame rendering.
     /// </summary>
     private static HashSet<string> CollectStepTreeQuestKeys(QuestEntry quest)
     {
@@ -983,20 +814,448 @@ public sealed class QuestDetailPanel
         return quest != null && _state.IsCompleted(quest);
     }
 
+    // ── Display cache ────────────────────────────────────────────────
+
+    private sealed class QuestDisplayCache
+    {
+        public int CurrentStepIndex;
+        public readonly Dictionary<QuestStep, StepDisplayCache> Steps = new();
+    }
+
+    private sealed class StepDisplayCache
+    {
+        public string Text = "";
+        public string NavLabel = "";
+        public string TipsLabel = "";
+        public string? MoreSourcesLabel;
+        public string? SubQuestLabel;
+        public bool HasRequiredQuantity;
+        public bool Navigable;
+        public readonly List<ItemSource> VisibleSources = new();
+        public readonly Dictionary<(ItemSource Source, int Depth), SourceDisplayCache> Sources =
+            new();
+    }
+
+    private sealed class SourceDisplayCache
+    {
+        public string Label = "";
+        public string ChildrenLabel = "";
+        public string? SourceId;
+        public string? SelectableLabel;
+        public string? QuestTreeLabel;
+        public string? OpenQuestLabel;
+    }
+
+    /// <summary>
+    /// Rebuild formatted labels and filtered collections for the selected
+    /// quest and all drawable inline sub-quests, including closed trees.
+    /// Nothing is retained across a selection or state-version change.
+    /// </summary>
+    private void RebuildDisplayCache()
+    {
+        _questDisplay.Clear();
+        _visited.Clear();
+        _acquisitionLines.Clear();
+        _completionLines.Clear();
+        _rewardLines.Clear();
+        _prerequisites.Clear();
+        _stepTreeQuestKeys = null;
+        _levelZoneLine = null;
+
+        var quest = _cachedQuestKey == null ? null : _data.GetByRuntimeKey(_cachedQuestKey);
+        if (quest == null)
+            return;
+
+        CacheHeader(quest);
+        CacheRewards(quest.Rewards);
+        _stepTreeQuestKeys = CollectStepTreeQuestKeys(quest);
+        if (quest.Prerequisites != null)
+        {
+            foreach (var prereq in quest.Prerequisites)
+            {
+                if (_stepTreeQuestKeys.Contains(prereq.QuestKey))
+                    continue;
+                string label =
+                    prereq.Item != null ? $"{prereq.QuestName} ({prereq.Item})" : prereq.QuestName;
+                _prerequisites.Add((prereq, $"{label}##prereq_{prereq.QuestKey}"));
+            }
+        }
+
+        // Use the drawing set here too, warming its capacity for every
+        // possible expanded path before allocation-free frame rendering.
+        _visited.Add(quest.StableKey);
+        CacheStepTree(quest, _visited);
+        _visited.Clear();
+    }
+
+    private void CacheHeader(QuestEntry quest)
+    {
+        int? level = quest.LevelEstimate?.Recommended;
+        string? zone = quest.ZoneContext;
+        bool repeatable = quest.Flags is { Repeatable: true };
+        if (level != null || zone != null || repeatable)
+        {
+            string meta = level != null ? $"Lv {level}" : "";
+            if (zone != null)
+            {
+                if (meta.Length > 0)
+                    meta += "  \u00b7  ";
+                meta += zone;
+            }
+            if (repeatable)
+            {
+                if (meta.Length > 0)
+                    meta += "  \u00b7  ";
+                meta += "Repeatable";
+            }
+            _levelZoneLine = meta;
+        }
+
+        if (quest.Acquisition != null)
+        {
+            foreach (var acq in quest.Acquisition)
+            {
+                string? line = acq.Method switch
+                {
+                    "dialog" when acq.SourceName != null => $"Given by: {acq.SourceName}",
+                    "item_read" when acq.SourceName != null => $"Read: {acq.SourceName}",
+                    "zone_entry" when acq.SourceName != null => $"Enter: {acq.SourceName}",
+                    "quest_chain" when acq.SourceName != null => $"Chain from: {acq.SourceName}",
+                    _ => acq.SourceName != null ? $"From: {acq.SourceName}" : null,
+                };
+                if (line == null)
+                    continue;
+                if (acq.ZoneName != null && acq.Method == "dialog")
+                    line += $" ({acq.ZoneName})";
+                _acquisitionLines.Add(line);
+            }
+        }
+
+        if (quest.Completion != null)
+        {
+            foreach (var comp in quest.Completion)
+            {
+                string? line = comp.Method switch
+                {
+                    "item_turnin" or "dialog" when comp.SourceName != null =>
+                        $"Turn in to: {comp.SourceName}",
+                    "zone" when comp.SourceName != null => $"Complete at: {comp.SourceName}",
+                    _ when comp.SourceName != null => $"Complete: {comp.SourceName}",
+                    _ => null,
+                };
+                if (line == null)
+                    continue;
+                if (comp.ZoneName != null && comp.Method is "item_turnin" or "dialog")
+                    line += $" ({comp.ZoneName})";
+                _completionLines.Add(line);
+            }
+        }
+    }
+
+    private void CacheRewards(RewardInfo? r)
+    {
+        if (r == null)
+            return;
+        if (r.XP > 0)
+            _rewardLines.Add(($"{r.XP} XP", false));
+        if (r.Gold > 0)
+            _rewardLines.Add(($"{r.Gold} Gold", false));
+        if (r.ItemName != null)
+            _rewardLines.Add((r.ItemName, false));
+
+        // Vendor item unlock
+        if (r.VendorUnlock != null)
+            _rewardLines.Add(
+                ($"Unlocks {r.VendorUnlock.ItemName} at {r.VendorUnlock.VendorName}", false)
+            );
+
+        // Zone line unlocks
+        if (r.UnlockedZoneLines != null)
+        {
+            foreach (var zl in r.UnlockedZoneLines)
+            {
+                string text = $"Opens path from {zl.FromZone} to {zl.ToZone}";
+                if (zl.CoRequirements is { Count: > 0 })
+                    text += $" (also requires {string.Join(", ", zl.CoRequirements)})";
+                _rewardLines.Add((text, false));
+            }
+        }
+
+        // Character spawn unlocks
+        if (r.UnlockedCharacters != null)
+        {
+            foreach (var ch in r.UnlockedCharacters)
+            {
+                string text =
+                    ch.Zone != null ? $"Enables {ch.Name} in {ch.Zone}" : $"Enables {ch.Name}";
+                _rewardLines.Add((text, false));
+            }
+        }
+
+        // Next quest in chain
+        if (r.NextQuestName != null)
+            _rewardLines.Add(($"Next: {r.NextQuestName}", true));
+        if (r.FactionEffects != null)
+        {
+            foreach (var fe in r.FactionEffects)
+            {
+                string sign = fe.Amount >= 0 ? "+" : "";
+                _rewardLines.Add(($"{fe.FactionName}: {sign}{fe.Amount}", false));
+            }
+        }
+        if (r.AlsoCompletes is { Count: > 0 })
+            _rewardLines.Add(($"Also completes: {string.Join(", ", r.AlsoCompletes)}", true));
+    }
+
+    private void CacheStepTree(QuestEntry quest, HashSet<string> visited)
+    {
+        if (!_questDisplay.TryGetValue(quest, out var display))
+        {
+            display = new QuestDisplayCache
+            {
+                CurrentStepIndex = StepProgress.GetCurrentStepIndex(quest, _state, _data),
+            };
+            _questDisplay.Add(quest, display);
+            if (quest.Steps != null)
+            {
+                foreach (var step in quest.Steps)
+                    display.Steps.Add(step, CacheStep(quest, step));
+            }
+        }
+        if (quest.Steps == null)
+            return;
+
+        // Traverse each drawable path even for already cached quests:
+        // cycle/depth fallbacks depend on the current ancestor set.
+        foreach (var step in quest.Steps)
+        {
+            foreach (var src in display.Steps[step].VisibleSources)
+                CacheSourceQuestTree(src, visited);
+
+            if (step.Action == "complete_quest" && step.TargetKey != null)
+                CacheInlineQuest(_data.GetByStableKey(step.TargetKey), visited);
+        }
+    }
+
+    private void CacheInlineQuest(QuestEntry? quest, HashSet<string> visited)
+    {
+        if (
+            quest?.Steps is not { Count: > 0 }
+            || visited.Count > MaxSubQuestDepth
+            || visited.Contains(quest.StableKey)
+        )
+            return;
+        visited.Add(quest.StableKey);
+        CacheStepTree(quest, visited);
+        visited.Remove(quest.StableKey);
+    }
+
+    private void CacheSourceQuestTree(ItemSource src, HashSet<string> visited, int depth = 0)
+    {
+        if (!IsSourceAvailable(src))
+            return;
+        if (src.Type == "quest_reward" && src.QuestKey != null)
+        {
+            var subQuest = _data.GetByStableKey(src.QuestKey);
+            if (
+                subQuest?.Steps is { Count: > 0 }
+                && visited.Count <= MaxSubQuestDepth
+                && !visited.Contains(subQuest.StableKey)
+            )
+            {
+                CacheInlineQuest(subQuest, visited);
+                return;
+            }
+        }
+        if (src.Children != null && depth < 3)
+        {
+            foreach (var child in src.Children)
+                CacheSourceQuestTree(child, visited, depth + 1);
+        }
+    }
+
+    private StepDisplayCache CacheStep(QuestEntry quest, QuestStep step)
+    {
+        var display = new StepDisplayCache
+        {
+            Text = $"{step.Order}. {step.Description}",
+            NavLabel = $"[NAV]##{step.Order}",
+            TipsLabel = $"Tips##{step.Order}",
+        };
+
+        // Collect steps: have/need counts change only with the state version.
+        if (
+            (step.Action is "collect" or "obtain")
+            && step.TargetKey != null
+            && step.Quantity.HasValue
+        )
+        {
+            int have = _state.CountItem(step.TargetKey);
+            display.Text += $" ({have}/{step.Quantity})";
+            display.HasRequiredQuantity = have >= step.Quantity.Value;
+        }
+
+        // Step suffix: zone (for non-collect) and level, dot-separated.
+        if (step.LevelEstimate?.Recommended is int stepLvl)
+        {
+            // Non-collect steps show zone since there's no source list below.
+            if (
+                (step.Action is not "collect" and not "obtain" and not "read")
+                && step.LevelEstimate.Factors is { Count: > 0 }
+            )
+                display.Text += $"  \u00b7  {step.LevelEstimate.Factors[0].Name}";
+            display.Text += $"  \u00b7  Lv {stepLvl}";
+        }
+        else if (
+            (step.Action is not "collect" and not "obtain" and not "read")
+            && step.LevelEstimate?.Factors is { Count: > 0 }
+        )
+        {
+            // Zone without level
+            display.Text += $"  \u00b7  {step.LevelEstimate.Factors[0].Name}";
+        }
+
+        var item = FindRequiredItem(quest, step);
+        if (step.TargetType == "item" && item?.Sources != null)
+        {
+            foreach (var source in item.Sources)
+            {
+                if (HasNavigableSource(source))
+                {
+                    display.Navigable = true;
+                    break;
+                }
+            }
+        }
+        else if (step.TargetType == "character")
+            display.Navigable =
+                step.TargetKey != null && _data.CharacterSpawns.ContainsKey(step.TargetKey);
+        else if (step.TargetType == "zone")
+            display.Navigable = step.ZoneName != null || step.TargetKey != null;
+
+        if (
+            (step.Action is "collect" or "obtain" or "read")
+            && step.TargetName != null
+            && item?.Sources != null
+        )
+        {
+            foreach (var source in item.Sources)
+            {
+                if (!IsSourceAvailable(source))
+                    continue;
+                display.VisibleSources.Add(source);
+                CacheSourceLabels(source, step, display);
+            }
+        }
+        if (display.VisibleSources.Count > 4)
+        {
+            int remaining = display.VisibleSources.Count - 4;
+            int minLv = display.VisibleSources[4].Level ?? 0;
+            int maxLv = display.VisibleSources[^1].Level ?? minLv;
+            string range = minLv == maxLv ? $"Lv {minLv}" : $"Lv {minLv}-{maxLv}";
+            display.MoreSourcesLabel = $"{remaining} more sources ({range})##{step.Order}";
+        }
+
+        if (step.Action == "complete_quest" && step.TargetKey != null)
+        {
+            var subQuest = _data.GetByStableKey(step.TargetKey);
+            if (subQuest != null)
+                display.SubQuestLabel =
+                    $"Open quest: {subQuest.DisplayName}##cq_{step.Order}_{step.TargetKey}";
+        }
+        return display;
+    }
+
+    private void CacheSourceLabels(
+        ItemSource src,
+        QuestStep step,
+        StepDisplayCache stepDisplay,
+        int depth = 0
+    )
+    {
+        if (stepDisplay.Sources.ContainsKey((src, depth)))
+            return;
+        string label = src.Type switch
+        {
+            "drop" => $"Drops from: {src.Name}",
+            "vendor" when !string.IsNullOrWhiteSpace(src.Instruction) =>
+                $"{src.Instruction}  ·  {src.Name}",
+            "vendor" => $"Buy from: {src.Name}",
+            "dialog_give" => $"Given by: {src.Name}",
+            "fishing" => "Fishing",
+            "mining" => "Mining",
+            "pickup" => "Found in world",
+            "crafting" => $"Crafted from: {src.Name}",
+            "quest_reward" => $"Quest reward: {src.Name}",
+            "ingredient" => $"Ingredient: {src.Name}"
+                + (src.NodeCount is int qty ? $" x{qty}" : ""),
+            "item_use" => $"Use: {src.Name}",
+            _ => src.Name ?? src.Type,
+        };
+        if (src.Zone != null)
+            label += $"  \u00b7  {src.Zone}";
+        if (src.Level is int lv)
+            label += $"  \u00b7  Lv {lv}";
+
+        var display = new SourceDisplayCache
+        {
+            Label = label,
+            ChildrenLabel = $"{label}##src_{step.Order}_{depth}_{src.Type}_{src.Name}",
+            SourceId = src.MakeSourceId(),
+        };
+        if (display.SourceId != null)
+            display.SelectableLabel = $"{label}##src_{step.Order}_{display.SourceId}";
+        if (src.Type == "quest_reward" && src.QuestKey != null)
+        {
+            display.QuestTreeLabel = $"{label}##sqt_{step.Order}_{src.QuestKey}";
+            var target = _data.GetByStableKey(src.QuestKey);
+            if (target != null)
+                display.OpenQuestLabel =
+                    $"Open quest: {target.DisplayName}##goto_{step.Order}_{src.QuestKey}";
+        }
+        stepDisplay.Sources.Add((src, depth), display);
+        if (src.Children != null && depth < 3)
+        {
+            foreach (var child in src.Children)
+                CacheSourceLabels(child, step, stepDisplay, depth + 1);
+        }
+    }
+
     // ── Helpers ──────────────────────────────────────────────────────
 
     /// <summary>
     /// Find the RequiredItemInfo matching a collect/read step's target name.
     /// </summary>
-    private static RequiredItemInfo? FindRequiredItem(QuestEntry quest, QuestStep step) =>
-        quest.RequiredItems?.Find(ri =>
-            string.Equals(ri.ItemName, step.TargetName, StringComparison.OrdinalIgnoreCase)
-        );
+    private static RequiredItemInfo? FindRequiredItem(QuestEntry quest, QuestStep step)
+    {
+        if (quest.RequiredItems != null)
+        {
+            foreach (var item in quest.RequiredItems)
+            {
+                if (
+                    string.Equals(
+                        item.ItemName,
+                        step.TargetName,
+                        StringComparison.OrdinalIgnoreCase
+                    )
+                )
+                    return item;
+            }
+        }
+        return null;
+    }
 
     private bool IsSourceAvailable(ItemSource source)
     {
-        return source.RequiredQuestDBNames == null
-            || source.RequiredQuestDBNames.TrueForAll(_state.IsGameQuestCompleted);
+        if (source.RequiredQuestDBNames != null)
+        {
+            foreach (var dbName in source.RequiredQuestDBNames)
+            {
+                if (!_state.IsGameQuestCompleted(dbName))
+                    return false;
+            }
+        }
+        return true;
     }
 
     private bool HasNavigableSource(ItemSource s)
@@ -1007,6 +1266,14 @@ public sealed class QuestDetailPanel
             return true;
         if (s.SourceKey != null && _data.CharacterSpawns.ContainsKey(s.SourceKey))
             return true;
-        return s.Children?.Exists(c => HasNavigableSource(c)) == true;
+        if (s.Children != null)
+        {
+            foreach (var child in s.Children)
+            {
+                if (HasNavigableSource(child))
+                    return true;
+            }
+        }
+        return false;
     }
 }

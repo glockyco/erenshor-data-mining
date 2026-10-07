@@ -72,6 +72,17 @@ public sealed class TrackerWindow
         System.StringComparer.OrdinalIgnoreCase
     );
 
+    // What each row draws: resolved steps and formatted strings. Rebuilt
+    // with the sorted list (state version, tracker change, sort mode, or the
+    // 2 s distance refresh) instead of formatted on every frame.
+    private readonly Dictionary<string, TrackerRow> _rows = new(
+        System.StringComparer.OrdinalIgnoreCase
+    );
+
+    // Scratch lists for PruneAnimations, reused across frames.
+    private readonly List<string> _toUntrack = new();
+    private readonly List<string> _expiredFades = new();
+
     // When true, the tracker renders as minimal floating text (no background,
     // no title bar, no header). Driven by previous frame's hover state.
     private bool _compact = true;
@@ -201,7 +212,6 @@ public sealed class TrackerWindow
         )
             return;
 
-        DetectStepAdvances();
         RebuildSortedListIfNeeded();
 
         if (_sorted.Count == 0 && _fadingOut.Count == 0)
@@ -326,11 +336,11 @@ public sealed class TrackerWindow
 
     private void DrawHeaderBar()
     {
-        DrawSortButton("Px", TrackerSortMode.Proximity, "Sort by proximity");
+        DrawSortButton("Px##tsort", TrackerSortMode.Proximity, "Sort by proximity");
         ImGui.SameLine(0, 2);
-        DrawSortButton("Lv", TrackerSortMode.Level, "Sort by level");
+        DrawSortButton("Lv##tsort", TrackerSortMode.Level, "Sort by level");
         ImGui.SameLine(0, 2);
-        DrawSortButton("Az", TrackerSortMode.Alphabetical, "Sort alphabetically");
+        DrawSortButton("Az##tsort", TrackerSortMode.Alphabetical, "Sort alphabetically");
 
         ImGui.Separator();
     }
@@ -341,7 +351,7 @@ public sealed class TrackerWindow
         if (active)
             ImGui.PushStyleColor(ImGuiCol.Button, Theme.Accent);
 
-        if (ImGui.SmallButton(label + "##tsort"))
+        if (ImGui.SmallButton(label))
         {
             _tracker.SortMode = mode;
             _lastSortMode = mode;
@@ -444,20 +454,26 @@ public sealed class TrackerWindow
             tinted = true;
         }
 
+        if (!_rows.TryGetValue(questKey, out var row))
+        {
+            row = BuildRow(quest);
+            _rows[questKey] = row;
+        }
+
         // Line 1: [NAV] Quest Name  Lv##
         bool navEnabled = _config.ShowArrow.Value || _config.ShowGroundPath.Value;
         if (navEnabled)
         {
-            DrawNavButton(quest);
+            DrawNavButton(quest, row);
             ImGui.SameLine();
         }
-        DrawQuestNameAndLevel(quest);
+        DrawQuestNameAndLevel(quest, row);
 
         // Line 2: indented step description
-        DrawCurrentStep(quest);
+        DrawCurrentStep(row);
 
         // Right-click context menu
-        if (ImGui.BeginPopupContextItem($"##ctx{quest.RuntimeKey}"))
+        if (ImGui.BeginPopupContextItem(row.ContextId))
         {
             if (ImGui.Selectable("Untrack"))
                 _tracker.Untrack(quest.RuntimeKey);
@@ -470,7 +486,7 @@ public sealed class TrackerWindow
         }
 
         // Prerequisite line if blocked
-        DrawPrerequisites(quest);
+        DrawPrerequisite(row);
 
         ImGui.Spacing();
 
@@ -484,10 +500,10 @@ public sealed class TrackerWindow
 
     // ── NAV button ───────────────────────────────────────────────────
 
-    private void DrawNavButton(QuestEntry quest)
+    private void DrawNavButton(QuestEntry quest, TrackerRow row)
     {
-        var (rawStep, displayStep, displayQuest) = GetCurrentStep(quest);
-        bool navigable = displayStep?.TargetKey != null;
+        var rawStep = row.RawStep;
+        bool navigable = row.DisplayStep?.TargetKey != null;
         bool isActive = rawStep != null && _nav.IsNavigating(quest.RuntimeKey, rawStep.Order);
 
         if (!navigable)
@@ -531,24 +547,10 @@ public sealed class TrackerWindow
 
     // ── Quest name + level ───────────────────────────────────────────
 
-    private void DrawQuestNameAndLevel(QuestEntry quest)
+    private void DrawQuestNameAndLevel(QuestEntry quest, TrackerRow row)
     {
-        // Match guide list format: level prefix + quest name in status color
-        string label = quest.LevelEstimate?.Recommended is int lvl
-            ? $"{lvl, 2}  {quest.DisplayName}"
-            : $"    {quest.DisplayName}";
-
-        // Append distance or source label (e.g. "Fishing")
-        if (_distances.TryGetValue(quest.RuntimeKey, out var dist))
-        {
-            if (dist.HasDistance)
-                label += $" ({dist.Meters:0}m)";
-            else if (dist.HasLabel)
-                label += $" ({dist.Label})";
-        }
-
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.GetQuestColor(_state, quest));
-        if (ImGui.Selectable(label + "##name" + quest.RuntimeKey))
+        if (ImGui.Selectable(row.NameLabel))
         {
             _state.SelectQuest(quest);
             _guide.Show();
@@ -558,29 +560,96 @@ public sealed class TrackerWindow
 
     // ── Current step ─────────────────────────────────────────────────
 
-    private void DrawCurrentStep(QuestEntry quest)
+    private static void DrawCurrentStep(TrackerRow row)
     {
-        var (_, step, resolvedQuest) = GetCurrentStep(quest);
+        ImGui.Indent(Theme.IndentWidth);
+        ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+        ImGui.TextWrapped(row.StepText);
+        ImGui.PopStyleColor();
+        ImGui.Unindent(Theme.IndentWidth);
+    }
+
+    // ── Prerequisites ────────────────────────────────────────────────
+
+    private void DrawPrerequisite(TrackerRow row)
+    {
+        if (row.PrerequisiteLabel == null)
+            return;
 
         ImGui.Indent(Theme.IndentWidth);
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+        ImGui.PushStyleVar(ImGuiStyleVar.Alpha, 0.6f);
 
+        if (ImGui.Selectable(row.PrerequisiteLabel) && row.PrerequisiteQuest != null)
+            _state.SelectQuest(row.PrerequisiteQuest);
+
+        ImGui.PopStyleVar();
+        ImGui.PopStyleColor();
+        ImGui.Unindent(Theme.IndentWidth);
+    }
+
+    // ── Row cache ────────────────────────────────────────────────────
+
+    private TrackerRow BuildRow(QuestEntry quest)
+    {
+        var row = new TrackerRow();
+        var (rawStep, displayStep, displayQuest) = GetCurrentStep(quest);
+        row.RawStep = rawStep;
+        row.DisplayStep = displayStep;
+
+        // Match guide list format: level prefix + quest name in status color
+        string label = quest.LevelEstimate?.Recommended is int lvl
+            ? $"{lvl, 2}  {quest.DisplayName}"
+            : $"    {quest.DisplayName}";
+
+        // Append distance or source label (e.g. "Fishing")
+        bool isCrossZone = false;
+        if (_distances.TryGetValue(quest.RuntimeKey, out var dist))
+        {
+            isCrossZone = !dist.InCurrentZone;
+            if (dist.HasDistance)
+                label += $" ({dist.Meters:0}m)";
+            else if (dist.HasLabel)
+                label += $" ({dist.Label})";
+        }
+        // "###" keeps the ID stable while the distance in the label changes.
+        row.NameLabel = label + "###name" + quest.RuntimeKey;
+        row.ContextId = "##ctx" + quest.RuntimeKey;
+        row.StepText = FormatStepLine(quest, displayStep, displayQuest, isCrossZone);
+
+        if (quest.Prerequisites != null)
+        {
+            foreach (var pre in quest.Prerequisites)
+            {
+                if (pre.Item != null)
+                    continue;
+                var requiredQuest = _data.GetByStableKey(pre.QuestKey);
+                if (requiredQuest != null && _state.IsCompleted(requiredQuest))
+                    continue;
+
+                // Show only the first blocking prerequisite
+                row.PrerequisiteLabel = $"Requires: {pre.QuestName}##prereq{pre.QuestKey}";
+                row.PrerequisiteQuest = requiredQuest;
+                break;
+            }
+        }
+        return row;
+    }
+
+    private string FormatStepLine(
+        QuestEntry quest,
+        QuestStep? step,
+        QuestEntry displayQuest,
+        bool isCrossZone
+    )
+    {
         if (step == null)
         {
-            string emptyText =
-                _state.Workflows.IsUnverifiable(quest)
+            return _state.Workflows.IsUnverifiable(quest)
                     ? "Workflow state unavailable; re-enter its trigger area."
                 : _state.IsCompleted(quest) ? "Completed"
                 : "No guide data available.";
-            ImGui.TextWrapped(emptyText);
-            ImGui.PopStyleColor();
-            ImGui.Unindent(Theme.IndentWidth);
-            return;
         }
-
-        string text = FormatStepText(resolvedQuest, step);
-        bool isCrossZone =
-            _distances.TryGetValue(quest.RuntimeKey, out var stepDist) && !stepDist.InCurrentZone;
 
         // For cross-zone non-travel steps, show "Travel to {zone}" instead
         // of the step description. Travel steps already say where to go.
@@ -588,13 +657,10 @@ public sealed class TrackerWindow
         {
             var zone = TrackerSorter.GetStepZoneName(quest, _state, _data);
             if (zone != null)
-                text = $"Travel to {zone}.";
+                return $"Travel to {zone}.";
         }
 
-        ImGui.TextWrapped(text);
-
-        ImGui.PopStyleColor();
-        ImGui.Unindent(Theme.IndentWidth);
+        return FormatStepText(displayQuest, step);
     }
 
     private string FormatStepText(QuestEntry quest, QuestStep step)
@@ -607,38 +673,6 @@ public sealed class TrackerWindow
         }
 
         return step.Description;
-    }
-
-    // ── Prerequisites ────────────────────────────────────────────────
-
-    private void DrawPrerequisites(QuestEntry quest)
-    {
-        if (quest.Prerequisites == null || quest.Prerequisites.Count == 0)
-            return;
-
-        foreach (var pre in quest.Prerequisites)
-        {
-            if (pre.Item != null)
-                continue;
-            var requiredQuest = _data.GetByStableKey(pre.QuestKey);
-            if (requiredQuest != null && _state.IsCompleted(requiredQuest))
-                continue;
-
-            ImGui.Indent(Theme.IndentWidth);
-            ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
-            ImGui.PushStyleVar(ImGuiStyleVar.Alpha, 0.6f);
-
-            if (
-                ImGui.Selectable($"Requires: {pre.QuestName}##prereq{pre.QuestKey}")
-                && requiredQuest != null
-            )
-                _state.SelectQuest(requiredQuest);
-
-            ImGui.PopStyleVar();
-            ImGui.PopStyleColor();
-            ImGui.Unindent(Theme.IndentWidth);
-            break; // Show only the first blocking prerequisite
-        }
     }
 
     // ── Animation management ─────────────────────────────────────────
@@ -654,30 +688,31 @@ public sealed class TrackerWindow
         float now = UnityEngine.Time.realtimeSinceStartup;
 
         // Auto-untrack completed quests after the flash duration
-        var toUntrack = new List<string>();
+        _toUntrack.Clear();
         foreach (var (dbName, startTime) in _completionTimers)
         {
             if (now - startTime > CompletionLingerDuration)
-                toUntrack.Add(dbName);
+                _toUntrack.Add(dbName);
         }
-        foreach (var dbName in toUntrack)
+        foreach (var dbName in _toUntrack)
         {
             _completionTimers.Remove(dbName);
             _tracker.Untrack(dbName); // fires OnQuestUntracked → starts fade-out
         }
 
         // Remove expired fade-out entries
-        var expiredFades = new List<string>();
+        _expiredFades.Clear();
         foreach (var (dbName, startTime) in _fadingOut)
         {
             if (now - startTime > FadeOutDuration)
-                expiredFades.Add(dbName);
+                _expiredFades.Add(dbName);
         }
-        foreach (var dbName in expiredFades)
+        foreach (var dbName in _expiredFades)
         {
             _fadingOut.Remove(dbName);
             _animations.Remove(dbName);
             _cachedStepIndex.Remove(dbName);
+            _rows.Remove(dbName);
         }
     }
 
@@ -742,10 +777,26 @@ public sealed class TrackerWindow
             _data,
             _distances.Count > 0 ? _distances : null
         );
+
+        DetectStepAdvances();
+
+        // Distances and state just changed; rebuild what every row draws.
+        _rows.Clear();
+        foreach (var questKey in _sorted)
+        {
+            var quest = _data.GetByRuntimeKey(questKey);
+            if (quest != null)
+                _rows[questKey] = BuildRow(quest);
+        }
     }
 
     // ── Step advance detection ───────────────────────────────────────
 
+    /// <summary>
+    /// Step progress derives from quest and inventory state, which bumps the
+    /// state version, so checking on every sorted-list rebuild catches each
+    /// advance on the frame it happens.
+    /// </summary>
     private void DetectStepAdvances()
     {
         foreach (var questKey in _tracker.TrackedQuests)
@@ -799,5 +850,17 @@ public sealed class TrackerWindow
         public float AddedAt;
         public float CompletedAt;
         public float StepAdvancedAt;
+    }
+
+    /// <summary>What one tracker row draws, built by <see cref="BuildRow"/>.</summary>
+    private sealed class TrackerRow
+    {
+        public QuestStep? RawStep;
+        public QuestStep? DisplayStep;
+        public string NameLabel = "";
+        public string ContextId = "";
+        public string StepText = "";
+        public string? PrerequisiteLabel;
+        public QuestEntry? PrerequisiteQuest;
     }
 }

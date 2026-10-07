@@ -12,6 +12,9 @@ public sealed class Plugin : BaseUnityPlugin
     private void Awake()
     {
         gameObject.hideFlags = HideFlags.HideAndDontSave;
+        // The ImGui renderer draws only on Repaint and never uses GUILayout,
+        // so skip the Layout pass Unity would otherwise run every frame.
+        useGUILayout = false;
 
         var logger = new BepInExLogger(Logger);
         var config = new BepInExConfigBackend(Config);

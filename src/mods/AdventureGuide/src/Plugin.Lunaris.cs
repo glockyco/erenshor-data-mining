@@ -23,6 +23,9 @@ public sealed class Plugin : LunarisPlugin
     private void Awake()
     {
         gameObject.hideFlags = HideFlags.HideAndDontSave;
+        // The ImGui renderer draws only on Repaint and never uses GUILayout,
+        // so skip the Layout pass Unity would otherwise run every frame.
+        useGUILayout = false;
 
         var logger = new LunarisLogger(Logging);
         var config = new LunarisConfigBackend(Config);
