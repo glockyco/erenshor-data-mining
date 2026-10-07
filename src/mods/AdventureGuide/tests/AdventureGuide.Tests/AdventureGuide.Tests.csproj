@@ -60,6 +60,7 @@
     <Compile Include="../../src/UI/ZoneLineLabels.cs" Link="UI/ZoneLineLabels.cs" />
     <Compile Include="../../src/UI/UiScalePolicy.cs" Link="UI/UiScalePolicy.cs" />
     <Compile Include="../../src/UI/DisplayCacheRevision.cs" Link="UI/DisplayCacheRevision.cs" />
+    <Compile Include="../../src/UI/ZoneLineAlternativeLabels.cs" Link="UI/ZoneLineAlternativeLabels.cs" />
   </ItemGroup>
 
   <ItemGroup>

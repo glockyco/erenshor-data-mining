@@ -26,6 +26,7 @@ public sealed class QuestDetailPanel
     private readonly List<string> _completionLines = new();
     private readonly List<(string Text, bool Secondary)> _rewardLines = new();
     private readonly List<(Prerequisite Prerequisite, string Label)> _prerequisites = new();
+    private readonly Dictionary<QuestStep, ZoneLineAlternativeLabels> _zoneLineLabels = new();
     private HashSet<string>? _stepTreeQuestKeys;
     private DisplayCacheRevision _displayCacheRevision;
     private string? _levelZoneLine;
@@ -437,17 +438,22 @@ public sealed class QuestDetailPanel
         ImGui.Indent();
         ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
 
-        string header = $"{alternatives.Count} zone connections";
-        if (ImGui.TreeNode($"{header}##zl_{step.Order}"))
+        if (!_zoneLineLabels.TryGetValue(step, out var labels))
+        {
+            labels = new ZoneLineAlternativeLabels(step.Order);
+            _zoneLineLabels.Add(step, labels);
+        }
+        if (ImGui.TreeNode(labels.Header(alternatives.Count)))
         {
             for (int i = 0; i < alternatives.Count; i++)
             {
                 var (line, distance, isActive, isAccessible) = alternatives[i];
+                var row = labels.Row(i, line.DestinationDisplay, distance);
                 if (!isAccessible)
                 {
                     // Locked zone line: dimmed text
                     ImGui.PushStyleVar(ImGuiStyleVar.Alpha, 0.3f);
-                    ImGui.Text($"To {line.DestinationDisplay} ({distance:F0}m)");
+                    ImGui.TextUnformatted(row.Text);
                     ImGui.PopStyleVar();
 
                     // Required quests as clickable links on the next line
@@ -465,7 +471,7 @@ public sealed class QuestDetailPanel
                                 ImGui.Indent();
                                 if (
                                     ImGui.Selectable(
-                                        $"Requires: \"{entry.DisplayName}\"##rq_{step.Order}_{i}_{questDBName}"
+                                        row.Requirement(entry.DisplayName, questDBName)
                                     )
                                 )
                                     _state.SelectQuest(entry);
@@ -477,17 +483,10 @@ public sealed class QuestDetailPanel
                 }
                 else
                 {
-                    string label = ZoneLineLabels.Selectable(
-                        line.DestinationDisplay,
-                        distance,
-                        step.Order,
-                        i
-                    );
-
                     if (isActive)
                         ImGui.PushStyleColor(ImGuiCol.Text, Theme.QuestActive);
 
-                    if (ImGui.Selectable(label))
+                    if (ImGui.Selectable(row.Selectable))
                         _nav.PinZoneLine(line);
 
                     if (isActive)
@@ -496,7 +495,7 @@ public sealed class QuestDetailPanel
                     if (ImGui.IsItemHovered())
                     {
                         ImGui.BeginTooltip();
-                        ImGui.Text($"Route via {line.DestinationDisplay}");
+                        ImGui.TextUnformatted(row.Tooltip);
                         ImGui.EndTooltip();
                     }
                 }
@@ -860,6 +859,7 @@ public sealed class QuestDetailPanel
     private void RebuildDisplayCache(string? questKey)
     {
         _questDisplay.Clear();
+        _zoneLineLabels.Clear();
         _visited.Clear();
         _acquisitionLines.Clear();
         _completionLines.Clear();
