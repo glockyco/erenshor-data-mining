@@ -23,7 +23,7 @@ from erenshor.application.services.image_publication import (
 )
 from erenshor.application.services.image_publication_run import RunRecord, execute, revert
 from erenshor.application.services.screenshot_move import execute_screenshot_moves, plan_screenshot_moves
-from erenshor.infrastructure.wiki import MediaWikiEditError, MediaWikiUploadWarningError
+from erenshor.infrastructure.wiki import MediaWikiEditError, MediaWikiNetworkError, MediaWikiUploadWarningError
 from erenshor.infrastructure.wiki.client import (
     MediaWikiFile,
     MediaWikiFileVersion,
@@ -68,6 +68,7 @@ class FakeWiki:
     used: set[str] = field(default_factory=set)
     warn: dict[str, dict[str, str]] = field(default_factory=dict)
     fail_after_uploads: int | None = None
+    lose_move_answers: bool = False
     uploads: int = 0
     watched: tuple[str, ...] = ()
     dark: set[str] = field(default_factory=set)
@@ -199,6 +200,8 @@ class FakeWiki:
         if leave_redirect:
             self._write_page(from_title, f"#REDIRECT [[{to_title}]]")
         self._wrote()
+        if self.lose_move_answers:
+            raise MediaWikiNetworkError("Request timeout: The read operation timed out")
 
     # Deletions of the administrator
 
@@ -716,3 +719,19 @@ def test_editors_character_pictures_move_to_their_screenshot_titles_and_the_bots
     assert "File:Faith screenshot.png" not in wiki.pages
     assert wiki.pages["File:Summoned: Brute.png"] == "#REDIRECT [[File:Summoned Brute.png]]"
     assert wiki.shows_a_picture("File:Summoned: Brute.png")
+
+
+def test_a_move_whose_answer_was_lost_counts_when_the_file_arrived(setup: Any) -> None:
+    pictures, wiki, cache, tmp_path = setup
+    _antidote(pictures, wiki)
+    wiki.lose_move_answers = True
+    catalog = pictures.build()
+
+    plan = _plan(catalog, wiki, cache)
+    record = RunRecord(tmp_path / "run")
+    execute(plan, catalog, wiki, wiki, record, "Publish")
+
+    assert [
+        (entry["action"], entry["done"]) for entry in record.entries if entry["title"] == "File:Antidote icon.png"
+    ] == [("move", True)]
+    assert wiki.pages["File:Spell Scroll Antidote.png"] == "#REDIRECT [[File:Antidote icon.png]]"

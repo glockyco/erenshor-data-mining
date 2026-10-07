@@ -26,7 +26,7 @@ import re
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Protocol
 
-from erenshor.infrastructure.wiki import MediaWikiAPIError, MediaWikiUploadWarningError
+from erenshor.infrastructure.wiki import MediaWikiAPIError, MediaWikiNetworkError, MediaWikiUploadWarningError
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -255,8 +255,11 @@ def move(
     try:
         administrator.move_page(source, title, f"{summary}: the file takes the title that the wiki's pages name")
     except MediaWikiAPIError as error:
-        record.add(_not_done(title, "move", f"the move failed: {error}"))
-        return False
+        # A move whose answer was lost may have happened: the new title then holds the file.
+        landed = _current(writer, title) if isinstance(error, MediaWikiNetworkError) else None
+        if landed is None or landed.sha1 != sha1:
+            record.add(_not_done(title, "move", f"the move failed: {error}"))
+            return False
     moved = _current(writer, title)
     record.add({"title": title, "action": "move", "done": True, "source": source, "sha1": sha1})
     if moved is None or moved.sha1 != sha1:
