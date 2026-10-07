@@ -12,8 +12,8 @@ namespace AdventureGuide.Navigation;
 ///
 /// Dead NPC bodies are found via CorpseDataManager.AllCorpseData — entries
 /// with non-null MyNPC are fresh kills whose bodies are still in the scene.
-/// RotChests are cached once per scene load (they only spawn during
-/// ZoneAnnounce.SpawnAllCorpses) and pruned per-frame as they rot away.
+/// RotChests are rescanned after CorpseDataManager.SpawnAllCorpses and pruned
+/// per-frame as they rot away.
 /// </summary>
 public sealed class LootScanner
 {
@@ -51,7 +51,7 @@ public sealed class LootScanner
     private readonly List<LootContainer> _containers = new();
     private bool _dirty = true;
 
-    // RotChests cached once per scene load — pruned when destroyed
+    // RotChests cached after restoration — pruned when destroyed.
     private readonly List<RotChest> _rotChests = new();
 
     /// <summary>All containers with quest-relevant loot in the current scene.</summary>
@@ -80,9 +80,8 @@ public sealed class LootScanner
     }
 
     /// <summary>
-    /// Called once on scene load. Captures all RotChest objects spawned by
-    /// CorpseDataManager.SpawnAllCorpses(). No new RotChests appear mid-scene,
-    /// so this scan is complete. Destroyed chests pruned per-frame.
+    /// Reset on scene load and rescan after CorpseDataManager.SpawnAllCorpses.
+    /// Clearing first makes repeated scans safe, including hot reload.
     /// </summary>
     public void OnSceneLoaded()
     {
