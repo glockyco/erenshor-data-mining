@@ -41,6 +41,7 @@
     <Compile Include="../../src/Patches/DeathObservationPolicy.cs" Link="Patches/DeathObservationPolicy.cs" />
     <Compile Include="../../src/Patches/QuestLogSuppressionPolicy.cs" Link="Patches/QuestLogSuppressionPolicy.cs" />
     <Compile Include="../../src/Navigation/NavigationPolicy.cs" Link="Navigation/NavigationPolicy.cs" />
+    <Compile Include="../../src/Navigation/PositionedSource.cs" Link="Navigation/PositionedSource.cs" />
     <Compile Include="../../src/Navigation/BillboardUpdatePolicy.cs" Link="Navigation/BillboardUpdatePolicy.cs" />
     <Compile Include="../../src/Navigation/DirectPlacementPolicy.cs" Link="Navigation/DirectPlacementPolicy.cs" />
     <Compile Include="../../src/Navigation/MarkerType.cs" Link="Navigation/MarkerType.cs" />
