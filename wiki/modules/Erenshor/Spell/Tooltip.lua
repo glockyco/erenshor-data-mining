@@ -54,13 +54,13 @@ function Tooltip.render(spell)
 	local root = Common.standaloneTooltipRoot("spell", spell.stableKey)
 
 	local headerRow = root:tag("div"):addClass("item-spell-details-header-row")
-	local hasIcon = not Common.isBlank(spell.image)
+	local hasIcon = not Common.isBlank(spell.icon)
 	if hasIcon then
 		headerRow
 			:tag("div")
 			:addClass("item-spell-details-icon")
 			:wikitext(Icon.render(mw.getCurrentFrame(), {
-				file = tostring(spell.image) .. ".png",
+				file = spell.icon,
 				kind = "ability",
 				size = 48,
 			}))

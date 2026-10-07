@@ -1,0 +1,7 @@
+{{Character
+|name=Image Render Only
+|render=Aged Prism.png
+|screenshot=Image Render Missing Screenshot.png
+|imagecaption=
+|type=NPC
+}}

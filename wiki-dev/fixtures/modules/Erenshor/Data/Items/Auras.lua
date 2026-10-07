@@ -2,7 +2,7 @@ return {
 	["item:ember_aura"] = {
 		name = "Ember Aura",
 		page = "Ember Aura",
-		image = "Ember Aura.png",
+		icon = "Ember Aura icon.png",
 		type = "Aura",
 		slot = "Aura",
 		itemLevel = 20,

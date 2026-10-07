@@ -1,7 +1,7 @@
 return {
 	["byKey"] = {
 		["character:a_grizzly_bear"] = {
-			["image"] = "A Grizzly Bear.png",
+			["image"] = "A Grizzly Bear render.png",
 			["key"] = "character:a_grizzly_bear",
 			["kind"] = "character",
 			["name"] = "A Grizzly Bear",
@@ -9,7 +9,7 @@ return {
 			["subtype"] = "Enemy",
 		},
 		["character:captain_rowan"] = {
-			["image"] = "Captain Rowan.png",
+			["image"] = "Captain Rowan render.png",
 			["key"] = "character:captain_rowan",
 			["kind"] = "character",
 			["name"] = "Captain Rowan",
@@ -17,7 +17,7 @@ return {
 			["subtype"] = "NPC",
 		},
 		["character:dire_wolf_alpha"] = {
-			["image"] = "Dire Wolf.png",
+			["image"] = "Dire Wolf render.png",
 			["key"] = "character:dire_wolf_alpha",
 			["kind"] = "character",
 			["name"] = "Dire Wolf",
@@ -25,7 +25,7 @@ return {
 			["subtype"] = "Rare",
 		},
 		["character:dire_wolf_young"] = {
-			["image"] = "Dire Wolf.png",
+			["image"] = "Dire Wolf render.png",
 			["key"] = "character:dire_wolf_young",
 			["kind"] = "character",
 			["name"] = "Dire Wolf",
@@ -33,7 +33,7 @@ return {
 			["subtype"] = "Enemy",
 		},
 		["character:rare_cave_spider"] = {
-			["image"] = "Rare Cave Spider.png",
+			["image"] = "Rare Cave Spider render.png",
 			["key"] = "character:rare_cave_spider",
 			["kind"] = "character",
 			["name"] = "Rare Cave Spider",
@@ -41,7 +41,7 @@ return {
 			["subtype"] = "Rare",
 		},
 		["character:subterranean magmite"] = {
-			["image"] = "A Subterranean Magmite.png",
+			["image"] = "A Subterranean Magmite render.png",
 			["key"] = "character:subterranean magmite",
 			["kind"] = "character",
 			["name"] = "A Subterranean Magmite",
@@ -79,21 +79,21 @@ return {
 			["page"] = "Stormcaller",
 		},
 		["faction:evil"] = {
-			["image"] = "The Followers of Evil",
+			["image"] = nil,
 			["key"] = "faction:evil",
 			["kind"] = "faction",
 			["name"] = "The Followers of Evil",
 			["page"] = "The Followers of Evil",
 		},
 		["faction:good"] = {
-			["image"] = "The Followers of Good",
+			["image"] = nil,
 			["key"] = "faction:good",
 			["kind"] = "faction",
 			["name"] = "The Followers of Good",
 			["page"] = "The Followers of Good",
 		},
 		["item:bear_claw"] = {
-			["image"] = "Bear Claw.png",
+			["image"] = "Bear Claw icon.png",
 			["key"] = "item:bear_claw",
 			["kind"] = "item",
 			["name"] = "Bear Claw",
@@ -101,7 +101,7 @@ return {
 			["subtype"] = "general",
 		},
 		["item:bear_meat"] = {
-			["image"] = "Bear Meat.png",
+			["image"] = "Bear Meat icon.png",
 			["key"] = "item:bear_meat",
 			["kind"] = "item",
 			["name"] = "Bear Meat",
@@ -109,7 +109,7 @@ return {
 			["subtype"] = "general",
 		},
 		["item:bear_pelt"] = {
-			["image"] = "Bear Pelt.png",
+			["image"] = "Bear Pelt icon.png",
 			["key"] = "item:bear_pelt",
 			["kind"] = "item",
 			["name"] = "Bear Pelt",
@@ -117,7 +117,7 @@ return {
 			["subtype"] = "general",
 		},
 		["item:chest - 38 - abyssal plate"] = {
-			["image"] = "Abyssal Plate.png",
+			["image"] = "Abyssal Plate icon.png",
 			["key"] = "item:chest - 38 - abyssal plate",
 			["kind"] = "item",
 			["name"] = "Abyssal Plate",
@@ -125,7 +125,7 @@ return {
 			["subtype"] = "armor",
 		},
 		["item:copper_armor_mold"] = {
-			["image"] = "Copper Armor Mold.png",
+			["image"] = "Copper Armor Mold icon.png",
 			["key"] = "item:copper_armor_mold",
 			["kind"] = "item",
 			["name"] = "Copper Armor Mold",
@@ -133,7 +133,7 @@ return {
 			["subtype"] = "mold",
 		},
 		["item:ember_aura"] = {
-			["image"] = "Ember Aura.png",
+			["image"] = "Ember Aura icon.png",
 			["key"] = "item:ember_aura",
 			["kind"] = "item",
 			["name"] = "Ember Aura",
@@ -141,7 +141,7 @@ return {
 			["subtype"] = "aura",
 		},
 		["item:ember_longsword"] = {
-			["image"] = "Ember Longsword.png",
+			["image"] = "Ember Longsword icon.png",
 			["key"] = "item:ember_longsword",
 			["kind"] = "item",
 			["name"] = "Ember Longsword",
@@ -149,7 +149,7 @@ return {
 			["subtype"] = "weapon",
 		},
 		["item:gen - nightmare crystal"] = {
-			["image"] = "Nightmare Crystal.png",
+			["image"] = "Nightmare Crystal icon.png",
 			["key"] = "item:gen - nightmare crystal",
 			["kind"] = "item",
 			["name"] = "Nightmare Crystal",
@@ -157,7 +157,7 @@ return {
 			["subtype"] = "general",
 		},
 		["item:gen - priel note"] = {
-			["image"] = "Priel Note.png",
+			["image"] = "Priel Note icon.png",
 			["key"] = "item:gen - priel note",
 			["kind"] = "item",
 			["name"] = "Priel Note (1)",
@@ -165,7 +165,7 @@ return {
 			["subtype"] = "general",
 		},
 		["item:gen - priel note 1"] = {
-			["image"] = "Priel Note.png",
+			["image"] = "Priel Note icon.png",
 			["key"] = "item:gen - priel note 1",
 			["kind"] = "item",
 			["name"] = "Priel Note (2)",
@@ -173,7 +173,7 @@ return {
 			["subtype"] = "general",
 		},
 		["item:healing_draught"] = {
-			["image"] = "Healing Draught.png",
+			["image"] = "Healing Draught icon.png",
 			["key"] = "item:healing_draught",
 			["kind"] = "item",
 			["name"] = "Healing Draught",
@@ -181,7 +181,7 @@ return {
 			["subtype"] = "consumable",
 		},
 		["item:lucky_charm"] = {
-			["image"] = "Lucky Charm.png",
+			["image"] = "Lucky Charm icon.png",
 			["key"] = "item:lucky_charm",
 			["kind"] = "item",
 			["name"] = "Lucky Charm",
@@ -189,7 +189,7 @@ return {
 			["subtype"] = "charm",
 		},
 		["item:magical_bag"] = {
-			["image"] = "Magical Bag.png",
+			["image"] = "Magical Bag icon.png",
 			["key"] = "item:magical_bag",
 			["kind"] = "item",
 			["name"] = "Magical Bag",
@@ -197,7 +197,7 @@ return {
 			["subtype"] = "general",
 		},
 		["item:ore - bronze ore"] = {
-			["image"] = "Bronze Ore.png",
+			["image"] = "Bronze Ore icon.png",
 			["key"] = "item:ore - bronze ore",
 			["kind"] = "item",
 			["name"] = "Bronze Ore",
@@ -205,7 +205,7 @@ return {
 			["subtype"] = "general",
 		},
 		["item:ore - planar stone"] = {
-			["image"] = "Planar Stone.png",
+			["image"] = "Planar Stone icon.png",
 			["key"] = "item:ore - planar stone",
 			["kind"] = "item",
 			["name"] = "Planar Stone",
@@ -213,7 +213,7 @@ return {
 			["subtype"] = "general",
 		},
 		["item:scroll_of_ember"] = {
-			["image"] = "Scroll of Ember.png",
+			["image"] = "Scroll of Ember icon.png",
 			["key"] = "item:scroll_of_ember",
 			["kind"] = "item",
 			["name"] = "Scroll of Ember",
@@ -235,7 +235,7 @@ return {
 			["subtype"] = "general",
 		},
 		["item:sword_mastery_manual"] = {
-			["image"] = "Sword Mastery Manual.png",
+			["image"] = "Sword Mastery Manual icon.png",
 			["key"] = "item:sword_mastery_manual",
 			["kind"] = "item",
 			["name"] = "Sword Mastery Manual",
@@ -243,7 +243,7 @@ return {
 			["subtype"] = "skillbook",
 		},
 		["item:template - inert diamond"] = {
-			["image"] = "Inert Diamond.png",
+			["image"] = "Inert Diamond icon.png",
 			["key"] = "item:template - inert diamond",
 			["kind"] = "item",
 			["name"] = "Inert Diamond",
@@ -251,28 +251,28 @@ return {
 			["subtype"] = "general",
 		},
 		["quest:a hermit's request"] = {
-			["image"] = "A Hermit's Request",
+			["image"] = nil,
 			["key"] = "quest:a hermit's request",
 			["kind"] = "quest",
 			["name"] = "A Hermit's Request",
 			["page"] = "A Hermit's Request",
 		},
 		["quest:catfordeer"] = {
-			["image"] = "A Cat for a Deer",
+			["image"] = nil,
 			["key"] = "quest:catfordeer",
 			["kind"] = "quest",
 			["name"] = "A Cat for a Deer",
 			["page"] = "A Cat for a Deer",
 		},
 		["quest:magical_sword"] = {
-			["image"] = "A Magical Sword in Port Azure",
+			["image"] = nil,
 			["key"] = "quest:magical_sword",
 			["kind"] = "quest",
 			["name"] = "A Magical Sword in Port Azure",
 			["page"] = "A Magical Sword in Port Azure",
 		},
 		["skill:backstab"] = {
-			["image"] = "Backstab",
+			["image"] = "Backstab icon.png",
 			["key"] = "skill:backstab",
 			["kind"] = "ability",
 			["name"] = "Backstab",
@@ -280,7 +280,7 @@ return {
 			["subtype"] = "skill",
 		},
 		["skill:double_attack"] = {
-			["image"] = "Double Attack",
+			["image"] = "Double Attack icon.png",
 			["key"] = "skill:double_attack",
 			["kind"] = "ability",
 			["name"] = "Double Attack",
@@ -288,7 +288,7 @@ return {
 			["subtype"] = "skill",
 		},
 		["skill:stance - aggressive"] = {
-			["image"] = "Stance: Aggressive",
+			["image"] = "Stance Aggressive icon.png",
 			["key"] = "skill:stance - aggressive",
 			["kind"] = "ability",
 			["name"] = "Stance: Aggressive",
@@ -296,7 +296,7 @@ return {
 			["subtype"] = "skill",
 		},
 		["skill:sword_mastery"] = {
-			["image"] = "Sword Mastery",
+			["image"] = "Sword Mastery icon.png",
 			["key"] = "skill:sword_mastery",
 			["kind"] = "ability",
 			["name"] = "Sword Mastery",
@@ -304,7 +304,7 @@ return {
 			["subtype"] = "skill",
 		},
 		["spell:ancient_presence"] = {
-			["image"] = "Aura Ancient Presence",
+			["image"] = "Aura Ancient Presence icon.png",
 			["key"] = "spell:ancient_presence",
 			["kind"] = "ability",
 			["name"] = "Ancient Presence",
@@ -312,7 +312,7 @@ return {
 			["subtype"] = "spell",
 		},
 		["spell:ember"] = {
-			["image"] = "Ember",
+			["image"] = "Ember icon.png",
 			["key"] = "spell:ember",
 			["kind"] = "ability",
 			["name"] = "Ember",
@@ -320,7 +320,7 @@ return {
 			["subtype"] = "spell",
 		},
 		["spell:ember_proc"] = {
-			["image"] = "Ember Burst",
+			["image"] = "Ember Burst icon.png",
 			["key"] = "spell:ember_proc",
 			["kind"] = "ability",
 			["name"] = "Ember Burst",
@@ -328,7 +328,7 @@ return {
 			["subtype"] = "spell",
 		},
 		["spell:flame_bolt"] = {
-			["image"] = "Flame Bolt",
+			["image"] = "Flame Bolt icon.png",
 			["key"] = "spell:flame_bolt",
 			["kind"] = "ability",
 			["name"] = "Flame Bolt",
@@ -336,7 +336,7 @@ return {
 			["subtype"] = "spell",
 		},
 		["spell:flame_bolt_greater"] = {
-			["image"] = "Flame Bolt",
+			["image"] = "Flame Bolt icon.png",
 			["key"] = "spell:flame_bolt_greater",
 			["kind"] = "ability",
 			["name"] = "Flame Bolt",
@@ -344,7 +344,7 @@ return {
 			["subtype"] = "spell",
 		},
 		["spell:minor_heal"] = {
-			["image"] = "Minor Heal",
+			["image"] = "Minor Heal icon.png",
 			["key"] = "spell:minor_heal",
 			["kind"] = "ability",
 			["name"] = "Minor Heal",
@@ -352,7 +352,7 @@ return {
 			["subtype"] = "spell",
 		},
 		["spell:minor_lightning"] = {
-			["image"] = "Minor Lightning",
+			["image"] = "Minor Lightning icon.png",
 			["key"] = "spell:minor_lightning",
 			["kind"] = "ability",
 			["name"] = "Minor Lightning",
@@ -360,7 +360,7 @@ return {
 			["subtype"] = "spell",
 		},
 		["spell:none - lava coat"] = {
-			["image"] = "Lava Coat",
+			["image"] = "Lava Coat icon.png",
 			["key"] = "spell:none - lava coat",
 			["kind"] = "ability",
 			["name"] = "Lava Coat",
@@ -368,7 +368,7 @@ return {
 			["subtype"] = "spell",
 		},
 		["stance:aggressive"] = {
-			["image"] = "Stance: Aggressive",
+			["image"] = "Stance Aggressive icon.png",
 			["key"] = "stance:aggressive",
 			["kind"] = "ability",
 			["name"] = "Aggressive",
@@ -376,7 +376,7 @@ return {
 			["subtype"] = "stance",
 		},
 		["stance:defensive"] = {
-			["image"] = "Stance: Defensive",
+			["image"] = "Stance Defensive icon.png",
 			["key"] = "stance:defensive",
 			["kind"] = "ability",
 			["name"] = "Defensive",
@@ -384,7 +384,7 @@ return {
 			["subtype"] = "stance",
 		},
 		["stance:normal"] = {
-			["image"] = "Stance: Normal",
+			["image"] = "Stance Normal icon.png",
 			["key"] = "stance:normal",
 			["kind"] = "ability",
 			["name"] = "Normal",
@@ -392,7 +392,7 @@ return {
 			["subtype"] = "stance",
 		},
 		["stance:reckless"] = {
-			["image"] = "Stance: Reckless",
+			["image"] = "Stance Reckless icon.png",
 			["key"] = "stance:reckless",
 			["kind"] = "ability",
 			["name"] = "Reckless",
@@ -400,7 +400,7 @@ return {
 			["subtype"] = "stance",
 		},
 		["stance:taunting"] = {
-			["image"] = "Stance: Taunting",
+			["image"] = "Stance Taunting icon.png",
 			["key"] = "stance:taunting",
 			["kind"] = "ability",
 			["name"] = "Taunting",
@@ -408,7 +408,7 @@ return {
 			["subtype"] = "stance",
 		},
 		["zone:ElderstoneMines"] = {
-			["image"] = "The Elderstone Mines",
+			["image"] = nil,
 			["key"] = "zone:ElderstoneMines",
 			["kind"] = "zone",
 			["name"] = "The Elderstone Mines",
@@ -416,7 +416,7 @@ return {
 			["subtype"] = "Dungeon",
 		},
 		["zone:PortAzure"] = {
-			["image"] = "Port Azure",
+			["image"] = nil,
 			["key"] = "zone:PortAzure",
 			["kind"] = "zone",
 			["name"] = "Port Azure",
@@ -424,7 +424,7 @@ return {
 			["subtype"] = "Zone",
 		},
 		["zone:saltedstrand"] = {
-			["image"] = "Blacksalt Strand",
+			["image"] = nil,
 			["key"] = "zone:saltedstrand",
 			["kind"] = "zone",
 			["name"] = "Blacksalt Strand",
@@ -595,14 +595,14 @@ return {
 	["catalogSha256"] = "65b88832fa893b00f77d41183a0ae494bbcddb338f0036cf664d3d734295a54f",
 	["entries"] = {
 		{
-			["image"] = "A Cat for a Deer",
+			["image"] = nil,
 			["key"] = "quest:catfordeer",
 			["kind"] = "quest",
 			["name"] = "A Cat for a Deer",
 			["page"] = "A Cat for a Deer",
 		},
 		{
-			["image"] = "A Grizzly Bear.png",
+			["image"] = "A Grizzly Bear render.png",
 			["key"] = "character:a_grizzly_bear",
 			["kind"] = "character",
 			["name"] = "A Grizzly Bear",
@@ -610,21 +610,21 @@ return {
 			["subtype"] = "Enemy",
 		},
 		{
-			["image"] = "A Hermit's Request",
+			["image"] = nil,
 			["key"] = "quest:a hermit's request",
 			["kind"] = "quest",
 			["name"] = "A Hermit's Request",
 			["page"] = "A Hermit's Request",
 		},
 		{
-			["image"] = "A Magical Sword in Port Azure",
+			["image"] = nil,
 			["key"] = "quest:magical_sword",
 			["kind"] = "quest",
 			["name"] = "A Magical Sword in Port Azure",
 			["page"] = "A Magical Sword in Port Azure",
 		},
 		{
-			["image"] = "A Subterranean Magmite.png",
+			["image"] = "A Subterranean Magmite render.png",
 			["key"] = "character:subterranean magmite",
 			["kind"] = "character",
 			["name"] = "A Subterranean Magmite",
@@ -632,7 +632,7 @@ return {
 			["subtype"] = "Enemy",
 		},
 		{
-			["image"] = "Abyssal Plate.png",
+			["image"] = "Abyssal Plate icon.png",
 			["key"] = "item:chest - 38 - abyssal plate",
 			["kind"] = "item",
 			["name"] = "Abyssal Plate",
@@ -640,7 +640,7 @@ return {
 			["subtype"] = "armor",
 		},
 		{
-			["image"] = "Stance: Aggressive",
+			["image"] = "Stance Aggressive icon.png",
 			["key"] = "stance:aggressive",
 			["kind"] = "ability",
 			["name"] = "Aggressive",
@@ -648,7 +648,7 @@ return {
 			["subtype"] = "stance",
 		},
 		{
-			["image"] = "Aura Ancient Presence",
+			["image"] = "Aura Ancient Presence icon.png",
 			["key"] = "spell:ancient_presence",
 			["kind"] = "ability",
 			["name"] = "Ancient Presence",
@@ -656,7 +656,7 @@ return {
 			["subtype"] = "spell",
 		},
 		{
-			["image"] = "Backstab",
+			["image"] = "Backstab icon.png",
 			["key"] = "skill:backstab",
 			["kind"] = "ability",
 			["name"] = "Backstab",
@@ -664,7 +664,7 @@ return {
 			["subtype"] = "skill",
 		},
 		{
-			["image"] = "Bear Claw.png",
+			["image"] = "Bear Claw icon.png",
 			["key"] = "item:bear_claw",
 			["kind"] = "item",
 			["name"] = "Bear Claw",
@@ -672,7 +672,7 @@ return {
 			["subtype"] = "general",
 		},
 		{
-			["image"] = "Bear Meat.png",
+			["image"] = "Bear Meat icon.png",
 			["key"] = "item:bear_meat",
 			["kind"] = "item",
 			["name"] = "Bear Meat",
@@ -680,7 +680,7 @@ return {
 			["subtype"] = "general",
 		},
 		{
-			["image"] = "Bear Pelt.png",
+			["image"] = "Bear Pelt icon.png",
 			["key"] = "item:bear_pelt",
 			["kind"] = "item",
 			["name"] = "Bear Pelt",
@@ -688,7 +688,7 @@ return {
 			["subtype"] = "general",
 		},
 		{
-			["image"] = "Blacksalt Strand",
+			["image"] = nil,
 			["key"] = "zone:saltedstrand",
 			["kind"] = "zone",
 			["name"] = "Blacksalt Strand",
@@ -696,7 +696,7 @@ return {
 			["subtype"] = "Zone",
 		},
 		{
-			["image"] = "Bronze Ore.png",
+			["image"] = "Bronze Ore icon.png",
 			["key"] = "item:ore - bronze ore",
 			["kind"] = "item",
 			["name"] = "Bronze Ore",
@@ -704,7 +704,7 @@ return {
 			["subtype"] = "general",
 		},
 		{
-			["image"] = "Captain Rowan.png",
+			["image"] = "Captain Rowan render.png",
 			["key"] = "character:captain_rowan",
 			["kind"] = "character",
 			["name"] = "Captain Rowan",
@@ -712,7 +712,7 @@ return {
 			["subtype"] = "NPC",
 		},
 		{
-			["image"] = "Copper Armor Mold.png",
+			["image"] = "Copper Armor Mold icon.png",
 			["key"] = "item:copper_armor_mold",
 			["kind"] = "item",
 			["name"] = "Copper Armor Mold",
@@ -720,7 +720,7 @@ return {
 			["subtype"] = "mold",
 		},
 		{
-			["image"] = "Stance: Defensive",
+			["image"] = "Stance Defensive icon.png",
 			["key"] = "stance:defensive",
 			["kind"] = "ability",
 			["name"] = "Defensive",
@@ -728,7 +728,7 @@ return {
 			["subtype"] = "stance",
 		},
 		{
-			["image"] = "Dire Wolf.png",
+			["image"] = "Dire Wolf render.png",
 			["key"] = "character:dire_wolf_young",
 			["kind"] = "character",
 			["name"] = "Dire Wolf",
@@ -736,7 +736,7 @@ return {
 			["subtype"] = "Enemy",
 		},
 		{
-			["image"] = "Dire Wolf.png",
+			["image"] = "Dire Wolf render.png",
 			["key"] = "character:dire_wolf_alpha",
 			["kind"] = "character",
 			["name"] = "Dire Wolf",
@@ -744,7 +744,7 @@ return {
 			["subtype"] = "Rare",
 		},
 		{
-			["image"] = "Double Attack",
+			["image"] = "Double Attack icon.png",
 			["key"] = "skill:double_attack",
 			["kind"] = "ability",
 			["name"] = "Double Attack",
@@ -758,7 +758,7 @@ return {
 			["page"] = "Druid",
 		},
 		{
-			["image"] = "Ember",
+			["image"] = "Ember icon.png",
 			["key"] = "spell:ember",
 			["kind"] = "ability",
 			["name"] = "Ember",
@@ -766,7 +766,7 @@ return {
 			["subtype"] = "spell",
 		},
 		{
-			["image"] = "Ember Aura.png",
+			["image"] = "Ember Aura icon.png",
 			["key"] = "item:ember_aura",
 			["kind"] = "item",
 			["name"] = "Ember Aura",
@@ -774,7 +774,7 @@ return {
 			["subtype"] = "aura",
 		},
 		{
-			["image"] = "Ember Burst",
+			["image"] = "Ember Burst icon.png",
 			["key"] = "spell:ember_proc",
 			["kind"] = "ability",
 			["name"] = "Ember Burst",
@@ -782,7 +782,7 @@ return {
 			["subtype"] = "spell",
 		},
 		{
-			["image"] = "Ember Longsword.png",
+			["image"] = "Ember Longsword icon.png",
 			["key"] = "item:ember_longsword",
 			["kind"] = "item",
 			["name"] = "Ember Longsword",
@@ -790,7 +790,7 @@ return {
 			["subtype"] = "weapon",
 		},
 		{
-			["image"] = "Flame Bolt",
+			["image"] = "Flame Bolt icon.png",
 			["key"] = "spell:flame_bolt",
 			["kind"] = "ability",
 			["name"] = "Flame Bolt",
@@ -798,7 +798,7 @@ return {
 			["subtype"] = "spell",
 		},
 		{
-			["image"] = "Flame Bolt",
+			["image"] = "Flame Bolt icon.png",
 			["key"] = "spell:flame_bolt_greater",
 			["kind"] = "ability",
 			["name"] = "Flame Bolt",
@@ -806,7 +806,7 @@ return {
 			["subtype"] = "spell",
 		},
 		{
-			["image"] = "Healing Draught.png",
+			["image"] = "Healing Draught icon.png",
 			["key"] = "item:healing_draught",
 			["kind"] = "item",
 			["name"] = "Healing Draught",
@@ -814,7 +814,7 @@ return {
 			["subtype"] = "consumable",
 		},
 		{
-			["image"] = "Inert Diamond.png",
+			["image"] = "Inert Diamond icon.png",
 			["key"] = "item:template - inert diamond",
 			["kind"] = "item",
 			["name"] = "Inert Diamond",
@@ -822,7 +822,7 @@ return {
 			["subtype"] = "general",
 		},
 		{
-			["image"] = "Lava Coat",
+			["image"] = "Lava Coat icon.png",
 			["key"] = "spell:none - lava coat",
 			["kind"] = "ability",
 			["name"] = "Lava Coat",
@@ -830,7 +830,7 @@ return {
 			["subtype"] = "spell",
 		},
 		{
-			["image"] = "Lucky Charm.png",
+			["image"] = "Lucky Charm icon.png",
 			["key"] = "item:lucky_charm",
 			["kind"] = "item",
 			["name"] = "Lucky Charm",
@@ -838,7 +838,7 @@ return {
 			["subtype"] = "charm",
 		},
 		{
-			["image"] = "Magical Bag.png",
+			["image"] = "Magical Bag icon.png",
 			["key"] = "item:magical_bag",
 			["kind"] = "item",
 			["name"] = "Magical Bag",
@@ -846,7 +846,7 @@ return {
 			["subtype"] = "general",
 		},
 		{
-			["image"] = "Minor Heal",
+			["image"] = "Minor Heal icon.png",
 			["key"] = "spell:minor_heal",
 			["kind"] = "ability",
 			["name"] = "Minor Heal",
@@ -854,7 +854,7 @@ return {
 			["subtype"] = "spell",
 		},
 		{
-			["image"] = "Minor Lightning",
+			["image"] = "Minor Lightning icon.png",
 			["key"] = "spell:minor_lightning",
 			["kind"] = "ability",
 			["name"] = "Minor Lightning",
@@ -862,7 +862,7 @@ return {
 			["subtype"] = "spell",
 		},
 		{
-			["image"] = "Nightmare Crystal.png",
+			["image"] = "Nightmare Crystal icon.png",
 			["key"] = "item:gen - nightmare crystal",
 			["kind"] = "item",
 			["name"] = "Nightmare Crystal",
@@ -870,7 +870,7 @@ return {
 			["subtype"] = "general",
 		},
 		{
-			["image"] = "Stance: Normal",
+			["image"] = "Stance Normal icon.png",
 			["key"] = "stance:normal",
 			["kind"] = "ability",
 			["name"] = "Normal",
@@ -884,7 +884,7 @@ return {
 			["page"] = "Paladin",
 		},
 		{
-			["image"] = "Planar Stone.png",
+			["image"] = "Planar Stone icon.png",
 			["key"] = "item:ore - planar stone",
 			["kind"] = "item",
 			["name"] = "Planar Stone",
@@ -892,7 +892,7 @@ return {
 			["subtype"] = "general",
 		},
 		{
-			["image"] = "Port Azure",
+			["image"] = nil,
 			["key"] = "zone:PortAzure",
 			["kind"] = "zone",
 			["name"] = "Port Azure",
@@ -900,7 +900,7 @@ return {
 			["subtype"] = "Zone",
 		},
 		{
-			["image"] = "Priel Note.png",
+			["image"] = "Priel Note icon.png",
 			["key"] = "item:gen - priel note",
 			["kind"] = "item",
 			["name"] = "Priel Note (1)",
@@ -908,7 +908,7 @@ return {
 			["subtype"] = "general",
 		},
 		{
-			["image"] = "Priel Note.png",
+			["image"] = "Priel Note icon.png",
 			["key"] = "item:gen - priel note 1",
 			["kind"] = "item",
 			["name"] = "Priel Note (2)",
@@ -916,7 +916,7 @@ return {
 			["subtype"] = "general",
 		},
 		{
-			["image"] = "Rare Cave Spider.png",
+			["image"] = "Rare Cave Spider render.png",
 			["key"] = "character:rare_cave_spider",
 			["kind"] = "character",
 			["name"] = "Rare Cave Spider",
@@ -930,7 +930,7 @@ return {
 			["page"] = "Reaver",
 		},
 		{
-			["image"] = "Stance: Reckless",
+			["image"] = "Stance Reckless icon.png",
 			["key"] = "stance:reckless",
 			["kind"] = "ability",
 			["name"] = "Reckless",
@@ -938,7 +938,7 @@ return {
 			["subtype"] = "stance",
 		},
 		{
-			["image"] = "Scroll of Ember.png",
+			["image"] = "Scroll of Ember icon.png",
 			["key"] = "item:scroll_of_ember",
 			["kind"] = "item",
 			["name"] = "Scroll of Ember",
@@ -960,7 +960,7 @@ return {
 			["subtype"] = "general",
 		},
 		{
-			["image"] = "Stance: Aggressive",
+			["image"] = "Stance Aggressive icon.png",
 			["key"] = "skill:stance - aggressive",
 			["kind"] = "ability",
 			["name"] = "Stance: Aggressive",
@@ -974,7 +974,7 @@ return {
 			["page"] = "Stormcaller",
 		},
 		{
-			["image"] = "Sword Mastery",
+			["image"] = "Sword Mastery icon.png",
 			["key"] = "skill:sword_mastery",
 			["kind"] = "ability",
 			["name"] = "Sword Mastery",
@@ -982,7 +982,7 @@ return {
 			["subtype"] = "skill",
 		},
 		{
-			["image"] = "Sword Mastery Manual.png",
+			["image"] = "Sword Mastery Manual icon.png",
 			["key"] = "item:sword_mastery_manual",
 			["kind"] = "item",
 			["name"] = "Sword Mastery Manual",
@@ -990,7 +990,7 @@ return {
 			["subtype"] = "skillbook",
 		},
 		{
-			["image"] = "Stance: Taunting",
+			["image"] = "Stance Taunting icon.png",
 			["key"] = "stance:taunting",
 			["kind"] = "ability",
 			["name"] = "Taunting",
@@ -998,7 +998,7 @@ return {
 			["subtype"] = "stance",
 		},
 		{
-			["image"] = "The Elderstone Mines",
+			["image"] = nil,
 			["key"] = "zone:ElderstoneMines",
 			["kind"] = "zone",
 			["name"] = "The Elderstone Mines",
@@ -1006,14 +1006,14 @@ return {
 			["subtype"] = "Dungeon",
 		},
 		{
-			["image"] = "The Followers of Evil",
+			["image"] = nil,
 			["key"] = "faction:evil",
 			["kind"] = "faction",
 			["name"] = "The Followers of Evil",
 			["page"] = "The Followers of Evil",
 		},
 		{
-			["image"] = "The Followers of Good",
+			["image"] = nil,
 			["key"] = "faction:good",
 			["kind"] = "faction",
 			["name"] = "The Followers of Good",

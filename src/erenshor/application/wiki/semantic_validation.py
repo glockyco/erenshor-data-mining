@@ -49,6 +49,7 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
         "Item": [
             "title",
             "stablekey",
+            "icon",
             "type",
             "vendorsource",
             "source",
@@ -67,7 +68,9 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
         "Character": [
             "name",
             "stablekey",
-            "image",
+            "render",
+            "screenshot",
+            "imagekind",
             "imagecaption",
             "type",
             "faction",
@@ -105,7 +108,7 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
         "Ability": [
             "title",
             "stablekey",
-            "image",
+            "icon",
             "imagecaption",
             "description",
             "type",
@@ -177,7 +180,7 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
         "Stance": [
             "title",
             "stablekey",
-            "image",
+            "icon",
             "imagecaption",
             "description",
             "switch_message",
@@ -197,7 +200,7 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
         "Zone": ["title", "image", "imagecaption", "type", "level", "maplink", "connects"],
         "ItemTooltip": [
             "kind",
-            "image",
+            "icon",
             "name",
             "value",
             "slot",
@@ -279,7 +282,7 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
             "proc_xp_bonus",
         ],
         "Item/Weapon": [
-            "image",
+            "icon",
             "name",
             "value",
             "type",
@@ -359,7 +362,7 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
             "proc_xp_bonus",
         ],
         "Item/Armor": [
-            "image",
+            "icon",
             "name",
             "value",
             "slot",
@@ -436,7 +439,7 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
             "proc_xp_bonus",
         ],
         "Item/Charm": [
-            "image",
+            "icon",
             "name",
             "value",
             "tier",
@@ -457,7 +460,7 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
             "stormcaller",
         ],
         "Item/Consumable": [
-            "image",
+            "icon",
             "name",
             "value",
             "description",
@@ -509,7 +512,7 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
             "effect_xp_bonus",
         ],
         "Item/General": [
-            "image",
+            "icon",
             "name",
             "description",
             "value",
@@ -561,7 +564,7 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
             "effect_special_descriptor",
         ],
         "Item/Aura": [
-            "image",
+            "icon",
             "name",
             "value",
             "description",
@@ -610,9 +613,9 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
             "aura_add_proc_chance",
             "aura_special_descriptor",
         ],
-        "Item/Mold": ["image", "name", "value", "description", "ingredients", "rewards", "station"],
+        "Item/Mold": ["icon", "name", "value", "description", "ingredients", "rewards", "station"],
         "Item/SkillBook": [
-            "image",
+            "icon",
             "name",
             "value",
             "duelist_level",
@@ -626,7 +629,7 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
             "simplayers_autolearn",
         ],
         "Item/SpellScroll": [
-            "image",
+            "icon",
             "name",
             "value",
             "arcanist_level",

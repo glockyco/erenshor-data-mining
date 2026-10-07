@@ -38,7 +38,11 @@ function p.run()
 	)
 	assertEqual(resolved.page, "Minor Lightning", "page defaults from generated spell data")
 	assertEqual(resolved.text, "Minor Lightning", "text defaults from generated spell data")
-	assertEqual(resolved.image, "Minor Lightning", "image defaults from generated spell data")
+	assertEqual(
+		resolved.image,
+		"Minor Lightning icon.png",
+		"image defaults from generated spell data"
+	)
 
 	local manual = AbilityLink.resolve({ "Aggressive" })
 	assertEqual(manual.state, "manual", "positional ability remains manual")
@@ -74,7 +78,7 @@ function p.run()
 	assertContains(rendered, 'data-erenshor-kind="ability"', "rendered link has kind data")
 	assertContains(
 		rendered,
-		"[[File:Minor Lightning.png|22x22px|link=Minor Lightning]]",
+		"[[File:Minor Lightning icon.png|22x22px|link=Minor Lightning]]",
 		"rendered link contains image"
 	)
 	assertContains(rendered, "[[Minor Lightning]]", "rendered link contains page link")
@@ -83,7 +87,7 @@ function p.run()
 	assertContains(imageOnly, "erenshor-link--ability", "image-only link has semantic wrapper")
 	assertContains(
 		imageOnly,
-		"[[File:Minor Lightning.png|22x22px|link=Minor Lightning]]",
+		"[[File:Minor Lightning icon.png|22x22px|link=Minor Lightning]]",
 		"image-only link contains image"
 	)
 	assertNotContains(imageOnly, "[[Minor Lightning]]", "image-only link hides text")

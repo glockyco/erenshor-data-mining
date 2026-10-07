@@ -95,7 +95,7 @@ class SpellSectionGenerator(SectionGeneratorBase):
 
         cast_time_str = self._format_cast_time(spell.spell_charge_time)
 
-        image = picture_file_title("icon", spell.image_name)
+        icon = picture_file_title("icon", spell.image_name)
 
         # status_effect_link deliberately remains a StandardLink: it is an
         # ordinary status-effect page link rather than a generated ability link.
@@ -118,7 +118,7 @@ class SpellSectionGenerator(SectionGeneratorBase):
             "title": display_name,
             "stable_key": spell.stable_key,
             "tooltip_template": "SpellTooltip",
-            "image": image,
+            "icon": icon,
             "imagecaption": imagecaption,
             "description": format_description(safe_str(spell.spell_desc)) if spell.spell_desc else "",
             "type": safe_str(spell.type),

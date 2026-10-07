@@ -8,7 +8,7 @@ The positional value is used as both the destination page and the visible displa
  |Minor Lightning
  |link=Minor Lightning
  |text=Lightning
- |image=Minor Lightning.png
+ |image=Minor Lightning icon.png
 }}</pre>
 
 The link picker may supply <code>stablekey</code>. This is the exact advanced identity selected for the ability by the picker. Spell, skill, and stance records use their own stable identity, so a stable key distinguishes records even when names or pages overlap. Editors normally do not need to memorize or type it. The picker writes the stable key together with explicit link, text, and nonempty image fallbacks. A stable-key-only form is supported for generated links:
@@ -40,7 +40,7 @@ AbilityLink keeps the destination as an ordinary page link. The planned generali
 | Visible link text.
 |-
 | <code>image</code>
-| Ability image filename. <code>.png</code> is added when no supported image extension is supplied.
+| Full ability icon file title, including its extension. The full file title must include its extension; no extension is added.
 |-
 | <code>imageonly</code>
 | When set to <code>1</code>, render only the linked ability image.
@@ -57,7 +57,7 @@ AbilityLink keeps the destination as an ordinary page link. The planned generali
 |-
 | A different text || <code><nowiki>{{AbilityLink|Glare of Soluna|text=Custom Text}}</nowiki></code> || {{AbilityLink|Glare of Soluna|text=Custom Text}}
 |-
-| A different image || <code><nowiki>{{AbilityLink|Tangle|image=Eyestalk Wand.png}}</nowiki></code> || {{AbilityLink|Tangle|image=Eyestalk Wand.png}}
+| A different image || <code><nowiki>{{AbilityLink|Tangle|image=Eyestalk Wand icon.png}}</nowiki></code> || {{AbilityLink|Tangle|image=Eyestalk Wand icon.png}}
 |-
 | The icon only, inside text || <code><nowiki>Use {{AbilityLink|Backstab|imageonly=1}} for extra damage</nowiki></code> || Use {{AbilityLink|Backstab|imageonly=1}} for extra damage
 |}
@@ -89,7 +89,7 @@ AbilityLink keeps the destination as an ordinary page link. The planned generali
     },
     "image": {
       "label": "Image",
-      "description": "Ability image filename.",
+      "description": "Full ability icon file title, including its extension.",
       "type": "wiki-file-name"
     },
     "imageonly": {

@@ -446,7 +446,8 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         return {
             "name": display_name,
             "stable_key": character.stable_key,
-            "image": picture_file_title("render", image_name),
+            "render": picture_file_title("render", image_name, display_name),
+            "screenshot": picture_file_title("screenshot", image_name, display_name),
             # The hidden Needs Image category of a missing image: a summon's
             # differs from a character's, and the Chest type sorts chests.
             "imagekind": "summon" if character.is_summon else "",

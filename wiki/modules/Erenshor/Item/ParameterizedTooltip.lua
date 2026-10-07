@@ -16,7 +16,7 @@ local Quality = require("Module:Erenshor/Item/Quality")
 local p = {}
 
 local LEGACY_FIELDS = {
-	"image",
+	"icon",
 	"name",
 	"slot",
 	"type",
@@ -212,20 +212,6 @@ local function firstSupplied(args, names)
 	return nil
 end
 
-local function fileValue(value)
-	if value == nil or value == "" or value == "-" then
-		return value or ""
-	end
-	if string.match(value, "%.[^./]+$") ~= nil then
-		return value
-	end
-	return value .. ".png"
-end
-
-local function imageValue(args)
-	return fileValue(supplied(args, "image"))
-end
-
 local function displayName(args, stats)
 	local value = supplied(args, "name") or ""
 	if value == "" then
@@ -277,7 +263,7 @@ local function invocation(kindName, args, stats, frame)
 		known[field] = true
 	end
 
-	put("image", imageValue(args))
+	put("icon", supplied(args, "icon"))
 	put("name", displayName(args, stats))
 	put("slot", supplied(args, "slot"))
 	put("type", supplied(args, "type"))
@@ -305,9 +291,6 @@ local function invocation(kindName, args, stats, frame)
 	for _, field in ipairs(LEGACY_FIELDS) do
 		if not known[field] then
 			local value = supplied(args, field)
-			if field == "proc_spell_icon" then
-				value = fileValue(value)
-			end
 			if ZERO_OMIT_FIELDS[field] and tonumber(value) == 0 then
 				known[field] = true
 			else

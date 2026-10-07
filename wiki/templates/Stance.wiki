@@ -1,6 +1,6 @@
 <includeonly><infobox type="Stances">
     <title source="title"/>
-    <image source="image"><caption source="imagecaption"/></image>
+    <image source="icon"><caption source="imagecaption"/></image>
 
     <data source="description"><label>Description</label></data>
     <data source="switch_message"><label>Switch Message</label></data>
@@ -46,7 +46,7 @@ an em dash (—) to indicate no change.
 |-
 | '''title''' || Yes || string || Stance name (displayed as infobox title)
 |-
-| '''image''' || Yes || wikitext || Stance icon: <code><nowiki>[[File:Stance Name.png|thumb]]</nowiki></code>
+| '''icon''' || Yes || file title || Full stance icon title, including its extension, such as <code>Stance Aggressive icon.png</code>
 |-
 | '''imagecaption''' || No || string || Caption for the image
 |-
@@ -93,7 +93,7 @@ an em dash (—) to indicate no change.
 <pre>
 {{Stance
 |title=Normal
-|image=[[File:Stance: Normal.png|thumb]]
+|icon=Stance Normal icon.png
 |description=A normal combat stance with no penalties or bonuses.
 |switch_message=shifts into a normal combat stance
 |max_hp_mod=1.0
@@ -111,7 +111,7 @@ an em dash (—) to indicate no change.
 
 {{Stance
 |title=Normal
-|image=[[File:Stance: Normal.png|thumb]]
+|icon=Stance Normal icon.png
 |description=A normal combat stance with no penalties or bonuses.
 |switch_message=shifts into a normal combat stance
 |max_hp_mod=1.0
@@ -132,7 +132,7 @@ an em dash (—) to indicate no change.
 <pre>
 {{Stance
 |title=Aggressive
-|image=[[File:Stance: Aggressive.png|thumb]]
+|icon=Stance Aggressive icon.png
 |description=Gain a 40% increase to physical damage dealt, but take 40% more incoming damage from all sources. Your focus on offense stops all natural health regeneration.
 |switch_message=shifts into an aggressive combat stance
 |max_hp_mod=1.0
@@ -151,7 +151,7 @@ an em dash (—) to indicate no change.
 
 {{Stance
 |title=Aggressive
-|image=[[File:Stance: Aggressive.png|thumb]]
+|icon=Stance Aggressive icon.png
 |description=Gain a 40% increase to physical damage dealt, but take 40% more incoming damage from all sources. Your focus on offense stops all natural health regeneration.
 |switch_message=shifts into an aggressive combat stance
 |max_hp_mod=1.0
@@ -173,7 +173,7 @@ an em dash (—) to indicate no change.
 <pre>
 {{Stance
 |title=Expert
-|image=[[File:Stance: Expert.png|thumb]]
+|icon=Stance Expert icon.png
 |description=Gain a 33% increase to ALL damage dealt. Your focus on offense stops all natural health regeneration.
 |switch_message=shifts into an expert combat stance
 |max_hp_mod=1.0
@@ -192,7 +192,7 @@ an em dash (—) to indicate no change.
 
 {{Stance
 |title=Expert
-|image=[[File:Stance: Expert.png|thumb]]
+|icon=Stance Expert icon.png
 |description=Gain a 33% increase to ALL damage dealt. Your focus on offense stops all natural health regeneration.
 |switch_message=shifts into an expert combat stance
 |max_hp_mod=1.0
@@ -214,7 +214,7 @@ an em dash (—) to indicate no change.
 <pre>
 {{Stance
 |title=Taunting
-|image=[[File:Stance: Taunting.png|thumb]]
+|icon=Stance Taunting icon.png
 |description=All of your actions generate substantially more aggro. Natural health regen is paused while in this stance.
 |switch_message=shifts into a taunting combat stance
 |max_hp_mod=1.0
@@ -233,7 +233,7 @@ an em dash (—) to indicate no change.
 
 {{Stance
 |title=Taunting
-|image=[[File:Stance: Taunting.png|thumb]]
+|icon=Stance Taunting icon.png
 |description=All of your actions generate substantially more aggro. Natural health regen is paused while in this stance.
 |switch_message=shifts into a taunting combat stance
 |max_hp_mod=1.0

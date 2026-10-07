@@ -53,7 +53,7 @@ class StanceSectionGenerator(SectionGeneratorBase):
         """Build context for {{Stance}} template from Stance entity."""
         stance = enriched.stance
 
-        image = picture_file_title("icon", stance.image_name)
+        icon = picture_file_title("icon", stance.image_name)
         display_name = stance.display_name or page_title
 
         # activated_by_skills are pre-built AbilityLink objects
@@ -62,7 +62,7 @@ class StanceSectionGenerator(SectionGeneratorBase):
         context: dict[str, str] = {
             "title": display_name,
             "stable_key": stance.stable_key,
-            "image": image,
+            "icon": icon,
             "description": format_description(safe_str(stance.stance_desc)) if stance.stance_desc else "",
             "switch_message": safe_str(stance.switch_message),
             # Combat modifiers - RAW VALUES (let wiki format them)

@@ -83,7 +83,7 @@ def test_weapon_tooltip_args_are_display_ready() -> None:
 
     result = generator.generate_template(enriched, "Oldenbow")
 
-    assert "|image=Oldenbow icon.png" in result
+    assert "|icon=Oldenbow icon.png" in result
     assert "|type=Primary\n" in result
     assert "|two_handed=True" in result
     assert "|range=25" in result

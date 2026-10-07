@@ -65,7 +65,7 @@ def test_builds_skill_data_with_raw_authoritative_fields() -> None:
             "skill:backstab": {
                 "name": "Backstab",
                 "page": "Backstab",
-                "image": "Backstab",
+                "icon": "Backstab icon.png",
                 "description": "Deal major damage to your target.. Must be behind target.",
                 "type": "Attack",
                 "cooldownSeconds": 9.0,
@@ -134,7 +134,9 @@ def test_builds_skill_relationship_fields_from_repository_links() -> None:
             "stablekey": "item:backstab_manual",
         }
     ]
-    assert record["itemsWithEffect"] == [{"kind": "item", "page": "Assassin Charm", "text": "Assassin Charm"}]
+    assert record["itemsWithEffect"] == [
+        {"kind": "item", "page": "Assassin Charm", "text": "Assassin Charm", "image": "Assassin Charm icon.png"}
+    ]
 
 
 def test_builds_stance_skill_class_levels_without_hardcoding_display_names() -> None:

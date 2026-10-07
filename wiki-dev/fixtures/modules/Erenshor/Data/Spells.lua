@@ -3,7 +3,7 @@ return {
 		["spell:ember"] = {
 			["name"] = "Ember",
 			["page"] = "Ember",
-			["image"] = "Ember",
+			["icon"] = "Ember icon.png",
 			["requiredLevel"] = 8,
 			["manaCost"] = 25,
 			["type"] = "Damage",
@@ -18,7 +18,7 @@ return {
 		["spell:ember_proc"] = {
 			["name"] = "Ember Burst",
 			["page"] = "Ember Burst",
-			["image"] = "Ember Burst",
+			["icon"] = "Ember Burst icon.png",
 			["requiredLevel"] = 12,
 			["durationSeconds"] = 0,
 			["type"] = "Damage",
@@ -30,7 +30,7 @@ return {
 		["spell:minor_heal"] = {
 			["name"] = "Minor Heal",
 			["page"] = "Minor Heal",
-			["image"] = "Minor Heal",
+			["icon"] = "Minor Heal icon.png",
 			["requiredLevel"] = 1,
 			["durationSeconds"] = 0,
 			["type"] = "Beneficial",
@@ -41,7 +41,7 @@ return {
 		["spell:flame_bolt"] = {
 			["name"] = "Flame Bolt",
 			["page"] = "Flame Bolt",
-			["image"] = "Flame Bolt",
+			["icon"] = "Flame Bolt icon.png",
 			["requiredLevel"] = 4,
 			["manaCost"] = 18,
 			["type"] = "Damage",
@@ -57,7 +57,7 @@ return {
 		["spell:flame_bolt_greater"] = {
 			["name"] = "Flame Bolt",
 			["page"] = "Flame Bolt",
-			["image"] = "Flame Bolt",
+			["icon"] = "Flame Bolt icon.png",
 			["requiredLevel"] = 12,
 			["manaCost"] = 40,
 			["type"] = "Damage",
@@ -98,7 +98,7 @@ return {
 			["groupEffect"] = true,
 			["haste"] = 0.0,
 			["hp"] = 500,
-			["image"] = "Aura Ancient Presence",
+			["icon"] = "Aura Ancient Presence icon.png",
 			["inflictOnSelf"] = false,
 			["instantEffect"] = false,
 			["int"] = 20,
@@ -177,7 +177,7 @@ return {
 			["groupEffect"] = false,
 			["haste"] = 0.0,
 			["hp"] = 0,
-			["image"] = "Minor Lightning",
+			["icon"] = "Minor Lightning icon.png",
 			["inflictOnSelf"] = false,
 			["instantEffect"] = true,
 			["int"] = 0,

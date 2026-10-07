@@ -36,7 +36,7 @@ class TestTemplateGeneratorBase:
         # Item template exists in templates/
         context = {
             "title": "Test Item",
-            "image": "[[File:Test.png]]",
+            "icon": "Test icon.png",
             "imagecaption": "",
             "type": "Weapon",
             "vendorsource": "",
@@ -123,7 +123,7 @@ class TestTemplateGeneratorBase:
         generator = ConcreteSectionGenerator()
 
         context = {
-            "image": "[[File:Charm.png|150px]]",
+            "icon": "Charm icon.png",
             "name": "Test Charm",
             "description": "Magical charm",
             "strscaling": "1.0",
@@ -151,7 +151,8 @@ class TestTemplateGeneratorBase:
 
         context = {
             "name": "Test Goblin",
-            "image": "Goblin.png",
+            "render": "Goblin render.png",
+            "screenshot": "Goblin screenshot.png",
             "type": "Enemy",
             "faction": "Evil",
             "zones": "Forest, Cave",
@@ -178,7 +179,7 @@ class TestTemplateGeneratorBase:
         context = {
             "id": "spell_001",
             "title": "Test Spell",
-            "image": "Spell.png",
+            "icon": "Spell icon.png",
             "imagecaption": "",
             "description": "A test spell",
             "type": "Damage",

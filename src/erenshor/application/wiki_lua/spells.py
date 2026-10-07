@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Protocol
 
 from erenshor.application.wiki_lua.links import class_link_refs, link_refs
 from erenshor.application.wiki_lua.lua_writer import module_text
+from erenshor.domain.value_objects.wiki_filename import picture_file_title
 from erenshor.shared.game_constants import ticks_to_seconds
 
 if TYPE_CHECKING:
@@ -17,7 +18,6 @@ if TYPE_CHECKING:
 LuaData = dict[str, object]
 
 _TEXT_FIELD_MAP: tuple[tuple[str, str], ...] = (
-    ("image", "image_name"),
     ("description", "spell_desc"),
     ("specialDescriptor", "special_descriptor"),
     ("type", "type"),
@@ -232,6 +232,7 @@ def _spell_record(
         "page": page,
         "classes": classes,
     }
+    _put_text(record, "icon", picture_file_title("icon", spell.image_name))
     if classes:
         record["classLinks"] = class_link_refs(classes, class_display_names or {})
     for lua_key, attr in _TEXT_FIELD_MAP:

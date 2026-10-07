@@ -1,6 +1,6 @@
 {{Character
 |name=Image Tracking Missing
-|image=[[File:Image Tracking Missing.png|thumb]]
-|imagefile=Image Tracking Missing.png
+|render=Image Tracking Missing.png
+|screenshot=
 |type=Enemy
 }}

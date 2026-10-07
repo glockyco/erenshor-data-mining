@@ -29,25 +29,6 @@ local function copyTable(value)
 	return out
 end
 
-local function ensureImageFile(image, fallbackName)
-	local value = image
-	if isBlank(value) then
-		value = fallbackName
-	end
-	if isBlank(value) then
-		return nil
-	end
-	value = tostring(value)
-	if
-		value:match("%.[Pp][Nn][Gg]$")
-		or value:match("%.[Jj][Pp][Gg]$")
-		or value:match("%.[Jj][Pp][Ee][Gg]$")
-	then
-		return value
-	end
-	return value .. ".png"
-end
-
 local function templateArgs(frame)
 	local out = copyTable(Args.parentArgs(frame))
 	for key, value in pairs(frame.args or {}) do
@@ -344,11 +325,11 @@ local function renderResolved(kind, args, result)
 
 	if kind == "item" then
 		local quality = resolveItemQuality(args)
-		local image = result.image or page or text
+		local image = result.image
 		local imageLink = ""
 		if not isBlank(image) then
 			imageLink = Icon.render(mw.getCurrentFrame(), {
-				file = ensureImageFile(image, page or text),
+				file = image,
 				kind = "item",
 				alt = text,
 				size = 24,
@@ -363,11 +344,11 @@ local function renderResolved(kind, args, result)
 		end
 		return wrap(kind, args, body, page, quality, result.resolvedKey or result.requestedKey)
 	elseif kind == "ability" then
-		local image = result.image or text
+		local image = result.image
 		local imageLink = ""
 		if not isBlank(image) then
 			imageLink = Icon.render(mw.getCurrentFrame(), {
-				file = ensureImageFile(image, text),
+				file = image,
 				kind = "ability",
 				size = 24,
 				link = page,
@@ -432,7 +413,7 @@ function p.join(values, separator)
 	return table.concat(out, separator or "<br>")
 end
 
--- Resolve an item record (page, name, image, unique, …) by StableKey. Lets other
+-- Resolve an item record (page, name, icon, unique, …) by StableKey. Lets other
 -- modules read item-owned facts at the display layer instead of denormalizing them
 -- into every relationship that references the item.
 function p.itemRecord(stableKey)
@@ -447,6 +428,28 @@ end
 
 function p.item(frame)
 	return renderFrame(frame, "item")
+end
+
+-- Full item icon title, for templates that show the file themselves.
+function p.icon(frame)
+	local result = p.resolve("item", templateArgs(frame))
+	return result.image or ""
+end
+
+-- An item's icon in its slot at `size` pixels, linked to `link`, or nothing
+-- when the item has no icon.
+function p.slotIcon(frame)
+	local args = templateArgs(frame)
+	local image = p.resolve("item", args).image
+	if isBlank(image) then
+		return ""
+	end
+	return Icon.render(frame, {
+		file = image,
+		kind = "item",
+		size = tonumber(Args.resolve(args, "size", nil)),
+		link = Args.resolve(args, "link", nil),
+	})
 end
 
 function p.ability(frame)

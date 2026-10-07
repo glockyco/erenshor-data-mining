@@ -1,6 +1,6 @@
 <includeonly>{{#if:{{{historical_state|}}}|{{Historical Content|state={{{historical_state}}}|thing=item|update={{{historical_update|}}}|date={{{historical_date|}}}|url={{{historical_url|}}}}}}}<infobox type="Item">
     <title source="title"/>
-    <image source="image"><caption source="imagecaption"/></image>
+    <image source="icon"><caption source="imagecaption"/></image>
     <data source="type"><label>Type</label></data>
     <data source="aka"><label>Formerly</label></data>
     <data>
@@ -48,6 +48,9 @@ Infobox template for displaying item information on wiki pages.
 Item articles set infobox parameters. The <code>stablekey</code> identifies the item
 when the bot updates its page. It also supplies the interactive-map link in the Map row.
 
+The infobox and tooltip both show the item's icon. Pass its full file title in <code>icon</code>, for example <code>icon=Copper Sword icon.png</code>, without a <code><nowiki>[[File:...]]</nowiki></code> wrapper.
+The [[Template:ItemTooltip|ItemTooltip]] or <code>Item/&lt;kind&gt;</code> tooltip takes its own <code>icon</code> parameter; the infobox does not read the tooltip's parameters.
+
 === Parameters ===
 
 {| class="wikitable"
@@ -67,9 +70,9 @@ when the bot updates its page. It also supplies the interactive-map link in the 
 |-
 | '''historical_url''' || No || Link to the update's patch notes
 |-
-| '''image''' || Yes || Item icon: <code><nowiki>[[File:Item Name.png]]</nowiki></code>
+| '''icon''' || Yes || Full item icon file title, including its extension, such as <code>Copper Sword icon.png</code>
 |-
-| '''imagecaption''' || No || Caption for the image
+| '''imagecaption''' || No || Optional caption below the icon
 |-
 | '''type''' || Yes || Item type link, e.g., <code><nowiki>[[Weapons|Weapon]]</nowiki></code>
 |-
@@ -142,7 +145,7 @@ when the bot updates its page. It also supplies the interactive-map link in the 
 <pre>
 {{Item
 |title=Keeper's Lantern
-|image=[[File:Keeper's Lantern.png]]
+|icon=Keeper's Lantern icon.png
 |type=[[Quest Items|Quest Item]]
 |questsource={{QuestLink|Delivering the Light}}
 |relic=True
@@ -155,7 +158,7 @@ when the bot updates its page. It also supplies the interactive-map link in the 
 
 {{Item
 |title=Keeper's Lantern
-|image=[[File:Keeper's Lantern.png]]
+|icon=Keeper's Lantern icon.png
 |type=[[Quest Items|Quest Item]]
 |questsource={{QuestLink|Delivering the Light}}
 |relic=True
@@ -171,7 +174,7 @@ when the bot updates its page. It also supplies the interactive-map link in the 
 <pre>
 {{Item
 |title=Memories of Snow
-|image=[[File:Memories of Snow.png]]
+|icon=Memories of Snow icon.png
 |type=[[Weapons|Weapon]]
 |relic=True
 |classes=Druid, Arcanist, Stormcaller
@@ -186,7 +189,7 @@ when the bot updates its page. It also supplies the interactive-map link in the 
 
 {{Item
 |title=Memories of Snow
-|image=[[File:Memories of Snow.png]]
+|icon=Memories of Snow icon.png
 |type=[[Weapons|Weapon]]
 |relic=True
 |classes=Druid, Arcanist, Stormcaller
@@ -204,7 +207,7 @@ when the bot updates its page. It also supplies the interactive-map link in the 
 <pre>
 {{Item
 |title=Feathered Cape
-|image=[[File:Feathered Cape.png]]
+|icon=Feathered Cape icon.png
 |type=[[Armor|Back]]
 |relic=True
 |classes=All
@@ -217,7 +220,7 @@ when the bot updates its page. It also supplies the interactive-map link in the 
 
 {{Item
 |title=Feathered Cape
-|image=[[File:Feathered Cape.png]]
+|icon=Feathered Cape icon.png
 |type=[[Armor|Back]]
 |relic=True
 |classes=All
@@ -233,7 +236,7 @@ when the bot updates its page. It also supplies the interactive-map link in the 
 <pre>
 {{Item
 |title=Breaded Island Fin
-|image=[[File:Breaded Island Fin.png]]
+|icon=Breaded Island Fin icon.png
 |type=[[Consumables|Consumable]]
 |description=A rare fish that dwells near islands, now covered in bread crumbs and cooked
 |effect={{AbilityLink|Nourished}}
@@ -245,7 +248,7 @@ when the bot updates its page. It also supplies the interactive-map link in the 
 
 {{Item
 |title=Breaded Island Fin
-|image=[[File:Breaded Island Fin.png]]
+|icon=Breaded Island Fin icon.png
 |type=[[Consumables|Consumable]]
 |description=A rare fish that dwells near islands, now covered in bread crumbs and cooked
 |effect={{AbilityLink|Nourished}}

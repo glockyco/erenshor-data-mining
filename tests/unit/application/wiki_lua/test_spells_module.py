@@ -98,7 +98,7 @@ def test_builds_spell_data_with_authoritative_raw_fields() -> None:
             "spell:dru - minor lightning": {
                 "name": "Minor Lightning",
                 "page": "Minor Lightning",
-                "image": "Minor Lightning",
+                "icon": "Minor Lightning icon.png",
                 "description": "85 Magical damage on target, secondary damage on nearby targets.",
                 "type": "AE",
                 "line": "Direct_Damage",
@@ -211,7 +211,9 @@ def test_builds_spell_relationship_fields_from_repository_links() -> None:
             "stablekey": "item:scroll_of_minor_lightning",
         }
     ]
-    assert record["itemsWithEffect"] == [{"kind": "item", "page": "Storm Wand", "text": "Storm Wand"}]
+    assert record["itemsWithEffect"] == [
+        {"kind": "item", "page": "Storm Wand", "text": "Storm Wand", "image": "Storm Wand icon.png"}
+    ]
     assert record["usedBy"] == [
         {
             "kind": "character",

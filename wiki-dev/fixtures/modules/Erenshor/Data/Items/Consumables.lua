@@ -2,7 +2,7 @@ return {
 	["item:healing_draught"] = {
 		name = "Healing Draught",
 		page = "Healing Draught",
-		image = "Healing Draught.png",
+		icon = "Healing Draught icon.png",
 		type = "Consumable",
 		slot = "General",
 		description = "A potent elixir that knits wounds closed.",

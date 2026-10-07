@@ -1,8 +1,10 @@
 <includeonly><templatestyles src="Template:Character/styles.css" /><infobox type="Character">
     <title source="name"/>
-    <image source="image">
-        <caption source="imagecaption" />
+    <image>
+        <default>{{#tag:gallery|{{#if:{{{render|}}}|{{{render}}}{{!}}Render}}
+{{#if:{{{screenshot|}}}|{{{screenshot}}}{{!}}Screenshot}}}}</default>
     </image>
+    <data source="imagecaption" />
     <group>
         <data source="type">
             <label>Type:</label>
@@ -64,7 +66,7 @@
 | Chest                     = [[Category:Chests]]
 | [[Simulated Players|Sim]] =
 | #default                  = [[Category:Enemies]]
-}}{{#if: {{#if: {{{imagefile|}}} | {{#ifexist: Media:{{{imagefile}}} || missing }} | {{#if: {{{image|}}} || missing }} }}
+}}{{#if: {{#if: {{{render|}}} | {{#ifexist: Media:{{{render}}} | present }} }}{{#if: {{{screenshot|}}} | {{#ifexist: Media:{{{screenshot}}} | present }} }} |
 | [[Category:Needs {{#switch: {{{imagekind|}}}
   | chest    = Chest
   | summon   = Summon

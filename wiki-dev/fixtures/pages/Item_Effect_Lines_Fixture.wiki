@@ -1,7 +1,7 @@
 {{ItemTooltip
 |kind=Armor
 |stablekey=item:effect_lines_fixture
-|image=Effect Lines Cloak
+|icon=Effect Lines Cloak icon.png
 |name=Effect Lines Cloak
 |slot=Back
 |armor=10

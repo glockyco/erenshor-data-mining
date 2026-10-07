@@ -1,5 +1,5 @@
 {{Character
 |name=Image Tracking Blank
-|image=
+|render=
 |type=NPC
 }}

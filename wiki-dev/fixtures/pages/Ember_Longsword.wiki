@@ -3,7 +3,7 @@
 {{ItemTooltip
 |kind=Weapon
 |stablekey=item:ember_longsword
-|image=Ember Longsword
+|icon=Ember Longsword icon.png
 |name=Ember Longsword
 |slot=Primary
 |type=OneHandMelee
@@ -19,7 +19,7 @@
 |description=A blade wreathed in embers that never cool.
 |proc_style=Attack
 |proc_chance=20
-|proc_spell_icon=Ember Burst.png
+|proc_spell_icon=Ember Burst icon.png
 |proc_spell_name=Ember Burst
 }}
 

@@ -1,0 +1,7 @@
+{{Character
+|name=Image Screenshot Only
+|render=Image Screenshot Missing Render.png
+|screenshot=Thorned Branch.png
+|imagecaption=
+|type=NPC
+}}

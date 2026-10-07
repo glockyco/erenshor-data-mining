@@ -41,7 +41,7 @@ def test_builds_item_index_and_sharded_records_with_tooltip_source_fields() -> N
                     "name": "Sword of Flames",
                     "description": "Long prose should stay out of Lua data modules.",
                     "page": "Sword of Flames",
-                    "image": "Sword of Flames",
+                    "icon": "Sword of Flames icon.png",
                     "slot": "Primary",
                     "weaponType": "Sword",
                     "itemLevel": 12,
@@ -267,14 +267,19 @@ def test_builds_tooltip_source_fields_and_recipe_links() -> None:
                 "kind": "item",
                 "page": "Chunk of Copper Ore",
                 "text": "Chunk of Copper Ore",
-                "image": "Chunk of Copper Ore",
+                "image": "Chunk of Copper Ore icon.png",
             },
         }
     ]
     assert item_data["rewards"] == [
         {
             "quantity": 1,
-            "link": {"kind": "item", "page": "Ember Longsword", "text": "Ember Longsword", "image": "Ember Longsword"},
+            "link": {
+                "kind": "item",
+                "page": "Ember Longsword",
+                "text": "Ember Longsword",
+                "image": "Ember Longsword icon.png",
+            },
         }
     ]
 

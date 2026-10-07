@@ -1,6 +1,6 @@
 {{Character
 |name=Legacy Beast Fixture
-|image=Legacy Beast Fixture.png
+|render=Legacy Beast Fixture.png
 |type=Enemy
 |faction=Legacy Faction
 |level=33

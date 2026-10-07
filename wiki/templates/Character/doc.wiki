@@ -12,7 +12,8 @@ locations for the character.
 {{Character
 |stablekey=
 |name=
-|image=
+|render=
+|screenshot=
 |imagecaption=
 |type=
 |faction=
@@ -58,11 +59,11 @@ locations for the character.
 |-
 | <code>name</code> || Auto || Character display name. Also drives the interactive map search link.
 |-
-| <code>image</code> || Auto || Image in <code><nowiki>[[File:Name.png|thumb]]</nowiki></code> format. A picture with a transparent background shows on a slate surface, set in [[Template:Character/styles.css]], so dark subjects stay readable.
+| <code>render</code> || Auto || Full file title of the character's game-model render, such as <code>Name render.png</code>. A transparent picture shows on a slate surface, set in [[Template:Character/styles.css]], so dark subjects stay readable.
 |-
-| <code>imagecaption</code> || '''Manual''' || Optional caption below the character image.
+| <code>imagecaption</code> || '''Manual''' || Optional caption below the pictures, visible with either picture or both tabs.
 |-
-| <code>imagefile</code> || Auto || The bare file title that <code>image</code> shows, such as <code>Name.png</code>. When the file has no upload, the page joins a hidden [[:Category:Needs Image|Needs Image]] category. Without it, only an empty <code>image</code> joins one.
+| <code>screenshot</code> || Auto || Full file title of the editors' screenshot, such as <code>Name screenshot.png</code>. Upload there to add a screenshot beside the render. The render appears first; both existing files show tabs labelled Render and Screenshot, and a single existing file shows alone. When neither title has an uploaded file, the page joins a hidden [[:Category:Needs Image|Needs Image]] category.
 |-
 | <code>imagekind</code> || Auto || <code>chest</code> or <code>summon</code> puts a missing image into [[:Category:Needs Chest Image]] or [[:Category:Needs Summon Image]]. Without it, a <code>Chest</code> type uses the chest category and every other character [[:Category:Needs Character Image]].
 |-
@@ -116,7 +117,8 @@ locations for the character.
 {{Character
 |stablekey=character:aetherfiend
 |name=Aetherfiend
-|image=[[File:Aetherfiend.png|thumb]]
+|render=Aetherfiend render.png
+|screenshot=Aetherfiend screenshot.png
 |imagecaption=
 |type=Enemy
 |faction=[[The Followers of Evil]]

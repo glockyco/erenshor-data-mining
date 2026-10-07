@@ -39,7 +39,7 @@ function p.run()
 	)
 	assertContains(
 		item,
-		"[[File:Abyssal Plate.png|24x24px|alt=Abyssal Plate|link=Abyssal Plate]]",
+		"[[File:Abyssal Plate icon.png|24x24px|alt=Abyssal Plate|link=Abyssal Plate]]",
 		"item link has icon"
 	)
 	assertContains(item, 'class="erenshor-icon erenshor-icon--item"', "item link draws item slot")
@@ -55,7 +55,7 @@ function p.run()
 	assertContains(stableKeyOnlyItem, "[[Abyssal Plate]]", "stable-key-only item resolves its page")
 	assertContains(
 		stableKeyOnlyItem,
-		"[[File:Abyssal Plate.png|24x24px|alt=Abyssal Plate|link=Abyssal Plate]]",
+		"[[File:Abyssal Plate icon.png|24x24px|alt=Abyssal Plate|link=Abyssal Plate]]",
 		"stable-key-only item resolves its image"
 	)
 
@@ -64,11 +64,7 @@ function p.run()
 		page = "Priel Note",
 		text = "Priel Note (1)",
 	})
-	assertContains(
-		sharedPageItem,
-		"[[File:Priel Note.png|24x24px|alt=Priel Note (1)|link=Priel Note]]",
-		"item link defaults its image from the page rather than disambiguated text"
-	)
+	assertNotContains(sharedPageItem, "[[File:", "ambiguous item has no invented icon")
 	assertContains(
 		sharedPageItem,
 		"[[Category:Pages with ambiguous Erenshor links]]",
@@ -80,6 +76,46 @@ function p.run()
 		"item link does not invent an image from disambiguated text"
 	)
 	assertContains(item, "[[Abyssal Plate]]", "item link has page link")
+
+	local function iconFrame(args, parent)
+		return {
+			args = args,
+			getParent = function()
+				return { args = parent or {} }
+			end,
+		}
+	end
+	assertEqual(
+		Link.icon(iconFrame({ item = "Abyssal Plate" })),
+		"Abyssal Plate icon.png",
+		"slot resolves an item name"
+	)
+	assertEqual(
+		Link.icon(iconFrame({ stablekey = "item:chest - 38 - abyssal plate" })),
+		"Abyssal Plate icon.png",
+		"slot resolves an item key"
+	)
+	assertEqual(
+		Link.icon(iconFrame({ image = "Manual.webp" }, { item = "Abyssal Plate" })),
+		"Manual.webp",
+		"slot override is a full title"
+	)
+	assertEqual(
+		Link.icon(iconFrame({ item = "Unknown Item" })),
+		"",
+		"unknown slot has no invented icon"
+	)
+	for _, kind in ipairs({ "item", "ability" }) do
+		local noIcon = Link.render({ kind = kind, page = "Unknown Target" })
+		assertNotContains(noIcon, "[[File:", "unknown link has no invented icon")
+		assertNotContains(noIcon, "erenshor-icon", "unknown link draws no icon frame")
+		assertContains(noIcon, "[[Unknown Target]]", "unknown link still shows its text")
+		assertNotContains(
+			Link.render({ kind = kind, page = "Unknown Target", imageonly = "1" }),
+			"[[File:",
+			"icon-only missing picture draws no file"
+		)
+	end
 
 	local keyed = Link.resolve("item", { stablekey = "item:chest - 38 - abyssal plate" })
 	assertEqual(keyed.state, "resolved", "explicit key resolves")
@@ -346,7 +382,7 @@ function p.run()
 	local itemImageOnly = Link.render({ kind = "item", page = "Abyssal Plate", imageonly = "1" })
 	assertContains(
 		itemImageOnly,
-		"[[File:Abyssal Plate.png|24x24px|alt=Abyssal Plate|link=Abyssal Plate]]",
+		"[[File:Abyssal Plate icon.png|24x24px|alt=Abyssal Plate|link=Abyssal Plate]]",
 		"item image-only has icon"
 	)
 	assertNotContains(itemImageOnly, "[[Abyssal Plate]]", "item image-only suppresses text")
@@ -369,7 +405,7 @@ function p.run()
 	)
 	assertContains(
 		ability,
-		"[[File:Minor Lightning.png|22x22px|link=Minor Lightning]]",
+		"[[File:Minor Lightning icon.png|22x22px|link=Minor Lightning]]",
 		"ability link has icon inside its border"
 	)
 	assertContains(

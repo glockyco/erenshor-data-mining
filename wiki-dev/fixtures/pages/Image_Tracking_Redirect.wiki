@@ -1,6 +1,6 @@
 {{Character
 |name=Image Tracking Redirect
-|image=[[File:Image Tracking Redirect.png|thumb]]
-|imagefile=Image Tracking Redirect.png
+|render=Image Tracking Redirect.png
+|screenshot=
 |type=NPC
 }}

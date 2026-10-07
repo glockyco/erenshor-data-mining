@@ -123,7 +123,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
 
         context: dict[str, str] = {
             "kind": "Weapon" if kind == ItemKind.WEAPON else "Armor",
-            "image": item_image_file(item),
+            "icon": item_image_file(item),
             "name": self._format_long_item_name(display_name),
             "slot": safe_str(item.required_slot),
             "type": self._weapon_type_display(item.required_slot, item.this_weapon_type)
@@ -235,7 +235,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
 
         display_name = item.display_name or item.item_name or ""
         return {
-            "image": item_image_file(item),
+            "icon": item_image_file(item),
             "name": display_name,
             "value": self._item_window_value(item),
             "tier": "0",
@@ -260,7 +260,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         spell_details = self._build_spell_details_context(enriched.aura_spell, prefix="aura")
 
         aura_context = {
-            "image": item_image_file(item),
+            "icon": item_image_file(item),
             "name": display_name,
             "value": self._item_window_value(item),
             "description": format_description(safe_str(item.lore)) if item.lore else "",
@@ -287,7 +287,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             return required_level if class_name in scroll_classes else ""
 
         spellscroll_context = {
-            "image": item_image_file(item),
+            "icon": item_image_file(item),
             "name": display_name,
             "value": self._item_window_value(item),
             "arcanist_level": class_level("Arcanist"),
@@ -319,7 +319,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             return str(val)
 
         skillbook_context = {
-            "image": item_image_file(item),
+            "icon": item_image_file(item),
             "name": display_name,
             "value": self._item_window_value(item),
             "duelist_level": level_str(skill.duelist_required_level) if skill else "",
@@ -346,7 +346,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         spell_details = self._build_spell_details_context(effect_spell, prefix="effect")
 
         consumable_context = {
-            "image": item_image_file(item),
+            "icon": item_image_file(item),
             "name": display_name,
             "value": self._item_window_value(item),
             "description": format_description(safe_str(item.lore)) if item.lore else "",
@@ -374,7 +374,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
                 rewards = str(link)
 
         mold_context = {
-            "image": item_image_file(item),
+            "icon": item_image_file(item),
             "name": display_name,
             "value": self._item_window_value(item),
             "description": format_description(safe_str(item.lore)) if item.lore else "",
@@ -403,7 +403,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             spell_details["effect_chance"] = ""
 
         general_context = {
-            "image": item_image_file(item),
+            "icon": item_image_file(item),
             "value": self._item_window_value(item),
             "name": display_name,
             "description": format_description(safe_str(item.lore)) if item.lore else "",
@@ -611,6 +611,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
         return {
             "title": display_name,
             "stablekey": item.stable_key,
+            "icon": item_image_file(item),
             "type": item_type,
             "vendorsource": vendor_sources,
             "source": drop_sources,

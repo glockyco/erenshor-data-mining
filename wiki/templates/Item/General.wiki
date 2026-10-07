@@ -1,7 +1,7 @@
 <includeonly>{| class="item-tooltip item-tooltip-general"
 |
 {{Item/Header
- |icon={{Icon|{{{image}}}|kind=item|size=80}}
+ |icon={{#if:{{{icon|}}}|{{Icon|{{{icon}}}|kind=item|size=80}}}}
  |name={{{name}}}
  |value={{{value|}}}
  |tier=0
@@ -71,7 +71,7 @@ Template for displaying general/miscellaneous item tooltips (quest items, materi
 {| class="wikitable"
 ! Parameter !! Required !! Description
 |-
-| '''image''' || Yes || Item icon image filename
+| '''icon''' || Yes || Full item icon file title, including its extension
 |-
 | '''name''' || Yes || Item name
 |-
@@ -97,7 +97,7 @@ Template for displaying general/miscellaneous item tooltips (quest items, materi
 '''Code:'''
 <pre>
 {{Item/General
-|image=Chunk of Copper Ore.png
+|icon=Chunk of Copper Ore icon.png
 |name=Chunk of Copper Ore
 |description=A fancy metal ore.
 }}
@@ -106,7 +106,7 @@ Template for displaying general/miscellaneous item tooltips (quest items, materi
 '''Result:'''
 
 {{Item/General
-|image=Chunk of Copper Ore.png
+|icon=Chunk of Copper Ore icon.png
 |name=Chunk of Copper Ore
 |description=A fancy metal ore.
 }}
@@ -118,11 +118,11 @@ Template for displaying general/miscellaneous item tooltips (quest items, materi
 '''Code:'''
 <pre>
 {{Item/General
-|image=Keeper's Lantern.png
+|icon=Keeper's Lantern icon.png
 |name=Keeper's Lantern
 |description=Rest a while in the glow of the flame, and allow the memory of its light to guide you home.
 |effect_style=Activatable
-|effect_spell_icon=Light of the Lantern.png
+|effect_spell_icon=Light of the Lantern icon.png
 |effect_spell_name=Light of the Lantern
 |effect_spell_level=25
 |effect_spell_type=Misc
@@ -135,11 +135,11 @@ Template for displaying general/miscellaneous item tooltips (quest items, materi
 '''Result:'''
 
 {{Item/General
-|image=Keeper's Lantern.png
+|icon=Keeper's Lantern icon.png
 |name=Keeper's Lantern
 |description=Rest a while in the glow of the flame, and allow the memory of its light to guide you home.
 |effect_style=Activatable
-|effect_spell_icon=Light of the Lantern.png
+|effect_spell_icon=Light of the Lantern icon.png
 |effect_spell_name=Light of the Lantern
 |effect_spell_level=25
 |effect_spell_type=Misc

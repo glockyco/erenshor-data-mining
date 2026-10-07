@@ -17,6 +17,7 @@ def test_ability_template_keys_its_root_and_appends_keyed_spell_companion() -> N
         title="Minor Lightning",
         stable_key="spell:minor_lightning",
         tooltip_template="SpellTooltip",
+        icon="Minor Lightning icon.png",
     )
 
     root_end = text.index("}}") + 2
@@ -24,6 +25,8 @@ def test_ability_template_keys_its_root_and_appends_keyed_spell_companion() -> N
     companion = text[root_end:].strip()
     assert root.startswith("{{Ability")
     assert "|stablekey=spell:minor_lightning\n" in root
+    assert "|icon=Minor Lightning icon.png\n" in root
+    assert "|image=" not in root
     assert companion == "{{SpellTooltip|stablekey=spell:minor_lightning}}"
 
 
@@ -45,6 +48,7 @@ def test_stance_template_keys_its_root_and_appends_one_keyed_companion() -> None
         "stance.jinja2",
         title="Aggressive",
         stable_key="stance:aggressive",
+        icon="Stance Aggressive icon.png",
     )
 
     root_end = text.index("}}") + 2
@@ -52,6 +56,8 @@ def test_stance_template_keys_its_root_and_appends_one_keyed_companion() -> None
     companion = text[root_end:].strip()
     assert root.startswith("{{Stance")
     assert "|stablekey=stance:aggressive\n" in root
+    assert "|icon=Stance Aggressive icon.png\n" in root
+    assert "|image=" not in root
     assert companion == "{{StanceTooltip|stablekey=stance:aggressive}}"
 
 

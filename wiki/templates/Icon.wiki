@@ -17,8 +17,8 @@ Draws a native icon texture in its frame: items in a slot with a blue gradient r
 | <code>alt</code> || No || Alternative text for the artwork.
 |}
 
-<pre>{{Icon|Thorned Branch.png|kind=item|size=80|link=Thorned Branch|alt=Thorned Branch}}</pre>
-<pre>{{Icon|Florablast.png|kind=ability|size=24|link=Florablast}}</pre>
+<pre>{{Icon|Thorned Branch icon.png|kind=item|size=80|link=Thorned Branch|alt=Thorned Branch}}</pre>
+<pre>{{Icon|Florablast icon.png|kind=ability|size=24|link=Florablast}}</pre>
 
-Lua callers use <code>Icon.render(frame, { file = "Thorned Branch.png", kind = "item", size = 80, link = "Thorned Branch" })</code> from [[Module:Erenshor/Icon]]. The module loads [[Template:Icon/styles.css]] once per page through TemplateStyles. Missing files, unknown kinds, and invalid sizes are script errors.
+Lua callers use <code>Icon.render(frame, { file = "Thorned Branch icon.png", kind = "item", size = 80, link = "Thorned Branch" })</code> from [[Module:Erenshor/Icon]]. The module loads [[Template:Icon/styles.css]] once per page through TemplateStyles. Missing files, unknown kinds, and invalid sizes are script errors.
 </noinclude>

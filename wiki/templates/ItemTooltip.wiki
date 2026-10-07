@@ -1,4 +1,5 @@
 <includeonly>{{#invoke:Erenshor/Item/ParameterizedTooltip|render}}</includeonly><noinclude>
 Item quality tooltip. Pass <code>kind=Weapon</code> or <code>kind=Armor</code> with Standard item fields.
+Pass the full item file title in <code>icon</code>, for example <code>icon=Copper Sword icon.png</code>. <code>proc_spell_icon</code> also takes a full title, for example <code>Ice Spear icon.png</code>. Missing icons draw no picture.
 The renderer shows Standard, Improved +1 through +5, Blessed, and Ascended.
 </noinclude>

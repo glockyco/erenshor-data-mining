@@ -2,7 +2,7 @@ return {
 	["item:ember_longsword"] = {
 		name = "Ember Longsword",
 		page = "Ember Longsword",
-		image = "Ember Longsword.png",
+		icon = "Ember Longsword icon.png",
 		description = "A blade wreathed in embers that never cool.",
 		type = "Weapon",
 		slot = "Primary",

@@ -1,7 +1,7 @@
 <includeonly>{| class="item-tooltip item-tooltip-crafting"
 |
 {{Item/Header
- |icon={{Icon|{{{image}}}|kind=item|size=80}}
+ |icon={{#if:{{{icon|}}}|{{Icon|{{{icon}}}|kind=item|size=80}}}}
  |name={{{name}}}
  |value={{{value|}}}
  |tier=0
@@ -32,7 +32,7 @@ Template for displaying crafting mold tooltips.
 {| class="wikitable"
 ! Parameter !! Required !! Description
 |-
-| '''image''' || Yes || Item icon image filename
+| '''icon''' || Yes || Full item icon file title, including its extension
 |-
 | '''name''' || Yes || Mold name
 |-
@@ -52,7 +52,7 @@ Template for displaying crafting mold tooltips.
 '''Code:'''
 <pre>
 {{Item/Mold
-|image=Mold: A Ceremonial Ring.png
+|icon=Mold A Ceremonial Ring icon.png
 |name=Mold: A Ceremonial Ring
 |ingredients=1x [[Chunk of Copper Ore]]<br/>1x [[Sivakayan Horn]]<br/>1x [[Luminstone]]<br/>1x [[Sivakrux]]
 |rewards=1x [[Ceremonial Ring]]
@@ -63,7 +63,7 @@ Template for displaying crafting mold tooltips.
 '''Result:'''
 
 {{Item/Mold
-|image=Mold: A Ceremonial Ring.png
+|icon=Mold A Ceremonial Ring icon.png
 |name=Mold: A Ceremonial Ring
 |ingredients=1x [[Chunk of Copper Ore]]<br/>1x [[Sivakayan Horn]]<br/>1x [[Luminstone]]<br/>1x [[Sivakrux]]
 |rewards=1x [[Ceremonial Ring]]

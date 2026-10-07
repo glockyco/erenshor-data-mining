@@ -1,6 +1,6 @@
 {{Character
 |name=Image Tracking Chest
-|image=[[File:Image Tracking Chest.png|thumb]]
-|imagefile=Image Tracking Chest.png
+|render=Image Tracking Chest.png
+|screenshot=
 |type=Chest
 }}

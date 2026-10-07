@@ -8,7 +8,7 @@ Displays a framed item icon with an optional sparkle overlay for quality tiers. 
 {| class="wikitable"
 ! Parameter !! Required !! Default !! Description
 |-
-| '''icon''' || Yes || || The framed item icon from <nowiki>{{Icon|filename.png|kind=item|size=80}}</nowiki>
+| '''icon''' || Yes || || The framed item icon from <nowiki>{{Icon|filename icon.png|kind=item|size=80}}</nowiki>
 |-
 | '''sparkle''' || Yes || || Sparkle overlay image filename (Blue_Sparkle.gif, Purple_Sparkle.gif, or blank.png)
 |-
@@ -20,7 +20,7 @@ Displays a framed item icon with an optional sparkle overlay for quality tiers. 
 '''Normal item (no sparkle - use blank.png):'''
 <pre>
 {{SparkleIcon
-|icon={{Icon|Copper_Sword.png|kind=item|size=80}}
+|icon={{Icon|Copper Sword icon.png|kind=item|size=80}}
 |sparkle=blank.png
 |sparkle_size=0px
 }}
@@ -29,7 +29,7 @@ Displays a framed item icon with an optional sparkle overlay for quality tiers. 
 '''Result:'''
 
 {{SparkleIcon
-|icon={{Icon|Copper_Sword.png|kind=item|size=80}}
+|icon={{Icon|Copper Sword icon.png|kind=item|size=80}}
 |sparkle=blank.png
 |sparkle_size=0px
 }}
@@ -39,7 +39,7 @@ Displays a framed item icon with an optional sparkle overlay for quality tiers. 
 '''Blessed item (blue sparkle):'''
 <pre>
 {{SparkleIcon
-|icon={{Icon|Copper_Sword.png|kind=item|size=80}}
+|icon={{Icon|Copper Sword icon.png|kind=item|size=80}}
 |sparkle=Blue_Sparkle.gif
 |sparkle_size=80px
 }}
@@ -48,7 +48,7 @@ Displays a framed item icon with an optional sparkle overlay for quality tiers. 
 '''Result:'''
 
 {{SparkleIcon
-|icon={{Icon|Copper_Sword.png|kind=item|size=80}}
+|icon={{Icon|Copper Sword icon.png|kind=item|size=80}}
 |sparkle=Blue_Sparkle.gif
 |sparkle_size=80px
 }}
@@ -58,7 +58,7 @@ Displays a framed item icon with an optional sparkle overlay for quality tiers. 
 '''Godly item (purple sparkle):'''
 <pre>
 {{SparkleIcon
-|icon={{Icon|Copper_Sword.png|kind=item|size=80}}
+|icon={{Icon|Copper Sword icon.png|kind=item|size=80}}
 |sparkle=Purple_Sparkle.gif
 |sparkle_size=80px
 }}
@@ -67,7 +67,7 @@ Displays a framed item icon with an optional sparkle overlay for quality tiers. 
 '''Result:'''
 
 {{SparkleIcon
-|icon={{Icon|Copper_Sword.png|kind=item|size=80}}
+|icon={{Icon|Copper Sword icon.png|kind=item|size=80}}
 |sparkle=Purple_Sparkle.gif
 |sparkle_size=80px
 }}

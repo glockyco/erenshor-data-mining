@@ -121,6 +121,7 @@ Legacy Item Fixture	Legacy inline-param item, no stablekey.
 Legacy Item Fixture	portable-infobox
 Legacy Item Fixture	pi-type-Item
 Legacy Item Fixture	Category:Items
+Legacy Item Fixture	<figure class="pi-item pi-media pi-image" data-source="icon">
 Generated Item Fixture	Generated Sword Fixture
 Generated Item Fixture	Sold by
 Generated Item Fixture	Generated Vendor
@@ -130,12 +131,13 @@ Generated Item Fixture	View on the interactive map
 Generated Item Fixture	sel=item:item%3Agen+-+sword+fixture
 Generated Item Fixture	pi-type-Item
 Generated Item Fixture	Category:Items
+Generated Item Fixture	<figure class="pi-item pi-media pi-image" data-source="icon">
 Parameterized ItemTooltip Fixture	Parameterized Sword
 Parameterized ItemTooltip Fixture	Weapon
 Parameterized ItemTooltip Fixture	Standard
 Parameterized ItemTooltip Fixture	Blessed
 Parameterized ItemTooltip Fixture	Ascended
-Parameterized ItemTooltip Fixture	Parameterized Sword.png
+Parameterized ItemTooltip Fixture	Parameterized Sword icon.png
 Parameterized ItemTooltip Fixture	Item Stats
 Parameterized ItemTooltip Fixture	Base DPS
 Legacy Character Fixture	Legacy Beast Fixture
@@ -201,7 +203,7 @@ Lua TreasureGuardian Smoke	PASS Erenshor TreasureGuardian testcases
 Treasure Guardian Fixture	Stats by the level of the attacking player
 Treasure Guardian Fixture	Treasure hunt
 Treasure Guardian Fixture	Spawn Type:
-# Image tracking: a missing, redirected, described, or blank image joins its Needs Image category.
+# Image tracking: neither picture uploaded means the page joins its Needs Image category.
 Image Tracking Uploaded	Category:Characters
 Image Tracking Uploaded	!Category:Needs_
 Image Tracking Missing	Category:Needs_Character_Image
@@ -219,6 +221,28 @@ Image Tracking Uploaded	.pi-type-Character .pi-image-thumbnail{background-color:
 File:Image Tracking Redirect.png	Image Tracking Missing.png
 File:Image Tracking Uploaded Redirect.png	Image Tracking Fixture.png
 File:Image Tracking Description.png	A file description page without an upload
+# Character galleries preserve role order and omit files without uploads.
+Image Render Tabs	<li class="pi-tab-link pi-item-spacing current" data-pi-tab="pi-tab-1">Render</li><li class="pi-tab-link pi-item-spacing" data-pi-tab="pi-tab-2">Screenshot</li>
+Image Render Tabs	class="pi-media-collection-tab-content current" id="pi-tab-1"
+Image Render Tabs	class="pi-media-collection-tab-content" id="pi-tab-2"
+Image Render Tabs	!Category:Needs_
+Image Render Only	<figure class="pi-item pi-media pi-image">
+Image Render Only	alt="Render"
+Image Render Only	<figcaption class="pi-item-spacing pi-caption">Render</figcaption>
+Image Render Only	!pi-media-collection
+Image Render Only	!alt="Screenshot"
+Image Render Only	!Category:Needs_
+Image Screenshot Only	<figure class="pi-item pi-media pi-image">
+Image Screenshot Only	alt="Screenshot"
+Image Screenshot Only	<figcaption class="pi-item-spacing pi-caption">Screenshot</figcaption>
+Image Screenshot Only	!pi-media-collection
+Image Screenshot Only	!alt="Render"
+Image Screenshot Only	!Category:Needs_
+Image Render Caption	<li class="pi-tab-link pi-item-spacing current" data-pi-tab="pi-tab-1">Render</li><li class="pi-tab-link pi-item-spacing" data-pi-tab="pi-tab-2">Screenshot</li>
+Image Render Caption	</div><div class="pi-item pi-data pi-item-spacing pi-border-color" data-source="imagecaption">
+Image Render Caption	<div class="pi-data-value pi-font">Ruff and ready</div>
+Image Render Caption	!pi-data-label pi-secondary-font">Ruff
+Image Render Caption	!Category:Needs_
 # Icon textures are bare game artwork; the wiki draws their frames.
 Lua Foundation Smoke	PASS Erenshor Icon testcases
 Ember Longsword	erenshor-icon erenshor-icon--item

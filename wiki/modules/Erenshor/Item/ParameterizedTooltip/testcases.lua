@@ -488,7 +488,7 @@ function p.run()
 	local armorTooltip = renderParameterized({
 		args = {
 			kind = "Armor",
-			image = "Cloth Sleeves.png",
+			icon = "Cloth Sleeves icon.png",
 			name = "Cloth Sleeves",
 			slot = "Arm",
 			armor = "2",
@@ -542,7 +542,7 @@ function p.run()
 	local nonAttackingRelic = renderParameterized({
 		args = {
 			kind = "Weapon",
-			image = "Siva-Braxonian Teachings.png",
+			icon = "Siva-Braxonian Teachings icon.png",
 			name = "Siva-Braxonian Teachings",
 			type = "Primary or Secondary",
 			relic = "True",
@@ -567,7 +567,7 @@ function p.run()
 	local weaponTooltipFromParams = renderParameterized({
 		args = {
 			kind = "Weapon",
-			image = "Oldenbow",
+			icon = "Oldenbow icon.png",
 			name = "Oldenbow",
 			type = "Primary",
 			damage = "38",
@@ -581,7 +581,7 @@ function p.run()
 			res = "1",
 			proc_chance = "25",
 			proc_style = "Cast",
-			proc_spell_icon = "Ice Spear",
+			proc_spell_icon = "Ice Spear icon.png",
 			proc_spell_name = "Ember Burst",
 		},
 	})
@@ -617,7 +617,7 @@ function p.run()
 	)
 	assertContains(
 		weaponTooltipFromParams,
-		"Ice Spear.png",
+		"Ice Spear icon.png",
 		"proc spell icon receives a MediaWiki filename"
 	)
 	assertAbsent(weaponTooltipFromParams, "Healing: 0", "zero healing is omitted")
@@ -628,14 +628,14 @@ function p.run()
 	local displayReadyTooltip = renderParameterized({
 		args = {
 			kind = "Weapon",
-			image = "Oldenbow.png",
+			icon = "Oldenbow icon.png",
 			name = "Oldenbow",
 			type = "Primary - 2-Handed",
 			damage = "38",
 			delay = "2",
 			proc_style = "Attack",
 			proc_chance = "8",
-			proc_spell_icon = "Ice Spear.png",
+			proc_spell_icon = "Ice Spear icon.png",
 			proc_spell_name = "[[Ice Spear]]",
 			proc_spell_level = "21",
 			proc_cast_time = "1.0",
@@ -643,10 +643,14 @@ function p.run()
 	})
 	assertContains(
 		displayReadyTooltip,
-		"Ice Spear.png",
+		"Ice Spear icon.png",
 		"display-ready icon filename passes through"
 	)
-	assertAbsent(displayReadyTooltip, "Ice Spear.png.png", "icon extension is not appended twice")
+	assertAbsent(
+		displayReadyTooltip,
+		"Ice Spear icon.png.png",
+		"icon extension is not appended twice"
+	)
 	assertContains(
 		displayReadyTooltip,
 		"[[Ice Spear]]",
@@ -657,9 +661,14 @@ function p.run()
 	assertAbsent(armorTooltip, "{{Item/", "armor invocations are fully expanded")
 	assertAbsent(armorTooltip, "{{{", "no unguarded armor parameters leak")
 	local customImageTooltip = renderParameterized({
-		args = { kind = "Armor", image = "Manual.webp", name = "Manual", armor = "1" },
+		args = { kind = "Armor", icon = "Manual.webp", name = "Manual", armor = "1" },
 	})
 	assertContains(customImageTooltip, "Manual.webp", "custom image extensions are preserved")
+	local missingIconTooltip = renderParameterized({
+		args = { kind = "Armor", name = "No Icon", armor = "1", tier = "1" },
+	})
+	assertAbsent(missingIconTooltip, "erenshor-icon", "an item with no icon draws no frame")
+	assertAbsent(missingIconTooltip, "{{{", "an item with no icon leaks no parameter")
 
 	return "PASS Erenshor Item/ParameterizedTooltip testcases"
 end

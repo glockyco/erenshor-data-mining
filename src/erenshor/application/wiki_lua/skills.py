@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Protocol
 
 from erenshor.application.wiki_lua.links import link_refs, mapped_class_link_ref
 from erenshor.application.wiki_lua.lua_writer import module_text
+from erenshor.domain.value_objects.wiki_filename import picture_file_title
 from erenshor.shared.game_constants import ticks_to_seconds
 
 if TYPE_CHECKING:
@@ -26,7 +27,6 @@ _CLASS_LEVEL_FIELDS: tuple[tuple[str, str], ...] = (
 )
 
 _TEXT_FIELD_MAP: tuple[tuple[str, str], ...] = (
-    ("image", "image_name"),
     ("description", "skill_desc"),
     ("type", "type_of_skill"),
     ("stanceStableKey", "stance_to_use_stable_key"),
@@ -146,6 +146,7 @@ def _skill_record(
         return None
 
     record: LuaData = {"name": name, "page": page, "classLevels": _class_levels(skill, class_display_names)}
+    _put_text(record, "icon", picture_file_title("icon", skill.image_name))
     for lua_key, attr in _TEXT_FIELD_MAP:
         _put_text(record, lua_key, getattr(skill, attr))
     for lua_key, attr in _NUMBER_FIELD_MAP:

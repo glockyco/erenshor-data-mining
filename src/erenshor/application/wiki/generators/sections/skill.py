@@ -112,7 +112,7 @@ class SkillSectionGenerator(SectionGeneratorBase):
 
         equipment_desc = ", ".join(equipment_reqs) if equipment_reqs else ""
 
-        image = picture_file_title("icon", skill.image_name)
+        icon = picture_file_title("icon", skill.image_name)
 
         # Pre-built links from enriched DTO
         pet_to_summon = str(enriched.spawn_on_use) if enriched.spawn_on_use else ""
@@ -136,7 +136,7 @@ class SkillSectionGenerator(SectionGeneratorBase):
             "title": display_name,
             "stable_key": skill.stable_key,
             "tooltip_template": "SkillTooltip",
-            "image": image,
+            "icon": icon,
             "imagecaption": "",
             "description": format_description(safe_str(skill.skill_desc)) if skill.skill_desc else "",
             "type": skill_type,

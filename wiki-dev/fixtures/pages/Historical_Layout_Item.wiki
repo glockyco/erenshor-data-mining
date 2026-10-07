@@ -23,7 +23,7 @@ The item details stay beside the infobox.
 {{ItemTooltip
 |kind=Armor
 |stablekey=item:abyssal_plate
-|image=Abyssal Plate
+|icon=Abyssal Plate icon.png
 |name=Abyssal Plate
 |slot=Chest
 |armor=40

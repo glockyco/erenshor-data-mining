@@ -2,7 +2,7 @@ return {
 	["item:lucky_charm"] = {
 		name = "Lucky Charm",
 		page = "Lucky Charm",
-		image = "Lucky Charm.png",
+		icon = "Lucky Charm icon.png",
 		type = "Charm",
 		slot = "Charm",
 		itemLevel = 8,

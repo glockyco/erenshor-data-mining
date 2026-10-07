@@ -2,7 +2,7 @@ return {
 	["item:sword_mastery_manual"] = {
 		name = "Sword Mastery Manual",
 		page = "Sword Mastery Manual",
-		image = "Sword Mastery Manual.png",
+		icon = "Sword Mastery Manual icon.png",
 		type = "Skill Book",
 		buyValue = 355,
 		sellValue = 88,

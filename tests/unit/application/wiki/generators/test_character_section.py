@@ -155,10 +155,13 @@ def test_character_loot_drop_fields_render_rates_refs_and_guaranteed_pool() -> N
 
     rates = content.split("|droprates=", 1)[1].split("\n", 1)[0]
     assert rates.index("Alpha Armor") < rates.index("Beta Blade") < rates.index("Common Coin")
-    assert "If Faerie Trickster has {{ItemLink|Beta Blade}} equipped, it is guaranteed to drop." in content
     assert (
-        "If the player is already holding {{ItemLink|Alpha Armor}} in their inventory, another will not drop."
+        "If Faerie Trickster has {{ItemLink|Beta Blade|image=Beta Blade icon.png}} equipped, it is guaranteed to drop."
         in content
+    )
+    assert (
+        "If the player is already holding {{ItemLink|Alpha Armor|image=Alpha Armor icon.png}} in their inventory, "
+        "another will not drop." in content
     )
     assert "|guaranteeddrops=\n" in content
 
@@ -178,7 +181,9 @@ def test_character_loot_drop_fields_render_rates_refs_and_guaranteed_pool() -> N
         page_title="Faerie Trickster",
     )
     guaranteed = guaranteed_content.split("|guaranteeddrops=", 1)[1].split("\n", 1)[0]
-    assert guaranteed == "{{ItemLink|Alpha Armor}}<br>{{ItemLink|Beta Blade}}"
+    assert guaranteed == (
+        "{{ItemLink|Alpha Armor|image=Alpha Armor icon.png}}<br>{{ItemLink|Beta Blade|image=Beta Blade icon.png}}"
+    )
     assert "|guaranteedrolls=" not in guaranteed_content
 
     two_rolls = character.model_copy(update={"guaranteed_drop_rolls": 2})
@@ -186,9 +191,10 @@ def test_character_loot_drop_fields_render_rates_refs_and_guaranteed_pool() -> N
         EnrichedCharacterData(character=two_rolls, spawn_infos=[], spells=[], loot_drops=two_guaranteed),
         page_title="Faerie Trickster",
     )
-    assert "|guaranteeddrops={{ItemLink|Alpha Armor}}<br>{{ItemLink|Beta Blade}}\n|guaranteedrolls=Two\n" in (
-        rolled_content
-    )
+    assert (
+        "|guaranteeddrops={{ItemLink|Alpha Armor|image=Alpha Armor icon.png}}"
+        "<br>{{ItemLink|Beta Blade|image=Beta Blade icon.png}}\n|guaranteedrolls=Two\n"
+    ) in rolled_content
 
     # Without a shown pool there is nothing for the label to describe.
     no_pool_content = CharacterSectionGenerator().generate_template(
@@ -333,7 +339,6 @@ def test_a_summoned_creature_marks_its_image_as_a_summon_image() -> None:
     character = _render([])
 
     assert (
-        "|image=[[File:Summoned Treant render.png|thumb]]\n|imagefile=Summoned Treant render.png\n|imagekind=summon\n"
-        in summon
+        "|render=Summoned Treant render.png\n|screenshot=Summoned Treant screenshot.png\n|imagekind=summon\n" in summon
     )
     assert "|imagekind=\n" in character

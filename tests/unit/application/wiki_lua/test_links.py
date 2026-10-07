@@ -73,8 +73,27 @@ def test_excluded_item_link_stays_plain_text_without_lua_reference() -> None:
 def test_item_link_without_identity_does_not_guess_one_from_page_text() -> None:
     link = ItemLink("Shared Item", "Alpha", "Alpha")
 
-    assert str(link) == "{{ItemLink|Shared Item|image=Alpha.png|text=Alpha}}"
-    assert link_ref(link) == {"kind": "item", "page": "Shared Item", "text": "Alpha", "image": "Alpha"}
+    assert str(link) == "{{ItemLink|Shared Item|image=Alpha icon.png|text=Alpha}}"
+    assert link_ref(link) == {"kind": "item", "page": "Shared Item", "text": "Alpha", "image": "Alpha icon.png"}
+
+
+@pytest.mark.parametrize(
+    ("link", "title"),
+    [
+        (ItemLink("Item", "Item", "Scroll: Fire"), "Scroll Fire icon.png"),
+        (AbilityLink("Ability", "Ability", "Stance: Aggressive"), "Stance Aggressive icon.png"),
+        (CharacterLink("Character", "Character", "Summoned: Bear"), "Summoned Bear render.png"),
+        (AbilityLink("Ability", "Ability"), None),
+        (ZoneLink("Zone", "Zone", "Map"), None),
+        (QuestLink("Quest", "Quest", "Quest"), None),
+        (FactionLink("Faction", "Faction", "Faction"), None),
+        (ClassLink("Class", "Class", "Class"), None),
+    ],
+)
+def test_unkeyed_references_use_catalog_role_titles(link: ItemLink, title: str | None) -> None:
+    ref = link_ref(link)
+    assert ref is not None
+    assert ref.get("image") == title
 
 
 @pytest.mark.parametrize(
@@ -98,8 +117,8 @@ def test_each_semantic_link_renders_keyed_identity(link_type: type[ItemLink], ki
 @pytest.mark.parametrize(
     ("link", "expected"),
     [
-        (ItemLink("Page", "Display", "Display"), "{{ItemLink|Page|image=Display.png|text=Display}}"),
-        (AbilityLink("Page", "Display", "Display"), "{{AbilityLink|Page|image=Display.png|text=Display}}"),
+        (ItemLink("Page", "Display", "Display"), "{{ItemLink|Page|image=Display icon.png|text=Display}}"),
+        (AbilityLink("Page", "Display", "Display"), "{{AbilityLink|Page|image=Display icon.png|text=Display}}"),
         (QuestLink("Page", "Display"), "{{QuestLink|link=Page{{!}}Display}}"),
         (CharacterLink("Page", "Display"), "[[Page|Display]]"),
         (ZoneLink("Page", "Display"), "[[Page|Display]]"),

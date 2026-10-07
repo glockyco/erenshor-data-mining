@@ -21,6 +21,35 @@ def _quest(key: str, name: str, page: str) -> LinkCatalogEntry:
     return LinkCatalogEntry(key=key, kind="quest", subtype=None, name=name, page=page, image=None)
 
 
+@pytest.mark.parametrize(
+    ("template_name", "picture_fields"),
+    [
+        ("Item", {"icon": "Subject icon.png"}),
+        ("Ability", {"icon": "Subject icon.png"}),
+        ("Stance", {"icon": "Subject icon.png"}),
+        ("Character", {"render": "Subject render.png", "screenshot": "Subject screenshot.png"}),
+    ],
+)
+def test_regeneration_drops_retired_picture_parameters(template_name: str, picture_fields: dict[str, str]) -> None:
+    old = (
+        f"{{{{{template_name}|stablekey=entity:subject"
+        "|image=[[File:Editors old picture.png|thumb]]|imagefile=Editors old picture.png"
+        "|imagecaption=Editor caption}}"
+    )
+    new_params = "|".join(f"{field}={value}" for field, value in picture_fields.items())
+    new = f"{{{{{template_name}|stablekey=entity:subject|{new_params}|imagecaption=}}}}"
+
+    text = FieldPreservationHandler().merge_templates(old, new, [template_name]).text
+
+    assert "|image=" not in text
+    assert "|imagefile=" not in text
+    for field, value in picture_fields.items():
+        assert f"|{field}={value}\n" in text
+    if template_name in {"Character", "Stance"}:
+        assert "|imagecaption=Editor caption\n" in text
+    assert not ({"image", "imagefile"} & DEFAULT_PRESERVATION_RULES[template_name].keys())
+
+
 QUESTS = (
     _quest("quest:faerie dust for nylith valarro", "Faerie Dust for Nylith Valorro", "Faerie Dust for Nylith Valorro"),
     _quest("quest:therevivalritual", "The Revival Plains Ritual", "The Revival Plains Ritual"),
@@ -565,7 +594,8 @@ class TestTemplateFormatting:
 
         new_wikitext = """{{Character
 |name=Test NPC
-|image=[[File:Test.png|thumb]]
+|render=Test render.png
+|screenshot=Test screenshot.png
 |imagecaption=
 |type=
 |faction=Villager
@@ -603,7 +633,7 @@ class TestTemplateFormatting:
         assert "\n|type=" in result
 
         # Should not be single-line format
-        assert "|name=Test NPC|image=" not in result
+        assert "|name=Test NPC|render=" not in result
         assert "|level=10|experience=" not in result
 
     def test_merge_templates_preserves_field_order(self) -> None:
@@ -619,7 +649,8 @@ class TestTemplateFormatting:
 
         new_wikitext = """{{Character
 |name=Test
-|image=[[File:Test.png|thumb]]
+|render=Test render.png
+|screenshot=Test screenshot.png
 |imagecaption=
 |type=
 |faction=Villager
@@ -639,7 +670,8 @@ class TestTemplateFormatting:
         # Field order should match new template, not old template
         expected_order = [
             "name",
-            "image",
+            "render",
+            "screenshot",
             "imagecaption",
             "type",
             "faction",
@@ -668,7 +700,8 @@ class TestTemplateFormatting:
 
         new_wikitext = """{{Character
 |name=Goblin Scout
-|image=[[File:Goblin Scout.png|thumb]]
+|render=Goblin Scout render.png
+|screenshot=Goblin Scout screenshot.png
 |imagecaption=
 |type=Elite
 |faction=Bandit

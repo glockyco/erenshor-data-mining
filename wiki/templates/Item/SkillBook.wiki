@@ -1,7 +1,7 @@
 <includeonly>{| class="item-tooltip item-tooltip-book"
 |
 {{Item/Header
- |icon={{Icon|{{{image}}}|kind=item|size=80}}
+ |icon={{#if:{{{icon|}}}|{{Icon|{{{icon}}}|kind=item|size=80}}}}
  |name={{{name}}}
  |value={{{value|}}}
  |tier=0
@@ -36,7 +36,7 @@ Template for displaying skill book tooltips. Skill books teach combat abilities 
 {| class="wikitable"
 ! Parameter !! Required !! Description
 |-
-| '''image''' || Yes || Item icon image filename
+| '''icon''' || Yes || Full item icon file title, including its extension
 |-
 | '''name''' || Yes || Skill book name
 |-
@@ -66,7 +66,7 @@ Template for displaying skill book tooltips. Skill books teach combat abilities 
 '''Code:'''
 <pre>
 {{Item/SkillBook
-|image=Skill Book: Kick.png
+|icon=Skill Book Kick icon.png
 |name=Skill Book: Kick
 |duelist_level=3
 |paladin_level=1
@@ -79,7 +79,7 @@ Template for displaying skill book tooltips. Skill books teach combat abilities 
 '''Result:'''
 
 {{Item/SkillBook
-|image=Skill Book: Kick.png
+|icon=Skill Book Kick icon.png
 |name=Skill Book: Kick
 |duelist_level=3
 |paladin_level=1

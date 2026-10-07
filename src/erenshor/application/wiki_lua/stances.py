@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Protocol
 
 from erenshor.application.wiki_lua.lua_writer import module_text
+from erenshor.domain.value_objects.wiki_filename import picture_file_title
 
 if TYPE_CHECKING:
     from erenshor.domain.entities.stance import Stance
@@ -66,7 +67,7 @@ def _stance_record(stance: Stance) -> LuaData | None:
         return None
 
     record: LuaData = {"name": name, "page": page}
-    _put(record, "image", stance.image_name)
+    _put(record, "icon", picture_file_title("icon", stance.image_name))
     _put(record, "description", stance.stance_desc)
     _put(record, "switchMessage", stance.switch_message)
     for lua_key, attr in _STANCE_FIELD_MAP:

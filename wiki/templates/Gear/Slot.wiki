@@ -4,7 +4,7 @@
   data-erenshor-page="{{{link|{{{1|{{{item}}}}}}}}}"
   {{#if:{{{quality|}}}|data-erenshor-quality="{{{quality}}}"|}}
 ><span style="position:relative; display:inline-block;">
-{{Icon|{{{image|{{{1|{{{item}}}}}}}}}{{#if:{{{image|}}}||.png}}|kind=item|size=60|link={{{link|{{{1|{{{item}}}}}}}}}}}
+{{#invoke:Erenshor/Link|slotIcon|item={{{1|{{{item|}}}}}}|stablekey={{{stablekey|}}}|image={{{image|}}}|size=60|link={{{link|{{{1|{{{item|}}}}}}}}}}}
 {{#if:{{{quality|}}}|
 {{#switch:{{{quality}}}|Blessed=<span style="position:absolute; top:0; left:0; pointer-events:none;">[[File:Blue_Sparkle.gif|60x60px|link=]]</span>|Ascended=<span style="position:absolute; top:0; left:0; pointer-events:none;">[[File:Purple_Sparkle.gif|60x60px|link=]]</span>}}
 }}
@@ -20,10 +20,13 @@ Displays a single equipment item with an optional quality indicator. The default
 ! Description
 |-
 | <code>item</code> or <code>1</code>
-| Item name. Used for the link target and image filename unless overridden.
+| Item name. Used for the link target and to resolve the catalog's full icon title unless overridden.
 |-
 | <code>image</code>
-| Image filename including its extension. Defaults to the item name with <code>.png</code>.
+| Full file title including its extension. Overrides the item's catalog icon.
+|-
+| <code>stablekey</code>
+| Exact item identity, as selected by the link picker. Resolves the icon when supplied instead of an item name.
 |-
 | <code>link</code>
 | Link target. Defaults to the item name. The hover tooltip is loaded from this page.
@@ -48,9 +51,9 @@ Displays a single equipment item with an optional quality indicator. The default
 
 ==== Item with a custom image ====
 
-<pre>{{Gear/Slot|item=Rotten Hands|image=Rotten Hands.png|quality=Ascended}}</pre>
+<pre>{{Gear/Slot|item=Rotten Hands|image=Rotten Hands icon.png|quality=Ascended}}</pre>
 
-{{Gear/Slot|item=Rotten Hands|image=Rotten Hands.png|quality=Ascended}}
+{{Gear/Slot|item=Rotten Hands|image=Rotten Hands icon.png|quality=Ascended}}
 
 === Technical notes ===
 

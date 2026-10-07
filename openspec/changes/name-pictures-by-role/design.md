@@ -96,10 +96,14 @@ Each step leaves every page showing a picture:
 1. WoWMuch announces the cutover in `#wiki-chat`.
 2. The publication run moves the project's files and retargets their redirects. It uploads renders where an editor's file holds the plain title. Old titles resolve through the redirects that the moves leave.
 3. `images move-screenshots` moves the editors' files. Their plain titles now redirect to the screenshot titles.
-4. A repository-page deploy brings the templates, modules, data modules, and generated pages that name role titles. Templates and modules go first, so a regenerated page never names a parameter that its template lacks.
-5. `wiki apply-page-edits` edits the hand-written pages.
+4. A repository-page deploy brings the templates and modules in a transitional form that reads the role parameters and fields and falls back to the retired ones: `render`, then `imagefile`, `icon`, then `image`, and a record's `icon`, then its `image`. The data modules go before the code modules, because the earlier `Module:Erenshor/Link` already accepts a full title. Pages still name the retired parameters, which resolve through the old titles' redirects.
+5. The article deploy brings the generated pages that name role titles.
+6. `wiki apply-page-edits` edits the hand-written pages, including the editor-written infoboxes that generation keeps unchanged inside generated pages, such as the chest infoboxes beside some bosses.
+7. A last repository-page deploy brings the templates and modules without the fallbacks, once a search of the wiki's source finds no page that passes a retired parameter.
 
-Each step has its own dry run and approval. Rollback runs in reverse order: the page edits' own guarded reverts, the repository-page deploy's rollback command, then `images publish --revert` for the screenshot run and the publication run.
+Templates and pages cannot change in one write, so without the fallbacks either the old pages or the new pages would show no picture for the hours that the article deploy takes. The fallbacks live only between steps 4 and 7 of one cutover and leave the repository in the commit of step 7.
+
+Each step has its own dry run and approval. Rollback runs in reverse order: the page edits' own guarded reverts, the repository-page and article deploys' rollback commands, then `images publish --revert` for the screenshot run and the publication run.
 
 ## Risks / Trade-offs
 

@@ -51,6 +51,11 @@ function p.run()
 	assertEqual(#decoded.results, 2, "decoded ability query preserves duplicate names")
 	assertEqual(decoded.results[1].key, "spell:flame_bolt", "exact name results sort by key")
 	assertEqual(
+		decoded.results[1].image,
+		"Flame Bolt icon.png",
+		"picker preserves the full catalog icon title"
+	)
+	assertEqual(
 		decoded.results[2].key,
 		"spell:flame_bolt_greater",
 		"duplicate ability remains distinct"

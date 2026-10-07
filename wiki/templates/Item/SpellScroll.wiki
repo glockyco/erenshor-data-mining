@@ -1,7 +1,7 @@
 <includeonly>{| class="item-tooltip item-tooltip-book"
 |
 {{Item/Header
- |icon={{Icon|{{{image}}}|kind=item|size=80}}
+ |icon={{#if:{{{icon|}}}|{{Icon|{{{icon}}}|kind=item|size=80}}}}
  |name={{{name}}}
  |value={{{value|}}}
  |tier=0
@@ -36,7 +36,7 @@ Template for displaying spell scroll tooltips. Spell scrolls teach spells to cha
 {| class="wikitable"
 ! Parameter !! Required !! Description
 |-
-| '''image''' || Yes || Item icon image filename
+| '''icon''' || Yes || Full item icon file title, including its extension
 |-
 | '''name''' || Yes || Spell scroll name
 |-
@@ -66,7 +66,7 @@ Template for displaying spell scroll tooltips. Spell scrolls teach spells to cha
 '''Code:'''
 <pre>
 {{Item/SpellScroll
-|image=Spell Scroll: Magic Bolt.png
+|icon=Spell Scroll Magic Bolt icon.png
 |name=Spell Scroll: Magic Bolt
 |arcanist_level=1
 |druid_level=
@@ -82,7 +82,7 @@ Template for displaying spell scroll tooltips. Spell scrolls teach spells to cha
 '''Result:'''
 
 {{Item/SpellScroll
-|image=Spell Scroll: Magic Bolt.png
+|icon=Spell Scroll Magic Bolt icon.png
 |name=Spell Scroll: Magic Bolt
 |arcanist_level=1
 |stormcaller_level=1

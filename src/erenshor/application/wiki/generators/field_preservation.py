@@ -356,12 +356,10 @@ DEFAULT_PRESERVATION_RULES: dict[str, dict[str, str]] = {
         "respawn": "prefer_database",  # From spawn point (prefab) or manual (fallback)
         # All other fields implicitly use "override" (default)
     },
-    "Ability": {
-        "image": "prefer_manual",  # Custom ability icons
-    },
+    "Ability": {},
     "Stance": {
-        # The image is the icon of the skill that switches to the stance, so
-        # generation owns it ("override", the default).
+        # The icon is the game picture of the skill that switches to the stance,
+        # so generation owns it ("override", the default).
         "imagecaption": "preserve",  # Custom image captions
     },
     "Zone": {

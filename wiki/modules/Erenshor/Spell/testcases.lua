@@ -60,7 +60,7 @@ function p.run()
 	)
 	assertContains(
 		minorTooltip,
-		"[[File:Minor Lightning.png|42x42px]]",
+		"[[File:Minor Lightning icon.png|42x42px]]",
 		"spell tooltip fits art inside the 48 px border"
 	)
 	assertNotContains(minorTooltip, "Hotbar Frame.png", "spell tooltip draws no frame")
@@ -95,6 +95,8 @@ function p.run()
 		'Haste <span class="item-spell-positive">+3%</span>',
 		"haste uses the spell-details percent unit"
 	)
+	assertNotContains(hydrated, "[[File:", "spell with no icon draws no file")
+	assertNotContains(hydrated, "erenshor-icon", "spell with no icon draws no frame")
 	assertContains(minorTooltip, "[[Ancient Presence]]", "spell tooltip links the added proc")
 
 	local buffTip =

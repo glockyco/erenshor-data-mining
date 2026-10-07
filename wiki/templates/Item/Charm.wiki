@@ -1,7 +1,7 @@
 <includeonly>{| class="item-tooltip item-tooltip-charm"
 |
 {{Item/Header
- |icon={{#ifeq:{{{tier|}}}|1|{{SparkleIcon|icon={{Icon|{{{image}}}|kind=item|size=80}}|sparkle=Blue_Sparkle.gif|sparkle_size=80px}}|{{#ifeq:{{{tier|}}}|2|{{SparkleIcon|icon={{Icon|{{{image}}}|kind=item|size=80}}|sparkle=Purple_Sparkle.gif|sparkle_size=80px}}|{{SparkleIcon|icon={{Icon|{{{image}}}|kind=item|size=80}}|sparkle=blank.png|sparkle_size=0px}}}}}}
+ |icon={{#if:{{{icon|}}}|{{#ifeq:{{{tier|}}}|1|{{SparkleIcon|icon={{Icon|{{{icon}}}|kind=item|size=80}}|sparkle=Blue_Sparkle.gif|sparkle_size=80px}}|{{#ifeq:{{{tier|}}}|2|{{SparkleIcon|icon={{Icon|{{{icon}}}|kind=item|size=80}}|sparkle=Purple_Sparkle.gif|sparkle_size=80px}}|{{SparkleIcon|icon={{Icon|{{{icon}}}|kind=item|size=80}}|sparkle=blank.png|sparkle_size=0px}}}}}}}}
  |name={{{name}}}
  |value={{{value|}}}
  |tier={{{tier|0}}}
@@ -44,7 +44,7 @@ Master template for displaying complete charm tooltips. Charms modify how effect
 {| class="wikitable"
 ! Parameter !! Required !! Description
 |-
-| '''image''' || Yes || Item icon image filename
+| '''icon''' || Yes || Full item icon file title, including its extension
 |-
 | '''name''' || Yes || Charm name
 |-
@@ -78,7 +78,7 @@ Master template for displaying complete charm tooltips. Charms modify how effect
 '''Code:'''
 <pre>
 {{Item/Charm
-|image=Charm of Age.png
+|icon=Charm of Age icon.png
 |name=Charm of Age
 |tier=0
 |wisscaling=4
@@ -93,7 +93,7 @@ Master template for displaying complete charm tooltips. Charms modify how effect
 '''Result:'''
 
 {{Item/Charm
-|image=Charm of Age.png
+|icon=Charm of Age icon.png
 |name=Charm of Age
 |tier=0
 |wisscaling=4

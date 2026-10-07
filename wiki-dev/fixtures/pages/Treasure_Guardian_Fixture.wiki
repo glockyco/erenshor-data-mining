@@ -1,7 +1,7 @@
 {{Character
 |name=Ancient Horror
 |stablekey=character:ancient horror
-|image=[[File:Ancient Horror.png|thumb]]
+|render=Ancient Horror.png
 |type=Elite
 |zones=[[Hidden Hills]]
 |spawntype=[[Treasure Hunting|Treasure hunt]]

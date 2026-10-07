@@ -2,7 +2,7 @@ return {
 	["item:magical_bag"] = {
 		name = "Magical Bag",
 		page = "Magical Bag",
-		image = "Magical Bag.png",
+		icon = "Magical Bag icon.png",
 		type = "General",
 		description = "A surprisingly roomy bag woven from enchanted thread.",
 		buyValue = 950000,
@@ -54,7 +54,7 @@ return {
 	["item:ore - planar stone"] = {
 		name = "Planar Stone",
 		page = "Planar Stone",
-		image = "Planar Stone.png",
+		icon = "Planar Stone icon.png",
 		type = "General",
 		usedIn = {
 			{ type = "upgrade_material", targetKey = "item:template - an otherwordly mold" },
@@ -63,7 +63,7 @@ return {
 	["item:template - inert diamond"] = {
 		name = "Inert Diamond",
 		page = "Inert Diamond",
-		image = "Inert Diamond.png",
+		icon = "Inert Diamond icon.png",
 		type = "General",
 		usedIn = {
 			{ type = "blessing_removal_material", targetKey = "item:template - inert diamond" },
@@ -72,7 +72,7 @@ return {
 	["item:ore - bronze ore"] = {
 		name = "Bronze Ore",
 		page = "Bronze Ore",
-		image = "Bronze Ore.png",
+		icon = "Bronze Ore icon.png",
 		type = "General",
 		usedIn = {
 			{
@@ -86,7 +86,7 @@ return {
 	["item:bear_pelt"] = {
 		name = "Bear Pelt",
 		page = "Bear Pelt",
-		image = "Bear Pelt.png",
+		icon = "Bear Pelt icon.png",
 		type = "General",
 		unique = true,
 		sellValue = 120,
@@ -108,7 +108,7 @@ return {
 	["item:bear_claw"] = {
 		name = "Bear Claw",
 		page = "Bear Claw",
-		image = "Bear Claw.png",
+		icon = "Bear Claw icon.png",
 		type = "General",
 		sellValue = 80,
 		obtainedFrom = {
@@ -129,7 +129,7 @@ return {
 	["item:bear_meat"] = {
 		name = "Bear Meat",
 		page = "Bear Meat",
-		image = "Bear Meat.png",
+		icon = "Bear Meat icon.png",
 		type = "General",
 		sellValue = 15,
 		obtainedFrom = {
@@ -144,7 +144,7 @@ return {
 	["item:gen - nightmare crystal"] = {
 		name = "Nightmare Crystal",
 		page = "Nightmare Crystal",
-		image = "Nightmare Crystal.png",
+		icon = "Nightmare Crystal icon.png",
 		type = "General",
 		obtainedFrom = {
 			{ type = "quest", sourceKey = "quest:catfordeer" },

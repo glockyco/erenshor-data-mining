@@ -1,6 +1,6 @@
 {{ItemTooltip
 |kind=Weapon
-|image=Parameterized Sword
+|icon=Parameterized Sword icon.png
 |name=Parameterized Sword
 |slot=Primary
 |type=Primary

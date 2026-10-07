@@ -11,6 +11,7 @@ from erenshor.application.wiki_lua.links import class_link_refs, link_ref
 from erenshor.application.wiki_lua.lua_writer import module_text
 from erenshor.domain.entities.item_kind import ItemKind, classify_item_kind
 from erenshor.domain.value_objects.source_info import ObtainedFromInfo, SourceInfo, UsedInInfo, WorldDropInfo
+from erenshor.domain.value_objects.wiki_filename import picture_file_title
 from erenshor.shared.game_constants import TIER_ORDER_MAP, TIER_SORT_DEFAULT
 
 if TYPE_CHECKING:
@@ -93,7 +94,6 @@ _ITEM_KIND_SHARDS = {
 _ITEM_FIELD_MAP = (
     ("name", "display_name"),
     ("page", "wiki_page_name"),
-    ("image", "image_name"),
     ("description", "lore"),
     ("bookTitle", "book_title"),
     ("slot", "required_slot"),
@@ -320,6 +320,7 @@ def _item_record(
     class_display_names: Mapping[str, str] | None,
 ) -> LuaData:
     row: LuaData = {}
+    _put(row, "icon", picture_file_title("icon", item.image_name, item.display_name, item.item_name))
     for lua_name, attr_name in _ITEM_FIELD_MAP:
         _put(row, lua_name, getattr(item, attr_name))
     for lua_name, attr_name in _ITEM_BOOL_FIELD_MAP:

@@ -76,15 +76,12 @@ def test_validation_runs_only_after_all_pages_process() -> None:
     assert events == ["first", "second", "validate"]
 
 
-def test_regenerated_stance_page_takes_the_skill_image_and_keeps_the_editor_caption() -> None:
+def test_regenerated_stance_page_takes_the_skill_icon_and_keeps_the_editor_caption() -> None:
     fetched = (
         "{{Stance\n|title=Aggressive\n|image=[[File:Aggressive.png|thumb]]\n|imagecaption=Editor caption\n"
         "|damage_mod=1.2\n}}\n\nEditor notes.\n"
     )
-    generated = (
-        "{{Stance\n|title=Aggressive\n|image=[[File:Stance: Aggressive.png|thumb]]\n|imagecaption=\n"
-        "|damage_mod=1.4\n}}\n"
-    )
+    generated = "{{Stance\n|title=Aggressive\n|icon=Stance Aggressive icon.png\n|imagecaption=\n|damage_mod=1.4\n}}\n"
     context = MagicMock()
     context.storage.read_fetched_by_title.return_value = fetched
     service = WikiGenerateService(context=context, link_catalog=(), console=Console(file=StringIO()))
@@ -94,7 +91,8 @@ def test_regenerated_stance_page_takes_the_skill_image_and_keeps_the_editor_capt
 
     page = seen[0].pages["Aggressive"]
     assert "|damage_mod=1.4\n" in page
-    assert "|image=[[File:Stance: Aggressive.png|thumb]]\n" in page
+    assert "|icon=Stance Aggressive icon.png\n" in page
+    assert "|image=" not in page
     assert "|imagecaption=Editor caption\n" in page
     assert "Editor notes." in page
 

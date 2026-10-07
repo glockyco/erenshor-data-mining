@@ -12,6 +12,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import override
 
+from erenshor.domain.value_objects.wiki_filename import picture_file_title
+
 
 @dataclass(frozen=True)
 class WikiLink:
@@ -21,7 +23,7 @@ class WikiLink:
         page_title: Wiki page title (e.g., "The Duskenlight Ritual (Quest)")
                     If None, entity is excluded from wiki (renders as plain text)
         display_name: Display text shown to user (e.g., "The Duskenlight Ritual")
-        image_name: Optional image filename (without .png extension)
+        image_name: Optional game image subject name, converted to a role title for pictures
         stable_key: Optional stable identity used by semantic link templates
 
     The display_name is used for sorting, while page_title is the actual wiki page.
@@ -34,6 +36,17 @@ class WikiLink:
     display_name: str
     image_name: str | None = None
     stable_key: str | None = None
+
+    @property
+    def picture_title(self) -> str | None:
+        """Return the catalog picture title, or no picture for non-picture families."""
+        if isinstance(self, ItemLink):
+            return picture_file_title("icon", self.image_name, self.display_name) or None
+        if isinstance(self, AbilityLink):
+            return picture_file_title("icon", self.image_name) or None
+        if isinstance(self, CharacterLink):
+            return picture_file_title("render", self.image_name, self.display_name) or None
+        return None
 
     @override
     def __str__(self) -> str:
@@ -69,16 +82,16 @@ def _render_keyed_link(link: WikiLink, kind: str) -> str | None:
 class ItemLink(WikiLink):
     """Wiki link for items using {{ItemLink}} template.
 
-    Format: {{ItemLink|PageTitle|image=ImageName.png|text=DisplayText}}
+    Format: {{ItemLink|PageTitle|image=ImageName icon.png|text=DisplayText}}
 
     Example:
         >>> link = ItemLink("Broken Key Blade (2)", "Broken Key Blade", "Broken Key Blade")
         >>> str(link)
-        '{{ItemLink|Broken Key Blade (2)|image=Broken Key Blade.png|text=Broken Key Blade}}'
+        '{{ItemLink|Broken Key Blade (2)|image=Broken Key Blade icon.png|text=Broken Key Blade}}'
 
         >>> link = ItemLink("Sword", "Sword", "Sword")
         >>> str(link)
-        '{{ItemLink|Sword}}'
+        '{{ItemLink|Sword|image=Sword icon.png}}'
 
         >>> link = ItemLink(None, "Excluded Item", None)
         >>> str(link)
@@ -96,10 +109,8 @@ class ItemLink(WikiLink):
 
         params: list[str] = []
 
-        # Add image param if different from page title
-        if self.image_name and self.image_name != self.page_title:
-            img = self.image_name if self.image_name.endswith(".png") else f"{self.image_name}.png"
-            params.append(f"image={img}")
+        if icon := self.picture_title:
+            params.append(f"image={icon}")
 
         # Add text param if different from page title
         if self.display_name != self.page_title:
@@ -122,12 +133,12 @@ class CharacterAbilityUsage:
 class AbilityLink(WikiLink):
     """Wiki link for spells/skills using {{AbilityLink}} template.
 
-    Format: {{AbilityLink|PageTitle|image=ImageName.png|text=DisplayText}}
+    Format: {{AbilityLink|PageTitle|image=ImageName icon.png|text=DisplayText}}
 
     Example:
         >>> link = AbilityLink("Fireball (Spell)", "Fireball", "Fireball")
         >>> str(link)
-        '{{AbilityLink|Fireball (Spell)|text=Fireball}}'
+        '{{AbilityLink|Fireball (Spell)|image=Fireball icon.png|text=Fireball}}'
 
         >>> link = AbilityLink("Heal", "Heal", None)
         >>> str(link)
@@ -150,10 +161,8 @@ class AbilityLink(WikiLink):
 
         params: list[str] = []
 
-        # Add image param if different from page title
-        if self.image_name and self.image_name != self.page_title:
-            img = self.image_name if self.image_name.endswith(".png") else f"{self.image_name}.png"
-            params.append(f"image={img}")
+        if icon := self.picture_title:
+            params.append(f"image={icon}")
 
         # Add text param if different from page title
         if self.display_name != self.page_title:

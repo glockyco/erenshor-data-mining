@@ -66,8 +66,8 @@ def link_ref(link: WikiLink, kind: str | None = None) -> LuaData | None:
     }
     if link.stable_key:
         ref["stablekey"] = link.stable_key
-    if link.image_name:
-        ref["image"] = link.image_name
+    if picture_title := link.picture_title:
+        ref["image"] = picture_title
     return ref
 
 

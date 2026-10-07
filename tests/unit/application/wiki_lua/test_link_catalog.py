@@ -84,6 +84,39 @@ def test_catalog_covers_all_semantic_kinds_and_uses_canonical_subtypes() -> None
     assert by_key["class:windblade"].name == "Windblade"
 
 
+def test_catalog_images_are_full_role_titles_and_non_picture_families_have_none() -> None:
+    entries = _catalog_entries(
+        items=[make_item(image_name="Spell Scroll: Flame")],
+        characters=[make_character(image_name="Summoned: Bear")],
+        spells=[make_spell(image_name="Minor Lightning")],
+        skills=[make_skill(image_name="Backstab")],
+        stances=[make_stance(image_name="Stance: Aggressive")],
+    )
+    by_key = {entry.key: entry.image for entry in entries}
+
+    assert by_key["item:sword_of_flames"] == "Spell Scroll Flame icon.png"
+    assert by_key["character:a_grizzly_bear"] == "Summoned Bear render.png"
+    assert by_key["spell:minor_lightning"] == "Minor Lightning icon.png"
+    assert by_key["skill:double_attack"] == "Backstab icon.png"
+    assert by_key["stance:aggressive"] == "Stance Aggressive icon.png"
+    assert all(entry.image is None for entry in entries if entry.kind in {"zone", "quest", "faction", "class"})
+
+
+def test_catalog_picture_subject_fallback_matches_the_catalog() -> None:
+    entries = _catalog_entries(
+        items=[make_item(image_name=None, display_name="|", item_name="Fallback: Item")],
+        characters=[make_character(image_name=None, display_name="Fallback: Character")],
+        spells=[make_spell(image_name=None)],
+        skills=[make_skill(image_name=None)],
+        stances=[make_stance(image_name=None)],
+    )
+    by_key = {entry.key: entry.image for entry in entries}
+
+    assert by_key["item:sword_of_flames"] == "Fallback Item icon.png"
+    assert by_key["character:a_grizzly_bear"] == "Fallback Character render.png"
+    assert all(entry.image is None for entry in entries if entry.kind == "ability")
+
+
 def test_catalog_character_subtypes_follow_stored_tiers() -> None:
     characters = [
         make_character(stable_key=f"character:{tier}", wiki_page_name=tier.title(), encounter_tier=tier)

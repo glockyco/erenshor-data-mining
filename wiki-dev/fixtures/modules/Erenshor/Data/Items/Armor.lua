@@ -2,7 +2,7 @@ return {
 	["item:abyssal_plate"] = {
 		name = "Abyssal Plate",
 		page = "Abyssal Plate",
-		image = "Abyssal Plate.png",
+		icon = "Abyssal Plate icon.png",
 		type = "Armor",
 		slot = "Chest",
 		itemLevel = 38,

@@ -39,7 +39,7 @@ def test_builds_stance_data_with_raw_modifier_values() -> None:
             "stance:aggressive": {
                 "name": "Aggressive",
                 "page": "Aggressive",
-                "image": "Stance: Aggressive",
+                "icon": "Stance Aggressive icon.png",
                 "description": "Gain a 40% increase to physical damage dealt.",
                 "switchMessage": "shifts into an aggressive combat stance",
                 "maxHpMod": 1.0,

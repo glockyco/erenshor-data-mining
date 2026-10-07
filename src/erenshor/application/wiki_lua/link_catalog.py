@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Protocol, TypeGuard, TypeVar
 
 from erenshor.application.wiki_lua.lua_writer import module_text
 from erenshor.domain.entities.item_kind import classify_item_kind
+from erenshor.domain.value_objects.wiki_filename import picture_file_title
 
 if TYPE_CHECKING:
     from erenshor.domain.entities.character import Character
@@ -203,10 +204,24 @@ def _entity_entries(
                 subtype=subtype,
                 name=name,
                 page=page,
-                image=entity.image_name,
+                image=_entity_picture_title(entity, kind),
             )
         )
     return result
+
+
+def _entity_picture_title(entity: _LinkEntity, kind: str) -> str | None:
+    """Use the same subject names and role as the picture catalog."""
+    if kind == "item":
+        return (
+            picture_file_title("icon", entity.image_name, entity.display_name, getattr(entity, "item_name", None))
+            or None
+        )
+    if kind == "ability":
+        return picture_file_title("icon", entity.image_name) or None
+    if kind == "character":
+        return picture_file_title("render", entity.image_name, entity.display_name) or None
+    return None
 
 
 def _item_subtype(item: Item) -> str:

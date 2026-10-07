@@ -12,7 +12,7 @@ Use explicit display fields when the visible name, image, or destination differs
  |Cometshard Shield
  |link=Cometshard Shield
  |text=Cometshard Shield
- |image=Cometshard Shield.png
+ |image=Cometshard Shield icon.png
 }}</pre>
 
 The link picker may also supply <code>stablekey</code>. This is the exact advanced identity selected for the item by the picker. It distinguishes records that can share a page or display name. Editors normally do not need to memorize or type it. Generated picker output carries the stable key together with explicit <code>link</code>, <code>text</code>, and a nonempty <code>image</code> fallback. When a stable key is supplied, the catalog provides the canonical page, name, and image, while explicit <code>link</code>, <code>text</code>, or <code>image</code> values remain presentation overrides:
@@ -84,7 +84,7 @@ If the gadget is disabled or JavaScript is unavailable, <code>ItemLink</code> st
 | Visible link text.
 |-
 | <code>image</code>
-| Item image filename. <code>.png</code> is added when no supported image extension is supplied.
+| Full item icon file title, including its extension. The full file title must include its extension; no extension is added.
 |-
 | <code>quality</code>
 | Select one of the quality variants listed above. Invalid values produce a template error instead of silently selecting another quality.
@@ -128,7 +128,7 @@ If the gadget is disabled or JavaScript is unavailable, <code>ItemLink</code> st
     },
     "image": {
       "label": "Image",
-      "description": "Item image filename.",
+      "description": "Full item icon file title, including its extension.",
       "type": "wiki-file-name"
     },
     "quality": {
