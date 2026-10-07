@@ -44,7 +44,17 @@ if TYPE_CHECKING:
         MediaWikiPageSnapshot,
     )
 
-__all__ = ["PageDeleter", "PublishWriter", "RunRecord", "comment", "description", "execute", "move", "revert"]
+__all__ = [
+    "PageDeleter",
+    "PublishWriter",
+    "RunRecord",
+    "comment",
+    "description",
+    "execute",
+    "move",
+    "redirect",
+    "revert",
+]
 
 _REDIRECT = re.compile(r"^\s*#REDIRECT\s*\[\[\s*:?\s*([^\]|]+?)\s*(?:\|[^\]]*)?\]\]", re.IGNORECASE)
 
@@ -154,11 +164,11 @@ def execute(
     for item in plan.titles:
         if item.verdict != "move":
             continue
-        if not move(item, writer, record, summary):
+        if not move(str(item.source), item.title, str(item.source_sha1), writer, record, summary):
             missing_files.add(item.title)
             continue
         for follower in followers.get(str(item.source), ()):
-            _redirect(follower, writer, record, summary)
+            redirect(follower.title, str(follower.file), follower.redirect_target, writer, record, summary)
             followed.add(follower.title)
     for item in plan.titles:
         if item.verdict in ("create", "update"):
@@ -178,18 +188,22 @@ def execute(
 
     for item in plan.titles:
         if item.verdict == "redirect" and item.title not in followed and has_file(item):
-            _redirect(item, writer, record, summary)
+            redirect(item.title, str(item.file), item.redirect_target, writer, record, summary)
     if deleter is None:
         return
     for item in plan.titles:
         if item.verdict == "retire" and has_file(item) and _delete_copy(item, writer, deleter, record, summary):
-            _redirect(item, writer, record, summary)
+            redirect(item.title, str(item.file), item.redirect_target, writer, record, summary)
     for orphan in plan.orphans:
         _delete_orphan(orphan, writer, deleter, record, summary)
 
 
 def _skipped(item: PlannedTitle, action: str, reason: str) -> dict[str, Any]:
-    return {"title": item.title, "action": action, "done": False, "reason": reason}
+    return _not_done(item.title, action, reason)
+
+
+def _not_done(title: str, action: str, reason: str) -> dict[str, Any]:
+    return {"title": title, "action": action, "done": False, "reason": reason}
 
 
 def _describe(item: PlannedTitle, catalog: Catalog, writer: PublishWriter, record: RunRecord, summary: str) -> None:
@@ -213,30 +227,29 @@ def _current(writer: PublishWriter, title: str) -> MediaWikiFileVersion | None:
     return versions[0] if versions else None
 
 
-def move(item: PlannedTitle, writer: PublishWriter, record: RunRecord, summary: str) -> bool:
-    """Move the file at ``item.source`` to ``item.title`` with its history, leaving a redirect at the old title.
+def move(source: str, title: str, sha1: str, writer: PublishWriter, record: RunRecord, summary: str) -> bool:
+    """Move the file at ``source`` to ``title`` with its history, leaving a redirect at the old title.
 
-    The move goes ahead only while the old title holds the planned file and the
-    new title has no page. Returns whether the new title holds the file.
+    The move goes ahead only while the old title holds the file with ``sha1``
+    and the new title has no page. Returns whether the new title holds the file.
     """
-    source = str(item.source)
     current = _current(writer, source)
-    if current is None or current.sha1 != item.source_sha1:
-        record.add(_skipped(item, "move", f"the file at {source} changed since the plan"))
+    if current is None or current.sha1 != sha1:
+        record.add(_not_done(title, "move", f"the file at {source} changed since the plan"))
         return False
-    page = writer.get_page_snapshots([item.title])[item.title]
-    if page.source_text is not None or _current(writer, item.title) is not None:
-        record.add(_skipped(item, "move", "the title gained a page since the plan"))
+    page = writer.get_page_snapshots([title])[title]
+    if page.source_text is not None or _current(writer, title) is not None:
+        record.add(_not_done(title, "move", "the title gained a page since the plan"))
         return False
     try:
-        writer.move_page(source, item.title, f"{summary}: {item.reason}")
+        writer.move_page(source, title, f"{summary}: the file takes the title that the wiki's pages name")
     except MediaWikiAPIError as error:
-        record.add(_skipped(item, "move", f"the move failed: {error}"))
+        record.add(_not_done(title, "move", f"the move failed: {error}"))
         return False
-    moved = _current(writer, item.title)
-    record.add({"title": item.title, "action": "move", "done": True, "source": source, "sha1": item.source_sha1})
-    if moved is None or moved.sha1 != item.source_sha1:
-        record.add(_skipped(item, "move", "the moved file does not have the planned SHA-1"))
+    moved = _current(writer, title)
+    record.add({"title": title, "action": "move", "done": True, "source": source, "sha1": sha1})
+    if moved is None or moved.sha1 != sha1:
+        record.add(_not_done(title, "move", "the moved file does not have the planned SHA-1"))
         return False
     return True
 
@@ -342,33 +355,35 @@ def _delete_orphan(
     record.add(entry | {"done": True, "sha1": current.sha1, "redirects": redirects})
 
 
-def _redirect(item: PlannedTitle, writer: PublishWriter, record: RunRecord, summary: str) -> None:
-    """Create the title's redirect to the picture's file, or point its redirect there.
+def redirect(
+    title: str, target: str, expected: str | None, writer: PublishWriter, record: RunRecord, summary: str
+) -> None:
+    """Create the title's redirect to ``target``, or point its redirect there while it still names ``expected``.
 
     The page decides: the file history of a redirect title is its target's, so
     a file at the title shows as a page that is not a redirect.
     """
-    content = f"#REDIRECT [[{item.file}]]"
-    page = writer.get_page_snapshots([item.title])[item.title]
+    content = f"#REDIRECT [[{target}]]"
+    page = writer.get_page_snapshots([title])[title]
     try:
         if page.source_text is None:
-            revision = writer.safe_create_page(item.title, content, page.start_timestamp, summary=summary)
-            record.add({"title": item.title, "action": "redirect", "done": True, "target": item.file, "old_text": None})
+            revision = writer.safe_create_page(title, content, page.start_timestamp, summary=summary)
+            record.add({"title": title, "action": "redirect", "done": True, "target": target, "old_text": None})
             return
         current_target = _redirect_target(page.source_text)
-        if page.revision is None or current_target is None or not _same_title(current_target, item.redirect_target):
-            record.add(_skipped(item, "redirect", "the page changed since the plan"))
+        if page.revision is None or current_target is None or not _same_title(current_target, expected):
+            record.add(_not_done(title, "redirect", "the page changed since the plan"))
             return
-        revision = writer.safe_edit_page(item.title, content, page.revision, summary=summary)
+        revision = writer.safe_edit_page(title, content, page.revision, summary=summary)
     except MediaWikiAPIError as error:
-        record.add(_skipped(item, "redirect", f"the edit failed: {error}"))
+        record.add(_not_done(title, "redirect", f"the edit failed: {error}"))
         return
     record.add(
         {
-            "title": item.title,
+            "title": title,
             "action": "redirect",
             "done": True,
-            "target": item.file,
+            "target": target,
             "old_text": page.source_text,
             "revision": revision,
         }
