@@ -42,7 +42,6 @@ from PIL import Image, ImageDraw, UnidentifiedImageError
 from erenshor.application.pictures import identify
 from erenshor.application.processor.pictures import CATALOG_DIRECTORY
 from erenshor.application.services.model_image_manifest import load_game_build
-from erenshor.domain.value_objects.wiki_filename import upload_file_title
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Collection, Iterable, Mapping, Sequence
@@ -292,8 +291,8 @@ def plan_publication(
     planner = _Planner(catalog, live, frozenset({bot, *owners}), pictures)
     titles = planner.titles()
     files = {image_hash: planner.choose_file(image_hash, members) for image_hash, members in _by_picture(titles)}
-    # A picture's file may take a title that no page names, such as the upload
-    # title of a title with a colon, so the plan creates or keeps it too.
+    # A picture's file may stay at a title that no page names any more, the
+    # target of a title's redirect, so the plan keeps it too.
     for image_hash, file_title in files.items():
         if file_title is not None:
             titles.setdefault(file_title, image_hash)
@@ -358,23 +357,8 @@ class _Planner:
             self._by_sha1[file.sha1].append(title)
 
     def titles(self) -> dict[str, str]:
-        """The catalog's titles, plus the upload title of each title with a colon that the wiki has.
-
-        A title with a colon cannot hold a file, so the old pipeline uploaded
-        to the title without it and redirected. Such an upload title joins the
-        plan, so that its copy goes or becomes the picture's file.
-        """
+        """The catalog's titles, each mapped to its picture's hash."""
         titles = dict(self.catalog.titles)
-        for title, image_hash in self.catalog.titles.items():
-            upload = _upload(title)
-            if upload == title:
-                continue
-            known = titles.get(upload)
-            if known is not None and known != image_hash:
-                raise ValueError(f"{title} and {upload} name different pictures")
-            if known is None and self.live.has_page(upload):
-                titles[upload] = image_hash
-                self.entities[upload] = self.entities[title]
         self.picture_of = titles
         return titles
 
@@ -405,7 +389,7 @@ class _Planner:
         ranks: dict[str, int] = {}
         for title in members:
             rank = _entity_rank(self.entities.get(title))
-            candidates = [_upload(title)]
+            candidates = [title]
             target = self.live.redirects.get(title)
             if (
                 target is not None
@@ -477,10 +461,6 @@ class _Planner:
         if title in self.live.pages:
             return planned("conflict", "a page without a file holds the title")
         return planned("redirect", "the title is missing")
-
-
-def _upload(title: str) -> str:
-    return "File:" + upload_file_title(title.removeprefix("File:"))
 
 
 _CELL = 64

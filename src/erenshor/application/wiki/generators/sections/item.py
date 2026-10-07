@@ -24,7 +24,7 @@ from erenshor.application.wiki.generators.item_type_display import build_item_ty
 from erenshor.application.wiki.generators.link_lists import format_chance_links, format_links, format_visible_links
 from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
 from erenshor.domain.entities.item_kind import ItemKind, classify_item_kind
-from erenshor.domain.value_objects.wiki_filename import image_file_title
+from erenshor.domain.value_objects.wiki_filename import picture_file_title
 from erenshor.domain.value_objects.wiki_link import AbilityLink
 from erenshor.shared.game_constants import LONG_NAME_FONT_SIZE, LONG_NAME_THRESHOLD
 
@@ -42,7 +42,7 @@ _LEGACY_CLASS_PARAMS = ("arcanist", "duelist", "druid", "paladin", "reaver", "st
 
 def item_image_file(item: Item) -> str:
     """The file title of an item's icon, which its tooltip template shows."""
-    return image_file_title(item.image_name, item.display_name, item.item_name)
+    return picture_file_title("icon", item.image_name, item.display_name, item.item_name)
 
 
 class ItemSectionGenerator(SectionGeneratorBase):
@@ -490,7 +490,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
 
         # Spell display name and icon from entity attributes
         spell_display_name = spell.display_name or spell.spell_name or ""
-        spell_icon = image_file_title(spell.image_name)
+        spell_icon = picture_file_title("icon", spell.image_name)
 
         # Wiki link for spell name
         spell_name_link = str(

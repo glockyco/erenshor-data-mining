@@ -130,8 +130,8 @@ def execute(
     """Carry out a plan so that no title that a page shows goes without a picture for long.
 
     Uploads come first. Then every title that should redirect to a picture's
-    file does, which also takes the titles with a colon off the copies that
-    are about to go. Then each copy is deleted and its title redirects to the
+    file does, which also takes the old titles that redirect to a copy off it
+    before the copy goes. Then each copy is deleted and its title redirects to the
     picture's file at once. The orphans go last. A title whose picture's file
     could not be uploaded is left as it is.
 

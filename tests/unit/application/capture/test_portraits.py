@@ -43,7 +43,7 @@ def completed(object_name: str, *, renderers: int = 3, clipped: bool = False, lu
         Image.new("RGBA", (40, 80), (180, 120, 90, 255)).save(from_wine_path(request["outputPath"]))
         return {
             "type": "portrait_complete",
-            "file": request["file"],
+            "subject": request["subject"],
             "stableKey": request["stableKey"],
             "objectName": object_name,
             "width": 40,
@@ -65,7 +65,7 @@ MANIFEST = {
     "camera_preset": "portrait-1",
     "entries": [
         {
-            "file": "Faith.png",
+            "subject": "Faith",
             "kind": "character",
             "stable_key": "character:faith",
             "source": {
@@ -79,7 +79,7 @@ MANIFEST = {
             "pages": ["Faith"],
         },
         {
-            "file": "Ceremonial Brazier.png",
+            "subject": "Ceremonial Brazier",
             "kind": "character",
             "stable_key": "character:sm_prop_brazier_01 (1):duskenlight:485.82:65.42:397.38",
             "source": {
@@ -93,27 +93,27 @@ MANIFEST = {
             "pages": ["Ceremonial Brazier"],
         },
         {
-            "file": "Summoned: Treant.png",
+            "subject": "Summoned Treant",
             "kind": "summon",
             "stable_key": "character:summoned treant",
             "source": {"resources_path": "npcs/Summoned Treant", "scene": None},
-            "pages": ["Summoned: Treant"],
+            "pages": ["Summoned Treant"],
         },
     ],
 }
 
 
-def _run(mod: FakeMod, tmp_path: Path, files: tuple[str, ...] = ()) -> tuple[PortraitRun, list[PortraitRun]]:
+def _run(mod: FakeMod, tmp_path: Path, subjects: tuple[str, ...] = ()) -> tuple[PortraitRun, list[PortraitRun]]:
     progress: list[PortraitRun] = []
     run = PortraitRun(game_build="24405256", preset="portrait-1")
-    asyncio.run(capture_portraits(mod, portrait_requests(MANIFEST, files), tmp_path, run, progress.append))
+    asyncio.run(capture_portraits(mod, portrait_requests(MANIFEST, subjects), tmp_path, run, progress.append))
     return run, progress
 
 
 def test_requests_load_prefabs_first_and_then_each_scene_once() -> None:
     requests = portrait_requests(MANIFEST)
 
-    assert [request.file for request in requests] == ["Summoned: Treant.png", "Ceremonial Brazier.png", "Faith.png"]
+    assert [request.subject for request in requests] == ["Summoned Treant", "Ceremonial Brazier", "Faith"]
     # A placed character answers to its object name until it starts and to its NPC name after.
     assert requests[1].expected_names == {"SM_Prop_Brazier_01 (1)", "Ceremonial Brazier"}
     assert requests[0].expected_names == {"Summoned Treant"}
@@ -122,7 +122,7 @@ def test_requests_load_prefabs_first_and_then_each_scene_once() -> None:
 def test_a_scene_request_lands_the_player_and_names_both_names(tmp_path: Path) -> None:
     mod = FakeMod([completed("Ceremonial Brazier"), ended])
 
-    run, _ = _run(mod, tmp_path, ("Ceremonial Brazier.png",))
+    run, _ = _run(mod, tmp_path, ("Ceremonial Brazier",))
 
     assert mod.sent[0]["source"] == {
         "scene": "Duskenlight",
@@ -141,9 +141,9 @@ def test_an_interrupted_batch_keeps_its_results_and_lists_the_rest(tmp_path: Pat
 
     run, progress = _run(mod, tmp_path)
 
-    assert [result.file for result in run.results] == ["Summoned: Treant.png"]
-    assert run.interrupted is not None and run.interrupted.startswith("Ceremonial Brazier.png: ConnectionResetError")
-    assert run.not_captured == ["Ceremonial Brazier.png", "Faith.png"]
+    assert [result.subject for result in run.results] == ["Summoned Treant"]
+    assert run.interrupted is not None and run.interrupted.startswith("Ceremonial Brazier: ConnectionResetError")
+    assert run.not_captured == ["Ceremonial Brazier", "Faith"]
     assert not run.returned
     # Each step reaches the recorder, so a crash still leaves the results on disk.
     assert len(progress) >= 2
@@ -152,7 +152,7 @@ def test_an_interrupted_batch_keeps_its_results_and_lists_the_rest(tmp_path: Pat
 def test_a_capture_of_another_object_is_rejected(tmp_path: Path) -> None:
     mod = FakeMod([completed("Zenith"), ended])
 
-    run, _ = _run(mod, tmp_path, ("Faith.png",))
+    run, _ = _run(mod, tmp_path, ("Faith",))
 
     assert run.results[0].status == "rejected"
     assert run.results[0].reasons == ["wrong model: captured Zenith, expected Faith"]
@@ -161,7 +161,7 @@ def test_a_capture_of_another_object_is_rejected(tmp_path: Path) -> None:
 def test_a_capture_without_renderer_or_inside_the_frame_edge_is_rejected(tmp_path: Path) -> None:
     mod = FakeMod([completed("Summoned Treant", renderers=0, clipped=True), ended])
 
-    run, _ = _run(mod, tmp_path, ("Summoned: Treant.png",))
+    run, _ = _run(mod, tmp_path, ("Summoned Treant",))
 
     assert run.results[0].status == "rejected"
     assert run.results[0].reasons == ["no renderer", "clipped: the subject reaches the edge of the frame"]
@@ -171,7 +171,7 @@ def test_a_dark_capture_is_accepted_with_a_warning_for_the_reviewer(tmp_path: Pa
     # The constellations of Soluna's plane are dark in the game.
     mod = FakeMod([completed("Faith", luminance=0.03), ended])
 
-    run, _ = _run(mod, tmp_path, ("Faith.png",))
+    run, _ = _run(mod, tmp_path, ("Faith",))
 
     assert (run.results[0].status, run.results[0].warnings) == ("accepted", ["dark: mean luminance 0.030"])
 
@@ -180,7 +180,7 @@ def test_a_mod_error_fails_the_file_and_the_batch_goes_on(tmp_path: Path) -> Non
     mod = FakeMod(
         [
             completed("Summoned Treant"),
-            lambda request: {"type": "portrait_error", "file": request["file"], "reason": "Cancelled"},
+            lambda request: {"type": "portrait_error", "subject": request["subject"], "reason": "Cancelled"},
             completed("Faith"),
             ended,
         ]
@@ -188,10 +188,10 @@ def test_a_mod_error_fails_the_file_and_the_batch_goes_on(tmp_path: Path) -> Non
 
     run, _ = _run(mod, tmp_path)
 
-    assert [(result.file, result.status) for result in run.results] == [
-        ("Summoned: Treant.png", "accepted"),
-        ("Ceremonial Brazier.png", "failed"),
-        ("Faith.png", "accepted"),
+    assert [(result.subject, result.status) for result in run.results] == [
+        ("Summoned Treant", "accepted"),
+        ("Ceremonial Brazier", "failed"),
+        ("Faith", "accepted"),
     ]
     assert run.results[1].reasons == ["Cancelled"]
 
@@ -202,7 +202,7 @@ def test_every_capture_is_drawn_on_one_of_the_sheets(tmp_path: Path) -> None:
         Image.new("RGBA", (40, 80), (180, 120, 90, 255)).save(tmp_path / f"{name}.png")
         run.results.append(
             PortraitResult(
-                file=f"{name}.png",
+                subject=name,
                 stable_key=f"character:{name}",
                 kind="character",
                 status="accepted",
@@ -210,18 +210,24 @@ def test_every_capture_is_drawn_on_one_of_the_sheets(tmp_path: Path) -> None:
             )
         )
 
-    sheets = write_contact_sheets(run, tmp_path, lambda _title: None, tmp_path / "sheets", columns=2, rows=1, tile=40)
+    titles: list[str] = []
+
+    def wiki(title: str) -> None:
+        titles.append(title)
+
+    sheets = write_contact_sheets(run, tmp_path, wiki, tmp_path / "sheets", columns=2, rows=1, tile=40)
+    assert titles == [f"{name} render.png" for name in ("a", "b", "c", "d", "e")]
 
     assert [sheet.name for sheet in sheets] == ["sheet-001.png", "sheet-002.png", "sheet-003.png"]
 
 
-def test_a_recapture_keeps_the_other_captures_and_drops_the_files_earlier_picture(tmp_path: Path) -> None:
+def test_a_recapture_keeps_the_other_captures_and_drops_the_subjects_earlier_picture(tmp_path: Path) -> None:
     run = PortraitRun(game_build="24405256", preset="portrait-3")
     for name in ("Faith", "Lucian Revald"):
         Image.new("RGBA", (40, 80), (180, 120, 90, 255)).save(tmp_path / f"{name}.png")
         run.results.append(
             PortraitResult(
-                file=f"{name}.png",
+                subject=name,
                 stable_key=f"character:{name}",
                 kind="character",
                 status="accepted",
@@ -229,7 +235,7 @@ def test_a_recapture_keeps_the_other_captures_and_drops_the_files_earlier_pictur
             )
         )
 
-    recapture = recapture_run(run.to_json(), tmp_path, {"Lucian Revald.png"})
+    recapture = recapture_run(run.to_json(), tmp_path, {"Lucian Revald"})
 
-    assert [result.file for result in recapture.results] == ["Faith.png"]
+    assert [result.subject for result in recapture.results] == ["Faith"]
     assert sorted(path.name for path in tmp_path.iterdir()) == ["Faith.png"]

@@ -358,7 +358,7 @@ def test_a_changed_shared_picture_is_one_new_version_that_every_title_shows(setu
 
 def test_a_copy_of_the_old_pipeline_is_deleted_and_its_title_redirects(setup: Any) -> None:
     pictures, wiki, cache, tmp_path = setup
-    pictures.add(SCROLL, "File:Spell Scroll Antidote.png", "File:Spell Scroll: Annihilate.png")
+    pictures.add(SCROLL, "File:Spell Scroll Antidote.png", "File:Spell Scroll Annihilate.png")
     wiki.put_file("File:Spell Scroll Antidote.png", SCROLL)
     wiki.put_file("File:Spell Scroll Annihilate.png", OLD, user=OPERATOR, comment="")
     wiki.put_redirect("File:Spell Scroll: Annihilate.png", "File:Spell Scroll Annihilate.png")
@@ -441,22 +441,12 @@ def test_a_plan_that_deletes_refuses_to_run_without_the_deletion_account(setup: 
     assert wiki.uploads == 0
 
 
-def test_a_title_with_a_colon_uploads_without_it_and_redirects(setup: Any) -> None:
-    pictures, wiki, cache, tmp_path = setup
-    pictures.add(_png((7, 7, 7, 255)), "File:Summoned: Brute.png", kind="character")
-
-    _run(pictures.build(), wiki, cache, tmp_path / "run")
-
-    assert "File:Summoned Brute.png" in wiki.files
-    assert wiki.pages["File:Summoned: Brute.png"] == "#REDIRECT [[File:Summoned Brute.png]]"
-
-
 def test_titles_that_redirect_to_an_editors_file_with_the_picture_stay(setup: Any) -> None:
     pictures, wiki, cache, _ = setup
     brute = _png((7, 7, 7, 255))
-    pictures.add(brute, "File:Summoned: Brute.png", kind="character")
+    pictures.add(brute, "File:Summoned Brute render.png", kind="character")
     wiki.put_file("File:Brute.png", brute, user="Snedn")
-    wiki.put_redirect("File:Summoned: Brute.png", "File:Brute.png")
+    wiki.put_redirect("File:Summoned Brute render.png", "File:Brute.png")
 
     plan = _plan(pictures.build(), wiki, cache)
 
@@ -514,9 +504,9 @@ def test_an_unexpected_upload_warning_skips_the_upload(setup: Any) -> None:
     assert record.entries[0]["reason"] == "MediaWiki warned: duplicate-archive, exists"
 
 
-def test_a_title_with_a_colon_shows_a_picture_throughout_the_deletion_of_its_copy(setup: Any) -> None:
+def test_an_old_title_shows_a_picture_throughout_the_deletion_of_its_copy(setup: Any) -> None:
     pictures, wiki, cache, tmp_path = setup
-    pictures.add(SCROLL, "File:Spell Scroll Antidote.png", "File:Spell Scroll: Annihilate.png")
+    pictures.add(SCROLL, "File:Spell Scroll Antidote.png", "File:Spell Scroll Annihilate.png")
     wiki.put_file("File:Spell Scroll Antidote.png", SCROLL)
     wiki.put_file("File:Spell Scroll Annihilate.png", OLD)
     wiki.put_redirect("File:Spell Scroll: Annihilate.png", "File:Spell Scroll Annihilate.png")
@@ -529,23 +519,23 @@ def test_a_title_with_a_colon_shows_a_picture_throughout_the_deletion_of_its_cop
 
 def test_a_title_that_redirects_through_another_redirect_is_pointed_at_the_file(setup: Any) -> None:
     pictures, wiki, cache, tmp_path = setup
-    pictures.add(SCROLL, "File:Spell Scroll Antidote.png", "File:Spell Scroll: Antidote.png")
+    pictures.add(SCROLL, "File:Spell Scroll Antidote.png", "File:Antidote Scroll.png")
     wiki.put_file("File:Spell Scroll Antidote.png", SCROLL)
     wiki.put_redirect("File:Spell Scroll Antidote (old).png", "File:Spell Scroll Antidote.png")
-    wiki.put_redirect("File:Spell Scroll: Antidote.png", "File:Spell Scroll Antidote (old).png")
+    wiki.put_redirect("File:Antidote Scroll.png", "File:Spell Scroll Antidote (old).png")
     catalog = pictures.build()
 
     plan = _plan(catalog, wiki, cache)
     execute(plan, catalog, wiki, wiki, RunRecord(tmp_path / "run"), "Publish")
 
-    assert _verdicts(plan)["File:Spell Scroll: Antidote.png"] == "redirect"
-    assert wiki.shows_a_picture("File:Spell Scroll: Antidote.png")
+    assert _verdicts(plan)["File:Antidote Scroll.png"] == "redirect"
+    assert wiki.shows_a_picture("File:Antidote Scroll.png")
 
 
 def test_a_revert_restores_replaced_bytes_deleted_copies_orphans_and_redirects(setup: Any) -> None:
     pictures, wiki, cache, tmp_path = setup
     pictures.add(_png((200, 0, 0, 255)), "File:Thorned Branch.png")
-    pictures.add(SCROLL, "File:Spell Scroll Antidote.png", "File:Spell Scroll: Annihilate.png")
+    pictures.add(SCROLL, "File:Spell Scroll Antidote.png", "File:Spell Scroll Annihilate.png")
     wiki.put_file("File:Thorned Branch.png", OLD)
     wiki.put_file("File:Spell Scroll Antidote.png", SCROLL)
     old_copy = _png((3, 3, 3, 255), size=(150, 150))
@@ -601,7 +591,7 @@ def test_a_copy_that_hides_its_redirect_to_a_planned_title_is_deleted(setup: Any
 
 
 def test_a_title_shows_the_file_that_its_redirect_names() -> None:
-    # MediaWiki forbids colons in uploads, so a colon title redirects to the uploaded file.
+    # An old title redirects to the file that took its place.
     file = MediaWikiFile("File:Summoned Treant.png", "s", "WoWBot", "", 1, 1, 1, "t", "u")
     live = LiveWiki({file.title: file}, {"File:Summoned: Treant.png": file.title}, frozenset())
 

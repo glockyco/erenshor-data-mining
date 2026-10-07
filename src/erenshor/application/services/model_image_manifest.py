@@ -1,8 +1,8 @@
-"""The manifest of character models to capture: one entry for each character image title.
+"""The manifest of character models to capture: one entry for each character subject.
 
-A character's image title follows its model, so characters that share a model
-share one title and one capture (design D5 of the change
-restore-missing-wiki-images). The manifest lists every title of the clean
+A character's subject follows its model, so characters that share a model
+share one subject and one capture (design D5 of the change
+restore-missing-wiki-images). The manifest lists every subject of the clean
 database once, whether or not the wiki has a picture for it, because the picture
 catalog holds a render of every character. Each entry names the pages of its
 characters, the generated ones and those that ``content-lifecycle.json`` marks
@@ -18,7 +18,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from erenshor.domain.value_objects.wiki_filename import image_file_title
+from erenshor.domain.value_objects.wiki_filename import picture_file_title, picture_subject
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence
@@ -34,7 +34,7 @@ class CharacterSource:
     """A character of the clean database with the facts that locate its game object."""
 
     stable_key: str
-    image_title: str
+    subject: str
     wiki_page: str | None
     object_name: str | None
     npc_name: str | None
@@ -70,7 +70,7 @@ class CaptureSource:
 
 @dataclass(frozen=True, slots=True)
 class ManifestEntry:
-    file: str
+    subject: str
     kind: str  # character or summon
     stable_key: str
     source: CaptureSource
@@ -81,7 +81,7 @@ class ManifestEntry:
 class UnsourcedModel:
     """A model whose characters no capture can locate, with the pages that show it."""
 
-    file: str
+    subject: str
     pages: tuple[str, ...]
 
 
@@ -98,7 +98,8 @@ class ModelImageManifest:
             "camera_preset": self.camera_preset,
             "entries": [
                 {
-                    "file": entry.file,
+                    "subject": entry.subject,
+                    "title": picture_file_title("render", entry.subject),
                     "kind": entry.kind,
                     "stable_key": entry.stable_key,
                     "source": {
@@ -113,7 +114,14 @@ class ModelImageManifest:
                 }
                 for entry in self.entries
             ],
-            "unsourced": [{"file": model.file, "pages": list(model.pages)} for model in self.unsourced],
+            "unsourced": [
+                {
+                    "subject": model.subject,
+                    "title": picture_file_title("render", model.subject),
+                    "pages": list(model.pages),
+                }
+                for model in self.unsourced
+            ],
         }
 
 
@@ -188,14 +196,14 @@ def build_manifest(
             raise ValueError(f"{page}: the unused page's character {stable_key} is not in the clean database")
         unused_by_key[stable_key].append(page)
 
-    by_title: dict[str, list[CharacterSource]] = defaultdict(list)
+    by_subject: dict[str, list[CharacterSource]] = defaultdict(list)
     for character in characters:
-        by_title[character.image_title].append(character)
+        by_subject[character.subject].append(character)
 
     entries: list[ManifestEntry] = []
     unsourced: list[UnsourcedModel] = []
-    for file in sorted(by_title):
-        models = by_title[file]
+    for subject in sorted(by_subject):
+        models = by_subject[subject]
         pages = _sorted_pages(
             [character.wiki_page for character in models if character.wiki_page]
             + [page for character in models for page in unused_by_key.get(character.stable_key, ())]
@@ -205,11 +213,13 @@ def build_manifest(
             key=lambda pair: _capture_rank(pair[0]),
         )
         if not located:
-            unsourced.append(UnsourcedModel(file=file, pages=pages))
+            unsourced.append(UnsourcedModel(subject=subject, pages=pages))
             continue
         chosen, source = located[0]
         kind = "summon" if any(character.is_summon for character in models) else "character"
-        entries.append(ManifestEntry(file=file, kind=kind, stable_key=chosen.stable_key, source=source, pages=pages))
+        entries.append(
+            ManifestEntry(subject=subject, kind=kind, stable_key=chosen.stable_key, source=source, pages=pages)
+        )
     return ModelImageManifest(
         game_build=game_build,
         camera_preset=CAMERA_PRESET,
@@ -241,7 +251,7 @@ def load_character_sources(clean: sqlite3.Connection) -> list[CharacterSource]:
     return [
         CharacterSource(
             stable_key=stable_key,
-            image_title=image_file_title(image_name, display_name),
+            subject=picture_subject(image_name, display_name),
             wiki_page=wiki_page,
             object_name=object_name,
             npc_name=npc_name,

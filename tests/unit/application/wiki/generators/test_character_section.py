@@ -332,5 +332,8 @@ def test_a_summoned_creature_marks_its_image_as_a_summon_image() -> None:
     )
     character = _render([])
 
-    assert "|image=[[File:Summoned: Treant.png|thumb]]\n|imagefile=Summoned: Treant.png\n|imagekind=summon\n" in summon
+    assert (
+        "|image=[[File:Summoned Treant render.png|thumb]]\n|imagefile=Summoned Treant render.png\n|imagekind=summon\n"
+        in summon
+    )
     assert "|imagekind=\n" in character

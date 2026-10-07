@@ -1,55 +1,43 @@
-"""MediaWiki file-title policy owned by the domain layer."""
+"""The wiki file titles of pictures: a subject and a role.
+
+A picture's title is ``<subject> <role>.png``. The subject is the entity's
+image name without the characters that MediaWiki forbids in file names, so
+every title can hold a file. The role says what the picture shows and whose
+it is: the bot uploads icons and renders, and editors upload screenshots.
+"""
 
 from __future__ import annotations
 
+from typing import Literal
+
 __all__ = [
-    "MEDIAWIKI_PROHIBITED_CHARS",
-    "image_file_title",
-    "sanitize_wiki_filename",
-    "upload_file_title",
+    "PictureRole",
+    "picture_file_title",
+    "picture_subject",
 ]
 
-# Characters with MediaWiki title or wikitext semantics that cannot remain in
-# uploaded file-title bases. Extensions are added by callers after sanitizing.
-MEDIAWIKI_PROHIBITED_CHARS = {
-    ":": "",
-    "|": "",
-    "#": "",
-    "<": "",
-    ">": "",
-    "[": "",
-    "]": "",
-    "{": "",
-    "}": "",
-}
+PictureRole = Literal["icon", "render", "screenshot"]
+
+# Characters that MediaWiki forbids in file names or that wikitext reads as
+# syntax inside a file link.
+_FORBIDDEN = str.maketrans(dict.fromkeys(":|#<>[]{}"))
 
 
-def sanitize_wiki_filename(filename: str) -> str:
-    """Return a MediaWiki-safe file-title base with normalized whitespace."""
-    sanitized = filename
-    for character, replacement in MEDIAWIKI_PROHIBITED_CHARS.items():
-        sanitized = sanitized.replace(character, replacement)
-    return " ".join(sanitized.split()).strip()
+def picture_subject(*names: str | None) -> str:
+    """Return the subject of an entity's pictures, or ``""`` when every name is empty.
 
-
-def image_file_title(*names: str | None) -> str:
-    """Return the file title that a page names for an entity's picture.
-
-    The title is the first non-empty name with ``.png``, or ``""`` when every
-    name is empty. Callers pass the entity's image name first, then the
-    names that stand in for it.
+    Callers pass the entity's image name first, then the names that stand in
+    for it. The first name that keeps a character after the forbidden ones go
+    becomes the subject, with runs of whitespace collapsed.
     """
     for name in names:
-        if name:
-            return f"{name}.png"
+        subject = " ".join((name or "").translate(_FORBIDDEN).split())
+        if subject:
+            return subject
     return ""
 
 
-def upload_file_title(title: str) -> str:
-    """Return the title that an upload of the file ``title`` takes.
-
-    MediaWiki forbids colons and other characters in uploaded file names, so
-    they are dropped from the name and the extension is kept.
-    """
-    stem, dot, extension = title.rpartition(".")
-    return f"{sanitize_wiki_filename(stem)}{dot}{extension}" if dot else sanitize_wiki_filename(title)
+def picture_file_title(role: PictureRole, *names: str | None) -> str:
+    """Return the file title of an entity's picture in ``role``, or ``""`` without a subject."""
+    subject = picture_subject(*names)
+    return f"{subject} {role}.png" if subject else ""

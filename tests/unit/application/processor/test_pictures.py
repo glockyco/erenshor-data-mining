@@ -81,9 +81,9 @@ def test_an_icon_is_its_texture_unchanged_and_shared_textures_give_one_picture(t
     assert (build.images / "catalog" / f"{image_hash}.png").read_bytes() == (build.export / scroll).read_bytes()
     assert build.rows(f"SELECT kind, width, height FROM images WHERE image_hash = '{image_hash}'") == [("icon", 10, 6)]
     assert build.rows("SELECT title FROM image_titles WHERE title LIKE 'Spell Scroll%' ORDER BY title") == [
-        ("Spell Scroll 0.png",),
-        ("Spell Scroll 1.png",),
-        ("Spell Scroll 2.png",),
+        ("Spell Scroll 0 icon.png",),
+        ("Spell Scroll 1 icon.png",),
+        ("Spell Scroll 2 icon.png",),
     ]
 
 
@@ -153,7 +153,7 @@ def test_a_stance_shows_the_icon_of_its_skill_under_its_own_title(tmp_path: Path
 
     skill_hash = build.rows("SELECT image_hash FROM skills")[0][0]
     assert build.rows("SELECT image_hash FROM stances") == [(skill_hash,)]
-    assert ("Stance: Aggressive.png", skill_hash) in build.rows("SELECT title, image_hash FROM image_titles")
+    assert ("Stance Aggressive icon.png", skill_hash) in build.rows("SELECT title, image_hash FROM image_titles")
 
 
 def test_one_title_for_two_pictures_fails_and_names_both_entities(tmp_path: Path) -> None:
@@ -165,19 +165,19 @@ def test_one_title_for_two_pictures_fails_and_names_both_entities(tmp_path: Path
         "item:artifact (vith)", "A Strange Artifact", build.texture("Assets/Texture2D/b.png", _png((0, 1, 0, 255)))
     )
 
-    with pytest.raises(ValueError, match=r"A Strange Artifact\.png names two pictures"):
+    with pytest.raises(ValueError, match=r"A Strange Artifact icon\.png names two pictures"):
         build.run()
 
 
 def _approve(
-    build: _Build, file: str, data: bytes, game_build: str = "24405256", pages: tuple[str, ...] = ("Faith",)
+    build: _Build, subject: str, data: bytes, game_build: str = "24405256", pages: tuple[str, ...] = ("Faith",)
 ) -> None:
     captures = build.images / "model-captures"
     (captures / "approved").mkdir(parents=True, exist_ok=True)
-    png = file.replace(":", "_")
+    png = f"{subject}.png"
     (captures / "approved" / png).write_bytes(data)
     image = {
-        "file": file,
+        "subject": subject,
         "png": png,
         "sha256": hashlib.sha256(data).hexdigest(),
         "stable_key": "character:faith",
@@ -201,7 +201,7 @@ def test_an_approved_portrait_gives_its_character_a_picture_and_a_title(tmp_path
     build = _Build(tmp_path)
     _character(build, "character:faith", "Faith", "Faith")
     _character(build, "character:queen evadne", "Queen Evadne", None)
-    _approve(build, "Faith.png", _png((255, 200, 255, 90), size=(12, 20)))
+    _approve(build, "Faith", _png((255, 200, 255, 90), size=(12, 20)))
 
     build.run()
 
@@ -209,19 +209,31 @@ def test_an_approved_portrait_gives_its_character_a_picture_and_a_title(tmp_path
     assert build.rows(f"SELECT kind, capture_preset, approved_build FROM images WHERE image_hash = '{faith}'") == [
         ("portrait", "portrait-3", "24405256")
     ]
-    assert ("Faith.png", faith) in build.rows("SELECT title, image_hash FROM image_titles")
+    assert ("Faith render.png", faith) in build.rows("SELECT title, image_hash FROM image_titles")
     assert build.rows("SELECT image_hash FROM characters WHERE stable_key = 'character:queen evadne'") == [(None,)]
+
+
+def test_an_item_and_a_character_of_one_name_get_a_title_each(tmp_path: Path) -> None:
+    build = _Build(tmp_path)
+    build.item("item:faith", "Faith", build.texture("Assets/Texture2D/f.png", _png((1, 2, 3, 255))))
+    _character(build, "character:faith", "Faith", "Faith")
+    _approve(build, "Faith", _png((255, 200, 255, 90)))
+
+    build.run()
+
+    titles = dict(build.rows("SELECT title, stable_key FROM image_titles WHERE title LIKE 'Faith%'"))
+    assert titles == {"Faith icon.png": "item:faith", "Faith render.png": "character:faith"}
 
 
 def test_a_portrait_of_a_page_without_generation_still_gets_its_title(tmp_path: Path) -> None:
     build = _Build(tmp_path)
     _character(build, "character:queen evadne", "Queen Evadne", None)
-    _approve(build, "Queen Evadne.png", _png((10, 10, 10, 255)), pages=("Queen Evadne",))
+    _approve(build, "Queen Evadne", _png((10, 10, 10, 255)), pages=("Queen Evadne",))
 
     build.run()
 
     assert [row[0] for row in build.rows("SELECT title FROM image_titles WHERE title LIKE 'Queen%'")] == [
-        "Queen Evadne.png"
+        "Queen Evadne render.png"
     ]
 
 
@@ -229,22 +241,22 @@ def test_a_portrait_that_no_page_shows_is_catalogued_without_a_title(tmp_path: P
     # The map shows every character, so the catalog keeps the portrait, but no page names its file.
     build = _Build(tmp_path)
     _character(build, "character:watchman", "Watchman", None)
-    _approve(build, "Watchman.png", _png((90, 90, 120, 255)), pages=())
+    _approve(build, "Watchman", _png((90, 90, 120, 255)), pages=())
 
     build.run()
 
     watchman = build.rows("SELECT image_hash FROM characters WHERE stable_key = 'character:watchman'")[0][0]
     assert build.rows(f"SELECT kind FROM images WHERE image_hash = '{watchman}'") == [("portrait",)]
-    assert build.rows("SELECT title FROM image_titles WHERE title = 'Watchman.png'") == []
+    assert build.rows("SELECT title FROM image_titles WHERE title LIKE 'Watchman%'") == []
 
 
-def test_an_approved_copy_that_changed_fails_the_build_and_names_the_file(tmp_path: Path) -> None:
+def test_an_approved_copy_that_changed_fails_the_build_and_names_the_subject(tmp_path: Path) -> None:
     build = _Build(tmp_path)
     _character(build, "character:faith", "Faith", "Faith")
-    _approve(build, "Faith.png", _png((255, 255, 255, 255)))
+    _approve(build, "Faith", _png((255, 255, 255, 255)))
     (build.images / "model-captures" / "approved" / "Faith.png").write_bytes(_png((0, 0, 0, 255)))
 
-    with pytest.raises(ValueError, match=r"approved capture of Faith\.png changed after its approval"):
+    with pytest.raises(ValueError, match=r"approved capture of Faith changed after its approval"):
         build.run()
 
 
@@ -253,7 +265,7 @@ def test_a_repeat_capture_with_the_same_pixels_keeps_the_picture(tmp_path: Path)
     for game_build, level in (("24405256", 1), ("25000000", 9)):
         build = _Build(tmp_path / game_build)
         _character(build, "character:faith", "Faith", "Faith")
-        _approve(build, "Faith.png", _png((200, 100, 50, 255), compress_level=level), game_build)
+        _approve(build, "Faith", _png((200, 100, 50, 255), compress_level=level), game_build)
         build.run()
         hashes.append(build.rows("SELECT image_hash FROM characters")[0][0])
 

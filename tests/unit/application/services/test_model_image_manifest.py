@@ -7,7 +7,7 @@ from erenshor.application.services.model_image_manifest import CharacterSource, 
 
 def _character(
     stable_key: str,
-    image_title: str,
+    subject: str,
     *,
     wiki_page: str | None = None,
     resources_path: str | None = None,
@@ -19,10 +19,10 @@ def _character(
     is_summon: bool = False,
 ) -> CharacterSource:
     placed = resources_path is None and scene is not None
-    name = image_title.removesuffix(".png") if object_name == "" else object_name
+    name = subject if object_name == "" else object_name
     return CharacterSource(
         stable_key=stable_key,
-        image_title=image_title,
+        subject=subject,
         wiki_page=wiki_page,
         object_name=name,
         npc_name=name,
@@ -43,35 +43,39 @@ def test_characters_that_share_a_model_share_one_capture_with_the_pages_of_all()
     characters = [
         _character(
             "character:arenachest 2",
-            "Vithean Chest.png",
+            "Vithean Chest",
             wiki_page="Vithean Chest",
             resources_path="npcs/plane of vitheo/ArenaChest 2",
         ),
         _character(
             "character:arenachest 1",
-            "Vithean Chest.png",
+            "Vithean Chest",
             wiki_page="Vithean Chest",
             resources_path="npcs/plane of vitheo/ArenaChest 1",
         ),
-        _character("character:arenachest 9", "Vithean Chest.png", scene="PlaneOfVitheo", is_wiki_generated=False),
-        _character("character:honsus", "Honsus.png", wiki_page="Honsus", resources_path="npcs/Honsus"),
+        _character("character:arenachest 9", "Vithean Chest", scene="PlaneOfVitheo", is_wiki_generated=False),
+        _character("character:honsus", "Honsus", wiki_page="Honsus", resources_path="npcs/Honsus"),
     ]
 
     manifest = build_manifest(characters, {}, "24405256")
 
-    assert [(entry.file, entry.stable_key, entry.pages) for entry in manifest.entries] == [
-        ("Honsus.png", "character:honsus", ("Honsus",)),
-        ("Vithean Chest.png", "character:arenachest 1", ("Vithean Chest",)),
+    assert [(entry.subject, entry.stable_key, entry.pages) for entry in manifest.entries] == [
+        ("Honsus", "character:honsus", ("Honsus",)),
+        ("Vithean Chest", "character:arenachest 1", ("Vithean Chest",)),
+    ]
+    assert [(entry["subject"], entry["title"]) for entry in manifest.to_json()["entries"]] == [
+        ("Honsus", "Honsus render.png"),
+        ("Vithean Chest", "Vithean Chest render.png"),
     ]
     assert manifest.entries[1].source.resources_path == "npcs/plane of vitheo/ArenaChest 1"
 
 
 def test_every_model_is_captured_whether_or_not_a_page_shows_it() -> None:
     characters = [
-        _character("character:watchman", "Watchman.png", resources_path="npcs/Watchman", is_wiki_generated=False),
+        _character("character:watchman", "Watchman", resources_path="npcs/Watchman", is_wiki_generated=False),
         _character(
             "character:summoned treant",
-            "Summoned: Treant.png",
+            "Summoned Treant",
             wiki_page="Summoned: Treant",
             resources_path="npcs/Treant",
             is_summon=True,
@@ -80,9 +84,9 @@ def test_every_model_is_captured_whether_or_not_a_page_shows_it() -> None:
 
     manifest = build_manifest(characters, {}, "24405256")
 
-    assert [(entry.file, entry.kind, entry.pages) for entry in manifest.entries] == [
-        ("Summoned: Treant.png", "summon", ("Summoned: Treant",)),
-        ("Watchman.png", "character", ()),
+    assert [(entry.subject, entry.kind, entry.pages) for entry in manifest.entries] == [
+        ("Summoned Treant", "summon", ("Summoned: Treant",)),
+        ("Watchman", "character", ()),
     ]
 
 
@@ -92,13 +96,13 @@ def test_a_prefab_that_the_game_spawns_is_captured_before_one_that_nothing_spawn
     characters = [
         _character(
             "character:prestigio valusha",
-            "Prestigio Valusha.png",
+            "Prestigio Valusha",
             wiki_page="Prestigio Valusha",
             resources_path="npcs/port azure npcs/Prestigio Valusha",
         ),
         _character(
             "character:prestigio valusha 1",
-            "Prestigio Valusha.png",
+            "Prestigio Valusha",
             wiki_page="Prestigio Valusha",
             resources_path="npcs/port azure npcs/Prestigio Valusha 1",
             spawn_points=(("Azure", 221.2, 26.0, 193.5),),
@@ -115,13 +119,13 @@ def test_a_placed_character_or_a_scene_prefab_is_the_source_without_a_resources_
         # Faith's prefab is outside Resources, and a FaithEvent of the scene references it.
         _character(
             "character:faith",
-            "Faith.png",
+            "Faith",
             wiki_page="Faith",
             spawn_points=(("PlaneOfSoluna", 361.9, 327.1, 1346.7), ("PlaneOfSoluna", 275.6, 327.1, 1346.7)),
         ),
         _character(
             "character:dummy:reliquary:1",
-            "Training Dummy (1000 AC).png",
+            "Training Dummy (1000 AC)",
             wiki_page="Training Dummy",
             scene="Reliquary",
             is_enabled=False,
@@ -130,26 +134,29 @@ def test_a_placed_character_or_a_scene_prefab_is_the_source_without_a_resources_
 
     manifest = build_manifest(characters, {}, "24405256")
 
-    sources = {entry.file: entry.source for entry in manifest.entries}
+    sources = {entry.subject: entry.source for entry in manifest.entries}
     # The player lands at Faith's first spawn point while the scene loads.
-    faith = sources["Faith.png"]
+    faith = sources["Faith"]
     assert (faith.scene, faith.object_name, faith.position, faith.landing) == (
         "PlaneOfSoluna",
         "Faith",
         None,
         (361.9, 327.1, 1346.7),
     )
-    dummy = sources["Training Dummy (1000 AC).png"]
+    dummy = sources["Training Dummy (1000 AC)"]
     assert (dummy.scene, dummy.position, dummy.landing) == ("Reliquary", (1.0, 2.0, 3.0), (1.0, 2.0, 3.0))
 
 
 def test_a_model_without_a_game_object_is_listed_apart() -> None:
-    characters = [_character("character:old friend", "Old Friend.png", wiki_page="Old Friend", object_name=None)]
+    characters = [_character("character:old friend", "Old Friend", wiki_page="Old Friend", object_name=None)]
 
     manifest = build_manifest(characters, {}, "24405256")
 
+    assert manifest.to_json()["unsourced"] == [
+        {"subject": "Old Friend", "title": "Old Friend render.png", "pages": ["Old Friend"]}
+    ]
     assert manifest.entries == ()
-    assert [(model.file, model.pages) for model in manifest.unsourced] == [("Old Friend.png", ("Old Friend",))]
+    assert [(model.subject, model.pages) for model in manifest.unsourced] == [("Old Friend", ("Old Friend",))]
 
 
 def test_an_unused_page_names_the_model_of_its_character() -> None:
@@ -158,14 +165,14 @@ def test_an_unused_page_names_the_model_of_its_character() -> None:
     characters = [
         _character(
             "character:receptacle-sand",
-            "Portal Receptacle.png",
+            "Portal Receptacle",
             scene="Reliquary",
             is_enabled=False,
             is_wiki_generated=False,
         ),
         _character(
             "character:receptacle:reliquary:2",
-            "Portal Receptacle.png",
+            "Portal Receptacle",
             wiki_page="Portal Receptacle",
             scene="Reliquary",
             is_enabled=False,
@@ -174,8 +181,8 @@ def test_an_unused_page_names_the_model_of_its_character() -> None:
 
     manifest = build_manifest(characters, {"Braxonian Receptacle": "character:receptacle-sand"}, "24405256")
 
-    assert [(entry.file, entry.stable_key, entry.pages) for entry in manifest.entries] == [
-        ("Portal Receptacle.png", "character:receptacle:reliquary:2", ("Braxonian Receptacle", "Portal Receptacle"))
+    assert [(entry.subject, entry.stable_key, entry.pages) for entry in manifest.entries] == [
+        ("Portal Receptacle", "character:receptacle:reliquary:2", ("Braxonian Receptacle", "Portal Receptacle"))
     ]
 
 

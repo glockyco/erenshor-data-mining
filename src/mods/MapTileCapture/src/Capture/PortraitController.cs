@@ -83,13 +83,13 @@ internal sealed class PortraitController : IDisposable
         }
         if (IsBusy)
         {
-            SendError(request.File, request.StableKey, "Another portrait request is running.");
+            SendError(request.Subject, request.StableKey, "Another portrait request is running.");
             return;
         }
         var problem = request.Problem();
         if (problem != null)
         {
-            SendError(request.File, request.StableKey, problem);
+            SendError(request.Subject, request.StableKey, problem);
             return;
         }
 
@@ -130,7 +130,7 @@ internal sealed class PortraitController : IDisposable
                 if (!GameSession.InWorld)
                 {
                     SendError(
-                        request.File,
+                        request.Subject,
                         request.StableKey,
                         "Auto-login failed: player not in-world after login attempt."
                     );
@@ -160,7 +160,7 @@ internal sealed class PortraitController : IDisposable
                 _sceneChange = null;
                 if (!loading.Loaded)
                 {
-                    SendError(request.File, request.StableKey, loading.Error ?? "Cancelled");
+                    SendError(request.Subject, request.StableKey, loading.Error ?? "Cancelled");
                     yield break;
                 }
 
@@ -174,7 +174,7 @@ internal sealed class PortraitController : IDisposable
 
             if (_cancelRequested)
             {
-                SendError(request.File, request.StableKey, "Cancelled");
+                SendError(request.Subject, request.StableKey, "Cancelled");
                 yield break;
             }
 
@@ -198,11 +198,11 @@ internal sealed class PortraitController : IDisposable
                 throw new PortraitException("MainCam disappeared before the capture.");
 
             var result = PortraitStudio.Capture(subject, mainCam, request.OutputPath);
-            _logger.LogInfo($"Captured {request.File} from {result.ObjectName}");
+            _logger.LogInfo($"Captured {request.Subject} from {result.ObjectName}");
             var message = new
             {
                 type = "portrait_complete",
-                file = request.File,
+                subject = request.Subject,
                 stableKey = request.StableKey,
                 preset = PortraitPreset.Name,
                 path = request.OutputPath,
@@ -217,12 +217,12 @@ internal sealed class PortraitController : IDisposable
         }
         catch (PortraitException ex)
         {
-            SendError(request.File, request.StableKey, ex.Message);
+            SendError(request.Subject, request.StableKey, ex.Message);
         }
         catch (Exception ex)
         {
             _logger.LogDebug(ex.ToString());
-            SendError(request.File, request.StableKey, $"{ex.GetType().Name}: {ex.Message}");
+            SendError(request.Subject, request.StableKey, $"{ex.GetType().Name}: {ex.Message}");
         }
     }
 
@@ -339,19 +339,19 @@ internal sealed class PortraitController : IDisposable
 
     private static Vector3 ToVector(float[] values) => new(values[0], values[1], values[2]);
 
-    private void SendError(string file, string stableKey, string reason)
+    private void SendError(string subject, string stableKey, string reason)
     {
         _server.Send(
             JsonConvert.SerializeObject(
                 new
                 {
                     type = "portrait_error",
-                    file,
+                    subject,
                     stableKey,
                     reason,
                 }
             )
         );
-        _logger.LogError($"Portrait error [{file}]: {reason}");
+        _logger.LogError($"Portrait error [{subject}]: {reason}");
     }
 }

@@ -15,7 +15,7 @@ from loguru import logger
 from erenshor.application.wiki.generators.formatting import format_description, safe_str, seconds_text
 from erenshor.application.wiki.generators.link_lists import format_links, format_visible_links
 from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
-from erenshor.domain.value_objects.wiki_filename import image_file_title
+from erenshor.domain.value_objects.wiki_filename import picture_file_title
 from erenshor.domain.value_objects.wiki_link import ClassLink
 from erenshor.shared.game_constants import ticks_to_seconds
 
@@ -112,7 +112,7 @@ class SkillSectionGenerator(SectionGeneratorBase):
 
         equipment_desc = ", ".join(equipment_reqs) if equipment_reqs else ""
 
-        image = image_file_title(skill.image_name)
+        image = picture_file_title("icon", skill.image_name)
 
         # Pre-built links from enriched DTO
         pet_to_summon = str(enriched.spawn_on_use) if enriched.spawn_on_use else ""

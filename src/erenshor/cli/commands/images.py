@@ -87,7 +87,7 @@ def manifest(ctx: typer.Context) -> None:
     if result.unsourced:
         console.print(f"[bold]{len(result.unsourced)} models without a game object to capture:[/bold]")
         for model in result.unsourced:
-            console.print(f"  {model.file} ({', '.join(model.pages) or 'no page'})")
+            console.print(f"  {model.subject} ({', '.join(model.pages) or 'no page'})")
 
     if cli_ctx.dry_run:
         console.print("[yellow]Dry run: the manifest was not written.[/yellow]")
@@ -102,9 +102,9 @@ def manifest(ctx: typer.Context) -> None:
 @require_preconditions(required_path("images_dir", "model-captures/manifest.json"))
 def capture(
     ctx: typer.Context,
-    files: Annotated[
+    subjects: Annotated[
         list[str] | None,
-        typer.Option("--file", help="Capture only this file title of the manifest; repeat for more"),
+        typer.Option("--subject", help="Capture only this subject of the manifest; repeat for more"),
     ] = None,
 ) -> None:
     """Capture the manifest's character models in the running game for review.
@@ -112,7 +112,7 @@ def capture(
     Needs the game running with the MapTileCapture mod. Sends each manifest
     entry to the mod, reviews each portrait, and writes the PNGs and
     captures.json to images/model-captures/staging/ of the variant, replacing
-    the previous staging set. With --file, recaptures only those files and
+    the previous staging set. With --subject, recaptures only those subjects and
     keeps the rest of the staging set. At the end the mod returns the player to
     where the batch started. Draw the contact sheets with 'erenshor images
     review'. With the root --dry-run option, lists the captures and writes
@@ -120,7 +120,7 @@ def capture(
 
     Examples:
         erenshor --dry-run images capture
-        erenshor images capture --file "Faith.png"
+        erenshor images capture --subject "Faith"
     """
     import asyncio
 
@@ -139,7 +139,7 @@ def capture(
     capture_dir = _model_capture_dir(cli_ctx)
     manifest_data = json.loads((capture_dir / "manifest.json").read_text(encoding="utf-8"))
     try:
-        requests = portrait_requests(manifest_data, files or ())
+        requests = portrait_requests(manifest_data, subjects or ())
     except ValueError as error:
         console.print(f"[red]{error}[/red]")
         raise typer.Exit(1) from error
@@ -161,12 +161,12 @@ def capture(
     png_dir = staging / "png"
     results_path = staging / "captures.json"
     game_build, preset = manifest_data["game_build"], manifest_data["camera_preset"]
-    staged = json.loads(results_path.read_text(encoding="utf-8")) if files and results_path.exists() else None
+    staged = json.loads(results_path.read_text(encoding="utf-8")) if subjects and results_path.exists() else None
     if staged is not None:
         if (staged["game_build"], staged["preset"]) != (game_build, preset):
             console.print("[red]The staging set is of another build or preset; capture every file again.[/red]")
             raise typer.Exit(1)
-        run = recapture_run(staged, png_dir, set(files or ()))
+        run = recapture_run(staged, png_dir, set(subjects or ()))
     else:
         if staging.exists():
             shutil.rmtree(staging)
@@ -179,7 +179,9 @@ def capture(
         nonlocal printed
         results_path.write_text(json.dumps(progress.to_json(), indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         for result in progress.results[printed:]:
-            console.print(f"  {result.status:8} {result.file} {'; '.join(result.reasons + result.warnings)}".rstrip())
+            console.print(
+                f"  {result.status:8} {result.subject} {'; '.join(result.reasons + result.warnings)}".rstrip()
+            )
         printed = len(progress.results)
 
     async def run_batch() -> PortraitRun:
@@ -207,7 +209,7 @@ def capture(
     if not run.returned:
         console.print("[yellow]The mod did not confirm that the player is back where the batch started.[/yellow]")
     if run.interrupted:
-        console.print(f"[red]Interrupted at {run.interrupted}; {len(run.not_captured)} files not captured.[/red]")
+        console.print(f"[red]Interrupted at {run.interrupted}; {len(run.not_captured)} subjects not captured.[/red]")
         raise typer.Exit(1)
 
 
@@ -229,6 +231,7 @@ def review(ctx: typer.Context) -> None:
 
     from erenshor.application.capture.portraits import PortraitRun, WikiPicture, write_contact_sheets
     from erenshor.application.services.image_publication import LivePictureCache, LiveWiki
+    from erenshor.domain.value_objects.wiki_filename import picture_file_title
 
     console = Console()
     cli_ctx: CLIContext = ctx.obj
@@ -243,7 +246,11 @@ def review(ctx: typer.Context) -> None:
         pictures = LivePictureCache(
             reader.download, variant_config.resolved_images_output(cli_ctx.repo_root) / "publish" / "live"
         )
-        shown = {result.file: file for result in run.results if (file := live.shown(f"File:{result.file}")) is not None}
+        shown = {
+            picture_file_title("render", result.subject): file
+            for result in run.results
+            if (file := live.shown(f"File:{picture_file_title('render', result.subject)}")) is not None
+        }
         for file in shown.values():
             pictures.content(file)
         console.print(f"{len(shown)} titles show a picture on the wiki; {pictures.downloads} downloaded")
@@ -274,28 +281,28 @@ def review(ctx: typer.Context) -> None:
 )
 def approve_captures(
     ctx: typer.Context,
-    files: Annotated[
+    subjects: Annotated[
         list[str] | None,
-        typer.Option("--file", help="Approve this captured file title; repeat for more"),
+        typer.Argument(help="Captured subjects to approve"),
     ] = None,
     every_accepted: Annotated[
         bool, typer.Option("--all", help="Approve every capture that the review accepted")
     ] = False,
     excluded: Annotated[
         list[str] | None,
-        typer.Option("--exclude", help="With --all, leave this file title out; repeat for more"),
+        typer.Option("--exclude", help="With --all, leave this subject out; repeat for more"),
     ] = None,
 ) -> None:
     """Approve reviewed captures for upload.
 
     Copies each approved PNG out of the staging set to images/model-captures/approved/
-    and records its file title and SHA-256 in approved.json. Only captures that the
+    and records its subject and SHA-256 in approved.json. Only captures that the
     review accepted can be approved. With the root --dry-run option, lists the
     approvals and writes nothing.
 
     Examples:
-        erenshor images approve --all --exclude "Planar Flame Energy.png"
-        erenshor images approve --file "Faith.png"
+        erenshor images approve --all --exclude "Planar Flame Energy"
+        erenshor images approve "Faith"
     """
     from erenshor.application.services.model_image_approval import approve
     from erenshor.domain.value_objects.capture_approval import APPROVAL_FILE, Approval
@@ -305,16 +312,16 @@ def approve_captures(
     capture_dir = _model_capture_dir(cli_ctx)
     captures = json.loads((capture_dir / "staging" / "captures.json").read_text(encoding="utf-8"))
     manifest_data = json.loads((capture_dir / "manifest.json").read_text(encoding="utf-8"))
-    if every_accepted == bool(files):
-        console.print("[red]Name files with --file, or approve every accepted capture with --all.[/red]")
+    if every_accepted == bool(subjects):
+        console.print("[red]Name subjects as arguments, or approve every accepted capture with --all.[/red]")
         raise typer.Exit(1)
-    selected = list(files or ())
+    selected = list(subjects or ())
     if every_accepted:
         skipped = set(excluded or ())
         selected = [
-            result["file"]
+            result["subject"]
             for result in captures["results"]
-            if result["status"] == "accepted" and result["file"] not in skipped
+            if result["status"] == "accepted" and result["subject"] not in skipped
         ]
     console.print(f"[bold]{len(selected)} captures to approve[/bold]")
     for file in selected:

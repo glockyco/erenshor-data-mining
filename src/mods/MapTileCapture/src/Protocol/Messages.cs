@@ -82,8 +82,8 @@ public sealed class PortraitSource
 /// <summary>A request to capture one subject as a portrait PNG.</summary>
 public sealed class CapturePortraitRequest
 {
-    [JsonProperty("file")]
-    public string File { get; set; } = "";
+    [JsonProperty("subject")]
+    public string Subject { get; set; } = "";
 
     [JsonProperty("stableKey")]
     public string StableKey { get; set; } = "";
@@ -106,8 +106,8 @@ public sealed class CapturePortraitRequest
     /// <summary>Why the mod cannot run the request, or null when it can.</summary>
     public string? Problem()
     {
-        if (string.IsNullOrWhiteSpace(File) || string.IsNullOrWhiteSpace(StableKey))
-            return "The request names no file or no stable key.";
+        if (string.IsNullOrWhiteSpace(Subject) || string.IsNullOrWhiteSpace(StableKey))
+            return "The request names no subject or no stable key.";
         if (string.IsNullOrWhiteSpace(OutputPath))
             return "The request names no output path.";
         if (Preset != PortraitPreset.Name)

@@ -21,6 +21,8 @@ from typing import TYPE_CHECKING, Any, Protocol
 
 from PIL import Image, ImageDraw, ImageFont, UnidentifiedImageError
 
+from erenshor.domain.value_objects.wiki_filename import picture_file_title
+
 from .wine import wine_path
 
 if TYPE_CHECKING:
@@ -53,7 +55,7 @@ class Connection(Protocol):
 class PortraitRequest:
     """One manifest entry as the mod captures it."""
 
-    file: str
+    subject: str
     stable_key: str
     kind: str
     source: Mapping[str, Any]
@@ -87,7 +89,7 @@ class PortraitRequest:
             }
         return {
             "type": "capture_portrait",
-            "file": self.file,
+            "subject": self.subject,
             "stableKey": self.stable_key,
             "preset": preset,
             "source": wire_source,
@@ -99,7 +101,7 @@ class PortraitRequest:
 class PortraitResult:
     """The review of one capture."""
 
-    file: str
+    subject: str
     stable_key: str
     kind: str
     status: str  # accepted, rejected, or failed
@@ -114,7 +116,7 @@ class PortraitResult:
 
     def to_json(self) -> dict[str, Any]:
         return {
-            "file": self.file,
+            "subject": self.subject,
             "stable_key": self.stable_key,
             "kind": self.kind,
             "status": self.status,
@@ -131,7 +133,7 @@ class PortraitResult:
     @classmethod
     def from_json(cls, data: Mapping[str, Any]) -> PortraitResult:
         return cls(
-            file=str(data["file"]),
+            subject=str(data["subject"]),
             stable_key=str(data["stable_key"]),
             kind=str(data["kind"]),
             status=str(data["status"]),
@@ -173,57 +175,57 @@ class PortraitRun:
             game_build=str(data["game_build"]),
             preset=str(data["preset"]),
             results=[PortraitResult.from_json(result) for result in data["results"]],
-            not_captured=[str(file) for file in data["not_captured"]],
+            not_captured=[str(subject) for subject in data["not_captured"]],
             interrupted=data["interrupted"],
             returned=bool(data["returned"]),
         )
 
 
-def portrait_requests(manifest: Mapping[str, Any], files: Sequence[str] = ()) -> list[PortraitRequest]:
+def portrait_requests(manifest: Mapping[str, Any], subjects: Sequence[str] = ()) -> list[PortraitRequest]:
     """The manifest entries to capture, prefabs first and then scene by scene."""
     entries = manifest["entries"]
-    wanted = set(files)
+    wanted = set(subjects)
     if wanted:
-        unknown = wanted - {entry["file"] for entry in entries}
+        unknown = wanted - {entry["subject"] for entry in entries}
         if unknown:
             raise ValueError(f"The manifest has no entry for {', '.join(sorted(unknown))}")
     requests = [
         PortraitRequest(
-            file=entry["file"],
+            subject=entry["subject"],
             stable_key=entry["stable_key"],
             kind=entry["kind"],
             source=entry["source"],
             pages=tuple(entry["pages"]),
         )
         for entry in entries
-        if not wanted or entry["file"] in wanted
+        if not wanted or entry["subject"] in wanted
     ]
-    return sorted(requests, key=lambda request: (request.scene or "", request.file))
+    return sorted(requests, key=lambda request: (request.scene or "", request.subject))
 
 
-def local_png_name(file: str) -> str:
-    """A name for the staged PNG that every file system accepts. The results map it back to the title."""
-    return _UNSAFE_FILE_CHARACTERS.sub("_", file)
+def local_png_name(subject: str) -> str:
+    """A name for the staged PNG that every file system accepts. The results map it back to the subject."""
+    return _UNSAFE_FILE_CHARACTERS.sub("_", subject) + ".png"
 
 
-def recapture_run(staged: Mapping[str, Any], png_dir: Path, files: Collection[str]) -> PortraitRun:
-    """The staged run without ``files``, which a recapture of them continues.
+def recapture_run(staged: Mapping[str, Any], png_dir: Path, subjects: Collection[str]) -> PortraitRun:
+    """The staged run without ``subjects``, which a recapture of them continues.
 
-    The other files keep their captures and reviews. The earlier PNGs of
-    ``files`` go, so that a failed recapture leaves no stale picture.
+    The other subjects keep their captures and reviews. The earlier PNGs of
+    ``subjects`` go, so that a failed recapture leaves no stale picture.
     """
     run = PortraitRun.from_json(staged)
     for result in run.results:
-        if result.file in files and result.png is not None:
+        if result.subject in subjects and result.png is not None:
             (png_dir / result.png).unlink(missing_ok=True)
-    run.results = [result for result in run.results if result.file not in files]
+    run.results = [result for result in run.results if result.subject not in subjects]
     run.not_captured, run.interrupted, run.returned = [], None, False
     return run
 
 
 def review(request: PortraitRequest, answer: Mapping[str, Any], png: Path) -> PortraitResult:
     """Accept or reject the mod's answer to one request."""
-    result = PortraitResult(file=request.file, stable_key=request.stable_key, kind=request.kind, status="failed")
+    result = PortraitResult(subject=request.subject, stable_key=request.stable_key, kind=request.kind, status="failed")
     if answer.get("type") != "portrait_complete":
         result.reasons.append(str(answer.get("reason") or f"unexpected answer {answer.get('type')}"))
         return result
@@ -266,17 +268,17 @@ async def capture_portraits(
     """Capture each request in turn, reviewing and recording each answer.
 
     A lost connection or a missing answer interrupts the batch: the results so
-    far stay, and the remaining files are listed as not captured. The client
+    far stay, and the remaining subjects are listed as not captured. The client
     then still asks the mod to return the player when it can.
     """
     for index, request in enumerate(requests):
-        png = png_dir / local_png_name(request.file)
+        png = png_dir / local_png_name(request.subject)
         try:
             await connection.send(json.dumps(request.message(png, run.preset)))
             answer = await _answer(connection, {"portrait_complete", "portrait_error"}, timeout)
         except (ConnectionError, TimeoutError, OSError) as error:
-            run.interrupted = f"{request.file}: {type(error).__name__}: {error}"
-            run.not_captured = [pending.file for pending in requests[index:]]
+            run.interrupted = f"{request.subject}: {type(error).__name__}: {error}"
+            run.not_captured = [pending.subject for pending in requests[index:]]
             on_result(run)
             break
         run.results.append(review(request, answer, png))
@@ -312,7 +314,7 @@ class WikiPicture:
 def _review_rank(result: PortraitResult) -> tuple[int, str]:
     """Failed and rejected captures first, then accepted ones with a warning, then the rest."""
     rank = {"failed": 0, "rejected": 1}.get(result.status, 2 if result.warnings else 3)
-    return rank, result.file
+    return rank, result.subject
 
 
 def _tile(picture: Image.Image, size: int) -> Image.Image:
@@ -337,7 +339,7 @@ def write_contact_sheets(
     """Draw every capture beside the picture that its title shows on the wiki now.
 
     ``wiki`` gives the live picture of a file title, or None when the title
-    shows none. Each cell holds the capture, the wiki's picture, the file
+    shows none. Each cell holds the capture, the wiki's picture, the render
     title, the entity, the review, and the uploader. Problems come first (see
     ``_review_rank``), and each sheet's header names the build, the preset,
     the counts, and the sheet's place among the others.
@@ -379,7 +381,8 @@ def write_contact_sheets(
                     sheet.paste(_tile(image, tile), (x, y))
             else:
                 sheet.paste(Image.new("RGB", (tile, tile), WIKI_SURFACE), (x, y))
-            shown = wiki(result.file)
+            title = picture_file_title("render", result.subject)
+            shown = wiki(title)
             wiki_x = x + tile + 4
             if shown is None:
                 sheet.paste(Image.new("RGB", (tile, tile), (200, 200, 200)), (wiki_x, y))
@@ -395,7 +398,7 @@ def write_contact_sheets(
             if result.warnings and result.status == "accepted":
                 status_colour = (200, 150, 30)
             draw.rectangle((x, y + tile, x + 2 * tile + 3, y + tile + 4), fill=status_colour)
-            draw.text((x + 4, y + tile + 7), result.file[:52], fill=(0, 0, 0), font=font)
+            draw.text((x + 4, y + tile + 7), title[:52], fill=(0, 0, 0), font=font)
             draw.text((x + 4, y + tile + 24), result.stable_key[:62], fill=(70, 70, 70), font=small)
             note = "; ".join(result.reasons + result.warnings) or result.kind
             draw.text((x + 4, y + tile + 38), note[:66], fill=status_colour, font=small)

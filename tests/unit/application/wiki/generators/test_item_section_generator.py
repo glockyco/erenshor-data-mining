@@ -83,12 +83,12 @@ def test_weapon_tooltip_args_are_display_ready() -> None:
 
     result = generator.generate_template(enriched, "Oldenbow")
 
-    assert "|image=Oldenbow.png" in result
+    assert "|image=Oldenbow icon.png" in result
     assert "|type=Primary\n" in result
     assert "|two_handed=True" in result
     assert "|range=25" in result
     assert "|proc_spell_name={{AbilityLink|stablekey=spell:ice_spear}}" in result
-    assert "|proc_spell_icon=Ice Spear.png" in result
+    assert "|proc_spell_icon=Ice Spear icon.png" in result
     assert "|proc_cast_time=1.0" in result
     assert "|proc_target_damage=1100" in result
     assert "|proc_target_healing=\n" in result

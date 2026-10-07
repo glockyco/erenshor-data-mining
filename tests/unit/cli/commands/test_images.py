@@ -41,6 +41,6 @@ def test_manifest_writes_only_without_dry_run(cli_context: CLIContext, monkeypat
     assert written.exit_code == 0, written.output
     manifest = json.loads(output.read_text(encoding="utf-8"))
     assert manifest["game_build"] == "24405256"
-    assert [(entry["file"], entry["source"]["resources_path"]) for entry in manifest["entries"]] == [
-        ("Faith.png", "npcs/Faith")
+    assert [(entry["subject"], entry["title"], entry["source"]["resources_path"]) for entry in manifest["entries"]] == [
+        ("Faith", "Faith render.png", "npcs/Faith")
     ]

@@ -7,8 +7,10 @@ Each picture enters once, identified by the hash of its pixels:
 - each rendered portrait that a capture review approved
 
 The build copies each picture's file to the catalog directory under its hash,
-links every entity to its picture, and lists every wiki file title that a page
-names for a picture. A stance shows the icon of the skill that switches to it.
+links every entity to its picture, and lists the wiki file title of each
+entity's picture: ``<subject> icon.png`` for an item, spell, skill, or stance,
+and ``<subject> render.png`` for a character. A stance shows the icon of the
+skill that switches to it.
 Textures with equal pixels share one picture. The build only adds catalog
 files; ``prune_catalog`` removes the files that a published database no longer
 references.
@@ -27,7 +29,7 @@ from loguru import logger
 
 from erenshor.application.pictures import identify
 from erenshor.domain.value_objects.capture_approval import APPROVAL_FILE, Approval
-from erenshor.domain.value_objects.wiki_filename import image_file_title
+from erenshor.domain.value_objects.wiki_filename import PictureRole, picture_file_title, picture_subject
 
 if TYPE_CHECKING:
     from .writer import Writer
@@ -171,7 +173,7 @@ def _link_stances(conn: sqlite3.Connection) -> None:
 def _add_portraits(catalog: _Catalog, captures_dir: Path) -> tuple[dict[str, str], frozenset[str]]:
     """Add every approved capture.
 
-    Returns the pixel hash of each approved file title, and the titles whose
+    Returns the pixel hash of each approved subject, and the subjects whose
     approval names a page that shows them.
     """
     approval_path = captures_dir / APPROVAL_FILE
@@ -182,21 +184,21 @@ def _add_portraits(catalog: _Catalog, captures_dir: Path) -> tuple[dict[str, str
     for image in approval.images:
         path = captures_dir / "approved" / image.png
         if hashlib.sha256(path.read_bytes()).hexdigest() != image.sha256:
-            raise ValueError(f"The approved capture of {image.file} changed after its approval: {path}")
-        portraits[image.file] = catalog.add(
+            raise ValueError(f"The approved capture of {image.subject} changed after its approval: {path}")
+        portraits[image.subject] = catalog.add(
             f"{CAPTURES_DIRECTORY}/approved/{image.png}",
             path,
             "portrait",
             capture_preset=image.preset,
             approved_build=image.game_build,
         )
-    return portraits, frozenset(image.file for image in approval.images if image.pages)
+    return portraits, frozenset(image.subject for image in approval.images if image.pages)
 
 
 def _link_characters(conn: sqlite3.Connection, portraits: dict[str, str]) -> None:
-    """Give each character the approved portrait of its image title.
+    """Give each character the approved portrait of its subject.
 
-    An approval whose title no character names any more stays out of the
+    An approval whose subject no character has any more stays out of the
     wiki's titles and is reported, so that a review can drop it.
     """
     links: list[tuple[str, str]] = []
@@ -204,14 +206,14 @@ def _link_characters(conn: sqlite3.Connection, portraits: dict[str, str]) -> Non
     for stable_key, image_name, display_name in conn.execute(
         "SELECT stable_key, image_name, display_name FROM characters"
     ):
-        title = image_file_title(image_name, display_name)
-        if title in portraits:
-            links.append((portraits[title], stable_key))
-            named.add(title)
+        subject = picture_subject(image_name, display_name)
+        if subject in portraits:
+            links.append((portraits[subject], stable_key))
+            named.add(subject)
     conn.executemany("UPDATE characters SET image_hash = ? WHERE stable_key = ?", links)
     stale = sorted(set(portraits) - named)
     if stale:
-        logger.warning(f"Approved captures that no character names: {', '.join(stale)}")
+        logger.warning(f"Approved captures that no character has: {', '.join(stale)}")
 
 
 def _titles(conn: sqlite3.Connection, paged_portraits: frozenset[str]) -> dict[str, tuple[str, str]]:
@@ -222,19 +224,22 @@ def _titles(conn: sqlite3.Connection, paged_portraits: frozenset[str]) -> dict[s
     a character's title counts when the character has a generated page or the
     approval of its portrait names a page, such as one with the unused notice.
     """
-    queries = (
-        ("SELECT stable_key, image_hash, image_name, display_name, item_name, wiki_page_name FROM items", 3, False),
-        ("SELECT stable_key, image_hash, image_name, wiki_page_name FROM spells", 1, False),
-        ("SELECT stable_key, image_hash, image_name, wiki_page_name FROM skills", 1, False),
-        ("SELECT stable_key, image_hash, image_name, wiki_page_name FROM stances", 1, False),
-        ("SELECT stable_key, image_hash, image_name, display_name, wiki_page_name FROM characters", 2, True),
+    queries: tuple[tuple[str, int, PictureRole], ...] = (
+        ("SELECT stable_key, image_hash, image_name, display_name, item_name, wiki_page_name FROM items", 3, "icon"),
+        ("SELECT stable_key, image_hash, image_name, wiki_page_name FROM spells", 1, "icon"),
+        ("SELECT stable_key, image_hash, image_name, wiki_page_name FROM skills", 1, "icon"),
+        ("SELECT stable_key, image_hash, image_name, wiki_page_name FROM stances", 1, "icon"),
+        ("SELECT stable_key, image_hash, image_name, display_name, wiki_page_name FROM characters", 2, "render"),
     )
     titles: dict[str, tuple[str, str]] = {}
-    for sql, name_count, portrait in queries:
+    for sql, name_count, role in queries:
         for row in conn.execute(f"{sql} WHERE image_hash IS NOT NULL"):
             stable_key, image_hash = str(row[0]), str(row[1])
-            title = image_file_title(*row[2 : 2 + name_count])
-            has_page = row[2 + name_count] is not None or (portrait and title in paged_portraits)
+            names = row[2 : 2 + name_count]
+            has_page = row[2 + name_count] is not None or (
+                role == "render" and picture_subject(*names) in paged_portraits
+            )
+            title = picture_file_title(role, *names)
             if not title or not has_page:
                 continue
             claimed = titles.setdefault(title, (image_hash, stable_key))

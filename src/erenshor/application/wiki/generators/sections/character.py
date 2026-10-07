@@ -25,7 +25,7 @@ from erenshor.domain.entities.character import Character
 from erenshor.domain.value_objects.faction import FactionModifier
 from erenshor.domain.value_objects.loot import LootDropDisplayInfo
 from erenshor.domain.value_objects.spawn import CharacterSpawnInfo
-from erenshor.domain.value_objects.wiki_filename import image_file_title
+from erenshor.domain.value_objects.wiki_filename import picture_file_title
 from erenshor.domain.value_objects.wiki_link import FactionLink, ZoneLink
 from erenshor.shared.game_constants import WIKITEXT_LINE_SEPARATOR
 
@@ -446,7 +446,7 @@ class CharacterSectionGenerator(SectionGeneratorBase):
         return {
             "name": display_name,
             "stable_key": character.stable_key,
-            "image": image_file_title(image_name),
+            "image": picture_file_title("render", image_name),
             # The hidden Needs Image category of a missing image: a summon's
             # differs from a character's, and the Chest type sorts chests.
             "imagekind": "summon" if character.is_summon else "",

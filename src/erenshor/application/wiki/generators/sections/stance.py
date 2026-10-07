@@ -15,7 +15,7 @@ from loguru import logger
 from erenshor.application.wiki.generators.formatting import format_description, safe_str
 from erenshor.application.wiki.generators.link_lists import format_visible_links
 from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
-from erenshor.domain.value_objects.wiki_filename import image_file_title
+from erenshor.domain.value_objects.wiki_filename import picture_file_title
 
 if TYPE_CHECKING:
     from erenshor.domain.enriched_data.stance import EnrichedStanceData
@@ -53,7 +53,7 @@ class StanceSectionGenerator(SectionGeneratorBase):
         """Build context for {{Stance}} template from Stance entity."""
         stance = enriched.stance
 
-        image = image_file_title(stance.image_name)
+        image = picture_file_title("icon", stance.image_name)
         display_name = stance.display_name or page_title
 
         # activated_by_skills are pre-built AbilityLink objects
