@@ -1,4 +1,5 @@
 using System.Reflection;
+using AdventureGuide.Data;
 
 namespace AdventureGuide.Navigation;
 
@@ -54,6 +55,7 @@ public sealed class SpawnTimerTracker
     /// </summary>
     public SpawnPoint? FindSoonestRespawn(string stableKey)
     {
+        stableKey = CharacterStableKey.Normalize(stableKey);
         SpawnPoint? best = null;
         float bestSeconds = float.MaxValue;
         foreach (var tracked in _tracked.Values)
