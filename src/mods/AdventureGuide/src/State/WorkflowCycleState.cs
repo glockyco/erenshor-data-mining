@@ -20,7 +20,6 @@ internal sealed class WorkflowCycleState
     public int Generation { get; private set; }
     public int LastItemCount { get; private set; }
     public bool TriggerLatched { get; private set; }
-    public bool RecoveryPending { get; private set; }
     public bool RewardSeen { get; private set; }
 
     private readonly struct KillRequirement
@@ -63,29 +62,29 @@ internal sealed class WorkflowCycleState
         }
     }
 
-    public void Restore(int generation, bool triggerLatched, int currentItemCount)
+    /// <summary>
+    /// Restore the completed-cycle count saved for the character. A cycle in
+    /// progress is never restored: loading a character loads a scene, and a
+    /// scene load ends every encounter (see <see cref="BeginScene"/>).
+    /// </summary>
+    public void Restore(int generation, int currentItemCount)
     {
         Generation = Math.Max(0, generation);
-        TriggerLatched = triggerLatched;
-        RecoveryPending = triggerLatched;
-        RewardSeen = false;
-        LastItemCount = currentItemCount;
-        _killedByGroup.Clear();
-        Stage = triggerLatched
-            ? WorkflowStage.TriggerConsumed
-            : StageForInventory(currentItemCount);
+        Reset(currentItemCount);
     }
 
+    /// <summary>
+    /// The encounter scripts keep their fight in the scene (VithArena's
+    /// spawned fighters and FightInProg, MalarothFeed's spawn, the reward
+    /// chest), so a scene load ends any cycle in progress: the fee is spent and
+    /// the kills and reward are gone. The cycle returns to the inventory stage.
+    /// </summary>
     public bool BeginScene(int currentItemCount)
     {
-        bool changed = LastItemCount != currentItemCount || RewardSeen;
-        LastItemCount = currentItemCount;
-        RewardSeen = false;
-        RecoveryPending = TriggerLatched;
-        changed |= SetStage(
-            TriggerLatched ? WorkflowStage.TriggerConsumed : StageForInventory(currentItemCount)
-        );
-        return changed;
+        var previous = Stage;
+        bool countChanged = LastItemCount != currentItemCount;
+        Reset(currentItemCount);
+        return countChanged || previous != Stage;
     }
 
     public bool ObserveInventory(int currentItemCount, bool insideTrigger)
@@ -94,10 +93,14 @@ internal sealed class WorkflowCycleState
         LastItemCount = currentItemCount;
         bool changed = previous != currentItemCount;
         bool consumed = previous - currentItemCount >= Quest.WorkflowCycle!.Trigger.Quantity;
-        if (!TriggerLatched && consumed && insideTrigger)
+        if (consumed && insideTrigger)
         {
+            // The encounter takes a fee only while no fight runs, so a fee
+            // spent at the trigger always starts a new cycle, also after an
+            // earlier cycle whose reward was never looted.
+            if (TriggerLatched)
+                Reset(currentItemCount);
             TriggerLatched = true;
-            RecoveryPending = false;
             return SetStage(WorkflowStage.TriggerConsumed) || changed;
         }
 
@@ -117,21 +120,14 @@ internal sealed class WorkflowCycleState
 
     public bool RecoverFromLiveTargets(int currentItemCount)
     {
-        bool changed = !TriggerLatched || RecoveryPending || LastItemCount != currentItemCount;
+        bool changed = !TriggerLatched || LastItemCount != currentItemCount;
         TriggerLatched = true;
-        RecoveryPending = false;
         LastItemCount = currentItemCount;
         changed |= SetStage(WorkflowStage.TargetsActive);
         return changed;
     }
 
-    public bool ObserveTarget()
-    {
-        bool changed = RecoveryPending;
-        RecoveryPending = false;
-        changed |= SetStage(WorkflowStage.TargetsActive);
-        return changed;
-    }
+    public bool ObserveTarget() => SetStage(WorkflowStage.TargetsActive);
 
     public bool RecordTargetDeath(string group, bool anyLiveTargets)
     {
@@ -145,9 +141,8 @@ internal sealed class WorkflowCycleState
 
     public bool ObserveReward()
     {
-        bool changed = !TriggerLatched || RecoveryPending || !RewardSeen;
+        bool changed = !TriggerLatched || !RewardSeen;
         TriggerLatched = true;
-        RecoveryPending = false;
         RewardSeen = true;
         foreach (var expected in _expectedByGroup)
             _killedByGroup[expected.Key] = expected.Value;
@@ -168,14 +163,6 @@ internal sealed class WorkflowCycleState
         return false;
     }
 
-    public bool CompleteRecovery(bool hasRuntimeEvidence)
-    {
-        if (!RecoveryPending)
-            return false;
-        RecoveryPending = false;
-        return hasRuntimeEvidence ? false : MarkUnverifiable();
-    }
-
     public bool MarkUnverifiable() => SetStage(WorkflowStage.Unverifiable);
 
     public void ResetCycle(int currentItemCount)
@@ -187,7 +174,6 @@ internal sealed class WorkflowCycleState
     public void Reset(int currentItemCount)
     {
         TriggerLatched = false;
-        RecoveryPending = false;
         RewardSeen = false;
         _killedByGroup.Clear();
         LastItemCount = currentItemCount;

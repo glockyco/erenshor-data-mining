@@ -32,20 +32,63 @@ public sealed class WorkflowCycleStateTests
     }
 
     [Fact]
-    public void Reload_without_positive_runtime_evidence_becomes_unverifiable()
+    public void A_scene_load_ends_the_cycle_in_progress()
+    {
+        // VithArena and MalarothFeed keep the fight in the scene, so leaving the
+        // zone spends the fee and discards the kills; the next fee starts over.
+        var quest = TestData.WorkflowQuest();
+        quest.WorkflowCycle!.Targets[0].Quantity = 2;
+        quest.Steps![2].Quantity = 2;
+        var state = new WorkflowCycleState(quest);
+        state.BeginScene(1);
+        state.ObserveInventory(0, insideTrigger: true);
+        state.ObserveTarget();
+        state.RecordTargetDeath("character:test enemy", anyLiveTargets: true);
+
+        state.BeginScene(0);
+
+        Assert.False(state.TriggerLatched);
+        Assert.Equal(WorkflowStage.NeedItem, state.Stage);
+        Assert.Equal(0, state.GetCurrentStepIndex(_ => 0));
+
+        state.ObserveInventory(1, insideTrigger: false);
+        state.ObserveInventory(0, insideTrigger: true);
+        state.ObserveTarget();
+        state.RecordTargetDeath("character:test enemy", anyLiveTargets: true);
+
+        Assert.False(state.TargetsDefeated);
+        Assert.Equal(2, state.GetCurrentStepIndex(_ => 0));
+    }
+
+    [Fact]
+    public void A_fee_spent_at_the_trigger_starts_a_new_cycle_after_an_unlooted_reward()
     {
         var quest = TestData.WorkflowQuest();
         var state = new WorkflowCycleState(quest);
-        int itemCount = 1;
-        state.BeginScene(itemCount);
-        itemCount = 0;
-        state.ObserveInventory(itemCount, insideTrigger: true);
+        state.BeginScene(2);
+        state.ObserveInventory(1, insideTrigger: true);
+        state.RecordTargetDeath("character:test enemy", anyLiveTargets: false);
+        state.ObserveReward();
+        Assert.True(state.RewardSeen);
 
-        state.BeginScene(itemCount);
-        state.CompleteRecovery(hasRuntimeEvidence: false);
+        state.ObserveInventory(0, insideTrigger: true);
 
-        Assert.Equal(WorkflowStage.Unverifiable, state.Stage);
-        Assert.Equal(-1, state.GetCurrentStepIndex(_ => itemCount));
+        Assert.False(state.RewardSeen);
+        Assert.False(state.TargetsDefeated);
+        Assert.Equal(WorkflowStage.TriggerConsumed, state.Stage);
+        Assert.Equal(2, state.GetCurrentStepIndex(_ => 0));
+    }
+
+    [Fact]
+    public void Restoring_a_character_keeps_the_generation_but_no_cycle_in_progress()
+    {
+        var state = new WorkflowCycleState(TestData.WorkflowQuest());
+
+        state.Restore(generation: 3, currentItemCount: 1);
+
+        Assert.Equal(3, state.Generation);
+        Assert.False(state.TriggerLatched);
+        Assert.Equal(WorkflowStage.ItemReady, state.Stage);
     }
 
     [Fact]

@@ -54,9 +54,6 @@ public sealed class GuideWorkflowState
 
         [JsonProperty("generation")]
         public int Generation { get; set; }
-
-        [JsonProperty("trigger_latched")]
-        public bool TriggerLatched { get; set; }
     }
 
     private readonly GuideData _data;
@@ -121,11 +118,7 @@ public sealed class GuideWorkflowState
                 && _byStableKey.TryGetValue(envelope.Workflow.StableKey, out var runtime)
             )
             {
-                runtime.Cycle.Restore(
-                    envelope.Workflow.Generation,
-                    envelope.Workflow.TriggerLatched,
-                    runtime.Cycle.LastItemCount
-                );
+                runtime.Cycle.Restore(envelope.Workflow.Generation, runtime.Cycle.LastItemCount);
                 _selectedWorkflowKey = runtime.Quest.StableKey;
             }
         }
@@ -153,7 +146,6 @@ public sealed class GuideWorkflowState
             {
                 StableKey = runtime.Quest.StableKey,
                 Generation = runtime.Cycle.Generation,
-                TriggerLatched = runtime.Cycle.TriggerLatched,
             },
         };
         _recoveryEntry.Value = JsonConvert.SerializeObject(envelope, Formatting.None);
@@ -215,12 +207,8 @@ public sealed class GuideWorkflowState
             }
         }
 
-        if (!_discovery.Advance(deltaTime))
-            return;
-
-        RevalidateLiveEntities(countItem);
-        if (_discovery.IsComplete)
-            CompleteRecoveryDiscovery();
+        if (_discovery.Advance(deltaTime))
+            RevalidateLiveEntities(countItem);
     }
 
     public void ObserveCharacterStarted(Character character)
@@ -533,21 +521,6 @@ public sealed class GuideWorkflowState
 
     private static IReadOnlyList<Character> FindLiveCharacters() =>
         UnityEngine.Object.FindObjectsOfType<Character>();
-
-    /// <summary>
-    /// Finish the bounded live-entity recovery window. A latched workflow
-    /// without positive target or reward evidence becomes explicitly unavailable
-    /// rather than guessing progress from absence.
-    /// </summary>
-    private void CompleteRecoveryDiscovery()
-    {
-        foreach (var runtime in _byStableKey.Values)
-        {
-            bool hasRuntimeEvidence = runtime.ObservedTargets.Count > 0 || runtime.Cycle.RewardSeen;
-            if (IsRuntimeScene(runtime) && runtime.Cycle.CompleteRecovery(hasRuntimeEvidence))
-                Changed?.Invoke(runtime.Quest);
-        }
-    }
 
     private void ResetCycle(Runtime runtime, Func<string, int> countItem)
     {
