@@ -50,6 +50,26 @@ public sealed class ArrowRenderer
         _nav = nav;
     }
 
+    /// <summary>Use the same active-view policy as world-marker billboards.</summary>
+    internal static Camera? GetProjectionCamera()
+    {
+        var pc = GameData.PlayerControl;
+        var selected = BillboardUpdatePolicy.Select(
+            pc != null,
+            pc != null && pc.FPV != null && pc.FPV.gameObject.activeSelf,
+            pc != null && pc.DroneMode
+        );
+        return selected switch
+        {
+            BillboardUpdateTarget.FirstPersonCamera => pc!.FPV,
+            BillboardUpdateTarget.DroneCamera => pc!.DroneCam != null
+                ? pc.DroneCam.GetComponentInChildren<Camera>()
+                : null,
+            BillboardUpdateTarget.GameCamera => CameraCache.Get(),
+            _ => null,
+        };
+    }
+
     /// <summary>
     /// Call during the ImGui layout pass (OnLayout callback).
     /// Draws the navigation arrow on the foreground draw list.
@@ -63,7 +83,7 @@ public sealed class ArrowRenderer
         if (drawList == System.IntPtr.Zero)
             return;
 
-        var cam = CameraCache.Get();
+        var cam = GetProjectionCamera();
         if (cam == null)
             return;
 
