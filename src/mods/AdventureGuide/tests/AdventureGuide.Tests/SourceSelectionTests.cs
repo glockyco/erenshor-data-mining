@@ -38,6 +38,26 @@ public sealed class SourceSelectionTests
         Assert.False(SourceSelectionPolicy.MatchesNode(0.25f));
     }
 
+    [Fact]
+    public void Cross_zone_sources_prefer_the_fewest_zone_crossings()
+    {
+        // A vendor two zones away beats a fishing spot four zones away.
+        Assert.True(SourceSelectionPolicy.IsBetterCrossZone(true, false, 2, true, false, 4));
+        Assert.False(SourceSelectionPolicy.IsBetterCrossZone(true, false, 4, true, false, 2));
+        // Equal distance keeps the guide's earlier source.
+        Assert.False(SourceSelectionPolicy.IsBetterCrossZone(true, false, 2, true, false, 2));
+    }
+
+    [Fact]
+    public void Cross_zone_sources_rank_open_routes_before_locked_and_unroutable_ones()
+    {
+        Assert.True(SourceSelectionPolicy.IsBetterCrossZone(true, false, 6, true, true, 1));
+        Assert.True(SourceSelectionPolicy.IsBetterCrossZone(true, true, 6, false, false, 0));
+        Assert.False(
+            SourceSelectionPolicy.IsBetterCrossZone(false, false, int.MaxValue, true, true, 9)
+        );
+    }
+
     [Theory]
     [InlineData("mining:hidden:1:2:3")]
     [InlineData("water:hidden:1:2:3")]

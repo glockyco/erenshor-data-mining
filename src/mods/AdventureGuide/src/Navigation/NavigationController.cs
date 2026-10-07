@@ -1066,26 +1066,67 @@ public sealed class NavigationController
 
         if (bestScene == null)
         {
+            // No source in this scene: pick the source in the closest
+            // reachable scene, not just the first in the guide's order.
+            bool bestRoutable = false,
+                bestLocked = false;
+            int bestHops = int.MaxValue;
+            var routes = new Dictionary<string, ZoneGraph.Route?>(
+                System.StringComparer.OrdinalIgnoreCase
+            );
+
+            void Consider(string scene, Vector3 position, NavigationTarget.Kind kind, string key)
+            {
+                if (!routes.TryGetValue(scene, out var route))
+                {
+                    route = _zoneGraph.FindRoute(currentScene, scene);
+                    routes[scene] = route;
+                }
+                bool routable = route != null;
+                bool locked = route != null && route.IsLocked;
+                int hops = route != null ? route.Path.Count - 1 : int.MaxValue;
+                if (
+                    bestScene != null
+                    && !SourceSelectionPolicy.IsBetterCrossZone(
+                        routable,
+                        locked,
+                        hops,
+                        bestRoutable,
+                        bestLocked,
+                        bestHops
+                    )
+                )
+                    return;
+                bestScene = scene;
+                bestPosition = position;
+                bestKind = kind;
+                bestSourceKey = key;
+                bestRoutable = routable;
+                bestLocked = locked;
+                bestHops = hops;
+            }
+
             foreach (var sourceKey in _activeSourceKeys)
             {
                 if (_positionedSources.TryGetValue(sourceKey, out var positioned))
                 {
-                    bestScene = positioned.Scene;
-                    bestPosition = new Vector3(positioned.X, positioned.Y, positioned.Z);
-                    bestKind = NavigationTarget.Kind.Position;
+                    Consider(
+                        positioned.Scene,
+                        new Vector3(positioned.X, positioned.Y, positioned.Z),
+                        NavigationTarget.Kind.Position,
+                        sourceKey
+                    );
                 }
-                else if (
-                    _data.CharacterSpawns.TryGetValue(sourceKey, out var spawns)
-                    && spawns.Count > 0
-                )
+                else if (_data.CharacterSpawns.TryGetValue(sourceKey, out var spawns))
                 {
-                    bestScene = spawns[0].Scene;
-                    bestPosition = new Vector3(spawns[0].X, spawns[0].Y, spawns[0].Z);
+                    foreach (var spawn in spawns)
+                        Consider(
+                            spawn.Scene,
+                            new Vector3(spawn.X, spawn.Y, spawn.Z),
+                            NavigationTarget.Kind.Character,
+                            sourceKey
+                        );
                 }
-                else
-                    continue;
-                bestSourceKey = sourceKey;
-                break;
             }
         }
         if (bestScene == null)

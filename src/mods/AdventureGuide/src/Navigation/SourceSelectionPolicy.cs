@@ -22,6 +22,27 @@ public static class SourceSelectionPolicy
         return distance < bestDistance;
     }
 
+    /// <summary>
+    /// Among sources in other scenes, prefer the scene with an open route over
+    /// a locked one, then the fewest zone crossings. Scenes without any route
+    /// rank last. Equal sources keep the guide's source order.
+    /// </summary>
+    public static bool IsBetterCrossZone(
+        bool routable,
+        bool locked,
+        int hops,
+        bool bestRoutable,
+        bool bestLocked,
+        int bestHops
+    )
+    {
+        if (routable != bestRoutable)
+            return routable;
+        if (locked != bestLocked)
+            return !locked;
+        return hops < bestHops;
+    }
+
     // Source coordinates are rounded to two decimal places in the guide.
     public static bool MatchesNode(float squaredDistance) => squaredDistance <= 0.01f;
 }
