@@ -53,6 +53,7 @@
     <Compile Include="../../src/Navigation/SpawnMarkerPolicy.cs" Link="Navigation/SpawnMarkerPolicy.cs" />
     <Compile Include="../../src/Navigation/RespawnTimerText.cs" Link="Navigation/RespawnTimerText.cs" />
     <Compile Include="../../src/UI/TrackerVisibilityPolicy.cs" Link="UI/TrackerVisibilityPolicy.cs" />
+    <Compile Include="../../src/UI/TypingFlagSync.cs" Link="UI/TypingFlagSync.cs" />
   </ItemGroup>
 
   <ItemGroup>

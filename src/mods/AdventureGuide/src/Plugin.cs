@@ -184,6 +184,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
             DeathPatch.Nav = _nav;
             QuestMarkerPatch.SetSuppression(_config.ShowWorldMarkers.Value);
             PointerOverUIPatch.WantsMouse = () => _wantsMouseCapture;
+            PlayerTypingPatch.WantsTextInput = () => _gameUIVisible && _wantsTextInput;
             QuestLogPatch.ReplaceQuestLog = _config.ReplaceQuestLog;
             SceneManager.sceneLoaded += OnSceneLoaded;
 
@@ -242,7 +243,8 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
                 ClearImGuiCaptureState();
                 if (_wasTextInputActive)
                 {
-                    GameData.PlayerTyping = false;
+                    if (!ChatInputActive())
+                        GameData.PlayerTyping = false;
                     _wasTextInputActive = false;
                 }
             }
@@ -258,10 +260,9 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
         if (_gameUIVisible)
         {
             bool textActive = _wantsTextInput;
-            if (textActive && !_wasTextInputActive)
-                GameData.PlayerTyping = true;
-            else if (!textActive && _wasTextInputActive)
-                GameData.PlayerTyping = false;
+            var typing = TypingFlagSync.Next(textActive, _wasTextInputActive, ChatInputActive());
+            if (typing.HasValue)
+                GameData.PlayerTyping = typing.Value;
             _wasTextInputActive = textActive;
         }
 
@@ -292,7 +293,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
     void IRuntimeLifecycleEffects.StopActive()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
-        if (_wasTextInputActive)
+        if (_wasTextInputActive && !ChatInputActive())
             GameData.PlayerTyping = false;
         ClearImGuiCaptureState();
 
@@ -467,6 +468,11 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
             _config.ShowGroundPath.Value = !_config.ShowGroundPath.Value;
     }
 
+    private static bool ChatInputActive() =>
+        GameData.TextInput != null
+        && GameData.TextInput.InputBox != null
+        && GameData.TextInput.InputBox.activeSelf;
+
     private void CaptureImGuiState()
     {
         _wantsMouseCapture = _imgui?.WantCaptureMouse ?? false;
@@ -508,6 +514,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
         QuestMarkerPatch.SuppressGameMarkers = false;
         PointerOverUIPatch.WantsMouse = null;
         QuestLogPatch.ReplaceQuestLog = null;
+        PlayerTypingPatch.WantsTextInput = null;
     }
 
     private static void ClearDebugApi()
