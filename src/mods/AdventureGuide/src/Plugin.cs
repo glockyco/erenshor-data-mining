@@ -142,11 +142,14 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
             _state.SetHistory(history);
             _window.Filter.LoadFrom(_config);
             _tracker = new TrackerWindow(_data, _state, _nav, _trackerState, _window, _config);
+            Action guideDraw = _window.Draw;
+            Action trackerDraw = () => _tracker!.Draw(_inGameplay);
+            Action arrowDraw = _arrow!.Draw;
             _imgui.OnLayout = () =>
             {
-                _window.Draw();
-                _tracker!.Draw(_inGameplay);
-                _arrow!.Draw();
+                _imgui.DrawIsolated(guideDraw);
+                _imgui.DrawIsolated(trackerDraw);
+                _imgui.DrawIsolated(arrowDraw);
             };
 
             DebugAPI.Data = _data;

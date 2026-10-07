@@ -39,6 +39,7 @@ public sealed class ImGuiRenderer : IDisposable
     private float _uiScale = 1f;
     private float _pendingScale = -1f;
     private byte[]? _unscaledStyleBackup;
+    private ImGuiStyle _frameStyle;
     private bool _appQuitting;
 
     // A failure inside window drawing repeats on every frame. Log each
@@ -137,7 +138,7 @@ public sealed class ImGuiRenderer : IDisposable
     /// Call from the plugin MonoBehaviour's OnGUI(). Handles input, runs layout,
     /// and renders on Unity repaint events.
     /// </summary>
-    public void OnGUI()
+    public unsafe void OnGUI()
     {
         if (_context == IntPtr.Zero)
             return;
@@ -150,6 +151,7 @@ public sealed class ImGuiRenderer : IDisposable
         ImGui.SetCurrentContext(_context);
 
         var io = ImGui.GetIO();
+        bool frameOpen = false;
         try
         {
             if (_pendingScale >= 0f)
@@ -163,8 +165,11 @@ public sealed class ImGuiRenderer : IDisposable
             UpdateInput(io);
 
             ImGui.NewFrame();
+            _frameStyle = *ImGui.GetStyle().NativePtr;
+            frameOpen = true;
             OnLayout?.Invoke();
             ImGui.EndFrame();
+            frameOpen = false;
 
             WantCaptureMouse = io.WantCaptureMouse;
             WantTextInput = io.WantTextInput;
@@ -175,12 +180,39 @@ public sealed class ImGuiRenderer : IDisposable
         catch (Exception ex)
         {
             ReportRenderFailure(ex);
+            if (frameOpen)
+            {
+                RecoverLayout();
+                ImGui.EndFrame();
+            }
             ClearCaptureState();
         }
         finally
         {
             ImGui.SetCurrentContext(previousContext);
         }
+    }
+
+    /// <summary>Keep a failing window from suppressing the remaining layout.</summary>
+    public void DrawIsolated(Action draw)
+    {
+        try
+        {
+            draw();
+        }
+        catch (Exception ex)
+        {
+            ReportRenderFailure(ex);
+            RecoverLayout();
+        }
+    }
+
+    private unsafe void RecoverLayout()
+    {
+        CimguiNative.igErrorCheckEndFrameRecover(IntPtr.Zero, IntPtr.Zero);
+        // Scoped Dispose can pop a different entry after an inner push leaks.
+        // Restore the exact pre-layout style as well as unwinding native stacks.
+        *ImGui.GetStyle().NativePtr = _frameStyle;
     }
 
     private void ReportRenderFailure(Exception ex)

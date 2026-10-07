@@ -62,6 +62,10 @@ public static unsafe class CimguiNative
     [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr igGetBackgroundDrawList_Nil();
 
+    // Internal ImGui 1.88 recovery export (not bound by ImGui.NET).
+    [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void igErrorCheckEndFrameRecover(IntPtr logCallback, IntPtr userData);
+
     [DllImport("cimgui", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr igGetWindowDrawList();
 

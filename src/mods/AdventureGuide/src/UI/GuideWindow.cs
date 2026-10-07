@@ -100,26 +100,37 @@ public sealed class GuideWindow
     {
         if (ImGui.BeginTabBar("##GuideTabs"))
         {
-            if (ImGui.BeginTabItem("Quests"))
+            try
             {
-                DrawQuestsTab();
-                ImGui.EndTabItem();
-            }
+                if (ImGui.BeginTabItem("Quests"))
+                {
+                    try
+                    {
+                        DrawQuestsTab();
+                    }
+                    finally
+                    {
+                        ImGui.EndTabItem();
+                    }
+                }
 
-            if (ImGui.TabItemButton("<"))
-            {
-                var page = _history.Back();
-                if (page.HasValue && page.Value.Type == NavigationHistory.PageType.Quest)
-                    _state.SelectedQuestKey = page.Value.Key;
+                if (ImGui.TabItemButton("<"))
+                {
+                    var page = _history.Back();
+                    if (page.HasValue && page.Value.Type == NavigationHistory.PageType.Quest)
+                        _state.SelectedQuestKey = page.Value.Key;
+                }
+                if (ImGui.TabItemButton(">"))
+                {
+                    var page = _history.Forward();
+                    if (page.HasValue && page.Value.Type == NavigationHistory.PageType.Quest)
+                        _state.SelectedQuestKey = page.Value.Key;
+                }
             }
-            if (ImGui.TabItemButton(">"))
+            finally
             {
-                var page = _history.Forward();
-                if (page.HasValue && page.Value.Type == NavigationHistory.PageType.Quest)
-                    _state.SelectedQuestKey = page.Value.Key;
+                ImGui.EndTabBar();
             }
-
-            ImGui.EndTabBar();
         }
     }
 
@@ -130,14 +141,26 @@ public sealed class GuideWindow
 
         // Left panel: quest list
         ImGui.BeginChild("##LeftPanel", new Vector2(leftWidth, 0), true);
-        _listPanel.Draw(leftWidth);
-        ImGui.EndChild();
+        try
+        {
+            _listPanel.Draw(leftWidth);
+        }
+        finally
+        {
+            ImGui.EndChild();
+        }
 
         ImGui.SameLine();
 
         // Right panel: quest detail
         ImGui.BeginChild("##RightPanel", Vector2.Zero, true);
-        _detailPanel.Draw();
-        ImGui.EndChild();
+        try
+        {
+            _detailPanel.Draw();
+        }
+        finally
+        {
+            ImGui.EndChild();
+        }
     }
 }

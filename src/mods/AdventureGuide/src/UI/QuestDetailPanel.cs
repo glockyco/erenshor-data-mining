@@ -27,8 +27,7 @@ public sealed class QuestDetailPanel
     private readonly List<(string Text, bool Secondary)> _rewardLines = new();
     private readonly List<(Prerequisite Prerequisite, string Label)> _prerequisites = new();
     private HashSet<string>? _stepTreeQuestKeys;
-    private string? _cachedQuestKey;
-    private int _cachedVersion = -1;
+    private DisplayCacheRevision _displayCacheRevision;
     private string? _levelZoneLine;
 
     /// <summary>Max sub-quest nesting depth to prevent runaway recursion.</summary>
@@ -51,11 +50,13 @@ public sealed class QuestDetailPanel
 
     public void Draw()
     {
-        if (_cachedQuestKey != _state.SelectedQuestKey || _cachedVersion != _state.Version)
+        var selectedKey = _state.SelectedQuestKey;
+        var version = _state.Version;
+        if (!_displayCacheRevision.IsCurrent(selectedKey, version))
         {
-            _cachedQuestKey = _state.SelectedQuestKey;
-            _cachedVersion = _state.Version;
-            RebuildDisplayCache();
+            _displayCacheRevision.Invalidate();
+            RebuildDisplayCache(selectedKey);
+            _displayCacheRevision.Commit(selectedKey, version);
         }
 
         if (_state.SelectedQuestKey == null)
@@ -856,7 +857,7 @@ public sealed class QuestDetailPanel
     /// quest and all drawable inline sub-quests, including closed trees.
     /// Nothing is retained across a selection or state-version change.
     /// </summary>
-    private void RebuildDisplayCache()
+    private void RebuildDisplayCache(string? questKey)
     {
         _questDisplay.Clear();
         _visited.Clear();
@@ -867,7 +868,7 @@ public sealed class QuestDetailPanel
         _stepTreeQuestKeys = null;
         _levelZoneLine = null;
 
-        var quest = _cachedQuestKey == null ? null : _data.GetByRuntimeKey(_cachedQuestKey);
+        var quest = questKey == null ? null : _data.GetByRuntimeKey(questKey);
         if (quest == null)
             return;
 

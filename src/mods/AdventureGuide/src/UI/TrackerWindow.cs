@@ -377,45 +377,49 @@ public sealed class TrackerWindow
     private void DrawQuestList()
     {
         ImGui.BeginChild("##TrackerScroll", Vector2.Zero, false);
-
-        // Record content top for next frame's backdrop.
-        var contentTop = ImGui.GetCursorScreenPos();
-
-        for (int i = 0; i < _sorted.Count; i++)
+        try
         {
-            var questKey = _sorted[i];
-            var quest = _data.GetByRuntimeKey(questKey);
-            if (quest == null)
-                continue;
+            // Record content top for next frame's backdrop.
+            var contentTop = ImGui.GetCursorScreenPos();
 
-            DrawQuestEntry(quest, questKey);
+            for (int i = 0; i < _sorted.Count; i++)
+            {
+                var questKey = _sorted[i];
+                var quest = _data.GetByRuntimeKey(questKey);
+                if (quest == null)
+                    continue;
+
+                DrawQuestEntry(quest, questKey);
+            }
+
+            // Record bounds for next frame's backdrop with per-side padding
+            // tuned so the visual gap looks even despite ImGui's internal
+            // window padding and trailing item spacing.
+            var contentBottom = ImGui.GetCursorScreenPos();
+            var childPos = ImGui.GetWindowPos();
+            float childWidth = ImGui.GetWindowWidth();
+            float childHeight = ImGui.GetWindowHeight();
+            float itemSpacing = ImGui.GetStyle().ItemSpacing.Y;
+            // Clamp bottom to visible child bounds so off-screen scrolled
+            // entries don't extend the backdrop past the window edge.
+            // When content fits, subtract trailing item spacing; when
+            // scrolling, use the child's visible bottom edge directly.
+            float visibleBottom = childPos.Y + childHeight;
+            float scale = _config.ResolvedUiScale;
+            float bottomY =
+                contentBottom.Y <= visibleBottom
+                    ? contentBottom.Y - itemSpacing + CompactPadBottom * scale
+                    : visibleBottom + CompactPadBottom * scale;
+            _contentMin = new Vector2(
+                childPos.X - CompactPadLeft * scale,
+                childPos.Y - CompactPadTop * scale
+            );
+            _contentMax = new Vector2(childPos.X + childWidth + CompactPadRight * scale, bottomY);
         }
-
-        // Record bounds for next frame's backdrop with per-side padding
-        // tuned so the visual gap looks even despite ImGui's internal
-        // window padding and trailing item spacing.
-        var contentBottom = ImGui.GetCursorScreenPos();
-        var childPos = ImGui.GetWindowPos();
-        float childWidth = ImGui.GetWindowWidth();
-        float childHeight = ImGui.GetWindowHeight();
-        float itemSpacing = ImGui.GetStyle().ItemSpacing.Y;
-        // Clamp bottom to visible child bounds so off-screen scrolled
-        // entries don't extend the backdrop past the window edge.
-        // When content fits, subtract trailing item spacing; when
-        // scrolling, use the child's visible bottom edge directly.
-        float visibleBottom = childPos.Y + childHeight;
-        float scale = _config.ResolvedUiScale;
-        float bottomY =
-            contentBottom.Y <= visibleBottom
-                ? contentBottom.Y - itemSpacing + CompactPadBottom * scale
-                : visibleBottom + CompactPadBottom * scale;
-        _contentMin = new Vector2(
-            childPos.X - CompactPadLeft * scale,
-            childPos.Y - CompactPadTop * scale
-        );
-        _contentMax = new Vector2(childPos.X + childWidth + CompactPadRight * scale, bottomY);
-
-        ImGui.EndChild();
+        finally
+        {
+            ImGui.EndChild();
+        }
     }
 
     private void DrawQuestEntry(QuestEntry quest, string questKey)
