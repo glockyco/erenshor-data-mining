@@ -443,16 +443,20 @@ def test_an_orphan_that_a_page_starts_to_show_before_the_run_stays(setup: Any) -
     assert record.entries[-1]["reason"] == "a page shows the file since the plan"
 
 
-def test_a_plan_that_deletes_refuses_to_run_without_the_deletion_account(setup: Any) -> None:
+@pytest.mark.parametrize("change", ["delete", "move"])
+def test_a_plan_that_moves_or_deletes_refuses_to_run_without_the_administrator_account(setup: Any, change: str) -> None:
     pictures, wiki, cache, tmp_path = setup
-    pictures.add(_png((1, 1, 1, 255)), "File:Spell Scroll Aetherstorm.png")
-    wiki.put_file("File:Spell Scroll- Aetherstorm.png", OLD)
+    if change == "delete":
+        pictures.add(_png((1, 1, 1, 255)), "File:Spell Scroll Aetherstorm.png")
+        wiki.put_file("File:Spell Scroll- Aetherstorm.png", OLD)
+    else:
+        _antidote(pictures, wiki)
     catalog = pictures.build()
 
-    with pytest.raises(ValueError, match="needs the deletion account"):
+    with pytest.raises(ValueError, match="needs the administrator account"):
         execute(_plan(catalog, wiki, cache), catalog, wiki, None, RunRecord(tmp_path / "run"), "Publish")
 
-    assert wiki.uploads == 0
+    assert (wiki.uploads, wiki.archive) == (0, {})
 
 
 def test_titles_that_redirect_to_an_editors_file_with_the_picture_stay(setup: Any) -> None:
@@ -694,7 +698,7 @@ def test_editors_character_pictures_move_to_their_screenshot_titles_and_the_bots
 
     plan = plan_screenshot_moves(characters, wiki.listing(), OWNERS)
     run = RunRecord(tmp_path / "run")
-    execute_screenshot_moves(plan, wiki, run, "Move")
+    execute_screenshot_moves(plan, wiki, wiki, run, "Move")
 
     assert [(item.source, item.title, item.redirects) for item in plan.moves] == [
         ("File:Faith.png", "File:Faith screenshot.png", ()),

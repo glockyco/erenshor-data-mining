@@ -348,11 +348,11 @@ def approve_captures(
 def _project_accounts(cli_ctx: CLIContext) -> tuple[str, tuple[str, ...]]:
     """The bot account, and every account whose uploads are the project's: the bot and the operator's.
 
-    The operator's account is the user of the interface and deletion bot passwords.
+    The operator's account is the user of the interface and administrator bot passwords.
     """
     wiki_config = cli_ctx.config.global_.mediawiki
     bot = wiki_config.bot_username.partition("@")[0]
-    usernames = (wiki_config.bot_username, wiki_config.interface_username, wiki_config.deletion_username)
+    usernames = (wiki_config.bot_username, wiki_config.interface_username, wiki_config.administrator_username)
     return bot, tuple(dict.fromkeys(name.partition("@")[0] for name in usernames if name))
 
 
@@ -377,9 +377,9 @@ def publish(
     nothing produces and no page shows are orphans and are deleted too. Writes
     the plan and contact sheets of every changing picture to
     images/publish/<stamp>/. With the root --dry-run option, stops there.
-    Otherwise moves and uploads with the bot account, deletes with the
-    deletion account, checks each title again first, and records every write
-    in run.json.
+    Otherwise uploads and edits with the bot account, moves and deletes with
+    the administrator account, checks each title again first, and records every
+    write in run.json.
 
     Examples:
         erenshor --dry-run images publish
@@ -415,10 +415,13 @@ def publish(
             console.print("[yellow]Dry run: nothing was written.[/yellow]")
             return
         record = RunRecord(run_dir)
-        deletes = any(entry["action"] in ("retire", "orphan") for entry in done)
-        with closing(_bot_client(cli_ctx)) as writer, _deletion_client(cli_ctx, console, needed=deletes) as deleter:
+        needed = any(entry["action"] in ("move", "retire", "orphan") for entry in done)
+        with (
+            closing(_bot_client(cli_ctx)) as writer,
+            _administrator_client(cli_ctx, console, needed=needed) as administrator,
+        ):
             writer.login()
-            revert(reverted, writer, deleter, record, owners, f"Revert the picture publication of {revert_stamp}")
+            revert(reverted, writer, administrator, record, owners, f"Revert the picture publication of {revert_stamp}")
         _print_record(console, record)
         return
 
@@ -468,9 +471,12 @@ def publish(
         return
 
     record = RunRecord(run_dir)
-    with closing(_bot_client(cli_ctx)) as writer, _deletion_client(cli_ctx, console, needed=plan.deletes) as deleter:
+    with (
+        closing(_bot_client(cli_ctx)) as writer,
+        _administrator_client(cli_ctx, console, needed=plan.needs_administrator) as administrator,
+    ):
         writer.login()
-        execute(plan, catalog, writer, deleter, record, "Publish the game's pictures")
+        execute(plan, catalog, writer, administrator, record, "Publish the game's pictures")
     _print_record(console, record)
 
 
@@ -484,7 +490,8 @@ def move_screenshots(ctx: typer.Context) -> None:
     Its old title and every redirect that named it point at the new title.
     Files of the project stay for publish to move. Writes the plan to
     images/publish/<stamp>/. With the root --dry-run option, stops there.
-    Otherwise moves with the bot account and records every write in run.json,
+    Otherwise moves with the administrator account, points redirects with the
+    bot account, and records every write in run.json,
     so `images publish --revert <stamp>` undoes the run.
 
     Examples:
@@ -534,9 +541,14 @@ def move_screenshots(ctx: typer.Context) -> None:
         return
 
     record = RunRecord(run_dir)
-    with closing(_bot_client(cli_ctx)) as writer:
+    with (
+        closing(_bot_client(cli_ctx)) as writer,
+        _administrator_client(cli_ctx, console, needed=bool(plan.moves)) as administrator,
+    ):
         writer.login()
-        execute_screenshot_moves(plan, writer, record, "Give an editor's character picture its screenshot title")
+        execute_screenshot_moves(
+            plan, writer, administrator, record, "Give an editor's character picture its screenshot title"
+        )
     _print_record(console, record)
 
 
@@ -553,11 +565,11 @@ def _bot_client(cli_ctx: CLIContext) -> MediaWikiClient:
 
 
 @contextmanager
-def _deletion_client(cli_ctx: CLIContext, console: Console, *, needed: bool) -> Iterator[MediaWikiClient | None]:
-    """A logged-in client of the deletion account when the work deletes, after checking its rights.
+def _administrator_client(cli_ctx: CLIContext, console: Console, *, needed: bool) -> Iterator[MediaWikiClient | None]:
+    """A logged-in client of the administrator account when the work moves or deletes, after checking its rights.
 
-    Exits before any write when the account is not configured or lacks the
-    delete or undelete right.
+    Exits before any write when the account is not configured or lacks a right
+    that moving, deleting, or undoing them needs.
     """
     from erenshor.infrastructure.wiki.client import MediaWikiClient
 
@@ -565,23 +577,26 @@ def _deletion_client(cli_ctx: CLIContext, console: Console, *, needed: bool) -> 
         yield None
         return
     wiki_config = cli_ctx.config.global_.mediawiki
-    if not wiki_config.deletion_username.strip() or not wiki_config.deletion_password:
+    if not wiki_config.administrator_username.strip() or not wiki_config.administrator_password:
         console.print(
-            "[red]This run deletes files, which needs an administrator's bot password with the delete grant. "
-            "Set [global.mediawiki].deletion_username and deletion_password in .erenshor/config.local.toml.[/red]"
+            "[red]This run moves or deletes files, which needs an administrator's bot password with the delete and "
+            "file-move grants. Set [global.mediawiki].administrator_username and administrator_password in "
+            ".erenshor/config.local.toml.[/red]"
         )
         raise typer.Exit(1)
     client = MediaWikiClient(
         api_url=wiki_config.api_url,
-        bot_username=wiki_config.deletion_username,
-        bot_password=wiki_config.deletion_password,
+        bot_username=wiki_config.administrator_username,
+        bot_password=wiki_config.administrator_password,
         batch_size=50,
     )
     try:
         client.login()
-        missing = {"delete", "undelete"} - client.get_current_user_rights(assertion="user")
+        missing = {"delete", "undelete", "movefile", "suppressredirect"} - client.get_current_user_rights(
+            assertion="user"
+        )
         if missing:
-            console.print(f"[red]The deletion account lacks the right {', '.join(sorted(missing))}.[/red]")
+            console.print(f"[red]The administrator account lacks the right {', '.join(sorted(missing))}.[/red]")
             raise typer.Exit(1)
         yield client
     finally:

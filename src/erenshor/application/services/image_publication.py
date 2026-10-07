@@ -272,9 +272,9 @@ class PublishPlan:
         return {verdict: sum(item.verdict == verdict for item in self.titles) for verdict in VERDICTS}
 
     @property
-    def deletes(self) -> bool:
-        """Whether a run of the plan deletes anything, which needs the deletion account."""
-        return bool(self.orphans) or any(item.verdict == "retire" for item in self.titles)
+    def needs_administrator(self) -> bool:
+        """Whether a run of the plan moves or deletes files, which the administrator account does."""
+        return bool(self.orphans) or any(item.verdict in ("move", "retire") for item in self.titles)
 
     def to_json(self) -> dict[str, Any]:
         return {

@@ -237,18 +237,18 @@ class MediaWikiConfig(ConfigModel):
             ".erenshor/config.local.toml; never use bot_password as a fallback)"
         ),
     )
-    deletion_username: str = Field(
+    administrator_username: str = Field(
         default="",
         description=(
-            "Bot password username of an administrator with the delete grant, used only for deletions "
-            "(set only in .erenshor/config.local.toml)"
+            "Bot password username of an administrator with the delete and file-move grants, which "
+            "images publish moves and deletes files with (set only in .erenshor/config.local.toml)"
         ),
     )
-    deletion_password: str = Field(
+    administrator_password: str = Field(
         default="",
         description=(
-            "Bot password of an administrator with the delete grant, used only for deletions "
-            "(set only in .erenshor/config.local.toml)"
+            "Bot password of an administrator with the delete and file-move grants, which images "
+            "publish moves and deletes files with (set only in .erenshor/config.local.toml)"
         ),
     )
 

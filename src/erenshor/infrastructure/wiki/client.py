@@ -2152,7 +2152,7 @@ class MediaWikiClient:
     def _request_as_user(self, data: dict[str, str]) -> dict[str, Any]:
         """Post an action that needs the logged-in account, logging in again once if the session expired.
 
-        A client that waits idle for a long time, such as the deletion account
+        A client that waits idle for a long time, such as the administrator account
         during the uploads of a publication, loses its session, and MediaWiki
         then treats its requests as anonymous. The ``assert=user`` check turns
         that into ``assertuserfailed`` instead of a denied permission.

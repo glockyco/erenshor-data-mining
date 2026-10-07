@@ -7,8 +7,9 @@ and it skips a title that changed since the plan, so the bot never replaces
 something that someone else wrote meanwhile. An upload never ignores
 MediaWiki's warnings up front: when the wiki answers only with warnings that
 the verdict expects, the run confirms the stashed upload, and otherwise it
-skips the title. The bot account moves, uploads, and edits; an administrator's
-account with the delete grant deletes.
+skips the title. The bot account uploads and edits. An administrator's account
+with the delete and file-move grants moves and deletes, because administrators
+skip the wiki's limit of 8 moves a minute that bot accounts have.
 
 Every write goes to ``run.json`` the moment it happens, with the bytes that an
 update replaced and the description of a deleted copy, so a stopped run loses
@@ -45,7 +46,7 @@ if TYPE_CHECKING:
     )
 
 __all__ = [
-    "PageDeleter",
+    "AdministratorWriter",
     "PublishWriter",
     "RunRecord",
     "comment",
@@ -76,8 +77,6 @@ class PublishWriter(Protocol):
 
     def confirm_upload(self, filekey: str, filename: str, comment: str, text: str = "") -> dict[str, Any]: ...
 
-    def move_page(self, from_title: str, to_title: str, reason: str, *, leave_redirect: bool = True) -> None: ...
-
     def safe_create_page(self, title: str, content: str, start_timestamp: str, summary: str | None = None) -> int: ...
 
     def safe_edit_page(
@@ -85,8 +84,10 @@ class PublishWriter(Protocol):
     ) -> int: ...
 
 
-class PageDeleter(Protocol):
-    """The deletions of an administrator's account that a run and its revert need."""
+class AdministratorWriter(Protocol):
+    """The moves and deletions of an administrator's account that a run and its revert need."""
+
+    def move_page(self, from_title: str, to_title: str, reason: str, *, leave_redirect: bool = True) -> None: ...
 
     def delete_page(self, title: str, reason: str) -> None: ...
 
@@ -137,7 +138,7 @@ def execute(
     plan: PublishPlan,
     catalog: Catalog,
     writer: PublishWriter,
-    deleter: PageDeleter | None,
+    administrator: AdministratorWriter | None,
     record: RunRecord,
     summary: str,
 ) -> None:
@@ -152,10 +153,10 @@ def execute(
     file could not be moved or uploaded is left as it is.
 
     Raises:
-        ValueError: If the plan deletes and no deleter is given.
+        ValueError: If the plan moves or deletes and no administrator is given.
     """
-    if plan.deletes and deleter is None:
-        raise ValueError("The plan deletes copies or orphans, which needs the deletion account")
+    if plan.needs_administrator and administrator is None:
+        raise ValueError("The plan moves or deletes files, which needs the administrator account")
     missing_files: set[str] = set()
     followers: dict[str, list[PlannedTitle]] = {}
     for item in plan.titles:
@@ -165,7 +166,8 @@ def execute(
     for item in plan.titles:
         if item.verdict != "move":
             continue
-        if not move(str(item.source), item.title, str(item.source_sha1), writer, record, summary):
+        assert administrator is not None  # needs_administrator holds for a plan with moves
+        if not move(str(item.source), item.title, str(item.source_sha1), writer, administrator, record, summary):
             missing_files.add(item.title)
             continue
         for follower in followers.get(str(item.source), ()):
@@ -190,13 +192,13 @@ def execute(
     for item in plan.titles:
         if item.verdict == "redirect" and item.title not in followed and has_file(item):
             redirect(item.title, str(item.file), item.redirect_target, writer, record, summary)
-    if deleter is None:
+    if administrator is None:
         return
     for item in plan.titles:
-        if item.verdict == "retire" and has_file(item) and _delete_copy(item, writer, deleter, record, summary):
+        if item.verdict == "retire" and has_file(item) and _delete_copy(item, writer, administrator, record, summary):
             redirect(item.title, str(item.file), item.redirect_target, writer, record, summary)
     for orphan in plan.orphans:
-        _delete_orphan(orphan, writer, deleter, record, summary)
+        _delete_orphan(orphan, writer, administrator, record, summary)
 
 
 def _skipped(item: PlannedTitle, action: str, reason: str) -> dict[str, Any]:
@@ -228,7 +230,15 @@ def _current(writer: PublishWriter, title: str) -> MediaWikiFileVersion | None:
     return versions[0] if versions else None
 
 
-def move(source: str, title: str, sha1: str, writer: PublishWriter, record: RunRecord, summary: str) -> bool:
+def move(
+    source: str,
+    title: str,
+    sha1: str,
+    writer: PublishWriter,
+    administrator: AdministratorWriter,
+    record: RunRecord,
+    summary: str,
+) -> bool:
     """Move the file at ``source`` to ``title`` with its history, leaving a redirect at the old title.
 
     The move goes ahead only while the old title holds the file with ``sha1``
@@ -243,7 +253,7 @@ def move(source: str, title: str, sha1: str, writer: PublishWriter, record: RunR
         record.add(_not_done(title, "move", "the title gained a page since the plan"))
         return False
     try:
-        writer.move_page(source, title, f"{summary}: the file takes the title that the wiki's pages name")
+        administrator.move_page(source, title, f"{summary}: the file takes the title that the wiki's pages name")
     except MediaWikiAPIError as error:
         record.add(_not_done(title, "move", f"the move failed: {error}"))
         return False
@@ -304,7 +314,7 @@ def _upload(item: PlannedTitle, catalog: Catalog, writer: PublishWriter, record:
 
 
 def _delete_copy(
-    item: PlannedTitle, writer: PublishWriter, deleter: PageDeleter, record: RunRecord, summary: str
+    item: PlannedTitle, writer: PublishWriter, administrator: AdministratorWriter, record: RunRecord, summary: str
 ) -> bool:
     current = _current(writer, item.title)
     if current is None or current.sha1 != item.live_sha1:
@@ -312,7 +322,7 @@ def _delete_copy(
         return False
     page = writer.get_page_snapshots([item.title])[item.title]
     try:
-        deleter.delete_page(item.title, f"{summary}: a copy of {item.file}, which holds the picture")
+        administrator.delete_page(item.title, f"{summary}: a copy of {item.file}, which holds the picture")
     except MediaWikiAPIError as error:
         record.add(_skipped(item, "retire", f"the deletion failed: {error}"))
         return False
@@ -330,7 +340,7 @@ def _delete_copy(
 
 
 def _delete_orphan(
-    orphan: Orphan, writer: PublishWriter, deleter: PageDeleter, record: RunRecord, summary: str
+    orphan: Orphan, writer: PublishWriter, administrator: AdministratorWriter, record: RunRecord, summary: str
 ) -> None:
     entry: dict[str, Any] = {"title": orphan.title, "action": "orphan", "done": False}
     current = _current(writer, orphan.title)
@@ -347,9 +357,9 @@ def _delete_orphan(
     ]
     reason = f"{summary}: nothing produces the file and no page shows it"
     try:
-        deleter.delete_page(orphan.title, reason)
+        administrator.delete_page(orphan.title, reason)
         for title in redirects:
-            deleter.delete_page(title, reason)
+            administrator.delete_page(title, reason)
     except MediaWikiAPIError as error:
         record.add(entry | {"reason": f"the deletion failed: {error}"})
         return
@@ -413,7 +423,7 @@ def _same_title(left: str, right: str | None) -> bool:
 def revert(
     run: RunRecord,
     writer: PublishWriter,
-    deleter: PageDeleter | None,
+    administrator: AdministratorWriter | None,
     record: RunRecord,
     owners: Sequence[str],
     summary: str,
@@ -429,21 +439,21 @@ def revert(
     that named the old title name it again, so no redirect is left behind.
 
     Raises:
-        ValueError: If the run deleted something and no deleter is given.
+        ValueError: If the run moved or deleted something and no administrator is given.
     """
     done = [entry for entry in run.entries if entry.get("done")]
-    if deleter is None and any(entry["action"] in ("retire", "orphan") for entry in done):
-        raise ValueError("The run deleted copies or orphans, which only the deletion account restores")
+    if administrator is None and any(entry["action"] in ("move", "retire", "orphan") for entry in done):
+        raise ValueError("The run moved or deleted files, which only the administrator account undoes")
     restored = {str(entry["title"]) for entry in done if entry["action"] == "retire"}
     for entry in done:
         title = str(entry["title"])
         action = entry["action"]
         if action == "update":
             _revert_update(entry, run.directory, writer, record, owners, summary)
-        elif action == "retire" and deleter is not None:
-            _restore_copy(entry, writer, deleter, record, summary)
-        elif action == "orphan" and deleter is not None:
-            _restore_orphan(entry, deleter, record, summary)
+        elif action == "retire" and administrator is not None:
+            _restore_copy(entry, writer, administrator, record, summary)
+        elif action == "orphan" and administrator is not None:
+            _restore_orphan(entry, administrator, record, summary)
         elif action == "redirect" and title in restored:
             continue
         elif action == "redirect" and entry.get("old_text") is not None:
@@ -453,11 +463,13 @@ def revert(
         elif action in ("create", "redirect"):
             record.add({"title": title, "action": f"keep {action}", "done": False, "reason": "the run created it"})
     for entry in reversed(done):
-        if entry["action"] == "move":
-            _revert_move(entry, writer, record, summary)
+        if entry["action"] == "move" and administrator is not None:
+            _revert_move(entry, writer, administrator, record, summary)
 
 
-def _revert_move(entry: dict[str, Any], writer: PublishWriter, record: RunRecord, summary: str) -> None:
+def _revert_move(
+    entry: dict[str, Any], writer: PublishWriter, administrator: AdministratorWriter, record: RunRecord, summary: str
+) -> None:
     """Move a moved file back over the redirect that its move left, while both are as the run left them."""
     title, source = str(entry["title"]), str(entry["source"])
     current = _current(writer, title)
@@ -466,7 +478,7 @@ def _revert_move(entry: dict[str, Any], writer: PublishWriter, record: RunRecord
         record.add({"title": title, "action": "revert move", "done": False, "reason": "the file changed since"})
         return
     try:
-        writer.move_page(title, source, summary, leave_redirect=False)
+        administrator.move_page(title, source, summary, leave_redirect=False)
     except MediaWikiAPIError as error:
         record.add({"title": title, "action": "revert move", "done": False, "reason": str(error)})
         return
@@ -507,7 +519,7 @@ def _revert_update(
 
 
 def _restore_copy(
-    entry: dict[str, Any], writer: PublishWriter, deleter: PageDeleter, record: RunRecord, summary: str
+    entry: dict[str, Any], writer: PublishWriter, administrator: AdministratorWriter, record: RunRecord, summary: str
 ) -> None:
     """Restore a deleted copy at its title, where the run left a redirect to the picture's file.
 
@@ -521,7 +533,7 @@ def _restore_copy(
         record.add({"title": title, "action": "revert retire", "done": False, "reason": "the page changed since"})
         return
     try:
-        deleter.undelete_page(title, summary)
+        administrator.undelete_page(title, summary)
         restored = writer.get_page_snapshots([title])[title]
         if restored.revision is not None and entry.get("description") is not None:
             writer.safe_edit_page(title, str(entry["description"]), restored.revision, summary=summary)
@@ -531,12 +543,12 @@ def _restore_copy(
     record.add({"title": title, "action": "revert retire", "done": True})
 
 
-def _restore_orphan(entry: dict[str, Any], deleter: PageDeleter, record: RunRecord, summary: str) -> None:
+def _restore_orphan(entry: dict[str, Any], administrator: AdministratorWriter, record: RunRecord, summary: str) -> None:
     title = str(entry["title"])
     try:
-        deleter.undelete_page(title, summary)
+        administrator.undelete_page(title, summary)
         for redirect in entry.get("redirects", ()):
-            deleter.undelete_page(str(redirect), summary)
+            administrator.undelete_page(str(redirect), summary)
     except MediaWikiAPIError as error:
         record.add({"title": title, "action": "revert orphan", "done": False, "reason": str(error)})
         return

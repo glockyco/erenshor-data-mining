@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from collections.abc import Collection, Iterable
 
     from erenshor.application.services.image_publication import LiveWiki
-    from erenshor.application.services.image_publication_run import PublishWriter, RunRecord
+    from erenshor.application.services.image_publication_run import AdministratorWriter, PublishWriter, RunRecord
 
 __all__ = ["ScreenshotMove", "ScreenshotPlan", "execute_screenshot_moves", "plan_screenshot_moves"]
 
@@ -87,9 +87,22 @@ def plan_screenshot_moves(
     )
 
 
-def execute_screenshot_moves(plan: ScreenshotPlan, writer: PublishWriter, record: RunRecord, summary: str) -> None:
-    """Move each file, then point the redirects that named its old title at it at once."""
+def execute_screenshot_moves(
+    plan: ScreenshotPlan,
+    writer: PublishWriter,
+    administrator: AdministratorWriter | None,
+    record: RunRecord,
+    summary: str,
+) -> None:
+    """Move each file with the administrator account, then point the redirects that named its old title at it.
+
+    Raises:
+        ValueError: If the plan moves files and no administrator is given.
+    """
+    if plan.moves and administrator is None:
+        raise ValueError("Moving files needs the administrator account")
     for item in plan.moves:
-        if move(item.source, item.title, item.sha1, writer, record, summary):
+        assert administrator is not None
+        if move(item.source, item.title, item.sha1, writer, administrator, record, summary):
             for title in item.redirects:
                 redirect(title, item.title, item.source, writer, record, summary)
