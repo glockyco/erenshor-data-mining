@@ -1,4 +1,5 @@
 using System.Reflection;
+using HarmonyLib;
 
 namespace AdventureGuide.Navigation;
 
@@ -24,6 +25,7 @@ public sealed class MiningNodeTracker
 
     private MiningNode[] _nodes = System.Array.Empty<MiningNode>();
     private int _rescanAfterFrame = -1;
+    private static MiningNodeTracker? _current;
 
     /// <summary>
     /// Rescan MiningNode components in the current scene. Call on scene
@@ -31,9 +33,10 @@ public sealed class MiningNodeTracker
     /// </summary>
     public void Rescan()
     {
+        _current = this;
         _nodes = UnityEngine.Object.FindObjectsOfType<MiningNode>();
-        // SpawnPoint.Start creates nodes after sceneLoaded. Scan again once
-        // that first frame's Start callbacks have completed.
+        // SpawnPoint.Update can create nodes after sceneLoaded. Scan again
+        // after the first frame, then invalidate as late nodes start.
         _rescanAfterFrame = UnityEngine.Time.frameCount;
     }
 
@@ -42,6 +45,14 @@ public sealed class MiningNodeTracker
     {
         _nodes = System.Array.Empty<MiningNode>();
         _rescanAfterFrame = -1;
+        if (ReferenceEquals(_current, this))
+            _current = null;
+    }
+
+    internal static void OnNodeStarted()
+    {
+        if (_current != null)
+            _current._rescanAfterFrame = UnityEngine.Time.frameCount;
     }
 
     /// <summary>
@@ -155,4 +166,11 @@ public sealed class MiningNodeTracker
             return _nodes;
         }
     }
+}
+
+[HarmonyPatch(typeof(MiningNode), "Start")]
+internal static class MiningNodeStartedPatch
+{
+    [HarmonyPostfix]
+    private static void Postfix() => MiningNodeTracker.OnNodeStarted();
 }
