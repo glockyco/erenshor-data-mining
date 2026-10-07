@@ -14,7 +14,7 @@ public class CapturePortraitRequestTests
             $$"""
             {
               "type": "capture_portrait",
-              "file": "Faith.png",
+              "subject": "Faith",
               "stableKey": "character:faith",
               "preset": "{{preset}}",
               "outputPath": "Z:\\captures\\Faith.png",
