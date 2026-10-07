@@ -37,6 +37,11 @@ public sealed class EntityRegistry
         System.StringComparer.OrdinalIgnoreCase
     );
 
+    // Instance IDs of NPCs a SpawnPoint spawned in the current scene. Encounter
+    // scripts instantiate their characters directly, so workflows use this to
+    // tell an encounter's fighters from ordinary spawns of the same prefab.
+    private readonly HashSet<int> _spawnPointNpcs = new();
+
     /// <summary>
     /// Register a newly spawned NPC. Called from SpawnPatch postfix.
     /// The spawn point is used to derive the stable key from the prefab name.
@@ -47,10 +52,15 @@ public sealed class EntityRegistry
     {
         if (npc == null)
             return;
+        if (spawnPoint != null)
+            _spawnPointNpcs.Add(npc.GetInstanceID());
         var key = DeriveStableKey(npc, spawnPoint);
         if (key != null)
             Register(npc, key);
     }
+
+    /// <summary>Whether a SpawnPoint spawned this NPC during the current scene.</summary>
+    public bool IsSpawnPointNpc(NPC npc) => _spawnPointNpcs.Contains(npc.GetInstanceID());
 
     /// <summary>Register a scripted entity under an exported descriptor key.</summary>
     public void Register(NPC npc, string stableKey)
@@ -93,7 +103,11 @@ public sealed class EntityRegistry
     }
 
     /// <summary>Remove all entries. Called on scene transition.</summary>
-    public void Clear() => _byKey.Clear();
+    public void Clear()
+    {
+        _byKey.Clear();
+        _spawnPointNpcs.Clear();
+    }
 
     /// <summary>
     /// Populate from the current NPCTable.LiveNPCs snapshot.
@@ -195,14 +209,20 @@ public sealed class EntityRegistry
     /// Derive the stable key for a live NPC. Matches the format produced
     /// by StableKeyGenerator.ForCharacter in the export pipeline.
     ///
-    /// Spawned NPCs: use the prefab name from the spawn point. For
-    /// multi-CommonSpawn points, match the NPC's display name against
-    /// prefab NPC components to find the correct prefab.
+    /// Instantiated NPCs (spawn points and encounter scripts): use the prefab
+    /// they were cloned from, recorded before NPC.Start renamed them.
+    ///
+    /// NPCs that started before the patch: use the spawn point's prefab whose
+    /// NPC component has the NPC's display name.
     ///
     /// Directly placed NPCs: use the GameObject name.
     /// </summary>
     internal static string? DeriveStableKey(NPC npc, SpawnPoint? spawnPoint = null)
     {
+        var clonedFrom = NpcOrigins.PrefabName(npc);
+        if (clonedFrom != null)
+            return CharacterStableKey.FromObjectName(clonedFrom);
+
         if (spawnPoint != null)
         {
             // Try CommonSpawns first, then RareSpawns
@@ -217,9 +237,6 @@ public sealed class EntityRegistry
         var objName = npc.gameObject.name;
         if (string.IsNullOrEmpty(objName))
             return null;
-        const string cloneSuffix = "(Clone)";
-        if (objName.EndsWith(cloneSuffix, System.StringComparison.Ordinal))
-            objName = objName.Substring(0, objName.Length - cloneSuffix.Length);
         return CharacterStableKey.FromObjectName(objName);
     }
 

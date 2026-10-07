@@ -9,7 +9,8 @@ namespace AdventureGuide.State;
 /// <summary>
 /// Bounded runtime state for guide-only scripted workflows. Game quest state is
 /// deliberately absent: workflow evidence comes only from inventory deltas,
-/// exported trigger bounds, descriptor-matched entities, and reward containers.
+/// exported trigger bounds, characters cloned from the target prefabs outside
+/// spawn points (the encounter's own spawns), and reward containers.
 /// </summary>
 public sealed class GuideWorkflowState
 {
@@ -371,16 +372,12 @@ public sealed class GuideWorkflowState
             var cycle = runtime.Quest.WorkflowCycle!;
             if (
                 cycle.RewardContainer != null
-                && MatchesCharacter(
-                    character,
-                    cycle.RewardContainer.StableKey,
-                    cycle.RewardContainer.DisplayName
-                )
+                && MatchesCharacter(character, cycle.RewardContainer.StableKey)
             )
                 candidates.Add((runtime, null, true));
             foreach (var target in cycle.Targets)
             {
-                if (MatchesCharacter(character, target.StableKey, target.DisplayName))
+                if (MatchesCharacter(character, target.StableKey))
                     candidates.Add(
                         (runtime, CharacterStableKey.Normalize(target.StableKey), false)
                     );
@@ -443,7 +440,7 @@ public sealed class GuideWorkflowState
                 continue;
             foreach (var target in runtime.Quest.WorkflowCycle!.Targets)
             {
-                if (MatchesCharacter(character, target.StableKey, target.DisplayName))
+                if (MatchesCharacter(character, target.StableKey))
                     matches.Add((runtime, CharacterStableKey.Normalize(target.StableKey)));
             }
         }
@@ -501,9 +498,7 @@ public sealed class GuideWorkflowState
                 continue;
             var signature = TargetSignature(runtime);
             bool anyMatch = runtime.Quest.WorkflowCycle!.Targets.Any(target =>
-                live.Any(character =>
-                    MatchesCharacter(character, target.StableKey, target.DisplayName)
-                )
+                live.Any(character => MatchesCharacter(character, target.StableKey))
             );
             if (!anyMatch)
                 continue;
@@ -521,7 +516,7 @@ public sealed class GuideWorkflowState
             {
                 foreach (var target in runtime.Quest.WorkflowCycle.Targets)
                 {
-                    if (MatchesCharacter(character, target.StableKey, target.DisplayName))
+                    if (MatchesCharacter(character, target.StableKey))
                     {
                         ObserveTarget(
                             runtime,
@@ -592,13 +587,20 @@ public sealed class GuideWorkflowState
 
     private static string TargetSignature(Runtime runtime) => runtime.Cycle.TargetSignature;
 
-    private static bool MatchesCharacter(Character character, string stableKey, string displayName)
+    /// <summary>
+    /// Whether a live character is the given workflow target or reward
+    /// container. Encounter scripts (VithArena, MalarothFeed) instantiate
+    /// their characters directly, while spawn points place ordinary copies of
+    /// the same prefabs elsewhere in the zone, so spawn-point NPCs never match.
+    /// Identity is the prefab the NPC was cloned from: display names are
+    /// shared (every gladiator is "Wandering Gladiator") and scene objects can
+    /// carry a target's display name (RestoredVitheo).
+    /// </summary>
+    private bool MatchesCharacter(Character character, string stableKey)
     {
         var npc = character.GetComponent<NPC>();
-        if (npc == null)
+        if (npc == null || _entities.IsSpawnPointNpc(npc))
             return false;
-        if (string.Equals(npc.NPCName, displayName, StringComparison.OrdinalIgnoreCase))
-            return true;
         var runtimeKey = EntityRegistry.DeriveStableKey(npc);
         return runtimeKey != null
             && string.Equals(
