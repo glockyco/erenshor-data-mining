@@ -103,7 +103,8 @@ def description(picture: Picture, game_build: str) -> str:
     if picture.kind == "portrait":
         made = (
             f"Rendered from the game's model (game build {picture.approved_build}, capture preset "
-            f"{picture.capture_preset}) and approved after review. An in-game screenshot may replace it."
+            f"{picture.capture_preset}) and approved after review. An in-game screenshot of the character "
+            "belongs under its screenshot title, which its infobox names, and shows beside this render."
         )
     else:
         made = f"The game's icon, from the texture {picture.source} of game build {game_build}, unchanged."

@@ -51,8 +51,6 @@ In an infobox that the bot makes, the bot replaces each field with the game data
 |-
 | Character || <code>respawn</code> || Replaced, kept when the game has no value
 |-
-| Ability || <code>image</code> || Kept, filled when blank
-|-
 | Stance || <code>imagecaption</code> || Kept
 |-
 | Zone || <code>image</code> || Kept, filled when blank
@@ -128,14 +126,23 @@ Links to items, characters, abilities, quests, zones, factions, and classes use 
 The tooltip templates show the in-game tooltip on a page: [[Template:ItemTooltip|ItemTooltip]], [[Template:SpellTooltip|SpellTooltip]], [[Template:SkillTooltip|SkillTooltip]], and [[Template:StanceTooltip|StanceTooltip]].
 
 == Images ==
-Item, ability, and stance icons are the game's own pictures, uploaded unchanged after each game update. They carry no frame: [[Template:Icon]] draws items in a slot with a blue gradient ring and spells, skills, and stances in a black border, so use it to show an icon in your own text. Large infobox pictures show without a frame.
+Every picture's file name says what it shows and whose it is: the name of its subject, then its role.
+{| class="wikitable"
+! File name !! Shows !! Uploaded by
+|-
+| <code>Copper Sword icon.png</code> || The game's icon of an item, spell, skill, or stance || The bot, from the game's files after each game update
+|-
+| <code>Faith render.png</code> || A character rendered from the game's 3D model, alone on a transparent background || The bot, after a person reviewed the picture
+|-
+| <code>Faith screenshot.png</code> || A character in the game, as a player sees it || Editors
+|}
+The subject is the name in the game without the characters that file names cannot hold, such as colons: the icon of ''Stance: Aggressive'' is <code>Stance Aggressive icon.png</code>. Older names, such as <code>Faith.png</code>, redirect to the file that took their place, so old links keep working, but new pages should use the names above.
 
-Each picture has one file. When several items, spells, or skills share a picture, every other name redirects to that file, so all of them show the same file and a game update changes it once. Old copies of a picture that the bot or its operator uploaded are deleted, and so are the bot's files that no page shows any more.
+Icons carry no frame: [[Template:Icon]] draws items in a slot with a blue gradient ring and spells, skills, and stances in a black border, so use it to show an icon in your own text. Large infobox pictures show without a frame. Each picture has one file. When several items, spells, or skills share a picture, every other name redirects to that file, so a game update changes it once. When a game update renames something, the bot moves its file to the new name with its history and leaves a redirect behind.
 
-The game files hold no pictures of characters. When an infobox names a character picture that the wiki does not have, the page joins a hidden [[#Maintenance categories|maintenance category]]. The project renders such pictures from the game's 3D models: each shows the character alone on a transparent background, and a person reviews every picture before the bot uploads it. The description page of a rendered picture says that it is one.
-
-The bot changes a file only when WoWBot or [[User:WoWMuch|WoWMuch]], who runs it, uploaded the latest version, so your upload always stays.
-* To show a better picture, for example an in-game screenshot, upload it as a new version of the same file. The bot then leaves that file alone.
+A character infobox shows the render first and the screenshot as a second tab, labelled Render and Screenshot. A character with only one of the two shows it alone. The infobox names both files, so you can see the name to use in its source.
+* To add or improve a character's screenshot, upload it under the screenshot name that its infobox names, such as <code>Faith screenshot.png</code>. The tab appears once the page is refreshed. The bot never uploads to, moves, or deletes a screenshot.
+* The bot changes an icon or render only when WoWBot or [[User:WoWMuch|WoWMuch]], who runs it, uploaded the latest version, so an upload of yours always stays.
 * Zone pictures belong to the editors. The bot does not render or upload them.
 
 == Maintenance categories ==
@@ -152,7 +159,7 @@ These hidden categories collect pages that need a fix.
 |-
 | [[:Category:Pages with mismatched Erenshor link targets]] || {{PAGESINCATEGORY:Pages with mismatched Erenshor link targets}} || A link names a page that is not the page of its <code>stablekey</code>. Find out which of the two is correct, and remove the other.
 |-
-| [[:Category:Needs Image]] || {{PAGESINCATEGORY:Needs Image}} || A character infobox names an image that the wiki does not have yet. Its subcategories sort the pages by kind: character, chest, and summon. Upload a picture from the game under the exact file name that the infobox names. The page leaves the category once the file exists.
+| [[:Category:Needs Image]] || {{PAGESINCATEGORY:Needs Image}} || A character infobox has neither a render nor a screenshot. Its subcategories sort the pages by kind: character, chest, and summon. Upload a screenshot under the screenshot name that the infobox names. The page leaves the category once the file exists.
 |}
 
 == Templates that the project maintains ==
