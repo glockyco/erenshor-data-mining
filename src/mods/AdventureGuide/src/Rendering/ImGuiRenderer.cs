@@ -388,15 +388,15 @@ public sealed class ImGuiRenderer : IDisposable
             io.AddMouseWheelEvent(scroll.x, scroll.y);
 
         io.AddKeyEvent(
-            (ImGuiKey)641,
+            ImGuiKey.ModCtrl,
             Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)
         );
         io.AddKeyEvent(
-            (ImGuiKey)642,
+            ImGuiKey.ModShift,
             Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)
         );
         io.AddKeyEvent(
-            (ImGuiKey)643,
+            ImGuiKey.ModAlt,
             Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)
         );
 

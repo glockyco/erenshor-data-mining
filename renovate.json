@@ -110,6 +110,18 @@
       ]
     },
     {
+      "description": "Keep ImGui.NET on 1.88.0, the version Lunaris supplies at runtime, so both Adventure Guide loader builds run the shared renderer against the same ImGui API and native cimgui. Raise it only together with the Lunaris-supplied ImGui.NET.",
+      "matchManagers": ["nuget"],
+      "matchPackageNames": ["ImGui.NET"],
+      "allowedVersions": "<=1.88.0"
+    },
+    {
+      "description": "System.Numerics.Vectors 4.6 ships no net46 facade and resolves netstandard2.1 to an empty placeholder, which breaks the BepInEx Adventure Guide's `vectors` extern alias and its packaged facade.",
+      "matchManagers": ["nuget"],
+      "matchPackageNames": ["System.Numerics.Vectors"],
+      "allowedVersions": "<4.6.0"
+    },
+    {
       "description": "Group immutable GitHub Actions under one validation boundary",
       "groupName": "GitHub Actions",
       "matchManagers": ["github-actions"],
