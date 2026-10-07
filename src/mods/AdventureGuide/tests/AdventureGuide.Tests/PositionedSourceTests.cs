@@ -78,6 +78,9 @@ public sealed class PositionedSourceTests
                         key
                     );
                     Assert.Equal(key, source.MakeSourceId());
+                    // Keys carry lowercased scenes; zone names and zone-line
+                    // routing look them up by scene.
+                    Assert.NotNull(data.GetZoneDisplayName(parsed.Scene));
                     counts[parsed.Kind] = counts.GetValueOrDefault(parsed.Kind) + 1;
                 }
                 Walk(source.Children);

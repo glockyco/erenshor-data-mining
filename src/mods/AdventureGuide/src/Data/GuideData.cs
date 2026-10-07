@@ -107,7 +107,12 @@ public sealed partial class GuideData
             data._byStableKey.Add(entry.StableKey, entry);
         }
 
-        data.ZoneLookup = wrapper.ZoneLookup ?? new Dictionary<string, ZoneInfo>();
+        // Positioned source keys (mining:/water:/itembag:) carry lowercased
+        // scene names, and scene comparisons elsewhere ignore case.
+        data.ZoneLookup = new Dictionary<string, ZoneInfo>(
+            wrapper.ZoneLookup ?? new Dictionary<string, ZoneInfo>(),
+            StringComparer.OrdinalIgnoreCase
+        );
         foreach (var (scene, info) in data.ZoneLookup)
             data._displayToScene[info.DisplayName] = scene;
         data.CharacterSpawns =
