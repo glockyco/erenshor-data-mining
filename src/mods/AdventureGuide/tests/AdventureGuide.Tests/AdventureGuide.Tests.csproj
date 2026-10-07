@@ -46,6 +46,7 @@
     <Compile Include="../../src/Navigation/CrossZoneWaypointPolicy.cs" Link="Navigation/CrossZoneWaypointPolicy.cs" />
     <Compile Include="../../src/Navigation/UnroutableRoute.cs" Link="Navigation/UnroutableRoute.cs" />
     <Compile Include="../../src/Navigation/CorpsePriorityPolicy.cs" Link="Navigation/CorpsePriorityPolicy.cs" />
+    <Compile Include="../../src/Navigation/NavigationCompletionPolicy.cs" Link="Navigation/NavigationCompletionPolicy.cs" />
     <Compile Include="../../src/Navigation/BillboardUpdatePolicy.cs" Link="Navigation/BillboardUpdatePolicy.cs" />
     <Compile Include="../../src/Navigation/DirectPlacementPolicy.cs" Link="Navigation/DirectPlacementPolicy.cs" />
     <Compile Include="../../src/Navigation/MarkerType.cs" Link="Navigation/MarkerType.cs" />

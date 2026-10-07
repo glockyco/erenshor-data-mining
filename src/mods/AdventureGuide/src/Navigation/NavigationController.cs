@@ -500,10 +500,22 @@ public sealed class NavigationController
             return;
         }
 
-        // Quest completed — clear nav entirely
-        if (_state.IsCompleted(quest))
+        var origin = _originQuestKey != null ? _data.GetByRuntimeKey(_originQuestKey) : null;
+        var completion = NavigationCompletionPolicy.Decide(
+            origin != null && _state.IsCompleted(origin),
+            _state.IsCompleted(quest),
+            origin != null && origin.RuntimeKey != quest.RuntimeKey
+        );
+        if (completion == NavigationCompletionAction.Clear)
         {
             Clear();
+            return;
+        }
+        if (completion == NavigationCompletionAction.ResolveOrigin)
+        {
+            var originStep = origin!.Steps?.Find(s => s.Order == _originStepOrder);
+            if (originStep == null || !ResolveAndNavigate(originStep, origin, currentScene))
+                ResetTargetState();
             return;
         }
 
