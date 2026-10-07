@@ -40,7 +40,7 @@ public sealed class CorpsePriorityTests
             _items
         );
         Assert.Equal(["Fire Shard"], _items);
-        Assert.False(_items.Contains("Water Shard"));
+        Assert.DoesNotContain("Water Shard", _items);
     }
 
     [Theory]
@@ -66,6 +66,19 @@ public sealed class CorpsePriorityTests
         CorpsePriorityPolicy.FillItems(step, _quest, key => key == "item:water" ? 1 : 0, _items);
         Assert.Equal(["Fire Shard"], _items);
         CorpsePriorityPolicy.FillItems(step, _quest, _ => 2, _items);
+        Assert.Empty(_items);
+    }
+
+    [Fact]
+    public void Missing_resolved_step_clears_priority_without_reading_inventory()
+    {
+        _items.Add("Fire Shard");
+        CorpsePriorityPolicy.FillItems(
+            null,
+            _quest,
+            _ => throw new InvalidOperationException(),
+            _items
+        );
         Assert.Empty(_items);
     }
 }
