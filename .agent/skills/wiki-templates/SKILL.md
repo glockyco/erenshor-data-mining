@@ -50,6 +50,7 @@ The plan for the wiki is the OpenSpec change `adopt-data-backed-wiki`. Read its 
    Character `type` comes from the database. Character `zones`, `coordinates`, and `respawn` use database values when present.
    Character `imagecaption` and `location` are preserved. Ability `image` prefers manual values. Generation owns the Character and Stance `image`, and Stance `imagecaption` is preserved.
    Character infoboxes carry `imagefile`, the bare title of the image that the page shows, so that a missing file puts the page into a hidden `Needs Image` category. Infoboxes of summoned creatures also carry `imagekind=summon`. Item, spell, skill, and stance icons come from the game's icon export, so their infoboxes check nothing.
+   A picture title names its subject and its role: `<subject> icon.png` for an item, spell, skill, or stance, `<subject> render.png` for a character's render, and `<subject> screenshot.png` for an editor's screenshot. The subject is the entity's image name without `:|#<>[]{}`, so no title needs a redirect from another spelling. `picture_file_title` in `src/erenshor/domain/value_objects/wiki_filename.py` is the only place that builds one. The bot uploads icons and renders and never writes a screenshot title.
    Zone pages merge in the same way. Each `Zone` field other than `title` keeps its live value when that value is not blank.
    Generated zone values fill new pages and blank fields only.
    On `Weapons` and `Armor`, generation replaces only the table whose header row equals the generated header.
