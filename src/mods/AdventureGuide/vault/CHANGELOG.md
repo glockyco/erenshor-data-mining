@@ -13,6 +13,7 @@
 - Fix quest tracker rows sometimes ignoring a click while the distance to the quest updated.
 - Fix texture and material leaks in the world marker fonts and the ground path, and keep less font atlas data in memory.
 - Lower the guide's memory peak when the game starts.
+- Log a window drawing error that repeats every frame once in full, then once a minute.
 
 ## v2026.718.0
 

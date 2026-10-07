@@ -41,6 +41,13 @@ public sealed class ImGuiRenderer : IDisposable
     private byte[]? _unscaledStyleBackup;
     private bool _appQuitting;
 
+    // A failure inside window drawing repeats on every frame. Log each
+    // distinct failure in full once, then summarize its repeats.
+    private const float RepeatedFailureReportInterval = 60f;
+    private string? _lastFailure;
+    private int _repeatedFailures;
+    private float _nextRepeatReportAt;
+
     /// <summary>Draw callback invoked between NewFrame and EndFrame.</summary>
     public Action? OnLayout { get; set; }
 
@@ -167,13 +174,36 @@ public sealed class ImGuiRenderer : IDisposable
         }
         catch (Exception ex)
         {
-            _log.LogError($"Adventure Guide ImGui render failed: {ex}");
+            ReportRenderFailure(ex);
             ClearCaptureState();
         }
         finally
         {
             ImGui.SetCurrentContext(previousContext);
         }
+    }
+
+    private void ReportRenderFailure(Exception ex)
+    {
+        string failure = ex.GetType().FullName + ": " + ex.Message;
+        float now = Time.realtimeSinceStartup;
+        if (failure != _lastFailure)
+        {
+            _lastFailure = failure;
+            _repeatedFailures = 0;
+            _nextRepeatReportAt = now + RepeatedFailureReportInterval;
+            _log.LogError($"Adventure Guide ImGui render failed: {ex}");
+            return;
+        }
+
+        _repeatedFailures++;
+        if (now < _nextRepeatReportAt)
+            return;
+        _log.LogError(
+            $"Adventure Guide ImGui render failed {_repeatedFailures} more times: {failure}"
+        );
+        _repeatedFailures = 0;
+        _nextRepeatReportAt = now + RepeatedFailureReportInterval;
     }
 
     /// <summary>Register a Unity texture for use as an ImGui texture ID.</summary>
