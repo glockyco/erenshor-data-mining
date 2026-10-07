@@ -8,7 +8,13 @@ from typing import Any
 
 from PIL import Image
 
-from erenshor.application.capture.portraits import PortraitRun, capture_portraits, portrait_requests
+from erenshor.application.capture.portraits import (
+    PortraitResult,
+    PortraitRun,
+    capture_portraits,
+    portrait_requests,
+    write_contact_sheets,
+)
 from erenshor.application.capture.wine import from_wine_path
 
 Answer = Callable[[dict[str, Any]], dict[str, Any]] | Exception
@@ -187,3 +193,22 @@ def test_a_mod_error_fails_the_file_and_the_batch_goes_on(tmp_path: Path) -> Non
         ("Faith.png", "accepted"),
     ]
     assert run.results[1].reasons == ["Cancelled"]
+
+
+def test_every_capture_is_drawn_on_one_of_the_sheets(tmp_path: Path) -> None:
+    run = PortraitRun(game_build="24405256", preset="portrait-3")
+    for name in ("a", "b", "c", "d", "e"):
+        Image.new("RGBA", (40, 80), (180, 120, 90, 255)).save(tmp_path / f"{name}.png")
+        run.results.append(
+            PortraitResult(
+                file=f"{name}.png",
+                stable_key=f"character:{name}",
+                kind="character",
+                status="accepted",
+                png=f"{name}.png",
+            )
+        )
+
+    sheets = write_contact_sheets(run, tmp_path, lambda _title: None, tmp_path / "sheets", columns=2, rows=1, tile=40)
+
+    assert [sheet.name for sheet in sheets] == ["sheet-001.png", "sheet-002.png", "sheet-003.png"]

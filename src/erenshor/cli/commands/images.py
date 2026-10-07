@@ -107,14 +107,14 @@ def capture(
         typer.Option("--file", help="Capture only this file title of the manifest; repeat for more"),
     ] = None,
 ) -> None:
-    """Capture the manifest's missing character images in the running game for review.
+    """Capture the manifest's character models in the running game for review.
 
     Needs the game running with the MapTileCapture mod. Sends each manifest
-    entry to the mod, reviews each portrait, and writes the PNGs, captures.json,
-    and contact-sheet.png to images/model-captures/staging/ of the variant,
-    replacing the previous staging set. At the end the mod returns the player to
-    where the batch started. With the root --dry-run option, lists the captures
-    and writes nothing.
+    entry to the mod, reviews each portrait, and writes the PNGs and
+    captures.json to images/model-captures/staging/ of the variant, replacing
+    the previous staging set. At the end the mod returns the player to where
+    the batch started. Draw the contact sheets with 'erenshor images review'.
+    With the root --dry-run option, lists the captures and writes nothing.
 
     Examples:
         erenshor --dry-run images capture
@@ -124,13 +124,7 @@ def capture(
 
     import websockets
 
-    from erenshor.application.capture.portraits import (
-        WS_PORT,
-        PortraitRun,
-        capture_portraits,
-        portrait_requests,
-        write_contact_sheet,
-    )
+    from erenshor.application.capture.portraits import WS_PORT, PortraitRun, capture_portraits, portrait_requests
 
     console = Console()
     cli_ctx: CLIContext = ctx.obj
@@ -187,19 +181,74 @@ def capture(
     except ConnectionError as error:
         console.print(f"[red]{error}[/red]")
         raise typer.Exit(1) from error
-    write_contact_sheet(run, png_dir, staging / "contact-sheet.png")
 
     counts = {status: sum(result.status == status for result in run.results) for status in ("accepted", "rejected")}
     failed = len(run.results) - counts["accepted"] - counts["rejected"]
     console.print(
         f"{counts['accepted']} accepted, {counts['rejected']} rejected, {failed} failed. "
-        f"Review {staging / 'contact-sheet.png'}"
+        "Draw the contact sheets with 'erenshor images review'."
     )
     if not run.returned:
         console.print("[yellow]The mod did not confirm that the player is back where the batch started.[/yellow]")
     if run.interrupted:
         console.print(f"[red]Interrupted at {run.interrupted}; {len(run.not_captured)} files not captured.[/red]")
         raise typer.Exit(1)
+
+
+@app.command("review")
+@require_preconditions(required_path("images_dir", "model-captures/staging/captures.json"))
+def review(ctx: typer.Context) -> None:
+    """Draw the staged captures beside the pictures that their titles show on the wiki now.
+
+    Reads the wiki's file listing and downloads each shown picture once into
+    the cache of live pictures of images/publish/live/, which publishing shares.
+    Writes the contact sheets to images/model-captures/staging/contact-sheets/
+    of the variant, failed and rejected captures first, and counts who uploaded
+    the pictures that the renders would join or replace. Reads the wiki only.
+
+    Examples:
+        erenshor images review
+    """
+    from collections import Counter
+
+    from erenshor.application.capture.portraits import PortraitRun, WikiPicture, write_contact_sheets
+    from erenshor.application.services.image_publication import LivePictureCache, LiveWiki
+
+    console = Console()
+    cli_ctx: CLIContext = ctx.obj
+    variant_config = cli_ctx.config.variants[cli_ctx.variant]
+    staging = _model_capture_dir(cli_ctx) / "staging"
+    run = PortraitRun.from_json(json.loads((staging / "captures.json").read_text(encoding="utf-8")))
+    _, owners = _project_accounts(cli_ctx)
+
+    with closing(create_readonly_mediawiki_client(cli_ctx)) as reader:
+        file_pages = reader.list_file_pages()
+        live = LiveWiki({file.title: file for file in reader.list_files()}, file_pages.redirects, file_pages.pages)
+        pictures = LivePictureCache(
+            reader.download, variant_config.resolved_images_output(cli_ctx.repo_root) / "publish" / "live"
+        )
+        shown = {result.file: file for result in run.results if (file := live.shown(f"File:{result.file}")) is not None}
+        for file in shown.values():
+            pictures.content(file)
+        console.print(f"{len(shown)} titles show a picture on the wiki; {pictures.downloads} downloaded")
+
+    def wiki(title: str) -> WikiPicture | None:
+        file = shown.get(title)
+        return WikiPicture(file.user, pictures.content(file)) if file is not None else None
+
+    sheets_dir = staging / "contact-sheets"
+    if sheets_dir.exists():
+        shutil.rmtree(sheets_dir)
+    sheets = write_contact_sheets(run, staging / "png", wiki, sheets_dir)
+
+    uploaders = Counter(file.user or "uploader hidden" for file in shown.values())
+    project = sum(count for user, count in uploaders.items() if user in owners)
+    editors = ", ".join(f"{user} {count}" for user, count in uploaders.most_common() if user not in owners)
+    console.print(
+        f"Wiki pictures: {len(run.results) - len(shown)} titles have none, {project} are the project's, "
+        f"{len(shown) - project} are editors' ({editors or 'none'})"
+    )
+    console.print(f"[green]✓[/green] {len(sheets)} contact sheets in {sheets_dir}")
 
 
 @app.command("approve")

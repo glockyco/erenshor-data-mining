@@ -598,3 +598,12 @@ def test_a_copy_that_hides_its_redirect_to_a_planned_title_is_deleted(setup: Any
     assert _verdicts(plan)["File:Azure Loyalty Medal .png"] == "retire"
     assert "File:Azure Loyalty Medal .png" not in wiki.files
     assert wiki.shows_a_picture("File:Azure Loyalty Medal .png")
+
+
+def test_a_title_shows_the_file_that_its_redirect_names() -> None:
+    # MediaWiki forbids colons in uploads, so a colon title redirects to the uploaded file.
+    file = MediaWikiFile("File:Summoned Treant.png", "s", "WoWBot", "", 1, 1, 1, "t", "u")
+    live = LiveWiki({file.title: file}, {"File:Summoned: Treant.png": file.title}, frozenset())
+
+    assert live.shown("File:Summoned: Treant.png") is file
+    assert live.shown("File:Faith.png") is None

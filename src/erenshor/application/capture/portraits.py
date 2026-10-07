@@ -13,12 +13,13 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import io
 import json
 import re
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Protocol
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, UnidentifiedImageError
 
 from .wine import wine_path
 
@@ -127,6 +128,23 @@ class PortraitResult:
             "mean_luminance": self.mean_luminance,
         }
 
+    @classmethod
+    def from_json(cls, data: Mapping[str, Any]) -> PortraitResult:
+        return cls(
+            file=str(data["file"]),
+            stable_key=str(data["stable_key"]),
+            kind=str(data["kind"]),
+            status=str(data["status"]),
+            reasons=[str(reason) for reason in data["reasons"]],
+            warnings=[str(warning) for warning in data["warnings"]],
+            png=data["png"],
+            sha256=data["sha256"],
+            object_name=data["object_name"],
+            width=data["width"],
+            height=data["height"],
+            mean_luminance=data["mean_luminance"],
+        )
+
 
 @dataclass(slots=True)
 class PortraitRun:
@@ -148,6 +166,17 @@ class PortraitRun:
             "results": [result.to_json() for result in self.results],
             "not_captured": self.not_captured,
         }
+
+    @classmethod
+    def from_json(cls, data: Mapping[str, Any]) -> PortraitRun:
+        return cls(
+            game_build=str(data["game_build"]),
+            preset=str(data["preset"]),
+            results=[PortraitResult.from_json(result) for result in data["results"]],
+            not_captured=[str(file) for file in data["not_captured"]],
+            interrupted=data["interrupted"],
+            returned=bool(data["returned"]),
+        )
 
 
 def portrait_requests(manifest: Mapping[str, Any], files: Sequence[str] = ()) -> list[PortraitRequest]:
@@ -257,43 +286,107 @@ async def _answer(connection: Connection, types: set[str], timeout: float) -> di
                 return message
 
 
-def write_contact_sheet(run: PortraitRun, png_dir: Path, output: Path, columns: int = 6, cell: int = 220) -> None:
-    """A sheet of every capture with its file title, entity, and review, under a header with the build and preset."""
+@dataclass(frozen=True, slots=True)
+class WikiPicture:
+    """The picture that a file title shows on the wiki now, and the account that uploaded it, unless hidden."""
+
+    user: str | None
+    data: bytes
+
+
+def _review_rank(result: PortraitResult) -> tuple[int, str]:
+    """Failed and rejected captures first, then accepted ones with a warning, then the rest."""
+    rank = {"failed": 0, "rejected": 1}.get(result.status, 2 if result.warnings else 3)
+    return rank, result.file
+
+
+def _tile(picture: Image.Image, size: int) -> Image.Image:
+    """A picture fitted into a square of the infobox surface, as the character infobox shows it."""
+    tile = Image.new("RGB", (size, size), WIKI_SURFACE)
+    fitted = picture.convert("RGBA")
+    fitted.thumbnail((size - 8, size - 8), Image.Resampling.LANCZOS)
+    tile.paste(fitted, ((size - fitted.width) // 2, (size - fitted.height) // 2), fitted)
+    return tile
+
+
+def write_contact_sheets(
+    run: PortraitRun,
+    png_dir: Path,
+    wiki: Callable[[str], WikiPicture | None],
+    directory: Path,
+    *,
+    columns: int = 4,
+    rows: int = 8,
+    tile: int = 180,
+) -> list[Path]:
+    """Draw every capture beside the picture that its title shows on the wiki now.
+
+    ``wiki`` gives the live picture of a file title, or None when the title
+    shows none. Each cell holds the capture, the wiki's picture, the file
+    title, the entity, the review, and the uploader. Problems come first (see
+    ``_review_rank``), and each sheet's header names the build, the preset,
+    the counts, and the sheet's place among the others.
+    """
     font = ImageFont.load_default(size=13)
     small = ImageFont.load_default(size=11)
-    caption = 54
-    header = 40
-    rows = max(1, -(-len(run.results) // columns))
-    sheet = Image.new("RGB", (columns * cell, header + rows * (cell + caption)), (236, 236, 236))
-    draw = ImageDraw.Draw(sheet)
+    header, caption, gap = 44, 68, 14
+    cell_width = 2 * tile + 4 + gap
+    results = sorted(run.results, key=_review_rank)
     statuses = ("accepted", "rejected", "failed")
-    counts = {status: sum(result.status == status for result in run.results) for status in statuses}
-    draw.text(
-        (8, 12),
+    counts = {status: sum(result.status == status for result in results) for status in statuses}
+    summary = (
         f"Model captures, game build {run.game_build}, preset {run.preset}: {counts['accepted']} accepted, "
         f"{counts['rejected']} rejected, {counts['failed']} failed"
-        + (f", interrupted at {run.interrupted}" if run.interrupted else ""),
-        fill=(0, 0, 0),
-        font=font,
+        + (f", interrupted at {run.interrupted}" if run.interrupted else "")
     )
     colours = {"accepted": (64, 150, 80), "rejected": (190, 60, 50), "failed": (120, 120, 120)}
-    for index, result in enumerate(run.results):
-        x = (index % columns) * cell
-        y = header + (index // columns) * (cell + caption)
-        tile = Image.new("RGB", (cell, cell), WIKI_SURFACE)
-        if result.png is not None:
-            with Image.open(png_dir / result.png) as image:
-                portrait = image.convert("RGBA")
-                portrait.thumbnail((cell - 12, cell - 12))
-                tile.paste(portrait, ((cell - portrait.width) // 2, (cell - portrait.height) // 2), portrait)
-        sheet.paste(tile, (x, y))
-        status_colour = colours[result.status]
-        if result.warnings and result.status == "accepted":
-            status_colour = (200, 150, 30)
-        draw.rectangle((x, y + cell, x + cell - 1, y + cell + 4), fill=status_colour)
-        draw.text((x + 4, y + cell + 7), result.file[:34], fill=(0, 0, 0), font=font)
-        draw.text((x + 4, y + cell + 24), result.stable_key[:40], fill=(70, 70, 70), font=small)
-        note = "; ".join(result.reasons + result.warnings) or result.kind
-        draw.text((x + 4, y + cell + 38), note[:44], fill=status_colour, font=small)
-    output.parent.mkdir(parents=True, exist_ok=True)
-    sheet.save(output)
+    per_sheet = columns * rows
+    total = max(1, -(-len(results) // per_sheet))
+    directory.mkdir(parents=True, exist_ok=True)
+    sheets: list[Path] = []
+    for number, start in enumerate(range(0, max(1, len(results)), per_sheet), start=1):
+        page = results[start : start + per_sheet]
+        page_rows = max(1, -(-len(page) // columns))
+        sheet = Image.new("RGB", (columns * cell_width, header + page_rows * (tile + caption)), (236, 236, 236))
+        draw = ImageDraw.Draw(sheet)
+        draw.text((8, 6), summary, fill=(0, 0, 0), font=font)
+        draw.text(
+            (8, 24),
+            f"Sheet {number} of {total}. Left: the capture. Right: the picture that its title shows on the wiki now.",
+            fill=(70, 70, 70),
+            font=small,
+        )
+        for index, result in enumerate(page):
+            x = (index % columns) * cell_width
+            y = header + (index // columns) * (tile + caption)
+            if result.png is not None:
+                with Image.open(png_dir / result.png) as image:
+                    sheet.paste(_tile(image, tile), (x, y))
+            else:
+                sheet.paste(Image.new("RGB", (tile, tile), WIKI_SURFACE), (x, y))
+            shown = wiki(result.file)
+            wiki_x = x + tile + 4
+            if shown is None:
+                sheet.paste(Image.new("RGB", (tile, tile), (200, 200, 200)), (wiki_x, y))
+                draw.text((wiki_x + 8, y + tile // 2 - 6), "no picture on the wiki", fill=(90, 90, 90), font=small)
+            else:
+                try:
+                    with Image.open(io.BytesIO(shown.data)) as image:
+                        sheet.paste(_tile(image, tile), (wiki_x, y))
+                except (UnidentifiedImageError, OSError):
+                    sheet.paste(Image.new("RGB", (tile, tile), (200, 200, 200)), (wiki_x, y))
+                    draw.text((wiki_x + 8, y + tile // 2 - 6), "unreadable picture", fill=(190, 60, 50), font=small)
+            status_colour = colours[result.status]
+            if result.warnings and result.status == "accepted":
+                status_colour = (200, 150, 30)
+            draw.rectangle((x, y + tile, x + 2 * tile + 3, y + tile + 4), fill=status_colour)
+            draw.text((x + 4, y + tile + 7), result.file[:52], fill=(0, 0, 0), font=font)
+            draw.text((x + 4, y + tile + 24), result.stable_key[:62], fill=(70, 70, 70), font=small)
+            note = "; ".join(result.reasons + result.warnings) or result.kind
+            draw.text((x + 4, y + tile + 38), note[:66], fill=status_colour, font=small)
+            uploader = f"wiki: {shown.user or 'uploader hidden'}" if shown is not None else "wiki: no picture"
+            draw.text((x + 4, y + tile + 52), uploader, fill=(70, 70, 70), font=small)
+        path = directory / f"sheet-{number:03d}.png"
+        sheet.save(path)
+        sheets.append(path)
+    return sheets

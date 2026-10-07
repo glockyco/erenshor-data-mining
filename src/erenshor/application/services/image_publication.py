@@ -158,6 +158,10 @@ class LiveWiki:
     def has_page(self, title: str) -> bool:
         return title in self.files or title in self.redirects or title in self.pages
 
+    def shown(self, title: str) -> MediaWikiFile | None:
+        """The file that a title shows: its own, or the one that its redirect names."""
+        return self.files.get(title) or self.files.get(self.redirects.get(title, ""))
+
 
 class LivePictureCache:
     """The bytes and pixel hashes of live files, downloaded once and kept by SHA-1."""
@@ -504,7 +508,7 @@ def write_contact_sheets(
         for item in plan.titles:
             if item.image_hash != image_hash:
                 continue
-            current = live.files.get(item.title) or live.files.get(item.redirect_target or "")
+            current = live.shown(item.title)
             if current is not None:
                 shown.setdefault(current.sha1, current)
         verdicts: dict[str, int] = defaultdict(int)
