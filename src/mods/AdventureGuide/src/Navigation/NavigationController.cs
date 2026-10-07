@@ -28,9 +28,6 @@ public sealed class NavigationController
     private Vector3 _lastCrossZoneCalcPos;
     private const float CrossZoneRecalcDistance = 10f;
 
-    private const string MiningNodesKeyPrefix = "mining-nodes:";
-    private const string FishingKeyPrefix = "fishing:";
-
     // ── Multi-source navigation state ─────────────────────────────
     // When navigating an item step, multiple sources may be active.
     // The controller picks the closest spawn among all active source
@@ -38,6 +35,9 @@ public sealed class NavigationController
 
     /// <summary>All leaf sources for the current item step (for auto-mode recomputation).</summary>
     private List<Data.ItemSource> _allItemSources = new();
+    private readonly Dictionary<string, PositionedSource> _positionedSources = new(
+        System.StringComparer.OrdinalIgnoreCase
+    );
 
     /// <summary>Source keys in the active navigation set.</summary>
     private readonly HashSet<string> _activeSourceKeys = new(
@@ -303,6 +303,7 @@ public sealed class NavigationController
         _lastCrossZoneCalcPos = Vector3.zero;
         _activeSourceKeys.Clear();
         _allItemSources.Clear();
+        _positionedSources.Clear();
         _manualOverride = false;
         _currentSourceKey = null;
         _sourceRescanTimer = 0f;
@@ -523,7 +524,7 @@ public sealed class NavigationController
 
         // Same zone: update position from closest match
         // Priority: corpse/chest with quest loot > alive NPC > shortest respawn
-        if (Target.TargetKind == NavigationTarget.Kind.Character)
+        if (Target.TargetKind == NavigationTarget.Kind.Character || _activeSourceKeys.Count > 0)
         {
             var neededItems = BuildNeededItems(Target.QuestKey);
             var corpse =
@@ -547,10 +548,6 @@ public sealed class NavigationController
                 }
                 // Per-frame: track the current winner's live position
                 TrackCurrentSourcePosition(playerPos.Value);
-            }
-            else if (IsMiningNodesKey(Target.SourceId))
-            {
-                UpdateMiningTarget(playerPos.Value);
             }
             else
             {
@@ -638,19 +635,6 @@ public sealed class NavigationController
         return result;
     }
 
-    private static bool IsMiningNodesKey(string? key) =>
-        key != null && key.StartsWith(MiningNodesKeyPrefix, System.StringComparison.Ordinal);
-
-    private static bool IsFishingKey(string? key) =>
-        key != null && key.StartsWith(FishingKeyPrefix, System.StringComparison.Ordinal);
-
-    /// <summary>Extract scene name from a fishing source key ("fishing:Azure" → "Azure").</summary>
-    private static string FishingKeyScene(string key) => key.Substring(FishingKeyPrefix.Length);
-
-    /// <summary>
-    /// Update navigation target for mining nodes. Prefers closest alive node;
-    /// falls back to shortest respawn timer if all are mined.
-    /// </summary>
     /// <summary>
     /// Throttled re-evaluation: find the closest alive NPC among all active
     /// source keys in the current scene. Updates _currentSourceKey and
@@ -658,64 +642,10 @@ public sealed class NavigationController
     /// </summary>
     private void UpdateClosestActiveSource(string currentScene, Vector3 playerPos)
     {
-        NPC? bestNpc = null;
-        string? bestKey = null;
-        float bestDist = float.MaxValue;
-
-        foreach (var sourceKey in _activeSourceKeys)
-        {
-            // Fishing is zone-level — no per-frame position tracking needed.
-            // Keep the current fishing key if set; don't compete with NPC sources.
-            if (IsFishingKey(sourceKey))
-                continue;
-
-            if (IsMiningNodesKey(sourceKey))
-            {
-                var alive = _miningTracker.FindClosestAlive(playerPos);
-                if (alive != null)
-                {
-                    float d = (alive.transform.position - playerPos).sqrMagnitude;
-                    if (d < bestDist)
-                    {
-                        bestDist = d;
-                        bestKey = sourceKey;
-                        bestNpc = null;
-                    }
-                }
-                continue;
-            }
-
-            var npc = _entities.FindClosest(sourceKey, playerPos);
-            if (npc != null)
-            {
-                float d = (npc.transform.position - playerPos).sqrMagnitude;
-                if (d < bestDist)
-                {
-                    bestDist = d;
-                    bestKey = sourceKey;
-                    bestNpc = npc;
-                }
-            }
-        }
-
-        if (bestKey != null && bestKey != _currentSourceKey)
-        {
-            _currentSourceKey = bestKey;
-            // Update display name from source metadata
-            string? name = null;
-            foreach (var src in _allItemSources)
-            {
-                if (
-                    string.Equals(src.SourceKey, bestKey, System.StringComparison.OrdinalIgnoreCase)
-                )
-                {
-                    name = src.Name;
-                    break;
-                }
-            }
-            Target!.SourceId = bestKey;
-            Target.DisplayName = WithCharacterUnlockText(name ?? bestKey, bestKey);
-        }
+        var quest = _data.GetByRuntimeKey(Target!.QuestKey);
+        var step = quest?.Steps?.Find(s => s.Order == Target.StepOrder);
+        if (quest != null && step != null)
+            ResolveClosestActiveSource(quest, step, currentScene);
     }
 
     /// <summary>
@@ -723,18 +653,8 @@ public sealed class NavigationController
     /// </summary>
     private void TrackCurrentSourcePosition(Vector3 playerPos)
     {
-        if (_currentSourceKey == null)
+        if (_currentSourceKey == null || _positionedSources.ContainsKey(_currentSourceKey))
             return;
-
-        // Fishing is zone-level — no specific position to track.
-        if (IsFishingKey(_currentSourceKey))
-            return;
-
-        if (IsMiningNodesKey(_currentSourceKey))
-        {
-            UpdateMiningTarget(playerPos);
-            return;
-        }
 
         var liveNpc = _entities.FindClosest(_currentSourceKey, playerPos);
         if (liveNpc != null)
@@ -745,20 +665,6 @@ public sealed class NavigationController
             if (bestRespawn.HasValue)
                 Target!.Position = bestRespawn.Value;
         }
-    }
-
-    private void UpdateMiningTarget(Vector3 playerPos)
-    {
-        var alive = _miningTracker.FindClosestAlive(playerPos);
-        if (alive != null)
-        {
-            Target!.Position = alive.transform.position;
-            return;
-        }
-
-        var best = _miningTracker.FindShortestRespawn();
-        if (best.HasValue)
-            Target!.Position = best.Value.node.transform.position;
     }
 
     private Vector3? FindShortestRespawnPosition(string? stableKey)
@@ -919,11 +825,10 @@ public sealed class NavigationController
                 continue;
             }
 
-            // Fishing sources are zone-level — no CharacterSpawns entry needed.
-            // Accept them based on SourceKey + Scene alone.
-            if (IsFishingKey(src.SourceKey))
+            if (PositionedSource.TryParse(src.SourceKey, out var positioned))
             {
                 result.Add(src);
+                _positionedSources[src.SourceKey] = positioned;
             }
             else if (
                 _data.CharacterSpawns.TryGetValue(src.SourceKey, out var spawns)
@@ -959,12 +864,11 @@ public sealed class NavigationController
             if (src.SourceKey == null)
                 continue;
 
-            // Fishing sources match by scene directly (no CharacterSpawns)
-            if (IsFishingKey(src.SourceKey))
+            if (_positionedSources.TryGetValue(src.SourceKey, out var positioned))
             {
                 if (
                     string.Equals(
-                        FishingKeyScene(src.SourceKey),
+                        positioned.Scene,
                         currentScene,
                         System.StringComparison.OrdinalIgnoreCase
                     )
@@ -1000,146 +904,155 @@ public sealed class NavigationController
     private bool ResolveClosestActiveSource(QuestEntry quest, QuestStep step, string currentScene)
     {
         var playerPos = GetPlayerPosition() ?? Vector3.zero;
-        Data.SpawnPoint? bestSpawn = null;
+        string? bestScene = null;
+        Vector3 bestPosition = Vector3.zero;
         string? bestSourceKey = null;
-        string? bestSourceName = null;
-        float bestDist = float.MaxValue;
+        float bestDistance = float.MaxValue;
+        float bestRespawn = float.MaxValue;
+        bool bestMined = true;
+        var bestKind = NavigationTarget.Kind.Character;
 
         foreach (var sourceKey in _activeSourceKeys)
         {
-            // Fishing sources are zone-level — no position within the zone.
-            // If in the fishing zone, treat as same-zone with zero distance.
-            // If cross-zone, handle below with the cross-zone fallback.
-            if (IsFishingKey(sourceKey))
+            if (_positionedSources.TryGetValue(sourceKey, out var positioned))
             {
-                string fishScene = FishingKeyScene(sourceKey);
                 if (
-                    string.Equals(
-                        fishScene,
+                    !string.Equals(
+                        positioned.Scene,
                         currentScene,
                         System.StringComparison.OrdinalIgnoreCase
                     )
                 )
+                    continue;
+                var position = new Vector3(positioned.X, positioned.Y, positioned.Z);
+                var node =
+                    positioned.Kind == "mining" ? _miningTracker.FindAtPosition(position) : null;
+                bool mined = node != null && MiningNodeTracker.IsMined(node);
+                float respawn =
+                    node != null
+                        ? MiningNodeTracker.GetRemainingSeconds(node) ?? float.MaxValue
+                        : float.MaxValue;
+                if (node != null)
+                    position = node.transform.position;
+                float distance = (position - playerPos).sqrMagnitude;
+                if (
+                    bestScene == null
+                    || SourceSelectionPolicy.IsBetter(
+                        mined,
+                        distance,
+                        respawn,
+                        bestMined,
+                        bestDistance,
+                        bestRespawn
+                    )
+                )
                 {
-                    // Already in the fishing zone — navigate as a zone target
-                    // (shows step as active, no arrow/path to a specific point).
-                    _currentSourceKey = sourceKey;
-                    Target = MakeTarget(
-                        NavigationTarget.Kind.Zone,
-                        Vector3.zero,
-                        "Fishing",
-                        currentScene,
-                        quest.RuntimeKey,
-                        step.Order,
-                        sourceKey
-                    );
-                    return true;
+                    bestScene = currentScene;
+                    bestPosition = position;
+                    bestSourceKey = sourceKey;
+                    bestDistance = distance;
+                    bestRespawn = respawn;
+                    bestMined = mined;
+                    bestKind = NavigationTarget.Kind.Position;
                 }
                 continue;
             }
 
             if (!_data.CharacterSpawns.TryGetValue(sourceKey, out var spawns))
                 continue;
-
-            // Find the source metadata for display name
-            string? srcName = null;
-            foreach (var src in _allItemSources)
-            {
-                if (
-                    string.Equals(
-                        src.SourceKey,
-                        sourceKey,
-                        System.StringComparison.OrdinalIgnoreCase
-                    )
-                )
-                {
-                    srcName = src.Name;
-                    break;
-                }
-            }
-
-            foreach (var sp in spawns)
+            foreach (var spawn in spawns)
             {
                 if (
                     !string.Equals(
-                        sp.Scene,
+                        spawn.Scene,
                         currentScene,
                         System.StringComparison.OrdinalIgnoreCase
                     )
                 )
                     continue;
-                float dist = Vector3.Distance(playerPos, new Vector3(sp.X, sp.Y, sp.Z));
-                if (dist < bestDist)
+                var npc = _entities.FindClosest(sourceKey, playerPos);
+                var position =
+                    npc != null ? npc.transform.position : new Vector3(spawn.X, spawn.Y, spawn.Z);
+                float distance = (position - playerPos).sqrMagnitude;
+                if (
+                    bestScene == null
+                    || SourceSelectionPolicy.IsBetter(
+                        false,
+                        distance,
+                        0f,
+                        bestMined,
+                        bestDistance,
+                        bestRespawn
+                    )
+                )
                 {
-                    bestDist = dist;
-                    bestSpawn = sp;
+                    bestScene = currentScene;
+                    bestPosition = position;
                     bestSourceKey = sourceKey;
-                    bestSourceName = srcName;
+                    bestDistance = distance;
+                    bestMined = false;
+                    bestKind = NavigationTarget.Kind.Character;
                 }
             }
         }
 
-        // No same-zone spawn — pick first active source's best spawn (cross-zone)
-        if (bestSpawn == null)
+        if (bestScene == null)
         {
             foreach (var sourceKey in _activeSourceKeys)
             {
-                // Cross-zone fishing: route to the zone via zone lines
-                if (IsFishingKey(sourceKey))
+                if (_positionedSources.TryGetValue(sourceKey, out var positioned))
                 {
-                    string fishScene = FishingKeyScene(sourceKey);
-                    string? zoneKey = FindZoneKeyBySceneName(fishScene);
-                    if (zoneKey == null)
-                        continue;
-                    return NavigateToZone(
-                        fishScene,
-                        "Fishing",
-                        sourceKey,
-                        quest.RuntimeKey,
-                        step.Order,
-                        currentScene
-                    );
+                    bestScene = positioned.Scene;
+                    bestPosition = new Vector3(positioned.X, positioned.Y, positioned.Z);
+                    bestKind = NavigationTarget.Kind.Position;
                 }
-
-                if (
-                    !_data.CharacterSpawns.TryGetValue(sourceKey, out var spawns)
-                    || spawns.Count == 0
+                else if (
+                    _data.CharacterSpawns.TryGetValue(sourceKey, out var spawns)
+                    && spawns.Count > 0
                 )
-                    continue;
-                bestSpawn = spawns[0];
-                bestSourceKey = sourceKey;
-                foreach (var src in _allItemSources)
                 {
-                    if (
-                        string.Equals(
-                            src.SourceKey,
-                            sourceKey,
-                            System.StringComparison.OrdinalIgnoreCase
-                        )
-                    )
-                    {
-                        bestSourceName = src.Name;
-                        break;
-                    }
+                    bestScene = spawns[0].Scene;
+                    bestPosition = new Vector3(spawns[0].X, spawns[0].Y, spawns[0].Z);
                 }
+                else
+                    continue;
+                bestSourceKey = sourceKey;
                 break;
             }
         }
-
-        if (bestSpawn == null)
+        if (bestScene == null)
             return false;
 
         _currentSourceKey = bestSourceKey;
-        string displayName = bestSourceName ?? bestSourceKey ?? step.TargetName ?? step.Description;
-        Target = MakeTarget(
-            NavigationTarget.Kind.Character,
-            new Vector3(bestSpawn.X, bestSpawn.Y, bestSpawn.Z),
-            WithCharacterUnlockText(displayName, bestSourceKey),
-            bestSpawn.Scene,
-            quest.RuntimeKey,
-            step.Order,
-            bestSourceKey
-        );
+        string displayName = bestSourceKey ?? step.TargetName ?? step.Description;
+        foreach (var source in _allItemSources)
+            if (
+                string.Equals(
+                    source.SourceKey,
+                    bestSourceKey,
+                    System.StringComparison.OrdinalIgnoreCase
+                )
+            )
+            {
+                displayName = source.Name ?? displayName;
+                break;
+            }
+        displayName = WithCharacterUnlockText(displayName, bestSourceKey);
+        if (Target != null && Target.SourceId == bestSourceKey && Target.TargetKind == bestKind)
+        {
+            Target.Position = bestPosition;
+            Target.Scene = bestScene;
+        }
+        else
+            Target = MakeTarget(
+                bestKind,
+                bestPosition,
+                displayName,
+                bestScene,
+                quest.RuntimeKey,
+                step.Order,
+                bestSourceKey
+            );
         return true;
     }
 

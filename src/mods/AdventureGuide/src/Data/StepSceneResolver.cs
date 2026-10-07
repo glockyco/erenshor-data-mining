@@ -1,3 +1,5 @@
+using AdventureGuide.Navigation;
+
 namespace AdventureGuide.Data;
 
 /// <summary>
@@ -44,9 +46,8 @@ public static class StepSceneResolver
         var sourceKey = FindFirstSourceKey(quest, step, isQuestCompleted);
         if (sourceKey != null)
         {
-            // Fishing sources encode the scene in the key (fishing:{scene})
-            if (sourceKey.StartsWith("fishing:", System.StringComparison.Ordinal))
-                return sourceKey.Substring("fishing:".Length);
+            if (PositionedSource.TryParse(sourceKey, out var positioned))
+                return positioned.Scene;
 
             if (
                 data.CharacterSpawns.TryGetValue(sourceKey, out var srcSpawns)
@@ -167,11 +168,15 @@ public static class StepSceneResolver
 
             if (src.SourceKey != null)
             {
-                // Fishing sources: scene is encoded in the key
-                if (src.SourceKey.StartsWith("fishing:", System.StringComparison.Ordinal))
+                if (PositionedSource.TryParse(src.SourceKey, out var positioned))
                 {
-                    var fishScene = src.SourceKey.Substring("fishing:".Length);
-                    if (string.Equals(fishScene, scene, System.StringComparison.OrdinalIgnoreCase))
+                    if (
+                        string.Equals(
+                            positioned.Scene,
+                            scene,
+                            System.StringComparison.OrdinalIgnoreCase
+                        )
+                    )
                         return true;
                 }
                 else if (data.CharacterSpawns.TryGetValue(src.SourceKey, out var spawns))

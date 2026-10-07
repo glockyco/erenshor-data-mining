@@ -23,6 +23,7 @@ public sealed class MiningNodeTracker
     private const float TickRate = 60f;
 
     private MiningNode[] _nodes = System.Array.Empty<MiningNode>();
+    private int _rescanAfterFrame = -1;
 
     /// <summary>
     /// Rescan MiningNode components in the current scene. Call on scene
@@ -31,12 +32,16 @@ public sealed class MiningNodeTracker
     public void Rescan()
     {
         _nodes = UnityEngine.Object.FindObjectsOfType<MiningNode>();
+        // SpawnPoint.Start creates nodes after sceneLoaded. Scan again once
+        // that first frame's Start callbacks have completed.
+        _rescanAfterFrame = UnityEngine.Time.frameCount;
     }
 
     /// <summary>Clear cached nodes. Call on scene transition.</summary>
     public void Clear()
     {
         _nodes = System.Array.Empty<MiningNode>();
+        _rescanAfterFrame = -1;
     }
 
     /// <summary>
@@ -75,6 +80,7 @@ public sealed class MiningNodeTracker
         MiningNode? best = null;
         float bestSeconds = float.MaxValue;
 
+        EnsureScanned();
         foreach (var node in _nodes)
         {
             if (node == null)
@@ -98,6 +104,7 @@ public sealed class MiningNodeTracker
     {
         MiningNode? best = null;
         float bestDist = float.MaxValue;
+        EnsureScanned();
 
         foreach (var node in _nodes)
         {
@@ -116,6 +123,36 @@ public sealed class MiningNodeTracker
         return best;
     }
 
+    private void EnsureScanned()
+    {
+        if (_rescanAfterFrame < 0 || UnityEngine.Time.frameCount <= _rescanAfterFrame)
+            return;
+        _nodes = UnityEngine.Object.FindObjectsOfType<MiningNode>();
+        _rescanAfterFrame = -1;
+    }
+
+    /// <summary>Match only the node represented by this positioned source.</summary>
+    public MiningNode? FindAtPosition(UnityEngine.Vector3 position)
+    {
+        EnsureScanned();
+        foreach (var node in _nodes)
+            if (
+                node != null
+                && SourceSelectionPolicy.MatchesNode(
+                    (node.transform.position - position).sqrMagnitude
+                )
+            )
+                return node;
+        return null;
+    }
+
     /// <summary>All cached MiningNode references in the current scene.</summary>
-    public MiningNode[] Nodes => _nodes;
+    public MiningNode[] Nodes
+    {
+        get
+        {
+            EnsureScanned();
+            return _nodes;
+        }
+    }
 }

@@ -31,8 +31,7 @@ public sealed class NavigationTarget
     /// <summary>
     /// Identifies which source is currently being navigated to. Mutable
     /// so multi-source resolution can update it when the closest source changes.
-    /// Matches ItemSource.SourceKey for entity sources (e.g. "character:stoneman"),
-    /// or a synthetic key for zone-only sources (e.g. "fishing:Stowaway").
+    /// Matches ItemSource.SourceKey for entity and positioned sources.
     /// Used by the UI to highlight the specific source being navigated to.
     /// </summary>
     public string? SourceId { get; set; }

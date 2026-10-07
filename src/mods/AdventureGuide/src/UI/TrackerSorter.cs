@@ -87,15 +87,7 @@ internal static class TrackerSorter
                 // no specific position — show a label instead of meters.
                 if (inZone && navigationTarget.TargetKind == NavigationTarget.Kind.Zone)
                 {
-                    string? label =
-                        navigationTarget.SourceId != null
-                        && navigationTarget.SourceId.StartsWith(
-                            "fishing:",
-                            System.StringComparison.Ordinal
-                        )
-                            ? "Fishing"
-                            : null;
-                    output[questKey] = new StepDistance(true, float.MaxValue, label);
+                    output[questKey] = new StepDistance(true, float.MaxValue);
                 }
                 else
                 {
@@ -391,15 +383,23 @@ internal static class TrackerSorter
         Vector3 playerPos
     )
     {
-        // Fishing sources are zone-level — no specific position.
-        // In the fishing zone: report as available with label. Otherwise: unreachable.
-        if (key.StartsWith("fishing:", System.StringComparison.Ordinal))
-        {
-            var fishScene = key.Substring("fishing:".Length);
-            return string.Equals(fishScene, currentScene, System.StringComparison.OrdinalIgnoreCase)
-                ? new SourceDistance(float.MaxValue, "Fishing")
+        if (PositionedSource.TryParse(key, out var positioned))
+            return string.Equals(
+                positioned.Scene,
+                currentScene,
+                System.StringComparison.OrdinalIgnoreCase
+            )
+                ? new SourceDistance(
+                    NavigationPolicy.EuclideanDistance(
+                        playerPos.x,
+                        playerPos.y,
+                        playerPos.z,
+                        positioned.X,
+                        positioned.Y,
+                        positioned.Z
+                    )
+                )
                 : SourceDistance.None;
-        }
 
         if (!data.CharacterSpawns.TryGetValue(key, out var spawns) || spawns.Count == 0)
             return SourceDistance.None;
