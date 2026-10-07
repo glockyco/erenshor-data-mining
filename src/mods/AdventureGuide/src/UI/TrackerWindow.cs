@@ -191,9 +191,9 @@ public sealed class TrackerWindow
     /// Call from the ImGuiRenderer.OnLayout callback.
     /// Renders the tracker overlay when visible.
     /// </summary>
-    public void Draw()
+    public void Draw(bool inGameplay)
     {
-        if (!_visible || !_tracker.Enabled)
+        if (!TrackerVisibilityPolicy.ShouldDraw(_visible, inGameplay, _tracker.Enabled))
             return;
 
         // Hide when a non-permanent game window overlaps us. Uses

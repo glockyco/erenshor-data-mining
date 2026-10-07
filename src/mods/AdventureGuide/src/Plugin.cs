@@ -145,7 +145,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
             _imgui.OnLayout = () =>
             {
                 _window.Draw();
-                _tracker!.Draw();
+                _tracker!.Draw(_inGameplay);
                 _arrow!.Draw();
                 _config.LayoutResetRequested = false;
             };
@@ -359,7 +359,6 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
         if (!_inGameplay)
         {
             _window?.Hide();
-            _tracker?.Hide();
             _nav?.Clear();
             ClearImGuiCaptureState();
         }
