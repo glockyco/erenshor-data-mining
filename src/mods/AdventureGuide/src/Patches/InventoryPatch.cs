@@ -5,11 +5,9 @@ using HarmonyLib;
 namespace AdventureGuide.Patches;
 
 /// <summary>
-/// Patches Inventory.UpdatePlayerInventory to notify QuestStateTracker and
-/// NavigationController when inventory contents change. This is the single
-/// centralized method called by all inventory mutations: AddItemToInv,
-/// ForceItemToInv, RemoveItemFromInv, RemoveStackFromInv, and equipment
-/// changes.
+/// Observes inventory UI refreshes, including removals and equipment changes.
+/// Item grants refresh the UI only while the bag is open; InventoryGrantPatch
+/// observes those mutations directly so closed-bag grants are not missed.
 /// </summary>
 [HarmonyPatch(typeof(Inventory), nameof(Inventory.UpdatePlayerInventory))]
 internal static class InventoryPatch
@@ -19,7 +17,9 @@ internal static class InventoryPatch
     internal static LootScanner? Loot;
 
     [HarmonyPostfix]
-    private static void Postfix()
+    private static void Postfix() => NotifyChanged();
+
+    internal static void NotifyChanged()
     {
         Tracker?.OnInventoryChanged();
         Nav?.OnGameStateChanged(Tracker?.CurrentZone ?? "");

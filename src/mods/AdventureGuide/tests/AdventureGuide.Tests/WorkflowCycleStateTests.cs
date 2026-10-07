@@ -32,6 +32,23 @@ public sealed class WorkflowCycleStateTests
     }
 
     [Fact]
+    public void Duplicate_inventory_notifications_do_not_latch_or_restart_a_cycle()
+    {
+        var state = new WorkflowCycleState(TestData.WorkflowQuest());
+        state.BeginScene(0);
+        state.ObserveInventory(1, insideTrigger: true);
+        state.ObserveInventory(1, insideTrigger: true);
+        Assert.Equal(WorkflowStage.ItemReady, state.Stage);
+        Assert.Equal(0, state.Generation);
+
+        state.ObserveInventory(0, insideTrigger: true);
+        state.ObserveInventory(0, insideTrigger: true);
+        Assert.Equal(WorkflowStage.TriggerConsumed, state.Stage);
+        Assert.Equal(2, state.GetCurrentStepIndex(_ => 0));
+        Assert.Equal(0, state.Generation);
+    }
+
+    [Fact]
     public void A_scene_load_ends_the_cycle_in_progress()
     {
         // VithArena and MalarothFeed keep the fight in the scene, so leaving the
