@@ -293,48 +293,61 @@ public sealed class ImGuiRenderer : IDisposable
         var io = ImGui.GetIO();
         var asm = Assembly.GetExecutingAssembly();
 
-        using var fontStream = asm.GetManifestResourceStream("AdventureGuide.Roboto-Regular.ttf");
-        if (fontStream != null)
+        IntPtr rangesData = IntPtr.Zero;
+        try
         {
-            var fontBytes = new byte[fontStream.Length];
-            fontStream.Read(fontBytes, 0, fontBytes.Length);
-
-            var fontPtr = ImGui.MemAlloc((uint)fontBytes.Length);
-            Marshal.Copy(fontBytes, 0, fontPtr, fontBytes.Length);
-
-            var builder = new ImFontGlyphRangesBuilderPtr(
-                ImGuiNative.ImFontGlyphRangesBuilder_ImFontGlyphRangesBuilder()
+            using var fontStream = asm.GetManifestResourceStream(
+                "AdventureGuide.Roboto-Regular.ttf"
             );
-            builder.AddRanges(io.Fonts.GetGlyphRangesDefault());
-            builder.AddChar('\u2713');
-            builder.AddChar('\u25cb');
-            builder.BuildRanges(out ImVector ranges);
+            if (fontStream != null)
+            {
+                var fontBytes = new byte[fontStream.Length];
+                fontStream.Read(fontBytes, 0, fontBytes.Length);
 
-            var configPtr = ImGuiNative.ImFontConfig_ImFontConfig();
-            configPtr->OversampleH = 2;
-            configPtr->OversampleV = 1;
+                var fontPtr = ImGui.MemAlloc((uint)fontBytes.Length);
+                Marshal.Copy(fontBytes, 0, fontPtr, fontBytes.Length);
 
-            io.Fonts.AddFontFromMemoryTTF(
-                fontPtr,
-                fontBytes.Length,
-                BaseFontSize * _uiScale,
-                (ImFontConfigPtr)configPtr,
-                ranges.Data
-            );
+                var builder = new ImFontGlyphRangesBuilderPtr(
+                    ImGuiNative.ImFontGlyphRangesBuilder_ImFontGlyphRangesBuilder()
+                );
+                builder.AddRanges(io.Fonts.GetGlyphRangesDefault());
+                builder.AddChar('\u2713');
+                builder.AddChar('\u25cb');
+                builder.BuildRanges(out ImVector ranges);
+                rangesData = ranges.Data;
 
-            // AddFont copies the config into the atlas.
-            ImGuiNative.ImFontConfig_destroy(configPtr);
-            builder.Destroy();
+                var configPtr = ImGuiNative.ImFontConfig_ImFontConfig();
+                configPtr->OversampleH = 2;
+                configPtr->OversampleV = 1;
+
+                io.Fonts.AddFontFromMemoryTTF(
+                    fontPtr,
+                    fontBytes.Length,
+                    BaseFontSize * _uiScale,
+                    (ImFontConfigPtr)configPtr,
+                    ranges.Data
+                );
+
+                // AddFont copies the config into the atlas.
+                ImGuiNative.ImFontConfig_destroy(configPtr);
+                builder.Destroy();
+            }
+            else
+            {
+                _log.LogWarning(
+                    "AdventureGuide.Roboto-Regular.ttf not found; using ImGui default font."
+                );
+                io.Fonts.AddFontDefault();
+            }
+
+            io.Fonts.Build();
         }
-        else
+        finally
         {
-            _log.LogWarning(
-                "AdventureGuide.Roboto-Regular.ttf not found; using ImGui default font."
-            );
-            io.Fonts.AddFontDefault();
+            // The atlas retains GlyphRanges until Build has consumed them.
+            if (rangesData != IntPtr.Zero)
+                ImGui.MemFree(rangesData);
         }
-
-        io.Fonts.Build();
         io.Fonts.GetTexDataAsRGBA32(out byte* pixels, out int width, out int height, out int _);
         if (pixels == null || width <= 0 || height <= 0)
             throw new InvalidOperationException(
