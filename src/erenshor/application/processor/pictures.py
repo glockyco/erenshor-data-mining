@@ -123,7 +123,7 @@ def process_pictures(raw: sqlite3.Connection, writer: Writer, export_dir: Path, 
                 raise FileNotFoundError(f"{stable_key}: icon texture {texture} is missing from the export")
             links.append((catalog.add(texture, path, "icon"), stable_key))
 
-    portraits = _add_portraits(catalog, images_dir / CAPTURES_DIRECTORY)
+    portraits, paged_portraits = _add_portraits(catalog, images_dir / CAPTURES_DIRECTORY)
 
     # The entity tables reference the pictures, so the pictures go in first.
     writer.insert_images(_write_files(catalog, images_dir / CATALOG_DIRECTORY))
@@ -139,7 +139,7 @@ def process_pictures(raw: sqlite3.Connection, writer: Writer, export_dir: Path, 
     _link_stances(conn)
     _link_characters(conn, portraits)
 
-    titles = _titles(conn)
+    titles = _titles(conn, paged_portraits)
     writer.insert_image_titles(
         [
             {"title": title, "image_hash": image_hash, "stable_key": stable_key}
@@ -168,11 +168,15 @@ def _link_stances(conn: sqlite3.Connection) -> None:
     )
 
 
-def _add_portraits(catalog: _Catalog, captures_dir: Path) -> dict[str, str]:
-    """Add every approved capture and return the pixel hash of each approved file title."""
+def _add_portraits(catalog: _Catalog, captures_dir: Path) -> tuple[dict[str, str], frozenset[str]]:
+    """Add every approved capture.
+
+    Returns the pixel hash of each approved file title, and the titles whose
+    approval names a page that shows them.
+    """
     approval_path = captures_dir / APPROVAL_FILE
     if not approval_path.exists():
-        return {}
+        return {}, frozenset()
     approval = Approval.from_json(json.loads(approval_path.read_text(encoding="utf-8")))
     portraits: dict[str, str] = {}
     for image in approval.images:
@@ -186,7 +190,7 @@ def _add_portraits(catalog: _Catalog, captures_dir: Path) -> dict[str, str]:
             capture_preset=image.preset,
             approved_build=image.game_build,
         )
-    return portraits
+    return portraits, frozenset(image.file for image in approval.images if image.pages)
 
 
 def _link_characters(conn: sqlite3.Connection, portraits: dict[str, str]) -> None:
@@ -210,28 +214,28 @@ def _link_characters(conn: sqlite3.Connection, portraits: dict[str, str]) -> Non
         logger.warning(f"Approved captures that no character names: {', '.join(stale)}")
 
 
-def _titles(conn: sqlite3.Connection) -> dict[str, tuple[str, str]]:
+def _titles(conn: sqlite3.Connection, paged_portraits: frozenset[str]) -> dict[str, tuple[str, str]]:
     """Map each wiki file title that a page names to its picture and the first entity that names it.
 
-    An icon's title counts when its entity has a generated page. A character
-    has a picture only through an approved portrait, which a review approved
-    for a page that names it, generated or marked unused, so a character's
-    title counts whenever it has a picture.
+    An icon's title counts when its entity has a generated page. The catalog
+    holds a portrait of every character, also of those that no page shows, so
+    a character's title counts when the character has a generated page or the
+    approval of its portrait names a page, such as one with the unused notice.
     """
     queries = (
-        ("SELECT stable_key, image_hash, image_name, display_name, item_name FROM items", 3, True),
-        ("SELECT stable_key, image_hash, image_name FROM spells", 1, True),
-        ("SELECT stable_key, image_hash, image_name FROM skills", 1, True),
-        ("SELECT stable_key, image_hash, image_name FROM stances", 1, True),
-        ("SELECT stable_key, image_hash, image_name, display_name FROM characters", 2, False),
+        ("SELECT stable_key, image_hash, image_name, display_name, item_name, wiki_page_name FROM items", 3, False),
+        ("SELECT stable_key, image_hash, image_name, wiki_page_name FROM spells", 1, False),
+        ("SELECT stable_key, image_hash, image_name, wiki_page_name FROM skills", 1, False),
+        ("SELECT stable_key, image_hash, image_name, wiki_page_name FROM stances", 1, False),
+        ("SELECT stable_key, image_hash, image_name, display_name, wiki_page_name FROM characters", 2, True),
     )
     titles: dict[str, tuple[str, str]] = {}
-    for sql, name_count, needs_page in queries:
-        page_filter = " AND wiki_page_name IS NOT NULL" if needs_page else ""
-        for row in conn.execute(f"{sql} WHERE image_hash IS NOT NULL{page_filter}"):
+    for sql, name_count, portrait in queries:
+        for row in conn.execute(f"{sql} WHERE image_hash IS NOT NULL"):
             stable_key, image_hash = str(row[0]), str(row[1])
             title = image_file_title(*row[2 : 2 + name_count])
-            if not title:
+            has_page = row[2 + name_count] is not None or (portrait and title in paged_portraits)
+            if not title or not has_page:
                 continue
             claimed = titles.setdefault(title, (image_hash, stable_key))
             if claimed[0] != image_hash:

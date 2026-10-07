@@ -169,7 +169,9 @@ def test_one_title_for_two_pictures_fails_and_names_both_entities(tmp_path: Path
         build.run()
 
 
-def _approve(build: _Build, file: str, data: bytes, game_build: str = "24405256") -> None:
+def _approve(
+    build: _Build, file: str, data: bytes, game_build: str = "24405256", pages: tuple[str, ...] = ("Faith",)
+) -> None:
     captures = build.images / "model-captures"
     (captures / "approved").mkdir(parents=True, exist_ok=True)
     png = file.replace(":", "_")
@@ -180,7 +182,7 @@ def _approve(build: _Build, file: str, data: bytes, game_build: str = "24405256"
         "sha256": hashlib.sha256(data).hexdigest(),
         "stable_key": "character:faith",
         "kind": "character",
-        "pages": ["Faith"],
+        "pages": list(pages),
         "game_build": game_build,
         "preset": "portrait-3",
     }
@@ -214,13 +216,26 @@ def test_an_approved_portrait_gives_its_character_a_picture_and_a_title(tmp_path
 def test_a_portrait_of_a_page_without_generation_still_gets_its_title(tmp_path: Path) -> None:
     build = _Build(tmp_path)
     _character(build, "character:queen evadne", "Queen Evadne", None)
-    _approve(build, "Queen Evadne.png", _png((10, 10, 10, 255)))
+    _approve(build, "Queen Evadne.png", _png((10, 10, 10, 255)), pages=("Queen Evadne",))
 
     build.run()
 
     assert [row[0] for row in build.rows("SELECT title FROM image_titles WHERE title LIKE 'Queen%'")] == [
         "Queen Evadne.png"
     ]
+
+
+def test_a_portrait_that_no_page_shows_is_catalogued_without_a_title(tmp_path: Path) -> None:
+    # The map shows every character, so the catalog keeps the portrait, but no page names its file.
+    build = _Build(tmp_path)
+    _character(build, "character:watchman", "Watchman", None)
+    _approve(build, "Watchman.png", _png((90, 90, 120, 255)), pages=())
+
+    build.run()
+
+    watchman = build.rows("SELECT image_hash FROM characters WHERE stable_key = 'character:watchman'")[0][0]
+    assert build.rows(f"SELECT kind FROM images WHERE image_hash = '{watchman}'") == [("portrait",)]
+    assert build.rows("SELECT title FROM image_titles WHERE title = 'Watchman.png'") == []
 
 
 def test_an_approved_copy_that_changed_fails_the_build_and_names_the_file(tmp_path: Path) -> None:
