@@ -17,11 +17,8 @@ from erenshor.application.services.model_image_manifest import (
     build_manifest,
     load_character_sources,
     load_game_build,
-    page_image_uses,
-    unused_page_image_uses,
 )
 from erenshor.application.wiki.lifecycle import load_content_lifecycle
-from erenshor.application.wiki.services.storage import WikiStorage
 from erenshor.cli.mediawiki import create_readonly_mediawiki_client
 from erenshor.cli.preconditions import require_preconditions
 from erenshor.cli.preconditions.checks.database import database_exists, database_valid
@@ -48,15 +45,17 @@ def _model_capture_dir(cli_ctx: CLIContext) -> Path:
 @app.command("manifest")
 @require_preconditions(database_exists, database_valid)
 def manifest(ctx: typer.Context) -> None:
-    """List the character images that the wiki lacks, with the game object to capture for each.
+    """List every character model with the game object to capture for it.
 
-    Reads the character infoboxes of the generated pages and the unused pages of
-    content-lifecycle.json, asks the wiki which files have no upload, and writes
-    the manifest to images/model-captures/manifest.json of the variant. Reads the
-    wiki only. With the root --dry-run option, writes nothing.
+    Characters that share a model share an image title and one capture. Lists
+    each title of the clean database once, whether or not the wiki has a
+    picture for it, with the pages of its characters, including the unused
+    pages of content-lifecycle.json, and writes the manifest to
+    images/model-captures/manifest.json of the variant. With the root
+    --dry-run option, writes nothing.
 
     Examples:
-        erenshor wiki generate
+        erenshor --dry-run images manifest
         erenshor images manifest
     """
     console = Console()
@@ -69,40 +68,26 @@ def manifest(ctx: typer.Context) -> None:
         for title, page in lifecycle.pages.items()
         if page.state == "unused" and page.thing == "character" and page.stable_key is not None
     }
-    pages = WikiStorage(variant_config.resolved_wiki(cli_ctx.repo_root)).read_generated_pages()
-    if not pages:
-        console.print("[red]No generated pages. Run 'erenshor wiki generate' first.[/red]")
-        raise typer.Exit(1)
     database = variant_config.resolved_database(cli_ctx.repo_root)
     with closing(sqlite3.connect(f"file:{database}?mode=ro", uri=True)) as clean:
         characters = load_character_sources(clean)
         game_build = load_game_build(clean)
-    uses = [*page_image_uses(pages), *unused_page_image_uses(unused, characters)]
-    client = create_readonly_mediawiki_client(cli_ctx)
     try:
-        result = build_manifest(uses, characters, client.get_uploaded_files, game_build)
-    finally:
-        client.close()
+        result = build_manifest(characters, unused, game_build)
+    except ValueError as error:
+        console.print(f"[red]{error}[/red]")
+        raise typer.Exit(1) from error
 
-    table = Table(title=f"Missing character images, game build {result.game_build}")
-    table.add_column("File", style="cyan")
-    table.add_column("Kind", style="magenta")
-    table.add_column("Stable key")
-    table.add_column("Source")
-    table.add_column("Pages", style="dim")
-    for entry in result.entries:
-        source = entry.source
-        where = source.resources_path or f"{source.scene}: {source.object_name}"
-        table.add_row(entry.file, entry.kind, entry.stable_key, where, ", ".join(entry.pages))
-    console.print(table)
-    for heading, files in (
-        ("No game object found", result.unsourced),
-        ("Editors' zone images, not captured", result.editor_files),
-    ):
-        if files:
-            console.print(f"[bold]{heading}:[/bold]")
-            for file in files:
-                console.print(f"  {file.file} ({', '.join(file.pages)})")
+    prefabs = sum(1 for entry in result.entries if entry.source.resources_path)
+    scenes = {entry.source.scene for entry in result.entries if entry.source.scene}
+    console.print(
+        f"[bold]{len(result.entries)} models[/bold] of {len(characters)} characters, game build "
+        f"{result.game_build}: {prefabs} prefabs, {len(result.entries) - prefabs} in {len(scenes)} scenes"
+    )
+    if result.unsourced:
+        console.print(f"[bold]{len(result.unsourced)} models without a game object to capture:[/bold]")
+        for model in result.unsourced:
+            console.print(f"  {model.file} ({', '.join(model.pages) or 'no page'})")
 
     if cli_ctx.dry_run:
         console.print("[yellow]Dry run: the manifest was not written.[/yellow]")

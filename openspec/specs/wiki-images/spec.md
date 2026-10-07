@@ -30,24 +30,24 @@ Character infoboxes SHALL add a hidden, kind-specific `Needs Image` category to 
 - **WHEN** a reviewed image is uploaded and the article is refreshed
 - **THEN** the article leaves its `Needs Image` category
 
-### Requirement: Missing images have a source
+### Requirement: Every character model has a capture source
 
-The image workflow SHALL list every image file that the wiki does not have and that a generated page or a page with the unused notice names. It SHALL show the file title, every page that uses it, its entity kind, and its source. An empty result SHALL mean that every named file exists, not that a source search returned no rows.
+The image workflow SHALL list every character model of the clean database once, under the image title that its characters share, whether or not the wiki has a picture for it. It SHALL show the file title, the pages of its characters, including pages with the unused notice, its kind, and the game object to capture. A model whose characters no capture can locate SHALL be listed apart, so that every character belongs to one listed model.
 
-#### Scenario: A generated character has no portrait
+#### Scenario: Characters share a model
 
-- **WHEN** a generated character infobox names a file with no image on the wiki
-- **THEN** the report names the file and page and selects the character for capture
+- **WHEN** the Vithean Chests of several arena rounds share one model
+- **THEN** the manifest captures `Vithean Chest.png` once, from the chest of a generated page
 
-#### Scenario: A chest image appears on a boss page
+#### Scenario: A character has no page
 
-- **WHEN** a boss page also holds a chest infobox that names a missing chest image
-- **THEN** the report keeps the chest file and the boss page among its uses
+- **WHEN** a character's model is not shown on any page
+- **THEN** the manifest still selects the character for capture, with no pages
 
-#### Scenario: A page with the unused notice has no image
+#### Scenario: A page with the unused notice
 
-- **WHEN** `Queen Evadne` carries the unused notice and names a missing image
-- **THEN** the report names the file and page and selects her prefab for capture
+- **WHEN** `Queen Evadne` carries the unused notice
+- **THEN** the manifest names her model with that page and selects her prefab for capture
 
 ### Requirement: Game icons are not substitutes for character images
 
@@ -55,13 +55,13 @@ The image workflow SHALL use a game's item, spell, or skill icon as the matching
 
 #### Scenario: A summon spell has an icon but its creature does not
 
-- **WHEN** a summon page names a missing creature image and its spell has an icon
-- **THEN** the report marks the creature image as needing capture
-- **AND** it does not upload the spell icon under the creature's file name
+- **WHEN** a summon spell has an icon and summons a creature
+- **THEN** the manifest captures the creature's model
+- **AND** it does not use the spell icon as the creature's picture
 
 ### Requirement: Captures are repeatable and reviewable
 
-The capture workflow SHALL read a manifest of missing file titles and game entities. It SHALL record the game build and camera preset for each output. It SHALL render each subject at 1024 × 1024 pixels, crop it with a consistent margin, and save one transparent PNG per file. The output SHALL show the right subject without UI, another character, a clipped model, or a blank image. An unsuccessful capture SHALL be reported, not uploaded. The workflow SHALL restore game state after success, failure, or cancellation.
+The capture workflow SHALL read the manifest of character models. It SHALL record the game build and camera preset for each output. It SHALL render each subject at 1024 × 1024 pixels, crop it with a consistent margin, and save one transparent PNG per file. The output SHALL show the right subject without UI, another character, a clipped model, or a blank image. An unsuccessful capture SHALL be reported, not uploaded. The workflow SHALL restore game state after success, failure, or cancellation.
 
 #### Scenario: Kinds with different models share a page
 

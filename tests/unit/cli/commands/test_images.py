@@ -5,13 +5,11 @@ import sqlite3
 from contextlib import closing
 from dataclasses import replace
 from pathlib import Path
-from unittest.mock import MagicMock
 
 import pytest
 from typer.testing import CliRunner
 
 from erenshor.application.wiki.lifecycle import ContentLifecycle
-from erenshor.application.wiki.services.storage import WikiStorage
 from erenshor.cli.commands import images
 from erenshor.cli.context import CLIContext
 
@@ -27,21 +25,15 @@ def test_manifest_writes_only_without_dry_run(cli_context: CLIContext, monkeypat
             " VALUES ('character:faith', 'Faith', 'Faith', 'Faith', 1, 'npcs/Faith', 'boss', 0)"
         )
         clean.execute("INSERT INTO code_facts_meta (game_build_id) VALUES ('24405256')")
-    WikiStorage(Path(variant.wiki)).save_generated_by_title(
-        "Faith", ["character:faith"], "{{Character\n|name=Faith\n|stablekey=character:faith\n|imagefile=Faith.png\n}}\n"
-    )
     monkeypatch.setattr(
         images, "load_content_lifecycle", lambda _path: ContentLifecycle(pages={}, renames={}, splits={})
     )
-    client = MagicMock()
-    client.get_uploaded_files.return_value = frozenset()
-    monkeypatch.setattr(images, "create_readonly_mediawiki_client", lambda _ctx: client)
     output = Path(variant.unity_project).parent / "images" / "model-captures" / "manifest.json"
 
     dry = runner.invoke(images.app, ["manifest"], obj=replace(cli_context, dry_run=True))
 
     assert dry.exit_code == 0, dry.output
-    assert "Faith.png" in dry.output
+    assert "1 models of 1 characters" in dry.output
     assert not output.exists()
 
     written = runner.invoke(images.app, ["manifest"], obj=cli_context)
