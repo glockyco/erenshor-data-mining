@@ -20,10 +20,10 @@ class FakeHttpClient:
         self.times: list[float] = []
         self.clock: MockClock | None = None
 
-    def get(self, url: str, *, params: dict[str, str]) -> httpx.Response:
+    def get(self, url: str, *, params: dict[str, str] | None = None) -> httpx.Response:
         if self.clock is not None:
             self.times.append(self.clock.time())
-        self.requests.append(("GET", params, None))
+        self.requests.append(("GET", params or {}, None))
         return self._pop_response()
 
     def post(self, url: str, *, params: dict[str, str], data: dict[str, str] | None = None) -> httpx.Response:
@@ -84,22 +84,23 @@ def test_adds_json_format_and_maxlag_to_noninteractive_requests() -> None:
     ]
 
 
-def test_download_uses_the_owned_http_session() -> None:
-    image_response = httpx.Response(
-        200,
-        content=b"image-bytes",
-        headers={"Content-Type": "image/png"},
-        request=httpx.Request("GET", "https://erenshor.wiki.gg/images/logo.png"),
+def test_a_download_asks_for_the_exact_url_with_its_cache_busting_query() -> None:
+    # The query names the file's current SHA-1 prefix; without it the file
+    # server's cache may answer with an earlier version of the file.
+    urls: list[str] = []
+
+    def answer(request: httpx.Request) -> httpx.Response:
+        urls.append(str(request.url))
+        return httpx.Response(200, content=b"image-bytes", headers={"Content-Type": "image/png"})
+
+    requestor = MediaWikiRequestor(
+        api_url="https://erenshor.wiki.gg/api.php", transport=httpx.MockTransport(answer), clock=MockClock()
     )
-    client = FakeHttpClient([image_response])
-    requestor = make_requestor(client)
 
-    result = requestor.download("https://erenshor.wiki.gg/images/logo.png")
+    result = requestor.download("https://erenshor.wiki.gg/images/Shadow_of_Brax.png?59f0b7")
 
-    assert result.status_code == 200
-    assert result.content_type == "image/png"
-    assert result.content == b"image-bytes"
-    assert client.requests == [("GET", {}, None)]
+    assert (result.status_code, result.content_type, result.content) == (200, "image/png", b"image-bytes")
+    assert urls == ["https://erenshor.wiki.gg/images/Shadow_of_Brax.png?59f0b7"]
 
 
 def _image_response(status_code: int, headers: dict[str, str] | None = None) -> httpx.Response:

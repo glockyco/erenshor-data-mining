@@ -91,7 +91,7 @@ class _ResponseLike(Protocol):
 
 
 class _ClientLike(Protocol):
-    def get(self, url: str, *, params: dict[str, str]) -> _ResponseLike: ...
+    def get(self, url: str, *, params: dict[str, str] | None = None) -> _ResponseLike: ...
 
     def post(self, url: str, *, params: dict[str, str], data: dict[str, str] | None = None) -> _ResponseLike: ...
 
@@ -210,7 +210,9 @@ class MediaWikiRequestor:
         with self._lock:
             for attempt in range(self.policy.max_retries + 1):
                 try:
-                    response = self._http_client.get(url, params={})
+                    # The URL's query carries the file's SHA-1 prefix, which
+                    # makes the file server's cache serve the current version.
+                    response = self._http_client.get(url)
                 except httpx.TransportError:
                     if attempt == self.policy.max_retries:
                         raise
