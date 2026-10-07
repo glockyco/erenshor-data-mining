@@ -54,6 +54,7 @@ public sealed class WorldMarkerSystem
     private bool _enabled;
     private bool _configDirty;
     private bool _spawnDirty;
+    private int _spawnResetFrame = -1;
     private int _lastHour = -1;
     private int _lastStateVersion = -1;
 
@@ -113,17 +114,21 @@ public sealed class WorldMarkerSystem
         bool spawnPointsChanged = !sceneChanged && _bridge.HasNewRegistrations;
         bool hourChanged = hour != _lastHour;
         bool stateChanged = _state.Version != _lastStateVersion;
+        bool resetReady = SpawnMarkerPolicy.ResetReady(_spawnResetFrame, Time.frameCount);
         bool needsRebuild =
             sceneChanged
             || spawnPointsChanged
             || hourChanged
             || stateChanged
             || _configDirty
-            || _spawnDirty;
+            || _spawnDirty
+            || resetReady;
         if (stateChanged)
             _lastStateVersion = _state.Version;
         _configDirty = false;
         _spawnDirty = false;
+        if (resetReady)
+            _spawnResetFrame = -1;
         _lastHour = hour;
 
         if (needsRebuild)
@@ -146,6 +151,9 @@ public sealed class WorldMarkerSystem
 
     /// <summary>Signal that an NPC died. Triggers marker rebuild next frame.</summary>
     public void MarkSpawnDirty() => _spawnDirty = true;
+
+    /// <summary>Wait for deferred NPC destruction before rebuilding a reset point.</summary>
+    public void OnSpawnPointReset() => _spawnResetFrame = Time.frameCount;
 
     /// <summary>
     /// Record the NPC a SpawnPoint just spawned and rebuild markers next
@@ -739,9 +747,20 @@ public sealed class WorldMarkerSystem
         }
         else if (!isAlive && m.Type == m.QuestType)
         {
-            // Died: show the respawn timer until the rebuild reclassifies the point
+            // Lost target: the spawn phase decides clock, moon, or no marker.
             m.TargetKey = null;
-            SetRespawnTimer(ref m, SpawnPointBridge.GetRespawnSeconds(sp), RespawnDueText);
+            var type = SpawnMarkerPolicy.TypeWhenTargetLost(
+                _bridge.GetPhase(sp, m.TargetNpcName ?? m.DisplayName)
+            );
+            if (type == null)
+            {
+                instance.SetActive(false);
+                return;
+            }
+            if (type == MarkerType.NightSpawn)
+                SetNightText(ref m);
+            else
+                SetRespawnTimer(ref m, SpawnPointBridge.GetRespawnSeconds(sp), RespawnDueText);
             Configure(instance, m);
         }
         else if (m.Type == MarkerType.DeadSpawn)
