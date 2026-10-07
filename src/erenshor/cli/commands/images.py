@@ -112,9 +112,11 @@ def capture(
     Needs the game running with the MapTileCapture mod. Sends each manifest
     entry to the mod, reviews each portrait, and writes the PNGs and
     captures.json to images/model-captures/staging/ of the variant, replacing
-    the previous staging set. At the end the mod returns the player to where
-    the batch started. Draw the contact sheets with 'erenshor images review'.
-    With the root --dry-run option, lists the captures and writes nothing.
+    the previous staging set. With --file, recaptures only those files and
+    keeps the rest of the staging set. At the end the mod returns the player to
+    where the batch started. Draw the contact sheets with 'erenshor images
+    review'. With the root --dry-run option, lists the captures and writes
+    nothing.
 
     Examples:
         erenshor --dry-run images capture
@@ -124,7 +126,13 @@ def capture(
 
     import websockets
 
-    from erenshor.application.capture.portraits import WS_PORT, PortraitRun, capture_portraits, portrait_requests
+    from erenshor.application.capture.portraits import (
+        WS_PORT,
+        PortraitRun,
+        capture_portraits,
+        portrait_requests,
+        recapture_run,
+    )
 
     console = Console()
     cli_ctx: CLIContext = ctx.obj
@@ -151,13 +159,21 @@ def capture(
 
     staging = capture_dir / "staging"
     png_dir = staging / "png"
-    if staging.exists():
-        shutil.rmtree(staging)
-    png_dir.mkdir(parents=True)
     results_path = staging / "captures.json"
-    run = PortraitRun(game_build=manifest_data["game_build"], preset=manifest_data["camera_preset"])
+    game_build, preset = manifest_data["game_build"], manifest_data["camera_preset"]
+    staged = json.loads(results_path.read_text(encoding="utf-8")) if files and results_path.exists() else None
+    if staged is not None:
+        if (staged["game_build"], staged["preset"]) != (game_build, preset):
+            console.print("[red]The staging set is of another build or preset; capture every file again.[/red]")
+            raise typer.Exit(1)
+        run = recapture_run(staged, png_dir, set(files or ()))
+    else:
+        if staging.exists():
+            shutil.rmtree(staging)
+        png_dir.mkdir(parents=True)
+        run = PortraitRun(game_build=game_build, preset=preset)
 
-    printed = 0
+    printed = len(run.results)
 
     def record(progress: PortraitRun) -> None:
         nonlocal printed

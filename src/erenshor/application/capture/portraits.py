@@ -24,7 +24,7 @@ from PIL import Image, ImageDraw, ImageFont, UnidentifiedImageError
 from .wine import wine_path
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Mapping, Sequence
+    from collections.abc import Callable, Collection, Mapping, Sequence
     from pathlib import Path
 
 WS_PORT = 18586
@@ -204,6 +204,21 @@ def portrait_requests(manifest: Mapping[str, Any], files: Sequence[str] = ()) ->
 def local_png_name(file: str) -> str:
     """A name for the staged PNG that every file system accepts. The results map it back to the title."""
     return _UNSAFE_FILE_CHARACTERS.sub("_", file)
+
+
+def recapture_run(staged: Mapping[str, Any], png_dir: Path, files: Collection[str]) -> PortraitRun:
+    """The staged run without ``files``, which a recapture of them continues.
+
+    The other files keep their captures and reviews. The earlier PNGs of
+    ``files`` go, so that a failed recapture leaves no stale picture.
+    """
+    run = PortraitRun.from_json(staged)
+    for result in run.results:
+        if result.file in files and result.png is not None:
+            (png_dir / result.png).unlink(missing_ok=True)
+    run.results = [result for result in run.results if result.file not in files]
+    run.not_captured, run.interrupted, run.returned = [], None, False
+    return run
 
 
 def review(request: PortraitRequest, answer: Mapping[str, Any], png: Path) -> PortraitResult:

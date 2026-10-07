@@ -13,6 +13,7 @@ from erenshor.application.capture.portraits import (
     PortraitRun,
     capture_portraits,
     portrait_requests,
+    recapture_run,
     write_contact_sheets,
 )
 from erenshor.application.capture.wine import from_wine_path
@@ -212,3 +213,23 @@ def test_every_capture_is_drawn_on_one_of_the_sheets(tmp_path: Path) -> None:
     sheets = write_contact_sheets(run, tmp_path, lambda _title: None, tmp_path / "sheets", columns=2, rows=1, tile=40)
 
     assert [sheet.name for sheet in sheets] == ["sheet-001.png", "sheet-002.png", "sheet-003.png"]
+
+
+def test_a_recapture_keeps_the_other_captures_and_drops_the_files_earlier_picture(tmp_path: Path) -> None:
+    run = PortraitRun(game_build="24405256", preset="portrait-3")
+    for name in ("Faith", "Lucian Revald"):
+        Image.new("RGBA", (40, 80), (180, 120, 90, 255)).save(tmp_path / f"{name}.png")
+        run.results.append(
+            PortraitResult(
+                file=f"{name}.png",
+                stable_key=f"character:{name}",
+                kind="character",
+                status="accepted",
+                png=f"{name}.png",
+            )
+        )
+
+    recapture = recapture_run(run.to_json(), tmp_path, {"Lucian Revald.png"})
+
+    assert [result.file for result in recapture.results] == ["Faith.png"]
+    assert sorted(path.name for path in tmp_path.iterdir()) == ["Faith.png"]
