@@ -172,6 +172,26 @@ public sealed class WorldMarkerSystem
         _sceneLoaded = true;
     }
 
+    /// <summary>One line per current marker, for DebugAPI.DumpMarkers.</summary>
+    internal string Describe()
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.Append("Markers: ").Append(_markers.Count).Append('\n');
+        foreach (var m in _markers)
+        {
+            sb.Append(m.Type)
+                .Append(m.RespawnOnly ? " (respawn)" : "")
+                .Append(" | ")
+                .Append(m.DisplayName)
+                .Append(" | ")
+                .Append((m.SubText ?? "").Replace('\n', '/'))
+                .Append(" | ")
+                .Append(m.LiveSpawnPoint != null ? m.LiveSpawnPoint.name : "-")
+                .Append('\n');
+        }
+        return sb.ToString();
+    }
+
     public void Destroy()
     {
         _config.ShowAllRespawnTimers.SettingChanged -= OnConfigChanged;

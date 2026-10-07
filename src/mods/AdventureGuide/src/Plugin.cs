@@ -156,6 +156,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
             DebugAPI.Nav = _nav;
             DebugAPI.Entities = _entities;
             DebugAPI.GroundPath = _groundPath;
+            DebugAPI.Markers = _markers;
 
             QuestAssignPatch.Tracker = _state;
             QuestAssignPatch.Nav = _nav;
@@ -515,6 +516,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
         DebugAPI.Nav = null;
         DebugAPI.Entities = null;
         DebugAPI.GroundPath = null;
+        DebugAPI.Markers = null;
     }
 
     private static float DetectUiScale()

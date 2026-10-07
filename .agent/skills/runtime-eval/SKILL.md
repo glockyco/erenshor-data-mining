@@ -48,6 +48,7 @@ uv run erenshor eval run 'AdventureGuide.Diagnostics.DebugAPI.DumpState()'
 uv run erenshor eval run 'AdventureGuide.Diagnostics.DebugAPI.DumpQuest("Quest DB name")'
 uv run erenshor eval run 'AdventureGuide.Diagnostics.DebugAPI.DumpNav()'
 uv run erenshor eval run 'AdventureGuide.Diagnostics.DebugAPI.DumpZoneQuests()'
+uv run erenshor eval run 'AdventureGuide.Diagnostics.DebugAPI.DumpMarkers()'
 ```
 
 ## ScriptEngine reload

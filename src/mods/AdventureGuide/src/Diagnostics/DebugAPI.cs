@@ -22,6 +22,7 @@ public static class DebugAPI
     internal static NavigationController? Nav { get; set; }
     internal static EntityRegistry? Entities { get; set; }
     internal static GroundPathRenderer? GroundPath { get; set; }
+    internal static WorldMarkerSystem? Markers { get; set; }
 
     /// <summary>Dump current mod state: zone, active/completed counts, filter state.</summary>
     public static string DumpState()
@@ -101,6 +102,9 @@ public static class DebugAPI
 
         return "Pass a character name or stable key: DumpEntities(\"NPC Name\")";
     }
+
+    /// <summary>Dump the current world markers: type, name, sub-text, and spawn point.</summary>
+    public static string DumpMarkers() => Markers?.Describe() ?? "Not initialized";
 
     /// <summary>Dump full details for a specific quest by DB name or display name.</summary>
     public static string DumpQuest(string name)
