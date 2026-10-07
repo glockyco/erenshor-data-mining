@@ -42,6 +42,8 @@
     <Compile Include="../../src/Navigation/MarkerType.cs" Link="Navigation/MarkerType.cs" />
     <Compile Include="../../src/Navigation/MarkerDecision.cs" Link="Navigation/MarkerDecision.cs" />
     <Compile Include="../../src/Navigation/MarkerTextFormatter.cs" Link="Navigation/MarkerTextFormatter.cs" />
+    <Compile Include="../../src/Navigation/SpawnPointPolicy.cs" Link="Navigation/SpawnPointPolicy.cs" />
+    <Compile Include="../../src/Navigation/RespawnTimerText.cs" Link="Navigation/RespawnTimerText.cs" />
   </ItemGroup>
 
   <ItemGroup>

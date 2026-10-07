@@ -26,8 +26,9 @@ that quest's walkthrough unfolds inline with its own nav buttons.
 Floating icons appear above NPCs in the game world — quest givers
 you've walked past, turn-in targets waiting for your items, enemies you
 need to hunt down. Kill a quest mob and its marker switches to a live
-respawn countdown. Night-only spawns show the spawn window and
-current game time so you know when to come back.
+respawn timer. Night-only spawns show the spawn window and current game
+time so you know when to come back. Turn on ShowAllRespawnTimers to see
+respawn timers at every spawn point in the zone, quest or not.
 
 ## Know the whole path
 
@@ -59,6 +60,7 @@ All settings are in `BepInEx/config/wow-much.adventure-guide.cfg`
 | ShowArrow | on | GPS arrow pointing to navigation target |
 | ShowGroundPath | off | Ground path line using NavMesh pathfinding |
 | ShowWorldMarkers | on | Floating quest icons above NPCs |
+| ShowAllRespawnTimers | off | Respawn timers at every spawn point, not only for quest targets |
 | TrackerEnabled | on | Quest tracker overlay |
 | TrackerAutoTrack | on | Auto-track newly accepted quests |
 | ReplaceQuestLog | off | J opens Adventure Guide instead of the game's quest log |

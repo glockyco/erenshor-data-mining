@@ -63,6 +63,15 @@ public sealed class GuideConfigTests
                 null
             ),
             new ExpectedBinding("World Markers", "Enabled", typeof(bool), true, false, null, null),
+            new ExpectedBinding(
+                "World Markers",
+                "ShowAllRespawnTimers",
+                typeof(bool),
+                false,
+                false,
+                null,
+                null
+            ),
             new ExpectedBinding("World Markers", "Scale", typeof(float), 1f, false, 0.05f, 2f),
             new ExpectedBinding("World Markers", "IconSize", typeof(float), 7f, false, 1f, 20f),
             new ExpectedBinding(
@@ -146,6 +155,7 @@ public sealed class GuideConfigTests
             config.ShowGroundPath,
             config.GroundPathToggleKey,
             config.ShowWorldMarkers,
+            config.ShowAllRespawnTimers,
             config.MarkerScale,
             config.IconSize,
             config.SubTextSize,
@@ -192,7 +202,7 @@ public sealed class GuideConfigTests
                 null,
                 null
             ),
-            backend.Bindings[22]
+            backend.Bindings[^2]
         );
         AssertBinding(
             new ExpectedBinding(
@@ -204,7 +214,7 @@ public sealed class GuideConfigTests
                 null,
                 null
             ),
-            backend.Bindings[23]
+            backend.Bindings[^1]
         );
 
         config.Dispose();

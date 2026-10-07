@@ -26,8 +26,10 @@ that quest's walkthrough unfolds inline with its own nav buttons.
 Floating icons appear above NPCs in the game world — quest givers
 you've walked past, turn-in targets waiting for your items, enemies you
 need to hunt down. Kill a quest mob and its marker switches to a live
-respawn countdown. Night-only spawns show the spawn window and
-current game time so you know when to come back.
+respawn timer. Night-only spawns show the spawn window and current game
+time so you know when to come back. Turn on
+World Markers.ShowAllRespawnTimers to see respawn timers at every spawn
+point in the zone, quest or not.
 
 ## Know the whole path
 
@@ -56,6 +58,7 @@ Settings are configured through the Lunaris config UI.
 | Navigation.ShowArrow | on | GPS arrow pointing to navigation target |
 | Navigation.ShowGroundPath | off | Ground path line using NavMesh pathfinding |
 | World Markers.Enabled | on | Floating quest icons above NPCs |
+| World Markers.ShowAllRespawnTimers | off | Respawn timers at every spawn point, not only for quest targets |
 | World Markers.Scale | 1.0 | World marker size multiplier |
 | Tracker.Enabled | on | Quest tracker overlay |
 | Tracker.AutoTrack | on | Auto-track newly accepted quests |

@@ -40,6 +40,7 @@ public sealed class GuideConfig : IDisposable
     // ── User-facing: World Markers ───────────────────────────────────
 
     public IConfigValue<bool> ShowWorldMarkers { get; }
+    public IConfigValue<bool> ShowAllRespawnTimers { get; }
     public IConfigValue<float> MarkerScale { get; }
     public IConfigValue<float> IconSize { get; }
     public IConfigValue<float> SubTextSize { get; }
@@ -126,6 +127,12 @@ public sealed class GuideConfig : IDisposable
             "Enabled",
             true,
             "Show floating quest markers above NPCs (!, ?, objective icons). Replaces the game's built-in markers when enabled."
+        );
+        ShowAllRespawnTimers = Bind(
+            "World Markers",
+            "ShowAllRespawnTimers",
+            false,
+            "Show respawn timers at every spawn point in the zone, not only where an active quest needs the NPC"
         );
         MarkerScale = Bind(
             "World Markers",

@@ -2,6 +2,12 @@
 
 ## v2026.1007.0
 
+- Add the World Markers.ShowAllRespawnTimers setting. It shows a respawn timer at every spawn point in the zone whose creature died, not only where an active quest needs the NPC.
+- Stop flashing respawn timers over quest NPCs while a zone loads.
+- Stop showing respawn timers for spawns that a completed quest has ended for good.
+- Keep quest markers on quest NPCs while their boss encounter runs.
+- Show respawn timers of an hour or more as hours, minutes, and seconds.
+- Keep the current time on night-only markers up to date.
 - Fix world markers showing living NPCs as dead after the current zone reloads, for example when you respawn or recall inside your bind zone.
 
 ## v2026.718.0

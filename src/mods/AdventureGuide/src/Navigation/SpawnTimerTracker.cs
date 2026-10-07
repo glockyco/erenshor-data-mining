@@ -1,5 +1,4 @@
 using System.Reflection;
-using UnityEngine;
 
 namespace AdventureGuide.Navigation;
 
@@ -8,10 +7,7 @@ namespace AdventureGuide.Navigation;
 /// their SpawnPoint components. When an NPC dies, the tracker records its
 /// SpawnPoint (accessed via NPC.MySpawnPoint, a private field). The
 /// SpawnPoint's actualSpawnDelay ticks down in the game's Update loop,
-/// so we read it live — no need to maintain our own countdown.
-///
-/// Also detects night-only spawn points (SpawnPoint.NightSpawn) and
-/// reports whether the current time-of-day allows spawning.
+/// so we read it live — no need to maintain our own timer.
 /// </summary>
 public sealed class SpawnTimerTracker
 {
@@ -54,8 +50,7 @@ public sealed class SpawnTimerTracker
 
     /// <summary>
     /// Get remaining real seconds until respawn, or null if not tracked.
-    /// Reads SpawnPoint.actualSpawnDelay live and divides by the current
-    /// tick rate (60 * SpawnTimeMod).
+    /// Reads SpawnPoint.actualSpawnDelay live.
     /// </summary>
     public float? GetRemainingSeconds(SpawnPoint sp)
     {
@@ -64,37 +59,7 @@ public sealed class SpawnTimerTracker
         if (!_tracked.ContainsKey(sp.ID))
             return null;
 
-        float tickRate = 60f * GetSpawnTimeMod();
-        if (tickRate <= 0f)
-            return null;
-
-        return sp.actualSpawnDelay / tickRate;
-    }
-
-    /// <summary>
-    /// Check if a SpawnPoint is a night-only spawn that cannot currently
-    /// spawn because it's daytime.
-    /// </summary>
-    public static bool IsNightLocked(SpawnPoint sp)
-    {
-        if (!sp.NightSpawn)
-            return false;
-        int hour = GameData.Time.GetHour();
-        // Spawn window: hour > 22 OR hour < 4
-        return !(hour > 22 || hour < 4);
-    }
-
-    /// <summary>
-    /// Format remaining seconds as ~M:SS string.
-    /// </summary>
-    public static string FormatTimer(float seconds)
-    {
-        if (seconds <= 0f)
-            return "~0:00";
-        int totalSec = Mathf.CeilToInt(seconds);
-        int min = totalSec / 60;
-        int sec = totalSec % 60;
-        return $"~{min}:{sec:D2}";
+        return SpawnPointBridge.GetRespawnSeconds(sp);
     }
 
     /// <summary>All currently tracked dead spawn points.</summary>
@@ -105,15 +70,6 @@ public sealed class SpawnTimerTracker
         if (MySpawnPointField == null)
             return null;
         return MySpawnPointField.GetValue(npc) as SpawnPoint;
-    }
-
-    private static float GetSpawnTimeMod()
-    {
-        var gm = GameData.GM;
-        if (gm == null)
-            return 1f;
-        // SpawnTimeMod is set in GameManager.Update based on group size
-        return gm.SpawnTimeMod;
     }
 }
 

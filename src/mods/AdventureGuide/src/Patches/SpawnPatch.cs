@@ -4,8 +4,8 @@ using HarmonyLib;
 namespace AdventureGuide.Patches;
 
 /// <summary>
-/// Registers newly spawned NPCs in the EntityRegistry and clears
-/// any respawn timer tracked by SpawnTimerTracker.
+/// Registers newly spawned NPCs in the EntityRegistry, clears any respawn
+/// timer tracked by SpawnTimerTracker, and records the NPC for world markers.
 /// SpawnPoint.SpawnNPC sets SpawnedNPC and adds to NPCTable.LiveNPCs
 /// before this postfix runs, so NPCName is available.
 /// </summary>
@@ -24,7 +24,7 @@ internal static class SpawnPatch
             Registry?.Register(__instance.SpawnedNPC, __instance);
 
         Timers?.OnNPCSpawn(__instance);
-        Markers?.MarkSpawnDirty();
+        Markers?.OnNPCSpawned(__instance);
         Loot?.MarkDirty();
     }
 }
