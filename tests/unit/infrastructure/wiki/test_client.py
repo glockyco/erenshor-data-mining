@@ -659,6 +659,35 @@ class TestMediaWikiClientGetPages:
         with pytest.raises(MediaWikiNetworkError, match="Request timeout"):
             client.safe_edit_page(title="Item:Sword", content="new content", base_revision=base_revision)
 
+    @pytest.mark.parametrize(
+        ("user", "text", "landed"), [("WoWBot", "new content\n", True), ("Ulor", "new content", False)]
+    )
+    def test_a_timed_out_edit_counts_only_when_the_page_holds_it_from_this_account(
+        self, user: str, text: str, landed: bool
+    ) -> None:
+        def handler(request: httpx.Request) -> httpx.Response:
+            if request.method == "POST":
+                raise httpx.TimeoutException("Request timeout", request=request)
+            if request.url.params.get("meta") == "tokens":
+                return httpx.Response(200, json={"query": {"tokens": {"csrftoken": "test_csrf_token"}}})
+            revision = {"revid": 1235, "timestamp": "t", "user": user, "slots": {"main": {"*": text}}}
+            page = {"pageid": 42, "title": "Item:Sword", "revisions": [revision]}
+            return httpx.Response(200, json={"curtimestamp": "t", "query": {"pages": {"42": page}}})
+
+        client = MediaWikiClient(
+            api_url="https://erenshor.wiki.gg/api.php",
+            transport=httpx.MockTransport(handler),
+            clock=MockClock(),
+            bot_username="WoWBot@Deploy",
+        )
+        base_revision = MediaWikiPageRevision("Item:Sword", 42, 1234, "t", "t", "WoWBot")
+
+        if landed:
+            assert client.safe_edit_page(title="Item:Sword", content="new content", base_revision=base_revision) == 1235
+        else:
+            with pytest.raises(MediaWikiNetworkError, match="Request timeout"):
+                client.safe_edit_page(title="Item:Sword", content="new content", base_revision=base_revision)
+
 
 class TestMediaWikiClientRevisionMetadata:
     """Test conflict-safe revision metadata fetching."""

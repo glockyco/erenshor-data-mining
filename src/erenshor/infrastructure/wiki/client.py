@@ -1857,6 +1857,11 @@ class MediaWikiClient:
                 if attempt == 0 and self._is_token_error(e):
                     logger.warning(f"CSRF token rejected while safely editing {title}; refreshing once")
                     continue
+                if isinstance(e, MediaWikiNetworkError):
+                    landed = self._landed_revision(title, content, base_revision.revision_id)
+                    if landed is not None:
+                        logger.warning(f"The answer to the edit of {title} was lost; revision {landed} holds it")
+                        return landed
                 logger.error(f"Safe edit request failed for {title}: {e}")
                 self._raise_safe_write_api_error(title, e, "editing")
 
@@ -1935,6 +1940,11 @@ class MediaWikiClient:
                 if attempt == 0 and self._is_token_error(e):
                     logger.warning(f"CSRF token rejected while safely creating {title}; refreshing once")
                     continue
+                if isinstance(e, MediaWikiNetworkError):
+                    landed = self._landed_revision(title, content, None)
+                    if landed is not None:
+                        logger.warning(f"The answer to the creation of {title} was lost; revision {landed} holds it")
+                        return landed
                 logger.error(f"Safe create request failed for {title}: {e}")
                 self._raise_safe_write_api_error(title, e, "creating")
 
@@ -1953,6 +1963,29 @@ class MediaWikiClient:
             return new_revision_id
 
         raise MediaWikiEditError(f"Failed to safely create page '{title}': {last_error}")
+
+    def _landed_revision(self, title: str, content: str, base_revision_id: int | None) -> int | None:
+        """The revision that holds a write whose answer was lost, or None when the write did not land.
+
+        A timeout or dropped connection may hide an edit that MediaWiki saved.
+        The write landed when the page's latest revision is newer than the base,
+        made by this client's account, and holds the content, which MediaWiki
+        stores without trailing whitespace.
+        """
+        try:
+            snapshot = self.get_page_snapshots([title])[title]
+        except MediaWikiAPIError:
+            return None
+        revision = snapshot.revision
+        if (
+            revision is None
+            or snapshot.source_text is None
+            or revision.revision_id == base_revision_id
+            or revision.user != self.edit_account
+            or snapshot.source_text.rstrip() != content.rstrip()
+        ):
+            return None
+        return revision.revision_id
 
     @staticmethod
     def _is_token_error(error: MediaWikiAPIError) -> bool:
