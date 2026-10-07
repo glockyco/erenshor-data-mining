@@ -141,4 +141,26 @@ public sealed class RespawnPolicyTests
             CharacterStableKey.Normalize(CharacterStableKey.FromObjectName("ArenaChest 1"))
         );
     }
+
+    [Theory]
+    [InlineData("character:catnip (1):ripperportal:339.55:0.17:757.54", "catnip (1)")]
+    [InlineData("character:a rift vendor:reliquary:269.77:1.44:328.25:1", "a rift vendor")]
+    [InlineData(
+        "character:sm_prop_dummy_archery_01:reliquary:268.21:-2.12:360.09",
+        "sm_prop_dummy_archery_01"
+    )]
+    public void Placed_keys_name_the_scene_object(string key, string objectName)
+    {
+        // NPC.Start renames placed objects to NPCName ("Catnip"), so markers
+        // find "Catnip (Enemy)" by the object name in its key.
+        Assert.True(CharacterStableKey.TryGetPlacedObjectName(key, out var parsed));
+        Assert.Equal(objectName, parsed);
+    }
+
+    [Theory]
+    [InlineData("character:gloopa quarter loot")]
+    [InlineData("character:fallen gladiator 1")]
+    [InlineData("item:gen - an ancient bone")]
+    public void Prefab_keys_have_no_scene_object(string key) =>
+        Assert.False(CharacterStableKey.TryGetPlacedObjectName(key, out _));
 }

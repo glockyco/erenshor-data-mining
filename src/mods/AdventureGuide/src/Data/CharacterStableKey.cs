@@ -32,4 +32,45 @@ internal static class CharacterStableKey
     /// </summary>
     public static string FromObjectName(string objectName) =>
         "character:" + objectName.Trim().ToLowerInvariant();
+
+    /// <summary>
+    /// The scene object name in the key of a character placed in a scene,
+    /// character:{object}:{scene}:{x}:{y}:{z} with an optional variant
+    /// suffix. NPC.Start renames such objects to NPCName, so the object name
+    /// identifies them where the display name may not ("Catnip (1)" is shown
+    /// as "Catnip (Enemy)" but named "Catnip").
+    /// </summary>
+    public static bool TryGetPlacedObjectName(string key, out string objectName)
+    {
+        objectName = "";
+        const string prefix = "character:";
+        var normalized = Normalize(key);
+        if (!normalized.StartsWith(prefix, StringComparison.Ordinal))
+            return false;
+
+        int end = normalized.Length;
+        for (int segment = 0; segment < 4; segment++)
+        {
+            int colon = normalized.LastIndexOf(':', end - 1);
+            if (colon < prefix.Length)
+                return false;
+            // The three coordinates are written with two decimals.
+            if (segment < 3 && !IsCoordinate(normalized.AsSpan(colon + 1, end - colon - 1)))
+                return false;
+            end = colon;
+        }
+        if (end == prefix.Length)
+            return false;
+        objectName = normalized.Substring(prefix.Length, end - prefix.Length);
+        return true;
+    }
+
+    private static bool IsCoordinate(ReadOnlySpan<char> value) =>
+        value.IndexOf('.') >= 0
+        && float.TryParse(
+            value,
+            System.Globalization.NumberStyles.Float,
+            System.Globalization.CultureInfo.InvariantCulture,
+            out _
+        );
 }

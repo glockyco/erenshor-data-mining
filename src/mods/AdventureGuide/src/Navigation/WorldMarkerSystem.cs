@@ -160,6 +160,16 @@ public sealed class WorldMarkerSystem
     public void OnSpawnPointReset() => _spawnResetFrame = Time.frameCount;
 
     /// <summary>
+    /// Index an NPC that started after the scene loaded, such as a scene
+    /// object an event switched on, and rebuild markers next frame.
+    /// </summary>
+    public void OnNpcStarted(NPC npc)
+    {
+        _bridge.OnNpcStarted(npc);
+        _spawnDirty = true;
+    }
+
+    /// <summary>
     /// Record the NPC a SpawnPoint just spawned and rebuild markers next
     /// frame. Called from the SpawnNPC postfix.
     /// </summary>

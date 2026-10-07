@@ -120,9 +120,10 @@ public sealed class SpawnPointBridge
     // spawn table has no such prefab.
     private readonly Dictionary<(int SpawnPoint, string StableKey), string?> _targetNames = new();
 
-    // Directly-placed NPC cache: trimmed lowercase name → list of NPC references.
-    // Built once per Rebuild from FindObjectsOfType. Destroyed NPCs become
-    // Unity-null between rebuilds, filtered at lookup time.
+    // Directly-placed NPC cache: trimmed lowercase NPCName and scene object
+    // name → NPC references. Built per Rebuild from FindObjectsOfType and
+    // extended by NPCs that start later (scene objects switched on by events).
+    // Destroyed NPCs become Unity-null and are filtered at lookup time.
     private readonly Dictionary<string, List<NPC>> _npcByName = new();
 
     /// <summary>Live SpawnPoints of the indexed scene.</summary>
@@ -197,20 +198,48 @@ public sealed class SpawnPointBridge
         }
 
         _npcByName.Clear();
-        // Cache all active NPCs by lowercase name for directly-placed lookup.
         // One FindObjectsOfType call per scene load, reused for all GetState calls.
         foreach (var npc in UnityEngine.Object.FindObjectsOfType<NPC>())
+            AddDirectlyPlacedCandidate(npc);
+    }
+
+    /// <summary>
+    /// Add an NPC that started after the last Rebuild: scene objects that an
+    /// event switches on start only then.
+    /// </summary>
+    public void OnNpcStarted(NPC npc) => AddDirectlyPlacedCandidate(npc);
+
+    private void AddDirectlyPlacedCandidate(NPC npc)
+    {
+        if (npc == null || string.IsNullOrEmpty(npc.NPCName))
+            return;
+        AddByName(npc.NPCName, npc);
+        // Before NPC.Start the object still has its scene name; afterwards
+        // NpcOrigins remembers it.
+        var placedName =
+            NpcOrigins.PlacedName(npc)
+            ?? (NpcOrigins.PrefabNameOf(npc.gameObject.name) == null ? npc.gameObject.name : null);
+        if (
+            placedName != null
+            && !string.Equals(
+                placedName.Trim(),
+                npc.NPCName.Trim(),
+                System.StringComparison.OrdinalIgnoreCase
+            )
+        )
+            AddByName(placedName, npc);
+    }
+
+    private void AddByName(string name, NPC npc)
+    {
+        var nameKey = name.Trim().ToLowerInvariant();
+        if (!_npcByName.TryGetValue(nameKey, out var list))
         {
-            if (npc == null || string.IsNullOrEmpty(npc.NPCName))
-                continue;
-            var nameKey = npc.NPCName.Trim().ToLowerInvariant();
-            if (!_npcByName.TryGetValue(nameKey, out var list))
-            {
-                list = new List<NPC>();
-                _npcByName[nameKey] = list;
-            }
-            list.Add(npc);
+            list = new List<NPC>();
+            _npcByName[nameKey] = list;
         }
+        if (!list.Contains(npc))
+            list.Add(npc);
     }
 
     /// <summary>Index SpawnPoints that registered since the last call.</summary>
@@ -254,7 +283,14 @@ public sealed class SpawnPointBridge
         // No SpawnPoint at this position — directly-placed NPC.
         // Search active NPCs by name + proximity since directly-placed NPCs
         // often aren't in NPCTable.LiveNPCs and can drift from placed position.
-        var npc = FindDirectlyPlacedNPC(x, y, z, expectedNPCName);
+        // The scene object name in the key identifies the NPC even when the
+        // guide's display name differs from its NPCName.
+        var npc =
+            (
+                Data.CharacterStableKey.TryGetPlacedObjectName(stableKey, out var objectName)
+                    ? FindDirectlyPlacedNPC(x, y, z, objectName)
+                    : null
+            ) ?? FindDirectlyPlacedNPC(x, y, z, expectedNPCName);
         if (npc != null)
         {
             // Mining nodes stay "alive" when mined — the NPC persists with
