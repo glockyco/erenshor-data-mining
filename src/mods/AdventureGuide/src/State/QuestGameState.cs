@@ -50,10 +50,15 @@ internal sealed class LiveQuestGameState : IQuestGameState
 
         foreach (var slot in GameData.PlayerInv.StoredSlots)
         {
-            if (slot?.MyItem == null)
+            if (slot?.MyItem == null || slot.MyItem == GameData.PlayerInv.Empty)
                 continue;
             var key = "item:" + slot.MyItem.name.Trim().ToLowerInvariant();
-            destination[key] = destination.TryGetValue(key, out int count) ? count + 1 : 1;
+            InventoryCountPolicy.Add(
+                destination,
+                key,
+                slot.MyItem.RequiredSlot == Item.SlotType.General,
+                slot.Quantity
+            );
         }
     }
 }
