@@ -55,6 +55,7 @@ public sealed class GroundPathRenderer
     private PathSegment? _stub;
     private PathSegment? _mid;
     private PathSegment? _tail;
+    private Texture2D? _dashTex;
 
     public bool Enabled
     {
@@ -129,14 +130,24 @@ public sealed class GroundPathRenderer
 
     public void Destroy()
     {
+        // Destroying the GameObject removes the LineRenderers but not the
+        // Materials and the dash Texture2D assigned to them.
+        _stub?.DestroyMaterials();
+        _mid?.DestroyMaterials();
+        _tail?.DestroyMaterials();
+        if (_dashTex != null)
+        {
+            UnityEngine.Object.Destroy(_dashTex);
+            _dashTex = null;
+        }
         if (_lineObj != null)
         {
             UnityEngine.Object.Destroy(_lineObj);
             _lineObj = null;
-            _stub = null;
-            _mid = null;
-            _tail = null;
         }
+        _stub = null;
+        _mid = null;
+        _tail = null;
     }
 
     private bool RecalculateIfNeeded(Vector3 playerPos, Vector3 targetPos)
@@ -292,10 +303,10 @@ public sealed class GroundPathRenderer
 
         // All three segments share the same dash texture (one GPU upload),
         // but each gets its own Material so tiling is independent.
-        var dashTex = CreateDashTexture();
-        _stub = new PathSegment(_lineObj, "Stub", dashTex);
-        _mid = new PathSegment(_lineObj, "Mid", dashTex);
-        _tail = new PathSegment(_lineObj, "Tail", dashTex);
+        _dashTex = CreateDashTexture();
+        _stub = new PathSegment(_lineObj, "Stub", _dashTex);
+        _mid = new PathSegment(_lineObj, "Mid", _dashTex);
+        _tail = new PathSegment(_lineObj, "Tail", _dashTex);
     }
 
     private void SetAllVisible(bool visible)
@@ -321,6 +332,7 @@ public sealed class GroundPathRenderer
         private readonly LineRenderer _core;
         private readonly LineRenderer _glow;
         private readonly Material _coreMat;
+        private readonly Material _glowMat;
         private Vector3 _anchor; // cached position[0] for per-frame length recompute
 
         internal PathSegment(GameObject parent, string name, Texture2D dashTex)
@@ -330,9 +342,9 @@ public sealed class GroundPathRenderer
             glowObj.transform.SetParent(parent.transform);
             _glow = glowObj.AddComponent<LineRenderer>();
             ConfigureLineRenderer(_glow, GlowWidth);
-            var glowMat = new Material(Shader.Find("Sprites/Default"));
-            glowMat.color = GlowColor;
-            _glow.material = glowMat;
+            _glowMat = new Material(Shader.Find("Sprites/Default"));
+            _glowMat.color = GlowColor;
+            _glow.material = _glowMat;
             _glow.startColor = GlowColor;
             _glow.endColor = GlowColor;
 
@@ -348,6 +360,12 @@ public sealed class GroundPathRenderer
             _core.textureMode = LineTextureMode.Tile;
             _core.startColor = CoreColor;
             _core.endColor = CoreColor;
+        }
+
+        internal void DestroyMaterials()
+        {
+            UnityEngine.Object.Destroy(_coreMat);
+            UnityEngine.Object.Destroy(_glowMat);
         }
 
         /// <summary>

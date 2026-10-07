@@ -11,6 +11,7 @@
 - Fix world markers showing living NPCs as dead after the current zone reloads, for example when you respawn or recall inside your bind zone.
 - Reduce memory churn and stutter: the guide window, the quest tracker, navigation, and world markers no longer create garbage every frame or on every NPC death.
 - Fix quest tracker rows sometimes ignoring a click while the distance to the quest updated.
+- Fix texture and material leaks in the world marker fonts and the ground path, and keep less font atlas data in memory.
 
 ## v2026.718.0
 

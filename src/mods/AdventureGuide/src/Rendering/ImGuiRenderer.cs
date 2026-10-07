@@ -292,6 +292,8 @@ public sealed class ImGuiRenderer : IDisposable
                 ranges.Data
             );
 
+            // AddFont copies the config into the atlas.
+            ImGuiNative.ImFontConfig_destroy(configPtr);
             builder.Destroy();
         }
         else
@@ -309,13 +311,15 @@ public sealed class ImGuiRenderer : IDisposable
                 "Adventure Guide font atlas built with no texture data."
             );
 
+        // Upload straight from ImGui's buffer, then drop both CPU copies:
+        // Unity's readable copy and ImGui's own pixels. Only the GPU texture
+        // is needed after this.
         _fontTexture = new Texture2D(width, height, TextureFormat.RGBA32, false);
-        var data = new byte[width * height * 4];
-        Marshal.Copy((IntPtr)pixels, data, 0, data.Length);
-        _fontTexture.LoadRawTextureData(data);
-        _fontTexture.Apply();
+        _fontTexture.LoadRawTextureData((IntPtr)pixels, width * height * 4);
+        _fontTexture.Apply(false, true);
 
         io.Fonts.SetTexID(_fontTexture.GetNativeTexturePtr());
+        io.Fonts.ClearTexData();
     }
 
     private unsafe void ApplyScale(float newScale)

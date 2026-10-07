@@ -37,6 +37,8 @@ internal static class MarkerFonts
     private static TMP_FontAsset? _iconFont;
     private static TMP_FontAsset? _subTextFont;
     private static bool _initialized;
+    private static float _nextAttemptAt;
+    private const float RetryInterval = 1f;
 
     /// <summary>Font asset for Font Awesome icon glyphs. Null until ready.</summary>
     public static TMP_FontAsset? IconFont
@@ -73,13 +75,12 @@ internal static class MarkerFonts
     /// </summary>
     public static void Destroy()
     {
-        if (_iconFont != null)
-            UnityEngine.Object.Destroy(_iconFont);
-        if (_subTextFont != null)
-            UnityEngine.Object.Destroy(_subTextFont);
+        DestroyAsset(_iconFont);
+        DestroyAsset(_subTextFont);
         _iconFont = null;
         _subTextFont = null;
         _initialized = false;
+        _nextAttemptAt = 0f;
     }
 
     private static void EnsureInitialized()
@@ -87,24 +88,31 @@ internal static class MarkerFonts
         if (_initialized)
             return;
 
+        // Every marker update asks for the fonts; a failed attempt is retried
+        // at most once per second instead of every frame.
+        float now = Time.realtimeSinceStartup;
+        if (now < _nextAttemptAt)
+            return;
+        _nextAttemptAt = now + RetryInterval;
+
         var sdfShader = Shader.Find("TextMeshPro/Distance Field");
-        if (sdfShader == null)
+        var faFont = GameData.Misc?.FontAwesome;
+        var roboto = FindFont("Roboto-Regular");
+        if (sdfShader == null || faFont == null || roboto == null)
         {
-            // Shader not loaded yet — retry next access
+            // Shader or font sources not loaded yet — retry later
             return;
         }
 
-        _iconFont = CreateIconFont(sdfShader);
-        _subTextFont = CreateSubTextFont(sdfShader);
+        _iconFont = CreateIconFont(faFont, sdfShader);
+        _subTextFont = CreateSubTextFont(roboto, sdfShader);
 
         if (_iconFont == null || _subTextFont == null)
         {
-            // Font sources not available yet (GameData not ready) —
-            // clean up any partial result and retry next access.
-            if (_iconFont != null)
-                UnityEngine.Object.Destroy(_iconFont);
-            if (_subTextFont != null)
-                UnityEngine.Object.Destroy(_subTextFont);
+            // Font data not ready yet — clean up any partial result and
+            // retry later.
+            DestroyAsset(_iconFont);
+            DestroyAsset(_subTextFont);
             _iconFont = null;
             _subTextFont = null;
             return;
@@ -113,12 +121,31 @@ internal static class MarkerFonts
         _initialized = true;
     }
 
-    private static TMP_FontAsset? CreateIconFont(Shader sdfShader)
+    /// <summary>
+    /// Destroy a font asset with the atlas textures and material that
+    /// TMP_FontAsset.CreateFontAsset made for it. Destroying only the asset
+    /// leaves both alive.
+    /// </summary>
+    private static void DestroyAsset(TMP_FontAsset? asset)
     {
-        var faFont = GameData.Misc?.FontAwesome;
-        if (faFont == null)
-            return null;
+        if (asset == null)
+            return;
+        var atlases = asset.atlasTextures;
+        if (atlases != null)
+        {
+            foreach (var atlas in atlases)
+            {
+                if (atlas != null)
+                    UnityEngine.Object.Destroy(atlas);
+            }
+        }
+        if (asset.material != null)
+            UnityEngine.Object.Destroy(asset.material);
+        UnityEngine.Object.Destroy(asset);
+    }
 
+    private static TMP_FontAsset? CreateIconFont(Font faFont, Shader sdfShader)
+    {
         var asset = TMP_FontAsset.CreateFontAsset(faFont);
         if (asset == null)
         {
@@ -136,18 +163,18 @@ internal static class MarkerFonts
         var glyphString = new string(RequiredGlyphs);
         if (!asset.TryAddCharacters(glyphString, out string missing, true))
         {
-            UnityEngine.Object.Destroy(asset);
+            DestroyAsset(asset);
             return null;
         }
 
         // Verify glyphs are actually present in the atlas. TryAddCharacters
         // can return true before the font data is fully loaded during early
-        // scene initialization. If any glyph is missing, retry next frame.
+        // scene initialization. If any glyph is missing, retry later.
         foreach (var ch in RequiredGlyphs)
         {
             if (!asset.HasCharacter(ch, searchFallbacks: false))
             {
-                UnityEngine.Object.Destroy(asset);
+                DestroyAsset(asset);
                 return null;
             }
         }
@@ -156,12 +183,8 @@ internal static class MarkerFonts
         return asset;
     }
 
-    private static TMP_FontAsset? CreateSubTextFont(Shader sdfShader)
+    private static TMP_FontAsset? CreateSubTextFont(Font roboto, Shader sdfShader)
     {
-        Font? roboto = FindFont("Roboto-Regular");
-        if (roboto == null)
-            return null;
-
         var asset = TMP_FontAsset.CreateFontAsset(roboto);
         if (asset == null)
         {
