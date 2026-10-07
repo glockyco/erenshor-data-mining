@@ -95,8 +95,9 @@
 - [x] 5.37 Complete `rebuild-game-image-pipeline`: resolve icons through the textures their sprites reference, catalogue every game picture by pixel hash, draw icon frames on the wiki as the game does, and publish by a plan against one listing of the live wiki. Verify: the change is archived.
   - Done on 2026-10-06: archived as `openspec/changes/archive/2026-10-06-rebuild-game-image-pipeline`, with the new main spec `game-image-catalog` and the synced `wiki-images` and `map-site-data`. The live wiki holds one native file per picture, with the game's frames drawn by `Module:Erenshor/Icon`, and the map uses the catalog's icons. Afterwards WoWMuch chose the earlier look over the frames of the game's UI: items in the blue gradient slot everywhere, and spells, skills, and stances in the black border of the old icon files instead of the hotbar frame. The hotbar frame left the catalog, so the next publication deletes `File:Hotbar Frame.png` as an orphan.
 - [ ] 5.38 Render every character in one look, after 5.37. Today the infoboxes mix the 118 reviewed renders with editors' screenshots: of the 873 character pictures that generated pages show, editors uploaded 757 (Ulor 263, Snedn 204, Biridian 164, and others), and the bot never replaces an editor's upload (design D3 of `rebuild-game-image-pipeline`). Capture every character's model with the current preset, about 750 distinct models for 1,421 characters, whether or not the wiki has a picture for it, and draw a contact sheet that shows each render beside the picture the wiki shows now. Review it with WoWMuch and approve the good renders into the catalog, which the map uses as well (task 5.39). Publish them to the wiki where the file is missing or the project owns it, which also gives the 118 earlier renders the licensing notice that new files get. For the files of editors, ask WoWMuch whether to propose the renders to the editors, for example in #wiki-chat, so they can upload a render as a new version of their file or keep their picture. Verify: the contact sheet is reviewed, the approved renders are live, and the decision on the editors' files is recorded.
+  - Open for the wiki publication: WoWMuch asked on 2026-10-07 to keep both pictures and let readers switch between the render and the screenshot. Portable Infobox shows a `<gallery>` in an image field as tabs, and the wiki has the extension, so the character infobox can offer both without custom code. Decide with WoWMuch when the renders reach the wiki.
 - [ ] 5.39 Show character portraits on the map, after 5.38. The map build makes WebP sizes of each map-visible character's approved portrait from the picture catalog, which holds a render of every character after task 5.38, whether or not the wiki shows it, named by pixel hash like the item icons, and the character and spawn popups show them on their transparent background. It never falls back to the wiki's character pictures, most of which are editors' screenshots with backgrounds. Verify: in a browser, a popup of a rendered character shows its portrait and one without a render shows none.
-- Order of the remaining work (design D3): 5.37, 5.38, 5.39, 5.19, the C# tooling majors of the dependency dashboard, group 6, groups 7 and 8, then the other dependency majors.
+- Order of the remaining work (design D3): 5.37, 5.38, 5.39, the C# tooling majors of the dependency dashboard, group 6, groups 7 and 8, then the other dependency majors. Task 5.19 is deferred, decided on 2026-10-07: the next game update is at least a month away, so tooltip parity waits until one approaches.
   - Published on 2026-10-06 with approval, for tasks 5.34 to 5.36: `Module:Erenshor/Data/Links` (`repo-page-deploys/20261006T071504Z-da6026ef`), the 10 articles (`article-deploys/20261006T072749Z`), the unused notices of the six rune receptacles (`retired-page-deploys/20261006T072818Z-9da1092e`), one-time edits that empty their zones and coordinates and remove their zone category (`page-edit-deploys/20261006T073307Z-6fb9d981` and `page-edit-deploys/20261006T073506Z-97d9da81`), the characters and spawn-points tabs of the sheet, and the map to both Workers (site version `8c32c35b`, legacy version `c541ae1c`). Afterwards the article dry run planned no edit of 2813 pages, and the retired-page audit reported nothing pending or unexplained.
 
 ## 6. Step 2: publish complete Cargo tables
@@ -122,21 +123,28 @@
 
 ## 9. Live pages for an administrator to delete
 
-- [ ] 9.1 `Module:Erenshor/Data/AbilityLinks`, after task 6.2 of `refresh-wiki-articles` deploys `Module:Erenshor/AbilityLink`. Verify: `list=embeddedin` is empty before the deletion.
+- [x] 9.1 `Module:Erenshor/Data/AbilityLinks`, after task 6.2 of `refresh-wiki-articles` deploys `Module:Erenshor/AbilityLink`. Verify: `list=embeddedin` is empty before the deletion.
   - Condition met on 2026-10-05: no page transcludes it.
-- [ ] 9.2 `Module:Erenshor/Cargo`, after that deploy removes it from the Spell, Skill, and Stance modules. Same verification.
+  - Done on 2026-10-07: deleted with the deletion account after `list=embeddedin` was empty; recorded in `variants/main/wiki/page-deletions/20261007-plan-group-9.json`.
+- [x] 9.2 `Module:Erenshor/Cargo`, after that deploy removes it from the Spell, Skill, and Stance modules. Same verification.
   - Condition met on 2026-10-05: no page transcludes it.
-- [ ] 9.3 `Module:Erenshor/Item`, `Item/Tooltip`, `Character`, `Quest`, and `Zone`, and their live testcases pages, after that deploy. Same verification.
+  - Done on 2026-10-07, the same way.
+- [x] 9.3 `Module:Erenshor/Item`, `Item/Tooltip`, `Character`, `Quest`, and `Zone`, and their live testcases pages, after that deploy. Same verification.
   - Condition met on 2026-10-05: no page transcludes any of the five modules.
-- [ ] 9.4 `Template:Spell`, `Skill`, `ArmorTable`, `WeaponTable`, `AbilityClasses`, and the old Cargo templates with their subpages. Same verification.
+  - Done on 2026-10-07, the same way. No testcases pages were left. `Module:Erenshor/Item/Quality` and `Item/ParameterizedTooltip` are live repository modules and stay.
+- [x] 9.4 `Template:Spell`, `Skill`, `ArmorTable`, `WeaponTable`, `AbilityClasses`, and the old Cargo templates with their subpages. Same verification.
   - Condition met on 2026-10-05: no page transcludes the five templates or any of the 16 old Cargo templates: `Template:Character/CargoDeclare`, `Character/CargoStore`, `Character/DroppedByQueryRow`, `CharacterAbilitiesStore`, `CharacterDroppedByQuery`, `CharacterSpawnsStore`, `Item/CargoDeclare`, `Item/CargoStore`, `Item/ObtainedFromQueryRow`, `Item/UsedInQueryRow`, `ItemObtainedFromQuery`, `ItemObtainedFromStore`, `ItemUsedInQuery`, `ItemUsedInStore`, `Quest/RewardsQueryRow`, and `QuestRewardsQuery`.
-- [ ] 9.5 The Cargo tables `Item` and `Consumable` at Special:CargoTables. Verify: Special:CargoTables no longer lists them.
+  - Done on 2026-10-07, the same way, with `Template:ArmorTable/Row` and `Template:WeaponTable/Row`: 22 templates.
+- [x] 9.5 The Cargo tables `Item` and `Consumable` at Special:CargoTables. Verify: Special:CargoTables no longer lists them.
   - Condition met on 2026-10-05: both tables are empty, and no live template or module calls `#cargo_store`, `#cargo_declare`, or `#cargo_query`.
+  - Done on 2026-10-07: both tables had 0 rows and were deleted at Special:DeleteCargoTable through the browser relay, and Special:CargoTables lists no table. The note of 2026-10-05 missed one declaration: Roan's `Template:Consumable/CargoDeclare` (July 2025) still declares `Consumable`. Nothing uses it or Roan's `Template:Consumable`, and both stay as editors' pages.
 - [ ] 9.6 The six `SpellScroll*` files and `Kingsman_GP.png` (#97, #98), after the five pages that use `SpellScrollPurple.png` or `SpellScrollYellow.png` use the current images, and after a full scan finds no other `*_GP` file in use. Verify: `list=imageusage` is empty before each deletion.
-- [ ] 9.7 `Category:Unknown Item Source`, after task 3.8 removes the main page's link to it. Nothing fills it. Verify: the category holds no page and no page links it.
+- [x] 9.7 `Category:Unknown Item Source`, after task 3.8 removes the main page's link to it. Nothing fills it. Verify: the category holds no page and no page links it.
   - Condition met on 2026-10-05: the category holds no page, and no page links it.
-- [ ] 9.8 `Category:Needs Item Image` and `Category:Needs Stance Image`, which the first deploy of the missing-image tracking created before only character images were tracked (design D4 of `restore-missing-wiki-images`). Delete them after the templates and the article deploy remove the item and stance checks. Verify: neither category holds a page, and no page links either.
+  - Done on 2026-10-07, deleted after the category held no page and no page linked it.
+- [x] 9.8 `Category:Needs Item Image` and `Category:Needs Stance Image`, which the first deploy of the missing-image tracking created before only character images were tracked (design D4 of `restore-missing-wiki-images`). Delete them after the templates and the article deploy remove the item and stance checks. Verify: neither category holds a page, and no page links either.
   - Condition met on 2026-10-06: neither category holds a page, and no page links either.
+  - Done on 2026-10-07, the same way.
 
 ## 10. Close
 
