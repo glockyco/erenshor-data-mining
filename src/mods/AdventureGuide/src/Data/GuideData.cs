@@ -76,8 +76,15 @@ public sealed partial class GuideData
             return new GuideData();
         }
 
+        // Deserialize straight from the resource stream. Reading the ~2 MB
+        // file into a string first builds two UTF-16 copies of it at startup,
+        // and the game's managed heap does not shrink back after such a peak.
         using var reader = new StreamReader(stream);
-        return Parse(reader.ReadToEnd());
+        using var json = new JsonTextReader(reader);
+        var wrapper =
+            JsonSerializer.CreateDefault().Deserialize<GuideWrapper>(json)
+            ?? throw new InvalidDataException("Failed to deserialize quest-guide.json");
+        return FromWrapper(wrapper);
     }
 
     internal static GuideData Parse(string json)
