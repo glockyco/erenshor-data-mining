@@ -17,6 +17,7 @@ public sealed class NavigationController
     private readonly GuideData _data;
     private readonly EntityRegistry _entities;
     private readonly QuestStateTracker _state;
+    private readonly Func<string, int> _countItem;
     private readonly SpawnTimerTracker _timers;
     private readonly MiningNodeTracker _miningTracker;
     private readonly LootScanner _lootScanner;
@@ -100,6 +101,7 @@ public sealed class NavigationController
         _data = data;
         _entities = entities;
         _state = state;
+        _countItem = state.CountItem;
         _timers = timers;
         _miningTracker = miningTracker;
         _lootScanner = lootScanner;
@@ -1585,23 +1587,16 @@ public sealed class NavigationController
     }
 
     /// <summary>
-    /// Fill <see cref="_neededItems"/> with the item names the player still
-    /// needs for a specific quest. Empty if the quest has no required items
-    /// or all are collected. Runs every frame while navigating, so the set
-    /// is reused instead of allocated.
+    /// Fill the reusable item set for the resolved navigation step.
     /// </summary>
     private HashSet<string> BuildNeededItems(string questKey)
     {
-        _neededItems.Clear();
-        var quest = _data.GetByRuntimeKey(questKey);
-        if (quest?.RequiredItems == null)
-            return _neededItems;
-
-        foreach (var ri in quest.RequiredItems)
-        {
-            if (_state.CountItem(ri.ItemStableKey) < ri.Quantity)
-                _neededItems.Add(ri.ItemName);
-        }
+        CorpsePriorityPolicy.FillItems(
+            _resolvedStep,
+            _data.GetByRuntimeKey(questKey),
+            _countItem,
+            _neededItems
+        );
         return _neededItems;
     }
 
