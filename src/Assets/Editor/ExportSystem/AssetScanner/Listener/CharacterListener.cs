@@ -585,7 +585,8 @@ public class CharacterListener : IAssetScanListener<Character>
         }
         var path = assetPath.Substring(start + folder.Length);
         var directory = path.Substring(0, path.LastIndexOf('/') + 1);
-        var name = SerializedRootName(assetPath) ?? System.IO.Path.GetFileNameWithoutExtension(path);
+        var name =
+            SerializedRootName(assetPath) ?? System.IO.Path.GetFileNameWithoutExtension(path);
         return directory + name;
     }
 
@@ -616,7 +617,11 @@ public class CharacterListener : IAssetScanListener<Character>
                 continue;
             }
             var line = rawLine.Trim();
-            if (blockClass == "1" && blockId != null && line.StartsWith("m_Name: ", System.StringComparison.Ordinal))
+            if (
+                blockClass == "1"
+                && blockId != null
+                && line.StartsWith("m_Name: ", System.StringComparison.Ordinal)
+            )
             {
                 names[blockId] = YamlScalar(line.Substring("m_Name: ".Length));
             }
