@@ -181,7 +181,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
             DeathPatch.Loot = _lootScanner;
             DeathPatch.Tracker = _state;
             DeathPatch.Nav = _nav;
-            QuestMarkerPatch.SuppressGameMarkers = _config.ShowWorldMarkers.Value;
+            QuestMarkerPatch.SetSuppression(_config.ShowWorldMarkers.Value);
             PointerOverUIPatch.WantsMouse = () => _wantsMouseCapture;
             QuestLogPatch.ReplaceQuestLog = _config.ReplaceQuestLog;
             SceneManager.sceneLoaded += OnSceneLoaded;
@@ -311,6 +311,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
             _state.WorkflowCycleReset -= OnWorkflowCycleReset;
         }
 
+        QuestMarkerPatch.SetSuppression(false);
         _harmony?.UnpatchSelf();
         _harmony = null;
         _tracker?.Dispose();
@@ -401,7 +402,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
     private void OnShowWorldMarkersChanged(object sender, EventArgs e)
     {
         SyncVisibility();
-        QuestMarkerPatch.SuppressGameMarkers = _config!.ShowWorldMarkers.Value;
+        QuestMarkerPatch.SetSuppression(_config!.ShowWorldMarkers.Value);
     }
 
     private void OnTrackerEnabledChanged(object sender, EventArgs e) =>
