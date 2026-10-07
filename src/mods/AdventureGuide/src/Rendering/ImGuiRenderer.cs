@@ -583,15 +583,18 @@ public sealed class ImGuiRenderer : IDisposable
 
     private void DestroyContextIfCreated()
     {
-        if (_iniPathHandle.IsAllocated)
-            _iniPathHandle.Free();
-
         if (_context == IntPtr.Zero)
+        {
+            if (_iniPathHandle.IsAllocated)
+                _iniPathHandle.Free();
             return;
+        }
 
         if (_appQuitting)
         {
             _context = IntPtr.Zero;
+            if (_iniPathHandle.IsAllocated)
+                _iniPathHandle.Free();
             return;
         }
 
@@ -607,6 +610,9 @@ public sealed class ImGuiRenderer : IDisposable
         finally
         {
             _context = IntPtr.Zero;
+            // DestroyContext may save settings using io.IniFilename.
+            if (_iniPathHandle.IsAllocated)
+                _iniPathHandle.Free();
             ImGui.SetCurrentContext(previousContext);
         }
     }
