@@ -45,6 +45,10 @@ public sealed class WorldMarkerSystem
     // SpawnPoints a quest marker covers during the current rebuild, by
     // instance ID. Respawn timers skip them.
     private readonly HashSet<int> _questSpawnPoints = new();
+
+    // Ground pickups present in the scene, found once per rebuild when a
+    // quest item has an itembag source. A pickup is destroyed when taken.
+    private ItemBag[]? _itemBags;
     private string _lastScene = "";
 
     // Set by every scene load, including a reload of the scene already shown
@@ -218,6 +222,7 @@ public sealed class WorldMarkerSystem
         _markers.Clear();
         _intentIndex.Clear();
         _questSpawnPoints.Clear();
+        _itemBags = null;
 
         foreach (var quest in _data.All)
         {
@@ -414,19 +419,107 @@ public sealed class WorldMarkerSystem
 
         if (source.SourceKey != null)
         {
-            EmitPerSpawnMarkers(
-                source.SourceKey,
-                scene,
-                source.Name ?? item.ItemName,
-                MarkerType.Objective,
-                progress
-            );
+            if (PositionedSource.TryParse(source.SourceKey, out var positioned))
+                EmitPositionedSourceMarker(
+                    source.SourceKey,
+                    positioned,
+                    source.Name ?? item.ItemName,
+                    scene,
+                    progress
+                );
+            else
+                EmitPerSpawnMarkers(
+                    source.SourceKey,
+                    scene,
+                    source.Name ?? item.ItemName,
+                    MarkerType.Objective,
+                    progress
+                );
         }
 
         if (source.Children == null)
             return;
         foreach (var child in source.Children)
             EmitItemSourceMarker(child, item, scene, progress);
+    }
+
+    /// <summary>
+    /// Mark a mining node or ground pickup that supplies a needed item. A
+    /// mined node shows its regeneration timer; a pickup shows only while it
+    /// lies in the scene. Fishing has no spot to mark: its key names the
+    /// center of a water volume (<see cref="PositionedSource.IsZoneWide"/>).
+    /// </summary>
+    private void EmitPositionedSourceMarker(
+        string sourceKey,
+        PositionedSource source,
+        string displayName,
+        string scene,
+        string progress
+    )
+    {
+        if (
+            source.IsZoneWide
+            || !string.Equals(source.Scene, scene, System.StringComparison.OrdinalIgnoreCase)
+        )
+            return;
+
+        var key = new IntentKey(sourceKey);
+        var position = new Vector3(source.X, source.Y, source.Z);
+        if (source.Kind == "mining")
+        {
+            var info = _bridge.GetState(source.X, source.Y, source.Z, sourceKey, displayName);
+            if (info.LiveMiningNode == null || info.LiveNPC == null)
+                return;
+            var entry = new MarkerEntry
+            {
+                Position = GetMarkerPosition(info.LiveNPC),
+                DisplayName = displayName,
+                TrackedNPC = info.LiveNPC,
+                LiveMiningNode = info.LiveMiningNode,
+                QuestType = MarkerType.Objective,
+                QuestSubText = progress,
+            };
+            if (info.State == SpawnPointBridge.SpawnState.Mined)
+                SetRespawnTimer(ref entry, info.RespawnSeconds, RegenerationDueText);
+            else
+            {
+                entry.Type = MarkerType.Objective;
+                entry.SubText = progress;
+                entry.TargetKey = sourceKey;
+            }
+            TryAddMarker(key, entry);
+            return;
+        }
+
+        var bag = FindItemBag(position);
+        if (bag == null)
+            return;
+        TryAddMarker(
+            key,
+            new MarkerEntry
+            {
+                Position = bag.transform.position + Vector3.up * StaticHeightOffset,
+                Type = MarkerType.Objective,
+                DisplayName = displayName,
+                SubText = progress,
+                QuestType = MarkerType.Objective,
+                QuestSubText = progress,
+                TrackedPickup = bag,
+            }
+        );
+    }
+
+    /// <summary>The ground pickup at an exported position, if it is still there.</summary>
+    private ItemBag? FindItemBag(Vector3 position)
+    {
+        _itemBags ??= UnityEngine.Object.FindObjectsOfType<ItemBag>();
+        foreach (var bag in _itemBags)
+        {
+            // Exported coordinates are rounded to centimeters.
+            if (bag != null && (bag.transform.position - position).sqrMagnitude <= 0.01f)
+                return bag;
+        }
+        return null;
     }
 
     // ── Per-spawn-point marker emission ──────────────────────────
@@ -661,6 +754,13 @@ public sealed class WorldMarkerSystem
         {
             var m = _markers[i];
             var instance = _pool.Get(i);
+            // A taken pickup is destroyed; the rebuild that the inventory
+            // change triggers drops its marker.
+            if (!ReferenceEquals(m.TrackedPickup, null) && m.TrackedPickup == null)
+            {
+                instance.SetActive(false);
+                continue;
+            }
             // Track live positions before deciding whether sub-text is visible.
             if (!m.RespawnOnly && m.TargetKey != null)
             {
@@ -1068,6 +1168,9 @@ public struct MarkerEntry
 
     /// <summary>Live MiningNode for per-frame mined state and timer updates.</summary>
     public MiningNode? LiveMiningNode;
+
+    /// <summary>Ground pickup the marker stands over; it hides once taken.</summary>
+    internal ItemBag? TrackedPickup;
 
     /// <summary>Quest marker type to restore when NPC respawns.</summary>
     public MarkerType QuestType;
