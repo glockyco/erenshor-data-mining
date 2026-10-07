@@ -59,6 +59,7 @@ public sealed class NavigationController
     /// <summary>Origin identity for the current NavigateTo call chain.</summary>
     private string? _originQuestKey;
     private int _originStepOrder;
+    private QuestStep? _resolvedStep;
 
     // ── Per-character config persistence ──────────────────────────
     private IConfigValue<string>? _navQuestEntry;
@@ -162,6 +163,7 @@ public sealed class NavigationController
             return false;
 
         ResetTargetState();
+        _resolvedStep = step;
 
         if (step.Location != null)
         {
@@ -344,7 +346,40 @@ public sealed class NavigationController
             return false;
         _navigationScene = currentScene;
         InvalidateCrossZoneCache();
+        ReResolveForScene(currentScene);
         return true;
+    }
+
+    private void ReResolveForScene(string currentScene)
+    {
+        if (
+            Target == null
+            || Target.TargetKind == NavigationTarget.Kind.Zone
+            || _resolvedStep == null
+            || _resolvedStep.Location != null
+        )
+            return;
+        var quest = _data.GetByRuntimeKey(Target.QuestKey);
+        if (quest == null)
+            return;
+        if (_allItemSources.Count > 0)
+        {
+            // Keep manually chosen sources; auto mode can prefer the new zone.
+            if (!_manualOverride)
+                ComputeAutoSourceSet(currentScene);
+            ResolveClosestActiveSource(quest, _resolvedStep, currentScene);
+        }
+        else if (
+            _resolvedStep.TargetType == "character"
+            && StepSceneResolver.HasSourceInScene(
+                quest,
+                _resolvedStep,
+                _data,
+                currentScene,
+                _state.IsGameQuestCompleted
+            )
+        )
+            ResolveCharacterTarget(_resolvedStep, quest, currentScene);
     }
 
     /// <summary>

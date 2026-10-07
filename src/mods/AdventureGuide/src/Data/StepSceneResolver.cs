@@ -127,6 +127,14 @@ public static class StepSceneResolver
         Func<string, bool>? isQuestCompleted = null
     )
     {
+        if (
+            step.TargetType == "character"
+            && step.TargetKey != null
+            && data.CharacterSpawns.TryGetValue(step.TargetKey, out var spawns)
+        )
+            return spawns.Exists(sp =>
+                string.Equals(sp.Scene, scene, StringComparison.OrdinalIgnoreCase)
+            );
         if (step.TargetType != "item" || quest.RequiredItems == null)
             return ResolveScene(quest, step, data, isQuestCompleted) is string s
                 && string.Equals(s, scene, System.StringComparison.OrdinalIgnoreCase);
