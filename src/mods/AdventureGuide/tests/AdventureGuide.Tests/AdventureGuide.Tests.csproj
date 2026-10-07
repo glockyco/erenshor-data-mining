@@ -43,6 +43,7 @@
     <Compile Include="../../src/Navigation/NavigationPolicy.cs" Link="Navigation/NavigationPolicy.cs" />
     <Compile Include="../../src/Navigation/PositionedSource.cs" Link="Navigation/PositionedSource.cs" />
     <Compile Include="../../src/Navigation/SourceSelectionPolicy.cs" Link="Navigation/SourceSelectionPolicy.cs" />
+    <Compile Include="../../src/Navigation/CrossZoneWaypointPolicy.cs" Link="Navigation/CrossZoneWaypointPolicy.cs" />
     <Compile Include="../../src/Navigation/BillboardUpdatePolicy.cs" Link="Navigation/BillboardUpdatePolicy.cs" />
     <Compile Include="../../src/Navigation/DirectPlacementPolicy.cs" Link="Navigation/DirectPlacementPolicy.cs" />
     <Compile Include="../../src/Navigation/MarkerType.cs" Link="Navigation/MarkerType.cs" />

@@ -26,6 +26,8 @@ public sealed class NavigationController
     private ZoneLineEntry? _cachedZoneLine;
     private ZoneLineEntry? _pinnedZoneLine;
     private Vector3 _lastCrossZoneCalcPos;
+    private string? _navigationScene;
+    private bool _cachedRouteLocked;
     private const float CrossZoneRecalcDistance = 10f;
 
     // ── Multi-source navigation state ─────────────────────────────
@@ -297,10 +299,8 @@ public sealed class NavigationController
     private void ResetTargetState()
     {
         Target = null;
-        ZoneLineWaypoint = null;
-        _cachedZoneLine = null;
+        InvalidateCrossZoneCache();
         _pinnedZoneLine = null;
-        _lastCrossZoneCalcPos = Vector3.zero;
         _activeSourceKeys.Clear();
         _allItemSources.Clear();
         _positionedSources.Clear();
@@ -309,6 +309,22 @@ public sealed class NavigationController
         _sourceRescanTimer = 0f;
         Distance = 0f;
         Direction = Vector3.zero;
+    }
+
+    private void InvalidateCrossZoneCache()
+    {
+        _cachedZoneLine = null;
+        _lastCrossZoneCalcPos = Vector3.zero;
+        ZoneLineWaypoint = null;
+    }
+
+    private bool ObserveScene(string currentScene)
+    {
+        if (!CrossZoneWaypointPolicy.SceneChanged(_navigationScene, currentScene))
+            return false;
+        _navigationScene = currentScene;
+        InvalidateCrossZoneCache();
+        return true;
     }
 
     /// <summary>
@@ -433,6 +449,8 @@ public sealed class NavigationController
     public void OnGameStateChanged(string currentScene)
     {
         _zoneGraph.Rebuild();
+        ObserveScene(currentScene);
+        InvalidateCrossZoneCache();
         if (Target == null)
             return;
 
@@ -496,6 +514,7 @@ public sealed class NavigationController
     /// </summary>
     public void Update(string currentScene)
     {
+        ObserveScene(currentScene);
         if (Target == null)
             return;
 
@@ -510,7 +529,8 @@ public sealed class NavigationController
             return;
         }
 
-        ZoneLineWaypoint = null;
+        if (ZoneLineWaypoint != null || _cachedZoneLine != null)
+            InvalidateCrossZoneCache();
 
         // Same-zone Zone target (e.g. fishing): player is already in the
         // right zone. Keep Target alive so IsNavigating returns true (UI
@@ -1131,6 +1151,7 @@ public sealed class NavigationController
             )
             {
                 bestLine = _pinnedZoneLine;
+                routeIsLocked = !IsZoneLineAccessible(bestLine);
             }
             else
             {
@@ -1150,9 +1171,17 @@ public sealed class NavigationController
                 }
             }
 
-            if (bestLine != _cachedZoneLine)
+            if (
+                CrossZoneWaypointPolicy.ShouldRebuild(
+                    ZoneLineWaypoint != null,
+                    bestLine != _cachedZoneLine,
+                    _cachedRouteLocked,
+                    routeIsLocked
+                )
+            )
             {
                 _cachedZoneLine = bestLine;
+                _cachedRouteLocked = routeIsLocked;
                 if (bestLine != null)
                 {
                     string displayText = routeIsLocked
