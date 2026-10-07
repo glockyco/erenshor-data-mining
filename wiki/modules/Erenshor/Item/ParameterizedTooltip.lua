@@ -263,7 +263,7 @@ local function invocation(kindName, args, stats, frame)
 		known[field] = true
 	end
 
-	put("icon", supplied(args, "icon"))
+	put("icon", supplied(args, "icon") or supplied(args, "image"))
 	put("name", displayName(args, stats))
 	put("slot", supplied(args, "slot"))
 	put("type", supplied(args, "type"))

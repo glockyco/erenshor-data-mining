@@ -287,6 +287,10 @@ function p.resolve(kind, args)
 		end
 	end
 	local image = imageOverride or (record and record.image)
+	-- The cutover's data modules may still carry an image name without its extension.
+	if image ~= nil and not tostring(image):match("%.%a+$") then
+		image = tostring(image) .. ".png"
+	end
 
 	if requestedKey ~= nil and record ~= nil and namedPage ~= nil then
 		local expected = normalizePage(record.page)

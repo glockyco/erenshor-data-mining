@@ -69,7 +69,7 @@
 </noinclude>
 <includeonly>{{#if:{{{historical_state|}}}|{{Historical Content|state={{{historical_state}}}|thing={{{historical_thing|ability}}}|update={{{historical_update|}}}|date={{{historical_date|}}}|url={{{historical_url|}}}}}}}<infobox type="Abilities">
       <title source="title"/>
-      <image source="icon"><caption source="imagecaption"/></image>
+      <image source="icon"><default>{{{image|}}}</default><caption source="imagecaption"/></image>
 
       <data source="type"><label>Spell Type</label></data>
       <data source="classes"><label>Classes</label></data>
