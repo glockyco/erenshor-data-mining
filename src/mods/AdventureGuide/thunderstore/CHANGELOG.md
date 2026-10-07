@@ -9,7 +9,7 @@
 - Show respawn timers of an hour or more as hours, minutes, and seconds.
 - Keep the current time on night-only markers up to date.
 - Fix world markers showing living NPCs as dead after the current zone reloads, for example when you respawn or recall inside your bind zone.
-- Reduce memory churn and stutter: the guide window and the quest tracker no longer create garbage every frame.
+- Reduce memory churn and stutter: the guide window, the quest tracker, navigation, and world markers no longer create garbage every frame or on every NPC death.
 - Fix quest tracker rows sometimes ignoring a click while the distance to the quest updated.
 
 ## v2026.718.0

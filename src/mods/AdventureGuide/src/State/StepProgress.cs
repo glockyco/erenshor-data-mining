@@ -32,7 +32,7 @@ public static class StepProgress
             return 0;
 
         if (quest.IsGuideOnly)
-            return state.Workflows.GetCurrentStepIndex(quest, state.CountItem);
+            return state.Workflows.GetCurrentStepIndex(quest, state.CountItemDelegate);
 
         if (state.IsCompleted(quest))
             return quest.Steps.Count;

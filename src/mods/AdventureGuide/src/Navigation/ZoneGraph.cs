@@ -61,13 +61,18 @@ public sealed class ZoneGraph
     /// <summary>
     /// Rebuild the adjacency graph from current zone line data and quest state.
     /// Call when quest completion state changes (new zone lines become accessible).
+    /// Every NPC death and inventory change calls it, so it refills the edge
+    /// lists in place instead of allocating a new graph.
     /// </summary>
     public void Rebuild()
     {
-        _adj.Clear();
+        foreach (var existing in _adj.Values)
+            existing.Clear();
 
-        foreach (var zl in _data.ZoneLines)
+        var zoneLines = _data.ZoneLines;
+        for (int line = 0; line < zoneLines.Count; line++)
         {
+            var zl = zoneLines[line];
             if (string.IsNullOrEmpty(zl.DestinationZoneKey))
                 continue;
 
@@ -209,9 +214,19 @@ public sealed class ZoneGraph
 
         foreach (var group in zl.RequiredQuestGroups)
         {
-            if (group.TrueForAll(q => _state.IsGameQuestCompleted(q)))
+            if (AllCompleted(group))
                 return true;
         }
         return false;
+    }
+
+    private bool AllCompleted(List<string> questDBNames)
+    {
+        foreach (var dbName in questDBNames)
+        {
+            if (!_state.IsGameQuestCompleted(dbName))
+                return false;
+        }
+        return true;
     }
 }

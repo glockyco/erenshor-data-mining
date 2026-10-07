@@ -3,11 +3,12 @@ using System.Reflection;
 namespace AdventureGuide.Navigation;
 
 /// <summary>
-/// Tracks respawn timers for quest-relevant NPCs by holding references to
-/// their SpawnPoint components. When an NPC dies, the tracker records its
-/// SpawnPoint (accessed via NPC.MySpawnPoint, a private field). The
-/// SpawnPoint's actualSpawnDelay ticks down in the game's Update loop,
-/// so we read it live — no need to maintain our own timer.
+/// Tracks the SpawnPoints of NPCs that died during this scene visit, so
+/// navigation can point at the spawn of a dead target that returns soonest.
+/// When an NPC dies, the tracker records its SpawnPoint (accessed via
+/// NPC.MySpawnPoint, a private field). The SpawnPoint's actualSpawnDelay
+/// ticks down in the game's Update loop, so we read it live — no need to
+/// maintain our own timer.
 /// </summary>
 public sealed class SpawnTimerTracker
 {
@@ -21,9 +22,8 @@ public sealed class SpawnTimerTracker
     private readonly Dictionary<string, TrackedSpawn> _tracked = new();
 
     /// <summary>
-    /// Call when a quest-relevant NPC dies. Records the SpawnPoint for
-    /// timer tracking. If the NPC's SpawnPoint cannot be resolved, this
-    /// is a no-op.
+    /// Call when an NPC dies. Records its SpawnPoint for timer tracking. If
+    /// the NPC's SpawnPoint cannot be resolved, this is a no-op.
     /// </summary>
     public void OnNPCDeath(NPC npc)
     {
@@ -32,7 +32,7 @@ public sealed class SpawnTimerTracker
             return;
 
         var key = EntityRegistry.DeriveStableKey(npc, sp);
-        _tracked[sp.ID] = new TrackedSpawn(sp, npc.NPCName, key);
+        _tracked[sp.ID] = new TrackedSpawn(sp, key);
     }
 
     /// <summary>
@@ -49,21 +49,33 @@ public sealed class SpawnTimerTracker
     public void Clear() => _tracked.Clear();
 
     /// <summary>
-    /// Get remaining real seconds until respawn, or null if not tracked.
-    /// Reads SpawnPoint.actualSpawnDelay live.
+    /// The tracked SpawnPoint of a character that respawns soonest, or null.
+    /// Navigation calls this every frame while its target is dead.
     /// </summary>
-    public float? GetRemainingSeconds(SpawnPoint sp)
+    public SpawnPoint? FindSoonestRespawn(string stableKey)
     {
-        if (sp == null || string.IsNullOrEmpty(sp.ID))
-            return null;
-        if (!_tracked.ContainsKey(sp.ID))
-            return null;
-
-        return SpawnPointBridge.GetRespawnSeconds(sp);
+        SpawnPoint? best = null;
+        float bestSeconds = float.MaxValue;
+        foreach (var tracked in _tracked.Values)
+        {
+            if (
+                tracked.Point == null
+                || !string.Equals(
+                    tracked.StableKey,
+                    stableKey,
+                    System.StringComparison.OrdinalIgnoreCase
+                )
+            )
+                continue;
+            float seconds = SpawnPointBridge.GetRespawnSeconds(tracked.Point);
+            if (seconds < bestSeconds)
+            {
+                best = tracked.Point;
+                bestSeconds = seconds;
+            }
+        }
+        return best;
     }
-
-    /// <summary>All currently tracked dead spawn points.</summary>
-    public IReadOnlyDictionary<string, TrackedSpawn> Tracked => _tracked;
 
     private static SpawnPoint? GetSpawnPoint(NPC npc)
     {
@@ -73,20 +85,15 @@ public sealed class SpawnTimerTracker
     }
 }
 
-/// <summary>
-/// A tracked spawn point with its NPC identity for marker labeling
-/// and stable key for precise matching.
-/// </summary>
-public readonly struct TrackedSpawn
+/// <summary>A tracked spawn point with the stable key of the NPC that died there.</summary>
+internal readonly struct TrackedSpawn
 {
     public readonly SpawnPoint Point;
-    public readonly string NPCName;
     public readonly string? StableKey;
 
-    public TrackedSpawn(SpawnPoint point, string npcName, string? stableKey)
+    public TrackedSpawn(SpawnPoint point, string? stableKey)
     {
         Point = point;
-        NPCName = npcName;
         StableKey = stableKey;
     }
 }

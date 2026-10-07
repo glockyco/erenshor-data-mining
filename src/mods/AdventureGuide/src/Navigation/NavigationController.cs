@@ -44,6 +44,9 @@ public sealed class NavigationController
         System.StringComparer.OrdinalIgnoreCase
     );
 
+    /// <summary>Item names the navigated quest still needs; refilled every frame.</summary>
+    private readonly HashSet<string> _neededItems = new(System.StringComparer.OrdinalIgnoreCase);
+
     /// <summary>True when the user has manually toggled sources.</summary>
     private bool _manualOverride;
 
@@ -764,30 +767,8 @@ public sealed class NavigationController
             return null;
 
         // Check dead enemy spawns
-        SpawnPoint? bestPoint = null;
-        float bestTime = float.MaxValue;
-        foreach (var kvp in _timers.Tracked)
-        {
-            var tracked = kvp.Value;
-            if (tracked.Point == null)
-                continue;
-            if (
-                !string.Equals(
-                    tracked.StableKey,
-                    stableKey,
-                    System.StringComparison.OrdinalIgnoreCase
-                )
-            )
-                continue;
-            float? remaining = _timers.GetRemainingSeconds(tracked.Point);
-            if (remaining.HasValue && remaining.Value < bestTime)
-            {
-                bestPoint = tracked.Point;
-                bestTime = remaining.Value;
-            }
-        }
-
-        return bestPoint?.transform.position;
+        var bestPoint = _timers.FindSoonestRespawn(stableKey);
+        return bestPoint != null ? bestPoint.transform.position : null;
     }
 
     // ── Target resolution ──────────────────────────────────────────
@@ -1633,22 +1614,24 @@ public sealed class NavigationController
     }
 
     /// <summary>
-    /// Build the set of item names the player still needs for a specific quest.
-    /// Returns empty set if the quest has no required items or all are collected.
+    /// Fill <see cref="_neededItems"/> with the item names the player still
+    /// needs for a specific quest. Empty if the quest has no required items
+    /// or all are collected. Runs every frame while navigating, so the set
+    /// is reused instead of allocated.
     /// </summary>
     private HashSet<string> BuildNeededItems(string questKey)
     {
-        var result = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
+        _neededItems.Clear();
         var quest = _data.GetByRuntimeKey(questKey);
         if (quest?.RequiredItems == null)
-            return result;
+            return _neededItems;
 
         foreach (var ri in quest.RequiredItems)
         {
             if (_state.CountItem(ri.ItemStableKey) < ri.Quantity)
-                result.Add(ri.ItemName);
+                _neededItems.Add(ri.ItemName);
         }
-        return result;
+        return _neededItems;
     }
 
     private NavigationTarget MakeTarget(

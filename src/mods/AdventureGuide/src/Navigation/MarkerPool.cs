@@ -121,13 +121,6 @@ public sealed class MarkerPool
 /// </summary>
 public sealed class MarkerInstance
 {
-    // ── Icon sizes per marker type ──────────────────────────────
-    private const float SizeTier1 = 8f; // TurnInReady, TurnInRepeatReady
-    private const float SizeTier2 = 7f; // QuestGiver, QuestGiverRepeat, Objective
-    private const float SizeObjective = 6.5f;
-    private const float SizeTier3 = 6f; // TurnInPending
-    private const float SizeInfo = 5.5f; // DeadSpawn, NightSpawn
-
     // ── Face colors ─────────────────────────────────────────────
     private static readonly Color Gold = new(1.0f, 0.85f, 0.3f, 1f);
     private static readonly Color Blue = new(0.4f, 0.65f, 1.0f, 1f);
@@ -147,17 +140,19 @@ public sealed class MarkerInstance
     private const float SubFadeEnd = 80f;
 
     // ── Glyph + color lookup ────────────────────────────────────
-    private static readonly (char glyph, Color color, float size)[] TypeVisuals =
+    // Every marker type uses the configured IconSize. Glyphs are stored as
+    // strings so Configure does not format one per marker.
+    private static readonly (string glyph, Color color)[] TypeVisuals =
     {
-        (MarkerFonts.CircleQuestion, Gold, SizeTier1), // TurnInReady
-        (MarkerFonts.CircleQuestion, Blue, SizeTier1), // TurnInRepeatReady
-        (MarkerFonts.CircleDot, Orange, SizeObjective), // Objective
-        (MarkerFonts.Star, Gold, SizeTier2), // QuestGiver
-        (MarkerFonts.Star, Blue, SizeTier2), // QuestGiverRepeat
-        (MarkerFonts.CircleQuestion, Grey, SizeTier3), // TurnInPending
-        (MarkerFonts.Clock, MutedRed, SizeInfo), // DeadSpawn
-        (MarkerFonts.Moon, PaleBlue, SizeInfo), // NightSpawn
-        (MarkerFonts.Clock, Grey, SizeInfo), // ZoneReentry
+        (MarkerFonts.CircleQuestion.ToString(), Gold), // TurnInReady
+        (MarkerFonts.CircleQuestion.ToString(), Blue), // TurnInRepeatReady
+        (MarkerFonts.CircleDot.ToString(), Orange), // Objective
+        (MarkerFonts.Star.ToString(), Gold), // QuestGiver
+        (MarkerFonts.Star.ToString(), Blue), // QuestGiverRepeat
+        (MarkerFonts.CircleQuestion.ToString(), Grey), // TurnInPending
+        (MarkerFonts.Clock.ToString(), MutedRed), // DeadSpawn
+        (MarkerFonts.Moon.ToString(), PaleBlue), // NightSpawn
+        (MarkerFonts.Clock.ToString(), Grey), // ZoneReentry
     };
 
     public readonly GameObject Root;
@@ -165,6 +160,11 @@ public sealed class MarkerInstance
     private readonly TextMeshPro _subText;
 
     private Color _baseIconColor;
+
+    // Alphas last applied by SetAlpha; it runs every frame, and most markers
+    // sit at a constant alpha (fully visible nearby, invisible far away).
+    private float _iconAlpha = -1f;
+    private float _subTextAlpha = -1f;
 
     public MarkerInstance(GameObject root, TextMeshPro icon, TextMeshPro subText)
     {
@@ -185,7 +185,7 @@ public sealed class MarkerInstance
     )
     {
         int idx = (int)type;
-        var (glyph, color, _) = TypeVisuals[idx];
+        var (glyph, color) = TypeVisuals[idx];
 
         Root.transform.localScale = Vector3.one * markerScale;
 
@@ -196,10 +196,11 @@ public sealed class MarkerInstance
         if (MarkerFonts.SubTextFont != null)
             _subText.font = MarkerFonts.SubTextFont;
 
-        _icon.text = glyph.ToString();
+        _icon.text = glyph;
         _icon.fontSize = iconSize;
         _icon.color = color;
         _baseIconColor = color;
+        _iconAlpha = -1f;
         _icon.transform.localPosition = new Vector3(0f, iconYOffset, 0f);
 
         _subText.fontSize = subTextSize;
@@ -239,23 +240,28 @@ public sealed class MarkerInstance
     }
 
     /// <summary>
-    /// Apply distance-based fade. Icon fades 80-100m, sub-text fades
-    /// 40-60m. Beyond fade end, both are invisible.
+    /// Apply distance-based fade. Icon fades 100-150m, sub-text fades
+    /// 60-80m. Beyond fade end, both are invisible.
     /// </summary>
     public void SetAlpha(float distance)
     {
         float iconAlpha = ComputeFade(distance, IconFadeStart, IconFadeEnd);
         float subAlpha = ComputeFade(distance, SubFadeStart, SubFadeEnd);
 
-        var c = _baseIconColor;
-        c.a = iconAlpha;
-        _icon.color = c;
+        if (iconAlpha != _iconAlpha)
+        {
+            var c = _baseIconColor;
+            c.a = iconAlpha;
+            _icon.color = c;
+            _iconAlpha = iconAlpha;
+        }
 
-        if (_subText.gameObject.activeSelf)
+        if (_subText.gameObject.activeSelf && subAlpha != _subTextAlpha)
         {
             var sc = SubTextColor;
             sc.a = subAlpha;
             _subText.color = sc;
+            _subTextAlpha = subAlpha;
         }
     }
 

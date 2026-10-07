@@ -30,6 +30,12 @@ public sealed class QuestStateTracker
     public string? SelectedQuestKey { get; set; }
     public GuideWorkflowState Workflows { get; }
 
+    /// <summary>
+    /// <see cref="CountItem"/> as a delegate created once. Converting the
+    /// method group at each call allocates, and Update runs every frame.
+    /// </summary>
+    internal Func<string, int> CountItemDelegate { get; }
+
     public event Action<QuestEntry>? WorkflowChanged;
     public event Action<QuestEntry>? WorkflowCycleReset;
 
@@ -39,6 +45,7 @@ public sealed class QuestStateTracker
     internal QuestStateTracker(GuideData data, EntityRegistry entities, IQuestGameState gameState)
     {
         _data = data;
+        CountItemDelegate = CountItem;
         _gameState = gameState;
         Workflows = new GuideWorkflowState(data, entities);
         Workflows.Changed += OnWorkflowChanged;
@@ -56,7 +63,7 @@ public sealed class QuestStateTracker
 
     public void LoadFromConfig(GuideConfig config) => Workflows.LoadFromConfig(config);
 
-    public void OnCharacterLoaded() => Workflows.OnCharacterLoaded(CountItem);
+    public void OnCharacterLoaded() => Workflows.OnCharacterLoaded(CountItemDelegate);
 
     public void SaveToConfig() => Workflows.SaveToConfig();
 
@@ -139,7 +146,7 @@ public sealed class QuestStateTracker
     public void OnInventoryChanged()
     {
         _dirty = true;
-        Workflows.OnInventoryChanged(CurrentZone, _gameState.PlayerPosition, CountItem);
+        Workflows.OnInventoryChanged(CurrentZone, _gameState.PlayerPosition, CountItemDelegate);
         Version++;
     }
 
@@ -147,18 +154,18 @@ public sealed class QuestStateTracker
         Workflows.ObserveCharacterStarted(character);
 
     public void OnCharacterDeath(Character character) =>
-        Workflows.ObserveCharacterDeath(character, CountItem);
+        Workflows.ObserveCharacterDeath(character, CountItemDelegate);
 
     public void OnRewardContainerConsumed(Character character) =>
-        Workflows.ObserveRewardContainerConsumed(character, CountItem);
+        Workflows.ObserveRewardContainerConsumed(character, CountItemDelegate);
 
-    public void Update(float deltaTime) => Workflows.Update(deltaTime, CountItem);
+    public void Update(float deltaTime) => Workflows.Update(deltaTime, CountItemDelegate);
 
     public void OnSceneChanged(string sceneName)
     {
         CurrentZone = sceneName;
         SyncFromGameData();
-        Workflows.OnSceneChanged(sceneName, CountItem);
+        Workflows.OnSceneChanged(sceneName, CountItemDelegate);
     }
 
     public int CountItem(string itemStableKey)
