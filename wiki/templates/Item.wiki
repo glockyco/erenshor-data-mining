@@ -1,6 +1,6 @@
 <includeonly>{{#if:{{{historical_state|}}}|{{Historical Content|state={{{historical_state}}}|thing=item|update={{{historical_update|}}}|date={{{historical_date|}}}|url={{{historical_url|}}}}}}}<infobox type="Item">
     <title source="title"/>
-    <image source="icon"><default>{{{image|}}}</default><caption source="imagecaption"/></image>
+    <image source="icon"><caption source="imagecaption"/></image>
     <data source="type"><label>Type</label></data>
     <data source="aka"><label>Formerly</label></data>
     <data>

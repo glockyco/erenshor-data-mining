@@ -1,7 +1,7 @@
 <includeonly>{| class="item-tooltip item-tooltip-consumable"
 |
 {{Item/Header
- |icon={{#if:{{{icon|{{{image|}}}}}}|{{Icon|{{{icon|{{{image}}}}}}|kind=item|size=80}}}}
+ |icon={{#if:{{{icon|}}}|{{Icon|{{{icon}}}|kind=item|size=80}}}}
  |name={{{name}}}
  |value={{{value|}}}
  |tier=0

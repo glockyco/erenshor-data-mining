@@ -54,15 +54,13 @@ function Tooltip.render(spell)
 	local root = Common.standaloneTooltipRoot("spell", spell.stableKey)
 
 	local headerRow = root:tag("div"):addClass("item-spell-details-header-row")
-	-- The cutover's data modules may still carry the retired image name.
-	local icon = spell.icon or (spell.image and (spell.image .. ".png"))
-	local hasIcon = not Common.isBlank(icon)
+	local hasIcon = not Common.isBlank(spell.icon)
 	if hasIcon then
 		headerRow
 			:tag("div")
 			:addClass("item-spell-details-icon")
 			:wikitext(Icon.render(mw.getCurrentFrame(), {
-				file = icon,
+				file = spell.icon,
 				kind = "ability",
 				size = 48,
 			}))
