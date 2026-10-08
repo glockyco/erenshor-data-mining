@@ -17,6 +17,15 @@ internal enum DirectPlacementGateState
 /// </summary>
 internal static class DirectPlacementPolicy
 {
+    /// <summary>Squared distance within which a live NPC is at an exported placement.</summary>
+    /// <remarks>
+    /// Observed drift is under 0.25 m and exported coordinates are rounded to
+    /// centimetres; 2 m is generous yet tells apart props placed 3 m apart.
+    /// </remarks>
+    private const float MaxDriftSqr = 4f;
+
+    public static bool IsSamePlacement(float squaredDistance) => squaredDistance <= MaxDriftSqr;
+
     public static bool ShouldSuppressRespawn(
         bool characterUnlockIsAmbiguous,
         bool hasSourceScript,

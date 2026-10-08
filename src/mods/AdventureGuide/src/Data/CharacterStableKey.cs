@@ -34,43 +34,84 @@ internal static class CharacterStableKey
         "character:" + objectName.Trim().ToLowerInvariant();
 
     /// <summary>
-    /// The scene object name in the key of a character placed in a scene,
-    /// character:{object}:{scene}:{x}:{y}:{z} with an optional variant
-    /// suffix. NPC.Start renames such objects to NPCName, so the object name
-    /// identifies them where the display name may not ("Catnip (1)" is shown
-    /// as "Catnip (Enemy)" but named "Catnip").
+    /// Parse the key of a character placed in a scene,
+    /// character:{object}:{scene}:{x}:{y}:{z} with an optional variant suffix.
+    /// NPC.Start renames such objects to NPCName, so the object name identifies
+    /// them where the display name may not ("Catnip (1)" is shown as "Catnip
+    /// (Enemy)" but named "Catnip"). Variant scenes copy objects to the same
+    /// position (Shivering Step's Kio stands where Stowaway's does), so the
+    /// scene is part of the identity. Prefab keys, character:{object}, do not
+    /// parse.
     /// </summary>
-    public static bool TryGetPlacedObjectName(string key, out string objectName)
+    public static bool TryParsePlaced(string key, out PlacedCharacterKey placed)
     {
-        objectName = "";
+        placed = default;
         const string prefix = "character:";
         var normalized = Normalize(key);
         if (!normalized.StartsWith(prefix, StringComparison.Ordinal))
             return false;
 
+        // From the end: z, y, x (written with two decimals), then the scene.
+        Span<float> coordinates = stackalloc float[3];
         int end = normalized.Length;
-        for (int segment = 0; segment < 4; segment++)
+        for (int segment = 0; segment < 3; segment++)
         {
             int colon = normalized.LastIndexOf(':', end - 1);
-            if (colon < prefix.Length)
-                return false;
-            // The three coordinates are written with two decimals.
-            if (segment < 3 && !IsCoordinate(normalized.AsSpan(colon + 1, end - colon - 1)))
+            if (
+                colon < prefix.Length
+                || !TryCoordinate(
+                    normalized.AsSpan(colon + 1, end - colon - 1),
+                    out coordinates[2 - segment]
+                )
+            )
                 return false;
             end = colon;
         }
-        if (end == prefix.Length)
+        int sceneStart = normalized.LastIndexOf(':', end - 1);
+        if (sceneStart <= prefix.Length || sceneStart + 1 == end)
             return false;
-        objectName = normalized.Substring(prefix.Length, end - prefix.Length);
+        placed = new PlacedCharacterKey(
+            normalized.Substring(prefix.Length, sceneStart - prefix.Length),
+            normalized.Substring(sceneStart + 1, end - sceneStart - 1),
+            coordinates[0],
+            coordinates[1],
+            coordinates[2]
+        );
         return true;
     }
 
-    private static bool IsCoordinate(ReadOnlySpan<char> value) =>
-        value.IndexOf('.') >= 0
-        && float.TryParse(
-            value,
-            System.Globalization.NumberStyles.Float,
-            System.Globalization.CultureInfo.InvariantCulture,
-            out _
-        );
+    private static bool TryCoordinate(ReadOnlySpan<char> value, out float coordinate)
+    {
+        coordinate = 0f;
+        return value.IndexOf('.') >= 0
+            && float.TryParse(
+                value,
+                System.Globalization.NumberStyles.Float,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out coordinate
+            );
+    }
+}
+
+/// <summary>The parts of a scene-placed character's exported key.</summary>
+internal readonly struct PlacedCharacterKey
+{
+    public PlacedCharacterKey(string objectName, string scene, float x, float y, float z)
+    {
+        ObjectName = objectName;
+        Scene = scene;
+        X = x;
+        Y = y;
+        Z = z;
+    }
+
+    /// <summary>The scene object's name, lowercased like the key.</summary>
+    public string ObjectName { get; }
+
+    /// <summary>The scene name, lowercased like the key.</summary>
+    public string Scene { get; }
+
+    public float X { get; }
+    public float Y { get; }
+    public float Z { get; }
 }

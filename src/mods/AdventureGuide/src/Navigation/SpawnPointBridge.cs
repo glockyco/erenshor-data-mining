@@ -287,8 +287,8 @@ public sealed class SpawnPointBridge
         // guide's display name differs from its NPCName.
         var npc =
             (
-                Data.CharacterStableKey.TryGetPlacedObjectName(stableKey, out var objectName)
-                    ? FindDirectlyPlacedNPC(x, y, z, objectName)
+                Data.CharacterStableKey.TryParsePlaced(stableKey, out var placedKey)
+                    ? FindDirectlyPlacedNPC(x, y, z, placedKey.ObjectName)
                     : null
             ) ?? FindDirectlyPlacedNPC(x, y, z, expectedNPCName);
         if (npc != null)
@@ -517,10 +517,6 @@ public sealed class SpawnPointBridge
         return true;
     }
 
-    /// <summary>Maximum squared distance for matching directly-placed NPCs.</summary>
-    /// <remarks>Observed drift is under 0.25m; 2m threshold is generous.</remarks>
-    private const float MaxDriftSqr = 4f;
-
     /// <summary>
     /// Find a live NPC matching the expected name within proximity of the
     /// static spawn position. Uses the name cache built during Rebuild.
@@ -537,7 +533,11 @@ public sealed class SpawnPointBridge
             // Unity fake-null: destroyed since Rebuild
             if (npc == null)
                 continue;
-            if ((npc.transform.position - target).sqrMagnitude <= MaxDriftSqr)
+            if (
+                DirectPlacementPolicy.IsSamePlacement(
+                    (npc.transform.position - target).sqrMagnitude
+                )
+            )
                 return npc;
         }
         return null;

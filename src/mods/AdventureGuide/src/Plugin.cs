@@ -177,6 +177,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
             SpawnPatch.Loot = _lootScanner;
             SpawnResetPatch.Markers = _markers;
             NpcStartPatch.Markers = _markers;
+            NpcStartPatch.Entities = _entities;
             ScriptedEntityStartPatch.Tracker = _state;
             ScriptedRewardConsumedPatch.Tracker = _state;
             DeathPatch.Registry = _entities;
@@ -506,6 +507,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
         SpawnPatch.Loot = null;
         SpawnResetPatch.Markers = null;
         NpcStartPatch.Markers = null;
+        NpcStartPatch.Entities = null;
         ScriptedEntityStartPatch.Tracker = null;
         ScriptedRewardConsumedPatch.Tracker = null;
         DeathPatch.Registry = null;

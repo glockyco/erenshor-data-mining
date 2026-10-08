@@ -5,12 +5,13 @@ namespace AdventureGuide.Navigation;
 
 /// <summary>
 /// Maintains a stable-key-indexed registry of living NPCs, kept in sync by
-/// Harmony patches on SpawnPoint.SpawnNPC (add) and Character.DoDeath (remove).
-/// Cleared on scene transitions.
+/// Harmony patches on SpawnPoint.SpawnNPC and NPC.Start (add) and
+/// Character.DoDeath (remove). Cleared on scene transitions.
 ///
-/// Stable keys are derived from the character prefab name (for spawned NPCs)
-/// or the GameObject name (for directly placed NPCs), matching the format used
-/// by the export pipeline: "character:{name_lowered}".
+/// Spawned NPCs are keyed by the prefab they were cloned from, matching the
+/// export pipeline's "character:{name_lowered}". NPCs placed in a scene have
+/// exported keys "character:{object}:{scene}:{x}:{y}:{z}" and are found by the
+/// object name and position recorded when they started.
 ///
 /// Lookups are O(1) by stable key. Stale entries (destroyed GameObjects,
 /// dead NPCs missed by the death patch) are filtered out on access.
@@ -33,8 +34,40 @@ public sealed class EntityRegistry
         }
     }
 
+    private readonly struct Placed
+    {
+        public readonly Entry Entry;
+
+        /// <summary>The scene the NPC was placed in.</summary>
+        public readonly string Scene;
+
+        /// <summary>Where the NPC stood when it started; placed NPCs may walk away.</summary>
+        public readonly Vector3 Position;
+
+        public Placed(Entry entry, string scene, Vector3 position)
+        {
+            Entry = entry;
+            Scene = scene;
+            Position = position;
+        }
+    }
+
     private readonly Dictionary<string, List<Entry>> _byKey = new(
         System.StringComparer.OrdinalIgnoreCase
+    );
+
+    // Scene-placed NPCs by lowercased scene object name. NPC.Start renames
+    // them to NPCName, so neither the live name nor the live position
+    // identifies the placement an exported key names.
+    private readonly Dictionary<string, List<Placed>> _placedByName = new(
+        System.StringComparer.OrdinalIgnoreCase
+    );
+
+    // Exported keys parsed once: a placed character's object, scene and
+    // placement, or not placed. Keys come from the guide and prefab names, so
+    // the set stays bounded across scenes.
+    private readonly Dictionary<string, (bool Placed, PlacedCharacterKey Key)> _keyShapes = new(
+        System.StringComparer.Ordinal
     );
 
     // Instance IDs of NPCs a SpawnPoint spawned in the current scene. Encounter
@@ -61,6 +94,39 @@ public sealed class EntityRegistry
 
     /// <summary>Whether a SpawnPoint spawned this NPC during the current scene.</summary>
     public bool IsSpawnPointNpc(NPC npc) => _spawnPointNpcs.Contains(npc.GetInstanceID());
+
+    /// <summary>
+    /// Register an NPC placed in the scene by the object name and position
+    /// recorded before NPC.Start renamed it. Called from the NPC.Start prefix.
+    /// </summary>
+    public void RegisterPlaced(NPC npc)
+    {
+        if (npc == null || !NpcOrigins.TryGetPlacement(npc, out var objectName, out var position))
+            return;
+        var character = npc.GetComponent<Character>();
+        if (character == null)
+            return;
+
+        var name = objectName.Trim().ToLowerInvariant();
+        if (!_placedByName.TryGetValue(name, out var list))
+        {
+            list = new List<Placed>(1);
+            _placedByName[name] = list;
+        }
+        int instanceId = npc.GetInstanceID();
+        foreach (var placed in list)
+        {
+            if (placed.Entry.Npc != null && placed.Entry.Npc.GetInstanceID() == instanceId)
+                return;
+        }
+        list.Add(
+            new Placed(
+                new Entry(npc, character, "character:" + name),
+                npc.gameObject.scene.name,
+                position
+            )
+        );
+    }
 
     /// <summary>Register a scripted entity under an exported descriptor key.</summary>
     public void Register(NPC npc, string stableKey)
@@ -100,12 +166,22 @@ public sealed class EntityRegistry
                     list.RemoveAt(i);
             }
         }
+        foreach (var kvp in _placedByName)
+        {
+            var list = kvp.Value;
+            for (int i = list.Count - 1; i >= 0; i--)
+            {
+                if (list[i].Entry.Npc == npc)
+                    list.RemoveAt(i);
+            }
+        }
     }
 
     /// <summary>Remove all entries. Called on scene transition.</summary>
     public void Clear()
     {
         _byKey.Clear();
+        _placedByName.Clear();
         _spawnPointNpcs.Clear();
     }
 
@@ -145,6 +221,9 @@ public sealed class EntityRegistry
     {
         if (stableKey == null)
             return null;
+        // A placed character's key names one placement, not a kind of NPC.
+        if (TryGetPlacedKey(stableKey, out var placedKey))
+            return FindPlaced(placedKey);
 
         var key = CharacterStableKey.Normalize(stableKey);
         if (!_byKey.TryGetValue(key, out var list))
@@ -184,6 +263,8 @@ public sealed class EntityRegistry
     {
         if (stableKey == null)
             return 0;
+        if (TryGetPlacedKey(stableKey, out var placedKey))
+            return FindPlaced(placedKey) != null ? 1 : 0;
         var key = CharacterStableKey.Normalize(stableKey);
         if (!_byKey.TryGetValue(key, out var list))
             return 0;
@@ -201,6 +282,59 @@ public sealed class EntityRegistry
             _byKey.Remove(key);
 
         return alive;
+    }
+
+    /// <summary>
+    /// Whether a key names a scene placement, parsed once per key: lookups
+    /// run every frame while navigating.
+    /// </summary>
+    private bool TryGetPlacedKey(string stableKey, out PlacedCharacterKey placedKey)
+    {
+        if (!_keyShapes.TryGetValue(stableKey, out var shape))
+        {
+            bool placed = CharacterStableKey.TryParsePlaced(stableKey, out var parsed);
+            shape = (placed, parsed);
+            _keyShapes[stableKey] = shape;
+        }
+        placedKey = shape.Key;
+        return shape.Placed;
+    }
+
+    /// <summary>
+    /// The live NPC placed in the key's scene that started nearest the key's
+    /// placement, within the placement tolerance. Prunes stale entries during
+    /// iteration.
+    /// </summary>
+    private NPC? FindPlaced(in PlacedCharacterKey key)
+    {
+        if (!_placedByName.TryGetValue(key.ObjectName, out var list))
+            return null;
+
+        var placement = new Vector3(key.X, key.Y, key.Z);
+        NPC? best = null;
+        float bestSqr = float.MaxValue;
+        for (int i = list.Count - 1; i >= 0; i--)
+        {
+            var placed = list[i];
+            if (!IsAlive(placed.Entry))
+            {
+                list.RemoveAt(i);
+                continue;
+            }
+            if (!string.Equals(placed.Scene, key.Scene, System.StringComparison.OrdinalIgnoreCase))
+                continue;
+            float sqr = (placed.Position - placement).sqrMagnitude;
+            if (DirectPlacementPolicy.IsSamePlacement(sqr) && sqr < bestSqr)
+            {
+                bestSqr = sqr;
+                best = placed.Entry.Npc;
+            }
+        }
+
+        if (list.Count == 0)
+            _placedByName.Remove(key.ObjectName);
+
+        return best;
     }
 
     // ── Stable key derivation ───────────────────────────────────────

@@ -143,24 +143,53 @@ public sealed class RespawnPolicyTests
     }
 
     [Theory]
-    [InlineData("character:catnip (1):ripperportal:339.55:0.17:757.54", "catnip (1)")]
-    [InlineData("character:a rift vendor:reliquary:269.77:1.44:328.25:1", "a rift vendor")]
     [InlineData(
-        "character:sm_prop_dummy_archery_01:reliquary:268.21:-2.12:360.09",
-        "sm_prop_dummy_archery_01"
+        "character:catnip (1):ripperportal:339.55:0.17:757.54",
+        "catnip (1)",
+        "ripperportal",
+        339.55f,
+        0.17f,
+        757.54f
     )]
-    public void Placed_keys_name_the_scene_object(string key, string objectName)
+    [InlineData(
+        "character:a rift vendor:reliquary:269.77:1.44:328.25:1",
+        "a rift vendor",
+        "reliquary",
+        269.77f,
+        1.44f,
+        328.25f
+    )]
+    [InlineData(
+        "character:kio the lightkeeper:shiveringstep:799.34:20.07:585.85",
+        "kio the lightkeeper",
+        "shiveringstep",
+        799.34f,
+        20.07f,
+        585.85f
+    )]
+    public void Placed_keys_name_the_scene_object_its_scene_and_placement(
+        string key,
+        string objectName,
+        string scene,
+        float x,
+        float y,
+        float z
+    )
     {
-        // NPC.Start renames placed objects to NPCName ("Catnip"), so markers
-        // find "Catnip (Enemy)" by the object name in its key.
-        Assert.True(CharacterStableKey.TryGetPlacedObjectName(key, out var parsed));
-        Assert.Equal(objectName, parsed);
+        // NPC.Start renames placed objects to NPCName ("Catnip"), and Stowaway
+        // has a Kio where Shivering Step's stands, so all three identify one.
+        Assert.True(CharacterStableKey.TryParsePlaced(key, out var parsed));
+        Assert.Equal(
+            (objectName, scene, x, y, z),
+            (parsed.ObjectName, parsed.Scene, parsed.X, parsed.Y, parsed.Z)
+        );
     }
 
     [Theory]
     [InlineData("character:gloopa quarter loot")]
     [InlineData("character:fallen gladiator 1")]
+    [InlineData("character::stowaway:1.00:2.00:3.00")]
     [InlineData("item:gen - an ancient bone")]
-    public void Prefab_keys_have_no_scene_object(string key) =>
-        Assert.False(CharacterStableKey.TryGetPlacedObjectName(key, out _));
+    public void Prefab_and_malformed_keys_name_no_placement(string key) =>
+        Assert.False(CharacterStableKey.TryParsePlaced(key, out _));
 }
