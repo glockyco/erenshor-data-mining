@@ -458,8 +458,11 @@ def _playwright_chromium_available() -> tuple[bool, str]:
 
 
 _MAPS_CHROMIUM_INSTALL = "pnpm --dir src/maps exec playwright install chromium"
+# The maps browser smoke runs full Chromium (`channel: 'chromium'`); the
+# headless shell segfaults when a context closes during a WebGL image load.
 _MAPS_CHROMIUM_LAUNCH = (
-    "const { chromium } = await import('@playwright/test'); await (await chromium.launch()).close();"
+    "const { chromium } = await import('@playwright/test');"
+    " await (await chromium.launch({ channel: 'chromium' })).close();"
 )
 
 

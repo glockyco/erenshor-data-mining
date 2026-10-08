@@ -5,6 +5,9 @@ const PORT = 4179;
 /**
  * Browser smoke test of the fixture site. `scripts/serve-fixture-site.mjs`
  * builds the site from the deterministic map fixture and serves the build.
+ *
+ * Full Chromium, not the headless shell: under CI load the shell segfaults
+ * when a context closes while the world map is still loading an image.
  */
 export default defineConfig({
     testDir: 'tests/e2e',
@@ -14,7 +17,7 @@ export default defineConfig({
         baseURL: `http://127.0.0.1:${PORT}`,
         trace: 'retain-on-failure'
     },
-    projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+    projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'], channel: 'chromium' } }],
     webServer: {
         command: `node scripts/serve-fixture-site.mjs ${PORT}`,
         url: `http://127.0.0.1:${PORT}/`,
