@@ -1177,8 +1177,9 @@ def test_item_use_cycles_terminate_and_preserve_other_sources() -> None:
     ]
 
 
-def test_manual_pickup_preserves_planning_table_instruction_and_place_level() -> None:
+def test_manual_pickup_preserves_instruction_and_requires_the_quest_that_enables_it() -> None:
     quest = quest_node("quest:main", "MAIN")
+    claim = quest_node("quest:claim", "CLAIM")
     item = item_node("item:box", "Box of Portals")
     table = Node(
         "itembag:planning-table",
@@ -1193,9 +1194,15 @@ def test_manual_pickup_preserves_planning_table_instruction_and_place_level() ->
     )
     graph = build_graph(
         quest,
+        claim,
         item,
         table,
-        edges=[Edge(quest.key, item.key, EdgeType.REQUIRES_ITEM), Edge(table.key, item.key, EdgeType.YIELDS_ITEM)],
+        edges=[
+            Edge(quest.key, item.key, EdgeType.REQUIRES_ITEM),
+            Edge(table.key, item.key, EdgeType.YIELDS_ITEM),
+            # The table exists only once the claim quest is complete.
+            Edge(claim.key, table.key, EdgeType.UNLOCKS_ITEM_BAG),
+        ],
     )
     entry = _main_entry(build_mod_guide(graph, compile_graph(graph)))
     assert entry["required_items"][0]["sources"] == [
@@ -1206,6 +1213,7 @@ def test_manual_pickup_preserves_planning_table_instruction_and_place_level() ->
             "level": 16,
             "source_key": table.key,
             "instruction": "Take it from the planning table's portal slot.",
+            "required_quest_db_names": ["CLAIM"],
         }
     ]
 

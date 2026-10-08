@@ -202,3 +202,10 @@ description = "Take it from the planning table's portal slot."
 source = "planningtable:reliquary:267.40:0.09:321.30"
 target = "item:gen - box of portals"
 type = "yields_item"
+
+# QuestSpawnListener (MonoBehaviour 34120) enables PlanningDesk only once
+# "Claiming the Reliquary" is complete, so the table exists only after it.
+[[edges]]
+source = "quest:claimreliquary"
+target = "planningtable:reliquary:267.40:0.09:321.30"
+type = "unlocks_item_bag"

@@ -129,6 +129,8 @@ class EdgeType(str, Enum):
     STEP_BUY = "step_buy"
     STEP_GO_TO = "step_go_to"
     CREATES_ITEM = "creates_item"
+    # quest -> item bag: the pickup exists only once the quest is complete.
+    UNLOCKS_ITEM_BAG = "unlocks_item_bag"
 
 
 # ---------------------------------------------------------------------------

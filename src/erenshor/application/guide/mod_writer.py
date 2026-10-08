@@ -781,13 +781,30 @@ def _with_vendor_source_metadata(
     result: list[dict[str, Any]] = []
     for source in sources:
         value = dict(source)
+        source_key = source.get("source_key")
         if source.get("type") == "vendor":
             value["instruction"] = f"Buy {item.display_name}."
-            source_key = source.get("source_key")
             if isinstance(source_key, str) and source_key in unlocks_by_vendor:
                 value["required_quest_db_names"] = sorted(unlocks_by_vendor[source_key])
+        elif source.get("type") == "pickup" and isinstance(source_key, str):
+            unlocks = _item_bag_unlocks(graph, source_key, nodes)
+            if unlocks:
+                value["required_quest_db_names"] = unlocks
         result.append(value)
     return result
+
+
+def _item_bag_unlocks(graph: EntityGraph, bag_key: str, nodes: dict[str, Node]) -> list[str]:
+    """DB names of the quests that must all be complete before the pickup exists."""
+    names: set[str] = set()
+    for edge in graph.in_edges(bag_key, EdgeType.UNLOCKS_ITEM_BAG):
+        quest = nodes.get(edge.source)
+        if quest is None or quest.type != NodeType.QUEST or not quest.db_name:
+            raise ValueError(f"item bag unlock for {bag_key!r} has invalid quest identity")
+        if edge.group is not None:
+            raise ValueError(f"item bag unlock for {bag_key!r} uses alternative groups")
+        names.add(quest.db_name)
+    return sorted(names)
 
 
 def _item_sources(
