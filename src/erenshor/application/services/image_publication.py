@@ -606,10 +606,13 @@ def write_contact_sheets(
             with Image.open(new_path) as new:
                 _paste(sheet, new, _LABEL_WIDTH, top)
             for column, file in enumerate(shown_files):
+                # pictures.content() raises ValueError on a SHA-1 mismatch, which the wiki's CDN can
+                # cause by serving stale bytes for a title's versioned URL; one sheet row does not
+                # hold up the comparison for the rest.
                 try:
                     with Image.open(io.BytesIO(pictures.content(file))) as old:
                         _paste(sheet, old, _LABEL_WIDTH + (column + 2) * (_CELL + 8), top)
-                except (UnidentifiedImageError, OSError):
+                except (UnidentifiedImageError, OSError, ValueError):
                     draw.text((_LABEL_WIDTH + (column + 2) * (_CELL + 8), top + 24), "?", fill=(255, 80, 80))
         path = directory / f"contact-sheet-{start // _ROWS_PER_SHEET + 1:03d}.png"
         sheet.save(path)

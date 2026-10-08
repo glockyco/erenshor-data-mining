@@ -304,6 +304,25 @@ def test_a_game_update_that_changes_two_icons_plans_two_updates_and_shows_both(s
         assert image.height == 24 + 2 * 80
 
 
+def test_a_live_picture_whose_bytes_do_not_match_its_listed_sha1_draws_as_unreadable(setup: Any) -> None:
+    """wiki.gg's CDN has served a title's old or wrong bytes under its current, versioned URL (observed
+    2026-10-08); one such title must not stop the sheet from showing the rest."""
+    pictures, wiki, cache, tmp_path = setup
+    pictures.add(_png((200, 0, 0, 255)), "File:Thorned Branch.png")
+    pictures.add(_png((0, 200, 0, 255)), "File:Azure Willow Seed.png")
+    wiki.put_file("File:Thorned Branch.png", OLD)
+    wiki.put_file("File:Azure Willow Seed.png", OLD)
+    catalog = pictures.build()
+    plan = _plan(catalog, wiki, cache)
+    real_download = wiki.download
+    wiki.download = lambda url: SCROLL if url == "u:File:Thorned Branch.png" else real_download(url)  # type: ignore[method-assign]
+
+    (sheet,) = write_contact_sheets(plan, catalog, wiki.listing(), cache, tmp_path / "run")
+
+    with Image.open(sheet) as image:
+        assert image.height == 24 + 2 * 80
+
+
 def test_an_update_records_its_provenance_and_keeps_the_description(setup: Any) -> None:
     pictures, wiki, cache, tmp_path = setup
     image_hash = pictures.add(_png((200, 0, 0, 255)), "File:Thorned Branch.png", source="Assets/Texture2D/4_8.png")

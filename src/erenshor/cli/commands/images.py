@@ -251,13 +251,31 @@ def review(ctx: typer.Context) -> None:
             for result in run.results
             if (file := live.shown(f"File:{picture_file_title('render', result.subject)}")) is not None
         }
+        unreachable: list[str] = []
         for file in shown.values():
-            pictures.content(file)
+            try:
+                pictures.content(file)
+            except ValueError:
+                # The wiki's CDN can serve stale bytes for a title's versioned URL; the sheet shows
+                # that title as unreadable instead of losing the rest of the review to it.
+                unreachable.append(file.title)
         console.print(f"{len(shown)} titles show a picture on the wiki; {pictures.downloads} downloaded")
+        if unreachable:
+            console.print(
+                f"[yellow]![/yellow] {len(unreachable)} titles did not download with the SHA-1 the wiki "
+                f"lists, likely a stale CDN copy: {', '.join(unreachable[:10])}"
+                + (f" and {len(unreachable) - 10} more" if len(unreachable) > 10 else "")
+            )
 
     def wiki(title: str) -> WikiPicture | None:
         file = shown.get(title)
-        return WikiPicture(file.user, pictures.content(file)) if file is not None else None
+        if file is None:
+            return None
+        if file.title in unreachable:
+            # Already failed in the prefetch loop while the reader was open; retrying here would hit
+            # the closed client, since this closure runs after the reader's `with` block exits.
+            return WikiPicture(file.user, b"")
+        return WikiPicture(file.user, pictures.content(file))
 
     sheets_dir = staging / "contact-sheets"
     if sheets_dir.exists():
