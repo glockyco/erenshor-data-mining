@@ -3183,6 +3183,60 @@
       "mapping_type": "custom",
       "reason": null
     },
+    "quest:reliq-hidden": {
+      "display_name": "Portal of Hidden Hills",
+      "wiki_page_name": "Portal of Hidden Hills",
+      "image_name": "Portal of Hidden Hills",
+      "mapping_type": "exclude",
+      "reason": "No acquisition source; the only completion is the unused rune receptacle. The quest asset is referenced only by that receptacle and an inactive listener. The planning table rune slots open the portals directly.",
+      "is_wiki_generated": 1,
+      "is_map_visible": 0
+    },
+    "quest:reliq-ripper": {
+      "display_name": "Portal of Ripper's Keep",
+      "wiki_page_name": "Portal of Ripper's Keep",
+      "image_name": "Portal of Ripper's Keep",
+      "mapping_type": "exclude",
+      "reason": "No acquisition source; the only completion is the unused rune receptacle. The quest asset is referenced only by that receptacle and an inactive listener. The planning table rune slots open the portals directly.",
+      "is_wiki_generated": 1,
+      "is_map_visible": 0
+    },
+    "quest:reliq-sands": {
+      "display_name": "Portal of Sands",
+      "wiki_page_name": "Portal of Sands",
+      "image_name": "Portal of Sands",
+      "mapping_type": "exclude",
+      "reason": "No acquisition source; the only completion is the unused rune receptacle. The quest asset is referenced only by that receptacle and an inactive listener. The planning table rune slots open the portals directly.",
+      "is_wiki_generated": 1,
+      "is_map_visible": 0
+    },
+    "quest:reliq-silkengrass": {
+      "display_name": "Portal of Silkengrass",
+      "wiki_page_name": "Portal of Silkengrass",
+      "image_name": "Portal of Silkengrass",
+      "mapping_type": "exclude",
+      "reason": "No acquisition source; the only completion is the unused rune receptacle. The quest asset is referenced only by that receptacle and an inactive listener. The planning table rune slots open the portals directly.",
+      "is_wiki_generated": 1,
+      "is_map_visible": 0
+    },
+    "quest:reliq-soluna": {
+      "display_name": "Portal of Soluna",
+      "wiki_page_name": "Portal of Soluna",
+      "image_name": "Portal of Soluna",
+      "mapping_type": "exclude",
+      "reason": "No acquisition source; the only completion is the unused rune receptacle. The quest asset is referenced only by that receptacle and an inactive listener. The planning table rune slots open the portals directly.",
+      "is_wiki_generated": 1,
+      "is_map_visible": 0
+    },
+    "quest:reliq-winds": {
+      "display_name": "Portal of Windwashed",
+      "wiki_page_name": "Portal of Windwashed",
+      "image_name": "Portal of Windwashed",
+      "mapping_type": "exclude",
+      "reason": "No acquisition source; the only completion is the unused rune receptacle. The quest asset is referenced only by that receptacle and an inactive listener. The planning table rune slots open the portals directly.",
+      "is_wiki_generated": 1,
+      "is_map_visible": 0
+    },
     "quest:amethikeys": {
       "wiki_page_name": null,
       "display_name": "A Retired Locksmith",
