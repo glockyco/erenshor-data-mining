@@ -16,7 +16,8 @@ through multiple connections to get you there.
 
 Need an item? Every source is listed — enemy drops, vendors, mining
 nodes, fishing spots, crafting recipes, quest rewards. Click any source
-and the arrow takes you to it. When a source is another quest's reward,
+and the arrow takes you there (for fishing, to a zone with the right
+water). When a source is another quest's reward,
 that quest's walkthrough unfolds inline with its own nav buttons.
 
 ## See what you've been missing
@@ -27,8 +28,9 @@ Floating icons appear above NPCs in the game world — quest givers
 you've walked past, turn-in targets waiting for your items, enemies you
 need to hunt down. Kill a quest mob and its marker switches to a live
 respawn timer. Night-only spawns show the spawn window and current game
-time so you know when to come back. Turn on ShowAllRespawnTimers to see
-respawn timers at every spawn point in the zone, quest or not.
+time so you know when to come back. Turn on
+World Markers.ShowAllRespawnTimers to see respawn timers at every spawn
+point in the zone, quest or not.
 
 ## Know the whole path
 
@@ -53,18 +55,18 @@ you left them.
 All settings are in `BepInEx/config/wow-much.adventure-guide.cfg`
 (generated on first launch), or edit in-game with
 [Configuration Manager](https://github.com/BepInEx/BepInEx.ConfigurationManager)
-(F1).
+(F1). Settings are listed as section.key.
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| ShowArrow | on | GPS arrow pointing to navigation target |
-| ShowGroundPath | off | Ground path line using NavMesh pathfinding |
-| ShowWorldMarkers | on | Floating quest icons above NPCs |
-| ShowAllRespawnTimers | off | Respawn timers at every spawn point, not only for quest targets |
-| TrackerEnabled | on | Quest tracker overlay |
-| TrackerAutoTrack | on | Auto-track newly accepted quests |
-| ReplaceQuestLog | off | J opens Adventure Guide instead of the game's quest log |
-| UiScale | auto | UI size factor (-1 = auto-detect from resolution) |
-| TrackerBackgroundOpacity | 0.40 | Tracker overlay transparency |
-| TrackerSortMode | Proximity | Sort tracked quests: Proximity, Level, or Alphabetical |
-| MarkerScale | 1.0 | World marker size multiplier |
+| Navigation.ShowArrow | on | GPS arrow pointing to navigation target |
+| Navigation.ShowGroundPath | off | Ground path line using NavMesh pathfinding |
+| World Markers.Enabled | on | Floating quest icons above NPCs |
+| World Markers.ShowAllRespawnTimers | off | Respawn timers at every spawn point, not only for quest targets |
+| World Markers.Scale | 1.0 | World marker size multiplier |
+| Tracker.Enabled | on | Quest tracker overlay |
+| Tracker.AutoTrack | on | Auto-track newly accepted quests |
+| Tracker.SortMode | Proximity | Sort tracked quests: Proximity, Level, or Alphabetical |
+| Tracker.BackgroundOpacity | 0.40 | Tracker overlay transparency |
+| General.ReplaceQuestLog | off | J opens Adventure Guide instead of the game's quest log |
+| General.UiScale | auto | UI size factor from 0.5 to 4, or -1 to pick one from your screen resolution |

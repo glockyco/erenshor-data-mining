@@ -16,7 +16,8 @@ through multiple connections to get you there.
 
 Need an item? Every source is listed — enemy drops, vendors, mining
 nodes, fishing spots, crafting recipes, quest rewards. Click any source
-and the arrow takes you to it. When a source is another quest's reward,
+and the arrow takes you there (for fishing, to a zone with the right
+water). When a source is another quest's reward,
 that quest's walkthrough unfolds inline with its own nav buttons.
 
 ## See what you've been missing
@@ -65,4 +66,4 @@ Settings are configured through the Lunaris config UI.
 | Tracker.SortMode | Proximity | Sort tracked quests: Proximity, Level, or Alphabetical |
 | Tracker.BackgroundOpacity | 0.40 | Tracker overlay transparency |
 | General.ReplaceQuestLog | off | Open Adventure Guide instead of the game's quest log |
-| General.UiScale | auto | UI size factor (-1 = auto-detect from resolution) |
+| General.UiScale | auto | UI size factor from 0.5 to 4, or -1 to pick one from your screen resolution |
