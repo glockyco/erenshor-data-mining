@@ -220,6 +220,7 @@ def test_build_mod_guide_preserves_wrapper_shape_and_quest_identity() -> None:
         "_zone_lines",
         "_chain_groups",
         "_character_quest_unlocks",
+        "_excluded_quests",
         "quests",
     ]
     assert data["_version"] == 6
@@ -230,6 +231,19 @@ def test_build_mod_guide_preserves_wrapper_shape_and_quest_identity() -> None:
     assert main["description"] == "Recover the relic."
     assert main["acceptance"] == "explicit"
     assert data["_chain_groups"] == [{"name": "Previous Quest", "quests": ["PREVIOUS", "MAIN", "SECOND"]}]
+
+
+def test_build_mod_guide_lists_excluded_quests_and_rejects_guide_quests() -> None:
+    graph, _ = _fixture()
+    compiled = compile_graph(graph)
+
+    # The mod stubs every game quest the guide lacks, except these.
+    assert build_mod_guide(graph, compiled, ["RELIQ-B", "RELIQ-A", "RELIQ-A"])["_excluded_quests"] == [
+        "RELIQ-A",
+        "RELIQ-B",
+    ]
+    with pytest.raises(ValueError, match="MAIN"):
+        build_mod_guide(graph, compiled, ["MAIN"])
 
 
 def test_build_mod_guide_emits_acquisition_completion_and_ordered_steps() -> None:
@@ -718,6 +732,7 @@ def test_serialize_mod_guide_is_compact_deterministic_and_json() -> None:
         "_zone_lines",
         "_chain_groups",
         "_character_quest_unlocks",
+        "_excluded_quests",
         "quests",
     ]
     assert parsed["_character_spawns"]["char:unlockable"][0] == {

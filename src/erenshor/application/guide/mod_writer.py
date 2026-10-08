@@ -16,11 +16,20 @@ from .compiler import CompiledData, QuestSpec, edge_type_byte, node_type_byte
 from .schema import Edge, EdgeType, Node, NodeType
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from .graph import EntityGraph
 
 
-def build_mod_guide(graph: EntityGraph, compiled: CompiledData) -> dict[str, Any]:
-    """Build the stable, depth-one JSON shape consumed by the C# mod."""
+def build_mod_guide(
+    graph: EntityGraph, compiled: CompiledData, excluded_quest_db_names: Iterable[str] = ()
+) -> dict[str, Any]:
+    """Build the stable, depth-one JSON shape consumed by the C# mod.
+
+    ``excluded_quest_db_names`` names game quests the mapping keeps out of the
+    guide on purpose, such as unobtainable placeholders. The mod lists every
+    game quest the guide lacks as a stub; it skips these.
+    """
     nodes = {node.key: node for node in graph.all_nodes()}
     quests = sorted(
         (node for node in nodes.values() if node.type == NodeType.QUEST),
@@ -59,6 +68,7 @@ def build_mod_guide(graph: EntityGraph, compiled: CompiledData) -> dict[str, Any
         "_zone_lines": _zone_lines(graph, nodes, incoming_unlocks, db_names),
         "_chain_groups": _chain_groups(quests, graph, nodes, db_names),
         "_character_quest_unlocks": _character_unlocks(nodes, incoming_unlocks, db_names),
+        "_excluded_quests": _excluded_quests(excluded_quest_db_names, db_names),
         "quests": [
             _quest_entry(
                 quest,
@@ -79,9 +89,18 @@ def build_mod_guide(graph: EntityGraph, compiled: CompiledData) -> dict[str, Any
     return cast("dict[str, Any]", _sanitize(result))
 
 
-def serialize_mod_guide(graph: EntityGraph, compiled: CompiledData) -> str:
+def serialize_mod_guide(graph: EntityGraph, compiled: CompiledData, excluded_quest_db_names: Iterable[str] = ()) -> str:
     """Build and compactly serialize the legacy wrapper deterministically."""
-    return json.dumps(build_mod_guide(graph, compiled), separators=(",", ":"), allow_nan=False)
+    return json.dumps(build_mod_guide(graph, compiled, excluded_quest_db_names), separators=(",", ":"), allow_nan=False)
+
+
+def _excluded_quests(excluded_quest_db_names: Iterable[str], db_names: dict[str, str | None]) -> list[str]:
+    excluded = sorted(set(excluded_quest_db_names))
+    included = {name for name in db_names.values() if name}
+    overlap = sorted(set(excluded) & included)
+    if overlap:
+        raise ValueError(f"quests both excluded and in the guide: {overlap}")
+    return excluded
 
 
 def _validate_quest_identity(quests: list[Node]) -> None:

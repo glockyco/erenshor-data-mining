@@ -49,4 +49,17 @@ def denormalize_quest_metadata(graph: EntityGraph, db_path: Path) -> None:
         conn.close()
 
 
-__all__ = ["build_graph", "denormalize_quest_metadata"]
+def excluded_quest_db_names(db_path: Path) -> list[str]:
+    """DB names of the game quests that the mapping keeps out of the guide.
+
+    The graph holds only quests with ``is_map_visible = 1``; these are the rest.
+    """
+    conn = sqlite3.connect(db_path)
+    try:
+        rows = conn.execute("SELECT db_name FROM quests WHERE is_map_visible = 0 AND db_name IS NOT NULL")
+        return sorted(str(row[0]) for row in rows)
+    finally:
+        conn.close()
+
+
+__all__ = ["build_graph", "denormalize_quest_metadata", "excluded_quest_db_names"]

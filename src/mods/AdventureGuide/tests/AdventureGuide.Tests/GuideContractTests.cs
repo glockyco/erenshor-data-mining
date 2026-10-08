@@ -40,6 +40,9 @@ public sealed class GuideContractTests
             );
             Assert.Contains(workflows, quest => quest.DisplayName == "Demented Malaroth");
             Assert.Contains(workflows, quest => quest.DisplayName == "Shivunax");
+            // The dead Reliquary portal quests are excluded, not stubbed.
+            Assert.False(data.ShouldStubUnknownQuest("RELIQ-HIDDEN"));
+            Assert.False(data.ShouldStubUnknownQuest("AmethiKeys"));
             for (int round = 1; round <= 8; round++)
             {
                 string expected = $"Vitheo's arena - Round {round}";
@@ -67,6 +70,37 @@ public sealed class GuideContractTests
 
         var error = Assert.Throws<InvalidDataException>(() => GuideData.ValidateWrapper(wrapper));
         Assert.Contains("identity collides", error.Message);
+    }
+
+    [Fact]
+    public void Unknown_quests_are_stubbed_unless_excluded_or_known()
+    {
+        var data = GuideData.FromWrapper(
+            new GuideWrapper
+            {
+                Version = 6,
+                Quests = [OrdinaryQuest("quest:known", "KnownDB")],
+                ExcludedQuests = ["PlaceholderDB"],
+            }
+        );
+
+        // A quest a game update adds still shows up before the guide catches up.
+        Assert.True(data.ShouldStubUnknownQuest("AddedByUpdateDB"));
+        Assert.False(data.ShouldStubUnknownQuest("placeholderdb"));
+        Assert.False(data.ShouldStubUnknownQuest("KnownDB"));
+    }
+
+    [Fact]
+    public void Validation_rejects_a_quest_both_excluded_and_in_the_guide()
+    {
+        var wrapper = new GuideWrapper
+        {
+            Version = 6,
+            Quests = [OrdinaryQuest("quest:known", "KnownDB")],
+            ExcludedQuests = ["KnownDB"],
+        };
+
+        Assert.Throws<InvalidDataException>(() => GuideData.ValidateWrapper(wrapper));
     }
 
     [Fact]

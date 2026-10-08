@@ -104,6 +104,7 @@ def export_mod(
 
     from erenshor.application.guide.compiler import compile_graph
     from erenshor.application.guide.generator import generate as gen_graph
+    from erenshor.application.guide.graph_builder import excluded_quest_db_names
     from erenshor.application.guide.mod_writer import serialize_mod_guide
 
     typer.echo(f"Reading entity data from {db_path}")
@@ -111,7 +112,7 @@ def export_mod(
     typer.echo(f"Built graph: {graph.node_count} nodes, {graph.edge_count} edges")
 
     compiled = compile_graph(graph)
-    text = serialize_mod_guide(graph, compiled)
+    text = serialize_mod_guide(graph, compiled, excluded_quest_db_names(db_path))
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(text, encoding="utf-8")
     typer.echo(f"Wrote {output} ({len(text.encode('utf-8')):,} bytes, {len(compiled.quest_node_ids)} quests)")

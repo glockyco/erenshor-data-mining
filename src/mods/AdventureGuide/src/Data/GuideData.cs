@@ -21,6 +21,10 @@ public sealed partial class GuideData
         StringComparer.OrdinalIgnoreCase
     );
 
+    // Game quests the guide leaves out on purpose (unobtainable placeholders
+    // and quests nothing in the game can finish); never shown as stubs.
+    private readonly HashSet<string> _excludedQuests = new(StringComparer.OrdinalIgnoreCase);
+
     public IReadOnlyList<QuestEntry> All => _all;
     public int Count => _all.Count;
 
@@ -136,9 +140,18 @@ public sealed partial class GuideData
                 furnitureSetNames[key] = set.DisplayName;
         }
         data.FurnitureSetNames = furnitureSetNames;
+        if (wrapper.ExcludedQuests != null)
+            data._excludedQuests.UnionWith(wrapper.ExcludedQuests);
 
         return data;
     }
+
+    /// <summary>
+    /// Whether a game quest belongs in the guide as a stub: unknown to the
+    /// guide (a quest a game update added) and not deliberately excluded.
+    /// </summary>
+    internal bool ShouldStubUnknownQuest(string dbName) =>
+        !_byDBName.ContainsKey(dbName) && !_excludedQuests.Contains(dbName);
 
     internal static void ValidateWrapper(GuideWrapper wrapper)
     {
@@ -194,6 +207,17 @@ public sealed partial class GuideData
         }
 
         ValidateFurnishings(wrapper);
+
+        if (wrapper.ExcludedQuests != null)
+        {
+            foreach (var dbName in wrapper.ExcludedQuests)
+            {
+                if (dbNames.Contains(dbName))
+                    throw new InvalidDataException(
+                        $"Quest {dbName} is both excluded and in the guide"
+                    );
+            }
+        }
     }
 
     /// <summary>
@@ -521,6 +545,9 @@ internal sealed class GuideWrapper
 
     [JsonProperty("_furniture_sets")]
     public Dictionary<string, FurnitureSetInfo>? FurnitureSets { get; set; }
+
+    [JsonProperty("_excluded_quests")]
+    public List<string>? ExcludedQuests { get; set; }
 
     [JsonProperty("quests")]
     public List<QuestEntry>? Quests { get; set; }

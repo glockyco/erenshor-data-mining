@@ -4,8 +4,8 @@ public sealed partial class GuideData
 {
     /// <summary>
     /// Scan the game's QuestDB for quests not in the guide and create
-    /// stub entries with name and description. Returns the number of
-    /// quests discovered.
+    /// stub entries with name and description, so quests a game update adds
+    /// still appear. Quests the guide excludes on purpose get no stub.
     /// Returns the count of discovered quests, or -1 if QuestDB
     /// is not yet available (caller should retry later).
     /// </summary>
@@ -22,7 +22,7 @@ public sealed partial class GuideData
                 continue;
             if (string.IsNullOrEmpty(quest.DBName))
                 continue;
-            if (_byDBName.ContainsKey(quest.DBName))
+            if (!ShouldStubUnknownQuest(quest.DBName))
                 continue;
 
             var stub = new QuestEntry
