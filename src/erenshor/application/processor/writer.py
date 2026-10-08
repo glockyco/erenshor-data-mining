@@ -1029,6 +1029,9 @@ CREATE TABLE character_spawns (
     -- table turns on this directly placed character. The character stands at
     -- its spot only in the rooms that hold the set.
     furniture_item_stable_key TEXT REFERENCES items (stable_key),
+    -- The planning-table room slot (L1-L4 or R1-R4) containing this furnishing.
+    -- Set exactly when furniture_item_stable_key is set.
+    furniture_slot TEXT,
     PRIMARY KEY (character_stable_key, spawn_point_stable_key, is_directly_placed)
 );
 

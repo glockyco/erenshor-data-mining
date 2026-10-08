@@ -29,8 +29,8 @@ def test_a_room_furnishing_takes_the_furniture_set_that_names_it() -> None:
     )
 
     assert furniture_items_by_character(raw) == {
-        "character:dummy l1": "item:wood training set",
-        "character:dummy r4": "item:stone training set",
+        "character:dummy l1": ("item:wood training set", "L1"),
+        "character:dummy r4": ("item:stone training set", "R4"),
     }
 
 

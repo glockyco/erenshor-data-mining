@@ -20,8 +20,8 @@ if TYPE_CHECKING:
 _ROOM_SLOTS = frozenset({"L1", "L2", "L3", "L4", "R1", "R2", "R3", "R4"})
 
 
-def furniture_items_by_character(raw: sqlite3.Connection) -> dict[str, str]:
-    """The furniture set that places each character of a planning table room, by character stable key.
+def furniture_items_by_character(raw: sqlite3.Connection) -> dict[str, tuple[str, str]]:
+    """The furniture set and room slot that place each character, by stable key.
 
     A room keeps its furnishings when the player puts in an item other than a
     furniture set or an empty slot, and a furniture set turns on the child that
@@ -36,7 +36,7 @@ def furniture_items_by_character(raw: sqlite3.Connection) -> dict[str, str]:
         if furnishing in furniture:
             raise ValueError(f"furniture sets {furniture[furnishing]} and {item_key} both build {furnishing!r}")
         furniture[str(furnishing)] = str(item_key)
-    placed: dict[str, str] = {}
+    placed: dict[str, tuple[str, str]] = {}
     for character_key, slot, furnishing in raw.execute(
         "SELECT CharacterStableKey, Slot, Furnishing FROM PlanningTableCharacters ORDER BY CharacterStableKey"
     ):
@@ -45,5 +45,5 @@ def furniture_items_by_character(raw: sqlite3.Connection) -> dict[str, str]:
         item_key = furniture.get(str(furnishing))
         if item_key is None:
             raise ValueError(f"{character_key}: no furniture set builds the furnishing {furnishing!r}")
-        placed[str(character_key)] = item_key
+        placed[str(character_key)] = (item_key, str(slot))
     return placed

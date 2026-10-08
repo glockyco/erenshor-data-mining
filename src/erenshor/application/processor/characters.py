@@ -148,6 +148,7 @@ class _SpawnRow:
     # The furniture set whose placement in a room of the planning table turns
     # on this directly placed character.
     furniture_item_stable_key: str | None = None
+    furniture_slot: str | None = None
 
 
 @dataclass
@@ -731,7 +732,8 @@ def process_characters(
                 is_rare=None,
                 is_wiki_generated=None,
                 is_map_visible=None,
-                furniture_item_stable_key=furniture_by_char.get(sk),
+                furniture_item_stable_key=furniture_by_char.get(sk, (None, None))[0],
+                furniture_slot=furniture_by_char.get(sk, (None, None))[1],
             )
 
     # Load spawn-point based spawns
@@ -801,7 +803,10 @@ def process_characters(
                 is_rare=cast("int | None", r.get("IsRare")),
                 is_wiki_generated=spawn_override["is_wiki_generated"] if spawn_override else None,
                 is_map_visible=spawn_override["is_map_visible"] if spawn_override else None,
-                furniture_item_stable_key=furniture_by_char.get(sk) if r.get("IsDirectlyPlaced") else None,
+                furniture_item_stable_key=furniture_by_char.get(sk, (None, None))[0]
+                if r.get("IsDirectlyPlaced")
+                else None,
+                furniture_slot=furniture_by_char.get(sk, (None, None))[1] if r.get("IsDirectlyPlaced") else None,
             )
         )
 
@@ -1262,6 +1267,7 @@ def process_characters(
                     "trigger_bounds_extents_y": s.trigger_bounds_extents_y,
                     "trigger_bounds_extents_z": s.trigger_bounds_extents_z,
                     "furniture_item_stable_key": s.furniture_item_stable_key,
+                    "furniture_slot": s.furniture_slot,
                 }
             )
     writer.insert_character_spawns(spawn_out)
