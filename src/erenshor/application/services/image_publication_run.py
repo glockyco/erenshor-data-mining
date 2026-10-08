@@ -17,6 +17,13 @@ nothing and a later revert can restore what the run changed. A revert uploads
 the replaced bytes again, restores deleted files, restores a redirect it
 changed, and moves a moved file back without a redirect. Created files and
 created redirects stay, and the revert lists them.
+
+wiki.gg's CDN sometimes caches a request that lands on a title's raw image
+URL in the moment between a write and the backend settling, and goes on
+serving those wrong bytes under the correct, versioned URL until something
+purges it (observed on 823 of 2,794 titles after the picture cutover of
+2026-10-08, confirmed fixed one by one with ``action=purge``). A successful
+upload or move purges its title at once so readers never see this.
 """
 
 from __future__ import annotations
@@ -25,6 +32,8 @@ import json
 import re
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Protocol
+
+from loguru import logger
 
 from erenshor.infrastructure.wiki import MediaWikiAPIError, MediaWikiNetworkError, MediaWikiUploadWarningError
 
@@ -83,6 +92,8 @@ class PublishWriter(Protocol):
         self, title: str, content: str, base_revision: MediaWikiPageRevision, summary: str | None = None
     ) -> int: ...
 
+    def purge_pages(self, titles: Sequence[str], force_link_update: bool = True) -> tuple[str, ...]: ...
+
 
 class AdministratorWriter(Protocol):
     """The moves and deletions of an administrator's account that a run and its revert need."""
@@ -93,10 +104,20 @@ class AdministratorWriter(Protocol):
 
     def undelete_page(self, title: str, reason: str) -> None: ...
 
+    def purge_pages(self, titles: Sequence[str], force_link_update: bool = True) -> tuple[str, ...]: ...
+
 
 def comment(picture: Picture, game_build: str) -> str:
     """The upload comment that records a picture's provenance."""
     return f"Game picture {picture.image_hash} ({picture.kind} from {picture.source}, game build {game_build})"
+
+
+def _purge(client: PublishWriter | AdministratorWriter, titles: Sequence[str]) -> None:
+    """Purge a title's CDN cache after a write, best-effort: a failure here does not undo the write."""
+    try:
+        client.purge_pages(titles, force_link_update=False)
+    except MediaWikiAPIError as error:
+        logger.warning(f"Purging {', '.join(titles)} after the write failed: {error}")
 
 
 def description(picture: Picture, game_build: str) -> str:
@@ -265,6 +286,7 @@ def move(
     if moved is None or moved.sha1 != sha1:
         record.add(_not_done(title, "move", "the moved file does not have the planned SHA-1"))
         return False
+    _purge(administrator, (title, source))
     return True
 
 
@@ -313,6 +335,7 @@ def _upload(item: PlannedTitle, catalog: Catalog, writer: PublishWriter, record:
             "replaced": str(replaced.relative_to(record.directory)) if replaced is not None else None,
         }
     )
+    _purge(writer, (item.title,))
     return True
 
 
@@ -339,6 +362,7 @@ def _delete_copy(
             "description": page.source_text,
         }
     )
+    _purge(administrator, (item.title,))
     return True
 
 
@@ -367,6 +391,7 @@ def _delete_orphan(
         record.add(entry | {"reason": f"the deletion failed: {error}"})
         return
     record.add(entry | {"done": True, "sha1": current.sha1, "redirects": redirects})
+    _purge(administrator, (orphan.title, *redirects))
 
 
 def redirect(
@@ -486,6 +511,7 @@ def _revert_move(
         record.add({"title": title, "action": "revert move", "done": False, "reason": str(error)})
         return
     record.add({"title": title, "action": "revert move", "done": True, "source": source})
+    _purge(administrator, (title, source))
 
 
 def _revert_update(
@@ -519,6 +545,7 @@ def _revert_update(
         record.add({"title": title, "action": "revert update", "done": False, "reason": str(error)})
         return
     record.add({"title": title, "action": "revert update", "done": True, "sha1": entry["old_sha1"]})
+    _purge(writer, (title,))
 
 
 def _restore_copy(
@@ -544,6 +571,7 @@ def _restore_copy(
         record.add({"title": title, "action": "revert retire", "done": False, "reason": str(error)})
         return
     record.add({"title": title, "action": "revert retire", "done": True})
+    _purge(administrator, (title,))
 
 
 def _restore_orphan(entry: dict[str, Any], administrator: AdministratorWriter, record: RunRecord, summary: str) -> None:
@@ -556,6 +584,7 @@ def _restore_orphan(entry: dict[str, Any], administrator: AdministratorWriter, r
         record.add({"title": title, "action": "revert orphan", "done": False, "reason": str(error)})
         return
     record.add({"title": title, "action": "revert orphan", "done": True})
+    _purge(administrator, (title, *entry.get("redirects", ())))
 
 
 def _restore_redirect(entry: dict[str, Any], writer: PublishWriter, record: RunRecord, summary: str) -> None:

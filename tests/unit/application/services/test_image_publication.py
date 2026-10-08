@@ -22,7 +22,12 @@ from erenshor.application.services.image_publication import (
     write_contact_sheets,
 )
 from erenshor.application.services.image_publication_run import RunRecord, execute, revert
-from erenshor.infrastructure.wiki import MediaWikiEditError, MediaWikiNetworkError, MediaWikiUploadWarningError
+from erenshor.infrastructure.wiki import (
+    MediaWikiAPIError,
+    MediaWikiEditError,
+    MediaWikiNetworkError,
+    MediaWikiUploadWarningError,
+)
 from erenshor.infrastructure.wiki.client import (
     MediaWikiFile,
     MediaWikiFileVersion,
@@ -72,6 +77,7 @@ class FakeWiki:
     watched: tuple[str, ...] = ()
     dark: set[str] = field(default_factory=set)
     _stash: dict[str, tuple[str, bytes, str]] = field(default_factory=dict)
+    purged: list[tuple[str, ...]] = field(default_factory=list)
 
     # Arranging the wiki
 
@@ -217,6 +223,13 @@ class FakeWiki:
         if title not in self.pages:
             self._write_page(title, text)
 
+    # CDN purge
+
+    def purge_pages(self, titles: Any, force_link_update: bool = True) -> tuple[str, ...]:
+        titles = tuple(titles)
+        self.purged.append(titles)
+        return titles
+
 
 class _Catalog:
     """Pictures written to disk and the titles that name them."""
@@ -303,6 +316,7 @@ def test_an_update_records_its_provenance_and_keeps_the_description(setup: Any) 
     assert "Assets/Texture2D/4_8.png" in latest.comment
     assert "24405256" in latest.comment
     assert wiki.pages["File:Thorned Branch.png"] == "an old description"
+    assert wiki.purged == [("File:Thorned Branch.png",)]
 
 
 def test_a_new_file_gets_a_description_with_the_games_copyright_notice(setup: Any) -> None:
@@ -646,6 +660,7 @@ def test_a_file_whose_title_changes_moves_with_its_history_and_its_redirects_fol
     assert len(wiki.files["File:Antidote icon.png"]) == 2
     for title in ("File:Antidote.png", "File:Spell Scroll Antidote.png", "File:Spell Scroll Antidote icon.png"):
         assert wiki.pages[title] == "#REDIRECT [[File:Antidote icon.png]]"
+    assert wiki.purged == [("File:Antidote icon.png", "File:Antidote.png")]
     assert wiki.dark == set()
     assert set(_verdicts(_plan(catalog, wiki, cache)).values()) == {"unchanged"}
 
@@ -700,3 +715,19 @@ def test_a_move_whose_answer_was_lost_counts_when_the_file_arrived(setup: Any) -
         (entry["action"], entry["done"]) for entry in record.entries if entry["title"] == "File:Antidote icon.png"
     ] == [("move", True)]
     assert wiki.pages["File:Spell Scroll Antidote.png"] == "#REDIRECT [[File:Antidote icon.png]]"
+
+
+def test_a_failed_purge_does_not_undo_an_upload(setup: Any) -> None:
+    """The wiki's own CDN cache sometimes keeps stale bytes under a correct, versioned URL after a write
+    (observed on 2026-10-08), so every write purges its title; a purge failure must not undo the write."""
+    pictures, wiki, cache, tmp_path = setup
+    pictures.add(_png((200, 0, 0, 255)), "File:Thorned Branch.png")
+
+    def failing_purge(titles: Any, force_link_update: bool = True) -> tuple[str, ...]:
+        raise MediaWikiAPIError("purge rate-limited")
+
+    wiki.purge_pages = failing_purge  # type: ignore[method-assign]
+    record = _run(pictures.build(), wiki, cache, tmp_path / "run")
+
+    assert [(entry["action"], entry["done"]) for entry in record.entries] == [("create", True)]
+    assert "File:Thorned Branch.png" in wiki.files
