@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 from enum import IntEnum
 from typing import TYPE_CHECKING
 
-from .schema import Edge, EdgeType, Node, NodeType, WorkflowCycle
+from .schema import BackgroundSource, Edge, EdgeType, Node, NodeType, WorkflowCycle
 
 if TYPE_CHECKING:
     from .graph import EntityGraph
@@ -81,6 +81,8 @@ class CompiledNode:
     destination_zone_key: str | None = None
     destination_display: str | None = None
     workflow_cycle: WorkflowCycle | None = None
+    background_sources: list[BackgroundSource] = field(default_factory=list)
+    obtainability_level: int | None = None
 
 
 @dataclass(slots=True)
@@ -373,6 +375,8 @@ def _compile_nodes(graph: EntityGraph, compiled: CompiledData) -> None:
             destination_zone_key=node.destination_zone_key,
             destination_display=node.destination_display,
             workflow_cycle=node.workflow_cycle,
+            background_sources=node.background_sources,
+            obtainability_level=node.obtainability_level,
         )
         for node in nodes
     ]
@@ -812,6 +816,7 @@ def _compile_detail_dependencies(compiled: CompiledData) -> None:
     rewards_item = edge_type_byte(EdgeType.REWARDS_ITEM)
     assigns_quest = edge_type_byte(EdgeType.ASSIGNS_QUEST)
     completes_quest = edge_type_byte(EdgeType.COMPLETES_QUEST)
+    creates_item = edge_type_byte(EdgeType.CREATES_ITEM)
 
     for item_index, item_node_id in enumerate(compiled.item_node_ids):
         children: list[tuple[DetailGoalKind, int]] = [
@@ -821,6 +826,8 @@ def _compile_detail_dependencies(compiled: CompiledData) -> None:
             edge = compiled.edges[edge_id]
             if edge.edge_type == rewards_item:
                 children.append((DetailGoalKind.COMPLETE_QUEST, edge.source_id))
+            elif edge.edge_type == creates_item:
+                children.append((DetailGoalKind.ACQUIRE_ITEM, edge.source_id))
         add_dependency(
             DetailGoalKind.ACQUIRE_ITEM,
             item_node_id,

@@ -2,7 +2,7 @@ using System.Globalization;
 
 namespace AdventureGuide.Navigation;
 
-/// <summary>The guide's scene-local mining, water and ground-pickup key contract.</summary>
+/// <summary>The guide's scene-local mining, water, pickup and planning-table key contract.</summary>
 public readonly struct PositionedSource
 {
     public string Kind { get; }
@@ -42,6 +42,7 @@ public readonly struct PositionedSource
             !kind.SequenceEqual("mining".AsSpan())
             && !kind.SequenceEqual("water".AsSpan())
             && !kind.SequenceEqual("itembag".AsSpan())
+            && !kind.SequenceEqual("planningtable".AsSpan())
         )
             return false;
         int sceneEnd = key.IndexOf(':', kindEnd + 1);

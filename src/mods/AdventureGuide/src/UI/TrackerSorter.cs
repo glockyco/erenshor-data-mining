@@ -240,7 +240,8 @@ internal static class TrackerSorter
             step,
             data,
             state.IsGameQuestCompleted,
-            state.Furnishings.IsAvailablePredicate
+            state.Furnishings.IsAvailablePredicate,
+            state.CountItemDelegate
         );
         return scene != null ? data.GetZoneDisplayName(scene) : null;
     }
@@ -267,7 +268,8 @@ internal static class TrackerSorter
             data,
             currentScene,
             state.IsGameQuestCompleted,
-            state.Furnishings.IsAvailablePredicate
+            state.Furnishings.IsAvailablePredicate,
+            state.CountItemDelegate
         );
     }
 
@@ -295,7 +297,8 @@ internal static class TrackerSorter
                 step,
                 data,
                 state.IsGameQuestCompleted,
-                state.Furnishings.IsAvailablePredicate
+                state.Furnishings.IsAvailablePredicate,
+                state.CountItemDelegate
             )
                 is string locationScene
             && string.Equals(locationScene, currentScene, System.StringComparison.OrdinalIgnoreCase)
@@ -319,17 +322,11 @@ internal static class TrackerSorter
             return NearestSpawnDistance(data, state.Furnishings, key, currentScene, playerPos);
 
         // For item steps, check ALL sources for the closest in-zone spawn
-        if (step.TargetType == "item" && effectiveQuest.RequiredItems != null)
+        if (step.TargetType == "item")
         {
-            var item = effectiveQuest.RequiredItems.Find(ri =>
-                string.Equals(
-                    ri.ItemName,
-                    step.TargetName,
-                    System.StringComparison.OrdinalIgnoreCase
-                )
-            );
-            if (item?.Sources != null)
-                return NearestSourceDistance(item.Sources, data, state, currentScene, playerPos);
+            var sources = ItemSourcePolicy.SourcesFor(effectiveQuest, step);
+            if (sources != null)
+                return NearestSourceDistance(sources, data, state, currentScene, playerPos);
         }
 
         return SourceDistance.None;
@@ -350,6 +347,11 @@ internal static class TrackerSorter
         foreach (var src in sources)
         {
             if (
+                ItemSourcePolicy.IsRandomSource(src)
+                || !ItemSourcePolicy.NeedsUsedItem(src, state.CountItemDelegate)
+            )
+                continue;
+            if (
                 src.RequiredQuestDBNames != null
                 && !src.RequiredQuestDBNames.TrueForAll(state.IsGameQuestCompleted)
             )
@@ -357,12 +359,14 @@ internal static class TrackerSorter
             if (src.SourceKey != null && !state.Furnishings.IsAvailable(src.SourceKey))
                 continue;
 
-            // quest_reward: SourceKey is the quest giver, not an obtainable source.
-            if (src.Type == "quest_reward" && src.Children is { Count: > 0 })
+            // Container keys are not spawn locations.
+            if (!ItemSourcePolicy.IsStaticCandidate(src))
             {
                 best = SourceDistance.Best(
                     best,
-                    NearestSourceDistance(src.Children, data, state, currentScene, playerPos)
+                    src.Children == null
+                        ? SourceDistance.None
+                        : NearestSourceDistance(src.Children, data, state, currentScene, playerPos)
                 );
                 continue;
             }

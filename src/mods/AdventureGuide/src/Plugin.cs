@@ -124,6 +124,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
             _state.WorkflowChanged += OnWorkflowChanged;
             _state.WorkflowCycleReset += OnWorkflowCycleReset;
             _state.FurnishingsChanged += OnFurnishingsChanged;
+            _state.TreasureHuntChanged += OnTreasureHuntChanged;
             _arrow = new ArrowRenderer(_nav) { Enabled = _config.ShowArrow.Value };
             _config.ShowArrow.SettingChanged += OnShowArrowChanged;
             _groundPath = new GroundPathRenderer(_nav) { Enabled = _config.ShowGroundPath.Value };
@@ -316,6 +317,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
             _state.WorkflowChanged -= OnWorkflowChanged;
             _state.WorkflowCycleReset -= OnWorkflowCycleReset;
             _state.FurnishingsChanged -= OnFurnishingsChanged;
+            _state.TreasureHuntChanged -= OnTreasureHuntChanged;
         }
 
         QuestMarkerPatch.SetSuppression(false);
@@ -324,6 +326,8 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
         _tracker?.Dispose();
         _state?.SaveToConfig();
         _nav?.SavePerCharacter();
+        _nav?.SuspendForMenu();
+        _state?.TreasureHunt.Clear();
         _imgui?.Dispose();
         _imgui = null;
         _arrow?.Dispose();
@@ -449,6 +453,9 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
         _trackerState?.OnQuestCompleted(quest.RuntimeKey);
 
     private void OnFurnishingsChanged() => _nav?.OnFurnishingsChanged(_state?.CurrentZone ?? "");
+
+    private void OnTreasureHuntChanged(TreasureHuntChange change) =>
+        _nav?.OnTreasureHuntChanged(change);
 
     private void SyncVisibility()
     {

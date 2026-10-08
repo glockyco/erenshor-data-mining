@@ -25,9 +25,20 @@ public static class CorpsePriorityPolicy
             if (quest?.RequiredItems != null)
                 foreach (var item in quest.RequiredItems)
                     if (countItem(item.ItemStableKey) < item.Quantity)
+                    {
                         output.Add(item.ItemName);
+                        ItemSourcePolicy.AddUsedItems(item.Sources, countItem, output);
+                    }
         }
         else if (step.TargetType == "item" && step.TargetName != null)
+        {
             output.Add(step.TargetName);
+            if (quest != null)
+                ItemSourcePolicy.AddUsedItems(
+                    ItemSourcePolicy.SourcesFor(quest, step),
+                    countItem,
+                    output
+                );
+        }
     }
 }

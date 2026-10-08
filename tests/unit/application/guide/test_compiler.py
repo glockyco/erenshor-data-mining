@@ -31,7 +31,15 @@ from erenshor.application.guide.compiler import (
     node_type_byte,
 )
 from erenshor.application.guide.graph import EntityGraph
-from erenshor.application.guide.schema import Edge, EdgeType, Node, NodeType, WorkflowCycle, WorkflowTarget
+from erenshor.application.guide.schema import (
+    BackgroundSource,
+    Edge,
+    EdgeType,
+    Node,
+    NodeType,
+    WorkflowCycle,
+    WorkflowTarget,
+)
 
 from .fixtures import build_graph, item_node, quest_node, spawn_node
 
@@ -1332,3 +1340,156 @@ def test_characters_get_the_level_of_reaching_them_beside_their_own_level() -> N
     assert graph.get_node("character:giver").place_level == 4
     assert graph.get_node("character:statue").level == 99
     assert graph.get_node("character:boss").level == 20
+
+
+def _special_source_db() -> sqlite3.Connection:
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    conn.executescript("""
+        CREATE TABLE special_world_drops (
+            item_stable_key TEXT, pool TEXT, drop_probability REAL, min_level_exclusive INTEGER
+        );
+        CREATE TABLE code_facts (fact_id TEXT, key TEXT, value TEXT);
+        INSERT INTO code_facts VALUES ('fishing.map_bonus', 'ok', 'true');
+        INSERT INTO special_world_drops VALUES
+            ('item:map1', 'Maps', 0.625, 0), ('item:map2', 'Maps', 0.625, 0),
+            ('item:map3', 'Maps', 0.625, 0), ('item:map4', 'Maps', 0.625, 0),
+            ('item:shard', 'PlanarShard', 0.1, 15);
+        CREATE TABLE loot_drops (item_stable_key TEXT, character_stable_key TEXT, drop_probability REAL);
+        INSERT INTO loot_drops VALUES
+            ('item:shard', 'character:lowchest', 20.5),
+            ('item:shard', 'character:highchest', 56.57);
+        CREATE TABLE treasure_chest_possible_spawns (
+            chest_character_stable_key TEXT, player_level_min INTEGER, player_level_max INTEGER
+        );
+        INSERT INTO treasure_chest_possible_spawns VALUES
+            ('character:lowchest', 1, 9), ('character:lowchest', 1, 9),
+            ('character:highchest', 31, 35), ('character:highchest', 30, 35);
+    """)
+    return conn
+
+
+def test_background_sources_use_exported_chances_and_merge_chest_level_brackets() -> None:
+    from erenshor.application.guide.node_builder import _add_background_item_sources
+
+    items = [item_node(f"item:map{i}") for i in range(1, 5)]
+    shard = item_node("item:shard")
+    graph = build_graph(*items, shard)
+    conn = _special_source_db()
+    try:
+        _add_background_item_sources(conn, graph)
+    finally:
+        conn.close()
+    for item in items:
+        assert item.background_sources == [
+            BackgroundSource("world_drop", "Any enemy", 0.625, level=1),
+            BackgroundSource("fishing_bonus", "Any fishing catch", 1.25),
+        ]
+    assert shard.background_sources == [
+        BackgroundSource("world_drop", "Any enemy above level 15", 0.1, level=16),
+        BackgroundSource(
+            "treasure_chest",
+            "Treasure map chest",
+            20.5,
+            level=1,
+            level_max=9,
+            source_key="character:lowchest",
+            instruction="Read a Treasure Map and dig at the marked spot.",
+        ),
+        BackgroundSource(
+            "treasure_chest",
+            "Treasure map chest",
+            56.57,
+            level=30,
+            level_max=35,
+            source_key="character:highchest",
+            instruction="Read a Treasure Map and dig at the marked spot.",
+        ),
+    ]
+    assert not list(graph.nodes_of_type(NodeType.CHARACTER))
+    compiled = compile_graph(graph)
+    compiled_shard = compiled.nodes[compiled.node_key_to_id[shard.key]]
+    assert compiled_shard.background_sources == shard.background_sources
+    assert compiled.item_sources[compiled.node_item_index[compiled_shard.node_id]] == []
+
+
+@pytest.mark.parametrize("failure", ["missing_fact", "failed_fact", "wrong_pool_size"])
+def test_fishing_bonus_requires_asserted_roll_and_four_exported_pieces(failure: str) -> None:
+    from erenshor.application.guide.node_builder import _add_background_item_sources
+
+    conn = _special_source_db()
+    try:
+        if failure == "missing_fact":
+            conn.execute("DELETE FROM code_facts")
+        elif failure == "failed_fact":
+            conn.execute("UPDATE code_facts SET value = 'false'")
+        else:
+            conn.execute("DELETE FROM special_world_drops WHERE item_stable_key = 'item:map4'")
+        with pytest.raises(ValueError, match=r"code fact|four exported map pieces"):
+            _add_background_item_sources(conn, build_graph(item_node("item:map1")))
+    finally:
+        conn.close()
+
+
+def test_item_use_obtainability_propagates_used_item_level_and_ignores_background_sources() -> None:
+    from erenshor.application.guide.graph_validation import _denormalize_quest_metadata
+
+    conn = _level_db(
+        "('character:mob', 25, 0, 1, 'enemy', NULL)",
+        "('character:mob', 'spawn:mob', 'zone:forest')",
+    )
+    try:
+        used = item_node("item:bag")
+        created = item_node("item:stone")
+        background = item_node(
+            "item:background",
+            background_sources=[
+                BackgroundSource("world_drop", "Any enemy", 0.1, level=1),
+                BackgroundSource("fishing_bonus", "Any fishing catch", 1.25),
+                BackgroundSource("treasure_chest", "Treasure map chest", 50, level=1, level_max=9),
+            ],
+        )
+        graph = build_graph(
+            quest_node("quest:use", "USE"),
+            quest_node("quest:background", "BACKGROUND"),
+            used,
+            created,
+            background,
+            Node("character:mob", NodeType.CHARACTER, "Mob", level=25),
+            edges=[
+                Edge("character:mob", used.key, EdgeType.DROPS_ITEM),
+                Edge(used.key, created.key, EdgeType.CREATES_ITEM),
+                Edge("quest:use", created.key, EdgeType.REQUIRES_ITEM),
+                Edge("quest:background", background.key, EdgeType.REQUIRES_ITEM),
+            ],
+        )
+        _denormalize_quest_metadata(conn, graph)
+    finally:
+        conn.close()
+    assert used.obtainability_level == created.obtainability_level == 25
+    assert graph.get_node("quest:use").level == 25
+    assert background.obtainability_level is None
+    assert graph.get_node("quest:background").level is None
+    compiled = compile_graph(graph)
+    goal_id = compiled.node_key_to_id[created.key]
+    used_goal = next(
+        dependency
+        for dependency in compiled.detail_dependencies
+        if dependency.goal_kind == DetailGoalKind.ACQUIRE_ITEM and dependency.node_id == goal_id
+    )
+    children = [compiled.detail_goals[index] for index in used_goal.child_goal_indices]
+    assert [(child.goal_kind, child.node_id) for child in children] == [
+        (DetailGoalKind.ACQUIRE_ITEM, compiled.node_key_to_id[used.key]),
+    ]
+
+
+def test_item_use_unknown_source_and_cycle_have_no_obtainability_level() -> None:
+    from erenshor.application.guide.graph_validation import _item_obtainability_level, _LevelContext
+
+    a, b = item_node("item:a"), item_node("item:b")
+    graph = build_graph(a, b, edges=[Edge(a.key, b.key, EdgeType.CREATES_ITEM)])
+    ctx = _LevelContext(graph, {}, {}, {}, {}, {})
+    assert _item_obtainability_level(b.key, ctx, set()) is None
+    graph.add_edge(Edge(b.key, a.key, EdgeType.CREATES_ITEM))
+    graph.build_indexes()
+    assert _item_obtainability_level(a.key, ctx, set()) is None

@@ -11,7 +11,15 @@ import pytest
 from erenshor.application.guide.compiler import compile_graph
 from erenshor.application.guide.graph import EntityGraph
 from erenshor.application.guide.mod_writer import build_mod_guide, serialize_mod_guide
-from erenshor.application.guide.schema import Edge, EdgeType, Node, NodeType, WorkflowCycle, WorkflowTarget
+from erenshor.application.guide.schema import (
+    BackgroundSource,
+    Edge,
+    EdgeType,
+    Node,
+    NodeType,
+    WorkflowCycle,
+    WorkflowTarget,
+)
 
 from .fixtures import build_graph, character_node, item_node, quest_node
 
@@ -1003,3 +1011,206 @@ def test_build_mod_guide_rejects_real_and_synthetic_db_name_collision() -> None:
 
     with pytest.raises(ValueError, match="duplicate quest db_name"):
         build_mod_guide(graph, compiled)
+
+
+@pytest.mark.parametrize(
+    ("background", "expected"),
+    [
+        (
+            BackgroundSource("world_drop", "Any enemy above level 15", 0.1, level=16),
+            {"type": "world_drop", "name": "Any enemy above level 15", "chance": 0.1, "level": 16},
+        ),
+        (
+            BackgroundSource("world_drop", "Any enemy", 0.625, level=1),
+            {"type": "world_drop", "name": "Any enemy", "chance": 0.625, "level": 1},
+        ),
+        (
+            BackgroundSource("fishing_bonus", "Any fishing catch", 1.25),
+            {"type": "fishing_bonus", "name": "Any fishing catch", "chance": 1.25},
+        ),
+        (
+            BackgroundSource(
+                "treasure_chest",
+                "Treasure map chest",
+                56.57,
+                level=30,
+                level_max=35,
+                source_key="character:treasurechest 30-35",
+                instruction="Read a Treasure Map and dig at the marked spot.",
+            ),
+            {
+                "type": "treasure_chest",
+                "name": "Treasure map chest",
+                "chance": 56.57,
+                "level": 30,
+                "level_max": 35,
+                "source_key": "character:treasurechest 30-35",
+                "instruction": "Read a Treasure Map and dig at the marked spot.",
+            },
+        ),
+    ],
+)
+def test_background_sources_sort_last_without_changing_levels(background: BackgroundSource, expected: dict) -> None:
+    quest = quest_node("quest:main", "MAIN", level=40)
+    item = item_node("item:required", background_sources=[background])
+    vendor = character_node("character:vendor", "Vendor", level=99)
+    graph = build_graph(
+        quest,
+        item,
+        vendor,
+        edges=[
+            Edge(quest.key, item.key, EdgeType.REQUIRES_ITEM),
+            Edge(vendor.key, item.key, EdgeType.SELLS_ITEM),
+        ],
+    )
+    entry = _main_entry(build_mod_guide(graph, compile_graph(graph)))
+    sources = entry["required_items"][0]["sources"]
+    assert sources == [
+        {
+            "type": "vendor",
+            "name": "Vendor",
+            "level": 99,
+            "source_key": vendor.key,
+            "instruction": "Buy item:required.",
+        },
+        expected,
+    ]
+    assert entry["level_estimate"] == {"recommended": 40}
+    assert entry["steps"][0]["level_estimate"] == {
+        "recommended": 99,
+        "factors": [{"source": "vendor", "name": "Vendor", "level": 99}],
+    }
+    assert not build_mod_guide(graph, compile_graph(graph))["_character_spawns"]
+
+    graph = build_graph(quest, item, edges=[Edge(quest.key, item.key, EdgeType.REQUIRES_ITEM)])
+    entry = _main_entry(build_mod_guide(graph, compile_graph(graph)))
+    assert entry["required_items"][0]["sources"] == [expected]
+    assert "level_estimate" not in entry["steps"][0]
+
+
+@pytest.mark.parametrize("level", [None, 1, 30])
+def test_item_use_includes_used_item_sources_and_obtainability_level(level: int | None) -> None:
+    quest = quest_node("quest:main", "MAIN")
+    used = item_node("item:bag", "Bag of Offering Stones", obtainability_level=level)
+    created = item_node("item:stone", "Offering Stone")
+    vendor = character_node("character:vendor", "Vendor", level=25)
+    graph = build_graph(
+        quest,
+        used,
+        created,
+        vendor,
+        edges=[
+            Edge(quest.key, created.key, EdgeType.REQUIRES_ITEM),
+            Edge(used.key, created.key, EdgeType.CREATES_ITEM),
+            Edge(vendor.key, used.key, EdgeType.SELLS_ITEM),
+        ],
+    )
+    entry = _main_entry(build_mod_guide(graph, compile_graph(graph)))
+    expected = {
+        "type": "item_use",
+        "name": "Bag of Offering Stones",
+        "source_key": used.key,
+        "instruction": "Use Bag of Offering Stones.",
+        "children": [
+            {
+                "type": "vendor",
+                "name": "Vendor",
+                "level": 25,
+                "source_key": vendor.key,
+                "instruction": "Buy Bag of Offering Stones.",
+            }
+        ],
+    }
+    if level is not None:
+        expected["level"] = level
+    assert entry["required_items"][0]["sources"] == [expected]
+    if level is None:
+        assert "level_estimate" not in entry["steps"][0]
+    else:
+        assert entry["steps"][0]["level_estimate"]["recommended"] == level
+
+
+def test_item_use_cycles_terminate_and_preserve_other_sources() -> None:
+    quest = quest_node("quest:main", "MAIN")
+    a, b = item_node("item:a", "A"), item_node("item:b", "B")
+    source = Node("itembag:source", NodeType.ITEM_BAG, "Source", scene="Forest", level=5)
+    graph = build_graph(
+        quest,
+        a,
+        b,
+        source,
+        edges=[
+            Edge(quest.key, a.key, EdgeType.REQUIRES_ITEM),
+            Edge(a.key, b.key, EdgeType.CREATES_ITEM),
+            Edge(b.key, a.key, EdgeType.CREATES_ITEM),
+            Edge(source.key, b.key, EdgeType.YIELDS_ITEM),
+        ],
+    )
+    entry = _main_entry(build_mod_guide(graph, compile_graph(graph)))
+    assert entry["required_items"][0]["sources"][0]["children"] == [
+        {
+            "type": "pickup",
+            "name": "Source",
+            "scene": "Forest",
+            "level": 5,
+            "source_key": source.key,
+        }
+    ]
+
+
+def test_manual_pickup_preserves_planning_table_instruction_and_place_level() -> None:
+    quest = quest_node("quest:main", "MAIN")
+    item = item_node("item:box", "Box of Portals")
+    table = Node(
+        "itembag:planning-table",
+        NodeType.ITEM_BAG,
+        "Planning Table",
+        scene="Reliquary",
+        level=16,
+        description="Take it from the planning table's portal slot.",
+        x=267.39566,
+        y=0.09062946,
+        z=321.30356,
+    )
+    graph = build_graph(
+        quest,
+        item,
+        table,
+        edges=[Edge(quest.key, item.key, EdgeType.REQUIRES_ITEM), Edge(table.key, item.key, EdgeType.YIELDS_ITEM)],
+    )
+    entry = _main_entry(build_mod_guide(graph, compile_graph(graph)))
+    assert entry["required_items"][0]["sources"] == [
+        {
+            "type": "pickup",
+            "name": "Planning Table",
+            "scene": "Reliquary",
+            "level": 16,
+            "source_key": table.key,
+            "instruction": "Take it from the planning table's portal slot.",
+        }
+    ]
+
+
+def test_guide_only_steps_include_all_background_sources_after_normal_sources() -> None:
+    graph = _workflow_projection_graph()
+    item = graph.get_node("item:arena-fee")
+    assert item is not None
+    item.background_sources = [
+        BackgroundSource("world_drop", "Any enemy", 0.1, level=1),
+        BackgroundSource("fishing_bonus", "Any fishing catch", 1.25),
+        BackgroundSource(
+            "treasure_chest",
+            "Treasure map chest",
+            50,
+            level=1,
+            level_max=9,
+            source_key="character:unplaced-chest",
+            instruction="Read a Treasure Map and dig at the marked spot.",
+        ),
+    ]
+    entry = _main_entry(build_mod_guide(graph, compile_graph(graph)), "guide-quest:arena:one")
+    sources = entry["required_items"][0]["sources"]
+    assert entry["steps"][0]["sources"] == sources
+    assert {source["type"] for source in sources[:3]} == {"drop", "vendor"}
+    assert {source["type"] for source in sources[3:]} == {"world_drop", "fishing_bonus", "treasure_chest"}
+    assert "level_estimate" not in entry["steps"][0]

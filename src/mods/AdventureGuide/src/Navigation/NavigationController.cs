@@ -61,6 +61,7 @@ public sealed class NavigationController
     private string? _originQuestKey;
     private int _originStepOrder;
     private QuestStep? _resolvedStep;
+    private bool _navigatingTreasure;
 
     // ── Per-character config persistence ──────────────────────────
     private IConfigValue<string>? _navQuestEntry;
@@ -119,6 +120,45 @@ public sealed class NavigationController
         _originStepOrder = step.Order;
         SavePerCharacter();
         return ResolveAndNavigate(step, quest, currentScene);
+    }
+
+    /// <summary>Use ordinary routing until the live hunt reveals its dig position.</summary>
+    public bool NavigateToTreasureHunt(string questKey = "", int stepOrder = 0)
+    {
+        var hunt = _state.TreasureHunt.State;
+        if (!hunt.Active)
+            return false;
+        ResetTargetState();
+        _originQuestKey = questKey.Length == 0 ? null : questKey;
+        _originStepOrder = stepOrder;
+        _navigatingTreasure = true;
+        SetTreasureTarget(questKey, stepOrder);
+        return true;
+    }
+
+    internal void OnTreasureHuntChanged(TreasureHuntChange change)
+    {
+        if (change == TreasureHuntChange.Started)
+            NavigateToTreasureHunt();
+        else if (_navigatingTreasure && change == TreasureHuntChange.Ended)
+            Clear();
+        else if (_navigatingTreasure && Target != null)
+            SetTreasureTarget(Target.QuestKey, Target.StepOrder);
+    }
+
+    private void SetTreasureTarget(string questKey, int stepOrder)
+    {
+        var hunt = _state.TreasureHunt.State;
+        InvalidateCrossZoneCache();
+        Target = MakeTarget(
+            hunt.HasLocation ? NavigationTarget.Kind.Position : NavigationTarget.Kind.Zone,
+            new Vector3(hunt.X, hunt.Y, hunt.Z),
+            TreasureHuntState.DisplayName,
+            hunt.Scene,
+            questKey,
+            stepOrder,
+            TreasureHuntState.SourceId
+        );
     }
 
     internal static NavigationTarget CreateFixedPositionTarget(
@@ -332,6 +372,7 @@ public sealed class NavigationController
         _sourceRescanTimer = 0f;
         Distance = 0f;
         Direction = Vector3.zero;
+        _navigatingTreasure = false;
     }
 
     private void InvalidateCrossZoneCache()
@@ -429,7 +470,9 @@ public sealed class NavigationController
     }
 
     /// <summary>Whether a source key is in the active navigation set.</summary>
-    public bool IsSourceActive(string sourceKey) => _activeSourceKeys.Contains(sourceKey);
+    public bool IsSourceActive(string sourceKey) =>
+        (_navigatingTreasure && sourceKey == TreasureHuntState.SourceId)
+        || _activeSourceKeys.Contains(sourceKey);
 
     /// <summary>Whether the user has manually toggled sources.</summary>
     public bool IsManualSourceOverride => _manualOverride;
@@ -493,7 +536,7 @@ public sealed class NavigationController
         _zoneGraph.Rebuild();
         ObserveScene(currentScene);
         InvalidateCrossZoneCache();
-        if (Target == null)
+        if (Target == null || _navigatingTreasure)
             return;
 
         var quest = _data.GetByRuntimeKey(Target.QuestKey);
@@ -522,6 +565,14 @@ public sealed class NavigationController
             return;
         }
 
+        if (
+            _resolvedStep?.TargetType == "item"
+            && ContainsItemUse(ItemSourcePolicy.SourcesFor(quest, _resolvedStep))
+        )
+        {
+            ResolveAndNavigate(_resolvedStep, quest, currentScene);
+            return;
+        }
         // Determine which step the player is currently on
         int currentStepIdx = StepProgress.GetCurrentStepIndex(quest, _state, _data);
 
@@ -884,21 +935,21 @@ public sealed class NavigationController
     {
         // For collect/read steps: build the active source set and navigate
         // to the closest spawn among all active sources.
-        var item = quest.RequiredItems?.Find(ri =>
-            string.Equals(ri.ItemName, step.TargetName, System.StringComparison.OrdinalIgnoreCase)
-        );
+        var sources = ItemSourcePolicy.SourcesFor(quest, step);
 
-        if (item?.Sources == null || item.Sources.Count == 0)
+        if (sources == null || sources.Count == 0)
             return false;
 
         // Collect all leaf sources with spawn data
         _allItemSources.Clear();
-        CollectLeafSources(item.Sources, _allItemSources);
+        CollectLeafSources(sources, _allItemSources);
 
         if (_allItemSources.Count == 0)
         {
+            if (_state.TreasureHunt.State.Active && ContainsTreasureChest(sources))
+                return NavigateToTreasureHunt(quest.RuntimeKey, step.Order);
             // No sources with spawn data — fallback to zone navigation
-            return ResolveItemZoneFallback(item.Sources, quest, step, currentScene);
+            return ResolveItemZoneFallback(sources, quest, step, currentScene);
         }
 
         // Build the active set with zone preference
@@ -907,6 +958,27 @@ public sealed class NavigationController
 
         // Resolve initial target from the active set
         return ResolveClosestActiveSource(quest, step, currentScene);
+    }
+
+    private static bool ContainsItemUse(List<ItemSource>? sources)
+    {
+        if (sources == null)
+            return false;
+        foreach (var source in sources)
+            if (source.Type == "item_use" || ContainsItemUse(source.Children))
+                return true;
+        return false;
+    }
+
+    private static bool ContainsTreasureChest(List<ItemSource> sources)
+    {
+        foreach (var source in sources)
+            if (
+                source.Type == "treasure_chest"
+                || (source.Children != null && ContainsTreasureChest(source.Children))
+            )
+                return true;
+        return false;
     }
 
     /// <summary>
@@ -920,12 +992,18 @@ public sealed class NavigationController
         {
             if (!IsSourceAvailable(src))
                 continue;
+            if (
+                ItemSourcePolicy.IsRandomSource(src)
+                || !ItemSourcePolicy.NeedsUsedItem(src, _countItem)
+            )
+                continue;
             // quest_reward: the SourceKey is the quest giver NPC, not a
             // drop source. Always recurse into children for the actual
             // obtainable sources (e.g., Seaspice drops under Percy's Seaspice).
-            if (src.Type == "quest_reward" && src.Children is { Count: > 0 })
+            if (!ItemSourcePolicy.IsStaticCandidate(src))
             {
-                CollectLeafSources(src.Children, result);
+                if (src.Children != null)
+                    CollectLeafSources(src.Children, result);
                 continue;
             }
 
@@ -1256,10 +1334,7 @@ public sealed class NavigationController
     {
         var firstSource = FindFirstSourceWithScene(sources);
         var firstScene = firstSource?.Scene;
-        string? zoneKey =
-            firstScene != null
-                ? FindZoneKeyBySceneName(firstScene)
-                : FindZoneKeyByDisplayName(sources[0].Zone);
+        string? zoneKey = firstScene != null ? FindZoneKeyBySceneName(firstScene) : null;
         if (zoneKey == null)
             return false;
 
@@ -1678,7 +1753,12 @@ public sealed class NavigationController
         {
             if (!IsSourceAvailable(src))
                 continue;
-            if (src.Scene != null)
+            if (
+                ItemSourcePolicy.IsRandomSource(src)
+                || !ItemSourcePolicy.NeedsUsedItem(src, _countItem)
+            )
+                continue;
+            if (ItemSourcePolicy.IsStaticCandidate(src) && src.Scene != null)
                 return src;
             if (src.Children != null)
             {

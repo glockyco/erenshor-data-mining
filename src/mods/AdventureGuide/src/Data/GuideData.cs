@@ -200,10 +200,17 @@ public sealed partial class GuideData
         );
         foreach (var quest in wrapper.Quests)
         {
-            if (quest.RequiredItems == null)
-                continue;
-            foreach (var item in quest.RequiredItems)
-                ValidateSources(item.Sources, item.ItemName, gameDbNames, quest.StableKey);
+            if (quest.Steps != null)
+                foreach (var step in quest.Steps)
+                    ValidateSources(
+                        step.Sources,
+                        step.TargetName ?? "",
+                        gameDbNames,
+                        quest.StableKey
+                    );
+            if (quest.RequiredItems != null)
+                foreach (var item in quest.RequiredItems)
+                    ValidateSources(item.Sources, item.ItemName, gameDbNames, quest.StableKey);
         }
 
         ValidateFurnishings(wrapper);
@@ -499,6 +506,59 @@ public sealed partial class GuideData
             return;
         foreach (var source in sources)
         {
+            if (
+                source.Chance is double chance
+                && (
+                    double.IsNaN(chance) || double.IsInfinity(chance) || chance <= 0 || chance > 100
+                )
+            )
+                throw new InvalidDataException($"{questKey} has invalid source chance");
+            if (source.LevelMax is int max && (source.Level is not int min || max < min))
+                throw new InvalidDataException($"{questKey} has invalid source level range");
+            if (ItemSourcePolicy.IsRandomSource(source) && string.IsNullOrWhiteSpace(source.Name))
+                throw new InvalidDataException($"{questKey} has an unnamed random source");
+            switch (source.Type)
+            {
+                case "world_drop":
+                    if (
+                        source.Chance == null
+                        || source.Level is not > 0
+                        || source.Scene != null
+                        || source.SourceKey != null
+                    )
+                        throw new InvalidDataException($"{questKey} has invalid world drop");
+                    break;
+                case "fishing_bonus":
+                    if (
+                        source.Chance == null
+                        || source.Level != null
+                        || source.Scene != null
+                        || source.SourceKey != null
+                    )
+                        throw new InvalidDataException($"{questKey} has invalid fishing bonus");
+                    break;
+                case "treasure_chest":
+                    if (
+                        source.Chance == null
+                        || source.Level is not >= 0
+                        || source.LevelMax == null
+                        || source.SourceKey?.StartsWith("character:", StringComparison.Ordinal)
+                            != true
+                        || source.Scene != null
+                        || string.IsNullOrWhiteSpace(source.Instruction)
+                    )
+                        throw new InvalidDataException($"{questKey} has invalid treasure chest");
+                    break;
+                case "item_use":
+                    if (
+                        source.SourceKey?.StartsWith("item:", StringComparison.Ordinal) != true
+                        || string.IsNullOrWhiteSpace(source.Name)
+                        || string.IsNullOrWhiteSpace(source.Instruction)
+                        || source.Children == null
+                    )
+                        throw new InvalidDataException($"{questKey} has invalid item use");
+                    break;
+            }
             if (source.Type == "vendor" && source.Instruction != $"Buy {itemName}.")
                 throw new InvalidDataException($"{questKey} has invalid vendor instruction");
 
@@ -515,7 +575,12 @@ public sealed partial class GuideData
                         );
                 }
             }
-            ValidateSources(source.Children, itemName, gameDbNames, questKey);
+            ValidateSources(
+                source.Children,
+                source.Type == "item_use" ? source.Name! : itemName,
+                gameDbNames,
+                questKey
+            );
         }
     }
 

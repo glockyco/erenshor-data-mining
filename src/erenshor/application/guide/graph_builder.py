@@ -44,6 +44,7 @@ def denormalize_quest_metadata(graph: EntityGraph, db_path: Path) -> None:
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     try:
+        _denormalize_zone_and_source_levels(conn, graph)
         _denormalize_quest_metadata(conn, graph)
     finally:
         conn.close()

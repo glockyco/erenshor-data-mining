@@ -198,6 +198,12 @@ public sealed class ItemSource
     [JsonProperty("level")]
     public int? Level { get; set; }
 
+    [JsonProperty("level_max")]
+    public int? LevelMax { get; set; }
+
+    [JsonProperty("chance")]
+    public double? Chance { get; set; }
+
     [JsonProperty("source_key")]
     public string? SourceKey { get; set; }
 
@@ -222,12 +228,11 @@ public sealed class ItemSource
     [JsonProperty("children")]
     public List<ItemSource>? Children { get; set; }
 
-    /// <summary>
-    /// Stable identity for navigation UI highlight. Returns SourceKey for
-    /// entity sources (drop, vendor, etc.) or a synthetic key for zone-only
-    /// sources (fishing). Returns null for unnavigable sources (crafting).
-    /// </summary>
-    public string? MakeSourceId() => SourceKey ?? (Scene != null ? $"{Type}:{Scene}" : null);
+    /// <summary>Identity for fixed sources and the active treasure dig site.</summary>
+    public string? MakeSourceId() =>
+        Type == "treasure_chest" ? "treasure:dig-site"
+        : !ItemSourcePolicy.IsStaticCandidate(this) ? null
+        : SourceKey ?? (Scene != null ? $"{Type}:{Scene}" : null);
 }
 
 public sealed class RequiredItemInfo

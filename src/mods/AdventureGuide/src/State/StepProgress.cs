@@ -244,16 +244,11 @@ public static class StepProgress
         GuideData data
     )
     {
-        if (quest.RequiredItems == null)
+        var sources = ItemSourcePolicy.SourcesFor(quest, step);
+        if (sources == null)
             return null;
 
-        var item = quest.RequiredItems.Find(ri =>
-            string.Equals(ri.ItemName, step.TargetName, System.StringComparison.OrdinalIgnoreCase)
-        );
-        if (item?.Sources == null)
-            return null;
-
-        foreach (var src in item.Sources)
+        foreach (var src in sources)
         {
             if (src.Type != "quest_reward" || src.QuestKey == null)
                 continue;

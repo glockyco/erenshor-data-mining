@@ -143,12 +143,42 @@ public sealed class LootScanner
         {
             if (!state.IsActionable(quest))
                 continue;
+            if (quest.Steps != null)
+            {
+                int index = StepProgress.GetCurrentStepIndex(quest, state, data);
+                if (index >= 0 && index < quest.Steps.Count)
+                {
+                    var step = quest.Steps[index];
+                    if (
+                        step.TargetType == "item"
+                        && step.TargetKey != null
+                        && step.TargetName != null
+                        && step.Sources != null
+                        && state.CountItem(step.TargetKey) < (step.Quantity ?? 1)
+                    )
+                    {
+                        _neededItems.Add(step.TargetName);
+                        ItemSourcePolicy.AddUsedItems(
+                            step.Sources,
+                            state.CountItemDelegate,
+                            _neededItems
+                        );
+                    }
+                }
+            }
             if (quest.RequiredItems == null)
                 continue;
             foreach (var ri in quest.RequiredItems)
             {
                 if (state.CountItem(ri.ItemStableKey) < ri.Quantity)
+                {
                     _neededItems.Add(ri.ItemName);
+                    ItemSourcePolicy.AddUsedItems(
+                        ri.Sources,
+                        state.CountItemDelegate,
+                        _neededItems
+                    );
+                }
             }
         }
         if (_neededItems.Count == 0)

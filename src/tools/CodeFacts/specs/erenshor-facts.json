@@ -13,6 +13,17 @@
   ],
   "facts": [
     {
+      "id": "fishing.map_bonus",
+      "mode": "assert",
+      "type": "Fishing",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (Random.Range (0, 20) == 0) { caughtItem = GameData.GM.Maps [Random.Range (0, 4)]; }"
+      }
+    },
+    {
       "id": "loot.world_drop.world_drop_molds",
       "mode": "extract",
       "type": "LootTable",

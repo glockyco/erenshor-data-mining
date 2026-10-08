@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import math
 from collections import defaultdict
+from dataclasses import asdict
 from typing import TYPE_CHECKING, Any, cast
 
 from .compiler import CompiledData, QuestSpec, edge_type_byte, node_type_byte
@@ -22,12 +23,13 @@ if TYPE_CHECKING:
 
 # Steps that fight their character target; see _interaction_level.
 _COMBAT_ACTIONS = frozenset({"kill", "loot"})
+_BACKGROUND_SOURCE_TYPES = frozenset({"world_drop", "fishing_bonus", "treasure_chest"})
 
 
 def build_mod_guide(
     graph: EntityGraph, compiled: CompiledData, excluded_quest_db_names: Iterable[str] = ()
 ) -> dict[str, Any]:
-    """Build the stable, depth-one JSON shape consumed by the C# mod.
+    """Build the stable JSON shape consumed by the C# mod.
 
     ``excluded_quest_db_names`` names game quests the mapping keeps out of the
     guide on purpose, such as unobtainable placeholders. The mod lists every
@@ -627,7 +629,7 @@ def _implicit_acquisition_item_prerequisites(
         item_id = _compiled_id(compiled, item.key)
         if item_id not in compiled_nodes:
             raise ValueError(f"dangling compiled node id for key: {item.key!r}")
-        sources = _item_sources_with_rewards(compiled, item_id, compiled_nodes, reward_by_item, quest.key)
+        sources = _item_sources_with_rewards(compiled, item_id, compiled_nodes, reward_by_item, quest.key, graph, nodes)
         result.extend(_item_reward_prerequisites(quest, item.display_name, sources, nodes))
     return result
 
@@ -745,8 +747,7 @@ def _required_items(
         item_id = _compiled_id(compiled, item.key)
         if item_id not in compiled_nodes:
             raise ValueError(f"dangling compiled node id for key: {item.key!r}")
-        sources = _item_sources_with_rewards(compiled, item_id, compiled_nodes, reward_by_item, quest.key)
-        sources = _with_vendor_source_metadata(sources, graph, item, nodes)
+        sources = _item_sources_with_rewards(compiled, item_id, compiled_nodes, reward_by_item, quest.key, graph, nodes)
         if sources:
             value["sources"] = sources
         result.append((item.key, value))
@@ -826,7 +827,13 @@ def _item_sources(compiled: CompiledData, item_id: int, compiled_nodes: dict[int
             value["recipe_key"] = source.key
         if edge_type == EdgeType.DROPS_ITEM:
             value["spawn_count"] = len(site.positions)
+        if source_type == "pickup":
+            _put_if(value, "instruction", source.description)
         result.append(value)
+    result.extend(
+        {key: value for key, value in asdict(source).items() if value is not None}
+        for source in compiled_nodes[item_id].background_sources
+    )
     return result
 
 
@@ -847,8 +854,13 @@ def _item_sources_with_rewards(
     compiled_nodes: dict[int, Any],
     reward_by_item: dict[int, list[Any]],
     exclude_quest_key: str,
+    graph: EntityGraph,
+    nodes: dict[str, Node],
+    visiting: frozenset[int] = frozenset(),
 ) -> list[dict[str, Any]]:
     sources = _item_sources(compiled, item_id, compiled_nodes)
+    item = nodes[compiled_nodes[item_id].key]
+    sources = _with_vendor_source_metadata(sources, graph, item, nodes)
     for reward in reward_by_item.get(item_id, []):
         source_node = compiled_nodes[reward.source_id]
         if source_node.key == exclude_quest_key:
@@ -856,8 +868,27 @@ def _item_sources_with_rewards(
         source = {"type": "quest_reward", "name": source_node.display_name, "quest_key": source_node.key}
         _put_if(source, "level", source_node.level if source_node.level > 0 else None)
         sources.append(source)
+    visiting = visiting | {item_id}
+    for edge_id in compiled.reverse_adjacency[item_id]:
+        edge = compiled.edges[edge_id]
+        if edge.edge_type != edge_type_byte(EdgeType.CREATES_ITEM) or edge.source_id in visiting:
+            continue
+        used = compiled_nodes[edge.source_id]
+        children = _item_sources_with_rewards(
+            compiled, edge.source_id, compiled_nodes, reward_by_item, exclude_quest_key, graph, nodes, visiting
+        )
+        value = {
+            "type": "item_use",
+            "name": used.display_name,
+            "source_key": used.key,
+            "instruction": f"Use {used.display_name}.",
+            "children": children,
+        }
+        _put_if(value, "level", used.obtainability_level)
+        sources.append(value)
     sources.sort(
         key=lambda source: (
+            source.get("type") in _BACKGROUND_SOURCE_TYPES,
             source.get("level") is None,
             source.get("level", 0),
             source.get("type", ""),
@@ -948,7 +979,7 @@ def _steps(
             item_id = _compiled_id(compiled, target.key)
             if item_id not in compiled_nodes:
                 raise ValueError(f"dangling compiled node id for key: {target.key!r}")
-            sources = _item_sources(compiled, item_id, compiled_nodes)
+            sources = _item_sources_with_rewards(compiled, item_id, compiled_nodes, {}, quest.key, graph, nodes)
             source_cache[target.key] = sources
         return _item_level_estimate(sources)
 
@@ -1044,6 +1075,8 @@ def _steps(
 def _item_level_estimate(sources: list[dict[str, Any]]) -> dict[str, Any] | None:
     factors: set[tuple[str, str, int]] = set()
     for source in sources:
+        if source.get("type") in _BACKGROUND_SOURCE_TYPES:
+            continue
         level = source.get("level")
         if not isinstance(level, int) or isinstance(level, bool) or level <= 0:
             continue

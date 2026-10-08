@@ -519,7 +519,8 @@ public sealed class QuestDetailPanel
         QuestEntry quest,
         QuestStep step,
         HashSet<string> visited,
-        int depth = 0
+        int depth = 0,
+        bool allowNavigation = true
     )
     {
         if (!IsSourceAvailable(src))
@@ -529,7 +530,7 @@ public sealed class QuestDetailPanel
         string label = display.Label;
 
         // Quest reward with a resolvable sub-quest: render its steps inline
-        if (src.Type == "quest_reward" && src.QuestKey != null)
+        if (allowNavigation && src.Type == "quest_reward" && src.QuestKey != null)
         {
             var subQuest = _data.GetByStableKey(src.QuestKey);
             if (
@@ -543,8 +544,7 @@ public sealed class QuestDetailPanel
             }
         }
 
-        // Non-quest-reward children (crafting ingredients, or quest_reward
-        // fallback when sub-quest not found / cycle / depth exceeded)
+        // Nested source trees share the crafting ingredient presentation.
         bool hasChildren = src.Children is { Count: > 0 } && depth < 3;
 
         if (hasChildren)
@@ -567,11 +567,19 @@ public sealed class QuestDetailPanel
                 }
 
                 foreach (var child in src.Children!)
-                    DrawSource(child, quest, step, visited, depth + 1);
+                    DrawSource(
+                        child,
+                        quest,
+                        step,
+                        visited,
+                        depth + 1,
+                        allowNavigation
+                            && ItemSourcePolicy.NeedsUsedItem(src, _state.CountItemDelegate)
+                    );
                 ImGui.TreePop();
             }
         }
-        else if (display.SourceId is string sourceId)
+        else if (allowNavigation && display.SourceId is string sourceId)
         {
             // Navigable source: highlight when in the active source set.
             // Gold = auto-selected, cyan = manually toggled.
@@ -585,7 +593,12 @@ public sealed class QuestDetailPanel
             }
 
             if (ImGui.Selectable(display.SelectableLabel!))
-                _nav.ToggleSource(sourceId, _state.CurrentZone);
+            {
+                if (src.Type == "treasure_chest")
+                    _nav.NavigateToTreasureHunt(quest.RuntimeKey, step.Order);
+                else
+                    _nav.ToggleSource(sourceId, _state.CurrentZone);
+            }
 
             if (isActive)
                 ImGui.PopStyleColor();
@@ -593,11 +606,7 @@ public sealed class QuestDetailPanel
             if (ImGui.IsItemHovered())
             {
                 ImGui.BeginTooltip();
-                string action = isActive ? "Remove from" : "Add to";
-                if (src.SourceKey != null)
-                    ImGui.Text($"{action} navigation: {src.Name}");
-                else
-                    ImGui.Text($"{action} navigation: {src.Zone ?? src.Scene}");
+                ImGui.TextUnformatted(isActive ? display.RemoveTooltip : display.AddTooltip);
                 ImGui.EndTooltip();
             }
         }
@@ -605,8 +614,14 @@ public sealed class QuestDetailPanel
         {
             // Non-navigable source: dimmed text
             ImGui.PushStyleColor(ImGuiCol.Text, Theme.SourceDimmed);
-            ImGui.Text(label);
+            ImGui.TextUnformatted(label);
             ImGui.PopStyleColor();
+        }
+        if (src.Type != "vendor" && src.Instruction != null)
+        {
+            ImGui.Indent();
+            ImGui.TextWrapped(src.Instruction);
+            ImGui.Unindent();
         }
     }
 
@@ -796,6 +811,8 @@ public sealed class QuestDetailPanel
             {
                 if (step.Action == "complete_quest" && step.TargetKey != null)
                     keys.Add(step.TargetKey);
+                if (step.Sources != null)
+                    CollectQuestRewardKeys(step.Sources, keys);
             }
         }
         if (quest.RequiredItems != null)
@@ -862,6 +879,8 @@ public sealed class QuestDetailPanel
         public string? SelectableLabel;
         public string? QuestTreeLabel;
         public string? OpenQuestLabel;
+        public string AddTooltip = "";
+        public string RemoveTooltip = "";
     }
 
     /// <summary>
@@ -1130,10 +1149,10 @@ public sealed class QuestDetailPanel
             display.Text += $"  \u00b7  {step.LevelEstimate.Factors[0].Name}";
         }
 
-        var item = FindRequiredItem(quest, step);
-        if (step.TargetType == "item" && item?.Sources != null)
+        var sources = ItemSourcePolicy.SourcesFor(quest, step);
+        if (step.TargetType == "item" && sources != null)
         {
-            foreach (var source in item.Sources)
+            foreach (var source in sources)
             {
                 if (HasNavigableSource(source))
                 {
@@ -1156,10 +1175,10 @@ public sealed class QuestDetailPanel
         if (
             (step.Action is "collect" or "obtain" or "read")
             && step.TargetName != null
-            && item?.Sources != null
+            && sources != null
         )
         {
-            foreach (var source in item.Sources)
+            foreach (var source in sources)
             {
                 if (!IsSourceAvailable(source))
                     continue;
@@ -1190,36 +1209,28 @@ public sealed class QuestDetailPanel
     {
         if (stepDisplay.Sources.ContainsKey((src, depth)))
             return;
-        string label = src.Type switch
-        {
-            "drop" => $"Drops from: {src.Name}",
-            "vendor" when !string.IsNullOrWhiteSpace(src.Instruction) =>
-                $"{src.Instruction}  ·  {src.Name}",
-            "vendor" => $"Buy from: {src.Name}",
-            "dialog_give" => $"Given by: {src.Name}",
-            "fishing" => "Fishing",
-            "mining" => "Mining",
-            "pickup" => "Found in world",
-            "crafting" => $"Crafted from: {src.Name}",
-            "quest_reward" => $"Quest reward: {src.Name}",
-            "ingredient" => $"Ingredient: {src.Name}"
-                + (src.NodeCount is int qty ? $" x{qty}" : ""),
-            "item_use" => $"Use: {src.Name}",
-            _ => src.Name ?? src.Type,
-        };
-        if (src.Zone != null)
-            label += $"  \u00b7  {src.Zone}";
-        if (src.Level is int lv)
-            label += $"  \u00b7  Lv {lv}";
+        string label = SourceListText.Label(src);
 
         var display = new SourceDisplayCache
         {
             Label = label,
             ChildrenLabel = $"{label}##src_{step.Order}_{depth}_{src.Type}_{src.Name}",
-            SourceId = src.MakeSourceId(),
+            SourceId =
+                src.Type == "treasure_chest" && !_state.TreasureHunt.State.Active
+                    ? null
+                    : src.MakeSourceId(),
+            AddTooltip =
+                src.Type == "treasure_chest"
+                    ? "Navigate to the active treasure dig site."
+                    : $"Add to navigation: {src.Name ?? src.Zone ?? src.Scene}",
+            RemoveTooltip =
+                src.Type == "treasure_chest"
+                    ? "Navigate to the active treasure dig site."
+                    : $"Remove from navigation: {src.Name ?? src.Zone ?? src.Scene}",
         };
         if (display.SourceId != null)
-            display.SelectableLabel = $"{label}##src_{step.Order}_{display.SourceId}";
+            display.SelectableLabel =
+                $"{label}##src_{step.Order}_{depth}_{display.SourceId}_{src.Level}_{src.LevelMax}";
         if (src.Type == "quest_reward" && src.QuestKey != null)
         {
             display.QuestTreeLabel = $"{label}##sqt_{step.Order}_{src.QuestKey}";
@@ -1238,27 +1249,6 @@ public sealed class QuestDetailPanel
 
     // ── Helpers ──────────────────────────────────────────────────────
 
-    /// <summary>
-    /// Find the RequiredItemInfo matching a collect/read step's target name.
-    /// </summary>
-    private static RequiredItemInfo? FindRequiredItem(QuestEntry quest, QuestStep step)
-    {
-        if (quest.RequiredItems != null)
-        {
-            foreach (var item in quest.RequiredItems)
-            {
-                if (
-                    string.Equals(
-                        item.ItemName,
-                        step.TargetName,
-                        StringComparison.OrdinalIgnoreCase
-                    )
-                )
-                    return item;
-            }
-        }
-        return null;
-    }
 
     private bool IsSourceAvailable(ItemSource source)
     {
@@ -1278,9 +1268,21 @@ public sealed class QuestDetailPanel
     {
         if (!IsSourceAvailable(s))
             return false;
-        if (s.Scene != null)
+        if (s.Type == "treasure_chest")
+            return _state.TreasureHunt.State.Active;
+        if (
+            ItemSourcePolicy.IsRandomSource(s)
+            || !ItemSourcePolicy.NeedsUsedItem(s, _state.CountItemDelegate)
+        )
+            return false;
+        if (ItemSourcePolicy.IsStaticCandidate(s) && s.Scene != null)
             return true;
-        if (s.SourceKey != null && _data.CharacterSpawns.ContainsKey(s.SourceKey))
+        if (
+            ItemSourcePolicy.IsStaticCandidate(s)
+            && s.SourceKey != null
+            && _data.CharacterSpawns.TryGetValue(s.SourceKey, out var spawns)
+            && spawns.Count > 0
+        )
             return true;
         if (s.Children != null)
         {

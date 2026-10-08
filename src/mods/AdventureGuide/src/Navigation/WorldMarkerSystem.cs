@@ -258,6 +258,22 @@ public sealed class WorldMarkerSystem
             CollectObjectiveMarkers(quest, currentScene);
         }
 
+        var hunt = _state.TreasureHunt.State;
+        if (
+            hunt.HasLocation
+            && string.Equals(hunt.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase)
+        )
+            TryAddMarker(
+                new IntentKey(TreasureHuntState.SourceId),
+                new MarkerEntry
+                {
+                    Position =
+                        new Vector3(hunt.X, hunt.Y, hunt.Z) + Vector3.up * StaticHeightOffset,
+                    Type = MarkerType.Objective,
+                    DisplayName = TreasureHuntState.DisplayName,
+                    SubText = "Dig here",
+                }
+            );
         CollectLootContainerMarkers();
         if (_config.ShowAllRespawnTimers.Value)
             CollectRespawnTimerMarkers();
@@ -398,6 +414,18 @@ public sealed class WorldMarkerSystem
                 MarkerTextFormatter.FormatStepActionText(step)
             );
         }
+        if (step.TargetType == "item" && step.TargetKey != null && step.Sources != null)
+        {
+            int have = _state.CountItem(step.TargetKey);
+            int quantity = step.Quantity ?? 1;
+            if (have < quantity)
+            {
+                string name = step.TargetName ?? step.Description;
+                string progress = $"{have}/{quantity} {name}";
+                foreach (var source in step.Sources)
+                    EmitItemSourceMarker(source, name, scene, progress);
+            }
+        }
     }
 
     private void EmitItemSourceMarkers(QuestEntry quest, string scene)
@@ -416,13 +444,13 @@ public sealed class WorldMarkerSystem
             if (ri.Sources == null)
                 continue;
             foreach (var src in ri.Sources)
-                EmitItemSourceMarker(src, ri, scene, progress);
+                EmitItemSourceMarker(src, ri.ItemName, scene, progress);
         }
     }
 
     private void EmitItemSourceMarker(
         ItemSource source,
-        RequiredItemInfo item,
+        string itemName,
         string scene,
         string progress
     )
@@ -432,14 +460,19 @@ public sealed class WorldMarkerSystem
             && !source.RequiredQuestDBNames.TrueForAll(_state.IsGameQuestCompleted)
         )
             return;
+        if (
+            ItemSourcePolicy.IsRandomSource(source)
+            || !ItemSourcePolicy.NeedsUsedItem(source, _state.CountItemDelegate)
+        )
+            return;
 
-        if (source.SourceKey != null)
+        if (ItemSourcePolicy.IsStaticCandidate(source) && source.SourceKey != null)
         {
             if (PositionedSource.TryParse(source.SourceKey, out var positioned))
                 EmitPositionedSourceMarker(
                     source.SourceKey,
                     positioned,
-                    source.Name ?? item.ItemName,
+                    source.Name ?? itemName,
                     scene,
                     progress
                 );
@@ -447,7 +480,7 @@ public sealed class WorldMarkerSystem
                 EmitPerSpawnMarkers(
                     source.SourceKey,
                     scene,
-                    source.Name ?? item.ItemName,
+                    source.Name ?? itemName,
                     MarkerType.Objective,
                     progress
                 );
@@ -456,7 +489,7 @@ public sealed class WorldMarkerSystem
         if (source.Children == null)
             return;
         foreach (var child in source.Children)
-            EmitItemSourceMarker(child, item, scene, progress);
+            EmitItemSourceMarker(child, itemName, scene, progress);
     }
 
     /// <summary>
@@ -504,6 +537,20 @@ public sealed class WorldMarkerSystem
                 entry.TargetKey = sourceKey;
             }
             TryAddMarker(key, entry);
+            return;
+        }
+        if (source.Kind == "planningtable")
+        {
+            TryAddMarker(
+                key,
+                new MarkerEntry
+                {
+                    Position = position + Vector3.up * StaticHeightOffset,
+                    Type = MarkerType.Objective,
+                    DisplayName = displayName,
+                    SubText = progress,
+                }
+            );
             return;
         }
 

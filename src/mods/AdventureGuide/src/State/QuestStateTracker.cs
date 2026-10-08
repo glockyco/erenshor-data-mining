@@ -33,6 +33,9 @@ public sealed class QuestStateTracker
     /// <summary>The Reliquary rooms' furniture, which decides where furnishings stand.</summary>
     public ReliquaryFurnishings Furnishings { get; }
 
+    internal TreasureHunt TreasureHunt { get; } = new();
+    internal event Action<TreasureHuntChange>? TreasureHuntChanged;
+
     /// <summary>
     /// <see cref="CountItem"/> as a delegate created once. Converting the
     /// method group at each call allocates, and Update runs every frame.
@@ -177,6 +180,12 @@ public sealed class QuestStateTracker
         {
             Version++;
             FurnishingsChanged?.Invoke();
+        }
+        var huntChange = TreasureHunt.Poll(CurrentZone);
+        if (huntChange != TreasureHuntChange.None)
+        {
+            Version++;
+            TreasureHuntChanged?.Invoke(huntChange);
         }
     }
 

@@ -52,6 +52,7 @@ def build_edges(
     _add_item_quest_edges(conn, graph)
     _add_item_spell_edges(conn, graph)
     _add_item_door_edges(conn, graph)
+    _add_item_use_edges(conn, graph)
 
 
 def _add_quest_acquisition_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
@@ -1113,3 +1114,11 @@ def _find_dialog_keyword(
         keywords: str = row["keywords"]
         return keywords.split(",")[0].strip()
     return None
+
+
+def _add_item_use_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
+    """Using an item casts a spell that creates another item."""
+    for row in conn.execute("SELECT source_item_stable_key, created_item_stable_key FROM spell_created_items"):
+        source, target = row["source_item_stable_key"], row["created_item_stable_key"]
+        if graph.has_node(source) and graph.has_node(target):
+            graph.add_edge(Edge(source=source, target=target, type=EdgeType.CREATES_ITEM))

@@ -17,7 +17,7 @@ Design:
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 
 # ---------------------------------------------------------------------------
@@ -123,11 +123,12 @@ class EdgeType(str, Enum):
 
     # -- World object edges --
     REMOVES_INVULNERABILITY = "removes_invulnerability"
-    # Appended quest step edges; keep existing enum ordinals stable.
+    # Appended relationships; keep existing enum ordinals stable.
     STEP_TURN_IN = "step_turn_in"
     STEP_LOOT = "step_loot"
     STEP_BUY = "step_buy"
     STEP_GO_TO = "step_go_to"
+    CREATES_ITEM = "creates_item"
 
 
 # ---------------------------------------------------------------------------
@@ -150,6 +151,19 @@ class WorkflowCycle:
     targets: list[WorkflowTarget]
     reward_container_stable_key: str | None = None
     reset_evidence: str = "targets_defeated"
+
+
+@dataclass(slots=True)
+class BackgroundSource:
+    """Non-local item sources that do not contribute to obtainability levels."""
+
+    type: str
+    name: str
+    chance: float
+    level: int | None = None
+    level_max: int | None = None
+    source_key: str | None = None
+    instruction: str | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -206,6 +220,8 @@ class Node:
     stackable: bool = False
     is_unique: bool = False
     template: bool = False  # crafting recipe template item
+    background_sources: list[BackgroundSource] = field(default_factory=list)
+    obtainability_level: int | None = None
 
     # Character-specific
     is_vendor: bool = False

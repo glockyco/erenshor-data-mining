@@ -10,7 +10,7 @@ import math
 import sqlite3
 from typing import TYPE_CHECKING
 
-from .schema import Edge, EdgeType, Node, NodeType, WorkflowCycle, WorkflowTarget
+from .schema import BackgroundSource, Edge, EdgeType, Node, NodeType, WorkflowCycle, WorkflowTarget
 
 if TYPE_CHECKING:
     from .graph import EntityGraph
@@ -24,6 +24,7 @@ def build_nodes(
     """Add every entity node in the established deterministic order."""
     _add_quest_nodes(conn, graph)
     _add_item_nodes(conn, graph)
+    _add_background_item_sources(conn, graph)
     _add_character_nodes(conn, graph, scene_to_zone)
     _add_zone_nodes(conn, graph)
     _add_zone_line_nodes(conn, graph, scene_to_zone)
@@ -160,6 +161,64 @@ def _add_item_nodes(conn: sqlite3.Connection, graph: EntityGraph) -> None:
                 description=r["lore"],
             )
         )
+
+
+def _add_background_item_sources(conn: sqlite3.Connection, graph: EntityGraph) -> None:
+    """Attach non-local loot metadata without creating characters or level factors."""
+    for row in conn.execute("""
+        SELECT item_stable_key, drop_probability, min_level_exclusive
+        FROM special_world_drops ORDER BY item_stable_key, pool
+    """):
+        item = graph.get_node(row["item_stable_key"])
+        if item is None:
+            continue
+        minimum = int(row["min_level_exclusive"])
+        item.background_sources.append(
+            BackgroundSource(
+                type="world_drop",
+                name=f"Any enemy above level {minimum}" if minimum else "Any enemy",
+                chance=float(row["drop_probability"]),
+                level=minimum + 1,
+            )
+        )
+
+    # code-fact: fishing.map_bonus
+    # The assertion pins the entire bonus branch, including both integer draws.
+    fact = conn.execute("SELECT value FROM code_facts WHERE fact_id = 'fishing.map_bonus' AND key = 'ok'").fetchone()
+    if fact is None or fact["value"] != "true":
+        raise ValueError("Missing fishing.map_bonus code fact; refresh code facts and rebuild the clean database")
+    pieces = conn.execute("SELECT item_stable_key FROM special_world_drops WHERE pool = 'Maps'").fetchall()
+    if len(pieces) != 4:
+        raise ValueError(f"Fishing map bonus requires the four exported map pieces, found {len(pieces)}")
+    for row in pieces:
+        item = graph.get_node(row["item_stable_key"])
+        if item is not None:
+            item.background_sources.append(
+                BackgroundSource(type="fishing_bonus", name="Any fishing catch", chance=100 / 20 / 4)
+            )
+
+    for row in conn.execute("""
+        SELECT ld.item_stable_key, ld.character_stable_key, ld.drop_probability,
+               MIN(t.player_level_min) AS player_level_min,
+               MAX(t.player_level_max) AS player_level_max
+        FROM loot_drops ld
+        JOIN treasure_chest_possible_spawns t ON t.chest_character_stable_key = ld.character_stable_key
+        GROUP BY ld.item_stable_key, ld.character_stable_key, ld.drop_probability
+        ORDER BY ld.item_stable_key, player_level_min, ld.character_stable_key
+    """):
+        item = graph.get_node(row["item_stable_key"])
+        if item is not None:
+            item.background_sources.append(
+                BackgroundSource(
+                    type="treasure_chest",
+                    name="Treasure map chest",
+                    chance=float(row["drop_probability"]),
+                    level=int(row["player_level_min"]),
+                    level_max=int(row["player_level_max"]),
+                    source_key=row["character_stable_key"],
+                    instruction="Read a Treasure Map and dig at the marked spot.",
+                )
+            )
 
 
 def _add_character_nodes(

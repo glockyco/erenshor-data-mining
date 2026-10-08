@@ -181,3 +181,24 @@ source = "quest:standangel"
 target = "zoneline:shiveringstep:shiveringtomb2:809.72:19.36:645.26"
 type = "unlocks_zone_line"
 note = "ShiveringAngel.cs: angel statue rotates clear when STANDANGEL completes"
+
+# ── Reliquary planning table ─────────────────────────────────────────────
+# PlanningTable (MonoBehaviour 34075) belongs to PlanningDesk (GameObject 6522).
+# Transform 13251 has no parent, so its local position is its world position.
+# PlanningTableUI.Portal holds the Box of Portals in LoadScene's portal slot.
+[[nodes]]
+key = "planningtable:reliquary:267.40:0.09:321.30"
+type = "item_bag"
+display_name = "Planning Table"
+scene = "Reliquary"
+zone = "Reliquary Hall"
+zone_key = "zone:reliquary"
+x = 267.39566
+y = 0.09062946
+z = 321.30356
+description = "Take it from the planning table's portal slot."
+
+[[edges]]
+source = "planningtable:reliquary:267.40:0.09:321.30"
+target = "item:gen - box of portals"
+type = "yields_item"

@@ -84,6 +84,9 @@ def _denormalize_quest_metadata(conn: sqlite3.Connection, graph: EntityGraph) ->
     for node in graph.nodes_of_type(NodeType.CHARACTER):
         node.place_level = _place_level(node.key, ctx)
 
+    for item in graph.nodes_of_type(NodeType.ITEM):
+        item.obtainability_level = _item_obtainability_level(item.key, ctx, set())
+
 
 def _place_level(char_key: str, ctx: _LevelContext) -> int | None:
     """Level of reaching a character: its zone's level, raised by its unlocks."""
@@ -358,7 +361,7 @@ def _item_obtainability_level(
     """Min level at which an item is obtainable across all sources.
 
     Sources: drops_item, sells_item, gives_item, yields_item (water/mining),
-    rewards_item (quest reward), produces (crafting — recursive).
+    rewards_item (quest reward), produces (crafting), creates_item (item use).
 
     Uses memoization (ctx.item_cache) and cycle detection (visiting set).
     Multiple sources are alternatives (OR) — returns min across all.
@@ -408,6 +411,11 @@ def _item_obtainability_level(
                     mat_levels.append(mat_lvl)
             if mat_levels:
                 source_levels.append(max(mat_levels))
+
+        elif edge.type == EdgeType.CREATES_ITEM:
+            lvl = _item_obtainability_level(edge.source, ctx, visiting)
+            if lvl is not None:
+                source_levels.append(lvl)
 
     visiting.discard(item_key)
     result = min(source_levels) if source_levels else None
