@@ -212,6 +212,9 @@ class Node:
     is_friendly: bool = False
     invulnerable: bool = False
     faction_key: str | None = None
+    # A TreasureChest-faction container (encounter tier "chest"). Its level of
+    # 1 is no combat level: reaching it means reaching its zone.
+    is_chest: bool = False
 
     # Spawn point specific
     spawn_chance: float | None = None

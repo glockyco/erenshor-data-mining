@@ -572,7 +572,7 @@ def _quest_topological_order(graph: EntityGraph) -> list[str]:
 
 def _denormalize_zone_and_source_levels(conn: sqlite3.Connection, graph: EntityGraph) -> None:
     """Set level on zone nodes (median enemy level) and on non-combat source
-    nodes (water, mining, item bag) to their zone's median.
+    nodes (water, mining, item bag, chests) to their zone's median.
 
     This makes zone difficulty a first-class property in the graph, available
     to any consumer without recomputing from character spawns.
@@ -593,11 +593,23 @@ def _denormalize_zone_and_source_levels(conn: sqlite3.Connection, graph: EntityG
                 if median is not None:
                     node.level = median
 
+    # A chest's level of 1 says nothing about reaching it; its zone does.
+    # Encounter scripts spawn some chests, so take the zone of their spawns.
+    char_zones = _build_char_zone_keys(conn)
+    for node in graph.nodes_of_type(NodeType.CHARACTER):
+        if not node.is_chest:
+            continue
+        zone_key = node.zone_key or char_zones.get(node.key)
+        median = zone_medians.get(zone_key) if zone_key else None
+        if median is not None:
+            node.level = median
+
 
 def _build_zone_medians(conn: sqlite3.Connection) -> dict[str, int]:
     """Compute zone median mob level: {zone_key → median_level}.
 
-    Only non-friendly characters with level > 0 contribute.
+    Only non-friendly characters with level > 0 contribute. Chests are no
+    combatants: the TreasureChest faction gives them level 1.
     """
     from statistics import median
 
@@ -606,6 +618,7 @@ def _build_zone_medians(conn: sqlite3.Connection) -> dict[str, int]:
         FROM character_spawns cs
         JOIN characters c ON cs.character_stable_key = c.stable_key
         WHERE c.is_friendly = 0 AND c.level > 0 AND c.is_map_visible = 1
+            AND c.encounter_tier IS NOT 'chest'
             AND cs.spawn_point_stable_key IS NOT NULL
     """).fetchall()
     zone_levels: dict[str, list[int]] = {}

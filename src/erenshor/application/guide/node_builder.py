@@ -171,7 +171,7 @@ def _add_character_nodes(
     rows = conn.execute("""
         SELECT stable_key, display_name, scene, x, y, z,
                level, is_vendor, is_friendly, invulnerable,
-               my_world_faction_stable_key, is_enabled
+               my_world_faction_stable_key, is_enabled, encounter_tier
         FROM characters
         WHERE is_map_visible = 1
     """)
@@ -195,6 +195,7 @@ def _add_character_nodes(
                 invulnerable=bool(r["invulnerable"]),
                 faction_key=r["my_world_faction_stable_key"],
                 is_enabled=bool(r["is_enabled"]) if r["is_enabled"] is not None else True,
+                is_chest=r["encounter_tier"] == "chest",
             )
         )
 

@@ -1228,3 +1228,39 @@ def test_build_graph_closes_connection_when_node_build_fails(monkeypatch: pytest
         graph_builder.build_graph("unused.db")
 
     assert connection.closed
+
+
+def test_chests_take_their_zone_level_and_stay_out_of_the_zone_median() -> None:
+    from erenshor.application.guide.graph_validation import _denormalize_zone_and_source_levels
+
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    try:
+        conn.executescript(
+            """
+            CREATE TABLE characters (
+                stable_key TEXT, level INTEGER, is_friendly INTEGER, is_map_visible INTEGER, encounter_tier TEXT
+            );
+            CREATE TABLE character_spawns (
+                character_stable_key TEXT, spawn_point_stable_key TEXT, zone_stable_key TEXT
+            );
+            INSERT INTO characters VALUES
+                ('character:mob', 40, 0, 1, 'enemy'),
+                ('character:chest', 1, 0, 1, 'chest');
+            INSERT INTO character_spawns VALUES
+                ('character:mob', 'spawn:mob', 'zone:plane'),
+                ('character:chest', 'spawn:chest', 'zone:plane');
+            """
+        )
+        # An encounter script spawns the chest, so its node has no zone.
+        graph = build_graph(
+            Node("zone:plane", NodeType.ZONE, "Plane"),
+            Node("character:chest", NodeType.CHARACTER, "Chest", level=1, is_chest=True),
+        )
+        _denormalize_zone_and_source_levels(conn, graph)
+    finally:
+        conn.close()
+
+    # Level 1 is the TreasureChest faction's, not the level needed to loot it.
+    assert graph.get_node("zone:plane").level == 40
+    assert graph.get_node("character:chest").level == 40
