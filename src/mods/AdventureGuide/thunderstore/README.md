@@ -15,10 +15,13 @@ arrow points you to your target — across zone boundaries, chaining
 through multiple connections to get you there.
 
 Need an item? Every source is listed — enemy drops, vendors, mining
-nodes, fishing spots, crafting recipes, quest rewards. Click any source
-and the arrow takes you there (for fishing, to a zone with the right
-water). When a source is another quest's reward,
-that quest's walkthrough unfolds inline with its own nav buttons.
+nodes, fishing spots, crafting recipes, quest rewards, items you get by
+using another item. Click a source and the arrow takes you there (for
+fishing, to a zone with the right water). When a source is another
+quest's reward, that quest's walkthrough unfolds inline with its own nav
+buttons. Rare drops from any enemy and treasure map chests are listed
+too: they have no fixed spot, but once you read a treasure map, the
+arrow leads you to the dig site.
 
 ## See what you've been missing
 
