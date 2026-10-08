@@ -4,11 +4,14 @@
 
 - New setting World Markers.ShowAllRespawnTimers: respawn timers over every dead creature's spawn, not just quest targets.
 - Mining, fishing and ground-pickup sources work again: the arrow leads to them, and needed deposits and pickups get markers. Fishing steps point to a zone with the right water.
-- When an item's sources are all in other zones, the arrow picks the nearest one.
+- When no source of an item is in your zone, the arrow leads to the nearest zone where its top source is found.
+- Vendors and NPCs who hand over an item come before random drops that take about the same level, so the arrow goes to them first.
+- Items list more sources: world drops from any enemy (with the chance), torn map pieces from fishing, treasure map chests by your level, items you get by using another item, and the Box of Portals on the Reliquary planning table.
+- After you read a treasure map, the arrow leads to the treasure's zone and then to the dig spot, which gets a marker.
 - The arrow no longer swaps a nearby vendor or quest NPC for a creature farther away.
 - Reliquary furniture such as the Forge Golem, Portal Receptacle and Pocket Vendor counts as a quest target or source only once you have built it, and the guide names the furniture to build.
 - Navigation and loot markers stop pointing at a corpse once you close its loot window after taking the quest item.
-- Levels make more sense: Reliquary steps show 16 for the Fiend that guards the hall until you claim it, chests show their area's level instead of 1, and ritual braziers and other objects you can't fight show their area's level instead of 99.
+- Levels make more sense: quest givers, vendors and other NPCs you only talk to show their area's level instead of their own, Reliquary steps show 16 for the Fiend that guards the hall until you claim it, chests show their area's level instead of 1, and objects such as ritual braziers no longer show 99.
 - The "more sources" line shows the full level range of the sources it hides.
 - Six unused Reliquary portal quests and two quests you can't get are gone from the quest list.
 - Navigation fixes: correct zone exit after returning to a zone, travel steps that finish on arrival, continuing with the main quest after a sub-quest, first-person and drone view, and keeping your target through a relog.
