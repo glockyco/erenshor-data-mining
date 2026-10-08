@@ -30,6 +30,9 @@ public sealed class QuestStateTracker
     public string? SelectedQuestKey { get; set; }
     public GuideWorkflowState Workflows { get; }
 
+    /// <summary>The Reliquary rooms' furniture, which decides where furnishings stand.</summary>
+    public ReliquaryFurnishings Furnishings { get; }
+
     /// <summary>
     /// <see cref="CountItem"/> as a delegate created once. Converting the
     /// method group at each call allocates, and Update runs every frame.
@@ -38,6 +41,9 @@ public sealed class QuestStateTracker
 
     public event Action<QuestEntry>? WorkflowChanged;
     public event Action<QuestEntry>? WorkflowCycleReset;
+
+    /// <summary>Raised after the planning table's rooms change, once Version moved.</summary>
+    public event Action? FurnishingsChanged;
 
     public QuestStateTracker(GuideData data, EntityRegistry entities)
         : this(data, entities, LiveQuestGameState.Instance) { }
@@ -48,6 +54,7 @@ public sealed class QuestStateTracker
         CountItemDelegate = CountItem;
         _gameState = gameState;
         Workflows = new GuideWorkflowState(data, entities);
+        Furnishings = new ReliquaryFurnishings(data);
         Workflows.Changed += OnWorkflowChanged;
         Workflows.CycleReset += OnWorkflowCycleReset;
 
@@ -159,7 +166,17 @@ public sealed class QuestStateTracker
     public void OnRewardContainerConsumed(Character character) =>
         Workflows.ObserveRewardContainerConsumed(character, CountItemDelegate);
 
-    public void Update(float deltaTime) => Workflows.Update(deltaTime, CountItemDelegate);
+    public void Update(float deltaTime)
+    {
+        Workflows.Update(deltaTime, CountItemDelegate);
+        // A furnishing appears or vanishes with its room's set, which changes
+        // which sources, targets and markers exist.
+        if (Furnishings.Poll())
+        {
+            Version++;
+            FurnishingsChanged?.Invoke();
+        }
+    }
 
     public void OnSceneChanged(string sceneName)
     {

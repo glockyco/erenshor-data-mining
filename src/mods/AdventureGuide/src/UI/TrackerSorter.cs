@@ -239,7 +239,8 @@ internal static class TrackerSorter
             resolvedQuest ?? quest,
             step,
             data,
-            state.IsGameQuestCompleted
+            state.IsGameQuestCompleted,
+            state.Furnishings.IsAvailablePredicate
         );
         return scene != null ? data.GetZoneDisplayName(scene) : null;
     }
@@ -265,7 +266,8 @@ internal static class TrackerSorter
             step,
             data,
             currentScene,
-            state.IsGameQuestCompleted
+            state.IsGameQuestCompleted,
+            state.Furnishings.IsAvailablePredicate
         );
     }
 
@@ -292,7 +294,8 @@ internal static class TrackerSorter
                 effectiveQuest,
                 step,
                 data,
-                state.IsGameQuestCompleted
+                state.IsGameQuestCompleted,
+                state.Furnishings.IsAvailablePredicate
             )
                 is string locationScene
             && string.Equals(locationScene, currentScene, System.StringComparison.OrdinalIgnoreCase)
@@ -313,7 +316,7 @@ internal static class TrackerSorter
         // Try character target directly (talk, kill, turn_in steps)
         string? key = step.TargetKey;
         if (key != null && step.TargetType == "character" && data.CharacterSpawns.ContainsKey(key))
-            return NearestSpawnDistance(data, key, currentScene, playerPos);
+            return NearestSpawnDistance(data, state.Furnishings, key, currentScene, playerPos);
 
         // For item steps, check ALL sources for the closest in-zone spawn
         if (step.TargetType == "item" && effectiveQuest.RequiredItems != null)
@@ -351,6 +354,8 @@ internal static class TrackerSorter
                 && !src.RequiredQuestDBNames.TrueForAll(state.IsGameQuestCompleted)
             )
                 continue;
+            if (src.SourceKey != null && !state.Furnishings.IsAvailable(src.SourceKey))
+                continue;
 
             // quest_reward: SourceKey is the quest giver, not an obtainable source.
             if (src.Type == "quest_reward" && src.Children is { Count: > 0 })
@@ -365,7 +370,13 @@ internal static class TrackerSorter
             if (src.SourceKey != null)
                 best = SourceDistance.Best(
                     best,
-                    NearestSpawnDistance(data, src.SourceKey, currentScene, playerPos)
+                    NearestSpawnDistance(
+                        data,
+                        state.Furnishings,
+                        src.SourceKey,
+                        currentScene,
+                        playerPos
+                    )
                 );
             if (src.Children != null)
                 best = SourceDistance.Best(
@@ -378,6 +389,7 @@ internal static class TrackerSorter
 
     private static SourceDistance NearestSpawnDistance(
         GuideData data,
+        ReliquaryFurnishings furnishings,
         string key,
         string currentScene,
         Vector3 playerPos
@@ -414,7 +426,10 @@ internal static class TrackerSorter
         float best = float.MaxValue;
         foreach (var sp in spawns)
         {
-            if (!string.Equals(sp.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase))
+            if (
+                !string.Equals(sp.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase)
+                || !furnishings.IsPresent(sp)
+            )
                 continue;
             float d = NavigationPolicy.EuclideanDistance(
                 playerPos.x,

@@ -380,7 +380,8 @@ public sealed class NavigationController
                 _resolvedStep,
                 _data,
                 currentScene,
-                _state.IsGameQuestCompleted
+                _state.IsGameQuestCompleted,
+                _state.Furnishings.IsAvailablePredicate
             )
         )
             ResolveCharacterTarget(_resolvedStep, quest, currentScene);
@@ -559,6 +560,58 @@ public sealed class NavigationController
         // No more navigable steps
         Clear();
     }
+
+    /// <summary>
+    /// The Reliquary rooms changed, so a furnishing the navigated step can use
+    /// appeared, moved to another room, or vanished. Resolve that step again;
+    /// navigation that involves no furnishing is left alone.
+    /// </summary>
+    public void OnFurnishingsChanged(string currentScene)
+    {
+        if (Target == null || _resolvedStep == null)
+            return;
+        var quest = _data.GetByRuntimeKey(Target.QuestKey);
+        if (quest == null || !StepUsesFurnishings(_resolvedStep, quest))
+            return;
+        ResolveAndNavigate(_resolvedStep, quest, currentScene);
+    }
+
+    private bool StepUsesFurnishings(QuestStep step, QuestEntry quest)
+    {
+        if (step.TargetKey != null && IsFurnishing(step.TargetKey))
+            return true;
+        if (step.TargetType != "item" || quest.RequiredItems == null)
+            return false;
+        foreach (var item in quest.RequiredItems)
+        {
+            if (
+                string.Equals(
+                    item.ItemName,
+                    step.TargetName,
+                    System.StringComparison.OrdinalIgnoreCase
+                ) && UsesFurnishings(item.Sources)
+            )
+                return true;
+        }
+        return false;
+    }
+
+    private bool UsesFurnishings(List<Data.ItemSource>? sources)
+    {
+        if (sources == null)
+            return false;
+        foreach (var source in sources)
+        {
+            if (source.SourceKey != null && IsFurnishing(source.SourceKey))
+                return true;
+            if (UsesFurnishings(source.Children))
+                return true;
+        }
+        return false;
+    }
+
+    private bool IsFurnishing(string characterKey) =>
+        _state.Furnishings.StatusOf(characterKey) != FurnishingStatus.Ungated;
 
     /// <summary>
     /// Call each frame. Updates distance/direction to the active target.
@@ -904,8 +957,10 @@ public sealed class NavigationController
 
     private bool IsSourceAvailable(Data.ItemSource source)
     {
-        return source.RequiredQuestDBNames == null
-            || source.RequiredQuestDBNames.TrueForAll(_state.IsGameQuestCompleted);
+        return (
+                source.RequiredQuestDBNames == null
+                || source.RequiredQuestDBNames.TrueForAll(_state.IsGameQuestCompleted)
+            ) && (source.SourceKey == null || _state.Furnishings.IsAvailable(source.SourceKey));
     }
 
     /// <summary>
@@ -1040,7 +1095,7 @@ public sealed class NavigationController
                         spawn.Scene,
                         currentScene,
                         System.StringComparison.OrdinalIgnoreCase
-                    )
+                    ) || !_state.Furnishings.IsPresent(spawn)
                 )
                     continue;
                 var position =
@@ -1143,12 +1198,15 @@ public sealed class NavigationController
                 else if (_data.CharacterSpawns.TryGetValue(sourceKey, out var spawns))
                 {
                     foreach (var spawn in spawns)
-                        Consider(
-                            spawn.Scene,
-                            new Vector3(spawn.X, spawn.Y, spawn.Z),
-                            NavigationTarget.Kind.Character,
-                            sourceKey
-                        );
+                    {
+                        if (_state.Furnishings.IsPresent(spawn))
+                            Consider(
+                                spawn.Scene,
+                                new Vector3(spawn.X, spawn.Y, spawn.Z),
+                                NavigationTarget.Kind.Character,
+                                sourceKey
+                            );
+                    }
                 }
             }
         }
@@ -1356,7 +1414,10 @@ public sealed class NavigationController
 
         foreach (var sp in spawns)
         {
-            if (!string.Equals(sp.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase))
+            if (
+                !string.Equals(sp.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase)
+                || !_state.Furnishings.IsPresent(sp)
+            )
                 continue;
 
             if (!playerPos.HasValue)
@@ -1395,7 +1456,22 @@ public sealed class NavigationController
             }
         }
 
-        return bestComplete ?? bestPartial ?? bestFallback ?? spawns[0];
+        return bestComplete ?? bestPartial ?? bestFallback ?? FirstPresentSpawn(spawns);
+    }
+
+    /// <summary>
+    /// A spawn in another scene: the first that exists now, else the first.
+    /// An absent furnishing still has a place, the Reliquary, which the
+    /// target's requirement text explains.
+    /// </summary>
+    private Data.SpawnPoint FirstPresentSpawn(List<Data.SpawnPoint> spawns)
+    {
+        foreach (var spawn in spawns)
+        {
+            if (_state.Furnishings.IsPresent(spawn))
+                return spawn;
+        }
+        return spawns[0];
     }
 
     // ── Zone line helpers ──────────────────────────────────────────
@@ -1651,12 +1727,16 @@ public sealed class NavigationController
 
     /// <summary>
     /// If a character has unmet quest unlock requirements, append a
-    /// "Requires: Complete ..." line to the display name for the arrow.
+    /// "Requires: Complete ..." line to the display name for the arrow; for a
+    /// furnishing no Reliquary room holds, the furniture sets it needs.
     /// </summary>
     private string WithCharacterUnlockText(string displayName, string? targetKey)
     {
         if (targetKey == null)
             return displayName;
+        var furnishing = _state.Furnishings.RequirementText(targetKey);
+        if (furnishing != null)
+            return $"{displayName}\n{furnishing}";
         if (!_data.CharacterQuestUnlocks.TryGetValue(targetKey, out var groups))
             return displayName;
 

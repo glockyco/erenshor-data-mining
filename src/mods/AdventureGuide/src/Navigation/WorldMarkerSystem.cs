@@ -552,7 +552,11 @@ public sealed class WorldMarkerSystem
 
         foreach (var sp in spawns)
         {
-            if (!string.Equals(sp.Scene, scene, System.StringComparison.OrdinalIgnoreCase))
+            // A furnishing stands only in the rooms whose slot holds its set.
+            if (
+                !string.Equals(sp.Scene, scene, System.StringComparison.OrdinalIgnoreCase)
+                || !_state.Furnishings.IsPresent(sp)
+            )
                 continue;
 
             var staticPos = new Vector3(sp.X, sp.Y, sp.Z) + Vector3.up * StaticHeightOffset;
@@ -600,6 +604,10 @@ public sealed class WorldMarkerSystem
                     break;
 
                 case SpawnPointBridge.SpawnState.DirectlyPlacedDead:
+                    // A furnishing does not respawn on zone re-entry: building
+                    // the planning table places it, and it is not built yet.
+                    if (sp.FurnitureSlot != null)
+                        break;
                     // A quest-unlock entry means direct-placement absence is ambiguous:
                     // do not claim this NPC will respawn on zone re-entry.
                     bool characterUnlockIsAmbiguous = _data.CharacterQuestUnlocks.ContainsKey(

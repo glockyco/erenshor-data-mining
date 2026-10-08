@@ -123,6 +123,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
             );
             _state.WorkflowChanged += OnWorkflowChanged;
             _state.WorkflowCycleReset += OnWorkflowCycleReset;
+            _state.FurnishingsChanged += OnFurnishingsChanged;
             _arrow = new ArrowRenderer(_nav) { Enabled = _config.ShowArrow.Value };
             _config.ShowArrow.SettingChanged += OnShowArrowChanged;
             _groundPath = new GroundPathRenderer(_nav) { Enabled = _config.ShowGroundPath.Value };
@@ -315,6 +316,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
         {
             _state.WorkflowChanged -= OnWorkflowChanged;
             _state.WorkflowCycleReset -= OnWorkflowCycleReset;
+            _state.FurnishingsChanged -= OnFurnishingsChanged;
         }
 
         QuestMarkerPatch.SetSuppression(false);
@@ -432,6 +434,8 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
 
     private void OnWorkflowCycleReset(QuestEntry quest) =>
         _trackerState?.OnQuestCompleted(quest.RuntimeKey);
+
+    private void OnFurnishingsChanged() => _nav?.OnFurnishingsChanged(_state?.CurrentZone ?? "");
 
     private void SyncVisibility()
     {

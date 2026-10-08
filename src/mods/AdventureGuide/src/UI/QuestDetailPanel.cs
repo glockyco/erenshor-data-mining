@@ -302,6 +302,13 @@ public sealed class QuestDetailPanel
         ImGui.Text(display.Text);
         ImGui.PopStyleColor();
 
+        if (display.Requirement != null)
+        {
+            ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
+            ImGui.Text(display.Requirement);
+            ImGui.PopStyleColor();
+        }
+
         // Drop/vendor sources and tips for collect steps
         DrawStepSources(step, quest, visited);
 
@@ -834,6 +841,12 @@ public sealed class QuestDetailPanel
         public string TipsLabel = "";
         public string? MoreSourcesLabel;
         public string? SubQuestLabel;
+
+        /// <summary>
+        /// The indented requirement line for an absent furnishing target, built
+        /// with the cache so drawing does not allocate.
+        /// </summary>
+        public string? Requirement;
         public bool HasRequiredQuantity;
         public bool Navigable;
         public readonly List<ItemSource> VisibleSources = new();
@@ -1130,8 +1143,13 @@ public sealed class QuestDetailPanel
             }
         }
         else if (step.TargetType == "character")
+        {
             display.Navigable =
                 step.TargetKey != null && _data.CharacterSpawns.ContainsKey(step.TargetKey);
+            var requirement = _state.Furnishings.RequirementText(step.TargetKey);
+            if (requirement != null)
+                display.Requirement = "     " + requirement;
+        }
         else if (step.TargetType == "zone")
             display.Navigable = step.ZoneName != null || step.TargetKey != null;
 
@@ -1257,7 +1275,8 @@ public sealed class QuestDetailPanel
                     return false;
             }
         }
-        return true;
+        // A furnishing that no Reliquary room holds sells and gives nothing.
+        return source.SourceKey == null || _state.Furnishings.IsAvailable(source.SourceKey);
     }
 
     private bool HasNavigableSource(ItemSource s)

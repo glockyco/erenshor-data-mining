@@ -47,6 +47,14 @@ public sealed partial class GuideData
         private set;
     } = new Dictionary<string, List<List<string>>>();
 
+    /// <summary>
+    /// Reliquary furniture sets that place furnishing characters: item stable
+    /// key → display name. A spawn naming a set exists only while the planning
+    /// table holds that set in the spawn's room.
+    /// </summary>
+    public IReadOnlyDictionary<string, string> FurnitureSetNames { get; private set; } =
+        new Dictionary<string, string>();
+
     public QuestEntry? GetByDBName(string dbName) =>
         _byDBName.TryGetValue(dbName, out var entry) ? entry : null;
 
@@ -121,6 +129,13 @@ public sealed partial class GuideData
         data.ChainGroups = wrapper.ChainGroups ?? new List<ChainGroupEntry>();
         data.CharacterQuestUnlocks =
             wrapper.CharacterQuestUnlocks ?? new Dictionary<string, List<List<string>>>();
+        var furnitureSetNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (wrapper.FurnitureSets != null)
+        {
+            foreach (var (key, set) in wrapper.FurnitureSets)
+                furnitureSetNames[key] = set.DisplayName;
+        }
+        data.FurnitureSetNames = furnitureSetNames;
 
         return data;
     }
@@ -176,6 +191,43 @@ public sealed partial class GuideData
                 continue;
             foreach (var item in quest.RequiredItems)
                 ValidateSources(item.Sources, item.ItemName, gameDbNames, quest.StableKey);
+        }
+
+        ValidateFurnishings(wrapper);
+    }
+
+    /// <summary>
+    /// A furnishing spawn names both its set and its room, and the set is
+    /// listed with a display name for the requirement text.
+    /// </summary>
+    private static void ValidateFurnishings(GuideWrapper wrapper)
+    {
+        if (wrapper.CharacterSpawns == null)
+            return;
+        foreach (var (characterKey, spawns) in wrapper.CharacterSpawns)
+        {
+            foreach (var spawn in spawns)
+            {
+                bool hasSet = spawn.FurnitureItemStableKey != null;
+                if (hasSet != (spawn.FurnitureSlot != null))
+                    throw new InvalidDataException(
+                        $"Furnishing spawn of {characterKey} names a set or a room but not both"
+                    );
+                if (
+                    hasSet
+                    && (
+                        wrapper.FurnitureSets == null
+                        || !wrapper.FurnitureSets.ContainsKey(spawn.FurnitureItemStableKey!)
+                    )
+                )
+                    throw new InvalidDataException(
+                        $"Furnishing spawn of {characterKey} names unknown set {spawn.FurnitureItemStableKey}"
+                    );
+                if (hasSet && !FurnishingPolicy.IsRoomSlot(spawn.FurnitureSlot!))
+                    throw new InvalidDataException(
+                        $"Furnishing spawn of {characterKey} names unknown room {spawn.FurnitureSlot}"
+                    );
+            }
         }
     }
 
@@ -467,6 +519,9 @@ internal sealed class GuideWrapper
     [JsonProperty("_character_quest_unlocks")]
     public Dictionary<string, List<List<string>>>? CharacterQuestUnlocks { get; set; }
 
+    [JsonProperty("_furniture_sets")]
+    public Dictionary<string, FurnitureSetInfo>? FurnitureSets { get; set; }
+
     [JsonProperty("quests")]
     public List<QuestEntry>? Quests { get; set; }
 }
@@ -488,6 +543,13 @@ public sealed class ZoneInfo
 
     [JsonProperty("level_median")]
     public int? LevelMedian { get; set; }
+}
+
+/// <summary>A Reliquary furniture set that places furnishing characters.</summary>
+public sealed class FurnitureSetInfo
+{
+    [JsonProperty("display_name")]
+    public string DisplayName { get; set; } = "";
 }
 
 /// <summary>A character spawn point with coordinates.</summary>
@@ -516,6 +578,18 @@ public sealed class SpawnPoint
 
     [JsonProperty("source_script")]
     public string? SourceScript { get; set; }
+
+    /// <summary>
+    /// The furniture set (item stable key) whose placement in
+    /// <see cref="FurnitureSlot"/> of the Reliquary planning table turns this
+    /// furnishing on. Null for every other spawn.
+    /// </summary>
+    [JsonProperty("furniture_item_stable_key")]
+    public string? FurnitureItemStableKey { get; set; }
+
+    /// <summary>The planning table room slot (L1..L4, R1..R4) holding this furnishing.</summary>
+    [JsonProperty("furniture_slot")]
+    public string? FurnitureSlot { get; set; }
 }
 
 /// <summary>A zone transition point.</summary>
