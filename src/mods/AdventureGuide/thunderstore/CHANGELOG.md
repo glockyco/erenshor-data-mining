@@ -2,17 +2,28 @@
 
 ## v2026.1008.0
 
-- More item sources: rare drops from any enemy, torn map pieces from fishing, treasure map chests and items you get by using another item. Mining, fishing and ground-pickup sources work again.
-- After you read a treasure map, the arrow leads to the dig spot, then back to your quest once you dig.
-- Smarter arrow: it prefers vendors and NPCs who hand over an item, heads for the nearest zone, and no longer swaps a nearby NPC for a creature farther away.
-- Reliquary furniture counts as a quest target or source only once you have built it, and the guide names what to build.
-- Levels make more sense: NPCs you only talk to, chests and objects show their area's level, and Reliquary steps show 16 for the Fiend guarding the hall.
-- New setting World Markers.ShowAllRespawnTimers: respawn timers at every spawn point, not just quest targets.
-- More reliable markers: no dead markers over living NPCs, no lingering respawn timers or corpse markers, and quest markers over NPCs whose in-game name differs from the guide's.
-- Progress fixes: whole stacks and items received with bags closed count, completed quests stay completed, arena and feeding progress is accurate, and a new character no longer inherits a deleted one's quests.
-- Typing in the search box no longer triggers hotkeys, Escape closes the journal again, UI scale stays in range, and the guide runs smoother.
-- Quests you can't get are gone from the quest list.
-- With Lunaris, the quest list keeps its filter and sort order after a restart or reload.
+- Add World Markers.ShowAllRespawnTimers to show respawn timers at every spawn point, not just quest targets.
+- List world drops from any enemy as item sources, with the drop chance.
+- List torn map pieces from fishing, treasure map chests, and items you get by using another item as sources.
+- Lead the arrow to the dig spot after you read a treasure map, then back to your quest once you dig.
+- Lead the arrow to the nearest zone with the top source when no source is in your zone.
+- Rank vendors and NPCs who hand over an item above random drops at a similar level.
+- Keep the arrow on a nearby vendor or quest NPC instead of switching to a creature farther away.
+- Fix the arrow and markers for mining nodes, fishing spots, and ground pickups.
+- Use Reliquary furniture as a quest target or source only once it is built, and name the piece to build.
+- Show the area's level for chests and for NPCs you only talk to.
+- Remove six unused Reliquary portal quests and two quests you can't get.
+- Fix several navigation bugs, such as losing the target after a relog.
+- Stop the arrow and loot markers from pointing at a corpse you already looted.
+- Fix world markers that showed living NPCs as dead or left stray respawn timers.
+- Show quest markers over NPCs whose in-game name differs from the guide's, such as Gloopa and Catnip.
+- Fix quest item counts for stacks and for items received while bags are closed.
+- Keep completed quests completed when a quest giver offers them again.
+- Save tracked quests and tracker settings immediately.
+- Stop the search box from triggering game hotkeys.
+- Let Escape close the game's journal again.
+- Improve performance and reduce memory use.
+- Keep the quest list's filter and sort order on Lunaris after a restart or reload.
 
 ## v2026.718.0
 
