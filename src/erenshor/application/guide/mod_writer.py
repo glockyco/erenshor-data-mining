@@ -72,12 +72,12 @@ def build_mod_guide(
         "_version": 6,
         "_zone_lookup": _zone_lookup(nodes),
         "_character_spawns": _character_spawns(graph, nodes),
-        # Respawn timers can be limited to spawn points whose table holds one of these.
-        "_boss_and_elite_characters": sorted(
-            node.key
-            for node in nodes.values()
+        # Respawn timers can be limited to spawn points that can spawn a boss or an elite.
+        "_encounter_tiers": {
+            node.key: node.encounter_tier
+            for node in sorted(nodes.values(), key=lambda node: node.key)
             if node.type == NodeType.CHARACTER and node.encounter_tier in ("boss", "elite")
-        ),
+        },
         "_furniture_sets": {
             key: {"display_name": nodes[key].display_name}
             for key in sorted({node.furniture_item_key for node in nodes.values() if node.furniture_item_key})
