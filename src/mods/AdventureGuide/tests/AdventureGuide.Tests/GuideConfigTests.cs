@@ -72,6 +72,15 @@ public sealed class GuideConfigTests
                 null,
                 null
             ),
+            new ExpectedBinding(
+                "World Markers",
+                "ShowBossAndEliteRespawnTimers",
+                typeof(bool),
+                false,
+                false,
+                null,
+                null
+            ),
             new ExpectedBinding("World Markers", "Scale", typeof(float), 1f, false, 0.05f, 2f),
             new ExpectedBinding("World Markers", "IconSize", typeof(float), 7f, false, 1f, 20f),
             new ExpectedBinding(
@@ -156,6 +165,7 @@ public sealed class GuideConfigTests
             config.GroundPathToggleKey,
             config.ShowWorldMarkers,
             config.ShowAllRespawnTimers,
+            config.ShowBossAndEliteRespawnTimers,
             config.MarkerScale,
             config.IconSize,
             config.SubTextSize,

@@ -18,7 +18,8 @@ namespace AdventureGuide.Navigation;
 /// - Withheld, still populating, or another NPC alive → no marker
 ///
 /// With ShowAllRespawnTimers, every other SpawnPoint whose NPC died or
-/// despawned gets the same clock or moon marker.
+/// despawned gets the same clock or moon marker. ShowBossAndEliteRespawnTimers
+/// limits that to points whose spawn table holds a boss or elite.
 ///
 /// When several quests reference the same spawn, MarkerType order decides
 /// which marker shows.
@@ -95,6 +96,7 @@ public sealed class WorldMarkerSystem
 
         // Rebuild markers when any marker config changes
         config.ShowAllRespawnTimers.SettingChanged += OnConfigChanged;
+        config.ShowBossAndEliteRespawnTimers.SettingChanged += OnConfigChanged;
         config.MarkerScale.SettingChanged += OnConfigChanged;
         config.IconSize.SettingChanged += OnConfigChanged;
         config.SubTextSize.SettingChanged += OnConfigChanged;
@@ -223,6 +225,7 @@ public sealed class WorldMarkerSystem
     public void Destroy()
     {
         _config.ShowAllRespawnTimers.SettingChanged -= OnConfigChanged;
+        _config.ShowBossAndEliteRespawnTimers.SettingChanged -= OnConfigChanged;
         _config.MarkerScale.SettingChanged -= OnConfigChanged;
         _config.IconSize.SettingChanged -= OnConfigChanged;
         _config.SubTextSize.SettingChanged -= OnConfigChanged;
@@ -275,8 +278,12 @@ public sealed class WorldMarkerSystem
                 }
             );
         CollectLootContainerMarkers();
-        if (_config.ShowAllRespawnTimers.Value)
-            CollectRespawnTimerMarkers();
+        var timerScope = RespawnTimerPolicy.Scope(
+            _config.ShowAllRespawnTimers.Value,
+            _config.ShowBossAndEliteRespawnTimers.Value
+        );
+        if (timerScope != RespawnTimerScope.None)
+            CollectRespawnTimerMarkers(timerScope);
 
         // Apply to pool
         _pool.SetActiveCount(_markers.Count);
@@ -714,13 +721,18 @@ public sealed class WorldMarkerSystem
     /// night-only NPC waits for night. Points the zone load is still
     /// populating, and points that cannot spawn, show nothing.
     /// </summary>
-    private void CollectRespawnTimerMarkers()
+    private void CollectRespawnTimerMarkers(RespawnTimerScope scope)
     {
         var spawnPoints = _bridge.SpawnPoints;
         for (int i = 0; i < spawnPoints.Count; i++)
         {
             var sp = spawnPoints[i];
             if (sp == null || _questSpawnPoints.Contains(sp.GetInstanceID()))
+                continue;
+            if (
+                scope != RespawnTimerScope.All
+                && !RespawnTimerPolicy.Shows(scope, _bridge.SpawnsBossOrElite(sp, _data))
+            )
                 continue;
 
             var phase = _bridge.GetPhase(sp, targetName: null);

@@ -63,6 +63,7 @@
     <Compile Include="../../src/Navigation/SpawnPointPolicy.cs" Link="Navigation/SpawnPointPolicy.cs" />
     <Compile Include="../../src/Navigation/SpawnMarkerPolicy.cs" Link="Navigation/SpawnMarkerPolicy.cs" />
     <Compile Include="../../src/Navigation/TreasureHuntNavigation.cs" Link="Navigation/TreasureHuntNavigation.cs" />
+    <Compile Include="../../src/Navigation/RespawnTimerPolicy.cs" Link="Navigation/RespawnTimerPolicy.cs" />
     <Compile Include="../../src/Navigation/RespawnTimerText.cs" Link="Navigation/RespawnTimerText.cs" />
     <Compile Include="../../src/UI/TrackerVisibilityPolicy.cs" Link="UI/TrackerVisibilityPolicy.cs" />
     <Compile Include="../../src/UI/TypingFlagSync.cs" Link="UI/TypingFlagSync.cs" />

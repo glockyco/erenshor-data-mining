@@ -120,6 +120,10 @@ public sealed class SpawnPointBridge
     // spawn table has no such prefab.
     private readonly Dictionary<(int SpawnPoint, string StableKey), string?> _targetNames = new();
 
+    // SpawnPoint instance ID → whether its common or rare spawn table holds a
+    // character the guide classifies as a boss or elite.
+    private readonly Dictionary<int, bool> _spawnsBossOrElite = new();
+
     // Directly-placed NPC cache: trimmed lowercase NPCName and scene object
     // name → NPC references. Built per Rebuild from FindObjectsOfType and
     // extended by NPCs that start later (scene objects switched on by events).
@@ -150,6 +154,7 @@ public sealed class SpawnPointBridge
         _restoredRespawns.Clear();
         _lastSpawnedNames.Clear();
         _spawnTableNames.Clear();
+        _spawnsBossOrElite.Clear();
         _targetNames.Clear();
         _npcByName.Clear();
         _indexedRegistrations = 0;
@@ -172,6 +177,7 @@ public sealed class SpawnPointBridge
         _index.Clear();
         _spawnPoints.Clear();
         _spawnTableNames.Clear();
+        _spawnsBossOrElite.Clear();
         _targetNames.Clear();
 
         // A SpawnPoint registers with SpawnPointManager only in its Start.
@@ -363,6 +369,35 @@ public sealed class SpawnPointBridge
             _spawnTableNames[id] = tableName;
         }
         return tableName;
+    }
+
+    /// <summary>Whether the point's common or rare spawn table holds a boss or elite.</summary>
+    public bool SpawnsBossOrElite(SpawnPoint sp, Data.GuideData data)
+    {
+        int id = sp.GetInstanceID();
+        if (!_spawnsBossOrElite.TryGetValue(id, out bool spawns))
+        {
+            spawns =
+                TableHasBossOrElite(sp.CommonSpawns, data)
+                || TableHasBossOrElite(sp.RareSpawns, data);
+            _spawnsBossOrElite[id] = spawns;
+        }
+        return spawns;
+    }
+
+    private static bool TableHasBossOrElite(List<GameObject>? spawns, Data.GuideData data)
+    {
+        if (spawns == null)
+            return false;
+        foreach (var prefab in spawns)
+        {
+            if (
+                prefab != null
+                && data.IsBossOrElite(Data.CharacterStableKey.FromObjectName(prefab.name))
+            )
+                return true;
+        }
+        return false;
     }
 
     /// <summary>

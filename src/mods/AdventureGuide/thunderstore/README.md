@@ -33,7 +33,9 @@ need to hunt down. Kill a quest mob and its marker switches to a live
 respawn timer. Night-only spawns show the spawn window and current game
 time so you know when to come back. Turn on
 World Markers.ShowAllRespawnTimers to see respawn timers at every spawn
-point in the zone, quest or not.
+point in the zone, quest or not, or
+World Markers.ShowBossAndEliteRespawnTimers to see them only where a boss
+or elite can spawn.
 
 ## Know the whole path
 
@@ -66,6 +68,7 @@ All settings are in `BepInEx/config/wow-much.adventure-guide.cfg`
 | Navigation.ShowGroundPath | off | Ground path line using NavMesh pathfinding |
 | World Markers.Enabled | on | Floating quest icons above NPCs |
 | World Markers.ShowAllRespawnTimers | off | Respawn timers at every spawn point, not only for quest targets |
+| World Markers.ShowBossAndEliteRespawnTimers | off | Respawn timers at spawn points that can spawn a boss or elite, including rare spawns |
 | World Markers.Scale | 1.0 | World marker size multiplier |
 | Tracker.Enabled | on | Quest tracker overlay |
 | Tracker.AutoTrack | on | Auto-track newly accepted quests |
