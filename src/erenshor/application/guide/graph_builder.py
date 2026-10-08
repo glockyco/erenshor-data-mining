@@ -28,6 +28,7 @@ def build_graph(db_path: Path) -> EntityGraph:
         scene_to_zone = _build_scene_to_zone(conn)
         build_nodes(conn, graph, scene_to_zone)
         build_edges(conn, graph, scene_to_zone)
+        graph.group_furnishing_characters()
 
         # Quest metadata denormalization runs later, after graph overrides are
         # merged, so that manual unlock/gate edges affect level estimation.

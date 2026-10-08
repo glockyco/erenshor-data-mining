@@ -494,14 +494,16 @@ def test_graph_builder_spawn_nodes_preserve_source_script() -> None:
                 is_trigger_spawn INTEGER,
                 source_script TEXT,
                 zone_stable_key TEXT,
-                is_map_visible INTEGER
+                is_map_visible INTEGER,
+                furniture_item_stable_key TEXT,
+                furniture_slot TEXT
             );
             """
         )
         conn.execute("INSERT INTO zones VALUES (?, ?)", ("zone:arena", "Arena"))
         conn.execute("INSERT INTO characters VALUES (?, ?)", ("char:arena", "Arena Champion"))
         conn.execute(
-            "INSERT INTO character_spawns VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO character_spawns VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 "spawn:arena",
                 "char:arena",
@@ -518,6 +520,8 @@ def test_graph_builder_spawn_nodes_preserve_source_script() -> None:
                 "VithArenaFight",
                 "zone:arena",
                 1,
+                None,
+                None,
             ),
         )
         graph = EntityGraph()

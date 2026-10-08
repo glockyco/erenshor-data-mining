@@ -272,6 +272,7 @@ def _add_spawn_point_nodes(
                cs.is_directly_placed, cs.is_trigger_spawn,
                cs.source_script,
                cs.zone_stable_key,
+               cs.furniture_item_stable_key, cs.furniture_slot,
                c.display_name AS char_display
         FROM character_spawns cs
         JOIN characters c ON c.stable_key = cs.character_stable_key
@@ -305,6 +306,8 @@ def _add_spawn_point_nodes(
                 is_directly_placed=bool(r["is_directly_placed"]),
                 source_script=r["source_script"],
                 is_trigger_spawn=bool(r["is_trigger_spawn"]),
+                furniture_item_key=r["furniture_item_stable_key"],
+                furniture_slot=r["furniture_slot"],
             )
         )
 

@@ -220,6 +220,8 @@ class Node:
     source_script: str | None = None
     is_trigger_spawn: bool = False
     respawn_delay: float | None = None
+    furniture_item_key: str | None = None
+    furniture_slot: str | None = None
 
     # Mining node / water / item_bag specific
     respawn_time: float | None = None

@@ -108,7 +108,7 @@ def _best_interaction_zone_key(
     """
     candidates: list[tuple[int, str]] = []
     fallback: list[str] = []
-    for target_key in target_keys:
+    for target_key in graph.prefer_ungated_targets(target_keys):
         zone_key = _target_zone_key(target_key, graph, char_zones)
         if zone_key is None:
             continue
@@ -202,14 +202,17 @@ def _estimate_quest_level(
 
     # Turn-in targets (OR — any alternative): min accessibility
     completion_levels: list[int] = []
-    for edge in graph.out_edges(quest.key, EdgeType.COMPLETED_BY):
-        target = graph.get_node(edge.target)
+    completion_targets = graph.prefer_ungated_targets(
+        [edge.target for edge in graph.out_edges(quest.key, EdgeType.COMPLETED_BY)]
+    )
+    for target_key in completion_targets:
+        target = graph.get_node(target_key)
         if target is None:
             continue
         if target.type == NodeType.CHARACTER:
-            lvl = _character_accessibility_level(edge.target, ctx, set())
+            lvl = _character_accessibility_level(target_key, ctx, set())
         else:
-            zone_key = _target_zone_key(edge.target, graph, char_zones)
+            zone_key = _target_zone_key(target_key, graph, char_zones)
             lvl = zone_medians.get(zone_key) if zone_key else None
         if lvl is not None:
             completion_levels.append(lvl)
@@ -232,7 +235,12 @@ def _estimate_quest_level(
 
     # Assignment sources (OR — only need one giver): min across alternatives
     assign_levels: list[int] = []
+    assign_targets = set(
+        graph.prefer_ungated_targets([edge.target for edge in graph.out_edges(quest.key, EdgeType.ASSIGNED_BY)])
+    )
     for edge in graph.out_edges(quest.key, EdgeType.ASSIGNED_BY):
+        if edge.target not in assign_targets:
+            continue
         if edge.note == "quest_chain":
             # Already handled via CHAINS_TO — skip to avoid double-counting
             continue

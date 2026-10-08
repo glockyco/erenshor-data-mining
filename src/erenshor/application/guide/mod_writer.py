@@ -52,6 +52,10 @@ def build_mod_guide(graph: EntityGraph, compiled: CompiledData) -> dict[str, Any
         "_version": 6,
         "_zone_lookup": _zone_lookup(nodes),
         "_character_spawns": _character_spawns(graph, nodes),
+        "_furniture_sets": {
+            key: {"display_name": nodes[key].display_name}
+            for key in sorted({node.furniture_item_key for node in nodes.values() if node.furniture_item_key})
+        },
         "_zone_lines": _zone_lines(graph, nodes, incoming_unlocks, db_names),
         "_chain_groups": _chain_groups(quests, graph, nodes, db_names),
         "_character_quest_unlocks": _character_unlocks(nodes, incoming_unlocks, db_names),
@@ -236,6 +240,8 @@ def _character_spawns(graph: EntityGraph, nodes: dict[str, Node]) -> dict[str, l
                 "is_directly_placed": bool(spawn.is_directly_placed),
             }
             _put_if(value, "source_script", spawn.source_script)
+            _put_if(value, "furniture_item_stable_key", spawn.furniture_item_key)
+            _put_if(value, "furniture_slot", spawn.furniture_slot)
             gate_targets = {edge.target for edge in graph.out_edges(spawn.key, EdgeType.GATED_BY_QUEST)}
             if len(gate_targets) > 1:
                 raise ValueError(f"spawn point {spawn.key!r} has multiple quest gates")
@@ -868,7 +874,7 @@ def _completion(
         _put_if(value, "note", edge.note)
         _put_if(value, "or_group", edge.group)
         result.append((target.key, value))
-    result.sort(key=lambda item: item[0])
+    result.sort(key=lambda item: (graph.is_furnishing_character(item[0]), item[0]))
     return [value for _, value in result]
 
 

@@ -1,14 +1,19 @@
 """In-memory entity graph.
 
-Wraps a node dict + edge list + adjacency indexes.  Built by
-``graph_builder.build_graph`` and consumed by the serializer.  Immutable
-after ``build_indexes()`` is called.
+Wraps a node dict + edge list + adjacency indexes. Built by
+``graph_builder.build_graph`` and consumed by the serializers. Furnishing
+characters are grouped before indexing, by object and furniture set, so room
+copies share quest interactions without mixing set-specific vendor stock.
+Spawn nodes retain the furniture item and room slot for availability checks.
+After indexing, only explicit graph overrides may add edges.
 """
 
 from __future__ import annotations
 
+import re
 from collections import defaultdict
 from collections.abc import Iterable
+from dataclasses import astuple, replace
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -48,6 +53,70 @@ class EntityGraph:
     def add_edge(self, edge: Edge) -> None:
         """Append an edge.  Nodes need not exist yet."""
         self._edges.append(edge)
+
+    def group_furnishing_characters(self) -> None:
+        """Collapse room copies, keeping set-specific stock and every spawn."""
+        from .schema import EdgeType, NodeType
+
+        spawns: dict[str, list[Node]] = defaultdict(list)
+        for edge in self._edges:
+            if edge.type == EdgeType.HAS_SPAWN and edge.target in self._nodes:
+                spawns[edge.source].append(self._nodes[edge.target])
+        members: dict[tuple[str, str], list[str]] = defaultdict(list)
+        sets: dict[str, set[str]] = defaultdict(set)
+        for key, placements in spawns.items():
+            if self._nodes[key].type != NodeType.CHARACTER or not all(p.furniture_item_key for p in placements):
+                continue
+            item_keys = {p.furniture_item_key for p in placements}
+            if len(item_keys) != 1:
+                raise ValueError(f"furnishing character {key!r} has multiple furniture sets")
+            item_key = next(iter(item_keys))
+            assert item_key is not None
+            object_key = re.sub(r":[^:]+:-?\d+(?:\.\d+)?:-?\d+(?:\.\d+)?:-?\d+(?:\.\d+)?(?::\d+)?$", "", key)
+            members[(object_key, item_key)].append(key)
+            sets[object_key].add(item_key)
+        replacements: dict[str, str] = {}
+        for (object_key, item_key), keys in sorted(members.items()):
+            group_key = object_key if len(sets[object_key]) == 1 else f"{object_key}@{item_key}"
+            member = self._nodes[sorted(keys)[0]]
+            existing = self._nodes.get(group_key)
+            self._nodes[group_key] = replace(
+                existing or member,
+                key=group_key,
+                zone=member.zone,
+                zone_key=member.zone_key,
+                scene=member.scene,
+                x=member.x,
+                y=member.y,
+                z=member.z,
+            )
+            for key in keys:
+                replacements[key] = group_key
+        deduped: dict[tuple[object, ...], Edge] = {}
+        for edge in self._edges:
+            rewritten = replace(
+                edge,
+                source=replacements.get(edge.source, edge.source),
+                target=replacements.get(edge.target, edge.target),
+            )
+            deduped[astuple(rewritten)] = rewritten
+        self._edges = list(deduped.values())
+        for key, group_key in replacements.items():
+            if key != group_key:
+                del self._nodes[key]
+
+    def is_furnishing_character(self, key: str) -> bool:
+        from .schema import EdgeType, NodeType
+
+        node = self._nodes.get(key)
+        if node is None or node.type != NodeType.CHARACTER:
+            return False
+        spawns = self.out_edges(key, EdgeType.HAS_SPAWN)
+        return bool(spawns) and all(self._nodes[e.target].furniture_item_key for e in spawns)
+
+    def prefer_ungated_targets(self, keys: list[str]) -> list[str]:
+        ungated = [key for key in keys if not self.is_furnishing_character(key)]
+        return ungated or keys
 
     def build_indexes(self) -> None:
         """Build outgoing/incoming adjacency lists from the edge list.
