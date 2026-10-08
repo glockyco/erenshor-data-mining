@@ -62,6 +62,7 @@ public sealed class NavigationController
     private int _originStepOrder;
     private QuestStep? _resolvedStep;
     private bool _navigatingTreasure;
+    private readonly TreasureHuntNavigation _treasureHunt = new();
 
     // ── Per-character config persistence ──────────────────────────
     private IConfigValue<string>? _navQuestEntry;
@@ -116,34 +117,106 @@ public sealed class NavigationController
     /// </summary>
     public bool NavigateTo(QuestStep step, QuestEntry quest, string currentScene)
     {
+        _treasureHunt.Drop();
         _originQuestKey = quest.RuntimeKey;
         _originStepOrder = step.Order;
         SavePerCharacter();
         return ResolveAndNavigate(step, quest, currentScene);
     }
 
-    /// <summary>Use ordinary routing until the live hunt reveals its dig position.</summary>
-    public bool NavigateToTreasureHunt(string questKey = "", int stepOrder = 0)
+    /// <summary>
+    /// Follow the live hunt for a step that lists treasure chests. Ordinary
+    /// routing leads to the hunt's zone until the dig position is known.
+    /// </summary>
+    public bool NavigateToTreasureHunt(string questKey, int stepOrder)
     {
-        var hunt = _state.TreasureHunt.State;
-        if (!hunt.Active)
+        if (!_state.TreasureHunt.State.Active)
             return false;
-        ResetTargetState();
-        _originQuestKey = questKey.Length == 0 ? null : questKey;
+        _treasureHunt.Drop();
+        _originQuestKey = questKey;
         _originStepOrder = stepOrder;
-        _navigatingTreasure = true;
-        SetTreasureTarget(questKey, stepOrder);
+        SavePerCharacter();
+        EngageTreasureHunt(questKey, stepOrder);
         return true;
     }
 
+    /// <summary>Follow the live hunt; see <see cref="TreasureHuntNavigation"/>.</summary>
     internal void OnTreasureHuntChanged(TreasureHuntChange change)
     {
-        if (change == TreasureHuntChange.Started)
-            NavigateToTreasureHunt();
-        else if (_navigatingTreasure && change == TreasureHuntChange.Ended)
-            Clear();
-        else if (_navigatingTreasure && Target != null)
+        string scene = _state.CurrentZone;
+        switch (change)
+        {
+            case TreasureHuntChange.Started:
+                if (_navigatingTreasure)
+                {
+                    RetargetTreasureHunt();
+                    return;
+                }
+                // A step whose only sources are treasure chests leads to the hunt itself.
+                if (_originQuestKey != null && ResolveOrigin(scene) && _navigatingTreasure)
+                    return;
+                _treasureHunt.Pause(_originQuestKey, _originStepOrder);
+                _originQuestKey = null;
+                _originStepOrder = 0;
+                EngageTreasureHunt("", 0);
+                return;
+            case TreasureHuntChange.Updated:
+                if (_navigatingTreasure)
+                    RetargetTreasureHunt();
+                return;
+            case TreasureHuntChange.Ended:
+                EndTreasureHunt(scene);
+                return;
+        }
+    }
+
+    private void EndTreasureHunt(string scene)
+    {
+        switch (_treasureHunt.OnEnded(_navigatingTreasure, _originQuestKey != null))
+        {
+            case TreasureHuntEndAction.RestorePaused:
+                _treasureHunt.TryTakePaused(out var questKey, out int stepOrder);
+                if (!TryNavigateToSaved(questKey, stepOrder, scene))
+                    Clear();
+                return;
+            case TreasureHuntEndAction.ResolveSelection:
+                if (!ResolveOrigin(scene))
+                    ResetTargetState();
+                return;
+            case TreasureHuntEndAction.Clear:
+                Clear();
+                return;
+            default:
+                _treasureHunt.Drop();
+                return;
+        }
+    }
+
+    private void EngageTreasureHunt(string questKey, int stepOrder)
+    {
+        ResetTargetState();
+        _navigatingTreasure = true;
+        SetTreasureTarget(questKey, stepOrder);
+    }
+
+    private void RetargetTreasureHunt()
+    {
+        if (Target != null)
             SetTreasureTarget(Target.QuestKey, Target.StepOrder);
+    }
+
+    /// <summary>Resolve the selected step again, keeping it selected.</summary>
+    private bool ResolveOrigin(string currentScene)
+    {
+        var quest = _originQuestKey != null ? _data.GetByRuntimeKey(_originQuestKey) : null;
+        if (quest?.Steps == null)
+            return false;
+        foreach (var step in quest.Steps)
+        {
+            if (step.Order == _originStepOrder)
+                return ResolveAndNavigate(step, quest, currentScene);
+        }
+        return false;
     }
 
     private void SetTreasureTarget(string questKey, int stepOrder)
@@ -267,6 +340,7 @@ public sealed class NavigationController
     /// <summary>End the navigation session entirely.</summary>
     public void Clear()
     {
+        _treasureHunt.Drop();
         ResetTargetState();
         _originQuestKey = null;
         _originStepOrder = 0;
@@ -277,6 +351,7 @@ public sealed class NavigationController
     public void SuspendForMenu()
     {
         SavePerCharacter();
+        _treasureHunt.Drop();
         ResetTargetState();
         _originQuestKey = null;
         _originStepOrder = 0;
@@ -308,6 +383,7 @@ public sealed class NavigationController
 
         // Switching characters: save outgoing state before rebinding
         SavePerCharacter();
+        _treasureHunt.Drop();
         ResetTargetState();
         _originQuestKey = null;
         _originStepOrder = 0;
@@ -315,43 +391,42 @@ public sealed class NavigationController
         _boundSlotIndex = slot.index;
         _navQuestEntry = config.BindPerCharacter(slot.index, CharacterSlotState.NavQuest);
         _navStepEntry = config.BindPerCharacter(slot.index, CharacterSlotState.NavStep);
-
-        var savedQuest = _navQuestEntry.Value;
-        var savedStep = _navStepEntry.Value;
-        if (string.IsNullOrEmpty(savedQuest) || savedStep <= 0)
-            return;
-
-        var quest = _data.GetByRuntimeKey(savedQuest);
-        if (quest?.Steps == null)
-            return;
-        if (_state.IsCompleted(quest))
-            return;
-
-        QuestStep? step = null;
-        foreach (var s in quest.Steps)
-        {
-            if (s.Order == savedStep)
-            {
-                step = s;
-                break;
-            }
-        }
-        if (step == null)
-            return;
-
-        NavigateTo(step, quest, currentScene);
+        TryNavigateToSaved(_navQuestEntry.Value, _navStepEntry.Value, currentScene);
     }
 
     /// <summary>
-    /// Write the current navigation origin to the per-character config.
-    /// Called on mod destroy and before character switch.
+    /// Navigate to a saved quest step. Returns false when it can no longer be
+    /// followed: no step saved, or its quest is gone or completed.
+    /// </summary>
+    private bool TryNavigateToSaved(string? questKey, int stepOrder, string currentScene)
+    {
+        if (string.IsNullOrEmpty(questKey) || stepOrder <= 0)
+            return false;
+        var quest = _data.GetByRuntimeKey(questKey!);
+        if (quest?.Steps == null || _state.IsCompleted(quest))
+            return false;
+        foreach (var step in quest.Steps)
+        {
+            if (step.Order == stepOrder)
+            {
+                NavigateTo(step, quest, currentScene);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Write the selected step to the per-character config, or the step a
+    /// treasure hunt paused. Called on mod destroy and before character switch.
     /// </summary>
     public void SavePerCharacter()
     {
         if (_navQuestEntry == null)
             return;
-        _navQuestEntry.Value = _originQuestKey ?? "";
-        _navStepEntry!.Value = _originStepOrder;
+        var (questKey, stepOrder) = _treasureHunt.Saved(_originQuestKey, _originStepOrder);
+        _navQuestEntry.Value = questKey;
+        _navStepEntry!.Value = stepOrder;
     }
 
     /// <summary>
@@ -947,7 +1022,10 @@ public sealed class NavigationController
         if (_allItemSources.Count == 0)
         {
             if (_state.TreasureHunt.State.Active && ContainsTreasureChest(sources))
-                return NavigateToTreasureHunt(quest.RuntimeKey, step.Order);
+            {
+                EngageTreasureHunt(quest.RuntimeKey, step.Order);
+                return true;
+            }
             // No sources with spawn data — fallback to zone navigation
             return ResolveItemZoneFallback(sources, quest, step, currentScene);
         }
