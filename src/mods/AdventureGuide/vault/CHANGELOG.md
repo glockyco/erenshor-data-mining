@@ -12,6 +12,7 @@
 - Progress fixes: whole stacks and items received with bags closed count, completed quests stay completed, arena and feeding progress is accurate, and a new character no longer inherits a deleted one's quests.
 - Typing in the search box no longer triggers hotkeys, Escape closes the journal again, UI scale stays in range, and the guide runs smoother.
 - Quests you can't get are gone from the quest list.
+- With Lunaris, the quest list keeps its filter and sort order after a restart or reload.
 
 ## v2026.718.0
 
