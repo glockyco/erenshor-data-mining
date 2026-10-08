@@ -191,6 +191,8 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
             PointerOverUIPatch.WantsMouse = () => _wantsMouseCapture;
             PlayerTypingPatch.WantsTextInput = () => _gameUIVisible && _wantsTextInput;
             QuestLogPatch.ReplaceQuestLog = _config.ReplaceQuestLog;
+            CharacterCreatePatch.Config = _config;
+            CharacterDeletePatch.Config = _config;
             SceneManager.sceneLoaded += OnSceneLoaded;
 
             _harmony = new Harmony(PluginInfo.GUID);
@@ -200,10 +202,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
             _entities.SyncFromLiveNPCs();
             _miningTracker.Rescan();
             _lootScanner.OnSceneLoaded();
-            _trackerState.OnCharacterLoaded();
-            _state.OnCharacterLoaded();
-            _trackerState.PruneCompleted(_state, _data);
-            _nav.LoadPerCharacter(_config, SceneManager.GetActiveScene().name);
+            LoadCharacterState(SceneManager.GetActiveScene().name);
             var currentScene = SceneManager.GetActiveScene().name;
             _inGameplay = currentScene != "Menu" && currentScene != "LoadScene";
 
@@ -366,6 +365,9 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
         {
             _window?.Hide();
             _nav?.SuspendForMenu();
+            _trackerState?.SuspendForMenu();
+            _state?.SuspendForMenu();
+            _config?.SuspendCharacter();
             ClearImGuiCaptureState();
         }
         _markers?.OnSceneLoaded();
@@ -374,12 +376,23 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
         _miningTracker?.Rescan();
         _lootScanner?.OnSceneLoaded();
         _state?.OnSceneChanged(scene.name);
+        LoadCharacterState(scene.name);
+        _nav?.OnGameStateChanged(scene.name);
+    }
+
+    private void LoadCharacterState(string scene)
+    {
+        if (scene == "Menu" || scene == "LoadScene")
+            return;
+        var slot = GameData.CurrentCharacterSlot;
+        if (slot == null || string.IsNullOrEmpty(slot.CharName))
+            return;
+        _config!.PrepareCharacter(slot.index, slot.CharName);
         _trackerState?.OnCharacterLoaded();
         _state?.OnCharacterLoaded();
         if (_trackerState != null && _state != null && _data != null)
             _trackerState.PruneCompleted(_state, _data);
-        _nav?.LoadPerCharacter(_config!, scene.name);
-        _nav?.OnGameStateChanged(scene.name);
+        _nav?.LoadPerCharacter(_config, scene);
     }
 
     private void OnShowArrowChanged(object sender, EventArgs e) => SyncVisibility();
@@ -524,6 +537,8 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
         PointerOverUIPatch.WantsMouse = null;
         QuestLogPatch.ReplaceQuestLog = null;
         PlayerTypingPatch.WantsTextInput = null;
+        CharacterCreatePatch.Config = null;
+        CharacterDeletePatch.Config = null;
     }
 
     private static void ClearDebugApi()

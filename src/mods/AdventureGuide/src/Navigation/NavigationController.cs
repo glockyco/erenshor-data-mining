@@ -273,8 +273,8 @@ public sealed class NavigationController
         _originStepOrder = 0;
 
         _boundSlotIndex = slot.index;
-        _navQuestEntry = config.BindPerCharacter(slot.index, "NavQuest", "");
-        _navStepEntry = config.BindPerCharacter(slot.index, "NavStep", 0);
+        _navQuestEntry = config.BindPerCharacter(slot.index, CharacterSlotState.NavQuest);
+        _navStepEntry = config.BindPerCharacter(slot.index, CharacterSlotState.NavStep);
 
         var savedQuest = _navQuestEntry.Value;
         var savedStep = _navStepEntry.Value;

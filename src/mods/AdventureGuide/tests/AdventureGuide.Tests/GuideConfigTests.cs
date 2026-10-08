@@ -186,18 +186,18 @@ public sealed class GuideConfigTests
         var backend = new RecordingGuideConfigBackend();
         var config = new GuideConfig(backend);
 
-        var quest = config.BindPerCharacter(3, "SelectedQuest", "quest-key");
-        var step = config.BindPerCharacter(0, "SelectedStep", 17);
+        var quest = config.BindPerCharacter(3, CharacterSlotState.NavQuest);
+        var step = config.BindPerCharacter(0, CharacterSlotState.NavStep);
 
-        Assert.Equal("quest-key", quest.Value);
-        Assert.Equal(17, step.Value);
+        Assert.Equal("", quest.Value);
+        Assert.Equal(0, step.Value);
 
         AssertBinding(
             new ExpectedBinding(
                 "_Character",
-                "SelectedQuest_Slot3",
+                "NavQuest_Slot3",
                 typeof(string),
-                "quest-key",
+                "",
                 true,
                 null,
                 null
@@ -205,15 +205,7 @@ public sealed class GuideConfigTests
             backend.Bindings[^2]
         );
         AssertBinding(
-            new ExpectedBinding(
-                "_Character",
-                "SelectedStep_Slot0",
-                typeof(int),
-                17,
-                true,
-                null,
-                null
-            ),
+            new ExpectedBinding("_Character", "NavStep_Slot0", typeof(int), 0, true, null, null),
             backend.Bindings[^1]
         );
 
@@ -240,7 +232,7 @@ public sealed class GuideConfigTests
     {
         var backend = new RecordingGuideConfigBackend();
         var config = new GuideConfig(backend);
-        config.BindPerCharacter(2, "Recovery", "active");
+        config.BindPerCharacter(2, CharacterSlotState.WorkflowRecovery);
 
         config.Dispose();
 

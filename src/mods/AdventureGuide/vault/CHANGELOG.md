@@ -8,6 +8,7 @@
 - The arrow no longer swaps a nearby vendor or quest NPC for a creature farther away.
 - Navigation fixes: correct zone exit after returning to a zone, travel steps that finish on arrival, continuing with the main quest after a sub-quest, first-person and drone view, and keeping your target through a relog.
 - Tracked quests are saved immediately, and tracker setting changes apply at once instead of being reset on exit.
+- New characters no longer inherit tracked quests, navigation or encounter progress from a deleted character in the same save slot.
 - Quest item counts include whole stacks and items received with bags closed; kill and talk steps no longer show item counts.
 - Completed quests no longer come back as active when a quest giver offers them again.
 - Quest markers show over NPCs whose in-game name differs from the guide's, such as the Vithean chests, Gloopa and Catnip.

@@ -21,6 +21,7 @@
   <ItemGroup>
     <Compile Include="../../src/Config/LoaderContracts.cs" Link="Config/LoaderContracts.cs" />
     <Compile Include="../../src/Config/GuideConfig.cs" Link="Config/GuideConfig.cs" />
+    <Compile Include="../../src/Config/CharacterSlotState.cs" Link="Config/CharacterSlotState.cs" />
     <Compile Include="../../src/Core/RuntimeLifecycleCoordinator.cs" Link="Core/RuntimeLifecycleCoordinator.cs" />
     <Compile Include="../../src/Core/RuntimeResourceOwnership.cs" Link="Core/RuntimeResourceOwnership.cs" />
     <Compile Include="../../src/Core/ShortcutCoordinator.cs" Link="Core/ShortcutCoordinator.cs" />

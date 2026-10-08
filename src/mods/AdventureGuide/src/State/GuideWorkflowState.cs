@@ -110,7 +110,7 @@ public sealed class GuideWorkflowState
 
         SaveToConfig();
         _boundSlotIndex = slot.index;
-        _recoveryEntry = _config.BindPerCharacter(slot.index, "WorkflowRecovery", "");
+        _recoveryEntry = _config.BindPerCharacter(slot.index, CharacterSlotState.WorkflowRecovery);
         foreach (var runtime in _byStableKey.Values)
             ResetRuntime(runtime, countItem(runtime.Quest.WorkflowCycle!.Trigger.ItemStableKey));
         _selectedWorkflowKey = null;
@@ -130,6 +130,17 @@ public sealed class GuideWorkflowState
         }
 
         ScheduleDiscovery();
+    }
+
+    /// <summary>Persist recovery and drop the outgoing character's in-memory workflow state.</summary>
+    public void SuspendForMenu()
+    {
+        SaveToConfig();
+        _recoveryEntry = null;
+        _boundSlotIndex = -1;
+        _selectedWorkflowKey = null;
+        foreach (var runtime in _byStableKey.Values)
+            ResetRuntime(runtime, 0);
     }
 
     public void SaveToConfig()

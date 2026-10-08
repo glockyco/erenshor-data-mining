@@ -74,6 +74,8 @@ public sealed class QuestStateTracker
 
     public void SaveToConfig() => Workflows.SaveToConfig();
 
+    public void SuspendForMenu() => Workflows.SuspendForMenu();
+
     public void SetHistory(NavigationHistory history) => _history = history;
 
     public void SelectQuest(QuestEntry quest)

@@ -11,6 +11,10 @@ public sealed class GuideConfig : IDisposable
 {
     private readonly IGuideConfigBackend _backend;
     private readonly List<IDisposable> _entries = new();
+    private readonly Dictionary<(int Slot, CharacterSlotState.Key Key), object> _characterEntries =
+        new();
+    private int _preparedSlotIndex = -1;
+    private string? _preparedOwner;
 
     // ── Runtime state (not persisted) ─────────────────────────────────
 
@@ -232,18 +236,55 @@ public sealed class GuideConfig : IDisposable
         );
     }
 
-    /// <summary>
-    /// Bind a hidden entry scoped to a character save slot.
-    /// Used by subsystems that persist per-character state.
-    /// </summary>
-    public IConfigValue<T> BindPerCharacter<T>(int slotIndex, string key, T defaultValue) =>
-        Bind(
+    /// <summary>Bind a registered hidden entry scoped to a character save slot.</summary>
+    public IConfigValue<T> BindPerCharacter<T>(int slotIndex, CharacterSlotState.Key<T> key)
+    {
+        if (!CharacterSlotState.All.Contains(key))
+            throw new ArgumentException("Per-character keys must be registered.", nameof(key));
+        var identity = (slotIndex, (CharacterSlotState.Key)key);
+        if (_characterEntries.TryGetValue(identity, out var cached))
+            return (IConfigValue<T>)cached;
+        var entry = Bind(
             "_Character",
-            $"{key}_Slot{slotIndex}",
-            defaultValue,
+            $"{key.Name}_Slot{slotIndex}",
+            key.DefaultValue,
             $"Per-character state for slot {slotIndex} (auto-managed)",
             hidden: true
         );
+        _characterEntries.Add(identity, entry);
+        return entry;
+    }
+
+    /// <summary>Check slot ownership once per login, before consumers bind their state.</summary>
+    public void PrepareCharacter(int slotIndex, string characterName)
+    {
+        if (_preparedSlotIndex == slotIndex && _preparedOwner == characterName)
+            return;
+        var owner = BindPerCharacter(slotIndex, CharacterSlotState.Owner);
+        var decision = CharacterSlotState.DecideOwner(owner.Value, characterName);
+        if (decision == SlotOwnerDecision.Reset)
+            ResetCharacterSlot(slotIndex);
+        if (decision != SlotOwnerDecision.Keep)
+            owner.Value = characterName;
+        _preparedSlotIndex = slotIndex;
+        _preparedOwner = characterName;
+    }
+
+    /// <summary>Forget the session identity when gameplay ends, not on zone changes.</summary>
+    public void SuspendCharacter()
+    {
+        _preparedSlotIndex = -1;
+        _preparedOwner = null;
+    }
+
+    /// <summary>Creation and deletion invalidate every registered entry, including ownership.</summary>
+    public void ResetCharacterSlot(int slotIndex)
+    {
+        foreach (var key in CharacterSlotState.All)
+            key.Reset(this, slotIndex);
+        if (_preparedSlotIndex == slotIndex)
+            SuspendCharacter();
+    }
 
     public void Dispose()
     {
@@ -251,6 +292,7 @@ public sealed class GuideConfig : IDisposable
         foreach (var entry in _entries)
             entry.Dispose();
         _entries.Clear();
+        _characterEntries.Clear();
         _backend.Dispose();
     }
 

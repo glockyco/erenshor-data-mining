@@ -10,7 +10,7 @@ namespace AdventureGuide.State;
 /// fade-out, completion flash) are owned by TrackerWindow which subscribes
 /// to events.
 ///
-/// Tracked quests are stored per character (keyed by save slot index) and
+/// Tracked quests are stored per character in an owner-checked save slot and
 /// written whenever they change, so a crash loses nothing. Global preferences
 /// (auto-track, sort mode) live in their config entries, which settings UIs
 /// can change at any time.
@@ -167,7 +167,7 @@ public sealed class TrackerState
             return;
 
         _boundSlotIndex = slot.index;
-        _trackedEntry = _config.BindPerCharacter(slot.index, "TrackedQuests", "");
+        _trackedEntry = _config.BindPerCharacter(slot.index, CharacterSlotState.TrackedQuests);
 
         _tracked.Clear();
         _orderedList.Clear();
@@ -181,6 +181,17 @@ public sealed class TrackerState
                     _orderedList.Add(trimmed);
             }
         }
+        _dirty = true;
+    }
+
+    /// <summary>Persist and unbind on logout so reusing a slot always reloads its entries.</summary>
+    public void SuspendForMenu()
+    {
+        PersistTracked();
+        _trackedEntry = null;
+        _boundSlotIndex = -1;
+        _tracked.Clear();
+        _orderedList.Clear();
         _dirty = true;
     }
 
