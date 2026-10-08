@@ -58,8 +58,17 @@ internal sealed class LunarisConfigBackend : IGuideConfigBackend
     public void Dispose() => _disposed = true;
 }
 
+/// <summary>
+/// Lunaris persists a value together with its assembly-qualified type and
+/// renames the plugin assembly on every load, so it can never read back a
+/// value typed by AdventureGuide itself. Enums declared here are therefore
+/// stored by name; Unity enums such as KeyCode keep Lunaris's typed editor.
+/// </summary>
 internal sealed class LunarisConfigValue<T> : IConfigValue<T>
 {
+    private static readonly bool StoredByName =
+        typeof(T).IsEnum && typeof(T).Assembly == typeof(LunarisConfigValue<T>).Assembly;
+
     private readonly IConfig _config;
     private readonly string _key;
     private T _value;
@@ -78,7 +87,15 @@ internal sealed class LunarisConfigValue<T> : IConfigValue<T>
     {
         _config = config;
         _key = $"{section}.{key}";
-        _value = config.Read(_key, defaultValue);
+        if (StoredByName)
+        {
+            _value = ParseEnumOrDefault(config.Read(_key, defaultValue!.ToString()), defaultValue);
+            // Lunaris saves the object it holds, which may still be an enum typed
+            // by an earlier load even when it reads back as the right name.
+            config.Write(_key, _value!.ToString());
+        }
+        else
+            _value = config.Read(_key, defaultValue);
         config.SetSection(_key, section);
         config.SetDesc(_key, description);
         if (min.HasValue && max.HasValue)
@@ -95,7 +112,10 @@ internal sealed class LunarisConfigValue<T> : IConfigValue<T>
         {
             if (EqualityComparer<T>.Default.Equals(_value, value))
                 return;
-            _config.Write(_key, value);
+            if (StoredByName)
+                _config.Write(_key, value!.ToString());
+            else
+                _config.Write(_key, value);
         }
     }
 
@@ -120,6 +140,13 @@ internal sealed class LunarisConfigValue<T> : IConfigValue<T>
             return;
         _value = typed;
         SettingChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    private static T ParseEnumOrDefault(string? name, T defaultValue)
+    {
+        if (string.IsNullOrEmpty(name) || !Enum.IsDefined(typeof(T), name))
+            return defaultValue;
+        return (T)Enum.Parse(typeof(T), name);
     }
 
     private static T Deserialize(string value)
