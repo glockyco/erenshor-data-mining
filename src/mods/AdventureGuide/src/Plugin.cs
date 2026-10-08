@@ -320,7 +320,6 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
         _harmony?.UnpatchSelf();
         _harmony = null;
         _tracker?.Dispose();
-        _trackerState?.SaveToConfig();
         _state?.SaveToConfig();
         _nav?.SavePerCharacter();
         _imgui?.Dispose();

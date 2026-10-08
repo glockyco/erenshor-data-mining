@@ -10,8 +10,10 @@ namespace AdventureGuide.State;
 /// fade-out, completion flash) are owned by TrackerWindow which subscribes
 /// to events.
 ///
-/// Tracked quests are stored per character (keyed by save slot index).
-/// Global preferences (auto-track, sort mode) are shared.
+/// Tracked quests are stored per character (keyed by save slot index) and
+/// written whenever they change, so a crash loses nothing. Global preferences
+/// (auto-track, sort mode) live in their config entries, which settings UIs
+/// can change at any time.
 /// </summary>
 public sealed class TrackerState
 {
@@ -21,10 +23,26 @@ public sealed class TrackerState
     private IConfigValue<string>? _trackedEntry;
     private int _boundSlotIndex = -1;
     private bool _dirty;
+    private TrackerSortMode _sortMode = TrackerSortMode.Proximity;
 
     public bool Enabled { get; set; } = true;
-    public bool AutoTrackEnabled { get; set; } = true;
-    public TrackerSortMode SortMode { get; set; } = TrackerSortMode.Proximity;
+
+    /// <summary>Tracker.AutoTrack, read live so a settings change applies at once.</summary>
+    public bool AutoTrackEnabled => _config?.TrackerAutoTrack.Value ?? true;
+
+    /// <summary>Tracker.SortMode, kept in step with its config entry both ways.</summary>
+    public TrackerSortMode SortMode
+    {
+        get => _sortMode;
+        set
+        {
+            if (_sortMode == value)
+                return;
+            _sortMode = value;
+            if (_config != null)
+                _config.TrackerSortMode.Value = value.ToString();
+        }
+    }
 
     /// <summary>
     /// Returns true if state changed since last check, then clears the flag.
@@ -67,6 +85,7 @@ public sealed class TrackerState
             return;
         _orderedList.Add(dbName);
         _dirty = true;
+        PersistTracked();
         Tracked?.Invoke(dbName);
     }
 
@@ -76,6 +95,7 @@ public sealed class TrackerState
             return;
         _orderedList.Remove(dbName);
         _dirty = true;
+        PersistTracked();
         Untracked?.Invoke(dbName);
     }
 
@@ -112,11 +132,20 @@ public sealed class TrackerState
 
     public void LoadFromConfig(GuideConfig config)
     {
+        if (_config != null)
+            _config.TrackerSortMode.SettingChanged -= OnSortModeSettingChanged;
         _config = config;
         Enabled = config.TrackerEnabled.Value;
-        AutoTrackEnabled = config.TrackerAutoTrack.Value;
-        if (Enum.TryParse<TrackerSortMode>(config.TrackerSortMode.Value, out var mode))
-            SortMode = mode;
+        ReadSortMode();
+        config.TrackerSortMode.SettingChanged += OnSortModeSettingChanged;
+    }
+
+    private void OnSortModeSettingChanged(object sender, EventArgs e) => ReadSortMode();
+
+    private void ReadSortMode()
+    {
+        if (Enum.TryParse<TrackerSortMode>(_config!.TrackerSortMode.Value, out var mode))
+            _sortMode = mode;
     }
 
     /// <summary>
@@ -137,10 +166,6 @@ public sealed class TrackerState
         if (slot.index == _boundSlotIndex)
             return;
 
-        // Switching characters: save outgoing state before rebinding
-        if (_trackedEntry != null)
-            _trackedEntry.Value = string.Join(";", _orderedList);
-
         _boundSlotIndex = slot.index;
         _trackedEntry = _config.BindPerCharacter(slot.index, "TrackedQuests", "");
 
@@ -159,13 +184,8 @@ public sealed class TrackerState
         _dirty = true;
     }
 
-    public void SaveToConfig()
+    private void PersistTracked()
     {
-        if (_config == null)
-            return;
-        _config.TrackerEnabled.Value = Enabled;
-        _config.TrackerAutoTrack.Value = AutoTrackEnabled;
-        _config.TrackerSortMode.Value = SortMode.ToString();
         if (_trackedEntry != null)
             _trackedEntry.Value = string.Join(";", _orderedList);
     }
