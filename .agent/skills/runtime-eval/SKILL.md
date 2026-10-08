@@ -14,7 +14,9 @@ Use `in-game-performance-profiling` for timing methods. Use `combat-evaluation` 
 3. After the game starts, run `uv run erenshor eval ping`. If it fails, allow startup to finish before checking `BepInEx/LogOutput.log` for HotRepl errors.
 4. Exit the game when finished. If the tracked session remains, run `uv run erenshor mod launch --recover` to stop only the recorded matching process.
 
-Use `-V playtest` or `-V demo` before both `mod` and `eval` for those variants. HotRepl is a BepInEx plugin, not a Lunaris plugin. `mod dev-setup` does not install it.
+Use `-V playtest` or `-V demo` before both `mod` and `eval` for those variants. HotRepl has a BepInEx host and a Lunaris host; the installed host must match the active loader. `mod dev-setup` installs neither.
+
+Under Lunaris, quitting the game crashes inside Lunaris's own `Bridge.ClearCache()` after the save completes. End the crashed process only after `saving game...` appears in `Player.log`. When Steam is not connected, `ApplyOptions.ApplyGFX` throws "Steamworks is not initialized", leaves the camera far clip at 1 m (sky only) and blocks menu clicks; make sure no game on the same Steam account is running elsewhere.
 
 ## Install or update HotRepl
 
@@ -26,6 +28,8 @@ dotnet build "$HOTREPL/src/HotRepl.BepInEx" --nologo -v q
 ```
 
 With the game closed, replace the dedicated `<game>/BepInEx/plugins/HotRepl/` directory as one unit. Copy every top-level DLL from `$HOTREPL/src/HotRepl.BepInEx/bin/Debug/netstandard2.1/` into it. Remove old HotRepl DLLs from `BepInEx/plugins/` itself. A partial or duplicate assembly set causes resolution failures. No `erenshor mod` command installs this host. The default server listens on `127.0.0.1:18590`.
+
+For Lunaris, build `$HOTREPL/src/HotRepl.Host.Lunaris/HotRepl.Host.Lunaris.csproj` with `-p:LunarisPath=<repo>/src/mods/AdventureGuide/lib/lunaris/Lunaris.dll`. Replace `<game>/plugins/HotRepl/` with the contents of its `bin/Debug/netstandard2.1/plugins/HotRepl/` directory. Lunaris starts manually installed plugins disabled; enable HotRepl once in the Lunaris plugin installer. The enabled state persists in `plugins/config/pluginManifests.lpm`. Lunaris hot-reloads the host when its DLL changes, but libraries such as `HotRepl.Core.dll` load once per game process, so changes to them need a restart.
 
 ## Evaluate code
 
