@@ -120,9 +120,9 @@ public sealed class SpawnPointBridge
     // spawn table has no such prefab.
     private readonly Dictionary<(int SpawnPoint, string StableKey), string?> _targetNames = new();
 
-    // SpawnPoint instance ID → whether its common or rare spawn table holds a
-    // character the guide classifies as a boss or elite.
-    private readonly Dictionary<int, bool> _spawnsBossOrElite = new();
+    // SpawnPoint instance ID → the boss and elite tiers its common or rare
+    // spawn table holds.
+    private readonly Dictionary<int, SpawnTiers> _spawnTiers = new();
 
     // Directly-placed NPC cache: trimmed lowercase NPCName and scene object
     // name → NPC references. Built per Rebuild from FindObjectsOfType and
@@ -154,7 +154,7 @@ public sealed class SpawnPointBridge
         _restoredRespawns.Clear();
         _lastSpawnedNames.Clear();
         _spawnTableNames.Clear();
-        _spawnsBossOrElite.Clear();
+        _spawnTiers.Clear();
         _targetNames.Clear();
         _npcByName.Clear();
         _indexedRegistrations = 0;
@@ -177,7 +177,7 @@ public sealed class SpawnPointBridge
         _index.Clear();
         _spawnPoints.Clear();
         _spawnTableNames.Clear();
-        _spawnsBossOrElite.Clear();
+        _spawnTiers.Clear();
         _targetNames.Clear();
 
         // A SpawnPoint registers with SpawnPointManager only in its Start.
@@ -371,33 +371,29 @@ public sealed class SpawnPointBridge
         return tableName;
     }
 
-    /// <summary>Whether the point's common or rare spawn table holds a boss or elite.</summary>
-    public bool SpawnsBossOrElite(SpawnPoint sp, Data.GuideData data)
+    /// <summary>The boss and elite tiers the point's common or rare spawn table holds.</summary>
+    internal SpawnTiers SpawnTiersOf(SpawnPoint sp, Data.GuideData data)
     {
         int id = sp.GetInstanceID();
-        if (!_spawnsBossOrElite.TryGetValue(id, out bool spawns))
+        if (!_spawnTiers.TryGetValue(id, out var tiers))
         {
-            spawns =
-                TableHasBossOrElite(sp.CommonSpawns, data)
-                || TableHasBossOrElite(sp.RareSpawns, data);
-            _spawnsBossOrElite[id] = spawns;
+            tiers = TableTiers(sp.CommonSpawns, data) | TableTiers(sp.RareSpawns, data);
+            _spawnTiers[id] = tiers;
         }
-        return spawns;
+        return tiers;
     }
 
-    private static bool TableHasBossOrElite(List<GameObject>? spawns, Data.GuideData data)
+    private static SpawnTiers TableTiers(List<GameObject>? spawns, Data.GuideData data)
     {
+        var tiers = SpawnTiers.None;
         if (spawns == null)
-            return false;
+            return tiers;
         foreach (var prefab in spawns)
         {
-            if (
-                prefab != null
-                && data.IsBossOrElite(Data.CharacterStableKey.FromObjectName(prefab.name))
-            )
-                return true;
+            if (prefab != null)
+                tiers |= data.EncounterTierOf(Data.CharacterStableKey.FromObjectName(prefab.name));
         }
-        return false;
+        return tiers;
     }
 
     /// <summary>

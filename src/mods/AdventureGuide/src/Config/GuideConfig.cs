@@ -42,7 +42,8 @@ public sealed class GuideConfig : IDisposable
 
     public IConfigValue<bool> ShowWorldMarkers { get; }
     public IConfigValue<bool> ShowAllRespawnTimers { get; }
-    public IConfigValue<bool> ShowBossAndEliteRespawnTimers { get; }
+    public IConfigValue<bool> ShowBossRespawnTimers { get; }
+    public IConfigValue<bool> ShowEliteRespawnTimers { get; }
     public IConfigValue<float> MarkerScale { get; }
     public IConfigValue<float> IconSize { get; }
     public IConfigValue<float> SubTextSize { get; }
@@ -138,11 +139,17 @@ public sealed class GuideConfig : IDisposable
             false,
             "Show respawn timers at every spawn point in the zone, not only where an active quest needs the NPC"
         );
-        ShowBossAndEliteRespawnTimers = Bind(
+        ShowBossRespawnTimers = Bind(
             "World Markers",
-            "ShowBossAndEliteRespawnTimers",
+            "ShowBossRespawnTimers",
             false,
-            "Show respawn timers at spawn points that can spawn a boss or elite, including rare spawns. ShowAllRespawnTimers includes these"
+            "Show respawn timers at spawn points that can spawn a boss, including rare spawns. ShowAllRespawnTimers includes these"
+        );
+        ShowEliteRespawnTimers = Bind(
+            "World Markers",
+            "ShowEliteRespawnTimers",
+            false,
+            "Show respawn timers at spawn points that can spawn an elite, including rare spawns. ShowAllRespawnTimers includes these"
         );
         MarkerScale = Bind(
             "World Markers",

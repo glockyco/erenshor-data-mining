@@ -59,13 +59,15 @@ public sealed partial class GuideData
     public IReadOnlyDictionary<string, string> FurnitureSetNames { get; private set; } =
         new Dictionary<string, string>();
 
-    private readonly HashSet<string> _bossAndEliteCharacters = new(
+    private readonly Dictionary<string, Navigation.SpawnTiers> _encounterTiers = new(
         StringComparer.OrdinalIgnoreCase
     );
 
-    /// <summary>Whether the pipeline classifies the character as a boss or an elite.</summary>
-    public bool IsBossOrElite(string characterStableKey) =>
-        _bossAndEliteCharacters.Contains(characterStableKey);
+    /// <summary>The character's tier when the pipeline classifies it as a boss or an elite.</summary>
+    internal Navigation.SpawnTiers EncounterTierOf(string characterStableKey) =>
+        _encounterTiers.TryGetValue(characterStableKey, out var tier)
+            ? tier
+            : Navigation.SpawnTiers.None;
 
     public QuestEntry? GetByDBName(string dbName) =>
         _byDBName.TryGetValue(dbName, out var entry) ? entry : null;
@@ -150,8 +152,20 @@ public sealed partial class GuideData
         data.FurnitureSetNames = furnitureSetNames;
         if (wrapper.ExcludedQuests != null)
             data._excludedQuests.UnionWith(wrapper.ExcludedQuests);
-        if (wrapper.BossAndEliteCharacters != null)
-            data._bossAndEliteCharacters.UnionWith(wrapper.BossAndEliteCharacters);
+        if (wrapper.EncounterTiers != null)
+        {
+            foreach (var (key, tier) in wrapper.EncounterTiers)
+            {
+                data._encounterTiers[key] = tier switch
+                {
+                    "boss" => Navigation.SpawnTiers.Boss,
+                    "elite" => Navigation.SpawnTiers.Elite,
+                    _ => throw new InvalidDataException(
+                        $"Unknown encounter tier '{tier}' for {key}"
+                    ),
+                };
+            }
+        }
 
         return data;
     }
@@ -609,8 +623,8 @@ internal sealed class GuideWrapper
     [JsonProperty("_character_spawns")]
     public Dictionary<string, List<SpawnPoint>>? CharacterSpawns { get; set; }
 
-    [JsonProperty("_boss_and_elite_characters")]
-    public List<string>? BossAndEliteCharacters { get; set; }
+    [JsonProperty("_encounter_tiers")]
+    public Dictionary<string, string>? EncounterTiers { get; set; }
 
     [JsonProperty("_zone_lines")]
     public List<ZoneLineEntry>? ZoneLines { get; set; }

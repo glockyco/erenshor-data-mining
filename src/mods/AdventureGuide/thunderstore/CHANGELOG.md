@@ -12,7 +12,7 @@
 - Stop the arrow and loot markers from pointing at a corpse you already looted.
 - Fix several navigation bugs, such as losing the target after a relog.
 - Add World Markers.ShowAllRespawnTimers to show respawn timers at every spawn point, not just quest targets.
-- Add World Markers.ShowBossAndEliteRespawnTimers to show respawn timers only where a boss or elite can spawn.
+- Add World Markers.ShowBossRespawnTimers and World Markers.ShowEliteRespawnTimers to show respawn timers only where bosses or elites can spawn.
 - Show quest markers over NPCs whose in-game name differs from the guide's, such as Gloopa and Catnip.
 - Fix world markers that showed living NPCs as dead or left stray respawn timers.
 - Use Reliquary furniture as a quest target or source only once it is built, and name the piece to build.

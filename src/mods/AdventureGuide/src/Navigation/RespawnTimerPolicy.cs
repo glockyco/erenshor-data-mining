@@ -1,27 +1,24 @@
 namespace AdventureGuide.Navigation;
 
-/// <summary>Which spawn points without a quest target show respawn timers.</summary>
-internal enum RespawnTimerScope
+/// <summary>Named encounters a spawn point's common or rare spawn table holds.</summary>
+[System.Flags]
+internal enum SpawnTiers
 {
-    None,
-    BossesAndElites,
-    All,
+    None = 0,
+    Boss = 1,
+    Elite = 2,
 }
 
 internal static class RespawnTimerPolicy
 {
-    /// <summary>ShowAllRespawnTimers includes boss and elite spawn points.</summary>
-    public static RespawnTimerScope Scope(bool showAll, bool showBossesAndElites) =>
-        showAll ? RespawnTimerScope.All
-        : showBossesAndElites ? RespawnTimerScope.BossesAndElites
-        : RespawnTimerScope.None;
-
     /// <summary>
-    /// A spawn point counts as a boss or elite spawn when its common or rare
-    /// spawn table holds one, so a rare elite's timer shows even after a common
-    /// creature took the spawn.
+    /// Whether a spawn point without a quest target shows its respawn timer.
+    /// ShowAllRespawnTimers includes boss and elite spawn points. A rare boss
+    /// or elite counts, so its timer shows even after a common creature took
+    /// the spawn.
     /// </summary>
-    public static bool Shows(RespawnTimerScope scope, bool spawnsBossOrElite) =>
-        scope == RespawnTimerScope.All
-        || (scope == RespawnTimerScope.BossesAndElites && spawnsBossOrElite);
+    public static bool Shows(bool showAll, bool showBosses, bool showElites, SpawnTiers tiers) =>
+        showAll
+        || (showBosses && (tiers & SpawnTiers.Boss) != 0)
+        || (showElites && (tiers & SpawnTiers.Elite) != 0);
 }
