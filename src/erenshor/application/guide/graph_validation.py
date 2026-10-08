@@ -599,8 +599,8 @@ def _denormalize_zone_and_source_levels(conn: sqlite3.Connection, graph: EntityG
     for node in graph.nodes_of_type(NodeType.CHARACTER):
         if not node.is_chest:
             continue
-        zone_key = node.zone_key or char_zones.get(node.key)
-        median = zone_medians.get(zone_key) if zone_key else None
+        chest_zone = node.zone_key or char_zones.get(node.key)
+        median = zone_medians.get(chest_zone) if chest_zone else None
         if median is not None:
             node.level = median
 
