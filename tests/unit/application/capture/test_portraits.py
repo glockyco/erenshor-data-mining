@@ -6,6 +6,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
+import pytest
 from PIL import Image
 
 from erenshor.application.capture.portraits import (
@@ -38,9 +39,11 @@ class FakeMod:
         return json.dumps(answer(self.sent[-1]))
 
 
-def completed(object_name: str, *, renderers: int = 3, clipped: bool = False, luminance: float = 0.4) -> Answer:
+def completed(
+    object_name: str, *, renderers: int = 3, clipped: bool = False, luminance: float = 0.4, alpha: int = 255
+) -> Answer:
     def answer(request: dict[str, Any]) -> dict[str, Any]:
-        Image.new("RGBA", (40, 80), (180, 120, 90, 255)).save(from_wine_path(request["outputPath"]))
+        Image.new("RGBA", (40, 80), (180, 120, 90, alpha)).save(from_wine_path(request["outputPath"]))
         return {
             "type": "portrait_complete",
             "subject": request["subject"],
@@ -174,6 +177,24 @@ def test_a_dark_capture_is_accepted_with_a_warning_for_the_reviewer(tmp_path: Pa
     run, _ = _run(mod, tmp_path, ("Faith",))
 
     assert (run.results[0].status, run.results[0].warnings) == ("accepted", ["dark: mean luminance 0.030"])
+
+
+@pytest.mark.parametrize(
+    ("alpha", "status", "reasons", "warnings"),
+    [
+        # The game draws the Aetherfiend at alpha 0.02, so its portrait is faint too.
+        (5, "accepted", [], ["faint: no pixel has an alpha above 32"]),
+        (0, "rejected", ["empty: no visible pixel"], []),
+    ],
+)
+def test_a_faint_capture_is_left_to_the_reviewer_and_an_empty_one_is_rejected(
+    tmp_path: Path, alpha: int, status: str, reasons: list[str], warnings: list[str]
+) -> None:
+    mod = FakeMod([completed("Faith", alpha=alpha), ended])
+
+    run, _ = _run(mod, tmp_path, ("Faith",))
+
+    assert (run.results[0].status, run.results[0].reasons, run.results[0].warnings) == (status, reasons, warnings)
 
 
 def test_a_mod_error_fails_the_file_and_the_batch_goes_on(tmp_path: Path) -> None:

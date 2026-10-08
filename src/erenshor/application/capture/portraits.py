@@ -249,8 +249,11 @@ def review(request: PortraitRequest, answer: Mapping[str, Any], png: Path) -> Po
         result.sha256 = hashlib.sha256(data).hexdigest()
         with Image.open(png) as image:
             alpha = image.convert("RGBA").getchannel("A")
-            if alpha.point(lambda value: 255 if value > SUBJECT_ALPHA else 0).getbbox() is None:
+            if alpha.getbbox() is None:
                 result.reasons.append("empty: no visible pixel")
+            elif alpha.point(lambda value: 255 if value > SUBJECT_ALPHA else 0).getbbox() is None:
+                # The game draws some subjects almost transparent; the reviewer decides.
+                result.warnings.append(f"faint: no pixel has an alpha above {SUBJECT_ALPHA}")
     if result.mean_luminance < DARK_LUMINANCE:
         result.warnings.append(f"dark: mean luminance {result.mean_luminance:.3f}")
     result.status = "rejected" if result.reasons else "accepted"

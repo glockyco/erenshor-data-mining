@@ -108,6 +108,17 @@ public static class PortraitImage
         return maxX < 0 ? null : new PixelBox(minX, minY, maxX, maxY);
     }
 
+    /// <summary>
+    /// The box of a subject's pixels: those whose alpha exceeds
+    /// <paramref name="threshold"/>, which leaves out faint edges and haze. A
+    /// subject that the game draws almost transparent, such as the
+    /// Aetherfiend, has no such pixel and is framed by every pixel it draws
+    /// instead, so its portrait shows it as faint as the game does. Null when
+    /// the subject draws nothing.
+    /// </summary>
+    public static PixelBox? SubjectBox(byte[] rgba, int width, int height, byte threshold) =>
+        AlphaBox(rgba, width, height, threshold) ?? AlphaBox(rgba, width, height, 0);
+
     /// <summary>Whether the box reaches an edge of the image, so the image may cut the subject off.</summary>
     public static bool TouchesBorder(PixelBox box, int width, int height) =>
         box.MinX == 0 || box.MinY == 0 || box.MaxX == width - 1 || box.MaxY == height - 1;

@@ -525,7 +525,7 @@ internal static class PortraitStudio
             Render(camera, target, readback, Color.black),
             Render(camera, target, readback, Color.white)
         );
-        return PortraitImage.AlphaBox(matte, size, size, PortraitPreset.SubjectAlpha)
+        return PortraitImage.SubjectBox(matte, size, size, PortraitPreset.SubjectAlpha)
             ?? throw new PortraitException("The subject left no visible pixel.");
     }
 

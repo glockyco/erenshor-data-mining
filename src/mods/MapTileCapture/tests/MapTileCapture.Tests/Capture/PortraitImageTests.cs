@@ -101,6 +101,24 @@ public class PortraitImageTests
         Assert.Null(PortraitImage.AlphaBox(new byte[4 * 4 * 4], 4, 4, 32));
     }
 
+    [Fact]
+    public void SubjectBox_FramesAFaintSubjectByEveryPixelItDraws()
+    {
+        // Only faint pixels, at (0, 1) and (2, 2): the subject that the game draws at alpha 0.02.
+        var image = new byte[3 * 3 * 4];
+        image[((1 * 3) + 0) * 4 + 3] = 5;
+        image[((2 * 3) + 2) * 4 + 3] = 4;
+
+        var box = PortraitImage.SubjectBox(image, 3, 3, 32);
+
+        Assert.NotNull(box);
+        Assert.Equal(
+            (0, 1, 2, 2),
+            (box.Value.MinX, box.Value.MinY, box.Value.MaxX, box.Value.MaxY)
+        );
+        Assert.Null(PortraitImage.SubjectBox(new byte[3 * 3 * 4], 3, 3, 32));
+    }
+
     [Theory]
     [InlineData(0, 3, 5, 6, true)]
     [InlineData(3, 3, 9, 6, true)]
