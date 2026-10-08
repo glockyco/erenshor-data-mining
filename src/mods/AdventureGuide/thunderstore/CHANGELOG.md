@@ -2,29 +2,16 @@
 
 ## v2026.1008.0
 
-- New setting World Markers.ShowAllRespawnTimers: respawn timers over every dead creature's spawn, not just quest targets.
-- Mining, fishing and ground-pickup sources work again: the arrow leads to them, and needed deposits and pickups get markers. Fishing steps point to a zone with the right water.
-- When no source of an item is in your zone, the arrow leads to the nearest zone where its top source is found.
-- Vendors and NPCs who hand over an item come before random drops that take about the same level, so the arrow goes to them first.
-- Items list more sources: world drops from any enemy (with the chance), torn map pieces from fishing, treasure map chests by your level, items you get by using another item, and the Box of Portals on the Reliquary planning table.
-- After you read a treasure map, the arrow leads to the treasure's zone and then to the dig spot, which gets a marker.
-- The arrow no longer swaps a nearby vendor or quest NPC for a creature farther away.
-- Reliquary furniture such as the Forge Golem, Portal Receptacle and Pocket Vendor counts as a quest target or source only once you have built it, and the guide names the furniture to build.
-- Navigation and loot markers stop pointing at a corpse once you close its loot window after taking the quest item.
-- Levels make more sense: quest givers, vendors and other NPCs you only talk to show their area's level instead of their own, Reliquary steps show 16 for the Fiend that guards the hall until you claim it, chests show their area's level instead of 1, and objects such as ritual braziers no longer show 99.
-- The "more sources" line shows the full level range of the sources it hides.
-- Six unused Reliquary portal quests and two quests you can't get are gone from the quest list.
-- Navigation fixes: correct zone exit after returning to a zone, travel steps that finish on arrival, continuing with the main quest after a sub-quest, first-person and drone view, and keeping your target through a relog.
-- Tracked quests are saved immediately, and tracker setting changes apply at once instead of being reset on exit.
-- New characters no longer inherit tracked quests, navigation or encounter progress from a deleted character in the same save slot.
-- Quest item counts include whole stacks and items received with bags closed; kill and talk steps no longer show item counts.
-- Completed quests no longer come back as active when a quest giver offers them again.
-- Quest markers show over NPCs whose in-game name differs from the guide's, such as the Vithean chests, Gloopa and Catnip.
-- World markers no longer show living NPCs as dead after a respawn or recall in the same zone, and no longer flash or linger as respawn timers where they shouldn't.
-- Arena and Malaroth feeding progress ignores unrelated gladiators and resets when you leave the zone.
-- Typing in the guide's search box no longer triggers game hotkeys, and Escape closes the game's journal again.
-- UI scale is limited to 0.5–4 (-1 stays automatic), spacing follows it, and window layout reset works for closed windows.
-- Smoother performance and lower memory use.
+- More item sources: rare drops from any enemy, torn map pieces from fishing, treasure map chests and items you get by using another item. Mining, fishing and ground-pickup sources work again.
+- After you read a treasure map, the arrow leads to the dig spot, then back to your quest once you dig.
+- Smarter arrow: it prefers vendors and NPCs who hand over an item, heads for the nearest zone, and no longer swaps a nearby NPC for a creature farther away.
+- Reliquary furniture counts as a quest target or source only once you have built it, and the guide names what to build.
+- Levels make more sense: NPCs you only talk to, chests and objects show their area's level, and Reliquary steps show 16 for the Fiend guarding the hall.
+- New setting World Markers.ShowAllRespawnTimers: respawn timers at every spawn point, not just quest targets.
+- More reliable markers: no dead markers over living NPCs, no lingering respawn timers or corpse markers, and quest markers over NPCs whose in-game name differs from the guide's.
+- Progress fixes: whole stacks and items received with bags closed count, completed quests stay completed, arena and feeding progress is accurate, and a new character no longer inherits a deleted one's quests.
+- Typing in the search box no longer triggers hotkeys, Escape closes the journal again, UI scale stays in range, and the guide runs smoother.
+- Quests you can't get are gone from the quest list.
 
 ## v2026.718.0
 
