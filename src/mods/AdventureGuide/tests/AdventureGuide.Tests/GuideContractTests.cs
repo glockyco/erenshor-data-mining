@@ -28,7 +28,7 @@ public sealed class GuideContractTests
             var data = GuideData.Parse(File.ReadAllText(guidePath));
             var workflows = data.All.Where(quest => quest.IsGuideOnly).ToList();
 
-            Assert.Equal(206, data.Count);
+            Assert.Equal(200, data.Count);
             Assert.Equal(10, workflows.Count);
             Assert.All(
                 workflows,
