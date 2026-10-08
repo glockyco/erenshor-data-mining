@@ -37,5 +37,5 @@
 
 ## 5. Close
 
-- [ ] 5.1 `refactor(images): remove the one-time screenshot move`. Remove `images move-screenshots` and its tests, and keep the run records. Verify: `uv run erenshor test ci` passes, and `images publish --revert` still reads the screenshot run's record.
+- [x] 5.1 `refactor(images): remove the one-time screenshot move`. Remove `images move-screenshots` and its tests, and keep the run records. Verify: `uv run erenshor test ci` passes, and `images publish --revert` still reads the screenshot run's record.
 - [ ] 5.2 Record the outcome under task 5.38 of `adopt-data-backed-wiki` and mark it done, then sync the delta specs and archive this change. Verify: `openspec validate --strict` passes, and the archived change and the main specs `wiki-images` and `game-image-catalog` hold the role titles.

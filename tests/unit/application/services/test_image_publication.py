@@ -22,7 +22,6 @@ from erenshor.application.services.image_publication import (
     write_contact_sheets,
 )
 from erenshor.application.services.image_publication_run import RunRecord, execute, revert
-from erenshor.application.services.screenshot_move import execute_screenshot_moves, plan_screenshot_moves
 from erenshor.infrastructure.wiki import MediaWikiEditError, MediaWikiNetworkError, MediaWikiUploadWarningError
 from erenshor.infrastructure.wiki.client import (
     MediaWikiFile,
@@ -685,40 +684,6 @@ def test_a_reverted_move_puts_the_file_back_without_a_redirect_and_restores_its_
     assert "File:Antidote icon.png" not in wiki.pages
     assert wiki.pages["File:Spell Scroll Antidote.png"] == "#REDIRECT [[File:Antidote.png]]"
     assert wiki.shows_a_picture("File:Spell Scroll Antidote.png")
-
-
-def test_editors_character_pictures_move_to_their_screenshot_titles_and_the_bots_stay(tmp_path: Path) -> None:
-    wiki = FakeWiki()
-    faith, brute = _png((250, 200, 250, 255)), _png((7, 7, 7, 255))
-    wiki.put_file("File:Faith.png", faith, user="Ulor", comment="")
-    wiki.put_file("File:Faith.png", _png((250, 200, 251, 255)), user="Snedn", comment="A clearer screenshot")
-    wiki.put_file("File:Summoned Brute.png", brute, user="Snedn", comment="")
-    wiki.put_redirect("File:Summoned: Brute.png", "File:Summoned Brute.png")
-    wiki.put_file("File:Watchman.png", OLD)
-    wiki.put_file("File:Lacy.png", faith, user="Ulor", comment="")
-    wiki.put_file("File:Lacy screenshot.png", brute, user="Biridian", comment="")
-    characters = [("Faith", "Faith"), ("Summoned: Brute", None), ("Watchman", None), (None, "Lacy")]
-
-    plan = plan_screenshot_moves(characters, wiki.listing(), OWNERS)
-    run = RunRecord(tmp_path / "run")
-    execute_screenshot_moves(plan, wiki, wiki, run, "Move")
-
-    assert [(item.source, item.title, item.redirects) for item in plan.moves] == [
-        ("File:Faith.png", "File:Faith screenshot.png", ()),
-        ("File:Summoned Brute.png", "File:Summoned Brute screenshot.png", ("File:Summoned: Brute.png",)),
-    ]
-    assert plan.skipped == (("File:Lacy.png", "File:Lacy screenshot.png is taken"),)
-    assert [version.user for version in wiki.files["File:Faith screenshot.png"]] == ["Snedn", "Ulor"]
-    assert wiki.pages["File:Summoned: Brute.png"] == "#REDIRECT [[File:Summoned Brute screenshot.png]]"
-    assert wiki.pages["File:Faith.png"] == "#REDIRECT [[File:Faith screenshot.png]]"
-    assert "File:Watchman.png" in wiki.files
-
-    revert(RunRecord.load(run.directory), wiki, wiki, RunRecord(tmp_path / "revert"), OWNERS, "Revert")
-
-    assert [version.user for version in wiki.files["File:Faith.png"]] == ["Snedn", "Ulor"]
-    assert "File:Faith screenshot.png" not in wiki.pages
-    assert wiki.pages["File:Summoned: Brute.png"] == "#REDIRECT [[File:Summoned Brute.png]]"
-    assert wiki.shows_a_picture("File:Summoned: Brute.png")
 
 
 def test_a_move_whose_answer_was_lost_counts_when_the_file_arrived(setup: Any) -> None:
