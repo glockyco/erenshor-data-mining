@@ -622,7 +622,7 @@ def _denormalize_zone_and_source_levels(conn: sqlite3.Connection, graph: EntityG
     # Encounter scripts spawn some chests, so take the zone of their spawns.
     char_zones = _build_char_zone_keys(conn)
     for node in graph.nodes_of_type(NodeType.CHARACTER):
-        if not node.is_chest:
+        if node.encounter_tier != "chest":
             continue
         chest_zone = node.zone_key or char_zones.get(node.key)
         median = zone_medians.get(chest_zone) if chest_zone else None

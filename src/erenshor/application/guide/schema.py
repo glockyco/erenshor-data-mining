@@ -230,9 +230,10 @@ class Node:
     is_friendly: bool = False
     invulnerable: bool = False
     faction_key: str | None = None
-    # A TreasureChest-faction container (encounter tier "chest"). Its level of
-    # 1 is no combat level: reaching it means reaching its zone.
-    is_chest: bool = False
+    # The clean database's npc, chest, boss, elite or enemy classification. A
+    # chest is a TreasureChest-faction container: its level of 1 is no combat
+    # level, so reaching it means reaching its zone.
+    encounter_tier: str | None = None
     # Level of reaching the character: its zone's level raised by what
     # unlocks it. Talking to, trading with or turning in to a character uses
     # it; ``level`` stays its combat level for kills and drops.

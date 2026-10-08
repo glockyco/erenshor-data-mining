@@ -1272,7 +1272,7 @@ def test_chests_take_their_zone_level_and_stay_out_of_the_zone_median() -> None:
         # An encounter script spawns the chest, so its node has no zone.
         graph = build_graph(
             Node("zone:plane", NodeType.ZONE, "Plane"),
-            Node("character:chest", NodeType.CHARACTER, "Chest", level=1, is_chest=True),
+            Node("character:chest", NodeType.CHARACTER, "Chest", level=1, encounter_tier="chest"),
         )
         _denormalize_zone_and_source_levels(conn, graph)
     finally:

@@ -224,6 +224,7 @@ def test_build_mod_guide_preserves_wrapper_shape_and_quest_identity() -> None:
         "_version",
         "_zone_lookup",
         "_character_spawns",
+        "_boss_and_elite_characters",
         "_furniture_sets",
         "_zone_lines",
         "_chain_groups",
@@ -252,6 +253,20 @@ def test_build_mod_guide_lists_excluded_quests_and_rejects_guide_quests() -> Non
     ]
     with pytest.raises(ValueError, match="MAIN"):
         build_mod_guide(graph, compiled, ["MAIN"])
+
+
+def test_build_mod_guide_lists_only_boss_and_elite_characters() -> None:
+    tiers = {"boss": "character:boss", "elite": "character:elite", "enemy": "character:grunt"}
+    graph = build_graph(
+        quest_node("quest:main", "MAIN"),
+        *(character_node(key, encounter_tier=tier) for tier, key in tiers.items()),
+        character_node("character:chest", encounter_tier="chest"),
+        character_node("character:villager", encounter_tier="npc"),
+    )
+    assert build_mod_guide(graph, compile_graph(graph))["_boss_and_elite_characters"] == [
+        "character:boss",
+        "character:elite",
+    ]
 
 
 def test_build_mod_guide_emits_acquisition_completion_and_ordered_steps() -> None:
@@ -781,6 +796,7 @@ def test_serialize_mod_guide_is_compact_deterministic_and_json() -> None:
         "_version",
         "_zone_lookup",
         "_character_spawns",
+        "_boss_and_elite_characters",
         "_furniture_sets",
         "_zone_lines",
         "_chain_groups",

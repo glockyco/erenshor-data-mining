@@ -254,7 +254,7 @@ def _add_character_nodes(
                 invulnerable=bool(r["invulnerable"]),
                 faction_key=r["my_world_faction_stable_key"],
                 is_enabled=bool(r["is_enabled"]) if r["is_enabled"] is not None else True,
-                is_chest=r["encounter_tier"] == "chest",
+                encounter_tier=r["encounter_tier"],
             )
         )
 
