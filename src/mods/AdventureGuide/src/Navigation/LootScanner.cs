@@ -57,6 +57,9 @@ public sealed class LootScanner
     /// <summary>All containers with quest-relevant loot in the current scene.</summary>
     public IReadOnlyList<LootContainer> Containers => _containers;
 
+    /// <summary>Changes each time <see cref="Containers"/> is rebuilt.</summary>
+    public int Version { get; private set; }
+
     /// <summary>Whether the scanner found any containers on last rebuild.</summary>
     public bool HasContainers => _containers.Count > 0;
 
@@ -131,6 +134,7 @@ public sealed class LootScanner
 
     private void Rebuild(GuideData data, QuestStateTracker state)
     {
+        Version++;
         _neededItems.Clear();
         _containers.Clear();
 

@@ -61,6 +61,7 @@ public sealed class WorldMarkerSystem
     private int _spawnResetFrame = -1;
     private int _lastHour = -1;
     private int _lastStateVersion = -1;
+    private int _lastLootVersion = -1;
 
     public bool Enabled
     {
@@ -112,23 +113,28 @@ public sealed class WorldMarkerSystem
             return;
         // LootScanner is updated by Plugin.Update before this method,
         // ensuring fresh corpse/chest data regardless of marker visibility.
+        // Loot markers come only from rebuilds, so every rescan rebuilds,
+        // such as after a loot window returns a corpse's remaining drops.
 
         int hour = GameData.Time.hour;
         bool sceneChanged = _sceneLoaded || currentScene != _lastScene;
         bool spawnPointsChanged = !sceneChanged && _bridge.HasNewRegistrations;
         bool hourChanged = hour != _lastHour;
         bool stateChanged = _state.Version != _lastStateVersion;
+        bool lootChanged = _lootScanner.Version != _lastLootVersion;
         bool resetReady = SpawnMarkerPolicy.ResetReady(_spawnResetFrame, Time.frameCount);
         bool needsRebuild =
             sceneChanged
             || spawnPointsChanged
             || hourChanged
             || stateChanged
+            || lootChanged
             || _configDirty
             || _spawnDirty
             || resetReady;
         if (stateChanged)
             _lastStateVersion = _state.Version;
+        _lastLootVersion = _lootScanner.Version;
         _configDirty = false;
         _spawnDirty = false;
         if (resetReady)
