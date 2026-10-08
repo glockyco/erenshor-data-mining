@@ -6,6 +6,11 @@
 - Mining, fishing and ground-pickup sources work again: the arrow leads to them, and needed deposits and pickups get markers. Fishing steps point to a zone with the right water.
 - When an item's sources are all in other zones, the arrow picks the nearest one.
 - The arrow no longer swaps a nearby vendor or quest NPC for a creature farther away.
+- Reliquary furniture such as the Forge Golem, Portal Receptacle and Pocket Vendor counts as a quest target or source only once you have built it, and the guide names the furniture to build.
+- Navigation and loot markers stop pointing at a corpse once you close its loot window after taking the quest item.
+- Levels make more sense: Reliquary steps show 16 for the Fiend that guards the hall until you claim it, chests show their area's level instead of 1, and ritual braziers and other objects you can't fight show their area's level instead of 99.
+- The "more sources" line shows the full level range of the sources it hides.
+- Six unused Reliquary portal quests and two quests you can't get are gone from the quest list.
 - Navigation fixes: correct zone exit after returning to a zone, travel steps that finish on arrival, continuing with the main quest after a sub-quest, first-person and drone view, and keeping your target through a relog.
 - Tracked quests are saved immediately, and tracker setting changes apply at once instead of being reset on exit.
 - New characters no longer inherit tracked quests, navigation or encounter progress from a deleted character in the same save slot.
