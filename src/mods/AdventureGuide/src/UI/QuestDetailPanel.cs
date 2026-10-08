@@ -1168,13 +1168,8 @@ public sealed class QuestDetailPanel
             }
         }
         if (display.VisibleSources.Count > 4)
-        {
-            int remaining = display.VisibleSources.Count - 4;
-            int minLv = display.VisibleSources[4].Level ?? 0;
-            int maxLv = display.VisibleSources[^1].Level ?? minLv;
-            string range = minLv == maxLv ? $"Lv {minLv}" : $"Lv {minLv}-{maxLv}";
-            display.MoreSourcesLabel = $"{remaining} more sources ({range})##{step.Order}";
-        }
+            display.MoreSourcesLabel =
+                SourceListText.MoreSources(display.VisibleSources, 4) + "##" + step.Order;
 
         if (step.Action == "complete_quest" && step.TargetKey != null)
         {
