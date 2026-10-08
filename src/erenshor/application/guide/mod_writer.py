@@ -24,6 +24,12 @@ if TYPE_CHECKING:
 # Steps that fight their character target; see _interaction_level.
 _COMBAT_ACTIONS = frozenset({"kill", "loot"})
 _BACKGROUND_SOURCE_TYPES = frozenset({"world_drop", "fishing_bonus", "treasure_chest"})
+# Sources whose character is only reached, never fought; see _interaction_level.
+_INTERACTION_SOURCE_TYPES = frozenset({"vendor", "dialog_give"})
+# Buying an item, being handed it or picking it up beats a random drop unless
+# it takes more than this many levels more than the easiest other source.
+_GUARANTEED_SOURCE_TYPES = frozenset({"vendor", "dialog_give", "pickup"})
+_GUARANTEED_LEVEL_MARGIN = 5
 
 
 def build_mod_guide(
@@ -784,7 +790,9 @@ def _with_vendor_source_metadata(
     return result
 
 
-def _item_sources(compiled: CompiledData, item_id: int, compiled_nodes: dict[int, Any]) -> list[dict[str, Any]]:
+def _item_sources(
+    compiled: CompiledData, item_id: int, compiled_nodes: dict[int, Any], nodes: dict[str, Node]
+) -> list[dict[str, Any]]:
     if item_id < 0 or item_id >= len(compiled.node_item_index):
         raise ValueError(f"dangling compiled item id: {item_id}")
     item_index = compiled.node_item_index[item_id]
@@ -820,7 +828,10 @@ def _item_sources(compiled: CompiledData, item_id: int, compiled_nodes: dict[int
         value: dict[str, Any] = {"type": source_type, "name": source.display_name}
         _put_if(value, "zone", source.zone_display)
         _put_if(value, "scene", site.scene)
-        _put_if(value, "level", source.level if source.level > 0 else None)
+        level = source.level
+        if source_type in _INTERACTION_SOURCE_TYPES and source.key in nodes:
+            level = _interaction_level(nodes[source.key])
+        _put_if(value, "level", level if level is not None and level > 0 else None)
         if edge_type != EdgeType.PRODUCES:
             value["source_key"] = source.key
         else:
@@ -838,14 +849,14 @@ def _item_sources(compiled: CompiledData, item_id: int, compiled_nodes: dict[int
 
 
 def _interaction_level(node: Node) -> int | None:
-    """Level for talking to or turning in to a character.
+    """Level for talking to, trading with or turning in to a character.
 
-    A character that can't be damaged never fights, so its own level means
-    nothing there: level 99 ritual braziers, a level 1 portal receptacle in
-    the Reliquary. Attackable NPCs keep their level. Item sources keep every
-    character's own level: their order picks where navigation goes first.
+    None of these fights the character, so its own level means nothing
+    there: a level 35 quest giver in Hidden Hills, level 99 ritual braziers.
+    They use the level of reaching it. Kill and loot steps and drops keep
+    the character's own level.
     """
-    return node.place_level if node.invulnerable else node.level
+    return node.place_level
 
 
 def _item_sources_with_rewards(
@@ -858,7 +869,7 @@ def _item_sources_with_rewards(
     nodes: dict[str, Node],
     visiting: frozenset[int] = frozenset(),
 ) -> list[dict[str, Any]]:
-    sources = _item_sources(compiled, item_id, compiled_nodes)
+    sources = _item_sources(compiled, item_id, compiled_nodes, nodes)
     item = nodes[compiled_nodes[item_id].key]
     sources = _with_vendor_source_metadata(sources, graph, item, nodes)
     for reward in reward_by_item.get(item_id, []):
@@ -886,17 +897,43 @@ def _item_sources_with_rewards(
         }
         _put_if(value, "level", used.obtainability_level)
         sources.append(value)
-    sources.sort(
-        key=lambda source: (
+    _sort_sources(sources)
+    return sources
+
+
+def _sort_sources(sources: list[dict[str, Any]]) -> None:
+    """Order sources by level, guaranteed ones first when within reach.
+
+    The first source is where navigation goes when no source is in the
+    player's zone. A vendor, giver or pickup comes before random drops
+    unless it takes more than _GUARANTEED_LEVEL_MARGIN levels more than the
+    easiest other source. Random pools and chests always come last.
+    """
+    other_levels = [
+        source["level"]
+        for source in sources
+        if source.get("type") not in _GUARANTEED_SOURCE_TYPES
+        and source.get("type") not in _BACKGROUND_SOURCE_TYPES
+        and source.get("level") is not None
+    ]
+    reach = min(other_levels) + _GUARANTEED_LEVEL_MARGIN if other_levels else None
+
+    def key(source: dict[str, Any]) -> tuple[bool, bool, bool, int, str, str, str]:
+        level = source.get("level")
+        preferred = (
+            source.get("type") in _GUARANTEED_SOURCE_TYPES and level is not None and (reach is None or level <= reach)
+        )
+        return (
             source.get("type") in _BACKGROUND_SOURCE_TYPES,
-            source.get("level") is None,
-            source.get("level", 0),
+            not preferred,
+            level is None,
+            level or 0,
             source.get("type", ""),
             source.get("name", ""),
             source.get("source_key", ""),
         )
-    )
-    return sources
+
+    sources.sort(key=key)
 
 
 def _completion(

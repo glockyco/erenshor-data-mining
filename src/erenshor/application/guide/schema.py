@@ -232,8 +232,8 @@ class Node:
     # 1 is no combat level: reaching it means reaching its zone.
     is_chest: bool = False
     # Level of reaching the character: its zone's level raised by what
-    # unlocks it. Talking to, trading with or turning in to a character that
-    # can't be damaged uses it; ``level`` stays its combat level.
+    # unlocks it. Talking to, trading with or turning in to a character uses
+    # it; ``level`` stays its combat level for kills and drops.
     place_level: int | None = None
 
     # Spawn point specific

@@ -591,9 +591,8 @@ def _level_step_graph() -> EntityGraph:
         level_min=16,
         level_max=16,
     )
-    # An attackable NPC keeps its level everywhere. A character that can't be
-    # damaged is reached to talk to it, but fought for its drops. Item sources
-    # keep every character's own level, which orders them.
+    # Talking to or buying from a character only reaches it, so those use its
+    # place level; killing it or looting its drops fights it at its own level.
     character = character_node("char:levels", "Level Character", zone="Level Zone", level=12, place_level=7)
     statue = character_node("char:statue", "Statue", zone="Level Zone", level=99, place_level=16, invulnerable=True)
     keeper = character_node("char:keeper", "Keeper", zone="Level Zone", level=50, place_level=9, invulnerable=True)
@@ -638,8 +637,8 @@ def test_build_mod_guide_emits_per_step_level_estimates_and_factors() -> None:
     by_target = {step["target_key"]: step for step in steps}
 
     assert by_target["char:levels"]["level_estimate"] == {
-        "recommended": 12,
-        "factors": [{"source": "zone", "name": "Level Zone", "level": 12}],
+        "recommended": 7,
+        "factors": [{"source": "zone", "name": "Level Zone", "level": 7}],
     }
     assert by_target["char:statue"]["level_estimate"]["recommended"] == 16
     assert by_target["char:warden"]["level_estimate"]["recommended"] == 26
@@ -650,14 +649,34 @@ def test_build_mod_guide_emits_per_step_level_estimates_and_factors() -> None:
         "factors": [{"source": "zone", "name": "Level Zone", "level": 16}],
     }
     assert by_target["item:levels"]["level_estimate"] == {
-        "recommended": 14,
+        "recommended": 9,
         "factors": [
             {"source": "drop", "name": "Another Dropper", "level": 14},
             {"source": "drop", "name": "Level Dropper", "level": 18},
             {"source": "drop", "name": "Warden", "level": 26},
-            {"source": "vendor", "name": "Keeper", "level": 50},
+            {"source": "vendor", "name": "Keeper", "level": 9},
         ],
     }
+
+
+def test_sources_put_vendors_givers_and_pickups_first_within_five_levels() -> None:
+    from erenshor.application.guide.mod_writer import _sort_sources
+
+    def ordered(*sources: tuple[str, str, int | None]) -> list[str]:
+        values = [{"type": kind, "name": name, "level": level} for kind, name, level in sources]
+        _sort_sources(values)
+        return [value["name"] for value in values]
+
+    # The easiest other source is level 10, so a level 15 vendor still leads.
+    assert ordered(("drop", "Boss", 10), ("vendor", "Shop", 15), ("drop", "Mob", 12)) == ["Shop", "Boss", "Mob"]
+    # Six levels more than the easiest drop: the drop leads.
+    assert ordered(("drop", "Boss", 10), ("vendor", "Shop", 16)) == ["Boss", "Shop"]
+    # Random pools and chests stay last, whatever their level.
+    assert ordered(("world_drop", "Any enemy", 1), ("pickup", "Bag", 30), ("drop", "Mob", 40)) == [
+        "Bag",
+        "Mob",
+        "Any enemy",
+    ]
 
 
 def _acquisition_item_graph(*, mixed_source: bool = False, required: bool = False) -> EntityGraph:
@@ -1053,7 +1072,7 @@ def test_build_mod_guide_rejects_real_and_synthetic_db_name_collision() -> None:
 def test_background_sources_sort_last_without_changing_levels(background: BackgroundSource, expected: dict) -> None:
     quest = quest_node("quest:main", "MAIN", level=40)
     item = item_node("item:required", background_sources=[background])
-    vendor = character_node("character:vendor", "Vendor", level=99)
+    vendor = character_node("character:vendor", "Vendor", level=99, place_level=99)
     graph = build_graph(
         quest,
         item,
@@ -1093,7 +1112,7 @@ def test_item_use_includes_used_item_sources_and_obtainability_level(level: int 
     quest = quest_node("quest:main", "MAIN")
     used = item_node("item:bag", "Bag of Offering Stones", obtainability_level=level)
     created = item_node("item:stone", "Offering Stone")
-    vendor = character_node("character:vendor", "Vendor", level=25)
+    vendor = character_node("character:vendor", "Vendor", level=25, place_level=25)
     graph = build_graph(
         quest,
         used,
