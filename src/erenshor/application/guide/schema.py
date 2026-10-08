@@ -215,6 +215,10 @@ class Node:
     # A TreasureChest-faction container (encounter tier "chest"). Its level of
     # 1 is no combat level: reaching it means reaching its zone.
     is_chest: bool = False
+    # Level of reaching the character: its zone's level raised by what
+    # unlocks it. Talking to, trading with or turning in to a character that
+    # can't be damaged uses it; ``level`` stays its combat level.
+    place_level: int | None = None
 
     # Spawn point specific
     spawn_chance: float | None = None

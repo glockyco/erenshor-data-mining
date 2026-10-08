@@ -20,6 +20,9 @@ if TYPE_CHECKING:
 
     from .graph import EntityGraph
 
+# Steps that fight their character target; see _interaction_level.
+_COMBAT_ACTIONS = frozenset({"kill", "loot"})
+
 
 def build_mod_guide(
     graph: EntityGraph, compiled: CompiledData, excluded_quest_db_names: Iterable[str] = ()
@@ -827,6 +830,17 @@ def _item_sources(compiled: CompiledData, item_id: int, compiled_nodes: dict[int
     return result
 
 
+def _interaction_level(node: Node) -> int | None:
+    """Level for talking to or turning in to a character.
+
+    A character that can't be damaged never fights, so its own level means
+    nothing there: level 99 ritual braziers, a level 1 portal receptacle in
+    the Reliquary. Attackable NPCs keep their level. Item sources keep every
+    character's own level: their order picks where navigation goes first.
+    """
+    return node.place_level if node.invulnerable else node.level
+
+
 def _item_sources_with_rewards(
     compiled: CompiledData,
     item_id: int,
@@ -913,11 +927,18 @@ def _steps(
 
     def level_for(target: Node, action: str) -> dict[str, Any] | None:
         if target.type in {NodeType.CHARACTER, NodeType.ZONE}:
-            if target.level is None or target.level <= 0:
+            level = target.level
+            if target.type == NodeType.CHARACTER and action not in _COMBAT_ACTIONS:
+                level = _interaction_level(target)
+            if level is None or level <= 0:
+                # A zone without hostiles has no level; still name the
+                # character's zone.
+                if target.type == NodeType.CHARACTER and target.zone:
+                    return {"factors": [{"source": "zone", "name": target.zone}]}
                 return None
             return {
-                "recommended": target.level,
-                "factors": [{"source": "zone", "name": target.zone or target.display_name, "level": target.level}],
+                "recommended": level,
+                "factors": [{"source": "zone", "name": target.zone or target.display_name, "level": level}],
             }
         if target.type != NodeType.ITEM or action not in {"collect", "obtain", "read"}:
             return None

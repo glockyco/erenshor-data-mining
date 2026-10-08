@@ -17,7 +17,8 @@ if TYPE_CHECKING:
 
 
 def _denormalize_quest_metadata(conn: sqlite3.Connection, graph: EntityGraph) -> None:
-    """Backfill zone, zone_key, and level on quest nodes.
+    """Backfill zone, zone_key, and level on quest nodes, and place_level on
+    character nodes.
 
     Runs after all nodes and edges are built.  Uses graph edges to infer
     the quest's primary zone (from its giver or completer NPC) and
@@ -76,6 +77,22 @@ def _denormalize_quest_metadata(conn: sqlite3.Connection, graph: EntityGraph) ->
         if level is not None:
             quest_node.level = level
             quest_levels[quest_node.key] = level
+
+    # The level of reaching each character, for interactions whose target's
+    # own level means nothing (see mod_writer).
+    ctx = _LevelContext(graph, zone_medians, char_levels, char_zones, quest_levels, item_cache)
+    for node in graph.nodes_of_type(NodeType.CHARACTER):
+        node.place_level = _place_level(node.key, ctx)
+
+
+def _place_level(char_key: str, ctx: _LevelContext) -> int | None:
+    """Level of reaching a character: its zone's level, raised by its unlocks."""
+    zone_key = _target_zone_key(char_key, ctx.graph, ctx.char_zones)
+    zone_level = ctx.zone_medians.get(zone_key) if zone_key else None
+    unlock = _unlock_requirement_level(char_key, EdgeType.UNLOCKS_CHARACTER, ctx, set())
+    if zone_level is not None and unlock is not None:
+        return max(zone_level, unlock)
+    return zone_level if zone_level is not None else unlock
 
 
 def _target_zone_key(
@@ -610,6 +627,9 @@ def _build_zone_medians(conn: sqlite3.Connection) -> dict[str, int]:
 
     Only non-friendly characters with level > 0 contribute. Chests are no
     combatants: the TreasureChest faction gives them level 1.
+
+    A guardian raises its zone to at least its own level; see
+    ``_zone_guardian_levels``.
     """
     from statistics import median
 
@@ -626,7 +646,43 @@ def _build_zone_medians(conn: sqlite3.Connection) -> dict[str, int]:
         zk = r["zone_stable_key"]
         if zk:
             zone_levels.setdefault(zk, []).append(r["level"])
-    return {zk: int(median(levels)) for zk, levels in zone_levels.items()}
+    medians = {zk: int(median(levels)) for zk, levels in zone_levels.items()}
+    for zone_key, level in _zone_guardian_levels(conn).items():
+        medians[zone_key] = max(medians.get(zone_key, level), level)
+    return medians
+
+
+def _zone_guardian_levels(conn: sqlite3.Connection) -> dict[str, int]:
+    """Return {zone_key → level} of zone guardians.
+
+    A guardian's death completes a quest that stops every hostile spawn in its
+    zone, so those hostiles exist only while it guards the zone. Killing the
+    Reliquary Fiend claims the Reliquary and ends all Reliquary spawns: the
+    hall's level 5 wards say nothing about using it.
+    """
+    rows = conn.execute("""
+        SELECT gs.zone_stable_key, MAX(g.level) AS level
+        FROM characters g
+        JOIN character_spawns gs ON gs.character_stable_key = g.stable_key
+        WHERE g.quest_complete_on_death IS NOT NULL AND g.level > 0 AND g.is_map_visible = 1
+            AND gs.zone_stable_key IS NOT NULL AND gs.spawn_point_stable_key IS NOT NULL
+            AND NOT EXISTS (
+                SELECT 1
+                FROM character_spawns hs
+                JOIN characters h ON h.stable_key = hs.character_stable_key
+                WHERE hs.zone_stable_key = gs.zone_stable_key
+                    AND h.is_friendly = 0 AND h.level > 0 AND h.is_map_visible = 1
+                    AND h.encounter_tier IS NOT 'chest'
+                    AND hs.spawn_point_stable_key IS NOT NULL
+                    AND NOT EXISTS (
+                        SELECT 1 FROM spawn_point_stop_quests sq
+                        WHERE sq.spawn_point_stable_key = hs.spawn_point_stable_key
+                            AND sq.quest_stable_key = g.quest_complete_on_death
+                    )
+            )
+        GROUP BY gs.zone_stable_key
+    """).fetchall()
+    return {r["zone_stable_key"]: int(r["level"]) for r in rows}
 
 
 def _build_char_levels(conn: sqlite3.Connection) -> dict[str, int]:

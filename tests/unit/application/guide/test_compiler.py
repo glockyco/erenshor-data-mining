@@ -1230,28 +1230,37 @@ def test_build_graph_closes_connection_when_node_build_fails(monkeypatch: pytest
     assert connection.closed
 
 
+def _level_db(characters: str, spawns: str, stop_quests: str = "") -> sqlite3.Connection:
+    """In-memory DB with the tables zone and character level estimation reads."""
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    conn.executescript(
+        f"""
+        CREATE TABLE zones (stable_key TEXT, display_name TEXT);
+        CREATE TABLE characters (
+            stable_key TEXT, level INTEGER, is_friendly INTEGER, is_map_visible INTEGER,
+            encounter_tier TEXT, quest_complete_on_death TEXT
+        );
+        CREATE TABLE character_spawns (
+            character_stable_key TEXT, spawn_point_stable_key TEXT, zone_stable_key TEXT
+        );
+        CREATE TABLE spawn_point_stop_quests (spawn_point_stable_key TEXT, quest_stable_key TEXT);
+        INSERT INTO characters VALUES {characters};
+        INSERT INTO character_spawns VALUES {spawns};
+        {f"INSERT INTO spawn_point_stop_quests VALUES {stop_quests};" if stop_quests else ""}
+        """
+    )
+    return conn
+
+
 def test_chests_take_their_zone_level_and_stay_out_of_the_zone_median() -> None:
     from erenshor.application.guide.graph_validation import _denormalize_zone_and_source_levels
 
-    conn = sqlite3.connect(":memory:")
-    conn.row_factory = sqlite3.Row
+    conn = _level_db(
+        "('character:mob', 40, 0, 1, 'enemy', NULL), ('character:chest', 1, 0, 1, 'chest', NULL)",
+        "('character:mob', 'spawn:mob', 'zone:plane'), ('character:chest', 'spawn:chest', 'zone:plane')",
+    )
     try:
-        conn.executescript(
-            """
-            CREATE TABLE characters (
-                stable_key TEXT, level INTEGER, is_friendly INTEGER, is_map_visible INTEGER, encounter_tier TEXT
-            );
-            CREATE TABLE character_spawns (
-                character_stable_key TEXT, spawn_point_stable_key TEXT, zone_stable_key TEXT
-            );
-            INSERT INTO characters VALUES
-                ('character:mob', 40, 0, 1, 'enemy'),
-                ('character:chest', 1, 0, 1, 'chest');
-            INSERT INTO character_spawns VALUES
-                ('character:mob', 'spawn:mob', 'zone:plane'),
-                ('character:chest', 'spawn:chest', 'zone:plane');
-            """
-        )
         # An encounter script spawns the chest, so its node has no zone.
         graph = build_graph(
             Node("zone:plane", NodeType.ZONE, "Plane"),
@@ -1264,3 +1273,62 @@ def test_chests_take_their_zone_level_and_stay_out_of_the_zone_median() -> None:
     # Level 1 is the TreasureChest faction's, not the level needed to loot it.
     assert graph.get_node("zone:plane").level == 40
     assert graph.get_node("character:chest").level == 40
+
+
+def test_a_guardian_raises_only_the_zone_whose_spawns_its_death_ends() -> None:
+    from erenshor.application.guide.graph_validation import _build_zone_medians
+
+    conn = _level_db(
+        "('character:ward', 5, 0, 1, 'enemy', NULL), ('character:fiend', 16, 0, 1, 'boss', 'quest:claim'),"
+        " ('character:wolf', 5, 0, 1, 'enemy', NULL), ('character:alpha', 16, 0, 1, 'boss', 'quest:hunt')",
+        "('character:ward', 'spawn:w1', 'zone:hall'), ('character:ward', 'spawn:w2', 'zone:hall'),"
+        " ('character:fiend', 'spawn:f', 'zone:hall'), ('character:wolf', 'spawn:p1', 'zone:woods'),"
+        " ('character:wolf', 'spawn:p2', 'zone:woods'), ('character:alpha', 'spawn:a', 'zone:woods')",
+        # The claim ends every hall spawn; the hunt leaves one wolf point spawning.
+        "('spawn:w1', 'quest:claim'), ('spawn:w2', 'quest:claim'), ('spawn:f', 'quest:claim'),"
+        " ('spawn:p1', 'quest:hunt'), ('spawn:a', 'quest:hunt')",
+    )
+    try:
+        medians = _build_zone_medians(conn)
+    finally:
+        conn.close()
+
+    assert medians == {"zone:hall": 16, "zone:woods": 5}
+
+
+def test_characters_get_the_level_of_reaching_them_beside_their_own_level() -> None:
+    from erenshor.application.guide.graph_validation import _denormalize_quest_metadata
+
+    conn = _level_db(
+        "('character:mob', 4, 0, 1, 'enemy', NULL), ('character:boss', 20, 0, 1, 'boss', NULL),"
+        " ('character:giver', 35, 1, 1, 'npc', NULL), ('character:brazier', 99, 1, 1, 'npc', NULL),"
+        " ('character:statue', 99, 1, 1, 'npc', NULL)",
+        "('character:mob', 'spawn:m1', 'zone:hills'), ('character:mob', 'spawn:m2', 'zone:hills'),"
+        " ('character:boss', 'spawn:b', 'zone:hills'), ('character:giver', 'spawn:g', 'zone:hills'),"
+        " ('character:brazier', 'spawn:r', 'zone:hills'), ('character:statue', 'spawn:s', 'zone:hills')",
+    )
+    try:
+        graph = build_graph(
+            Node("character:mob", NodeType.CHARACTER, "Mob", level=4),
+            Node("character:boss", NodeType.CHARACTER, "Boss", level=20),
+            # A friendly NPC can still be attacked; a brazier can't.
+            Node("character:giver", NodeType.CHARACTER, "Giver", level=35, is_friendly=True),
+            Node("character:brazier", NodeType.CHARACTER, "Brazier", level=99, is_friendly=True, invulnerable=True),
+            Node("character:statue", NodeType.CHARACTER, "Statue", level=99, is_friendly=True, invulnerable=True),
+            quest_node("quest:gate", "Gate"),
+            edges=[
+                Edge("quest:gate", "character:boss", EdgeType.STEP_KILL),
+                Edge("quest:gate", "character:brazier", EdgeType.UNLOCKS_CHARACTER),
+            ],
+        )
+        _denormalize_quest_metadata(conn, graph)
+    finally:
+        conn.close()
+
+    # The zone median of the hills is 4, but the brazier waits on a level 20
+    # quest. Combat levels stay; mod_writer picks one per interaction.
+    assert graph.get_node("character:statue").place_level == 4
+    assert graph.get_node("character:brazier").place_level == 20
+    assert graph.get_node("character:giver").place_level == 4
+    assert graph.get_node("character:statue").level == 99
+    assert graph.get_node("character:boss").level == 20

@@ -583,23 +583,43 @@ def _level_step_graph() -> EntityGraph:
         level_min=16,
         level_max=16,
     )
-    character = character_node("char:levels", "Level Character", zone="Level Zone", level=12)
+    # An attackable NPC keeps its level everywhere. A character that can't be
+    # damaged is reached to talk to it, but fought for its drops. Item sources
+    # keep every character's own level, which orders them.
+    character = character_node("char:levels", "Level Character", zone="Level Zone", level=12, place_level=7)
+    statue = character_node("char:statue", "Statue", zone="Level Zone", level=99, place_level=16, invulnerable=True)
+    keeper = character_node("char:keeper", "Keeper", zone="Level Zone", level=50, place_level=9, invulnerable=True)
+    warden = character_node("char:warden", "Warden", zone="Level Zone", level=26, place_level=4, invulnerable=True)
     source = character_node("char:dropper", "Level Dropper", zone="Level Zone", level=18)
     second_source = character_node("char:dropper2", "Another Dropper", zone="Level Zone", level=14)
+    # A town without hostiles has no level; a scripted NPC may have no zone.
+    townsfolk = character_node("char:townsfolk", "Townsfolk", zone="Quiet Town")
+    drifter = character_node("char:drifter", "Drifter")
     item = item_node("item:levels", "Level Item")
     return build_graph(
         quest,
         zone,
         character,
+        statue,
+        keeper,
+        warden,
         source,
         second_source,
+        townsfolk,
+        drifter,
         item,
         edges=[
             Edge(source=quest.key, target=character.key, type=EdgeType.STEP_TALK, ordinal=1),
             Edge(source=quest.key, target=zone.key, type=EdgeType.STEP_TRAVEL, ordinal=2),
+            Edge(source=quest.key, target=townsfolk.key, type=EdgeType.STEP_TALK, ordinal=3),
+            Edge(source=quest.key, target=drifter.key, type=EdgeType.STEP_TALK, ordinal=4),
+            Edge(source=quest.key, target=statue.key, type=EdgeType.STEP_TALK, ordinal=5),
+            Edge(source=quest.key, target=warden.key, type=EdgeType.STEP_KILL, ordinal=6),
             Edge(source=quest.key, target=item.key, type=EdgeType.REQUIRES_ITEM),
             Edge(source=source.key, target=item.key, type=EdgeType.DROPS_ITEM),
             Edge(source=second_source.key, target=item.key, type=EdgeType.DROPS_ITEM),
+            Edge(source=warden.key, target=item.key, type=EdgeType.DROPS_ITEM),
+            Edge(source=keeper.key, target=item.key, type=EdgeType.SELLS_ITEM),
         ],
     )
 
@@ -613,6 +633,10 @@ def test_build_mod_guide_emits_per_step_level_estimates_and_factors() -> None:
         "recommended": 12,
         "factors": [{"source": "zone", "name": "Level Zone", "level": 12}],
     }
+    assert by_target["char:statue"]["level_estimate"]["recommended"] == 16
+    assert by_target["char:warden"]["level_estimate"]["recommended"] == 26
+    assert by_target["char:townsfolk"]["level_estimate"] == {"factors": [{"source": "zone", "name": "Quiet Town"}]}
+    assert "level_estimate" not in by_target["char:drifter"]
     assert by_target["zone:levels"]["level_estimate"] == {
         "recommended": 16,
         "factors": [{"source": "zone", "name": "Level Zone", "level": 16}],
@@ -622,6 +646,8 @@ def test_build_mod_guide_emits_per_step_level_estimates_and_factors() -> None:
         "factors": [
             {"source": "drop", "name": "Another Dropper", "level": 14},
             {"source": "drop", "name": "Level Dropper", "level": 18},
+            {"source": "drop", "name": "Warden", "level": 26},
+            {"source": "vendor", "name": "Keeper", "level": 50},
         ],
     }
 
