@@ -29,8 +29,8 @@ public sealed class ExportSurfaceTests
             typeof(ExportSurfaceFixture).Assembly.Location
         );
 
-        var error = Assert.Throws<InvalidDataException>(
-            () => Checker.PublicInstanceFields(module, "ExportSurface.Tests.DoesNotExist")
+        var error = Assert.Throws<InvalidDataException>(() =>
+            Checker.PublicInstanceFields(module, "ExportSurface.Tests.DoesNotExist")
         );
 
         Assert.Contains("in-scope type not found", error.Message);

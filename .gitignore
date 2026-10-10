@@ -111,8 +111,10 @@ fabric.properties
 .LSOverride
 
 # The macOS folder icon file is named Icon followed by a carriage return.
-# The bracket keeps git from stripping that carriage return as trailing space.
-Icon[]
+# A single-character wildcard matches that byte without the bracket class
+# CSharpier 1.x cannot parse (it mis-splits a raw carriage return inside
+# brackets as a line ending while reading .gitignore).
+Icon?
 
 
 # Thumbnails

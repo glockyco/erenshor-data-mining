@@ -1249,7 +1249,6 @@ public sealed class QuestDetailPanel
 
     // ── Helpers ──────────────────────────────────────────────────────
 
-
     private bool IsSourceAvailable(ItemSource source)
     {
         if (source.RequiredQuestDBNames != null)

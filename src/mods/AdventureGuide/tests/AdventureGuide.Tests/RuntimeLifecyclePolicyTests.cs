@@ -148,13 +148,13 @@ public sealed class RuntimeResourceOwnershipTests
         var ownership = new RuntimeResourceOwnership(backend);
         ownership.AdoptConfiguration(new RecordingDisposable());
 
-        Assert.Throws<InvalidOperationException>(
-            () => ownership.AdoptConfiguration(new RecordingDisposable())
+        Assert.Throws<InvalidOperationException>(() =>
+            ownership.AdoptConfiguration(new RecordingDisposable())
         );
 
         ownership.Dispose();
-        Assert.Throws<ObjectDisposedException>(
-            () => ownership.AdoptConfiguration(new RecordingDisposable())
+        Assert.Throws<ObjectDisposedException>(() =>
+            ownership.AdoptConfiguration(new RecordingDisposable())
         );
     }
 

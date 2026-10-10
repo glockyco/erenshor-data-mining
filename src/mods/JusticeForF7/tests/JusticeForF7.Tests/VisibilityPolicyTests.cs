@@ -97,8 +97,8 @@ public sealed class VisibilityPolicyTests
     [Fact]
     public void Unknown_world_element_kind_fails_fast()
     {
-        Assert.Throws<ArgumentOutOfRangeException>(
-            () => VisibilityPolicy.IsCategoryEnabled(new FakeSettings(), (WorldElementKind)99)
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            VisibilityPolicy.IsCategoryEnabled(new FakeSettings(), (WorldElementKind)99)
         );
     }
 

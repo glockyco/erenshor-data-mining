@@ -36,4 +36,4 @@ fi
 
 cd "$repo_root"
 dotnet tool restore --verbosity quiet
-dotnet csharpier "${files[@]}"
+dotnet csharpier format "${files[@]}"

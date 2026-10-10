@@ -1,85 +1,181 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net10.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <IsPackable>false</IsPackable>
-    <IsTestProject>true</IsTestProject>
-  </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" />
-    <PackageReference Include="xunit.v3" />
-    <PackageReference Include="xunit.runner.visualstudio">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Newtonsoft.Json" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" />
+        <PackageReference Include="xunit.v3" />
+        <PackageReference Include="xunit.runner.visualstudio">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Newtonsoft.Json" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <Compile Include="../../src/Config/LoaderContracts.cs" Link="Config/LoaderContracts.cs" />
-    <Compile Include="../../src/Config/GuideConfig.cs" Link="Config/GuideConfig.cs" />
-    <Compile Include="../../src/Config/CharacterSlotState.cs" Link="Config/CharacterSlotState.cs" />
-    <Compile Include="../../src/Core/RuntimeLifecycleCoordinator.cs" Link="Core/RuntimeLifecycleCoordinator.cs" />
-    <Compile Include="../../src/Core/RuntimeResourceOwnership.cs" Link="Core/RuntimeResourceOwnership.cs" />
-    <Compile Include="../../src/Core/ShortcutCoordinator.cs" Link="Core/ShortcutCoordinator.cs" />
-    <Compile Include="../../src/Core/ShortcutPolicy.cs" Link="Core/ShortcutPolicy.cs" />
-    <Compile Include="../../../Shared/Input/KeyboardInput.cs" Link="Shared/Input/KeyboardInput.cs" />
-    <Compile Include="../../src/Data/GuideData.cs" Link="Data/GuideData.cs" />
-    <Compile Include="../../src/Data/QuestEntry.cs" Link="Data/QuestEntry.cs" />
-    <Compile Include="../../src/Data/CharacterStableKey.cs" Link="Data/CharacterStableKey.cs" />
-    <Compile Include="../../src/Data/FurnishingPolicy.cs" Link="Data/FurnishingPolicy.cs" />
-    <Compile Include="../../src/Data/ItemSourcePolicy.cs" Link="Data/ItemSourcePolicy.cs" />
-    <Compile Include="../../src/State/TreasureHuntState.cs" Link="State/TreasureHuntState.cs" />
-    <Compile Include="../../src/Data/StepSceneResolver.cs" Link="Data/StepSceneResolver.cs" />
-    <Compile Include="../../src/State/WorkflowStage.cs" Link="State/WorkflowStage.cs" />
-    <Compile Include="../../src/State/WorkflowCycleState.cs" Link="State/WorkflowCycleState.cs" />
-    <Compile Include="../../src/State/DiscoveryWindow.cs" Link="State/DiscoveryWindow.cs" />
-    <Compile Include="../../src/State/QuestRuntimeStatus.cs" Link="State/QuestRuntimeStatus.cs" />
-    <Compile Include="../../src/State/QuestStatusPolicy.cs" Link="State/QuestStatusPolicy.cs" />
-    <Compile Include="../../src/State/TrackerPruningPolicy.cs" Link="State/TrackerPruningPolicy.cs" />
-    <Compile Include="../../src/State/InventoryCountPolicy.cs" Link="State/InventoryCountPolicy.cs" />
-    <Compile Include="../../src/State/QuestMirrorPolicy.cs" Link="State/QuestMirrorPolicy.cs" />
-    <Compile Include="../../src/Patches/DeathObservationPolicy.cs" Link="Patches/DeathObservationPolicy.cs" />
-    <Compile Include="../../src/Patches/QuestLogSuppressionPolicy.cs" Link="Patches/QuestLogSuppressionPolicy.cs" />
-    <Compile Include="../../src/Navigation/NavigationPolicy.cs" Link="Navigation/NavigationPolicy.cs" />
-    <Compile Include="../../src/Navigation/PositionedSource.cs" Link="Navigation/PositionedSource.cs" />
-    <Compile Include="../../src/Navigation/SourceSelectionPolicy.cs" Link="Navigation/SourceSelectionPolicy.cs" />
-    <Compile Include="../../src/Navigation/CrossZoneWaypointPolicy.cs" Link="Navigation/CrossZoneWaypointPolicy.cs" />
-    <Compile Include="../../src/Navigation/UnroutableRoute.cs" Link="Navigation/UnroutableRoute.cs" />
-    <Compile Include="../../src/Navigation/CorpsePriorityPolicy.cs" Link="Navigation/CorpsePriorityPolicy.cs" />
-    <Compile Include="../../src/Navigation/NavigationCompletionPolicy.cs" Link="Navigation/NavigationCompletionPolicy.cs" />
-    <Compile Include="../../src/Navigation/ZoneLineText.cs" Link="Navigation/ZoneLineText.cs" />
-    <Compile Include="../../src/Navigation/BillboardUpdatePolicy.cs" Link="Navigation/BillboardUpdatePolicy.cs" />
-    <Compile Include="../../src/Navigation/DirectPlacementPolicy.cs" Link="Navigation/DirectPlacementPolicy.cs" />
-    <Compile Include="../../src/Navigation/MarkerType.cs" Link="Navigation/MarkerType.cs" />
-    <Compile Include="../../src/Navigation/MarkerDecision.cs" Link="Navigation/MarkerDecision.cs" />
-    <Compile Include="../../src/Navigation/SharedSpawnMarkerPolicy.cs" Link="Navigation/SharedSpawnMarkerPolicy.cs" />
-    <Compile Include="../../src/Navigation/MarkerFadePolicy.cs" Link="Navigation/MarkerFadePolicy.cs" />
-    <Compile Include="../../src/Navigation/GameMarkerPolicy.cs" Link="Navigation/GameMarkerPolicy.cs" />
-    <Compile Include="../../src/Navigation/MarkerTextFormatter.cs" Link="Navigation/MarkerTextFormatter.cs" />
-    <Compile Include="../../src/Navigation/SpawnPointPolicy.cs" Link="Navigation/SpawnPointPolicy.cs" />
-    <Compile Include="../../src/Navigation/SpawnMarkerPolicy.cs" Link="Navigation/SpawnMarkerPolicy.cs" />
-    <Compile Include="../../src/Navigation/TreasureHuntNavigation.cs" Link="Navigation/TreasureHuntNavigation.cs" />
-    <Compile Include="../../src/Navigation/RespawnTimerPolicy.cs" Link="Navigation/RespawnTimerPolicy.cs" />
-    <Compile Include="../../src/Navigation/RespawnTimerText.cs" Link="Navigation/RespawnTimerText.cs" />
-    <Compile Include="../../src/UI/TrackerVisibilityPolicy.cs" Link="UI/TrackerVisibilityPolicy.cs" />
-    <Compile Include="../../src/UI/TypingFlagSync.cs" Link="UI/TypingFlagSync.cs" />
-    <Compile Include="../../src/UI/StepCountPolicy.cs" Link="UI/StepCountPolicy.cs" />
-    <Compile Include="../../src/UI/SourceListText.cs" Link="UI/SourceListText.cs" />
-    <Compile Include="../../src/UI/LayoutResetState.cs" Link="UI/LayoutResetState.cs" />
-    <Compile Include="../../src/UI/ThemeMetrics.cs" Link="UI/ThemeMetrics.cs" />
-    <Compile Include="../../src/UI/ZoneLineLabels.cs" Link="UI/ZoneLineLabels.cs" />
-    <Compile Include="../../src/UI/UiScalePolicy.cs" Link="UI/UiScalePolicy.cs" />
-    <Compile Include="../../src/UI/DisplayCacheRevision.cs" Link="UI/DisplayCacheRevision.cs" />
-    <Compile Include="../../src/UI/ZoneLineAlternativeLabels.cs" Link="UI/ZoneLineAlternativeLabels.cs" />
-  </ItemGroup>
+    <ItemGroup>
+        <Compile Include="../../src/Config/LoaderContracts.cs" Link="Config/LoaderContracts.cs" />
+        <Compile Include="../../src/Config/GuideConfig.cs" Link="Config/GuideConfig.cs" />
+        <Compile
+            Include="../../src/Config/CharacterSlotState.cs"
+            Link="Config/CharacterSlotState.cs"
+        />
+        <Compile
+            Include="../../src/Core/RuntimeLifecycleCoordinator.cs"
+            Link="Core/RuntimeLifecycleCoordinator.cs"
+        />
+        <Compile
+            Include="../../src/Core/RuntimeResourceOwnership.cs"
+            Link="Core/RuntimeResourceOwnership.cs"
+        />
+        <Compile
+            Include="../../src/Core/ShortcutCoordinator.cs"
+            Link="Core/ShortcutCoordinator.cs"
+        />
+        <Compile Include="../../src/Core/ShortcutPolicy.cs" Link="Core/ShortcutPolicy.cs" />
+        <Compile
+            Include="../../../Shared/Input/KeyboardInput.cs"
+            Link="Shared/Input/KeyboardInput.cs"
+        />
+        <Compile Include="../../src/Data/GuideData.cs" Link="Data/GuideData.cs" />
+        <Compile Include="../../src/Data/QuestEntry.cs" Link="Data/QuestEntry.cs" />
+        <Compile Include="../../src/Data/CharacterStableKey.cs" Link="Data/CharacterStableKey.cs" />
+        <Compile Include="../../src/Data/FurnishingPolicy.cs" Link="Data/FurnishingPolicy.cs" />
+        <Compile Include="../../src/Data/ItemSourcePolicy.cs" Link="Data/ItemSourcePolicy.cs" />
+        <Compile Include="../../src/State/TreasureHuntState.cs" Link="State/TreasureHuntState.cs" />
+        <Compile Include="../../src/Data/StepSceneResolver.cs" Link="Data/StepSceneResolver.cs" />
+        <Compile Include="../../src/State/WorkflowStage.cs" Link="State/WorkflowStage.cs" />
+        <Compile
+            Include="../../src/State/WorkflowCycleState.cs"
+            Link="State/WorkflowCycleState.cs"
+        />
+        <Compile Include="../../src/State/DiscoveryWindow.cs" Link="State/DiscoveryWindow.cs" />
+        <Compile
+            Include="../../src/State/QuestRuntimeStatus.cs"
+            Link="State/QuestRuntimeStatus.cs"
+        />
+        <Compile Include="../../src/State/QuestStatusPolicy.cs" Link="State/QuestStatusPolicy.cs" />
+        <Compile
+            Include="../../src/State/TrackerPruningPolicy.cs"
+            Link="State/TrackerPruningPolicy.cs"
+        />
+        <Compile
+            Include="../../src/State/InventoryCountPolicy.cs"
+            Link="State/InventoryCountPolicy.cs"
+        />
+        <Compile Include="../../src/State/QuestMirrorPolicy.cs" Link="State/QuestMirrorPolicy.cs" />
+        <Compile
+            Include="../../src/Patches/DeathObservationPolicy.cs"
+            Link="Patches/DeathObservationPolicy.cs"
+        />
+        <Compile
+            Include="../../src/Patches/QuestLogSuppressionPolicy.cs"
+            Link="Patches/QuestLogSuppressionPolicy.cs"
+        />
+        <Compile
+            Include="../../src/Navigation/NavigationPolicy.cs"
+            Link="Navigation/NavigationPolicy.cs"
+        />
+        <Compile
+            Include="../../src/Navigation/PositionedSource.cs"
+            Link="Navigation/PositionedSource.cs"
+        />
+        <Compile
+            Include="../../src/Navigation/SourceSelectionPolicy.cs"
+            Link="Navigation/SourceSelectionPolicy.cs"
+        />
+        <Compile
+            Include="../../src/Navigation/CrossZoneWaypointPolicy.cs"
+            Link="Navigation/CrossZoneWaypointPolicy.cs"
+        />
+        <Compile
+            Include="../../src/Navigation/UnroutableRoute.cs"
+            Link="Navigation/UnroutableRoute.cs"
+        />
+        <Compile
+            Include="../../src/Navigation/CorpsePriorityPolicy.cs"
+            Link="Navigation/CorpsePriorityPolicy.cs"
+        />
+        <Compile
+            Include="../../src/Navigation/NavigationCompletionPolicy.cs"
+            Link="Navigation/NavigationCompletionPolicy.cs"
+        />
+        <Compile Include="../../src/Navigation/ZoneLineText.cs" Link="Navigation/ZoneLineText.cs" />
+        <Compile
+            Include="../../src/Navigation/BillboardUpdatePolicy.cs"
+            Link="Navigation/BillboardUpdatePolicy.cs"
+        />
+        <Compile
+            Include="../../src/Navigation/DirectPlacementPolicy.cs"
+            Link="Navigation/DirectPlacementPolicy.cs"
+        />
+        <Compile Include="../../src/Navigation/MarkerType.cs" Link="Navigation/MarkerType.cs" />
+        <Compile
+            Include="../../src/Navigation/MarkerDecision.cs"
+            Link="Navigation/MarkerDecision.cs"
+        />
+        <Compile
+            Include="../../src/Navigation/SharedSpawnMarkerPolicy.cs"
+            Link="Navigation/SharedSpawnMarkerPolicy.cs"
+        />
+        <Compile
+            Include="../../src/Navigation/MarkerFadePolicy.cs"
+            Link="Navigation/MarkerFadePolicy.cs"
+        />
+        <Compile
+            Include="../../src/Navigation/GameMarkerPolicy.cs"
+            Link="Navigation/GameMarkerPolicy.cs"
+        />
+        <Compile
+            Include="../../src/Navigation/MarkerTextFormatter.cs"
+            Link="Navigation/MarkerTextFormatter.cs"
+        />
+        <Compile
+            Include="../../src/Navigation/SpawnPointPolicy.cs"
+            Link="Navigation/SpawnPointPolicy.cs"
+        />
+        <Compile
+            Include="../../src/Navigation/SpawnMarkerPolicy.cs"
+            Link="Navigation/SpawnMarkerPolicy.cs"
+        />
+        <Compile
+            Include="../../src/Navigation/TreasureHuntNavigation.cs"
+            Link="Navigation/TreasureHuntNavigation.cs"
+        />
+        <Compile
+            Include="../../src/Navigation/RespawnTimerPolicy.cs"
+            Link="Navigation/RespawnTimerPolicy.cs"
+        />
+        <Compile
+            Include="../../src/Navigation/RespawnTimerText.cs"
+            Link="Navigation/RespawnTimerText.cs"
+        />
+        <Compile
+            Include="../../src/UI/TrackerVisibilityPolicy.cs"
+            Link="UI/TrackerVisibilityPolicy.cs"
+        />
+        <Compile Include="../../src/UI/TypingFlagSync.cs" Link="UI/TypingFlagSync.cs" />
+        <Compile Include="../../src/UI/StepCountPolicy.cs" Link="UI/StepCountPolicy.cs" />
+        <Compile Include="../../src/UI/SourceListText.cs" Link="UI/SourceListText.cs" />
+        <Compile Include="../../src/UI/LayoutResetState.cs" Link="UI/LayoutResetState.cs" />
+        <Compile Include="../../src/UI/ThemeMetrics.cs" Link="UI/ThemeMetrics.cs" />
+        <Compile Include="../../src/UI/ZoneLineLabels.cs" Link="UI/ZoneLineLabels.cs" />
+        <Compile Include="../../src/UI/UiScalePolicy.cs" Link="UI/UiScalePolicy.cs" />
+        <Compile Include="../../src/UI/DisplayCacheRevision.cs" Link="UI/DisplayCacheRevision.cs" />
+        <Compile
+            Include="../../src/UI/ZoneLineAlternativeLabels.cs"
+            Link="UI/ZoneLineAlternativeLabels.cs"
+        />
+    </ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="../../../../../quest_guides/quest-guide.json">
-      <LogicalName>AdventureGuide.quest-guide.json</LogicalName>
-    </EmbeddedResource>
-  </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="../../../../../quest_guides/quest-guide.json">
+            <LogicalName>AdventureGuide.quest-guide.json</LogicalName>
+        </EmbeddedResource>
+    </ItemGroup>
 </Project>

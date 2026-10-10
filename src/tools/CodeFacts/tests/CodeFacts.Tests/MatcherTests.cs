@@ -138,76 +138,72 @@ public sealed class MatcherTests
     [Fact]
     public void GuardedMemberRoll_rejects_unmatched_member()
     {
-        Assert.Throws<InvalidDataException>(
-            () =>
-                Matchers.GuardedMemberRoll(
-                    Method("Init"),
-                    Fact(
-                        "invalid.member",
-                        "extract",
-                        "Init",
-                        "guarded_member_roll",
-                        new() { ["member"] = "MissingPool" },
-                        ["rate", "min_level"]
-                    )
+        Assert.Throws<InvalidDataException>(() =>
+            Matchers.GuardedMemberRoll(
+                Method("Init"),
+                Fact(
+                    "invalid.member",
+                    "extract",
+                    "Init",
+                    "guarded_member_roll",
+                    new() { ["member"] = "MissingPool" },
+                    ["rate", "min_level"]
                 )
+            )
         );
     }
 
     [Fact]
     public void StringConstants_rejects_method_without_comparisons()
     {
-        Assert.Throws<InvalidDataException>(
-            () =>
-                Matchers.StringConstants(
-                    Method("GuaranteeLike"),
-                    Fact(
-                        "invalid.strings",
-                        "extract",
-                        "GuaranteeLike",
-                        "string_constants",
-                        [],
-                        ["strings"]
-                    )
+        Assert.Throws<InvalidDataException>(() =>
+            Matchers.StringConstants(
+                Method("GuaranteeLike"),
+                Fact(
+                    "invalid.strings",
+                    "extract",
+                    "GuaranteeLike",
+                    "string_constants",
+                    [],
+                    ["strings"]
                 )
+            )
         );
     }
 
     [Fact]
     public void IntComparisons_rejects_missing_comparison_member()
     {
-        Assert.Throws<InvalidDataException>(
-            () =>
-                Matchers.IntComparisons(
-                    Method("Auctionable"),
-                    Fact(
-                        "invalid.comparison",
-                        "extract",
-                        "Auctionable",
-                        "int_comparisons",
-                        new() { ["missing"] = "missing" },
-                        ["missing"]
-                    )
+        Assert.Throws<InvalidDataException>(() =>
+            Matchers.IntComparisons(
+                Method("Auctionable"),
+                Fact(
+                    "invalid.comparison",
+                    "extract",
+                    "Auctionable",
+                    "int_comparisons",
+                    new() { ["missing"] = "missing" },
+                    ["missing"]
                 )
+            )
         );
     }
 
     [Fact]
     public void StatementShape_rejects_wrong_statement()
     {
-        Assert.Throws<InvalidDataException>(
-            () =>
-                Matchers.StatementShape(
-                    Method("GuaranteeLike"),
-                    Fact(
-                        "invalid.statement",
-                        "assert",
-                        "GuaranteeLike",
-                        "statement_shape",
-                        new() { ["statement"] = "Drops.Add (PoolA [Rng.Next (1, PoolA.Count)]);" },
-                        null
-                    )
+        Assert.Throws<InvalidDataException>(() =>
+            Matchers.StatementShape(
+                Method("GuaranteeLike"),
+                Fact(
+                    "invalid.statement",
+                    "assert",
+                    "GuaranteeLike",
+                    "statement_shape",
+                    new() { ["statement"] = "Drops.Add (PoolA [Rng.Next (1, PoolA.Count)]);" },
+                    null
                 )
+            )
         );
     }
 
@@ -232,19 +228,18 @@ public sealed class MatcherTests
     [Fact]
     public void StatementShape_rejects_a_repeated_statement_without_its_count()
     {
-        var error = Assert.Throws<InvalidDataException>(
-            () =>
-                Matchers.StatementShape(
-                    Method("Recalculate"),
-                    Fact(
-                        "fixture.recalculate",
-                        "assert",
-                        "Recalculate",
-                        "statement_shape",
-                        new() { ["statement"] = "Level++;" },
-                        null
-                    )
+        var error = Assert.Throws<InvalidDataException>(() =>
+            Matchers.StatementShape(
+                Method("Recalculate"),
+                Fact(
+                    "fixture.recalculate",
+                    "assert",
+                    "Recalculate",
+                    "statement_shape",
+                    new() { ["statement"] = "Level++;" },
+                    null
                 )
+            )
         );
 
         Assert.StartsWith("statement_shape bound 2 times (need exactly 1)", error.Message);
@@ -253,42 +248,40 @@ public sealed class MatcherTests
     [Fact]
     public void NodeShape_rejects_wrong_node_shape()
     {
-        Assert.Throws<InvalidDataException>(
-            () =>
-                Matchers.NodeShape(
-                    Method("GuaranteeRetryLike"),
-                    Fact(
-                        "invalid.node",
-                        "assert",
-                        "GuaranteeRetryLike",
-                        "node_shape",
-                        new()
-                        {
-                            ["kind"] = "ForStatement",
-                            ["shape"] = "for (int i = 0; i < 0; i++) { }",
-                        },
-                        null
-                    )
+        Assert.Throws<InvalidDataException>(() =>
+            Matchers.NodeShape(
+                Method("GuaranteeRetryLike"),
+                Fact(
+                    "invalid.node",
+                    "assert",
+                    "GuaranteeRetryLike",
+                    "node_shape",
+                    new()
+                    {
+                        ["kind"] = "ForStatement",
+                        ["shape"] = "for (int i = 0; i < 0; i++) { }",
+                    },
+                    null
                 )
+            )
         );
     }
 
     [Fact]
     public void StringSet_rejects_wrong_string_set()
     {
-        Assert.Throws<InvalidDataException>(
-            () =>
-                Matchers.StringSet(
-                    Method("Combine"),
-                    Fact(
-                        "invalid.string_set",
-                        "assert",
-                        "Combine",
-                        "string_set",
-                        new() { ["strings"] = "31377423" },
-                        null
-                    )
+        Assert.Throws<InvalidDataException>(() =>
+            Matchers.StringSet(
+                Method("Combine"),
+                Fact(
+                    "invalid.string_set",
+                    "assert",
+                    "Combine",
+                    "string_set",
+                    new() { ["strings"] = "31377423" },
+                    null
                 )
+            )
         );
     }
 
