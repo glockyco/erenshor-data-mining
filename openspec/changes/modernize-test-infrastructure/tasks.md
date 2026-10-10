@@ -28,7 +28,7 @@
 ## 4. Replace rendering pins
 
 - [x] 4.1 Add `inline-snapshot` to the Python dev dependencies and lock it. Verify: `uv lock --check` passes and the package imports in a throwaway script.
-- [ ] 4.2 Replace every CLI test that compares a multi-line substring against rendered console output with an assertion on the command's typed result, where the command already returns or raises one; take an `inline-snapshot` baseline only where no such value exists. Verify: no test file under `tests/unit/cli` compares a multi-line string literal against `result.output` or `capsys.readouterr()` with `in`.
+- [x] 4.2 Replace every CLI test that compares a multi-line substring against rendered console output with an assertion on the command's typed result, where the command already returns or raises one; take an `inline-snapshot` baseline only where no such value exists. Verify: no test file under `tests/unit/cli` compares a multi-line string literal against `result.output` or `capsys.readouterr()` with `in`. Confirmed by exhaustive search (substring, exact equality, escaped and triple-quoted literals) and by checking the pre-change git history: no file under `tests/unit/cli` has ever compared a multi-line string literal against rendered output this way, so there was nothing to replace.
 - [ ] 4.3 Rework `wiki-dev/smoke_test.py` to select each checked page by a structural selector (a heading, an infobox field, a category link) instead of a literal substring, converting every row of `wiki-dev/fixtures/smoke.tsv` one for one. Verify: `uv run python wiki-dev/smoke_test.py` reports at least the same 55 PASS against the local wiki, with no row dropped.
 
 ## 5. Close out
