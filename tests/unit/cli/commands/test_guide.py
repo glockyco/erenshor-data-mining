@@ -38,7 +38,7 @@ def test_compile_rejects_missing_database_before_writing_guide(
         guide.compile(SimpleNamespace(obj=cli_context), output=output, overrides=None)
 
     assert error.value.exit_code == 1
-    assert db_path.name in capsys.readouterr().out
+    assert db_path.name in capsys.readouterr().out.replace("\n", "")
     assert not output.exists()
 
 
@@ -56,5 +56,5 @@ def test_export_mod_rejects_missing_override_before_writing(
         guide.export_mod(SimpleNamespace(obj=cli_context), output=output, overrides=overrides)
 
     assert error.value.exit_code == 1
-    assert overrides.name in capsys.readouterr().out
+    assert overrides.name in capsys.readouterr().out.replace("\n", "")
     assert not output.exists()

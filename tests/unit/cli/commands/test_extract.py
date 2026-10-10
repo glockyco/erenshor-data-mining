@@ -374,7 +374,7 @@ def test_packages_rejects_missing_manifest_before_restore(cli_context: CLIContex
         result = CliRunner().invoke(extract.app, ["packages"], obj=cli_context)
 
     assert result.exit_code == 1
-    assert "packages.config" in result.output
+    assert "packages.config" in result.output.replace("\n", "")
     assert not (tmp_path / "src/Assets/Packages").exists()
 
 

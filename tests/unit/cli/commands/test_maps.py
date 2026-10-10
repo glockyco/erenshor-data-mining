@@ -100,7 +100,7 @@ def test_dev_requires_dependencies_before_starting_the_server(
         maps.dev(ctx)
 
     assert error.value.exit_code == 1
-    assert "node_modules" in capsys.readouterr().out
+    assert "node_modules" in capsys.readouterr().out.replace("\n", "")
 
 
 def test_build_runs_verify_prebuild_then_build_on_the_variant_database(tmp_path: Path, monkeypatch: Any) -> None:
