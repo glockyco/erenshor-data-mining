@@ -6,45 +6,10 @@ from dataclasses import replace
 from pathlib import Path
 
 import pytest
+from tests.fakes.mediawiki import MediaWikiFake
 
 from erenshor.application.wiki_deploy.manifest import RepoWikiPageManifest, RepoWikiPageManifestEntry
 from erenshor.application.wiki_deploy.rollback import rollback_repo_pages
-from erenshor.infrastructure.wiki import MediaWikiPageRevision
-
-
-class RecordingRollbackClient:
-    def __init__(self, current_revision_id: int = 500) -> None:
-        self.current_revision_id = current_revision_id
-        self.revision_requests: list[tuple[str, str, str | None]] = []
-        self.safe_edits: list[tuple[str, str, MediaWikiPageRevision, str, str, str | None]] = []
-
-    def get_page_revision_metadata(
-        self,
-        title: str,
-        assertion: str | None = None,
-        assert_user: str | None = None,
-    ) -> MediaWikiPageRevision | None:
-        self.revision_requests.append((title, assertion or "", assert_user))
-        return MediaWikiPageRevision(
-            title=title,
-            page_id=42,
-            revision_id=self.current_revision_id,
-            timestamp="2026-06-04T13:00:00Z",
-            start_timestamp="2026-06-04T13:01:00Z",
-            user="ErenshorBot",
-        )
-
-    def safe_edit_page(
-        self,
-        title: str,
-        content: str,
-        base_revision: MediaWikiPageRevision,
-        summary: str,
-        assertion: str,
-        assert_user: str | None,
-    ) -> int:
-        self.safe_edits.append((title, content, base_revision, summary, assertion, assert_user))
-        return self.current_revision_id + 1
 
 
 def test_rollback_repo_pages_restores_manifest_rollback_text(tmp_path: Path) -> None:
@@ -63,14 +28,16 @@ def test_rollback_repo_pages_restores_manifest_rollback_text(tmp_path: Path) -> 
                 content_model="wikitext",
                 declares_cargo_table=True,
                 cargo_tables=("Items",),
-                old_revision_id=123,
+                old_revision_id=1,
                 old_revision_timestamp="2026-06-04T12:00:00Z",
-                new_revision_id=500,
+                new_revision_id=2,
                 rollback_text_source="variants/main/wiki/rollback/Template_Item.wiki",
             ),
         )
     )
-    client = RecordingRollbackClient()
+    client = MediaWikiFake()
+    client.put_page("Template:Item", "old template source")
+    client.put_page("Template:Item", "deployed template source")
 
     result = rollback_repo_pages(
         manifest=manifest,
@@ -83,16 +50,11 @@ def test_rollback_repo_pages_restores_manifest_rollback_text(tmp_path: Path) -> 
 
     [entry] = result.entries
     assert entry.title == "Template:Item"
-    assert entry.restored_revision_id == 123
-    assert entry.new_revision_id == 501
-    assert client.revision_requests == [("Template:Item", "bot", "ErenshorBot")]
-    [(title, content, base_revision, summary, assertion, assert_user)] = client.safe_edits
-    assert title == "Template:Item"
-    assert content == "old template source\n"
-    assert base_revision.revision_id == 500
-    assert summary == "Rollback repo-owned wiki deploy"
-    assert assertion == "bot"
-    assert assert_user == "ErenshorBot"
+    assert entry.restored_revision_id == 1
+    assert entry.new_revision_id == 3
+    assert client.pages == {"Template:Item": "old template source"}
+    assert client.revisions == {"Template:Item": entry.new_revision_id}
+    assert client.page_users == {"Template:Item": "ErenshorBot"}
 
 
 def _edited_manifest() -> RepoWikiPageManifest:
@@ -107,9 +69,9 @@ def _edited_manifest() -> RepoWikiPageManifest:
                 content_model="wikitext",
                 declares_cargo_table=True,
                 cargo_tables=("Items",),
-                old_revision_id=123,
+                old_revision_id=1,
                 old_revision_timestamp="2026-06-04T12:00:00Z",
-                new_revision_id=500,
+                new_revision_id=2,
                 rollback_text_source="variants/main/wiki/rollback/Template_Item.wiki",
             ),
         )
@@ -125,7 +87,10 @@ def _write_rollback_text(tmp_path: Path) -> None:
 def test_rollback_refuses_when_page_changed_since_deploy(tmp_path: Path) -> None:
     """A page edited after deploy is not silently overwritten by rollback."""
     _write_rollback_text(tmp_path)
-    client = RecordingRollbackClient(current_revision_id=777)
+    client = MediaWikiFake()
+    client.put_page("Template:Item", "old template source")
+    client.put_page("Template:Item", "deployed template source")
+    client.put_page("Template:Item", "post-deploy human edit", user="HumanEditor")
 
     with pytest.raises(ValueError, match="changed since deploy"):
         rollback_repo_pages(
@@ -137,13 +102,18 @@ def test_rollback_refuses_when_page_changed_since_deploy(tmp_path: Path) -> None
             assert_user="ErenshorBot",
         )
 
-    assert client.safe_edits == []
+    assert client.pages == {"Template:Item": "post-deploy human edit"}
+    assert client.revisions == {"Template:Item": 3}
+    assert client.page_users == {"Template:Item": "HumanEditor"}
 
 
 def test_rollback_force_overrides_post_deploy_change(tmp_path: Path) -> None:
     """An explicit force restores even when the page changed after deploy."""
     _write_rollback_text(tmp_path)
-    client = RecordingRollbackClient(current_revision_id=777)
+    client = MediaWikiFake()
+    client.put_page("Template:Item", "old template source")
+    client.put_page("Template:Item", "deployed template source")
+    client.put_page("Template:Item", "post-deploy human edit", user="HumanEditor")
 
     result = rollback_repo_pages(
         manifest=_edited_manifest(),
@@ -156,8 +126,12 @@ def test_rollback_force_overrides_post_deploy_change(tmp_path: Path) -> None:
     )
 
     [entry] = result.entries
-    assert entry.new_revision_id == 778
-    assert len(client.safe_edits) == 1
+    assert entry.title == "Template:Item"
+    assert entry.restored_revision_id == 1
+    assert entry.new_revision_id == 4
+    assert client.pages == {"Template:Item": "old template source"}
+    assert client.revisions == {"Template:Item": entry.new_revision_id}
+    assert client.page_users == {"Template:Item": "ErenshorBot"}
 
 
 def test_rollback_reports_created_pages_for_manual_deletion(tmp_path: Path) -> None:
@@ -176,7 +150,7 @@ def test_rollback_reports_created_pages_for_manual_deletion(tmp_path: Path) -> N
                 cargo_tables=(),
                 old_revision_id=None,
                 old_revision_timestamp=None,
-                new_revision_id=301,
+                new_revision_id=1,
                 deploy_action="created",
             ),
             RepoWikiPageManifestEntry(
@@ -188,15 +162,18 @@ def test_rollback_reports_created_pages_for_manual_deletion(tmp_path: Path) -> N
                 content_model="wikitext",
                 declares_cargo_table=True,
                 cargo_tables=("Items",),
-                old_revision_id=123,
+                old_revision_id=1,
                 old_revision_timestamp="2026-06-04T12:00:00Z",
-                new_revision_id=500,
+                new_revision_id=2,
                 rollback_text_source="variants/main/wiki/rollback/Template_Item.wiki",
                 deploy_action="edited",
             ),
         )
     )
-    client = RecordingRollbackClient(current_revision_id=500)
+    client = MediaWikiFake()
+    client.put_page("Module:Erenshor/Data/Items", "return {}")
+    client.put_page("Template:Item", "old template source")
+    client.put_page("Template:Item", "deployed template source")
 
     result = rollback_repo_pages(
         manifest=manifest,
@@ -209,8 +186,16 @@ def test_rollback_reports_created_pages_for_manual_deletion(tmp_path: Path) -> N
 
     assert [entry.title for entry in result.entries] == ["Template:Item"]
     assert result.created_titles == ("Module:Erenshor/Data/Items",)
-    # The created page is never edited back to anything.
-    assert [edit[0] for edit in client.safe_edits] == ["Template:Item"]
+    assert result.entries[0].new_revision_id == 3
+    assert client.pages == {
+        "Module:Erenshor/Data/Items": "return {}",
+        "Template:Item": "old template source",
+    }
+    assert client.revisions == {"Module:Erenshor/Data/Items": 1, "Template:Item": 3}
+    assert client.page_users == {
+        "Module:Erenshor/Data/Items": "ErenshorBot",
+        "Template:Item": "ErenshorBot",
+    }
 
 
 def test_rollback_skips_pages_that_a_stopped_deploy_never_wrote(tmp_path: Path) -> None:
@@ -218,7 +203,9 @@ def test_rollback_skips_pages_that_a_stopped_deploy_never_wrote(tmp_path: Path) 
     _write_rollback_text(tmp_path)
     [entry] = _edited_manifest().entries
     manifest = RepoWikiPageManifest(entries=(replace(entry, new_revision_id=None),))
-    client = RecordingRollbackClient(current_revision_id=777)
+    client = MediaWikiFake()
+    client.put_page("Template:Item", "old template source")
+    client.put_page("Template:Item", "post-deploy human edit", user="HumanEditor")
 
     result = rollback_repo_pages(
         manifest=manifest,
@@ -229,5 +216,6 @@ def test_rollback_skips_pages_that_a_stopped_deploy_never_wrote(tmp_path: Path) 
     )
 
     assert result.entries == ()
-    assert client.revision_requests == []
-    assert client.safe_edits == []
+    assert client.pages == {"Template:Item": "post-deploy human edit"}
+    assert client.revisions == {"Template:Item": 2}
+    assert client.page_users == {"Template:Item": "HumanEditor"}
