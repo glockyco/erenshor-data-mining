@@ -10,8 +10,17 @@ if TYPE_CHECKING:
     from erenshor.cli.context import CLIContext
 
 
-def create_readonly_mediawiki_client(cli_ctx: CLIContext) -> MediaWikiClient:
-    """Create a client that only reads the wiki and never logs in."""
+def create_readonly_mediawiki_client(
+    cli_ctx: CLIContext, *, wiki_client: MediaWikiClient | None = None
+) -> MediaWikiClient:
+    """Create a client that only reads the wiki and never logs in.
+
+    A caller that already has a client, such as a test supplying the shared
+    fake, passes it through `wiki_client` instead of letting this build the
+    real one.
+    """
+    if wiki_client is not None:
+        return wiki_client
     wiki_config = cli_ctx.config.global_.mediawiki
     return MediaWikiClient(
         api_url=wiki_config.api_url,
