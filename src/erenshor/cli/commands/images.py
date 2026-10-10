@@ -498,7 +498,9 @@ def publish(
     _print_record(console, record)
 
 
-def _bot_client(cli_ctx: CLIContext) -> MediaWikiClient:
+def _bot_client(cli_ctx: CLIContext, *, wiki_client: MediaWikiClient | None = None) -> MediaWikiClient:
+    if wiki_client is not None:
+        return wiki_client
     from erenshor.infrastructure.wiki.client import MediaWikiClient
 
     wiki_config = cli_ctx.config.global_.mediawiki
@@ -511,12 +513,18 @@ def _bot_client(cli_ctx: CLIContext) -> MediaWikiClient:
 
 
 @contextmanager
-def _administrator_client(cli_ctx: CLIContext, console: Console, *, needed: bool) -> Iterator[MediaWikiClient | None]:
+def _administrator_client(
+    cli_ctx: CLIContext, console: Console, *, needed: bool, wiki_client: MediaWikiClient | None = None
+) -> Iterator[MediaWikiClient | None]:
     """A logged-in client of the administrator account when the work moves or deletes, after checking its rights.
 
     Exits before any write when the account is not configured or lacks a right
-    that moving, deleting, or undoing them needs.
+    that moving, deleting, or undoing them needs. A caller-supplied client,
+    such as a test's double, is yielded as-is, skipping those checks.
     """
+    if wiki_client is not None:
+        yield wiki_client
+        return
     from erenshor.infrastructure.wiki.client import MediaWikiClient
 
     if not needed:
