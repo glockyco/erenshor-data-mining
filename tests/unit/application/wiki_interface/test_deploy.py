@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import hashlib
-from dataclasses import dataclass, replace
+from collections.abc import Callable
+from dataclasses import replace
 from pathlib import Path
+from typing import Any
 
 import pytest
+from tests.fakes.mediawiki import MediaWikiFake
 
 from erenshor.application.wiki_interface.deploy import (
     InterfaceDeployError,
@@ -21,106 +24,6 @@ from erenshor.application.wiki_interface.manifest import (
     read_interface_deploy_manifest,
     write_interface_deploy_manifest,
 )
-from erenshor.infrastructure.wiki import MediaWikiPageRevision, MediaWikiPageSnapshot
-
-
-@dataclass
-class _Page:
-    text: str
-    revision_id: int
-    timestamp: str = "2026-07-13T00:00:00Z"
-
-
-class FakeInterfaceClient:
-    """Stateful fake: snapshots and guarded writes exercise the real protocol."""
-
-    def __init__(self, pages: dict[str, str], *, rights: bool = True) -> None:
-        self.pages = {title: _Page(text, index + 1) for index, (title, text) in enumerate(pages.items())}
-        self.rights = rights
-        self.snapshot_requests: list[tuple[str, ...]] = []
-        self.snapshot_guards: list[tuple[str, str | None]] = []
-        self.rights_guards: list[tuple[str, str | None]] = []
-        self.write_guards: list[tuple[str, bool, str, str | None]] = []
-        self.writes: list[tuple[str, str]] = []
-        self.fail_title: str | None = None
-        self.raise_after_write_title: str | None = None
-        self.next_revision = 100
-
-    def get_current_user_rights(self, assertion: str = "user", assert_user: str | None = None) -> tuple[str, ...]:
-        self.rights_guards.append((assertion, assert_user))
-        return ("editinterface",) if self.rights else ()
-
-    def get_page_snapshots(
-        self, titles: list[str], assertion: str = "user", assert_user: str | None = None
-    ) -> dict[str, MediaWikiPageSnapshot]:
-        self.snapshot_requests.append(tuple(titles))
-        self.snapshot_guards.append((assertion, assert_user))
-        result: dict[str, MediaWikiPageSnapshot] = {}
-        for title in titles:
-            page = self.pages.get(title)
-            if page is None:
-                result[title] = MediaWikiPageSnapshot(title, None, None, "2026-07-13T00:00:00Z")
-                continue
-            revision = MediaWikiPageRevision(
-                title=title,
-                page_id=page.revision_id,
-                revision_id=page.revision_id,
-                timestamp=page.timestamp,
-                start_timestamp="2026-07-13T00:00:00Z",
-                user="ErenshorBot",
-            )
-            result[title] = MediaWikiPageSnapshot(title, page.text, revision, "2026-07-13T00:00:00Z")
-        return result
-
-    def safe_edit_page(
-        self,
-        title: str,
-        content: str,
-        base_revision: MediaWikiPageRevision,
-        summary: str | None = None,
-        minor: bool | None = None,
-        bot: bool = True,
-        assertion: str = "user",
-        assert_user: str | None = None,
-        content_model: str | None = None,
-    ) -> int:
-        if title == self.fail_title:
-            raise RuntimeError(f"failure at {title}")
-        page = self.pages[title]
-        if page.revision_id != base_revision.revision_id:
-            raise RuntimeError("edit conflict")
-        self.next_revision += 1
-        page.text = content
-        page.revision_id = self.next_revision
-        self.write_guards.append((title, bot, assertion, assert_user))
-        self.writes.append((title, content))
-        if title == self.raise_after_write_title:
-            raise RuntimeError(f"response failure at {title}")
-        return page.revision_id
-
-    def safe_create_page(
-        self,
-        title: str,
-        content: str,
-        start_timestamp: str,
-        summary: str | None = None,
-        minor: bool | None = None,
-        bot: bool = True,
-        assertion: str = "user",
-        assert_user: str | None = None,
-        content_model: str | None = None,
-    ) -> int:
-        if title == self.fail_title:
-            raise RuntimeError(f"failure at {title}")
-        if title in self.pages:
-            raise RuntimeError("create conflict")
-        self.next_revision += 1
-        self.pages[title] = _Page(content, self.next_revision)
-        self.write_guards.append((title, bot, assertion, assert_user))
-        self.writes.append((title, content))
-        if title == self.raise_after_write_title:
-            raise RuntimeError(f"response failure at {title}")
-        return self.next_revision
 
 
 def _repo(tmp_path: Path, *, css: bytes = b"body { color: red; }\n", js: bytes = b"console.log('x');\n") -> None:
@@ -153,7 +56,11 @@ def _pages(definition: str) -> dict[str, str]:
 
 def test_rights_failure_happens_before_any_wiki_or_sidecar_write(tmp_path: Path) -> None:
     _repo(tmp_path)
-    client = FakeInterfaceClient(_pages("* unrelated[ResourceLoader]|other.js\n"), rights=False)
+    client = MediaWikiFake(rights=frozenset())
+    for title, text in _pages("* unrelated[ResourceLoader]|other.js\n").items():
+        client.put_page(title, text)
+    initial_pages = client.pages.copy()
+    initial_revisions = client.revisions.copy()
     plan = plan_interface_pages(tmp_path, client)
 
     with pytest.raises(InterfacePermissionError):
@@ -165,13 +72,18 @@ def test_rights_failure_happens_before_any_wiki_or_sidecar_write(tmp_path: Path)
             rollback_root=tmp_path / "rollback",
             checkpoint=lambda _manifest: None,
         )
-    assert client.writes == []
+    assert client.pages == initial_pages
+    assert client.revisions == initial_revisions
     assert not (tmp_path / "rollback").exists()
 
 
 def test_deploy_requires_checkpoint_before_sidecar_or_wiki_writes(tmp_path: Path) -> None:
     _repo(tmp_path)
-    client = FakeInterfaceClient(_pages("* unrelated[ResourceLoader]|other.js\n"))
+    client = MediaWikiFake()
+    for title, text in _pages("* unrelated[ResourceLoader]|other.js\n").items():
+        client.put_page(title, text)
+    initial_pages = client.pages.copy()
+    initial_revisions = client.revisions.copy()
     plan = plan_interface_pages(tmp_path, client)
 
     with pytest.raises(TypeError, match="checkpoint must be callable"):
@@ -184,13 +96,38 @@ def test_deploy_requires_checkpoint_before_sidecar_or_wiki_writes(tmp_path: Path
             checkpoint=None,  # type: ignore[arg-type]
         )
 
-    assert client.writes == []
+    assert client.pages == initial_pages
+    assert client.revisions == initial_revisions
     assert not (tmp_path / "rollback").exists()
 
 
 def test_deploy_propagates_user_guards_and_never_marks_edits_as_bot(tmp_path: Path) -> None:
     _repo(tmp_path)
-    client = FakeInterfaceClient(_pages("* unrelated[ResourceLoader]|other.js\n"))
+    client = MediaWikiFake(edit_account="InterfaceAdmin", is_bot=False)
+    for title, text in _pages("* unrelated[ResourceLoader]|other.js\n").items():
+        client.put_page(title, text)
+
+    def checked_read(method: Callable[..., Any]) -> Callable[..., Any]:
+        def guarded(*args: Any, **kwargs: Any) -> Any:
+            assert kwargs["assertion"] == "user"
+            assert kwargs["assert_user"] == "InterfaceAdmin"
+            return method(*args, **kwargs)
+
+        return guarded
+
+    def checked_write(method: Callable[..., Any]) -> Callable[..., Any]:
+        guarded_read = checked_read(method)
+
+        def guarded(*args: Any, **kwargs: Any) -> Any:
+            assert kwargs["bot"] is False
+            return guarded_read(*args, **kwargs)
+
+        return guarded
+
+    client.get_page_snapshots = checked_read(client.get_page_snapshots)
+    client.get_current_user_rights = checked_read(client.get_current_user_rights)
+    client.safe_edit_page = checked_write(client.safe_edit_page)
+    client.safe_create_page = checked_write(client.safe_create_page)
     plan = plan_interface_pages(
         tmp_path,
         client,
@@ -206,25 +143,25 @@ def test_deploy_propagates_user_guards_and_never_marks_edits_as_bot(tmp_path: Pa
         checkpoint=lambda _manifest: None,
     )
 
-    assert client.snapshot_guards == [("user", "InterfaceAdmin"), ("user", "InterfaceAdmin")]
-    assert client.rights_guards == [("user", "InterfaceAdmin")]
-    assert client.write_guards
-    assert all(
-        bot is False and assertion == "user" and assert_user == "InterfaceAdmin"
-        for _title, bot, assertion, assert_user in client.write_guards
-    )
+    assert all(user == "InterfaceAdmin" for user in client.page_users.values())
+    assert all(revision == 2 for revision in client.revisions.values())
 
 
 def test_prepares_all_sidecars_and_checkpoints_before_first_mutation(tmp_path: Path) -> None:
     _repo(tmp_path)
-    client = FakeInterfaceClient(_pages("* unrelated[ResourceLoader]|other.js\n"))
+    client = MediaWikiFake()
+    for title, text in _pages("* unrelated[ResourceLoader]|other.js\n").items():
+        client.put_page(title, text)
+    initial_pages = client.pages.copy()
+    initial_revisions = client.revisions.copy()
     plan = plan_interface_pages(tmp_path, client)
     checkpoints: list[InterfaceDeployManifest] = []
 
     def checkpoint(manifest: InterfaceDeployManifest) -> None:
         checkpoints.append(manifest)
         if len(checkpoints) == 1:
-            assert client.writes == []
+            assert client.pages == initial_pages
+            assert client.revisions == initial_revisions
             assert len(list((tmp_path / "rollback").iterdir())) == 3
 
     deploy_interface_pages(
@@ -242,7 +179,25 @@ def test_a_new_gadget_is_registered_before_the_pages_that_load_it_change(tmp_pat
     _repo(tmp_path)
     pages = _pages("* unrelated[ResourceLoader]|other.js\n")
     del pages["MediaWiki:Gadget-first.css"]
-    client = FakeInterfaceClient(pages)
+    client = MediaWikiFake()
+    for title, text in pages.items():
+        client.put_page(title, text)
+
+    def checkpoint(manifest: InterfaceDeployManifest) -> None:
+        completed = [entry.title for entry in manifest.entries if entry.mutation_state == "applied"]
+        expected_order = [
+            "MediaWiki:Gadget-first.css",
+            "MediaWiki:Gadgets-definition",
+            "MediaWiki:Gadget-second.js",
+        ]
+        assert completed == expected_order[: len(completed)]
+        if len(completed) == 1:
+            assert client.pages["MediaWiki:Gadget-first.css"] == "body { color: red; }"
+            assert client.pages["MediaWiki:Gadgets-definition"] == pages["MediaWiki:Gadgets-definition"].rstrip()
+            assert client.pages["MediaWiki:Gadget-second.js"] == "old js"
+        elif len(completed) == 2:
+            assert "* first[ResourceLoader]|first.css" in client.pages["MediaWiki:Gadgets-definition"]
+            assert client.pages["MediaWiki:Gadget-second.js"] == "old js"
 
     deploy_interface_pages(
         plan_interface_pages(tmp_path, client),
@@ -250,14 +205,12 @@ def test_a_new_gadget_is_registered_before_the_pages_that_load_it_change(tmp_pat
         client=client,
         summary="deploy",
         rollback_root=tmp_path / "rollback",
-        checkpoint=lambda _manifest: None,
+        checkpoint=checkpoint,
     )
 
-    assert [title for title, _ in client.writes] == [
-        "MediaWiki:Gadget-first.css",
-        "MediaWiki:Gadgets-definition",
-        "MediaWiki:Gadget-second.js",
-    ]
+    assert client.pages["MediaWiki:Gadget-first.css"] == "body { color: red; }"
+    assert client.pages["MediaWiki:Gadget-second.js"] == "console.log('x');"
+    assert client.revisions["MediaWiki:Gadgets-definition"] == 2
 
 
 def test_definition_reconciliation_owns_only_managed_lines_and_removes_duplicates(tmp_path: Path) -> None:
@@ -266,7 +219,9 @@ def test_definition_reconciliation_owns_only_managed_lines_and_removes_duplicate
         "# keep\n* unrelated[ResourceLoader]|unrelated.js\n"
         "* first[ResourceLoader]|stale.css\n* first[ResourceLoader]|duplicate.css\n"
     )
-    client = FakeInterfaceClient(_pages(definition))
+    client = MediaWikiFake()
+    for title, text in _pages(definition).items():
+        client.put_page(title, text)
     deploy_interface_pages(
         plan_interface_pages(tmp_path, client),
         repo_root=tmp_path,
@@ -275,16 +230,25 @@ def test_definition_reconciliation_owns_only_managed_lines_and_removes_duplicate
         rollback_root=tmp_path / "rollback",
         checkpoint=lambda _manifest: None,
     )
-    uploaded = dict(client.writes)["MediaWiki:Gadgets-definition"]
+    uploaded = client.pages["MediaWiki:Gadgets-definition"]
     assert "# keep\n" in uploaded
     assert uploaded.count("* first[") == 1
-    assert "* second[ResourceLoader]|second.js\n" in uploaded
+    assert "* second[ResourceLoader]|second.js" in uploaded.splitlines()
 
 
 def test_partial_failure_leaves_last_checkpoint_as_safe_rollback_journal(tmp_path: Path) -> None:
     _repo(tmp_path)
-    client = FakeInterfaceClient(_pages("* unrelated[ResourceLoader]|other.js\n"))
-    client.fail_title = "MediaWiki:Gadget-second.js"
+    client = MediaWikiFake()
+    for title, text in _pages("* unrelated[ResourceLoader]|other.js\n").items():
+        client.put_page(title, text)
+    safe_edit_page = client.safe_edit_page
+
+    def fail_edit(title: str, *args: Any, **kwargs: Any) -> int:
+        if title == "MediaWiki:Gadget-second.js":
+            raise RuntimeError(f"failure at {title}")
+        return safe_edit_page(title, *args, **kwargs)
+
+    client.safe_edit_page = fail_edit
     plan = plan_interface_pages(tmp_path, client)
     checkpoints: list[InterfaceDeployManifest] = []
 
@@ -306,13 +270,15 @@ def test_partial_failure_leaves_last_checkpoint_as_safe_rollback_journal(tmp_pat
     failed = entries["MediaWiki:Gadget-second.js"]
     assert failed.mutation_state == "ambiguous"
     assert failed.deploy_action == "edited"
-    assert failed.rollback_text_sha256 == hashlib.sha256(b"old js\n").hexdigest()
+    assert failed.rollback_text_sha256 == hashlib.sha256(b"old js").hexdigest()
     assert failed.deployed_text_sha256 == hashlib.sha256(b"console.log('x');").hexdigest()
 
 
 def test_rollback_refuses_revision_conflict_and_reverse_restores(tmp_path: Path) -> None:
     _repo(tmp_path)
-    client = FakeInterfaceClient(_pages("* unrelated[ResourceLoader]|other.js\n"))
+    client = MediaWikiFake()
+    for title, text in _pages("* unrelated[ResourceLoader]|other.js\n").items():
+        client.put_page(title, text)
     result = deploy_interface_pages(
         plan_interface_pages(tmp_path, client),
         repo_root=tmp_path,
@@ -321,24 +287,42 @@ def test_rollback_refuses_revision_conflict_and_reverse_restores(tmp_path: Path)
         rollback_root=tmp_path / "rollback",
         checkpoint=lambda _manifest: None,
     )
-    client.pages["MediaWiki:Gadget-first.css"].revision_id += 1
+    client.put_page("MediaWiki:Gadget-first.css", client.pages["MediaWiki:Gadget-first.css"])
     with pytest.raises(InterfaceRevisionConflictError):
         rollback_interface_pages(result.manifest, tmp_path, client, "rollback")
 
     # Force restores in reverse deployment order and uses each current revision.
+    safe_edit_page = client.safe_edit_page
+
+    def restore_edit(title: str, *args: Any, **kwargs: Any) -> int:
+        if title == "MediaWiki:Gadget-first.css":
+            assert client.pages["MediaWiki:Gadget-second.js"] == "old js"
+        elif title == "MediaWiki:Gadgets-definition":
+            assert client.pages["MediaWiki:Gadget-first.css"] == "old css"
+            assert client.pages["MediaWiki:Gadget-second.js"] == "old js"
+        return safe_edit_page(title, *args, **kwargs)
+
+    client.safe_edit_page = restore_edit
     restored = rollback_interface_pages(result.manifest, tmp_path, client, "rollback", force=True)
     assert restored.restored_titles == (
         "MediaWiki:Gadget-second.js",
         "MediaWiki:Gadget-first.css",
         "MediaWiki:Gadgets-definition",
     )
-    assert [title for title, _ in client.writes[-3:]] == list(restored.restored_titles)
+    assert client.pages == {
+        title: text.rstrip() for title, text in _pages("* unrelated[ResourceLoader]|other.js\n").items()
+    }
+    assert client.revisions["MediaWiki:Gadget-first.css"] == 4
+    assert client.revisions["MediaWiki:Gadget-second.js"] == 3
+    assert client.revisions["MediaWiki:Gadgets-definition"] == 3
 
 
 def test_created_pages_are_left_in_place_and_reported(tmp_path: Path) -> None:
     _repo(tmp_path)
     pages = {"MediaWiki:Gadgets-definition": "* unrelated[ResourceLoader]|other.js\n"}
-    client = FakeInterfaceClient(pages)
+    client = MediaWikiFake()
+    for title, text in pages.items():
+        client.put_page(title, text)
     result = deploy_interface_pages(
         plan_interface_pages(tmp_path, client),
         repo_root=tmp_path,
@@ -355,7 +339,11 @@ def test_created_pages_are_left_in_place_and_reported(tmp_path: Path) -> None:
 
 def test_source_hash_drift_is_rejected_before_sidecars(tmp_path: Path) -> None:
     _repo(tmp_path)
-    client = FakeInterfaceClient(_pages("* unrelated[ResourceLoader]|other.js\n"))
+    client = MediaWikiFake()
+    for title, text in _pages("* unrelated[ResourceLoader]|other.js\n").items():
+        client.put_page(title, text)
+    initial_pages = client.pages.copy()
+    initial_revisions = client.revisions.copy()
     plan = plan_interface_pages(tmp_path, client)
     source = tmp_path / "wiki" / "gadgets" / "first.css"
     source.write_bytes(b"changed\n")
@@ -368,13 +356,23 @@ def test_source_hash_drift_is_rejected_before_sidecars(tmp_path: Path) -> None:
             rollback_root=tmp_path / "rollback",
             checkpoint=lambda _manifest: None,
         )
-    assert client.writes == []
+    assert client.pages == initial_pages
+    assert client.revisions == initial_revisions
     assert not (tmp_path / "rollback").exists()
 
 
 def test_definition_text_is_rederived_before_any_mutation(tmp_path: Path) -> None:
     _repo(tmp_path)
-    client = FakeInterfaceClient(_pages("# preserve\n* unrelated[ResourceLoader]|other.js\n"))
+    client = MediaWikiFake()
+    for title, text in _pages("# preserve\n* unrelated[ResourceLoader]|other.js\n").items():
+        client.put_page(title, text)
+    initial_pages = client.pages.copy()
+    initial_revisions = client.revisions.copy()
+
+    def unexpected_rights_read(*args: Any, **kwargs: Any) -> frozenset[str]:
+        raise AssertionError("must reject forged text before querying rights")
+
+    client.get_current_user_rights = unexpected_rights_read
     plan = plan_interface_pages(tmp_path, client)
     definition = replace(
         plan.entries[-1],
@@ -392,8 +390,8 @@ def test_definition_text_is_rederived_before_any_mutation(tmp_path: Path) -> Non
             checkpoint=lambda _manifest: None,
         )
 
-    assert client.rights_guards == []
-    assert client.writes == []
+    assert client.pages == initial_pages
+    assert client.revisions == initial_revisions
     assert not (tmp_path / "rollback").exists()
 
 
@@ -488,7 +486,9 @@ def test_manifest_rejects_sidecar_path_traversal(tmp_path: Path) -> None:
 
 def test_sidecar_names_are_percent_encoded_and_injective(tmp_path: Path) -> None:
     _repo(tmp_path)
-    client = FakeInterfaceClient(_pages("* unrelated[ResourceLoader]|other.js\n"))
+    client = MediaWikiFake()
+    for title, text in _pages("* unrelated[ResourceLoader]|other.js\n").items():
+        client.put_page(title, text)
     deploy_interface_pages(
         plan_interface_pages(tmp_path, client),
         repo_root=tmp_path,
@@ -506,10 +506,13 @@ def test_sidecar_names_are_percent_encoded_and_injective(tmp_path: Path) -> None
 
 def test_revalidation_rejects_post_plan_revision_change_even_when_content_is_unchanged(tmp_path: Path) -> None:
     _repo(tmp_path)
-    client = FakeInterfaceClient(_pages("* unrelated[ResourceLoader]|other.js\n"))
+    client = MediaWikiFake()
+    for title, text in _pages("* unrelated[ResourceLoader]|other.js\n").items():
+        client.put_page(title, text)
     plan = plan_interface_pages(tmp_path, client)
-    page = client.pages["MediaWiki:Gadget-first.css"]
-    page.revision_id += 100
+    client.put_page("MediaWiki:Gadget-first.css", client.pages["MediaWiki:Gadget-first.css"])
+    initial_pages = client.pages.copy()
+    initial_revisions = client.revisions.copy()
     checkpoints: list[InterfaceDeployManifest] = []
 
     with pytest.raises(InterfaceRevisionConflictError, match="changed after planning"):
@@ -522,14 +525,25 @@ def test_revalidation_rejects_post_plan_revision_change_even_when_content_is_unc
             checkpoint=checkpoints.append,
         )
     assert checkpoints == []
-    assert client.writes == []
+    assert client.pages == initial_pages
+    assert client.revisions == initial_revisions
     assert not (tmp_path / "rollback").exists()
 
 
 def test_response_failure_after_remote_write_is_reconciled_and_checkpointed(tmp_path: Path) -> None:
     _repo(tmp_path)
-    client = FakeInterfaceClient(_pages("* unrelated[ResourceLoader]|other.js\n"))
-    client.raise_after_write_title = "MediaWiki:Gadget-first.css"
+    client = MediaWikiFake()
+    for title, text in _pages("* unrelated[ResourceLoader]|other.js\n").items():
+        client.put_page(title, text)
+    safe_edit_page = client.safe_edit_page
+
+    def lose_edit_response(title: str, *args: Any, **kwargs: Any) -> int:
+        revision = safe_edit_page(title, *args, **kwargs)
+        if title == "MediaWiki:Gadget-first.css":
+            raise RuntimeError(f"response failure at {title}")
+        return revision
+
+    client.safe_edit_page = lose_edit_response
     plan = plan_interface_pages(tmp_path, client)
     checkpoints: list[InterfaceDeployManifest] = []
 
@@ -551,7 +565,9 @@ def test_response_failure_after_remote_write_is_reconciled_and_checkpointed(tmp_
 
 def test_rollback_retry_recognizes_already_restored_content(tmp_path: Path) -> None:
     _repo(tmp_path)
-    client = FakeInterfaceClient(_pages("* unrelated[ResourceLoader]|other.js\n"))
+    client = MediaWikiFake()
+    for title, text in _pages("* unrelated[ResourceLoader]|other.js\n").items():
+        client.put_page(title, text)
     result = deploy_interface_pages(
         plan_interface_pages(tmp_path, client),
         repo_root=tmp_path,
@@ -561,15 +577,19 @@ def test_rollback_retry_recognizes_already_restored_content(tmp_path: Path) -> N
         checkpoint=lambda _manifest: None,
     )
     first = rollback_interface_pages(result.manifest, tmp_path, client, "rollback")
-    writes_after_first = len(client.writes)
+    pages_after_first = client.pages.copy()
+    revisions_after_first = client.revisions.copy()
     second = rollback_interface_pages(result.manifest, tmp_path, client, "rollback")
     assert second.restored_titles == first.restored_titles
-    assert len(client.writes) == writes_after_first
+    assert client.pages == pages_after_first
+    assert client.revisions == revisions_after_first
 
 
 def test_rollback_rejects_sidecar_filename_digest_and_symlink_attacks(tmp_path: Path) -> None:
     _repo(tmp_path)
-    client = FakeInterfaceClient(_pages("* unrelated[ResourceLoader]|other.js\n"))
+    client = MediaWikiFake()
+    for title, text in _pages("* unrelated[ResourceLoader]|other.js\n").items():
+        client.put_page(title, text)
     result = deploy_interface_pages(
         plan_interface_pages(tmp_path, client),
         repo_root=tmp_path,
