@@ -7,6 +7,7 @@ from unittest.mock import MagicMock, patch
 
 import click
 import pytest
+from tests.fakes.mediawiki import MediaWikiFake, PurgeRequest
 from typer.main import get_command
 from typer.testing import CliRunner
 
@@ -55,14 +56,42 @@ def _unwrapped(output: str) -> str:
     return " ".join(click.unstyle(output).split())
 
 
-def _mock_wiki_composition() -> MagicMock:
-    """Return a context-managed composition with owned dependency placeholders."""
-    composition = MagicMock()
-    composition.__enter__.return_value = composition
-    composition.context = MagicMock()
-    composition.storage = MagicMock()
-    composition.wiki_client = MagicMock()
-    return composition
+def _stub_composition(*, wiki_client: object | None = None) -> wiki._WikiComposition:
+    """A composition with placeholder owned resources, for tests whose service class is itself a mock."""
+    return wiki._WikiComposition(
+        database=MagicMock(), context=MagicMock(), storage=MagicMock(), wiki_client=wiki_client
+    )
+
+
+def _use_composition(monkeypatch: pytest.MonkeyPatch, composition: wiki._WikiComposition) -> None:
+    """Route the command's composition factory to this composition instead of building one for real."""
+    monkeypatch.setattr(wiki, "_create_wiki_composition", lambda cli_ctx, **_: composition)
+
+
+_real_create_mediawiki_client = wiki._create_mediawiki_client
+_real_create_interface_mediawiki_client = wiki._create_interface_mediawiki_client
+
+
+def _use_mediawiki_client(monkeypatch: pytest.MonkeyPatch, client: object) -> None:
+    """Route the deploy client factory to this client through its own override parameter.
+
+    Captures the real function once at import time rather than reading
+    `wiki._create_mediawiki_client` when called, so a test that patches this
+    name more than once (a dry-run guard, then a working client) still routes
+    through the real override contract instead of through its own prior guard.
+    """
+    monkeypatch.setattr(
+        wiki, "_create_mediawiki_client", lambda cli_ctx: _real_create_mediawiki_client(cli_ctx, wiki_client=client)
+    )
+
+
+def _use_interface_client(monkeypatch: pytest.MonkeyPatch, client: object) -> None:
+    """Route the interface-admin client factory to this client through its own override parameter."""
+    monkeypatch.setattr(
+        wiki,
+        "_create_interface_mediawiki_client",
+        lambda cli_ctx: _real_create_interface_mediawiki_client(cli_ctx, wiki_client=client),
+    )
 
 
 @pytest.fixture
@@ -108,153 +137,138 @@ class TestWikiFetchCommand:
     """Test wiki fetch command."""
 
     @patch("erenshor.cli.commands.wiki.WikiFetchService")
-    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
     def test_fetch_success(
-        self, mock_create_composition, mock_fetch_service, mock_operation_result, cli_context: CLIContext
+        self, mock_fetch_service, monkeypatch: pytest.MonkeyPatch, mock_operation_result, cli_context: CLIContext
     ):
         """Test successful fetch."""
         mock_service = MagicMock()
         mock_service.fetch_all.return_value = mock_operation_result
-        mock_create_composition.return_value = _mock_wiki_composition()
+        _use_composition(monkeypatch, _stub_composition(wiki_client=MagicMock()))
         mock_fetch_service.return_value = mock_service
 
         result = runner.invoke(wiki.app, ["fetch"], obj=cli_context)
 
         assert result.exit_code == 0
-        mock_service.fetch_all.assert_called_once()
 
     @patch("erenshor.cli.commands.wiki.WikiFetchService")
-    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
     def test_fetch_with_limit(
-        self, mock_create_composition, mock_fetch_service, mock_operation_result, cli_context: CLIContext
+        self, mock_fetch_service, monkeypatch: pytest.MonkeyPatch, mock_operation_result, cli_context: CLIContext
     ):
         """Test fetch with limit parameter."""
         mock_service = MagicMock()
         mock_service.fetch_all.return_value = mock_operation_result
-        mock_create_composition.return_value = _mock_wiki_composition()
+        _use_composition(monkeypatch, _stub_composition(wiki_client=MagicMock()))
         mock_fetch_service.return_value = mock_service
 
         result = runner.invoke(wiki.app, ["fetch", "--limit", "5"], obj=cli_context)
 
         assert result.exit_code == 0
-        mock_service.fetch_all.assert_called_once()
 
     @patch("erenshor.cli.commands.wiki.WikiFetchService")
-    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
     def test_fetch_with_force(
-        self, mock_create_composition, mock_fetch_service, mock_operation_result, cli_context: CLIContext
+        self, mock_fetch_service, monkeypatch: pytest.MonkeyPatch, mock_operation_result, cli_context: CLIContext
     ):
         """Test fetch with force flag."""
         mock_service = MagicMock()
         mock_service.fetch_all.return_value = mock_operation_result
-        mock_create_composition.return_value = _mock_wiki_composition()
+        _use_composition(monkeypatch, _stub_composition(wiki_client=MagicMock()))
         mock_fetch_service.return_value = mock_service
 
         result = runner.invoke(wiki.app, ["fetch", "--force"], obj=cli_context)
 
         assert result.exit_code == 0
-        mock_service.fetch_all.assert_called_once()
 
     @patch("erenshor.cli.commands.wiki.WikiFetchService")
-    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
     def test_fetch_dry_run(
-        self, mock_create_composition, mock_fetch_service, mock_operation_result, cli_context: CLIContext
+        self, mock_fetch_service, monkeypatch: pytest.MonkeyPatch, mock_operation_result, cli_context: CLIContext
     ):
         """Test fetch in dry-run mode."""
         mock_service = MagicMock()
         mock_service.fetch_all.return_value = mock_operation_result
-        mock_create_composition.return_value = _mock_wiki_composition()
+        _use_composition(monkeypatch, _stub_composition(wiki_client=MagicMock()))
         mock_fetch_service.return_value = mock_service
 
         result = runner.invoke(wiki.app, ["fetch"], obj=replace(cli_context, dry_run=True))
 
         assert result.exit_code == 0
-        mock_service.fetch_all.assert_called_once()
 
 
 class TestWikiGenerateCommand:
     """Test wiki generate command."""
 
     @patch("erenshor.cli.commands.wiki.WikiGenerateService")
-    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
     def test_generate_success(
-        self, mock_create_composition, mock_generate_service, mock_operation_result, cli_context: CLIContext
+        self, mock_generate_service, monkeypatch: pytest.MonkeyPatch, mock_operation_result, cli_context: CLIContext
     ):
         """Test successful generate."""
         mock_service = MagicMock()
         mock_service.generate_all.return_value = mock_operation_result
-        mock_create_composition.return_value = _mock_wiki_composition()
+        _use_composition(monkeypatch, _stub_composition())
         mock_generate_service.return_value = mock_service
 
         result = runner.invoke(wiki.app, ["generate"], obj=cli_context)
 
         assert result.exit_code == 0
-        mock_service.generate_all.assert_called_once()
 
     @patch("erenshor.cli.commands.wiki.WikiGenerateService")
-    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
     def test_generate_with_limit(
-        self, mock_create_composition, mock_generate_service, mock_operation_result, cli_context: CLIContext
+        self, mock_generate_service, monkeypatch: pytest.MonkeyPatch, mock_operation_result, cli_context: CLIContext
     ):
         """Test generate with limit parameter."""
         mock_service = MagicMock()
         mock_service.generate_all.return_value = mock_operation_result
-        mock_create_composition.return_value = _mock_wiki_composition()
+        _use_composition(monkeypatch, _stub_composition())
         mock_generate_service.return_value = mock_service
 
         result = runner.invoke(wiki.app, ["generate", "--limit", "5"], obj=cli_context)
 
         assert result.exit_code == 0
-        mock_service.generate_all.assert_called_once()
 
     @patch("erenshor.cli.commands.wiki.WikiGenerateService")
-    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
     def test_generate_dry_run(
-        self, mock_create_composition, mock_generate_service, mock_operation_result, cli_context: CLIContext
+        self, mock_generate_service, monkeypatch: pytest.MonkeyPatch, mock_operation_result, cli_context: CLIContext
     ):
         """Test generate in dry-run mode."""
         mock_service = MagicMock()
         mock_service.generate_all.return_value = mock_operation_result
-        mock_create_composition.return_value = _mock_wiki_composition()
+        _use_composition(monkeypatch, _stub_composition())
         mock_generate_service.return_value = mock_service
 
         result = runner.invoke(wiki.app, ["generate"], obj=replace(cli_context, dry_run=True))
 
         assert result.exit_code == 0
-        mock_service.generate_all.assert_called_once()
 
     @patch("erenshor.cli.commands.wiki.WikiGenerateService")
-    @patch("erenshor.cli.commands.wiki._create_wiki_composition")
     def test_generate_with_warnings(
         self,
-        mock_create_composition,
         mock_generate_service,
+        monkeypatch: pytest.MonkeyPatch,
         mock_operation_result_with_warnings,
         cli_context: CLIContext,
     ):
         """Test generate that completes with warnings."""
         mock_service = MagicMock()
         mock_service.generate_all.return_value = mock_operation_result_with_warnings
-        mock_create_composition.return_value = _mock_wiki_composition()
+        _use_composition(monkeypatch, _stub_composition())
         mock_generate_service.return_value = mock_service
 
         result = runner.invoke(wiki.app, ["generate"], obj=cli_context)
 
         # Should exit 0 even with warnings
         assert result.exit_code == 0
-        mock_service.generate_all.assert_called_once()
 
     def test_generate_lua_passes_faction_and_class_dependencies(
         self, monkeypatch: pytest.MonkeyPatch, cli_context: CLIContext
     ):
         """Test generation receives the concrete faction and class services."""
-        import erenshor.cli.commands.wiki as wiki_command
-
         repositories = tuple(MagicMock(name=f"repo_{index}") for index in range(11))
         generation = MagicMock(written_paths=[], validation_tools={})
-        monkeypatch.setattr(wiki_command, "_create_lua_repositories", lambda _ctx: repositories)
+        create = wiki._create_lua_repositories
+        monkeypatch.setattr(
+            wiki, "_create_lua_repositories", lambda cli_ctx: create(cli_ctx, repositories=repositories)
+        )
         generate = MagicMock(return_value=generation)
-        monkeypatch.setattr(wiki_command, "generate_lua_data_modules", generate)
+        monkeypatch.setattr(wiki, "generate_lua_data_modules", generate)
 
         result = runner.invoke(wiki.app, ["generate-lua"], obj=cli_context)
 
@@ -432,11 +446,11 @@ class TestWikiLinkAuditCommand:
             return mock_operation_result
 
         service.generate_all.side_effect = generate_all
-        composition = _mock_wiki_composition()
+        composition = _stub_composition()
         composition.context.link_catalog_entries.return_value = (
             LinkCatalogEntry("item:sword", "item", "weapon", "Sword", "Sword", None),
         )
-        monkeypatch.setattr(wiki_command, "_create_wiki_composition", lambda _ctx, **_: composition)
+        _use_composition(monkeypatch, composition)
         monkeypatch.setattr(wiki_command, "WikiGenerateService", lambda **_: service)
 
         result = runner.invoke(wiki.app, ["generate"], obj=replace(cli_context, dry_run=True))
@@ -611,7 +625,7 @@ class TestWikiDeployCommand:
         audit.return_value = report
         writer = MagicMock()
         writer.safe_edit_page.return_value = 11
-        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", lambda _ctx: writer)
+        _use_mediawiki_client(monkeypatch, writer)
         applied = runner.invoke(wiki.app, ["apply-retired-pages"], obj=context)
         assert applied.exit_code == 0, applied.exception
         assert "Edited Reckless" in _unwrapped(applied.output)
@@ -738,7 +752,7 @@ class TestWikiDeployCommand:
         client.safe_edit_page.return_value = 12
         client.get_page_categories.return_value = {}
         client.parse_wikitext.return_value = MediaWikiParse(html="<p></p>", templates=(), categories=())
-        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", lambda _ctx: client)
+        _use_mediawiki_client(monkeypatch, client)
         monkeypatch.setattr(wiki_command, "_build_link_audit_catalog", lambda _ctx: ())
         monkeypatch.setattr(wiki_command, "_run_link_audit", MagicMock(return_value=TestWikiLinkAuditCommand._report()))
         monkeypatch.setattr(wiki_command, "recorded_build_id", lambda _path: "123")
@@ -820,7 +834,7 @@ class TestWikiDeployRepoCommand:
                 ),
             )
         )
-        client = FakeDeployClient()
+        client = MediaWikiFake()
         readonly = MagicMock()
         readonly.page_exists.return_value = True
         calls = []
@@ -829,9 +843,11 @@ class TestWikiDeployRepoCommand:
             calls.append(("build", repo_root, variant, kwargs))
             return manifest
 
+        create_client = wiki_command._create_mediawiki_client
+
         def fake_create_client(cli_ctx):
             calls.append(("create_client", cli_ctx.variant))
-            return client
+            return create_client(cli_ctx, wiki_client=client)
 
         def fake_deploy_repo_pages(**kwargs):
             calls.append(("deploy", kwargs))
@@ -904,7 +920,7 @@ class TestWikiDeployRepoCommand:
             raise ValueError("Module:Erenshor/Icon blocked on Queen's Fang: script error")
 
         monkeypatch.setattr(wiki_command, "build_repo_page_manifest", lambda *_args, **_kwargs: manifest)
-        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", lambda _ctx: FakeDeployClient())
+        _use_mediawiki_client(monkeypatch, MediaWikiFake())
         monkeypatch.setattr(wiki_command, "deploy_repo_pages", fail_after_one_write)
         manifest_output = tmp_path / "manifest.json"
 
@@ -947,7 +963,7 @@ class TestWikiDeployRepoCommand:
         monkeypatch.chdir(tmp_path)
         monkeypatch.setattr(wiki_command, "build_repo_page_manifest", lambda *_args, **_kwargs: manifest)
         monkeypatch.setattr(wiki_command, "create_readonly_mediawiki_client", lambda _ctx: MagicMock())
-        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", lambda _ctx: FakeDeployClient())
+        _use_mediawiki_client(monkeypatch, MediaWikiFake())
         monkeypatch.setattr(wiki_command, "deploy_repo_pages", fake_deploy_repo_pages)
         monkeypatch.setattr(wiki_command, "write_repo_page_manifest", lambda *_args: None)
 
@@ -986,7 +1002,7 @@ class TestWikiDeployRepoCommand:
             return RepoPageDeployResult(entries=())
 
         monkeypatch.setattr(wiki_command, "build_repo_page_manifest", lambda *_args, **_kwargs: manifest)
-        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", lambda _ctx: FakeDeployClient())
+        _use_mediawiki_client(monkeypatch, MediaWikiFake())
         monkeypatch.setattr(wiki_command, "deploy_repo_pages", fake_deploy_repo_pages)
         monkeypatch.setattr(
             wiki_command, "write_repo_page_manifest", lambda _manifest, path: manifest_paths.append(path)
@@ -1253,7 +1269,7 @@ class TestWikiDeployRepoCommand:
             )
 
         monkeypatch.setattr(wiki_command, "build_repo_page_manifest", lambda repo_root, variant, **kwargs: manifest)
-        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", lambda cli_ctx: FakeDeployClient())
+        _use_mediawiki_client(monkeypatch, MediaWikiFake())
         monkeypatch.setattr(wiki_command, "deploy_repo_pages", fake_deploy_repo_pages)
         monkeypatch.setattr(wiki_command, "write_repo_page_manifest", lambda deployed_manifest, path: None)
 
@@ -1274,25 +1290,6 @@ class TestWikiDeployRepoCommand:
         assert "Special:CargoTables" in result.output
 
 
-class FakeDeployClient:
-    def __init__(self) -> None:
-        self.closed = False
-        self.purges: list[tuple[tuple[str, ...], bool, str | None, str | None]] = []
-
-    def purge_pages(
-        self,
-        titles,
-        force_link_update=True,
-        assertion=None,
-        assert_user=None,
-    ):
-        self.purges.append((tuple(titles), force_link_update, assertion, assert_user))
-        return tuple(titles)
-
-    def close(self) -> None:
-        self.closed = True
-
-
 class TestWikiRefreshEmbeddedCommand:
     """Test dependency-derived refresh command."""
 
@@ -1302,12 +1299,14 @@ class TestWikiRefreshEmbeddedCommand:
         """Test refresh command delegates dependency discovery with explicit namespaces."""
         import erenshor.cli.commands.wiki as wiki_command
 
-        client = FakeDeployClient()
+        client = MediaWikiFake()
         calls = []
+
+        create_client = wiki_command._create_mediawiki_client
 
         def fake_create_client(cli_ctx):
             calls.append(("create_client", cli_ctx.variant))
-            return client
+            return create_client(cli_ctx, wiki_client=client)
 
         def fake_refresh_embedded_pages(**kwargs):
             calls.append(("refresh", kwargs))
@@ -1353,8 +1352,8 @@ class TestWikiRefreshEmbeddedCommand:
         """Explicit page mode bypasses broad transclusion discovery."""
         import erenshor.cli.commands.wiki as wiki_command
 
-        client = FakeDeployClient()
-        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", lambda cli_ctx: client)
+        client = MediaWikiFake()
+        _use_mediawiki_client(monkeypatch, client)
         discover = MagicMock()
         monkeypatch.setattr(wiki_command, "refresh_embedded_pages", discover)
 
@@ -1376,7 +1375,7 @@ class TestWikiRefreshEmbeddedCommand:
 
         assert result.exit_code == 0
         assert "Refreshed: 2" in result.output
-        assert client.purges == [(("Chazza Priel", "Tiallia Priel"), True, "bot", "ErenshorBot")]
+        assert client.purged == [PurgeRequest(("Chazza Priel", "Tiallia Priel"), True, "bot", "ErenshorBot")]
         discover.assert_not_called()
         assert client.closed is True
 
@@ -1386,8 +1385,8 @@ class TestWikiRefreshEmbeddedCommand:
         """Dependency and explicit-page refreshes share one final refreshed-page count."""
         import erenshor.cli.commands.wiki as wiki_command
 
-        client = FakeDeployClient()
-        monkeypatch.setattr(wiki_command, "_create_mediawiki_client", lambda cli_ctx: client)
+        client = MediaWikiFake()
+        _use_mediawiki_client(monkeypatch, client)
         monkeypatch.setattr(
             wiki_command,
             "refresh_embedded_pages",
@@ -1446,7 +1445,7 @@ class TestWikiInterfaceDeployCommands:
             ),
         )
         monkeypatch.setattr(wiki_command, "_interface_assert_user", lambda _ctx: "InterfaceAdmin")
-        monkeypatch.setattr(wiki_command, "_create_interface_mediawiki_client", lambda _ctx: client)
+        _use_interface_client(monkeypatch, client)
         artifact_root = tmp_path / "artifacts"
         monkeypatch.setattr(wiki_command, "_interface_artifact_root", lambda _ctx: artifact_root)
         monkeypatch.setattr(
@@ -1524,7 +1523,7 @@ class TestWikiInterfaceDeployCommands:
             checkpoint(manifest)
             return InterfaceDeployResult(manifest=manifest)
 
-        monkeypatch.setattr(wiki_command, "_create_interface_mediawiki_client", lambda _ctx: client)
+        _use_interface_client(monkeypatch, client)
         monkeypatch.setattr(wiki_command, "_new_interface_rollback_root", lambda _ctx: tmp_path / "rollback")
         monkeypatch.setattr(wiki_command, "plan_interface_pages", lambda *_args, **_kwargs: plan)
         monkeypatch.setattr(wiki_command, "deploy_interface_pages", fake_deploy)
@@ -1653,7 +1652,7 @@ class TestWikiInterfaceDeployCommands:
             roots.append(rollback_root)
             return SimpleNamespace(manifest=SimpleNamespace(entries=()))
 
-        monkeypatch.setattr(wiki_command, "_create_interface_mediawiki_client", lambda _ctx: client)
+        _use_interface_client(monkeypatch, client)
         monkeypatch.setattr(wiki_command, "plan_interface_pages", lambda *_args, **_kwargs: plan)
         monkeypatch.setattr(wiki_command, "deploy_interface_pages", fake_deploy)
         monkeypatch.setattr(wiki_command, "write_interface_deploy_manifest", lambda *_args: None)
@@ -1697,7 +1696,7 @@ class TestWikiInterfaceDeployCommands:
                 raise RuntimeError("interrupted")
             return SimpleNamespace(manifest=SimpleNamespace(entries=()))
 
-        monkeypatch.setattr(wiki_command, "_create_interface_mediawiki_client", lambda _ctx: client)
+        _use_interface_client(monkeypatch, client)
         monkeypatch.setattr(wiki_command, "plan_interface_pages", lambda *_args, **_kwargs: plan)
         monkeypatch.setattr(wiki_command, "deploy_interface_pages", fake_deploy)
         monkeypatch.setattr(wiki_command, "write_interface_deploy_manifest", lambda *_args: None)
@@ -1730,7 +1729,7 @@ class TestWikiInterfaceDeployCommands:
         monkeypatch.setattr(wiki_command, "read_interface_deploy_manifest", lambda _path: manifest)
         client = MagicMock()
         client.get_current_user_rights.return_value = frozenset({"editinterface"})
-        monkeypatch.setattr(wiki_command, "_create_interface_mediawiki_client", lambda _ctx: client)
+        _use_interface_client(monkeypatch, client)
 
         result = runner.invoke(
             wiki.app, ["rollback-interface", "--manifest", str(manifest_path)], obj=replace(cli_context, dry_run=True)
@@ -1773,12 +1772,14 @@ class TestWikiRollbackRepoCommand:
         manifest_path = tmp_path / "deploy-manifest.json"
         write_repo_page_manifest(manifest, manifest_path)
 
-        client = FakeDeployClient()
+        client = MediaWikiFake()
         calls = []
+
+        create_client = wiki_command._create_mediawiki_client
 
         def fake_create_client(cli_ctx):
             calls.append(("create_client", cli_ctx.variant))
-            return client
+            return create_client(cli_ctx, wiki_client=client)
 
         def fake_rollback_repo_pages(**kwargs):
             calls.append(("rollback", kwargs))

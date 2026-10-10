@@ -230,8 +230,12 @@ class _WikiComposition:
             self.database.close()
 
 
-def _create_normal_bot_mediawiki_client(cli_ctx: CLIContext) -> MediaWikiClient:
+def _create_normal_bot_mediawiki_client(
+    cli_ctx: CLIContext, *, wiki_client: MediaWikiClient | None = None
+) -> MediaWikiClient:
     """Create a normal bot client without logging in yet."""
+    if wiki_client is not None:
+        return wiki_client
     wiki_config = cli_ctx.config.global_.mediawiki
     credentials = _normal_bot_credentials(cli_ctx)
     return MediaWikiClient(
@@ -241,7 +245,9 @@ def _create_normal_bot_mediawiki_client(cli_ctx: CLIContext) -> MediaWikiClient:
     )
 
 
-def _create_wiki_composition(cli_ctx: CLIContext, *, with_client: bool) -> _WikiComposition:
+def _create_wiki_composition(
+    cli_ctx: CLIContext, *, with_client: bool, wiki_client: MediaWikiClient | None = None
+) -> _WikiComposition:
     """Create one database, storage, and GeneratorContext for a wiki command."""
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
     database = DatabaseConnection(variant_config.resolved_database(cli_ctx.repo_root), read_only=True)
@@ -264,18 +270,20 @@ def _create_wiki_composition(cli_ctx: CLIContext, *, with_client: bool) -> _Wiki
         maps_base_url=variant_config.maps.base_url,
         zone_positions_path=zone_positions_path,
     )
-    wiki_client = None
+    client = wiki_client
     try:
-        if with_client:
-            wiki_client = _create_normal_bot_mediawiki_client(cli_ctx)
+        if with_client and client is None:
+            client = _create_normal_bot_mediawiki_client(cli_ctx)
     except Exception:
         database.close()
         raise
-    return _WikiComposition(database=database, context=context, storage=storage, wiki_client=wiki_client)
+    return _WikiComposition(database=database, context=context, storage=storage, wiki_client=client)
 
 
-def _create_mediawiki_client(cli_ctx: CLIContext) -> MediaWikiClient:
+def _create_mediawiki_client(cli_ctx: CLIContext, *, wiki_client: MediaWikiClient | None = None) -> MediaWikiClient:
     """Create an authenticated MediaWiki client for deployment commands."""
+    if wiki_client is not None:
+        return wiki_client
     wiki_config = cli_ctx.config.global_.mediawiki
     credentials = _normal_bot_credentials(cli_ctx)
     client = MediaWikiClient(
@@ -294,8 +302,12 @@ def _interface_assert_user(cli_ctx: CLIContext) -> str:
     return login_name.partition("@")[0]
 
 
-def _create_interface_mediawiki_client(cli_ctx: CLIContext) -> MediaWikiClient:
+def _create_interface_mediawiki_client(
+    cli_ctx: CLIContext, *, wiki_client: MediaWikiClient | None = None
+) -> MediaWikiClient:
     """Create and log in the dedicated interface-admin MediaWiki client."""
+    if wiki_client is not None:
+        return wiki_client
     wiki_config = cli_ctx.config.global_.mediawiki
     credentials = _interface_admin_credentials(cli_ctx)
 
@@ -428,9 +440,7 @@ def _create_item_repository(cli_ctx: CLIContext) -> ItemRepository:
     return ItemRepository(db_connection)
 
 
-def _create_lua_repositories(
-    cli_ctx: CLIContext,
-) -> tuple[
+_LuaRepositories = tuple[
     ItemRepository,
     CharacterRepository,
     SpellRepository,
@@ -442,8 +452,13 @@ def _create_lua_repositories(
     ClassDisplayNameService,
     BuildMetadataRepository,
     TreasureRepository,
-]:
+]
+
+
+def _create_lua_repositories(cli_ctx: CLIContext, *, repositories: _LuaRepositories | None = None) -> _LuaRepositories:
     """Create repositories for local Lua data generation from one read-only connection."""
+    if repositories is not None:
+        return repositories
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
     db_path = variant_config.resolved_database(cli_ctx.repo_root)
     db_connection = DatabaseConnection(db_path, read_only=True)

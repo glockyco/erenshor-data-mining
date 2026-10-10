@@ -59,6 +59,16 @@ class _FileVersion:
 
 
 @dataclass
+class PurgeRequest:
+    """One call to `purge_pages`, as the fake received it."""
+
+    titles: tuple[str, ...]
+    force_link_update: bool
+    assertion: str | None
+    assert_user: str | None
+
+
+@dataclass
 class MediaWikiFake:
     """One in-memory wiki: pages with revision history, files with version history,
     and the account currently editing them."""
@@ -76,7 +86,7 @@ class MediaWikiFake:
     uploads: int = 0
     watched: tuple[str, ...] = ()
     dark: set[str] = field(default_factory=set)
-    purged: list[tuple[str, ...]] = field(default_factory=list)
+    purged: list[PurgeRequest] = field(default_factory=list)
     edit_account: str | None = "ErenshorBot"
     is_bot: bool = True
     rights: frozenset[str] = field(default_factory=lambda: _DEFAULT_RIGHTS)
@@ -88,6 +98,7 @@ class MediaWikiFake:
     direct_media: dict[str, bytes] = field(default_factory=dict)
     parse_overrides: dict[tuple[str, str | None], MediaWikiParse] = field(default_factory=dict)
     login_calls: int = 0
+    closed: bool = False
     _stash: dict[str, tuple[str, bytes, str]] = field(default_factory=dict)
     _next_page_id: int = 1000
 
@@ -150,7 +161,7 @@ class MediaWikiFake:
         self.login_calls += 1
 
     def close(self) -> None:
-        pass
+        self.closed = True
 
     def get_current_user_rights(
         self, assertion: EditAssertion = "user", assert_user: str | None = None
@@ -433,5 +444,5 @@ class MediaWikiFake:
         if assertion is not None:
             self._check_assertion(assertion, assert_user)
         titles = tuple(titles)
-        self.purged.append(titles)
+        self.purged.append(PurgeRequest(titles, force_link_update, assertion, assert_user))
         return titles
