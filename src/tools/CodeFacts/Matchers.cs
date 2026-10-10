@@ -98,7 +98,7 @@ internal static class Runner
 
     private static bool HasParameters(MethodDeclaration method, List<string>? parameters) =>
         parameters is null
-        || method.Parameters.Select(p => p.Type.ToString()).SequenceEqual(parameters);
+        || method.Parameters.Select(p => p.Type!.ToString()).SequenceEqual(parameters);
 
     private static bool AppliesToVariant(FactSpec fact, string? activeVariant)
     {
@@ -131,7 +131,7 @@ internal static class Matchers
                 .Any(inv =>
                     inv.Target is MemberReferenceExpression { MemberName: "Add" }
                     && inv.Arguments.Count == 1
-                    && NodeMentions(inv.Arguments.First(), member)
+                    && NodeMentions(inv.Arguments[0], member)
                 );
             if (!addsMember)
                 continue;
@@ -151,7 +151,7 @@ internal static class Matchers
                         && MemberNamed(b.Left, "Level")
                         && b.Right is PrimitiveExpression { Value: int }
                     )
-                    .Select(b => ((PrimitiveExpression)b.Right).Value!.ToString()!)
+                    .Select(b => ((PrimitiveExpression)b.Right!).Value.ToString()!)
                     .FirstOrDefault() ?? "0";
 
             hits.Add((rate, minLevel));
@@ -216,14 +216,14 @@ internal static class Matchers
         };
     }
 
-    private static bool AddsMember(AstNode branch, string member) =>
-        !branch.IsNull
+    private static bool AddsMember(AstNode? branch, string member) =>
+        branch is not null
         && branch
             .Descendants.OfType<InvocationExpression>()
             .Any(inv =>
                 inv.Target is MemberReferenceExpression { MemberName: "Add" }
                 && inv.Arguments.Count == 1
-                && NodeMentions(inv.Arguments.First(), member)
+                && NodeMentions(inv.Arguments[0], member)
             );
 
     /// All distinct string literals used in `==` comparisons in the member,
@@ -268,7 +268,9 @@ internal static class Matchers
                 )
                 .Select(b =>
                 {
-                    var lit = (b.Right as PrimitiveExpression ?? (PrimitiveExpression)b.Left).Value;
+                    var lit = (
+                        b.Right as PrimitiveExpression ?? (PrimitiveExpression)b.Left!
+                    ).Value;
                     return $"{OpName(b.Operator)} {lit}";
                 })
                 .Distinct()
@@ -355,19 +357,20 @@ internal static class Matchers
     private static string Normalize(string s) =>
         string.Join(" ", s.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
 
-    private static bool NodeMentions(AstNode node, string member) =>
-        node.DescendantsAndSelf.Any(n =>
+    private static bool NodeMentions(AstNode? node, string member) =>
+        node is not null
+        && node.DescendantsAndSelf.Any(n =>
             (n is MemberReferenceExpression mre && mre.MemberName == member)
             || (n is IdentifierExpression ide && ide.Identifier == member)
         );
 
-    private static bool MemberNamed(Expression expr, string member) =>
+    private static bool MemberNamed(Expression? expr, string member) =>
         expr is MemberReferenceExpression { } mre && mre.MemberName == member
         || expr is IdentifierExpression { } ide && ide.Identifier == member;
 
-    private static string? FloatLiteralOf(Expression expr) =>
+    private static string? FloatLiteralOf(Expression? expr) =>
         expr
-            .DescendantsAndSelf.OfType<PrimitiveExpression>()
+            ?.DescendantsAndSelf.OfType<PrimitiveExpression>()
             .Where(p => p.Value is float or double)
             .Select(p => Convert.ToString(p.Value, CultureInfo.InvariantCulture)!)
             .FirstOrDefault();
