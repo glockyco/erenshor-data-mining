@@ -14,14 +14,11 @@ behavior is covered deterministically by the client unit tests.
 from __future__ import annotations
 
 import hashlib
-import os
-import shutil
-import subprocess
-from collections.abc import Iterator
 from pathlib import Path
 
 import httpx
 import pytest
+from tests.system.wiki.conftest import API_URL, BOT_USER, _PageScope
 
 from erenshor.application.wiki.services.storage import WikiStorage
 from erenshor.application.wiki_deploy.articles import deploy_articles, plan_article_deploy
@@ -34,81 +31,6 @@ from erenshor.infrastructure.wiki import (
     MediaWikiClient,
     MediaWikiEditConflictError,
 )
-
-WIKI_BASE_URL = os.environ.get("ERENSHOR_WIKI_BASE_URL", "http://localhost:8088")
-API_URL = f"{WIKI_BASE_URL}/api.php"
-BOT_USER = "ErenshorBot"
-BOT_PASSWORD = "BotDevPassword-2026"
-COMPOSE_PROJECT = os.environ.get("ERENSHOR_WIKI_COMPOSE_PROJECT", "wiki-dev")
-COMPOSE_FILE = Path(__file__).resolve().parents[3] / "wiki-dev" / "compose.yml"
-
-
-def _harness_reachable() -> bool:
-    try:
-        response = httpx.get(
-            API_URL,
-            params={"action": "query", "meta": "siteinfo", "format": "json"},
-            timeout=5.0,
-        )
-    except (httpx.HTTPError, OSError):
-        return False
-    if response.status_code != 200:
-        return False
-    try:
-        return "query" in response.json()
-    except ValueError:
-        return False
-
-
-def _docker_compose(*args: str, stdin: str | None = None) -> subprocess.CompletedProcess[bytes]:
-    return subprocess.run(
-        [
-            "docker",
-            "compose",
-            "--project-name",
-            COMPOSE_PROJECT,
-            "-f",
-            str(COMPOSE_FILE),
-            *args,
-        ],
-        input=stdin.encode() if stdin is not None else None,
-        capture_output=True,
-        timeout=180,
-        check=False,
-    )
-
-
-def _ensure_deploy_bot() -> None:
-    result = _docker_compose(
-        "exec",
-        "-T",
-        "mediawiki",
-        "php",
-        "maintenance/run.php",
-        "createAndPromote",
-        "--bot",
-        "--force",
-        BOT_USER,
-        BOT_PASSWORD,
-    )
-    if result.returncode != 0:
-        pytest.skip(f"Could not provision deploy bot: {result.stderr.decode(errors='replace')}")
-
-
-def _delete_pages(titles: list[str]) -> None:
-    if not titles:
-        return
-    _docker_compose(
-        "exec",
-        "-T",
-        "mediawiki",
-        "php",
-        "maintenance/run.php",
-        "deleteBatch.php",
-        "-r",
-        "integration test cleanup",
-        stdin="\n".join(titles) + "\n",
-    )
 
 
 def _page_links(title: str) -> list[str]:
@@ -144,48 +66,6 @@ def _module_manifest(title: str, source_path: str, content: str) -> RepoWikiPage
             ),
         )
     )
-
-
-class _PageScope:
-    """Tracks live wiki pages a test owns and gives each a clean slate."""
-
-    def __init__(self) -> None:
-        self.titles: list[str] = []
-
-    def claim(self, title: str) -> str:
-        _delete_pages([title])
-        self.titles.append(title)
-        return title
-
-
-@pytest.fixture(scope="module")
-def wiki_client() -> Iterator[MediaWikiClient]:
-    if not _harness_reachable():
-        pytest.skip(f"Local MediaWiki harness not reachable at {WIKI_BASE_URL}")
-    if shutil.which("docker") is None:
-        pytest.skip("Docker is required to provision the deploy bot and clean up test pages")
-
-    _ensure_deploy_bot()
-
-    client = MediaWikiClient(
-        api_url=API_URL,
-        bot_username=BOT_USER,
-        bot_password=BOT_PASSWORD,
-    )
-    client.login()
-    try:
-        yield client
-    finally:
-        client.close()
-
-
-@pytest.fixture
-def pages(wiki_client: MediaWikiClient) -> Iterator[_PageScope]:
-    scope = _PageScope()
-    try:
-        yield scope
-    finally:
-        _delete_pages(scope.titles)
 
 
 def test_deploy_creates_page_then_skips_unchanged(

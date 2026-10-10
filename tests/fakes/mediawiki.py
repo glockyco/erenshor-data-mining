@@ -8,9 +8,8 @@ a test asserts the resulting page or file rather than how the fake was
 called.
 
 Contract-tested against the local wiki in
-`tests/contract/infrastructure/wiki/test_mediawiki_fake_contract.py`, so its
-behavior cannot drift from what the real server does for the operations that
-test covers.
+`tests/system/wiki/test_mediawiki_fake_contract.py`, so its behavior cannot
+drift from what the real server does for the operations that test covers.
 """
 
 from __future__ import annotations
@@ -111,7 +110,7 @@ class MediaWikiFake:
         self._mark_dark()
 
     def _write_page(self, title: str, text: str, user: str | None) -> None:
-        self.pages[title] = text
+        self.pages[title] = text.rstrip()
         self.revisions[title] = self.revisions.get(title, 0) + 1
         self.page_ids.setdefault(title, self._next_id())
         self.page_users[title] = user or self.edit_account
@@ -158,6 +157,11 @@ class MediaWikiFake:
     ) -> frozenset[str]:
         self._check_assertion(assertion, assert_user)
         return self.rights
+
+    def get_edit_start_timestamp(self, assertion: EditAssertion | None = None, assert_user: str | None = None) -> str:
+        if assertion is not None:
+            self._check_assertion(assertion, assert_user)
+        return "2026-01-01T00:00:00Z"
 
     # --- Page reads ---
 
