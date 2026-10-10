@@ -14,7 +14,7 @@
     <PackageVersion Include="xunit.v3" Version="4.0.1" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="4.0.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
-    <PackageVersion Include="ICSharpCode.Decompiler" Version="10.1.1.8388" />
+    <PackageVersion Include="ICSharpCode.Decompiler" Version="11.1.0.9782" />
     <PackageVersion Include="Mono.Cecil" Version="0.11.6" />
   </ItemGroup>
 </Project>
