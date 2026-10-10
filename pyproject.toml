@@ -76,6 +76,7 @@ dev = [
     "types-jinja2",
     "playwright>=1.60.0",
     "pytest-xdist>=3.8.0",
+    "inline-snapshot>=0.35.0",
 ]
 
 # mwparserfromhell publishes no Python 3.14 wheel and its sdist omits the
