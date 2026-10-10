@@ -111,25 +111,27 @@ def test_builds_mediawiki_api_urls_without_double_slashes() -> None:
 
 def test_smoke_check_reports_missing_expected_text() -> None:
     render = load_script("wiki-dev/smoke/render.py")
+    mediawiki = load_script("wiki-dev/smoke/mediawiki.py")
 
-    result = render.check_rendered_html(
+    result = render.check_rendered_page(
         title="Sword of Flames",
-        html="<p>Rendered sword page</p>",
-        expected=["Rendered sword page", "Damage"],
+        parsed=mediawiki.ParsedPage(html="<p>Rendered sword page</p>", categories=()),
+        expected=["text:Rendered sword page", "text:Damage"],
     )
 
     assert result.ok is False
-    assert result.missing == ["Damage"]
+    assert result.missing == ["text:Damage"]
     assert result.title == "Sword of Flames"
 
 
 def test_smoke_check_accepts_all_expected_text() -> None:
     render = load_script("wiki-dev/smoke/render.py")
+    mediawiki = load_script("wiki-dev/smoke/mediawiki.py")
 
-    result = render.check_rendered_html(
+    result = render.check_rendered_page(
         title="Sword of Flames",
-        html="<p>Rendered sword page with Damage</p>",
-        expected=["Rendered sword page", "Damage"],
+        parsed=mediawiki.ParsedPage(html="<p>Rendered sword page with Damage</p>", categories=()),
+        expected=["text:Rendered sword page", "text:Damage"],
     )
 
     assert result.ok is True
@@ -138,21 +140,27 @@ def test_smoke_check_accepts_all_expected_text() -> None:
 
 def test_smoke_check_rejects_text_that_must_be_absent() -> None:
     render = load_script("wiki-dev/smoke/render.py")
-    expected = ["Rendered character", "!Category:Needs_Character_Image"]
+    mediawiki = load_script("wiki-dev/smoke/mediawiki.py")
+    expected = ["text:Rendered character", "!category:Needs_Character_Image"]
 
-    with_category = render.check_rendered_html(
-        title="Faith", html="<p>Rendered character</p>\nCategory:Needs_Character_Image", expected=expected
+    with_category = render.check_rendered_page(
+        title="Faith",
+        parsed=mediawiki.ParsedPage(html="<p>Rendered character</p>", categories=("Needs_Character_Image",)),
+        expected=expected,
     )
-    without_category = render.check_rendered_html(
-        title="Faith", html="<p>Rendered character</p>\nCategory:Characters", expected=expected
+    without_category = render.check_rendered_page(
+        title="Faith",
+        parsed=mediawiki.ParsedPage(html="<p>Rendered character</p>", categories=("Characters",)),
+        expected=expected,
     )
 
-    assert with_category.missing == ["unexpected: Category:Needs_Character_Image"]
+    assert with_category.missing == ["!category:Needs_Character_Image"]
     assert without_category.ok is True
 
 
 def test_smoke_check_rejects_parser_health_markers() -> None:
     render = load_script("wiki-dev/smoke/render.py")
+    mediawiki = load_script("wiki-dev/smoke/mediawiki.py")
 
     html = """
     <div class="mw-parser-output">
@@ -164,7 +172,9 @@ def test_smoke_check_rejects_parser_health_markers() -> None:
     </div>
     """
 
-    result = render.check_rendered_html(title="Broken Item", html=html, expected=[])
+    result = render.check_rendered_page(
+        title="Broken Item", parsed=mediawiki.ParsedPage(html=html, categories=()), expected=[]
+    )
 
     assert result.ok is False
     assert result.missing == [
@@ -178,6 +188,7 @@ def test_smoke_check_rejects_parser_health_markers() -> None:
 
 def test_smoke_check_allows_successful_newpp_limit_reports() -> None:
     render = load_script("wiki-dev/smoke/render.py")
+    mediawiki = load_script("wiki-dev/smoke/mediawiki.py")
 
     html = """
     <div class="mw-parser-output">
@@ -189,7 +200,11 @@ def test_smoke_check_allows_successful_newpp_limit_reports() -> None:
     </div>
     """
 
-    result = render.check_rendered_html(title="Healthy Page", html=html, expected=["Rendered page"])
+    result = render.check_rendered_page(
+        title="Healthy Page",
+        parsed=mediawiki.ParsedPage(html=html, categories=()),
+        expected=["text:Rendered page"],
+    )
 
     assert result.ok is True
     assert result.missing == []
@@ -197,6 +212,7 @@ def test_smoke_check_allows_successful_newpp_limit_reports() -> None:
 
 def test_smoke_check_allows_healthy_template_links_and_visible_limit_text() -> None:
     render = load_script("wiki-dev/smoke/render.py")
+    mediawiki = load_script("wiki-dev/smoke/mediawiki.py")
 
     html = """
     <div class="mw-parser-output">
@@ -206,10 +222,10 @@ def test_smoke_check_allows_healthy_template_links_and_visible_limit_text() -> N
     </div>
     """
 
-    result = render.check_rendered_html(
+    result = render.check_rendered_page(
         title="Healthy Template Docs",
-        html=html,
-        expected=["Documented TemplateSandbox page"],
+        parsed=mediawiki.ParsedPage(html=html, categories=()),
+        expected=["text:Documented TemplateSandbox page"],
     )
 
     assert result.ok is True
@@ -218,11 +234,12 @@ def test_smoke_check_allows_healthy_template_links_and_visible_limit_text() -> N
 
 def test_smoke_check_rejects_unexpected_missing_data_categories() -> None:
     render = load_script("wiki-dev/smoke/render.py")
+    mediawiki = load_script("wiki-dev/smoke/mediawiki.py")
 
-    result = render.check_rendered_html(
+    result = render.check_rendered_page(
         title="Ember Longsword",
-        html="<p>Rendered item</p>\nCategory:Pages_with_missing_Erenshor_item_data",
-        expected=["Rendered item"],
+        parsed=mediawiki.ParsedPage(html="<p>Rendered item</p>", categories=("Pages_with_missing_Erenshor_item_data",)),
+        expected=["text:Rendered item"],
     )
 
     assert result.ok is False
@@ -231,10 +248,13 @@ def test_smoke_check_rejects_unexpected_missing_data_categories() -> None:
 
 def test_smoke_check_rejects_raw_semantic_link_templates() -> None:
     render = load_script("wiki-dev/smoke/render.py")
+    mediawiki = load_script("wiki-dev/smoke/mediawiki.py")
 
-    result = render.check_rendered_html(
+    result = render.check_rendered_page(
         title="Minor Lightning",
-        html="<p>{{ItemLink|Abyssal Plate}} {{AbilityLink|Minor Lightning}}</p>",
+        parsed=mediawiki.ParsedPage(
+            html="<p>{{ItemLink|Abyssal Plate}} {{AbilityLink|Minor Lightning}}</p>", categories=()
+        ),
         expected=[],
     )
 

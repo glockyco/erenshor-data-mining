@@ -2,10 +2,19 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     import httpx
+
+
+@dataclass(frozen=True, slots=True)
+class ParsedPage:
+    """A rendered page's HTML and the categories it belongs to."""
+
+    html: str
+    categories: tuple[str, ...]
 
 
 def api_url(base_url: str) -> str:
@@ -13,8 +22,8 @@ def api_url(base_url: str) -> str:
     return f"{base_url.rstrip('/')}/api.php"
 
 
-def parse_page(client: httpx.Client, endpoint: str, title: str) -> str:
-    """Render a wiki page and return parsed HTML plus category markers."""
+def parse_page(client: httpx.Client, endpoint: str, title: str) -> ParsedPage:
+    """Render a wiki page and return its parsed HTML and category names."""
     response = client.get(
         endpoint,
         params={
@@ -31,5 +40,5 @@ def parse_page(client: httpx.Client, endpoint: str, title: str) -> str:
         raise RuntimeError(f"Parse failed for {title}: {payload['error']}")
     parsed = payload["parse"]
     html = str(parsed["text"])
-    categories = "".join(f"\nCategory:{category['category']}" for category in parsed.get("categories", []))
-    return html + categories
+    categories = tuple(str(category["category"]) for category in parsed.get("categories", []))
+    return ParsedPage(html=html, categories=categories)

@@ -1,264 +1,269 @@
-Smoke Page	Erenshor local Lua smoke marker
-Lua Foundation Smoke	PASS Erenshor Args testcases
-Lua Foundation Smoke	PASS Erenshor Format testcases
-Lua Build Smoke	PASS Erenshor Build testcases
-Lua Item Smoke	PASS Erenshor Item/ParameterizedTooltip testcases
-Ember Longsword	Ember Longsword
-Ember Longsword	Weapon
-Ember Longsword	item-tooltip-tier-2
-Ember Longsword	item-tooltip-weapon
-Ember Longsword	Item Stats
-Ember Longsword	Base DPS
-Ember Longsword	item-tooltip-class">Windblade
-Ember Longsword	item-spell-details
-Ember Longsword	20% chance on ATTACK:
-Ember Longsword	Ember Burst
-Ember Longsword	portable-infobox
-Ember Longsword	pi-type-Item
-Abyssal Plate	Armor
-Abyssal Plate	item-tooltip-armor
-Copper Armor Mold	View on the interactive map
-Ember Aura	View on the interactive map
-Healing Draught	View on the interactive map
-Lucky Charm	View on the interactive map
-Magical Bag	View on the interactive map
-Scroll of Ember	View on the interactive map
-Sword Mastery Manual	View on the interactive map
-Lua AbilityLink Smoke	PASS Erenshor AbilityLink testcases
-Lua AbilityLink Smoke	Minor Lightning
-Lua AbilityLink Smoke	Stance: Aggressive
-Lua AbilityLink Smoke	Manual Ability Text
-Lua AbilityLink Smoke	Manual Ability Page
-Lua AbilityLink Smoke	data-erenshor-page="Minor Lightning"
-Lua AbilityLink Smoke	data-erenshor-key="spell:minor&#95;lightning"
-Lua AbilityLink Smoke	Minor_Lightning
-Lua AbilityLink Smoke	data-erenshor-page="Stance: Aggressive"
-Lua AbilityLink Smoke	data-erenshor-key="stance:aggressive"
-Lua AbilityLink Smoke	Stance:_Aggressive
-Lua AbilityLink Smoke	Manual_Ability_Page
-Lua AbilityLink Smoke	data-erenshor-page="Manual Ability Page"
-Lua AbilityLink Smoke	data-erenshor-key="spell:minor&#95;lightning"
-Lua AbilityLink Smoke	Unresolved Ability
-Lua AbilityLink Smoke	Unresolved_Ability_Target
-Lua AbilityLink Smoke	data-erenshor-page="Unresolved Ability Target"
-Lua AbilityLink Smoke	data-erenshor-key="spell:does-not-exist"
-Lua AbilityLink Smoke	Wrong Kind Ability
-Lua AbilityLink Smoke	Wrong_Kind_Ability_Target
-Lua AbilityLink Smoke	data-erenshor-page="Wrong Kind Ability Target"
-Lua AbilityLink Smoke	data-erenshor-key="item:chest - 38 - abyssal plate"
-Lua AbilityLink Smoke	Manual_Ability_Target
-Lua AbilityLink Smoke	Manual Ability
-Lua AbilityLink Smoke	data-erenshor-page="Manual Ability Target"
-Lua AbilityLink Smoke	Category:Pages_with_unresolved_Erenshor_links
-Lua AbilityLink Smoke	Category:Pages_with_mismatched_Erenshor_link_targets
-Lua Link Smoke	PASS Erenshor Link testcases
-Lua Link Smoke	erenshor-link--item
-Lua Link Smoke	erenshor-link--ability
-Lua Link Smoke	erenshor-link--quest
-Lua Link Smoke	erenshor-link--character
-Lua Link Smoke	erenshor-link--zone
-Lua Link Smoke	erenshor-link--faction
-Lua Link Smoke	erenshor-link--class
-Lua Link Smoke	Keyed Item
-Lua Link Smoke	Positional Item
-Lua Link Smoke	Abyssal_Plate
-Lua Link Smoke	data-erenshor-page="Abyssal Plate"
-Lua Link Smoke	data-erenshor-key="item:chest - 38 - abyssal plate"
-Lua Link Smoke	Keyed Ability
-Lua Link Smoke	Positional Ability
-Lua Link Smoke	Minor_Lightning
-Lua Link Smoke	data-erenshor-page="Minor Lightning"
-Lua Link Smoke	data-erenshor-key="spell:minor&#95;lightning"
-Lua Link Smoke	Keyed Quest
-Lua Link Smoke	Positional Quest
-Lua Link Smoke	A_Magical_Sword_in_Port_Azure
-Lua Link Smoke	data-erenshor-page="A Magical Sword in Port Azure"
-Lua Link Smoke	data-erenshor-key="quest:magical&#95;sword"
-Lua Link Smoke	Keyed Character
-Lua Link Smoke	Positional Character
-Lua Link Smoke	A_Grizzly_Bear
-Lua Link Smoke	data-erenshor-page="A Grizzly Bear"
-Lua Link Smoke	data-erenshor-key="character:a&#95;grizzly&#95;bear"
-Lua Link Smoke	Keyed Zone
-Lua Link Smoke	Positional Zone
-Lua Link Smoke	Blacksalt_Strand
-Lua Link Smoke	data-erenshor-page="Blacksalt Strand"
-Lua Link Smoke	data-erenshor-key="zone:saltedstrand"
-Lua Link Smoke	Keyed Faction
-Lua Link Smoke	Positional Faction
-Lua Link Smoke	The_Followers_of_Good
-Lua Link Smoke	data-erenshor-page="The Followers of Good"
-Lua Link Smoke	data-erenshor-key="faction:good"
-Lua Link Smoke	Keyed Class
-Lua Link Smoke	Positional Class
-Lua Link Smoke	Windblade
-Lua Link Smoke	data-erenshor-page="Windblade"
-Lua Link Smoke	data-erenshor-key="class:duelist"
-Lua Link Smoke	Priel_Note
-Lua Link Smoke	data-erenshor-page="Priel Note"
-Lua Link Smoke	Category:Pages_with_ambiguous_Erenshor_links
-Lua Link Smoke	Unresolved Ability
-Lua Link Smoke	Unresolved_Ability_Target
-Lua Link Smoke	data-erenshor-page="Unresolved Ability Target"
-Lua Link Smoke	data-erenshor-key="spell:does-not-exist"
-Lua Link Smoke	Wrong Kind Item
-Lua Link Smoke	Wrong_Kind_Item_Target
-Lua Link Smoke	data-erenshor-page="Wrong Kind Item Target"
-Lua Link Smoke	data-erenshor-key="spell:minor&#95;lightning"
-Lua Link Smoke	Manual Ability
-Lua Link Smoke	Manual_Ability_Target
-Lua Link Smoke	data-erenshor-page="Manual Ability Target"
-Lua Link Smoke	data-erenshor-key="spell:minor&#95;lightning"
-Lua Link Smoke	Category:Pages_with_unresolved_Erenshor_links
-Lua Link Smoke	Category:Pages_with_mismatched_Erenshor_link_targets
-Map Link Smoke	zone%3APortAzure
-Lua Stance Smoke	PASS Erenshor Stance testcases
-Lua Spell Smoke	PASS Erenshor Spell testcases
-Lua Skill Smoke	PASS Erenshor Skill testcases
-Legacy Item Fixture	Legacy Sword Fixture
-Legacy Item Fixture	Weapon
-Legacy Item Fixture	Legacy inline-param item, no stablekey.
-Legacy Item Fixture	portable-infobox
-Legacy Item Fixture	pi-type-Item
-Legacy Item Fixture	Category:Items
-Legacy Item Fixture	<figure class="pi-item pi-media pi-image" data-source="icon">
-Generated Item Fixture	Generated Sword Fixture
-Generated Item Fixture	Sold by
-Generated Item Fixture	Generated Vendor
-Generated Item Fixture	Dropped by
-Generated Item Fixture	Generated Monster
-Generated Item Fixture	View on the interactive map
-Generated Item Fixture	sel=item:item%3Agen+-+sword+fixture
-Generated Item Fixture	pi-type-Item
-Generated Item Fixture	Category:Items
-Generated Item Fixture	<figure class="pi-item pi-media pi-image" data-source="icon">
-Parameterized ItemTooltip Fixture	Parameterized Sword
-Parameterized ItemTooltip Fixture	Weapon
-Parameterized ItemTooltip Fixture	Standard
-Parameterized ItemTooltip Fixture	Blessed
-Parameterized ItemTooltip Fixture	Ascended
-Parameterized ItemTooltip Fixture	Parameterized Sword icon.png
-Parameterized ItemTooltip Fixture	Item Stats
-Parameterized ItemTooltip Fixture	Base DPS
-Legacy Character Fixture	Legacy Beast Fixture
-Legacy Character Fixture	Enemy
-Legacy Character Fixture	Legacy Faction
-Legacy Character Fixture	Legacy Zone
-Legacy Character Fixture	View on the interactive map
-Legacy Character Fixture	portable-infobox
-Legacy Character Fixture	pi-type-Character
-Legacy Character Fixture	Category:Enemies
-Keyed Legacy Character	Keyed Elite Fixture
-Keyed Legacy Character	Elite
-Keyed Legacy Character	Keyed Faction
-Keyed Legacy Character	Keyed Zone
-Keyed Legacy Character	portable-infobox
-Keyed Legacy Character	pi-type-Character
-Keyed Legacy Character	Category:Enemies
-Keyed Legacy Character	Category:Elites
-Lua Link Search Smoke	PASS Erenshor Link/Search testcases
-Lua Link Search Smoke	spell:flame_bolt
-Lua Link Search Smoke	Flame Bolt
-Lua Link Search Smoke	ability
-Ability Tooltip Fixture	Minor Lightning
-Ability Tooltip Fixture	Mana Cost: 30
-Ability Tooltip Fixture	Backstab - Activatable
-Ability Tooltip Fixture	Change Stance
-Unique Ability Tooltip Fixture	Minor Lightning
-Unique Ability Tooltip Fixture	Mana Cost: 30
-Semantic Tooltip Smoke	Keyed exact ability
-Semantic Tooltip Smoke	Keyed skill ability
-Semantic Tooltip Smoke	Keyed stance ability
-Semantic Tooltip Smoke	Unique positional ability
-Semantic Tooltip Smoke	Ambiguous positional ability
-Semantic Tooltip Smoke	Abyssal Plate
-Tooltip Placement Fixture	Next table row
-Tooltip Placement Fixture	Right edge item
-Item Effect Lines Fixture	Must Equip to Cast
-Item Effect Lines Fixture	Activatable: Minor Lightning
-Historical Removed Skill	This skill is no longer in the game.
-Historical Removed Skill	Historical Content
-Historical Removed Skill	Planar March
-Historical Removed Skill	July 13, 2026
-Historical Removed Skill	steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1837955055363541
-Historical Removed Skill	Category:Removed_Content
-Historical Removed Skill	This skill is no longer in the game.&#32;It was removed in the
-Historical Removed Skill	update&#32;(July 13, 2026).
-Historical Unobtainable Item	This item can no longer be obtained.
-Historical Unobtainable Item	Historical Content
-Historical Unobtainable Item	Category:Unobtainable_Content
-Historical Removed Ability	This ability is no longer in the game.
-Historical Removed Ability	Category:Removed_Content
-Historical No Update	This skill is no longer in the game.
-Historical No Update	Category:Removed_Content
-Historical Unused Character	This character is in the game files, but nothing in the current game spawns it.&#32;Simulated players can still name it in chat.</p>
-Historical Unused Character	Historical Content
-Historical Unused Character	Category:Unused_Content
-Historical Unused Character	The character details stay beside the infobox.
-Historical Unused No Chat	This character is in the game files, but nothing in the current game spawns it.</p>
-Historical Unused No Chat	Category:Unused_Content
-Historical Layout Item	This item can no longer be obtained.
-Historical Layout Item	The item details stay beside the infobox.
-Lua TreasureGuardian Smoke	PASS Erenshor TreasureGuardian testcases
-Treasure Guardian Fixture	Stats by the level of the attacking player
-Treasure Guardian Fixture	Treasure hunt
-Treasure Guardian Fixture	Spawn Type:
+Smoke Page	text:Erenshor local Lua smoke marker
+Lua Foundation Smoke	text:PASS Erenshor Args testcases
+Lua Foundation Smoke	text:PASS Erenshor Format testcases
+Lua Build Smoke	text:PASS Erenshor Build testcases
+Lua Item Smoke	text:PASS Erenshor Item/ParameterizedTooltip testcases
+Ember Longsword	elem:.item-tooltip-tier-0=Ember Longsword
+Ember Longsword	elem:a.new[title*="Weapons"]
+Ember Longsword	elem:.item-tooltip-tier-2
+Ember Longsword	elem:.item-tooltip-weapon
+Ember Longsword	elem:.item-tooltip-section-header=Item Stats
+Ember Longsword	elem:.item-tooltip-dps=Base DPS
+Ember Longsword	elem:.item-tooltip-class=Windblade
+Ember Longsword	elem:.item-spell-details
+Ember Longsword	elem:.item-spell-details-proc-header=20% chance on ATTACK:
+Ember Longsword	elem:.item-spell-details-header=Ember Burst
+Ember Longsword	elem:.portable-infobox
+Ember Longsword	elem:.pi-type-Item
+Abyssal Plate	elem:.item-tooltip-stat-label=Armor
+Abyssal Plate	elem:.item-tooltip-armor
+Copper Armor Mold	elem:.pi-data-value=View on the interactive map
+Ember Aura	elem:.pi-data-value=View on the interactive map
+Healing Draught	elem:.pi-data-value=View on the interactive map
+Lucky Charm	elem:.pi-data-value=View on the interactive map
+Magical Bag	elem:.pi-data-value=View on the interactive map
+Scroll of Ember	elem:.pi-data-value=View on the interactive map
+Sword Mastery Manual	elem:.pi-data-value=View on the interactive map
+Lua AbilityLink Smoke	text:PASS Erenshor AbilityLink testcases
+Lua AbilityLink Smoke	elem:.erenshor-link=Minor Lightning
+Lua AbilityLink Smoke	elem:[data-erenshor-page="Stance: Aggressive"]
+Lua AbilityLink Smoke	elem:.erenshor-link=Manual Ability Text
+Lua AbilityLink Smoke	elem:[data-erenshor-page="Manual Ability Page"]
+Lua AbilityLink Smoke	elem:[data-erenshor-page="Minor Lightning"]
+Lua AbilityLink Smoke	elem:[data-erenshor-key="spell:minor_lightning"]
+Lua AbilityLink Smoke	elem:a[href*="Minor_Lightning"]
+Lua AbilityLink Smoke	elem:[data-erenshor-page="Stance: Aggressive"]
+Lua AbilityLink Smoke	elem:[data-erenshor-key="stance:aggressive"]
+Lua AbilityLink Smoke	elem:a[href*="Stance:_Aggressive"]
+Lua AbilityLink Smoke	elem:a[href*="Manual_Ability_Page"]
+Lua AbilityLink Smoke	elem:[data-erenshor-page="Manual Ability Page"]
+Lua AbilityLink Smoke	elem:[data-erenshor-key="spell:minor_lightning"]
+Lua AbilityLink Smoke	elem:.erenshor-link=Unresolved Ability
+Lua AbilityLink Smoke	elem:a[href*="Unresolved_Ability_Target"]
+Lua AbilityLink Smoke	elem:[data-erenshor-page="Unresolved Ability Target"]
+Lua AbilityLink Smoke	elem:[data-erenshor-key="spell:does-not-exist"]
+Lua AbilityLink Smoke	elem:.erenshor-link=Wrong Kind Ability
+Lua AbilityLink Smoke	elem:a[href*="Wrong_Kind_Ability_Target"]
+Lua AbilityLink Smoke	elem:[data-erenshor-page="Wrong Kind Ability Target"]
+Lua AbilityLink Smoke	elem:[data-erenshor-key="item:chest - 38 - abyssal plate"]
+Lua AbilityLink Smoke	elem:a[href*="Manual_Ability_Target"]
+Lua AbilityLink Smoke	elem:.erenshor-link=Manual Ability
+Lua AbilityLink Smoke	elem:[data-erenshor-page="Manual Ability Target"]
+Lua AbilityLink Smoke	category:Pages_with_unresolved_Erenshor_links
+Lua AbilityLink Smoke	category:Pages_with_mismatched_Erenshor_link_targets
+Lua Link Smoke	text:PASS Erenshor Link testcases
+Lua Link Smoke	elem:.erenshor-link--item
+Lua Link Smoke	elem:.erenshor-link--ability
+Lua Link Smoke	elem:.erenshor-link--quest
+Lua Link Smoke	elem:.erenshor-link--character
+Lua Link Smoke	elem:.erenshor-link--zone
+Lua Link Smoke	elem:.erenshor-link--faction
+Lua Link Smoke	elem:.erenshor-link--class
+Lua Link Smoke	elem:.erenshor-link--item=Keyed Item
+Lua Link Smoke	elem:.erenshor-link--item=Positional Item
+Lua Link Smoke	elem:a[href*="Abyssal_Plate"]
+Lua Link Smoke	elem:[data-erenshor-page="Abyssal Plate"]
+Lua Link Smoke	elem:[data-erenshor-key="item:chest - 38 - abyssal plate"]
+Lua Link Smoke	elem:.erenshor-link--ability=Keyed Ability
+Lua Link Smoke	elem:.erenshor-link--ability=Positional Ability
+Lua Link Smoke	elem:a[href*="Minor_Lightning"]
+Lua Link Smoke	elem:[data-erenshor-page="Minor Lightning"]
+Lua Link Smoke	elem:[data-erenshor-key="spell:minor_lightning"]
+Lua Link Smoke	elem:.erenshor-link--quest=Keyed Quest
+Lua Link Smoke	elem:.erenshor-link--quest=Positional Quest
+Lua Link Smoke	elem:a[href*="A_Magical_Sword_in_Port_Azure"]
+Lua Link Smoke	elem:[data-erenshor-page="A Magical Sword in Port Azure"]
+Lua Link Smoke	elem:[data-erenshor-key="quest:magical_sword"]
+Lua Link Smoke	elem:.erenshor-link--character=Keyed Character
+Lua Link Smoke	elem:.erenshor-link--character=Positional Character
+Lua Link Smoke	elem:a[href*="A_Grizzly_Bear"]
+Lua Link Smoke	elem:[data-erenshor-page="A Grizzly Bear"]
+Lua Link Smoke	elem:[data-erenshor-key="character:a_grizzly_bear"]
+Lua Link Smoke	elem:.erenshor-link--zone=Keyed Zone
+Lua Link Smoke	elem:.erenshor-link--zone=Positional Zone
+Lua Link Smoke	elem:a[href*="Blacksalt_Strand"]
+Lua Link Smoke	elem:[data-erenshor-page="Blacksalt Strand"]
+Lua Link Smoke	elem:[data-erenshor-key="zone:saltedstrand"]
+Lua Link Smoke	elem:.erenshor-link--faction=Keyed Faction
+Lua Link Smoke	elem:.erenshor-link--faction=Positional Faction
+Lua Link Smoke	elem:a[href*="The_Followers_of_Good"]
+Lua Link Smoke	elem:[data-erenshor-page="The Followers of Good"]
+Lua Link Smoke	elem:[data-erenshor-key="faction:good"]
+Lua Link Smoke	elem:.erenshor-link--class=Keyed Class
+Lua Link Smoke	elem:.erenshor-link--class=Positional Class
+Lua Link Smoke	elem:[data-erenshor-page="Windblade"]
+Lua Link Smoke	elem:[data-erenshor-page="Windblade"]
+Lua Link Smoke	elem:[data-erenshor-key="class:duelist"]
+Lua Link Smoke	elem:a[href*="Priel_Note"]
+Lua Link Smoke	elem:[data-erenshor-page="Priel Note"]
+Lua Link Smoke	category:Pages_with_ambiguous_Erenshor_links
+Lua Link Smoke	elem:.erenshor-link--ability=Unresolved Ability
+Lua Link Smoke	elem:a[href*="Unresolved_Ability_Target"]
+Lua Link Smoke	elem:[data-erenshor-page="Unresolved Ability Target"]
+Lua Link Smoke	elem:[data-erenshor-key="spell:does-not-exist"]
+Lua Link Smoke	elem:.erenshor-link--item=Wrong Kind Item
+Lua Link Smoke	elem:a[href*="Wrong_Kind_Item_Target"]
+Lua Link Smoke	elem:[data-erenshor-page="Wrong Kind Item Target"]
+Lua Link Smoke	elem:[data-erenshor-key="spell:minor_lightning"]
+Lua Link Smoke	elem:.erenshor-link--ability=Manual Ability
+Lua Link Smoke	elem:a[href*="Manual_Ability_Target"]
+Lua Link Smoke	elem:[data-erenshor-page="Manual Ability Target"]
+Lua Link Smoke	elem:[data-erenshor-key="spell:minor_lightning"]
+Lua Link Smoke	category:Pages_with_unresolved_Erenshor_links
+Lua Link Smoke	category:Pages_with_mismatched_Erenshor_link_targets
+Map Link Smoke	elem:a.external[href*="zone%3APortAzure"]
+Lua Stance Smoke	text:PASS Erenshor Stance testcases
+Lua Spell Smoke	text:PASS Erenshor Spell testcases
+Lua Skill Smoke	text:PASS Erenshor Skill testcases
+Legacy Item Fixture	elem:.pi-title=Legacy Sword Fixture
+Legacy Item Fixture	elem:.pi-data-value=Weapon
+Legacy Item Fixture	elem:.pi-data-value=Legacy inline-param item, no stablekey.
+Legacy Item Fixture	elem:.portable-infobox
+Legacy Item Fixture	elem:.pi-type-Item
+Legacy Item Fixture	category:Items
+Legacy Item Fixture	elem:figure.pi-item.pi-media.pi-image[data-source="icon"]
+Generated Item Fixture	elem:.pi-title=Generated Sword Fixture
+Generated Item Fixture	elem:.pi-data-label=Sold by
+Generated Item Fixture	elem:.pi-data-value=Generated Vendor
+Generated Item Fixture	elem:.pi-data-label=Dropped by
+Generated Item Fixture	elem:.pi-data-value=Generated Monster
+Generated Item Fixture	elem:.pi-data-value=View on the interactive map
+Generated Item Fixture	elem:a.external[href*="sel=item:item%3Agen+-+sword+fixture"]
+Generated Item Fixture	elem:.pi-type-Item
+Generated Item Fixture	category:Items
+Generated Item Fixture	elem:figure.pi-item.pi-media.pi-image[data-source="icon"]
+Parameterized ItemTooltip Fixture	elem:.item-tooltip-tier-0=Parameterized Sword
+Parameterized ItemTooltip Fixture	elem:a.new[title*="Weapons"]
+Parameterized ItemTooltip Fixture	elem:.item-tooltip-tier-0=Standard
+Parameterized ItemTooltip Fixture	elem:.item-tooltip-tier-1=Blessed
+Parameterized ItemTooltip Fixture	elem:.item-tooltip-tier-2=Ascended
+Parameterized ItemTooltip Fixture	elem:.erenshor-icon-art=Parameterized Sword icon.png
+Parameterized ItemTooltip Fixture	elem:.item-tooltip-section-header=Item Stats
+Parameterized ItemTooltip Fixture	elem:.item-tooltip-dps=Base DPS
+Legacy Character Fixture	elem:.pi-title=Legacy Beast Fixture
+Legacy Character Fixture	elem:.pi-data-value=Enemy
+Legacy Character Fixture	elem:.pi-data-value=Legacy Faction
+Legacy Character Fixture	elem:.pi-data-value=Legacy Zone
+Legacy Character Fixture	elem:.pi-data-value=View on the interactive map
+Legacy Character Fixture	elem:.portable-infobox
+Legacy Character Fixture	elem:.pi-type-Character
+Legacy Character Fixture	category:Enemies
+Keyed Legacy Character	elem:.pi-title=Keyed Elite Fixture
+Keyed Legacy Character	elem:.pi-data-value=Elite
+Keyed Legacy Character	elem:.pi-data-value=Keyed Faction
+Keyed Legacy Character	elem:.pi-data-value=Keyed Zone
+Keyed Legacy Character	elem:.portable-infobox
+Keyed Legacy Character	elem:.pi-type-Character
+Keyed Legacy Character	category:Enemies
+Keyed Legacy Character	category:Elites
+Lua Link Search Smoke	text:PASS Erenshor Link/Search testcases
+Lua Link Search Smoke	text:spell:flame_bolt
+Lua Link Search Smoke	text:Flame Bolt
+Lua Link Search Smoke	text:ability
+Ability Tooltip Fixture	elem:.item-spell-details-header=Minor Lightning
+Ability Tooltip Fixture	elem:.item-spell-detail-row=Mana Cost: 30
+Ability Tooltip Fixture	elem:.item-spell-details-header=Backstab - Activatable
+Ability Tooltip Fixture	elem:.item-spell-detail-row=Change Stance
+Unique Ability Tooltip Fixture	elem:.item-spell-details-header=Minor Lightning
+Unique Ability Tooltip Fixture	elem:.item-spell-detail-row=Mana Cost: 30
+Semantic Tooltip Smoke	elem:.erenshor-link--ability=Keyed exact ability
+Semantic Tooltip Smoke	elem:.erenshor-link--ability=Keyed skill ability
+Semantic Tooltip Smoke	elem:.erenshor-link--ability=Keyed stance ability
+Semantic Tooltip Smoke	elem:.erenshor-link--ability=Unique positional ability
+Semantic Tooltip Smoke	elem:.erenshor-link--ability=Ambiguous positional ability
+Semantic Tooltip Smoke	elem:.erenshor-link--item=Abyssal Plate
+Tooltip Placement Fixture	elem:.tooltip-next-row=Next table row
+Tooltip Placement Fixture	elem:.erenshor-link=Right edge item
+Item Effect Lines Fixture	elem:.item-spell-flag=Must Equip to Cast
+Item Effect Lines Fixture	elem:.item-tooltip-activatable-name=Activatable: Minor Lightning
+Historical Removed Skill	elem:.navbox=This skill is no longer in the game.
+Historical Removed Skill	elem:.navbox=Historical Content
+Historical Removed Skill	elem:.navbox=Planar March
+Historical Removed Skill	elem:.navbox=July 13, 2026
+Historical Removed Skill	elem:a.external[href*="steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1837955055363541"]
+Historical Removed Skill	category:Removed_Content
+Historical Removed Skill	elem:.navbox=This skill is no longer in the game. It was removed in the
+Historical Removed Skill	elem:.navbox=update (July 13, 2026).
+Historical Unobtainable Item	elem:.navbox=This item can no longer be obtained.
+Historical Unobtainable Item	elem:.navbox=Historical Content
+Historical Unobtainable Item	category:Unobtainable_Content
+Historical Removed Ability	elem:.navbox=This ability is no longer in the game.
+Historical Removed Ability	category:Removed_Content
+Historical No Update	elem:.navbox=This skill is no longer in the game.
+Historical No Update	category:Removed_Content
+Historical Unused Character	elem:.navbox=This character is in the game files, but nothing in the current game spawns it. Simulated players can still name it in chat.
+Historical Unused Character	elem:.navbox=Historical Content
+Historical Unused Character	category:Unused_Content
+Historical Unused Character	text:The character details stay beside the infobox.
+Historical Unused No Chat	elem:.navbox=This character is in the game files, but nothing in the current game spawns it.
+Historical Unused No Chat	category:Unused_Content
+Historical Layout Item	elem:.navbox=This item can no longer be obtained.
+Historical Layout Item	text:The item details stay beside the infobox.
+Lua TreasureGuardian Smoke	text:PASS Erenshor TreasureGuardian testcases
+Treasure Guardian Fixture	elem:.wikitable=Stats by the level of the attacking player
+Treasure Guardian Fixture	elem:.pi-data-value=Treasure hunt
+Treasure Guardian Fixture	elem:.pi-data-label=Spawn Type:
 # Image tracking: neither picture uploaded means the page joins its Needs Image category.
-Image Tracking Uploaded	Category:Characters
-Image Tracking Uploaded	!Category:Needs_
-Image Tracking Missing	Category:Needs_Character_Image
-Image Tracking Chest	Category:Needs_Chest_Image
-Image Tracking Chest	!Category:Needs_Character_Image
-Image Tracking Summon	Category:Needs_Summon_Image
-Image Tracking Summon	!Category:Needs_Character_Image
-Image Tracking Blank	Category:Needs_Character_Image
-Image Tracking Redirect	Category:Needs_Character_Image
-Image Tracking Description	Category:Needs_Character_Image
-Image Tracking Uploaded Redirect	Category:Characters
-Image Tracking Uploaded Redirect	!Category:Needs_
+Image Tracking Uploaded	category:Characters
+Image Tracking Uploaded	!category*:Needs_
+Image Tracking Missing	category:Needs_Character_Image
+Image Tracking Chest	category:Needs_Chest_Image
+Image Tracking Chest	!category:Needs_Character_Image
+Image Tracking Summon	category:Needs_Summon_Image
+Image Tracking Summon	!category:Needs_Character_Image
+Image Tracking Blank	category:Needs_Character_Image
+Image Tracking Redirect	category:Needs_Character_Image
+Image Tracking Description	category:Needs_Character_Image
+Image Tracking Uploaded Redirect	category:Characters
+Image Tracking Uploaded Redirect	!category*:Needs_
 # Character pictures sit on the slate surface of Template:Character/styles.css.
-Image Tracking Uploaded	.pi-type-Character .pi-image-thumbnail{background-color:#313e59}
-File:Image Tracking Redirect.png	Image Tracking Missing.png
-File:Image Tracking Uploaded Redirect.png	Image Tracking Fixture.png
-File:Image Tracking Description.png	A file description page without an upload
+Image Tracking Uploaded	elem:style=.pi-type-Character .pi-image-thumbnail{background-color:#313e59}
+File:Image Tracking Redirect.png	elem:.redirectText=Image Tracking Missing.png
+File:Image Tracking Uploaded Redirect.png	elem:.redirectText=Image Tracking Fixture.png
+File:Image Tracking Description.png	text:A file description page without an upload
 # Character galleries preserve role order and omit files without uploads.
-Image Render Tabs	<li class="pi-tab-link pi-item-spacing current" data-pi-tab="pi-tab-1">Render</li><li class="pi-tab-link pi-item-spacing" data-pi-tab="pi-tab-2">Screenshot</li>
-Image Render Tabs	class="pi-media-collection-tab-content current" id="pi-tab-1"
-Image Render Tabs	class="pi-media-collection-tab-content" id="pi-tab-2"
-Image Render Tabs	!Category:Needs_
-Image Render Only	<figure class="pi-item pi-media pi-image">
-Image Render Only	alt="Render"
-Image Render Only	<figcaption class="pi-item-spacing pi-caption">Render</figcaption>
-Image Render Only	!pi-media-collection
-Image Render Only	!alt="Screenshot"
-Image Render Only	!Category:Needs_
-Image Screenshot Only	<figure class="pi-item pi-media pi-image">
-Image Screenshot Only	alt="Screenshot"
-Image Screenshot Only	<figcaption class="pi-item-spacing pi-caption">Screenshot</figcaption>
-Image Screenshot Only	!pi-media-collection
-Image Screenshot Only	!alt="Render"
-Image Screenshot Only	!Category:Needs_
-Image Render Caption	<li class="pi-tab-link pi-item-spacing current" data-pi-tab="pi-tab-1">Render</li><li class="pi-tab-link pi-item-spacing" data-pi-tab="pi-tab-2">Screenshot</li>
-Image Render Caption	</div><div class="pi-item pi-data pi-item-spacing pi-border-color" data-source="imagecaption">
-Image Render Caption	<div class="pi-data-value pi-font">Ruff and ready</div>
-Image Render Caption	!pi-data-label pi-secondary-font">Ruff
-Image Render Caption	!Category:Needs_
+Image Render Tabs	elem:li.pi-tab-link.pi-item-spacing.current[data-pi-tab="pi-tab-1"]=Render
+Image Render Tabs	elem:li.pi-tab-link.pi-item-spacing[data-pi-tab="pi-tab-2"]=Screenshot
+Image Render Tabs	!elem:li.pi-tab-link.pi-item-spacing.current[data-pi-tab="pi-tab-2"]
+Image Render Tabs	elem:li.pi-tab-link.pi-item-spacing.current[data-pi-tab="pi-tab-1"]=Render
+Image Render Tabs	elem:li.pi-tab-link.pi-item-spacing[data-pi-tab="pi-tab-2"]=Screenshot
+Image Render Tabs	!elem:li.pi-tab-link.pi-item-spacing.current[data-pi-tab="pi-tab-2"]
+Image Render Tabs	!category*:Needs_
+Image Render Only	elem:figure.pi-item.pi-media.pi-image
+Image Render Only	elem:[alt="Render"]
+Image Render Only	elem:figcaption.pi-item-spacing.pi-caption=Render
+Image Render Only	!elem:.pi-media-collection
+Image Render Only	!elem:[alt="Screenshot"]
+Image Render Only	!category*:Needs_
+Image Screenshot Only	elem:figure.pi-item.pi-media.pi-image
+Image Screenshot Only	elem:[alt="Screenshot"]
+Image Screenshot Only	elem:figcaption.pi-item-spacing.pi-caption=Screenshot
+Image Screenshot Only	!elem:.pi-media-collection
+Image Screenshot Only	!elem:[alt="Render"]
+Image Screenshot Only	!category*:Needs_
+Image Render Caption	elem:li.pi-tab-link.pi-item-spacing.current[data-pi-tab="pi-tab-1"]=Render
+Image Render Caption	elem:li.pi-tab-link.pi-item-spacing[data-pi-tab="pi-tab-2"]=Screenshot
+Image Render Caption	!elem:li.pi-tab-link.pi-item-spacing.current[data-pi-tab="pi-tab-2"]
+Image Render Caption	elem:div.pi-item.pi-data.pi-item-spacing.pi-border-color[data-source="imagecaption"]
+Image Render Caption	elem:div.pi-data-value.pi-font=Ruff and ready
+Image Render Caption	!elem:.pi-data-label.pi-secondary-font=Ruff
+Image Render Caption	!category*:Needs_
 # Icon textures are bare game artwork; the wiki draws their frames.
-Lua Foundation Smoke	PASS Erenshor Icon testcases
-Ember Longsword	erenshor-icon erenshor-icon--item
-Ember Longsword	erenshor-icon erenshor-icon--ability
-Lua Link Smoke	erenshor-icon erenshor-icon--item
-Lua Link Smoke	erenshor-icon erenshor-icon--ability
-Ability Tooltip Fixture	erenshor-icon erenshor-icon--ability
-Lua Spell Smoke	erenshor-icon erenshor-icon--ability
-Lua Skill Smoke	erenshor-icon erenshor-icon--ability
-Icon Frames Fixture	erenshor-icon erenshor-icon--item
-Icon Frames Fixture	erenshor-icon erenshor-icon--ability
-Icon Frames Fixture	class="erenshor-icon-well"
-Icon Frames Fixture	width:80px;height:80px
-Icon Frames Fixture	width:60px;height:60px
-Icon Frames Fixture	width:48px;height:48px
-Icon Frames Fixture	width:24px;height:24px
-Icon Frames Fixture	top:3px;right:3px;bottom:3px;left:3px
-Icon Frames Fixture	top:2px;right:2px;bottom:2px;left:2px
-Icon Frames Fixture	top:1px;right:1px;bottom:1px;left:1px
+Lua Foundation Smoke	text:PASS Erenshor Icon testcases
+Ember Longsword	elem:.erenshor-icon.erenshor-icon--item
+Ember Longsword	elem:.erenshor-icon.erenshor-icon--ability
+Lua Link Smoke	elem:.erenshor-icon.erenshor-icon--item
+Lua Link Smoke	elem:.erenshor-icon.erenshor-icon--ability
+Ability Tooltip Fixture	elem:.erenshor-icon.erenshor-icon--ability
+Lua Spell Smoke	elem:.erenshor-icon.erenshor-icon--ability
+Lua Skill Smoke	elem:.erenshor-icon.erenshor-icon--ability
+Icon Frames Fixture	elem:.erenshor-icon.erenshor-icon--item
+Icon Frames Fixture	elem:.erenshor-icon.erenshor-icon--ability
+Icon Frames Fixture	elem:.erenshor-icon-well
+Icon Frames Fixture	elem:[style*="width:80px;height:80px"]
+Icon Frames Fixture	elem:[style*="width:60px;height:60px"]
+Icon Frames Fixture	elem:[style*="width:48px;height:48px"]
+Icon Frames Fixture	elem:[style*="width:24px;height:24px"]
+Icon Frames Fixture	elem:[style*="top:3px;right:3px;bottom:3px;left:3px"]
+Icon Frames Fixture	elem:[style*="top:2px;right:2px;bottom:2px;left:2px"]
+Icon Frames Fixture	elem:[style*="top:1px;right:1px;bottom:1px;left:1px"]

@@ -41,7 +41,7 @@ discover_pages = _import_pages.discover_pages
 query_remote_pages = _import_pages.query_remote_pages
 api_url = _import_pages.api_url
 parse_page = _smoke_mediawiki.parse_page
-check_rendered_html = _smoke_render.check_rendered_html
+check_rendered_page = _smoke_render.check_rendered_page
 load_expectations = _smoke_render.load_expectations
 
 
@@ -130,7 +130,7 @@ def capture_acceptance(root: Path, base_url: str, browser: Mapping[str, int]) ->
             }
         smoke_results: dict[str, str] = {}
         for title, expected in sorted(expectations.items()):
-            result = check_rendered_html(title, parse_page(client, endpoint, title), expected)
+            result = check_rendered_page(title, parse_page(client, endpoint, title), expected)
             if not result.ok:
                 raise RuntimeError(f"Smoke check failed for {title}: {result.missing}")
             signature = json.dumps(

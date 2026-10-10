@@ -5,7 +5,7 @@ from __future__ import annotations
 import httpx
 
 from .mediawiki import parse_page
-from .render import SmokeResult, check_rendered_html
+from .render import SmokeResult, check_rendered_page
 
 
 def run_smoke_checks(endpoint: str, expectations: dict[str, list[str]]) -> list[SmokeResult]:
@@ -13,8 +13,8 @@ def run_smoke_checks(endpoint: str, expectations: dict[str, list[str]]) -> list[
     failures: list[SmokeResult] = []
     with httpx.Client(timeout=30.0) as client:
         for title, expected in expectations.items():
-            html = parse_page(client, endpoint, title)
-            result = check_rendered_html(title=title, html=html, expected=expected)
+            parsed = parse_page(client, endpoint, title)
+            result = check_rendered_page(title=title, parsed=parsed, expected=expected)
             if result.ok:
                 print(f"PASS {title}")
             else:

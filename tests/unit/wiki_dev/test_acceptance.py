@@ -19,6 +19,10 @@ def acceptance() -> ModuleType:
     return module
 
 
+def _parsed_page(acceptance: ModuleType, html: str) -> object:
+    return acceptance._smoke_mediawiki.ParsedPage(html=html, categories=())
+
+
 class _Client:
     def __enter__(self) -> _Client:
         return self
@@ -37,7 +41,7 @@ def test_capture_acceptance_captures_sorted_content_and_smoke(
     root = tmp_path
     fixture_dir = root / "wiki-dev" / "fixtures"
     fixture_dir.mkdir(parents=True)
-    (fixture_dir / "smoke.tsv").write_text("Smoke\tneedle\n", encoding="utf-8")
+    (fixture_dir / "smoke.tsv").write_text("Smoke\ttext:needle\n", encoding="utf-8")
 
     pages = [
         SimpleNamespace(title="MediaWiki:Common.js", content_model="javascript"),
@@ -54,7 +58,11 @@ def test_capture_acceptance_captures_sorted_content_and_smoke(
             "Module:A": SimpleNamespace(content="a", content_model="Scribunto"),
         },
     )
-    monkeypatch.setattr(acceptance, "parse_page", lambda client, endpoint, title: f"needle parsed:{title}")
+    monkeypatch.setattr(
+        acceptance,
+        "parse_page",
+        lambda client, endpoint, title: _parsed_page(acceptance, f"needle parsed:{title}"),
+    )
     monkeypatch.setattr(acceptance.httpx, "Client", _Client)
 
     snapshot = acceptance.capture_acceptance(root, "http://local", _browser(acceptance))
@@ -91,10 +99,10 @@ def test_capture_acceptance_rejects_failed_smoke(
 ) -> None:
     fixture_dir = tmp_path / "wiki-dev" / "fixtures"
     fixture_dir.mkdir(parents=True)
-    (fixture_dir / "smoke.tsv").write_text("Smoke\trequired\n", encoding="utf-8")
+    (fixture_dir / "smoke.tsv").write_text("Smoke\ttext:required\n", encoding="utf-8")
     monkeypatch.setattr(acceptance, "discover_pages", lambda root: [])
     monkeypatch.setattr(acceptance, "query_remote_pages", lambda *args: {})
-    monkeypatch.setattr(acceptance, "parse_page", lambda *args: "wrong")
+    monkeypatch.setattr(acceptance, "parse_page", lambda *args: _parsed_page(acceptance, "wrong"))
     monkeypatch.setattr(acceptance.httpx, "Client", _Client)
 
     with pytest.raises(RuntimeError, match="Smoke check failed for Smoke"):
