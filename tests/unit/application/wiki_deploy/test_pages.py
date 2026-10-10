@@ -6,11 +6,10 @@ from dataclasses import replace
 from pathlib import Path
 
 import pytest
+from tests.fakes.mediawiki import MediaWikiFake
 
 from erenshor.application.wiki_deploy.manifest import RepoWikiPageManifest, build_repo_page_manifest
 from erenshor.application.wiki_deploy.pages import RepoPageDriftError, build_deployed_manifest, deploy_repo_pages
-from erenshor.infrastructure.wiki import MediaWikiPageRevision
-from erenshor.infrastructure.wiki.client import MediaWikiPageSnapshot
 
 
 def write_page(root: Path, relative_path: str, content: str) -> None:
@@ -19,84 +18,11 @@ def write_page(root: Path, relative_path: str, content: str) -> None:
     path.write_text(content, encoding="utf-8")
 
 
-class RecordingWikiClient:
-    edit_account = "ErenshorBot"
-
-    def __init__(self, pages: dict[str, str | None], users: dict[str, str] | None = None) -> None:
-        self.pages = pages
-        self.users = users or {}
-        self.snapshot_requests: list[tuple[list[str], str | None, str | None]] = []
-        self.safe_edits: list[tuple[str, str, MediaWikiPageRevision, str, str, str | None]] = []
-        self.safe_creates: list[tuple[str, str, str, str, str, str | None]] = []
-
-    def get_page_snapshots(
-        self,
-        titles: list[str],
-        assertion: str | None = None,
-        assert_user: str | None = None,
-    ) -> dict[str, MediaWikiPageSnapshot]:
-        self.snapshot_requests.append((titles, assertion, assert_user))
-        snapshots: dict[str, MediaWikiPageSnapshot] = {}
-        for title in titles:
-            content = self.pages.get(title)
-            if content is None:
-                snapshots[title] = MediaWikiPageSnapshot(
-                    title=title,
-                    source_text=None,
-                    revision=None,
-                    start_timestamp="2026-06-04T12:02:00Z",
-                )
-            else:
-                snapshots[title] = MediaWikiPageSnapshot(
-                    title=title,
-                    source_text=content,
-                    revision=MediaWikiPageRevision(
-                        title=title,
-                        page_id=100,
-                        revision_id=200,
-                        timestamp="2026-06-04T12:00:00Z",
-                        start_timestamp="2026-06-04T12:02:00Z",
-                        user=self.users.get(title, self.edit_account),
-                    ),
-                    start_timestamp="2026-06-04T12:02:00Z",
-                )
-        return snapshots
-
-    def get_pages(self, titles: list[str]) -> dict[str, str | None]:
-        return {title: self.pages.get(title) for title in titles}
-
-    def get_embeddedin_pages(self, title: str, namespaces: tuple[int, ...] = (0,)) -> tuple[str, ...]:
-        return ()
-
-    def safe_edit_page(
-        self,
-        title: str,
-        content: str,
-        base_revision: MediaWikiPageRevision,
-        summary: str,
-        assertion: str,
-        assert_user: str | None,
-    ) -> int:
-        self.safe_edits.append((title, content, base_revision, summary, assertion, assert_user))
-        return 201
-
-    def safe_create_page(
-        self,
-        title: str,
-        content: str,
-        start_timestamp: str,
-        summary: str,
-        assertion: str,
-        assert_user: str | None,
-    ) -> int:
-        self.safe_creates.append((title, content, start_timestamp, summary, assertion, assert_user))
-        return 301
-
-
 def test_deploy_repo_pages_rejects_templates_before_remote_reads(tmp_path: Path) -> None:
     write_page(tmp_path, "wiki/templates/Item.wiki", "{{Item}}\n")
     manifest = build_repo_page_manifest(tmp_path, variant="main", include_templates=True)
-    client = RecordingWikiClient({"Template:Item": "old source\n"})
+    client = MediaWikiFake()
+    client.put_page("Template:Item", "old source\n")
 
     with pytest.raises(ValueError, match="Template pages require explicit deployment opt-in"):
         deploy_repo_pages(
@@ -107,15 +33,14 @@ def test_deploy_repo_pages_rejects_templates_before_remote_reads(tmp_path: Path)
             assertion="bot",
         )
 
-    assert client.snapshot_requests == []
-    assert client.safe_edits == []
-    assert client.safe_creates == []
+    assert client.pages["Template:Item"] == "old source"
+    assert client.revisions["Template:Item"] == 1
 
 
 def test_deploy_repo_pages_rejects_generated_data_without_opt_in(tmp_path: Path) -> None:
     write_page(tmp_path, "variants/main/wiki/lua/Erenshor/Data/Links.lua", "return {}\n")
     manifest = build_repo_page_manifest(tmp_path, variant="main", include_generated_data=True)
-    client = RecordingWikiClient({"Module:Erenshor/Data/Links": None})
+    client = MediaWikiFake()
 
     with pytest.raises(ValueError, match="Generated data pages require explicit deployment opt-in"):
         deploy_repo_pages(
@@ -125,13 +50,13 @@ def test_deploy_repo_pages_rejects_generated_data_without_opt_in(tmp_path: Path)
             summary="Deploy generated data",
             assertion="bot",
         )
-    assert client.snapshot_requests == []
+    assert client.pages == {}
 
 
 def test_deploy_repo_pages_accepts_content_opt_in(tmp_path: Path) -> None:
     write_page(tmp_path, "wiki/content/Category/Links.wiki", "__HIDDENCAT__\n")
     manifest = build_repo_page_manifest(tmp_path, variant="main", include_content_pages=True)
-    client = RecordingWikiClient({"Category:Links": None})
+    client = MediaWikiFake()
 
     result = deploy_repo_pages(
         manifest=manifest,
@@ -142,9 +67,9 @@ def test_deploy_repo_pages_accepts_content_opt_in(tmp_path: Path) -> None:
         include_content_pages=True,
     )
     assert [entry.title for entry in result.entries] == ["Category:Links"]
-    assert client.safe_creates[0][0] == "Category:Links"
+    assert client.pages["Category:Links"] == "__HIDDENCAT__"
 
-    client = RecordingWikiClient({})
+    client = MediaWikiFake()
 
     result = deploy_repo_pages(
         manifest=RepoWikiPageManifest(entries=()),
@@ -155,7 +80,7 @@ def test_deploy_repo_pages_accepts_content_opt_in(tmp_path: Path) -> None:
     )
 
     assert result.entries == ()
-    assert client.snapshot_requests == []
+    assert client.pages == {}
 
 
 def test_repo_page_manifest_rejects_mediawiki_interface_titles(tmp_path: Path) -> None:
@@ -185,7 +110,8 @@ def test_deploy_repo_pages_skips_unchanged_pages(tmp_path: Path) -> None:
     source = "local p = {}\nreturn p\n"
     write_page(tmp_path, "wiki/modules/Erenshor/Item.lua", source)
     manifest = build_repo_page_manifest(tmp_path, variant="main")
-    client = RecordingWikiClient({"Module:Erenshor/Item": source})
+    client = MediaWikiFake()
+    client.put_page("Module:Erenshor/Item", source)
 
     result = deploy_repo_pages(
         manifest=manifest,
@@ -201,7 +127,7 @@ def test_deploy_repo_pages_skips_unchanged_pages(tmp_path: Path) -> None:
     assert entry.status == "unchanged"
     assert entry.old_revision_id is None
     assert entry.new_revision_id is None
-    assert client.safe_edits == []
+    assert client.revisions["Module:Erenshor/Item"] == 1
 
 
 def test_deploy_repo_pages_treats_trailing_newline_difference_as_unchanged(tmp_path: Path) -> None:
@@ -210,7 +136,8 @@ def test_deploy_repo_pages_treats_trailing_newline_difference_as_unchanged(tmp_p
     write_page(tmp_path, "wiki/modules/Erenshor/Item.lua", source)
     manifest = build_repo_page_manifest(tmp_path, variant="main")
     # MediaWiki stores content with CRLF collapsed and trailing whitespace trimmed.
-    client = RecordingWikiClient({"Module:Erenshor/Item": "local p = {}\r\nreturn p"})
+    client = MediaWikiFake()
+    client.put_page("Module:Erenshor/Item", "local p = {}\r\nreturn p")
     result = deploy_repo_pages(
         manifest=manifest,
         repo_root=tmp_path,
@@ -221,8 +148,7 @@ def test_deploy_repo_pages_treats_trailing_newline_difference_as_unchanged(tmp_p
     )
     [entry] = result.entries
     assert entry.status == "unchanged"
-    assert client.safe_edits == []
-    assert client.safe_creates == []
+    assert client.revisions["Module:Erenshor/Item"] == 1
 
 
 def test_deploy_repo_pages_safe_edits_changed_pages(tmp_path: Path) -> None:
@@ -230,7 +156,8 @@ def test_deploy_repo_pages_safe_edits_changed_pages(tmp_path: Path) -> None:
     source = "local p = {}\nfunction p.field() return 'new' end\nreturn p\n"
     write_page(tmp_path, "wiki/modules/Erenshor/Item.lua", source)
     manifest = build_repo_page_manifest(tmp_path, variant="main")
-    client = RecordingWikiClient({"Module:Erenshor/Item": "old source\n"})
+    client = MediaWikiFake()
+    client.put_page("Module:Erenshor/Item", "old source\n")
 
     result = deploy_repo_pages(
         manifest=manifest,
@@ -245,19 +172,13 @@ def test_deploy_repo_pages_safe_edits_changed_pages(tmp_path: Path) -> None:
     [entry] = result.entries
     assert entry.title == "Module:Erenshor/Item"
     assert entry.status == "edited"
-    assert entry.old_revision_id == 200
-    assert entry.old_revision_timestamp == "2026-06-04T12:00:00Z"
-    assert entry.new_revision_id == 201
+    assert entry.old_revision_id == 1
+    assert entry.old_revision_timestamp == "2026-01-01T00:00:00Z"
+    assert entry.new_revision_id == 2
     assert entry.rollback_text_source == "rollback/Module%3AErenshor%2FItem.wiki"
-    assert (tmp_path / entry.rollback_text_source).read_text(encoding="utf-8") == "old source\n"
-    assert client.snapshot_requests == [(["Module:Erenshor/Item"], "bot", "ErenshorBot")]
-    [(title, content, base_revision, summary, assertion, assert_user)] = client.safe_edits
-    assert title == "Module:Erenshor/Item"
-    assert content == source
-    assert base_revision.revision_id == 200
-    assert summary == "Deploy repo-owned wiki pages"
-    assert assertion == "bot"
-    assert assert_user == "ErenshorBot"
+    assert (tmp_path / entry.rollback_text_source).read_text(encoding="utf-8") == "old source"
+    assert client.pages["Module:Erenshor/Item"] == source.rstrip()
+    assert client.revisions["Module:Erenshor/Item"] == 2
 
 
 def test_deploy_repo_pages_safe_creates_missing_pages(tmp_path: Path) -> None:
@@ -265,7 +186,7 @@ def test_deploy_repo_pages_safe_creates_missing_pages(tmp_path: Path) -> None:
     source = "return {}\n"
     write_page(tmp_path, "wiki/modules/Erenshor/NewModule.lua", source)
     manifest = build_repo_page_manifest(tmp_path, variant="main")
-    client = RecordingWikiClient({"Module:Erenshor/NewModule": None})
+    client = MediaWikiFake()
 
     result = deploy_repo_pages(
         manifest=manifest,
@@ -281,19 +202,9 @@ def test_deploy_repo_pages_safe_creates_missing_pages(tmp_path: Path) -> None:
     assert entry.status == "created"
     assert entry.old_revision_id is None
     assert entry.old_revision_timestamp is None
-    assert entry.new_revision_id == 301
-    assert client.snapshot_requests == [(["Module:Erenshor/NewModule"], "bot", "ErenshorBot")]
-    assert client.safe_edits == []
-    assert client.safe_creates == [
-        (
-            "Module:Erenshor/NewModule",
-            source,
-            "2026-06-04T12:02:00Z",
-            "Deploy repo-owned wiki pages",
-            "bot",
-            "ErenshorBot",
-        )
-    ]
+    assert entry.new_revision_id == 1
+    assert client.pages["Module:Erenshor/NewModule"] == source.rstrip()
+    assert client.revisions["Module:Erenshor/NewModule"] == 1
 
 
 def test_build_deployed_manifest_merges_deploy_results_into_entries(tmp_path: Path) -> None:
@@ -301,7 +212,8 @@ def test_build_deployed_manifest_merges_deploy_results_into_entries(tmp_path: Pa
     source = "local p = {}\nfunction p.field() return 'new' end\nreturn p\n"
     write_page(tmp_path, "wiki/modules/Erenshor/Item.lua", source)
     manifest = build_repo_page_manifest(tmp_path, variant="main")
-    client = RecordingWikiClient({"Module:Erenshor/Item": "old source\n"})
+    client = MediaWikiFake()
+    client.put_page("Module:Erenshor/Item", "old source\n")
     result = deploy_repo_pages(
         manifest=manifest,
         repo_root=tmp_path,
@@ -317,9 +229,9 @@ def test_build_deployed_manifest_merges_deploy_results_into_entries(tmp_path: Pa
     assert deployed_entry.title == base_entry.title
     assert deployed_entry.source_sha256 == base_entry.source_sha256
     # Deploy outcome is merged in.
-    assert deployed_entry.old_revision_id == 200
-    assert deployed_entry.old_revision_timestamp == "2026-06-04T12:00:00Z"
-    assert deployed_entry.new_revision_id == 201
+    assert deployed_entry.old_revision_id == 1
+    assert deployed_entry.old_revision_timestamp == "2026-01-01T00:00:00Z"
+    assert deployed_entry.new_revision_id == 2
     assert deployed_entry.rollback_text_source == "rollback/Module%3AErenshor%2FItem.wiki"
     assert deployed_entry.deploy_action == "edited"
     # The base manifest is not mutated.
@@ -331,7 +243,8 @@ def test_deploy_repo_pages_aborts_on_stale_source_hash_before_writes(tmp_path: P
     write_page(tmp_path, "wiki/modules/Erenshor/Item.lua", "return {}\n")
     manifest = build_repo_page_manifest(tmp_path, variant="main")
     write_page(tmp_path, "wiki/modules/Erenshor/Item.lua", "return {stale = true}\n")
-    client = RecordingWikiClient({"Module:Erenshor/Item": "old source\n"})
+    client = MediaWikiFake()
+    client.put_page("Module:Erenshor/Item", "old source\n")
 
     try:
         deploy_repo_pages(
@@ -346,8 +259,8 @@ def test_deploy_repo_pages_aborts_on_stale_source_hash_before_writes(tmp_path: P
     else:
         raise AssertionError("stale source hash was accepted")
 
-    assert client.safe_edits == []
-    assert client.safe_creates == []
+    assert client.pages["Module:Erenshor/Item"] == "old source"
+    assert client.revisions["Module:Erenshor/Item"] == 1
 
 
 def test_deploy_repo_pages_prepares_all_sidecars_before_first_write(tmp_path: Path) -> None:
@@ -355,14 +268,16 @@ def test_deploy_repo_pages_prepares_all_sidecars_before_first_write(tmp_path: Pa
     write_page(tmp_path, "wiki/modules/Erenshor/A.lua", "return 'a'\n")
     write_page(tmp_path, "wiki/modules/Erenshor/B.lua", "return 'b'\n")
     manifest = build_repo_page_manifest(tmp_path, variant="main")
-    client = RecordingWikiClient({"Module:Erenshor/A": "old a\n", "Module:Erenshor/B": "old b\n"})
+    client = MediaWikiFake()
+    client.put_page("Module:Erenshor/A", "old a\n")
+    client.put_page("Module:Erenshor/B", "old b\n")
     checkpoints: list[RepoWikiPageManifest] = []
 
     def checkpoint(value: RepoWikiPageManifest) -> None:
         checkpoints.append(value)
         if len(checkpoints) == 1:
-            assert (tmp_path / "rollback/Module%3AErenshor%2FA.wiki").read_text(encoding="utf-8") == "old a\n"
-            assert (tmp_path / "rollback/Module%3AErenshor%2FB.wiki").read_text(encoding="utf-8") == "old b\n"
+            assert (tmp_path / "rollback/Module%3AErenshor%2FA.wiki").read_text(encoding="utf-8") == "old a"
+            assert (tmp_path / "rollback/Module%3AErenshor%2FB.wiki").read_text(encoding="utf-8") == "old b"
 
     deploy_repo_pages(
         manifest=manifest,
@@ -375,7 +290,8 @@ def test_deploy_repo_pages_prepares_all_sidecars_before_first_write(tmp_path: Pa
     )
 
     assert len(checkpoints) == 3
-    assert len(client.safe_edits) == 2
+    assert client.revisions["Module:Erenshor/A"] == 2
+    assert client.revisions["Module:Erenshor/B"] == 2
 
 
 def test_deploy_repo_pages_checkpoint_journals_partial_failure(tmp_path: Path) -> None:
@@ -384,21 +300,20 @@ def test_deploy_repo_pages_checkpoint_journals_partial_failure(tmp_path: Path) -
     write_page(tmp_path, "wiki/modules/Erenshor/B.lua", "return 'b'\n")
     manifest = build_repo_page_manifest(tmp_path, variant="main")
 
-    class FailingClient(RecordingWikiClient):
-        def safe_edit_page(
-            self,
-            title: str,
-            content: str,
-            base_revision: MediaWikiPageRevision,
-            summary: str,
-            assertion: str,
-            assert_user: str | None,
-        ) -> int:
-            if self.safe_edits:
-                raise RuntimeError("second write failed")
-            return super().safe_edit_page(title, content, base_revision, summary, assertion, assert_user)
+    client = MediaWikiFake()
+    client.put_page("Module:Erenshor/A", "old a\n")
+    client.put_page("Module:Erenshor/B", "old b\n")
+    edits = 0
+    real_safe_edit_page = client.safe_edit_page
 
-    client = FailingClient({"Module:Erenshor/A": "old a\n", "Module:Erenshor/B": "old b\n"})
+    def failing_safe_edit_page(*args: object, **kwargs: object):
+        nonlocal edits
+        if edits:
+            raise RuntimeError("second write failed")
+        edits += 1
+        return real_safe_edit_page(*args, **kwargs)
+
+    client.safe_edit_page = failing_safe_edit_page  # type: ignore[method-assign]
     checkpoints: list[RepoWikiPageManifest] = []
 
     try:
@@ -438,7 +353,7 @@ def test_safe_title_filename_is_injective_for_distinct_titles() -> None:
     assert "/" not in second
 
 
-def _template_deploy(tmp_path: Path, client: RecordingWikiClient, accept_drift: tuple[str, ...] = ()):
+def _template_deploy(tmp_path: Path, client: MediaWikiFake, accept_drift: tuple[str, ...] = ()):
     checkpoints: list[RepoWikiPageManifest] = []
     result = deploy_repo_pages(
         manifest=build_repo_page_manifest(tmp_path, variant="main", include_templates=True),
@@ -457,21 +372,22 @@ def _template_deploy(tmp_path: Path, client: RecordingWikiClient, accept_drift: 
 def test_a_template_that_another_account_reverted_stops_the_deploy_before_any_write(tmp_path: Path) -> None:
     write_page(tmp_path, "wiki/templates/Quest.wiki", "{{Quest|lua=1}}\n")
     write_page(tmp_path, "wiki/templates/Zone.wiki", "{{Zone|lua=1}}\n")
-    client = RecordingWikiClient(
-        {"Template:Quest": "{{Quest}} reverted", "Template:Zone": "{{Zone}} old"}, users={"Template:Quest": "Admin"}
-    )
+    client = MediaWikiFake()
+    client.put_page("Template:Quest", "{{Quest}} reverted", user="Admin")
+    client.put_page("Template:Zone", "{{Zone}} old")
 
-    with pytest.raises(RepoPageDriftError, match=r"Template:Quest \(revision 200 by Admin\)") as raised:
+    with pytest.raises(RepoPageDriftError, match=r"Template:Quest \(revision 1 by Admin\)") as raised:
         _template_deploy(tmp_path, client)
 
     assert [item.title for item in raised.value.drift] == ["Template:Quest"]
-    assert client.safe_edits == []
+    assert client.revisions["Template:Quest"] == 1
     assert not (tmp_path / "rollback").exists()
 
 
 def test_an_accepted_page_is_overwritten(tmp_path: Path) -> None:
     write_page(tmp_path, "wiki/templates/Quest.wiki", "{{Quest|lua=1}}\n")
-    client = RecordingWikiClient({"Template:Quest": "{{Quest}} reverted"}, users={"Template:Quest": "Admin"})
+    client = MediaWikiFake()
+    client.put_page("Template:Quest", "{{Quest}} reverted", user="Admin")
 
     result, _ = _template_deploy(tmp_path, client, accept_drift=("Template:Quest",))
 
@@ -480,9 +396,10 @@ def test_an_accepted_page_is_overwritten(tmp_path: Path) -> None:
 
 def test_a_page_that_another_account_left_equal_to_the_source_is_not_drift(tmp_path: Path) -> None:
     write_page(tmp_path, "wiki/templates/Quest.wiki", "{{Quest|lua=1}}\n")
-    client = RecordingWikiClient({"Template:Quest": "{{Quest|lua=1}}"}, users={"Template:Quest": "Admin"})
+    client = MediaWikiFake()
+    client.put_page("Template:Quest", "{{Quest|lua=1}}", user="Admin")
 
     result, _ = _template_deploy(tmp_path, client)
 
     assert [(entry.title, entry.status) for entry in result.entries] == [("Template:Quest", "unchanged")]
-    assert client.safe_edits == []
+    assert client.revisions["Template:Quest"] == 1

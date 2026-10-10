@@ -87,7 +87,7 @@ class MediaWikiFake:
     watched: tuple[str, ...] = ()
     dark: set[str] = field(default_factory=set)
     purged: list[PurgeRequest] = field(default_factory=list)
-    edit_account: str | None = "ErenshorBot"
+    edit_account: str = "ErenshorBot"
     is_bot: bool = True
     rights: frozenset[str] = field(default_factory=lambda: _DEFAULT_RIGHTS)
     embedded_in: dict[str, tuple[str, ...]] = field(default_factory=dict)
@@ -148,8 +148,6 @@ class MediaWikiFake:
     def _check_assertion(self, assertion: str | None, assert_user: str | None) -> None:
         if assertion == "bot" and not self.is_bot:
             raise MediaWikiAssertionError("Assertion failed: the current session is not flagged as a bot")
-        if assertion in ("user", "bot") and self.edit_account is None:
-            raise MediaWikiAssertionError("Assertion failed: no user is logged in")
         if assert_user is not None and assert_user != self.edit_account:
             raise MediaWikiAssertionError(
                 f"Assertion failed: logged in as {self.edit_account!r}, expected {assert_user!r}"

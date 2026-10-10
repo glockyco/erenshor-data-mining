@@ -14,7 +14,7 @@
 
 ## 3. Retire the eleven duplicate fakes
 
-- [ ] 3.1 Migrate `tests/unit/application/wiki_deploy/test_pages.py`'s `RecordingWikiClient` to the shared fake, deleting the local class. Verify: the file's suite passes unchanged in scenario coverage.
+- [x] 3.1 Migrate `tests/unit/application/wiki_deploy/test_pages.py`'s `RecordingWikiClient` to the shared fake, deleting the local class. Verify: the file's suite passes unchanged in scenario coverage.
 - [ ] 3.2 Migrate `tests/unit/application/wiki_deploy/test_rollback.py`'s `RecordingRollbackClient` the same way. Same verification.
 - [ ] 3.3 Migrate `tests/unit/application/wiki_deploy/test_page_edits.py`'s `_Wiki` the same way. Same verification.
 - [ ] 3.4 Migrate `tests/unit/application/wiki_deploy/test_render_check.py`'s `Wiki` the same way. Same verification.
