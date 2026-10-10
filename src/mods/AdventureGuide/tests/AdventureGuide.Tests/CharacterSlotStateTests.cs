@@ -42,8 +42,8 @@ public sealed class CharacterSlotStateTests
     public void Binding_rejects_keys_outside_the_registry()
     {
         using var config = new GuideConfig(new PersistedBackend());
-        Assert.Throws<ArgumentException>(
-            () => config.BindPerCharacter(0, new CharacterSlotState.Key<string>("Unregistered", ""))
+        Assert.Throws<ArgumentException>(() =>
+            config.BindPerCharacter(0, new CharacterSlotState.Key<string>("Unregistered", ""))
         );
     }
 

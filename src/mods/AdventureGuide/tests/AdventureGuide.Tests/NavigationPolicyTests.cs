@@ -75,8 +75,8 @@ public sealed class NavigationPolicyTests
         var quest = new QuestEntry { DBName = "PositionQuest" };
         var step = new QuestStep { Order = 1, Description = "No location" };
 
-        var error = Assert.Throws<ArgumentException>(
-            () => NavigationPolicy.CreateFixedPositionTargetSpec(step, quest, "origin", 1)
+        var error = Assert.Throws<ArgumentException>(() =>
+            NavigationPolicy.CreateFixedPositionTargetSpec(step, quest, "origin", 1)
         );
 
         Assert.Equal("step", error.ParamName);

@@ -660,7 +660,7 @@ def test_static_leaf_reports_all_checks_when_one_fails(tmp_path: Path, monkeypat
         ("ruff", "check", "src/", "tests/"),
         ("ruff", "format", "--check", "src/", "tests/"),
         ("mypy", "src/"),
-        ("dotnet", "csharpier", "--check", "."),
+        ("dotnet", "csharpier", "check", "."),
     ]
     assert result.result_counts == {"commands": 4, "completed_commands": 4}
 

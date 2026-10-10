@@ -164,8 +164,8 @@ public sealed class SpecialItemSourceTests
         var quest = Quest([]);
         quest.RequiredItems = null;
         quest.Steps![0].Sources = [WorldDrop(null)];
-        Assert.Throws<InvalidDataException>(
-            () => GuideData.ValidateWrapper(new GuideWrapper { Version = 6, Quests = [quest] })
+        Assert.Throws<InvalidDataException>(() =>
+            GuideData.ValidateWrapper(new GuideWrapper { Version = 6, Quests = [quest] })
         );
     }
 
@@ -278,17 +278,15 @@ public sealed class SpecialItemSourceTests
         Assert.Equal("reliquary", location.Scene);
         Assert.False(location.IsZoneWide);
         Assert.Equal((267.4f, 0.09f, 321.3f), (location.X, location.Y, location.Z));
-        var quest = Quest(
-            [
-                new ItemSource
-                {
-                    Type = "pickup",
-                    Name = "Planning Table",
-                    SourceKey = key,
-                    Scene = "Reliquary",
-                },
-            ]
-        );
+        var quest = Quest([
+            new ItemSource
+            {
+                Type = "pickup",
+                Name = "Planning Table",
+                SourceKey = key,
+                Scene = "Reliquary",
+            },
+        ]);
         var data = GuideData.FromWrapper(new GuideWrapper { Version = 6, Quests = [quest] });
         Assert.Equal("reliquary", StepSceneResolver.ResolveScene(quest, quest.Steps![0], data));
         Assert.True(StepSceneResolver.HasSourceInScene(quest, quest.Steps[0], data, "Reliquary"));

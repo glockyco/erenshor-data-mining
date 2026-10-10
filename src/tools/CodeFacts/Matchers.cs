@@ -152,7 +152,8 @@ internal static class Matchers
                         && b.Right is PrimitiveExpression { Value: int }
                     )
                     .Select(b => ((PrimitiveExpression)b.Right!).Value.ToString()!)
-                    .FirstOrDefault() ?? "0";
+                    .FirstOrDefault()
+                ?? "0";
 
             hits.Add((rate, minLevel));
         }

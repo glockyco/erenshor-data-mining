@@ -1,12 +1,12 @@
 <Project>
-  <PropertyGroup Condition="'$(MSBuildProjectName)' != 'FixtureLib'">
-    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(MSBuildProjectName)' != 'FixtureLib'">
+        <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    </PropertyGroup>
 
-  <!-- xunit.v3 is MTP-native; dotnet test opts into MTP through global.json's test.runner.
+    <!-- xunit.v3 is MTP-native; dotnet test opts into MTP through global.json's test.runner.
        This property makes the built executable itself run under Microsoft.Testing.Platform
        rather than the VSTest adapter, which .NET 10 SDK no longer drives through dotnet test. -->
-  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
-    <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
-  </PropertyGroup>
+    <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
+        <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
+    </PropertyGroup>
 </Project>

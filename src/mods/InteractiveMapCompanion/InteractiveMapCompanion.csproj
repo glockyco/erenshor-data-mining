@@ -1,128 +1,132 @@
 <Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <OutputPath>bin/$(Configuration)/$(TargetFramework)/$(ModLoader)/</OutputPath>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <LangVersion>latest</LangVersion>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-    <OutputPath>bin/$(Configuration)/$(TargetFramework)/$(ModLoader)/</OutputPath>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <LangVersion>latest</LangVersion>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
+        <AssemblyName>InteractiveMapCompanion</AssemblyName>
+        <RootNamespace>InteractiveMapCompanion</RootNamespace>
 
-    <AssemblyName>InteractiveMapCompanion</AssemblyName>
-    <RootNamespace>InteractiveMapCompanion</RootNamespace>
+        <!-- Roslyn Analyzers -->
+        <AnalysisMode>Recommended</AnalysisMode>
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
-    <!-- Roslyn Analyzers -->
-    <AnalysisMode>Recommended</AnalysisMode>
-    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <!-- Suppress warnings that don't apply to mods -->
+        <NoWarn>$(NoWarn);CS1591</NoWarn>
 
-    <!-- Suppress warnings that don't apply to mods -->
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
+        <!-- Exclude tests directory from main project compilation -->
+        <DefaultItemExcludes>$(DefaultItemExcludes);tests/**</DefaultItemExcludes>
 
-    <!-- Exclude tests directory from main project compilation -->
-    <DefaultItemExcludes>$(DefaultItemExcludes);tests/**</DefaultItemExcludes>
+        <!-- Copy NuGet dependencies to output (needed for ILRepack) -->
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    </PropertyGroup>
 
-    <!-- Copy NuGet dependencies to output (needed for ILRepack) -->
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-  </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="../Shared/Input/KeyboardInput.cs" Link="Shared/Input/KeyboardInput.cs" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <Compile Include="../Shared/Input/KeyboardInput.cs" Link="Shared/Input/KeyboardInput.cs" />
-  </ItemGroup>
-
-  <!-- Select exactly one loader-specific entrypoint. The SDK's default Compile items
+    <!-- Select exactly one loader-specific entrypoint. The SDK's default Compile items
        are removed first so explicit selection never duplicates src/Plugin.cs. -->
-  <ItemGroup>
-    <Compile Remove="src/Plugin.cs" />
-    <Compile Remove="src/Plugin.BepInEx.cs" />
-    <Compile Remove="src/Plugin.Lunaris.cs" />
-    <Compile Include="src/Plugin.cs"
-              Condition="'$(ModLoader)' == 'bepinex' and !Exists('src/Plugin.BepInEx.cs') and Exists('src/Plugin.cs')" />
-    <Compile Include="src/Plugin.BepInEx.cs"
-              Condition="'$(ModLoader)' == 'bepinex' and Exists('src/Plugin.BepInEx.cs')" />
-    <Compile Include="src/Plugin.Lunaris.cs"
-              Condition="'$(ModLoader)' == 'lunaris' and Exists('src/Plugin.Lunaris.cs')" />
-  </ItemGroup>
+    <ItemGroup>
+        <Compile Remove="src/Plugin.cs" />
+        <Compile Remove="src/Plugin.BepInEx.cs" />
+        <Compile Remove="src/Plugin.Lunaris.cs" />
+        <Compile
+            Include="src/Plugin.cs"
+            Condition="'$(ModLoader)' == 'bepinex' and !Exists('src/Plugin.BepInEx.cs') and Exists('src/Plugin.cs')"
+        />
+        <Compile
+            Include="src/Plugin.BepInEx.cs"
+            Condition="'$(ModLoader)' == 'bepinex' and Exists('src/Plugin.BepInEx.cs')"
+        />
+        <Compile
+            Include="src/Plugin.Lunaris.cs"
+            Condition="'$(ModLoader)' == 'lunaris' and Exists('src/Plugin.Lunaris.cs')"
+        />
+    </ItemGroup>
 
-  <PropertyGroup Condition="'$(ModLoader)' == 'lunaris'">
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <SkipILRepack>false</SkipILRepack>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(ModLoader)' == 'lunaris'">
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <SkipILRepack>false</SkipILRepack>
+    </PropertyGroup>
 
-  <ItemGroup Condition="'$(ModLoader)' == 'bepinex'">
-    <PackageReference Include="BepInEx.Core" PrivateAssets="all" />
-    <PackageReference Include="Newtonsoft.Json" />
-    <PackageReference Include="Fleck" />
-    <PackageReference Include="ILRepack.Lib.MSBuild.Task" />
-  </ItemGroup>
+    <ItemGroup Condition="'$(ModLoader)' == 'bepinex'">
+        <PackageReference Include="BepInEx.Core" PrivateAssets="all" />
+        <PackageReference Include="Newtonsoft.Json" />
+        <PackageReference Include="Fleck" />
+        <PackageReference Include="ILRepack.Lib.MSBuild.Task" />
+    </ItemGroup>
 
-  <ItemGroup Condition="'$(ModLoader)' == 'lunaris'">
-    <PackageReference Include="Fleck" />
-    <PackageReference Include="ILRepack.Lib.MSBuild.Task" PrivateAssets="all" />
-  </ItemGroup>
+    <ItemGroup Condition="'$(ModLoader)' == 'lunaris'">
+        <PackageReference Include="Fleck" />
+        <PackageReference Include="ILRepack.Lib.MSBuild.Task" PrivateAssets="all" />
+    </ItemGroup>
 
-  <!-- Game assembly references (copied via erenshor mod setup) -->
-  <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>lib/Assembly-CSharp.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>lib/UnityEngine.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>lib/UnityEngine.CoreModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.InputLegacyModule">
-      <HintPath>lib/UnityEngine.InputLegacyModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.TextRenderingModule">
-      <HintPath>lib/UnityEngine.TextRenderingModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.UIModule">
-      <HintPath>lib/UnityEngine.UIModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>lib/UnityEngine.UI.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="com.rlabrecque.steamworks.net">
-      <HintPath>lib/com.rlabrecque.steamworks.net.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-  </ItemGroup>
+    <!-- Game assembly references (copied via erenshor mod setup) -->
+    <ItemGroup>
+        <Reference Include="Assembly-CSharp">
+            <HintPath>lib/Assembly-CSharp.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine">
+            <HintPath>lib/UnityEngine.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine.CoreModule">
+            <HintPath>lib/UnityEngine.CoreModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine.InputLegacyModule">
+            <HintPath>lib/UnityEngine.InputLegacyModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine.TextRenderingModule">
+            <HintPath>lib/UnityEngine.TextRenderingModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine.UIModule">
+            <HintPath>lib/UnityEngine.UIModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine.UI">
+            <HintPath>lib/UnityEngine.UI.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="com.rlabrecque.steamworks.net">
+            <HintPath>lib/com.rlabrecque.steamworks.net.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
 
-  <!-- Loader-provided references (copied via erenshor mod setup) -->
-  <ItemGroup Condition="'$(ModLoader)' == 'lunaris'">
-    <Reference Include="Lunaris">
-      <HintPath>lib/lunaris/Lunaris.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>lib/lunaris/Newtonsoft.Json.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="0Harmony">
-      <HintPath>lib/lunaris/0Harmony.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-  </ItemGroup>
+    <!-- Loader-provided references (copied via erenshor mod setup) -->
+    <ItemGroup Condition="'$(ModLoader)' == 'lunaris'">
+        <Reference Include="Lunaris">
+            <HintPath>lib/lunaris/Lunaris.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Newtonsoft.Json">
+            <HintPath>lib/lunaris/Newtonsoft.Json.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="0Harmony">
+            <HintPath>lib/lunaris/0Harmony.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
 
-  <ItemGroup Condition="'$(ModLoader)' == 'bepinex'">
-    <!-- Harmony — compile against the exact version BepInEx ships at runtime -->
-    <Reference Include="0Harmony">
-      <HintPath>lib/bepinex/0Harmony.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-  </ItemGroup>
+    <ItemGroup Condition="'$(ModLoader)' == 'bepinex'">
+        <!-- Harmony — compile against the exact version BepInEx ships at runtime -->
+        <Reference Include="0Harmony">
+            <HintPath>lib/bepinex/0Harmony.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
 
-  <!-- ILRepack configuration is in ILRepack.targets file -->
-  <!-- This merges all dependencies into a single InteractiveMapCompanion.dll -->
-
+    <!-- ILRepack configuration is in ILRepack.targets file -->
+    <!-- This merges all dependencies into a single InteractiveMapCompanion.dll -->
 </Project>

@@ -1,154 +1,154 @@
 <Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <OutputPath>bin/$(Configuration)/$(TargetFramework)/$(ModLoader)/</OutputPath>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <LangVersion>latest</LangVersion>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-    <OutputPath>bin/$(Configuration)/$(TargetFramework)/$(ModLoader)/</OutputPath>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <LangVersion>latest</LangVersion>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
+        <AssemblyName>MapTileCapture</AssemblyName>
+        <RootNamespace>MapTileCapture</RootNamespace>
 
-    <AssemblyName>MapTileCapture</AssemblyName>
-    <RootNamespace>MapTileCapture</RootNamespace>
+        <!-- Roslyn Analyzers -->
+        <AnalysisMode>Recommended</AnalysisMode>
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
-    <!-- Roslyn Analyzers -->
-    <AnalysisMode>Recommended</AnalysisMode>
-    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <!-- Suppress warnings that don't apply to mods -->
+        <NoWarn>$(NoWarn);CS1591</NoWarn>
 
-    <!-- Suppress warnings that don't apply to mods -->
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
+        <!-- Exclude tests directory from main project compilation -->
+        <DefaultItemExcludes>$(DefaultItemExcludes);tests/**</DefaultItemExcludes>
 
-    <!-- Exclude tests directory from main project compilation -->
-    <DefaultItemExcludes>$(DefaultItemExcludes);tests/**</DefaultItemExcludes>
+        <!-- Copy NuGet dependencies to output (needed for ILRepack) -->
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    </PropertyGroup>
 
-    <!-- Copy NuGet dependencies to output (needed for ILRepack) -->
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-  </PropertyGroup>
+    <!-- Select exactly one native loader entrypoint. -->
+    <!-- The SDK's default compile items are removed before explicit selection. -->
+    <ItemGroup>
+        <Compile Remove="src/Plugin.cs" />
+        <Compile Remove="src/Plugin.BepInEx.cs" />
+        <Compile Remove="src/Plugin.Lunaris.cs" />
+        <Compile
+            Include="src/Plugin.BepInEx.cs"
+            Condition="'$(ModLoader)' == 'bepinex' and Exists('src/Plugin.BepInEx.cs')"
+        />
+        <Compile
+            Include="src/Plugin.Lunaris.cs"
+            Condition="'$(ModLoader)' == 'lunaris' and Exists('src/Plugin.Lunaris.cs')"
+        />
+    </ItemGroup>
 
-  <!-- Select exactly one native loader entrypoint. -->
-  <!-- The SDK's default compile items are removed before explicit selection. -->
-  <ItemGroup>
-    <Compile Remove="src/Plugin.cs" />
-    <Compile Remove="src/Plugin.BepInEx.cs" />
-    <Compile Remove="src/Plugin.Lunaris.cs" />
-    <Compile Include="src/Plugin.BepInEx.cs"
-              Condition="'$(ModLoader)' == 'bepinex' and Exists('src/Plugin.BepInEx.cs')" />
-    <Compile Include="src/Plugin.Lunaris.cs"
-              Condition="'$(ModLoader)' == 'lunaris' and Exists('src/Plugin.Lunaris.cs')" />
-  </ItemGroup>
-
-  <PropertyGroup Condition="'$(ModLoader)' == 'lunaris'">
-    <!-- Lunaris keeps loader-provided references external; Fleck is the only
+    <PropertyGroup Condition="'$(ModLoader)' == 'lunaris'">
+        <!-- Lunaris keeps loader-provided references external; Fleck is the only
          lock-file dependency copied locally for ILRepack. -->
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-  </PropertyGroup>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    </PropertyGroup>
 
-  <ItemGroup Condition="'$(ModLoader)' == 'bepinex'">
-    <PackageReference Include="BepInEx.Core" PrivateAssets="all" />
-    <PackageReference Include="Newtonsoft.Json" />
-    <PackageReference Include="Fleck" />
-    <PackageReference Include="ILRepack.Lib.MSBuild.Task" />
-  </ItemGroup>
+    <ItemGroup Condition="'$(ModLoader)' == 'bepinex'">
+        <PackageReference Include="BepInEx.Core" PrivateAssets="all" />
+        <PackageReference Include="Newtonsoft.Json" />
+        <PackageReference Include="Fleck" />
+        <PackageReference Include="ILRepack.Lib.MSBuild.Task" />
+    </ItemGroup>
 
-  <ItemGroup Condition="'$(ModLoader)' == 'lunaris'">
-    <PackageReference Include="Fleck" />
-    <PackageReference Include="ILRepack.Lib.MSBuild.Task" PrivateAssets="all" />
-  </ItemGroup>
+    <ItemGroup Condition="'$(ModLoader)' == 'lunaris'">
+        <PackageReference Include="Fleck" />
+        <PackageReference Include="ILRepack.Lib.MSBuild.Task" PrivateAssets="all" />
+    </ItemGroup>
 
+    <!-- Game assembly references (copied via erenshor mod setup) -->
+    <ItemGroup>
+        <Reference Include="Assembly-CSharp">
+            <HintPath>lib/Assembly-CSharp.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine">
+            <HintPath>lib/UnityEngine.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine.CoreModule">
+            <HintPath>lib/UnityEngine.CoreModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine.InputLegacyModule">
+            <HintPath>lib/UnityEngine.InputLegacyModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine.UIModule">
+            <HintPath>lib/UnityEngine.UIModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine.UI">
+            <HintPath>lib/UnityEngine.UI.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="com.rlabrecque.steamworks.net">
+            <HintPath>lib/com.rlabrecque.steamworks.net.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <!-- TextMeshPro — needed for world-space text suppression -->
+        <Reference Include="Unity.TextMeshPro">
+            <HintPath>lib/Unity.TextMeshPro.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <!-- UnityEngine.ImageConversionModule — needed for Screenshot capture (EncodeToPNG) -->
+        <Reference Include="UnityEngine.ImageConversionModule">
+            <HintPath>lib/UnityEngine.ImageConversionModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <!-- UnityEngine.TerrainModule — needed for Terrain bounds detection -->
+        <Reference Include="UnityEngine.TerrainModule">
+            <HintPath>lib/UnityEngine.TerrainModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <!-- UnityEngine.ParticleSystemModule — needed for ParticleSystemRenderer suppression -->
+        <Reference Include="UnityEngine.ParticleSystemModule">
+            <HintPath>lib/UnityEngine.ParticleSystemModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <!-- UnityEngine.AnimationModule — Animator: portraits freeze the animation -->
+        <Reference Include="UnityEngine.AnimationModule">
+            <HintPath>lib/UnityEngine.AnimationModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <!-- UnityEngine.AudioModule — AudioSource: portraits remove sounds -->
+        <Reference Include="UnityEngine.AudioModule">
+            <HintPath>lib/UnityEngine.AudioModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <!-- UnityEngine.AIModule — NavMeshAgent: portraits remove navigation -->
+        <Reference Include="UnityEngine.AIModule">
+            <HintPath>lib/UnityEngine.AIModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <!-- Unity.Postprocessing.Runtime — portraits pass through the game's post-processing -->
+        <Reference Include="Unity.Postprocessing.Runtime">
+            <HintPath>lib/Unity.Postprocessing.Runtime.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <!-- UnityEngine.PhysicsModule — Rigidbody: portraits remove physics -->
+        <Reference Include="UnityEngine.PhysicsModule">
+            <HintPath>lib/UnityEngine.PhysicsModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
 
-  <!-- Game assembly references (copied via erenshor mod setup) -->
-  <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>lib/Assembly-CSharp.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>lib/UnityEngine.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>lib/UnityEngine.CoreModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.InputLegacyModule">
-      <HintPath>lib/UnityEngine.InputLegacyModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.UIModule">
-      <HintPath>lib/UnityEngine.UIModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>lib/UnityEngine.UI.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="com.rlabrecque.steamworks.net">
-      <HintPath>lib/com.rlabrecque.steamworks.net.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <!-- TextMeshPro — needed for world-space text suppression -->
-    <Reference Include="Unity.TextMeshPro">
-      <HintPath>lib/Unity.TextMeshPro.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <!-- UnityEngine.ImageConversionModule — needed for Screenshot capture (EncodeToPNG) -->
-    <Reference Include="UnityEngine.ImageConversionModule">
-      <HintPath>lib/UnityEngine.ImageConversionModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <!-- UnityEngine.TerrainModule — needed for Terrain bounds detection -->
-    <Reference Include="UnityEngine.TerrainModule">
-      <HintPath>lib/UnityEngine.TerrainModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <!-- UnityEngine.ParticleSystemModule — needed for ParticleSystemRenderer suppression -->
-    <Reference Include="UnityEngine.ParticleSystemModule">
-      <HintPath>lib/UnityEngine.ParticleSystemModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <!-- UnityEngine.AnimationModule — Animator: portraits freeze the animation -->
-    <Reference Include="UnityEngine.AnimationModule">
-      <HintPath>lib/UnityEngine.AnimationModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <!-- UnityEngine.AudioModule — AudioSource: portraits remove sounds -->
-    <Reference Include="UnityEngine.AudioModule">
-      <HintPath>lib/UnityEngine.AudioModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <!-- UnityEngine.AIModule — NavMeshAgent: portraits remove navigation -->
-    <Reference Include="UnityEngine.AIModule">
-      <HintPath>lib/UnityEngine.AIModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <!-- Unity.Postprocessing.Runtime — portraits pass through the game's post-processing -->
-    <Reference Include="Unity.Postprocessing.Runtime">
-      <HintPath>lib/Unity.Postprocessing.Runtime.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <!-- UnityEngine.PhysicsModule — Rigidbody: portraits remove physics -->
-    <Reference Include="UnityEngine.PhysicsModule">
-      <HintPath>lib/UnityEngine.PhysicsModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-  </ItemGroup>
+    <!-- Loader-provided references (copied via erenshor mod setup) -->
+    <ItemGroup Condition="'$(ModLoader)' == 'lunaris'">
+        <Reference Include="Lunaris">
+            <HintPath>lib/lunaris/Lunaris.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Newtonsoft.Json">
+            <HintPath>lib/lunaris/Newtonsoft.Json.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
 
-  <!-- Loader-provided references (copied via erenshor mod setup) -->
-  <ItemGroup Condition="'$(ModLoader)' == 'lunaris'">
-    <Reference Include="Lunaris">
-      <HintPath>lib/lunaris/Lunaris.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>lib/lunaris/Newtonsoft.Json.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-  </ItemGroup>
-
-
-  <!-- ILRepack configuration is in ILRepack.targets file -->
-  <!-- This merges all dependencies into a single MapTileCapture.dll -->
-
+    <!-- ILRepack configuration is in ILRepack.targets file -->
+    <!-- This merges all dependencies into a single MapTileCapture.dll -->
 </Project>

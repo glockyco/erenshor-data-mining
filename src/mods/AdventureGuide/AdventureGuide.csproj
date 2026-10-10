@@ -1,153 +1,174 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-    <OutputPath>bin/$(Configuration)/$(TargetFramework)/$(ModLoader)/</OutputPath>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <LangVersion>latest</LangVersion>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <AssemblyName>AdventureGuide</AssemblyName>
-    <RootNamespace>AdventureGuide</RootNamespace>
-    <AnalysisMode>Recommended</AnalysisMode>
-    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
-    <!-- The extern alias intentionally selects each loader's vector ABI. RAR still
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <OutputPath>bin/$(Configuration)/$(TargetFramework)/$(ModLoader)/</OutputPath>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <LangVersion>latest</LangVersion>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <AssemblyName>AdventureGuide</AssemblyName>
+        <RootNamespace>AdventureGuide</RootNamespace>
+        <AnalysisMode>Recommended</AnalysisMode>
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);CS1591</NoWarn>
+        <!-- The extern alias intentionally selects each loader's vector ABI. RAR still
          compares it with the netstandard facade even though the output reference
          retains the explicitly aliased assembly version. -->
-    <MSBuildWarningsAsMessages>$(MSBuildWarningsAsMessages);MSB3243</MSBuildWarningsAsMessages>
-    <DefaultItemExcludes>$(DefaultItemExcludes);tests/**</DefaultItemExcludes>
-    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
+        <MSBuildWarningsAsMessages>$(MSBuildWarningsAsMessages);MSB3243</MSBuildWarningsAsMessages>
+        <DefaultItemExcludes>$(DefaultItemExcludes);tests/**</DefaultItemExcludes>
+        <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Include="../Shared/Input/KeyboardInput.cs" Link="Shared/Input/KeyboardInput.cs" />
-  </ItemGroup>
+    <ItemGroup>
+        <Compile Include="../Shared/Input/KeyboardInput.cs" Link="Shared/Input/KeyboardInput.cs" />
+    </ItemGroup>
 
-  <PropertyGroup Condition="'$(ModLoader)' == 'bepinex'">
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(ModLoader)' == 'bepinex'">
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    </PropertyGroup>
 
-  <!-- Runtime is loader-neutral; only native entrypoints/backends are selected
+    <!-- Runtime is loader-neutral; only native entrypoints/backends are selected
        for a target so neither loader leaks into the other assembly. -->
-  <ItemGroup>
-    <Compile Remove="src/Plugin.BepInEx.cs" />
-    <Compile Remove="src/Plugin.Lunaris.cs" />
-    <Compile Remove="src/Adapters/BepInExConfigBackend.cs" />
-    <Compile Remove="src/Adapters/LunarisConfigBackend.cs" />
-    <Compile Include="src/Plugin.BepInEx.cs" Condition="'$(ModLoader)' == 'bepinex'" />
-    <Compile Include="src/Adapters/BepInExConfigBackend.cs" Condition="'$(ModLoader)' == 'bepinex'" />
-    <Compile Include="src/Plugin.Lunaris.cs" Condition="'$(ModLoader)' == 'lunaris'" />
-    <Compile Include="src/Adapters/LunarisConfigBackend.cs" Condition="'$(ModLoader)' == 'lunaris'" />
-  </ItemGroup>
+    <ItemGroup>
+        <Compile Remove="src/Plugin.BepInEx.cs" />
+        <Compile Remove="src/Plugin.Lunaris.cs" />
+        <Compile Remove="src/Adapters/BepInExConfigBackend.cs" />
+        <Compile Remove="src/Adapters/LunarisConfigBackend.cs" />
+        <Compile Include="src/Plugin.BepInEx.cs" Condition="'$(ModLoader)' == 'bepinex'" />
+        <Compile
+            Include="src/Adapters/BepInExConfigBackend.cs"
+            Condition="'$(ModLoader)' == 'bepinex'"
+        />
+        <Compile Include="src/Plugin.Lunaris.cs" Condition="'$(ModLoader)' == 'lunaris'" />
+        <Compile
+            Include="src/Adapters/LunarisConfigBackend.cs"
+            Condition="'$(ModLoader)' == 'lunaris'"
+        />
+    </ItemGroup>
 
-  <!-- Embedded resources -->
-  <ItemGroup>
-    <EmbeddedResource Include="../../../quest_guides/quest-guide.json" LogicalName="AdventureGuide.quest-guide.json" />
-    <EmbeddedResource Include="resources/Roboto-Regular.ttf" LogicalName="AdventureGuide.Roboto-Regular.ttf" />
-  </ItemGroup>
+    <!-- Embedded resources -->
+    <ItemGroup>
+        <EmbeddedResource
+            Include="../../../quest_guides/quest-guide.json"
+            LogicalName="AdventureGuide.quest-guide.json"
+        />
+        <EmbeddedResource
+            Include="resources/Roboto-Regular.ttf"
+            LogicalName="AdventureGuide.Roboto-Regular.ttf"
+        />
+    </ItemGroup>
 
-  <!-- Lunaris supplies these assemblies at runtime; the Vault package is
+    <!-- Lunaris supplies these assemblies at runtime; the Vault package is
        intentionally a single AdventureGuide.dll. -->
-  <ItemGroup Condition="'$(ModLoader)' == 'lunaris'">
-    <Reference Include="Lunaris">
-      <HintPath>lib/lunaris/Lunaris.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="ImGui.NET">
-      <HintPath>lib/lunaris/ImGui.NET.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="System.Numerics.Vectors">
-      <HintPath>lib/lunaris/System.Numerics.Vectors.dll</HintPath>
-      <Private>false</Private>
-      <Aliases>vectors</Aliases>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>lib/lunaris/Newtonsoft.Json.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="0Harmony">
-      <HintPath>lib/lunaris/0Harmony.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-  </ItemGroup>
+    <ItemGroup Condition="'$(ModLoader)' == 'lunaris'">
+        <Reference Include="Lunaris">
+            <HintPath>lib/lunaris/Lunaris.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="ImGui.NET">
+            <HintPath>lib/lunaris/ImGui.NET.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="System.Numerics.Vectors">
+            <HintPath>lib/lunaris/System.Numerics.Vectors.dll</HintPath>
+            <Private>false</Private>
+            <Aliases>vectors</Aliases>
+        </Reference>
+        <Reference Include="Newtonsoft.Json">
+            <HintPath>lib/lunaris/Newtonsoft.Json.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="0Harmony">
+            <HintPath>lib/lunaris/0Harmony.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
 
-  <!-- BepInEx uses official packages as separate assets; no ILRepack of
+    <!-- BepInEx uses official packages as separate assets; no ILRepack of
        ImGui.NET, Vectors, or its native cimgui is permitted. -->
-  <ItemGroup Condition="'$(ModLoader)' == 'bepinex'">
-    <PackageReference Include="BepInEx.Core" PrivateAssets="all" />
-    <PackageReference Include="ImGui.NET" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="System.Numerics.Vectors"
-                      GeneratePathProperty="true" PrivateAssets="all" Aliases="vectors" />
-    <PackageReference Include="Newtonsoft.Json" PrivateAssets="all" />
-    <Reference Include="0Harmony">
-      <HintPath>lib/bepinex/0Harmony.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-  </ItemGroup>
+    <ItemGroup Condition="'$(ModLoader)' == 'bepinex'">
+        <PackageReference Include="BepInEx.Core" PrivateAssets="all" />
+        <PackageReference Include="ImGui.NET" GeneratePathProperty="true" PrivateAssets="all" />
+        <PackageReference
+            Include="System.Numerics.Vectors"
+            GeneratePathProperty="true"
+            PrivateAssets="all"
+            Aliases="vectors"
+        />
+        <PackageReference Include="Newtonsoft.Json" PrivateAssets="all" />
+        <Reference Include="0Harmony">
+            <HintPath>lib/bepinex/0Harmony.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
 
-  <Target Name="CopyBepSystemNumericsVectors" AfterTargets="Build"
-          Condition="'$(ModLoader)' == 'bepinex'">
-    <Copy SourceFiles="$(PkgSystem_Numerics_Vectors)/lib/net46/System.Numerics.Vectors.dll"
-          DestinationFiles="$(OutputPath)System.Numerics.Vectors.dll"
-          SkipUnchangedFiles="true" />
-  </Target>
-  <Target Name="CopyBepImGuiNative" AfterTargets="Build"
-          Condition="'$(ModLoader)' == 'bepinex'">
-    <Copy SourceFiles="$(PkgImGui_NET)/runtimes/win-x64/native/cimgui.dll"
-          DestinationFiles="$(OutputPath)cimgui.dll"
-          SkipUnchangedFiles="true" />
-  </Target>
+    <Target
+        Name="CopyBepSystemNumericsVectors"
+        AfterTargets="Build"
+        Condition="'$(ModLoader)' == 'bepinex'"
+    >
+        <Copy
+            SourceFiles="$(PkgSystem_Numerics_Vectors)/lib/net46/System.Numerics.Vectors.dll"
+            DestinationFiles="$(OutputPath)System.Numerics.Vectors.dll"
+            SkipUnchangedFiles="true"
+        />
+    </Target>
+    <Target Name="CopyBepImGuiNative" AfterTargets="Build" Condition="'$(ModLoader)' == 'bepinex'">
+        <Copy
+            SourceFiles="$(PkgImGui_NET)/runtimes/win-x64/native/cimgui.dll"
+            DestinationFiles="$(OutputPath)cimgui.dll"
+            SkipUnchangedFiles="true"
+        />
+    </Target>
 
-  <!-- Game assembly references -->
-  <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>lib/Assembly-CSharp.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>lib/UnityEngine.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.CoreModule">
-      <HintPath>lib/UnityEngine.CoreModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.InputLegacyModule">
-      <HintPath>lib/UnityEngine.InputLegacyModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.IMGUIModule">
-      <HintPath>lib/UnityEngine.IMGUIModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.UIModule">
-      <HintPath>lib/UnityEngine.UIModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.TextRenderingModule">
-      <HintPath>lib/UnityEngine.TextRenderingModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>lib/UnityEngine.UI.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.AIModule">
-      <HintPath>lib/UnityEngine.AIModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.PhysicsModule">
-      <HintPath>lib/UnityEngine.PhysicsModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Unity.TextMeshPro">
-      <HintPath>lib/Unity.TextMeshPro.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-  </ItemGroup>
-
+    <!-- Game assembly references -->
+    <ItemGroup>
+        <Reference Include="Assembly-CSharp">
+            <HintPath>lib/Assembly-CSharp.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine">
+            <HintPath>lib/UnityEngine.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine.CoreModule">
+            <HintPath>lib/UnityEngine.CoreModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine.InputLegacyModule">
+            <HintPath>lib/UnityEngine.InputLegacyModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine.IMGUIModule">
+            <HintPath>lib/UnityEngine.IMGUIModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine.UIModule">
+            <HintPath>lib/UnityEngine.UIModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine.TextRenderingModule">
+            <HintPath>lib/UnityEngine.TextRenderingModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine.UI">
+            <HintPath>lib/UnityEngine.UI.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine.AIModule">
+            <HintPath>lib/UnityEngine.AIModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine.PhysicsModule">
+            <HintPath>lib/UnityEngine.PhysicsModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Unity.TextMeshPro">
+            <HintPath>lib/Unity.TextMeshPro.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
 </Project>

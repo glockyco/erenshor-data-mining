@@ -1218,7 +1218,7 @@ def _run_static_leaf(cli_ctx: CLIContext) -> _LeafResult:
             ("ruff", "check", "src/", "tests/"),
             ("ruff", "format", "--check", "src/", "tests/"),
             ("mypy", "src/"),
-            ("dotnet", "csharpier", "--check", "."),
+            ("dotnet", "csharpier", "check", "."),
         ),
         continue_on_failure=True,
     )
