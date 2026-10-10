@@ -35,15 +35,19 @@ app = typer.Typer(
 console = Console()
 
 
-def _create_sheets_service(cli_ctx: CLIContext) -> SheetsService:
+def _create_sheets_service(cli_ctx: CLIContext, *, service: SheetsService | None = None) -> SheetsService:
     """Create SheetsService with dependencies.
 
     Args:
         cli_ctx: CLI context with config and variant info.
+        service: A caller-supplied service, such as a test's double, returned
+            unchanged instead of building the real one.
 
     Returns:
         Configured SheetsService instance.
     """
+    if service is not None:
+        return service
     # Get variant config
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
 
