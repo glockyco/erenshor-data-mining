@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import hashlib
 import io
-from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
 import pytest
 from PIL import Image
+from tests.fakes.mediawiki import MediaWikiFake, PurgeRequest
 
 from erenshor.application.pictures import identify
 from erenshor.application.services.image_publication import (
@@ -24,15 +24,9 @@ from erenshor.application.services.image_publication import (
 from erenshor.application.services.image_publication_run import RunRecord, execute, revert
 from erenshor.infrastructure.wiki import (
     MediaWikiAPIError,
-    MediaWikiEditError,
-    MediaWikiNetworkError,
-    MediaWikiUploadWarningError,
 )
 from erenshor.infrastructure.wiki.client import (
     MediaWikiFile,
-    MediaWikiFileVersion,
-    MediaWikiPageRevision,
-    MediaWikiPageSnapshot,
 )
 
 BOT = "WoWBot"
@@ -48,187 +42,6 @@ def _png(color: tuple[int, int, int, int], size: tuple[int, int] = (16, 16), lev
 
 def _sha1(data: bytes) -> str:
     return hashlib.sha1(data, usedforsecurity=False).hexdigest()
-
-
-def _target(text: str) -> str | None:
-    return text.removeprefix("#REDIRECT [[").removesuffix("]]") if text.startswith("#REDIRECT") else None
-
-
-@dataclass
-class _Version:
-    data: bytes
-    user: str
-    comment: str
-
-
-@dataclass
-class FakeWiki:
-    """Files with their versions and File pages, read, written, and deleted like the wiki's API."""
-
-    files: dict[str, list[_Version]] = field(default_factory=dict)
-    pages: dict[str, str] = field(default_factory=dict)
-    revisions: dict[str, int] = field(default_factory=dict)
-    archive: dict[str, tuple[list[_Version], str]] = field(default_factory=dict)
-    used: set[str] = field(default_factory=set)
-    warn: dict[str, dict[str, str]] = field(default_factory=dict)
-    fail_after_uploads: int | None = None
-    lose_move_answers: bool = False
-    uploads: int = 0
-    watched: tuple[str, ...] = ()
-    dark: set[str] = field(default_factory=set)
-    _stash: dict[str, tuple[str, bytes, str]] = field(default_factory=dict)
-    purged: list[tuple[str, ...]] = field(default_factory=list)
-
-    # Arranging the wiki
-
-    def put_file(self, title: str, data: bytes, user: str = BOT, comment: str = "Automated icon upload") -> None:
-        self.files.setdefault(title, []).insert(0, _Version(data, user, comment))
-        self._write_page(title, self.pages.get(title, "an old description"))
-
-    def put_redirect(self, title: str, target: str) -> None:
-        self._write_page(title, f"#REDIRECT [[{target}]]")
-
-    def _write_page(self, title: str, text: str) -> None:
-        self.pages[title] = text
-        self.revisions[title] = self.revisions.get(title, 0) + 1
-
-    def shows_a_picture(self, title: str) -> bool:
-        """Whether a page that embeds the title shows a picture; MediaWiki follows one file redirect."""
-        target = _target(self.pages.get(title, ""))
-        return title in self.files or (target is not None and target in self.files)
-
-    def _wrote(self) -> None:
-        self.dark.update(title for title in self.watched if not self.shows_a_picture(title))
-
-    # Reads
-
-    def listing(self) -> LiveWiki:
-        files = {}
-        for title, versions in self.files.items():
-            latest = versions[0]
-            with Image.open(io.BytesIO(latest.data)) as image:
-                width, height = image.size
-            files[title] = MediaWikiFile(
-                title,
-                _sha1(latest.data),
-                latest.user,
-                latest.comment,
-                len(latest.data),
-                width,
-                height,
-                "t",
-                f"u:{title}",
-            )
-        redirects = {title: target for title, text in self.pages.items() if (target := _target(text)) is not None}
-        return LiveWiki(files, redirects, frozenset(title for title in self.pages if title not in redirects))
-
-    def download(self, url: str) -> bytes:
-        return self.files[url.removeprefix("u:")][0].data
-
-    def is_file_used(self, title: str) -> bool:
-        return title in self.used
-
-    def get_file_versions(self, title: str, limit: int = 50) -> tuple[MediaWikiFileVersion, ...]:
-        versions = self.files.get(title, [])[:limit]
-        return tuple(MediaWikiFileVersion(_sha1(v.data), v.user, v.comment, "t", f"u:{title}") for v in versions)
-
-    def get_page_snapshots(self, titles: Any) -> dict[str, MediaWikiPageSnapshot]:
-        snapshots = {}
-        for title in titles:
-            text = self.pages.get(title)
-            revision = (
-                MediaWikiPageRevision(title, 1, self.revisions[title], "t", "s", BOT) if text is not None else None
-            )
-            snapshots[title] = MediaWikiPageSnapshot(title, text, revision, "s")
-        return snapshots
-
-    # Writes of the bot
-
-    def upload_file(
-        self, file_path: str, filename: str, comment: str, text: str = "", ignore_warnings: bool = False
-    ) -> dict[str, Any]:
-        if self.fail_after_uploads is not None and self.uploads >= self.fail_after_uploads:
-            raise KeyboardInterrupt
-        title = f"File:{filename}"
-        data = Path(file_path).read_bytes()
-        warnings = dict(self.warn.get(title, {}))
-        if title in self.files:
-            warnings["exists"] = filename
-            if any(_sha1(version.data) == _sha1(data) for version in self.files[title][1:]):
-                warnings["duplicateversions"] = "an earlier version"
-        if any(_sha1(v[0].data) == _sha1(data) for t, v in self.files.items() if t != title):
-            warnings["duplicate"] = "another file"
-        if warnings and not ignore_warnings:
-            self._stash["key"] = (title, data, text)
-            raise MediaWikiUploadWarningError(warnings, "key")
-        self._store(title, data, comment, text)
-        return {"result": "Success"}
-
-    def confirm_upload(self, filekey: str, filename: str, comment: str, text: str = "") -> dict[str, Any]:
-        title, data, stashed_text = self._stash.pop(filekey)
-        assert title == f"File:{filename}"
-        self._store(title, data, comment, stashed_text)
-        return {"result": "Success"}
-
-    def _store(self, title: str, data: bytes, comment: str, text: str) -> None:
-        self.uploads += 1
-        self.files.setdefault(title, []).insert(0, _Version(data, BOT, comment))
-        if title not in self.pages:
-            self._write_page(title, text)
-        self._wrote()
-
-    def safe_create_page(self, title: str, content: str, start_timestamp: str, summary: str | None = None) -> int:
-        if title in self.pages:
-            raise MediaWikiEditError(f"{title} exists")
-        self._write_page(title, content)
-        self._wrote()
-        return self.revisions[title]
-
-    def safe_edit_page(
-        self, title: str, content: str, base_revision: MediaWikiPageRevision, summary: str | None = None
-    ) -> int:
-        if self.revisions.get(title) != base_revision.revision_id:
-            raise MediaWikiEditError(f"{title} changed")
-        self._write_page(title, content)
-        self._wrote()
-        return self.revisions[title]
-
-    def move_page(self, from_title: str, to_title: str, reason: str, *, leave_redirect: bool = True) -> None:
-        """Move a file and its page; MediaWiki moves over a page only when it is a one-revision redirect back."""
-        if to_title in self.pages and not (
-            _target(self.pages[to_title]) == from_title and self.revisions[to_title] == 1
-        ):
-            raise MediaWikiEditError(f"{to_title} exists")
-        self.files[to_title] = self.files.pop(from_title)
-        self.pages[to_title] = self.pages.pop(from_title)
-        self.revisions[to_title] = self.revisions.pop(from_title)
-        if leave_redirect:
-            self._write_page(from_title, f"#REDIRECT [[{to_title}]]")
-        self._wrote()
-        if self.lose_move_answers:
-            raise MediaWikiNetworkError("Request timeout: The read operation timed out")
-
-    # Deletions of the administrator
-
-    def delete_page(self, title: str, reason: str) -> None:
-        self.archive[title] = (self.files.pop(title, []), self.pages.pop(title))
-        self.revisions.pop(title)
-        self._wrote()
-
-    def undelete_page(self, title: str, reason: str) -> None:
-        """Restore a deleted page; a newer page at the title keeps its text, as with MediaWiki's merge."""
-        versions, text = self.archive.pop(title)
-        if versions:
-            self.files[title] = versions
-        if title not in self.pages:
-            self._write_page(title, text)
-
-    # CDN purge
-
-    def purge_pages(self, titles: Any, force_link_update: bool = True) -> tuple[str, ...]:
-        titles = tuple(titles)
-        self.purged.append(titles)
-        return titles
 
 
 class _Catalog:
@@ -257,19 +70,19 @@ class _Catalog:
         return Catalog("24405256", self.pictures, self.titles, self.entities)
 
 
-def _plan(catalog: Catalog, wiki: FakeWiki, cache: LivePictureCache) -> PublishPlan:
+def _plan(catalog: Catalog, wiki: MediaWikiFake, cache: LivePictureCache) -> PublishPlan:
     return plan_publication(catalog, wiki.listing(), BOT, OWNERS, cache, wiki.is_file_used)
 
 
-def _run(catalog: Catalog, wiki: FakeWiki, cache: LivePictureCache, directory: Path) -> RunRecord:
+def _run(catalog: Catalog, wiki: MediaWikiFake, cache: LivePictureCache, directory: Path) -> RunRecord:
     record = RunRecord(directory)
     execute(_plan(catalog, wiki, cache), catalog, wiki, wiki, record, "Publish")
     return record
 
 
 @pytest.fixture
-def setup(tmp_path: Path) -> tuple[_Catalog, FakeWiki, LivePictureCache, Path]:
-    wiki = FakeWiki()
+def setup(tmp_path: Path) -> tuple[_Catalog, MediaWikiFake, LivePictureCache, Path]:
+    wiki = MediaWikiFake(edit_account=BOT)
     return _Catalog(tmp_path / "catalog"), wiki, LivePictureCache(wiki.download, tmp_path / "live"), tmp_path
 
 
@@ -335,7 +148,7 @@ def test_an_update_records_its_provenance_and_keeps_the_description(setup: Any) 
     assert "Assets/Texture2D/4_8.png" in latest.comment
     assert "24405256" in latest.comment
     assert wiki.pages["File:Thorned Branch.png"] == "an old description"
-    assert wiki.purged == [("File:Thorned Branch.png",)]
+    assert wiki.purged == [PurgeRequest(("File:Thorned Branch.png",), False, None, None)]
 
 
 def test_a_new_file_gets_a_description_with_the_games_copyright_notice(setup: Any) -> None:
@@ -611,7 +424,7 @@ def test_a_file_whose_description_page_redirects_gets_its_description(setup: Any
     pictures, wiki, cache, tmp_path = setup
     pictures.add(SCROLL, "File:A Collection of Notes.png")
     wiki.put_file("File:A collection of notes.png", OLD, user=OPERATOR, comment="")
-    wiki.files["File:A Collection of Notes.png"] = [_Version(SCROLL, BOT, "Game picture")]
+    wiki.put_file("File:A Collection of Notes.png", SCROLL, user=BOT, comment="Game picture")
     wiki.put_redirect("File:A Collection of Notes.png", "File:A collection of notes.png")
     catalog = pictures.build()
 
@@ -652,7 +465,7 @@ def test_a_title_shows_the_file_that_its_redirect_names() -> None:
     assert live.shown("File:Faith.png") is None
 
 
-def _antidote(pictures: _Catalog, wiki: FakeWiki) -> None:
+def _antidote(pictures: _Catalog, wiki: MediaWikiFake) -> None:
     """A spell's file at its plain title, with an item's old title redirecting to it, and the two role titles."""
     pictures.add(SCROLL, "File:Spell Scroll Antidote icon.png", kind="item")
     pictures.add(SCROLL, "File:Antidote icon.png", kind="spell")
@@ -679,7 +492,7 @@ def test_a_file_whose_title_changes_moves_with_its_history_and_its_redirects_fol
     assert len(wiki.files["File:Antidote icon.png"]) == 2
     for title in ("File:Antidote.png", "File:Spell Scroll Antidote.png", "File:Spell Scroll Antidote icon.png"):
         assert wiki.pages[title] == "#REDIRECT [[File:Antidote icon.png]]"
-    assert wiki.purged == [("File:Antidote icon.png", "File:Antidote.png")]
+    assert wiki.purged == [PurgeRequest(("File:Antidote icon.png", "File:Antidote.png"), False, None, None)]
     assert wiki.dark == set()
     assert set(_verdicts(_plan(catalog, wiki, cache)).values()) == {"unchanged"}
 

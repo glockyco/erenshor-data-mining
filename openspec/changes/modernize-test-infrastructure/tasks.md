@@ -20,7 +20,7 @@
 - [ ] 3.4 Migrate `tests/unit/application/wiki_deploy/test_render_check.py`'s `Wiki` the same way. Same verification.
 - [ ] 3.5 Migrate `tests/unit/application/wiki_deploy/test_link_audit_service.py`'s `FakeClient` the same way. Same verification.
 - [ ] 3.6 Migrate `tests/unit/application/wiki_deploy/test_articles.py`'s `FakeWiki` the same way. Same verification.
-- [ ] 3.7 Migrate `tests/unit/application/services/test_image_publication.py`'s `FakeWiki` to import the now-shared class instead of defining its own (this file's version is the one the shared fake was built from). Same verification.
+- [x] 3.7 Migrate `tests/unit/application/services/test_image_publication.py`'s `FakeWiki` to import the now-shared class instead of defining its own (this file's version is the one the shared fake was built from). Same verification.
 - [ ] 3.8 Migrate `tests/unit/application/wiki_interface/test_deploy.py`'s `FakeInterfaceClient` the same way. Same verification.
 - [ ] 3.9 Migrate `tests/unit/application/wiki_deploy/test_refresh.py`'s `RecordingRefreshClient` the same way. Same verification.
 - [ ] 3.10 Migrate `tests/unit/application/wiki_interface/test_sync.py`'s `FakeInterfaceClient` the same way. Same verification.

@@ -116,8 +116,7 @@ class MediaWikiFake:
     def put_file(self, title: str, data: bytes, *, user: str | None = None, comment: str = "Automated upload") -> None:
         uploader = user or self.edit_account or "ErenshorBot"
         self.files.setdefault(title, []).insert(0, _FileVersion(data, uploader, comment))
-        if title not in self.pages:
-            self._write_page(title, "An uploaded file.", user)
+        self._write_page(title, self.pages.get(title, "an old description"), user)
         self._mark_dark()
 
     def _write_page(self, title: str, text: str, user: str | None) -> None:
@@ -135,13 +134,14 @@ class MediaWikiFake:
     def _target(text: str) -> str | None:
         return text.removeprefix("#REDIRECT [[").removesuffix("]]") if text.startswith("#REDIRECT [[") else None
 
-    def _shows_a_picture(self, title: str) -> bool:
+    def shows_a_picture(self, title: str) -> bool:
+        """Whether a page that embeds the title shows a picture; MediaWiki follows one file redirect."""
         target = self._target(self.pages.get(title, ""))
         return title in self.files or (target is not None and target in self.files)
 
     def _mark_dark(self) -> None:
         """A page that an operation left without a visible picture joins `dark`, once watched."""
-        self.dark.update(title for title in self.watched if not self._shows_a_picture(title))
+        self.dark.update(title for title in self.watched if not self.shows_a_picture(title))
 
     # --- Guards shared by every write and by the reads that take `assertion` ---
 

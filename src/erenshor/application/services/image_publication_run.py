@@ -606,7 +606,7 @@ def _restore_description(entry: dict[str, Any], writer: PublishWriter, record: R
     """Put a description page's earlier text back, while it still holds the description that the run wrote."""
     title = str(entry["title"])
     page = writer.get_page_snapshots([title])[title]
-    if page.revision is None or page.source_text != entry["text"]:
+    if page.revision is None or page.source_text != str(entry["text"]).rstrip():
         record.add({"title": title, "action": "revert describe", "done": False, "reason": "the page changed since"})
         return
     try:
