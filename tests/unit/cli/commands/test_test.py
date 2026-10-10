@@ -83,15 +83,17 @@ def _assert_intermediate_report_path(path: Path, repo_root: Path, task_id: str) 
 
 
 def _write_trx(argv: Sequence[str], outcomes: Sequence[str]) -> Path:
-    logger = next(argument for argument in argv if argument.startswith("trx;LogFileName="))
-    path = Path(logger.split("=", 1)[1])
+    """Write a fake TRX report as xunit.v3's native MTP writer does: filename and directory are
+    separate flags, and a skip is folded into notExecuted with no separate skipped counter."""
+    directory = Path(argv[argv.index("--results-directory") + 1])
+    filename = argv[argv.index("--report-xunit-trx-filename") + 1]
+    path = directory / filename
     path.parent.mkdir(parents=True, exist_ok=True)
     failed = sum(outcome.casefold() in {"failed", "error", "timeout", "aborted"} for outcome in outcomes)
-    skipped = sum(outcome.casefold() in {"skipped", "ignored"} for outcome in outcomes)
-    not_executed = sum(outcome.casefold() in {"notexecuted", "not executed"} for outcome in outcomes)
-    counters = (
-        f'<Counters executed="{len(outcomes)}" failed="{failed}" skipped="{skipped}" notExecuted="{not_executed}" />'
+    not_executed = sum(
+        outcome.casefold() in {"skipped", "ignored", "notexecuted", "not executed"} for outcome in outcomes
     )
+    counters = f'<Counters executed="{len(outcomes)}" failed="{failed}" notExecuted="{not_executed}" />'
     results = "".join(
         f'<UnitTestResult testId="{index}" outcome="{outcome}" />' for index, outcome in enumerate(outcomes)
     )
@@ -373,17 +375,20 @@ def test_contract_leaf_uses_exact_native_and_pytest_commands_and_namespaced_resu
     assert len(calls) == 3
     native_projects = test._CONTRACT_NATIVE_TEST_PROJECTS
     for (native_command, native_cwd), project in zip(calls[:2], native_projects, strict=True):
-        native_logger = native_command[-1]
         expected_project = tmp_path / project.project
-        assert native_logger.startswith("trx;LogFileName=")
+        expected_report = tmp_path / "artifacts/test-reports/native/contract" / f"{project.name}.trx"
         assert list(native_command) == [
             "dotnet",
             "test",
+            "--project",
             str(expected_project),
             "-c",
             "Release",
-            "--logger",
-            native_logger,
+            "--report-xunit-trx",
+            "--report-xunit-trx-filename",
+            expected_report.name,
+            "--results-directory",
+            str(expected_report.parent),
         ]
         assert native_cwd == tmp_path
 
@@ -491,9 +496,7 @@ def test_contract_leaf_retains_native_reports_and_cleans_pytest_report(tmp_path:
 
     def fake_run_process(argv: Sequence[str], cwd: Path) -> Any:
         if argv[0] == "dotnet":
-            logger = next(argument for argument in argv if "LogFileName=" in argument)
-            path = Path(logger.split("=", 1)[1])
-            _write_trx(argv, ["Passed"])
+            path = _write_trx(argv, ["Passed"])
         else:
             path = Path(argv[-1])
         report_paths.append(path)
@@ -828,11 +831,13 @@ def test_mods_leaf_uses_each_exact_native_project_argv_and_repository_cwd(tmp_pa
     trx_paths: list[Path] = []
     for (argv, cwd), (loader, project) in zip(calls, expected_projects, strict=True):
         assert cwd == tmp_path
-        assert argv[:3] == ["dotnet", "test", str(project)]
-        assert argv[3:5] == ["-c", "Release"]
-        assert argv[5:7] == [f"-p:ModLoader={loader}", "-p:ModVersion=0.0.0-test"]
-        logger = next(argument for argument in argv if argument.startswith("trx;LogFileName="))
-        trx_paths.append(Path(logger.split("=", 1)[1]))
+        assert argv[:4] == ["dotnet", "test", "--project", str(project)]
+        assert argv[4:6] == ["-c", "Release"]
+        assert argv[6:8] == [f"-p:ModLoader={loader}", "-p:ModVersion=0.0.0-test"]
+        assert argv[8] == "--report-xunit-trx"
+        assert argv[9] == "--report-xunit-trx-filename"
+        assert argv[11] == "--results-directory"
+        trx_paths.append(Path(argv[12]) / argv[10])
     assert len(trx_paths) == len(set(trx_paths))
     assert list(result.result_counts["projects"]) == [
         "AdventureGuide",

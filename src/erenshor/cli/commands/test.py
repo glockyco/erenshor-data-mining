@@ -792,7 +792,10 @@ def _trx_counters(counter_element: ET.Element | None) -> tuple[_TrxReportedCount
     failed = _optional_trx_counter(counter_element.attrib.get("failed"), "failed")
     if isinstance(failed, str):
         return {}, failed
-    skipped = _optional_trx_counter(counter_element.attrib.get("skipped"), "skipped")
+    # xunit.v3's native TRX writer (dotnet test --report-xunit-trx under Microsoft.Testing.Platform)
+    # never writes a skipped counter: it folds a [Fact(Skip=...)] into notExecuted instead. A missing
+    # skipped counter is this report format, not a malformed one, so it reads as zero.
+    skipped = _optional_trx_counter(counter_element.attrib.get("skipped", "0"), "skipped")
     if isinstance(skipped, str):
         return {}, skipped
     not_executed = _optional_trx_counter(counter_element.attrib.get("notExecuted"), "notExecuted")
@@ -952,11 +955,15 @@ def _run_native_test_project(cli_ctx: CLIContext, project: Path, *, name: str) -
     command = [
         "dotnet",
         "test",
+        "--project",
         str(project_path),
         "-c",
         "Release",
-        "--logger",
-        f"trx;LogFileName={report_path}",
+        "--report-xunit-trx",
+        "--report-xunit-trx-filename",
+        report_path.name,
+        "--results-directory",
+        str(report_path.parent),
     ]
     command_result = _run_process(command, cli_ctx.repo_root)
     parsed_counts, report_error = _read_trx_report(report_path)
@@ -1062,13 +1069,17 @@ def _run_mods_leaf(cli_ctx: CLIContext) -> _LeafResult:
         command = [
             "dotnet",
             "test",
+            "--project",
             str(project),
             "-c",
             "Release",
             f"-p:ModLoader={native_project.default_loader}",
             "-p:ModVersion=0.0.0-test",
-            "--logger",
-            f"trx;LogFileName={report_path}",
+            "--report-xunit-trx",
+            "--report-xunit-trx-filename",
+            report_path.name,
+            "--results-directory",
+            str(report_path.parent),
         ]
         command_result = _run_process(command, cli_ctx.repo_root)
         command_results.append(command_result)
