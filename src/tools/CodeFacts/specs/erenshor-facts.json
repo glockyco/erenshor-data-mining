@@ -608,7 +608,7 @@
       "matcher": "node_shape",
       "args": {
         "kind": "IfElseStatement",
-        "shape": "if (hitInfo.transform.tag == \"Treasure\" && !flag && Vector3.Distance (base.transform.position, hitInfo.transform.position) < 5f) { GameObject original = GameData.Misc.TreasureChest0_10; if (Myself.MyStats.Level >= 10 && Myself.MyStats.Level < 20) { original = GameData.Misc.TreasureChest10_20; } if (Myself.MyStats.Level >= 20 && Myself.MyStats.Level < 30) { original = GameData.Misc.TreasureChest20_30; } if (Myself.MyStats.Level >= 30) { original = GameData.Misc.TreasureChest30_35; } Object.Instantiate (original, hitInfo.transform.position, hitInfo.transform.rotation); Object.Instantiate (GameData.Misc.DigFX, hitInfo.transform.position, hitInfo.transform.rotation); GameData.PlayerAud.PlayOneShot (GameData.Misc.DigSFX, GameData.PlayerAud.volume * GameData.SFXVol * GameData.MasterVol); GameData.GM.GetComponent<TreasureHunting> ().ResetTreasureHunt (); hitInfo.transform.gameObject.SetActive (value: false); }"
+        "shape": "if (hitInfo.transform.tag == \"Treasure\" && !flag && Vector3.Distance (transform.position, hitInfo.transform.position) < 5f) { GameObject original = GameData.Misc.TreasureChest0_10; if (Myself.MyStats.Level >= 10 && Myself.MyStats.Level < 20) { original = GameData.Misc.TreasureChest10_20; } if (Myself.MyStats.Level >= 20 && Myself.MyStats.Level < 30) { original = GameData.Misc.TreasureChest20_30; } if (Myself.MyStats.Level >= 30) { original = GameData.Misc.TreasureChest30_35; } Object.Instantiate (original, hitInfo.transform.position, hitInfo.transform.rotation); Object.Instantiate (GameData.Misc.DigFX, hitInfo.transform.position, hitInfo.transform.rotation); GameData.PlayerAud.PlayOneShot (GameData.Misc.DigSFX, GameData.PlayerAud.volume * GameData.SFXVol * GameData.MasterVol); GameData.GM.GetComponent<TreasureHunting> ().ResetTreasureHunt (); hitInfo.transform.gameObject.SetActive (value: false); }"
       },
       "note": "Digging spawns the 0-10 chest below level 10, the 10-20 chest at 10-19, the 20-30 chest at 20-29, and the 30-35 chest from level 30. Re-implemented by CHEST_DIG_LEVELS in src/erenshor/application/processor/treasure.py."
     },
@@ -795,7 +795,7 @@
       "matcher": "node_shape",
       "args": {
         "kind": "VariableDeclarationStatement",
-        "shape": "GameObject gameObject = Object.Instantiate (Guardians [Random.Range (0, Guardians.Count)], position, base.transform.rotation);"
+        "shape": "GameObject gameObject = Object.Instantiate (Guardians [Random.Range (0, Guardians.Count)], position, transform.rotation);"
       },
       "note": "Each guardian of a wave is a random entry of the chest's Guardians list, exported as chained spawns. Re-implemented by load_guardians in src/erenshor/application/processor/treasure.py."
     },
@@ -854,7 +854,7 @@
       "matcher": "node_shape",
       "args": {
         "kind": "IfElseStatement",
-        "shape": "if (num == -6 && TargetChar != null && TargetChar.isNPC && TargetChar.MyNPC.MyChestEvent != null) { TargetChar.MyNPC.MyChestEvent.SpawnGuardians (GameData.PlayerStats.Level); Object.Destroy (base.gameObject); return; }"
+        "shape": "if (num == -6 && TargetChar != null && TargetChar.isNPC && TargetChar.MyNPC.MyChestEvent != null) { TargetChar.MyNPC.MyChestEvent.SpawnGuardians (GameData.PlayerStats.Level); Object.Destroy (gameObject); return; }"
       },
       "note": "A wand bolt or arrow that hits a treasure chest calls SpawnGuardians with the player's level. Stated by wiki/modules/Erenshor/TreasureGuardian.lua."
     },
@@ -913,7 +913,7 @@
       "method": "Start",
       "matcher": "statement_shape",
       "args": {
-        "statement": "base.transform.name = \"Training Dummy\";"
+        "statement": "transform.name = \"Training Dummy\";"
       },
       "note": "TestDummy.Start names every training dummy Training Dummy. The clean build names each kind after it, adding the hand-set AC."
     },
@@ -925,7 +925,7 @@
       "matcher": "node_shape",
       "args": {
         "kind": "IfElseStatement",
-        "shape": "if (MyStats.Level != GameData.PlayerStats.Level) { if (MyStats.Level < 42) { MyStats.Level = GameData.PlayerStats.Level; } if (MyStats.Level > 42) { MyStats.Level = 42; } base.transform.name = \"Training Dummy\"; }"
+        "shape": "if (MyStats.Level != GameData.PlayerStats.Level) { if (MyStats.Level < 42) { MyStats.Level = GameData.PlayerStats.Level; } if (MyStats.Level > 42) { MyStats.Level = 42; } transform.name = \"Training Dummy\"; }"
       },
       "note": "TestDummy.FixedUpdate keeps a training dummy below level 42 at the player's level. Re-implemented by training_dummy_level in src/erenshor/application/processor/npc_spawn.py."
     },
