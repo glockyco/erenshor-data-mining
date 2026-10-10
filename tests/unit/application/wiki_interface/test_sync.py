@@ -4,6 +4,7 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
+from tests.fakes.mediawiki import MediaWikiFake
 
 from erenshor.application.wiki_interface.sync import (
     MediaWikiInterfaceClient,
@@ -13,28 +14,6 @@ from erenshor.application.wiki_interface.sync import (
     sync_interface_pages,
 )
 from erenshor.infrastructure.wiki.rate_limit import MediaWikiDownload, MediaWikiRequestor
-
-
-class FakeInterfaceClient:
-    def __init__(self, pages: dict[str, str], media_files: dict[str, bytes] | None = None) -> None:
-        self.pages = pages
-        self.media_files = media_files or {}
-        self.direct_media_files: dict[str, bytes] = {}
-        self.requested: list[str] = []
-        self.requested_media: list[str] = []
-        self.requested_direct_media: list[str] = []
-
-    def raw_page(self, title: str) -> str | None:
-        self.requested.append(title)
-        return self.pages.get(title)
-
-    def media_file(self, title: str) -> bytes | None:
-        self.requested_media.append(title)
-        return self.media_files.get(title)
-
-    def media_file_by_path(self, path: str) -> bytes | None:
-        self.requested_direct_media.append(path)
-        return self.direct_media_files.get(path)
 
 
 def fixed_interface_pages(extra: dict[str, str]) -> dict[str, str]:
@@ -92,24 +71,24 @@ def test_gadget_source_titles_reads_definition_sources() -> None:
 
 
 def test_sync_fetches_fixed_pages_and_referenced_gadget_sources(tmp_path: Path) -> None:
-    client = FakeInterfaceClient(
-        fixed_interface_pages(
-            {
-                "MediaWiki:Common.css": "body { color: white; }\n",
-                "MediaWiki:Vector.css": "#mw-page-base { background: black; }\n",
-                "MediaWiki:Common.js": "window.erenshorCommon = true;\n",
-                "MediaWiki:Vector.js": "window.erenshorVector = true;\n",
-                "MediaWiki:Gadgets-definition": "* datatables[ResourceLoader|default]|datatables.js|datatables.css\n",
-                "MediaWiki:Sidebar": "* navigation\n** mainpage|mainpage-description\n",
-                "MediaWiki:Gadget-datatables.js": "window.datatables = true;\n",
-                "MediaWiki:Gadget-datatables.css": ".datatable { width: 100%; }\n",
-            }
-        )
-    )
+    client = MediaWikiFake()
+    for title, text in fixed_interface_pages(
+        {
+            "MediaWiki:Common.css": "body { color: white; }\n",
+            "MediaWiki:Vector.css": "#mw-page-base { background: black; }\n",
+            "MediaWiki:Common.js": "window.erenshorCommon = true;\n",
+            "MediaWiki:Vector.js": "window.erenshorVector = true;\n",
+            "MediaWiki:Gadgets-definition": "* datatables[ResourceLoader|default]|datatables.js|datatables.css\n",
+            "MediaWiki:Sidebar": "* navigation\n** mainpage|mainpage-description\n",
+            "MediaWiki:Gadget-datatables.js": "window.datatables = true;\n",
+            "MediaWiki:Gadget-datatables.css": ".datatable { width: 100%; }\n",
+        }
+    ).items():
+        client.put_page(title, text)
 
     result = sync_interface_pages(client=client, output_root=tmp_path, dry_run=False)
 
-    assert client.requested == [
+    assert [page.title for page in result.pages] == [
         "MediaWiki:Common.css",
         "MediaWiki:Vector.css",
         "MediaWiki:Common.js",
@@ -123,35 +102,32 @@ def test_sync_fetches_fixed_pages_and_referenced_gadget_sources(tmp_path: Path) 
         "MediaWiki:Gadget-datatables.js",
         "MediaWiki:Gadget-datatables.css",
     ]
-    assert [page.title for page in result.pages] == client.requested
-    assert (tmp_path / "MediaWiki" / "Common.css").read_text(encoding="utf-8") == "body { color: white; }\n"
-    assert (tmp_path / "MediaWiki" / "Gadget-datatables.js").read_text(
-        encoding="utf-8"
-    ) == "window.datatables = true;\n"
+    assert (tmp_path / "MediaWiki" / "Common.css").read_text(encoding="utf-8") == "body { color: white; }"
+    assert (tmp_path / "MediaWiki" / "Gadget-datatables.js").read_text(encoding="utf-8") == "window.datatables = true;"
 
 
 def test_sync_mirrors_css_referenced_wiki_image_assets(tmp_path: Path) -> None:
-    client = FakeInterfaceClient(
-        fixed_interface_pages(
-            {
-                "MediaWiki:Common.css": ".box { background: url(/images/8/80/Site-background.jpg); }\n",
-                "MediaWiki:Vector.css": ".border { border-image-source: url('images/d/d8/Tooltip_border_top.png'); }\n",
-            }
-        ),
+    client = MediaWikiFake()
+    for title, text in fixed_interface_pages(
         {
-            "File:Site-logo.png": b"site-logo",
-            "File:Site-favicon.ico": b"site-favicon",
-            "File:Site-background.jpg": b"site-background",
-            "File:Tooltip_border_top.png": b"tooltip-border",
-        },
-    )
+            "MediaWiki:Common.css": ".box { background: url(/images/8/80/Site-background.jpg); }\n",
+            "MediaWiki:Vector.css": ".border { border-image-source: url('images/d/d8/Tooltip_border_top.png'); }\n",
+        }
+    ).items():
+        client.put_page(title, text)
+    for title, data in {
+        "File:Site-logo.png": b"site-logo",
+        "File:Site-favicon.ico": b"site-favicon",
+        "File:Site-background.jpg": b"site-background",
+        "File:Tooltip_border_top.png": b"tooltip-border",
+    }.items():
+        client.put_file(title, data)
     image_root = tmp_path / "images"
 
     result = sync_interface_pages(
         client=client, output_root=tmp_path / "interface", image_root=image_root, dry_run=False
     )
 
-    assert client.requested_media[-2:] == ["File:Site-background.jpg", "File:Tooltip_border_top.png"]
     assert [asset.title for asset in result.assets][-2:] == [
         "File:Site-background.jpg",
         "File:Tooltip_border_top.png",
@@ -161,8 +137,10 @@ def test_sync_mirrors_css_referenced_wiki_image_assets(tmp_path: Path) -> None:
 
 
 def test_sync_mirrors_fixed_live_skin_assets(tmp_path: Path) -> None:
-    client = FakeInterfaceClient(fixed_interface_pages({}))
-    client.direct_media_files = {
+    client = MediaWikiFake()
+    for title, text in fixed_interface_pages({}).items():
+        client.put_page(title, text)
+    client.direct_media = {
         "/images/Site-logo.png": b"site-logo",
         "/images/Site-favicon.ico": b"site-favicon",
     }
@@ -181,17 +159,18 @@ def test_sync_mirrors_fixed_live_skin_assets(tmp_path: Path) -> None:
 
 
 def test_sync_reports_unresolvable_live_css_assets_without_blocking(tmp_path: Path) -> None:
-    client = FakeInterfaceClient(
-        fixed_interface_pages(
-            {
-                "MediaWiki:Common.css": ".box { background: url(/images/e/e0/MP_banner.jpg); }\n",
-            }
-        ),
+    client = MediaWikiFake()
+    for title, text in fixed_interface_pages(
         {
-            "File:Site-logo.png": b"site-logo",
-            "File:Site-favicon.ico": b"site-favicon",
-        },
-    )
+            "MediaWiki:Common.css": ".box { background: url(/images/e/e0/MP_banner.jpg); }\n",
+        }
+    ).items():
+        client.put_page(title, text)
+    for title, data in {
+        "File:Site-logo.png": b"site-logo",
+        "File:Site-favicon.ico": b"site-favicon",
+    }.items():
+        client.put_file(title, data)
 
     result = sync_interface_pages(
         client=client, output_root=tmp_path / "interface", image_root=tmp_path / "images", dry_run=False
@@ -205,7 +184,9 @@ def test_sync_reports_diff_before_overwriting_existing_snapshot(tmp_path: Path) 
     snapshot = tmp_path / "MediaWiki" / "Common.css"
     snapshot.parent.mkdir(parents=True)
     snapshot.write_text("body { color: red; }\n", encoding="utf-8")
-    client = FakeInterfaceClient(fixed_interface_pages({"MediaWiki:Common.css": "body { color: white; }\n"}))
+    client = MediaWikiFake()
+    for title, text in fixed_interface_pages({"MediaWiki:Common.css": "body { color: white; }\n"}).items():
+        client.put_page(title, text)
 
     result = sync_interface_pages(client=client, output_root=tmp_path, dry_run=False)
 
@@ -213,21 +194,23 @@ def test_sync_reports_diff_before_overwriting_existing_snapshot(tmp_path: Path) 
     assert common_css.diff.startswith("--- wiki-dev/interface/MediaWiki/Common.css")
     assert "-body { color: red; }" in common_css.diff
     assert "+body { color: white; }" in common_css.diff
-    assert snapshot.read_text(encoding="utf-8") == "body { color: white; }\n"
+    assert snapshot.read_text(encoding="utf-8") == "body { color: white; }"
 
 
 def test_sync_dry_run_does_not_overwrite_existing_snapshot(tmp_path: Path) -> None:
     snapshot = tmp_path / "MediaWiki" / "Common.css"
     snapshot.parent.mkdir(parents=True)
     snapshot.write_text("body { color: red; }\n", encoding="utf-8")
-    client = FakeInterfaceClient(fixed_interface_pages({"MediaWiki:Common.css": "body { color: white; }\n"}))
+    client = MediaWikiFake()
+    for title, text in fixed_interface_pages({"MediaWiki:Common.css": "body { color: white; }\n"}).items():
+        client.put_page(title, text)
 
     result = sync_interface_pages(client=client, output_root=tmp_path, dry_run=True)
 
     assert result.pages[0] == MediaWikiInterfacePage(
         title="MediaWiki:Common.css",
         path=tmp_path / "MediaWiki" / "Common.css",
-        content="body { color: white; }\n",
+        content="body { color: white; }",
         diff=result.pages[0].diff,
         changed=True,
     )
@@ -235,7 +218,8 @@ def test_sync_dry_run_does_not_overwrite_existing_snapshot(tmp_path: Path) -> No
 
 
 def test_sync_fails_loudly_on_missing_interface_page(tmp_path: Path) -> None:
-    client = FakeInterfaceClient({"MediaWiki:Common.css": ""})
+    client = MediaWikiFake()
+    client.put_page("MediaWiki:Common.css", "")
 
     with pytest.raises(MissingInterfacePageError, match=r"MediaWiki:Vector\.css"):
         sync_interface_pages(client=client, output_root=tmp_path, dry_run=False)
