@@ -235,6 +235,16 @@ local function resolveItemQuality(args)
 	return canonical
 end
 
+-- Stable keys of the entities of a kind whose page is the given page, in
+-- catalog order. A data view uses it to find the entity of the page it is on.
+function p.pageKeys(kind, page)
+	local keys = {}
+	for _, record in ipairs(pageMatches(tostring(kind or ""):lower(), page)) do
+		table.insert(keys, record.key)
+	end
+	return keys
+end
+
 -- Resolve identity and presentation in one place. The catalog is the only
 -- navigation source; item shards remain deliberately limited to itemRecord().
 function p.resolve(kind, args)

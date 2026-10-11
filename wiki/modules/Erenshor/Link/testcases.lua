@@ -484,6 +484,16 @@ function p.run()
 		)
 	end
 
+	local onePage = Link.pageKeys("item", "Abyssal Plate")
+	assertEqual(#onePage, 1, "page keys of a page with one item")
+	assertEqual(onePage[1], "item:chest - 38 - abyssal plate", "page key of a page with one item")
+	local sharedPage = Link.pageKeys("Character", "Dire Wolf")
+	assertEqual(#sharedPage, 2, "page keys of a page that two characters share")
+	assertEqual(sharedPage[1], "character:dire_wolf_alpha", "first shared page key")
+	assertEqual(sharedPage[2], "character:dire_wolf_young", "second shared page key")
+	assertEqual(#Link.pageKeys("zone", "Dire Wolf"), 0, "page keys of another kind")
+	assertEqual(#Link.pageKeys("item", "No Such Erenshor Page"), 0, "page keys of an unknown page")
+
 	return "PASS Erenshor Link testcases"
 end
 
