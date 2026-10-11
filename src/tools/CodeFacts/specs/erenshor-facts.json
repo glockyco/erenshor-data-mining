@@ -1122,6 +1122,177 @@
         "shape": "{ CheckRoomAndBuild (GameData.PlanningUI.L1, L1Children); yield return null; CheckRoomAndBuild (GameData.PlanningUI.L2, L2Children); yield return null; CheckRoomAndBuild (GameData.PlanningUI.L3, L3Children); yield return null; CheckRoomAndBuild (GameData.PlanningUI.L4, L4Children); yield return null; CheckRoomAndBuild (GameData.PlanningUI.R1, R1Children); yield return null; CheckRoomAndBuild (GameData.PlanningUI.R2, R2Children); yield return null; CheckRoomAndBuild (GameData.PlanningUI.R3, R3Children); yield return null; CheckRoomAndBuild (GameData.PlanningUI.R4, R4Children); yield return null; Soluna.SetActive (value: false); Ripper.SetActive (value: false); Hidden.SetActive (value: false); Silkengrass.SetActive (value: false); Braxonian.SetActive (value: false); Windwashed.SetActive (value: false); OpenClosePortals (GameData.PlanningUI.Rune1.MyItem, Rune1); yield return null; OpenClosePortals (GameData.PlanningUI.Rune2.MyItem, Rune2); yield return null; OpenClosePortals (GameData.PlanningUI.Rune3.MyItem, Rune3); yield return null; OpenClosePortals (GameData.PlanningUI.Rune4.MyItem, Rune4); yield return null; OpenClosePortals (GameData.PlanningUI.Rune5.MyItem, Rune5); yield return null; OpenClosePortals (GameData.PlanningUI.Rune6.MyItem, Rune6); CheckRoomAndBuild (GameData.PlanningUI.StatueBL, StatueBLChildren); yield return null; CheckRoomAndBuild (GameData.PlanningUI.StatueBR, StatueBRChildren); yield return null; CheckRoomAndBuild (GameData.PlanningUI.StatueFL, StatueFLChildren); yield return null; CheckRoomAndBuild (GameData.PlanningUI.StatueFR, StatueFRChildren); yield return null; DoRaidPortals (); }"
       },
       "note": "A build of the planning table builds each of the eight rooms from its own furnishings, opens the rune portals, builds the statues, and opens the raid portals. Consumed by src/erenshor/application/processor/planning.py, which places furnishings in every room."
+    },
+    {
+      "id": "chessboard.candlekeeper_consumed",
+      "mode": "assert",
+      "type": "Chessboard",
+      "method": "CheckForGamepiece",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "InvocationExpression",
+        "shape": "GameData.PlayerInv.HasItem (GameData.ItemDB.GetItemByID (Candlekeeper.Id), _remove: true)"
+      }
+    },
+    {
+      "id": "chessboard.candlekeeper_gives_replace_statue",
+      "mode": "assert",
+      "type": "Chessboard",
+      "method": "CheckForGamepiece",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "GameData.PlayerInv.AddItemToInv (ReplaceStatue);"
+      }
+    },
+    {
+      "id": "time_stone.gated_scenes",
+      "mode": "assert",
+      "type": "SpellVessel",
+      "method": "DoMiscSpells",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BinaryOperatorExpression",
+        "shape": "SceneManager.GetActiveScene ().name == \"ShiveringTomb2\" || SceneManager.GetActiveScene ().name == \"StowawayPortal\""
+      }
+    },
+    {
+      "id": "time_stone.returned_in_gated_scenes",
+      "mode": "assert",
+      "type": "SpellVessel",
+      "method": "DoMiscSpells",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "GameData.PlayerInv.AddItemToInv (GameData.ItemDB.GetItemByID (\"2936548\"));"
+      }
+    },
+    {
+      "id": "flame_well.offering_npc",
+      "mode": "assert",
+      "type": "TradeWindow",
+      "method": "CompleteTrade",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BinaryOperatorExpression",
+        "shape": "parent.name == \"Braxonian Flame Well\" && CheckOfferingStones ()"
+      }
+    },
+    {
+      "id": "flame_well.sivakrux_id",
+      "mode": "assert",
+      "type": "TradeWindow",
+      "method": "CheckOfferingStones",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BinaryOperatorExpression",
+        "shape": "lootSlot.MyItem.Id == \"23431650\""
+      }
+    },
+    {
+      "id": "flame_well.offering_stone_id",
+      "mode": "assert",
+      "type": "TradeWindow",
+      "method": "CheckOfferingStones",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BinaryOperatorExpression",
+        "shape": "lootSlot.MyItem.Id == \"340104\""
+      }
+    },
+    {
+      "id": "flame_well.offered_piece_rule",
+      "mode": "assert",
+      "type": "TradeWindow",
+      "method": "CheckOfferingStones",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BinaryOperatorExpression",
+        "shape": "lootSlot.MyItem.RequiredSlot != Item.SlotType.General && lootSlot.MyItem.RequiredSlot != Item.SlotType.Aura && (lootSlot.Quantity == 1 || lootSlot.Quantity > 10)"
+      }
+    },
+    {
+      "id": "flame_well.balance_rule",
+      "mode": "assert",
+      "type": "TradeWindow",
+      "method": "CheckOfferingStones",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BinaryOperatorExpression",
+        "shape": "flag || num != num2 || num == 0 || num2 == 0 || item == null"
+      }
+    },
+    {
+      "id": "flame_well.chance_per_stone_pair",
+      "mode": "assert",
+      "type": "TradeWindow",
+      "method": "CheckOfferingStones",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "VariableDeclarationStatement",
+        "shape": "int num4 = num * 40;"
+      }
+    },
+    {
+      "id": "flame_well.chance_per_improvement_level",
+      "mode": "assert",
+      "type": "TradeWindow",
+      "method": "CheckOfferingStones",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "num5 = (num3 - 10) * 8;"
+      }
+    },
+    {
+      "id": "flame_well.success_roll",
+      "mode": "assert",
+      "type": "TradeWindow",
+      "method": "CheckOfferingStones",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BinaryOperatorExpression",
+        "shape": "Random.Range (0, 100) < num4 + num5"
+      }
+    },
+    {
+      "id": "flame_well.blessed_result",
+      "mode": "assert",
+      "type": "TradeWindow",
+      "method": "CheckOfferingStones",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "VariableDeclarationStatement",
+        "shape": "int qual = 2;"
+      }
+    },
+    {
+      "id": "flame_well.enhance_roll",
+      "mode": "assert",
+      "type": "TradeWindow",
+      "method": "CheckOfferingStones",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "BinaryOperatorExpression",
+        "shape": "num5 > 0 && Random.Range (0, 100) < num5 + num * 5"
+      }
+    },
+    {
+      "id": "flame_well.ascended_result",
+      "mode": "assert",
+      "type": "TradeWindow",
+      "method": "CheckOfferingStones",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "qual = 3;"
+      }
+    },
+    {
+      "id": "npc.runtime_name_is_npc_name",
+      "mode": "assert",
+      "type": "NPC",
+      "method": "Start",
+      "matcher": "statement_shape",
+      "args": {
+        "statement": "transform.name = NPCName;"
+      }
     }
   ]
 }

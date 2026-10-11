@@ -38,7 +38,9 @@ What each mechanic needs, from the shipped code:
 
 A single generic "mechanics" table was rejected: its columns would mean different things per row, which moves the interpretation into every consumer.
 
-**D4. Ownership and failure.** The Unity exporter owns the raw Chessboard table. The new processor module owns the four clean tables and writes them inside the existing clean build transaction, so a failure leaves the previous clean database in place. The processor raises, naming the fact or item, when a pinned fact is missing from `code_facts`, a pinned ID resolves to no item, the Chessboard export lacks a field, or the `Maps` pool is short. A game update that changes any rule fails `extract code-facts` first.
+**D4. Ownership and failure.** The Unity exporter owns the raw Chessboard table. The new processor module owns the four clean tables and runs in the clean build after items, zones, and characters. It raises, naming the fact or item, when a pinned fact is missing from `code_facts`, a pinned ID resolves to no item, the Chessboard export lacks a field, or the `Maps` pool is short. Like every other processor failure, this stops `extract build` with an error, and the clean database must be rebuilt after the fix. A game update that changes any rule fails `extract code-facts` first.
+
+The Flame Well rows join characters on `npc_name` because `TradeWindow` compares the trading NPC's object name, and `NPC.Start` renames each NPC's object to its `NPCName`. The fact `npc.runtime_name_is_npc_name` pins that rename.
 
 ## Risks / Trade-offs
 

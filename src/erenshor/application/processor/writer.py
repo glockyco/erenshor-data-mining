@@ -543,6 +543,48 @@ CREATE TABLE special_world_drops (
     PRIMARY KEY (item_stable_key, pool)
 );
 
+-- Items that a game mechanic turns into another item, such as the
+-- Chessboard giving back a mold for the Candlekeeper figurine.
+CREATE TABLE item_conversions (
+    input_item_stable_key   TEXT NOT NULL,
+    output_item_stable_key  TEXT NOT NULL,
+    zone_stable_key         TEXT NOT NULL,
+    mechanic                TEXT NOT NULL,
+    PRIMARY KEY (input_item_stable_key, output_item_stable_key, mechanic)
+);
+
+-- Items that can replace a fishing catch in any water. chance_per_catch is
+-- in percent.
+CREATE TABLE fishing_bonus_catches (
+    item_stable_key     TEXT PRIMARY KEY NOT NULL,
+    chance_per_catch    REAL NOT NULL
+);
+
+-- Zones where using an item has a different outcome, such as the Time Stone
+-- returning unused.
+CREATE TABLE item_zone_restrictions (
+    item_stable_key     TEXT NOT NULL,
+    zone_stable_key     TEXT NOT NULL,
+    outcome             TEXT NOT NULL,
+    PRIMARY KEY (item_stable_key, zone_stable_key)
+);
+
+-- Characters that bless one offered piece of equipment for equal numbers of
+-- the two items. Chances are out of 100: chance_per_stone_pair per pair plus
+-- chance_per_improvement_level per improvement level of the piece. An
+-- improved piece then becomes enhanced_quality instead of result_quality at
+-- its improvement bonus plus enhance_chance_per_stone_pair per pair.
+CREATE TABLE quality_offerings (
+    character_stable_key            TEXT PRIMARY KEY NOT NULL,
+    first_item_stable_key           TEXT NOT NULL,
+    second_item_stable_key          TEXT NOT NULL,
+    chance_per_stone_pair           INTEGER NOT NULL,
+    chance_per_improvement_level    INTEGER NOT NULL,
+    enhance_chance_per_stone_pair   INTEGER NOT NULL,
+    result_quality                  TEXT NOT NULL,
+    enhanced_quality                TEXT NOT NULL
+);
+
 
 CREATE TABLE spell_created_items (
     source_item_stable_key   TEXT NOT NULL,
@@ -1568,6 +1610,18 @@ class Writer:
 
     def insert_special_world_drops(self, rows: list[dict[str, object]]) -> int:
         return self._insert("special_world_drops", rows)
+
+    def insert_item_conversions(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("item_conversions", rows)
+
+    def insert_fishing_bonus_catches(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("fishing_bonus_catches", rows)
+
+    def insert_item_zone_restrictions(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("item_zone_restrictions", rows)
+
+    def insert_quality_offerings(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("quality_offerings", rows)
 
     def insert_spell_created_items(self, rows: list[dict[str, object]]) -> int:
         return self._insert("spell_created_items", rows)

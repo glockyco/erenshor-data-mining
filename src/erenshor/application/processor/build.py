@@ -41,6 +41,7 @@ from .entities import (
     process_world_tables,
     process_zones,
 )
+from .item_mechanics import process_item_mechanics
 from .knowledge_base import process_knowledge_base
 from .mapping import load_mapping, validate_character_name_overrides
 from .pictures import process_pictures
@@ -137,6 +138,9 @@ def build(
 
         logger.info("Processing characters...")
         process_characters(raw, writer, mapping, item_keys, spawn_mapping)
+
+        logger.info("Processing item mechanics...")
+        process_item_mechanics(raw, writer)
 
         logger.info("Processing treasure hunting...")
         process_treasure(raw, writer)
