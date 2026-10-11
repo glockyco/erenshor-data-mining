@@ -7,7 +7,6 @@ wfLoadSkin( 'Vector' );
 wfLoadExtension( 'ParserFunctions' );
 wfLoadExtension( 'Scribunto' );
 wfLoadExtension( 'TemplateSandbox' );
-wfLoadExtension( 'Cargo' );
 wfLoadExtension( 'Gadgets' );
 wfLoadExtension( 'PortableInfobox' );
 wfLoadExtension( 'WikiEditor' );
@@ -30,21 +29,6 @@ wfLoadExtension( 'EmbedVideo' );
 
 $wgScribuntoDefaultEngine = 'luastandalone';
 $wgScribuntoEngineConf['luastandalone']['luaPath'] = '/usr/bin/lua5.1';
-
-# Cargo can use the main wiki database in local development. Production wiki.gg
-# uses LIBRARIAN (wiki.gg's Cargo fork), so local Cargo is a close compatibility
-# layer, not an exact clone of production.
-$wgCargoDBtype = $wgDBtype;
-$wgCargoDBserver = $wgDBserver;
-$wgCargoDBname = $wgDBname;
-$wgCargoDBuser = $wgDBuser;
-$wgCargoDBpassword = $wgDBpassword;
-
-# Cargo's recreate right (recreatecargodata) stays sysop-only, matching
-# production wiki.gg/LIBRARIAN where the deploy bot cannot hold it and a
-# cargo-admin account performs recreation. The deploy bot is deliberately not
-# granted it, so local recreation runs as the admin account (WikiSysop) and
-# faithfully mirrors the production identity split.
 
 $wgShowExceptionDetails = true;
 $wgShowDBErrorBacktrace = true;

@@ -8,7 +8,7 @@ This directory contains the local MediaWiki stack used to check repository-owned
 - Running local smoke tests with `action=parse`.
 - Proving null-edit refresh behaviour before production deployment.
 
-It is not a production wiki. It builds upstream Cargo to match the live extension interface. Final validation uses live TemplateSandbox on erenshor.wiki.gg.
+It is not a production wiki. Final validation uses live TemplateSandbox on erenshor.wiki.gg.
 
 ## Included skins and extensions
 
@@ -16,7 +16,7 @@ The Dockerfile installs MediaWiki 1.43-compatible branches for the local
 runtime surface used by production pages:
 
 ```text
-Cargo
+Cite
 EmbedVideo
 Gadgets
 InputBox
@@ -51,10 +51,11 @@ The stock 2 MB PHP upload ceiling rejects ordinary live assets such as the
 world map plate, so the image raises it to 32 MB.
 
 The live wiki is MediaWiki 1.43.6 with Classic Vector, Scribunto,
-TemplateSandbox, Gadgets/DataTables, PortableInfobox, and LIBRARIAN 4.21.0
-(wiki.gg's fork of Cargo). Local upstream Cargo provides the compatible parser
-functions. Local PortableInfobox uses the same `Universal-Omega/PortableInfobox`
-build as the live wiki. Use live TemplateSandbox for the final check.
+TemplateSandbox, Gadgets/DataTables, and PortableInfobox. It also runs
+LIBRARIAN, wiki.gg's fork of Cargo, which the stack leaves out because the wiki
+stores no Cargo data. Local PortableInfobox uses the same
+`Universal-Omega/PortableInfobox` build as the live wiki. Use live
+TemplateSandbox for the final check.
 
 ## Bootstrap the stack
 
