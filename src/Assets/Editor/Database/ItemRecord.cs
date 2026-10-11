@@ -86,7 +86,7 @@ public class ItemRecord
 
     // --- Economy & Inventory ---
     public int ItemValue { get; set; } // Gold value
-    public int SellValue { get; set; } // Gold value when sold to a vendor
+    public int SellValue { get; set; } // Gold per item that Sell Stack pays and the chat log names; the sell button pays 1 more
     public bool Stackable { get; set; }
     public bool Disposable { get; set; }
     public bool Unique { get; set; }
