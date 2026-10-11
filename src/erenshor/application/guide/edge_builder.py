@@ -524,8 +524,12 @@ def _add_character_drop_edges(conn: sqlite3.Connection, graph: EntityGraph) -> N
 
 
 def _add_character_vendor_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
-    """character → item (SELLS_ITEM) from character_vendor_items."""
-    rows = conn.execute("SELECT character_stable_key, item_stable_key FROM character_vendor_items")
+    """character → item (SELLS_ITEM) for each copy in the game that always has the item, from vendor_offers."""
+    rows = conn.execute("""
+        SELECT DISTINCT copy_stable_key AS character_stable_key, item_stable_key
+        FROM vendor_offers
+        WHERE quest_stable_key IS NULL
+    """)
     for r in rows:
         if not graph.has_node(r["character_stable_key"]) or not graph.has_node(r["item_stable_key"]):
             continue
@@ -539,23 +543,16 @@ def _add_character_vendor_edges(conn: sqlite3.Connection, graph: EntityGraph) ->
 
 
 def _add_vendor_quest_unlock_edges(conn: sqlite3.Connection, graph: EntityGraph) -> None:
-    """quest → item (UNLOCKS_VENDOR_ITEM) for quest-unlocked vendor inventory.
+    """quest → item (UNLOCKS_VENDOR_ITEM) for quest-unlocked stock of copies in the game.
 
     Also emits a SELLS_ITEM edge from vendor → item so the item appears in
     obtainability chains.
     """
     rows = conn.execute("""
-        SELECT cvqu.character_stable_key,
-               cvqu.quest_stable_key,
-               qv.unlock_item_for_vendor_stable_key
-        FROM character_vendor_quest_unlocks cvqu
-        JOIN quest_variants qv ON qv.quest_stable_key = cvqu.quest_stable_key
-            AND qv.resource_name = (
-                SELECT MIN(qv2.resource_name)
-                FROM quest_variants qv2
-                WHERE qv2.quest_stable_key = cvqu.quest_stable_key
-            )
-        WHERE qv.unlock_item_for_vendor_stable_key IS NOT NULL
+        SELECT DISTINCT copy_stable_key AS character_stable_key, quest_stable_key,
+               item_stable_key AS unlock_item_for_vendor_stable_key
+        FROM vendor_offers
+        WHERE quest_stable_key IS NOT NULL
     """)
     for r in rows:
         quest_key = r["quest_stable_key"]

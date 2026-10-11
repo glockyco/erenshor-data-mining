@@ -407,7 +407,7 @@ class ItemRepository(BaseRepository[Item]):
             WHERE i.teach_spell_stable_key = ?
               AND (
                 EXISTS (SELECT 1 FROM loot_drops WHERE item_stable_key = i.stable_key AND drop_probability > 0.0)
-                OR EXISTS (SELECT 1 FROM character_vendor_items WHERE item_stable_key = i.stable_key)
+                OR EXISTS (SELECT 1 FROM vendor_offers WHERE item_stable_key = i.stable_key)
                 OR EXISTS (SELECT 1 FROM quest_variants WHERE item_on_complete_stable_key = i.stable_key)
                 OR EXISTS (SELECT 1 FROM character_dialogs WHERE give_item_stable_key = i.stable_key)
                 OR EXISTS (SELECT 1 FROM water_fishables WHERE item_stable_key = i.stable_key)
@@ -449,7 +449,7 @@ class ItemRepository(BaseRepository[Item]):
             WHERE i.teach_skill_stable_key = ?
               AND (
                 EXISTS (SELECT 1 FROM loot_drops WHERE item_stable_key = i.stable_key AND drop_probability > 0.0)
-                OR EXISTS (SELECT 1 FROM character_vendor_items WHERE item_stable_key = i.stable_key)
+                OR EXISTS (SELECT 1 FROM vendor_offers WHERE item_stable_key = i.stable_key)
                 OR EXISTS (SELECT 1 FROM quest_variants WHERE item_on_complete_stable_key = i.stable_key)
                 OR EXISTS (SELECT 1 FROM character_dialogs WHERE give_item_stable_key = i.stable_key)
                 OR EXISTS (SELECT 1 FROM water_fishables WHERE item_stable_key = i.stable_key)
@@ -682,7 +682,7 @@ class ItemRepository(BaseRepository[Item]):
                 SELECT 1 FROM loot_drops
                 WHERE item_stable_key = ? AND drop_probability > 0.0
             ) OR EXISTS (
-                SELECT 1 FROM character_vendor_items WHERE item_stable_key = ?
+                SELECT 1 FROM vendor_offers WHERE item_stable_key = ?
             ) OR EXISTS (
                 SELECT 1 FROM quest_variants WHERE item_on_complete_stable_key = ?
             ) OR EXISTS (

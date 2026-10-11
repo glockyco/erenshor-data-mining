@@ -39,7 +39,7 @@ VENDOR_STOCK = DataView(
             "furniture",
             "keys",
             "The Reliquary furniture sets whose placed vendor sells the item. Absent when every copy of the vendor "
-            "sells it.",
+            "in the game sells it.",
             optional=True,
         ),
     ),

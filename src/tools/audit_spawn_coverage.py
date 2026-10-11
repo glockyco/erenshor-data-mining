@@ -2,8 +2,9 @@
 """Audit spawn coverage: find orphan characters after extract build.
 
 Runs the orphan audit SQL from skill://auditing-spawn-coverage against
-the clean DB. Orphans are characters with no spawn row, no covering
-dedup sibling, and no summoning spell. Each orphan is categorized and
+the clean DB. Orphans are characters that the clean view characters_in_game
+leaves out (no spawn row, no summoning spell, no possible treasure chest) and
+that have no dedup sibling in the game. Each orphan is categorized and
 cross-referenced against mapping.json to show which already have
 exclusion rules vs which need investigation.
 
@@ -89,43 +90,31 @@ def load_mapping_rules() -> dict[str, MappingRule]:
 
 
 def query_orphans(db: sqlite3.Connection) -> list[OrphanRow]:
-    """Return true orphans: no spawn, no covering dedup sibling, no spell summon."""
+    """Return true orphans: characters not in the game without a dedup sibling in the game.
+
+    The clean view characters_in_game defines the game: placed or spawned,
+    summoned by a spell, or a possible treasure chest.
+    """
     rows = db.execute(
         """
-        WITH no_spawn AS (
-          SELECT c.stable_key, c.display_name, c.is_prefab, c.is_npc,
-                 c.has_stats, c.has_dialog, c.is_vendor, c.treasure_chest
-          FROM characters c
-          LEFT JOIN (SELECT DISTINCT character_stable_key FROM character_spawns) s
-            ON s.character_stable_key = c.stable_key
-          WHERE s.character_stable_key IS NULL
-        )
-        SELECT ns.display_name, ns.stable_key, ns.is_prefab, ns.is_npc,
-               ns.has_stats, ns.has_dialog, ns.is_vendor, ns.treasure_chest,
+        SELECT c.display_name, c.stable_key, c.is_prefab, c.is_npc,
+               c.has_stats, c.has_dialog, c.is_vendor, c.treasure_chest,
                (SELECT COUNT(*) FROM loot_drops ld
-                WHERE ld.character_stable_key = ns.stable_key) AS loot_count,
+                WHERE ld.character_stable_key = c.stable_key) AS loot_count,
                (SELECT COUNT(*) FROM character_vendor_items cvi
-                WHERE cvi.character_stable_key = ns.stable_key) AS vendor_count
-        FROM no_spawn ns
-        LEFT JOIN character_deduplications d ON d.member_stable_key = ns.stable_key
-        WHERE (
+                WHERE cvi.character_stable_key = c.stable_key) AS vendor_count
+        FROM characters c
+        LEFT JOIN character_deduplications d ON d.member_stable_key = c.stable_key
+        WHERE c.stable_key NOT IN (SELECT stable_key FROM characters_in_game)
+          AND (
                 d.group_key IS NULL
                 OR NOT EXISTS (
-                  SELECT 1 FROM character_spawns sp
-                  JOIN character_deduplications d2
-                    ON d2.member_stable_key = sp.character_stable_key
+                  SELECT 1 FROM character_deduplications d2
+                  JOIN characters_in_game g ON g.stable_key = d2.member_stable_key
                   WHERE d2.group_key = d.group_key
                 )
               )
-          AND NOT EXISTS (
-                SELECT 1 FROM spells sp
-                WHERE sp.pet_to_summon_stable_key = ns.stable_key
-              )
-          AND NOT EXISTS (
-                SELECT 1 FROM treasure_chest_possible_spawns tcps
-                WHERE tcps.chest_character_stable_key = ns.stable_key
-              )
-        ORDER BY ns.display_name, ns.stable_key
+        ORDER BY c.display_name, c.stable_key
         """
     ).fetchall()
     return [dict(r) for r in rows]  # type: ignore[misc]

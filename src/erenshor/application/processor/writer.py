@@ -1416,6 +1416,43 @@ CREATE VIEW wiki_character_spawns AS
 CREATE VIEW map_character_spawns AS
     SELECT * FROM character_spawns
     WHERE COALESCE(is_map_visible, 1) = 1;
+
+-- -------------------------------------------------------------------------
+-- Characters and vendors in the game
+--
+-- A dedup group can hold copies that players never meet, such as unplaced
+-- backup prefabs. Vendor items are not part of the dedup identity, so such a
+-- copy can sell items that the copy in the game does not. Read what vendors
+-- sell from vendor_offers, never from the vendor tables across a group.
+-- -------------------------------------------------------------------------
+
+-- Characters that a player can meet: placed or spawned, summoned by a spell,
+-- or a possible treasure chest.
+CREATE VIEW characters_in_game AS
+    SELECT c.stable_key
+    FROM characters c
+    WHERE EXISTS (SELECT 1 FROM character_spawns s WHERE s.character_stable_key = c.stable_key)
+       OR EXISTS (SELECT 1 FROM spells sp WHERE sp.pet_to_summon_stable_key = c.stable_key)
+       OR EXISTS (
+            SELECT 1 FROM treasure_chest_possible_spawns t WHERE t.chest_character_stable_key = c.stable_key
+       );
+
+-- One row per item that a copy of a vendor in the game sells. The vendor is
+-- the copy's dedup group. quest_stable_key names the quest whose completion
+-- adds the item to the stock, and is NULL for an item that is always in stock.
+CREATE VIEW vendor_offers AS
+    SELECT d.group_key AS vendor_stable_key, d.member_stable_key AS copy_stable_key,
+           cvi.item_stable_key AS item_stable_key, NULL AS quest_stable_key
+    FROM character_deduplications d
+    JOIN characters_in_game g ON g.stable_key = d.member_stable_key
+    JOIN character_vendor_items cvi ON cvi.character_stable_key = d.member_stable_key
+    UNION
+    SELECT d.group_key, d.member_stable_key, qv.unlock_item_for_vendor_stable_key, cvqu.quest_stable_key
+    FROM character_deduplications d
+    JOIN characters_in_game g ON g.stable_key = d.member_stable_key
+    JOIN character_vendor_quest_unlocks cvqu ON cvqu.character_stable_key = d.member_stable_key
+    JOIN quest_variants qv ON qv.quest_stable_key = cvqu.quest_stable_key
+    WHERE qv.unlock_item_for_vendor_stable_key IS NOT NULL;
 """
 
 

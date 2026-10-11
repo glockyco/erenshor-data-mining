@@ -360,16 +360,9 @@ class CharacterRepository(BaseRepository[Character]):
         """
         query = """
             WITH vendor_groups AS (
-                SELECT DISTINCT d.group_key
-                FROM character_deduplications d
-                JOIN character_vendor_items cvi ON cvi.character_stable_key = d.member_stable_key
-                WHERE cvi.item_stable_key = ?
-                UNION
-                SELECT DISTINCT d.group_key
-                FROM character_deduplications d
-                JOIN character_vendor_quest_unlocks cvqu ON cvqu.character_stable_key = d.member_stable_key
-                JOIN quest_variants qv ON qv.quest_stable_key = cvqu.quest_stable_key
-                WHERE qv.unlock_item_for_vendor_stable_key = ?
+                SELECT DISTINCT vendor_stable_key AS group_key
+                FROM vendor_offers
+                WHERE item_stable_key = ?
             ),
             reps AS (
                 SELECT vg.group_key, MIN(d.member_stable_key) AS rep_stable_key
@@ -385,7 +378,7 @@ class CharacterRepository(BaseRepository[Character]):
         """
 
         try:
-            rows = self._execute_raw(query, (item_stable_key, item_stable_key))
+            rows = self._execute_raw(query, (item_stable_key,))
             links = [
                 CharacterLink(
                     page_title=str(row["wiki_page_name"]) if row["wiki_page_name"] else None,
@@ -561,51 +554,35 @@ class CharacterRepository(BaseRepository[Character]):
             raise RepositoryError(f"Failed to retrieve stable drop sources for '{item_stable_key}': {e}") from e
 
     def get_vendor_stock(self) -> list[VendorStockEntry]:
-        """Return each item that a copy of a vendor with a page sells.
+        """Return each item that a copy of a vendor with a page sells, from vendor_offers.
 
-        A vendor is a deduplication group, so the backup copies and the
-        furniture placements that share a page sell as one vendor. A copy has a
-        furniture set when every spawn of it comes from that one set.
+        A vendor is a deduplication group, so its copies in the game, such as
+        the furniture placements that share a page, sell as one vendor. A copy
+        has a furniture set when every spawn of it comes from that one set.
         """
         query = """
-            WITH copies AS (
-                SELECT d.group_key, d.member_stable_key,
-                    (SELECT CASE
-                        WHEN COUNT(*) = COUNT(cs.furniture_item_stable_key)
-                         AND COUNT(DISTINCT cs.furniture_item_stable_key) = 1
-                        THEN MIN(cs.furniture_item_stable_key) END
-                     FROM character_spawns cs
-                     WHERE cs.character_stable_key = d.member_stable_key) AS furniture_key
-                FROM character_deduplications d
-                JOIN characters c ON c.stable_key = d.group_key
-                WHERE c.wiki_page_name IS NOT NULL
-            ),
-            stock AS (
-                SELECT c.group_key, c.member_stable_key, c.furniture_key, cvi.item_stable_key AS item_key,
-                    NULL AS quest_key
-                FROM copies c
-                JOIN character_vendor_items cvi ON cvi.character_stable_key = c.member_stable_key
-                UNION
-                SELECT c.group_key, c.member_stable_key, c.furniture_key, qv.unlock_item_for_vendor_stable_key,
-                    cvqu.quest_stable_key
-                FROM copies c
-                JOIN character_vendor_quest_unlocks cvqu ON cvqu.character_stable_key = c.member_stable_key
-                JOIN quest_variants qv ON qv.quest_stable_key = cvqu.quest_stable_key
-                WHERE qv.unlock_item_for_vendor_stable_key IS NOT NULL
-            )
-            SELECT group_key, member_stable_key, furniture_key, item_key, quest_key
-            FROM stock
-            ORDER BY group_key, member_stable_key, item_key, quest_key
+            SELECT o.vendor_stable_key, o.copy_stable_key,
+                (SELECT CASE
+                    WHEN COUNT(*) = COUNT(cs.furniture_item_stable_key)
+                     AND COUNT(DISTINCT cs.furniture_item_stable_key) = 1
+                    THEN MIN(cs.furniture_item_stable_key) END
+                 FROM character_spawns cs
+                 WHERE cs.character_stable_key = o.copy_stable_key) AS furniture_key,
+                o.item_stable_key, o.quest_stable_key
+            FROM vendor_offers o
+            JOIN characters c ON c.stable_key = o.vendor_stable_key
+            WHERE c.wiki_page_name IS NOT NULL
+            ORDER BY o.vendor_stable_key, o.copy_stable_key, o.item_stable_key, o.quest_stable_key
         """
         try:
             rows = self._execute_raw(query, ())
             return [
                 VendorStockEntry(
-                    vendor_key=str(row["group_key"]),
-                    copy_key=str(row["member_stable_key"]),
+                    vendor_key=str(row["vendor_stable_key"]),
+                    copy_key=str(row["copy_stable_key"]),
                     furniture_key=None if row["furniture_key"] is None else str(row["furniture_key"]),
-                    item_key=str(row["item_key"]),
-                    quest_key=None if row["quest_key"] is None else str(row["quest_key"]),
+                    item_key=str(row["item_stable_key"]),
+                    quest_key=None if row["quest_stable_key"] is None else str(row["quest_stable_key"]),
                 )
                 for row in rows
             ]
@@ -613,42 +590,37 @@ class CharacterRepository(BaseRepository[Character]):
             raise RepositoryError(f"Failed to retrieve vendor stock: {e}") from e
 
     def get_vendor_sources_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
-        """Return stable-keyed vendors and quest conditions that sell an item."""
+        """Return stable-keyed vendors that sell an item, with the quest when only a quest adds it."""
         query = """
-            WITH vendor_groups AS (
-                SELECT DISTINCT d.group_key
-                FROM character_deduplications d
-                JOIN character_vendor_items cvi ON cvi.character_stable_key = d.member_stable_key
-                WHERE cvi.item_stable_key = ?
-                UNION
-                SELECT DISTINCT d.group_key
-                FROM character_deduplications d
-                JOIN character_vendor_quest_unlocks cvqu ON cvqu.character_stable_key = d.member_stable_key
-                JOIN quest_variants qv ON qv.quest_stable_key = cvqu.quest_stable_key
-                WHERE qv.unlock_item_for_vendor_stable_key = ?
+            WITH offers AS (
+                SELECT vendor_stable_key AS group_key, quest_stable_key
+                FROM vendor_offers
+                WHERE item_stable_key = ?
             ),
             reps AS (
-                SELECT vg.group_key, MIN(d.member_stable_key) AS rep_stable_key
-                FROM vendor_groups vg
-                JOIN character_deduplications d ON d.group_key = vg.group_key
+                SELECT o.group_key, MIN(d.member_stable_key) AS rep_stable_key
+                FROM (SELECT DISTINCT group_key FROM offers) o
+                JOIN character_deduplications d ON d.group_key = o.group_key
                 WHERE d.is_wiki_generated = 1
-                GROUP BY vg.group_key
+                GROUP BY o.group_key
             ),
-            unlocks AS (
-                SELECT DISTINCT d.group_key, cvqu.quest_stable_key
-                FROM character_deduplications d
-                JOIN character_vendor_quest_unlocks cvqu ON cvqu.character_stable_key = d.member_stable_key
-                JOIN quest_variants qv ON qv.quest_stable_key = cvqu.quest_stable_key
-                WHERE qv.unlock_item_for_vendor_stable_key = ?
+            conditions AS (
+                -- A vendor that always has the item sells it without a condition.
+                SELECT DISTINCT o.group_key, o.quest_stable_key
+                FROM offers o
+                WHERE o.quest_stable_key IS NULL
+                   OR NOT EXISTS (
+                        SELECT 1 FROM offers a WHERE a.group_key = o.group_key AND a.quest_stable_key IS NULL
+                   )
             )
-            SELECT r.rep_stable_key, u.quest_stable_key, q.display_name AS quest_display_name
+            SELECT r.rep_stable_key, c.quest_stable_key, q.display_name AS quest_display_name
             FROM reps r
-            LEFT JOIN unlocks u ON u.group_key = r.group_key
-            LEFT JOIN quests q ON q.stable_key = u.quest_stable_key
-            ORDER BY r.rep_stable_key, u.quest_stable_key
+            JOIN conditions c ON c.group_key = r.group_key
+            LEFT JOIN quests q ON q.stable_key = c.quest_stable_key
+            ORDER BY r.rep_stable_key, c.quest_stable_key
         """
         try:
-            rows = self._execute_raw(query, (item_stable_key,) * 3)
+            rows = self._execute_raw(query, (item_stable_key,))
             return [
                 ObtainedFromInfo(
                     source_type="vendor",
