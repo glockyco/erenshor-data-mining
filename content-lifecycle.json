@@ -81,6 +81,15 @@
       "patch_notes_url": null,
       "source": "Clean DB retains the item, but has no vendor, drop, starting-item, crafting, dialog, or spell-created source. The old wiki article says it is no longer obtainable."
     },
+    "Shivering Torch": {
+      "stable_key": "item:secondary - 50 - shivering torch",
+      "state": "unobtainable",
+      "thing": "item",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "Build 24405256 keeps the item (ID 11529762), but no scene, prefab, asset, or script refers to it by GUID or ID. The random draws over the whole item database exclude it: the Auction House takes items up to level 39 with a value, guild quests need a class and a loot table, and sims equip only items of their class, while the torch is level 50, worth 0, and has no class. The quest The Shivering Torch, which the old article names, gives the Shivering Belt Lamp through Kio's dialog."
+    },
     "Pristine Ceremonial Ring": {
       "stable_key": "item:ring - 14 - ancient ceremonial ring 1",
       "state": "unobtainable",
