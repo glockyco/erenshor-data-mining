@@ -132,16 +132,21 @@ Every picture's file name says what it shows and whose it is: the name of its su
 |-
 | <code>Copper Sword icon.png</code> || The game's icon of an item, spell, skill, or stance || The bot, from the game's files after each game update
 |-
-| <code>Faith render.png</code> || A character rendered from the game's 3D model, alone on a transparent background || The bot, after a person reviewed the picture
+| <code>Faith render.png</code> || A character or an item rendered from the game's 3D model, alone on a transparent background || The bot, after a person reviewed the picture
 |-
-| <code>Faith screenshot.png</code> || A character in the game, as a player sees it || Editors
+| <code>Wolfhide Boots render (male).png</code> || An item worn on the male or the female body, where the two differ || The bot, after a person reviewed the picture
+|-
+| <code>Faith screenshot.png</code> || A character or an item in the game, as a player sees it || Editors
 |}
 The subject is the name in the game without the characters that file names cannot hold, such as colons: the icon of ''Stance: Aggressive'' is <code>Stance Aggressive icon.png</code>. Older names, such as <code>Faith.png</code>, redirect to the file that took their place, so old links keep working, but new pages should use the names above.
 
 Icons carry no frame: [[Template:Icon]] draws items in a slot with a blue gradient ring and spells, skills, and stances in a black border, so use it to show an icon in your own text. Large infobox pictures show without a frame. Each picture has one file. When several items, spells, or skills share a picture, every other name redirects to that file, so a game update changes it once. When a game update renames something, the bot moves its file to the new name with its history and leaves a redirect behind.
 
 A character infobox shows the render first and the screenshot as a second tab, labelled Render and Screenshot. A character with only one of the two shows it alone. The infobox names both files, so you can see the name to use in its source.
-* To add or improve a character's screenshot, upload it under the screenshot name that its infobox names, such as <code>Faith screenshot.png</code>. The tab appears once the page is refreshed. The bot never uploads to, moves, or deletes a screenshot.
+
+An item infobox shows the item's render, or its male and female renders, then its screenshot, as tabs labelled Render, Male, Female, and Screenshot. An item with none of these files shows its icon, and tooltips and item links always show the icon. Consumables, scrolls, rings, and other items without a model have no render. The item infobox also names its screenshot file.
+
+* To add or improve a screenshot, upload it under the screenshot name that its infobox names, such as <code>Faith screenshot.png</code> or <code>Copper Sword screenshot.png</code>. The tab appears once the page is refreshed. The bot never uploads to, moves, or deletes a screenshot.
 * The bot changes an icon or render only when WoWBot or [[User:WoWMuch|WoWMuch]], who runs it, uploaded the latest version, so an upload of yours always stays.
 * Zone pictures belong to the editors. The bot does not render or upload them.
 
