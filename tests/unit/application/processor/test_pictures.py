@@ -207,7 +207,7 @@ def test_an_approved_portrait_gives_its_character_a_picture_and_a_title(tmp_path
 
     faith = build.rows("SELECT image_hash FROM characters WHERE stable_key = 'character:faith'")[0][0]
     assert build.rows(f"SELECT kind, capture_preset, approved_build FROM images WHERE image_hash = '{faith}'") == [
-        ("portrait", "portrait-3", "24405256")
+        ("render", "portrait-3", "24405256")
     ]
     assert ("Faith render.png", faith) in build.rows("SELECT title, image_hash FROM image_titles")
     assert build.rows("SELECT image_hash FROM characters WHERE stable_key = 'character:queen evadne'") == [(None,)]
@@ -246,7 +246,7 @@ def test_a_portrait_that_no_page_shows_is_catalogued_without_a_title(tmp_path: P
     build.run()
 
     watchman = build.rows("SELECT image_hash FROM characters WHERE stable_key = 'character:watchman'")[0][0]
-    assert build.rows(f"SELECT kind FROM images WHERE image_hash = '{watchman}'") == [("portrait",)]
+    assert build.rows(f"SELECT kind FROM images WHERE image_hash = '{watchman}'") == [("render",)]
     assert build.rows("SELECT title FROM image_titles WHERE title LIKE 'Watchman%'") == []
 
 

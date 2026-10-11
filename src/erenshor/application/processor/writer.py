@@ -368,7 +368,7 @@ CREATE TABLE factions (
 -- file is images/catalog/<image_hash>.png of the variant.
 CREATE TABLE images (
     image_hash      TEXT PRIMARY KEY NOT NULL,
-    kind            TEXT NOT NULL CHECK (kind IN ('icon', 'portrait')),
+    kind            TEXT NOT NULL CHECK (kind IN ('icon', 'render')),
     width           INTEGER NOT NULL,
     height          INTEGER NOT NULL,
     file_sha1       TEXT NOT NULL,
@@ -378,7 +378,7 @@ CREATE TABLE images (
 );
 
 -- Where a picture came from: the export's texture asset path of an icon, or
--- the approved capture of a portrait. Textures with equal pixels share one
+-- the approved capture of a render. Textures with equal pixels share one
 -- picture.
 CREATE TABLE image_sources (
     image_hash  TEXT NOT NULL REFERENCES images (image_hash),

@@ -120,13 +120,18 @@ def _purge(client: PublishWriter | AdministratorWriter, titles: Sequence[str]) -
         logger.warning(f"Purging {', '.join(titles)} after the write failed: {error}")
 
 
-def description(picture: Picture, game_build: str) -> str:
-    """The description page of a new file: how the picture was made, and the game's copyright notice."""
-    if picture.kind == "portrait":
+def description(picture: Picture, game_build: str, entity_key: str) -> str:
+    """The description page of a new file: how the picture was made, and the game's copyright notice.
+
+    ``entity_key`` is the stable key of the first entity whose page names the
+    file, which tells a render of an item from a render of a character.
+    """
+    if picture.kind == "render":
+        shows = "the item by itself" if entity_key.startswith("item:") else "the character"
         made = (
-            f"Rendered from the game's model (game build {picture.approved_build}, capture preset "
-            f"{picture.capture_preset}) and approved after review. An in-game screenshot of the character "
-            "belongs under its screenshot title, which its infobox names, and shows beside this render."
+            f"Rendered from the game's model of {shows} (game build {picture.approved_build}, capture preset "
+            f"{picture.capture_preset}) and approved after review. An in-game screenshot belongs under the "
+            "screenshot title that the infobox names, and shows beside this render."
         )
     else:
         made = f"The game's icon, from the texture {picture.source} of game build {game_build}, unchanged."
@@ -237,7 +242,7 @@ def _describe(item: PlannedTitle, catalog: Catalog, writer: PublishWriter, recor
     if page.revision is None or current_target is None or not _same_title(current_target, item.redirect_target):
         record.add(_skipped(item, "describe", "the page changed since the plan"))
         return
-    text = description(catalog.pictures[item.image_hash], catalog.game_build)
+    text = description(catalog.pictures[item.image_hash], catalog.game_build, catalog.entities.get(item.title, ""))
     try:
         writer.safe_edit_page(item.title, text, page.revision, summary=summary)
     except MediaWikiAPIError as error:
@@ -312,7 +317,7 @@ def _upload(item: PlannedTitle, catalog: Catalog, writer: PublishWriter, record:
             replaced.write_bytes(writer.download(current.url))
     name = item.title.removeprefix("File:")
     upload_comment = comment(picture, catalog.game_build)
-    text = description(picture, catalog.game_build)
+    text = description(picture, catalog.game_build, catalog.entities.get(item.title, ""))
     try:
         try:
             writer.upload_file(str(picture.path), name, upload_comment, text=text, ignore_warnings=False)

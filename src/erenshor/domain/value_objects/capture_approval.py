@@ -3,7 +3,7 @@
 A reviewer approves captures by subject. Each approval binds the approved
 PNG, a copy outside the staging set, to its subject and to the SHA-256 of its
 bytes, and records the game build and camera preset of its capture. Approvals
-of different builds coexist: a portrait stays approved until a review approves
+of different builds coexist: a render stays approved until a review approves
 another capture for its subject.
 """
 

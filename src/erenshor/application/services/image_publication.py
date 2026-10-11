@@ -85,7 +85,7 @@ class Picture:
     """A picture of the catalog with the facts that publishing needs.
 
     ``source`` is the first source of the picture, a texture of the export or an
-    approved capture. A portrait carries its capture preset and the game build
+    approved capture. A render carries its capture preset and the game build
     of its approval.
     """
 

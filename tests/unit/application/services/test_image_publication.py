@@ -21,7 +21,7 @@ from erenshor.application.services.image_publication import (
     plan_publication,
     write_contact_sheets,
 )
-from erenshor.application.services.image_publication_run import RunRecord, execute, revert
+from erenshor.application.services.image_publication_run import RunRecord, description, execute, revert
 from erenshor.infrastructure.wiki import (
     MediaWikiAPIError,
 )
@@ -158,6 +158,18 @@ def test_a_new_file_gets_a_description_with_the_games_copyright_notice(setup: An
     _run(pictures.build(), wiki, cache, tmp_path / "run")
 
     assert "{{License|Game}}" in wiki.pages["File:Hotbar Frame.png"]
+
+
+@pytest.mark.parametrize(
+    ("entity_key", "shows"),
+    [("item:bow - 10 - molorai bow", "the item by itself"), ("character:faith", "the character")],
+)
+def test_a_render_description_says_what_it_shows(entity_key: str, shows: str) -> None:
+    render = Picture("hash", "render", 1024, 1024, "sha1", "capture.png", Path("x.png"), "item-1", "24405256")
+
+    text = description(render, "24405256", entity_key)
+
+    assert f"Rendered from the game's model of {shows} (game build 24405256, capture preset item-1)" in text
 
 
 def test_the_same_pixels_in_another_encoding_are_unchanged_and_downloaded_once(setup: Any) -> None:
