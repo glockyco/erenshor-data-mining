@@ -65,9 +65,8 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
 
         var hostTransform = comp.transform;
         var hostScene = comp.gameObject.scene.name ?? "";
-        var isChainedHost =
-            comp.GetComponent<Character>() != null
-            && PrefabUtility.IsPartOfPrefabAsset(comp.gameObject);
+        var isPrefabAsset = PrefabUtility.IsPartOfPrefabAsset(comp.gameObject);
+        var isChainedHost = comp.GetComponent<Character>() != null && isPrefabAsset;
 
         // Walk public instance fields by reflection — matches catalog field names directly
         var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
@@ -96,6 +95,14 @@ public class DynamicSpawnSourceListener : IAssetScanListener<MonoBehaviour>
                 RecordFinding(comp, scriptName, fieldName, field, value, characters[0]);
                 continue;
             }
+
+            // A prefab asset holds no placement. The scan exports the placed
+            // copies from the scenes, so only a Character host, whose spawns
+            // follow it wherever it spawns, writes rows from a prefab asset.
+            // Unknown fields above are still reported for every host, because
+            // a script can instantiate a prefab that no scene places.
+            if (isPrefabAsset && !isChainedHost)
+                continue;
 
             // Allowed — emit spawn rows
             var eventPosition = entry.IncludeHostPosition ? hostTransform.position : (Vector3?)null;
