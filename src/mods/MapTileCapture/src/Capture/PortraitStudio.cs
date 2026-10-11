@@ -48,16 +48,14 @@ internal static class PortraitStudio
     private static readonly Vector3 StudioPosition = new(0f, 5000f, 0f);
 
     /// <summary>
-    /// Renders <paramref name="source"/>. <paramref name="prepare"/> runs on the
-    /// copy before its scripts go, as the item studio needs to read them, and
-    /// returns the name of the object that the copy shows, which the result
-    /// reports instead of the source's name.
+    /// Renders <paramref name="source"/>, a character, or with
+    /// <paramref name="item"/> an item's model.
     /// </summary>
     public static PortraitResult Capture(
         GameObject source,
         Camera playerCamera,
         string outputPath,
-        Func<GameObject, string>? prepare = null
+        ItemView? item = null
     )
     {
         using var cleanup = new CleanupStack();
@@ -80,7 +78,7 @@ internal static class PortraitStudio
         subject.SetActive(true);
 
         ShowAsGameStartsIt(subject);
-        var objectName = prepare?.Invoke(subject) ?? source.name;
+        var objectName = item?.Prepare?.Invoke(subject) ?? source.name;
         RemoveBehaviour(subject);
         KeepWhatThePlayerSees(subject, playerCamera.cullingMask);
 
@@ -103,6 +101,10 @@ internal static class PortraitStudio
             throw new PortraitException(
                 "The subject has no renderer that the player's camera shows."
             );
+        if (item != null && meshes.Count == 0)
+            throw new PortraitException(
+                "The item shows only particle effects, which an item render leaves out."
+            );
 
         // The first frame holds the bounds of the meshes, or of the effects
         // when the subject has no mesh.
@@ -113,9 +115,17 @@ internal static class PortraitStudio
 
         var direction =
             subject.transform.rotation
-            * Quaternion.Euler(PortraitPreset.CameraPitch, PortraitPreset.CameraYaw, 0f)
+            * Quaternion.Euler(
+                PortraitPreset.CameraPitch,
+                PortraitPreset.CameraYaw + (item?.Turn ?? 0f),
+                0f
+            )
             * Vector3.forward;
+        var cameraUp = Vector3.up;
+        if (item is { FaceOn: true })
+            (direction, cameraUp) = FaceOn(meshes, subject, objectName, direction, item.Bow);
         var camera = CreateCamera(cleanup, bounds, direction, playerCamera);
+        camera.transform.rotation = Quaternion.LookRotation(camera.transform.forward, cameraUp);
         var look = AddGameLook(cleanup, camera, playerCamera);
         CreateSun(cleanup, direction, atmosphere.SunDay);
 
@@ -145,6 +155,7 @@ internal static class PortraitStudio
         // slightly short.
         foreach (var effect in effects)
             effect.enabled = meshes.Count == 0;
+        var close = new List<Renderer>();
         var subjectBox = RenderSubject(camera, target, readback, size);
         bool clipped = PortraitImage.TouchesBorder(subjectBox, size, size);
         if (meshes.Count > 0 && effects.Count > 0)
@@ -153,10 +164,11 @@ internal static class PortraitStudio
                 camera,
                 subjectBox,
                 size,
-                PortraitPreset.FrameMargin * ((2f * PortraitPreset.EffectFramingGrowth) - 1f)
+                PortraitPreset.FrameMargin * ((2f * PortraitPreset.EffectFramingGrowth) - 1f),
+                cameraUp
             );
             var meshBox = RenderSubject(camera, target, readback, size);
-            var close = new List<Renderer>();
+            close.Clear();
             foreach (var effect in effects)
             {
                 effect.enabled = true;
@@ -178,15 +190,17 @@ internal static class PortraitStudio
         }
         for (int aim = 0; aim < PortraitPreset.MaxAims; aim++)
         {
-            AimAt(camera, subjectBox, size, PortraitPreset.FrameMargin);
+            AimAt(camera, subjectBox, size, PortraitPreset.FrameMargin, cameraUp);
             subjectBox = RenderSubject(camera, target, readback, size);
             if (PortraitImage.HasMargin(subjectBox, Margin(subjectBox), size, size))
                 break;
         }
         clipped |= PortraitImage.TouchesBorder(subjectBox, size, size);
 
+        // A character keeps every effect, cut by the crop; an item keeps only
+        // the effects that stay close to its meshes.
         foreach (var effect in effects)
-            effect.enabled = true;
+            effect.enabled = item == null || close.Contains(effect);
         var matte = PortraitImage.Matte(
             Render(camera, target, readback, Color.black),
             Render(camera, target, readback, Color.white)
@@ -545,7 +559,144 @@ internal static class PortraitStudio
     /// Turns the camera toward the middle of the subject's box and sets the
     /// view so that the box, grown by <paramref name="frame"/>, fills the frame.
     /// </summary>
-    private static void AimAt(Camera camera, PixelBox box, int size, float frame)
+    /// <summary>
+    /// The view of an item's model straight at its broad face, turned by
+    /// <see cref="PortraitPreset.ItemFaceTurn"/> so its thickness shows, without
+    /// pitch, with the model's longest side upright. A long model, such as a
+    /// weapon, has the end that the hand holds, its part's origin, down; a
+    /// shorter one, such as a shield, the end that is lower in the world. Of
+    /// the face's two sides, the view takes the one that
+    /// <paramref name="preset"/> looks at.
+    /// </summary>
+    private static (Vector3 Direction, Vector3 Up) FaceOn(
+        List<Renderer> meshes,
+        GameObject subject,
+        string partName,
+        Vector3 preset,
+        bool bow
+    )
+    {
+        var spread = Spread(meshes);
+        if (spread == null)
+            return (preset, Vector3.up);
+        var (centre, longest, normal, elongated) = spread.Value;
+        if (Vector3.Dot(normal, preset) < 0f)
+            normal = -normal;
+        var grip = subject
+            .GetComponentsInChildren<Transform>()
+            .FirstOrDefault(part => part.name == partName);
+        var away = elongated && grip != null ? centre - grip.position : Vector3.up;
+        var up = Vector3.Dot(away, longest) < 0f ? -longest : longest;
+        // A bow is held at its arc, beside the string; the view puts the
+        // hand's side on the left, so every bow faces the same way.
+        if (bow && grip != null)
+        {
+            var right = Vector3.Cross(up, -normal);
+            var side = Vector3.Dot(grip.position - centre, right);
+            var across = Vector3.ProjectOnPlane(grip.position - centre, normal).magnitude;
+            if (side > 0f && side > 0.5f * across)
+                normal = -normal;
+        }
+        return (Quaternion.AngleAxis(PortraitPreset.ItemFaceTurn, up) * normal, up);
+    }
+
+    /// <summary>
+    /// The centre of the meshes' vertices, the direction in which they spread
+    /// the most and the least, from their covariance, and whether they spread
+    /// along the first at least twice as far as along the second.
+    /// </summary>
+    private static (Vector3 Centre, Vector3 Longest, Vector3 Thinnest, bool Elongated)? Spread(
+        List<Renderer> meshes
+    )
+    {
+        var points = new List<Vector3>();
+        var baked = new Mesh();
+        try
+        {
+            foreach (var renderer in meshes)
+            {
+                Mesh? mesh = null;
+                if (renderer is SkinnedMeshRenderer skinned)
+                {
+                    skinned.BakeMesh(baked);
+                    mesh = baked;
+                }
+                else if (renderer.TryGetComponent<MeshFilter>(out var filter))
+                    mesh = filter.sharedMesh;
+                if (mesh == null)
+                    continue;
+                var toWorld = renderer.transform.localToWorldMatrix;
+                if (mesh.isReadable)
+                {
+                    foreach (var vertex in mesh.vertices)
+                        points.Add(toWorld.MultiplyPoint3x4(vertex));
+                    continue;
+                }
+                // A mesh that the game keeps on the GPU only gives its box.
+                var box = mesh.bounds;
+                for (int corner = 0; corner < 8; corner++)
+                {
+                    points.Add(
+                        toWorld.MultiplyPoint3x4(
+                            new Vector3(
+                                (corner & 1) == 0 ? box.min.x : box.max.x,
+                                (corner & 2) == 0 ? box.min.y : box.max.y,
+                                (corner & 4) == 0 ? box.min.z : box.max.z
+                            )
+                        )
+                    );
+                }
+            }
+        }
+        finally
+        {
+            Object.Destroy(baked);
+        }
+        if (points.Count < 3)
+            return null;
+        var centre = Vector3.zero;
+        foreach (var point in points)
+            centre += point;
+        centre /= points.Count;
+        var covariance = Matrix4x4.zero;
+        foreach (var point in points)
+        {
+            var d = point - centre;
+            for (int row = 0; row < 3; row++)
+            for (int column = 0; column < 3; column++)
+                covariance[row, column] += d[row] * d[column];
+        }
+        var longest = DominantAxis(covariance, new Vector3(1f, 0.7f, 0.4f));
+        float alongLongest = Vector3.Dot(longest, covariance.MultiplyVector(longest));
+        // Without the longest direction, the second dominates.
+        var rest = covariance;
+        for (int row = 0; row < 3; row++)
+        for (int column = 0; column < 3; column++)
+            rest[row, column] -= alongLongest * longest[row] * longest[column];
+        var second = DominantAxis(
+            rest,
+            Vector3.ProjectOnPlane(new Vector3(0.3f, 1f, 0.6f), longest)
+        );
+        float alongSecond = Vector3.Dot(second, covariance.MultiplyVector(second));
+        var thinnest = Vector3.Cross(longest, second).normalized;
+        // Twice the length is four times the variance.
+        return (centre, longest, thinnest, alongLongest >= 4f * alongSecond);
+    }
+
+    private static Vector3 DominantAxis(Matrix4x4 covariance, Vector3 start)
+    {
+        var axis = start.normalized;
+        for (int i = 0; i < 64; i++)
+        {
+            var next = covariance.MultiplyVector(axis);
+            if (next.sqrMagnitude < 1e-12f)
+                return axis;
+            axis = next.normalized;
+        }
+        return axis;
+    }
+
+    private static void AimAt(Camera camera, PixelBox box, int size, float frame, Vector3 up)
     {
         var centre = new Vector3(
             (box.MinX + box.MaxX + 1) * 0.5f / size,
@@ -554,7 +705,7 @@ internal static class PortraitStudio
         );
         float extent = Mathf.Max(box.Width, box.Height) / (float)size * frame;
         var ray = camera.ViewportPointToRay(centre);
-        camera.transform.rotation = Quaternion.LookRotation(ray.direction, Vector3.up);
+        camera.transform.rotation = Quaternion.LookRotation(ray.direction, up);
         float halfAngle = Mathf.Atan(Mathf.Tan(camera.fieldOfView * 0.5f * Mathf.Deg2Rad) * extent);
         camera.fieldOfView = 2f * halfAngle * Mathf.Rad2Deg;
     }

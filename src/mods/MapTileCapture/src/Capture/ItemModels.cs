@@ -154,7 +154,10 @@ internal static class ItemModels
         foreach (var renderer in copy.GetComponentsInChildren<Renderer>(true))
             renderer.enabled = kept.Contains(renderer);
         foreach (var skinned in kept.OfType<SkinnedMeshRenderer>())
+        {
+            TakeLostMaterials(skinned, copy.transform, Player().transform);
             BoundInBindPose(skinned);
+        }
         // The copy's camera, listener, and canvases would show on the screen.
         foreach (var camera in copy.GetComponentsInChildren<Camera>(true))
             Object.DestroyImmediate(camera);
@@ -164,6 +167,56 @@ internal static class ItemModels
             Object.DestroyImmediate(canvas.gameObject);
         return partName;
     }
+
+    /// <summary>
+    /// Gives a skinned part of the copy the materials of the player's own part
+    /// when the copy lost them. Cape2, the model of four capes, also carries a
+    /// MeshRenderer without a material or a mesh filter; Unity drops it from a
+    /// copy and leaves the copy's SkinnedMeshRenderer with its empty material,
+    /// which the studio drew in error magenta, while the game draws the cape
+    /// with its own material.
+    /// </summary>
+    private static void TakeLostMaterials(
+        SkinnedMeshRenderer skinned,
+        Transform copyRoot,
+        Transform playerRoot
+    )
+    {
+        if (skinned.sharedMaterials.All(material => material != null))
+            return;
+        // The studio removed objects from the copy, such as its target ring,
+        // so a child is found by its name and its rank among same-named siblings.
+        var path = new Stack<(string Name, int Rank)>();
+        for (var current = skinned.transform; current != copyRoot; current = current.parent)
+            path.Push((current.name, SameNamedRank(current)));
+        var original = playerRoot;
+        while (path.Count > 0)
+        {
+            var (name, rank) = path.Pop();
+            original =
+                Children(original).Where(child => child.name == name).ElementAtOrDefault(rank)
+                ?? throw new PortraitException($"The player has no {name} where the copy has one.");
+        }
+        var source =
+            original.GetComponent<SkinnedMeshRenderer>()
+            ?? throw new PortraitException(
+                $"The player's {skinned.name} has no skinned mesh to take materials from."
+            );
+        if (source.sharedMaterials.Any(material => material == null))
+            throw new PortraitException($"The player's {skinned.name} lacks a material too.");
+        skinned.sharedMaterials = source.sharedMaterials;
+    }
+
+    private static IEnumerable<Transform> Children(Transform parent)
+    {
+        for (int i = 0; i < parent.childCount; i++)
+            yield return parent.GetChild(i);
+    }
+
+    private static int SameNamedRank(Transform child) =>
+        Children(child.parent)
+            .TakeWhile(sibling => sibling != child)
+            .Count(sibling => sibling.name == child.name);
 
     /// <summary>
     /// Gives a skinned part the bounds of its mesh in the bind pose, in the

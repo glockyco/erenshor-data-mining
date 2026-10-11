@@ -36,6 +36,12 @@ public static class PortraitPreset
     public const float CameraPitch = -12f;
 
     /// <summary>
+    /// Degrees by which an item's face-on view turns about the model's
+    /// upright axis, so that a blade's edge and thickness show.
+    /// </summary>
+    public const float ItemFaceTurn = 15f;
+
+    /// <summary>
     /// The frame of the second render as a factor of the subject's larger
     /// side. It leaves room for <see cref="CropMarginFraction"/> on each side.
     /// </summary>

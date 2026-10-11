@@ -207,7 +207,8 @@ internal sealed class PortraitController : IDisposable
                 result = PortraitStudio.Capture(
                     ItemModels.Furnishing(item.Part),
                     mainCam,
-                    request.OutputPath
+                    request.OutputPath,
+                    new ItemView()
                 );
             }
             else
@@ -216,7 +217,13 @@ internal sealed class PortraitController : IDisposable
                     ItemModels.Player(),
                     mainCam,
                     request.OutputPath,
-                    copy => ItemModels.ShowOnBody(copy, item)
+                    new ItemView
+                    {
+                        Prepare = copy => ItemModels.ShowOnBody(copy, item),
+                        Turn = item.Slot == "Back" ? 180f : 0f,
+                        FaceOn = item.Kind == "weapon",
+                        Bow = GameData.ItemDB?.GetItemByID(item.Id)?.IsBow ?? false,
+                    }
                 );
             }
             _logger.LogInfo($"Captured {request.Subject} from {result.ObjectName}");
