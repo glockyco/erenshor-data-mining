@@ -166,6 +166,7 @@ class FakeCharacterRepository:
         vendor_sources: dict[str, list[ObtainedFromInfo]] | None = None,
         dialog_sources: dict[str, list[ObtainedFromInfo]] | None = None,
         spell_users: dict[str, list[CharacterLink]] | None = None,
+        vendor_stock: list[tuple[str, str, str | None]] | None = None,
     ) -> None:
         self._characters = characters
         self._vendors = vendors or {}
@@ -174,6 +175,7 @@ class FakeCharacterRepository:
         self._vendor_sources = vendor_sources or {}
         self._dialog_sources = dialog_sources or {}
         self._spell_users = spell_users or {}
+        self._vendor_stock = vendor_stock or []
 
     def get_characters_for_wiki_generation(self) -> list[Character]:
         return self._characters
@@ -195,6 +197,9 @@ class FakeCharacterRepository:
 
     def get_characters_using_spell(self, spell_stable_key: str) -> list[CharacterLink]:
         return self._spell_users.get(spell_stable_key, [])
+
+    def get_vendor_stock(self) -> list[tuple[str, str, str | None]]:
+        return self._vendor_stock
 
 
 class FakeSpellRepository:

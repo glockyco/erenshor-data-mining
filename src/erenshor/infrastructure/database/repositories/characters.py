@@ -559,6 +559,44 @@ class CharacterRepository(BaseRepository[Character]):
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve stable drop sources for '{item_stable_key}': {e}") from e
 
+    def get_vendor_stock(self) -> list[tuple[str, str, str | None]]:
+        """Return (vendor, item, quest) for each item that a vendor with a page sells.
+
+        A vendor is a deduplication group, so the backup copies that share a
+        page sell as one vendor. The quest is the one whose completion adds the
+        item to the stock, or None for an item that is always in stock.
+        """
+        query = """
+            WITH stock AS (
+                SELECT d.group_key AS vendor_key, cvi.item_stable_key AS item_key, NULL AS quest_key
+                FROM character_deduplications d
+                JOIN character_vendor_items cvi ON cvi.character_stable_key = d.member_stable_key
+                UNION
+                SELECT d.group_key, qv.unlock_item_for_vendor_stable_key, cvqu.quest_stable_key
+                FROM character_deduplications d
+                JOIN character_vendor_quest_unlocks cvqu ON cvqu.character_stable_key = d.member_stable_key
+                JOIN quest_variants qv ON qv.quest_stable_key = cvqu.quest_stable_key
+                WHERE qv.unlock_item_for_vendor_stable_key IS NOT NULL
+            )
+            SELECT stock.vendor_key, stock.item_key, stock.quest_key
+            FROM stock
+            JOIN characters c ON c.stable_key = stock.vendor_key
+            WHERE c.wiki_page_name IS NOT NULL
+            ORDER BY stock.vendor_key, stock.item_key, stock.quest_key
+        """
+        try:
+            rows = self._execute_raw(query, ())
+            return [
+                (
+                    str(row["vendor_key"]),
+                    str(row["item_key"]),
+                    None if row["quest_key"] is None else str(row["quest_key"]),
+                )
+                for row in rows
+            ]
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve vendor stock: {e}") from e
+
     def get_vendor_sources_for_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
         """Return stable-keyed vendors and quest conditions that sell an item."""
         query = """

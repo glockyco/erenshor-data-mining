@@ -85,6 +85,7 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
     skills_path = tmp_path / "Erenshor" / "Data" / "Skills.lua"
     stances_path = tmp_path / "Erenshor" / "Data" / "Stances.lua"
     treasure_path = tmp_path / "Erenshor" / "Data" / "TreasureGuardians.lua"
+    vendor_stock_path = tmp_path / "Erenshor" / "Data" / "VendorStock.lua"
     assert result.written_paths == [
         items_path,
         item_shard_path,
@@ -94,6 +95,7 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
         stances_path,
         build_path,
         treasure_path,
+        vendor_stock_path,
     ]
     assert result.validation_tools == {
         build_path: "stylua",
@@ -104,6 +106,7 @@ def test_generates_and_validates_lua_data_modules(tmp_path: Path) -> None:
         skills_path: "stylua",
         stances_path: "stylua",
         treasure_path: "stylua",
+        vendor_stock_path: "stylua",
     }
     staging_root = validated_paths[0].parents[2]
     assert [path.relative_to(staging_root) for path in validated_paths] == [

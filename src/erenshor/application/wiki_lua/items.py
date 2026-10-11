@@ -333,6 +333,16 @@ def _item_kind(item: Item) -> ItemKind:
     )
 
 
+def item_kind_label(item: Item) -> str:
+    """The kind of an item as the wiki's data modules name it, such as Weapon or Spell Scroll.
+
+    A furniture set is Furniture: the game flags it, and players buy it to furnish Reliquary Hall.
+    """
+    if item.furniture_set:
+        return "Furniture"
+    return _item_kind_display(str(_item_kind(item)))
+
+
 def _item_record(
     item: Item,
     stats: list[ItemStats],
@@ -353,7 +363,7 @@ def _item_record(
     for lua_name, attr_name in _ITEM_EFFECT_CHANCE_FIELD_MAP:
         _put(row, lua_name, getattr(item, attr_name))
 
-    row["type"] = _item_kind_display(str(_item_kind(item)))
+    row["type"] = item_kind_label(item)
 
     summary_stat = _summary_stat(stats)
     if summary_stat is not None:

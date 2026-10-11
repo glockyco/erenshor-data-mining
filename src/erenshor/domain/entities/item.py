@@ -108,6 +108,9 @@ class Item(BaseEntity):
     must_be_equipped_to_click: int | None = Field(default=None, description="Must be equipped to click (boolean)")
     player_cannot_sell: int | None = Field(default=None, description="Player cannot sell to vendor (boolean)")
     rare_item: int | None = Field(default=None, description="Is rare item (boolean)")
+    furniture_set: int | None = Field(
+        default=None, description="Is a furniture set that furnishes a room of Reliquary Hall (boolean)"
+    )
     is_auctionable: int | None = Field(
         default=None,
         description="Derived: player can list this item on the auction house (boolean)",

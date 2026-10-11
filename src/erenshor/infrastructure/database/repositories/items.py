@@ -111,6 +111,7 @@ class ItemRepository(BaseRepository[Item]):
                 fuel_source,
                 fuel_level,
                 sim_players_cant_get,
+                furniture_set,
                 attack_sound_name,
                 item_icon_name,
                 equipment_to_activate,

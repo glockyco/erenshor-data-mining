@@ -27,6 +27,7 @@ from erenshor.application.wiki_lua.link_catalog import (
 from erenshor.application.wiki_lua.link_catalog import (
     ClassDisplayNameService,
     FactionDataRepository,
+    build_link_catalog_entries,
     write_links_module,
 )
 from erenshor.application.wiki_lua.link_catalog import (
@@ -54,6 +55,7 @@ from erenshor.application.wiki_lua.spells import (
 from erenshor.application.wiki_lua.stances import StanceDataRepository, write_stances_module
 from erenshor.application.wiki_lua.treasure import TreasureDataRepository, write_treasure_guardians_module
 from erenshor.application.wiki_lua.validation import LuaValidationResult, validate_lua_module
+from erenshor.application.wiki_lua.vendor_stock import VendorStockRepository, write_vendor_stock_module
 
 
 class WikiItemRepository(
@@ -65,8 +67,10 @@ class WikiItemRepository(
     """Item repository contract needed by full Lua data generation."""
 
 
-class WikiCharacterRepository(LinkCatalogCharacterRepository, ItemProvenanceCharacterRepository, Protocol):
-    """Character repository contract for links and item provenance."""
+class WikiCharacterRepository(
+    LinkCatalogCharacterRepository, ItemProvenanceCharacterRepository, VendorStockRepository, Protocol
+):
+    """Character repository contract for links, item provenance, and vendor stock."""
 
 
 class WikiQuestRepository(LinkCatalogQuestRepository, ItemProvenanceQuestRepository, Protocol):
@@ -118,6 +122,7 @@ TOP_LEVEL_DATA_MODULES: tuple[str, ...] = (
     "Stances.lua",
     "Build.lua",
     "TreasureGuardians.lua",
+    "VendorStock.lua",
 )
 
 
@@ -182,6 +187,18 @@ def generate_lua_data_modules(
         internal_name: class_display.get_display_name(internal_name)
         for internal_name in class_display.get_all_internal_names()
     }
+    link_entries = build_link_catalog_entries(
+        items=item_repo.get_items_for_link_catalog(),
+        characters=character_repo.get_characters_for_wiki_generation(),
+        quests=quest_repo.get_quests_for_wiki_generation(),
+        zones=zone_repo.get_all_zones(),
+        spells=spell_repo.get_spells_for_wiki_generation(),
+        skills=skill_repo.get_skills_for_wiki_generation(),
+        stances=stance_repo.get_all(),
+        factions=faction_repo.get_factions_for_wiki_generation(),
+        class_display=class_display,
+    )
+    known_keys = frozenset(entry.key for entry in link_entries)
     with tempfile.TemporaryDirectory(prefix="erenshor-wiki-lua-") as temporary:
         staging_root = Path(temporary)
         staged_paths = [
@@ -191,18 +208,7 @@ def generate_lua_data_modules(
                 sources_by_item=item_sources_by_item,
                 class_display_names=class_display_names,
             ),
-            write_links_module(
-                item_repo,
-                character_repo,
-                quest_repo,
-                zone_repo,
-                spell_repo,
-                skill_repo,
-                stance_repo,
-                faction_repo,
-                class_display,
-                staging_root,
-            ),
+            write_links_module(link_entries, staging_root),
             write_spells_module(
                 spell_repo,
                 staging_root,
@@ -214,6 +220,7 @@ def generate_lua_data_modules(
             write_stances_module(stance_repo, staging_root),
             write_build_module(build_repo, staging_root),
             write_treasure_guardians_module(treasure_repo, staging_root),
+            write_vendor_stock_module(character_repo, items, known_keys, staging_root),
         ]
         validation_tools: dict[Path, str] = {}
         for path in staged_paths:

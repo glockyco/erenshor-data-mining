@@ -293,59 +293,9 @@ def build_links_data(entries: Iterable[LinkCatalogEntry]) -> LuaData:
     }
 
 
-def generate_links_module(
-    item_repo: ItemDataRepository,
-    character_repo: CharacterDataRepository,
-    quest_repo: QuestDataRepository,
-    zone_repo: ZoneDataRepository,
-    spell_repo: SpellDataRepository,
-    skill_repo: SkillDataRepository,
-    stance_repo: StanceDataRepository,
-    faction_repo: FactionDataRepository,
-    class_display: ClassDisplayNameService,
-) -> str:
-    """Generate ``Module:Erenshor/Data/Links`` Lua source."""
-    entries = build_link_catalog_entries(
-        items=item_repo.get_items_for_link_catalog(),
-        characters=character_repo.get_characters_for_wiki_generation(),
-        quests=quest_repo.get_quests_for_wiki_generation(),
-        zones=zone_repo.get_all_zones(),
-        spells=spell_repo.get_spells_for_wiki_generation(),
-        skills=skill_repo.get_skills_for_wiki_generation(),
-        stances=stance_repo.get_all(),
-        factions=faction_repo.get_factions_for_wiki_generation(),
-        class_display=class_display,
-    )
-    return module_text(build_links_data(entries))
-
-
-def write_links_module(
-    item_repo: ItemDataRepository,
-    character_repo: CharacterDataRepository,
-    quest_repo: QuestDataRepository,
-    zone_repo: ZoneDataRepository,
-    spell_repo: SpellDataRepository,
-    skill_repo: SkillDataRepository,
-    stance_repo: StanceDataRepository,
-    faction_repo: FactionDataRepository,
-    class_display: ClassDisplayNameService,
-    output_root: Path,
-) -> Path:
+def write_links_module(entries: Iterable[LinkCatalogEntry], output_root: Path) -> Path:
     """Write ``Data/Links.lua`` below an output root."""
     output_path = output_root / "Erenshor" / "Data" / "Links.lua"
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    _ = output_path.write_text(
-        generate_links_module(
-            item_repo,
-            character_repo,
-            quest_repo,
-            zone_repo,
-            spell_repo,
-            skill_repo,
-            stance_repo,
-            faction_repo,
-            class_display,
-        ),
-        encoding="utf-8",
-    )
+    output_path.write_text(module_text(build_links_data(entries)), encoding="utf-8")
     return output_path
