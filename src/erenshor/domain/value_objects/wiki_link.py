@@ -123,7 +123,7 @@ class ItemLink(WikiLink):
 
 @dataclass(frozen=True)
 class CharacterAbilityUsage:
-    """Stable ability key and usage label for CharacterAbilities Cargo rows."""
+    """Stable ability key and usage label of an ability that a character uses."""
 
     ability_key: str
     usage: str

@@ -18,7 +18,7 @@ JsonObject = dict[str, Any]
 _TRANSIENT_DOWNLOAD_STATUSES = frozenset({429, 502, 503, 504})
 
 # The API actions that only read, which a dropped connection can safely repeat.
-_READ_ACTIONS = frozenset({"query", "parse", "expandtemplates", "compare", "opensearch", "cargoquery"})
+_READ_ACTIONS = frozenset({"query", "parse", "expandtemplates", "compare", "opensearch"})
 
 
 class MediaWikiRequestError(RuntimeError):

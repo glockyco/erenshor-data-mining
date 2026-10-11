@@ -413,25 +413,6 @@ def _new_interface_rollback_root(cli_ctx: CLIContext) -> Path:
     return Path(tempfile.mkdtemp(prefix="deploy-", dir=rollback_parent))
 
 
-def _report_changed_cargo_declarations(manifest: RepoWikiPageManifest, changed_titles: set[str]) -> None:
-    """Report changed Cargo-declaring templates so their tables can be recreated.
-    Recreation is intentionally not automated: the Cargo API cannot switch in a
-    replacement table, so an API-driven recreate would force a downtime window
-    while the table repopulates. When a declaration's fields change, recreate
-    the table via Special:CargoTables, which builds a replacement table and
-    switches it in with no downtime.
-    """
-    changed = [entry for entry in manifest.entries if entry.declares_cargo_table and entry.title in changed_titles]
-    if not changed:
-        return
-    tables = sorted({table for entry in changed for table in entry.cargo_tables})
-    console.print(
-        f"[yellow]{len(changed)} Cargo declaration(s) changed (tables: {', '.join(tables)}). "
-        f"If the declared fields changed, recreate the table(s) via Special:CargoTables "
-        f"(use a replacement table and 'Switch in' for no downtime).[/yellow]"
-    )
-
-
 def _create_item_repository(cli_ctx: CLIContext) -> ItemRepository:
     """Create an item repository for local Lua data generation."""
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
@@ -1511,9 +1492,6 @@ def deploy_repo_pages_command(
         f"Unchanged: {unchanged} Manifest: {manifest_output}"
     )
 
-    changed_titles = {entry.title for entry in result.entries if entry.status != "unchanged"}
-    _report_changed_cargo_declarations(manifest, changed_titles)
-
 
 def _print_partial_deploy(checkpoint: RepoWikiPageManifest | None, manifest_output: Path) -> None:
     """Name the pages that a failed deploy wrote before it stopped, and the command that restores them.
@@ -1592,7 +1570,7 @@ def refresh_embedded_command(
         typer.Option("--assert-user", help="Expected MediaWiki username for assertuser guard."),
     ] = None,
 ) -> None:
-    """Force a link/Cargo refresh on pages that transclude the given templates/modules."""
+    """Force a link refresh on pages that transclude the given templates/modules."""
     cli_ctx: CLIContext = ctx.obj
     dependency_titles = dependency_titles or []
     page_titles = page_titles or []
@@ -1694,9 +1672,6 @@ def rollback_repo_pages_command(
         )
         for created_title in result.created_titles:
             console.print(f"  {created_title}", markup=False)
-
-    rolled_back_titles = {entry.title for entry in result.entries}
-    _report_changed_cargo_declarations(manifest, rolled_back_titles)
 
 
 @app.command()

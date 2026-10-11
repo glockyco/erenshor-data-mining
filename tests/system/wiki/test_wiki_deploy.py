@@ -61,8 +61,6 @@ def _module_manifest(title: str, source_path: str, content: str) -> RepoWikiPage
                 ownership_class="lua_module",
                 upload_stage="lua_module",
                 content_model="Scribunto",
-                declares_cargo_table=False,
-                cargo_tables=(),
             ),
         )
     )

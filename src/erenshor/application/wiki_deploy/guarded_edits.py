@@ -91,8 +91,6 @@ def apply_guarded_edits(
                 ownership_class="article",
                 upload_stage="article",
                 content_model="wikitext",
-                declares_cargo_table=False,
-                cargo_tables=(),
                 old_revision_id=edit.revision.revision_id,
                 old_revision_timestamp=edit.revision.timestamp,
                 rollback_text_source=rollback_path.relative_to(repo_root).as_posix(),

@@ -43,7 +43,7 @@ INVARIANT_CODES = (
 # These are deliberately declarative copies of the fields emitted by the
 # corresponding Jinja templates.  A field is required to be present, but an
 # empty value is valid: the templates emit empty parameters for absent game
-# data and Cargo relies on that stable shape.
+# data, so every generated call carries the same fields.
 _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
     {
         "Item": [

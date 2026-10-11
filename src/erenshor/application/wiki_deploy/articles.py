@@ -355,8 +355,6 @@ def _prepare_manifest(
                 ownership_class="article",
                 upload_stage="article",
                 content_model="wikitext",
-                declares_cargo_table=False,
-                cargo_tables=(),
                 old_revision_id=article.fetched_revision_id,
                 rollback_text_source=rollback_text_source,
             )

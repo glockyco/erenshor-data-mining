@@ -1583,12 +1583,13 @@ class MediaWikiClient:
         assertion: Literal["user", "bot"] | None = None,
         assert_user: str | None = None,
     ) -> tuple[str, ...]:
-        """Purge pages, forcing a synchronous link/Cargo table update by default.
-        A template or module change does not refresh the pages that transclude
-        it; their stored link, category, and Cargo data stay stale until each
-        dependent page is reparsed. ``action=purge`` with ``forcelinkupdate``
-        runs that reparse and LinksUpdate synchronously, which is the reliable
-        way to refresh dependents (a no-op edit performs no save and no update).
+        """Purge pages, forcing a synchronous link update by default.
+        A template or module change refreshes the pages that transclude it only
+        when MediaWiki's job queue reaches them; their link and category data
+        stay stale until each dependent page is reparsed. ``action=purge`` with
+        ``forcelinkupdate`` runs that reparse and LinksUpdate synchronously, which
+        is the reliable way to refresh dependents at once (a no-op edit performs
+        no save and no update).
         """
         if assertion not in (None, "user", "bot"):
             raise ValueError(f"assertion must be 'user' or 'bot', got: {assertion}")
@@ -1630,90 +1631,6 @@ class MediaWikiClient:
             )
         logger.info(f"Purged {len(purged)} pages (force_link_update={force_link_update})")
         return tuple(purged)
-
-    def recreate_cargo_tables(
-        self,
-        template: str,
-        create_replacement: bool = False,
-        assertion: Literal["user", "bot"] | None = None,
-        assert_user: str | None = None,
-    ) -> dict[str, Any]:
-        """Run Cargo's schema recreation API for all tables associated with a template."""
-        if assertion not in (None, "user", "bot"):
-            raise ValueError(f"assertion must be 'user' or 'bot', got: {assertion}")
-        data: dict[str, Any] = {
-            "action": "cargorecreatetables",
-            "template": template,
-            "token": self.get_csrf_token(),
-            "formatversion": "2",
-        }
-        if create_replacement:
-            data["createReplacement"] = "1"
-        if assertion is not None:
-            data["assert"] = assertion
-        if assert_user is not None:
-            data["assertuser"] = assert_user
-        return self._request({}, method="POST", data=data)
-
-    def recreate_cargo_data(
-        self,
-        template: str,
-        table: str,
-        replace_old_rows: bool = True,
-        assertion: Literal["user", "bot"] | None = None,
-        assert_user: str | None = None,
-    ) -> dict[str, Any]:
-        """Enqueue Cargo row recreation jobs for one owning template/table pair."""
-        if assertion not in (None, "user", "bot"):
-            raise ValueError(f"assertion must be 'user' or 'bot', got: {assertion}")
-        data: dict[str, Any] = {
-            "action": "cargorecreatedata",
-            "template": template,
-            "table": table,
-            "token": self.get_csrf_token(),
-            "formatversion": "2",
-        }
-        if replace_old_rows:
-            data["replaceOldRows"] = "1"
-        if assertion is not None:
-            data["assert"] = assertion
-        if assert_user is not None:
-            data["assertuser"] = assert_user
-        return self._request({}, method="POST", data=data)
-
-    def query_cargo_table(
-        self,
-        tables: str,
-        fields: str,
-        where: str | None = None,
-        limit: int = 50,
-        offset: int | None = None,
-        assertion: Literal["user", "bot"] | None = None,
-        assert_user: str | None = None,
-    ) -> list[dict[str, Any]]:
-        """Run a Cargo query and return the raw ``cargoquery`` rows."""
-        if assertion not in (None, "user", "bot"):
-            raise ValueError(f"assertion must be 'user' or 'bot', got: {assertion}")
-        params: dict[str, Any] = {
-            "action": "cargoquery",
-            "tables": tables,
-            "fields": fields,
-            "limit": str(limit),
-            "formatversion": "2",
-        }
-        if where is not None:
-            params["where"] = where
-        if offset is not None:
-            params["offset"] = str(offset)
-        if assertion is not None:
-            params["assert"] = assertion
-        if assert_user is not None:
-            params["assertuser"] = assert_user
-        result = self._request(params)
-        rows = result.get("cargoquery", [])
-        if not isinstance(rows, list):
-            raise MediaWikiAPIError(f"Invalid Cargo query response: {result}")
-        return rows
 
     def get_page_revision_metadata(
         self,

@@ -108,30 +108,6 @@ def test_build_repo_page_manifest_hashes_source_bytes(tmp_path: Path) -> None:
     assert entry.source_sha256 == hashlib.sha256(content.encode()).hexdigest()
 
 
-def test_build_repo_page_manifest_marks_real_cargo_declarations_only(tmp_path: Path) -> None:
-    """Only actual declaring templates are flagged as Cargo declarations, not documentation mirrors."""
-    write_page(
-        tmp_path,
-        "wiki/templates/Item.wiki",
-        "<includeonly>Example</includeonly><noinclude>{{#cargo_declare:\n_table=Items\n|Page=Page\n}}</noinclude>\n",
-    )
-    write_page(
-        tmp_path,
-        "wiki/templates/Cargo/Items/CargoDeclare.wiki",
-        "<noinclude><pre>{{#cargo_declare:\n_table=Items\n|Page=Page\n}}</pre></noinclude>\n",
-    )
-
-    manifest = build_repo_page_manifest(tmp_path, variant="main", include_templates=True)
-
-    entries = {entry.title: entry for entry in manifest.entries}
-    assert entries["Template:Item"].declares_cargo_table is True
-    assert entries["Template:Item"].cargo_tables == ("Items",)
-    assert entries["Template:Item"].ownership_class == "cargo_declaration"
-    assert entries["Template:Cargo/Items/CargoDeclare"].declares_cargo_table is False
-    assert entries["Template:Cargo/Items/CargoDeclare"].cargo_tables == ()
-    assert entries["Template:Cargo/Items/CargoDeclare"].ownership_class == "template"
-
-
 def test_build_repo_page_manifest_keeps_stylesheets_as_sanitized_css_templates(tmp_path: Path) -> None:
     """A TemplateStyles stylesheet keeps its .css title and needs the template opt-in."""
     write_page(tmp_path, "wiki/templates/Character.wiki", '<templatestyles src="Template:Character/styles.css" />\n')
@@ -148,13 +124,8 @@ def test_build_repo_page_manifest_keeps_stylesheets_as_sanitized_css_templates(t
 
 
 def test_build_repo_page_manifest_orders_uploads_safely(tmp_path: Path) -> None:
-    """Upload order is Lua modules, Cargo declarations, then other templates."""
-    write_page(tmp_path, "wiki/templates/QueryTable.wiki", "{{#cargo_query:tables=Items}}\n")
-    write_page(
-        tmp_path,
-        "wiki/templates/Item.wiki",
-        "<noinclude>{{#cargo_declare:\n_table=Items\n|Page=Page\n}}</noinclude>\n",
-    )
+    """Upload order is stylesheets, generated data, Lua modules, templates, then content pages."""
+    write_page(tmp_path, "wiki/templates/Item.wiki", "<includeonly>{{#invoke:Erenshor/Item|render}}</includeonly>\n")
     write_page(tmp_path, "wiki/modules/Erenshor/Item.lua", "local p = {}\nreturn p\n")
     write_page(tmp_path, "wiki/templates/Item/styles.css", ".item-icon { display: inline-block; }\n")
     write_page(tmp_path, "variants/main/wiki/lua/Erenshor/Data/Items.lua", "return {}\n")
@@ -172,14 +143,12 @@ def test_build_repo_page_manifest_orders_uploads_safely(tmp_path: Path) -> None:
         "Module:Erenshor/Data/Items",
         "Module:Erenshor/Item",
         "Template:Item",
-        "Template:QueryTable",
         "Category:Links",
     ]
     assert [entry.upload_stage for entry in manifest.entries] == [
         "stylesheet",
         "generated_data",
         "lua_module",
-        "cargo_declaration",
         "template",
         "content_page",
     ]
@@ -302,7 +271,7 @@ def test_select_repo_page_manifest_enforces_independent_opt_ins(tmp_path: Path) 
 
 def test_repo_page_manifest_round_trips_deployment_metadata(tmp_path: Path) -> None:
     """Persisted manifests preserve deployment metadata needed for rollback."""
-    write_page(tmp_path, "wiki/templates/Item.wiki", "{{#cargo_declare:_table=Items}}\n")
+    write_page(tmp_path, "wiki/templates/Item.wiki", "Item template\n")
     manifest = build_repo_page_manifest(tmp_path, variant="main", include_templates=True)
     [entry] = manifest.entries
     deployed_manifest = RepoWikiPageManifest(

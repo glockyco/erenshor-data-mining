@@ -4,18 +4,14 @@ from __future__ import annotations
 
 import hashlib
 import json
-import re
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Literal, cast
 
 ContentModel = Literal["Scribunto", "sanitized-css", "wikitext"]
-UploadStage = Literal[
-    "stylesheet", "generated_data", "lua_module", "cargo_declaration", "template", "content_page", "article"
-]
+UploadStage = Literal["stylesheet", "generated_data", "lua_module", "template", "content_page", "article"]
 DeployAction = Literal["unchanged", "created", "edited"]
 
-_CARGO_TABLE_RE = re.compile(r"_table\s*=\s*([A-Za-z_][A-Za-z0-9_]*)")
 _CONTENT_MODELS: tuple[ContentModel, ...] = ("Scribunto", "sanitized-css", "wikitext")
 
 # Stylesheets go first because Lua modules as well as templates load them.
@@ -24,17 +20,14 @@ UPLOAD_STAGES: tuple[UploadStage, ...] = (
     "stylesheet",
     "generated_data",
     "lua_module",
-    "cargo_declaration",
     "template",
     "content_page",
     "article",
 )
 # The stages that a deploy includes only with --include-templates.
-TEMPLATE_STAGES: frozenset[UploadStage] = frozenset({"stylesheet", "cargo_declaration", "template"})
+TEMPLATE_STAGES: frozenset[UploadStage] = frozenset({"stylesheet", "template"})
 # The stages whose pages other pages load, so a deploy renders their users first.
-RENDER_CHECKED_STAGES: frozenset[UploadStage] = frozenset(
-    {"stylesheet", "generated_data", "lua_module", "cargo_declaration", "template"}
-)
+RENDER_CHECKED_STAGES: frozenset[UploadStage] = frozenset({"stylesheet", "generated_data", "lua_module", "template"})
 
 
 def stage_rank(stage: UploadStage) -> int:
@@ -52,8 +45,6 @@ class RepoWikiPageManifestEntry:
     ownership_class: UploadStage
     upload_stage: UploadStage
     content_model: ContentModel
-    declares_cargo_table: bool
-    cargo_tables: tuple[str, ...]
     old_revision_id: int | None = None
     old_revision_timestamp: str | None = None
     new_revision_id: int | None = None
@@ -267,8 +258,6 @@ def _entry_from_payload(raw_entry: dict[str, object]) -> RepoWikiPageManifestEnt
         ownership_class=_upload_stage(str(raw_entry["ownership_class"])),
         upload_stage=_upload_stage(str(raw_entry["upload_stage"])),
         content_model=_content_model(str(raw_entry["content_model"])),
-        declares_cargo_table=bool(raw_entry["declares_cargo_table"]),
-        cargo_tables=tuple(str(table) for table in cast("list[object]", raw_entry["cargo_tables"])),
         old_revision_id=_optional_int(raw_entry.get("old_revision_id")),
         old_revision_timestamp=_optional_str(raw_entry.get("old_revision_timestamp")),
         new_revision_id=_optional_int(raw_entry.get("new_revision_id")),
@@ -344,8 +333,6 @@ def _module_entries(
                 content_model="Scribunto",
                 ownership_class=stage,
                 upload_stage=stage,
-                declares_cargo_table=False,
-                cargo_tables=(),
             )
         )
     return entries
@@ -383,8 +370,6 @@ def _content_entries(
                 content_model="wikitext",
                 ownership_class="content_page",
                 upload_stage="content_page",
-                declares_cargo_table=False,
-                cargo_tables=(),
             )
         )
     return entries
@@ -418,28 +403,20 @@ def _template_entries(
                     content_model="sanitized-css",
                     ownership_class="stylesheet",
                     upload_stage="stylesheet",
-                    declares_cargo_table=False,
-                    cargo_tables=(),
                 )
             )
             continue
         title = "Template:" + "/".join(relative.with_suffix("").parts)
         if requested_titles is not None and title not in requested_titles:
             continue
-        content = path.read_text(encoding="utf-8")
-        declares_cargo_table = _declares_real_cargo_table(title, content)
-        cargo_tables = _cargo_tables(content) if declares_cargo_table else ()
-        upload_stage: UploadStage = "cargo_declaration" if declares_cargo_table else "template"
         entries.append(
             _entry(
                 root=root,
                 path=path,
                 title=title,
                 content_model="wikitext",
-                ownership_class=upload_stage,
-                upload_stage=upload_stage,
-                declares_cargo_table=declares_cargo_table,
-                cargo_tables=cargo_tables,
+                ownership_class="template",
+                upload_stage="template",
             )
         )
     return entries
@@ -453,8 +430,6 @@ def _entry(
     content_model: ContentModel,
     ownership_class: UploadStage,
     upload_stage: UploadStage,
-    declares_cargo_table: bool,
-    cargo_tables: tuple[str, ...],
 ) -> RepoWikiPageManifestEntry:
     source_bytes = path.read_bytes()
     return RepoWikiPageManifestEntry(
@@ -464,16 +439,4 @@ def _entry(
         ownership_class=ownership_class,
         upload_stage=upload_stage,
         content_model=content_model,
-        declares_cargo_table=declares_cargo_table,
-        cargo_tables=cargo_tables,
     )
-
-
-def _declares_real_cargo_table(title: str, content: str) -> bool:
-    if title.endswith("/CargoDeclare"):
-        return False
-    return "#cargo_declare" in content
-
-
-def _cargo_tables(content: str) -> tuple[str, ...]:
-    return tuple(dict.fromkeys(match.group(1) for match in _CARGO_TABLE_RE.finditer(content)))

@@ -820,8 +820,6 @@ class TestWikiDeployRepoCommand:
                     ownership_class="lua_module",
                     upload_stage="lua_module",
                     content_model="Scribunto",
-                    declares_cargo_table=False,
-                    cargo_tables=(),
                 ),
             )
         )
@@ -895,8 +893,6 @@ class TestWikiDeployRepoCommand:
                 ownership_class="lua_module",
                 upload_stage="lua_module",
                 content_model="Scribunto",
-                declares_cargo_table=False,
-                cargo_tables=(),
                 deploy_action=action,
             )
 
@@ -940,8 +936,6 @@ class TestWikiDeployRepoCommand:
                     ownership_class="lua_module",
                     upload_stage="lua_module",
                     content_model="Scribunto",
-                    declares_cargo_table=False,
-                    cargo_tables=(),
                 ),
             )
         )
@@ -980,8 +974,6 @@ class TestWikiDeployRepoCommand:
                     ownership_class="lua_module",
                     upload_stage="lua_module",
                     content_model="Scribunto",
-                    declares_cargo_table=False,
-                    cargo_tables=(),
                 ),
             )
         )
@@ -1107,8 +1099,6 @@ class TestWikiDeployRepoCommand:
                     ownership_class="template",
                     upload_stage="template",
                     content_model="wikitext",
-                    declares_cargo_table=False,
-                    cargo_tables=(),
                 )
                 for title in ("Template:Quest", "Template:Zone")
             )
@@ -1186,8 +1176,6 @@ class TestWikiDeployRepoCommand:
                     ownership_class=stage,
                     upload_stage=stage,
                     content_model="wikitext",
-                    declares_cargo_table=False,
-                    cargo_tables=(),
                 ),
             )
         )
@@ -1224,61 +1212,6 @@ class TestWikiDeployRepoCommand:
         if stage != "content_page":
             assert "no main-namespace users" in accepted.output
         assert build_calls[1]["requested_titles"] == {title}
-
-    def test_deploy_reports_changed_cargo_declarations(
-        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, cli_context: CLIContext
-    ):
-        """Test a changed Cargo declaration is reported with a pointer to Special:CargoTables."""
-        import erenshor.cli.commands.wiki as wiki_command
-
-        manifest = RepoWikiPageManifest(
-            entries=(
-                RepoWikiPageManifestEntry(
-                    title="Template:Item",
-                    source_path="wiki/templates/Item.wiki",
-                    source_sha256="abc",
-                    ownership_class="cargo_declaration",
-                    upload_stage="cargo_declaration",
-                    content_model="wikitext",
-                    declares_cargo_table=True,
-                    cargo_tables=("Items",),
-                ),
-            )
-        )
-
-        def fake_deploy_repo_pages(**kwargs):
-            return RepoPageDeployResult(
-                entries=(
-                    RepoPageDeployResultEntry(
-                        title="Template:Item",
-                        status="edited",
-                        old_revision_id=1,
-                        old_revision_timestamp="2026-06-04T12:00:00Z",
-                        new_revision_id=2,
-                    ),
-                )
-            )
-
-        monkeypatch.setattr(wiki_command, "build_repo_page_manifest", lambda repo_root, variant, **kwargs: manifest)
-        _use_mediawiki_client(monkeypatch, MediaWikiFake())
-        monkeypatch.setattr(wiki_command, "deploy_repo_pages", fake_deploy_repo_pages)
-        monkeypatch.setattr(wiki_command, "write_repo_page_manifest", lambda deployed_manifest, path: None)
-
-        result = runner.invoke(
-            wiki.app,
-            [
-                "deploy-repo-pages",
-                "--include-templates",
-                "--manifest-output",
-                str(tmp_path / "m.json"),
-            ],
-            obj=cli_context,
-        )
-
-        assert result.exit_code == 0
-        assert "Cargo" in result.output
-        assert "Items" in result.output
-        assert "Special:CargoTables" in result.output
 
 
 class TestWikiRefreshEmbeddedCommand:
@@ -1751,8 +1684,6 @@ class TestWikiRollbackRepoCommand:
                     ownership_class="generated_data",
                     upload_stage="generated_data",
                     content_model="Scribunto",
-                    declares_cargo_table=False,
-                    cargo_tables=(),
                     old_revision_id=10,
                     old_revision_timestamp="2026-06-04T12:00:00Z",
                     new_revision_id=11,

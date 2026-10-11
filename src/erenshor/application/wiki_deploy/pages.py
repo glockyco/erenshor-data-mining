@@ -462,7 +462,7 @@ def rollback_filename(title: str) -> str:
 
 def build_deployed_manifest(manifest: RepoWikiPageManifest, result: RepoPageDeployResult) -> RepoWikiPageManifest:
     """Merge deploy outcomes into the source manifest to produce a rollback manifest.
-    Source-of-truth fields (title, source path, hash, ownership, Cargo metadata)
+    Source-of-truth fields (title, source path, hash, ownership, upload stage)
     are preserved; the revision IDs and rollback text source observed during the
     deploy are recorded so a later rollback can restore the prior page text.
     """

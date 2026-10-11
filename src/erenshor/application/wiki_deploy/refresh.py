@@ -1,9 +1,10 @@
 """Dependency-derived refresh of pages that transclude repo-owned templates/modules.
 
-After repo-owned templates or data modules deploy, the pages that transclude
-them keep stale link, category, and Cargo data until each dependent page is
-reparsed. Template/module dependents are discovered through MediaWiki's
-embeddedin API and purged with ``forcelinkupdate``.
+After repo-owned templates or data modules deploy, MediaWiki re-renders the
+pages that transclude them through its job queue, and their link and category
+data stay stale until then. Template/module dependents are discovered through
+MediaWiki's embeddedin API and purged with ``forcelinkupdate``, which reparses
+them at once.
 """
 
 from __future__ import annotations
