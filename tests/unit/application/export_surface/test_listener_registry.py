@@ -38,6 +38,7 @@ EXPECTED_KEYS = {
     "achievementtriggers",
     "doors",
     "forges",
+    "chessboards",
     "itembags",
     "classstartingitems",
     "loottables",

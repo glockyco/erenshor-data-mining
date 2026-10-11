@@ -297,6 +297,14 @@ public static class ExportListenerRegistry
                 context => context.RegisterComponentListener(new ForgeListener(context.Database))
             ),
             new(
+                "chessboards",
+                "Chessboards",
+                ExportScanChannel.Component,
+                Array.Empty<string>(),
+                context =>
+                    context.RegisterComponentListener(new ChessboardListener(context.Database))
+            ),
+            new(
                 "itembags",
                 "Item Bags",
                 ExportScanChannel.Component,

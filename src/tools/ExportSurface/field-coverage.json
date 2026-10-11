@@ -8,6 +8,7 @@
     "Class",
     "Door",
     "ForgeEffect",
+    "Chessboard",
     "GuildTopic",
     "Item",
     "ItemBag",
@@ -1025,6 +1026,134 @@
         "reason": "forge visual/runtime success reference; exporter records forge location only",
         "status": "ignored",
         "type": "UnityEngine.ParticleSystem"
+      }
+    },
+    "Chessboard": {
+      "Blaze": {
+        "by": "ChessboardListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Item"
+      },
+      "BlazeNPC": {
+        "by": null,
+        "reason": "game piece spawn; classified in dynamic-spawn-catalog.toml and exported as character spawns by DynamicSpawnSourceListener",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "Candlekeeper": {
+        "by": "ChessboardListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Item"
+      },
+      "CandlekeeperNPC": {
+        "by": null,
+        "reason": "game piece spawn; classified in dynamic-spawn-catalog.toml and exported as character spawns by DynamicSpawnSourceListener",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "Ember": {
+        "by": "ChessboardListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Item"
+      },
+      "EmberNPC": {
+        "by": null,
+        "reason": "game piece spawn; classified in dynamic-spawn-catalog.toml and exported as character spawns by DynamicSpawnSourceListener",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "Faceless": {
+        "by": "ChessboardListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Item"
+      },
+      "FacelessArc": {
+        "by": null,
+        "reason": "game piece spawn; classified in dynamic-spawn-catalog.toml and exported as character spawns by DynamicSpawnSourceListener",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "FacelessDru": {
+        "by": null,
+        "reason": "game piece spawn; classified in dynamic-spawn-catalog.toml and exported as character spawns by DynamicSpawnSourceListener",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "FacelessDuel": {
+        "by": null,
+        "reason": "game piece spawn; classified in dynamic-spawn-catalog.toml and exported as character spawns by DynamicSpawnSourceListener",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "FacelessPal": {
+        "by": null,
+        "reason": "game piece spawn; classified in dynamic-spawn-catalog.toml and exported as character spawns by DynamicSpawnSourceListener",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "FacelessReaver": {
+        "by": null,
+        "reason": "game piece spawn; classified in dynamic-spawn-catalog.toml and exported as character spawns by DynamicSpawnSourceListener",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "FacelessStorm": {
+        "by": null,
+        "reason": "game piece spawn; classified in dynamic-spawn-catalog.toml and exported as character spawns by DynamicSpawnSourceListener",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "Kingsman": {
+        "by": "ChessboardListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Item"
+      },
+      "KingsmanNPC": {
+        "by": null,
+        "reason": "game piece spawn; classified in dynamic-spawn-catalog.toml and exported as character spawns by DynamicSpawnSourceListener",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "Monarch": {
+        "by": "ChessboardListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Item"
+      },
+      "MonarchNPC": {
+        "by": null,
+        "reason": "game piece spawn; classified in dynamic-spawn-catalog.toml and exported as character spawns by DynamicSpawnSourceListener",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "Peon": {
+        "by": "ChessboardListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Item"
+      },
+      "PeonNPC": {
+        "by": null,
+        "reason": "game piece spawn; classified in dynamic-spawn-catalog.toml and exported as character spawns by DynamicSpawnSourceListener",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "ReplaceStatue": {
+        "by": "ChessboardListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Item"
+      },
+      "SpawnLoc": {
+        "by": null,
+        "reason": "spawn position of the game pieces; read by DynamicSpawnSourceListener through the catalog's position_field",
+        "status": "ignored",
+        "type": "UnityEngine.Transform"
       }
     },
     "GuildTopic": {
