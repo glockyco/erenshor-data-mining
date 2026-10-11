@@ -31,15 +31,14 @@ See `proposal.md` for the motivation. The state on 2026-10-03:
 flowchart LR
   DB[(clean SQLite)] --> PY[Python generators]
   PY --> MOD[Lua data modules<br/>bot-owned]
-  PY --> STO[Cargo storage pages<br/>bot-owned]
   MOD --> TPL[data-backed templates<br/>repository-owned]
+  MOD --> VIEW[view templates<br/>repository-owned]
   TPL --> ART[article: one template call per entity<br/>+ text that people write]
-  STO --> CARGO[(Cargo tables)]
-  COM[community rows<br/>ItemSource, SpawnPoint] --> CARGO
-  CARGO --> QT[query templates<br/>rosters, drops, vendor stock, overviews]
+  VIEW --> PAGES[pages that people own<br/>rosters, vendor stock, quest panels, overviews]
+  MOD --> OWN[modules that editors write]
 ```
 
-Python computes every fact and relationship from the clean database. Lua data modules feed the renderers that draw infoboxes, tooltips, and links by stable key. Storage pages fill complete Cargo tables, which editors query through documented templates, raw `#cargo_query`, and Special:CargoExport. Community rows join the same tables. Sections that collect data across entities and must show community rows, such as zone rosters and "dropped by", query Cargo.
+Python computes every fact and relationship from the clean database, and bot-owned Lua data modules carry the results. Entity modules feed the renderers that draw infoboxes, tooltips, and links by stable key. A view module holds the rows of one list that spans entities, keyed by the page that shows it, and a repository-owned view template renders it: zone rosters, vendor stock, class abilities, quest panels, and overviews (`publish-wiki-data-views`). Editors place view templates on their pages, and dedicated editors write their own modules against the documented data modules. The wiki stores no Cargo data (decided on 2026-10-11).
 
 A game update then deploys data pages and creates stubs for new entities. It edits an article only when the list of entities on the page changes. The spec `wiki-publishing` states this as requirements.
 
@@ -47,21 +46,25 @@ Rules for data pages:
 
 - Never change the structure of a live data page in place. Publish the new structure under a new title, move the readers to it, then remove the old page.
 - Each data module stays under the page size limit and is split into shards when it grows.
-- After a data deploy: purge the storage pages, compare the row counts with the database, then purge the pages that use query templates (`publish-wiki-cargo-data` D6).
+- After a data deploy, MediaWiki's job queue re-renders every page that uses a changed module. `wiki refresh-embedded` forces it when a check must see the new render at once.
 
-Alternative considered: render articles from Cargo queries only. Rejected on 2026-10-03: Lua data modules invalidate their users automatically when they change, Cargo query results stay cached until a purge, and a table change needs a sysop.
+Alternatives considered:
+
+- Render articles from Cargo queries only. Rejected on 2026-10-03: Lua data modules invalidate their users automatically when they change, Cargo query results stay cached until a purge, and a table change needs a sysop.
+- Fill Cargo tables from bot-owned storage pages, and render the lists that span entities with query templates (`publish-wiki-cargo-data`). Rejected on 2026-10-11: wiki.gg does not allow Cargo for data that a bot puts on central pages ([Cargo](https://support.wiki.gg/wiki/Cargo), "Do NOT use Cargo if"), each page that shows a query needs a purge after a data deploy, at 30 purges a minute for WoWBot, and a schema change needs a replacement table that an administrator switches in by hand. Comparable wikis keep exported data in Lua modules (WARFRAME, Terraria) and use Cargo or a similar store only for facts that people write on articles (Terraria, Path of Exile, Weird Gloop's Bucket).
+- A generic query layer in Lua over table-shaped modules, so that editors can write queries on the wiki. Rejected on 2026-10-11: the clean database and Python already answer queries, and a second query layer would need its own documentation, tests, and limits. A new list is a view: a builder and a module.
 
 ### D2. One owner for each kind of page and input
 
 | Page or input | Owner | Written by |
 |---|---|---|
-| `Module:Erenshor/Data/*`, `Erenshor Wiki:Cargo/*`, `Template:Cargo/*` | bot | generation and deploy commands only |
+| `Module:Erenshor/Data/*` | bot | generation and deploy commands only |
 | modules, templates, content pages, and gadgets under `wiki/` | repository | `wiki deploy-repo-pages` and `wiki deploy-interface` |
-| article text, overrides of owned fields, community rows, hand-written pages, the main page, the sidebar, and the `Erenshor Wiki:Community Portal` | people | editors |
+| article text, overrides of owned fields, hand-written pages, modules that editors write, the main page, the sidebar, and the `Erenshor Wiki:Community Portal` | people | editors |
 
 The repository is the source of each repository-owned page. When another account edits such a page, the deploy stops at the drift check (`refresh-wiki-articles` D6), and the edit goes into the repository source. The lock boundary of every write is the revision that the write was planned against. Until step 4 converts a type, its articles are shared: generated parameters and text that people write sit in one page, and the refresh merges them.
 
-The repository keeps no copy of a page that people own. Such a page changes on the wiki, by hand. Once steps 3 and 4 exist, a section of it can become template-maintained: a query template or a data-backed template call that people place in their page. A script or a repository copy never writes into it.
+The repository keeps no copy of a page that people own. Such a page changes on the wiki, by hand. Once steps 2 to 4 exist, a section of it can become template-maintained: a view template or a data-backed template call in the page. People place the call, or a reviewed one-time edit of step 3 does. After that, no script and no repository copy writes into the page.
 
 Every template that a generated article calls, directly or through another template, is repository-owned. On 2026-10-04 that added 20 templates that WoWMuch had built on the wiki: the item companions (`Item/General`, `Item/Aura`, `Item/Charm`, `Item/CharmScaling`, `Item/Consumable`, `Item/Mold`, `Item/SkillBook`, `Item/SpellScroll`), the weapon and armor tooltips that `Item/ParameterizedTooltip` expands (`Item/Weapon`, `Item/Armor`) with their parts (`Item/Header`, `Item/Stats`, `Item/Resists`, `Item/Vitals`, `Item/DPS`, `Item/ClassRestrictions`, `Item/Categories`, `Item/SpellDetails`, `SparkleIcon`), and `Zone Navbox`. Their repository text equals the live text, so taking them over changed nothing live. The local wiki then tests the real templates instead of the outdated copies it kept in `wiki-dev/fixtures/dependencies/`.
 
@@ -71,11 +74,11 @@ Each kind of human input has one home:
 |---|---|
 | Game behaviour that the export cannot see | code facts or the export, into the clean database |
 | A correction of how the export is read (name, identity, tier) | a `mapping.json` entry with a reason |
-| A fact that editors add and other pages need | a Cargo community row |
+| A fact that editors add and other pages need | a report on the talk page of `Erenshor Wiki:Game Data`, and then code facts, the export, or `mapping.json` |
 | Per-page presentation of an owned field | a parameter on the article |
 | Prose and strategy | article text |
 
-An article parameter is not a home for a missing fact: only its own page shows it, and the sheets, the map, the mods, and Cargo never see it.
+An article parameter is not the home of a missing fact: only its own page shows it, and the views, the sheets, the map, and the mods never see it. The owned field "other sources" shows an editor's source on its own page until the pipeline covers it. From step 4 on, when an entry links a source by its stable key and the data holds that source, the data-backed template adds the page to a tracking category, and an editor removes the entry. On 2026-10-11, the export held the source of 62 of the 63 item pages with an `othersource` value. The Shivering Torch is the exception (task 5.42).
 
 ### D3. Roadmap
 
@@ -83,15 +86,15 @@ An article parameter is not a home for a missing fact: only its own page shows i
 |---|---|---|
 | 0. Cleanup | this change, task groups 1 to 4 | CI and the local wiki suite pass, and a full repository-page dry run lists only intended pages with a clean render check |
 | 1. Refresh | `refresh-wiki-articles` | it is archived after its live checks |
-| 2. Cargo | `publish-wiki-cargo-data`, plus a change that models four runtime item mechanics (D11) | both are archived |
-| 3. Hand-maintained tables | a change that this plan proposes (task 7.1) | every table listed below renders from a query template |
+| 2. Data views | `publish-wiki-data-views`, plus a change that models four runtime item mechanics (D11) | both are archived |
+| 3. Hand-maintained tables | the slices of `publish-wiki-data-views`: each slice replaces the tables that its view covers | every table listed below renders from a view template |
 | 4. Conversion | a change, or one for each type, that this plan proposes (task 8.1) | every type is converted, and the merge engine is deleted |
 
-Step 0 lands before task 6.2, so that 6.2 deploys the cleaned pages once. Step 2 needs the `cargoadmin` grant for `WoWMuch@InterfaceDeploy` at Special:BotPasswords.
+Step 0 lands before task 6.2, so that 6.2 deploys the cleaned pages once. Steps 2 and 3 share one change: each slice publishes one view and replaces the tables that it covers, so that no view ships without a page that uses it (decided on 2026-10-11).
 
-Step 3 replaces these tables, found on 2026-10-03: the enemy tables on Port Azure and Abyssal Lake (zone rosters), the vendor tables on NPC pages such as Breena Carpenter, the "Abilities and Spells" tables on the class pages and the Ability Books page, and the Zones and Quests overviews. Editors keep the zone, class, and overview tables by hand. The vendor tables of about 54 NPC pages are written by `src/tools/update_vendor_inventory_tables.py`, a script outside `erenshor` that found 37 of them stale or missing on 2026-07-16. Step 3 replaces them with the `Vendor stock` query template and deletes that script, `src/tools/generate_vendor_inventory_tables.py`, `src/erenshor/tools/vendor_inventory_tables.py`, and their tests. It announces each replacement on the wiki first, keeps the notes that editors wrote (such as the notes column on Zones), and reviews each page, because it changes text that other people wrote.
+Step 3 replaces these tables, found on 2026-10-03: the enemy tables on Port Azure and Abyssal Lake (zone rosters), the vendor tables on NPC pages such as Breena Carpenter, the "Abilities and Spells" tables on the class pages and the Ability Books page, and the Zones and Quests overviews. Editors keep the zone, class, and overview tables by hand. The vendor tables of about 54 NPC pages are written by `src/tools/update_vendor_inventory_tables.py`, a script outside `erenshor` that found 37 of them stale or missing on 2026-07-16. Step 3 replaces them with the `Vendor stock` view template and deletes that script, `src/tools/generate_vendor_inventory_tables.py`, `src/erenshor/tools/vendor_inventory_tables.py`, and their tests. It announces each replacement on the wiki first, keeps the notes that editors wrote (such as the notes column on Zones), and reviews each page, because it changes text that other people wrote.
 
-Step 4 converts one type at a time: Stance, abilities, zones, characters, items. Quest pages stay hand-written and get the Cargo quest panel of step 2. For each type:
+Step 4 converts one type at a time: Stance, abilities, zones, characters, items. Quest pages stay hand-written and get the quest panel of step 2. For each type:
 
 1. Generate compact data modules in shards under the size limit.
 2. Add the type's data-backed template under a new name. The conversion change decides the names, the owned-field set of each type, and the tracking category for parameters that cannot override data.
@@ -101,15 +104,16 @@ Step 4 converts one type at a time: Stance, abilities, zones, characters, items.
 
 Step 4 also has to settle these known points:
 
-- Editor entries in the merged item fields `type`, `questsource`, and `relatedquest` need a home, possibly a community row type.
+- Editor entries in the merged item fields `type`, `questsource`, and `relatedquest` need a home: an owned field of the item template, or the pipeline. The template marks the entries that the data covers (D2).
 - 361 character keys contain coordinates. When an update moves such a spawn, its key changes, and the reconciler must edit that page.
 - The ability templates emit categories for spells, skills, and stances, which the legacy generator never did (from #110).
 - The item template shows `item_db_index`, the ID that the in-game `/additem` command uses (from #113).
 - Template:Character shows fewer stats than generation writes: mana, the seven attributes, the XP multiplier, and the level variance stay hidden, and its Base Experience and class rows are never filled. Decided on 2026-10-05 to settle this with the character template of this step.
+- The item shards of `Module:Erenshor/Data/Items`, 6.5 MB, are live, and no page reads them: `Module:Erenshor/Link` reads them only through `itemRecord`, which no template calls. The item conversion is their first reader, and it measures the Lua cost of the heaviest item page before it converts the pages.
 
 After the last type, the merge engine (`field_preservation.py` and the passes around it), the Jinja article templates, and the full-article refresh go. The guarded deploy stays for stubs and template-call edits.
 
-The remaining work follows this order, decided on 2026-10-05. Small data fixes come first, because each corrects a live page or an input of a later step: the crafting rule (task 5.21, done the same day), the audit of renamed copies (task 5.20), the export of the chat knowledge base (tasks 5.22 to 5.24), and the forge quantity and guaranteed roll count that task 5.21 brought to light (tasks 5.25 and 5.26). Treasure hunting (tasks 5.29 to 5.32, D16) and the fixes it brought to light follow: the effective stats and start order of NPCs (tasks 5.33 and 5.35), the training dummies (task 5.34, D17), and the Reliquary furnishings (task 5.36, D18). The missing images (task 5.15) follow. Their uploads showed that the icon pipeline re-sends every file and resolves 13 icons to the wrong texture, so the rebuild of the image pipeline (task 5.37, decided on 2026-10-06) comes next: it corrects pictures that are live, and the Cargo tables of step 2 store picture titles from its catalog. Renders of every character in one look (task 5.38) follow it, because they use its catalog and its publication, and most character pictures are editors' uploads that need a decision with the editors. Character portraits on the map (task 5.39) come after them, because they show only the catalog's renders. The tooltip check (task 5.19) follows. The C# tooling majors of the dependency dashboard come before step 2, because the code facts of task 6.2 depend on that tooling. Steps 2, 3, and 4 follow, and then the other dependency majors.
+The remaining work follows this order, decided on 2026-10-05. Small data fixes come first, because each corrects a live page or an input of a later step: the crafting rule (task 5.21, done the same day), the audit of renamed copies (task 5.20), the export of the chat knowledge base (tasks 5.22 to 5.24), and the forge quantity and guaranteed roll count that task 5.21 brought to light (tasks 5.25 and 5.26). Treasure hunting (tasks 5.29 to 5.32, D16) and the fixes it brought to light follow: the effective stats and start order of NPCs (tasks 5.33 and 5.35), the training dummies (task 5.34, D17), and the Reliquary furnishings (task 5.36, D18). The missing images (task 5.15) follow. Their uploads showed that the icon pipeline re-sends every file and resolves 13 icons to the wrong texture, so the rebuild of the image pipeline (task 5.37, decided on 2026-10-06) comes next: it corrects pictures that are live, and the link catalog that every view reads names its pictures from that catalog. Renders of every character in one look (task 5.38) follow it, because they use its catalog and its publication, and most character pictures are editors' uploads that need a decision with the editors. Character portraits on the map (task 5.39) come after them, because they show only the catalog's renders. The tooltip check (task 5.19) follows. The C# tooling majors of the dependency dashboard come before step 2, because the code facts of task 6.2 depend on that tooling. The data fixes that the decision of 2026-10-11 brought to light (tasks 5.40 to 5.43) come next, then steps 2, 3, and 4, and then the other dependency majors.
 
 The local wiki stack stays on MySQL 8, because the live wiki runs MySQL 8.0.45. A Renovate rule holds the `mysql` image of `wiki-dev/compose.yml` at 8.x.
 
@@ -128,14 +132,14 @@ Alternatives considered:
 
 | Part | Why it can go now |
 |---|---|
-| Article Cargo: declarations, stores, store and query templates, `ArmorTable`, `WeaponTable`, `AbilityClasses`, `Module:Erenshor/Cargo`, `cargoStore` entry points, `wiki-dev/cargo_check.py` and its article-row fixtures | No live page stores or queries rows. `publish-wiki-cargo-data` stores rows on storage pages, and its task 3.3 adds the local storage-page checks. |
+| Article Cargo: declarations, stores, store and query templates, `ArmorTable`, `WeaponTable`, `AbilityClasses`, `Module:Erenshor/Cargo`, `cargoStore` entry points, `wiki-dev/cargo_check.py` and its article-row fixtures | No live page stores or queries rows, and the plan stores no Cargo data (D1). |
 | Templates `Spell` and `Skill` | No live page uses them. The tooltips call the modules directly. |
 | The data path of `Template:ItemTooltip`, `Module:Erenshor/Item`, and `Item/Tooltip` | All 793 item tooltips pass `kind` and render through `Item/ParameterizedTooltip`. The hover cards read the tooltip that is on the target page. No other template calls `Module:Erenshor/Item`. |
 | `field`, `status`, and their accessors in the Stance, Spell, and Skill modules | Only the removed Lua branches call them. |
 | The application of article parameters over the data in the Stance, Spell, and Skill resolvers | Every caller passes only `stablekey`: 348 Spell, 51 Skill, and 7 Stance tooltips in the generated pages. |
 | Character, Quest, and Zone modules and the writers of their data modules | Only the removed branches and `MapLink` call them. The Python repositories stay, because item provenance, spell relationships, and the link catalog read them. |
 | `override_classifier.py`, `override_migration.py`, `wiki review-overrides` | They implement the July rule that every differing value is an override, which D2 replaces. |
-| `src/erenshor/tools/wiki_cargo_probe/` | It tested the July article storage. No task of the Cargo change uses it. |
+| `src/erenshor/tools/wiki_cargo_probe/` | It tested the July article storage. No later task uses it. |
 | `wiki-dev` pages that pass `lua=1` | They test only the removed branches. |
 | `wiki inventory-templates`, `src/erenshor/application/wiki_inventory/`, and `wiki/ownership.yml` | The inventory was the readiness checklist of the July cutover, with a `cutover_blocking` flag on each template. Nothing reads it. The data guide of D12 lists the repository's templates from `wiki/templates/`. |
 | The copies of people-owned pages: `wiki/Erenshor_Wiki.txt`, `wiki/Erenshor_Wiki.styles.css`, `wiki/MediaWiki_Sidebar.txt`, `wiki/Raids.txt`, `wiki/Zones.txt`, `wiki/mechanics/` with its images, and `wiki/images/` | No command deploys them, and two were already older than the live pages. The live pages are the source. The two unpublished mechanics drafts, `Critical Strikes` and `Chant Control and Resonance`, are dropped on 2026-10-04, and the history keeps them. |
@@ -195,9 +199,9 @@ Each of the 19 open wiki issues was checked on 2026-10-03 against the code, the 
 | Issue | Finding | Where it goes |
 |---|---|---|
 | #293, #294 | current decisions | D3, steps 4 and 3 |
-| #115 Cargo setup | superseded | `publish-wiki-cargo-data` |
-| #288 quest strategy | decided on 2026-10-03 | D3: quest pages stay hand-written, with the Cargo quest panel |
-| #285 deferred item mechanics | the global world-drop pool is modeled. Smithing merge and Planar Shard blessing removal are `ItemUses` of `publish-wiki-cargo-data` task 5.4. Four are open: the Chessboard Candlekeeper mold conversion (`Chessboard.cs:107-112`), the Time Stone scene gate (`SpellVessel.cs:2277-2284`), the Braxonian Flame Well quality ritual (`TradeWindow.cs:175-255`, called at line 321), and the 1-in-20 fished Map (`Fishing.cs:69-74`) | a change that adds code facts and processor mappings for the four, before `ItemSources` and `ItemUses` go live (task 6.2) |
+| #115 Cargo setup | superseded | `publish-wiki-cargo-data`, which `publish-wiki-data-views` replaced on 2026-10-11 (D1) |
+| #288 quest strategy | decided on 2026-10-03 | D3: quest pages stay hand-written, with the quest panel of step 2 |
+| #285 deferred item mechanics | the global world-drop pool is modeled. Smithing merge and Planar Shard blessing removal come from the code fact `smithing.upgrade_ids` through the item repository, and the generated item pages describe them. Four are open: the Chessboard Candlekeeper mold conversion (`Chessboard.cs:107-112`), the Time Stone scene gate (`SpellVessel.cs:2277-2284`), the Braxonian Flame Well quality ritual (`TradeWindow.cs:175-255`, called at line 321), and the 1-in-20 fished Map (`Fishing.cs:69-74`) | a change that adds code facts and processor mappings for the four (task 6.2), and task 5.43, which shows them on the item pages |
 | #299 zone categories | four generated zone categories are redirects and six have no page | categories use the zone page titles (task 3.4) |
 | #110 categories | item and character categories exist. Spell, skill, and stance pages get none | D3, step 4 |
 | #113 item ID | `items.item_db_index` exists, no page shows it | D3, step 4 |
@@ -214,7 +218,7 @@ Each of the 19 open wiki issues was checked on 2026-10-03 against the code, the 
 Two pages, with one owner each. The PoE, WARFRAME, and Abiotic Factor wikis use the same split: a community portal that links everything, and a separate guide to the data pipeline.
 
 - `Erenshor Wiki:Community Portal`, owned by people, is the entry point. It covers getting started, the rules and conventions (with the community templates that Kyrros maintains), things to do (wanted pages, the `Potentially Missing Wiki Data` project, the maintenance categories), discussion (its talk page and Discord `#wiki-chat`), the administrators, and a link to the data guide. A first version is drafted, reviewed by WoWMuch, and created from WoWMuch's account. After that, the community owns it, and the repository keeps no copy.
-- `Erenshor Wiki:Game Data`, owned by the repository (`wiki/content/Erenshor Wiki/Game Data.wiki`), is the data guide. It covers how data moves from the game build to the wiki and which build is live, who owns which pages (D2 in the words of an editor), the fields of each generated template that keep an editor's value at a refresh, where a fact that the export misses goes, how to report wrong data, the semantic link templates with the link picker and the tooltips, and the maintenance categories with what to do about each. `Erenshor Wiki:Cargo` of `publish-wiki-cargo-data` becomes its child page.
+- `Erenshor Wiki:Game Data`, owned by the repository (`wiki/content/Erenshor Wiki/Game Data.wiki`), is the data guide. It covers how data moves from the game build to the wiki and which build is live, who owns which pages (D2 in the words of an editor), the fields of each generated template that keep an editor's value at a refresh, where a fact that the export misses goes, how to report wrong data, the semantic link templates with the link picker and the tooltips, and the maintenance categories with what to do about each. Its section on views lists the view templates and the data modules that editors' own modules can read (`publish-wiki-data-views` D7).
 - Reports of wrong data go to Discord `#wiki-chat` for discussion and to the talk page of `Erenshor Wiki:Game Data` as the record. Confirmed work moves into OpenSpec.
 - `User:WoWBot` becomes a short card: what the bot is, who runs it, and a link to the data guide. The field table then exists only in the guide.
 - The sidebar gets a "Community" group with the portal, the data guide, and the wiki rules. The main page's "Contribute" box links the portal and no longer links `Category:Unknown Item Source`. People own both pages, so WoWMuch makes these edits.
@@ -323,7 +327,7 @@ Decided on 2026-10-06:
 - [The `Template:Item` deploy reparses about 1,500 pages] → The render check must show no visible change before the write. The job queue spreads the reparse.
 - [The default selection misses an error that one unusual data entry triggers] → A full check is one option away. Each article deploy still parses every page before it writes it (`refresh-wiki-articles` D5). Scribunto testcases and the local stack cover the modules.
 - [Coupled changes give provisional dry-run results] → The real deploy checks each page again directly before its write, after the pages it depends on.
-- [Article Cargo goes before the Cargo change stores anything] → No live page stores or queries rows today, so no data is lost.
+- [Article Cargo goes without a replacement] → No live page stores or queries rows, so no data is lost.
 - [This change stays open for months, and its spec reaches `openspec/specs/` only at the end] → The skill, the README, and `openspec/config.yaml` link it, and `tasks.md` shows the progress.
 
 ## Migration Plan

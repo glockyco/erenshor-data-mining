@@ -6,12 +6,12 @@ Defines who owns each kind of page and input on the Erenshor wiki, how generated
 
 ### Requirement: Generated values live only on bot-owned pages
 
-Generated game data SHALL reach the wiki only through bot-owned pages: the Lua data modules under `Module:Erenshor/Data/` and the Cargo storage pages under `Erenshor Wiki:Cargo/`. After an entity type is converted, each article of that type SHALL hold, for each entity it describes, one call of the type's data-backed template with the entity's stable key, and otherwise only text that people write.
+Generated game data SHALL reach the wiki only through the bot-owned Lua data modules under `Module:Erenshor/Data/`. After an entity type is converted, each article of that type SHALL hold, for each entity it describes, one call of the type's data-backed template with the entity's stable key, and otherwise only text that people write.
 
 #### Scenario: A game update changes a stat
 
 - **WHEN** a new game build changes the damage of a converted item
-- **THEN** the refresh changes the item's data module and its Cargo storage page
+- **THEN** the refresh changes the item's data module
 - **AND** the refresh changes no article
 
 #### Scenario: A converted article holds no generated value
@@ -21,7 +21,7 @@ Generated game data SHALL reach the wiki only through bot-owned pages: the Lua d
 
 ### Requirement: Only fields that people own can be overridden
 
-A data-backed template SHALL let an article override only the fields that people own: the image, the image caption, other sources, and the location, and on zone pages also the level, the type, the connections, and the map link. A parameter for any other field SHALL NOT change the rendered value, and the page SHALL join a tracking category that names the parameter.
+A data-backed template SHALL let an article override only the fields that people own: the image, the image caption, other sources, and the location, and on zone pages also the level, the type, the connections, and the map link. A parameter for any other field SHALL NOT change the rendered value, and the page SHALL join a tracking category that names the parameter. When an entry of other sources links an entity by its stable key, and the data module holds that entity as a source, the page SHALL join a tracking category for editor entries that the data covers.
 
 #### Scenario: An editor sets an owned field
 
@@ -33,6 +33,11 @@ A data-backed template SHALL let an article override only the fields that people
 - **WHEN** an item article passes `damage=99` to its data-backed template
 - **THEN** the infobox shows the damage from the data module
 - **AND** the page joins the tracking category for parameters that cannot override data
+
+#### Scenario: The data catches up with an editor's source
+
+- **WHEN** an item article lists `{{QuestLink|stablekey=quest:shiver-torch}}` under other sources, and a new build exports that quest as a source of the item
+- **THEN** the page joins the tracking category for editor entries that the data covers
 
 ### Requirement: Pages say where their data comes from
 
@@ -77,6 +82,15 @@ After an entity type is converted, a refresh SHALL edit an article of that type 
 - **WHEN** a page calls `{{MapLink|zone=Azure}}`
 - **THEN** the link points at the interactive map with the selector `zone:Azure`
 - **AND** the render loads no generated data module
+
+### Requirement: The wiki stores no Cargo data
+
+No page source under `wiki/` SHALL declare, attach, store, or query Cargo data. A check SHALL fail and name each file that does.
+
+#### Scenario: A template stores a Cargo row
+
+- **WHEN** a commit adds `{{#cargo_store:` to a template under `wiki/templates/`
+- **THEN** the check fails and names the template's file
 
 ### Requirement: Repository pages deploy only with their dependencies
 

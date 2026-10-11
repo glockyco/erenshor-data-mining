@@ -13,10 +13,10 @@ Keep generated articles, repository-owned pages, and interface gadgets on their 
 The plan for the wiki is the OpenSpec change `adopt-data-backed-wiki`. Read its `design.md` before any wiki change. Older plans, issues, and notes do not count.
 
 - Track wiki work only in OpenSpec. Do not open GitHub issues for wiki work.
-- The legacy templates `Item`, `Character`, `Ability`, `Stance`, `Quest`, `Zone`, and `MapLink` render only their parameters. They call no module and store no Cargo row. Do not add a Lua branch or a `lua=1` switch. `stablekey` is an identity, never a switch.
+- The legacy templates `Item`, `Character`, `Ability`, `Stance`, `Quest`, `Zone`, and `MapLink` render only their parameters. They call no module. Do not add a Lua branch or a `lua=1` switch. `stablekey` is an identity, never a switch.
 - Data-backed rendering comes with new templates in step 4 of the plan, not with changes to the legacy templates.
-- Generated data lives on bot-owned pages: `Module:Erenshor/Data/*` and, with the Cargo work, `Erenshor Wiki:Cargo/*`. Articles do not store Cargo rows.
-- A fact the export misses goes into code facts or the export. A correction of how the export is read goes into `mapping.json` with a reason. A fact that editors add goes into a Cargo community row. Article parameters only present fields that people own.
+- Generated data lives only on the bot-owned `Module:Erenshor/Data/*` pages. A list that spans entities, such as a vendor's stock, is a view: a generated data module keyed by the page's entity, a repository module, and a template (`publish-wiki-data-views`). The wiki stores no Cargo data, so no page under `wiki/` declares, stores, or queries it.
+- A fact the export misses goes into code facts or the export. A correction of how the export is read goes into `mapping.json` with a reason. An editor's fact goes into the pipeline after a report on the talk page of `Erenshor Wiki:Game Data`. Article parameters only present fields that people own.
 - Do not change the structure of a live data module in place. Publish the new structure under a new title, move the readers, then remove the old page.
 - Every live write needs approval after a dry run. Read the dry run's whole output before asking: `grep` drops the lines that Rich wraps and the warnings it was not written for. The bot cannot delete pages, and wiki.gg limits it to 8 moves a minute, so publishing images moves and deletes files with the administrator account. The plan's task group 9 lists the pages for an administrator.
 - Show a visible change to the user as a screenshot of the local wiki before the live deploy. Code, a spec, or the game's UI is not the user's taste.

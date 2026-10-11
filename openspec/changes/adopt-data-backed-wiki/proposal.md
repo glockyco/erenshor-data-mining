@@ -9,8 +9,8 @@ This change writes the whole plan down in one place, removes everything that ser
 - This change holds the plan for the data-backed wiki: the target, the ownership rules, the order of the steps, and the wiki work that has not started yet. OpenSpec is the only tracker for wiki work. This change stays open until the last step is done.
   0. Clean up: this change's own tasks.
   1. Refresh the stale articles: `refresh-wiki-articles`.
-  2. Publish complete Cargo tables: `publish-wiki-cargo-data`.
-  3. Replace the hand-maintained tables with Cargo query templates: a change that this plan proposes when step 2 is done.
+  2. Publish views of generated data, Lua modules that render lists across entities: `publish-wiki-data-views`. It replaced `publish-wiki-cargo-data` on 2026-10-11, because wiki.gg does not allow Cargo for data that a bot puts on central pages.
+  3. Replace the hand-maintained tables with those views: the slices of the same change.
   4. Convert the articles to new data-backed templates, one type at a time: a change that this plan proposes when step 3 is done.
 - **BREAKING**: `Template:Item`, `Character`, `Ability`, `Stance`, `Quest`, `Zone`, and `MapLink` become plain parameter templates. They call no module, have no `lua=1` switch, and store no Cargo row. `stablekey` identifies an entity and does not change the rendering. `Template:Character` keeps the Elite and Chest tiers that the refresh needs. After this cleanup, these templates change only in compatible ways: they never lose or rename a parameter.
 - **BREAKING**: These parts of the old plans are removed:
@@ -46,7 +46,7 @@ None. The `lua=1` requirement of `refresh-wiki-articles` is corrected inside tha
 
 - Code: `wiki/`, `src/erenshor/application/wiki_lua/`, `src/erenshor/application/wiki_deploy/`, `src/erenshor/application/wiki_inventory/`, `src/erenshor/cli/commands/wiki.py`, `src/erenshor/tools/wiki_cargo_probe/`, `src/tools/`, `wiki-dev/`, `config.toml`, and their tests.
 - Live wiki: task 6.2 of `refresh-wiki-articles` deploys the cleaned pages, among them `Template:Character`, `Template:Item`, and `Template:ItemTooltip`, after a dry run, the render check, and approval. The data guide, `Module:Erenshor/Data/Build`, and a shorter `User:WoWBot` deploy the same way. WoWMuch creates the community portal and edits the sidebar and the main page. The pages that then have no user go on the deletion list of this change.
-- Other changes: `refresh-wiki-articles` loses the `lua=1` lock, its task 6.2 deploys every cleaned page that differs, and its canary waits for the contributor pages. `publish-wiki-cargo-data` loses its `lua=1` prerequisite and its article-path removal, which this cleanup does, and its Cargo hub becomes a child of the data guide.
+- Other changes: `refresh-wiki-articles` loses the `lua=1` lock, its task 6.2 deploys every cleaned page that differs, and its canary waits for the contributor pages. `publish-wiki-cargo-data` lost its `lua=1` prerequisite and its article-path removal to this cleanup. `publish-wiki-data-views` replaced it on 2026-10-11, and the data guide documents its views.
 - GitHub: the 19 open wiki issues are closed after their verified work moves into OpenSpec. Issues of other areas stay open.
 - Migration boundary: the cleanup lands before task 6.2 of `refresh-wiki-articles`, and the contributor pages before its task 6.4. Every live write needs approval after a dry run and the render check.
 - Non-goals: the work of steps 1 to 4, which their own changes do. The names of the new data-backed templates, which the conversion change decides. A redesign of the main page, the wiki rules, and a style guide, which belong to the people who own those pages.
