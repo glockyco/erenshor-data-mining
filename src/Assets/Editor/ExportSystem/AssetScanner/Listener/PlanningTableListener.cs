@@ -5,17 +5,18 @@ using SQLite;
 using UnityEngine;
 
 /// <summary>
-/// Exports the characters that the furnishings of the Reliquary's <c>PlanningTable</c>
-/// place. When it starts, the table collects the children of its room and statue slots,
+/// Exports the furnishings of the Reliquary's <c>PlanningTable</c> and the characters that
+/// they place. When it starts, the table collects the children of its room and statue slots,
 /// and building a slot turns on the child that the slot's furniture item names and turns
 /// off the others. A character under such a child stands in the world only while the
-/// player's furniture set builds it.
+/// player's furniture set builds it, and the item renders show the child itself.
 /// </summary>
 public class PlanningTableListener : IAssetScanListener<PlanningTable>
 {
     private readonly SQLiteConnection _db;
     private readonly CharacterStableKeyResolver _characterKeyResolver;
     private readonly Dictionary<string, PlanningTableCharacterRecord> _records = new();
+    private readonly List<PlanningTableFurnishingRecord> _furnishings = new();
 
     public PlanningTableListener(
         SQLiteConnection db,
@@ -30,13 +31,21 @@ public class PlanningTableListener : IAssetScanListener<PlanningTable>
     {
         _db.CreateTable<PlanningTableCharacterRecord>();
         _db.DeleteAll<PlanningTableCharacterRecord>();
+        _db.CreateTable<PlanningTableFurnishingRecord>();
+        _db.DeleteAll<PlanningTableFurnishingRecord>();
         _records.Clear();
+        _furnishings.Clear();
     }
 
     public void OnScanFinished()
     {
-        _db.RunInTransaction(() => _db.InsertAll(_records.Values));
+        _db.RunInTransaction(() =>
+        {
+            _db.InsertAll(_records.Values);
+            _db.InsertAll(_furnishings);
+        });
         _records.Clear();
+        _furnishings.Clear();
     }
 
     public void OnAssetFound(PlanningTable asset)
@@ -81,6 +90,15 @@ public class PlanningTableListener : IAssetScanListener<PlanningTable>
             for (var i = 0; i < slot.childCount; i++)
             {
                 var furnishing = slot.GetChild(i);
+                _furnishings.Add(
+                    new PlanningTableFurnishingRecord
+                    {
+                        Scene = scene,
+                        Slot = slotName,
+                        Furnishing = furnishing.name,
+                        RendererCount = furnishing.GetComponentsInChildren<Renderer>(true).Length,
+                    }
+                );
                 foreach (var character in furnishing.GetComponentsInChildren<Character>(true))
                 {
                     AddCharacter(scene, slotName, furnishing.name, character);

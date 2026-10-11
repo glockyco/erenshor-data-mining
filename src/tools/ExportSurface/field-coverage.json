@@ -39,7 +39,9 @@
     "KnowledgeDatabaseAsset",
     "KnowledgeDatabaseAsset/Entry",
     "PlanningTable",
-    "TestDummy"
+    "TestDummy",
+    "ModularPar",
+    "ModularParts"
   ],
   "fields": {
     "AchievementTrigger": {
@@ -6308,6 +6310,334 @@
         "reason": null,
         "status": "captured",
         "type": "System.Int32"
+      }
+    },
+    "ModularPar": {
+      "Male": {
+        "by": "ItemModelPartListener",
+        "reason": null,
+        "status": "captured",
+        "type": "ModularParts"
+      },
+      "Female": {
+        "by": "ItemModelPartListener",
+        "reason": null,
+        "status": "captured",
+        "type": "ModularParts"
+      },
+      "MaleBase": {
+        "by": null,
+        "reason": "the male body's base meshes, which no item turns on",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "FemaleBase": {
+        "by": null,
+        "reason": "the female body's base meshes, which no item turns on",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "AllBase": {
+        "by": null,
+        "reason": "the base meshes that both bodies share, which no item turns on",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "AllSparkles": {
+        "by": null,
+        "reason": "runtime quality sparkle effects",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      }
+    },
+    "ModularParts": {
+      "Gender": {
+        "by": null,
+        "reason": "the body is read from the ModularPar field that holds it",
+        "status": "ignored",
+        "type": "System.String"
+      },
+      "Empty": {
+        "by": null,
+        "reason": "the empty item that clears a slot",
+        "status": "ignored",
+        "type": "Item"
+      },
+      "Hair": {
+        "by": null,
+        "reason": "body parts that the player's appearance sets, not items",
+        "status": "ignored",
+        "type": "UnityEngine.Transform"
+      },
+      "HeadCover": {
+        "by": "ItemModelPartListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "FullHeadHelm": {
+        "by": "ItemModelPartListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "FaceCover": {
+        "by": null,
+        "reason": "no item slot fills this transform in UpdatePlayerVisuals",
+        "status": "ignored",
+        "type": "UnityEngine.Transform"
+      },
+      "HatWithHair": {
+        "by": "ItemModelPartListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "HelmetAttachment": {
+        "by": null,
+        "reason": "no item slot fills this transform in UpdatePlayerVisuals",
+        "status": "ignored",
+        "type": "UnityEngine.Transform"
+      },
+      "Cloak": {
+        "by": "ItemModelPartListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "ShoulderL": {
+        "by": "ItemModelPartListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "ShoulderR": {
+        "by": "ItemModelPartListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "KneeR": {
+        "by": "ItemModelPartListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "KneeL": {
+        "by": "ItemModelPartListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "WeaponR": {
+        "by": "ItemModelPartListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "WeaponL": {
+        "by": "ItemModelPartListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "Chest": {
+        "by": "ItemModelPartListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "ArmR": {
+        "by": "ItemModelPartListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "ArmL": {
+        "by": "ItemModelPartListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "BracerL": {
+        "by": "ItemModelPartListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "BracerR": {
+        "by": "ItemModelPartListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "GloveL": {
+        "by": "ItemModelPartListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "GloveR": {
+        "by": "ItemModelPartListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "Pants": {
+        "by": "ItemModelPartListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "BootsL": {
+        "by": "ItemModelPartListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "BootsR": {
+        "by": "ItemModelPartListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "ElbowR": {
+        "by": "ItemModelPartListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "ElbowL": {
+        "by": "ItemModelPartListener",
+        "reason": null,
+        "status": "captured",
+        "type": "UnityEngine.Transform"
+      },
+      "Head": {
+        "by": null,
+        "reason": "body parts that the player's appearance sets, not items",
+        "status": "ignored",
+        "type": "UnityEngine.Transform"
+      },
+      "Eyebrows": {
+        "by": null,
+        "reason": "body parts that the player's appearance sets, not items",
+        "status": "ignored",
+        "type": "UnityEngine.Transform"
+      },
+      "HeadSparkle": {
+        "by": null,
+        "reason": "runtime quality sparkle effect",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "ArmSparkle": {
+        "by": null,
+        "reason": "runtime quality sparkle effect",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "WristSparkle": {
+        "by": null,
+        "reason": "runtime quality sparkle effect",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "LegSparkle": {
+        "by": null,
+        "reason": "runtime quality sparkle effect",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "ChestSparkle": {
+        "by": null,
+        "reason": "runtime quality sparkle effect",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "HandSparkle": {
+        "by": null,
+        "reason": "runtime quality sparkle effect",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "FootSparkle": {
+        "by": null,
+        "reason": "runtime quality sparkle effect",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "BackSparkle": {
+        "by": null,
+        "reason": "runtime quality sparkle effect",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "MHSparkle": {
+        "by": null,
+        "reason": "runtime quality sparkle effect",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "OHSparkle": {
+        "by": null,
+        "reason": "runtime quality sparkle effect",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "Eyebrow": {
+        "by": null,
+        "reason": "body parts that the player's appearance sets, not items",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "HalloweenMasks": {
+        "by": "ItemModelPartListener",
+        "reason": null,
+        "status": "captured",
+        "type": "System.Collections.Generic.List`1<UnityEngine.GameObject>"
+      },
+      "HairName": {
+        "by": null,
+        "reason": "the player's chosen appearance",
+        "status": "ignored",
+        "type": "System.String"
+      },
+      "HairCol": {
+        "by": null,
+        "reason": "the player's chosen appearance",
+        "status": "ignored",
+        "type": "UnityEngine.Color"
+      },
+      "SkinCol": {
+        "by": null,
+        "reason": "the player's chosen appearance",
+        "status": "ignored",
+        "type": "UnityEngine.Color"
+      },
+      "Beard": {
+        "by": null,
+        "reason": "the player's chosen appearance",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "BeardCol": {
+        "by": null,
+        "reason": "the player's chosen appearance",
+        "status": "ignored",
+        "type": "UnityEngine.Color"
+      },
+      "Shader": {
+        "by": null,
+        "reason": "the shader that recolours parts at run time",
+        "status": "ignored",
+        "type": "UnityEngine.Shader"
+      },
+      "isSimPlayer": {
+        "by": null,
+        "reason": "runtime flag of simulated players",
+        "status": "ignored",
+        "type": "System.Boolean"
       }
     }
   }

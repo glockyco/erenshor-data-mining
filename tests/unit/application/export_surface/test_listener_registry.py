@@ -45,6 +45,7 @@ EXPECTED_KEYS = {
     "arenarounds",
     "planarbosses",
     "planningtable",
+    "itemmodelparts",
     "itemdrops",
     "specialworlddrops",
     "miningnodes",

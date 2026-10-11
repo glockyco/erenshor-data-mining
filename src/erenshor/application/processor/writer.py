@@ -543,6 +543,31 @@ CREATE TABLE special_world_drops (
     PRIMARY KEY (item_stable_key, pool)
 );
 
+-- The descendants of the slot transforms of the player's male and female bodies,
+-- and the mask objects, that equipping an item turns on by its
+-- equipment_to_activate. meshes lists the meshes that a part draws, sorted and
+-- joined by "|", so two bodies draw an item alike when their parts of its name
+-- list the same meshes.
+CREATE TABLE item_model_parts (
+    body        TEXT NOT NULL,
+    slot        TEXT NOT NULL,
+    position    INTEGER NOT NULL,
+    part        TEXT NOT NULL,
+    meshes      TEXT NOT NULL,
+    PRIMARY KEY (body, slot, position)
+);
+
+-- The furnishings of the Reliquary planning table's slots. Building a slot
+-- turns on the furnishing whose name is the furniture set's
+-- equipment_to_activate.
+CREATE TABLE planning_table_furnishings (
+    scene           TEXT NOT NULL,
+    slot            TEXT NOT NULL,
+    furnishing      TEXT NOT NULL,
+    renderer_count  INTEGER NOT NULL,
+    PRIMARY KEY (scene, slot, furnishing)
+);
+
 -- Items that a game mechanic turns into another item, such as the
 -- Chessboard giving back a mold for the Candlekeeper figurine.
 CREATE TABLE item_conversions (
@@ -1647,6 +1672,12 @@ class Writer:
 
     def insert_special_world_drops(self, rows: list[dict[str, object]]) -> int:
         return self._insert("special_world_drops", rows)
+
+    def insert_item_model_parts(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("item_model_parts", rows)
+
+    def insert_planning_table_furnishings(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("planning_table_furnishings", rows)
 
     def insert_item_conversions(self, rows: list[dict[str, object]]) -> int:
         return self._insert("item_conversions", rows)

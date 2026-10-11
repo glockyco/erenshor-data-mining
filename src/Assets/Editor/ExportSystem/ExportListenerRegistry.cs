@@ -365,6 +365,14 @@ public static class ExportListenerRegistry
                     )
             ),
             new(
+                "itemmodelparts",
+                "Item Model Parts",
+                ExportScanChannel.Component,
+                Array.Empty<string>(),
+                context =>
+                    context.RegisterComponentListener(new ItemModelPartListener(context.Database))
+            ),
+            new(
                 "itemdrops",
                 "Item Drops",
                 ExportScanChannel.Component,
