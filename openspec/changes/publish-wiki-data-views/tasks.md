@@ -39,9 +39,15 @@
 - [ ] 6.1 `feat(wiki): render the zone and quest overviews from generated data`: build `Module:Erenshor/Data/Zones` by zone: type, hostile level minimum, median, and maximum, and connections. Add `Template:Zone list` with the notes parameters of design D4 and `Template:Quest list` over `Data/Quests`, with testcases and smoke rows. Compare the hostile level ranges with the levels on the live Zones page and explain each difference. Verify: in the local stack, the quest list shows that The Tragedy at Goodsoil gives no reward, and a note parameter that names no zone adds the tracking category.
 - [ ] 6.2 Deploy after approval and replace the Zones and Quests overview tables as design D5 describes, moving each note into a parameter. Verify: both overviews render from the views, and every note is in its zone's row.
 
-## 7. Documentation and verification
+## 7. World drops
 
-- [ ] 7.1 `docs(wiki): explain the views and data modules to editors`: add a section to `wiki/content/Erenshor Wiki/Game Data.wiki` that lists the view templates and the data modules, shows how a module reads a data module and renders links, and says where to report a missing fact. Deploy it after approval. Verify: the guide links every view template and data module, and the contract tests pass.
-- [ ] 7.2 `docs(skills): describe the view workflow`: describe adding and deploying a view in `.agent/skills/wiki-templates/SKILL.md`, and the view refresh after a data deploy in `.agent/skills/refreshing-game-data/SKILL.md`. Verify: `uv run pytest tests/contract/test_document_paths.py` passes.
-- [ ] 7.3 Run `uv run erenshor test ci` and `uv run erenshor test wiki --warm`. Both pass.
-- [ ] 7.4 Archive the change with `openspec archive publish-wiki-data-views --yes`. Verify: `openspec/specs/wiki-data-views/spec.md` exists.
+- [ ] 7.1 `fix(mapping): link the masks to their pages`: give each of the 16 masks the title of the page that editors wrote for it in `mapping.json`, and keep `is_wiki_generated` at 0 (design D10). Publish their icons after an `images publish` dry run and approval. Verify: `Data/Links` resolves each mask to its live page, the article dry run plans no mask page, and each mask's icon renders.
+- [ ] 7.2 `feat(wiki): render world drops from generated data`: build `Module:Erenshor/Data/WorldDrops` by item from `special_world_drops`: the chance per kill at the default loot rate and the lowest enemy level of each roll. Add `Module:Erenshor/WorldDrops` and `Template:World drops`, a name that was free on 2026-10-11, with testcases and smoke rows. Verify: in the local stack, the view lists the 38 items, Sivakrux at 1% from enemy level 11, each torn treasure map piece at 0.625% at any level, and Mask: Eldoth at 0.002%.
+- [ ] 7.3 Deploy after approval, render `{{World drops}}` on the Enemies page, compare it with the two Global Drops tables, and record each difference with its cause. Then replace the tables as design D5 describes and keep the note on common world items. Verify: the Global Drops section renders from the view, and the rollback manifest lists the edit.
+
+## 8. Documentation and verification
+
+- [ ] 8.1 `docs(wiki): explain the views and data modules to editors`: add a section to `wiki/content/Erenshor Wiki/Game Data.wiki` that lists the view templates and the data modules, shows how a module reads a data module and renders links, and says where to report a missing fact. Deploy it after approval. Verify: the guide links every view template and data module, and the contract tests pass.
+- [ ] 8.2 `docs(skills): describe the view workflow`: describe adding and deploying a view in `.agent/skills/wiki-templates/SKILL.md`, and the view refresh after a data deploy in `.agent/skills/refreshing-game-data/SKILL.md`. Verify: `uv run pytest tests/contract/test_document_paths.py` passes.
+- [ ] 8.3 Run `uv run erenshor test ci` and `uv run erenshor test wiki --warm`. Both pass.
+- [ ] 8.4 Archive the change with `openspec archive publish-wiki-data-views --yes`. Verify: `openspec/specs/wiki-data-views/spec.md` exists.

@@ -84,6 +84,17 @@ The vendor stock view SHALL list the items that the copies of the vendor in the 
 - **WHEN** the Pocket Vendor's stock lists Aetheria, a general item that recipes use
 - **THEN** its type is Crafting
 
+### Requirement: World drops list every special world drop roll
+
+The world drop view SHALL list each item that a special world drop roll of the current build can yield, with its chance per kill at the default loot rate and the lowest level of an enemy that rolls it, and SHALL say that the chances hold at the default loot rate. Each item SHALL link to its page.
+
+#### Scenario: The Enemies page
+
+- **WHEN** `{{World drops}}` is placed on the Enemies page on the current main build
+- **THEN** it lists 38 items
+- **AND** Sivakrux shows 1% from enemy level 11, and each torn treasure map piece 0.625% at any level
+- **AND** Mask: Eldoth shows 0.002% and links to its page
+
 ### Requirement: Zone rosters group characters by encounter tier
 
 The zone roster SHALL list each character that the clean database places in the zone, grouped by encounter tier, with its level.
@@ -131,6 +142,12 @@ Each table that design D3 of `adopt-data-backed-wiki` lists for step 3 SHALL ren
 
 - **WHEN** the vendor slice is complete
 - **THEN** no vendor page holds a `Store inventory` table, each shows `{{Vendor stock}}`, and no file refers to `vendor_inventory_tables`
+
+#### Scenario: The Global Drops of the Enemies page
+
+- **WHEN** the world drop slice is complete
+- **THEN** the Global Drops section of the Enemies page shows `{{World drops}}` instead of its two tables
+- **AND** the text that editors wrote around the tables stays
 
 #### Scenario: Notes on the Zones overview
 

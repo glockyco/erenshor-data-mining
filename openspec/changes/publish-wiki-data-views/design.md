@@ -8,6 +8,7 @@ See `proposal.md`. The facts that shape the approach, checked on 2026-10-11 agai
 - Zone rosters group by encounter tier, which `characters.encounter_tier` holds: Abyssal Lake's table lists the 9 enemies and 6 bosses that the clean database places there. Port Azure groups its NPCs by the sub-areas Outskirts, Slums, and Undercity Tunnels, which no exported table records.
 - Players learn spells and skills only by using an item that teaches them (`ItemIcon.KnownSpells.Add` and `KnownSkills.Add`). 63 class-flagged spells have no teaching item, among them aura and consumable effects and spells without a required level. Each of the six Druid summon spells has a teaching scroll.
 - Quests reach the player by dialog keyword (79), by quest chain (24), by reading an item (12), by partial turn-in (4), by script (3), and by entering a zone (1), as `quest_acquisition_sources` records. Alyssia Fearnon gives A Skeleton Eye for Alyssia Fearnon on the keyword "favor" for 155 experience and the Bonestudded Belt. Secure Port Azure follows Sivakayan Intel for Kilkay (1) or Sivakayan Intel for Ripper and is turned in to Captain Kilkay. The Tragedy at Goodsoil gives no experience, gold, or item.
+- Every kill of a character with a loot table also rolls the special world drops (`LootTable.InitLootTable`), which `special_world_drops` holds as one row per item and roll: 38 items in 10 rolls on build 24405256, with each chance per kill at the default loot rate and each roll's level gate. The Global Drops section of the Enemies page lists 8 of the rolls in two hand-written tables. Five of them give a wrong chance, Sivakrux also a wrong level, and Essence of Amarion and Crystallized Balance are missing. The mask roll is on in build 24405256 (`GameManager.DropMasks`). The 16 masks have pages that editors wrote, but `mapping.json` has given them no page since 2026-01-30, without a recorded reason, so the link catalog lacks them.
 
 ## Goals / Non-Goals
 
@@ -23,7 +24,7 @@ See `proposal.md`. The facts that shape the approach, checked on 2026-10-11 agai
 
 ### D1. One data module for each view, keyed by the page's entity
 
-Each view has one bot-owned data module under `Module:Erenshor/Data/`, keyed by the stable key of the entity whose page shows the view: `VendorStock` by vendor, `ZoneRosters` by zone, `ClassAbilities` by class, and `Quests` by quest. An overview reads the module of its kind: the quest overview reads `Quests`, and the zone overview reads `Zones`, which holds each zone's type, level range, and connections. Rows hold stable keys and plain values. Names, pages, and icons stay in `Data/Links`, so a renamed page changes one module.
+Each view has one bot-owned data module under `Module:Erenshor/Data/`, keyed by the stable key of the entity whose page shows the view: `VendorStock` by vendor, `ZoneRosters` by zone, `ClassAbilities` by class, and `Quests` by quest. An overview reads the module of its kind: the quest overview reads `Quests`, the zone overview reads `Zones`, which holds each zone's type, level range, and connections, and the world drop view reads `WorldDrops`, keyed by item. Rows hold stable keys and plain values. Names, pages, and icons stay in `Data/Links`, so a renamed page changes one module.
 
 A module that would pass the page size limit is split into shards when it gets there, as the item shards are. No view module is near the limit: the largest, `ZoneRosters`, folds the 8,997 wiki-visible spawn rows into 1,181 rows, one for each character and zone.
 
@@ -47,7 +48,7 @@ The existing size check applies to every module.
 
 ### D3. View modules and templates
 
-Each view is a repository module `Module:Erenshor/<View>` with `p.render(args)` and a frame entry point, and a template `Template:<View name>` that invokes it, with documentation and an example in `<noinclude>`. Before a slice adds a template, it checks that the name is free on the wiki. The proposed names are `Vendor stock`, `Zone roster`, `Class abilities`, `Quest data`, `Zone list`, and `Quest list`.
+Each view is a repository module `Module:Erenshor/<View>` with `p.render(args)` and a frame entry point, and a template `Template:<View name>` that invokes it, with documentation and an example in `<noinclude>`. Before a slice adds a template, it checks that the name is free on the wiki. The proposed names are `Vendor stock`, `World drops`, `Zone roster`, `Class abilities`, `Quest data`, `Zone list`, and `Quest list`.
 
 A view resolves its entity from `stablekey`. Without it, the view takes the entity of its kind whose page is the current page, through a public `Link.pageKeys(kind, page)` over the existing `byPage` index. When several entities of the kind share the page, the view shows an error that lists their keys. When the entity has no rows, the view shows that the data is missing and adds the page to `Pages with missing Erenshor <view> data`. Entities render through `Module:Erenshor/Link`.
 
@@ -86,6 +87,14 @@ An item that only some copies sell names the Reliquary furniture sets that place
 
 A row's type is the item kind of `Data/Items`, with Furniture for the game's furniture sets. A general item is Mold when smithing upgrades with it, Crafting when a recipe uses it or it is fuel, Quest Item when a quest requires it or reading it assigns or completes a quest, and Lore when it has a book title. A finer label of a hand table, such as Potion or Cosmetic, needs a rule in the data first.
 
+### D10. World drops
+
+`WorldDrops` holds, for each item that a special world drop roll can yield, the roll's chance per kill at the default loot rate and the lowest level of an enemy that rolls it. `{{World drops}}` lists every item, most likely first, with its chance and the lowest enemy level, and says that the chances hold at the default loot rate. A roll that a game flag turns off has no rows (`special-world-drops` spec), so the masks appear only while a build drops them.
+
+The masks' mapping entries name the pages that editors wrote and keep `is_wiki_generated` at 0, so the link catalog and the view know them, and their articles stay hand-written. Their icons then reach the wiki through the image publication like any other entity's icon.
+
+The note below the Global Drops tables, which says that six common items can replace a common drop, stays editors' text. The export does not read `GameManager.CommonWorldItems`, and the loot calculator folds that swap into one `A Common World Drop` row for each character, which names no item. Task 5.44 of `adopt-data-backed-wiki` models the swap.
+
 ### Failure handling, grouping, and rollback
 
 - Generation fails closed on the checks of D2 and on the size limit.
@@ -105,7 +114,7 @@ A row's type is the item kind of `Data/Items`, with Furniture for the game's fur
 ## Migration Plan
 
 1. Land the foundation: the field declarations, the checks, the module header, and `Link.pageKeys`.
-2. Land the slices in order: vendor stock, zone rosters, class abilities, the quest panel, and the overviews. Vendor stock comes first, because its tables are the stalest and its slice deletes the vendor script.
+2. Land the slices in order: vendor stock, world drops, zone rosters, class abilities, the quest panel, and the overviews. Vendor stock comes first, because its tables are the stalest and its slice deletes the vendor script. World drops follows, because its table gives wrong chances and its slice is small.
 3. Document the views and modules in the data guide and the skill, then archive.
 
 Rollback: see "Failure handling, grouping, and rollback".
