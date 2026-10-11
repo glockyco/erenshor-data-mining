@@ -97,8 +97,9 @@ def build_vendor_stock_rows(
     """Return each vendor's rows.
 
     An item that a copy of the vendor always has carries no quests. An item that
-    only some copies sell, all of them placed by Reliquary furniture, carries
-    the furniture sets of those copies.
+    only some copies sell carries the Reliquary furniture sets that place those
+    copies. Generation fails when such an item has a seller without furniture,
+    because a row cannot say which copy sells it.
     """
     copies: defaultdict[str, set[str]] = defaultdict(set)
     furniture_of: dict[str, str | None] = {}
@@ -126,8 +127,12 @@ def build_vendor_stock_rows(
             row["typePage"] = _TYPE_PAGES[kind]
         if (vendor_key, item_key) not in always:
             row["quests"] = sorted(quests[vendor_key, item_key])
-        furniture = {furniture_of[copy] for copy in selling}
-        if selling != copies[vendor_key] and None not in furniture:
+        if selling != copies[vendor_key]:
+            furniture = {furniture_of[copy] for copy in selling}
+            if None in furniture:
+                raise ValueError(
+                    f"Only some copies of {vendor_key} sell {item_key}, and not every seller is placed by furniture"
+                )
             row["furniture"] = sorted(key for key in furniture if key is not None)
         name = (item.display_name or item.item_name or item_key).casefold()
         rows_by_vendor[vendor_key].append(((kind.casefold(), item.item_value or 0, name), row))

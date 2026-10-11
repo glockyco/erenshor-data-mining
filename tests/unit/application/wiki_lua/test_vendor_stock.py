@@ -53,16 +53,15 @@ def test_an_item_that_only_some_furniture_copies_sell_names_their_furniture() ->
     assert rows["item:sword"]["furniture"] == ["item:stone set"]
 
 
-def test_an_item_that_a_copy_without_furniture_sells_has_no_furniture_condition() -> None:
+def test_an_item_that_only_some_unfurnished_copies_sell_fails_naming_vendor_and_item() -> None:
     stock = [
         _entry("item:bread", copy="character:vendor"),
-        _entry("item:bread", copy="character:vendor bkp"),
-        _entry("item:sword", copy="character:vendor bkp"),
+        _entry("item:bread", copy="character:vendor twin"),
+        _entry("item:sword", copy="character:vendor twin"),
     ]
 
-    rows = {row["item"]: row for row in build_vendor_stock_rows(stock, _ITEMS, {}, set())["character:vendor"]}
-
-    assert "furniture" not in rows["item:sword"]
+    with pytest.raises(ValueError, match="Only some copies of character:vendor sell item:sword"):
+        build_vendor_stock_rows(stock, _ITEMS, {}, set())
 
 
 @pytest.mark.parametrize(
