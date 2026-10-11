@@ -20,33 +20,38 @@ A test that replaces an external system the production code talks to (for exampl
 - **WHEN** the double's behavior for a given operation is exercised
 - **THEN** a contract test runs the same operation against a real instance of that system and fails if the double's result disagrees
 
-### Requirement: A command's collaborators are injected, not bound by import path
+### Requirement: A command's collaborators are substituted through their factory
 
-Each CLI command MUST build its collaborators (external clients, services) in one place, and a test MUST substitute a double by replacing that one place, not by patching the command module's internal factory function at its exact import path.
+Each CLI command MUST build each client of an external system (such as the wiki's API or Google Sheets) in one factory, and that factory MUST accept the client as an override. A test that runs the command against a double of that client MUST pass the double through that override, not replace the factory with a function that skips it. Local resources a command assembles for itself (its database connection, storage, and generator context) are not external systems, and a test whose service is itself a double may supply them directly.
 
 #### Scenario: A test replaces a command's collaborator
 
 - **WHEN** a test runs a CLI command against a double instead of its real collaborator
-- **THEN** the test supplies the double through the one object the command's collaborators are built from
+- **THEN** the double reaches the command through the factory's override, and the rest of the factory's construction runs as in production
 
-#### Scenario: An internal factory function is renamed
+#### Scenario: A test must prove a collaborator is never built
 
-- **WHEN** the name of the function that builds a command's collaborator changes, with no change to the command's observable behavior
-- **THEN** no existing test fails because of that rename alone
+- **WHEN** a test asserts that a command does not build a collaborator at all, for example before a precondition fails
+- **THEN** the test may replace the factory with one that fails if called
 
 ### Requirement: A test fails when the behavior it names breaks
 
-A test for a command or function MUST be capable of failing when that command or function's real logic is replaced with one that does nothing. A test MUST NOT assert only that an internal collaborator was called, nor pin an exact internal argument list or keyword-argument mapping that an unrelated, behavior-preserving change can alter.
+A test for a command or function MUST be capable of failing when that command or function's real logic is replaced with one that does nothing. A test MUST assert what the unit produces at its own boundary (its return value, its written state, or the arguments it passes to an external process or to the service it adapts to) and MUST NOT assert calls between the internal parts of the unit under test.
 
 #### Scenario: The real logic is replaced with a no-op
 
 - **WHEN** a command's real implementation is temporarily replaced with one that performs no work and returns a fixed result
 - **THEN** every test that names that command's behavior fails
 
-#### Scenario: An unrelated internal argument is added
+#### Scenario: A CLI option stops reaching its service
 
-- **WHEN** a command gains an additional internal call argument that does not change its observable behavior
-- **THEN** no existing passing test for that command starts failing solely because of the new argument
+- **WHEN** a CLI command stops passing one of its options to the service it adapts to
+- **THEN** a test of that option fails
+
+#### Scenario: An internal helper's arguments change
+
+- **WHEN** a unit changes the arguments it passes between its own internal parts without changing what it produces at its boundary
+- **THEN** no existing passing test for that unit starts failing
 
 ### Requirement: A text rendering detail does not stand in for the check it protects
 
