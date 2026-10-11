@@ -207,8 +207,7 @@ internal sealed class PortraitController : IDisposable
                 result = PortraitStudio.Capture(
                     ItemModels.Furnishing(item.Part),
                     mainCam,
-                    request.OutputPath,
-                    objectName: item.Part
+                    request.OutputPath
                 );
             }
             else
@@ -217,8 +216,7 @@ internal sealed class PortraitController : IDisposable
                     ItemModels.Player(),
                     mainCam,
                     request.OutputPath,
-                    copy => ItemModels.ShowOnBody(copy, item),
-                    item.Part
+                    copy => ItemModels.ShowOnBody(copy, item)
                 );
             }
             _logger.LogInfo($"Captured {request.Subject} from {result.ObjectName}");

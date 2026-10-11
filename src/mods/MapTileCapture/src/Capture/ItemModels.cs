@@ -66,11 +66,12 @@ internal static class ItemModels
     }
 
     /// <summary>
-    /// Shows the item's parts on the copy of the player and hides every other
-    /// renderer. Runs before the studio removes the copy's scripts, because it
-    /// reads the copy's <c>ModularPar</c>.
+    /// Shows the item's parts on the copy of the player, hides every other
+    /// renderer, and returns the name of the item's part as the copy holds it.
+    /// Runs before the studio removes the copy's scripts, because it reads the
+    /// copy's <c>ModularPar</c>.
     /// </summary>
-    public static void ShowOnBody(GameObject copy, ItemModelSource source)
+    public static string ShowOnBody(GameObject copy, ItemModelSource source)
     {
         var item =
             GameData.ItemDB?.GetItemByID(source.Id)
@@ -87,6 +88,7 @@ internal static class ItemModels
             ?? throw new PortraitException($"The player has no {source.Body ?? "male"} body.");
 
         var shown = new List<GameObject>();
+        string partName;
         if (source.Kind == "mask")
         {
             var masks = body.HalloweenMasks ?? new List<GameObject>();
@@ -101,6 +103,7 @@ internal static class ItemModels
             if (masks.Count > 0 && masks[0] != null)
                 shown.Add(masks[0]);
             shown.Add(mask);
+            partName = mask.name;
         }
         else
         {
@@ -110,6 +113,7 @@ internal static class ItemModels
                 throw new PortraitException(
                     $"The {source.Body} body has no part named {source.Part}."
                 );
+            partName = shown[0].name;
             var skin = GameData.SimMngr?.SkinColors is { Count: > 0 } palette
                 ? palette[0]
                 : throw new PortraitException("The game's skin palette is not loaded.");
@@ -149,6 +153,8 @@ internal static class ItemModels
         );
         foreach (var renderer in copy.GetComponentsInChildren<Renderer>(true))
             renderer.enabled = kept.Contains(renderer);
+        foreach (var skinned in kept.OfType<SkinnedMeshRenderer>())
+            BoundInBindPose(skinned);
         // The copy's camera, listener, and canvases would show on the screen.
         foreach (var camera in copy.GetComponentsInChildren<Camera>(true))
             Object.DestroyImmediate(camera);
@@ -156,6 +162,41 @@ internal static class ItemModels
             Object.DestroyImmediate(listener);
         foreach (var canvas in copy.GetComponentsInChildren<Canvas>(true))
             Object.DestroyImmediate(canvas.gameObject);
+        return partName;
+    }
+
+    /// <summary>
+    /// Gives a skinned part the bounds of its mesh in the bind pose, in the
+    /// space of its root bone. The studio frames the part by its bounds, and two
+    /// capes, <c>NarrowCape</c> and <c>ClothCloak</c>, carry bounds a hundred
+    /// times too small, which put the cape behind the studio camera's far plane.
+    /// Every other part's authored bounds agree with these on build 24405256.
+    /// </summary>
+    private static void BoundInBindPose(SkinnedMeshRenderer skinned)
+    {
+        var mesh = skinned.sharedMesh;
+        if (mesh == null || skinned.rootBone == null)
+            return;
+        int root = Array.IndexOf(skinned.bones, skinned.rootBone);
+        var bindposes = mesh.bindposes;
+        if (root < 0 || root >= bindposes.Length)
+            return;
+        var toRoot = bindposes[root];
+        var meshBounds = mesh.bounds;
+        var bounds = new Bounds(toRoot.MultiplyPoint3x4(meshBounds.min), Vector3.zero);
+        for (int corner = 0; corner < 8; corner++)
+        {
+            bounds.Encapsulate(
+                toRoot.MultiplyPoint3x4(
+                    new Vector3(
+                        (corner & 1) == 0 ? meshBounds.min.x : meshBounds.max.x,
+                        (corner & 2) == 0 ? meshBounds.min.y : meshBounds.max.y,
+                        (corner & 4) == 0 ? meshBounds.min.z : meshBounds.max.z
+                    )
+                )
+            );
+        }
+        skinned.localBounds = bounds;
     }
 
     /// <summary>The slot transforms that UpdatePlayerVisuals fills for the item's slot.</summary>

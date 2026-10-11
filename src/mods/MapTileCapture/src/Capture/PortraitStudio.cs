@@ -50,15 +50,14 @@ internal static class PortraitStudio
     /// <summary>
     /// Renders <paramref name="source"/>. <paramref name="prepare"/> runs on the
     /// copy before its scripts go, as the item studio needs to read them, and
-    /// <paramref name="objectName"/> names what the result reports instead of
-    /// the source's name.
+    /// returns the name of the object that the copy shows, which the result
+    /// reports instead of the source's name.
     /// </summary>
     public static PortraitResult Capture(
         GameObject source,
         Camera playerCamera,
         string outputPath,
-        Action<GameObject>? prepare = null,
-        string? objectName = null
+        Func<GameObject, string>? prepare = null
     )
     {
         using var cleanup = new CleanupStack();
@@ -81,7 +80,7 @@ internal static class PortraitStudio
         subject.SetActive(true);
 
         ShowAsGameStartsIt(subject);
-        prepare?.Invoke(subject);
+        var objectName = prepare?.Invoke(subject) ?? source.name;
         RemoveBehaviour(subject);
         KeepWhatThePlayerSees(subject, playerCamera.cullingMask);
 
@@ -211,7 +210,7 @@ internal static class PortraitStudio
 
         return new PortraitResult
         {
-            ObjectName = objectName ?? source.name,
+            ObjectName = objectName,
             Width = crop.Width,
             Height = crop.Height,
             Renderers = meshes.Count + effects.Count,
