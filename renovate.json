@@ -62,12 +62,6 @@
       "addLabels": ["major"]
     },
     {
-      "description": "Collect routine minor and patch updates into one weekly PR. The groups below are listed later so they override this group name and keep their own PRs.",
-      "matchUpdateTypes": ["minor", "patch"],
-      "groupName": "non-major dependencies",
-      "schedule": ["before 6am on monday"]
-    },
-    {
       "description": "Group the SvelteKit and Vite compatibility surface",
       "groupName": "SvelteKit and Vite",
       "matchManagers": ["npm"],
