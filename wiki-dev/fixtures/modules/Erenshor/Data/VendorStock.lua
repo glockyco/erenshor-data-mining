@@ -28,5 +28,14 @@ return {
 			["type"] = "Weapon",
 			["typePage"] = "Weapons",
 		},
+		{
+			["furniture"] = {
+				"item:lucky_charm",
+			},
+			["item"] = "item:bear_pelt",
+			["price"] = 300,
+			["type"] = "Crafting",
+			["typePage"] = "Crafting",
+		},
 	},
 }

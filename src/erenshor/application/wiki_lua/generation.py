@@ -220,7 +220,7 @@ def generate_lua_data_modules(
             write_stances_module(stance_repo, staging_root),
             write_build_module(build_repo, staging_root),
             write_treasure_guardians_module(treasure_repo, staging_root),
-            write_vendor_stock_module(character_repo, items, known_keys, staging_root),
+            write_vendor_stock_module(character_repo, items, item_sources_by_item, known_keys, staging_root),
         ]
         validation_tools: dict[Path, str] = {}
         for path in staged_paths:

@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
     from erenshor.domain.value_objects.faction import FactionModifier
     from erenshor.domain.value_objects.source_info import ObtainedFromInfo, UsedInInfo, WorldDropInfo
+    from erenshor.domain.value_objects.vendor_stock import VendorStockEntry
     from erenshor.domain.value_objects.wiki_link import (
         CharacterLink,
         ItemLink,
@@ -166,7 +167,7 @@ class FakeCharacterRepository:
         vendor_sources: dict[str, list[ObtainedFromInfo]] | None = None,
         dialog_sources: dict[str, list[ObtainedFromInfo]] | None = None,
         spell_users: dict[str, list[CharacterLink]] | None = None,
-        vendor_stock: list[tuple[str, str, str | None]] | None = None,
+        vendor_stock: list[VendorStockEntry] | None = None,
     ) -> None:
         self._characters = characters
         self._vendors = vendors or {}
@@ -198,7 +199,7 @@ class FakeCharacterRepository:
     def get_characters_using_spell(self, spell_stable_key: str) -> list[CharacterLink]:
         return self._spell_users.get(spell_stable_key, [])
 
-    def get_vendor_stock(self) -> list[tuple[str, str, str | None]]:
+    def get_vendor_stock(self) -> list[VendorStockEntry]:
         return self._vendor_stock
 
 

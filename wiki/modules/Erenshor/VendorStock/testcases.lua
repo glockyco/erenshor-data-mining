@@ -52,6 +52,12 @@ function p.run()
 		"unlock quest rendered through the link module"
 	)
 	assertContains(stock, "General || 10 || \n", "kind without a page and no condition")
+	assertContains(stock, "[[Crafting]] || 300 || Place ", "row with its furniture condition")
+	assertContains(
+		stock,
+		'data-erenshor-key="item:lucky_charm"',
+		"furniture set rendered through the link module"
+	)
 	assertNotContains(stock, CATEGORY, "a vendor with stock is not tracked")
 	local first = string.find(stock, "item:healing_draught", 1, true)
 	local last = string.find(stock, "item:ember_longsword", 1, true)

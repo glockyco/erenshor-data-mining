@@ -59,12 +59,15 @@ local function conditionCell(row)
 	for _, quest in ipairs(row.quests or {}) do
 		table.insert(conditions, "Complete " .. Link.render({ kind = "quest", stablekey = quest }))
 	end
+	for _, furniture in ipairs(row.furniture or {}) do
+		table.insert(conditions, "Place " .. Link.render({ kind = "item", stablekey = furniture }))
+	end
 	return table.concat(conditions, "<br>")
 end
 
 local function hasConditions(rows)
 	for _, row in ipairs(rows) do
-		if row.quests ~= nil then
+		if row.quests ~= nil or row.furniture ~= nil then
 			return true
 		end
 	end

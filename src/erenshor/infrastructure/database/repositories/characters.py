@@ -6,6 +6,7 @@ from erenshor.domain.entities.character import Character
 from erenshor.domain.value_objects.faction import FactionModifier
 from erenshor.domain.value_objects.loot import LootDropDisplayInfo
 from erenshor.domain.value_objects.source_info import ObtainedFromInfo
+from erenshor.domain.value_objects.vendor_stock import VendorStockEntry
 from erenshor.domain.value_objects.wiki_link import CharacterLink, ItemLink
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
 
@@ -559,38 +560,52 @@ class CharacterRepository(BaseRepository[Character]):
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve stable drop sources for '{item_stable_key}': {e}") from e
 
-    def get_vendor_stock(self) -> list[tuple[str, str, str | None]]:
-        """Return (vendor, item, quest) for each item that a vendor with a page sells.
+    def get_vendor_stock(self) -> list[VendorStockEntry]:
+        """Return each item that a copy of a vendor with a page sells.
 
-        A vendor is a deduplication group, so the backup copies that share a
-        page sell as one vendor. The quest is the one whose completion adds the
-        item to the stock, or None for an item that is always in stock.
+        A vendor is a deduplication group, so the backup copies and the
+        furniture placements that share a page sell as one vendor. A copy has a
+        furniture set when every spawn of it comes from that one set.
         """
         query = """
-            WITH stock AS (
-                SELECT d.group_key AS vendor_key, cvi.item_stable_key AS item_key, NULL AS quest_key
+            WITH copies AS (
+                SELECT d.group_key, d.member_stable_key,
+                    (SELECT CASE
+                        WHEN COUNT(*) = COUNT(cs.furniture_item_stable_key)
+                         AND COUNT(DISTINCT cs.furniture_item_stable_key) = 1
+                        THEN MIN(cs.furniture_item_stable_key) END
+                     FROM character_spawns cs
+                     WHERE cs.character_stable_key = d.member_stable_key) AS furniture_key
                 FROM character_deduplications d
-                JOIN character_vendor_items cvi ON cvi.character_stable_key = d.member_stable_key
+                JOIN characters c ON c.stable_key = d.group_key
+                WHERE c.wiki_page_name IS NOT NULL
+            ),
+            stock AS (
+                SELECT c.group_key, c.member_stable_key, c.furniture_key, cvi.item_stable_key AS item_key,
+                    NULL AS quest_key
+                FROM copies c
+                JOIN character_vendor_items cvi ON cvi.character_stable_key = c.member_stable_key
                 UNION
-                SELECT d.group_key, qv.unlock_item_for_vendor_stable_key, cvqu.quest_stable_key
-                FROM character_deduplications d
-                JOIN character_vendor_quest_unlocks cvqu ON cvqu.character_stable_key = d.member_stable_key
+                SELECT c.group_key, c.member_stable_key, c.furniture_key, qv.unlock_item_for_vendor_stable_key,
+                    cvqu.quest_stable_key
+                FROM copies c
+                JOIN character_vendor_quest_unlocks cvqu ON cvqu.character_stable_key = c.member_stable_key
                 JOIN quest_variants qv ON qv.quest_stable_key = cvqu.quest_stable_key
                 WHERE qv.unlock_item_for_vendor_stable_key IS NOT NULL
             )
-            SELECT stock.vendor_key, stock.item_key, stock.quest_key
+            SELECT group_key, member_stable_key, furniture_key, item_key, quest_key
             FROM stock
-            JOIN characters c ON c.stable_key = stock.vendor_key
-            WHERE c.wiki_page_name IS NOT NULL
-            ORDER BY stock.vendor_key, stock.item_key, stock.quest_key
+            ORDER BY group_key, member_stable_key, item_key, quest_key
         """
         try:
             rows = self._execute_raw(query, ())
             return [
-                (
-                    str(row["vendor_key"]),
-                    str(row["item_key"]),
-                    None if row["quest_key"] is None else str(row["quest_key"]),
+                VendorStockEntry(
+                    vendor_key=str(row["group_key"]),
+                    copy_key=str(row["member_stable_key"]),
+                    furniture_key=None if row["furniture_key"] is None else str(row["furniture_key"]),
+                    item_key=str(row["item_key"]),
+                    quest_key=None if row["quest_key"] is None else str(row["quest_key"]),
                 )
                 for row in rows
             ]
