@@ -104,9 +104,52 @@ public class CapturePortraitRequestTests
         var request = Parse("""{"resourcesPath": "npcs/Zenith"}""", preset: "portrait-0");
 
         Assert.Equal(
-            $"The mod captures with preset {PortraitPreset.Name}, not portrait-0.",
+            $"The mod captures characters with preset {PortraitPreset.Name}, not portrait-0.",
             request.Problem()
         );
+    }
+
+    [Fact]
+    public void ItemRequest_OfTheCharacterPreset_IsRefused()
+    {
+        var request = Parse(
+            """{"item": {"id": "48262000", "kind": "worn", "body": "male", "slot": "Foot", "part": "LeatherBoots"}}"""
+        );
+
+        Assert.Equal(
+            $"The mod captures items with preset {PortraitPreset.ItemName}, not {PortraitPreset.Name}.",
+            request.Problem()
+        );
+    }
+
+    [Theory]
+    [InlineData(
+        """{"item": {"id": "48262000", "kind": "worn", "body": "male", "slot": "Foot", "part": "LeatherBoots"}}""",
+        null
+    )]
+    [InlineData(
+        """{"scene": "Reliquary", "landing": [275, 0.3, 368], "item": {"id": "14919468", "kind": "furnishing", "slot": "General", "part": "Wood Training"}}""",
+        null
+    )]
+    [InlineData(
+        """{"item": {"id": "14919468", "kind": "furnishing", "slot": "General", "part": "Wood Training"}}""",
+        "A furnishing names its scene and a landing of three coordinates."
+    )]
+    [InlineData(
+        """{"item": {"id": "48262000", "kind": "worn", "slot": "Foot", "part": "LeatherBoots"}}""",
+        "A weapon or worn item names the male or the female body."
+    )]
+    [InlineData(
+        """{"scene": "Hidden", "landing": [1, 2, 3], "item": {"id": "48262000", "kind": "worn", "body": "male", "slot": "Foot", "part": "LeatherBoots"}}""",
+        "A weapon, worn item, or mask comes from the player's body and names no scene."
+    )]
+    [InlineData(
+        """{"item": {"id": "48262000", "kind": "boots", "body": "male", "slot": "Foot", "part": "LeatherBoots"}}""",
+        "Unknown item kind boots."
+    )]
+    public void ItemRequest_IsCheckedByItsKind(string source, string? problem)
+    {
+        Assert.Equal(problem, Parse(source, preset: PortraitPreset.ItemName).Problem());
     }
 
     [Fact]
