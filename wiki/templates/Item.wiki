@@ -1,4 +1,4 @@
-<includeonly>{{#if:{{{historical_state|}}}|{{Historical Content|state={{{historical_state}}}|thing=item|update={{{historical_update|}}}|date={{{historical_date|}}}|url={{{historical_url|}}}}}}}<infobox type="Item">
+<includeonly><templatestyles src="Template:Item/styles.css" />{{#if:{{{historical_state|}}}|{{Historical Content|state={{{historical_state}}}|thing=item|update={{{historical_update|}}}|date={{{historical_date|}}}|url={{{historical_url|}}}}}}}<infobox type="Item">
     <title source="title"/>
     <image source="icon"><caption source="imagecaption"/></image>
     <data source="type"><label>Type</label></data>
@@ -48,7 +48,7 @@ Infobox template for displaying item information on wiki pages.
 Item articles set infobox parameters. The <code>stablekey</code> identifies the item
 when the bot updates its page. It also supplies the interactive-map link in the Map row.
 
-The infobox and tooltip both show the item's icon. Pass its full file title in <code>icon</code>, for example <code>icon=Copper Sword icon.png</code>, without a <code><nowiki>[[File:...]]</nowiki></code> wrapper.
+The infobox and tooltip both show the item's icon; the infobox shows it at most 160 pixels on its longer side. Pass its full file title in <code>icon</code>, for example <code>icon=Copper Sword icon.png</code>, without a <code><nowiki>[[File:...]]</nowiki></code> wrapper.
 The [[Template:ItemTooltip|ItemTooltip]] or <code>Item/&lt;kind&gt;</code> tooltip takes its own <code>icon</code> parameter; the infobox does not read the tooltip's parameters.
 
 === Parameters ===
