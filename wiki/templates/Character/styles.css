@@ -1,9 +1,20 @@
-/* Character pictures rendered from the game's models have a transparent
-   background, and some subjects are almost black. A mid slate surface behind
-   the picture keeps them readable on the dark theme. It shows only through
-   transparent pixels, so screenshots look as before. */
+/* Character pictures fill a panel of the infobox's width with an even
+   margin, taller than the item panel because characters stand upright.
+   Renders have a transparent background, and some subjects are almost
+   black, so the panel has a mid slate surface that keeps them readable on
+   the dark theme. */
 .pi-type-Character .pi-image-thumbnail {
+	box-sizing: border-box;
+	width: 100%;
+	height: 400px;
+	padding: 12px;
+	object-fit: contain;
 	background-color: #313e59;
+}
+
+/* A lone picture's gallery label, such as "Render", says nothing. */
+.pi-type-Character .pi-image .pi-caption {
+	display: none;
 }
 
 /* Unlike an image caption, this row stays visible below gallery tabs. */

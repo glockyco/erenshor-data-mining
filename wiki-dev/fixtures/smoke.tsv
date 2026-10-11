@@ -222,7 +222,7 @@ Image Tracking Description	category:Needs_Character_Image
 Image Tracking Uploaded Redirect	category:Characters
 Image Tracking Uploaded Redirect	!category*:Needs_
 # Character pictures sit on the slate surface of Template:Character/styles.css.
-Image Tracking Uploaded	elem:style=.pi-type-Character .pi-image-thumbnail{background-color:#313e59}
+Image Tracking Uploaded	elem:style=.pi-type-Character .pi-image-thumbnail{box-sizing:border-box;width:100%;height:400px;padding:12px;object-fit:contain;background-color:#313e59}
 File:Image Tracking Redirect.png	elem:.redirectText=Image Tracking Missing.png
 File:Image Tracking Uploaded Redirect.png	elem:.redirectText=Image Tracking Fixture.png
 File:Image Tracking Description.png	text:A file description page without an upload
