@@ -271,11 +271,14 @@ def _link_item_renders(
 ) -> list[dict[str, object]]:
     """Link each item with a page to the approved renders of its subject and add their titles.
 
-    Returns the rows of ``item_renders``. An approval whose title no item with
-    a page names stays out of the titles and is reported, so that a review can
-    drop it.
+    Returns the rows of ``item_renders``. When an item's male and female
+    renders have equal pixels, the bodies draw the item alike after all, and
+    the item gets that picture once, under its plain render title. An
+    approval whose title no item with a page names stays out of the titles
+    and is reported, so that a review can drop it.
     """
     approved = {image.title: renders[image.subject] for image in approval}
+    used: set[str] = set()
     rows: list[dict[str, object]] = []
     for stable_key, image_name, display_name, item_name in conn.execute(
         "SELECT stable_key, image_name, display_name, item_name FROM items "
@@ -284,21 +287,24 @@ def _link_item_renders(
         subject = picture_subject(image_name, display_name, item_name)
         if not subject:
             continue
+        plain = picture_file_title("render", subject)
         candidates: dict[str, Body | None] = {
-            picture_file_title("render", subject): None,
+            plain: None,
             body_render_title("male", subject): "male",
             body_render_title("female", subject): "female",
         }
-        linked = [(title, body) for title, body in candidates.items() if title in approved]
-        if len(linked) > 1 and any(body is None for _, body in linked):
-            raise ValueError(f"{subject} has both {picture_file_title('render', subject)} and a render of one body")
-        for title, body in linked:
-            image_hash = approved[title]
+        linked = [(title, body, approved[title]) for title, body in candidates.items() if title in approved]
+        if len(linked) > 1 and any(body is None for _, body, _ in linked):
+            raise ValueError(f"{subject} has both {plain} and a render of one body")
+        used.update(title for title, _, _ in linked)
+        if len(linked) == 2 and linked[0][2] == linked[1][2]:
+            linked = [(plain, None, linked[0][2])]
+        for title, body, image_hash in linked:
             rows.append({"stable_key": stable_key, "title": title, "body": body, "image_hash": image_hash})
             claimed = titles.setdefault(title, (image_hash, str(stable_key)))
             if claimed[0] != image_hash:
                 raise ValueError(f"{title} names two pictures: the one of {claimed[1]} and the one of {stable_key}")
-    stale = sorted(set(approved) - {str(row["title"]) for row in rows})
+    stale = sorted(set(approved) - used)
     if stale:
         logger.warning(f"Approved item renders that no item with a page names: {', '.join(stale)}")
     return rows

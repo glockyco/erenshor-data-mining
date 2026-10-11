@@ -320,6 +320,27 @@ def test_item_renders_take_the_titles_of_their_approvals_and_equal_pixels_share_
     ]
 
 
+def test_body_renders_with_equal_pixels_become_one_plain_render(tmp_path: Path) -> None:
+    # Meshes that differ between the bodies can still draw the same picture.
+    build = _Build(tmp_path)
+    build.item("item:adorned mitts", "Adorned Mitts", None)
+    mitts = _png((70, 60, 50, 255))
+    _approve_items(
+        build,
+        [
+            ("Adorned Mitts (male)", "Adorned Mitts render (male).png", "item:adorned mitts", mitts),
+            ("Adorned Mitts (female)", "Adorned Mitts render (female).png", "item:adorned mitts", mitts),
+        ],
+    )
+
+    build.run()
+
+    assert build.rows("SELECT title, body FROM item_renders") == [("Adorned Mitts render.png", None)]
+    assert [row[0] for row in build.rows("SELECT title FROM image_titles WHERE title LIKE 'Adorned%'")] == [
+        "Adorned Mitts render.png"
+    ]
+
+
 def test_an_item_with_a_plain_render_and_a_body_render_fails(tmp_path: Path) -> None:
     build = _Build(tmp_path)
     build.item("item:wolfhide boots", "Wolfhide Boots", None)
