@@ -134,128 +134,119 @@ def mock_operation_result_with_failures():
 
 
 class TestWikiFetchCommand:
-    """Test wiki fetch command."""
+    """The fetch command passes its options to the fetch service and reports its result."""
+
+    @pytest.mark.parametrize(
+        ("args", "dry_run", "expected"),
+        [
+            ([], False, {"limit": None, "force_refetch": False, "generator_names": None}),
+            (["--limit", "5"], False, {"limit": 5, "force_refetch": False, "generator_names": None}),
+            (["--force"], False, {"limit": None, "force_refetch": True, "generator_names": None}),
+            (["--generator", "zones"], False, {"limit": None, "force_refetch": False, "generator_names": ["zones"]}),
+            ([], True, {"limit": None, "force_refetch": False, "generator_names": None}),
+        ],
+    )
+    @patch("erenshor.cli.commands.wiki.WikiFetchService")
+    def test_fetch_passes_options_to_the_service(
+        self,
+        fetch_service: MagicMock,
+        args: list[str],
+        dry_run: bool,
+        expected: dict[str, object],
+        monkeypatch: pytest.MonkeyPatch,
+        mock_operation_result,
+        cli_context: CLIContext,
+    ):
+        fetch_service.return_value.fetch_all.return_value = mock_operation_result
+        _use_composition(monkeypatch, _stub_composition(wiki_client=MagicMock()))
+
+        result = runner.invoke(wiki.app, ["fetch", *args], obj=replace(cli_context, dry_run=dry_run))
+
+        assert result.exit_code == 0, result.output
+        fetch_service.return_value.fetch_all.assert_called_once_with(dry_run=dry_run, page_titles=None, **expected)
 
     @patch("erenshor.cli.commands.wiki.WikiFetchService")
-    def test_fetch_success(
-        self, mock_fetch_service, monkeypatch: pytest.MonkeyPatch, mock_operation_result, cli_context: CLIContext
+    def test_fetch_fails_when_a_page_fails(
+        self,
+        fetch_service: MagicMock,
+        monkeypatch: pytest.MonkeyPatch,
+        mock_operation_result_with_failures,
+        cli_context: CLIContext,
     ):
-        """Test successful fetch."""
-        mock_service = MagicMock()
-        mock_service.fetch_all.return_value = mock_operation_result
+        fetch_service.return_value.fetch_all.return_value = mock_operation_result_with_failures
         _use_composition(monkeypatch, _stub_composition(wiki_client=MagicMock()))
-        mock_fetch_service.return_value = mock_service
 
         result = runner.invoke(wiki.app, ["fetch"], obj=cli_context)
 
-        assert result.exit_code == 0
-
-    @patch("erenshor.cli.commands.wiki.WikiFetchService")
-    def test_fetch_with_limit(
-        self, mock_fetch_service, monkeypatch: pytest.MonkeyPatch, mock_operation_result, cli_context: CLIContext
-    ):
-        """Test fetch with limit parameter."""
-        mock_service = MagicMock()
-        mock_service.fetch_all.return_value = mock_operation_result
-        _use_composition(monkeypatch, _stub_composition(wiki_client=MagicMock()))
-        mock_fetch_service.return_value = mock_service
-
-        result = runner.invoke(wiki.app, ["fetch", "--limit", "5"], obj=cli_context)
-
-        assert result.exit_code == 0
-
-    @patch("erenshor.cli.commands.wiki.WikiFetchService")
-    def test_fetch_with_force(
-        self, mock_fetch_service, monkeypatch: pytest.MonkeyPatch, mock_operation_result, cli_context: CLIContext
-    ):
-        """Test fetch with force flag."""
-        mock_service = MagicMock()
-        mock_service.fetch_all.return_value = mock_operation_result
-        _use_composition(monkeypatch, _stub_composition(wiki_client=MagicMock()))
-        mock_fetch_service.return_value = mock_service
-
-        result = runner.invoke(wiki.app, ["fetch", "--force"], obj=cli_context)
-
-        assert result.exit_code == 0
-
-    @patch("erenshor.cli.commands.wiki.WikiFetchService")
-    def test_fetch_dry_run(
-        self, mock_fetch_service, monkeypatch: pytest.MonkeyPatch, mock_operation_result, cli_context: CLIContext
-    ):
-        """Test fetch in dry-run mode."""
-        mock_service = MagicMock()
-        mock_service.fetch_all.return_value = mock_operation_result
-        _use_composition(monkeypatch, _stub_composition(wiki_client=MagicMock()))
-        mock_fetch_service.return_value = mock_service
-
-        result = runner.invoke(wiki.app, ["fetch"], obj=replace(cli_context, dry_run=True))
-
-        assert result.exit_code == 0
+        assert result.exit_code == 1
 
 
 class TestWikiGenerateCommand:
-    """Test wiki generate command."""
+    """The generate command passes its options to the generate service and reports its result."""
 
+    @pytest.mark.parametrize(
+        ("args", "dry_run", "expected"),
+        [
+            ([], False, {"limit": None, "generator_names": None}),
+            (["--limit", "5"], False, {"limit": 5, "generator_names": None}),
+            (["--generator", "zones"], False, {"limit": None, "generator_names": ["zones"]}),
+            ([], True, {"limit": None, "generator_names": None}),
+        ],
+    )
     @patch("erenshor.cli.commands.wiki.WikiGenerateService")
-    def test_generate_success(
-        self, mock_generate_service, monkeypatch: pytest.MonkeyPatch, mock_operation_result, cli_context: CLIContext
-    ):
-        """Test successful generate."""
-        mock_service = MagicMock()
-        mock_service.generate_all.return_value = mock_operation_result
-        _use_composition(monkeypatch, _stub_composition())
-        mock_generate_service.return_value = mock_service
-
-        result = runner.invoke(wiki.app, ["generate"], obj=cli_context)
-
-        assert result.exit_code == 0
-
-    @patch("erenshor.cli.commands.wiki.WikiGenerateService")
-    def test_generate_with_limit(
-        self, mock_generate_service, monkeypatch: pytest.MonkeyPatch, mock_operation_result, cli_context: CLIContext
-    ):
-        """Test generate with limit parameter."""
-        mock_service = MagicMock()
-        mock_service.generate_all.return_value = mock_operation_result
-        _use_composition(monkeypatch, _stub_composition())
-        mock_generate_service.return_value = mock_service
-
-        result = runner.invoke(wiki.app, ["generate", "--limit", "5"], obj=cli_context)
-
-        assert result.exit_code == 0
-
-    @patch("erenshor.cli.commands.wiki.WikiGenerateService")
-    def test_generate_dry_run(
-        self, mock_generate_service, monkeypatch: pytest.MonkeyPatch, mock_operation_result, cli_context: CLIContext
-    ):
-        """Test generate in dry-run mode."""
-        mock_service = MagicMock()
-        mock_service.generate_all.return_value = mock_operation_result
-        _use_composition(monkeypatch, _stub_composition())
-        mock_generate_service.return_value = mock_service
-
-        result = runner.invoke(wiki.app, ["generate"], obj=replace(cli_context, dry_run=True))
-
-        assert result.exit_code == 0
-
-    @patch("erenshor.cli.commands.wiki.WikiGenerateService")
-    def test_generate_with_warnings(
+    def test_generate_passes_options_to_the_service(
         self,
-        mock_generate_service,
+        generate_service: MagicMock,
+        args: list[str],
+        dry_run: bool,
+        expected: dict[str, object],
+        monkeypatch: pytest.MonkeyPatch,
+        mock_operation_result,
+        cli_context: CLIContext,
+    ):
+        generate_service.return_value.generate_all.return_value = mock_operation_result
+        _use_composition(monkeypatch, _stub_composition())
+
+        result = runner.invoke(wiki.app, ["generate", *args], obj=replace(cli_context, dry_run=dry_run))
+
+        assert result.exit_code == 0, result.output
+        call = generate_service.return_value.generate_all.call_args.kwargs
+        assert {key: call[key] for key in ("dry_run", "page_titles", *expected)} == {
+            "dry_run": dry_run,
+            "page_titles": None,
+            **expected,
+        }
+
+    @patch("erenshor.cli.commands.wiki.WikiGenerateService")
+    def test_generate_shows_warnings_and_succeeds(
+        self,
+        generate_service: MagicMock,
         monkeypatch: pytest.MonkeyPatch,
         mock_operation_result_with_warnings,
         cli_context: CLIContext,
     ):
-        """Test generate that completes with warnings."""
-        mock_service = MagicMock()
-        mock_service.generate_all.return_value = mock_operation_result_with_warnings
+        generate_service.return_value.generate_all.return_value = mock_operation_result_with_warnings
         _use_composition(monkeypatch, _stub_composition())
-        mock_generate_service.return_value = mock_service
 
         result = runner.invoke(wiki.app, ["generate"], obj=cli_context)
 
-        # Should exit 0 even with warnings
         assert result.exit_code == 0
+        assert "Manual edit preserved: Item:Iron Sword" in _unwrapped(result.output)
+
+    @patch("erenshor.cli.commands.wiki.WikiGenerateService")
+    def test_generate_fails_when_a_page_fails(
+        self,
+        generate_service: MagicMock,
+        monkeypatch: pytest.MonkeyPatch,
+        mock_operation_result_with_failures,
+        cli_context: CLIContext,
+    ):
+        generate_service.return_value.generate_all.return_value = mock_operation_result_with_failures
+        _use_composition(monkeypatch, _stub_composition())
+
+        result = runner.invoke(wiki.app, ["generate"], obj=cli_context)
+
+        assert result.exit_code == 1
 
     def test_generate_lua_passes_faction_and_class_dependencies(
         self, monkeypatch: pytest.MonkeyPatch, cli_context: CLIContext
