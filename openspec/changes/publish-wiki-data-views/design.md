@@ -40,7 +40,8 @@ Generation fails, naming the module, the row, and the field, when:
 
 - a key does not resolve in the link catalog;
 - a value holds wiki markup (`[[`, `]]`, `{{`, `}}`, `<`, `>`) or a line break;
-- a value has another type than its declaration. A field holds one type, as WARFRAME's database guidelines also ask, so modules never test types at run time.
+- a value has another type than its declaration. A field holds one type, as WARFRAME's database guidelines also ask, so modules never test types at run time;
+- a row lacks a field that the view does not declare optional, or holds a field that the view does not declare.
 
 The existing size check applies to every module.
 
@@ -76,6 +77,14 @@ The data guide lists the view data modules and links each module, whose opening 
 ### D8. The vendor script
 
 `src/tools/update_vendor_inventory_tables.py` and `src/tools/generate_vendor_inventory_tables.py` with `src/erenshor/tools/vendor_inventory_tables.py` write and check vendor tables from outside the pipeline. The vendor slice deletes them and their tests once no vendor page holds a `Store inventory` table.
+
+### D9. What a vendor sells
+
+A vendor page shows one deduplication group, as the item sources do: 11 vendor pages have several characters. Vendor items are not part of the deduplication identity, so a group can hold a copy that players never meet, such as an unplaced backup prefab, with stock that the copy in the game lacks. The clean view `vendor_offers` lists what the copies in the game sell: the copies in `characters_in_game`, which the game places or spawns, a spell summons, or a treasure hunt can dig up. Every reader of vendor stock reads `vendor_offers`: this view, the item sources, the obtainability checks, and the guide. In game on 2026-10-11, Samuel Thatcher sold the 5 items of his placed copy, and none of the 5 more that the unplaced Shopkeeper Treven prefab, which carries his name, lists.
+
+An item that only some copies sell names the Reliquary furniture sets that place those copies: 5 of the Pocket Vendor's 11 items come only with the Stone Vendor Set. Generation stops when such an item has a seller that no furniture places, because a row cannot say which copy sells it.
+
+A row's type is the item kind of `Data/Items`, with Furniture for the game's furniture sets. A general item is Mold when smithing upgrades with it, Crafting when a recipe uses it or it is fuel, Quest Item when a quest requires it or reading it assigns or completes a quest, and Lore when it has a book title. A finer label of a hand table, such as Potion or Cosmetic, needs a rule in the data first.
 
 ### Failure handling, grouping, and rollback
 

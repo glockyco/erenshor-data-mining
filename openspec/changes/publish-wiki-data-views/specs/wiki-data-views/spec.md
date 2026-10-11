@@ -22,7 +22,7 @@ A view template SHALL render its rows only from its generated data module under 
 
 ### Requirement: Generated view data is checked before it is written
 
-Generation SHALL fail and name the module, the row, and the field when a stable key does not resolve in the link catalog, when a value holds wiki markup or a line break, or when a value has another type than its field's declaration.
+Generation SHALL fail and name the module, the row, and the field when a stable key does not resolve in the link catalog, when a value holds wiki markup or a line break, when a value has another type than its field's declaration, when a row lacks a required field, or when a row holds a field that the view does not declare.
 
 #### Scenario: An unknown key
 
@@ -32,6 +32,11 @@ Generation SHALL fail and name the module, the row, and the field when a stable 
 #### Scenario: Markup in a value
 
 - **WHEN** a builder emits a value that contains `[[`
+- **THEN** `wiki generate-lua` fails and names the module, the row, and the field
+
+#### Scenario: An undeclared field
+
+- **WHEN** a builder emits a row with a field that its view does not declare
 - **THEN** `wiki generate-lua` fails and names the module, the row, and the field
 
 ### Requirement: Each data module describes its fields
@@ -57,6 +62,27 @@ A view SHALL use its `stablekey` argument when one is given. Otherwise it SHALL 
 - **WHEN** `{{Vendor stock}}` is placed on the page of a character that sells nothing
 - **THEN** it says that the vendor stock data is missing
 - **AND** the page joins the tracking category of the view
+
+### Requirement: Vendor stock shows what the vendors in the game sell
+
+The vendor stock view SHALL list the items that the copies of the vendor in the game sell, and SHALL NOT list an item that only a copy that players never meet sells. An item that only some copies sell SHALL name the Reliquary furniture sets that place those copies, and generation SHALL fail when such an item has a seller that no furniture places. Each row SHALL show the item's kind, Furniture for a furniture set, and for a general item Mold, Crafting, Quest Item, or Lore when the data shows that use.
+
+#### Scenario: A copy that players never meet
+
+- **WHEN** `{{Vendor stock}}` is placed on the Samuel Thatcher page on the current main build
+- **THEN** it lists the 5 items that Samuel Thatcher sells in Hidden Hills
+- **AND** it lists none of the items that only the unplaced Shopkeeper Treven prefab, which carries his name, lists
+
+#### Scenario: Stock that furniture adds
+
+- **WHEN** `{{Vendor stock}}` is placed on the Summoned: Pocket Vendor page on the current main build
+- **THEN** it lists 11 items
+- **AND** each of the 5 items that only the Stone Vendor Set's placements sell names the Stone Vendor Set
+
+#### Scenario: A general item with a use
+
+- **WHEN** the Pocket Vendor's stock lists Aetheria, a general item that recipes use
+- **THEN** its type is Crafting
 
 ### Requirement: Zone rosters group characters by encounter tier
 
