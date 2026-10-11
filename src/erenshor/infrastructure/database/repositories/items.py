@@ -864,3 +864,86 @@ class ItemRepository(BaseRepository[Item]):
             return []
         target_id, use_type = _SMITHING_SPECIAL_TARGET_IDS[item_id]
         return [UsedInInfo(use_type=use_type, target_key=id_to_stable[target_id])]
+
+    def get_fishing_bonus_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]:
+        """Return the fishing bonus that can replace any catch with an item, with its chance per catch."""
+        query = "SELECT chance_per_catch FROM fishing_bonus_catches WHERE item_stable_key = ?"
+        try:
+            rows = self._execute_raw(query, (item_stable_key,))
+            return [
+                ObtainedFromInfo(
+                    source_type="fishing_bonus", source_key=None, probability=float(row["chance_per_catch"])
+                )
+                for row in rows
+            ]
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve fishing bonus sources for '{item_stable_key}': {e}") from e
+
+    def get_item_conversion_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]:
+        """Return items that a game mechanic turns into an item, with the zone where it happens."""
+        query = """
+            SELECT ic.input_item_stable_key, COALESCE(z.display_name, ic.zone_stable_key) AS zone_name
+            FROM item_conversions ic
+            LEFT JOIN zones z ON z.stable_key = ic.zone_stable_key
+            WHERE ic.output_item_stable_key = ?
+            ORDER BY ic.input_item_stable_key, ic.zone_stable_key
+        """
+        try:
+            rows = self._execute_raw(query, (item_stable_key,))
+            return [
+                ObtainedFromInfo(
+                    source_type="item_conversion",
+                    source_key=str(row["input_item_stable_key"]),
+                    is_guaranteed=True,
+                    condition=f"in {row['zone_name']}",
+                )
+                for row in rows
+            ]
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve item conversion sources for '{item_stable_key}': {e}") from e
+
+    def get_item_conversion_uses(self, item_stable_key: str) -> list[UsedInInfo]:
+        """Return the items that a game mechanic turns an item into."""
+        query = """
+            SELECT DISTINCT output_item_stable_key
+            FROM item_conversions
+            WHERE input_item_stable_key = ?
+            ORDER BY output_item_stable_key
+        """
+        try:
+            rows = self._execute_raw(query, (item_stable_key,))
+            return [
+                UsedInInfo(use_type="item_conversion", target_key=str(row["output_item_stable_key"])) for row in rows
+            ]
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve item conversion uses for '{item_stable_key}': {e}") from e
+
+    def get_quality_offering_uses(self, item_stable_key: str) -> list[UsedInInfo]:
+        """Return the characters that accept an item in a quality offering, such as the Flame Wells."""
+        query = """
+            SELECT DISTINCT character_stable_key
+            FROM quality_offerings
+            WHERE first_item_stable_key = ? OR second_item_stable_key = ?
+            ORDER BY character_stable_key
+        """
+        try:
+            rows = self._execute_raw(query, (item_stable_key, item_stable_key))
+            return [
+                UsedInInfo(use_type="quality_offering", target_key=str(row["character_stable_key"])) for row in rows
+            ]
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve quality offering uses for '{item_stable_key}': {e}") from e
+
+    def get_item_zone_restrictions(self, item_stable_key: str) -> list[tuple[str, str]]:
+        """Return (zone stable key, outcome) for each zone where using an item has another outcome."""
+        query = """
+            SELECT zone_stable_key, outcome
+            FROM item_zone_restrictions
+            WHERE item_stable_key = ?
+            ORDER BY zone_stable_key
+        """
+        try:
+            rows = self._execute_raw(query, (item_stable_key,))
+            return [(str(row["zone_stable_key"]), str(row["outcome"])) for row in rows]
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve zone restrictions for '{item_stable_key}': {e}") from e

@@ -45,6 +45,9 @@ class FakeItemRepository:
         spell_effect_items: dict[str, list[ItemLink]] | None = None,
         skill_effect_items: dict[str, list[ItemLink]] | None = None,
         catalog_items: list[Item] | None = None,
+        mechanic_sources: dict[str, list[ObtainedFromInfo]] | None = None,
+        mechanic_uses: dict[str, list[UsedInInfo]] | None = None,
+        zone_restrictions: dict[str, list[tuple[str, str]]] | None = None,
     ) -> None:
         self._items = items
         self._catalog_items = items if catalog_items is None else catalog_items
@@ -64,6 +67,9 @@ class FakeItemRepository:
         self._skill_teaching_items = skill_teaching_items or {}
         self._spell_effect_items = spell_effect_items or {}
         self._skill_effect_items = skill_effect_items or {}
+        self._mechanic_sources = mechanic_sources or {}
+        self._mechanic_uses = mechanic_uses or {}
+        self._zone_restrictions = zone_restrictions or {}
 
     def get_items_for_wiki_generation(self) -> list[Item]:
         return self._items
@@ -79,6 +85,29 @@ class FakeItemRepository:
 
     def get_crafting_recipe(self, stable_key: str) -> CraftingRecipe | None:
         return self._recipes.get(stable_key)
+
+    def get_item_zone_restrictions(self, item_stable_key: str) -> list[tuple[str, str]]:
+        return self._zone_restrictions.get(item_stable_key, [])
+
+    def get_fishing_bonus_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]:
+        return [
+            source
+            for source in self._mechanic_sources.get(item_stable_key, [])
+            if source.source_type == "fishing_bonus"
+        ]
+
+    def get_item_conversion_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]:
+        return [
+            source
+            for source in self._mechanic_sources.get(item_stable_key, [])
+            if source.source_type == "item_conversion"
+        ]
+
+    def get_item_conversion_uses(self, item_stable_key: str) -> list[UsedInInfo]:
+        return [use for use in self._mechanic_uses.get(item_stable_key, []) if use.use_type == "item_conversion"]
+
+    def get_quality_offering_uses(self, item_stable_key: str) -> list[UsedInInfo]:
+        return [use for use in self._mechanic_uses.get(item_stable_key, []) if use.use_type == "quality_offering"]
 
     def get_item_sources(self, item_stable_key: str) -> list[tuple[StandardLink, float]]:
         return self._item_sources.get(item_stable_key, [])

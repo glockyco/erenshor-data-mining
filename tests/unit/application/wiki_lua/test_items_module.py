@@ -306,6 +306,25 @@ def test_builds_only_item_owned_provenance_fields_from_source_info() -> None:
         assert removed not in item_data
 
 
+def test_lists_the_zones_where_using_an_item_has_another_outcome() -> None:
+    stone, plain = make_item(stable_key="item:time_stone"), make_item(stable_key="item:plain")
+    data = build_items_data(
+        items=[stone, plain],
+        stats_by_item={},
+        classes_by_item={},
+        zone_restrictions_by_item={
+            stone.stable_key: [("zone:shiveringtomb2", "returned unused"), ("zone:stowawayportal", "returned unused")]
+        },
+    )
+
+    records = {key: data["shards"][shard][key] for key, shard in data["index"]["byKey"].items()}
+    assert records[stone.stable_key]["zoneRestrictions"] == [
+        {"zoneKey": "zone:shiveringtomb2", "outcome": "returned unused"},
+        {"zoneKey": "zone:stowawayportal", "outcome": "returned unused"},
+    ]
+    assert "zoneRestrictions" not in records[plain.stable_key]
+
+
 def test_formats_obtained_from_with_stable_keys_and_nil_omission() -> None:
     item = make_item()
     data = build_items_data(

@@ -32,6 +32,8 @@ class ItemDataRepository(Protocol):
 
     def get_crafting_recipe(self, stable_key: str, /) -> CraftingRecipe | None: ...
 
+    def get_item_zone_restrictions(self, item_stable_key: str) -> list[tuple[str, str]]: ...
+
 
 class ItemProvenanceItemRepository(Protocol):
     """Item repository methods needed for item source fields."""
@@ -47,6 +49,14 @@ class ItemProvenanceItemRepository(Protocol):
     def get_crafting_material_sources(self, item_stable_key: str) -> list[UsedInInfo]: ...
 
     def get_item_smithing_special_uses(self, item_stable_key: str) -> list[UsedInInfo]: ...
+
+    def get_fishing_bonus_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
+
+    def get_item_conversion_sources(self, item_stable_key: str) -> list[ObtainedFromInfo]: ...
+
+    def get_item_conversion_uses(self, item_stable_key: str) -> list[UsedInInfo]: ...
+
+    def get_quality_offering_uses(self, item_stable_key: str) -> list[UsedInInfo]: ...
 
 
 class ItemProvenanceCharacterRepository(Protocol):
@@ -185,6 +195,9 @@ def generate_items_modules(
     stats_by_item = {item.stable_key: item_repo.get_item_stats(item.stable_key) for item in items}
     classes_by_item = {item.stable_key: item_repo.get_item_classes(item.stable_key) for item in items}
     recipes_by_item = {item.stable_key: item_repo.get_crafting_recipe(item.stable_key) for item in items}
+    zone_restrictions_by_item = {
+        item.stable_key: item_repo.get_item_zone_restrictions(item.stable_key) for item in items
+    }
     data = build_items_data(
         items,
         stats_by_item,
@@ -192,6 +205,7 @@ def generate_items_modules(
         recipes_by_item=recipes_by_item,
         sources_by_item=sources_by_item,
         class_display_names=class_display_names,
+        zone_restrictions_by_item=zone_restrictions_by_item,
     )
 
     modules = {"Items.lua": module_text(data["index"])}
@@ -237,6 +251,8 @@ def build_item_sources_by_item(
             *item_repo.get_crafting_material_sources(item_key),
             *quest_repo.get_quest_requirement_sources(item_key),
             *item_repo.get_item_smithing_special_uses(item_key),
+            *item_repo.get_item_conversion_uses(item_key),
+            *item_repo.get_quality_offering_uses(item_key),
         ]
         obtained_from = [
             *character_repo.get_character_drop_sources(item_key),
@@ -245,8 +261,10 @@ def build_item_sources_by_item(
             *quest_repo.get_quest_reward_sources(item_key),
             *item_repo.get_recipes_rewarding_item(item_key),
             *item_repo.get_item_use_sources(item_key),
+            *item_repo.get_item_conversion_sources(item_key),
             *zone_repo.get_mining_nodes_for_item(item_key),
             *zone_repo.get_fishing_waters_for_item(item_key),
+            *item_repo.get_fishing_bonus_sources(item_key),
             *zone_repo.get_item_bag_sources_for_item(item_key),
             *item_repo.get_classes_starting_with_item(item_key),
             *(
@@ -270,6 +288,7 @@ def build_items_data(
     recipes_by_item: Mapping[str, CraftingRecipe | None] | None = None,
     sources_by_item: Mapping[str, SourceInfo] | None = None,
     class_display_names: Mapping[str, str] | None = None,
+    zone_restrictions_by_item: Mapping[str, list[tuple[str, str]]] | None = None,
 ) -> LuaData:
     """Build the serializable item index and semantic shard tables for `mw.loadData()`."""
 
@@ -287,6 +306,9 @@ def build_items_data(
             recipe=recipes_by_item.get(item.stable_key) if recipes_by_item is not None else None,
             sources=sources_by_item.get(item.stable_key) if sources_by_item is not None else None,
             class_display_names=class_display_names,
+            zone_restrictions=zone_restrictions_by_item.get(item.stable_key, [])
+            if zone_restrictions_by_item is not None
+            else [],
         )
         by_key[item.stable_key] = shard_name
 
@@ -318,6 +340,7 @@ def _item_record(
     recipe: CraftingRecipe | None,
     sources: SourceInfo | None,
     class_display_names: Mapping[str, str] | None,
+    zone_restrictions: list[tuple[str, str]],
 ) -> LuaData:
     row: LuaData = {}
     _put(row, "icon", picture_file_title("icon", item.image_name, item.display_name, item.item_name))
@@ -344,6 +367,8 @@ def _item_record(
     if sources is not None:
         _put(row, "usedIn", _format_used_in(sources))
         _put(row, "obtainedFrom", _format_obtained_from(sources))
+    if zone_restrictions:
+        row["zoneRestrictions"] = [{"zoneKey": zone, "outcome": outcome} for zone, outcome in zone_restrictions]
 
     if recipe is not None:
         ingredients = _recipe_links(recipe.materials)
