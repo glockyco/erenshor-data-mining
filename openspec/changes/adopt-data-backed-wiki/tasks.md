@@ -147,7 +147,7 @@
 - [ ] 8.3 Convert spells and skills, with their categories. Same verification.
 - [ ] 8.4 Convert zones. Same verification.
 - [ ] 8.5 Convert characters. Same verification.
-- [ ] 8.6 Convert items, with the item ID and rows for the sources and uses of `Data/Items`, among them the runtime item mechanics of task 5.43 and the Time Stone's zones where it returns unused. Same verification.
+- [ ] 8.6 Convert items, with the item ID and rows for the sources and uses of `Data/Items`, among them the runtime item mechanics of task 5.43 and the Time Stone's zones where it returns unused. The data-backed template shows the icon, render, and screenshot of `show-item-pictures-by-role` by its rules. Same verification.
 - [ ] 8.7 Delete the merge engine, the Jinja article templates, and the full-article refresh. Verify: a game update in the local stack edits no article whose entities did not change.
 
 ## 9. Live pages for an administrator to delete
