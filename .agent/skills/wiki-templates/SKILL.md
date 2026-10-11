@@ -212,4 +212,4 @@ Check its title through `action=parse` and inspect the parsed HTML. Remove the t
 curl --get 'http://localhost:8088/api.php' --data-urlencode 'action=parse' --data-urlencode 'page=<article title>' --data-urlencode 'prop=text' --data-urlencode 'format=json'
 ```
 
-Use `wiki deploy-repo-pages --render-check` for the final compatibility check with wiki.gg when a deploy is risky. The local stack holds every generated data module, so it cannot show a module that is missing live.
+Use `wiki deploy-repo-pages --render-check` for the final compatibility check with wiki.gg when a deploy is risky. The local stack loads the small fixture data modules of `wiki-dev/fixtures/modules/`, not the generated ones, so its testcases and smoke rows use fixture keys, and it cannot show a module that is missing live. To see real rows locally, edit the generated module and a test page into the local wiki, check them, then delete the page and rerun `import_pages.py`, which restores the fixtures.
