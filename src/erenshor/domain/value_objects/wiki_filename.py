@@ -3,7 +3,9 @@
 A picture's title is ``<subject> <role>.png``. The subject is the entity's
 image name without the characters that MediaWiki forbids in file names, so
 every title can hold a file. The role says what the picture shows and whose
-it is: the bot uploads icons and renders, and editors upload screenshots.
+it is: the bot uploads icons and renders, and editors upload screenshots. An
+item whose model differs between the male and the female body has a render of
+each, ``<subject> render (male).png`` and ``<subject> render (female).png``.
 """
 
 from __future__ import annotations
@@ -11,12 +13,15 @@ from __future__ import annotations
 from typing import Literal
 
 __all__ = [
+    "Body",
     "PictureRole",
+    "body_render_title",
     "picture_file_title",
     "picture_subject",
 ]
 
 PictureRole = Literal["icon", "render", "screenshot"]
+Body = Literal["male", "female"]
 
 # Characters that MediaWiki forbids in file names or that wikitext reads as
 # syntax inside a file link.
@@ -41,3 +46,9 @@ def picture_file_title(role: PictureRole, *names: str | None) -> str:
     """Return the file title of an entity's picture in ``role``, or ``""`` without a subject."""
     subject = picture_subject(*names)
     return f"{subject} {role}.png" if subject else ""
+
+
+def body_render_title(body: Body, *names: str | None) -> str:
+    """Return the title of an item's render on one body, or ``""`` without a subject."""
+    subject = picture_subject(*names)
+    return f"{subject} render ({body}).png" if subject else ""

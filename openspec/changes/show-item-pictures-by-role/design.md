@@ -47,25 +47,25 @@ The user chose on 2026-10-11 to show the piece by itself, not worn on a body. Ea
 | `mask` | General, cosmetic | The `HalloweenMasks` object with the item's part name |
 | `furnishing` | General, furniture set | The furnishing that the set turns on in a Reliquary room, without the room |
 
-The male and female bodies hold separate meshes for most armour parts of the same name. On the player's body in `LoadScene`, 318 of the 408 worn items switch on parts with a male and a female mesh, such as the `HeavyPlate` chest with 1,572 and 1,692 vertices. 75 switch on a part that both bodies share (37 capes and 38 head coverings), 5 gloves exist only on the male body, and 10 parts are not on the player's body. The user decided on 2026-10-11 to show both versions where they differ:
+The male and female bodies hold separate meshes for most armour parts of the same name. The export of 2026-10-11 records every part under the player's slot transforms in `LoadScene`, as `UpdateSlot` finds them among all descendants: 315 of the 408 worn items switch on parts whose male and female meshes differ, such as the `HeavyPlate` chest with 1,572 and 1,692 vertices, 92 switch on parts that both bodies draw alike or that only one body holds, and the part of one, the Igniting Brace's `Plate Bracer`, is on neither body. The user decided on 2026-10-11 to show both versions where they differ:
 
 - An item whose parts differ between the bodies gets `<subject> render (male).png` and `<subject> render (female).png`.
 - Every other item gets one `<subject> render.png`: shared parts, male-only parts, weapons and shields from the male body's hand anchors, masks, and furnishings.
 - The qualifier follows the role, so the subject stays whole before ` render`, and all renders of an item sort and search together. No worn item's picture name on build 24405256 holds parentheses, `male`, or ` render`.
-- The 10 parts that the player's body lacks (7 capes, 2 hoods, and one bracer) fail their capture with the missing name until the source that holds them is found.
+- An item whose part neither body holds is listed apart, with the missing name, until the source that holds it is found.
 
 The colours come from the game's item record at capture time, through the same shader properties as `UpdateSlot`, so the export needs no colour fields and a render cannot drift from the game's colours. Items that share a subject share their renders, as characters do. Two renders with equal pixels become one picture with redirects, as icons do.
 
 Alternatives:
 
 - **Worn on a body**, the paper doll. The user chose the piece by itself.
-- **One render from the male body for every item.** It would show the wrong shape on 318 pages for players of the other body.
+- **One render from the male body for every item.** It would show the wrong shape on 315 pages for players of the other body.
 - **`<subject> male render.png`.** A reader could not tell whether `male` belongs to the item's name.
 - **The piece in its bind pose without a rig.** Skinned parts need the body's bones to deform, so the studio keeps a hidden body and shows only the item's renderers.
 
 ### D3. The capture workflow learns item subjects
 
-`images manifest` adds item entries beside the character entries: subject, render title, kind, body (`male`, `female`, or none), the item's ID, slot, part name, and pages. A worn item whose parts differ between the bodies has one entry for each body. The capture request carries the kind, the body, and the item ID. The studio looks up the item with `GetItemByID`, builds the source of D2 from clones, and never touches the player's own body or equipment. A source that has no object of the item's part name fails the capture with the subject and the name.
+`images manifest` adds item entries beside the character entries: subject, render title, kind, body (`male`, `female`, or none), the item's ID, slot, part name, and pages. A worn item whose parts differ between the bodies has one entry for each body. The manifest learns the parts from the export: the export records each child of the slot transforms of the player's male and female `ModularParts` in `LoadScene`, with the meshes it draws, the mask objects, and the furnishings of the Reliquary's planning table. Two bodies differ for an item when their parts of its name draw different meshes. An item whose part no body holds is listed apart with the missing name. The capture request carries the kind, the body, and the item ID. The studio looks up the item with `GetItemByID`, builds the source of D2 from clones, and never touches the player's own body or equipment. A source that has no object of the item's part name fails the capture with the subject and the name.
 
 A new preset `item-1` keeps the light and camera effects of `portrait-4` and frames the item's bounds, so a long spear and a ring of gloves both fill the square with the usual margin. `images review` applies the character checks: the expected object, renderer count, clipping, and alpha. `images approve` records the entity kind `item`.
 

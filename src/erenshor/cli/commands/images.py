@@ -1,4 +1,4 @@
-"""Wiki picture commands: character portrait captures and the publication of the picture catalog."""
+"""Wiki picture commands: model captures of characters and items, and the publication of the picture catalog."""
 
 from __future__ import annotations
 
@@ -13,6 +13,11 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
+from erenshor.application.services.item_model_manifest import (
+    build_item_manifest,
+    load_item_sources,
+    load_model_parts,
+)
 from erenshor.application.services.model_image_manifest import (
     build_manifest,
     load_character_sources,
@@ -33,13 +38,76 @@ if TYPE_CHECKING:
 
 __all__ = ["app"]
 
-app = typer.Typer(help="Capture character portraits and publish the game's pictures to the wiki")
+app = typer.Typer(help="Capture character and item models and publish the game's pictures to the wiki")
+items_app = typer.Typer(help="Capture item models: the same workflow as for characters, in images/item-captures/")
+app.add_typer(items_app, name="items")
+
+
+def _images_dir(cli_ctx: CLIContext) -> Path:
+    variant_config = cli_ctx.config.variants[cli_ctx.variant]
+    return variant_config.resolved_unity_project(cli_ctx.repo_root).parent / "images"
 
 
 def _model_capture_dir(cli_ctx: CLIContext) -> Path:
-    """The untracked directory of the model capture manifest and its captures."""
+    """The untracked directory of the character capture manifest and its captures."""
+    return _images_dir(cli_ctx) / "model-captures"
+
+
+def _item_capture_dir(cli_ctx: CLIContext) -> Path:
+    """The untracked directory of the item capture manifest and its captures."""
+    return _images_dir(cli_ctx) / "item-captures"
+
+
+@items_app.command("manifest")
+@require_preconditions(database_exists, database_valid)
+def item_manifest(ctx: typer.Context) -> None:
+    """List every item model with the game object to capture for it.
+
+    Lists one render for each item subject whose part, mask, or furnishing the
+    export holds, and one for each body where the male and the female body
+    draw a worn item's parts differently. Items without a model, and
+    blueprints, get none. Writes images/item-captures/manifest.json of the
+    variant. With the root --dry-run option, writes nothing.
+
+    Examples:
+        erenshor --dry-run images items manifest
+        erenshor images items manifest
+    """
+    console = Console()
+    cli_ctx: CLIContext = ctx.obj
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
-    return variant_config.resolved_unity_project(cli_ctx.repo_root).parent / "images" / "model-captures"
+    database = variant_config.resolved_database(cli_ctx.repo_root)
+    with closing(sqlite3.connect(f"file:{database}?mode=ro", uri=True)) as clean:
+        items = load_item_sources(clean)
+        parts = load_model_parts(clean)
+        game_build = load_game_build(clean)
+    try:
+        result = build_item_manifest(items, parts, game_build)
+    except ValueError as error:
+        console.print(f"[red]{error}[/red]")
+        raise typer.Exit(1) from error
+
+    kinds: dict[str, int] = {}
+    for entry in result.entries:
+        kinds[entry.kind] = kinds.get(entry.kind, 0) + 1
+    per_body = sum(1 for entry in result.entries if entry.title.endswith(("(male).png", "(female).png")))
+    console.print(
+        f"[bold]{len(result.entries)} renders[/bold], game build {result.game_build}: "
+        + ", ".join(f"{count} {kind}" for kind, count in sorted(kinds.items()))
+        + f"; {per_body} of them for one body"
+    )
+    if result.unsourced:
+        console.print(f"[bold]{len(result.unsourced)} items whose model the export lacks:[/bold]")
+        for item in result.unsourced:
+            console.print(f"  {item.subject}: {item.part} ({', '.join(item.pages)})")
+
+    if cli_ctx.dry_run:
+        console.print("[yellow]Dry run: the manifest was not written.[/yellow]")
+        return
+    output = _item_capture_dir(cli_ctx) / "manifest.json"
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(result.to_json(), indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    console.print(f"[green]✓[/green] {len(result.entries)} captures in {output}")
 
 
 @app.command("manifest")
