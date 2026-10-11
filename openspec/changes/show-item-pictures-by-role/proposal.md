@@ -6,9 +6,9 @@ An item page shows one picture, the game's inventory icon, and since 2026-10-07 
 
 ## What Changes
 
-- **Items get three pictures, each with one role.** `<subject> icon.png` is the game's icon, `<subject> render.png` is the project's capture of the item's 3D model, and `<subject> screenshot.png` is an editor's picture from the game, the titles that `name-pictures-by-role` defined.
-- **The infobox shows the render and the screenshot, and tooltips keep the icon.** The item infobox shows the render first and the screenshot as a second tab, like the character infobox, and shows one of them alone when the other does not exist. An item with neither shows its icon, so every item page keeps a picture and its search thumbnail. Tooltips, item links, gear slots, and hover cards keep showing the icon.
-- **A render shows the piece by itself** (decided with the user on 2026-10-11). Weapons and shields show their model, worn items show the parts that the game switches on for them without the body, in the item's own colours, masks show the mask, and a Reliquary furniture set shows the furnishing that it builds. One render per item. About 680 wiki items have a model. Consumables, scrolls, books, rings, necks, waists, charms, and auras have none and keep their icon.
+- **Items get three pictures, each with one role.** `<subject> icon.png` is the game's icon, `<subject> render.png` is the project's capture of the item's 3D model, or `<subject> render (male).png` and `<subject> render (female).png` where the two bodies have different models, and `<subject> screenshot.png` is an editor's picture from the game, the titles that `name-pictures-by-role` defined.
+- **The infobox shows the render and the screenshot, and tooltips keep the icon.** The item infobox shows the render, or the male and the female render, first and the screenshot as a further tab, like the character infobox, and shows one of them alone when the other does not exist. An item with neither shows its icon, so every item page keeps a picture and its search thumbnail. Tooltips, item links, gear slots, and hover cards keep showing the icon.
+- **A render shows the piece by itself** (decided with the user on 2026-10-11). Weapons and shields show their model, worn items show the parts that the game switches on for them without the body, in the item's own colours, masks show the mask, and a Reliquary furniture set shows the furnishing that it builds. The male and female bodies have separate models for 318 worn items, which get one render for each body (decided with the user on 2026-10-11). Every other item gets one render: about 1,000 renders for the 677 items with a model. Consumables, scrolls, books, rings, necks, waists, charms, and auras have none and keep their icon.
 - **The capture workflow covers item models.** The capture manifest, the in-game capture studio of the MapTileCapture mod, the review, and the approval learn item subjects. Item renders enter the catalog only after review, as character renders do.
 - **Editors' item pictures move to their screenshot titles once.** The 18 files that show an item move to the screenshot titles, and the infobox shows them. A reviewed page edit adds the render and screenshot titles to the 16 hand-written mask infoboxes and removes the in-text copies that the infobox then shows.
 - **BREAKING:** the image kind `portrait` of the clean database becomes `render`, because it no longer holds only character portraits.
@@ -31,7 +31,7 @@ None.
   - Editors and the bot never compete for an item's title.
   - A game update that changes an item's model or colours reaches its render through the same review as a character's.
 - **Non-goals:**
-  - Items worn on a body or one render for each body. The user chose the piece by itself.
+  - Items worn on a body. The user chose the piece by itself.
   - Renders of the belt lamps and the Watcher's Lens before task 5.45 of `adopt-data-backed-wiki` exports the `Inventory` references that name them.
   - Item pictures on the interactive map, which keeps its icons.
   - A `Needs Image` category for items: every item has its icon.
@@ -40,5 +40,5 @@ None.
   - Capture: `src/erenshor/application/services/model_image_manifest.py`, `application/capture/portraits.py`, `application/services/model_image_approval.py`, `domain/value_objects/capture_approval.py`, `cli/commands/images.py`, and the MapTileCapture mod's `Capture/PortraitController.cs`, `Capture/PortraitStudio.cs`, `Protocol/Messages.cs`, and `Protocol/PortraitPreset.cs`
   - Catalog and publication: `application/processor/pictures.py`, the `images` table in `application/processor/writer.py`, `application/services/image_publication.py`, and `image_publication_run.py`
   - Wiki: `wiki/templates/Item.wiki`, the item generator (`application/wiki/generators/sections/item.py`, `templates/item.jinja2`) and `field_preservation.py`, the local wiki's fixtures and smoke checks, the Game Data guide, and the `wiki-templates` and `refreshing-game-data` skills
-  - Live wiki: about 680 render uploads, a `Template:Item` deploy, an article deploy of the item pages, 18 file moves, and page edits of the 16 mask pages and the pages that show a moved picture in their text
+  - Live wiki: about 1,000 render uploads, a `Template:Item` deploy, an article deploy of the item pages, 18 file moves, and page edits of the 16 mask pages and the pages that show a moved picture in their text
 - **Ordering:** independent of `publish-wiki-data-views`. The data-backed item template of `adopt-data-backed-wiki` task 8.6 takes over the same pictures and rules.

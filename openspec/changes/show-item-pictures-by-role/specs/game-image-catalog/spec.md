@@ -54,7 +54,7 @@ A render of a character or an item SHALL enter the catalog only when a review ap
 
 ### Requirement: Every picture has the wiki title of each entity
 
-The catalog SHALL give every linked entity the wiki file title of its picture, made of the entity's subject, a space, the picture's role, and `.png`. The subject SHALL be the entity's image name without the characters that MediaWiki forbids in file names, with runs of whitespace collapsed. The role SHALL be `icon` for the game picture of an item, spell, skill, or stance and `render` for the rendered model of a character or an item. Every title SHALL be one that MediaWiki can hold a file at, so no title needs a redirect from another spelling. A build SHALL fail when one title names two different pictures, and name both entities.
+The catalog SHALL give every linked entity the wiki file title of its picture, made of the entity's subject, a space, the picture's role, and `.png`. The subject SHALL be the entity's image name without the characters that MediaWiki forbids in file names, with runs of whitespace collapsed. The role SHALL be `icon` for the game picture of an item, spell, skill, or stance and `render` for the rendered model of a character or an item. An item whose parts differ between the male and the female body SHALL have `render (male)` and `render (female)` instead of `render`. Every title SHALL be one that MediaWiki can hold a file at, so no title needs a redirect from another spelling. A build SHALL fail when one title names two different pictures, and name both entities.
 
 #### Scenario: A stance uses its activating skill's picture
 
@@ -80,3 +80,13 @@ The catalog SHALL give every linked entity the wiki file title of its picture, m
 
 - **WHEN** an item with an approved render and a character with an approved render have the same image name, and their renders differ
 - **THEN** the build fails and names both
+
+#### Scenario: An item with a render for each body
+
+- **WHEN** the catalog holds the approved male and female renders of the Wolfhide Boots
+- **THEN** their titles are `Wolfhide Boots render (male).png` and `Wolfhide Boots render (female).png`, and the item has no `Wolfhide Boots render.png`
+
+#### Scenario: An item with both kinds of render
+
+- **WHEN** an item has an approved plain render and an approved render for one body
+- **THEN** the build fails and names the item

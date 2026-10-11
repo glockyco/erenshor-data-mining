@@ -26,13 +26,23 @@ The image workflow SHALL list once, under the subject that its items share, ever
 
 ### Requirement: An item render shows the piece by itself
 
-A render of an item SHALL show only the item's model, as the game shows it in use: a weapon or shield, the parts that the game switches on for a worn item, a mask, or the furnishing of a furniture set. A worn item SHALL show every part that it switches on, in the item's own colours, on the male body's parts and without the body. A render SHALL NOT show a body, other equipment, a room, or UI.
+A render of an item SHALL show only the item's model, as the game shows it in use: a weapon or shield, the parts that the game switches on for a worn item, a mask, or the furnishing of a furniture set. A worn item SHALL show every part that it switches on, in its own colours, without the body: once on each body when the male and female bodies have different models for its parts, and once otherwise. A render SHALL NOT show a body, other equipment, a room, or UI.
 
 #### Scenario: A pair of boots
 
 - **WHEN** the Wolfhide Boots are captured
 - **THEN** the render shows both boots in the item's colours
 - **AND** it shows no body and no other equipment
+
+#### Scenario: Parts that differ between the bodies
+
+- **WHEN** the Wolfhide Boots switch on `LeatherBoots`, which the male and the female body hold as separate models
+- **THEN** the workflow captures `Wolfhide Boots render (male).png` from the male body's parts and `Wolfhide Boots render (female).png` from the female body's parts
+
+#### Scenario: A part that both bodies share
+
+- **WHEN** the Feathered Cape switches on a cape that both bodies share
+- **THEN** the workflow captures one `Feathered Cape render.png`
 
 #### Scenario: Items that share a part
 
@@ -46,7 +56,7 @@ A render of an item SHALL show only the item's model, as the game shows it in us
 
 ### Requirement: Item infoboxes show the render and the screenshot
 
-An item infobox SHALL take the title of the item's render in `render` and of its screenshot in `screenshot`. Generation SHALL fill `render` from the catalog when the item has an approved render, and `screenshot` as `<subject> screenshot.png`. The infobox SHALL show the render first, both as tabs labelled Render and Screenshot when both files exist, and one alone when only one exists. When neither exists, it SHALL show the item's icon.
+An item infobox SHALL take the titles of the item's renders in `render`, `render_male`, and `render_female`, and of its screenshot in `screenshot`. Generation SHALL fill the render parameters from the item's approved renders in the catalog, and `screenshot` as `<subject> screenshot.png`. The infobox SHALL show the existing files in the order render, male, female, screenshot, as tabs labelled Render, Male, Female, and Screenshot, or one alone. When none exists, it SHALL show the item's icon.
 
 #### Scenario: An item with a render and a screenshot
 
@@ -58,6 +68,11 @@ An item infobox SHALL take the title of the item's render in `render` and of its
 
 - **WHEN** `Molorai Bow render.png` exists and `Molorai Bow screenshot.png` does not
 - **THEN** the infobox shows the render alone, without tabs
+
+#### Scenario: An item with a male and a female render
+
+- **WHEN** `Wolfhide Boots render (male).png`, `Wolfhide Boots render (female).png`, and `Wolfhide Boots screenshot.png` exist
+- **THEN** the infobox shows the tabs Male, Female, and Screenshot, with Male selected
 
 #### Scenario: An item without a model or a screenshot
 
