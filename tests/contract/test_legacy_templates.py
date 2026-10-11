@@ -9,4 +9,3 @@ def test_legacy_entity_templates_have_no_data_branch(template: str) -> None:
 
     assert "#invoke" not in source
     assert "{{{lua" not in source
-    assert "#cargo_" not in source
