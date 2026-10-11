@@ -5,7 +5,6 @@
 |render_male=
 |render_female=
 |screenshot=Item Pictures Missing screenshot.png
-|lore=Forged for a fixture, it remembers every smoke test.
 |imagecaption=
 |type=[[Weapons|Weapon]]
 }}

@@ -25,14 +25,12 @@
 	display: none;
 }
 
-/* Unlike an image caption, these rows stay visible below gallery tabs. */
-.pi-type-Item [data-source="lore"],
+/* Unlike an image caption, this row stays visible below gallery tabs. */
 .pi-type-Item [data-source="imagecaption"] {
 	padding: 0;
 	border: 0;
 }
 
-.pi-type-Item [data-source="lore"] .pi-data-value,
 .pi-type-Item [data-source="imagecaption"] .pi-data-value {
 	margin: 0;
 	padding: 5px 10px;

@@ -54,7 +54,6 @@ _REQUIRED_TEMPLATE_FIELDS_RAW: Mapping[str, list[str]] = MappingProxyType(
             "render_male",
             "render_female",
             "screenshot",
-            "lore",
             "type",
             "vendorsource",
             "source",

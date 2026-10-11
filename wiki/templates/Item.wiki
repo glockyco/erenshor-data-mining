@@ -6,7 +6,6 @@
 {{#ifexist:Media:{{{render_female|}}}|{{{render_female}}}{{!}}Female}}
 {{#ifexist:Media:{{{screenshot|}}}|{{{screenshot}}}{{!}}Screenshot}}}}|{{#tag:gallery|{{{icon|}}}}}}}</default>
     </image>
-    <data source="lore" />
     <data source="imagecaption" />
     <data source="type"><label>Type</label></data>
     <data source="aka"><label>Formerly</label></data>
@@ -86,8 +85,6 @@ The [[Template:ItemTooltip|ItemTooltip]] or <code>Item/&lt;kind&gt;</code> toolt
 | '''render_female''' || No || Rendered model on the female body, such as <code>Wolfhide Boots render (female).png</code>
 |-
 | '''screenshot''' || No || In-game screenshot of the item, such as <code>Copper Sword screenshot.png</code>
-|-
-| '''lore''' || No || The item's lore from the game, shown below the picture
 |-
 | '''imagecaption''' || No || Optional caption below the picture
 |-
