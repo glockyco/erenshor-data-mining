@@ -22,7 +22,9 @@ def _review(tmp_path: Path) -> tuple[dict[str, Any], dict[str, Any], Path]:
         {"subject": "Opus", "status": "rejected", "png": "Opus.png", "sha256": _png(staging, "Opus.png", b"opus")},
     ]
     for result in results:
-        result.update(stable_key=f"character:{result['subject']}", kind="character")
+        result.update(
+            title=f"{result['subject']} render.png", stable_key=f"character:{result['subject']}", kind="character"
+        )
     captures = {"game_build": "24405256", "preset": "portrait-1", "results": results}
     manifest = {
         "game_build": "24405256",

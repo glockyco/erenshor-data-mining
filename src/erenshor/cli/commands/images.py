@@ -13,6 +13,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
+from erenshor.application.processor.pictures import CAPTURES_DIRECTORY, ITEM_CAPTURES_DIRECTORY
 from erenshor.application.services.item_model_manifest import (
     build_item_manifest,
     load_item_sources,
@@ -50,12 +51,12 @@ def _images_dir(cli_ctx: CLIContext) -> Path:
 
 def _model_capture_dir(cli_ctx: CLIContext) -> Path:
     """The untracked directory of the character capture manifest and its captures."""
-    return _images_dir(cli_ctx) / "model-captures"
+    return _images_dir(cli_ctx) / CAPTURES_DIRECTORY
 
 
 def _item_capture_dir(cli_ctx: CLIContext) -> Path:
     """The untracked directory of the item capture manifest and its captures."""
-    return _images_dir(cli_ctx) / "item-captures"
+    return _images_dir(cli_ctx) / ITEM_CAPTURES_DIRECTORY
 
 
 @items_app.command("manifest")

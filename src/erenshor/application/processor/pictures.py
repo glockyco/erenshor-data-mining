@@ -4,13 +4,15 @@ Each picture enters once, identified by the hash of its pixels:
 
 - the icon of each item, spell, and skill, from the texture that its sprite
   draws, which the export records
-- each render of a model that a capture review approved
+- each render of a character or an item model that a capture review approved
 
 The build copies each picture's file to the catalog directory under its hash,
 links every entity to its picture, and lists the wiki file title of each
 entity's picture: ``<subject> icon.png`` for an item, spell, skill, or stance,
 and ``<subject> render.png`` for a character. A stance shows the icon of the
-skill that switches to it.
+skill that switches to it. An item's renders are titled as their approvals
+name them: ``<subject> render.png``, or ``<subject> render (male).png`` and
+``<subject> render (female).png`` where the bodies draw the item differently.
 Textures with equal pixels share one picture. The build only adds catalog
 files; ``prune_catalog`` removes the files that a published database no longer
 references.
@@ -28,8 +30,14 @@ from typing import TYPE_CHECKING
 from loguru import logger
 
 from erenshor.application.pictures import identify
-from erenshor.domain.value_objects.capture_approval import APPROVAL_FILE, Approval
-from erenshor.domain.value_objects.wiki_filename import PictureRole, picture_file_title, picture_subject
+from erenshor.domain.value_objects.capture_approval import APPROVAL_FILE, Approval, ApprovedImage
+from erenshor.domain.value_objects.wiki_filename import (
+    Body,
+    PictureRole,
+    body_render_title,
+    picture_file_title,
+    picture_subject,
+)
 
 if TYPE_CHECKING:
     from .writer import Writer
@@ -42,6 +50,7 @@ __all__ = [
 
 CATALOG_DIRECTORY = "catalog"
 CAPTURES_DIRECTORY = "model-captures"
+ITEM_CAPTURES_DIRECTORY = "item-captures"
 
 # The clean table, raw table, and raw texture column of each kind of icon.
 _ICON_TABLES = (
@@ -105,8 +114,9 @@ def process_pictures(raw: sqlite3.Connection, writer: Writer, export_dir: Path, 
 
     Raises:
         FileNotFoundError: A texture or an approved capture is missing.
-        ValueError: An approved capture changed after its approval, or one
-            wiki file title would name two pictures.
+        ValueError: An approved capture changed after its approval, one
+            wiki file title would name two pictures, or an item has both a
+            plain render and a render of one body.
     """
     catalog = _Catalog()
     conn = writer.conn
@@ -125,7 +135,11 @@ def process_pictures(raw: sqlite3.Connection, writer: Writer, export_dir: Path, 
                 raise FileNotFoundError(f"{stable_key}: icon texture {texture} is missing from the export")
             links.append((catalog.add(texture, path, "icon"), stable_key))
 
-    renders, paged_renders = _add_renders(catalog, images_dir / CAPTURES_DIRECTORY)
+    approval = _load_approval(images_dir / CAPTURES_DIRECTORY)
+    renders = _add_renders(catalog, images_dir / CAPTURES_DIRECTORY, approval)
+    paged_renders = frozenset(image.subject for image in approval if image.pages)
+    item_approval = _load_approval(images_dir / ITEM_CAPTURES_DIRECTORY)
+    item_renders = _add_renders(catalog, images_dir / ITEM_CAPTURES_DIRECTORY, item_approval)
 
     # The entity tables reference the pictures, so the pictures go in first.
     writer.insert_images(_write_files(catalog, images_dir / CATALOG_DIRECTORY))
@@ -142,6 +156,7 @@ def process_pictures(raw: sqlite3.Connection, writer: Writer, export_dir: Path, 
     _link_characters(conn, renders)
 
     titles = _titles(conn, paged_renders)
+    writer.insert_item_renders(_link_item_renders(conn, titles, item_approval, item_renders))
     writer.insert_image_titles(
         [
             {"title": title, "image_hash": image_hash, "stable_key": stable_key}
@@ -170,29 +185,29 @@ def _link_stances(conn: sqlite3.Connection) -> None:
     )
 
 
-def _add_renders(catalog: _Catalog, captures_dir: Path) -> tuple[dict[str, str], frozenset[str]]:
-    """Add every approved capture.
-
-    Returns the pixel hash of each approved subject, and the subjects whose
-    approval names a page that shows them.
-    """
+def _load_approval(captures_dir: Path) -> tuple[ApprovedImage, ...]:
+    """The approved captures of one capture directory, none when it has no approvals."""
     approval_path = captures_dir / APPROVAL_FILE
     if not approval_path.exists():
-        return {}, frozenset()
-    approval = Approval.from_json(json.loads(approval_path.read_text(encoding="utf-8")))
+        return ()
+    return Approval.from_json(json.loads(approval_path.read_text(encoding="utf-8"))).images
+
+
+def _add_renders(catalog: _Catalog, captures_dir: Path, approval: tuple[ApprovedImage, ...]) -> dict[str, str]:
+    """Add every approved capture and return the pixel hash of each approved subject."""
     renders: dict[str, str] = {}
-    for image in approval.images:
+    for image in approval:
         path = captures_dir / "approved" / image.png
         if hashlib.sha256(path.read_bytes()).hexdigest() != image.sha256:
             raise ValueError(f"The approved capture of {image.subject} changed after its approval: {path}")
         renders[image.subject] = catalog.add(
-            f"{CAPTURES_DIRECTORY}/approved/{image.png}",
+            f"{captures_dir.name}/approved/{image.png}",
             path,
             "render",
             capture_preset=image.preset,
             approved_build=image.game_build,
         )
-    return renders, frozenset(image.subject for image in approval.images if image.pages)
+    return renders
 
 
 def _link_characters(conn: sqlite3.Connection, renders: dict[str, str]) -> None:
@@ -246,6 +261,47 @@ def _titles(conn: sqlite3.Connection, paged_renders: frozenset[str]) -> dict[str
             if claimed[0] != image_hash:
                 raise ValueError(f"{title} names two pictures: the one of {claimed[1]} and the one of {stable_key}")
     return titles
+
+
+def _link_item_renders(
+    conn: sqlite3.Connection,
+    titles: dict[str, tuple[str, str]],
+    approval: tuple[ApprovedImage, ...],
+    renders: dict[str, str],
+) -> list[dict[str, object]]:
+    """Link each item with a page to the approved renders of its subject and add their titles.
+
+    Returns the rows of ``item_renders``. An approval whose title no item with
+    a page names stays out of the titles and is reported, so that a review can
+    drop it.
+    """
+    approved = {image.title: renders[image.subject] for image in approval}
+    rows: list[dict[str, object]] = []
+    for stable_key, image_name, display_name, item_name in conn.execute(
+        "SELECT stable_key, image_name, display_name, item_name FROM items "
+        "WHERE wiki_page_name IS NOT NULL ORDER BY stable_key"
+    ):
+        subject = picture_subject(image_name, display_name, item_name)
+        if not subject:
+            continue
+        candidates: dict[str, Body | None] = {
+            picture_file_title("render", subject): None,
+            body_render_title("male", subject): "male",
+            body_render_title("female", subject): "female",
+        }
+        linked = [(title, body) for title, body in candidates.items() if title in approved]
+        if len(linked) > 1 and any(body is None for _, body in linked):
+            raise ValueError(f"{subject} has both {picture_file_title('render', subject)} and a render of one body")
+        for title, body in linked:
+            image_hash = approved[title]
+            rows.append({"stable_key": stable_key, "title": title, "body": body, "image_hash": image_hash})
+            claimed = titles.setdefault(title, (image_hash, str(stable_key)))
+            if claimed[0] != image_hash:
+                raise ValueError(f"{title} names two pictures: the one of {claimed[1]} and the one of {stable_key}")
+    stale = sorted(set(approved) - {str(row["title"]) for row in rows})
+    if stale:
+        logger.warning(f"Approved item renders that no item with a page names: {', '.join(stale)}")
+    return rows
 
 
 def _write_files(catalog: _Catalog, catalog_dir: Path) -> list[dict[str, object]]:

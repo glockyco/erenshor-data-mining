@@ -161,13 +161,21 @@ def test_a_new_file_gets_a_description_with_the_games_copyright_notice(setup: An
 
 
 @pytest.mark.parametrize(
-    ("entity_key", "shows"),
-    [("item:bow - 10 - molorai bow", "the item by itself"), ("character:faith", "the character")],
+    ("entity_key", "title", "shows"),
+    [
+        ("item:bow - 10 - molorai bow", "File:Molorai Bow render.png", "the item by itself"),
+        (
+            "item:foot - 12 - wolfhide boots",
+            "File:Wolfhide Boots render (female).png",
+            "the item by itself, as the female body wears it",
+        ),
+        ("character:faith", "File:Faith render.png", "the character"),
+    ],
 )
-def test_a_render_description_says_what_it_shows(entity_key: str, shows: str) -> None:
+def test_a_render_description_says_what_it_shows(entity_key: str, title: str, shows: str) -> None:
     render = Picture("hash", "render", 1024, 1024, "sha1", "capture.png", Path("x.png"), "item-1", "24405256")
 
-    text = description(render, "24405256", entity_key)
+    text = description(render, "24405256", entity_key, title)
 
     assert f"Rendered from the game's model of {shows} (game build 24405256, capture preset item-1)" in text
 

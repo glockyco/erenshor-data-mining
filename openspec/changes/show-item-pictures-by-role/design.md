@@ -71,7 +71,7 @@ A new preset `item-1` keeps the light and camera effects of `portrait-4` and fra
 
 ### D4. The catalog names renders by role, not by subject
 
-The image kind `portrait` becomes `render`, and each approval records the entity kind and the body that it shows, so the file description says what the picture is: a character, or an item by itself, on the male or female body where that applies. The catalog adds `<subject> render.png`, or `<subject> render (male).png` and `<subject> render (female).png`, for each item with an approved render and a page. The build fails when an item has both the plain title and a body's title, and when an item's and a character's render share a title and differ, as it already fails for any title that names two pictures. On build 24405256 no item subject equals a character subject.
+The image kind `portrait` becomes `render`. Each approval records its entity's stable key and the wiki title that the review compared it with, and the file description reads both, so it says what the picture is: a character, or an item by itself, on the male or female body where the title names one. The catalog adds each approved item render under its approval's title, `<subject> render.png`, or `<subject> render (male).png` and `<subject> render (female).png`, when its item has a page. Items that share a subject share the render; the item rows keep their icon, and the renders live only in the catalog's titles. The build fails when an item has both the plain title and a body's title, and when an item's and a character's render share a title and differ, as it already fails for any title that names two pictures. On build 24405256 no item subject equals a character subject.
 
 ### D5. Owners and write boundaries
 

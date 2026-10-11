@@ -24,11 +24,14 @@ APPROVAL_FILE = "approved.json"
 class ApprovedImage:
     """A reviewed capture that may go to the wiki for ``subject``.
 
-    ``png`` names the approved copy in the approved directory, and ``sha256``
-    is the hash of its bytes.
+    ``title`` is the wiki file title that the review compared the capture
+    with, such as ``Wolfhide Boots render (male).png``. ``png`` names the
+    approved copy in the approved directory, and ``sha256`` is the hash of its
+    bytes.
     """
 
     subject: str
+    title: str
     png: str
     sha256: str
     stable_key: str
@@ -40,6 +43,7 @@ class ApprovedImage:
     def to_json(self) -> dict[str, Any]:
         return {
             "subject": self.subject,
+            "title": self.title,
             "png": self.png,
             "sha256": self.sha256,
             "stable_key": self.stable_key,
@@ -53,6 +57,7 @@ class ApprovedImage:
     def from_json(cls, data: Mapping[str, Any]) -> ApprovedImage:
         return cls(
             subject=str(data["subject"]),
+            title=str(data["title"]),
             png=str(data["png"]),
             sha256=str(data["sha256"]),
             stable_key=str(data["stable_key"]),

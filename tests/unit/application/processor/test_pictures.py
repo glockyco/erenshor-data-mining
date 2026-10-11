@@ -178,6 +178,7 @@ def _approve(
     (captures / "approved" / png).write_bytes(data)
     image = {
         "subject": subject,
+        "title": f"{subject} render.png",
         "png": png,
         "sha256": hashlib.sha256(data).hexdigest(),
         "stable_key": "character:faith",
@@ -248,6 +249,101 @@ def test_a_portrait_that_no_page_shows_is_catalogued_without_a_title(tmp_path: P
     watchman = build.rows("SELECT image_hash FROM characters WHERE stable_key = 'character:watchman'")[0][0]
     assert build.rows(f"SELECT kind FROM images WHERE image_hash = '{watchman}'") == [("render",)]
     assert build.rows("SELECT title FROM image_titles WHERE title LIKE 'Watchman%'") == []
+
+
+def _approve_items(build: _Build, renders: list[tuple[str, str, str, bytes]]) -> None:
+    """Approve item renders, each a subject, its title, its item's stable key, and its PNG."""
+    captures = build.images / "item-captures"
+    (captures / "approved").mkdir(parents=True, exist_ok=True)
+    images = []
+    for subject, title, stable_key, data in renders:
+        (captures / "approved" / f"{subject}.png").write_bytes(data)
+        images.append(
+            {
+                "subject": subject,
+                "title": title,
+                "png": f"{subject}.png",
+                "sha256": hashlib.sha256(data).hexdigest(),
+                "stable_key": stable_key,
+                "kind": "worn",
+                "pages": [title.partition(" render")[0]],
+                "game_build": "24405256",
+                "preset": "item-1",
+            }
+        )
+    (captures / "approved.json").write_text(json.dumps({"images": images}))
+
+
+def test_item_renders_take_the_titles_of_their_approvals_and_equal_pixels_share_a_picture(tmp_path: Path) -> None:
+    build = _Build(tmp_path)
+    icon = build.texture("Assets/Texture2D/i.png", _png((1, 2, 3, 255)))
+    build.item("item:wolfhide boots", "Wolfhide Boots", icon)
+    build.item("item:molorai bow", "Molorai Bow", icon)
+    build.item("item:old bow", "Old Bow", icon)
+    # Two items of one subject, as the two Letters and Words, share its render.
+    build.item("item:old bow (rare)", "Old Bow", icon)
+    bow = _png((40, 30, 20, 255))
+    _approve_items(
+        build,
+        [
+            ("Wolfhide Boots (male)", "Wolfhide Boots render (male).png", "item:wolfhide boots", _png((9, 9, 9, 255))),
+            (
+                "Wolfhide Boots (female)",
+                "Wolfhide Boots render (female).png",
+                "item:wolfhide boots",
+                _png((8, 8, 8, 255)),
+            ),
+            ("Molorai Bow", "Molorai Bow render.png", "item:molorai bow", bow),
+            ("Old Bow", "Old Bow render.png", "item:old bow", bow),
+        ],
+    )
+
+    build.run()
+
+    titles = dict(build.rows("SELECT title, image_hash FROM image_titles WHERE title LIKE '% render%'"))
+    assert sorted(titles) == [
+        "Molorai Bow render.png",
+        "Old Bow render.png",
+        "Wolfhide Boots render (female).png",
+        "Wolfhide Boots render (male).png",
+    ]
+    assert titles["Molorai Bow render.png"] == titles["Old Bow render.png"]
+    assert titles["Wolfhide Boots render (male).png"] != titles["Wolfhide Boots render (female).png"]
+    # The item keeps its icon, and its renders are linked beside it.
+    assert build.rows("SELECT COUNT(DISTINCT image_hash) FROM items") == [(1,)]
+    assert build.rows("SELECT stable_key, body FROM item_renders ORDER BY stable_key, body") == [
+        ("item:molorai bow", None),
+        ("item:old bow", None),
+        ("item:old bow (rare)", None),
+        ("item:wolfhide boots", "female"),
+        ("item:wolfhide boots", "male"),
+    ]
+
+
+def test_an_item_with_a_plain_render_and_a_body_render_fails(tmp_path: Path) -> None:
+    build = _Build(tmp_path)
+    build.item("item:wolfhide boots", "Wolfhide Boots", None)
+    _approve_items(
+        build,
+        [
+            ("Wolfhide Boots", "Wolfhide Boots render.png", "item:wolfhide boots", _png((9, 9, 9, 255))),
+            ("Wolfhide Boots (male)", "Wolfhide Boots render (male).png", "item:wolfhide boots", _png((8, 8, 8, 255))),
+        ],
+    )
+
+    with pytest.raises(ValueError, match=r"Wolfhide Boots has both Wolfhide Boots render.png and a render of one body"):
+        build.run()
+
+
+def test_an_item_render_and_a_character_render_of_one_title_and_other_pixels_fail(tmp_path: Path) -> None:
+    build = _Build(tmp_path)
+    _character(build, "character:faith", "Faith", "Faith")
+    _approve(build, "Faith", _png((255, 200, 255, 90)))
+    build.item("item:faith", "Faith", None)
+    _approve_items(build, [("Faith", "Faith render.png", "item:faith", _png((1, 1, 1, 255)))])
+
+    with pytest.raises(ValueError, match=r"Faith render.png names two pictures: the one of character:faith"):
+        build.run()
 
 
 def test_an_approved_copy_that_changed_fails_the_build_and_names_the_subject(tmp_path: Path) -> None:

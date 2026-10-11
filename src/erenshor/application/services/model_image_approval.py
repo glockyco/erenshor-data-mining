@@ -56,6 +56,7 @@ def approve(
         shutil.copy2(staged, approved_dir / staged.name)
         approved[subject] = ApprovedImage(
             subject=subject,
+            title=str(result["title"]),
             png=staged.name,
             sha256=str(result["sha256"]),
             stable_key=str(result["stable_key"]),

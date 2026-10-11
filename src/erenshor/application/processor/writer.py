@@ -394,6 +394,18 @@ CREATE TABLE image_titles (
     stable_key  TEXT NOT NULL
 );
 
+-- The approved renders of each item with a page, under their wiki file titles:
+-- one render, or one for each body whose parts draw the item differently.
+-- Items that share a subject share its renders. An item's icon stays in
+-- items.image_hash.
+CREATE TABLE item_renders (
+    stable_key  TEXT NOT NULL REFERENCES items (stable_key),
+    title       TEXT NOT NULL,
+    body        TEXT CHECK (body IN ('male', 'female')),
+    image_hash  TEXT NOT NULL REFERENCES images (image_hash),
+    PRIMARY KEY (stable_key, title)
+);
+
 -- -------------------------------------------------------------------------
 -- Items
 -- -------------------------------------------------------------------------
@@ -1654,6 +1666,9 @@ class Writer:
 
     def insert_image_titles(self, rows: list[dict[str, object]]) -> int:
         return self._insert("image_titles", rows)
+
+    def insert_item_renders(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("item_renders", rows)
 
     def insert_item_stats(self, rows: list[dict[str, object]]) -> int:
         return self._insert("item_stats", rows)

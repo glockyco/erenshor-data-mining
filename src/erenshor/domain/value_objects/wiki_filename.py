@@ -52,3 +52,11 @@ def body_render_title(body: Body, *names: str | None) -> str:
     """Return the title of an item's render on one body, or ``""`` without a subject."""
     subject = picture_subject(*names)
     return f"{subject} render ({body}).png" if subject else ""
+
+
+def render_body(title: str) -> Body | None:
+    """Return the body whose render ``title`` names, or None for a render of no one body."""
+    for body in ("male", "female"):
+        if title.endswith(f" render ({body}).png"):
+            return body
+    return None
