@@ -15,5 +15,5 @@
 
 ## 3. Documentation and close-out
 
-- [ ] 3.1 `docs(wiki): point Cargo item sources and uses at the new tables`: in `publish-wiki-cargo-data`, add the four tables to the `ItemSources` and `ItemUses` sources of design D4, with the Reliquary Flame Well condition, and mark task 6.2 of `adopt-data-backed-wiki` done with the result. Verify: `openspec validate --strict` passes for both changes.
+- [x] 3.1 `docs(wiki): point Cargo item sources and uses at the new tables`: in `publish-wiki-cargo-data`, add the four tables to the `ItemSources` and `ItemUses` sources of design D4, with the Reliquary Flame Well condition, and mark task 6.2 of `adopt-data-backed-wiki` done with the result. Verify: `openspec validate --strict` passes for both changes.
 - [ ] 3.2 Archive this change. Verify: `openspec/specs/runtime-item-mechanics/spec.md` exists and `uv run erenshor test ci` passes.

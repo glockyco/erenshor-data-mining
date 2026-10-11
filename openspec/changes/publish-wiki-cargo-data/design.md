@@ -58,8 +58,8 @@ Columns that hold an entity's stable key end in `Key`. Chances are percentages f
 | `CharacterFactionEffects` | character and faction | CharacterKey, FactionKey, StandingChange | `character_faction_modifiers` |
 | `Spells`, `Skills`, `Stances` | ability | the queryable scalar columns of each type | `spells`, `skills`, `stances` |
 | `AbilityClasses` | ability and class | AbilityKey, ClassKey, RequiredLevel | `spell_classes` and the per-class skill levels |
-| `ItemSources` | item and source | ItemKey, SourceType, SourceKey, ZoneKey, Chance, IsGuaranteed, Quantity, MinLevel, QuestGateKey, drop condition flags, Origin, SourceText | loot, special world drops, vendor stock and quest unlocks, quest rewards, crafting, item drops, mining, fishing, item bags, starting gear |
-| `ItemUses` | item and use | ItemKey, UseType, TargetKey, Quantity | `crafting_recipes`, `quest_required_items`, the smithing code facts |
+| `ItemSources` | item and source | ItemKey, SourceType, SourceKey, ZoneKey, Chance, IsGuaranteed, Quantity, MinLevel, QuestGateKey, drop condition flags, Origin, SourceText | loot, special world drops, vendor stock and quest unlocks, quest rewards, crafting, item drops, mining, fishing, `fishing_bonus_catches`, `item_conversions` (output items), item bags, starting gear |
+| `ItemUses` | item and use | ItemKey, UseType, TargetKey, Quantity | `crafting_recipes`, `quest_required_items`, the smithing code facts, `item_conversions` (input items), `quality_offerings` (the two offered items, targeting each well), `item_zone_restrictions` |
 | `Zones` | zone | ZoneType, hostile level minimum, median, and maximum, flags | `zones` and hostile spawns |
 | `ZoneConnections` | zone line | ZoneKey, DestinationKey, QuestGateKey | `zone_lines`, `zone_line_quest_unlocks` |
 | `Quests` | quest | XP, Gold, Repeatable, flags | `quests`, `quest_variants` |
@@ -75,6 +75,7 @@ Rules from the export audit:
 - A class abilities list shows only abilities that an item teaches, because players learn abilities no other way. `AbilityClasses` still holds every class flag of the game.
 - The three zone-less event spawns come from an unplaced prefab asset and are dropped in the clean build (task 2.1). Every published spawn row has a zone.
 - A crafting source is only the first reward of a template, because the forge awards no other. The clean build applies this rule (`adopt-data-backed-wiki` task 5.21), and `ItemSources` reads it from there.
+- The runtime item mechanics come from the clean tables of `model-runtime-item-mechanics`. A fishing bonus catch is a fishing source with no zone, because any water can yield it. Eight of the nine Braxonian Flame Wells stand in the Reliquary and exist only if the player furnished their room, so their `quality_offerings` rows publish as conditional on that furnishing, like the Reliquary's other furniture.
 - `Lifecycle` holds `removed`, `unobtainable`, or `unused` for each entity whose stable key `content-lifecycle.json` records, and is empty otherwise. Query templates use it to leave such entities out of lists or to mark them.
 
 ### D5. Query templates are Lua over Cargo
