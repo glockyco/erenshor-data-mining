@@ -47,7 +47,19 @@ internal static class PortraitStudio
 {
     private static readonly Vector3 StudioPosition = new(0f, 5000f, 0f);
 
-    public static PortraitResult Capture(GameObject source, Camera playerCamera, string outputPath)
+    /// <summary>
+    /// Renders <paramref name="source"/>. <paramref name="prepare"/> runs on the
+    /// copy before its scripts go, as the item studio needs to read them, and
+    /// <paramref name="objectName"/> names what the result reports instead of
+    /// the source's name.
+    /// </summary>
+    public static PortraitResult Capture(
+        GameObject source,
+        Camera playerCamera,
+        string outputPath,
+        Action<GameObject>? prepare = null,
+        string? objectName = null
+    )
     {
         using var cleanup = new CleanupStack();
         var atmosphere =
@@ -69,6 +81,7 @@ internal static class PortraitStudio
         subject.SetActive(true);
 
         ShowAsGameStartsIt(subject);
+        prepare?.Invoke(subject);
         RemoveBehaviour(subject);
         KeepWhatThePlayerSees(subject, playerCamera.cullingMask);
 
@@ -198,7 +211,7 @@ internal static class PortraitStudio
 
         return new PortraitResult
         {
-            ObjectName = source.name,
+            ObjectName = objectName ?? source.name,
             Width = crop.Width,
             Height = crop.Height,
             Renderers = meshes.Count + effects.Count,
@@ -208,32 +221,32 @@ internal static class PortraitStudio
     }
 
     /// <summary>
-    /// Applies the changes to the subject's look that the game makes when the
-    /// character starts, because the copy runs none of its scripts.
+    /// Applies the changes to the look of each character in the subject that
+    /// the game makes when the character starts, because the copy runs none of
+    /// its scripts. A furnishing can hold characters, such as a training dummy.
     /// </summary>
     private static void ShowAsGameStartsIt(GameObject subject)
     {
         // Character.Start replaces the TargetRing child with an inactive ring
         // that appears only on the player's target.
-        var character = subject.GetComponent<Character>();
-        if (character != null)
+        foreach (var character in subject.GetComponentsInChildren<Character>(true))
         {
             var ring =
                 character.TargetRing != null
                     ? character.TargetRing.transform
-                    : subject.transform.Find("TargetRing");
+                    : character.transform.Find("TargetRing");
             if (ring != null)
                 Object.DestroyImmediate(ring.gameObject);
         }
 
         // NPC.Start gives the first active skinned mesh one of the colour
         // variations at random. The first variation keeps captures repeatable.
-        var npc = subject.GetComponent<NPC>();
-        if (npc != null && npc.Colorvariations is { Count: > 0 })
+        foreach (var npc in subject.GetComponentsInChildren<NPC>(true))
         {
-            var body = subject
-                .GetComponentsInChildren<SkinnedMeshRenderer>(true)
-                .FirstOrDefault(renderer => ActiveBelow(renderer.transform, subject.transform));
+            if (npc.Colorvariations is not { Count: > 0 })
+                continue;
+            var body = npc.GetComponentsInChildren<SkinnedMeshRenderer>(true)
+                .FirstOrDefault(renderer => ActiveBelow(renderer.transform, npc.transform));
             if (body != null)
                 body.sharedMaterial = npc.Colorvariations[0];
         }

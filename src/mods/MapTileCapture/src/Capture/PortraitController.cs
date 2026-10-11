@@ -192,19 +192,42 @@ internal sealed class PortraitController : IDisposable
     {
         try
         {
-            var subject = FindSubject(source);
             var mainCam = GameObject.Find("MainCam")?.GetComponent<Camera>();
             if (mainCam == null)
                 throw new PortraitException("MainCam disappeared before the capture.");
 
-            var result = PortraitStudio.Capture(subject, mainCam, request.OutputPath);
+            PortraitResult result;
+            var item = source.Item;
+            if (item == null)
+            {
+                result = PortraitStudio.Capture(FindSubject(source), mainCam, request.OutputPath);
+            }
+            else if (item.Kind == "furnishing")
+            {
+                result = PortraitStudio.Capture(
+                    ItemModels.Furnishing(item.Part),
+                    mainCam,
+                    request.OutputPath,
+                    objectName: item.Part
+                );
+            }
+            else
+            {
+                result = PortraitStudio.Capture(
+                    ItemModels.Player(),
+                    mainCam,
+                    request.OutputPath,
+                    copy => ItemModels.ShowOnBody(copy, item),
+                    item.Part
+                );
+            }
             _logger.LogInfo($"Captured {request.Subject} from {result.ObjectName}");
             var message = new
             {
                 type = "portrait_complete",
                 subject = request.Subject,
                 stableKey = request.StableKey,
-                preset = PortraitPreset.Name,
+                preset = request.Preset,
                 path = request.OutputPath,
                 objectName = result.ObjectName,
                 width = result.Width,

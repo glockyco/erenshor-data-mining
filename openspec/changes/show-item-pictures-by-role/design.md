@@ -54,7 +54,7 @@ The male and female bodies hold separate meshes for most armour parts of the sam
 - The qualifier follows the role, so the subject stays whole before ` render`, and all renders of an item sort and search together. No worn item's picture name on build 24405256 holds parentheses, `male`, or ` render`.
 - An item whose part neither body holds is listed apart, with the missing name, until the source that holds it is found.
 
-The colours come from the game's item record at capture time, through the same shader properties as `UpdateSlot`, so the export needs no colour fields and a render cannot drift from the game's colours. Items that share a subject share their renders, as characters do. Two renders with equal pixels become one picture with redirects, as icons do.
+The colours come from the game's item record at capture time, through the same shader properties as `UpdateSlot`, so the export needs no colour fields and a render cannot drift from the game's colours. The studio copies the logged-in player, so the player's own equipment and colours stay as they are, shows the requested body's parts, and hides every other renderer. Skin that an armour part draws, such as a shirt's neckline, takes the first colour of the game's skin palette, `SimPlayerMngr.SkinColors[0]` (0.83, 0.79, 0.76), so a render does not depend on the character that captures it (decided with the user on 2026-10-11). Paired parts stay where the rest pose holds them (decided with the user on 2026-10-11). A furnishing's characters, such as a training dummy, lose their target ring, as `Character.Start` removes it in the game. Items that share a subject share their renders, as characters do. Two renders with equal pixels become one picture with redirects, as icons do.
 
 Alternatives:
 

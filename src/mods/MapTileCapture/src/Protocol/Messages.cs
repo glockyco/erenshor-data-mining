@@ -77,6 +77,38 @@ public sealed class PortraitSource
 
     [JsonProperty("landing")]
     public float[]? Landing { get; set; }
+
+    /// <summary>
+    /// The item whose model the capture shows by itself, instead of a character.
+    /// A furnishing also names the <see cref="Scene"/> that holds it and a
+    /// <see cref="Landing"/>; the other kinds come from the player's body.
+    /// </summary>
+    [JsonProperty("item")]
+    public ItemModelSource? Item { get; set; }
+}
+
+/// <summary>
+/// An item model: a weapon or shield, the parts of a worn item, a mask, or a
+/// furniture set's furnishing. <see cref="Part"/> is the item's
+/// <c>EquipmentToActivate</c>, and <see cref="Body"/> names the body whose
+/// parts show a weapon, a worn item, or a mask.
+/// </summary>
+public sealed class ItemModelSource
+{
+    [JsonProperty("id")]
+    public string Id { get; set; } = "";
+
+    [JsonProperty("kind")]
+    public string Kind { get; set; } = "";
+
+    [JsonProperty("body")]
+    public string? Body { get; set; }
+
+    [JsonProperty("slot")]
+    public string Slot { get; set; } = "";
+
+    [JsonProperty("part")]
+    public string Part { get; set; } = "";
 }
 
 /// <summary>A request to capture one subject as a portrait PNG.</summary>
@@ -110,10 +142,12 @@ public sealed class CapturePortraitRequest
             return "The request names no subject or no stable key.";
         if (string.IsNullOrWhiteSpace(OutputPath))
             return "The request names no output path.";
-        if (Preset != PortraitPreset.Name)
-            return $"The mod captures with preset {PortraitPreset.Name}, not {Preset}.";
         if (Source == null)
             return "The request names no source.";
+        if (Source.Item != null)
+            return ItemProblem(Source, Source.Item);
+        if (Preset != PortraitPreset.Name)
+            return $"The mod captures characters with preset {PortraitPreset.Name}, not {Preset}.";
 
         bool fromResources = !string.IsNullOrWhiteSpace(Source.ResourcesPath);
         bool fromScene = !string.IsNullOrWhiteSpace(Source.Scene);
@@ -136,5 +170,37 @@ public sealed class CapturePortraitRequest
         if (Source.Position is not null and not { Length: 3 })
             return "A position must have three coordinates.";
         return null;
+    }
+
+    private string? ItemProblem(PortraitSource source, ItemModelSource item)
+    {
+        if (Preset != PortraitPreset.ItemName)
+            return $"The mod captures items with preset {PortraitPreset.ItemName}, not {Preset}.";
+        if (string.IsNullOrWhiteSpace(item.Id) || string.IsNullOrWhiteSpace(item.Part))
+            return "An item source must name the item's ID and part.";
+        if (
+            source.ResourcesPath != null
+            || source.ObjectName != null
+            || source.NpcName != null
+            || source.Position != null
+        )
+            return "An item source takes no resources path, object name, NPC name, or position.";
+        switch (item.Kind)
+        {
+            case "furnishing":
+                if (string.IsNullOrWhiteSpace(source.Scene) || source.Landing is not { Length: 3 })
+                    return "A furnishing names its scene and a landing of three coordinates.";
+                return null;
+            case "weapon":
+            case "worn":
+            case "mask":
+                if (source.Scene != null || source.Landing != null)
+                    return "A weapon, worn item, or mask comes from the player's body and names no scene.";
+                if (item.Kind != "mask" && item.Body is not ("male" or "female"))
+                    return "A weapon or worn item names the male or the female body.";
+                return null;
+            default:
+                return $"Unknown item kind {item.Kind}.";
+        }
     }
 }

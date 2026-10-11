@@ -69,6 +69,7 @@ MANIFEST = {
     "entries": [
         {
             "subject": "Faith",
+            "title": "Faith render.png",
             "kind": "character",
             "stable_key": "character:faith",
             "source": {
@@ -83,6 +84,7 @@ MANIFEST = {
         },
         {
             "subject": "Ceremonial Brazier",
+            "title": "Ceremonial Brazier render.png",
             "kind": "character",
             "stable_key": "character:sm_prop_brazier_01 (1):duskenlight:485.82:65.42:397.38",
             "source": {
@@ -97,6 +99,7 @@ MANIFEST = {
         },
         {
             "subject": "Summoned Treant",
+            "title": "Summoned Treant render.png",
             "kind": "summon",
             "stable_key": "character:summoned treant",
             "source": {"resources_path": "npcs/Summoned Treant", "scene": None},
@@ -137,6 +140,61 @@ def test_a_scene_request_lands_the_player_and_names_both_names(tmp_path: Path) -
     assert mod.sent[-1] == {"type": "end_portraits"}
     assert [(result.status, result.png) for result in run.results] == [("accepted", "Ceremonial Brazier.png")]
     assert run.returned
+
+
+ITEM_MANIFEST = {
+    "game_build": "24405256",
+    "camera_preset": "item-1",
+    "entries": [
+        {
+            "subject": "Wolfhide Boots (male)",
+            "title": "Wolfhide Boots render (male).png",
+            "kind": "worn",
+            "body": "male",
+            "stable_key": "item:foot - 12 - wolfhide boots",
+            "item_id": "48262000",
+            "slot": "Foot",
+            "part": "LeatherBoots",
+            "pages": ["Wolfhide Boots"],
+            "scene": None,
+            "landing": None,
+        },
+        {
+            "subject": "Wood Training Set",
+            "title": "Wood Training Set render.png",
+            "kind": "furnishing",
+            "body": None,
+            "stable_key": "item:furniture - wood training",
+            "item_id": "14919468",
+            "slot": "General",
+            "part": "Wood Training",
+            "pages": ["Wood Training Set"],
+            "scene": "Reliquary",
+            "landing": [270.97, 1.44, 325.08],
+        },
+    ],
+}
+
+
+def test_an_item_request_names_the_item_and_only_a_furnishing_loads_a_scene(tmp_path: Path) -> None:
+    requests = portrait_requests(ITEM_MANIFEST)
+    mod = FakeMod([completed("LeatherBoots"), completed("Wood Training"), ended])
+    run = PortraitRun(game_build="24405256", preset="item-1")
+
+    asyncio.run(capture_portraits(mod, requests, tmp_path, run, lambda _: None))
+
+    worn = {"id": "48262000", "kind": "worn", "body": "male", "slot": "Foot", "part": "LeatherBoots"}
+    assert mod.sent[0]["source"] == {"item": worn}
+    assert mod.sent[1]["source"] == {
+        "item": {"id": "14919468", "kind": "furnishing", "body": None, "slot": "General", "part": "Wood Training"},
+        "scene": "Reliquary",
+        "landing": [270.97, 1.44, 325.08],
+    }
+    # The review takes the body's own title, which the subject alone does not give.
+    assert [(result.title, result.status) for result in run.results] == [
+        ("Wolfhide Boots render (male).png", "accepted"),
+        ("Wood Training Set render.png", "accepted"),
+    ]
 
 
 def test_an_interrupted_batch_keeps_its_results_and_lists_the_rest(tmp_path: Path) -> None:
@@ -224,6 +282,7 @@ def test_every_capture_is_drawn_on_one_of_the_sheets(tmp_path: Path) -> None:
         run.results.append(
             PortraitResult(
                 subject=name,
+                title=f"{name} render.png",
                 stable_key=f"character:{name}",
                 kind="character",
                 status="accepted",
@@ -249,6 +308,7 @@ def test_a_recapture_keeps_the_other_captures_and_drops_the_subjects_earlier_pic
         run.results.append(
             PortraitResult(
                 subject=name,
+                title=f"{name} render.png",
                 stable_key=f"character:{name}",
                 kind="character",
                 status="accepted",

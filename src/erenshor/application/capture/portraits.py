@@ -21,8 +21,6 @@ from typing import TYPE_CHECKING, Any, Protocol
 
 from PIL import Image, ImageDraw, ImageFont, UnidentifiedImageError
 
-from erenshor.domain.value_objects.wiki_filename import picture_file_title
-
 from .wine import wine_path
 
 if TYPE_CHECKING:
@@ -53,13 +51,19 @@ class Connection(Protocol):
 
 @dataclass(frozen=True, slots=True)
 class PortraitRequest:
-    """One manifest entry as the mod captures it."""
+    """One manifest entry as the mod captures it.
+
+    ``item`` holds the item model of an item capture: its ID, kind, body,
+    slot, and part. A character capture has none.
+    """
 
     subject: str
+    title: str
     stable_key: str
     kind: str
     source: Mapping[str, Any]
     pages: tuple[str, ...]
+    item: Mapping[str, Any] | None = None
 
     @property
     def scene(self) -> str | None:
@@ -68,7 +72,9 @@ class PortraitRequest:
 
     @property
     def expected_names(self) -> frozenset[str]:
-        """The names that the captured object may have: the prefab's, or the placed character's two names."""
+        """The names that the captured object may have: the item's part, the prefab's, or the placed character's two."""
+        if self.item is not None:
+            return frozenset({str(self.item["part"])})
         resources_path = self.source.get("resources_path")
         if resources_path:
             return frozenset({str(resources_path).rsplit("/", 1)[-1]})
@@ -77,8 +83,13 @@ class PortraitRequest:
 
     def message(self, output: Path, preset: str) -> dict[str, Any]:
         source = self.source
-        if source.get("resources_path"):
-            wire_source: dict[str, Any] = {"resourcesPath": source["resources_path"]}
+        if self.item is not None:
+            wire_source: dict[str, Any] = {"item": dict(self.item)}
+            if source.get("scene"):
+                wire_source["scene"] = source["scene"]
+                wire_source["landing"] = source["landing"]
+        elif source.get("resources_path"):
+            wire_source = {"resourcesPath": source["resources_path"]}
         else:
             wire_source = {
                 "scene": source["scene"],
@@ -102,6 +113,7 @@ class PortraitResult:
     """The review of one capture."""
 
     subject: str
+    title: str
     stable_key: str
     kind: str
     status: str  # accepted, rejected, or failed
@@ -117,6 +129,7 @@ class PortraitResult:
     def to_json(self) -> dict[str, Any]:
         return {
             "subject": self.subject,
+            "title": self.title,
             "stable_key": self.stable_key,
             "kind": self.kind,
             "status": self.status,
@@ -134,6 +147,7 @@ class PortraitResult:
     def from_json(cls, data: Mapping[str, Any]) -> PortraitResult:
         return cls(
             subject=str(data["subject"]),
+            title=str(data["title"]),
             stable_key=str(data["stable_key"]),
             kind=str(data["kind"]),
             status=str(data["status"]),
@@ -182,25 +196,46 @@ class PortraitRun:
 
 
 def portrait_requests(manifest: Mapping[str, Any], subjects: Sequence[str] = ()) -> list[PortraitRequest]:
-    """The manifest entries to capture, prefabs first and then scene by scene."""
+    """The manifest entries to capture, prefabs and the player's body first, and then scene by scene.
+
+    A character manifest's entries carry a ``source``; an item manifest's carry
+    the item's model and, for a furnishing, the scene and landing that hold it.
+    """
     entries = manifest["entries"]
     wanted = set(subjects)
     if wanted:
         unknown = wanted - {entry["subject"] for entry in entries}
         if unknown:
             raise ValueError(f"The manifest has no entry for {', '.join(sorted(unknown))}")
-    requests = [
-        PortraitRequest(
+    requests = [_request(entry) for entry in entries if not wanted or entry["subject"] in wanted]
+    return sorted(requests, key=lambda request: (request.scene or "", request.subject))
+
+
+def _request(entry: Mapping[str, Any]) -> PortraitRequest:
+    if "item_id" in entry:
+        return PortraitRequest(
             subject=entry["subject"],
+            title=entry["title"],
             stable_key=entry["stable_key"],
             kind=entry["kind"],
-            source=entry["source"],
+            source={"scene": entry["scene"], "landing": entry["landing"]},
             pages=tuple(entry["pages"]),
+            item={
+                "id": entry["item_id"],
+                "kind": entry["kind"],
+                "body": entry["body"],
+                "slot": entry["slot"],
+                "part": entry["part"],
+            },
         )
-        for entry in entries
-        if not wanted or entry["subject"] in wanted
-    ]
-    return sorted(requests, key=lambda request: (request.scene or "", request.subject))
+    return PortraitRequest(
+        subject=entry["subject"],
+        title=entry["title"],
+        stable_key=entry["stable_key"],
+        kind=entry["kind"],
+        source=entry["source"],
+        pages=tuple(entry["pages"]),
+    )
 
 
 def local_png_name(subject: str) -> str:
@@ -225,7 +260,9 @@ def recapture_run(staged: Mapping[str, Any], png_dir: Path, subjects: Collection
 
 def review(request: PortraitRequest, answer: Mapping[str, Any], png: Path) -> PortraitResult:
     """Accept or reject the mod's answer to one request."""
-    result = PortraitResult(subject=request.subject, stable_key=request.stable_key, kind=request.kind, status="failed")
+    result = PortraitResult(
+        subject=request.subject, title=request.title, stable_key=request.stable_key, kind=request.kind, status="failed"
+    )
     if answer.get("type") != "portrait_complete":
         result.reasons.append(str(answer.get("reason") or f"unexpected answer {answer.get('type')}"))
         return result
@@ -384,7 +421,7 @@ def write_contact_sheets(
                     sheet.paste(_tile(image, tile), (x, y))
             else:
                 sheet.paste(Image.new("RGB", (tile, tile), WIKI_SURFACE), (x, y))
-            title = picture_file_title("render", result.subject)
+            title = result.title
             shown = wiki(title)
             wiki_x = x + tile + 4
             if shown is None:

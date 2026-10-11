@@ -30,7 +30,7 @@ from erenshor.cli.preconditions.checks.database import database_exists, database
 from erenshor.cli.preconditions.checks.inputs import required_path, wiki_credentials
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, Sequence
 
     from erenshor.application.services.image_publication_run import RunRecord
     from erenshor.cli.context import CLIContext
@@ -166,14 +166,17 @@ def manifest(ctx: typer.Context) -> None:
     console.print(f"[green]✓[/green] {len(result.entries)} captures in {output}")
 
 
+_SUBJECTS_OPTION = typer.Option("--subject", help="Capture only this subject of the manifest; repeat for more")
+_APPROVE_SUBJECTS = typer.Argument(help="Captured subjects to approve")
+_APPROVE_ALL = typer.Option("--all", help="Approve every capture that the review accepted")
+_APPROVE_EXCLUDE = typer.Option("--exclude", help="With --all, leave this subject out; repeat for more")
+
+
 @app.command("capture")
 @require_preconditions(required_path("images_dir", "model-captures/manifest.json"))
 def capture(
     ctx: typer.Context,
-    subjects: Annotated[
-        list[str] | None,
-        typer.Option("--subject", help="Capture only this subject of the manifest; repeat for more"),
-    ] = None,
+    subjects: Annotated[list[str] | None, _SUBJECTS_OPTION] = None,
 ) -> None:
     """Capture the manifest's character models in the running game for review.
 
@@ -190,6 +193,35 @@ def capture(
         erenshor --dry-run images capture
         erenshor images capture --subject "Faith"
     """
+    cli_ctx: CLIContext = ctx.obj
+    _capture(cli_ctx, _model_capture_dir(cli_ctx), subjects or (), "erenshor images review")
+
+
+@items_app.command("capture")
+@require_preconditions(required_path("images_dir", "item-captures/manifest.json"))
+def item_capture(
+    ctx: typer.Context,
+    subjects: Annotated[list[str] | None, _SUBJECTS_OPTION] = None,
+) -> None:
+    """Capture the manifest's item models in the running game for review.
+
+    Needs the game running with the MapTileCapture mod and a character in the
+    world. A weapon, worn item, or mask comes from a copy of the player's
+    body, so the player's own equipment stays as it was; a furnishing comes
+    from the Reliquary, which the mod loads. Writes the PNGs and captures.json
+    to images/item-captures/staging/ of the variant, as 'erenshor images
+    capture' does for characters. With the root --dry-run option, lists the
+    captures and writes nothing.
+
+    Examples:
+        erenshor --dry-run images items capture
+        erenshor images items capture --subject "Wolfhide Boots (male)"
+    """
+    cli_ctx: CLIContext = ctx.obj
+    _capture(cli_ctx, _item_capture_dir(cli_ctx), subjects or (), "erenshor images items review")
+
+
+def _capture(cli_ctx: CLIContext, capture_dir: Path, subjects: Sequence[str], review_command: str) -> None:
     import asyncio
 
     import websockets
@@ -203,20 +235,19 @@ def capture(
     )
 
     console = Console()
-    cli_ctx: CLIContext = ctx.obj
-    capture_dir = _model_capture_dir(cli_ctx)
     manifest_data = json.loads((capture_dir / "manifest.json").read_text(encoding="utf-8"))
     try:
-        requests = portrait_requests(manifest_data, subjects or ())
+        requests = portrait_requests(manifest_data, subjects)
     except ValueError as error:
         console.print(f"[red]{error}[/red]")
         raise typer.Exit(1) from error
 
     by_scene: dict[str, int] = {}
     for request in requests:
-        by_scene[request.scene or "no scene (Resources)"] = by_scene.get(request.scene or "no scene (Resources)", 0) + 1
+        place = request.scene or "no scene (Resources or the player)"
+        by_scene[place] = by_scene.get(place, 0) + 1
     console.print(
-        f"[bold]{len(requests)} portraits[/bold], game build {manifest_data['game_build']}, "
+        f"[bold]{len(requests)} captures[/bold], game build {manifest_data['game_build']}, "
         f"preset {manifest_data['camera_preset']}"
     )
     for scene, count in by_scene.items():
@@ -234,7 +265,7 @@ def capture(
         if (staged["game_build"], staged["preset"]) != (game_build, preset):
             console.print("[red]The staging set is of another build or preset; capture every file again.[/red]")
             raise typer.Exit(1)
-        run = recapture_run(staged, png_dir, set(subjects or ()))
+        run = recapture_run(staged, png_dir, set(subjects))
     else:
         if staging.exists():
             shutil.rmtree(staging)
@@ -272,7 +303,7 @@ def capture(
     failed = len(run.results) - counts["accepted"] - counts["rejected"]
     console.print(
         f"{counts['accepted']} accepted, {counts['rejected']} rejected, {failed} failed. "
-        "Draw the contact sheets with 'erenshor images review'."
+        f"Draw the contact sheets with '{review_command}'."
     )
     if not run.returned:
         console.print("[yellow]The mod did not confirm that the player is back where the batch started.[/yellow]")
@@ -295,16 +326,35 @@ def review(ctx: typer.Context) -> None:
     Examples:
         erenshor images review
     """
+    cli_ctx: CLIContext = ctx.obj
+    _review(cli_ctx, _model_capture_dir(cli_ctx))
+
+
+@items_app.command("review")
+@require_preconditions(required_path("images_dir", "item-captures/staging/captures.json"))
+def item_review(ctx: typer.Context) -> None:
+    """Draw the staged item captures beside the pictures that their titles show on the wiki now.
+
+    Writes the contact sheets to images/item-captures/staging/contact-sheets/
+    of the variant, as 'erenshor images review' does for characters. Reads the
+    wiki only.
+
+    Examples:
+        erenshor images items review
+    """
+    cli_ctx: CLIContext = ctx.obj
+    _review(cli_ctx, _item_capture_dir(cli_ctx))
+
+
+def _review(cli_ctx: CLIContext, capture_dir: Path) -> None:
     from collections import Counter
 
     from erenshor.application.capture.portraits import PortraitRun, WikiPicture, write_contact_sheets
     from erenshor.application.services.image_publication import LivePictureCache, LiveWiki
-    from erenshor.domain.value_objects.wiki_filename import picture_file_title
 
     console = Console()
-    cli_ctx: CLIContext = ctx.obj
     variant_config = cli_ctx.config.variants[cli_ctx.variant]
-    staging = _model_capture_dir(cli_ctx) / "staging"
+    staging = capture_dir / "staging"
     run = PortraitRun.from_json(json.loads((staging / "captures.json").read_text(encoding="utf-8")))
     _, owners = _project_accounts(cli_ctx)
 
@@ -315,9 +365,7 @@ def review(ctx: typer.Context) -> None:
             reader.download, variant_config.resolved_images_output(cli_ctx.repo_root) / "publish" / "live"
         )
         shown = {
-            picture_file_title("render", result.subject): file
-            for result in run.results
-            if (file := live.shown(f"File:{picture_file_title('render', result.subject)}")) is not None
+            result.title: file for result in run.results if (file := live.shown(f"File:{result.title}")) is not None
         }
         unreachable: list[str] = []
         for file in shown.values():
@@ -367,17 +415,9 @@ def review(ctx: typer.Context) -> None:
 )
 def approve_captures(
     ctx: typer.Context,
-    subjects: Annotated[
-        list[str] | None,
-        typer.Argument(help="Captured subjects to approve"),
-    ] = None,
-    every_accepted: Annotated[
-        bool, typer.Option("--all", help="Approve every capture that the review accepted")
-    ] = False,
-    excluded: Annotated[
-        list[str] | None,
-        typer.Option("--exclude", help="With --all, leave this subject out; repeat for more"),
-    ] = None,
+    subjects: Annotated[list[str] | None, _APPROVE_SUBJECTS] = None,
+    every_accepted: Annotated[bool, _APPROVE_ALL] = False,
+    excluded: Annotated[list[str] | None, _APPROVE_EXCLUDE] = None,
 ) -> None:
     """Approve reviewed captures for upload.
 
@@ -390,20 +430,50 @@ def approve_captures(
         erenshor images approve --all --exclude "Planar Flame Energy"
         erenshor images approve "Faith"
     """
+    cli_ctx: CLIContext = ctx.obj
+    _approve(cli_ctx, _model_capture_dir(cli_ctx), subjects or (), every_accepted, excluded or ())
+
+
+@items_app.command("approve")
+@require_preconditions(
+    required_path("images_dir", "item-captures/manifest.json"),
+    required_path("images_dir", "item-captures/staging/captures.json"),
+)
+def approve_item_captures(
+    ctx: typer.Context,
+    subjects: Annotated[list[str] | None, _APPROVE_SUBJECTS] = None,
+    every_accepted: Annotated[bool, _APPROVE_ALL] = False,
+    excluded: Annotated[list[str] | None, _APPROVE_EXCLUDE] = None,
+) -> None:
+    """Approve reviewed item captures for upload.
+
+    Copies each approved PNG to images/item-captures/approved/ and records it
+    in approved.json there, as 'erenshor images approve' does for characters.
+    With the root --dry-run option, lists the approvals and writes nothing.
+
+    Examples:
+        erenshor images items approve --all
+        erenshor images items approve "Molorai Bow"
+    """
+    cli_ctx: CLIContext = ctx.obj
+    _approve(cli_ctx, _item_capture_dir(cli_ctx), subjects or (), every_accepted, excluded or ())
+
+
+def _approve(
+    cli_ctx: CLIContext, capture_dir: Path, subjects: Sequence[str], every_accepted: bool, excluded: Sequence[str]
+) -> None:
     from erenshor.application.services.model_image_approval import approve
     from erenshor.domain.value_objects.capture_approval import APPROVAL_FILE, Approval
 
     console = Console()
-    cli_ctx: CLIContext = ctx.obj
-    capture_dir = _model_capture_dir(cli_ctx)
     captures = json.loads((capture_dir / "staging" / "captures.json").read_text(encoding="utf-8"))
     manifest_data = json.loads((capture_dir / "manifest.json").read_text(encoding="utf-8"))
     if every_accepted == bool(subjects):
         console.print("[red]Name subjects as arguments, or approve every accepted capture with --all.[/red]")
         raise typer.Exit(1)
-    selected = list(subjects or ())
+    selected = list(subjects)
     if every_accepted:
-        skipped = set(excluded or ())
+        skipped = set(excluded)
         selected = [
             result["subject"]
             for result in captures["results"]

@@ -3,11 +3,18 @@ namespace MapTileCapture.Protocol;
 /// <summary>
 /// The camera, light, and framing of a portrait capture. A request names the
 /// preset that it expects, so captures of different presets never mix in one
-/// review. Change <see cref="Name"/> together with any value here.
+/// review. Change <see cref="Name"/> and <see cref="ItemName"/> together with
+/// any value here.
 /// </summary>
 public static class PortraitPreset
 {
     public const string Name = "portrait-4";
+
+    /// <summary>
+    /// The preset of item captures: the same camera, light, and framing, under
+    /// its own name, so that item and character captures never mix in one review.
+    /// </summary>
+    public const string ItemName = "item-1";
 
     /// <summary>Width and height of each render, in pixels.</summary>
     public const int RenderSize = 1024;
