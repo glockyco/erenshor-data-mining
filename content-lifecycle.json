@@ -72,6 +72,15 @@
       "patch_notes_url": null,
       "source": "Clean DB retains the item and its Mana Charge teaching link, but has no vendor, drop, starting-item, crafting, dialog, or spell-created source. The old wiki article says it is no longer obtainable."
     },
+    "Spell Scroll: Minor Protection": {
+      "stable_key": "item:spell scroll - minor protection",
+      "state": "unobtainable",
+      "thing": "item",
+      "update": null,
+      "date": null,
+      "patch_notes_url": null,
+      "source": "Build 24405256 keeps the item, but nothing in the game sells or gives it. Only three characters list it: the unplaced Shopkeeper Treven prefab, whose one placement in Stowaway (Treven Pines) sells 12 other items, and two characters that never appear. Samuel Thatcher, whom the old article names, sells 5 other items, checked in game on 2026-10-11."
+    },
     "Charged Soul Gem (Aragath)": {
       "stable_key": "item:quest - charged soul gem aragath",
       "state": "unobtainable",
