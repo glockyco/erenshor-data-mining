@@ -273,13 +273,16 @@ def load_model_parts(clean: sqlite3.Connection) -> ModelParts:
             masks.add(str(part))
         else:
             body_meshes[(str(body), str(slot), str(part))].update(filter(None, str(meshes).split("|")))
-    # A character that the scene places stands where the player can land.
+    # Land where a zone line into the scene puts the player, away from its
+    # spawns: a character's own place can stand beside a hostile spawn, such as
+    # the Reliquary Fiend's, which killed the player during a capture.
     landings: dict[str, tuple[float, float, float]] = {}
     for scene, x, y, z in clean.execute(
         """
-        SELECT scene, x, y, z FROM characters
-        WHERE is_prefab = 0 AND scene IS NOT NULL AND x IS NOT NULL
-        ORDER BY stable_key
+        SELECT z.scene_name, l.landing_position_x, l.landing_position_y, l.landing_position_z
+        FROM zone_lines l JOIN zones z ON z.stable_key = l.destination_zone_stable_key
+        WHERE l.is_enabled = 1 AND l.landing_position_x IS NOT NULL
+        ORDER BY l.stable_key
         """
     ):
         landings.setdefault(str(scene), (float(x), float(y), float(z)))
@@ -288,7 +291,7 @@ def load_model_parts(clean: sqlite3.Connection) -> ModelParts:
         "SELECT DISTINCT furnishing, scene FROM planning_table_furnishings ORDER BY scene, furnishing"
     ):
         if scene not in landings:
-            raise ValueError(f"The scene {scene} of the furnishing {furnishing} places no character to land at")
+            raise ValueError(f"No zone line leads into {scene}, the scene of the furnishing {furnishing}")
         furnishings.setdefault(str(furnishing), (str(scene), landings[str(scene)]))
     return ModelParts(
         body_meshes={key: frozenset(value) for key, value in body_meshes.items()},
