@@ -7,8 +7,8 @@ The Python test suite has grown eleven separate hand-rolled fakes for the MediaW
 ## What Changes
 
 - Add a single, stateful `tests/fakes/MediaWikiFake` that implements the read and write surface the eleven existing fakes each reimplement separately, contract-tested against the local Docker wiki so it cannot drift from what the real server actually does.
-- Add one CLI composition root: each `erenshor` command receives its collaborators (wiki client, sheets service, and similar) through one object built at the top of the command and threaded through, rather than importing a module-level factory function that a test patches by its exact dotted path.
-- Delete every CLI test that only asserts a mock was called, or that pins an exact argv list or an exact kwargs dict, and replace the behavior it was meant to cover with a real-behavior test built on the fake and the composition root.
+- Give each CLI command's external-client factory (wiki client, Sheets service, and similar) an override parameter, and make tests pass their double through it, so the production construction path runs and only the client is replaced.
+- Replace every CLI test that only asserts a mock was called, or that checks nothing a no-op command would fail, with a test that asserts what the command produces at its boundary: its written state, its exit code, or the arguments it passes to the service it adapts to.
 - Replace a multi-line substring assertion against rendered console or HTML text with a structural comparison (parsed fields, or a DOM/element query), or with an `inline-snapshot` baseline where a text comparison is genuinely the right check.
 - Rework `wiki-dev/smoke_test.py` to select each checked page by its rendered element or structure instead of a literal HTML substring recorded in `wiki-dev/fixtures/smoke.tsv`.
 
