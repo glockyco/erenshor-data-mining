@@ -1,0 +1,4 @@
+__HIDDENCAT__
+This hidden maintenance category collects pages where <code><nowiki>{{Vendor stock}}</nowiki></code> finds no vendor or no stock. Often the page is not a vendor's page, several characters share it, or a game update renamed the vendor.
+
+To fix a page, pass the vendor's <code>stablekey</code>, or remove the template. See [[Erenshor Wiki:Game Data#Maintenance categories]].

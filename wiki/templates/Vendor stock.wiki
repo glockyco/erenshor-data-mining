@@ -1,0 +1,3 @@
+<includeonly>{{#invoke:Erenshor/VendorStock|stock}}</includeonly><noinclude>The table of what a vendor sells, from [[Module:Erenshor/VendorStock]] and the generated [[Module:Erenshor/Data/VendorStock]]. On a vendor's page it shows that vendor: <code><nowiki>{{Vendor stock}}</nowiki></code>. Elsewhere, or on a page that several characters share, name the vendor: <code><nowiki>{{Vendor stock|stablekey=character:...}}</nowiki></code>.
+
+The rows come from the game data, so a correction goes to [[Erenshor Wiki:Game Data]], not into the table.</noinclude>

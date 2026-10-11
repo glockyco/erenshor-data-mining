@@ -203,6 +203,11 @@ Lua TreasureGuardian Smoke	text:PASS Erenshor TreasureGuardian testcases
 Treasure Guardian Fixture	elem:.wikitable=Stats by the level of the attacking player
 Treasure Guardian Fixture	elem:.pi-data-value=Treasure hunt
 Treasure Guardian Fixture	elem:.pi-data-label=Spawn Type:
+Lua VendorStock Smoke	text:PASS Erenshor VendorStock testcases
+Vendor Stock Fixture	elem:.wikitable=Store inventory
+Vendor Stock Fixture	elem:.erenshor-link--item=Healing Draught
+Vendor Stock Fixture	elem:.erenshor-link--quest=A Magical Sword in Port Azure
+Vendor Stock Fixture	!category:Pages_with_missing_Erenshor_vendor_stock_data
 # Image tracking: neither picture uploaded means the page joins its Needs Image category.
 Image Tracking Uploaded	category:Characters
 Image Tracking Uploaded	!category*:Needs_

@@ -160,6 +160,8 @@ These hidden categories collect pages that need a fix.
 | [[:Category:Pages with mismatched Erenshor link targets]] || {{PAGESINCATEGORY:Pages with mismatched Erenshor link targets}} || A link names a page that is not the page of its <code>stablekey</code>. Find out which of the two is correct, and remove the other.
 |-
 | [[:Category:Needs Image]] || {{PAGESINCATEGORY:Needs Image}} || A character infobox has neither a render nor a screenshot. Its subcategories sort the pages by kind: character, chest, and summon. Upload a screenshot under the screenshot name that the infobox names. The page leaves the category once the file exists.
+|-
+| [[:Category:Pages with missing Erenshor vendor stock data]] || {{PAGESINCATEGORY:Pages with missing Erenshor vendor stock data}} || <code><nowiki>{{Vendor stock}}</nowiki></code> finds no vendor or no stock for the page. Pass the vendor's <code>stablekey</code>, or remove the template.
 |}
 
 == Templates that the project maintains ==
@@ -172,7 +174,7 @@ Each of these templates has its documentation on its own page.
 ; Ability tooltips
 : [[Template:SpellTooltip|SpellTooltip]], [[Template:SkillTooltip|SkillTooltip]], [[Template:StanceTooltip|StanceTooltip]]
 ; Character parts
-: [[Template:TreasureGuardianStats|TreasureGuardianStats]]
+: [[Template:TreasureGuardianStats|TreasureGuardianStats]], [[Template:Vendor stock|Vendor stock]]
 ; Links
 : [[Template:ItemLink|ItemLink]], [[Template:CharacterLink|CharacterLink]], [[Template:AbilityLink|AbilityLink]], [[Template:QuestLink|QuestLink]], [[Template:ZoneLink|ZoneLink]], [[Template:FactionLink|FactionLink]], [[Template:ClassLink|ClassLink]]
 ; Other
