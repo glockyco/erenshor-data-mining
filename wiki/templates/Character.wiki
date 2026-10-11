@@ -1,8 +1,8 @@
 <includeonly><templatestyles src="Template:Character/styles.css" /><infobox type="Character">
     <title source="name"/>
     <image>
-        <default>{{#tag:gallery|{{#if:{{{render|}}}|{{{render}}}{{!}}Render}}
-{{#if:{{{screenshot|}}}|{{{screenshot}}}{{!}}Screenshot}}}}</default>
+        <default>{{#tag:gallery|{{#ifexist:Media:{{{render|}}}|{{{render}}}{{!}}Render}}
+{{#ifexist:Media:{{{screenshot|}}}|{{{screenshot}}}{{!}}Screenshot}}}}</default>
     </image>
     <data source="imagecaption" />
     <group>

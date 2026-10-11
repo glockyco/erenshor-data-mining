@@ -288,3 +288,5 @@ Item Pictures Icon	elem:img.pi-image-thumbnail[src*="_icon.png"]
 Item Pictures Icon	!elem:.pi-media-collection
 Item Pictures Icon	!elem:figcaption
 Item Pictures Icon	elem:style=.pi-type-Item .pi-image-thumbnail[src*="_icon.png"]{width:auto;height:auto;max-width:160px;max-height:160px}
+Item Pictures Render	!category:Pages_with_broken_file_links
+Image Screenshot Only	!category:Pages_with_broken_file_links
