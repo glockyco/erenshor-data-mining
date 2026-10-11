@@ -281,6 +281,7 @@ Item Pictures Both	elem:li.pi-tab-link.pi-item-spacing.current[data-pi-tab="pi-t
 Item Pictures Both	elem:li.pi-tab-link.pi-item-spacing[data-pi-tab="pi-tab-2"]=Screenshot
 Item Pictures Render	elem:figcaption.pi-item-spacing.pi-caption=Render
 Item Pictures Render	!elem:.pi-media-collection
+Item Pictures Render	infobox:Forged for a fixture, it remembers every smoke test.
 Item Pictures Screenshot	elem:figcaption.pi-item-spacing.pi-caption=Screenshot
 Item Pictures Screenshot	!elem:.pi-media-collection
 Item Pictures Icon	elem:img.pi-image-thumbnail[src*="_icon.png"]

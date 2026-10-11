@@ -618,6 +618,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "render_male": enriched.renders.get("male", ""),
             "render_female": enriched.renders.get("female", ""),
             "screenshot": picture_file_title("screenshot", item.image_name, item.display_name, item.item_name),
+            "lore": format_description(safe_str(item.lore)) if item.lore else "",
             "type": item_type,
             "vendorsource": vendor_sources,
             "source": drop_sources,
