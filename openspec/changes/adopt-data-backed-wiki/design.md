@@ -172,7 +172,7 @@ The real deploy runs the check directly before each write, so later stages see t
 Alternatives considered:
 
 - Sandbox many pages at once with `templatesandboxprefix`. Rejected: it needs copies of each page written on the wiki first.
-- Rely on the local MediaWiki stack. Rejected: it holds every generated data module, so it cannot see a module that is missing live. That gap hid the `Data/Zones` failure.
+- Rely on the local MediaWiki stack. Rejected: it loads a fixture of every data module that the code reads, so it cannot see a module that is missing live. That gap hid the `Data/Zones` failure.
 
 ### D8. Size limit at generation
 
