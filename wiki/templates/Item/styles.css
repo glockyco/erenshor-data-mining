@@ -1,8 +1,30 @@
 /* An item icon is a small inventory picture. Filling the infobox width blows
-   it up, so the infobox shows it at most 160 pixels on its longer side. */
-.pi-type-Item .pi-image[data-source="icon"] .pi-image-thumbnail {
+   it up, so the infobox shows it at most 160 pixels on its longer side. Icon
+   titles end in " icon.png", so their file paths contain "_icon.png". */
+.pi-type-Item .pi-image-thumbnail[src*="_icon.png"] {
 	width: auto;
 	height: auto;
 	max-width: 160px;
 	max-height: 160px;
+}
+
+/* Renders of the item's model have a transparent background, and some models
+   are almost black. The surface of the character renders keeps them readable
+   on the dark theme. It shows only through transparent pixels, so screenshots
+   look as before. */
+.pi-type-Item .pi-image-thumbnail:not([src*="_icon.png"]) {
+	background-color: #313e59;
+}
+
+/* Unlike an image caption, this row stays visible below gallery tabs. */
+.pi-type-Item [data-source="imagecaption"] {
+	padding: 0;
+	border: 0;
+}
+
+.pi-type-Item [data-source="imagecaption"] .pi-data-value {
+	margin: 0;
+	padding: 5px 10px;
+	font-style: italic;
+	text-align: center;
 }

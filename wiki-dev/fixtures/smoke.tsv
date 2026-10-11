@@ -121,7 +121,7 @@ Legacy Item Fixture	elem:.pi-data-value=Legacy inline-param item, no stablekey.
 Legacy Item Fixture	elem:.portable-infobox
 Legacy Item Fixture	elem:.pi-type-Item
 Legacy Item Fixture	category:Items
-Legacy Item Fixture	elem:figure.pi-item.pi-media.pi-image[data-source="icon"]
+Legacy Item Fixture	elem:figure.pi-item.pi-media.pi-image
 Generated Item Fixture	elem:.pi-title=Generated Sword Fixture
 Generated Item Fixture	elem:.pi-data-label=Sold by
 Generated Item Fixture	elem:.pi-data-value=Generated Vendor
@@ -131,7 +131,7 @@ Generated Item Fixture	elem:.pi-data-value=View on the interactive map
 Generated Item Fixture	elem:a.external[href*="sel=item:item%3Agen+-+sword+fixture"]
 Generated Item Fixture	elem:.pi-type-Item
 Generated Item Fixture	category:Items
-Generated Item Fixture	elem:figure.pi-item.pi-media.pi-image[data-source="icon"]
+Generated Item Fixture	elem:figure.pi-item.pi-media.pi-image
 Parameterized ItemTooltip Fixture	elem:.item-tooltip-tier-0=Parameterized Sword
 Parameterized ItemTooltip Fixture	elem:a.new[title*="Weapons"]
 Parameterized ItemTooltip Fixture	elem:.item-tooltip-tier-0=Standard
@@ -272,3 +272,18 @@ Icon Frames Fixture	elem:[style*="width:24px;height:24px"]
 Icon Frames Fixture	elem:[style*="top:3px;right:3px;bottom:3px;left:3px"]
 Icon Frames Fixture	elem:[style*="top:2px;right:2px;bottom:2px;left:2px"]
 Icon Frames Fixture	elem:[style*="top:1px;right:1px;bottom:1px;left:1px"]
+# Item infoboxes show the renders and the screenshot that exist, in role order, and the icon otherwise.
+Item Pictures Bodies	elem:li.pi-tab-link.pi-item-spacing.current[data-pi-tab="pi-tab-1"]=Male
+Item Pictures Bodies	elem:li.pi-tab-link.pi-item-spacing[data-pi-tab="pi-tab-2"]=Female
+Item Pictures Bodies	elem:li.pi-tab-link.pi-item-spacing[data-pi-tab="pi-tab-3"]=Screenshot
+Item Pictures Bodies	infobox:Caption below the tabs
+Item Pictures Both	elem:li.pi-tab-link.pi-item-spacing.current[data-pi-tab="pi-tab-1"]=Render
+Item Pictures Both	elem:li.pi-tab-link.pi-item-spacing[data-pi-tab="pi-tab-2"]=Screenshot
+Item Pictures Render	elem:figcaption.pi-item-spacing.pi-caption=Render
+Item Pictures Render	!elem:.pi-media-collection
+Item Pictures Screenshot	elem:figcaption.pi-item-spacing.pi-caption=Screenshot
+Item Pictures Screenshot	!elem:.pi-media-collection
+Item Pictures Icon	elem:img.pi-image-thumbnail[src*="_icon.png"]
+Item Pictures Icon	!elem:.pi-media-collection
+Item Pictures Icon	!elem:figcaption
+Item Pictures Icon	elem:style=.pi-type-Item .pi-image-thumbnail[src*="_icon.png"]{width:auto;height:auto;max-width:160px;max-height:160px}

@@ -612,6 +612,12 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "title": display_name,
             "stablekey": item.stable_key,
             "icon": item_image_file(item),
+            # The infobox shows the renders and the editors' screenshot where
+            # their files exist, and the icon otherwise.
+            "render": enriched.renders.get(None, ""),
+            "render_male": enriched.renders.get("male", ""),
+            "render_female": enriched.renders.get("female", ""),
+            "screenshot": picture_file_title("screenshot", item.image_name, item.display_name, item.item_name),
             "type": item_type,
             "vendorsource": vendor_sources,
             "source": drop_sources,

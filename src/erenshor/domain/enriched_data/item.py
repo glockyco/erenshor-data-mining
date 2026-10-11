@@ -1,5 +1,7 @@
 """Enriched item data DTO."""
 
+from collections.abc import Mapping
+
 from erenshor.domain.entities.item import Item
 from erenshor.domain.entities.item_stats import ItemStats
 from erenshor.domain.entities.skill import Skill
@@ -27,6 +29,7 @@ class EnrichedItemData:
         aura_spell: Spell | None = None,
         taught_spell: Spell | None = None,
         taught_skill: Skill | None = None,
+        renders: Mapping[str | None, str] | None = None,
     ) -> None:
         """Initialize enriched item data.
 
@@ -39,6 +42,8 @@ class EnrichedItemData:
             aura_spell: Spell entity for aura items (from item.aura_stable_key)
             taught_spell: Spell entity for spell scrolls (from item.teach_spell_stable_key)
             taught_skill: Skill entity for skill books (from item.teach_skill_stable_key)
+            renders: Titles of the item's approved renders, keyed by the body
+                that each shows, or None for a render of no one body
         """
         self.item = item
         self.stats = stats
@@ -48,3 +53,4 @@ class EnrichedItemData:
         self.aura_spell = aura_spell
         self.taught_spell = taught_spell
         self.taught_skill = taught_skill
+        self.renders: Mapping[str | None, str] = renders or {}

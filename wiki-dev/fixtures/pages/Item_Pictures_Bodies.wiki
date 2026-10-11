@@ -1,0 +1,10 @@
+{{Item
+|title=Item Pictures Bodies
+|icon=Item Picture Fixture icon.png
+|render=
+|render_male=Item Picture Fixture render (male).png
+|render_female=Item Picture Fixture render (female).png
+|screenshot=Item Picture Fixture screenshot.png
+|imagecaption=Caption below the tabs
+|type=[[Weapons|Weapon]]
+}}

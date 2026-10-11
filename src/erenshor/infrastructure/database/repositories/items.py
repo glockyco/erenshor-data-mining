@@ -138,6 +138,21 @@ class ItemRepository(BaseRepository[Item]):
         """Get all items with non-null wiki pages for semantic identity validation."""
         return self._get_items(include_blank_pages=True)
 
+    def get_item_renders(self, stable_key: str) -> dict[str | None, str]:
+        """Get the titles of an item's approved renders, keyed by the body that each shows.
+
+        The key is None for a render of no one body.
+
+        Raises:
+            RepositoryError: If query execution fails
+        """
+        query = "SELECT body, title FROM item_renders WHERE stable_key = ? ORDER BY title"
+        try:
+            rows = self._execute_raw(query, (stable_key,))
+            return {row["body"]: str(row["title"]) for row in rows}
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve item renders for {stable_key}: {e}") from e
+
     def get_item_classes(self, stable_key: str) -> list[str]:
         """Get class restrictions for an item.
 

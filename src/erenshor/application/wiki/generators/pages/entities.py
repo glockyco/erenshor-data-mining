@@ -223,6 +223,7 @@ class EntityPageGenerator(PageGenerator):
             aura_spell=aura_spell,
             taught_spell=taught_spell,
             taught_skill=taught_skill,
+            renders=self.context.item_repo.get_item_renders(item.stable_key),
         )
 
     def _extract_proc(self, item: Item) -> ProcInfo | None:

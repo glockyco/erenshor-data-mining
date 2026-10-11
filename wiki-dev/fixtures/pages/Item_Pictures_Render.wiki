@@ -1,0 +1,10 @@
+{{Item
+|title=Item Pictures Render
+|icon=Item Picture Fixture icon.png
+|render=Item Picture Fixture render.png
+|render_male=
+|render_female=
+|screenshot=Item Pictures Missing screenshot.png
+|imagecaption=
+|type=[[Weapons|Weapon]]
+}}
