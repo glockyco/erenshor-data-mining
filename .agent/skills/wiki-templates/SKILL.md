@@ -64,8 +64,8 @@ The plan for the wiki is the OpenSpec change `adopt-data-backed-wiki`. Read its 
    ```bash
    uv run erenshor wiki audit-links
    uv run erenshor --dry-run wiki deploy
-   uv run erenshor wiki deploy --pages-file canaries.txt
-   uv run erenshor wiki deploy
+   uv run erenshor wiki deploy --pages-file canaries.txt --summary "Show item renders"
+   uv run erenshor wiki deploy --summary "Show item renders"
    ```
 
    `wiki audit-links` fails when a generated link points to an item, ability, character, or zone article that is neither live nor in the deploy.
@@ -76,7 +76,7 @@ The plan for the wiki is the OpenSpec change `adopt-data-backed-wiki`. Read its 
    Field values compare with link syntax ignored. A value whose links reach the same pages through other syntax is a link change.
    The dry run lists each encounter tier change, each live root that generation kept, and each conflict. It fails when a page is a conflict.
    It saves the full report to `variants/<variant>/wiki/deploy-plan.json`.
-   `wiki deploy` writes an article only while its live page is still at the fetched revision.
+   A live `wiki deploy` needs `--summary`, which says what changed; the edit summary adds the game build. `wiki deploy` writes an article only while its live page is still at the fetched revision.
    A page that changed or was deleted after the fetch is a conflict. Fetch and generate it again.
    A page that differs from its fetched text only by page normalization is not written.
    Before each write, the deploy parses the new text on the wiki. A script error or a missing template blocks the page.

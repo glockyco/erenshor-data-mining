@@ -748,7 +748,12 @@ class TestWikiDeployCommand:
         monkeypatch.setattr(wiki_command, "_run_link_audit", MagicMock(return_value=TestWikiLinkAuditCommand._report()))
         monkeypatch.setattr(wiki_command, "recorded_build_id", lambda _path: "123")
 
-        result = runner.invoke(wiki.app, ["deploy"], obj=context)
+        unsummarized = runner.invoke(wiki.app, ["deploy"], obj=context)
+        assert unsummarized.exit_code == 1
+        assert "--summary" in _unwrapped(unsummarized.output)
+        client.safe_edit_page.assert_not_called()
+
+        result = runner.invoke(wiki.app, ["deploy", "--summary", "Show item renders"], obj=context)
 
         assert result.exit_code == 1
         assert "Conflict Beta" in _unwrapped(result.output)
@@ -757,7 +762,7 @@ class TestWikiDeployCommand:
             ("Alpha", 12),
             ("Beta", None),
         ]
-        assert client.safe_edit_page.call_args.kwargs["summary"] == "Update game data from build 123"
+        assert client.safe_edit_page.call_args.kwargs["summary"] == "Show item renders (game build 123)"
         client.close.assert_called_once_with()
 
 

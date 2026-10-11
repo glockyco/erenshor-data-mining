@@ -1696,6 +1696,11 @@ def deploy(
         "--pages-file",
         help="File with page titles to deploy (one per line), or '-' for stdin. If not specified, deploys all pages.",
     ),
+    summary: str | None = typer.Option(
+        None,
+        "--summary",
+        help="What the deploy changes, for the edit summary, such as 'Show item renders'. Required to write.",
+    ),
 ) -> None:
     """Deploy generated articles that changed since their fetched revision.
 
@@ -1777,6 +1782,9 @@ def deploy(
         if plan.stale or review_failed:
             raise typer.Exit(1)
         return
+    if not summary or not summary.strip():
+        console.print("[red]Say what the deploy changes with --summary; editors read it in the page history.[/red]")
+        raise typer.Exit(1)
 
     try:
         build_id = recorded_build_id(variant_config.resolved_database(cli_ctx.repo_root))
@@ -1797,7 +1805,7 @@ def deploy(
             storage=storage,
             repo_root=cli_ctx.repo_root,
             rollback_root=run_dir / "rollback",
-            summary=f"Update game data from build {build_id}",
+            summary=f"{summary.strip()} (game build {build_id})",
             checkpoint=checkpoint_manifest,
         )
     finally:
