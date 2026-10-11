@@ -1349,8 +1349,9 @@ def _special_source_db() -> sqlite3.Connection:
         CREATE TABLE special_world_drops (
             item_stable_key TEXT, pool TEXT, drop_probability REAL, min_level_exclusive INTEGER
         );
-        CREATE TABLE code_facts (fact_id TEXT, key TEXT, value TEXT);
-        INSERT INTO code_facts VALUES ('fishing.map_bonus', 'ok', 'true');
+        CREATE TABLE fishing_bonus_catches (item_stable_key TEXT, chance_per_catch REAL);
+        INSERT INTO fishing_bonus_catches VALUES
+            ('item:map1', 1.25), ('item:map2', 1.25), ('item:map3', 1.25), ('item:map4', 1.25);
         INSERT INTO special_world_drops VALUES
             ('item:map1', 'Maps', 0.625, 0), ('item:map2', 'Maps', 0.625, 0),
             ('item:map3', 'Maps', 0.625, 0), ('item:map4', 'Maps', 0.625, 0),
@@ -1411,24 +1412,6 @@ def test_background_sources_use_exported_chances_and_merge_chest_level_brackets(
     compiled_shard = compiled.nodes[compiled.node_key_to_id[shard.key]]
     assert compiled_shard.background_sources == shard.background_sources
     assert compiled.item_sources[compiled.node_item_index[compiled_shard.node_id]] == []
-
-
-@pytest.mark.parametrize("failure", ["missing_fact", "failed_fact", "wrong_pool_size"])
-def test_fishing_bonus_requires_asserted_roll_and_four_exported_pieces(failure: str) -> None:
-    from erenshor.application.guide.node_builder import _add_background_item_sources
-
-    conn = _special_source_db()
-    try:
-        if failure == "missing_fact":
-            conn.execute("DELETE FROM code_facts")
-        elif failure == "failed_fact":
-            conn.execute("UPDATE code_facts SET value = 'false'")
-        else:
-            conn.execute("DELETE FROM special_world_drops WHERE item_stable_key = 'item:map4'")
-        with pytest.raises(ValueError, match=r"code fact|four exported map pieces"):
-            _add_background_item_sources(conn, build_graph(item_node("item:map1")))
-    finally:
-        conn.close()
 
 
 def test_item_use_obtainability_propagates_used_item_level_and_ignores_background_sources() -> None:

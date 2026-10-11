@@ -182,19 +182,14 @@ def _add_background_item_sources(conn: sqlite3.Connection, graph: EntityGraph) -
             )
         )
 
-    # code-fact: fishing.map_bonus
-    # The assertion pins the entire bonus branch, including both integer draws.
-    fact = conn.execute("SELECT value FROM code_facts WHERE fact_id = 'fishing.map_bonus' AND key = 'ok'").fetchone()
-    if fact is None or fact["value"] != "true":
-        raise ValueError("Missing fishing.map_bonus code fact; refresh code facts and rebuild the clean database")
-    pieces = conn.execute("SELECT item_stable_key FROM special_world_drops WHERE pool = 'Maps'").fetchall()
-    if len(pieces) != 4:
-        raise ValueError(f"Fishing map bonus requires the four exported map pieces, found {len(pieces)}")
-    for row in pieces:
+    # The clean build derives the fishing bonus from its code fact and checks it.
+    for row in conn.execute(
+        "SELECT item_stable_key, chance_per_catch FROM fishing_bonus_catches ORDER BY item_stable_key"
+    ):
         item = graph.get_node(row["item_stable_key"])
         if item is not None:
             item.background_sources.append(
-                BackgroundSource(type="fishing_bonus", name="Any fishing catch", chance=100 / 20 / 4)
+                BackgroundSource(type="fishing_bonus", name="Any fishing catch", chance=float(row["chance_per_catch"]))
             )
 
     for row in conn.execute("""
