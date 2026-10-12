@@ -56,6 +56,7 @@ from erenshor.application.wiki_lua.stances import StanceDataRepository, write_st
 from erenshor.application.wiki_lua.treasure import TreasureDataRepository, write_treasure_guardians_module
 from erenshor.application.wiki_lua.validation import LuaValidationResult, validate_lua_module
 from erenshor.application.wiki_lua.vendor_stock import VendorStockRepository, write_vendor_stock_module
+from erenshor.application.wiki_lua.world_drops import WorldDropRepository, write_world_drops_module
 
 
 class WikiItemRepository(
@@ -82,7 +83,11 @@ class WikiZoneRepository(LinkCatalogZoneRepository, ItemProvenanceZoneRepository
 
 
 class WikiSpellItemRepository(
-    WikiItemRepository, SpellRelationshipItemRepository, SkillRelationshipItemRepository, Protocol
+    WikiItemRepository,
+    SpellRelationshipItemRepository,
+    SkillRelationshipItemRepository,
+    WorldDropRepository,
+    Protocol,
 ):
     """Item repository contract needed by spell and skill Lua data generation."""
 
@@ -123,6 +128,7 @@ TOP_LEVEL_DATA_MODULES: tuple[str, ...] = (
     "Build.lua",
     "TreasureGuardians.lua",
     "VendorStock.lua",
+    "WorldDrops.lua",
 )
 
 
@@ -221,6 +227,7 @@ def generate_lua_data_modules(
             write_build_module(build_repo, staging_root),
             write_treasure_guardians_module(treasure_repo, staging_root),
             write_vendor_stock_module(character_repo, items, item_sources_by_item, known_keys, staging_root),
+            write_world_drops_module(item_repo, known_keys, staging_root),
         ]
         validation_tools: dict[Path, str] = {}
         for path in staged_paths:

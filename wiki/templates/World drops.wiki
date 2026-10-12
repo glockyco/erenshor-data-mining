@@ -1,0 +1,3 @@
+<includeonly>{{#invoke:Erenshor/WorldDrops|drops}}</includeonly><noinclude>The table of the special world drops that every kill of an enemy with a loot table can roll, from [[Module:Erenshor/WorldDrops]] and the generated [[Module:Erenshor/Data/WorldDrops]]: <code><nowiki>{{World drops}}</nowiki></code>. It takes no parameters.
+
+The rows come from the game data, so a correction goes to [[Erenshor Wiki:Game Data]], not into the table.</noinclude>

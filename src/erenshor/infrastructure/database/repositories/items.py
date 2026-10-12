@@ -788,6 +788,27 @@ class ItemRepository(BaseRepository[Item]):
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve special world drops for '{item_stable_key}': {e}") from e
 
+    def get_all_special_world_drops(self) -> list[tuple[str, WorldDropInfo]]:
+        """Return every special world drop roll with the item it yields."""
+        query = """
+            SELECT item_stable_key, drop_probability, min_level_exclusive
+            FROM special_world_drops
+            ORDER BY item_stable_key, pool
+        """
+        try:
+            return [
+                (
+                    str(row["item_stable_key"]),
+                    WorldDropInfo(
+                        probability=float(row["drop_probability"]),
+                        min_level_exclusive=int(row["min_level_exclusive"]),
+                    ),
+                )
+                for row in self._execute_raw(query, ())
+            ]
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve special world drops: {e}") from e
+
     def get_classes_starting_with_item(self, item_stable_key: str) -> list[ObtainedFromInfo]:
         """Return playable classes whose starting inventory includes an item."""
         query = """

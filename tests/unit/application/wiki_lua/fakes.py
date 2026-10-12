@@ -137,6 +137,9 @@ class FakeItemRepository:
     def get_special_world_drops(self, item_stable_key: str) -> list[WorldDropInfo]:
         return self._world_drops.get(item_stable_key, [])
 
+    def get_all_special_world_drops(self) -> list[tuple[str, WorldDropInfo]]:
+        return [(item_key, drop) for item_key, drops in sorted(self._world_drops.items()) for drop in drops]
+
     def get_obtainable_items_that_teach_spell(self, spell_stable_key: str) -> list[ItemLink]:
         return self._spell_teaching_items.get(spell_stable_key, [])
 

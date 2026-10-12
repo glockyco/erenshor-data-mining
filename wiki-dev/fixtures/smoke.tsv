@@ -208,6 +208,10 @@ Vendor Stock Fixture	elem:.wikitable=Store inventory
 Vendor Stock Fixture	elem:.erenshor-link--item=Healing Draught
 Vendor Stock Fixture	elem:.erenshor-link--quest=A Magical Sword in Port Azure
 Vendor Stock Fixture	!category:Pages_with_missing_Erenshor_vendor_stock_data
+Lua WorldDrops Smoke	text:PASS Erenshor WorldDrops testcases
+World Drops Fixture	elem:.wikitable=World drops
+World Drops Fixture	elem:.erenshor-link--item=Ember Longsword
+World Drops Fixture	text:Lowest enemy level
 # Image tracking: neither picture uploaded means the page joins its Needs Image category.
 Image Tracking Uploaded	category:Characters
 Image Tracking Uploaded	!category*:Needs_
