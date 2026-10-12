@@ -1,7 +1,7 @@
 <includeonly><templatestyles src="Template:Item/styles.css" />{{#if:{{{historical_state|}}}|{{Historical Content|state={{{historical_state}}}|thing=item|update={{{historical_update|}}}|date={{{historical_date|}}}|url={{{historical_url|}}}}}}}<infobox type="Item">
     <title source="title"/>
     <image>
-        <default>{{#if:{{#ifexist:Media:{{{render|}}}|1}}{{#ifexist:Media:{{{render_male|}}}|1}}{{#ifexist:Media:{{{screenshot|}}}|1}}|{{#tag:gallery|{{#ifexist:Media:{{{render|}}}|{{{render}}}{{!}}Render}}
+        <default>{{#if:{{#ifexist:Media:{{{render|}}}|1}}{{#ifexist:Media:{{{render_male|}}}|1}}{{#ifexist:Media:{{{render_female|}}}|1}}{{#ifexist:Media:{{{screenshot|}}}|1}}|{{#tag:gallery|{{#ifexist:Media:{{{render|}}}|{{{render}}}{{!}}Render}}
 {{#ifexist:Media:{{{render_male|}}}|{{{render_male}}}{{!}}Male}}
 {{#ifexist:Media:{{{render_female|}}}|{{{render_female}}}{{!}}Female}}
 {{#ifexist:Media:{{{screenshot|}}}|{{{screenshot}}}{{!}}Screenshot}}}}|{{#tag:gallery|{{{icon|}}}}}}}</default>

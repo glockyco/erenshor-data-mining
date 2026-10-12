@@ -1,17 +1,22 @@
+/* The infobox labels each render and screenshot in its gallery, such as
+   "Render" or "Screenshot", which Portable Infobox gives the picture as its
+   alt text. The icon that the infobox shows without a render or a
+   screenshot has no label, also on pages that name an older icon file. */
+
 /* An item icon is a small inventory picture. Filling the infobox width blows
-   it up, so the infobox shows it at most 160 pixels on its longer side. Icon
-   titles end in " icon.png", so their file paths contain "_icon.png". */
-.pi-type-Item .pi-image-thumbnail[src*="_icon.png"] {
-	width: auto;
-	height: auto;
-	max-width: 160px;
-	max-height: 160px;
+   it up, so the infobox fits it into a box of 160 pixels. A fixed box, not
+   the picture's own size, also keeps an older 110-pixel icon from showing at
+   half size on high-density screens. */
+.pi-type-Item .pi-image-thumbnail[alt=""] {
+	width: 160px;
+	height: 160px;
+	object-fit: contain;
 }
 
 /* Renders and screenshots fill a panel of the infobox's width with an even
    margin. Renders have a transparent background, and some models are almost
    black, so the panel takes the slate surface of the character renders. */
-.pi-type-Item .pi-image-thumbnail:not([src*="_icon.png"]) {
+.pi-type-Item .pi-image-thumbnail:not([alt=""]) {
 	box-sizing: border-box;
 	width: 100%;
 	height: 300px;

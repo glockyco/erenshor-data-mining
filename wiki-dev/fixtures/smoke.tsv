@@ -283,9 +283,9 @@ Item Pictures Render	elem:figcaption.pi-item-spacing.pi-caption=Render
 Item Pictures Render	!elem:.pi-media-collection
 Item Pictures Screenshot	elem:figcaption.pi-item-spacing.pi-caption=Screenshot
 Item Pictures Screenshot	!elem:.pi-media-collection
-Item Pictures Icon	elem:img.pi-image-thumbnail[src*="_icon.png"]
+Item Pictures Icon	elem:img.pi-image-thumbnail[alt=""]
 Item Pictures Icon	!elem:.pi-media-collection
 Item Pictures Icon	!elem:figcaption
-Item Pictures Icon	elem:style=.pi-type-Item .pi-image-thumbnail[src*="_icon.png"]{width:auto;height:auto;max-width:160px;max-height:160px}
+Item Pictures Icon	elem:style=.pi-type-Item .pi-image-thumbnail[alt=""]{width:160px;height:160px;object-fit:contain}
 Item Pictures Render	!category:Pages_with_broken_file_links
 Image Screenshot Only	!category:Pages_with_broken_file_links
