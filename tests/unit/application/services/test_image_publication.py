@@ -583,3 +583,70 @@ def test_a_failed_purge_does_not_undo_an_upload(setup: Any) -> None:
 
     assert [(entry["action"], entry["done"]) for entry in record.entries] == [("create", True)]
     assert "File:Thorned Branch.png" in wiki.files
+
+
+def test_listed_editors_pictures_move_to_their_screenshot_titles_and_the_move_reverts(tmp_path: Path) -> None:
+    from erenshor.application.services.screenshot_move import (
+        execute_screenshot_moves,
+        plan_screenshot_moves,
+        read_title_pairs,
+    )
+
+    wiki = MediaWikiFake(edit_account=BOT)
+    fox, shrine = _png((250, 120, 40, 255)), _png((7, 7, 7, 255))
+    wiki.put_file("File:Mask Fox.png", fox, user="WoWMuch", comment="")
+    wiki.put_redirect("File:Fox Mask.png", "File:Mask Fox.png")
+    wiki.put_file("File:Screenshot 2026-08-25 142237.png", shrine, user="Kris9727", comment="")
+    wiki.put_file("File:Mask Cat.png", fox, user="WoWMuch", comment="")
+    wiki.put_file("File:Mask Cat screenshot.png", shrine, user="Snedn", comment="")
+    wiki.put_file("File:Thorned Branch.png", OLD)
+    pairs = read_title_pairs(
+        "# reviewed\n"
+        "File:Mask Fox.png\tFile:Mask Fox screenshot.png\n"
+        "File:Screenshot 2026-08-25 142237.png\tFile:Shrine of Blessings screenshot.png\n"
+        "File:Mask Cat.png\tFile:Mask Cat screenshot.png\n"
+        "File:Thorned Branch.png\tFile:Thorned Branch screenshot.png\n"
+        "File:Mask Dog.png\tFile:Mask Dog screenshot.png\n"
+    )
+
+    plan = plan_screenshot_moves(pairs, wiki.listing(), BOT)
+    run = RunRecord(tmp_path / "run")
+    execute_screenshot_moves(plan, wiki, wiki, run, "Move")
+
+    assert [(item.source, item.title, item.redirects) for item in plan.moves] == [
+        ("File:Mask Fox.png", "File:Mask Fox screenshot.png", ("File:Fox Mask.png",)),
+        ("File:Screenshot 2026-08-25 142237.png", "File:Shrine of Blessings screenshot.png", ()),
+    ]
+    assert plan.skipped == (
+        ("File:Mask Cat.png", "File:Mask Cat screenshot.png is taken"),
+        ("File:Mask Dog.png", "no file"),
+        ("File:Thorned Branch.png", f"the bot {BOT} uploaded it, and publication moves its files"),
+    )
+    assert wiki.pages["File:Mask Fox.png"] == "#REDIRECT [[File:Mask Fox screenshot.png]]"
+    assert wiki.pages["File:Fox Mask.png"] == "#REDIRECT [[File:Mask Fox screenshot.png]]"
+    assert [version.user for version in wiki.files["File:Shrine of Blessings screenshot.png"]] == ["Kris9727"]
+
+    revert(RunRecord.load(run.directory), wiki, wiki, RunRecord(tmp_path / "revert"), OWNERS, "Revert")
+
+    assert [version.user for version in wiki.files["File:Mask Fox.png"]] == ["WoWMuch"]
+    assert "File:Mask Fox screenshot.png" not in wiki.pages
+    assert wiki.pages["File:Fox Mask.png"] == "#REDIRECT [[File:Mask Fox.png]]"
+
+
+@pytest.mark.parametrize(
+    ("text", "message"),
+    [
+        ("File:Mask Fox.png File:Mask Fox screenshot.png\n", "holds no tab"),
+        ("File:Mask Fox.png\tFile:Mask Fox.jpg\n", "is not a screenshot title"),
+        ("Mask Fox.png\tFile:Mask Fox screenshot.png\n", "is not a file title"),
+        (
+            "File:A.png\tFile:Mask Fox screenshot.png\nFile:B.png\tFile:Mask Fox screenshot.png\n",
+            "names the screenshot title File:Mask Fox screenshot.png more than once",
+        ),
+    ],
+)
+def test_a_malformed_move_list_is_refused(text: str, message: str) -> None:
+    from erenshor.application.services.screenshot_move import read_title_pairs
+
+    with pytest.raises(ValueError, match=message):
+        read_title_pairs(text)

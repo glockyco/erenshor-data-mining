@@ -502,6 +502,90 @@ def _approve(
     console.print(f"[green]✓[/green] {len(approval.images)} approved captures in {approval_path}")
 
 
+@app.command("move-screenshots")
+@require_preconditions(wiki_credentials)
+def move_screenshots(
+    ctx: typer.Context,
+    moves_file: Annotated[
+        Path,
+        typer.Option("--moves", help="Reviewed list: one 'File:old title<TAB>File:<subject> screenshot.png' per line"),
+    ],
+) -> None:
+    """Move editors' item pictures to their screenshot titles, once.
+
+    Each listed editor's file moves to its screenshot title with its history.
+    Its old title and every redirect that named it point at the new title. A
+    file of the bot, a missing file, or a taken screenshot title stays and is
+    listed. Writes the plan to images/publish/<stamp>/. With the root
+    --dry-run option, stops there. Otherwise moves with the administrator
+    account, points redirects with the bot account, and records every write in
+    run.json, so `images publish --revert <stamp>` undoes the run.
+
+    Examples:
+        erenshor --dry-run images move-screenshots --moves item-screenshot-moves.tsv
+        erenshor images move-screenshots --moves item-screenshot-moves.tsv
+    """
+    from dataclasses import asdict
+    from datetime import UTC, datetime
+
+    from erenshor.application.services.image_publication import LiveWiki
+    from erenshor.application.services.image_publication_run import RunRecord
+    from erenshor.application.services.screenshot_move import (
+        execute_screenshot_moves,
+        plan_screenshot_moves,
+        read_title_pairs,
+    )
+
+    # Titles such as "File:Mask: Fox.png" hold emoji codes, which the table must not draw.
+    console = Console(emoji=False)
+    cli_ctx: CLIContext = ctx.obj
+    try:
+        pairs = read_title_pairs(moves_file.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as error:
+        console.print(f"[red]{error}[/red]")
+        raise typer.Exit(1) from error
+    variant_config = cli_ctx.config.variants[cli_ctx.variant]
+    run_dir = (
+        variant_config.resolved_images_output(cli_ctx.repo_root)
+        / "publish"
+        / datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+    )
+    bot, _ = _project_accounts(cli_ctx)
+    with closing(create_readonly_mediawiki_client(cli_ctx)) as reader:
+        file_pages = reader.list_file_pages()
+        live = LiveWiki({file.title: file for file in reader.list_files()}, file_pages.redirects, file_pages.pages)
+    plan = plan_screenshot_moves(pairs, live, bot)
+    run_dir.mkdir(parents=True, exist_ok=True)
+    plan_json = {"moves": [asdict(item) for item in plan.moves], "skipped": [list(item) for item in plan.skipped]}
+    (run_dir / "plan.json").write_text(json.dumps(plan_json, indent=2, ensure_ascii=False) + "\n")
+
+    table = Table(title=f"{len(plan.moves)} moves: each file keeps its history, and its old title redirects to it")
+    table.add_column("Old title", style="dim")
+    table.add_column("Screenshot title", style="cyan")
+    table.add_column("Uploaded by", style="dim")
+    table.add_column("Redirects that follow", style="dim")
+    for item in plan.moves:
+        table.add_row(item.source, item.title, item.uploader, ", ".join(item.redirects))
+    console.print(table)
+    for title, reason in plan.skipped:
+        console.print(f"[yellow]Stays[/yellow] {title}: {reason}")
+    console.print(f"Plan: {run_dir / 'plan.json'}")
+    if cli_ctx.dry_run:
+        console.print("[yellow]Dry run: nothing was written.[/yellow]")
+        return
+
+    record = RunRecord(run_dir)
+    with (
+        closing(_bot_client(cli_ctx)) as writer,
+        _administrator_client(cli_ctx, console, needed=bool(plan.moves)) as administrator,
+    ):
+        writer.login()
+        execute_screenshot_moves(
+            plan, writer, administrator, record, "Give an editor's item picture its screenshot title"
+        )
+    _print_record(console, record)
+
+
 def _project_accounts(cli_ctx: CLIContext) -> tuple[str, tuple[str, ...]]:
     """The bot account, and every account whose uploads are the project's: the bot and the operator's.
 
