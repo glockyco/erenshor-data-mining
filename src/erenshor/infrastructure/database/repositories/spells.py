@@ -244,8 +244,8 @@ class SpellRepository(BaseRepository[Spell]):
             FROM (
                 SELECT cas.skill_stable_key AS ability_key, 'attack_skill' AS usage
                 FROM character_attack_skills cas
-                JOIN character_deduplications d ON d.member_stable_key = cas.character_stable_key
-                WHERE d.group_key = (SELECT group_key FROM grp) AND d.is_wiki_generated = 1
+                JOIN character_fact_sources d ON d.member_stable_key = cas.character_stable_key
+                WHERE d.group_key = (SELECT group_key FROM grp)
                 UNION ALL
                 SELECT junction.spell_stable_key, junction.usage
                 FROM (
@@ -258,8 +258,8 @@ class SpellRepository(BaseRepository[Spell]):
                     UNION ALL SELECT character_stable_key, spell_stable_key, 'cc' FROM character_cc_spells
                     UNION ALL SELECT character_stable_key, spell_stable_key, 'taunt' FROM character_taunt_spells
                 ) junction
-                JOIN character_deduplications d ON d.member_stable_key = junction.character_stable_key
-                WHERE d.group_key = (SELECT group_key FROM grp) AND d.is_wiki_generated = 1
+                JOIN character_fact_sources d ON d.member_stable_key = junction.character_stable_key
+                WHERE d.group_key = (SELECT group_key FROM grp)
             )
             ORDER BY ability_key, usage
         """
@@ -292,28 +292,28 @@ class SpellRepository(BaseRepository[Spell]):
             FROM spells s
             WHERE s.stable_key IN (
                 SELECT spell_stable_key FROM character_attack_spells cas
-                JOIN character_deduplications d ON d.member_stable_key = cas.character_stable_key
-                WHERE d.group_key = (SELECT group_key FROM grp) AND d.is_wiki_generated = 1
+                JOIN character_fact_sources d ON d.member_stable_key = cas.character_stable_key
+                WHERE d.group_key = (SELECT group_key FROM grp)
                 UNION
                 SELECT spell_stable_key FROM character_buff_spells cbs
-                JOIN character_deduplications d ON d.member_stable_key = cbs.character_stable_key
-                WHERE d.group_key = (SELECT group_key FROM grp) AND d.is_wiki_generated = 1
+                JOIN character_fact_sources d ON d.member_stable_key = cbs.character_stable_key
+                WHERE d.group_key = (SELECT group_key FROM grp)
                 UNION
                 SELECT spell_stable_key FROM character_heal_spells chs
-                JOIN character_deduplications d ON d.member_stable_key = chs.character_stable_key
-                WHERE d.group_key = (SELECT group_key FROM grp) AND d.is_wiki_generated = 1
+                JOIN character_fact_sources d ON d.member_stable_key = chs.character_stable_key
+                WHERE d.group_key = (SELECT group_key FROM grp)
                 UNION
                 SELECT spell_stable_key FROM character_group_heal_spells cghs
-                JOIN character_deduplications d ON d.member_stable_key = cghs.character_stable_key
-                WHERE d.group_key = (SELECT group_key FROM grp) AND d.is_wiki_generated = 1
+                JOIN character_fact_sources d ON d.member_stable_key = cghs.character_stable_key
+                WHERE d.group_key = (SELECT group_key FROM grp)
                 UNION
                 SELECT spell_stable_key FROM character_cc_spells ccs
-                JOIN character_deduplications d ON d.member_stable_key = ccs.character_stable_key
-                WHERE d.group_key = (SELECT group_key FROM grp) AND d.is_wiki_generated = 1
+                JOIN character_fact_sources d ON d.member_stable_key = ccs.character_stable_key
+                WHERE d.group_key = (SELECT group_key FROM grp)
                 UNION
                 SELECT spell_stable_key FROM character_taunt_spells cts
-                JOIN character_deduplications d ON d.member_stable_key = cts.character_stable_key
-                WHERE d.group_key = (SELECT group_key FROM grp) AND d.is_wiki_generated = 1
+                JOIN character_fact_sources d ON d.member_stable_key = cts.character_stable_key
+                WHERE d.group_key = (SELECT group_key FROM grp)
             )
             ORDER BY s.display_name COLLATE NOCASE
         """

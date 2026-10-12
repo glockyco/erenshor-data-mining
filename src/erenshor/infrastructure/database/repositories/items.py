@@ -422,10 +422,18 @@ class ItemRepository(BaseRepository[Item]):
             FROM items i
             WHERE i.teach_spell_stable_key = ?
               AND (
-                EXISTS (SELECT 1 FROM loot_drops WHERE item_stable_key = i.stable_key AND drop_probability > 0.0)
+                EXISTS (
+                    SELECT 1 FROM loot_drops ld
+                    JOIN character_fact_sources s ON s.member_stable_key = ld.character_stable_key
+                    WHERE ld.item_stable_key = i.stable_key AND ld.drop_probability > 0.0
+                )
                 OR EXISTS (SELECT 1 FROM vendor_offers WHERE item_stable_key = i.stable_key)
                 OR EXISTS (SELECT 1 FROM quest_variants WHERE item_on_complete_stable_key = i.stable_key)
-                OR EXISTS (SELECT 1 FROM character_dialogs WHERE give_item_stable_key = i.stable_key)
+                OR EXISTS (
+                    SELECT 1 FROM character_dialogs cd
+                    JOIN character_fact_sources s ON s.member_stable_key = cd.character_stable_key
+                    WHERE cd.give_item_stable_key = i.stable_key
+                )
                 OR EXISTS (SELECT 1 FROM water_fishables WHERE item_stable_key = i.stable_key)
                 OR EXISTS (SELECT 1 FROM mining_node_items WHERE item_stable_key = i.stable_key)
                 OR EXISTS (SELECT 1 FROM crafting_rewards WHERE reward_item_stable_key = i.stable_key)
@@ -464,10 +472,18 @@ class ItemRepository(BaseRepository[Item]):
             FROM items i
             WHERE i.teach_skill_stable_key = ?
               AND (
-                EXISTS (SELECT 1 FROM loot_drops WHERE item_stable_key = i.stable_key AND drop_probability > 0.0)
+                EXISTS (
+                    SELECT 1 FROM loot_drops ld
+                    JOIN character_fact_sources s ON s.member_stable_key = ld.character_stable_key
+                    WHERE ld.item_stable_key = i.stable_key AND ld.drop_probability > 0.0
+                )
                 OR EXISTS (SELECT 1 FROM vendor_offers WHERE item_stable_key = i.stable_key)
                 OR EXISTS (SELECT 1 FROM quest_variants WHERE item_on_complete_stable_key = i.stable_key)
-                OR EXISTS (SELECT 1 FROM character_dialogs WHERE give_item_stable_key = i.stable_key)
+                OR EXISTS (
+                    SELECT 1 FROM character_dialogs cd
+                    JOIN character_fact_sources s ON s.member_stable_key = cd.character_stable_key
+                    WHERE cd.give_item_stable_key = i.stable_key
+                )
                 OR EXISTS (SELECT 1 FROM water_fishables WHERE item_stable_key = i.stable_key)
                 OR EXISTS (SELECT 1 FROM mining_node_items WHERE item_stable_key = i.stable_key)
                 OR EXISTS (SELECT 1 FROM crafting_rewards WHERE reward_item_stable_key = i.stable_key)
@@ -695,14 +711,17 @@ class ItemRepository(BaseRepository[Item]):
         """
         query = """
             SELECT 1 WHERE EXISTS (
-                SELECT 1 FROM loot_drops
-                WHERE item_stable_key = ? AND drop_probability > 0.0
+                SELECT 1 FROM loot_drops ld
+                JOIN character_fact_sources s ON s.member_stable_key = ld.character_stable_key
+                WHERE ld.item_stable_key = ? AND ld.drop_probability > 0.0
             ) OR EXISTS (
                 SELECT 1 FROM vendor_offers WHERE item_stable_key = ?
             ) OR EXISTS (
                 SELECT 1 FROM quest_variants WHERE item_on_complete_stable_key = ?
             ) OR EXISTS (
-                SELECT 1 FROM character_dialogs WHERE give_item_stable_key = ?
+                SELECT 1 FROM character_dialogs cd
+                JOIN character_fact_sources s ON s.member_stable_key = cd.character_stable_key
+                WHERE cd.give_item_stable_key = ?
             ) OR EXISTS (
                 SELECT 1 FROM water_fishables WHERE item_stable_key = ?
             ) OR EXISTS (

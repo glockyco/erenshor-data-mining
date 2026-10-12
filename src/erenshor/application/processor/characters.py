@@ -24,9 +24,10 @@ Deduplication identity includes:
 - boolean type flags (excluding IsVendor)
 
 Non-displayed stats (attack damage, run speed, XP ranges, etc.),
-quest assignments, dialog, spells, and vendor items are NOT part of
-identity. Spawn locations and spells are merged across the dedup
-group at query time.
+quest assignments, dialog, spells, vendor status, and vendor items are
+NOT part of identity. Spawn locations are merged across the dedup group
+at query time; the other facts are merged over the clean view
+character_fact_sources, so a copy that players never meet adds none.
 """
 
 from __future__ import annotations

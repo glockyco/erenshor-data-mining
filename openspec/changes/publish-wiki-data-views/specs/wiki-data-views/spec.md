@@ -65,7 +65,7 @@ A view SHALL use its `stablekey` argument when one is given. Otherwise it SHALL 
 
 ### Requirement: Vendor stock shows what the vendors in the game sell
 
-The vendor stock view SHALL list the items that the copies of the vendor in the game sell, and SHALL NOT list an item that only a copy that players never meet sells. An item that only some copies sell SHALL name the Reliquary furniture sets that place those copies, and generation SHALL fail when such an item has a seller that no furniture places. Each row SHALL show the item's kind, Furniture for a furniture set, and for a general item Mold, Crafting, Quest Item, or Lore when the data shows that use.
+The vendor stock view SHALL list the items that the copies of the vendor in the game sell, or what its generated copies sell when the export places none of them, and SHALL NOT list an item that only a copy that players never meet sells. An item that only some copies sell SHALL name the Reliquary furniture sets that place those copies, and generation SHALL fail when such an item has a seller that no furniture places. Each row SHALL show the item's kind, Furniture for a furniture set, Cosmetic for an item that a cosmetic slot gives an effect, and for a general item Mold, Crafting, Quest Item, or Lore when the data shows that use.
 
 #### Scenario: A copy that players never meet
 
@@ -83,6 +83,11 @@ The vendor stock view SHALL list the items that the copies of the vendor in the 
 
 - **WHEN** the Pocket Vendor's stock lists Aetheria, a general item that recipes use
 - **THEN** its type is Crafting
+
+#### Scenario: A cosmetic item
+
+- **WHEN** a vendor's stock lists the Belt Lamp, which lights the belt lamp in a cosmetic slot
+- **THEN** its type is Cosmetic, linked to the Cosmetic Items page
 
 ### Requirement: World drops list every special world drop roll
 

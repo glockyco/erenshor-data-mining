@@ -31,16 +31,20 @@ class CharacterRepository(BaseRepository[Character]):
             RepositoryError: If query execution fails.
         """
         query = """
-            WITH reps AS (
-                -- A page shows one representative per deduplication group. The
-                -- group sells what any member sells, so vendor status is a group
-                -- property, like the vendor items the page lists.
-                SELECT
-                    d.group_key,
-                    MIN(d.member_stable_key) AS rep_stable_key,
-                    MAX(m.is_vendor) AS group_is_vendor
+            WITH vendor_status AS (
+                -- Vendor status is not part of the dedup identity, so the group
+                -- is a vendor when one of its copies in the game is, as
+                -- vendor_offers reads the stock that the page lists.
+                SELECT s.group_key, MAX(m.is_vendor) AS group_is_vendor
+                FROM character_fact_sources s
+                JOIN characters m ON m.stable_key = s.member_stable_key
+                GROUP BY s.group_key
+            ),
+            reps AS (
+                -- A page shows one representative per deduplication group.
+                SELECT d.group_key, MIN(d.member_stable_key) AS rep_stable_key, v.group_is_vendor
                 FROM character_deduplications d
-                JOIN characters m ON m.stable_key = d.member_stable_key
+                JOIN vendor_status v ON v.group_key = d.group_key
                 WHERE d.is_wiki_generated = 1
                 GROUP BY d.group_key
             )
@@ -410,7 +414,7 @@ class CharacterRepository(BaseRepository[Character]):
         query = """
             WITH drop_groups AS (
                 SELECT d.group_key, MAX(ld.drop_probability) AS drop_probability
-                FROM character_deduplications d
+                FROM character_fact_sources d
                 JOIN loot_drops ld ON ld.character_stable_key = d.member_stable_key
                 WHERE ld.item_stable_key = ?
                   AND ld.drop_probability > 0.0
@@ -464,7 +468,7 @@ class CharacterRepository(BaseRepository[Character]):
         query = """
             WITH spell_groups AS (
                 SELECT DISTINCT d.group_key
-                FROM character_deduplications d
+                FROM character_fact_sources d
                 JOIN (
                     SELECT character_stable_key FROM character_attack_spells WHERE spell_stable_key = ?
                     UNION
@@ -512,7 +516,7 @@ class CharacterRepository(BaseRepository[Character]):
         query = """
             WITH drop_rows AS (
                 SELECT d.group_key, d.member_stable_key, ld.drop_probability, ld.is_guaranteed
-                FROM character_deduplications d
+                FROM character_fact_sources d
                 JOIN loot_drops ld ON ld.character_stable_key = d.member_stable_key
                 WHERE ld.item_stable_key = ?
                   AND ld.drop_probability > 0.0
@@ -641,7 +645,7 @@ class CharacterRepository(BaseRepository[Character]):
         query = """
             WITH dialog_rows AS (
                 SELECT DISTINCT d.group_key, cd.required_quest_stable_key
-                FROM character_deduplications d
+                FROM character_fact_sources d
                 JOIN character_dialogs cd ON cd.character_stable_key = d.member_stable_key
                 WHERE cd.give_item_stable_key = ?
             ),

@@ -1460,9 +1460,11 @@ CREATE VIEW map_character_spawns AS
 -- Characters and vendors in the game
 --
 -- A dedup group can hold copies that players never meet, such as unplaced
--- backup prefabs. Vendor items are not part of the dedup identity, so such a
--- copy can sell items that the copy in the game does not. Read what vendors
--- sell from vendor_offers, never from the vendor tables across a group.
+-- backup prefabs. Vendor items, vendor status, spells, and dialogs are not
+-- part of the dedup identity, so such a copy can sell, cast, or give what the
+-- copy in the game does not. Read a group's facts through
+-- character_fact_sources and what vendors sell from vendor_offers, never
+-- from the junction tables across a whole group.
 -- -------------------------------------------------------------------------
 
 -- Characters that a player can meet: placed or spawned, summoned by a spell,
@@ -1476,20 +1478,37 @@ CREATE VIEW characters_in_game AS
             SELECT 1 FROM treasure_chest_possible_spawns t WHERE t.chest_character_stable_key = c.stable_key
        );
 
--- One row per item that a copy of a vendor in the game sells. The vendor is
--- the copy's dedup group. quest_stable_key names the quest whose completion
--- adds the item to the stock, and is NULL for an item that is always in stock.
+-- The copies whose facts a dedup group shows: its copies in the game, or,
+-- when the export places none of them, its copies that the mapping generates.
+-- The second case covers characters that only a script spawns at a position
+-- the export cannot resolve, such as the Sivakayan spectres, whose facts are
+-- real. The mapping excludes the copies that a review found unused, such as
+-- the Shopkeeper Treven prefab, which would otherwise sell Samuel Thatcher's
+-- old stock.
+CREATE VIEW character_fact_sources AS
+    SELECT d.group_key, d.member_stable_key
+    FROM character_deduplications d
+    WHERE d.member_stable_key IN (SELECT stable_key FROM characters_in_game)
+       OR d.is_wiki_generated = 1 AND NOT EXISTS (
+            SELECT 1
+            FROM character_deduplications other
+            JOIN characters_in_game g ON g.stable_key = other.member_stable_key
+            WHERE other.group_key = d.group_key
+       );
+
+-- One row per item that a copy of a vendor sells, among the copies of
+-- character_fact_sources. The vendor is the copy's dedup group.
+-- quest_stable_key names the quest whose completion adds the item to the
+-- stock, and is NULL for an item that is always in stock.
 CREATE VIEW vendor_offers AS
-    SELECT d.group_key AS vendor_stable_key, d.member_stable_key AS copy_stable_key,
+    SELECT s.group_key AS vendor_stable_key, s.member_stable_key AS copy_stable_key,
            cvi.item_stable_key AS item_stable_key, NULL AS quest_stable_key
-    FROM character_deduplications d
-    JOIN characters_in_game g ON g.stable_key = d.member_stable_key
-    JOIN character_vendor_items cvi ON cvi.character_stable_key = d.member_stable_key
+    FROM character_fact_sources s
+    JOIN character_vendor_items cvi ON cvi.character_stable_key = s.member_stable_key
     UNION
-    SELECT d.group_key, d.member_stable_key, qv.unlock_item_for_vendor_stable_key, cvqu.quest_stable_key
-    FROM character_deduplications d
-    JOIN characters_in_game g ON g.stable_key = d.member_stable_key
-    JOIN character_vendor_quest_unlocks cvqu ON cvqu.character_stable_key = d.member_stable_key
+    SELECT s.group_key, s.member_stable_key, qv.unlock_item_for_vendor_stable_key, cvqu.quest_stable_key
+    FROM character_fact_sources s
+    JOIN character_vendor_quest_unlocks cvqu ON cvqu.character_stable_key = s.member_stable_key
     JOIN quest_variants qv ON qv.quest_stable_key = cvqu.quest_stable_key
     WHERE qv.unlock_item_for_vendor_stable_key IS NOT NULL;
 """
