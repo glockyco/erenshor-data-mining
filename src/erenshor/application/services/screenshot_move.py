@@ -96,6 +96,8 @@ def plan_screenshot_moves(pairs: Iterable[tuple[str, str]], live: LiveWiki, bot:
         file = live.shown(old)
         if file is None:
             skipped.append((old, "no file"))
+        elif file.title == title:
+            skipped.append((old, f"already moved to {title}"))
         elif file.title != old:
             skipped.append((old, f"redirects to {file.title}, which the list must name instead"))
         elif file.user == bot:

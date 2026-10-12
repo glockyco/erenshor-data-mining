@@ -625,6 +625,11 @@ def test_listed_editors_pictures_move_to_their_screenshot_titles_and_the_move_re
     assert wiki.pages["File:Mask Fox.png"] == "#REDIRECT [[File:Mask Fox screenshot.png]]"
     assert wiki.pages["File:Fox Mask.png"] == "#REDIRECT [[File:Mask Fox screenshot.png]]"
     assert [version.user for version in wiki.files["File:Shrine of Blessings screenshot.png"]] == ["Kris9727"]
+    again = plan_screenshot_moves(pairs[:1], wiki.listing(), BOT)
+    assert (again.moves, again.skipped) == (
+        (),
+        (("File:Mask Fox.png", "already moved to File:Mask Fox screenshot.png"),),
+    )
 
     revert(RunRecord.load(run.directory), wiki, wiki, RunRecord(tmp_path / "revert"), OWNERS, "Revert")
 

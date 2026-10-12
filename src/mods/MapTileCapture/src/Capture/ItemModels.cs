@@ -30,37 +30,47 @@ internal static class ItemModels
             ? GameData.PlayerControl.gameObject
             : throw new PortraitException("The player is not in the world.");
 
-    /// <summary>The furnishing named <paramref name="part"/> under a slot of the loaded scene's planning table.</summary>
-    public static GameObject Furnishing(string part)
+    /// <summary>
+    /// The furnishing named <paramref name="part"/> under a slot of the loaded
+    /// scene's planning table, and the direction, in the furnishing's own
+    /// frame, from which players see it. A room set opens onto the hall, so
+    /// players see it from across the hall, from the opposite room slot; a
+    /// statue faces the hall with its front, its local back. The room sets
+    /// themselves face various ways, so their own forward says nothing about
+    /// where players stand.
+    /// </summary>
+    public static (GameObject Furnishing, Vector3 Facing) Furnishing(string part)
     {
         var table =
             Object.FindObjectOfType<PlanningTable>(true)
             ?? throw new PortraitException("The loaded scene has no planning table.");
-        var slots = new[]
+        var left = new[] { table.L1, table.L2, table.L3, table.L4 };
+        var right = new[] { table.R1, table.R2, table.R3, table.R4 };
+        var statues = new[] { table.StatueFR, table.StatueFL, table.StatueBR, table.StatueBL };
+        if (left.Concat(right).Concat(statues).Any(slot => slot == null))
+            throw new PortraitException("The planning table lacks one of its slots.");
+        var rooms = left.Concat(right).ToArray();
+
+        for (int index = 0; index < rooms.Length + statues.Length; index++)
         {
-            table.L1,
-            table.L2,
-            table.L3,
-            table.L4,
-            table.R1,
-            table.R2,
-            table.R3,
-            table.R4,
-            table.StatueFR,
-            table.StatueFL,
-            table.StatueBR,
-            table.StatueBL,
-        };
-        foreach (var slot in slots)
-        {
-            if (slot == null)
+            var slot = index < rooms.Length ? rooms[index] : statues[index - rooms.Length];
+            var furnishing = Children(slot).FirstOrDefault(child => child.name == part);
+            if (furnishing == null)
                 continue;
-            for (int i = 0; i < slot.childCount; i++)
-            {
-                var child = slot.GetChild(i);
-                if (child.name == part)
-                    return child.gameObject;
-            }
+            // A statue model faces its local back; the Reliquary turns each one
+            // to face the hall that way.
+            if (index >= rooms.Length)
+                return (furnishing.gameObject, Vector3.back);
+            var viewpoint = rooms[(index + left.Length) % rooms.Length].position;
+            var toViewer = viewpoint - furnishing.position;
+            toViewer.y = 0f;
+            if (toViewer.sqrMagnitude < 1e-4f)
+                throw new PortraitException(
+                    $"The furnishing {part} stands where players see it from."
+                );
+            var facing = furnishing.InverseTransformDirection(toViewer.normalized);
+            facing.y = 0f;
+            return (furnishing.gameObject, facing.normalized);
         }
         throw new PortraitException($"The planning table has no furnishing named {part}.");
     }

@@ -113,8 +113,11 @@ internal static class PortraitStudio
         foreach (var renderer in framing)
             bounds.Encapsulate(renderer.bounds);
 
+        var front = item?.Facing is { } facing
+            ? subject.transform.rotation * Quaternion.LookRotation(facing, Vector3.up)
+            : subject.transform.rotation;
         var direction =
-            subject.transform.rotation
+            front
             * Quaternion.Euler(
                 PortraitPreset.CameraPitch,
                 PortraitPreset.CameraYaw + (item?.Turn ?? 0f),

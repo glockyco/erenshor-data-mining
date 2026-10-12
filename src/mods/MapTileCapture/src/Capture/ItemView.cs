@@ -18,6 +18,13 @@ internal sealed class ItemView
     /// <summary>Whether the camera looks straight at the model's broad face, as for a weapon or a shield.</summary>
     public bool FaceOn { get; set; }
 
+    /// <summary>
+    /// The direction, in the model's own frame, from which players see it,
+    /// such as a furnishing from the hall; the camera keeps the preset's turn
+    /// and pitch around it. Without it, the camera looks at the model's front.
+    /// </summary>
+    public Vector3? Facing { get; set; }
+
     /// <summary>Whether the model is a bow, which the face-on view shows with its grip on the left.</summary>
     public bool Bow { get; set; }
 }
