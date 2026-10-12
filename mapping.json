@@ -155,7 +155,8 @@
       "display_name": "Summoned: Pocket Bank",
       "image_name": "Summoned: Pocket Bank",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references in scenes or prefabs, no summoning spell, and no scripted spawn path. Reliquary's separately exported A Rift objects provide the pocket-bank interaction."
     },
     "character:a hermit": {
       "wiki_page_name": "A Hermit",
@@ -181,9 +182,9 @@
       "display_name": "A Highwayman Raider",
       "image_name": "A Highwayman Raider",
       "mapping_type": "custom",
-      "reason": null,
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Inactive root object in Elderstone at (-732.18, -51.70, 194.52). No event or spawn script references it; its only external reference is mesh-combining data."
     },
     "character:a highwayman raider (2)": {
       "wiki_page_name": "A Highwayman Raider",
@@ -312,7 +313,8 @@
       "display_name": "A Seafiend Manalord",
       "image_name": "A Seafiend Manalord",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references in scenes or prefabs and no scripted spawn path. The live Seafiend Manalord uses A Seafiend Tidal Lord."
     },
     "character:alice hewer": {
       "wiki_page_name": "Bella Macmonalle",
@@ -375,7 +377,8 @@
       "display_name": "Valrae Cleary",
       "image_name": "Valrae Cleary",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references in scenes or prefabs and no scripted spawn path. Valrae Cleary has a separately exported, spawned prefab."
     },
     "character:aqualimar blade": {
       "wiki_page_name": "Aquilamar Blade",
@@ -445,7 +448,8 @@
       "display_name": "Orion Mycon",
       "image_name": "Orion Mycon",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references or scripted spawn path. Aspen Dechaffe's placed Braxonian copy at (332.20, 6.94, 1281.82) is exported separately; Orion Mycon has his own spawned prefab."
     },
     "character:aspen dechaffe:braxonian:332.20:6.94:1281.82": {
       "wiki_page_name": "Aspen Dechaffe",
@@ -469,9 +473,9 @@
       "display_name": "Azure Guard",
       "image_name": "Azure Guard",
       "mapping_type": "custom",
-      "reason": null,
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Azure references this prefab only as bones and meshes in SkinnedMeshRenderer and CombinedMeshesManager, not as a character spawn. Live Azure Guards use separate prefabs."
     },
     "character:azure guard fernalla": {
       "wiki_page_name": "Azure Guard",
@@ -521,7 +525,8 @@
       "display_name": "Valrae Cleary",
       "image_name": "Valrae Cleary",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references or scripted spawn path. Beth Constantine's placed Soluna copy at (243.13, 100.00, 421.15) is exported separately; Valrae Cleary has her own spawned prefab."
     },
     "character:boatman": {
       "wiki_page_name": "Boatman",
@@ -560,7 +565,8 @@
       "display_name": "A Brackish Croc",
       "image_name": "A Brackish Croc",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references in scenes or prefabs and no scripted spawn path. Live Brackish Crocs use other prefabs, including the separately exported whelp variant."
     },
     "character:braxonian educator": {
       "wiki_page_name": "Ancient Educator",
@@ -574,7 +580,8 @@
       "display_name": "Historian of Braxonia",
       "image_name": "Historian of Braxonia",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references in scenes or prefabs and no scripted spawn path. The live Historian of Braxonia uses Braxonian Historian."
     },
     "character:braxonian historian": {
       "wiki_page_name": "Historian of Braxonia",
@@ -628,7 +635,8 @@
       "display_name": "Saya Seawatcher",
       "image_name": "Saya Seawatcher",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references or scripted spawn path. Captain Genevieve Voldance's placed Stowaway copy at (838.98, 9.98, 444.23) is exported separately; Saya Seawatcher has her own spawned prefab."
     },
     "character:carl spencer": {
       "wiki_page_name": "Wintham McShanth",
@@ -684,7 +692,8 @@
       "display_name": "TOWNSPERSON",
       "image_name": "TOWNSPERSON",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unplaced TOWNSPERSON template with no GUID references or scripted spawn path. Its placed PrielPlateau copy at (73.57, 0.05, 343.45) is exported separately as Captive Miner."
     },
     "character:character_peasant_white:prielplateau:73.57:0.05:343.45": {
       "wiki_page_name": "Captive Miner",
@@ -703,7 +712,8 @@
       "display_name": "Vethalo Gala",
       "image_name": "Vethalo Gala",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references or scripted spawn path. Cirreus Alxanth's placed Krakengard copy at (280.64, -9.61, 91.17) is exported separately; Vethalo Gala has his own spawned prefab."
     },
     "character:cirreus alxanth:1": {
       "wiki_page_name": "Cirreus Alxanth",
@@ -841,25 +851,26 @@
       "display_name": "Azynthi, Corruptor of Gods",
       "image_name": "Azynthi, Corruptor of Gods",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references in scenes or prefabs and no spawn or summoning path. Its NPCFightEvent child-spawn definitions do not instantiate the parent."
     },
     "character:figure:duskenportal:466.17:-84.90:224.75": {
       "wiki_page_name": null,
       "display_name": "Azynthi, Corruptor of Gods",
       "image_name": "Azynthi, Corruptor of Gods",
       "mapping_type": "custom",
-      "reason": null,
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Event controller, not a live Azynthi encounter: its Character, NPC, Stats, and LootTable components are disabled. WaveEvent uses this object to spawn the separately exported portal enemies and Portal Lord."
     },
     "character:figure:fernallaportal:363.30:138.30:181.60": {
       "wiki_page_name": null,
       "display_name": "Azynthi, Corruptor of Gods",
       "image_name": "Azynthi, Corruptor of Gods",
       "mapping_type": "custom",
-      "reason": null,
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Event presentation object with disabled Character, NPC, Stats, and LootTable components and no script that enables them. FernallaPortalShouts supplies a Nightmarish Voice rather than a live Azynthi encounter."
     },
     "character:final fernalla 1": {
       "wiki_page_name": "Fallen Fernalla",
@@ -892,7 +903,8 @@
       "display_name": "Alexander Farland",
       "image_name": "Alexander Farland",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references or scripted spawn path. Garrey Ambrose's placed Stowaway copy at (729.68, 21.42, 507.99) is exported separately; Alexander Farland has his own spawned prefab."
     },
     "character:gatekeeper": {
       "wiki_page_name": null,
@@ -980,14 +992,16 @@
       "display_name": "Botanist",
       "image_name": "Botanist",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references in scenes or prefabs and no scripted spawn path. Live Botanists use the separately exported Botanist prefab."
     },
     "character:haileigh serenie": {
       "wiki_page_name": null,
       "display_name": "Saya Seawatcher",
       "image_name": "Saya Seawatcher",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references or scripted spawn path. Heileigh Serenie's placed Soluna copy at (251.29, 100.00, 426.77) is exported separately; Saya Seawatcher has her own spawned prefab."
     },
     "character:haileigh serenie:1": {
       "wiki_page_name": "Heileigh Serenie",
@@ -1048,7 +1062,8 @@
       "display_name": "Island Guard",
       "image_name": "Island Guard",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references in scenes or prefabs and no scripted spawn path. Live Island Guards use Island Guard New."
     },
     "character:island guard new": {
       "wiki_page_name": "Island Guard",
@@ -1100,7 +1115,8 @@
       "display_name": "Julianna Priel",
       "image_name": "Julianna Priel",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Referenced only in GuildManager.PossibleMobTargets, which reads NPC stats for world-event selection and does not instantiate the prefab. The live Julianna Priel uses Julianna Priel 1."
     },
     "character:julianna priel 1": {
       "wiki_page_name": "Julianna Priel",
@@ -1137,7 +1153,6 @@
       "image_name": "Kio the Light Keeper",
       "mapping_type": "custom",
       "reason": null,
-      "is_wiki_generated": 0,
       "is_map_visible": 1
     },
     "character:kio the lightkeeper:stowaway:799.34:20.07:585.85": {
@@ -1159,7 +1174,8 @@
       "display_name": "Leo McLaney",
       "image_name": "Leo McLaney",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references in scenes or prefabs and no scripted spawn path. The separately exported character:leo mclaney:1 prefab has the live spawn."
     },
     "character:leo mclaney:1": {
       "wiki_page_name": "Leo McLaney",
@@ -1248,7 +1264,8 @@
       "display_name": "Nylith Valorro",
       "image_name": "Nylith Valorro",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references or scripted spawn path. Lucian Revald's placed Stowaway copies at (432.19, 69.90, 532.04) are exported separately; Nylith Valorro has his own spawned prefab."
     },
     "character:lucian revald:stowaway:432.19:69.90:532.04": {
       "wiki_page_name": "Lucian Revald",
@@ -1512,7 +1529,8 @@
       "display_name": "Molorai Outrider",
       "image_name": "Molorai Outrider",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused editable prefab: no GUID references in scenes or prefabs and no scripted spawn path. Live Molorai Outriders use other exported prefabs, including Molorai Enlightened."
     },
     "character:molorai enllightened m": {
       "wiki_page_name": "Molorai Truthseeker",
@@ -1679,7 +1697,8 @@
       "display_name": "Trevor Ulchand",
       "image_name": "Trevor Ulchand",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references or scripted spawn path. Neziroth Daggerhart's placed Stowaway copy at (497.09, 68.71, 677.59) is exported separately; Trevor Ulchand has his own spawned prefab."
     },
     "character:nightmarian arcanist": {
       "wiki_page_name": "Nightmarian Arcanist",
@@ -1756,28 +1775,32 @@
       "display_name": "Aquilamar Rake",
       "image_name": "Aquilamar Rake",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references in scenes or prefabs and no scripted spawn path. Live Aquilamar Rakes use Aquilamar Rake."
     },
     "character:nightmarian rake 1": {
       "wiki_page_name": null,
       "display_name": "Aquilamar Duelist",
       "image_name": "Aquilamar Duelist",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references in scenes or prefabs and no scripted spawn path. Live Aquilamar Duelists use Aquilamar Duelist."
     },
     "character:nightmarian rake 2": {
       "wiki_page_name": null,
       "display_name": "Aquilamar Blade",
       "image_name": "Aquilamar Blade",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references in scenes or prefabs and no scripted spawn path. Live Aquilamar Blades use Aqualimar Blade."
     },
     "character:nightmarian rake 3": {
       "wiki_page_name": null,
       "display_name": "Aquilamar Protector",
       "image_name": "Aquilamar Protector",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references in scenes or prefabs and no scripted spawn path. Live Aquilamar Protectors use Aqualimar Protector."
     },
     "character:nylith valorro": {
       "wiki_page_name": "Nylith Valorro",
@@ -1789,7 +1812,8 @@
       "display_name": "Thomson Rhett",
       "image_name": "Thomson Rhett",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references or scripted spawn path. Olden Lennova's placed Malaroth copy at (490.95, 26.90, 274.26) is exported separately; Thomson Rhett has his own spawned prefab."
     },
     "character:orion mycon": {
       "wiki_page_name": "Orion Mycon",
@@ -1801,7 +1825,8 @@
       "display_name": "Orion Mycon",
       "image_name": "Orion Mycon",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused backup prefab: no GUID references in scenes or prefabs and no scripted spawn path. Orion Mycon has a separate spawned prefab."
     },
     "character:peon": {
       "wiki_page_name": "Peon",
@@ -1913,7 +1938,8 @@
       "expected_npc_name": "Assassin of Sivakaya",
       "image_name": "Reaver of Sivakaya",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references in scenes or prefabs and no scripted spawn path. Its current Assassin of Sivakaya identity is spawned through Duelist of Sivakaya."
     },
     "character:reaver of sivakaya bkp": {
       "wiki_page_name": "Reaver of Sivakaya",
@@ -1986,7 +2012,8 @@
       "display_name": "Sean Figarello",
       "image_name": "Sean Figarello",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unplaced prefab with no GUID references or scripted spawn path. Sean Figarello's live Stowaway copy at (605.45, 72.16, 464.40) is exported separately."
     },
     "character:sean figarello:stowaway:605.45:72.16:464.40": {
       "wiki_page_name": "Sean Figarello",
@@ -1998,7 +2025,8 @@
       "display_name": "Island Guard",
       "image_name": "Island Guard",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references or scripted spawn path. Sergeant D'Vinn's placed Stowaway copy at (553.41, 68.50, 571.28) is exported separately; live Island Guards use Island Guard New."
     },
     "character:shady fisherman (1):summerevent:80.10:-5.17:6.41": {
       "wiki_page_name": "Shady Fisherman",
@@ -2089,14 +2117,16 @@
       "display_name": "Samuel Thatcher",
       "image_name": "Samuel Thatcher",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references or scripted spawn path. Treven Pines's placed Stowaway copy at (384.76, 58.46, 394.49) is exported separately; Samuel Thatcher uses Shopkeeper Samuel."
     },
     "character:sir rattleywrists": {
       "wiki_page_name": null,
       "display_name": "A Brittle Skeleton",
       "image_name": "A Brittle Skeleton",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references in scenes or prefabs and no scripted spawn path. Live Brittle Skeletons use Brittle Skeelton."
     },
     "character:sivakayan cleric": {
       "wiki_page_name": "Sivakayan Cleric",
@@ -2172,14 +2202,16 @@
       "display_name": "TOWNSPERSON",
       "image_name": "TOWNSPERSON",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unplaced TOWNSPERSON template with no GUID references or scripted spawn path. Its placed Azure copy at (154.85, 34.07, 255.20) is exported separately as Harvey Alder."
     },
     "character:sm_chr_peasant_female_01": {
       "wiki_page_name": null,
       "display_name": "TOWNSPERSON",
       "image_name": "TOWNSPERSON",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused TOWNSPERSON template: no GUID references in scenes or prefabs, no placed copy, and no scripted spawn path."
     },
     "character:sm_prop_brazier_01 (1):duskenlight:485.82:65.42:397.38": {
       "wiki_page_name": "Ceremonial Brazier",
@@ -2327,7 +2359,8 @@
       "display_name": "Samuel Thatcher",
       "image_name": "Samuel Thatcher",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references in scenes or prefabs and no scripted spawn path. Its Samuel Thatcher vendor identity is available through Shopkeeper Samuel."
     },
     "character:thella steepleton": {
       "wiki_page_name": "Thella Steepleton",
@@ -2354,7 +2387,8 @@
       "display_name": "A Hermit",
       "image_name": "A Hermit",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references or scripted spawn path. Timothy Allorn's placed Stowaway copy at (545.20, 72.09, 442.80) is exported separately; A Hermit has its own spawned prefab."
     },
     "character:tinknight_lp (1):malaroth:671.57:89.88:79.40": {
       "wiki_page_name": "Solunarian Protector",
@@ -2620,7 +2654,8 @@
       "display_name": "Cecil Threbb",
       "image_name": "Cecil Threbb",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references or scripted spawn path. Wally Waldorf's placed Stowaway copy at (573.45, 70.50, 545.10) is exported separately."
     },
     "character:ward of sivakaya (1):jaws:1478.96:-18.28:109.78": {
       "wiki_page_name": "Ward of Piety",
@@ -2697,7 +2732,8 @@
       "display_name": "Ravager, The First Infected",
       "image_name": "Ravager, The First Infected",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references in scenes or prefabs and no scripted spawn path. The live Ravager, The First Infected uses Ravager."
     },
     "character:yale harvey": {
       "wiki_page_name": "Yale Harvey",
@@ -2714,7 +2750,8 @@
       "display_name": "Chazz Pillot",
       "image_name": "Chazz Pillot",
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused prefab: no GUID references in scenes or prefabs and no scripted spawn path. Chazz Pillot has a separate spawned prefab."
     },
     "faction:brax": {
       "wiki_page_name": "The Torchbearers of Brax",
@@ -3172,9 +3209,9 @@
       "display_name": "Spell Scroll: Predator's Grace",
       "image_name": "Spell Scroll: Predator's Grace",
       "mapping_type": "custom",
-      "reason": null,
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Unused scroll asset: no GUID references in scenes, prefabs, or content assets and no loot, vendor, dialog, quest, or scripted acquisition source. It retains the name Flight of Foot while teaching Predator's Grace; the live Flight of Foot scroll is a separate item."
     },
     "item:weap - 10 - thorn": {
       "wiki_page_name": "Thorn",
@@ -3802,83 +3839,103 @@
     },
     "spawn:ripperportal:301.20:0.05:433.77": {
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Disabled SpawnPoint component retains a Fungal Crawler placeholder. SpawnPointTrigger uses this object's position to spawn Shambler instead, represented by a separate enabled trigger spawn."
     },
     "spawn:duskenportal:120.38:1.17:102.87": {
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Disabled SpawnPoint component retains a Solunarian Guardian placeholder. WaveEvent uses this object's position for portal waves and Portal Lord, represented by separate enabled scripted spawns."
     },
     "spawn:duskenportal:122.04:6.20:308.21": {
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Disabled SpawnPoint component retains a Solunarian Guardian placeholder. WaveEvent uses this object's position for portal waves and Portal Lord, represented by separate enabled scripted spawns."
     },
     "spawn:duskenportal:149.91:6.20:327.67": {
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Disabled SpawnPoint component retains a Solunarian Guardian placeholder. WaveEvent uses this object's position for portal waves and Portal Lord, represented by separate enabled scripted spawns."
     },
     "spawn:duskenportal:166.62:6.20:329.47": {
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Disabled SpawnPoint component retains a Solunarian Guardian placeholder. WaveEvent uses this object's position for portal waves and Portal Lord, represented by separate enabled scripted spawns."
     },
     "spawn:duskenportal:183.85:4.21:113.57": {
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Disabled SpawnPoint component retains a Solunarian Guardian placeholder. WaveEvent uses this object's position for portal waves and Portal Lord, represented by separate enabled scripted spawns."
     },
     "spawn:duskenportal:240.48:3.32:135.77": {
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Disabled SpawnPoint component retains a Solunarian Guardian placeholder. WaveEvent uses this object's position for portal waves and Portal Lord, represented by separate enabled scripted spawns."
     },
     "spawn:duskenportal:241.43:6.20:329.70": {
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Disabled SpawnPoint component retains a Solunarian Guardian placeholder. WaveEvent uses this object's position for portal waves and Portal Lord, represented by separate enabled scripted spawns."
     },
     "spawn:duskenportal:257.77:6.20:319.27": {
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Disabled SpawnPoint component retains a Solunarian Guardian placeholder. WaveEvent uses this object's position for portal waves and Portal Lord, represented by separate enabled scripted spawns."
     },
     "spawn:duskenportal:266.66:0.87:157.46": {
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Disabled SpawnPoint component retains a Solunarian Guardian placeholder. WaveEvent uses this object's position for portal waves and Portal Lord, represented by separate enabled scripted spawns."
     },
     "spawn:duskenportal:279.46:5.92:244.33": {
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Disabled SpawnPoint component retains a Solunarian Guardian placeholder. WaveEvent uses this object's position for portal waves and Portal Lord, represented by separate enabled scripted spawns."
     },
     "spawn:duskenportal:281.09:8.53:212.11": {
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Disabled SpawnPoint component retains a Solunarian Guardian placeholder. WaveEvent uses this object's position for portal waves and Portal Lord, represented by separate enabled scripted spawns."
     },
     "spawn:shiveringtomb2:-120.18:-68.35:335.97": {
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Disabled SpawnPoint component retains Dire Wolf and Dire Huntress placeholders. PhantomFightEvent uses this WardTotemSpawn position to summon Wardlight instead, represented by a separate enabled scripted spawn."
     },
     "spawn:shiveringtomb2:-134.07:-68.35:320.72": {
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Disabled SpawnPoint component retains Dire Wolf and Dire Huntress placeholders. PhantomFightEvent uses this WardTotemSpawn position to summon Wardlight instead, represented by a separate enabled scripted spawn."
     },
     "spawn:shiveringtomb2:-134.07:-68.35:350.97": {
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Disabled SpawnPoint component retains Dire Wolf and Dire Huntress placeholders. PhantomFightEvent uses this WardTotemSpawn position to summon Wardlight instead, represented by a separate enabled scripted spawn."
     },
     "spawn:shiveringtomb2:-147.32:-68.35:335.97": {
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Disabled SpawnPoint component retains Dire Wolf and Dire Huntress placeholders. PhantomFightEvent uses this WardTotemSpawn position to summon Wardlight instead, represented by a separate enabled scripted spawn."
     },
     "spawn:shiveringtomb2:-19.07:-68.35:320.72": {
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Disabled SpawnPoint component retains Dire Wolf and Dire Huntress placeholders. PhantomFightEvent uses this WardTotemSpawn position to summon Wardlight instead, represented by a separate enabled scripted spawn."
     },
     "spawn:shiveringtomb2:-19.07:-68.35:350.97": {
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Disabled SpawnPoint component retains Dire Wolf and Dire Huntress placeholders. PhantomFightEvent uses this WardTotemSpawn position to summon Wardlight instead, represented by a separate enabled scripted spawn."
     },
     "spawn:shiveringtomb2:-32.32:-68.35:335.97": {
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Disabled SpawnPoint component retains Dire Wolf and Dire Huntress placeholders. PhantomFightEvent uses this WardTotemSpawn position to summon Wardlight instead, represented by a separate enabled scripted spawn."
     },
     "spawn:shiveringtomb2:-5.18:-68.35:335.97": {
       "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "is_map_visible": 0,
+      "reason": "Disabled SpawnPoint component retains Dire Wolf and Dire Huntress placeholders. PhantomFightEvent uses this WardTotemSpawn position to summon Wardlight instead, represented by a separate enabled scripted spawn."
     },
     "character:fearantula": {
       "wiki_page_name": "Fearantula",
