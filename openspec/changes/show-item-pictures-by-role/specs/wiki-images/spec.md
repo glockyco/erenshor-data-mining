@@ -2,7 +2,7 @@
 
 ### Requirement: Every item model has a capture source
 
-The image workflow SHALL list once, under the subject that its items share, every item whose model the game shows: a weapon or shield, a worn item, a mask, and the furnishing of a Reliquary furniture set. It SHALL show the subject, the render title, the item's page, its kind, and the game object to capture. An item without a model SHALL NOT be listed. A capture that cannot find an item's model SHALL report the subject and the missing object.
+The image workflow SHALL list once, under the subject that its items share, every item whose model the game shows: a weapon or shield, a worn item, a mask, the furnishing of a Reliquary furniture set, and the belt lamp or the lens that a lamp or the Watcher's Lens turns on in a cosmetic slot. It SHALL show the subject, the render title, the item's page, its kind, and the game object to capture. An item without a model SHALL NOT be listed. A capture that cannot find an item's model SHALL report the subject and the missing object.
 
 #### Scenario: Items share a subject
 
@@ -19,6 +19,12 @@ The image workflow SHALL list once, under the subject that its items share, ever
 - **WHEN** the Wood Training Set builds its furnishing in a Reliquary room
 - **THEN** the manifest captures that furnishing for `Wood Training Set render.png`
 
+#### Scenario: Lamps that light the same belt lamp
+
+- **WHEN** the Belt Lamp, the Shivering Belt Lamp, and the Keeper's Lantern each light the player's belt lamp in a cosmetic slot
+- **THEN** the manifest captures the belt lamp for each of their render titles
+- **AND** the catalog holds one picture that all three titles name
+
 #### Scenario: A model that the capture cannot find
 
 - **WHEN** the capture finds no object of the name that an item switches on
@@ -26,7 +32,7 @@ The image workflow SHALL list once, under the subject that its items share, ever
 
 ### Requirement: An item render shows the piece by itself
 
-A render of an item SHALL show only the item's model, as the game shows it in use: a weapon or shield, the parts that the game switches on for a worn item, a mask, or the furnishing of a furniture set. A worn item SHALL show every part that it switches on, in its own colours, without the body: once on each body when the male and female bodies have different models for its parts, and once otherwise. A render SHALL NOT show a body, other equipment, a room, or UI.
+A render of an item SHALL show only the item's model, as the game shows it in use: a weapon or shield, the parts that the game switches on for a worn item, a mask, the furnishing of a furniture set, or the belt lamp or the lens of the player. A worn item SHALL show every part that it switches on, in its own colours, without the body: once on each body when the male and female bodies have different models for its parts, and once otherwise. A render SHALL NOT show a body, other equipment, a room, or UI.
 
 #### Scenario: A pair of boots
 
@@ -153,12 +159,18 @@ A rendered character or item picture SHALL keep its transparent background. The 
 
 ### Requirement: Editors' screenshots have their own title
 
-The bot SHALL NOT upload to a character's or an item's screenshot title, and SHALL NOT move or delete a file there, because the title belongs to the editors. The publication plan SHALL NOT count a screenshot title as a conflict. The Game Data guide SHALL tell editors to upload a character's or an item's screenshot under the screenshot title that its infobox names.
+The bot SHALL NOT upload to a character's or an item's screenshot title, and SHALL NOT move or delete a file there, because the title belongs to the editors. The publication plan SHALL NOT count a screenshot title as a conflict. The Game Data guide SHALL tell editors to upload a character's or an item's screenshot under the screenshot title that its infobox names, and a picture of a game window under `<subject> interface.png` in the article's text, which the infobox does not show.
 
 #### Scenario: A screenshot beside a bot render
 
 - **WHEN** an editor uploaded `Faith screenshot.png` and the bot updates `Faith render.png`
 - **THEN** the publication plan lists the render's update and nothing for the screenshot
+
+#### Scenario: A picture of a game window
+
+- **WHEN** an editor uploads a picture of the Shrine of Blessings' window
+- **THEN** the guide names its title `Shrine of Blessings interface.png`
+- **AND** the article's text shows it, and the infobox does not
 
 #### Scenario: An item screenshot beside a bot render
 
