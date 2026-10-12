@@ -726,7 +726,7 @@ def test_wiki_leaf_uses_exact_setup_and_pytest_commands(tmp_path: Path, monkeypa
     result = test._run_leaf(_context(tmp_path), "wiki")
 
     assert result.status == "passed"
-    assert calls[:3] == [
+    assert calls[:2] == [
         (
             (
                 "python",
@@ -738,10 +738,9 @@ def test_wiki_leaf_uses_exact_setup_and_pytest_commands(tmp_path: Path, monkeypa
             ),
             tmp_path,
         ),
-        (("python", "wiki-dev/null_edit.py", "--base-url", "http://localhost:8088"), tmp_path),
         (("python", "wiki-dev/smoke_test.py", "--base-url", "http://localhost:8088"), tmp_path),
     ]
-    pytest_command, pytest_cwd = calls[3]
+    pytest_command, pytest_cwd = calls[2]
     assert pytest_cwd == tmp_path
     assert pytest_command[:4] == [
         "pytest",

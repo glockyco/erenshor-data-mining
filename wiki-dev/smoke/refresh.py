@@ -1,40 +1,17 @@
-#!/usr/bin/env python3
-"""Null-edit local wiki fixture pages to refresh parser output."""
+"""Refresh the local wiki pages that the smoke test checks.
+
+An imported module or template change reaches a page that uses it only when
+the job queue re-renders the page, so a check could read output cached before
+the change. A null edit of every checked page, followed by a purge once all of
+them are refreshed, gives each check the current render.
+"""
 
 from __future__ import annotations
 
-import argparse
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-import httpx
-
-
-def api_url(base_url: str) -> str:
-    """Return the MediaWiki API endpoint for a wiki base URL."""
-    return f"{base_url.rstrip('/')}/api.php"
-
-
-def load_titles(*paths: Path) -> list[str]:
-    """Load unique article titles from smoke fixtures."""
-    titles: set[str] = set()
-    for path in paths:
-        titles.update(_load_first_column(path))
-    return sorted(titles)
-
-
-def _load_first_column(path: Path) -> set[str]:
-    if not path.exists():
-        return set()
-    titles: set[str] = set()
-    for raw_line in path.read_text(encoding="utf-8").splitlines():
-        line = raw_line.strip()
-        if not line or line.startswith("#"):
-            continue
-        title = line.split("\t", 1)[0].strip()
-        if title:
-            titles.add(title)
-    return titles
+if TYPE_CHECKING:
+    import httpx
 
 
 def login(client: httpx.Client, endpoint: str, username: str, password: str) -> None:
@@ -147,26 +124,5 @@ def refresh_pages(client: httpx.Client, endpoint: str, token: str, titles: list[
     """Null-edit every page, then purge every page after dependent data is stable."""
     for title in titles:
         null_edit_page(client, endpoint, token, title)
-        print(f"Null-edited {title}")
     for title in titles:
         purge_page(client, endpoint, token, title)
-
-
-def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--base-url", default="http://localhost:8088", help="Local wiki base URL")
-    parser.add_argument("--username", default="WikiSysop", help="Local wiki username")
-    parser.add_argument("--password", default="DevWikiPassword-2026", help="Local wiki password")
-    parser.add_argument("--smoke", type=Path, default=Path("wiki-dev/fixtures/smoke.tsv"))
-    args = parser.parse_args()
-
-    titles = load_titles(args.smoke)
-    endpoint = api_url(args.base_url)
-    with httpx.Client(timeout=30.0) as client:
-        login(client, endpoint, args.username, args.password)
-        token = csrf_token(client, endpoint)
-        refresh_pages(client, endpoint, token, titles)
-
-
-if __name__ == "__main__":
-    main()

@@ -496,7 +496,6 @@ def _preflight_wiki(cli_ctx: CLIContext) -> list[_Preflight]:
         _executable("docker"),
         _directory(root / "wiki-dev", "wiki-dev"),
         _file(root / "wiki-dev/import_pages.py", "wiki-dev/import_pages.py"),
-        _file(root / "wiki-dev/null_edit.py", "wiki-dev/null_edit.py"),
         _file(root / "wiki-dev/smoke_test.py", "wiki-dev/smoke_test.py"),
         _directory(root / "tests/system/wiki", "tests/system/wiki"),
     ]
@@ -1246,16 +1245,16 @@ def _run_maps_leaf(cli_ctx: CLIContext, source: Path) -> _LeafResult:
 
 
 def _run_wiki_leaf(cli_ctx: CLIContext) -> _LeafResult:
-    """Import and refresh the local wiki, smoke it, then enforce structured pytest counts.
+    """Import the local wiki, smoke it, then enforce structured pytest counts.
 
-    The null edit refreshes every fixture page after import, so checks do not
-    read output cached before a template or module changed.
+    The smoke test null-edits and purges every checked page before it checks,
+    so neither it nor the system tests read output cached before a template or
+    module changed.
     """
     start = time.monotonic()
     base = _WIKI_BASE_URL
     setup_commands = (
         ("python", "wiki-dev/import_pages.py", "--base-url", base, "--root", str(cli_ctx.repo_root)),
-        ("python", "wiki-dev/null_edit.py", "--base-url", base),
         ("python", "wiki-dev/smoke_test.py", "--base-url", base),
     )
     total_commands = len(setup_commands) + 1

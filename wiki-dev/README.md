@@ -221,15 +221,14 @@ validation in order from the repository root:
 ```bash
 uv run erenshor wiki sync-interface     # refresh gitignored live interface mirror
 uv run python wiki-dev/import_pages.py  # import interface, modules, templates, pages
-uv run python wiki-dev/null_edit.py     # refresh fixture pages after imports
-uv run python wiki-dev/smoke_test.py    # parse fixture pages
+uv run python wiki-dev/smoke_test.py    # refresh and parse fixture pages
 uv run python wiki-dev/parity_check.py  # rendered-style parity vs captured live baseline
 ```
 
 The import edits only changed pages. A page that uses a changed template or
-module can serve cached output until the MediaWiki job queue refreshes it.
-The null edit refreshes every fixture page before the checks. `uv run erenshor
-test wiki --warm` runs the import, null edit, smoke, and browser checks in this order.
+module can serve cached output until the MediaWiki job queue refreshes it, so
+the smoke test null-edits and purges every page it checks first. `uv run
+erenshor test wiki --warm` runs the import, smoke, and browser checks in this order.
 
 Run `uv run python wiki-dev/parity_check.py --capture` first (and after live
 styling changes) to refresh the gitignored baseline the check compares against.

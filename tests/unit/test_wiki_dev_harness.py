@@ -292,33 +292,22 @@ def test_every_fixture_article_has_smoke_expectation() -> None:
     assert sorted(fixture_titles - expectations) == []
 
 
-def test_null_edit_discovers_pages_from_render_fixture() -> None:
-    null_edit = load_script("wiki-dev/null_edit.py")
-
-    titles = null_edit.load_titles(Path("wiki-dev/fixtures/smoke.tsv"))
-
-    assert "Ember Longsword" in titles
-    assert "Abyssal Plate" in titles
-    assert "Semantic Tooltip Smoke" in titles
-    assert len(titles) == len(set(titles))
-
-
-def test_null_edit_purges_after_all_pages_refresh(monkeypatch) -> None:
-    null_edit = load_script("wiki-dev/null_edit.py")
+def test_smoke_refresh_purges_after_all_pages_refresh(monkeypatch) -> None:
+    refresh = load_script("wiki-dev/smoke/refresh.py")
     calls: list[tuple[str, str]] = []
 
     monkeypatch.setattr(
-        null_edit,
+        refresh,
         "null_edit_page",
         lambda client, endpoint, token, title: calls.append(("edit", title)),
     )
     monkeypatch.setattr(
-        null_edit,
+        refresh,
         "purge_page",
         lambda client, endpoint, token, title: calls.append(("purge", title)),
     )
 
-    null_edit.refresh_pages(object(), "api.php", "csrf", ["Ember Longsword", "Minor Lightning"])
+    refresh.refresh_pages(object(), "api.php", "csrf", ["Ember Longsword", "Minor Lightning"])
 
     assert calls == [
         ("edit", "Ember Longsword"),

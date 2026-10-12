@@ -166,16 +166,6 @@ class CleanParityHarness:
         if manifest_file is not None:
             import_command.extend(("--manifest-file", str(manifest_file)))
         self._run(import_command)
-        self._run(
-            (
-                "uv",
-                "run",
-                "python",
-                "wiki-dev/null_edit.py",
-                "--base-url",
-                base_url,
-            )
-        )
         self._run(("uv", "run", "python", "wiki-dev/smoke_test.py", "--base-url", base_url))
         test_environment = {
             "ERENSHOR_WIKI_BASE_URL": base_url,
