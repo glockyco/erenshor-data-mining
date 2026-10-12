@@ -56,4 +56,4 @@
 
 - [x] 6.1 Run `uv run erenshor test ci` and `uv run erenshor test wiki --warm`, and check on live a weapon, a pair of boots, a mask, a furnishing, and a consumable. Verify: both commands pass, and each page shows the picture that the `wiki-images` spec names for it.
   - Done on 2026-10-12. `test ci` passed and `test wiki --warm` passed 31 checks. Live, Molorai Bow shows its render, Wolfhide Boots its Male and Female renders, Mask: Fox its render and screenshot, Wood Training Set its render, and Azure Mead its 160px icon, with no script errors or missing files.
-- [ ] 6.2 Archive the change with `openspec archive show-item-pictures-by-role --yes`. Verify: `openspec/specs/wiki-images/spec.md` holds the item requirements.
+- [x] 6.2 Archive the change with `openspec archive show-item-pictures-by-role --yes`. Verify: `openspec/specs/wiki-images/spec.md` holds the item requirements.
