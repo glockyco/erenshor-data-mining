@@ -26,7 +26,7 @@ The same database feeds the [https://erenshor.compendiums.org interactive map]. 
 |}
 
 == Editing an article that the bot maintains ==
-When the bot updates an article, it keeps all text outside the infoboxes. It also keeps each infobox that it does not make itself, for example a chest infobox that an editor added to a boss page. On vendor pages, the bot also updates the "Store inventory" table.
+When the bot updates an article, it keeps all text outside the infoboxes. It also keeps each infobox that it does not make itself, for example a chest infobox that an editor added to a boss page. The update does not touch the "Store inventory" tables on vendor pages. <code><nowiki>{{Vendor stock}}</nowiki></code> shows a vendor's stock from the game data.
 
 In an infobox that the bot makes, the bot replaces each field with the game data, except for the fields in this table.
 
@@ -169,6 +169,14 @@ These hidden categories collect pages that need a fix.
 | [[:Category:Pages with mismatched Erenshor link targets]] || {{PAGESINCATEGORY:Pages with mismatched Erenshor link targets}} || A link names a page that is not the page of its <code>stablekey</code>. Find out which of the two is correct, and remove the other.
 |-
 | [[:Category:Needs Image]] || {{PAGESINCATEGORY:Needs Image}} || A character infobox has neither a render nor a screenshot. Its subcategories sort the pages by kind: character, chest, and summon. Upload a screenshot under the screenshot name that the infobox names. The page leaves the category once the file exists.
+|-
+| [[:Category:Pages with missing Erenshor spell data]] || {{PAGESINCATEGORY:Pages with missing Erenshor spell data}} || <code><nowiki>{{SpellTooltip}}</nowiki></code> names no spell of the game data. Give it the current <code>stablekey</code>, or remove the template.
+|-
+| [[:Category:Pages with missing Erenshor skill data]] || {{PAGESINCATEGORY:Pages with missing Erenshor skill data}} || <code><nowiki>{{SkillTooltip}}</nowiki></code> names no skill of the game data. Give it the current <code>stablekey</code>, or remove the template.
+|-
+| [[:Category:Pages with missing Erenshor stance data]] || {{PAGESINCATEGORY:Pages with missing Erenshor stance data}} || <code><nowiki>{{StanceTooltip}}</nowiki></code> names no stance of the game data. Give it the current <code>stablekey</code>, or remove the template.
+|-
+| [[:Category:Pages with missing Erenshor treasure guardian data]] || {{PAGESINCATEGORY:Pages with missing Erenshor treasure guardian data}} || <code><nowiki>{{TreasureGuardianStats}}</nowiki></code> names no treasure guardian of the game data. Give it the guardian's current <code>stablekey</code>, or remove the template.
 |-
 | [[:Category:Pages with missing Erenshor vendor stock data]] || {{PAGESINCATEGORY:Pages with missing Erenshor vendor stock data}} || <code><nowiki>{{Vendor stock}}</nowiki></code> finds no vendor or no stock for the page. Pass the vendor's <code>stablekey</code>, or remove the template.
 |}

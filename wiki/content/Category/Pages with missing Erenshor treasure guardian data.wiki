@@ -1,0 +1,4 @@
+__HIDDENCAT__
+This hidden maintenance category collects pages with a <code><nowiki>{{TreasureGuardianStats}}</nowiki></code> whose <code>stablekey</code> names no treasure guardian in the game data. Often a game update renamed the guardian.
+
+To fix a page, give the template the guardian's current key, or remove the template. See [[Erenshor Wiki:Game Data#Maintenance categories]].
