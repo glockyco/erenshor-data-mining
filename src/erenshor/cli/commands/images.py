@@ -605,6 +605,10 @@ def publish(
         str | None,
         typer.Option("--revert", help="Undo the publish run with this stamp"),
     ] = None,
+    revert_titles: Annotated[
+        list[str] | None,
+        typer.Option("--title", help="With --revert, undo only the writes of this file title; repeat for more"),
+    ] = None,
 ) -> None:
     """Publish the picture catalog to the wiki, one file per picture.
 
@@ -626,6 +630,7 @@ def publish(
         erenshor --dry-run images publish
         erenshor images publish
         erenshor images publish --revert 20261006T200000Z
+        erenshor images publish --revert 20261012T170701Z --title "File:Shrine of Blessings screenshot.png"
     """
     from datetime import UTC, datetime
 
@@ -647,6 +652,14 @@ def publish(
 
     if revert_stamp is not None:
         reverted = RunRecord.load(publish_dir / revert_stamp)
+        if revert_titles:
+            unknown = set(revert_titles) - {str(entry["title"]) for entry in reverted.entries}
+            if unknown:
+                console.print(f"[red]The run {revert_stamp} wrote no {', '.join(sorted(unknown))}.[/red]")
+                raise typer.Exit(1)
+            reverted = RunRecord(
+                reverted.directory, [entry for entry in reverted.entries if entry["title"] in revert_titles]
+            )
         done = [entry for entry in reverted.entries if entry.get("done")]
         if not done:
             console.print(f"[red]The run {revert_stamp} recorded no write.[/red]")
