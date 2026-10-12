@@ -25,6 +25,9 @@ if TYPE_CHECKING:
     from erenshor.application.services.image_publication import LiveWiki
     from erenshor.application.services.image_publication_run import AdministratorWriter, PublishWriter, RunRecord
 
+# The roles of editors' pictures: a picture in the game, and a picture of a window of the game.
+_EDITOR_ROLES = (" screenshot.png", " interface.png")
+
 __all__ = ["ScreenshotMove", "ScreenshotPlan", "execute_screenshot_moves", "plan_screenshot_moves", "read_title_pairs"]
 
 
@@ -65,8 +68,8 @@ def read_title_pairs(text: str) -> list[tuple[str, str]]:
         for title in (old, new):
             if not title.startswith("File:"):
                 raise ValueError(f"Line {number}: {title} is not a file title")
-        if not new.endswith(" screenshot.png"):
-            raise ValueError(f"Line {number}: {new} is not a screenshot title")
+        if not new.endswith(_EDITOR_ROLES):
+            raise ValueError(f"Line {number}: {new} is not a screenshot or interface title")
         pairs.append((old, new))
     for side, name in ((0, "old title"), (1, "screenshot title")):
         titles = [pair[side] for pair in pairs]

@@ -137,6 +137,8 @@ Every picture's file name says what it shows and whose it is: the name of its su
 | <code>Wolfhide Boots render (male).png</code> || An item worn on the male or the female body, where the two differ || The bot, after a person reviewed the picture
 |-
 | <code>Faith screenshot.png</code> || A character or an item in the game, as a player sees it || Editors
+|-
+| <code>Shrine of Blessings interface.png</code> || A window of the game that something opens, such as a shrine's or a vendor's || Editors
 |}
 The subject is the name in the game without the characters that file names cannot hold, such as colons: the icon of ''Stance: Aggressive'' is <code>Stance Aggressive icon.png</code>. Older names, such as <code>Faith.png</code>, redirect to the file that took their place, so old links keep working, but new pages should use the names above.
 
@@ -145,6 +147,8 @@ Icons carry no frame: [[Template:Icon]] draws items in a slot with a blue gradie
 A character infobox shows the render first and the screenshot as a second tab, labelled Render and Screenshot. A character with only one of the two shows it alone. The infobox names both files, so you can see the name to use in its source.
 
 An item infobox shows the item's render, or its male and female renders, then its screenshot, as tabs labelled Render, Male, Female, and Screenshot. An item with none of these files shows its icon, and tooltips and item links always show the icon. Consumables, scrolls, rings, and other items without a model have no render. The item infobox also names its screenshot file.
+
+An interface picture belongs in the article's text; the infobox shows only renders, screenshots, and icons.
 
 * To add or improve a screenshot, upload it under the screenshot name that its infobox names, such as <code>Faith screenshot.png</code> or <code>Copper Sword screenshot.png</code>. The tab appears once the page is refreshed. The bot never uploads to, moves, or deletes a screenshot.
 * The bot changes an icon or render only when WoWBot or [[User:WoWMuch|WoWMuch]], who runs it, uploaded the latest version, so an upload of yours always stays.

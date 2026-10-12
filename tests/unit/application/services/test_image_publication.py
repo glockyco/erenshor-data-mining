@@ -642,7 +642,7 @@ def test_listed_editors_pictures_move_to_their_screenshot_titles_and_the_move_re
     ("text", "message"),
     [
         ("File:Mask Fox.png File:Mask Fox screenshot.png\n", "holds no tab"),
-        ("File:Mask Fox.png\tFile:Mask Fox.jpg\n", "is not a screenshot title"),
+        ("File:Mask Fox.png\tFile:Mask Fox.jpg\n", "is not a screenshot or interface title"),
         ("Mask Fox.png\tFile:Mask Fox screenshot.png\n", "is not a file title"),
         (
             "File:A.png\tFile:Mask Fox screenshot.png\nFile:B.png\tFile:Mask Fox screenshot.png\n",
