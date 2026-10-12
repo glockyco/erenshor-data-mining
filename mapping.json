@@ -2891,116 +2891,116 @@
       "reason": null
     },
     "item:gen - mask - baboon": {
-      "wiki_page_name": null,
+      "wiki_page_name": "Mask: Baboon",
       "display_name": "Mask: Baboon",
       "image_name": "Mask: Baboon",
-      "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "mapping_type": "custom",
+      "reason": null
     },
     "item:gen - mask - badger": {
-      "wiki_page_name": null,
+      "wiki_page_name": "Mask: Badger",
       "display_name": "Mask: Badger",
       "image_name": "Mask: Badger",
-      "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "mapping_type": "custom",
+      "reason": null
     },
     "item:gen - mask - eyemask": {
-      "wiki_page_name": null,
+      "wiki_page_name": "Mask: Bandit",
       "display_name": "Mask: Bandit",
       "image_name": "Mask: Bandit",
-      "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "mapping_type": "custom",
+      "reason": null
     },
     "item:gen - mask - cat": {
-      "wiki_page_name": null,
+      "wiki_page_name": "Mask: Cat",
       "display_name": "Mask: Cat",
       "image_name": "Mask: Cat",
-      "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "mapping_type": "custom",
+      "reason": null
     },
     "item:gen - mask - herocat": {
-      "wiki_page_name": null,
+      "wiki_page_name": "Mask: Cat Hero",
       "display_name": "Mask: Cat Hero",
       "image_name": "Mask: Cat Hero",
-      "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "mapping_type": "custom",
+      "reason": null
     },
     "item:gen - mask - demon": {
-      "wiki_page_name": null,
+      "wiki_page_name": "Mask: Demon",
       "display_name": "Mask: Demon",
       "image_name": "Mask: Demon",
-      "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "mapping_type": "custom",
+      "reason": null
     },
     "item:gen - mask - dog": {
-      "wiki_page_name": null,
+      "wiki_page_name": "Mask: Dog",
       "display_name": "Mask: Dog",
       "image_name": "Mask: Dog",
-      "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "mapping_type": "custom",
+      "reason": null
     },
     "item:gen - mask - eldoth": {
-      "wiki_page_name": null,
+      "wiki_page_name": "Mask: Eldoth",
       "display_name": "Mask: Eldoth",
       "image_name": "Mask: Eldoth",
-      "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "mapping_type": "custom",
+      "reason": null
     },
     "item:gen - mask - fox": {
-      "wiki_page_name": null,
+      "wiki_page_name": "Mask: Fox",
       "display_name": "Mask: Fox",
       "image_name": "Mask: Fox",
-      "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "mapping_type": "custom",
+      "reason": null
     },
     "item:gen - mask - herofull": {
-      "wiki_page_name": null,
+      "wiki_page_name": "Mask: Green Hero",
       "display_name": "Mask: Green Hero",
       "image_name": "Mask: Green Hero",
-      "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "mapping_type": "custom",
+      "reason": null
     },
     "item:gen - mask - happy pumpkin": {
-      "wiki_page_name": null,
+      "wiki_page_name": "Mask: Happy Pumpkin",
       "display_name": "Mask: Happy Pumpkin",
       "image_name": "Mask: Happy Pumpkin",
-      "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "mapping_type": "custom",
+      "reason": null
     },
     "item:gen - mask - lion": {
-      "wiki_page_name": null,
+      "wiki_page_name": "Mask: Lion",
       "display_name": "Mask: Lion",
       "image_name": "Mask: Lion",
-      "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "mapping_type": "custom",
+      "reason": null
     },
     "item:gen - mask - monster": {
-      "wiki_page_name": null,
+      "wiki_page_name": "Mask: Monster",
       "display_name": "Mask: Monster",
       "image_name": "Mask: Monster",
-      "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "mapping_type": "custom",
+      "reason": null
     },
     "item:gen - mask - snowleopard": {
-      "wiki_page_name": null,
+      "wiki_page_name": "Mask: Snow Leopard",
       "display_name": "Mask: Snow Leopard",
       "image_name": "Mask: Snow Leopard",
-      "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "mapping_type": "custom",
+      "reason": null
     },
     "item:gen - mask - scary pumpkin": {
-      "wiki_page_name": null,
+      "wiki_page_name": "Mask: Spooky Pumpkin",
       "display_name": "Mask: Spooky Pumpkin",
       "image_name": "Mask: Spooky Pumpkin",
-      "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "mapping_type": "custom",
+      "reason": null
     },
     "item:gen - mask - stone": {
-      "wiki_page_name": null,
+      "wiki_page_name": "Mask: Stoneman",
       "display_name": "Mask: Stoneman",
       "image_name": "Mask: Stoneman",
-      "is_wiki_generated": 0,
-      "is_map_visible": 0
+      "mapping_type": "custom",
+      "reason": null
     },
     "item:ore - stardust": {
       "wiki_page_name": "Stardust (Item)",

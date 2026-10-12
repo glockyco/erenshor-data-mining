@@ -91,7 +91,7 @@ A row's type is the item kind of `Data/Items`, with Furniture for the game's fur
 
 `WorldDrops` holds, for each item that a special world drop roll can yield, the roll's chance per kill at the default loot rate and the lowest level of an enemy that rolls it. `{{World drops}}` lists every item, most likely first, with its chance and the lowest enemy level, and says that the chances hold at the default loot rate. A roll that a game flag turns off has no rows (`special-world-drops` spec), so the masks appear only while a build drops them.
 
-The masks' mapping entries name the pages that editors wrote and keep `is_wiki_generated` at 0, so the link catalog and the view know them, and their articles stay hand-written. Their icons then reach the wiki through the image publication like any other entity's icon.
+The masks' mapping entries name the pages that editors wrote, without the exclusion that kept them out of generation while the export could not describe them (decided with the user on 2026-10-12), so the link catalog and the view know them, and generation merges into those pages as into any other item page: it keeps the editors' prose and their Cosmetic Item type, and fills the infobox, the source, the icon, and the pictures. Their icons and renders reach the wiki through the image publication like any other item's.
 
 The note below the Global Drops tables, which says that six common items can replace a common drop, stays editors' text. The export does not read `GameManager.CommonWorldItems`, and the loot calculator folds that swap into one `A Common World Drop` row for each character, which names no item. Task 5.44 of `adopt-data-backed-wiki` models the swap.
 
