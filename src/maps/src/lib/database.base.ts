@@ -1227,8 +1227,10 @@ export class RepositoryBase {
     /**
      * Preload every map-visible item acquisition source (drops, vendors, mining, fishing, item bags).
      * Used by the map item search — one query batch at page load, no runtime DB access. Items with is_map_visible = 0 are excluded.
-     * Drops and stock come from the copies of `character_fact_sources` and `vendor_offers`, so a
-     * copy that players never meet, such as an unplaced backup prefab, adds no source.
+     * A drop or stock row names the group's map-visible representative, which keys its markers and
+     * live candidates, and holds what the group's copies of `character_fact_sources` drop and what
+     * `vendor_offers` says they sell, so a copy that players never meet, such as an unplaced backup
+     * prefab, adds no source, even when it is the representative.
      */
     async getItemSources(): Promise<ItemSourceRow[]> {
         if (!this.db) throw new Error('DB not initialized');
@@ -1245,13 +1247,23 @@ export class RepositoryBase {
                     c.stable_key        AS characterStableKey,
                     c.npc_name          AS npcName,
                     c.encounter_tier    AS encounterTier,
-                    ld.drop_probability AS dropProbability
-                FROM loot_drops ld
-                JOIN character_fact_sources s ON s.member_stable_key = ld.character_stable_key
-                JOIN items i ON i.stable_key = ld.item_stable_key
-                JOIN characters c ON c.stable_key = ld.character_stable_key
+                    gd.drop_probability AS dropProbability
+                FROM (
+                    SELECT s.group_key, ld.item_stable_key, MAX(ld.drop_probability) AS drop_probability
+                    FROM loot_drops ld
+                    JOIN character_fact_sources s ON s.member_stable_key = ld.character_stable_key
+                    GROUP BY s.group_key, ld.item_stable_key
+                ) gd
+                JOIN (
+                    SELECT group_key, MIN(member_stable_key) AS rep_stable_key
+                    FROM character_deduplications
+                    WHERE is_map_visible = 1
+                    GROUP BY group_key
+                ) rg ON rg.group_key = gd.group_key
+                JOIN items i ON i.stable_key = gd.item_stable_key
+                JOIN characters c ON c.stable_key = rg.rep_stable_key
                 WHERE i.is_map_visible = 1
-                ORDER BY i.display_name, ld.drop_probability DESC
+                ORDER BY i.display_name, gd.drop_probability DESC
             `);
 
             while (stmt.step()) {
@@ -1281,9 +1293,15 @@ export class RepositoryBase {
                     c.stable_key        AS characterStableKey,
                     c.npc_name          AS npcName,
                     i.item_value        AS price
-                FROM (SELECT DISTINCT copy_stable_key, item_stable_key FROM vendor_offers) vo
+                FROM (SELECT DISTINCT vendor_stable_key, item_stable_key FROM vendor_offers) vo
+                JOIN (
+                    SELECT group_key, MIN(member_stable_key) AS rep_stable_key
+                    FROM character_deduplications
+                    WHERE is_map_visible = 1
+                    GROUP BY group_key
+                ) rg ON rg.group_key = vo.vendor_stable_key
                 JOIN items i ON i.stable_key = vo.item_stable_key
-                JOIN characters c ON c.stable_key = vo.copy_stable_key
+                JOIN characters c ON c.stable_key = rg.rep_stable_key
                 WHERE i.is_map_visible = 1
                 ORDER BY displayName, itemStableKey, characterStableKey
             `);

@@ -373,7 +373,11 @@ INSERT INTO characters (
     -- A furnishing of a Reliquary room, which stands only while the room holds its set.
     ('character:fixture dummy', 'Fixture Dummy', 'Fixture Dummy', 'Fixture Dummy', 1, 0, 0, 0, 0, 'npc'),
     -- An unplaced backup copy of the fixture enemy, which players never meet.
-    ('character:fixture enemy backup', 'Fixture Enemy', 'Fixture Enemy', 'Fixture Enemy', 7, 0, 0, 0, 0, 'boss');
+    ('character:fixture enemy backup', 'Fixture Enemy', 'Fixture Enemy', 'Fixture Enemy', 7, 0, 0, 0, 0, 'boss'),
+    -- A guard whose unplaced prefab sorts before its placed copy, so the prefab
+    -- represents the group while only the placed copy's facts count.
+    ('character:fixture guard', 'Fixture Guard', 'Fixture Guard', 'Fixture Guard', 9, 0, 0, 0, 1, 'npc'),
+    ('character:fixture guard placed', 'Fixture Guard', 'Fixture Guard', 'Fixture Guard', 9, 0, 0, 0, 1, 'npc');
 
 -- Two identities sharing a render should display one portrait in their name popup.
 UPDATE characters SET image_hash = 'fixture_enemy'
@@ -386,7 +390,9 @@ INSERT INTO character_deduplications (group_key, member_stable_key, is_map_visib
     ('character-group:fixture-enemy-twin', 'character:fixture enemy twin', 1),
     ('character-group:fixture-chest', 'character:fixture chest', 1),
     ('character-group:fixture-dummy', 'character:fixture dummy', 1),
-    ('character-group:fixture-enemy', 'character:fixture enemy backup', 0);
+    ('character-group:fixture-enemy', 'character:fixture enemy backup', 0),
+    ('character-group:fixture-guard', 'character:fixture guard', 1),
+    ('character-group:fixture-guard', 'character:fixture guard placed', 1);
 
 INSERT INTO map_character_spawns (
     character_stable_key, spawn_point_stable_key, scene, x, y, z, spawn_delay_4,
@@ -456,9 +462,12 @@ INSERT INTO loot_drops (character_stable_key, item_stable_key, drop_probability)
 INSERT INTO loot_drops (character_stable_key, item_stable_key, drop_probability) VALUES
     ('character:fixture enemy twin', 'item:hoard 01', 45),
     ('character:fixture enemy twin', 'item:hoard 12', 12);
--- The backup copy drops the fixture key, which no copy in the game does.
+-- The backup copy drops the fixture key, which no copy in the game does. The
+-- guard's placed copy drops ore, and its unplaced prefab a key.
 INSERT INTO loot_drops (character_stable_key, item_stable_key, drop_probability) VALUES
-    ('character:fixture enemy backup', 'item:fixture key', 50);
+    ('character:fixture enemy backup', 'item:fixture key', 50),
+    ('character:fixture guard', 'item:fixture key', 50),
+    ('character:fixture guard placed', 'item:fixture ore', 10);
 -- Breena sells one item always and one after a quest.
 INSERT INTO vendor_offers (vendor_stable_key, copy_stable_key, item_stable_key, quest_stable_key) VALUES
     ('character-group:breena', 'character:breena carpenter', 'item:fixture key', NULL),
@@ -522,7 +531,8 @@ INSERT INTO treasure_guardian_scaling (guardian_character_stable_key, player_lev
 SELECT c.stable_key, samples.player_level, samples.level_min, samples.level_max
 FROM characters c CROSS JOIN samples WHERE c.stable_key LIKE 'character:ancient %';
 
--- Every copy shows its facts except the unplaced backup, which a copy in the game replaces.
+-- Every copy shows its facts except the unplaced backup and guard prefab, which
+-- copies in the game replace.
 INSERT INTO character_fact_sources (group_key, member_stable_key)
 SELECT group_key, member_stable_key FROM character_deduplications
-WHERE member_stable_key != 'character:fixture enemy backup';
+WHERE member_stable_key NOT IN ('character:fixture enemy backup', 'character:fixture guard');

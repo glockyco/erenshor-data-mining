@@ -169,10 +169,15 @@ describe('Repository', () => {
 		).toMatchObject({ kind: 'drop', encounterTier: 'boss' });
 	});
 
-	it('lists no source of a copy that players never meet', async () => {
-		const rows = await db.getItemSources();
+	it('lists the drops of copies players meet under the representative that keys the markers', async () => {
+		const drops = (await db.getItemSources()).filter((row) => row.kind === 'drop');
 
-		expect(rows.some((row) => row.characterStableKey === 'character:fixture enemy backup')).toBe(false);
+		// Only unplaced copies drop the key, one of them the guard's representative prefab.
+		expect(drops.some((row) => row.itemStableKey === 'item:fixture key')).toBe(false);
+		expect(drops.find((row) => row.itemStableKey === 'item:fixture ore')).toMatchObject({
+			characterStableKey: 'character:fixture guard',
+			dropProbability: 10
+		});
 	});
 
 	it('loads every map-visible acquisition source kind', async () => {
