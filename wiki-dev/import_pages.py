@@ -572,46 +572,66 @@ def query_remote_pages(
     endpoint: str,
     titles: Sequence[str],
 ) -> dict[str, RemotePage | None]:
-    """Fetch exact main-slot content and models for managed titles in batches."""
+    """Fetch exact main-slot content and models for managed titles in batches.
+
+    A batch whose contents exceed the API's result size comes back in parts,
+    each part with the revisions of some pages, so the query follows its
+    continuation until every page has its revision.
+    """
     requested = tuple(dict.fromkeys(titles))
     remote: dict[str, RemotePage | None] = {}
     canonical_owners: dict[str, str] = {}
     for offset in range(0, len(requested), REMOTE_QUERY_BATCH_SIZE):
         batch = requested[offset : offset + REMOTE_QUERY_BATCH_SIZE]
-        response = client.get(
-            endpoint,
-            params={
-                "action": "query",
-                "titles": "|".join(batch),
-                "prop": "revisions",
-                "rvprop": "content|contentmodel",
-                "rvslots": "main",
-                "format": "json",
-                "formatversion": "2",
-            },
-        )
-        response.raise_for_status()
-        payload: Any = response.json()
-        if not isinstance(payload, dict) or "error" in payload or not isinstance(payload.get("query"), dict):
-            raise RuntimeError(f"Managed page query failed: {payload}")
-        query = payload["query"]
         normalized: dict[str, str] = {}
-        for item in query.get("normalized", []):
-            if isinstance(item, dict) and isinstance(item.get("from"), str) and isinstance(item.get("to"), str):
-                normalized[item["from"]] = item["to"]
-        pages = query.get("pages")
-        if not isinstance(pages, list):
-            raise RuntimeError(f"Managed page query returned no pages: {payload}")
-        by_canonical_title: dict[str, RemotePage | None] = {}
-        for raw_page in pages:
-            if not isinstance(raw_page, dict) or not isinstance(raw_page.get("title"), str):
-                raise RuntimeError(f"Managed page query returned an invalid page: {raw_page}")
-            title = raw_page["title"]
-            if raw_page.get("missing") is True:
-                by_canonical_title[title] = None
-                continue
-            revisions = raw_page.get("revisions")
-            if not isinstance(revisions, list) or len(revisions) != 1:
+        missing: set[str] = set()
+        revisions_by_title: dict[str, list[Any]] = {}
+        continuation: dict[str, str] = {}
+        while True:
+            response = client.get(
+                endpoint,
+                params={
+                    "action": "query",
+                    "titles": "|".join(batch),
+                    "prop": "revisions",
+                    "rvprop": "content|contentmodel",
+                    "rvslots": "main",
+                    "format": "json",
+                    "formatversion": "2",
+                    **continuation,
+                },
+            )
+            response.raise_for_status()
+            payload: Any = response.json()
+            if not isinstance(payload, dict) or "error" in payload or not isinstance(payload.get("query"), dict):
+                raise RuntimeError(f"Managed page query failed: {payload}")
+            query = payload["query"]
+            for item in query.get("normalized", []):
+                if isinstance(item, dict) and isinstance(item.get("from"), str) and isinstance(item.get("to"), str):
+                    normalized[item["from"]] = item["to"]
+            pages = query.get("pages")
+            if not isinstance(pages, list):
+                raise RuntimeError(f"Managed page query returned no pages: {payload}")
+            for raw_page in pages:
+                if not isinstance(raw_page, dict) or not isinstance(raw_page.get("title"), str):
+                    raise RuntimeError(f"Managed page query returned an invalid page: {raw_page}")
+                title = raw_page["title"]
+                if raw_page.get("missing") is True:
+                    missing.add(title)
+                    continue
+                revisions = raw_page.get("revisions")
+                if revisions is None:
+                    continue
+                if not isinstance(revisions, list):
+                    raise RuntimeError(f"Managed page query returned invalid revisions for {title}")
+                revisions_by_title.setdefault(title, []).extend(revisions)
+            next_part = payload.get("continue")
+            if not isinstance(next_part, dict):
+                break
+            continuation = {str(key): str(value) for key, value in next_part.items()}
+        by_canonical_title: dict[str, RemotePage | None] = dict.fromkeys(missing)
+        for title, revisions in revisions_by_title.items():
+            if len(revisions) != 1:
                 raise RuntimeError(f"Managed page query returned invalid revisions for {title}")
             revision = revisions[0]
             slots = revision.get("slots") if isinstance(revision, dict) else None

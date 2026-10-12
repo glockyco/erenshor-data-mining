@@ -84,9 +84,13 @@ class _FakeWikiClient:
         pages: dict[str, tuple[str, str]],
         *,
         failing_edits: set[str] | None = None,
+        revisions_per_response: int | None = None,
     ) -> None:
         self.pages = dict(pages)
         self.failing_edits = failing_edits or set()
+        # Like MediaWiki past its result size, return the revisions of only so
+        # many pages per response and continue with the rest.
+        self.revisions_per_response = revisions_per_response
         self.gets: list[dict[str, str]] = []
         self.posts: list[dict[str, str]] = []
 
@@ -94,11 +98,17 @@ class _FakeWikiClient:
         del endpoint
         self.gets.append(dict(params))
         titles = params["titles"].split("|")
+        existing = [title for title in titles if title in self.pages]
+        first = int(params.get("rvcontinue", "0"))
+        last = len(existing) if self.revisions_per_response is None else first + self.revisions_per_response
         response_pages: list[dict[str, object]] = []
         for title in titles:
             remote = self.pages.get(title)
             if remote is None:
                 response_pages.append({"title": title, "missing": True})
+                continue
+            if not first <= existing.index(title) < last:
+                response_pages.append({"title": title, "pageid": len(response_pages) + 1})
                 continue
             content, content_model = remote
             response_pages.append(
@@ -115,7 +125,10 @@ class _FakeWikiClient:
                     ],
                 }
             )
-        return _FakeResponse({"query": {"pages": response_pages}})
+        payload: dict[str, object] = {"query": {"pages": response_pages}}
+        if last < len(existing):
+            payload["continue"] = {"rvcontinue": str(last), "continue": "||"}
+        return _FakeResponse(payload)
 
     def post(
         self,
@@ -351,6 +364,21 @@ def test_identical_reconciliation_has_no_mutations_and_preserves_manifest_bytes(
     assert report.unchanged == ("Template:One", "Template:Two")
     assert client.posts == []
     assert manifest_file.read_bytes() == before
+
+
+def test_contents_that_the_wiki_returns_in_parts_reconcile_like_whole_ones(tmp_path: Path) -> None:
+    import_pages = load_import_pages()
+    root = make_root(tmp_path)
+    contents = {"Module:One": "one\n", "Module:Two": "two\n", "Module:Three": "three\n"}
+    pages = _make_pages(import_pages, root, contents)
+    remote = _remote_pages(pages, {**contents, "Module:Two": "old two\n"})
+    client = _FakeWikiClient(remote, revisions_per_response=1)
+
+    report = import_pages.reconcile_pages(client, "endpoint", "token", pages, root)
+
+    assert report.updated == ("Module:Two",)
+    assert report.unchanged == ("Module:One", "Module:Three")
+    assert [post["title"] for post in client.posts if post["action"] == "edit"] == ["Module:Two"]
 
 
 def test_one_local_edit_updates_only_that_page_and_purges_it(tmp_path: Path) -> None:
