@@ -27,18 +27,18 @@ See proposal.md for the motivation. The facts below were checked on 2026-10-11 a
 
 ### D1. The icon stays in tooltips, and the infobox prefers the render and the screenshot
 
-Template:Item takes `render`, `render_male`, `render_female`, and `screenshot` beside `icon`. Its image shows a gallery when one of those files exists, checked with `{{#ifexist:Media:…}}`, and shows `icon` otherwise. The gallery lists the render, or the male and the female render, then the screenshot, labelled Render, Male, Female, and Screenshot, each only when its file exists, because a gallery line of a missing file puts the page in `Pages with broken file links`; Portable Infobox shows the files as tabs or one alone. Every item page keeps a picture, and the search thumbnail, which the wiki takes from the infobox picture, becomes the first render where there is one. An infobox spends at most eight expensive parser functions, as each `Media:` check counts, well within the limit of 500. `imagecaption` is a row below the picture that stays visible under the tabs. Renders and screenshots fill a 300-pixel panel of the infobox's width on the slate surface of the character renders, and the label of a lone picture is hidden (decided with the user on 2026-10-11). The stylesheet tells the icon from a render or a screenshot by the gallery label that Portable Infobox gives a picture as its alt text: the icon fallback has none, also on the hand-written pages that name an older icon file, such as Aged Letter's 110-pixel `Aged Letter.png`. The infobox shows the icon at most 160 pixels on its longer side, through `Template:Item/styles.css`, because an icon filling the infobox width looks blown up (decided with the user on 2026-10-11); renders and screenshots keep the full width.
+Template:Item takes `render`, `render_male`, `render_female`, and `screenshot` beside `icon`. Its image shows a gallery when one of those files exists, checked with `{{#ifexist:Media:…}}`, and shows `icon` otherwise. The gallery lists the render, or the male and the female render, then the screenshot, labelled Render, Male, Female, and Screenshot, each only when its file exists, because a gallery line of a missing file puts the page in `Pages with broken file links`; Portable Infobox shows the files as tabs or one alone. Every item page keeps a picture, and the search thumbnail, which the wiki takes from the infobox picture, becomes the first render where there is one. An infobox spends at most eight expensive parser functions, as each `Media:` check counts, well within the limit of 500. `imagecaption` is a row below the picture that stays visible under the tabs. Renders and screenshots fill a 300-pixel panel of the infobox's width on the slate surface of the character renders, and the label of a lone picture is hidden (decided on 2026-10-11). The stylesheet tells the icon from a render or a screenshot by the gallery label that Portable Infobox gives a picture as its alt text: the icon fallback has none, also on the hand-written pages that name an older icon file, such as Aged Letter's 110-pixel `Aged Letter.png`. The infobox shows the icon at most 160 pixels on its longer side, through `Template:Item/styles.css`, because an icon filling the infobox width looks blown up (decided on 2026-10-11); renders and screenshots keep the full width.
 
 Generation owns these parameters on generated pages. It fills the render parameters with the catalog's titles of the item's approved renders and `screenshot` with `<subject> screenshot.png` on every item page. Field preservation treats them like the character parameters. The tooltip templates, `ItemLink`, `Gear/Slot`, and the hover cards keep reading the icon.
 
 Alternatives:
 
 - **The icon as a third tab.** It would repeat the tooltip's icon on every page with a render.
-- **No picture without a render or a screenshot.** The user chose on 2026-10-11 to keep the icon, as WoWMuch decided for the infobox on 2026-10-07.
+- **No picture without a render or a screenshot.** On 2026-10-11 it was decided to keep the icon, as WoWMuch decided for the infobox on 2026-10-07.
 
 ### D2. A render shows the piece by itself
 
-The user chose on 2026-10-11 to show the piece by itself, not worn on a body. Each kind's capture source:
+On 2026-10-11 it was decided to show the piece by itself, not worn on a body. Each kind's capture source:
 
 | Kind | Slots | What the studio renders |
 |---|---|---|
@@ -47,18 +47,18 @@ The user chose on 2026-10-11 to show the piece by itself, not worn on a body. Ea
 | `mask` | General, cosmetic | The `HalloweenMasks` object with the item's part name |
 | `furnishing` | General, furniture set | The furnishing that the set turns on in a Reliquary room, without the room |
 
-The male and female bodies hold separate meshes for most armour parts of the same name. The export of 2026-10-11 records every part under the player's slot transforms in `LoadScene`, as `UpdateSlot` finds them among all descendants: 315 of the 408 worn items switch on parts whose male and female meshes differ, such as the `HeavyPlate` chest with 1,572 and 1,692 vertices, 92 switch on parts that both bodies draw alike or that only one body holds, and the part of one, the Igniting Brace's `Plate Bracer`, is on neither body. The user decided on 2026-10-11 to show both versions where they differ:
+The male and female bodies hold separate meshes for most armour parts of the same name. The export of 2026-10-11 records every part under the player's slot transforms in `LoadScene`, as `UpdateSlot` finds them among all descendants: 315 of the 408 worn items switch on parts whose male and female meshes differ, such as the `HeavyPlate` chest with 1,572 and 1,692 vertices, 92 switch on parts that both bodies draw alike or that only one body holds, and the part of one, the Igniting Brace's `Plate Bracer`, is on neither body. On 2026-10-11 it was decided to show both versions where they differ:
 
 - An item whose parts differ between the bodies gets `<subject> render (male).png` and `<subject> render (female).png`.
 - Every other item gets one `<subject> render.png`: shared parts, male-only parts, weapons and shields from the male body's hand anchors, masks, and furnishings.
 - The qualifier follows the role, so the subject stays whole before ` render`, and all renders of an item sort and search together. No worn item's picture name on build 24405256 holds parentheses, `male`, or ` render`.
 - An item whose part neither body holds is listed apart, with the missing name, until the source that holds it is found.
 
-The colours come from the game's item record at capture time, through the same shader properties as `UpdateSlot`, so the export needs no colour fields and a render cannot drift from the game's colours. The studio copies the logged-in player, so the player's own equipment and colours stay as they are, shows the requested body's parts, and hides every other renderer. Skin that an armour part draws, such as a shirt's neckline, takes the first colour of the game's skin palette, `SimPlayerMngr.SkinColors[0]` (0.83, 0.79, 0.76), so a render does not depend on the character that captures it (decided with the user on 2026-10-11). Paired parts stay where the rest pose holds them (decided with the user on 2026-10-11). A furnishing's characters, such as a training dummy, lose their target ring, as `Character.Start` removes it in the game. The user approved this look on 2026-10-11 from captures of each kind but the mask. After the first full batch the user chose on 2026-10-11 the face-on view of weapons and shields, capes from behind, and to keep only the particle effects that stay close to the meshes, such as a sword's flame, and not ones that spread, such as the Molten Axe's smoke. An item whose part shows only particles, such as Lamplighter's Spark, fails its capture and keeps its icon in the infobox. Items that share a subject share their renders, as characters do. Two renders with equal pixels become one picture with redirects, as icons do.
+The colours come from the game's item record at capture time, through the same shader properties as `UpdateSlot`, so the export needs no colour fields and a render cannot drift from the game's colours. The studio copies the logged-in player, so the player's own equipment and colours stay as they are, shows the requested body's parts, and hides every other renderer. Skin that an armour part draws, such as a shirt's neckline, takes the first colour of the game's skin palette, `SimPlayerMngr.SkinColors[0]` (0.83, 0.79, 0.76), so a render does not depend on the character that captures it (decided on 2026-10-11). Paired parts stay where the rest pose holds them (decided on 2026-10-11). A furnishing's characters, such as a training dummy, lose their target ring, as `Character.Start` removes it in the game. This look was approved on 2026-10-11 from captures of each kind but the mask. After the first full batch, 2026-10-11 settled the face-on view of weapons and shields, capes from behind, and to keep only the particle effects that stay close to the meshes, such as a sword's flame, and not ones that spread, such as the Molten Axe's smoke. An item whose part shows only particles, such as Lamplighter's Spark, fails its capture and keeps its icon in the infobox. Items that share a subject share their renders, as characters do. Two renders with equal pixels become one picture with redirects, as icons do.
 
 Alternatives:
 
-- **Worn on a body**, the paper doll. The user chose the piece by itself.
+- **Worn on a body**, the paper doll. The piece by itself was chosen instead.
 - **One render from the male body for every item.** It would show the wrong shape on 315 pages for players of the other body.
 - **`<subject> male render.png`.** A reader could not tell whether `male` belongs to the item's name.
 - **The piece in its bind pose without a rig.** Skinned parts need the body's bones to deform, so the studio keeps a hidden body and shows only the item's renderers.
@@ -83,7 +83,7 @@ The image kind `portrait` becomes `render`. Each approval records its entity's s
 | `Template:Item` | Repository | `wiki deploy-repo-pages` with its render check |
 | Generated item pages | The bot | Article deploy, with `icon`, `render`, `screenshot` generation-owned |
 | The 16 mask pages | Editors | One reviewed, guarded page edit (D6) |
-| MapTileCapture mod | Repository | Local build, runs only on the operator's machine |
+| MapTileCapture mod | Repository | Local build, runs only on a maintainer's machine |
 
 ### D6. Editors' item pictures move once
 
@@ -96,7 +96,7 @@ A guarded page edit through `wiki apply-page-edits` adds `render` and `screensho
 Each step keeps every page's picture, because the infobox falls back to the icon:
 
 1. Land the catalog kind, the manifest, the studio, and the preset. Nothing goes live.
-2. Capture one weapon, one pair of boots on both bodies, one cape, one helmet, one mask, and one furnishing, and show them to the user before the batch.
+2. Capture one weapon, one pair of boots on both bodies, one cape, one helmet, one mask, and one furnishing, and review them before the batch.
 3. Capture, review, and approve every item subject.
 4. Deploy Template:Item. Pages without `render` and `screenshot` show their icon as before, so the render check must show no change.
 5. Publish the renders, after a dry run and approval.
@@ -107,7 +107,7 @@ Rollback runs in reverse: the page edits' guarded reverts, `images publish --rev
 
 ## Risks / Trade-offs
 
-- [Paired parts in the rest pose spread wide or look odd] → Step 2 shows each kind to the user before the batch, and the preset or the source changes before about 1,000 captures.
+- [Paired parts in the rest pose spread wide or look odd] → Step 2 shows each kind for review before the batch, and the preset or the source changes before about 1,000 captures.
 - [A body's version differs from what a player expects] → Each body's parts render on their own hidden body, and step 2 shows one item in both versions.
 - [About 1,000 uploads and 1,500 page edits meet the wiki's rate limits] → Both runs resume from their records, and the article deploy takes about 20 minutes at 90 edits a minute.
 - [A game update changes a part or an item's colours] → The game-data refresh recaptures the item subjects with the characters, and a capture with new pixels needs a new review.

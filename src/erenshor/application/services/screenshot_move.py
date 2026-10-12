@@ -80,7 +80,7 @@ def plan_screenshot_moves(pairs: Iterable[tuple[str, str]], live: LiveWiki, bot:
     """Plan the move of the editor's file at each old title to its screenshot title.
 
     The reviewed list decides which files are editors' pictures, also those
-    that the operator uploaded as an editor, such as WoWMuch's mask pictures.
+    that a project account uploaded as an editor, such as WoWMuch's mask pictures.
 
     Args:
         pairs: The reviewed old titles and screenshot titles.
