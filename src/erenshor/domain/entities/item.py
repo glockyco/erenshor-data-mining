@@ -115,6 +115,10 @@ class Item(BaseEntity):
         default=None,
         description="Derived: player can list this item on the auction house (boolean)",
     )
+    cosmetic_effect: str | None = Field(
+        default=None,
+        description="Derived: what the item does in a cosmetic slot: mask, belt lamp, or lens",
+    )
 
     # Book properties
     book_title: str | None = Field(default=None, description="Book title for readable items")

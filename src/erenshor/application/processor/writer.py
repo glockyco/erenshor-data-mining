@@ -468,6 +468,8 @@ CREATE TABLE items (
     player_cannot_sell              INTEGER,
     rare_item                       INTEGER,
     is_auctionable                  INTEGER,
+    -- What the item does in a cosmetic slot: mask, belt lamp, or lens.
+    cosmetic_effect                 TEXT,
     book_title                      TEXT,
     mining                          INTEGER,
     fuel_source                     INTEGER,

@@ -41,7 +41,8 @@
     "PlanningTable",
     "TestDummy",
     "ModularPar",
-    "ModularParts"
+    "ModularParts",
+    "Inventory"
   ],
   "fields": {
     "AchievementTrigger": {
@@ -6638,6 +6639,488 @@
         "reason": "runtime flag of simulated players",
         "status": "ignored",
         "type": "System.Boolean"
+      }
+    },
+    "Inventory": {
+      "ALLSLOTS": {
+        "by": null,
+        "reason": "inventory window slots, which hold the character's items at runtime",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<ItemIcon>"
+      },
+      "AgiScaleMod": {
+        "by": null,
+        "reason": "runtime stat scaling of the equipped items",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "AllocateButton": {
+        "by": null,
+        "reason": "inventory window UI",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "AuraItem": {
+        "by": null,
+        "reason": "the character's items and their worn effects, filled at runtime from the save",
+        "status": "ignored",
+        "type": "Item"
+      },
+      "AuraSlot": {
+        "by": null,
+        "reason": "inventory window slots, which hold the character's items at runtime",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "AuraTxt": {
+        "by": null,
+        "reason": "inventory window UI",
+        "status": "ignored",
+        "type": "TMPro.TextMeshProUGUI"
+      },
+      "BeltLamp": {
+        "by": null,
+        "reason": "the lamp object that the belt lamp items switch on; CosmeticItems names it by its field",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "BeltLampItem": {
+        "by": "CosmeticItemListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Item"
+      },
+      "ChaScaleMod": {
+        "by": null,
+        "reason": "runtime stat scaling of the equipped items",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "CharCam": {
+        "by": null,
+        "reason": "inventory window UI",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "CharmItem": {
+        "by": null,
+        "reason": "the character's items and their worn effects, filled at runtime from the save",
+        "status": "ignored",
+        "type": "Item"
+      },
+      "CharmSlot": {
+        "by": null,
+        "reason": "inventory window slots, which hold the character's items at runtime",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "CosmeticArm": {
+        "by": null,
+        "reason": "inventory window slots, which hold the character's items at runtime",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "CosmeticBack": {
+        "by": null,
+        "reason": "inventory window slots, which hold the character's items at runtime",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "CosmeticChest": {
+        "by": null,
+        "reason": "inventory window slots, which hold the character's items at runtime",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "CosmeticFoot": {
+        "by": null,
+        "reason": "inventory window slots, which hold the character's items at runtime",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "CosmeticGlove": {
+        "by": null,
+        "reason": "inventory window slots, which hold the character's items at runtime",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "CosmeticHead": {
+        "by": null,
+        "reason": "inventory window slots, which hold the character's items at runtime",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "CosmeticLeg": {
+        "by": null,
+        "reason": "inventory window slots, which hold the character's items at runtime",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "CosmeticSlots": {
+        "by": null,
+        "reason": "inventory window slots, which hold the character's items at runtime",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<ItemIcon>"
+      },
+      "CosmeticWrist": {
+        "by": null,
+        "reason": "inventory window slots, which hold the character's items at runtime",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "DexScaleMod": {
+        "by": null,
+        "reason": "runtime stat scaling of the equipped items",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "Empty": {
+        "by": null,
+        "reason": "the placeholder item of an empty slot",
+        "status": "ignored",
+        "type": "Item"
+      },
+      "EndScaleMod": {
+        "by": null,
+        "reason": "runtime stat scaling of the equipped items",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "EquipmentSlots": {
+        "by": null,
+        "reason": "inventory window slots, which hold the character's items at runtime",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<ItemIcon>"
+      },
+      "EquippedItems": {
+        "by": null,
+        "reason": "the character's items and their worn effects, filled at runtime from the save",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<Item>"
+      },
+      "FernallanLensObj": {
+        "by": null,
+        "reason": "the lens object that the Watcher's Lens switches on; CosmeticItems names it by its field",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "GhostItem": {
+        "by": null,
+        "reason": "inventory window UI",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "Gold": {
+        "by": null,
+        "reason": "the character's gold, loaded from the save",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "GoldTXT": {
+        "by": null,
+        "reason": "inventory window UI",
+        "status": "ignored",
+        "type": "TMPro.TextMeshProUGUI"
+      },
+      "HasCosmeticMask": {
+        "by": null,
+        "reason": "runtime flag for a worn mask, which Inventory.Update sets from the cosmetic slots",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "IntScaleMod": {
+        "by": null,
+        "reason": "runtime stat scaling of the equipped items",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "InvWindow": {
+        "by": null,
+        "reason": "inventory window UI",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "ItemAC": {
+        "by": null,
+        "reason": "stat totals that the inventory sums from equipped items at runtime",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "ItemAgi": {
+        "by": null,
+        "reason": "stat totals that the inventory sums from equipped items at runtime",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "ItemCha": {
+        "by": null,
+        "reason": "stat totals that the inventory sums from equipped items at runtime",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "ItemDex": {
+        "by": null,
+        "reason": "stat totals that the inventory sums from equipped items at runtime",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "ItemER": {
+        "by": null,
+        "reason": "stat totals that the inventory sums from equipped items at runtime",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "ItemEnd": {
+        "by": null,
+        "reason": "stat totals that the inventory sums from equipped items at runtime",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "ItemHP": {
+        "by": null,
+        "reason": "stat totals that the inventory sums from equipped items at runtime",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "ItemInt": {
+        "by": null,
+        "reason": "stat totals that the inventory sums from equipped items at runtime",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "ItemMR": {
+        "by": null,
+        "reason": "stat totals that the inventory sums from equipped items at runtime",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "ItemMana": {
+        "by": null,
+        "reason": "stat totals that the inventory sums from equipped items at runtime",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "ItemPR": {
+        "by": null,
+        "reason": "stat totals that the inventory sums from equipped items at runtime",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "ItemRes": {
+        "by": null,
+        "reason": "stat totals that the inventory sums from equipped items at runtime",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "ItemStr": {
+        "by": null,
+        "reason": "stat totals that the inventory sums from equipped items at runtime",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "ItemVR": {
+        "by": null,
+        "reason": "stat totals that the inventory sums from equipped items at runtime",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "ItemWis": {
+        "by": null,
+        "reason": "stat totals that the inventory sums from equipped items at runtime",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "KeepersLamp": {
+        "by": "CosmeticItemListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Item"
+      },
+      "MH": {
+        "by": null,
+        "reason": "inventory window slots, which hold the character's items at runtime",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "MHDelay": {
+        "by": null,
+        "reason": "runtime state of the equipped weapons",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "MHDmg": {
+        "by": null,
+        "reason": "runtime state of the equipped weapons",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "MHLevel": {
+        "by": null,
+        "reason": "runtime state of the equipped weapons",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "MitScaleMod": {
+        "by": null,
+        "reason": "runtime stat scaling of the equipped items",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "Modulars": {
+        "by": null,
+        "reason": "the player's bodies, which ItemModelPartListener exports from ModularPar",
+        "status": "ignored",
+        "type": "ModularParts"
+      },
+      "OH": {
+        "by": null,
+        "reason": "inventory window slots, which hold the character's items at runtime",
+        "status": "ignored",
+        "type": "ItemIcon"
+      },
+      "OHDelay": {
+        "by": null,
+        "reason": "runtime state of the equipped weapons",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "OHDmg": {
+        "by": null,
+        "reason": "runtime state of the equipped weapons",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "PlayerStatDisp": {
+        "by": null,
+        "reason": "inventory window UI",
+        "status": "ignored",
+        "type": "CalcStats"
+      },
+      "PrimaryBow": {
+        "by": null,
+        "reason": "runtime state of the equipped weapons",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "PrimaryWeapon": {
+        "by": null,
+        "reason": "runtime state of the equipped weapons",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "RstScaleMod": {
+        "by": null,
+        "reason": "runtime stat scaling of the equipped items",
+        "status": "ignored",
+        "type": "System.Single"
+      },
+      "SecondaryShield": {
+        "by": null,
+        "reason": "runtime state of the equipped weapons",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "SecondaryWeapon": {
+        "by": null,
+        "reason": "runtime state of the equipped weapons",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "ShiveringBeltLamp": {
+        "by": "CosmeticItemListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Item"
+      },
+      "SimMH": {
+        "by": null,
+        "reason": "inventory window slots, which hold the character's items at runtime",
+        "status": "ignored",
+        "type": "SimInvSlot"
+      },
+      "SimOH": {
+        "by": null,
+        "reason": "inventory window slots, which hold the character's items at runtime",
+        "status": "ignored",
+        "type": "SimInvSlot"
+      },
+      "StatWindow": {
+        "by": null,
+        "reason": "inventory window UI",
+        "status": "ignored",
+        "type": "UnityEngine.GameObject"
+      },
+      "StoredItems": {
+        "by": null,
+        "reason": "the character's items and their worn effects, filled at runtime from the save",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<Item>"
+      },
+      "StoredSlots": {
+        "by": null,
+        "reason": "inventory window slots, which hold the character's items at runtime",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<ItemIcon>"
+      },
+      "StrScaleMod": {
+        "by": null,
+        "reason": "runtime stat scaling of the equipped items",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "TransmogItems": {
+        "by": null,
+        "reason": "the character's items and their worn effects, filled at runtime from the save",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<Item>"
+      },
+      "TransmogSlots": {
+        "by": null,
+        "reason": "inventory window slots, which hold the character's items at runtime",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<ItemIcon>"
+      },
+      "TwoHandPrimary": {
+        "by": null,
+        "reason": "runtime state of the equipped weapons",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "WatchersLens": {
+        "by": "CosmeticItemListener",
+        "reason": null,
+        "status": "captured",
+        "type": "Item"
+      },
+      "WisScaleMod": {
+        "by": null,
+        "reason": "runtime stat scaling of the equipped items",
+        "status": "ignored",
+        "type": "System.Int32"
+      },
+      "WornEffects": {
+        "by": null,
+        "reason": "the character's items and their worn effects, filled at runtime from the save",
+        "status": "ignored",
+        "type": "System.Collections.Generic.List`1<Spell>"
+      },
+      "isMale": {
+        "by": null,
+        "reason": "the runtime body choice of the character",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "isPlayer": {
+        "by": null,
+        "reason": "marks the player's inventory, which CosmeticItemListener reads only to find it",
+        "status": "ignored",
+        "type": "System.Boolean"
+      },
+      "mouseSlot": {
+        "by": null,
+        "reason": "inventory window UI",
+        "status": "ignored",
+        "type": "ItemIcon"
       }
     }
   }

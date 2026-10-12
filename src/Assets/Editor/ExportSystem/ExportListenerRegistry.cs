@@ -373,6 +373,14 @@ public static class ExportListenerRegistry
                     context.RegisterComponentListener(new ItemModelPartListener(context.Database))
             ),
             new(
+                "cosmeticitems",
+                "Cosmetic Items",
+                ExportScanChannel.Component,
+                Array.Empty<string>(),
+                context =>
+                    context.RegisterComponentListener(new CosmeticItemListener(context.Database))
+            ),
+            new(
                 "itemdrops",
                 "Item Drops",
                 ExportScanChannel.Component,

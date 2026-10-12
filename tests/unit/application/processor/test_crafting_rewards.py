@@ -39,6 +39,9 @@ def test_a_template_with_two_rewards_crafts_only_the_first(tmp_path):
     )
     for table in ("ItemStats", "ItemClasses", "CraftingRecipes", "ItemDrops"):
         raw.execute(f"CREATE TABLE {table} (placeholder TEXT)")
+    raw.execute("CREATE TABLE ItemModelParts (Body TEXT, Slot TEXT, Position INTEGER, Part TEXT, Meshes TEXT)")
+    raw.execute("INSERT INTO ItemModelParts VALUES ('Male', 'HalloweenMasks', 0, 'Fox', '')")
+    raw.execute("CREATE TABLE CosmeticItems (ItemStableKey TEXT, Effect TEXT, Field TEXT)")
 
     writer = Writer(tmp_path / "test.sqlite")
     writer.create_schema()

@@ -1293,6 +1293,42 @@
       "args": {
         "statement": "transform.name = NPCName;"
       }
+    },
+    {
+      "id": "cosmetics.mask_by_equipment_name",
+      "mode": "assert",
+      "type": "Inventory",
+      "method": "SetHalloweenMask",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (halloweenMask2.transform.name == cosmeticSlot.MyItem.EquipmentToActivate) { halloweenMask2.SetActive (value: true); Modulars.HalloweenMasks [0].SetActive (value: true); HasCosmeticMask = true; }"
+      },
+      "note": "A cosmetic slot shows the mask object whose name is the item's EquipmentToActivate. Re-implemented by cosmetic_effects in src/erenshor/application/processor/cosmetics.py."
+    },
+    {
+      "id": "cosmetics.belt_lamp_items",
+      "mode": "assert",
+      "type": "Inventory",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (isPlayer && BeltLamp != null && !BeltLamp.activeSelf && (HasCosmetic (BeltLampItem) || HasCosmetic (ShiveringBeltLamp) || HasCosmetic (KeepersLamp))) { BeltLamp.SetActive (value: true); }"
+      },
+      "note": "A cosmetic slot that holds BeltLampItem, ShiveringBeltLamp, or KeepersLamp lights the belt lamp. Exported by CosmeticItemListener."
+    },
+    {
+      "id": "cosmetics.watchers_lens",
+      "mode": "assert",
+      "type": "Inventory",
+      "method": "Update",
+      "matcher": "node_shape",
+      "args": {
+        "kind": "IfElseStatement",
+        "shape": "if (isPlayer && FernallanLensObj != null && !FernallanLensObj.activeSelf && HasCosmetic (WatchersLens)) { FernallanLensObj.SetActive (value: true); }"
+      },
+      "note": "A cosmetic slot that holds WatchersLens shows the lens, and ZoneAnnounce.Update then lets Sivakayan spectres appear. Exported by CosmeticItemListener."
     }
   ]
 }

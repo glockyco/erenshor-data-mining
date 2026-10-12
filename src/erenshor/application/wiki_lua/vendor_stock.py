@@ -58,6 +58,7 @@ _TYPE_PAGES: Mapping[str, str] = {
     "Crafting": "Crafting",
     "Quest Item": "Quest Items",
     "Lore": "Lore Items",
+    "Cosmetic": "Cosmetic Items",
 }
 
 

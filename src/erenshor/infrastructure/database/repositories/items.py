@@ -106,6 +106,7 @@ class ItemRepository(BaseRepository[Item]):
                 must_be_equipped_to_click,
                 rare_item,
                 is_auctionable,
+                cosmetic_effect,
                 book_title,
                 mining,
                 fuel_source,

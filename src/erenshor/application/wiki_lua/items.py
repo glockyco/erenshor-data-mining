@@ -98,6 +98,7 @@ _ITEM_KIND_SHARDS = {
     ItemKind.SKILL_BOOK: "SkillBooks",
     ItemKind.CONSUMABLE: "Consumables",
     ItemKind.MOLD: "Molds",
+    ItemKind.COSMETIC: "Cosmetics",
     ItemKind.GENERAL: "General",
 }
 
@@ -330,6 +331,7 @@ def _item_kind(item: Item) -> ItemKind:
         template_flag=item.template,
         click_effect=item.item_effect_on_click_stable_key,
         disposable=bool(item.disposable) if item.disposable is not None else None,
+        cosmetic=item.cosmetic_effect is not None,
     )
 
 

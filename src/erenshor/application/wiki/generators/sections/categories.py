@@ -84,6 +84,7 @@ class CategoryGenerator:
         ItemKind.SKILL_BOOK: "Ability Books",
         ItemKind.CONSUMABLE: "Consumables",
         ItemKind.MOLD: "Molds",
+        ItemKind.COSMETIC: "Cosmetic Items",
         ItemKind.GENERAL: "Items",
     }
 
@@ -104,6 +105,7 @@ class CategoryGenerator:
             template_flag=item.template,
             click_effect=item.item_effect_on_click_stable_key,
             disposable=bool(item.disposable) if item.disposable is not None else None,
+            cosmetic=item.cosmetic_effect is not None,
         )
 
         primary_category = self.ITEM_KIND_TO_CATEGORY.get(kind, "Items")

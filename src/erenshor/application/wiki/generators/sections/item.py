@@ -91,6 +91,7 @@ class ItemSectionGenerator(SectionGeneratorBase):
             template_flag=item.template,
             click_effect=item.item_effect_on_click_stable_key,
             disposable=bool(item.disposable),
+            cosmetic=item.cosmetic_effect is not None,
         )
 
     # ------------------------------------------------------------------

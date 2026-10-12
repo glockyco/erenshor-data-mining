@@ -102,6 +102,9 @@ def test_process_items_loads_player_gates_and_writes_flags(tmp_path):
     )
     for table in ("ItemStats", "ItemClasses", "CraftingRecipes", "ItemDrops"):
         raw.execute(f"CREATE TABLE {table} (placeholder TEXT)")
+    raw.execute("CREATE TABLE ItemModelParts (Body TEXT, Slot TEXT, Position INTEGER, Part TEXT, Meshes TEXT)")
+    raw.execute("INSERT INTO ItemModelParts VALUES ('Male', 'HalloweenMasks', 0, 'Fox', '')")
+    raw.execute("CREATE TABLE CosmeticItems (ItemStableKey TEXT, Effect TEXT, Field TEXT)")
     raw.execute(
         "CREATE TABLE CraftingRewards ("
         "RecipeItemStableKey TEXT, RewardSlot INTEGER, RewardItemStableKey TEXT, RewardQuantity INTEGER)"

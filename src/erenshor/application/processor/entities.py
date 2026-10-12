@@ -28,6 +28,7 @@ from typing import TYPE_CHECKING, cast
 from loguru import logger
 
 from .auction import derive_is_auctionable, validate_auction_gates
+from .cosmetics import load_cosmetic_effects
 
 if TYPE_CHECKING:
     from .mapping import MappingOverride
@@ -345,7 +346,11 @@ def process_items(
     # 'Unique' is a SQL reserved word — rename to is_unique (boolean 0/1)
     rows = _rename_cols(rows, {"Unique": "is_unique"})
     _name_icons_by_texture(rows, "item_icon_texture", "item_icon_name")
+    cosmetic = load_cosmetic_effects(
+        raw, [(str(row["stable_key"]), cast("str | None", row.get("equipment_to_activate"))) for row in rows]
+    )
     for row in rows:
+        row["cosmetic_effect"] = cosmetic.get(str(row["stable_key"]))
         row["is_auctionable"] = int(
             derive_is_auctionable(
                 cast("int | None", row.get("item_level")),

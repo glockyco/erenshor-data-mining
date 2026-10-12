@@ -233,6 +233,7 @@ def _item_subtype(item: Item) -> str:
             template_flag=item.template,
             click_effect=item.item_effect_on_click_stable_key,
             disposable=None if item.disposable is None else bool(item.disposable),
+            cosmetic=item.cosmetic_effect is not None,
         )
     )
 
