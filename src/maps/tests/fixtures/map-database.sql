@@ -250,21 +250,18 @@ CREATE TABLE special_world_drops (
     PRIMARY KEY (item_stable_key, pool)
 );
 
-CREATE TABLE character_vendor_items (
-    character_stable_key TEXT NOT NULL REFERENCES characters(stable_key),
+-- Views of the clean database, as plain tables: the copies whose facts a
+-- dedup group shows, and what the vendors among them sell.
+CREATE TABLE character_fact_sources (
+    group_key TEXT NOT NULL,
+    member_stable_key TEXT NOT NULL REFERENCES characters(stable_key)
+);
+
+CREATE TABLE vendor_offers (
+    vendor_stable_key TEXT NOT NULL,
+    copy_stable_key TEXT NOT NULL REFERENCES characters(stable_key),
     item_stable_key TEXT NOT NULL REFERENCES items(stable_key),
-    PRIMARY KEY (character_stable_key, item_stable_key)
-);
-
-CREATE TABLE character_vendor_quest_unlocks (
-    character_stable_key TEXT NOT NULL REFERENCES characters(stable_key),
-    quest_stable_key TEXT NOT NULL,
-    PRIMARY KEY (character_stable_key, quest_stable_key)
-);
-
-CREATE TABLE quest_variants (
-    quest_stable_key TEXT NOT NULL,
-    unlock_item_for_vendor_stable_key TEXT REFERENCES items(stable_key)
+    quest_stable_key TEXT
 );
 
 -- Read by the shared site footer through `getDataProvenance`, so the (app)
@@ -374,7 +371,9 @@ INSERT INTO characters (
     ('character:fixture enemy twin', 'Fixture Enemy', 'Fixture Enemy', 'Fixture Enemy', 7, 0, 0, 0, 0, 'boss'),
     ('character:fixture chest', 'Fixture Chest', 'Fixture Chest', 'Fixture Chest', 18, 0, 0, 0, 0, 'chest'),
     -- A furnishing of a Reliquary room, which stands only while the room holds its set.
-    ('character:fixture dummy', 'Fixture Dummy', 'Fixture Dummy', 'Fixture Dummy', 1, 0, 0, 0, 0, 'npc');
+    ('character:fixture dummy', 'Fixture Dummy', 'Fixture Dummy', 'Fixture Dummy', 1, 0, 0, 0, 0, 'npc'),
+    -- An unplaced backup copy of the fixture enemy, which players never meet.
+    ('character:fixture enemy backup', 'Fixture Enemy', 'Fixture Enemy', 'Fixture Enemy', 7, 0, 0, 0, 0, 'boss');
 
 -- Two identities sharing a render should display one portrait in their name popup.
 UPDATE characters SET image_hash = 'fixture_enemy'
@@ -386,7 +385,8 @@ INSERT INTO character_deduplications (group_key, member_stable_key, is_map_visib
     ('character-group:runtime-enemy', 'character:runtime enemy', 1),
     ('character-group:fixture-enemy-twin', 'character:fixture enemy twin', 1),
     ('character-group:fixture-chest', 'character:fixture chest', 1),
-    ('character-group:fixture-dummy', 'character:fixture dummy', 1);
+    ('character-group:fixture-dummy', 'character:fixture dummy', 1),
+    ('character-group:fixture-enemy', 'character:fixture enemy backup', 0);
 
 INSERT INTO map_character_spawns (
     character_stable_key, spawn_point_stable_key, scene, x, y, z, spawn_delay_4,
@@ -456,14 +456,13 @@ INSERT INTO loot_drops (character_stable_key, item_stable_key, drop_probability)
 INSERT INTO loot_drops (character_stable_key, item_stable_key, drop_probability) VALUES
     ('character:fixture enemy twin', 'item:hoard 01', 45),
     ('character:fixture enemy twin', 'item:hoard 12', 12);
--- Breena sells one item directly and one after a quest, so the vendor list
--- exercises both sides of its union.
-INSERT INTO character_vendor_items (character_stable_key, item_stable_key) VALUES
-    ('character:breena carpenter', 'item:fixture key');
-INSERT INTO character_vendor_quest_unlocks (character_stable_key, quest_stable_key) VALUES
-    ('character:breena carpenter', 'quest:vendor-unlock');
-INSERT INTO quest_variants (quest_stable_key, unlock_item_for_vendor_stable_key) VALUES
-    ('quest:vendor-unlock', 'item:furniture - enchanted smithy');
+-- The backup copy drops the fixture key, which no copy in the game does.
+INSERT INTO loot_drops (character_stable_key, item_stable_key, drop_probability) VALUES
+    ('character:fixture enemy backup', 'item:fixture key', 50);
+-- Breena sells one item always and one after a quest.
+INSERT INTO vendor_offers (vendor_stable_key, copy_stable_key, item_stable_key, quest_stable_key) VALUES
+    ('character-group:breena', 'character:breena carpenter', 'item:fixture key', NULL),
+    ('character-group:breena', 'character:breena carpenter', 'item:furniture - enchanted smithy', 'quest:vendor-unlock');
 
 -- A relic whose only source is a special world drop, which has no map location.
 INSERT INTO special_world_drops (item_stable_key, pool, drop_probability, min_level_exclusive) VALUES
@@ -522,3 +521,8 @@ WITH samples(player_level, level_min, level_max) AS (
 INSERT INTO treasure_guardian_scaling (guardian_character_stable_key, player_level, level_min, level_max)
 SELECT c.stable_key, samples.player_level, samples.level_min, samples.level_max
 FROM characters c CROSS JOIN samples WHERE c.stable_key LIKE 'character:ancient %';
+
+-- Every copy shows its facts except the unplaced backup, which a copy in the game replaces.
+INSERT INTO character_fact_sources (group_key, member_stable_key)
+SELECT group_key, member_stable_key FROM character_deduplications
+WHERE member_stable_key != 'character:fixture enemy backup';

@@ -1227,6 +1227,8 @@ export class RepositoryBase {
     /**
      * Preload every map-visible item acquisition source (drops, vendors, mining, fishing, item bags).
      * Used by the map item search — one query batch at page load, no runtime DB access. Items with is_map_visible = 0 are excluded.
+     * Drops and stock come from the copies of `character_fact_sources` and `vendor_offers`, so a
+     * copy that players never meet, such as an unplaced backup prefab, adds no source.
      */
     async getItemSources(): Promise<ItemSourceRow[]> {
         if (!this.db) throw new Error('DB not initialized');
@@ -1245,6 +1247,7 @@ export class RepositoryBase {
                     c.encounter_tier    AS encounterTier,
                     ld.drop_probability AS dropProbability
                 FROM loot_drops ld
+                JOIN character_fact_sources s ON s.member_stable_key = ld.character_stable_key
                 JOIN items i ON i.stable_key = ld.item_stable_key
                 JOIN characters c ON c.stable_key = ld.character_stable_key
                 WHERE i.is_map_visible = 1
@@ -1278,23 +1281,9 @@ export class RepositoryBase {
                     c.stable_key        AS characterStableKey,
                     c.npc_name          AS npcName,
                     i.item_value        AS price
-                FROM character_vendor_items cvi
-                JOIN items i ON i.stable_key = cvi.item_stable_key
-                JOIN characters c ON c.stable_key = cvi.character_stable_key
-                WHERE i.is_map_visible = 1
-                UNION
-                SELECT
-                    i.stable_key        AS itemStableKey,
-                    i.display_name      AS displayName,
-                    i.wiki_page_name    AS wikiPageName,
-                    i.image_hash        AS iconHash,
-                    c.stable_key        AS characterStableKey,
-                    c.npc_name          AS npcName,
-                    i.item_value        AS price
-                FROM character_vendor_quest_unlocks cvqu
-                JOIN quest_variants qv ON qv.quest_stable_key = cvqu.quest_stable_key
-                JOIN items i ON i.stable_key = qv.unlock_item_for_vendor_stable_key
-                JOIN characters c ON c.stable_key = cvqu.character_stable_key
+                FROM (SELECT DISTINCT copy_stable_key, item_stable_key FROM vendor_offers) vo
+                JOIN items i ON i.stable_key = vo.item_stable_key
+                JOIN characters c ON c.stable_key = vo.copy_stable_key
                 WHERE i.is_map_visible = 1
                 ORDER BY displayName, itemStableKey, characterStableKey
             `);

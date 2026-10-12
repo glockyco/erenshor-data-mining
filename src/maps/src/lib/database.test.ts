@@ -169,6 +169,12 @@ describe('Repository', () => {
 		).toMatchObject({ kind: 'drop', encounterTier: 'boss' });
 	});
 
+	it('lists no source of a copy that players never meet', async () => {
+		const rows = await db.getItemSources();
+
+		expect(rows.some((row) => row.characterStableKey === 'character:fixture enemy backup')).toBe(false);
+	});
+
 	it('loads every map-visible acquisition source kind', async () => {
 		const rows = await db.getItemSources();
 
