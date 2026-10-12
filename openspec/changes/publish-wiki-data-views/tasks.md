@@ -47,6 +47,17 @@
 - [x] 7.2 `feat(wiki): render world drops from generated data`: build `Module:Erenshor/Data/WorldDrops` by item from `special_world_drops`: the chance per kill at the default loot rate and the lowest enemy level of each roll. Add `Module:Erenshor/WorldDrops` and `Template:World drops`, a name that was free on 2026-10-11, with testcases and smoke rows. Verify: in the local stack, the view lists the 38 items, Sivakrux at 1% from enemy level 11, each torn treasure map piece at 0.625% at any level, and Mask: Eldoth at 0.002%.
   - Done on 2026-10-12. With the generated modules in the local stack, `{{World drops}}` listed 38 rows without a script error or an unresolved link: Sivakrux 1% from level 11 first, each torn treasure map piece 0.625% at any level, and Mask: Eldoth 0.002% last. Chances show three significant digits. Item pages showed world drop chances with two significant digits, so each torn treasure map piece read 0.62% there; they now show three as well.
 - [ ] 7.3 Deploy after approval, render `{{World drops}}` on the Enemies page, compare it with the two Global Drops tables, and record each difference with its cause. Then replace the tables as design D5 describes and keep the note on common world items. Verify: the Global Drops section renders from the view, and the rollback manifest lists the edit.
+  - Deployed on 2026-10-12: `Module:Erenshor/Data/WorldDrops`, `Module:Erenshor/WorldDrops`, and `Template:World drops`, which renders 38 rows on the live wiki without a script error or a red link. Compared with the two Global Drops tables of the Enemies page, the tables are stale, and each difference follows from the game's rolls (`loot.world_drop.*` code facts, `LootTable.InitLootTable`):
+    - Planar Stone Shards: 1% from level 16 in the table, 0.1% (rate 0.001) in the game.
+    - Planar Stone: 0.07% in the table, 0.05% (rate 0.0005).
+    - Sivakrux: 0.1% from level 16 in the table, 1% (rate 0.01) above level 10.
+    - Elixir of Enlightenment I: 0.5% in the table, 0.2% (rate 0.002).
+    - Each torn treasure map piece: 0.3% in the table; the game rolls 2.5% and picks one of the four pieces, 0.625% each.
+    - Each charm mold: 0.05% in the table; the game rolls 0.5% and picks one of 11 molds, 0.0455% each.
+    - Masks: one row of 0.1% in the table, which is the chance of the whole roll; the game picks one of the 15 masks in 98 of 100 such rolls, 0.00653% each, and Mask: Eldoth is its own roll of 0.002%.
+    - Crystallized Balance (0.05% above level 30) and Essence of Amarion (0.455%) are missing from the tables.
+    - Inert Diamond matches.
+  - The replacement of the tables waits for the announcement and the review that design D5 requires, as task 2.3 does.
 
 ## 8. Documentation and verification
 
