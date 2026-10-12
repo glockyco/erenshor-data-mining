@@ -22,6 +22,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from erenshor.application.services.model_image_manifest import load_scene_landings
 from erenshor.domain.value_objects.wiki_filename import (
     Body,
     body_render_title,
@@ -273,19 +274,7 @@ def load_model_parts(clean: sqlite3.Connection) -> ModelParts:
             masks.add(str(part))
         else:
             body_meshes[(str(body), str(slot), str(part))].update(filter(None, str(meshes).split("|")))
-    # Land where a zone line into the scene puts the player, away from its
-    # spawns: a character's own place can stand beside a hostile spawn, such as
-    # the Reliquary Fiend's, which killed the player during a capture.
-    landings: dict[str, tuple[float, float, float]] = {}
-    for scene, x, y, z in clean.execute(
-        """
-        SELECT z.scene_name, l.landing_position_x, l.landing_position_y, l.landing_position_z
-        FROM zone_lines l JOIN zones z ON z.stable_key = l.destination_zone_stable_key
-        WHERE l.is_enabled = 1 AND l.landing_position_x IS NOT NULL
-        ORDER BY l.stable_key
-        """
-    ):
-        landings.setdefault(str(scene), (float(x), float(y), float(z)))
+    landings = load_scene_landings(clean)
     furnishings: dict[str, tuple[str, tuple[float, float, float]]] = {}
     for furnishing, scene in clean.execute(
         "SELECT DISTINCT furnishing, scene FROM planning_table_furnishings ORDER BY scene, furnishing"

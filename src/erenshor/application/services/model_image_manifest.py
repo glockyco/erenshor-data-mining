@@ -53,7 +53,9 @@ class CaptureSource:
     """Where the capture finds the game object.
 
     A ``resources_path`` loads the prefab without a scene. Otherwise the
-    capture lands the player at ``landing`` in ``scene`` and takes the
+    capture lands the player at ``landing`` in ``scene``, where a zone line
+    into the scene puts players, or at the character's place in a scene that
+    no zone line leads into, and takes the
     character of that name: the one nearest ``position`` when the scene places
     it, or else the prefab that the scene references. A placed character
     answers to ``object_name`` until it starts and to ``npc_name`` after,
@@ -125,8 +127,16 @@ class ModelImageManifest:
         }
 
 
-def capture_source(character: CharacterSource) -> CaptureSource | None:
-    """Where a capture finds the character's game object, or None when nothing locates it."""
+def capture_source(
+    character: CharacterSource, landings: Mapping[str, tuple[float, float, float]]
+) -> CaptureSource | None:
+    """Where a capture finds the character's game object, or None when nothing locates it.
+
+    The capture finds the character anywhere in the loaded scene, so the player
+    lands where a zone line into the scene puts players: the character's own
+    place can stand beside a hostile spawn, such as the Reliquary Fiend's, which
+    killed the player during a capture.
+    """
     if character.resources_path:
         return CaptureSource(
             resources_path=character.resources_path,
@@ -145,7 +155,7 @@ def capture_source(character: CharacterSource) -> CaptureSource | None:
             object_name=character.object_name,
             npc_name=character.npc_name,
             position=character.position,
-            landing=character.position,
+            landing=landings.get(character.scene, character.position),
         )
     if character.spawn_points:
         scene, x, y, z = character.spawn_points[0]
@@ -155,7 +165,7 @@ def capture_source(character: CharacterSource) -> CaptureSource | None:
             object_name=character.object_name,
             npc_name=character.npc_name,
             position=None,
-            landing=(x, y, z),
+            landing=landings.get(scene, (x, y, z)),
         )
     return None
 
@@ -183,11 +193,13 @@ def build_manifest(
     characters: Sequence[CharacterSource],
     unused_pages: Mapping[str, str],
     game_build: str,
+    landings: Mapping[str, tuple[float, float, float]],
 ) -> ModelImageManifest:
     """The manifest of every character model of the clean database.
 
     ``unused_pages`` maps each page with the unused notice to the stable key of
-    its character, which the bot does not generate a page for.
+    its character, which the bot does not generate a page for. ``landings``
+    maps each scene to where a zone line into it puts players.
     """
     known = {character.stable_key for character in characters}
     unused_by_key: dict[str, list[str]] = defaultdict(list)
@@ -209,7 +221,11 @@ def build_manifest(
             + [page for character in models for page in unused_by_key.get(character.stable_key, ())]
         )
         located = sorted(
-            ((character, source) for character in models if (source := capture_source(character)) is not None),
+            (
+                (character, source)
+                for character in models
+                if (source := capture_source(character, landings)) is not None
+            ),
             key=lambda pair: _capture_rank(pair[0]),
         )
         if not located:
@@ -226,6 +242,21 @@ def build_manifest(
         entries=tuple(entries),
         unsourced=tuple(unsourced),
     )
+
+
+def load_scene_landings(clean: sqlite3.Connection) -> dict[str, tuple[float, float, float]]:
+    """Where an enabled zone line into each scene puts players, away from the scene's spawns."""
+    landings: dict[str, tuple[float, float, float]] = {}
+    for scene, x, y, z in clean.execute(
+        """
+        SELECT z.scene_name, l.landing_position_x, l.landing_position_y, l.landing_position_z
+        FROM zone_lines l JOIN zones z ON z.stable_key = l.destination_zone_stable_key
+        WHERE l.is_enabled = 1 AND l.landing_position_x IS NOT NULL
+        ORDER BY l.stable_key
+        """
+    ):
+        landings.setdefault(str(scene), (float(x), float(y), float(z)))
+    return landings
 
 
 def load_character_sources(clean: sqlite3.Connection) -> list[CharacterSource]:

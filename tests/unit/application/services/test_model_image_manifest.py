@@ -57,7 +57,7 @@ def test_characters_that_share_a_model_share_one_capture_with_the_pages_of_all()
         _character("character:honsus", "Honsus", wiki_page="Honsus", resources_path="npcs/Honsus"),
     ]
 
-    manifest = build_manifest(characters, {}, "24405256")
+    manifest = build_manifest(characters, {}, "24405256", {})
 
     assert [(entry.subject, entry.stable_key, entry.pages) for entry in manifest.entries] == [
         ("Honsus", "character:honsus", ("Honsus",)),
@@ -82,7 +82,7 @@ def test_every_model_is_captured_whether_or_not_a_page_shows_it() -> None:
         ),
     ]
 
-    manifest = build_manifest(characters, {}, "24405256")
+    manifest = build_manifest(characters, {}, "24405256", {})
 
     assert [(entry.subject, entry.kind, entry.pages) for entry in manifest.entries] == [
         ("Summoned Treant", "summon", ("Summoned: Treant",)),
@@ -109,7 +109,7 @@ def test_a_prefab_that_the_game_spawns_is_captured_before_one_that_nothing_spawn
         ),
     ]
 
-    manifest = build_manifest(characters, {}, "24405256")
+    manifest = build_manifest(characters, {}, "24405256", {})
 
     assert [entry.source.resources_path for entry in manifest.entries] == ["npcs/port azure npcs/Prestigio Valusha 1"]
 
@@ -132,7 +132,7 @@ def test_a_placed_character_or_a_scene_prefab_is_the_source_without_a_resources_
         ),
     ]
 
-    manifest = build_manifest(characters, {}, "24405256")
+    manifest = build_manifest(characters, {}, "24405256", {})
 
     sources = {entry.subject: entry.source for entry in manifest.entries}
     # The player lands at Faith's first spawn point while the scene loads.
@@ -150,7 +150,7 @@ def test_a_placed_character_or_a_scene_prefab_is_the_source_without_a_resources_
 def test_a_model_without_a_game_object_is_listed_apart() -> None:
     characters = [_character("character:old friend", "Old Friend", wiki_page="Old Friend", object_name=None)]
 
-    manifest = build_manifest(characters, {}, "24405256")
+    manifest = build_manifest(characters, {}, "24405256", {})
 
     assert manifest.to_json()["unsourced"] == [
         {"subject": "Old Friend", "title": "Old Friend render.png", "pages": ["Old Friend"]}
@@ -179,7 +179,7 @@ def test_an_unused_page_names_the_model_of_its_character() -> None:
         ),
     ]
 
-    manifest = build_manifest(characters, {"Braxonian Receptacle": "character:receptacle-sand"}, "24405256")
+    manifest = build_manifest(characters, {"Braxonian Receptacle": "character:receptacle-sand"}, "24405256", {})
 
     assert [(entry.subject, entry.stable_key, entry.pages) for entry in manifest.entries] == [
         ("Portal Receptacle", "character:receptacle:reliquary:2", ("Braxonian Receptacle", "Portal Receptacle"))
@@ -188,4 +188,27 @@ def test_an_unused_page_names_the_model_of_its_character() -> None:
 
 def test_an_unused_page_needs_its_character() -> None:
     with pytest.raises(ValueError, match="not in the clean database"):
-        build_manifest([], {"Holy Corpse": "character:holy corpse"}, "24405256")
+        build_manifest([], {"Holy Corpse": "character:holy corpse"}, "24405256", {})
+
+
+def test_a_scene_capture_lands_where_a_zone_line_puts_players_or_else_at_the_character() -> None:
+    # A character's own place can stand beside a hostile spawn.
+    characters = [
+        _character("character:rift", "A Rift", wiki_page="A Rift", scene="Reliquary"),
+        _character("character:hermit", "A Hermit", wiki_page="A Hermit", scene="Hidden"),
+        _character(
+            "character:fiend",
+            "Reliquary Fiend",
+            wiki_page="Reliquary Fiend",
+            spawn_points=(("Reliquary", 275.0, 0.2, 331.0),),
+        ),
+    ]
+
+    manifest = build_manifest(characters, {}, "24405256", {"Reliquary": (275.0, 0.3, 368.0)})
+
+    landings = {entry.subject: entry.source.landing for entry in manifest.entries}
+    assert landings == {
+        "A Rift": (275.0, 0.3, 368.0),
+        "A Hermit": (1.0, 2.0, 3.0),
+        "Reliquary Fiend": (275.0, 0.3, 368.0),
+    }

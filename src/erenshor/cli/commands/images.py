@@ -23,6 +23,7 @@ from erenshor.application.services.model_image_manifest import (
     build_manifest,
     load_character_sources,
     load_game_build,
+    load_scene_landings,
 )
 from erenshor.application.wiki.lifecycle import load_content_lifecycle
 from erenshor.cli.mediawiki import create_readonly_mediawiki_client
@@ -140,9 +141,10 @@ def manifest(ctx: typer.Context) -> None:
     database = variant_config.resolved_database(cli_ctx.repo_root)
     with closing(sqlite3.connect(f"file:{database}?mode=ro", uri=True)) as clean:
         characters = load_character_sources(clean)
+        landings = load_scene_landings(clean)
         game_build = load_game_build(clean)
     try:
-        result = build_manifest(characters, unused, game_build)
+        result = build_manifest(characters, unused, game_build, landings)
     except ValueError as error:
         console.print(f"[red]{error}[/red]")
         raise typer.Exit(1) from error
