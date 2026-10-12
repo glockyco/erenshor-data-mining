@@ -680,8 +680,9 @@ class ItemSectionGenerator(SectionGeneratorBase):
             enemies = (
                 f"Any enemy above level {drop.min_level_exclusive}" if drop.min_level_exclusive > 0 else "Any enemy"
             )
-            # Two significant digits: world drop chances run from 1% down to 0.002%.
-            result.append(f"{enemies} ({drop.probability:.2g}% per kill)")
+            # Three significant digits show every chance as the game rolls it, from 1%
+            # down to 0.002%, such as the 0.625% of a torn treasure map piece.
+            result.append(f"{enemies} ({drop.probability:.3g}% per kill)")
         return "<br>".join(result)
 
     def _format_quest_sources(self, enriched: EnrichedItemData) -> tuple[str, str]:

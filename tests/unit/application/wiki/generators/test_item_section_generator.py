@@ -263,7 +263,7 @@ def test_item_effect_selection_matches_game_click_priority() -> None:
 
 
 def test_item_source_lists_world_drops_with_level_gate_and_small_chances() -> None:
-    """World drops name no character, keep their level gate, and stay non-zero at 0.002%."""
+    """World drops name no character, keep their level gate, and show the game's chance down to 0.002%."""
     item = Item(stable_key="item:balance", display_name="Crystallized Balance", item_name="Crystallized Balance")
     enriched = EnrichedItemData(
         item=item,
@@ -272,6 +272,7 @@ def test_item_source_lists_world_drops_with_level_gate_and_small_chances() -> No
         sources=SourceInfo(
             world_drops=[
                 WorldDropInfo(probability=0.05, min_level_exclusive=30),
+                WorldDropInfo(probability=0.625, min_level_exclusive=0),
                 WorldDropInfo(probability=0.002, min_level_exclusive=0),
             ]
         ),
@@ -279,4 +280,7 @@ def test_item_source_lists_world_drops_with_level_gate_and_small_chances() -> No
 
     result = ItemSectionGenerator().generate_template(enriched, "Crystallized Balance")
 
-    assert "|source=Any enemy above level 30 (0.05% per kill)<br>Any enemy (0.002% per kill)\n" in result
+    assert (
+        "|source=Any enemy above level 30 (0.05% per kill)<br>Any enemy (0.625% per kill)"
+        "<br>Any enemy (0.002% per kill)\n"
+    ) in result
