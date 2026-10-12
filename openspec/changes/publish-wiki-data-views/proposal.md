@@ -7,7 +7,7 @@ Editors keep the lists that span entities by hand, and those lists fall behind t
 ## What Changes
 
 - Each list that spans entities becomes a view: a bot-owned data module that Python generates from the clean database, keyed by the stable key of the page that shows it, and a repository-owned module and template that render it. Names, pages, and icons come from the link catalog `Module:Erenshor/Data/Links` at render time.
-- This change adds six views: vendor stock, world drops, zone rosters, class abilities, the quest panel, and the zone and quest overviews.
+- This change adds seven views: vendor stock, world drops, zone rosters, class abilities, the quest panel, the zone and quest overviews, and the bosses of the Braxonian Game Board.
 - Each data module begins with a generated description of its fields, so that a dedicated editor can write a module against it without reading the pipeline.
 - The change lands in slices. Each slice publishes one view, checks it on live, and replaces the hand-maintained tables that the view covers, after an announcement and a review of each page.
 - The vendor slice deletes the vendor table script, its module, and its tests.
@@ -28,7 +28,7 @@ Non-goals: Cargo, a query language on the wiki, the item sources and character d
 
 ## Impact
 
-- New: view builders in `src/erenshor/application/wiki_lua/`, the data modules `Module:Erenshor/Data/VendorStock`, `WorldDrops`, `ZoneRosters`, `ClassAbilities`, `Quests`, and `Zones`, the view modules under `wiki/modules/Erenshor/` with testcases, the view templates under `wiki/templates/`, and a section of `wiki/content/Erenshor Wiki/Game Data.wiki`.
+- New: view builders in `src/erenshor/application/wiki_lua/`, the data modules `Module:Erenshor/Data/VendorStock`, `WorldDrops`, `ZoneRosters`, `ClassAbilities`, `Quests`, `Zones`, and `GameBoard`, the export of the piece that summons each Game Board boss, the view modules under `wiki/modules/Erenshor/` with testcases, the view templates under `wiki/templates/`, and a section of `wiki/content/Erenshor Wiki/Game Data.wiki`.
 - Removed: `src/tools/update_vendor_inventory_tables.py`, `src/tools/generate_vendor_inventory_tables.py`, `src/erenshor/tools/vendor_inventory_tables.py`, and their tests.
 - Changed: `mapping.json` links the 16 masks to the pages that editors wrote for them, so that the link catalog and the world drop view know them.
 - Live wiki: the data modules, view modules, and templates deploy through `wiki generate-lua` and `wiki deploy-repo-pages` with the existing dependency, render, and drift checks. Each replaced table is one reviewed guarded edit with a rollback manifest.

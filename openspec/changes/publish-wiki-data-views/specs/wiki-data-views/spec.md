@@ -100,6 +100,17 @@ The world drop view SHALL list each item that a special world drop roll of the c
 - **AND** Sivakrux shows 1% from enemy level 11, and each torn treasure map piece 0.625% at any level
 - **AND** Mask: Eldoth shows 0.002% and links to its page
 
+### Requirement: The Game Board lists the bosses that its pieces summon
+
+The Game Board view SHALL list each boss that the Braxonian Game Board can summon, with its level, its drops with their chance per kill, and the piece that summons it, and each boss and piece SHALL link to its page.
+
+#### Scenario: The Braxonian Game Board page
+
+- **WHEN** `{{Game board}}` is placed on the Braxonian Game Board page on the current main build
+- **THEN** it lists 12 bosses
+- **AND** Candlekeeper shows level 35 and the piece A Strange Figurine
+- **AND** Bowmistress of Sivakaya shows the piece The Faceless
+
 ### Requirement: Zone rosters group characters by encounter tier
 
 The zone roster SHALL list each character that the clean database places in the zone, grouped by encounter tier, with its level.
@@ -153,6 +164,12 @@ Each table that design D3 of `adopt-data-backed-wiki` lists for step 3 SHALL ren
 - **WHEN** the world drop slice is complete
 - **THEN** the Global Drops section of the Enemies page shows `{{World drops}}` instead of its two tables
 - **AND** the text that editors wrote around the tables stays
+
+#### Scenario: The boss table of the Braxonian Game Board
+
+- **WHEN** the Game Board slice is complete
+- **THEN** the Braxonian Game Board page shows `{{Game board}}` instead of its boss table
+- **AND** the page's description of the board stays
 
 #### Scenario: Notes on the Zones overview
 

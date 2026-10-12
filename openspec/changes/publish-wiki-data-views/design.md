@@ -95,6 +95,12 @@ The masks' mapping entries name the pages that editors wrote, without the exclus
 
 The note below the Global Drops tables, which says that six common items can replace a common drop, stays editors' text. The export does not read `GameManager.CommonWorldItems`, and the loot calculator folds that swap into one `A Common World Drop` row for each character, which names no item. Task 5.44 of `adopt-data-backed-wiki` models the swap.
 
+### D11. The Braxonian Game Board
+
+The Braxonian Game Board page lists each boss that the board summons with its level, drops, and summoning piece, by hand. `Chessboard.CheckForGamepiece` consumes the first piece that the player carries, in its field order, and spawns that field's NPC. The Faceless spawns one of six Sivakaya bosses at random, and the Candlekeeper piece, A Strange Figurine, leaves `Mold: A Strange Figurine`, which `item_conversions` already holds. The board's spawns reach `character_spawns` through the dynamic spawn catalog, but no row names the piece, so the export records each spawn's piece as its trigger item, from the pairing of the board's item and NPC fields.
+
+`GameBoard` holds, by boss, the piece, the level, and the drops with their chance per kill. `{{Game board}}` lists the bosses by level with links to their pages and pieces. The view replaces the boss table and keeps the page's text. `Template:Game board` and `Module:Erenshor/GameBoard` were free on 2026-10-12.
+
 ### Failure handling, grouping, and rollback
 
 - Generation fails closed on the checks of D2 and on the size limit.
@@ -114,7 +120,7 @@ The note below the Global Drops tables, which says that six common items can rep
 ## Migration Plan
 
 1. Land the foundation: the field declarations, the checks, the module header, and `Link.pageKeys`.
-2. Land the slices in order: vendor stock, world drops, zone rosters, class abilities, the quest panel, and the overviews. Vendor stock comes first, because its tables are the stalest and its slice deletes the vendor script. World drops follows, because its table gives wrong chances and its slice is small.
+2. Land the slices in order: vendor stock, world drops, zone rosters, class abilities, the quest panel, the overviews, and the Game Board. Vendor stock comes first, because its tables are the stalest and its slice deletes the vendor script. World drops follows, because its table gives wrong chances and its slice is small.
 3. Document the views and modules in the data guide and the skill, then archive.
 
 Rollback: see "Failure handling, grouping, and rollback".
