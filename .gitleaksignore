@@ -1,0 +1,4 @@
+# The Cloudflare Web Analytics beacon token that src/maps/src/app.html carried
+# before 96613509d moved it to PUBLIC_CLOUDFLARE_ANALYTICS_TOKEN. Every page that
+# loads the beacon serves it, so it is public; a full-history scan still finds it.
+1c038282d3fa9709b48f9ca7764e83bad03bea0e:src/maps/src/app.html:generic-api-key:15
