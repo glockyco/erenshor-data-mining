@@ -18,7 +18,10 @@ namespace MapTileCapture.Capture;
 /// body. Skin that a part draws takes the first colour of the game's skin
 /// palette, <c>SimPlayerMngr.SkinColors</c>, so a render does not depend on the
 /// character that captures it. A furnishing is the child of a planning table
-/// slot that a furniture set turns on, copied by itself.
+/// slot that a furniture set turns on, copied by itself. A cosmetic object is
+/// the belt lamp or the lens that <c>Inventory.Update</c> turns on while a
+/// cosmetic slot holds one of its items, shown on a copy of the player as a
+/// part is.
 /// </summary>
 internal static class ItemModels
 {
@@ -151,6 +154,50 @@ internal static class ItemModels
             }
         }
 
+        ShowOnly(copy, shown);
+        return partName;
+    }
+
+    /// <summary>
+    /// Shows the cosmetic object that the item turns on, the belt lamp or the
+    /// lens, on the copy of the player and hides every other renderer. Returns
+    /// the source's part, "belt lamp" or "lens": the copy's inventory names its
+    /// own copy of the object, whose name the export does not know.
+    /// </summary>
+    public static string ShowCosmetic(GameObject copy, ItemModelSource source)
+    {
+        var item =
+            GameData.ItemDB?.GetItemByID(source.Id)
+            ?? throw new PortraitException($"The game has no item with the ID {source.Id}.");
+        var inventory =
+            copy.GetComponentInChildren<Inventory>(true)
+            ?? throw new PortraitException("The player has no inventory.");
+        var (shownObject, items) = source.Part switch
+        {
+            "belt lamp" => (
+                inventory.BeltLamp,
+                new[] { inventory.BeltLampItem, inventory.ShiveringBeltLamp, inventory.KeepersLamp }
+            ),
+            "lens" => (inventory.FernallanLensObj, new[] { inventory.WatchersLens }),
+            _ => throw new PortraitException($"No cosmetic object is called {source.Part}."),
+        };
+        if (!items.Contains(item))
+            throw new PortraitException(
+                $"The item {item.ItemName} does not turn on the {source.Part}."
+            );
+        if (shownObject == null)
+            throw new PortraitException($"The player has no {source.Part}.");
+        ShowOnly(copy, new List<GameObject> { shownObject });
+        return source.Part;
+    }
+
+    /// <summary>
+    /// Turns on the objects in <paramref name="shown"/>, their parents, and
+    /// their children, hides every other renderer of the copy, and removes the
+    /// copy's cameras, listeners, and canvases.
+    /// </summary>
+    private static void ShowOnly(GameObject copy, List<GameObject> shown)
+    {
         foreach (var part in shown)
         {
             for (
@@ -179,7 +226,6 @@ internal static class ItemModels
             Object.DestroyImmediate(listener);
         foreach (var canvas in copy.GetComponentsInChildren<Canvas>(true))
             Object.DestroyImmediate(canvas.gameObject);
-        return partName;
     }
 
     /// <summary>

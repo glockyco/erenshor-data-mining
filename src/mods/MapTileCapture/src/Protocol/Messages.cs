@@ -88,10 +88,11 @@ public sealed class PortraitSource
 }
 
 /// <summary>
-/// An item model: a weapon or shield, the parts of a worn item, a mask, or a
-/// furniture set's furnishing. <see cref="Part"/> is the item's
-/// <c>EquipmentToActivate</c>, and <see cref="Body"/> names the body whose
-/// parts show a weapon, a worn item, or a mask.
+/// An item model: a weapon or shield, the parts of a worn item, a mask, a
+/// furniture set's furnishing, or a cosmetic object. <see cref="Part"/> is the
+/// item's <c>EquipmentToActivate</c>, or for a cosmetic object "belt lamp" or
+/// "lens", and <see cref="Body"/> names the body whose parts show a weapon, a
+/// worn item, or a mask.
 /// </summary>
 public sealed class ItemModelSource
 {
@@ -198,6 +199,12 @@ public sealed class CapturePortraitRequest
                     return "A weapon, worn item, or mask comes from the player's body and names no scene.";
                 if (item.Kind != "mask" && item.Body is not ("male" or "female"))
                     return "A weapon or worn item names the male or the female body.";
+                return null;
+            case "cosmetic":
+                if (source.Scene != null || source.Landing != null)
+                    return "A cosmetic object comes from the player and names no scene.";
+                if (item.Part is not ("belt lamp" or "lens"))
+                    return $"No cosmetic object is called {item.Part}.";
                 return null;
             default:
                 return $"Unknown item kind {item.Kind}.";

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 import pytest
 
 from erenshor.application.services.item_model_manifest import (
@@ -21,6 +23,7 @@ def _item(key: str, subject: str, slot: str, part: str, **fields: object) -> Ite
         part=part,
         is_bow=bool(fields.get("is_bow", False)),
         is_furniture_set=bool(fields.get("is_furniture_set", False)),
+        cosmetic_effect=cast("str | None", fields.get("cosmetic_effect")),
     )
 
 
@@ -38,7 +41,6 @@ _PARTS = ModelParts(
         ("male", "WeaponR", "Letterswords"): frozenset({"letters"}),
         ("female", "WeaponR", "Letterswords"): frozenset({"letters"}),
     },
-    masks=frozenset({"Fox"}),
     furnishings={"Wood Training": ("Reliquary", (270.0, 1.4, 325.0))},
 )
 
@@ -69,17 +71,26 @@ def test_a_part_that_both_bodies_share_and_a_part_of_one_body_get_one_render() -
     }
 
 
-def test_weapons_masks_and_furnishings_get_one_render() -> None:
-    entries = _manifest(
-        _item("item:bow", "Molorai Bow", "Primary", "MoloraiBow", is_bow=True),
-        _item("item:mask", "Mask Fox", "General", "Fox"),
-        _item("item:set", "Wood Training Set", "General", "Wood Training", is_furniture_set=True),
+def test_weapons_masks_furnishings_and_cosmetic_objects_get_one_render() -> None:
+    manifest = build_item_manifest(
+        [
+            _item("item:bow", "Molorai Bow", "Primary", "MoloraiBow", is_bow=True),
+            _item("item:mask", "Mask Fox", "General", "Fox", cosmetic_effect="mask"),
+            _item("item:set", "Wood Training Set", "General", "Wood Training", is_furniture_set=True),
+            # A lamp names no part; the capture finds the player's belt lamp by the effect.
+            _item("item:lantern", "Keeper's Lantern", "General", "", cosmetic_effect="belt lamp"),
+            # A part that no mask object holds is no mask without the effect.
+            _item("item:fake", "Mask Fake", "General", "Fox"),
+        ],
+        _PARTS,
+        "24405256",
     )
 
-    assert entries == {
-        "Molorai Bow": ("Molorai Bow render.png", "weapon", "male"),
-        "Mask Fox": ("Mask Fox render.png", "mask", None),
-        "Wood Training Set": ("Wood Training Set render.png", "furnishing", None),
+    assert {entry.subject: (entry.title, entry.kind, entry.body, entry.part) for entry in manifest.entries} == {
+        "Molorai Bow": ("Molorai Bow render.png", "weapon", "male", "MoloraiBow"),
+        "Mask Fox": ("Mask Fox render.png", "mask", None, "Fox"),
+        "Wood Training Set": ("Wood Training Set render.png", "furnishing", None, "Wood Training"),
+        "Keeper's Lantern": ("Keeper's Lantern render.png", "cosmetic", None, "belt lamp"),
     }
 
 

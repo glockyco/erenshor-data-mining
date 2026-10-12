@@ -212,6 +212,15 @@ internal sealed class PortraitController : IDisposable
                     new ItemView { Facing = facing, Turn = turn }
                 );
             }
+            else if (item.Kind == "cosmetic")
+            {
+                result = PortraitStudio.Capture(
+                    ItemModels.Player(),
+                    mainCam,
+                    request.OutputPath,
+                    new ItemView { Prepare = copy => ItemModels.ShowCosmetic(copy, item) }
+                );
+            }
             else
             {
                 result = PortraitStudio.Capture(

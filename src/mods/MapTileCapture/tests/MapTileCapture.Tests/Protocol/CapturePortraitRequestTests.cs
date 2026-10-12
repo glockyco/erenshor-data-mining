@@ -144,6 +144,18 @@ public class CapturePortraitRequestTests
         "A weapon, worn item, or mask comes from the player's body and names no scene."
     )]
     [InlineData(
+        """{"item": {"id": "4130066", "kind": "cosmetic", "slot": "General", "part": "belt lamp"}}""",
+        null
+    )]
+    [InlineData(
+        """{"item": {"id": "4130066", "kind": "cosmetic", "slot": "General", "part": "BeltLamp"}}""",
+        "No cosmetic object is called BeltLamp."
+    )]
+    [InlineData(
+        """{"scene": "Hidden", "landing": [1, 2, 3], "item": {"id": "4130066", "kind": "cosmetic", "slot": "General", "part": "lens"}}""",
+        "A cosmetic object comes from the player and names no scene."
+    )]
+    [InlineData(
         """{"item": {"id": "48262000", "kind": "boots", "body": "male", "slot": "Foot", "part": "LeatherBoots"}}""",
         "Unknown item kind boots."
     )]
