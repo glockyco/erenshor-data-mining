@@ -39,7 +39,7 @@ internal static class ItemModels
     /// themselves face various ways, so their own forward says nothing about
     /// where players stand.
     /// </summary>
-    public static (GameObject Furnishing, Vector3 Facing) Furnishing(string part)
+    public static (GameObject Furnishing, Vector3 Facing, float Turn) Furnishing(string part)
     {
         var table =
             Object.FindObjectOfType<PlanningTable>(true)
@@ -51,16 +51,20 @@ internal static class ItemModels
             throw new PortraitException("The planning table lacks one of its slots.");
         var rooms = left.Concat(right).ToArray();
 
-        for (int index = 0; index < rooms.Length + statues.Length; index++)
+        // The rooms also hold copies of the statues, so a statue slot decides first.
+        // A statue model faces its local back, as the Reliquary turns it to face
+        // the hall, and keeps the preset's turn, so it looks to the front left.
+        foreach (var slot in statues)
         {
-            var slot = index < rooms.Length ? rooms[index] : statues[index - rooms.Length];
-            var furnishing = Children(slot).FirstOrDefault(child => child.name == part);
+            var statue = Children(slot).FirstOrDefault(child => child.name == part);
+            if (statue != null)
+                return (statue.gameObject, Vector3.back, 0f);
+        }
+        for (int index = 0; index < rooms.Length; index++)
+        {
+            var furnishing = Children(rooms[index]).FirstOrDefault(child => child.name == part);
             if (furnishing == null)
                 continue;
-            // A statue model faces its local back; the Reliquary turns each one
-            // to face the hall that way.
-            if (index >= rooms.Length)
-                return (furnishing.gameObject, Vector3.back);
             var viewpoint = rooms[(index + left.Length) % rooms.Length].position;
             var toViewer = viewpoint - furnishing.position;
             toViewer.y = 0f;
@@ -70,7 +74,7 @@ internal static class ItemModels
                 );
             var facing = furnishing.InverseTransformDirection(toViewer.normalized);
             facing.y = 0f;
-            return (furnishing.gameObject, facing.normalized);
+            return (furnishing.gameObject, facing.normalized, 0f);
         }
         throw new PortraitException($"The planning table has no furnishing named {part}.");
     }

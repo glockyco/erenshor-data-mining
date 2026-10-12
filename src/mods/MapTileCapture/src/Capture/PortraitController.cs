@@ -204,12 +204,12 @@ internal sealed class PortraitController : IDisposable
             }
             else if (item.Kind == "furnishing")
             {
-                var (furnishing, facing) = ItemModels.Furnishing(item.Part);
+                var (furnishing, facing, turn) = ItemModels.Furnishing(item.Part);
                 result = PortraitStudio.Capture(
                     furnishing,
                     mainCam,
                     request.OutputPath,
-                    new ItemView { Facing = facing }
+                    new ItemView { Facing = facing, Turn = turn }
                 );
             }
             else
