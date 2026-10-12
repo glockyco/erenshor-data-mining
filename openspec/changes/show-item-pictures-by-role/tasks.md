@@ -49,7 +49,8 @@
 
 ## 5. Lamps and the Watcher's Lens
 
-- [ ] 5.1 After task 5.45 of `adopt-data-backed-wiki` exports the `Inventory` references, `feat(images): capture the lamps and the lens`: add a kind for the objects that `Inventory.BeltLamp` and `FernallanLensObj` name, capture, review, approve, and publish them, and deploy their pages, each live step after a dry run and approval. Verify: the Belt Lamp, the Shivering Belt Lamp, and the Keeper's Lantern show one shared render, and the Watcher's Lens shows its own.
+- [x] 5.1 After task 5.45 of `adopt-data-backed-wiki` exports the `Inventory` references, `feat(images): capture the lamps and the lens`: add a kind for the objects that `Inventory.BeltLamp` and `FernallanLensObj` name, capture, review, approve, and publish them, and deploy their pages, each live step after a dry run and approval. Verify: the Belt Lamp, the Shivering Belt Lamp, and the Keeper's Lantern show one shared render, and the Watcher's Lens shows its own.
+  - Done on 2026-10-12. The manifest gives the four items the kind cosmetic with their cosmetic effect as the part, and the mod shows the belt lamp or the lens that the copy's inventory names. The three lamps captured the same pixels, so `File:Belt Lamp render.png` holds the picture and the other two titles redirect to it; the Watcher's Lens shows its gold ring around the translucent green pane (run `20261012T191348Z`). The four pages are live with their renders.
 
 ## 6. Integration and archive
 
