@@ -177,7 +177,7 @@ Publishing SHALL NOT upload a picture whose pixels equal those of the live file 
 
 ### Requirement: The bot updates only the files it owns
 
-The bot SHALL update a file only when the bot account or the operator account that runs it uploaded its latest version. A file whose latest version someone else uploaded SHALL be a conflict: the plan SHALL name the file and its uploader, and the bot SHALL NOT overwrite it. An upload SHALL be confirmed only when the wiki's warnings are among those expected for that verdict.
+The bot SHALL update a file only when the bot account or the project's administrator account uploaded its latest version. A file whose latest version someone else uploaded SHALL be a conflict: the plan SHALL name the file and its uploader, and the bot SHALL NOT overwrite it. An upload SHALL be confirmed only when the wiki's warnings are among those expected for that verdict.
 
 #### Scenario: An editor improved a bot icon
 
@@ -185,9 +185,9 @@ The bot SHALL update a file only when the bot account or the operator account th
 - **THEN** the plan reports a conflict naming the file and the editor
 - **AND** the editor's version stays the latest version
 
-#### Scenario: An icon that the old pipeline uploaded under the operator's account
+#### Scenario: An icon that the old pipeline uploaded under the project's administrator account
 
-- **WHEN** the operator's account uploaded the latest version of an icon before the bot account existed
+- **WHEN** the project's administrator account uploaded the latest version of an icon before the bot account existed
 - **THEN** the plan updates or retires that file like one of the bot's
 
 #### Scenario: An unexpected warning
@@ -221,7 +221,7 @@ Each distinct picture SHALL have one file. Every other entity title that uses th
 
 ### Requirement: Copies of a picture are deleted
 
-When a title that the catalog makes a redirect holds a file whose latest version the project uploaded, publishing SHALL delete that file with the operator's administrator account and create the redirect at the freed title at once. Every other File redirect that names the deleted copy SHALL then name the picture's file. Publishing SHALL NOT delete a file whose latest version someone else uploaded.
+When a title that the catalog makes a redirect holds a file whose latest version the project uploaded, publishing SHALL delete that file with the project's administrator account and create the redirect at the freed title at once. Every other File redirect that names the deleted copy SHALL then name the picture's file. Publishing SHALL NOT delete a file whose latest version someone else uploaded.
 
 #### Scenario: An identical copy from the old pipeline
 
@@ -262,9 +262,9 @@ Publishing SHALL delete every file whose latest version the bot account uploaded
 - **WHEN** `File:Spell_Scroll-_Aetherstorm.png` is a bot file, the picture it holds has its file at `File:Spell Scroll Aetherstorm icon.png`, and no page uses the old file
 - **THEN** the run deletes the old file
 
-#### Scenario: The operator's own upload that no page shows
+#### Scenario: The administrator account's own upload that no page shows
 
-- **WHEN** the operator uploaded `File:Raids.png` by hand and no page shows it
+- **WHEN** the project's administrator account uploaded `File:Raids.png` by hand and no page shows it
 - **THEN** the plan lists it as unused and the run leaves it alone
 
 ### Requirement: The wiki draws the frames of game icons
@@ -357,7 +357,7 @@ When a picture's file title changes and a file of the project at another title h
 
 #### Scenario: A run is reverted
 
-- **WHEN** an operator reverts a run that moved a file and retargeted its redirects
+- **WHEN** a run that moved a file and retargeted its redirects is reverted
 - **THEN** the file is back at its old title and every redirect names the title it named before the run
 
 ### Requirement: Every item model has a capture source

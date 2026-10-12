@@ -92,7 +92,7 @@ An article parameter is not the home of a missing fact: only its own page shows 
 
 Step 0 lands before task 6.2, so that 6.2 deploys the cleaned pages once. Steps 2 and 3 share one change: each slice publishes one view and replaces the tables that it covers, so that no view ships without a page that uses it (decided on 2026-10-11).
 
-Step 3 replaces these tables, found on 2026-10-03: the enemy tables on Port Azure and Abyssal Lake (zone rosters), the vendor tables on NPC pages such as Breena Carpenter, the "Abilities and Spells" tables on the class pages and the Ability Books page, and the Zones and Quests overviews. On 2026-10-11 the Global Drops table of the Enemies page joined them: five of its eight rolls have a wrong chance, Sivakrux also a wrong level, and it lacks the Essence of Amarion and Crystallized Balance rolls. Editors keep the zone, class, overview, and global drop tables by hand. The vendor tables of about 54 NPC pages are written by `src/tools/update_vendor_inventory_tables.py`, a script outside `erenshor` that found 37 of them stale or missing on 2026-07-16. Step 3 replaces them with the `Vendor stock` view template and deletes that script, `src/tools/generate_vendor_inventory_tables.py`, `src/erenshor/tools/vendor_inventory_tables.py`, and their tests. It announces each replacement on the wiki first, keeps the notes that editors wrote (such as the notes column on Zones), and reviews each page, because it changes text that other people wrote.
+Step 3 replaces these tables, found on 2026-10-03: the enemy tables on Port Azure and Abyssal Lake (zone rosters), the vendor tables on NPC pages such as Breena Carpenter, the "Abilities and Spells" tables on the class pages and the Ability Books page, and the Zones and Quests overviews. On 2026-10-11 the Global Drops table of the Enemies page joined them: five of its eight rolls have a wrong chance, Sivakrux also a wrong level, and it lacks the Essence of Amarion and Crystallized Balance rolls. On 2026-10-12 the boss table of the Braxonian Game Board page joined them: Candlekeeper is level 35, not 34, and has no Custodian of the Flame, Blazefiend drops a different pair of auras, and Monarch of the Flame drops Nighthollow Flame, not Black Flame. Editors keep the zone, class, overview, and global drop tables by hand. The vendor tables of about 54 NPC pages are written by `src/tools/update_vendor_inventory_tables.py`, a script outside `erenshor` that found 37 of them stale or missing on 2026-07-16. Step 3 replaces them with the `Vendor stock` view template and deletes that script, `src/tools/generate_vendor_inventory_tables.py`, `src/erenshor/tools/vendor_inventory_tables.py`, and their tests. It announces each replacement on the wiki first, keeps the notes that editors wrote (such as the notes column on Zones), and reviews each page, because it changes text that other people wrote.
 
 Step 4 converts one type at a time: Stance, abilities, zones, characters, items. Quest pages stay hand-written and get the quest panel of step 2. For each type:
 
@@ -182,9 +182,9 @@ Alternatives considered:
 
 - This change holds the plan: the target, the rules with their reasons, the roadmap, the wiki work that has not started (D11), and its progress in `tasks.md`.
 - OpenSpec is the only tracker for wiki work. Wiki work waits in this change until its own change exists. GitHub issues are not used for wiki work. Issues of other areas can stay on GitHub until their work starts.
-- `README.md` describes the wiki in a few lines and links this change.
+- `README.md` describes the wiki in a few lines and links this change, and its rules for changes require reading this design before any wiki change, so that every task sees the rule, not only OpenSpec workflows.
 - `.agent/skills/wiki-templates/SKILL.md` gives agents the binding rules and the procedures, and links this change. It holds no history.
-- `openspec/config.yaml` names this change in its context, so that every OpenSpec workflow sees it. Its design rules about dependency ecosystems become general rules.
+- `openspec/config.yaml` describes the repository for OpenSpec workflows and names no plan.
 - No other plan document exists. When a decision changes, this change changes in the same commit as the code.
 - `Erenshor Wiki:Game Data` (D12) explains the data, the ownership rules, and the procedures to editors. It describes the current state and holds no plan.
 
@@ -208,7 +208,7 @@ Each of the 19 open wiki issues was checked on 2026-10-03 against the code, the 
 | #97, #98 old images | `SpellScrollPurple.png` has four users, `SpellScrollYellow.png` one, four other `SpellScroll*` files and `Kingsman_GP.png` none | task group 9 |
 | #106, #107 | done: the pages show zone, coordinates, and trigger | closed |
 | #112 | stale: charm resist values match `Item.CalcResists` | closed |
-| #114 | done: the Game Board page is complete and cross-linked | closed |
+| #114 | the Game Board page is cross-linked. Its boss table predates later builds: compared with build 24405256 on 2026-10-12, Blazefiend, Candlekeeper, and Monarch of the Flame have stale levels or drops | closed; the table joins step 3 |
 | #144 | done: the AdventureGuide mod and the Quests index | closed |
 | #139 | its work is the export of zone-wide random spawners, issue #282 | closed as a duplicate of #282 |
 | #91, #105, #291 | not part of this plan | stay on GitHub |

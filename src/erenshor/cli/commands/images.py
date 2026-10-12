@@ -505,9 +505,9 @@ def _approve(
 
 
 def _project_accounts(cli_ctx: CLIContext) -> tuple[str, tuple[str, ...]]:
-    """The bot account, and every account whose uploads are the project's: the bot and the operator's.
+    """The bot account, and every account whose uploads are the project's: the bot and the administrator.
 
-    The operator's account is the user of the interface and administrator bot passwords.
+    The administrator account is the user of the interface and administrator bot passwords.
     """
     wiki_config = cli_ctx.config.global_.mediawiki
     bot = wiki_config.bot_username.partition("@")[0]
@@ -635,7 +635,9 @@ def publish(
             table.add_row(orphan.title, orphan.timestamp[:10], ", ".join(orphan.redirects))
         console.print(table)
     if plan.unused:
-        console.print(f"{len(plan.unused)} files of the operator that nothing produces or shows stay: see plan.json")
+        console.print(
+            f"{len(plan.unused)} files of the other project accounts that nothing produces or shows stay: see plan.json"
+        )
     console.print(f"Plan: {run_dir / 'plan.json'}")
     console.print(f"Contact sheets: {len(sheets)} under {run_dir}")
     if cli_ctx.dry_run:
