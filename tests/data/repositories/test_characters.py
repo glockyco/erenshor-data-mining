@@ -36,7 +36,8 @@ def test_obtained_from_character_sources_preserve_keys_and_conditions(
     """Character provenance keeps representative keys and quest-gate text."""
     drops = character_repo.get_character_drop_sources("item:template - inert diamond")
     assert drops[0].source_key == "character:treasurechest 0-10 1"
-    assert drops[0].probability == 84.4
+    # Eight ordinary rolls with a cap of two, plus one guaranteed pick of six.
+    assert drops[0].probability == 84.54
     assert drops[0].is_guaranteed is True
 
     vendors = character_repo.get_vendor_sources_for_item("item:furniture - azynthi coffin")

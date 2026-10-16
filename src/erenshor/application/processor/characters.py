@@ -1451,6 +1451,7 @@ def process_characters(
                 "is_actual": r["IsActual"],
                 "is_guaranteed": r["IsGuaranteed"],
                 "is_common": r["IsCommon"],
+                "is_common_world_item": r["IsCommonWorldItem"],
                 "is_uncommon": r["IsUncommon"],
                 "is_rare": r["IsRare"],
                 "is_legendary": r["IsLegendary"],

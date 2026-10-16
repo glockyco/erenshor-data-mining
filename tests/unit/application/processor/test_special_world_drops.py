@@ -2,9 +2,16 @@
 
 from __future__ import annotations
 
+import sqlite3
+
 import pytest
 
-from erenshor.application.processor.special_world_drops import derive_special_world_drops, mask_shares
+from erenshor.application.processor.special_world_drops import (
+    derive_special_world_drops,
+    mask_shares,
+    process_common_world_items,
+)
+from erenshor.application.processor.writer import Writer
 
 _SINGLE_POOLS = (
     "Sivak",
@@ -112,3 +119,54 @@ def test_missing_code_fact_fails() -> None:
 
     with pytest.raises(ValueError, match=r"loot\.world_drop\.planar"):
         derive_special_world_drops(pools, {"DropMasks": True, "DemoBuild": False}, facts, _valid(pools))
+
+
+def test_common_world_items_preserve_positions_nulls_and_duplicate_entries(tmp_path):
+    raw = sqlite3.connect(":memory:")
+    raw.execute("CREATE TABLE CommonWorldItems (Position INTEGER PRIMARY KEY, ItemStableKey TEXT)")
+    raw.executemany(
+        "INSERT INTO CommonWorldItems VALUES (?, ?)",
+        [(4, "item:bread"), (0, None), (3, "item:bread"), (1, "item:water")],
+    )
+    writer = Writer(tmp_path / "clean.sqlite")
+    writer.create_schema()
+    try:
+        writer.insert_items(
+            [
+                {"stable_key": "item:bread", "display_name": "Bread", "image_name": "Bread.png"},
+                {"stable_key": "item:water", "display_name": "Water", "image_name": "Water.png"},
+            ]
+        )
+        process_common_world_items(raw, writer, {"item:bread", "item:water"})
+        rows = writer.conn.execute(
+            "SELECT position, item_stable_key FROM common_world_items ORDER BY position"
+        ).fetchall()
+        assert [tuple(row) for row in rows] == [
+            (0, None),
+            (1, "item:water"),
+            (3, "item:bread"),
+            (4, "item:bread"),
+        ]
+        foreign_keys = writer.conn.execute("PRAGMA foreign_key_list(common_world_items)").fetchall()
+        assert any(row[2:5] == ("items", "item_stable_key", "stable_key") for row in foreign_keys)
+    finally:
+        raw.close()
+        writer.conn.close()
+
+
+def test_common_world_items_reject_missing_item_without_writing_partial_pool(tmp_path):
+    raw = sqlite3.connect(":memory:")
+    raw.execute("CREATE TABLE CommonWorldItems (Position INTEGER PRIMARY KEY, ItemStableKey TEXT)")
+    raw.executemany(
+        "INSERT INTO CommonWorldItems VALUES (?, ?)",
+        [(0, "item:bread"), (1, None), (2, "item:missing")],
+    )
+    writer = Writer(tmp_path / "clean.sqlite")
+    writer.create_schema()
+    try:
+        with pytest.raises(ValueError, match=r"Common world items reference missing clean items.*item:missing"):
+            process_common_world_items(raw, writer, {"item:bread"})
+        assert writer.conn.execute("SELECT COUNT(*) FROM common_world_items").fetchone()[0] == 0
+    finally:
+        raw.close()
+        writer.conn.close()

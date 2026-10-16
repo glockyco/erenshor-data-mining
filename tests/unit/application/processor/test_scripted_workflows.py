@@ -69,7 +69,7 @@ def processed_db(tmp_path):
             ExpectedPerKill REAL, DropCountDistribution TEXT, IsActual INTEGER,
             IsGuaranteed INTEGER, IsCommon INTEGER, IsUncommon INTEGER, IsRare INTEGER,
             IsLegendary INTEGER, IsUltraRare INTEGER, IsUnique INTEGER, IsVisible INTEGER,
-            Zone TEXT
+            Zone TEXT, IsCommonWorldItem INTEGER
         );
         CREATE TABLE CharacterLootTables (CharacterStableKey TEXT PRIMARY KEY, NumberOfGuaranteedDrops INTEGER);
         CREATE TABLE CharacterDialogs (
@@ -217,6 +217,13 @@ def processed_db(tmp_path):
             'character:arena-chest', 'proximity_auto_consume', 'Vitheo''s arena',
             100.0, 200.0, 300.0, 110.0, 220.0, 330.0, 10.0, 20.0, 30.0)"""
     )
+    raw.executemany(
+        """INSERT INTO LootDrops
+           (CharacterStableKey, ItemStableKey, IsCommonWorldItem)
+           VALUES ('character:ordinary', ?, ?)""",
+        [("item:coin", 1), ("item:mal-food", 0)],
+    )
+
     writer = Writer(clean_path)
     writer.create_schema()
     writer.insert_game_constants(
@@ -261,6 +268,15 @@ def processed_db(tmp_path):
     raw.close()
     yield writer._conn
     writer._conn.close()
+
+
+def test_common_world_item_flag_survives_character_processing(processed_db):
+    rows = processed_db.execute(
+        """SELECT item_stable_key, is_common_world_item
+           FROM loot_drops WHERE character_stable_key = 'character:ordinary'
+           ORDER BY item_stable_key"""
+    ).fetchall()
+    assert [tuple(row) for row in rows] == [("item:coin", 1), ("item:mal-food", 0)]
 
 
 def test_scripted_trigger_rows_preserve_items_bounds_and_identity(processed_db):

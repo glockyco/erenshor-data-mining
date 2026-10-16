@@ -46,7 +46,7 @@ from .item_models import process_item_models
 from .knowledge_base import process_knowledge_base
 from .mapping import load_mapping, validate_character_name_overrides
 from .pictures import process_pictures
-from .special_world_drops import process_special_world_drops
+from .special_world_drops import process_common_world_items, process_special_world_drops
 from .treasure import process_treasure
 from .writer import Writer
 
@@ -121,6 +121,9 @@ def build(
 
         logger.info("Processing class starting items...")
         process_class_starting_items(raw, writer, item_keys)
+
+        logger.info("Processing common world items...")
+        process_common_world_items(raw, writer, item_keys)
 
         logger.info("Processing special world drops...")
         process_special_world_drops(raw, writer, item_keys)

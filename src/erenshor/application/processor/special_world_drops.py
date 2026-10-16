@@ -113,6 +113,29 @@ def derive_special_world_drops(
     return rows
 
 
+def process_common_world_items(
+    raw: sqlite3.Connection,
+    writer: Writer,
+    valid_item_keys: set[str],
+) -> None:
+    """Copy the ordered common-item pool, retaining empty selection slots."""
+    rows = [
+        {"position": position, "item_stable_key": item_key}
+        for position, item_key in raw.execute("SELECT Position, ItemStableKey FROM CommonWorldItems ORDER BY Position")
+    ]
+    invalid_keys = sorted(
+        {
+            str(row["item_stable_key"])
+            for row in rows
+            if row["item_stable_key"] is not None and row["item_stable_key"] not in valid_item_keys
+        }
+    )
+    if invalid_keys:
+        raise ValueError(f"Common world items reference missing clean items: {invalid_keys}")
+    writer.insert_common_world_items(rows)
+    logger.info(f"Common world items: {len(rows)} rows")
+
+
 def process_special_world_drops(
     raw: sqlite3.Connection,
     writer: Writer,

@@ -22,8 +22,28 @@ public class LootTableProbabilityEditor : UnityEditor.Editor
 
         if (GUILayout.Button("Calculate Drop Probabilities"))
         {
-            _dropChances = _calculator.CalculateDropProbabilities(lootTable);
-            _perItemDistributions = _calculator.CalculatePerItemDropCountDistributions(lootTable);
+            var managers = Resources
+                .FindObjectsOfTypeAll<GameManager>()
+                .Where(manager => manager.gameObject.scene.IsValid())
+                .ToArray();
+            if (managers.Length != 1)
+            {
+                Debug.LogError(
+                    $"Load exactly one GameManager to calculate loot probabilities; found {managers.Length}."
+                );
+                return;
+            }
+            var items = new Dictionary<string, LootItemInputs>();
+            _perItemDistributions = _calculator
+                .CalculatePerItemDropCountDistributions(
+                    new LootTableInputs(lootTable, items),
+                    LootTableInputs.CaptureItems(managers[0].CommonWorldItems, items)
+                )
+                .ToDictionary(entry => items[entry.Key].Name, entry => entry.Value);
+            _dropChances = _perItemDistributions.ToDictionary(
+                entry => entry.Key,
+                entry => 1.0 - entry.Value[0]
+            );
             _expectedDrops = _calculator.ComputeExpectedDrops(_perItemDistributions);
             _isCalculated = true;
         }

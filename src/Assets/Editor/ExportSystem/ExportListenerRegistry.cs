@@ -327,9 +327,14 @@ public static class ExportListenerRegistry
                 ExportScanChannel.Component,
                 Array.Empty<string>(),
                 context =>
-                    context.RegisterComponentListener(
-                        new LootTableListener(context.Database, context.CharacterKeyResolver)
-                    )
+                {
+                    var listener = new LootTableListener(
+                        context.Database,
+                        context.CharacterKeyResolver
+                    );
+                    context.RegisterComponentListener<LootTable>(listener);
+                    context.RegisterComponentListener<GameManager>(listener);
+                }
             ),
             new(
                 "arenarounds",

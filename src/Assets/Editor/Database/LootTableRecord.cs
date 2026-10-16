@@ -27,6 +27,7 @@ public class LootTableRecord
     public bool IsActual { get; set; }
     public bool IsGuaranteed { get; set; }
     public bool IsCommon { get; set; }
+    public bool IsCommonWorldItem { get; set; }
     public bool IsUncommon { get; set; }
     public bool IsRare { get; set; }
     public bool IsLegendary { get; set; }

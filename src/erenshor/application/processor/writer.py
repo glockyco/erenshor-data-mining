@@ -545,6 +545,12 @@ CREATE TABLE item_drops (
     PRIMARY KEY (source_item_stable_key, dropped_item_stable_key)
 );
 
+-- Ordered substitution pool; empty slots still participate in random selection.
+CREATE TABLE common_world_items (
+    position               INTEGER PRIMARY KEY,
+    item_stable_key        TEXT REFERENCES items (stable_key)
+);
+
 -- Items that every loot-table kill can roll in addition to the killed
 -- character's table. drop_probability is the chance per kill in percent at
 -- the default loot rate. The killed character's level must exceed
@@ -1239,6 +1245,7 @@ CREATE TABLE loot_drops (
     is_actual               INTEGER,
     is_guaranteed           INTEGER,
     is_common               INTEGER,
+    is_common_world_item    INTEGER,
     is_uncommon             INTEGER,
     is_rare                 INTEGER,
     is_legendary            INTEGER,
@@ -1705,6 +1712,9 @@ class Writer:
 
     def insert_item_drops(self, rows: list[dict[str, object]]) -> int:
         return self._insert("item_drops", rows)
+
+    def insert_common_world_items(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("common_world_items", rows)
 
     def insert_special_world_drops(self, rows: list[dict[str, object]]) -> int:
         return self._insert("special_world_drops", rows)

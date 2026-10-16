@@ -5637,9 +5637,9 @@
         "type": "UnityEngine.GameObject"
       },
       "CommonWorldItems": {
-        "by": null,
-        "reason": "GameManager runtime state, UI, or scene reference not exported",
-        "status": "ignored",
+        "by": "LootTableListener",
+        "reason": null,
+        "status": "captured",
         "type": "System.Collections.Generic.List`1<Item>"
       },
       "ControlScheme": {
