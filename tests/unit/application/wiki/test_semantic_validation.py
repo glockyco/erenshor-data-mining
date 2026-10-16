@@ -123,7 +123,7 @@ def test_auction_house_source_is_optional_generated_data(eligible: bool) -> None
     if eligible:
         pages["Sword"] = pages["Sword"].replace(
             "|vendorsource=\n",
-            "|vendorsource=\n|auctionhousesource=May be listed by simulated players\n",
+            "|vendorsource=\n|auctionhousesource=yes\n",
             1,
         )
 

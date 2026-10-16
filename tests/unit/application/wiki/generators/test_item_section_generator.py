@@ -282,7 +282,7 @@ def test_auction_house_row_depends_on_sim_listing_source_not_player_auctionabili
     result = ItemSectionGenerator().generate_template(enriched, "Test")
 
     if eligible:
-        assert result.count("|auctionhousesource=May be listed by simulated players\n") == 1
+        assert result.count("|auctionhousesource=yes\n") == 1
     else:
         assert "|auctionhousesource=" not in result
 
@@ -294,7 +294,7 @@ def test_auction_house_row_depends_on_sim_listing_source_not_player_auctionabili
     )
     assert "Editor text" not in merged
     if eligible:
-        assert "|auctionhousesource=May be listed by simulated players" in merged
+        assert "|auctionhousesource=yes" in merged
     else:
         assert "auctionhousesource" not in merged
 

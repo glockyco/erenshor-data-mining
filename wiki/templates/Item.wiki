@@ -14,16 +14,16 @@
         <default>{{#if:{{{stablekey|}}}|[https://erenshor.compendiums.org/map?sel=item:{{urlencode:{{{stablekey|}}}}} View on the interactive map]}}</default>
     </data>
     <data source="vendorsource"><label>Sold by</label></data>
-    <data source="source"><label>Dropped by</label></data>
     <data source="dialogsource"><label>Given by</label></data>
     <data source="questsource"><label>Reward from</label></data>
     <data source="craftsource"><label>[[Crafting|Crafting recipe]]</label></data>
-    <data source="itemusesource"><label>Obtained by using</label></data>
-    <data source="miningsource"><label>[[Mining|Mined in]]</label></data>
-    <data source="fishingsource"><label>[[Fishing|Fished in]]</label></data>
     <data source="itembagsource"><label>Picked up in</label></data>
     <data source="startingsource"><label>Starting item of</label></data>
-    <data source="auctionhousesource"><label>[[Auction House]]</label></data>
+    <data source="source"><label>Dropped by</label></data>
+    <data source="miningsource"><label>[[Mining|Mined in]]</label></data>
+    <data source="fishingsource"><label>[[Fishing|Fished in]]</label></data>
+    <data source="itemusesource"><label>Obtained by using</label></data>
+    <data source="auctionhousesource"><label>[[Auction House]]</label><format>May be listed by simulated players</format></data>
     <data source="othersource"><label>Other sources</label></data>
     <data source="relatedquest"><label>Related quest(s)</label></data>
     <data source="componentfor"><label>Component for</label></data>
@@ -62,7 +62,7 @@ Item articles set infobox parameters. The <code>stablekey</code> identifies the 
 when the bot updates its page. It also supplies the interactive-map link in the Map row.
 
 The infobox shows the item's rendered model and the editors' in-game screenshot where their files exist, as tabs or alone, and the item's icon otherwise, at most 160 pixels on its longer side. The tooltip always shows the icon. Pass full file titles without a <code><nowiki>[[File:...]]</nowiki></code> wrapper, for example <code>icon=Copper Sword icon.png</code>. A worn item whose male and female models differ has <code>render_male</code> and <code>render_female</code> instead of <code>render</code>. Upload an in-game screenshot of the item under the title in <code>screenshot</code>, such as <code>Copper Sword screenshot.png</code>.
-The [[Template:ItemTooltip|ItemTooltip]] or <code>Item/&lt;kind&gt;</code> tooltip takes its own <code>icon</code> parameter; the infobox does not read the tooltip's parameters.
+The [[Template:ItemTooltip|ItemTooltip]] or <code>Item/&lt;kind&gt;</code> tooltip takes its own <code>icon</code> parameter. The infobox does not read the tooltip's parameters.
 
 === Parameters ===
 
@@ -117,7 +117,7 @@ The [[Template:ItemTooltip|ItemTooltip]] or <code>Item/&lt;kind&gt;</code> toolt
 |-
 | '''startingsource''' || No || Classes that start with this item
 |-
-| '''auctionhousesource''' || No || Generated when simulated players can list this item. Shows "May be listed by simulated players"; stock is random. This is separate from whether a player can auction the item.
+| '''auctionhousesource''' || No || <code>yes</code> when simulated players can list this item. The row says that they may list it, because the stock is random. This is separate from whether a player can auction the item.
 |-
 | '''othersource''' || No || Other ways to obtain the item, written by editors
 |-

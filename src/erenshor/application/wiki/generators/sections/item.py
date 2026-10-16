@@ -637,8 +637,9 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "fishingsource": fold_long_list(self._format_fishing(enriched)),
             "itembagsource": fold_long_list(self._format_item_bags(enriched)),
             "startingsource": self._format_starting_classes(enriched),
+            # A flag: Template:Item holds the wording, so one edit changes every page.
             "auctionhousesource": (
-                "May be listed by simulated players"
+                "yes"
                 if enriched.sources
                 and any(source.source_type == "auction_house" for source in enriched.sources.obtained_from)
                 else ""
