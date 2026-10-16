@@ -197,6 +197,8 @@
 - [x] 9.8 `Category:Needs Item Image` and `Category:Needs Stance Image`, which the first deploy of the missing-image tracking created before only character images were tracked (design D4 of `restore-missing-wiki-images`). Delete them after the templates and the article deploy remove the item and stance checks. Verify: neither category holds a page, and no page links either.
   - Condition met on 2026-10-06: neither category holds a page, and no page links either.
   - Done on 2026-10-07, the same way.
+- [x] 9.9 The 64 pages of generic simulated players, such as Amara, Vesper, and Zephyra. `SimPlayerMngr.CreateGenericSimPlayers` names each generic sim by a random draw from `NameDatabaseMale` or `NameDatabaseFemale` (115 names each, `LoadScene.unity`) and rolls its level, gender, zone, and looks per save, so a page about one name describes nothing fixed. 63 of the pages held only an infobox, and the only link to them came from `Erenshor Wiki:Potentially Missing Wiki Data`. The 12 pages of the game's authored sims (`SimPlayerMngr.ActualSims`), such as Behox and Blademann, stay. The unused `Resources/simplayers` prefabs that carry pool names are referenced by no scene, prefab, or script. Verify: `Category:Simulated Players` holds only the 12 authored sims.
+  - Done on 2026-10-16 with approval through the browser relay, reason "Randomly named simulated player, not a fixed character"; the deletion log lists all 64, and the category holds 12 pages.
 
 ## 10. Close
 
