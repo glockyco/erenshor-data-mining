@@ -397,169 +397,6 @@
         </p>
     {/if}
 
-    {#if auctionHouses.length}
-        <div class="space-y-2 border-t border-zinc-700 pt-2 text-xs">
-            <div class="flex items-center gap-1 text-zinc-300">
-                Auction House<WikiLink pageName="Auction House" />
-            </div>
-            <p class="text-zinc-400">May be listed by simulated players</p>
-            <p class="text-zinc-500">Stock is random.</p>
-            {#each auctionHouses as source (source.row.itemStableKey)}
-                {#each source.brokers as broker (broker.row.characterStableKey)}
-                    <div class="space-y-1">
-                        <div class="flex items-center gap-1 text-zinc-300">
-                            {broker.row.npcName}<WikiLink pageName={broker.row.npcWikiPageName} />
-                        </div>
-                        {#each [...new Set(broker.markers.map((marker) => marker.zone))] as zone (zone)}
-                            {@const markers = broker.markers.filter((marker) => marker.zone === zone)}
-                            <button
-                                type="button"
-                                class="flex w-full items-center justify-between rounded px-2 py-1.5 text-left text-zinc-400 hover:bg-zinc-700/50 hover:text-white"
-                                onmouseenter={() => onHoverSpawn(markerKeys(markers))}
-                                onmouseleave={() => onHoverSpawn(null)}
-                                onclick={() => focusMarkers(markers)}
-                            >
-                                <span>{markers[0].zoneName} · {markers.length} location{markers.length !== 1 ? 's' : ''}</span>
-                                <Crosshair class="h-3.5 w-3.5 shrink-0" />
-                            </button>
-                        {:else}
-                            <div class="text-zinc-400">Location unknown</div>
-                        {/each}
-                    </div>
-                {/each}
-            {/each}
-        </div>
-    {/if}
-
-    {#if treasureGroups.length}
-        <div class="space-y-2 border-t border-zinc-700 pt-2 text-xs">
-            <div class="uppercase tracking-wide text-zinc-500">Treasure hunting</div>
-            <p class="text-zinc-400">Possible hunt locations, not chests present at every site.</p>
-            {#each treasureGroups as group (`${group.row.characterStableKey}:${group.zoneName}:${group.row.playerLevelMin}:${group.row.playerLevelMax}`)}
-                <div class="space-y-1">
-                    <div class="flex items-center gap-1 text-zinc-300">
-                        {group.row.chestName}<WikiLink pageName={group.row.chestWikiPageName} />
-                    </div>
-                    <button
-                        type="button"
-                        class="flex w-full items-center justify-between rounded px-2 py-1.5 text-left text-zinc-400 hover:bg-zinc-700/50 hover:text-white"
-                        onmouseenter={() => onHoverSpawn(markerKeys(group.markers))}
-                        onmouseleave={() => onHoverSpawn(null)}
-                        onclick={() => focusMarkers(group.markers)}
-                    >
-                        <span>
-                            {group.zoneName} · player levels {group.row.playerLevelMin}–{group.row.playerLevelMax}
-                            <br />{group.markers.length} possible location{group.markers.length !== 1 ? 's' : ''}
-                            · {formatDropChance(group.row.dropProbability)} drop
-                        </span>
-                        <Crosshair class="h-3.5 w-3.5 shrink-0" />
-                    </button>
-                </div>
-            {/each}
-        </div>
-    {/if}
-
-    {#if unlocatedDroppers.length}
-        <div class="space-y-2 border-t border-zinc-700 pt-2 text-xs">
-            <div class="uppercase tracking-wide text-zinc-500">Dropped by</div>
-            {#each unlocatedDroppers as source (source.row.characterStableKey)}
-                {#if source.kind === 'drop'}
-                    <div>
-                        <div class="flex items-center gap-1 text-zinc-300">
-                            {source.row.npcName}<WikiLink pageName={source.row.npcWikiPageName} />
-                        </div>
-                        <div class="text-zinc-400">{formatDropChance(source.row.dropProbability)} drop · Location unknown</div>
-                    </div>
-                {/if}
-            {/each}
-        </div>
-    {/if}
-
-    {#if unlocatedVendors.length}
-        <div class="space-y-2 border-t border-zinc-700 pt-2 text-xs">
-            <div class="uppercase tracking-wide text-zinc-500">Sold by</div>
-            {#each unlocatedVendors as source (source.row.characterStableKey)}
-                {#if source.kind === 'vendor'}
-                    <div>
-                        <div class="flex items-center gap-1 text-zinc-300">
-                            {source.row.npcName}<WikiLink pageName={source.row.npcWikiPageName} />
-                        </div>
-                        <div class="text-zinc-400">{formatPrice(source.row.price)} gold · Location unknown</div>
-                    </div>
-                {/if}
-            {/each}
-        </div>
-    {/if}
-
-    {#if droppersByZone.length > 0}
-        <!-- Dropped by -->
-        <div class="space-y-3 border-t border-zinc-700 pt-2">
-            <div class="text-xs uppercase tracking-wide text-zinc-500">Dropped by</div>
-            {#each droppersByZone as group (group.zone)}
-                <div>
-                    <div class="flex items-center justify-between mb-1.5">
-                        <div class="text-xs font-medium text-zinc-300">{group.zoneName}</div>
-                        <div class="text-xs text-zinc-500">
-                            {group.rows.length} dropper{group.rows.length !== 1 ? 's' : ''}
-                        </div>
-                    </div>
-                    <div class="space-y-1">
-                        {#each group.rows as dropper (`${group.zone}:${dropper.row.characterStableKey}`)}
-                            <button
-                                type="button"
-                                class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left
-                                       text-xs text-zinc-400 hover:bg-zinc-700/50 hover:text-zinc-200
-                                       transition-colors group"
-                                onmouseenter={() => onHoverSpawn(markerKeys(dropper.spawns))}
-                                onmouseleave={() => onHoverSpawn(null)}
-                                onclick={() => focusMarkers(dropper.spawns)}
-                            >
-                                <div class="min-w-0 flex-1">
-                                    <div
-                                        class="flex flex-wrap items-center gap-x-1.5 text-zinc-300"
-                                    >
-                                        <span class="truncate">{dropper.row.npcName}</span>
-                                        {#if dropper.row.encounterTier === 'boss'}
-                                            <span
-                                                class="rounded px-1 py-0.5 text-[10px]
-                                                       bg-amber-900/50 text-amber-300">Boss</span
-                                            >
-                                        {:else if dropper.row.encounterTier === 'elite'}
-                                            <span
-                                                class="rounded px-1 py-0.5 text-[10px]
-                                                       bg-indigo-900/50 text-indigo-300">Elite</span
-                                            >
-                                        {:else if dropper.row.encounterTier === 'chest'}
-                                            <span
-                                                class="rounded px-1 py-0.5 text-[10px]
-                                                       bg-teal-900/50 text-teal-300">Chest</span
-                                            >
-                                        {/if}
-                                    </div>
-                                    <div class="flex flex-wrap items-center gap-x-1 text-zinc-500">
-                                        <span
-                                            >{formatDropChance(dropper.row.dropProbability)} drop</span
-                                        >
-                                        <span>·</span>
-                                        <span>
-                                            {dropper.spawns.length} spawn{dropper.spawns.length !==
-                                            1
-                                                ? 's'
-                                                : ''}
-                                        </span>
-                                    </div>
-                                </div>
-                                <Crosshair
-                                    class="h-3.5 w-3.5 shrink-0 text-zinc-600 group-hover:text-zinc-400"
-                                />
-                            </button>
-                        {/each}
-                    </div>
-                </div>
-            {/each}
-        </div>
-    {/if}
-
     {#if vendorsByZone.length > 0}
         <!-- Sold by -->
         <div class="space-y-3 border-t border-zinc-700 pt-2">
@@ -605,6 +442,23 @@
                         {/each}
                     </div>
                 </div>
+            {/each}
+        </div>
+    {/if}
+
+    {#if unlocatedVendors.length}
+        <!-- Shown after the located sold by entries, under their heading when they exist. -->
+        <div class="space-y-2 pt-2 text-xs" class:border-t={!vendorsByZone.length} class:border-zinc-700={!vendorsByZone.length}>
+            {#if !vendorsByZone.length}<div class="uppercase tracking-wide text-zinc-500">Sold by</div>{/if}
+            {#each unlocatedVendors as source (source.row.characterStableKey)}
+                {#if source.kind === 'vendor'}
+                    <div>
+                        <div class="flex items-center gap-1 text-zinc-300">
+                            {source.row.npcName}<WikiLink pageName={source.row.npcWikiPageName} />
+                        </div>
+                        <div class="text-zinc-400">{formatPrice(source.row.price)} gold · Location unknown</div>
+                    </div>
+                {/if}
             {/each}
         </div>
     {/if}
@@ -685,23 +539,33 @@
         </div>
     {/if}
 
-    {#if itemUses.length}
-        <div class="space-y-2 border-t border-zinc-700 pt-2 text-xs text-zinc-300">
-            <div class="uppercase tracking-wide text-zinc-500">Obtained by using</div>
-            {#each itemUses as source (`${source.row.sourceItemStableKey}:${source.row.zoneName ?? ''}`)}
-                <div>
-                    <div class="flex items-center gap-1">
-                        {source.row.sourceItemName}<WikiLink
-                            pageName={source.row.sourceItemWikiPageName}
-                        />
+    {#if bagsByZone.length > 0}
+        <!-- Item bags -->
+        <div class="space-y-1 border-t border-zinc-700 pt-2">
+            <div class="text-xs uppercase tracking-wide text-zinc-500 mb-2">Item bags</div>
+            {#each bagsByZone as group (group.zone)}
+                {@const markers = [...group.markers.values()]}
+                <button
+                    type="button"
+                    class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left
+                           text-xs text-zinc-400 hover:bg-zinc-700/50 hover:text-zinc-200
+                           transition-colors group"
+                    onmouseenter={() => onHoverSpawn(markerKeys(markers))}
+                    onmouseleave={() => onHoverSpawn(null)}
+                    onclick={() => focusMarkers(markers)}
+                >
+                    <div class="min-w-0 flex-1">
+                        <div class="flex flex-wrap items-center gap-x-1.5 text-zinc-300">
+                            <span>{group.zoneName}</span>
+                        </div>
+                        <div class="text-zinc-500">
+                            {markers.length} bag{markers.length !== 1 ? 's' : ''}
+                        </div>
                     </div>
-                    {#if source.row.dropProbability !== null}<div class="text-zinc-400">
-                            {formatWorldDropChance(source.row.dropProbability)}
-                        </div>{/if}
-                    {#if source.row.zoneName}<div class="text-zinc-400">
-                            in {source.row.zoneName}
-                        </div>{/if}
-                </div>
+                    <Crosshair
+                        class="h-3.5 w-3.5 shrink-0 text-zinc-600 group-hover:text-zinc-400"
+                    />
+                </button>
             {/each}
         </div>
     {/if}
@@ -722,6 +586,120 @@
                     </div>
                 {/each}
             {/if}
+        </div>
+    {/if}
+
+    {#if droppersByZone.length > 0}
+        <!-- Dropped by -->
+        <div class="space-y-3 border-t border-zinc-700 pt-2">
+            <div class="text-xs uppercase tracking-wide text-zinc-500">Dropped by</div>
+            {#each droppersByZone as group (group.zone)}
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <div class="text-xs font-medium text-zinc-300">{group.zoneName}</div>
+                        <div class="text-xs text-zinc-500">
+                            {group.rows.length} dropper{group.rows.length !== 1 ? 's' : ''}
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        {#each group.rows as dropper (`${group.zone}:${dropper.row.characterStableKey}`)}
+                            <button
+                                type="button"
+                                class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left
+                                       text-xs text-zinc-400 hover:bg-zinc-700/50 hover:text-zinc-200
+                                       transition-colors group"
+                                onmouseenter={() => onHoverSpawn(markerKeys(dropper.spawns))}
+                                onmouseleave={() => onHoverSpawn(null)}
+                                onclick={() => focusMarkers(dropper.spawns)}
+                            >
+                                <div class="min-w-0 flex-1">
+                                    <div
+                                        class="flex flex-wrap items-center gap-x-1.5 text-zinc-300"
+                                    >
+                                        <span class="truncate">{dropper.row.npcName}</span>
+                                        {#if dropper.row.encounterTier === 'boss'}
+                                            <span
+                                                class="rounded px-1 py-0.5 text-[10px]
+                                                       bg-amber-900/50 text-amber-300">Boss</span
+                                            >
+                                        {:else if dropper.row.encounterTier === 'elite'}
+                                            <span
+                                                class="rounded px-1 py-0.5 text-[10px]
+                                                       bg-indigo-900/50 text-indigo-300">Elite</span
+                                            >
+                                        {:else if dropper.row.encounterTier === 'chest'}
+                                            <span
+                                                class="rounded px-1 py-0.5 text-[10px]
+                                                       bg-teal-900/50 text-teal-300">Chest</span
+                                            >
+                                        {/if}
+                                    </div>
+                                    <div class="flex flex-wrap items-center gap-x-1 text-zinc-500">
+                                        <span
+                                            >{formatDropChance(dropper.row.dropProbability)} drop</span
+                                        >
+                                        <span>·</span>
+                                        <span>
+                                            {dropper.spawns.length} spawn{dropper.spawns.length !==
+                                            1
+                                                ? 's'
+                                                : ''}
+                                        </span>
+                                    </div>
+                                </div>
+                                <Crosshair
+                                    class="h-3.5 w-3.5 shrink-0 text-zinc-600 group-hover:text-zinc-400"
+                                />
+                            </button>
+                        {/each}
+                    </div>
+                </div>
+            {/each}
+        </div>
+    {/if}
+
+    {#if unlocatedDroppers.length}
+        <!-- Shown after the located dropped by entries, under their heading when they exist. -->
+        <div class="space-y-2 pt-2 text-xs" class:border-t={!droppersByZone.length} class:border-zinc-700={!droppersByZone.length}>
+            {#if !droppersByZone.length}<div class="uppercase tracking-wide text-zinc-500">Dropped by</div>{/if}
+            {#each unlocatedDroppers as source (source.row.characterStableKey)}
+                {#if source.kind === 'drop'}
+                    <div>
+                        <div class="flex items-center gap-1 text-zinc-300">
+                            {source.row.npcName}<WikiLink pageName={source.row.npcWikiPageName} />
+                        </div>
+                        <div class="text-zinc-400">{formatDropChance(source.row.dropProbability)} drop · Location unknown</div>
+                    </div>
+                {/if}
+            {/each}
+        </div>
+    {/if}
+
+    {#if treasureGroups.length}
+        <div class="space-y-2 border-t border-zinc-700 pt-2 text-xs">
+            <div class="uppercase tracking-wide text-zinc-500">Treasure hunting</div>
+            <p class="text-zinc-400">Possible hunt locations, not chests present at every site.</p>
+            {#each treasureGroups as group (`${group.row.characterStableKey}:${group.zoneName}:${group.row.playerLevelMin}:${group.row.playerLevelMax}`)}
+                <div class="space-y-1">
+                    <div class="flex items-center gap-1 text-zinc-300">
+                        {group.row.chestName}<WikiLink pageName={group.row.chestWikiPageName} />
+                    </div>
+                    <button
+                        type="button"
+                        class="flex w-full items-center justify-between rounded px-2 py-1.5 text-left text-zinc-400 hover:bg-zinc-700/50 hover:text-white"
+                        onmouseenter={() => onHoverSpawn(markerKeys(group.markers))}
+                        onmouseleave={() => onHoverSpawn(null)}
+                        onclick={() => focusMarkers(group.markers)}
+                    >
+                        <span>
+                            {group.zoneName} · player levels {group.row.playerLevelMin}–{group.row.playerLevelMax}
+                            <br />{group.markers.length} possible location{group.markers.length !== 1 ? 's' : ''}
+                            · {formatDropChance(group.row.dropProbability)} drop
+                        </span>
+                        <Crosshair class="h-3.5 w-3.5 shrink-0" />
+                    </button>
+                </div>
+            {/each}
         </div>
     {/if}
 
@@ -804,33 +782,23 @@
         </div>
     {/if}
 
-    {#if bagsByZone.length > 0}
-        <!-- Item bags -->
-        <div class="space-y-1 border-t border-zinc-700 pt-2">
-            <div class="text-xs uppercase tracking-wide text-zinc-500 mb-2">Item bags</div>
-            {#each bagsByZone as group (group.zone)}
-                {@const markers = [...group.markers.values()]}
-                <button
-                    type="button"
-                    class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left
-                           text-xs text-zinc-400 hover:bg-zinc-700/50 hover:text-zinc-200
-                           transition-colors group"
-                    onmouseenter={() => onHoverSpawn(markerKeys(markers))}
-                    onmouseleave={() => onHoverSpawn(null)}
-                    onclick={() => focusMarkers(markers)}
-                >
-                    <div class="min-w-0 flex-1">
-                        <div class="flex flex-wrap items-center gap-x-1.5 text-zinc-300">
-                            <span>{group.zoneName}</span>
-                        </div>
-                        <div class="text-zinc-500">
-                            {markers.length} bag{markers.length !== 1 ? 's' : ''}
-                        </div>
+    {#if itemUses.length}
+        <div class="space-y-2 border-t border-zinc-700 pt-2 text-xs text-zinc-300">
+            <div class="uppercase tracking-wide text-zinc-500">Obtained by using</div>
+            {#each itemUses as source (`${source.row.sourceItemStableKey}:${source.row.zoneName ?? ''}`)}
+                <div>
+                    <div class="flex items-center gap-1">
+                        {source.row.sourceItemName}<WikiLink
+                            pageName={source.row.sourceItemWikiPageName}
+                        />
                     </div>
-                    <Crosshair
-                        class="h-3.5 w-3.5 shrink-0 text-zinc-600 group-hover:text-zinc-400"
-                    />
-                </button>
+                    {#if source.row.dropProbability !== null}<div class="text-zinc-400">
+                            {formatWorldDropChance(source.row.dropProbability)}
+                        </div>{/if}
+                    {#if source.row.zoneName}<div class="text-zinc-400">
+                            in {source.row.zoneName}
+                        </div>{/if}
+                </div>
             {/each}
         </div>
     {/if}
@@ -865,4 +833,38 @@
             <div class="px-2 text-xs text-zinc-500">At the default loot rate.</div>
         </div>
     {/if}
+    {#if auctionHouses.length}
+        <div class="space-y-2 border-t border-zinc-700 pt-2 text-xs">
+            <div class="flex items-center gap-1 text-zinc-300">
+                Auction House<WikiLink pageName="Auction House" />
+            </div>
+            <p class="text-zinc-400">May be listed by simulated players</p>
+            <p class="text-zinc-500">Stock is random.</p>
+            {#each auctionHouses as source (source.row.itemStableKey)}
+                {#each source.brokers as broker (broker.row.characterStableKey)}
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-1 text-zinc-300">
+                            {broker.row.npcName}<WikiLink pageName={broker.row.npcWikiPageName} />
+                        </div>
+                        {#each [...new Set(broker.markers.map((marker) => marker.zone))] as zone (zone)}
+                            {@const markers = broker.markers.filter((marker) => marker.zone === zone)}
+                            <button
+                                type="button"
+                                class="flex w-full items-center justify-between rounded px-2 py-1.5 text-left text-zinc-400 hover:bg-zinc-700/50 hover:text-white"
+                                onmouseenter={() => onHoverSpawn(markerKeys(markers))}
+                                onmouseleave={() => onHoverSpawn(null)}
+                                onclick={() => focusMarkers(markers)}
+                            >
+                                <span>{markers[0].zoneName} · {markers.length} location{markers.length !== 1 ? 's' : ''}</span>
+                                <Crosshair class="h-3.5 w-3.5 shrink-0" />
+                            </button>
+                        {:else}
+                            <div class="text-zinc-400">Location unknown</div>
+                        {/each}
+                    </div>
+                {/each}
+            {/each}
+        </div>
+    {/if}
+
 </div>

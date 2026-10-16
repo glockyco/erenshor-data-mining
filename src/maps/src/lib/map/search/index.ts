@@ -86,18 +86,19 @@ export function itemResultSummaryParts(result: ItemSearchResult): string[] {
     const push = (n: number, label: string, plural = `${label}s`) => {
         if (n > 0) parts.push(`${n} ${n !== 1 ? plural : label}`);
     };
-    push(c.droppers, 'dropper');
+    // Most reliable sources first, in the order of the item popup and the wiki infobox.
     push(c.vendors, 'vendor');
-    if (c.auctionHouses) parts.push('Auction House');
-    push(c.miningNodes, 'mining node');
-    push(c.fishingSpots, 'fishing spot');
-    push(c.itemBags, 'item bag');
-    push(c.worldDrops, 'world drop');
     push(c.givers, 'giver');
     push(c.quests, 'quest');
     push(c.recipes, 'crafting recipe');
-    push(c.itemUses, 'item use');
+    push(c.itemBags, 'item bag');
     push(c.startingClasses, 'starting class', 'starting classes');
+    push(c.droppers, 'dropper');
+    push(c.miningNodes, 'mining node');
+    push(c.fishingSpots, 'fishing spot');
+    push(c.itemUses, 'item use');
+    push(c.worldDrops, 'world drop');
+    if (c.auctionHouses) parts.push('Auction House');
     push(result.zoneCount, 'zone');
     return parts;
 }

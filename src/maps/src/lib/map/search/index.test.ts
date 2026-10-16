@@ -176,7 +176,7 @@ describe('searchMarkers', () => {
 });
 
 describe('itemResultSummaryParts', () => {
-    it('names one source in the singular and several in the plural', () => {
+    it('names sources by reliability, one in the singular and several in the plural', () => {
         const entry = item('Rusty Dagger', 'item:rusty dagger');
         if (entry.result.type !== 'item') throw new Error('expected an item result');
         const result = {
@@ -184,6 +184,7 @@ describe('itemResultSummaryParts', () => {
             sourceCounts: { ...entry.result.sourceCounts, droppers: 9, startingClasses: 2, givers: 1 },
             zoneCount: 5
         };
-        expect(itemResultSummaryParts(result)).toEqual(['9 droppers', '1 giver', '2 starting classes', '5 zones']);
+        // Guaranteed sources come before chance-based ones.
+        expect(itemResultSummaryParts(result)).toEqual(['1 giver', '2 starting classes', '9 droppers', '5 zones']);
     });
 });
