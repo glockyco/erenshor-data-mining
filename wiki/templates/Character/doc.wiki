@@ -63,7 +63,7 @@ locations for the character.
 |-
 | <code>imagecaption</code> || '''Manual''' || Optional caption below the pictures, visible with either picture or both tabs.
 |-
-| <code>screenshot</code> || Auto || Full file title of the editors' screenshot, such as <code>Name screenshot.png</code>. Upload there to add a screenshot beside the render. The render appears first; both existing files show tabs labelled Render and Screenshot, and a single existing file shows alone. When neither title has an uploaded file, the page joins a hidden [[:Category:Needs Image|Needs Image]] category.
+| <code>screenshot</code> || Auto || Full file title of the editors' screenshot, such as <code>Name screenshot.png</code>. Upload there to add a screenshot beside the render. The render appears first. When both files exist, they show as tabs labelled Render and Screenshot, and a single existing file shows alone. When neither title has an uploaded file, the page joins a hidden [[:Category:Needs Image|Needs Image]] category.
 |-
 | <code>imagekind</code> || Auto || <code>chest</code> or <code>summon</code> puts a missing image into [[:Category:Needs Chest Image]] or [[:Category:Needs Summon Image]]. Without it, a <code>Chest</code> type uses the chest category and every other character [[:Category:Needs Character Image]].
 |-
