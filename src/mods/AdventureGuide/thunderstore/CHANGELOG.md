@@ -1,5 +1,12 @@
 # Changelog
 
+## v2026.1017.0
+
+- Lead the arrow to what unlocks a locked quest target, such as a key, an item, another quest, or a furnished Reliquary room, and show the steps on the way.
+- Treat targets behind locked doors as reachable only once you hold the key or have it on your keyring.
+- Reach targets that only one entrance leads to, such as Occuphage through the Stowaway's Step lighthouse.
+- List Bread, Water, Brackfruit Juice, Luminstone, Citrine Stone, and Star Stone as one source from any enemy with common drops instead of hundreds of enemies.
+
 ## v2026.1008.0
 
 - List world drops from any enemy as item sources, with the drop chance.
