@@ -21,12 +21,18 @@ from loguru import logger
 
 from erenshor.application.wiki.generators.formatting import format_description, safe_str
 from erenshor.application.wiki.generators.item_type_display import build_item_types
-from erenshor.application.wiki.generators.link_lists import format_chance_links, format_links, format_visible_links
+from erenshor.application.wiki.generators.link_lists import (
+    format_chance,
+    format_chance_links,
+    format_links,
+    format_visible_links,
+    group_by_page_and_label,
+)
 from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
 from erenshor.domain.entities.item_kind import ItemKind, classify_item_kind
 from erenshor.domain.value_objects.wiki_filename import picture_file_title
 from erenshor.domain.value_objects.wiki_link import AbilityLink
-from erenshor.shared.game_constants import LONG_NAME_FONT_SIZE, LONG_NAME_THRESHOLD
+from erenshor.shared.game_constants import LONG_NAME_FONT_SIZE, LONG_NAME_THRESHOLD, WIKITEXT_LINE_SEPARATOR
 
 if TYPE_CHECKING:
     from erenshor.domain.enriched_data.item import EnrichedItemData
@@ -622,10 +628,16 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "type": item_type,
             "vendorsource": vendor_sources,
             "source": drop_sources,
-            "othersource": "",
+            "dialogsource": self._format_givers(enriched),
             "questsource": quest_rewards_str,
-            "relatedquest": quest_requirements_str,
             "craftsource": craft_sources,
+            "itemusesource": self._format_item_uses(enriched),
+            "miningsource": self._format_mining(enriched),
+            "fishingsource": self._format_fishing(enriched),
+            "itembagsource": self._format_item_bags(enriched),
+            "startingsource": self._format_starting_classes(enriched),
+            "othersource": "",
+            "relatedquest": quest_requirements_str,
             "componentfor": component_for_str,
             "buy": safe_str(item.item_value) if item.item_value else "",
             "sell": safe_str(item.sell_value) if item.sell_value else "",
@@ -684,6 +696,76 @@ class ItemSectionGenerator(SectionGeneratorBase):
             # down to 0.002%, such as the 0.625% of a torn treasure map piece.
             result.append(f"{enemies} ({drop.probability:.3g}% per kill)")
         return "<br>".join(result)
+
+    def _format_givers(self, enriched: EnrichedItemData) -> str:
+        """Format the characters whose dialog gives the item, with the quest each one needs first.
+
+        A giver that also gives it without a quest shows no quest.
+        """
+        if not enriched.sources:
+            return ""
+        entries = []
+        for group in group_by_page_and_label(enriched.sources.givers, lambda row: row[0]):
+            quests = [quest for _link, quest in group]
+            entry = str(group[0][0])
+            if None not in quests:
+                quest_groups = group_by_page_and_label(sorted(q for q in quests if q), lambda quest: quest)
+                entry += " (after " + " or ".join(str(same[0]) for same in quest_groups) + ")"
+            entries.append(entry)
+        return WIKITEXT_LINE_SEPARATOR.join(entries)
+
+    def _format_item_uses(self, enriched: EnrichedItemData) -> str:
+        """Format the items whose use yields the item, with its chance or the zone the use needs."""
+        if not enriched.sources:
+            return ""
+        entries = []
+        for link, chance, zone in enriched.sources.item_uses:
+            details = [f"{chance:.1f}%" if chance is not None else "", f"in {zone}" if zone else ""]
+            detail = ", ".join(part for part in details if part)
+            entries.append(f"{link} ({detail})" if detail else str(link))
+        return WIKITEXT_LINE_SEPARATOR.join(entries)
+
+    def _format_mining(self, enriched: EnrichedItemData) -> str:
+        """Format the zones with mining nodes of the item and their chance per node, best zone first."""
+        if not enriched.sources:
+            return ""
+        return format_chance_links(sorted(enriched.sources.mining, key=lambda row: (-row[1], row[0])), decimals=1)
+
+    def _format_fishing(self, enriched: EnrichedItemData) -> str:
+        """Format the zones whose water yields the item, with the day and night chance per catch, best zone first.
+
+        A zone whose day and night chances agree shows one chance. The fishing bonus
+        follows as any water, like the special world drops after the named droppers.
+        """
+        if not enriched.sources:
+            return ""
+        entries = []
+        rows = sorted(enriched.sources.fishing, key=lambda row: (-row[2], row[0]))
+        for group in group_by_page_and_label(rows, lambda row: row[0]):
+            by_period = {
+                period: format_chance([chance for _link, row_period, chance in group if row_period == period], 1)
+                for period in ("day", "night")
+                if any(row_period == period for _link, row_period, _chance in group)
+            }
+            if len(by_period) == 2 and by_period["day"] == by_period["night"]:
+                detail = by_period["day"]
+            else:
+                detail = ", ".join(f"{chance} {period}" for period, chance in by_period.items())
+            entries.append(f"{group[0][0]} ({detail})")
+        entries.extend(f"Any water ({chance:.3g}% per catch)" for chance in enriched.sources.fishing_bonus)
+        return WIKITEXT_LINE_SEPARATOR.join(entries)
+
+    def _format_item_bags(self, enriched: EnrichedItemData) -> str:
+        """Format the zones where the item lies to be picked up."""
+        if not enriched.sources:
+            return ""
+        return format_links(enriched.sources.item_bags)
+
+    def _format_starting_classes(self, enriched: EnrichedItemData) -> str:
+        """Format the classes that start with the item."""
+        if not enriched.sources:
+            return ""
+        return ", ".join(str(link) for link in sorted(enriched.sources.starting_classes))
 
     def _format_quest_sources(self, enriched: EnrichedItemData) -> tuple[str, str]:
         """Format quest reward and requirement sources from pre-built QuestLink objects."""

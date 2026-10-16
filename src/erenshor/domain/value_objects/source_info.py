@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass, field
 
-from erenshor.domain.value_objects.wiki_link import CharacterLink, ItemLink, QuestLink, WikiLink
+from erenshor.domain.value_objects.wiki_link import CharacterLink, ClassLink, ItemLink, QuestLink, WikiLink, ZoneLink
 
 __all__ = ["ObtainedFromInfo", "SourceInfo", "UsedInInfo", "WorldDropInfo"]
 
@@ -55,8 +55,29 @@ class SourceInfo:
     # Vendors
     vendors: list[CharacterLink] = field(default_factory=list)
 
-    # Drops from characters and items (e.g., fossils)
+    # Drops from characters
     drops: list[tuple[WikiLink, float]] = field(default_factory=list)
+
+    # Dialog givers with the quest that each one requires first
+    givers: list[tuple[CharacterLink, QuestLink | None]] = field(default_factory=list)
+
+    # Items whose use yields this item: (item_link, chance, zone the use needs)
+    item_uses: list[tuple[ItemLink, float | None, str | None]] = field(default_factory=list)
+
+    # Zones with mining nodes of this item: (zone_link, chance per node)
+    mining: list[tuple[ZoneLink, float]] = field(default_factory=list)
+
+    # Zones with water that yields this item: (zone_link, "day" or "night", chance per catch)
+    fishing: list[tuple[ZoneLink, str, float]] = field(default_factory=list)
+
+    # Chances per catch in any water, from the fishing bonus
+    fishing_bonus: list[float] = field(default_factory=list)
+
+    # Zones with item bags of this item
+    item_bags: list[ZoneLink] = field(default_factory=list)
+
+    # Classes that start with this item
+    starting_classes: list[ClassLink] = field(default_factory=list)
 
     # Quests
     quest_rewards: list[QuestLink] = field(default_factory=list)

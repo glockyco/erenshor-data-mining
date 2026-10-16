@@ -5,7 +5,6 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping
 from typing import TYPE_CHECKING
 
-from erenshor.application.wiki_lua.link_catalog import class_stable_key
 from erenshor.domain.value_objects.wiki_link import (
     AbilityLink,
     CharacterLink,
@@ -15,6 +14,7 @@ from erenshor.domain.value_objects.wiki_link import (
     QuestLink,
     StandardLink,
     ZoneLink,
+    class_stable_key,
 )
 
 if TYPE_CHECKING:

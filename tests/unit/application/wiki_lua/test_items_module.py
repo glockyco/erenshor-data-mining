@@ -336,7 +336,7 @@ def test_formats_obtained_from_with_stable_keys_and_nil_omission() -> None:
                 obtained_from=[
                     ObtainedFromInfo(
                         source_type="starting",
-                        source_key="class:Arcanist",
+                        source_key="class:arcanist",
                     ),
                     ObtainedFromInfo(
                         source_type="drop",
@@ -389,7 +389,7 @@ def test_formats_obtained_from_with_stable_keys_and_nil_omission() -> None:
             "type": "item_use",
             "sourceKey": "item:gen - bag of offering stones",
         },
-        {"type": "starting", "sourceKey": "class:Arcanist"},
+        {"type": "starting", "sourceKey": "class:arcanist"},
     ]
 
 

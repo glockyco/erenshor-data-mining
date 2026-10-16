@@ -9,7 +9,7 @@ from erenshor.domain.entities.item import Item
 from erenshor.domain.entities.item_stats import ItemStats
 from erenshor.domain.value_objects.crafting_recipe import CraftingRecipe
 from erenshor.domain.value_objects.source_info import ObtainedFromInfo, UsedInInfo, WorldDropInfo
-from erenshor.domain.value_objects.wiki_link import ItemLink
+from erenshor.domain.value_objects.wiki_link import ItemLink, class_stable_key
 from erenshor.infrastructure.database.connection import DatabaseConnection
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
 
@@ -660,43 +660,6 @@ class ItemRepository(BaseRepository[Item]):
         except Exception as e:
             raise RepositoryError(f"Failed to get item drops for '{source_item_stable_key}': {e}") from e
 
-    def get_item_sources(self, item_stable_key: str) -> list[tuple[ItemLink, float]]:
-        """Get items that can drop this item (e.g., fossils that produce this item).
-
-        Returns ItemLink objects carrying each source item's stable key so shared wiki
-        pages remain identity-safe in downstream semantic links.
-
-        Args:
-            item_stable_key: Item stable key of the dropped item
-
-        Returns:
-            List of (ItemLink, drop_probability) tuples sorted by probability descending.
-
-        Raises:
-            RepositoryError: If query execution fails
-        """
-        query = """
-            SELECT i.stable_key, i.display_name, i.wiki_page_name, id.drop_probability
-            FROM item_drops id
-            JOIN items i ON i.stable_key = id.source_item_stable_key
-            WHERE id.dropped_item_stable_key = ?
-            ORDER BY id.drop_probability DESC, i.display_name COLLATE NOCASE
-        """
-
-        try:
-            rows = self._execute_raw(query, (item_stable_key,))
-            result = [
-                (
-                    _item_link_from_row(row),
-                    float(row["drop_probability"]),
-                )
-                for row in rows
-            ]
-            logger.debug(f"Found {len(result)} item sources for '{item_stable_key}'")
-            return result
-        except Exception as e:
-            raise RepositoryError(f"Failed to get item sources for '{item_stable_key}': {e}") from e
-
     def is_item_obtainable(self, item_stable_key: str) -> bool:
         """Check if an item is obtainable in the game through any means.
 
@@ -840,7 +803,9 @@ class ItemRepository(BaseRepository[Item]):
         """
         try:
             rows = self._execute_raw(query, (item_stable_key,))
-            return [ObtainedFromInfo(source_type="starting", source_key=f"class:{row['class_name']}") for row in rows]
+            return [
+                ObtainedFromInfo(source_type="starting", source_key=class_stable_key(row["class_name"])) for row in rows
+            ]
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve starting-item sources for '{item_stable_key}': {e}") from e
 
@@ -958,6 +923,63 @@ class ItemRepository(BaseRepository[Item]):
             ]
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve item conversion sources for '{item_stable_key}': {e}") from e
+
+    def get_item_use_source_links(self, item_stable_key: str) -> list[tuple[ItemLink, float | None, str | None]]:
+        """Return the items whose use yields an item, with the chance and the zone it needs, by name.
+
+        The rows are the sources of ``get_item_use_sources`` and ``get_item_conversion_sources``:
+        an item that drops it when broken open, one whose spell creates it, and one that a
+        mechanic turns into it in a zone.
+        """
+        query = """
+            WITH source_rows AS (
+                SELECT source_item_stable_key AS source_key, drop_probability AS probability, NULL AS zone_key
+                FROM item_drops
+                WHERE dropped_item_stable_key = ?
+                UNION ALL
+                SELECT source_item_stable_key, NULL, NULL
+                FROM spell_created_items
+                WHERE created_item_stable_key = ?
+                UNION ALL
+                SELECT input_item_stable_key, NULL, zone_stable_key
+                FROM item_conversions
+                WHERE output_item_stable_key = ?
+            )
+            SELECT i.stable_key, i.display_name, i.wiki_page_name, i.image_name,
+                MAX(s.probability) AS probability, COALESCE(z.display_name, s.zone_key) AS zone_name
+            FROM source_rows s
+            JOIN items i ON i.stable_key = s.source_key
+            LEFT JOIN zones z ON z.stable_key = s.zone_key
+            GROUP BY i.stable_key, s.zone_key
+            ORDER BY i.display_name COLLATE NOCASE, zone_name
+        """
+        try:
+            rows = self._execute_raw(query, (item_stable_key, item_stable_key, item_stable_key))
+            return [
+                (
+                    _item_link_from_row(row),
+                    float(row["probability"]) if row["probability"] is not None else None,
+                    str(row["zone_name"]) if row["zone_name"] else None,
+                )
+                for row in rows
+            ]
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve item-use source links for '{item_stable_key}': {e}") from e
+
+    def get_starting_class_names(self, item_stable_key: str) -> list[str]:
+        """Return the internal names of the classes of ``get_classes_starting_with_item``."""
+        query = """
+            SELECT DISTINCT c.class_name
+            FROM class_starting_items csi
+            JOIN classes c ON c.class_name = csi.class_name
+            WHERE csi.item_stable_key = ?
+              AND c.class_name != 'Default'
+            ORDER BY c.class_name
+        """
+        try:
+            return [str(row["class_name"]) for row in self._execute_raw(query, (item_stable_key,))]
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve starting classes for '{item_stable_key}': {e}") from e
 
     def get_item_conversion_uses(self, item_stable_key: str) -> list[UsedInInfo]:
         """Return the items that a game mechanic turns an item into."""

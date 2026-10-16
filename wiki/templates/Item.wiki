@@ -15,10 +15,16 @@
     </data>
     <data source="vendorsource"><label>Sold by</label></data>
     <data source="source"><label>Dropped by</label></data>
-    <data source="othersource"><label>Other sources</label></data>
+    <data source="dialogsource"><label>Given by</label></data>
     <data source="questsource"><label>Reward from</label></data>
-    <data source="relatedquest"><label>Related quest(s)</label></data>
     <data source="craftsource"><label>[[Crafting|Crafting recipe]]</label></data>
+    <data source="itemusesource"><label>Obtained by using</label></data>
+    <data source="miningsource"><label>[[Mining|Mined in]]</label></data>
+    <data source="fishingsource"><label>[[Fishing|Fished in]]</label></data>
+    <data source="itembagsource"><label>Found in</label></data>
+    <data source="startingsource"><label>Starting item of</label></data>
+    <data source="othersource"><label>Other sources</label></data>
+    <data source="relatedquest"><label>Related quest(s)</label></data>
     <data source="componentfor"><label>Component for</label></data>
     <data source="relic"><label>[[Relic]]</label></data>
     <data source="classes"><label>[[Classes]]</label></data>
@@ -94,13 +100,25 @@ The [[Template:ItemTooltip|ItemTooltip]] or <code>Item/&lt;kind&gt;</code> toolt
 |-
 | '''source''' || No || Enemies that drop this item
 |-
-| '''othersource''' || No || Other ways to obtain the item
+| '''dialogsource''' || No || Characters whose dialog gives this item, with the quest they need first
 |-
 | '''questsource''' || No || Quests that reward this item
 |-
-| '''relatedquest''' || No || Quests that require this item
-|-
 | '''craftsource''' || No || Crafting recipes that produce this item
+|-
+| '''itemusesource''' || No || Items whose use yields this item, such as a fossil that is broken open
+|-
+| '''miningsource''' || No || Zones with mining nodes of this item, with the chance per node
+|-
+| '''fishingsource''' || No || Zones whose water yields this item, with the chance per catch by day and by night
+|-
+| '''itembagsource''' || No || Zones where this item lies to be picked up
+|-
+| '''startingsource''' || No || Classes that start with this item
+|-
+| '''othersource''' || No || Other ways to obtain the item, written by editors
+|-
+| '''relatedquest''' || No || Quests that require this item
 |-
 | '''componentfor''' || No || Recipes this item is used in
 |-

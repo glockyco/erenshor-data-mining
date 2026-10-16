@@ -7,7 +7,7 @@ from erenshor.domain.value_objects.faction import FactionModifier
 from erenshor.domain.value_objects.loot import LootDropDisplayInfo
 from erenshor.domain.value_objects.source_info import ObtainedFromInfo
 from erenshor.domain.value_objects.vendor_stock import VendorStockEntry
-from erenshor.domain.value_objects.wiki_link import CharacterLink, ItemLink
+from erenshor.domain.value_objects.wiki_link import CharacterLink, ItemLink, QuestLink
 from erenshor.infrastructure.database.repository import BaseRepository, RepositoryError
 
 
@@ -677,3 +677,53 @@ class CharacterRepository(BaseRepository[Character]):
             ]
         except Exception as e:
             raise RepositoryError(f"Failed to retrieve dialog sources for '{item_stable_key}': {e}") from e
+
+    def get_item_givers(self, item_stable_key: str) -> list[tuple[CharacterLink, QuestLink | None]]:
+        """Return the characters whose dialog gives an item, with the quest it requires, by name.
+
+        The rows are the givers of ``get_characters_giving_item``: each group that players
+        meet, linked through its generated representative.
+        """
+        query = """
+            WITH dialog_rows AS (
+                SELECT DISTINCT d.group_key, cd.required_quest_stable_key
+                FROM character_fact_sources d
+                JOIN character_dialogs cd ON cd.character_stable_key = d.member_stable_key
+                WHERE cd.give_item_stable_key = ?
+            ),
+            reps AS (
+                SELECT dr.group_key, MIN(d.member_stable_key) AS rep_stable_key, dr.required_quest_stable_key
+                FROM dialog_rows dr
+                JOIN character_deduplications d ON d.group_key = dr.group_key
+                WHERE d.is_wiki_generated = 1
+                GROUP BY dr.group_key, dr.required_quest_stable_key
+            )
+            SELECT c.stable_key, c.display_name, c.wiki_page_name,
+                q.stable_key AS quest_stable_key, q.display_name AS quest_display_name,
+                q.wiki_page_name AS quest_wiki_page_name
+            FROM reps r
+            JOIN characters c ON c.stable_key = r.rep_stable_key
+            LEFT JOIN quests q ON q.stable_key = r.required_quest_stable_key
+            ORDER BY c.display_name COLLATE NOCASE, q.display_name COLLATE NOCASE
+        """
+        try:
+            rows = self._execute_raw(query, (item_stable_key,))
+            return [
+                (
+                    CharacterLink(
+                        page_title=str(row["wiki_page_name"]) if row["wiki_page_name"] else None,
+                        display_name=str(row["display_name"]),
+                        stable_key=str(row["stable_key"]),
+                    ),
+                    QuestLink(
+                        page_title=str(row["quest_wiki_page_name"]) if row["quest_wiki_page_name"] else None,
+                        display_name=str(row["quest_display_name"] or row["quest_stable_key"]),
+                        stable_key=str(row["quest_stable_key"]),
+                    )
+                    if row["quest_stable_key"]
+                    else None,
+                )
+                for row in rows
+            ]
+        except Exception as e:
+            raise RepositoryError(f"Failed to retrieve item givers for '{item_stable_key}': {e}") from e

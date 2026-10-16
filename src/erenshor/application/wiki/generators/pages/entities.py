@@ -27,7 +27,7 @@ from erenshor.domain.enriched_data.stance import EnrichedStanceData
 from erenshor.domain.entities import Character, Item, Skill, Spell, Stance
 from erenshor.domain.value_objects.proc_info import ProcInfo
 from erenshor.domain.value_objects.source_info import SourceInfo
-from erenshor.domain.value_objects.wiki_link import AbilityLink, ItemLink, WikiLink
+from erenshor.domain.value_objects.wiki_link import AbilityLink, ClassLink, ItemLink, WikiLink, class_stable_key
 
 if TYPE_CHECKING:
     from erenshor.application.wiki.generators.context import GeneratorContext
@@ -288,9 +288,9 @@ class EntityPageGenerator(PageGenerator):
     def _assemble_source_info(self, item: Item) -> SourceInfo:
         vendors = self.context.character_repo.get_vendors_selling_item(item.stable_key)
 
-        char_drops = self.context.character_repo.get_characters_dropping_item(item.stable_key)
-        item_sources = self.context.item_repo.get_item_sources(item.stable_key)
-        drops: list[tuple[WikiLink, float]] = [*char_drops, *item_sources]
+        drops: list[tuple[WikiLink, float]] = list(
+            self.context.character_repo.get_characters_dropping_item(item.stable_key)
+        )
 
         quest_rewards = self.context.quest_repo.get_quests_rewarding_item(item.stable_key)
         quest_requirements = self.context.quest_repo.get_quests_requiring_item(item.stable_key)
@@ -326,9 +326,29 @@ class EntityPageGenerator(PageGenerator):
             crafting_results = own_recipe.results
             recipe_ingredients = own_recipe.materials
 
+        starting_classes = [
+            ClassLink(
+                page_title=self.context.class_display.get_display_name(class_name),
+                display_name=self.context.class_display.get_display_name(class_name),
+                stable_key=class_stable_key(class_name),
+            )
+            for class_name in self.context.item_repo.get_starting_class_names(item.stable_key)
+        ]
+
         return SourceInfo(
             vendors=vendors,
             drops=drops,
+            givers=self.context.character_repo.get_item_givers(item.stable_key),
+            item_uses=self.context.item_repo.get_item_use_source_links(item.stable_key),
+            mining=self.context.zone_repo.get_mining_zones_for_item(item.stable_key),
+            fishing=self.context.zone_repo.get_fishing_zones_for_item(item.stable_key),
+            fishing_bonus=[
+                source.probability
+                for source in self.context.item_repo.get_fishing_bonus_sources(item.stable_key)
+                if source.probability is not None
+            ],
+            item_bags=self.context.zone_repo.get_item_bag_zones_for_item(item.stable_key),
+            starting_classes=starting_classes,
             quest_rewards=quest_rewards,
             quest_requirements=quest_requirements,
             craft_sources=craft_sources_links,

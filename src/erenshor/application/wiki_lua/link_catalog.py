@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Protocol, TypeGuard, TypeVar
 from erenshor.application.wiki_lua.lua_writer import module_text
 from erenshor.domain.entities.item_kind import classify_item_kind
 from erenshor.domain.value_objects.wiki_filename import picture_file_title
+from erenshor.domain.value_objects.wiki_link import class_stable_key
 
 if TYPE_CHECKING:
     from erenshor.domain.entities.character import Character
@@ -119,14 +120,6 @@ _PREFIXES = {
     "faction": ("faction:",),
     "class": ("class:",),
 }
-
-
-def class_stable_key(internal_name: str) -> str:
-    """Return the canonical identity key for a game-internal class name."""
-    normalized_name = internal_name.strip()
-    if not normalized_name:
-        raise ValueError("Class identity requires a nonblank internal name")
-    return f"class:{normalized_name.casefold()}"
 
 
 def build_link_catalog_entries(

@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING
 import pytest
 
 from erenshor.domain.entities.item import Item
-from erenshor.domain.value_objects.wiki_link import ItemLink
 from erenshor.infrastructure.database.connection import DatabaseConnection, DatabaseConnectionError
 from erenshor.infrastructure.database.repositories.items import ItemRepository
 
@@ -197,39 +196,20 @@ def test_item_relationship_links_keep_stable_keys_for_shared_pages(tmp_path: Pat
     ]
 
 
-def test_item_sources_keep_stable_keys_for_shared_pages(tmp_path: Path) -> None:
-    """Item source links retain identity when source items share a wiki page."""
-    db_path = tmp_path / "item-sources.sqlite"
-    with closing(sqlite3.connect(db_path)) as conn, conn:
-        conn.execute("CREATE TABLE items (stable_key TEXT, display_name TEXT, wiki_page_name TEXT)")
-        conn.execute(
-            "CREATE TABLE item_drops (source_item_stable_key TEXT, dropped_item_stable_key TEXT, drop_probability REAL)"
-        )
-        conn.executemany(
-            "INSERT INTO items VALUES (?, ?, ?)",
-            [
-                ("item:source-alpha", "Alpha Source", "Shared Source"),
-                ("item:source-beta", "Beta Source", "Shared Source"),
-                ("item:dropped", "Dropped Item", "Dropped Item"),
-            ],
-        )
-        conn.executemany(
-            "INSERT INTO item_drops VALUES (?, ?, ?)",
-            [
-                ("item:source-alpha", "item:dropped", 25.0),
-                ("item:source-beta", "item:dropped", 75.0),
-            ],
-        )
+def test_item_use_source_links_cover_breaking_spells_and_conversions(item_repo: ItemRepository) -> None:
+    """Item pages name each item whose use yields the item, with its chance or the zone it needs."""
 
-    with DatabaseConnection(db_path, read_only=True) as db:
-        sources = ItemRepository(db).get_item_sources("item:dropped")
+    def sources(key: str) -> list[tuple[str | None, float | None, str | None]]:
+        return [(link.stable_key, chance, zone) for link, chance, zone in item_repo.get_item_use_source_links(key)]
 
-    assert all(isinstance(link, ItemLink) for link, _ in sources)
-    assert [(link.stable_key, probability) for link, probability in sources] == [
-        ("item:source-beta", 75.0),
-        ("item:source-alpha", 25.0),
+    assert sources("item:gen - sivak") == [("item:gen - braxonian fossil", 21.05, None)]
+    assert sources("item:gen - offering stone") == [("item:gen - bag of offering stones", None, None)]
+    assert sources("item:template - a strange figurine") == [
+        ("item:quest - game piece the candlekeeper", None, "Braxonian Desert")
     ]
 
+
+def test_item_repository_rejects_a_missing_database(tmp_path: Path) -> None:
     """Test that repository raises RepositoryError on database errors."""
     # Create a database path that doesn't exist
     nonexistent_db = tmp_path / "nonexistent.sqlite"
@@ -263,12 +243,12 @@ def test_obtained_from_item_sources_cover_craft_use_and_starting(item_repo: Item
 
     starting = item_repo.get_classes_starting_with_item("item:cons - bread")
     assert [source.source_key for source in starting] == [
-        "class:Arcanist",
-        "class:Druid",
-        "class:Duelist",
-        "class:Paladin",
-        "class:Reaver",
-        "class:Stormcaller",
+        "class:arcanist",
+        "class:druid",
+        "class:duelist",
+        "class:paladin",
+        "class:reaver",
+        "class:stormcaller",
     ]
 
 

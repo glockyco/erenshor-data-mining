@@ -16,7 +16,7 @@ from erenshor.application.wiki.generators.formatting import format_description, 
 from erenshor.application.wiki.generators.link_lists import format_visible_links
 from erenshor.application.wiki.generators.sections.base import SectionGeneratorBase
 from erenshor.domain.value_objects.wiki_filename import picture_file_title
-from erenshor.domain.value_objects.wiki_link import ClassLink
+from erenshor.domain.value_objects.wiki_link import ClassLink, class_stable_key
 from erenshor.shared.game_constants import GAME_TICKS_PER_SECOND
 
 if TYPE_CHECKING:
@@ -84,7 +84,7 @@ class SpellSectionGenerator(SectionGeneratorBase):
                             ClassLink(
                                 page_title=display_name,
                                 display_name=display_name,
-                                stable_key=f"class:{internal_name.casefold()}",
+                                stable_key=class_stable_key(internal_name),
                             )
                         ),
                     )

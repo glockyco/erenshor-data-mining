@@ -13,7 +13,13 @@
 |questsource={{ questsource }}
 |relatedquest={{ relatedquest }}
 |craftsource={{ craftsource }}
-|componentfor={{ componentfor }}
+{% if dialogsource %}|dialogsource={{ dialogsource }}
+{% endif %}{% if itemusesource %}|itemusesource={{ itemusesource }}
+{% endif %}{% if miningsource %}|miningsource={{ miningsource }}
+{% endif %}{% if fishingsource %}|fishingsource={{ fishingsource }}
+{% endif %}{% if itembagsource %}|itembagsource={{ itembagsource }}
+{% endif %}{% if startingsource %}|startingsource={{ startingsource }}
+{% endif %}|componentfor={{ componentfor }}
 |buy={{ buy }}
 |sell={{ sell }}
 |taughtspell={{ taughtspell }}

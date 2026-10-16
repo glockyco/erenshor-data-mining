@@ -285,3 +285,11 @@ class ClassLink(WikiLink):
         if keyed := _render_keyed_link(self, "Class"):
             return keyed
         return _render_standard_link(self)
+
+
+def class_stable_key(internal_name: str) -> str:
+    """Return the canonical identity key for a game-internal class name."""
+    normalized_name = internal_name.strip()
+    if not normalized_name:
+        raise ValueError("Class identity requires a nonblank internal name")
+    return f"class:{normalized_name.casefold()}"

@@ -10,7 +10,7 @@ from abc import ABC
 from typing import TYPE_CHECKING
 
 from erenshor.application.wiki.generators.base import PageGenerator
-from erenshor.domain.value_objects.wiki_link import ClassLink
+from erenshor.domain.value_objects.wiki_link import ClassLink, class_stable_key
 
 if TYPE_CHECKING:
     from erenshor.application.wiki.generators.context import GeneratorContext
@@ -109,7 +109,7 @@ class OverviewPageGeneratorBase(PageGenerator, ABC):
                     ClassLink(
                         page_title=display_name,
                         display_name=display_name,
-                        stable_key=f"class:{class_name.casefold()}",
+                        stable_key=class_stable_key(class_name),
                     )
                 )
             )
