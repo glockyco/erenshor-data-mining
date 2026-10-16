@@ -91,6 +91,12 @@ Gate availability is shared by quest sources, spawns, and zone routes. The guide
 uses live quest, inventory, keyring, and room furniture state to evaluate access.
 Locked sources and zone lines show the missing requirements, with quest links
 where available.
+Cross-zone navigation follows an entrance that reaches the selected placement,
+even when another entrance into the same zone is closer.
+Changing zones or choosing an entrance keeps manual source choices that remain
+available.
+Quest and inventory changes preserve the current waypoint when its target and
+available entrances have not changed.
 
 ## Data Pipeline
 

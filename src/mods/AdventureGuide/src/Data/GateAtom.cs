@@ -75,4 +75,7 @@ public sealed class GateItem
 
     [JsonProperty("sources")]
     public List<ItemSource>? Sources { get; set; }
+
+    [JsonProperty("door_zones")]
+    public List<string>? DoorZones { get; set; }
 }

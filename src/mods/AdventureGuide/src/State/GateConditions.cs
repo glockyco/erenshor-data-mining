@@ -92,6 +92,25 @@ public sealed class GateConditions
         return false;
     }
 
+    public bool CanBecomeAvailable(int? condition)
+    {
+        if (!condition.HasValue)
+            return true;
+        foreach (var group in _data.Conditions[condition.Value])
+        {
+            bool possible = true;
+            foreach (var atom in group)
+                if (atom.Kind == GateAtomKind.QuestNotDone && !Holds(atom))
+                {
+                    possible = false;
+                    break;
+                }
+            if (possible)
+                return true;
+        }
+        return false;
+    }
+
     public bool IsSpawnAvailable(AdventureGuide.Data.SpawnPoint spawn) =>
         IsAvailable(spawn.Condition);
 
@@ -222,13 +241,18 @@ public sealed class GateConditions
         {
             GateAtomKind.QuestDone => "Complete " + name,
             GateAtomKind.QuestNotDone => "Before completing " + name,
-            GateAtomKind.ItemHeld => "Requires " + name,
-            GateAtomKind.KeyHeld => "Requires " + name,
+            GateAtomKind.ItemHeld => DescribeItemRequirement(atom.Ref, name),
+            GateAtomKind.KeyHeld => DescribeItemRequirement(atom.Ref, name),
             GateAtomKind.RoomFurnished => name + " in a Reliquary room",
             GateAtomKind.EncounterWon => "Defeat " + name + " first",
             _ => throw new InvalidOperationException($"Unknown gate atom kind '{atom.Kind}'"),
         };
     }
+
+    private string DescribeItemRequirement(string reference, string name) =>
+        _data.GateItems.TryGetValue(reference, out var item) && item.DoorZones is { Count: > 0 }
+            ? "Requires " + name + " (opens a door in " + string.Join(" or ", item.DoorZones) + ")"
+            : "Requires " + name;
 
     private static string ReferenceName(string reference)
     {

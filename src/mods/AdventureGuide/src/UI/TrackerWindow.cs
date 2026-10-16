@@ -499,6 +499,9 @@ public sealed class TrackerWindow
         // Prerequisite line if blocked
         DrawPrerequisite(row);
 
+        if (_nav.OriginQuest?.RuntimeKey == quest.RuntimeKey && NavigationDisplay.HasGuidance(_nav))
+            NavigationDisplay.DrawRequirements(_nav, _state.CurrentZone);
+
         ImGui.Spacing();
 
         if (tinted)
@@ -517,7 +520,7 @@ public sealed class TrackerWindow
         bool navigable = row.DisplayStep?.TargetKey != null;
         bool isActive = rawStep != null && _nav.IsNavigating(quest.RuntimeKey, rawStep.Order);
 
-        if (!navigable)
+        if (!navigable && !isActive)
         {
             ImGui.PushStyleVar(ImGuiStyleVar.Alpha, 0.3f);
             ImGui.SmallButton("[NAV]");

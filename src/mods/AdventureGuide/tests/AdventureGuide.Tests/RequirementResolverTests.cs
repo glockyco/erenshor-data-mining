@@ -1,0 +1,1102 @@
+using AdventureGuide.Data;
+using AdventureGuide.Navigation;
+using AdventureGuide.State;
+
+namespace AdventureGuide.Tests;
+
+public sealed class RequirementResolverTests
+{
+    private static QuestEntry Quest(string name, QuestStep step) =>
+        new()
+        {
+            StableKey = "quest:" + name,
+            DBName = name,
+            DisplayName = name,
+            Steps = [step],
+        };
+
+    private static QuestStep Character(string key) =>
+        new()
+        {
+            Order = 1,
+            Action = "talk",
+            TargetType = "character",
+            TargetKey = key,
+            TargetName = key,
+            Description = "Talk to " + key,
+        };
+
+    private static GateAtom Atom(GateAtomKind kind, string reference) =>
+        new() { Kind = kind, Ref = reference };
+
+    private static GuideData Data(
+        List<List<List<GateAtom>>> conditions,
+        Dictionary<string, List<SpawnPoint>> spawns,
+        List<QuestEntry>? quests = null,
+        Dictionary<string, GateItem>? items = null,
+        List<ZoneLineEntry>? lines = null
+    ) =>
+        GuideData.FromWrapper(
+            new GuideWrapper
+            {
+                Version = 7,
+                Quests = quests ?? [],
+                Conditions = conditions,
+                CharacterSpawns = spawns,
+                GateItems = items,
+                ZoneLines = lines,
+                ZoneLookup = new()
+                {
+                    ["A"] = new ZoneInfo { StableKey = "zone:a", DisplayName = "A" },
+                    ["B"] = new ZoneInfo { StableKey = "zone:b", DisplayName = "B" },
+                    ["C"] = new ZoneInfo { StableKey = "zone:c", DisplayName = "C" },
+                },
+            }
+        );
+
+    private static RequirementResolver Resolver(GuideData data, GateTestFacts? facts = null)
+    {
+        var gates = new GateConditions(data, facts ?? new GateTestFacts());
+        return new RequirementResolver(
+            data,
+            gates,
+            new ZoneGraph(data, gates),
+            quest => quest.Steps?.FirstOrDefault()
+        );
+    }
+
+    private static GuideData ShippingData()
+    {
+        using var stream = typeof(GuideData).Assembly.GetManifestResourceStream(
+            "AdventureGuide.quest-guide.json"
+        );
+        Assert.NotNull(stream);
+        using var reader = new StreamReader(stream);
+        return GuideData.Parse(reader.ReadToEnd());
+    }
+
+    [Fact]
+    public void Lighthouse_target_routes_to_real_key_source_and_keyring_restores_target()
+    {
+        var data = ShippingData();
+        var key = data.GateItems.Single(item =>
+            item.Value.Name == "Stowaway's Step Lighthouse Key"
+        );
+        var target = data.CharacterSpawns.Single(pair =>
+            pair.Key.StartsWith("character:lighthouse demon:", StringComparison.Ordinal)
+        );
+        var step = Character(target.Key);
+        step.TargetName = "Occuphage";
+        var quest = Quest("Lighthouse scenario", step);
+        var facts = new GateTestFacts();
+        var resolver = Resolver(data, facts);
+
+        var result = resolver.Resolve(quest, step, "Stowaway");
+
+        Assert.True(result.CanNavigate, result.Message);
+        Assert.Equal(key.Key, result.Step.TargetKey);
+        Assert.Same(key.Value.Sources![0], Assert.Single(result.Step.Sources!));
+        Assert.Contains(key.Value.Name, result.DisplayText);
+        Assert.Contains(
+            result.Chain,
+            link =>
+                link.Label
+                == "Requires Stowaway's Step Lighthouse Key (opens a door in Stowaway's Step)"
+        );
+        Assert.Equal("Garrey Ambrose", Assert.Single(result.Step.Sources!).Name);
+        Assert.NotNull(result.SelectedSpawn);
+        facts.Keyring.Add(key.Value.GameId);
+        var opened = resolver.Resolve(quest, step, "Stowaway");
+        Assert.True(opened.CanNavigate, opened.Message);
+        Assert.Same(step, opened.Step);
+        Assert.Empty(opened.Chain);
+    }
+
+    [Fact]
+    public void Lighthouse_placement_from_Salted_Strand_uses_Stowaway_then_exact_lighthouse_entry()
+    {
+        var data = ShippingData();
+        var key = data.GateItems.Single(item =>
+            item.Value.Name == "Stowaway's Step Lighthouse Key"
+        );
+        var target = data.CharacterSpawns.Single(pair =>
+            pair.Key.StartsWith("character:lighthouse demon:", StringComparison.Ordinal)
+        );
+        var spawn = Assert.Single(target.Value);
+        var step = Character(target.Key);
+        var quest = Quest("Lighthouse scenario", step);
+        var facts = new GateTestFacts();
+        facts.Quests.Add("MEETBASSLE");
+        facts.Keyring.Add(key.Value.GameId);
+        var gates = new GateConditions(data, facts);
+        var graph = new ZoneGraph(data, gates);
+        var resolver = new RequirementResolver(
+            data,
+            gates,
+            graph,
+            entry => entry.Steps?.FirstOrDefault()
+        );
+
+        var result = resolver.Resolve(quest, step, "SaltedStrand");
+        var approach = graph.GetPlacementRoute(spawn, "SaltedStrand");
+
+        Assert.True(result.CanNavigate, result.Message);
+        Assert.Same(spawn, result.SelectedSpawn);
+        Assert.Same(data.ZoneLines[105], result.EntryLine);
+        Assert.NotNull(approach);
+        Assert.Equal(new[] { "SaltedStrand", "Stowaway" }, approach.Value.Route!.Path);
+        Assert.Equal("zone:stowaway", approach.Value.Route.NextHopZoneKey);
+        Assert.Same(data.ZoneLines[105], approach.Value.EntryLine);
+
+        var atEntry = graph.GetPlacementRoute(spawn, "Stowaway");
+        Assert.NotNull(atEntry);
+        Assert.Null(atEntry.Value.Route);
+        Assert.Same(data.ZoneLines[105], atEntry.Value.EntryLine);
+        Assert.NotSame(data.ZoneLines[101], atEntry.Value.EntryLine);
+        Assert.NotSame(data.ZoneLines[106], atEntry.Value.EntryLine);
+
+        var pinnedBeach = resolver.Resolve(quest, step, "Stowaway", data.ZoneLines[101]);
+        Assert.True(pinnedBeach.CanNavigate, pinnedBeach.Message);
+        Assert.Same(data.ZoneLines[105], pinnedBeach.EntryLine);
+
+        facts.Keyring.Clear();
+        graph.Rebuild();
+        var missingKey = resolver.Resolve(quest, step, "SaltedStrand");
+        Assert.True(missingKey.CanNavigate, missingKey.Message);
+        Assert.Equal(key.Key, missingKey.Step.TargetKey);
+        Assert.Equal("Garrey Ambrose", Assert.Single(missingKey.Step.Sources!).Name);
+        Assert.Equal("Stowaway", missingKey.SelectedSpawn!.Scene);
+        Assert.Null(missingKey.EntryLine);
+        Assert.Contains(
+            missingKey.Chain,
+            link =>
+                link.Label
+                == "Requires Stowaway's Step Lighthouse Key (opens a door in Stowaway's Step)"
+        );
+    }
+
+    [Fact]
+    public void Jaws_route_names_real_alternatives_and_chooses_nearest_first_requirement()
+    {
+        var data = ShippingData();
+        var quest = data.GetByDBName("JAWSENTRY")!;
+        var travelStep = new QuestStep
+        {
+            Order = 1,
+            Action = "travel",
+            Description = "Travel to Jaws of Sivakaya.",
+            TargetType = "zone",
+            TargetKey = "zone:jaws",
+            TargetName = "Jaws of Sivakaya",
+            ZoneName = "Jaws of Sivakaya",
+        };
+        var gates = new GateConditions(data, new GateTestFacts());
+        var graph = new ZoneGraph(data, gates);
+        var result = new RequirementResolver(
+            data,
+            gates,
+            graph,
+            entry => entry.Steps?.FirstOrDefault()
+        ).Resolve(quest, travelStep, "Duskenlight");
+
+        Assert.True(result.CanNavigate, result.Message);
+        Assert.Contains(result.Chain, link => link.Alternatives.Count > 0);
+        Assert.Contains("Nighthollow Candle", result.DisplayText);
+        Assert.Contains("She Sees You", result.DisplayText);
+        Assert.DoesNotContain(result.Chain, link => link.Atom?.Kind == GateAtomKind.QuestNotDone);
+    }
+
+    [Fact]
+    public void Meet_the_Fisherman_follows_implicit_Anglers_Ring_current_step()
+    {
+        var data = ShippingData();
+        var meet = data.GetByDBName("MEETBASSLE")!;
+        var ring = data.GetByDBName("ANGLERRING")!;
+        Assert.Null(ring.Acquisition);
+        var result = Resolver(data).Resolve(meet, meet.Steps![0], "AzynthiClear");
+
+        Assert.False(result.CanNavigate);
+        Assert.Same(ring, result.Quest);
+        Assert.Same(ring.Steps![0], result.Step);
+        Assert.Equal("item:ring - 6 - angler's ring", result.Step.TargetKey);
+        Assert.Equal(
+            "crafting",
+            Assert.Single(ItemSourcePolicy.SourcesFor(result.Quest, result.Step)!).Type
+        );
+        Assert.Contains(result.Chain, link => link.Label == "Complete The Angler's Ring");
+        Assert.Equal(
+            "Angler's Ring is crafted (Recipe: Mold: Angler's Ring) and has no source the guide can navigate to.",
+            result.Message
+        );
+    }
+
+    [Fact]
+    public void Ghostly_Key_stops_with_its_real_recipe_name_and_no_doubled_prefix()
+    {
+        var data = ShippingData();
+        var step = Character("character:ghost of wylan sercher");
+        step.TargetName = "Ghost of Wyland Sercher";
+        var result = Resolver(data).Resolve(Quest("Ghost scenario", step), step, "Tutorial");
+
+        Assert.False(result.CanNavigate);
+        Assert.Equal(
+            "Ghostly Key is crafted (Recipe: Mold: A Ghostly Key) and has no source the guide can navigate to.",
+            result.Message
+        );
+        Assert.Contains(
+            result.Chain,
+            link => link.Label == "Requires Ghostly Key (opens a door in Island Tomb)"
+        );
+    }
+
+    [Fact]
+    public void Acquisition_sources_are_used_when_a_quest_has_no_steps()
+    {
+        var required = new QuestEntry
+        {
+            StableKey = "quest:required",
+            DBName = "Required",
+            DisplayName = "Required Quest",
+            Acquisition =
+            [
+                new AcquisitionSource
+                {
+                    Method = "dialog",
+                    SourceName = "Quest Giver",
+                    SourceStableKey = "giver",
+                },
+            ],
+        };
+        var original = Character("target");
+        var data = Data(
+            [
+                [
+                    [Atom(GateAtomKind.QuestDone, "Required")],
+                ],
+            ],
+            new()
+            {
+                ["target"] = [new SpawnPoint { Scene = "A", Condition = 0 }],
+                ["giver"] = [new SpawnPoint { Scene = "A" }],
+            },
+            quests: [required]
+        );
+        var gates = new GateConditions(data, new GateTestFacts());
+        RequirementResolver? resolver = null;
+        resolver = new RequirementResolver(
+            data,
+            gates,
+            new ZoneGraph(data, gates),
+            quest => resolver!.BuildAcquisitionStep(quest) ?? quest.Steps?.FirstOrDefault()
+        );
+        var result = resolver.Resolve(Quest("Original", original), original, "A");
+
+        Assert.True(result.CanNavigate, result.Message);
+        Assert.Same(required, result.Quest);
+        Assert.Equal("giver", Assert.Single(result.Step.Sources!).SourceKey);
+    }
+
+    [Theory]
+    [InlineData(
+        GateAtomKind.KeyHeld,
+        "Ghostly Key",
+        "No reachable source is known for Ghostly Key."
+    )]
+    [InlineData(
+        GateAtomKind.QuestDone,
+        "Missing Quest",
+        "Missing Quest cannot be started from a known source."
+    )]
+    public void Missing_requirement_messages_use_bare_names(
+        GateAtomKind kind,
+        string name,
+        string message
+    )
+    {
+        var step = Character("target");
+        var data = Data(
+            [
+                [
+                    [Atom(kind, "missing")],
+                ],
+            ],
+            new() { ["target"] = [new SpawnPoint { Scene = "A", Condition = 0 }] },
+            quests:
+            [
+                new QuestEntry
+                {
+                    StableKey = "quest:missing",
+                    DBName = "missing",
+                    DisplayName = name,
+                },
+            ],
+            items: new() { ["missing"] = new GateItem { Name = name } }
+        );
+        var result = Resolver(data).Resolve(Quest("Original", step), step, "A");
+
+        Assert.False(result.CanNavigate);
+        Assert.Equal(message, result.Message);
+    }
+
+    [Fact]
+    public void Two_hop_item_requirement_chain_keeps_original_source_nodes()
+    {
+        var step = Character("target");
+        var quest = Quest("Original", step);
+        var first = new ItemSource
+        {
+            Type = "drop",
+            SourceKey = "first",
+            Name = "First",
+            Condition = 1,
+        };
+        var second = new ItemSource
+        {
+            Type = "drop",
+            SourceKey = "second",
+            Name = "Second",
+        };
+        var data = Data(
+            [
+                [
+                    [Atom(GateAtomKind.KeyHeld, "item:first")],
+                ],
+                [
+                    [Atom(GateAtomKind.ItemHeld, "item:second")],
+                ],
+            ],
+            new()
+            {
+                ["target"] = [new SpawnPoint { Scene = "A", Condition = 0 }],
+                ["first"] = [new SpawnPoint { Scene = "A" }],
+                ["second"] = [new SpawnPoint { Scene = "A" }],
+            },
+            items: new()
+            {
+                ["item:first"] = new GateItem
+                {
+                    Name = "First key",
+                    GameId = "1",
+                    Sources = [first],
+                },
+                ["item:second"] = new GateItem
+                {
+                    Name = "Second item",
+                    GameId = "2",
+                    Sources = [second],
+                },
+            }
+        );
+
+        var result = Resolver(data).Resolve(quest, step, "A");
+
+        Assert.True(result.CanNavigate, result.Message);
+        Assert.Equal("item:second", result.Step.TargetKey);
+        Assert.Same(second, Assert.Single(result.Step.Sources!));
+        Assert.Equal(
+            new[] { "item:first", "item:second" },
+            result.Chain.Where(link => link.Atom != null).Select(link => link.Atom!.Ref)
+        );
+    }
+
+    [Fact]
+    public void Gated_later_route_hop_redirects_before_entering_the_open_first_hop()
+    {
+        var step = Character("target");
+        var keySource = new ItemSource
+        {
+            Type = "pickup",
+            SourceKey = "itembag:a:1:2:3",
+            Scene = "A",
+        };
+        var data = Data(
+            [
+                [
+                    [Atom(GateAtomKind.KeyHeld, "item:key")],
+                ],
+            ],
+            new() { ["target"] = [new SpawnPoint { Scene = "C" }] },
+            items: new()
+            {
+                ["item:key"] = new GateItem
+                {
+                    Name = "Route Key",
+                    GameId = "1",
+                    Sources = [keySource],
+                },
+            },
+            lines:
+            [
+                new ZoneLineEntry { Scene = "A", DestinationZoneKey = "zone:b" },
+                new ZoneLineEntry
+                {
+                    Scene = "B",
+                    DestinationZoneKey = "zone:c",
+                    Condition = 0,
+                },
+            ]
+        );
+
+        var result = Resolver(data).Resolve(Quest("Original", step), step, "A");
+
+        Assert.True(result.CanNavigate, result.Message);
+        Assert.Equal("item:key", result.Step.TargetKey);
+        Assert.Contains("Route Key", result.DisplayText);
+    }
+
+    [Fact]
+    public void Equal_groups_choose_nearest_requirement_and_name_other_group()
+    {
+        var step = Character("target");
+        var farStep = Character("far");
+        var nearStep = Character("near");
+        var data = Data(
+            [
+                [
+                    [Atom(GateAtomKind.QuestDone, "Far")],
+                    [Atom(GateAtomKind.QuestDone, "Near")],
+                ],
+            ],
+            new()
+            {
+                ["target"] = [new SpawnPoint { Scene = "A", Condition = 0 }],
+                ["far"] = [new SpawnPoint { Scene = "B" }],
+                ["near"] = [new SpawnPoint { Scene = "A" }],
+            },
+            quests: [Quest("Far", farStep), Quest("Near", nearStep)],
+            lines: [new ZoneLineEntry { Scene = "A", DestinationZoneKey = "zone:b" }]
+        );
+
+        var result = Resolver(data).Resolve(Quest("Original", step), step, "A");
+
+        Assert.Same(nearStep, result.Step);
+        var requirement = Assert.Single(result.Chain, link => link.Atom != null);
+        Assert.Equal("Near", requirement.Atom!.Ref);
+        Assert.Contains("Complete Far", requirement.Alternatives);
+    }
+
+    [Fact]
+    public void Fewer_unmet_atoms_win_before_route_cost()
+    {
+        var step = Character("target");
+        var first = Quest("First", Character("near"));
+        var second = Quest("Second", Character("near"));
+        var far = Quest("Far", Character("far"));
+        var data = Data(
+            [
+                [
+                    [Atom(GateAtomKind.QuestDone, "First"), Atom(GateAtomKind.QuestDone, "Second")],
+                    [Atom(GateAtomKind.QuestDone, "Far")],
+                ],
+            ],
+            new()
+            {
+                ["target"] = [new SpawnPoint { Scene = "A", Condition = 0 }],
+                ["near"] = [new SpawnPoint { Scene = "A" }],
+                ["far"] = [new SpawnPoint { Scene = "B" }],
+            },
+            quests: [first, second, far],
+            lines: [new ZoneLineEntry { Scene = "A", DestinationZoneKey = "zone:b" }]
+        );
+        var result = Resolver(data).Resolve(Quest("Original", step), step, "A");
+        Assert.Same(far, result.Quest);
+        Assert.True(result.CanNavigate);
+    }
+
+    [Fact]
+    public void Removed_target_has_no_navigation_or_requirement_guidance()
+    {
+        var step = Character("removed");
+        var data = Data(
+            [
+                [
+                    [Atom(GateAtomKind.QuestNotDone, "Done")],
+                ],
+            ],
+            new() { ["removed"] = [new SpawnPoint { Scene = "A", Condition = 0 }] }
+        );
+        var facts = new GateTestFacts();
+        facts.Quests.Add("Done");
+        var result = Resolver(data, facts).Resolve(Quest("Original", step), step, "A");
+        Assert.False(result.CanNavigate);
+        Assert.Contains("no longer available", result.Message);
+        Assert.Empty(result.Chain);
+    }
+
+    [Fact]
+    public void Advisory_atoms_from_every_group_stay_on_original_target()
+    {
+        var step = Character("restored");
+        var first = Atom(GateAtomKind.EncounterWon, "first");
+        var second = Atom(GateAtomKind.EncounterWon, "second");
+        var data = Data(
+            [
+                [
+                    [first],
+                    [second],
+                ],
+            ],
+            new() { ["restored"] = [new SpawnPoint { Scene = "A", Condition = 0 }] }
+        );
+        var result = Resolver(data).Resolve(Quest("Original", step), step, "A");
+        Assert.True(result.CanNavigate);
+        Assert.Same(step, result.Step);
+        Assert.Equal(new[] { first, second }, result.Advisories);
+        Assert.All(result.Chain, link => Assert.Equal(GateAtomKind.EncounterWon, link.Atom!.Kind));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Empty_condition_and_unreachable_target_fail_with_explanation(bool unreachable)
+    {
+        var step = Character("target");
+        var data = Data(
+            [
+                [],
+            ],
+            new()
+            {
+                ["target"] =
+                [
+                    new SpawnPoint
+                    {
+                        Scene = unreachable ? "B" : "A",
+                        Condition = unreachable ? null : 0,
+                    },
+                ],
+            }
+        );
+        var result = Resolver(data).Resolve(Quest("Original", step), step, "A");
+        Assert.False(result.CanNavigate);
+        Assert.False(string.IsNullOrWhiteSpace(result.Message));
+    }
+
+    [Fact]
+    public void Route_requirement_cycle_stops_without_recursive_feasibility_search()
+    {
+        var step = Character("target");
+        var source = new ItemSource
+        {
+            Type = "pickup",
+            SourceKey = "itembag:b:1:2:3",
+            Scene = "B",
+        };
+        var data = Data(
+            [
+                [
+                    [Atom(GateAtomKind.KeyHeld, "item:key")],
+                ],
+            ],
+            new() { ["target"] = [new SpawnPoint { Scene = "B" }] },
+            items: new()
+            {
+                ["item:key"] = new GateItem
+                {
+                    Name = "Key",
+                    GameId = "1",
+                    Sources = [source],
+                },
+            },
+            lines:
+            [
+                new ZoneLineEntry
+                {
+                    Scene = "A",
+                    DestinationZoneKey = "zone:b",
+                    Condition = 0,
+                },
+            ]
+        );
+        var result = Resolver(data).Resolve(Quest("Original", step), step, "A");
+        Assert.False(result.CanNavigate);
+        Assert.Contains("cycle", result.Message);
+    }
+
+    [Fact]
+    public void Reachable_available_placement_wins_over_local_gate_and_unreachable_placement()
+    {
+        var step = Character("target");
+        var data = Data(
+            [
+                [],
+            ],
+            new()
+            {
+                ["target"] =
+                [
+                    new SpawnPoint { Scene = "A", Condition = 0 },
+                    new SpawnPoint { Scene = "C" },
+                    new SpawnPoint { Scene = "B" },
+                ],
+            },
+            lines: [new ZoneLineEntry { Scene = "A", DestinationZoneKey = "zone:b" }]
+        );
+        var result = Resolver(data).Resolve(Quest("Original", step), step, "A");
+        Assert.True(result.CanNavigate);
+        Assert.Equal("B", result.SelectedScene);
+        Assert.Same(step, result.Step);
+    }
+
+    [Fact]
+    public void Furnishing_requirement_uses_planning_table_coordinates_from_guide()
+    {
+        var step = Character("vendor");
+        var room = Atom(GateAtomKind.RoomFurnished, "item:furniture");
+        room.Slot = "L1";
+        var planning = new ItemSource
+        {
+            Type = "pickup",
+            Name = "Planning Table",
+            SourceKey = "planningtable:a:12:3:45",
+            Scene = "A",
+        };
+        var planningQuest = Quest("Planning", Character("planner"));
+        planningQuest.RequiredItems =
+        [
+            new RequiredItemInfo
+            {
+                ItemStableKey = "item:portals",
+                ItemName = "Box of Portals",
+                Sources = [planning],
+            },
+        ];
+        var data = Data(
+            [
+                [
+                    [room],
+                ],
+            ],
+            new() { ["vendor"] = [new SpawnPoint { Scene = "A", Condition = 0 }] },
+            quests: [planningQuest],
+            items: new()
+            {
+                ["item:furniture"] = new GateItem { Name = "Wood Vendor Set", GameId = "1" },
+            }
+        );
+        var result = Resolver(data).Resolve(Quest("Original", step), step, "A");
+        Assert.True(result.CanNavigate, result.Message);
+        Assert.Equal(planning.SourceKey, result.Step.TargetKey);
+        Assert.Equal(12f, result.Step.Location!.X);
+        Assert.Equal(3f, result.Step.Location.Y);
+        Assert.Equal(45f, result.Step.Location.Z);
+        Assert.Contains("Wood Vendor Set", result.DisplayText);
+    }
+
+    [Fact]
+    public void Available_source_is_constrained_when_another_source_is_gated()
+    {
+        var gated = new ItemSource
+        {
+            Type = "drop",
+            SourceKey = "gated",
+            Condition = 0,
+        };
+        var available = new ItemSource { Type = "drop", SourceKey = "available" };
+        var step = new QuestStep
+        {
+            Order = 1,
+            Action = "collect",
+            TargetType = "item",
+            TargetKey = "item:goal",
+            TargetName = "Goal",
+            Description = "Collect Goal.",
+            Sources = [gated, available],
+        };
+        var data = Data(
+            [
+                [],
+            ],
+            new()
+            {
+                ["gated"] = [new SpawnPoint { Scene = "A" }],
+                ["available"] = [new SpawnPoint { Scene = "A" }],
+            }
+        );
+        var result = Resolver(data).Resolve(Quest("Original", step), step, "A");
+        Assert.True(result.CanNavigate);
+        Assert.Same(available, Assert.Single(result.Step.Sources!));
+        Assert.Equal(2, step.Sources.Count);
+        Assert.Empty(result.Chain);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void One_gated_or_unreachable_source_preserves_every_available_source(bool unreachable)
+    {
+        var blocked = new ItemSource
+        {
+            Type = "drop",
+            SourceKey = "blocked",
+            Condition = unreachable ? null : 0,
+        };
+        var first = new ItemSource { Type = "drop", SourceKey = "first" };
+        var second = new ItemSource { Type = "drop", SourceKey = "second" };
+        var firstSpawn = new SpawnPoint { Scene = "A", X = 100 };
+        var secondSpawn = new SpawnPoint { Scene = "A", X = 1 };
+        var step = new QuestStep
+        {
+            Order = 1,
+            Action = "collect",
+            Description = "Collect Goal.",
+            TargetType = "item",
+            TargetKey = "item:goal",
+            Sources = [blocked, first, second],
+        };
+        var data = Data(
+            [
+                [
+                    [Atom(GateAtomKind.KeyHeld, "item:key")],
+                ],
+            ],
+            new()
+            {
+                ["blocked"] = [new SpawnPoint { Scene = unreachable ? "C" : "A" }],
+                ["first"] = [firstSpawn],
+                ["second"] = [secondSpawn],
+            },
+            items: new()
+            {
+                ["item:key"] = new GateItem
+                {
+                    Name = "Key",
+                    GameId = "key",
+                    Sources = [new ItemSource { Type = "pickup", SourceKey = "itembag:a:1:2:3" }],
+                },
+            }
+        );
+
+        var result = Resolver(data).Resolve(Quest("Original", step), step, "A");
+
+        Assert.True(result.CanNavigate, result.Message);
+        Assert.Equal(new[] { first, second }, result.Step.Sources);
+        Assert.Equal(new[] { firstSpawn, secondSpawn }, result.AvailableSpawns);
+        Assert.Null(result.SelectedScene);
+        Assert.Null(result.SelectedSpawn);
+        Assert.Null(result.EntryLine);
+        Assert.Empty(result.Chain);
+        Assert.Equal(3, step.Sources.Count);
+    }
+
+    [Fact]
+    public void Filtering_parent_and_child_conditions_keeps_all_usable_leaves_without_reintroducing_gates()
+    {
+        var blockedByParent = new ItemSource { Type = "drop", SourceKey = "blocked_parent" };
+        var blockedChild = new ItemSource
+        {
+            Type = "drop",
+            SourceKey = "blocked_child",
+            Condition = 0,
+        };
+        var first = new ItemSource { Type = "drop", SourceKey = "first" };
+        var second = new ItemSource { Type = "drop", SourceKey = "second" };
+        var step = new QuestStep
+        {
+            Order = 1,
+            Action = "collect",
+            Description = "Collect Goal.",
+            TargetType = "item",
+            TargetKey = "item:goal",
+            Sources =
+            [
+                new ItemSource
+                {
+                    Type = "item_use",
+                    SourceKey = "item:blocked",
+                    Condition = 0,
+                    Children = [blockedByParent],
+                },
+                new ItemSource
+                {
+                    Type = "item_use",
+                    SourceKey = "item:usable",
+                    Children = [blockedChild, first, second],
+                },
+            ],
+        };
+        var data = Data(
+            [
+                [],
+            ],
+            new()
+            {
+                ["blocked_parent"] = [new SpawnPoint { Scene = "A" }],
+                ["blocked_child"] = [new SpawnPoint { Scene = "A" }],
+                ["first"] = [new SpawnPoint { Scene = "A" }],
+                ["second"] = [new SpawnPoint { Scene = "A" }],
+            }
+        );
+
+        var result = Resolver(data).Resolve(Quest("Original", step), step, "A");
+
+        Assert.True(result.CanNavigate, result.Message);
+        Assert.Equal(new[] { first, second }, result.Step.Sources);
+        Assert.All(result.Step.Sources!, source => Assert.Null(source.Children));
+        Assert.Equal(2, result.AvailableSpawns!.Count);
+        Assert.Null(result.SelectedScene);
+        Assert.Empty(result.Chain);
+        Assert.Equal(3, step.Sources[1].Children!.Count);
+    }
+
+    [Fact]
+    public void Shared_source_keeps_usable_placements_but_excludes_gated_and_unreachable_placements()
+    {
+        var gated = new SpawnPoint { Scene = "A", Condition = 0 };
+        var unreachable = new SpawnPoint { Scene = "C" };
+        var available = new SpawnPoint { Scene = "B" };
+        var local = new SpawnPoint { Scene = "A" };
+        var sharedSource = new ItemSource { Type = "drop", SourceKey = "shared" };
+        var localSource = new ItemSource { Type = "drop", SourceKey = "local" };
+        var step = new QuestStep
+        {
+            Order = 1,
+            Action = "collect",
+            Description = "Collect Goal.",
+            TargetType = "item",
+            TargetKey = "item:goal",
+            Sources = [sharedSource, localSource],
+        };
+        var data = Data(
+            [
+                [],
+            ],
+            new() { ["shared"] = [gated, unreachable, available], ["local"] = [local] },
+            lines: [new ZoneLineEntry { Scene = "A", DestinationZoneKey = "zone:b" }]
+        );
+
+        var result = Resolver(data).Resolve(Quest("Original", step), step, "A");
+
+        Assert.True(result.CanNavigate, result.Message);
+        Assert.Equal(new[] { sharedSource, localSource }, result.Step.Sources);
+        Assert.Equal(new[] { available, local }, result.AvailableSpawns);
+        Assert.Null(result.SelectedScene);
+        Assert.Null(result.SelectedSpawn);
+        Assert.Empty(result.Chain);
+    }
+
+    [Fact]
+    public void Requirement_endpoint_retains_all_available_sources_and_origin_can_reconsider_an_opened_source()
+    {
+        var first = new ItemSource { Type = "drop", SourceKey = "first" };
+        var second = new ItemSource { Type = "drop", SourceKey = "second" };
+        var gated = new ItemSource
+        {
+            Type = "drop",
+            SourceKey = "gated",
+            Condition = 1,
+        };
+        var step = Character("target");
+        var quest = Quest("Original", step);
+        var data = Data(
+            [
+                [
+                    [Atom(GateAtomKind.ItemHeld, "item:goal")],
+                ],
+                [
+                    [Atom(GateAtomKind.KeyHeld, "item:key")],
+                ],
+            ],
+            new()
+            {
+                ["target"] = [new SpawnPoint { Scene = "A", Condition = 0 }],
+                ["gated"] = [new SpawnPoint { Scene = "A" }],
+                ["first"] = [new SpawnPoint { Scene = "A" }],
+                ["second"] = [new SpawnPoint { Scene = "A" }],
+            },
+            items: new()
+            {
+                ["item:goal"] = new GateItem
+                {
+                    Name = "Goal",
+                    GameId = "goal",
+                    Sources = [gated, first, second],
+                },
+                ["item:key"] = new GateItem { Name = "Key", GameId = "key" },
+            }
+        );
+        var facts = new GateTestFacts();
+        var resolver = Resolver(data, facts);
+
+        var before = resolver.Resolve(quest, step, "A");
+
+        Assert.True(before.CanNavigate, before.Message);
+        Assert.Equal(new[] { first, second }, before.Step.Sources);
+        Assert.Null(before.SelectedSpawn);
+        facts.Keyring.Add("key");
+
+        var after = resolver.Resolve(quest, step, "A");
+
+        Assert.True(after.CanNavigate, after.Message);
+        Assert.Equal(new[] { gated, first, second }, after.Step.Sources);
+        Assert.Equal(3, after.AvailableSpawns!.Count);
+    }
+
+    [Fact]
+    public void Completed_candle_reward_quest_is_not_followed_back_to_its_acquisition()
+    {
+        var data = ShippingData();
+        var candle = data.GateItems.Single(item => item.Value.Name == "Nighthollow Candle");
+        var completed = data.GetByStableKey("quest:ignitingnighthollow")!;
+        var step = new QuestStep
+        {
+            Order = 1,
+            Action = "collect",
+            Description = "Collect Nighthollow Candle.",
+            TargetType = "item",
+            TargetKey = candle.Key,
+            TargetName = candle.Value.Name,
+            Sources = candle.Value.Sources,
+        };
+        var facts = new GateTestFacts();
+        facts.Quests.Add(completed.DBName);
+        var gates = new GateConditions(data, facts);
+        RequirementResolver? resolver = null;
+        resolver = new RequirementResolver(
+            data,
+            gates,
+            new ZoneGraph(data, gates),
+            quest =>
+                !NavigationResolutionPolicy.CanResolveQuest(facts.IsQuestCompleted(quest.DBName))
+                    ? null
+                    : resolver!.BuildAcquisitionStep(quest) ?? quest.Steps?.FirstOrDefault()
+        );
+
+        var result = resolver.Resolve(Quest("Original", step), step, "Duskenlight");
+
+        Assert.Equal(0, facts.ItemCount(candle.Key));
+        Assert.False(result.CanNavigate);
+        Assert.Same(step, result.Step);
+        Assert.Empty(result.Chain);
+        Assert.DoesNotContain("Complete " + completed.DisplayName, result.DisplayText);
+        Assert.Equal("No reachable source is known for Nighthollow Candle.", result.Message);
+    }
+
+    [Fact]
+    public void Pinned_locked_line_resolves_key_even_when_an_open_route_exists()
+    {
+        var step = Character("target");
+        var pinned = new ZoneLineEntry
+        {
+            Scene = "A",
+            DestinationZoneKey = "zone:b",
+            Condition = 0,
+        };
+        var source = new ItemSource { Type = "pickup", SourceKey = "itembag:a:1:2:3" };
+        var data = Data(
+            [
+                [
+                    [Atom(GateAtomKind.KeyHeld, "item:key")],
+                ],
+            ],
+            new() { ["target"] = [new SpawnPoint { Scene = "B" }] },
+            items: new()
+            {
+                ["item:key"] = new GateItem
+                {
+                    Name = "Pinned Key",
+                    GameId = "1",
+                    Sources = [source],
+                },
+            },
+            lines: [new ZoneLineEntry { Scene = "A", DestinationZoneKey = "zone:b" }, pinned]
+        );
+        var quest = Quest("Original", step);
+        var resolver = Resolver(data);
+        Assert.Same(step, resolver.Resolve(quest, step, "A").Step);
+        var result = resolver.Resolve(quest, step, "A", pinned);
+        Assert.True(result.CanNavigate, result.Message);
+        Assert.Equal("item:key", result.Step.TargetKey);
+        Assert.Contains("Pinned Key", result.DisplayText);
+    }
+
+    [Fact]
+    public void Ungated_item_preserves_all_sources_and_manual_scene_selection()
+    {
+        var step = new QuestStep
+        {
+            Order = 1,
+            Action = "collect",
+            Description = "Collect Goal.",
+            TargetType = "item",
+            TargetKey = "item:goal",
+            Sources =
+            [
+                new ItemSource { Type = "drop", SourceKey = "first" },
+                new ItemSource { Type = "drop", SourceKey = "second" },
+            ],
+        };
+        var data = Data(
+            [],
+            new()
+            {
+                ["first"] = [new SpawnPoint { Scene = "A" }],
+                ["second"] = [new SpawnPoint { Scene = "B" }],
+            },
+            lines: [new ZoneLineEntry { Scene = "A", DestinationZoneKey = "zone:b" }]
+        );
+        var result = Resolver(data).Resolve(Quest("Original", step), step, "A");
+        Assert.True(result.CanNavigate);
+        Assert.Same(step, result.Step);
+        Assert.Null(result.SelectedScene);
+        Assert.Null(result.SelectedSpawn);
+        Assert.Null(result.EntryLine);
+        Assert.Equal(2, result.Step.Sources!.Count);
+    }
+
+    [Fact]
+    public void Unreachable_first_requirement_falls_back_to_reachable_larger_group()
+    {
+        var step = Character("target");
+        var unreachable = Quest("Unreachable", Character("far"));
+        var reachable = Quest("Reachable", Character("near"));
+        var other = Quest("Other", Character("near"));
+        var data = Data(
+            [
+                [
+                    [Atom(GateAtomKind.QuestDone, "Unreachable")],
+                    [
+                        Atom(GateAtomKind.QuestDone, "Reachable"),
+                        Atom(GateAtomKind.QuestDone, "Other"),
+                    ],
+                ],
+            ],
+            new()
+            {
+                ["target"] = [new SpawnPoint { Scene = "A", Condition = 0 }],
+                ["far"] = [new SpawnPoint { Scene = "B" }],
+                ["near"] = [new SpawnPoint { Scene = "A" }],
+            },
+            quests: [unreachable, reachable, other]
+        );
+        var result = Resolver(data).Resolve(Quest("Original", step), step, "A");
+        Assert.True(result.CanNavigate, result.Message);
+        Assert.Same(reachable, result.Quest);
+        Assert.Same(reachable.Steps![0], result.Step);
+        Assert.Contains(result.Chain, link => link.Alternatives.Contains("Complete Unreachable"));
+    }
+
+    [Theory]
+    [InlineData("world_drop")]
+    [InlineData("common_world_item")]
+    [InlineData("fishing_bonus")]
+    [InlineData("treasure_chest")]
+    public void Random_only_origin_preserves_existing_special_source_handling(string sourceType)
+    {
+        var step = new QuestStep
+        {
+            Order = 1,
+            Action = "collect",
+            Description = "Collect Goal.",
+            TargetType = "item",
+            TargetKey = "item:goal",
+            Sources = [new ItemSource { Type = sourceType }],
+        };
+        var data = Data([], new());
+        var result = Resolver(data).Resolve(Quest("Original", step), step, "A");
+        Assert.True(result.CanNavigate);
+        Assert.Same(step, result.Step);
+        Assert.Null(result.SelectedScene);
+        Assert.Empty(result.Chain);
+    }
+}

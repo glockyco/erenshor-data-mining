@@ -52,7 +52,7 @@ When the navigation target or a hop of its route is gated by an observable atom,
 #### Scenario: Island Tomb through the lighthouse
 
 - **WHEN** the route to Occuphage needs the lighthouse entrance and the player has no Stowaway's Step Lighthouse Key
-- **THEN** navigation leads to the key's source and shows that the key opens the lighthouse door
+- **THEN** navigation leads to the key's source and shows that the key opens a door in Stowaway's Step
 
 #### Scenario: Unlock by either of two routes
 
@@ -61,12 +61,17 @@ When the navigation target or a hop of its route is gated by an observable atom,
 
 ### Requirement: Routing excludes unusable zone lines
 
-Cross-zone routing SHALL NOT use a zone line that the data marks unusable, even as a locked fallback. It SHALL prefer a route whose zone lines are available. When every route needs a gated zone line, it SHALL route to the first gated hop and apply the requirement guidance to that hop.
+Cross-zone routing SHALL NOT use a zone line that the data marks unusable, even as a locked fallback. It SHALL prefer a route whose zone lines are available. When every route needs a gated zone line, it SHALL route to the first gated hop and apply the requirement guidance to that hop. When the target's placement names its entrances, the route SHALL enter the target's scene through the entrance with the cheapest route, and that entrance counts as a hop of the route.
 
 #### Scenario: Shivering Step exits
 
 - **WHEN** the player in Shivering Step navigates to a target in Hidden Hills
 - **THEN** the route leaves through Stowaway's Step and never through the unusable Shivering Step zone line to Hidden Hills
+
+#### Scenario: Occuphage from Blacksalt Strand
+
+- **WHEN** the player in Blacksalt Strand holds the Stowaway's Step Lighthouse Key and navigates to Occuphage
+- **THEN** the route leads through Stowaway's Step to the lighthouse zone line and not to the closer Island Tomb entrance on the beach
 
 ### Requirement: Gate evaluation is deterministic and fails safe
 

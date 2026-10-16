@@ -25,7 +25,7 @@ from erenshor.application.guide.schema import (
     WorkflowTarget,
 )
 
-from .fixtures import build_graph, character_node, item_node, quest_gate, quest_node
+from .fixtures import build_graph, character_node, item_node, quest_gate, quest_node, spawn_node
 
 
 def _fixture() -> tuple[EntityGraph, dict[str, object]]:
@@ -1209,3 +1209,37 @@ def test_guide_only_steps_include_all_background_sources_after_normal_sources() 
     assert {source["type"] for source in sources[:3]} == {"drop", "vendor"}
     assert {source["type"] for source in sources[3:]} == {"world_drop", "fishing_bonus", "treasure_chest"}
     assert "level_estimate" not in entry["steps"][0]
+
+
+def test_placements_index_their_entry_lines_and_keys_name_their_door_zones() -> None:
+    def line(key: str, x: float) -> Node:
+        return Node(
+            key=key,
+            type=NodeType.ZONE_LINE,
+            display_name=key,
+            scene="Island",
+            x=x,
+            y=0,
+            z=0,
+            destination_zone_key="zone:tomb",
+            destination_display="Island Tomb",
+        )
+
+    key = GateAtom(AtomKind.KEY_HELD, "item:key")
+    graph = build_graph(
+        Node(key="zone:tomb", type=NodeType.ZONE, display_name="Island Tomb", scene="Tomb"),
+        line("zoneline:beach", 1),
+        line("zoneline:lighthouse", 2),
+        character_node("char:demon"),
+        spawn_node("spawn:ledge", scene="Tomb", zone_key="zone:tomb"),
+        item_node("item:key", "Lighthouse Key", game_id="7"),
+        edges=[Edge(source="char:demon", target="spawn:ledge", type=EdgeType.HAS_SPAWN)],
+        gates=[Gate(SubjectKind.CHARACTER, "char:demon", "door:tomb:1.00:2.00:3.00", ((key,),))],
+    )
+    graph.add_entry("char:demon", "zoneline:lighthouse")
+
+    data = build_mod_guide(graph, compile_graph(graph))
+
+    [placement] = data["_character_spawns"]["char:demon"]
+    assert [data["_zone_lines"][index]["x"] for index in placement["entries"]] == [2]
+    assert data["_gate_items"]["item:key"]["door_zones"] == ["Island Tomb"]

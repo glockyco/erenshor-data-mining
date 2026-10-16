@@ -3,6 +3,19 @@ using AdventureGuide.State;
 
 namespace AdventureGuide.Navigation;
 
+/// <summary>A reachable placement's approach route and its required final entry.</summary>
+public readonly struct PlacementRoute
+{
+    public ZoneGraph.Route? Route { get; }
+    public ZoneLineEntry? EntryLine { get; }
+
+    public PlacementRoute(ZoneGraph.Route? route, ZoneLineEntry? entryLine)
+    {
+        Route = route;
+        EntryLine = entryLine;
+    }
+}
+
 /// <summary>
 /// Zone connectivity graph with shortest-path routing.
 ///
@@ -32,6 +45,95 @@ public sealed class ZoneGraph
             Path = path;
         }
     }
+
+    /// <summary>Routes from one scene, scoped to a single requirement resolution.</summary>
+    public sealed class RouteLookup
+    {
+        private sealed class Node
+        {
+            public readonly string Scene;
+            public readonly Node? Parent;
+            public readonly int Hops;
+            public readonly string NextHopZoneKey;
+            public readonly bool FirstHopLocked;
+            public Route? Route;
+
+            public Node(string scene, Node? parent, string nextHopZoneKey, bool firstHopLocked)
+            {
+                Scene = scene;
+                Parent = parent;
+                Hops = parent == null ? 0 : parent.Hops + 1;
+                NextHopZoneKey = nextHopZoneKey;
+                FirstHopLocked = firstHopLocked;
+            }
+        }
+
+        private readonly ZoneGraph _graph;
+        private readonly Dictionary<string, Node> _accessible = new(
+            StringComparer.OrdinalIgnoreCase
+        );
+        private readonly Dictionary<string, Node> _full = new(StringComparer.OrdinalIgnoreCase);
+
+        public string Scene { get; }
+
+        internal RouteLookup(ZoneGraph graph, string scene)
+        {
+            _graph = graph;
+            Scene = scene;
+            var root = new Node(scene, null, "", false);
+            _accessible.Add(scene, root);
+            _full.Add(scene, root);
+            var queue = new Queue<(Node node, bool accessibleOnly)>();
+            queue.Enqueue((root, true));
+            queue.Enqueue((root, false));
+            while (queue.Count > 0)
+            {
+                var (node, accessibleOnly) = queue.Dequeue();
+                if (!graph._adj.TryGetValue(node.Scene, out var edges))
+                    continue;
+                var visited = accessibleOnly ? _accessible : _full;
+                foreach (var (destination, zoneKey, accessible) in edges)
+                {
+                    if ((accessibleOnly && !accessible) || visited.ContainsKey(destination))
+                        continue;
+                    var next = new Node(
+                        destination,
+                        node,
+                        node.Hops == 0 ? zoneKey : node.NextHopZoneKey,
+                        node.Hops == 0 ? !accessible : node.FirstHopLocked
+                    );
+                    visited.Add(destination, next);
+                    queue.Enqueue((next, accessibleOnly));
+                }
+            }
+        }
+
+        private Node? FindNode(string scene) =>
+            _accessible.TryGetValue(scene, out var accessible) ? accessible
+            : _full.TryGetValue(scene, out var full) ? full
+            : null;
+
+        public int HopCount(string scene) => FindNode(scene)?.Hops ?? int.MaxValue;
+
+        public Route? FindRoute(string scene)
+        {
+            var node = FindNode(scene);
+            if (node == null || node.Hops == 0)
+                return null;
+            if (node.Route != null)
+                return node.Route;
+            var path = new string[node.Hops + 1];
+            for (Node? current = node; current != null; current = current.Parent)
+                path[current.Hops] = current.Scene;
+            node.Route = new Route(node.NextHopZoneKey, node.FirstHopLocked, path);
+            return node.Route;
+        }
+
+        public PlacementRoute? GetPlacementRoute(AdventureGuide.Data.SpawnPoint spawn) =>
+            _graph.GetPlacementRoute(spawn, Scene, this);
+    }
+
+    public RouteLookup BuildRouteLookup(string scene) => new(this, scene);
 
     private readonly GuideData _data;
     private readonly GateConditions _gates;
@@ -74,6 +176,8 @@ public sealed class ZoneGraph
         {
             var zl = zoneLines[line];
             if (string.IsNullOrEmpty(zl.DestinationZoneKey))
+                continue;
+            if (!_gates.CanBecomeAvailable(zl.Condition))
                 continue;
 
             if (!_zoneKeyToScene.TryGetValue(zl.DestinationZoneKey, out var destScene))
@@ -138,6 +242,64 @@ public sealed class ZoneGraph
         }
 
         return null;
+    }
+
+    /// <summary>Route to a placement through its cheapest usable entry, preserving entry order on ties.</summary>
+    public PlacementRoute? GetPlacementRoute(AdventureGuide.Data.SpawnPoint spawn, string scene) =>
+        GetPlacementRoute(spawn, scene, null);
+
+    private PlacementRoute? GetPlacementRoute(
+        AdventureGuide.Data.SpawnPoint spawn,
+        string scene,
+        RouteLookup? routes
+    )
+    {
+        if (string.Equals(scene, spawn.Scene, StringComparison.OrdinalIgnoreCase))
+            return new PlacementRoute(null, null);
+        if (spawn.Entries == null)
+        {
+            var route =
+                routes == null ? FindRoute(scene, spawn.Scene) : routes.FindRoute(spawn.Scene);
+            return route == null ? null : new PlacementRoute(route, null);
+        }
+
+        ZoneLineEntry? bestEntry = null;
+        Route? bestRoute = null;
+        int bestHops = int.MaxValue;
+        foreach (int index in spawn.Entries)
+        {
+            var entry = _data.ZoneLines[index];
+            if (!_gates.CanBecomeAvailable(entry.Condition))
+                continue;
+            bool sameScene = string.Equals(scene, entry.Scene, StringComparison.OrdinalIgnoreCase);
+            var route = routes == null && !sameScene ? FindRoute(scene, entry.Scene) : null;
+            int hops = sameScene
+                ? 0
+                : routes?.HopCount(entry.Scene)
+                    ?? (route == null ? int.MaxValue : route.Path.Count - 1);
+            if (hops < bestHops)
+            {
+                bestEntry = entry;
+                bestRoute = route;
+                bestHops = hops;
+            }
+        }
+        if (bestEntry == null)
+            return null;
+        var approach = routes == null ? bestRoute : routes.FindRoute(bestEntry.Scene);
+        return new PlacementRoute(approach, bestEntry);
+    }
+
+    /// <summary>All physical lines for a route hop, preserving guide order.</summary>
+    internal IEnumerable<ZoneLineEntry> LinesForHop(string fromScene, string toScene)
+    {
+        foreach (var line in _data.ZoneLines)
+            if (
+                string.Equals(line.Scene, fromScene, StringComparison.OrdinalIgnoreCase)
+                && _zoneKeyToScene.TryGetValue(line.DestinationZoneKey, out var destination)
+                && string.Equals(destination, toScene, StringComparison.OrdinalIgnoreCase)
+            )
+                yield return line;
     }
 
     private List<string>? BFS(string start, string goal, bool accessibleOnly)

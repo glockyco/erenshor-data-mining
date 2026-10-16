@@ -133,6 +133,43 @@ public sealed class GateConditionsTests
     }
 
     [Fact]
+    public void Future_availability_only_rejects_empty_conditions_and_completed_negative_quests()
+    {
+        var facts = new GateTestFacts();
+        facts.Quests.Add("Done");
+        var gates = new GateConditions(
+            Data([
+                [],
+                [
+                    [],
+                ],
+                [
+                    [Atom(GateAtomKind.QuestNotDone, "Done")],
+                ],
+                [
+                    [Atom(GateAtomKind.QuestNotDone, "Done")],
+                    [Atom(GateAtomKind.KeyHeld)],
+                ],
+                [
+                    [Atom(GateAtomKind.QuestDone, "NotDone"), Atom(GateAtomKind.ItemHeld)],
+                ],
+                [
+                    [Atom(GateAtomKind.QuestNotDone, "NotDone")],
+                ],
+            ]),
+            facts
+        );
+
+        Assert.True(gates.CanBecomeAvailable(null));
+        Assert.False(gates.CanBecomeAvailable(0));
+        Assert.True(gates.CanBecomeAvailable(1));
+        Assert.False(gates.CanBecomeAvailable(2));
+        Assert.True(gates.CanBecomeAvailable(3));
+        Assert.True(gates.CanBecomeAvailable(4));
+        Assert.True(gates.CanBecomeAvailable(5));
+    }
+
+    [Fact]
     public void Character_without_placements_is_ungated_and_any_available_placement_suffices()
     {
         var facts = new GateTestFacts();

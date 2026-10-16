@@ -97,9 +97,20 @@ For AdventureGuide, use its static diagnostics before reflection:
 uv run erenshor eval run 'AdventureGuide.Diagnostics.DebugAPI.DumpState()'
 uv run erenshor eval run 'AdventureGuide.Diagnostics.DebugAPI.DumpQuest("Quest DB name")'
 uv run erenshor eval run 'AdventureGuide.Diagnostics.DebugAPI.DumpNav()'
+uv run erenshor eval run 'AdventureGuide.Diagnostics.DebugAPI.DumpGate("character:founder")'
 uv run erenshor eval run 'AdventureGuide.Diagnostics.DebugAPI.DumpZoneQuests()'
 uv run erenshor eval run 'AdventureGuide.Diagnostics.DebugAPI.DumpMarkers()'
 ```
+
+Use `DumpGate(subject)` to inspect condition groups and each atom's live value. Pass a
+character stable key, a `spawn:scene:x:y:z` identifier from its character dump, or
+`scene|destination` for a zone line. The destination accepts a scene, zone stable
+key, or display name. Read the emitted identifiers instead of guessing them.
+
+After selecting NAV, use `DumpNav()` to inspect the originating quest and step,
+the ordered requirement chain, alternatives, advisory encounters, and any blocked
+message. The chain remains inspectable when no reachable navigation target exists.
+Compare the dump with the navigation overlay, quest detail panel, and tracker.
 
 ## ScriptEngine reload
 

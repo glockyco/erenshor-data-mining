@@ -22,15 +22,104 @@ public sealed class NavigationController
     private readonly MiningNodeTracker _miningTracker;
     private readonly LootScanner _lootScanner;
     private readonly ZoneGraph _zoneGraph;
+    private readonly RequirementResolver _requirements;
+    private int _lastResolvedStateVersion = int.MinValue;
+    private string? _lastResolvedScene;
+    private readonly HashSet<string> _reportedResolutionErrors = new(
+        StringComparer.OrdinalIgnoreCase
+    );
+    private QuestStep? _navigationOverride;
+
+    public RequirementResolution? Requirements { get; private set; }
+    public ZoneLineEntry? ChosenEntryLine => _chosenEntryLine ?? Requirements?.EntryLine;
+    public string CurrentScene => _state.CurrentZone;
+    public QuestEntry? OriginQuest =>
+        _originQuestKey == null ? null : _data.GetByRuntimeKey(_originQuestKey);
+    public QuestStep? OriginStep
+    {
+        get
+        {
+            var steps = OriginQuest?.Steps;
+            if (steps != null)
+                foreach (var step in steps)
+                    if (step.Order == _originStepOrder)
+                        return step;
+            return null;
+        }
+    }
 
     // ── Cross-zone routing cache ──────────────────────────────────
     private ZoneLineEntry? _cachedZoneLine;
     private ZoneLineEntry? _pinnedZoneLine;
+    private ZoneLineEntry? _chosenEntryLine;
     private Vector3 _lastCrossZoneCalcPos;
     private string? _navigationScene;
     private bool _cachedRouteLocked;
     private readonly UnroutableRoute _unroutableRoute = new();
     private const float CrossZoneRecalcDistance = 10f;
+    private readonly List<ZoneLineAccess> _cachedHopAccess = new();
+    private string? _cachedHopScene;
+    private string? _cachedNextHopZoneKey;
+    private ZoneLineEntry? _cachedEntryLine;
+    private WaypointTargetState? _cachedWaypointTarget;
+
+    private readonly struct WaypointTargetState
+    {
+        private readonly NavigationTarget.Kind _kind;
+        private readonly Vector3 _position;
+        private readonly string _scene;
+        private readonly string? _source;
+        private readonly string _quest;
+        private readonly int _step;
+        private readonly string _origin;
+        private readonly int _originStep;
+
+        public WaypointTargetState(NavigationTarget target)
+        {
+            _kind = target.TargetKind;
+            _position = target.Position;
+            _scene = target.Scene;
+            _source = target.SourceId;
+            _quest = target.QuestKey;
+            _step = target.StepOrder;
+            _origin = target.OriginQuestKey;
+            _originStep = target.OriginStepOrder;
+        }
+
+        public bool Matches(NavigationTarget target) =>
+            _kind == target.TargetKind
+            && _position == target.Position
+            && _step == target.StepOrder
+            && _originStep == target.OriginStepOrder
+            && string.Equals(_scene, target.Scene, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(_source, target.SourceId, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(_quest, target.QuestKey, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(_origin, target.OriginQuestKey, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private readonly struct CrossZoneApproach
+    {
+        public string? NextHopZoneKey { get; }
+        public ZoneLineEntry? EntryLine { get; }
+        public ZoneLineEntry? FixedLine { get; }
+        public bool IsLocked { get; }
+        public bool PlacementUnreachable { get; }
+
+        public CrossZoneApproach(
+            string? nextHopZoneKey,
+            ZoneLineEntry? entryLine,
+            ZoneLineEntry? fixedLine,
+            bool isLocked,
+            bool placementUnreachable = false
+        )
+        {
+            NextHopZoneKey = nextHopZoneKey;
+            EntryLine = entryLine;
+            FixedLine = fixedLine;
+            IsLocked = isLocked;
+            PlacementUnreachable = placementUnreachable;
+        }
+    }
 
     // ── Multi-source navigation state ─────────────────────────────
     // When navigating an item step, multiple sources may be active.
@@ -111,6 +200,12 @@ public sealed class NavigationController
         _miningTracker = miningTracker;
         _lootScanner = lootScanner;
         _zoneGraph = new ZoneGraph(data, state.Gates);
+        _requirements = new RequirementResolver(
+            data,
+            state.Gates,
+            _zoneGraph,
+            CurrentRequirementStep
+        );
     }
 
     /// <summary>
@@ -120,11 +215,54 @@ public sealed class NavigationController
     /// </summary>
     public bool NavigateTo(QuestStep step, QuestEntry quest, string currentScene)
     {
+        _navigationOverride = null;
+        _pinnedZoneLine = null;
+        _previousManualSourceKeys.Clear();
         _treasureHunt.Drop();
         _originQuestKey = quest.RuntimeKey;
         _originStepOrder = step.Order;
         SavePerCharacter();
         return ResolveAndNavigate(step, quest, currentScene);
+    }
+
+    public bool NavigateToRequirementCharacter(
+        string characterKey,
+        string displayName,
+        string currentScene
+    )
+    {
+        var quest = OriginQuest;
+        if (quest == null)
+            return false;
+        _navigationOverride = new QuestStep
+        {
+            Order = _originStepOrder,
+            Action = "talk",
+            Description = displayName,
+            TargetType = "character",
+            TargetKey = characterKey,
+            TargetName = displayName,
+        };
+        return ResolveAndNavigate(_navigationOverride, quest, currentScene);
+    }
+
+    private QuestStep? CurrentRequirementStep(QuestEntry quest)
+    {
+        if (!NavigationResolutionPolicy.CanResolveQuest(_state.IsCompleted(quest)))
+            return null;
+        if (!_state.IsActionable(quest) && quest.Acquisition is { Count: > 0 })
+        {
+            if (quest.Steps != null)
+                foreach (var step in quest.Steps)
+                    if (StepProgress.IsAcquisitionStep(quest, step))
+                        return step;
+            if (_requirements.BuildAcquisitionStep(quest) is { } acquisition)
+                return acquisition;
+        }
+        if (quest.Steps == null || quest.Steps.Count == 0)
+            return null;
+        int index = StepProgress.GetCurrentStepIndex(quest, _state, _data);
+        return index >= 0 && index < quest.Steps.Count ? quest.Steps[index] : null;
     }
 
     /// <summary>
@@ -135,6 +273,7 @@ public sealed class NavigationController
     {
         if (!_state.TreasureHunt.State.Active)
             return false;
+        _navigationOverride = null;
         _treasureHunt.Drop();
         _originQuestKey = questKey;
         _originStepOrder = stepOrder;
@@ -209,17 +348,50 @@ public sealed class NavigationController
     }
 
     /// <summary>Resolve the selected step again, keeping it selected.</summary>
-    private bool ResolveOrigin(string currentScene)
+    private bool ResolveOrigin(string currentScene, bool preserveCrossZoneCache = false)
     {
         var quest = _originQuestKey != null ? _data.GetByRuntimeKey(_originQuestKey) : null;
         if (quest?.Steps == null)
             return false;
+        if (_state.IsCompleted(quest))
+        {
+            Clear();
+            return false;
+        }
+        int order = NavigationResolutionPolicy.SelectOriginStepOrder(
+            quest.Steps,
+            _originStepOrder,
+            StepProgress.GetCurrentStepIndex(quest, _state, _data)
+        );
+        if (order <= 0)
+        {
+            Clear();
+            return false;
+        }
+        SetOriginStepOrder(order);
+        if (_navigationOverride != null)
+            return ResolveAndNavigate(
+                _navigationOverride,
+                quest,
+                currentScene,
+                preserveCrossZoneCache
+            );
         foreach (var step in quest.Steps)
         {
             if (step.Order == _originStepOrder)
-                return ResolveAndNavigate(step, quest, currentScene);
+                return ResolveAndNavigate(step, quest, currentScene, preserveCrossZoneCache);
         }
         return false;
+    }
+
+    private void SetOriginStepOrder(int order)
+    {
+        if (_originStepOrder == order)
+            return;
+        _originStepOrder = order;
+        _navigationOverride = null;
+        _previousManualSourceKeys.Clear();
+        SavePerCharacter();
     }
 
     private void SetTreasureTarget(string questKey, int stepOrder)
@@ -268,19 +440,150 @@ public sealed class NavigationController
     /// Does not change origin identity — used by both NavigateTo (after setting
     /// origin) and auto-advance (which preserves the existing origin).
     /// </summary>
-    private bool ResolveAndNavigate(QuestStep step, QuestEntry quest, string currentScene)
+    private bool ResolveAndNavigate(
+        QuestStep step,
+        QuestEntry quest,
+        string currentScene,
+        bool preserveCrossZoneCache = false
+    )
     {
-        var (resolved, resolvedQuest) = StepProgress.ResolveActiveStep(step, quest, _state, _data);
-        if (resolved != null && resolvedQuest != null && resolved != step)
+        var pinnedLine = _pinnedZoneLine;
+        if (
+            pinnedLine != null
+            && !NavigationResolutionPolicy.CanUseZoneLine(pinnedLine, _state.Gates)
+        )
+            pinnedLine = _pinnedZoneLine = null;
+        _lastResolvedStateVersion = _state.Version;
+        bool sameResolutionScene = string.Equals(
+            _lastResolvedScene,
+            currentScene,
+            StringComparison.OrdinalIgnoreCase
+        );
+        _lastResolvedScene = currentScene;
+        try
         {
-            step = resolved;
-            quest = resolvedQuest;
+            var (activeStep, activeQuest) = StepProgress.ResolveActiveStep(
+                step,
+                quest,
+                _state,
+                _data
+            );
+            var result = _requirements.Resolve(
+                activeQuest ?? quest,
+                activeStep ?? step,
+                currentScene,
+                pinnedLine
+            );
+            if (activeStep != null && !ReferenceEquals(activeStep, step) && result.Chain.Count > 0)
+            {
+                var chain = new List<RequirementLink>(result.Chain.Count + 1)
+                {
+                    new RequirementLink(step.TargetName ?? step.Description, Array.Empty<string>()),
+                };
+                chain.AddRange(result.Chain);
+                result = new RequirementResolution(
+                    result.Quest,
+                    result.Step,
+                    result.CanNavigate,
+                    result.Message,
+                    chain,
+                    result.Advisories,
+                    result.SelectedScene,
+                    result.SelectedSpawn,
+                    result.EntryLine,
+                    result.AvailableSpawns
+                );
+            }
+            bool sameOrigin =
+                sameResolutionScene
+                && Target != null
+                && IsMatch(
+                    Target.OriginQuestKey,
+                    Target.OriginStepOrder,
+                    _originQuestKey ?? quest.RuntimeKey,
+                    _originStepOrder
+                );
+            if (
+                preserveCrossZoneCache
+                && NavigationResolutionPolicy.CanReuseEndpoint(
+                    Requirements,
+                    result,
+                    sameOrigin,
+                    ContainsItemUse(
+                        ItemSourcePolicy.SourcesFor(activeQuest ?? quest, activeStep ?? step)
+                    )
+                )
+            )
+            {
+                Requirements = result;
+                _resolvedStep = result.Step;
+                return true;
+            }
+            ResetTargetState(preserveCrossZoneCache);
+            Requirements = result;
+            if (!result.CanNavigate)
+            {
+                InvalidateCrossZoneCache();
+                return false;
+            }
+            if (
+                NavigationResolutionPolicy.SameStep(
+                    result.Quest,
+                    result.Step,
+                    activeQuest ?? quest,
+                    activeStep ?? step
+                )
+            )
+                _pinnedZoneLine = pinnedLine;
+            bool navigated = ResolveEndpoint(result.Step, result.Quest, currentScene);
+            Requirements = navigated
+                ? result
+                : new RequirementResolution(
+                    result.Quest,
+                    result.Step,
+                    false,
+                    "No reachable navigation target for this requirement.",
+                    result.Chain,
+                    result.Advisories,
+                    result.SelectedScene,
+                    result.SelectedSpawn,
+                    result.EntryLine,
+                    result.AvailableSpawns
+                );
+            if (!navigated)
+                InvalidateCrossZoneCache();
+            return navigated;
         }
+        catch (Exception error)
+        {
+            ResetTargetState();
+            if (_reportedResolutionErrors.Add(quest.RuntimeKey))
+                AdventureGuideLog.Current.LogError(
+                    $"Cannot resolve navigation for {quest.DisplayName}",
+                    error
+                );
+            Requirements = new RequirementResolution(
+                quest,
+                step,
+                false,
+                "Navigation requirements could not be resolved.",
+                Array.Empty<RequirementLink>(),
+                Array.Empty<GateAtom>()
+            );
+            return false;
+        }
+        finally
+        {
+            if (preserveCrossZoneCache)
+                RevalidateCrossZoneCache(currentScene);
+        }
+    }
 
+    private bool ResolveEndpoint(QuestStep step, QuestEntry quest, string currentScene)
+    {
         if (step.Action == "complete_quest")
             return false;
 
-        ResetTargetState();
         _resolvedStep = step;
 
         if (step.Location != null)
@@ -297,7 +600,18 @@ public sealed class NavigationController
         if (step.TargetKey == null)
             return false;
 
-        if (step.TargetType == "character" && _state.Gates.IsCharacterAvailable(step.TargetKey))
+        if (
+            step.TargetType == "character"
+            && _state.Gates.IsCharacterAvailable(step.TargetKey)
+            && (
+                Requirements?.SelectedScene == null
+                || string.Equals(
+                    Requirements.SelectedScene,
+                    currentScene,
+                    StringComparison.OrdinalIgnoreCase
+                )
+            )
+        )
         {
             var playerPos = GetPlayerPosition();
             if (playerPos.HasValue)
@@ -331,13 +645,15 @@ public sealed class NavigationController
         };
     }
 
-    /// <summary>Clear active navigation.</summary>
     /// <summary>Pin a specific zone line for cross-zone routing, overriding auto-selection.</summary>
     public void PinZoneLine(ZoneLineEntry zoneLine)
     {
         _pinnedZoneLine = zoneLine;
-        // Force recalculation on next update
         InvalidateCrossZoneCache();
+        if (OriginQuest is { } origin)
+            RefreshResolvedStep(origin, _state.CurrentZone);
+        else
+            InvalidateCrossZoneCache();
     }
 
     /// <summary>End the navigation session entirely.</summary>
@@ -345,6 +661,7 @@ public sealed class NavigationController
     {
         _treasureHunt.Drop();
         ResetTargetState();
+        _navigationOverride = null;
         _originQuestKey = null;
         _originStepOrder = 0;
         SavePerCharacter();
@@ -356,6 +673,7 @@ public sealed class NavigationController
         SavePerCharacter();
         _treasureHunt.Drop();
         ResetTargetState();
+        _navigationOverride = null;
         _originQuestKey = null;
         _originStepOrder = 0;
         _navQuestEntry = null;
@@ -437,10 +755,12 @@ public sealed class NavigationController
     /// Preserves origin identity so auto-advance and source toggles
     /// keep the parent quest's NAV button highlighted.
     /// </summary>
-    private void ResetTargetState()
+    private void ResetTargetState(bool preserveCrossZoneCache = false)
     {
         Target = null;
-        InvalidateCrossZoneCache();
+        Requirements = null;
+        if (!preserveCrossZoneCache)
+            InvalidateCrossZoneCache();
         _pinnedZoneLine = null;
         _activeSourceKeys.Clear();
         _allItemSources.Clear();
@@ -456,9 +776,15 @@ public sealed class NavigationController
     private void InvalidateCrossZoneCache()
     {
         _cachedZoneLine = null;
+        _chosenEntryLine = null;
         _lastCrossZoneCalcPos = Vector3.zero;
         ZoneLineWaypoint = null;
         _unroutableRoute.Clear();
+        _cachedHopAccess.Clear();
+        _cachedHopScene = null;
+        _cachedNextHopZoneKey = null;
+        _cachedEntryLine = null;
+        _cachedWaypointTarget = null;
     }
 
     private bool ObserveScene(string currentScene)
@@ -473,36 +799,8 @@ public sealed class NavigationController
 
     private void ReResolveForScene(string currentScene)
     {
-        // Travel destinations stay fixed; a fishing zone target is an item
-        // source like any other and may give way to the new scene's sources.
-        if (
-            Target == null
-            || (Target.TargetKind == NavigationTarget.Kind.Zone && _allItemSources.Count == 0)
-            || _resolvedStep == null
-            || _resolvedStep.Location != null
-        )
-            return;
-        var quest = _data.GetByRuntimeKey(Target.QuestKey);
-        if (quest == null)
-            return;
-        if (_allItemSources.Count > 0)
-        {
-            // Keep manually chosen sources; auto mode can prefer the new zone.
-            if (!_manualOverride)
-                ComputeAutoSourceSet(currentScene);
-            ResolveClosestActiveSource(quest, _resolvedStep, currentScene);
-        }
-        else if (
-            _resolvedStep.TargetType == "character"
-            && StepSceneResolver.HasSourceInScene(
-                quest,
-                _resolvedStep,
-                _data,
-                currentScene,
-                _state.Gates.IsSourceAvailable
-            )
-        )
-            ResolveCharacterTarget(_resolvedStep, quest, currentScene);
+        if (OriginQuest is { } origin && !_navigatingTreasure)
+            RefreshResolvedStep(origin, currentScene);
     }
 
     /// <summary>
@@ -540,6 +838,7 @@ public sealed class NavigationController
                 Target = null;
                 ZoneLineWaypoint = null;
                 _cachedZoneLine = null;
+                _chosenEntryLine = null;
                 _currentSourceKey = null;
                 ResolveClosestActiveSource(quest, step, currentScene);
             }
@@ -611,14 +910,33 @@ public sealed class NavigationController
     public void OnGameStateChanged(string currentScene)
     {
         _zoneGraph.Rebuild();
-        ObserveScene(currentScene);
-        InvalidateCrossZoneCache();
-        if (_navigatingTreasure)
+        if (ObserveScene(currentScene))
             return;
+        if (_navigatingTreasure)
+        {
+            RevalidateCrossZoneCache(currentScene);
+            return;
+        }
+        if (
+            Requirements != null
+            && (
+                Requirements.Chain.Count > 1
+                || !Requirements.CanNavigate
+                || _navigationOverride != null
+            )
+        )
+        {
+            var original = OriginQuest;
+            if (original != null && _state.IsCompleted(original))
+                Clear();
+            else
+                ResolveOrigin(currentScene, preserveCrossZoneCache: true);
+            return;
+        }
         if (Target == null)
         {
             if (_originQuestKey != null)
-                ResolveOrigin(currentScene);
+                ResolveOrigin(currentScene, preserveCrossZoneCache: true);
             return;
         }
 
@@ -642,9 +960,7 @@ public sealed class NavigationController
         }
         if (completion == NavigationCompletionAction.ResolveOrigin)
         {
-            var originStep = origin!.Steps?.Find(s => s.Order == _originStepOrder);
-            if (originStep == null || !ResolveAndNavigate(originStep, origin, currentScene))
-                ResetTargetState();
+            RefreshResolvedStep(origin!, currentScene);
             return;
         }
 
@@ -684,7 +1000,15 @@ public sealed class NavigationController
             var step = quest.Steps[i];
             if (step.TargetKey != null)
             {
-                ResolveAndNavigate(step, quest, currentScene);
+                if (
+                    string.Equals(
+                        quest.RuntimeKey,
+                        _originQuestKey,
+                        StringComparison.OrdinalIgnoreCase
+                    )
+                )
+                    SetOriginStepOrder(step.Order);
+                ResolveAndNavigate(step, quest, currentScene, preserveCrossZoneCache: true);
                 return;
             }
         }
@@ -695,84 +1019,27 @@ public sealed class NavigationController
 
     private void RefreshResolvedStep(QuestEntry quest, string currentScene)
     {
-        var step = _resolvedStep;
+        quest = OriginQuest ?? quest;
+        var step = OriginStep ?? _resolvedStep;
         if (step == null)
             return;
         _previousManualSourceKeys.Clear();
         if (_manualOverride)
             _previousManualSourceKeys.UnionWith(_activeSourceKeys);
-        ResolveAndNavigate(step, quest, currentScene);
-        if (_previousManualSourceKeys.Count == 0 || _navigatingTreasure)
-            return;
-        _activeSourceKeys.Clear();
-        foreach (var source in _allItemSources)
-        {
-            if (
-                source.SourceKey != null
-                && _previousManualSourceKeys.Contains(source.SourceKey)
-                && _state.Gates.IsSourceAvailable(source)
-            )
-                _activeSourceKeys.Add(source.SourceKey);
-        }
-        _manualOverride = _activeSourceKeys.Count > 0;
-        if (!_manualOverride)
-            ComputeAutoSourceSet(currentScene);
-        ResolveClosestActiveSource(quest, step, currentScene);
+        if (_originQuestKey != null)
+            ResolveOrigin(currentScene, preserveCrossZoneCache: true);
+        else
+            ResolveAndNavigate(step, quest, currentScene, preserveCrossZoneCache: true);
     }
 
-    /// <summary>
-    /// The Reliquary rooms changed, so a furnishing the navigated step can use
-    /// appeared, moved to another room, or vanished. Resolve that step again;
-    /// navigation that involves no furnishing is left alone.
-    /// </summary>
+    /// <summary>Refresh sources, target requirements, and route gates when room contents change.</summary>
     public void OnFurnishingsChanged(string currentScene)
     {
-        if (Target == null || _resolvedStep == null)
-            return;
-        var quest = _data.GetByRuntimeKey(Target.QuestKey);
-        if (quest == null || !StepUsesFurnishings(_resolvedStep, quest))
-            return;
-        RefreshResolvedStep(quest, currentScene);
-    }
-
-    private bool StepUsesFurnishings(QuestStep step, QuestEntry quest)
-    {
-        if (step.TargetKey != null && _state.Gates.CharacterUsesFurnishings(step.TargetKey))
-            return true;
-        if (step.TargetType != "item" || quest.RequiredItems == null)
-            return false;
-        foreach (var item in quest.RequiredItems)
-        {
-            if (
-                string.Equals(
-                    item.ItemName,
-                    step.TargetName,
-                    System.StringComparison.OrdinalIgnoreCase
-                ) && UsesFurnishings(item.Sources)
-            )
-                return true;
-        }
-        return false;
-    }
-
-    private bool UsesFurnishings(List<Data.ItemSource>? sources)
-    {
-        if (sources == null)
-            return false;
-        foreach (var source in sources)
-        {
-            if (
-                _state.Gates.UsesFurnishings(source.Condition)
-                || (
-                    source.SourceKey != null
-                    && _state.Gates.CharacterUsesFurnishings(source.SourceKey)
-                )
-            )
-                return true;
-            if (UsesFurnishings(source.Children))
-                return true;
-        }
-        return false;
+        _zoneGraph.Rebuild();
+        if (!_navigatingTreasure && OriginQuest is { } origin)
+            RefreshResolvedStep(origin, currentScene);
+        else
+            RevalidateCrossZoneCache(currentScene);
     }
 
     /// <summary>
@@ -832,7 +1099,14 @@ public sealed class NavigationController
                 if (_sourceRescanTimer >= SourceRescanInterval)
                 {
                     _sourceRescanTimer = 0f;
-                    UpdateClosestActiveSource(currentScene, playerPos.Value);
+                    UpdateClosestActiveSource(currentScene);
+                    if (Target == null)
+                        return;
+                    if (Target.IsCrossZone(currentScene))
+                    {
+                        UpdateCrossZoneRouting(currentScene, playerPos.Value);
+                        return;
+                    }
                 }
                 // Per-frame: track the current winner's live position
                 TrackCurrentSourcePosition(playerPos.Value);
@@ -860,10 +1134,17 @@ public sealed class NavigationController
     /// so that parent quests and sub-quests both show as active.
     /// </summary>
     public bool IsNavigating(string questKey, int stepOrder) =>
-        Target != null
-        && (
-            IsMatch(Target.QuestKey, Target.StepOrder, questKey, stepOrder)
-            || IsMatch(Target.OriginQuestKey, Target.OriginStepOrder, questKey, stepOrder)
+        (
+            _originQuestKey != null
+            && Requirements != null
+            && IsMatch(_originQuestKey, _originStepOrder, questKey, stepOrder)
+        )
+        || (
+            Target != null
+            && (
+                IsMatch(Target.QuestKey, Target.StepOrder, questKey, stepOrder)
+                || IsMatch(Target.OriginQuestKey, Target.OriginStepOrder, questKey, stepOrder)
+            )
         );
 
     private static bool IsMatch(string aQuest, int aStep, string bQuest, int bStep) =>
@@ -890,8 +1171,26 @@ public sealed class NavigationController
         if (targetZoneKey == null)
             return result;
 
+        if (
+            ChosenEntryLine is { } entry
+            && string.Equals(entry.Scene, currentScene, StringComparison.OrdinalIgnoreCase)
+        )
+        {
+            if (NavigationResolutionPolicy.CanUseZoneLine(entry, _state.Gates))
+                result.Add(
+                    (
+                        entry,
+                        Vector3.Distance(playerPos, new Vector3(entry.X, entry.Y, entry.Z)),
+                        true,
+                        IsZoneLineAccessible(entry)
+                    )
+                );
+            return result;
+        }
         foreach (var zl in _data.ZoneLines)
         {
+            if (!NavigationResolutionPolicy.CanUseZoneLine(zl, _state.Gates))
+                continue;
             if (!string.Equals(zl.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase))
                 continue;
             if (
@@ -923,15 +1222,20 @@ public sealed class NavigationController
         return result;
     }
 
-    /// <summary>
-    /// Throttled re-evaluation: find the closest alive NPC among all active
-    /// source keys in the current scene. Updates _currentSourceKey and
-    /// Target.SourceId when the winner changes.
-    /// </summary>
-    private void UpdateClosestActiveSource(string currentScene, Vector3 playerPos)
+    /// <summary>Re-pick live sources without rebuilding unchanged requirement guidance.</summary>
+    private void UpdateClosestActiveSource(string currentScene)
     {
-        var quest = _data.GetByRuntimeKey(Target!.QuestKey);
-        if (quest != null && _resolvedStep != null)
+        if (
+            NavigationResolutionPolicy.ShouldResolveRequirements(
+                _state.Version,
+                _lastResolvedStateVersion
+            ) && OriginQuest is { } origin
+        )
+            RefreshResolvedStep(origin, currentScene);
+        if (Target == null || _resolvedStep == null)
+            return;
+        var quest = _data.GetByRuntimeKey(Target.QuestKey);
+        if (quest != null)
             ResolveClosestActiveSource(
                 quest,
                 _resolvedStep,
@@ -1068,9 +1372,13 @@ public sealed class NavigationController
             return ResolveItemZoneFallback(sources, quest, step, currentScene);
         }
 
-        // Build the active set with zone preference
-        _manualOverride = false;
-        ComputeAutoSourceSet(currentScene);
+        _activeSourceKeys.Clear();
+        foreach (var source in _allItemSources)
+            if (source.SourceKey != null && _previousManualSourceKeys.Contains(source.SourceKey))
+                _activeSourceKeys.Add(source.SourceKey);
+        _manualOverride = _activeSourceKeys.Count > 0;
+        if (!_manualOverride)
+            ComputeAutoSourceSet(currentScene);
 
         // Resolve initial target from the active set
         return ResolveClosestActiveSource(quest, step, currentScene);
@@ -1181,7 +1489,7 @@ public sealed class NavigationController
             if (
                 spawns.Exists(s =>
                     string.Equals(s.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase)
-                    && _state.Gates.IsSpawnAvailable(s)
+                    && IsSelectedSpawnAvailable(s)
                 )
             )
                 _activeSourceKeys.Add(src.SourceKey);
@@ -1282,7 +1590,7 @@ public sealed class NavigationController
                         spawn.Scene,
                         currentScene,
                         System.StringComparison.OrdinalIgnoreCase
-                    ) || !_state.Gates.IsSpawnAvailable(spawn)
+                    ) || !IsSelectedSpawnAvailable(spawn)
                 )
                     continue;
                 var position =
@@ -1386,7 +1694,7 @@ public sealed class NavigationController
                 {
                     foreach (var spawn in spawns)
                     {
-                        if (_state.Gates.IsSpawnAvailable(spawn))
+                        if (IsSelectedSpawnAvailable(spawn))
                             Consider(
                                 spawn.Scene,
                                 new Vector3(spawn.X, spawn.Y, spawn.Z),
@@ -1479,6 +1787,111 @@ public sealed class NavigationController
 
     // ── Cross-zone routing ─────────────────────────────────────────
 
+    private CrossZoneApproach GetCrossZoneApproach(string currentScene)
+    {
+        if (Target == null)
+            return default;
+        var spawn = FindTargetPlacement();
+        var placement = spawn == null ? null : _zoneGraph.GetPlacementRoute(spawn, currentScene);
+        if (spawn != null && !placement.HasValue)
+            return new CrossZoneApproach(null, null, null, false, placementUnreachable: true);
+        var entry = placement?.EntryLine;
+        if (
+            entry != null
+            && string.Equals(entry.Scene, currentScene, StringComparison.OrdinalIgnoreCase)
+        )
+            return new CrossZoneApproach(
+                entry.DestinationZoneKey,
+                entry,
+                entry,
+                !IsZoneLineAccessible(entry)
+            );
+        if (
+            _pinnedZoneLine != null
+            && NavigationResolutionPolicy.CanUseZoneLine(_pinnedZoneLine, _state.Gates)
+            && string.Equals(
+                _pinnedZoneLine.Scene,
+                currentScene,
+                StringComparison.OrdinalIgnoreCase
+            )
+            && (
+                entry == null
+                || _pinnedZoneLine.DestinationZoneKey == placement?.Route?.NextHopZoneKey
+            )
+        )
+            return new CrossZoneApproach(
+                _pinnedZoneLine.DestinationZoneKey,
+                entry,
+                _pinnedZoneLine,
+                !IsZoneLineAccessible(_pinnedZoneLine)
+            );
+        var route = placement.HasValue
+            ? placement.Value.Route
+            : _zoneGraph.FindRoute(currentScene, Target.Scene);
+        return new CrossZoneApproach(route?.NextHopZoneKey, entry, null, route?.IsLocked ?? false);
+    }
+
+    private void CaptureCrossZoneCache(string currentScene, CrossZoneApproach approach)
+    {
+        _cachedWaypointTarget = Target == null ? null : new WaypointTargetState(Target);
+        _cachedHopScene = currentScene;
+        _cachedNextHopZoneKey = approach.NextHopZoneKey;
+        _cachedEntryLine = approach.EntryLine;
+        _cachedHopAccess.Clear();
+        foreach (var line in _data.ZoneLines)
+            if (
+                string.Equals(line.Scene, currentScene, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(
+                    line.DestinationZoneKey,
+                    approach.NextHopZoneKey,
+                    StringComparison.OrdinalIgnoreCase
+                )
+            )
+                _cachedHopAccess.Add(new ZoneLineAccess(line, _state.Gates));
+    }
+
+    private void RevalidateCrossZoneCache(string currentScene)
+    {
+        if (_cachedZoneLine == null || ZoneLineWaypoint == null)
+        {
+            InvalidateCrossZoneCache();
+            return;
+        }
+        bool targetUnchanged =
+            Target != null
+            && Target.IsCrossZone(currentScene)
+            && _cachedWaypointTarget.HasValue
+            && _cachedWaypointTarget.Value.Matches(Target)
+            && string.Equals(_cachedHopScene, currentScene, StringComparison.OrdinalIgnoreCase);
+        if (!targetUnchanged)
+        {
+            InvalidateCrossZoneCache();
+            return;
+        }
+        var approach = GetCrossZoneApproach(currentScene);
+        bool nextHopUnchanged = string.Equals(
+            _cachedNextHopZoneKey,
+            approach.NextHopZoneKey,
+            StringComparison.OrdinalIgnoreCase
+        );
+        if (
+            !CrossZoneWaypointPolicy.ShouldKeepOnStateChange(
+                _cachedZoneLine != null,
+                ZoneLineWaypoint != null,
+                targetUnchanged,
+                nextHopUnchanged,
+                ReferenceEquals(_cachedEntryLine, approach.EntryLine),
+                nextHopUnchanged
+                    && CrossZoneWaypointPolicy.IsAccessibleSetUnchanged(
+                        _cachedHopAccess,
+                        _state.Gates
+                    ),
+                _cachedRouteLocked == approach.IsLocked
+            )
+        )
+            InvalidateCrossZoneCache();
+    }
+
     private void UpdateCrossZoneRouting(string currentScene, Vector3 playerPos)
     {
         if (_unroutableRoute.Matches(currentScene, Target!.Scene))
@@ -1500,41 +1913,34 @@ public sealed class NavigationController
         {
             _lastCrossZoneCalcPos = playerPos;
 
-            ZoneLineEntry? bestLine = null;
-            bool routeIsLocked = false;
-
-            // Manual pin takes priority over auto-selection
-            if (
-                _pinnedZoneLine != null
-                && string.Equals(
-                    _pinnedZoneLine.Scene,
-                    currentScene,
-                    System.StringComparison.OrdinalIgnoreCase
-                )
-            )
+            var approach = GetCrossZoneApproach(currentScene);
+            if (approach.PlacementUnreachable)
             {
-                bestLine = _pinnedZoneLine;
-                routeIsLocked = !IsZoneLineAccessible(bestLine);
+                if (Requirements is { } requirements)
+                    Requirements = new RequirementResolution(
+                        requirements.Quest,
+                        requirements.Step,
+                        false,
+                        "No usable entry reaches this target.",
+                        requirements.Chain,
+                        requirements.Advisories
+                    );
+                Target = null;
+                Distance = 0f;
+                Direction = Vector3.zero;
+                return;
             }
-            else
-            {
-                // Clear stale pin (wrong scene or explicitly cleared)
+            _chosenEntryLine = approach.EntryLine;
+            if (!ReferenceEquals(_pinnedZoneLine, approach.FixedLine))
                 _pinnedZoneLine = null;
-
-                // Use zone graph to find the correct next hop toward the target
-                var route = _zoneGraph.FindRoute(currentScene, Target!.Scene);
-                if (route == null)
-                    _unroutableRoute.Remember(currentScene, Target.Scene);
-                var nextHopZoneKey = route?.NextHopZoneKey;
-
-                if (nextHopZoneKey != null)
-                {
-                    bestLine = route!.IsLocked
-                        ? FindClosestZoneLineAny(nextHopZoneKey, currentScene, playerPos)
-                        : FindClosestZoneLine(nextHopZoneKey, currentScene, playerPos);
-                    routeIsLocked = route.IsLocked;
-                }
-            }
+            ZoneLineEntry? bestLine = approach.FixedLine;
+            bool routeIsLocked = approach.IsLocked;
+            if (approach.NextHopZoneKey == null)
+                _unroutableRoute.Remember(currentScene, Target!.Scene);
+            else if (bestLine == null)
+                bestLine = routeIsLocked
+                    ? FindClosestZoneLineAny(approach.NextHopZoneKey, currentScene, playerPos)
+                    : FindClosestZoneLine(approach.NextHopZoneKey, currentScene, playerPos);
 
             if (
                 CrossZoneWaypointPolicy.ShouldRebuild(
@@ -1568,6 +1974,8 @@ public sealed class NavigationController
                     ZoneLineWaypoint = null;
                 }
             }
+            if (bestLine != null)
+                CaptureCrossZoneCache(currentScene, approach);
         }
 
         if (ZoneLineWaypoint != null)
@@ -1600,7 +2008,7 @@ public sealed class NavigationController
         {
             if (
                 !string.Equals(sp.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase)
-                || !_state.Gates.IsSpawnAvailable(sp)
+                || !IsSelectedSpawnAvailable(sp)
             )
                 continue;
 
@@ -1650,10 +2058,64 @@ public sealed class NavigationController
     {
         foreach (var spawn in spawns)
         {
-            if (_state.Gates.IsSpawnAvailable(spawn))
+            if (IsSelectedSpawnAvailable(spawn))
                 return spawn;
         }
         return null;
+    }
+
+    private bool IsSelectedSpawnAvailable(Data.SpawnPoint spawn)
+    {
+        if (!_state.Gates.IsSpawnAvailable(spawn))
+            return false;
+        if (Requirements?.AvailableSpawns is { } available)
+        {
+            for (int i = 0; i < available.Count; i++)
+                if (ReferenceEquals(available[i], spawn))
+                    return true;
+            return false;
+        }
+        return (
+                Requirements?.SelectedSpawn == null
+                || (Requirements.SelectedSpawn.Entries == null && spawn.Entries == null)
+                || ReferenceEquals(Requirements.SelectedSpawn, spawn)
+            )
+            && (
+                Requirements?.SelectedScene == null
+                || string.Equals(
+                    Requirements.SelectedScene,
+                    spawn.Scene,
+                    StringComparison.OrdinalIgnoreCase
+                )
+            );
+    }
+
+    private Data.SpawnPoint? FindTargetPlacement()
+    {
+        if (
+            Target?.SourceId == null
+            || !_data.CharacterSpawns.TryGetValue(Target.SourceId, out var spawns)
+        )
+            return null;
+        Data.SpawnPoint? best = null;
+        float bestDistance = float.MaxValue;
+        foreach (var spawn in spawns)
+        {
+            if (
+                !string.Equals(spawn.Scene, Target.Scene, StringComparison.OrdinalIgnoreCase)
+                || !IsSelectedSpawnAvailable(spawn)
+            )
+                continue;
+            float distance = (
+                new Vector3(spawn.X, spawn.Y, spawn.Z) - Target.Position
+            ).sqrMagnitude;
+            if (distance < bestDistance)
+            {
+                best = spawn;
+                bestDistance = distance;
+            }
+        }
+        return best;
     }
 
     // ── Zone line helpers ──────────────────────────────────────────
@@ -1749,6 +2211,8 @@ public sealed class NavigationController
 
         foreach (var zl in _data.ZoneLines)
         {
+            if (!NavigationResolutionPolicy.CanUseZoneLine(zl, _state.Gates))
+                continue;
             if (!string.Equals(zl.Scene, currentScene, System.StringComparison.OrdinalIgnoreCase))
                 continue;
             if (

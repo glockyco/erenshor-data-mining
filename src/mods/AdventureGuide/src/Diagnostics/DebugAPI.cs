@@ -42,16 +42,64 @@ public static class DebugAPI
             + $"Zone filter: {Filter?.ZoneFilter ?? "(all)"}";
     }
 
-    /// <summary>Dump navigation state: target, waypoint, distance, ground path.</summary>
+    /// <summary>Dump navigation target, requirements, waypoint, distance, and ground path.</summary>
     public static string DumpNav()
     {
         if (Nav == null)
             return "Not initialized";
-        if (Nav.Target == null)
-            return "No active navigation target";
 
-        var t = Nav.Target;
-        var sb = new System.Text.StringBuilder();
+        var sb = new StringBuilder();
+        if (Nav.OriginQuest is QuestEntry origin && Nav.OriginStep is QuestStep originStep)
+            sb.AppendLine($"Origin: {origin.RuntimeKey} step {originStep.Order}");
+
+        if (Nav.Requirements is RequirementResolution requirements)
+        {
+            sb.AppendLine($"Requirements: canNavigate={requirements.CanNavigate}");
+            sb.AppendLine(
+                $"  Endpoint: {requirements.Quest.RuntimeKey} step {requirements.Step.Order}"
+            );
+            for (int i = 0; i < requirements.Chain.Count; i++)
+            {
+                var link = requirements.Chain[i];
+                sb.AppendLine($"  {i + 1}. {link.Label}");
+                if (link.Atom is GateAtom atom)
+                    sb.AppendLine(
+                        $"     Atom: {atom.Kind} {atom.Ref} slot={atom.Slot ?? "(none)"}"
+                    );
+                foreach (string alternative in link.Alternatives)
+                    sb.AppendLine($"     Alternative: {alternative}");
+            }
+            foreach (var advisory in requirements.Advisories)
+                sb.AppendLine($"  Advisory: {advisory.Kind} {advisory.Ref}");
+            if (!string.IsNullOrEmpty(requirements.Message))
+                sb.AppendLine($"  Message: {requirements.Message}");
+        }
+        else
+            sb.AppendLine("Requirements: (none)");
+
+        if (Nav.ChosenEntryLine is ZoneLineEntry entry)
+        {
+            int entryIndex = -1;
+            if (Data != null)
+                for (int i = 0; i < Data.ZoneLines.Count; i++)
+                    if (ReferenceEquals(Data.ZoneLines[i], entry))
+                    {
+                        entryIndex = i;
+                        break;
+                    }
+            sb.AppendLine($"EntryLine: {entryIndex} {entry.Scene}|{entry.DestinationZoneKey}");
+            sb.AppendLine($"  Position: ({entry.X}, {entry.Y}, {entry.Z})");
+            sb.AppendLine($"  Condition: {entry.Condition?.ToString() ?? "(none)"}");
+        }
+        else
+            sb.AppendLine("EntryLine: (any)");
+
+        if (Nav.Target is not NavigationTarget t)
+        {
+            sb.AppendLine("No active navigation target");
+            return sb.ToString();
+        }
+
         sb.AppendLine($"Target: {t.DisplayName}");
         sb.AppendLine($"  Kind: {t.TargetKind}");
         sb.AppendLine($"  Scene: {t.Scene}");

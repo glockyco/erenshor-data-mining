@@ -61,12 +61,14 @@ def build_mod_guide(
         if edge.type in (EdgeType.CHAINS_TO, EdgeType.ALSO_COMPLETES):
             incoming_chain[edge.target].append(edge)
 
+    zone_lines = _ordered_zone_lines(nodes)
+    line_index = {line.key: index for index, line in enumerate(zone_lines)}
     result: dict[str, Any] = {
         "_version": 7,
         "_zone_lookup": _zone_lookup(nodes),
         "_conditions": [_condition_payload(graph, condition) for condition in compiled.conditions],
         "_gate_items": _gate_items(graph, nodes, compiled, compiled_nodes, reward_by_item),
-        "_character_spawns": _character_spawns(graph, nodes, compiled),
+        "_character_spawns": _character_spawns(graph, nodes, compiled, line_index),
         # Respawn timers can be limited to spawn points that can spawn a boss or an elite.
         "_encounter_tiers": {
             node.key: node.encounter_tier
@@ -77,7 +79,7 @@ def build_mod_guide(
             key: {"display_name": nodes[key].display_name}
             for key in sorted({node.furniture_item_key for node in nodes.values() if node.furniture_item_key})
         },
-        "_zone_lines": _zone_lines(nodes, compiled),
+        "_zone_lines": [_zone_line(line, compiled) for line in zone_lines],
         "_chain_groups": _chain_groups(quests, graph, nodes, db_names),
         "_excluded_quests": _excluded_quests(excluded_quest_db_names, db_names),
         "quests": [
@@ -239,8 +241,10 @@ def _zone_lookup(nodes: dict[str, Node]) -> dict[str, Any]:
 
 
 def _character_spawns(
-    graph: EntityGraph, nodes: dict[str, Node], compiled: CompiledData
+    graph: EntityGraph, nodes: dict[str, Node], compiled: CompiledData, line_index: dict[str, int]
 ) -> dict[str, list[dict[str, Any]]]:
+    """Placements by character. ``entries`` indexes ``_zone_lines``: the only
+    lines into the scene that reach the placement."""
     result: dict[str, list[dict[str, Any]]] = {}
     for character in sorted(
         (node for node in nodes.values() if node.type == NodeType.CHARACTER),
@@ -256,7 +260,7 @@ def _character_spawns(
             x = _required_coordinate(spawn, "x", spawn.x)
             y = _required_coordinate(spawn, "y", spawn.y)
             z = _required_coordinate(spawn, "z", spawn.z)
-            value = {
+            value: dict[str, Any] = {
                 "scene": spawn.scene,
                 "x": x,
                 "y": y,
@@ -270,6 +274,11 @@ def _character_spawns(
                 "condition",
                 compiled.condition_by_subject.get((SubjectKind.CHARACTER, character.key, spawn.key)),
             )
+            entries = sorted(
+                {line_index[line] for line in (*graph.entries_for(character.key), *graph.entries_for(spawn.key))}
+            )
+            if entries:
+                value["entries"] = entries
             positions.append((spawn.key, value))
         if positions:
             positions.sort(
@@ -286,25 +295,30 @@ def _character_spawns(
     return result
 
 
-def _zone_lines(nodes: dict[str, Node], compiled: CompiledData) -> list[dict[str, Any]]:
-    result: list[tuple[tuple[Any, ...], dict[str, Any]]] = []
-    for line in nodes.values():
-        if line.type != NodeType.ZONE_LINE or not line.scene:
-            continue
-        x = _required_coordinate(line, "x", line.x)
-        y = _required_coordinate(line, "y", line.y)
-        z = _required_coordinate(line, "z", line.z)
-        value: dict[str, Any] = {"scene": line.scene, "x": x, "y": y, "z": z}
-        _put_if(value, "destination_zone_key", line.destination_zone_key)
-        _put_if(value, "destination_display", line.destination_display)
-        _put_if(value, "landing_x", line.landing_x)
-        _put_if(value, "landing_y", line.landing_y)
-        _put_if(value, "landing_z", line.landing_z)
-        _put_if(value, "condition", compiled.condition_by_subject.get((SubjectKind.ZONE_LINE, line.key, None)))
-        key = (line.scene, _number(x), _number(y), _number(z), line.key)
-        result.append((key, value))
-    result.sort(key=lambda pair: pair[0])
-    return [value for _, value in result]
+def _ordered_zone_lines(nodes: dict[str, Node]) -> list[Node]:
+    """Zone lines in the order of ``_zone_lines``, which placements index."""
+    lines = [node for node in nodes.values() if node.type == NodeType.ZONE_LINE and node.scene]
+    return sorted(
+        lines,
+        key=lambda line: (
+            line.scene,
+            _number(_required_coordinate(line, "x", line.x)),
+            _number(_required_coordinate(line, "y", line.y)),
+            _number(_required_coordinate(line, "z", line.z)),
+            line.key,
+        ),
+    )
+
+
+def _zone_line(line: Node, compiled: CompiledData) -> dict[str, Any]:
+    value: dict[str, Any] = {"scene": line.scene, "x": line.x, "y": line.y, "z": line.z}
+    _put_if(value, "destination_zone_key", line.destination_zone_key)
+    _put_if(value, "destination_display", line.destination_display)
+    _put_if(value, "landing_x", line.landing_x)
+    _put_if(value, "landing_y", line.landing_y)
+    _put_if(value, "landing_z", line.landing_z)
+    _put_if(value, "condition", compiled.condition_by_subject.get((SubjectKind.ZONE_LINE, line.key, None)))
+    return value
 
 
 def _condition_payload(graph: EntityGraph, condition: Condition) -> list[list[dict[str, str]]]:
@@ -333,7 +347,8 @@ def _gate_items(
     """The items that conditions name, with their game ID and where to get them.
 
     The keyring holds game item IDs. Navigation to a missing key or item uses
-    the sources.
+    the sources. door_zones names the zones of the doors a key opens, so the
+    guide can say why a key is needed.
     """
     keys = sorted(
         {
@@ -344,12 +359,26 @@ def _gate_items(
             if atom.kind in (AtomKind.ITEM_HELD, AtomKind.KEY_HELD, AtomKind.ROOM_FURNISHED)
         }
     )
+    zone_by_scene = {
+        node.scene.lower(): node.display_name for node in nodes.values() if node.type == NodeType.ZONE and node.scene
+    }
+    door_zones: dict[str, set[str]] = defaultdict(set)
+    for gate in graph.all_gates():
+        if not gate.gate.startswith("door:"):
+            continue
+        zone = zone_by_scene.get(gate.gate.split(":")[1])
+        for group in gate.groups:
+            for atom in group:
+                if atom.kind == AtomKind.KEY_HELD and zone is not None:
+                    door_zones[atom.ref].add(zone)
     result: dict[str, dict[str, Any]] = {}
     for key in keys:
         item = nodes.get(key)
         if item is None or item.type != NodeType.ITEM or not item.game_id:
             raise ValueError(f"a condition names {key!r}, which is not an item of the guide with a game ID")
         value: dict[str, Any] = {"name": item.display_name, "game_id": item.game_id}
+        if door_zones.get(key):
+            value["door_zones"] = sorted(door_zones[key])
         sources = _item_sources_with_rewards(
             compiled, _compiled_id(compiled, key), compiled_nodes, reward_by_item, "", graph, nodes
         )

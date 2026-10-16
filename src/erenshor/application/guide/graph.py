@@ -34,7 +34,7 @@ class EntityGraph:
         graph.out_edges("quest:anglerring", EdgeType.REQUIRES_ITEM)
     """
 
-    __slots__ = ("_edges", "_gates", "_gates_by_subject", "_in", "_nodes", "_out", "_quest_db_names")
+    __slots__ = ("_edges", "_entries", "_gates", "_gates_by_subject", "_in", "_nodes", "_out", "_quest_db_names")
 
     def __init__(self) -> None:
         self._nodes: dict[str, Node] = {}
@@ -45,6 +45,8 @@ class EntityGraph:
         self._gates_by_subject: dict[tuple[SubjectKind, str, str | None], list[Gate]] = defaultdict(list)
         # Gates can name quests that the guide leaves out, such as hidden marker quests.
         self._quest_db_names: dict[str, str] = {}
+        # Targets that only some zone lines into their scene reach, by target key.
+        self._entries: dict[str, list[str]] = defaultdict(list)
 
     # -- Mutation (build phase) --
 
@@ -66,6 +68,13 @@ class EntityGraph:
     def add_quest_db_name(self, quest_key: str, db_name: str) -> None:
         """Record the DB name of a quest that a gate names."""
         self._quest_db_names[quest_key] = db_name
+
+    def add_entry(self, target_key: str, zone_line_key: str) -> None:
+        """Record a zone line that reaches a target which other lines into its scene do not."""
+        self._entries[target_key].append(zone_line_key)
+
+    def entries_for(self, target_key: str) -> list[str]:
+        return self._entries.get(target_key, [])
 
     def group_furnishing_characters(self) -> None:
         """Collapse room copies, keeping set-specific stock and every spawn."""
@@ -127,6 +136,8 @@ class EntityGraph:
         for key, group_key in replacements.items():
             if key != group_key:
                 del self._nodes[key]
+                if key in self._entries:
+                    self._entries[group_key].extend(self._entries.pop(key))
 
     def is_furnishing_character(self, key: str) -> bool:
         from .schema import EdgeType, NodeType

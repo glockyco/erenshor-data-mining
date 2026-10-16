@@ -50,6 +50,9 @@ public sealed class QuestStateTracker
     /// <summary>Raised after the planning table's rooms change, once Version moved.</summary>
     public event Action? FurnishingsChanged;
 
+    /// <summary>A key joined or left the keyring, which can open or close door gates.</summary>
+    public event Action? KeyringChanged;
+
     public QuestStateTracker(GuideData data, EntityRegistry entities)
         : this(data, entities, LiveQuestGameState.Instance) { }
 
@@ -183,6 +186,7 @@ public sealed class QuestStateTracker
         {
             _keyringCount = keyringCount;
             Version++;
+            KeyringChanged?.Invoke();
         }
         // A furnishing appears or vanishes with its room's set, which changes
         // which sources, targets and markers exist.

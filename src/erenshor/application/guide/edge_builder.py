@@ -31,6 +31,7 @@ def build_edges(
     _add_quest_reward_edges(conn, graph)
     _add_quest_faction_edges(conn, graph)
     _add_gates(conn, graph)
+    _add_target_entries(conn, graph)
     _add_quest_step_edges(conn, graph)
     _add_quest_dialog_prerequisite_edges(conn, graph)
     _add_character_drop_edges(conn, graph)
@@ -314,6 +315,13 @@ def _add_quest_faction_edges(conn: sqlite3.Connection, graph: EntityGraph) -> No
                 amount=r["modifier_value"],
             )
         )
+
+
+def _add_target_entries(conn: sqlite3.Connection, graph: EntityGraph) -> None:
+    """Zone lines that alone reach a target, from target_entries."""
+    rows = conn.execute("SELECT target_stable_key, zone_line_stable_key FROM target_entries ORDER BY 1, 2")
+    for target, line in rows:
+        graph.add_entry(target, line)
 
 
 def _add_gates(conn: sqlite3.Connection, graph: EntityGraph) -> None:

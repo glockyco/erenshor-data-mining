@@ -124,6 +124,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
             _state.WorkflowChanged += OnWorkflowChanged;
             _state.WorkflowCycleReset += OnWorkflowCycleReset;
             _state.FurnishingsChanged += OnFurnishingsChanged;
+            _state.KeyringChanged += OnKeyringChanged;
             _state.TreasureHuntChanged += OnTreasureHuntChanged;
             _arrow = new ArrowRenderer(_nav) { Enabled = _config.ShowArrow.Value };
             _config.ShowArrow.SettingChanged += OnShowArrowChanged;
@@ -317,6 +318,7 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
             _state.WorkflowChanged -= OnWorkflowChanged;
             _state.WorkflowCycleReset -= OnWorkflowCycleReset;
             _state.FurnishingsChanged -= OnFurnishingsChanged;
+            _state.KeyringChanged -= OnKeyringChanged;
             _state.TreasureHuntChanged -= OnTreasureHuntChanged;
         }
 
@@ -453,6 +455,8 @@ public sealed class AdventureGuideRuntime : IRuntimeLifecycleEffects
         _trackerState?.OnQuestCompleted(quest.RuntimeKey);
 
     private void OnFurnishingsChanged() => _nav?.OnFurnishingsChanged(_state?.CurrentZone ?? "");
+
+    private void OnKeyringChanged() => _nav?.OnGameStateChanged(_state?.CurrentZone ?? "");
 
     private void OnTreasureHuntChanged(TreasureHuntChange change) =>
         _nav?.OnTreasureHuntChanged(change);

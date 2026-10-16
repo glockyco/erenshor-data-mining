@@ -76,6 +76,7 @@ public sealed class ArrowRenderer
     /// </summary>
     public void Draw()
     {
+        NavigationDisplay.DrawOverlay(_nav);
         if (!_enabled || _nav.Target == null || _nav.Distance < ArrivalDistance)
             return;
 

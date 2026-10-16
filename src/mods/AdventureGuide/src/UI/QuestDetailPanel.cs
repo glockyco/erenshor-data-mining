@@ -303,7 +303,10 @@ public sealed class QuestDetailPanel
         ImGui.Text(display.Text);
         ImGui.PopStyleColor();
 
-        DrawGateRequirements(display.Requirements);
+        if (NavigationDisplay.IsOrigin(_nav, quest, step))
+            NavigationDisplay.DrawRequirements(_nav, _state.CurrentZone);
+        else
+            DrawGateRequirements(display.Requirements);
 
         // Drop/vendor sources and tips for collect steps
         DrawStepSources(step, quest, visited);
@@ -336,7 +339,7 @@ public sealed class QuestDetailPanel
         bool navigable = display.Navigable;
         bool isActive = _nav.IsNavigating(quest.RuntimeKey, step.Order);
 
-        if (!navigable)
+        if (!navigable && !isActive)
         {
             ImGui.PushStyleColor(ImGuiCol.Text, Theme.TextSecondary);
             ImGui.PushStyleVar(ImGuiStyleVar.Alpha, 0.4f);

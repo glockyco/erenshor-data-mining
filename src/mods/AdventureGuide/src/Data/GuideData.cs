@@ -303,7 +303,39 @@ public sealed partial class GuideData
         if (wrapper.CharacterSpawns != null)
             foreach (var spawns in wrapper.CharacterSpawns.Values)
             foreach (var spawn in spawns)
+            {
                 ValidateIndex(spawn.Condition);
+                if (spawn.Entries == null)
+                    continue;
+                string? destinationKey = null;
+                if (wrapper.ZoneLookup != null)
+                    foreach (var zone in wrapper.ZoneLookup)
+                        if (
+                            string.Equals(zone.Key, spawn.Scene, StringComparison.OrdinalIgnoreCase)
+                        )
+                        {
+                            destinationKey = zone.Value.StableKey;
+                            break;
+                        }
+                foreach (int entry in spawn.Entries)
+                {
+                    if (wrapper.ZoneLines == null || entry < 0 || entry >= wrapper.ZoneLines.Count)
+                        throw new InvalidDataException(
+                            $"Spawn entry line index {entry} is out of range"
+                        );
+                    if (
+                        destinationKey == null
+                        || !string.Equals(
+                            wrapper.ZoneLines[entry].DestinationZoneKey,
+                            destinationKey,
+                            StringComparison.OrdinalIgnoreCase
+                        )
+                    )
+                        throw new InvalidDataException(
+                            $"Spawn entry line {entry} does not enter {spawn.Scene}"
+                        );
+                }
+            }
         foreach (var quest in wrapper.Quests!)
         {
             if (quest.Steps != null)
@@ -722,6 +754,9 @@ public sealed class SpawnPoint
 
     [JsonProperty("condition")]
     public int? Condition { get; set; }
+
+    [JsonProperty("entries")]
+    public List<int>? Entries { get; set; }
 
     [JsonProperty("is_directly_placed")]
     public bool IsDirectlyPlaced { get; set; }
