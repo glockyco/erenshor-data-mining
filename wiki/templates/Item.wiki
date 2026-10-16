@@ -21,7 +21,7 @@
     <data source="itemusesource"><label>Obtained by using</label></data>
     <data source="miningsource"><label>[[Mining|Mined in]]</label></data>
     <data source="fishingsource"><label>[[Fishing|Fished in]]</label></data>
-    <data source="itembagsource"><label>Found in</label></data>
+    <data source="itembagsource"><label>Picked up in</label></data>
     <data source="startingsource"><label>Starting item of</label></data>
     <data source="othersource"><label>Other sources</label></data>
     <data source="relatedquest"><label>Related quest(s)</label></data>

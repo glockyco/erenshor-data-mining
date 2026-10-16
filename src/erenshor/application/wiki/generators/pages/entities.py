@@ -326,14 +326,18 @@ class EntityPageGenerator(PageGenerator):
             crafting_results = own_recipe.results
             recipe_ingredients = own_recipe.materials
 
+        starting_names = self.context.item_repo.get_starting_class_names(item.stable_key)
         starting_classes = [
             ClassLink(
                 page_title=self.context.class_display.get_display_name(class_name),
                 display_name=self.context.class_display.get_display_name(class_name),
                 stable_key=class_stable_key(class_name),
             )
-            for class_name in self.context.item_repo.get_starting_class_names(item.stable_key)
+            for class_name in starting_names
         ]
+        every_class = bool(starting_names) and set(starting_names) == set(
+            self.context.class_display.get_all_internal_names()
+        )
 
         return SourceInfo(
             vendors=vendors,
@@ -349,6 +353,7 @@ class EntityPageGenerator(PageGenerator):
             ],
             item_bags=self.context.zone_repo.get_item_bag_zones_for_item(item.stable_key),
             starting_classes=starting_classes,
+            every_class_starts_with_item=every_class,
             quest_rewards=quest_rewards,
             quest_requirements=quest_requirements,
             craft_sources=craft_sources_links,

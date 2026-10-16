@@ -42,3 +42,15 @@
 	font-style: italic;
 	text-align: center;
 }
+
+/* A long source list shows its first entries and folds the rest. The toggle
+   sits on its own line below the entries instead of floating beside them. */
+.pi-type-Item .item-more > .mw-collapsible-toggle {
+	display: block;
+	float: none;
+	font-size: 90%;
+}
+
+.pi-type-Item .item-more > .mw-collapsible-toggle .mw-collapsible-bracket {
+	display: none;
+}

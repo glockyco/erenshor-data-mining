@@ -22,6 +22,7 @@ from loguru import logger
 from erenshor.application.wiki.generators.formatting import format_description, safe_str
 from erenshor.application.wiki.generators.item_type_display import build_item_types
 from erenshor.application.wiki.generators.link_lists import (
+    fold_long_list,
     format_chance,
     format_chance_links,
     format_links,
@@ -626,19 +627,19 @@ class ItemSectionGenerator(SectionGeneratorBase):
             "render_female": enriched.renders.get("female", ""),
             "screenshot": picture_file_title("screenshot", item.image_name, item.display_name, item.item_name),
             "type": item_type,
-            "vendorsource": vendor_sources,
-            "source": drop_sources,
-            "dialogsource": self._format_givers(enriched),
+            "vendorsource": fold_long_list(vendor_sources),
+            "source": fold_long_list(drop_sources),
+            "dialogsource": fold_long_list(self._format_givers(enriched)),
             "questsource": quest_rewards_str,
             "craftsource": craft_sources,
-            "itemusesource": self._format_item_uses(enriched),
-            "miningsource": self._format_mining(enriched),
-            "fishingsource": self._format_fishing(enriched),
-            "itembagsource": self._format_item_bags(enriched),
+            "itemusesource": fold_long_list(self._format_item_uses(enriched)),
+            "miningsource": fold_long_list(self._format_mining(enriched)),
+            "fishingsource": fold_long_list(self._format_fishing(enriched)),
+            "itembagsource": fold_long_list(self._format_item_bags(enriched)),
             "startingsource": self._format_starting_classes(enriched),
             "othersource": "",
             "relatedquest": quest_requirements_str,
-            "componentfor": component_for_str,
+            "componentfor": fold_long_list(component_for_str),
             "buy": safe_str(item.item_value) if item.item_value else "",
             "sell": safe_str(item.sell_value) if item.sell_value else "",
             "taughtspell": taughtspell,
@@ -762,9 +763,11 @@ class ItemSectionGenerator(SectionGeneratorBase):
         return format_links(enriched.sources.item_bags)
 
     def _format_starting_classes(self, enriched: EnrichedItemData) -> str:
-        """Format the classes that start with the item."""
-        if not enriched.sources:
+        """Format the classes that start with the item, or all classes when every playable class does."""
+        if not enriched.sources or not enriched.sources.starting_classes:
             return ""
+        if enriched.sources.every_class_starts_with_item:
+            return "[[Classes|All classes]]"
         return ", ".join(str(link) for link in sorted(enriched.sources.starting_classes))
 
     def _format_quest_sources(self, enriched: EnrichedItemData) -> tuple[str, str]:

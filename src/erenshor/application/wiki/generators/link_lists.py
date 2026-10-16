@@ -56,3 +56,27 @@ def format_chance_links(rows: Iterable[tuple[WikiLink, float]], decimals: int) -
     return WIKITEXT_LINE_SEPARATOR.join(
         f"{group[0][0]} ({format_chance([chance for _, chance in group], decimals)})" for group in groups
     )
+
+
+VISIBLE_LIST_ENTRIES = 5
+"""Entries of a generated list that show before the rest folds away."""
+
+
+def fold_long_list(text: str, visible: int = VISIBLE_LIST_ENTRIES) -> str:
+    """Fold the entries of a line-separated list after the first ``visible`` into a collapsed block.
+
+    A reader sees the most relevant entries first and opens the rest with one click.
+    A list with at most one hidden entry more than ``visible`` shows whole, because a
+    toggle for one entry takes the space of the entry.
+    """
+    entries = text.split(WIKITEXT_LINE_SEPARATOR) if text else []
+    if len(entries) <= visible + 1:
+        return text
+    hidden = entries[visible:]
+    return (
+        WIKITEXT_LINE_SEPARATOR.join(entries[:visible])
+        + f'<div class="mw-collapsible mw-collapsed item-more" data-expandtext="{len(hidden)} more"'
+        + ' data-collapsetext="fewer">'
+        + WIKITEXT_LINE_SEPARATOR.join(hidden)
+        + "</div>"
+    )

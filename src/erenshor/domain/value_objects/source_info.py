@@ -79,6 +79,9 @@ class SourceInfo:
     # Classes that start with this item
     starting_classes: list[ClassLink] = field(default_factory=list)
 
+    # Whether every playable class starts with this item
+    every_class_starts_with_item: bool = False
+
     # Quests
     quest_rewards: list[QuestLink] = field(default_factory=list)
     quest_requirements: list[QuestLink] = field(default_factory=list)
