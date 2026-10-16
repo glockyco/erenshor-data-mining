@@ -544,6 +544,7 @@ def build(ctx: typer.Context) -> None:
     raw_db_path = variant_config.resolved_database_raw(cli_ctx.repo_root)
     clean_db_path = variant_config.resolved_database(cli_ctx.repo_root)
     mapping_json_path = cli_ctx.repo_root / "mapping.json"
+    barriers_path = cli_ctx.repo_root / "barriers.toml"
 
     if cli_ctx.dry_run:
         logger.info(
@@ -567,6 +568,7 @@ def build(ctx: typer.Context) -> None:
                     raw_db_path=raw_db_path,
                     clean_db_path=clean_db_path,
                     mapping_json_path=mapping_json_path,
+                    barriers_path=barriers_path,
                     export_dir=variant_config.resolved_unity_project(cli_ctx.repo_root) / "ExportedProject",
                     images_dir=variant_config.resolved_images_output(cli_ctx.repo_root),
                 )

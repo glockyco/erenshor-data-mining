@@ -30,6 +30,7 @@ class CleanDatabaseBuilder(Protocol):
         raw_db_path: Path,
         clean_db_path: Path,
         mapping_json_path: Path,
+        barriers_path: Path,
         export_dir: Path,
         images_dir: Path,
     ) -> None: ...
@@ -46,6 +47,7 @@ class CleanDatabaseRequest:
     raw_db_path: Path
     clean_db_path: Path
     mapping_json_path: Path
+    barriers_path: Path
     export_dir: Path
     images_dir: Path
 
@@ -82,6 +84,7 @@ class CleanDatabaseWorkflow:
                 raw_db_path=request.raw_db_path,
                 clean_db_path=staged_path,
                 mapping_json_path=request.mapping_json_path,
+                barriers_path=request.barriers_path,
                 export_dir=request.export_dir,
                 images_dir=request.images_dir,
             )

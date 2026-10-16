@@ -153,18 +153,26 @@ CREATE TABLE zone_lines (
     remove_party                INTEGER
 );
 
-CREATE TABLE zone_line_quest_unlocks (
-    zone_line_stable_key    TEXT NOT NULL,
-    unlock_group            INTEGER NOT NULL,
-    quest_db_name           TEXT NOT NULL,
-    PRIMARY KEY (zone_line_stable_key, unlock_group, quest_db_name)
-);
-
-CREATE TABLE character_quest_unlocks (
-    character_stable_key    TEXT NOT NULL,
-    unlock_group            INTEGER NOT NULL,
-    quest_db_name           TEXT NOT NULL,
-    PRIMARY KEY (character_stable_key, unlock_group, quest_db_name)
+-- One row per atom of a gate. A subject is available when every gate on it
+-- holds, and a gate holds when every atom of one of its groups holds. An atom
+-- of kind 'never' marks a gate that no game state satisfies, such as a door
+-- whose key the player cannot obtain. item_stable_key names the item of a
+-- vendor_item subject, and atom_slot the room slot of a room_furnished atom.
+CREATE TABLE gate_conditions (
+    subject_kind            TEXT NOT NULL CHECK (subject_kind IN (
+                                'zone_line', 'character', 'spawn_point', 'vendor_item', 'item_bag'
+                            )),
+    subject_stable_key      TEXT NOT NULL,
+    item_stable_key         TEXT,
+    gate                    TEXT NOT NULL,
+    group_index             INTEGER NOT NULL,
+    atom_kind               TEXT NOT NULL CHECK (atom_kind IN (
+                                'quest_done', 'quest_not_done', 'item_held', 'key_held', 'room_furnished',
+                                'encounter_won', 'never'
+                            )),
+    atom_stable_key         TEXT NOT NULL,
+    atom_slot               TEXT,
+    UNIQUE (subject_kind, subject_stable_key, item_stable_key, gate, group_index, atom_kind, atom_stable_key, atom_slot)
 );
 
 CREATE TABLE game_constants (
@@ -1637,11 +1645,8 @@ class Writer:
     def insert_zone_lines(self, rows: list[dict[str, object]]) -> int:
         return self._insert("zone_lines", rows)
 
-    def insert_zone_line_quest_unlocks(self, rows: list[dict[str, object]]) -> int:
-        return self._insert("zone_line_quest_unlocks", rows)
-
-    def insert_character_quest_unlocks(self, rows: list[dict[str, object]]) -> int:
-        return self._insert("character_quest_unlocks", rows)
+    def insert_gate_conditions(self, rows: list[dict[str, object]]) -> int:
+        return self._insert("gate_conditions", rows)
 
     def insert_game_constants(self, rows: list[dict[str, object]]) -> int:
         return self._insert("game_constants", rows)

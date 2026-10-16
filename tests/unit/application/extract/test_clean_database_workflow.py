@@ -19,6 +19,7 @@ def _request(tmp_path: Path) -> CleanDatabaseRequest:
         raw_db_path=tmp_path / "database_raw.sqlite",
         clean_db_path=tmp_path / "database.sqlite",
         mapping_json_path=tmp_path / "mapping.json",
+        barriers_path=tmp_path / "barriers.toml",
         export_dir=tmp_path / "ExportedProject",
         images_dir=tmp_path / "images",
     )
@@ -53,6 +54,7 @@ def test_success_passes_resolved_inputs_and_publishes_only_builder_output(tmp_pa
             "raw_db_path": request.raw_db_path,
             "clean_db_path": calls[0]["clean_db_path"],
             "mapping_json_path": request.mapping_json_path,
+            "barriers_path": request.barriers_path,
             "export_dir": request.export_dir,
             "images_dir": request.images_dir,
         }

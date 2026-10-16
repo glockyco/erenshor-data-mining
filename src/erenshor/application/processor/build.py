@@ -42,6 +42,7 @@ from .entities import (
     process_world_tables,
     process_zones,
 )
+from .gates import process_gates
 from .item_mechanics import process_item_mechanics
 from .item_models import process_item_models
 from .knowledge_base import process_knowledge_base
@@ -56,6 +57,7 @@ def build(
     raw_db_path: Path,
     clean_db_path: Path,
     mapping_json_path: Path,
+    barriers_path: Path,
     export_dir: Path,
     images_dir: Path,
 ) -> None:
@@ -66,16 +68,20 @@ def build(
         clean_db_path: Path where the clean database will be written
             (``database``).  Any existing file at this path is removed.
         mapping_json_path: Path to ``mapping.json``.
+        barriers_path: Path to ``barriers.toml``, the reviewed list of what
+            each keyed door guards.
         export_dir: The ripped Unity project (``ExportedProject``), whose
             textures hold the icons.
         images_dir: The variant's image directory, which holds the approved
             portrait captures and receives the picture catalog.
 
     Raises:
-        FileNotFoundError: If ``raw_db_path`` or ``mapping_json_path``
-            does not exist, or an icon texture or approved capture is missing.
-        ValueError: If ``mapping.json`` is malformed, an approved capture
-            changed, or one wiki file title would name two pictures.
+        FileNotFoundError: If ``raw_db_path``, ``mapping_json_path``, or
+            ``barriers_path`` does not exist, or an icon texture or approved
+            capture is missing.
+        ValueError: If ``mapping.json`` or ``barriers.toml`` is malformed, a
+            keyed door is not classified, an approved capture changed, or one
+            wiki file title would name two pictures.
         sqlite3.Error: If the raw database cannot be opened.
     """
     if not raw_db_path.exists():
@@ -143,6 +149,9 @@ def build(
 
         logger.info("Processing characters...")
         process_characters(raw, writer, mapping, item_keys, spawn_mapping)
+
+        logger.info("Processing gates...")
+        process_gates(raw, writer, barriers_path)
 
         logger.info("Processing item mechanics...")
         process_item_mechanics(raw, writer)
