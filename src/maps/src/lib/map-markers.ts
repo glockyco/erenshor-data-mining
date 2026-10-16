@@ -13,7 +13,11 @@ export type EncounterTier = keyof typeof ENCOUNTER_TIER_ORDER;
 export type EnemyTier = Exclude<EncounterTier, 'npc'>;
 
 /** Inclusive encounter ranges overlap the slider, including either boundary. */
-export function levelsOverlap(levelMin: number, levelMax: number, filter: [number, number]): boolean {
+export function levelsOverlap(
+    levelMin: number,
+    levelMax: number,
+    filter: [number, number]
+): boolean {
     return levelMin <= filter[1] && levelMax >= filter[0];
 }
 
@@ -21,7 +25,9 @@ export function compareEncounterTier(a: EncounterTier, b: EncounterTier): number
     return ENCOUNTER_TIER_ORDER[a] - ENCOUNTER_TIER_ORDER[b];
 }
 
-export function mostNotableEnemyTier(characters: readonly { encounterTier: EncounterTier }[]): EnemyTier {
+export function mostNotableEnemyTier(
+    characters: readonly { encounterTier: EncounterTier }[]
+): EnemyTier {
     let best: EnemyTier | null = null;
     for (const { encounterTier } of characters) {
         if (encounterTier === 'npc') continue;
@@ -54,8 +60,10 @@ export function resolveLiveEncounterTier(
     entity: EntityData,
     tiers: ReadonlyMap<string, EnemyTier>
 ): EnemyTier {
-    return tiers.get(entity.name) ??
-        (entity.rarity === 'boss' ? 'boss' : entity.rarity === 'rare' ? 'elite' : 'enemy');
+    return (
+        tiers.get(entity.name) ??
+        (entity.rarity === 'boss' ? 'boss' : entity.rarity === 'rare' ? 'elite' : 'enemy')
+    );
 }
 
 export type BaseMarker = {
@@ -104,7 +112,9 @@ export type SpawnCharacter = {
  * Whether the planning table explains why every character of a spawn starts disabled: each is
  * a furnishing that stands in a Reliquary room only while the room holds its furniture set.
  */
-export function isFurnishingSpawn(characters: readonly Pick<SpawnCharacter, 'furniture'>[]): boolean {
+export function isFurnishingSpawn(
+    characters: readonly Pick<SpawnCharacter, 'furniture'>[]
+): boolean {
     return characters.length > 0 && characters.every((c) => c.furniture !== null);
 }
 
@@ -192,13 +202,59 @@ export type ItemWorldDropSource = ItemSourceItemMeta & {
     minLevelExclusive: number; // the killed character's level must exceed this
 };
 
+export type ItemDialogSource = ItemSourceItemMeta & {
+    kind: 'dialog';
+    characterStableKey: string;
+    npcName: string;
+    requiredQuestStableKey: string | null;
+    requiredQuestName: string | null;
+    requiredQuestWikiPageName: string | null;
+};
+
+export type ItemQuestSource = ItemSourceItemMeta & {
+    kind: 'quest';
+    questStableKey: string;
+    questName: string;
+    questWikiPageName: string | null;
+    turnInCharacterStableKey: string | null;
+    turnInCharacterName: string | null;
+};
+
+export type ItemCraftSource = ItemSourceItemMeta & {
+    kind: 'craft';
+    recipeStableKey: string;
+    recipeName: string;
+    recipeWikiPageName: string | null;
+};
+
+export type ItemUseSource = ItemSourceItemMeta & {
+    kind: 'item_use';
+    sourceItemStableKey: string;
+    sourceItemName: string;
+    sourceItemWikiPageName: string | null;
+    dropProbability: number | null;
+    zoneName: string | null;
+};
+
+export type ItemStartingSource = ItemSourceItemMeta & {
+    kind: 'starting';
+    className: string;
+    classDisplayName: string;
+    allClasses: boolean;
+};
+
 export type ItemSourceRow =
     | ItemDropSource
     | ItemVendorSource
     | ItemMiningSource
     | ItemFishingSource
     | ItemBagSource
-    | ItemWorldDropSource;
+    | ItemWorldDropSource
+    | ItemDialogSource
+    | ItemQuestSource
+    | ItemCraftSource
+    | ItemUseSource
+    | ItemStartingSource;
 
 // Vendor item info (for popups)
 export type VendorItem = {

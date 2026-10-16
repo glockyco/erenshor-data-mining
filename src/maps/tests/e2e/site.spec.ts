@@ -51,7 +51,7 @@ const test = base.extend<{ pageProblems: string[] }>({
 test('home page renders fixture statistics and provenance', async ({ page }) => {
     await page.goto('/');
 
-    await expect(page.getByText('two classes')).toBeVisible();
+    await expect(page.getByText('three classes')).toBeVisible();
     // The footer provenance is a server load. A missing table fails every page
     // in the (app) group, so assert the rendered date.
     await expect(page.getByText('January 1, 2020')).toBeVisible();
@@ -105,12 +105,30 @@ test('vendor popup lists direct and quest-unlocked stock', async ({ page }) => {
     await expect(page.getByText('Enchanted Smithy', { exact: true })).toBeVisible();
 });
 
-test('an item that only world drops yield shows its world drop source', async ({ page }) => {
+test('an item lists world drops alongside quest, crafting, use and starting sources', async ({ page }) => {
     await page.goto(`/map?sel=${encodeURIComponent('item:item:fixture relic')}`);
 
     await expect(page.getByText('Any enemy above level 30')).toBeVisible();
     await expect(page.getByText('0.05% per kill')).toBeVisible();
+    await expect(page.getByText('Reward from', { exact: true })).toBeVisible();
+    await expect(page.getByText('Crafting recipe', { exact: true })).toBeVisible();
+    await expect(page.getByText('Obtained by using', { exact: true })).toBeVisible();
+    await expect(page.getByText('Starting item of', { exact: true })).toBeVisible();
+    await expect(page.getByText(/^All classes/)).toBeVisible();
+    await expect(page.getByText('in Braxonian Desert', { exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: "Turn in to Breena Carpenter · Stowaway's Step" })).toBeVisible();
     await expect(page.getByText('The map has no data on how to obtain this item.')).toHaveCount(0);
+});
+
+test('dialog givers show their required quest and focus their location', async ({ page }) => {
+    await page.goto(`/map?sel=${encodeURIComponent('item:item:fixture key')}`);
+    await expect(page.getByText('Given by', { exact: true })).toBeVisible();
+    await expect(page.getByText(/^after Fixture Quest/)).toBeVisible();
+    const giver = page.getByRole('button', { name: 'Breena Carpenter · 1 location' });
+    await expect(giver).toBeVisible();
+    await giver.hover();
+    await giver.click();
+    await expect(page.locator('canvas').first()).toBeVisible();
 });
 
 test('the layers query that shipped overlays load hides every spawn layer', async ({ page }) => {

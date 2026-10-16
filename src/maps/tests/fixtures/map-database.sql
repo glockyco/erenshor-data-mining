@@ -10,12 +10,27 @@ CREATE TABLE zones (
 );
 
 CREATE TABLE classes (
-    class_name TEXT PRIMARY KEY
+    class_name TEXT PRIMARY KEY,
+    display_name TEXT
 );
 
 CREATE TABLE quests (
-    stable_key TEXT PRIMARY KEY
+    stable_key TEXT PRIMARY KEY,
+    display_name TEXT,
+    wiki_page_name TEXT
 );
+
+CREATE TABLE character_dialogs (
+    character_stable_key TEXT, dialog_index INTEGER,
+    give_item_stable_key TEXT, required_quest_stable_key TEXT,
+    complete_quest_stable_key TEXT
+);
+CREATE TABLE quest_variants (quest_stable_key TEXT, item_on_complete_stable_key TEXT);
+CREATE TABLE crafting_rewards (recipe_item_stable_key TEXT, reward_item_stable_key TEXT);
+CREATE TABLE item_drops (source_item_stable_key TEXT, dropped_item_stable_key TEXT, drop_probability REAL);
+CREATE TABLE spell_created_items (source_item_stable_key TEXT, created_item_stable_key TEXT);
+CREATE TABLE item_conversions (input_item_stable_key TEXT, output_item_stable_key TEXT, zone_stable_key TEXT);
+CREATE TABLE class_starting_items (class_name TEXT, item_stable_key TEXT);
 
 CREATE TABLE items (
     stable_key TEXT PRIMARY KEY,
@@ -536,3 +551,22 @@ FROM characters c CROSS JOIN samples WHERE c.stable_key LIKE 'character:ancient 
 INSERT INTO character_fact_sources (group_key, member_stable_key)
 SELECT group_key, member_stable_key FROM character_deduplications
 WHERE member_stable_key NOT IN ('character:fixture enemy backup', 'character:fixture guard');
+
+-- Non-loot acquisition paths, including all three ways an item use yields another.
+UPDATE classes SET display_name = CASE class_name WHEN 'Nightblade' THEN 'Nightblade' ELSE 'Paladin' END;
+INSERT INTO classes VALUES ('Default', 'Default');
+UPDATE quests SET display_name = 'Fixture Quest', wiki_page_name = 'Fixture Quest';
+INSERT INTO character_dialogs VALUES
+    ('character:breena carpenter', 0, 'item:fixture key', 'quest:fixture-secondary', 'quest:vendor-unlock'),
+    ('character:fixture enemy backup', 0, 'item:fixture key', NULL, NULL),
+    ('character:fixture guard placed', 0, 'item:fixture key', NULL, NULL);
+INSERT INTO quest_variants VALUES
+    ('quest:vendor-unlock', 'item:fixture relic'),
+    ('quest:fixture-secondary', 'item:furniture - enchanted smithy');
+INSERT INTO crafting_rewards VALUES ('item:fixture key', 'item:fixture relic');
+INSERT INTO item_drops VALUES ('item:fixture key', 'item:fixture relic', 25);
+INSERT INTO spell_created_items VALUES ('item:fixture bag', 'item:fixture relic');
+INSERT INTO item_conversions VALUES ('item:fixture ore', 'item:fixture relic', 'zone:braxonian');
+INSERT INTO class_starting_items VALUES
+    ('Nightblade', 'item:fixture relic'), ('Paladin', 'item:fixture relic'),
+    ('Default', 'item:fixture key'), ('Nightblade', 'item:fixture fish');

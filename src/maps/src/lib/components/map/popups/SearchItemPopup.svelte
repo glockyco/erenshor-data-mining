@@ -1,6 +1,12 @@
 <script lang="ts">
     import { SvelteMap } from 'svelte/reactivity';
-    import type { WorldEnemy, WorldNpc, WorldMiningNode, WorldWater, WorldItemBag } from '$lib/types/world-map';
+    import type {
+        WorldEnemy,
+        WorldNpc,
+        WorldMiningNode,
+        WorldWater,
+        WorldItemBag
+    } from '$lib/types/world-map';
     import type { AnySourceMarker, ResolvedItemSource } from '$lib/map/search/item-source-provider';
     import type { ItemSearchResult } from '$lib/map/search';
     import WikiLink from '$lib/components/map/WikiLink.svelte';
@@ -70,17 +76,9 @@
     let { result, sources, onHoverSpawn, onFocusSpawn, onFocusAll }: Props = $props();
 
     function sourceMarkers(source: ResolvedItemSource): AnySourceMarker[] {
-        switch (source.kind) {
-            case 'drop':
-            case 'vendor':
-                return source.markers;
-            case 'mining':
-            case 'fishing':
-            case 'bag':
-                return [source.marker];
-            case 'world':
-                return [];
-        }
+        if ('markers' in source) return source.markers;
+        if ('marker' in source) return [source.marker];
+        return [];
     }
 
     const allMarkers = $derived.by(() => {
@@ -123,9 +121,7 @@
             .sort((a, b) => b.rows.length - a.rows.length)
             .map((group) => ({
                 ...group,
-                rows: [...group.rows].sort(
-                    (a, b) => b.row.dropProbability - a.row.dropProbability
-                )
+                rows: [...group.rows].sort((a, b) => b.row.dropProbability - a.row.dropProbability)
             }));
     });
 
@@ -188,9 +184,7 @@
             }
         }
 
-        return [...groups.values()].sort(
-            (a, b) => b.entries.size - a.entries.size
-        );
+        return [...groups.values()].sort((a, b) => b.entries.size - a.entries.size);
     });
 
     const fishingByZone = $derived.by(() => {
@@ -221,9 +215,7 @@
             }
         }
 
-        return [...groups.values()].sort(
-            (a, b) => b.entries.size - a.entries.size
-        );
+        return [...groups.values()].sort((a, b) => b.entries.size - a.entries.size);
     });
 
     const bagsByZone = $derived.by(() => {
@@ -244,10 +236,69 @@
             group.markers.set(marker.stableKey, marker);
         }
 
-        return [...groups.values()].sort(
-            (a, b) => b.markers.size - a.markers.size
-        );
+        return [...groups.values()].sort((a, b) => b.markers.size - a.markers.size);
     });
+
+    const giversByZone = $derived.by(() => {
+        const groups = new SvelteMap<
+            string,
+            {
+                zone: string;
+                zoneName: string;
+                rows: {
+                    row: Extract<ResolvedItemSource, { kind: 'dialog' }>['row'];
+                    spawns: AnySpawnMarker[];
+                }[];
+            }
+        >();
+        for (const source of sources) {
+            if (source.kind !== 'dialog') continue;
+            const byZone = new SvelteMap<string, AnySpawnMarker[]>();
+            for (const marker of source.markers) {
+                const spawns = byZone.get(marker.zone);
+                if (spawns) spawns.push(marker);
+                else byZone.set(marker.zone, [marker]);
+            }
+            for (const [zone, spawns] of byZone) {
+                let group = groups.get(zone);
+                if (!group) {
+                    group = { zone, zoneName: spawns[0].zoneName, rows: [] };
+                    groups.set(zone, group);
+                }
+                group.rows.push({ row: source.row, spawns });
+            }
+        }
+        return [...groups.values()].sort((a, b) => a.zoneName.localeCompare(b.zoneName));
+    });
+
+    const quests = $derived.by(() => {
+        const groups = new SvelteMap<
+            string,
+            {
+                row: Extract<ResolvedItemSource, { kind: 'quest' }>['row'];
+                turnIns: { key: string; name: string; markers: AnySpawnMarker[] }[];
+            }
+        >();
+        for (const source of sources) {
+            if (source.kind !== 'quest') continue;
+            let group = groups.get(source.row.questStableKey);
+            if (!group) {
+                group = { row: source.row, turnIns: [] };
+                groups.set(source.row.questStableKey, group);
+            }
+            if (source.markers.length) {
+                group.turnIns.push({
+                    key: source.row.turnInCharacterStableKey!,
+                    name: source.row.turnInCharacterName ?? '',
+                    markers: source.markers
+                });
+            }
+        }
+        return [...groups.values()];
+    });
+    const recipes = $derived(sources.filter((s) => s.kind === 'craft'));
+    const itemUses = $derived(sources.filter((s) => s.kind === 'item_use'));
+    const starting = $derived(sources.filter((s) => s.kind === 'starting'));
 
     const worldDrops = $derived(
         sources
@@ -340,30 +391,35 @@
                                 onclick={() => focusMarkers(dropper.spawns)}
                             >
                                 <div class="min-w-0 flex-1">
-                                    <div class="flex flex-wrap items-center gap-x-1.5 text-zinc-300">
+                                    <div
+                                        class="flex flex-wrap items-center gap-x-1.5 text-zinc-300"
+                                    >
                                         <span class="truncate">{dropper.row.npcName}</span>
                                         {#if dropper.row.encounterTier === 'boss'}
                                             <span
                                                 class="rounded px-1 py-0.5 text-[10px]
-                                                       bg-amber-900/50 text-amber-300"
-                                            >Boss</span>
+                                                       bg-amber-900/50 text-amber-300">Boss</span
+                                            >
                                         {:else if dropper.row.encounterTier === 'elite'}
                                             <span
                                                 class="rounded px-1 py-0.5 text-[10px]
-                                                       bg-indigo-900/50 text-indigo-300"
-                                            >Elite</span>
+                                                       bg-indigo-900/50 text-indigo-300">Elite</span
+                                            >
                                         {:else if dropper.row.encounterTier === 'chest'}
                                             <span
                                                 class="rounded px-1 py-0.5 text-[10px]
-                                                       bg-teal-900/50 text-teal-300"
-                                            >Chest</span>
+                                                       bg-teal-900/50 text-teal-300">Chest</span
+                                            >
                                         {/if}
                                     </div>
                                     <div class="flex flex-wrap items-center gap-x-1 text-zinc-500">
-                                        <span>{formatDropChance(dropper.row.dropProbability)} drop</span>
+                                        <span
+                                            >{formatDropChance(dropper.row.dropProbability)} drop</span
+                                        >
                                         <span>·</span>
                                         <span>
-                                            {dropper.spawns.length} spawn{dropper.spawns.length !== 1
+                                            {dropper.spawns.length} spawn{dropper.spawns.length !==
+                                            1
                                                 ? 's'
                                                 : ''}
                                         </span>
@@ -411,7 +467,8 @@
                                         <span>{formatPrice(vendor.row.price)} gold</span>
                                         <span>·</span>
                                         <span>
-                                            {vendor.spawns.length} location{vendor.spawns.length !== 1
+                                            {vendor.spawns.length} location{vendor.spawns.length !==
+                                            1
                                                 ? 's'
                                                 : ''}
                                         </span>
@@ -425,6 +482,122 @@
                     </div>
                 </div>
             {/each}
+        </div>
+    {/if}
+
+    {#if giversByZone.length}
+        <div class="space-y-3 border-t border-zinc-700 pt-2">
+            <div class="text-xs uppercase tracking-wide text-zinc-500">Given by</div>
+            {#each giversByZone as group (group.zone)}
+                <div class="space-y-1">
+                    <div class="text-xs font-medium text-zinc-300">{group.zoneName}</div>
+                    {#each group.rows as giver (`${giver.row.characterStableKey}:${giver.row.requiredQuestStableKey ?? ''}`)}
+                        <div class="rounded px-2 py-1.5 text-xs text-zinc-400">
+                            <button
+                                type="button"
+                                class="flex w-full items-center justify-between text-left text-zinc-300 hover:text-white"
+                                onmouseenter={() => onHoverSpawn(markerKeys(giver.spawns))}
+                                onmouseleave={() => onHoverSpawn(null)}
+                                onclick={() => focusMarkers(giver.spawns)}
+                            >
+                                <span
+                                    >{giver.row.npcName} · {giver.spawns.length} location{giver
+                                        .spawns.length !== 1
+                                        ? 's'
+                                        : ''}</span
+                                >
+                                <Crosshair class="h-3.5 w-3.5 shrink-0" />
+                            </button>
+                            {#if giver.row.requiredQuestName}
+                                <div class="mt-1 flex items-center gap-1">
+                                    after {giver.row.requiredQuestName}
+                                    <WikiLink pageName={giver.row.requiredQuestWikiPageName} />
+                                </div>
+                            {/if}
+                        </div>
+                    {/each}
+                </div>
+            {/each}
+        </div>
+    {/if}
+
+    {#if quests.length}
+        <div class="space-y-2 border-t border-zinc-700 pt-2 text-xs text-zinc-300">
+            <div class="uppercase tracking-wide text-zinc-500">Reward from</div>
+            {#each quests as quest (quest.row.questStableKey)}
+                <div class="space-y-1">
+                    <div class="flex items-center gap-1">
+                        {quest.row.questName}<WikiLink pageName={quest.row.questWikiPageName} />
+                    </div>
+                    {#each quest.turnIns as turnIn (turnIn.key)}
+                        {#each [...new Set(turnIn.markers.map((m) => m.zone))] as zone (zone)}
+                            {@const markers = turnIn.markers.filter((m) => m.zone === zone)}
+                            <button
+                                type="button"
+                                class="flex w-full items-center justify-between rounded px-2 py-1.5 text-left text-zinc-400 hover:bg-zinc-700/50 hover:text-white"
+                                onmouseenter={() => onHoverSpawn(markerKeys(markers))}
+                                onmouseleave={() => onHoverSpawn(null)}
+                                onclick={() => focusMarkers(markers)}
+                            >
+                                <span>Turn in to {turnIn.name} · {markers[0].zoneName}</span>
+                                <Crosshair class="h-3.5 w-3.5 shrink-0" />
+                            </button>
+                        {/each}
+                    {/each}
+                </div>
+            {/each}
+        </div>
+    {/if}
+
+    {#if recipes.length}
+        <div class="space-y-2 border-t border-zinc-700 pt-2 text-xs text-zinc-300">
+            <div class="uppercase tracking-wide text-zinc-500">Crafting recipe</div>
+            {#each recipes as recipe (recipe.row.recipeStableKey)}
+                <div class="flex items-center gap-1">
+                    {recipe.row.recipeName}<WikiLink pageName={recipe.row.recipeWikiPageName} />
+                </div>
+            {/each}
+            <p class="text-zinc-400">Crafted at a forge.</p>
+        </div>
+    {/if}
+
+    {#if itemUses.length}
+        <div class="space-y-2 border-t border-zinc-700 pt-2 text-xs text-zinc-300">
+            <div class="uppercase tracking-wide text-zinc-500">Obtained by using</div>
+            {#each itemUses as source (`${source.row.sourceItemStableKey}:${source.row.zoneName ?? ''}`)}
+                <div>
+                    <div class="flex items-center gap-1">
+                        {source.row.sourceItemName}<WikiLink
+                            pageName={source.row.sourceItemWikiPageName}
+                        />
+                    </div>
+                    {#if source.row.dropProbability !== null}<div class="text-zinc-400">
+                            {formatWorldDropChance(source.row.dropProbability)}
+                        </div>{/if}
+                    {#if source.row.zoneName}<div class="text-zinc-400">
+                            in {source.row.zoneName}
+                        </div>{/if}
+                </div>
+            {/each}
+        </div>
+    {/if}
+
+    {#if starting.length}
+        <div class="space-y-2 border-t border-zinc-700 pt-2 text-xs text-zinc-300">
+            <div class="uppercase tracking-wide text-zinc-500">Starting item of</div>
+            {#if starting[0].row.allClasses}
+                <div class="flex items-center gap-1">
+                    All classes<WikiLink pageName="Classes" />
+                </div>
+            {:else}
+                {#each starting as source (source.row.className)}
+                    <div class="flex items-center gap-1">
+                        {source.row.classDisplayName}<WikiLink
+                            pageName={source.row.classDisplayName}
+                        />
+                    </div>
+                {/each}
+            {/if}
         </div>
     {/if}
 
@@ -482,14 +655,16 @@
                         <div class="flex flex-wrap items-center gap-x-1.5 text-zinc-300">
                             <span>{group.zoneName}</span>
                             {#if periods.every((period) => period === 'day')}
-                                <span class="rounded px-1 py-0.5 text-[10px] bg-sky-900/50 text-sky-300">
+                                <span
+                                    class="rounded px-1 py-0.5 text-[10px] bg-sky-900/50 text-sky-300"
+                                >
                                     Day
                                 </span>
                             {:else if periods.every((period) => period === 'night')}
                                 <span
                                     class="rounded px-1 py-0.5 text-[10px]
-                                           bg-indigo-900/50 text-indigo-300"
-                                >Night</span>
+                                           bg-indigo-900/50 text-indigo-300">Night</span
+                                >
                             {/if}
                         </div>
                         <div class="text-zinc-500">
@@ -543,9 +718,13 @@
             {#each worldDrops as drop (drop.pool)}
                 <div class="flex justify-between gap-2 px-2 text-xs">
                     <span class="text-zinc-300">
-                        {drop.minLevelExclusive > 0 ? `Any enemy above level ${drop.minLevelExclusive}` : 'Any enemy'}
+                        {drop.minLevelExclusive > 0
+                            ? `Any enemy above level ${drop.minLevelExclusive}`
+                            : 'Any enemy'}
                     </span>
-                    <span class="shrink-0 text-zinc-500">{formatWorldDropChance(drop.dropProbability)} per kill</span>
+                    <span class="shrink-0 text-zinc-500"
+                        >{formatWorldDropChance(drop.dropProbability)} per kill</span
+                    >
                 </div>
             {/each}
             <div class="px-2 text-xs text-zinc-500">At the default loot rate.</div>

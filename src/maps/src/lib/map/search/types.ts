@@ -43,6 +43,11 @@ export type ItemSourceCounts = {
     itemBags: number;
     /** Special world drop rolls, which have no map location */
     worldDrops: number;
+    givers: number;
+    quests: number;
+    recipes: number;
+    itemUses: number;
+    startingClasses: number;
 };
 
 export type ItemSearchResult = {
@@ -57,10 +62,7 @@ export type ItemSearchResult = {
 };
 
 export type SearchResult =
-    | EnemySearchResult
-    | NpcSearchResult
-    | ZoneSearchResult
-    | ItemSearchResult;
+    EnemySearchResult | NpcSearchResult | ZoneSearchResult | ItemSearchResult;
 
 // =============================================================================
 // Index Entry (flat, for matching)

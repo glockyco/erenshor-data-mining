@@ -145,7 +145,9 @@ export class RepositoryBase {
 
         const positionText = `NPC @ ${formatCoordinates(coordinates.x, coordinates.y, coordinates.z)}`;
         const disabledInfo =
-            isEnabled || isFurnishingSpawn(characters) ? '' : '<br><br>This NPC is (initially) disabled.';
+            isEnabled || isFurnishingSpawn(characters)
+                ? ''
+                : '<br><br>This NPC is (initially) disabled.';
         const respawnInfo = this.getRespawnInfo(spawnDelay, isNightSpawn);
 
         const popupText = `${positionText}${characterLines}${disabledInfo}${respawnInfo}`.trim();
@@ -802,7 +804,8 @@ export class RepositoryBase {
 
         // The clean build gives the player levels at which a site brings up
         // each chest, and the guardians scale with the player who digs.
-        const guardiansStmt = this.db.prepare(`
+        const guardiansStmt = this.db.prepare(
+            `
             SELECT tl.stable_key AS SiteKey, c.stable_key AS StableKey,
                    c.display_name AS Name, c.wiki_page_name AS WikiPageName,
                    MIN(gs.level_min) AS LevelMin, MAX(gs.level_max) AS LevelMax
@@ -816,7 +819,9 @@ export class RepositoryBase {
             WHERE tl.scene = ?
             GROUP BY tl.stable_key, c.stable_key
             ORDER BY tl.stable_key, c.display_name, c.stable_key
-        `, [mapName]);
+        `,
+            [mapName]
+        );
         const guardiansBySite = new Map<string, TreasureLocMarker['guardians']>();
         while (guardiansStmt.step()) {
             const row = guardiansStmt.getAsObject();
@@ -833,7 +838,8 @@ export class RepositoryBase {
         }
         guardiansStmt.free();
 
-        const stmt = this.db.prepare(`
+        const stmt = this.db.prepare(
+            `
             SELECT tl.stable_key AS StableKey, tl.x AS PositionX, tl.y AS PositionY, tl.z AS PositionZ,
                    th.min_reading_level AS MinReadingLevel,
                    c.stable_key AS ChestKey, c.display_name AS ChestName, c.wiki_page_name AS WikiPageName,
@@ -845,7 +851,9 @@ export class RepositoryBase {
             JOIN characters c ON c.stable_key = ts.chest_character_stable_key
             WHERE tl.scene = ?
             ORDER BY tl.stable_key, DigLevelMin, c.stable_key
-        `, [mapName]);
+        `,
+            [mapName]
+        );
         const markers = new Map<string, TreasureLocMarker>();
         while (stmt.step()) {
             const row = stmt.getAsObject();
@@ -853,7 +861,8 @@ export class RepositoryBase {
             let marker = markers.get(stableKey);
             if (!marker) {
                 const guardians = guardiansBySite.get(stableKey) ?? [];
-                if (guardians.length === 0) throw new Error(`Missing treasure guardian scaling: ${stableKey}`);
+                if (guardians.length === 0)
+                    throw new Error(`Missing treasure guardian scaling: ${stableKey}`);
                 marker = {
                     stableKey,
                     category: 'treasure-loc',
@@ -877,15 +886,22 @@ export class RepositoryBase {
         }
         stmt.free();
         for (const marker of markers.values()) {
-            const readingLevel = marker.minReadingLevel === 1 ? 'any level' : `${marker.minReadingLevel} or higher`;
+            const readingLevel =
+                marker.minReadingLevel === 1 ? 'any level' : `${marker.minReadingLevel} or higher`;
             marker.popup += `<br><br>Reading level: ${readingLevel}<br><br>Chest by player digging level:<br>`;
-            marker.popup += marker.chests.map((c) =>
-                `${c.digLevelMin}–${c.digLevelMax}: ${formatWikiLink(c.name, c.wikiPageName)}`
-            ).join('<br>');
+            marker.popup += marker.chests
+                .map(
+                    (c) =>
+                        `${c.digLevelMin}–${c.digLevelMax}: ${formatWikiLink(c.name, c.wikiPageName)}`
+                )
+                .join('<br>');
             marker.popup += '<br><br>Guardians (scale with the player):<br>';
-            marker.popup += marker.guardians.map((g) =>
-                `${formatWikiLink(g.name, g.wikiPageName)}: Level ${g.levelMin}–${g.levelMax}`
-            ).join('<br>');
+            marker.popup += marker.guardians
+                .map(
+                    (g) =>
+                        `${formatWikiLink(g.name, g.wikiPageName)}: Level ${g.levelMin}–${g.levelMax}`
+                )
+                .join('<br>');
             marker.popup += `<br><br>${formatWikiLink('Treasure Hunting', 'Treasure_Hunting')}`;
         }
         return [...markers.values()];
@@ -1440,6 +1456,113 @@ export class RepositoryBase {
                     dropProbability: row.dropProbability as number,
                     minLevelExclusive: row.minLevelExclusive as number
                 });
+            }
+            stmt.free();
+        }
+
+        // Character facts come only from copies players meet; marker keys are
+        // the same map-visible representatives used for drops and vendors.
+        const representatives = `
+            SELECT group_key, MIN(member_stable_key) AS characterStableKey
+            FROM character_deduplications WHERE is_map_visible = 1 GROUP BY group_key
+        `;
+        const additionalSources = [
+            {
+                kind: 'dialog',
+                sql: `
+                    SELECT DISTINCT cd.give_item_stable_key AS item_key,
+                        r.characterStableKey, c.npc_name AS npcName,
+                        cd.required_quest_stable_key AS requiredQuestStableKey,
+                        COALESCE(q.display_name, cd.required_quest_stable_key) AS requiredQuestName,
+                        q.wiki_page_name AS requiredQuestWikiPageName
+                    FROM character_dialogs cd
+                    JOIN character_fact_sources s ON s.member_stable_key = cd.character_stable_key
+                    JOIN (${representatives}) r ON r.group_key = s.group_key
+                    JOIN characters c ON c.stable_key = r.characterStableKey
+                    LEFT JOIN quests q ON q.stable_key = cd.required_quest_stable_key
+                    WHERE cd.give_item_stable_key IS NOT NULL
+                `
+            },
+            {
+                kind: 'quest',
+                sql: `
+                    SELECT DISTINCT qv.item_on_complete_stable_key AS item_key,
+                        q.stable_key AS questStableKey, q.display_name AS questName,
+                        q.wiki_page_name AS questWikiPageName,
+                        t.characterStableKey AS turnInCharacterStableKey,
+                        c.npc_name AS turnInCharacterName
+                    FROM quest_variants qv
+                    JOIN quests q ON q.stable_key = qv.quest_stable_key
+                    LEFT JOIN (
+                        SELECT DISTINCT cd.complete_quest_stable_key AS quest_key, r.characterStableKey
+                        FROM character_dialogs cd
+                        JOIN character_fact_sources s ON s.member_stable_key = cd.character_stable_key
+                        JOIN (${representatives}) r ON r.group_key = s.group_key
+                        WHERE cd.complete_quest_stable_key IS NOT NULL
+                    ) t ON t.quest_key = q.stable_key
+                    LEFT JOIN characters c ON c.stable_key = t.characterStableKey
+                    WHERE qv.item_on_complete_stable_key IS NOT NULL
+                `
+            },
+            {
+                kind: 'craft',
+                sql: `
+                    SELECT DISTINCT cr.reward_item_stable_key AS item_key,
+                        i.stable_key AS recipeStableKey, i.display_name AS recipeName,
+                        i.wiki_page_name AS recipeWikiPageName
+                    FROM crafting_rewards cr JOIN items i ON i.stable_key = cr.recipe_item_stable_key
+                `
+            },
+            {
+                kind: 'item_use',
+                sql: `
+                    SELECT s.item_key, i.stable_key AS sourceItemStableKey,
+                        i.display_name AS sourceItemName, i.wiki_page_name AS sourceItemWikiPageName,
+                        MAX(s.probability) AS dropProbability,
+                        COALESCE(z.display_name, s.zone_key) AS zoneName
+                    FROM (
+                        SELECT dropped_item_stable_key AS item_key, source_item_stable_key AS source_key,
+                            drop_probability AS probability, NULL AS zone_key FROM item_drops
+                        UNION ALL
+                        SELECT created_item_stable_key, source_item_stable_key, NULL, NULL FROM spell_created_items
+                        UNION ALL
+                        SELECT output_item_stable_key, input_item_stable_key, NULL, zone_stable_key FROM item_conversions
+                    ) s
+                    JOIN items i ON i.stable_key = s.source_key
+                    LEFT JOIN zones z ON z.stable_key = s.zone_key
+                    GROUP BY s.item_key, s.source_key, s.zone_key
+                `
+            },
+            {
+                kind: 'starting',
+                sql: `
+                    SELECT DISTINCT csi.item_stable_key AS item_key, c.class_name AS className,
+                        COALESCE(c.display_name, c.class_name) AS classDisplayName,
+                        (SELECT COUNT(DISTINCT cs.class_name) FROM class_starting_items cs
+                         JOIN classes pc ON pc.class_name = cs.class_name
+                         WHERE cs.item_stable_key = csi.item_stable_key AND pc.class_name != 'Default')
+                        = (SELECT COUNT(*) FROM classes WHERE class_name != 'Default') AS allClasses
+                    FROM class_starting_items csi JOIN classes c ON c.class_name = csi.class_name
+                    WHERE c.class_name != 'Default'
+                `
+            }
+        ] as const;
+        for (const { kind, sql } of additionalSources) {
+            const stmt = this.db.prepare(`
+                SELECT i.stable_key AS itemStableKey, i.display_name AS displayName,
+                    i.wiki_page_name AS wikiPageName, i.image_hash AS iconHash, s.*
+                FROM (${sql}) s JOIN items i ON i.stable_key = s.item_key
+                WHERE i.is_map_visible = 1
+                ORDER BY i.display_name, i.stable_key
+            `);
+            while (stmt.step()) {
+                const row = stmt.getAsObject();
+                delete row.item_key;
+                rows.push({
+                    ...row,
+                    kind,
+                    ...(kind === 'starting' ? { allClasses: row.allClasses === 1 } : {})
+                } as ItemSourceRow);
             }
             stmt.free();
         }

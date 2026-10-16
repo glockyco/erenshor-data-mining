@@ -1,10 +1,8 @@
 /**
  * Item search provider.
  *
- * Indexes every map-visible item acquisition source: drops, vendors, mining
- * nodes, fishing spots, and item bags, which have map locations, and special
- * world drops, which every loot-table kill can roll and which therefore have
- * none. A single search result represents all sources for the item. Items are
+ * Indexes acquisition sources with map locations and listed sources without
+ * locations. A single search result represents all sources for the item. Items are
  * keyed by stable key, not display name, because display names are not unique
  * (e.g. "Scribbles of a Mad Priest" has two distinct stable keys) — keying by
  * name would wrongly merge unrelated source sets.
@@ -25,7 +23,12 @@ import type {
     ItemMiningSource,
     ItemFishingSource,
     ItemBagSource,
-    ItemWorldDropSource
+    ItemWorldDropSource,
+    ItemDialogSource,
+    ItemQuestSource,
+    ItemCraftSource,
+    ItemUseSource,
+    ItemStartingSource
 } from '$lib/map-markers';
 import type {
     SearchProvider,
@@ -45,7 +48,12 @@ export type ResolvedItemSource =
     | { kind: 'mining'; row: ItemMiningSource; marker: WorldMiningNode }
     | { kind: 'fishing'; row: ItemFishingSource; marker: WorldWater }
     | { kind: 'bag'; row: ItemBagSource; marker: WorldItemBag }
-    | { kind: 'world'; row: ItemWorldDropSource };
+    | { kind: 'world'; row: ItemWorldDropSource }
+    | { kind: 'dialog'; row: ItemDialogSource; markers: AnySpawnMarker[] }
+    | { kind: 'quest'; row: ItemQuestSource; markers: AnySpawnMarker[] }
+    | { kind: 'craft'; row: ItemCraftSource }
+    | { kind: 'item_use'; row: ItemUseSource }
+    | { kind: 'starting'; row: ItemStartingSource };
 
 interface ItemEntry {
     result: ItemSearchResult;
@@ -87,17 +95,13 @@ export class ItemSearchProvider implements SearchProvider {
         }
 
         const miningByKey = new Map<string, WorldMiningNode>(
-            miningNodes.map(
-                (marker): [string, WorldMiningNode] => [marker.stableKey, marker]
-            )
+            miningNodes.map((marker): [string, WorldMiningNode] => [marker.stableKey, marker])
         );
         const waterByKey = new Map<string, WorldWater>(
             water.map((marker): [string, WorldWater] => [marker.stableKey, marker])
         );
         const bagByKey = new Map<string, WorldItemBag>(
-            itemBags.map(
-                (marker): [string, WorldItemBag] => [marker.stableKey, marker]
-            )
+            itemBags.map((marker): [string, WorldItemBag] => [marker.stableKey, marker])
         );
 
         // Group source rows by item stable key
@@ -151,6 +155,27 @@ export class ItemSearchProvider implements SearchProvider {
                         if (marker) sources.push({ kind: 'bag', row, marker });
                         break;
                     }
+                    case 'dialog': {
+                        const markers = this.markersByCharacter.get(row.characterStableKey);
+                        if (markers?.length) sources.push({ kind: 'dialog', row, markers });
+                        break;
+                    }
+                    case 'quest': {
+                        const markers = row.turnInCharacterStableKey
+                            ? (this.markersByCharacter.get(row.turnInCharacterStableKey) ?? [])
+                            : [];
+                        sources.push({ kind: 'quest', row, markers });
+                        break;
+                    }
+                    case 'craft':
+                        sources.push({ kind: 'craft', row });
+                        break;
+                    case 'item_use':
+                        sources.push({ kind: 'item_use', row });
+                        break;
+                    case 'starting':
+                        sources.push({ kind: 'starting', row });
+                        break;
                     case 'world': {
                         sources.push({ kind: 'world', row });
                         break;
@@ -164,6 +189,11 @@ export class ItemSearchProvider implements SearchProvider {
             const fishingKeys = new Set<string>();
             const bagKeys = new Set<string>();
             let worldDrops = 0;
+            const giverKeys = new Set<string>();
+            const questKeys = new Set<string>();
+            const recipeKeys = new Set<string>();
+            const itemUseKeys = new Set<string>();
+            const startingKeys = new Set<string>();
             const zoneSet = new Set<string>();
 
             for (const source of sources) {
@@ -182,7 +212,19 @@ export class ItemSearchProvider implements SearchProvider {
                 } else if (source.kind === 'bag') {
                     bagKeys.add(source.marker.stableKey);
                     zoneSet.add(source.marker.zone);
-                } else {
+                } else if (source.kind === 'dialog') {
+                    giverKeys.add(source.row.characterStableKey);
+                    for (const marker of source.markers) zoneSet.add(marker.zone);
+                } else if (source.kind === 'quest') {
+                    questKeys.add(source.row.questStableKey);
+                    for (const marker of source.markers) zoneSet.add(marker.zone);
+                } else if (source.kind === 'craft') {
+                    recipeKeys.add(source.row.recipeStableKey);
+                } else if (source.kind === 'item_use') {
+                    itemUseKeys.add(source.row.sourceItemStableKey);
+                } else if (source.kind === 'starting') {
+                    startingKeys.add(source.row.className);
+                } else if (source.kind === 'world') {
                     worldDrops++;
                 }
             }
@@ -193,7 +235,12 @@ export class ItemSearchProvider implements SearchProvider {
                 miningNodes: miningKeys.size,
                 fishingSpots: fishingKeys.size,
                 itemBags: bagKeys.size,
-                worldDrops
+                worldDrops,
+                givers: giverKeys.size,
+                quests: questKeys.size,
+                recipes: recipeKeys.size,
+                itemUses: itemUseKeys.size,
+                startingClasses: startingKeys.size
             };
 
             this.itemByStableKey.set(itemStableKey, {
@@ -226,9 +273,7 @@ export class ItemSearchProvider implements SearchProvider {
     resolveHighlight(result: SearchResult): ResolvedHighlight {
         if (result.type !== 'item') return { type: 'none' };
 
-        const entry = this.itemByStableKey.get(
-            (result as ItemSearchResult).itemStableKey
-        );
+        const entry = this.itemByStableKey.get((result as ItemSearchResult).itemStableKey);
         if (!entry) return { type: 'none' };
 
         const markers = this.getMarkersForItem(entry.result.itemStableKey);
@@ -248,9 +293,9 @@ export class ItemSearchProvider implements SearchProvider {
 
         const markerSet = new Set<AnySourceMarker>();
         for (const source of entry.sources) {
-            if (source.kind === 'drop' || source.kind === 'vendor') {
+            if ('markers' in source) {
                 for (const marker of source.markers) markerSet.add(marker);
-            } else if (source.kind !== 'world') {
+            } else if ('marker' in source) {
                 markerSet.add(source.marker);
             }
         }
@@ -263,9 +308,7 @@ export class ItemSearchProvider implements SearchProvider {
     }
 
     /**
-     * Get the cached search result for an item stable key (URL restore).
-     * Returns null if the item has no resolvable source locations and was never
-     * indexed — in that case the selection cannot be restored.
+     * Returns null only when the item has no wiki page and was not indexed.
      */
     getResult(itemStableKey: string): ItemSearchResult | null {
         return this.itemByStableKey.get(itemStableKey)?.result ?? null;

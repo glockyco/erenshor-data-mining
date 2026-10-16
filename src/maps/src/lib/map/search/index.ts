@@ -83,8 +83,8 @@ export function itemResultSummaryParts(result: ItemSearchResult): string[] {
 
     const c = result.sourceCounts;
     const parts: string[] = [];
-    const push = (n: number, label: string) => {
-        if (n > 0) parts.push(`${n} ${label}${n !== 1 ? 's' : ''}`);
+    const push = (n: number, label: string, plural = `${label}s`) => {
+        if (n > 0) parts.push(`${n} ${n !== 1 ? plural : label}`);
     };
     push(c.droppers, 'dropper');
     push(c.vendors, 'vendor');
@@ -92,6 +92,11 @@ export function itemResultSummaryParts(result: ItemSearchResult): string[] {
     push(c.fishingSpots, 'fishing spot');
     push(c.itemBags, 'item bag');
     push(c.worldDrops, 'world drop');
+    push(c.givers, 'giver');
+    push(c.quests, 'quest');
+    push(c.recipes, 'crafting recipe');
+    push(c.itemUses, 'item use');
+    push(c.startingClasses, 'starting class', 'starting classes');
     push(result.zoneCount, 'zone');
     return parts;
 }
@@ -156,12 +161,7 @@ export function buildSearchIndex(input: {
         input.allItems
     );
 
-    const providers: SearchProvider[] = [
-        itemProvider,
-        enemyProvider,
-        npcProvider,
-        zoneProvider
-    ];
+    const providers: SearchProvider[] = [itemProvider, enemyProvider, npcProvider, zoneProvider];
 
     const entries: IndexEntry[] = [];
     for (const provider of providers) {
@@ -305,7 +305,10 @@ function sortCategoryResults(cat: string, results: SearchMatch[]): void {
         results.sort((a, b) => {
             const ae = a.result as EnemySearchResult;
             const be = b.result as EnemySearchResult;
-            return compareEncounterTier(ae.encounterTier, be.encounterTier) || ae.name.localeCompare(be.name);
+            return (
+                compareEncounterTier(ae.encounterTier, be.encounterTier) ||
+                ae.name.localeCompare(be.name)
+            );
         });
     } else {
         results.sort((a, b) => sortName(a.result).localeCompare(sortName(b.result)));

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { IndexEntry } from './types';
 import type { WorldEnemy } from '$lib/types/world-map';
-import { searchMarkers } from './index';
+import { itemResultSummaryParts, searchMarkers } from './index';
 import { EnemySearchProvider } from './enemy-provider';
 
 function item(name: string, stableKey: string): IndexEntry {
@@ -19,7 +19,12 @@ function item(name: string, stableKey: string): IndexEntry {
                 miningNodes: 0,
                 fishingSpots: 0,
                 itemBags: 0,
-                worldDrops: 0
+                worldDrops: 0,
+                givers: 0,
+                quests: 0,
+                recipes: 0,
+                itemUses: 0,
+                startingClasses: 0
             },
             zoneCount: 1,
             hasKnownSource: true
@@ -64,8 +69,8 @@ describe('searchMarkers', () => {
         // match for 'Citrine Ring' (item). The substring enemy must rank
         // above the fuzzy item, even though items have category priority 0.
         const entries: IndexEntry[] = [
-            enemy('Citrine Guardian'),  // contains 'citrin' as substring
-            item('Catrine Ring', 'item:catrine')  // fuzzy match for 'citrin'
+            enemy('Citrine Guardian'), // contains 'citrin' as substring
+            item('Catrine Ring', 'item:catrine') // fuzzy match for 'citrin'
         ];
         const matches = searchMarkers('citrin', entries, 20).matches;
         const guardianIdx = matches.findIndex(
@@ -123,9 +128,11 @@ describe('searchMarkers', () => {
             match.result.type === 'enemy' ? match.result.name : ''
         );
         expect(names).toEqual(['Wolf King', 'Wolf Champion', 'Wolf']);
-        expect(searchMarkers('wolf', entries).categories.chest.matches.map((match) =>
-            match.result.type === 'enemy' ? match.result.name : ''
-        )).toEqual(['Wolf Cache']);
+        expect(
+            searchMarkers('wolf', entries).categories.chest.matches.map((match) =>
+                match.result.type === 'enemy' ? match.result.name : ''
+            )
+        ).toEqual(['Wolf Cache']);
     });
 
     it('does not index friendly characters at a mixed enemy spawn', () => {
@@ -138,7 +145,11 @@ describe('searchMarkers', () => {
         } as WorldEnemy;
         const provider = new EnemySearchProvider([marker], [], [], [], [], []);
 
-        expect(provider.buildIndex().map((entry) => entry.result.type === 'enemy' ? entry.result.name : '')).toEqual(['Wolf']);
+        expect(
+            provider
+                .buildIndex()
+                .map((entry) => (entry.result.type === 'enemy' ? entry.result.name : ''))
+        ).toEqual(['Wolf']);
         expect(provider.getResult('Wolf')?.encounterTier).toBe('elite');
         expect(provider.getResult('Merchant')).toBeNull();
     });
@@ -146,5 +157,18 @@ describe('searchMarkers', () => {
     it('returns an empty response for queries shorter than 2 chars', () => {
         expect(searchMarkers('a', [], 20).matches).toEqual([]);
         expect(searchMarkers('', [], 20).matches).toEqual([]);
+    });
+});
+
+describe('itemResultSummaryParts', () => {
+    it('names one source in the singular and several in the plural', () => {
+        const entry = item('Rusty Dagger', 'item:rusty dagger');
+        if (entry.result.type !== 'item') throw new Error('expected an item result');
+        const result = {
+            ...entry.result,
+            sourceCounts: { ...entry.result.sourceCounts, droppers: 9, startingClasses: 2, givers: 1 },
+            zoneCount: 5
+        };
+        expect(itemResultSummaryParts(result)).toEqual(['9 droppers', '1 giver', '2 starting classes', '5 zones']);
     });
 });

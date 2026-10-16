@@ -6,7 +6,8 @@ import type {
     ItemFishingSource,
     ItemBagSource,
     ItemWorldDropSource,
-    ItemSourceItemMeta
+    ItemSourceItemMeta,
+    ItemSourceRow
 } from '$lib/map-markers';
 import type {
     WorldEnemy,
@@ -19,9 +20,7 @@ import { ItemSearchProvider } from './item-source-provider';
 import type { ItemSearchResult } from './types';
 
 /** Type guard: narrows SearchResult to the item variant. */
-function isItemResult(
-    result: { type: string }
-): result is ItemSearchResult {
+function isItemResult(result: { type: string }): result is ItemSearchResult {
     return result.type === 'item';
 }
 
@@ -248,6 +247,76 @@ function makeBag(
 }
 
 describe('ItemSearchProvider', () => {
+    it('retains every listed source without markers but drops unlocated dialog givers', () => {
+        const item = {
+            itemStableKey: 'item:listed',
+            displayName: 'Listed',
+            wikiPageName: 'Listed',
+            iconHash: null
+        };
+        const rows: ItemSourceRow[] = [
+            {
+                ...item,
+                kind: 'dialog',
+                characterStableKey: 'absent',
+                npcName: 'Absent',
+                requiredQuestStableKey: null,
+                requiredQuestName: null,
+                requiredQuestWikiPageName: null
+            },
+            {
+                ...item,
+                kind: 'quest',
+                questStableKey: 'quest:a',
+                questName: 'A',
+                questWikiPageName: 'A',
+                turnInCharacterStableKey: 'absent',
+                turnInCharacterName: 'Absent'
+            },
+            {
+                ...item,
+                kind: 'craft',
+                recipeStableKey: 'item:mold',
+                recipeName: 'Mold',
+                recipeWikiPageName: 'Mold'
+            },
+            {
+                ...item,
+                kind: 'item_use',
+                sourceItemStableKey: 'item:source',
+                sourceItemName: 'Source',
+                sourceItemWikiPageName: 'Source',
+                dropProbability: 25,
+                zoneName: null
+            },
+            {
+                ...item,
+                kind: 'starting',
+                className: 'Nightblade',
+                classDisplayName: 'Nightblade',
+                allClasses: false
+            }
+        ];
+        const provider = new ItemSearchProvider(rows, [], [], [], []);
+        const result = provider.getResult(item.itemStableKey)!;
+        expect(result.hasKnownSource).toBe(true);
+        expect(result.sourceCounts).toMatchObject({
+            givers: 0,
+            quests: 1,
+            recipes: 1,
+            itemUses: 1,
+            startingClasses: 1
+        });
+        expect(provider.getSourcesForItem(item.itemStableKey).map((s) => s.kind)).toEqual([
+            'quest',
+            'craft',
+            'item_use',
+            'starting'
+        ]);
+        expect(provider.getMarkersForItem(item.itemStableKey)).toEqual([]);
+        expect(provider.resolveHighlight(result)).toEqual({ type: 'none' });
+    });
+
     it('indexes wiki items with no map source rows as unknown', () => {
         const allItems: ItemSourceItemMeta[] = [
             {
@@ -269,7 +338,12 @@ describe('ItemSearchProvider', () => {
                 miningNodes: 0,
                 fishingSpots: 0,
                 itemBags: 0,
-                worldDrops: 0
+                worldDrops: 0,
+                givers: 0,
+                quests: 0,
+                recipes: 0,
+                itemUses: 0,
+                startingClasses: 0
             },
             zoneCount: 0
         });
@@ -282,10 +356,16 @@ describe('ItemSearchProvider', () => {
             row('item:a', 'Shared Name', 'char:1', 'Goblin', 10),
             row('item:b', 'Shared Name', 'char:2', 'Orc', 20)
         ];
-        const provider = new ItemSearchProvider(rows, [
-            makeEnemy('sp:1', 'Duskenlight', 'Duskenlight', 'char:1', 'Goblin'),
-            makeEnemy('sp:2', 'Braxonian', 'Braxonian', 'char:2', 'Orc')
-        ], [], [], []);
+        const provider = new ItemSearchProvider(
+            rows,
+            [
+                makeEnemy('sp:1', 'Duskenlight', 'Duskenlight', 'char:1', 'Goblin'),
+                makeEnemy('sp:2', 'Braxonian', 'Braxonian', 'char:2', 'Orc')
+            ],
+            [],
+            [],
+            []
+        );
         const entries = provider.buildIndex();
 
         expect(entries).toHaveLength(2);
@@ -302,15 +382,21 @@ describe('ItemSearchProvider', () => {
             row('item:has-spawn', 'Dropped Sword', 'char:spawn', 'Goblin', 10),
             row('item:no-spawn', 'Vendor Only', 'char:none', 'Merchant', 50)
         ];
-        const provider = new ItemSearchProvider(rows, [
-            makeEnemy('sp:1', 'Duskenlight', 'Duskenlight', 'char:spawn', 'Goblin')
-            // No marker for char:none — merchant never spawns on the map
-        ], [], [], []);
+        const provider = new ItemSearchProvider(
+            rows,
+            [
+                makeEnemy('sp:1', 'Duskenlight', 'Duskenlight', 'char:spawn', 'Goblin')
+                // No marker for char:none — merchant never spawns on the map
+            ],
+            [],
+            [],
+            []
+        );
         const entries = provider.buildIndex();
 
         expect(entries).toHaveLength(2);
-        const result = entries.find((entry) =>
-            isItemResult(entry.result) && entry.result.itemStableKey === 'item:no-spawn'
+        const result = entries.find(
+            (entry) => isItemResult(entry.result) && entry.result.itemStableKey === 'item:no-spawn'
         )?.result;
         expect(result).toBeDefined();
         if (result && isItemResult(result)) {
@@ -321,7 +407,12 @@ describe('ItemSearchProvider', () => {
                 miningNodes: 0,
                 fishingSpots: 0,
                 itemBags: 0,
-                worldDrops: 0
+                worldDrops: 0,
+                givers: 0,
+                quests: 0,
+                recipes: 0,
+                itemUses: 0,
+                startingClasses: 0
             });
         }
     });
@@ -343,7 +434,12 @@ describe('ItemSearchProvider', () => {
             miningNodes: 0,
             fishingSpots: 0,
             itemBags: 0,
-            worldDrops: 0
+            worldDrops: 0,
+            givers: 0,
+            quests: 0,
+            recipes: 0,
+            itemUses: 0,
+            startingClasses: 0
         });
     });
 
@@ -364,7 +460,9 @@ describe('ItemSearchProvider', () => {
         expect(result?.sourceCounts.fishingSpots).toBe(1);
         expect(provider.getMarkersForItem('item:fish')).toEqual([water]);
         expect(provider.getSourcesForItem('item:fish')).toHaveLength(2);
-        expect(provider.getSourcesForItem('item:fish').every((source) => source.kind === 'fishing')).toBe(true);
+        expect(
+            provider.getSourcesForItem('item:fish').every((source) => source.kind === 'fishing')
+        ).toBe(true);
     });
 
     it('resolves mining and bag sources by marker key and drops missing markers', () => {
@@ -389,7 +487,12 @@ describe('ItemSearchProvider', () => {
             miningNodes: 1,
             fishingSpots: 0,
             itemBags: 1,
-            worldDrops: 0
+            worldDrops: 0,
+            givers: 0,
+            quests: 0,
+            recipes: 0,
+            itemUses: 0,
+            startingClasses: 0
         });
         expect(provider.getSourcesForItem('item:resources')).toHaveLength(2);
         expect(provider.getSourcesForItem('item:resources').map((source) => source.kind)).toEqual([
@@ -438,7 +541,11 @@ describe('ItemSearchProvider', () => {
         const highlight = provider.resolveHighlight(result);
         expect(highlight).toEqual({
             type: 'positions',
-            positions: [[20, 21], [30, 31], [40, 41]],
+            positions: [
+                [20, 21],
+                [30, 31],
+                [40, 41]
+            ],
             stableKeys: ['mining:1', 'water:1', 'bag:1']
         });
     });
@@ -496,7 +603,12 @@ describe('ItemSearchProvider', () => {
                 miningNodes: 0,
                 fishingSpots: 0,
                 itemBags: 0,
-                worldDrops: 0
+                worldDrops: 0,
+                givers: 0,
+                quests: 0,
+                recipes: 0,
+                itemUses: 0,
+                startingClasses: 0
             },
             zoneCount: 2,
             hasKnownSource: true
@@ -515,10 +627,16 @@ describe('ItemSearchProvider', () => {
             row('item:1', 'Gem', 'char:1', 'Goblin', 5, { encounterTier: 'elite' }),
             row('item:1', 'Gem', 'char:2', 'Orc', 30, { encounterTier: 'boss' })
         ];
-        const provider = new ItemSearchProvider(rows, [
-            makeEnemy('sp:1', 'Duskenlight', 'Duskenlight', 'char:1', 'Goblin'),
-            makeEnemy('sp:2', 'Duskenlight', 'Duskenlight', 'char:2', 'Orc')
-        ], [], [], []);
+        const provider = new ItemSearchProvider(
+            rows,
+            [
+                makeEnemy('sp:1', 'Duskenlight', 'Duskenlight', 'char:1', 'Goblin'),
+                makeEnemy('sp:2', 'Duskenlight', 'Duskenlight', 'char:2', 'Orc')
+            ],
+            [],
+            [],
+            []
+        );
 
         const markers = provider.getMarkersForItem('item:1');
         expect(markers).toHaveLength(2);
@@ -536,9 +654,13 @@ describe('ItemSearchProvider', () => {
 
     it('getResult returns the cached result for URL restore', () => {
         const rows = [row('item:1', 'Gem', 'char:1', 'Goblin', 5)];
-        const provider = new ItemSearchProvider(rows, [
-            makeEnemy('sp:1', 'Duskenlight', 'Duskenlight', 'char:1', 'Goblin')
-        ], [], [], []);
+        const provider = new ItemSearchProvider(
+            rows,
+            [makeEnemy('sp:1', 'Duskenlight', 'Duskenlight', 'char:1', 'Goblin')],
+            [],
+            [],
+            []
+        );
 
         const result = provider.getResult('item:1');
         expect(result).not.toBeNull();
@@ -556,10 +678,16 @@ describe('ItemSearchProvider', () => {
             row('item:1', 'Gem', 'char:e', 'Goblin', 5),
             row('item:1', 'Gem', 'char:n', 'Merchant', 10)
         ];
-        const provider = new ItemSearchProvider(rows, [
-            makeEnemy('sp:1', 'Duskenlight', 'Duskenlight', 'char:e', 'Goblin'),
-            makeNpc('sp:2', 'Braxonian', 'Braxonian', 'char:n', 'Merchant')
-        ], [], [], []);
+        const provider = new ItemSearchProvider(
+            rows,
+            [
+                makeEnemy('sp:1', 'Duskenlight', 'Duskenlight', 'char:e', 'Goblin'),
+                makeNpc('sp:2', 'Braxonian', 'Braxonian', 'char:n', 'Merchant')
+            ],
+            [],
+            [],
+            []
+        );
         const entries = provider.buildIndex();
 
         expect(entries).toHaveLength(1);

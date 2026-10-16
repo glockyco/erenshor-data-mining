@@ -81,9 +81,14 @@ describe('buildMapWorldData', () => {
         expect(data.allItems).toHaveLength(8);
         expect([...new Set(data.itemSources.map((source) => source.kind))].sort()).toEqual([
             'bag',
+            'craft',
+            'dialog',
             'drop',
             'fishing',
+            'item_use',
             'mining',
+            'quest',
+            'starting',
             'vendor',
             'world'
         ]);
